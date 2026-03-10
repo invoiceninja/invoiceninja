@@ -35,7 +35,7 @@
         updated_at:
           description: 'Unixtimestamp the last time the record was updated'
           type: integer
-          example: '343421434'
+          example: 343421434
         expense_id:
           description: 'The expense hashed id'
           type: string

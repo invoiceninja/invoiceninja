@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -100,12 +100,12 @@ class BaseTransformer
 
     public function getInvoiceTypeId($data, $field, $default = '1')
     {
-        return isset($data[$field]) && $data[$field] ? (string)$data[$field] : $default;
+        return isset($data[$field]) && $data[$field] ? (string) $data[$field] : $default;
     }
 
     public function getNumber($data, $field, $default = 0)
     {
-        return (isset($data->$field) && $data->$field) ? (int)$data->$field : $default;
+        return (isset($data->$field) && $data->$field) ? (int) $data->$field : $default;
     }
 
     public function getString($data, $field, $default = '')
@@ -143,7 +143,7 @@ class BaseTransformer
         // if(is_string($frequency)){
         //     $frequency = strtolower(trim($frequency));
         // }
-        
+
         switch ($frequency) {
             case RecurringInvoice::FREQUENCY_DAILY:
             case 'daily':
@@ -159,7 +159,8 @@ class BaseTransformer
                 return RecurringInvoice::FREQUENCY_FOUR_WEEKS;
             case RecurringInvoice::FREQUENCY_MONTHLY:
             case 'monthly':
-                return RecurringInvoice::FREQUENCY_MONTHLY;
+            case 'month':
+                        return RecurringInvoice::FREQUENCY_MONTHLY;
             case RecurringInvoice::FREQUENCY_TWO_MONTHS:
             case 'bimonthly':
                 return RecurringInvoice::FREQUENCY_TWO_MONTHS;
@@ -174,6 +175,9 @@ class BaseTransformer
                 return RecurringInvoice::FREQUENCY_SIX_MONTHS;
             case RecurringInvoice::FREQUENCY_ANNUALLY:
             case 'yearly':
+            case 'annually':
+            case 'annual':
+            case 'year':
                 return RecurringInvoice::FREQUENCY_ANNUALLY;
             case RecurringInvoice::FREQUENCY_TWO_YEARS:
             case '2years':
@@ -194,15 +198,17 @@ class BaseTransformer
             return -1;
         }
 
-        return (int)$remaining_cycles;
+        return (int) $remaining_cycles;
     }
 
     public function getAutoBillFlag(string $option): string
     {
         switch ($option) {
+            case 'no':
             case 'off':
             case 'false':
                 return 'off';
+            case 'yes':
             case 'always':
             case 'true':
                 return 'always';
@@ -259,6 +265,12 @@ class BaseTransformer
             ];
 
             throw new \App\Import\ImportException("Error, you are attempting to import more clients than your plan allows ({$hosted_client_count})");
+        }
+
+        // 2026-03-05: If we don't have a client name or email, we can't create a client.
+        if(empty(trim($client_name ?? '')) && empty(trim($client_email ?? ''))) {
+            nlog("A Client Name or Email is required, none provided! {$client_name}, {$client_email}");
+            throw new \App\Import\ImportException("A Client Name or Email is required, none provided!");
         }
 
         $client_repository = app()->make(ClientRepository::class);
@@ -366,7 +378,7 @@ class BaseTransformer
      */
     public function getFloat($data, $field)
     {
-        
+
         if (array_key_exists($field, $data)) {
 
             if ($this->company->use_comma_as_decimal_place) {

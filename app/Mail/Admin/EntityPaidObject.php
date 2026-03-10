@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -81,16 +81,16 @@ class EntityPaidObject
         $invoice_texts = ctrans('texts.invoice_number_short');
 
         foreach ($this->payment->invoices as $invoice) {
-            $invoice_texts .= $invoice->number.',';
+            $invoice_texts .= $invoice->number . ',';
         }
 
         $invoice_texts = substr($invoice_texts, 0, -1);
         $content = ctrans(
             'texts.notification_payment_paid',
             ['amount' => $amount,
-                    'client' => $this->payment->client->present()->name(),
-                    'invoice' => $invoice_texts,
-                ]
+                'client' => $this->payment->client->present()->name(),
+                'invoice' => $invoice_texts,
+            ]
         );
 
         $data = [

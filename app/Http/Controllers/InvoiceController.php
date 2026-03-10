@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -243,7 +243,7 @@ class InvoiceController extends BaseController
         event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars($user ? $user->id : null)));
 
         Atomic::del($request->lock_key);
-        
+
         return $this->itemResponse($invoice);
     }
 
@@ -412,14 +412,13 @@ class InvoiceController extends BaseController
             return $request->disallowUpdate();
         }
 
-        if(($invoice->isLocked() || $invoice->company->verifactuEnabled()) && $request->input('paid') == 'true'){
+        if (($invoice->isLocked() || $invoice->company->verifactuEnabled()) && $request->input('paid') == 'true') {
 
             $invoice->service()
                     ->triggeredActions($request);
 
             return $this->itemResponse($invoice->fresh());
-        }
-        elseif ($invoice->isLocked()) {
+        } elseif ($invoice->isLocked()) {
             return response()->json(['message' => '', 'errors' => ['number' => ctrans('texts.locked_invoice')]], 422);
         }
 
@@ -589,7 +588,7 @@ class InvoiceController extends BaseController
             }, 'print.pdf', [
                 'Content-Type' => 'application/pdf',
                 'Cache-Control:' => 'no-cache',
-                'Server-Timing' => (string)(microtime(true) - $start)
+                'Server-Timing' => (string) (microtime(true) - $start),
             ]);
         }
 
@@ -871,7 +870,7 @@ class InvoiceController extends BaseController
 
         App::setLocale($invitation->contact->preferredLocale());
 
-        $file_name = $invoice->numberFormatter().'.pdf';
+        $file_name = $invoice->numberFormatter() . '.pdf';
 
         $file = (new \App\Jobs\Entity\CreateRawPdf($invitation))->handle();
 
@@ -1088,7 +1087,7 @@ class InvoiceController extends BaseController
     public function paymentSchedule(PaymentScheduleRequest $request, Invoice $invoice)
     {
         $repo = new SchedulerRepository();
-        
+
         $repo->save($request->all(), SchedulerFactory::create($invoice->company_id, auth()->user()->id));
 
         return $this->itemResponse($invoice->fresh());
@@ -1104,7 +1103,7 @@ class InvoiceController extends BaseController
                                 ->where('parameters->invoice_id', $invoice->hashed_id)
                                 ->first();
 
-        if($scheduler) {
+        if ($scheduler) {
             $scheduler->forceDelete();
         }
 

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -46,9 +46,7 @@ class SendEDocument implements ShouldQueue
 
     public $deleteWhenMissingModels = true;
 
-    public function __construct(private string $entity, private int $id, private string $db)
-    {
-    }
+    public function __construct(private string $entity, private int $id, private string $db) {}
 
     public function backoff()
     {
@@ -59,13 +57,18 @@ class SendEDocument implements ShouldQueue
     {
         MultiDB::setDB($this->db);
 
-        nlog("trying");
+        nlog("trying to send {$this->entity} {$this->id} on {$this->db}");
 
         $model = $this->entity::withTrashed()->find($this->id);
 
+        if(!$model){
+            nlog("model not found");
+            return; // Model not found.
+        }
+
         if (isset($model->backup->guid) && is_string($model->backup->guid) && strlen($model->backup->guid) > 3) {
             nlog("already sent!");
-            return;
+            return; //Do not double send.
         }
 
         if ($model->company->account->is_flagged) {
@@ -104,7 +107,7 @@ class SendEDocument implements ShouldQueue
         if (Ninja::isSelfHost() && ($model instanceof Invoice || $model instanceof Credit) && $model->company->peppolSendingEnabled()) {
 
             $r = Http::withHeaders([...$this->getHeaders(), 'X-EInvoice-Token' => $model->company->account->e_invoicing_token])
-                ->post(config('ninja.hosted_ninja_url')."/api/einvoice/submission", $payload);
+                ->post(config('ninja.hosted_ninja_url') . "/api/einvoice/submission", $payload);
 
             if ($r->successful()) {
 
@@ -266,6 +269,6 @@ class SendEDocument implements ShouldQueue
 
     public function middleware()
     {
-        return [(new WithoutOverlapping($this->entity.$this->id.$this->db))->releaseAfter(60)->expireAfter(60)];
+        return [(new WithoutOverlapping($this->entity . $this->id . $this->db))->releaseAfter(60)->expireAfter(60)];
     }
 }

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -36,21 +36,21 @@ class PaymentFilters extends QueryFilters
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('amount', 'like', '%'.$filter.'%')
-                          ->orWhere('date', 'like', '%'.$filter.'%')
-                          ->orWhere('number', 'like', '%'.$filter.'%')
-                          ->orWhere('transaction_reference', 'like', '%'.$filter.'%')
-                          ->orWhere('custom_value1', 'like', '%'.$filter.'%')
-                          ->orWhere('custom_value2', 'like', '%'.$filter.'%')
-                          ->orWhere('custom_value3', 'like', '%'.$filter.'%')
-                          ->orWhere('custom_value4', 'like', '%'.$filter.'%')
+            $query->where('amount', 'like', '%' . $filter . '%')
+                          ->orWhere('date', 'like', '%' . $filter . '%')
+                          ->orWhere('number', 'like', '%' . $filter . '%')
+                          ->orWhere('transaction_reference', 'like', '%' . $filter . '%')
+                          ->orWhere('custom_value1', 'like', '%' . $filter . '%')
+                          ->orWhere('custom_value2', 'like', '%' . $filter . '%')
+                          ->orWhere('custom_value3', 'like', '%' . $filter . '%')
+                          ->orWhere('custom_value4', 'like', '%' . $filter . '%')
                           ->orWhereHas('client', function ($q) use ($filter) {
-                              $q->where('name', 'like', '%'.$filter.'%');
+                              $q->where('name', 'like', '%' . $filter . '%');
                           })
                             ->orWhereHas('client.contacts', function ($q) use ($filter) {
-                                $q->where('first_name', 'like', '%'.$filter.'%')
-                                  ->orWhere('last_name', 'like', '%'.$filter.'%')
-                                  ->orWhere('email', 'like', '%'.$filter.'%');
+                                $q->where('first_name', 'like', '%' . $filter . '%')
+                                  ->orWhere('last_name', 'like', '%' . $filter . '%')
+                                  ->orWhere('email', 'like', '%' . $filter . '%');
                             });
         });
     }
@@ -172,7 +172,7 @@ class PaymentFilters extends QueryFilters
         $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
 
         if ($sort_col[0] == 'client_id') {
-            return $this->builder->orderByRaw('ISNULL(client_id), client_id '. $dir)
+            return $this->builder->orderByRaw('ISNULL(client_id), client_id ' . $dir)
                     ->orderBy(\App\Models\Client::select('name')
                     ->whereColumn('clients.id', 'payments.client_id'), $dir);
         }
@@ -184,15 +184,18 @@ class PaymentFilters extends QueryFilters
         return $this->builder->orderBy($sort_col[0], $dir);
     }
 
+    /**
+     * date_range
+     *
+     * only filters on date
+     * @param  string $date_range
+     * @return Builder
+     */
     public function date_range(string $date_range = ''): Builder
     {
         $parts = explode(",", $date_range);
 
-        if (count($parts) != 3) {
-            return $this->builder;
-        }
-
-        if (!in_array($parts[0], ['date'])) {
+        if (!isset($parts[2])) {
             return $this->builder;
         }
 
@@ -201,7 +204,8 @@ class PaymentFilters extends QueryFilters
             $start_date = Carbon::parse($parts[1]);
             $end_date = Carbon::parse($parts[2]);
 
-            return $this->builder->whereBetween($parts[0], [$start_date, $end_date]);
+
+            return $this->builder->whereBetween('date', [$start_date, $end_date]);
         } catch (\Exception $e) {
             return $this->builder;
         }

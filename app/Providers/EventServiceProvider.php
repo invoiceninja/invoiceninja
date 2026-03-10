@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -40,6 +40,7 @@ use App\Events\User\UserLoggedIn;
 use App\Observers\ClientObserver;
 use App\Observers\CreditObserver;
 use App\Observers\VendorObserver;
+use App\Events\User\UserWasPurged;
 use App\Observers\AccountObserver;
 use App\Observers\CompanyObserver;
 use App\Observers\ExpenseObserver;
@@ -132,6 +133,7 @@ use App\Events\Invoice\InvoiceWasReversed;
 use App\Events\Payment\PaymentWasArchived;
 use App\Events\Payment\PaymentWasRefunded;
 use App\Events\Payment\PaymentWasRestored;
+use App\Listeners\User\PurgedUserActivity;
 use Illuminate\Mail\Events\MessageSending;
 use App\Events\Document\DocumentWasCreated;
 use App\Events\Document\DocumentWasDeleted;
@@ -354,6 +356,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         UserWasRestored::class => [
             RestoredUserActivity::class,
+        ],
+        UserWasPurged::class => [
+            PurgedUserActivity::class,
         ],
         ContactLoggedIn::class => [
             UpdateContactLastLogin::class,
@@ -703,8 +708,8 @@ class EventServiceProvider extends ServiceProvider
         ],
         \SocialiteProviders\Manager\SocialiteWasCalled::class => [
             // ... Manager won't register drivers that are not added to this listener.
-            \SocialiteProviders\Apple\AppleExtendSocialite::class.'@handle',
-            \SocialiteProviders\Microsoft\MicrosoftExtendSocialite::class.'@handle',
+            \SocialiteProviders\Apple\AppleExtendSocialite::class . '@handle',
+            \SocialiteProviders\Microsoft\MicrosoftExtendSocialite::class . '@handle',
         ],
 
     ];

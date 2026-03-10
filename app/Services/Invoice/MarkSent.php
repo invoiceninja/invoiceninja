@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -21,9 +21,7 @@ use App\Utils\Ninja;
 
 class MarkSent extends AbstractService
 {
-    public function __construct(public Client $client, public Invoice $invoice)
-    {
-    }
+    public function __construct(public Client $client, public Invoice $invoice) {}
 
     public function run($fire_webhook = false)
     {
@@ -62,6 +60,11 @@ class MarkSent extends AbstractService
         if ($fire_webhook) {
             event('eloquent.updated: App\Models\Invoice', $this->invoice);
             $this->invoice->sendEvent(Webhook::EVENT_SENT_INVOICE, "client");
+        }
+
+        if($this->invoice->company->quickbooks && $this->invoice->company->shouldPushToQuickbooks('invoice')) {
+            // Guard handled inside QuickbooksBatchCollector::collect() — skips if importing
+            \App\Services\Quickbooks\QuickbooksBatchCollector::collect('invoice', $this->invoice->id, $this->invoice->company->db, $this->invoice->company_id);
         }
 
         return $this->invoice->fresh();

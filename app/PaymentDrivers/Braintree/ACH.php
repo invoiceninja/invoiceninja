@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -95,7 +95,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
                     $this->braintree->payment_hash = PaymentHash::where('hash', $request->payment_hash)->firstOrFail();
 
                     $data = [
-                        'invoices' => collect($this->braintree->payment_hash->data->invoices)->map(fn ($invoice) => $invoice->invoice_id)->toArray(),
+                        'invoices' => collect($this->braintree->payment_hash->data->invoices)->map(fn($invoice) => $invoice->invoice_id)->toArray(),
                         'action' => 'payment',
                     ];
 
@@ -113,7 +113,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
                 return $this->braintree->processInternallyFailedPayment($this->braintree, $e);
             }
         }
-        
+
         if ($result instanceof \Braintree\Result\Error && $result->message) {
             session()->flash('ach_error', $result->message);
             return back()->withInput();
@@ -151,7 +151,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
         $invoice = $this->braintree->payment_hash->fee_invoice;
         $po_number = $invoice->po_number ?? $invoice->number ?? '';
 
-        $result = $this->braintree->gateway->transaction()->sale([
+        $data = [
             'amount' => $this->braintree->payment_hash->data->amount_with_fee,
             'paymentMethodToken' => $token->token,
             'channel' => 'invoiceninja_BT',
@@ -160,7 +160,11 @@ class ACH implements MethodInterface, LivewireMethodInterface
             ],
             'taxAmount' => $total_taxes,
             'purchaseOrderNumber' => substr($po_number, 0, 16),
-        ]);
+        ];
+
+        $data = array_merge($data, $this->braintree->getLevel23Data($this->braintree->payment_hash));
+
+        $result = $this->braintree->gateway->transaction()->sale($data);
 
         if ($result->success) {
             $this->braintree->logSuccessfulGatewayResponse(['response' => $request->server_response, 'data' => $this->braintree->payment_hash->data], SystemLog::TYPE_BRAINTREE);

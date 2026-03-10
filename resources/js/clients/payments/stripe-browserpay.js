@@ -40,11 +40,18 @@ class StripeBrowserPay {
     }
 
     createPaymentRequest() {
-        this.paymentRequest = this.stripe.paymentRequest(
-            JSON.parse(
-                document.querySelector('meta[name=payment-request-data').content
-            )
-        );
+        try {
+            this.paymentRequest = this.stripe.paymentRequest(
+                JSON.parse(
+                    document.querySelector('meta[name=payment-request-data').content
+                )
+            );
+        } catch (e) {
+            document.querySelector('#errors').innerText = e.message;
+            document.querySelector('#errors').hidden = false;
+
+            throw e;
+        }
 
         return this;
     }
@@ -123,7 +130,11 @@ class StripeBrowserPay {
     }
 
     handle() {
-        this.init().createPaymentRequest().createPaymentRequestButton();
+        try {
+            this.init().createPaymentRequest().createPaymentRequestButton();
+        } catch (e) {
+            return;
+        }
 
         this.paymentRequest.canMakePayment().then((result) => {
             if (result) {

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -34,11 +34,12 @@ class InvoiceTransactionEventEntryCash
     public function run($invoice, $start_date, $end_date)
     {
 
-        if(!$invoice)
+        if (!$invoice) {
             return;
-        
+        }
+
         $this->setPaidRatio($invoice);
-        
+
         $this->payments = $invoice->payments->flatMap(function ($payment) use ($start_date, $end_date) {
             return $payment->invoices()->get()->map(function ($invoice) use ($payment) {
                 return [
@@ -61,7 +62,7 @@ class InvoiceTransactionEventEntryCash
             'client_paid_to_date' => $invoice->client->paid_to_date,
             'client_credit_balance' => $invoice->client->credit_balance,
             'invoice_balance' => $invoice->balance ?? 0,
-            'invoice_amount' => $invoice->amount ?? 0  ,
+            'invoice_amount' => $invoice->amount ?? 0,
             'invoice_partial' => $invoice->partial ?? 0,
             'invoice_paid_to_date' => $invoice->paid_to_date ?? 0,
             'invoice_status' => $invoice->is_deleted ? 7 : $invoice->status_id,
@@ -108,7 +109,7 @@ class InvoiceTransactionEventEntryCash
             ];
             $details[] = $tax_detail;
         }
-        
+
         return new TransactionEventMetadata([
             'tax_report' => [
                 'tax_details' => $details,

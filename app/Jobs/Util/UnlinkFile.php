@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -26,9 +26,7 @@ class UnlinkFile implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public function __construct(protected string $disk = '', protected ?string $file_path = '')
-    {
-    }
+    public function __construct(protected string $disk = '', protected ?string $file_path = '') {}
 
     /**
      * Execute the job.

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -42,12 +42,12 @@ class UpdateBankTransactionRequest extends Request
         }
 
         if (isset($this->vendor_id)) {
-            $rules['vendor_id'] = 'bail|required|exists:vendors,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+            $rules['vendor_id'] = 'bail|required|exists:vendors,id,company_id,' . auth()->user()->company()->id . ',is_deleted,0';
         }
 
         $rules['amount'] = ['sometimes', 'bail', 'nullable', 'numeric', 'max:99999999999999'];
 
-        $rules['bank_integration_id'] = 'bail|required|exists:bank_integrations,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+        $rules['bank_integration_id'] = 'bail|required|exists:bank_integrations,id,company_id,' . auth()->user()->company()->id . ',is_deleted,0';
 
 
         return $rules;

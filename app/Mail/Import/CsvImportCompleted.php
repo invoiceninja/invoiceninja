@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -64,22 +64,22 @@ class CsvImportCompleted extends Mailable
             'logo' => $this->company->present()->logo(),
             'settings' => $this->company->settings,
             'company' => $this->company,
-            'client_count' => isset($this->data['entity_count']['clients']) ? $this->data['entity_count']['clients'] : false,
-            'product_count' => isset($this->data['entity_count']['products']) ? $this->data['entity_count']['products'] : false,
-            'invoice_count' => isset($this->data['entity_count']['invoices']) ? $this->data['entity_count']['invoices'] : false,
-            'quote_count' => isset($this->data['entity_count']['quotes']) ? $this->data['entity_count']['quotes'] : false,
-            'credit_count' => isset($this->data['entity_count']['credits']) ? $this->data['entity_count']['credits'] : false,
-            'project_count' => isset($this->data['entity_count']['projects']) ? $this->data['entity_count']['projects'] : false,
-            'task_count' => isset($this->data['entity_count']['tasks']) ? $this->data['entity_count']['tasks'] : false,
-            'vendor_count' => isset($this->data['entity_count']['vendors']) ? $this->data['entity_count']['vendors'] : false,
-            'payment_count' => isset($this->data['entity_count']['payments']) ? $this->data['entity_count']['payments'] : false,
-            'recurring_invoice_count' => isset($this->data['entity_count']['recurring_invoices']) ? $this->data['entity_count']['recurring_invoices'] : false,
-            'expense_count' => isset($this->data['entity_count']['expenses']) ? $this->data['entity_count']['expenses'] : false,
-            'company_gateway_count' => isset($this->data['entity_count']['company_gateways']) ? $this->data['entity_count']['company_gateways'] : false,
-            'client_gateway_token_count' => isset($this->data['entity_count']['client_gateway_tokens']) ? $this->data['entity_count']['client_gateway_tokens'] : false,
-            'tax_rate_count' => isset($this->data['entity_count']['tax_rates']) ? $this->data['entity_count']['tax_rates'] : false,
-            'document_count' => isset($this->data['entity_count']['documents']) ? $this->data['entity_count']['documents'] : false,
-            'transaction_count' => isset($this->data['entity_count']['transactions']) ? $this->data['entity_count']['transactions'] : false,
+            'client_count' => $this->data['entity_count']['clients'] ?? false,
+            'product_count' => $this->data['entity_count']['products'] ?? false,
+            'invoice_count' => $this->data['entity_count']['invoices'] ?? false,
+            'quote_count' => $this->data['entity_count']['quotes'] ?? false,
+            'credit_count' => $this->data['entity_count']['credits'] ?? false,
+            'project_count' => $this->data['entity_count']['projects'] ?? false,
+            'task_count' => $this->data['entity_count']['tasks'] ?? false,
+            'vendor_count' => $this->data['entity_count']['vendors'] ?? false,
+            'payment_count' => $this->data['entity_count']['payments'] ?? false,
+            'recurring_invoice_count' => $this->data['entity_count']['recurring_invoices'] ?? false,
+            'expense_count' => $this->data['entity_count']['expenses'] ?? false,
+            'company_gateway_count' => $this->data['entity_count']['company_gateways'] ?? false,
+            'client_gateway_token_count' => $this->data['entity_count']['client_gateway_tokens'] ?? false,
+            'tax_rate_count' => $this->data['entity_count']['tax_rates'] ?? false,
+            'document_count' => $this->data['entity_count']['documents'] ?? false,
+            'transaction_count' => $this->data['entity_count']['transactions'] ?? false,
         ]);
 
         return $this

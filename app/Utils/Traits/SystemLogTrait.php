@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -20,7 +20,7 @@ use App\Models\SystemLog;
  */
 trait SystemLogTrait
 {
-    public function sysLog($log, $category_id = SystemLog::CATEGORY_GATEWAY_RESPONSE, $event_id = SystemLog::EVENT_GATEWAY_FAILURE, Client $client = null)
+    public function sysLog($log, $category_id = SystemLog::CATEGORY_GATEWAY_RESPONSE, $event_id = SystemLog::EVENT_GATEWAY_FAILURE, ?Client $client = null)
     {
         if ($client != null) {
             $this->client = $client;

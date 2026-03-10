@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -54,7 +54,7 @@ class CreateCompany
     {
         $settings = CompanySettings::defaults();
 
-        $settings->name = isset($this->request['name']) ? $this->request['name'] : '';
+        $settings->name = $this->request['name'] ?? '';
 
         if ($country_id = $this->resolveCountry()) {
             $settings->country_id = $country_id;
@@ -67,7 +67,7 @@ class CreateCompany
         $company->settings = $settings;
         $company->db = config('database.default');
         $company->enabled_modules = config('ninja.enabled_modules');
-        $company->subdomain = isset($this->request['subdomain']) ? $this->request['subdomain'] : MultiDB::randomSubdomainGenerator();
+        $company->subdomain = $this->request['subdomain'] ?? MultiDB::randomSubdomainGenerator();
         $company->custom_fields = new \stdClass();
         $company->default_password_timeout = 1800000;
         $company->client_registration_fields = ClientRegistrationFields::generate();
@@ -82,7 +82,7 @@ class CreateCompany
         }
 
         /** Location Specific Configuration */
-        match($settings->country_id) {
+        match ($settings->country_id) {
             '724' => $company = $this->spanishSetup($company),
             '36'  => $company = $this->australiaSetup($company),
             '710' => $company = $this->southAfticaSetup($company),
@@ -109,7 +109,7 @@ class CreateCompany
                 $c = Country::query()->where('iso_3166_2', request()->header('cf-ipcountry'))->first();
 
                 if ($c) {
-                    return (string)$c->id;
+                    return (string) $c->id;
                 }
 
             }
@@ -121,7 +121,7 @@ class CreateCompany
                 $c = Country::query()->where('iso_3166_2', $details->countryCode)->first();
 
                 if ($c) {
-                    return (string)$c->id;
+                    return (string) $c->id;
                 }
 
             }
@@ -169,7 +169,7 @@ class CreateCompany
             $settings->currency_id = '3';
             $settings->timezone_id = '42';
             $settings->lock_invoices = 'when_sent';
-            
+
             $company->settings = $settings;
 
             $company->save();
@@ -240,7 +240,7 @@ class CreateCompany
             $company->settings = $settings;
 
             $company->save();
-            
+
             return $company;
 
         } catch (\Exception $e) {

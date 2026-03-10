@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -100,11 +100,11 @@ class PaymentIntentFailureWebhook implements ShouldQueue
                         'invoice' => implode(',', $payment->invoices->pluck('number')->toArray()),
                         'amount' => array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total, ]);
                 } else {
-                    $error = 'Payment for '.$payment->client->present()->name()." for {$payment->amount} failed";
+                    $error = 'Payment for ' . $payment->client->present()->name() . " for {$payment->amount} failed";
                 }
 
                 if (array_key_exists('failure_message', $transaction)) {
-                    $error .= "\n\n".$transaction['failure_message'];
+                    $error .= "\n\n" . $transaction['failure_message'];
                 }
 
                 PaymentFailedMailer::dispatch(

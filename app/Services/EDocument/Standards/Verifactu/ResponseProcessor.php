@@ -36,18 +36,18 @@ class ResponseProcessor
                 'data' => $this->getResponseData(),
                 'metadata' => $this->getMetadata(),
                 'guid' => $this->getGuid(),
-                'raw_response' => $xmlResponse
+                'raw_response' => $xmlResponse,
             ];
         } catch (Exception $e) {
             Log::error('Error processing AEAT response', [
                 'error' => $e->getMessage(),
-                'xml' => $xmlResponse
+                'xml' => $xmlResponse,
             ]);
 
             return [
                 'success' => false,
                 'error' => 'Failed to process response: ' . $e->getMessage(),
-                'raw_response' => $xmlResponse
+                'raw_response' => $xmlResponse,
             ];
         }
     }
@@ -105,7 +105,7 @@ class ResponseProcessor
                 'type' => 'SOAP_Fault',
                 'code' => $this->getElementText('//env:Fault/faultcode'),
                 'message' => $fault,
-                'details' => $this->getElementText('//env:Fault/detail/callstack')
+                'details' => $this->getElementText('//env:Fault/detail/callstack'),
             ];
         }
 
@@ -123,7 +123,7 @@ class ResponseProcessor
                     'type' => 'Business_Error',
                     'code' => $this->getElementText('.//tikR:CodigoErrorRegistro', $linea),
                     'message' => $this->getElementText('.//tikR:DescripcionErrorRegistro', $linea),
-                    'invoice_data' => $this->getInvoiceData($linea)
+                    'invoice_data' => $this->getInvoiceData($linea),
                 ];
             }
         }
@@ -143,7 +143,7 @@ class ResponseProcessor
         if ($subsanacion) {
             $warnings[] = [
                 'type' => 'Subsanacion',
-                'message' => $subsanacion
+                'message' => $subsanacion,
             ];
         }
 
@@ -163,15 +163,15 @@ class ResponseProcessor
             $data['header'] = [
                 'obligado_emision' => [
                     'nombre_razon' => $this->getElementText('.//tik:NombreRazon', $cabecera),
-                    'nif' => $this->getElementText('.//tik:NIF', $cabecera)
-                ]
+                    'nif' => $this->getElementText('.//tik:NIF', $cabecera),
+                ],
             ];
         }
 
         // Get processing information
         $data['processing'] = [
             'tiempo_espera_envio' => $this->getElementText('//tikR:TiempoEsperaEnvio'),
-            'estado_envio' => $this->getElementText('//tikR:EstadoEnvio')
+            'estado_envio' => $this->getElementText('//tikR:EstadoEnvio'),
         ];
 
         // Get invoice responses
@@ -190,7 +190,7 @@ class ResponseProcessor
             'invoice_series' => $this->getElementText('//tikR:RespuestaLinea/tikR:IDFactura/tik:NumSerieFactura'),
             'invoice_date' => $this->getElementText('//tikR:RespuestaLinea/tikR:IDFactura/tik:FechaExpedicionFactura'),
             'operation_type' => $this->getElementText('//tikR:RespuestaLinea/tikR:Operacion/tik:TipoOperacion'),
-            'external_reference' => $this->getElementText('//tikR:RespuestaLinea/tikR:RefExterna')
+            'external_reference' => $this->getElementText('//tikR:RespuestaLinea/tikR:RefExterna'),
         ];
     }
 
@@ -216,7 +216,7 @@ class ResponseProcessor
                 'estado_registro' => $this->getElementText('.//tikR:EstadoRegistro', $linea),
                 'codigo_error' => $this->getElementText('.//tikR:CodigoErrorRegistro', $linea),
                 'descripcion_error' => $this->getElementText('.//tikR:DescripcionErrorRegistro', $linea),
-                'subsanacion' => $this->getElementText('.//tikR:Subsanacion', $linea)
+                'subsanacion' => $this->getElementText('.//tikR:Subsanacion', $linea),
             ];
         }
 
@@ -233,7 +233,7 @@ class ResponseProcessor
             'num_serie' => $this->getElementText('.//tikR:IDFactura/tik:NumSerieFactura', $linea),
             'fecha_expedicion' => $this->getElementText('.//tikR:IDFactura/tik:FechaExpedicionFactura', $linea),
             'tipo_operacion' => $this->getElementText('.//tikR:Operacion/tik:TipoOperacion', $linea),
-            'ref_externa' => $this->getElementText('.//tikR:RefExterna', $linea)
+            'ref_externa' => $this->getElementText('.//tikR:RefExterna', $linea),
         ];
     }
 
@@ -334,7 +334,7 @@ class ResponseProcessor
             'warning_count' => count($this->getWarnings()),
             'invoice_count' => count($this->getInvoiceResponses()),
             'first_error' => $this->getFirstError(),
-            'error_codes' => $this->getErrorCodes()
+            'error_codes' => $this->getErrorCodes(),
         ];
     }
 }

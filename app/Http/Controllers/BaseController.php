@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -105,58 +105,58 @@ class BaseController extends Controller
      * An array of includes to be loaded by default.
      */
     private $first_load = [
-          'account',
-          'user.company_user',
-          'token.company_user',
-          'company.activities',
-          'company.designs.company',
-          'company.task_statuses',
-          'company.expense_categories',
-          'company.documents',
-          'company.users.company_user',
-          'company.clients.contacts.company',
-          'company.clients.gateway_tokens',
-          'company.clients.documents',
-          'company.company_gateways.gateway',
-          'company.credits.invitations.contact',
-          'company.credits.invitations.company',
-          'company.credits.documents',
-          'company.expenses.documents',
-          'company.groups.documents',
-          'company.invoices.invitations.contact',
-          'company.invoices.invitations.company',
-          'company.purchase_orders.invitations',
-          'company.invoices.documents',
-          'company.products',
-          'company.products.documents',
-          'company.payments.paymentables',
-          'company.payments.documents',
-          'company.purchase_orders.documents',
-          'company.payment_terms.company',
-          'company.projects.documents',
-          'company.recurring_expenses',
-          'company.recurring_invoices',
-          'company.recurring_invoices.invitations.contact',
-          'company.recurring_invoices.invitations.company',
-          'company.recurring_invoices.documents',
-          'company.quotes.invitations.contact',
-          'company.quotes.invitations.company',
-          'company.quotes.documents',
-          'company.tasks.documents',
+        'account',
+        'user.company_user',
+        'token.company_user',
+        'company.activities',
+        'company.designs.company',
+        'company.task_statuses',
+        'company.expense_categories',
+        'company.documents',
+        'company.users.company_user',
+        'company.clients.contacts.company',
+        'company.clients.gateway_tokens',
+        'company.clients.documents',
+        'company.company_gateways.gateway',
+        'company.credits.invitations.contact',
+        'company.credits.invitations.company',
+        'company.credits.documents',
+        'company.expenses.documents',
+        'company.groups.documents',
+        'company.invoices.invitations.contact',
+        'company.invoices.invitations.company',
+        'company.purchase_orders.invitations',
+        'company.invoices.documents',
+        'company.products',
+        'company.products.documents',
+        'company.payments.paymentables',
+        'company.payments.documents',
+        'company.purchase_orders.documents',
+        'company.payment_terms.company',
+        'company.projects.documents',
+        'company.recurring_expenses',
+        'company.recurring_invoices',
+        'company.recurring_invoices.invitations.contact',
+        'company.recurring_invoices.invitations.company',
+        'company.recurring_invoices.documents',
+        'company.quotes.invitations.contact',
+        'company.quotes.invitations.company',
+        'company.quotes.documents',
+        'company.tasks.documents',
         //   'company.tasks.project',
-          'company.subscriptions',
-          'company.tax_rates',
-          'company.tokens_hashed',
-          'company.vendors.contacts.company',
-          'company.vendors.documents',
-          'company.webhooks',
-          'company.system_logs',
-          'company.bank_integrations',
-          'company.bank_transactions',
-          'company.bank_transaction_rules',
-          'company.task_schedulers',
-          'company.locations',
-        ];
+        'company.subscriptions',
+        'company.tax_rates',
+        'company.tokens_hashed',
+        'company.vendors.contacts.company',
+        'company.vendors.documents',
+        'company.webhooks',
+        'company.system_logs',
+        'company.bank_integrations',
+        'company.bank_transactions',
+        'company.bank_transaction_rules',
+        'company.task_schedulers',
+        'company.locations',
+    ];
 
     /**
      * An array of includes to be loaded by default
@@ -206,7 +206,10 @@ class BaseController extends Controller
         if (request()->has('first_load') && request()->input('first_load') == 'true') {
             $include = implode(',', array_merge($this->forced_includes, $this->getRequestIncludes([])));
         } elseif (request()->input('include') !== null) {
-            $include = array_merge($this->forced_includes, explode(',', request()->input('include')));
+            // Validate includes using getRequestIncludes to filter out invalid ones
+            $requestedIncludes = explode(',', request()->input('include'));
+            $validatedIncludes = $this->getRequestIncludes([]);
+            $include = array_merge($this->forced_includes, $validatedIncludes);
             $include = implode(',', $include);
         } elseif (count($this->forced_includes) >= 1) {
             $include = implode(',', $this->forced_includes);
@@ -305,12 +308,12 @@ class BaseController extends Controller
      */
     protected function refreshReactResponse($query)
     {
-        $this->manager->parseIncludes([        
-                'account',
-                'user.company_user',
-                'token',
-                'company.tax_rates',
-            ]);
+        $this->manager->parseIncludes([
+            'account',
+            'user.company_user',
+            'token',
+            'company.tax_rates',
+        ]);
 
         $this->serializer = request()->input('serializer') ?: EntityTransformer::API_SERIALIZER_ARRAY;
 
@@ -600,7 +603,7 @@ class BaseController extends Controller
     private function resolveQueryLimit(): int
     {
         if (request()->has('per_page')) {
-            return min(abs((int)request()->input('per_page', 20)), 5000);
+            return min(abs((int) request()->input('per_page', 20)), 5000);
         }
 
         return 20;
@@ -691,7 +694,7 @@ class BaseController extends Controller
             $resource = new Collection($query, $transformer, $this->entity_type);
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
         }
-        
+
         return $this->response($this->manager->createData($resource)->toArray());
     }
 
@@ -707,14 +710,15 @@ class BaseController extends Controller
         $user = auth()->user();
 
         /** React does not require bloated login response. */
-        if(request()->hasHeader('X-React')){
+        if (request()->hasHeader('X-React')) {
             $this->manager->parseIncludes(
-            [
-                'account',
-                'user.company_user',
-                'token',
-                'company',
-            ]);
+                [
+                    'account',
+                    'user.company_user',
+                    'token',
+                    'company',
+                ]
+            );
 
             // Set created_at to current time to filter out all existing related records
             // (designs, documents, groups, etc.) for a minimal response payload
@@ -723,8 +727,7 @@ class BaseController extends Controller
             //2026-01-23: Improve Login Performance for react.
             return $this->refreshReactResponse($query);
             // return $this->miniLoadResponse($query);
-        } 
-        elseif ($user->getCompany()->is_large) {
+        } elseif ($user->getCompany()->is_large) {
             $this->manager->parseIncludes($this->mini_load);
 
             return $this->miniLoadResponse($query);
@@ -973,13 +976,14 @@ class BaseController extends Controller
 
         $includes = $transformer->getDefaultIncludes();
 
-        $includes = $this->getRequestIncludes($includes);
+        // Pass transformer instance to avoid duplicate instantiation
+        $includes = $this->getRequestIncludes($includes, $transformer);
 
         $query->with($includes);
 
         $user = Auth::user();
 
-        if ($user && ! $user->hasPermission('view_'.Str::snake(class_basename($this->entity_type)))) {
+        if ($user && ! $user->hasPermission('view_' . Str::snake(class_basename($this->entity_type)))) {
             if (in_array($this->entity_type, [User::class])) {
                 $query->where('id', $user->id);
             } elseif (in_array($this->entity_type, [BankTransactionRule::class,CompanyGateway::class, TaxRate::class, BankIntegration::class, Scheduler::class, BankTransaction::class, Webhook::class, ExpenseCategory::class])) { //table without assigned_user_id
@@ -1039,7 +1043,7 @@ class BaseController extends Controller
         if ($index == 'none') {
             unset($response['meta']);
         } else {
-            $meta = isset($response['meta']) ? $response['meta'] : null;
+            $meta = $response['meta'] ?? null;
             $response = [
                 $index => $response,
             ];
@@ -1126,7 +1130,14 @@ class BaseController extends Controller
      * @param  mixed $data
      * @return array
      */
-    protected function getRequestIncludes($data): array
+    /**
+     * Returns the parsed relationship includes
+     *
+     * @param  mixed $data
+     * @param  EntityTransformer|null $transformer Optional transformer instance to avoid duplicate instantiation
+     * @return array
+     */
+    protected function getRequestIncludes($data, ?EntityTransformer $transformer = null): array
     {
         /*
          * Thresholds for displaying large account on first load
@@ -1141,14 +1152,64 @@ class BaseController extends Controller
             } else {
                 $data = $this->first_load;
             }
+            
         } else {
             $included = request()->input('include') ?? '';
+            
+            // Early return if no includes requested
+            if (empty($included)) {
+                return $data;
+            }
+            
             $included = explode(',', $included);
 
+            // Get valid includes from transformer
+            // Use provided transformer or instantiate if needed (for buildManager context)
+            if ($transformer === null && !empty($this->entity_transformer) && class_exists($this->entity_transformer)) {
+                try {
+                    $transformer = new $this->entity_transformer(request()->input('serializer'));
+                } catch (\Exception $e) {
+                    // If transformer instantiation fails, skip validation and return data as-is
+                    // This maintains backward compatibility for edge cases
+                    return $data;
+                }
+            }
+
+            // Only validate if we have a transformer instance
+            $validIncludes = [];
+            if ($transformer !== null) {
+                $validIncludes = array_merge(
+                    $transformer->getDefaultIncludes() ?? [],
+                    $transformer->getAvailableIncludes() ?? []
+                );
+            }
+
             foreach ($included as $include) {
+                $include = trim($include);
+                
+                if (empty($include)) {
+                    continue;
+                }
+
+                // Special case: clients -> clients.contacts (legacy support)
                 if ($include == 'clients') {
                     $data[] = 'clients.contacts';
-                } elseif ($include) {
+                    continue;
+                }
+
+                // If we have a transformer, validate the include
+                if (!empty($validIncludes)) {
+                    // For nested includes (e.g., "client.group_settings"), extract the base relationship
+                    $baseInclude = explode('.', $include)[0];
+                    
+                    // Validate that the base relationship is in the transformer's available includes
+                    if (in_array($baseInclude, $validIncludes)) {
+                        $data[] = $include;
+                    }
+                    // Invalid includes like 'deleted' are silently ignored
+                } else {
+                    // No transformer available (e.g., in buildManager context), allow all includes
+                    // This maintains backward compatibility
                     $data[] = $include;
                 }
             }

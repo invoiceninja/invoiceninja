@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -71,6 +71,7 @@ class TemplateMock
         $this->engines['projects'] = json_decode($this->project_data, true);
         $this->engines['payments'] = json_decode($this->payment_data, true);
         $this->engines['purchase_orders'] = json_decode($this->purchase_order_data, true);
+        $this->engines['entity'] = $this->generateEntityDataArray();
 
         // Check if expense_data property was actually set (may fail if property definition is too long)
         if (!isset($this->expense_data) || empty($this->expense_data)) {
@@ -90,6 +91,27 @@ class TemplateMock
 
     }
 
+    private function generateEntityDataArray(): array
+    {
+        $invite = $this->company->invoice_invitations()->first() ?? $this->company->quote_invitations()->first() ?? null;
+
+        if(!$invite)
+            return [];
+
+        $html_engine = new \App\Utils\HtmlEngine($invite);
+        $data = $html_engine->buildEntityDataArray();
+
+        $result = [];
+
+        foreach ($data as $key => $value) {
+            
+            $cleanKey = ltrim($key, '$');
+            \Illuminate\Support\Arr::set($result, $cleanKey, $value['value']);
+        }
+    
+        return $result;
+
+    }
     /**
      * ['entity_type','design','settings_type','settings']
      *

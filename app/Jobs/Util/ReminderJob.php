@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -41,9 +41,7 @@ class ReminderJob implements ShouldQueue
 
     public $tries = 1;
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Execute the job.
@@ -57,14 +55,14 @@ class ReminderJob implements ShouldQueue
         Auth::logout();
 
         if (! config('ninja.db.multi_db_enabled')) {
-            nrlog("Sending invoice reminders on ".now()->format('Y-m-d h:i:s'));
+            nrlog("Sending invoice reminders on " . now()->format('Y-m-d h:i:s'));
 
             Invoice::query()
-                 ->where('is_deleted', 0)
                  ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                 ->where('is_deleted', 0)
                  ->whereNull('deleted_at')
                  ->where('balance', '>', 0)
-                 ->where('next_send_date', '<=', now()->toDateTimeString())
+                 ->whereBetween('next_send_date', [now()->subMonth()->startOfDay(), now()->addDay()->startOfDay()])
                  ->whereHas('client', function ($query) {
                      $query->where('is_deleted', 0)
                            ->where('deleted_at', null);
@@ -83,14 +81,14 @@ class ReminderJob implements ShouldQueue
             foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
 
-                nrlog("Sending invoice reminders on db {$db} ".now()->format('Y-m-d h:i:s'));
+                nrlog("Sending invoice reminders on db {$db} " . now()->format('Y-m-d h:i:s'));
 
                 Invoice::query()
-                     ->where('is_deleted', 0)
                      ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                     ->where('is_deleted', 0)
                      ->whereNull('deleted_at')
                      ->where('balance', '>', 0)
-                     ->where('next_send_date', '<=', now()->toDateTimeString())
+                     ->whereBetween('next_send_date', [now()->subMonth()->startOfDay(), now()->addDay()->startOfDay()])
                      ->whereHas('client', function ($query) {
                          $query->where('is_deleted', 0)
                                ->where('deleted_at', null);
@@ -138,15 +136,15 @@ class ReminderJob implements ShouldQueue
             $invoice = $this->setLateFee($invoice, $fees[0], $fees[1]);
 
             //20-04-2022 fixes for endless reminders - generic template naming was wrong
-            $enabled_reminder = 'enable_'.$reminder_template;
+            $enabled_reminder = 'enable_' . $reminder_template;
             if ($reminder_template == 'endless_reminder') {
                 $enabled_reminder = 'enable_reminder_endless';
             }
 
-            if (in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3', 'reminder_endless', 'endless_reminder']) &&
-            $invoice->client->getSetting($enabled_reminder) &&
-            $invoice->client->getSetting('send_reminders') &&
-            (Ninja::isSelfHost() || $invoice->company->account->isPaidHostedClient())) {
+            if (in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3', 'reminder_endless', 'endless_reminder'])
+            && $invoice->client->getSetting($enabled_reminder)
+            && $invoice->client->getSetting('send_reminders')
+            && (Ninja::isSelfHost() || $invoice->company->account->isPaidHostedClient())) {
 
                 $event_fired = false;
 
@@ -224,15 +222,15 @@ class ReminderJob implements ShouldQueue
             $invoice = $over_due_invoice;
         }
 
-        $enabled_reminder = 'enable_'.$reminder_template;
+        $enabled_reminder = 'enable_' . $reminder_template;
         if ($reminder_template == 'endless_reminder') {
             $enabled_reminder = 'enable_reminder_endless';
         }
 
-        if (in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3', 'reminder_endless', 'endless_reminder']) &&
-                $invoice->client->getSetting($enabled_reminder) &&
-                $invoice->client->getSetting('send_reminders') &&
-                (Ninja::isSelfHost() || $invoice->company->account->isPaidHostedClient())) {
+        if (in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3', 'reminder_endless', 'endless_reminder'])
+                && $invoice->client->getSetting($enabled_reminder)
+                && $invoice->client->getSetting('send_reminders')
+                && (Ninja::isSelfHost() || $invoice->company->account->isPaidHostedClient())) {
             $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
                 if ($invitation->contact && !$invitation->contact->trashed() && $invitation->contact->email && !$invitation->contact->is_locked) {
                     EmailEntity::dispatch($invitation->withoutRelations(), $invitation->company->db, $reminder_template);

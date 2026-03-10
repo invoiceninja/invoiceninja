@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -31,8 +31,8 @@ class DisconnectRequest extends FormRequest
             return true;
         }
 
-        return $user->account->isPaid() &&
-            $user->company()->legal_entity_id !== null;
+        return $user->account->isPaid()
+            && $user->company()->legal_entity_id !== null;
     }
 
     /**

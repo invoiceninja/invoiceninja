@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -105,14 +105,12 @@ class UblEDocument extends AbstractService
      * @param \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice
      * @return Expense
      */
-    private function buildAndSaveExpense(\InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): Expense
+    private function buildAndSaveExpense(\InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): Expense
     {
         $isCreditNote = $invoice instanceof \InvoiceNinja\EInvoice\Models\Peppol\CreditNote;
 
         $vendor = $this->findOrCreateVendor($invoice);
 
-        nlog($invoice);
-        nlog(data_get($invoice, 'PaymentMeans.0', false));
         $TaxExclusiveAmount = data_get($invoice, 'LegalMonetaryTotal.TaxExclusiveAmount.amount', 0);
         $TaxInclusiveAmount = data_get($invoice, 'LegalMonetaryTotal.TaxExclusiveAmount.amount', 0);
         $ChargeTotalAmount = data_get($invoice, 'LegalMonetaryTotal.ChargeTotalAmount.amount', 0);
@@ -152,7 +150,7 @@ class UblEDocument extends AbstractService
         $public_notes = collect($items)->reject(function ($item) {
             return $item['name'] === false && $item['description'] === false;
         })->map(function ($item) {
-            return $item['name'] ?? ' ' . ' ## '. $item['description'] ?? ' '; //@phpstan-ignore-line
+            return $item['name'] ?? ' ' . ' ## ' . $item['description'] ?? ' '; //@phpstan-ignore-line
         })->implode("\n");
 
         /** @var \App\Models\Expense $expense */
@@ -244,7 +242,7 @@ class UblEDocument extends AbstractService
     /**
      * @param \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice
      */
-    private function findOrCreateVendor(\InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): Vendor
+    private function findOrCreateVendor(\InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): Vendor
     {
         $asp = $invoice->AccountingSupplierParty;
 
@@ -278,7 +276,7 @@ class UblEDocument extends AbstractService
     /**
      * @param \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice
      */
-    private function resolveSupplierName(\InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): string
+    private function resolveSupplierName(\InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): string
     {
         if (data_get($invoice, 'AccountingSupplierParty.Party.PartyName', false)) {
             $party_name = data_get($invoice, 'AccountingSupplierParty.Party.PartyName', false);
@@ -296,7 +294,7 @@ class UblEDocument extends AbstractService
     /**
      * @param \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice
      */
-    private function resolveVendorIdNumber(\InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): string
+    private function resolveVendorIdNumber(\InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): string
     {
 
         $pts = data_get($invoice, 'AccountingSupplierParty.Party.PartyIdentification', false);
@@ -308,7 +306,7 @@ class UblEDocument extends AbstractService
     /**
      * @param \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice
      */
-    private function resolveVendorVat(\InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): string
+    private function resolveVendorVat(\InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): string
     {
 
         $pts = data_get($invoice, 'AccountingSupplierParty.Party.PartyTaxScheme', false);
@@ -320,7 +318,7 @@ class UblEDocument extends AbstractService
     /**
      * @param \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice
      */
-    private function newVendor(\InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): Vendor
+    private function newVendor(\InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): Vendor
     {
         $vendor = VendorFactory::create($this->company->id, $this->company->owner()->id);
 
@@ -362,6 +360,6 @@ class UblEDocument extends AbstractService
         return Country::query()
                         ->where('iso_3166_2', $iso_country_code)
                         ->orWhere('iso_3166_3', $iso_country_code)
-                        ->first()?->id ?? (int)$this->company->settings->country_id;
+                        ->first()?->id ?? (int) $this->company->settings->country_id;
     }
 }

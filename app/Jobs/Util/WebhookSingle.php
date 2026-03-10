@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -137,7 +137,7 @@ class WebhookSingle implements ShouldQueue
             nlog($e->getMessage());
 
             (new SystemLogger(
-                ['message' => "Error connecting to ". $subscription->target_url, 'body' => $data],
+                ['message' => "Error connecting to " . $subscription->target_url, 'body' => $data],
                 SystemLog::CATEGORY_WEBHOOK,
                 SystemLog::EVENT_WEBHOOK_FAILURE,
                 SystemLog::TYPE_WEBHOOK_RESPONSE,
@@ -150,7 +150,7 @@ class WebhookSingle implements ShouldQueue
                 /* Some 400's should never be repeated */
                 if (in_array($e->getResponse()->getStatusCode(), [404, 410, 405])) {
 
-                    $message = "There was a problem when connecting to {$subscription->target_url} => status code ". $e->getResponse()->getStatusCode(). " This webhook call will be suspended until further action is taken.";
+                    $message = "There was a problem when connecting to {$subscription->target_url} => status code " . $e->getResponse()->getStatusCode() . " This webhook call will be suspended until further action is taken.";
 
                     (new SystemLogger(
                         ['message' => $message, 'body' => $data],
@@ -166,7 +166,7 @@ class WebhookSingle implements ShouldQueue
                     return;
                 }
 
-                $message = "There was a problem when connecting to {$subscription->target_url} => status code ". $e->getResponse()->getStatusCode();
+                $message = "There was a problem when connecting to {$subscription->target_url} => status code " . $e->getResponse()->getStatusCode();
 
                 nlog($message);
 
@@ -190,7 +190,7 @@ class WebhookSingle implements ShouldQueue
             if ($e->getResponse()->getStatusCode() >= 500) {
                 nlog("{$subscription->target_url} returned a 500, failing");
 
-                $message = "There was a problem when connecting to {$subscription->target_url} => status code ". $e->getResponse()->getStatusCode(). " no retry attempted.";
+                $message = "There was a problem when connecting to {$subscription->target_url} => status code " . $e->getResponse()->getStatusCode() . " no retry attempted.";
 
                 (new SystemLogger(
                     ['message' => $message, 'body' => $data],
@@ -251,11 +251,11 @@ class WebhookSingle implements ShouldQueue
     private function resolveClient()
     {
         //make sure it isn't an instance of the Client Model
-        if (!$this->entity instanceof \App\Models\Client &&
-            !$this->entity instanceof \App\Models\Vendor &&
-            !$this->entity instanceof \App\Models\Product &&
-            !$this->entity instanceof \App\Models\PurchaseOrder &&
-            $this->entity->client()->exists()) {
+        if (!$this->entity instanceof \App\Models\Client
+            && !$this->entity instanceof \App\Models\Vendor
+            && !$this->entity instanceof \App\Models\Product
+            && !$this->entity instanceof \App\Models\PurchaseOrder
+            && $this->entity->client()->exists()) {
             return $this->entity->client;
         }
 

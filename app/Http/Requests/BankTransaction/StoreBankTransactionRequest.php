@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -41,10 +41,10 @@ class StoreBankTransactionRequest extends Request
 
         $rules = [];
 
-        $rules['bank_integration_id'] = 'bail|required|exists:bank_integrations,id,company_id,'.$user->company()->id.',is_deleted,0';
+        $rules['bank_integration_id'] = 'bail|required|exists:bank_integrations,id,company_id,' . $user->company()->id . ',is_deleted,0';
         $rules['amount'] = ['sometimes', 'bail', 'numeric', 'nullable', 'max:99999999999999'];
         $rules['base_type'] = ['required','in:debit,credit,DEBIT,CREDIT', 'bail'];
-        
+
         return $rules;
     }
 

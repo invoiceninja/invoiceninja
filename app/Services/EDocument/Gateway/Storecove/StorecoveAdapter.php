@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,40 +13,30 @@
 namespace App\Services\EDocument\Gateway\Storecove;
 
 use App\DataMapper\Tax\BaseRule;
-use App\Models\Expense;
-use App\Models\Vendor;
+use App\Services\EDocument\Standards\Peppol;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
-use InvoiceNinja\EInvoice\Models\Peppol\PaymentMeans;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractor;
-use App\Services\EDocument\Gateway\Storecove\Models\Invoice;
 use App\Services\EDocument\Gateway\Storecove\Models\Credit;
+use App\Services\EDocument\Gateway\Storecove\Models\Invoice;
 use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Mapping\Loader\AttributeLoader;
-use InvoiceNinja\EInvoice\Models\Peppol\Invoice as PeppolInvoice;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
-use App\Services\EDocument\Gateway\Storecove\PeppolToStorecoveNormalizer;
-use App\Services\EDocument\Gateway\Storecove\Transformers\StorecoveExpense;
-use App\Services\EDocument\Standards\Peppol;
 use Symfony\Component\Serializer\NameConverter\MetadataAwareNameConverter;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 class StorecoveAdapter
 {
-    public function __construct(public Storecove $storecove)
-    {
-    }
+    public function __construct(public Storecove $storecove) {}
 
-    private Invoice | Credit $storecove_invoice;
+    private Invoice|Credit $storecove_invoice;
 
     private array $errors = [];
 
@@ -97,9 +87,9 @@ class StorecoveAdapter
     {
 
         $context = [
-                DateTimeNormalizer::FORMAT_KEY => 'Y-m-d',
-                AbstractObjectNormalizer::SKIP_NULL_VALUES => true,
-            ];
+            DateTimeNormalizer::FORMAT_KEY => 'Y-m-d',
+            AbstractObjectNormalizer::SKIP_NULL_VALUES => true,
+        ];
 
         $serializer = $this->getSerializer();
 
@@ -135,8 +125,12 @@ class StorecoveAdapter
 
             $e = new \InvoiceNinja\EInvoice\EInvoice();
             $peppolInvoice = $e->decode('Peppol', $p, 'xml');
-            
-            $parent = $invoice instanceof \App\Models\Credit ? \App\Services\EDocument\Gateway\Storecove\Models\Credit::class : \App\Services\EDocument\Gateway\Storecove\Models\Invoice::class;
+
+            // $parent = $invoice instanceof \App\Models\Credit ? \App\Services\EDocument\Gateway\Storecove\Models\Credit::class : \App\Services\EDocument\Gateway\Storecove\Models\Invoice::class;
+            $parent = ($invoice instanceof \App\Models\Credit || $peppolInvoice instanceof \InvoiceNinja\EInvoice\Models\Peppol\CreditNote)
+    ? \App\Services\EDocument\Gateway\Storecove\Models\Credit::class 
+    : \App\Services\EDocument\Gateway\Storecove\Models\Invoice::class;
+
             $peppolInvoice = $e->encode($peppolInvoice, 'json');
             $this->storecove_invoice = $serializer->deserialize($peppolInvoice, $parent, 'json', $context);
 
@@ -162,12 +156,6 @@ class StorecoveAdapter
             return $this;
         }
 
-        // if($this->ninja_invoice instanceof \App\Models\Credit) {
-        //     $lines = $this->storecove_invoice->getCreditLines();
-        //     $this->storecove_invoice->setCreditLines([]);
-        //     $this->storecove_invoice->setInvoiceLines($lines);
-        // } 
-
         //set all taxmap countries - resolve the taxing country
         $lines = $this->storecove_invoice->getInvoiceLines();
 
@@ -175,7 +163,7 @@ class StorecoveAdapter
             if (isset($line->taxes_duties_fees)) {
                 foreach ($line->taxes_duties_fees as &$tax) {
                     $tax->country = $this->nexus;
-                    $tax->percentage = $tax->percentage ?? 0;
+                    $tax->percentage ??= 0;
                     if (property_exists($tax, 'category')) {
                         $tax->category = $this->tranformTaxCode($tax->category);
                     }
@@ -209,7 +197,7 @@ class StorecoveAdapter
 
         foreach ($tax_subtotals as &$tax) {
             $tax->country = $this->nexus;
-            $tax->percentage = $tax->percentage ?? 0;
+            $tax->percentage ??= 0;
 
             if (property_exists($tax, 'category')) {
                 $tax->category = $this->tranformTaxCode($tax->category);
@@ -237,7 +225,7 @@ class StorecoveAdapter
 
             foreach ($taxes as &$tax) {
                 $tax->country = $this->nexus;
-                $tax->percentage = $tax->percentage ?? 0;
+                $tax->percentage ??= 0;
 
                 if (property_exists($tax, 'category')) {
                     $tax->category = $this->tranformTaxCode($tax->category);
@@ -317,8 +305,8 @@ class StorecoveAdapter
         $serializer = $this->getSerializer();
 
         $context = [
-          DateTimeNormalizer::FORMAT_KEY => 'Y-m-d',
-          AbstractObjectNormalizer::SKIP_NULL_VALUES => true,
+            DateTimeNormalizer::FORMAT_KEY => 'Y-m-d',
+            AbstractObjectNormalizer::SKIP_NULL_VALUES => true,
         ];
 
         $s_invoice = $serializer->encode($this->storecove_invoice, 'json', $context);
@@ -378,13 +366,13 @@ class StorecoveAdapter
         } elseif (in_array($client_country_code, $eu_countries)) {
 
             // First, determine if we're over threshold
-            $is_over_threshold = isset($this->ninja_invoice->company->tax_data->regions->EU->has_sales_above_threshold) &&
-                                $this->ninja_invoice->company->tax_data->regions->EU->has_sales_above_threshold;
+            $is_over_threshold = isset($this->ninja_invoice->company->tax_data->regions->EU->has_sales_above_threshold)
+                                && $this->ninja_invoice->company->tax_data->regions->EU->has_sales_above_threshold;
 
             // Is this B2B or B2C?
-            $is_b2c = strlen($this->ninja_invoice->client->vat_number ?? '') < 2 ||
-                    !($this->ninja_invoice->client->has_valid_vat_number ?? false) ||
-                    $this->ninja_invoice->client->classification == 'individual';
+            $is_b2c = strlen($this->ninja_invoice->client->vat_number ?? '') < 2
+                    || !($this->ninja_invoice->client->has_valid_vat_number ?? false)
+                    || $this->ninja_invoice->client->classification == 'individual';
 
 
             // B2C, under threshold, no Company VAT Registerd - must charge origin country VAT
@@ -459,7 +447,7 @@ class StorecoveAdapter
         // elseif($code == 'K' && $this->ninja_invoice->company->getSetting('classification') == 'individual')
         //     return 'reverse_charge';
 
-        return match($code) {
+        return match ($code) {
             'S' => 'standard',
             'Z' => 'zero_rated',
             'E' => 'exempt',
@@ -480,7 +468,7 @@ class StorecoveAdapter
 
     private function transformPaymentMeansCode(?string $code): string
     {
-        return match($code) {
+        return match ($code) {
             '30' => 'credit_transfer',
             '58' => 'sepa_credit_transfer',
             '31' => 'debit_transfer',

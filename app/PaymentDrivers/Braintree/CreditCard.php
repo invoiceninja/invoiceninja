@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -73,7 +73,7 @@ class CreditCard implements LivewireMethodInterface
                 'locality' => $this->braintree->client->city ?: '',
                 'postalCode' => $this->braintree->client->postal_code ?: '',
                 'countryCodeAlpha2' => $this->braintree->client->country ? $this->braintree->client->country->iso_3166_2 : 'US',
-            ]
+            ],
         ];
     }
 
@@ -133,6 +133,8 @@ class CreditCard implements LivewireMethodInterface
             'purchaseOrderNumber' => substr($po_number, 0, 16),
         ];
 
+        $data = array_merge($data, $this->braintree->getLevel23Data($this->braintree->payment_hash));
+
         if ($this->braintree->company_gateway->getConfigField('merchantAccountId')) {
             /** https://developer.paypal.com/braintree/docs/reference/request/transaction/sale/php#full-example */
             $data['merchantAccountId'] = $this->braintree->company_gateway->getConfigField('merchantAccountId');
@@ -189,7 +191,7 @@ class CreditCard implements LivewireMethodInterface
                 'locality' => $this->braintree->client->city ?: '',
                 'postalCode' => $this->braintree->client->postal_code ?: '',
                 'countryCodeAlpha2' => $this->braintree->client->country ? $this->braintree->client->country->iso_3166_2 : 'US',
-            ]
+            ],
         ];
 
         if ($this->braintree->company_gateway->getConfigField('merchantAccountId')) {

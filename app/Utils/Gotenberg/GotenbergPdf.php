@@ -16,7 +16,7 @@ class GotenbergPdf
     public function convertHtmlToPdf(string $html): string
     {
         $url = config('ninja.gotenberg_url') ?: env('GOTENBERG_API_URL', 'http://localhost:3000');
-        
+
         try {
             $response = Http::timeout(60)
                 ->asMultipart()
@@ -34,7 +34,7 @@ class GotenbergPdf
             }
 
             throw new \Exception("Gotenberg PDF generation failed: " . $response->status() . " - " . $response->body());
-            
+
         } catch (\Exception $e) {
             nlog("Gotenberg Error: " . $e->getMessage());
             throw new \Exception("Failed to generate PDF via Gotenberg: " . $e->getMessage());

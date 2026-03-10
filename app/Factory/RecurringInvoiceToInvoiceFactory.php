@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -70,7 +70,7 @@ class RecurringInvoiceToInvoiceFactory
         $invoice->e_invoice = self::transformEInvoice($recurring_invoice);
         $invoice->vendor_id = $recurring_invoice->vendor_id;
         $invoice->location_id = $recurring_invoice->location_id;
-        
+
         return $invoice;
     }
 

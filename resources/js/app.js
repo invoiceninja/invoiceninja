@@ -24,3 +24,16 @@ document.querySelectorAll('.disposable-alert').forEach((element) => {
         element.remove();
     }, 5000);
 });
+
+/**
+ * Conditionally load DocuNinja builder if available
+ */
+(async () => {
+    try {
+        const modulePath = '/build/assets/builder.iife.js';
+        await import(/* @vite-ignore */ modulePath);
+        console.log('DocuNinja loaded');
+    } catch (e) {
+        console.log('DocuNinja not available, skipping...');
+    }
+})();

@@ -57,7 +57,7 @@ class InstantBankPay implements MethodInterface, LivewireMethodInterface
             $billing_request = $this->go_cardless->gateway->billingRequests()->create([
                 'params' => [
                     'payment_request' => [
-                        'description' => ctrans('texts.invoices').': '.collect($data['invoices'])->pluck('invoice_number'),
+                        'description' => ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number'),
                         'amount' => (string) $data['amount_with_fee'] * 100,
                         'currency' => $this->go_cardless->client->getCurrencyCode(),
                     ],

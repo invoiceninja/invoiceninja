@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -16,6 +16,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Helpers\Cache\Atomic;
 use App\Http\Requests\Request;
+use App\Utils\BcMath;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 use App\Exceptions\DuplicatePaymentException;
@@ -50,8 +51,8 @@ class StorePaymentRequest extends Request
             'client_id' => ['bail','required',Rule::exists('clients', 'id')->where('company_id', $user->company()->id)->where('is_deleted', 0)],
             'invoices' => ['bail', 'sometimes', 'nullable', 'array', new ValidPayableInvoicesRule()],
             'invoices.*.amount' => ['bail','required'],
-            'invoices.*.invoice_id' => ['bail','required','distinct', Rule::exists('invoices', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)->where('is_deleted',0)],
-            'credits.*.credit_id' => ['bail','required','distinct', new ValidCreditsRules($this->all()),Rule::exists('credits', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)->where('is_deleted',0)],
+            'invoices.*.invoice_id' => ['bail','required','distinct', Rule::exists('invoices', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)->where('is_deleted', 0)],
+            'credits.*.credit_id' => ['bail','required','distinct', new ValidCreditsRules($this->all()),Rule::exists('credits', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)->where('is_deleted', 0)],
             'credits.*.amount' => ['bail','required', new CreditsSumRule($this->all())],
             'amount' => ['bail', 'numeric', new PaymentAmountsBalanceRule(), 'max:99999999999999'],
             'number' => ['bail', 'nullable',  Rule::unique('payments')->where('company_id', $user->company()->id)],
@@ -108,9 +109,9 @@ class StorePaymentRequest extends Request
                     //catch here nothing to do - we need this to prevent the last elseif triggering
                 } elseif ($invoice['amount'] <= 0 && $inv->amount > 0) {
                     $validator->errors()->add("invoices.{$index}.amount", 'Amount cannot be less than or equal to zero');
-                } elseif ($inv->status_id == Invoice::STATUS_DRAFT && floatval($invoice['amount']) > floatval($inv->amount)) {
+                } elseif ($inv->status_id == Invoice::STATUS_DRAFT && BcMath::greaterThan($invoice['amount'], $inv->amount)) {
                     $validator->errors()->add("invoices.{$index}.amount", 'Amount cannot be greater than invoice balance');
-                } elseif (floatval($invoice['amount']) > floatval($inv->balance)) {
+                } elseif (BcMath::greaterThan($invoice['amount'], $inv->balance)) {
                     $validator->errors()->add("invoices.{$index}.amount", ctrans('texts.amount_greater_than_balance_v5'));
                 } elseif ($inv->is_deleted) {
                     $validator->errors()->add("invoices.{$index}", 'One or more invoices in this request have since been deleted');
@@ -135,14 +136,13 @@ class StorePaymentRequest extends Request
 
         $client_id = is_string($this->input('client_id', '')) ? $this->input('client_id') : '';
 
-        if(isset($input['invoices'][0]['invoice_id'])) {
+        if (isset($input['invoices'][0]['invoice_id'])) {
             $hash_key = implode(',', array_column($input['invoices'], 'invoice_id'));
-        } 
-        else {
+        } else {
             $hash_key = $this->input('amount', 0);
         }
 
-        $hash = $this->ip()."|".$hash_key."|".$client_id."|".$user->company()->company_key;
+        $hash = $this->ip() . "|" . $hash_key . "|" . $client_id . "|" . $user->company()->company_key;
 
         // Atomic lock: returns false if key already exists (request in progress)
         if (!Atomic::set($hash, true, 1)) {
@@ -209,7 +209,7 @@ class StorePaymentRequest extends Request
         }
 
         if (! isset($input['idempotency_key'])) {
-            $input['idempotency_key'] = substr(time()."{$input['date']}{$input['amount']}{$credits_total}{$this->client_id}{$user->company()->company_key}", 0, 64);
+            $input['idempotency_key'] = substr(time() . "{$input['date']}{$input['amount']}{$credits_total}{$this->client_id}{$user->company()->company_key}", 0, 64);
         }
 
         if (array_key_exists('exchange_rate', $input) && $input['exchange_rate'] === null) {

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -69,6 +69,7 @@ class SubscriptionRepository extends BaseRepository
 
         $invoice = InvoiceFactory::create($subscription->company_id, $subscription->user_id);
         $invoice->client_id = $client->id;
+        $invoice->uses_inclusive_taxes = $client->getSetting('inclusive_taxes');
 
         $invoice->save();
 
@@ -177,8 +178,8 @@ class SubscriptionRepository extends BaseRepository
         })->map(function ($item) {
             $line_item = new InvoiceItem();
             $line_item->product_key = $item->product_key;
-            $line_item->quantity = (float)$item->qty;
-            $line_item->cost = (float)$item->unit_cost;
+            $line_item->quantity = (float) $item->qty;
+            $line_item->cost = (float) $item->unit_cost;
             $line_item->notes = $item->description;
 
             return $line_item;
@@ -214,7 +215,7 @@ class SubscriptionRepository extends BaseRepository
 
     public function assign_invoice(Subscription $subscription, $request)
     {
-        $class = "\\App\\Models\\".ucfirst(Str::camel($request->entity));
+        $class = "\\App\\Models\\" . ucfirst(Str::camel($request->entity));
 
         $entity = $class::withTrashed()->find($request->entity_id);
 

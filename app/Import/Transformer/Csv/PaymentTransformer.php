@@ -58,8 +58,8 @@ class PaymentTransformer extends BaseTransformer
         ];
 
         if (
-            isset($data['payment.invoice_number']) &&
-            ($invoice_id = $this->getInvoiceId($data['payment.invoice_number']))
+            isset($data['payment.invoice_number'])
+            && ($invoice_id = $this->getInvoiceId($data['payment.invoice_number']))
         ) {
             $transformed['invoices'] = [
                 [

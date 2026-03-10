@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -213,24 +213,24 @@ class CreditController extends BaseController
                          ->save();
 
         /** 2025-09-24
-         * 
+         *
          * Handling invoice reversals needs stricter boundary checks:
-         * 
+         *
          * On the reversal of a paid invoice creates a credit note. However if this credit note is deleted the original payment becomes a dangling record.
-         * 
+         *
          * In order to avoid this, we link the payment to the credit note. This allows us to preserve the relation of the payment to the subsequent credit note.
-         * 
+         *
          * Now on Credit or Payment deletion we can correctly maintain the relation of the payment to the credit note.
          */
         if ($credit->invoice_id) {
             $credit = $credit->service()->markSent()->save();
             $credit->client->service()->updateBalanceAndPaidToDate(-1 * ($credit->invoice->balance ?? 0), -1 * $credit->balance)->save();
-            
+
             $invoice = \App\Models\Invoice::withTrashed()->find($credit->invoice_id);
             if ($invoice) {
                 $invoice->status_id = Invoice::STATUS_REVERSED;
                 $invoice->save();
-                                    
+
                 //2025-08-25 after convert to a credit note, we need to delete the payments associated with the invoice.
                 //2025-09-25 this logic is flawed as unlinking the invoice then prevents a valid refund from taking place.
                 // $invoice->payments()->each(function ($p) use ($credit) {
@@ -622,7 +622,7 @@ class CreditController extends BaseController
             }, 'print.pdf', [
                 'Content-Type' => 'application/pdf',
                 'Cache-Control:' => 'no-cache',
-                'Server-Timing' => (string)(microtime(true) - $start)
+                'Server-Timing' => (string) (microtime(true) - $start),
             ]);
 
 

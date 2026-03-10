@@ -19,6 +19,5 @@ class DesignBlocks
         public string $header = '',
         public string $body = '',
         public string $footer = ''
-    ) {
-    }
+    ) {}
 }

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -173,10 +173,10 @@ class PaymentMethodController extends Controller
         /** @var \App\Models\ClientContact auth()->guard('contact')->user() **/
         $client_contact = auth()->guard('contact')->user();
 
-        if ((string)request()->query('method') === (string)GatewayType::CREDIT_CARD) {
+        if ((string) request()->query('method') === (string) GatewayType::CREDIT_CARD) {
             return $client_contact->client->getCreditCardGateway();
         }
-        if ((string)request()->query('method') === (string)GatewayType::BACS) {
+        if ((string) request()->query('method') === (string) GatewayType::BACS) {
             return $client_contact->client->getBACSGateway();
         }
 

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -34,9 +34,7 @@ class InvoiceService
 {
     use MakesHash;
 
-    public function __construct(public Invoice $invoice)
-    {
-    }
+    public function __construct(public Invoice $invoice) {}
 
     /**
      * Marks as invoice as paid
@@ -148,7 +146,7 @@ class InvoiceService
     public function updateBalance($balance_adjustment, bool $is_draft = false)
     {
         if ((bool) $this->invoice->is_deleted !== false) {
-            nlog($this->invoice->number.' is deleted returning');
+            nlog($this->invoice->number . ' is deleted returning');
 
             return $this;
         }
@@ -302,9 +300,9 @@ class InvoiceService
 
         //12-10-2022
         if ($this->invoice->partial > 0 && !$this->invoice->partial_due_date) {
-            $this->invoice->partial_due_date = Carbon::parse($this->invoice->date)->addDays((int)$this->invoice->client->getSetting('payment_terms'));
+            $this->invoice->partial_due_date = Carbon::parse($this->invoice->date)->addDays((int) $this->invoice->client->getSetting('payment_terms'));
         } else {
-            $this->invoice->due_date = Carbon::parse($this->invoice->date)->addDays((int)$this->invoice->client->getSetting('payment_terms'));
+            $this->invoice->due_date = Carbon::parse($this->invoice->date)->addDays((int) $this->invoice->client->getSetting('payment_terms'));
         }
 
         return $this;
@@ -423,12 +421,12 @@ class InvoiceService
         $this->invoice->invitations->each(function ($invitation) {
             try {
                 // if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf')) {
-                Storage::disk(config('filesystems.default'))->delete($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf');
+                Storage::disk(config('filesystems.default'))->delete($this->invoice->client->invoice_filepath($invitation) . $this->invoice->numberFormatter() . '.pdf');
                 // }
 
                 // if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf')) {
                 if (Ninja::isHosted()) {
-                    Storage::disk('public')->delete($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf');
+                    Storage::disk('public')->delete($this->invoice->client->invoice_filepath($invitation) . $this->invoice->numberFormatter() . '.pdf');
                 }
             } catch (\Exception $e) {
                 nlog($e->getMessage());
@@ -444,10 +442,10 @@ class InvoiceService
 
         $this->invoice->invitations->each(function ($invitation) {
             try {
-                Storage::disk(config('filesystems.default'))->delete($this->invoice->client->e_document_filepath($invitation).$this->invoice->getFileName("xml"));
+                Storage::disk(config('filesystems.default'))->delete($this->invoice->client->e_document_filepath($invitation) . $this->invoice->getFileName("xml"));
 
                 if (Ninja::isHosted()) {
-                    Storage::disk('public')->delete($this->invoice->client->e_document_filepath($invitation).$this->invoice->getFileName("xml"));
+                    Storage::disk('public')->delete($this->invoice->client->e_document_filepath($invitation) . $this->invoice->getFileName("xml"));
                 }
             } catch (\Exception $e) {
                 nlog($e->getMessage());
@@ -466,9 +464,9 @@ class InvoiceService
             return $this;
         }
 
-        $pre_count = count((array)$this->invoice->line_items);
+        $pre_count = count((array) $this->invoice->line_items);
 
-        $items = collect((array)$this->invoice->line_items)
+        $items = collect((array) $this->invoice->line_items)
                     ->filter(function ($item) {
                         return $item->type_id != '3';
                     })->toArray();
@@ -626,7 +624,7 @@ class InvoiceService
     {
         return (new LocationData($this->invoice))->run($set_countries);
     }
-    
+
     public function workFlow()
     {
         if ($this->invoice->status_id == Invoice::STATUS_PAID && $this->invoice->client->getSetting('auto_archive_invoice')) {
@@ -678,6 +676,17 @@ class InvoiceService
 
     }
 
+    public function getDocuNinjaSignable(?\App\Models\InvoiceInvitation $invite = null)
+    {
+
+        if (class_exists(\InvoiceNinja\AdminApi\Services\DocuNinja\DocuNinja::class))
+        {
+            $invite = $invite ?: $this->invoice->invitations->first();
+            return (new \InvoiceNinja\AdminApi\Services\DocuNinja\DocuNinja())->signable->get($invite);
+        }
+        
+    }
+
     /**
      * sendVerifactu
      *
@@ -720,18 +729,16 @@ class InvoiceService
          *
          */
         /** New Invoice - F1 Type */
-                
+
         if ($new_model && $this->invoice->amount >= 0) {
             $this->invoice->backup->document_type = 'F1';
             $this->invoice->backup->adjustable_amount = (new \App\Services\EDocument\Standards\Verifactu($this->invoice))->run()->registro_alta->calc->getTotal();
             $this->invoice->backup->parent_invoice_number = $this->invoice->number ?? '&';
             $this->invoice->saveQuietly();
-        } 
-        elseif($this->invoice->backup->parent_invoice_number == '&') { // ensure we ALWAYS have a parent invoice number - handles cases where the invoice number is only set when SENT not when SAVED.
+        } elseif ($this->invoice->backup->parent_invoice_number == '&') { // ensure we ALWAYS have a parent invoice number - handles cases where the invoice number is only set when SENT not when SAVED.
             $this->invoice->backup->parent_invoice_number = $this->invoice->number ?? '&';
             $this->invoice->saveQuietly();
-        }
-        elseif (isset($invoice_array['modified_invoice_id'])) {
+        } elseif (isset($invoice_array['modified_invoice_id'])) {
             $document_type = 'R2'; // <- Default to R2 type
 
             /** Was it a partial or FULL rectification? */

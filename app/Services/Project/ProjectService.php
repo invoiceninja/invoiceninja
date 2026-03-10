@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -17,9 +17,7 @@ use Illuminate\Support\Carbon;
 
 class ProjectService
 {
-    public function __construct(public Project $project)
-    {
-    }
+    public function __construct(public Project $project) {}
 
     public function timelineData()
     {
@@ -28,7 +26,7 @@ class ProjectService
         $project_start = Carbon::parse($this->project->created_at)->addSeconds($this->project->company->timezone_offset());
         $project_due = Carbon::parse($this->project->due_date);
         $budgeted_hours = $this->project->budgeted_hours;
-        $project_duration = $project_start->diffInDays($project_due) + 1;
+        $project_duration = (int) $project_start->diffInDays($project_due) + 1;
         $average_daily_hours = $budgeted_hours / $project_duration;
 
         $task_query = $this->project
@@ -41,9 +39,11 @@ class ProjectService
                             ->map(function ($task) {
 
                                 return [
-                                        'date' => $task->calculated_start_date ?? \Carbon\Carbon::parse($task->created_at)->format('Y-m-d'),
-                                        'hours_used' => $task->calcDuration(true) / 60 / 60,
-                                    ];
+                                    'date' => $task->calculated_start_date ?? \Carbon\Carbon::parse($task->created_at)->format('Y-m-d'),
+                                    'hours_used' => $task->calcDuration(true) / 60 / 60,
+                                    'hours_invoiced' => $task->invoice_id ? $task->calcDuration(true) / 60 / 60 : 0,
+                                    'hours_uninvoiced' => $task->invoice_id ? 0 : $task->calcDuration(true) / 60 / 60,
+                                ];
                             });
 
         $last_task = $task_query->latest()->first();
@@ -57,6 +57,8 @@ class ProjectService
             $average_data->push([
                 'date' => $next_date->format('Y-m-d'),
                 'hours_used' => 0,
+                'hours_invoiced' => 0,
+                'hours_uninvoiced' => 0,
             ]);
 
         } while ($next_date->lt($project_due));
@@ -66,6 +68,8 @@ class ProjectService
             'project_due' => $project_due->toDateString(),
             'hours_used' => $this->project->current_hours,
             'average_data' => $average_data,
+            'hours_invoiced' => $average_data->sum('hours_invoiced'),
+            'hours_uninvoiced' => $average_data->sum('hours_uninvoiced'),
         ];
 
 

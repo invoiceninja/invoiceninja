@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -51,12 +51,12 @@ class StoreRecurringInvoiceRequest extends Request
         $rules['documents'] = 'bail|sometimes|array';
         $rules['documents.*'] = $this->fileValidation();
 
-        $rules['client_id'] = 'required|exists:clients,id,company_id,'.$user->company()->id;
+        $rules['client_id'] = 'required|exists:clients,id,company_id,' . $user->company()->id;
 
         $rules['invitations'] = 'sometimes|bail|array';
         $rules['invitations.*.client_contact_id'] = 'bail|required|distinct';
 
-        $rules['frequency_id'] = 'required|integer|digits_between:1,12';
+        $rules['frequency_id'] = 'required|integer|between:1,12';
 
         $rules['project_id'] = ['bail', 'sometimes', new ValidProjectForClient($this->all())];
 
@@ -177,7 +177,7 @@ class StoreRecurringInvoiceRequest extends Request
         if (array_key_exists('exchange_rate', $input) && (is_null($input['exchange_rate']) || $input['exchange_rate'] == 0)) {
             $input['exchange_rate'] = 1;
         }
-        
+
         $this->replace($input);
     }
 

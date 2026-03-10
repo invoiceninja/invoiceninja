@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -35,9 +35,7 @@ class CopyDocs implements ShouldQueue
     /**
      *
      */
-    public function __construct(private \Illuminate\Support\Collection $document_ids, private $entity, private string $db)
-    {
-    }
+    public function __construct(private \Illuminate\Support\Collection $document_ids, private $entity, private string $db) {}
 
     /**
      * Execute the job.

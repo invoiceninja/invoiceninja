@@ -16,9 +16,7 @@ class AccountDeletedListener implements ShouldQueue
      * Create the event listener.
      *
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Handle the event.
@@ -28,11 +26,11 @@ class AccountDeletedListener implements ShouldQueue
      */
     public function handle($event)
     {
-        
+
         if (Ninja::isHosted()) {
 
             MultiDB::setDB('db-ninja-01');
-            
+
             $company = Company::find(config('ninja.ninja_default_company_id'));
 
             $activity = new Activity();
@@ -45,7 +43,7 @@ class AccountDeletedListener implements ShouldQueue
             $activity->ip = $event->ip;
             $activity->is_system = false;
             $activity->save();
-            
+
 
         }
     }

@@ -62,7 +62,16 @@ export default defineConfig({
             'resources/js/clients/payments/revolut-pay.js',
         ]),
         viteStaticCopy({
-            targets: [],
+            targets: [
+                {
+                    src: 'node_modules/@docuninja/builder2.0/dist/builder2.0.standalone.css',
+                    dest: 'assets',
+                },
+                {
+                    src: 'node_modules/@docuninja/builder2.0/dist/builder.iife.js',
+                    dest: 'assets',
+                },
+            ],
         }),
     ],
 });

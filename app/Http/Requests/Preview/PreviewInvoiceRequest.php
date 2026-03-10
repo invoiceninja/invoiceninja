@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -75,7 +75,7 @@ class PreviewInvoiceRequest extends Request
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
         $input['amount'] = 0;
         $input['balance'] = 0;
-        $input['number'] = isset($input['number']) ? $input['number'] : ctrans('texts.live_preview').' #'.rand(0, 1000);
+        $input['number'] ??= ctrans('texts.live_preview') . ' #' . rand(0, 1000);
 
         if ($input['entity_id'] ?? false) {
             $input['entity_id'] = $this->decodePrimaryKey($input['entity_id'], true);
@@ -97,11 +97,11 @@ class PreviewInvoiceRequest extends Request
 
         $contact_id = false;
 
-        if(isset($this->invitations[0]['client_contact_id'])){
+        if (isset($this->invitations[0]['client_contact_id'])) {
             $contact_id = $this->invitations[0]['client_contact_id'];
         }
-        
-        match($this->entity) {
+
+        match ($this->entity) {
             'invoice' => $invitation = InvoiceInvitation::withTrashed()->where('invoice_id', $this->entity_id)->when($contact_id, function ($query) use ($contact_id) {
                 $query->where('client_contact_id', $contact_id);
             })->first(),
@@ -147,7 +147,7 @@ class PreviewInvoiceRequest extends Request
         $this->setClient($client);
         $invitation = false;
 
-        match($this->entity) {
+        match ($this->entity) {
             'invoice' => $invitation = InvoiceInvitation::factory()->make(),
             'quote' => $invitation = QuoteInvitation::factory()->make(),
             'credit' => $invitation = CreditInvitation::factory()->make(),
@@ -169,7 +169,7 @@ class PreviewInvoiceRequest extends Request
     {
         $entity = false;
 
-        match($this->entity) {
+        match ($this->entity) {
             'invoice' => $entity = Invoice::factory()->make(['client_id' => $client->id,'user_id' => $client->user_id, 'company_id' => $client->company_id]),
             'quote' => $entity = Quote::factory()->make(['client_id' => $client->id,'user_id' => $client->user_id, 'company_id' => $client->company_id]),
             'credit' => $entity = Credit::factory()->make(['client_id' => $client->id,'user_id' => $client->user_id, 'company_id' => $client->company_id]),

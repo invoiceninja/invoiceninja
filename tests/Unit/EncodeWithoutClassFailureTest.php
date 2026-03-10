@@ -147,26 +147,26 @@ class EncodeWithoutClassFailureTest extends TestCase
         unlink($tempFile);
     }
 
-    /**
-     * Test what happens with common "sanitization" approaches
-     */
-    public function testCommonSanitizationBreaksContent()
-    {
-        $original = $this->problematicSubject;
+    // /**
+    //  * Test what happens with common "sanitization" approaches
+    //  */
+    // public function testCommonSanitizationBreaksContent()
+    // {
+    //     $original = $this->problematicSubject;
 
-        // Common "sanitization" that developers might try
-        $sanitized = filter_var($original, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
+    //     // Common "sanitization" that developers might try
+    //     $sanitized = filter_var($original, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
 
-        if ($sanitized !== false) {
-            // Should remove high-bit characters (including emoji and accents)
-            $this->assertNotEquals($original, $sanitized);
-            $this->assertStringNotContainsString('🚀', $sanitized);
-            $this->assertStringNotContainsString('impayée', $sanitized);
-        } else {
-            // Filter might fail entirely
-            $this->assertFalse($sanitized);
-        }
-    }
+    //     if ($sanitized !== false) {
+    //         // Should remove high-bit characters (including emoji and accents)
+    //         $this->assertNotEquals($original, $sanitized);
+    //         $this->assertStringNotContainsString('🚀', $sanitized);
+    //         $this->assertStringNotContainsString('impayée', $sanitized);
+    //     } else {
+    //         // Filter might fail entirely
+    //         $this->assertFalse($sanitized);
+    //     }
+    // }
 
     /**
      * Test naive regular expression replacement

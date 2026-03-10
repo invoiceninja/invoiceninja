@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -43,7 +43,7 @@ trait GeneratesConvertedQuoteCounter
         $pattern = $settings->quote_number_pattern;
 
         if (strlen($pattern) > 1 && (stripos($pattern, 'counter') === false)) {
-            $pattern = $pattern.'{$counter}';
+            $pattern = $pattern . '{$counter}';
         }
 
         $number = $this->applyNumberPattern($quote, '_stubling_', $pattern);
@@ -61,7 +61,7 @@ trait GeneratesConvertedQuoteCounter
         $pattern = $settings->invoice_number_pattern;
 
         if (strlen($pattern) > 1 && (stripos($pattern, 'counter') === false)) {
-            $pattern = $pattern.'{$counter}';
+            $pattern = $pattern . '{$counter}';
         }
 
         $padding = $client->getSetting('counter_padding');
@@ -402,7 +402,7 @@ trait GeneratesConvertedQuoteCounter
             $check_counter++;
 
             if ($check_counter > 100) {
-                return $number.'_'.Str::random(5);
+                return $number . '_' . Str::random(5);
             }
         } while ($check);
 
@@ -450,7 +450,7 @@ trait GeneratesConvertedQuoteCounter
             return $counter;
         }
 
-        return  $prefix.$counter;
+        return  $prefix . $counter;
     }
 
     /**

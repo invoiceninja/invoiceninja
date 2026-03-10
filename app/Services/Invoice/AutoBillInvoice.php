@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -81,7 +81,7 @@ class AutoBillInvoice extends AbstractService
         }
 
         //If this returns true, it means a partial invoice amount was paid as a credit and there is no further balance payable
-        if (($this->is_partial_amount && $this->invoice->partial == 0) || (int)$this->invoice->balance == 0) {
+        if (($this->is_partial_amount && $this->invoice->partial == 0) || (int) $this->invoice->balance == 0) {
             return;
         }
 
@@ -164,7 +164,7 @@ class AutoBillInvoice extends AbstractService
                 ->tokenBilling($gateway_token, $payment_hash);
         } catch (\Exception $e) {
 
-            nlog('payment NOT captured for '.$this->invoice->number.' with error '.$e->getMessage());
+            nlog('payment NOT captured for ' . $this->invoice->number . ' with error ' . $e->getMessage());
             event(new InvoiceAutoBillFailed($this->invoice, $this->invoice->company, Ninja::eventVars(), $e->getMessage()));
 
             $this->invoice->increment('auto_bill_tries', 1);
@@ -174,7 +174,7 @@ class AutoBillInvoice extends AbstractService
 
                 \App\Models\Invoice::where('id', $this->invoice->id)->update([
                     'auto_bill_enabled' => false,
-                    'auto_bill_tries' => 0
+                    'auto_bill_tries' => 0,
                 ]);
 
             }
@@ -184,7 +184,7 @@ class AutoBillInvoice extends AbstractService
         }
 
         if ($payment) {
-            info('Auto Bill payment captured for '.$this->invoice->number);
+            info('Auto Bill payment captured for ' . $this->invoice->number);
             event(new InvoiceAutoBillSuccess($this->invoice, $this->invoice->company, Ninja::eventVars()));
         }
     }
@@ -224,7 +224,7 @@ class AutoBillInvoice extends AbstractService
             $payment->credits()
                     ->attach($current_credit->id, ['amount' => $credit['amount']]);
 
-            info("adjusting credit balance {$current_credit->balance} by this amount ".$credit['amount']);
+            info("adjusting credit balance {$current_credit->balance} by this amount " . $credit['amount']);
 
 
             $item_date = Carbon::parse($payment->date)->format($payment->client->date_format());
@@ -233,7 +233,7 @@ class AutoBillInvoice extends AbstractService
             $item = new InvoiceItem();
             $item->quantity = 0;
             $item->cost = $credit['amount'] * -1;
-            $item->notes = "{$item_date} - " . ctrans('texts.credit_payment', ['invoice_number' => $invoice_numbers]) . " ". Number::formatMoney($credit['amount'], $payment->client);
+            $item->notes = "{$item_date} - " . ctrans('texts.credit_payment', ['invoice_number' => $invoice_numbers]) . " " . Number::formatMoney($credit['amount'], $payment->client);
             $item->type_id = "1";
 
             $line_items = $current_credit->line_items;
@@ -357,7 +357,7 @@ class AutoBillInvoice extends AbstractService
                 }
             }
 
-            if ((int)$this->invoice->balance == 0) {
+            if ((int) $this->invoice->balance == 0) {
                 event(new InvoiceWasPaid($this->invoice, $payment, $payment->company, Ninja::eventVars()));
                 return $this;
             }
@@ -449,10 +449,9 @@ class AutoBillInvoice extends AbstractService
         $transformed_ids = false;
 
         //gateways are disabled!
-        if($company_gateway_ids == "0") {
+        if ($company_gateway_ids == "0") {
             return false;
-        }
-        elseif(strlen($company_gateway_ids ?? '')  > 2){
+        } elseif (strlen($company_gateway_ids ?? '')  > 2) {
 
             // If the client has a special gateway configuration, we need to ensure we only use the ones that are enabled!
             $transformed_ids = $this->transformKeys(explode(',', $company_gateway_ids));

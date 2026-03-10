@@ -43,7 +43,7 @@
       required: false
       schema:
         type: integer
-      example: ?created_at=2022-01-10
+      example: 1641772800
     updated_at:
       name: updated_at
       in: query
@@ -57,7 +57,7 @@
       required: false
       schema:
         type: integer
-      example: ?updated_at=2022-01-10
+      example: 1641772800
     is_deleted:
       name: is_deleted
       in: query
@@ -71,7 +71,7 @@
       required: false
       schema:
         type: boolean
-      example: ?is_deleted=true
+      example: true
     vendor_id:
       name: vendor_id
       in: query

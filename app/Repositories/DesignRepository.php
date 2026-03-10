@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -23,7 +23,7 @@ class DesignRepository extends BaseRepository
 {
     public function delete($design): Design
     {
-        $design->name = $design->name.'_deleted_'.Str::random(5);
+        $design->name = $design->name . '_deleted_' . Str::random(5);
 
         /** Make sure this design was not a default design - if it is, set the Clean template as the default */
 
@@ -81,7 +81,7 @@ class DesignRepository extends BaseRepository
         $new_design = $design->replicate();
         $new_design->company_id = $user->company()->id;
         $new_design->user_id = $user->id;
-        $new_design->name = $new_design->name.' clone '.date('Y-m-d H:i:s');
+        $new_design->name = $new_design->name . ' clone ' . date('Y-m-d H:i:s');
         $new_design->save();
 
         return $new_design;

@@ -27,19 +27,19 @@
         invoice_currency_id:
           description: 'The currency id of the invoice associated with this recurring expense'
           type: string
-          example: '1'
+          example: "1"
         expense_currency_id:
           description: 'The currency id of the expense associated with this recurring expense'
           type: string
-          example: '1'
+          example: "1"
         invoice_category_id:
           description: 'The category id of the invoice'
           type: string
-          example: '1'
+          example: "1"
         payment_type_id:
           description: 'The payment type id'
           type: string
-          example: '1'
+          example: "1"
         private_notes:
           description: 'The recurring expense private notes'
           type: string
@@ -84,12 +84,12 @@
           description: 'The tax rate'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         tax_rate2:
           description: 'The tax rate'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         tax_name3:
           description: 'The tax name'
           type: string
@@ -98,32 +98,32 @@
           description: 'The tax rate'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         amount:
           description: 'The total amount of the recurring expense'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         frequency_id:
           description: 'The frequency this recurring expense fires'
           type: number
           format: int
-          example: '1'
+          example: 1
         remaining_cycles:
           description: 'The number of remaining cycles for this recurring expense'
           type: number
           format: int
-          example: '1'
+          example: 1
         foreign_amount:
           description: 'The foreign currency amount of the recurring expense'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         exchange_rate:
           description: 'The exchange rate for the expernse'
           type: number
           format: float
-          example: '0.80'
+          example: 0.80
         date:
           description: 'The date of the expense'
           type: string
@@ -158,12 +158,12 @@
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         archived_at:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         calculate_tax_by_amount:
           description: 'Flag indicating whether to calculate tax based on amount rather than percentage'
           type: boolean
@@ -175,7 +175,7 @@
         currency_id:
           description: 'The unique identifier of the currency'
           type: string
-          example: '1'
+          example: "1"
         next_send_date_client:
           description: 'The next scheduled send date for the client'
           type: string

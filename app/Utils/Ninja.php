@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -48,12 +48,12 @@ class Ninja
 
         $version = request()->input('version', 'No Version Supplied.');
 
-        $info = 'App Version: v'.config('ninja.app_version').'\\n'.
-            'White Label: '.'\\n'. // TODO: Implement white label with hasFeature.
-            'Server OS: '.php_uname('s').' '.php_uname('r').'\\n'.
-            'PHP Version: '.phpversion().'\\n'.
-            'MySQL Version: '.$mysql_version.'\\n'.
-            'Version: '.$version;
+        $info = 'App Version: v' . config('ninja.app_version') . '\\n'
+            . 'White Label: ' . '\\n' // TODO: Implement white label with hasFeature.
+            . 'Server OS: ' . php_uname('s') . ' ' . php_uname('r') . '\\n'
+            . 'PHP Version: ' . phpversion() . '\\n'
+            . 'MySQL Version: ' . $mysql_version . '\\n'
+            . 'Version: ' . $version;
 
         return $info;
     }
@@ -94,7 +94,7 @@ class Ninja
             return false;
         }
 
-        $url = config('ninja.license_url').'/signup/register';
+        $url = config('ninja.license_url') . '/signup/register';
         $data = '';
         $fields = [
             'first_name' => urlencode($user->first_name),
@@ -103,7 +103,7 @@ class Ninja
         ];
 
         foreach ($fields as $key => $value) {
-            $data .= $key.'='.$value.'&';
+            $data .= $key . '=' . $value . '&';
         }
 
         $data = rtrim($data, '&');
@@ -148,7 +148,7 @@ class Ninja
         }
 
         foreach ($trans as $key => $value) {
-            $translations['texts.'.$key] = $value;
+            $translations['texts.' . $key] = $value;
         }
 
         return $translations;
@@ -159,7 +159,7 @@ class Ninja
         try {
             $x = Http::withHeaders([
                 'X-API-HOSTED-SECRET' => config('ninja.ninja_hosted_secret'),
-            ])->post(config('ninja.license_url').'/api/v1/enable_forwarding', [
+            ])->post(config('ninja.license_url') . '/api/v1/enable_forwarding', [
                 'account_key' => $company_key,
                 'email' => $email,
             ]);

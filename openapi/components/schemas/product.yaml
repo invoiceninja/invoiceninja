@@ -93,19 +93,19 @@
           type: integer
           format: timestamp
           description: 'The timestamp when the product was archived.'
-          example: '2022-03-18T15:00:00Z'
+          example: 1647604800
           readOnly: true
         created_at:
           type: integer
           format: timestamp
           description: 'The timestamp when the product was created.'
-          example: '2022-03-18T15:00:00Z'
+          example: 1647604800
           readOnly: true
         updated_at:
           description: Timestamp
           type: integer
           format: timestamp
-          example: '2022-03-18T12:34:56.789Z'
+          example: 1647691496
           readOnly: true
         is_deleted:
           type: boolean

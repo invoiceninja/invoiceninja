@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -67,28 +67,28 @@ class ActivityExport extends BaseExport
     private function buildActivityRow(Activity $activity): array
     {
         return [
-        Carbon::parse($activity->created_at)->format($this->date_format),
-        ctrans("texts.activity_{$activity->activity_type_id}", [
-            'payment_amount' => $activity->payment ? $activity->payment->amount : '',
-            'adjustment' => $activity->getPaymentAdjustment($activity->payment),
-            'client' => $activity->client ? $activity->client->present()->name() : '',
-            'contact' => $activity->contact ? $activity->contact->present()->name() : '',
-            'quote' => $activity->quote ? $activity->quote->number : '',
-            'user' => $activity->user ? $activity->user->present()->name() : 'System',
-            'expense' => $activity->expense ? $activity->expense->number : '',
-            'invoice' => $activity->invoice ? $activity->invoice->number : '',
-            'recurring_invoice' => $activity->recurring_invoice ? $activity->recurring_invoice->number : '',
-            'payment' => $activity->payment ? $activity->payment->number : '',
-            'credit' => $activity->credit ? $activity->credit->number : '',
-            'task' => $activity->task ? $activity->task->number : '',
-            'vendor' => $activity->vendor ? $activity->vendor->present()->name() : '',
-            'purchase_order' => $activity->purchase_order ? $activity->purchase_order->number : '',
-            'subscription' => $activity->subscription ? $activity->subscription->name : '',
-            'vendor_contact' => $activity->vendor_contact ? $activity->vendor_contact->present()->name() : '',
-            'recurring_expense' => $activity->recurring_expense ? $activity->recurring_expense->number : '',
-        ]),
-        $activity->ip,
-        $activity->notes,
+            Carbon::parse($activity->created_at)->format($this->date_format),
+            ctrans("texts.activity_{$activity->activity_type_id}", [
+                'payment_amount' => $activity->payment ? $activity->payment->amount : '',
+                'adjustment' => $activity->getPaymentAdjustment($activity->payment),
+                'client' => $activity->client ? $activity->client->present()->name() : '',
+                'contact' => $activity->contact ? $activity->contact->present()->name() : '',
+                'quote' => $activity->quote ? $activity->quote->number : '',
+                'user' => $activity->user ? $activity->user->present()->name() : 'System',
+                'expense' => $activity->expense ? $activity->expense->number : '',
+                'invoice' => $activity->invoice ? $activity->invoice->number : '',
+                'recurring_invoice' => $activity->recurring_invoice ? $activity->recurring_invoice->number : '',
+                'payment' => $activity->payment ? $activity->payment->number : '',
+                'credit' => $activity->credit ? $activity->credit->number : '',
+                'task' => $activity->task ? $activity->task->number : '',
+                'vendor' => $activity->vendor ? $activity->vendor->present()->name() : '',
+                'purchase_order' => $activity->purchase_order ? $activity->purchase_order->number : '',
+                'subscription' => $activity->subscription ? $activity->subscription->name : '',
+                'vendor_contact' => $activity->vendor_contact ? $activity->vendor_contact->present()->name() : '',
+                'recurring_expense' => $activity->recurring_expense ? $activity->recurring_expense->number : '',
+            ]),
+            $activity->ip,
+            $activity->notes,
         ];
 
     }

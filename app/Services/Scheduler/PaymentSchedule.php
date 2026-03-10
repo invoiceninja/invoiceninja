@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -21,12 +21,16 @@ class PaymentSchedule
 {
     use MakesHash;
 
-    public function __construct(public Scheduler $scheduler)
-    {
-    }
+    public function __construct(public Scheduler $scheduler) {}
 
     public function run()
     {
+        //Handle if the invoice_id has been deleted
+        if(!isset($this->scheduler->parameters['invoice_id'])) {
+            $this->scheduler->forceDelete();
+            return;
+        }
+
         $invoice = Invoice::find($this->decodePrimaryKey($this->scheduler->parameters['invoice_id']));
 
         // Needs to be draft, partial or sent AND not deleted
@@ -43,7 +47,8 @@ class PaymentSchedule
         $next_schedule = false;
 
         foreach ($schedule as $key => $item) {
-            if (now()->startOfDay()->eq(Carbon::parse($item['date'])->subSeconds($offset)->startOfDay())) {
+            if (now()->subSeconds($offset)->startOfDay()->eq(Carbon::parse($item['date'])->startOfDay())) {
+            // if (now()->startOfDay()->eq(Carbon::parse($item['date'])->subSeconds($offset)->startOfDay())) {
                 $next_schedule = $item;
                 $schedule_index = $key;
             }
@@ -53,7 +58,6 @@ class PaymentSchedule
             $this->scheduler->forceDelete();
             return;
         }
-
 
         $amount = $next_schedule['is_amount'] ? $next_schedule['amount'] : round(($next_schedule['amount'] / 100) * $invoice->amount, 2);
 

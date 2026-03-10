@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -53,7 +53,7 @@ class TaskRepository extends BaseRepository
         if (!is_numeric($task->rate) && !isset($data['rate'])) {
             $data['rate'] = 0;
         }
-        
+
         $task->fill($data);
         $task->saveQuietly();
 
@@ -177,7 +177,7 @@ class TaskRepository extends BaseRepository
     {
 
         if (isset($time_log[0][0])) {
-            return \Carbon\Carbon::createFromTimestamp((int)$time_log[0][0])->addSeconds($task->company->utc_offset());
+            return \Carbon\Carbon::createFromTimestamp((int) $time_log[0][0])->addSeconds($task->company->utc_offset());
         }
 
         return null;
@@ -289,14 +289,14 @@ class TaskRepository extends BaseRepository
         $interval = $end_time - $start_time;
 
         if ($this->task_round_up) {
-            return $start_time + (int)ceil($interval / $this->task_round_to_nearest) * $this->task_round_to_nearest;
+            return $start_time + (int) ceil($interval / $this->task_round_to_nearest) * $this->task_round_to_nearest;
         }
 
         if ($interval <= $this->task_round_to_nearest) {
             return $start_time;
         }
 
-        return $start_time + (int)floor($interval / $this->task_round_to_nearest) * $this->task_round_to_nearest;
+        return $start_time + (int) floor($interval / $this->task_round_to_nearest) * $this->task_round_to_nearest;
 
     }
 
@@ -438,7 +438,7 @@ class TaskRepository extends BaseRepository
         // First, filter out tasks that have been invoiced
         $models->whereNull('invoice_id');
 
-        if(stripos($column, '_id') !== false) {
+        if (stripos($column, '_id') !== false) {
             $new_value = $this->decodePrimaryKey($new_value);
         }
 
@@ -448,7 +448,7 @@ class TaskRepository extends BaseRepository
                 ->where('id', $new_value)
                 ->company()
                 ->first();
-                
+
             if ($project) {
                 /** @var \App\Models\Project $project */
                 $models->update([
@@ -456,11 +456,10 @@ class TaskRepository extends BaseRepository
                     'client_id' => $project->client_id,
                 ]);
             }
-        } elseif ($column === 'client_id') { 
+        } elseif ($column === 'client_id') {
             // If you are updating the client - we will unset the project id!
             $models->update([$column => $new_value, 'project_id' => null]);
-        }
-        else {
+        } else {
             // Assigned User
             $models->update([$column => $new_value]);
         }

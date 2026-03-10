@@ -228,6 +228,7 @@ class JsonToSectionsAdapter
                 $prefix = $config['prefix'] ?? '';
                 $variable = $config['variable'] ?? '';
                 $suffix = $config['suffix'] ?? '';
+                $hideIfEmpty = $config['hideIfEmpty'] ?? true; // Default to hiding empty fields
 
                 $content = '';
                 if (!empty($prefix)) {
@@ -241,7 +242,7 @@ class JsonToSectionsAdapter
                 $elements[] = [
                     'element' => 'div',
                     'content' => $content,
-                    'show_empty' => false,
+                    'show_empty' => !$hideIfEmpty, // Invert: show_empty=false means hide when empty
                     'properties' => [
                         'data-ref' => "{$block['id']}-field-{$index}",
                         'style' => $this->buildTextStyle($props),
@@ -260,7 +261,7 @@ class JsonToSectionsAdapter
                 $elements[] = [
                     'element' => 'div',
                     'content' => $line,
-                    'show_empty' => false,
+                    'show_empty' => false, // Hide empty lines
                     'properties' => [
                         'data-ref' => "{$block['id']}-line-{$index}",
                         'style' => $this->buildTextStyle($props),
@@ -303,6 +304,7 @@ class JsonToSectionsAdapter
                 $prefix = $config['prefix'] ?? '';
                 $variable = $config['variable'] ?? '';
                 $suffix = $config['suffix'] ?? '';
+                $hideIfEmpty = $config['hideIfEmpty'] ?? true; // Default to hiding empty fields
 
                 $content = '';
                 if (!empty($prefix)) {
@@ -316,7 +318,7 @@ class JsonToSectionsAdapter
                 $elements[] = [
                     'element' => 'div',
                     'content' => $content,
-                    'show_empty' => false,
+                    'show_empty' => !$hideIfEmpty, // Invert: show_empty=false means hide when empty
                     'properties' => [
                         'data-ref' => "{$block['id']}-field-{$index}",
                         'style' => $this->buildTextStyle($props),
@@ -335,7 +337,7 @@ class JsonToSectionsAdapter
                 $elements[] = [
                     'element' => 'div',
                     'content' => $line,
-                    'show_empty' => false,
+                    'show_empty' => false, // Hide empty lines
                     'properties' => [
                         'data-ref' => "{$block['id']}-line-{$index}",
                         'style' => $this->buildTextStyle($props),
@@ -360,6 +362,7 @@ class JsonToSectionsAdapter
         $elements = [];
 
         if ($items && is_array($items)) {
+            // Structured format: items array with label/variable pairs
             foreach ($items as $index => $item) {
                 if (!($item['show'] ?? true)) {
                     continue;
@@ -390,6 +393,47 @@ class JsonToSectionsAdapter
                     ],
                 ];
             }
+        } elseif (isset($props['content']) && !empty($props['content'])) {
+            // Legacy format: content string with "Label: $variable" format
+            $lines = explode("\n", $props['content']);
+
+            foreach ($lines as $index => $line) {
+                $line = trim($line);
+                if (empty($line)) {
+                    continue;
+                }
+
+                // Parse "Label: $variable" format
+                $parts = explode(':', $line, 2);
+                $label = isset($parts[0]) ? trim($parts[0]) . ':' : '';
+                $variable = isset($parts[1]) ? trim($parts[1]) : '';
+
+                $elements[] = [
+                    'element' => 'tr',
+                    'properties' => [
+                        'data-ref' => "{$block['id']}-row-{$index}",
+                    ],
+                    'elements' => [
+                        [
+                            'element' => 'th',
+                            'content' => $label,
+                            'properties' => [
+                                'data-ref' => "{$block['id']}-label-{$index}",
+                                'style' => $this->buildLabelStyle($props),
+                            ],
+                        ],
+                        [
+                            'element' => 'th',
+                            'content' => $variable,
+                            'show_empty' => false, // Hide row if variable is empty
+                            'properties' => [
+                                'data-ref' => "{$block['id']}-value-{$index}",
+                                'style' => $this->buildValueStyle($props),
+                            ],
+                        ],
+                    ],
+                ];
+            }
         }
 
         return [
@@ -405,7 +449,7 @@ class JsonToSectionsAdapter
     }
 
     /**
-     * Convert table block - maps to PdfBuilder's product/task table format
+     * Convert table block - builds complete table with custom columns and styling
      */
     private function convertTableBlock(array $block): array
     {
@@ -415,18 +459,41 @@ class JsonToSectionsAdapter
         // Determine table type from column fields
         $tableType = $this->detectTableType($columns);
 
-        // Build header elements
+        // Get filtered line items for visibility calculation
+        $filteredItems = $this->getFilteredLineItems($tableType);
+
+        // Calculate which columns are empty (for hiding)
+        $columnVisibility = $this->calculateColumnVisibility($columns, $filteredItems);
+
+        // Check if we should hide empty columns
+        $hideEmptyColumns = $this->service->config->settings->hide_empty_columns_on_pdf ?? false;
+
+        // Build header elements (only for visible columns)
         $headerElements = [];
-        foreach ($columns as $column) {
+        $visibleColumnIndices = [];
+        foreach ($columns as $index => $column) {
+            $columnId = $column['id'] ?? $index;
+            $isEmpty = $columnVisibility[$columnId] ?? false;
+
+            // Skip if column is empty and setting is enabled
+            if ($hideEmptyColumns && $isEmpty) {
+                continue;
+            }
+
+            $visibleColumnIndices[] = $index;
             $headerElements[] = [
                 'element' => 'th',
                 'content' => $column['header'] ?? '',
                 'properties' => [
                     'data-ref' => "{$tableType}_table-{$column['id']}-th",
                     'style' => $this->buildTableHeaderStyle($props, $column),
+                    'visi' => true, // Mark as visible for border-radius logic
                 ],
             ];
         }
+
+        // Build table body rows with only visible columns
+        $bodyRows = $this->buildTableBodyRows($columns, $tableType, $props, $columnVisibility, $hideEmptyColumns);
 
         return [
             'id' => $block['id'],
@@ -451,11 +518,222 @@ class JsonToSectionsAdapter
                     ],
                     [
                         'element' => 'tbody',
-                        'elements' => [], // Will be populated by PdfBuilder::buildTableBody()
+                        'elements' => $bodyRows,
                     ],
                 ],
             ]],
         ];
+    }
+
+    /**
+     * Build table body rows using JSON design's custom columns
+     *
+     * @param array $columns Column definitions from JSON design
+     * @param string $tableType 'product' or 'task'
+     * @param array $props Table properties for styling
+     * @param array $columnVisibility Which columns are empty
+     * @param bool $hideEmptyColumns Whether to hide empty columns
+     * @return array Array of row elements
+     */
+    private function buildTableBodyRows(array $columns, string $tableType, array $props, array $columnVisibility, bool $hideEmptyColumns): array
+    {
+        $rows = [];
+
+        // Get filtered line items
+        $filteredItems = $this->getFilteredLineItems($tableType);
+
+        // Build rows
+        foreach ($filteredItems as $item) {
+            $rowElements = [];
+
+            foreach ($columns as $index => $column) {
+                $columnId = $column['id'] ?? $index;
+                $isEmpty = $columnVisibility[$columnId] ?? false;
+
+                // Skip if column is empty and setting is enabled
+                if ($hideEmptyColumns && $isEmpty) {
+                    continue;
+                }
+
+                $field = $column['field'] ?? '';
+                $value = $this->getFieldValue($item, $field, $tableType);
+
+                $rowElements[] = [
+                    'element' => 'td',
+                    'content' => $value,
+                    'properties' => [
+                        'data-ref' => "{$tableType}_table-{$column['id']}-td",
+                        'style' => $this->buildTableCellStyle($props, $column),
+                        'visi' => true, // Mark as visible for border-radius logic
+                    ],
+                ];
+            }
+
+            // Apply parseVisibleElements-style logic for first/last cells
+            if (!empty($rowElements)) {
+                $rows[] = [
+                    'element' => 'tr',
+                    'elements' => $rowElements,
+                ];
+            }
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Get filtered line items by table type
+     *
+     * @param string $tableType 'product' or 'task'
+     * @return array Filtered line items
+     */
+    private function getFilteredLineItems(string $tableType): array
+    {
+        $lineItems = $this->service->config->entity->line_items ?? [];
+        $filteredItems = [];
+
+        foreach ($lineItems as $item) {
+            $itemTypeId = (string)($item->type_id ?? '1');
+
+            if ($tableType === 'product') {
+                // Include products (1) and related types (4, 5, 6)
+                if (in_array($itemTypeId, ['1', '4', '5', '6'])) {
+                    $filteredItems[] = $item;
+                }
+            } elseif ($tableType === 'task') {
+                // Include only tasks (2)
+                if ($itemTypeId === '2') {
+                    $filteredItems[] = $item;
+                }
+            }
+        }
+
+        return $filteredItems;
+    }
+
+    /**
+     * Calculate which columns are empty across all rows
+     *
+     * @param array $columns Column definitions
+     * @param array $items Line items to check
+     * @return array Map of columnId => isEmpty (true if all values empty)
+     */
+    private function calculateColumnVisibility(array $columns, array $items): array
+    {
+        $visibility = [];
+
+        foreach ($columns as $index => $column) {
+            $columnId = $column['id'] ?? $index;
+            $field = $column['field'] ?? '';
+            $isEmpty = true;
+
+            // Check if any row has a non-empty value for this column
+            foreach ($items as $item) {
+                $value = $this->getFieldValue($item, $field, '');
+
+                if (!empty($value) && $value !== '0' && $value !== '0.00') {
+                    $isEmpty = false;
+                    break;
+                }
+            }
+
+            $visibility[$columnId] = $isEmpty;
+        }
+
+        return $visibility;
+    }
+
+    /**
+     * Get formatted field value from line item
+     *
+     * @param object $item Line item object
+     * @param string $field Field reference (e.g., 'item.product_key')
+     * @param string $tableType 'product' or 'task'
+     * @return string Formatted value
+     */
+    private function getFieldValue($item, string $field, string $tableType): string
+    {
+        // Remove 'item.' prefix if present
+        $fieldName = str_replace('item.', '', $field);
+
+        // Map common field names
+        $fieldMappings = [
+            'product_key' => 'product_key',
+            'notes' => 'notes',
+            'description' => 'notes',
+            'quantity' => 'quantity',
+            'cost' => 'cost',
+            'unit_cost' => 'cost',
+            'line_total' => 'line_total',
+            'discount' => 'discount',
+            'tax' => 'tax_amount',
+            'tax_amount' => 'tax_amount',
+            'tax_rate1' => 'tax_rate1',
+            'tax_rate2' => 'tax_rate2',
+            'tax_rate3' => 'tax_rate3',
+        ];
+
+        $actualField = $fieldMappings[$fieldName] ?? $fieldName;
+
+        // Get raw value
+        $rawValue = $item->{$actualField} ?? '';
+
+        // Format based on field type
+        return $this->formatFieldValue($rawValue, $fieldName, $item);
+    }
+
+    /**
+     * Format field value based on type
+     *
+     * @param mixed $value Raw value
+     * @param string $fieldName Field name
+     * @param object $item Line item for context
+     * @return string Formatted value
+     */
+    private function formatFieldValue($value, string $fieldName, $item): string
+    {
+        // Handle empty values
+        if ($value === null || $value === '') {
+            return '';
+        }
+
+        // Format based on field type
+        switch ($fieldName) {
+            case 'quantity':
+                return $this->service->config->formatValueNoTrailingZeroes($value);
+
+            case 'cost':
+            case 'unit_cost':
+                return $this->service->config->formatMoney($value);
+
+            case 'line_total':
+            case 'tax_amount':
+                return $this->service->config->formatMoneyNoRounding($value);
+
+            case 'discount':
+                if (isset($item->is_amount_discount) && $item->is_amount_discount) {
+                    return $this->service->config->formatMoney($value);
+                } else {
+                    return $this->service->config->formatValueNoTrailingZeroes((float)$value) . '%';
+                }
+
+            case 'tax_rate1':
+            case 'tax_rate2':
+            case 'tax_rate3':
+                return $this->service->config->formatValueNoTrailingZeroes((float)$value) . '%';
+
+            case 'notes':
+            case 'description':
+                // Process reserved keywords (like :MONTH, :YEAR, etc.)
+                $currentDateTime = null;
+                if (isset($this->service->config->entity->next_send_date)) {
+                    $currentDateTime = \Carbon\Carbon::parse($this->service->config->entity->next_send_date);
+                }
+                return \App\Utils\Helpers::processReservedKeywords($value, $this->service->config->currency_entity, $currentDateTime);
+
+            default:
+                return (string)$value;
+        }
     }
 
     /**
@@ -822,6 +1100,31 @@ class JsonToSectionsAdapter
         $styles[] = 'width: 100%';
         $styles[] = 'border-collapse: collapse';
         $styles[] = 'font-size: ' . ($props['fontSize'] ?? '12px');
+
+        return implode('; ', $styles) . ';';
+    }
+
+    private function buildTableCellStyle(array $props, array $column): string
+    {
+        $styles = [];
+        $styles[] = 'padding: ' . ($props['padding'] ?? '8px');
+        $styles[] = 'text-align: ' . ($column['align'] ?? 'left');
+
+        if (isset($column['width'])) {
+            $styles[] = 'width: ' . $column['width'];
+        }
+
+        if ($props['showBorders'] ?? true) {
+            $styles[] = 'border: 1px solid ' . ($props['borderColor'] ?? '#E5E7EB');
+        }
+
+        if (isset($props['cellColor'])) {
+            $styles[] = 'color: ' . $props['cellColor'];
+        }
+
+        if (isset($props['rowBg'])) {
+            $styles[] = 'background: ' . $props['rowBg'];
+        }
 
         return implode('; ', $styles) . ';';
     }

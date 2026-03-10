@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -37,22 +37,16 @@ class CompanyUserController extends BaseController
      *
      * @return void
      */
-    public function index()
-    {
-    }
+    public function index() {}
 
     /**
      * Show the form for creating a new resource.
      *
      * @return void
      */
-    public function create()
-    {
-    }
+    public function create() {}
 
-    public function store()
-    {
-    }
+    public function store() {}
 
     /**
      * Display the specified resource.

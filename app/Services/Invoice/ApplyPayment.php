@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -18,9 +18,7 @@ use App\Services\AbstractService;
 
 class ApplyPayment extends AbstractService
 {
-    public function __construct(private Invoice $invoice, private Payment $payment, private float $payment_amount)
-    {
-    }
+    public function __construct(private Invoice $invoice, private Payment $payment, private float $payment_amount) {}
 
     /* Apply payment to a single invoice */
     public function run()

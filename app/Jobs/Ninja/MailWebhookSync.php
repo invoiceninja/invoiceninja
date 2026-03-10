@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -54,7 +54,7 @@ class MailWebhookSync implements ShouldQueue
      */
     public function handle()
     {
-        
+
         if (! Ninja::isHosted()) {
             return;
         }
@@ -69,58 +69,81 @@ class MailWebhookSync implements ShouldQueue
 
     private function scanSentEmails()
     {
+        $invitationTypes = [
+            \App\Models\InvoiceInvitation::class,
+            \App\Models\QuoteInvitation::class,
+            \App\Models\RecurringInvoiceInvitation::class,
+            \App\Models\CreditInvitation::class,
+            \App\Models\PurchaseOrderInvitation::class,
+        ];
 
-        $query = \App\Models\InvoiceInvitation::whereNotNull('message_id')
-        ->whereNull('email_status')
-        ->whereHas('company', function ($q) {
-            $q->where('settings->email_sending_method', 'default');
-        });
+        foreach ($invitationTypes as $model) {
 
-        $this->runIterator($query);
+            $query = $model::whereBetween('created_at', [now()->subHours(12), now()->subHour()])
+                ->whereNotNull('message_id')
+                ->whereNull('email_status')
+                ->whereHas('company', function ($q) {
+                    $q->where('settings->email_sending_method', 'default');
+                });
 
-
-        $query = \App\Models\QuoteInvitation::whereNotNull('message_id')
-        ->whereNull('email_status')
-        ->whereHas('company', function ($q) {
-            $q->where('settings->email_sending_method', 'default');
-        });
-
-        $this->runIterator($query);
-
-
-        $query = \App\Models\RecurringInvoiceInvitation::whereNotNull('message_id')
-        ->whereNull('email_status')
-        ->whereHas('company', function ($q) {
-            $q->where('settings->email_sending_method', 'default');
-        });
-
-        $this->runIterator($query);
-
-
-        $query = \App\Models\CreditInvitation::whereNotNull('message_id')
-        ->whereNull('email_status')
-        ->whereHas('company', function ($q) {
-            $q->where('settings->email_sending_method', 'default');
-        });
-
-        $this->runIterator($query);
-
-
-        $query = \App\Models\PurchaseOrderInvitation::whereNotNull('message_id')
-        ->whereNull('email_status')
-        ->whereHas('company', function ($q) {
-            $q->where('settings->email_sending_method', 'default');
-        });
-
-        $this->runIterator($query);
-
+            $this->runIterator($query);
+        }
     }
+
+    // private function scanSentEmails()
+    // {
+
+    //     $query = \App\Models\InvoiceInvitation::whereNotNull('message_id')
+    //     ->whereNull('email_status')
+    //     ->whereHas('company', function ($q) {
+    //         $q->where('settings->email_sending_method', 'default');
+    //     });
+
+    //     $this->runIterator($query);
+
+
+    //     $query = \App\Models\QuoteInvitation::whereNotNull('message_id')
+    //     ->whereNull('email_status')
+    //     ->whereHas('company', function ($q) {
+    //         $q->where('settings->email_sending_method', 'default');
+    //     });
+
+    //     $this->runIterator($query);
+
+
+    //     $query = \App\Models\RecurringInvoiceInvitation::whereNotNull('message_id')
+    //     ->whereNull('email_status')
+    //     ->whereHas('company', function ($q) {
+    //         $q->where('settings->email_sending_method', 'default');
+    //     });
+
+    //     $this->runIterator($query);
+
+
+    //     $query = \App\Models\CreditInvitation::whereNotNull('message_id')
+    //     ->whereNull('email_status')
+    //     ->whereHas('company', function ($q) {
+    //         $q->where('settings->email_sending_method', 'default');
+    //     });
+
+    //     $this->runIterator($query);
+
+
+    //     $query = \App\Models\PurchaseOrderInvitation::whereNotNull('message_id')
+    //     ->whereNull('email_status')
+    //     ->whereHas('company', function ($q) {
+    //         $q->where('settings->email_sending_method', 'default');
+    //     });
+
+    //     $this->runIterator($query);
+
+    // }
 
     private function runIterator($query)
     {
-        $query->whereBetween('created_at', [now()->subHours(12), now()->subHour()])
-        ->orderBy('id', 'desc')
-        ->each(function ($invite) {
+        // $query->whereBetween('created_at', [now()->subHours(12), now()->subHour()])
+        // ->orderBy('id', 'desc')
+        $query->each(function ($invite) {
 
             $token = config('services.postmark.token');
             $postmark = new \Postmark\PostmarkClient($token);
@@ -135,10 +158,10 @@ class MailWebhookSync implements ShouldQueue
 
                 try {
                     $messageDetail = $postmark->getOutboundMessageDetails($invite->message_id);
-                } catch (\Throwable $th){
+                } catch (\Throwable $th) {
 
                 }
-                
+
             }
 
             try {
@@ -157,7 +180,7 @@ class MailWebhookSync implements ShouldQueue
                     'DeliveredAt' => '2025-01-01T16:34:52Z',
                     'Metadata' => [
 
-                    ]
+                    ],
                 ];
 
                 (new \App\Jobs\PostMark\ProcessPostmarkWebhook($data, $token))->handle();
@@ -180,7 +203,7 @@ class MailWebhookSync implements ShouldQueue
 
     public function failed($exception)
     {
-        nlog("MailWebhookSync:: Exception:: => ".$exception->getMessage());
+        nlog("MailWebhookSync:: Exception:: => " . $exception->getMessage());
         config(['queue.failed.driver' => null]);
     }
 }

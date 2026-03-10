@@ -21,9 +21,7 @@ use App\Models\Company;
  */
 class BaseTransformer
 {
-    public function __construct(public Company $company)
-    {
-    }
+    public function __construct(public Company $company) {}
 
     public function resolveCountry(?string $iso_3_code): string
     {
@@ -44,7 +42,7 @@ class BaseTransformer
         $currency = app('currencies')->first(function ($c) use ($currency_code) {
 
             /** @var \App\Models\Currency $c */
-            return $c->code == $currency_code;
+            return $c->code == strtoupper($currency_code);
         });
 
         return $currency ? (string) $currency->id : $this->company->settings->currency_id;

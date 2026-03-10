@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -44,7 +44,7 @@ class StoreProjectRequest extends Request
         $rules = [];
 
         $rules['name'] = 'required';
-        $rules['client_id'] = 'required|exists:clients,id,company_id,'.$user->company()->id;
+        $rules['client_id'] = 'required|exists:clients,id,company_id,' . $user->company()->id;
         $rules['budgeted_hours'] = 'sometimes|numeric';
         $rules['task_rate'] = 'required|bail|numeric';
 

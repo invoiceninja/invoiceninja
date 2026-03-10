@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -20,36 +20,36 @@ use Illuminate\Validation\Validator;
 class AddTaxIdentifierRequest extends FormRequest
 {
     public static array $vat_regex_patterns = [
-        'GB' => '/^GB(\d{9}|\d{12})$/',            // Great Britain
-        'DE' => '/^DE\d{9}$/',                     // Germany
-        'AT' => '/^ATU\d{8}$/',                    // Austria
-        'BE' => '/^BE[0-1]\d{9}$/',                // Belgium
-        'BG' => '/^BG\d{9,10}$/',                  // Bulgaria
-        'CY' => '/^CY\d{8}[A-Z]$/',                // Cyprus
-        'HR' => '/^HR\d{11}$/',                    // Croatia
-        'DK' => '/^DK\d{8}$/',                     // Denmark
-        'ES' => '/^ES[A-Z0-9]\d{7}[A-Z0-9]$/',     // Spain
-        'EE' => '/^EE\d{9}$/',                     // Estonia
-        'FI' => '/^FI\d{8}$/',                     // Finland
-        'FR' => '/^FR[A-Z0-9]{2}\d{9}$/',          // France
-        'EL' => '/^EL\d{9}$/',                     // Greece
+        'AT' => '/^ATU\d{8}$/',                     // Austria
+        'BE' => '/^BE[01]\d{9}$/',                  // Belgium
+        'BG' => '/^BG\d{9,10}$/',                   // Bulgaria
+        'CY' => '/^CY\d{8}[A-Z]$/',                 // Cyprus
+        'CZ' => '/^CZ\d{8,10}$/',                   // Czech Republic
+        'DE' => '/^DE\d{9}$/',                      // Germany
+        'DK' => '/^DK\d{8}$/',                      // Denmark
+        'EE' => '/^EE\d{9}$/',                      // Estonia
+        'EL' => '/^EL\d{9}$/',                      // Greece
+        'ES' => '/^ES[A-Z0-9]\d{7}[A-Z0-9]$/',      // Spain
+        'FI' => '/^FI\d{8}$/',                      // Finland
+        'FR' => '/^FR[A-HJ-NP-Z0-9]{2}\d{9}$/',      // France
+        'GB' => '/^GB(\d{9}|\d{12})$/',              // Great Britain
+        'HR' => '/^HR\d{11}$/',                     // Croatia
         'HU' => '/^HU\d{8}$/',                     // Hungary
-        'IE' => '/^IE\d{7}[A-WYZ][A-Z]?$/',        // Ireland
-        'IT' => '/^IT\d{11}$/',                    // Italy
-        'IS' => '/^IS\d{10}|IS[\dA-Z]{6}$/',       // Iceland
-        'LV' => '/^LV\d{11}$/',                    // Latvia
-        'LT' => '/^LT(\d{9}|\d{12})$/',            // Lithuania
+        'IE' => '/^IE\d[A-Z0-9+*]\d{5}[A-Z]{1,2}$/', // Ireland
+        'IS' => '/^IS(\d{10}|[\dA-Z]{6})$/',        // Iceland
+        'IT' => '/^IT\d{11}$/',                     // Italy
+        'LT' => '/^LT(\d{9}|\d{12})$/',             // Lithuania
         'LU' => '/^LU\d{8}$/',                     // Luxembourg
+        'LV' => '/^LV\d{11}$/',                    // Latvia
         'MT' => '/^MT\d{8}$/',                     // Malta
-        'NL' => '/^NL\d{9}B\d{2}$/',               // Netherlands
-        'NO' => '/^NO\d{9}MVA$/',                     // Norway
+        'NL' => '/^NL\d{9}B\d{2}$/',                // Netherlands
+        'NO' => '/^NO\d{9}MVA$/',                   // Norway
         'PL' => '/^PL\d{10}$/',                    // Poland
         'PT' => '/^PT\d{9}$/',                     // Portugal
-        'CZ' => '/^CZ\d{8,10}$/',                  // Czech Republic
-        'RO' => '/^RO\d{2,10}$/',                  // Romania
-        'SK' => '/^SK\d{10}$/',                    // Slovakia
+        'RO' => '/^RO\d{2,10}$/',                   // Romania
+        'SE' => '/^SE\d{12}$/',                     // Sweden
         'SI' => '/^SI\d{8}$/',                     // Slovenia
-        'SE' => '/^SE\d{12}$/',                    // Sweden
+        'SK' => '/^SK\d{10}$/',                    // Slovakia
     ];
 
     public function authorize(): bool
@@ -79,20 +79,20 @@ class AddTaxIdentifierRequest extends FormRequest
                 }
             }],
             'vat_number' => [
-               'required',
-               'string',
-               'bail',
-               function ($attribute, $value, $fail) use ($company) {
-                   if ($this->country && isset(self::$vat_regex_patterns[$this->country])) {
-                       if (!preg_match(self::$vat_regex_patterns[$this->country], $value)) {
-                           $fail(ctrans('texts.invalid_vat_number'));
-                       }
-                   }
-                   if ($company->settings->classification == 'individual') {
-                       $fail("Individuals cannot register additional VAT numbers, only business entities");
-                   }
-               },
-            ]
+                'required',
+                'string',
+                'bail',
+                function ($attribute, $value, $fail) use ($company) {
+                    if ($this->country && isset(self::$vat_regex_patterns[$this->country])) {
+                        if (!preg_match(self::$vat_regex_patterns[$this->country], $value)) {
+                            $fail(ctrans('texts.invalid_vat_number'));
+                        }
+                    }
+                    if ($company->settings->classification == 'individual') {
+                        $fail("Individuals cannot register additional VAT numbers, only business entities");
+                    }
+                },
+            ],
         ];
     }
 

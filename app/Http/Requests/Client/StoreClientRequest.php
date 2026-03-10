@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -78,39 +78,41 @@ class StoreClientRequest extends Request
         $rules['country_id'] = 'integer|nullable|exists:countries,id';
         $rules['custom_value1'] = ['bail','nullable','sometimes',function ($attribute, $value, $fail) {
             if (is_array($value)) {
-                    $fail("The $attribute must not be an array.");
-                }
-            }];
+                $fail("The $attribute must not be an array.");
+            }
+        }];
         $rules['custom_value2'] = ['bail','nullable','sometimes',function ($attribute, $value, $fail) {
             if (is_array($value)) {
-                    $fail("The $attribute must not be an array.");
-                }
-            }];
+                $fail("The $attribute must not be an array.");
+            }
+        }];
         $rules['custom_value3'] = ['bail','nullable','sometimes',function ($attribute, $value, $fail) {
             if (is_array($value)) {
-                    $fail("The $attribute must not be an array.");
-                }
-            }];
+                $fail("The $attribute must not be an array.");
+            }
+        }];
         $rules['custom_value4'] = ['bail','nullable','sometimes',function ($attribute, $value, $fail) {
             if (is_array($value)) {
-                    $fail("The $attribute must not be an array.");
-                }
-            }];
+                $fail("The $attribute must not be an array.");
+            }
+        }];
 
+        $rules['settings.currency_id'] = 'required|exists:currencies,id';
+        
         return $rules;
     }
 
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            
+
             $user = auth()->user();
             $company = $user->company();
 
-            if(isset($this->settings['lock_invoices']) && $company->verifactuEnabled() && $this->settings['lock_invoices'] != 'when_sent'){
+            if (isset($this->settings['lock_invoices']) && $company->verifactuEnabled() && $this->settings['lock_invoices'] != 'when_sent') {
                 $validator->errors()->add('settings.lock_invoices', 'Locked Invoices Cannot Be Disabled');
             }
-            
+
         });
     }
 
@@ -129,13 +131,13 @@ class StoreClientRequest extends Request
         }
 
         /* Default settings */
-        $settings = (array)ClientSettings::defaults();
+        $settings = (array) ClientSettings::defaults();
 
         /* Stub settings if they don't exist */
         if (!array_key_exists('settings', $input) || is_null($input['settings'])) {
             $input['settings'] = [];
         } elseif (is_object($input['settings'])) {
-            $input['settings'] = (array)$input['settings'];
+            $input['settings'] = (array) $input['settings'];
         }
 
         /* Merge default into base settings */
@@ -225,7 +227,7 @@ class StoreClientRequest extends Request
 
         $language = $languages->firstWhere('locale', $language_code);
 
-        return $language ? (string)$language->id : '';
+        return $language ? (string) $language->id : '';
 
     }
 
@@ -234,6 +236,8 @@ class StoreClientRequest extends Request
 
         /** @var \Illuminate\Support\Collection<\App\Models\Country> */
         $countries = app('countries');
+
+        $country_code = strtoupper($country_code);
 
         $country = $countries->first(function ($item) use ($country_code) {
             return $item->iso_3166_2 == $country_code || $item->iso_3166_3 == $country_code;
@@ -249,11 +253,13 @@ class StoreClientRequest extends Request
         /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
         $currencies = app('currencies');
 
+        $code = strtoupper($code);
+        
         $currency = $currencies->first(function ($item) use ($code) {
             return $item->code == $code;
         });
 
-        return  $currency ? (string)$currency->id : '';
+        return  $currency ? (string) $currency->id : '';
 
     }
 }

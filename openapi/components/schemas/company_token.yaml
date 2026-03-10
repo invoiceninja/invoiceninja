@@ -11,5 +11,5 @@
         is_system:
           description: 'Determines whether the token is created by the system rather than a user'
           type: boolean
-          example: 'true'
+          example: true
       type: object

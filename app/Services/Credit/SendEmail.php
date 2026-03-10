@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,27 +13,16 @@
 namespace App\Services\Credit;
 
 use App\Utils\Ninja;
+use App\Models\Credit;
 use App\Models\Webhook;
 use App\Models\ClientContact;
-use App\Jobs\Entity\EmailEntity;
 use App\Events\Credit\CreditWasEmailed;
 use App\Events\General\EntityWasEmailed;
 
 class SendEmail
 {
-    public $credit;
-
-    protected $reminder_template;
-
-    protected $contact;
-
-    public function __construct($credit, $reminder_template = null, ClientContact $contact = null)
+    public function __construct(public Credit $credit, protected ?string $reminder_template = null, protected ?ClientContact $contact = null)
     {
-        $this->credit = $credit;
-
-        $this->reminder_template = $reminder_template;
-
-        $this->contact = $contact;
     }
 
     /**
@@ -61,7 +50,7 @@ class SendEmail
 
             if (! $invitation->contact->trashed() && $invitation->contact->email && !$invitation->contact->is_locked) {
                 \App\Services\Email\Email::dispatch($mo, $invitation->company);
-                $this->credit->entityEmailEvent($invitation, 'credit', 'credit');
+                $this->credit->entityEmailEvent($invitation, 'credit');
             }
         });
 

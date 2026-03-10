@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -52,7 +52,7 @@ class ProductDecorator implements DecoratorInterface
 
         $category = ctrans('texts.physical_goods');
 
-        match($product->tax_id) {
+        match ($product->tax_id) {
             1 => $category =  ctrans('texts.physical_goods'),
             2 => $category = ctrans('texts.services'),
             3 => $category =  ctrans('texts.digital_products'),

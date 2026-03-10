@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -72,7 +72,7 @@ class Rule extends BaseRule implements RuleInterface
             return $this->taxExempt($item);
         }
 
-        match(intval($item->tax_id)) {
+        match (intval($item->tax_id)) {
             Product::PRODUCT_TYPE_EXEMPT => $this->taxExempt($item),
             Product::PRODUCT_TYPE_DIGITAL => $this->taxDigital($item),
             Product::PRODUCT_TYPE_SERVICE => $this->taxService($item),
@@ -247,11 +247,11 @@ class Rule extends BaseRule implements RuleInterface
         }
 
         // B2B within EU with valid VAT
-        if ($this->client_subregion != $this->client->company->tax_data->seller_subregion &&
-            in_array($this->client_subregion, $this->eu_country_codes) &&
-            $this->client->vat_number &&
-            $this->client->has_valid_vat_number &&
-            $this->eu_business_tax_exempt) {
+        if ($this->client_subregion != $this->client->company->tax_data->seller_subregion
+            && in_array($this->client_subregion, $this->eu_country_codes)
+            && $this->client->vat_number
+            && $this->client->has_valid_vat_number
+            && $this->eu_business_tax_exempt) {
             $this->tax_rate = 0;
             $this->reduced_tax_rate = 0;
             return $this;
@@ -269,9 +269,9 @@ class Rule extends BaseRule implements RuleInterface
         }
 
         // B2C or invalid VAT within EU
-        $is_b2c = strlen($this->client->vat_number ?? '') <= 1 ||
-                !$this->client->has_valid_vat_number ||
-                $this->client->classification == 'individual';
+        $is_b2c = strlen($this->client->vat_number ?? '') <= 1
+                || !$this->client->has_valid_vat_number
+                || $this->client->classification == 'individual';
 
         if ($is_b2c) {
             $is_over_threshold = $this->client->company->tax_data->regions->EU->has_sales_above_threshold ?? false;

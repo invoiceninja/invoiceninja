@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -72,8 +72,7 @@ class TemplateAction implements ShouldQueue
         private string $db,
         private string $hash,
         private bool $send_email = false
-    ) {
-    }
+    ) {}
 
     /**
      * Execute the job.
@@ -93,7 +92,7 @@ class TemplateAction implements ShouldQueue
 
         $template_service = new \App\Services\Template\TemplateService($template);
 
-        match($this->entity) {
+        match ($this->entity) {
             Invoice::class => $resource->with('payments', 'client'),
             Quote::class => $resource->with('client'),
             Task::class => $resource->with('client'),

@@ -28,9 +28,14 @@ class InvoiceTransformer extends BaseTransformer
      */
     public function transform($line_items_data)
     {
-        $invoice_data = reset($line_items_data);
+        if (!empty($line_items_data) && is_array(reset($line_items_data))) {
+            $invoice_data = reset($line_items_data);
+        } else {
+            $invoice_data = $line_items_data;
+            $line_items_data = [$invoice_data];
+        }
 
-        if ($this->hasInvoice($invoice_data['Invoice Number'])) {
+        if (isset($invoice_data['Invoice Number']) && $this->hasInvoice($invoice_data['Invoice Number'])) {
             throw new ImportException('Invoice number already exists');
         }
 
@@ -51,8 +56,8 @@ class InvoiceTransformer extends BaseTransformer
             // 'currency_id'  => $this->getCurrencyByCode($invoice_data, 'Currency'),
             'amount'       => $this->getFloat($invoice_data, 'Total'),
             'balance'      => $this->getFloat($invoice_data, 'Balance'),
-            'status_id'    => $invoiceStatusMap[$status =
-                    strtolower($this->getString($invoice_data, 'Invoice Status'))] ?? Invoice::STATUS_SENT,
+            'status_id'    => $invoiceStatusMap[$status
+                    = strtolower($this->getString($invoice_data, 'Invoice Status'))] ?? Invoice::STATUS_SENT,
             'terms'        => $this->getString($invoice_data, 'Terms & Conditions'),
 
             // 'viewed'       => $status === 'viewed',

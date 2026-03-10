@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -86,13 +86,9 @@ class RazorpayPaymentDriver extends BaseDriver
         return $this->payment_method->paymentResponse($request);
     }
 
-    public function refund(Payment $payment, $amount, $return_client_response = false)
-    {
-    }
+    public function refund(Payment $payment, $amount, $return_client_response = false) {}
 
-    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
-    {
-    }
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash) {}
 
     /**
      * Convert the amount to the format that Razorpay supports.

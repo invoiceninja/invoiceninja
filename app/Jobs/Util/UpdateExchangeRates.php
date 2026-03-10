@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -29,9 +29,7 @@ class UpdateExchangeRates implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Execute the job.
@@ -60,7 +58,7 @@ class UpdateExchangeRates implements ShouldQueue
                 /* Update all currencies */
                 Currency::all()->each(function ($currency) use ($currency_api) {
 
-                    if(isset($currency_api->rates->{$currency->code})) {
+                    if (isset($currency_api->rates->{$currency->code})) {
                         $currency->exchange_rate = $currency_api->rates->{$currency->code};
                         $currency->save();
                     }

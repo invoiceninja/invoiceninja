@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -27,6 +27,23 @@ class CheckACHStatus implements ShouldQueue
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
+
+    private array $authnet_success_statuses = [
+        'settledSuccessfully',
+        'refundSettledSuccessfully',
+    ];
+    
+    private array $authnet_failure_statuses = [
+        'declined',
+        'voided',
+        'returnedItem',
+        'chargeback',
+        'settlementError',
+        'generalError',
+        'communicationError',
+        'FDSDeclined',
+    ];
+
 
     /**
      * Create a new job instance.
@@ -55,6 +72,7 @@ class CheckACHStatus implements ShouldQueue
             ClientGatewayToken::query()
             ->where('created_at', '>', now()->subMonths(2))
             ->where('gateway_type_id', 2)
+            ->where('is_deleted', false)
             ->whereHas('gateway', function ($q) {
                 $q->whereIn('gateway_key', ['d14dd26a37cecc30fdd65700bfb55b23','d14dd26a47cecc30fdd65700bfb67b34']);
             })
@@ -80,7 +98,9 @@ class CheckACHStatus implements ShouldQueue
 
             });
 
+            /** Stripe ACH Paymnets that are pending */
             Payment::where('status_id', 1)
+            ->where('is_deleted', false)
             ->whereHas('company_gateway', function ($q) {
                 $q->whereIn('gateway_key', ['d14dd26a47cecc30fdd65700bfb67b34', 'd14dd26a37cecc30fdd65700bfb55b23']);
             })
@@ -96,7 +116,7 @@ class CheckACHStatus implements ShouldQueue
                 $pi = false;
 
                 try {
-                    if(str_starts_with($p->transaction_reference, 'pi_')){
+                    if (str_starts_with($p->transaction_reference, 'pi_')) {
                         $pi = $stripe->getPaymentIntent($p->transaction_reference);
                     }
                 } catch (\Exception $e) {
@@ -108,20 +128,19 @@ class CheckACHStatus implements ShouldQueue
                     try {
                         $charge = \Stripe\Charge::retrieve($p->transaction_reference, $stripe->stripe_connect_auth);
 
-                        if($charge &&$charge->status == 'failed'){
+                        if ($charge && $charge->status == 'failed') {
                             $p->service()->deletePayment();
                             $p->status_id = \App\Models\Payment::STATUS_FAILED;
                             $p->save();
                             return;
-                        }
-                        elseif($charge && $charge->status == 'succeeded'){
+                        } elseif ($charge && $charge->status == 'succeeded') {
                             $p->status_id = Payment::STATUS_COMPLETED;
                             $p->saveQuietly();
                             return;
                         }
 
                     } catch (\Exception $e) {
-                       
+
                     }
 
                 }
@@ -132,25 +151,22 @@ class CheckACHStatus implements ShouldQueue
                     $p->saveQuietly();
                     return;
                 }
-                
-                if($pi && $pi->latest_charge){
+
+                if ($pi && $pi->latest_charge) {
 
                     $charge = \Stripe\Charge::retrieve($pi->latest_charge, $stripe->stripe_connect_auth);
 
-                    if($charge &&$charge->status == 'failed'){
+                    if ($charge && $charge->status == 'failed') {
                         $p->service()->deletePayment();
                         $p->status_id = \App\Models\Payment::STATUS_FAILED;
                         $p->save();
                         return;
-                    }
-                    elseif($charge && $charge->status == 'succeeded'){
+                    } elseif ($charge && $charge->status == 'succeeded') {
                         $p->status_id = \App\Models\Payment::STATUS_COMPLETED;
                         $p->saveQuietly();
                         return;
                     }
                 }
-
-                
 
                 if ($pi) {
                     nlog("{$p->id} did not complete {$p->transaction_reference}");
@@ -158,14 +174,13 @@ class CheckACHStatus implements ShouldQueue
                     nlog("did not find a payment intent {$p->transaction_reference}");
                 }
 
-                
-
             });
 
             /**
              * Blockonomics payments that have been pending for over 3 days are deleted
              */
             Payment::where('status_id', 1)
+                ->where('is_deleted', false)
                 ->where('created_at', '<', now()->startOfDay()->subDays(3))
                 ->whereHas('company_gateway', function ($q) {
                     $q->where('gateway_key', 'wbhf02us6owgo7p4nfjd0ymssdshks4d');
@@ -176,7 +191,44 @@ class CheckACHStatus implements ShouldQueue
                     $p->status_id = \App\Models\Payment::STATUS_FAILED;
                     $p->save();
                 });
-            
+
+            /**
+             * Authorize ACH Payments that are pending for over 2 days
+             */
+             Payment::with('client','company_gateway')
+                ->where('status_id', 1)
+                ->where('is_deleted', false)
+                ->where('created_at', '<', now()->startOfDay()->subDays(3))
+                ->where('gateway_type_id', 2)
+                    ->whereHas('company_gateway', function ($q) {
+                        $q->where('gateway_key', '3b6621f970ab18887c4f6dca78d3f8bb');
+                    })
+                    ->cursor()
+                    ->each(function ($p) {
+                                    
+                        try{
+                            $driver = $p->company_gateway->driver($p->client)->init();
+                            $authorize_transaction = new \App\PaymentDrivers\Authorize\AuthorizeTransactions($driver);
+                            $transaction_details = $authorize_transaction->getTransactionDetails($p->transaction_reference);
+
+                            $transaction = $transaction_details->getTransaction();
+                            $transaction_status = $transaction->getTransactionStatus();
+
+                            if(in_array($transaction_status, $this->authnet_success_statuses)) {
+                                $p->status_id = \App\Models\Payment::STATUS_COMPLETED;
+                                $p->saveQuietly();
+                                return;
+                            } elseif(in_array($transaction_status, $this->authnet_failure_statuses)) {
+                                $p->service()->deletePayment();
+                                $p->status_id = \App\Models\Payment::STATUS_FAILED;
+                                $p->save();
+                            }
+                        }
+                        catch(\Throwable $e){
+                            nlog("Error checking ACH status for payment {$p->id}: {$e->getMessage()}");
+                        }
+
+                    });
         }
     }
 }

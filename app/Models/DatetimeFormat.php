@@ -20,6 +20,7 @@ namespace App\Models;
  * @method static \Illuminate\Database\Eloquent\Builder|DatetimeFormat whereId($value)
  * @mixin \Eloquent
  */
+#[\AllowDynamicProperties]
 class DatetimeFormat extends StaticModel
 {
     /**

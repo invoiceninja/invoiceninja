@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -551,7 +551,7 @@ class PurchaseOrderController extends BaseController
             }, 'print.pdf', [
                 'Content-Type' => 'application/pdf',
                 'Cache-Control:' => 'no-cache',
-                'Server-Timing' => (string)(microtime(true) - $start)
+                'Server-Timing' => (string) (microtime(true) - $start),
             ]);
 
 
@@ -675,7 +675,7 @@ class PurchaseOrderController extends BaseController
 
                 return response()->streamDownload(function () use ($file) {
                     echo $file;
-                }, $purchase_order->numberFormatter().".pdf", ['Content-Type' => 'application/pdf']);
+                }, $purchase_order->numberFormatter() . ".pdf", ['Content-Type' => 'application/pdf']);
 
             case 'restore':
                 $this->purchase_order_repository->restore($purchase_order);
@@ -872,7 +872,7 @@ class PurchaseOrderController extends BaseController
 
         return response()->streamDownload(function () use ($file) {
             echo $file;
-        }, $purchase_order->numberFormatter().".pdf", $headers);
+        }, $purchase_order->numberFormatter() . ".pdf", $headers);
     }
     /**
      * @OA\Get(

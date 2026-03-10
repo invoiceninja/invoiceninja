@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -77,10 +77,11 @@ class InvitationController extends Controller
 
         $is_silent = 'false';
         $session_is_silent = session()->get('is_silent') ?? false;
-        $key = $entity.'_id';
+        $key = $entity . '_id';
 
-        $entity_obj = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
+        $entity_obj = 'App\Models\\' . ucfirst(Str::camel($entity)) . 'Invitation';
 
+        /** @var \App\Models\InvoiceInvitation | \App\Models\QuoteInvitation | \App\Models\CreditInvitation | \App\Models\RecurringInvoiceInvitation $invitation */
         $invitation = $entity_obj::withTrashed()
                                     ->with($entity)
                                     ->where('key', $invitation_key)
@@ -113,17 +114,18 @@ class InvitationController extends Controller
             //if no contact password has been set - allow user to set password - then continue to view entity
             if (empty($invitation->contact->password)) {
                 return $this->render('view_entity.set_password', [
-                            'root' => 'themes',
-                            'entity_type' => $entity,
-                            'invitation_key' => $invitation_key
-                        ]);
+                    'root' => 'themes',
+                    'entity_type' => $entity,
+                    'invitation_key' => $invitation_key,
+                ]);
             }
 
-            if (!auth()->guard('contact')->check()) {
+            if (!auth()->guard('contact')->check() || (int)auth()->guard('contact')->user()->id !== (int)$invitation->client_contact_id) {
                 $this->middleware('auth:contact');
                 /** @var \App\Models\InvoiceInvitation | \App\Models\QuoteInvitation | \App\Models\CreditInvitation | \App\Models\RecurringInvoiceInvitation $invitation */
-                return redirect()->route('client.login', ['intended' => route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key}), 'silent' => $is_silent])]);
+                return redirect()->route('client.login', ['company_key' => $invitation->company->company_key, 'intended' => route('client.' . $entity . '.show', [$entity => $this->encodePrimaryKey($invitation->{$key}), 'silent' => $is_silent])]);
             }
+
 
         } else {
             request()->session()->invalidate();
@@ -145,11 +147,11 @@ class InvitationController extends Controller
         } else {
             $is_silent = 'true';
 
-            return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key}), 'silent' => $is_silent]);
+            return redirect()->route('client.' . $entity . '.show', [$entity => $this->encodePrimaryKey($invitation->{$key}), 'silent' => $is_silent]);
 
         }
 
-        return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key})]);
+        return redirect()->route('client.' . $entity . '.show', [$entity => $this->encodePrimaryKey($invitation->{$key})]);
 
     }
 
@@ -189,9 +191,9 @@ class InvitationController extends Controller
             return response()->json(['message' => 'Invalid resource request']);
         }
 
-        $key = $entity.'_id';
+        $key = $entity . '_id';
 
-        $entity_obj = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
+        $entity_obj = 'App\Models\\' . ucfirst(Str::camel($entity)) . 'Invitation';
 
         $invitation = $entity_obj::withTrashed()
                                     ->where('key', $invitation_key)
@@ -202,7 +204,7 @@ class InvitationController extends Controller
             return response()->json(["message" => "no record found"], 400);
         }
 
-        $file_name = $invitation->{$entity}->numberFormatter().'.pdf';
+        $file_name = $invitation->{$entity}->numberFormatter() . '.pdf';
 
         $file = (new CreateRawPdf($invitation))->handle();
 
@@ -217,15 +219,13 @@ class InvitationController extends Controller
         }, $file_name, $headers);
     }
 
-    public function routerForIframe(string $entity, string $client_hash, string $invitation_key)
-    {
-    }
+    public function routerForIframe(string $entity, string $client_hash, string $invitation_key) {}
 
 
     public function handlePasswordSet(Request $request)
     {
-        $entity_obj = 'App\Models\\'.ucfirst(Str::camel($request->entity_type)).'Invitation';
-        $key = $request->entity_type.'_id';
+        $entity_obj = 'App\Models\\' . ucfirst(Str::camel($request->entity_type)) . 'Invitation';
+        $key = $request->entity_type . '_id';
 
         $invitation = $entity_obj::where('key', $request->invitation_key)
                                     ->whereHas($request->entity_type, function ($query) {
@@ -257,7 +257,7 @@ class InvitationController extends Controller
             }
         }
 
-        return redirect()->route('client.'.$request->entity_type.'.show', [$request->entity_type => $this->encodePrimaryKey($invitation->{$key})]);
+        return redirect()->route('client.' . $request->entity_type . '.show', [$request->entity_type => $this->encodePrimaryKey($invitation->{$key})]);
     }
 
     public function paymentRouter(string $contact_key, string $payment_id)
@@ -316,9 +316,9 @@ class InvitationController extends Controller
         }
 
         if ($invoice->partial > 0) {
-            $amount = round($invoice->partial, (int)$invoice->client->currency()->precision);
+            $amount = round($invoice->partial, (int) $invoice->client->currency()->precision);
         } else {
-            $amount = round($invoice->balance, (int)$invoice->client->currency()->precision);
+            $amount = round($invoice->balance, (int) $invoice->client->currency()->precision);
         }
 
         $gateways = $invitation->contact->client->service()->getPaymentMethods($amount);

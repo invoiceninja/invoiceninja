@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -35,20 +35,20 @@ class RecurringInvoiceFilters extends QueryFilters
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('date', 'like', '%'.$filter.'%')
-                  ->orWhere('amount', 'like', '%'.$filter.'%')
-                  ->orWhere('number', 'like', '%'.$filter.'%')
-                  ->orWhere('custom_value1', 'like', '%'.$filter.'%')
-                  ->orWhere('custom_value2', 'like', '%'.$filter.'%')
-                  ->orWhere('custom_value3', 'like', '%'.$filter.'%')
-                  ->orWhere('custom_value4', 'like', '%'.$filter.'%')
+            $query->where('date', 'like', '%' . $filter . '%')
+                  ->orWhere('amount', 'like', '%' . $filter . '%')
+                  ->orWhere('number', 'like', '%' . $filter . '%')
+                  ->orWhere('custom_value1', 'like', '%' . $filter . '%')
+                  ->orWhere('custom_value2', 'like', '%' . $filter . '%')
+                  ->orWhere('custom_value3', 'like', '%' . $filter . '%')
+                  ->orWhere('custom_value4', 'like', '%' . $filter . '%')
                   ->orWhereHas('client', function ($q) use ($filter) {
-                      $q->where('name', 'like', '%'.$filter.'%');
+                      $q->where('name', 'like', '%' . $filter . '%');
                   })
                   ->orWhereHas('client.contacts', function ($q) use ($filter) {
-                      $q->where('first_name', 'like', '%'.$filter.'%')
-                        ->orWhere('last_name', 'like', '%'.$filter.'%')
-                        ->orWhere('email', 'like', '%'.$filter.'%');
+                      $q->where('first_name', 'like', '%' . $filter . '%')
+                        ->orWhere('last_name', 'like', '%' . $filter . '%')
+                        ->orWhere('email', 'like', '%' . $filter . '%');
                   })
                     ->orWhereRaw("
                             JSON_UNQUOTE(JSON_EXTRACT(
@@ -56,7 +56,7 @@ class RecurringInvoiceFilters extends QueryFilters
                                     JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].notes')), 
                                     JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].product_key'))
                                 ), '$[*]')
-                            ) LIKE ?", ['%'.$filter.'%']);
+                            ) LIKE ?", ['%' . $filter . '%']);
             //->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].notes')) LIKE ?", ['%'.$filter.'%']);
         });
     }
@@ -86,7 +86,7 @@ class RecurringInvoiceFilters extends QueryFilters
         }
 
         $recurring_filters = [];
-        
+
         if (in_array('draft', $status_parameters)) {
             $recurring_filters[] = RecurringInvoice::STATUS_DRAFT;
         }
@@ -94,7 +94,7 @@ class RecurringInvoiceFilters extends QueryFilters
         if (in_array('active', $status_parameters)) {
             $recurring_filters[] = RecurringInvoice::STATUS_ACTIVE;
         }
-        
+
         if (in_array('paused', $status_parameters)) {
             $recurring_filters[] = RecurringInvoice::STATUS_PAUSED;
         }
@@ -144,7 +144,8 @@ class RecurringInvoiceFilters extends QueryFilters
 
 
             return $this->builder
-                ->orderByRaw("
+                ->orderByRaw(
+                    "
                     CASE 
                         WHEN CHAR_LENGTH((SELECT name FROM clients WHERE clients.id = recurring_invoices.client_id LIMIT 1)) > 1 
                             THEN (SELECT name FROM clients WHERE clients.id = recurring_invoices.client_id LIMIT 1)
@@ -163,7 +164,7 @@ class RecurringInvoiceFilters extends QueryFilters
                     END " . $dir
                 );
 
-                
+
 
             // return $this->builder->orderByRaw('client_id IS NULL')
             //                  ->orderBy(\App\Models\Client::select('name')
@@ -233,21 +234,21 @@ class RecurringInvoiceFilters extends QueryFilters
         if (!isset($parts[0]) || !isset($parts[1])) {
 
             $parts = explode(',', $range);
-            
-            if (!isset($parts[0]) || !isset($parts[1])){
+
+            if (!isset($parts[0]) || !isset($parts[1])) {
                 return $this->builder;
             }
-            
+
         }
 
         if (is_numeric($parts[0])) {
-            $startDate = Carbon::createFromTimestamp((int)$parts[0]);
+            $startDate = Carbon::createFromTimestamp((int) $parts[0]);
         } else {
             $startDate = Carbon::parse($parts[0]);
         }
 
         if (is_numeric($parts[1])) {
-            $endDate = Carbon::createFromTimestamp((int)$parts[1]);
+            $endDate = Carbon::createFromTimestamp((int) $parts[1]);
         } else {
             $endDate = Carbon::parse($parts[1]);
         }

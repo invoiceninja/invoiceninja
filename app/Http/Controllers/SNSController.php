@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Http;
 
 /**
  * Class SNSController.
- * 
+ *
  * Handles Amazon SNS webhook notifications that contain SES email event data.
  * SNS acts as an intermediary between SES and your application.
  */
@@ -44,7 +44,7 @@ class SNSController extends BaseController
 
     /**
      * Handle SNS webhook notifications
-     * 
+     *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -54,10 +54,10 @@ class SNSController extends BaseController
             // Get the raw request body for SNS signature verification
             $payload = $request->getContent();
             $headers = $request->headers->all();
-            
+
             // Parse the SNS payload
             $snsData = json_decode($payload, true);
-            
+
             if (!$snsData) {
                 nlog('SNS Webhook: Invalid JSON payload');
                 return response()->json(['error' => 'Invalid JSON payload'], 400);
@@ -65,7 +65,7 @@ class SNSController extends BaseController
 
             // Verify SNS signature for security (skip for subscription confirmation)
             $snsMessageType = $headers['x-amz-sns-message-type'][0] ?? null;
-            
+
             if ($snsMessageType === 'Notification') {
                 $signatureValid = $this->verifySNSSignature($request, $payload);
                 if (!$signatureValid) {
@@ -100,16 +100,16 @@ class SNSController extends BaseController
         } catch (\Exception $e) {
             nlog('SNS Webhook: Error processing request', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
-            
+
             return response()->json(['error' => 'Internal server error'], 500);
         }
     }
 
     /**
      * Verify SNS message signature using full AWS SNS validation
-     * 
+     *
      * @param Request $request
      * @param string $payload
      * @return bool
@@ -135,11 +135,11 @@ class SNSController extends BaseController
 
             // Validate Topic ARN if configured
             if (!empty($this->expectedTopicArn) && $snsData['TopicArn'] !== $this->expectedTopicArn) {
-                
+
                 return false;
             } elseif (!empty($this->expectedTopicArn)) {
-                
-            } 
+
+            }
 
             // Check for replay attacks (messages older than 15 minutes)
             $messageTimestamp = strtotime($snsData['Timestamp']);
@@ -156,15 +156,15 @@ class SNSController extends BaseController
 
             // Verify the signature
             $signatureValid = $this->verifyMessageSignature($snsData, $certificate, $payload);
-            
+
             return $signatureValid;
 
         } catch (\Exception $e) {
             nlog('SNS: Error during signature verification', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
-            
+
             // Fallback to basic validation if full verification fails
             return $this->fallbackBasicValidation($request, $payload);
         }
@@ -172,7 +172,7 @@ class SNSController extends BaseController
 
     /**
      * Fallback basic validation when full signature verification fails
-     * 
+     *
      * @param Request $request
      * @param string $payload
      * @return bool
@@ -180,29 +180,29 @@ class SNSController extends BaseController
     private function fallbackBasicValidation(Request $request, string $payload): bool
     {
         try {
-            
+
             // Basic checks
             $requiredHeaders = [
                 'x-amz-sns-message-type',
                 'x-amz-sns-message-id',
-                'x-amz-sns-topic-arn'
+                'x-amz-sns-topic-arn',
             ];
-            
+
             foreach ($requiredHeaders as $header) {
                 if (!$request->header($header)) {
                     nlog('SNS: Missing required header for basic validation', ['header' => $header]);
                     return false;
                 }
             }
-            
+
             // Check if the payload contains valid AWS SNS structure
             $snsData = json_decode($payload, true);
             if (!isset($snsData['Type']) || !isset($snsData['MessageId']) || !isset($snsData['TopicArn'])) {
                 return false;
             }
-            
+
             return true;
-            
+
         } catch (\Exception $e) {
             return false;
         }
@@ -210,7 +210,7 @@ class SNSController extends BaseController
 
     /**
      * Fetch and cache the SNS signing certificate
-     * 
+     *
      * @param string $certUrl
      * @return string|false
      */
@@ -233,10 +233,10 @@ class SNSController extends BaseController
         try {
             // Fetch the certificate
             $response = Http::timeout(10)->get($certUrl);
-            
+
             if ($response->successful()) {
                 $certificate = $response->body();
-                
+
                 // Validate certificate format
                 if ($this->isValidCertificate($certificate)) {
                     // Cache for 24 hours (AWS certificates are long-lived)
@@ -250,7 +250,7 @@ class SNSController extends BaseController
             } else {
                 nlog('SNS: Failed to fetch certificate', [
                     'status' => $response->status(),
-                    'body' => $response->body()
+                    'body' => $response->body(),
                 ]);
                 return false;
             }
@@ -262,7 +262,7 @@ class SNSController extends BaseController
 
     /**
      * Verify the message signature using the certificate
-     * 
+     *
      * @param array $snsData
      * @param string $certificate
      * @param string $payload
@@ -280,7 +280,7 @@ class SNSController extends BaseController
 
             // Create the string to sign
             $stringToSign = $this->createStringToSign($snsData);
-            
+
             // Decode the signature
             $decodedSignature = base64_decode($signature, true);
             if ($decodedSignature === false || $decodedSignature === '') {
@@ -321,7 +321,7 @@ class SNSController extends BaseController
 
     /**
      * Create the string to sign according to AWS SNS specification
-     * 
+     *
      * @param array $snsData
      * @return string
      */
@@ -333,7 +333,7 @@ class SNSController extends BaseController
             'Subject',
             'Timestamp',
             'TopicArn',
-            'Type'
+            'Type',
         ];
 
         $stringToSign = '';
@@ -348,14 +348,14 @@ class SNSController extends BaseController
 
     /**
      * Validate that the certificate URL is from AWS
-     * 
+     *
      * @param string $url
      * @return bool
      */
     private function isValidAWSCertificateUrl(string $url): bool
     {
         $parsedUrl = parse_url($url);
-        
+
         if (!$parsedUrl || !isset($parsedUrl['host'])) {
             return false;
         }
@@ -371,7 +371,7 @@ class SNSController extends BaseController
             'sns.ap-southeast-1.amazonaws.com',
             'sns.ap-southeast-2.amazonaws.com',
             'sns.ap-northeast-1.amazonaws.com',
-            'sns.sa-east-1.amazonaws.com'
+            'sns.sa-east-1.amazonaws.com',
         ];
 
         return in_array($parsedUrl['host'], $validDomains);
@@ -379,21 +379,21 @@ class SNSController extends BaseController
 
     /**
      * Validate certificate format
-     * 
+     *
      * @param string $certificate
      * @return bool
      */
     private function isValidCertificate(string $certificate): bool
     {
         // Check if it looks like a valid X.509 certificate
-        return strpos($certificate, '-----BEGIN CERTIFICATE-----') !== false &&
-               strpos($certificate, '-----END CERTIFICATE-----') !== false &&
-               strlen($certificate) > 1000; // Reasonable minimum size
+        return strpos($certificate, '-----BEGIN CERTIFICATE-----') !== false
+               && strpos($certificate, '-----END CERTIFICATE-----') !== false
+               && strlen($certificate) > 1000; // Reasonable minimum size
     }
 
     /**
      * Handle SNS subscription confirmation
-     * 
+     *
      * @param array $snsData
      * @return \Illuminate\Http\JsonResponse
      */
@@ -401,20 +401,20 @@ class SNSController extends BaseController
     {
         // Verify the subscription confirmation payload
         $verificationResult = $this->verifySubscriptionConfirmationPayload($snsData);
-        
+
         if (!$verificationResult['valid']) {
             nlog('SNS Subscription confirmation: Payload verification failed', [
                 'errors' => $verificationResult['errors'],
-                'payload' => $snsData
+                'payload' => $snsData,
             ]);
             return response()->json(['error' => 'Invalid subscription confirmation payload', 'details' => $verificationResult['errors']], 400);
         }
 
         $subscribeUrl = $snsData['SubscribeURL'];
-        
+
         nlog('SNS Subscription confirmation received', [
             'topic_arn' => $snsData['TopicArn'] ?? 'unknown',
-            'subscribe_url' => $subscribeUrl
+            'subscribe_url' => $subscribeUrl,
         ]);
 
         // You can optionally make an HTTP request to confirm the subscription
@@ -432,14 +432,14 @@ class SNSController extends BaseController
 
     /**
      * Verify SNS subscription confirmation payload structure and content
-     * 
+     *
      * @param array $snsData
      * @return array ['valid' => bool, 'errors' => array]
      */
     private function verifySubscriptionConfirmationPayload(array $snsData): array
     {
         $errors = [];
-        
+
         // Required fields for subscription confirmation
         $requiredFields = [
             'Type' => 'SubscriptionConfirmation',
@@ -447,18 +447,18 @@ class SNSController extends BaseController
             'TopicArn' => 'string',
             'SubscribeURL' => 'string',
             'Timestamp' => 'string',
-            'Token' => 'string'
+            'Token' => 'string',
         ];
-        
+
         // Validate required fields exist and have correct types
         foreach ($requiredFields as $field => $expectedType) {
             if (!isset($snsData[$field])) {
                 $errors[] = "Missing required field: {$field}";
                 continue;
             }
-            
+
             $value = $snsData[$field];
-            
+
             // Type-specific validation
             if ($expectedType === 'string' && !is_string($value)) {
                 $errors[] = "Field '{$field}' must be a string";
@@ -466,35 +466,35 @@ class SNSController extends BaseController
                 $errors[] = "Field '{$field}' must be 'SubscriptionConfirmation'";
             }
         }
-        
+
         // Validate specific field formats
         if (isset($snsData['MessageId']) && !$this->isValidMessageId($snsData['MessageId'])) {
             $errors[] = 'Invalid MessageId format';
         }
-        
+
         if (isset($snsData['TopicArn']) && !$this->isValidTopicArn($snsData['TopicArn'])) {
             $errors[] = 'Invalid TopicArn format';
         }
-        
+
         if (isset($snsData['SubscribeURL']) && !$this->isValidSubscribeUrl($snsData['SubscribeURL'])) {
             $errors[] = 'Invalid SubscribeURL format or domain';
         }
-        
+
         if (isset($snsData['Timestamp']) && !$this->isValidISOTimestamp($snsData['Timestamp'])) {
             $errors[] = 'Invalid Timestamp format (must be ISO 8601)';
         }
-        
+
         if (isset($snsData['Token']) && !$this->isValidSubscriptionToken($snsData['Token'])) {
             $errors[] = 'Invalid Token format';
         }
-        
+
         // Validate TopicArn matches expected if configured
         if (isset($snsData['TopicArn']) && !empty($this->expectedTopicArn)) {
             if ($snsData['TopicArn'] !== $this->expectedTopicArn) {
                 $errors[] = 'TopicArn does not match expected value';
             }
         }
-        
+
         // Check for replay attacks (messages older than 15 minutes)
         if (isset($snsData['Timestamp'])) {
             $messageTimestamp = strtotime($snsData['Timestamp']);
@@ -503,21 +503,21 @@ class SNSController extends BaseController
                 $errors[] = 'Message timestamp is too old (potential replay attack)';
             }
         }
-        
+
         // Check for suspicious content patterns
         if ($this->containsSuspiciousContent($snsData)) {
             $errors[] = 'Payload contains suspicious content patterns';
         }
-        
+
         return [
             'valid' => empty($errors),
-            'errors' => $errors
+            'errors' => $errors,
         ];
     }
 
     /**
      * Validate MessageId format (should be a UUID-like string)
-     * 
+     *
      * @param string $messageId
      * @return bool
      */
@@ -529,7 +529,7 @@ class SNSController extends BaseController
 
     /**
      * Validate TopicArn format
-     * 
+     *
      * @param string $topicArn
      * @return bool
      */
@@ -541,7 +541,7 @@ class SNSController extends BaseController
 
     /**
      * Validate subscription token format
-     * 
+     *
      * @param string $token
      * @return bool
      */
@@ -551,21 +551,21 @@ class SNSController extends BaseController
         if (strlen($token) < 20 || strlen($token) > 200) {
             return false;
         }
-        
+
         // Should contain only alphanumeric characters and common symbols
         return preg_match('/^[a-zA-Z0-9+\/=\-_]+$/', $token) === 1;
     }
 
     /**
      * Handle SES notification from SNS
-     * 
+     *
      * @param array $snsData
      * @return \Illuminate\Http\JsonResponse
      */
     private function handleSESNotification(array $snsData)
     {
         $message = $snsData['Message'] ?? null;
-        
+
         if (!$message) {
             nlog('SNS Notification: Missing Message content');
             return response()->json(['error' => 'Missing Message content'], 400);
@@ -573,7 +573,7 @@ class SNSController extends BaseController
 
         // Parse the SES message (it's JSON encoded as a string)
         $sesData = json_decode($message, true);
-        
+
         if (!$sesData) {
             nlog('SNS Notification: Invalid SES message format');
             return response()->json(['error' => 'Invalid SES message format'], 400);
@@ -581,10 +581,10 @@ class SNSController extends BaseController
 
         // Extract company key from SES data early
         $companyKey = $this->extractCompanyKeyFromSES($sesData);
-        
+
         if (!$companyKey) {
             nlog('SNS Notification: No company key found in SES data', [
-                'ses_data' => $sesData
+                'ses_data' => $sesData,
             ]);
             return response()->json(['error' => 'No company key found'], 400);
         }
@@ -600,71 +600,71 @@ class SNSController extends BaseController
             nlog('SNS Notification: SES payload validation failed', [
                 'errors' => $validationResult['errors'],
                 'payload' => $sesData,
-                'company_key' => $companyKey
+                'company_key' => $companyKey,
             ]);
             return response()->json(['error' => 'Invalid SES payload', 'details' => $validationResult['errors']], 400);
         }
 
         // Dispatch the SES webhook job for processing
         SESWebhook::dispatch($sesData);
-        
-        return response()->json([],200);
-        
+
+        return response()->json([], 200);
+
     }
 
     /**
      * Validate SES payload structure and required fields
-     * 
+     *
      * @param array $sesData
      * @return array ['valid' => bool, 'errors' => array]
      */
     private function validateSESPayload(array $sesData): array
     {
         $errors = [];
-        
+
         // Check if required top-level fields exist
         if (!isset($sesData['mail'])) {
             $errors[] = 'Missing required field: mail';
         }
-        
+
         if (!isset($sesData['eventType']) && !isset($sesData['notificationType'])) {
             $errors[] = 'Missing required field: eventType or notificationType';
         }
-        
+
         // Validate mail object structure
         if (isset($sesData['mail'])) {
             $mail = $sesData['mail'];
-            
+
             if (!isset($mail['messageId'])) {
                 $errors[] = 'Missing required field: mail.messageId';
             }
-            
+
             if (!isset($mail['timestamp'])) {
                 $errors[] = 'Missing required field: mail.timestamp';
             }
-            
+
             if (!isset($mail['source'])) {
                 $errors[] = 'Missing required field: mail.source';
             }
-            
+
             if (!isset($mail['destination']) || !is_array($mail['destination']) || empty($mail['destination'])) {
                 $errors[] = 'Missing or invalid field: mail.destination';
             }
-            
+
             // Validate headers structure if present
             if (isset($mail['headers']) && !is_array($mail['headers'])) {
                 $errors[] = 'Invalid field: mail.headers must be an array';
             }
-            
+
             // Validate commonHeaders structure if present
             if (isset($mail['commonHeaders']) && !is_array($mail['commonHeaders'])) {
                 $errors[] = 'Invalid field: mail.commonHeaders must be an array';
             }
         }
-        
+
         // Validate event-specific data based on event type
         $eventType = $sesData['eventType'] ?? $sesData['notificationType'] ?? '';
-        
+
         switch (strtolower($eventType)) {
             case 'delivery':
                 if (!isset($sesData['delivery'])) {
@@ -679,7 +679,7 @@ class SNSController extends BaseController
                     }
                 }
                 break;
-                
+
             case 'bounce':
                 if (!isset($sesData['bounce'])) {
                     $errors[] = 'Missing required field: bounce for bounce event';
@@ -696,7 +696,7 @@ class SNSController extends BaseController
                     }
                 }
                 break;
-                
+
             case 'complaint':
                 if (!isset($sesData['complaint'])) {
                     $errors[] = 'Missing required field: complaint for complaint event';
@@ -710,18 +710,18 @@ class SNSController extends BaseController
                     }
                 }
                 break;
-                
+
             case 'open':
                 // Open events might not have additional data beyond the mail object
                 break;
-                
+
             default:
                 if (!empty($eventType)) {
                     $errors[] = "Unknown event type: {$eventType}";
                 }
                 break;
         }
-        
+
         // Validate timestamp format if present
         if (isset($sesData['mail']['timestamp'])) {
             $timestamp = $sesData['mail']['timestamp'];
@@ -729,7 +729,7 @@ class SNSController extends BaseController
                 $errors[] = 'Invalid timestamp format: mail.timestamp must be ISO 8601 format';
             }
         }
-        
+
         // Validate messageId format (should be a valid string)
         if (isset($sesData['mail']['messageId'])) {
             $messageId = $sesData['mail']['messageId'];
@@ -737,21 +737,21 @@ class SNSController extends BaseController
                 $errors[] = 'Invalid messageId: must be a non-empty string';
             }
         }
-        
+
         // Check for suspicious patterns
         if ($this->containsSuspiciousContent($sesData)) {
             $errors[] = 'Payload contains suspicious content patterns';
         }
-        
+
         return [
             'valid' => empty($errors),
-            'errors' => $errors
+            'errors' => $errors,
         ];
     }
-    
+
     /**
      * Check if timestamp is in valid ISO 8601 format
-     * 
+     *
      * @param string $timestamp
      * @return bool
      */
@@ -764,10 +764,10 @@ class SNSController extends BaseController
             return false;
         }
     }
-    
+
     /**
      * Check for suspicious content patterns in the payload
-     * 
+     *
      * @param array $sesData
      * @return bool
      */
@@ -783,31 +783,31 @@ class SNSController extends BaseController
             '<script',
             '<?php',
             'eval(',
-            'document.cookie'
+            'document.cookie',
         ];
-        
+
         $payloadString = json_encode($sesData);
-        
+
         foreach ($suspiciousPatterns as $pattern) {
             if (stripos($payloadString, $pattern) !== false) {
                 nlog('SNS: Suspicious content pattern detected', ['pattern' => $pattern]);
                 return true;
             }
         }
-        
+
         return false;
     }
 
     /**
      * Extract company key from SES data
-     * 
+     *
      * @param array $sesData
      * @return string|null
      */
     private function extractCompanyKeyFromSES(array $sesData): ?string
     {
         // Check various possible locations for company key in SES data
-        
+
         // Check mail tags
         if (isset($sesData['mail']['tags']['company_key'])) {
             $companyKey = $sesData['mail']['tags']['company_key'];
@@ -821,9 +821,9 @@ class SNSController extends BaseController
         if (isset($sesData['mail']['headers'])) {
             nlog('SNS: Checking mail headers for X-Tag', [
                 'headers_count' => count($sesData['mail']['headers']),
-                'headers' => $sesData['mail']['headers']
+                'headers' => $sesData['mail']['headers'],
             ]);
-            
+
             foreach ($sesData['mail']['headers'] as $header) {
                 if (isset($header['name']) && $header['name'] === 'X-Tag' && isset($header['value'])) {
                     $companyKey = $header['value'];
@@ -833,7 +833,7 @@ class SNSController extends BaseController
                     }
                 }
             }
-            
+
             nlog('SNS: X-Tag header not found in mail headers');
         }
 
@@ -878,7 +878,7 @@ class SNSController extends BaseController
 
     /**
      * Validate company key format
-     * 
+     *
      * @param string $companyKey
      * @return bool
      */
@@ -888,17 +888,17 @@ class SNSController extends BaseController
         if (empty(trim($companyKey))) {
             return false;
         }
-        
+
         // Company key should be a reasonable length (Invoice Ninja uses 32 character keys)
         if (strlen($companyKey) < 10 || strlen($companyKey) > 100) {
             return false;
         }
-        
+
         // Company key should only contain alphanumeric characters and common symbols
         if (!preg_match('/^[a-zA-Z0-9\-_\.]+$/', $companyKey)) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -906,16 +906,16 @@ class SNSController extends BaseController
     {
         try {
             MultiDB::findAndSetDbByCompanyKey($companyKey);
-            
+
             // Use MultiDB to find the company
             $company = \App\Models\Company::where('company_key', $companyKey)->first();
-            
-            if($company && $company->settings->email_sending_method === 'client_ses' && strlen($company->settings->ses_topic_arn ?? '') > 2) {
+
+            if ($company && $company->settings->email_sending_method === 'client_ses' && strlen($company->settings->ses_topic_arn ?? '') > 2) {
                 $this->expectedTopicArn = $company->settings->ses_topic_arn;
             }
-            
+
         } catch (\Exception $e) {
-           
+
         }
     }
 

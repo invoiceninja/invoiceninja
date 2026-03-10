@@ -23,5 +23,5 @@
         is_default:
           description: 'Flag determining if the token is the default payment method'
           type: boolean
-          example: 'true'
+          example: true
       type: object

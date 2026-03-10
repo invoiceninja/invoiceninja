@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -149,7 +149,7 @@ class SquarePaymentDriver extends BaseDriver
                 SystemLogger::dispatch(
                     [
                         'server_response' => $data,
-                        'data' => request()->all()
+                        'data' => request()->all(),
                     ],
                     SystemLog::CATEGORY_GATEWAY_RESPONSE,
                     SystemLog::EVENT_GATEWAY_SUCCESS,
@@ -174,7 +174,7 @@ class SquarePaymentDriver extends BaseDriver
                 SystemLogger::dispatch(
                     [
                         'server_response' => $data,
-                        'data' => request()->all()
+                        'data' => request()->all(),
                     ],
                     SystemLog::CATEGORY_GATEWAY_RESPONSE,
                     SystemLog::EVENT_GATEWAY_FAILURE,
@@ -192,17 +192,17 @@ class SquarePaymentDriver extends BaseDriver
             $error = end($apiResponse->getErrors()); //@phpstan-ignore-line
 
             $data = [
-                    'transaction_reference' => $payment->transaction_reference,
-                    'transaction_response' => $error->jsonSerialize(),
-                    'success' => false,
-                    'description' => $error->getDetail(),
-                    'code' => $error->getCode(),
-                ];
+                'transaction_reference' => $payment->transaction_reference,
+                'transaction_response' => $error->jsonSerialize(),
+                'success' => false,
+                'description' => $error->getDetail(),
+                'code' => $error->getCode(),
+            ];
 
             SystemLogger::dispatch(
                 [
                     'server_response' => $data,
-                    'data' => request()->all()
+                    'data' => request()->all(),
                 ],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_FAILURE,

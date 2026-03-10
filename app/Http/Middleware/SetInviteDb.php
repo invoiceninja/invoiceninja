@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -29,10 +29,14 @@ class SetInviteDb
      */
     public function handle($request, Closure $next)
     {
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+    
         $error = [
             'message' => 'I could not find the database for this object.',
             'errors' => new stdClass(),
         ];
+        
         /*
          * Use the host name to set the active DB
          **/
@@ -64,7 +68,7 @@ class SetInviteDb
             }
 
             if ($hashed_db && is_array($hashed_db) && ($hashed_db[0] == '01' || $hashed_db[0] == '02')) {
-                MultiDB::setDB(MultiDB::DB_PREFIX.str_pad($hashed_db[0], 2, '0', STR_PAD_LEFT));
+                MultiDB::setDB(MultiDB::DB_PREFIX . str_pad($hashed_db[0], 2, '0', STR_PAD_LEFT));
 
                 return $next($request);
             }

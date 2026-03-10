@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  *
@@ -102,7 +102,7 @@ class Nordigen
                 $this->client->endUserAgreement->getEndUserAgreements()['results'],
                 function (array $eua) use ($institutionId, $requiredScopes, $accessDays, $txDays): bool {
                     $isNotExpired = !isset($eua['status']) || $eua['status'] !== 'EXPIRED';
-                    
+
                     return $eua['institution_id'] === $institutionId
                         && $eua['accepted'] === null
                         && $isNotExpired
@@ -177,7 +177,7 @@ class Nordigen
         );
     }
 
-    
+
     /**
      * validAgreement
      * @param string $institution_id
@@ -191,14 +191,14 @@ class Nordigen
         $nc = new \App\Helpers\Bank\Nordigen\Http\NordigenClient($this->client->getAccessToken());
         $requisitions = $nc->getAllRequisitions();
 
-        $requisition = $requisitions->filter(function($requisition) use ($institution_id, $_accounts){
-            if($requisition['institution_id'] == $institution_id && !empty(array_intersect($requisition['accounts'], $_accounts))){
+        $requisition = $requisitions->filter(function ($requisition) use ($institution_id, $_accounts) {
+            if ($requisition['institution_id'] == $institution_id && !empty(array_intersect($requisition['accounts'], $_accounts))) {
                 return $requisition;
             }
         });
 
         return $requisition->first()->toArray() ??  null;
-        
+
     }
 
     public function getRequisition(string $requisitionId)
@@ -229,19 +229,19 @@ class Nordigen
             // }
             // else{
 
-                $out->data = [
-                    'iban' => $out->metadata['iban'],
-                    'ownerName' => $out->metadata['owner_name'],
-                ];
-                $out->balances = [
-                    [
-                        'balanceType' => '',
-                        'balanceAmount' => [
-                            'amount' => 0,
-                            'currency' => '',
-                        ],
+            $out->data = [
+                'iban' => $out->metadata['iban'],
+                'ownerName' => $out->metadata['owner_name'],
+            ];
+            $out->balances = [
+                [
+                    'balanceType' => '',
+                    'balanceAmount' => [
+                        'amount' => 0,
+                        'currency' => '',
                     ],
-                ];
+                ],
+            ];
             // }
 
             $it = new AccountTransformer();

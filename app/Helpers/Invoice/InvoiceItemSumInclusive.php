@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -95,7 +95,7 @@ class InvoiceItemSumInclusive
         'AU', // Australia
     ];
 
-    protected RecurringInvoice | Invoice | Quote | Credit | PurchaseOrder | RecurringQuote $invoice;
+    protected RecurringInvoice|Invoice|Quote|Credit|PurchaseOrder|RecurringQuote $invoice;
 
     private \App\Models\Currency $currency;
 
@@ -116,11 +116,11 @@ class InvoiceItemSumInclusive
 
     private $total_discount;
 
-    private Client | Vendor $client;
+    private Client|Vendor $client;
 
     private RuleInterface $rule;
 
-    public function __construct(RecurringInvoice | Invoice | Quote | Credit | PurchaseOrder | RecurringQuote $invoice)
+    public function __construct(RecurringInvoice|Invoice|Quote|Credit|PurchaseOrder|RecurringQuote $invoice)
     {
         $this->tax_collection = collect([]);
         $this->custom_surcharge_map = collect([]);
@@ -305,14 +305,14 @@ class InvoiceItemSumInclusive
         collect($this->invoice->line_items)
             ->flatMap(function ($item) {
                 return collect([1, 2, 3])
-                    ->map(fn ($i) => [
+                    ->map(fn($i) => [
                         'name' => $item->{"tax_name{$i}"} ?? '',
                         'percentage' => $item->{"tax_rate{$i}"} ?? 0,
                         'tax_id' => $item->tax_id ?? '1',
                     ])
-                    ->filter(fn ($tax) => strlen($tax['name']) > 1);
+                    ->filter(fn($tax) => strlen($tax['name']) > 1);
             })
-            ->unique(fn ($tax) => $tax['percentage'] . '_' . $tax['name'])
+            ->unique(fn($tax) => $tax['percentage'] . '_' . $tax['name'])
             ->values()
             ->each(function ($tax) {
 
@@ -370,14 +370,14 @@ class InvoiceItemSumInclusive
     {
         $group_tax = [];
 
-        $key = str_replace(' ', '', $tax_name.$tax_rate);
+        $key = str_replace(' ', '', $tax_name . $tax_rate);
 
         //Handles an edge case where a blank line is entered.
         if ($tax_rate > 0 && $amount == 0) {
             return;
         }
 
-        $group_tax = ['key' => $key, 'total' => $tax_total, 'tax_name' => $tax_name.' '.Number::formatValueNoTrailingZeroes(floatval($tax_rate), $this->client).'%', 'tax_id' => $tax_id, 'tax_rate' => $tax_rate, 'base_amount' => $tax_rate > 0 ? round($amount / (1 + ($tax_rate / 100)), 2) : $amount];
+        $group_tax = ['key' => $key, 'total' => $tax_total, 'tax_name' => $tax_name . ' ' . Number::formatValueNoTrailingZeroes(floatval($tax_rate), $this->client) . '%', 'tax_id' => $tax_id, 'tax_rate' => $tax_rate, 'base_amount' => $tax_rate > 0 ? round($amount / (1 + ($tax_rate / 100)), 2) : $amount];
 
         $this->tax_collection->push(collect($group_tax));
     }
@@ -530,7 +530,7 @@ class InvoiceItemSumInclusive
 
         if (in_array($this->client->company->country()->iso_3166_2, $this->tax_jurisdictions)) { //only calculate for supported tax jurisdictions
 
-            $class = "App\DataMapper\Tax\\".$this->client->company->country()->iso_3166_2."\\Rule";
+            $class = "App\DataMapper\Tax\\" . $this->client->company->country()->iso_3166_2 . "\\Rule";
 
             $this->rule = new $class();
 

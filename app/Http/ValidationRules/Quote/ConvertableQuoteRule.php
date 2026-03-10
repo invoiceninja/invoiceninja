@@ -23,9 +23,7 @@ class ConvertableQuoteRule implements Rule
 {
     use MakesHash;
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * @param string $attribute

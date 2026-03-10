@@ -58,16 +58,16 @@
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         archived_at:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         company_gateway_id:
           description: 'The company gateway id'
           type: string
-          example: '3'
+          example: "3"
         paymentables:
           $ref: '#/components/schemas/Paymentable'
         invoices:
@@ -107,7 +107,7 @@
         exchange_currency_id:
           description: 'The unique identifier of the exchange currency'
           type: string
-          example: '2'
+          example: "2"
         exchange_rate:
           description: 'The exchange rate used for currency conversion'
           type: number

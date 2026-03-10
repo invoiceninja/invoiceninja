@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -72,13 +72,13 @@ class PayPalBasePaymentDriver extends BaseDriver
     public function gatewayTypes()
     {
 
-        $funding_options =
+        $funding_options
 
-        collect($this->company_gateway->fees_and_limits)
+        = collect($this->company_gateway->fees_and_limits)
             ->filter(function ($fee) {
                 return $fee->is_enabled;
             })->map(function ($fee, $key) {
-                return (int)$key;
+                return (int) $key;
             })->toArray();
 
         /** Parse funding options and remove card option if advanced cards is enabled. */
@@ -98,7 +98,7 @@ class PayPalBasePaymentDriver extends BaseDriver
     {
         $method = PaymentType::PAYPAL;
 
-        match($gateway_type_id) {
+        match ($gateway_type_id) {
             "1" => $method = PaymentType::CREDIT_CARD_OTHER,
             "3" => $method = PaymentType::PAYPAL,
             "25" => $method = PaymentType::VENMO,
@@ -179,7 +179,7 @@ class PayPalBasePaymentDriver extends BaseDriver
 
             if ($value->is_enabled) {
 
-                $funding_options .= $enums[$key].',';
+                $funding_options .= $enums[$key] . ',';
 
             }
 
@@ -228,10 +228,10 @@ class PayPalBasePaymentDriver extends BaseDriver
 
         $_invoice = collect($this->payment_hash->data->invoices)->first();
         $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
-        $new_invoice_number = $invoice->number."_".Str::random(5);
+        $new_invoice_number = $invoice->number . "_" . Str::random(5);
 
-        $update_data =
-                [[
+        $update_data
+                = [[
                     "op" => "replace",
                     "path" => "/purchase_units/@reference_id=='default'/invoice_id",
                     "value" => $new_invoice_number,
@@ -246,10 +246,10 @@ class PayPalBasePaymentDriver extends BaseDriver
 
     public function getShippingAddress(): ?array
     {
-        return $this->company_gateway->require_shipping_address ?
-        [
-            "address" =>
-                [
+        return $this->company_gateway->require_shipping_address
+        ? [
+            "address"
+                => [
                     "address_line_1" => strlen($this->client->shipping_address1 ?? '') > 1 ? $this->client->shipping_address1 : $this->client->address1,
                     "address_line_2" => $this->client->shipping_address2,
                     "admin_area_2" => strlen($this->client->shipping_city ?? '') > 1 ? $this->client->shipping_city : $this->client->city,
@@ -261,8 +261,8 @@ class PayPalBasePaymentDriver extends BaseDriver
 
         : [
             "name" => [
-                "full_name" => $this->client->present()->name()
-            ]
+                "full_name" => $this->client->present()->name(),
+            ],
         ];
 
     }
@@ -297,7 +297,7 @@ class PayPalBasePaymentDriver extends BaseDriver
                         ],
                     ],
                     "experience_context" => [
-                        "shipping_preference" => "SET_PROVIDED_ADDRESS"
+                        "shipping_preference" => "SET_PROVIDED_ADDRESS",
                     ],
                     "stored_credential" => [
                         // "payment_initiator" => "MERCHANT", //"CUSTOMER" who initiated the transaction?
@@ -318,41 +318,41 @@ class PayPalBasePaymentDriver extends BaseDriver
                 ],
                 "email_address" => $this->client->present()->email(),
                 "experience_context" => [
-                    "user_action" => "PAY_NOW"
+                    "user_action" => "PAY_NOW",
                 ],
             ],
         ];
 
         /** If we have a complete address, add it to the order, otherwise leave it blank! */
         if (
-            strlen($this->client->shipping_address1 ?? '') > 2 &&
-            strlen($this->client->shipping_city ?? '') > 2 &&
-            strlen($this->client->shipping_state ?? '') >= 2 &&
-            strlen($this->client->shipping_postal_code ?? '') > 2 &&
-            strlen($this->client->shipping_country->iso_3166_2 ?? '') >= 2
+            strlen($this->client->shipping_address1 ?? '') > 2
+            && strlen($this->client->shipping_city ?? '') > 2
+            && strlen($this->client->shipping_state ?? '') >= 2
+            && strlen($this->client->shipping_postal_code ?? '') > 2
+            && strlen($this->client->shipping_country->iso_3166_2 ?? '') >= 2
         ) {
             $order['paypal']['address'] = [
-                    "address_line_1" => $this->client->shipping_address1,
-                    "address_line_2" => $this->client->shipping_address2,
-                    "admin_area_2" => $this->client->shipping_city,
-                    "admin_area_1" => $this->client->shipping_state,
-                    "postal_code" => $this->client->shipping_postal_code,
-                    "country_code" => $this->client->present()->shipping_country_code(),
+                "address_line_1" => $this->client->shipping_address1,
+                "address_line_2" => $this->client->shipping_address2,
+                "admin_area_2" => $this->client->shipping_city,
+                "admin_area_1" => $this->client->shipping_state,
+                "postal_code" => $this->client->shipping_postal_code,
+                "country_code" => $this->client->present()->shipping_country_code(),
             ];
         } elseif (
-            strlen($this->client->address1 ?? '') > 2 &&
-            strlen($this->client->city ?? '') > 2 &&
-            strlen($this->client->state ?? '') >= 2 &&
-            strlen($this->client->postal_code ?? '') > 2 &&
-            strlen($this->client->country->iso_3166_2 ?? '') >= 2
+            strlen($this->client->address1 ?? '') > 2
+            && strlen($this->client->city ?? '') > 2
+            && strlen($this->client->state ?? '') >= 2
+            && strlen($this->client->postal_code ?? '') > 2
+            && strlen($this->client->country->iso_3166_2 ?? '') >= 2
         ) {
             $order['paypal']['address'] = [
-                    "address_line_1" => $this->client->address1,
-                    "address_line_2" => $this->client->address2,
-                    "admin_area_2" => $this->client->city,
-                    "admin_area_1" => $this->client->state,
-                    "postal_code" => $this->client->postal_code,
-                    "country_code" => $this->client->country->iso_3166_2,
+                "address_line_1" => $this->client->address1,
+                "address_line_2" => $this->client->address2,
+                "admin_area_2" => $this->client->city,
+                "admin_area_1" => $this->client->state,
+                "postal_code" => $this->client->postal_code,
+                "country_code" => $this->client->country->iso_3166_2,
             ];
         }
 
@@ -588,7 +588,7 @@ class PayPalBasePaymentDriver extends BaseDriver
 
         SystemLogger::dispatch($response, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_PAYPAL, $this->client, $this->client->company);
 
-        $error = isset($response['purchase_units'][0]['payments']['captures'][0]['status_details'][0]) ? $response['purchase_units'][0]['payments']['captures'][0]['status_details'][0] : $response['purchase_units'][0]['payments']['captures'][0]['status'];
+        $error = $response['purchase_units'][0]['payments']['captures'][0]['status_details'][0] ?? $response['purchase_units'][0]['payments']['captures'][0]['status'];
 
         return response()->json(['message' => $error], 400);
 

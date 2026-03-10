@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -26,7 +26,7 @@ class StoreDesignRequest extends Request
         'purchase_order',
         'project',
         'task',
-        'expense'
+        'expense',
     ];
 
     /**
@@ -50,14 +50,14 @@ class StoreDesignRequest extends Request
         $user = auth()->user();
 
         return [
-            'name' => 'required|unique:designs,name,null,null,company_id,'.$user->companyId(),
+            'name' => 'required|unique:designs,name,null,null,company_id,' . $user->companyId(),
             'design' => 'required|array',
             'design.header' => 'sometimes|string',
             'design.body' => 'sometimes|string',
             'design.footer' => 'sometimes|string',
             'design.includes' => 'sometimes|string',
             'is_template' => 'sometimes|boolean',
-            'entities' => 'sometimes|string|nullable'
+            'entities' => 'sometimes|string|nullable',
         ];
     }
 

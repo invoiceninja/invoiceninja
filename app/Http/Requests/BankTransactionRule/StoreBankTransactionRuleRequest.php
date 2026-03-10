@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -50,12 +50,12 @@ class StoreBankTransactionRuleRequest extends Request
             'auto_convert' => 'bail|sometimes|bool',
             'matches_on_all' => 'bail|sometimes|bool',
             'applies_to' => 'bail|sometimes|string|in:CREDIT,DEBIT',
-            'on_credit_match' => 'bail|sometimes|in:create_payment,link_payment'
+            'on_credit_match' => 'bail|sometimes|in:create_payment,link_payment',
         ];
 
-        $rules['category_id'] = 'bail|sometimes|nullable|exists:expense_categories,id,company_id,'.$user->company()->id.',is_deleted,0';
-        $rules['vendor_id'] = 'bail|sometimes|nullable|exists:vendors,id,company_id,'.$user->company()->id.',is_deleted,0';
-        $rules['client_id'] = 'bail|sometimes|nullable|exists:clients,id,company_id,'.$user->company()->id.',is_deleted,0';
+        $rules['category_id'] = 'bail|sometimes|nullable|exists:expense_categories,id,company_id,' . $user->company()->id . ',is_deleted,0';
+        $rules['vendor_id'] = 'bail|sometimes|nullable|exists:vendors,id,company_id,' . $user->company()->id . ',is_deleted,0';
+        $rules['client_id'] = 'bail|sometimes|nullable|exists:clients,id,company_id,' . $user->company()->id . ',is_deleted,0';
 
         return $rules;
     }

@@ -5,13 +5,14 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Observers;
 
+use App\Jobs\Quickbooks\PushToQuickbooks;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Invoice;
 use App\Models\Webhook;
@@ -19,6 +20,16 @@ use App\Models\Webhook;
 class InvoiceObserver
 {
     public $afterCommit = true;
+
+    /**
+     * Handle the invoice "updating" event (before save).
+     *
+     * @param Invoice $invoice
+     * @return void
+     */
+    public function updating(Invoice $invoice)
+    {       
+    }
 
     /**
      * Handle the client "created" event.
@@ -35,21 +46,7 @@ class InvoiceObserver
         if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_CREATE_INVOICE, $invoice, $invoice->company, 'client')->delay(0);
         }
-
-        // QuickBooks push - check if invoice status matches push_invoice_statuses
-        // Map invoice status to string for status-based push check
-        $invoiceStatus = $this->mapInvoiceStatusToString($invoice->status_id, $invoice->is_deleted);
         
-        if ($invoice->company->shouldPushToQuickbooks('invoice', 'status', $invoiceStatus)) {
-            \App\Jobs\Quickbooks\PushToQuickbooks::dispatch(
-                'invoice',
-                $invoice->id,
-                $invoice->company->id,
-                $invoice->company->db,
-                'create',
-                $invoiceStatus
-            );
-        }
     }
 
     /**
@@ -79,41 +76,6 @@ class InvoiceObserver
             WebhookHandler::dispatch($event, $invoice, $invoice->company, 'client')->delay(0);
         }
 
-        // QuickBooks push - check if invoice status matches push_invoice_statuses
-        // Map invoice status to string for status-based push check
-        $invoiceStatus = $this->mapInvoiceStatusToString($invoice->status_id, $invoice->is_deleted);
-        
-        if ($invoice->company->shouldPushToQuickbooks('invoice', 'status', $invoiceStatus)) {
-            \App\Jobs\Quickbooks\PushToQuickbooks::dispatch(
-                'invoice',
-                $invoice->id,
-                $invoice->company->id,
-                $invoice->company->db,
-                'update',
-                $invoiceStatus
-            );
-        }
-    }
-
-    /**
-     * Map invoice status_id and is_deleted to status string for QuickBooks push.
-     * 
-     * @param int $statusId
-     * @param bool $isDeleted
-     * @return string
-     */
-    private function mapInvoiceStatusToString(int $statusId, bool $isDeleted): string
-    {
-        if ($isDeleted) {
-            return 'deleted';
-        }
-
-        return match($statusId) {
-            \App\Models\Invoice::STATUS_DRAFT => 'draft',
-            \App\Models\Invoice::STATUS_SENT => 'sent',
-            \App\Models\Invoice::STATUS_PAID => 'paid',
-            default => 'unknown',
-        };
     }
 
     /**

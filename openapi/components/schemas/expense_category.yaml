@@ -19,9 +19,9 @@
         updated_at:
           description: 'The updated at timestamp'
           type: integer
-          example: '2'
+          example: 2
         created_at:
           description: 'The created at timestamp'
           type: integer
-          example: '2'
+          example: 2
       type: object

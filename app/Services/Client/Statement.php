@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -39,9 +39,7 @@ class Statement
 
     private array $variables = [];
 
-    public function __construct(protected Client $client, public array $options)
-    {
-    }
+    public function __construct(protected Client $client, public array $options) {}
 
     public function run(): ?string
     {
@@ -96,7 +94,7 @@ class Statement
                 'payments' => $this->getPayments()->cursor(),
                 'credits' => $this->getCredits()->cursor(),
                 'aging' => $this->getAging(),
-                'unapplied' => $this->getUnapplied()->cursor()
+                'unapplied' => $this->getUnapplied()->cursor(),
             ];
 
             $ps = new \App\Services\Pdf\PdfService($invitation, 'statement', array_merge($options, $this->options));
@@ -109,7 +107,7 @@ class Statement
 
             $ps->designer = (new \App\Services\Pdf\PdfDesigner($ps))->build();
 
-            $ps->designer->buildFromPartials((array)$ps->config->design->design);
+            $ps->designer->buildFromPartials((array) $ps->config->design->design);
 
             $ps->builder = (new \App\Services\Pdf\PdfBuilder($ps))->build();
 
@@ -118,7 +116,7 @@ class Statement
             return $pdf;
 
         } catch (\Throwable $th) {
-            nlog("Statement threw => ". $th->getMessage());
+            nlog("Statement threw => " . $th->getMessage());
         }
 
         return null;
@@ -460,10 +458,10 @@ class Statement
         if ($range == '0') {
             // $q->whereBetween('due_date', [$to, $from])->orWhereNull('due_date');
             $query->where(function ($q) use ($to, $from) {
-                $q->whereDate('due_date', '>=', now()->startOfDay())
+                $q->whereDate('due_date', '>=', now()->addDays(1)->startOfDay())
                   ->orWhere(function ($q2) use ($to, $from) {
                       $q2->whereNull('due_date')
-                      ->whereBetween('date', [$to,$from]);
+                      ->whereBetween('date', [$from, $to]);
                   });
             });
 

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -35,7 +35,7 @@ class DocumentFilters extends QueryFilters
             return $this->builder;
         }
 
-        return $this->builder->where('name', 'like', '%'.$filter.'%');
+        return $this->builder->where('name', 'like', '%' . $filter . '%');
 
     }
 
@@ -76,7 +76,7 @@ class DocumentFilters extends QueryFilters
         $types = explode(',', $types);
 
         foreach ($types as $type) {
-            match($type) {
+            match ($type) {
                 'private' => $this->builder->where('is_public', 0),
                 'public' => $this->builder->where('is_public', 1),
                 'pdf' => $this->builder->where('type', 'pdf'),

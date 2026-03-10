@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -41,9 +41,7 @@ class CheckoutWebhook implements ShouldQueue
 
     public CompanyGateway $company_gateway;
 
-    public function __construct(public array $webhook_array, public string $company_key, public int $company_gateway_id)
-    {
-    }
+    public function __construct(public array $webhook_array, public string $company_key, public int $company_gateway_id) {}
 
     public function handle()
     {
@@ -58,7 +56,7 @@ class CheckoutWebhook implements ShouldQueue
         }
 
         /** @phpstan-ignore-next-line */
-        match($this->webhook_array['type']) {
+        match ($this->webhook_array['type']) {
             'payment_approved' => $this->paymentApproved(),
         };
 
@@ -102,7 +100,7 @@ class CheckoutWebhook implements ShouldQueue
 
             // @phpstan-ignore-line
             $data = [
-                'payment_method' => isset($this->webhook_array['source']['id']) ? $this->webhook_array['source']['id'] : '',
+                'payment_method' => $this->webhook_array['source']['id'] ?? '',
                 'payment_type' => PaymentType::CREDIT_CARD_OTHER,
                 'amount' => $payment_hash->data->raw_value, // @phpstan-ignore-line
                 'transaction_reference' => $payment_object['id'],

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -97,24 +97,25 @@ class UpdateClientRequest extends Request
             }
         }];
 
-
+        $rules['settings.currency_id'] = 'required|exists:currencies,id';
+        
         return $rules;
     }
 
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            
+
             $user = auth()->user();
             $company = $user->company();
 
-            if(isset($this->settings['lock_invoices']) && $company->verifactuEnabled() && $this->settings['lock_invoices'] != 'when_sent'){
+            if (isset($this->settings['lock_invoices']) && $company->verifactuEnabled() && $this->settings['lock_invoices'] != 'when_sent') {
                 $validator->errors()->add('settings.lock_invoices', 'Locked Invoices Cannot Be Disabled');
             }
-            
+
         });
     }
-    
+
     public function messages()
     {
         return [
@@ -137,7 +138,7 @@ class UpdateClientRequest extends Request
         if ($this->file('file') instanceof \Illuminate\Http\UploadedFile) {
             $this->files->set('file', [$this->file('file')]);
         }
-        
+
         if (isset($input['documents'])) {
             unset($input['documents']);
         }

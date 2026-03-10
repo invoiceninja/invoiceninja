@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -53,11 +53,11 @@ trait MakesInvoiceHtml
      */
     public function getTemplate(string $template = 'plain')
     {
-        return File::get(resource_path('views/email/template/'.$template.'.blade.php'));
+        return File::get(resource_path('views/email/template/' . $template . '.blade.php'));
     }
 
     public function getTemplatePath(string $template = 'plain')
     {
-        return 'email.template.'.$template;
+        return 'email.template.' . $template;
     }
 }

@@ -57,7 +57,7 @@ class ExpenseTransformer extends BaseTransformer
             'currency_id' => $this->company->settings->currency_id,
             'category_id' => $this->getOrCreateExpenseCategry($data['Account Name']),
             'amount'	  => $amount,
-            'tax_name1'   => isset($data['Sales Tax Name']) ? $data['Sales Tax Name'] : '',
+            'tax_name1'   => $data['Sales Tax Name'] ?? '',
             'tax_rate1'	  => $tax_rate,
         ];
 

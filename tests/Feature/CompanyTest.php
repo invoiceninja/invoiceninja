@@ -17,15 +17,12 @@ use App\Models\Account;
 use App\Models\Company;
 use App\Models\TaxRate;
 use Tests\MockAccountData;
+use App\Enum\SyncDirection;
 use App\Models\CompanyToken;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\UploadedFile;
 use App\DataMapper\CompanySettings;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Session;
 use App\Http\Middleware\PasswordProtection;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  *
@@ -40,6 +37,55 @@ class CompanyTest extends TestCase
     {
         parent::setUp();
         $this->makeTestData();
+    }
+
+
+    public function testCompanyQuickbooksSettingsUpdate()
+    {
+        $data = [
+            'quickbooks' => [
+                'settings' => [
+                    'client' => [
+                        'direction' => SyncDirection::PUSH->value,
+                    ],
+                    'invoice' => [
+                        'direction' => SyncDirection::NONE->value,
+                    ],
+                    'product' => [
+                        'direction' => SyncDirection::BIDIRECTIONAL->value,
+                    ],
+                    'qb_income_account_id' => '123',
+                ]
+            ]
+        ];
+
+        $data = array_merge((array) $this->company->settings, $data);
+        unset($data['company_logo']);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $data);
+
+        $response->assertStatus(200);
+
+        $this->company = $this->company->fresh();
+
+        $this->assertEquals('push', $this->company->quickbooks->settings->client->direction->value);
+        $this->assertEquals('none', $this->company->quickbooks->settings->invoice->direction->value);
+        $this->assertEquals('bidirectional', $this->company->quickbooks->settings->product->direction->value);
+        $this->assertEquals('123', $this->company->quickbooks->settings->qb_income_account_id);
+    }
+    public function testCompanyQuickbooksSettings()
+    {
+        $settings = $this->company->quickbooks->settings;
+        $settings->client->direction = SyncDirection::PUSH;
+        $settings->invoice->direction = SyncDirection::PUSH;
+        $settings->product->direction = SyncDirection::PUSH;
+        $this->company->quickbooks->settings = $settings;
+        $this->company->save();
+    
+        $this->assertEquals('push', $this->company->quickbooks->settings->client->direction->value);
     }
 
     public function testCompanyWebsite()

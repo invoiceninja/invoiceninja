@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -42,7 +42,7 @@ class InvoiceItemExport extends BaseExport
     private array $decorate_keys = [
         'client',
         'currency_id',
-        'status'
+        'status',
     ];
 
     public function __construct(Company $company, array $input)
@@ -159,13 +159,13 @@ class InvoiceItemExport extends BaseExport
 
     private function filterItems(array $items): array
     {
-        
+
         //if we have product filters in place, we will also need to filter the items at this level:
         if (isset($this->input['product_key'])) {
-            
+
             $products = str_getcsv($this->input['product_key'], ',', "'");
 
-            $products = array_map(function($product) {
+            $products = array_map(function ($product) {
                 return trim($product, "'");
             }, $products);
 
@@ -194,16 +194,14 @@ class InvoiceItemExport extends BaseExport
 
                     if ($tmp_key == 'tax_id') {
 
-                        if(!property_exists($item, 'tax_id')) {
+                        if (!property_exists($item, 'tax_id')) {
                             $item->tax_id = '1';
                         }
 
-                        $item_array[$key] = $this->getTaxCategoryName((int)$item->tax_id ?? 1); // @phpstan-ignore-line
-                    }
-                    elseif (property_exists($item, $tmp_key)) {
+                        $item_array[$key] = $this->getTaxCategoryName((int) $item->tax_id ?? 1); // @phpstan-ignore-line
+                    } elseif (property_exists($item, $tmp_key)) {
                         $item_array[$key] = $item->{$tmp_key};
-                    } 
-                    else {
+                    } else {
                         $item_array[$key] = '';
                     }
                 }

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -29,7 +29,7 @@ class AccountComponent extends Component
         'transit_number',
         'bank_name',
         'country',
-        'account_number'
+        'account_number',
     ];
 
     private $defaults =  [
@@ -40,7 +40,7 @@ class AccountComponent extends Component
         'bank_name' => null,
         'account_number' => null,
         'country' => 'US',
-        "authorization_type" => 'Online'
+        "authorization_type" => 'Online',
     ];
 
     public function __construct(public array $account)

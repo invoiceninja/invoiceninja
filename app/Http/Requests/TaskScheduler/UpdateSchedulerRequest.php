@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -20,24 +20,24 @@ use App\Http\ValidationRules\Scheduler\ValidClientIds;
 class UpdateSchedulerRequest extends Request
 {
     public array $client_statuses = [
-                        'all',
-                        'draft',
-                        'paid',
-                        'unpaid',
-                        'overdue',
-                        'pending',
-                        'invoiced',
-                        'logged',
-                        'partial',
-                        'applied',
-                        'active',
-                        'paused',
-                        'completed',
-                        'approved',
-                        'expired',
-                        'upcoming',
-                        'converted',
-                        'uninvoiced',
+        'all',
+        'draft',
+        'paid',
+        'unpaid',
+        'overdue',
+        'pending',
+        'invoiced',
+        'logged',
+        'partial',
+        'applied',
+        'active',
+        'paused',
+        'completed',
+        'approved',
+        'expired',
+        'upcoming',
+        'converted',
+        'uninvoiced',
     ];
 
     public array $templates = [
@@ -76,7 +76,7 @@ class UpdateSchedulerRequest extends Request
         $rules = [
             'name' => 'bail|sometimes|nullable|string',
             'is_paused' => 'bail|sometimes|boolean',
-            'frequency_id' => 'bail|sometimes|integer|digits_between:1,12',
+            'frequency_id' => 'bail|sometimes|integer|between:0,12',
             'next_run' => 'bail|required|date:Y-m-d|after_or_equal:today',
             'next_run_client' => 'bail|sometimes|date:Y-m-d',
             'template' => 'bail|required|string',
@@ -111,12 +111,12 @@ class UpdateSchedulerRequest extends Request
     public function withValidator(\Illuminate\Validation\Validator $validator)
     {
         $validator->after(function ($validator) {
-            if(!empty($this->parameters['template_id']) && Design::where('id', $this->decodePrimaryKey($this->parameters['template_id']))->where('is_template',true)->company()->doesntExist()) {
+            if (!empty($this->parameters['template_id']) && Design::where('id', $this->decodePrimaryKey($this->parameters['template_id']))->where('is_template', true)->company()->doesntExist()) {
                 $validator->errors()->add('template_id', 'Invalid Template ID Selected');
             }
         });
     }
-    
+
     public function prepareForValidation()
     {
         $input = $this->all();
@@ -133,10 +133,10 @@ class UpdateSchedulerRequest extends Request
             $input['parameters']['clients'] = [];
         }
 
-        if(isset($input['parameters']['invoice_id'])) {
+        if (isset($input['parameters']['invoice_id'])) {
             unset($input['parameters']['invoice_id']);
         }
-        
+
         if (isset($input['parameters']['status'])) {
 
 
@@ -152,13 +152,13 @@ class UpdateSchedulerRequest extends Request
                                                     })->merge($task_statuses)
                                                     ->implode(",") ?? '';
         }
-        
+
         if (isset($input['parameters']['schedule']) && is_array($input['parameters']['schedule']) && count($input['parameters']['schedule']) > 0) {
             $input['remaining_cycles'] = count($input['parameters']['schedule']);
         }
 
         $input['parameters']['user_id'] = auth()->user()->id;
-        
+
         $this->replace($input);
 
     }
@@ -168,7 +168,7 @@ class UpdateSchedulerRequest extends Request
         return [
             'parameters.schedule.min' => 'The schedule must have at least one item.',
             'parameters.schedule' => 'You must have at least one schedule entry.',
-            'parameters.invoice_id' => 'You must select an invoice.'
+            'parameters.invoice_id' => 'You must select an invoice.',
         ];
     }
 

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -193,7 +193,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function name()
     {
-        return $this->first_name.' '.$this->last_name;
+        return $this->first_name . ' ' . $this->last_name;
     }
 
     public function getEntityType()
@@ -235,7 +235,7 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         if (request()->header('X-API-TOKEN')) {
-            
+
             $token = CompanyToken::with(['cu'])->where('token', request()->header('X-API-TOKEN'))->first();
             if ($token) {
                 return $token;
@@ -651,7 +651,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
         /* If we have multiple parts, then make sure we search for the _all permission */
         if (count($parts) > 1) {
-            $all_permission = $parts[0].'_all';
+            $all_permission = $parts[0] . '_all';
 
             /*If this is a view search, make sure we add in the edit_{entity} AND edit_all permission into the checks*/
             if ($parts[0] == 'view') {
@@ -660,11 +660,11 @@ class User extends Authenticatable implements MustVerifyEmail
             }
         }
 
-        return  $this->isSuperUser() ||
-                (stripos($this->token()->cu->permissions ?? '', $permission) !== false) ||
-                (stripos($this->token()->cu->permissions ?? '', $all_permission) !== false) ||
-                (stripos($this->token()->cu->permissions ?? '', $edit_all) !== false) ||
-                (stripos($this->token()->cu->permissions ?? '', $edit_entity) !== false);
+        return  $this->isSuperUser()
+                || (stripos($this->token()->cu->permissions ?? '', $permission) !== false)
+                || (stripos($this->token()->cu->permissions ?? '', $all_permission) !== false)
+                || (stripos($this->token()->cu->permissions ?? '', $edit_all) !== false)
+                || (stripos($this->token()->cu->permissions ?? '', $edit_entity) !== false);
     }
 
     /**
@@ -683,11 +683,11 @@ class User extends Authenticatable implements MustVerifyEmail
         $all_permission = '__';
 
         if (count($parts) > 1) {
-            $all_permission = $parts[0].'_all';
+            $all_permission = $parts[0] . '_all';
         }
 
-        return  (stripos($this->token()->cu->permissions, $all_permission) !== false) ||
-                (stripos($this->token()->cu->permissions, $permission) !== false);
+        return  (stripos($this->token()->cu->permissions, $all_permission) !== false)
+                || (stripos($this->token()->cu->permissions, $permission) !== false);
     }
 
     /**
@@ -929,8 +929,8 @@ class User extends Authenticatable implements MustVerifyEmail
         $earnings = collect($this->referral_earnings);
 
         $updated_earnings = $earnings->map(function ($earning) use ($entity) {
-            if ($earning->account_key === $entity->account_key &&
-                $earning->period_ending === $entity->period_ending) {
+            if ($earning->account_key === $entity->account_key
+                && $earning->period_ending === $entity->period_ending) {
                 return $entity;
             }
 

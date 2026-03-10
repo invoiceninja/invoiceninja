@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -26,9 +26,7 @@ class InvoiceOverdueSummaryObject
 {
     use MakesDates;
 
-    public function __construct(public array $overdue_invoices, public array $table_headers, public Company $company, public bool $use_react_url)
-    {
-    }
+    public function __construct(public array $overdue_invoices, public array $table_headers, public Company $company, public bool $use_react_url) {}
 
     public function build()
     {
@@ -67,7 +65,7 @@ class InvoiceOverdueSummaryObject
             ctrans(
                 'texts.notification_invoice_overdue_summary_subject',
                 [
-                    'date' => $date
+                    'date' => $date,
                 ]
             );
     }
@@ -77,11 +75,15 @@ class InvoiceOverdueSummaryObject
 
         $invoice = Invoice::withTrashed()->find(reset($this->overdue_invoices)['id']);
 
+        $header_keys = array_keys($this->table_headers);
         $overdue_invoices_collection = array_map(
-            fn($row) => \Illuminate\Support\Arr::except($row, ['id', 'amount', 'due_date']),
+            fn($row) => array_merge(
+                array_fill_keys($header_keys, null),
+                array_intersect_key($row, array_flip($header_keys))
+            ),
             $this->overdue_invoices
         );
-        
+
         $data = [
             'title' => $this->getSubject(),
             'content' => ctrans('texts.notification_invoice_overdue_summary'),
@@ -100,4 +102,3 @@ class InvoiceOverdueSummaryObject
         return $data;
     }
 }
-

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -38,9 +38,7 @@ class AdjustProductInventory implements ShouldQueue
 
     private array $notified_products = [];
 
-    public function __construct(public Company $company, public Invoice $invoice, public $old_invoice = [])
-    {
-    }
+    public function __construct(public Company $company, public Invoice $invoice, public $old_invoice = []) {}
 
     /**
      * Execute the job.

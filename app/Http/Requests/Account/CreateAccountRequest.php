@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -20,7 +20,6 @@ use App\Utils\Ninja;
 
 class CreateAccountRequest extends Request
 {
-
     private array $fake_domains = [
         'generator.email',
         'emailfake.com',
@@ -224,21 +223,21 @@ class CreateAccountRequest extends Request
     {
 
         $validator->after(function ($validator) {
-        
 
-        try {
-            $domain = explode("@", $this->input('email'))[1] ?? "";
-            $dns = dns_get_record($domain, DNS_MX);
-            $server = $dns[0]["target"] ?? null;
 
-            if($server && in_array($server, $this->fake_domains)){
-                $validator->errors()->add('email', 'Account Already Exists.');
+            try {
+                $domain = explode("@", $this->input('email'))[1] ?? "";
+                $dns = dns_get_record($domain, DNS_MX);
+                $server = $dns[0]["target"] ?? null;
+
+                if ($server && in_array($server, $this->fake_domains)) {
+                    $validator->errors()->add('email', 'Account Already Exists.');
+                }
+            } catch (\Throwable $e) {
+
+                nlog($e->getMessage());
+                nlog("I could not check the email address => " . $this->input('email'));
             }
-        } catch (\Throwable $e) {
-        
-            nlog($e->getMessage());
-            nlog("I could not check the email address => ".$this->input('email'));
-        }
 
         });
     }

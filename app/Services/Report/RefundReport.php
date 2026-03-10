@@ -46,9 +46,7 @@ class RefundReport extends BaseExport
      *     'client_id',
      * ]
      */
-    public function __construct(public Company $company, public array $input)
-    {
-    }
+    public function __construct(public Company $company, public array $input) {}
 
     public function run()
     {
@@ -119,7 +117,7 @@ class RefundReport extends BaseExport
                             if ($invoice) {
                                 $invoices[] = [
                                     'number' => $invoice->number,
-                                    'amount' => $invoiceRefund['amount']
+                                    'amount' => $invoiceRefund['amount'],
                                 ];
                             }
                         }

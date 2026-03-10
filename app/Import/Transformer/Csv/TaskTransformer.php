@@ -36,10 +36,18 @@ class TaskTransformer extends BaseTransformer
             $task_data = reset($task_items_data);
         }
 
-        $clientId = $this->getClient(
-            $this->getString($task_data, 'client.name'),
-            $this->getString($task_data, 'client.email')
+        $client_name = $this->getString($task_data, 'client.name');
+        $client_email = $this->getString($task_data, 'client.email');
+
+        $clientId = (empty($client_name) && empty($client_email)) ? null : $this->getClient(
+            $client_name,
+            $client_email
         );
+
+        // $clientId = $this->getClient(
+        //     $client_name,
+        //     $client_email
+        // );
 
         $projectId = $task_data['project.name'] ?? '';
 
@@ -103,14 +111,14 @@ class TaskTransformer extends BaseTransformer
             return false;
         }
 
-        return [(int)$start_date, (int)$end_date, (string)$notes, (bool)$is_billable];
+        return [(int) $start_date, (int) $end_date, (string) $notes, (bool) $is_billable];
     }
 
     private function resolveStartDate($item)
     {
 
         $stub_start_date = $item['task.start_date'];
-        $stub_start_date .= isset($item['task.start_time']) ? " ".$item['task.start_time'] : '';
+        $stub_start_date .= isset($item['task.start_time']) ? " " . $item['task.start_time'] : '';
 
         try {
 
@@ -121,11 +129,11 @@ class TaskTransformer extends BaseTransformer
         } catch (\Exception $e) {
 
             nlog("fall back failed too" . $e->getMessage());
-            
+
         }
 
 
-        
+
         try {
             $stub_start_date = \Carbon\Carbon::parse(str_replace('/', '-', $stub_start_date), $this->company->timezone()->name);
             $this->stubbed_timestamp = $stub_start_date->timestamp;
@@ -151,15 +159,15 @@ class TaskTransformer extends BaseTransformer
     private function resolveEndDate($item)
     {
 
-        $stub_end_date = isset($item['task.end_date']) ? $item['task.end_date'] : $item['task.start_date'];
-        $stub_end_date .= isset($item['task.end_time']) ? " ".$item['task.end_time'] : '';
+        $stub_end_date = $item['task.end_date'] ?? $item['task.start_date'];
+        $stub_end_date .= isset($item['task.end_time']) ? " " . $item['task.end_time'] : '';
 
         try {
 
             $stub_end_date = \Carbon\Carbon::parse($stub_end_date, $this->company->timezone()->name);
 
             if ($stub_end_date->timestamp == $this->stubbed_timestamp) {
-                
+
                 return $this->stubbed_timestamp;
             }
 
