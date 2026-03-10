@@ -9,18 +9,30 @@
  */
 
 class Approve {
-    constructor(displaySignature, displayTerms, userInput) {
+    constructor(displaySignature, displayTerms, userInput, docuninjaActive) {
         this.shouldDisplaySignature = displaySignature;
         this.shouldDisplayTerms = displayTerms;
         this.shouldDisplayUserInput = userInput;
         this.termsAccepted = false;
-    }
-
+        this.docuninjaActive = docuninjaActive;
+        
+        }
+    
     submitForm() {
         document.getElementById('approve-form').submit();
     }
 
+    displayDocuNinja() {
+            const pdfContainer = document.getElementById('pdf-slot-container');
+            const docuninjaContainer = document.getElementById('docuninja-container');
+
+            pdfContainer.classList.add('hidden');
+            docuninjaContainer.classList.remove('hidden');
+
+    }
+
     displaySignature() {
+
         let displaySignatureModal = document.getElementById(
             'displaySignatureModal'
         );
@@ -72,6 +84,24 @@ class Approve {
     }
 
     handle() {
+
+        const closeTermsButton = document.getElementById('close-terms-button');
+        if (closeTermsButton) {
+            closeTermsButton.addEventListener('click', () => {
+                const approveButton = document.getElementById('approve-button');
+                if (approveButton) approveButton.disabled = false;
+            });
+        }
+
+        const closeButton = document.getElementById('close-button');
+        if (closeButton) {
+            closeButton.addEventListener('click', () => {
+                const approveButton = document.getElementById('approve-button');
+                if (approveButton) approveButton.disabled = false;
+            });
+        }
+
+
         const approveButton = document.getElementById('approve-button');
         if (!approveButton) return;
 
@@ -79,9 +109,9 @@ class Approve {
             approveButton.disabled = true;
             
             // Re-enable the approve button after 2 seconds
-            setTimeout(() => {
-                approveButton.disabled = false;
-            }, 2000);
+            // setTimeout(() => {
+            //     approveButton.disabled = false;
+            // }, 2000);
 
             if (this.shouldDisplayUserInput) {
                 this.displayInput();
@@ -100,6 +130,12 @@ class Approve {
                     this.hideInput();
 
                     if (this.shouldDisplaySignature && this.shouldDisplayTerms) {
+
+                        if(this.docuninjaActive){
+                            this.displayDocuNinja();
+                            return;
+                        }
+
                         this.displaySignature();
 
                         document
@@ -120,6 +156,12 @@ class Approve {
                                 }
                             });
                     } else if (this.shouldDisplaySignature) {
+
+                        if(this.docuninjaActive){
+                            this.displayDocuNinja();
+                            return;
+                        }
+
                         this.displaySignature();
 
                         document
@@ -146,6 +188,12 @@ class Approve {
                     }
                 });
             } else if (this.shouldDisplaySignature && this.shouldDisplayTerms) {
+
+                if(this.docuninjaActive){
+                    this.displayDocuNinja();
+                    return;
+                }
+
                 this.displaySignature();
 
                 document
@@ -166,6 +214,12 @@ class Approve {
                         }
                     });
             } else if (this.shouldDisplaySignature) {
+
+                if(this.docuninjaActive){
+                    this.displayDocuNinja();
+                    return;
+                }
+
                 this.displaySignature();
 
                 document
@@ -201,4 +255,6 @@ const terms = document.querySelector('meta[name="show-quote-terms"]').content;
 
 const user_input = document.querySelector('meta[name="accept-user-input"]').content;
 
-new Approve(Boolean(+signature), Boolean(+terms), Boolean(+user_input)).handle();
+const docuninja_active = document.querySelector('meta[name="docuninja-active"]').content;
+
+new Approve(Boolean(+signature), Boolean(+terms), Boolean(+user_input), Boolean(+docuninja_active)).handle();

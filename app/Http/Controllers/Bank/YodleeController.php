@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -79,7 +79,7 @@ class YodleeController extends BaseController
         foreach ($accounts as $account) {
             if ($bi = BankIntegration::where('bank_account_id', $account['id'])->where('company_id', $company->id)->first()) {
 
-                if($bi->deleted_at){
+                if ($bi->deleted_at) {
                     continue;
                 }
 
@@ -336,7 +336,7 @@ class YodleeController extends BaseController
         $dto->current_balance = $summary['currentBalance']['amount'] ?? 0;
         $dto->account_currency = $summary['currentBalance']['currency'] ?? 0;
 
-        return (array)$dto;
+        return (array) $dto;
 
     }
 }

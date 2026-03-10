@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -42,7 +42,7 @@ class TwilioController extends BaseController
      */
     public function generate(GenerateSmsRequest $request)
     {
-        
+
         nlog('generateSmsResetCode');
         nlog($request->all());
 
@@ -121,9 +121,9 @@ class TwilioController extends BaseController
                                      ->services(config('ninja.twilio_verify_sid'))
                                      ->verificationChecks
                                      ->create([
-                                             "to" => $account->account_sms_verification_number,
-                                             "code" => $request->code
-                                       ]);
+                                         "to" => $account->account_sms_verification_number,
+                                         "code" => $request->code,
+                                     ]);
 
 
         if ($verification_check->status == 'approved') {
@@ -222,9 +222,9 @@ class TwilioController extends BaseController
                                      ->services(config('ninja.twilio_verify_sid'))
                                      ->verificationChecks
                                      ->create([
-                                             "to" => $user->phone,
-                                             "code" => $request->code
-                                       ]);
+                                         "to" => $user->phone,
+                                         "code" => $request->code,
+                                     ]);
 
         if ($verification_check->status == 'approved') {
             if ($request->query('validate_only') == 'true') {

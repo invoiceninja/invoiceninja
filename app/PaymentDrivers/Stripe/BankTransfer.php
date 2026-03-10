@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -169,16 +169,16 @@ class BankTransfer implements LivewireMethodInterface
     public function formatDataforEur(PaymentIntent $pi): array
     {
         return  [
-                    'amount' => Number::formatMoney($this->stripe->convertFromStripeAmount($pi->next_action->display_bank_transfer_instructions->amount_remaining, $this->stripe->client->currency()->precision, $this->stripe->client->currency()), $this->stripe->client),
-                    'account_holder_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->iban->account_holder_name,
-                    'account_number' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->iban->iban,
-                    'sort_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->iban->bic,
-                    'reference' => $pi->next_action->display_bank_transfer_instructions->reference,
-                    'description' => $pi->description,
-                    'gateway'   => $this->stripe->company_gateway,
-                    'currency' => $pi->next_action->display_bank_transfer_instructions->currency,
+            'amount' => Number::formatMoney($this->stripe->convertFromStripeAmount($pi->next_action->display_bank_transfer_instructions->amount_remaining, $this->stripe->client->currency()->precision, $this->stripe->client->currency()), $this->stripe->client),
+            'account_holder_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->iban->account_holder_name,
+            'account_number' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->iban->iban,
+            'sort_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->iban->bic,
+            'reference' => $pi->next_action->display_bank_transfer_instructions->reference,
+            'description' => $pi->description,
+            'gateway'   => $this->stripe->company_gateway,
+            'currency' => $pi->next_action->display_bank_transfer_instructions->currency,
 
-                ];
+        ];
     }
 
     /**
@@ -189,20 +189,20 @@ class BankTransfer implements LivewireMethodInterface
     public function formatDataforJp(PaymentIntent $pi): array
     {
         return  [
-                    'amount' => Number::formatMoney($this->stripe->convertFromStripeAmount($pi->next_action->display_bank_transfer_instructions->amount_remaining, $this->stripe->client->currency()->precision, $this->stripe->client->currency()), $this->stripe->client),
-                    'account_holder_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->account_holder_name,
-                    'account_number' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->account_number,
-                    'account_type' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->account_type,
-                    'bank_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->bank_code,
-                    'bank_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->bank_name,
-                    'branch_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->branch_code,
-                    'branch_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->branch_name,
-                    'reference' => $pi->next_action->display_bank_transfer_instructions->reference,
-                    'description' => $pi->description,
-                    'gateway'   => $this->stripe->company_gateway,
-                    'currency' => $pi->next_action->display_bank_transfer_instructions->currency,
+            'amount' => Number::formatMoney($this->stripe->convertFromStripeAmount($pi->next_action->display_bank_transfer_instructions->amount_remaining, $this->stripe->client->currency()->precision, $this->stripe->client->currency()), $this->stripe->client),
+            'account_holder_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->account_holder_name,
+            'account_number' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->account_number,
+            'account_type' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->account_type,
+            'bank_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->bank_code,
+            'bank_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->bank_name,
+            'branch_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->branch_code,
+            'branch_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->branch_name,
+            'reference' => $pi->next_action->display_bank_transfer_instructions->reference,
+            'description' => $pi->description,
+            'gateway'   => $this->stripe->company_gateway,
+            'currency' => $pi->next_action->display_bank_transfer_instructions->currency,
 
-                ];
+        ];
     }
 
 
@@ -214,17 +214,17 @@ class BankTransfer implements LivewireMethodInterface
     public function formatDataforUs(PaymentIntent $pi): array
     {
         return  [
-                    'amount' => Number::formatMoney($this->stripe->convertFromStripeAmount($pi->next_action->display_bank_transfer_instructions->amount_remaining, $this->stripe->client->currency()->precision, $this->stripe->client->currency()), $this->stripe->client),
-                    'account_holder_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->aba->bank_name,
-                    'account_number' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->aba->account_number,
-                    'bank_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->aba->bank_name,
-                    'sort_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->aba->routing_number,
-                    'reference' => $pi->next_action->display_bank_transfer_instructions->reference,
-                    'description' => $pi->description,
-                    'gateway'   => $this->stripe->company_gateway,
-                    'currency' => $pi->next_action->display_bank_transfer_instructions->currency,
+            'amount' => Number::formatMoney($this->stripe->convertFromStripeAmount($pi->next_action->display_bank_transfer_instructions->amount_remaining, $this->stripe->client->currency()->precision, $this->stripe->client->currency()), $this->stripe->client),
+            'account_holder_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->aba->bank_name,
+            'account_number' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->aba->account_number,
+            'bank_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->aba->bank_name,
+            'sort_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->aba->routing_number,
+            'reference' => $pi->next_action->display_bank_transfer_instructions->reference,
+            'description' => $pi->description,
+            'gateway'   => $this->stripe->company_gateway,
+            'currency' => $pi->next_action->display_bank_transfer_instructions->currency,
 
-                ];
+        ];
     }
 
 
@@ -304,8 +304,8 @@ class BankTransfer implements LivewireMethodInterface
             ],
             'payment_method_options' => [
                 'customer_balance' => [
-                'funding_type' => 'bank_transfer',
-                'bank_transfer' => $this->resolveBankType()
+                    'funding_type' => 'bank_transfer',
+                    'bank_transfer' => $this->resolveBankType(),
                 ],
             ],
             'metadata' => [

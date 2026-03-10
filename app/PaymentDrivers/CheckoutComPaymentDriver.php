@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -220,7 +220,7 @@ class CheckoutComPaymentDriver extends BaseDriver
         }
 
         $request = new RefundRequest();
-        $request->reference = "{$payment->transaction_reference} ".now();
+        $request->reference = "{$payment->transaction_reference} " . now();
         $request->amount = $this->convertToCheckoutAmount($amount, $this->client->getCurrencyCode());
 
         try {
@@ -393,7 +393,7 @@ class CheckoutComPaymentDriver extends BaseDriver
 
         $paymentRequest = $this->bootTokenRequest($cgt->token);
         $paymentRequest->amount = $this->convertToCheckoutAmount($amount, $this->client->getCurrencyCode());
-        $paymentRequest->reference = '#'.$invoice->number.' - '.now();
+        $paymentRequest->reference = '#' . $invoice->number . ' - ' . now();
         $paymentRequest->customer = $this->getCustomer();
         $paymentRequest->metadata = ['udf1' => 'Invoice Ninja', 'udf2' => $payment_hash->hash];
         $paymentRequest->currency = $this->client->getCurrencyCode();
@@ -434,7 +434,7 @@ class CheckoutComPaymentDriver extends BaseDriver
             if ($response['status'] == 'Declined') {
                 $this->unWindGatewayFees($payment_hash);
 
-                $this->sendFailureMail($response['status'].' '.$response['response_summary']);
+                $this->sendFailureMail($response['status'] . ' ' . $response['response_summary']);
 
                 $message = [
                     'server_response' => $response,
@@ -494,7 +494,7 @@ class CheckoutComPaymentDriver extends BaseDriver
         if ($request->header('cko-signature') == hash_hmac('sha256', $webhook_payload, $this->company_gateway->company->company_key)) {
             CheckoutWebhook::dispatch($request->all(), $request->company_key, $this->company_gateway->id)->delay(10);
         } else {
-            nlog("Hash Mismatch = {$request->header('cko-signature')} ".hash_hmac('sha256', $webhook_payload, $this->company_gateway->company->company_key));
+            nlog("Hash Mismatch = {$request->header('cko-signature')} " . hash_hmac('sha256', $webhook_payload, $this->company_gateway->company->company_key));
             nlog($request->all());
         }
 
@@ -526,7 +526,7 @@ class CheckoutComPaymentDriver extends BaseDriver
             } else {
                 return $this->processUnsuccessfulPayment($payment);
             }
-        } catch (CheckoutApiException | Exception $e) {
+        } catch (CheckoutApiException|Exception $e) {
             nlog("checkout");
             nlog($e->getMessage());
             return $this->processInternallyFailedPayment($this, $e);
@@ -593,9 +593,9 @@ class CheckoutComPaymentDriver extends BaseDriver
 
                  foreach ($customer['instruments'] as $card) {
                      if (
-                         $card['type'] != 'card' ||
-                         Carbon::createFromDate($card['expiry_year'], $card['expiry_month'], '1')->lt(now()) || //@phpstan-ignore-line
-                         $this->getToken($card['id'], $customer['id'])
+                         $card['type'] != 'card'
+                         || Carbon::createFromDate($card['expiry_year'], $card['expiry_month'], '1')->lt(now()) //@phpstan-ignore-line
+                         || $this->getToken($card['id'], $customer['id'])
                      ) {
                          continue;
                      }

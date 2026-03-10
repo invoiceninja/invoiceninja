@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -24,7 +24,7 @@ trait ChartQueries
      */
     public function getExpenseQuery($start_date, $end_date)
     {
-        $user_filter = $this->is_admin ? '' : 'AND expenses.user_id = '.$this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND expenses.user_id = ' . $this->user->id;
 
         return DB::select("
             SELECT
@@ -57,7 +57,7 @@ trait ChartQueries
 
     public function getAggregateExpenseQuery($start_date, $end_date)
     {
-        $user_filter = $this->is_admin ? '' : 'AND expenses.user_id = '.$this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND expenses.user_id = ' . $this->user->id;
 
         return DB::select("
             SELECT
@@ -106,7 +106,7 @@ trait ChartQueries
     public function getAggregateExpenseChartQuery($start_date, $end_date)
     {
 
-        $user_filter = $this->is_admin ? '' : 'AND expenses.user_id = '.$this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND expenses.user_id = ' . $this->user->id;
 
         return DB::select("
             SELECT
@@ -162,7 +162,7 @@ trait ChartQueries
     public function getExpenseChartQuery($start_date, $end_date, $currency_id)
     {
 
-        $user_filter = $this->is_admin ? '' : 'AND expenses.user_id = '.$this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND expenses.user_id = ' . $this->user->id;
 
 
         return DB::select("
@@ -210,7 +210,7 @@ trait ChartQueries
     public function getPaymentQuery($start_date, $end_date)
     {
 
-        $user_filter = $this->is_admin ? '' : 'AND payments.user_id = '.$this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND payments.user_id = ' . $this->user->id;
 
         return DB::select("
             SELECT sum(payments.amount) as amount,
@@ -235,7 +235,7 @@ trait ChartQueries
     public function getAggregatePaymentQuery($start_date, $end_date)
     {
 
-        $user_filter = $this->is_admin ? '' : 'AND payments.user_id = '.$this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND payments.user_id = ' . $this->user->id;
 
         return DB::select("
             SELECT sum((payments.amount - payments.refunded) / COALESCE(NULLIF(payments.exchange_rate, 0), 1)) as amount,
@@ -261,7 +261,7 @@ trait ChartQueries
     public function getAggregatePaymentChartQuery($start_date, $end_date)
     {
 
-        $user_filter = $this->is_admin ? '' : 'AND payments.user_id = '.$this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND payments.user_id = ' . $this->user->id;
 
         return DB::select("
             SELECT
@@ -287,7 +287,7 @@ trait ChartQueries
     public function getPaymentChartQuery($start_date, $end_date, $currency_id)
     {
 
-        $user_filter = $this->is_admin ? '' : 'AND payments.user_id = '.$this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND payments.user_id = ' . $this->user->id;
 
 
         return DB::select("
@@ -321,8 +321,8 @@ trait ChartQueries
     public function getOutstandingQuery($start_date, $end_date)
     {
 
-        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
-        
+        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = ' . $this->user->id;
+
         $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3)' : 'AND invoices.status_id IN (2,3)';
 
         return DB::select("
@@ -347,7 +347,7 @@ trait ChartQueries
     public function getAggregateOutstandingQuery($start_date, $end_date)
     {
 
-        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = ' . $this->user->id;
         $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3)' : 'AND invoices.status_id IN (2,3)';
         //AND invoices.balance > 0
         return DB::select("
@@ -364,15 +364,15 @@ trait ChartQueries
             AND invoices.is_deleted = 0
             AND (invoices.date BETWEEN :start_date AND :end_date)
         ", [
-         'company_id' => $this->company->id,
-         'start_date' => $start_date,
-         'end_date' => $end_date]);
+            'company_id' => $this->company->id,
+            'start_date' => $start_date,
+            'end_date' => $end_date]);
 
     }
 
     public function getAggregateRevenueQuery($start_date, $end_date)
     {
-        $user_filter = $this->is_admin ? '' : 'AND payments.user_id = '.$this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND payments.user_id = ' . $this->user->id;
 
         return DB::select("
             SELECT
@@ -393,7 +393,7 @@ trait ChartQueries
 
     public function getRevenueQuery($start_date, $end_date)
     {
-        $user_filter = $this->is_admin ? '' : 'AND payments.user_id = '.$this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND payments.user_id = ' . $this->user->id;
 
         return DB::select("
             SELECT
@@ -415,7 +415,7 @@ trait ChartQueries
 
     public function getAggregateInvoicesQuery($start_date, $end_date)
     {
-        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = ' . $this->user->id;
 
         //AND invoices.amount > 0 @2024-12-03 - allow negative invoices to be included
         $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3,4)' : 'AND invoices.status_id IN (2,3,4)';
@@ -435,7 +435,7 @@ trait ChartQueries
         ", [
             'company_id' => $this->company->id,
             'start_date' => $start_date,
-            'end_date' => $end_date
+            'end_date' => $end_date,
         ]);
 
     }
@@ -443,7 +443,7 @@ trait ChartQueries
 
     public function getInvoicesQuery($start_date, $end_date)
     {
-        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = ' . $this->user->id;
 
         $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3,4)' : 'AND invoices.status_id IN (2,3,4)';
 
@@ -467,7 +467,7 @@ trait ChartQueries
 
     public function getAggregateOutstandingChartQuery($start_date, $end_date)
     {
-        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = ' . $this->user->id;
 
         $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3,4)' : 'AND invoices.status_id IN (2,3,4)';
 
@@ -494,7 +494,7 @@ trait ChartQueries
 
     public function getOutstandingChartQuery($start_date, $end_date, $currency_id)
     {
-        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = ' . $this->user->id;
 
         $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3,4)' : 'AND invoices.status_id IN (2,3,4)';
 
@@ -527,7 +527,7 @@ trait ChartQueries
 
     public function getAggregateInvoiceChartQuery($start_date, $end_date)
     {
-        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = ' . $this->user->id;
 
         $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3,4)' : 'AND invoices.status_id IN (2,3,4)';
 
@@ -554,7 +554,7 @@ trait ChartQueries
 
     public function getInvoiceChartQuery($start_date, $end_date, $currency_id)
     {
-        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = ' . $this->user->id;
 
         $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3,4)' : 'AND invoices.status_id IN (2,3,4)';
 

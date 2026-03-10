@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -309,7 +309,7 @@ class BaseExport
         'line_total' => 'item.line_total',
         'gross_line_total' => 'item.gross_line_total',
         'tax_amount' => 'item.tax_amount',
-        'product_cost' => 'item.product_cost'
+        'product_cost' => 'item.product_cost',
     ];
 
     protected array $quote_report_keys = [
@@ -386,7 +386,7 @@ class BaseExport
         "assigned_user" => "credit.assigned_user_id",
         "user" => "credit.user_id",
         'subtotal' => 'credit.subtotal',
-  ];
+    ];
 
     protected array $payment_report_keys = [
         'name' => 'client.name',
@@ -407,7 +407,7 @@ class BaseExport
         "custom_value4" => "payment.custom_value4",
         "user" => "payment.user_id",
         "assigned_user" => "payment.assigned_user_id",
-  ];
+    ];
 
     protected array $expense_report_keys = [
         'amount' => 'expense.amount',
@@ -513,7 +513,7 @@ class BaseExport
 
         $value = '';
 
-        match($parts[0]) {
+        match ($parts[0]) {
             'contact' => $value = $this->resolveClientContactKey($parts[1], $entity, $transformer),
             'client' => $value = $this->resolveClientKey($parts[1], $entity, $transformer),
             'expense' => $value = $this->resolveExpenseKey($parts[1], $entity, $transformer),
@@ -870,7 +870,7 @@ class BaseExport
 
         if (isset($this->input['product_key'])) {
 
-$products = str_getcsv($this->input['product_key'], ',', "'");
+            $products = str_getcsv($this->input['product_key'], ',', "'");
 
             $products = array_map(function ($product) {
                 return trim($product, "'");
@@ -1391,42 +1391,42 @@ $products = str_getcsv($this->input['product_key'], ',', "'");
             $prefix = '';
 
             if (!$key) {
-                $prefix = stripos($value, 'client.') !== false ? ctrans('texts.client')." " : ctrans('texts.contact')." ";
+                $prefix = stripos($value, 'client.') !== false ? ctrans('texts.client') . " " : ctrans('texts.contact') . " ";
                 $key = array_search($value, $this->client_report_keys);
             }
 
             if (!$key) {
-                $prefix = ctrans('texts.invoice')." ";
+                $prefix = ctrans('texts.invoice') . " ";
                 $key = array_search($value, $this->invoice_report_keys);
             }
 
             if (!$key) {
-                $prefix = ctrans('texts.recurring_invoice')." ";
+                $prefix = ctrans('texts.recurring_invoice') . " ";
                 $key = array_search($value, $this->recurring_invoice_report_keys);
             }
 
             if (!$key) {
-                $prefix = ctrans('texts.payment')." ";
+                $prefix = ctrans('texts.payment') . " ";
                 $key = array_search($value, $this->payment_report_keys);
             }
 
             if (!$key) {
-                $prefix = ctrans('texts.quote')." ";
+                $prefix = ctrans('texts.quote') . " ";
                 $key = array_search($value, $this->quote_report_keys);
             }
 
             if (!$key) {
-                $prefix = ctrans('texts.credit')." ";
+                $prefix = ctrans('texts.credit') . " ";
                 $key = array_search($value, $this->credit_report_keys);
             }
 
             if (!$key) {
-                $prefix = ctrans('texts.item')." ";
+                $prefix = ctrans('texts.item') . " ";
                 $key = array_search($value, $this->item_report_keys);
             }
 
             if (!$key) {
-                $prefix = ctrans('texts.expense')." ";
+                $prefix = ctrans('texts.expense') . " ";
                 $key = array_search($value, $this->expense_report_keys);
 
                 if (!$key && $value == 'expense.category') {
@@ -1435,17 +1435,17 @@ $products = str_getcsv($this->input['product_key'], ',', "'");
             }
 
             if (!$key) {
-                $prefix = ctrans('texts.task')." ";
+                $prefix = ctrans('texts.task') . " ";
                 $key = array_search($value, $this->task_report_keys);
             }
 
             if (!$key) {
-                $prefix = ctrans('texts.vendor')." ";
+                $prefix = ctrans('texts.vendor') . " ";
                 $key = array_search($value, $this->vendor_report_keys);
             }
 
             if (!$key) {
-                $prefix = ctrans('texts.purchase_order')." ";
+                $prefix = ctrans('texts.purchase_order') . " ";
                 $key = array_search($value, $this->purchase_order_report_keys);
             }
 
@@ -1485,30 +1485,30 @@ $products = str_getcsv($this->input['product_key'], ',', "'");
                 $value = Str::after($value, 'tax.');
                 $header[] = $value;
             } elseif (stripos($value, 'custom_value') !== false) {
-                
+
                 $parts = explode(".", $value);
 
                 if (count($parts) == 2 && in_array($parts[0], ['contact', 'client','credit','quote','invoice','purchase_order','recurring_invoice'])) {
-                    $entity = $parts[0].substr($parts[1], -1);
-                    $prefix = ctrans("texts.".$parts[0]);
-                    $fallback = "custom_value".substr($parts[1], -1);
-                    $custom_field_label = (string)$helper->makeCustomField($this->company->custom_fields, $entity);
+                    $entity = $parts[0] . substr($parts[1], -1);
+                    $prefix = ctrans("texts." . $parts[0]);
+                    $fallback = "custom_value" . substr($parts[1], -1);
+                    $custom_field_label = (string) $helper->makeCustomField($this->company->custom_fields, $entity);
 
                     if (strlen($custom_field_label) >= 1) {
                         $header[] = $custom_field_label;
                     } else {
-                        $header[] = $prefix . " ". ctrans("texts.{$fallback}");
+                        $header[] = $prefix . " " . ctrans("texts.{$fallback}");
                     }
 
                 } elseif (count($parts) == 2 && (stripos($parts[0], 'vendor_contact') !== false || stripos($parts[0], 'contact') !== false)) {
                     $parts[0] = str_replace('vendor_contact', 'contact', $parts[0]);
 
-                    $entity = "contact".substr($parts[1], -1);
+                    $entity = "contact" . substr($parts[1], -1);
                     $custom_field_string = strlen($helper->makeCustomField($this->company->custom_fields, $entity)) > 1 ? $helper->makeCustomField($this->company->custom_fields, $entity) : ctrans("texts.{$parts[1]}");
                     $header[] = ctrans("texts.{$parts[0]}") . " " . $custom_field_string;
 
                 } elseif (count($parts) == 2 && in_array(substr($original_key, 0, -1), ['credit','quote','invoice','purchase_order','recurring_invoice','task'])) {
-                    $custom_field_string = strlen($helper->makeCustomField($this->company->custom_fields, "product".substr($original_key, -1))) > 1 ? $helper->makeCustomField($this->company->custom_fields, "product".substr($original_key, -1)) : ctrans("texts.{$parts[1]}");
+                    $custom_field_string = strlen($helper->makeCustomField($this->company->custom_fields, "product" . substr($original_key, -1))) > 1 ? $helper->makeCustomField($this->company->custom_fields, "product" . substr($original_key, -1)) : ctrans("texts.{$parts[1]}");
                     $header[] = ctrans("texts.{$parts[0]}") . " " . $custom_field_string;
                 } else {
                     $header[] = "{$prefix}" . ctrans("texts.{$key}");
@@ -1613,9 +1613,9 @@ $products = str_getcsv($this->input['product_key'], ',', "'");
             $clean_row[$key]['entity'] = $report_keys[0];
             $clean_row[$key]['id'] = $report_keys[1] ?? $report_keys[0];
             $clean_row[$key]['hashed_id'] = $report_keys[0] == $entity ? null : $resource->{$report_keys[0]}->hashed_id ?? null;
-            $clean_row[$key]['value'] = isset($row[$column_key]) ? $row[$column_key] : $row[$value];
+            $clean_row[$key]['value'] = $row[$column_key] ?? $row[$value];
             $clean_row[$key]['identifier'] = $value;
-            $clean_row[$key]['display_value'] = isset($row[$column_key]) ? $row[$column_key] : $row[$value];
+            $clean_row[$key]['display_value'] = $row[$column_key] ?? $row[$value];
 
         }
 
@@ -1727,12 +1727,12 @@ $products = str_getcsv($this->input['product_key'], ',', "'");
             return $query;
         }
 
-        if($user->hasExactPermission('create_all')){
+        if ($user->hasExactPermission('create_all')) {
             return $query->where('user_id', $user->id);
         }
 
         return $this->resolveEntityFilters($user, $query);
-        
+
     }
 
     public function exportTemplate(Builder $query, string $template_id)
@@ -1746,7 +1746,7 @@ $products = str_getcsv($this->input['product_key'], ',', "'");
             // "start_date" => $this->start_date,
             // "end_date" => $this->end_date,
         ];
-        
+
         $ts = new TemplateService($template);
         $ts->setCompany($this->company);
         $ts->addGlobal(['currency_code' => $this->company->currency()->code]);
@@ -1762,8 +1762,8 @@ $products = str_getcsv($this->input['product_key'], ',', "'");
     {
 
         $model = get_class($query->getModel());
-        
-        return match($model) {
+
+        return match ($model) {
             'App\Models\Client' => 'client',
             'App\Models\ClientContact' => 'client',
             'App\Models\Invoice' => 'invoice',
@@ -1793,14 +1793,14 @@ $products = str_getcsv($this->input['product_key'], ',', "'");
         $column_listing = \Illuminate\Support\Facades\Schema::getColumnListing($query->getModel()->getTable());
 
         /** If the User can view or edit the entity, then return the query unfiltered */
-        if($user->hasIntersectPermissions(["view_{$model_string}", "edit_{$model_string}"])){
+        if ($user->hasIntersectPermissions(["view_{$model_string}", "edit_{$model_string}"])) {
             return $query;
         }
 
         //Handle Child Models Like ClientContact or VendorContact
-        if(in_array($model, ['App\Models\ClientContact', 'App\Models\VendorContact'])){
+        if (in_array($model, ['App\Models\ClientContact', 'App\Models\VendorContact'])) {
 
-            $query->whereHas($model_string, function ($_q) use ($user){
+            $query->whereHas($model_string, function ($_q) use ($user) {
                 $_q->where('user_id', $user->id)->orWhere('assigned_user_id', $user->id);
             });
 
@@ -1808,13 +1808,13 @@ $products = str_getcsv($this->input['product_key'], ',', "'");
 
         }
 
-        return $query->where(function ($q) use ($user, $column_listing){
+        return $query->where(function ($q) use ($user, $column_listing) {
 
-            if(in_array('user_id', $column_listing)){
+            if (in_array('user_id', $column_listing)) {
                 $q->where('user_id', $user->id);
             }
 
-            if(in_array('assigned_user_id', $column_listing)){
+            if (in_array('assigned_user_id', $column_listing)) {
                 $q->orWhere('assigned_user_id', $user->id);
             }
 

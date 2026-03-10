@@ -28,8 +28,7 @@ class ClientRegisterService
     public function __construct(
         public Company $company,
         public array $additional = [],
-    ) {
-    }
+    ) {}
 
     public function rules(): array
     {
@@ -74,7 +73,7 @@ class ClientRegisterService
 
         if (isset($data['currency_id'])) {
             $settings = $client->settings;
-            $settings->currency_id = isset($data['currency_id']) ? $data['currency_id'] : $this->company->settings->currency_id;
+            $settings->currency_id = $data['currency_id'] ?? $this->company->settings->currency_id; //@phpstan-ignore-line
             $client->settings = $settings;
         }
 

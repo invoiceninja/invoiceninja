@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -191,7 +191,7 @@ class PayFastPaymentDriver extends BaseDriver
         // nlog("payfast");
         // nlog($data);
 
-        if(array_key_exists('pf_payment_id', $data) && strlen($data['pf_payment_id']) > 1) {
+        if (array_key_exists('pf_payment_id', $data) && strlen($data['pf_payment_id']) > 1) {
             PaymentCompletedWebhook::dispatch($data, $request->company_key, $this->company_gateway->id)->delay(10);
             return;
         }
@@ -209,13 +209,13 @@ class PayFastPaymentDriver extends BaseDriver
 
                 default:
 
-                $payment_hash = PaymentHash::where('hash', $data['m_payment_id'])->first();
+                    $payment_hash = PaymentHash::where('hash', $data['m_payment_id'])->first();
 
-                $this->setPaymentMethod(GatewayType::CREDIT_CARD)
-                        ->setPaymentHash($payment_hash)
-                        ->processPaymentResponse($request);
+                    $this->setPaymentMethod(GatewayType::CREDIT_CARD)
+                            ->setPaymentHash($payment_hash)
+                            ->processPaymentResponse($request);
 
-                return response()->json([], 200);
+                    return response()->json([], 200);
 
             }
         }

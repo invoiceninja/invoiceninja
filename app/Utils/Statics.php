@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -72,7 +72,7 @@ class Statics
         $industries = app('industries');
 
         $data['industries'] = $industries->each(function ($industry) {
-            $industry->name = ctrans('texts.industry_'.$industry->name);
+            $industry->name = ctrans('texts.industry_' . $industry->name);
         })->sortBy(function ($industry) {
             return $industry->name;
         })->values();
@@ -81,7 +81,7 @@ class Statics
         $countries = app('countries');
 
         $data['countries'] = $countries->each(function ($country) {
-            $country->name = ctrans('texts.country_'.$country->name);
+            $country->name = ctrans('texts.country_' . $country->name);
         })->sortBy(function ($country) {
             return $country->name;
         })->values();
@@ -91,7 +91,7 @@ class Statics
         $payment_types = app('payment_types');
 
         $data['payment_types'] = $payment_types->each(function ($pType) {
-            $pType->name = ctrans('texts.payment_type_'.$pType->name);
+            $pType->name = ctrans('texts.payment_type_' . $pType->name);
             $pType->id = (string) $pType->id;
         })->sortBy(function ($pType) {
             return $pType->name;
@@ -101,7 +101,7 @@ class Statics
         $languages = app('languages');
 
         $data['languages'] = $languages->each(function ($lang) {
-            $lang->name = ctrans('texts.lang_'.$lang->name);
+            $lang->name = ctrans('texts.lang_' . $lang->name);
         })->sortBy(function ($lang) {
             return $lang->name;
         })->values();
@@ -111,7 +111,7 @@ class Statics
         $currencies = app('currencies');
 
         $data['currencies'] = $currencies->each(function ($currency) {
-            $currency->name = ctrans('texts.currency_'.Str::slug($currency->name, '_'));
+            $currency->name = ctrans('texts.currency_' . Str::slug($currency->name, '_'));
         })->sortBy(function ($currency) {
             return $currency->name;
         })->values();

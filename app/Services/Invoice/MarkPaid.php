@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -29,9 +29,7 @@ class MarkPaid extends AbstractService
 
     private $payable_balance;
 
-    public function __construct(private Invoice $invoice, private ?string $reference)
-    {
-    }
+    public function __construct(private Invoice $invoice, private ?string $reference) {}
 
     public function run()
     {
@@ -40,41 +38,41 @@ class MarkPaid extends AbstractService
             return $this->invoice;
         }
 
-        if ($this->invoice->status_id == Invoice::STATUS_DRAFT) {
-            // $this->invoice = $this->invoice->service()->markSent()->save();
-
-            /*Set status*/
-            $this->invoice->status_id = Invoice::STATUS_SENT;
-            $this->invoice->balance = $this->invoice->amount;
-
-            /*Update ledger*/
-            $this->invoice
-                ->ledger()
-                ->updateInvoiceBalance($this->invoice->amount, "Invoice {$this->invoice->number} marked as sent.");
-
-            $this->invoice->client->service()->updateBalance($this->invoice->amount);
-            /* Perform additional actions on invoice */
-            $this->invoice
-                ->service()
-                ->applyNumber()
-                ->setDueDate()
-                ->setReminder()
-                ->save();
-
-            $this->invoice->markInvitationsSent();
-
-            event(new \App\Events\Invoice\InvoiceWasUpdated($this->invoice, $this->invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-
-        }
-
         $already_paid = false;
+        $draft_balance_adjustment = 0;
 
-        \DB::connection(config('database.default'))->transaction(function () use (&$already_paid) {
+        \DB::connection(config('database.default'))->transaction(function () use (&$already_paid, &$draft_balance_adjustment) {
             $this->invoice = Invoice::withTrashed()->where('id', $this->invoice->id)->lockForUpdate()->first();
 
             if ($this->invoice->status_id == Invoice::STATUS_PAID) {
                 $already_paid = true;
                 return;
+            }
+
+            if ($this->invoice->status_id == Invoice::STATUS_DRAFT) {
+
+                /*Set status*/
+                $this->invoice->status_id = Invoice::STATUS_SENT;
+                $this->invoice->balance = $this->invoice->amount;
+
+                /*Update ledger*/
+                $this->invoice
+                    ->ledger()
+                    ->updateInvoiceBalance($this->invoice->amount, "Invoice {$this->invoice->number} marked as sent.");
+
+                $draft_balance_adjustment = $this->invoice->amount;
+                /* Perform additional actions on invoice */
+                $this->invoice
+                    ->service()
+                    ->applyNumber()
+                    ->setDueDate()
+                    ->setReminder()
+                    ->save();
+
+                $this->invoice->markInvitationsSent();
+
+                event(new \App\Events\Invoice\InvoiceWasUpdated($this->invoice, $this->invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+
             }
 
             if ($this->invoice) {
@@ -90,7 +88,12 @@ class MarkPaid extends AbstractService
                     ->unlockDocuments()
                     ->save();
             }
-        }, 1);
+        }, 2);
+
+        /* Update client balance for draft→sent transition outside the invoice lock to prevent deadlocks */
+        if ($draft_balance_adjustment != 0) {
+            $this->invoice->client->service()->updateBalance($draft_balance_adjustment);
+        }
 
         if ($already_paid) {
             return $this->invoice;

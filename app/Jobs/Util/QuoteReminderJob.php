@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -43,9 +43,7 @@ class QuoteReminderJob implements ShouldQueue
 
     public $tries = 1;
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Execute the job.
@@ -59,7 +57,7 @@ class QuoteReminderJob implements ShouldQueue
         Auth::logout();
 
         if (! config('ninja.db.multi_db_enabled')) {
-            nrlog("Sending quote reminders on ".now()->format('Y-m-d h:i:s'));
+            nrlog("Sending quote reminders on " . now()->format('Y-m-d h:i:s'));
 
             Quote::query()
                  ->where('is_deleted', 0)
@@ -86,7 +84,7 @@ class QuoteReminderJob implements ShouldQueue
             foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
 
-                nrlog("Sending quote reminders on db {$db} ".now()->format('Y-m-d h:i:s'));
+                nrlog("Sending quote reminders on db {$db} " . now()->format('Y-m-d h:i:s'));
 
                 Quote::query()
                      ->where('is_deleted', 0)
@@ -131,12 +129,12 @@ class QuoteReminderJob implements ShouldQueue
             nrlog("#{$quote->number} => reminder template = {$reminder_template}");
             $quote->service()->touchReminder($reminder_template)->save();
 
-            $enabled_reminder = 'enable_quote_'.$reminder_template;
+            $enabled_reminder = 'enable_quote_' . $reminder_template;
 
-            if (in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3', 'reminder_endless', 'endless_reminder']) &&
-        $quote->client->getSetting($enabled_reminder) &&
-        $quote->client->getSetting('send_reminders') &&
-        (Ninja::isSelfHost() || $quote->company->account->isPaidHostedClient())) {
+            if (in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3', 'reminder_endless', 'endless_reminder'])
+        && $quote->client->getSetting($enabled_reminder)
+        && $quote->client->getSetting('send_reminders')
+        && (Ninja::isSelfHost() || $quote->company->account->isPaidHostedClient())) {
                 $quote->invitations->each(function ($invitation) use ($quote, $reminder_template) {
                     if ($invitation->contact && !$invitation->contact->trashed() && $invitation->contact->email && !$invitation->contact->is_locked) {
                         EmailEntity::dispatch($invitation->withoutRelations(), $invitation->company->db, $reminder_template);

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -48,11 +48,11 @@ class StoreRecurringQuoteRequest extends Request
         $rules['file.*'] = $this->fileValidation();
         $rules['documents'] = 'bail|sometimes|array';
         $rules['documents.*'] = $this->fileValidation();
-        $rules['client_id'] = 'required|exists:clients,id,company_id,'.$user->company()->id;
+        $rules['client_id'] = 'required|exists:clients,id,company_id,' . $user->company()->id;
 
         $rules['invitations.*.client_contact_id'] = 'distinct';
 
-        $rules['frequency_id'] = 'required|integer|digits_between:1,12';
+        $rules['frequency_id'] = 'required|integer|between:1,12';
         $rules['number'] = ['bail', 'nullable', \Illuminate\Validation\Rule::unique('recurring_quotes')->where('company_id', $user->company()->id)];
 
         return $rules;

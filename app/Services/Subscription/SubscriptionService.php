@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -140,7 +140,7 @@ class SubscriptionService
 
             $response = $this->triggerWebhook($context);
 
-            return $this->handleRedirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
+            return $this->handleRedirect('/client/recurring_invoices/' . $recurring_invoice->hashed_id);
         } else {
             $invoice = Invoice::withTrashed()->find($payment_hash->fee_invoice_id);
 
@@ -158,7 +158,7 @@ class SubscriptionService
             /* 06-04-2022 */
             /* We may not be in a state where the user is present */
             if (auth()->guard('contact')->user()) {
-                return $this->handleRedirect('/client/invoices/'.$this->encodePrimaryKey($payment_hash->fee_invoice_id));
+                return $this->handleRedirect('/client/invoices/' . $this->encodePrimaryKey($payment_hash->fee_invoice_id));
             }
         }
     }
@@ -193,7 +193,7 @@ class SubscriptionService
     {
         //send license to the user.
         $invoice = $payment_hash->fee_invoice;
-        $license_key = "v5_".Str::uuid()->toString();
+        $license_key = "v5_" . Str::uuid()->toString();
         $invoice->footer = ctrans('texts.white_label_body', ['license_key' => $license_key]);
 
         $recurring_invoice = $this->convertInvoiceToRecurring($payment_hash->payment->client_id);
@@ -231,7 +231,7 @@ class SubscriptionService
 
         $email_object = new EmailObject();
         $email_object->to = [new Address($contact->email, $contact->present()->name())];
-        $email_object->subject = ctrans('texts.white_label_link') . " " .ctrans('texts.payment_subject');
+        $email_object->subject = ctrans('texts.white_label_link') . " " . ctrans('texts.payment_subject');
         $email_object->body = ctrans('texts.white_label_body', ['license_key' => $license_key]);
         $email_object->client_id = $invoice->client_id;
         $email_object->client_contact_id = $contact->id;
@@ -305,7 +305,7 @@ class SubscriptionService
         //execute any webhooks
         $response = $this->triggerWebhook($context);
 
-        return $this->handleRedirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
+        return $this->handleRedirect('/client/recurring_invoices/' . $recurring_invoice->hashed_id);
     }
 
     /**
@@ -527,7 +527,7 @@ class SubscriptionService
 
                 $item->cost = ($item->cost * $ratio * $multiplier * $discount_ratio);
                 $item->product_key = ctrans('texts.refund');
-                $item->notes = ctrans('texts.refund') . ": ". $item->notes;
+                $item->notes = ctrans('texts.refund') . ": " . $item->notes;
 
                 $line_items[] = $item;
             }
@@ -661,7 +661,7 @@ class SubscriptionService
 
         $response = $this->triggerWebhook($context);
 
-        return '/client/recurring_invoices/'.$new_recurring_invoice->hashed_id;
+        return '/client/recurring_invoices/' . $new_recurring_invoice->hashed_id;
     }
 
     /**
@@ -737,7 +737,7 @@ class SubscriptionService
         nlog($response);
 
         if ($credit) {
-            return '/client/credits/'.$credit->hashed_id;
+            return '/client/credits/' . $credit->hashed_id;
         } else {
             return '/client/credits';
         }
@@ -862,7 +862,7 @@ class SubscriptionService
 
         nlog($response);
 
-        return $this->handleRedirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
+        return $this->handleRedirect('/client/recurring_invoices/' . $recurring_invoice->hashed_id);
     }
 
     /**
@@ -1011,8 +1011,8 @@ class SubscriptionService
         $line_items = $bundle->map(function ($item) {
             $line_item = new InvoiceItem();
             $line_item->product_key = $item['product_key'];
-            $line_item->quantity = (float)$item['qty'];
-            $line_item->cost = (float)$item['unit_cost'];
+            $line_item->quantity = (float) $item['qty'];
+            $line_item->cost = (float) $item['unit_cost'];
             $line_item->notes = $item['description'];
 
             return $line_item;

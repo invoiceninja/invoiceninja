@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -50,7 +50,7 @@ class PrePaymentController extends Controller
         $minimum_amount = $minimum == 0 ? "" : Number::formatMoney($minimum, $client);
 
         $data = [
-            'title' => ctrans('texts.amount'). " " .$client->currency()->code." (".auth()->guard('contact')->user()->client->currency()->symbol . ")",
+            'title' => ctrans('texts.amount') . " " . $client->currency()->code . " (" . auth()->guard('contact')->user()->client->currency()->symbol . ")",
             'allows_recurring' => true,
             'minimum' => $minimum,
             'minimum_amount' =>  $minimum_amount,
@@ -70,7 +70,7 @@ class PrePaymentController extends Controller
         $invoice->client_id = auth()->guard('contact')->user()->client_id;
 
         $line_item = new InvoiceItem();
-        $line_item->cost = (float)$request->amount;
+        $line_item->cost = (float) $request->amount;
         $line_item->quantity = 1;
         $line_item->product_key = ctrans('texts.pre_payment');
         $line_item->notes = $request->notes;
@@ -133,7 +133,8 @@ class PrePaymentController extends Controller
             'remaining_cycles' => $request->remaining_cycles,
             'is_recurring' => $request->is_recurring == 'on' ? true : false,
             'variables' => $variables = ($invitation && auth()->guard('contact')->user()->client->getSetting('show_accept_invoice_terms')) ? (new HtmlEngine($invitation))->generateLabelsAndValues() : false,
-
+            'docuninja_active' => false,
+            'requires_signature' => false,
         ];
 
         return $this->render('invoices.payment', $data);

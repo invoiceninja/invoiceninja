@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -151,7 +151,7 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         $data['raw_value'] = $data['total']['amount_with_fee'];
         $data['customer_email'] = $this->checkout->client->present()->email();
         $data['cardholder_name'] = auth()->guard('contact')->user()->present()->name() ?? '';
-        
+
         return $data;
     }
 

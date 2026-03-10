@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -33,7 +33,7 @@ class VendorPresenter extends EntityPresenter
         $contact_name = 'No Contact Set';
 
         if ($contact && (strlen($contact->first_name) >= 1 || strlen($contact->last_name) >= 1)) {
-            $contact_name = $contact->first_name.' '.$contact->last_name;
+            $contact_name = $contact->first_name . ' ' . $contact->last_name;
         } elseif ($contact && (strlen($contact->email))) {
             $contact_name = $contact->email;
         }
@@ -43,7 +43,7 @@ class VendorPresenter extends EntityPresenter
 
     public function primary_contact_name()
     {
-        return $this->entity->primary_contact->first() !== null ? $this->entity->primary_contact->first()->first_name.' '.$this->entity->primary_contact->first()->last_name : 'No primary contact set';
+        return $this->entity->primary_contact->first() !== null ? $this->entity->primary_contact->first()->first_name . ' ' . $this->entity->primary_contact->first()->last_name : 'No primary contact set';
     }
 
     public function email()
@@ -57,16 +57,16 @@ class VendorPresenter extends EntityPresenter
         $vendor = $this->entity;
 
         if ($address1 = $vendor->address1) {
-            $str .= e($address1).'<br/>';
+            $str .= e($address1) . '<br/>';
         }
         if ($address2 = $vendor->address2) {
-            $str .= e($address2).'<br/>';
+            $str .= e($address2) . '<br/>';
         }
         if ($cityState = $this->getCityState()) {
-            $str .= e($cityState).'<br/>';
+            $str .= e($cityState) . '<br/>';
         }
         if ($country = $vendor->country) {
-            $str .= e($country->name).'<br/>';
+            $str .= e($country->name) . '<br/>';
         }
 
         return $str;
@@ -78,16 +78,16 @@ class VendorPresenter extends EntityPresenter
         $vendor = $this->entity;
 
         if ($address1 = $vendor->shipping_address1) {
-            $str .= e($address1).'<br/>';
+            $str .= e($address1) . '<br/>';
         }
         if ($address2 = $vendor->shipping_address2) {
-            $str .= e($address2).'<br/>';
+            $str .= e($address2) . '<br/>';
         }
         if ($cityState = $this->getCityState()) {
-            $str .= e($cityState).'<br/>';
+            $str .= e($cityState) . '<br/>';
         }
         if ($country = $vendor->country) {
-            $str .= e($country->name).'<br/>';
+            $str .= e($country->name) . '<br/>';
         }
 
         return $str;
@@ -121,16 +121,16 @@ class VendorPresenter extends EntityPresenter
         $str = '';
 
         if ($settings->address1) {
-            $str .= e($settings->address1).'<br/>';
+            $str .= e($settings->address1) . '<br/>';
         }
         if ($settings->address2) {
-            $str .= e($settings->address2).'<br/>';
+            $str .= e($settings->address2) . '<br/>';
         }
         if ($cityState = $this->getCityState()) {
-            $str .= e($cityState).'<br/>';
+            $str .= e($cityState) . '<br/>';
         }
         if ($country = Country::find($settings->country_id)) {
-            $str .= e($country->name).'<br/>';
+            $str .= e($country->name) . '<br/>';
         }
 
         return $str;

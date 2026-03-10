@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -70,18 +70,17 @@ class ApplyNumber extends AbstractService
         $x = 1;
 
         /** Peppol Credit Numbers should be labelled as such. */
-        $peppol_enabled =$this->client->peppolSendingEnabled();
+        $peppol_enabled = $this->client->peppolSendingEnabled();
 
         do {
             try {
-                
-                if($peppol_enabled && strlen(trim($this->client->getSetting('credit_number_pattern'))) > 0 && $this->invoice->amount < 0) {
+
+                if ($peppol_enabled && strlen(trim($this->client->getSetting('credit_number_pattern'))) > 0 && $this->invoice->amount < 0) {
                     $this->invoice->number = $this->getPeppolCreditNumber($this->client, $this->invoice);
-                }
-                else {
+                } else {
                     $this->invoice->number = $this->getNextInvoiceNumber($this->client, $this->invoice, $this->invoice->recurring_id);
                 }
-                
+
                 $this->invoice->saveQuietly();
 
                 $this->completed = false;

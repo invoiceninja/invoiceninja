@@ -116,43 +116,43 @@ class Purify
         'content' => ['*'],
         'http-equiv' => ['cache-control'],
         'viewport' => ['*'],
-        'xmlns' => ['http://www.w3.org/2000/svg']
+        'xmlns' => ['http://www.w3.org/2000/svg'],
     ];
 
     private static array $dangerous_css_patterns = [
-            // JavaScript execution patterns
-            '/expression\s*\(/', // CSS expressions
-            '/javascript\s*:/',  // JavaScript protocol
-            '/behaviour\s*:/',   // IE behavior
-            '/-moz-binding\s*:/', // Mozilla binding
+        // JavaScript execution patterns
+        '/expression\s*\(/', // CSS expressions
+        '/javascript\s*:/',  // JavaScript protocol
+        '/behaviour\s*:/',   // IE behavior
+        '/-moz-binding\s*:/', // Mozilla binding
 
-            // URL patterns that might lead to script execution
-            '/url\s*\(\s*[^)]*(?:javascript|data|vbscript)/i',
+        // URL patterns that might lead to script execution
+        '/url\s*\(\s*[^)]*(?:javascript|data|vbscript)/i',
 
-            // Import directives
-            '/@import\s/',           // Added proper delimiters
+        // Import directives
+        '/@import\s/',           // Added proper delimiters
 
-            // Other potentially dangerous properties
-            '/-o-link\s*:/',
-            '/-o-link-source\s*:/',
-            '/-o-replace\s*:/',
-            '/call\s*\(/',
-            '/position\s*:\s*fixed/i',
+        // Other potentially dangerous properties
+        '/-o-link\s*:/',
+        '/-o-link-source\s*:/',
+        '/-o-replace\s*:/',
+        '/call\s*\(/',
+        '/position\s*:\s*fixed/i',
 
-            // Common attack vectors
-            '/background(?:-image)?\s*:\s*[^;]*(?:url|expression|javascript|data|vbscript)/i',
+        // Common attack vectors
+        '/background(?:-image)?\s*:\s*[^;]*(?:url|expression|javascript|data|vbscript)/i',
 
-            // IE-specific expressions
-            '/progid\s*:/',
-            '/setExpression\s*\(/',
-            '/AlphaImageLoader\s*\(/',
-            '/chrome-extension\s*:/',
-            '/file\s*:/',
-            '/ftp\s*:/',
-            '/gopher\s*:/',
-            '/ws\s*:/',
-            '/wss\s*:/',
-        ];
+        // IE-specific expressions
+        '/progid\s*:/',
+        '/setExpression\s*\(/',
+        '/AlphaImageLoader\s*\(/',
+        '/chrome-extension\s*:/',
+        '/file\s*:/',
+        '/ftp\s*:/',
+        '/gopher\s*:/',
+        '/ws\s*:/',
+        '/wss\s*:/',
+    ];
 
     private static array $dangerous_css_properties = [
         'behavior',
@@ -216,6 +216,20 @@ class Purify
         return implode('; ', $safe_declarations);
     }
 
+    /**
+     * Sanitize CSS inside <style> blocks to remove rules targeting the whitelabel logo.
+     */
+    private static function sanitizeStyleBlockContent(string $css): string
+    {
+        // Strip comments first to prevent obfuscation
+        $css = preg_replace('/\/\*.*?\*\//s', '', $css);
+
+        // Remove any CSS rule whose selector references the whitelabel logo
+        $css = preg_replace('/[^{}]*invoiceninja[\-_]whitelabel[^{}]*\{[^}]*\}/i', '', $css);
+
+        return $css;
+    }
+
     private static array $dangerous_svg_elements = [
         'script',
         'handler',
@@ -226,7 +240,7 @@ class Purify
         'onload',
         'onerror',
         'onunload',
-        'onabort'
+        'onabort',
     ];
 
     private static function isDangerousSvgElement(string $tagName): bool
@@ -236,7 +250,7 @@ class Purify
 
     public static function clean(string $html): string
     {
-
+        
         if (config('ninja.disable_purify_html') || strlen($html) <= 1) {
             return str_replace('%24', '$', $html);
         }
@@ -278,6 +292,12 @@ class Purify
                     if ($node->parentNode) {
                         $node->parentNode->removeChild($node);
                     }
+                    return;
+                }
+
+                // Sanitize <style> block content to protect whitelabel logo
+                if (strtolower($node->tagName) === 'style') {
+                    $node->textContent = self::sanitizeStyleBlockContent($node->textContent);
                     return;
                 }
 

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -35,7 +35,7 @@ class Request extends FormRequest
     public function fileValidation()
     {
         if (config('ninja.upload_extensions')) {
-            return $this->file_validation. ",".config('ninja.upload_extensions');
+            return $this->file_validation . "," . config('ninja.upload_extensions');
         }
 
         return $this->file_validation;
@@ -82,7 +82,7 @@ class Request extends FormRequest
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $rules['invoice_id'] = 'bail|nullable|sometimes|exists:invoices,id,company_id,'.$user->company()->id.',client_id,'.$this['client_id'];
+        $rules['invoice_id'] = 'bail|nullable|sometimes|exists:invoices,id,company_id,' . $user->company()->id . ',client_id,' . $this['client_id'];
 
         return $rules;
     }
@@ -92,7 +92,7 @@ class Request extends FormRequest
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $rules['vendor_id'] = 'bail|nullable|sometimes|exists:vendors,id,company_id,'.$user->company()->id;
+        $rules['vendor_id'] = 'bail|nullable|sometimes|exists:vendors,id,company_id,' . $user->company()->id;
 
         return $rules;
     }
@@ -237,9 +237,7 @@ class Request extends FormRequest
         return $input;
     }
 
-    public function prepareForValidation()
-    {
-    }
+    public function prepareForValidation() {}
 
     /**
      * Convert to boolean

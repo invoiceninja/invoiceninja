@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -36,7 +36,7 @@ class ZugferdEDocument extends AbstractService
 
     private Client $client;
 
-    private InvoiceSum | InvoiceSumInclusive $calc;
+    private InvoiceSum|InvoiceSumInclusive $calc;
 
     private ?string $tax_code = null;
 
@@ -52,9 +52,7 @@ class ZugferdEDocument extends AbstractService
      * @param  array $tax_map
      * @return void
      */
-    public function __construct(public \App\Models\Invoice | \App\Models\Quote | \App\Models\PurchaseOrder | \App\Models\Credit $document, private readonly bool $returnObject = false, private array $tax_map = [])
-    {
-    }
+    public function __construct(public \App\Models\Invoice|\App\Models\Quote|\App\Models\PurchaseOrder|\App\Models\Credit $document, private readonly bool $returnObject = false, private array $tax_map = []) {}
 
     public function run(): self
     {
@@ -282,7 +280,7 @@ class ZugferdEDocument extends AbstractService
                 'payeddue' => date_create($this->document->date ?? now()->format('Y-m-d'))
                     ->diff(date_create($this->document->due_date ?? now()->format('Y-m-d')))
                     ->format("%d"),
-                'paydate' => $this->document->due_date
+                'paydate' => $this->document->due_date,
             ])
         );
 
@@ -578,13 +576,13 @@ class ZugferdEDocument extends AbstractService
     private function setIdNumber(): self
     {
         $id_number = $this->company->getSetting('id_number');
-        
+
         if (!empty($id_number) && str_contains($id_number, "/")) {
             $id_number = trim($id_number);
-            
+
             // BT-29: Seller identifier
             $this->xdocument->addDocumentSellerGlobalId($id_number, "0088");
-            
+
             // BT-32: Tax registration identifier
             $this->xdocument->addDocumentSellerTaxRegistration("FC", $id_number);
         }
@@ -626,15 +624,15 @@ class ZugferdEDocument extends AbstractService
 
     private function getIdNumber(): ?string
     {
-        return !empty($this->company->getSetting('id_number')) 
-            ? trim($this->company->getSetting('id_number')) 
+        return !empty($this->company->getSetting('id_number'))
+            ? trim($this->company->getSetting('id_number'))
             : null;
     }
 
     private function getIdNumberRegistrationType(): ?string
     {
-        return !empty($this->getIdNumber()) && str_contains($this->getIdNumber(), "/") 
-            ? "FC" 
+        return !empty($this->getIdNumber()) && str_contains($this->getIdNumber(), "/")
+            ? "FC"
             : null;
     }
 

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -42,7 +42,7 @@ class StoreClientGatewayTokenRequest extends Request
             'company_gateway_id' => ['required', 'bail', \Illuminate\Validation\Rule::exists('company_gateways', 'id')->where('company_id', $user->company()->id)->where('is_deleted', 0)],
             'gateway_type_id' => 'required|integer',
             'meta' => 'required',
-            'is_default' => 'sometimes|bail|boolean'
+            'is_default' => 'sometimes|bail|boolean',
         ];
 
         return $this->globalRules($rules);

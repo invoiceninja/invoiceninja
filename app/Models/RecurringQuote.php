@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -428,17 +428,17 @@ class RecurringQuote extends BaseModel
     {
         switch ($status) {
             case self::STATUS_DRAFT:
-                return '<h4><span class="badge badge-light">'.ctrans('texts.draft').'</span></h4>';
+                return '<h4><span class="badge badge-light">' . ctrans('texts.draft') . '</span></h4>';
             case self::STATUS_PENDING:
-                return '<h4><span class="badge badge-primary">'.ctrans('texts.pending').'</span></h4>';
+                return '<h4><span class="badge badge-primary">' . ctrans('texts.pending') . '</span></h4>';
             case self::STATUS_ACTIVE:
-                return '<h4><span class="badge badge-primary">'.ctrans('texts.active').'</span></h4>';
+                return '<h4><span class="badge badge-primary">' . ctrans('texts.active') . '</span></h4>';
             case self::STATUS_COMPLETED:
-                return '<h4><span class="badge badge-success">'.ctrans('texts.status_completed').'</span></h4>';
+                return '<h4><span class="badge badge-success">' . ctrans('texts.status_completed') . '</span></h4>';
             case self::STATUS_PAUSED:
-                return '<h4><span class="badge badge-danger">'.ctrans('texts.paused').'</span></h4>';
+                return '<h4><span class="badge badge-danger">' . ctrans('texts.paused') . '</span></h4>';
             default:
-                return '<h4><span class="badge badge-primary">'.ctrans('texts.pending').'</span></h4>';
+                return '<h4><span class="badge badge-primary">' . ctrans('texts.pending') . '</span></h4>';
         }
     }
 
@@ -477,7 +477,7 @@ class RecurringQuote extends BaseModel
      * Access the invoice calculator object.
      * @return InvoiceSumInclusive | InvoiceSum The invoice calculator object getters
      */
-    public function calc(): InvoiceSumInclusive | InvoiceSum
+    public function calc(): InvoiceSumInclusive|InvoiceSum
     {
         $invoice_calc = null;
 
@@ -498,9 +498,9 @@ class RecurringQuote extends BaseModel
     public function recurringDates()
     {
         /* Return early if nothing to send back! */
-        if ($this->status_id == self::STATUS_COMPLETED ||
-            $this->remaining_cycles == 0 ||
-            ! $this->next_send_date) {
+        if ($this->status_id == self::STATUS_COMPLETED
+            || $this->remaining_cycles == 0
+            || ! $this->next_send_date) {
             return [];
         }
 
@@ -568,7 +568,7 @@ class RecurringQuote extends BaseModel
             return null;
         }
 
-        return $new_date->addDays((int)$client_payment_terms); //add the number of days in the payment terms to the date
+        return $new_date->addDays((int) $client_payment_terms); //add the number of days in the payment terms to the date
     }
 
     /**

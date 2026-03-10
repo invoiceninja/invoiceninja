@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -197,9 +197,7 @@ class BaseDriver extends AbstractPaymentDriver
      * @param array $data
      * @return mixed Return a view for collecting payment method information
      */
-    public function authorizeView(array $data)
-    {
-    }
+    public function authorizeView(array $data) {}
 
     /**
      * The payment authorization response
@@ -207,9 +205,7 @@ class BaseDriver extends AbstractPaymentDriver
      * @param  Request $request
      * @return mixed Return a response for collecting payment method information
      */
-    public function authorizeResponse(Request $request)
-    {
-    }
+    public function authorizeResponse(Request $request) {}
 
     /**
      * Process a payment
@@ -217,9 +213,7 @@ class BaseDriver extends AbstractPaymentDriver
      * @param  array $data
      * @return mixed Return a view for the payment
      */
-    public function processPaymentView(array $data)
-    {
-    }
+    public function processPaymentView(array $data) {}
 
     /**
      * Process payment response
@@ -227,9 +221,7 @@ class BaseDriver extends AbstractPaymentDriver
      * @param  Request $request
      * @return mixed   Return a response for the payment
      */
-    public function processPaymentResponse(Request $request)
-    {
-    }
+    public function processPaymentResponse(Request $request) {}
 
     /**
      * Executes a refund attempt for a given amount with a transaction_reference.
@@ -239,9 +231,7 @@ class BaseDriver extends AbstractPaymentDriver
      * @param  bool $return_client_response    Whether the method needs to return a response (otherwise we assume an unattended payment)
      * @return mixed
      */
-    public function refund(Payment $payment, $amount, $return_client_response = false)
-    {
-    }
+    public function refund(Payment $payment, $amount, $return_client_response = false) {}
 
     /**
      * Process an unattended payment.
@@ -249,9 +239,7 @@ class BaseDriver extends AbstractPaymentDriver
      * @param ClientGatewayToken $cgt The client gateway token object
      * @param PaymentHash $payment_hash The Payment hash containing the payment meta data
      */
-    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
-    {
-    }
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash) {}
 
     /**
      * Detaches a payment method from the gateway
@@ -269,9 +257,7 @@ class BaseDriver extends AbstractPaymentDriver
      *
      * @param int $payment_method_id The Payment Method ID
      */
-    public function setPaymentMethod($payment_method_id)
-    {
-    }
+    public function setPaymentMethod($payment_method_id) {}
 
     public function setClient(Client $client)
     {
@@ -454,7 +440,7 @@ class BaseDriver extends AbstractPaymentDriver
             $invoice_item->product_key = ctrans('texts.surcharge');
             $invoice_item->notes = ctrans('texts.online_payment_surcharge');
             $invoice_item->quantity = 1;
-            $invoice_item->cost = (float)$fee_total;
+            $invoice_item->cost = (float) $fee_total;
 
             if ($invoice->discount > 0 && !$invoice->is_amount_discount) {
                 $invoice_item->discount = -1 * $invoice->discount;
@@ -471,7 +457,7 @@ class BaseDriver extends AbstractPaymentDriver
                 $invoice_item->tax_name2 = $fees_and_limits->fee_tax_name2;
                 $invoice_item->tax_rate3 = $fees_and_limits->fee_tax_rate3;
                 $invoice_item->tax_name3 = $fees_and_limits->fee_tax_name3;
-                $invoice_item->tax_id = (string)\App\Models\Product::PRODUCT_TYPE_OVERRIDE_TAX;
+                $invoice_item->tax_id = (string) \App\Models\Product::PRODUCT_TYPE_OVERRIDE_TAX;
             }
 
             $invoice->line_items = array_values($invoice_items);
@@ -481,7 +467,8 @@ class BaseDriver extends AbstractPaymentDriver
 
             $new_balance = $invoice->balance;
 
-            if (floatval($new_balance) - floatval($balance) != 0) {
+            if (round($new_balance - $balance, 2) != 0) {
+            // if (floatval($new_balance) - floatval($balance) != 0) {
                 $adjustment = $new_balance - $balance;
                 $invoice->client->service()->calculateBalance();
             }
@@ -919,8 +906,5 @@ class BaseDriver extends AbstractPaymentDriver
         return 'ok';
     }
 
-    public function importCustomers()
-    {
-
-    }
+    public function importCustomers() {}
 }

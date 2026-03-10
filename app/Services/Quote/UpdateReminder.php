@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -19,9 +19,7 @@ use Carbon\Carbon;
 
 class UpdateReminder extends AbstractService
 {
-    public function __construct(public Quote $quote, public mixed $settings = null)
-    {
-    }
+    public function __construct(public Quote $quote, public mixed $settings = null) {}
 
     /* We only support setting reminders based on the due date, not the partial due date */
     public function run()
@@ -45,20 +43,20 @@ class UpdateReminder extends AbstractService
 
         $date_collection = collect();
 
-        if (is_null($this->quote->reminder1_sent) &&
-            $this->settings->quote_schedule_reminder1 == 'after_quote_date') {
-            $reminder_date = Carbon::parse($this->quote->date)->startOfDay()->addDays((int)$this->settings->quote_num_days_reminder1)->addSeconds($offset);
+        if (is_null($this->quote->reminder1_sent)
+            && $this->settings->quote_schedule_reminder1 == 'after_quote_date') {
+            $reminder_date = Carbon::parse($this->quote->date)->startOfDay()->addDays((int) $this->settings->quote_num_days_reminder1)->addSeconds($offset);
 
             if ($reminder_date->gt(now())) {
                 $date_collection->push($reminder_date);
             }
         }
 
-        if (is_null($this->quote->reminder1_sent) &&
-            ($this->quote->partial_due_date || $this->quote->due_date) &&
-            $this->settings->quote_schedule_reminder1 == 'before_valid_until_date') {
+        if (is_null($this->quote->reminder1_sent)
+            && ($this->quote->partial_due_date || $this->quote->due_date)
+            && $this->settings->quote_schedule_reminder1 == 'before_valid_until_date') {
             $partial_or_due_date = ($this->quote->partial > 0 && isset($this->quote->partial_due_date)) ? $this->quote->partial_due_date : $this->quote->due_date;
-            $reminder_date = Carbon::parse($partial_or_due_date)->startOfDay()->subDays((int)$this->settings->quote_num_days_reminder1)->addSeconds($offset);
+            $reminder_date = Carbon::parse($partial_or_due_date)->startOfDay()->subDays((int) $this->settings->quote_num_days_reminder1)->addSeconds($offset);
             // nlog("1. {$reminder_date->format('Y-m-d')}");
 
             if ($reminder_date->gt(now())) {
@@ -66,12 +64,12 @@ class UpdateReminder extends AbstractService
             }
         }
 
-        if (is_null($this->quote->reminder1_sent) &&
-            ($this->quote->partial_due_date || $this->quote->due_date) &&
-            $this->settings->quote_schedule_reminder1 == 'after_valid_until_date') {
+        if (is_null($this->quote->reminder1_sent)
+            && ($this->quote->partial_due_date || $this->quote->due_date)
+            && $this->settings->quote_schedule_reminder1 == 'after_valid_until_date') {
 
             $partial_or_due_date = ($this->quote->partial > 0 && isset($this->quote->partial_due_date)) ? $this->quote->partial_due_date : $this->quote->due_date;
-            $reminder_date = Carbon::parse($partial_or_due_date)->startOfDay()->addDays((int)$this->settings->quote_num_days_reminder1)->addSeconds($offset);
+            $reminder_date = Carbon::parse($partial_or_due_date)->startOfDay()->addDays((int) $this->settings->quote_num_days_reminder1)->addSeconds($offset);
             // nlog("2. {$reminder_date->format('Y-m-d')}");
 
             if ($reminder_date->gt(now())) {

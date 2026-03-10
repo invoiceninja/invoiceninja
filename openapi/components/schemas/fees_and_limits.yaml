@@ -13,12 +13,12 @@
           description: 'The gateway fee amount'
           type: number
           format: float
-          example: '2.0'
+          example: 2.0
         fee_percent:
           description: 'The gateway fee percentage'
           type: number
           format: float
-          example: '2.0'
+          example: 2.0
         fee_tax_name1:
           description: 'Fee tax name'
           type: string
@@ -35,22 +35,22 @@
           description: 'The tax rate'
           type: number
           format: float
-          example: '10.0'
+          example: 10.0
         fee_tax_rate2:
           description: 'The tax rate'
           type: number
           format: float
-          example: '17.5'
+          example: 17.5
         fee_tax_rate3:
           description: 'The tax rate'
           type: number
           format: float
-          example: '25.0'
+          example: 25.0
         fee_cap:
           description: 'If set the fee amount will be no higher than this amount'
           type: number
           format: float
-          example: '2.0'
+          example: 2.0
         adjust_fee_percent:
           description: 'Adjusts the fee to match the exact gateway fee.'
           type: boolean

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -50,7 +50,7 @@ trait VerifiesUserEmail
             return $this->render('auth.confirmed', [
                 'root' => 'themes',
                 'message' => ctrans('texts.wrong_confirmation'),
-                'redirect_url' => $react ? config('ninja.react_url')."/#/" : url('/')]);
+                'redirect_url' => $react ? config('ninja.react_url') . "/#/" : url('/')]);
         }
 
         $user->email_verified_at = now();
@@ -60,18 +60,18 @@ trait VerifiesUserEmail
             return $this->render('auth.confirmed', [
                 'root' => 'themes',
                 'message' => ctrans('texts.security_confirmation'),
-                'redirect_url' => $react ? config('ninja.react_url')."/#/" : url('/'),
+                'redirect_url' => $react ? config('ninja.react_url') . "/#/" : url('/'),
             ]);
         }
 
         if (is_null($user->password) || empty($user->password) || Hash::check('', $user->password)) {
-            return $this->render('auth.confirmation_with_password', ['root' => 'themes', 'user_id' => $user->hashed_id, 'redirect_url' => $react ? config('ninja.react_url')."/#/" : url('/')]);
+            return $this->render('auth.confirmation_with_password', ['root' => 'themes', 'user_id' => $user->hashed_id, 'redirect_url' => $react ? config('ninja.react_url') . "/#/" : url('/')]);
         }
 
         return $this->render('auth.confirmed', [
             'root' => 'themes',
             'message' => ctrans('texts.security_confirmation'),
-            'redirect_url' => $react ? config('ninja.react_url')."/#/" : url('/'),
+            'redirect_url' => $react ? config('ninja.react_url') . "/#/" : url('/'),
         ]);
     }
 
@@ -82,7 +82,7 @@ trait VerifiesUserEmail
 
         $validator = Validator::make(request()->all(), [
             'password' => 'min:6|required_with:password_confirmation|same:password_confirmation',
-            'password_confirmation' => 'min:6'
+            'password_confirmation' => 'min:6',
         ]);
 
         if ($validator->fails()) {
@@ -111,7 +111,7 @@ trait VerifiesUserEmail
         return $this->render('auth.confirmed', [
             'root' => 'themes',
             'message' => ctrans('texts.security_confirmation'),
-            'redirect_url' => $react ? config('ninja.react_url')."/#/" : url('/'),
+            'redirect_url' => $react ? config('ninja.react_url') . "/#/" : url('/'),
         ]);
     }
 }

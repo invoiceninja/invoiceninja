@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -49,6 +49,7 @@ namespace App\Models;
  * @method static \Illuminate\Database\Eloquent\Builder|Gateway whereVisible($value)
  * @mixin \Eloquent
  */
+#[\AllowDynamicProperties]
 class Gateway extends StaticModel
 {
     protected $casts = [
@@ -231,14 +232,14 @@ class Gateway extends StaticModel
                 return [
                     GatewayType::CRYPTO => ['refund' => true, 'token_billing' => false, 'webhooks' => ['confirmed', 'paid_out', 'failed', 'fulfilled']],
                 ]; //BTCPay
-	    case 63:
-		return [
+            case 63:
+                return [
                     GatewayType::BANK_TRANSFER => [
                         'refund' => false,
                         'token_billing' => true,
                         'webhooks' => [],
-                        ],
-                    GatewayType::ACSS => ['refund' => false, 'token_billing' => true, 'webhooks' => []]
+                    ],
+                    GatewayType::ACSS => ['refund' => false, 'token_billing' => true, 'webhooks' => []],
                 ]; // Rotessa
             case 64: //b67581d804dbad1743b61c57285142ad - powerboard
                 return [

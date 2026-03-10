@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -71,8 +71,8 @@ class ACH implements LivewireMethodInterface
             "echeck" => [
                 "one_time_token" => $payload['one_time_token'],
                 "account_holder" => $payload['account_holder_name'],
-                "account_type" => "checking"
-                ],
+                "account_type" => "checking",
+            ],
         ];
 
         $response = $this->forte
@@ -182,12 +182,12 @@ class ACH implements LivewireMethodInterface
             'authorization_amount' => $payment_hash->data->total->amount_with_fee,
             'echeck' => [
                 'sec_code' => 'PPD',
-                'one_time_token' => $request->payment_token
+                'one_time_token' => $request->payment_token,
             ],
             'billing_address' => [
                 'first_name' => $this->forte->client->name,
-                'last_name' => $this->forte->client->name
-            ]
+                'last_name' => $this->forte->client->name,
+            ],
         ];
 
         $response = $this->forte
@@ -264,11 +264,11 @@ class ACH implements LivewireMethodInterface
             "paymethod_token" => $cgt->token,
             "billing_address" => [
                 "first_name" => $this->forte->client->present()->first_name(),
-                "last_name" => $this->forte->client->present()->last_name()
+                "last_name" => $this->forte->client->present()->last_name(),
             ],
             "echeck" => [
                 "sec_code" => "WEB",
-            ]
+            ],
 
         ];
 

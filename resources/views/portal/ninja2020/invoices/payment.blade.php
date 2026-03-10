@@ -3,7 +3,7 @@
 
 @push('head')
 <meta name="show-invoice-terms" content="{{ $settings->show_accept_invoice_terms ? true : false }}">
-<meta name="require-invoice-signature" content="{{ $client->user->account->hasFeature(\App\Models\Account::FEATURE_INVOICE_SETTINGS) && $settings->require_invoice_signature }}">
+<meta name="require-invoice-signature" content="{{ $requires_signature }}">
 <script src="{{ asset('vendor/signature_pad@2.3.2/signature_pad.min.js') }}"></script>
 @endpush
 
@@ -23,6 +23,7 @@
 
     <input type="hidden" name="client_city" value="{{ auth()->guard('contact')->user()->client->city }}">
     <input type="hidden" name="client_postal_code" value="{{ auth()->guard('contact')->user()->client->postal_code }}">
+    <input type="hidden" name="docuninja_active" value="{{ $docuninja_active ? 'true' : 'false' }}">
 
     <div class="container mx-auto">
         <div class="grid grid-cols-6 gap-4">

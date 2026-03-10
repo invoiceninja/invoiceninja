@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -20,7 +20,7 @@ use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
 class Mutator implements MutatorInterface
 {
     /** @var \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote */
-    private \InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $p_invoice;
+    private \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $p_invoice;
 
     private ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice $_client_settings;
 
@@ -328,7 +328,7 @@ class Mutator implements MutatorInterface
         if ($this->invoice->client->classification == 'government') {
             //route to SIRET 0009:11000201100044
             $this->setStorecoveMeta($this->buildRouting([
-                ["scheme" => 'FR:SIRET', "id" => '11000201100044']
+                ["scheme" => 'FR:SIRET', "id" => '11000201100044'],
 
                 // ["scheme" => 'FR:SIRET', "id" => '0009:11000201100044']
             ]));
@@ -341,14 +341,14 @@ class Mutator implements MutatorInterface
         if (strlen($this->invoice->client->id_number ?? '') == 9) {
             //SIREN
             $this->setStorecoveMeta($this->buildRouting([
-                ["scheme" => 'FR:SIRET', "id" => "{$this->invoice->client->id_number}"]
+                ["scheme" => 'FR:SIRET', "id" => "{$this->invoice->client->id_number}"],
 
                 // ["scheme" => 'FR:SIRET', "id" => "0002:{$this->invoice->client->id_number}"]
             ]));
         } else {
             //SIRET
             $this->setStorecoveMeta($this->buildRouting([
-                ["scheme" => 'FR:SIRET', "id" => "{$this->invoice->client->id_number}"]
+                ["scheme" => 'FR:SIRET', "id" => "{$this->invoice->client->id_number}"],
 
                 // ["scheme" => 'FR:SIRET', "id" => "0009:{$this->invoice->client->id_number}"]
             ]));
@@ -371,7 +371,7 @@ class Mutator implements MutatorInterface
 
             $this->setStorecoveMeta($this->buildRouting([
                 ["scheme" => 'IT:IVA', "id" => $this->invoice->client->vat_number],
-                ["scheme" => 'IT:CUUO', "id" => $this->invoice->client->routing_id]
+                ["scheme" => 'IT:CUUO', "id" => $this->invoice->client->routing_id],
             ]));
 
             return $this;
@@ -399,7 +399,7 @@ class Mutator implements MutatorInterface
 
             nlog("foreign receiver");
             $this->setStorecoveMeta($this->buildRouting([
-                ["scheme" => $code, "id" => $this->invoice->client->vat_number]
+                ["scheme" => $code, "id" => $this->invoice->client->vat_number],
             ]));
 
             return $this;
@@ -507,19 +507,19 @@ class Mutator implements MutatorInterface
     {
         // Because using this network is not yet mandatory, the default workflow is to not use this network. Therefore, you have to force its use, as follows:
         $meta = ["networks" => [
-                    [
-                        "application" => "ro-anaf",
-                        "settings" => [
-                            "enabled" => true
-                        ],
-                    ],
-                ]];
+            [
+                "application" => "ro-anaf",
+                "settings" => [
+                    "enabled" => true,
+                ],
+            ],
+        ]];
 
         $this->setStorecoveMeta($meta);
 
         $this->setStorecoveMeta($this->buildRouting([
-               ["scheme" => 'RO:VAT', "id" => $this->invoice->client->vat_number],
-           ]));
+            ["scheme" => 'RO:VAT', "id" => $this->invoice->client->vat_number],
+        ]));
 
         $ro = new RO($this->invoice);
 
@@ -531,6 +531,14 @@ class Mutator implements MutatorInterface
 
         $this->p_invoice->AccountingCustomerParty->Party->PostalAddress->CountrySubentity = $resolved_state;
         $this->p_invoice->AccountingCustomerParty->Party->PostalAddress->CityName = $resolved_city;
+
+        $query = $this->p_invoice->AccountingSupplierParty->Party->PartyIdentification;
+        usort($query, function($a, $b) {
+            if ($a->value === null && $b->value !== null) return -1; //@phpstan-ignore-line
+            if ($a->value !== null && $b->value === null) return 1; //@phpstan-ignore-line
+            return 0;
+        });
+        $this->p_invoice->AccountingSupplierParty->Party->PartyIdentification = $query;
 
         return $this;
     }
@@ -615,17 +623,17 @@ class Mutator implements MutatorInterface
         }
 
 
-        if(stripos($this->invoice->client->routing_id ?? '', ":") !== false){
+        if (stripos($this->invoice->client->routing_id ?? '', ":") !== false) {
 
             $parts = explode(":", $this->invoice->client->routing_id);
 
-            if(count($parts) == 2){
+            if (count($parts) == 2) {
                 $scheme = $parts[0];
                 $id = $parts[1];
 
-                if($this->storecove->discovery($id, $scheme)){
+                if ($this->storecove->discovery($id, $scheme)) {
                     $this->setStorecoveMeta($this->buildRouting([
-                        ["scheme" => $scheme, "id" => $id]
+                        ["scheme" => $scheme, "id" => $id],
                     ]));
 
                     return $this;
@@ -635,6 +643,7 @@ class Mutator implements MutatorInterface
         }
 
         $code = $this->getClientRoutingCode();
+
         $identifier = false;
 
         if ($this->invoice->client->country->iso_3166_2 == 'FR') {
@@ -654,19 +663,31 @@ class Mutator implements MutatorInterface
         $identifier = str_ireplace(["FR", "BE"], "", $identifier);
         $identifier = preg_replace("/[^a-zA-Z0-9]/", "", $identifier);
 
-        //Check the recipient is on the network, and perhaps, adjust the identifier accordingly
-        // if(!$this->storecove->exists($identifier, $code) && $this->invoice->client->country->iso_3166_2 == "BE"){
 
-        //     nlog("identifier not found, adjusting for BE");
-        //     $code = "BE:VAT";
-        //     $identifier = "BE".$identifier;
+        //Check the recipient is on the network, and can be delivered the correct document.
+        if($this->invoice->client->country->iso_3166_2 == "BE"){
 
-        // }
+            if ($this->storecove->discovery($identifier, 'BE:EN')) {
+                    $this->setStorecoveMeta($this->buildRouting([
+                        ["scheme" => 'BE:EN', "id" => $identifier],
+                    ]));
+
+                    return $this;
+            }
+            elseif($this->storecove->discovery("BE".$identifier, 'BE:VAT')) {
+                $this->setStorecoveMeta($this->buildRouting([
+                    ["scheme" => 'BE:VAT', "id" => "BE".$identifier],
+                ]));
+
+                return $this;
+            }
+
+        }
 
 
         $this->setStorecoveMeta($this->buildRouting([
-                ["scheme" => $code, "id" => $identifier]
-            ]));
+            ["scheme" => $code, "id" => $identifier],
+        ]));
 
 
         return $this;
@@ -694,10 +715,10 @@ class Mutator implements MutatorInterface
         return
         [
             "routing" => [
-                "eIdentifiers" =>
-                    $identifiers,
+                "eIdentifiers"
+                    => $identifiers,
 
-            ]
+            ],
         ];
     }
 

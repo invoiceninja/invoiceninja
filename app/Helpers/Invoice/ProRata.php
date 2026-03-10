@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -89,7 +89,7 @@ class ProRata
                 $item->quantity = 1;
                 $item->cost = $this->refund($item->cost * $multiplier, $start_date, now(), $recurring_invoice->frequency_id);
                 $item->product_key = ctrans('texts.refund');
-                $item->notes = ctrans('texts.refund').': '.$item->notes;
+                $item->notes = ctrans('texts.refund') . ': ' . $item->notes;
 
                 $line_items[] = $item;
             }

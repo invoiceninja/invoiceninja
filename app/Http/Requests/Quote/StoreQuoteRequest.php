@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -60,7 +60,7 @@ class StoreQuoteRequest extends Request
         $rules['project_id'] = ['bail', 'sometimes', new ValidProjectForClient($this->all())];
         $rules['is_amount_discount'] = ['boolean'];
         $rules['date'] = 'bail|sometimes|date:Y-m-d';
-        $rules['due_date'] = ['bail', 'sometimes', 'nullable', 'after:partial_due_date', Rule::requiredIf(fn () => strlen($this->partial_due_date ?? '') > 1), 'date'];
+        $rules['due_date'] = ['bail', 'sometimes', 'nullable', 'after:partial_due_date', Rule::requiredIf(fn() => strlen($this->partial_due_date ?? '') > 1), 'date'];
         $rules['line_items'] = 'array';
 
         $rules['discount'] = 'sometimes|numeric|max:99999999999999';
@@ -130,10 +130,10 @@ class StoreQuoteRequest extends Request
         if (!isset($input['date'])) {
             $input['date'] = now()->addSeconds($user->company()->utc_offset())->format('Y-m-d');
         }
-        if (isset($input['client_id']) &&isset($input['partial_due_date']) && (!isset($input['due_date']) || strlen($input['due_date']) <= 1)) {
+        if (isset($input['client_id']) && isset($input['partial_due_date']) && (!isset($input['due_date']) || strlen($input['due_date']) <= 1)) {
             $client = \App\Models\Client::withTrashed()->find($input['client_id']);
             $valid_days = ($client && strlen($client->getSetting('valid_until')) >= 1) ? $client->getSetting('valid_until') : 7;
-            $input['due_date'] = \Carbon\Carbon::parse($input['date'])->addDays((int)$valid_days)->format('Y-m-d');
+            $input['due_date'] = \Carbon\Carbon::parse($input['date'])->addDays((int) $valid_days)->format('Y-m-d');
         }
 
         if (isset($input['footer']) && $this->hasHeader('X-REACT')) {

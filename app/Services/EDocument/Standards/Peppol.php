@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -16,7 +16,9 @@ use App\Models\Credit;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Product;
+use App\Models\Document;
 use App\Helpers\Invoice\Taxer;
+use App\Utils\Traits\MakesHash;
 use App\DataMapper\Tax\BaseRule;
 use App\Services\AbstractService;
 use App\Helpers\Invoice\InvoiceSum;
@@ -59,6 +61,7 @@ class Peppol extends AbstractService
 {
     use Taxer;
     use NumberFormatter;
+    use MakesHash;
 
     /**
      * Assumptions:
@@ -67,6 +70,7 @@ class Peppol extends AbstractService
      * Exclusive Taxes
      *
      */
+    public int $max_attachment_size = 2000000;
 
     private string $override_vat_number = '';
 
@@ -83,59 +87,59 @@ class Peppol extends AbstractService
         "82" => "Simplified invoice",
         "80" => "Debit note",
         "875" => "Self-billed credit note",
-        "896" => "Debit note related to self-billed invoice"
+        "896" => "Debit note related to self-billed invoice",
     ];
 
     /** @var array $tax_codes */
     private array $tax_codes = [
         'AE' => [
             'name' => 'Vat Reverse Charge',
-            'description' => 'Code specifying that the standard VAT rate is levied from the invoicee.'
+            'description' => 'Code specifying that the standard VAT rate is levied from the invoicee.',
         ],
         'E' => [
             'name' => 'Exempt from Tax',
-            'description' => 'Code specifying that taxes are not applicable.'
+            'description' => 'Code specifying that taxes are not applicable.',
         ],
         'S' => [
             'name' => 'Standard rate',
-            'description' => 'Code specifying the standard rate.'
+            'description' => 'Code specifying the standard rate.',
         ],
         'Z' => [
             'name' => 'Zero rated goods',
-            'description' => 'Code specifying that the goods are at a zero rate.'
+            'description' => 'Code specifying that the goods are at a zero rate.',
         ],
         'G' => [
             'name' => 'Free export item, VAT not charged',
-            'description' => 'Code specifying that the item is free export and taxes are not charged.'
+            'description' => 'Code specifying that the item is free export and taxes are not charged.',
         ],
         'O' => [
             'name' => 'Services outside scope of tax',
-            'description' => 'Code specifying that taxes are not applicable to the services.'
+            'description' => 'Code specifying that taxes are not applicable to the services.',
         ],
         'K' => [
             'name' => 'VAT exempt for EEA intra-community supply of goods and services',
-            'description' => 'A tax category code indicating the item is VAT exempt due to an intra-community supply in the European Economic Area.'
+            'description' => 'A tax category code indicating the item is VAT exempt due to an intra-community supply in the European Economic Area.',
         ],
         'L' => [
             'name' => 'Canary Islands general indirect tax',
-            'description' => 'Impuesto General Indirecto Canario (IGIC) is an indirect tax levied on goods and services supplied in the Canary Islands (Spain) by traders and professionals, as well as on import of goods.'
+            'description' => 'Impuesto General Indirecto Canario (IGIC) is an indirect tax levied on goods and services supplied in the Canary Islands (Spain) by traders and professionals, as well as on import of goods.',
         ],
         'M' => [
             'name' => 'Tax for production, services and importation in Ceuta and Melilla',
-            'description' => 'Impuesto sobre la Producción, los Servicios y la Importación (IPSI) is an indirect municipal tax, levied on the production, processing and import of all kinds of movable tangible property, the supply of services and the transfer of immovable property located in the cities of Ceuta and Melilla.'
+            'description' => 'Impuesto sobre la Producción, los Servicios y la Importación (IPSI) is an indirect municipal tax, levied on the production, processing and import of all kinds of movable tangible property, the supply of services and the transfer of immovable property located in the cities of Ceuta and Melilla.',
         ],
         'B' => [
             'name' => 'Transferred (VAT), In Italy',
-            'description' => 'VAT not to be paid to the issuer of the invoice but directly to relevant tax authority. This code is allowed in the EN 16931 for Italy only based on the Italian A-deviation.'
-        ]
+            'description' => 'VAT not to be paid to the issuer of the invoice but directly to relevant tax authority. This code is allowed in the EN 16931 for Italy only based on the Italian A-deviation.',
+        ],
     ];
 
     private Company $company;
 
-    private InvoiceSum | InvoiceSumInclusive $calc;
+    private InvoiceSum|InvoiceSumInclusive $calc;
 
     /** @var \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote */
-    private \InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $p_invoice;
+    private \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $p_invoice;
 
     private ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice $_client_settings;
 
@@ -164,7 +168,7 @@ class Peppol extends AbstractService
 
     private array $errors = [];
 
-    public function __construct(public Invoice | Credit $invoice)
+    public function __construct(public Invoice|Credit $invoice)
     {
         $this->company = $invoice->company;
         $this->calc = $this->invoice->calc();
@@ -238,12 +242,12 @@ class Peppol extends AbstractService
             $docId = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID();
             $docId->value = $this->invoice->number;
             $this->p_invoice->ID = $docId;
-        
+
             // $this->p_invoice->ID = $this->invoice->number;
-            
+
             $this->p_invoice->IssueDate = new \DateTime($this->invoice->date);
 
-            if ($this->invoice->due_date) {
+            if ($this->invoice->due_date && !$this->isCreditNote) {
                 $this->p_invoice->DueDate = new \DateTime($this->invoice->due_date);
             }
 
@@ -277,10 +281,11 @@ class Peppol extends AbstractService
             $this->p_invoice->Delivery = $this->getDelivery();
 
             $this->setOrderReference()
-                 
+
                  ->setTaxBreakdown()
                  ->setPaymentTerms()
                  ->addAttachments()
+                 ->addThirdPartyAttachments()
                  ->standardPeppolRules()
                  ->setDocumentReference();
 
@@ -392,7 +397,7 @@ class Peppol extends AbstractService
      *
      * @return \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote
      */
-    public function getDocument(): \InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote
+    public function getDocument(): \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote
     {
         return $this->p_invoice;
     }
@@ -403,7 +408,7 @@ class Peppol extends AbstractService
      * @deprecated Use getDocument() instead
      * @return \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote
      */
-    public function getInvoice(): \InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote
+    public function getInvoice(): \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote
     {
         return $this->p_invoice;
     }
@@ -509,7 +514,7 @@ class Peppol extends AbstractService
     {
         // InvoiceNinja\EInvoice\Models\Peppol\DocumentReferenceType
 
-        if($this->isCreditNote() && isset($this->invoice->e_invoice->CreditNote->BillingReference) && isset($this->invoice->e_invoice->CreditNote->BillingReference[0]->InvoiceDocumentReference)) {
+        if ($this->isCreditNote() && isset($this->invoice->e_invoice->CreditNote->BillingReference) && isset($this->invoice->e_invoice->CreditNote->BillingReference[0]->InvoiceDocumentReference)) {
 
             $document_reference = new \InvoiceNinja\EInvoice\Models\Peppol\DocumentReferenceType\InvoiceDocumentReference();
 
@@ -520,7 +525,7 @@ class Peppol extends AbstractService
 
             $document_reference->ID = $d_id;
 
-            if(isset($_idr->InvoiceDocumentReference->IssueDate)) {
+            if (isset($_idr->InvoiceDocumentReference->IssueDate)) {
                 $issue_date = new \DateTime($_idr->InvoiceDocumentReference->IssueDate);
                 $document_reference->IssueDate = $issue_date;
             }
@@ -532,7 +537,7 @@ class Peppol extends AbstractService
 
             return $this;
         }
-        
+
 
         // We should only need to pull this in from the already stored object.
         return $this;
@@ -560,6 +565,130 @@ class Peppol extends AbstractService
 
     }
 
+    /**
+     * buildAttachmentObject
+     *
+     * Attached third party documents to the invoice.
+     *
+     * @param  Document $document
+     * @return self
+     */
+    private function addThirdPartyAttachment(Document $document): self
+    {
+
+        // Only the invoice itself to start with:
+        $filename = $document->name;
+        $file = $document->getFile();
+        $mime_code = $document->getMimeType();
+
+        if (!$file || !in_array($mime_code, ['application/pdf', 'application/xml'])) {
+            return $this;
+        }
+
+        $adr = new \InvoiceNinja\EInvoice\Models\Peppol\DocumentReferenceType\AdditionalDocumentReference();
+
+        // Set ID
+        $id = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID();
+        $id->value = $filename;
+        $adr->ID = $id;
+
+        // Create EmbeddedDocumentBinaryObject
+        $attachment = new \InvoiceNinja\EInvoice\Models\Peppol\AttachmentType\Attachment();
+
+        $binary = new \InvoiceNinja\EInvoice\Models\Peppol\EmbeddedDocumentBinaryObjectType\EmbeddedDocumentBinaryObject();
+        $binary->value = base64_encode($file);
+        $binary->mimeCode = $mime_code;
+        $binary->filename = str_replace(' ', '_', $filename);
+        $attachment->EmbeddedDocumentBinaryObject = $binary;
+
+        $adr->Attachment = $attachment;
+
+        $this->p_invoice->AdditionalDocumentReference[] = $adr;
+
+        return $this;
+    }
+
+    private function addThirdPartyAttachments(): self
+    {
+        if ($this->company->account->hasFeature(\App\Models\Account::FEATURE_DOCUMENTS) && $this->invoice->client->getSetting('document_email_attachment') !== false) {
+
+
+            if ($this->invoice->recurring_invoice()->exists()) {
+                $this->invoice->recurring_invoice->documents()->where('is_public', true)->cursor()->each(function ($document) {
+                    if ($document->size <= $this->max_attachment_size) {
+
+                        $this->addThirdPartyAttachment($document);
+
+                    }
+                });
+            }
+
+            // Storage::url
+            $this->invoice->documents()->where('is_public', true)->cursor()->each(function ($document) {
+                if ($document->size <= $this->max_attachment_size) {
+
+                    $this->addThirdPartyAttachment($document);
+
+                }
+            });
+
+            $this->invoice->company->documents()->where('is_public', true)->cursor()->each(function ($document) {
+                if ($document->size <= $this->max_attachment_size) {
+
+                    $this->addThirdPartyAttachment($document);
+                }
+            });
+
+            $line_items = $this->invoice->line_items;
+
+            foreach ($line_items as $item) {
+                $expense_ids = [];
+
+                if (property_exists($item, 'expense_id')) {
+                    $expense_ids[] = $item->expense_id;
+                }
+
+                if (count($expense_ids) > 0) {
+                    \App\Models\Expense::query()->whereIn('id', $this->transformKeys($expense_ids))
+                        ->where('invoice_documents', 1)
+                        ->cursor()
+                        ->each(function ($expense) {
+                            $expense->documents()->where('is_public', true)->cursor()->each(function ($document) {
+                                if ($document->size <= $this->max_attachment_size) {
+
+                                    $this->addThirdPartyAttachment($document);
+
+                                }
+                            });
+                        });
+                }
+
+                $task_ids = [];
+
+                if (property_exists($item, 'task_id')) {
+                    $task_ids[] = $item->task_id;
+                }
+
+                if (count($task_ids) > 0 && $this->invoice->company->invoice_task_documents) {
+                    \App\Models\Task::query()->whereIn('id', $this->transformKeys($task_ids))
+                        ->cursor()
+                        ->each(function ($task) {
+                            $task->documents()->where('is_public', true)->cursor()->each(function ($document) {
+                                if ($document->size <= $this->max_attachment_size) {
+
+                                    $this->addThirdPartyAttachment($document);
+
+                                }
+                            });
+                        });
+                }
+            }
+
+        }
+
+        return $this;
+    }
+
     private function addAttachments(): self
     {
 
@@ -581,7 +710,7 @@ class Peppol extends AbstractService
         $binary = new \InvoiceNinja\EInvoice\Models\Peppol\EmbeddedDocumentBinaryObjectType\EmbeddedDocumentBinaryObject();
         $binary->value = base64_encode($pdf);
         $binary->mimeCode = $mime_code;
-        $binary->filename = $filename;
+        $binary->filename = str_replace(' ', '_', $filename);
         $attachment->EmbeddedDocumentBinaryObject = $binary;
 
         $adr->Attachment = $attachment;
@@ -753,7 +882,16 @@ class Peppol extends AbstractService
         $tea = new TaxExclusiveAmount();
         $tea->currencyID = $this->invoice->client->currency()->code;
 
-        $tea->amount = round($amount - $totalTaxes, 2);
+        /**
+         * 2026-03-03 - The tax exclusive amount is the amount of the invoice before taxes.
+         * Very important to understand the logic here and not change this without undertsanding
+         * the implications.
+         */
+        $totalDiscount = $this->normalizeAmount($this->calc->getTotalDiscount());
+        $totalSurcharges = $this->normalizeAmount($this->calc->getTotalSurcharges());
+        $tea->amount = $this->invoice->uses_inclusive_taxes
+            ? (string) round($amount - $totalTaxes, 2)
+            : (string) round($subtotal - $totalDiscount + $totalSurcharges, 2);
         $lmt->TaxExclusiveAmount = $tea;
 
         $tia = new TaxInclusiveAmount();
@@ -857,9 +995,9 @@ class Peppol extends AbstractService
             $tax_type = 'AE'; // EEA Exempt
             $reason_code = 'vatex-eu-ae';
             $reason = 'Reverse charge';
-        } elseif ((in_array($this->company->country()->iso_3166_2, $eu_states) &&
-                   in_array($this->invoice->client->country->iso_3166_2, $eu_states)) &&
-                   $this->invoice->company->country()->iso_3166_2 != $this->invoice->client->country->iso_3166_2) {
+        } elseif ((in_array($this->company->country()->iso_3166_2, $eu_states)
+                   && in_array($this->invoice->client->country->iso_3166_2, $eu_states))
+                   && $this->invoice->company->country()->iso_3166_2 != $this->invoice->client->country->iso_3166_2) {
             $tax_type = 'K'; // EEA Exempt
             $reason_code = 'vatex-eu-ic';
             $reason = 'Intra-Community supply';
@@ -954,7 +1092,7 @@ class Peppol extends AbstractService
             $ctc->ID->value = $this->getTaxType($item->tax_id);
 
             if ($item->tax_rate1 > 0) {
-                $ctc->Percent = (string)$item->tax_rate1;
+                $ctc->Percent = (string) $item->tax_rate1;
             }
 
             $ts = new TaxScheme();
@@ -978,7 +1116,7 @@ class Peppol extends AbstractService
                 $ctc = new ClassifiedTaxCategory();
                 $ctc->ID = new ID();
                 $ctc->ID->value = $this->getTaxType($item->tax_id);
-                $ctc->Percent = (string)$item->tax_rate2;
+                $ctc->Percent = (string) $item->tax_rate2;
 
                 $ts = new TaxScheme();
                 $id = new ID();
@@ -993,7 +1131,7 @@ class Peppol extends AbstractService
                 $ctc = new ClassifiedTaxCategory();
                 $ctc->ID = new ID();
                 $ctc->ID->value = $this->getTaxType($item->tax_id);
-                $ctc->Percent = (string)$item->tax_rate3;
+                $ctc->Percent = (string) $item->tax_rate3;
 
                 $ts = new TaxScheme();
                 $id = new ID();
@@ -1031,7 +1169,7 @@ class Peppol extends AbstractService
                 $basePrice = new Price();
                 $basePriceAmount = new PriceAmount();
                 $basePriceAmount->currencyID = $this->invoice->client->currency()->code;
-                $basePriceAmount->amount = (string)$item->cost;
+                $basePriceAmount->amount = (string) $item->cost;
                 $basePrice->PriceAmount = $basePriceAmount;
 
                 // Add Allowance Charge to Price
@@ -1048,7 +1186,7 @@ class Peppol extends AbstractService
 
                     $allowanceCharge->BaseAmount = new \InvoiceNinja\EInvoice\Models\Peppol\AmountType\BaseAmount();
                     $allowanceCharge->BaseAmount->currencyID = $this->invoice->client->currency()->code;
-                    $allowanceCharge->BaseAmount->amount = (string)round(($item->cost * $item->quantity), 2);
+                    $allowanceCharge->BaseAmount->amount = (string) round(($item->cost * $item->quantity), 2);
 
                     $mfn = new \InvoiceNinja\EInvoice\Models\Peppol\NumericType\MultiplierFactorNumeric();
                     $mfn->value = (string) round($item->discount, 2);
@@ -1067,7 +1205,7 @@ class Peppol extends AbstractService
                 $price = new Price();
                 $pa = new PriceAmount();
                 $pa->currencyID = $this->invoice->client->currency()->code;
-                $pa->amount = (string)$item->cost;
+                $pa->amount = $this->invoice->uses_inclusive_taxes ? (string) $item->net_cost :(string) $item->cost;
                 $price->PriceAmount = $pa;
                 $line->Price = $price;
             }
@@ -1100,7 +1238,7 @@ class Peppol extends AbstractService
             $ctc->ID->value = $this->getTaxType($item->tax_id);
 
             if ($item->tax_rate1 > 0) {
-                $ctc->Percent = (string)$item->tax_rate1;
+                $ctc->Percent = (string) $item->tax_rate1;
             }
 
             $ts = new TaxScheme();
@@ -1123,7 +1261,7 @@ class Peppol extends AbstractService
                 $ctc = new ClassifiedTaxCategory();
                 $ctc->ID = new ID();
                 $ctc->ID->value = $this->getTaxType($item->tax_id);
-                $ctc->Percent = (string)$item->tax_rate2;
+                $ctc->Percent = (string) $item->tax_rate2;
 
                 $ts = new TaxScheme();
                 $id = new ID();
@@ -1138,7 +1276,7 @@ class Peppol extends AbstractService
                 $ctc = new ClassifiedTaxCategory();
                 $ctc->ID = new ID();
                 $ctc->ID->value = $this->getTaxType($item->tax_id);
-                $ctc->Percent = (string)$item->tax_rate3;
+                $ctc->Percent = (string) $item->tax_rate3;
 
                 $ts = new TaxScheme();
                 $id = new ID();
@@ -1177,7 +1315,7 @@ class Peppol extends AbstractService
                 $basePrice = new Price();
                 $basePriceAmount = new PriceAmount();
                 $basePriceAmount->currencyID = $this->invoice->client->currency()->code;
-                $basePriceAmount->amount = (string)abs($item->cost);
+                $basePriceAmount->amount = (string) abs($item->cost);
                 $basePrice->PriceAmount = $basePriceAmount;
 
                 // Add Allowance Charge to Price
@@ -1193,7 +1331,7 @@ class Peppol extends AbstractService
 
                     $allowanceCharge->BaseAmount = new \InvoiceNinja\EInvoice\Models\Peppol\AmountType\BaseAmount();
                     $allowanceCharge->BaseAmount->currencyID = $this->invoice->client->currency()->code;
-                    $allowanceCharge->BaseAmount->amount = (string)round(abs($item->cost * $item->quantity), 2);
+                    $allowanceCharge->BaseAmount->amount = (string) round(abs($item->cost * $item->quantity), 2);
 
                     $mfn = new \InvoiceNinja\EInvoice\Models\Peppol\NumericType\MultiplierFactorNumeric();
                     $mfn->value = (string) round($item->discount, 2);
@@ -1210,7 +1348,7 @@ class Peppol extends AbstractService
                 $price = new Price();
                 $pa = new PriceAmount();
                 $pa->currencyID = $this->invoice->client->currency()->code;
-                $pa->amount = (string)abs($item->cost);
+                $pa->amount = (string) abs($item->cost);
                 $price->PriceAmount = $pa;
                 $line->Price = $price;
             }
@@ -1273,21 +1411,21 @@ class Peppol extends AbstractService
         collect($this->invoice->line_items)
             ->flatMap(function ($item) {
                 return collect([1, 2, 3])
-                    ->map(fn ($i) => [
+                    ->map(fn($i) => [
                         'name' => $item->{"tax_name{$i}"} ?? '',
                         'percentage' => $item->{"tax_rate{$i}"} ?? 0,
                         'scheme' => $this->getTaxType($item->tax_id),
                     ])
-                    ->filter(fn ($tax) => strlen($tax['name']) > 1);
+                    ->filter(fn($tax) => strlen($tax['name']) > 1);
             })
-            ->unique(fn ($tax) => $tax['percentage'] . '_' . $tax['name'])
+            ->unique(fn($tax) => $tax['percentage'] . '_' . $tax['name'])
             ->values()
             ->each(function ($tax) {
 
                 $taxCategory = new \InvoiceNinja\EInvoice\Models\Peppol\TaxCategoryType\TaxCategory();
                 $taxCategory->ID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID();
                 $taxCategory->ID->value = $tax['scheme'];
-                $taxCategory->Percent = (string)$tax['percentage'];
+                $taxCategory->Percent = (string) $tax['percentage'];
                 $taxScheme = new \InvoiceNinja\EInvoice\Models\Peppol\TaxSchemeType\TaxScheme();
                 $taxScheme->ID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID();
                 $taxScheme->ID->value = $this->standardizeTaxSchemeId($tax['name']);
@@ -1318,7 +1456,7 @@ class Peppol extends AbstractService
         $party->PartyName[] = $party_name;
 
         if (strlen($this->company->settings->vat_number ?? '') > 1) {
-            
+
             $pi = new PartyIdentification();
             $vatID = new ID();
             $vatID->schemeID = $this->resolveScheme();
@@ -1518,7 +1656,7 @@ class Peppol extends AbstractService
         $delivery_date = data_get($this->invoice->e_invoice, 'Invoice.Delivery.0.ActualDeliveryDate.date')
             ?? data_get($this->invoice->e_invoice, 'Invoice.Delivery.0.ActualDeliveryDate')
             ?? null;
-        
+
         if ($delivery_date) {
             $delivery->ActualDeliveryDate = new \DateTime($delivery_date);
         }
@@ -1666,12 +1804,12 @@ class Peppol extends AbstractService
 
         }
 
-        if (isset($this->invoice->e_invoice->Invoice->InvoicePeriod[0]) &&
-        isset($this->invoice->e_invoice->Invoice->InvoicePeriod[0]->StartDate) &&
-        isset($this->invoice->e_invoice->Invoice->InvoicePeriod[0]->EndDate)) {
+        if (isset($this->invoice->e_invoice->Invoice->InvoicePeriod[0])
+        && isset($this->invoice->e_invoice->Invoice->InvoicePeriod[0]->StartDate)
+        && isset($this->invoice->e_invoice->Invoice->InvoicePeriod[0]->EndDate)) {
 
-            $start_date = isset($this->invoice->e_invoice->Invoice->InvoicePeriod[0]->StartDate->date) ? $this->invoice->e_invoice->Invoice->InvoicePeriod[0]->StartDate->date :$this->invoice->e_invoice->Invoice->InvoicePeriod[0]->StartDate;
-            $end_date = isset($this->invoice->e_invoice->Invoice->InvoicePeriod[0]->EndDate->date) ? $this->invoice->e_invoice->Invoice->InvoicePeriod[0]->EndDate->date : $this->invoice->e_invoice->Invoice->InvoicePeriod[0]->EndDate;
+            $start_date = $this->invoice->e_invoice->Invoice->InvoicePeriod[0]->StartDate->date ?? $this->invoice->e_invoice->Invoice->InvoicePeriod[0]->StartDate;
+            $end_date = $this->invoice->e_invoice->Invoice->InvoicePeriod[0]->EndDate->date ?? $this->invoice->e_invoice->Invoice->InvoicePeriod[0]->EndDate;
 
             $ip = new \InvoiceNinja\EInvoice\Models\Peppol\PeriodType\InvoicePeriod();
             $ip->StartDate = new \DateTime($start_date);
@@ -1735,7 +1873,7 @@ class Peppol extends AbstractService
 
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
-            $tax_amount->amount = (string)0;
+            $tax_amount->amount = (string) 0;
             $tax_total->TaxAmount = $tax_amount;
 
             $tax_subtotal = new TaxSubtotal();
@@ -1743,14 +1881,14 @@ class Peppol extends AbstractService
             // Required: TaxableAmount (BT-116)
             $taxable_amount = new TaxableAmount();
             $taxable_amount->currencyID = $this->invoice->client->currency()->code;
-            $taxable_amount->amount = (string)round($this->normalizeAmount($this->invoice->amount), 2);
+            $taxable_amount->amount = (string) round($this->normalizeAmount($this->invoice->amount), 2);
 
             $tax_subtotal->TaxableAmount = $taxable_amount;
 
             $subtotal_tax_amount = new TaxAmount();
             $subtotal_tax_amount->currencyID = $this->invoice->client->currency()->code;
 
-            $subtotal_tax_amount->amount = (string)0;
+            $subtotal_tax_amount->amount = (string) 0;
 
             $tax_subtotal->TaxAmount = $subtotal_tax_amount;
 
@@ -1784,9 +1922,9 @@ class Peppol extends AbstractService
             // Required: TaxAmount (BT-110)
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
-            // $tax_amount->amount = (string)$grouped_tax['total'];
-            $tax_amount->amount = (string)round($this->normalizeAmount($this->invoice->total_taxes), 2);
-            $tax_total->TaxAmount = $tax_amount;
+            // $tax_amount->amount = (string) round($this->normalizeAmount($this->invoice->total_taxes), 2);
+                $tax_amount->amount = (string) \App\Utils\BcMath::round((string) $this->normalizeAmount($this->invoice->total_taxes), 2);
+                $tax_total->TaxAmount = $tax_amount;
 
             // Required: TaxSubtotal (BG-23)
             $tax_subtotal = new TaxSubtotal();
@@ -1796,9 +1934,9 @@ class Peppol extends AbstractService
             $taxable_amount->currencyID = $this->invoice->client->currency()->code;
 
             if (floatval($grouped_tax['total']) === 0.0) {
-                $taxable_amount->amount = (string)round($this->normalizeAmount($this->invoice->amount), 2);
+                $taxable_amount->amount = (string) round($this->normalizeAmount($this->invoice->amount), 2);
             } else {
-                $taxable_amount->amount = (string)round($this->normalizeAmount($grouped_tax['base_amount']), 2);
+                $taxable_amount->amount = (string) round($this->normalizeAmount($grouped_tax['base_amount']), 2);
             }
             $tax_subtotal->TaxableAmount = $taxable_amount;
 
@@ -1806,7 +1944,8 @@ class Peppol extends AbstractService
             $subtotal_tax_amount = new TaxAmount();
             $subtotal_tax_amount->currencyID = $this->invoice->client->currency()->code;
 
-            $subtotal_tax_amount->amount = (string)round($this->normalizeAmount($grouped_tax['total']), 2);
+            // $subtotal_tax_amount->amount = (string) round($this->normalizeAmount($grouped_tax['total']), 2);
+            $subtotal_tax_amount->amount = (string) \App\Utils\BcMath::round((string) $this->normalizeAmount($grouped_tax['total']), 2);
 
             $tax_subtotal->TaxAmount = $subtotal_tax_amount;
 
@@ -1826,7 +1965,7 @@ class Peppol extends AbstractService
 
             // Required: TaxCategory Rate (BT-119)
             if ($grouped_tax['tax_rate'] > 0) {
-                $tax_category->Percent = (string)$grouped_tax['tax_rate'];
+                $tax_category->Percent = (string) $grouped_tax['tax_rate'];
             }
 
             // Required: TaxScheme (BG-23)

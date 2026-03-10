@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -17,14 +17,12 @@ use Illuminate\Support\Str;
 use App\Http\Requests\Request;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
-use Illuminate\Auth\Access\AuthorizationException;
 
 class SendEmailRequest extends Request
 {
     use MakesHash;
 
     private string $entity_plural = 'invoices';
-    private string $error_message = '';
 
     public array $templates = [
         'email_template_invoice',
@@ -51,7 +49,7 @@ class SendEmailRequest extends Request
      */
     public function authorize(): bool
     {
-        return $this->checkUserAbleToSend();
+        return true; //required so that we can move the authorization check deeper after we have hydrated the entity
     }
 
     /**
@@ -65,7 +63,7 @@ class SendEmailRequest extends Request
         $user = auth()->user();
 
         return [
-            'template' => 'bail|required|string|in:'.implode(',', $this->templates),
+            'template' => 'bail|required|string|in:' . implode(',', $this->templates),
             'entity' => 'bail|required|in:App\Models\Invoice,App\Models\Quote,App\Models\Credit,App\Models\RecurringInvoice,App\Models\PurchaseOrder,App\Models\Payment',
             'entity_id' => ['bail', 'required', Rule::exists($this->entity_plural, 'id')->where('company_id', $user->company()->id)],
             'cc_email.*' => 'bail|sometimes|email',
@@ -96,7 +94,7 @@ class SendEmailRequest extends Request
 
         if (isset($input['entity']) && in_array($input['entity'], ['invoice','quote','credit','recurring_invoice','purchase_order','payment','purchaseOrder'])) {
             $this->entity_plural = Str::plural($input['entity']) ?? '';
-            $input['entity'] = "App\Models\\".ucfirst(Str::camel($input['entity']));
+            $input['entity'] = "App\Models\\" . ucfirst(Str::camel($input['entity']));
         }
 
         if (isset($input['entity']) && $input['entity'] == 'purchaseOrder') {
@@ -111,7 +109,7 @@ class SendEmailRequest extends Request
             })->slice(0, 4)->toArray();
         }
 
-        if(\App\Utils\Ninja::isHosted() && !$user->account->isPaid()){
+        if (\App\Utils\Ninja::isHosted() && !$user->account->isPaid()) {
             unset($input['subject']);
             unset($input['body']);
             unset($input['cc_email']);
@@ -120,64 +118,45 @@ class SendEmailRequest extends Request
         $this->replace($input);
     }
 
+    public function withValidator(\Illuminate\Validation\Validator $validator): void
+    {
+        $validator->after(function (\Illuminate\Validation\Validator $validator) {
+            /** @var \App\Models\User $user */
+            $user = auth()->user();
+
+            if (Ninja::isHosted() && !$user->email_verified_at) {
+                $validator->errors()->add('error', ctrans('texts.verify_email'));
+            }
+
+            if (Ninja::isHosted() && !$user->account->account_sms_verified) {
+                $validator->errors()->add('error', ctrans('texts.authorization_sms_failure'));
+            }
+
+            if (Ninja::isHosted() && $user->account->emailQuotaExceeded()) {
+                $validator->errors()->add('error', ctrans('texts.email_quota_exceeded_subject'));
+            }
+
+            if ($user->hasExactPermission('disable_emails')) {
+                $validator->errors()->add('error', ctrans('texts.disable_emails_error'));
+            }
+
+            $input = $this->all();
+
+            if (isset($input['entity']) && array_key_exists('entity_id', $input) && in_array($input['entity'], ['invoice','quote','credit','recurring_invoice','purchase_order','payment','purchaseOrder'])) {
+                $entity_obj = $input['entity']::whereId($input['entity_id'])->withTrashed()->company()->first();
+
+                if (!$entity_obj || !$user->can('edit', $entity_obj)) {
+                    $validator->errors()->add('error', ctrans('texts.not_authorized'));
+                }
+            }
+        });
+    }
+
     public function messages()
     {
         return [
             'template.in' => 'Template :input is not a valid template.',
-            'entity.in' => 'Entity :input is not a valid entity.'
+            'entity.in' => 'Entity :input is not a valid entity.',
         ];
-    }
-
-    private function checkUserAbleToSend()
-    {
-        $input = $this->all();
-
-        /** @var \App\Models\User $user */
-        $user = auth()->user();
-
-        if (Ninja::isHosted() && !$user->email_verified_at) {
-            $this->error_message = ctrans('texts.verify_email');
-            return false;
-        }
-
-        if (Ninja::isHosted() && !$user->account->account_sms_verified) {
-            $this->error_message = ctrans('texts.authorization_sms_failure');
-            return false;
-        }
-
-        if (Ninja::isHosted() && $user->account->emailQuotaExceeded()) {
-            $this->error_message = ctrans('texts.email_quota_exceeded_subject');
-            return false;
-        }
-
-        if ($user->hasExactPermission('disable_emails')) {
-            $this->error_message = ctrans('texts.disable_emails_error');
-            return false;
-        }
-
-        /*Make sure we have all the require ingredients to send a template*/
-        if (isset($input['entity']) && array_key_exists('entity_id', $input) && in_array($input['entity'], ['App\Models\Invoice','App\Models\Quote','App\Models\Credit','App\Models\RecurringInvoice','App\Models\PurchaseOrder','App\Models\Payment'])) {
-
-            $company = $user->company();
-
-            $entity = $input['entity'];
-
-            /* Harvest the entity*/
-            $entity_obj = $entity::whereId($input['entity_id'])->withTrashed()->company()->first();
-
-            /* Check object, check user and company id is same as users, and check user can edit the object */
-            if ($entity_obj && ($company->id == $entity_obj->company_id) && $user->can('edit', $entity_obj)) {
-                return true;
-            } else {
-                $this->error_message = "Invalid entity or entity_id";
-            }
-        }
-
-        return true;
-    }
-
-    protected function failedAuthorization()
-    {
-        throw new AuthorizationException($this->error_message);
     }
 }

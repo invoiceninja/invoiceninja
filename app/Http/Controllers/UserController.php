@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -75,7 +75,7 @@ class UserController extends BaseController
     public function index(UserFilters $filters)
     {
         $users = User::filter($filters);
-
+        
         return $this->listResponse($users);
     }
 

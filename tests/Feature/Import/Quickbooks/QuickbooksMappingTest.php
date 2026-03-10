@@ -32,6 +32,7 @@ use App\Services\Quickbooks\Transformers\ClientTransformer;
 class QuickbooksMappingTest extends TestCase
 {
     use MockAccountData;
+
     private string $backup_file = 'tests/Feature/Import/Quickbooks/backup.json';
 
     private array $qb_data = [];
@@ -48,6 +49,10 @@ class QuickbooksMappingTest extends TestCase
         $this->qb_data = json_decode(file_get_contents($this->backup_file), true);
 
         $this->makeTestData();
+
+        if(!$this->company->quickbooks->accessTokenKey) {
+            $this->markTestSkipped('Company does not have Quickbooks connected');
+        }
     }
 
     public function testBackupImport()
@@ -56,7 +61,7 @@ class QuickbooksMappingTest extends TestCase
         $qb = new QuickbooksService($this->company);
 
         $pre_count = Client::where('company_id', $this->company->id)->count();
-        $qb->client->importToNinja($this->qb_data['clients']);
+        $qb->client->syncToNinja($this->qb_data['clients']);
         $post_count = Client::where('company_id', $this->company->id)->count();
 
         $this->assertGreaterThan($pre_count, $post_count);

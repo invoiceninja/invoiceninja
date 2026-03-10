@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -22,9 +22,7 @@ use stdClass;
 
 class InvoiceOverdueObject
 {
-    public function __construct(public Invoice $invoice, public Company $company, public bool $use_react_url)
-    {
-    }
+    public function __construct(public Invoice $invoice, public Company $company, public bool $use_react_url) {}
 
     public function build()
     {
@@ -76,10 +74,10 @@ class InvoiceOverdueObject
         $content = ctrans(
             'texts.notification_invoice_overdue',
             [
-                    'amount' => $this->getAmount(),
-                    'client' => $this->invoice->client->present()->name(),
-                    'invoice' => $this->invoice->number,
-                ]
+                'amount' => $this->getAmount(),
+                'client' => $this->invoice->client->present()->name(),
+                'invoice' => $this->invoice->number,
+            ]
         );
 
         $data = [
@@ -99,4 +97,3 @@ class InvoiceOverdueObject
         return $data;
     }
 }
-

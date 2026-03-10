@@ -3,7 +3,7 @@
 
 @push('head')
     <meta name="show-invoice-terms" content="{{ $settings->show_accept_invoice_terms ? true : false }}">
-    <meta name="require-invoice-signature" content="{{ $client->user->account->hasFeature(\App\Models\Account::FEATURE_INVOICE_SETTINGS) && $settings->require_invoice_signature }}">
+    <meta name="require-invoice-signature" content="{{ $requires_signature }}">
     @include('portal.ninja2020.components.no-cache')
     <script src="{{ asset('vendor/signature_pad@2.3.2/signature_pad.min.js') }}"></script>
 
@@ -48,7 +48,7 @@
             <input type="hidden" name="contact_email" value="{{ auth()->guard('contact')->user()->email }}">
             <input type="hidden" name="client_city" value="{{ auth()->guard('contact')->user()->client->city }}">
             <input type="hidden" name="client_postal_code" value="{{ auth()->guard('contact')->user()->client->postal_code }}">
-
+            <input type="hidden" name="docuninja_active" value="{{ $docuninja_active ? 'true' : 'false' }}">
             <div class="bg-white shadow sm:rounded-lg mb-4" translate>
                 <div class="px-4 py-5 sm:p-6">
                     <div class="sm:flex sm:items-start sm:justify-between">

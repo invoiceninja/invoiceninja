@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -64,9 +64,7 @@ class ProcessBrevoWebhook implements ShouldQueue
      * Create a new job instance.
      *
      */
-    public function __construct(private array $request)
-    {
-    }
+    public function __construct(private array $request) {}
 
     private function getSystemLog(string $message_id): ?SystemLog
     {

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -44,15 +44,15 @@ class UpdateBankTransactionRuleRequest extends Request
         ];
 
         if (isset($this->category_id)) {
-            $rules['category_id'] = 'bail|sometimes|exists:expense_categories,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+            $rules['category_id'] = 'bail|sometimes|exists:expense_categories,id,company_id,' . auth()->user()->company()->id . ',is_deleted,0';
         }
 
         if (isset($this->vendor_id)) {
-            $rules['vendor_id'] = 'bail|sometimes|exists:vendors,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+            $rules['vendor_id'] = 'bail|sometimes|exists:vendors,id,company_id,' . auth()->user()->company()->id . ',is_deleted,0';
         }
 
         if (isset($this->client_id)) {
-            $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+            $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,' . auth()->user()->company()->id . ',is_deleted,0';
         }
 
 

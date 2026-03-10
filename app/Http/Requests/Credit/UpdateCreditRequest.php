@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -87,11 +87,7 @@ class UpdateCreditRequest extends Request
         return $rules;
     }
 
-    public function withValidator($validator)
-    {
-
-
-    }
+    public function withValidator($validator) {}
 
     public function prepareForValidation()
     {
@@ -99,7 +95,7 @@ class UpdateCreditRequest extends Request
 
         nlog($input);
         $input = $this->decodePrimaryKeys($input);
-       
+
         if (isset($input['documents'])) {
             unset($input['documents']);
         }

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -25,8 +25,8 @@ class TransactionEventMetadata implements Castable
 
     public function __construct(array $attributes = [])
     {
-        $this->tax_report = isset($attributes['tax_report']) 
-            ? new TaxReport($attributes['tax_report']) 
+        $this->tax_report = isset($attributes['tax_report'])
+            ? new TaxReport($attributes['tax_report'])
             : new TaxReport([]);
     }
 

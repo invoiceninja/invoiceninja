@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -14,6 +14,8 @@ namespace App\Repositories;
 
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\Location;
+use App\Models\ClientContact;
 use App\Factory\ClientFactory;
 use App\Utils\Traits\SavesDocuments;
 use App\Utils\Traits\GeneratesCounter;
@@ -156,7 +158,7 @@ class ClientRepository extends BaseRepository
 
         $event_vars = \App\Utils\Ninja::eventVars(auth()->user() ? auth()->user()->id : null);
         $event_vars['client_hash'] = $purged_client_hash;
-        
+
         event(new \App\Events\Client\ClientWasPurged($purged_client, $user, $company, $event_vars));
 
         nlog("Purging client id => {$client->id} => {$client->number}");
@@ -192,7 +194,7 @@ class ClientRepository extends BaseRepository
     private function purgeClientDocuments($client)
     {
         // Get all entity IDs that belong to this client
-        $data =[
+        $data = [
             'invoices' => $client->invoices()->pluck('id')->toArray(),
             'App\Models\Quote' => $client->quotes()->pluck('id')->toArray(),
             'App\Models\Payment' => $client->payments()->pluck('id')->toArray(),
@@ -206,7 +208,44 @@ class ClientRepository extends BaseRepository
         ];
 
         PurgeClientDocuments::dispatch($data, $client->company);
+
+    }
+    
+    /**
+     * clone/duplicate a client
+     *
+     * @param  Client $client
+     * @return Client
+     */
+    public function clone(Client $client)
+    {
+        $clone_client = $client->replicate();
+        $clone_client->name = $clone_client->name . ' clone ' . date('Y-m-d H:i:s');
+        $clone_client->client_hash = \Illuminate\Support\Str::random(40);
+        $clone_client->sync = null;
+        $clone_client->number = null;
+        $clone_client->balance = 0;
+        $clone_client->paid_to_date = 0;
+        $clone_client->credit_balance = 0;
+        $clone_client->payment_balance = 0;
+        $clone_client->save();
+
+        $clone_client->service()->applyNumber()->save();
         
+        $client->contacts->each(function (ClientContact $contact) use ($clone_client) {
+            $clone_contact = $contact->replicate();
+            $clone_contact->client_id = $clone_client->id;
+            $clone_contact->contact_key = \Illuminate\Support\Str::random(32);
+            $clone_contact->save();
+        });
+
+        $client->locations->each(function (Location $location) use ($clone_client) {
+            $clone_location = $location->replicate();
+            $clone_location->client_id = $clone_client->id;
+            $clone_location->save();
+        });
+
+        return $clone_client;
     }
 
 

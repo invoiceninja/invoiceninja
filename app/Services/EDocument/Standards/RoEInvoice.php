@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -145,18 +145,16 @@ class RoEInvoice extends AbstractService
         'RO-VS'  => 'Agriculture',
     ];
 
-    public function __construct(public Invoice $invoice)
-    {
-    }
+    public function __construct(public Invoice $invoice) {}
 
-    private function resolveSubEntityCode(string $city)
+    private function resolveSubEntityCode(?string $city)
     {
         $city_references = &$this->countrySubEntity[$city];
 
         return $city_references ?? 'RO-B';
     }
 
-    private function resolveSectorCode(string $state)
+    private function resolveSectorCode(?string $state = 'Manufacturing')
     {
         return in_array($state, $this->sectorList) ? $state : 'SECTOR1';
     }
@@ -191,7 +189,7 @@ class RoEInvoice extends AbstractService
         // invoice
         $ubl_invoice->setId($invoice->number); //@phpstan-ignore-line
         $ubl_invoice->setIssueDate(date_create($invoice->date));
-        $ubl_invoice->setDueDate(date_create($invoice->due_date));
+        $ubl_invoice->setDueDate(date_create($invoice->due_date ?? $invoice->date));
         $ubl_invoice->setInvoiceTypeCode("380");
         $ubl_invoice->setDocumentCurrencyCode($invoice->client->getCurrencyCode());
         $ubl_invoice->setTaxCurrencyCode($invoice->client->getCurrencyCode());
@@ -511,7 +509,7 @@ class RoEInvoice extends AbstractService
     {
         $code = $tax_id;
 
-        match($tax_id) {
+        match ($tax_id) {
             Product::PRODUCT_TYPE_REVERSE_TAX => $code = 'AE', // VAT_REVERSE_CHARGE =
             Product::PRODUCT_TYPE_EXEMPT => $code = 'E', // EXEMPT_FROM_TAX =
             Product::PRODUCT_TYPE_PHYSICAL => $code = 'S', // STANDARD_RATE =

@@ -11,8 +11,7 @@ class SigningService
         private string $xml,
         private string $private_key,
         private string $certificate
-    ) {
-    }
+    ) {}
 
     public function sign()
     {

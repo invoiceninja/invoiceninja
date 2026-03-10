@@ -338,8 +338,9 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::get('quote/{invitation_key}/download_e_quote', [QuoteController::class, 'downloadEQuote'])->name('quotes.downloadEQuote');
 
     Route::post('quickbooks/sync', [QuickbooksController::class, 'sync'])->name('quickbooks.sync');
-    Route::post('quickbooks/configuration', [QuickbooksController::class, 'configuration'])->name('quickbooks.configuration');
+    Route::post('quickbooks/settings', [QuickbooksController::class, 'settings'])->name('quickbooks.settings');
     Route::post('quickbooks/disconnect', [QuickbooksController::class, 'disconnect'])->name('quickbooks.disconnect');
+    Route::post('quickbooks/reconnect_url', [QuickbooksController::class, 'reconnectUrl'])->name('quickbooks.reconnect_url');
 
     Route::resource('recurring_expenses', RecurringExpenseController::class);
     Route::post('recurring_expenses/bulk', [RecurringExpenseController::class, 'bulk'])->name('recurring_expenses.bulk');
@@ -442,7 +443,7 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::post('/users/{user}/disconnect_mailer', [UserController::class, 'disconnectOauthMailer']);
     Route::post('/users/{user}/disconnect_oauth', [UserController::class, 'disconnectOauth']);
     Route::post('/user/{user}/reconfirm', [UserController::class, 'reconfirm']);
-    Route::post('/user/{user}/purge', [UserController::class, 'purge'])->middleware('password_protected');
+    Route::post('/users/{user}/purge', [UserController::class, 'purge'])->middleware('password_protected');
 
     Route::resource('webhooks', WebhookController::class);
     Route::post('webhooks/bulk', [WebhookController::class, 'bulk'])->name('webhooks.bulk');
@@ -510,6 +511,7 @@ Route::get('api/v1/protected_download/{hash}', [ProtectedDownloadController::cla
 Route::post('api/v1/ppcp/webhook', [PayPalPPCPPaymentDriver::class, 'processWebhookRequest'])->middleware('throttle:1000,1');
 
 Route::get('quickbooks/authorize/{token}', [ImportQuickbooksController::class, 'authorizeQuickbooks'])->name('quickbooks.authorize');
+Route::get('quickbooks/reconnect/{token}', [ImportQuickbooksController::class, 'reconnect'])->name('quickbooks.reconnect');
 Route::get('quickbooks/authorized', [ImportQuickbooksController::class, 'onAuthorized'])->name('quickbooks.authorized');
 
 Route::fallback([BaseController::class, 'notFound'])->middleware('throttle:404');

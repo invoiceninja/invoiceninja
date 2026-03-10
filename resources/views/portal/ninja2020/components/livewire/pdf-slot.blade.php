@@ -107,7 +107,7 @@
           </style>
         </div>
         @if($pdf)
-        <iframe id="pdf-iframe" src="/{{ $route_entity }}/showBlob/{{ $pdf }}" class="h-screen w-full border-0 mt-4"></iframe>
+        <iframe id="pdf-iframe" src="/{{ $route_entity }}/showBlob/{{ $pdf }}#zoom=100" class="h-screen w-full border-0 mt-4"></iframe>
         @endif
     </div>
   </div>

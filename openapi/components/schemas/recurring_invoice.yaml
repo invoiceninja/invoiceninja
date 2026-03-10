@@ -23,11 +23,11 @@
         frequency_id:
           description: 'The recurring invoice frequency'
           type: number
-          example: '4'
+          example: 4
         remaining_cycles:
           description: 'The number of invoices left to be generated'
           type: number
-          example: '4'
+          example: 4
         number:
           description: 'The recurringinvoice number - is a unique alpha numeric number per invoice per company'
           type: string
@@ -80,12 +80,12 @@
           description: 'The tax rate'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         tax_rate2:
           description: 'The tax rate'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         tax_name3:
           description: 'The tax name'
           type: string
@@ -94,41 +94,41 @@
           description: 'The tax rate'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         total_taxes:
           description: 'The total taxes for the invoice'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         line_items:
           description: 'An array of objects which define the line items of the invoice'
           type: object
-          example: ''
+          example: {}
         amount:
           description: 'The invoice amount'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         balance:
           description: 'The invoice balance'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         paid_to_date:
           description: 'The amount paid on the invoice to date'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         discount:
           description: 'The invoice discount, can be an amount or a percentage'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         partial:
           description: 'The deposit/partial amount'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         is_amount_discount:
           description: 'Flag determining if the discount is an amount or a percentage'
           type: boolean
@@ -172,37 +172,37 @@
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         updated_at:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         archived_at:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         custom_surcharge1:
           description: 'First Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         custom_surcharge2:
           description: 'Second Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         custom_surcharge3:
           description: 'Third Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         custom_surcharge4:
           description: 'Fourth Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         custom_surcharge_tax1:
           description: 'Toggles charging taxes on custom surcharge amounts'
           type: boolean

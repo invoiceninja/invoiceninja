@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -37,10 +37,7 @@ class InvoiceTaxSummary implements ShouldQueue
 
     public $tries = 1;
 
-    public function __construct()
-    {
-
-    }
+    public function __construct() {}
 
     public function handle()
     {
@@ -49,35 +46,35 @@ class InvoiceTaxSummary implements ShouldQueue
 
         $currentUtcHour = now()->hour;
         $transitioningTimezones = $this->getTransitioningTimezones($currentUtcHour);
-     
-        foreach(MultiDB::$dbs as $db) {
+
+        foreach (MultiDB::$dbs as $db) {
             MultiDB::setDB($db);
             // Only process companies in timezones that just transitioned
             $companies = $this->getCompaniesInTimezones($transitioningTimezones);
-            
+
             foreach ($companies as $company) {
                 $this->processCompanyTaxSummary($company);
             }
         }
 
-        nlog("InvoiceTaxSummary:: Job completed in " . now()->diffInSeconds($start) . " seconds");
+        nlog("InvoiceTaxSummary:: Job completed in " . (int) now()->diffInSeconds($start) . " seconds");
     }
 
     private function getTransitioningTimezones($utcHour)
     {
         $transitioningTimezones = [];
-        
+
         // Get all timezones from the database
         $timezones = app('timezones');
-        
+
         /** @var \App\Models\Timezone $timezone */
         foreach ($timezones as $timezone) {
             // Calculate the current UTC offset for this timezone (accounting for DST)
             $currentOffset = $this->getCurrentUtcOffset($timezone->name);
-            
+
             // Calculate when this timezone transitions to the next day
             $transitionHour = $this->getTimezoneTransitionHour($currentOffset);
-            
+
             // If this timezone transitions at the current UTC hour, include it
             if ($transitionHour === $utcHour) {
                 $transitioningTimezones[] = $timezone->id;
@@ -104,14 +101,14 @@ class InvoiceTaxSummary implements ShouldQueue
         // A timezone with UTC offset +X transitions at UTC hour (24 - X)
         // For example: UTC+14 transitions at UTC 10:00 (24 - 14 = 10)
         // UTC-12 transitions at UTC 12:00 (24 - (-12) = 36, but we use modulo 24)
-        
+
         $transitionHour = (24 - ($utcOffset / 3600)) % 24;
-        
+
         // Handle negative offsets properly
         if ($transitionHour < 0) {
             $transitionHour += 24;
         }
-        
+
         return (int) $transitionHour;
     }
 
@@ -123,7 +120,7 @@ class InvoiceTaxSummary implements ShouldQueue
 
         // Get companies that have timezone_id in their JSON settings matching the transitioning timezones
         $companies = Company::whereRaw("JSON_EXTRACT(settings, '$.timezone_id') IN (" . implode(',', $timezoneIds) . ")")->get();
-    
+
         nlog("InvoiceTaxSummary:: Found " . $companies->count() . " companies in timezones: " . implode(',', $timezoneIds));
 
         return $companies;
@@ -133,10 +130,10 @@ class InvoiceTaxSummary implements ShouldQueue
     {
         // Your existing tax summary logic here
         // This will only run for companies in timezones that just transitioned
-        
+
         $startDate = now()->subMonth()->startOfMonth()->format('Y-m-d');
         $endDate = now()->subMonth()->endOfMonth()->format('Y-m-d');
-        
+
         // Process tax summary for the company
         $this->generateTaxSummary($company, $startDate, $endDate);
     }
@@ -145,7 +142,7 @@ class InvoiceTaxSummary implements ShouldQueue
     {
         $todayStart = now()->subHours(15)->timestamp;
         $todayEnd = now()->endOfDay()->timestamp;
-        
+
         // Convert company timezone dates to UTC for database query
         // $startDate and $endDate are in Y-m-d format (e.g., "2024-01-01")
         $timezone = $company->timezone()->name ?? 'UTC';
@@ -157,9 +154,9 @@ class InvoiceTaxSummary implements ShouldQueue
             ->endOfDay()
             ->setTimezone('UTC')
             ->format('Y-m-d H:i:s');
-        
+
         Invoice::withTrashed()
-                ->with('payments',)
+                ->with('payments', )
                 ->where('company_id', $company->id)
                 ->whereIn('status_id', [2,3,4,5])
                 // ->where('is_deleted', 0) I still need to assess deleted invoices, and ensure if there is an entry present, we reverse it!!!
@@ -175,7 +172,7 @@ class InvoiceTaxSummary implements ShouldQueue
                 // ->whereBetween('date', [$startDate, $endDate])
                 // ->whereDoesntHave('transaction_events', function ($query) use ($todayStart, $todayEnd) {
                 //         $query->where('timestamp', '>=', $todayStart)
-                //             ->where('timestamp', '<=', $todayEnd) 
+                //             ->where('timestamp', '<=', $todayEnd)
                 //             ->where('event_id', TransactionEvent::INVOICE_UPDATED);
                 // })
                 ->whereBetween('updated_at', [$startDateUtc, $endDateUtc])

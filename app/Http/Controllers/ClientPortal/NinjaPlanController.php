@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -88,7 +88,7 @@ class NinjaPlanController extends Controller
 
     public function trial_confirmation(Request $request)
     {
-        $trial_started = "Trial Started @ ".now()->format('Y-m-d H:i:s');
+        $trial_started = "Trial Started @ " . now()->format('Y-m-d H:i:s');
 
         auth()->guard('contact')->user()->fill($request->only(['first_name','last_name']))->save();
 

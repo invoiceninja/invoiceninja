@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -79,6 +79,7 @@ use App\Policies\ExpenseCategoryPolicy;
 use App\Policies\RecurringExpensePolicy;
 use App\Policies\RecurringInvoicePolicy;
 use App\Policies\BankTransactionRulePolicy;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -136,7 +137,16 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('view-list', function ($user, $entity) {
             $entity = strtolower(class_basename($entity));
 
-            return $user->hasPermission('view_'.$entity) || $user->isAdmin();
+            return $user->hasPermission('view_' . $entity) || $user->isAdmin();
+        });
+
+
+        ResetPassword::createUrlUsing(function ($notifiable, string $token) {
+            return config('app.url')
+                . route('password.reset', [
+                    'token' => $token,
+                    'email' => $notifiable->getEmailForPasswordReset(),
+                ], false);
         });
     }
 }

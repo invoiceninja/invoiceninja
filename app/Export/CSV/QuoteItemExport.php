@@ -151,13 +151,13 @@ class QuoteItemExport extends BaseExport
 
     private function filterItems(array $items): array
     {
-        
+
         //if we have product filters in place, we will also need to filter the items at this level:
         if (isset($this->input['product_key'])) {
-            
+
             $products = str_getcsv($this->input['product_key'], ',', "'");
 
-            $products = array_map(function($product) {
+            $products = array_map(function ($product) {
                 return trim($product, "'");
             }, $products);
 
@@ -251,7 +251,7 @@ class QuoteItemExport extends BaseExport
 
         if (in_array('quote.subtotal', $this->input['report_keys'])) {
             $entity['quote.subtotal'] = $quote->calc()->getSubTotal();
-        }   
+        }
 
         return $entity;
     }

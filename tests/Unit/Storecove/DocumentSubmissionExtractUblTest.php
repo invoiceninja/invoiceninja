@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -184,7 +184,6 @@ class DocumentSubmissionExtractUblTest extends TestCase
         $job = new DocumentSubmission([]);
         $reflection = new ReflectionClass($job);
         $method = $reflection->getMethod('extractInvoiceUbl');
-        $method->setAccessible(true);
 
         $result = $method->invoke($job, $xml);
 
@@ -225,7 +224,6 @@ class DocumentSubmissionExtractUblTest extends TestCase
         $job = new DocumentSubmission([]);
         $reflection = new ReflectionClass($job);
         $method = $reflection->getMethod('extractInvoiceUbl');
-        $method->setAccessible(true);
 
         $result = $method->invoke($job, $xml);
 
@@ -258,7 +256,6 @@ class DocumentSubmissionExtractUblTest extends TestCase
         $job = new DocumentSubmission([]);
         $reflection = new ReflectionClass($job);
         $method = $reflection->getMethod('extractInvoiceUbl');
-        $method->setAccessible(true);
 
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('No Invoice or CreditNote tag found in XML');
@@ -280,7 +277,6 @@ class DocumentSubmissionExtractUblTest extends TestCase
         $job = new DocumentSubmission([]);
         $reflection = new ReflectionClass($job);
         $method = $reflection->getMethod('extractInvoiceUbl');
-        $method->setAccessible(true);
 
         $result = $method->invoke($job, $xml);
 
@@ -309,7 +305,6 @@ class DocumentSubmissionExtractUblTest extends TestCase
         $job = new DocumentSubmission([]);
         $reflection = new ReflectionClass($job);
         $method = $reflection->getMethod('extractInvoiceUbl');
-        $method->setAccessible(true);
 
         $result = $method->invoke($job, $xml);
 

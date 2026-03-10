@@ -32,9 +32,14 @@ class RecurringInvoiceTransformer extends BaseTransformer
      */
     public function transform($line_items_data)
     {
-        $invoice_data = reset($line_items_data);
+        if (!empty($line_items_data) && is_array(reset($line_items_data))) {
+            $invoice_data = reset($line_items_data);
+        } else {
+            $invoice_data = $line_items_data;
+            $line_items_data = [$invoice_data];
+        }
 
-        if ($this->hasRecurringInvoice($invoice_data['invoice.number'])) {
+        if (isset($invoice_data['invoice.number']) && $this->hasRecurringInvoice($invoice_data['invoice.number'])) {
             throw new ImportException('Invoice number already exists');
         }
 
@@ -135,10 +140,10 @@ class RecurringInvoiceTransformer extends BaseTransformer
                 $this->getString($invoice_data, 'invoice.auto_bill')
             ),
             'frequency_id' => $this->getFrequency(
-                isset($invoice_data['invoice.frequency_id']) ? $invoice_data['invoice.frequency_id'] : 'monthly'
+                $invoice_data['invoice.frequency_id'] ?? 'monthly'
             ),
             'remaining_cycles' => $this->getRemainingCycles(
-                isset($invoice_data['invoice.remaining_cycles']) ? $invoice_data['invoice.remaining_cycles'] : -1
+                $invoice_data['invoice.remaining_cycles'] ?? -1
             ),
             // 'archived' => $status === 'archived',
         ];

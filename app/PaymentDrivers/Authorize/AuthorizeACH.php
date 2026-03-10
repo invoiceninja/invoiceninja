@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -22,24 +22,15 @@ use App\Exceptions\PaymentFailed;
 use App\Models\ClientGatewayToken;
 use App\Models\PaymentType as PType;
 use App\PaymentDrivers\AuthorizePaymentDriver;
-use App\PaymentDrivers\Common\MethodInterface;
-use net\authorize\api\contract\v1\PaymentType;
-use net\authorize\api\contract\v1\BankAccountType;
 use App\PaymentDrivers\Common\LivewireMethodInterface;
-use net\authorize\api\contract\v1\CustomerAddressType;
 use App\PaymentDrivers\Authorize\AuthorizePaymentMethod;
-use net\authorize\api\contract\v1\CustomerPaymentProfileType;
-use net\authorize\api\contract\v1\CreateCustomerPaymentProfileRequest;
-use net\authorize\api\controller\CreateCustomerPaymentProfileController;
 
 class AuthorizeACH implements LivewireMethodInterface
 {
     use MakesHash;
 
-    public function __construct(public AuthorizePaymentDriver $authorize)
-    {
-    }
-      
+    public function __construct(public AuthorizePaymentDriver $authorize) {}
+
     /**
      * livewirePaymentView
      *
@@ -50,7 +41,7 @@ class AuthorizeACH implements LivewireMethodInterface
     {
         return 'gateways.authorize.ach.pay_livewire';
     }
-    
+
     /**
      * paymentData
      *
@@ -59,7 +50,7 @@ class AuthorizeACH implements LivewireMethodInterface
      */
     public function paymentData(array $data): array
     {
-  
+
         $tokens = ClientGatewayToken::where('client_id', $this->authorize->client->id)
                 ->where('company_gateway_id', $this->authorize->company_gateway->id)
                 ->where('gateway_type_id', GatewayType::BANK_TRANSFER)
@@ -74,7 +65,7 @@ class AuthorizeACH implements LivewireMethodInterface
 
         return $data;
     }
-    
+
     /**
      * processPaymentView
      *
@@ -87,7 +78,7 @@ class AuthorizeACH implements LivewireMethodInterface
 
         return render('gateways.authorize.ach.pay', $data);
     }
-    
+
     /**
      * tokenBilling
      *
@@ -100,7 +91,7 @@ class AuthorizeACH implements LivewireMethodInterface
         $cc = new AuthorizeCreditCard($this->authorize);
         return $cc->tokenBilling($cgt, $payment_hash);
     }
-    
+
     /**
      * processPaymentResponse
      *
@@ -112,19 +103,18 @@ class AuthorizeACH implements LivewireMethodInterface
 
         $this->authorize->init();
 
-        if($request->token) {
+        if ($request->token) {
             $client_gateway_token = ClientGatewayToken::query()
                 ->where('id', $this->decodePrimaryKey($request->token))
                 ->first();
-        }
-        else{    
+        } else {
             $data = $request->all();
-            
+
             $data['is_running_payment'] = true;
             $data['gateway_type_id'] = \App\Models\GatewayType::BANK_TRANSFER;
             $client_gateway_token = (new AuthorizePaymentMethod($this->authorize))->authorizeBankTransferResponse($data);
-    
-            if(!$client_gateway_token) {
+
+            if (!$client_gateway_token) {
                 throw new PaymentFailed('Could not find the payment profile', 400);
             }
         }
@@ -171,7 +161,7 @@ class AuthorizeACH implements LivewireMethodInterface
             'gateway_type_id' => GatewayType::BANK_TRANSFER,
         ];
 
-        return $this->authorize->createPayment($data, Payment::STATUS_COMPLETED);
+        return $this->authorize->createPayment($data, Payment::STATUS_PENDING);
     }
 
-} 
+}

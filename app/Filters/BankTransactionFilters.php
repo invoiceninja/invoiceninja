@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -32,7 +32,7 @@ class BankTransactionFilters extends QueryFilters
             return $this->builder;
         }
 
-        return $this->builder->where('bank_account_name', 'like', '%'.$name.'%');
+        return $this->builder->where('bank_account_name', 'like', '%' . $name . '%');
     }
 
     /**
@@ -49,7 +49,7 @@ class BankTransactionFilters extends QueryFilters
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('bank_transactions.description', 'like', '%'.$filter.'%');
+            $query->where('bank_transactions.description', 'like', '%' . $filter . '%');
         });
     }
 

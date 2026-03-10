@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -36,11 +36,11 @@ class Storecove
 
     /** @var array $peppol_discovery */
     private array $peppol_discovery = [
-            "documentTypes" =>  ["invoice"],
-            "network" =>  "peppol",
-            "metaScheme" =>  "iso6523-actorid-upis",
-            // "scheme" =>  "de:lwid",
-            // "identifier" => "DE:VAT",
+        "documentTypes" =>  ["invoice"],
+        "network" =>  "peppol",
+        "metaScheme" =>  "iso6523-actorid-upis",
+        // "scheme" =>  "de:lwid",
+        // "identifier" => "DE:VAT",
     ];
 
     /** @var array $dbn_discovery */
@@ -109,18 +109,18 @@ class Storecove
 
         $network_data = match ($network) {
             'peppol' => [
-                    ...$this->peppol_discovery,
-                    'scheme' => $scheme,
-                    'identifier' => $identifier
+                ...$this->peppol_discovery,
+                'scheme' => $scheme,
+                'identifier' => $identifier,
             ],
             'dbn' => array_merge(
                 $this->dbn_discovery,
                 ['scheme' => $scheme, 'identifier' => $identifier]
             ),
             default => [
-                    ...$this->peppol_discovery,
-                    'scheme' => $scheme,
-                    'identifier' => $identifier
+                ...$this->peppol_discovery,
+                'scheme' => $scheme,
+                'identifier' => $identifier,
             ],
         };
 
@@ -200,7 +200,7 @@ class Storecove
             "idempotencyGuid" => \Illuminate\Support\Str::uuid(),
             "routing" => [
                 "eIdentifiers" => [],
-                "emails" => ["peppol@mail.invoicing.co"]
+                "emails" => ["peppol@mail.invoicing.co"],
             ],
             "document" => [
 
@@ -211,9 +211,9 @@ class Storecove
 
         $payload['document']['documentType'] = 'invoice';
         $payload['document']["rawDocumentData"] = [
-                    "document" => base64_encode($document),
-                    "parse" => true,
-                    "parseStrategy" => "ubl",
+            "document" => base64_encode($document),
+            "parse" => true,
+            "parseStrategy" => "ubl",
         ];
 
         $uri = "document_submissions";
@@ -261,21 +261,21 @@ class Storecove
         $scheme = $this->router->resolveRouting($data['country'], $data['classification']);
 
         return (strlen($data['vat_number'] ?? '') > 3 && $this->exists($data['vat_number'], $scheme)) ? [
+            'status' => 'error',
+            'code' => 422,
+            'body' => [],
+            'error' => [
                 'status' => 'error',
                 'code' => 422,
-                'body' => [],
-                'error' => [
-                    'status' => 'error',
-                    'code' => 422,
-                    'message' => 'This VAT number is already registered on the PEPPOL network. Please disconnect if you are using another provider.',
-                    'errors' => [
-                        [
-                            'source' => 'identifier',
-                            'details' => 'This VAT number is already registered on the PEPPOL network. Please disconnect if you are using another provider.',
-                        ]
-                    ]
-                ]
-            ] : false;
+                'message' => 'This VAT number is already registered on the PEPPOL network. Please disconnect if you are using another provider.',
+                'errors' => [
+                    [
+                        'source' => 'identifier',
+                        'details' => 'This VAT number is already registered on the PEPPOL network. Please disconnect if you are using another provider.',
+                    ],
+                ],
+            ],
+        ] : false;
 
     }
 
@@ -331,7 +331,7 @@ class Storecove
     {
 
         $uri = "/legal_entities/{$legal_entity_id}/peppol_identifiers/{$superscheme}/{$scheme}/{$identifier}";
-        
+
         $r = $this->httpClient($uri, (HttpVerb::DELETE)->value, []);
 
         if ($r->successful()) {
@@ -368,7 +368,7 @@ class Storecove
                 'line1' => $company->settings->address1,
                 'line2' => $company->settings->address2,
                 'party_name' => $company->settings->name,
-                'tax_registered' => (bool)strlen($company->settings->vat_number ?? '') > 2,
+                'tax_registered' => (bool) strlen($company->settings->vat_number ?? '') > 2,
                 'tenant_id' => $company->company_key,
                 'zip' => $company->settings->postal_code,
             ], $data);
@@ -524,7 +524,7 @@ class Storecove
 
         if (isset($legal_entity['additional_tax_identifiers']) && is_array($legal_entity['additional_tax_identifiers'])) {
             $identifer = collect($legal_entity['additional_tax_identifiers'])
-                ->filter(fn ($id) => $id['identifier'] == $tax_identifier)
+                ->filter(fn($id) => $id['identifier'] == $tax_identifier)
                 ->first();
 
             if (! $identifer) {

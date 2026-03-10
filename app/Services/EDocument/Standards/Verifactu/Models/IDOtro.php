@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -38,10 +38,7 @@ class IDOtro extends BaseXmlModel
      * @param  string $id Identifier value, e.g., passport number, tax ID, or placeholder
      * @return void
      */
-    public function __construct(private string $codigoPais = 'ES', private string $idType = '06', private string $id = 'NO_DISPONIBLE')
-    {
-
-    }
+    public function __construct(private string $codigoPais = 'ES', private string $idType = '06', private string $id = 'NO_DISPONIBLE') {}
 
     public function getNombreRazon(): string
     {

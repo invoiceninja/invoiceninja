@@ -148,7 +148,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
 
         } elseif (isset($account_status['status']) && $account_status['status'] != 'READY') {
             //There may be other issues, return and await retry
-            nlog($account_status['id']. " Nordigen account status == ". $account_status['status']);
+            nlog($account_status['id'] . " Nordigen account status == " . $account_status['status']);
             return;
 
         }
@@ -166,9 +166,9 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
     {
         //Get transaction count object
         $transactions = [];
-        
+
         $transactions = $this->nordigen->getTransactions($this->company, $this->bank_integration->nordigen_account_id, $this->from_date);
-        
+
         //if no transactions, update the from_date and move on
         if (count($transactions) == 0) {
 

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -34,7 +34,7 @@ class UpdateContactRequest extends Request
         return [
             'first_name' => 'required',
             'last_name' => 'required',
-            'email' => 'required|email:rfc,dns|unique:client_contacts,email,'.auth()->user()->id,
+            'email' => 'required|email:rfc,dns|unique:client_contacts,email,' . auth()->user()->id,
             'password' => 'sometimes|nullable|min:6|confirmed',
         ];
     }

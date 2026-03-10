@@ -74,14 +74,14 @@ class DesgloseRectificacion extends BaseXmlModel
 
     public static function fromDOMElement(\DOMElement $element): self
     {
-        $baseRectificada = (float)self::getElementText($element, 'BaseRectificada');
-        $cuotaRectificada = (float)self::getElementText($element, 'CuotaRectificada');
+        $baseRectificada = (float) self::getElementText($element, 'BaseRectificada');
+        $cuotaRectificada = (float) self::getElementText($element, 'CuotaRectificada');
         $cuotaRecargoRectificado = self::getElementText($element, 'CuotaRecargoRectificado');
 
         return new self(
             $baseRectificada,
             $cuotaRectificada,
-            $cuotaRecargoRectificado ? (float)$cuotaRecargoRectificado : null
+            $cuotaRecargoRectificado ? (float) $cuotaRecargoRectificado : null
         );
     }
 

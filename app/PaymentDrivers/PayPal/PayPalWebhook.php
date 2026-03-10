@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -47,9 +47,7 @@ class PayPalWebhook implements ShouldQueue
 
     private string $endpoint = 'https://api-m.paypal.com';
 
-    public function __construct(protected array $webhook_request, protected array $headers, protected string $access_token)
-    {
-    }
+    public function __construct(protected array $webhook_request, protected array $headers, protected string $access_token) {}
 
     public function handle()
     {
@@ -64,7 +62,7 @@ class PayPalWebhook implements ShouldQueue
         if ($this->verifyWebhook()) {
             nlog('verified');
 
-            match($this->webhook_request['event_type']) {//@phpstan-ignore-line
+            match ($this->webhook_request['event_type']) {//@phpstan-ignore-line
                 'CHECKOUT.ORDER.COMPLETED' => $this->checkoutOrderCompleted(),
             };
 
@@ -246,7 +244,7 @@ class PayPalWebhook implements ShouldQueue
     {
         $method = 'paypal';
 
-        match($source) {
+        match ($source) {
             "card" => $method = PaymentType::CREDIT_CARD_OTHER,
             "paypal" => $method = PaymentType::PAYPAL,
             "venmo" => $method = PaymentType::VENMO,
@@ -315,8 +313,9 @@ class PayPalWebhook implements ShouldQueue
     {
         // nlog($this->headers);
 
-        if(!isset($this->headers['paypal-auth-algo'][0]))
-          return false;
+        if (!isset($this->headers['paypal-auth-algo'][0])) {
+            return false;
+        }
 
         $request = [
             'auth_algo' => $this->headers['paypal-auth-algo'][0],
@@ -325,7 +324,7 @@ class PayPalWebhook implements ShouldQueue
             'transmission_sig' => $this->headers['paypal-transmission-sig'][0],
             'transmission_time' => $this->headers['paypal-transmission-time'][0],
             'webhook_id' => config('ninja.paypal.webhook_id'),
-            'webhook_event' =>  $this->webhook_request
+            'webhook_event' =>  $this->webhook_request,
         ];
 
         nlog($request);

@@ -77,7 +77,7 @@ class ExpenseExport extends BaseExport
 
         $tax_keys = [
             'expense.tax_amount',
-            'expense.net_amount'
+            'expense.net_amount',
         ];
 
         $this->input['report_keys'] = array_unique(array_merge($this->input['report_keys'], $tax_keys));
@@ -220,7 +220,7 @@ class ExpenseExport extends BaseExport
 
     private function decorateAdvancedFields(Expense $expense, array $entity): array
     {
-        
+
         if (in_array('expense.invoice_id', $this->input['report_keys'])) {
             $entity['expense.invoice_id'] = $expense->invoice ? $expense->invoice->number : '';
         }

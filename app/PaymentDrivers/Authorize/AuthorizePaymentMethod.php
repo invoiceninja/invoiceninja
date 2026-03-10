@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -97,7 +97,7 @@ class AuthorizePaymentMethod
     public function authorizeBankTransfer()
     {
 
-        
+
         $data['gateway'] = $this->authorize;
         $data['public_client_id'] = $this->authorize->init()->getPublicClientKey();
         $data['api_login_id'] = $this->authorize->company_gateway->getConfigField('apiLoginId');
@@ -127,7 +127,7 @@ class AuthorizePaymentMethod
 
     public function authorizeBankTransferResponse($data)
     {
-       
+
         $client_profile_id = null;
         $this->payment_method_id = GatewayType::BANK_TRANSFER; //override in case we have come from a payment.
 
@@ -141,8 +141,9 @@ class AuthorizePaymentMethod
 
         $cgt = $this->createClientGatewayToken($payment_profile, $gateway_customer_reference);
 
-        if(isset($data['is_running_payment']))
+        if (isset($data['is_running_payment'])) {
             return $cgt;
+        }
 
         return redirect()->route('client.payment_methods.index');
 
@@ -189,7 +190,7 @@ class AuthorizePaymentMethod
         $this->authorize->init();
 
         // Set the transaction's refId
-        $refId = 'ref'.time();
+        $refId = 'ref' . time();
 
         // Set the payment data for the payment profile to a token obtained from Accept.js
         $op = new OpaqueDataType();
@@ -234,7 +235,7 @@ class AuthorizePaymentMethod
 
         $paymentprofile->setPayment($paymentOne);
         $paymentprofile->setDefaultPaymentProfile(true);
-        
+
         // Assemble the complete transaction request
         $paymentprofilerequest = new CreateCustomerPaymentProfileRequest();
         $paymentprofilerequest->setMerchantAuthentication($this->authorize->merchant_authentication);
@@ -247,7 +248,7 @@ class AuthorizePaymentMethod
         // Create the controller and get the response
         $controller = new CreateCustomerPaymentProfileController($paymentprofilerequest);
         $response = $controller->executeWithApiResponse($this->authorize->mode());
-        
+
         if (($response != null) && ($response->getMessages()->getResultCode() == 'Ok')) {
             return $this->getPaymentProfile($gateway_customer_reference, $response->getCustomerPaymentProfileId());
         } else {
@@ -256,7 +257,7 @@ class AuthorizePaymentMethod
             $message = 'Unable to add customer to Authorize.net gateway';
 
             if (is_array($errorMessages)) {
-                $message = $errorMessages[0]->getCode().'  '.$errorMessages[0]->getText();
+                $message = $errorMessages[0]->getCode() . '  ' . $errorMessages[0]->getText();
             }
 
             throw new PaymentFailed($message, 500);
@@ -270,7 +271,7 @@ class AuthorizePaymentMethod
         $this->authorize->init();
 
         // Set the transaction's refId
-        $refId = 'ref'.time();
+        $refId = 'ref' . time();
 
         //request requires customerProfileId and customerPaymentProfileId
         $request = new GetCustomerPaymentProfileRequest();
@@ -290,7 +291,7 @@ class AuthorizePaymentMethod
             $message = 'Unable to add payment method to Authorize.net gateway';
 
             if (is_array($errorMessages)) {
-                $message = $errorMessages[0]->getCode().'  '.$errorMessages[0]->getText();
+                $message = $errorMessages[0]->getCode() . '  ' . $errorMessages[0]->getText();
             }
 
             throw new GenericPaymentDriverFailure($message);
@@ -306,7 +307,7 @@ class AuthorizePaymentMethod
         $this->authorize->init();
 
         // Set the transaction's refId
-        $refId = 'ref'.time();
+        $refId = 'ref' . time();
 
         // Use an existing payment profile ID for this Merchant name and Transaction key
 
@@ -322,7 +323,7 @@ class AuthorizePaymentMethod
         } else {
             nlog("ERROR :  Delete Customer Payment Profile: Invalid response\n");
             $errorMessages = $response->getMessages()->getMessage();
-            nlog('Response : '.$errorMessages[0]->getCode().'  '.$errorMessages[0]->getText()."\n");
+            nlog('Response : ' . $errorMessages[0]->getCode() . '  ' . $errorMessages[0]->getText() . "\n");
         }
 
         return $response;

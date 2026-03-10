@@ -20,6 +20,7 @@ namespace App\Models;
  * @method static \Illuminate\Database\Eloquent\Builder|DateFormat whereId($value)
  * @mixin \Eloquent
  */
+#[\AllowDynamicProperties]
 class DateFormat extends StaticModel
 {
     protected $fillable = ['translated_format'];

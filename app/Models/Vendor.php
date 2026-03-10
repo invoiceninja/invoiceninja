@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -168,15 +168,15 @@ class Vendor extends BaseModel
         $name = ctrans('texts.vendor') . " | " . $this->present()->name();
 
         if (strlen($this->vat_number ?? '') > 1) {
-            $name .= " | ". $this->vat_number;
+            $name .= " | " . $this->vat_number;
         }
 
         return [
-            'id' => $this->company->db.":".$this->id,
+            'id' => $this->company->db . ":" . $this->id,
             'name' => $name,
-            'is_deleted' => (bool)$this->is_deleted,
+            'is_deleted' => (bool) $this->is_deleted,
             'hashed_id' => $this->hashed_id,
-            'number' => (string)$this->number,
+            'number' => (string) $this->number,
             'id_number' => $this->id_number,
             'vat_number' => $this->vat_number,
             'phone' => $this->phone,
@@ -198,7 +198,7 @@ class Vendor extends BaseModel
 
     public function getScoutKey()
     {
-        return $this->company->db.":".$this->id;
+        return $this->company->db . ":" . $this->id;
     }
 
     protected $presenter = VendorPresenter::class;
@@ -258,8 +258,8 @@ class Vendor extends BaseModel
             }
 
             return $currencies->first(function ($item) {
-                    return $item->id == $this->currency_id;
-                });
+                return $item->id == $this->currency_id;
+            });
         });
     }
 

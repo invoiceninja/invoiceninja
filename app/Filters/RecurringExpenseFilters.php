@@ -5,13 +5,14 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Filters;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -145,14 +146,14 @@ class RecurringExpenseFilters extends QueryFilters
 
         if ($sort_col[0] == 'client_id' && in_array($sort_col[1], ['asc', 'desc'])) {
             return $this->builder
-                    ->orderByRaw('ISNULL(client_id), client_id '. $sort_col[1])
+                    ->orderByRaw('ISNULL(client_id), client_id ' . $sort_col[1])
                     ->orderBy(\App\Models\Client::select('name')
                     ->whereColumn('clients.id', 'recurring_expenses.client_id'), $sort_col[1]);
         }
 
         if ($sort_col[0] == 'vendor_id' && in_array($sort_col[1], ['asc', 'desc'])) {
             return $this->builder
-                    ->orderByRaw('ISNULL(vendor_id), vendor_id '. $sort_col[1])
+                    ->orderByRaw('ISNULL(vendor_id), vendor_id ' . $sort_col[1])
                     ->orderBy(\App\Models\Vendor::select('name')
                     ->whereColumn('vendors.id', 'recurring_expenses.vendor_id'), $sort_col[1]);
 
@@ -160,7 +161,7 @@ class RecurringExpenseFilters extends QueryFilters
 
         if ($sort_col[0] == 'category_id' && in_array($sort_col[1], ['asc', 'desc'])) {
             return $this->builder
-                    ->orderByRaw('ISNULL(category_id), category_id '. $sort_col[1])
+                    ->orderByRaw('ISNULL(category_id), category_id ' . $sort_col[1])
                     ->orderBy(\App\Models\ExpenseCategory::select('name')
                     ->whereColumn('expense_categories.id', 'recurring_expenses.category_id'), $sort_col[1]);
         }
@@ -174,6 +175,34 @@ class RecurringExpenseFilters extends QueryFilters
         }
 
         return $this->builder;
+    }
+
+    /**
+     * date_range
+     *
+     * only filters on date
+     * @param  string $date_range
+     * @return Builder
+     */
+    public function date_range(string $date_range = ''): Builder
+    {
+        $parts = explode(",", $date_range);
+
+        if (!isset($parts[1])) {
+            return $this->builder;
+        }
+
+        try {
+
+            $start_date = Carbon::parse($parts[0]);
+            $end_date = Carbon::parse($parts[1]);
+
+
+            return $this->builder->whereBetween('date', [$start_date, $end_date]);
+        } catch (\Exception $e) {
+            return $this->builder;
+        }
+
     }
 
     /**

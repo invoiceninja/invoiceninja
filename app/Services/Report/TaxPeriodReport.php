@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -180,22 +180,22 @@ class TaxPeriodReport extends BaseExport
                         ->whereIn('metadata->tax_report->tax_summary->status', ['cancelled', 'deleted']);
                 });
 
-                $ii->cursor()
-                ->each(function ($invoice) {
+        $ii->cursor()
+        ->each(function ($invoice) {
 
-                    // Iterate through each month between start_date and end_date
-                    // $current_date = Carbon::parse($this->start_date);
-                    // $end_date_carbon = Carbon::parse($this->end_date);
+            // Iterate through each month between start_date and end_date
+            // $current_date = Carbon::parse($this->start_date);
+            // $end_date_carbon = Carbon::parse($this->end_date);
 
-                    // while ($current_date->lte($end_date_carbon)) {
-                    //     $last_day_of_month = $current_date->copy()->endOfMonth()->format('Y-m-d');
-                    //     (new InvoiceTransactionEventEntry())->run($invoice, $last_day_of_month);
-                    //     $current_date->addMonth();
-                    // }
+            // while ($current_date->lte($end_date_carbon)) {
+            //     $last_day_of_month = $current_date->copy()->endOfMonth()->format('Y-m-d');
+            //     (new InvoiceTransactionEventEntry())->run($invoice, $last_day_of_month);
+            //     $current_date->addMonth();
+            // }
 
-                    (new InvoiceTransactionEventEntry())->run($invoice, $this->end_date);
+            (new InvoiceTransactionEventEntry())->run($invoice, $this->end_date);
 
-                });
+        });
 
         return $this;
     }
@@ -215,7 +215,7 @@ class TaxPeriodReport extends BaseExport
 
             $query->whereIn('status_id', [2,3,4,5,6])
                 ->whereHas('transaction_events', function ($query) {
-                    $query->where(function ($sub_q){
+                    $query->where(function ($sub_q) {
                         $sub_q->where('event_id', '!=', TransactionEvent::INVOICE_UPDATED)
                             ->orWhere('metadata->tax_report->tax_summary->status', 'reversed');
 
@@ -359,7 +359,7 @@ class TaxPeriodReport extends BaseExport
         $worksheet_title = $this->cash_accounting ? ctrans('texts.cash_accounting') : ctrans('texts.accrual_accounting');
 
         $worksheet = $this->spreadsheet->createSheet();
-        $worksheet->setTitle(substr(ctrans('texts.invoice')." ".$worksheet_title, 0, 30));
+        $worksheet->setTitle(substr(ctrans('texts.invoice') . " " . $worksheet_title, 0, 30));
         $worksheet->fromArray($this->data['invoices'], null, 'A1');
 
         $worksheet->getStyle('B:B')->getNumberFormat()->setFormatCode($this->company->date_format());
@@ -379,7 +379,7 @@ class TaxPeriodReport extends BaseExport
         $worksheet_title = $this->cash_accounting ? ctrans('texts.cash_accounting') : ctrans('texts.accrual_accounting');
 
         $worksheet = $this->spreadsheet->createSheet();
-        $worksheet->setTitle(substr(ctrans('texts.invoice_item')." ".$worksheet_title, 0, 30));
+        $worksheet->setTitle(substr(ctrans('texts.invoice_item') . " " . $worksheet_title, 0, 30));
         $worksheet->fromArray($this->data['invoice_items'], null, 'A1');
 
         $worksheet->getStyle('B:B')->getNumberFormat()->setFormatCode($this->company->date_format());
@@ -410,7 +410,7 @@ class TaxPeriodReport extends BaseExport
                 $query->where('event_id', TransactionEvent::INVOICE_UPDATED);
             })
             ->when($this->cash_accounting, function ($query) {
-                $query->where(function ($sub_q){
+                $query->where(function ($sub_q) {
                     $sub_q->where('event_id', '!=', TransactionEvent::INVOICE_UPDATED)
                         ->orWhere('metadata->tax_report->tax_summary->status', 'reversed');
 

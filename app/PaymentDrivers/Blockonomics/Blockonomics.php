@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -34,21 +34,13 @@ class Blockonomics implements LivewireMethodInterface
     use MakesHash;
     private string $test_txid = 'WarningThisIsAGeneratedTestPaymentAndNotARealBitcoinTransaction';
 
-    public function __construct(public BlockonomicsPaymentDriver $blockonomics)
-    {
-    }
+    public function __construct(public BlockonomicsPaymentDriver $blockonomics) {}
 
-    public function authorizeView($data)
-    {
-    }
+    public function authorizeView($data) {}
 
-    public function authorizeRequest($request)
-    {
-    }
+    public function authorizeRequest($request) {}
 
-    public function authorizeResponse($request)
-    {
-    }
+    public function authorizeResponse($request) {}
 
 
     public function getBTCAddress(): array
@@ -175,7 +167,7 @@ class Blockonomics implements LivewireMethodInterface
                 : $request->txid;
 
             // Determine payment status
-            $statusId = match($request->status) {
+            $statusId = match ($request->status) {
                 2 => Payment::STATUS_COMPLETED,
                 default => Payment::STATUS_PENDING
             };
@@ -235,7 +227,7 @@ class Blockonomics implements LivewireMethodInterface
 
             if (BcMath::greaterThan($remaining_amount, $invoice_amount)) {
                 // Full payment for this invoice - keep all original data
-                $adjusted_invoices[] = (object)[
+                $adjusted_invoices[] = (object) [
                     'invoice_id' => $invoice->invoice_id,
                     'amount' => $invoice_amount,
                     'formatted_amount' => number_format($invoice_amount, 2),
@@ -250,7 +242,7 @@ class Blockonomics implements LivewireMethodInterface
                 $remaining_amount -= $invoice_amount;
             } else {
                 // Partial payment for this invoice - adjust the amount
-                $adjusted_invoices[] = (object)[
+                $adjusted_invoices[] = (object) [
                     'invoice_id' => $invoice->invoice_id,
                     'amount' => round($remaining_amount, 2),
                     'formatted_amount' => number_format($remaining_amount, 2),

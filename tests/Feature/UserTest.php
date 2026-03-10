@@ -929,6 +929,7 @@ class UserTest extends TestCase
 
         // Perform the purge
         $user_repo = new UserRepository();
+        $owner_user->setCompany($company);
         $user_repo->purge($secondary_user, $owner_user);
 
         // Assert secondary user is deleted

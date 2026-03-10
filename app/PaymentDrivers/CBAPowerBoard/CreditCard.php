@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -271,9 +271,9 @@ class CreditCard implements LivewireMethodInterface
             "customer" => [
                 "payment_source" => [
                     "vault_token" => $cgt->token,
-                    "gateway_id" => $cgt->gateway_customer_reference
-                ]
-            ]
+                    "gateway_id" => $cgt->gateway_customer_reference,
+                ],
+            ],
         ];
 
         $r = $this->powerboard->gatewayRequest('/v1/charges', (\App\Enum\HttpVerb::POST)->value, $payload, []);
@@ -459,7 +459,7 @@ class CreditCard implements LivewireMethodInterface
 
             $error_message = "Unknown error";
 
-            match($error_object->error->code) {
+            match ($error_object->error->code) {
                 "UnfulfilledCondition" => $error_message = $error_object->error->details->messages[0] ?? $error_object->error->message ?? "Unknown error",
                 "GatewayError" => $error_message = $error_object->error->message,
                 "transaction_declined" => $error_message = $error_object->error->details[0]->status_code_description,

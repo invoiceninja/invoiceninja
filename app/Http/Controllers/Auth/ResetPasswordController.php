@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -84,15 +84,15 @@ class ResetPasswordController extends Controller
      */
     public function reset(Request $request)
     {
-         // Safely decode URL-encoded token and email before validation
-         if ($request->has('token')) {
+        // Safely decode URL-encoded token and email before validation
+        if ($request->has('token')) {
             $token = $request->input('token');
             // Only decode if it contains URL encoding characters
             if (strpos($token, '%') !== false) {
                 $request->merge(['token' => urldecode($token)]);
             }
         }
-        
+
         if ($request->has('email')) {
             $email = $request->input('email');
             // Only decode if it contains URL encoding characters
@@ -101,7 +101,7 @@ class ResetPasswordController extends Controller
             }
 
         }
-        
+
         $request->validate($this->rules(), $this->validationErrorMessages());
 
         // Here we will attempt to reset the user's password. If it is successful we
@@ -131,7 +131,7 @@ class ResetPasswordController extends Controller
         auth()->logout();
 
         if (request()->has('react') || request()->hasHeader('X-React')) {
-            return redirect(config('ninja.react_url').'/#/login');
+            return redirect(config('ninja.react_url') . '/#/login');
         }
 
         return redirect('/');
@@ -151,7 +151,7 @@ class ResetPasswordController extends Controller
         }
 
         if ($request->hasHeader('X-REACT') || $request->has('react')) {
-            return redirect(config('ninja.react_url').'/#/login');
+            return redirect(config('ninja.react_url') . '/#/login');
         } else {
             return redirect('/#/login');
         }

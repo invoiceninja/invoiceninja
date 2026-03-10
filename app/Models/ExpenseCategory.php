@@ -5,15 +5,16 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\DataMapper\ExpenseSync;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * App\Models\ExpenseCategory
@@ -30,6 +31,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $bank_category_id
  * @property-read \App\Models\Expense|null $expense
  * @property-read mixed $hashed_id
+ * @property \App\DataMapper\ExpenseSync|null $sync
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Database\Factories\ExpenseCategoryFactory factory($count = null, $state = [])
@@ -61,6 +63,13 @@ class ExpenseCategory extends BaseModel
     protected $fillable = [
         'name',
         'color',
+    ];
+
+    protected $casts = [
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
+        'sync' => ExpenseSync::class,
     ];
 
     public function getEntityType()

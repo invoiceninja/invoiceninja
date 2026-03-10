@@ -5,7 +5,7 @@
         currency_id:
           description: 'The default currency id'
           type: string
-          example: true
+          example: "1"
         timezone_id:
           description: 'The timezone id'
           type: string
@@ -29,7 +29,7 @@
         payment_terms:
           description: '-1 sets no payment term, 0 sets payment due immediately, positive integers indicates payment terms in days'
           type: integer
-          example: '1'
+          example: 1
         company_gateway_ids:
           description: 'A commad separate list of available gateways'
           type: string
@@ -54,7 +54,7 @@
           description: 'The default task rate'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         send_reminders:
           description: 'Toggles whether reminders are sent'
           type: boolean
@@ -138,11 +138,11 @@
         task_number_counter:
           description: 'The incrementing counter for tasks'
           type: integer
-          example: '1'
+          example: 1
         reminder_send_time:
           description: 'Time from UTC +0 when the email will be sent to the client'
           type: integer
-          example: '32400'
+          example: 32400
         expense_number_pattern:
           description: 'Allows customisation of the expense number pattern'
           type: string
@@ -150,7 +150,7 @@
         expense_number_counter:
           description: 'The incrementing counter for expenses'
           type: integer
-          example: '1'
+          example: 1
         vendor_number_pattern:
           description: 'Allows customisation of the vendor number pattern'
           type: string
@@ -158,7 +158,7 @@
         vendor_number_counter:
           description: 'The incrementing counter for vendors'
           type: integer
-          example: '1'
+          example: 1
         ticket_number_pattern:
           description: 'Allows customisation of the ticket number pattern'
           type: string
@@ -166,7 +166,7 @@
         ticket_number_counter:
           description: 'The incrementing counter for tickets'
           type: integer
-          example: '1'
+          example: 1
         payment_number_pattern:
           description: 'Allows customisation of the payment number pattern'
           type: string
@@ -174,7 +174,7 @@
         payment_number_counter:
           description: 'The incrementing counter for payments'
           type: integer
-          example: '1'
+          example: 1
         invoice_number_pattern:
           description: 'Allows customisation of the invoice number pattern'
           type: string
@@ -182,7 +182,7 @@
         invoice_number_counter:
           description: 'The incrementing counter for invoices'
           type: integer
-          example: '1'
+          example: 1
         quote_number_pattern:
           description: 'Allows customisation of the quote number pattern'
           type: string
@@ -190,7 +190,7 @@
         quote_number_counter:
           description: 'The incrementing counter for quotes'
           type: integer
-          example: '1'
+          example: 1
         client_number_pattern:
           description: 'Allows customisation of the client number pattern'
           type: string
@@ -198,7 +198,7 @@
         client_number_counter:
           description: 'The incrementing counter for clients'
           type: integer
-          example: '1'
+          example: 1
         credit_number_pattern:
           description: 'Allows customisation of the credit number pattern'
           type: string
@@ -206,7 +206,7 @@
         credit_number_counter:
           description: 'The incrementing counter for credits'
           type: integer
-          example: '1'
+          example: 1
         recurring_invoice_number_prefix:
           description: 'This string is prepended to the recurring invoice number'
           type: string
@@ -214,7 +214,7 @@
         reset_counter_frequency_id:
           description: 'CONSTANT which is used to apply the frequency which the counters are reset'
           type: integer
-          example: '1'
+          example: 1
         reset_counter_date:
           description: 'The explicit date which is used to reset counters'
           type: string
@@ -222,7 +222,7 @@
         counter_padding:
           description: 'Pads the counter with leading zeros'
           type: integer
-          example: '1'
+          example: 1
         shared_invoice_quote_counter:
           description: 'Flags whether to share the counter for invoices and quotes'
           type: boolean
@@ -250,7 +250,7 @@
         invoice_taxes:
           description: 'Taxes can be applied to the invoice'
           type: number
-          example: '1'
+          example: 1
         invoice_design_id:
           description: 'The default design id (invoice, quote etc)'
           type: string
@@ -270,7 +270,7 @@
         tax_rate1:
           description: 'The tax rate (float)'
           type: number
-          example: '10'
+          example: 10
         tax_name1:
           description: 'The tax name'
           type: string
@@ -278,7 +278,7 @@
         tax_rate2:
           description: 'The tax rate (float)'
           type: number
-          example: '10'
+          example: 10
         tax_name2:
           description: 'The tax name'
           type: string
@@ -286,7 +286,7 @@
         tax_rate3:
           description: 'The tax rate (float)'
           type: number
-          example: '10'
+          example: 10
         tax_name3:
           description: 'The tax name'
           type: string
@@ -394,11 +394,11 @@
         company_logo:
           description: 'The company logo file'
           type: object
-          example: logo.png
+          example: {}
         website:
           description: 'The company website URL'
           type: string
-          example: www.acme.com
+          example: "https://www.acme.com"
         address1:
           description: 'The company address line 1'
           type: string
@@ -442,7 +442,7 @@
         font_size:
           description: 'The font size'
           type: number
-          example: '9'
+          example: 9
         primary_font:
           description: 'The primary font'
           type: string
@@ -542,15 +542,15 @@
         num_days_reminder1:
           description: 'The Reminder interval'
           type: number
-          example: '9'
+          example: 9
         num_days_reminder2:
           description: 'The Reminder interval'
           type: number
-          example: '9'
+          example: 9
         num_days_reminder3:
           description: 'The Reminder interval'
           type: number
-          example: '9'
+          example: 9
         schedule_reminder1:
           description: '(enum: after_invoice_date, before_due_date, after_due_date)'
           type: string

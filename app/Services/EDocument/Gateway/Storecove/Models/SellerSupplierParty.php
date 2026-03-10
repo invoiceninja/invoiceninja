@@ -5,7 +5,7 @@ namespace App\Services\EDocument\Gateway\Storecove\Models;
 class SellerSupplierParty
 {
     public ?Party $party;
-    /** @var PublicIdentifiers[] */
+    /** @var PublicIdentifiers[]|null */
     public ?array $public_identifiers;
 
     /**

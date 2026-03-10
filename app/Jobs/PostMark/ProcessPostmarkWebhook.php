@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -62,7 +62,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
      */
     public function __construct(private array $request, private string $security_token)
     {
-        if(\App\Utils\Ninja::isHosted()){
+        if (\App\Utils\Ninja::isHosted()) {
             $this->onQueue('postmark');
         }
     }
@@ -449,7 +449,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
     {
 
         if ($exception) {
-            nlog("PROCESSPOSTMARKWEBHOOK:: ". $exception->getMessage());
+            nlog("PROCESSPOSTMARKWEBHOOK:: " . $exception->getMessage());
         }
 
         config(['queue.failed.driver' => null]);

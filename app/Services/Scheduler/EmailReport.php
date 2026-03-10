@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -49,29 +49,27 @@ class EmailReport
 
     private string $file_name = 'file.csv';
 
-    public function __construct(public Scheduler $scheduler)
-    {
-    }
+    public function __construct(public Scheduler $scheduler) {}
 
     public function run()
     {
 
         $start_end_dates = $this->calculateStartAndEndDates($this->scheduler->parameters, $this->scheduler->company);
         $data = $this->scheduler->parameters;
-        
-        if(!isset($data['user_id'])) {
+
+        if (!isset($data['user_id'])) {
             $data['user_id'] = $this->scheduler->user_id;
         }
 
         $data['start_date'] = $start_end_dates[0];
         $data['end_date'] = $start_end_dates[1];
-        $data['date_range'] = $data['date_range'] ?? 'all';
-        $data['report_keys'] = $data['report_keys'] ?? [];
-        $data['include_deleted'] = $data['include_deleted'] ?? false;
+        $data['date_range'] ??= 'all';
+        $data['report_keys'] ??= [];
+        $data['include_deleted'] ??= false;
 
         $export = false;
 
-        match($this->scheduler->parameters['report_name']) {
+        match ($this->scheduler->parameters['report_name']) {
             'product_sales' => $export = (new ProductSalesExport($this->scheduler->company, $data)),
             'ar_detailed' => $export = (new ARDetailReport($this->scheduler->company, $data)),
             'ar_summary' => $export = (new ARSummaryReport($this->scheduler->company, $data)),
@@ -140,7 +138,7 @@ class EmailReport
         try {
             (new NinjaMailerJob($nmo))->handle();
         } catch (\Throwable $th) {
-            nlog("EXCEPTION:: EmailReport:: could not email report for schdule {$this->scheduler->id} ". $th->getMessage());
+            nlog("EXCEPTION:: EmailReport:: could not email report for schdule {$this->scheduler->id} " . $th->getMessage());
         }
 
 

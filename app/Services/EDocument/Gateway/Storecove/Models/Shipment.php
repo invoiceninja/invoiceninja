@@ -6,7 +6,7 @@ class Shipment
 {
     public ?string $shipping_marks;
     public ?OriginAddress $origin_address;
-    /** @var AllowanceCharges[] */
+    /** @var AllowanceCharges[]|null */
     public ?array $allowance_charges;
 
     /**

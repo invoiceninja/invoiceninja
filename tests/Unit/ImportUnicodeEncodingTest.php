@@ -23,13 +23,10 @@ class ImportUnicodeEncodingTest extends TestCase
         // Use reflection to access private methods
         $reflection = new ReflectionClass($this->controller);
         $this->readFileMethod = $reflection->getMethod('readFileWithProperEncoding');
-        $this->readFileMethod->setAccessible(true);
 
         $this->isValidConversionMethod = $reflection->getMethod('isValidConversion');
-        $this->isValidConversionMethod->setAccessible(true);
 
         $this->removeBOMMethod = $reflection->getMethod('removeBOM');
-        $this->removeBOMMethod->setAccessible(true);
     }
 
     /**

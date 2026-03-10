@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -41,8 +41,8 @@ class FacturaEInvoice extends AbstractService
         'B2B_BUYER' => FacturaeCentre::ROLE_B2B_BUYER,
         'B2B_COLLECTOR' => FacturaeCentre::ROLE_B2B_COLLECTOR,
         'B2B_SELLER' => FacturaeCentre::ROLE_B2B_SELLER,
-        'B2B_PAYMENT_RECEIVER' => FacturaeCentre::ROLE_B2B_PAYMENT_RECEIVER ,
-        'B2B_COLLECTION_RECEIVER' => FacturaeCentre::ROLE_B2B_COLLECTION_RECEIVER ,
+        'B2B_PAYMENT_RECEIVER' => FacturaeCentre::ROLE_B2B_PAYMENT_RECEIVER,
+        'B2B_COLLECTION_RECEIVER' => FacturaeCentre::ROLE_B2B_COLLECTION_RECEIVER,
         'B2B_ISSUER' => FacturaeCentre::ROLE_B2B_ISSUER,
     ];
 
@@ -152,9 +152,7 @@ class FacturaEInvoice extends AbstractService
     */
 
 
-    public function __construct(public Invoice $invoice, private mixed $profile)
-    {
-    }
+    public function __construct(public Invoice $invoice, private mixed $profile) {}
 
     public function run()
     {
@@ -238,8 +236,8 @@ class FacturaEInvoice extends AbstractService
         }
 
         try {
-            if (\Carbon\Carbon::createFromFormat('Y-m-d', $this->invoice->custom_value3)->format('Y-m-d') === $this->invoice->custom_value3 &&
-            \Carbon\Carbon::createFromFormat('Y-m-d', $this->invoice->custom_value4)->format('Y-m-d') === $this->invoice->custom_value4
+            if (\Carbon\Carbon::createFromFormat('Y-m-d', $this->invoice->custom_value3)->format('Y-m-d') === $this->invoice->custom_value3
+            && \Carbon\Carbon::createFromFormat('Y-m-d', $this->invoice->custom_value4)->format('Y-m-d') === $this->invoice->custom_value4
             ) {
                 $this->fac->setBillingPeriod(\Carbon\Carbon::parse($this->invoice->custom_value3)->format('Y-m-d'), \Carbon\Carbon::parse($this->invoice->custom_value4)->format('Y-m-d'));
             }
@@ -265,11 +263,11 @@ class FacturaEInvoice extends AbstractService
 
 
                     $this->fac->addPayment(new FacturaePayment([
-                                        "method"  => FacturaePayment::TYPE_TRANSFER,
-                                        "dueDate" => $this->invoice->date,
-                                        "iban"    => $iban,
-                                        "bic"     => $bic
-                                    ]));
+                        "method"  => FacturaePayment::TYPE_TRANSFER,
+                        "dueDate" => $this->invoice->date,
+                        "iban"    => $iban,
+                        "bic"     => $bic,
+                    ]));
 
 
                     return $this;
@@ -568,7 +566,7 @@ class FacturaEInvoice extends AbstractService
             "phone"   => substr($this->invoice->client->present()->phone(), 0, 15),
             "fax"     => "",
             "website" => substr($this->invoice->client->present()->website(), 0, 60),
-            "contactPeople" => substr($this->invoice->client->present()->first_name()." ".$this->invoice->client->present()->last_name(), 0, 40),
+            "contactPeople" => substr($this->invoice->client->present()->first_name() . " " . $this->invoice->client->present()->last_name(), 0, 40),
             'centres' => $this->setFace(),
             // "cnoCnae" => "04791", // Clasif. Nacional de Act. Económicas
             // "ineTownCode" => "280796" // Cód. de municipio del INE

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -22,7 +22,6 @@ use App\Models\CreditInvitation;
 use App\Utils\Traits\MakesDates;
 use App\Models\InvoiceInvitation;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Cache;
 use App\Utils\Traits\DesignCalculator;
 use App\Models\PurchaseOrderInvitation;
 use App\Models\RecurringInvoiceInvitation;
@@ -118,7 +117,7 @@ class VendorHtmlEngine
         if (! $this->vendor->currency()) {
             throw new Exception(debug_backtrace()[1]['function'], 1);
         }
-        
+
         App::forgetInstance('translator');
         $t = app('translator');
         App::setLocale($this->vendor->locale());
@@ -143,7 +142,7 @@ class VendorHtmlEngine
 
         $data['$due_date'] = ['value' => $this->translateDate($this->entity->due_date, $this->company->date_format(), $this->vendor->locale()) ?: '&nbsp;', 'label' => ctrans('texts.due_date')];
 
-        $data['$partial_due_date'] = ['value' => $this->translateDate($this->entity->partial_due_date, $this->company->date_format(), $this->vendor->locale()) ?: '&nbsp;', 'label' => ctrans('texts.'.$this->entity_string.'_due_date')];
+        $data['$partial_due_date'] = ['value' => $this->translateDate($this->entity->partial_due_date, $this->company->date_format(), $this->vendor->locale()) ?: '&nbsp;', 'label' => ctrans('texts.' . $this->entity_string . '_due_date')];
 
         $data['$dueDate'] = &$data['$due_date'];
         $data['$purchase_order.due_date'] = &$data['$due_date'];
@@ -200,7 +199,7 @@ class VendorHtmlEngine
             $data['$balance_due_dec'] = ['value' => sprintf("%01.2f", $this->entity->partial), 'label' => ctrans('texts.partial_due')];
             $data['$balance_due_raw'] = ['value' => $this->entity->partial, 'label' => ctrans('texts.partial_due')];
             $data['$amount_raw'] = ['value' => $this->entity->partial, 'label' => ctrans('texts.partial_due')];
-            $data['$due_date'] = ['value' => $this->translateDate($this->entity->partial_due_date, $this->company->date_format(), $this->vendor->locale()) ?: '&nbsp;', 'label' => ctrans('texts.'.$this->entity_string.'_due_date')];
+            $data['$due_date'] = ['value' => $this->translateDate($this->entity->partial_due_date, $this->company->date_format(), $this->vendor->locale()) ?: '&nbsp;', 'label' => ctrans('texts.' . $this->entity_string . '_due_date')];
         } else {
             if ($this->entity->status_id == 1) {
                 $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->amount, $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
@@ -357,7 +356,7 @@ class VendorHtmlEngine
             $logo = $this->company->present()->logo_base64($this->settings);
         }
 
-        
+
         $data['$company.logo'] = ['value' => $logo ?: '&nbsp;', 'label' => ctrans('texts.logo')];
         $data['$company_logo'] = &$data['$company.logo'];
         $data['$company1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company1', $this->settings->custom_value1, $this->vendor) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company1')];
@@ -396,7 +395,7 @@ class VendorHtmlEngine
         $data['$product.product3'] = ['value' => '', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'product3')];
         $data['$product.product4'] = ['value' => '', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'product4')];
 
-        $signature_invite = $this->invitation->signature_base64 ? $this->invitation : $this->entity->invitations()->whereNotNull('signature_base64')->orderBy('updated_at','desc')->first();
+        $signature_invite = $this->invitation->signature_base64 ? $this->invitation : $this->entity->invitations()->whereNotNull('signature_base64')->orderBy('updated_at', 'desc')->first();
 
         if ($this->settings->signature_on_pdf) {
             $data['$contact.signature'] = ['value' => $signature_invite?->signature_base64 ?? '', 'label' => ctrans('texts.signature')];
@@ -457,6 +456,8 @@ class VendorHtmlEngine
         $data['$shipping'] = ['value' => '', 'label' => ctrans('texts.ship_to')];
         $data['$ship_to'] = &$data['$shipping'];
 
+        $data['$verifactu_qr_code'] = ['value' => '', 'label' => ''];
+
         if ($this->entity->client()->exists()) {
 
             // $locationData = $this->entity->client->locations()->first();
@@ -485,7 +486,7 @@ class VendorHtmlEngine
             $data['$client.shipping_country'] = ['value' => isset($this->entity->client->shipping_country->name) ? ctrans('texts.country_' . $this->entity->client->shipping_country->name) : '', 'label' => ctrans('texts.shipping_country')];
 
             $data['$show_shipping_address'] = ['value' => 'flex', 'label' => ''];
-            $data['$show_shipping_address_block'] = ['value' =>'block', 'label' => ''];
+            $data['$show_shipping_address_block'] = ['value' => 'block', 'label' => ''];
             $data['$show_shipping_address_visibility'] = ['value' => 1, 'label' => ''];
             // $data['$client.shipping_location_name'] = ['value' => $locationData['shipping_location_name'], 'label' => ctrans('texts.shipping_location_name')];
             // $data['$client.shipping_address'] = ['value' => $locationData['shipping_address'], 'label' => ctrans('texts.shipping_address')];
@@ -563,7 +564,7 @@ class VendorHtmlEngine
 
         foreach ($values as $key => $value) {
             $data['values'][$key] = $value['value'];
-            $data['labels'][$key.'_label'] = $value['label'];
+            $data['labels'][$key . '_label'] = $value['label'];
         }
 
         return $data;
@@ -578,7 +579,7 @@ class VendorHtmlEngine
         }
 
         foreach ($this->entity_calc->getTotalTaxMap() as $tax) {
-            $data .= '<span>'.$tax['name'].'</span>';
+            $data .= '<span>' . $tax['name'] . '</span>';
         }
 
         return $data;
@@ -593,7 +594,7 @@ class VendorHtmlEngine
         }
 
         foreach ($this->entity_calc->getTotalTaxMap() as $tax) {
-            $data .= '<span>'.Number::formatMoney($tax['total'], $this->vendor).'</span>';
+            $data .= '<span>' . Number::formatMoney($tax['total'], $this->vendor) . '</span>';
         }
 
         return $data;
@@ -606,7 +607,7 @@ class VendorHtmlEngine
         $data = '';
 
         foreach ($tax_map as $tax) {
-            $data .= '<span>'.$tax['name'].'</span>';
+            $data .= '<span>' . $tax['name'] . '</span>';
         }
 
         return $data;
@@ -634,7 +635,7 @@ class VendorHtmlEngine
         if ($country) {
             return $country->iso_3166_2;
         }
-        
+
         return '&nbsp;';
     }
     /**
@@ -795,7 +796,7 @@ html {
         $data = '';
 
         foreach ($tax_map as $tax) {
-            $data .= '<span>'.Number::formatMoney($tax['total'], $this->company).'</span>';
+            $data .= '<span>' . Number::formatMoney($tax['total'], $this->company) . '</span>';
         }
 
         return $data;
@@ -836,7 +837,7 @@ html {
 
             $image = $dom->createElement('img');
 
-            $image->setAttribute('src', "data:image/png;base64,".base64_encode($document->getFile()));
+            $image->setAttribute('src', "data:image/png;base64," . base64_encode($document->getFile()));
             $image->setAttribute('style', 'max-width: 50%; margin-top: 20px;');
 
             $container->appendChild($image);
@@ -862,7 +863,7 @@ html {
     private function buildViewButton(string $link, string $text): string
     {
         if ($this->settings->email_style == 'plain') {
-            return '<a href="'. $link .'" target="_blank">'. $text .'</a>';
+            return '<a href="' . $link . '" target="_blank">' . $text . '</a>';
         }
 
 
@@ -875,9 +876,9 @@ html {
         <![endif]-->        
         <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" >
         <tbody><tr>
-        <td align="center" class="new_button" style="border-radius: 2px; background-color: '.$this->settings->primary_color.'">
-            <a href="'. $link . '" target="_blank" class="new_button" style="text-decoration: none; border: 1px solid '.$this->settings->primary_color.'; display: inline-block; border-radius: 2px; padding-top: 15px; padding-bottom: 15px; padding-left: 25px; padding-right: 25px; font-size: 20px; color: #fff">
-            <singleline label="cta button">'. $text .'</singleline>
+        <td align="center" class="new_button" style="border-radius: 2px; background-color: ' . $this->settings->primary_color . '">
+            <a href="' . $link . '" target="_blank" class="new_button" style="text-decoration: none; border: 1px solid ' . $this->settings->primary_color . '; display: inline-block; border-radius: 2px; padding-top: 15px; padding-bottom: 15px; padding-left: 25px; padding-right: 25px; font-size: 20px; color: #fff">
+            <singleline label="cta button">' . $text . '</singleline>
             </a>
         </td>
         </tr>

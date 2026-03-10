@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -176,11 +176,11 @@ class ActivityController extends BaseController
         $activity->company->setLocale();
 
         if (isset($activity->invoice_id)) {
-            $filename = $activity->invoice->numberFormatter().'.pdf';
+            $filename = $activity->invoice->numberFormatter() . '.pdf';
         } elseif (isset($activity->quote_id)) {
-            $filename = $activity->quote->numberFormatter().'.pdf';
+            $filename = $activity->quote->numberFormatter() . '.pdf';
         } elseif (isset($activity->credit_id)) {
-            $filename = $activity->credit->numberFormatter().'.pdf';
+            $filename = $activity->credit->numberFormatter() . '.pdf';
         } else {
             $filename = 'backup.pdf';
         }
@@ -243,7 +243,7 @@ class ActivityController extends BaseController
             case RecurringInvoice::class:
                 $activity->recurring_invoice_id = $entity->id;
                 $activity->client_id = $entity->client_id;
-                                
+
                 $activity->save();
                 return $this->itemResponse($activity);
 
@@ -293,7 +293,7 @@ class ActivityController extends BaseController
                 $activity->payment_id = $entity->id;
                 $activity->client_id = $entity->client_id;
                 $activity->project_id = $entity->project_id;
-                
+
                 $activity->save();
                 return $this->itemResponse($activity);
 
@@ -307,6 +307,6 @@ class ActivityController extends BaseController
                 break;
         }
 
-        
+
     }
 }

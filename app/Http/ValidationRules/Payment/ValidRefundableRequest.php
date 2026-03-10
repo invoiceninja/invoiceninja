@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -62,6 +62,12 @@ class ValidRefundableRequest implements Rule
 
         foreach ($request_invoices as $request_invoice) {
             $this->checkInvoiceIsPaymentable($request_invoice, $payment);
+        }
+
+        // Validate total refund doesn't exceed maximum refundable amount
+        // Maximum = (payment.amount - payment.refunded) + sum of available credit refunds
+        if (! $this->checkTotalRefundableAmount($payment, $request_invoices)) {
+            return false;
         }
 
         if (strlen($this->error_msg) > 1) {
@@ -125,6 +131,55 @@ class ValidRefundableRequest implements Rule
 
             return false;
         }
+    }
+
+    /**
+     * Validate that the total refund amount doesn't exceed maximum refundable.
+     * Maximum refundable = (payment.amount - payment.refunded) + sum of available credit refunds
+     * 
+     * This prevents refunding more than what was actually paid (cash + credits).
+     *
+     * @param Payment $payment
+     * @param array $request_invoices
+     * @return bool
+     */
+    private function checkTotalRefundableAmount(Payment $payment, array $request_invoices): bool
+    {
+        // Calculate total refund amount requested
+        $total_refund_requested = 0;
+        
+        if (count($request_invoices) > 0) {
+            $total_refund_requested = collect($request_invoices)->sum('amount');
+        } elseif (array_key_exists('amount', $this->input)) {
+            $total_refund_requested = $this->input['amount'];
+        }
+
+        if ($total_refund_requested <= 0) {
+            return true; // No refund requested
+        }
+
+        // Calculate maximum refundable from cash portion
+        $max_cash_refund = $payment->amount - $payment->refunded;
+
+        // Calculate maximum refundable from credits
+        $max_credit_refund = 0;
+        if ($payment->credits()->exists()) {
+            foreach ($payment->credits as $credit) {
+                $max_credit_refund += ($credit->pivot->amount - $credit->pivot->refunded);
+            }
+        }
+
+        $max_total_refundable = $max_cash_refund + $max_credit_refund;
+
+        if ($total_refund_requested > $max_total_refundable) {
+            $this->error_msg = ctrans('texts.max_refundable_payment', [
+                'max_refundable' => $max_total_refundable
+            ]);
+
+            return false;
+        }
+
+        return true;
     }
 
     /**

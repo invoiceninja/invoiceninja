@@ -190,9 +190,9 @@ class RegisterOrLogin extends Component
     {
 
         $data = array_merge($data, [
-           'country_id' => $this->formData['country_id'] ?? null,
-           'shipping_country_id' => $this->formData['shipping_country_id'] ?? null,
-       ]);
+            'country_id' => $this->formData['country_id'] ?? null,
+            'shipping_country_id' => $this->formData['shipping_country_id'] ?? null,
+        ]);
 
         $service = new ClientRegisterService(
             company: $this->subscription()->company,
@@ -214,7 +214,7 @@ class RegisterOrLogin extends Component
     public function registerForm()
     {
         $count = collect($this->subscription()->company->client_registration_fields ?? [])
-            ->filter(fn ($field) => $field['required'] === true || $field['visible'] === true)
+            ->filter(fn($field) => $field['required'] === true || $field['visible'] === true)
             ->count();
 
         if ($count === 0) {
@@ -249,7 +249,7 @@ class RegisterOrLogin extends Component
                     return;
                 }
 
-                $i = collect($this->register_fields)->search(fn ($field) => $field['key'] == $mapping);
+                $i = collect($this->register_fields)->search(fn($field) => $field['key'] == $mapping);
 
                 if ($i !== false) {
                     $this->register_fields[$i]['visible'] = true;

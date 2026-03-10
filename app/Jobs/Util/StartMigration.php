@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -135,7 +135,7 @@ class StartMigration implements ShouldQueue
             App::forgetInstance('translator');
             $t = app('translator');
             $t->replace(Ninja::transformTranslations($this->company->settings));
-        } catch (ClientHostedMigrationException | NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing | \Exception $e) {
+        } catch (ClientHostedMigrationException|NonExistingMigrationFile|ProcessingMigrationArchiveFailed|ResourceNotAvailableForMigration|MigrationValidatorFailed|ResourceDependencyMissing|\Exception $e) {
             $this->company->update_products = $update_product_flag;
             $this->company->save();
 

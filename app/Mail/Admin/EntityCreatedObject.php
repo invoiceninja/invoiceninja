@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -79,24 +79,24 @@ class EntityCreatedObject
             $content = ctrans(
                 $this->template_body,
                 [
-                                        'amount' => $mail_obj->amount,
-                                        'vendor' => $this->entity->vendor->present()->name(),
-                                        'purchase_order' => $this->entity->number,
-                                    ]
+                    'amount' => $mail_obj->amount,
+                    'vendor' => $this->entity->vendor->present()->name(),
+                    'purchase_order' => $this->entity->number,
+                ]
             );
 
             $mail_obj->data = [
-                                'title' => $mail_obj->subject,
-                                'content' => $content,
-                                'url' => $this->entity->invitations()->first()->getAdminLink($this->use_react_link),
-                                'button' => ctrans("texts.view_{$this->entity_type}"),
-                                'signature' => $this->company->settings->email_signature,
-                                'logo' => $this->company->present()->logo(),
-                                'settings' => $this->company->settings,
-                                'whitelabel' => $this->company->account->isPaid() ? true : false,
-                                'text_body' => str_replace(['$view_button','$viewButton','$viewLink','$view_url'], '$view_url', $content),
-                                'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
-                ];
+                'title' => $mail_obj->subject,
+                'content' => $content,
+                'url' => $this->entity->invitations()->first()->getAdminLink($this->use_react_link),
+                'button' => ctrans("texts.view_{$this->entity_type}"),
+                'signature' => $this->company->settings->email_signature,
+                'logo' => $this->company->present()->logo(),
+                'settings' => $this->company->settings,
+                'whitelabel' => $this->company->account->isPaid() ? true : false,
+                'text_body' => str_replace(['$view_button','$viewButton','$viewLink','$view_url'], '$view_url', $content),
+                'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
+            ];
         } else {
             $this->entity->load('client.country', 'client.company');
             $this->client = $this->entity->client;

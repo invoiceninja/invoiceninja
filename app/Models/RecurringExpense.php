@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -337,9 +337,9 @@ class RecurringExpense extends BaseModel
     public function recurringDates()
     {
         /* Return early if nothing to send back! */
-        if ($this->status_id == RecurringInvoice::STATUS_COMPLETED ||
-            $this->remaining_cycles == 0 ||
-            ! $this->next_send_date) {
+        if ($this->status_id == RecurringInvoice::STATUS_COMPLETED
+            || $this->remaining_cycles == 0
+            || ! $this->next_send_date) {
             return [];
         }
 
