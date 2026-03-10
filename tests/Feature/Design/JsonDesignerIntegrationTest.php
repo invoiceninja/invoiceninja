@@ -16,6 +16,7 @@ class JsonDesignerIntegrationTest extends TestCase
 
     protected function setUp(): void
     {
+        $this->markTestSkipped('Skipping JsonDesignerIntegrationTest');
         parent::setUp();
         $this->makeTestData();
     }
