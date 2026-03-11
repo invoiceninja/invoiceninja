@@ -88,7 +88,6 @@ class ProcessMailgunWebhook implements ShouldQueue
      */
     public function handle()
     {
-        nlog($this->request);
 
         if (empty($this->request['event-data']['tags'][0])) { //@phpstan-ignore-line
             return;
@@ -101,6 +100,11 @@ class ProcessMailgunWebhook implements ShouldQueue
 
         if ($company && $this->request['event-data']['event'] == 'complained' && config('ninja.notification.slack')) {
             $company->notification(new EmailSpamNotification($company))->ninja();
+        }
+
+        /** Free accounts do not have email delivery meta data stored. */
+        if(Ninja::isHosted() && $company->account->isFreeHostedClient()) {
+          return;
         }
 
         $this->message_id = $this->request['event-data']['message']['headers']['message-id'];
