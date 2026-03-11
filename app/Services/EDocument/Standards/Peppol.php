@@ -164,7 +164,7 @@ class Peppol extends AbstractService
 
     private $globalTaxCategories;
 
-    private string $tax_category_id;
+    private string $tax_category_id = 'S';
 
     private array $errors = [];
 
@@ -1039,13 +1039,13 @@ class Peppol extends AbstractService
 
         $this->globalTaxCategories = [$taxCategory];
 
-        if ($this->tax_category_id == 'O' && isset($this->p_invoice->AccountingSupplierParty->Party->PartyTaxScheme)) {
-            unset($this->p_invoice->AccountingSupplierParty->Party->PartyTaxScheme);
-        }
+        // if ($this->tax_category_id == 'O' && isset($this->p_invoice->AccountingSupplierParty->Party->PartyTaxScheme)) {
+        //     unset($this->p_invoice->AccountingSupplierParty->Party->PartyTaxScheme);
+        // }
 
-        if ($this->tax_category_id == 'O' && isset($this->p_invoice->AccountingCustomerParty->Party->PartyTaxScheme)) {
-            unset($this->p_invoice->AccountingCustomerParty->Party->PartyTaxScheme);
-        }
+        // if ($this->tax_category_id == 'O' && isset($this->p_invoice->AccountingCustomerParty->Party->PartyTaxScheme)) {
+        //     unset($this->p_invoice->AccountingCustomerParty->Party->PartyTaxScheme);
+        // }
 
         if ($ctc) {
             $ctc->ID->value = $tax_type;
@@ -1455,6 +1455,7 @@ class Peppol extends AbstractService
         $party_name->Name = $this->invoice->company->present()->name();
         $party->PartyName[] = $party_name;
 
+
         if (strlen($this->company->settings->vat_number ?? '') > 1) {
 
             $pi = new PartyIdentification();
@@ -1464,9 +1465,10 @@ class Peppol extends AbstractService
 
             $pi->ID = $vatID;
             $party->PartyIdentification[] = $pi;
-            $pts = new \InvoiceNinja\EInvoice\Models\Peppol\PartyTaxSchemeType\PartyTaxScheme();
-
+            
             $companyID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CompanyID();
+
+            $pts = new \InvoiceNinja\EInvoice\Models\Peppol\PartyTaxSchemeType\PartyTaxScheme();
             $companyID->value = strlen($this->override_vat_number ?? '') > 1 ? $this->override_vat_number : preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->company->settings->vat_number); //todo if we are cross border - switch to the supplier local vat number
             $pts->CompanyID = $companyID;
 
@@ -1476,15 +1478,30 @@ class Peppol extends AbstractService
             $ts->ID = $id;
             $pts->TaxScheme = $ts;
 
-            //@todo if we have an exact GLN/routing number we should update this, otherwise Storecove will proxy and update on transit
             $id = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\EndpointID();
             $id->value = preg_replace("/[^a-zA-Z0-9]/", "", $this->company->settings->vat_number);
             $id->schemeID = $this->resolveScheme();
-
-            $party->EndpointID = $id;
+            $party->EndpointID = $id; 
             $party->PartyTaxScheme[] = $pts;
-
         }
+
+if (strlen($this->company->settings->vat_number ?? '') <= 1 && strlen($this->override_vat_number ?? '') <= 1) {
+
+    $id = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\EndpointID();    
+    $scheme_parts = explode(':', $this->company->settings->id_number ?? '');
+
+    if(count($scheme_parts) === 2) {
+        $id->schemeID = $scheme_parts[0];
+        $id->value = $scheme_parts[1];
+    }
+    else {
+        $id->schemeID = $this->resolveScheme();
+        $id->value = preg_replace("/[^a-zA-Z0-9]/", "", $this->company->settings->id_number ?? '');
+    }
+
+    $party->EndpointID = $id; 
+}
+
 
         $address = new Address();
         $address->CityName = $this->invoice->company->settings->city;
@@ -1506,15 +1523,30 @@ class Peppol extends AbstractService
         $address->Country = $country;
         $party->PostalAddress = $address;
 
+        /** we must have a valid contact name, a blank string does not work, so we need to fall back to the company name here as a safety fallback */
+        $contact_name = strlen($this->invoice->company->owner()->present()->name() ?? '') > 2 ? $this->invoice->company->owner()->present()->name() : $this->invoice->company->present()->name();
+
         $contact = new Contact();
         $contact->ElectronicMail = $this->gateway->mutator->getSetting('Invoice.AccountingSupplierParty.Party.Contact') ?? $this->invoice->company->owner()->present()->email();
         $contact->Telephone = $this->gateway->mutator->getSetting('Invoice.AccountingSupplierParty.Party.Telephone') ?? $this->invoice->company->getSetting('phone');
-        $contact->Name = $this->gateway->mutator->getSetting('Invoice.AccountingSupplierParty.Party.Name') ?? $this->invoice->company->owner()->present()->name();
+        $contact->Name = $this->gateway->mutator->getSetting('Invoice.AccountingSupplierParty.Party.Name') ?? $contact_name;
 
         $party->Contact = $contact;
 
         $ple = new \InvoiceNinja\EInvoice\Models\Peppol\PartyLegalEntity();
         $ple->RegistrationName = $this->invoice->company->present()->name();
+
+// if no vat number, we should inject the id_number as the company identifier!
+if (strlen($this->company->settings->vat_number ?? '') <= 1 
+    && strlen($this->override_vat_number ?? '') <= 1
+    && strlen($this->company->settings->id_number ?? '') > 1) 
+{ 
+    $companyID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CompanyID();
+    $companyID->value = preg_replace("/[^a-zA-Z0-9]/", "", $this->company->settings->id_number);
+    $ple->CompanyID = $companyID;
+}
+
+
         $party->PartyLegalEntity[] = $ple;
 
         $asp->Party = $party;
@@ -1545,22 +1577,23 @@ class Peppol extends AbstractService
 
             $party->PartyIdentification[] = $pi;
 
-
+            // Do Not Show The Customer VAT number if the tax category is not subject to VAT
+            if ($this->tax_category_id !== 'O') {
             //// If this is intracommunity supply, ensure that the country prefix is on the party tax scheme
-            $pts = new \InvoiceNinja\EInvoice\Models\Peppol\PartyTaxSchemeType\PartyTaxScheme();
-            $companyID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CompanyID();
-            $companyID->value = $this->ensureVatNumberPrefix($this->invoice->client->vat_number, $this->invoice->client->country->iso_3166_2);
-            $pts->CompanyID = $companyID;
-            //// If this is intracommunity supply, ensure that the country prefix is on the party tax scheme
+                $pts = new \InvoiceNinja\EInvoice\Models\Peppol\PartyTaxSchemeType\PartyTaxScheme();
+                $companyID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CompanyID();
+                $companyID->value = $this->ensureVatNumberPrefix($this->invoice->client->vat_number, $this->invoice->client->country->iso_3166_2);
+                $pts->CompanyID = $companyID;
+                //// If this is intracommunity supply, ensure that the country prefix is on the party tax scheme
 
-            $ts = new TaxScheme();
-            $id = new ID();
-            $id->value = $this->standardizeTaxSchemeId('vat');
-            $ts->ID = $id;
-            $pts->TaxScheme = $ts;
+                $ts = new TaxScheme();
+                $id = new ID();
+                $id->value = $this->standardizeTaxSchemeId('vat');
+                $ts->ID = $id;
+                $pts->TaxScheme = $ts;
 
-            $party->PartyTaxScheme[] = $pts;
-
+                $party->PartyTaxScheme[] = $pts;
+            }
         }
 
         $party_name = new PartyName();
@@ -2054,9 +2087,9 @@ class Peppol extends AbstractService
     private function resolveScheme(bool $is_client = false): string
     {
 
-        $vat_number = $is_client ? preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->client->vat_number ?? '') : preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->company->settings->vat_number ?? '');
-        $tax_number = $is_client ? preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->client->id_number ?? '') : preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->company->settings->id_number ?? '');
-        $country_code = $is_client ? $this->invoice->client->country->iso_3166_2 : $this->invoice->company->country()->iso_3166_2;
+        // $vat_number = $is_client ? preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->client->vat_number ?? '') : preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->company->settings->vat_number ?? '');
+        // $tax_number = $is_client ? preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->client->id_number ?? '') : preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->company->settings->id_number ?? '');
+        // $country_code = $is_client ? $this->invoice->client->country->iso_3166_2 : $this->invoice->company->country()->iso_3166_2;
 
         return '0037';
     }

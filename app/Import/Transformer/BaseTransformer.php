@@ -51,7 +51,12 @@ class BaseTransformer
     public function parseDate($date)
     {
         if (stripos($date, "/") !== false && $this->company->settings->country_id != 840) {
-            $date = str_replace('/', '-', $date);
+            try {
+                $parsed_date = Carbon::createFromFormat('d/m/Y', $date);
+                return $parsed_date->format('Y-m-d');
+            } catch (\Exception $e) {
+                // Fall through to general parsing
+            }
         }
 
         try {
