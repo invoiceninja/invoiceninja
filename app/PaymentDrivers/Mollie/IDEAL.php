@@ -250,8 +250,6 @@ class IDEAL implements MethodInterface, LivewireMethodInterface
      */
     public function processUnsuccessfulPayment(\Exception $exception): \Illuminate\Http\Response
     {
-        $this->mollie->sendFailureMail($exception->getMessage());
-
         SystemLogger::dispatch(
             $exception->getMessage(),
             SystemLog::CATEGORY_GATEWAY_RESPONSE,

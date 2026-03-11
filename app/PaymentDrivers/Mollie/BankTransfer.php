@@ -177,8 +177,6 @@ class BankTransfer implements MethodInterface, LivewireMethodInterface
      */
     public function processUnsuccessfulPayment(Exception $e): \Illuminate\Http\Response
     {
-        $this->mollie->sendFailureMail($e->getMessage());
-
         SystemLogger::dispatch(
             $e->getMessage(),
             SystemLog::CATEGORY_GATEWAY_RESPONSE,

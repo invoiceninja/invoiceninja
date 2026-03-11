@@ -230,8 +230,6 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
      */
     public function processUnsuccessfulPayment(\Throwable $e): \Illuminate\Http\Response
     {
-        $this->mollie->sendFailureMail($e->getMessage());
-
         SystemLogger::dispatch(
             $e->getMessage(),
             SystemLog::CATEGORY_GATEWAY_RESPONSE,

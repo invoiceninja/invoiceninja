@@ -350,9 +350,6 @@ class MolliePaymentDriver extends BaseDriver
         $this->init();
         try {
             $molliePayment = $this->gateway->payments->get($request->id);
-            if (!$molliePayment) {
-                throw new \Exception('Mollie payment not found in the webhook request');
-            }
 
             $payment = Payment::withTrashed()->where('transaction_reference', $request->id)->first();
 
@@ -402,11 +399,22 @@ class MolliePaymentDriver extends BaseDriver
                 if ($molliePayment->metadata?->hash) {
                     $payment_hash = PaymentHash::where('hash', $molliePayment->metadata->hash)->firstOrFail();
                     $this->handlePendingGatewayFeeRemoval($payment_hash);
+                    $this->payment_hash = $payment_hash; // Used by sendFailureMail()
                 }
-
+                if (!in_array($payment->status_id, [Payment::STATUS_CANCELLED, Payment::STATUS_FAILED])) {
+                    // Payment was moved from other status into CANCELLED or FAILED
+                    $this->sendFailureMail($molliePayment->details?->failureMessage ?? "There was a problem processing your payment.");
+                }
                 // Sets payment status to cancelled synchronously and handles other consequences
                 $payment->service()->deletePayment(false);
             }
+            if ($payment->status_id !== Payment::STATUS_COMPLETED && $status === Payment::STATUS_COMPLETED){
+                // Payment was moved from other status into COMPLETED status
+                if ($this->client->getSetting('client_online_payment_notification')) {
+                    $payment->service()->sendEmail();
+                }
+            }
+
             $payment->status_id = $status; // Set or overwrite payment status to the mollie status
             $payment->date = $molliePayment->paidAt ?: null;
 
@@ -427,7 +435,7 @@ class MolliePaymentDriver extends BaseDriver
 
             // Add description to private notes if not already present
             $private_notes = "description: " . $molliePayment->description;
-            if (!str_contains($payment->private_notes, $private_notes)) {
+            if (!str_contains($payment->private_notes ?? "", $private_notes)) {
                 $payment->private_notes .= $private_notes;
             }
 
@@ -449,7 +457,7 @@ class MolliePaymentDriver extends BaseDriver
         } catch (\Exception $e) {
             $ctx = [
                 'request' => $request->toArray(),
-                'exception' => $e
+                'exception' => $e->getMessage()
             ];
             nlog("Mollie webhook call failed", $ctx);
             SystemLogger::dispatch($ctx,
