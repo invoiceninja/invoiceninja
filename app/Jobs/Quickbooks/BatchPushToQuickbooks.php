@@ -188,7 +188,8 @@ class BatchPushToQuickbooks implements ShouldQueue
                 $this->processEntity($qbService, $entity);
 
                 $entity->refresh();
-                $this->logActivitySuccess($entity);
+                // Note: Success activities are not logged for batch operations to avoid spamming the activities table.
+                // Only failures are logged as they require user attention.
 
                 $rateLimiter->trackRequest();
                 $successCount++;
@@ -352,37 +353,6 @@ class BatchPushToQuickbooks implements ShouldQueue
         $cleaned = str_replace('Request is not made successful. ', '', $rawMessage);
 
         return mb_substr($cleaned, 0, 500);
-    }
-
-    /**
-     * Log a QuickBooks push success as an Activity record visible to the user.
-     */
-    private function logActivitySuccess($entity): void
-    {
-        try {
-            $qb_id = $entity->sync->qb_id ?? null;
-            $number = $entity->number ?? ($entity->present()->name() ?? $entity->id);
-            $notes = "{$this->entity_type} #{$number} synced to QuickBooks (QB ID: {$qb_id})";
-
-            $activity = new Activity();
-            $activity->user_id = $entity->user_id ?? null;
-            $activity->company_id = $entity->company_id;
-            $activity->account_id = $entity->company->account_id;
-            $activity->activity_type_id = Activity::QUICKBOOKS_PUSH_SUCCESS;
-            $activity->is_system = true;
-            $activity->notes = $notes;
-
-            match ($this->entity_type) {
-                'client' => $activity->client_id = $entity->id,
-                'invoice' => $activity->invoice_id = $entity->id,
-                'payment' => $activity->payment_id = $entity->id,
-                default => null,
-            };
-
-            $activity->save();
-        } catch (\Throwable $e) {
-            nlog("QB Batch: Failed to log success activity for {$this->entity_type} {$entity->id}: " . $e->getMessage());
-        }
     }
 
     /**

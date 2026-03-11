@@ -96,6 +96,7 @@ class ProductTransformer extends EntityTransformer
             'max_quantity' => (int) $product->max_quantity,
             'product_image' => (string) $product->product_image ?: '',
             'tax_id' => (string) $product->tax_id ?: '1',
+            'income_account_id' => (string) $product->income_account_id ?: '',
         ];
     }
 }

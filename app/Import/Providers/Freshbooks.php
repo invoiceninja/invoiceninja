@@ -67,6 +67,8 @@ class Freshbooks extends BaseImport
 
         $this->transformer = new ClientTransformer($this->company);
 
+        $data = $this->groupClients($data, 'Organization');
+
         $client_count = $this->ingest($data, $entity_type);
 
         $this->entity_count['clients'] = $client_count;

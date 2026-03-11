@@ -31,7 +31,6 @@ use Illuminate\Queue\SerializesModels;
 use Postmark\Models\PostmarkException;
 use Turbo124\Beacon\Facades\LightLogs;
 use Illuminate\Queue\InteractsWithQueue;
-use GuzzleHttp\Exception\ClientException;
 use App\DataMapper\Analytics\EmailFailure;
 use App\DataMapper\Analytics\EmailSuccess;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -383,7 +382,7 @@ class NinjaMailerJob implements ShouldQueue
 
             } catch (\Throwable $e) {
 
-                nlog("problem switching outlook driver - hosted ".  $email ?? '');
+                nlog("problem switching outlook driver - hosted {$email}");
                 nlog($e->getMessage());
             }
         }

@@ -49,6 +49,7 @@ namespace App\Models;
  * @method static \Illuminate\Database\Eloquent\Builder|Gateway whereVisible($value)
  * @mixin \Eloquent
  */
+#[\AllowDynamicProperties]
 class Gateway extends StaticModel
 {
     protected $casts = [

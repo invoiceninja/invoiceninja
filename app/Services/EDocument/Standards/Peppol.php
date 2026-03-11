@@ -882,8 +882,16 @@ class Peppol extends AbstractService
         $tea = new TaxExclusiveAmount();
         $tea->currencyID = $this->invoice->client->currency()->code;
 
-        // $tea->amount = round($amount - $totalTaxes, 2);
-        $tea->amount = $this->invoice->uses_inclusive_taxes ? (string) round($amount - $totalTaxes, 2) : (string) $subtotal;
+        /**
+         * 2026-03-03 - The tax exclusive amount is the amount of the invoice before taxes.
+         * Very important to understand the logic here and not change this without undertsanding
+         * the implications.
+         */
+        $totalDiscount = $this->normalizeAmount($this->calc->getTotalDiscount());
+        $totalSurcharges = $this->normalizeAmount($this->calc->getTotalSurcharges());
+        $tea->amount = $this->invoice->uses_inclusive_taxes
+            ? (string) round($amount - $totalTaxes, 2)
+            : (string) round($subtotal - $totalDiscount + $totalSurcharges, 2);
         $lmt->TaxExclusiveAmount = $tea;
 
         $tia = new TaxInclusiveAmount();

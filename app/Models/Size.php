@@ -26,6 +26,7 @@ namespace App\Models;
  * @method static \Illuminate\Database\Eloquent\Builder|Size whereName($value)
  * @mixin \Eloquent
  */
+#[\AllowDynamicProperties]
 class Size extends StaticModel
 {
     /**

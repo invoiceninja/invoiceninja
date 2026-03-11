@@ -342,6 +342,7 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::post('quickbooks/sync', [QuickbooksController::class, 'sync'])->name('quickbooks.sync');
     Route::post('quickbooks/settings', [QuickbooksController::class, 'settings'])->name('quickbooks.settings');
     Route::post('quickbooks/disconnect', [QuickbooksController::class, 'disconnect'])->name('quickbooks.disconnect');
+    Route::post('quickbooks/reconnect_url', [QuickbooksController::class, 'reconnectUrl'])->name('quickbooks.reconnect_url');
 
     Route::resource('recurring_expenses', RecurringExpenseController::class);
     Route::post('recurring_expenses/bulk', [RecurringExpenseController::class, 'bulk'])->name('recurring_expenses.bulk');
@@ -516,6 +517,7 @@ Route::get('api/v1/protected_download/{hash}', [ProtectedDownloadController::cla
 Route::post('api/v1/ppcp/webhook', [PayPalPPCPPaymentDriver::class, 'processWebhookRequest'])->middleware('throttle:1000,1');
 
 Route::get('quickbooks/authorize/{token}', [ImportQuickbooksController::class, 'authorizeQuickbooks'])->name('quickbooks.authorize');
+Route::get('quickbooks/reconnect/{token}', [ImportQuickbooksController::class, 'reconnect'])->name('quickbooks.reconnect');
 Route::get('quickbooks/authorized', [ImportQuickbooksController::class, 'onAuthorized'])->name('quickbooks.authorized');
 
 Route::fallback([BaseController::class, 'notFound'])->middleware('throttle:404');

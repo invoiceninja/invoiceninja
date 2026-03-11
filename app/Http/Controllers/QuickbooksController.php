@@ -12,6 +12,9 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use App\Services\Quickbooks\QuickbooksService;
 use App\Services\Quickbooks\Jobs\QuickbooksImport;
 use App\Http\Requests\Quickbooks\SyncTaxRatesRequest;
@@ -96,5 +99,39 @@ class QuickbooksController extends BaseController
         }
         
         return response()->noContent();
+    }
+
+    /**
+     * reconnectUrl
+     *
+     * Returns the URL for the user to reconnect their QuickBooks account.
+     *
+     * @param  Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function reconnectUrl(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        $company = $user->company();
+
+        if (!$company->quickbooks || !$company->quickbooks->isConfigured()) {
+            return response()->json(['error' => 'No QuickBooks connection exists'], 400);
+        }
+
+        // Generate a one-time token for the reconnect flow
+        $token = Str::random(64);
+        
+        Cache::put($token, [
+            'context' => 'quickbooks.reconnect',
+            'company_key' => $company->company_key,
+            'user_id' => $user->id,
+        ], now()->addMinutes(30));
+
+        return response()->json([
+            'reconnect_url' => route('quickbooks.reconnect', ['token' => $token]),
+            'requires_reconnect' => $company->quickbooks->requires_reconnect,
+            'refresh_token_expires_at' => $company->quickbooks->refreshTokenExpiresAt,
+        ]);
     }
 }

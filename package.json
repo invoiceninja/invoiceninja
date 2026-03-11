@@ -25,7 +25,7 @@
     },
     "dependencies": {
         "@apidevtools/swagger-parser": "^10.1.1",
-        "@docuninja/builder2.0": "^0.0.85",
+        "@docuninja/builder2.0": "^0.0.86",
         "axios": "^0.25",
         "card-js": "^1.0.13",
         "card-validator": "^8.1.1",

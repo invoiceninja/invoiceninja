@@ -58,6 +58,7 @@ namespace App\Models;
  * @method static \Illuminate\Database\Eloquent\Builder|Country whereThousandSeparator($value)
  * @mixin \Eloquent
  */
+#[\AllowDynamicProperties]
 class Country extends StaticModel
 {
     public $timestamps = false;

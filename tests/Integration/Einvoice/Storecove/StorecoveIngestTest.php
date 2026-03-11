@@ -297,7 +297,7 @@ class StorecoveIngestTest extends TestCase
         }
 
         $currency = app('currencies')->first(function ($c) use ($storecove_invoice) {
-            return $storecove_invoice->getDocumentCurrencyCode() == strtoupper($c->iso_3166_3);
+            return $storecove_invoice->getDocumentCurrencyCode() == strtoupper($c->iso_3166_3 ?? '');
         })->id ?? 1;
 
         //vendor

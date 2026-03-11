@@ -15,6 +15,7 @@ namespace App\Utils;
 use App\Models\Client;
 use App\Utils\Traits\MakesDates;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
 use stdClass;
 
@@ -405,5 +406,27 @@ class Helpers
         return $font
             ? ['name' => str_replace('_', ' ', $font), 'url' => sprintf('https://fonts.googleapis.com/css2?family=%s&display=swap', str_replace('_', '+', $font))]
             : ['name' => 'Arial', 'url' => ''];
+    }
+
+    /**
+     * Ensure a value is an array. If it is a JsonResponse, decode and return its data.
+     * Use when code may receive either an array or a JsonResponse (e.g. from a controller).
+     *
+     * @param mixed $value
+     * @return array
+     */
+    public static function responseToArray(mixed $value): array
+    {
+        if ($value instanceof JsonResponse) {
+            $decoded = $value->getData(true);
+
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        if (is_array($value)) {
+            return $value;
+        }
+
+        return [];
     }
 }

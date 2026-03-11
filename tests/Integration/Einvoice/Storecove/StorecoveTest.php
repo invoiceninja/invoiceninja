@@ -18,7 +18,6 @@ use App\Models\Company;
 use App\Models\Country;
 use App\Models\Invoice;
 use Tests\MockAccountData;
-use Illuminate\Support\Str;
 use App\Models\ClientContact;
 use App\DataMapper\InvoiceItem;
 use App\DataMapper\Tax\TaxModel;
@@ -27,7 +26,6 @@ use App\DataMapper\CompanySettings;
 use App\Services\EDocument\Standards\Peppol;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
-use InvoiceNinja\EInvoice\Models\Peppol\PaymentMeans;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -35,16 +33,12 @@ use Symfony\Component\PropertyInfo\PropertyInfoExtractor;
 use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Mapping\Loader\AttributeLoader;
-use InvoiceNinja\EInvoice\Models\Peppol\Invoice as PeppolInvoice;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
-use App\Services\EDocument\Gateway\Storecove\PeppolToStorecoveNormalizer;
 use Symfony\Component\Serializer\NameConverter\MetadataAwareNameConverter;
-use App\Services\EDocument\Gateway\Storecove\Models\Invoice as StorecoveInvoice;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 
@@ -574,7 +568,7 @@ class StorecoveTest extends TestCase
 
         $p = new Peppol($invoice);
         $p->run();
-        $peppolInvoice = $p->getInvoice();
+        $peppolInvoice = $p->getDocument();
 
         $this->assertNotNull($peppolInvoice);
     }

@@ -126,7 +126,7 @@ class QuoteController extends Controller
                 }
             }
 
-            return $this->approve((array) $transformed_ids, $request->has('process'));
+            return $this->approve((array) $transformed_ids, $request->has('process') || $request->has('request_hash'));
         }
 
         if ($request->action == 'reject') {

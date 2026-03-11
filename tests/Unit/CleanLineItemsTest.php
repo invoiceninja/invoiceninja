@@ -331,7 +331,6 @@ class CleanLineItemsTest extends TestCase
         ];
 
         $reflection = new \ReflectionMethod($this, 'entityTotalAmount');
-        $reflection->setAccessible(true);
         $total = $reflection->invoke($this, $items);
 
         $this->assertEquals(120, $total);

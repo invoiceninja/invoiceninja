@@ -36,10 +36,18 @@ class TaskTransformer extends BaseTransformer
             $task_data = reset($task_items_data);
         }
 
-        $clientId = $this->getClient(
-            $this->getString($task_data, 'client.name'),
-            $this->getString($task_data, 'client.email')
+        $client_name = $this->getString($task_data, 'client.name');
+        $client_email = $this->getString($task_data, 'client.email');
+
+        $clientId = (empty($client_name) && empty($client_email)) ? null : $this->getClient(
+            $client_name,
+            $client_email
         );
+
+        // $clientId = $this->getClient(
+        //     $client_name,
+        //     $client_email
+        // );
 
         $projectId = $task_data['project.name'] ?? '';
 

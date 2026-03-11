@@ -1276,8 +1276,7 @@ class SchedulerTest extends TestCase
         $service_object = new EmailStatementService($scheduler);
 
         $reflectionMethod = new \ReflectionMethod(EmailStatementService::class, 'calculateStartAndEndDates');
-        $reflectionMethod->setAccessible(true);
-        $method = $reflectionMethod->invoke(new EmailStatementService($scheduler), $this->client);
+        $method = $reflectionMethod->invoke($service_object, $this->client);
 
         $this->assertIsArray($method);
 
@@ -1310,8 +1309,7 @@ class SchedulerTest extends TestCase
         $service_object = new EmailStatementService($scheduler);
 
         $reflectionMethod = new \ReflectionMethod(EmailStatementService::class, 'calculateStatementProperties');
-        $reflectionMethod->setAccessible(true);
-        $method = $reflectionMethod->invoke(new EmailStatementService($scheduler), $this->client);
+        $method = $reflectionMethod->invoke($service_object, $this->client);
 
         $this->assertIsArray($method);
 
@@ -1493,6 +1491,92 @@ class SchedulerTest extends TestCase
     }
 
 
+
+    public function testInvoiceWithNoExistingScheduleAllowsCreation()
+    {
+        $invoice = Invoice::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'amount' => 100.00,
+            'balance' => 100.00,
+            'status_id' => Invoice::STATUS_SENT,
+        ]);
+
+        $data = [
+            'name' => 'Test no existing schedule',
+            'frequency_id' => 0,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'payment_schedule',
+            'parameters' => [
+                'invoice_id' => $invoice->hashed_id,
+                'auto_bill' => false,
+                'schedule' => [
+                    [
+                        'id' => 1,
+                        'date' => now()->format('Y-m-d'),
+                        'amount' => 100,
+                        'is_amount' => true,
+                    ],
+                ],
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $data);
+
+        $response->assertStatus(200);
+    }
+
+    public function testInvoiceWithExistingScheduleBlocksCreation()
+    {
+        $invoice = Invoice::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'amount' => 100.00,
+            'balance' => 100.00,
+            'status_id' => Invoice::STATUS_SENT,
+        ]);
+
+        $data = [
+            'name' => 'First schedule',
+            'frequency_id' => 0,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'payment_schedule',
+            'parameters' => [
+                'invoice_id' => $invoice->hashed_id,
+                'auto_bill' => false,
+                'schedule' => [
+                    [
+                        'id' => 1,
+                        'date' => now()->format('Y-m-d'),
+                        'amount' => 100,
+                        'is_amount' => true,
+                    ],
+                ],
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $data);
+
+        $response->assertStatus(200);
+
+        // Attempt to create a second schedule for the same invoice - should fail
+        $data['name'] = 'Second schedule';
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $data);
+
+        $response->assertStatus(422);
+    }
 
     // public function testSchedulerCantBeCreatedWithWrongData()
     // {

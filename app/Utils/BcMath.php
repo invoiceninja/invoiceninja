@@ -40,8 +40,8 @@ class BcMath
             return '0';
         }
         elseif (is_float($number)) {
-            return sprintf('%.14F', $number);
-        } 
+            return rtrim(rtrim(number_format($number, 10, '.', ''), '0'), '.');
+        }
         
         return (string) $number;
     }

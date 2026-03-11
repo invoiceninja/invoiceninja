@@ -29,10 +29,14 @@ class SetInviteDb
      */
     public function handle($request, Closure $next)
     {
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+    
         $error = [
             'message' => 'I could not find the database for this object.',
             'errors' => new stdClass(),
         ];
+        
         /*
          * Use the host name to set the active DB
          **/

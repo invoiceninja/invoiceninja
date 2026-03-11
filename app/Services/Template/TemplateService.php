@@ -16,7 +16,6 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Design;
-use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
@@ -26,7 +25,6 @@ use App\Models\RecurringInvoice;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\Vendor;
-use App\Services\Pdf\Purify;
 use App\Services\Template\TemplateMock;
 use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
@@ -612,6 +610,17 @@ class TemplateService
                         })->toArray();
                     }
 
+                    $invoice_period = '';
+
+                    if($period = data_get($invoice, 'e_invoice.Invoice.InvoicePeriod.0', false)) {
+                        try{
+                            $invoice_period = $this->translateDate($period->StartDate, $invoice->client->date_format(), $invoice->client->locale()) . ' - ' . $this->translateDate($period->EndDate, $invoice->client->date_format(), $invoice->client->locale());
+                        }
+                        catch(\Throwable $e) {
+                            nlog("Error getting invoice period: {$e->getMessage()}");
+                        }
+                    }
+                    
                     return [
                         'amount' => Number::formatMoney($invoice->amount, $invoice->client),
                         'balance' => Number::formatMoney($invoice->balance, $invoice->client),
@@ -667,6 +676,8 @@ class TemplateService
                         'total_tax_map' => $invoice->calc()->getTotalTaxMap(),
                         'line_tax_map' => $invoice->calc()->getTaxMap()->toArray(),
                         'project' => $invoice->project ? $this->transformProject($invoice->project, true) : [],
+                        'actual_delivery_date' => $this->translateDate(data_get($invoice, 'e_invoice.Invoice.Delivery.0.ActualDeliveryDate', $invoice->date), $invoice->client->date_format(), $invoice->client->locale()),
+                        'invoice_period' => $invoice_period,
                     ];
 
                 });

@@ -188,7 +188,7 @@ class DeletePaymentV2
                 } elseif (!$paymentable_invoice->is_deleted) {
                     $paymentable_invoice->restore();
 
-                    $paymentable_invoice->service()
+                    $paymentable_invoice = $paymentable_invoice->service()
                                         ->updateBalance($net_deletable)
                                         ->updatePaidToDate(BcMath::mul($net_deletable, -1, 2))
                                         ->save();

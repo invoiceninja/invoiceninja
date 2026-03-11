@@ -12,7 +12,6 @@
 
 namespace App\Import\Transformer\Invoice2Go;
 
-use App\DataMapper\InvoiceItem;
 use App\Import\ImportException;
 use App\Import\Transformer\BaseTransformer;
 use App\Models\Invoice;
@@ -53,7 +52,7 @@ class InvoiceTransformer extends BaseTransformer
             'discount' => $this->getFloat($invoice_data, 'Discount'),
             'company_id'  => $this->company->id,
             'number'      => $this->getString($invoice_data, 'DocumentNumber'),
-            'notes'       => $this->getString($invoice_data, 'Comment'),
+            'public_notes'       => $this->getString($invoice_data, 'Comment'),
             'date'        => isset($invoice_data['DocumentDate']) ? $this->parseDate($invoice_data['DocumentDate']) : null,
             // 'currency_id' => $this->getCurrencyByCode( $invoice_data, 'Currency' ),
             'amount'      => $this->getFloat($invoice_data, 'TotalAmount'),
@@ -242,6 +241,38 @@ class InvoiceTransformer extends BaseTransformer
     }
 
 
+    /**
+     * Parse a nested tax field from Invoice2Go CSV.
+     *
+     * The tax column arrives as an array after placeholder replacement,
+     * containing a semicolon-separated string like "rate,name;10,GST".
+     * This converts it into an associative array: ['rate' => '10', 'name' => 'GST'].
+     *
+     * @param array $field
+     * @return array|string
+     */
+    private function parseNestedTaxField(array $field): array|string
+    {
+        if (empty($field[0]) || !is_string($field[0])) {
+            return '';
+        }
+
+        $csv = str_getcsv($field[0], ";");
+
+        if (count($csv) < 2 || empty($csv[0]) || empty($csv[1])) {
+            return '';
+        }
+
+        $keys = explode(",", $csv[0]);
+        $values = explode(",", $csv[1]);
+
+        if (count($keys) !== count($values)) {
+            return '';
+        }
+
+        return array_combine($keys, $values);
+    }
+
     public function parseCsvWithNestedCsv($csvString, $delimiter = ',', $enclosure = '"', $lineEnding = ';')
     {
         // Regular expression to find nested CSVs
@@ -280,17 +311,17 @@ class InvoiceTransformer extends BaseTransformer
                 continue;
             }
             /** @var array $row */
-            if (is_array($row[5])) {
-                $csv = str_getcsv($row[5][0], ";");
-                $row[5] = array_combine(explode(",", $csv[0]), explode(",", $csv[1]));
-
+            if (isset($row[5]) && is_array($row[5])) {
+                $row[5] = $this->parseNestedTaxField($row[5]);
             }
 
-            if (is_array($row[1])) {
-                $row[1] = $row[1][0];
+            if (isset($row[1]) && is_array($row[1])) {
+                $row[1] = $row[1][0] ?? '';
             }
 
-            $row = array_combine($parsedRows[0], $row);
+            if (count($parsedRows[0]) === count($row)) {
+                $row = array_combine($parsedRows[0], $row);
+            }
         }
 
         unset($parsedRows[0]);

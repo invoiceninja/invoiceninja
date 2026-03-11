@@ -995,6 +995,8 @@
 
         Return a PDF of the client statement
 
+        You may also pass the query parameter `?send_email=true` to send the statement via email to the client.
+
       operationId: clientStatement
       x-codeSamples:
       - lang: php
@@ -1011,7 +1013,7 @@
       - lang: curl
         label: curl
         source: |
-          curl -X POST https://demo.invoiceninja.com/api/v1/client_statement \
+          curl -X POST "https://demo.invoiceninja.com/api/v1/client_statement?send_email=true" \
             -H "X-API-TOKEN: YOUR-TOKEN" \
             -H "Content-Type: application/json" \
             -H "X-Requested-With: XMLHttpRequest" \
@@ -1027,6 +1029,13 @@
         - $ref: '#/components/parameters/X-Requested-With'
         - $ref: '#/components/parameters/index'
         - $ref: '#/components/parameters/client_include'
+        - name: send_email
+          in: query
+          description: 'When set to true, the statement will also be sent via email to the client.'
+          required: false
+          schema:
+            type: boolean
+            default: false
       requestBody:
         description: 'Statement Options'
         required: true

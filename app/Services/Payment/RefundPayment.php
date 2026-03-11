@@ -251,6 +251,15 @@ class RefundPayment
                                        ->updatePaidToDate($amount_to_refund * -1)
                                        ->save();
 
+                    // Restore the client's credit_balance when credit is refunded
+                    // This prevents the double-spend bug where credit.balance is restored
+                    // but client.credit_balance is not, causing negative balance on re-application
+                    if (!$paymentable_credit->is_deleted) {
+                        $this->payment->client->fresh()
+                            ->service()
+                            ->adjustCreditBalance($amount_to_refund)
+                            ->save();
+                    }
 
                     $this->credits_used += $amount_to_refund;
                     $amount_to_refund = 0;
@@ -264,6 +273,16 @@ class RefundPayment
                                        ->adjustBalance($available_credit)
                                        ->updatePaidToDate($available_credit * -1)
                                        ->save();
+
+                    // Restore the client's credit_balance when credit is refunded
+                    // This prevents the double-spend bug where credit.balance is restored
+                    // but client.credit_balance is not, causing negative balance on re-application
+                    if (!$paymentable_credit->is_deleted) {
+                        $this->payment->client->fresh()
+                            ->service()
+                            ->adjustCreditBalance($available_credit)
+                            ->save();
+                    }
 
                     $this->credits_used += $available_credit;
                     $amount_to_refund -= $available_credit;

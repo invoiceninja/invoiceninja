@@ -13,7 +13,6 @@
 namespace App\DataMapper;
 
 use App\Casts\InvoiceSyncCast;
-use App\DataMapper\TaxReport\TaxReport;
 use Illuminate\Contracts\Database\Eloquent\Castable;
 
 /**

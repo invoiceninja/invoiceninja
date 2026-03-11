@@ -250,7 +250,7 @@ class Purify
 
     public static function clean(string $html): string
     {
-
+        
         if (config('ninja.disable_purify_html') || strlen($html) <= 1) {
             return str_replace('%24', '$', $html);
         }

@@ -50,8 +50,8 @@ class EmailController extends BaseController
     {
         $entity = $request->input('entity');
         $entity_obj = $entity::withTrashed()->with('invitations')->find($request->input('entity_id'));
-        $subject = $request->has('subject') ? $request->input('subject') : '';
-        $body = $request->has('body') ? $request->input('body') : '';
+        $subject = $request->input('subject', '');
+        $body = $request->input('body', '');
         $template = str_replace('email_template_', '', $request->input('template'));
 
         $data = [

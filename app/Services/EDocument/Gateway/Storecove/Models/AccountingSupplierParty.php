@@ -21,7 +21,7 @@ class AccountingSupplierParty
     #[SerializedName('cac:Party')]
     public $party;
 
-    /** @var PublicIdentifiers[] */
+    /** @var PublicIdentifiers[]|null */
     public ?array $public_identifiers;
 
     /**

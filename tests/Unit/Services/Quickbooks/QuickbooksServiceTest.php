@@ -90,7 +90,6 @@ class QuickbooksServiceTest extends TestCase
 
         $ref = new ReflectionClass($service);
         $prop = $ref->getProperty('sdk');
-        $prop->setAccessible(true);
         $prop->setValue($service, $mockSdk);
 
         $this->assertTrue($service->isTokenValid());
@@ -111,7 +110,6 @@ class QuickbooksServiceTest extends TestCase
 
         $ref = new ReflectionClass($service);
         $prop = $ref->getProperty('sdk');
-        $prop->setAccessible(true);
         $prop->setValue($service, $mockSdk);
 
         $this->assertFalse($service->isTokenValid());

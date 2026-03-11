@@ -21,7 +21,6 @@ class VerifactuDocumentValidatorTest extends TestCase
         $validator = new VerifactuDocumentValidator('<xml></xml>');
         $reflection = new \ReflectionClass($validator);
         $formatMethod = $reflection->getMethod('formatXsdError');
-        $formatMethod->setAccessible(true);
 
         $formattedError = $formatMethod->invoke($validator, $mockError);
 
@@ -40,7 +39,6 @@ class VerifactuDocumentValidatorTest extends TestCase
         $validator = new VerifactuDocumentValidator('<xml></xml>');
         $reflection = new \ReflectionClass($validator);
         $contextMethod = $reflection->getMethod('getErrorContext');
-        $contextMethod->setAccessible(true);
 
         $context = $contextMethod->invoke($validator, 'Missing child element: DetalleDesglose');
 
@@ -57,7 +55,6 @@ class VerifactuDocumentValidatorTest extends TestCase
         $validator = new VerifactuDocumentValidator('<xml></xml>');
         $reflection = new \ReflectionClass($validator);
         $suggestionMethod = $reflection->getMethod('getErrorSuggestion');
-        $suggestionMethod->setAccessible(true);
 
         $suggestion = $suggestionMethod->invoke($validator, 'Missing child element: DetalleDesglose');
 
@@ -80,7 +77,6 @@ class VerifactuDocumentValidatorTest extends TestCase
         // Add some mock errors
         $reflection = new \ReflectionClass($validator);
         $errorsProperty = $reflection->getProperty('errors');
-        $errorsProperty->setAccessible(true);
         $errorsProperty->setValue($validator, [
             'xsd' => ['Error 1', 'Error 2'],
             'structure' => ['Error 3']
@@ -102,7 +98,6 @@ class VerifactuDocumentValidatorTest extends TestCase
         // Add some mock errors
         $reflection = new \ReflectionClass($validator);
         $errorsProperty = $reflection->getProperty('errors');
-        $errorsProperty->setAccessible(true);
         $errorsProperty->setValue($validator, [
             'xsd' => ['Error 1', 'Error 2'],
             'business' => ['Error 3']

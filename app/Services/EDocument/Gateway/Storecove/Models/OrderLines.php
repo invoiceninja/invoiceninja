@@ -10,20 +10,20 @@ class OrderLines
     public ?string $amount_excluding_tax;
     public ?float $item_price;
     public ?float $base_quantity;
-    /** @var AllowanceCharges[] */
+    /** @var AllowanceCharges[]|null */
     public ?array $allowance_charges;
     public ?bool $allow_partial_delivery;
     public ?string $accounting_cost;
     public ?Delivery $delivery;
     public ?string $description;
     public ?string $name;
-    /** @var References[] */
+    /** @var References[]|null */
     public ?array $references;
-    /** @var TaxesDutiesFees[] */
+    /** @var TaxesDutiesFees[]|null */
     public ?array $taxes_duties_fees;
-    /** @var AdditionalItemProperties[] */
+    /** @var AdditionalItemProperties[]|null */
     public ?array $additional_item_properties;
-    /** @var string[] */
+    /** @var string[]|null */
     public ?array $lot_number_ids;
     public ?string $note;
 

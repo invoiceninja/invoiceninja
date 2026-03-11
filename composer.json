@@ -38,12 +38,10 @@
         "ext-json": "*",
         "ext-libxml": "*",
         "ext-simplexml": "*",
-        "afosto/yaac": "^1.5",
-        "asm/php-ansible": "dev-main",
         "authorizenet/authorizenet": "^2.0",
         "awobaz/compoships": "^2.1",
         "aws/aws-sdk-php": "^3.319",
-        "babenkoivan/elastic-migrations": "^4.0",
+        "babenkoivan/elastic-migrations": "^4.0|^5.0",
         "babenkoivan/elastic-scout-driver": "^4.0",
         "babenkoivan/elastic-scout-driver-plus": "^5.1",
         "bacon/bacon-qr-code": "^2.0",
@@ -60,7 +58,7 @@
         "guzzlehttp/guzzle": "^7.2",
         "halaxa/json-machine": "^0.7.0",
         "hashids/hashids": "^4.0",
-        "hedii/laravel-gelf-logger": "^9",
+        "hedii/laravel-gelf-logger": "^10",
         "horstoeko/orderx": "^1",
         "horstoeko/zugferd": "^1",
         "horstoeko/zugferdvisualizer": "^1",
@@ -71,7 +69,7 @@
         "invoiceninja/ubl_invoice": "^3",
         "josemmo/facturae-php": "^1.7",
         "laracasts/presenter": "^0.2.1",
-        "laravel/framework": "^v11",
+        "laravel/framework": "^12",
         "laravel/octane": "^2.6",
         "laravel/scout": "^10.11",
         "laravel/slack-notification-channel": "^3",
@@ -89,7 +87,7 @@
         "mollie/mollie-api-php": "^2.36",
         "nelexa/zip": "^4.0",
         "nordigen/nordigen-php": "^1.1",
-        "nwidart/laravel-modules": "^11.0",
+        "nwidart/laravel-modules": "^12.0",
         "payfast/payfast-php-sdk": "^1.1",
         "phpoffice/phpspreadsheet": "^2.2",
         "pragmarx/google2fa": "^8.0",
@@ -102,16 +100,16 @@
         "sentry/sentry-laravel": "^4",
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.6",
-        "socialiteproviders/apple": "dev-master",
+        "socialiteproviders/apple": "5.9",
         "socialiteproviders/microsoft": "^4.1",
         "sprain/swiss-qr-bill": "^5.2",
         "square/square": "30.0.0.*",
         "stripe/stripe-php": "^17",
-        "symfony/brevo-mailer": "^7.1",
-        "symfony/http-client": "^7.0.3",
-        "symfony/mailer": "7.1.6",
-        "symfony/mailgun-mailer": "^7.1",
-        "symfony/postmark-mailer": "^7.1",
+        "symfony/brevo-mailer": "^7.2",
+        "symfony/http-client": "^7.2",
+        "symfony/mailer": "^7.2",
+        "symfony/mailgun-mailer": "^7.2",
+        "symfony/postmark-mailer": "^7.2",
         "turbo124/beacon": "^3",
         "twig/extra-bundle": "^3.18",
         "twig/intl-extra": "^3.7",
@@ -122,20 +120,20 @@
         "wildbit/postmark-php": "^4.0"
     },
     "require-dev": {
-        "barryvdh/laravel-debugbar": "^3.6",
+        "barryvdh/laravel-debugbar": "^4.0",
         "barryvdh/laravel-ide-helper": "^3.0",
         "brianium/paratest": "^7",
         "filp/whoops": "^2.7",
         "friendsofphp/php-cs-fixer": "^3.14",
         "laracasts/cypress": "^3.0",
-        "larastan/larastan": "^2",
+        "larastan/larastan": "^2|^3",
         "laravel/boost": "^1.8",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^8.1",
-        "phpstan/phpstan": "^1.9",
+        "phpstan/phpstan": "^2.0",
         "phpunit/phpunit": "^11|^12",
         "spatie/laravel-ignition": "^2.0",
-        "spaze/phpstan-stripe": "^3.0"
+        "spaze/phpstan-stripe": "^3.0|^4.0"
     },
     "autoload": {
         "psr-4": {
@@ -211,15 +209,7 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/turbo124/apple"
-        },
-        {
-            "type": "vcs",
             "url": "https://github.com/invoiceninja/einvoice"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/beganovich/php-ansible"
         },
         {
             "type": "vcs",
