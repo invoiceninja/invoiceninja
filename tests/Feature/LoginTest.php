@@ -16,10 +16,13 @@ use App\DataMapper\CompanySettings;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\CompanyToken;
+use App\Models\PasskeyCredential;
 use App\Models\User;
+use App\Services\Auth\Passkeys\PasskeyService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
+use Mockery;
 use Tests\TestCase;
 
 /**
@@ -198,5 +201,104 @@ class LoginTest extends TestCase
         // nlog(print_r($arr, 1));
 
         $response->assertStatus(200);
+    }
+
+    public function testApiLoginRequiresSecondFactorWhenPasskeyExists()
+    {
+        Account::all()->each(function ($account) {
+            $account->delete();
+        });
+
+        $account = Account::factory()->create();
+        $user = User::factory()->create([
+            'account_id' => $account->id,
+            'email' => 'passkey@example.com',
+            'password' => \Hash::make('123456'),
+        ]);
+
+        $company = Company::factory()->create([
+            'account_id' => $account->id,
+        ]);
+
+        $account->default_company_id = $company->id;
+        $account->save();
+
+        CompanyToken::query()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'account_id' => $account->id,
+            'name' => $user->first_name.' '.$user->last_name,
+            'token' => \Illuminate\Support\Str::random(64),
+            'is_system' => true,
+        ]);
+
+        $user->companies()->attach($company->id, [
+            'account_id' => $account->id,
+            'is_owner' => 1,
+            'notifications' => CompanySettings::notificationDefaults(),
+            'is_admin' => 1,
+        ]);
+
+        PasskeyCredential::query()->create([
+            'account_id' => $account->id,
+            'user_id' => $user->id,
+            'name' => 'MacBook',
+            'credential_id' => base64_encode('test-credential'),
+            'credential_public_key' => base64_encode('test-public-key'),
+            'signature_counter' => 0,
+        ]);
+
+        $passkeyService = Mockery::mock(PasskeyService::class);
+        $passkeyService->shouldReceive('getAuthenticationOptions')->once()->andReturn([
+            'publicKey' => ['challenge' => 'abc'],
+            'challenge_token' => 'challenge-token',
+        ]);
+        $this->app->instance(PasskeyService::class, $passkeyService);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+        ])->postJson('/api/v1/login', [
+            'email' => 'passkey@example.com',
+            'password' => '123456',
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonPath('requires_second_factor', true);
+        $response->assertJsonPath('passkey_options.challenge_token', 'challenge-token');
+    }
+
+    public function testPasskeyLoginOptionsReturns404WhenUserHasNoPasskeys()
+    {
+        Account::all()->each(function ($account) {
+            $account->delete();
+        });
+
+        $account = Account::factory()->create();
+        $user = User::factory()->create([
+            'account_id' => $account->id,
+            'email' => 'nopasskey@example.com',
+            'password' => \Hash::make('123456'),
+        ]);
+
+        $company = Company::factory()->create([
+            'account_id' => $account->id,
+        ]);
+
+        $account->default_company_id = $company->id;
+        $account->save();
+
+        $user->companies()->attach($company->id, [
+            'account_id' => $account->id,
+            'is_owner' => 1,
+            'notifications' => CompanySettings::notificationDefaults(),
+            'is_admin' => 1,
+        ]);
+
+        $response = $this->postJson('/api/v1/passkeys/login/options', [
+            'email' => 'nopasskey@example.com',
+        ]);
+
+        $response->assertStatus(404);
+        $response->assertJsonPath('message', 'No passkeys registered for this account. Please use password login or register a passkey first.');
     }
 }

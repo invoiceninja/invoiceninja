@@ -99,6 +99,16 @@
           type: string
           example: '123456'
           readOnly: true
+        passkey_enabled:
+          description: 'Boolean flag if passkey auth is enabled for this user'
+          type: boolean
+          example: true
+          readOnly: true
+        passkey_count:
+          description: 'The number of registered passkeys for this user'
+          type: integer
+          example: 2
+          readOnly: true
         company_user:
             $ref: '#/components/schemas/CompanyUserRef'
       type: object
@@ -202,6 +212,16 @@
           description: 'The google 2fa secret for the user'
           type: string
           example: '123456'
+          readOnly: true
+        passkey_enabled:
+          description: 'Boolean flag if passkey auth is enabled for this user'
+          type: boolean
+          example: true
+          readOnly: true
+        passkey_count:
+          description: 'The number of registered passkeys for this user'
+          type: integer
+          example: 2
           readOnly: true
         oauth_user_refresh_token:
           description: 'OAuth refresh token for the user'

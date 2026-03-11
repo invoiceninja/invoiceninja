@@ -686,6 +686,7 @@ $lang = array(
     'expired_quotes' => 'Expired Quotes',
     'sign_up_using' => 'Sign up using',
     'invalid_credentials' => 'These credentials do not match our records',
+    'no_passkeys_registered' => 'No passkeys registered for this account. Please use password login or register a passkey first.',
     'show_all_options' => 'Show all options',
     'user_details' => 'User Details',
     'oneclick_login' => 'Connected Account',
