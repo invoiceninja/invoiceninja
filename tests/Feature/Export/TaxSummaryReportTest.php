@@ -494,6 +494,183 @@ class TaxSummaryReportTest extends TestCase
         $this->account->delete();
     }
 
+    /**
+     * Bug 2: Query mutation - the where('total_taxes', '>', 0) on line 112
+     * permanently mutates $query, so the cursor loop on line 123 only
+     * iterates invoices with total_taxes > 0, dropping tax-exempt invoices.
+     *
+     * This test creates one taxable PAID invoice and one tax-exempt PAID invoice.
+     * The tax-exempt invoice should appear in the accrual section (it's a valid
+     * sent invoice) but the query mutation bug causes it to be excluded from
+     * the cursor loop entirely.
+     */
+    public function testBug2_QueryMutationExcludesTaxExemptInvoices()
+    {
+        $this->buildData();
+
+        $this->payload = [
+            'start_date' => '2000-01-01',
+            'end_date' => '2030-01-11',
+            'date_range' => 'custom',
+            'client_id' => $this->client->id,
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ];
+
+        // Taxable invoice (has taxes) - SENT status
+        $taxable = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 0,
+            'balance' => 0,
+            'status_id' => Invoice::STATUS_SENT,
+            'total_taxes' => 1,
+            'date' => now()->format('Y-m-d'),
+            'discount' => 0,
+            'tax_rate1' => 10,
+            'tax_name1' => 'GST',
+            'tax_rate2' => 0,
+            'tax_name2' => '',
+            'tax_rate3' => 0,
+            'tax_name3' => '',
+            'uses_inclusive_taxes' => false,
+            'line_items' => $this->buildLineItems(),
+        ]);
+        $taxable = $taxable->calc()->getInvoice();
+        $taxable->service()->markSent()->save();
+
+        // Tax-exempt invoice (no taxes) - PAID status
+        $exempt = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 0,
+            'balance' => 0,
+            'status_id' => Invoice::STATUS_SENT,
+            'total_taxes' => 0,
+            'date' => now()->format('Y-m-d'),
+            'discount' => 0,
+            'tax_rate1' => 0,
+            'tax_name1' => '',
+            'tax_rate2' => 0,
+            'tax_name2' => '',
+            'tax_rate3' => 0,
+            'tax_name3' => '',
+            'uses_inclusive_taxes' => false,
+            'line_items' => $this->buildLineItems(),
+        ]);
+        $exempt = $exempt->calc()->getInvoice();
+        $exempt->service()->markPaid()->save();
+        $exempt = $exempt->fresh();
+
+        // Verify the exempt invoice is PAID and has total_taxes = 0
+        $this->assertEquals(Invoice::STATUS_PAID, $exempt->status_id);
+        $this->assertEquals(0, $exempt->total_taxes);
+
+        // Run the report
+        $report = new TaxSummaryReport($this->company, $this->payload);
+        $csv = $report->run();
+
+        // Access private $taxes via reflection
+        $ref = new \ReflectionClass($report);
+        $prop = $ref->getProperty('taxes');
+        $prop->setAccessible(true);
+        $taxes = $prop->getValue($report);
+
+        // The cash section should recognize the exempt PAID invoice.
+        // With Bug 2, cash_exempt_sales will be $0.00 because the query
+        // mutation excludes tax-exempt invoices from the cursor loop.
+        // The exempt invoice amount is $20 (2 line items x $10).
+        $cash_exempt_raw = preg_replace('/[^0-9.\-]/', '', $taxes['cash_exempt_sales']);
+        $cash_gross_raw = preg_replace('/[^0-9.\-]/', '', $taxes['cash_gross_sales']);
+
+        // BUG PROOF: This assertion FAILS because the exempt invoice is
+        // excluded from the loop due to query mutation.
+        // cash_exempt_sales should be 20.00, but is 0.00.
+        $this->assertGreaterThan(0, (float) $cash_exempt_raw, 'Bug 2: Tax-exempt PAID invoice is missing from cash section due to query mutation. cash_exempt_sales should include the $20 exempt invoice but is $0.');
+
+        $this->account->delete();
+    }
+
+    /**
+     * Bug 3: Cash gross sales double-counting - cash_gross_sales += $invoice->amount
+     * runs inside the foreach($taxes) loop, so invoices with multiple tax rates
+     * add their amount multiple times.
+     *
+     * This test creates a single PAID invoice with 3 tax rates.
+     * The cash_gross_sales should equal the invoice amount once, not 3x.
+     */
+    public function testBug3_CashGrossSalesDoubleCountedPerTaxLine()
+    {
+        $this->buildData();
+
+        $this->payload = [
+            'start_date' => '2000-01-01',
+            'end_date' => '2030-01-11',
+            'date_range' => 'custom',
+            'client_id' => $this->client->id,
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ];
+
+        // Single invoice with 3 tax rates - mark as PAID
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 0,
+            'balance' => 0,
+            'status_id' => Invoice::STATUS_SENT,
+            'total_taxes' => 1,
+            'date' => now()->format('Y-m-d'),
+            'discount' => 0,
+            'tax_rate1' => 10,
+            'tax_rate2' => 17.5,
+            'tax_rate3' => 5,
+            'tax_name1' => 'GST',
+            'tax_name2' => 'VAT',
+            'tax_name3' => 'CA Sales Tax',
+            'uses_inclusive_taxes' => false,
+            'line_items' => $this->buildLineItems(),
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice();
+
+        // Line items: 2 x $10 = $20 subtotal
+        // Tax: GST 10% = $2, VAT 17.5% = $3.50, CA Sales Tax 5% = $1
+        // Total = $26.50
+        $invoice_amount = $invoice->amount;
+        $this->assertEquals(26.5, $invoice_amount);
+
+        $invoice->service()->markPaid()->save();
+        $invoice = $invoice->fresh();
+
+        $this->assertEquals(Invoice::STATUS_PAID, $invoice->status_id);
+
+        // Run the report
+        $report = new TaxSummaryReport($this->company, $this->payload);
+        $csv = $report->run();
+
+        // Access private $taxes via reflection
+        $ref = new \ReflectionClass($report);
+        $prop = $ref->getProperty('taxes');
+        $prop->setAccessible(true);
+        $taxes = $prop->getValue($report);
+
+        $cash_gross_raw = (float) preg_replace('/[^0-9.\-]/', '', $taxes['cash_gross_sales']);
+
+        // BUG PROOF: cash_gross_sales should be $26.50 (the invoice amount once).
+        // With Bug 3, it will be $79.50 ($26.50 x 3 tax lines).
+        $this->assertEquals(
+            $invoice_amount,
+            $cash_gross_raw,
+            "Bug 3: cash_gross_sales is {$cash_gross_raw} but should be {$invoice_amount}. The invoice amount is being added once per tax line (3 tax rates = 3x inflation)."
+        );
+
+        $this->account->delete();
+    }
+
     private function buildLineItems()
     {
         $line_items = [];
