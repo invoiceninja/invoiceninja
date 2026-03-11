@@ -304,5 +304,7 @@ class Request extends FormRequest
 
             return true;
         }
+
+        return true;
     }
 }

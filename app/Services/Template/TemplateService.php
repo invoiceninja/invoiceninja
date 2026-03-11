@@ -113,7 +113,7 @@ class TemplateService
         $this->twig->addRuntimeLoader(new class implements RuntimeLoaderInterface {
             public function load($class)
             {
-                if (MarkdownRuntime::class === $class) {
+                if (MarkdownRuntime::class === $class) { //@phpstan-ignore-line
                     return new MarkdownRuntime(new DefaultMarkdown());
                 }
             }

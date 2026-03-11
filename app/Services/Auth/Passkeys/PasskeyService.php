@@ -17,6 +17,7 @@ namespace App\Services\Auth\Passkeys;
 use App\Models\PasskeyCredential;
 use App\Models\User;
 use Illuminate\Support\Str;
+use lbuchs\WebAuthn\Binary\ByteBuffer;
 use lbuchs\WebAuthn\WebAuthn;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -172,11 +173,11 @@ class PasskeyService
         return new WebAuthn(config('ninja.app_name'), $rpId, ['none', 'packed', 'fido-u2f', 'android-key', 'android-safetynet', 'apple', 'tpm']);
     }
 
-    private function storeChallenge(string $challenge, array $meta): string
+    private function storeChallenge(ByteBuffer|string $challenge, array $meta): string
     {
         $token = Str::random(40);
         Cache::put(self::CACHE_PREFIX . $token, array_merge($meta, [
-            'challenge' => $challenge,
+            'challenge' => $challenge instanceof ByteBuffer ? $challenge->getBinaryString() : $challenge,
         ]), self::CACHE_TTL_SECONDS);
 
         return $token;
