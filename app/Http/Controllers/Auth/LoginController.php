@@ -159,40 +159,30 @@ class LoginController extends BaseController
             return null;
         }
 
-        nlog("attemptPasskeyLogin 1");
         $passkeyPayload = $request->input('passkey_authentication');
 
         if (!is_array($passkeyPayload)) {
             return null;
         }
 
-        nlog("attemptPasskeyLogin 2");
-
         $user = MultiDB::hasUser(['email' => $request->input('email'), 'is_deleted' => 0, 'deleted_at' => null]);
-
-        nlog("attemptPasskeyLogin 3");
 
         if (!$user) {
             return false;
         }
-
-
-        nlog("attemptPasskeyLogin 4");
 
         try {
             $passkeyService = app(PasskeyService::class);
             $passkeyUser = $passkeyService->authenticate($user, (string) $request->input('passkey_challenge_token'), $passkeyPayload);
             Auth::login($passkeyUser, false);
 
-        nlog("attemptPasskeyLogin 5");
             return true;
         } catch (\Throwable $e) {
 
-        nlog("attemptPasskeyLogin 6");
             return false;
         }
 
-        nlog("attemptPasskeyLogin 7");
+
     }
 
     /**
@@ -293,7 +283,7 @@ class LoginController extends BaseController
 
         $this->incrementLoginAttempts($request);
 
-        return $this->loginErrorResponse(ctrans('texts.invalid_credentials'), 401);
+        return $this->loginErrorResponse(ctrans('texts.invalid_credentials'), 400);
     }
 
     /**
