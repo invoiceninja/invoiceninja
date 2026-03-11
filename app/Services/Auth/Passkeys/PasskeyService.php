@@ -28,12 +28,14 @@ class PasskeyService
 
     private const CACHE_TTL_SECONDS = 300;
 
+    private const MAX_CREDENTIALS_PER_USER = 10;
+
     public function getRegistrationOptions(User $user, ?string $displayName = null): array
     {
         $name = $displayName ?: trim($user->first_name . ' ' . $user->last_name);
 
         $webAuthn = $this->makeWebAuthn();
-        $args = $webAuthn->getCreateArgs(
+        $args = (array)$webAuthn->getCreateArgs(
             (string) $user->id,
             $user->email,
             $name ?: $user->email,
@@ -48,14 +50,15 @@ class PasskeyService
             'user_id' => $user->id,
         ]);
 
-        return [
-            'publicKey' => $args,
-            'challenge_token' => $token,
-        ];
+        return ['data' => array_merge($args, ['challenge_token' => $token])];
     }
 
-    public function registerCredential(User $user, string $challengeToken, array $payload, ?string $name = null): PasskeyCredential
+    public function registerCredential(User $user, string $challengeToken, array $payload, ?string $name = null): ?PasskeyCredential
     {
+        if ($user->passkey_credentials()->count() >= self::MAX_CREDENTIALS_PER_USER) {
+            throw new \RuntimeException('Maximum number of passkeys reached.');
+        }
+
         $challengeData = $this->getChallenge($challengeToken, 'registration', $user->id);
         $webAuthn = $this->makeWebAuthn();
 
@@ -75,13 +78,15 @@ class PasskeyService
             ->where('credential_id', $credentialId)
             ->first();
 
-        if (!$credential) {
-            $credential = new PasskeyCredential();
-            $credential->account_id = $user->account_id;
-            $credential->user_id = $user->id;
-            $credential->credential_id = $credentialId;
+
+        if($credential) {
+            throw new \RuntimeException('Passkey credential already exists.');
         }
 
+        $credential = new PasskeyCredential();
+        $credential->account_id = $user->account_id;
+        $credential->user_id = $user->id;
+        $credential->credential_id = $credentialId;
         $credential->name = $name ?: ctrans('texts.passkey');
         $credential->credential_public_key = base64_encode($result->credentialPublicKey);
         $credential->signature_counter = (int) ($result->signatureCounter ?? 0);
@@ -89,6 +94,7 @@ class PasskeyService
         $credential->save();
 
         return $credential;
+
     }
 
     public function getAuthenticationOptions(?User $user = null, bool $passwordless = false): array
@@ -105,7 +111,7 @@ class PasskeyService
                 ->toArray();
         }
 
-        $args = $webAuthn->getGetArgs(
+        $args = (array)$webAuthn->getGetArgs(
             $credentialIds,
             240,
             true,
@@ -122,10 +128,8 @@ class PasskeyService
             'passwordless' => $passwordless,
         ]);
 
-        return [
-            'publicKey' => $args,
-            'challenge_token' => $token,
-        ];
+        return ['data' => array_merge($args, ['challenge_token' => $token])];
+        
     }
 
     public function authenticate(User $user, string $challengeToken, array $payload): User
@@ -135,6 +139,7 @@ class PasskeyService
 
         $credentialQuery = PasskeyCredential::query()
             ->where('credential_id', $credentialId)
+            ->where('account_id', $user->account_id)
             ->where('user_id', $user->id);
 
         /** @var PasskeyCredential|null $credential */
@@ -168,7 +173,7 @@ class PasskeyService
 
     private function makeWebAuthn(): WebAuthn
     {
-        $rpId = parse_url(config('ninja.app_url'), PHP_URL_HOST) ?: request()->getHost();
+        $rpId = parse_url(config('ninja.react_url'), PHP_URL_HOST) ?: request()->getHost();
 
         return new WebAuthn(config('ninja.app_name'), $rpId, ['none', 'packed', 'fido-u2f', 'android-key', 'android-safetynet', 'apple', 'tpm']);
     }

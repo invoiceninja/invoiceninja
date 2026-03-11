@@ -73,6 +73,20 @@ class LoginController extends BaseController
     {
         parent::__construct();
     }
+    
+    /**
+     * validateLogin
+     *
+     * @param  LoginRequest $request
+     * @return void
+     */
+    protected function validateLogin(LoginRequest $request)
+    {
+        $request->validate([
+            $this->username() => 'required|string',
+            'password' => 'required_without:passkey_challenge_token|string',
+        ]);
+    }
 
     /**
      * Once the user is authenticated, we need to set
@@ -116,9 +130,10 @@ class LoginController extends BaseController
         $passwordlessPasskeyAttempt = !$request->filled('password') && $request->filled('passkey_challenge_token') && is_array($passkeyPayload);
 
         if ($passwordlessPasskeyAttempt) {
-            $user = MultiDB::hasUser(['email' => $request->input('email')]);
+            $user = MultiDB::hasUser(['email' => $request->input('email'), 'is_deleted' => 0, 'deleted_at' => null]);
 
             if (!$user) {
+                
                 return response()
                     ->json(['message' => ctrans('texts.invalid_credentials')], 401)
                     ->header('X-App-Version', config('ninja.app_version'))
@@ -130,7 +145,7 @@ class LoginController extends BaseController
                 Auth::login($passkeyUser, false);
             } catch (\Throwable $e) {
                 return response()
-                    ->json(['message' => ctrans('texts.invalid_credentials')], 422)
+                    ->json(['message' => ctrans('texts.invalid_credentials')], 401)
                     ->header('X-App-Version', config('ninja.app_version'))
                     ->header('X-Api-Version', config('ninja.minimum_client_version'));
             }
@@ -157,26 +172,20 @@ class LoginController extends BaseController
             /** @var \App\Models\User $user */
             $user = $this->guard()->user();
 
-            $hasPasskeys = $user->passkey_credentials()->exists();
-            $hasOneTimePassword = $request->filled('one_time_password');
-            $hasPasskeyAssertion = is_array($passkeyPayload) && $request->filled('passkey_challenge_token');
-            $requiresSecondFactor = (bool) $user->google_2fa_secret || $hasPasskeys;
+            // TOTP second-factor check — passkeys are an alternative login method, not a 2FA gate
+            if ($user->google_2fa_secret && !$passwordlessPasskeyAttempt) {
+                $hasOneTimePassword = $request->filled('one_time_password');
 
-            if ($requiresSecondFactor && !$passwordlessPasskeyAttempt && !$hasOneTimePassword && !$hasPasskeyAssertion) {
-                $passkeyOptions = $hasPasskeys ? $passkeyService->getAuthenticationOptions($user) : null;
+                if (!$hasOneTimePassword) {
+                    return response()
+                        ->json([
+                            'message' => ctrans('texts.invalid_one_time_password'),
+                            'requires_second_factor' => true,
+                        ], 422)
+                        ->header('X-App-Version', config('ninja.app_version'))
+                        ->header('X-Api-Version', config('ninja.minimum_client_version'));
+                }
 
-                return response()
-                    ->json([
-                        'message' => ctrans('texts.invalid_one_time_password'),
-                        'requires_second_factor' => true,
-                        'passkey_options' => $passkeyOptions,
-                    ], 422)
-                    ->header('X-App-Version', config('ninja.app_version'))
-                    ->header('X-Api-Version', config('ninja.minimum_client_version'));
-            }
-
-            // TOTP fallback for existing users
-            if ($user->google_2fa_secret && $hasOneTimePassword) {
                 $google2fa = new Google2FA();
 
                 if (strlen($request->input('one_time_password')) == 0 || !$google2fa->verifyKey(decrypt($user->google_2fa_secret), $request->input('one_time_password'))) {
@@ -185,26 +194,6 @@ class LoginController extends BaseController
                         ->header('X-App-Version', config('ninja.app_version'))
                         ->header('X-Api-Version', config('ninja.minimum_client_version'));
                 }
-            } elseif ($requiresSecondFactor && !$passwordlessPasskeyAttempt && !$hasOneTimePassword && $hasPasskeyAssertion) {
-                try {
-                    $passkeyService->authenticate($user, (string) $passkeyToken, $passkeyPayload);
-                } catch (\Throwable $e) {
-                    return response()
-                        ->json(['message' => ctrans('texts.invalid_one_time_password')], 422)
-                        ->header('X-App-Version', config('ninja.app_version'))
-                        ->header('X-Api-Version', config('ninja.minimum_client_version'));
-                }
-            } elseif (strlen($user->google_2fa_secret ?? '') > 2 && !$hasOneTimePassword) {
-                $passkeyOptions = $hasPasskeys ? $passkeyService->getAuthenticationOptions($user) : null;
-
-                return response()
-                    ->json([
-                        'message' => ctrans('texts.invalid_one_time_password'),
-                        'requires_second_factor' => true,
-                        'passkey_options' => $passkeyOptions,
-                    ], 422)
-                    ->header('X-App-Version', config('ninja.app_version'))
-                    ->header('X-Api-Version', config('ninja.minimum_client_version'));
             }
 
             /* If for some reason we lose state on the default company ie. a company is deleted - always make sure we can default to a company*/

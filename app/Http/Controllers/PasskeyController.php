@@ -37,7 +37,7 @@ class PasskeyController extends BaseController
                 ->map(fn (PasskeyCredential $credential) => [
                     'id' => $credential->hashed_id,
                     'name' => $credential->name,
-                    'created_at' => (int) $credential->created_at,
+                    'created_at' => $credential->created_at,
                     'last_used_at' => $credential->last_used_at?->timestamp,
                 ])
                 ->values(),
@@ -54,7 +54,7 @@ class PasskeyController extends BaseController
             $request->string('name')->toString() ?: null
         );
 
-        return response()->json(['data' => $data]);
+        return response()->json($data);
     }
 
     public function store(Request $request): JsonResponse
@@ -80,7 +80,7 @@ class PasskeyController extends BaseController
             );
         } catch (\Throwable $e) {
             return response()->json([
-                'message' => ctrans('texts.invalid_credentials'),
+                'message' => $e->getMessage(),
             ], 422);
         }
 
@@ -98,7 +98,7 @@ class PasskeyController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        if ($passkey->user_id !== $user->id) {
+        if ((int) $passkey->user_id !== (int) $user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -114,18 +114,14 @@ class PasskeyController extends BaseController
         ]);
 
         /** @var \App\Models\User|null $user */
-        $user = MultiDB::hasUser(['email' => $validated['email']]);
+        $user = MultiDB::hasUser(['email' => $validated['email'], 'is_deleted' => 0]);
 
-        if (!$user || $user->trashed() || $user->is_deleted) {
-            return response()->json(['message' => ctrans('texts.invalid_credentials')], 404);
-        }
-
-        if (!$user->passkey_credentials()->exists()) {
-            return response()->json(['message' => ctrans('texts.no_passkeys_registered')], 404);
+        if (!$user || $user->trashed() || $user->is_deleted || !$user->passkey_credentials()->exists()) {
+            return response()->json(['message' => ctrans('texts.invalid_credentials')], 401);
         }
 
         $data = $this->passkeyService->getAuthenticationOptions($user, true);
 
-        return response()->json(['data' => $data]);
+        return response()->json($data);
     }
 }

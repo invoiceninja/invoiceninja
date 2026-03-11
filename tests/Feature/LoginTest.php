@@ -223,14 +223,14 @@ class LoginTest extends TestCase
         $account->default_company_id = $company->id;
         $account->save();
 
-        CompanyToken::query()->create([
-            'user_id' => $user->id,
-            'company_id' => $company->id,
-            'account_id' => $account->id,
-            'name' => $user->first_name.' '.$user->last_name,
-            'token' => \Illuminate\Support\Str::random(64),
-            'is_system' => true,
-        ]);
+        $company_token = new CompanyToken();
+        $company_token->user_id = $user->id;
+        $company_token->company_id = $company->id;
+        $company_token->account_id = $account->id;
+        $company_token->name = $user->first_name.' '.$user->last_name;
+        $company_token->token = \Illuminate\Support\Str::random(64);
+        $company_token->is_system = true;
+        $company_token->save();
 
         $user->companies()->attach($company->id, [
             'account_id' => $account->id,
@@ -239,14 +239,14 @@ class LoginTest extends TestCase
             'is_admin' => 1,
         ]);
 
-        PasskeyCredential::query()->create([
-            'account_id' => $account->id,
-            'user_id' => $user->id,
-            'name' => 'MacBook',
-            'credential_id' => base64_encode('test-credential'),
-            'credential_public_key' => base64_encode('test-public-key'),
-            'signature_counter' => 0,
-        ]);
+        $passkey = new PasskeyCredential();
+        $passkey->account_id = $account->id;
+        $passkey->user_id = $user->id;
+        $passkey->name = 'MacBook';
+        $passkey->credential_id = base64_encode('test-credential');
+        $passkey->credential_public_key = base64_encode('test-public-key');
+        $passkey->signature_counter = 0;
+        $passkey->save();
 
         $passkeyService = Mockery::mock(PasskeyService::class);
         $passkeyService->shouldReceive('getAuthenticationOptions')->once()->andReturn([
@@ -298,7 +298,7 @@ class LoginTest extends TestCase
             'email' => 'nopasskey@example.com',
         ]);
 
-        $response->assertStatus(404);
-        $response->assertJsonPath('message', 'No passkeys registered for this account. Please use password login or register a passkey first.');
+        $response->assertStatus(401);
+        $response->assertJsonPath('message', 'These credentials do not match our records');
     }
 }
