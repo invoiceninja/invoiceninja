@@ -138,35 +138,77 @@ class LoginController extends BaseController
         return $this->finalizeLogin($user, $request);
     }
 
+    /**
+     * Attempt to authenticate the user via WebAuthn passkey credentials.
+     *
+     * Uses a tri-state return to signal the outcome:
+     *  - null  – the request is not a passkey attempt (password present or no challenge token),
+     *            so the caller should fall through to password-based authentication.
+     *  - true  – passkey authentication succeeded and the user has been logged in via Auth::login().
+     *  - false – passkey authentication was attempted but failed (bad credential, expired challenge, etc.).
+     *
+     * The method resolves the user through MultiDB::hasUser() to support multi-tenant lookups
+     * and delegates cryptographic verification to PasskeyService::authenticate().
+     *
+     * @param  LoginRequest  $request
+     * @return bool|null
+     */
     private function attemptPasskeyLogin(LoginRequest $request): ?bool
     {
         if ($request->filled('password') || !$request->filled('passkey_challenge_token')) {
             return null;
         }
 
+        nlog("attemptPasskeyLogin 1");
         $passkeyPayload = $request->input('passkey_authentication');
 
         if (!is_array($passkeyPayload)) {
             return null;
         }
 
+        nlog("attemptPasskeyLogin 2");
+
         $user = MultiDB::hasUser(['email' => $request->input('email'), 'is_deleted' => 0, 'deleted_at' => null]);
+
+        nlog("attemptPasskeyLogin 3");
 
         if (!$user) {
             return false;
         }
+
+
+        nlog("attemptPasskeyLogin 4");
 
         try {
             $passkeyService = app(PasskeyService::class);
             $passkeyUser = $passkeyService->authenticate($user, (string) $request->input('passkey_challenge_token'), $passkeyPayload);
             Auth::login($passkeyUser, false);
 
+        nlog("attemptPasskeyLogin 5");
             return true;
         } catch (\Throwable $e) {
+
+        nlog("attemptPasskeyLogin 6");
             return false;
         }
+
+        nlog("attemptPasskeyLogin 7");
     }
 
+    /**
+     * Verify the user's TOTP two-factor authentication code when enabled.
+     *
+     * This check is enforced for every login method (password and passkey alike).
+     * If the user has a google_2fa_secret set, a valid one_time_password must be
+     * provided in the request; otherwise the login is rejected.
+     *
+     * Returns null when 2FA is not enabled or the OTP is valid (login may proceed),
+     * or a JsonResponse error when verification fails (login must be halted).
+     *
+     * @param  User          $user     The authenticated user to verify.
+     * @param  LoginRequest  $request  The login request containing the optional one_time_password.
+     * @return JsonResponse|null       Null to continue login, or an error response to halt.
+     */
     private function verifyTwoFactor(User $user, LoginRequest $request): ?JsonResponse
     {
         if (!$user->google_2fa_secret) {
@@ -186,6 +228,20 @@ class LoginController extends BaseController
         return null;
     }
 
+    /**
+     * Finalize a successful login by hydrating the user's company context and dispatching events.
+     *
+     * Performs the following steps:
+     *  1. Recovers the default company if it is missing from the account.
+     *  2. Hydrates all CompanyUser records for the authenticated user.
+     *  3. Enforces hosted-plan restrictions (only owners may log in on non-Enterprise plans).
+     *  4. Fires the UserLoggedIn event.
+     *  5. Returns the time-constrained API response containing company user data.
+     *
+     * @param  User          $user     The authenticated user.
+     * @param  LoginRequest  $request  The original login request.
+     * @return \Illuminate\Http\Response|JsonResponse
+     */
     private function finalizeLogin(User $user, LoginRequest $request)
     {
         if (!$user->account->default_company) {
@@ -213,6 +269,16 @@ class LoginController extends BaseController
         return $this->timeConstrainedResponse($cu);
     }
 
+    /**
+     * Handle a failed login attempt by recording analytics, firing events, and throttling.
+     *
+     * Logs a LoginFailure metric, records a LoginMeta entry with the client IP,
+     * dispatches the UserLoginFailed event for listeners (e.g. lockout notifications),
+     * increments the throttle counter, and returns a 401 JSON error response.
+     *
+     * @param  LoginRequest  $request  The failed login request.
+     * @return JsonResponse            A 401 error response with invalid credentials message.
+     */
     private function handleFailedLogin(LoginRequest $request): JsonResponse
     {
         LightLogs::create(new LoginFailure())
@@ -230,6 +296,16 @@ class LoginController extends BaseController
         return $this->loginErrorResponse(ctrans('texts.invalid_credentials'), 401);
     }
 
+    /**
+     * Record a successful login attempt in the analytics pipeline.
+     *
+     * Increments the LoginSuccess counter and writes a LoginMeta entry
+     * containing the user's email, resolved client IP, and outcome label.
+     *
+     * @param  string  $email    The email address used for the login attempt.
+     * @param  string  $outcome  A label describing the result (e.g. "success").
+     * @return void
+     */
     private function logLoginAttempt(string $email, string $outcome): void
     {
         LightLogs::create(new LoginSuccess())
@@ -240,6 +316,15 @@ class LoginController extends BaseController
             ->batch();
     }
 
+    /**
+     * Resolve the real client IP address from the current request.
+     *
+     * Checks proxy/CDN headers in priority order: Cf-Connecting-Ip (Cloudflare),
+     * X-Forwarded-For (reverse proxies), then falls back to the request's own IP.
+     * Returns a single space if no IP can be determined.
+     *
+     * @return string  The resolved client IP address.
+     */
     private function resolveClientIp(): string
     {
         if (request()->hasHeader('Cf-Connecting-Ip')) {
@@ -253,6 +338,16 @@ class LoginController extends BaseController
         return request()->ip() ?: ' ';
     }
 
+    /**
+     * Build a standardised JSON error response for login failures.
+     *
+     * Includes X-App-Version and X-Api-Version headers so the client can
+     * detect version mismatches even on failed authentication attempts.
+     *
+     * @param  string        $message  The human-readable error message.
+     * @param  int           $status   The HTTP status code (e.g. 401, 422).
+     * @return JsonResponse            The formatted error response.
+     */
     private function loginErrorResponse(string $message, int $status): JsonResponse
     {
         return response()

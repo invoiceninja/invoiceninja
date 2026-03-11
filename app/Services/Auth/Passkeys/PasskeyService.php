@@ -87,7 +87,7 @@ class PasskeyService
         $credential->account_id = $user->account_id;
         $credential->user_id = $user->id;
         $credential->credential_id = $credentialId;
-        $credential->name = $name ?: ctrans('texts.passkey');
+        $credential->name = $name ?: ctrans('texts.passkey'). " " . now()->format('Y-m-d H:i:s');
         $credential->credential_public_key = base64_encode($result->credentialPublicKey);
         $credential->signature_counter = (int) ($result->signatureCounter ?? 0);
         $credential->transports = $payload['transports'] ?? null;
@@ -161,10 +161,12 @@ class PasskeyService
         );
 
         $currentCounter = $webAuthn->getSignatureCounter();
+        nlog("currentCounter: $currentCounter");
         if (!is_null($currentCounter)) {
             $credential->signature_counter = $currentCounter;
         }
 
+        nlog("last_used_at: " . Carbon::now());
         $credential->last_used_at = Carbon::now();
         $credential->save();
 

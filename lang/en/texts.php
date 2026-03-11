@@ -5938,6 +5938,8 @@ $lang = array(
     'crop_logo' => 'Crop Logo',
     'passkey' => 'Passkey',
     'login_with_passkey' => 'Login with a Passkey',
+    'manage_passkeys' => 'Manage Passkeys',
+    'last_used' => 'Last used',
 );
 
 return $lang;

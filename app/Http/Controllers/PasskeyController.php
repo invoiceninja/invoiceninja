@@ -27,6 +27,14 @@ class PasskeyController extends BaseController
         parent::__construct();
     }
 
+    /**
+     * List all passkey credentials for the authenticated user.
+     *
+     * Returns each credential's hashed ID, display name, creation timestamp,
+     * and the Unix timestamp of its last successful authentication (if any).
+     *
+     * @return JsonResponse
+     */
     public function index(): JsonResponse
     {
         /** @var \App\Models\User $user */
@@ -44,6 +52,16 @@ class PasskeyController extends BaseController
         ]);
     }
 
+    /**
+     * Generate WebAuthn registration options for the authenticated user.
+     *
+     * Creates a new challenge and returns the PublicKeyCredentialCreationOptions
+     * payload that the browser's WebAuthn API needs to create a new credential.
+     * An optional display name may be provided; otherwise the user's full name is used.
+     *
+     * @param  Request       $request
+     * @return JsonResponse  The WebAuthn creation options including the challenge token.
+     */
     public function registrationOptions(Request $request): JsonResponse
     {
         /** @var \App\Models\User $user */
@@ -57,6 +75,17 @@ class PasskeyController extends BaseController
         return response()->json($data);
     }
 
+    /**
+     * Complete passkey registration by verifying and storing the new credential.
+     *
+     * Validates the challenge token and attestation payload from the browser,
+     * delegates cryptographic verification to PasskeyService, and persists
+     * the new PasskeyCredential. Returns 422 if registration fails (e.g.
+     * invalid attestation, duplicate credential, or maximum limit reached).
+     *
+     * @param  Request       $request
+     * @return JsonResponse  The newly created credential's hashed ID and name, or an error.
+     */
     public function store(Request $request): JsonResponse
     {
         /** @var \App\Models\User $user */
@@ -93,6 +122,16 @@ class PasskeyController extends BaseController
         ]);
     }
 
+    /**
+     * Delete a passkey credential belonging to the authenticated user.
+     *
+     * Verifies ownership by comparing the credential's user_id against the
+     * authenticated user before deletion. Returns 403 if the credential
+     * belongs to a different user.
+     *
+     * @param  PasskeyCredential  $passkey  The credential resolved via route-model binding.
+     * @return JsonResponse
+     */
     public function destroy(PasskeyCredential $passkey): JsonResponse
     {
         /** @var \App\Models\User $user */
@@ -107,6 +146,18 @@ class PasskeyController extends BaseController
         return response()->json(['message' => 'Passkey removed']);
     }
 
+    /**
+     * Generate WebAuthn authentication options for a pre-login passkey challenge.
+     *
+     * This is an unauthenticated endpoint. Given an email address, it resolves
+     * the user across all tenant databases and returns PublicKeyCredentialRequestOptions
+     * scoped to that user's registered credentials. Returns a generic 401 error if the
+     * user is not found, is deleted, or has no passkeys registered — avoiding user
+     * enumeration by not distinguishing between these cases.
+     *
+     * @param  Request       $request
+     * @return JsonResponse  The WebAuthn assertion options including the challenge token.
+     */
     public function loginOptions(Request $request): JsonResponse
     {
         $validated = $request->validate([
