@@ -289,7 +289,7 @@ class LoginTest extends TestCase
             'email' => 'nopasskey@example.com',
         ]);
 
-        $response->assertStatus(401);
+        $response->assertStatus(400);
         $response->assertJsonPath('message', 'These credentials do not match our records');
     }
 }
