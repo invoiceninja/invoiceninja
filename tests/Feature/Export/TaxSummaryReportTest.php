@@ -671,6 +671,163 @@ class TaxSummaryReportTest extends TestCase
         $this->account->delete();
     }
 
+    /**
+     * Issue 4: When date_range is 'all', addDateRange sets start_date and end_date
+     * to the string 'All available data'. The cash query then uses these strings
+     * in a whereBetween on paymentables.created_at, which produces invalid SQL
+     * or returns zero results.
+     */
+    public function testIssue4_AllDateRangeBreaksCashQuery()
+    {
+        $this->buildData();
+
+        $this->payload = [
+            'start_date' => '',
+            'end_date' => '',
+            'date_range' => 'all',
+            'client_id' => $this->client->id,
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ];
+
+        // Create a PAID invoice
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 0,
+            'balance' => 0,
+            'status_id' => Invoice::STATUS_SENT,
+            'total_taxes' => 1,
+            'date' => now()->format('Y-m-d'),
+            'discount' => 0,
+            'tax_rate1' => 10,
+            'tax_name1' => 'GST',
+            'tax_rate2' => 0,
+            'tax_name2' => '',
+            'tax_rate3' => 0,
+            'tax_name3' => '',
+            'uses_inclusive_taxes' => false,
+            'line_items' => $this->buildLineItems(),
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->service()->markPaid()->save();
+        $invoice = $invoice->fresh();
+
+        $this->assertEquals(Invoice::STATUS_PAID, $invoice->status_id);
+
+        // This should not throw an exception and should find the paid invoice
+        $report = new TaxSummaryReport($this->company, $this->payload);
+        $csv = $report->run();
+
+        $ref = new \ReflectionClass($report);
+        $prop = $ref->getProperty('taxes');
+        $prop->setAccessible(true);
+        $taxes = $prop->getValue($report);
+
+        $cash_gross_raw = (float) preg_replace('/[^0-9.\-]/', '', $taxes['cash_gross_sales']);
+
+        // The paid invoice should appear in cash results when date_range = 'all'
+        $this->assertGreaterThan(0, $cash_gross_raw, 'Issue 4: date_range "all" should include all paid invoices in cash section, but cash_gross_sales is $0.');
+
+        $this->account->delete();
+    }
+
+    /**
+     * Issue 5: Refunded paymentables inflate cash totals because period_paid
+     * sums paymentables.amount without subtracting paymentables.refunded.
+     *
+     * Creates an invoice, pays it, then partially refunds it.
+     * The cash report should show net amount (paid - refunded), not gross paid.
+     */
+    public function testIssue5_RefundedPaymentablesInflateCashTotals()
+    {
+        $this->buildData();
+
+        config(['queue.default' => 'sync']);
+
+        $this->payload = [
+            'start_date' => '2000-01-01',
+            'end_date' => '2030-01-11',
+            'date_range' => 'custom',
+            'client_id' => $this->client->id,
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ];
+
+        // Create and pay an invoice
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 0,
+            'balance' => 0,
+            'status_id' => Invoice::STATUS_SENT,
+            'total_taxes' => 1,
+            'date' => now()->format('Y-m-d'),
+            'discount' => 0,
+            'tax_rate1' => 10,
+            'tax_name1' => 'GST',
+            'tax_rate2' => 0,
+            'tax_name2' => '',
+            'tax_rate3' => 0,
+            'tax_name3' => '',
+            'uses_inclusive_taxes' => false,
+            'line_items' => $this->buildLineItems(),
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice();
+        // Invoice: 2 x $10 = $20 + 10% GST = $22
+        $this->assertEquals(22, $invoice->amount);
+
+        $invoice->service()->markPaid()->save();
+        $invoice = $invoice->fresh();
+
+        $payment = $invoice->payments()->first();
+        $this->assertNotNull($payment);
+
+        // Refund $10 of the $22 payment
+        $data = [
+            'id' => $payment->id,
+            'amount' => 10,
+            'invoices' => [
+                [
+                    'invoice_id' => $invoice->id,
+                    'amount' => 10,
+                ]
+            ],
+            'date' => now()->format('Y-m-d'),
+            'gateway_refund' => false,
+            'email_receipt' => false,
+        ];
+
+        $payment->refund($data);
+
+        // Run the report
+        $report = new TaxSummaryReport($this->company, $this->payload);
+        $csv = $report->run();
+
+        $ref = new \ReflectionClass($report);
+        $prop = $ref->getProperty('taxes');
+        $prop->setAccessible(true);
+        $taxes = $prop->getValue($report);
+
+        $cash_gross_raw = (float) preg_replace('/[^0-9.\-]/', '', $taxes['cash_gross_sales']);
+
+        // Net cash received: $22 paid - $10 refunded = $12
+        // BUG PROOF: Without the fix, cash_gross_sales will be $22 (ignoring refund).
+        $this->assertEquals(
+            12.0,
+            $cash_gross_raw,
+            "Issue 5: cash_gross_sales is {$cash_gross_raw} but should be 12.00 (22 paid - 10 refunded). Refunds are not being subtracted."
+        );
+
+        config(['queue.default' => 'redis']);
+
+        $this->account->delete();
+    }
+
     private function buildLineItems()
     {
         $line_items = [];

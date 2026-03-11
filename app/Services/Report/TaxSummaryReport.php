@@ -127,6 +127,18 @@ class TaxSummaryReport extends BaseExport
             $calc = $invoice->calc();
             $taxes = array_merge($calc->getTaxMap()->merge($calc->getTotalTaxMap())->toArray());
 
+            if (empty($taxes)) {
+                $accrual_invoice_map[] = [
+                    'number' => ctrans('texts.invoice') . " " . $invoice->number,
+                    'date' => $this->translateDate($invoice->date, $this->company->date_format(), $this->company->locale()),
+                    'formatted' => Number::formatMoney(0, $this->company),
+                    'tax' => Number::formatValue(0, $this->company->currency()),
+                    'name' => ctrans('texts.tax_exempt'),
+                    'rate' => 0,
+                    'base_amount' => 0,
+                ];
+            }
+
             foreach ($taxes as $tax) {
                 $key = $tax['name'];
 
@@ -148,17 +160,22 @@ class TaxSummaryReport extends BaseExport
         }
 
         // Bug 1 fix: Cash section uses a separate query based on paymentables.created_at
+        $is_all = $this->input['date_range'] == 'all';
+
         $cash_query = Invoice::query()
             ->withTrashed()
             ->where('company_id', $this->company->id)
             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
             ->where('is_deleted', 0)
-            ->whereHas('payments', function ($q) {
+            ->whereHas('payments', function ($q) use ($is_all) {
                 $q->where('is_deleted', 0)
-                  ->whereHas('paymentables', function ($pq) {
+                  ->whereHas('paymentables', function ($pq) use ($is_all) {
                       $pq->where('paymentable_type', 'invoices')
-                         ->whereNull('paymentables.deleted_at')
-                         ->whereBetween('paymentables.created_at', [$this->start_date, $this->end_date . ' 23:59:59']);
+                         ->whereNull('paymentables.deleted_at');
+
+                      if (!$is_all) {
+                          $pq->whereBetween('paymentables.created_at', [$this->start_date, $this->end_date . ' 23:59:59']);
+                      }
                   });
             });
 
@@ -169,15 +186,19 @@ class TaxSummaryReport extends BaseExport
             $calc = $invoice->calc();
             $taxes = array_merge($calc->getTaxMap()->merge($calc->getTotalTaxMap())->toArray());
 
-            // Calculate the amount paid within the selected period via paymentables
-            $period_paid = Paymentable::where('paymentable_type', 'invoices')
+            // Calculate the net amount paid within the selected period via paymentables
+            $period_paid_query = Paymentable::where('paymentable_type', 'invoices')
                 ->where('paymentable_id', $invoice->id)
                 ->whereNull('deleted_at')
-                ->whereBetween('created_at', [$this->start_date, $this->end_date . ' 23:59:59'])
                 ->whereHas('payment', function ($q) {
                     $q->where('is_deleted', 0);
-                })
-                ->sum('amount');
+                });
+
+            if (!$is_all) {
+                $period_paid_query->whereBetween('created_at', [$this->start_date, $this->end_date . ' 23:59:59']);
+            }
+
+            $period_paid = $period_paid_query->selectRaw('COALESCE(SUM(amount - refunded), 0) as net_paid')->value('net_paid');
 
             $payment_ratio = $invoice->amount > 0 ? $period_paid / $invoice->amount : 0;
 
@@ -185,6 +206,18 @@ class TaxSummaryReport extends BaseExport
             $cash_gross_sales += $period_paid;
             $cash_taxable_sales += $invoice->total_taxes > 0 ? $period_paid : 0;
             $cash_exempt_sales += $invoice->total_taxes == 0 ? $period_paid : 0;
+
+            if (empty($taxes)) {
+                $cash_invoice_map[] = [
+                    'number' => ctrans('texts.invoice') . " " . $invoice->number,
+                    'date' => $this->translateDate($invoice->date, $this->company->date_format(), $this->company->locale()),
+                    'formatted' => Number::formatMoney(0, $this->company),
+                    'tax' => Number::formatValue(0, $this->company->currency()),
+                    'name' => ctrans('texts.tax_exempt'),
+                    'rate' => 0,
+                    'base_amount' => 0,
+                ];
+            }
 
             foreach ($taxes as $tax) {
                 $key = $tax['name'];
