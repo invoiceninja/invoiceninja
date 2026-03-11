@@ -117,137 +117,148 @@ class LoginController extends BaseController
         if ($this->hasTooManyLoginAttempts($request)) {
             $this->fireLockoutEvent($request);
 
-            return response()
-                ->json(['message' => 'Too many login attempts, you are being throttled'], 401)
-                ->header('X-App-Version', config('ninja.app_version'))
-                ->header('X-Api-Version', config('ninja.minimum_client_version'));
+            return $this->loginErrorResponse('Too many login attempts, you are being throttled', 401);
         }
 
-        $passkeyService = app(PasskeyService::class);
+        $authenticated = $this->attemptPasskeyLogin($request) ?? $this->attemptLogin($request);
+
+        if (!$authenticated) {
+            return $this->handleFailedLogin($request);
+        }
+
+        $this->logLoginAttempt($request->email, 'success');
+
+        /** @var \App\Models\User $user */
+        $user = $this->guard()->user();
+
+        if ($errorResponse = $this->verifyTwoFactor($user, $request)) {
+            return $errorResponse;
+        }
+
+        return $this->finalizeLogin($user, $request);
+    }
+
+    private function attemptPasskeyLogin(LoginRequest $request): ?bool
+    {
+        if ($request->filled('password') || !$request->filled('passkey_challenge_token')) {
+            return null;
+        }
+
         $passkeyPayload = $request->input('passkey_authentication');
-        $passkeyToken = $request->input('passkey_challenge_token');
 
-        $passwordlessPasskeyAttempt = !$request->filled('password') && $request->filled('passkey_challenge_token') && is_array($passkeyPayload);
-
-        if ($passwordlessPasskeyAttempt) {
-            $user = MultiDB::hasUser(['email' => $request->input('email'), 'is_deleted' => 0, 'deleted_at' => null]);
-
-            if (!$user) {
-                
-                return response()
-                    ->json(['message' => ctrans('texts.invalid_credentials')], 401)
-                    ->header('X-App-Version', config('ninja.app_version'))
-                    ->header('X-Api-Version', config('ninja.minimum_client_version'));
-            }
-
-            try {
-                $passkeyUser = $passkeyService->authenticate($user, (string) $passkeyToken, $passkeyPayload);
-                Auth::login($passkeyUser, false);
-            } catch (\Throwable $e) {
-                return response()
-                    ->json(['message' => ctrans('texts.invalid_credentials')], 401)
-                    ->header('X-App-Version', config('ninja.app_version'))
-                    ->header('X-Api-Version', config('ninja.minimum_client_version'));
-            }
+        if (!is_array($passkeyPayload)) {
+            return null;
         }
 
-        if ($passwordlessPasskeyAttempt || $this->attemptLogin($request)) {
-            LightLogs::create(new LoginSuccess())
-                ->increment()
-                ->batch();
+        $user = MultiDB::hasUser(['email' => $request->input('email'), 'is_deleted' => 0, 'deleted_at' => null]);
 
-            $ip = '';
-
-            if (request()->hasHeader('Cf-Connecting-Ip')) {
-                $ip = request()->header('Cf-Connecting-Ip');
-            } elseif (request()->hasHeader('X-Forwarded-For')) {
-                $ip = request()->header('X-Forwarded-For');
-            } else {
-                $ip = request()->ip() ?: ' ';
-            }
-
-            LightLogs::create(new LoginMeta($request->email, $ip, 'success'))
-                ->batch();
-
-            /** @var \App\Models\User $user */
-            $user = $this->guard()->user();
-
-            // TOTP second-factor check — passkeys are an alternative login method, not a 2FA gate
-            if ($user->google_2fa_secret && !$passwordlessPasskeyAttempt) {
-                $hasOneTimePassword = $request->filled('one_time_password');
-
-                if (!$hasOneTimePassword) {
-                    return response()
-                        ->json([
-                            'message' => ctrans('texts.invalid_one_time_password'),
-                            'requires_second_factor' => true,
-                        ], 422)
-                        ->header('X-App-Version', config('ninja.app_version'))
-                        ->header('X-Api-Version', config('ninja.minimum_client_version'));
-                }
-
-                $google2fa = new Google2FA();
-
-                if (strlen($request->input('one_time_password')) == 0 || !$google2fa->verifyKey(decrypt($user->google_2fa_secret), $request->input('one_time_password'))) {
-                    return response()
-                        ->json(['message' => ctrans('texts.invalid_one_time_password')], 422)
-                        ->header('X-App-Version', config('ninja.app_version'))
-                        ->header('X-Api-Version', config('ninja.minimum_client_version'));
-                }
-            }
-
-            /* If for some reason we lose state on the default company ie. a company is deleted - always make sure we can default to a company*/
-            if (!$user->account->default_company) {
-                $account = $user->account;
-                $account->default_company_id = $user->companies->first()->id;
-                $account->save();
-                $user = $user->fresh();
-            }
-
-            nlog("LOGIN:: {$request->email} - {$user->account_id}");
-
-            /** @var \App\Models\CompanyUser $cu */
-            $cu = $this->hydrateCompanyUser($user);
-
-            if ($cu->count() == 0) {
-                return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
-            }
-
-            /*On the hosted platform, only owners can login for free/pro accounts*/
-            if (Ninja::isHosted() && !$cu->first()->is_owner && !$user->account->isEnterprisePaidClient()) {
-                return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 401);
-            }
-
-            event(new UserLoggedIn($user, $user->account->default_company, Ninja::eventVars($user->id)));
-
-            return $this->timeConstrainedResponse($cu);
-        } else {
-
-            LightLogs::create(new LoginFailure())
-                ->increment()
-                ->batch();
-
-            $ip = '';
-
-            if (request()->hasHeader('Cf-Connecting-Ip')) {
-                $ip = request()->header('Cf-Connecting-Ip');
-            } elseif (request()->hasHeader('X-Forwarded-For')) {
-                $ip = request()->header('X-Forwarded-For');
-            } else {
-                $ip = request()->ip() ?: ' ';
-            }
-
-            LightLogs::create(new LoginMeta($request->email, $ip, 'failure'))->batch();
-
-            event(new UserLoginFailed($request->email, $ip));
-
-            $this->incrementLoginAttempts($request);
-
-            return response()
-                ->json(['message' => ctrans('texts.invalid_credentials')], 401)
-                ->header('X-App-Version', config('ninja.app_version'))
-                ->header('X-Api-Version', config('ninja.minimum_client_version'));
+        if (!$user) {
+            return false;
         }
+
+        try {
+            $passkeyService = app(PasskeyService::class);
+            $passkeyUser = $passkeyService->authenticate($user, (string) $request->input('passkey_challenge_token'), $passkeyPayload);
+            Auth::login($passkeyUser, false);
+
+            return true;
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    private function verifyTwoFactor(User $user, LoginRequest $request): ?JsonResponse
+    {
+        if (!$user->google_2fa_secret) {
+            return null;
+        }
+
+        if (!$request->filled('one_time_password')) {
+            return $this->loginErrorResponse(ctrans('texts.invalid_one_time_password'), 400);
+        }
+
+        $google2fa = new Google2FA();
+
+        if (strlen($request->input('one_time_password')) == 0 || !$google2fa->verifyKey(decrypt($user->google_2fa_secret), $request->input('one_time_password'))) {
+            return $this->loginErrorResponse(ctrans('texts.invalid_one_time_password'), 422);
+        }
+
+        return null;
+    }
+
+    private function finalizeLogin(User $user, LoginRequest $request)
+    {
+        if (!$user->account->default_company) {
+            $account = $user->account;
+            $account->default_company_id = $user->companies->first()->id;
+            $account->save();
+            $user = $user->fresh();
+        }
+
+        nlog("LOGIN:: {$request->email} - {$user->account_id}");
+
+        /** @var \Illuminate\Database\Eloquent\Builder $cu */
+        $cu = $this->hydrateCompanyUser($user);
+
+        if ($cu->count() == 0) {
+            return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
+        }
+
+        if (Ninja::isHosted() && !$cu->first()->is_owner && !$user->account->isEnterprisePaidClient()) {
+            return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 401);
+        }
+
+        event(new UserLoggedIn($user, $user->account->default_company, Ninja::eventVars($user->id)));
+
+        return $this->timeConstrainedResponse($cu);
+    }
+
+    private function handleFailedLogin(LoginRequest $request): JsonResponse
+    {
+        LightLogs::create(new LoginFailure())
+            ->increment()
+            ->batch();
+
+        $ip = $this->resolveClientIp();
+
+        LightLogs::create(new LoginMeta($request->email, $ip, 'failure'))->batch();
+
+        event(new UserLoginFailed($request->email, $ip));
+
+        $this->incrementLoginAttempts($request);
+
+        return $this->loginErrorResponse(ctrans('texts.invalid_credentials'), 401);
+    }
+
+    private function logLoginAttempt(string $email, string $outcome): void
+    {
+        LightLogs::create(new LoginSuccess())
+            ->increment()
+            ->batch();
+
+        LightLogs::create(new LoginMeta($email, $this->resolveClientIp(), $outcome))
+            ->batch();
+    }
+
+    private function resolveClientIp(): string
+    {
+        if (request()->hasHeader('Cf-Connecting-Ip')) {
+            return (string) request()->header('Cf-Connecting-Ip');
+        }
+
+        if (request()->hasHeader('X-Forwarded-For')) {
+            return (string) request()->header('X-Forwarded-For');
+        }
+
+        return request()->ip() ?: ' ';
+    }
+
+    private function loginErrorResponse(string $message, int $status): JsonResponse
+    {
+        return response()
+            ->json(['message' => $message], $status)
+            ->header('X-App-Version', config('ninja.app_version'))
+            ->header('X-Api-Version', config('ninja.minimum_client_version'));
     }
 
     public function refreshReact(Request $request)

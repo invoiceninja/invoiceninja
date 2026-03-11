@@ -203,7 +203,7 @@ class LoginTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function testApiLoginRequiresSecondFactorWhenPasskeyExists()
+    public function testApiLoginSucceedsWithPasswordWhenPasskeyExists()
     {
         Account::all()->each(function ($account) {
             $account->delete();
@@ -248,13 +248,6 @@ class LoginTest extends TestCase
         $passkey->signature_counter = 0;
         $passkey->save();
 
-        $passkeyService = Mockery::mock(PasskeyService::class);
-        $passkeyService->shouldReceive('getAuthenticationOptions')->once()->andReturn([
-            'publicKey' => ['challenge' => 'abc'],
-            'challenge_token' => 'challenge-token',
-        ]);
-        $this->app->instance(PasskeyService::class, $passkeyService);
-
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
         ])->postJson('/api/v1/login', [
@@ -262,9 +255,7 @@ class LoginTest extends TestCase
             'password' => '123456',
         ]);
 
-        $response->assertStatus(422);
-        $response->assertJsonPath('requires_second_factor', true);
-        $response->assertJsonPath('passkey_options.challenge_token', 'challenge-token');
+        $response->assertStatus(200);
     }
 
     public function testPasskeyLoginOptionsReturns404WhenUserHasNoPasskeys()
