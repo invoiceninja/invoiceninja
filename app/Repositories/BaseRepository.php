@@ -21,6 +21,7 @@ use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
+use App\Utils\BcMath;
 use App\Utils\Helpers;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
@@ -322,9 +323,13 @@ class BaseRepository
             if ($model->status_id != Invoice::STATUS_DRAFT) {
                 $model->service()->updateStatus()->save();
             
-                $adjustment = round($state['finished_amount'] - $state['starting_amount'], 2);
-                if ($adjustment != 0) {
-                    $model->client->service()->updateBalance($adjustment);
+                /** replaced with BcMath */
+                // $adjustment = (float) BcMath::sub($state['finished_amount'], $state['starting_amount'], 2);
+                // if ($adjustment != 0) {
+
+                $adjustment = BcMath::sub($state['finished_amount'], $state['starting_amount'], 2);
+                if (!BcMath::isZero($adjustment)) {
+                    $model->client->service()->updateBalance((float) $adjustment);
                 }
                 
             }
