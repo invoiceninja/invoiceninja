@@ -46,4 +46,5 @@ parameters:
         - '#Right side of && is always true.#'
         - '#is never read, only written.#'
         - '#is never written#'
-        - 'larastan.noEnvCallsOutsideOfConfig'
+        - '#noEnvCallsOutsideOfConfig#'
+        - 'larastan.noEnvCallsOutsideOfConfig'. 

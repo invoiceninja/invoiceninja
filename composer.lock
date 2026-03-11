@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "48238a2fe43ed680ff3b04d54178c758",
+    "content-hash": "8a50c2fe501dee5e823dc1d72ad78fc4",
     "packages": [
         {
             "name": "apimatic/core",
@@ -16839,25 +16839,26 @@
         },
         {
             "name": "turbo124/beacon",
-            "version": "v3.0.1",
+            "version": "v3.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/turbo124/beacon.git",
-                "reference": "3a2d4edc82a190230ccabce25a586b01120b5b66"
+                "reference": "716635654034dc019d5527c1b914eaea1e75b69c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/turbo124/beacon/zipball/3a2d4edc82a190230ccabce25a586b01120b5b66",
-                "reference": "3a2d4edc82a190230ccabce25a586b01120b5b66",
+                "url": "https://api.github.com/repos/turbo124/beacon/zipball/716635654034dc019d5527c1b914eaea1e75b69c",
+                "reference": "716635654034dc019d5527c1b914eaea1e75b69c",
                 "shasum": ""
             },
             "require": {
                 "guzzlehttp/guzzle": "^7",
                 "illuminate/support": "^11|^12",
-                "php": "^8.2|^8.3",
+                "php": "^8.2|^8.3|^8.4",
                 "turbo124/waffy": "^1.0"
             },
             "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.94",
                 "larastan/larastan": "^3.6",
                 "orchestra/testbench": "^10.6",
                 "phpstan/phpstan": "^2.1",
@@ -16899,9 +16900,9 @@
                 "turbo124"
             ],
             "support": {
-                "source": "https://github.com/turbo124/beacon/tree/v3.0.1"
+                "source": "https://github.com/turbo124/beacon/tree/v3.0.2"
             },
-            "time": "2025-09-01T02:13:38+00:00"
+            "time": "2026-03-02T18:15:33+00:00"
         },
         {
             "name": "turbo124/waffy",
@@ -22140,6 +22141,6 @@
         "ext-libxml": "*",
         "ext-simplexml": "*"
     },
-    "platform-dev": {},
-    "plugin-api-version": "2.9.0"
+    "platform-dev": [],
+    "plugin-api-version": "2.6.0"
 }

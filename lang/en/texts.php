@@ -5935,6 +5935,11 @@ $lang = array(
     'hide_peppol_sent_status' => 'Hide Peppol Sent Status',
     'quickbooks_requires_reauth' => 'QuickBooks requires re-authentication',
     'quickbooks_requires_reauth_body' => 'Your QuickBooks connection has expired and requires re-authentication. Please log into the administrator portal and reconnect your QuickBooks account. We will send you this notification daily until this issue is resolved.',
+    'crop_logo' => 'Crop Logo',
+    'passkey' => 'Passkey',
+    'login_with_passkey' => 'Login with a Passkey',
+    'manage_passkeys' => 'Manage Passkeys',
+    'last_used' => 'Last used',
 );
 
 return $lang;
