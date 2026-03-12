@@ -60,7 +60,7 @@ class AutoBillInvoice extends AbstractService
 
         /* Mark the invoice as paid if there is no balance */
         if ($this->invoice->balance == 0 && !$this->invoice->is_deleted && ($this->invoice->status_id == Invoice::STATUS_DRAFT || $this->invoice->status_id == Invoice::STATUS_SENT)) {
-            $this->invoice->service()->markPaid()->save();
+            return $this->invoice->service()->markPaid()->save();
         }
 
         /* Is the invoice payable? */
