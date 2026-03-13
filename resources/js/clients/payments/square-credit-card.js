@@ -47,22 +47,29 @@ class SquareCreditCard {
 
     async completePaymentWithoutToken(e) {
         document.getElementById('errors').hidden = true;
-        e.target.parentElement.disabled = true;
 
         let payNowButton = document.getElementById('pay-now');
         this.payNowButton = payNowButton;
 
         this.payNowButton.disabled = true;
-
         this.payNowButton.querySelector('svg').classList.remove('hidden');
         this.payNowButton.querySelector('span').classList.add('hidden');
 
-        let result = await this.card.tokenize();
-
-        /* SCA */
-        let verificationToken;
-
         try {
+            let result = await this.card.tokenize();
+
+            if (result.status !== 'OK') {
+                let errorMessage = result.errors?.[0]?.message
+                    ?? 'An error occurred during payment processing.';
+
+                this.showError(errorMessage);
+                this.resetPayButton();
+                return;
+            }
+
+            /* SCA */
+            let verificationToken;
+
             const verificationDetails = {
                 amount: document.querySelector('meta[name=amount]').content,
                 billingContact: JSON.parse(
@@ -79,14 +86,9 @@ class SquareCreditCard {
             );
 
             verificationToken = verificationResults.token;
-        } catch (typeError) {
-            e.target.parentElement.disabled = true;
-        }
 
-        document.querySelector('input[name="verificationToken"]').value =
-            verificationToken;
-
-        if (result.status === 'OK') {
+            document.querySelector('input[name="verificationToken"]').value =
+                verificationToken;
             document.getElementById('sourceId').value = result.token;
 
             let tokenBillingCheckbox = document.querySelector(
@@ -99,15 +101,20 @@ class SquareCreditCard {
             }
 
             return document.getElementById('server_response').submit();
+        } catch (error) {
+            this.showError(error.message ?? 'An error occurred during payment processing.');
+            this.resetPayButton();
         }
+    }
 
-        document.getElementById('errors').textContent =
-            result.errors[0].message;
-        document.getElementById('errors').hidden = false;
+    showError(message) {
+        let errorsDiv = document.getElementById('errors');
+        errorsDiv.textContent = message;
+        errorsDiv.hidden = false;
+    }
 
-        e.target.parentElement.disabled = false;
+    resetPayButton() {
         this.payNowButton.disabled = false;
-
         this.payNowButton.querySelector('svg').classList.add('hidden');
         this.payNowButton.querySelector('span').classList.remove('hidden');
     }

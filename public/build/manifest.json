@@ -187,7 +187,7 @@
     "src": "resources/js/clients/payments/razorpay-aio.js"
   },
   "resources/js/clients/payments/square-credit-card.js": {
-    "file": "assets/square-credit-card-831b002b.js",
+    "file": "assets/square-credit-card-48397a95.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -390,7 +390,7 @@
     "src": "resources/js/setup/setup.js"
   },
   "resources/sass/app.scss": {
-    "file": "assets/app-89d2fe8e.css",
+    "file": "assets/app-af825579.css",
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }
