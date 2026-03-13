@@ -152,16 +152,86 @@ class SquareCreditCard {
         return verificationResults.token;
     }
 
-    async handle() {
-        document.getElementById('payment-list').classList.add('hidden');
+    async authorizeCard(e) {
+        let authorizeButton = document.getElementById('authorize-card');
+        this.payNowButton = authorizeButton;
 
+        authorizeButton.disabled = true;
+        authorizeButton.querySelector('svg').classList.remove('hidden');
+        authorizeButton.querySelector('span').classList.add('hidden');
+
+        document.getElementById('errors').hidden = true;
+
+        try {
+            let result = await this.card.tokenize();
+
+            if (result.status !== 'OK') {
+                let errorMessage = result.errors?.[0]?.message
+                    ?? 'An error occurred while authorizing the card.';
+
+                this.showError(errorMessage);
+                this.resetPayButton();
+                return;
+            }
+
+            /* SCA - verify with STORE intent for card-on-file */
+            const verificationDetails = {
+                amount: '0',
+                billingContact: JSON.parse(
+                    document.querySelector('meta[name=square_contact]').content
+                ),
+                currencyCode: document.querySelector('meta[name=currencyCode]')
+                    .content,
+                intent: 'STORE',
+            };
+
+            const verificationResults = await this.payments.verifyBuyer(
+                result.token,
+                verificationDetails
+            );
+
+            document.querySelector('input[name="verificationToken"]').value =
+                verificationResults.token;
+
+            document.getElementById('sourceId').value = result.token;
+
+            return document.getElementById('server_response').submit();
+        } catch (error) {
+            this.showError(error.message ?? 'An error occurred while authorizing the card.');
+            this.resetPayButton();
+        }
+    }
+
+    async handle() {
+        let isAuthorization = document.querySelector(
+            'meta[name=only-authorization]'
+        );
+
+        if (isAuthorization) {
+            return this.handleAuthorization();
+        }
+
+        return this.handlePayment();
+    }
+
+    async handleAuthorization() {
         await this.init().then(() => {
             document
                 .getElementById('authorize-card')
-                ?.addEventListener('click', (e) =>
-                    this.completePaymentWithoutToken(e)
-                );
+                ?.addEventListener('click', (e) => this.authorizeCard(e));
 
+            Array.from(document.getElementsByClassName('loader')).forEach(
+                (element) => {
+                    element.classList.add('hidden');
+                }
+            );
+        });
+    }
+
+    async handlePayment() {
+        document.getElementById('payment-list').classList.add('hidden');
+
+        await this.init().then(() => {
             document
                 .getElementById('pay-now')
                 ?.addEventListener('click', (e) => {
