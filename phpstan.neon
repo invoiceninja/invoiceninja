@@ -47,4 +47,3 @@ parameters:
         - '#is never read, only written.#'
         - '#is never written#'
         - '#noEnvCallsOutsideOfConfig#'
-        - 'larastan.noEnvCallsOutsideOfConfig'. 

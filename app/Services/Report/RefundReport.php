@@ -86,7 +86,7 @@ class RefundReport extends BaseExport
             /** @var Activity $activity */
 
             // Extract refund amount from notes using regex
-            preg_match('/Refunded : (\d+) -/', $activity->notes, $matches);
+            preg_match('/Refunded : (\d+) -/', $activity->notes ?? '', $matches);
             $refundAmount = $matches[1] ?? 0;
 
             // Get payment details
