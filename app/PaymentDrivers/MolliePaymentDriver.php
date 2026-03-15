@@ -332,11 +332,6 @@ class MolliePaymentDriver extends BaseDriver
      */
     public function processWebhookRequest(PaymentWebhookRequest $request): JsonResponse
     {
-        // Sometimes the webhook is called before the Client is sent back to InvoiceNinja,
-        // since we first want the client to execute `$this->payment_method->paymentResponse()`
-        // before processing the webhook, we wait a bit here.
-        usleep(rand(1500000, 4000000));
-
         $validator = Validator::make($request->all(), [
             'id' => ['required', 'string', 'starts_with:tr', 'max:255'],
         ]);
@@ -354,14 +349,11 @@ class MolliePaymentDriver extends BaseDriver
             $payment = Payment::withTrashed()->where('transaction_reference', $request->id)->first();
 
             if (!$payment) {
-                // Sometimes the user is not returned to the site with a response from Mollie
-                // so we may not have a payment record. For these cases we need to re-construct the payment
-                // record from the metadata in the payment hash.
-
+                // Construct the payment record from the metadata in the payment hash.
                 if (!$molliePayment->metadata?->client_id) {
                     throw new \Exception('No client_id found in Mollie payment metadata');
                 }
-                $client = Client::withTrashed()->find($this->decodePrimaryKey($molliePayment->metadata->client_id));
+                $client = Client::withTrashed()->findOrFail($this->decodePrimaryKey($molliePayment->metadata->client_id));
                 $this->client = $client;
 
                 if (!$molliePayment->metadata?->hash) {
@@ -443,7 +435,7 @@ class MolliePaymentDriver extends BaseDriver
 
             SystemLogger::dispatch([
                     'request' => $request->toArray(),
-                    'mollie_payment' => $molliePayment,
+                    'molliePayment' => $molliePayment,
                     'payment' => $payment
                 ],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
@@ -579,7 +571,7 @@ class MolliePaymentDriver extends BaseDriver
             // else
 
             if($payment->status == 'failed'){
-                return (new CreditCard($this))->processUnsuccessfulPayment(new PaymentFailed($payment->details->failureMessage, 400));
+                return (new CreditCard($this))->processUnsuccessfulPayment($payment->details->failureMessage);
             }
 
             return (new CreditCard($this))->processSuccessfulPayment($payment);
