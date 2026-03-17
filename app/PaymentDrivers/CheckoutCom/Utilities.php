@@ -54,12 +54,20 @@ trait Utilities
 
     private function processSuccessfulPayment($_payment)
     {
+        nlog([
+            'checkout_store_card_decision' => [
+                'store_card'  => $this->getParent()->payment_hash->data->store_card ?? 'NOT SET',
+                'source_id'   => $_payment['source']['id'] ?? 'MISSING',
+                'source_keys' => array_keys($_payment['source'] ?? []),
+            ],
+        ]);
+
         if ($this->getParent()->payment_hash->data->store_card) {
             $this->storeLocalPaymentMethod($_payment);
         }
 
         $data = [
-            'payment_method' => $_payment['source']['id'],
+            'payment_method' => $_payment['source']['id'] ?? $_payment['id'],
             'payment_type' => \App\Models\PaymentType::CREDIT_CARD_OTHER,
             'amount' => $this->getParent()->payment_hash->data->raw_value,
             'transaction_reference' => $_payment['id'],
@@ -133,20 +141,25 @@ trait Utilities
     private function storeLocalPaymentMethod($response)
     {
         try {
+            if (empty($response['source']['id'] ?? null)) {
+                session()->flash('message', ctrans('texts.payment_method_saving_failed'));
+                return;
+            }
+
             $payment_meta = new stdClass();
-            $payment_meta->exp_month = (string) $response['source']['expiry_month'];
-            $payment_meta->exp_year = (string) $response['source']['expiry_year'];
-            $payment_meta->brand = (string) $response['source']['scheme'];
-            $payment_meta->last4 = (string) $response['source']['last4'];
+            $payment_meta->exp_month = (string) ($response['source']['expiry_month'] ?? '');
+            $payment_meta->exp_year = (string) ($response['source']['expiry_year'] ?? '');
+            $payment_meta->brand = (string) ($response['source']['scheme'] ?? '');
+            $payment_meta->last4 = (string) ($response['source']['last4'] ?? '');
             $payment_meta->type = (int) GatewayType::CREDIT_CARD;
 
             $data = [
                 'payment_meta' => $payment_meta,
                 'token' => $response['source']['id'],
-                'payment_method_id' => $this->getParent()->payment_hash->data->payment_method_id,
+                'payment_method_id' => $this->getParent()->payment_hash->data->payment_method_id ?? GatewayType::CREDIT_CARD,
             ];
 
-            return $this->getParent()->storePaymentMethod($data, ['gateway_customer_reference' => $response['customer']['id']]);
+            return $this->getParent()->storePaymentMethod($data, ['gateway_customer_reference' => $response['customer']['id'] ?? '']);
         } catch (Exception $e) {
             session()->flash('message', ctrans('texts.payment_method_saving_failed'));
         }

@@ -42,8 +42,15 @@ use App\Http\Requests\Payments\PaymentWebhookRequest;
 use Checkout\Payments\Request\Source\RequestIdSource;
 use App\Http\Requests\Gateways\Checkout3ds\Checkout3dsRequest;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use Checkout\Common\Address;
+use Checkout\Payments\BillingInformation;
+use Checkout\Payments\PaymentCustomerRequest;
+use Checkout\Payments\ThreeDsRequest;
 use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
 use Checkout\Payments\Previous\Source\RequestIdSource as SourceRequestIdSource;
+use Checkout\Payments\Sessions\Card as SessionCard;
+use Checkout\Payments\Sessions\PaymentMethodConfiguration;
+use Checkout\Payments\Sessions\PaymentSessionsRequest;
 
 class CheckoutComPaymentDriver extends BaseDriver
 {
@@ -115,8 +122,13 @@ class CheckoutComPaymentDriver extends BaseDriver
      */
     public function init()
     {
+        $secretKey = $this->company_gateway->getConfigField('secretApiKey');
+        if ($secretKey === null || $secretKey === '') {
+            $this->gateway = null;
+            return $this;
+        }
 
-        if (str_contains($this->company_gateway->getConfigField('secretApiKey'), '-')) {
+        if (str_contains($secretKey, '-')) {
 
             $this->is_four_api = true; //was four api, now known as previous.
 
@@ -126,7 +138,7 @@ class CheckoutComPaymentDriver extends BaseDriver
                     ->staticKeys()
                     ->environment($this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production()) /** phpstan-ignore-line **/
                     ->publicKey($this->company_gateway->getConfigField('publicApiKey'))
-                    ->secretKey($this->company_gateway->getConfigField('secretApiKey'));
+                    ->secretKey($secretKey);
 
             $this->gateway = $builder->build();
 
@@ -137,7 +149,7 @@ class CheckoutComPaymentDriver extends BaseDriver
                     ->staticKeys()
                     ->environment($this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production()) /** phpstan-ignore-line **/
                     ->publicKey($this->company_gateway->getConfigField('publicApiKey'))
-                    ->secretKey($this->company_gateway->getConfigField('secretApiKey'));
+                    ->secretKey($secretKey);
 
             $this->gateway = $builder->build();
 
@@ -398,6 +410,14 @@ class CheckoutComPaymentDriver extends BaseDriver
         $paymentRequest->metadata = ['udf1' => 'Invoice Ninja', 'udf2' => $payment_hash->hash];
         $paymentRequest->currency = $this->client->getCurrencyCode();
 
+        $processingChannelId = $this->company_gateway->getConfigField('processingChannelId');
+        if ($processingChannelId) {
+            $paymentRequest->processing_channel_id = $processingChannelId;
+        }
+
+        // MIT recurring — exempt from 3DS challenge
+        $paymentRequest->payment_type = 'Recurring';
+
         $request = new PaymentResponseRequest();
         $request->setMethod('POST');
         $request->request->add(['payment_hash' => $payment_hash->hash]);
@@ -405,11 +425,11 @@ class CheckoutComPaymentDriver extends BaseDriver
         try {
             $response = $this->gateway->getPaymentsClient()->requestPayment($paymentRequest);
 
-            if ($response['status'] == 'Authorized') {
+            if ($response['status'] == 'Authorized' || $response['status'] == 'Captured') {
 
                 $data = [
-                    'payment_method' => $response['source']['id'],
-                    'payment_type' => PaymentType::parseCardType(strtolower($response['source']['scheme'])),
+                    'payment_method' => $response['source']['id'] ?? $response['id'],
+                    'payment_type' => PaymentType::parseCardType(strtolower($response['source']['scheme'] ?? '')),
                     'amount' => $amount,
                     'transaction_reference' => $response['id'],
                     'gateway_type_id' => GatewayType::CREDIT_CARD,
@@ -623,5 +643,94 @@ class CheckoutComPaymentDriver extends BaseDriver
     public function livewirePaymentView(array $data): string
     {
         return $this->payment_method->livewirePaymentView($data);
+    }
+
+    /**
+     * Whether to use Checkout.com Flow SDK (payment sessions) instead of Frames.
+     * True when on current API and processingChannelId is configured.
+     */
+    public function useFlow(): bool
+    {
+        if ($this->is_four_api) {
+            return false;
+        }
+        $channelId = $this->company_gateway->getConfigField('processingChannelId');
+
+        return $channelId !== null && $channelId !== '';
+    }
+
+    /**
+     * Create a Payment Session for Flow SDK (current API only).
+     *
+     * @param  int  $amount  Amount in gateway units (from convertToCheckoutAmount)
+     * @param  string  $reference  Payment reference (e.g. invoice description)
+     * @param  string  $paymentHash  Payment hash for metadata/redirects
+     * @param  string  $successUrl  URL to redirect on success
+     * @param  string  $failureUrl  URL to redirect on failure
+     * @param  bool  $capture  True for payment, false for authorization
+     * @return array Payment session response (id, payment_session_token, etc.)
+     *
+     * @throws CheckoutApiException|CheckoutArgumentException|CheckoutAuthorizationException
+     */
+    public function createPaymentSession(
+        int $amount,
+        string $reference,
+        string $paymentHash,
+        string $successUrl,
+        string $failureUrl,
+        bool $capture = true
+    ): array {
+        if ($this->gateway === null) {
+            throw new \InvalidArgumentException('Checkout.com gateway is not configured. Please set the secret key.');
+        }
+        if ($this->is_four_api) {
+            throw new \InvalidArgumentException('Payment Sessions are not available on the previous API.');
+        }
+
+        $customer = new PaymentCustomerRequest();
+        $customer->email = $this->client->present()->email();
+        $customer->name = $this->client->present()->name();
+
+        $threeDs = new ThreeDsRequest();
+        $threeDs->enabled = true;
+
+        $billing = new BillingInformation();
+        $billing->address = new Address();
+        $billing->address->address_line1 = $this->client->address1 ?? '';
+        $billing->address->address_line2 = $this->client->address2 ?? '';
+        $billing->address->city = $this->client->city ?? '';
+        $billing->address->state = $this->client->state ?? '';
+        $billing->address->zip = $this->client->postal_code ?? '';
+        $countryCode = $this->client->country?->iso_3166_2 ?? null;
+        if (! $countryCode && $this->client->company->settings && isset($this->client->company->settings->country_id)) {
+            $countryCode = \App\Models\Country::find($this->client->company->settings->country_id)?->iso_3166_2;
+        }
+        $billing->address->country = $countryCode ?? 'US';
+
+        $cardConfig = new SessionCard();
+        $cardConfig->store_payment_details = 'enabled';
+
+        $methodConfig = new PaymentMethodConfiguration();
+        $methodConfig->card = $cardConfig;
+
+        $request = new PaymentSessionsRequest();
+        $request->amount = $amount;
+        $request->currency = $this->client->getCurrencyCode();
+        $request->reference = $reference;
+        $request->processing_channel_id = $this->company_gateway->getConfigField('processingChannelId');
+        $request->success_url = $successUrl;
+        $request->failure_url = $failureUrl;
+        $request->customer = $customer;
+        $request->metadata = ['udf1' => 'Invoice Ninja', 'udf2' => $paymentHash];
+        $request->three_ds = $threeDs;
+        $request->capture = $capture;
+        $request->billing = $billing;
+        $request->payment_method_configuration = $methodConfig;
+
+        $response = $this->gateway->getPaymentSessionsClient()->createPaymentSessions($request);
+
+        nlog(['checkout_payment_session_response' => $response]);
+
+        return $response;
     }
 }

@@ -56,6 +56,10 @@ class CheckoutSetupWebhook implements ShouldQueue
 
         $this->checkout = $company_gateway->driver()->init();
 
+        if ($this->checkout->gateway === null) {
+            return;
+        }
+
         $webhook = new Webhook($this->checkout);
 
         $workflows = $webhook->getWorkFlows();
