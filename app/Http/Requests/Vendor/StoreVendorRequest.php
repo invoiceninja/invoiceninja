@@ -40,6 +40,7 @@ class StoreVendorRequest extends Request
 
         $rules = [];
         $rules['name'] = 'bail|required|string';
+        $rules['number'] = ['bail', 'nullable', Rule::unique('vendors')->where('company_id', $user->company()->id)];
         $rules['contacts'] = 'bail|array';
         $rules['contacts.*.email'] = 'bail|nullable|distinct|sometimes|email';
         $rules['contacts.*.password'] = [
@@ -53,11 +54,6 @@ class StoreVendorRequest extends Request
             'regex:/[0-9]/',      // must contain at least one digit
             //'regex:/[@$!%*#?&.]/', // must contain a special character
         ];
-
-
-        if (isset($this->number)) {
-            $rules['number'] = Rule::unique('vendors')->where('company_id', $user->company()->id);
-        }
 
         $rules['currency_id'] = 'bail|required|exists:currencies,id';
         $rules['file'] = 'bail|sometimes|array';
