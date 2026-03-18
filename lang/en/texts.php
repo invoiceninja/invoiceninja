@@ -5940,6 +5940,9 @@ $lang = array(
     'login_with_passkey' => 'Login with a Passkey',
     'manage_passkeys' => 'Manage Passkeys',
     'last_used' => 'Last used',
+    'unapplied_payments' => 'Unapplied Payments',
+    'debit' => 'Debit',
+
 );
 
 return $lang;
