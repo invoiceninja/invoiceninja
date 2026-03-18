@@ -5943,6 +5943,8 @@ $lang = array(
     'unapplied_payments' => 'Unapplied Payments',
     'debit' => 'Debit',
     'auto_convert_credit_help' => 'Automatically link or create a payment matching these rules.',
+    'clone_client_description' => 'This will clone the client into a new client record.',
+
 );
 
 return $lang;
