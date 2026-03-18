@@ -5942,7 +5942,7 @@ $lang = array(
     'last_used' => 'Last used',
     'unapplied_payments' => 'Unapplied Payments',
     'debit' => 'Debit',
-
+    'auto_convert_credit_help' => 'Automatically link or create a payment matching these rules.',
 );
 
 return $lang;
