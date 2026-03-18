@@ -49,6 +49,8 @@ class CheckoutSetupWebhook implements ShouldQueue
     public function handle()
     {
 
+        nlog("Checkout Setup Webhook");
+        
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
         /** @var \App\Models\CompanyGateway $company_gateway */
@@ -59,6 +61,9 @@ class CheckoutSetupWebhook implements ShouldQueue
         if ($this->checkout->gateway === null) {
             return;
         }
+
+        // Probe which payment methods the account supports and store the result
+        $this->checkout->probeAvailablePaymentMethods();
 
         $webhook = new Webhook($this->checkout);
 

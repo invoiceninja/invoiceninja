@@ -15,12 +15,80 @@ namespace App\PaymentDrivers\CheckoutCom;
 use App\Exceptions\PaymentFailed;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
+use App\Models\PaymentType;
 use App\Models\SystemLog;
 use Exception;
 use stdClass;
 
 trait Utilities
 {
+    /**
+     * Map a Checkout.com source type string to Invoice Ninja GatewayType + PaymentType.
+     *
+     * @param  array  $_payment  The payment details array from Checkout.com
+     * @return array{gateway_type_id: int, payment_type: int}
+     */
+    public static function resolvePaymentMeta(array $_payment): array
+    {
+        $sourceType = strtolower($_payment['source']['type'] ?? 'card');
+
+        $map = [
+            'ideal'      => [GatewayType::IDEAL, PaymentType::IDEAL],
+            'giropay'    => [GatewayType::GIROPAY, PaymentType::GIROPAY],
+            'bancontact' => [GatewayType::BANCONTACT, PaymentType::BANCONTACT],
+            'p24'        => [GatewayType::PRZELEWY24, PaymentType::PRZELEWY24],
+            'sofort'     => [GatewayType::SOFORT, PaymentType::SOFORT],
+            'eps'        => [GatewayType::EPS, PaymentType::EPS],
+            'paypal'     => [GatewayType::PAYPAL, PaymentType::PAYPAL],
+            'knet'       => [GatewayType::CREDIT_CARD, PaymentType::CREDIT_CARD_OTHER],
+            'multibanco' => [GatewayType::BANK_TRANSFER, PaymentType::BANK_TRANSFER],
+            'applepay'   => [GatewayType::APPLE_PAY, PaymentType::CREDIT_CARD_OTHER],
+            'googlepay'  => [GatewayType::CREDIT_CARD, PaymentType::CREDIT_CARD_OTHER],
+        ];
+
+        if (isset($map[$sourceType])) {
+            return [
+                'gateway_type_id' => $map[$sourceType][0],
+                'payment_type'    => $map[$sourceType][1],
+            ];
+        }
+
+        // Card payments — resolve specific card brand from scheme
+        if ($sourceType === 'card') {
+            return [
+                'gateway_type_id' => GatewayType::CREDIT_CARD,
+                'payment_type'    => PaymentType::parseCardType(strtolower($_payment['source']['scheme'] ?? '')),
+            ];
+        }
+
+        // Unknown source type — fall back to credit card
+        return [
+            'gateway_type_id' => GatewayType::CREDIT_CARD,
+            'payment_type'    => PaymentType::CREDIT_CARD_OTHER,
+        ];
+    }
+
+    /**
+     * Map a Checkout.com source type to its Flow SDK payment method name
+     * for use in enabled_payment_methods on the session request.
+     */
+    public static function gatewayTypeToFlowMethod(int $gatewayType): ?string
+    {
+        $map = [
+            GatewayType::CREDIT_CARD => 'card',
+            GatewayType::IDEAL       => 'ideal',
+            GatewayType::GIROPAY     => 'giropay',
+            GatewayType::BANCONTACT  => 'bancontact',
+            GatewayType::PRZELEWY24  => 'p24',
+            GatewayType::SOFORT      => 'sofort',
+            GatewayType::EPS         => 'eps',
+            GatewayType::PAYPAL      => 'paypal',
+            GatewayType::APPLE_PAY   => 'applepay',
+        ];
+
+        return $map[$gatewayType] ?? null;
+    }
+
     public function getPublishableKey()
     {
         return $this->company_gateway->getConfigField('publicApiKey');
@@ -66,12 +134,14 @@ trait Utilities
             $this->storeLocalPaymentMethod($_payment);
         }
 
+        $meta = self::resolvePaymentMeta($_payment);
+
         $data = [
             'payment_method' => $_payment['source']['id'] ?? $_payment['id'],
-            'payment_type' => \App\Models\PaymentType::CREDIT_CARD_OTHER,
+            'payment_type' => $meta['payment_type'],
             'amount' => $this->getParent()->payment_hash->data->raw_value,
             'transaction_reference' => $_payment['id'],
-            'gateway_type_id' => GatewayType::CREDIT_CARD,
+            'gateway_type_id' => $meta['gateway_type_id'],
         ];
 
         $payment = $this->getParent()->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
@@ -131,6 +201,34 @@ trait Utilities
 
     private function processPendingPayment($_payment)
     {
+        // Flow SDK: payment was initiated but awaits settlement (e.g. SOFORT, Multibanco).
+        // Create the payment record as Pending; the webhook will mark it Completed.
+        if (isset($_payment['id'])) {
+            $meta = self::resolvePaymentMeta($_payment);
+
+            $data = [
+                'payment_method' => $_payment['source']['id'] ?? $_payment['id'],
+                'payment_type' => $meta['payment_type'],
+                'amount' => $this->getParent()->payment_hash->data->raw_value,
+                'transaction_reference' => $_payment['id'],
+                'gateway_type_id' => $meta['gateway_type_id'],
+            ];
+
+            $payment = $this->getParent()->createPayment($data, \App\Models\Payment::STATUS_PENDING);
+
+            SystemLogger::dispatch(
+                ['response' => $_payment, 'data' => $data],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_SUCCESS,
+                SystemLog::TYPE_CHECKOUT,
+                $this->getParent()->client,
+                $this->getParent()->client->company
+            );
+
+            return redirect()->route('client.payments.show', ['payment' => $this->getParent()->encodePrimaryKey($payment->id)]);
+        }
+
+        // Legacy Frames: redirect to external payment page
         try {
             return redirect($_payment['_links']['redirect']['href']);
         } catch (Exception $e) {

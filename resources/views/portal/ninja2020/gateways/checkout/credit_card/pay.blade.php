@@ -51,11 +51,12 @@
                         type="radio"
                         data-token="{{ $token->hashed_id }}"
                         name="payment-type"
-                        class="form-radio cursor-pointer toggle-payment-with-token"/>
+                        class="form-radio cursor-pointer toggle-payment-with-token"
+                        {{ $loop->first ? 'checked' : '' }}/>
                     <span class="ml-1 cursor-pointer">**** {{ $token->meta?->last4 }}</span>
                 </label>
             @endforeach
-        @endisset
+        @endif
 
         <label>
             <input
@@ -63,7 +64,7 @@
                 id="toggle-payment-with-credit-card"
                 class="form-radio cursor-pointer"
                 name="payment-type"
-                checked/>
+                {{ count($tokens) == 0 ? 'checked' : '' }}/>
             <span class="ml-1 cursor-pointer">{{ __('texts.new_card') }}</span>
         </label>
     @endcomponent

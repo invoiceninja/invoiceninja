@@ -15,12 +15,10 @@ namespace App\PaymentDrivers\CheckoutCom;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Models\CompanyGateway;
-use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentHash;
-use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\Stripe\Utilities;
+use App\PaymentDrivers\CheckoutCom\Utilities;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -58,6 +56,8 @@ class CheckoutWebhook implements ShouldQueue
         /** @phpstan-ignore-next-line */
         match ($this->webhook_array['type']) {
             'payment_approved' => $this->paymentApproved(),
+            'payment_captured' => $this->paymentApproved(),
+            default => nlog("Checkout Webhook: unhandled type {$this->webhook_array['type']}"),
         };
 
     }
@@ -86,25 +86,31 @@ class CheckoutWebhook implements ShouldQueue
             return;
         }
 
-        if (isset($this->webhook_array['metadata'])) {
+        $metadata = $payment_object['metadata'] ?? $this->webhook_array['metadata'] ?? null;
 
-            $metadata = $this->webhook_array['metadata'];
+        if ($metadata && isset($metadata['udf2'])) {
 
             $payment_hash = PaymentHash::query()->where('hash', $metadata['udf2'])->first();
 
-            $driver = $this->company_gateway->driver($payment_hash->fee_invoice->client)->init()->setPaymentMethod();
+            if (!$payment_hash) {
+                nlog("Checkout Webhook: payment hash not found for udf2={$metadata['udf2']}");
+                return;
+            }
+
+            $meta = Utilities::resolvePaymentMeta($payment_object);
+
+            $driver = $this->company_gateway->driver($payment_hash->fee_invoice->client)->init()->setPaymentMethod($meta['gateway_type_id']);
 
             $payment_hash->data = array_merge((array) $payment_hash->data, $this->webhook_array); // @phpstan-ignore-line
             $payment_hash->save();
             $driver->setPaymentHash($payment_hash);
 
-            // @phpstan-ignore-line
             $data = [
-                'payment_method' => $this->webhook_array['source']['id'] ?? '',
-                'payment_type' => PaymentType::CREDIT_CARD_OTHER,
+                'payment_method' => $payment_object['source']['id'] ?? '',
+                'payment_type' => $meta['payment_type'],
                 'amount' => $payment_hash->data->raw_value, // @phpstan-ignore-line
                 'transaction_reference' => $payment_object['id'],
-                'gateway_type_id' => GatewayType::CREDIT_CARD,
+                'gateway_type_id' => $meta['gateway_type_id'],
             ];
 
             $payment = $driver->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);

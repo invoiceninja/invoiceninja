@@ -134,7 +134,7 @@
     "src": "resources/js/clients/payments/braintree-paypal.js"
   },
   "resources/js/clients/payments/checkout-credit-card-flow.js": {
-    "file": "assets/checkout-credit-card-flow-a24ba040.js",
+    "file": "assets/checkout-credit-card-flow-27ae67d0.js",
     "imports": [
       "_wait-8f4ae121.js",
       "_index.module-d6acd7fe.js"
