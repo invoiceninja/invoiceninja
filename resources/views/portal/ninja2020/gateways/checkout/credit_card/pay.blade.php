@@ -8,10 +8,17 @@
     <meta name="reference" content="{{ $payment_hash }}">
     <meta name="instant-payment" content="yes" />
     <meta name="cardholder_name" content="{{ $cardholder_name }}">
+    @if($use_flow ?? false)
+    <meta name="payment-session-id" content="{{ $payment_session_id ?? '' }}">
+    <meta name="payment-session-token" content="{{ $payment_session_token ?? '' }}">
+    <meta name="environment" content="{{ $environment ?? 'sandbox' }}">
+    @endif
 
     @include('portal.ninja2020.gateways.checkout.credit_card.includes.styles')
 
+    @if(!($use_flow ?? false))
     <script src="https://cdn.checkout.com/js/framesv2.min.js"></script>
+    @endif
 @endsection
 
 @section('gateway_content')
@@ -44,11 +51,12 @@
                         type="radio"
                         data-token="{{ $token->hashed_id }}"
                         name="payment-type"
-                        class="form-radio cursor-pointer toggle-payment-with-token"/>
+                        class="form-radio cursor-pointer toggle-payment-with-token"
+                        {{ $loop->first ? 'checked' : '' }}/>
                     <span class="ml-1 cursor-pointer">**** {{ $token->meta?->last4 }}</span>
                 </label>
             @endforeach
-        @endisset
+        @endif
 
         <label>
             <input
@@ -56,7 +64,7 @@
                 id="toggle-payment-with-credit-card"
                 class="form-radio cursor-pointer"
                 name="payment-type"
-                checked/>
+                {{ count($tokens) == 0 ? 'checked' : '' }}/>
             <span class="ml-1 cursor-pointer">{{ __('texts.new_card') }}</span>
         </label>
     @endcomponent
@@ -64,6 +72,10 @@
     @include('portal.ninja2020.gateways.includes.save_card')
 
     @component('portal.ninja2020.components.general.card-element-single')
+        @if($use_flow ?? false)
+        <div id="flow-container"></div>
+        <p id="flow-error-message" class="text-red-600 mt-2 hidden" role="alert"></p>
+        @else
         <div id="checkout--container">
             <form class="xl:flex xl:justify-center" id="payment-form" method="POST" action="#">
                 <div class="one-liner">
@@ -78,6 +90,7 @@
                 <p class="success-payment-message"></p>
             </form>
         </div>
+        @endif
     @endcomponent
 
     @component('portal.ninja2020.components.general.card-element-single')
@@ -88,5 +101,9 @@
 @endsection
 
 @section('gateway_footer')
+    @if($use_flow ?? false)
+    @vite('resources/js/clients/payments/checkout-credit-card-flow.js')
+    @else
     @vite('resources/js/clients/payments/checkout-credit-card.js')
+    @endif
 @endsection

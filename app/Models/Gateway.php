@@ -166,7 +166,17 @@ class Gateway extends StaticModel
                     GatewayType::FPX => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded', 'charge.refunded', 'charge.failed',]],
                 ];
             case 39:
-                return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true, 'webhooks' => [' ']]]; //Checkout
+                return [
+                    GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true, 'webhooks' => ['payment_approved']],
+                    GatewayType::IDEAL       => ['refund' => true, 'token_billing' => false, 'webhooks' => ['payment_approved']],
+                    GatewayType::BANCONTACT  => ['refund' => true, 'token_billing' => false, 'webhooks' => ['payment_approved']],
+                    GatewayType::GIROPAY     => ['refund' => true, 'token_billing' => false, 'webhooks' => ['payment_approved']],
+                    GatewayType::EPS         => ['refund' => true, 'token_billing' => false, 'webhooks' => ['payment_approved']],
+                    GatewayType::SOFORT      => ['refund' => true, 'token_billing' => false, 'webhooks' => ['payment_approved']],
+                    GatewayType::PRZELEWY24  => ['refund' => true, 'token_billing' => false, 'webhooks' => ['payment_approved']],
+                    GatewayType::PAYPAL      => ['refund' => true, 'token_billing' => false, 'webhooks' => ['payment_approved']],
+                    GatewayType::APPLE_PAY   => ['refund' => true, 'token_billing' => false, 'webhooks' => ['payment_approved']],
+                ]; //Checkout
             case 46:
                 return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true]]; //Paytrace
             case 49:

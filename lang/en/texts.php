@@ -5205,7 +5205,7 @@ $lang = array(
     'auto_bill_standard_invoices_help' => 'Auto bill standard invoices on the due date',
     'auto_bill_on_help' => 'Auto bill on send date OR due date (recurring invoices)',
     'use_available_credits_help' => 'Apply any credit balances to payments prior to charging a payment method',
-    'use_unapplied_payments' => 'Use unapplied payments',
+    'use_unapplied_payments' => 'Use Unapplied Payments',
     'use_unapplied_payments_help' => 'Apply any payment balances prior to charging a payment method',
     'payment_terms_help' => 'The number of days after the invoice date that payment is due',
     'payment_type_help' => 'The default payment type to be used for payments',
@@ -5940,6 +5940,9 @@ $lang = array(
     'login_with_passkey' => 'Login with a Passkey',
     'manage_passkeys' => 'Manage Passkeys',
     'last_used' => 'Last used',
+    'unapplied_payments' => 'Unapplied Payments',
+    'debit' => 'Debit',
+    'auto_convert_credit_help' => 'Automatically link or create a payment matching these rules.',
 );
 
 return $lang;

@@ -48,6 +48,9 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
     public function authorizeView($data): View
     {
         $data['gateway'] = $this->square_driver;
+        $data['square_contact'] = $this->buildClientObject();
+        $data['currencyCode'] = $this->square_driver->client->getCurrencyCode();
+        $data['payment_method_id'] = GatewayType::CREDIT_CARD;
 
         return render('gateways.square.credit_card.authorize', $data);
     }
@@ -58,8 +61,17 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function authorizeResponse($request): RedirectResponse
+    public function authorizeResponse($request)
     {
+        $source_id = $request->input('sourceId');
+
+        if (! $source_id) {
+            return redirect()->route('client.payment_methods.index')
+                ->withErrors(ctrans('texts.invalid_card_number'));
+        }
+
+        $this->createCard($source_id);
+
         return redirect()->route('client.payment_methods.index');
     }
 

@@ -213,7 +213,7 @@ class EmailDefaults
         $reply_to_email = $this->email->company->owner()->email;
         $reply_to_name = $this->email->company->owner()->present()->name();
 
-        if (str_contains($this->email->email_object->settings->reply_to_email, "@")) {
+        if (str_contains($this->email->email_object->settings->reply_to_email ?? '', "@")) {
             $reply_to_email = $this->email->email_object->settings->reply_to_email;
         } elseif (isset($this->email->email_object->invitation->user)) {
             $reply_to_email = $this->email->email_object->invitation->user->email;
