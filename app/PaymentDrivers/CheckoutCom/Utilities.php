@@ -201,6 +201,16 @@ trait Utilities
 
     private function processPendingPayment($_payment)
     {
+        // Legacy Frames: 3DS redirect — the response contains a redirect link.
+        // This must be checked first as legacy pending responses also have an 'id'.
+        if (isset($_payment['_links']['redirect']['href'])) {
+            try {
+                return redirect($_payment['_links']['redirect']['href']);
+            } catch (Exception $e) {
+                return $this->getParent()->processInternallyFailedPayment($this->getParent(), $e);
+            }
+        }
+
         // Flow SDK: payment was initiated but awaits settlement (e.g. SOFORT, Multibanco).
         // Create the payment record as Pending; the webhook will mark it Completed.
         if (isset($_payment['id'])) {
@@ -228,12 +238,11 @@ trait Utilities
             return redirect()->route('client.payments.show', ['payment' => $this->getParent()->encodePrimaryKey($payment->id)]);
         }
 
-        // Legacy Frames: redirect to external payment page
-        try {
-            return redirect($_payment['_links']['redirect']['href']);
-        } catch (Exception $e) {
-            return $this->getParent()->processInternallyFailedPayment($this->getParent(), $e);
-        }
+        // No redirect link and no payment ID — something went wrong
+        return $this->getParent()->processInternallyFailedPayment(
+            $this->getParent(),
+            new Exception('Pending payment response contained no redirect link or payment ID.')
+        );
     }
 
     private function storeLocalPaymentMethod($response)

@@ -113,7 +113,7 @@ class CheckoutComPaymentDriver extends BaseDriver
                 $available = (array) $available;
 
                 $types = array_filter(self::$flow_gateway_types, function (int $gt) use ($available) {
-                    $method = Utilities::gatewayTypeToFlowMethod($gt);
+                    $method = self::gatewayTypeToFlowMethod($gt);
                     return $method && in_array($method, $available);
                 });
 

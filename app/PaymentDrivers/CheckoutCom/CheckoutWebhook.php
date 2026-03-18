@@ -57,6 +57,7 @@ class CheckoutWebhook implements ShouldQueue
         match ($this->webhook_array['type']) {
             'payment_approved' => $this->paymentApproved(),
             'payment_captured' => $this->paymentApproved(),
+            'payment_declined', 'payment_expired', 'payment_canceled' => $this->paymentFailed(),
             default => nlog("Checkout Webhook: unhandled type {$this->webhook_array['type']}"),
         };
 
@@ -126,5 +127,65 @@ class CheckoutWebhook implements ShouldQueue
 
         }
 
+    }
+
+    /**
+     * Handle payment_declined, payment_expired and payment_canceled webhooks.
+     *
+     * If a Payment record already exists, mark it as failed.
+     * Otherwise, find the PaymentHash via metadata and unwind gateway fees
+     * so the client isn't charged for a payment that never completed.
+     */
+    private function paymentFailed()
+    {
+        $payment_object = $this->webhook_array['data'];
+        $type = $this->webhook_array['type'];
+
+        nlog("Checkout Webhook: {$type} for {$payment_object['id']}");
+
+        $payment = Payment::query()->withTrashed()->where('transaction_reference', $payment_object['id'])->first();
+
+        if ($payment) {
+            if (in_array($payment->status_id, [Payment::STATUS_FAILED, Payment::STATUS_CANCELLED])) {
+                return;
+            }
+
+            $payment->status_id = $type === 'payment_canceled' ? Payment::STATUS_CANCELLED : Payment::STATUS_FAILED;
+            $payment->save();
+
+            SystemLogger::dispatch(
+                ['response' => $this->webhook_array],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_CHECKOUT,
+                $payment->client,
+                $this->company_gateway->company,
+            );
+
+            return;
+        }
+
+        $metadata = $payment_object['metadata'] ?? $this->webhook_array['metadata'] ?? null;
+
+        if ($metadata && isset($metadata['udf2'])) {
+            $payment_hash = PaymentHash::query()->where('hash', $metadata['udf2'])->first();
+
+            if (!$payment_hash) {
+                nlog("Checkout Webhook ({$type}): payment hash not found for udf2={$metadata['udf2']}");
+                return;
+            }
+
+            $driver = $this->company_gateway->driver($payment_hash->fee_invoice->client)->init();
+            $driver->unWindGatewayFees($payment_hash);
+
+            SystemLogger::dispatch(
+                ['response' => $this->webhook_array],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_CHECKOUT,
+                $payment_hash->fee_invoice->client,
+                $this->company_gateway->company,
+            );
+        }
     }
 }

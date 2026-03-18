@@ -99,7 +99,7 @@ class CheckoutSetupWebhook implements ShouldQueue
 
         $eventWorkflowConditionRequest = new EventWorkflowConditionRequest();
         $eventWorkflowConditionRequest->events = [
-            "gateway" => ["payment_approved"],
+            "gateway" => ["payment_approved", "payment_declined", "payment_expired", "payment_canceled"],
             "issuing" => ["authorization_approved","authorization_declined"],
         ];
 
