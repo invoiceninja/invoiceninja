@@ -104,7 +104,7 @@ class EInvoicePullDocs implements ShouldQueue
 
                                 $notifications = $this->findCompanyUserNotificationType($company_user, ['enable_e_invoice_received_notification']);
 
-                                if (!array_search('mail', $notifications)) {
+                                if (!in_array('mail', $notifications)) {
                                     continue;
                                 }
 
