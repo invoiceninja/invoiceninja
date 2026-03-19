@@ -5205,7 +5205,7 @@ $lang = array(
     'auto_bill_standard_invoices_help' => 'Tự động lập hóa đơn tiêu chuẩn vào ngày đến hạn',
     'auto_bill_on_help' => 'Tự động lập hóa đơn vào ngày gửi HOẶC ngày đến hạn (hóa đơn định kỳ)',
     'use_available_credits_help' => 'Áp dụng bất kỳ số dư tín dụng nào vào các khoản thanh toán trước khi tính phí phương thức thanh toán',
-    'use_unapplied_payments' => 'Sử dụng các khoản thanh toán chưa áp dụng',
+    'use_unapplied_payments' => 'Sử dụng Thanh toán chưa áp dụng',
     'use_unapplied_payments_help' => 'Áp dụng bất kỳ số dư thanh toán nào trước khi tính phí phương thức thanh toán',
     'payment_terms_help' => 'Số ngày sau ngày xuất hóa đơn mà khoản thanh toán phải được thực hiện',
     'payment_type_help' => 'Loại thanh toán mặc định được sử dụng để thanh toán',
@@ -5940,6 +5940,9 @@ $lang = array(
     'login_with_passkey' => 'Đăng nhập bằng mật khẩu',
     'manage_passkeys' => 'Quản lý mật khẩu',
     'last_used' => 'Lần cuối sử dụng',
+    'unapplied_payments' => 'Thanh toán chưa áp dụng',
+    'debit' => 'Ghi nợ',
+    'auto_convert_credit_help' => 'Tự động liên kết hoặc Tạo Sự chi trả phù hợp với các quy tắc này.',
 );
 
 return $lang;
