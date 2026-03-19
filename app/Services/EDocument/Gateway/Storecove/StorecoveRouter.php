@@ -153,7 +153,7 @@ class StorecoveRouter
     private function resolveFromRules(array $rules, string $code): string
     {
         //Single array
-        if (is_array($rules) && !is_array($rules[0])) {
+        if (!is_array($rules[0])) {
             return $rules[3];
         }
 
@@ -219,7 +219,7 @@ class StorecoveRouter
     private function resolveTaxFromRules(array $rules, string $code)
     {
         //single array
-        if (is_array($rules) && !is_array($rules[0])) {
+        if (!is_array($rules[0])) {
             return $rules[2];
         }
 
@@ -230,6 +230,97 @@ class StorecoveRouter
         }
 
         return $rules[0][2];
+    }
+
+    /**
+     * resolveIso6523Scheme
+     *
+     * Maps a Storecove/PEPPOL friendly scheme name to its ISO 6523 / EAS numeric code
+     * for use in UBL document EndpointID and PartyIdentification schemeID attributes.
+     * Numeric-only inputs are returned as-is (already an ISO code).
+     *
+     * @param  string $scheme  e.g. 'GLN', 'DE:LWID', 'BE:EN', 'DE:VAT'
+     * @return string          ISO 6523 EAS code, e.g. '0088', '0204', '0208', '9930'
+     */
+    public function resolveIso6523Scheme(string $scheme): string
+    {
+        // Already a numeric ISO code — pass through
+        if (ctype_digit($scheme)) {
+            return $scheme;
+        }
+
+        $map = [
+            // ICD codes (ISO 6523 / PEPPOL EAS)
+            'FR:SIRENE'  => '0002',  // French SIRENE (company registry)
+            'SE:ORGNR'   => '0007',  // Swedish organisation number
+            'FR:SIRET'   => '0009',  // French SIRET (establishment)
+            'FI:OVT'     => '0037',  // Finnish OVT identifier
+            'DUNS'       => '0060',  // DUNS number
+            'GLN'        => '0088',  // GS1 Global Location Number
+            'NL:KVK'     => '0106',  // Dutch Chamber of Commerce
+            'AU:ABN'     => '0151',  // Australian Business Number
+            'CH:UIDB'    => '0183',  // Swiss UID-B
+            'DK:DIGST'   => '0184',  // Danish CVR / DIGST
+            'NL:OINO'    => '0190',  // Dutch government OINO
+            'EE:CC'      => '0191',  // Estonian company code
+            'NO:ORG'     => '0192',  // Norwegian organisation number
+            'SG:UEN'     => '0195',  // Singapore UEN
+            'IS:KTNR'    => '0196',  // Icelandic legal entity
+            'DK:ERST'    => '0198',  // Danish ERST
+            'LT:LEC'     => '0200',  // Lithuanian legal entity code
+            'IT:CUUO'    => '0201',  // Italian IPA code (public administration)
+            'DE:LWID'    => '0204',  // German Leitweg-ID
+            'BE:EN'      => '0208',  // Belgian enterprise number
+            'IT:CF'      => '0210',  // Italian Codice Fiscale
+            'IT:IVA'     => '0211',  // Italian Partita IVA
+            'FI:ORG'     => '0212',  // Finnish organisation identifier
+            'JP:IIN'     => '0221',  // Japanese invoicing institution number
+            'JP:SST'     => '0221',
+            'MY:EIF'     => '0230',  // Malaysian e-invoice framework
+
+            // EAS codes (OpenPEPPOL 9xxx range — VAT-based schemes)
+            'HU:VAT'     => '9910',
+            'AT:VAT'     => '9914',  // Austrian VAT (Umsatzsteuer-ID)
+            'AT:GOV'     => '9915',  // Austrian administrative (Verwaltungs-ID)
+            'ES:VAT'     => '9920',  // Spanish tax authority scheme
+            'AD:VAT'     => '9922',
+            'AL:VAT'     => '9923',
+            'BA:VAT'     => '9924',
+            'BE:VAT'     => '9925',
+            'BG:VAT'     => '9926',
+            'CH:VAT'     => '9927',
+            'CY:VAT'     => '9928',
+            'CZ:VAT'     => '9929',
+            'DE:VAT'     => '9930',
+            'EE:VAT'     => '9931',
+            'GB:VAT'     => '9932',
+            'GR:VAT'     => '9933',
+            'HR:VAT'     => '9934',
+            'IE:VAT'     => '9935',
+            'LI:VAT'     => '9936',
+            'LT:VAT'     => '9937',
+            'LU:VAT'     => '9938',
+            'LV:VAT'     => '9939',
+            'MC:VAT'     => '9940',
+            'ME:VAT'     => '9941',
+            'MK:VAT'     => '9942',
+            'MT:VAT'     => '9943',
+            'NL:VAT'     => '9944',
+            'NO:VAT'     => '9909',  // deprecated in EAS but still in use
+            'PL:VAT'     => '9945',
+            'PT:VAT'     => '9946',
+            'RO:VAT'     => '9947',
+            'RS:VAT'     => '9948',
+            'SI:VAT'     => '9949',
+            'SK:VAT'     => '9950',
+            'SM:VAT'     => '9951',
+            'TR:VAT'     => '9952',
+            'VA:VAT'     => '9953',
+            'FR:VAT'     => '9957',
+            'US:EIN'     => '9959',
+        ];
+
+        return $map[$scheme] ?? $scheme;
     }
 
     public function resolveIdentifierTypeByValue(string $identifier): string

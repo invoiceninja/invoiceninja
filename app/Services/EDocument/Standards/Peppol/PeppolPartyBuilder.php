@@ -15,6 +15,7 @@ namespace App\Services\EDocument\Standards\Peppol;
 use InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID;
 use InvoiceNinja\EInvoice\Models\Peppol\PartyType\Party;
 use InvoiceNinja\EInvoice\Models\Peppol\AddressType\Address;
+use InvoiceNinja\EInvoice\Models\Peppol\AddressType\PostalAddress;
 use InvoiceNinja\EInvoice\Models\Peppol\ContactType\Contact;
 use InvoiceNinja\EInvoice\Models\Peppol\CountryType\Country;
 use InvoiceNinja\EInvoice\Models\Peppol\PartyIdentification;
@@ -56,7 +57,7 @@ class PeppolPartyBuilder
             $pi = new PartyIdentification();
             $vatID = new ID();
             $vatID->schemeID = $this->resolveScheme();
-            $vatID->value = strlen($this->peppol->getOverrideVatNumber() ?? '') > 1 ? $this->peppol->getOverrideVatNumber() : preg_replace("/[^a-zA-Z0-9]/", "", $invoice->company->settings->vat_number); //todo if we are cross border - switch to the supplier local vat number
+            $vatID->value = strlen($this->peppol->getOverrideVatNumber()) > 1 ? $this->peppol->getOverrideVatNumber() : preg_replace("/[^a-zA-Z0-9]/", "", $invoice->company->settings->vat_number); //todo if we are cross border - switch to the supplier local vat number
 
             $pi->ID = $vatID;
             $party->PartyIdentification[] = $pi;
@@ -64,7 +65,7 @@ class PeppolPartyBuilder
             $companyID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CompanyID();
 
             $pts = new \InvoiceNinja\EInvoice\Models\Peppol\PartyTaxSchemeType\PartyTaxScheme();
-            $companyID->value = strlen($this->peppol->getOverrideVatNumber() ?? '') > 1 ? $this->peppol->getOverrideVatNumber() : preg_replace("/[^a-zA-Z0-9]/", "", $invoice->company->settings->vat_number); //todo if we are cross border - switch to the supplier local vat number
+            $companyID->value = strlen($this->peppol->getOverrideVatNumber()) > 1 ? $this->peppol->getOverrideVatNumber() : preg_replace("/[^a-zA-Z0-9]/", "", $invoice->company->settings->vat_number); //todo if we are cross border - switch to the supplier local vat number
             $pts->CompanyID = $companyID;
 
             $ts = new TaxScheme();
@@ -80,25 +81,24 @@ class PeppolPartyBuilder
             $party->PartyTaxScheme[] = $pts;
         }
 
-if (strlen($company->settings->vat_number ?? '') <= 1 && strlen($this->peppol->getOverrideVatNumber() ?? '') <= 1) {
+        if (strlen($company->settings->vat_number ?? '') <= 1 && strlen($this->peppol->getOverrideVatNumber()) <= 1) {
 
-    $id = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\EndpointID();
-    $scheme_parts = explode(':', $company->settings->id_number ?? '');
+            $id = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\EndpointID();
+            $scheme_parts = explode(':', $company->settings->id_number ?? '');
 
-    if(count($scheme_parts) === 2) {
-        $id->schemeID = $scheme_parts[0];
-        $id->value = $scheme_parts[1];
-    }
-    else {
-        $id->schemeID = $this->resolveScheme();
-        $id->value = preg_replace("/[^a-zA-Z0-9]/", "", $company->settings->id_number ?? '');
-    }
+            if(count($scheme_parts) === 2) {
+                $id->schemeID = $scheme_parts[0];
+                $id->value = $scheme_parts[1];
+            }
+            else {
+                $id->schemeID = $this->resolveScheme();
+                $id->value = preg_replace("/[^a-zA-Z0-9]/", "", $company->settings->id_number ?? '');
+            }
 
-    $party->EndpointID = $id;
-}
+            $party->EndpointID = $id;
+        }
 
-
-        $address = new Address();
+        $address = new PostalAddress();
         $address->CityName = $invoice->company->settings->city;
         $address->StreetName = $invoice->company->settings->address1;
 
@@ -133,7 +133,7 @@ if (strlen($company->settings->vat_number ?? '') <= 1 && strlen($this->peppol->g
 
 // if no vat number, we should inject the id_number as the company identifier!
 if (strlen($company->settings->vat_number ?? '') <= 1
-    && strlen($this->peppol->getOverrideVatNumber() ?? '') <= 1
+    && strlen($this->peppol->getOverrideVatNumber()) <= 1
     && strlen($company->settings->id_number ?? '') > 1)
 {
     $companyID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CompanyID();
@@ -196,22 +196,33 @@ if (strlen($company->settings->vat_number ?? '') <= 1
         $party_name = new PartyName();
         $party_name->Name = $invoice->client->present()->name();
 
-        //@todo if we have an exact GLN/routing number we should update this, otherwise Storecove will proxy and update on transit
-
         $id = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\EndpointID();
-        $id->value = $invoice->client->routing_id
-        ?? preg_replace("/[^a-zA-Z0-9]/", "", $invoice->client->vat_number ?? '')
-        ?? preg_replace("/[^a-zA-Z0-9]/", "", $invoice->client->id_number ?? '')
-        ?? 'fallback1234';
+        $routing_id = $invoice->client->routing_id ?? '';
 
-        $id->schemeID = $this->resolveScheme(true);
+        if (str_contains($routing_id, ':')) {
+            // routing_id stored as "SCHEME:value" or already as "0088:value"
+            [$scheme, $value] = explode(':', $routing_id, 2);
+            $id->schemeID = $this->peppol->getGateway()->router->resolveIso6523Scheme($scheme);
+            $id->value = $value;
+        } elseif (strlen($routing_id) > 1) {
+            // Raw routing value — scheme resolved from country/classification
+            $id->schemeID = $this->resolveScheme(true);
+            $id->value = $routing_id;
+        } else {
+            // No routing_id — fall back to VAT or id_number
+            $id->schemeID = $this->resolveScheme(true);
+            $id->value = preg_replace("/[^a-zA-Z0-9]/", "", $invoice->client->vat_number ?? '')
+                      ?: preg_replace("/[^a-zA-Z0-9]/", "", $invoice->client->id_number ?? '')
+                      ?: 'fallback1234';
+        }
+
         $party->EndpointID = $id;
 
         $party->PartyName[] = $party_name;
 
         $locationData = $invoice->service()->location();
 
-        $address = new Address();
+        $address = new PostalAddress();
         $address->CityName = $locationData['city'];
         $address->StreetName = $locationData['address1'];
 
@@ -299,21 +310,28 @@ if (strlen($company->settings->vat_number ?? '') <= 1
     /**
      * ResolveScheme
      *
-     * If we need to explicitly set the schemeID, we will need to resolve
-     * the exact one based on the type the user has, ie. GLN DUNS, validation
-     * is performed here, so lots can go wrong if bad data is used.
+     * Resolves the ISO 6523 / EAS schemeID for EndpointID and PartyIdentification
+     * based on the country and classification of the supplier or customer.
      *
-     * @param  bool $is_client
-     * @return string
+     * @param  bool $is_client  true = customer party, false = supplier party
+     * @return string           ISO 6523 EAS code, e.g. '0088', '9930'
      */
     public function resolveScheme(bool $is_client = false): string
     {
+        $invoice = $this->peppol->getInvoiceModel();
 
-        // $vat_number = $is_client ? preg_replace("/[^a-zA-Z0-9]/", "", $this->peppol->getInvoiceModel()->client->vat_number ?? '') : preg_replace("/[^a-zA-Z0-9]/", "", $this->peppol->getInvoiceModel()->company->settings->vat_number ?? '');
-        // $tax_number = $is_client ? preg_replace("/[^a-zA-Z0-9]/", "", $this->peppol->getInvoiceModel()->client->id_number ?? '') : preg_replace("/[^a-zA-Z0-9]/", "", $this->peppol->getInvoiceModel()->company->settings->id_number ?? '');
-        // $country_code = $is_client ? $this->peppol->getInvoiceModel()->client->country->iso_3166_2 : $this->peppol->getInvoiceModel()->company->country()->iso_3166_2;
+        $country_code = $is_client
+            ? $invoice->client->country->iso_3166_2
+            : $invoice->company->country()->iso_3166_2;
 
-        return '0037';
+        $classification = $is_client
+            ? ($invoice->client->classification ?? 'business')
+            : 'business';
+
+        $router = $this->peppol->getGateway()->router;
+        $friendly_scheme = $router->resolveRouting($country_code, $classification);
+
+        return $router->resolveIso6523Scheme($friendly_scheme);
     }
 
     /**

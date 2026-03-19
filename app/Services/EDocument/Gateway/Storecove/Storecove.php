@@ -620,8 +620,6 @@ class Storecove
             ]
         ];
 
-        nlog($payload);
-
         $r = $this->httpClient("legal_entities/{$legal_entity_id}/peppol_identifiers", (HttpVerb::POST)->value, $payload);
 
 
