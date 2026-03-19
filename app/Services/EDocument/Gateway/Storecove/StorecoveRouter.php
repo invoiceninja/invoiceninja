@@ -346,12 +346,12 @@ class StorecoveRouter
         $required = [];
 
         // Column 2: tax_identifier → vat_number
-        if (!empty($rule[2]) && $rule[2] !== false) {
+        if (!empty($rule[2])) {
             $required['vat_number'] = $rule[2];
         }
 
         // Column 1: identifier1 → id_number
-        if (!empty($rule[1]) && $rule[1] !== false) {
+        if (!empty($rule[1])) {
             $required['id_number'] = $rule[1];
         }
 
