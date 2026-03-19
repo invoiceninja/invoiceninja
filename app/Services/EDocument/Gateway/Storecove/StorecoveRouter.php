@@ -100,6 +100,90 @@ class StorecoveRouter
         "Other" => ["B","DUNS, GLN, LEI",false,"DUNS, GLN, LEI"],
     ];
 
+    /**
+     * Format validation regex patterns for identifiers.
+     * Keys match the scheme labels from routing_rules.
+     * Patterns strip common prefixes/separators before matching.
+     */
+    private array $identifier_regex = [
+        // VAT number patterns (tax_identifier)
+        'AT:VAT'   => '/^(AT)?U\d{8}$/i',
+        'BE:VAT'   => '/^(BE)?[01]\d{9}$/i',
+        'BG:VAT'   => '/^(BG)?\d{9,10}$/i',
+        'CY:VAT'   => '/^(CY)?\d{8}[A-Z]$/i',
+        'CZ:VAT'   => '/^(CZ)?\d{8,10}$/i',
+        'DE:VAT'   => '/^(DE)?\d{9}$/i',
+        'DK:ERST'  => '/^(DK)?\d{8}$/i',
+        'EE:VAT'   => '/^(EE)?\d{9}$/i',
+        'ES:VAT'   => '/^(ES)?[A-Z0-9]\d{7}[A-Z0-9]$/i',
+        'FI:VAT'   => '/^(FI)?\d{8}$/i',
+        'FR:VAT'   => '/^(FR)?[A-HJ-NP-Z0-9]{2}\d{9}$/i',
+        'GR:VAT'   => '/^(GR|EL)?\d{9}$/i',
+        'HR:VAT'   => '/^(HR)?\d{11}$/i',
+        'HU:VAT'   => '/^(HU)?\d{8}$/i',
+        'IE:VAT'   => '/^(IE)?\d[A-Z0-9\+\*]\d{5}[A-Z]{1,2}$/i',
+        'IT:IVA'   => '/^(IT)?\d{11}$/i',
+        'IT:CF'    => '/^[A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z]$/i',
+        'LT:VAT'   => '/^(LT)?(\d{9}|\d{12})$/i',
+        'LU:VAT'   => '/^(LU)?\d{8}$/i',
+        'LV:VAT'   => '/^(LV)?\d{11}$/i',
+        'MT:VAT'   => '/^(MT)?\d{8}$/i',
+        'NL:VAT'   => '/^(NL)?\d{9}B\d{2}$/i',
+        'PL:VAT'   => '/^(PL)?\d{10}$/i',
+        'PT:VAT'   => '/^(PT)?\d{9}$/i',
+        'RO:VAT'   => '/^(RO)?\d{2,10}$/i',
+        'SE:VAT'   => '/^(SE)?\d{12}$/i',
+        'SI:VAT'   => '/^(SI)?\d{8}$/i',
+        'SK:VAT'   => '/^(SK)?\d{10}$/i',
+        'AD:VAT'   => '/^(AD)?[A-Z]\d{6}[A-Z]$/i',
+        'AL:VAT'   => '/^(AL)?[A-Z]\d{8}[A-Z]$/i',
+        'BA:VAT'   => '/^(BA)?\d{12}$/i',
+        'LI:VAT'   => '/^(LI)?\d{5}$/i',
+        'MC:VAT'   => '/^(MC|FR)?[A-HJ-NP-Z0-9]{2}\d{9}$/i',
+        'ME:VAT'   => '/^(ME)?\d{8}$/i',
+        'MK:VAT'   => '/^(MK)?\d{13}$/i',
+        'SM:VAT'   => '/^(SM)?\d{5}$/i',
+        'TR:VAT'   => '/^(TR)?\d{10}$/i',
+        'VA:VAT'   => '/^(VA)?\d{11}$/i',
+        'RS:VAT'   => '/^(RS)?\d{9}$/i',
+        'IS:VAT'   => '/^(IS)?\d{5,6}$/i',
+        'NO:VAT'   => '/^(NO)?\d{9}(MVA)?$/i',
+        'CH:VAT'   => '/^(CHE)?\d{9}(MWST|TVA|IVA)?$/i',
+        'GB:VAT'   => '/^(GB)?\d{9}(\d{3})?$/i',
+        'AU:ABN'   => '/^\d{11}$/',
+        'NZ:GST'   => '/^\d{8,9}$/',
+        'US:EIN'   => '/^\d{2}\-?\d{7}$/',
+        'IN:GSTIN' => '/^\d{2}[A-Z]{5}\d{4}[A-Z]\d[A-Z0-9][A-Z0-9]$/i',
+        'JP:IIN'   => '/^T?\d{13}$/',
+        'SG:GST'   => '/^[A-Z0-9]{8,10}$/i',
+        'SA:TIN'   => '/^\d{10,15}$/',
+        'MY:TIN'   => '/^[A-Z0-9]{10,14}$/i',
+
+        // ID number patterns (identifier1)
+        'SE:ORGNR' => '/^\d{10}$/',
+        'NO:ORG'   => '/^\d{9}$/',
+        'BE:EN'    => '/^(BE)?\d{10}$/i',
+        'DK:DIGST' => '/^\d{8,10}$/',
+        'EE:CC'    => '/^\d{8}$/',
+        'FI:OVT'   => '/^\d{12,13}$/',
+        'FR:SIRENE' => '/^\d{9}$/',
+        'FR:SIRET' => '/^\d{14}$/',
+        'NL:KVK'   => '/^\d{8}$/',
+        'NL:OINO'  => '/^\d{20}$/',
+        'LT:LEC'   => '/^\d{7,9}$/',
+        'LU:MAT'   => '/^\d{11}$/',
+        'CH:UIDB'  => '/^(CHE)?\d{9}$/i',
+        'IS:KTNR'  => '/^\d{6,10}$/',
+        'CA:CBN'   => '/^\d{9}$/',
+        'MX:RFC'   => '/^[A-Z&Ñ]{3,4}\d{6}[A-Z0-9]{3}$/i',
+        'JP:SST'   => '/^T?\d{13}$/',
+        'MY:EIF'   => '/^[A-Z0-9]{10,14}$/i',
+        'SG:UEN'   => '/^[A-Z0-9]{9,10}$/i',
+        'AT:GOV'   => '/^.{2,}$/',
+        'DE:LWID'  => '/^.{2,}$/',
+        'IT:CUUO'  => '/^[A-Z0-9]{6,7}$/i',
+    ];
+
     private $invoice;
 
     public function __construct() {}
@@ -205,6 +289,118 @@ class StorecoveRouter
         }
 
         return $rules[0][2];
+    }
+
+    /**
+     * Returns the required client fields for a given country/classification.
+     *
+     * Derives requirements from the routing_rules matrix:
+     * - Column 1 (identifier1) non-empty → id_number required
+     * - Column 2 (tax_identifier) non-empty → vat_number required
+     * - Both can be required simultaneously (e.g. SE needs ORGNR + VAT)
+     * - IT B2B/B2G additionally requires routing_id (IT:CUUO)
+     *
+     * @param  string $country ISO 3166-2 country code
+     * @param  ?string $classification business|government|individual
+     * @return array<string, string> Keys are client field names, values are scheme labels
+     */
+    public function resolveRequiredClientFields(string $country, ?string $classification = 'business'): array
+    {
+        $rules = $this->routing_rules[$country] ?? null;
+
+        if (!$rules) {
+            return [];
+        }
+
+        // Individuals route via email — no identifier requirements
+        if ($classification === 'individual') {
+            return [];
+        }
+
+        $code = match ($classification) {
+            'government' => 'G',
+            'individual' => 'C',
+            default => 'B',
+        };
+
+        // Find the matching rule
+        $rule = null;
+
+        // Single-array country (applies to all classifications)
+        if (is_array($rules) && !is_array($rules[0])) {
+            $rule = $rules;
+        } else {
+            // Multi-array — find matching classification
+            foreach ($rules as $r) {
+                if (stripos($r[0], $code) !== false) {
+                    $rule = $r;
+                    break;
+                }
+            }
+            // Fallback to first rule if no match
+            if (!$rule) {
+                $rule = $rules[0];
+            }
+        }
+
+        $required = [];
+
+        // Column 2: tax_identifier → vat_number
+        if (!empty($rule[2]) && $rule[2] !== false) {
+            $required['vat_number'] = $rule[2];
+        }
+
+        // Column 1: identifier1 → id_number
+        if (!empty($rule[1]) && $rule[1] !== false) {
+            $required['id_number'] = $rule[1];
+        }
+
+        // IT B2B/B2G requires routing_id (Codice Destinatario)
+        if ($country === 'IT' && in_array($classification, ['business', 'government'])) {
+            $required['routing_id'] = 'IT:CUUO';
+        }
+
+        return $required;
+    }
+
+    /**
+     * Validate an identifier value against the expected format for a scheme.
+     *
+     * @param  string $scheme The scheme label (e.g. "SE:VAT", "FR:SIRET")
+     * @return bool True if valid or no regex defined for scheme
+     */
+    public function validateIdentifierFormat(string $scheme, string $value): bool
+    {
+        // Handle composite scheme labels like "FR:SIRENE or FR:SIRET"
+        if (stripos($scheme, ' or ') !== false) {
+            $schemes = array_map('trim', explode(' or ', $scheme));
+            foreach ($schemes as $s) {
+                if ($this->validateIdentifierFormat($s, $value)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Handle "DUNS, GLN, LEI" style — no strict format validation
+        if (stripos($scheme, ',') !== false) {
+            return strlen($value) >= 2;
+        }
+
+        // Handle scheme + extra info like "FR:SIRET + customerAssignedAccountIdValue"
+        // These are composite requirements with special handling — just validate presence
+        if (stripos($scheme, ' + ') !== false) {
+            return strlen(preg_replace("/[\s.\-]/", "", $value)) >= 2;
+        }
+
+        $cleanValue = preg_replace("/[\s.\-]/", "", $value);
+
+        if (!isset($this->identifier_regex[$scheme])) {
+            // No regex defined — just check presence
+            return strlen($cleanValue) >= 2;
+        }
+
+        return (bool) preg_match($this->identifier_regex[$scheme], $cleanValue);
     }
 
     public function resolveIdentifierTypeByValue(string $identifier): string

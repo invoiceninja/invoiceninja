@@ -146,7 +146,6 @@ class Mutator implements MutatorInterface
      */
     public function senderSpecificLevelMutators(): self
     {
-
         if (method_exists($this, $this->invoice->company->country()->iso_3166_2)) {
             $this->{$this->invoice->company->country()->iso_3166_2}();
         }
@@ -558,38 +557,19 @@ class Mutator implements MutatorInterface
     public function SE(): self
     {
         // Deliver invoices to the "Svefaktura" co-operation of local Swedish service providers.
-        // Routing is through the SE:ORGNR together with a network specification:
+        // Routing is through the SE:ORGNR together with a network specification.
 
-        // "routing": {
-        //   "eIdentifiers": [
-        //     {
-        //         "scheme": "SE:ORGNR",
-        //         "id": "0012345678"
-        //     }
-        //   ],
-        //   "networks": [
-        //     {
-        //       "application": "svefaktura",
-        //       "settings": {
-        //         "enabled": true
-        //       }
-        //     }
-        //   ]
-        // }
-        // Use of the "Svefaktura" co-operation can also be induced by specifying an operator id, as follows:
+        $meta = ["routing" => ["networks" => [
+            [
+                "application" => "svefaktura",
+                "settings" => [
+                    "enabled" => true,
+                ],
+            ],
+        ]]];
 
-        // "routing": {
-        //   "eIdentifiers": [
-        //     {
-        //         "scheme": "SE:ORGNR",
-        //         "id": "0012345678"
-        //     },
-        //     {
-        //         "scheme": "SE:OPID",
-        //         "id": "1234567890"
-        //     }
-        //   ]
-        // }
+        $this->setStorecoveMeta($meta);
+
         return $this;
     }
 
@@ -648,6 +628,8 @@ class Mutator implements MutatorInterface
 
         if ($this->invoice->client->country->iso_3166_2 == 'FR') {
             $identifier = $this->invoice->client->id_number;
+        } elseif ($this->invoice->client->country->iso_3166_2 == 'SE' && strlen($this->invoice->client->id_number ?? '') > 2) {
+            $identifier = $this->invoice->client->id_number;
         } else {
             $identifier = $this->invoice->client->vat_number;
         }
@@ -689,6 +671,17 @@ class Mutator implements MutatorInterface
             ["scheme" => $code, "id" => $identifier],
         ]));
 
+        // Swedish receivers require the Svefaktura network to be specified in routing
+        if ($this->invoice->client->country->iso_3166_2 == 'SE') {
+            $this->setStorecoveMeta(["routing" => ["networks" => [
+                [
+                    "application" => "svefaktura",
+                    "settings" => [
+                        "enabled" => true,
+                    ],
+                ],
+            ]]]);
+        }
 
         return $this;
     }

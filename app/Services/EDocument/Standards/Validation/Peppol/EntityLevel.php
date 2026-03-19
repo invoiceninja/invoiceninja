@@ -26,6 +26,7 @@ use App\Services\EDocument\Standards\Peppol;
 use App\Exceptions\PeppolValidationException;
 use App\Services\EDocument\Standards\Validation\EntityLevelInterface;
 use App\Services\EDocument\Standards\Validation\XsltDocumentValidator;
+use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
 
 class EntityLevel implements EntityLevelInterface
 {
@@ -84,36 +85,69 @@ class EntityLevel implements EntityLevelInterface
      * Patterns allow optional country prefix (e.g., "AT" or "ATU12345678").
      */
     private array $vat_number_regex = [
-        'AT' => '/^(AT)?U\d{8}$/i', // Austria: U + 8 digits
-        'BE' => '/^(BE)?[01]\d{9}$/i', // Belgium: 0 or 1 + 9 digits
-        'BG' => '/^(BG)?\d{9,10}$/i', // Bulgaria: 9-10 digits
-        'CY' => '/^(CY)?\d{8}[A-Z]$/i', // Cyprus: 8 digits + 1 letter
-        'CZ' => '/^(CZ)?\d{8,10}$/i', // Czech Republic: 8-10 digits
-        'DE' => '/^(DE)?\d{9}$/i', // Germany: 9 digits
-        'DK' => '/^(DK)?\d{8}$/i', // Denmark: 8 digits
-        'EE' => '/^(EE)?\d{9}$/i', // Estonia: 9 digits
-        'ES' => '/^(ES)?[A-Z0-9]\d{7}[A-Z0-9]$/i', // Spain: 1 alphanumeric + 7 digits + 1 alphanumeric
-        'ES-CN' => '/^(ES)?[A-Z0-9]\d{7}[A-Z0-9]$/i', // Canary Islands: Same as Spain
-        'ES-CE' => '/^(ES)?[A-Z0-9]\d{7}[A-Z0-9]$/i', // Ceuta: Same as Spain
-        'ES-ML' => '/^(ES)?[A-Z0-9]\d{7}[A-Z0-9]$/i', // Melilla: Same as Spain
-        'FI' => '/^(FI)?\d{8}$/i', // Finland: 8 digits
-        'FR' => '/^(FR)?[A-HJ-NP-Z0-9]{2}\d{9}$/i', // France: 2 alphanumeric (excluding I, O, Q) + 9 digits
-        'GR' => '/^(GR|EL)?\d{9}$/i', // Greece: 9 digits (can use GR or EL prefix)
-        'HR' => '/^(HR)?\d{11}$/i', // Croatia: 11 digits
-        'HU' => '/^(HU)?\d{8}$/i', // Hungary: 8 digits
-        'IE' => '/^(IE)?\d[A-Z0-9\+\*]\d{5}[A-Z]{1,2}$/i', // Ireland: 1 digit + 1 alphanumeric + 5 digits + 1-2 letters
-        'IT' => '/^(IT)?\d{11}$/i', // Italy: 11 digits
-        'LT' => '/^(LT)?(\d{9}|\d{12})$/i', // Lithuania: 9 or 12 digits
-        'LU' => '/^(LU)?\d{8}$/i', // Luxembourg: 8 digits
-        'LV' => '/^(LV)?\d{11}$/i', // Latvia: 11 digits
-        'MT' => '/^(MT)?\d{8}$/i', // Malta: 8 digits
-        'NL' => '/^(NL)?\d{9}B\d{2}$/i', // Netherlands: 9 digits + B + 2 digits
-        'PL' => '/^(PL)?\d{10}$/i', // Poland: 10 digits
-        'PT' => '/^(PT)?\d{9}$/i', // Portugal: 9 digits
-        'RO' => '/^(RO)?\d{2,10}$/i', // Romania: 2-10 digits
-        'SE' => '/^(SE)?\d{12}$/i', // Sweden: 12 digits
-        'SI' => '/^(SI)?\d{8}$/i', // Slovenia: 8 digits
-        'SK' => '/^(SK)?\d{10}$/i', // Slovakia: 10 digits
+        'AT' => '/^(AT)?U\d{8}$/i',
+        'BE' => '/^(BE)?[01]\d{9}$/i',
+        'BG' => '/^(BG)?\d{9,10}$/i',
+        'CY' => '/^(CY)?\d{8}[A-Z]$/i',
+        'CZ' => '/^(CZ)?\d{8,10}$/i',
+        'DE' => '/^(DE)?\d{9}$/i',
+        'DK' => '/^(DK)?\d{8}$/i',
+        'EE' => '/^(EE)?\d{9}$/i',
+        'ES' => '/^(ES)?[A-Z0-9]\d{7}[A-Z0-9]$/i',
+        'ES-CN' => '/^(ES)?[A-Z0-9]\d{7}[A-Z0-9]$/i',
+        'ES-CE' => '/^(ES)?[A-Z0-9]\d{7}[A-Z0-9]$/i',
+        'ES-ML' => '/^(ES)?[A-Z0-9]\d{7}[A-Z0-9]$/i',
+        'FI' => '/^(FI)?\d{8}$/i',
+        'FR' => '/^(FR)?[A-HJ-NP-Z0-9]{2}\d{9}$/i',
+        'GR' => '/^(GR|EL)?\d{9}$/i',
+        'HR' => '/^(HR)?\d{11}$/i',
+        'HU' => '/^(HU)?\d{8}$/i',
+        'IE' => '/^(IE)?\d[A-Z0-9\+\*]\d{5}[A-Z]{1,2}$/i',
+        'IT' => '/^(IT)?\d{11}$/i',
+        'LT' => '/^(LT)?(\d{9}|\d{12})$/i',
+        'LU' => '/^(LU)?\d{8}$/i',
+        'LV' => '/^(LV)?\d{11}$/i',
+        'MT' => '/^(MT)?\d{8}$/i',
+        'NL' => '/^(NL)?\d{9}B\d{2}$/i',
+        'PL' => '/^(PL)?\d{10}$/i',
+        'PT' => '/^(PT)?\d{9}$/i',
+        'RO' => '/^(RO)?\d{2,10}$/i',
+        'SE' => '/^(SE)?\d{12}$/i',
+        'SI' => '/^(SI)?\d{8}$/i',
+        'SK' => '/^(SK)?\d{10}$/i',
+    ];
+
+    private array $vat_number_formats = [
+        'AT' => 'ATU + 8 digits (e.g. ATU12345678)',
+        'BE' => 'BE + 0/1 + 9 digits (e.g. BE0123456789)',
+        'BG' => 'BG + 9-10 digits (e.g. BG123456789)',
+        'CY' => 'CY + 8 digits + 1 letter (e.g. CY12345678A)',
+        'CZ' => 'CZ + 8-10 digits (e.g. CZ12345678)',
+        'DE' => 'DE + 9 digits (e.g. DE123456789)',
+        'DK' => 'DK + 8 digits (e.g. DK12345678)',
+        'EE' => 'EE + 9 digits (e.g. EE123456789)',
+        'ES' => 'ES + letter/digit + 7 digits + letter/digit (e.g. ESA1234567B)',
+        'ES-CN' => 'ES + letter/digit + 7 digits + letter/digit (e.g. ESA1234567B)',
+        'ES-CE' => 'ES + letter/digit + 7 digits + letter/digit (e.g. ESA1234567B)',
+        'ES-ML' => 'ES + letter/digit + 7 digits + letter/digit (e.g. ESA1234567B)',
+        'FI' => 'FI + 8 digits (e.g. FI12345678)',
+        'FR' => 'FR + 2 alphanumeric + 9 digits (e.g. FRXX123456789)',
+        'GR' => 'EL + 9 digits (e.g. EL123456789)',
+        'HR' => 'HR + 11 digits (e.g. HR12345678901)',
+        'HU' => 'HU + 8 digits (e.g. HU12345678)',
+        'IE' => 'IE + digit + alphanumeric + 5 digits + 1-2 letters (e.g. IE1A23456B)',
+        'IT' => 'IT + 11 digits (e.g. IT12345678901)',
+        'LT' => 'LT + 9 or 12 digits (e.g. LT123456789)',
+        'LU' => 'LU + 8 digits (e.g. LU12345678)',
+        'LV' => 'LV + 11 digits (e.g. LV12345678901)',
+        'MT' => 'MT + 8 digits (e.g. MT12345678)',
+        'NL' => 'NL + 9 digits + B + 2 digits (e.g. NL123456789B01)',
+        'PL' => 'PL + 10 digits (e.g. PL1234567890)',
+        'PT' => 'PT + 9 digits (e.g. PT123456789)',
+        'RO' => 'RO + 2-10 digits (e.g. RO1234567890)',
+        'SE' => 'SE + 12 digits (e.g. SE123456789012)',
+        'SI' => 'SI + 8 digits (e.g. SI12345678)',
+        'SK' => 'SK + 10 digits (e.g. SK1234567890)',
     ];
 
     private array $company_fields = [
@@ -249,12 +283,23 @@ class EntityLevel implements EntityLevelInterface
 
         }
 
-        //If not an individual, you MUST have a VAT number if you are in the EU
-        if (!in_array($client->classification, ['government', 'individual']) && in_array($client->country->iso_3166_2, $this->eu_country_codes)) {
-            if (!$this->validString($client->vat_number)) {
-                $errors[] = ['field' => 'vat_number', 'label' => ctrans("texts.vat_number")];
-            } elseif (isset($this->vat_number_regex[$client->country->iso_3166_2]) && !preg_match($this->vat_number_regex[$client->country->iso_3166_2], str_replace([" ",".","-"], "", $client->vat_number))) {
-                $errors[] = ['field' => 'vat_number', 'label' => ctrans("texts.invalid_vat_number")];
+        // Validate required client identifiers based on country routing rules
+        if (!$client->country) {
+            $errors[] = ['field' => 'country_id', 'label' => ctrans("texts.country")];
+            return $errors;
+        }
+
+        $router = new StorecoveRouter();
+        $required = $router->resolveRequiredClientFields(
+            $client->country->iso_3166_2,
+            $client->classification ?? 'business'
+        );
+
+        foreach ($required as $field => $scheme) {
+            if (!$this->validString($client->{$field})) {
+                $errors[] = ['field' => $field, 'label' => ctrans("texts.{$field}") . " ({$scheme})"];
+            } elseif (!$router->validateIdentifierFormat($scheme, $client->{$field})) {
+                $errors[] = ['field' => $field, 'label' => ctrans("texts.invalid_{$field}_format") . " ({$scheme})"];
             }
         }
 
