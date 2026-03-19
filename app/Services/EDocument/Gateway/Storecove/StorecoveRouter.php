@@ -12,6 +12,8 @@
 
 namespace App\Services\EDocument\Gateway\Storecove;
 
+use App\Services\EDocument\Standards\Peppol\CountryFactory;
+
 class StorecoveRouter
 {
     /**
@@ -113,8 +115,6 @@ class StorecoveRouter
      */
     public function resolveRouting(string $country, ?string $classification = 'business'): string
     {
-        $rules = $this->routing_rules[$country];
-
         $code = 'B';
 
         match ($classification) {
@@ -124,24 +124,34 @@ class StorecoveRouter
             default => $code = "B",
         };
 
-        //DE we can route via Steurnummer? double check with storecove @blocked
-        if ($country == "DE" && $classification == 'individual') {
-            return 'DE:STNR';
-        }
+        // Try country handler first
+        if (CountryFactory::has($country)) {
+            $handler = CountryFactory::make($country);
 
-        //France determine routing scheme
-        if ($this->invoice && $country == 'FR') {
-
-            if ($code == 'B' && strlen($this->invoice->client->id_number) == 9) {
-                return 'FR:SIRENE';
-            } elseif ($code == 'B' && strlen($this->invoice->client->id_number) == 14) {
-                return 'FR:SIRET';
-            } elseif ($code == 'G') {
-                return '0009:11000201100044';
+            // Check for special-case override
+            $override = $handler->resolveRoutingOverride($classification, $this->invoice);
+            if ($override !== null) {
+                return $override;
             }
 
+            // Check for handler-provided routing rules
+            $rules = $handler->getRoutingRules();
+            if ($rules !== null) {
+                return $this->resolveFromRules($rules, $code);
+            }
         }
 
+        // Fall back to built-in routing_rules array
+        $rules = $this->routing_rules[$country];
+
+        return $this->resolveFromRules($rules, $code);
+    }
+
+    /**
+     * Resolve routing identifier from a rules array.
+     */
+    private function resolveFromRules(array $rules, string $code): string
+    {
         //Single array
         if (is_array($rules) && !is_array($rules[0])) {
             return $rules[3];
@@ -171,9 +181,6 @@ class StorecoveRouter
      */
     public function resolveTaxScheme(string $country, ?string $classification = "business"): string
     {
-
-        $rules = $this->routing_rules[$country] ?? [false, false, false, false];
-
         $code = "B";
 
         match ($classification) {
@@ -183,16 +190,34 @@ class StorecoveRouter
             default => $code = "B",
         };
 
-        //France determine routing scheme
-        if ($this->invoice && $country == 'FR' && $code == 'G') {
-            return '0009:11000201100044';
+        // Try country handler first
+        if (CountryFactory::has($country)) {
+            $handler = CountryFactory::make($country);
+
+            // Check for special-case override
+            $override = $handler->resolveTaxSchemeOverride($classification, $this->invoice);
+            if ($override !== null) {
+                return $override;
+            }
+
+            // Check for handler-provided routing rules
+            $rules = $handler->getRoutingRules();
+            if ($rules !== null) {
+                return $this->resolveTaxFromRules($rules, $code);
+            }
         }
 
-        //DE we can route via Steurnummer? double check with storecove @blocked
-        if ($country == "DE" && $classification == 'individual') {
-            return 'DE:STNR';
-        }
+        // Fall back to built-in routing_rules array
+        $rules = $this->routing_rules[$country] ?? [false, false, false, false];
 
+        return $this->resolveTaxFromRules($rules, $code);
+    }
+
+    /**
+     * Resolve tax scheme from a rules array.
+     */
+    private function resolveTaxFromRules(array $rules, string $code)
+    {
         //single array
         if (is_array($rules) && !is_array($rules[0])) {
             return $rules[2];

@@ -41,37 +41,4 @@ interface MutatorInterface
     public function getInvoice(): mixed;
 
     public function getSetting(string $property_path): mixed;
-
-    // Country-specific methods
-    public function DE(): self;
-
-    public function CH(): self;
-
-    public function AT(): self;
-
-    public function AU(): self;
-
-    public function ES(): self;
-
-    public function FI(): self;
-
-    public function FR(): self;
-
-    public function IT(): self;
-
-    public function client_IT(): self;
-
-    public function MY(): self;
-
-    public function NL(): self;
-
-    public function NZ(): self;
-
-    public function PL(): self;
-
-    public function RO(): self;
-
-    public function SG(): self;
-
-    public function SE(): self;
 }
