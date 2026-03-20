@@ -289,17 +289,27 @@ class EntityLevel implements EntityLevelInterface
             return $errors;
         }
 
-        $router = new StorecoveRouter();
-        $required = $router->resolveRequiredClientFields(
-            $client->country->iso_3166_2,
-            $client->classification ?? 'business'
-        );
+        // Only validate identifier requirements for countries supported by Peppol or in the EU
+        $br = new \App\DataMapper\Tax\BaseRule();
+        $supported_countries = array_unique(array_merge(
+            $br->peppol_business_countries,
+            $br->peppol_government_countries,
+            $this->eu_country_codes,
+        ));
 
-        foreach ($required as $field => $scheme) {
-            if (!$this->validString($client->{$field})) {
-                $errors[] = ['field' => $field, 'label' => ctrans("texts.{$field}") . " ({$scheme})"];
-            } elseif (!$router->validateIdentifierFormat($scheme, $client->{$field})) {
-                $errors[] = ['field' => $field, 'label' => ctrans("texts.invalid_{$field}_format") . " ({$scheme})"];
+        if (in_array($client->country->iso_3166_2, $supported_countries)) {
+            $router = new StorecoveRouter();
+            $required = $router->resolveRequiredClientFields(
+                $client->country->iso_3166_2,
+                $client->classification ?? 'business'
+            );
+
+            foreach ($required as $field => $scheme) {
+                if (!$this->validString($client->{$field})) {
+                    $errors[] = ['field' => $field, 'label' => ctrans("texts.{$field}") . " ({$scheme})"];
+                } elseif (!$router->validateIdentifierFormat($scheme, $client->{$field})) {
+                    $errors[] = ['field' => $field, 'label' => ctrans("texts.invalid_{$field}_format") . " ({$scheme})"];
+                }
             }
         }
 

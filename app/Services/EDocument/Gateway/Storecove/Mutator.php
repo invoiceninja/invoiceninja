@@ -553,23 +553,9 @@ class Mutator implements MutatorInterface
         return $this;
     }
 
-    //Sweden
+    //Sweden — Svefaktura network is set in setSvefakturaNetwork() based on receiver country
     public function SE(): self
     {
-        // Deliver invoices to the "Svefaktura" co-operation of local Swedish service providers.
-        // Routing is through the SE:ORGNR together with a network specification.
-
-        $meta = ["routing" => ["networks" => [
-            [
-                "application" => "svefaktura",
-                "settings" => [
-                    "enabled" => true,
-                ],
-            ],
-        ]]];
-
-        $this->setStorecoveMeta($meta);
-
         return $this;
     }
 
@@ -616,6 +602,8 @@ class Mutator implements MutatorInterface
                         ["scheme" => $scheme, "id" => $id],
                     ]));
 
+                    $this->setSvefakturaNetwork();
+
                     return $this;
                 }
             }
@@ -642,7 +630,8 @@ class Mutator implements MutatorInterface
             $identifier = $this->getClientPublicIdentifier($code);
         }
 
-        $identifier = str_ireplace(["FR", "BE"], "", $identifier);
+        $country_prefix = $this->invoice->client->country->iso_3166_2;
+        $identifier = str_ireplace(["FR", "BE", $country_prefix], "", $identifier);
         $identifier = preg_replace("/[^a-zA-Z0-9]/", "", $identifier);
 
 
@@ -671,7 +660,16 @@ class Mutator implements MutatorInterface
             ["scheme" => $code, "id" => $identifier],
         ]));
 
-        // Swedish receivers require the Svefaktura network to be specified in routing
+        $this->setSvefakturaNetwork();
+
+        return $this;
+    }
+
+    /**
+     * Sets the Svefaktura network in routing metadata when the receiver is Swedish.
+     */
+    private function setSvefakturaNetwork(): self
+    {
         if ($this->invoice->client->country->iso_3166_2 == 'SE') {
             $this->setStorecoveMeta(["routing" => ["networks" => [
                 [

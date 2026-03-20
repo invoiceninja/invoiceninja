@@ -5944,7 +5944,9 @@ $lang = array(
     'debit' => 'Debit',
     'auto_convert_credit_help' => 'Automatically link or create a payment matching these rules.',
     'clone_client_description' => 'This will clone the client into a new client record.',
-
+    'invalid_id_number_format' => 'Invalid ID number format',
+    'invalid_vat_number_format' => 'Invalid VAT number format',
+    'invalid_routing_id_format' => 'Invalid routing ID format',
 );
 
 return $lang;
