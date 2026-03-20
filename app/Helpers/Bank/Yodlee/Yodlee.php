@@ -110,7 +110,7 @@ class Yodlee
         $token = $this->getAccessToken(true);
 
         $user['user'] = [
-            'loginName' => Str::uuid(),
+            'loginName' => Str::uuid()->toString(),
         ];
 
         /*

@@ -75,7 +75,7 @@ class ClientObserver
                                     ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_CREATE_CLIENT, $client, $client->company)->delay(0);
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_CLIENT, $client, $client->company)->delay(2);
         }
 
         // Only push to QuickBooks if:
@@ -125,7 +125,7 @@ class ClientObserver
                                     ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch($event, $client, $client->company, 'client')->delay(0);
+            WebhookHandler::dispatch($event, $client, $client->company, 'client')->delay(2);
         }
 
         // Only push to QuickBooks if:
@@ -160,7 +160,7 @@ class ClientObserver
                                     ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_CLIENT, $client, $client->company)->delay(0);
+            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_CLIENT, $client, $client->company)->delay(2);
         }
     }
 

@@ -94,6 +94,7 @@ class PaymentType extends StaticModel
     public array $type_names = [
         self::BANK_TRANSFER => 'payment_type_Bank Transfer',
         self::CASH => 'payment_type_Cash',
+        self::DEBIT => 'payment_type_Debit',
         self::CREDIT => 'payment_type_Credit',
         self::ZELLE => 'payment_type_Zelle',
         self::ACH => 'payment_type_ACH',
@@ -106,6 +107,7 @@ class PaymentType extends StaticModel
         self::NOVA => 'payment_type_Nova',
         self::CREDIT_CARD_OTHER => 'payment_type_Credit Card Other',
         self::PAYPAL => 'payment_type_PayPal',
+        self::GOOGLE_WALLET => 'payment_type_Google Wallet',
         self::CHECK => 'payment_type_Check',
         self::CARTE_BLANCHE => 'payment_type_Carte Blanche',
         self::UNIONPAY => 'payment_type_UnionPay',
@@ -114,6 +116,9 @@ class PaymentType extends StaticModel
         self::MAESTRO => 'payment_type_Maestro',
         self::SOLO => 'payment_type_Solo',
         self::SWITCH => 'payment_type_Switch',
+        self::iZETTLE => 'payment_type_iZettle',
+        self::SWISH => 'payment_type_Swish',
+        self::MONEY_ORDER => 'payment_type_Money Order',
         self::ALIPAY => 'payment_type_Alipay',
         self::SOFORT => 'payment_type_Sofort',
         self::SEPA => 'payment_type_SEPA',
@@ -138,6 +143,7 @@ class PaymentType extends StaticModel
         self::CASH_APP => 'payment_type_Cash App',
         self::VENMO => 'payment_type_Venmo',
         self::PAY_LATER => 'payment_type_Pay Later',
+        self::BACS => 'payment_type_BACS',
     ];
 
     /**

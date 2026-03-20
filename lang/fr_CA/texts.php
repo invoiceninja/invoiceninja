@@ -5939,6 +5939,9 @@ Développe automatiquement la section des notes dans le tableau de produits pour
     'login_with_passkey' => 'Connexion avec une clé d\'accès',
     'manage_passkeys' => 'Gérer les clés d\'accès',
     'last_used' => 'Dernière utilisation',
+    'unapplied_payments' => 'Paiements non appliqués',
+    'debit' => 'Débit',
+    'auto_convert_credit_help' => 'Associer ou créer automatiquement un paiement correspondant à ces règles.',
 );
 
 return $lang;
