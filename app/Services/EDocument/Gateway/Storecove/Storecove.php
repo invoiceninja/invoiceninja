@@ -175,9 +175,6 @@ class Storecove
             return $r->json()['guid'];
         }
 
-        nlog($payload);
-        nlog($r->body());
-
         return $r;
 
     }
