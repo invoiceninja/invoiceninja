@@ -829,5 +829,227 @@ class StorecoveRouterTest extends TestCase
 
     }
 
+    // resolveRequiredClientFields() tests
+
+    public function testResolveRequiredFieldsSeBusinessNeedsBoth()
+    {
+        $storecove = new Storecove();
+        $required = $storecove->router->resolveRequiredClientFields('SE', 'business');
+
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('SE:VAT', $required['vat_number']);
+        $this->assertEquals('SE:ORGNR', $required['id_number']);
+    }
+
+    public function testResolveRequiredFieldsNoBusinessNeedsBoth()
+    {
+        $storecove = new Storecove();
+        $required = $storecove->router->resolveRequiredClientFields('NO', 'business');
+
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('NO:VAT', $required['vat_number']);
+        $this->assertEquals('NO:ORG', $required['id_number']);
+    }
+
+    public function testResolveRequiredFieldsBeBusinessNeedsBoth()
+    {
+        $storecove = new Storecove();
+        $required = $storecove->router->resolveRequiredClientFields('BE', 'business');
+
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('BE:VAT', $required['vat_number']);
+        $this->assertEquals('BE:EN', $required['id_number']);
+    }
+
+    public function testResolveRequiredFieldsDeBusinessNeedsVatOnly()
+    {
+        $storecove = new Storecove();
+        $required = $storecove->router->resolveRequiredClientFields('DE', 'business');
+
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertArrayNotHasKey('id_number', $required);
+        $this->assertEquals('DE:VAT', $required['vat_number']);
+    }
+
+    public function testResolveRequiredFieldsDeGovNeedsIdOnly()
+    {
+        $storecove = new Storecove();
+        $required = $storecove->router->resolveRequiredClientFields('DE', 'government');
+
+        $this->assertArrayNotHasKey('vat_number', $required);
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('DE:LWID', $required['id_number']);
+    }
+
+    public function testResolveRequiredFieldsCaBusinessNeedsIdOnly()
+    {
+        $storecove = new Storecove();
+        $required = $storecove->router->resolveRequiredClientFields('CA', 'business');
+
+        $this->assertArrayNotHasKey('vat_number', $required);
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('CA:CBN', $required['id_number']);
+    }
+
+    public function testResolveRequiredFieldsAtBusinessNeedsVatOnly()
+    {
+        $storecove = new Storecove();
+        $required = $storecove->router->resolveRequiredClientFields('AT', 'business');
+
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertArrayNotHasKey('id_number', $required);
+        $this->assertEquals('AT:VAT', $required['vat_number']);
+    }
+
+    public function testResolveRequiredFieldsAtGovNeedsIdOnly()
+    {
+        $storecove = new Storecove();
+        $required = $storecove->router->resolveRequiredClientFields('AT', 'government');
+
+        $this->assertArrayNotHasKey('vat_number', $required);
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('AT:GOV', $required['id_number']);
+    }
+
+    public function testResolveRequiredFieldsFrBusinessNeedsBoth()
+    {
+        $storecove = new Storecove();
+        $required = $storecove->router->resolveRequiredClientFields('FR', 'business');
+
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('FR:VAT', $required['vat_number']);
+        $this->assertEquals('FR:SIRENE or FR:SIRET', $required['id_number']);
+    }
+
+    public function testResolveRequiredFieldsItBusinessNeedsVatAndRouting()
+    {
+        $storecove = new Storecove();
+        $required = $storecove->router->resolveRequiredClientFields('IT', 'business');
+
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertArrayHasKey('routing_id', $required);
+        $this->assertEquals('IT:IVA', $required['vat_number']);
+        $this->assertEquals('IT:CUUO', $required['routing_id']);
+    }
+
+    public function testResolveRequiredFieldsIndividualReturnsEmpty()
+    {
+        $storecove = new Storecove();
+
+        $this->assertEmpty($storecove->router->resolveRequiredClientFields('DE', 'individual'));
+        $this->assertEmpty($storecove->router->resolveRequiredClientFields('SE', 'individual'));
+        $this->assertEmpty($storecove->router->resolveRequiredClientFields('FR', 'individual'));
+    }
+
+    public function testResolveRequiredFieldsUnknownCountryReturnsEmpty()
+    {
+        $storecove = new Storecove();
+        $this->assertEmpty($storecove->router->resolveRequiredClientFields('ZZ', 'business'));
+    }
+
+    // Format validation tests
+
+    public function testValidateIdentifierFormatSeVat()
+    {
+        $storecove = new Storecove();
+        $this->assertTrue($storecove->router->validateIdentifierFormat('SE:VAT', 'SE123456789012'));
+        $this->assertTrue($storecove->router->validateIdentifierFormat('SE:VAT', '123456789012'));
+        $this->assertFalse($storecove->router->validateIdentifierFormat('SE:VAT', '12345'));
+    }
+
+    public function testValidateIdentifierFormatSeOrgnr()
+    {
+        $storecove = new Storecove();
+        $this->assertTrue($storecove->router->validateIdentifierFormat('SE:ORGNR', '5567891234'));
+        $this->assertFalse($storecove->router->validateIdentifierFormat('SE:ORGNR', '556789'));
+    }
+
+    public function testValidateIdentifierFormatFrSireneOrSiret()
+    {
+        $storecove = new Storecove();
+        $this->assertTrue($storecove->router->validateIdentifierFormat('FR:SIRENE or FR:SIRET', '123456789'));
+        $this->assertTrue($storecove->router->validateIdentifierFormat('FR:SIRENE or FR:SIRET', '12345678901234'));
+        $this->assertFalse($storecove->router->validateIdentifierFormat('FR:SIRENE or FR:SIRET', '12345'));
+    }
+
+    public function testValidateIdentifierFormatDeVat()
+    {
+        $storecove = new Storecove();
+        $this->assertTrue($storecove->router->validateIdentifierFormat('DE:VAT', 'DE123456789'));
+        $this->assertTrue($storecove->router->validateIdentifierFormat('DE:VAT', '123456789'));
+        $this->assertFalse($storecove->router->validateIdentifierFormat('DE:VAT', 'DE12345'));
+    }
+
+    public function testValidateIdentifierFormatDkBothFields()
+    {
+        $storecove = new Storecove();
+        $this->assertTrue($storecove->router->validateIdentifierFormat('DK:ERST', 'DK12345678'));
+        $this->assertTrue($storecove->router->validateIdentifierFormat('DK:DIGST', '12345678'));
+    }
+
+    public function testValidateIdentifierFormatItCuuo()
+    {
+        $storecove = new Storecove();
+        $this->assertTrue($storecove->router->validateIdentifierFormat('IT:CUUO', 'ABC1234'));
+        $this->assertTrue($storecove->router->validateIdentifierFormat('IT:CUUO', 'ABCDEF'));
+        $this->assertFalse($storecove->router->validateIdentifierFormat('IT:CUUO', 'AB'));
+    }
+
+    public function testResolveRequiredFieldsNlBusinessNeedsBoth()
+    {
+        $storecove = new Storecove();
+        $required = $storecove->router->resolveRequiredClientFields('NL', 'business');
+
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('NL:VAT', $required['vat_number']);
+        $this->assertEquals('NL:KVK', $required['id_number']);
+    }
+
+    public function testResolveRequiredFieldsNlGovNeedsIdOnly()
+    {
+        $storecove = new Storecove();
+        $required = $storecove->router->resolveRequiredClientFields('NL', 'government');
+
+        $this->assertArrayNotHasKey('vat_number', $required);
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('NL:OINO', $required['id_number']);
+    }
+
+    public function testResolveRequiredFieldsChBusinessNeedsBoth()
+    {
+        $storecove = new Storecove();
+        $required = $storecove->router->resolveRequiredClientFields('CH', 'business');
+
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('CH:VAT', $required['vat_number']);
+        $this->assertEquals('CH:UIDB', $required['id_number']);
+    }
+
+    public function testResolveRequiredFieldsGbBusinessNeedsVatOnly()
+    {
+        $storecove = new Storecove();
+        $required = $storecove->router->resolveRequiredClientFields('GB', 'business');
+
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertArrayNotHasKey('id_number', $required);
+        $this->assertEquals('GB:VAT', $required['vat_number']);
+    }
+
+    public function testResolveRequiredFieldsAuBusinessNeedsBoth()
+    {
+        $storecove = new Storecove();
+        $required = $storecove->router->resolveRequiredClientFields('AU', 'business');
+
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('AU:ABN', $required['vat_number']);
+        $this->assertEquals('AU:ABN', $required['id_number']);
+    }
 
 }

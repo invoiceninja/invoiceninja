@@ -228,6 +228,8 @@ class Mutator implements MutatorInterface
                         ["scheme" => $scheme, "id" => $id],
                     ]));
 
+                    $this->setSvefakturaNetwork();
+
                     return $this;
                 }
             }
@@ -239,6 +241,8 @@ class Mutator implements MutatorInterface
         $identifier = false;
 
         if ($this->invoice->client->country->iso_3166_2 == 'FR') {
+            $identifier = $this->invoice->client->id_number;
+        } elseif ($this->invoice->client->country->iso_3166_2 == 'SE' && strlen($this->invoice->client->id_number ?? '') > 2) {
             $identifier = $this->invoice->client->id_number;
         } else {
             $identifier = $this->invoice->client->vat_number;
@@ -252,7 +256,8 @@ class Mutator implements MutatorInterface
             $identifier = $this->getClientPublicIdentifier($code);
         }
 
-        $identifier = str_ireplace(["FR", "BE"], "", $identifier);
+        $country_prefix = $this->invoice->client->country->iso_3166_2;
+        $identifier = str_ireplace(["FR", "BE", $country_prefix], "", $identifier);
         $identifier = preg_replace("/[^a-zA-Z0-9]/", "", $identifier);
 
 
@@ -281,6 +286,26 @@ class Mutator implements MutatorInterface
             ["scheme" => $code, "id" => $identifier],
         ]));
 
+        $this->setSvefakturaNetwork();
+
+        return $this;
+    }
+
+    /**
+     * Sets the Svefaktura network in routing metadata when the receiver is Swedish.
+     */
+    private function setSvefakturaNetwork(): self
+    {
+        if ($this->invoice->client->country->iso_3166_2 == 'SE') {
+            $this->setStorecoveMeta(["routing" => ["networks" => [
+                [
+                    "application" => "svefaktura",
+                    "settings" => [
+                        "enabled" => true,
+                    ],
+                ],
+            ]]]);
+        }
 
         return $this;
     }

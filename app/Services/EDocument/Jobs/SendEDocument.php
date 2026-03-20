@@ -82,7 +82,6 @@ class SendEDocument implements ShouldQueue
         $p = new Peppol($model);
         $p->run();
         $identifiers = $p->gateway->mutator->setClientRoutingCode()->getStorecoveMeta();
-
         $result = $storecove->build($model)->getResult();
 
         if (count($result['errors']) > 0) {
@@ -92,7 +91,7 @@ class SendEDocument implements ShouldQueue
 
         $payload = [
             'legal_entity_id' => $model->company->legal_entity_id,
-            "idempotencyGuid" => \Illuminate\Support\Str::uuid(),
+            "idempotencyGuid" => \Illuminate\Support\Str::uuid()->toString(),
             'document' => [
                 'document_type' => 'invoice',
                 'invoice' => $result['document'],
@@ -102,6 +101,8 @@ class SendEDocument implements ShouldQueue
             'account_key' => $model->company->account->key,
             'e_invoicing_token' => $model->company->account->e_invoicing_token,
         ];
+
+        nlog("payload", $payload);
 
         //Self Hosted Sending Code Path
         if (Ninja::isSelfHost() && ($model instanceof Invoice || $model instanceof Credit) && $model->company->peppolSendingEnabled()) {
