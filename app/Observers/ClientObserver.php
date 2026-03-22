@@ -17,7 +17,6 @@ use App\Jobs\Client\UpdateTaxData;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Client;
 use App\Models\Webhook;
-use App\DataMapper\ClientSync;
 
 class ClientObserver
 {
@@ -141,14 +140,6 @@ class ClientObserver
                 $client->id,
                 $client->company->db,
             );
-        }
-
-        /** Flag DocuNinja dirty if client is tracked */
-        if ($client->sync?->dn_dirty === false) {
-            $sync = $client->sync;
-            $sync->dn_dirty = true;
-            $client->sync = $sync;
-            $client->saveQuietly();
         }
     }
 
