@@ -213,6 +213,7 @@ class QbClient implements SyncInterface
                 ->where('name', $name)
                 ->first();
 
+         
             if ($name_match) {
                 $sync = $name_match->sync ? clone $name_match->sync : new ClientSync();
                 $sync->qb_id = $key;
@@ -225,6 +226,7 @@ class QbClient implements SyncInterface
 
         // If not found by name, try to find by contact email
         if ($search->count() == 0 && $email) {
+
             $email_match = Client::query()
                 ->withTrashed()
                 ->where('company_id', $company_id)
