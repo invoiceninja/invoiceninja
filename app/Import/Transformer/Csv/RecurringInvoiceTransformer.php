@@ -130,6 +130,11 @@ class RecurringInvoiceTransformer extends BaseTransformer
                 $invoice_data,
                 'invoice.exchange_rate'
             ),
+            'is_amount_discount' => filter_var(
+                    $this->getString($invoice_data, 'invoice.is_amount_discount'),
+                    FILTER_VALIDATE_BOOLEAN,
+                    FILTER_NULL_ON_FAILURE
+                ),
             'status_id' => RecurringInvoice::STATUS_DRAFT,
             // 'status_id' => $invoiceStatusMap[
             //         ($status = strtolower(

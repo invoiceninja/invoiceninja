@@ -66,6 +66,8 @@ class UserTransformer extends EntityTransformer
             'oauth_provider_id' => (string) $user->oauth_provider_id,
             'last_confirmed_email_address' => (string) $user->last_confirmed_email_address ?: '',
             'google_2fa_secret' => (bool) $user->google_2fa_secret,
+            'passkey_enabled' => $user->passkey_credentials()->exists(),
+            'passkey_count' => $user->passkey_credentials()->count(),
             'has_password' => (bool) empty($user->password) ? false : true,
             'oauth_user_token' => empty($user->oauth_user_token) ? '' : '***',
             'verified_phone_number' => (bool) $user->verified_phone_number,

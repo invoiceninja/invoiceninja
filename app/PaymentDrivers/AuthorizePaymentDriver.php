@@ -191,6 +191,7 @@ class AuthorizePaymentDriver extends BaseDriver
         );
 
         if (! empty($endpoint) && $this->isAllowedEndpoint((string) $endpoint)) {
+            $endpoint = preg_replace('#^https?://#', '', $endpoint);
             return "https://{$endpoint}";
         }
 

@@ -38,8 +38,6 @@
         "ext-json": "*",
         "ext-libxml": "*",
         "ext-simplexml": "*",
-        "afosto/yaac": "^1.5",
-        "asm/php-ansible": "dev-main",
         "authorizenet/authorizenet": "^2.0",
         "awobaz/compoships": "^2.1",
         "aws/aws-sdk-php": "^3.319",
@@ -78,6 +76,7 @@
         "laravel/socialite": "^5",
         "laravel/tinker": "^2.7",
         "laravel/ui": "^4.0",
+        "lbuchs/webauthn": "^2.2",
         "league/csv": "^9.6",
         "league/flysystem-aws-s3-v3": "^3.0",
         "league/fractal": "^0.20.0",
@@ -101,7 +100,7 @@
         "sentry/sentry-laravel": "^4",
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.6",
-        "socialiteproviders/apple": "dev-master",
+        "socialiteproviders/apple": "5.9",
         "socialiteproviders/microsoft": "^4.1",
         "sprain/swiss-qr-bill": "^5.2",
         "square/square": "30.0.0.*",
@@ -127,7 +126,7 @@
         "filp/whoops": "^2.7",
         "friendsofphp/php-cs-fixer": "^3.14",
         "laracasts/cypress": "^3.0",
-        "larastan/larastan": "^3",
+        "larastan/larastan": "^2|^3",
         "laravel/boost": "^1.8",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^8.1",
@@ -210,15 +209,7 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/turbo124/apple"
-        },
-        {
-            "type": "vcs",
             "url": "https://github.com/invoiceninja/einvoice"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/beganovich/php-ansible"
         },
         {
             "type": "vcs",

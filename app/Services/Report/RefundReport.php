@@ -72,6 +72,7 @@ class RefundReport extends BaseExport
 
         $this->csv->insertOne($this->buildHeader());
 
+    
         // Get all refund activities
         $query = Activity::query()
             ->where('company_id', $this->company->id)
@@ -86,7 +87,7 @@ class RefundReport extends BaseExport
             /** @var Activity $activity */
 
             // Extract refund amount from notes using regex
-            preg_match('/Refunded : (\d+) -/', $activity->notes, $matches);
+            preg_match('/Refunded : (\d+) -/', $activity->notes ?? '', $matches);
             $refundAmount = $matches[1] ?? 0;
 
             // Get payment details

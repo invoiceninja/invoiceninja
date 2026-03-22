@@ -175,8 +175,8 @@ class RotessaPaymentDriver extends BaseDriver
                 );
                 $client->saveQuietly();
                 $contact = (\App\Factory\ClientContactFactory::create($company_id, $this->company_gateway->user_id))->fill([
-                    "first_name" => substr($customer->name, 0, stripos($customer->name, " ")),
-                    "last_name" => substr($customer->name, stripos($customer->name, " ")),
+                    "first_name" => substr($customer->name, 0, stripos($customer->name ?? '', " ")),
+                    "last_name" => substr($customer->name, stripos($customer->name ?? '', " ")),
                     "email" => $customer->email,
                     "phone" => $customer->phone,
                     "is_primary"  => true,

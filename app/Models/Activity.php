@@ -568,7 +568,7 @@ class Activity extends StaticModel
             return '';
         }
 
-        preg_match('/:\s*(\d+)\s*-/', $this->notes, $matches);
+        preg_match('/:\s*(\d+)\s*-/', $this->notes ?? '', $matches);
         $amount = $matches[1] ?? null;
 
         return Number::formatMoney($amount ?? $payment->refunded, $payment?->client ?? $this->company);

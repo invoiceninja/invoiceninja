@@ -30,6 +30,9 @@ class Webhook
      */
     public function getEventTypes()
     {
+        if ($this->checkout->gateway === null) {
+            return null;
+        }
         try {
             $response = $this->checkout->gateway->getWorkflowsClient()->getEventTypes();
 
@@ -52,6 +55,9 @@ class Webhook
      */
     public function getWorkFlows()
     {
+        if ($this->checkout->gateway === null) {
+            return ['data' => []];
+        }
 
         try {
 

@@ -129,6 +129,13 @@ class SelfUpdateController extends BaseController
 
         nlog('Called Artisan commands');
 
+        if (config('ninja.pdf_generator') == 'snappdf') {
+            nlog('Downloading snappdf binary');
+            $process = new \Symfony\Component\Process\Process(['./vendor/bin/snappdf', 'download'], base_path());
+            $process->setTimeout(300);
+            $process->run();
+        }
+
         return response()->json(['message' => 'Update completed'], 200);
     }
 

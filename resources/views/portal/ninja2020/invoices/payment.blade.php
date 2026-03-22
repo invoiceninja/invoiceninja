@@ -71,7 +71,7 @@
                                     {{ ctrans('texts.public_notes') }}
                                 </dt>
                                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                    {!! html_entity_decode($invoice->public_notes) !!}
+                                    {!! \App\Services\Pdf\Purify::clean(html_entity_decode($invoice->public_notes), true) !!}
                                 </dd>
                                 @else
                                 <dt class="text-sm font-medium leading-5 text-gray-500">

@@ -12,6 +12,7 @@
 
 namespace App\Models;
 
+use App\Helpers\Cache\Atomic;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Mail\Ninja\EmailQuotaExceeded;
@@ -545,13 +546,13 @@ class Account extends BaseModel
 
     public function emailQuotaExceeded(): bool
     {
-        if (is_null(Cache::get("email_quota" . $this->key))) {
+        if (is_null(Atomic::get("email_quota" . $this->key))) {
             return false;
         }
 
         try {
-            if (Cache::get("email_quota" . $this->key) > $this->getDailyEmailLimit()) {
-                if (is_null(Cache::get("throttle_notified:{$this->key}"))) {
+            if (Atomic::get("email_quota" . $this->key) > $this->getDailyEmailLimit()) {
+                if (Atomic::set("throttle_notified:{$this->key}", true, 60 * 60 * 24)) {
                     App::forgetInstance('translator');
                     $t = app('translator');
                     $t->replace(Ninja::transformTranslations($this->companies()->first()->settings));
@@ -561,11 +562,8 @@ class Account extends BaseModel
                     $nmo->company = $this->companies()->first();
                     $nmo->settings = $this->companies()->first()->settings;
                     $nmo->to_user = $this->companies()->first()->owner();
-                    // NinjaMailerJob::dispatch($nmo, true);
 
                     (new NinjaMailerJob($nmo, true))->handle();
-
-                    Cache::put("throttle_notified:{$this->key}", true, 60 * 60 * 24);
 
                     if (config('ninja.notification.slack')) {
                         $this->companies()->first()->notification(new EmailQuotaNotification($this))->ninja();

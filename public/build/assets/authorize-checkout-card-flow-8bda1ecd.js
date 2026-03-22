@@ -1,0 +1,7 @@
+import{w as f}from"./index.module-d6acd7fe.js";/**
+ * Invoice Ninja (https://invoiceninja.com)
+ * Checkout.com Flow SDK — authorize (save card) form.
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ * @license https://www.elastic.co/licensing/elastic-license
+ */function i(s){const n=document.querySelector(`meta[name="${s}"]`);return n&&n.getAttribute("content")||""}async function u(){const s=i("payment-session-id"),n=i("payment-session-token"),a=i("public-key"),l=i("environment")||"sandbox";if(!s||!n||!a){const e=document.getElementById("flow-error-message");e&&(e.textContent="Session is missing. Please refresh the page.",e.classList.remove("hidden"));return}const d={id:s,payment_session_token:n};try{(await f({paymentSession:d,publicKey:a,environment:l,onPaymentCompleted:(m,o)=>{const t=document.getElementById("server_response");if(!t)return;const c=t.querySelector('input[name="gateway_response"]');c&&(c.value=JSON.stringify({id:o.id})),t.submit()},onError:m=>{var t;const o=document.getElementById("flow-error-message");o&&(o.textContent=((t=m.detail)==null?void 0:t.message)||"Failed to add payment method. Please try again.",o.classList.remove("hidden"))}})).create("flow").mount("#flow-container")}catch(e){const r=document.getElementById("flow-error-message");r&&(r.textContent=(e==null?void 0:e.message)||"Unable to load form. Please refresh the page.",r.classList.remove("hidden"))}}const y=document.getElementById("flow-container");y&&u();

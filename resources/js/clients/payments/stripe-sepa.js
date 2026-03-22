@@ -112,7 +112,7 @@ class ProcessSEPA {
 
                 this.stripe
                     .confirmSepaDebitPayment(
-                        document.querySelector('meta[name=pi-client-secret')
+                        document.querySelector('meta[name="pi-client-secret"]')
                             .content,
                         {
                             payment_method:
@@ -169,7 +169,7 @@ class ProcessSEPA {
 
                 this.stripe
                     .confirmSepaDebitPayment(
-                        document.querySelector('meta[name=pi-client-secret')
+                        document.querySelector('meta[name="pi-client-secret"]')
                             .content,
                         {
                             payment_method: {
@@ -180,6 +180,11 @@ class ProcessSEPA {
                                     email: document.getElementById(
                                         'sepa-email-address'
                                     ).value,
+                                    address: {
+                                        country: document.querySelector(
+                                            'meta[name="country"]'
+                                        ).content,
+                                    },
                                 },
                             },
                         }

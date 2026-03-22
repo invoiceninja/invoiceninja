@@ -28,6 +28,11 @@ use App\Services\Quickbooks\Jobs\QuickbooksImport;
 use App\Services\Quickbooks\Transformers\TaxRateTransformer;
 use App\Services\Quickbooks\Transformers\IncomeAccountTransformer;
 use App\Services\Quickbooks\Helpers\Helper;
+use App\Helpers\Cache\Atomic;
+use App\Services\Email\AdminEmail;
+use App\Services\Email\EmailObject;
+use App\Utils\Ninja;
+use Illuminate\Mail\Mailables\Address;
 
 class QuickbooksService
 {
@@ -88,7 +93,7 @@ class QuickbooksService
                 'auth_mode' => 'oauth2',
                 'scope' => "com.intuit.quickbooks.accounting",
                 'RedirectURI' => config('services.quickbooks.redirect'),
-                'baseUrl' => $this->testMode ? CoreConstants::SANDBOX_DEVELOPMENT : CoreConstants::QBO_BASEURL,
+                'baseUrl' => config('services.quickbooks.env') === 'sandbox' ? CoreConstants::SANDBOX_DEVELOPMENT : CoreConstants::QBO_BASEURL,
             ];
 
             // Don't merge expired tokens when reconnection is required
@@ -218,6 +223,36 @@ class QuickbooksService
         if ($this->company->quickbooks) {
             $this->company->quickbooks->requires_reconnect = true;
             $this->company->save();
+
+            $this->notifyOwnerTokenExpired();
+        }
+    }
+
+    private function notifyOwnerTokenExpired(): void
+    {
+        $cache_key = "qb_token_expired_notified:{$this->company->company_key}";
+
+        if (!Atomic::set($cache_key, true, 60 * 60 * 24)) {
+            return;
+        }
+
+        try {
+            $mo = new EmailObject();
+            $mo->subject = ctrans('texts.quickbooks_requires_reauth');
+            $mo->body = ctrans('texts.quickbooks_requires_reauth_body');
+            $mo->text_body = ctrans('texts.quickbooks_requires_reauth_body');
+            $mo->company_key = $this->company->company_key;
+            $mo->html_template = 'email.template.admin';
+            $mo->to = [new Address($this->company->owner()->email, $this->company->owner()->present()->name())];
+            $mo->url = Ninja::isHosted() ? config('ninja.react_url') . '/#/settings/integrations/quickbooks' : config('ninja.app_url');
+            $mo->button = ctrans('texts.quickbooks_reconnect');
+            $mo->settings = $this->company->settings;
+            $mo->company = $this->company;
+            $mo->logo = $this->company->present()->logo();
+
+            AdminEmail::dispatch($mo, $this->company);
+        } catch (\Exception $e) {
+            nlog("Failed to send QuickBooks token expired notification: " . $e->getMessage());
         }
     }
 

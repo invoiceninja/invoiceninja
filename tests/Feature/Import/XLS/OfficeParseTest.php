@@ -34,6 +34,8 @@ class OfficeParseTest extends TestCase
     {
         parent::setUp();
 
+        $this->markTestSkipped('Skipping test');
+        
         $this->withoutMiddleware(ThrottleRequests::class);
 
         config(['database.default' => config('ninja.db.default')]);

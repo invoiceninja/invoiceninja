@@ -12,38 +12,37 @@
 
 namespace App\PaymentDrivers;
 
-use Exception;
-use App\Models\Company;
+use App\Exceptions\PaymentFailed;
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Http\Requests\Gateways\Checkout3ds\Checkout3dsRequest;
+use App\Http\Requests\Payments\PaymentWebhookRequest;
+use App\Jobs\Util\SystemLogger;
+use App\Models\ClientGatewayToken;
+use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\SystemLog;
-use Checkout\CheckoutSdk;
-use Checkout\Environment;
-use Checkout\Common\Phone;
-use App\Models\GatewayType;
 use App\Models\PaymentHash;
-use App\Models\PaymentType;
-use Illuminate\Support\Carbon;
-use App\Jobs\Util\SystemLogger;
-use App\Exceptions\PaymentFailed;
-use App\Models\ClientGatewayToken;
-use Checkout\CheckoutApiException;
-use App\Utils\Traits\SystemLogTrait;
-use Checkout\Payments\RefundRequest;
-use Illuminate\Support\Facades\Auth;
-use Checkout\CheckoutArgumentException;
-use Checkout\Customers\CustomerRequest;
-use Checkout\CheckoutAuthorizationException;
-use App\PaymentDrivers\CheckoutCom\Utilities;
-use Checkout\Payments\Request\PaymentRequest;
-use App\PaymentDrivers\CheckoutCom\CreditCard;
+use App\Models\SystemLog;
 use App\PaymentDrivers\CheckoutCom\CheckoutWebhook;
-use App\Http\Requests\Payments\PaymentWebhookRequest;
-use Checkout\Payments\Request\Source\RequestIdSource;
-use App\Http\Requests\Gateways\Checkout3ds\Checkout3dsRequest;
-use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\PaymentDrivers\CheckoutCom\CreditCard;
+use App\PaymentDrivers\CheckoutCom\CreditCardFlow;
+use App\PaymentDrivers\CheckoutCom\Utilities;
+use App\Utils\Traits\SystemLogTrait;
+use Checkout\CheckoutApiException;
+use Checkout\CheckoutArgumentException;
+use Checkout\CheckoutAuthorizationException;
+use Checkout\CheckoutSdk;
+use Checkout\Common\Phone;
+use Checkout\Customers\CustomerRequest;
+use Checkout\Environment;
 use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
 use Checkout\Payments\Previous\Source\RequestIdSource as SourceRequestIdSource;
+use Checkout\Payments\RefundRequest;
+use Checkout\Payments\Request\PaymentRequest;
+use Checkout\Payments\Request\Source\RequestIdSource;
+use Exception;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class CheckoutComPaymentDriver extends BaseDriver
 {
@@ -74,37 +73,76 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     public $payment_method; //the gateway type id
 
+    /** @var int Active GatewayType for this payment request. */
+    public int $gateway_type_id = GatewayType::CREDIT_CARD;
+
     public static $methods = [
         GatewayType::CREDIT_CARD => CreditCard::class,
+    ];
+
+    /** GatewayType IDs supported via the Flow SDK. */
+    public static array $flow_gateway_types = [
+        GatewayType::CREDIT_CARD,
+        GatewayType::IDEAL,
+        GatewayType::BANCONTACT,
+        GatewayType::GIROPAY,
+        GatewayType::EPS,
+        GatewayType::SOFORT,
+        GatewayType::PRZELEWY24,
+        GatewayType::PAYPAL,
+        GatewayType::APPLE_PAY,
     ];
 
     public const SYSTEM_LOG_TYPE = SystemLog::TYPE_CHECKOUT;
 
     /**
-     * Returns the default gateway type.
+     * Returns the gateway types available for this driver.
+     *
+     * When Flow SDK is active, returns only the types that the merchant's
+     * Checkout.com account actually supports (probed and stored in settings).
+     * Falls back to card-only if no probe has been run yet.
      */
     public function gatewayTypes(): array
     {
-        $types = [];
+        $types = [GatewayType::CREDIT_CARD];
 
-        $types[] = GatewayType::CREDIT_CARD;
+        if ($this->useFlow()) {
+            $available = $this->company_gateway->settings->available_payment_methods ?? null;
+
+            if (is_array($available) || is_object($available)) {
+                $available = (array) $available;
+
+                $types = array_filter(self::$flow_gateway_types, function (int $gt) use ($available) {
+                    $method = self::gatewayTypeToFlowMethod($gt);
+                    return $method && in_array($method, $available);
+                });
+
+                $types = array_values($types) ?: [GatewayType::CREDIT_CARD];
+            }
+        }
 
         return $types;
     }
 
     /**
-     * Since with Checkout.com we handle only credit cards, this method should be empty.
-     * @param int|null $payment_method
+     * Set the active payment method handler.
+     *
+     * When using the Flow SDK, all gateway types (card + APMs) route through
+     * CreditCardFlow which restricts the Flow widget to the requested method.
+     *
+     * @param int|null $payment_method GatewayType constant
      * @return CheckoutComPaymentDriver
      */
     public function setPaymentMethod($payment_method = null): self
     {
-        // At the moment Checkout.com payment
-        // driver only supports payments using credit card.
+        $this->gateway_type_id = (int) ($payment_method ?: GatewayType::CREDIT_CARD);
 
-        $class = self::$methods[GatewayType::CREDIT_CARD];
-
-        $this->payment_method = new $class($this);
+        if ($this->useFlow()) {
+            $this->payment_method = new CreditCardFlow($this);
+        } else {
+            // Legacy Frames — only supports credit cards
+            $this->payment_method = new CreditCard($this);
+        }
 
         return $this;
     }
@@ -115,8 +153,15 @@ class CheckoutComPaymentDriver extends BaseDriver
      */
     public function init()
     {
+        $secretKey = $this->company_gateway->getConfigField('secretApiKey');
+        if ($secretKey === null || $secretKey === '') {
+            $this->gateway = null;
+            return $this;
+        }
 
-        if (str_contains($this->company_gateway->getConfigField('secretApiKey'), '-')) {
+        $publicKey = $this->company_gateway->getConfigField('publicApiKey');
+
+        if (str_contains($secretKey, '-')) {
 
             $this->is_four_api = true; //was four api, now known as previous.
 
@@ -125,10 +170,22 @@ class CheckoutComPaymentDriver extends BaseDriver
                     ->previous()
                     ->staticKeys()
                     ->environment($this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production()) /** phpstan-ignore-line **/
-                    ->publicKey($this->company_gateway->getConfigField('publicApiKey'))
-                    ->secretKey($this->company_gateway->getConfigField('secretApiKey'));
+                    ->publicKey($publicKey)
+                    ->secretKey($secretKey);
 
-            $this->gateway = $builder->build();
+            try {
+                $this->gateway = $builder->build();
+            } catch (CheckoutArgumentException $e) {
+                // Public key format may not match the previous API pattern — retry without it.
+                // The public key is only needed client-side (Frames/Flow JS), not for server-side operations.
+                $builder = CheckoutSdk::builder()
+                    ->previous()
+                    ->staticKeys()
+                    ->environment($this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production())
+                    ->secretKey($secretKey);
+
+                $this->gateway = $builder->build();
+            }
 
         } else {
 
@@ -136,10 +193,21 @@ class CheckoutComPaymentDriver extends BaseDriver
             $builder = CheckoutSdk::builder()
                     ->staticKeys()
                     ->environment($this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production()) /** phpstan-ignore-line **/
-                    ->publicKey($this->company_gateway->getConfigField('publicApiKey'))
-                    ->secretKey($this->company_gateway->getConfigField('secretApiKey'));
+                    ->publicKey($publicKey)
+                    ->secretKey($secretKey);
 
-            $this->gateway = $builder->build();
+            try {
+                $this->gateway = $builder->build();
+            } catch (CheckoutArgumentException $e) {
+                // Public key format may not match the current API pattern — retry without it.
+                // The public key is only needed client-side (Frames/Flow JS), not for server-side operations.
+                $builder = CheckoutSdk::builder()
+                    ->staticKeys()
+                    ->environment($this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production())
+                    ->secretKey($secretKey);
+
+                $this->gateway = $builder->build();
+            }
 
         }
         return $this;
@@ -398,6 +466,14 @@ class CheckoutComPaymentDriver extends BaseDriver
         $paymentRequest->metadata = ['udf1' => 'Invoice Ninja', 'udf2' => $payment_hash->hash];
         $paymentRequest->currency = $this->client->getCurrencyCode();
 
+        $processingChannelId = $this->company_gateway->getConfigField('processingChannelId');
+        if ($processingChannelId) {
+            $paymentRequest->processing_channel_id = $processingChannelId;
+        }
+
+        // MIT recurring — exempt from 3DS challenge
+        $paymentRequest->payment_type = 'Recurring';
+
         $request = new PaymentResponseRequest();
         $request->setMethod('POST');
         $request->request->add(['payment_hash' => $payment_hash->hash]);
@@ -405,14 +481,16 @@ class CheckoutComPaymentDriver extends BaseDriver
         try {
             $response = $this->gateway->getPaymentsClient()->requestPayment($paymentRequest);
 
-            if ($response['status'] == 'Authorized') {
+            if ($response['status'] == 'Authorized' || $response['status'] == 'Captured') {
+
+                $meta = Utilities::resolvePaymentMeta($response);
 
                 $data = [
-                    'payment_method' => $response['source']['id'],
-                    'payment_type' => PaymentType::parseCardType(strtolower($response['source']['scheme'])),
+                    'payment_method' => $response['source']['id'] ?? $response['id'],
+                    'payment_type' => $meta['payment_type'],
                     'amount' => $amount,
                     'transaction_reference' => $response['id'],
-                    'gateway_type_id' => GatewayType::CREDIT_CARD,
+                    'gateway_type_id' => $meta['gateway_type_id'],
                 ];
 
                 $this->confirmGatewayFee($data);
@@ -623,5 +701,122 @@ class CheckoutComPaymentDriver extends BaseDriver
     public function livewirePaymentView(array $data): string
     {
         return $this->payment_method->livewirePaymentView($data);
+    }
+
+    /**
+     * Whether to use Checkout.com Flow SDK (payment sessions) instead of Frames.
+     * True when on current API and processingChannelId is configured.
+     */
+    public function useFlow(): bool
+    {
+        $secretKey = $this->company_gateway->getConfigField('secretApiKey');
+        if (empty($secretKey) || str_contains($secretKey, '-')) {
+            return false;
+        }
+
+        $channelId = $this->company_gateway->getConfigField('processingChannelId');
+
+        return $channelId !== null && $channelId !== '';
+    }
+
+    /**
+     * Probe the Checkout.com account to discover which payment methods
+     * are available for the configured processing channel.
+     *
+     * Uses the GET /payment-methods endpoint with ?processing_channel_id
+     * to retrieve the list. Stores the result in company_gateway->settings
+     * so that gatewayTypes() only advertises supported methods.
+     *
+     * @see https://api-reference.checkout.com/#operation/getPaymentMethods
+     */
+    public function probeAvailablePaymentMethods(): array
+    {
+        $this->init();
+
+        if (!$this->useFlow()) {
+            return ['card'];
+        }
+
+        $secretKey = $this->company_gateway->getConfigField('secretApiKey');
+        $processingChannelId = $this->company_gateway->getConfigField('processingChannelId');
+        $testMode = $this->company_gateway->getConfigField('testMode');
+
+        $baseUrl = $testMode ? 'https://api.sandbox.checkout.com' : 'https://api.checkout.com';
+        $url = $baseUrl . '/payment-methods?' . http_build_query(['processing_channel_id' => $processingChannelId]);
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::withHeaders([
+                'Authorization' => 'Bearer ' . $secretKey,
+                'Content-Type' => 'application/json',
+            ])->get($url);
+
+            if (!$response->successful()) {
+                nlog("Checkout probe: GET /payment-methods returned {$response->status()}");
+                nlog($response->body());
+                return $this->persistAvailableMethods(['card']);
+            }
+
+            $body = $response->json();
+            nlog(['checkout_payment_methods_response' => $body]);
+
+            $methods = [];
+
+            // Normalize: Checkout.com returns "card_scheme" per brand (Visa, MC, etc.)
+            // and APMs by their type (ideal, giropay, etc.)
+            $typeMap = [
+                'card_scheme' => 'card',
+                'applepay'    => 'applepay',
+                'googlepay'   => 'googlepay',
+            ];
+
+            foreach ($body['methods'] ?? [] as $method) {
+                if (!isset($method['type'])) {
+                    continue;
+                }
+
+                $type = strtolower($method['type']);
+                $normalized = $typeMap[$type] ?? $type;
+
+                if (!in_array($normalized, $methods)) {
+                    $methods[] = $normalized;
+                }
+            }
+
+            // Apple Pay and Google Pay are card-based wallet methods that the
+            // Flow SDK enables automatically when card is available and the
+            // device supports them. They won't appear in /payment-methods
+            // but should be allowed when card payments are supported.
+            if (in_array('card', $methods)) {
+                if (!in_array('applepay', $methods)) {
+                    $methods[] = 'applepay';
+                }
+                if (!in_array('googlepay', $methods)) {
+                    $methods[] = 'googlepay';
+                }
+            }
+
+            $available = $methods ?: ['card'];
+
+        } catch (\Exception $e) {
+            nlog("Checkout probe failed: " . $e->getMessage());
+            $available = ['card'];
+        }
+
+        return $this->persistAvailableMethods($available);
+    }
+
+    /**
+     * Store the probed payment methods in the CompanyGateway settings.
+     */
+    private function persistAvailableMethods(array $available): array
+    {
+        $settings = $this->company_gateway->settings ?? new \stdClass();
+        $settings->available_payment_methods = $available;
+        $this->company_gateway->settings = $settings;
+        $this->company_gateway->save();
+
+        nlog(['checkout_probed_payment_methods' => $available]);
+
+        return $available;
     }
 }

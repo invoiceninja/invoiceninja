@@ -4,61 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "46ad80937cb36a5eb85c986ae1408a77",
+    "content-hash": "8a50c2fe501dee5e823dc1d72ad78fc4",
     "packages": [
-        {
-            "name": "afosto/yaac",
-            "version": "v1.5.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/afosto/yaac.git",
-                "reference": "8e201aadc30f421ff7444c08038932d8149de4d5"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/afosto/yaac/zipball/8e201aadc30f421ff7444c08038932d8149de4d5",
-                "reference": "8e201aadc30f421ff7444c08038932d8149de4d5",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "ext-openssl": "*",
-                "guzzlehttp/guzzle": "^6.3|^7.0",
-                "league/flysystem": "^1.0|^3.0"
-            },
-            "type": "package",
-            "autoload": {
-                "psr-4": {
-                    "Afosto\\Acme\\": "./src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Afosto Team",
-                    "homepage": "https://afosto.com"
-                }
-            ],
-            "description": "Yet Another ACME client: a decoupled LetsEncrypt client",
-            "homepage": "https://afosto.com",
-            "keywords": [
-                "ACME",
-                "acmev2",
-                "afosto",
-                "encrypt",
-                "lets",
-                "letsencrypt",
-                "v2"
-            ],
-            "support": {
-                "issues": "https://github.com/afosto/yaac/issues",
-                "source": "https://github.com/afosto/yaac/tree/v1.5.3"
-            },
-            "time": "2024-12-23T07:35:47+00:00"
-        },
         {
             "name": "apimatic/core",
             "version": "0.3.17",
@@ -277,66 +224,6 @@
             "time": "2025-06-17T09:09:48+00:00"
         },
         {
-            "name": "asm/php-ansible",
-            "version": "dev-main",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/beganovich/php-ansible.git",
-                "reference": "2d3c3018ef886c60719cdfde73b78680dcc415a3"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/beganovich/php-ansible/zipball/2d3c3018ef886c60719cdfde73b78680dcc415a3",
-                "reference": "2d3c3018ef886c60719cdfde73b78680dcc415a3",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.0.0|^8.1.0|^8.2.0|^8.3.0",
-                "psr/log": "^1.1|^2.0|^3.0",
-                "symfony/process": "^5.3|^6.0|^7.0"
-            },
-            "require-dev": {
-                "mikey179/vfsstream": "^1.6",
-                "phpunit/phpunit": "^9.5|^10.0 "
-            },
-            "default-branch": true,
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Asm\\": "Asm"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "Asm\\": "Tests/Asm"
-                }
-            },
-            "scripts": {
-                "test": [
-                    "phpunit --configuration phpunit.xml.dist"
-                ]
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Marc Aschmann",
-                    "email": "maschmann@gmail.com"
-                }
-            ],
-            "description": "A PHP wrapper for Ansible.",
-            "homepage": "https://github.com/maschmann/php-ansible",
-            "keywords": [
-                "ansible",
-                "php"
-            ],
-            "support": {
-                "source": "https://github.com/beganovich/php-ansible/tree/main"
-            },
-            "time": "2024-05-21T09:01:55+00:00"
-        },
-        {
             "name": "authorizenet/authorizenet",
             "version": "2.0.4",
             "source": {
@@ -497,16 +384,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.372.2",
+            "version": "3.372.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "d1885c8c5db03c2a23121e6df58ef5693df41b95"
+                "reference": "d207d2ca972c9b10674e535dacd4a5d956a80bad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/d1885c8c5db03c2a23121e6df58ef5693df41b95",
-                "reference": "d1885c8c5db03c2a23121e6df58ef5693df41b95",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/d207d2ca972c9b10674e535dacd4a5d956a80bad",
+                "reference": "d207d2ca972c9b10674e535dacd4a5d956a80bad",
                 "shasum": ""
             },
             "require": {
@@ -588,9 +475,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.372.2"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.372.3"
             },
-            "time": "2026-03-09T18:21:50+00:00"
+            "time": "2026-03-10T18:07:21+00:00"
         },
         {
             "name": "babenkoivan/elastic-adapter",
@@ -2655,16 +2542,16 @@
         },
         {
             "name": "firebase/php-jwt",
-            "version": "v6.11.1",
+            "version": "v7.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/firebase/php-jwt.git",
-                "reference": "d1e91ecf8c598d073d0995afa8cd5c75c6e19e66"
+                "reference": "28aa0694bcfdfa5e2959c394d5a1ee7a5083629e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/firebase/php-jwt/zipball/d1e91ecf8c598d073d0995afa8cd5c75c6e19e66",
-                "reference": "d1e91ecf8c598d073d0995afa8cd5c75c6e19e66",
+                "url": "https://api.github.com/repos/firebase/php-jwt/zipball/28aa0694bcfdfa5e2959c394d5a1ee7a5083629e",
+                "reference": "28aa0694bcfdfa5e2959c394d5a1ee7a5083629e",
                 "shasum": ""
             },
             "require": {
@@ -2712,9 +2599,9 @@
             ],
             "support": {
                 "issues": "https://github.com/firebase/php-jwt/issues",
-                "source": "https://github.com/firebase/php-jwt/tree/v6.11.1"
+                "source": "https://github.com/firebase/php-jwt/tree/v7.0.3"
             },
-            "time": "2025-04-09T20:32:01+00:00"
+            "time": "2026-02-25T22:16:40+00:00"
         },
         {
             "name": "fruitcake/php-cors",
@@ -3469,16 +3356,16 @@
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "2.8.0",
+            "version": "2.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "21dc724a0583619cd1652f673303492272778051"
+                "reference": "7d0ed42f28e42d61352a7a79de682e5e67fec884"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/21dc724a0583619cd1652f673303492272778051",
-                "reference": "21dc724a0583619cd1652f673303492272778051",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/7d0ed42f28e42d61352a7a79de682e5e67fec884",
+                "reference": "7d0ed42f28e42d61352a7a79de682e5e67fec884",
                 "shasum": ""
             },
             "require": {
@@ -3494,6 +3381,7 @@
             "require-dev": {
                 "bamarni/composer-bin-plugin": "^1.8.2",
                 "http-interop/http-factory-tests": "0.9.0",
+                "jshttp/mime-db": "1.54.0.1",
                 "phpunit/phpunit": "^8.5.44 || ^9.6.25"
             },
             "suggest": {
@@ -3565,7 +3453,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/psr7/issues",
-                "source": "https://github.com/guzzle/psr7/tree/2.8.0"
+                "source": "https://github.com/guzzle/psr7/tree/2.9.0"
             },
             "funding": [
                 {
@@ -3581,7 +3469,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-08-23T21:21:41+00:00"
+            "time": "2026-03-10T16:41:02+00:00"
         },
         {
             "name": "guzzlehttp/uri-template",
@@ -5085,16 +4973,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v12.53.0",
+            "version": "v12.54.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "f57f035c0d34503d9ff30be76159bb35a003cd1f"
+                "reference": "325497463e7599cd14224c422c6e5dd2fe832868"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/f57f035c0d34503d9ff30be76159bb35a003cd1f",
-                "reference": "f57f035c0d34503d9ff30be76159bb35a003cd1f",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/325497463e7599cd14224c422c6e5dd2fe832868",
+                "reference": "325497463e7599cd14224c422c6e5dd2fe832868",
                 "shasum": ""
             },
             "require": {
@@ -5115,7 +5003,7 @@
                 "guzzlehttp/uri-template": "^1.0",
                 "laravel/prompts": "^0.3.0",
                 "laravel/serializable-closure": "^1.3|^2.0",
-                "league/commonmark": "^2.7",
+                "league/commonmark": "^2.8.1",
                 "league/flysystem": "^3.25.1",
                 "league/flysystem-local": "^3.25.1",
                 "league/uri": "^7.5.1",
@@ -5303,20 +5191,20 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2026-02-24T14:35:15+00:00"
+            "time": "2026-03-10T20:25:56+00:00"
         },
         {
             "name": "laravel/octane",
-            "version": "v2.14.0",
+            "version": "v2.15.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/octane.git",
-                "reference": "5d6eb82d12596f2d73e5c8b23c0abe896938fa0e"
+                "reference": "37b6175920bde50584ee4e2fa30ce4ae0f11ae36"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/octane/zipball/5d6eb82d12596f2d73e5c8b23c0abe896938fa0e",
-                "reference": "5d6eb82d12596f2d73e5c8b23c0abe896938fa0e",
+                "url": "https://api.github.com/repos/laravel/octane/zipball/37b6175920bde50584ee4e2fa30ce4ae0f11ae36",
+                "reference": "37b6175920bde50584ee4e2fa30ce4ae0f11ae36",
                 "shasum": ""
             },
             "require": {
@@ -5393,20 +5281,20 @@
                 "issues": "https://github.com/laravel/octane/issues",
                 "source": "https://github.com/laravel/octane"
             },
-            "time": "2026-02-20T14:34:10+00:00"
+            "time": "2026-03-10T14:27:22+00:00"
         },
         {
             "name": "laravel/prompts",
-            "version": "v0.3.13",
+            "version": "v0.3.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/prompts.git",
-                "reference": "ed8c466571b37e977532fb2fd3c272c784d7050d"
+                "reference": "9f0e371244eedfe2ebeaa72c79c54bb5df6e0176"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/prompts/zipball/ed8c466571b37e977532fb2fd3c272c784d7050d",
-                "reference": "ed8c466571b37e977532fb2fd3c272c784d7050d",
+                "url": "https://api.github.com/repos/laravel/prompts/zipball/9f0e371244eedfe2ebeaa72c79c54bb5df6e0176",
+                "reference": "9f0e371244eedfe2ebeaa72c79c54bb5df6e0176",
                 "shasum": ""
             },
             "require": {
@@ -5450,22 +5338,22 @@
             "description": "Add beautiful and user-friendly forms to your command-line applications.",
             "support": {
                 "issues": "https://github.com/laravel/prompts/issues",
-                "source": "https://github.com/laravel/prompts/tree/v0.3.13"
+                "source": "https://github.com/laravel/prompts/tree/v0.3.14"
             },
-            "time": "2026-02-06T12:17:10+00:00"
+            "time": "2026-03-01T09:02:38+00:00"
         },
         {
             "name": "laravel/scout",
-            "version": "v10.24.0",
+            "version": "v10.25.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/scout.git",
-                "reference": "f9864d9a727a0c0d6b95e08ed92df8c301ae6d2c"
+                "reference": "f28630dca44a63d80c15e596bedc5af42c8985d5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/scout/zipball/f9864d9a727a0c0d6b95e08ed92df8c301ae6d2c",
-                "reference": "f9864d9a727a0c0d6b95e08ed92df8c301ae6d2c",
+                "url": "https://api.github.com/repos/laravel/scout/zipball/f28630dca44a63d80c15e596bedc5af42c8985d5",
+                "reference": "f28630dca44a63d80c15e596bedc5af42c8985d5",
                 "shasum": ""
             },
             "require": {
@@ -5532,7 +5420,7 @@
                 "issues": "https://github.com/laravel/scout/issues",
                 "source": "https://github.com/laravel/scout"
             },
-            "time": "2026-02-10T18:44:39+00:00"
+            "time": "2026-03-10T16:16:46+00:00"
         },
         {
             "name": "laravel/serializable-closure",
@@ -5662,16 +5550,16 @@
         },
         {
             "name": "laravel/socialite",
-            "version": "v5.24.3",
+            "version": "v5.25.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/socialite.git",
-                "reference": "0feb62267e7b8abc68593ca37639ad302728c129"
+                "reference": "231f572e1a37c9ca1fb8085e9fb8608285beafb3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/socialite/zipball/0feb62267e7b8abc68593ca37639ad302728c129",
-                "reference": "0feb62267e7b8abc68593ca37639ad302728c129",
+                "url": "https://api.github.com/repos/laravel/socialite/zipball/231f572e1a37c9ca1fb8085e9fb8608285beafb3",
+                "reference": "231f572e1a37c9ca1fb8085e9fb8608285beafb3",
                 "shasum": ""
             },
             "require": {
@@ -5730,7 +5618,7 @@
                 "issues": "https://github.com/laravel/socialite/issues",
                 "source": "https://github.com/laravel/socialite"
             },
-            "time": "2026-02-21T13:32:50+00:00"
+            "time": "2026-02-27T13:56:35+00:00"
         },
         {
             "name": "laravel/tinker",
@@ -5800,16 +5688,16 @@
         },
         {
             "name": "laravel/ui",
-            "version": "v4.6.1",
+            "version": "v4.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/ui.git",
-                "reference": "7d6ffa38d79f19c9b3e70a751a9af845e8f41d88"
+                "reference": "4acfa331aa073f169a22d87851dc51eb2f7ac6be"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/ui/zipball/7d6ffa38d79f19c9b3e70a751a9af845e8f41d88",
-                "reference": "7d6ffa38d79f19c9b3e70a751a9af845e8f41d88",
+                "url": "https://api.github.com/repos/laravel/ui/zipball/4acfa331aa073f169a22d87851dc51eb2f7ac6be",
+                "reference": "4acfa331aa073f169a22d87851dc51eb2f7ac6be",
                 "shasum": ""
             },
             "require": {
@@ -5857,9 +5745,54 @@
                 "ui"
             ],
             "support": {
-                "source": "https://github.com/laravel/ui/tree/v4.6.1"
+                "source": "https://github.com/laravel/ui/tree/v4.6.2"
             },
-            "time": "2025-01-28T15:15:29+00:00"
+            "time": "2026-03-10T20:00:50+00:00"
+        },
+        {
+            "name": "lbuchs/webauthn",
+            "version": "v2.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/lbuchs/WebAuthn.git",
+                "reference": "20adb4a240c3997bd8cac7dc4dde38ab0bea0ed1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/lbuchs/WebAuthn/zipball/20adb4a240c3997bd8cac7dc4dde38ab0bea0ed1",
+                "reference": "20adb4a240c3997bd8cac7dc4dde38ab0bea0ed1",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.0.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "lbuchs\\WebAuthn\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Lukas Buchs",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A simple PHP WebAuthn (FIDO2) server library",
+            "homepage": "https://github.com/lbuchs/webauthn",
+            "keywords": [
+                "Authentication",
+                "webauthn"
+            ],
+            "support": {
+                "issues": "https://github.com/lbuchs/WebAuthn/issues",
+                "source": "https://github.com/lbuchs/WebAuthn/tree/v2.2.0"
+            },
+            "time": "2024-07-04T07:17:40+00:00"
         },
         {
             "name": "lcobucci/clock",
@@ -11616,22 +11549,22 @@
         },
         {
             "name": "socialiteproviders/apple",
-            "version": "dev-master",
+            "version": "5.9.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/turbo124/Apple.git",
-                "reference": "4cadc1146c6124aaaf14cb0d4088e414f50bab8f"
+                "url": "https://github.com/SocialiteProviders/Apple.git",
+                "reference": "46e2e432c95f22de80739e6c7427b3f4bc198eac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/turbo124/Apple/zipball/4cadc1146c6124aaaf14cb0d4088e414f50bab8f",
-                "reference": "4cadc1146c6124aaaf14cb0d4088e414f50bab8f",
+                "url": "https://api.github.com/repos/SocialiteProviders/Apple/zipball/46e2e432c95f22de80739e6c7427b3f4bc198eac",
+                "reference": "46e2e432c95f22de80739e6c7427b3f4bc198eac",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
                 "ext-openssl": "*",
-                "firebase/php-jwt": "^6.8",
+                "firebase/php-jwt": "^7.0",
                 "lcobucci/clock": "^2.0 || ^3.0",
                 "lcobucci/jwt": "^4.1.5 || ^5.0.0",
                 "php": "^8.0",
@@ -11640,13 +11573,13 @@
             "suggest": {
                 "ahilmurugesan/socialite-apple-helper": "Automatic Apple client key generation and management."
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
                     "SocialiteProviders\\Apple\\": ""
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -11680,11 +11613,11 @@
                 "socialite apple"
             ],
             "support": {
+                "docs": "https://socialiteproviders.com/apple",
                 "issues": "https://github.com/socialiteproviders/providers/issues",
-                "source": "https://github.com/socialiteproviders/providers",
-                "docs": "https://socialiteproviders.com/apple"
+                "source": "https://github.com/socialiteproviders/providers"
             },
-            "time": "2023-12-06T01:26:19+00:00"
+            "time": "2026-02-18T14:40:47+00:00"
         },
         {
             "name": "socialiteproviders/manager",
@@ -11762,21 +11695,21 @@
         },
         {
             "name": "socialiteproviders/microsoft",
-            "version": "4.7.1",
+            "version": "4.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/SocialiteProviders/Microsoft.git",
-                "reference": "72cfcdd9c4803cbcbf7fdd443a073b74e630ca42"
+                "reference": "33ac5df3e13e0430bcff04031d606bda88f2b27f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/SocialiteProviders/Microsoft/zipball/72cfcdd9c4803cbcbf7fdd443a073b74e630ca42",
-                "reference": "72cfcdd9c4803cbcbf7fdd443a073b74e630ca42",
+                "url": "https://api.github.com/repos/SocialiteProviders/Microsoft/zipball/33ac5df3e13e0430bcff04031d606bda88f2b27f",
+                "reference": "33ac5df3e13e0430bcff04031d606bda88f2b27f",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "firebase/php-jwt": "^6.8",
+                "firebase/php-jwt": "^7.0",
                 "php": "^8.0",
                 "socialiteproviders/manager": "^4.4"
             },
@@ -11809,7 +11742,7 @@
                 "issues": "https://github.com/socialiteproviders/providers/issues",
                 "source": "https://github.com/socialiteproviders/providers"
             },
-            "time": "2026-02-04T14:33:27+00:00"
+            "time": "2026-02-18T14:40:47+00:00"
         },
         {
             "name": "sprain/swiss-qr-bill",
@@ -16906,25 +16839,26 @@
         },
         {
             "name": "turbo124/beacon",
-            "version": "v3.0.1",
+            "version": "v3.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/turbo124/beacon.git",
-                "reference": "3a2d4edc82a190230ccabce25a586b01120b5b66"
+                "reference": "716635654034dc019d5527c1b914eaea1e75b69c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/turbo124/beacon/zipball/3a2d4edc82a190230ccabce25a586b01120b5b66",
-                "reference": "3a2d4edc82a190230ccabce25a586b01120b5b66",
+                "url": "https://api.github.com/repos/turbo124/beacon/zipball/716635654034dc019d5527c1b914eaea1e75b69c",
+                "reference": "716635654034dc019d5527c1b914eaea1e75b69c",
                 "shasum": ""
             },
             "require": {
                 "guzzlehttp/guzzle": "^7",
                 "illuminate/support": "^11|^12",
-                "php": "^8.2|^8.3",
+                "php": "^8.2|^8.3|^8.4",
                 "turbo124/waffy": "^1.0"
             },
             "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.94",
                 "larastan/larastan": "^3.6",
                 "orchestra/testbench": "^10.6",
                 "phpstan/phpstan": "^2.1",
@@ -16966,9 +16900,9 @@
                 "turbo124"
             ],
             "support": {
-                "source": "https://github.com/turbo124/beacon/tree/v3.0.1"
+                "source": "https://github.com/turbo124/beacon/tree/v3.0.2"
             },
-            "time": "2025-09-01T02:13:38+00:00"
+            "time": "2026-03-02T18:15:33+00:00"
         },
         {
             "name": "turbo124/waffy",
@@ -22193,10 +22127,8 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "asm/php-ansible": 20,
         "beganovich/snappdf": 20,
-        "invoiceninja/einvoice": 20,
-        "socialiteproviders/apple": 20
+        "invoiceninja/einvoice": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
