@@ -77,7 +77,7 @@ class BankTransformer extends BaseTransformer
             return 'CREDIT';
         }
 
-        if (array_key_exists('transaction.transaction.payment_type_Debit', $transaction) && is_numeric($transaction['transaction.payment_type_Debit'])) {
+        if (array_key_exists('transaction.payment_type_Debit', $transaction) && is_numeric($transaction['transaction.payment_type_Debit'])) {
             return 'DEBIT';
         }
 
