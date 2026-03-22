@@ -1,1 +1,0 @@
-url("/user/confirm/{$user->confirmation_code}")
