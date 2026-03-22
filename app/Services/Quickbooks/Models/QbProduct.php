@@ -58,6 +58,7 @@ class QbProduct implements SyncInterface
         foreach ($records as $record) {
             // Double-check: Skip Category and Group items
             $item_type = data_get($record, 'Type');
+            
             if ($item_type === 'Category' || $item_type === 'Group') {
                 nlog("Skipping Category/Group item during sync: " . data_get($record, 'Name') . " (Type: {$item_type})");
                 continue;
@@ -65,7 +66,7 @@ class QbProduct implements SyncInterface
 
             $ninja_data = $this->product_transformer->qbToNinja($record, $this->service);
 
-            if ($product = $this->findProduct($ninja_data['id'])) {
+            if ($product = $this->findProduct($ninja_data['id'], $ninja_data['product_key'])) {
                 $product->fill($ninja_data);
                 $product->save();
             }
@@ -101,30 +102,44 @@ class QbProduct implements SyncInterface
      * Finds a product in Ninja by their ID.
      *
      * @param  string $key
+     * @param  string $product_key
      * @return Product
      */
-    private function findProduct(string $key): ?Product
+    private function findProduct(string $key, ?string $product_key = null): Product
     {
         $search = Product::query()
                          ->withTrashed()
                          ->where('company_id', $this->service->company->id)
                          ->where('sync->qb_id', $key);
 
-        if ($search->count() == 0) {
-
-            $product = ProductFactory::create($this->service->company->id, $this->service->company->owner()->id);
-
-            $sync = new ProductSync();
-            $sync->qb_id = $key;
-            $product->sync = $sync;
-
-            return $product;
-
-        } elseif ($search->count() == 1) {
+        if ($search->count() >= 1) {
             return $search->first();
         }
 
-        return null;
+        if($product_key) {
+            $product_match = Product::query()
+                ->withTrashed()
+                ->where('company_id', $this->service->company->id)
+                ->where('product_key', $product_key)
+                ->first();
+
+            if ($product_match) {
+                $sync = $product_match->sync ? clone $product_match->sync : new ProductSync();
+                $sync->qb_id = $key;
+                $product_match->sync = $sync;
+                $product_match->saveQuietly();
+
+                return $product_match;
+            }
+        }
+
+        $product = ProductFactory::create($this->service->company->id, $this->service->company->owner()->id);
+
+        $sync = new ProductSync();
+        $sync->qb_id = $key;
+        $product->sync = $sync;
+
+        return $product;
 
     }
     

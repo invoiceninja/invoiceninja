@@ -201,7 +201,7 @@ class QbClient implements SyncInterface
                          ->where('company_id', $company_id)
                          ->where('sync->qb_id', $key);
 
-        if ($search->count() == 1) {
+        if ($search->count() >= 1) {
             return $search->first();
         }
 

@@ -601,7 +601,7 @@ class QbInvoice implements SyncInterface
             $invoice->sync = $sync;
 
             return $invoice;
-        } elseif ($search->count() == 1) {
+        } elseif ($search->count() >= 1) {
             return $search->first();
         }
 
