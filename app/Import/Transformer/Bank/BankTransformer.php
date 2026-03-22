@@ -101,8 +101,11 @@ class BankTransformer extends BaseTransformer
             return 'DEBIT';
         }
 
-        if (array_key_exists('transaction.amount', $transaction) && is_numeric($transaction['transaction.amount']) && $transaction['transaction.amount'] > 0) {
-            return 'CREDIT';
+        if (array_key_exists('transaction.amount', $transaction)) {
+            
+            if($this->getFloat($transaction, 'transaction.amount') > 0) {
+                return 'CREDIT';
+            }
         }
 
         return 'DEBIT';

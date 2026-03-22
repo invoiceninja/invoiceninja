@@ -100,7 +100,7 @@ class TransactionTransformer implements BankRevenueInterface
         } elseif (array_key_exists('internalTransactionId', $transaction)) {
             $transactionId = $transaction["internalTransactionId"];
         } else {
-            nlog('Invalid Input for nordigen transaction transformer: ' . $transaction);
+            nlog('Invalid Input for nordigen transaction transformer: ' . json_encode($transaction));
             throw new \Exception('invalid dataset: missing transactionId - Please report this error to the developer');
         }
 
@@ -112,11 +112,16 @@ class TransactionTransformer implements BankRevenueInterface
         if (array_key_exists('remittanceInformationStructured', $transaction)) {
             $description = $transaction["remittanceInformationStructured"];
         } elseif (array_key_exists('remittanceInformationStructuredArray', $transaction)) {
-            $description = implode('\n', $transaction["remittanceInformationStructuredArray"]);
+            $structured = $transaction["remittanceInformationStructuredArray"];
+            if (is_array($structured) && array_key_exists('rawTransactionDescription', $structured)) {
+                $description = $structured["rawTransactionDescription"];
+            } else {
+                $description = implode("\n", (array) $structured);
+            }
         } elseif (array_key_exists('remittanceInformationUnstructured', $transaction)) {
             $description = $transaction["remittanceInformationUnstructured"];
         } elseif (array_key_exists('remittanceInformationUnstructuredArray', $transaction)) {
-            $description = implode('\n', $transaction["remittanceInformationUnstructuredArray"]);
+            $description = implode("\n", $transaction["remittanceInformationUnstructuredArray"]);
         } elseif (array_key_exists('creditorName', $transaction)) {
             $description = $transaction["creditorName"];
         } else {
@@ -127,7 +132,7 @@ class TransactionTransformer implements BankRevenueInterface
         if (isset($transaction['currencyExchange'])) {
             foreach ($transaction["currencyExchange"] as $exchangeRate) {
                 $targetAmount = round($amount * (float) ($exchangeRate["exchangeRate"] ?? 1), 2);
-                $description .= '\n' . ctrans('texts.exchange_rate') . ' : ' . $amount . " " . ($exchangeRate["sourceCurrency"] ?? '?') . " = " . $targetAmount . " " . ($exchangeRate["targetCurrency"] ?? '?') . " (" . (isset($exchangeRate["quotationDate"]) ? $this->formatDate($exchangeRate["quotationDate"]) : '?') . ")";
+                $description .= "\n" . ctrans('texts.exchange_rate') . ' : ' . $amount . " " . ($exchangeRate["sourceCurrency"] ?? '?') . " = " . $targetAmount . " " . ($exchangeRate["targetCurrency"] ?? '?') . " (" . (isset($exchangeRate["quotationDate"]) ? $this->formatDate($exchangeRate["quotationDate"]) : '?') . ")";
             }
         }
 
@@ -148,7 +153,7 @@ class TransactionTransformer implements BankRevenueInterface
             'currency_id' => $this->convertCurrency($transaction["transactionAmount"]["currency"]),
             'category_id' => null,
             'category_type' => array_key_exists('additionalInformation', $transaction) ? $transaction["additionalInformation"] : '',
-            'date' => $transaction["bookingDate"],
+            'date' => $transaction["bookingDate"] ?? '',
             'description' => $description,
             'participant' => $participant,
             'participant_name' => $participant_name,
