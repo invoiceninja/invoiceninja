@@ -32,7 +32,7 @@ class ClientSyncCast implements CastsAttributes
 
         $is = new ClientSync();
         $is->qb_id = $data['qb_id'] ?? '';
-        $is->dn_dirty = $data['dn_dirty'] ?? null;
+        $is->dn_dirty = $data['dn_dirty'] ?? false;
 
         return $is;
     }

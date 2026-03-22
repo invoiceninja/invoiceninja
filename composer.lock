@@ -4376,12 +4376,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:invoiceninja/admin-api.git",
-                "reference": "5ecfc70b53fba289fe6cda50b81b23139170332c"
+                "reference": "b5221acee375940f09593775bdaad450c2a4bf00"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/invoiceninja/admin-api/zipball/5ecfc70b53fba289fe6cda50b81b23139170332c",
-                "reference": "5ecfc70b53fba289fe6cda50b81b23139170332c",
+                "url": "https://api.github.com/repos/invoiceninja/admin-api/zipball/b5221acee375940f09593775bdaad450c2a4bf00",
+                "reference": "b5221acee375940f09593775bdaad450c2a4bf00",
                 "shasum": ""
             },
             "require": {
@@ -4434,7 +4434,7 @@
                 "source": "https://github.com/invoiceninja/admin-api/tree/main",
                 "issues": "https://github.com/invoiceninja/admin-api/issues"
             },
-            "time": "2026-03-22T04:20:48+00:00"
+            "time": "2026-03-22T06:23:32+00:00"
         },
         {
             "name": "invoiceninja/einvoice",
