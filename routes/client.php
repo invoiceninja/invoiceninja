@@ -126,7 +126,7 @@ Route::get('client/subscriptions/{subscription}/purchase', [App\Http\Controllers
 Route::get('client/subscriptions/{subscription}/purchase/v2', [App\Http\Controllers\ClientPortal\SubscriptionPurchaseController::class, 'upgrade'])->name('client.subscription.upgrade')->middleware('domain_db');
 Route::get('client/subscriptions/{subscription}/purchase/v3', [App\Http\Controllers\ClientPortal\SubscriptionPurchaseController::class, 'v3'])->name('client.subscription.v3')->middleware('domain_db');
 
-Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'client.'], function () {
+Route::group(['middleware' => ['invite_db', 'throttle:30,1'], 'prefix' => 'client', 'as' => 'client.'], function () {
     /*Invitation catches*/
     Route::get('recurring_invoice/{invitation_key}', [App\Http\Controllers\ClientPortal\InvitationController::class, 'recurringRouter']);
     Route::get('invoice/{invitation_key}', [App\Http\Controllers\ClientPortal\InvitationController::class, 'invoiceRouter']);
