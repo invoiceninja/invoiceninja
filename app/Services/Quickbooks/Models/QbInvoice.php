@@ -602,7 +602,7 @@ class QbInvoice implements SyncInterface
 
             return $invoice;
         } elseif ($search->count() == 1) {
-            return $this->service->syncable('invoice', \App\Enum\SyncDirection::PULL) ? $search->first() : null;
+            return $search->first();
         }
 
         return null;

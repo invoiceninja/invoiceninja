@@ -121,7 +121,7 @@ class QbProduct implements SyncInterface
             return $product;
 
         } elseif ($search->count() == 1) {
-            return $this->service->syncable('product', \App\Enum\SyncDirection::PULL) ? $search->first() : null;
+            return $search->first();
         }
 
         return null;

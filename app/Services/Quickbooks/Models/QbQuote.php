@@ -127,7 +127,7 @@ class QbQuote implements SyncInterface
 
             return $quote;
         } elseif ($search->count() == 1) {
-            return $this->service->syncable('quote', \App\Enum\SyncDirection::PULL) ? $search->first() : null;
+            return $search->first();
         }
 
         return null;
