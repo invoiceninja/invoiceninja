@@ -15,6 +15,7 @@ namespace App\Observers;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Vendor;
 use App\Models\Webhook;
+use App\DataMapper\VendorSync;
 
 class VendorObserver
 {
@@ -62,6 +63,14 @@ class VendorObserver
 
         if ($subscriptions) {
             WebhookHandler::dispatch($event, $vendor, $vendor->company)->delay(0);
+        }
+
+        /** Flag DocuNinja dirty if vendor is tracked */
+        if ($vendor->sync?->dn_dirty === false) {
+            $sync = $vendor->sync;
+            $sync->dn_dirty = true;
+            $vendor->sync = $sync;
+            $vendor->saveQuietly();
         }
     }
 
