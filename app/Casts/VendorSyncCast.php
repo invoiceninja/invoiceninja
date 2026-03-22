@@ -12,16 +12,16 @@
 
 namespace App\Casts;
 
-use App\DataMapper\ClientSync;
+use App\DataMapper\VendorSync;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 
-class ClientSyncCast implements CastsAttributes
+class VendorSyncCast implements CastsAttributes
 {
     public function get($model, string $key, $value, array $attributes)
     {
 
         if (is_null($value)) {
-            return null; // Return null if the value is null
+            return null;
         }
 
         $data = json_decode($value, true);
@@ -30,7 +30,7 @@ class ClientSyncCast implements CastsAttributes
             return null;
         }
 
-        $is = new ClientSync();
+        $is = new VendorSync();
         $is->qb_id = $data['qb_id'] ?? '';
         $is->dn_dirty = $data['dn_dirty'] ?? null;
 
@@ -39,7 +39,6 @@ class ClientSyncCast implements CastsAttributes
 
     public function set($model, string $key, $value, array $attributes)
     {
-
 
         if (is_null($value)) {
             return [$key => null];

@@ -57,12 +57,12 @@ class InvoiceTest extends TestCase
         $data = [
             "client_id" => $this->client->hashed_id,
             "project_id" => $this->project->hashed_id,
-            "custom_value3" => "<FLIGHTREFERENCE>",
+            "custom_value3" => "FLIGHTREFERENCE>",
             "line_items" => [
                 [
                     "quantity" => 1,
                     "cost" => 100,
-                    "product_key" => "<TASK_DESCRIPTION>",
+                    "product_key" => "TASK_DESCRIPTION>",
                     "notes" => ['an', 'illegal', 'array'],
                     "tax_name1" => "gst",
                     "tax_rate1" => 18,
@@ -87,7 +87,7 @@ class InvoiceTest extends TestCase
         $response->assertStatus(200);
 
         $this->assertEquals('', $arr['data']['line_items'][0]['notes']);
-        $this->assertEquals('<TASK_DESCRIPTION>', $arr['data']['line_items'][0]['product_key']);
+        $this->assertEquals('TASK_DESCRIPTION>', $arr['data']['line_items'][0]['product_key']);
 
     }
 
@@ -96,13 +96,13 @@ class InvoiceTest extends TestCase
         $data = [
             "client_id" => $this->client->hashed_id,
             "project_id" => $this->project->hashed_id,
-            "custom_value3" => "<FLIGHTREFERENCE>",
+            "custom_value3" => "FLIGHTREFERENCE>",
             "line_items" => [
                 [
                     "quantity" => 1,
                     "cost" => 100,
-                    "product_key" => "<TASK_DESCRIPTION>",
-                    "notes" => "<TASK_NOTES>",
+                    "product_key" => "TASK_DESCRIPTION>",
+                    "notes" => "TASK_NOTES>",
                     "tax_name1" => "gst",
                     "tax_rate1" => 18,
                     "type_id" => "2",

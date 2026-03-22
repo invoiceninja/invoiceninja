@@ -12,6 +12,7 @@
 
 namespace Tests\Integration\Einvoice\Storecove;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Client;
@@ -1121,9 +1122,7 @@ class StorecoveRouterTest extends TestCase
     // Comprehensive country coverage: resolveRequiredClientFields()
     // =====================================================================
 
-    /**
-     * @dataProvider requiredFieldsProvider
-     */
+    #[DataProvider('requiredFieldsProvider')]
     public function testResolveRequiredFieldsForCountry(
         string $country,
         string $classification,
@@ -1266,9 +1265,7 @@ class StorecoveRouterTest extends TestCase
     // Comprehensive format validation tests
     // =====================================================================
 
-    /**
-     * @dataProvider validFormatProvider
-     */
+    #[DataProvider('validFormatProvider')]
     public function testValidIdentifierFormats(string $scheme, string $value)
     {
         $storecove = new Storecove();
@@ -1372,9 +1369,7 @@ class StorecoveRouterTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider invalidFormatProvider
-     */
+    #[DataProvider('invalidFormatProvider')]
     public function testInvalidIdentifierFormats(string $scheme, string $value)
     {
         $storecove = new Storecove();
@@ -1418,9 +1413,8 @@ class StorecoveRouterTest extends TestCase
      * For every country where resolveRouting returns a scheme,
      * resolveRequiredClientFields should return a non-empty array
      * (except for individuals).
-     *
-     * @dataProvider supportedCountryProvider
      */
+    #[DataProvider('supportedCountryProvider')]
     public function testRequiredFieldsNonEmptyForSupportedCountries(string $country)
     {
         $storecove = new Storecove();

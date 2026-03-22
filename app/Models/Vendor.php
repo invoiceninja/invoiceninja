@@ -150,6 +150,7 @@ class Vendor extends BaseModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'last_login' => 'timestamp',
+        'sync' => \App\DataMapper\VendorSync::class,
     ];
 
     protected $touches = [];

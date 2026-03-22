@@ -12,13 +12,13 @@
 
 namespace App\DataMapper;
 
-use App\Casts\ClientSyncCast;
+use App\Casts\VendorSyncCast;
 use Illuminate\Contracts\Database\Eloquent\Castable;
 
 /**
- * ClientSync.
+ * VendorSync.
  */
-class ClientSync implements Castable
+class VendorSync implements Castable
 {
     public string $qb_id;
 
@@ -36,7 +36,7 @@ class ClientSync implements Castable
      */
     public static function castUsing(array $arguments): string
     {
-        return ClientSyncCast::class;
+        return VendorSyncCast::class;
     }
 
     public static function fromArray(array $data): self

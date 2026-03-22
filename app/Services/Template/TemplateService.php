@@ -101,7 +101,7 @@ class TemplateService
 
         $loader = new \Twig\Loader\FilesystemLoader(storage_path());
         $this->twig = new \Twig\Environment($loader, [
-            'debug' => true,
+            'debug' => config('ninja.debug_enabled'),
         ]);
 
         $string_extension = new \Twig\Extension\StringLoaderExtension();
@@ -162,7 +162,7 @@ class TemplateService
 
         $allowedTags = ['if', 'for', 'set', 'filter'];
         $allowedFilters = ['url_encode','default', 'groupBy','capitalize', 'abs', 'date_modify', 'keys', 'join', 'reduce', 'format_date','json_decode','date_modify','trim','round','format_spellout_number','split', 'reduce','replace', 'escape', 'e', 'reverse', 'shuffle', 'slice', 'batch', 'title', 'sort', 'split', 'upper', 'lower', 'capitalize', 'filter', 'length', 'merge','format_currency', 'format_number','format_percent_number','map', 'join', 'first', 'date', 'sum', 'number_format','nl2br','striptags','markdown_to_html'];
-        $allowedFunctions = ['range', 'cycle', 'constant', 'date','img','t'];
+        $allowedFunctions = ['range', 'cycle', 'date', 'img', 't'];
         $allowedProperties = ['type_id'];
         // $allowedMethods = ['img','t'];
         $allowedMethods = [

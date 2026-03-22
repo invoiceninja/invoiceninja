@@ -198,27 +198,33 @@ class CleanLineItemsTest extends TestCase
     
     public function test_xss_sanitization_on_product_key()
     {
-        $result = $this->cleanItems([['product_key' => 'test onerror=hack']]);
+        // onerror as an attribute on an element should be stripped
+        $result = $this->cleanItems([['product_key' => '<img src=x onerror=hack>']]);
         $this->assertStringNotContainsString('onerror', $result[0]['product_key']);
+
+        // plain text containing "onerror" is not an XSS vector and should be preserved
+        $result = $this->cleanItems([['product_key' => 'test onerror=hack']]);
+        $this->assertEquals('test onerror=hack', $result[0]['product_key']);
     }
 
     
     public function test_xss_sanitization_on_custom_values()
     {
+        // Actual XSS payloads with HTML elements
         $xss_payloads = [
-            'custom_value1' => '</script>',
-            'custom_value2' => 'onerror=x',
-            'custom_value3' => 'prompt(1)',
-            'custom_value4' => 'alert(1)',
+            'custom_value1' => '<script>alert("xss")</script>',
+            'custom_value2' => '<img src=x onerror=alert(1)>',
+            'custom_value3' => '<a href="javascript:prompt(1)">click</a>',
+            'custom_value4' => '<div onmouseover="alert(1)">hover</div>',
         ];
 
         $result = $this->cleanItems([$xss_payloads]);
         $item = $result[0];
 
-        $this->assertStringNotContainsString('</sc', $item['custom_value1']);
+        $this->assertStringNotContainsString('<script', $item['custom_value1']);
         $this->assertStringNotContainsString('onerror', $item['custom_value2']);
-        $this->assertStringNotContainsString('prompt(', $item['custom_value3']);
-        $this->assertStringNotContainsString('alert(', $item['custom_value4']);
+        $this->assertStringNotContainsString('javascript:', $item['custom_value3']);
+        $this->assertStringNotContainsString('onmouseover', $item['custom_value4']);
     }
 
     
