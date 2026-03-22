@@ -76,7 +76,7 @@ class UpdateProductRequest extends Request
         }
 
         foreach (['notes', 'product_key', 'custom_value1', 'custom_value2', 'custom_value3', 'custom_value4'] as $field) {
-            if (isset($input[$field]) && is_string($input[$field]) && (str_contains($input[$field], '<') || str_contains($input[$field], '&lt;') || str_contains($input[$field], '&#'))) {
+            if (isset($input[$field]) && is_string($input[$field])) {
                 $input[$field] = \App\Services\Pdf\Purify::clean($input[$field], true);
             }
         }

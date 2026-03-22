@@ -1121,9 +1121,6 @@ class StorecoveRouterTest extends TestCase
     // Comprehensive country coverage: resolveRequiredClientFields()
     // =====================================================================
 
-    /**
-     * @dataProvider requiredFieldsProvider
-     */
     public function testResolveRequiredFieldsForCountry(
         string $country,
         string $classification,
@@ -1266,9 +1263,6 @@ class StorecoveRouterTest extends TestCase
     // Comprehensive format validation tests
     // =====================================================================
 
-    /**
-     * @dataProvider validFormatProvider
-     */
     public function testValidIdentifierFormats(string $scheme, string $value)
     {
         $storecove = new Storecove();
@@ -1372,9 +1366,6 @@ class StorecoveRouterTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider invalidFormatProvider
-     */
     public function testInvalidIdentifierFormats(string $scheme, string $value)
     {
         $storecove = new Storecove();
@@ -1419,7 +1410,6 @@ class StorecoveRouterTest extends TestCase
      * resolveRequiredClientFields should return a non-empty array
      * (except for individuals).
      *
-     * @dataProvider supportedCountryProvider
      */
     public function testRequiredFieldsNonEmptyForSupportedCountries(string $country)
     {

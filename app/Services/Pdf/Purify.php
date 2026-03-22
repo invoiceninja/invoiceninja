@@ -255,7 +255,14 @@ class Purify
     {
         return in_array(strtolower($tagName), self::$dangerous_svg_elements);
     }
-
+    
+    /**
+     * clean
+     *
+     * @param  string $html
+     * @param  bool $is_fragment
+     * @return string
+     */
     public static function clean(string $html, bool $is_fragment = false): string
     {
         
@@ -264,6 +271,18 @@ class Purify
         }
 
         $html = str_replace('%24', '$', $html);
+
+        // Strip null bytes — no legitimate use in text, and they can be used
+        // to bypass HTML tag detection (e.g. "<\x00script>")
+        $html = str_replace("\x00", '', $html);
+
+        // If the string contains no actual HTML tags, return it unchanged.
+        // This avoids DOMDocument wrapping plain text like "< i am text" in <p> tags.
+        // Real HTML tags start with < followed by a letter, / or !
+        if (!preg_match('/<[a-zA-Z\/!]/', $html)) {
+            return $html;
+        }
+
         libxml_use_internal_errors(true);
 
         $document = new \DOMDocument();

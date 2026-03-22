@@ -185,7 +185,7 @@ span {
         </button>
 
         <div id="terms" class="py-10 border-b-2 border-fuschia-600"  x-show="show_terms">
-            {!! html_entity_decode($terms) !!}
+            {!! \App\Services\Pdf\Purify::clean(html_entity_decode($terms), true) !!}
         </div>
 
     </div>
@@ -200,7 +200,7 @@ span {
         </button>
 
         <div id="terms" class="py-10 border-b-2 border-fuschia-600"  x-show="show_footer">
-            {!! html_entity_decode($entity->footer) !!}
+            {!! \App\Services\Pdf\Purify::clean(html_entity_decode($entity->footer), true) !!}
         </div>
 
     </div>

@@ -219,25 +219,10 @@ class Request extends FormRequest
         }
 
         foreach (['public_notes', 'footer', 'terms', 'private_notes'] as $field) {
-            if (isset($input[$field]) && is_string($input[$field]) && (str_contains($input[$field], '<') || str_contains($input[$field], '&lt;') || str_contains($input[$field], '&#'))) {
+            if (isset($input[$field]) && is_string($input[$field])) {
                 $input[$field] = \App\Services\Pdf\Purify::clean($input[$field], true);
             }
         }
-        // if (isset($input['public_notes'])) {
-        //     $input['public_notes'] = str_replace("</sc", "<-", $input['public_notes']);
-        // }
-
-        // if (isset($input['footer'])) {
-        //     $input['footer'] = str_replace("</sc", "<-", $input['footer']);
-        // }
-
-        // if (isset($input['terms'])) {
-        //     $input['terms'] = str_replace("</sc", "<-", $input['terms']);
-        // }
-
-        // if (isset($input['private_notes'])) {
-        //     $input['private_notes'] = str_replace("</sc", "<-", $input['private_notes']);
-        // }
 
         return $input;
     }

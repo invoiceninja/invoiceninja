@@ -451,4 +451,49 @@ class XssSanitizationTest extends TestCase
         $this->assertStringContainsString('data-ref', $result);
         $this->assertStringContainsString('data-element', $result);
     }
+
+    // =========================================================================
+    // Plain text with angle brackets — must not be wrapped in HTML tags
+    // =========================================================================
+
+    public function test_purify_returns_plain_text_with_angle_bracket_unchanged()
+    {
+        $text = '< i am a hairy ghost';
+        $result = Purify::clean($text);
+
+        $this->assertEquals($text, $result);
+        $this->assertStringNotContainsString('<p>', $result);
+        $this->assertStringNotContainsString('<html>', $result);
+    }
+
+    public function test_purify_returns_plain_text_with_math_symbols_unchanged()
+    {
+        $text = 'if x < 10 and y > 5 then proceed';
+        $result = Purify::clean($text);
+
+        $this->assertEquals($text, $result);
+    }
+
+    public function test_purify_returns_plain_text_with_multiple_angle_brackets_unchanged()
+    {
+        $text = 'price < $100 or quantity >= 50';
+        $result = Purify::clean($text);
+
+        $this->assertEquals($text, $result);
+    }
+
+    public function test_purify_strips_null_byte_xss_bypass()
+    {
+        $result = Purify::clean("<\x00script>alert(1)</\x00script>");
+
+        $this->assertStringNotContainsString('alert(', $result);
+        $this->assertStringNotContainsString('<script>', $result);
+    }
+
+    public function test_purify_strips_null_bytes_from_event_handlers()
+    {
+        $result = Purify::clean("<img src=x on\x00error=alert(1)>");
+
+        $this->assertStringNotContainsString('alert(', $result);
+    }
 }
