@@ -28,6 +28,11 @@ use App\Services\Quickbooks\Jobs\QuickbooksImport;
 use App\Services\Quickbooks\Transformers\TaxRateTransformer;
 use App\Services\Quickbooks\Transformers\IncomeAccountTransformer;
 use App\Services\Quickbooks\Helpers\Helper;
+use App\Helpers\Cache\Atomic;
+use App\Services\Email\AdminEmail;
+use App\Services\Email\EmailObject;
+use App\Utils\Ninja;
+use Illuminate\Mail\Mailables\Address;
 
 class QuickbooksService
 {
@@ -88,18 +93,26 @@ class QuickbooksService
                 'auth_mode' => 'oauth2',
                 'scope' => "com.intuit.quickbooks.accounting",
                 'RedirectURI' => config('services.quickbooks.redirect'),
-                'baseUrl' => $this->testMode ? CoreConstants::SANDBOX_DEVELOPMENT : CoreConstants::QBO_BASEURL,
+                'baseUrl' => config('services.quickbooks.env') === 'sandbox' ? CoreConstants::SANDBOX_DEVELOPMENT : CoreConstants::QBO_BASEURL,
             ];
 
-            $merged = array_merge($config, $this->ninjaAccessToken());
+            // Don't merge expired tokens when reconnection is required
+            // This allows getAuthorizationUrl() to work correctly
+            $requires_reconnect = $this->company->quickbooks && $this->company->quickbooks->requires_reconnect;
+            
+            if (!$requires_reconnect) {
+                $config = array_merge($config, $this->ninjaAccessToken());
+            }
 
-            $this->sdk = DataService::Configure($merged);
+            $this->sdk = DataService::Configure($config);
 
             $this->sdk->enableLog();
             $this->sdk->setMinorVersion("75");
             $this->sdk->throwExceptionOnError(true);
 
+            if (!$requires_reconnect) {
             $this->checkToken();
+            }
         }
 
         $this->invoice = new QbInvoice($this);
@@ -163,6 +176,7 @@ class QuickbooksService
                 && $this->company->quickbooks->refreshTokenExpiresAt < time();
             
             if ($refresh_token_expired) {
+                $this->markRequiresReconnect();
                 nlog('Quickbooks tokens expired (both access and refresh) => ' . $this->company->company_key);
                 throw new \Exception('Quickbooks tokens expired (both access and refresh)');
             }
@@ -177,6 +191,7 @@ class QuickbooksService
                 if (str_contains($error_message, 'invalid_grant') || str_contains($error_message, 'refresh token')) {
                     // Refresh token is invalid/expired - don't try to disconnect (which would also fail)
                     nlog('Quickbooks refresh token invalid/expired => ' . $this->company->company_key);
+                    $this->markRequiresReconnect();
                     throw new \Exception('Quickbooks refresh token invalid/expired');
                 }
                 
@@ -201,6 +216,44 @@ class QuickbooksService
 
         throw new \Exception('Quickbooks token expired and could not be refreshed');
 
+    }
+
+    private function markRequiresReconnect(): void
+    {
+        if ($this->company->quickbooks) {
+            $this->company->quickbooks->requires_reconnect = true;
+            $this->company->save();
+
+            $this->notifyOwnerTokenExpired();
+        }
+    }
+
+    private function notifyOwnerTokenExpired(): void
+    {
+        $cache_key = "qb_token_expired_notified:{$this->company->company_key}";
+
+        if (!Atomic::set($cache_key, true, 60 * 60 * 24)) {
+            return;
+        }
+
+        try {
+            $mo = new EmailObject();
+            $mo->subject = ctrans('texts.quickbooks_requires_reauth');
+            $mo->body = ctrans('texts.quickbooks_requires_reauth_body');
+            $mo->text_body = ctrans('texts.quickbooks_requires_reauth_body');
+            $mo->company_key = $this->company->company_key;
+            $mo->html_template = 'email.template.admin';
+            $mo->to = [new Address($this->company->owner()->email, $this->company->owner()->present()->name())];
+            $mo->url = Ninja::isHosted() ? config('ninja.react_url') . '/#/settings/integrations/quickbooks' : config('ninja.app_url');
+            $mo->button = ctrans('texts.quickbooks_reconnect');
+            $mo->settings = $this->company->settings;
+            $mo->company = $this->company;
+            $mo->logo = $this->company->present()->logo();
+
+            AdminEmail::dispatch($mo, $this->company);
+        } catch (\Exception $e) {
+            nlog("Failed to send QuickBooks token expired notification: " . $e->getMessage());
+        }
     }
 
     /**
@@ -745,11 +798,22 @@ class QuickbooksService
             }
         }
 
-        nlog("QB TaxCode resolution: taxable={$default_taxable_code} exempt={$default_exempt_code} rate_map_count=" . count($tax_rate_to_tax_code));
+        // US companies MUST use "TAX"/"NON" as TaxCodeRef — never numeric IDs.
+        // Non-US (CA/AU/GB) use the resolved numeric TaxCode IDs.
+        if ($qb_country === 'US') {
+            $default_taxable_code = 'TAX';
+            $default_exempt_code = 'NON';
+        }
+
+        nlog("QB TaxCode resolution: country={$qb_country} taxable={$default_taxable_code} exempt={$default_exempt_code} rate_map_count=" . count($tax_rate_to_tax_code));
 
         $this->company->quickbooks->settings->tax_rate_map = $tax_rates;
         $this->company->quickbooks->settings->default_taxable_code = $default_taxable_code;
         $this->company->quickbooks->settings->default_exempt_code = $default_exempt_code;
+
+        // Fetch and cache payment methods for payment type mapping
+        $payment_methods = $this->fetchPaymentMethods();
+        $this->company->quickbooks->settings->payment_method_map = $payment_methods;
 
         $this->company->save();
 
@@ -769,6 +833,47 @@ class QuickbooksService
 
         return $this;
 
+    }
+
+    /**
+     * Fetch all active PaymentMethods from QuickBooks.
+     *
+     * @return array Array of ['id' => string, 'name' => string, 'type' => string]
+     */
+    public function fetchPaymentMethods(): array
+    {
+        try {
+            if (!$this->sdk) {
+                return [];
+            }
+
+            $query = "SELECT * FROM PaymentMethod WHERE Active = true";
+            $methods = $this->sdk->Query($query);
+
+            if (!is_array($methods)) {
+                return [];
+            }
+
+            $result = [];
+            foreach ($methods as $method) {
+                $id = is_object($method) ? (string) ($method->Id ?? '') : (string) ($method['Id'] ?? '');
+                $name = is_object($method) ? (string) ($method->Name ?? '') : (string) ($method['Name'] ?? '');
+                $type = is_object($method) ? (string) ($method->Type ?? '') : (string) ($method['Type'] ?? '');
+
+                if ($id && $name) {
+                    $result[] = [
+                        'id' => $id,
+                        'name' => $name,
+                        'type' => $type,
+                    ];
+                }
+            }
+
+            return $result;
+        } catch (\Exception $e) {
+            nlog("Error fetching payment methods: {$e->getMessage()}");
+            return [];
+        }
     }
 
     /**

@@ -95,8 +95,10 @@ class CreateInvitations extends AbstractService
                 $q->where('is_primary', true);
             })->first() ?? $this->credit->invitations()->first();
 
-            $ii->can_sign = true;
-            $ii->saveQuietly();
+            if ($ii) {
+                $ii->can_sign = true;
+                $ii->saveQuietly();
+            }
         }
 
         return $this->credit;

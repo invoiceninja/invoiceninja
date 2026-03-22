@@ -35,7 +35,7 @@ class CreditLines
     public ?string $quantity_unit_code;
 
     #[SerializedPath('[cac:AllowanceCharge]')]
-    /** @var AllowanceCharges[] */ //todo
+    /** @var AllowanceCharges[]|null */ //todo
     public ?array $allowance_charges;
 
     #[SerializedPath('[cbc:LineExtensionAmount][#]')]
@@ -48,18 +48,18 @@ class CreditLines
     public ?float $amount_including_tax;
 
     #[SerializedPath('[cac:Item][cac:ClassifiedTaxCategory]')]
-    /** @var TaxesDutiesFees[] */
+    /** @var TaxesDutiesFees[]|null */
     public ?array $taxes_duties_fees = [];
 
     #[SerializedPath('[cbc:AccountingCost]')]
     public ?string $accounting_cost;
 
     #[SerializedPath('[cac:DocumentReference]')]
-    /** @var References[] */
+    /** @var References[]|null */
     public ?array $references;
 
     #[SerializedPath('[cac:Item][cac:AdditionalItemProperty]')]
-    /** @var AdditionalItemProperties[] */
+    /** @var AdditionalItemProperties[]|null */
     public ?array $additional_item_properties;
 
     #[SerializedPath('[cac:Item][cac:SellersItemIdentification][cbc:ID][#]')]

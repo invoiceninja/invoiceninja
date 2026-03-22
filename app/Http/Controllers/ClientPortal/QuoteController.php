@@ -55,10 +55,10 @@ class QuoteController extends Controller
     {
         /* If the quote is expired, convert the status here */
 
-        $invitation = $quote->invitations()->where('client_contact_id', auth()->guard('contact')->user()->id)->first();
+        $invitation = $quote->invitations()->where('client_contact_id', auth()->guard('contact')->user()->id)->first() ?? $quote->invitations()->first();
         $variables = ($invitation && auth()->guard('contact')->user()->client->getSetting('show_accept_quote_terms')) ? (new HtmlEngine($invitation))->generateLabelsAndValues() : false;
-        $docuninja_active = $invitation->company->docuninjaActive();
-        $signature_accepted = $invitation->quote->sync?->dn_completed ?? false;
+        $docuninja_active = $quote->company->docuninjaActive();
+        $signature_accepted = $quote->sync?->dn_completed ?? false;
 
         $data = [
             'quote' => $quote,
@@ -126,7 +126,7 @@ class QuoteController extends Controller
                 }
             }
 
-            return $this->approve((array) $transformed_ids, $request->has('process'));
+            return $this->approve((array) $transformed_ids, $request->has('process') || $request->has('request_hash'));
         }
 
         if ($request->action == 'reject') {

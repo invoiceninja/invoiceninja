@@ -94,7 +94,7 @@ class PaymentDecorator extends Decorator implements DecoratorInterface
 
     public function private_notes(Payment $payment)
     {
-        return strip_tags($payment->private_notes) ?? '';
+        return strip_tags($payment->private_notes ?? '');
     }
 
     public function user_id(Payment $payment)

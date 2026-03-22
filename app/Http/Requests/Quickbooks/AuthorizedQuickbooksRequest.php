@@ -50,7 +50,11 @@ class AuthorizedQuickbooksRequest extends FormRequest
      */
     public function getTokenContent()
     {
-        $token = Cache::get($this->state);
+        $state_data = Cache::get($this->state);
+
+        // Handle reconnect format: ['token' => $token, 'expected_realm_id' => ..., 'is_reconnect' => true]
+        // vs regular format: just the token string
+        $token = is_array($state_data) ? $state_data['token'] : $state_data;
 
         $data = Cache::get($token);
 

@@ -27,7 +27,24 @@ class BcMath
      * Default scale for currency calculations (2 decimal places)
      */
     private const DEFAULT_SCALE = 10;
-
+    
+    /**
+     * normalizeNumber
+     *
+     * @param  mixed $number
+     * @return string
+     */
+    private static function normalizeNumber(mixed $number): string
+    {
+        if ($number === null || $number === '') {
+            return '0';
+        }
+        elseif (is_float($number)) {
+            return rtrim(rtrim(number_format($number, 10, '.', ''), '0'), '.');
+        }
+        
+        return (string) $number;
+    }
     /**
      * Add two numbers using bcmath
      *
@@ -39,7 +56,7 @@ class BcMath
     public static function add($left, $right, ?int $scale = null): string
     {
         $scale ??= self::DEFAULT_SCALE;
-        return bcadd((string) $left, (string) $right, $scale);
+        return bcadd(self::normalizeNumber($left), self::normalizeNumber($right), $scale);
     }
 
     /**
@@ -53,7 +70,7 @@ class BcMath
     public static function sub($left, $right, ?int $scale = null): string
     {
         $scale ??= self::DEFAULT_SCALE;
-        return bcsub((string) $left, (string) $right, $scale);
+        return bcsub(self::normalizeNumber($left), self::normalizeNumber($right), $scale);
     }
 
     /**
@@ -67,7 +84,7 @@ class BcMath
     public static function mul($left, $right, ?int $scale = null): string
     {
         $scale ??= self::DEFAULT_SCALE;
-        return bcmul((string) $left, (string) $right, $scale);
+        return bcmul(self::normalizeNumber($left), self::normalizeNumber($right), $scale);
     }
 
     /**
@@ -81,7 +98,7 @@ class BcMath
     public static function div($left, $right, ?int $scale = null): string
     {
         $scale ??= self::DEFAULT_SCALE;
-        return bcdiv((string) $left, (string) $right, $scale);
+        return bcdiv(self::normalizeNumber($left), self::normalizeNumber($right), $scale);
     }
 
     /**
@@ -95,7 +112,7 @@ class BcMath
     public static function mod($left, $right, ?int $scale = null): string
     {
         $scale ??= self::DEFAULT_SCALE;
-        return bcmod((string) $left, (string) $right, $scale);
+        return bcmod(self::normalizeNumber($left), self::normalizeNumber($right), $scale);
     }
 
     /**
@@ -109,7 +126,7 @@ class BcMath
     public static function pow($base, $exponent, ?int $scale = null): string
     {
         $scale ??= self::DEFAULT_SCALE;
-        return bcpow((string) $base, (string) $exponent, $scale);
+        return bcpow(self::normalizeNumber($base), self::normalizeNumber($exponent), $scale);
     }
 
     /**
@@ -122,7 +139,7 @@ class BcMath
     public static function sqrt($number, ?int $scale = null): string
     {
         $scale ??= self::DEFAULT_SCALE;
-        return bcsqrt((string) $number, $scale);
+        return bcsqrt(self::normalizeNumber($number), $scale);
     }
 
     /**
@@ -134,18 +151,8 @@ class BcMath
      */
     public static function round($number, int $precision = self::DEFAULT_SCALE): string
     {
-        $number = (string) $number;
+        $number = self::normalizeNumber($number);
         
-        /** Previous implementation */
-        // $scale = $precision + 1; // Add one extra decimal for rounding
-        // // Multiply by 10^scale, add 0.5, floor, then divide by 10^scale
-        // $multiplier = bcpow('10', (string) $scale, 0);
-        // $rounded = bcadd(bcmul($number, $multiplier, 0), '0.5', 0);
-        // $result = bcdiv($rounded, $multiplier, $precision);
-
-        // return $result;
-        /** Previous implementation */
-
         /** New rounding implementation to work around changes to rounding in PHP 8.4 */
         $multiplier = bcpow('10', (string) $precision, 0);
 
@@ -174,7 +181,7 @@ class BcMath
     public static function comp($left, $right, ?int $scale = null): int
     {
         $scale ??= self::DEFAULT_SCALE;
-        return bccomp((string) $left, (string) $right, $scale);
+        return bccomp(self::normalizeNumber($left), self::normalizeNumber($right), $scale);
     }
 
     /**

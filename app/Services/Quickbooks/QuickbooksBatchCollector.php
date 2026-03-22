@@ -76,8 +76,14 @@ class QuickbooksBatchCollector
         string $priority = self::PRIORITY_NORMAL,
         bool $forceImmediate = false
     ): void {
+        // Skip collection if we're currently importing from QB (prevent circular sync)
+        if (!empty(QuickbooksService::$importing[$companyId])) {
+            nlog("QB Batch: Skipping {$entityType} {$entityId} — currently importing from QB for company {$companyId}");
+            return;
+        }
+
         nlog("QB Batch: Collecting {$entityType} {$entityId} for company {$companyId} with priority {$priority}");
-        
+
         // Force immediate dispatch for high-priority operations
         if ($forceImmediate || $priority === self::PRIORITY_IMMEDIATE) {
             nlog("QB Batch: Immediate dispatch for {$entityType} {$entityId}");

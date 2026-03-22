@@ -464,7 +464,6 @@ class LateFeeTest extends TestCase
         $this->assertEquals(10, $i->balance);
 
         $reflectionMethod = new \ReflectionMethod(ReminderJob::class, 'sendReminderForInvoice');
-        $reflectionMethod->setAccessible(true);
         $reflectionMethod->invokeArgs(new ReminderJob(), [$i]);
 
         $i = $i->refresh();
@@ -492,6 +491,7 @@ class LateFeeTest extends TestCase
         $settings->num_days_reminder1 = 10;
         $settings->schedule_reminder1 = 'after_due_date';
         $settings->entity_send_time = 6;
+        $settings->timezone_id = '33';
 
         $client = $this->buildData($settings);
 
@@ -600,7 +600,6 @@ class LateFeeTest extends TestCase
         $this->assertEquals(10, $client->fresh()->balance);
 
         $reflectionMethod = new \ReflectionMethod(ReminderJob::class, 'sendReminderForInvoice');
-        $reflectionMethod->setAccessible(true);
         $reflectionMethod->invokeArgs(new ReminderJob(), [$i]);
 
         $i->fresh();

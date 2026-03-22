@@ -22,15 +22,8 @@ use App\Exceptions\PaymentFailed;
 use App\Models\ClientGatewayToken;
 use App\Models\PaymentType as PType;
 use App\PaymentDrivers\AuthorizePaymentDriver;
-use App\PaymentDrivers\Common\MethodInterface;
-use net\authorize\api\contract\v1\PaymentType;
-use net\authorize\api\contract\v1\BankAccountType;
 use App\PaymentDrivers\Common\LivewireMethodInterface;
-use net\authorize\api\contract\v1\CustomerAddressType;
 use App\PaymentDrivers\Authorize\AuthorizePaymentMethod;
-use net\authorize\api\contract\v1\CustomerPaymentProfileType;
-use net\authorize\api\contract\v1\CreateCustomerPaymentProfileRequest;
-use net\authorize\api\controller\CreateCustomerPaymentProfileController;
 
 class AuthorizeACH implements LivewireMethodInterface
 {
@@ -168,7 +161,7 @@ class AuthorizeACH implements LivewireMethodInterface
             'gateway_type_id' => GatewayType::BANK_TRANSFER,
         ];
 
-        return $this->authorize->createPayment($data, Payment::STATUS_COMPLETED);
+        return $this->authorize->createPayment($data, Payment::STATUS_PENDING);
     }
 
 }

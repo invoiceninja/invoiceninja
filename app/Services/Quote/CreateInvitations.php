@@ -94,8 +94,10 @@ class CreateInvitations
                 $q->where('is_primary', true);
             })->first() ?? $this->quote->invitations()->first();
 
-            $ii->can_sign = true;
-            $ii->saveQuietly();
+            if ($ii) {
+                $ii->can_sign = true;
+                $ii->saveQuietly();
+            }
         }
 
         return $this->quote->fresh();

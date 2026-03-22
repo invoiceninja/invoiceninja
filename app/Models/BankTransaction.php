@@ -99,7 +99,7 @@ class BankTransaction extends BaseModel
     {
         $collection = collect();
 
-        $invoices = explode(",", $this->invoice_ids);
+        $invoices = explode(",", $this->invoice_ids ?? '');
 
         if (count($invoices) >= 1) {
             foreach ($invoices as $invoice) {
@@ -116,7 +116,7 @@ class BankTransaction extends BaseModel
     {
         $collection = collect();
 
-        $expenses = explode(",", $this->expense_id);
+        $expenses = explode(",", $this->expense_id ?? '');
 
         if (count($expenses) >= 1) {
             foreach ($expenses as $expense) {

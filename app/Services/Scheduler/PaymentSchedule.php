@@ -47,7 +47,8 @@ class PaymentSchedule
         $next_schedule = false;
 
         foreach ($schedule as $key => $item) {
-            if (now()->startOfDay()->eq(Carbon::parse($item['date'])->subSeconds($offset)->startOfDay())) {
+            if (now()->subSeconds($offset)->startOfDay()->eq(Carbon::parse($item['date'])->startOfDay())) {
+            // if (now()->startOfDay()->eq(Carbon::parse($item['date'])->subSeconds($offset)->startOfDay())) {
                 $next_schedule = $item;
                 $schedule_index = $key;
             }
@@ -57,7 +58,6 @@ class PaymentSchedule
             $this->scheduler->forceDelete();
             return;
         }
-
 
         $amount = $next_schedule['is_amount'] ? $next_schedule['amount'] : round(($next_schedule['amount'] / 100) * $invoice->amount, 2);
 

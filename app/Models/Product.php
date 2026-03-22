@@ -230,7 +230,9 @@ class Product extends BaseModel
             ],
         ]);
 
-        return $converter->convert($notes ?? '');
+        $markdown_to_html = $converter->convert($notes ?? '');
+
+        return \App\Services\Pdf\Purify::clean($markdown_to_html, true);
 
     }
 

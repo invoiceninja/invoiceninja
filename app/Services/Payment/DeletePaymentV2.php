@@ -97,7 +97,7 @@ class DeletePaymentV2
     private function updateCreditables(): self
     {
         if ($this->payment->credits()->exists()) {
-            $this->payment->credits()->where('is_deleted', 0)->each(function ($paymentable_credit) {
+            $this->payment->credits()->each(function ($paymentable_credit) {
                 $multiplier = 1;
 
                 //balance remaining on the credit that can offset the paid to date.
@@ -122,11 +122,13 @@ class DeletePaymentV2
                                    ->setStatus(Credit::STATUS_SENT)
                                    ->save();
 
-                $client = $this->payment->client->fresh();
+                if (!$paymentable_credit->is_deleted) {
+                    $client = $this->payment->client->fresh();
 
-                $client->service()
-                        ->adjustCreditBalance($net_credit_amount)
-                        ->save();
+                    $client->service()
+                            ->adjustCreditBalance($net_credit_amount)
+                            ->save();
+                }
             });
         }
 
@@ -186,7 +188,7 @@ class DeletePaymentV2
                 } elseif (!$paymentable_invoice->is_deleted) {
                     $paymentable_invoice->restore();
 
-                    $paymentable_invoice->service()
+                    $paymentable_invoice = $paymentable_invoice->service()
                                         ->updateBalance($net_deletable)
                                         ->updatePaidToDate(BcMath::mul($net_deletable, -1, 2))
                                         ->save();

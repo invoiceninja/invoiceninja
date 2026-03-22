@@ -495,15 +495,6 @@ class SettingsData
 
                 }
 
-                // if(!property_exists($this, $key)) {
-                //     unset($object->{$key});
-                // }
-                // elseif(is_array($object->{$key}) && gettype($this->{$key} != 'array')){
-                //     $object->{$key} = $this->{$key};
-                // }
-                // else {
-                //     settype($object->{$key}, gettype($this->{$key}));
-                // }
             }
         }
         $this->object = $object;

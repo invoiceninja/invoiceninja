@@ -192,6 +192,9 @@ class PaymentController extends Controller
                 '_key' => false,
                 'invitation' => $invitation,
                 'variables' => $variables,
+                'hash' => false,
+                'docuninja_active' => false,
+                'requires_signature' => false,
             ];
 
             if ($request->query('mode') === 'fullscreen') {

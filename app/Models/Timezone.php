@@ -31,6 +31,7 @@ namespace App\Models;
  * @method static \Illuminate\Database\Eloquent\Builder|Timezone find()
  * @mixin \Eloquent
  */
+#[\AllowDynamicProperties]
 class Timezone extends StaticModel
 {
     /**

@@ -18,7 +18,8 @@ class Purify
 
         // Text Elements
         'span', 'strong', 'em', 'b', 'i', 'u', 'small',
-        'sub', 'sup', 'del', 'ins',
+        'sub', 'sup', 'del', 'ins', 'code', 's', 'mark',
+        'abbr', 'q', 'cite',
 
         // Line Breaks
         'br', 'hr',
@@ -28,9 +29,16 @@ class Purify
 
         // Tables
         'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td',
+        'caption', 'colgroup', 'col',
 
         // Media & Links
         'img', 'a',
+
+        // Figures
+        'figure', 'figcaption',
+
+        // Address
+        'address',
 
         // Template specific
         'ninja',
@@ -247,15 +255,34 @@ class Purify
     {
         return in_array(strtolower($tagName), self::$dangerous_svg_elements);
     }
-
-    public static function clean(string $html): string
+    
+    /**
+     * clean
+     *
+     * @param  string $html
+     * @param  bool $is_fragment
+     * @return string
+     */
+    public static function clean(string $html, bool $is_fragment = false): string
     {
-
+        
         if (config('ninja.disable_purify_html') || strlen($html) <= 1) {
             return str_replace('%24', '$', $html);
         }
 
         $html = str_replace('%24', '$', $html);
+
+        // Strip null bytes — no legitimate use in text, and they can be used
+        // to bypass HTML tag detection (e.g. "<\x00script>")
+        $html = str_replace("\x00", '', $html);
+
+        // If the string contains no actual HTML tags, return it unchanged.
+        // This avoids DOMDocument wrapping plain text like "< i am text" in <p> tags.
+        // Real HTML tags start with < followed by a letter, / or !
+        if (!preg_match('/<[a-zA-Z\/!]/', $html)) {
+            return $html;
+        }
+
         libxml_use_internal_errors(true);
 
         $document = new \DOMDocument();
@@ -428,7 +455,19 @@ class Purify
 
             $cleanNodes($document->documentElement);
 
-            $html = str_replace('%24', '$', $document->saveHTML());
+            if ($is_fragment) {
+                $body = $document->getElementsByTagName('body')->item(0);
+                $html = '';
+                if ($body) {
+                    foreach ($body->childNodes as $child) {
+                        $html .= $document->saveHTML($child);
+                    }
+                }
+            } else {
+                $html = $document->saveHTML();
+            }
+
+            $html = str_replace('%24', '$', $html);
 
             // nlog("post purify => {$html}");
             return $html;

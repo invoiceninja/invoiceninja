@@ -133,6 +133,8 @@ class CreditCard implements LivewireMethodInterface
             'purchaseOrderNumber' => substr($po_number, 0, 16),
         ];
 
+        $data = array_merge($data, $this->braintree->getLevel23Data($this->braintree->payment_hash));
+
         if ($this->braintree->company_gateway->getConfigField('merchantAccountId')) {
             /** https://developer.paypal.com/braintree/docs/reference/request/transaction/sale/php#full-example */
             $data['merchantAccountId'] = $this->braintree->company_gateway->getConfigField('merchantAccountId');

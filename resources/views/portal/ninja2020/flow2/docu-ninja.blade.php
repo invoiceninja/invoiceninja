@@ -36,10 +36,6 @@
 
     new DocuNinjaSign({ document: doc, invitation, sig, endpoint: '{{ config('ninja.docuninja_api_url') }}', company }).mount(mount);
 
-    console.log('DocuNinjaSign mounted');
-    console.log('Document:', doc);
-    console.log('{{ config('ninja.docuninja_api_url') }}');
-    
     window.addEventListener('builder:sign.submit.success', function () {
         Livewire.dispatch('docuninja-signature-captured');
     });

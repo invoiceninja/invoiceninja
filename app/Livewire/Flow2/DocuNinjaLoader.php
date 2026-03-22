@@ -5,6 +5,8 @@ namespace App\Livewire\Flow2;
 use Livewire\Component;
 use App\Libraries\MultiDB;
 use App\DataMapper\InvoiceSync;
+use App\DataMapper\PurchaseOrderSync;
+use App\DataMapper\QuoteSync;
 use App\Models\QuoteInvitation;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
@@ -91,7 +93,11 @@ class DocuNinjaLoader extends Component
 
                 $signable = $invitation->{$this->entity_type}->service()->getDocuNinjaSignable($invitation);
                 
-                $sync = new InvoiceSync(qb_id: '', dn_completed: false);
+                $sync = match($this->entity_type) {
+                    'quote' => new QuoteSync(qb_id: '', dn_completed: false),
+                    'purchase_order' => new PurchaseOrderSync(qb_id: '', dn_completed: false),
+                    default => new InvoiceSync(qb_id: '', dn_completed: false),
+                };
                 $sync->addInvitation(
                     $signable['invitation_key'],
                     $signable['document_id'],

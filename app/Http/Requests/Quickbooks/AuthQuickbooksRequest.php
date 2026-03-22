@@ -26,7 +26,7 @@ class AuthQuickbooksRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return is_array($this->getTokenContent());
+        return is_array($this->getTokenContent()) && config('services.quickbooks.client_id') && config('services.quickbooks.client_secret');
     }
 
     /**

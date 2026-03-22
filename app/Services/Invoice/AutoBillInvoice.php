@@ -58,6 +58,11 @@ class AutoBillInvoice extends AbstractService
         /* @var \App\Modesl\Client $client */
         $is_partial = false;
 
+        /* Mark the invoice as paid if there is no balance */
+        if ($this->invoice->balance == 0 && !$this->invoice->is_deleted && ($this->invoice->status_id == Invoice::STATUS_DRAFT || $this->invoice->status_id == Invoice::STATUS_SENT)) {
+            return $this->invoice->service()->markPaid()->save();
+        }
+
         /* Is the invoice payable? */
         if (! $this->invoice->refresh()->isPayable()) {
             return $this->invoice;
@@ -66,10 +71,6 @@ class AutoBillInvoice extends AbstractService
         /* Mark the invoice as sent */
         $this->invoice = $this->invoice->service()->markSent()->save();
 
-        /* Mark the invoice as paid if there is no balance */
-        if (floatval($this->invoice->balance) == 0) {
-            return $this->invoice->service()->markPaid()->save();
-        }
 
         //if the credits cover the payments, we stop here, build the payment with credits and exit early
         if ($this->client->getSetting('use_credits_payment') != 'off') {

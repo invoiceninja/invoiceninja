@@ -771,6 +771,7 @@ class BaseImport
         $invoice = $invoice
             ->service()
             ->markSent()
+            ->setReminder()
             ->fillDefaults()
             ->save();
 

@@ -69,58 +69,81 @@ class MailWebhookSync implements ShouldQueue
 
     private function scanSentEmails()
     {
+        $invitationTypes = [
+            \App\Models\InvoiceInvitation::class,
+            \App\Models\QuoteInvitation::class,
+            \App\Models\RecurringInvoiceInvitation::class,
+            \App\Models\CreditInvitation::class,
+            \App\Models\PurchaseOrderInvitation::class,
+        ];
 
-        $query = \App\Models\InvoiceInvitation::whereNotNull('message_id')
-        ->whereNull('email_status')
-        ->whereHas('company', function ($q) {
-            $q->where('settings->email_sending_method', 'default');
-        });
+        foreach ($invitationTypes as $model) {
 
-        $this->runIterator($query);
+            $query = $model::whereBetween('created_at', [now()->subHours(12), now()->subHour()])
+                ->whereNotNull('message_id')
+                ->whereNull('email_status')
+                ->whereHas('company', function ($q) {
+                    $q->where('settings->email_sending_method', 'default');
+                });
 
-
-        $query = \App\Models\QuoteInvitation::whereNotNull('message_id')
-        ->whereNull('email_status')
-        ->whereHas('company', function ($q) {
-            $q->where('settings->email_sending_method', 'default');
-        });
-
-        $this->runIterator($query);
-
-
-        $query = \App\Models\RecurringInvoiceInvitation::whereNotNull('message_id')
-        ->whereNull('email_status')
-        ->whereHas('company', function ($q) {
-            $q->where('settings->email_sending_method', 'default');
-        });
-
-        $this->runIterator($query);
-
-
-        $query = \App\Models\CreditInvitation::whereNotNull('message_id')
-        ->whereNull('email_status')
-        ->whereHas('company', function ($q) {
-            $q->where('settings->email_sending_method', 'default');
-        });
-
-        $this->runIterator($query);
-
-
-        $query = \App\Models\PurchaseOrderInvitation::whereNotNull('message_id')
-        ->whereNull('email_status')
-        ->whereHas('company', function ($q) {
-            $q->where('settings->email_sending_method', 'default');
-        });
-
-        $this->runIterator($query);
-
+            $this->runIterator($query);
+        }
     }
+
+    // private function scanSentEmails()
+    // {
+
+    //     $query = \App\Models\InvoiceInvitation::whereNotNull('message_id')
+    //     ->whereNull('email_status')
+    //     ->whereHas('company', function ($q) {
+    //         $q->where('settings->email_sending_method', 'default');
+    //     });
+
+    //     $this->runIterator($query);
+
+
+    //     $query = \App\Models\QuoteInvitation::whereNotNull('message_id')
+    //     ->whereNull('email_status')
+    //     ->whereHas('company', function ($q) {
+    //         $q->where('settings->email_sending_method', 'default');
+    //     });
+
+    //     $this->runIterator($query);
+
+
+    //     $query = \App\Models\RecurringInvoiceInvitation::whereNotNull('message_id')
+    //     ->whereNull('email_status')
+    //     ->whereHas('company', function ($q) {
+    //         $q->where('settings->email_sending_method', 'default');
+    //     });
+
+    //     $this->runIterator($query);
+
+
+    //     $query = \App\Models\CreditInvitation::whereNotNull('message_id')
+    //     ->whereNull('email_status')
+    //     ->whereHas('company', function ($q) {
+    //         $q->where('settings->email_sending_method', 'default');
+    //     });
+
+    //     $this->runIterator($query);
+
+
+    //     $query = \App\Models\PurchaseOrderInvitation::whereNotNull('message_id')
+    //     ->whereNull('email_status')
+    //     ->whereHas('company', function ($q) {
+    //         $q->where('settings->email_sending_method', 'default');
+    //     });
+
+    //     $this->runIterator($query);
+
+    // }
 
     private function runIterator($query)
     {
-        $query->whereBetween('created_at', [now()->subHours(12), now()->subHour()])
-        ->orderBy('id', 'desc')
-        ->each(function ($invite) {
+        // $query->whereBetween('created_at', [now()->subHours(12), now()->subHour()])
+        // ->orderBy('id', 'desc')
+        $query->each(function ($invite) {
 
             $token = config('services.postmark.token');
             $postmark = new \Postmark\PostmarkClient($token);

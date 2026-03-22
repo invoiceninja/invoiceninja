@@ -45,6 +45,18 @@ class AuthorizePaymentDriver extends BaseDriver
         GatewayType::BANK_TRANSFER => AuthorizeACH::class,
     ];
 
+    /**
+     * Allowed endpoint hosts for custom gateway configuration.
+     * Only URLs whose host matches one of these entries will be accepted.
+     * Authorize.net environments are handled separately via ANetEnvironment constants.
+     */
+    private array $allowed_endpoint_hosts = [
+        'secure.nmi.com',
+        'api.authorize.net',
+        'apitest.authorize.net',
+        'api2.authorize.net',
+    ];
+
     public const SYSTEM_LOG_TYPE = SystemLog::TYPE_AUTHORIZE;
 
     public function setPaymentMethod($payment_method_id)
@@ -170,13 +182,41 @@ class AuthorizePaymentDriver extends BaseDriver
         return $response->getPublicClientKey();
     }
 
-    public function mode()
+    public function mode(): string
     {
-        if ($this->company_gateway->getConfigField('testMode')) {
-            return  ANetEnvironment::SANDBOX;
+        $test_mode =$this->company_gateway->getConfigField('testMode');
+
+        $endpoint = $this->company_gateway->getConfigField(
+            $test_mode ? 'developerEndpoint' : 'liveEndpoint'
+        );
+
+        if (! empty($endpoint) && $this->isAllowedEndpoint((string) $endpoint)) {
+            $endpoint = preg_replace('#^https?://#', '', $endpoint);
+            return "https://{$endpoint}";
         }
 
-        return $env = ANetEnvironment::PRODUCTION;
+        return $test_mode ? ANetEnvironment::SANDBOX : ANetEnvironment::PRODUCTION;
+        
+    }
+
+    /**
+     * Validates that a URL's host is in the list of permitted gateway hosts.
+     * The full URL is preserved and returned by mode() — only the host is checked here.
+     * This prevents arbitrary URLs from being used as payment endpoints.
+     */
+    private function isAllowedEndpoint(string $url): bool
+    {
+        $parsed = parse_url($url);
+
+        if (! $parsed || empty($parsed['scheme']) || empty($parsed['host'])) {
+            return false;
+        }
+
+        if ($parsed['scheme'] !== 'https') {
+            return false;
+        }
+
+        return in_array($parsed['host'], $this->allowed_endpoint_hosts);
     }
 
     public function validationMode()

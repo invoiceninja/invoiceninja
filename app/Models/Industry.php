@@ -26,6 +26,7 @@ namespace App\Models;
  * @method static \Illuminate\Database\Eloquent\Builder|Industry whereName($value)
  * @mixin \Eloquent
  */
+#[\AllowDynamicProperties]
 class Industry extends StaticModel
 {
     public $timestamps = false;

@@ -40,6 +40,7 @@ use App\Events\User\UserLoggedIn;
 use App\Observers\ClientObserver;
 use App\Observers\CreditObserver;
 use App\Observers\VendorObserver;
+use App\Events\User\UserWasPurged;
 use App\Observers\AccountObserver;
 use App\Observers\CompanyObserver;
 use App\Observers\ExpenseObserver;
@@ -132,6 +133,7 @@ use App\Events\Invoice\InvoiceWasReversed;
 use App\Events\Payment\PaymentWasArchived;
 use App\Events\Payment\PaymentWasRefunded;
 use App\Events\Payment\PaymentWasRestored;
+use App\Listeners\User\PurgedUserActivity;
 use Illuminate\Mail\Events\MessageSending;
 use App\Events\Document\DocumentWasCreated;
 use App\Events\Document\DocumentWasDeleted;
@@ -354,6 +356,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         UserWasRestored::class => [
             RestoredUserActivity::class,
+        ],
+        UserWasPurged::class => [
+            PurgedUserActivity::class,
         ],
         ContactLoggedIn::class => [
             UpdateContactLastLogin::class,

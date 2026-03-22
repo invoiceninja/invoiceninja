@@ -65,14 +65,13 @@ class SubscriptionCron
     private function timezoneAware()
     {
 
-        Invoice::query()
+            Invoice::query()
                 ->with('company')
-                ->where('is_deleted', 0)
                 ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
-                ->where('balance', '>', 0)
+                ->whereBetween('due_date', [now()->subMonth()->startOfDay(),now()->addDay()->startOfDay()])
+                ->where('is_deleted', 0)
                 ->where('is_proforma', 0)
-                ->whereDate('due_date', '<=', now()->addDay()->startOfDay())
-                ->whereNull('deleted_at')
+                ->where('balance', '>', 0)
                 ->whereNotNull('subscription_id')
                 ->groupBy('company_id')
                 ->cursor()
@@ -88,14 +87,14 @@ class SubscriptionCron
                     if ($timezone_now->gt($timezone_now->copy()->startOfDay()) && $timezone_now->lt($timezone_now->copy()->startOfDay()->addMinutes(30))) {
 
                         Invoice::query()
+                                ->with('subscription','client')
                                 ->where('company_id', $company->id)
-                                ->whereNull('deleted_at')
-                                ->where('is_deleted', 0)
                                 ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                                ->whereBetween('due_date', [now()->subMonth()->startOfDay(), now()->addDay()->startOfDay()])
+                                ->where('is_deleted', 0)
                                 ->where('is_proforma', 0)
                                 ->whereNotNull('subscription_id')
                                 ->where('balance', '>', 0)
-                                ->whereDate('due_date', '<=', now()->addDay()->startOfDay())
                                 ->cursor()
                                 ->each(function (Invoice $invoice) {
 

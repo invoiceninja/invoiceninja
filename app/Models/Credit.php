@@ -236,7 +236,7 @@ class Credit extends BaseModel
             'name' => ctrans('texts.credit') . " " . $this->number . " | " . $this->client->present()->name() . ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
             'hashed_id' => $this->hashed_id,
             'number' => (string) $this->number,
-            'is_deleted' => (bool) $this->is_deleted,
+            'is_deleted' => $this->is_deleted,
             'amount' => (float) $this->amount,
             'balance' => (float) $this->balance,
             'due_date' => $this->due_date,

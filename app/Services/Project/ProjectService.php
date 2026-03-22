@@ -26,7 +26,7 @@ class ProjectService
         $project_start = Carbon::parse($this->project->created_at)->addSeconds($this->project->company->timezone_offset());
         $project_due = Carbon::parse($this->project->due_date);
         $budgeted_hours = $this->project->budgeted_hours;
-        $project_duration = $project_start->diffInDays($project_due) + 1;
+        $project_duration = (int) $project_start->diffInDays($project_due) + 1;
         $average_daily_hours = $budgeted_hours / $project_duration;
 
         $task_query = $this->project

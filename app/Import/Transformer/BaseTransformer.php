@@ -51,7 +51,12 @@ class BaseTransformer
     public function parseDate($date)
     {
         if (stripos($date, "/") !== false && $this->company->settings->country_id != 840) {
-            $date = str_replace('/', '-', $date);
+            try {
+                $parsed_date = Carbon::createFromFormat('d/m/Y', $date);
+                return $parsed_date->format('Y-m-d');
+            } catch (\Exception $e) {
+                // Fall through to general parsing
+            }
         }
 
         try {
@@ -159,7 +164,8 @@ class BaseTransformer
                 return RecurringInvoice::FREQUENCY_FOUR_WEEKS;
             case RecurringInvoice::FREQUENCY_MONTHLY:
             case 'monthly':
-                return RecurringInvoice::FREQUENCY_MONTHLY;
+            case 'month':
+                        return RecurringInvoice::FREQUENCY_MONTHLY;
             case RecurringInvoice::FREQUENCY_TWO_MONTHS:
             case 'bimonthly':
                 return RecurringInvoice::FREQUENCY_TWO_MONTHS;
@@ -175,6 +181,7 @@ class BaseTransformer
             case RecurringInvoice::FREQUENCY_ANNUALLY:
             case 'yearly':
             case 'annually':
+            case 'annual':
             case 'year':
                 return RecurringInvoice::FREQUENCY_ANNUALLY;
             case RecurringInvoice::FREQUENCY_TWO_YEARS:
@@ -202,9 +209,11 @@ class BaseTransformer
     public function getAutoBillFlag(string $option): string
     {
         switch ($option) {
+            case 'no':
             case 'off':
             case 'false':
                 return 'off';
+            case 'yes':
             case 'always':
             case 'true':
                 return 'always';
@@ -261,6 +270,12 @@ class BaseTransformer
             ];
 
             throw new \App\Import\ImportException("Error, you are attempting to import more clients than your plan allows ({$hosted_client_count})");
+        }
+
+        // 2026-03-05: If we don't have a client name or email, we can't create a client.
+        if(empty(trim($client_name ?? '')) && empty(trim($client_email ?? ''))) {
+            nlog("A Client Name or Email is required, none provided! {$client_name}, {$client_email}");
+            throw new \App\Import\ImportException("A Client Name or Email is required, none provided!");
         }
 
         $client_repository = app()->make(ClientRepository::class);

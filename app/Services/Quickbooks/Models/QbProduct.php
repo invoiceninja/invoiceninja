@@ -165,7 +165,6 @@ class QbProduct implements SyncInterface
     */
     public function findOrCreateProduct(object $line_item): string
     {
-
         $product = \App\Models\Product::where('company_id', $this->service->company->id)
                                           ->where('product_key', $line_item->product_key)
                                           ->first();
@@ -222,9 +221,11 @@ class QbProduct implements SyncInterface
             $item->product_key = $line_item->product_key;
             $item->notes = $line_item->notes;
             $item->quantity = 1;
-            $item->cost = $line_item->price;
+            $item->cost = $line_item->price; // UnitPrice in QuickBooks
+            $item->product_cost = $line_item->cost ?? 0; // PurchaseCost in QuickBooks
             $item->line_total = $line_item->price;
             $item->type_id = $line_item->tax_id == Product::PRODUCT_TYPE_SERVICE ? '2' : '1';
+            $item->income_account_id = $line_item->income_account_id ? (string) $line_item->income_account_id : '';
 
             $line_item = $item;
 
@@ -260,6 +261,12 @@ class QbProduct implements SyncInterface
         $result = $this->service->sdk->Add($qb_item);
 
         $qb_id = data_get($result, 'Id') ?? data_get($result, 'Id.value');
+
+        // Validate that we got a valid QB ID
+        if (empty($qb_id)) {
+            nlog("QuickBooks: Failed to create product - no ID returned from QuickBooks API. Product key: " . ($line_item->product_key ?? 'unknown'));
+            throw new \RuntimeException("Failed to create product in QuickBooks - no ID returned");
+        }
 
         $product = \App\Models\Product::where('company_id', $this->service->company->id)
         ->where('product_key', $line_item->product_key)

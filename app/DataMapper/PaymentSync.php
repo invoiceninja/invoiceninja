@@ -22,9 +22,24 @@ class PaymentSync implements Castable
 {
     public string $qb_id;
 
+    public string $qb_sync_token;
+
+    public bool $qb_immutable;
+
+    public bool $qb_void_failed;
+
+    public string $qb_void_error;
+
+    public string $last_synced_at;
+
     public function __construct(array $attributes = [])
     {
         $this->qb_id = $attributes['qb_id'] ?? '';
+        $this->qb_sync_token = $attributes['qb_sync_token'] ?? '';
+        $this->qb_immutable = $attributes['qb_immutable'] ?? false;
+        $this->qb_void_failed = $attributes['qb_void_failed'] ?? false;
+        $this->qb_void_error = $attributes['qb_void_error'] ?? '';
+        $this->last_synced_at = $attributes['last_synced_at'] ?? '';
     }
     /**
      * Get the name of the caster class to use when casting from / to this cast target.

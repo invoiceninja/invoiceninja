@@ -43,6 +43,7 @@ class QuoteSyncCast implements CastsAttributes
                 'qb_id' => $value->qb_id,
                 'invitations' => $value->invitations,
                 'dn_completed' => $value->dn_completed,
+                'dn_document_hashed_id' => $value->dn_document_hashed_id,
             ])
         ];
     }

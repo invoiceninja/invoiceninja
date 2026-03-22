@@ -903,7 +903,6 @@ class VerifactuModelTest extends TestCase
         // Try to validate the invalid XML using our validateXml method
         $reflectionClass = new \ReflectionClass(Invoice::class);
         $validateXmlMethod = $reflectionClass->getMethod('validateXml');
-        $validateXmlMethod->setAccessible(true);
         $validateXmlMethod->invoke(new Invoice(), $doc);
 
         $xslt = new VerifactuDocumentValidator($validXml);

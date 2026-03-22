@@ -39,7 +39,7 @@ class AllowanceCharges
     // public ?Tax $tax;
 
     #[SerializedPath('[cac:TaxCategory]')]
-    /** @var TaxesDutiesFees[] */
+    /** @var TaxesDutiesFees[]|null */
     public ?array $taxes_duties_fees;
 
     #[SerializedPath('[cbc:AllowanceChargeReason]')]

@@ -14,8 +14,6 @@ namespace App\Filters;
 
 use App\Models\Quote;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 /**
  * QuoteFilters.
@@ -156,7 +154,7 @@ class QuoteFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
-        if (!is_array($sort_col) || count($sort_col) != 2) {
+        if (!is_array($sort_col) || count($sort_col) != 2 || (!in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable())) && !str_starts_with($sort_col[0], 'client.') && !str_starts_with($sort_col[0], 'contact.') && !str_starts_with($sort_col[0], 'documents'))) {
             return $this->builder;
         }
 
@@ -167,15 +165,27 @@ class QuoteFilters extends QueryFilters
             return $this->builder->withCount('documents')->orderBy('documents_count', $dir);
         }
 
-        // Validate column exists in database schema
-        if (!in_array($sort_col[0], Schema::getColumnListing($this->builder->getModel()->getTable()))) {
-            return $this->builder;
-        }
-
         if ($sort_col[0] == 'client_id') {
-            return $this->builder->orderByRaw('ISNULL(client_id), client_id ' . $dir)
-                    ->orderBy(\App\Models\Client::select('name')
-                    ->whereColumn('clients.id', 'quotes.client_id'), $dir);
+            return $this->builder
+            ->orderByRaw(
+                "
+                CASE 
+                    WHEN CHAR_LENGTH((SELECT name FROM clients WHERE clients.id = quotes.client_id LIMIT 1)) > 1 
+                        THEN (SELECT name FROM clients WHERE clients.id = quotes.client_id LIMIT 1)
+                    WHEN CHAR_LENGTH(CONCAT(
+                        COALESCE((SELECT first_name FROM client_contacts WHERE client_contacts.client_id = quotes.client_id AND client_contacts.email IS NOT NULL ORDER BY client_contacts.is_primary DESC, client_contacts.id ASC LIMIT 1), ''), 
+                        COALESCE((SELECT last_name FROM client_contacts WHERE client_contacts.client_id = quotes.client_id AND client_contacts.email IS NOT NULL ORDER BY client_contacts.is_primary DESC, client_contacts.id ASC LIMIT 1), '')
+                    )) >= 1 
+                        THEN TRIM(CONCAT(
+                            COALESCE((SELECT first_name FROM client_contacts WHERE client_contacts.client_id = invoices.client_id AND client_contacts.email IS NOT NULL ORDER BY client_contacts.is_primary DESC, client_contacts.id ASC LIMIT 1), ''), 
+                            ' ', 
+                            COALESCE((SELECT last_name FROM client_contacts WHERE client_contacts.client_id = invoices.client_id AND client_contacts.email IS NOT NULL ORDER BY client_contacts.is_primary DESC, client_contacts.id ASC LIMIT 1), '')
+                        ))
+                    WHEN CHAR_LENGTH((SELECT email FROM client_contacts WHERE client_contacts.client_id = quotes.client_id AND client_contacts.email IS NOT NULL ORDER BY client_contacts.is_primary DESC, client_contacts.id ASC LIMIT 1)) > 0 
+                        THEN (SELECT email FROM client_contacts WHERE client_contacts.client_id = quotes.client_id AND client_contacts.email IS NOT NULL ORDER BY client_contacts.is_primary DESC, client_contacts.id ASC LIMIT 1)
+                    ELSE 'No Contact Set'
+                END " . $dir
+            );
         }
 
         if ($sort_col[0] == 'number') {
@@ -184,6 +194,48 @@ class QuoteFilters extends QueryFilters
 
         if ($sort_col[0] == 'valid_until') {
             $sort_col[0] = 'due_date';
+        }
+
+
+        /** Relationship sorting - clients */
+        if(str_starts_with($sort_col[0], 'client.')) {
+            
+            $client_parts = explode('.', $sort_col[0]);
+            
+            if(!isset($client_parts[1]) || !in_array($client_parts[1], \Illuminate\Support\Facades\Schema::getColumnListing('clients'))) {  
+                return $this->builder;
+            }
+            
+
+            if ($sort_col[0] === 'client.country_id') {
+                return $this->builder->orderBy(
+                        \App\Models\Client::select('countries.name')
+                            ->join('countries', 'countries.id', '=', 'clients.country_id')
+                            ->whereColumn('clients.id', 'quotes.client_id')
+                            ->limit(1),
+                        $dir
+                    );
+            }
+
+            return $this->builder->orderBy(\App\Models\Client::select($client_parts[1])
+                        ->whereColumn('clients.id', 'quotes.client_id')
+                        ->limit(1), $dir);
+
+        }
+
+        /** Relationship sorting - contacts */
+        if(str_starts_with($sort_col[0], 'contact.')) {
+        
+            $client_parts = explode('.', $sort_col[0]);
+            
+            if(!isset($client_parts[1]) || !in_array($client_parts[1], \Illuminate\Support\Facades\Schema::getColumnListing('client_contacts'))) {  
+                return $this->builder;
+            }
+            
+            return $this->builder->orderBy(\App\Models\ClientContact::select($client_parts[1])
+                        ->whereColumn('client_contacts.client_id', 'quotes.client_id')
+                        ->limit(1), $dir);
+
         }
 
         return $this->builder->orderBy($sort_col[0], $dir);

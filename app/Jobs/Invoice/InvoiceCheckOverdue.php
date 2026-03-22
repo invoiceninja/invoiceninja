@@ -119,8 +119,11 @@ class InvoiceCheckOverdue implements ShouldQueue
             ->where('company_id', $company->id)
             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
             ->where('is_deleted', false)
-            ->whereNull('deleted_at')
             ->where('balance', '>', 0)
+            ->where(function ($query) use ($yesterday) {
+                $query->where('due_date', $yesterday)
+                      ->orWhere('partial_due_date', $yesterday);
+            })
             ->whereHas('client', function ($query) {
                 $query->where('is_deleted', 0)
                        ->whereNull('deleted_at');

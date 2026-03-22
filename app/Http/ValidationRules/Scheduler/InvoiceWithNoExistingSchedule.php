@@ -12,39 +12,27 @@
 
 namespace App\Http\ValidationRules\Scheduler;
 
-use App\Models\Client;
-use App\Utils\Traits\MakesHash;
 use App\Models\Scheduler;
-use Illuminate\Contracts\Validation\Rule;
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
 
 /**
  * Class InvoiceWithNoExistingSchedule.
  */
-class InvoiceWithNoExistingSchedule implements Rule
+class InvoiceWithNoExistingSchedule implements ValidationRule
 {
-    use MakesHash;
-    /**
-     * @param string $attribute
-     * @param mixed $value
-     * @return bool
-     */
-    public function passes($attribute, $value)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        return Scheduler::where('company_id', $user->company()->id)
+        $exists = Scheduler::where('company_id', $user->company()->id)
                             ->where('template', 'payment_schedule')
                             ->where('parameters->invoice_id', $value)
-                            ->count() == 0;
+                            ->exists();
 
-    }
-
-    /**
-     * @return string
-     */
-    public function message()
-    {
-        return 'Invoice already has a payment schedule';
+        if ($exists) {
+            $fail('Invoice already has a payment schedule');
+        }
     }
 }

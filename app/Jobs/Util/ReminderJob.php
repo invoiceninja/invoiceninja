@@ -58,11 +58,11 @@ class ReminderJob implements ShouldQueue
             nrlog("Sending invoice reminders on " . now()->format('Y-m-d h:i:s'));
 
             Invoice::query()
-                 ->where('is_deleted', 0)
                  ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                 ->where('is_deleted', 0)
                  ->whereNull('deleted_at')
                  ->where('balance', '>', 0)
-                 ->where('next_send_date', '<=', now()->toDateTimeString())
+                 ->whereBetween('next_send_date', [now()->subMonth()->startOfDay(), now()->addDay()->startOfDay()])
                  ->whereHas('client', function ($query) {
                      $query->where('is_deleted', 0)
                            ->where('deleted_at', null);
@@ -84,11 +84,11 @@ class ReminderJob implements ShouldQueue
                 nrlog("Sending invoice reminders on db {$db} " . now()->format('Y-m-d h:i:s'));
 
                 Invoice::query()
-                     ->where('is_deleted', 0)
                      ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                     ->where('is_deleted', 0)
                      ->whereNull('deleted_at')
                      ->where('balance', '>', 0)
-                     ->where('next_send_date', '<=', now()->toDateTimeString())
+                     ->whereBetween('next_send_date', [now()->subMonth()->startOfDay(), now()->addDay()->startOfDay()])
                      ->whereHas('client', function ($query) {
                          $query->where('is_deleted', 0)
                                ->where('deleted_at', null);

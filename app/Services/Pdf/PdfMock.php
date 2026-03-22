@@ -123,7 +123,7 @@ class PdfMock
     {
         $settings = new \stdClass();
         $settings->entity = Client::class;
-        $settings->currency_id = '1';
+        $settings->currency_id = $this->company->settings->currency_id ?? '1';
         $settings->industry_id = '';
         $settings->size_id = '';
 
@@ -134,6 +134,8 @@ class PdfMock
                 $entity->client = Client::factory()->make(['settings' => $settings]); //@phpstan-ignore-line
                 $entity->client->setRelation('company', $this->company);
                 $entity->invitation = InvoiceInvitation::factory()->make(); //@phpstan-ignore-line
+                $entity->terms = $this->company->settings->invoice_terms;
+                $entity->footer = $this->company->settings->invoice_footer;
                 break;
             case 'quote':
                 /** @var \App\Models\Invoice | \App\Models\Credit | \App\Models\Quote $entity */
@@ -141,6 +143,8 @@ class PdfMock
                 $entity->client = Client::factory()->make(['settings' => $settings]); //@phpstan-ignore-line
                 $entity->client->setRelation('company', $this->company);
                 $entity->invitation = QuoteInvitation::factory()->make(); //@phpstan-ignore-line
+                $entity->terms = $this->company->settings->quote_terms;
+                $entity->footer = $this->company->settings->quote_footer;
                 break;
             case 'credit':
                 /** @var \App\Models\Invoice | \App\Models\Credit | \App\Models\Quote $entity */
@@ -148,24 +152,19 @@ class PdfMock
                 $entity->client = Client::factory()->make(['settings' => $settings]); //@phpstan-ignore-line
                 $entity->client->setRelation('company', $this->company);
                 $entity->invitation = CreditInvitation::factory()->make(); //@phpstan-ignore-line
+                $entity->terms = $this->company->settings->credit_terms;
+                $entity->footer = $this->company->settings->credit_footer;
                 break;
             case 'purchase_order':
-
+            case PurchaseOrder::class:
                 /** @var \App\Models\PurchaseOrder $entity */
                 $entity = PurchaseOrder::factory()->make();
                 // $entity->client = Client::factory()->make(['settings' => $settings]);
                 $entity->vendor = Vendor::factory()->make(); /** @phpstan-ignore-line */
                 $entity->vendor->setRelation('company', $this->company);
                 $entity->invitation = PurchaseOrderInvitation::factory()->make();/** @phpstan-ignore-line */
-
-                break;
-            case PurchaseOrder::class:
-                /** @var \App\Models\PurchaseOrder $entity */
-                $entity = PurchaseOrder::factory()->make();
-                $entity->invitation = PurchaseOrderInvitation::factory()->make();
-                $entity->vendor = Vendor::factory()->make(); /** @phpstan-ignore-line */
-
-                $entity->invitation->setRelation('company', $this->company);
+                $entity->terms = $this->company->settings->purchase_order_terms;
+                $entity->footer = $this->company->settings->purchase_order_footer;
                 break;
             case 'expense':
                 /** @var \App\Models\Expense $entity */
@@ -258,6 +257,17 @@ class PdfMock
                 $this->settings->{$entity_pattern},
             );
         }
+
+        $entity_terms = $this->company->settings->invoice_terms;
+        $entity_footer = $this->company->settings->invoice_footer;
+        
+        if($this->entity_string == 'quote') {
+            $entity_terms = $this->company->settings->quote_terms;
+            $entity_footer = $this->company->settings->quote_footer;
+        } elseif($this->entity_string == 'credit') {
+            $entity_terms = $this->company->settings->credit_terms;
+            $entity_footer = $this->company->settings->credit_footer;
+        } 
 
         return ['values'
          => [
@@ -433,7 +443,7 @@ class PdfMock
              '$contact.phone' => '681-480-9828',
              '$portal_button' => '<a class="button" href="http://ninja.test:8000/client/key_login/zJJEjlUtXPiNnnnyO2tcYia64PSwauidy61eDnMU?client_hash=nzikYQITs1kyUK61GScTNW67JwhTRkOBVdvsHzIv">View client portal</a>',
              '$paymentButton' => '<a class="button" href="http://ninja.test:8000/client/pay/UAUY8vIPuno72igmXbbpldwo5BDDKIqs">Pay Now</a>',
-             '$entity_footer' => 'Default invoice footer',
+             '$entity_footer' => $entity_footer,
              '$client.lang_2' => 'en',
              '$product.date' => '',
              '$client.email' => 'client@gmail.com',
@@ -453,7 +463,7 @@ class PdfMock
              '$company.name' => $this->settings->name,
              '$portalButton' => '<a class="button" href="http://ninja.test:8000/client/key_login/zJJEjlUtXPiNnnnyO2tcYia64PSwauidy61eDnMU?client_hash=nzikYQITs1kyUK61GScTNW67JwhTRkOBVdvsHzIv">View client portal</a>',
              '$contact.name' => 'Benedict Eichmann',
-             '$entity.terms' => 'Default company invoice terms',
+             '$entity.terms' => $entity_terms,
              '$client.state' => 'North Carolina',
              '$company.logo' => $this->settings->company_logo,
              '$company_logo' => $this->settings->company_logo,
@@ -546,7 +556,7 @@ class PdfMock
              '$amount' => '$30.00',
              '$method' => '&nbsp;',
              '$number' => '0029',
-             '$footer' => 'Default invoice footer',
+             '$footer' => $entity_footer,
              '$client' => 'The Client Name',
              '$email' => 'email@invoiceninja.net',
              '$notes' => '',
@@ -558,7 +568,7 @@ class PdfMock
              '$refund' => '',
              '$refunded' => '',
              '$phone' => '&nbsp;',
-             '$terms' => 'Default company invoice terms',
+             '$terms' => $entity_terms,
              '$from' => 'Bob Jones',
              '$item' => '',
              '$date' => '2023-10-25',
@@ -1023,7 +1033,7 @@ class PdfMock
             '$vendor.custom2' => 'Sit fuga quas sint.',
             '$vendor.website' => 'http://abernathy.com/consequatur-at-beatae-nesciunt',
             '$dir_text_align' => 'left',
-            '$entity_footer' => '',
+            '$entity_footer' => $this->company->settings->purchase_order_footer,
             '$entity_images' => '',
             '$contact.email' => '',
             '$primary_color' => '#298AAB',
@@ -1036,7 +1046,7 @@ class PdfMock
             '$company.email' => 'immanuel53@example.net',
             '$product.date' => '',
             '$vendor.email' => '',
-            '$entity.terms' => '',
+            '$entity.terms' => $this->company->settings->purchase_order_terms,
             '$product.item' => '',
             '$public_notes' => null,
             '$paid_to_date' => '$0.00',
@@ -1205,7 +1215,7 @@ class PdfMock
             '$vendor2' => 'Sit fuga quas sint.',
             '$website' => 'http://abernathy.com/consequatur-at-beatae-nesciunt',
             '$app_url' => 'http://ninja.test:8000',
-            '$footer' => '',
+            '$footer' => $this->company->settings->purchase_order_footer,
             '$entity' => '',
             '$thanks' => '',
             '$amount' => '$10,256.40',
@@ -1213,7 +1223,7 @@ class PdfMock
             '$vendor' => 'Claudie Nikolaus MD',
             '$number' => 'Live Preview #790',
             '$email' => '',
-            '$terms' => '',
+            '$terms' => $this->company->settings->purchase_order_terms,
             '$notes' => null,
             '$tax_rate1' => '',
             '$tax_rate2' => '',

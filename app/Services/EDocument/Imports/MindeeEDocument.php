@@ -88,7 +88,7 @@ class MindeeEDocument extends AbstractService
             /** @var \App\Models\Currency $currency */
             $currency = app('currencies')->first(function ($c) use ($invoiceCurrency) {
                 /** @var \App\Models\Currency $c */
-                return $c->code == $invoiceCurrency;
+                return $c->code == strtoupper($invoiceCurrency);
             });
 
             $expense = ExpenseFactory::create($this->company->id, $this->company->owner()->id);

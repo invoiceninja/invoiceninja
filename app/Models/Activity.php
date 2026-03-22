@@ -312,6 +312,8 @@ class Activity extends StaticModel
 
     public const QUICKBOOKS_PUSH_SUCCESS = 165;
 
+    public const PURGE_USER = 166;
+
     protected $casts = [
         'is_system' => 'boolean',
         'updated_at' => 'timestamp',
@@ -566,7 +568,7 @@ class Activity extends StaticModel
             return '';
         }
 
-        preg_match('/:\s*(\d+)\s*-/', $this->notes, $matches);
+        preg_match('/:\s*(\d+)\s*-/', $this->notes ?? '', $matches);
         $amount = $matches[1] ?? null;
 
         return Number::formatMoney($amount ?? $payment->refunded, $payment?->client ?? $this->company);

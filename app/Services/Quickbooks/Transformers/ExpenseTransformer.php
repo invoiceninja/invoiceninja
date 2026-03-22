@@ -36,11 +36,12 @@ class ExpenseTransformer extends BaseTransformer
      */
     public function ninjaToQb(Expense $expense): array
     {
+        // QuickBooks DocNumber max length is 21 characters, PrivateNote max length is 4000 characters
         $payload = [
             'TotalAmt' => (float) $expense->amount,
             'TxnDate' => $expense->date ?? Carbon::now()->format('Y-m-d'),
-            'PrivateNote' => $expense->private_notes ?? '',
-            'DocNumber' => $expense->transaction_reference ?? $expense->number ?? '',
+            'PrivateNote' => mb_substr($expense->private_notes ?? '', 0, 4000),
+            'DocNumber' => mb_substr($expense->transaction_reference ?? $expense->number ?? '', 0, 21),
         ];
 
         $currency = $expense->currency_id

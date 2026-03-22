@@ -90,11 +90,13 @@ class QbInvoice implements SyncInterface
                     $this->qbInvoiceUpdate($ninja_invoice_data, $invoice);
                 }
 
-                if (Invoice::where('company_id', $this->service->company->id)
-                    ->whereNotNull('number')
+                // QB allows duplicate invoice numbers, Ninja does not.
+                // Suffix with QB ID to guarantee uniqueness for duplicates.
+                if (Invoice::withTrashed()
+                    ->where('company_id', $this->service->company->id)
                     ->where('number', $ninja_invoice_data['number'])
                     ->exists()) {
-                    $ninja_invoice_data['number'] = 'qb_' . $ninja_invoice_data['number'] . '_' . rand(1000, 99999);
+                    $ninja_invoice_data['number'] = $ninja_invoice_data['number'] . '_' . $ninja_invoice_data['id'];
                 }
 
                 $invoice->fill($ninja_invoice_data);
@@ -102,11 +104,11 @@ class QbInvoice implements SyncInterface
 
 
                 // During QB import, use saveQuietly() to prevent circular sync back to QuickBooks
-                $invoice = $invoice->calc()->getInvoice()->service()->markSent()->applyNumber()->createInvitations()->saveQuietly();
+                $invoice = $invoice->calc()->getInvoice()->service()->markSent()->applyNumber()->createInvitations()->save();
 
                 if ($record instanceof \QuickBooksOnline\API\Data\IPPSalesReceipt) {
                     // During QB import, use saveQuietly() to prevent circular sync back to QuickBooks
-                    $invoice->service()->markPaid()->saveQuietly();
+                    $invoice->service()->markPaid()->save();
                 }
 
             }
@@ -615,23 +617,28 @@ class QbInvoice implements SyncInterface
 
         if ($this->service->syncable('invoice', \App\Enum\SyncDirection::PULL)) {
 
-            $invoice = $this->findInvoice($id);
+            QuickbooksService::$importing[$this->service->company->id] = true;
+            try {
+                $invoice = $this->findInvoice($id);
 
-            nlog("Comparing QB last updated: " . $last_updated);
-            nlog("Comparing Ninja last updated: " . $invoice->updated_at);
+                nlog("Comparing QB last updated: " . $last_updated);
+                nlog("Comparing Ninja last updated: " . $invoice->updated_at);
 
-            if (data_get($qb_record, 'TxnStatus') === 'Voided') {
-                $this->delete($id);
-                return;
-            }
+                if (data_get($qb_record, 'TxnStatus') === 'Voided') {
+                    $this->delete($id);
+                    return;
+                }
 
-            if (!$invoice->id) {
-                $this->syncNinjaInvoice($qb_record);
-            } elseif (Carbon::parse($last_updated)->gt(Carbon::parse($invoice->updated_at)) || $qb_record->SyncToken == '0') {
-                $ninja_invoice_data = $this->invoice_transformer->qbToNinja($qb_record, $this->service);
+                if (!$invoice->id) {
+                    $this->syncNinjaInvoice($qb_record);
+                } elseif (Carbon::parse($last_updated)->gt(Carbon::parse($invoice->updated_at)) || $qb_record->SyncToken == '0') {
+                    $ninja_invoice_data = $this->invoice_transformer->qbToNinja($qb_record, $this->service);
 
-                $this->invoice_repository->save($ninja_invoice_data, $invoice);
+                    $this->invoice_repository->save($ninja_invoice_data, $invoice);
 
+                }
+            } finally {
+                unset(QuickbooksService::$importing[$this->service->company->id]);
             }
 
         }
@@ -662,13 +669,21 @@ class QbInvoice implements SyncInterface
 
             if ($invoice->id) {
                 $this->qbInvoiceUpdate($ninja_invoice_data, $invoice);
+            } elseif (!empty($ninja_invoice_data['number'])) {
+                // QB allows duplicate invoice numbers, Ninja does not.
+                // Suffix with QB ID to guarantee uniqueness for duplicates.
+                if (Invoice::withTrashed()
+                    ->where('company_id', $this->service->company->id)
+                    ->where('number', $ninja_invoice_data['number'])
+                    ->exists()) {
+                    $ninja_invoice_data['number'] = $ninja_invoice_data['number'] . '_' . $ninja_invoice_data['id'];
+                }
             }
-            //new invoice scaffold
+
             $invoice->fill($ninja_invoice_data);
             $invoice->saveQuietly();
 
-            // During QB import, use saveQuietly() to prevent circular sync back to QuickBooks
-            $invoice = $invoice->calc()->getInvoice()->service()->markSent()->applyNumber()->createInvitations()->saveQuietly();
+            $invoice = $invoice->calc()->getInvoice()->service()->markSent()->applyNumber()->createInvitations()->save();
 
             foreach ($payment_ids as $payment_id) {
 
@@ -712,9 +727,12 @@ class QbInvoice implements SyncInterface
         $qb_record = $this->find($id);
 
         if ($this->service->syncable('invoice', \App\Enum\SyncDirection::PULL) && $invoice = $this->findInvoice($id)) {
-            $invoice->sync = null;
-            $invoice->saveQuietly();
-            $this->invoice_repository->delete($invoice);
+            QuickbooksService::$importing[$this->service->company->id] = true;
+            try {
+                $this->invoice_repository->delete($invoice);
+            } finally {
+                unset(QuickbooksService::$importing[$this->service->company->id]);
+            }
         }
     }
 

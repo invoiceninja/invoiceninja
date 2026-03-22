@@ -31,6 +31,7 @@ use App\Models\RecurringQuote;
 use App\Utils\Traits\MakesHash;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
+use App\Events\User\UserWasPurged;
 use Illuminate\Support\Facades\DB;
 use App\DataMapper\CompanySettings;
 use App\Events\User\UserWasDeleted;
@@ -147,7 +148,7 @@ class UserRepository extends BaseRepository
         }
 
         if (array_key_exists('company_user', $data)) {
-            $this->forced_includes = 'company_users';
+            // $this->forced_includes = 'company_users'; //2026-02-23 - not needed @deprecate and remove in 5.13.0
 
             $company = auth()->user()->company();
 
@@ -270,7 +271,12 @@ class UserRepository extends BaseRepository
     public function purge(User $user, User $new_owner_user): void
     {
 
+        $notes = $user->present()->name();
+
         \DB::transaction(function () use ($user, $new_owner_user) {
+
+            /* Remove all of the system tokens for the user */
+            $user->tokens()->where('is_system', true)->forceDelete();
 
             // Relations to transfer user_id to new owner
             $allRelations = [
@@ -309,8 +315,35 @@ class UserRepository extends BaseRepository
                     ->update(['assigned_user_id' => null]);
             }
 
+            // Fix scheduler parameters JSON — embedded user_id
+            $user->schedules()->each(function ($scheduler) use ($new_owner_user, $user) {
+                $params = $scheduler->parameters;
+                if (isset($params['user_id']) && $params['user_id'] == $user->id) {
+                    $params['user_id'] = $new_owner_user->id;
+                    $scheduler->parameters = $params;
+                    $scheduler->save();
+                }
+            });
+
+            // Fix gmail_sending_user_id in company settings
+            $old_hashed_id = $user->hashed_id;
+
+            $new_owner_user->account->companies()->cursor()->each(function ($company) use ($old_hashed_id) {
+                $settings = $company->settings;
+                if (isset($settings->gmail_sending_user_id) && $settings->gmail_sending_user_id === $old_hashed_id) {
+                    $settings->gmail_sending_user_id = '0';
+                    $settings->email_sending_method = 'default';
+                    $company->settings = $settings;
+                    $company->save();
+                }
+            });
+
             $user->forceDelete();
+
         });
 
+        $company = $new_owner_user->account->default_company ?? $new_owner_user->companies->first();
+        
+        event(new UserWasPurged($new_owner_user, $notes, $company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
     }
 }

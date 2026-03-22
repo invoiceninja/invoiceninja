@@ -80,8 +80,6 @@ class ProductObserver
             WebhookHandler::dispatch($event, $product, $product->company)->delay(0);
         }
 
-
-        nlog("product updated observer");
     }
 
     /**

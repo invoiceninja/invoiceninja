@@ -141,7 +141,7 @@ class PortalComposer
         if (Ninja::isHosted() && auth()->guard('contact')->user() && auth()->guard('contact')->user()->company_id == config('ninja.ninja_default_company_id')) {
             $data[] = ['title' => ctrans('texts.plan'), 'url' => 'client.plan', 'icon' => 'credit-card', 'id' => 'plan'];
         } else {
-            $data[] = ['title' => ctrans('texts.subscriptions'), 'url' => 'client.subscriptions.index', 'icon' => 'calendar', 'id' => 'subsciptions'];
+            $data[] = ['title' => ctrans('texts.subscriptions'), 'url' => 'client.subscriptions.index', 'icon' => 'calendar', 'id' => 'subscriptions'];
         }
 
         if (auth()->guard('contact')->user()->client->getSetting('client_initiated_payments')) {

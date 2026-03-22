@@ -69,8 +69,6 @@ class MailgunController extends BaseController
 
         $input = $request->all();
 
-        nlog($input);
-
         if (\abs(\time() - $request['signature']['timestamp']) > 15) {
             return response()->json(['message' => 'Success'], 200);
         }

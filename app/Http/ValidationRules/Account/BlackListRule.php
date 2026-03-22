@@ -22,6 +22,7 @@ class BlackListRule implements ValidationRule
 {
     /** Bad domains +/- disposable email domains */
     private array $blacklist = [
+        "fxzig.com",
         "dollicons.com",
         "mypost.lol",
         "mozmail.com",

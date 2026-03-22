@@ -28,6 +28,7 @@ namespace App\Models;
  * @method static \Illuminate\Database\Eloquent\Builder|Language whereName($value)
  * @mixin \Eloquent
  */
+#[\AllowDynamicProperties]
 class Language extends StaticModel
 {
     public $timestamps = false;

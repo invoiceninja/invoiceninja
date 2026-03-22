@@ -16,6 +16,7 @@ use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\Product;
 use App\Libraries\MultiDB;
 use Illuminate\Bus\Queueable;
@@ -89,11 +90,13 @@ class PushToQuickbooks implements ShouldQueue
                 'client' => $this->pushClient($qbService, $entity),
                 'invoice' => $this->pushInvoice($qbService, $entity),
                 'product' => $this->pushProduct($qbService, $entity),
+                'payment' => $this->pushPayment($qbService, $entity),
                 default => nlog("QuickBooks: Unsupported entity type: {$this->entity_type}"),
             };
 
             $entity->refresh();
-            $this->logActivitySuccess($entity);
+            // Note: Success activities are not logged to avoid spamming the activities table.
+            // Only failures are logged as they require user attention.
         } catch (\Throwable $e) {
             nlog("Quickbooks push to Quickbooks job failed => " . $e->getMessage());
             $this->logActivityFailure($entity, $this->extractReadableError($e->getMessage()));
@@ -107,12 +110,13 @@ class PushToQuickbooks implements ShouldQueue
      *
      * @return Client|Invoice|null
      */
-    private function resolveEntity(): Client|Invoice|Product|null
+    private function resolveEntity(): Client|Invoice|Product|Payment|null
     {
         return match ($this->entity_type) {
             'client' => Client::withTrashed()->find($this->entity_id),
             'invoice' => Invoice::withTrashed()->find($this->entity_id),
             'product' => Product::withTrashed()->find($this->entity_id),
+            'payment' => Payment::withTrashed()->find($this->entity_id),
             default => null,
         };
     }
@@ -165,7 +169,27 @@ class PushToQuickbooks implements ShouldQueue
      */
     private function pushInvoice(QuickbooksService $qbService, Invoice $invoice): void
     {
+        // Skip invoices with no line items - QuickBooks requires at least one line item
+        $line_items_count = is_array($invoice->line_items) ? count($invoice->line_items) : (is_object($invoice->line_items) ? count((array)$invoice->line_items) : 0);
+        
+        if ($line_items_count === 0) {
+            nlog("QuickBooks: Skipping push for invoice {$invoice->id} - invoice has no line items");
+            return;
+        }
+
         $qbService->invoice->syncToForeign([$invoice]);
+    }
+
+    /**
+     * Push a payment to QuickBooks.
+     *
+     * @param QuickbooksService $qbService
+     * @param Payment $payment
+     * @return void
+     */
+    private function pushPayment(QuickbooksService $qbService, Payment $payment): void
+    {
+        $qbService->payment->syncToForeign([$payment]);
     }
 
     private function extractReadableError(string $rawMessage): string
@@ -196,33 +220,6 @@ class PushToQuickbooks implements ShouldQueue
         return mb_substr($cleaned, 0, 500);
     }
 
-    private function logActivitySuccess($entity): void
-    {
-        try {
-            $qb_id = $entity->sync->qb_id ?? null;
-            $number = $entity->number ?? ($entity->present()->name() ?? $entity->id);
-            $notes = "{$this->entity_type} #{$number} synced to QuickBooks (QB ID: {$qb_id})";
-
-            $activity = new Activity();
-            $activity->user_id = $entity->user_id ?? null;
-            $activity->company_id = $entity->company_id;
-            $activity->account_id = $entity->company->account_id;
-            $activity->activity_type_id = Activity::QUICKBOOKS_PUSH_SUCCESS;
-            $activity->is_system = true;
-            $activity->notes = $notes;
-
-            match ($this->entity_type) {
-                'client' => $activity->client_id = $entity->id,
-                'invoice' => $activity->invoice_id = $entity->id,
-                default => null,
-            };
-
-            $activity->save();
-        } catch (\Throwable $e) {
-            nlog("QuickBooks: Failed to log success activity for {$this->entity_type} {$this->entity_id}: " . $e->getMessage());
-        }
-    }
-
     private function logActivityFailure($entity, string $errorMessage): void
     {
         try {
@@ -237,6 +234,7 @@ class PushToQuickbooks implements ShouldQueue
             match ($this->entity_type) {
                 'client' => $activity->client_id = $entity->id,
                 'invoice' => $activity->invoice_id = $entity->id,
+                'payment' => $activity->payment_id = $entity->id,
                 default => null,
             };
 
