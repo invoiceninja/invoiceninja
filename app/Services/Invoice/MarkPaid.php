@@ -39,8 +39,9 @@ class MarkPaid extends AbstractService
         }
 
         $already_paid = false;
+        $draft_balance_adjustment = 0;
 
-        \DB::connection(config('database.default'))->transaction(function () use (&$already_paid) {
+        \DB::connection(config('database.default'))->transaction(function () use (&$already_paid, &$draft_balance_adjustment) {
             $this->invoice = Invoice::withTrashed()->where('id', $this->invoice->id)->lockForUpdate()->first();
 
             if ($this->invoice->status_id == Invoice::STATUS_PAID) {
@@ -59,7 +60,7 @@ class MarkPaid extends AbstractService
                     ->ledger()
                     ->updateInvoiceBalance($this->invoice->amount, "Invoice {$this->invoice->number} marked as sent.");
 
-                $this->invoice->client->service()->updateBalance($this->invoice->amount);
+                $draft_balance_adjustment = $this->invoice->amount;
                 /* Perform additional actions on invoice */
                 $this->invoice
                     ->service()
@@ -87,7 +88,12 @@ class MarkPaid extends AbstractService
                     ->unlockDocuments()
                     ->save();
             }
-        }, 1);
+        }, 2);
+
+        /* Update client balance for draft→sent transition outside the invoice lock to prevent deadlocks */
+        if ($draft_balance_adjustment != 0) {
+            $this->invoice->client->service()->updateBalance($draft_balance_adjustment);
+        }
 
         if ($already_paid) {
             return $this->invoice;

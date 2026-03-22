@@ -5,6 +5,11 @@
     <meta name="currency" content="{{ $currency }}">
     <meta name="reference" content="{{ $payment_hash }}">
     <meta name="cardholder_name" content="{{ $cardholder_name }}">
+    @if($use_flow ?? false)
+    <meta name="payment-session-id" content="{{ $payment_session_id ?? '' }}">
+    <meta name="payment-session-token" content="{{ $payment_session_token ?? '' }}">
+    <meta name="environment" content="{{ $environment ?? 'sandbox' }}">
+    @endif
 
     @include('portal.ninja2020.gateways.checkout.credit_card.includes.styles')
 
@@ -41,7 +46,8 @@
                             type="radio"
                             data-token="{{ $token->hashed_id }}"
                             name="payment-type"
-                            class="form-radio text-indigo-600 rounded-full cursor-pointer toggle-payment-with-token"/>
+                            class="form-radio text-indigo-600 rounded-full cursor-pointer toggle-payment-with-token"
+                            {{ $loop->first ? 'checked' : '' }}/>
                         <span class="ml-2 cursor-pointer">**** {{ $token->meta?->last4 }}</span>
                     </label>
                 </li>
@@ -55,10 +61,10 @@
                         id="toggle-payment-with-credit-card"
                         class="form-radio text-indigo-600 rounded-full cursor-pointer"
                         name="payment-type"
-                        checked/>
+                        {{ count($tokens) == 0 ? 'checked' : '' }}/>
                     <span class="ml-2 cursor-pointer">{{ __('texts.new_card') }}</span>
                 </label>
-            </li>    
+            </li>
         </ul>
 
 
@@ -67,6 +73,10 @@
     @include('portal.ninja2020.gateways.includes.save_card')
 
     @component('portal.ninja2020.components.general.card-element-single')
+    @if($use_flow ?? false)
+    <div id="flow-container"></div>
+    <p id="flow-error-message" class="text-red-600 mt-2 hidden" role="alert"></p>
+    @else
     <div id="checkout--container">
         <form class="xl:flex xl:justify-center" id="payment-form" method="POST" action="#">
             <div class="one-liner">
@@ -81,6 +91,7 @@
             <p class="success-payment-message"></p>
         </form>
     </div>
+    @endif
     @endcomponent
 
     @component('portal.ninja2020.components.general.card-element-single')
@@ -90,7 +101,135 @@
     @endcomponent
 
     @assets
+    <script src="https://checkout-web-components.checkout.com/index.js" async></script>
+    @if(!($use_flow ?? false))
     <script src="https://cdn.checkout.com/js/framesv2.min.js"></script>
     @vite('resources/js/clients/payments/checkout-credit-card.js')
+    @endif
     @endassets
+
+    @if($use_flow ?? false)
+    @script
+    <script>
+        (function() {
+            function getMeta(name) {
+                var el = document.querySelector('meta[name="' + name + '"]');
+                return el ? el.getAttribute('content') || '' : '';
+            }
+
+            function initFlow() {
+                var sessionId = getMeta('payment-session-id');
+                var sessionToken = getMeta('payment-session-token');
+                var publicKey = getMeta('public-key');
+                var environment = getMeta('environment') || 'sandbox';
+
+                if (!sessionId || !sessionToken || !publicKey) {
+                    var errEl = document.getElementById('flow-error-message');
+                    if (errEl) {
+                        errEl.textContent = 'Payment session is missing. Please refresh the page.';
+                        errEl.classList.remove('hidden');
+                    }
+                    return;
+                }
+
+                var paymentSession = { id: sessionId, payment_session_token: sessionToken };
+
+                function boot() {
+                    if (typeof window.CheckoutWebComponents === 'undefined') {
+                        setTimeout(boot, 100);
+                        return;
+                    }
+
+                    window.CheckoutWebComponents({
+                        paymentSession: paymentSession,
+                        publicKey: publicKey,
+                        environment: environment,
+                        onPaymentCompleted: function(_self, paymentResponse) {
+                            var form = document.getElementById('server-response');
+                            if (!form) return;
+                            var gatewayInput = form.querySelector('input[name="gateway_response"]');
+                            var storeCardInput = form.querySelector('input[name="store_card"]');
+                            if (gatewayInput) {
+                                gatewayInput.value = JSON.stringify({ id: paymentResponse.id });
+                            }
+                            if (storeCardInput) {
+                                var saveCheckbox = document.querySelector('input[name=token-billing-checkbox]:checked');
+                                storeCardInput.value = saveCheckbox ? saveCheckbox.value : 'false';
+                            }
+                            form.submit();
+                        },
+                        onError: function(event) {
+                            var errEl = document.getElementById('flow-error-message');
+                            if (errEl) {
+                                errEl.textContent = (event.detail && event.detail.message) || 'Payment failed. Please try again.';
+                                errEl.classList.remove('hidden');
+                            }
+                        },
+                    }).then(function(checkout) {
+                        var flowComponent = checkout.create('flow');
+                        flowComponent.mount('#flow-container');
+                    }).catch(function(err) {
+                        var errEl = document.getElementById('flow-error-message');
+                        if (errEl) {
+                            errEl.textContent = (err && err.message) || 'Unable to load payment form. Please refresh the page.';
+                            errEl.classList.remove('hidden');
+                        }
+                    });
+                }
+
+                boot();
+            }
+
+            // Token toggle handlers
+            var flowContainer = document.getElementById('flow-container');
+            var tokenContainer = document.getElementById('pay-now-with-token--container');
+            var saveCardContainer = document.getElementById('save-card--container');
+
+            Array.from(document.getElementsByClassName('toggle-payment-with-token') || []).forEach(function(el) {
+                el.addEventListener('click', function() {
+                    if (flowContainer) flowContainer.classList.add('hidden');
+                    if (tokenContainer) tokenContainer.classList.remove('hidden');
+                    if (saveCardContainer) saveCardContainer.style.display = 'none';
+                    var tokenInput = document.querySelector('input[name=token]');
+                    if (tokenInput) tokenInput.value = el.dataset.token || '';
+                });
+            });
+
+            var newCardRadio = document.getElementById('toggle-payment-with-credit-card');
+            if (newCardRadio) {
+                newCardRadio.addEventListener('click', function() {
+                    if (flowContainer) flowContainer.classList.remove('hidden');
+                    if (tokenContainer) tokenContainer.classList.add('hidden');
+                    if (saveCardContainer) saveCardContainer.style.display = 'grid';
+                    var tokenInput = document.querySelector('input[name=token]');
+                    if (tokenInput) tokenInput.value = '';
+                });
+            }
+
+            var payNowBtn = document.getElementById('pay-now-with-token');
+            if (payNowBtn) {
+                payNowBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    payNowBtn.disabled = true;
+                    var svg = payNowBtn.querySelector('svg');
+                    var span = payNowBtn.querySelector('span');
+                    if (svg) svg.classList.remove('hidden');
+                    if (span) span.classList.add('hidden');
+                    document.getElementById('server-response').submit();
+                });
+            }
+
+            if (flowContainer) {
+                initFlow();
+            }
+
+            // Pre-select first token to set initial UI state
+            var firstToken = document.querySelector('input.toggle-payment-with-token');
+            if (firstToken) {
+                firstToken.click();
+            }
+        })();
+    </script>
+    @endscript
+    @endif
 </div>

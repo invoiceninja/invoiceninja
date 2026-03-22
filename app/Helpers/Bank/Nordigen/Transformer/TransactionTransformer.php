@@ -117,6 +117,8 @@ class TransactionTransformer implements BankRevenueInterface
             $description = $transaction["remittanceInformationUnstructured"];
         } elseif (array_key_exists('remittanceInformationUnstructuredArray', $transaction)) {
             $description = implode('\n', $transaction["remittanceInformationUnstructuredArray"]);
+        } elseif (array_key_exists('creditorName', $transaction)) {
+            $description = $transaction["creditorName"];
         } else {
             Log::warning("Missing description for the following transaction: " . json_encode($transaction));
         }

@@ -32,6 +32,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel findOrFail($value)
  * @mixin \Eloquent
  */
+#[\AllowDynamicProperties]
 class StaticModel extends Model
 {
     use MakesHash;

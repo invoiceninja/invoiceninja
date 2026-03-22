@@ -49,12 +49,21 @@ class CheckoutSetupWebhook implements ShouldQueue
     public function handle()
     {
 
+        nlog("Checkout Setup Webhook");
+        
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
         /** @var \App\Models\CompanyGateway $company_gateway */
         $company_gateway = CompanyGateway::find($this->company_gateway_id);
 
         $this->checkout = $company_gateway->driver()->init();
+
+        if ($this->checkout->gateway === null) {
+            return;
+        }
+
+        // Probe which payment methods the account supports and store the result
+        $this->checkout->probeAvailablePaymentMethods();
 
         $webhook = new Webhook($this->checkout);
 
@@ -90,7 +99,7 @@ class CheckoutSetupWebhook implements ShouldQueue
 
         $eventWorkflowConditionRequest = new EventWorkflowConditionRequest();
         $eventWorkflowConditionRequest->events = [
-            "gateway" => ["payment_approved"],
+            "gateway" => ["payment_approved", "payment_declined", "payment_expired", "payment_canceled"],
             "issuing" => ["authorization_approved","authorization_declined"],
         ];
 

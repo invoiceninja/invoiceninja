@@ -12,7 +12,6 @@
 
 namespace App\Filters;
 
-use App\Models\Client;
 use App\Models\Invoice;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Builder;
@@ -279,21 +278,18 @@ class InvoiceFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
-        if (!is_array($sort_col) || count($sort_col) != 2 || !in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))) {
+        if (!is_array($sort_col) || count($sort_col) != 2 || (!in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable())) && !str_starts_with($sort_col[0], 'client.') && !str_starts_with($sort_col[0], 'contact.') && !str_starts_with($sort_col[0], 'documents'))) {
             return $this->builder;
         }
 
         $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
 
+        // Handle relationship-based sorting
+        if ($sort_col[0] == 'documents') {
+            return $this->builder->withCount('documents')->orderBy('documents_count', $dir);
+        }
+
         if ($sort_col[0] == 'client_id') {
-
-
-            // 2026-01-21: Original sort by client name that is not optimal when clients.name is empty.
-            // return $this->builder->orderByRaw('client_id IS NULL')
-            // ->orderBy(\App\Models\Client::select('name')
-            // ->whereColumn('clients.id', 'recurring_invoices.client_id')
-            // ->limit(1), $dir);
-
 
             /**
              * future options for order by raw if this is not performant:
@@ -331,7 +327,6 @@ class InvoiceFilters extends QueryFilters
                     END " . $dir
                 );
 
-
         }
 
         if ($sort_col[0] == 'project_id') {
@@ -359,6 +354,46 @@ class InvoiceFilters extends QueryFilters
 
         }
 
+        /** Relationship sorting - clients */
+        if(str_starts_with($sort_col[0], 'client.')) {
+            
+            $client_parts = explode('.', $sort_col[0]);
+            
+            if(!isset($client_parts[1]) || !in_array($client_parts[1], \Illuminate\Support\Facades\Schema::getColumnListing('clients'))) {  
+                return $this->builder;
+            }
+            
+
+            if ($sort_col[0] === 'client.country_id') {
+                return $this->builder->orderBy(
+                        \App\Models\Client::select('countries.name')
+                            ->join('countries', 'countries.id', '=', 'clients.country_id')
+                            ->whereColumn('clients.id', 'invoices.client_id')
+                            ->limit(1),
+                        $dir
+                    );
+            }
+
+            return $this->builder->orderBy(\App\Models\Client::select($client_parts[1])
+                        ->whereColumn('clients.id', 'invoices.client_id')
+                        ->limit(1), $dir);
+
+        }
+
+        /** Relationship sorting - contacts */
+        if(str_starts_with($sort_col[0], 'contact.')) {
+        
+            $client_parts = explode('.', $sort_col[0]);
+            
+            if(!isset($client_parts[1]) || !in_array($client_parts[1], \Illuminate\Support\Facades\Schema::getColumnListing('client_contacts'))) {  
+                return $this->builder;
+            }
+            
+            return $this->builder->orderBy(\App\Models\ClientContact::select($client_parts[1])
+                        ->whereColumn('client_contacts.client_id', 'invoices.client_id')
+                        ->limit(1), $dir);
+
+        }
 
         return $this->builder->orderBy("{$this->builder->getQuery()->from}." . $sort_col[0], $dir);
     }

@@ -52,6 +52,24 @@ class ClientApiTest extends TestCase
         Model::reguard();
     }
 
+    public function testCurrencyCodePassesValidation()
+    {
+        $data = [
+            'name' => 'name of client',
+            'currency_code' => strtoupper('usd'),
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/clients/", $data)
+        ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals("1", $arr['data']['settings']['currency_id']);
+
+    }
+
     public function testCurrencyIdRequired()
     {
         $data = [

@@ -232,7 +232,7 @@ class BraintreePaymentDriver extends BaseDriver
 
         $this->init();
 
-        $result = $this->gateway->transaction()->sale([
+        $data = [
             'amount' => $amount,
             'paymentMethodToken' => $cgt->token,
             'deviceData' => '',
@@ -242,7 +242,11 @@ class BraintreePaymentDriver extends BaseDriver
             ],
             'taxAmount' => $total_taxes,
             'purchaseOrderNumber' => substr($invoice->po_number ?? $invoice->number, 0, 16),
-        ]);
+        ];
+
+        $data = array_merge($data, $this->getLevel23Data($payment_hash));
+
+        $result = $this->gateway->transaction()->sale($data);
 
         if ($result->success) {
 
@@ -292,6 +296,127 @@ class BraintreePaymentDriver extends BaseDriver
         }
     }
 
+
+    /**
+     * Build Level 2/3 interchange data for Braintree transactions.
+     *
+     * Wrapped in try-catch — this is supplemental data for lower interchange rates
+     * and must never cause a payment to fail.
+     *
+     * @param PaymentHash $payment_hash
+     * @return array
+     */
+    public function getLevel23Data(PaymentHash $payment_hash): array
+    {
+        try {
+            $data = [];
+
+            $invoice_ids = $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id'));
+            $invoices = Invoice::query()->whereIn('id', $invoice_ids)->withTrashed()->get();
+
+            if ($invoices->isEmpty()) {
+                return [];
+            }
+
+            // Level 2: Shipping address
+            $client = $this->client;
+            if ($client && $client->shipping_postal_code) {
+                $data['shipping'] = [
+                    'streetAddress' => $client->shipping_address1 ?: '',
+                    'extendedAddress' => $client->shipping_address2 ?: '',
+                    'locality' => $client->shipping_city ?: '',
+                    'region' => $client->shipping_state ?: '',
+                    'postalCode' => $client->shipping_postal_code ?: '',
+                    'countryCodeAlpha3' => $client->shipping_country ? ($client->shipping_country->iso_3166_3 ?: '') : '',
+                ];
+            }
+
+            // Level 2: Ships from postal code (company address)
+            $company = $this->company_gateway->company;
+            $company_postal_code = $company->settings->postal_code ?? '';
+            if ($company_postal_code) {
+                $data['shippingAmount'] = '0.00';
+                $data['shipsFromPostalCode'] = substr($company_postal_code, 0, 10);
+            }
+
+            // Level 2: Discount amount across all invoices
+            $total_discount = 0;
+            foreach ($invoices as $invoice) {
+                if ($invoice->discount > 0) {
+                    if ($invoice->is_amount_discount) {
+                        $total_discount += $invoice->discount;
+                    } else {
+                        // Percentage discount — calculate from subtotal
+                        $subtotal = collect($invoice->line_items)->sum(function ($item) {
+                            return (float) ($item->line_total ?? 0);
+                        });
+                        $total_discount += round($subtotal * ($invoice->discount / 100), 2);
+                    }
+                }
+            }
+            if ($total_discount > 0) {
+                $data['discountAmount'] = number_format($total_discount, 2, '.', '');
+            }
+
+            // Level 3: Line items (max 249 per Braintree)
+            $line_items = [];
+            foreach ($invoices as $invoice) {
+                $items = $invoice->line_items;
+                if (!is_iterable($items)) {
+                    continue;
+                }
+
+                foreach ($items as $item) {
+                    if (count($line_items) >= 249) {
+                        break 2;
+                    }
+
+                    $quantity = (float) ($item->quantity ?? 1);
+                    $unit_amount = (float) ($item->cost ?? 0);
+                    $line_total = (float) ($item->line_total ?? ($quantity * $unit_amount));
+                    $tax_amount = (float) ($item->tax_amount ?? 0);
+
+                    // Calculate item-level discount
+                    $item_discount = 0.0;
+                    $raw_discount = (float) ($item->discount ?? 0);
+                    if ($raw_discount > 0) {
+                        $is_amount = $item->is_amount_discount ?? false;
+                        $item_discount = $is_amount ? $raw_discount : round(($quantity * $unit_amount) * ($raw_discount / 100), 2);
+                    }
+
+                    $bt_item = [
+                        'name' => substr($item->product_key ?? 'Item', 0, 35),
+                        'kind' => \Braintree\TransactionLineItem::DEBIT,
+                        'quantity' => number_format($quantity, 4, '.', ''),
+                        'unitAmount' => number_format(abs($unit_amount), 4, '.', ''),
+                        'totalAmount' => number_format(abs($line_total), 2, '.', ''),
+                        'taxAmount' => number_format(abs($tax_amount), 2, '.', ''),
+                        'discountAmount' => number_format(abs($item_discount), 2, '.', ''),
+                        'unitOfMeasure' => 'EA',
+                        'productCode' => substr($item->product_key ?? '', 0, 12),
+                    ];
+
+                    // Add description if available
+                    $notes = $item->notes ?? '';
+                    if ($notes !== '') {
+                        $bt_item['description'] = substr($notes, 0, 127);
+                    }
+
+                    $line_items[] = $bt_item;
+                }
+            }
+
+            if (!empty($line_items)) {
+                $data['lineItems'] = $line_items;
+            }
+
+            return $data;
+
+        } catch (\Exception $e) {
+            nlog("Braintree L2/L3 data build failed (non-fatal): " . $e->getMessage());
+            return [];
+        }
+    }
 
     /**
      * Required fields for client to fill, to proceed with gateway actions.

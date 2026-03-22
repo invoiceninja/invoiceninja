@@ -61,7 +61,7 @@ class PaymentLinkService
         //     return $this->handleWhiteLabelPurchase($payment_hash);
         // }
 
-        if (strlen($this->subscription->recurring_product_ids) >= 1) {
+        if (strlen($this->subscription->recurring_product_ids ?? '') >= 1) {
 
             $bundle = $payment_hash->data->billing_context->bundle ?? [];
             $recurring_invoice = (new InvoiceToRecurring($payment_hash->payment->client_id, $this->subscription, $bundle))->run();

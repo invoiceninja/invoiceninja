@@ -54,7 +54,7 @@ class CompanyObserver
                     nlog(['company_name_check', $e->getMessage()]);
                 }
             }
-
+            
         }
 
     }

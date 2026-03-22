@@ -26,16 +26,12 @@ class ImportEncodingTest extends TestCase
         // Use reflection to access private methods
         $reflection = new ReflectionClass($this->controller);
         $this->readFileMethod = $reflection->getMethod('readFileWithProperEncoding');
-        $this->readFileMethod->setAccessible(true);
 
         $this->containsWindows1252Method = $reflection->getMethod('containsWindows1252Bytes');
-        $this->containsWindows1252Method->setAccessible(true);
 
         $this->fixCorruptedMethod = $reflection->getMethod('fixCorruptedWindows1252');
-        $this->fixCorruptedMethod->setAccessible(true);
 
         $this->isValidConversionMethod = $reflection->getMethod('isValidConversion');
-        $this->isValidConversionMethod->setAccessible(true);
     }
 
     /**

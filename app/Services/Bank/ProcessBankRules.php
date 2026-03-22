@@ -285,7 +285,7 @@ class ProcessBankRules extends AbstractService
                 $rule_count = count($bank_transaction_rule['rules']);
 
                 if ($rule['search_key'] == 'description') {
-                    if ($this->matchStringOperator($this->bank_transaction->description, $rule['value'], $rule['operator'])) {
+                    if ($this->matchStringOperator($this->bank_transaction->description ?? '', $rule['value'] ?? '', $rule['operator'] ?? '')) {
                         $matches++;
                     }
                 }
@@ -363,6 +363,9 @@ class ProcessBankRules extends AbstractService
 
     private function matchNumberOperator($bt_value, $rule_value, $operator): bool
     {
+        $bt_value = (float) $bt_value;
+        $rule_value = (float) $rule_value;
+
         return match ($operator) {
             '>'  => round($bt_value - $rule_value, 2) > 0,
             '>=' => round($bt_value - $rule_value, 2) >= 0,
@@ -375,8 +378,8 @@ class ProcessBankRules extends AbstractService
 
     private function matchStringOperator($bt_value, $rule_value, $operator): bool
     {
-        $bt_value = strtolower(str_replace(" ", "", $bt_value));
-        $rule_value = strtolower(str_replace(" ", "", $rule_value));
+        $bt_value = strtolower(str_replace(" ", "", $bt_value ?? ''));
+        $rule_value = strtolower(str_replace(" ", "", $rule_value ?? ''));
         $rule_length = iconv_strlen($rule_value);
         // nlog($bt_value);
         // nlog($rule_value);

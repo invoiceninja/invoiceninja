@@ -31,9 +31,14 @@ class QuoteTransformer extends BaseTransformer
      */
     public function transform($line_items_data)
     {
-        $quote_data = reset($line_items_data);
+        if (!empty($line_items_data) && is_array(reset($line_items_data))) {
+            $quote_data = reset($line_items_data);
+        } else {
+            $quote_data = $line_items_data;
+            $line_items_data = [$quote_data];
+        }
 
-        if ($this->hasQuote($quote_data['quote.number'])) {
+        if (isset($quote_data['quote.number']) && $this->hasQuote($quote_data['quote.number'])) {
             throw new ImportException('Quote number already exists');
         }
 

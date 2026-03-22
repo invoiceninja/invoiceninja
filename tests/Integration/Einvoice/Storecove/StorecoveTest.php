@@ -18,7 +18,6 @@ use App\Models\Company;
 use App\Models\Country;
 use App\Models\Invoice;
 use Tests\MockAccountData;
-use Illuminate\Support\Str;
 use App\Models\ClientContact;
 use App\DataMapper\InvoiceItem;
 use App\DataMapper\Tax\TaxModel;
@@ -27,7 +26,6 @@ use App\DataMapper\CompanySettings;
 use App\Services\EDocument\Standards\Peppol;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
-use InvoiceNinja\EInvoice\Models\Peppol\PaymentMeans;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -35,16 +33,12 @@ use Symfony\Component\PropertyInfo\PropertyInfoExtractor;
 use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Mapping\Loader\AttributeLoader;
-use InvoiceNinja\EInvoice\Models\Peppol\Invoice as PeppolInvoice;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
-use App\Services\EDocument\Gateway\Storecove\PeppolToStorecoveNormalizer;
 use Symfony\Component\Serializer\NameConverter\MetadataAwareNameConverter;
-use App\Services\EDocument\Gateway\Storecove\Models\Invoice as StorecoveInvoice;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 
@@ -78,7 +72,7 @@ class StorecoveTest extends TestCase
         $settings->vat_number = $params['company_vat'] ?? 'DE123456789';
         $settings->id_number = $params['company_id_number'] ?? '';
         $settings->classification = $params['company_classification'] ?? 'business';
-        $settings->country_id = Country::where('iso_3166_2', 'DE')->first()->id;
+        $settings->country_id = Country::where('iso_3166_2', $params['company_country'] ?? 'DE')->first()->id;
         $settings->email = $this->faker->safeEmail();
         $settings->currency_id = '3';
 
@@ -396,6 +390,86 @@ class StorecoveTest extends TestCase
         $this->sendDocument($invoice);
     }
 
+    public function testToSeReceiverFullPayloadUsesOrgnrAndSvefaktura()
+    {
+        $this->routing_id = 290868;
+
+        $scenario = [
+            'company_vat' => 'DE923356489',
+            'company_id_number' => '01234567890',
+            'company_country' => 'DE',
+            'company_classification' => 'business',
+            'client_country' => 'SE',
+            'client_vat' => 'SE123456789101',
+            'client_id_number' => '5567891234',
+            'classification' => 'business',
+            'has_valid_vat' => true,
+            'over_threshold' => false,
+            'legal_entity_id' => 290868,
+            'is_tax_exempt' => false,
+        ];
+
+        $data = $this->setupTestData($scenario);
+
+        $invoice = $data['invoice'];
+        $invoice = $invoice->calc()->getInvoice();
+        $company = $data['company'];
+        $client = $data['client'];
+
+        $this->assertEquals('DE', $company->country()->iso_3166_2);
+        $this->assertEquals('SE', $client->country->iso_3166_2);
+        $this->assertEquals('5567891234', $client->id_number);
+
+        $invoice->save();
+
+        // Run the full Peppol pipeline (same as SendEDocument::handle)
+        $p = new Peppol($invoice);
+        $p->run();
+
+        // Build routing identifiers (same as SendEDocument line 84)
+        $identifiers = $p->gateway->mutator->setClientRoutingCode()->getStorecoveMeta();
+
+        // Build the Storecove document (same as SendEDocument line 86)
+        $storecove = new Storecove();
+        $result = $storecove->build($invoice)->getResult();
+
+        $this->assertCount(0, $result['errors'], 'Storecove build should produce no errors: ' . json_encode($result['errors']));
+
+        // Assemble the payload exactly as SendEDocument does
+        $payload = [
+            'legal_entity_id' => $invoice->company->legal_entity_id,
+            'idempotencyGuid' => \Illuminate\Support\Str::uuid()->toString(),
+            'document' => [
+                'document_type' => 'invoice',
+                'invoice' => $result['document'],
+            ],
+            'tenant_id' => $invoice->company->company_key,
+            'routing' => $identifiers['routing'],
+        ];
+
+        // Assert routing contains SE:ORGNR eIdentifier with client's id_number
+        $this->assertArrayHasKey('routing', $payload);
+        $this->assertArrayHasKey('eIdentifiers', $payload['routing']);
+
+        $eIdentifiers = $payload['routing']['eIdentifiers'];
+        $orgnrIdentifier = collect($eIdentifiers)->firstWhere('scheme', 'SE:ORGNR');
+
+        $this->assertNotNull($orgnrIdentifier, 'SE:ORGNR routing identifier must be present');
+        $this->assertEquals('5567891234', $orgnrIdentifier['id'], 'SE:ORGNR id should be the client id_number (org number), not the VAT number');
+
+        // Assert Svefaktura network is enabled for Swedish receivers
+        $this->assertArrayHasKey('networks', $payload['routing'], 'Svefaktura networks must be present when sending to SE receiver');
+        $svefaktura = collect($payload['routing']['networks'])->firstWhere('application', 'svefaktura');
+        $this->assertNotNull($svefaktura, 'Svefaktura network entry must be present');
+        $this->assertTrue($svefaktura['settings']['enabled'], 'Svefaktura network must be enabled');
+
+        // Assert the document payload is well-formed
+        $this->assertArrayHasKey('document', $payload);
+        $this->assertEquals('invoice', $payload['document']['document_type']);
+        $this->assertNotEmpty($payload['document']['invoice']);
+        $this->assertEquals(290868, $payload['legal_entity_id']);
+    }
+
     private function sendDocument($model)
     {
         $storecove = new Storecove();
@@ -574,7 +648,7 @@ class StorecoveTest extends TestCase
 
         $p = new Peppol($invoice);
         $p->run();
-        $peppolInvoice = $p->getInvoice();
+        $peppolInvoice = $p->getDocument();
 
         $this->assertNotNull($peppolInvoice);
     }

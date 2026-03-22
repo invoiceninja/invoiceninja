@@ -172,5 +172,11 @@ return [
         'zone_id' => env('CLOUDFLARE_SAAS_ZONE_ID', false),
         'api_token' => env('CLOUDFLARE_SAAS_API_TOKEN', false),
         'email' => env('CLOUDFLARE_SAAS_EMAIL', false),
-    ]
+    ],
+    'square' => [
+        'redirect_url' => env('SQUARE_REDIRECT_URL'),
+        'application_id' => env('SQUARE_APPLICATION_ID'),
+        'application_secret' => env('SQUARE_APPLICATION_SECRET'),
+        'environment' => env('SQUARE_ENVIRONMENT', 'production'),
+    ],
 ];

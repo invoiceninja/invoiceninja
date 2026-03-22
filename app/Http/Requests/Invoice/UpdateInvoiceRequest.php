@@ -19,6 +19,7 @@ use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Http\ValidationRules\EInvoice\ValidInvoiceScheme;
 use App\Http\ValidationRules\Project\ValidProjectForClient;
+use App\Utils\BcMath;
 
 class UpdateInvoiceRequest extends Request
 {
@@ -93,6 +94,18 @@ class UpdateInvoiceRequest extends Request
         $rules['e_invoice'] = ['sometimes', 'nullable', new ValidInvoiceScheme()];
 
         $rules['location_id'] = ['nullable', 'sometimes','bail', Rule::exists('locations', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->invoice->client_id)];
+
+        $rules['paid_to_date'] = [
+            'bail',
+            'sometimes',
+            'nullable',
+            function ($attribute, $value, $fail) {
+
+                if (BcMath::comp($this->invoice->fresh()->paid_to_date, $value) !== 0) {
+                    $fail(ctrans('texts.invoice_status_changed'));
+                }
+            },
+        ];
 
         return $rules;
     }

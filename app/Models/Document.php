@@ -167,7 +167,7 @@ class Document extends BaseModel
 
     public function documentable()
     {
-        return $this->morphTo();
+        return $this->morphTo()->withTrashed();
     }
 
     public function user()

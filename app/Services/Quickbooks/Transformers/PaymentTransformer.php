@@ -16,8 +16,10 @@ use App\Models\Credit;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentType;
 use App\DataMapper\PaymentSync;
 use App\Factory\PaymentFactory;
+use App\Services\Quickbooks\QuickbooksService;
 
 /**
  *
@@ -30,7 +32,147 @@ class PaymentTransformer extends BaseTransformer
         return $this->transform($qb_data);
     }
 
-    public function ninjaToQb() {}
+    /**
+     * Transform an Invoice Ninja Payment into a QuickBooks Payment payload.
+     *
+     * @param Payment $payment
+     * @param QuickbooksService $qbService
+     * @return array
+     */
+    public function ninjaToQb(Payment $payment, QuickbooksService $qbService): array
+    {
+        // Resolve client QB ID — auto-create if missing
+        $client_qb_id = $payment->client->sync->qb_id ?? null;
+        if (!$client_qb_id) {
+            $client_qb_id = $qbService->client->createQbClient($payment->client);
+        }
+
+        if (!$client_qb_id) {
+            throw new \Exception("Cannot push payment {$payment->id}: client has no QuickBooks ID and could not be created");
+        }
+
+        // Build Line items from Paymentable records (invoices only)
+        $lines = [];
+        foreach ($payment->invoices as $invoice) {
+            $invoice_qb_id = $invoice->sync->qb_id ?? null;
+            if (!$invoice_qb_id) {
+                continue;
+            }
+
+            $lines[] = [
+                'Amount' => (float) $invoice->pivot->amount,
+                'LinkedTxn' => [
+                    [
+                        'TxnId' => $invoice_qb_id,
+                        'TxnType' => 'Invoice',
+                    ],
+                ],
+            ];
+        }
+
+        // Calculate TotalAmt
+        // For credit payments (type_id=32 with amount=0), use the sum of invoice paymentable amounts
+        $total_amt = $payment->amount;
+        if ($payment->amount <= 0 && !empty($lines)) {
+            $total_amt = array_sum(array_column($lines, 'Amount'));
+        }
+
+        $payment_data = [
+            'CustomerRef' => ['value' => $client_qb_id],
+            'TotalAmt' => (float) $total_amt,
+            'TxnDate' => $payment->date ?? now()->format('Y-m-d'),
+        ];
+
+        if (!empty($lines)) {
+            $payment_data['Line'] = $lines;
+        }
+
+        if ($payment->private_notes) {
+            $payment_data['PrivateNote'] = mb_substr($payment->private_notes, 0, 4000);
+        }
+
+        if ($payment->transaction_reference) {
+            $payment_data['PaymentRefNum'] = mb_substr($payment->transaction_reference, 0, 21);
+        }
+
+        // Resolve PaymentMethodRef from IN type_id
+        $payment_method_ref = $this->resolvePaymentMethodRef($payment->type_id);
+        if ($payment_method_ref) {
+            $payment_data['PaymentMethodRef'] = ['value' => $payment_method_ref];
+        }
+
+        // Currency
+        if ($payment->currency_id && $payment->currency) {
+            $payment_data['CurrencyRef'] = ['value' => $payment->currency->code];
+        }
+
+        // Include Id for updates
+        if (!empty($payment->sync->qb_id)) {
+            $payment_data['Id'] = $payment->sync->qb_id;
+        }
+
+        return $payment_data;
+    }
+
+    /**
+     * Resolve an Invoice Ninja PaymentType ID to a QuickBooks PaymentMethod ID.
+     *
+     * Uses the cached payment_method_map from QB settings.
+     *
+     * @param int|null $type_id
+     * @return string|null QB PaymentMethod ID
+     */
+    private function resolvePaymentMethodRef(?int $type_id): ?string
+    {
+        if (!$type_id) {
+            return null;
+        }
+
+        $method_map = $this->company->quickbooks->settings->payment_method_map ?? [];
+
+        if (empty($method_map)) {
+            return null;
+        }
+
+        // Map IN payment type to a QB method name search strategy
+        $target_name = match ($type_id) {
+            PaymentType::CASH => 'Cash',
+            PaymentType::CHECK, PaymentType::MONEY_ORDER => 'Check',
+            PaymentType::VISA, PaymentType::MASTERCARD, PaymentType::AMERICAN_EXPRESS,
+            PaymentType::DISCOVER, PaymentType::DINERS, PaymentType::EUROCARD,
+            PaymentType::NOVA, PaymentType::CREDIT_CARD_OTHER, PaymentType::CARTE_BLANCHE,
+            PaymentType::UNIONPAY, PaymentType::JCB, PaymentType::LASER,
+            PaymentType::MAESTRO, PaymentType::SOLO, PaymentType::SWITCH,
+            PaymentType::DEBIT => 'CREDIT_CARD',
+            PaymentType::BANK_TRANSFER, PaymentType::ACH, PaymentType::SEPA,
+            PaymentType::DIRECT_DEBIT, PaymentType::BECS, PaymentType::ACSS,
+            PaymentType::BACS, PaymentType::STRIPE_BANK_TRANSFER,
+            PaymentType::MOLLIE_BANK_TRANSFER => 'Check',
+            default => null,
+        };
+
+        if (!$target_name) {
+            return null;
+        }
+
+        // Search for exact name match first
+        foreach ($method_map as $method) {
+            if (strcasecmp($method['name'] ?? '', $target_name) === 0) {
+                return $method['id'];
+            }
+        }
+
+        // For credit card types, match by Type field
+        if ($target_name === 'CREDIT_CARD') {
+            foreach ($method_map as $method) {
+                if (strcasecmp($method['type'] ?? '', 'CREDIT_CARD') === 0) {
+                    return $method['id'];
+                }
+            }
+        }
+
+        return null;
+    }
 
     public function transform(mixed $qb_data)
     {

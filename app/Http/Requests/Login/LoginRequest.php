@@ -44,7 +44,14 @@ class LoginRequest extends Request
 
         return [
             'email' => $email_rules,
-            'password' => 'required|max:1000',
+            'password' => 'required_without:passkey_challenge_token|max:1000',
+            'passkey_challenge_token' => 'nullable|string|max:255',
+            'passkey_authentication' => 'nullable|array',
+            'passkey_authentication.id' => 'required_with:passkey_challenge_token|string',
+            'passkey_authentication.clientDataJSON' => 'required_with:passkey_challenge_token|string',
+            'passkey_authentication.authenticatorData' => 'required_with:passkey_challenge_token|string',
+            'passkey_authentication.signature' => 'required_with:passkey_challenge_token|string',
         ];
     }
+
 }

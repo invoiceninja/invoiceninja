@@ -143,7 +143,7 @@ class RO extends BaseCountry
         $client_sector_code = $client_city ?? $this->invoice->client->city;
 
         if (in_array($this->getStateCode($this->invoice->client->state), ['BUCHAREST', 'RO-B'])) {
-            return in_array(strtoupper($this->invoice->client->city), array_keys($this->sectorList)) ? strtoupper($this->invoice->client->city) : 'SECTOR1';
+            return in_array(strtoupper($this->invoice->client->city ?? ''), array_keys($this->sectorList)) ? strtoupper($this->invoice->client->city ?? '') : 'SECTOR1';
         }
 
         return $client_sector_code;

@@ -23,7 +23,6 @@ use App\Models\CompanyToken;
 use App\Models\ClientContact;
 use App\Models\VendorContact;
 use App\DataProviders\SMSNumbers;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Class MultiDB.

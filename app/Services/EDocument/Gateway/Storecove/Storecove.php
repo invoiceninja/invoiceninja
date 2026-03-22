@@ -175,9 +175,6 @@ class Storecove
             return $r->json()['guid'];
         }
 
-        nlog($payload);
-        nlog($r->body());
-
         return $r;
 
     }
@@ -287,13 +284,24 @@ class Storecove
             return $legal_entity_response;
         }
 
+        
+        $add_identifier_response = null;
+
+        $identifier = $data['classification'] === 'individual' ? str_replace('/', '', $data['id_number']) : str_replace(" ", "", $data['vat_number']);
+        
         $scheme = $this->router->resolveTaxScheme($data['country'], $data['classification']);
 
-        $add_identifier_response = null;
+        $scheme_parts = explode(':', $identifier);
+
+        if(count($scheme_parts) === 2) {
+        
+            $scheme = $scheme_parts[0];
+            $identifier = $scheme_parts[1];
+        }
 
         $add_identifier_response = $this->addIdentifier(
             legal_entity_id: $legal_entity_response['id'],
-            identifier: $data['classification'] === 'individual' ? str_replace('/', '', $data['id_number']) : str_replace(" ", "", $data['vat_number']),
+            identifier: $identifier,
             scheme: $scheme,
         );
 

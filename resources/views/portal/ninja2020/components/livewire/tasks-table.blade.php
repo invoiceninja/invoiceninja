@@ -64,6 +64,10 @@
                         </td>
                     </tr>
                         @if($show_item_description)
+                            @php
+                                $logs = collect($task->processLogsExpandedNotation())->filter(fn($log) => strlen($log['description']) > 1);
+                            @endphp
+                            @if($logs->isNotEmpty())
                             <tr><td width="100%" colspan="4">
                             <table class="min-w-full ml-5">
                                 <thead>
@@ -86,8 +90,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                @foreach($task->processLogsExpandedNotation() as $log)
-                                    @if(strlen($log['description']) > 1)
+                                @foreach($logs as $log)
                                         <tr class="bg-white group border-b border-gray-100">
                                             <td class="px-6 py-4 text-sm leading-5 text-gray-500 w-1/6 task_date">
                                                 {{ $log['start_date']}}
@@ -99,11 +102,11 @@
                                                 {!! nl2br(e($log['description'])) !!}
                                             </td>
                                         </tr>
-                                    @endif
                                 @endforeach
                                 </tbody>
                             </table>
                             </td></tr>
+                            @endif
                         @endif
                 @endforeach
                 @if($tasks->count() == 0)

@@ -24,7 +24,7 @@ class SdkWrapper
 
     private $entities = ['Customer','Invoice', 'Item', 'SalesReceipt', 'Vendor', 'Purchase', 'Payment'];
 
-    private OAuth2AccessToken $token;
+    private ?OAuth2AccessToken $token = null;
 
     public function __construct(public DataService $sdk, private Company $company)
     {
@@ -33,8 +33,13 @@ class SdkWrapper
 
     private function init(): self
     {
-
+        // Only set access token if quickbooks settings exist and have valid token data
+        // During reconnection flow, we may not have valid tokens yet
+        if ($this->company->quickbooks && 
+            $this->company->quickbooks->accessTokenKey && 
+            !$this->company->quickbooks->requires_reconnect) {
         $this->setNinjaAccessToken($this->company->quickbooks);
+        }
 
         return $this;
 
@@ -158,6 +163,7 @@ class SdkWrapper
         $obj->refresh_token = $token->getRefreshToken();
         $obj->accessTokenExpiresAt = Carbon::createFromFormat('Y/m/d H:i:s', $token->getAccessTokenExpiresAt())->timestamp; //@phpstan-ignore-line - QB phpdoc wrong types!!
         $obj->refreshTokenExpiresAt = Carbon::createFromFormat('Y/m/d H:i:s', $token->getRefreshTokenExpiresAt())->timestamp; //@phpstan-ignore-line - QB phpdoc wrong types!!
+        $obj->requires_reconnect = false;
 
         $obj->realmID = $token->getRealmID();
         $obj->baseURL = $token->getBaseURL();

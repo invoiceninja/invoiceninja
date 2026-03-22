@@ -270,6 +270,7 @@ class StorecoveExpense
         $countries = app('countries');
 
         $country_id = $countries->first(function ($c) use ($party) {
+            /** @var \App\Models\Country $c */
             return $party->getAddress()->getCountry() == $c->iso_3166_2 || $party->getAddress()->getCountry() == $c->iso_3166_3;
         })->id ?? 1;
 

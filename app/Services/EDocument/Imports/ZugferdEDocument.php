@@ -138,7 +138,7 @@ class ZugferdEDocument extends AbstractService
 
                 $country = app('countries')->first(function ($c) use ($country) {
                     /** @var \App\Models\Country $c */
-                    return $c->iso_3166_2 == $country || $c->iso_3166_3 == $country;
+                    return $c->iso_3166_2 == strtoupper($country) || $c->iso_3166_3 == strtoupper($country);
                 });
                 if ($country) {
                     $vendor->country_id = $country->id;

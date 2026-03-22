@@ -148,7 +148,6 @@ class ARSummaryReportServiceTest extends TestCase
 
         $reflection = new \ReflectionClass($report);
         $property = $reflection->getProperty('useOptimizedQuery');
-        $property->setAccessible(true);
         $property->setValue($report, false);
 
         $csv = $report->run();
@@ -202,7 +201,6 @@ class ARSummaryReportServiceTest extends TestCase
         
         $reflection = new \ReflectionClass($reportLegacy);
         $property = $reflection->getProperty('useOptimizedQuery');
-        $property->setAccessible(true);
         $property->setValue($reportLegacy, false);
         
         $csvLegacy = $reportLegacy->run();

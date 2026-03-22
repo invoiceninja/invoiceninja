@@ -46,37 +46,44 @@ class ClientTransformer extends BaseTransformer
     {
         $primary_contact = $client->contacts()->orderBy('is_primary', 'desc')->first();
 
+        // QuickBooks character limits:
+        // DisplayName/CompanyName: 100 chars, GivenName/FamilyName: 25 chars
+        // Address Line1/Line2: 41 chars, City: 31 chars, State: 21 chars, PostalCode: 13 chars
+        // Email: 100 chars, Phone: 21 chars, Website: 100 chars, Notes: 4000 chars, BusinessNumber: 20 chars
+        $display_name = mb_substr($client->present()->name(), 0, 100);
+        $company_name = mb_substr($client->present()->name(), 0, 100);
+        
         return [
-            'DisplayName' => $client->present()->name(),
+            'DisplayName' => $display_name,
             'PrimaryEmailAddr' => [
-                'Address' => $primary_contact?->email ?? '',
+                'Address' => mb_substr($primary_contact?->email ?? '', 0, 100),
             ],
             'PrimaryPhone' => [
-                'FreeFormNumber' => $primary_contact?->phone ?? '',
+                'FreeFormNumber' => mb_substr($primary_contact?->phone ?? '', 0, 21),
             ],
-            'CompanyName' => $client->present()->name(),
+            'CompanyName' => $company_name,
             'BillAddr' => [
-                'Line1' => $client->address1 ?? '',
-                'City' => $client->city ?? '',
-                'CountrySubDivisionCode' => $client->state ?? '',
-                'PostalCode' => $client->postal_code ?? '',
+                'Line1' => mb_substr($client->address1 ?? '', 0, 41),
+                'City' => mb_substr($client->city ?? '', 0, 31),
+                'CountrySubDivisionCode' => mb_substr($client->state ?? '', 0, 21),
+                'PostalCode' => mb_substr($client->postal_code ?? '', 0, 13),
                 'Country' => $client->country?->iso_3166_3 ?? '',
             ],
             'ShipAddr' => [
-                'Line1' => $client->shipping_address1 ?? '',
-                'City' => $client->shipping_city ?? '',
-                'CountrySubDivisionCode' => $client->shipping_state ?? '',
-                'PostalCode' => $client->shipping_postal_code ?? '',
+                'Line1' => mb_substr($client->shipping_address1 ?? '', 0, 41),
+                'City' => mb_substr($client->shipping_city ?? '', 0, 31),
+                'CountrySubDivisionCode' => mb_substr($client->shipping_state ?? '', 0, 21),
+                'PostalCode' => mb_substr($client->shipping_postal_code ?? '', 0, 13),
                 'Country' => $client->shipping_country?->iso_3166_3 ?? '',
             ],
-            'GivenName' => $primary_contact?->first_name ?? '',
-            'FamilyName' => $primary_contact?->last_name ?? '',
-            'PrintOnCheckName' => $client->present()->primary_contact_name(),
-            'Notes' => $client->public_notes ?? '',
-            'BusinessNumber' => $client->id_number ?? '',
+            'GivenName' => mb_substr($primary_contact?->first_name ?? '', 0, 25),
+            'FamilyName' => mb_substr($primary_contact?->last_name ?? '', 0, 25),
+            'PrintOnCheckName' => mb_substr($client->present()->primary_contact_name(), 0, 110),
+            'Notes' => mb_substr($client->public_notes ?? '', 0, 4000),
+            'BusinessNumber' => mb_substr($client->id_number ?? '', 0, 20),
             'Active' => $client->deleted_at ? false : true,
             'V4IDPseudonym' => $client->client_hash ?? \Illuminate\Support\Str::random(32),
-            'WebAddr' => $client->website ?? '',
+            'WebAddr' => mb_substr($client->website ?? '', 0, 100),
         ];
 
     }

@@ -458,10 +458,10 @@ class Statement
         if ($range == '0') {
             // $q->whereBetween('due_date', [$to, $from])->orWhereNull('due_date');
             $query->where(function ($q) use ($to, $from) {
-                $q->whereDate('due_date', '>=', now()->startOfDay())
+                $q->whereDate('due_date', '>=', now()->addDays(1)->startOfDay())
                   ->orWhere(function ($q2) use ($to, $from) {
                       $q2->whereNull('due_date')
-                      ->whereBetween('date', [$to,$from]);
+                      ->whereBetween('date', [$from, $to]);
                   });
             });
 

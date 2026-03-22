@@ -55,10 +55,8 @@ info:
 
           ### Endpoints
           
-          <div style="background-color: #2D394E; color: #fff padding: 20px; border-radius: 5px; border: 4px solid #212A3B; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
-              <p style="padding:10px; color: #DBDBDB;"">Production: https://invoicing.co</p>
-              <p style="padding:10px; color: #DBDBDB;">Demo: https://demo.invoiceninja.com</p>
-          </div>
+          - **Production:** https://invoicing.co
+          - **Demo:** https://demo.invoiceninja.com
 
           ---
           

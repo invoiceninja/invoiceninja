@@ -166,6 +166,19 @@ class PdfBuilder
     */
     public function getCompiledHTML($final = false)
     {
+        $title = $this->service->config->entity->numberFormatter();
+
+        $titleElements = $this->document->getElementsByTagName('title');
+
+        if ($titleElements->length > 0) {
+            $titleElements->item(0)->textContent = $title;
+        } else {
+            $head = $this->document->getElementsByTagName('head')->item(0);
+            if ($head) {
+                $titleElement = $this->document->createElement('title', $title);
+                $head->appendChild($titleElement);
+            }
+        }
 
         $html = $this->document->saveHTML();
 

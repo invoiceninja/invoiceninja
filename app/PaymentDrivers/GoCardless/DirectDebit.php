@@ -257,6 +257,7 @@ class DirectDebit implements MethodInterface, LivewireMethodInterface
      */
     public function processPendingPayment(\GoCardlessPro\Resources\Payment $payment, array $data = [])
     {
+
         $data = [
             'payment_type' => PaymentType::DIRECT_DEBIT,
             'amount' => $this->go_cardless->payment_hash->data->amount_with_fee,

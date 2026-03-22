@@ -62,7 +62,8 @@ class MarkSent extends AbstractService
             $this->invoice->sendEvent(Webhook::EVENT_SENT_INVOICE, "client");
         }
 
-        if($this->invoice->company->quickbooks && $this->invoice->company->shouldPushToQuickbooks('invoice')){
+        if($this->invoice->company->quickbooks && $this->invoice->company->shouldPushToQuickbooks('invoice')) {
+            // Guard handled inside QuickbooksBatchCollector::collect() — skips if importing
             \App\Services\Quickbooks\QuickbooksBatchCollector::collect('invoice', $this->invoice->id, $this->invoice->company->db, $this->invoice->company_id);
         }
 

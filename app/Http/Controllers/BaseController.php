@@ -206,7 +206,10 @@ class BaseController extends Controller
         if (request()->has('first_load') && request()->input('first_load') == 'true') {
             $include = implode(',', array_merge($this->forced_includes, $this->getRequestIncludes([])));
         } elseif (request()->input('include') !== null) {
-            $include = array_merge($this->forced_includes, explode(',', request()->input('include')));
+            // Validate includes using getRequestIncludes to filter out invalid ones
+            $requestedIncludes = explode(',', request()->input('include'));
+            $validatedIncludes = $this->getRequestIncludes([]);
+            $include = array_merge($this->forced_includes, $validatedIncludes);
             $include = implode(',', $include);
         } elseif (count($this->forced_includes) >= 1) {
             $include = implode(',', $this->forced_includes);
@@ -973,7 +976,8 @@ class BaseController extends Controller
 
         $includes = $transformer->getDefaultIncludes();
 
-        $includes = $this->getRequestIncludes($includes);
+        // Pass transformer instance to avoid duplicate instantiation
+        $includes = $this->getRequestIncludes($includes, $transformer);
 
         $query->with($includes);
 
@@ -1126,7 +1130,14 @@ class BaseController extends Controller
      * @param  mixed $data
      * @return array
      */
-    protected function getRequestIncludes($data): array
+    /**
+     * Returns the parsed relationship includes
+     *
+     * @param  mixed $data
+     * @param  EntityTransformer|null $transformer Optional transformer instance to avoid duplicate instantiation
+     * @return array
+     */
+    protected function getRequestIncludes($data, ?EntityTransformer $transformer = null): array
     {
         /*
          * Thresholds for displaying large account on first load
@@ -1141,14 +1152,64 @@ class BaseController extends Controller
             } else {
                 $data = $this->first_load;
             }
+            
         } else {
             $included = request()->input('include') ?? '';
+            
+            // Early return if no includes requested
+            if (empty($included)) {
+                return $data;
+            }
+            
             $included = explode(',', $included);
 
+            // Get valid includes from transformer
+            // Use provided transformer or instantiate if needed (for buildManager context)
+            if ($transformer === null && !empty($this->entity_transformer) && class_exists($this->entity_transformer)) {
+                try {
+                    $transformer = new $this->entity_transformer(request()->input('serializer'));
+                } catch (\Exception $e) {
+                    // If transformer instantiation fails, skip validation and return data as-is
+                    // This maintains backward compatibility for edge cases
+                    return $data;
+                }
+            }
+
+            // Only validate if we have a transformer instance
+            $validIncludes = [];
+            if ($transformer !== null) {
+                $validIncludes = array_merge(
+                    $transformer->getDefaultIncludes() ?? [],
+                    $transformer->getAvailableIncludes() ?? []
+                );
+            }
+
             foreach ($included as $include) {
+                $include = trim($include);
+                
+                if (empty($include)) {
+                    continue;
+                }
+
+                // Special case: clients -> clients.contacts (legacy support)
                 if ($include == 'clients') {
                     $data[] = 'clients.contacts';
-                } elseif ($include) {
+                    continue;
+                }
+
+                // If we have a transformer, validate the include
+                if (!empty($validIncludes)) {
+                    // For nested includes (e.g., "client.group_settings"), extract the base relationship
+                    $baseInclude = explode('.', $include)[0];
+                    
+                    // Validate that the base relationship is in the transformer's available includes
+                    if (in_array($baseInclude, $validIncludes)) {
+                        $data[] = $include;
+                    }
+                    // Invalid includes like 'deleted' are silently ignored
+                } else {
+                    // No transformer available (e.g., in buildManager context), allow all includes
+                    // This maintains backward compatibility
                     $data[] = $include;
                 }
             }

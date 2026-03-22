@@ -75,10 +75,10 @@ class PdfDesigner
     {
         $html = '';
 
-        $html .= $partials['includes'];
-        $html .= $partials['header'];
-        $html .= $partials['body'];
-        $html .= $partials['footer'];
+        $html .= $partials['includes'] ?? '';
+        $html .= $partials['header'] ?? '';
+        $html .= $partials['body'] ?? '';
+        $html .= $partials['footer'] ?? '';
 
         // Valid HTML is always required.
         if (strlen($html) == 0) {

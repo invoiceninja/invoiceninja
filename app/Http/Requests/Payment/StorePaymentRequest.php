@@ -16,6 +16,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Helpers\Cache\Atomic;
 use App\Http\Requests\Request;
+use App\Utils\BcMath;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 use App\Exceptions\DuplicatePaymentException;
@@ -108,9 +109,9 @@ class StorePaymentRequest extends Request
                     //catch here nothing to do - we need this to prevent the last elseif triggering
                 } elseif ($invoice['amount'] <= 0 && $inv->amount > 0) {
                     $validator->errors()->add("invoices.{$index}.amount", 'Amount cannot be less than or equal to zero');
-                } elseif ($inv->status_id == Invoice::STATUS_DRAFT && floatval($invoice['amount']) > floatval($inv->amount)) {
+                } elseif ($inv->status_id == Invoice::STATUS_DRAFT && BcMath::greaterThan($invoice['amount'], $inv->amount)) {
                     $validator->errors()->add("invoices.{$index}.amount", 'Amount cannot be greater than invoice balance');
-                } elseif (floatval($invoice['amount']) > floatval($inv->balance)) {
+                } elseif (BcMath::greaterThan($invoice['amount'], $inv->balance)) {
                     $validator->errors()->add("invoices.{$index}.amount", ctrans('texts.amount_greater_than_balance_v5'));
                 } elseif ($inv->is_deleted) {
                     $validator->errors()->add("invoices.{$index}", 'One or more invoices in this request have since been deleted');

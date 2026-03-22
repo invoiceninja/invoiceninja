@@ -13,8 +13,10 @@
 namespace App\Observers;
 
 use App\Jobs\Util\WebhookHandler;
+use App\Jobs\Quickbooks\PushToQuickbooks;
 use App\Models\Payment;
 use App\Models\Webhook;
+use App\Services\Quickbooks\QuickbooksService;
 
 class PaymentObserver
 {
@@ -34,6 +36,12 @@ class PaymentObserver
 
         if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_CREATE_PAYMENT, $payment, $payment->company, 'invoices,client')->delay(20);
+        }
+
+        if ($payment->company->shouldPushToQuickbooks('payment')
+            && empty(QuickbooksService::$importing[$payment->company_id])
+            && $payment->status_id === Payment::STATUS_COMPLETED) {
+            PushToQuickbooks::dispatch('payment', $payment->id, $payment->company->db);
         }
     }
 
@@ -62,6 +70,11 @@ class PaymentObserver
 
         if ($subscriptions) {
             WebhookHandler::dispatch($event, $payment, $payment->company, 'invoices,client')->delay(25);
+        }
+
+        if ($payment->company->shouldPushToQuickbooks('payment')
+            && empty(QuickbooksService::$importing[$payment->company_id])) {
+            PushToQuickbooks::dispatch('payment', $payment->id, $payment->company->db);
         }
     }
 

@@ -96,6 +96,9 @@ class CompanyExport implements ShouldQueue
                 'quote_id',
                 'subscription_id',
                 'recurring_invoice_id',
+                'purchase_order_id',
+                'vendor_contact_id',
+                'recurring_expense_id',
             ]);
 
             return $activity;
@@ -257,7 +260,6 @@ class CompanyExport implements ShouldQueue
 
         $this->export_data['designs'] = $this->company->user_designs->makeHidden(['id'])->all();
 
-
         $x = $this->writer->collection('designs');
         $x->addItems($this->export_data['designs']);
         $this->export_data = null;
@@ -287,7 +289,7 @@ class CompanyExport implements ShouldQueue
 
         $this->export_data['expenses'] = $this->company->expenses()->orderBy('number', 'DESC')->cursor()->map(function ($expense) {
             $expense = $this->transformBasicEntities($expense);
-            $expense = $this->transformArrayOfKeys($expense, ['vendor_id', 'invoice_id', 'client_id', 'category_id', 'recurring_expense_id','project_id']);
+            $expense = $this->transformArrayOfKeys($expense, ['vendor_id', 'invoice_id', 'client_id', 'category_id', 'recurring_expense_id','project_id', 'transaction_id']);
 
             return $expense->makeVisible(['id']);
         })->all();
@@ -609,7 +611,7 @@ class CompanyExport implements ShouldQueue
         $this->export_data = null;
 
         $this->export_data['bank_transactions'] = $this->company->bank_transactions()->withTrashed()->orderBy('id', 'ASC')->cursor()->map(function ($bank_transaction) {
-            $bank_transaction = $this->transformArrayOfKeys($bank_transaction, ['company_id', 'user_id','bank_integration_id','expense_id','ninja_category_id','vendor_id']);
+            $bank_transaction = $this->transformArrayOfKeys($bank_transaction, ['company_id', 'user_id','bank_integration_id','ninja_category_id','vendor_id','payment_id']);
 
             return $bank_transaction->makeVisible(['id','user_id','company_id']);
         })->all();
@@ -620,6 +622,12 @@ class CompanyExport implements ShouldQueue
 
         $this->export_data['schedulers'] = $this->company->schedulers()->withTrashed()->orderBy('id', 'ASC')->cursor()->map(function ($scheduler) {
             $scheduler = $this->transformArrayOfKeys($scheduler, ['company_id', 'user_id']);
+
+            $parameters = $scheduler->parameters;
+            if (isset($parameters['user_id'])) {
+                $parameters['user_id'] = $this->encodePrimaryKey($parameters['user_id']);
+            }
+            $scheduler->parameters = $parameters;
 
             return $scheduler->makeVisible(['id','user_id','company_id']);
         })->all();
@@ -696,7 +704,7 @@ class CompanyExport implements ShouldQueue
                 try {
                     $content = $document->getFile();
 
-                    if ($content === false) {
+                    if ($content === false || is_null($content)) {
                         continue;
                     }
 

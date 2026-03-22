@@ -40,6 +40,7 @@ namespace App\Models;
  * @method static \Illuminate\Database\Eloquent\Builder|Currency whereThousandSeparator($value)
  * @mixin \Eloquent
  */
+#[\AllowDynamicProperties]
 class Currency extends StaticModel
 {
     public $timestamps = false;

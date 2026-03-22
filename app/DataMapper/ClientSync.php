@@ -22,9 +22,12 @@ class ClientSync implements Castable
 {
     public string $qb_id;
 
+    public bool $dn_dirty = false;
+
     public function __construct(array $attributes = [])
     {
         $this->qb_id = $attributes['qb_id'] ?? '';
+        $this->dn_dirty = $attributes['dn_dirty'] ?? false;
     }
     /**
      * Get the name of the caster class to use when casting from / to this cast target.

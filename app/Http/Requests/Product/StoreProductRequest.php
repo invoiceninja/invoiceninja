@@ -77,6 +77,12 @@ class StoreProductRequest extends Request
         $input['tax_name2'] ??= '';
         $input['tax_name3'] ??= '';
 
+        foreach (['notes', 'product_key', 'custom_value1', 'custom_value2', 'custom_value3', 'custom_value4'] as $field) {
+            if (isset($input[$field]) && is_string($input[$field])) {
+                $input[$field] = \App\Services\Pdf\Purify::clean($input[$field], true);
+            }
+        }
+
         $this->replace($input);
     }
 }

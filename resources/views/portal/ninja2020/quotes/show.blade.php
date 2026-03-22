@@ -124,6 +124,10 @@
         window.addEventListener('builder:sign.submit.success', function () {
             Livewire.dispatch('docuninja-signature-captured');
         });
+
+        Livewire.on('quote-signed', () => {
+            document.getElementById('approve-form').submit();
+        });
     });
 
 

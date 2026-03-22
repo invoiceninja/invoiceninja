@@ -19,9 +19,12 @@ use App\Models\GatewayType;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\ClientContact;
+use App\Exceptions\PaymentFailed;
 use App\Factory\ClientFactory;
 use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Http;
 use Square\Utils\WebhooksHelper;
 use App\Models\ClientGatewayToken;
 use App\Repositories\ClientRepository;
@@ -56,12 +59,46 @@ class SquarePaymentDriver extends BaseDriver
 
     public function init()
     {
+        if ($this->company_gateway->getConfigField('oauth2')
+            && Carbon::parse($this->company_gateway->getConfigField('expires_at'))->subMinutes(5)->isPast()
+        ) {
+            $this->refreshAccessToken();
+        }
+
         $this->square = new \Square\SquareClient([
             'accessToken' => $this->company_gateway->getConfigField('accessToken'),
             'environment' => $this->company_gateway->getConfigField('testMode') ? \Square\Environment::SANDBOX : \Square\Environment::PRODUCTION,
         ]);
 
-        return $this; /* This is where you boot the gateway with your auth credentials*/
+        return $this;
+    }
+
+    private function refreshAccessToken(): void
+    {
+        $base_url = $this->company_gateway->getConfigField('testMode')
+            ? 'https://connect.squareupsandbox.com'
+            : 'https://connect.squareup.com';
+
+        $response = Http::post("{$base_url}/oauth2/token", [
+            'client_id' => config('services.square.application_id'),
+            'client_secret' => config('services.square.application_secret'),
+            'grant_type' => 'refresh_token',
+            'refresh_token' => $this->company_gateway->getConfigField('refreshToken'),
+        ]);
+
+        if ($response->successful()) {
+            $data = $response->json();
+
+            $config = $this->company_gateway->getConfig();
+            $config->accessToken = $data['access_token'];
+            $config->refreshToken = $data['refresh_token'];
+            $config->expires_at = $data['expires_at'];
+            $this->company_gateway->setConfig($config);
+            $this->company_gateway->save();
+        } else {
+            nlog('Square OAuth token refresh failed: ' . $response->body());
+            throw new PaymentFailed('Square token refresh failed. Please reconnect your Square account.', 401);
+        }
     }
 
     /* Returns an array of gateway types for the payment gateway */

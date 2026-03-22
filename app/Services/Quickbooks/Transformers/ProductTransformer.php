@@ -29,9 +29,11 @@ class ProductTransformer extends BaseTransformer
 
     public function qbTransform($line_item, $income_account_id): array
     {
+        // QuickBooks Name max length is 100 characters, Description max length is 4000 characters
+        $product_name = strlen($line_item->product_key ?? '') > 0 ? $line_item->product_key : 'Product ' . uniqid();
         return [
-            'Name' => strlen($line_item->product_key ?? '') > 0 ? $line_item->product_key : 'Product ' . uniqid(),
-            'Description' => $line_item->notes,
+            'Name' => mb_substr($product_name, 0, 100),
+            'Description' => mb_substr($line_item->notes ?? '', 0, 4000),
             'PurchaseCost' => $line_item->product_cost ?? 0,
             'UnitPrice' => $line_item->cost,
             'Type' => $line_item->type_id == '2' || in_array($line_item->tax_id, ['5','8']) ? 'Service' : 'NonInventory',

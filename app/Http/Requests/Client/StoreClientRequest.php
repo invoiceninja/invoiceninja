@@ -237,6 +237,8 @@ class StoreClientRequest extends Request
         /** @var \Illuminate\Support\Collection<\App\Models\Country> */
         $countries = app('countries');
 
+        $country_code = strtoupper($country_code);
+
         $country = $countries->first(function ($item) use ($country_code) {
             return $item->iso_3166_2 == $country_code || $item->iso_3166_3 == $country_code;
         });
@@ -251,6 +253,8 @@ class StoreClientRequest extends Request
         /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
         $currencies = app('currencies');
 
+        $code = strtoupper($code);
+        
         $currency = $currencies->first(function ($item) use ($code) {
             return $item->code == $code;
         });

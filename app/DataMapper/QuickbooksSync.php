@@ -62,6 +62,8 @@ class QuickbooksSync
 
     public ?string $country = null;
 
+    public array $payment_method_map = [];
+
     public function __construct(array $attributes = [])
     {
         $this->client = new QuickbooksSyncMap($attributes['client'] ?? []);
@@ -81,6 +83,7 @@ class QuickbooksSync
         $this->default_taxable_code = $attributes['default_taxable_code'] ?? null;
         $this->default_exempt_code = $attributes['default_exempt_code'] ?? null;
         $this->country = $attributes['country'] ?? null;
+        $this->payment_method_map = $attributes['payment_method_map'] ?? [];
     }
 
     public function toArray(): array
@@ -103,6 +106,7 @@ class QuickbooksSync
             'default_taxable_code' => $this->default_taxable_code,
             'default_exempt_code' => $this->default_exempt_code,
             'country' => $this->country,
+            'payment_method_map' => $this->payment_method_map,
         ];
     }
 }

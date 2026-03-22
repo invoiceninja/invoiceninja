@@ -57,7 +57,7 @@ class InvoiceTaxSummary implements ShouldQueue
             }
         }
 
-        nlog("InvoiceTaxSummary:: Job completed in " . now()->diffInSeconds($start) . " seconds");
+        nlog("InvoiceTaxSummary:: Job completed in " . (int) now()->diffInSeconds($start) . " seconds");
     }
 
     private function getTransitioningTimezones($utcHour)

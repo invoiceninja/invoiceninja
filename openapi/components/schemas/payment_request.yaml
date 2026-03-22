@@ -17,7 +17,8 @@
         date:
           description: 'The Payment date'
           type: string
-          example: 1-1-2014
+          format: date
+          example: '2024-01-01'
         transaction_reference:
           description: 'The transaction reference as defined by the payment gateway'
           type: string

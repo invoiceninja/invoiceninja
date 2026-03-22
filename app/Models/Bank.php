@@ -32,6 +32,7 @@ namespace App\Models;
  * @method static \Illuminate\Database\Eloquent\Builder|Bank whereRemoteId($value)
  * @mixin \Eloquent
  */
+#[\AllowDynamicProperties]
 class Bank extends StaticModel
 {
     /**

@@ -64,7 +64,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
  * @property-read int|null $invitations_count
  * @method int companyId()
  * @method createInvitations()
- * @method Builder scopeCompany(Builder $builder)
+ * @method \Builder scopeCompany(\Builder $builder)
  * @method static \Illuminate\Database\Eloquent\Builder<static> company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|\Illuminate\Database\Query\Builder withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|\Illuminate\Database\Query\Builder onlyTrashed()
@@ -133,67 +133,6 @@ class BaseModel extends Model
 
         return $query;
     }
-
-    /**
-     * Gets the settings by key.
-     *
-     * When we need to update a setting value, we need to harvest
-     * the object of the setting. This is not possible when using the merged settings
-     * as we do not know which object the setting has come from.
-     *
-     * The following method will return the entire object of the property searched for
-     * where a value exists for $key.
-     *
-     * This object can then be mutated by the handling class,
-     * to persist the new settings we will also need to pass back a
-     * reference to the parent class.
-     *
-     * @param $key The key of property
-     * @deprecated
-     */
-    // public function getSettingsByKey($key)
-    // {
-    //     /* Does Setting Exist @ client level */
-    //     if (isset($this->getSettings()->{$key})) {
-    //         return $this->getSettings()->{$key};
-    //     } else {
-    //         return (new CompanySettings($this->company->settings))->{$key};
-    //     }
-    // }
-
-    // public function setSettingsByEntity($entity, $settings)
-    // {
-    //     switch ($entity) {
-    //         case Client::class:
-
-    //             $this->settings = $settings;
-    //             $this->save();
-    //             $this->fresh();
-    //             break;
-    //         case Company::class:
-
-    //             $this->company->settings = $settings;
-    //             $this->company->save();
-    //             break;
-    //             //todo check that saving any other entity (Invoice:: RecurringInvoice::) settings is valid using the default:
-    //         default:
-    //             $this->client->settings = $settings;
-    //             $this->client->save();
-    //             break;
-    //     }
-    // }
-
-    /**
-     * Gets the settings.
-     *
-     * Generic getter for client settings
-     *
-     * @return ClientSettings.
-     */
-    // public function getSettings()
-    // {
-    //     return new ClientSettings($this->settings);
-    // }
 
     /**
      * Retrieve the model for a bound value.
@@ -393,6 +332,26 @@ class BaseModel extends Model
         $parsed = strtr($section, $variables['values']);
 
         return \App\Services\Pdf\Purify::clean(html_entity_decode($parsed));
+    }
+
+    /**
+     * Retrieve the DocuNinja signed PDF document for this entity.
+     *
+     * Uses the dn_document_hashed_id stored on the entity's sync object
+     * to look up the Document record.
+     *
+     * @return \App\Models\Document|null
+     */
+    public function getSignedPdfDocument(): ?\App\Models\Document
+    {
+        /** @var \App\Models\Invoice | \App\Models\Credit | \App\Models\Quote | \App\Models\PurchaseOrder $this */
+        if (!$this->sync?->dn_document_hashed_id) {
+            return null;
+        }
+
+        return $this->documents()
+            ->where('id', $this->decodePrimaryKey($this->sync->dn_document_hashed_id))
+            ->first();
     }
 
     /**

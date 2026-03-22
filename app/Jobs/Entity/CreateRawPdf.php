@@ -101,6 +101,26 @@ class CreateRawPdf
     public function handle()
     {
 
+        /** Serve DocuNinja signed PDF if signing is complete */
+        if (in_array($this->entity_string, ['invoice', 'quote', 'purchase_order'])
+            && $this->company->docuninjaActive()
+            && $this->entity->sync?->dn_completed
+        ) {
+            $document = $this->entity->getSignedPdfDocument();
+
+            if ($document) {
+                try {
+                    $pdf = $document->getFile();
+
+                    if ($pdf && strlen($pdf) > 0) {
+                        return $pdf;
+                    }
+                } catch (\Exception $e) {
+                    nlog("Failed to retrieve signed PDF for {$this->entity_string} {$this->entity->id}: " . $e->getMessage());
+                }
+            }
+        }
+
         $pdf = $this->generatePdf();
 
         if ($this->isBlankPdf($pdf)) {

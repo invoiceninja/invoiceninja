@@ -16,7 +16,6 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Design;
-use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
@@ -26,7 +25,6 @@ use App\Models\RecurringInvoice;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\Vendor;
-use App\Services\Pdf\Purify;
 use App\Services\Template\TemplateMock;
 use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
@@ -103,7 +101,7 @@ class TemplateService
 
         $loader = new \Twig\Loader\FilesystemLoader(storage_path());
         $this->twig = new \Twig\Environment($loader, [
-            'debug' => true,
+            'debug' => config('ninja.debug_enabled'),
         ]);
 
         $string_extension = new \Twig\Extension\StringLoaderExtension();
@@ -115,7 +113,7 @@ class TemplateService
         $this->twig->addRuntimeLoader(new class implements RuntimeLoaderInterface {
             public function load($class)
             {
-                if (MarkdownRuntime::class === $class) {
+                if (MarkdownRuntime::class === $class) { //@phpstan-ignore-line
                     return new MarkdownRuntime(new DefaultMarkdown());
                 }
             }
@@ -164,7 +162,7 @@ class TemplateService
 
         $allowedTags = ['if', 'for', 'set', 'filter'];
         $allowedFilters = ['url_encode','default', 'groupBy','capitalize', 'abs', 'date_modify', 'keys', 'join', 'reduce', 'format_date','json_decode','date_modify','trim','round','format_spellout_number','split', 'reduce','replace', 'escape', 'e', 'reverse', 'shuffle', 'slice', 'batch', 'title', 'sort', 'split', 'upper', 'lower', 'capitalize', 'filter', 'length', 'merge','format_currency', 'format_number','format_percent_number','map', 'join', 'first', 'date', 'sum', 'number_format','nl2br','striptags','markdown_to_html'];
-        $allowedFunctions = ['range', 'cycle', 'constant', 'date','img','t'];
+        $allowedFunctions = ['range', 'cycle', 'date', 'img', 't'];
         $allowedProperties = ['type_id'];
         // $allowedMethods = ['img','t'];
         $allowedMethods = [
@@ -612,6 +610,17 @@ class TemplateService
                         })->toArray();
                     }
 
+                    $invoice_period = '';
+
+                    if($period = data_get($invoice, 'e_invoice.Invoice.InvoicePeriod.0', false)) {
+                        try{
+                            $invoice_period = $this->translateDate($period->StartDate, $invoice->client->date_format(), $invoice->client->locale()) . ' - ' . $this->translateDate($period->EndDate, $invoice->client->date_format(), $invoice->client->locale());
+                        }
+                        catch(\Throwable $e) {
+                            nlog("Error getting invoice period: {$e->getMessage()}");
+                        }
+                    }
+                    
                     return [
                         'amount' => Number::formatMoney($invoice->amount, $invoice->client),
                         'balance' => Number::formatMoney($invoice->balance, $invoice->client),
@@ -667,6 +676,8 @@ class TemplateService
                         'total_tax_map' => $invoice->calc()->getTotalTaxMap(),
                         'line_tax_map' => $invoice->calc()->getTaxMap()->toArray(),
                         'project' => $invoice->project ? $this->transformProject($invoice->project, true) : [],
+                        'actual_delivery_date' => $this->translateDate(data_get($invoice, 'e_invoice.Invoice.Delivery.0.ActualDeliveryDate', $invoice->date), $invoice->client->date_format(), $invoice->client->locale()),
+                        'invoice_period' => $invoice_period,
                     ];
 
                 });

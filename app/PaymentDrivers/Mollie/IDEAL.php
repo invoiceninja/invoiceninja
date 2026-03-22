@@ -217,7 +217,7 @@ class IDEAL implements MethodInterface, LivewireMethodInterface
     /**
      * Handle 'open' payment status for IDEAL.
      *
-     * @param ResourcesPayment $payment
+     * @param \Mollie\Api\Resources\Payment $payment
      * @return \Illuminate\Http\RedirectResponse
      */
     public function processOpenPayment(\Mollie\Api\Resources\Payment $payment): RedirectResponse
