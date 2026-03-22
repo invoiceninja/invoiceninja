@@ -1,0 +1,9 @@
+var i=Object.defineProperty;var a=(n,t,e)=>t in n?i(n,t,{enumerable:!0,configurable:!0,writable:!0,value:e}):n[t]=e;var s=(n,t,e)=>(a(n,typeof t!="symbol"?t+"":t,e),e);import{i as c,w as l}from"./wait-8f4ae121.js";/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license 
+ */class m{constructor(t,e){s(this,"setupStripe",()=>{this.stripeConnect?this.stripe=Stripe(this.key,{stripeAccount:this.stripeConnect}):this.stripe=Stripe(this.key);let t=this.stripe.elements();var e={style:{base:{padding:"10px 12px",color:"#32325d",fontSize:"16px","::placeholder":{color:"#aab7c4"}}}};return this.eps=t.create("epsBank",e),this.eps.mount("#eps-bank-element"),this});s(this,"handle",()=>{document.getElementById("pay-now").addEventListener("click",t=>{let e=document.getElementById("errors");if(!document.getElementById("eps-name").value){e.textContent=document.querySelector("meta[name=translation-name-required]").content,e.hidden=!1;return}document.getElementById("pay-now").disabled=!0,document.querySelector("#pay-now > svg").classList.remove("hidden"),document.querySelector("#pay-now > span").classList.add("hidden"),this.stripe.confirmEpsPayment(document.querySelector("meta[name=pi-client-secret").content,{payment_method:{eps:this.eps,billing_details:{name:document.getElementById("eps-name").value}},return_url:document.querySelector('meta[name="return-url"]').content})})});this.key=t,this.errors=document.getElementById("errors"),this.stripeConnect=e}}function o(){var e,r;const n=((e=document.querySelector('meta[name="stripe-publishable-key"]'))==null?void 0:e.content)??"",t=((r=document.querySelector('meta[name="stripe-account-id"]'))==null?void 0:r.content)??"";new m(n,t).setupStripe().handle()}c()?o():l("#stripe-eps-payment").then(()=>o());

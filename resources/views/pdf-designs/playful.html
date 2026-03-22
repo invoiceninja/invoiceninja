@@ -1,0 +1,514 @@
+<style id="style">
+    @import url($font_url);
+
+    :root {
+        --primary-color: $primary_color;
+        --secondary-color: $secondary_color;
+        --line-height: 1.6;
+    }
+
+    body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-family: $font_name, Helvetica, sans-serif;
+        font-size: $font_size !important;
+        zoom: 80%;
+    }
+
+    table tr td,
+    table tr,
+    th {
+        font-size: $font_size !important;
+    }
+
+    html {
+        width: 210mm;
+        height: 200mm;
+    }
+
+    @page {
+        margin: -0.25cm !important;
+        size: $page_size $page_layout;
+        margin-top: 1rem;
+    }
+
+    p {
+        margin: 0;
+        padding: 0;
+    }
+
+    .header-wrapper {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 20px;
+        padding: 1rem 0rem 0rem 2rem;
+    }
+
+    .header-wrapper .entity-details-wrapper {
+        background-color: var(--primary-color);
+        padding: 0.5rem;
+        border-radius: 10px;
+        align-self: flex-start;
+    }
+
+    #entity-details p {
+        margin-right: 20px;
+        white-space: nowrap;
+        --tw-space-y-reverse: 0;
+        margin-top: calc(.5rem * calc(1 - var(--tw-space-y-reverse)));
+        margin-bottom: calc(.5rem * var(--tw-space-y-reverse));
+    }
+
+    .header-wrapper #entity-details {
+        width: 100%;
+        color: white;
+        text-align: left;
+        line-height: 1.2;
+    }
+
+    .header-wrapper #entity-details>tr,
+    .header-wrapper #entity-details th {
+        font-weight: normal;
+    }
+
+    .company-logo {
+        /*        max-width: 65%;*/
+        max-width: $company_logo_size;
+    }
+
+    .contacts-wrapper {
+        display: grid;
+        gap: 0px;
+        padding: 1rem 0rem 0rem 1rem;
+        grid-template-columns: 1fr 1fr auto;
+        grid-template-areas: "a b c";
+        grid-auto-columns: minmax(0, 5fr);
+        grid-auto-flow: column;
+        justify-content: space-between;
+        margin-left: 1rem;
+
+    }
+
+    .contacts-wrapper .contact-label {
+        font-weight: bold;
+        color: var(--primary-color);
+        margin-left: 1rem;
+    }
+
+    .contacts-wrapper .shipping-label {
+        font-weight: bold;
+        color: var(--primary-color);
+        margin-left: 1rem;
+        display: $show_shipping_address;
+    }
+
+    .contacts-wrapper #company-address,
+    .contacts-wrapper #company-details,
+    .contacts-wrapper #client-details {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 0.5rem;
+    }
+
+    .contacts-wrapper #shipping-details {
+        display: $show_shipping_address;
+        flex-direction: column;
+        margin-bottom: 0.5rem;
+    }
+
+    .contacts-wrapper .company-info {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--primary-color);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .contacts-wrapper #client-details {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--primary-color);
+    }
+
+    .contacts-wrapper #vendor-details {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--primary-color);
+    }
+
+    .contacts-wrapper #shipping-details {
+        margin-top: 1rem;
+        padding: 1rem;
+        padding-right: 0rem;
+        border-top: 1px solid var(--primary-color);
+    }
+
+
+    .contact-wrapper-left-side {
+        border-bottom: 1px solid var(--primary-color);
+    }
+
+    .contact-wrapper-right-side {
+        border-bottom: 1px solid var(--primary-color);
+        margin-left: 20px;
+    }
+
+    .shipping-wrapper-right-side {
+        border-bottom: 1px solid var(--primary-color);
+        display: $show_shipping_address_block;
+        margin-left: 20px;
+    }
+
+    [data-ref="table"] {
+        padding-left: 2rem;
+        padding-right: 0rem;
+        margin-top: 1rem;
+        margin-bottom: 5px;
+        min-width: 100%;
+        table-layout: fixed;
+        overflow-wrap: break-word;
+    }
+
+    .task-time-details {
+        display: block;
+        margin-top: 5px;
+        color: grey;
+    }
+
+    [data-ref="table"]>thead {
+        text-align: left;
+        break-inside: auto !important;
+    }
+
+    [data-ref="table"]>thead>tr>th {
+        font-size: 1.2rem;
+        padding: 1rem;
+        background: var(--primary-color);
+        color: white;
+    }
+
+    th.left-radius {
+        border-top-left-radius: 10px;
+    }
+
+    th.right-radius {
+        border-top-right-radius: 10px;
+        text-align: right;
+    }
+
+    td.right-radius {
+        text-align: right;
+    }
+
+    [data-ref="table"]>tbody>tr>td {
+        background-color: #F7F7F7;
+        border-bottom: 1px solid var(--primary-color);
+        padding: 1rem;
+    }
+
+    [data-ref="table"]>tbody>tr>td.left-radius {
+        color: var(--primary-color);
+    }
+
+    [data-ref="table"]>tbody>tr>td.right-radius {
+        text-align: right;
+    }
+
+    #table-totals {
+        margin-top: 0.5rem;
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 80px;
+        padding-left: 2rem;
+        padding-right: 0rem;
+        break-inside: avoid;
+        overflow: visible !important;
+    }
+
+    #table-totals .totals-table-right-side>* {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    #table-totals>.totals-table-right-side>*> :nth-child(1) {
+        text-align: $dir_text_align;
+        margin-top: .75rem;
+    }
+
+    #table-totals>.totals-table-right-side>*> :not([hidden])~ :not([hidden]) {
+        --tw-space-y-reverse: 0;
+        margin-top: calc(.75rem * calc(1 - var(--tw-space-y-reverse)));
+        margin-bottom: calc(.75rem * var(--tw-space-y-reverse));
+    }
+
+    #table-totals>.totals-table-right-side>*> :nth-child(2) {
+        text-align: right;
+        padding-right: 1rem;
+    }
+
+    #header {
+        position: fixed;
+        top: 0;
+        min-width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+        margin-left: -10px;
+    }
+
+    #header>* {
+        padding: 10px;
+    }
+
+    [data-ref="total_table-footer"] {
+        text-align: left;
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+
+    #footer {
+        margin-top: 1rem;
+        break-inside: avoid;
+        overflow: visible !important;
+    }
+
+    /** Markdown-specific styles. **/
+    [data-ref="table"] h3 {
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+
+    #footer-colors {
+        position: fixed;
+        bottom: 0;
+        min-width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+        margin-left: -10px;
+    }
+
+    #footer-colors>* {
+        padding: 10px;
+    }
+
+    [data-ref="statement-totals"] {
+        margin-top: 1rem;
+        text-align: right;
+        padding-left: 3rem;
+        padding-right: 3rem;
+    }
+
+    [data-ref*=".line_total-td"] {
+        white-space: nowrap;
+    }
+
+    .repeating-header,
+    .repeating-header-space {
+        height: 30px;
+        page-break-inside: avoid;
+        page-break-before: avoid;
+        page-break-after: avoid;
+    }
+
+    .repeating-footer,
+    .repeating-footer-space {
+        height: 20px;
+    }
+
+    .repeating-header {
+        position: fixed;
+        top: 0;
+    }
+
+    .repeating-footer {
+        position: fixed;
+        bottom: 0;
+    }
+
+    [data-element='product_table-product.description-td'],
+    td {
+        min-width: 100%;
+        max-width: 300px;
+        overflow-wrap: break-word;
+    }
+
+    [data-ref="shipping_address-label"] {
+        display: none;
+    }
+
+    .stamp {
+        transform: rotate(12deg);
+        color: #555;
+        font-size: 3rem;
+        font-weight: 700;
+        border: 0.25rem solid #555;
+        display: inline-block;
+        padding: 0.25rem 1rem;
+        text-transform: uppercase;
+        border-radius: 1rem;
+        font-family: 'Courier';
+        mix-blend-mode: multiply;
+        z-index: 200 !important;
+        position: fixed;
+        text-align: center;
+    }
+
+    .is-paid {
+        color: #D23;
+        border: 1rem double #D23;
+        transform: rotate(-5deg);
+        font-size: 6rem;
+        font-family: "Open sans", Helvetica, Arial, sans-serif;
+        border-radius: 0;
+        padding: 0.5rem;
+        opacity: 0.2;
+        z-index: 200 !important;
+        position: fixed;
+        display: $show_paid_stamp;
+
+    }
+
+    .project-header {
+        font-size: 1.2em;
+        margin-top: 0.1em;
+        margin-bottom: 0;
+        padding-bottom: 0;
+        margin-left: 0;
+        margin-right: 0;
+        font-weight: bold;
+        color: #505050;
+    }
+
+    .pqrcode {}
+
+    #qr-bill {
+        width: 100% !important;
+    }
+
+    /** Useful snippets, uncomment to enable. **/
+
+    /** Hide company logo **/
+    /* .company-logo { display: none } */
+
+    /* Hide company details */
+    /* #company-details > * { display: none } */
+
+    /* Hide company address */
+    /* #company-address > * { display: none } */
+
+    /* Hide public notes */
+    /* [data-ref="total_table-public_notes"] { display: none } */
+
+    /* Hide terms label */
+    /* [data-ref="total_table-terms-label"] { display: none } */
+
+    /* Hide totals table */
+    /* #table-totals { display: none } */
+
+    /* Hide totals table left side */
+    /* #table-totals div:first-child > * { display: none !important } */
+
+    /* Hide totals table right side */
+    /* .totals-table-right-side { display: none } */
+
+    /** For more info, please check our docs: https://invoiceninja.github.io **/
+    /** To find out selectors on your own: https://invoiceninja.github.io/docs/custom-fields/#snippets **/
+</style>
+<div id="body">
+<table style="min-width: 100%">
+    <thead>
+        <tr>
+            <td>
+                <div class="repeating-header-space">&nbsp;</div>
+            </td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                <div class="header-wrapper">
+                    <div>
+                        <img class="company-logo" src="$company.logo" alt="$company.name logo">
+                    </div>
+                    <div class="entity-details-wrapper">
+                        <table id="entity-details" cellspacing="0" dir="$dir"></table>
+                    </div>
+                </div>
+                <div class="contacts-wrapper">
+                    <div class="contact-wrapper-left-side">
+                        <p class="contact-label">$from_label:</p>
+                        <div class="company-info">
+                            <div id="company-details"></div>
+                            <div id="company-address"></div>
+                        </div>
+                    </div>
+                    <div class="contact-wrapper-right-side">
+                        <p class="contact-label">$to_label:</p>
+                        <div id="client-details"></div>
+                        <div id="vendor-details"></div>
+                    </div>
+
+                    <div class="shipping-wrapper-right-side">
+                        <p class="shipping-label">$shipping_label:</p>
+                        <div id="shipping-details"></div>
+                    </div>
+                </div>
+                <table id="product-table" cellspacing="0" data-ref="table"></table>
+                <table id="task-table" cellspacing="0" data-ref="table"></table>
+                <table id="delivery-note-table" cellspacing="0" data-ref="table"></table>
+                <table id="statement-invoice-table" cellspacing="0" data-ref="table"></table>
+                <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
+                <table id="statement-payment-table" cellspacing="0" data-ref="table"></table>
+                <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
+                <table id="statement-credit-table" cellspacing="0" data-ref="table"></table>
+                <div id="statement-credit-table-totals" data-ref="statement-totals"></div>
+                <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
+                <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
+                <div id="table-totals" cellspacing="0">$status_logo</div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                $entity_images
+            </td>
+        </tr>
+        $verifactu_qr_code
+    </tbody>
+    <tfoot>
+        <tr>
+            <td>
+                <div class="repeating-footer-space">&nbsp;</div>
+            </td>
+        </tr>
+    </tfoot>
+</table>
+</div>
+
+<div class="repeating-header">
+    <div id="header">
+        <div style="background-color: #00968B"><!-- 1 --></div>
+        <div style="background-color: #1D756E"><!-- 2 --></div>
+        <div style="background-color: #FCB600"><!-- 3 --></div>
+        <div style="background-color: #BA932F"><!-- 4 --></div>
+        <div style="background-color: #A72A4E"><!-- 5 --></div>
+        <div style="background-color: #E20041"><!-- 6 --></div>
+        <div style="background-color: #F8B300"><!-- 7 --></div>
+        <div style="background-color: #009B8F"><!-- 8 --></div>
+    </div>
+</div>
+
+<div class="repeating-footerx" id="footer">
+    <div data-ref="total_table-footer">$entity_footer</div>
+
+    <div id="footer-colors">
+        <div style="background-color: #00968B"><!-- 1 --></div>
+        <div style="background-color: #1D756E"><!-- 2 --></div>
+        <div style="background-color: #FCB600"><!-- 3 --></div>
+        <div style="background-color: #BA932F"><!-- 4 --></div>
+        <div style="background-color: #A72A4E"><!-- 5 --></div>
+        <div style="background-color: #E20041"><!-- 6 --></div>
+        <div style="background-color: #F8B300"><!-- 7 --></div>
+        <div style="background-color: #009B8F"><!-- 8 --></div>
+    </div>
+
+</div>

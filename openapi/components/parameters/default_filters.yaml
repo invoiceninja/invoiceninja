@@ -1,0 +1,103 @@
+########################### Generic filters available across all filter ##################################
+    status:
+      name: status
+      in: query
+      description: |
+        Filter the entity based on their status. ie active / archived / deleted. Format is a comma separated string with any of the following options:  
+        - active
+        - archived
+        - deleted  
+
+        ```html
+        GET /api/v1/invoices?status=archived,deleted
+        Returns only archived and deleted invoices
+        ```
+      required: false
+      schema:
+        type: string
+      example: ?status=archived,deleted
+    client_id:
+      name: client_id
+      in: query
+      description: |
+        Filters the entity list by client_id. Suitable when you only want the entities of a specific client.
+
+        ```html
+        GET /api/v1/invoices?client_id=AxB7Hjk9
+        Returns only invoices for the specified client
+        ```
+      required: false
+      schema:
+        type: string
+      example: ?client_id={client_id}
+    created_at:
+      name: created_at
+      in: query
+      description: |
+        Filters the entity list by the created at timestamp. Parameter value can be a datetime string or unix timestamp
+
+        ```html
+        GET /api/v1/invoices?created_at=2022-01-10
+        Returns entities created on January 10th, 2022
+        ```
+      required: false
+      schema:
+        type: integer
+      example: 1641772800
+    updated_at:
+      name: updated_at
+      in: query
+      description: |
+        Filters the entity list by the updated at timestamp. Parameter value can be a datetime string or unix timestamp
+
+        ```html
+        GET /api/v1/invoices?updated_at=2022-01-10
+        Returns entities last updated on January 10th, 2022
+        ```
+      required: false
+      schema:
+        type: integer
+      example: 1641772800
+    is_deleted:
+      name: is_deleted
+      in: query
+      description: |
+        Filters the entity list by entities that have been deleted.
+
+        ```html
+        GET /api/v1/invoices?is_deleted=true
+        Returns only soft-deleted entities
+        ```
+      required: false
+      schema:
+        type: boolean
+      example: true
+    vendor_id:
+      name: vendor_id
+      in: query
+      description: |
+        Filters the entity list by an associated vendor
+
+        ```html
+        GET /api/v1/purchases?vendor_id=AxB7Hjk9
+        Returns only purchases for the specified vendor
+        ```
+      required: false
+      schema:
+        type: string
+      example: ?vendor_id={vendor_id}
+    filter_deleted_clients:
+      name: filter_deleted_clients
+      in: query
+      description: |
+        Filters the entity list and only returns entities for clients that have not been deleted
+
+        ```html
+        GET /api/v1/invoices?filter_deleted_clients=true
+        Returns only invoices for active (non-deleted) clients
+        ```
+      required: false
+      schema:
+        type: string
+      example: ?filter_deleted_clients=true
+  ########################### Generic filters available across all filter ##################################

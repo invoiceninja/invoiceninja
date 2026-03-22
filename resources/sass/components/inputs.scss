@@ -1,0 +1,23 @@
+.input {
+    @apply items-center border border-gray-300 rounded mt-2 py-2 px-4 text-sm;
+
+    &:focus {
+        @apply outline-none bg-gray-50;
+    }
+}
+
+.input-label {
+    @apply text-sm text-gray-600;
+}
+
+.input-slim {
+    @apply py-2;
+}
+
+.form-checkbox {
+    @apply border border-gray-300 rounded cursor-pointer;
+}
+
+.form-select {
+    @apply border border-gray-300;
+}

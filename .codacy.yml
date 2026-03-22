@@ -1,0 +1,5 @@
+# Codacy configuration file for Invoice Ninja
+
+exclude_paths:
+  - 'public/css/*'
+  - 'public/js/*'

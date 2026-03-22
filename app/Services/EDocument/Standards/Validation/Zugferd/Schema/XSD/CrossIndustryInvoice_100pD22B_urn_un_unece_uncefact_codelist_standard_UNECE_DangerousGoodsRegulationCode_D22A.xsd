@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:clm68273="urn:un:unece:uncefact:codelist:standard:UNECE:DangerousGoodsRegulationCode:D22A"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="urn:un:unece:uncefact:codelist:standard:UNECE:DangerousGoodsRegulationCode:D22A"
+    elementFormDefault="qualified"
+    version="3.4">
+  <xsd:simpleType name="DangerousGoodsRegulationCodeContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="ADR"/>
+      <xsd:enumeration value="ADS"/>
+      <xsd:enumeration value="ADT"/>
+      <xsd:enumeration value="ADU"/>
+      <xsd:enumeration value="ADV"/>
+      <xsd:enumeration value="ADW"/>
+      <xsd:enumeration value="ADX"/>
+      <xsd:enumeration value="ADY"/>
+      <xsd:enumeration value="ADZ"/>
+      <xsd:enumeration value="AEA"/>
+      <xsd:enumeration value="AEB"/>
+      <xsd:enumeration value="AGS"/>
+      <xsd:enumeration value="ANR"/>
+      <xsd:enumeration value="ARD"/>
+      <xsd:enumeration value="CFR"/>
+      <xsd:enumeration value="COM"/>
+      <xsd:enumeration value="GVE"/>
+      <xsd:enumeration value="GVS"/>
+      <xsd:enumeration value="ICA"/>
+      <xsd:enumeration value="IMD"/>
+      <xsd:enumeration value="RGE"/>
+      <xsd:enumeration value="RID"/>
+      <xsd:enumeration value="UI"/>
+      <xsd:enumeration value="ZZZ"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

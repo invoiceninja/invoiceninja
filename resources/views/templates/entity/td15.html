@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<!-- Quote/Invoice with grouped items - TemplateID #TD15 -->
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style id="style">
+        @import url($font_url);
+
+        :root {
+            --primary-color: $primary_color;
+            --secondary-color: $secondary_color;
+            --line-height: 1.6;
+        }
+
+        html {
+            width: 210mm;
+            height: 200mm;
+        }
+
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-family: $font_name, Helvetica, sans-serif;
+            font-size: $font_size !important;
+            zoom: 80%;
+        }
+
+        table tr td,
+        table tr,
+        th {
+            font-size: $font_size !important;
+        }
+
+        @page {
+            margin-left: $global_margin;
+            margin-right: $global_margin;
+            margin-top: 5;
+            margin-bottom: 5;
+            size: $page_size $page_layout;
+        }
+
+        p {
+            margin: 0;
+            padding: 0;
+        }
+
+        #qr-bill {
+            width: 100% !important;
+        }
+
+        .header-container {
+            display: grid;
+            grid-template-columns: minmax(0, 1.5fr) auto minmax(0, 1fr);
+            align-items: start;
+            gap: 1rem;
+            width: 100%;
+        }
+
+        .company-logo-container {
+            justify-self: start;
+            align-self: start;
+        }
+
+        .company-logo {
+            max-width: $company_logo_size;
+        }
+
+        #company-details {
+            justify-self: center;
+            align-self: start;
+            display: flex;
+            flex-direction: column;
+            line-height: var(--line-height);
+        }
+
+        #company-details>p:first-child {
+            color: var(--primary-color);
+        }
+
+        #company-address {
+            justify-self: end;
+            align-self: start;
+            display: flex;
+            flex-direction: column;
+            line-height: var(--line-height);
+        }
+
+        .entity-label {
+            margin-top: 2.5rem;
+            text-transform: uppercase;
+            padding-left: 1rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .client-and-entity-wrapper {
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            align-items: start;
+            border-top: 1px solid #d8d8d8;
+            border-bottom: 1px solid #d8d8d8;
+        }
+
+        #entity-details {
+            display: flex;
+            text-align: left;
+            margin-right: 20px;
+            line-height: var(--line-height) !important;
+            justify-self: start;
+            align-self: start;
+            padding-left: 1rem;
+        }
+
+        #entity-details>tr,
+        #entity-details th {
+            font-weight: normal;
+            padding-right: 15px;
+            line-height: var(--line-height) !important;
+        }
+
+        #client-details {
+            display: flex;
+            flex-direction: column;
+            line-height: var(--line-height);
+            justify-self: center;
+            align-self: start;
+        }
+
+        #client-details> :first-child {
+            font-weight: bold;
+        }
+
+        #shipping-details {
+            display: $show_shipping_address;
+            flex-direction: column;
+            line-height: var(--line-height);
+            justify-self: end;
+            align-self: start;
+            padding-left: 1rem;
+        }
+
+        [data-ref="table"] {
+            margin-top: 1rem;
+            margin-bottom: 5px;
+            min-width: 100%;
+            table-layout: fixed;
+            overflow-wrap: break-word;
+        }
+
+        .task-time-details {
+            display: block;
+            margin-top: 5px;
+            color: grey;
+        }
+
+        [data-ref="table"]>thead {
+            text-align: left;
+        }
+
+        [data-ref="table"]>thead>tr>th {
+            font-size: 1.1rem;
+            padding-bottom: 1.5rem;
+            padding-left: 1rem;
+        }
+
+        .product_totals_row {
+            background-color: #fff !important;
+            border: 0px !important;
+        }
+
+        .product_totals {
+            font-size: 1.1rem;
+            padding-bottom: 1.5rem;
+            padding-left: 1rem;
+            border: 0px !important;
+            font-weight: bold;
+        }
+
+        [data-ref="table"]>tbody>tr>td {
+            border-top: 1px solid #d8d8d8;
+            border-bottom: 1px solid #d8d8d8;
+            padding: 1rem 1rem;
+        }
+
+        th.right-radius {
+            padding-right: 1rem;
+            text-align: right;
+        }
+
+        td.right-radius {
+            text-align: right;
+        }
+
+        [data-ref='product_table-product.item-td'] {
+            color: var(--primary-color);
+        }
+
+        [data-ref="table"]>tbody>tr:nth-child(odd) {
+            background-color: #f5f5f5;
+        }
+
+        #table-totals {
+            margin-top: 0rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            padding-top: 0rem;
+            padding-right: 1rem;
+            gap: 80px;
+            page-break-inside: auto;
+            overflow: visible !important;
+        }
+
+        #table-totals .totals-table-right-side>* {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        #table-totals>.totals-table-right-side>*> :nth-child(1) {
+            text-align: $dir_text_align;
+            margin-top: .75rem;
+        }
+
+        #table-totals>.totals-table-right-side>*> :nth-child(2) {
+            text-align: right;
+        }
+
+        #table-totals>.totals-table-right-side>*> :not([hidden])~ :not([hidden]) {
+            --tw-space-y-reverse: 0;
+            margin-top: calc(.75rem * calc(1 - var(--tw-space-y-reverse)));
+            margin-bottom: calc(.75rem * var(--tw-space-y-reverse));
+        }
+
+        #table-totals>*> :last-child {
+            text-align: right;
+            padding-right: 0.5rem;
+        }
+
+        #footer {
+            margin-top: 10px;
+        }
+
+        /** Markdown-specific styles. **/
+        #product-tableX h3,
+        #task-tableX h3,
+        #delivery-note-table h3 {
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+
+        [data-ref="total_table-public_notes"] {
+            margin-top: 1rem;
+        }
+
+        [data-ref="statement-totals"] {
+            margin-top: 1rem;
+            text-align: right;
+            margin-right: .75rem;
+        }
+
+        [data-ref*=".line_total-td"] {
+            white-space: nowrap;
+        }
+
+        /** .repeating-header,
+    .repeating-header-space, **/
+        .repeating-footer,
+        .repeating-footer-space {
+            height: 10px;
+        }
+
+        .repeating-header {
+            position: fixed;
+            top: 0;
+        }
+
+        .repeating-footer {
+            position: fixed;
+            bottom: 0;
+        }
+
+        [data-ref='product_table-product.description-td'],
+        td {
+            min-width: 100%;
+            max-width: 300px;
+            overflow-wrap: break-word;
+        }
+
+        .stamp {
+            transform: rotate(12deg);
+            color: #555;
+            font-size: 3rem;
+            font-weight: 700;
+            border: 0.25rem solid #555;
+            display: inline-block;
+            padding: 0.25rem 1rem;
+            text-transform: uppercase;
+            border-radius: 1rem;
+            font-family: 'Courier';
+            mix-blend-mode: multiply;
+            z-index: 200 !important;
+            position: fixed;
+            text-align: center;
+            float: right;
+
+        }
+
+        .is-paid {
+            color: #D23;
+            border: 1rem double #D23;
+            transform: rotate(-5deg);
+            font-size: 6rem;
+            font-family: "Open sans", Helvetica, Arial, sans-serif;
+            border-radius: 0;
+            padding: 0.5rem;
+            opacity: 0.2;
+            z-index: 200 !important;
+            position: fixed;
+            display: $show_paid_stamp;
+        }
+
+        .project-header {
+            font-size: 1.2em;
+            margin-top: 0.1em;
+            margin-bottom: 0;
+            padding-bottom: 0;
+            margin-left: 0;
+            margin-right: 0;
+            font-weight: bold;
+            color: #505050;
+        }
+
+        .pqrcode {}
+    </style>
+    </head>
+    <div id="body">
+        <table style="min-width: 100%">
+            <thead>
+                <tr>
+                    <td>
+                        <div class="repeating-header-space">&nbsp;</div>
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div id="body">
+                            <div class="header-container">
+                                <div class="company-logo-container">
+                                    <img class="company-logo" src="$company.logo" alt="$company.name logo">
+                                </div>
+                                <div id="company-details"></div>
+                                <div id="company-address"></div>
+                            </div>
+                            <p class="entity-label">$entity_label</p>
+                            <div class="client-and-entity-wrapper">
+                                <div class="entity-details-container">
+                                    <table id="entity-details" cellspacing="0" cellpadding="0" dir="$dir"></table>
+                                </div>
+                                <div id="client-details"></div>
+                            </div>
+                            <ninja>
+                                {% if invoices is defined and invoices is not empty %}
+                                    {% set invoice = invoices|first %}
+                                    {% if invoice.line_items|filter(item => item.type_id == 1)|length > 0 %}
+                                    <table data-ref="table" id="product-tableX">
+                                        <thead class="table-header">
+                                            <tr class="table-header primary-color-highlight">
+                                                <th class="left-radius" style="font-size:1.5rem;">Heading for product table</th>
+                                            </tr>
+                                            <tr class="table-header primary-color-highlight">
+                                                <th class="left-radius">$item_label #</th>
+                                                <th class="">$description_label</th>
+                                                <th class="right-radius">$product.unit_cost_label</th>
+                                                <th class="right-radius">$quantity_label</th>
+                                                <th class="right-radius">$product.line_total_label</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="table-body">
+                                            {%set product_sub_total = 0%}
+                                            {% for item in invoice.line_items|filter(item => item.type_id == 1) %}
+                                            <tr class="item-row">
+                                                <td class="left-radius">{{ item.product_key }}</td>
+                                                <td class="">{{ item.notes }}</td>
+                                                <td class="right-radius">{{ item.cost }}</td>
+                                                <td class="right-radius">{{ item.quantity }}</td>
+                                                <td class="right-radius">{{ item.line_total }}</td>
+                                            </tr>
+                                            {% set product_sub_total = product_sub_total + item.line_total_raw %}
+                                            {% endfor %}
+
+                                            <tr class="product_totals_row">
+                                                <td class="product_totals"></td>
+                                                <td class="product_totals"></td>
+                                                <td class="product_totals"></td>
+                                                <td class="product_totals right-radius">$subtotal_label</td>
+                                                <td class="product_totals right-radius">{{product_sub_total}}</td>
+                                            </tr>
+                                        </tbody>
+
+                                    </table>
+                                    {% endif %}
+                                {% endif %}
+                            </ninja>
+
+                            <ninja>
+                                {% if invoices is defined and invoices is not empty %}
+
+                                    {% set invoice = invoices|first %}
+                                    {% if invoice.line_items|filter(item => item.type_id == 1)|length > 0 %}
+                                    <table data-ref="table" id="task-tableX">
+                                        <thead class="table-header">
+                                            <tr class="table-header primary-color-highlight">
+                                                <th class="" style="font-size:1.5rem;">Working Hours</th>
+                                            </tr>
+                                            <tr class="table-header primary-color-highlight">
+                                                <th class="left-radius">$task.service_label #</th>
+                                                <th class="">$description_label</th>
+                                                <th class="right-radius">$task.hours_label</th>
+                                                <th class="right-radius">$task.rate_label</th>
+                                                <th class="right-radius">$task.line_total_label</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="table-body">
+                                            {%set product_sub_total = 0%}
+                                            {% for item in invoice.line_items|filter(item => item.type_id == 2) %}
+                                            <tr class="item-row">
+                                                <td class="left-radius">{{ item.product_key }}</td>
+                                                <td class="">{{ item.notes }}</td>
+                                                <td class="right-radius">{{ item.cost }}</td>
+                                                <td class="right-radius">{{ item.quantity }}</td>
+                                                <td class="right-radius">{{ item.line_total }}</td>
+                                            </tr>
+                                            {% set product_sub_total = product_sub_total + item.line_total_raw %}
+                                            {% endfor %}
+
+                                            <tr class="product_totals_row">
+                                                <td class="product_totals"></td>
+                                                <td class="product_totals"></td>
+                                                <td class="product_totals"></td>
+                                                <td class="product_totals">$subtotal_label</td>
+                                                <td class="product_totals right-radius">{{product_sub_total}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    {% endif %}
+                                {% endif %}
+                            </ninja>
+
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div id="table-totals" cellspacing="0">$status_logo</div>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td>
+                        <div class="repeating-footer-space">&nbsp;</div>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="repeating-header" id="header"></div>
+
+        $entity_images
+
+        <div class="repeating-footerx" id="footer">
+            <p data-ref="total_table-footer">$entity_footer</p>
+        </div>
+
+        </body>
+    </div>
+</html>

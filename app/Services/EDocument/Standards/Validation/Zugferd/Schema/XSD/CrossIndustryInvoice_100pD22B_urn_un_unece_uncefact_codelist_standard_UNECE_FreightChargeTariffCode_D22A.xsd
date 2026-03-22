@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:clm65243="urn:un:unece:uncefact:codelist:standard:UNECE:FreightChargeTariffCode:D22A"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="urn:un:unece:uncefact:codelist:standard:UNECE:FreightChargeTariffCode:D22A"
+    elementFormDefault="qualified"
+    version="3.2">
+  <xsd:simpleType name="FreightChargeTariffCodeContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="A"/>
+      <xsd:enumeration value="B"/>
+      <xsd:enumeration value="C"/>
+      <xsd:enumeration value="D"/>
+      <xsd:enumeration value="E"/>
+      <xsd:enumeration value="F"/>
+      <xsd:enumeration value="G"/>
+      <xsd:enumeration value="H"/>
+      <xsd:enumeration value="K"/>
+      <xsd:enumeration value="M"/>
+      <xsd:enumeration value="N"/>
+      <xsd:enumeration value="Q"/>
+      <xsd:enumeration value="R"/>
+      <xsd:enumeration value="S"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

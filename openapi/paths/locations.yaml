@@ -1,0 +1,510 @@
+  /api/v1/locations:
+    get:
+      tags:
+        - locations
+      summary: 'List locations'
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $invoices = $ninja->locations->all([]);
+      - lang: curl
+        label: curl
+        source: |
+          curl --request GET \
+            --url 'https://demo.invoiceninja.com/api/v1/locations?per_page=10&page=1&sort=name&sort_dir=asc' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json'
+      description: |
+        ##  GET /api/v1/locations
+
+        Locations are additional addresses that are applicable to a client. This is useful when a client has multiple addresses for shipping, billing, etc.
+
+        When retrieving a list of locations you can chain query parameters to filter the dataset. For example:
+        
+        ```html
+        /api/v1/locations?name=warehouse*
+        ```
+        
+        You can also sort the results:
+        
+        ```html
+        /api/v1/locations?sort=name|desc
+        ```
+
+        For pagination, use per_page and page parameters:
+        
+        ```html
+        /api/v1/locations?per_page=15&page=2
+        ```
+
+        The default per_page value is 20.
+      operationId: getLocations
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - $ref: '#/components/parameters/index'
+        - $ref: '#/components/parameters/per_page_meta'
+        - $ref: '#/components/parameters/page_meta'
+        - name: name
+          in: query
+          description: |
+            Filter by location name
+            
+            ```html
+            ?name=warehouse
+            ```
+          required: false
+          schema:
+            type: string
+          example: warehouse
+        - name: sort
+          in: query
+          description: |
+            Returns the list sorted by column in ascending or descending order.
+            
+            ```html
+              ?sort=name|desc
+            ```
+          required: false
+          schema:
+            type: string
+          example: name|desc
+      responses:
+        200:
+          description: 'A list of locations'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Location'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+
+    post:
+      tags:
+        - locations
+      summary: 'Create location'
+      description: |
+        ##  POST /api/v1/locations
+
+        Adds a location to a company
+      x-codeSamples:
+        - lang: php
+          label: php
+          source: |
+            $ninja = new InvoiceNinja("YOUR-TOKEN");
+            
+            $client = $ninja->locations->create([
+                'name' => 'A unique client location name',
+                'address1' => '123 Main St',
+                'address2' => 'Apt 1',
+                'city' => 'New York',
+                'state' => 'NY',
+                'postal_code' => '10001',
+                'country_id' => '1',
+                'custom_value1' => 'Custom field value 1',
+                'custom_value2' => 'Custom field value 2',
+                'custom_value3' => 'Custom field value 3',
+                'custom_value4' => 'Custom field value 4',
+                'is_deleted' => false,
+                'is_shipping_location' => true,
+                'client_id' => 'x2fd23',
+                'vendor_id' => 'jd78Dhjs'
+            ]);
+        - lang: curl
+          label: curl
+          source: |
+            curl -X POST https://demo.invoiceninja.com/api/v1/locations \
+              -H "X-API-TOKEN: YOUR-TOKEN" \
+              -H "Content-Type: application/json" \
+              -H "X-Requested-With: XMLHttpRequest" \
+              -d '{
+                "name": "A unique location name",
+                "address1": "123 Main St",
+                "address2": "Apt 1",
+                "city": "New York",
+                "state": "NY",
+                "postal_code": "10001",
+                "country_id": "1",
+                "custom_value1": "Custom field value 1",
+                "custom_value2": "Custom field value 2",
+                "custom_value3": "Custom field value 3",
+                "custom_value4": "Custom field value 4",
+                "is_deleted": false,
+                "is_shipping_location": true,
+                "client_id": "x2fd23",
+                "vendor_id": "jd78Dhjs"
+              }'
+      operationId: storeLocation
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - $ref: '#/components/parameters/index'
+      requestBody:
+        description: Location object that needs to be added to the company
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationRequest'
+      responses:
+        200:
+          description: 'Returns the saved location object'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+
+  '/api/v1/locations/{id}':
+    get:
+      tags:
+        - locations
+      summary: 'Show location'
+      description: |
+        ##  GET /api/v1/locations/{id}
+
+        Displays a location by id
+      operationId: showLocation
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - $ref: '#/components/parameters/index'
+        - name: id
+          in: path
+          description: 'The Location Hashed ID'
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: 'Returns the location object'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $location = $ninja->locations->show("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl --request GET \
+            --url 'https://demo.invoiceninja.com/api/v1/locations/D2J234DFA' \
+            --header 'X-API-TOKEN: YOUR-TOKEN' \
+            --header 'Accept: application/json'
+
+    put:
+      tags:
+        - locations
+      summary: 'Update location'
+      description: |
+        ##  PUT /api/v1/locations/{id}
+
+        Handles the updating of a location by id
+      operationId: updateLocation
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - $ref: '#/components/parameters/index'
+        - name: id
+          in: path
+          description: 'The Location Hashed ID'
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      requestBody:
+        description: Location object that needs to be updated
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationRequest'
+      responses:
+        200:
+          description: 'Returns the location object'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $location = $ninja->locations->update("D2J234DFA", [
+              'name' => 'Updated Location Name',
+              'address1' => '456 New Street',
+              'city' => 'Los Angeles'
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl -X PUT https://demo.invoiceninja.com/api/v1/locations/D2J234DFA \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "Content-Type: application/json" \
+            -H "X-Requested-With: XMLHttpRequest" \
+            -d '{
+              "name": "Updated Location Name",
+              "address1": "456 New Street",
+              "city": "Los Angeles"
+            }'
+
+    delete:
+      tags:
+        - locations
+      summary: 'Delete location'
+      description: |
+        ##  DELETE /api/v1/locations/{id}
+
+        Handles the deletion of a location by id
+      operationId: deleteLocation
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - name: id
+          in: path
+          description: 'The Location Hashed ID'
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: 'Returns a HTTP status'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $ninja->locations->delete("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl -X DELETE \
+            --url 'https://demo.invoiceninja.com/api/v1/locations/D2J234DFA' \
+            --header 'X-API-TOKEN: YOUR-TOKEN' \
+            --header 'Accept: application/json'
+
+  /api/v1/locations/create:
+    get:
+      tags:
+        - locations
+      summary: 'Blank Location'
+      description: |
+        ##  GET /api/v1/locations/create
+
+        Returns a blank object with default values
+      operationId: getLocationsCreate
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - $ref: '#/components/parameters/index'
+      responses:
+        200:
+          description: 'A blank location object'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $location = $ninja->locations->model();
+      - lang: curl
+        label: curl
+        source: |
+          curl --request GET \
+            --url 'https://demo.invoiceninja.com/api/v1/locations/create' \
+            --header 'X-API-TOKEN: YOUR-TOKEN' \
+            --header 'Accept: application/json'
+
+  /api/v1/locations/bulk:
+    post:
+      tags:
+        - locations
+      summary: 'Bulk location actions'
+      description: |
+        ##  POST /api/v1/locations/bulk
+
+        Bulk actions allow to make changes to multiple locations in a single request. The following actions are supported:
+        
+        - archive
+        - restore
+        - delete
+
+        All of these actions require an array of location ids to perform the requested action on ie.
+
+        "ids":['id1','id2']
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $ninja->locations->bulk([
+              'action' => 'archive',
+              'ids' => ['locationId1', 'locationId2']
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl -X POST https://demo.invoiceninja.com/api/v1/locations/bulk \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "Content-Type: application/json" \
+            -H "X-Requested-With: XMLHttpRequest" \
+            -d '{
+              "action": "archive",
+              "ids": ["locationId1", "locationId2"]
+            }'
+      operationId: bulkLocations
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - $ref: '#/components/parameters/index'
+      requestBody:
+        description: 'Bulk action array'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenericBulkAction'
+      responses:
+        200:
+          description: 'The Location list Response of the updated locations that were bulk updated'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+    

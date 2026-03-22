@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:clm6Recommendation20Linear="urn:un:unece:uncefact:codelist:standard:UNECE:MeasurementUnitCommonCodeLinear:4"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="urn:un:unece:uncefact:codelist:standard:UNECE:MeasurementUnitCommonCodeLinear:4"
+    elementFormDefault="qualified"
+    version="1.1">
+  <xsd:simpleType name="MeasurementUnitCommonCodeLinearContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="CMT"/>
+      <xsd:enumeration value="FOT"/>
+      <xsd:enumeration value="INH"/>
+      <xsd:enumeration value="MTR"/>
+      <xsd:minLength value="1"/>
+      <xsd:maxLength value="3"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

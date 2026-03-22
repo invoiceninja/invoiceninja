@@ -1,0 +1,21 @@
+Status: 200
+Connection: keep-alive
+Keep-Alive: timeout=5
+Strict-Transport-Security: max-age=15552000
+Cache-Control: no-cache, no-store
+Content-Type: application/json;charset=utf-8
+Server: nginx
+{
+ "refreshToken": "AB11730384727MVrceUmO0gapXJFBT0IkpkI71FCkkWrRAVn8P",
+ "accessToken": "eyJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiYWxnIjoiZGlyIn0..vW8l3PbGZGjF5Nbq-ssyKw
+     .mSxu2T4j4OYXa8Gr7z2OU5cqVg19MasGFllKMvT2Jo0wYrovyN6q9OZIwul1iSKI10A3ZIBT5VnsTnW6ZQG
+     -rKcvmPNImZhYyCeBwzAUcnFQDPax5sWqlSHwEEviLPSH6R6Rs0wSNtszD4sEva8Z2pHmMZ4q2VNX3SAJA2R8spLhkItcULW4COdUNhZHl9fk4m7Xo66q8iBmE
+     IV5269DXI-x8tCe7BdBrQbIabd5tqmD4gllS4vInK__86LLvESHDuY51eQEJt8eLRhSFIK7ZT2zoS6JKp1TfuvEg7HULkP53u12hSZsTETCfFneofOXhqEAQa8
+     SgqiYV-8_I4Mm7P_TDeRX06CdPMMwH9Wrvmmmihhk8TNz6MynEn4Cpjf_iAedtyhXnELTnefTUC8_
+     --w9_5FCCHyHgS45A2289mhIY1eLH_i8gjzuGKs7zYOaTvm1nQ_Jt1Z1Guy-jteNwt6_2OoMYfQaMss8AwHAZr7c
+     -bhvtBY0Qi0VoqfMUdicuxMXd3HZCXUuKqXpGn5TXwJ6T6flf8Slgh2GIKUhMg1IoXMFKD3IVaPU81qyaGbuBIhwVdLywgY0guAlnYYUAHX4n_pmDf6zGxGQ0V
+     RXMF2iQY1Q21OKGUqgkS8xaQajV5KERVZkp4thEurLg4EAxDdT71VxOjU5IszIRPfg8bw_X5g73pTNyF
+     -3TRCJHe_FXz7P_Ee3Py_9O1Bw7MtbKxiwlSmumOOBKHAtorQhakw.nYNzTumdNDhpqLwCIkJNlw",
+ "expires_in": 3600,
+ "x_refresh_token_expires_in": 8726400
+}

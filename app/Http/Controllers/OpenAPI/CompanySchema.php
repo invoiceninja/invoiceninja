@@ -1,0 +1,31 @@
+<?php
+
+/**
+ * @OA\Schema(
+ *   schema="Company",
+ *   type="object",
+ *       @OA\Property(property="id", type="string", example="WJxbojagwO", description="The company hash id"),
+ *       @OA\Property(property="size_id", type="string", example="1", description="The company size ID"),
+ *       @OA\Property(property="industry_id", type="string", example="1", description="The company industry ID"),
+ *       @OA\Property(property="slack_webhook_url", type="string", example="https://slack.com/sh328sj", description="The slack webhook notification URL"),
+ *       @OA\Property(property="google_analytics_key", type="string", example="1", description="The google analytics key"),
+ *       @OA\Property(property="portal_mode", type="string", example="subdomain", description="Determines the client facing urls ie: subdomain,domain,iframe"),
+ *       @OA\Property(property="subdomain", type="string", example="aceme", description="Specifies the first part of the company domain ie acme in acme.domain.com"),
+ *       @OA\Property(property="portal_domain", type="string", example="https://subdomain.invoicing.co", description="The fully qualified domain for client facing URLS"),
+ *       @OA\Property(property="enabled_tax_rates", type="integer", example="1", description="Number of taxes rates used per entity"),
+ *       @OA\Property(property="fill_products", type="boolean", example=true, description="Toggles filling a product description based on product key"),
+ *       @OA\Property(property="convert_products", type="boolean", example=true, description="___________"),
+ *       @OA\Property(property="update_products", type="boolean", example=true, description="Toggles updating a product description which description changes"),
+ *       @OA\Property(property="show_product_details", type="boolean", example=true, description="Toggles showing a product description which description changes"),
+ *       @OA\Property(property="custom_fields", type="object", description="Custom fields map"),
+ *       @OA\Property(property="enable_product_cost", type="boolean", example=true, description="Show/Hide the product cost field in the UI"),
+ *       @OA\Property(property="enable_product_quantity", type="boolean", example=true, description="Show/hide the product quantity field (used in the UI to show the default quantity)"),
+ *       @OA\Property(property="default_quantity", type="boolean", example=true, description="Enable/Disable whether to use a default quantity"),
+ *       @OA\Property(property="custom_surcharge_taxes1", type="boolean", example=true, description="Toggles charging taxes on custom surcharge amounts"),
+ *       @OA\Property(property="custom_surcharge_taxes2", type="boolean", example=true, description="Toggles charging taxes on custom surcharge amounts"),
+ *       @OA\Property(property="custom_surcharge_taxes3", type="boolean", example=true, description="Toggles charging taxes on custom surcharge amounts"),
+ *       @OA\Property(property="custom_surcharge_taxes4", type="boolean", example=true, description="Toggles charging taxes on custom surcharge amounts"),
+ *       @OA\Property(property="logo", type="object", example="logo.png", description="The company logo - binary"),
+ *       @OA\Property(property="settings",ref="#/components/schemas/CompanySettings"),
+ * )
+ */

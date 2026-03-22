@@ -1,0 +1,47 @@
+.button {
+    @apply rounded py-3 px-4 text-sm leading-4 transition duration-150 ease-in-out;
+}
+
+button:disabled {
+    @apply opacity-50 cursor-not-allowed;
+}
+
+.button-primary {
+    @apply text-white;
+
+    &:hover {
+        @apply font-semibold;
+    }
+}
+
+.button-block {
+    @apply block w-full;
+}
+
+.button-danger {
+    @apply bg-red-500 text-white;
+
+    &:hover {
+        @apply bg-red-600;
+    }
+}
+
+.button-secondary {
+    @apply bg-gray-100;
+
+    &:hover {
+        @apply bg-gray-200;
+    }
+}
+
+.button-link {
+    @apply text-gray-700;
+
+    &:hover {
+        @apply text-gray-900 underline;
+    }
+
+    &:focus {
+        @apply outline-none underline;
+    }
+}

@@ -1,0 +1,21 @@
+    TaskSortRequest:
+      required:
+        - task_ids
+      properties:
+        task_ids:
+          type: array
+          description: 'Array of task IDs to be sorted'
+          items:
+            type: string
+            example: 'D2J234DFA'
+        status_id:
+          description: 'Status ID to assign to sorted tasks'
+          type: integer
+          example: 1
+        sort_order:
+          type: array
+          description: 'Array of task IDs in the desired sort order'
+          items:
+            type: string
+            example: 'D2J234DFA'
+      type: object

@@ -1,0 +1,15 @@
+
+{
+    "Item":{
+        "Name": "Pump",
+        "Description": "Fountain Pump",
+        "UnitPrice": 15,
+        "QtyOnHand": 25,
+        "sparse": true,
+        "Id": "11",
+        "MetaData": {
+            "CreateTime": "2024-06-16T10:46:45-07:00",
+            "LastUpdatedTime": "2024-06-19T13:16:17-07:00"
+        }
+  }
+}

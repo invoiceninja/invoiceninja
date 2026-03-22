@@ -1,0 +1,4 @@
+Client Name,Invoice #,Date Issued,Invoice Status,Date Paid,Item Name,Item Description,Rate,Quantity,Discount Percentage,Line Subtotal,Tax 1 Type,Tax 1 Amount,Tax 2 Type,Tax 2 Amount,Line Total,Currency
+X-Men,0000001,2021-01-28,sent,,General Car Repair,Bumper paint touch up,65.00,10.00000000,0.0000,650.00,,0.00,,0.00,650.00,USD
+X-Men,0000001,2021-01-28,sent,,Painting Service,25 hours painting,98.00,5.00000000,0.0000,490.00,,0.00,,0.00,490.00,USD
+X-Men,0000001,2021-01-28,sent,,Product Delivery,Trucking Logistics,150.00,45.00000000,0.0000,6750.00,,0.00,,0.00,6750.00,USD

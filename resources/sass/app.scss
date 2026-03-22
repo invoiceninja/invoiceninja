@@ -1,0 +1,37 @@
+/* purgecss start ignore */
+@tailwind base;
+
+// ..
+@tailwind components;
+
+@import 'components/buttons';
+@import 'components/validation';
+@import 'components/inputs';
+@import 'components/alerts';
+@import 'components/badge';
+@import 'components/datatables';
+
+.pagination {
+    @apply flex items-center #{!important};
+
+    .page-link {
+        @apply -mt-px border-t-2 border-transparent pt-4 px-4 inline-flex items-center text-sm leading-5 font-medium text-gray-500 transition ease-in-out duration-150 cursor-pointer #{!important};
+    }
+
+    .page-link:hover {
+        @apply text-gray-700 border-gray-300 #{!important};
+    }
+
+    .page-link:focus {
+        @apply outline-none text-gray-700 border-gray-400;
+    }
+
+    .active > span {
+        @apply text-blue-600 border-blue-600 #{!important};
+    }
+
+    // hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-400 transition ease-in-out duration-150
+}
+
+/* purgecss end ignore */
+@tailwind utilities;

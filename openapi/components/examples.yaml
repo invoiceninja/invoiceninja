@@ -1,0 +1,74 @@
+  #examples:
+   # Client:
+   #   $ref: '#/components/schemas/Client'
+
+    # Client:
+    #     id: Opnel5aKBz
+    #     user_id: Ua6Rw4pVbS
+    #     assigned_user_id: Ua6Rw4pVbS
+    #     name: "Jim's Housekeeping"
+    #     website: https://www.jims-housekeeping.com
+    #     private_notes: Client prefers email communication over phone calls
+    #     client_hash: asdfkjhk342hjhbfdvmnfb1
+    #     industry_id: 5
+    #     size_id: 2
+    #     address1: 123 Main St
+    #     address2: Apt 4B
+    #     city: Beverly Hills
+    #     state: California
+    #     postal_code: 90210
+    #     phone: 555-3434-3434
+    #     country_id: 1
+    #     custom_value1: Email
+    #     custom_value2: John Doe
+    #     custom_value3: Yes
+    #     custom_value4: $50,000
+    #     vat_number: VAT123456
+    #     id_number: ID123456
+    #     number: CL-0001
+    #     shipping_address1: 5 Wallaby Way
+    #     shipping_address2: Suite 5
+    #     shipping_city: Perth
+    #     shipping_state: Western Australia
+    #     shipping_postal_code: 6110
+    #     shipping_country_id: 4
+    #     is_deleted: false
+    #     balance: 500.00
+    #     paid_to_date: 2000.00
+    #     credit_balance: 100.00
+    #     last_login: 1628686031
+    #     created_at: 1617629031
+    #     updated_at: 1628445631
+    #     group_settings_id: Opnel5aKBz
+    #     routing_id: Opnel5aKBz3489-dfkiu-2239-sdsd
+    #     is_tax_exempt: false
+    #     has_valid_vat_number: false
+    #     payment_balance: 100
+    #     contacts:
+    #         id: Opnel5aKBz
+    #         first_name: John
+    #         last_name: Doe
+    #         email: jim@gmail.com
+    #         phone: 555-3434-3434
+    #         send_invoice: true
+    #         custom_value1: Email
+    #         custom_value2: John Doe
+    #         custom_value3: Yes
+    #         custom_value4: $50,000
+    #         is_primary: true
+    #         created_at: 1617629031
+    #         updated_at: 1628445631
+    #         deleted_at: 1628445631
+    # Meta:
+    #   value:
+    #     pagination:
+    #       total: 1
+    #       count: 1
+    #       per_page: 20
+    #       current_page: 1
+    #       total_pages: 1
+    #       links:
+    #         - first: https://invoicing.co/api/v1/invoices?page=1
+    #         - last: https://invoicing.co/api/v1/invoices?page=1
+    #         - prev: null
+    #         - next: null

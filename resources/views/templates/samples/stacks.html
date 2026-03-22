@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<!-- Examples of how to use generic invoice ninja stacks that can be configured in the UI (Settings > Invoice Design) -->
+<html>
+<head>
+    <style>
+        :root {
+            --primary-color: $primary_color;
+            --secondary-color: $secondary_color;
+            --line-height: 1.6;
+        }
+
+        html {
+            width: 210mm;
+            height: 200mm;
+        }
+
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-family: $font_name, Helvetica, sans-serif;
+            font-size: $font_size !important;
+            zoom: 80%;
+        }
+
+        @page {
+            margin-left: $global_margin;
+            margin-right: $global_margin;
+            margin-top: 5;
+            margin-bottom: 5;
+            size: $page_size $page_layout;
+        }
+
+
+        p {
+            margin: 0;
+            padding: 0;
+        }
+
+        table tr td,
+        table tr,
+        th {
+            font-size: 18 !important;
+        }
+
+        [data-ref="table"] {
+            margin-top: 1rem;
+            margin-bottom: 5px;
+            min-width: 100%;
+            table-layout: fixed;
+            overflow-wrap: break-word;
+        }
+
+        [data-ref="table"]>thead {
+            text-align: left;
+        }
+
+        [data-ref="table"]>thead>tr>th {
+            font-size: 1.1rem;
+            padding-bottom: 1.5rem;
+            padding-left: 1rem;
+        }
+
+        [data-ref="table"]>tbody>tr>td {
+            border-top: 1px solid #d8d8d8;
+            border-bottom: 1px solid #d8d8d8;
+            padding: 1rem 1rem;
+        }
+
+        [data-ref="table"]>tbody>tr>td:first-child {
+            color: var(--primary-color);
+        }
+
+        [data-ref="table"]>thead>tr>th:last-child,
+        [data-ref="table"]>tbody>tr>td:last-child {
+            text-align: right;
+        }
+
+        [data-ref="table"]>thead>tr>th:last-child {
+            padding-right: 1rem;
+        }
+
+        [data-ref="table"]>tbody>tr:nth-child(odd) {
+            background-color: #f5f5f5;
+        }
+
+
+        #client-details {
+            display: flex;
+            flex-direction: column;
+            line-height: var(--line-height);
+            padding-right: 30px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div style="text-align:center;">
+        <h1> Standard Invoice Ninja Blocks </h1>
+        <img class="company-logo" src="$company.logo" alt="$company.name logo">
+    </div>
+
+    <div style="display:flex; padding:2rem;">
+
+        <div style="padding:1rem; border:1px solid #000;">
+            <p>Client Details</p>
+            <div id="client-details"></div>
+        </div>
+
+        <div style="padding:1rem; border:1px solid #000;">
+            <p>Company Details</p>
+            <div id="company-details"></div>
+        </div>
+
+        <div style="padding:1rem; border:1px solid #000;">
+            <p>Company Address</p>
+            <div id="company-address"></div>
+        </div>
+
+    </div>
+
+    <div style="display:flex; padding:2rem;">
+
+        <div style="padding:1rem; border:1px solid #000;">
+            <p>Vendor Details</p>
+            <div id="vendor-details"></div>
+        </div>
+
+        <div style="padding:1rem; border:1px solid #000;">
+            <p>Shipping Address</p>
+            <div id="shipping-details"></div>
+        </div>
+
+    </div>
+
+    <ninja>
+        {% set invoice = invoices|first %}
+        {% set total = 0 %}
+        <table cellspacing="0" data-ref="table">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Notes</th>
+                    <th>Cost</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+                {% for item in invoice.line_items|filter(item => item.type_id == 1) %}
+                <tr>
+                    <td>{{ item.product_key }}</td>
+                    <td>{{ item.notes }}</td>
+                    <td>{{ item.cost_raw|format_currency('GBP') }}</td>
+                </tr>
+                {% set total = total + item.cost_raw %}
+                {% endfor %}
+
+                <tr>
+                    <td></td>
+                    <td>Total</td>
+                    <td>{{ total|format_currency(currency_code) }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </ninja>
+</body>
+
+</html>

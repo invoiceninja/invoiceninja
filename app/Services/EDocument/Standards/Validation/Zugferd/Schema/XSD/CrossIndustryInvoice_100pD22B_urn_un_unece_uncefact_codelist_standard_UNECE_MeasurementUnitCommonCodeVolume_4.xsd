@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:clm6Recommendation20Volume="urn:un:unece:uncefact:codelist:standard:UNECE:MeasurementUnitCommonCodeVolume:4"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="urn:un:unece:uncefact:codelist:standard:UNECE:MeasurementUnitCommonCodeVolume:4"
+    elementFormDefault="qualified"
+    version="1.1">
+  <xsd:simpleType name="MeasurementUnitCommonCodeVolumeContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="CMQ"/>
+      <xsd:enumeration value="FTQ"/>
+      <xsd:enumeration value="LTR"/>
+      <xsd:enumeration value="MMQ"/>
+      <xsd:enumeration value="MTQ"/>
+      <xsd:minLength value="1"/>
+      <xsd:maxLength value="3"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

@@ -1,0 +1,36 @@
+    Meta:
+      properties:
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: 'The total number of items'
+          example: 1
+          readOnly: true
+        count:
+          type: integer
+          description: 'The number of items per page'
+          example: 1
+          readOnly: true
+        per_page:
+          type: integer
+          description: 'The number of items per page'
+          example: 1
+          readOnly: true
+        current_page:
+          type: integer
+          description: 'The current page number'
+          example: 1
+          readOnly: true
+        total_pages:
+          type: integer
+          description: 'The total number of pages'
+          example: 1
+          readOnly: true
+        links:
+          type: object
+          description: 'The pagination links'
+          readOnly: true

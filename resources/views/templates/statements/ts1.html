@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<!-- Plain Statement - TemplateID #TS1 ##statement##-->
+<html>
+
+<head>
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-family: $font_name, Helvetica, sans-serif;
+            font-size: $font_size !important;
+            zoom: 80%;
+        }
+
+        @page {
+            margin: 0 !important; 
+            size: $page_size $page_layout;
+        }
+
+        p {
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+            white-space: nowrap;
+        }
+
+        table {
+            margin-top: 2rem;
+            min-width: 100%;
+            table-layout: fixed;
+            overflow-wrap: break-word;
+
+
+        }
+
+        th {
+            text-align: center;
+            padding-left: 6px;
+            padding-right: 6px;
+            padding-top: 6px;
+            padding-bottom: 6px;
+        }
+
+        td {
+            text-align: center;
+            padding-left: 6px;
+            padding-right: 6px;
+            padding-top: 6px;
+            padding-bottom: 6px;
+        }
+
+        .item-row {
+            border-bottom: 1px #000 dotted;
+        }
+
+        .totals-row-label {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .totals-row-value {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .table-totals {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+        }
+
+        .entity-container {
+            margin-left: auto;
+            margin-right: auto;
+            border: 0px solid #000;
+        }
+
+        .entity-container h2 {
+            text-align: center;
+        }
+
+        span {
+            padding-right: 5px;
+            width: 100%;
+        }
+
+        .label {
+            text-align: right;
+            padding: 0;
+            margin-right: 1rem;
+        }
+
+        .value {
+            text-align: left;
+            padding: 0;
+        }
+
+        .two-col-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        #statement-details {
+            margin: auto;
+        }
+
+        #client-details {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #company-details {
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="two-col-grid">
+        <div id="client-details"></div>
+        <div id="company-details"></div>
+    </div>
+
+    <!-- Details -->
+    <div class="two-col-grid">
+        <div>
+        </div>
+        <div id="statement-details">
+            <h2>Statement</h2>
+            <p>$start_date - $end_date</p>
+        </div>
+    </div>
+    <ninja>
+        {% if invoices is defined and invoices is not empty %}
+        <div class="entity-container">
+            <h2>Invoices<h2>
+                <table width="100%" cellspacing="0" cellpadding="0" class="">
+                    <thead class="">
+                        <tr class="">
+                            <th class="">Invoice #</th>
+                            <th class="">Invoice Date</th>
+                            <th class="">Invoice Due Date</th>
+                            <th class="">Total</th>
+                            <th class="">Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for invoice in invoices %}
+                        <tr class="item-row">
+                            <td class="">{{ invoice.number }}</td>
+                            <td class="">{{ invoice.date }}</td>
+                            <td class="">{{ invoice.due_date }}</td>
+                            <td class="">{{ invoice.amount }}</td>
+                            <td class="">{{ invoice.balance }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+        </div>
+        {% endif %}
+    </ninja>
+
+    <ninja>
+        {% if payments is defined and payments is not empty %}
+        <div class="entity-container">
+            <h2>Payments<h2>
+                    <table width="100%" cellspacing="0" cellpadding="0" class="">
+                        <thead class="">
+                            <tr class="">
+                                <th class="">Invoice #</th>
+                                <th class="">Payment Date</th>
+                                <th class="">Method</th>
+                                <th class="">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in payments %}
+                            <tr class="item-row">
+                                <td class="">{{ payment.number }}</td>
+                                <td class="">{{ payment.date }}</td>
+                                {%if payment.is_credit %}
+                                <td class="">Credit {{ payment.number }}</td>
+                                {%else%}
+                                <td class="">{{ payment.method }}</td>
+                                {%endif%}
+                                <td class="">{{ payment.amount }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+        </div>
+        {% endif %}
+    </ninja>
+
+    <ninja>
+        {% if credits is defined and credits is not empty %}
+        <div class="entity-container">
+            <h2>Credits<h2>
+                    <table width="100%" cellspacing="0" cellpadding="0" class="">
+                        <thead class="">
+                            <tr class="">
+                                <th class="">Credit #</th>
+                                <th class="">Credit Date</th>
+                                <th class="">Total</th>
+                                <th class="">Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for credit in credits %}
+                            <tr class="item-row">
+                                <td class="">{{ credit.number }}</td>
+                                <td class="">{{ credit.date }}</td>
+                                <td class="">{{ credit.amount }}</td>
+                                <td class="">{{ credit.balance }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+        </div>
+        {% endif %}
+    </ninja>
+
+    <ninja>
+        {% if aging is defined %}
+        <div class="entity-container">
+            <h2>Aging<h2>
+                    <table width="100%" cellspacing="0" cellpadding="0" class="">
+                        <thead class="">
+                            <tr class="">
+                                {% for key, age in aging %}
+                                <th class="">{{ key }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="item-row">
+                                {% for key, age in aging %}
+                                <td>{{ age }}</td>
+                                {% endfor %}
+                            </tr>
+                        </tbody>
+                    </table>
+        </div>
+        {% endif %}
+    </ninja>
+</body>
+
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<!-- Tasks - TemplateID #TT10 -->
+<html>
+
+<head>
+    <style>
+        html {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Ubuntu, sans-serif;
+        }
+
+        table {
+            margin-top: 2rem;
+            min-width: 100%;
+            table-layout: fixed;
+            overflow-wrap: break-word;
+        }
+
+        .table-header>tr>th {
+            border-bottom: solid 1px #efefef;
+        }
+
+        .table-body>tr>td {
+            border-bottom: solid 1px #efefef;
+        }
+
+        th {
+            text-align: left;
+            padding-left: 6px;
+            padding-right: 6px;
+            padding-top: 6px;
+            padding-bottom: 6px;
+        }
+
+        td {
+            padding-left: 6px;
+            padding-right: 6px;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+
+<body>
+    <ninja>
+        {% if tasks is defined and tasks is not empty %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Duration</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                {% for log in task.time_log %}
+                <tr>
+                    <td>{{ log.start_date }}</td>
+                    <td>{{ log.description }}</td>
+                    <td>{{ log.duration|date('H:i:s') }}</td>
+                </tr>
+                {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% endif %}
+    </ninja>
+</body>
+
+</html>

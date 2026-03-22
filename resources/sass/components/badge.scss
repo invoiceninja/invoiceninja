@@ -1,0 +1,31 @@
+.badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium leading-4;
+}
+
+.badge-light {
+    @apply bg-gray-100 text-gray-800;
+}
+
+.badge-primary {
+    @apply bg-blue-200 text-blue-500;
+}
+
+.badge-danger {
+    @apply bg-red-100 text-red-500;
+}
+
+.badge-success {
+    @apply bg-emerald-100 text-emerald-500;
+}
+
+.badge-secondary {
+    @apply bg-gray-800 text-gray-200;
+}
+
+.badge-warning {
+    @apply bg-blue-500 text-amber-600;
+}
+
+.badge-info {
+    @apply bg-blue-100 text-blue-500;
+}

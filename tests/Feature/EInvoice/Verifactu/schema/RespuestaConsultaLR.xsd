@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- editado con XMLSpy v2019 sp1 (x64) (http://www.altova.com) por AEAT (Agencia Estatal de Administracion Tributaria ((AEAT))) -->
+<!-- edited with XMLSpy v2009 sp1 (http://www.altova.com) by PC Corporativo (AGENCIA TRIBUTARIA) -->
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:sfLRRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/RespuestaConsultaLR.xsd" xmlns:sf="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/SuministroInformacion.xsd" targetNamespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/RespuestaConsultaLR.xsd" elementFormDefault="qualified">
+	<import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/SuministroInformacion.xsd" schemaLocation="SuministroInformacion.xsd"/>
+	<!-- edited with XMLSpy v2009 sp1 (http://www.altova.com) by PC Corporativo (AGENCIA TRIBUTARIA) -->
+	<element name="RespuestaConsultaFactuSistemaFacturacion" type="sfLRRC:RespuestaConsultaFactuSistemaFacturacionType">
+		<annotation>
+			<documentation>Servicio de consulta de regIstros de facturacion</documentation>
+		</annotation>
+	</element>
+	<complexType name="RespuestaConsultaFactuSistemaFacturacionType">
+		<complexContent>
+			<extension base="sfLRRC:RespuestaConsultaType">
+				<sequence>
+					<element name="RegistroRespuestaConsultaFactuSistemaFacturacion" type="sfLRRC:RegistroRespuestaConsultaRegFacturacionType" minOccurs="0" maxOccurs="10000"/>
+					<element name="ClavePaginacion" type="sf:IDFacturaExpedidaBCType" minOccurs="0"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="EstadoRegFactuType">
+		<sequence>
+			<element name="TimestampUltimaModificacion" type="dateTime"/>
+			<element name="EstadoRegistro" type="sfLRRC:EstadoRegistroType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Estado del registro almacenado en el sistema. Los estados posibles son: Correcta, AceptadaConErrores y Anulada
+											</documentation>
+				</annotation>
+			</element>
+			<element name="CodigoErrorRegistro" type="sfLRRC:ErrorDetalleType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Código del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="DescripcionErrorRegistro" type="sf:TextMax500Type" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Descripción detallada del error de registro, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="RegistroRespuestaConsultaRegFacturacionType">
+		<sequence>
+			<element name="IDFactura" type="sf:IDFacturaExpedidaType"/>
+			<element name="DatosRegistroFacturacion" type="sfLRRC:RespuestaDatosRegistroFacturacionType"/>
+			<element name="DatosPresentacion" type="sf:DatosPresentacion2Type" minOccurs="0"/>
+			<element name="EstadoRegistro" type="sfLRRC:EstadoRegFactuType" />
+		</sequence>
+	</complexType>
+	<complexType name="RespuestaConsultaType">
+		<sequence>
+			<element name="Cabecera" type="sf:CabeceraConsultaSf"/>
+			<element name="PeriodoImputacion">
+				<complexType>
+					<annotation>
+						<documentation xml:lang="es"> Período al que corresponden los apuntes. todos los apuntes deben corresponder al mismo período impositivo </documentation>
+					</annotation>
+					<sequence>
+						<element name="Ejercicio" type="sf:YearType"/>
+						<element name="Periodo" type="sf:TipoPeriodoType"/>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="IndicadorPaginacion" type="sfLRRC:IndicadorPaginacionType"/>
+			<element name="ResultadoConsulta" type="sfLRRC:ResultadoConsultaType"/>
+		</sequence>
+	</complexType>
+	<!-- Datos del registro de facturacion -->
+	<complexType name="RespuestaDatosRegistroFacturacionType">
+		<annotation>
+			<documentation xml:lang="es"> Apunte correspondiente al libro de facturas expedidas. </documentation>
+		</annotation>
+		<sequence>
+			<element name="RefExterna" type="sf:TextMax70Type" minOccurs="0"/>
+			<element name="Subsanacion" type="sf:SubsanacionType" minOccurs="0"/>
+			<element name="RechazoPrevio" type="sf:RechazoPrevioType" minOccurs="0"/>
+			<element name="SinRegistroPrevio" type="sf:SinRegistroPrevioType" minOccurs="0"/>
+			<element name="GeneradoPor" type="sf:GeneradoPorType" minOccurs="0"/>
+			<element name="Generador" type="sf:PersonaFisicaJuridicaType" minOccurs="0"/>
+			<element name="TipoFactura" type="sf:ClaveTipoFacturaType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> Clave del tipo de factura </documentation>
+				</annotation>
+			</element>
+			<element name="TipoRectificativa" type="sf:ClaveTipoRectificativaType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> Identifica si el tipo de factura rectificativa es por sustitución o por diferencia </documentation>
+				</annotation>
+			</element>
+			<element name="FacturasRectificadas" minOccurs="0">
+				<complexType>
+					<annotation>
+						<documentation xml:lang="es">El ID de las facturas rectificadas, únicamente se rellena en el caso de rectificación de facturas</documentation>
+					</annotation>
+					<sequence>
+						<element name="IDFacturaRectificada" type="sf:IDFacturaARType" maxOccurs="1000"/>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="FacturasSustituidas" minOccurs="0">
+				<complexType>
+					<annotation>
+						<documentation xml:lang="es">El ID de las facturas sustituidas, únicamente se rellena en el caso de facturas sustituidas</documentation>
+					</annotation>
+					<sequence>
+						<element name="IDFacturaSustituida" type="sf:IDFacturaARType" maxOccurs="1000"/>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="ImporteRectificacion" type="sf:DesgloseRectificacionType" minOccurs="0"/>
+			<element name="FechaOperacion" type="sf:fecha" minOccurs="0"/>
+			<element name="DescripcionOperacion" type="sf:TextMax500Type" minOccurs="0"/>
+			<element name="FacturaSimplificadaArt7273" type="sf:SimplificadaCualificadaType" minOccurs="0"/>
+			<element name="FacturaSinIdentifDestinatarioArt61d" type="sf:CompletaSinDestinatarioType" minOccurs="0"/>
+			<element name="Macrodato" type="sf:MacrodatoType" minOccurs="0"/>
+			<element name="EmitidaPorTerceroODestinatario" type="sf:TercerosODestinatarioType" minOccurs="0"/>
+			<element name="Tercero" type="sf:PersonaFisicaJuridicaType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> Tercero que expida la factura y/o genera el registro de alta. </documentation>
+				</annotation>
+			</element>
+			<element name="Destinatarios" minOccurs="0">
+				<complexType>
+					<annotation>
+						<documentation xml:lang="es">Contraparte de la operación. Cliente</documentation>
+					</annotation>
+					<sequence>
+						<element name="IDDestinatario" type="sf:PersonaFisicaJuridicaType" maxOccurs="1000"/>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="Cupon" type="sf:CuponType" minOccurs="0"/>
+			<element name="Desglose" type="sf:DesgloseType" minOccurs="0"/>
+			<element name="CuotaTotal" type="sf:ImporteSgn12.2Type" minOccurs="0"/>
+			<element name="ImporteTotal" type="sf:ImporteSgn12.2Type" minOccurs="0"/>
+			<element name="Encadenamiento" minOccurs="0">
+				<complexType>
+					<choice>
+						<element name="PrimerRegistro" type="sf:PrimerRegistroCadenaType"/>
+						<element name="RegistroAnterior" type="sf:EncadenamientoFacturaAnteriorType"/>
+					</choice>
+				</complexType>
+			</element>
+			<element name="FechaHoraHusoGenRegistro" type="dateTime" minOccurs="0"/>
+			<element name="NumRegistroAcuerdoFacturacion" type="sf:TextMax15Type" minOccurs="0"/>
+			<element name="IdAcuerdoSistemaInformatico" type="sf:TextMax16Type" minOccurs="0"/>
+			<element name="TipoHuella" type="sf:TipoHuellaType" minOccurs="0"/>
+			<element name="Huella" type="sf:TextMax64Type" minOccurs="0"/>
+			<element name="NifRepresentante" type="sf:NIFType" minOccurs="0"/>
+			<element name="FechaFinVeriFactu" type="sf:fecha" minOccurs="0"/>
+			<element name="Incidencia" type="sf:IncidenciaType" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<simpleType name="IndicadorPaginacionType">
+		<restriction base="string">
+			<enumeration value="S"/>
+			<enumeration value="N"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="ResultadoConsultaType">
+		<restriction base="string">
+			<enumeration value="ConDatos"/>
+			<enumeration value="SinDatos"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="ErrorDetalleType">
+		<restriction base="integer"/>
+	</simpleType>
+	<!-- Estado del registro almacenado en el sistema -->
+	<simpleType name="EstadoRegistroType">
+		<restriction base="string">
+			<enumeration value="Correcta">
+				<annotation>
+					<documentation xml:lang="es">El registro se almacenado sin errores</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="AceptadaConErrores">
+				<annotation>
+					<documentation xml:lang="es">El registro se almacenado tiene algunos errores. Ver detalle del error</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="Anulada">
+				<annotation>
+					<documentation xml:lang="es">El registro almacenado ha sido anulado</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+</schema>

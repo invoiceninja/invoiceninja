@@ -1,0 +1,208 @@
+<!doctype html>
+<!-- Delivery Note Design 4 - MONO - TemplateID #TD13 -->
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        html {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Ubuntu, sans-serif;
+        }
+
+        table {
+            margin-top: 2rem;
+            min-width: 100%;
+            table-layout: fixed;
+            overflow-wrap: break-word;
+        }
+
+        .table-header>tr>th {
+            border-bottom: solid 1px #efefef;
+        }
+
+        .table-body>tr>td {
+            border-bottom: solid 1px #efefef;
+        }
+
+        th {
+            text-align: left;
+            padding-left: 6px;
+            padding-right: 6px;
+            padding-top: 6px;
+            padding-bottom: 6px;
+        }
+
+        td {
+            padding-left: 6px;
+            padding-right: 6px;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+
+        .item-row {
+            border-bottom: 1px #000 dotted;
+        }
+
+        .totals-row-label {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .totals-row-value {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .table-totals {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+        }
+
+        .centered {
+            text-align: center;
+        }
+
+        .doc-title {
+            font-size: 32px;
+        }
+
+        p {
+            margin: 0;
+            padding: 0;
+        }
+
+        span {
+            padding-right: 5px;
+            width: 100%;
+        }
+
+        div .label {
+            text-align: right;
+            padding-right: 10px;
+        }
+
+        div .value {
+            text-align: left;
+            padding-left: 5px;
+        }
+
+        .two-col-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .client-details {
+            padding-top: 0.2rem;
+            padding-bottom: 0.1rem;
+        }
+
+        .container {
+            padding-top: 2rem;
+        }
+
+        .bottom-margin {
+            padding-bottom: 2rem;
+        }
+
+        .section-title {
+            font-style: italic;
+            color: #454545
+        }
+    </style>
+</head>
+
+<body>
+
+    <ninja>
+        <table width="100%" cellspacing="0" cellpadding="0" class="" border="0">
+            <tr>
+                <td align="left" class="doc-title">Delivery Note</td>
+                <td align="right">{{ img('$company.logo') }}</td>
+            </tr>
+        </table>
+    </ninja>
+
+    <table width="100%" cellspacing="0" cellpadding="0" class="" border="0">
+        <tr>
+            <td align="left" class="">
+                <div class="">
+                    <div class="client-details">
+                        <p class="section-title">Bill To:</p>
+                    </div>
+                    <div class="client-details">
+                        <p>$client.name</p>
+                    </div>
+                    <div class="client-details">
+                        <p>$client.shipping_address</p>
+                    </div>
+                </div>
+            </td>
+
+            <td align="left">
+                <div class="">
+                    <div class="client-details">
+                        <p class="section-title">Ship To:</p>
+                    </div>
+                    <div class="client-details">
+                        <p>$client.name</p>
+                    </div>
+                    <div class="client-details">
+                        <p>$client.shipping_address</p>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <table width="100%" cellspacing="0" cellpadding="0" class="">
+        <tr>
+            <td align="left" class="">
+                <div class="">
+                    <p>Order # $invoice.po_number</p>
+                </div>
+            </td>
+            <td align="left">
+                <div class="">
+                    <p>Order Date: $invoice.date</p>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <!-- If you are using this template for other entities such as quotes, you'll want to ensure that you change the variable from invoices => quotes here -->
+    <ninja>
+        {% if invoices is defined and invoices is not empty %}
+        {% set invoice = invoices|first %}
+        <table width="100%" cellspacing="0" cellpadding="0" class="">
+            <thead class="table-header">
+                <tr class="table-header">
+                    <th class="">Item #</th>
+                    <th class="" width="50%">Description</th>
+                    <th class="totals-row-label centered">Delivered</th>
+                </tr>
+            </thead>
+            <tbody class="table-body">
+                {% for item in invoice.line_items|filter(item => item.type_id == 1) %}
+                <tr class="item-row">
+                    <td class="">{{ item.product_key }}</td>
+                    <td class="">{{ item.notes }}</td>
+                    <td class="centered">{{ item.quantity }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </ninja>
+
+    <table width="100%" cellspacing="0" cellpadding="0" class="">
+        <div class="container">
+            <p class="bottom-margin">Notes:</p>
+
+            $invoice.public_notes
+        </div>
+    </table>
+
+</body>
+
+</html>

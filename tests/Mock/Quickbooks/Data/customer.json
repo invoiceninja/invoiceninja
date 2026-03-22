@@ -1,0 +1,48 @@
+
+{
+    "Customer":{
+      "Taxable": false,
+      "BillAddr": {
+       "Id": "4",
+       "Line1": "65 Ocean Dr.",
+       "City": "Half Moon Bay",
+       "CountrySubDivisionCode": "CA",
+       "PostalCode": "94213",
+       "Lat": "37.4300318",
+       "Long": "-122.4336537"
+      },
+      "Job": false,
+      "BillWithParent": false,
+      "Balance": 0,
+      "BalanceWithJobs": 0,
+      "CurrencyRef": {
+       "value": "USD",
+       "name": "United States Dollar"
+      },
+      "PreferredDeliveryMethod": "Print",
+      "IsProject": false,
+      "ClientEntityId": "0",
+      "domain": "QBO",
+      "sparse": false,
+      "Id": "3",
+      "SyncToken": "0",
+      "MetaData": {
+       "CreateTime": "2024-06-11T16:51:22-07:00",
+       "LastUpdatedTime": "2024-06-19T12:59:21-07:00"
+      },
+      "GivenName": "Grace",
+      "FamilyName": "Pariente",
+      "FullyQualifiedName": "Cool Cars",
+      "CompanyName": "Cool Cars",
+      "DisplayName": "Cool Cars",
+      "PrintOnCheckName": "Cool Cars",
+      "Active": true,
+      "V4IDPseudonym": "002098b664cfcba7ac42889139cc9b06d57333",
+      "PrimaryPhone": {
+       "FreeFormNumber": "(415) 555-9933"
+      },
+      "PrimaryEmailAddr": {
+       "Address": "Cool_Cars@intuit.com"
+      }
+     }
+  }

@@ -1,0 +1,43 @@
+    ClientContactRequest:
+      properties:
+        first_name:
+          description: 'The first name of the contact'
+          type: string
+          example: Sarah
+        last_name:
+          description: 'The last name of the contact'
+          type: string
+          example: Johnson
+        phone:
+          description: 'The phone number of the contact'
+          type: string
+          example: '+1-555-123-4567'
+        custom_value1:
+          description: 'A Custom field value'
+          type: string
+          example: 'Preferred Customer'
+        custom_value2:
+          description: 'A Custom field value'
+          type: string
+          example: 'West Region'
+        custom_value3:
+          description: 'A Custom field value'
+          type: string
+          example: 'Referral: Jane Smith'
+        custom_value4:
+          description: 'A Custom field value'
+          type: string
+          example: 'Account #12345'
+        email:
+          description: 'The email of the contact'
+          type: string
+          example: 'sarah.johnson@example.com'
+        password:
+          description: 'The hashed password of the contact'
+          type: string
+          example: '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'
+        send_email:
+          description: 'Boolean flag that determines if this contact should receive emails'
+          type: boolean
+          example: true
+      type: object

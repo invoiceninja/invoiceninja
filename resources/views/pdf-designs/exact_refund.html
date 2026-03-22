@@ -1,0 +1,186 @@
+<!doctype html>
+<html>
+<!-- Refund -->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        @import url($font_url);
+
+        @page {
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-top: 0;
+            margin-bottom: 0;
+            size: A5 landscape;
+            /* size: 210mm 75mm; */
+            border: 0px solid #000;
+        }
+
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-family: $font_name, Helvetica, sans-serif;
+            font-size: $font_sizepx !important;
+            zoom: 80%;
+        }
+
+        .centered {
+            text-align: center;
+        }
+
+        p {
+            margin: 0;
+            padding: 0;
+        }
+
+        .two-col-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .four-col-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+        }
+
+        .key-value-grid {
+            display: grid;
+            grid-template-columns: 1fr 4fr;
+        }
+
+        .primary-color-highlight {
+            color: $primary_color;
+        }
+
+        .secondary-color-highlight {
+            color: $secondary_color;
+        }
+
+        .company-logo {
+            max-width: $company_logo_size;
+            max-height: 100px;
+            vertical-align: middle;
+        }
+
+        .border {
+            border: 1px solid #000;
+        }
+
+        .zero {
+            margin: 0;
+            padding: 0;
+        }
+
+        .pull-left {
+            margin-left: 0;
+            margin-right: auto;
+        }
+
+        .pull-right {
+            margin-left: auto;
+            margin-right: 0;
+        }
+
+        .italic {
+            font-style: italic;
+        }
+
+        .bottom-border {
+            border-bottom: 1px solid $primary_color;
+        }
+    </style>
+</head>
+
+<body>
+    <ninja>
+        <div class="two-col-grid">
+            <div class="pull-left">
+                <h1 class="primary-color-highlight" style="margin-top:0; margin-bottom:0rem;">$refund_label {% if
+                    payments|length == 1%}#$number {% endif %}</h2>
+            </div>
+            <div class="pull-right">{{ img('$company.logo','max-width: $company_logo_size; max-height: 100px;
+                vertical-align: middle;') }}</div>
+        </div>
+    </ninja>
+    <div class="two-col-grid">
+        <div class="pull-left">
+            <h4 class="italic" style="margin-bottom:0.5rem;">$to_label</h3>
+                <p style="margin-bottom:0.5rem;">$client.name</p>
+                <ninja>
+                    {% set payment = payments|first %}
+                    {% if payment.client.vat_number %}
+                    <p>$vat_number_label: $vat_number</p>
+                    {% endif %}
+                </ninja>
+        </div>
+        <div class="pull-right">
+            <!-- <h3 class="secondary-color-highlight zero italic">$to_label</h3>
+            <p>$company.name</p> -->
+        </div>
+    </div>
+
+    <div class="" style="margin-top:20px;">
+
+        <ninja>
+            {% if payments|e %}
+            {% set totalInvoices = 0 %}
+            {% set totalRefunds = 0 %}
+            {% for payment in payments %}
+            {% for pivot in payment.paymentables|filter((pivot) => (pivot.is_credit == '0' and pivot.refunded_raw > 0))
+            %}
+
+            <div class="two-col-grid bottom-border" style="padding:2px; padding:5px;">
+                <div style="display:flex;">
+                    <p class="primary-color-highlight">$invoice_label #{{ pivot.invoice }}</p>
+                    <p class="primary-color-highlight" style="padding-left:1rem;"> ({{ pivot.amount }})</p>
+                </div>
+                <div style="display:flex;">
+                    <p>{{ pivot.refunded }}</p>
+                    <p style="padding-left:1rem;">($refund_label)</p>
+                </div>
+                <div>
+                </div>
+                <div>
+                </div>
+            </div>
+
+            {% set totalInvoices = totalInvoices + pivot.amount_raw %}
+            {% set totalRefunds = totalRefunds + pivot.refunded_raw %}
+            {% endfor %}
+            {% endfor %}
+
+            <div class="four-col-grid bottom-border" style="padding:2px; padding:5px;">
+                <div style="display:flex; margin-top:1rem">
+                    <p class="primary-color-highlight">$invoices_label:</p>
+                </div>
+                <div style="display:flex; margin-top:1rem;">
+                    <p style="">{{ totalInvoices|format_currency(currency_code) }}</p>
+                </div>
+                <div style="display:flex; margin-top:1rem">
+                    <p class="primary-color-highlight">$refund_label:</p>
+                </div>
+                <div style="display:flex; margin-top:1rem;">
+                    <p style="">{{ totalRefunds|format_currency(currency_code) }}</p>
+                </div>
+            </div>
+
+            {% endif %}
+        </ninja>
+
+    </div>
+
+    <div class="two-col-grid"
+        style="margin-top: 1rem; position:absolute; bottom: 0; width:100%; margin-right:0rem !important; padding-right:0rem;">
+        <div id="company-details" class="pull-left" style="padding-bottom:1rem;">
+            <!-- <h3>$company.name</h3> -->
+        </div>
+        <div class="pull-right" style="padding-right:1rem;">
+            <p>$public_notes</p>
+        </div>
+    </div>
+
+</body>
+
+</html>

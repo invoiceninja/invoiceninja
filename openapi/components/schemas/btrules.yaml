@@ -1,0 +1,15 @@
+    BTRules:
+      properties:
+        data_key:
+          description: 'The key to search'
+          type: string
+          example: 'description,amount'
+        operator:
+          description: 'The operator flag of the search'
+          type: string
+          example: '>'
+        value:
+          description: 'The value to search for'
+          type: string
+          example: bob
+      type: object

@@ -1,0 +1,6 @@
+    400:      
+      description: 'Invalid user input'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InvalidInputError'

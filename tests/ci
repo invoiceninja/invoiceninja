@@ -1,0 +1,51 @@
+#!/usr/bin/env php
+<?php
+
+/*
+ * This script assumes you're in a Laravel project that has access
+ * to the Str, Collection and Symfony's Process class.
+ */
+require_once 'vendor/autoload.php';
+
+/**
+ * Lists PHPunit tests in the following format:
+ *  - Tests\Support\UuidTest::it_can_create_a_uuid_from_a_string
+ *  - Tests\Support\UuidTest::it_can_not_create_a_uuid_from_null
+ *  - ...
+ */
+$process = new \Symfony\Component\Process\Process(['./vendor/bin/phpunit', '--list-tests']);
+$process->mustRun();
+
+$tests = \Illuminate\Support\Str::of($process->getOutput())
+    ->explode("\n") // Break the output from new lines into an array
+    ->filter(fn (string $test) => str_contains($test, ' - ')) // Only lines with " - "
+    ->map(fn (string $test) => addslashes(
+        \Illuminate\Support\Str::of($test)
+            ->replace('- ', '') // Strip the "- "
+            ->trim()
+            ->explode('::') // Only the class, not the method
+            ->get(0)
+    ))
+    ->filter(fn (string $test) => !empty($test)) // Make sure there are no empty lines
+    ->unique() // We only need unique classes
+    // ->split(10)
+    // ->get(1);
+    ->split((int) getenv('CI_NODE_TOTAL')) // Split it into equally sized chunks
+    ->get((int) getenv('CI_NODE_INDEX')); // Get the index we need for this instance
+
+/**
+ * Run phpunit with a filter:
+ * phpunit --filter 'TestClass|AnotherTestClass|...'
+ */
+$process = new \Symfony\Component\Process\Process(['php', 'artisan', 'test', '--testdox', '--filter', $tests->join('|')], timeout: null);
+$process->start();
+
+// Make sure we have live data output
+foreach ($process as $type => $data) {
+    echo $data;
+}
+
+$process->wait();
+
+// Exit using PHPUnit's exit code to have the action pass/fail
+exit($process->getExitCode());

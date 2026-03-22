@@ -1,0 +1,407 @@
+"Invoice Ninja v4.5.17 - December 19, 2020 11:28 pm",,,
+,,,
+Payments,,,
+Client,Invoice Number,Amount,Date
+Ludwig Krajcik DVM,1,$13.50 ,10/20/2019
+Ludwig Krajcik DVM,2,$26.67 ,2/29/2020
+Ludwig Krajcik DVM,2,$26.67 ,2/29/2020
+Ludwig Krajcik DVM,3,$16.10 ,11/28/2019
+Ludwig Krajcik DVM,4,$5.22 ,11/5/2019
+Ludwig Krajcik DVM,5,$6.96 ,3/6/2020
+Ludwig Krajcik DVM,6,$43.26 ,1/15/2020
+Ludwig Krajcik DVM,7,$31.70 ,2/5/2020
+Ludwig Krajcik DVM,8,$8.28 ,11/15/2019
+Ludwig Krajcik DVM,9,$27.20 ,12/14/2019
+Ludwig Krajcik DVM,10,$63.68 ,3/8/2020
+Ludwig Krajcik DVM,11,$9.45 ,10/23/2019
+Ludwig Krajcik DVM,12,$32.55 ,11/27/2019
+Ludwig Krajcik DVM,13,$28.08 ,2/26/2020
+Ludwig Krajcik DVM,14,$3.96 ,2/24/2020
+Ludwig Krajcik DVM,15,$24.33 ,2/17/2020
+Ludwig Krajcik DVM,16,$15.00 ,2/4/2020
+Ludwig Krajcik DVM,17,$18.54 ,2/8/2020
+Ludwig Krajcik DVM,18,$67.41 ,12/7/2019
+Ludwig Krajcik DVM,19,$11.30 ,2/24/2020
+Ludwig Krajcik DVM,20,$9.11 ,2/12/2020
+Bradly Jaskolski Sr.,41,$46.65 ,3/25/2020
+Bradly Jaskolski Sr.,42,$21.68 ,1/14/2020
+Bradly Jaskolski Sr.,43,$21.84 ,11/6/2019
+Bradly Jaskolski Sr.,44,$25.28 ,2/23/2020
+Bradly Jaskolski Sr.,45,$49.12 ,4/6/2020
+Bradly Jaskolski Sr.,46,$28.16 ,1/3/2020
+Bradly Jaskolski Sr.,47,$8.27 ,1/19/2020
+Bradly Jaskolski Sr.,48,$12.30 ,11/21/2019
+Bradly Jaskolski Sr.,49,$38.61 ,1/30/2020
+Bradly Jaskolski Sr.,50,$8.26 ,12/15/2019
+Bradly Jaskolski Sr.,51,$9.76 ,1/16/2020
+Bradly Jaskolski Sr.,52,$10.86 ,12/29/2019
+Bradly Jaskolski Sr.,53,$5.60 ,10/23/2019
+Bradly Jaskolski Sr.,54,$30.72 ,11/14/2019
+Bradly Jaskolski Sr.,55,$59.31 ,10/29/2019
+Bradly Jaskolski Sr.,56,$50.40 ,2/22/2020
+Bradly Jaskolski Sr.,57,$17.19 ,4/2/2020
+Bradly Jaskolski Sr.,58,$46.41 ,1/7/2020
+Bradly Jaskolski Sr.,59,$91.80 ,2/4/2020
+Bradly Jaskolski Sr.,60,$42.30 ,2/17/2020
+Mr. Dustin Stehr I,81,$28.96 ,3/5/2020
+Mr. Dustin Stehr I,82,$28.74 ,2/25/2020
+Mr. Dustin Stehr I,83,$20.08 ,12/29/2019
+Mr. Dustin Stehr I,84,$42.84 ,2/13/2020
+Mr. Dustin Stehr I,85,$8.32 ,3/21/2020
+Mr. Dustin Stehr I,86,$9.68 ,11/28/2019
+Mr. Dustin Stehr I,87,$6.84 ,4/24/2020
+Mr. Dustin Stehr I,88,$14.82 ,11/2/2019
+Mr. Dustin Stehr I,89,$15.50 ,1/3/2020
+Mr. Dustin Stehr I,90,$15.36 ,12/15/2019
+Mr. Dustin Stehr I,91,$38.90 ,11/11/2019
+Mr. Dustin Stehr I,92,$32.04 ,3/28/2020
+Mr. Dustin Stehr I,93,$27.81 ,11/21/2019
+Mr. Dustin Stehr I,94,$35.91 ,11/24/2019
+Mr. Dustin Stehr I,95,$26.61 ,10/30/2019
+Mr. Dustin Stehr I,96,$8.69 ,4/2/2020
+Mr. Dustin Stehr I,97,$14.70 ,12/22/2019
+Mr. Dustin Stehr I,98,$78.48 ,12/31/2019
+Mr. Dustin Stehr I,99,$39.10 ,1/4/2020
+Mr. Dustin Stehr I,100,$43.29 ,12/18/2019
+Dr. Baron Armstrong Sr.,121,$4.32 ,1/9/2020
+Dr. Baron Armstrong Sr.,122,$8.70 ,12/9/2019
+Dr. Baron Armstrong Sr.,123,$35.46 ,3/23/2020
+Dr. Baron Armstrong Sr.,124,$5.58 ,10/26/2019
+Dr. Baron Armstrong Sr.,125,$47.25 ,1/23/2020
+Dr. Baron Armstrong Sr.,126,$41.00 ,10/15/2019
+Dr. Baron Armstrong Sr.,127,$9.96 ,12/29/2019
+Dr. Baron Armstrong Sr.,128,$16.26 ,4/19/2020
+Dr. Baron Armstrong Sr.,129,$8.20 ,3/28/2020
+Dr. Baron Armstrong Sr.,130,$14.49 ,4/8/2020
+Dr. Baron Armstrong Sr.,131,$51.93 ,11/15/2019
+Dr. Baron Armstrong Sr.,132,$13.77 ,10/14/2019
+Dr. Baron Armstrong Sr.,133,$42.10 ,12/8/2019
+Dr. Baron Armstrong Sr.,134,$34.28 ,10/21/2019
+Dr. Baron Armstrong Sr.,135,$39.45 ,12/29/2019
+Dr. Baron Armstrong Sr.,136,$62.37 ,3/24/2020
+Dr. Baron Armstrong Sr.,137,$9.24 ,1/21/2020
+Dr. Baron Armstrong Sr.,138,$13.46 ,3/7/2020
+Dr. Baron Armstrong Sr.,139,$48.37 ,2/27/2020
+Dr. Baron Armstrong Sr.,140,$15.76 ,3/27/2020
+Dr. Clemens Douglas MD,161,$8.75 ,4/16/2020
+Dr. Clemens Douglas MD,162,$6.20 ,11/30/2019
+Dr. Clemens Douglas MD,163,$18.78 ,12/28/2019
+Dr. Clemens Douglas MD,164,$73.35 ,4/26/2020
+Dr. Clemens Douglas MD,165,$1.32 ,1/27/2020
+Dr. Clemens Douglas MD,166,$19.32 ,11/12/2019
+Dr. Clemens Douglas MD,167,$80.82 ,3/19/2020
+Dr. Clemens Douglas MD,168,$63.90 ,4/23/2020
+Dr. Clemens Douglas MD,169,$7.34 ,10/30/2019
+Dr. Clemens Douglas MD,170,$43.20 ,1/19/2020
+Dr. Clemens Douglas MD,171,$30.00 ,2/28/2020
+Dr. Clemens Douglas MD,172,$32.72 ,12/24/2019
+Dr. Clemens Douglas MD,173,$20.96 ,2/19/2020
+Dr. Clemens Douglas MD,174,$21.30 ,3/10/2020
+Dr. Clemens Douglas MD,175,$14.98 ,1/25/2020
+Dr. Clemens Douglas MD,176,$26.92 ,1/22/2020
+Dr. Clemens Douglas MD,177,$69.30 ,12/9/2019
+Dr. Clemens Douglas MD,178,$7.66 ,2/5/2020
+Dr. Clemens Douglas MD,179,$26.24 ,3/9/2020
+Dr. Clemens Douglas MD,180,$87.80 ,12/16/2019
+Dr. Claire Huel Sr.,201,$10.98 ,1/23/2020
+Dr. Claire Huel Sr.,202,$59.28 ,10/27/2019
+Dr. Claire Huel Sr.,203,$32.24 ,12/16/2019
+Dr. Claire Huel Sr.,204,$26.60 ,2/26/2020
+Dr. Claire Huel Sr.,205,$39.20 ,11/4/2019
+Dr. Claire Huel Sr.,206,$15.36 ,3/20/2020
+Dr. Claire Huel Sr.,207,$25.84 ,2/28/2020
+Dr. Claire Huel Sr.,208,$37.44 ,2/1/2020
+Dr. Claire Huel Sr.,209,$49.14 ,10/22/2019
+Dr. Claire Huel Sr.,210,$33.80 ,4/25/2020
+Dr. Claire Huel Sr.,211,$45.96 ,10/22/2019
+Dr. Claire Huel Sr.,212,$32.40 ,1/1/2020
+Dr. Claire Huel Sr.,213,$40.46 ,2/25/2020
+Dr. Claire Huel Sr.,214,$1.52 ,2/18/2020
+Dr. Claire Huel Sr.,215,$24.84 ,2/26/2020
+Dr. Claire Huel Sr.,216,$81.36 ,12/13/2019
+Dr. Claire Huel Sr.,217,$30.20 ,4/7/2020
+Dr. Claire Huel Sr.,218,$2.14 ,4/16/2020
+Dr. Claire Huel Sr.,219,$88.60 ,1/25/2020
+Dr. Claire Huel Sr.,220,$15.60 ,11/20/2019
+Francisca Padberg,241,$21.84 ,11/27/2019
+Francisca Padberg,242,$76.95 ,1/29/2020
+Francisca Padberg,243,$5.78 ,3/22/2020
+Francisca Padberg,244,$9.25 ,2/7/2020
+Francisca Padberg,245,$7.15 ,3/6/2020
+Francisca Padberg,246,$40.08 ,2/11/2020
+Francisca Padberg,247,$38.64 ,4/12/2020
+Francisca Padberg,248,$1.32 ,1/14/2020
+Francisca Padberg,249,$30.96 ,2/28/2020
+Francisca Padberg,250,$39.20 ,2/23/2020
+Francisca Padberg,251,$37.17 ,3/7/2020
+Francisca Padberg,252,$6.87 ,3/4/2020
+Francisca Padberg,253,$32.60 ,11/10/2019
+Francisca Padberg,254,$27.99 ,12/10/2019
+Francisca Padberg,255,$4.86 ,3/18/2020
+Francisca Padberg,256,$40.50 ,1/31/2020
+Francisca Padberg,257,$14.13 ,3/23/2020
+Francisca Padberg,258,$30.64 ,4/12/2020
+Francisca Padberg,259,$48.55 ,2/25/2020
+Francisca Padberg,260,$55.26 ,4/1/2020
+Dr. Roy Kihn,281,$33.85 ,2/2/2020
+Dr. Roy Kihn,282,$77.10 ,4/1/2020
+Dr. Roy Kihn,283,$1.93 ,10/31/2019
+Dr. Roy Kihn,284,$8.50 ,11/6/2019
+Dr. Roy Kihn,285,$41.28 ,12/3/2019
+Dr. Roy Kihn,286,$16.56 ,1/22/2020
+Dr. Roy Kihn,287,$11.46 ,12/13/2019
+Dr. Roy Kihn,288,$5.68 ,2/8/2020
+Dr. Roy Kihn,289,$25.06 ,1/1/2020
+Dr. Roy Kihn,290,$36.54 ,2/6/2020
+Dr. Roy Kihn,291,$11.13 ,4/17/2020
+Dr. Roy Kihn,292,$6.12 ,11/19/2019
+Dr. Roy Kihn,293,$68.18 ,10/29/2019
+Dr. Roy Kihn,294,$22.68 ,3/20/2020
+Dr. Roy Kihn,295,$28.24 ,1/24/2020
+Dr. Roy Kihn,296,$9.95 ,11/16/2019
+Dr. Roy Kihn,297,$40.95 ,12/29/2019
+Dr. Roy Kihn,298,$17.10 ,4/14/2020
+Dr. Roy Kihn,299,$47.52 ,1/11/2020
+Dr. Roy Kihn,300,$13.70 ,4/12/2020
+Nasir Vandervort,321,$54.56 ,11/3/2019
+Nasir Vandervort,322,$22.60 ,12/16/2019
+Nasir Vandervort,323,$13.92 ,4/27/2020
+Nasir Vandervort,324,$11.85 ,2/12/2020
+Nasir Vandervort,325,$8.15 ,10/28/2019
+Nasir Vandervort,326,$6.60 ,2/14/2020
+Nasir Vandervort,327,$84.96 ,2/16/2020
+Nasir Vandervort,328,$12.40 ,11/23/2019
+Nasir Vandervort,329,$20.28 ,3/16/2020
+Nasir Vandervort,330,$41.04 ,1/5/2020
+Nasir Vandervort,331,$59.29 ,12/27/2019
+Nasir Vandervort,332,$18.10 ,10/14/2019
+Nasir Vandervort,333,$65.03 ,12/13/2019
+Nasir Vandervort,334,$46.44 ,4/5/2020
+Nasir Vandervort,335,$29.44 ,12/11/2019
+Nasir Vandervort,336,$17.60 ,1/13/2020
+Nasir Vandervort,337,$9.02 ,2/24/2020
+Nasir Vandervort,338,$13.08 ,3/25/2020
+Nasir Vandervort,339,$34.92 ,3/3/2020
+Nasir Vandervort,340,$5.12 ,3/7/2020
+Garry Rosenbaum,361,$28.48 ,2/15/2020
+Garry Rosenbaum,362,$19.26 ,1/19/2020
+Garry Rosenbaum,363,$13.52 ,10/20/2019
+Garry Rosenbaum,364,$1.60 ,10/17/2019
+Garry Rosenbaum,365,$31.56 ,12/6/2019
+Garry Rosenbaum,366,$18.32 ,2/8/2020
+Garry Rosenbaum,367,$8.40 ,10/21/2019
+Garry Rosenbaum,368,$19.62 ,3/4/2020
+Garry Rosenbaum,369,$34.26 ,4/1/2020
+Garry Rosenbaum,370,$55.62 ,12/3/2019
+Garry Rosenbaum,371,$62.50 ,11/9/2019
+Garry Rosenbaum,372,$70.00 ,11/28/2019
+Garry Rosenbaum,373,$32.94 ,12/24/2019
+Garry Rosenbaum,374,$21.92 ,4/11/2020
+Garry Rosenbaum,375,$24.28 ,1/26/2020
+Garry Rosenbaum,376,$48.40 ,11/27/2019
+Garry Rosenbaum,377,$24.18 ,11/22/2019
+Garry Rosenbaum,378,$43.98 ,1/2/2020
+Garry Rosenbaum,379,$14.91 ,10/26/2019
+Garry Rosenbaum,380,$4.70 ,4/6/2020
+Hildegard Crona PhD,401,$42.77 ,3/18/2020
+Hildegard Crona PhD,402,$34.65 ,1/15/2020
+Hildegard Crona PhD,403,$80.82 ,10/19/2019
+Hildegard Crona PhD,404,$83.30 ,3/9/2020
+Hildegard Crona PhD,405,$2.02 ,2/21/2020
+Hildegard Crona PhD,406,$23.92 ,2/25/2020
+Hildegard Crona PhD,407,$10.24 ,12/24/2019
+Hildegard Crona PhD,408,$27.20 ,4/17/2020
+Hildegard Crona PhD,409,$36.52 ,12/13/2019
+Hildegard Crona PhD,410,$10.76 ,4/30/2020
+Hildegard Crona PhD,411,$12.50 ,2/9/2020
+Hildegard Crona PhD,412,$17.02 ,11/9/2019
+Hildegard Crona PhD,413,$16.77 ,2/7/2020
+Hildegard Crona PhD,414,$5.09 ,4/5/2020
+Hildegard Crona PhD,415,$11.79 ,3/29/2020
+Hildegard Crona PhD,416,$37.00 ,4/3/2020
+Hildegard Crona PhD,417,$75.20 ,4/8/2020
+Hildegard Crona PhD,418,$3.16 ,2/13/2020
+Hildegard Crona PhD,419,$11.68 ,1/16/2020
+Hildegard Crona PhD,420,$19.04 ,11/19/2019
+Kristopher White I,441,$56.70 ,2/3/2020
+Kristopher White I,442,$57.89 ,11/2/2019
+Kristopher White I,443,$8.38 ,1/14/2020
+Kristopher White I,444,$40.40 ,1/6/2020
+Kristopher White I,445,$56.28 ,4/3/2020
+Kristopher White I,446,$26.58 ,3/8/2020
+Kristopher White I,447,$33.04 ,12/25/2019
+Kristopher White I,448,$28.50 ,1/27/2020
+Kristopher White I,449,$17.65 ,12/6/2019
+Kristopher White I,450,$15.54 ,10/24/2019
+Kristopher White I,451,$26.58 ,4/21/2020
+Kristopher White I,452,$56.28 ,3/16/2020
+Kristopher White I,453,$2.70 ,10/20/2019
+Kristopher White I,454,$46.55 ,12/11/2019
+Kristopher White I,455,$69.75 ,4/27/2020
+Kristopher White I,456,$34.86 ,4/14/2020
+Kristopher White I,457,$23.56 ,2/27/2020
+Kristopher White I,458,$76.70 ,3/12/2020
+Kristopher White I,459,$10.90 ,11/20/2019
+Kristopher White I,460,$52.50 ,3/7/2020
+Ethan Grant,481,$63.84 ,4/22/2020
+Ethan Grant,482,$29.47 ,3/13/2020
+Ethan Grant,483,$19.32 ,3/21/2020
+Ethan Grant,484,$53.06 ,3/31/2020
+Ethan Grant,485,$21.49 ,4/24/2020
+Ethan Grant,486,$19.04 ,4/4/2020
+Ethan Grant,487,$56.30 ,1/20/2020
+Ethan Grant,488,$7.36 ,4/12/2020
+Ethan Grant,489,$68.18 ,2/23/2020
+Ethan Grant,490,$49.59 ,3/28/2020
+Ethan Grant,491,$13.48 ,4/10/2020
+Ethan Grant,492,$26.20 ,12/12/2019
+Ethan Grant,493,$92.90 ,1/9/2020
+Ethan Grant,494,$62.16 ,1/12/2020
+Ethan Grant,495,$41.40 ,3/21/2020
+Ethan Grant,496,$12.96 ,2/10/2020
+Ethan Grant,497,$75.60 ,2/15/2020
+Ethan Grant,498,$20.52 ,12/24/2019
+Ethan Grant,499,$5.22 ,11/8/2019
+Ethan Grant,500,$10.00 ,3/8/2020
+Terry Shields,521,$10.24 ,10/15/2019
+Terry Shields,522,$9.85 ,3/18/2020
+Terry Shields,523,$13.84 ,10/23/2019
+Terry Shields,524,$50.80 ,10/24/2019
+Terry Shields,525,$11.04 ,3/10/2020
+Terry Shields,526,$86.50 ,12/4/2019
+Terry Shields,527,$41.90 ,3/18/2020
+Terry Shields,528,$7.72 ,1/27/2020
+Terry Shields,529,$6.76 ,10/24/2019
+Terry Shields,530,$4.71 ,1/6/2020
+Terry Shields,531,$42.80 ,3/27/2020
+Terry Shields,532,$28.28 ,4/4/2020
+Terry Shields,533,$21.00 ,2/6/2020
+Terry Shields,534,$73.35 ,3/4/2020
+Terry Shields,535,$20.09 ,2/14/2020
+Terry Shields,536,$10.98 ,4/12/2020
+Terry Shields,537,$13.80 ,3/10/2020
+Terry Shields,538,$3.97 ,3/13/2020
+Terry Shields,539,$1.08 ,2/5/2020
+Terry Shields,540,$62.37 ,4/14/2020
+Agustina Lockman,561,$12.40 ,10/17/2019
+Agustina Lockman,562,$16.08 ,2/1/2020
+Agustina Lockman,563,$11.54 ,2/13/2020
+Agustina Lockman,564,$69.65 ,1/10/2020
+Agustina Lockman,565,$46.50 ,4/13/2020
+Agustina Lockman,566,$15.36 ,1/20/2020
+Agustina Lockman,567,$42.20 ,11/18/2019
+Agustina Lockman,568,$7.28 ,1/15/2020
+Agustina Lockman,569,$29.80 ,3/12/2020
+Agustina Lockman,570,$10.15 ,11/7/2019
+Agustina Lockman,571,$57.78 ,1/24/2020
+Agustina Lockman,572,$8.77 ,2/8/2020
+Agustina Lockman,573,$81.36 ,4/9/2020
+Agustina Lockman,574,$41.30 ,4/29/2020
+Agustina Lockman,575,$44.65 ,11/7/2019
+Agustina Lockman,576,$42.00 ,3/27/2020
+Agustina Lockman,577,$49.40 ,12/4/2019
+Agustina Lockman,578,$9.57 ,3/29/2020
+Agustina Lockman,579,$17.52 ,4/16/2020
+Agustina Lockman,580,$3.10 ,2/1/2020
+Alfonso Schimmel,601,$4.34 ,10/16/2019
+Alfonso Schimmel,602,$37.30 ,1/24/2020
+Alfonso Schimmel,603,$45.18 ,4/10/2020
+Alfonso Schimmel,604,$3.54 ,1/7/2020
+Alfonso Schimmel,605,$89.40 ,3/15/2020
+Alfonso Schimmel,606,$13.48 ,10/23/2019
+Alfonso Schimmel,607,$5.39 ,4/11/2020
+Alfonso Schimmel,608,$23.00 ,2/12/2020
+Alfonso Schimmel,609,$8.40 ,4/29/2020
+Alfonso Schimmel,610,$84.60 ,4/10/2020
+Alfonso Schimmel,611,$52.56 ,11/28/2019
+Alfonso Schimmel,612,$16.30 ,1/4/2020
+Alfonso Schimmel,613,$29.12 ,12/25/2019
+Alfonso Schimmel,614,$13.09 ,1/8/2020
+Alfonso Schimmel,615,$15.30 ,2/15/2020
+Alfonso Schimmel,616,$5.04 ,1/13/2020
+Alfonso Schimmel,617,$20.04 ,11/3/2019
+Alfonso Schimmel,618,$20.10 ,3/29/2020
+Alfonso Schimmel,619,$36.12 ,3/21/2020
+Alfonso Schimmel,620,$22.40 ,1/15/2020
+Vergie Monahan,641,$3.44 ,12/13/2019
+Vergie Monahan,642,$38.00 ,12/31/2019
+Vergie Monahan,643,$16.10 ,3/27/2020
+Vergie Monahan,644,$86.76 ,10/20/2019
+Vergie Monahan,645,$5.98 ,10/31/2019
+Vergie Monahan,646,$23.58 ,3/1/2020
+Vergie Monahan,647,$2.64 ,1/9/2020
+Vergie Monahan,648,$39.51 ,3/3/2020
+Vergie Monahan,649,$8.68 ,10/25/2019
+Vergie Monahan,650,$5.69 ,3/19/2020
+Vergie Monahan,651,$40.50 ,12/10/2019
+Vergie Monahan,652,$15.00 ,3/1/2020
+Vergie Monahan,653,$1.77 ,10/16/2019
+Vergie Monahan,654,$13.60 ,11/1/2019
+Vergie Monahan,655,$55.30 ,3/1/2020
+Vergie Monahan,656,$24.96 ,1/31/2020
+Vergie Monahan,657,$7.16 ,2/29/2020
+Vergie Monahan,658,$7.04 ,11/6/2019
+Vergie Monahan,659,$10.56 ,1/18/2020
+Vergie Monahan,660,$5.10 ,2/27/2020
+Carol Cremin,681,$18.34 ,10/29/2019
+Carol Cremin,682,$23.85 ,12/29/2019
+Carol Cremin,683,$30.03 ,3/21/2020
+Carol Cremin,684,$73.52 ,3/7/2020
+Carol Cremin,685,$77.13 ,2/6/2020
+Carol Cremin,686,$60.10 ,10/31/2019
+Carol Cremin,687,$37.71 ,1/17/2020
+Carol Cremin,688,$23.43 ,2/19/2020
+Carol Cremin,689,$12.14 ,1/9/2020
+Carol Cremin,690,$13.22 ,11/29/2019
+Carol Cremin,691,$60.30 ,12/4/2019
+Carol Cremin,692,$27.60 ,3/11/2020
+Carol Cremin,693,$63.21 ,3/8/2020
+Carol Cremin,694,$88.74 ,11/25/2019
+Carol Cremin,695,$31.40 ,1/17/2020
+Carol Cremin,696,$12.69 ,1/25/2020
+Carol Cremin,697,$47.15 ,12/17/2019
+Carol Cremin,698,$45.76 ,10/21/2019
+Carol Cremin,699,$12.60 ,11/6/2019
+Carol Cremin,700,$16.00 ,3/12/2020
+Randal Bosco MD,721,$6.84 ,1/24/2020
+Randal Bosco MD,722,$42.90 ,1/12/2020
+Randal Bosco MD,723,$34.90 ,11/12/2019
+Randal Bosco MD,724,$23.20 ,2/6/2020
+Randal Bosco MD,725,$38.00 ,12/3/2019
+Randal Bosco MD,726,$18.45 ,1/23/2020
+Randal Bosco MD,727,$9.61 ,1/20/2020
+Randal Bosco MD,728,$1.82 ,1/7/2020
+Randal Bosco MD,729,$8.22 ,11/7/2019
+Randal Bosco MD,730,$38.08 ,12/8/2019
+Randal Bosco MD,731,$29.80 ,2/8/2020
+Randal Bosco MD,732,$67.20 ,12/12/2019
+Randal Bosco MD,733,$16.48 ,3/5/2020
+Randal Bosco MD,734,$14.40 ,2/26/2020
+Randal Bosco MD,735,$30.75 ,12/20/2019
+Randal Bosco MD,736,$81.18 ,1/5/2020
+Randal Bosco MD,737,$24.96 ,3/20/2020
+Randal Bosco MD,738,$18.90 ,3/2/2020
+Randal Bosco MD,739,$4.03 ,2/25/2020
+Randal Bosco MD,740,$35.46 ,3/20/2020
+Ms. Alena Cassin,761,$45.70 ,2/12/2020
+Ms. Alena Cassin,762,$14.28 ,1/20/2020
+Ms. Alena Cassin,763,$25.98 ,1/13/2020
+Ms. Alena Cassin,764,$8.52 ,2/6/2020
+Ms. Alena Cassin,765,$46.44 ,12/5/2019
+Ms. Alena Cassin,766,$49.98 ,4/16/2020
+Ms. Alena Cassin,767,$14.74 ,1/16/2020
+Ms. Alena Cassin,768,$25.52 ,12/23/2019
+Ms. Alena Cassin,769,$23.37 ,1/20/2020
+Ms. Alena Cassin,770,$45.00 ,3/24/2020
+Ms. Alena Cassin,771,$11.40 ,12/1/2019
+Ms. Alena Cassin,772,$46.32 ,12/25/2019
+Ms. Alena Cassin,773,$25.83 ,4/13/2020
+Ms. Alena Cassin,774,$74.56 ,4/22/2020
+Ms. Alena Cassin,775,$51.60 ,4/18/2020
+Ms. Alena Cassin,776,$8.86 ,10/14/2019
+Ms. Alena Cassin,777,$17.94 ,1/14/2020
+Ms. Alena Cassin,778,$14.88 ,11/29/2019
+Ms. Alena Cassin,779,$49.00 ,1/10/2020
+Ms. Alena Cassin,780,$51.03 ,1/14/2020
+Ludwig Krajcik DVM,801,($400.00),1/29/2020
+Ludwig Krajcik DVM,801,($400.00),1/29/2020

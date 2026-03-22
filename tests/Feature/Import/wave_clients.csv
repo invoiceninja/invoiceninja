@@ -1,0 +1,5 @@
+customer_name,email,contact_first_name,contact_last_name,customer_currency,account_number,phone,fax,mobile,toll_free,website,country,province/state,address_line_1,address_line_2,city,postal_code/zip_code,shipping_address,ship-to_contact,ship-to_country,ship-to_province/state,ship-to_address_line_1,ship-to_address_line_2,ship-to_city,ship-to_postal_code/zip_code,ship-to_phone,delivery_instructions
+Homer Simpson,homer@simpsons.com,Homer,Connery,USD,,555-875-5245,,,,http://simpsons.com/,,,1234 Tullis Street,,"Glasgow, Scotland",G1 2FF,False,,,,,,,,,
+Jessica Jones,jessica@jones.com,Jessica Jones,,AUD,,555-867-5309,,,,,Australia,Queensland,6548 Sesame Street,Apt 4,NYC,11213,False,,,,,,,,,
+Lucas Cage,luke@powerman.com,Luke Cage,Martha Stewart,BSD,,555-867-5309 x89,,,,,Bahamas,High Rock,965 Main Street,,Monroe,654123,False,,,,,,,,,
+Mark Walberg,markymark@walburger.com,Marcus,Connery,USD,,321654987,,,,,,,1234 Tullis Street,,"Glasgow, Scotland",G1 2FF,False,,,,,,,,,

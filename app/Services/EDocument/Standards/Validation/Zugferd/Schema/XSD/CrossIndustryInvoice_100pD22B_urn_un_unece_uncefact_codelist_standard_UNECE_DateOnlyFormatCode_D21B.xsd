@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:clm62379dateonly="urn:un:unece:uncefact:codelist:standard:UNECE:DateOnlyFormatCode:D21B"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="urn:un:unece:uncefact:codelist:standard:UNECE:DateOnlyFormatCode:D21B"
+    elementFormDefault="qualified"
+    version="1.0">
+  <xsd:simpleType name="DateOnlyFormatCodeContentType">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="2"/>
+      <xsd:enumeration value="3"/>
+      <xsd:enumeration value="4"/>
+      <xsd:enumeration value="101"/>
+      <xsd:enumeration value="102"/>
+      <xsd:enumeration value="105"/>
+      <xsd:enumeration value="106"/>
+      <xsd:enumeration value="107"/>
+      <xsd:enumeration value="110"/>
+      <xsd:enumeration value="609"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

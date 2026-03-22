@@ -1,0 +1,58 @@
+    RecurringInvoiceRequest:
+      required:
+        - client_id
+        - date
+        - due_date
+        - frequency_id
+      properties:
+        client_id:
+          description: 'The hashed ID of the client'
+          type: string
+          example: 'D2J234DFA'
+        date:
+          description: 'Recurring invoice date'
+          type: string
+          format: date
+          example: '2024-01-01'
+        due_date:
+          description: 'Due date for the recurring invoice'
+          type: string
+          format: date
+          example: '2024-01-31'
+        frequency_id:
+          description: 'Frequency ID for recurring invoice'
+          type: string
+          example: '1'
+        remaining_cycles:
+          description: 'Number of remaining cycles'
+          type: string
+          example: '5'
+        private_notes:
+          description: 'Private notes for the recurring invoice'
+          type: string
+          example: 'Internal notes about this recurring invoice'
+        public_notes:
+          description: 'Public notes for the recurring invoice'
+          type: string
+          example: 'Thank you for your business!'
+        custom_value1:
+          description: 'Custom field value 1'
+          type: string
+          example: 'Custom value 1'
+        custom_value2:
+          description: 'Custom field value 2'
+          type: string
+          example: 'Custom value 2'
+        custom_value3:
+          description: 'Custom field value 3'
+          type: string
+          example: 'Custom value 3'
+        custom_value4:
+          description: 'Custom field value 4'
+          type: string
+          example: 'Custom value 4'
+        line_items:
+          type: array
+          description: 'An array of objects which define the line items of the invoice'
+          items:
+            $ref: '#/components/schemas/InvoiceItem'

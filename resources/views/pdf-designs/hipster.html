@@ -1,0 +1,538 @@
+<style id="style">
+    @import url($font_url);
+
+    :root {
+        --primary-color: $primary_color;
+        --secondary-color: $secondary_color;
+        --line-height: 1.6;
+    }
+
+    html {
+        width: 210mm;
+        height: 200mm;
+    }
+
+    body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-family: $font_name, Helvetica, sans-serif;
+        font-size: $font_size !important;
+        zoom: 80%;
+    }
+
+    table tr td,
+    table tr,
+    th {
+        font-size: $font_size !important;
+    }
+
+    @page {
+        margin: $global_margin;
+        size: $page_size $page_layout;
+    }
+
+    p {
+        margin: 0;
+        padding: 0;
+    }
+
+    .header-wrapper {
+        display: grid;
+        grid-template-columns: 0.5fr 1.5fr;
+        gap: 0px;
+        line-height: var(--line-height);
+    }
+
+    .header-wrapper .header-text-label {
+        font-size: 1.1rem;
+        color: var(--primary-color);
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+
+    .header-wrapper .header-left-side-wrapper {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        border-left: 1px solid #303030;
+        padding-left: 1rem;
+    }
+
+    .header-wrapper .header-left-side-wrapper>* {
+        margin-bottom: 0.8rem;
+    }
+
+    .header-wrapper .header-left-side-wrapper #company-details,
+    .header-wrapper .header-left-side-wrapper #company-address {
+        display: flex;
+        flex-direction: column;
+        padding-right: 1rem;
+    }
+
+    .header-wrapper .header-right-side-wrapper {
+        display: grid;
+        gap: 10px;
+        border-left: 1px solid #303030;
+        padding-left: 1rem;
+
+        grid-template-columns: auto auto auto;
+        grid-template-areas: "a b c";
+        grid-auto-columns: minmax(0, 1fr);
+        grid-auto-flow: column;
+        align-items: start;
+    }
+
+    .header-wrapper .header-right-side-wrapper #client-details {
+        display: flex;
+        flex-direction: column;
+        margin-top: 0.8rem;
+        grid-area: a;
+        justify-self: left !important;
+        align-self: start !important;
+    }
+
+    .header-wrapper .header-right-side-wrapper #shipping-details {
+        display: $show_shipping_address_block;
+        flex-direction: column;
+        margin-top: 0.8rem;
+        grid-area: b;
+    }
+
+    .header-wrapper .header-right-side-wrapper-left-shipping {
+        padding-left: 1rem;
+        border-left: 1px solid #303030;
+        float: left;
+    }
+
+    .header-wrapper .header-right-side-wrapper-right {
+        grid-area: c;
+        justify-self: end;
+        align-self: start;
+        justify-content: end;
+        float: right;
+    }
+
+    .shipping-text-label {
+        font-size: 1.1rem;
+        color: var(--primary-color);
+        text-transform: uppercase;
+        font-weight: bold;
+        display: $show_shipping_address;
+    }
+
+    .header-wrapper {
+        margin-left: auto;
+    }
+
+    .company-logo {
+        max-width: $company_logo_size;
+        float: right;
+        object-fit: contain;
+    }
+
+    .entity-label {
+        font-size: 3rem;
+        text-transform: uppercase;
+        margin: 2rem 0;
+    }
+
+    .entity-details-wrapper>* {
+        margin-right: 1.5rem;
+        direction: $dir;
+    }
+
+    .entity-details-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        direction: $dir;
+        justify-content: space-between;
+    }
+
+    .entity-details-wrapper .entity-property-label {
+        text-transform: uppercase;
+    }
+
+    .entity-property-label:not(:empty)::after {
+        content: ":";
+    }
+
+    .entity-details-wrapper [data-element='entity-details-wrapper-invoice-number-label'],
+    .entity-details-wrapper [data-element='entity-details-wrapper-amount-due'] {
+        color: var(--primary-color);
+        font-weight: bold;
+    }
+
+    [data-ref="shipping_address-label"] {
+        display: none;
+    }
+
+    td.left-radius {
+        text-align: left !important;
+        padding-left: 1rem !important;
+    }
+
+    th.left-radius {
+        text-align: left !important;
+        padding-left: 0.5rem !important;
+    }
+
+    [data-ref="table"] {
+        margin-top: 1rem;
+        margin-bottom: 5px;
+        min-width: 100%;
+        table-layout: fixed;
+        overflow-wrap: break-word;
+    }
+
+    .task-time-details {
+        display: block;
+        margin-top: 5px;
+        color: grey;
+    }
+
+    [data-ref="table"]>thead {
+        text-align: left;
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+
+    [data-ref="table"]>thead>tr>th {
+        font-size: 1.1rem;
+        padding-bottom: 1.5rem;
+        padding-left: 1rem;
+        border-left: 1px solid;
+    }
+
+    [data-ref="table"]>thead>tr>th:nth-last-child(2) {
+        text-align: right;
+        padding-right: 1rem;
+    }
+
+    [data-ref="table"]>tbody>tr>td {
+        padding-left: 1rem;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        border-left: 1px solid;
+    }
+
+    .right-radius {
+        text-align: right;
+    }
+
+    #table-totals {
+        margin-top: 1rem;
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        padding-top: 0.5rem;
+        margin-right: 0rem;
+        page-break-inside: auto;
+        overflow: visible !important;
+    }
+
+    #table-totals .totals-table-right-side>* {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    #table-totals>.totals-table-right-side>*> :nth-child(1) {
+        text-align: $dir_text_align;
+        margin-top: .75rem;
+    }
+
+    #table-totals>.totals-table-right-side>*> :not([hidden])~ :not([hidden]) {
+        --tw-space-y-reverse: 0;
+        margin-top: calc(.75rem * calc(1 - var(--tw-space-y-reverse)));
+        margin-bottom: calc(.75rem * var(--tw-space-y-reverse));
+    }
+
+    #table-totals>.totals-table-right-side>*> :nth-child(2) {
+        text-align: right;
+    }
+
+    #table-totals>*> :last-child {
+        text-align: right;
+        padding-right: 0rem;
+    }
+
+    #footer {
+        margin-top: 30px;
+    }
+
+    /** Markdown-specific styles. **/
+    [data-ref="table"] h3 {
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+
+    [data-ref='task_table-task.service-th'],
+    [data-ref='product_table-product.item-th'] {
+        padding-left: 1rem !important;
+        width: 14%;
+    }
+
+    [data-ref='task_table-task.description-th'],
+    [data-ref='product_table-product.description-th'],
+    [data-ref='product_table-product.description-td'],
+    [data-ref="task_table-task.description-td"] {
+        min-width: 100px !important;
+        ;
+        overflow-wrap: break-word;
+    }
+
+    [data-ref="product_table-product.unit_cost-td"],
+    [data-ref="product_table-product.unit_cost-th"],
+    [data-ref='task_table-task.cost-th'],
+    [data-ref='task_table-task.cost-td'] {
+        text-align: center !important;
+        width: 10%;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    [data-ref="product_table-product.quantity-th"],
+    [data-ref="product_table-product.quantity-td"],
+    [data-ref='task_table-task.hours-th'],
+    [data-ref='task_table-task.hours-td'] {
+        width: 10%;
+        text-align: center !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    [data-ref="task_table-task.discount-th"],
+    [data-ref="task_table-task.discount-td"],
+    [data-ref="product_table-product.discount-th"],
+    [data-ref="product_table-product.discount-td"] {
+        text-align: left !important;
+        width: 9%;
+    }
+
+    [data-ref="task_table-task.tax1-th"],
+    [data-ref="task_table-task.tax1-td"],
+    [data-ref="product_table-product.tax1-th"],
+    [data-ref="product_table-product.tax1-td"] {
+        text-align: center !important;
+        width: 9%;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    [data-ref="product_table-product.line_total-th"],
+    [data-ref="product_table-product.line_total-td"] {
+        text-align: right;
+        width: 13%;
+    }
+
+    [data-ref="task_table-task.line_total-th"],
+    [data-ref="task_table-task.line_total-td"] {
+        text-align: right;
+        width: 13%;
+    }
+
+    [data-ref="totals_table-outstanding-label"] {
+        font-weight: bold;
+        font-size: 120%;
+    }
+
+    [data-ref="totals_table-outstanding"] {
+        color: var(--primary-color);
+        font-weight: bold;
+        font-size: 120%;
+    }
+
+    [data-ref="statement-totals"] {
+        margin-top: 1rem;
+        text-align: right;
+        margin-right: .75rem;
+    }
+
+    [data-ref*=".line_total-td"] {
+        white-space: nowrap;
+    }
+
+    /** .repeating-header,
+    .repeating-header-space, **/
+    .repeating-footer,
+    .repeating-footer-space {
+        height: 0;
+    }
+
+    .repeating-header {
+        position: fixed;
+        top: 0;
+    }
+
+    .repeating-footer {
+        position: fixed;
+        bottom: 0;
+    }
+
+    .stamp {
+        transform: rotate(12deg);
+        color: #555;
+        font-size: 3rem;
+        font-weight: 700;
+        border: 0.25rem solid #555;
+        display: inline-block;
+        padding: 0.25rem 1rem;
+        text-transform: uppercase;
+        border-radius: 1rem;
+        font-family: 'Courier';
+        mix-blend-mode: multiply;
+        z-index: 200 !important;
+        position: fixed;
+        text-align: center;
+    }
+
+    .is-paid {
+        color: #D23;
+        border: 1rem double #D23;
+        transform: rotate(-5deg);
+        font-size: 6rem;
+        font-family: "Open sans", Helvetica, Arial, sans-serif;
+        border-radius: 0;
+        padding: 0.5rem;
+        opacity: 0.2;
+        z-index: 200 !important;
+        position: fixed;
+        display: $show_paid_stamp;
+    }
+
+    .project-header {
+        font-size: 1.2em;
+        margin-top: 0.1em;
+        margin-bottom: 0;
+        padding-bottom: 0;
+        margin-left: 0;
+        margin-right: 0;
+        font-weight: bold;
+        color: #505050;
+    }
+
+    .pqrcode {}
+
+    #qr-bill {
+        width: 100% !important;
+    }
+
+    /** Useful snippets, uncomment to enable. **/
+
+    /** Hide company logo **/
+    /* .company-logo { display: none } */
+
+    /* Hide company details */
+    /* #company-details > * { display: none } */
+
+    /* Hide company address */
+    /* #company-address > * { display: none } */
+
+    /* Hide public notes */
+    /* [data-ref="total_table-public_notes"] { display: none } */
+
+    /* Hide terms label */
+    /* [data-ref="total_table-terms-label"] { display: none } */
+
+    /* Hide totals table */
+    /* #table-totals { display: none } */
+
+    /* Hide totals table left side */
+    /* #table-totals div:first-child > * { display: none !important } */
+
+    /* Hide totals table right side */
+    /* .totals-table-right-side { display: none } */
+
+    /** For more info, please check our docs: https://invoiceninja.github.io **/
+    /** To find out selectors on your own: https://invoiceninja.github.io/docs/custom-fields/#snippets **/
+</style>
+<div class="repeating-header" id="header"></div>
+
+<div id="body">
+<table style="min-width: 100%">
+    <thead>
+        <tr>
+            <td>
+                <div class="repeating-header-space">&nbsp;</div>
+            </td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                <div class="header-wrapper">
+                    <div class="header-left-side-wrapper">
+                        <p class="header-text-label">$from_label:</p>
+                        <div id="company-details"></div>
+                        <div id="company-address"></div>
+                    </div>
+                    <div class="header-right-side-wrapper">
+                        <div class="header-right-side-wrapper-left">
+                            <p class="header-text-label">$to_label:</p>
+                            <div id="client-details"></div>
+                            <div id="vendor-details"></div>
+                        </div>
+                        <div class="header-right-side-wrapper-left-shipping">
+                            <p class="shipping-text-label">$shipping_label:</p>
+                            <div id="shipping-details"></div>
+                        </div>
+                        <div class="header-right-side-wrapper-right">
+                            <img class="company-logo" src="$company.logo" alt="$company.name logo" />
+                        </div>
+                    </div>
+                </div>
+                <h1 class="entity-label">$entity_label</h1>
+                <div class="entity-details-wrapper">
+                    <div>
+                        <span class="entity-property-label"
+                            data-element="entity-details-wrapper-invoice-number-label">
+                            $entity_number_label
+                        </span>
+                        <span class="entity-property-value">$entity_number</span>
+                    </div>
+                    <div>
+                        <span class="entity-property-label">$date_label</span>
+                        <span class="entity-property-value">$date</span>
+                    </div>
+                    <div>
+                        <span class="entity-property-label">$payment_due_label</span>
+                        <span class="entity-property-value">$payment_due</span>
+                    </div>
+                    <div>
+                        <span class="entity-property-label">$amount_due_label</span>
+                        <span class="entity-property-value" data-element="entity-details-wrapper-amount-due"
+                            style="float:right;">$amount_due</span>
+                    </div>
+                </div>
+                <table id="product-table" cellspacing="0" data-ref="table"></table>
+                <table id="task-table" cellspacing="0" data-ref="table"></table>
+                <table id="delivery-note-table" cellspacing="0" data-ref="table"></table>
+                <table id="statement-invoice-table" cellspacing="0" data-ref="table"></table>
+                <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
+                <table id="statement-payment-table" cellspacing="0" data-ref="table"></table>
+                <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
+                <table id="statement-credit-table" cellspacing="0" data-ref="table"></table>
+                <div id="statement-credit-table-totals" data-ref="statement-totals"></div>
+                <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
+                <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
+                <div id="table-totals" cellspacing="0">$status_logo</div>
+            
+            </td>
+        </tr>
+        <tr>
+            <td>
+                $entity_images
+            </td>
+        </tr>
+        $verifactu_qr_code
+    </tbody>
+    <tfoot>
+        <tr>
+            <td>
+                <div class="repeating-footer-space">&nbsp;</div>
+            </td>
+        </tr>
+    </tfoot>
+</table>
+</div>
+
+<div class="repeating-footerx" id="footer">
+    <p data-ref="total_table-footer">$entity_footer</p>
+</div>

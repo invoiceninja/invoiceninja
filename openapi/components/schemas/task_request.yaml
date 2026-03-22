@@ -1,0 +1,58 @@
+    TaskRequest:
+      required:
+        - description
+      properties:
+        description:
+          description: 'Task description'
+          type: string
+          example: 'Complete project documentation'
+        client_id:
+          description: 'The hashed ID of the client'
+          type: string
+          example: 'D2J234DFA'
+        project_id:
+          description: 'The hashed ID of the project'
+          type: string
+          example: 'P2J234DFA'
+        time_log:
+          description: 'Time logged for the task'
+          type: string
+          example: '2.5'
+        status_id:
+          description: 'Status ID of the task'
+          type: integer
+          example: 1
+        custom_value1:
+          description: 'Custom field value 1'
+          type: string
+          example: 'Custom value 1'
+        custom_value2:
+          description: 'Custom field value 2'
+          type: string
+          example: 'Custom value 2'
+        custom_value3:
+          description: 'Custom field value 3'
+          type: string
+          example: 'Custom value 3'
+        custom_value4:
+          description: 'Custom field value 4'
+          type: string
+          example: 'Custom value 4'
+        is_deleted:
+          description: 'Whether the task is deleted'
+          type: boolean
+          example: false
+        archived_at:
+          description: 'Timestamp when task was archived'
+          type: integer
+          example: 1640995200
+        due_date:
+          description: 'Due date for the task'
+          type: string
+          format: date
+          example: '2024-01-31'
+        priority:
+          description: 'Priority level of the task'
+          type: integer
+          example: 1
+      type: object

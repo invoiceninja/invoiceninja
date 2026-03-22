@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<!-- Color Statement - TemplateID #TS2 ##statement##-->
+<html>
+
+<head>
+    <style>
+        @page {
+            margin: 50 0 50 0 !important;
+        }
+
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-family: $font_name, Helvetica, sans-serif;
+            font-size: $font_size !important;
+            zoom: 80%;
+        }
+
+        img {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        h2 {
+            color: $primary_color;
+            margin-bottom: 0.5rem;
+        }
+
+        table {
+            padding-top: 1rem;
+            min-width: 100%;
+            table-layout: fixed;
+            overflow-wrap: break-word;
+            border: 0px solid #000;
+        }
+
+        th {
+            text-align: center;
+            xpadding-left: 6px;
+            xpadding-right: 6px;
+            xpadding-top: 6px;
+            xpadding-bottom: 6px;
+        }
+
+        td {
+            text-align: center;
+            xpadding-left: 6px;
+            xpadding-right: 6px;
+            xpadding-top: 6px;
+            xpadding-bottom: 6px;
+        }
+
+        tr {}
+
+        tr.border-bottom td {
+            height: 2rem;
+            border-bottom: 1px dashed $primary_color;
+        }
+
+        #logo-container {
+            width: 100%;
+            margin-top: 0;
+        }
+
+        #client-wrapper {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border: 0px solid #000;
+        }
+
+        #client-details {
+            line-height: 0.5;
+            border: 0px solid #000;
+        }
+
+        #company-details {
+            line-height: 0.5 !important;
+        }
+
+        #company-address {
+            line-height: 0.5 !important;
+        }
+
+        #company-wrapper {
+            margin-left: auto;
+            margin-right: 0;
+        }
+
+        #statement-details {
+            margin-left: auto;
+            margin-right: 0;
+        }
+
+        .entity-container {
+            padding-left: 2rem;
+            padding-right: 2rem;
+            break-inside: avoid-region;
+        }
+
+        .entity-container h2 {
+            text-align: center;
+        }
+
+        #date-range {
+            padding: 0;
+            margin-top: 0;
+            border: 0px solid #000;
+        }
+
+        .two-col-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border: 0px solid #000;
+        }
+
+        .body-margin {
+            margin-left: 2rem;
+            margin-right: 2rem;
+        }
+
+        .aging-table {
+            border: 1px dashed $primary_color;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="logo-container">
+        <img src="$company.logo">
+    </div>
+
+    <div class="two-col-grid body-margin">
+        <div id="client-details"></div>
+        <div id="company-wrapper">
+            <div id="company-details"></div>
+            <div id="company-address"></div>
+        </div>
+    </div>
+
+    <div class="two-col-grid body-margin">
+        <div></div>
+        <div id="statement-details">
+            <h2>$statement_label</h2>
+            <p id="date-range">$start_date - $end_date</p>
+        </div>
+    </div>
+
+    <ninja>
+        {% if invoices is defined and invoices is not empty %}
+        <div class="entity-container">
+            <h2>{{ t('invoices') }}<h2>
+                    <table width="100%" cellspacing="0" cellpadding="0" class="">
+                        <thead class="">
+                            <tr class="">
+                                <th class="">{{ t('invoice') }} #</th>
+                                <th class="">{{ t('invoice_date') }}</th>
+                                <th class="">{{ t('invoice_due_date') }}</th>
+                                <th class="">{{ t('total') }}</th>
+                                <th class="">{{ t('balance') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for invoice in invoices %}
+                            <tr class="item-row border-bottom">
+                                <td class="">{{ invoice.number }}</td>
+                                <td class="">{{ invoice.date }}</td>
+                                <td class="">{{ invoice.due_date }}</td>
+                                <td class="">{{ invoice.amount }}</td>
+                                <td class="">{{ invoice.balance }}</td>
+                            </tr>
+                            {% endfor %}
+
+                            {% set sum_balance = invoices|sum('balance_raw') %}
+                            {% if sum_balance > 0 %}
+                            <tr class="item-row border-bottom">
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td><b>$balance_label</b></td>
+                                <td><b>{{ sum_balance|format_currency(currency_code) }}</b> </td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+        </div>
+        {% endif %}
+    </ninja>
+
+    <ninja>
+        {% if invoices is defined and invoices is not empty and show_payments %}
+        <div class="entity-container">
+            <h2>{{ t('payments') }}<h2>
+                    <table width="100%" cellspacing="0" cellpadding="0" class="">
+                        <thead class="">
+                            <tr class="">
+                                <th class="">{{ t('invoice') }} #</th>
+                                <th class="">{{ t('payment_date') }}</th>
+                                <th></th>
+                                <th class="">{{ t('method') }}</th>
+                                <th class="">{{ t('amount') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set net_refunds = 0 %}
+                            {% set total_payments = 0%}
+                            {% for invoice in invoices %}
+                            {% if invoice.payments|e %}
+                            {% set parent_payment = invoice.payments|first %}
+
+                            {% for payment in invoice.payments %}
+                            {% set currency_code = payment.currency %}
+
+                            {% for pivot in payment.paymentables %}
+                            <tr class="item-row border-bottom">
+                                <td class="">{{ pivot.invoice }}</td>
+                                <td class="">{{ pivot.created_at }}</td>
+                                <td></td>
+                                {%if pivot.is_credit %}
+                                <td class="">$credit_label {{ pivot.number }}</td>
+                                {%else%}
+                                <td class="">{{ payment.method }}</td>
+                                {%endif%}
+                                <td class="">{{ pivot.amount }} </td>
+                            </tr>
+                            {% if pivot.refunded_raw > 0 %}
+                            <tr class="item-row border-bottom">
+                                <td>{{ pivot.invoice }}</td>
+                                <td>{{ pivot.updated_at }}</td>
+                                <td></td>
+                                <td>$refund_label</td>
+                                <td>({{ pivot.refunded }})</td>
+                            </tr>
+                            {% set net_refunds = net_refunds + pivot.refunded_raw %}
+                            {% endif %}
+                            {% set total_payments = total_payments + pivot.amount_raw %}
+                            {% endfor %}
+                            {% endfor %}
+                            {% endif %}
+                            {% endfor %}
+                            <tr class="item-row border-bottom">
+                                <td>{{ currency_code }}</td>
+                                <td></td>
+                                <td></td>
+                                <td><b>$payments_label</b></td>
+                                <td><b>{{ total_payments|format_currency(currency_code) }}</b></td>
+                            </tr>
+
+                            {% if net_refunds > 0 %}
+                            <tr class="item-row border-bottom">
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td><b>$refunded_label</b></td>
+                                <td><b>({{ net_refunds|format_currency(currency_code) }})</b></td>
+                            </tr>
+                            <tr class="item-row border-bottom">
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td><b>$net_label</b></td>
+                                <td><b>{{ (total_payments-net_refunds)|format_currency(currency_code) }}</b> </td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+        </div>
+        {% endif %}
+    </ninja>
+
+    <ninja>
+        {% if credits is defined and credits is not empty and show_credits %}
+        <div class="entity-container">
+            <h2>{{ t('credits') }}<h2>
+                    <table width="100%" cellspacing="0" cellpadding="0" class="">
+                        <thead class="">
+                            <tr class="">
+                                <th class="">{{ t('credit') }} #</th>
+                                <th class="">{{ t('credit_date') }}</th>
+                                <th class="">{{ t('total') }}</th>
+                                <th class="">{{ t('balance') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for credit in credits %}
+                            <tr class="item-row border-bottom">
+                                <td class="">{{ credit.number }}</td>
+                                <td class="">{{ credit.date }}</td>
+                                <td class="">{{ credit.amount }}</td>
+                                <td class="">{{ credit.balance }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+        </div>
+        {% endif %}
+    </ninja>
+
+    <ninja>
+        {% if aging and show_aging %}
+        <div class="entity-container" style="break-inside: avoid;">
+            <h2>{{ t('aging') }}<h2>
+                    <table width="100%" cellspacing="0" cellpadding="0" class="">
+                        <thead class="">
+                            <tr class="item-row border-bottom">
+                                {% for key, age in aging %}
+                                <th class="">{{ key }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="item-row">
+                                {% for key, age in aging %}
+                                <td class="aging-table">{{ age }}</td>
+                                {% endfor %}
+                            </tr>
+                        </tbody>
+                    </table>
+        </div>
+        {% endif %}
+    </ninja>
+</body>
+
+</html>

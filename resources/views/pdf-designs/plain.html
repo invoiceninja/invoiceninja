@@ -1,0 +1,399 @@
+<style id="style">
+    @import url($font_url);
+
+    :root {
+        --primary-color: $primary_color;
+        --secondary-color: $secondary_color;
+        --line-height: 1.6;
+    }
+
+    body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-family: $font_name, Helvetica, sans-serif;
+        font-size: $font_size !important;
+        zoom: 80%;
+    }
+
+    table tr td,
+    table tr,
+    th {
+        font-size: $font_size !important;
+    }
+
+    html {
+        width: 210mm;
+        height: 200mm;
+    }
+
+    @page {
+        margin-left: $global_margin;
+        margin-right: $global_margin;
+        margin-top: 0;
+        margin-bottom: 0;
+        size: $page_size $page_layout;
+    }
+
+    p {
+        margin: 0;
+        padding: 0;
+    }
+
+    .header-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        line-height: var(--line-height);
+        margin-bottom: 10px;
+    }
+
+    .client-wrapper {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        border: 0px solid #000;
+    }
+
+    .company-logo {
+        max-width: $company_logo_size;
+    }
+
+    .header-wrapper #company-address {
+        display: flex;
+        flex-direction: column;
+        line-height: var(--line-height);
+    }
+
+    #entity-container {
+        border: 0px solid #000;
+        margin-right: 0;
+        margin-left: auto;
+    }
+
+    #entity-details {
+        text-align: left;
+        line-height: var(--line-height) !important;
+        white-space: nowrap;
+        border: 0px solid #000;
+        float: right;
+    }
+
+    #entity-details>tr,
+    #entity-details th {
+        font-weight: normal;
+        padding-right: 3rem;
+        line-height: var(--line-height) !important;
+    }
+
+    .header-wrapper #entity-details [data-element='entity-balance-due-label'],
+    .header-wrapper #entity-details [data-element='entity-balance-due'] {
+        background-color: #e6e6e6;
+    }
+
+    #client-details {
+        display: flex;
+        flex-direction: column;
+        line-height: var(--line-height);
+        /* white-space: nowrap; */
+        border: 0px solid #000;
+    }
+
+    #shipping-details {
+        opacity: $show_shipping_address_visibility;
+        flex-direction: column;
+        line-height: var(--line-height);
+        white-space: nowrap;
+        border: 0px solid #000;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    [data-ref="table"] {
+        margin-top: 1rem;
+        min-width: 100%;
+        table-layout: fixed;
+        overflow-wrap: break-word;
+    }
+
+    .task-time-details {
+        display: block;
+        margin-top: 5px;
+        color: grey;
+    }
+
+    [data-ref="table"]>thead {
+        text-align: left;
+    }
+
+    [data-ref="table"]>thead>tr>th {
+        padding: 0.75rem;
+        background-color: #e6e6e6;
+    }
+
+    [data-ref="table"]>thead>tr>th:last-child {
+        text-align: right;
+    }
+
+    [data-ref="table"]>tbody>tr>td {
+        border-bottom: 1px solid #e6e6e6;
+        padding: 0.75rem;
+    }
+
+    [data-ref="table"]>tbody>tr>td:last-child {
+        text-align: right;
+    }
+
+    #table-totals {
+        margin-top: 0rem;
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        margin-right: .75rem;
+        gap: 80px;
+        page-break-inside: auto;
+        overflow: visible !important;
+    }
+
+    #table-totals .totals-table-right-side>* {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    #table-totals>.totals-table-right-side>*> :nth-child(1) {
+        text-align: $dir_text_align;
+        margin-top: .25rem;
+        padding-left: 7px;
+    }
+
+    #table-totals>.totals-table-right-side>*> :not([hidden])~ :not([hidden]) {
+        --tw-space-y-reverse: 0;
+        margin-top: calc(.25rem * calc(1 - var(--tw-space-y-reverse)));
+        margin-bottom: calc(.25rem * var(--tw-space-y-reverse));
+    }
+
+    #table-totals>.totals-table-right-side>*> :nth-child(2) {
+        text-align: right;
+        padding-right: 0px;
+    }
+
+    #table-totals>* [data-element='total-table-balance-due-label'],
+    #table-totals>* [data-element='total-table-balance-due'] {
+        font-weight: bold;
+    }
+
+    #table-totals>*> :last-child {
+        text-align: right;
+        padding-right: 1rem;
+    }
+
+    [data-ref="total_table-footer"] {
+        padding-left: 0rem;
+    }
+
+    #footer {
+        margin-top: 30px;
+    }
+
+    [data-ref="totals_table-outstanding"] {
+        color: var(--primary-color)
+    }
+
+    /** Markdown-specific styles. **/
+    [data-ref="table"] h3 {
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+
+    [data-ref="totals_table-outstanding-label"],
+    [data-ref="totals_table-outstanding"] {
+        background-color: #e6e6e6;
+        color: black;
+        padding-top: 7px;
+        padding-bottom: 7px;
+        padding-right: 7px;
+    }
+
+    [data-ref="statement-totals"] {
+        margin-top: 1rem;
+        text-align: right;
+        margin-right: .75rem;
+    }
+
+    [data-ref*=".line_total-td"] {
+        white-space: nowrap;
+    }
+
+    /** .repeating-header,
+    .repeating-header-space, **/
+    .repeating-footer,
+    .repeating-footer-space {
+        height: 10px;
+    }
+
+    .repeating-header {
+        position: fixed;
+        top: 0;
+    }
+
+    .repeating-footer {
+        position: fixed;
+        bottom: 0;
+    }
+
+    [data-ref='product_table-product.description-td'],
+    [data-ref='task_table-task.description-th'] {
+        min-width: 150px !important;
+        overflow-wrap: break-word;
+    }
+
+
+    .stamp {
+        transform: rotate(12deg);
+        color: #555;
+        font-size: 3rem;
+        font-weight: 700;
+        border: 0.25rem solid #555;
+        display: inline-block;
+        padding: 0.25rem 1rem;
+        text-transform: uppercase;
+        border-radius: 1rem;
+        font-family: 'Courier';
+        mix-blend-mode: multiply;
+        z-index: 200 !important;
+        position: fixed;
+        text-align: center;
+    }
+
+    .is-paid {
+        color: #D23;
+        border: 1rem double #D23;
+        transform: rotate(-5deg);
+        font-size: 6rem;
+        font-family: "Open sans", Helvetica, Arial, sans-serif;
+        border-radius: 0;
+        padding: 0.5rem;
+        opacity: 0.2;
+        z-index: 200 !important;
+        position: fixed;
+        display: $show_paid_stamp;
+    }
+
+    .project-header {
+        font-size: 1.2em;
+        margin-top: 0.1em;
+        margin-bottom: 0;
+        padding-bottom: 0;
+        margin-left: 0;
+        margin-right: 0;
+        font-weight: bold;
+        color: #505050;
+    }
+
+    #logo-container {
+        margin-right: 0;
+        margin-left: auto;
+        text-align: right;
+        border: 0px solid #000;
+    }
+
+    .pqrcode {}
+
+
+    #qr-bill {
+        width: 100% !important;
+    }
+
+
+
+    /** Useful snippets, uncomment to enable. **/
+
+    /** Hide company logo **/
+    /* .company-logo { display: none } */
+
+    /* Hide company details */
+    /* #company-details > * { display: none } */
+
+    /* Hide company address */
+    /* #company-address > * { display: none } */
+
+    /* Hide public notes */
+    /* [data-ref="total_table-public_notes"] { display: none } */
+
+    /* Hide terms label */
+    /* [data-ref="total_table-terms-label"] { display: none } */
+
+    /* Hide totals table */
+    /* #table-totals { display: none } */
+
+    /* Hide totals table left side */
+    /* #table-totals div:first-child > * { display: none !important } */
+
+    /* Hide totals table right side */
+    /* .totals-table-right-side { display: none } */
+
+    /** For more info, please check our docs: https://invoiceninja.github.io **/
+    /** To find out selectors on your own: https://invoiceninja.github.io/docs/custom-fields/#snippets **/
+</style>
+
+<div class="repeating-header" id="header"></div>
+
+<div id="body">
+<table style="min-width: 100%">
+    <thead>
+        <tr>
+            <td>
+                <div class="repeating-header-space">&nbsp;</div>
+            </td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                <div class="header-wrapper">
+                    <div id="company-details"></div>
+                    <div id="company-address"></div>
+                    <div id="logo-container">
+                        <img class="company-logo" src="$company.logo" alt="$company.name logo">
+                    </div>
+                </div>
+                <div class="client-wrapper">
+                    <div id="client-details"></div>
+                    <div id="vendor-details"></div>
+                    <div id="shipping-details"></div>
+                    <div id="entity-container">
+                        <table id="entity-details" cellspacing="0" cellpadding="0" dir="$dir"></table>
+                    </div>
+                </div>
+                <table id="product-table" cellspacing="0" data-ref="table"></table>
+                <table id="task-table" cellspacing="0" data-ref="table"></table>
+                <table id="delivery-note-table" cellspacing="0" data-ref="table"></table>
+                <table id="statement-invoice-table" cellspacing="0" data-ref="table"></table>
+                <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
+                <table id="statement-payment-table" cellspacing="0" data-ref="table"></table>
+                <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
+                <table id="statement-unapplied-payment-table" cellspacing="0" data-ref="table"></table>
+                <div id="statement-unapplied-payment-table-totals" data-ref="statement-totals"></div>
+                <table id="statement-credit-table" cellspacing="0" data-ref="table"></table>
+                <div id="statement-credit-table-totals" data-ref="statement-totals"></div>
+                <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
+                <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
+                <div id="table-totals" cellspacing="0">$status_logo</div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                $entity_images
+            </td>
+        </tr>
+        $verifactu_qr_code
+    </tbody>
+    <tfoot>
+        <tr>
+            <td>
+                <div class="repeating-footer-space">&nbsp;</div>
+            </td>
+        </tr>
+    </tfoot>
+</table>
+</div>
+<div class="repeating-footerx" id="footer">
+    <p data-ref="total_table-footer">$entity_footer</p>
+
+</div>

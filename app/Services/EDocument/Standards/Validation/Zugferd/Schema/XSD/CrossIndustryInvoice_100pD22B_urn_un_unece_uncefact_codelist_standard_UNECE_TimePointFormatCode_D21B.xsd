@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:clm62379="urn:un:unece:uncefact:codelist:standard:UNECE:TimePointFormatCode:D21B"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="urn:un:unece:uncefact:codelist:standard:UNECE:TimePointFormatCode:D21B"
+    elementFormDefault="qualified"
+    version="4.3">
+  <xsd:simpleType name="TimePointFormatCodeContentType">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="102"/>
+      <xsd:enumeration value="203"/>
+      <xsd:enumeration value="205"/>
+      <xsd:enumeration value="209"/>
+      <xsd:enumeration value="502"/>
+      <xsd:enumeration value="602"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

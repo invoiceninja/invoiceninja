@@ -1,0 +1,608 @@
+  /api/v1/products:
+    get:
+      tags:
+        - products
+      summary: "List products"
+      x-codeSamples:
+      - lang: php
+        label: PHP
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $products = $ninja->products->all([
+            'filter' => 'search',
+            'per_page' => 20,
+            'page' => 1,
+            'include' => 'documents'
+          ]);
+      - lang: curl
+        label: Curl
+        source: |
+          curl -X GET 'https://invoicing.co/api/v1/products?filter=search&per_page=20&page=1&include=documents' \
+          -H "X-API-TOKEN:company-token-test" \
+          -H "X-Requested-With: XMLHttpRequest";
+      
+      description: |
+        ##  GET /api/v1/products
+        Lists products within your company.
+        
+        You can search and filter the result set using query parameters. These can be chained together allowing fine grained lists to be generated.    
+
+      operationId: getProducts
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - $ref: "#/components/parameters/index"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/status"
+        - $ref: "#/components/parameters/client_id"
+        - $ref: "#/components/parameters/created_at"
+        - $ref: "#/components/parameters/updated_at"
+        - $ref: "#/components/parameters/is_deleted"
+        - $ref: "#/components/parameters/filter_deleted_clients"
+        - $ref: "#/components/parameters/vendor_id"
+        - name: filter
+          in: query
+          description: Filter by product name
+          required: false
+          schema:
+            type: string
+          example: bob
+        - name: product_key
+          in: query
+          description: Filter by product key
+          required: false
+          schema:
+            type: string
+          example: bob
+        - name: sort
+          in: query
+          description: Returns the list sorted by column in ascending or descending order.
+          required: false
+          schema:
+            type: string
+          example: id|desc product_key|desc  
+      responses:
+        200:
+          description: "A list of products"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:  
+                type: object
+                properties:
+                  data: 
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+                  meta:
+                    type: object
+                    $ref: '#/components/schemas/Meta'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: '#/components/responses/default'
+    post:
+      tags:
+        - products
+      summary: "Create Product"
+      x-codeSamples:
+      - lang: php
+        label: PHP
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $products = $ninja->products->create([
+            'product_key' => "sku_1",
+            'notes' => "product description",
+            'cost' => 1,
+            'price' => 10
+          ]);
+      - lang: curl
+        label: Curl
+        source: |
+          curl -X POST 'https://invoicing.co/api/v1/products' \
+          -H "X-API-TOKEN:company-token-test" \
+          -H "Content-Type:application/json" \
+          -d '{"product_key":"sku_1","notes":"product description","cost":1,"price":10}' \
+          -H "X-Requested-With: XMLHttpRequest";
+      
+      description: |
+        ##  POST /api/v1/products
+        Adds a product to a company
+      operationId: storeProduct
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+      requestBody:
+        description: Product object that needs to be added to the company
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+      responses:
+        200:
+          description: "Returns the saved product object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: '#/components/responses/default'
+  "/api/v1/products/{id}":
+    get:
+      tags:
+        - products
+      summary: "Show product"
+      x-codeSamples:
+      - lang: php
+        label: PHP
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $product = $ninja->products->show("{id}");
+      - lang: curl
+        label: Curl
+        source: |
+          curl -X GET 'https://invoicing.co/api/v1/products/{id}' \
+          -H "X-API-TOKEN:company-token-test" \
+          -H "X-Requested-With: XMLHttpRequest";
+      
+      description: |
+        ##  GET /api/v1/products/{id}
+        Displays a product by id
+      operationId: showProduct
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Product Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns the product object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: '#/components/responses/default'
+    put:
+      tags:
+        - products
+      summary: "Update product"
+      x-codeSamples:
+      - lang: php
+        label: PHP
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $product = $ninja->products->update("id", [
+            "name" => "Updated Product",
+            "price" => 150.0,
+            "description" => "An updated description of the product"
+          ]);
+      - lang: curl
+        label: Curl
+        source: |
+          curl -X PUT 'https://invoicing.co/api/v1/products/{id}' \
+          -H "X-API-TOKEN:company-token-test" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "product_key": "Updated Product",
+            "price": 150.0,
+            "notes": "An updated description of the product"
+          }'
+      
+      description: |
+        ##  PUT /api/v1/products/{id}
+        Handles the updating of a product by id
+      operationId: updateProduct
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Product Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      requestBody:
+        description: Product object that needs to be added to the company
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+      responses:
+        200:
+          description: "Returns the Product object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: '#/components/responses/default'
+    delete:
+      tags:
+        - products
+      summary: "Delete product"
+      description: |
+        ##  DELETE /api/v1/products/{id}
+        Handles the deletion of a product by id
+      x-codeSamples:
+      - lang: php
+        label: PHP
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $ninja->products->bulk([
+              'action' => 'delete',
+              'ids' => ['productId1', 'productId2']
+          ]);
+      - lang: curl
+        label: Curl
+        source: |
+          curl -X DELETE 'https://invoicing.co/api/v1/products/{id}' \
+          -H "X-API-TOKEN:company-token-test" \
+          -H "X-Requested-With: XMLHttpRequest";
+      
+      operationId: deleteProduct
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Product Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns a HTTP status"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: '#/components/responses/default'
+  "/api/v1/products/{id}/edit":
+    get:
+      tags:
+        - products
+      summary: "Edit product"
+      x-codeSamples:
+      - lang: php
+        label: PHP
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $product = $ninja->products->show("{id}");
+      - lang: curl
+        label: Curl
+        source: |
+          curl -X GET 'https://invoicing.co/api/v1/products/{id}/edit' \
+          -H "X-API-TOKEN:company-token-test" \
+          -H "X-Requested-With: XMLHttpRequest";
+      
+      description: |
+        ##  GET /api/v1/products/{id}/edit
+        Displays an Product by id
+      operationId: editProduct
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Product Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns the Product object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: '#/components/responses/default'
+  "/api/v1/products/create":
+    get:
+      tags:
+        - products
+      summary: "Blank product"
+      x-codeSamples:
+      - lang: php
+        label: PHP
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $product = $ninja->products->model();
+      - lang: curl
+        label: Curl
+        source: |
+          curl -X GET 'https://invoicing.co/api/v1/products/create' \
+          -H "X-API-TOKEN:company-token-test" \
+          -H "X-Requested-With: XMLHttpRequest";
+      
+      description: |
+        ##  GET /api/v1/products/create
+        Returns a blank product object with default values
+      operationId: getProductsCreate
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+      responses:
+        200:
+          description: "A blank Product object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: '#/components/responses/default'
+
+  /api/v1/products/bulk:
+    post:
+      tags:
+        - products
+      summary: "Bulk product actions"
+      x-codeSamples:
+      - lang: php
+        label: PHP
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $product = $ninja->products->bulk([
+              'action' => 'archive',
+              'ids' => ['productId1', 'productId2']
+          ]);
+      - lang: curl
+        label: Curl
+        source: |
+          curl -X GET 'https://invoicing.co/api/v1/products/bulk' \
+          -H "Content-Type:application/json" \
+          -d '{"action":"archive","ids":["id","id2"]}' \
+          -H "X-API-TOKEN:company-token-test" \
+          -H "X-Requested-With: XMLHttpRequest";
+      
+      description: |
+        ##  POST /api/v1/products/bulk
+        Archive / Restore / Delete  / Set tax id in bulk
+      operationId: bulkProducts
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/index"
+      requestBody:
+        description: 'Bulk action array'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductBulkAction'
+      responses:
+        200:
+          description: "The Product response"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: '#/components/responses/default'
+
+  "/api/v1/products/{id}/upload":
+    post:
+      tags:
+        - products
+      summary: "Add product document"
+      x-codeSamples:
+      - lang: php
+        label: PHP
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $product = $ninja->products->upload("id", "document");
+      - lang: curl
+        label: Curl
+        source: |
+          curl -X POST 'https://invoicing.co/api/v1/products/{id}/upload' \
+          -H "X-API-TOKEN:company-token-test" \
+          -H "X-Requested-With: XMLHttpRequest";
+      description: |
+        ##  POST /api/v1/products/{id}/upload
+        Handles the uploading of a document to a product"
+      operationId: uploadProduct
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/client_include"
+        - name: id
+          in: path
+          description: "The Product Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: POST
+                documents:
+                  type: array
+                  items:
+                    format: binary
+      responses:
+        200:
+          description: "Returns the Product object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: '#/components/responses/default'

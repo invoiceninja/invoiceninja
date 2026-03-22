@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:clm62379timeonly="urn:un:unece:uncefact:codelist:standard:UNECE:TimeOnlyFormatCode:D21B"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="urn:un:unece:uncefact:codelist:standard:UNECE:TimeOnlyFormatCode:D21B"
+    elementFormDefault="qualified"
+    version="4.1">
+  <xsd:simpleType name="TimeOnlyFormatCodeContentType">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="209"/>
+      <xsd:enumeration value="401"/>
+      <xsd:enumeration value="402"/>
+      <xsd:enumeration value="404"/>
+      <xsd:enumeration value="406"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

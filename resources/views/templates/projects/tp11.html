@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<!-- Project - TemplateID #TP11 -->
+<html>
+<head>
+    <style>
+        html {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Ubuntu, sans-serif;
+        }
+
+        table {
+            margin-top: 2rem;
+            min-width: 100%;
+            table-layout: fixed;
+            overflow-wrap: break-word;
+        }
+
+        .table-header>tr>th {
+            border-bottom: solid 1px #efefef;
+        }
+
+        .table-body>tr>td {
+            border-bottom: solid 1px #efefef;
+        }
+
+        th {
+            text-align: left;
+            padding-left: 6px;
+            padding-right: 6px;
+            padding-top: 6px;
+            padding-bottom: 6px;
+        }
+
+        td {
+            padding-left: 6px;
+            padding-right: 6px;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            white-space: nowrap;
+        }
+
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        li {
+            padding: 3px;
+        }
+    </style>
+
+</head>
+<body>
+    <ninja>
+        {% if projects|e %}
+        {% for project in projects %}
+
+        <h1>{{ project.name }}</h1>
+        <h3>Due: {{ project.due_date }}</h3>
+        <h6>{{ project.current_hours }} / {{ project.budgeted_hours }}: (Hours / Budgeted Hours @ {{ project.task_rate }}) - Report generated on {{ "now"|date('Y-m-d') }}</h6>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Duration</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in project.tasks %}
+
+                {% for log in task.time_log%}
+
+                <tr>
+                    <td>{{ log.start_date }}</td>
+                    <td>
+                        <div>
+                            <ul>
+                                <li>{{ log.description }}</li>
+                                <li>{{ task.user.name }}</li>
+                            </ul>
+                        </div>
+
+                    </td>
+                    <td>{{ log.duration|date('h:i:s')}}</td>
+                </tr>
+                {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endfor %}
+        {% endif %}
+    </ninja>
+</body>
+</html>

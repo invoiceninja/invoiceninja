@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:clm64053="urn:un:unece:uncefact:codelist:standard:UNECE:DeliveryTermsCode:2020"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="urn:un:unece:uncefact:codelist:standard:UNECE:DeliveryTermsCode:2020"
+    elementFormDefault="qualified"
+    version="3.0">
+  <xsd:simpleType name="DeliveryTermsCodeContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="1"/>
+      <xsd:enumeration value="2"/>
+      <xsd:enumeration value="CFR"/>
+      <xsd:enumeration value="CIF"/>
+      <xsd:enumeration value="CIP"/>
+      <xsd:enumeration value="CPT"/>
+      <xsd:enumeration value="DAP"/>
+      <xsd:enumeration value="DDP"/>
+      <xsd:enumeration value="DPU"/>
+      <xsd:enumeration value="EXW"/>
+      <xsd:enumeration value="FAS"/>
+      <xsd:enumeration value="FCA"/>
+      <xsd:enumeration value="FOB"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

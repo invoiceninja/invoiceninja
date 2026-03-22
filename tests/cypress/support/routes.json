@@ -1,0 +1,5626 @@
+{
+  "debugbar.openhandler": {
+    "name": "debugbar.openhandler",
+    "domain": null,
+    "action": "Barryvdh\\Debugbar\\Controllers\\OpenHandlerController@handle",
+    "uri": "_debugbar/open",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "debugbar.clockwork": {
+    "name": "debugbar.clockwork",
+    "domain": null,
+    "action": "Barryvdh\\Debugbar\\Controllers\\OpenHandlerController@clockwork",
+    "uri": "_debugbar/clockwork/{id}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "debugbar.assets.css": {
+    "name": "debugbar.assets.css",
+    "domain": null,
+    "action": "Barryvdh\\Debugbar\\Controllers\\AssetController@css",
+    "uri": "_debugbar/assets/stylesheets",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "debugbar.assets.js": {
+    "name": "debugbar.assets.js",
+    "domain": null,
+    "action": "Barryvdh\\Debugbar\\Controllers\\AssetController@js",
+    "uri": "_debugbar/assets/javascript",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "debugbar.cache.delete": {
+    "name": "debugbar.cache.delete",
+    "domain": null,
+    "action": "Barryvdh\\Debugbar\\Controllers\\CacheController@delete",
+    "uri": "_debugbar/cache/{key}/{tags?}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "liap.serverNotifications": {
+    "name": "liap.serverNotifications",
+    "domain": null,
+    "action": "Imdhemy\\Purchases\\Http\\Controllers\\ServerNotificationController",
+    "uri": "liap/notifications",
+    "method": [
+      "POST"
+    ]
+  },
+  "cypress.factory": {
+    "name": "cypress.factory",
+    "domain": null,
+    "action": "Laracasts\\Cypress\\Controllers\\CypressController@factory",
+    "uri": "__cypress__/factory",
+    "method": [
+      "POST"
+    ]
+  },
+  "cypress.login": {
+    "name": "cypress.login",
+    "domain": null,
+    "action": "Laracasts\\Cypress\\Controllers\\CypressController@login",
+    "uri": "__cypress__/login",
+    "method": [
+      "POST"
+    ]
+  },
+  "cypress.logout": {
+    "name": "cypress.logout",
+    "domain": null,
+    "action": "Laracasts\\Cypress\\Controllers\\CypressController@logout",
+    "uri": "__cypress__/logout",
+    "method": [
+      "POST"
+    ]
+  },
+  "cypress.artisan": {
+    "name": "cypress.artisan",
+    "domain": null,
+    "action": "Laracasts\\Cypress\\Controllers\\CypressController@artisan",
+    "uri": "__cypress__/artisan",
+    "method": [
+      "POST"
+    ]
+  },
+  "cypress.run-php": {
+    "name": "cypress.run-php",
+    "domain": null,
+    "action": "Laracasts\\Cypress\\Controllers\\CypressController@runPhp",
+    "uri": "__cypress__/run-php",
+    "method": [
+      "POST"
+    ]
+  },
+  "cypress.csrf-token": {
+    "name": "cypress.csrf-token",
+    "domain": null,
+    "action": "Laracasts\\Cypress\\Controllers\\CypressController@csrfToken",
+    "uri": "__cypress__/csrf_token",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "cypress.routes": {
+    "name": "cypress.routes",
+    "domain": null,
+    "action": "Laracasts\\Cypress\\Controllers\\CypressController@routes",
+    "uri": "__cypress__/routes",
+    "method": [
+      "POST"
+    ]
+  },
+  "cypress.current-user": {
+    "name": "cypress.current-user",
+    "domain": null,
+    "action": "Laracasts\\Cypress\\Controllers\\CypressController@currentUser",
+    "uri": "__cypress__/current-user",
+    "method": [
+      "POST"
+    ]
+  },
+  "dusk.login": {
+    "name": "dusk.login",
+    "domain": null,
+    "action": "Laravel\\Dusk\\Http\\Controllers\\UserController@login",
+    "uri": "_dusk/login/{userId}/{guard?}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "dusk.logout": {
+    "name": "dusk.logout",
+    "domain": null,
+    "action": "Laravel\\Dusk\\Http\\Controllers\\UserController@logout",
+    "uri": "_dusk/logout/{guard?}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "dusk.user": {
+    "name": "dusk.user",
+    "domain": null,
+    "action": "Laravel\\Dusk\\Http\\Controllers\\UserController@user",
+    "uri": "_dusk/user/{guard?}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "livewire.message": {
+    "name": "livewire.message",
+    "domain": null,
+    "action": "Livewire\\Controllers\\HttpConnectionHandler",
+    "uri": "livewire/message/{name}",
+    "method": [
+      "POST"
+    ]
+  },
+  "livewire.message-localized": {
+    "name": "livewire.message-localized",
+    "domain": null,
+    "action": "Livewire\\Controllers\\HttpConnectionHandler",
+    "uri": "{locale}/livewire/message/{name}",
+    "method": [
+      "POST"
+    ]
+  },
+  "livewire.upload-file": {
+    "name": "livewire.upload-file",
+    "domain": null,
+    "action": "Livewire\\Controllers\\FileUploadHandler@handle",
+    "uri": "livewire/upload-file",
+    "method": [
+      "POST"
+    ]
+  },
+  "livewire.preview-file": {
+    "name": "livewire.preview-file",
+    "domain": null,
+    "action": "Livewire\\Controllers\\FilePreviewHandler@handle",
+    "uri": "livewire/preview-file/{filename}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "generated::5DbpdzZFuCNXOsxC": {
+    "name": "generated::5DbpdzZFuCNXOsxC",
+    "domain": null,
+    "action": "Livewire\\Controllers\\LivewireJavaScriptAssets@source",
+    "uri": "livewire/livewire.js",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "generated::vpTKd3UqYpDDuIFl": {
+    "name": "generated::vpTKd3UqYpDDuIFl",
+    "domain": null,
+    "action": "Livewire\\Controllers\\LivewireJavaScriptAssets@maps",
+    "uri": "livewire/livewire.js.map",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "ignition.healthCheck": {
+    "name": "ignition.healthCheck",
+    "domain": null,
+    "action": "Spatie\\LaravelIgnition\\Http\\Controllers\\HealthCheckController",
+    "uri": "_ignition/health-check",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "ignition.executeSolution": {
+    "name": "ignition.executeSolution",
+    "domain": null,
+    "action": "Spatie\\LaravelIgnition\\Http\\Controllers\\ExecuteSolutionController",
+    "uri": "_ignition/execute-solution",
+    "method": [
+      "POST"
+    ]
+  },
+  "ignition.updateConfig": {
+    "name": "ignition.updateConfig",
+    "domain": null,
+    "action": "Spatie\\LaravelIgnition\\Http\\Controllers\\UpdateConfigController",
+    "uri": "_ignition/update-config",
+    "method": [
+      "POST"
+    ]
+  },
+  "signup.submit": {
+    "name": "signup.submit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\AccountController@store",
+    "uri": "api/v1/signup",
+    "method": [
+      "POST"
+    ]
+  },
+  "generated::kUipnM7BOPTIkTwx": {
+    "name": "generated::kUipnM7BOPTIkTwx",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Auth\\LoginController@oauthApiLogin",
+    "uri": "api/v1/oauth_login",
+    "method": [
+      "POST"
+    ]
+  },
+  "login.submit": {
+    "name": "login.submit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Auth\\LoginController@apiLogin",
+    "uri": "api/v1/login",
+    "method": [
+      "POST"
+    ]
+  },
+  "generated::97NuZdVpNrSdteIi": {
+    "name": "generated::97NuZdVpNrSdteIi",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Auth\\ForgotPasswordController@sendResetLinkEmail",
+    "uri": "api/v1/reset_password",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.account.update": {
+    "name": "api.account.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\AccountController@update",
+    "uri": "api/v1/accounts/{account}",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.bank_integrations.index": {
+    "name": "api.bank_integrations.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankIntegrationController@index",
+    "uri": "api/v1/bank_integrations",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.bank_integrations.create": {
+    "name": "api.bank_integrations.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankIntegrationController@create",
+    "uri": "api/v1/bank_integrations/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.bank_integrations.store": {
+    "name": "api.bank_integrations.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankIntegrationController@store",
+    "uri": "api/v1/bank_integrations",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.bank_integrations.show": {
+    "name": "api.bank_integrations.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankIntegrationController@show",
+    "uri": "api/v1/bank_integrations/{bank_integration}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.bank_integrations.edit": {
+    "name": "api.bank_integrations.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankIntegrationController@edit",
+    "uri": "api/v1/bank_integrations/{bank_integration}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.bank_integrations.update": {
+    "name": "api.bank_integrations.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankIntegrationController@update",
+    "uri": "api/v1/bank_integrations/{bank_integration}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.bank_integrations.destroy": {
+    "name": "api.bank_integrations.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankIntegrationController@destroy",
+    "uri": "api/v1/bank_integrations/{bank_integration}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.bank_integrations.refresh_accounts": {
+    "name": "api.bank_integrations.refresh_accounts",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankIntegrationController@refreshAccounts",
+    "uri": "api/v1/bank_integrations/refresh_accounts",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.bank_integrations.remove_account": {
+    "name": "api.bank_integrations.remove_account",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankIntegrationController@removeAccount",
+    "uri": "api/v1/bank_integrations/remove_account/{acc_id}",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.bank_integrations.transactions": {
+    "name": "api.bank_integrations.transactions",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankIntegrationController@getTransactions",
+    "uri": "api/v1/bank_integrations/get_transactions/{acc_id}",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.bank_integrations.bulk": {
+    "name": "api.bank_integrations.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankIntegrationController@bulk",
+    "uri": "api/v1/bank_integrations/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.bank_transactions.index": {
+    "name": "api.bank_transactions.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankTransactionController@index",
+    "uri": "api/v1/bank_transactions",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.bank_transactions.create": {
+    "name": "api.bank_transactions.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankTransactionController@create",
+    "uri": "api/v1/bank_transactions/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.bank_transactions.store": {
+    "name": "api.bank_transactions.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankTransactionController@store",
+    "uri": "api/v1/bank_transactions",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.bank_transactions.show": {
+    "name": "api.bank_transactions.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankTransactionController@show",
+    "uri": "api/v1/bank_transactions/{bank_transaction}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.bank_transactions.edit": {
+    "name": "api.bank_transactions.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankTransactionController@edit",
+    "uri": "api/v1/bank_transactions/{bank_transaction}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.bank_transactions.update": {
+    "name": "api.bank_transactions.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankTransactionController@update",
+    "uri": "api/v1/bank_transactions/{bank_transaction}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.bank_transactions.destroy": {
+    "name": "api.bank_transactions.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankTransactionController@destroy",
+    "uri": "api/v1/bank_transactions/{bank_transaction}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.bank_transactions.bulk": {
+    "name": "api.bank_transactions.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankTransactionController@bulk",
+    "uri": "api/v1/bank_transactions/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.bank_transactions.match": {
+    "name": "api.bank_transactions.match",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankTransactionController@match",
+    "uri": "api/v1/bank_transactions/match",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.bank_transaction_rules.index": {
+    "name": "api.bank_transaction_rules.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankTransactionRuleController@index",
+    "uri": "api/v1/bank_transaction_rules",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.bank_transaction_rules.create": {
+    "name": "api.bank_transaction_rules.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankTransactionRuleController@create",
+    "uri": "api/v1/bank_transaction_rules/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.bank_transaction_rules.store": {
+    "name": "api.bank_transaction_rules.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankTransactionRuleController@store",
+    "uri": "api/v1/bank_transaction_rules",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.bank_transaction_rules.show": {
+    "name": "api.bank_transaction_rules.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankTransactionRuleController@show",
+    "uri": "api/v1/bank_transaction_rules/{bank_transaction_rule}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.bank_transaction_rules.edit": {
+    "name": "api.bank_transaction_rules.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankTransactionRuleController@edit",
+    "uri": "api/v1/bank_transaction_rules/{bank_transaction_rule}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.bank_transaction_rules.update": {
+    "name": "api.bank_transaction_rules.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankTransactionRuleController@update",
+    "uri": "api/v1/bank_transaction_rules/{bank_transaction_rule}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.bank_transaction_rules.destroy": {
+    "name": "api.bank_transaction_rules.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankTransactionRuleController@destroy",
+    "uri": "api/v1/bank_transaction_rules/{bank_transaction_rule}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.bank_transaction_rules.bulk": {
+    "name": "api.bank_transaction_rules.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BankTransactionRuleController@bulk",
+    "uri": "api/v1/bank_transaction_rules/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.check_subdomain": {
+    "name": "api.check_subdomain",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\SubdomainController@index",
+    "uri": "api/v1/check_subdomain",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.ping": {
+    "name": "api.ping",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PingController@index",
+    "uri": "api/v1/ping",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.health_check": {
+    "name": "api.health_check",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PingController@health",
+    "uri": "api/v1/health_check",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.": {
+    "name": "api.",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ActivityController@index",
+    "uri": "api/v1/activities",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.generated::ZouteAjNs0LLIOuX": {
+    "name": "api.generated::ZouteAjNs0LLIOuX",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ActivityController@downloadHistoricalEntity",
+    "uri": "api/v1/activities/download_entity/{activity}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.chart.totals": {
+    "name": "api.chart.totals",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ChartController@totals",
+    "uri": "api/v1/charts/totals",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.chart.chart_summary": {
+    "name": "api.chart.chart_summary",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ChartController@chart_summary",
+    "uri": "api/v1/charts/chart_summary",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.license.index": {
+    "name": "api.license.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\LicenseController@index",
+    "uri": "api/v1/claim_license",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.license.v5_claim_license": {
+    "name": "api.license.v5_claim_license",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\LicenseController@v5ClaimLicense",
+    "uri": "api/v1/v5_claim_license",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.clients.index": {
+    "name": "api.clients.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientController@index",
+    "uri": "api/v1/clients",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.clients.create": {
+    "name": "api.clients.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientController@create",
+    "uri": "api/v1/clients/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.clients.store": {
+    "name": "api.clients.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientController@store",
+    "uri": "api/v1/clients",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.clients.show": {
+    "name": "api.clients.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientController@show",
+    "uri": "api/v1/clients/{client}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.clients.edit": {
+    "name": "api.clients.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientController@edit",
+    "uri": "api/v1/clients/{client}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.clients.update": {
+    "name": "api.clients.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientController@update",
+    "uri": "api/v1/clients/{client}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.clients.destroy": {
+    "name": "api.clients.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientController@destroy",
+    "uri": "api/v1/clients/{client}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.clients.upload": {
+    "name": "api.clients.upload",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientController@upload",
+    "uri": "api/v1/clients/{client}/upload",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.clients.purge": {
+    "name": "api.clients.purge",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientController@purge",
+    "uri": "api/v1/clients/{client}/purge",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.clients.merge": {
+    "name": "api.clients.merge",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientController@merge",
+    "uri": "api/v1/clients/{client}/{mergeable_client}/merge",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.clients.bulk": {
+    "name": "api.clients.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientController@bulk",
+    "uri": "api/v1/clients/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.filters": {
+    "name": "api.filters",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\FilterController@index",
+    "uri": "api/v1/filters/{entity}",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.client_gateway_tokens.index": {
+    "name": "api.client_gateway_tokens.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientGatewayTokenController@index",
+    "uri": "api/v1/client_gateway_tokens",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.client_gateway_tokens.create": {
+    "name": "api.client_gateway_tokens.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientGatewayTokenController@create",
+    "uri": "api/v1/client_gateway_tokens/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.client_gateway_tokens.store": {
+    "name": "api.client_gateway_tokens.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientGatewayTokenController@store",
+    "uri": "api/v1/client_gateway_tokens",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.client_gateway_tokens.show": {
+    "name": "api.client_gateway_tokens.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientGatewayTokenController@show",
+    "uri": "api/v1/client_gateway_tokens/{client_gateway_token}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.client_gateway_tokens.edit": {
+    "name": "api.client_gateway_tokens.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientGatewayTokenController@edit",
+    "uri": "api/v1/client_gateway_tokens/{client_gateway_token}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.client_gateway_tokens.update": {
+    "name": "api.client_gateway_tokens.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientGatewayTokenController@update",
+    "uri": "api/v1/client_gateway_tokens/{client_gateway_token}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.client_gateway_tokens.destroy": {
+    "name": "api.client_gateway_tokens.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientGatewayTokenController@destroy",
+    "uri": "api/v1/client_gateway_tokens/{client_gateway_token}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.generated::hlAxQllVlJ2hFmGt": {
+    "name": "api.generated::hlAxQllVlJ2hFmGt",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ConnectedAccountController@index",
+    "uri": "api/v1/connected_account",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::20RTHG5cVneeyFqK": {
+    "name": "api.generated::20RTHG5cVneeyFqK",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ConnectedAccountController@handleGmailOauth",
+    "uri": "api/v1/connected_account/gmail",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.client.statement": {
+    "name": "api.client.statement",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientStatementController@statement",
+    "uri": "api/v1/client_statement",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::rtPuxDs2DLQYN8vC": {
+    "name": "api.generated::rtPuxDs2DLQYN8vC",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\MigrationController@purgeCompany",
+    "uri": "api/v1/companies/purge/{company}",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::TX1Crz4rLPJyA7WR": {
+    "name": "api.generated::TX1Crz4rLPJyA7WR",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\MigrationController@purgeCompanySaveSettings",
+    "uri": "api/v1/companies/purge_save_settings/{company}",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.companies.index": {
+    "name": "api.companies.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CompanyController@index",
+    "uri": "api/v1/companies",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.companies.create": {
+    "name": "api.companies.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CompanyController@create",
+    "uri": "api/v1/companies/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.companies.store": {
+    "name": "api.companies.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CompanyController@store",
+    "uri": "api/v1/companies",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.companies.show": {
+    "name": "api.companies.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CompanyController@show",
+    "uri": "api/v1/companies/{company}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.companies.edit": {
+    "name": "api.companies.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CompanyController@edit",
+    "uri": "api/v1/companies/{company}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.companies.update": {
+    "name": "api.companies.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CompanyController@update",
+    "uri": "api/v1/companies/{company}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.companies.destroy": {
+    "name": "api.companies.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CompanyController@destroy",
+    "uri": "api/v1/companies/{company}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.generated::ExWBUkvYLniOH4JS": {
+    "name": "api.generated::ExWBUkvYLniOH4JS",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CompanyController@upload",
+    "uri": "api/v1/companies/{company}/upload",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.generated::PvJbWSTo153jnqm9": {
+    "name": "api.generated::PvJbWSTo153jnqm9",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CompanyController@default",
+    "uri": "api/v1/companies/{company}/default",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.company_ledger.index": {
+    "name": "api.company_ledger.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CompanyLedgerController@index",
+    "uri": "api/v1/company_ledger",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.company_gateways.index": {
+    "name": "api.company_gateways.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CompanyGatewayController@index",
+    "uri": "api/v1/company_gateways",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.company_gateways.create": {
+    "name": "api.company_gateways.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CompanyGatewayController@create",
+    "uri": "api/v1/company_gateways/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.company_gateways.store": {
+    "name": "api.company_gateways.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CompanyGatewayController@store",
+    "uri": "api/v1/company_gateways",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.company_gateways.show": {
+    "name": "api.company_gateways.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CompanyGatewayController@show",
+    "uri": "api/v1/company_gateways/{company_gateway}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.company_gateways.edit": {
+    "name": "api.company_gateways.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CompanyGatewayController@edit",
+    "uri": "api/v1/company_gateways/{company_gateway}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.company_gateways.update": {
+    "name": "api.company_gateways.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CompanyGatewayController@update",
+    "uri": "api/v1/company_gateways/{company_gateway}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.company_gateways.destroy": {
+    "name": "api.company_gateways.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CompanyGatewayController@destroy",
+    "uri": "api/v1/company_gateways/{company_gateway}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.company_gateways.bulk": {
+    "name": "api.company_gateways.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CompanyGatewayController@bulk",
+    "uri": "api/v1/company_gateways/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::A996NfgTo0sW0V1e": {
+    "name": "api.generated::A996NfgTo0sW0V1e",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CompanyUserController@update",
+    "uri": "api/v1/company_users/{user}",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.credits.index": {
+    "name": "api.credits.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CreditController@index",
+    "uri": "api/v1/credits",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.credits.create": {
+    "name": "api.credits.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CreditController@create",
+    "uri": "api/v1/credits/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.credits.store": {
+    "name": "api.credits.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CreditController@store",
+    "uri": "api/v1/credits",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.credits.show": {
+    "name": "api.credits.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CreditController@show",
+    "uri": "api/v1/credits/{credit}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.credits.edit": {
+    "name": "api.credits.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CreditController@edit",
+    "uri": "api/v1/credits/{credit}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.credits.update": {
+    "name": "api.credits.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CreditController@update",
+    "uri": "api/v1/credits/{credit}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.credits.destroy": {
+    "name": "api.credits.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CreditController@destroy",
+    "uri": "api/v1/credits/{credit}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.credits.upload": {
+    "name": "api.credits.upload",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CreditController@upload",
+    "uri": "api/v1/credits/{credit}/upload",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.credits.action": {
+    "name": "api.credits.action",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CreditController@action",
+    "uri": "api/v1/credits/{credit}/{action}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.credits.bulk": {
+    "name": "api.credits.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CreditController@bulk",
+    "uri": "api/v1/credits/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.credits.downloadPdf": {
+    "name": "api.credits.downloadPdf",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CreditController@downloadPdf",
+    "uri": "api/v1/credit/{invitation_key}/download",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.designs.index": {
+    "name": "api.designs.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\DesignController@index",
+    "uri": "api/v1/designs",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.designs.create": {
+    "name": "api.designs.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\DesignController@create",
+    "uri": "api/v1/designs/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.designs.store": {
+    "name": "api.designs.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\DesignController@store",
+    "uri": "api/v1/designs",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.designs.show": {
+    "name": "api.designs.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\DesignController@show",
+    "uri": "api/v1/designs/{design}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.designs.edit": {
+    "name": "api.designs.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\DesignController@edit",
+    "uri": "api/v1/designs/{design}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.designs.update": {
+    "name": "api.designs.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\DesignController@update",
+    "uri": "api/v1/designs/{design}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.designs.destroy": {
+    "name": "api.designs.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\DesignController@destroy",
+    "uri": "api/v1/designs/{design}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.designs.bulk": {
+    "name": "api.designs.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\DesignController@bulk",
+    "uri": "api/v1/designs/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.designs.default": {
+    "name": "api.designs.default",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\DesignController@default",
+    "uri": "api/v1/designs/set/default",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.documents.index": {
+    "name": "api.documents.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\DocumentController@index",
+    "uri": "api/v1/documents",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.documents.create": {
+    "name": "api.documents.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\DocumentController@create",
+    "uri": "api/v1/documents/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.documents.store": {
+    "name": "api.documents.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\DocumentController@store",
+    "uri": "api/v1/documents",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.documents.show": {
+    "name": "api.documents.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\DocumentController@show",
+    "uri": "api/v1/documents/{document}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.documents.edit": {
+    "name": "api.documents.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\DocumentController@edit",
+    "uri": "api/v1/documents/{document}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.documents.update": {
+    "name": "api.documents.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\DocumentController@update",
+    "uri": "api/v1/documents/{document}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.documents.destroy": {
+    "name": "api.documents.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\DocumentController@destroy",
+    "uri": "api/v1/documents/{document}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.documents.download": {
+    "name": "api.documents.download",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\DocumentController@download",
+    "uri": "api/v1/documents/{document}/download",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.documents.bulk": {
+    "name": "api.documents.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\DocumentController@bulk",
+    "uri": "api/v1/documents/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.email.send": {
+    "name": "api.email.send",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\EmailController@send",
+    "uri": "api/v1/emails",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.expenses.index": {
+    "name": "api.expenses.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ExpenseController@index",
+    "uri": "api/v1/expenses",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.expenses.create": {
+    "name": "api.expenses.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ExpenseController@create",
+    "uri": "api/v1/expenses/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.expenses.store": {
+    "name": "api.expenses.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ExpenseController@store",
+    "uri": "api/v1/expenses",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.expenses.show": {
+    "name": "api.expenses.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ExpenseController@show",
+    "uri": "api/v1/expenses/{expense}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.expenses.edit": {
+    "name": "api.expenses.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ExpenseController@edit",
+    "uri": "api/v1/expenses/{expense}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.expenses.update": {
+    "name": "api.expenses.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ExpenseController@update",
+    "uri": "api/v1/expenses/{expense}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.expenses.destroy": {
+    "name": "api.expenses.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ExpenseController@destroy",
+    "uri": "api/v1/expenses/{expense}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.generated::h3j0Yi4uCQvcBIxA": {
+    "name": "api.generated::h3j0Yi4uCQvcBIxA",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ExpenseController@upload",
+    "uri": "api/v1/expenses/{expense}/upload",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.expenses.bulk": {
+    "name": "api.expenses.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ExpenseController@bulk",
+    "uri": "api/v1/expenses/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.export.index": {
+    "name": "api.export.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ExportController@index",
+    "uri": "api/v1/export",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.expense_categories.index": {
+    "name": "api.expense_categories.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ExpenseCategoryController@index",
+    "uri": "api/v1/expense_categories",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.expense_categories.create": {
+    "name": "api.expense_categories.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ExpenseCategoryController@create",
+    "uri": "api/v1/expense_categories/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.expense_categories.store": {
+    "name": "api.expense_categories.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ExpenseCategoryController@store",
+    "uri": "api/v1/expense_categories",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.expense_categories.show": {
+    "name": "api.expense_categories.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ExpenseCategoryController@show",
+    "uri": "api/v1/expense_categories/{expense_category}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.expense_categories.edit": {
+    "name": "api.expense_categories.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ExpenseCategoryController@edit",
+    "uri": "api/v1/expense_categories/{expense_category}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.expense_categories.update": {
+    "name": "api.expense_categories.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ExpenseCategoryController@update",
+    "uri": "api/v1/expense_categories/{expense_category}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.expense_categories.destroy": {
+    "name": "api.expense_categories.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ExpenseCategoryController@destroy",
+    "uri": "api/v1/expense_categories/{expense_category}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.expense_categories.bulk": {
+    "name": "api.expense_categories.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ExpenseCategoryController@bulk",
+    "uri": "api/v1/expense_categories/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.group_settings.index": {
+    "name": "api.group_settings.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\GroupSettingController@index",
+    "uri": "api/v1/group_settings",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.group_settings.create": {
+    "name": "api.group_settings.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\GroupSettingController@create",
+    "uri": "api/v1/group_settings/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.group_settings.store": {
+    "name": "api.group_settings.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\GroupSettingController@store",
+    "uri": "api/v1/group_settings",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.group_settings.show": {
+    "name": "api.group_settings.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\GroupSettingController@show",
+    "uri": "api/v1/group_settings/{group_setting}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.group_settings.edit": {
+    "name": "api.group_settings.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\GroupSettingController@edit",
+    "uri": "api/v1/group_settings/{group_setting}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.group_settings.update": {
+    "name": "api.group_settings.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\GroupSettingController@update",
+    "uri": "api/v1/group_settings/{group_setting}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.group_settings.destroy": {
+    "name": "api.group_settings.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\GroupSettingController@destroy",
+    "uri": "api/v1/group_settings/{group_setting}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.generated::p1voV6GGnLF0LkYS": {
+    "name": "api.generated::p1voV6GGnLF0LkYS",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\GroupSettingController@bulk",
+    "uri": "api/v1/group_settings/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.group_settings.upload": {
+    "name": "api.group_settings.upload",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\GroupSettingController@upload",
+    "uri": "api/v1/group_settings/{group_setting}/upload",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.import.import": {
+    "name": "api.import.import",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ImportController@import",
+    "uri": "api/v1/import",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.import.import_json": {
+    "name": "api.import.import_json",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ImportJsonController@import",
+    "uri": "api/v1/import_json",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.import.preimport": {
+    "name": "api.import.preimport",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ImportController@preimport",
+    "uri": "api/v1/preimport",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.invoices.index": {
+    "name": "api.invoices.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\InvoiceController@index",
+    "uri": "api/v1/invoices",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.invoices.create": {
+    "name": "api.invoices.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\InvoiceController@create",
+    "uri": "api/v1/invoices/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.invoices.store": {
+    "name": "api.invoices.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\InvoiceController@store",
+    "uri": "api/v1/invoices",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.invoices.show": {
+    "name": "api.invoices.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\InvoiceController@show",
+    "uri": "api/v1/invoices/{invoice}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.invoices.edit": {
+    "name": "api.invoices.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\InvoiceController@edit",
+    "uri": "api/v1/invoices/{invoice}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.invoices.update": {
+    "name": "api.invoices.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\InvoiceController@update",
+    "uri": "api/v1/invoices/{invoice}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.invoices.destroy": {
+    "name": "api.invoices.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\InvoiceController@destroy",
+    "uri": "api/v1/invoices/{invoice}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.invoices.delivery_note": {
+    "name": "api.invoices.delivery_note",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\InvoiceController@deliveryNote",
+    "uri": "api/v1/invoices/{invoice}/delivery_note",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.invoices.action": {
+    "name": "api.invoices.action",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\InvoiceController@action",
+    "uri": "api/v1/invoices/{invoice}/{action}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.invoices.upload": {
+    "name": "api.invoices.upload",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\InvoiceController@upload",
+    "uri": "api/v1/invoices/{invoice}/upload",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.invoices.downloadPdf": {
+    "name": "api.invoices.downloadPdf",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\InvoiceController@downloadPdf",
+    "uri": "api/v1/invoice/{invitation_key}/download",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.invoices.bulk": {
+    "name": "api.invoices.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\InvoiceController@bulk",
+    "uri": "api/v1/invoices/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.invoices.update_reminders": {
+    "name": "api.invoices.update_reminders",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\InvoiceController@update_reminders",
+    "uri": "api/v1/invoices/update_reminders",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.logout": {
+    "name": "api.logout",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\LogoutController@index",
+    "uri": "api/v1/logout",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.migrate.start": {
+    "name": "api.migrate.start",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\MigrationController@index",
+    "uri": "api/v1/migrate",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::lBoHWveDBaoG8G3E": {
+    "name": "api.generated::lBoHWveDBaoG8G3E",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\MigrationController@purgeCompany",
+    "uri": "api/v1/migration/purge/{company}",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::hi19L7nCkXpYxaiy": {
+    "name": "api.generated::hi19L7nCkXpYxaiy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\MigrationController@purgeCompanySaveSettings",
+    "uri": "api/v1/migration/purge_save_settings/{company}",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::4XIWMff6ztAXFnWl": {
+    "name": "api.generated::4XIWMff6ztAXFnWl",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\MigrationController@startMigration",
+    "uri": "api/v1/migration/start",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::NP8Xks3FOVOb5Fh5": {
+    "name": "api.generated::NP8Xks3FOVOb5Fh5",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\OneTimeTokenController@create",
+    "uri": "api/v1/one_time_token",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.payments.index": {
+    "name": "api.payments.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PaymentController@index",
+    "uri": "api/v1/payments",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.payments.create": {
+    "name": "api.payments.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PaymentController@create",
+    "uri": "api/v1/payments/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.payments.store": {
+    "name": "api.payments.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PaymentController@store",
+    "uri": "api/v1/payments",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.payments.show": {
+    "name": "api.payments.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PaymentController@show",
+    "uri": "api/v1/payments/{payment}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.payments.edit": {
+    "name": "api.payments.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PaymentController@edit",
+    "uri": "api/v1/payments/{payment}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.payments.update": {
+    "name": "api.payments.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PaymentController@update",
+    "uri": "api/v1/payments/{payment}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.payments.destroy": {
+    "name": "api.payments.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PaymentController@destroy",
+    "uri": "api/v1/payments/{payment}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.payments.refund": {
+    "name": "api.payments.refund",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PaymentController@refund",
+    "uri": "api/v1/payments/refund",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.payments.bulk": {
+    "name": "api.payments.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PaymentController@bulk",
+    "uri": "api/v1/payments/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::kplxKCV8luF5M4x4": {
+    "name": "api.generated::kplxKCV8luF5M4x4",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PaymentController@upload",
+    "uri": "api/v1/payments/{payment}/upload",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.payment_terms.index": {
+    "name": "api.payment_terms.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PaymentTermController@index",
+    "uri": "api/v1/payment_terms",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.payment_terms.create": {
+    "name": "api.payment_terms.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PaymentTermController@create",
+    "uri": "api/v1/payment_terms/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.payment_terms.store": {
+    "name": "api.payment_terms.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PaymentTermController@store",
+    "uri": "api/v1/payment_terms",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.payment_terms.show": {
+    "name": "api.payment_terms.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PaymentTermController@show",
+    "uri": "api/v1/payment_terms/{payment_term}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.payment_terms.edit": {
+    "name": "api.payment_terms.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PaymentTermController@edit",
+    "uri": "api/v1/payment_terms/{payment_term}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.payment_terms.update": {
+    "name": "api.payment_terms.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PaymentTermController@update",
+    "uri": "api/v1/payment_terms/{payment_term}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.payment_terms.destroy": {
+    "name": "api.payment_terms.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PaymentTermController@destroy",
+    "uri": "api/v1/payment_terms/{payment_term}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.payment_terms.bulk": {
+    "name": "api.payment_terms.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PaymentTermController@bulk",
+    "uri": "api/v1/payment_terms/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.preview.show": {
+    "name": "api.preview.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PreviewController@show",
+    "uri": "api/v1/preview",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.preview.live": {
+    "name": "api.preview.live",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PreviewController@live",
+    "uri": "api/v1/live_preview",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.preview.design": {
+    "name": "api.preview.design",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PreviewController@design",
+    "uri": "api/v1/live_design",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.preview_purchase_order.show": {
+    "name": "api.preview_purchase_order.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PreviewPurchaseOrderController@show",
+    "uri": "api/v1/preview/purchase_order",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.preview_purchase_order.live": {
+    "name": "api.preview_purchase_order.live",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PreviewPurchaseOrderController@live",
+    "uri": "api/v1/live_preview/purchase_order",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.products.index": {
+    "name": "api.products.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ProductController@index",
+    "uri": "api/v1/products",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.products.create": {
+    "name": "api.products.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ProductController@create",
+    "uri": "api/v1/products/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.products.store": {
+    "name": "api.products.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ProductController@store",
+    "uri": "api/v1/products",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.products.show": {
+    "name": "api.products.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ProductController@show",
+    "uri": "api/v1/products/{product}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.products.edit": {
+    "name": "api.products.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ProductController@edit",
+    "uri": "api/v1/products/{product}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.products.update": {
+    "name": "api.products.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ProductController@update",
+    "uri": "api/v1/products/{product}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.products.destroy": {
+    "name": "api.products.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ProductController@destroy",
+    "uri": "api/v1/products/{product}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.products.bulk": {
+    "name": "api.products.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ProductController@bulk",
+    "uri": "api/v1/products/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::yvbMiQC4DVsSU9x0": {
+    "name": "api.generated::yvbMiQC4DVsSU9x0",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ProductController@upload",
+    "uri": "api/v1/products/{product}/upload",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.projects.index": {
+    "name": "api.projects.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ProjectController@index",
+    "uri": "api/v1/projects",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.projects.create": {
+    "name": "api.projects.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ProjectController@create",
+    "uri": "api/v1/projects/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.projects.store": {
+    "name": "api.projects.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ProjectController@store",
+    "uri": "api/v1/projects",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.projects.show": {
+    "name": "api.projects.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ProjectController@show",
+    "uri": "api/v1/projects/{project}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.projects.edit": {
+    "name": "api.projects.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ProjectController@edit",
+    "uri": "api/v1/projects/{project}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.projects.update": {
+    "name": "api.projects.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ProjectController@update",
+    "uri": "api/v1/projects/{project}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.projects.destroy": {
+    "name": "api.projects.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ProjectController@destroy",
+    "uri": "api/v1/projects/{project}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.projects.bulk": {
+    "name": "api.projects.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ProjectController@bulk",
+    "uri": "api/v1/projects/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.projects.upload": {
+    "name": "api.projects.upload",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ProjectController@upload",
+    "uri": "api/v1/projects/{project}/upload",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.purchase_orders.index": {
+    "name": "api.purchase_orders.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PurchaseOrderController@index",
+    "uri": "api/v1/purchase_orders",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.purchase_orders.create": {
+    "name": "api.purchase_orders.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PurchaseOrderController@create",
+    "uri": "api/v1/purchase_orders/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.purchase_orders.store": {
+    "name": "api.purchase_orders.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PurchaseOrderController@store",
+    "uri": "api/v1/purchase_orders",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.purchase_orders.show": {
+    "name": "api.purchase_orders.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PurchaseOrderController@show",
+    "uri": "api/v1/purchase_orders/{purchase_order}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.purchase_orders.edit": {
+    "name": "api.purchase_orders.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PurchaseOrderController@edit",
+    "uri": "api/v1/purchase_orders/{purchase_order}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.purchase_orders.update": {
+    "name": "api.purchase_orders.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PurchaseOrderController@update",
+    "uri": "api/v1/purchase_orders/{purchase_order}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.purchase_orders.destroy": {
+    "name": "api.purchase_orders.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PurchaseOrderController@destroy",
+    "uri": "api/v1/purchase_orders/{purchase_order}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.purchase_orders.bulk": {
+    "name": "api.purchase_orders.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PurchaseOrderController@bulk",
+    "uri": "api/v1/purchase_orders/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::V2J8pR8a9bpY48Xh": {
+    "name": "api.generated::V2J8pR8a9bpY48Xh",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PurchaseOrderController@upload",
+    "uri": "api/v1/purchase_orders/{purchase_order}/upload",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.purchase_orders.action": {
+    "name": "api.purchase_orders.action",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PurchaseOrderController@action",
+    "uri": "api/v1/purchase_orders/{purchase_order}/{action}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.purchase_orders.downloadPdf": {
+    "name": "api.purchase_orders.downloadPdf",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PurchaseOrderController@downloadPdf",
+    "uri": "api/v1/purchase_order/{invitation_key}/download",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.quotes.index": {
+    "name": "api.quotes.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\QuoteController@index",
+    "uri": "api/v1/quotes",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.quotes.create": {
+    "name": "api.quotes.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\QuoteController@create",
+    "uri": "api/v1/quotes/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.quotes.store": {
+    "name": "api.quotes.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\QuoteController@store",
+    "uri": "api/v1/quotes",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.quotes.show": {
+    "name": "api.quotes.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\QuoteController@show",
+    "uri": "api/v1/quotes/{quote}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.quotes.edit": {
+    "name": "api.quotes.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\QuoteController@edit",
+    "uri": "api/v1/quotes/{quote}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.quotes.update": {
+    "name": "api.quotes.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\QuoteController@update",
+    "uri": "api/v1/quotes/{quote}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.quotes.destroy": {
+    "name": "api.quotes.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\QuoteController@destroy",
+    "uri": "api/v1/quotes/{quote}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.quotes.action": {
+    "name": "api.quotes.action",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\QuoteController@action",
+    "uri": "api/v1/quotes/{quote}/{action}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.quotes.bulk": {
+    "name": "api.quotes.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\QuoteController@bulk",
+    "uri": "api/v1/quotes/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::UJE2Orav38qgGgNV": {
+    "name": "api.generated::UJE2Orav38qgGgNV",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\QuoteController@upload",
+    "uri": "api/v1/quotes/{quote}/upload",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.quotes.downloadPdf": {
+    "name": "api.quotes.downloadPdf",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\QuoteController@downloadPdf",
+    "uri": "api/v1/quote/{invitation_key}/download",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.recurring_expenses.index": {
+    "name": "api.recurring_expenses.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringExpenseController@index",
+    "uri": "api/v1/recurring_expenses",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.recurring_expenses.create": {
+    "name": "api.recurring_expenses.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringExpenseController@create",
+    "uri": "api/v1/recurring_expenses/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.recurring_expenses.store": {
+    "name": "api.recurring_expenses.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringExpenseController@store",
+    "uri": "api/v1/recurring_expenses",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.recurring_expenses.show": {
+    "name": "api.recurring_expenses.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringExpenseController@show",
+    "uri": "api/v1/recurring_expenses/{recurring_expense}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.recurring_expenses.edit": {
+    "name": "api.recurring_expenses.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringExpenseController@edit",
+    "uri": "api/v1/recurring_expenses/{recurring_expense}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.recurring_expenses.update": {
+    "name": "api.recurring_expenses.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringExpenseController@update",
+    "uri": "api/v1/recurring_expenses/{recurring_expense}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.recurring_expenses.destroy": {
+    "name": "api.recurring_expenses.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringExpenseController@destroy",
+    "uri": "api/v1/recurring_expenses/{recurring_expense}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.recurring_expenses.bulk": {
+    "name": "api.recurring_expenses.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringExpenseController@bulk",
+    "uri": "api/v1/recurring_expenses/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::9TCu3cdk1NIt5kGB": {
+    "name": "api.generated::9TCu3cdk1NIt5kGB",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringExpenseController@upload",
+    "uri": "api/v1/recurring_expenses/{recurring_expense}/upload",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.recurring_invoices.index": {
+    "name": "api.recurring_invoices.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringInvoiceController@index",
+    "uri": "api/v1/recurring_invoices",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.recurring_invoices.create": {
+    "name": "api.recurring_invoices.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringInvoiceController@create",
+    "uri": "api/v1/recurring_invoices/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.recurring_invoices.store": {
+    "name": "api.recurring_invoices.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringInvoiceController@store",
+    "uri": "api/v1/recurring_invoices",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.recurring_invoices.show": {
+    "name": "api.recurring_invoices.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringInvoiceController@show",
+    "uri": "api/v1/recurring_invoices/{recurring_invoice}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.recurring_invoices.edit": {
+    "name": "api.recurring_invoices.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringInvoiceController@edit",
+    "uri": "api/v1/recurring_invoices/{recurring_invoice}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.recurring_invoices.update": {
+    "name": "api.recurring_invoices.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringInvoiceController@update",
+    "uri": "api/v1/recurring_invoices/{recurring_invoice}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.recurring_invoices.destroy": {
+    "name": "api.recurring_invoices.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringInvoiceController@destroy",
+    "uri": "api/v1/recurring_invoices/{recurring_invoice}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.recurring_invoices.bulk": {
+    "name": "api.recurring_invoices.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringInvoiceController@bulk",
+    "uri": "api/v1/recurring_invoices/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::rut3AzVHaJ9jZAwZ": {
+    "name": "api.generated::rut3AzVHaJ9jZAwZ",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringInvoiceController@upload",
+    "uri": "api/v1/recurring_invoices/{recurring_invoice}/upload",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.recurring_quotes.index": {
+    "name": "api.recurring_quotes.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringQuoteController@index",
+    "uri": "api/v1/recurring_quotes",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.recurring_quotes.create": {
+    "name": "api.recurring_quotes.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringQuoteController@create",
+    "uri": "api/v1/recurring_quotes/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.recurring_quotes.store": {
+    "name": "api.recurring_quotes.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringQuoteController@store",
+    "uri": "api/v1/recurring_quotes",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.recurring_quotes.show": {
+    "name": "api.recurring_quotes.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringQuoteController@show",
+    "uri": "api/v1/recurring_quotes/{recurring_quote}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.recurring_quotes.edit": {
+    "name": "api.recurring_quotes.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringQuoteController@edit",
+    "uri": "api/v1/recurring_quotes/{recurring_quote}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.recurring_quotes.update": {
+    "name": "api.recurring_quotes.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringQuoteController@update",
+    "uri": "api/v1/recurring_quotes/{recurring_quote}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.recurring_quotes.destroy": {
+    "name": "api.recurring_quotes.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringQuoteController@destroy",
+    "uri": "api/v1/recurring_quotes/{recurring_quote}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.recurring_quotes.bulk": {
+    "name": "api.recurring_quotes.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringQuoteController@bulk",
+    "uri": "api/v1/recurring_quotes/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::uTm9rvk2vyNRlbbl": {
+    "name": "api.generated::uTm9rvk2vyNRlbbl",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringQuoteController@upload",
+    "uri": "api/v1/recurring_quotes/{recurring_quote}/upload",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.generated::nUt9cSA5MO9Mvw0U": {
+    "name": "api.generated::nUt9cSA5MO9Mvw0U",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Auth\\LoginController@refresh",
+    "uri": "api/v1/refresh",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::ntOonotwOR0q3pCK": {
+    "name": "api.generated::ntOonotwOR0q3pCK",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Reports\\ClientReportController",
+    "uri": "api/v1/reports/clients",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::FlgVwyQRstmwZ7dY": {
+    "name": "api.generated::FlgVwyQRstmwZ7dY",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Reports\\ClientContactReportController",
+    "uri": "api/v1/reports/contacts",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::6hP0rhwACDYwubts": {
+    "name": "api.generated::6hP0rhwACDYwubts",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Reports\\CreditReportController",
+    "uri": "api/v1/reports/credits",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::shv7XGfAPpt1CcPV": {
+    "name": "api.generated::shv7XGfAPpt1CcPV",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Reports\\DocumentReportController",
+    "uri": "api/v1/reports/documents",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::FnH3tWdXlmGcQKcl": {
+    "name": "api.generated::FnH3tWdXlmGcQKcl",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Reports\\ExpenseReportController",
+    "uri": "api/v1/reports/expenses",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::BQ2YosZc90XQLCdp": {
+    "name": "api.generated::BQ2YosZc90XQLCdp",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Reports\\InvoiceReportController",
+    "uri": "api/v1/reports/invoices",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::NTRzUHy2hfrwUvSO": {
+    "name": "api.generated::NTRzUHy2hfrwUvSO",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Reports\\InvoiceItemReportController",
+    "uri": "api/v1/reports/invoice_items",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::ISVPuikn2LYMYGTd": {
+    "name": "api.generated::ISVPuikn2LYMYGTd",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Reports\\QuoteReportController",
+    "uri": "api/v1/reports/quotes",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::3EiIxKOe7pwKPzfS": {
+    "name": "api.generated::3EiIxKOe7pwKPzfS",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Reports\\QuoteItemReportController",
+    "uri": "api/v1/reports/quote_items",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::4g2Mxl4MRGuLXwew": {
+    "name": "api.generated::4g2Mxl4MRGuLXwew",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Reports\\RecurringInvoiceReportController",
+    "uri": "api/v1/reports/recurring_invoices",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::1BkcpDhT8hYd3yWA": {
+    "name": "api.generated::1BkcpDhT8hYd3yWA",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Reports\\PaymentReportController",
+    "uri": "api/v1/reports/payments",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::hmzAUq1pVnMu9W00": {
+    "name": "api.generated::hmzAUq1pVnMu9W00",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Reports\\ProductReportController",
+    "uri": "api/v1/reports/products",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::OND3STv3jbVUZ3sE": {
+    "name": "api.generated::OND3STv3jbVUZ3sE",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Reports\\ProductSalesReportController",
+    "uri": "api/v1/reports/product_sales",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::vKbLuzcoaFxsxORU": {
+    "name": "api.generated::vKbLuzcoaFxsxORU",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Reports\\TaskReportController",
+    "uri": "api/v1/reports/tasks",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::I4de9yx3kvrvQB66": {
+    "name": "api.generated::I4de9yx3kvrvQB66",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Reports\\ProfitAndLossController",
+    "uri": "api/v1/reports/profitloss",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.task_schedulers.index": {
+    "name": "api.task_schedulers.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaskSchedulerController@index",
+    "uri": "api/v1/task_schedulers",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.task_schedulers.create": {
+    "name": "api.task_schedulers.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaskSchedulerController@create",
+    "uri": "api/v1/task_schedulers/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.task_schedulers.store": {
+    "name": "api.task_schedulers.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaskSchedulerController@store",
+    "uri": "api/v1/task_schedulers",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.task_schedulers.show": {
+    "name": "api.task_schedulers.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaskSchedulerController@show",
+    "uri": "api/v1/task_schedulers/{task_scheduler}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.task_schedulers.edit": {
+    "name": "api.task_schedulers.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaskSchedulerController@edit",
+    "uri": "api/v1/task_schedulers/{task_scheduler}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.task_schedulers.update": {
+    "name": "api.task_schedulers.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaskSchedulerController@update",
+    "uri": "api/v1/task_schedulers/{task_scheduler}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.task_schedulers.destroy": {
+    "name": "api.task_schedulers.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaskSchedulerController@destroy",
+    "uri": "api/v1/task_schedulers/{task_scheduler}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.task_schedulers.bulk": {
+    "name": "api.task_schedulers.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaskSchedulerController@bulk",
+    "uri": "api/v1/task_schedulers/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::dIhD7gZmJ6AZ3sRo": {
+    "name": "api.generated::dIhD7gZmJ6AZ3sRo",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\SchedulerController@index",
+    "uri": "api/v1/scheduler",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.generated::DrMcMr0cEX1ZdjeT": {
+    "name": "api.generated::DrMcMr0cEX1ZdjeT",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Support\\Messages\\SendingController",
+    "uri": "api/v1/support/messages/send",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::EsCFnwfwONO6bFgX": {
+    "name": "api.generated::EsCFnwfwONO6bFgX",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\SelfUpdateController@update",
+    "uri": "api/v1/self-update",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::MQng8cGVq6rHfZwG": {
+    "name": "api.generated::MQng8cGVq6rHfZwG",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\SelfUpdateController@checkVersion",
+    "uri": "api/v1/self-update/check_version",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.system_logs.index": {
+    "name": "api.system_logs.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\SystemLogController@index",
+    "uri": "api/v1/system_logs",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.system_logs.create": {
+    "name": "api.system_logs.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\SystemLogController@create",
+    "uri": "api/v1/system_logs/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.system_logs.store": {
+    "name": "api.system_logs.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\SystemLogController@store",
+    "uri": "api/v1/system_logs",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.system_logs.show": {
+    "name": "api.system_logs.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\SystemLogController@show",
+    "uri": "api/v1/system_logs/{system_log}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.system_logs.edit": {
+    "name": "api.system_logs.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\SystemLogController@edit",
+    "uri": "api/v1/system_logs/{system_log}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.system_logs.update": {
+    "name": "api.system_logs.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\SystemLogController@update",
+    "uri": "api/v1/system_logs/{system_log}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.system_logs.destroy": {
+    "name": "api.system_logs.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\SystemLogController@destroy",
+    "uri": "api/v1/system_logs/{system_log}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.tasks.index": {
+    "name": "api.tasks.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaskController@index",
+    "uri": "api/v1/tasks",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.tasks.create": {
+    "name": "api.tasks.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaskController@create",
+    "uri": "api/v1/tasks/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.tasks.store": {
+    "name": "api.tasks.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaskController@store",
+    "uri": "api/v1/tasks",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.tasks.show": {
+    "name": "api.tasks.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaskController@show",
+    "uri": "api/v1/tasks/{task}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.tasks.edit": {
+    "name": "api.tasks.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaskController@edit",
+    "uri": "api/v1/tasks/{task}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.tasks.update": {
+    "name": "api.tasks.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaskController@update",
+    "uri": "api/v1/tasks/{task}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.tasks.destroy": {
+    "name": "api.tasks.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaskController@destroy",
+    "uri": "api/v1/tasks/{task}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.tasks.bulk": {
+    "name": "api.tasks.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaskController@bulk",
+    "uri": "api/v1/tasks/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::D7nYj2blavuHQF2B": {
+    "name": "api.generated::D7nYj2blavuHQF2B",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaskController@upload",
+    "uri": "api/v1/tasks/{task}/upload",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.generated::I5vcsabamhuszKeV": {
+    "name": "api.generated::I5vcsabamhuszKeV",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaskController@sort",
+    "uri": "api/v1/tasks/sort",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.task_statuses.index": {
+    "name": "api.task_statuses.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaskStatusController@index",
+    "uri": "api/v1/task_statuses",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.task_statuses.create": {
+    "name": "api.task_statuses.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaskStatusController@create",
+    "uri": "api/v1/task_statuses/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.task_statuses.store": {
+    "name": "api.task_statuses.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaskStatusController@store",
+    "uri": "api/v1/task_statuses",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.task_statuses.show": {
+    "name": "api.task_statuses.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaskStatusController@show",
+    "uri": "api/v1/task_statuses/{task_status}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.task_statuses.edit": {
+    "name": "api.task_statuses.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaskStatusController@edit",
+    "uri": "api/v1/task_statuses/{task_status}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.task_statuses.update": {
+    "name": "api.task_statuses.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaskStatusController@update",
+    "uri": "api/v1/task_statuses/{task_status}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.task_statuses.destroy": {
+    "name": "api.task_statuses.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaskStatusController@destroy",
+    "uri": "api/v1/task_statuses/{task_status}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.task_statuses.bulk": {
+    "name": "api.task_statuses.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaskStatusController@bulk",
+    "uri": "api/v1/task_statuses/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.tax_rates.index": {
+    "name": "api.tax_rates.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaxRateController@index",
+    "uri": "api/v1/tax_rates",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.tax_rates.create": {
+    "name": "api.tax_rates.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaxRateController@create",
+    "uri": "api/v1/tax_rates/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.tax_rates.store": {
+    "name": "api.tax_rates.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaxRateController@store",
+    "uri": "api/v1/tax_rates",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.tax_rates.show": {
+    "name": "api.tax_rates.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaxRateController@show",
+    "uri": "api/v1/tax_rates/{tax_rate}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.tax_rates.edit": {
+    "name": "api.tax_rates.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaxRateController@edit",
+    "uri": "api/v1/tax_rates/{tax_rate}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.tax_rates.update": {
+    "name": "api.tax_rates.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaxRateController@update",
+    "uri": "api/v1/tax_rates/{tax_rate}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.tax_rates.destroy": {
+    "name": "api.tax_rates.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaxRateController@destroy",
+    "uri": "api/v1/tax_rates/{tax_rate}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.tax_rates.bulk": {
+    "name": "api.tax_rates.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TaxRateController@bulk",
+    "uri": "api/v1/tax_rates/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.templates.show": {
+    "name": "api.templates.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TemplateController@show",
+    "uri": "api/v1/templates",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.tokens.index": {
+    "name": "api.tokens.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TokenController@index",
+    "uri": "api/v1/tokens",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.tokens.create": {
+    "name": "api.tokens.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TokenController@create",
+    "uri": "api/v1/tokens/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.tokens.store": {
+    "name": "api.tokens.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TokenController@store",
+    "uri": "api/v1/tokens",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.tokens.show": {
+    "name": "api.tokens.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TokenController@show",
+    "uri": "api/v1/tokens/{token}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.tokens.edit": {
+    "name": "api.tokens.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TokenController@edit",
+    "uri": "api/v1/tokens/{token}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.tokens.update": {
+    "name": "api.tokens.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TokenController@update",
+    "uri": "api/v1/tokens/{token}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.tokens.destroy": {
+    "name": "api.tokens.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TokenController@destroy",
+    "uri": "api/v1/tokens/{token}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.tokens.bulk": {
+    "name": "api.tokens.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TokenController@bulk",
+    "uri": "api/v1/tokens/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::qc8M8UYNzMvgrWdV": {
+    "name": "api.generated::qc8M8UYNzMvgrWdV",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TwoFactorController@setupTwoFactor",
+    "uri": "api/v1/settings/enable_two_factor",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.generated::VkoGslHkVJ0VwGqX": {
+    "name": "api.generated::VkoGslHkVJ0VwGqX",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TwoFactorController@enableTwoFactor",
+    "uri": "api/v1/settings/enable_two_factor",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::z1Wmfk4lKgJa38jJ": {
+    "name": "api.generated::z1Wmfk4lKgJa38jJ",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TwoFactorController@disableTwoFactor",
+    "uri": "api/v1/settings/disable_two_factor",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.verify.generate": {
+    "name": "api.verify.generate",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TwilioController@generate",
+    "uri": "api/v1/verify",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.verify.confirm": {
+    "name": "api.verify.confirm",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TwilioController@confirm",
+    "uri": "api/v1/verify/confirm",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.vendors.index": {
+    "name": "api.vendors.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\VendorController@index",
+    "uri": "api/v1/vendors",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.vendors.create": {
+    "name": "api.vendors.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\VendorController@create",
+    "uri": "api/v1/vendors/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.vendors.store": {
+    "name": "api.vendors.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\VendorController@store",
+    "uri": "api/v1/vendors",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.vendors.show": {
+    "name": "api.vendors.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\VendorController@show",
+    "uri": "api/v1/vendors/{vendor}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.vendors.edit": {
+    "name": "api.vendors.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\VendorController@edit",
+    "uri": "api/v1/vendors/{vendor}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.vendors.update": {
+    "name": "api.vendors.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\VendorController@update",
+    "uri": "api/v1/vendors/{vendor}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.vendors.destroy": {
+    "name": "api.vendors.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\VendorController@destroy",
+    "uri": "api/v1/vendors/{vendor}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.vendors.bulk": {
+    "name": "api.vendors.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\VendorController@bulk",
+    "uri": "api/v1/vendors/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::OUgmUh93zNfajcJE": {
+    "name": "api.generated::OUgmUh93zNfajcJE",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\VendorController@upload",
+    "uri": "api/v1/vendors/{vendor}/upload",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.generated::ZOf7AU4UOknr4AMY": {
+    "name": "api.generated::ZOf7AU4UOknr4AMY",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\UserController@index",
+    "uri": "api/v1/users",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.generated::SHHm6U4igpAEWPtl": {
+    "name": "api.generated::SHHm6U4igpAEWPtl",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\UserController@create",
+    "uri": "api/v1/users/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.generated::2JNx5PsBRoiZzaru": {
+    "name": "api.generated::2JNx5PsBRoiZzaru",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\UserController@show",
+    "uri": "api/v1/users/{user}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.generated::0obES6JhprVGTt7n": {
+    "name": "api.generated::0obES6JhprVGTt7n",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\UserController@update",
+    "uri": "api/v1/users/{user}",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.generated::beYVL1hl63Maj0D8": {
+    "name": "api.generated::beYVL1hl63Maj0D8",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\UserController@store",
+    "uri": "api/v1/users",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::AWOMWrNEbszpdU1v": {
+    "name": "api.generated::AWOMWrNEbszpdU1v",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\UserController@detach",
+    "uri": "api/v1/users/{user}/detach_from_company",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.users.bulk": {
+    "name": "api.users.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\UserController@bulk",
+    "uri": "api/v1/users/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::IZ67PtPQBkYOG5Uf": {
+    "name": "api.generated::IZ67PtPQBkYOG5Uf",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\UserController@invite",
+    "uri": "api/v1/users/{user}/invite",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::cjFL6t7DId0ZkuFS": {
+    "name": "api.generated::cjFL6t7DId0ZkuFS",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\UserController@reconfirm",
+    "uri": "api/v1/user/{user}/reconfirm",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.webhooks.index": {
+    "name": "api.webhooks.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\WebhookController@index",
+    "uri": "api/v1/webhooks",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.webhooks.create": {
+    "name": "api.webhooks.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\WebhookController@create",
+    "uri": "api/v1/webhooks/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.webhooks.store": {
+    "name": "api.webhooks.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\WebhookController@store",
+    "uri": "api/v1/webhooks",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.webhooks.show": {
+    "name": "api.webhooks.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\WebhookController@show",
+    "uri": "api/v1/webhooks/{webhook}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.webhooks.edit": {
+    "name": "api.webhooks.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\WebhookController@edit",
+    "uri": "api/v1/webhooks/{webhook}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.webhooks.update": {
+    "name": "api.webhooks.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\WebhookController@update",
+    "uri": "api/v1/webhooks/{webhook}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.webhooks.destroy": {
+    "name": "api.webhooks.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\WebhookController@destroy",
+    "uri": "api/v1/webhooks/{webhook}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.webhooks.bulk": {
+    "name": "api.webhooks.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\WebhookController@bulk",
+    "uri": "api/v1/webhooks/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.stripe.update": {
+    "name": "api.stripe.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\StripeController@update",
+    "uri": "api/v1/stripe/update_payment_methods",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.stripe.import": {
+    "name": "api.stripe.import",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\StripeController@import",
+    "uri": "api/v1/stripe/import_customers",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.stripe.verify": {
+    "name": "api.stripe.verify",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\StripeController@verify",
+    "uri": "api/v1/stripe/verify",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.stripe.disconnect": {
+    "name": "api.stripe.disconnect",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\StripeController@disconnect",
+    "uri": "api/v1/stripe/disconnect/{company_gateway_id}",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.subscriptions.index": {
+    "name": "api.subscriptions.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\SubscriptionController@index",
+    "uri": "api/v1/subscriptions",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.subscriptions.create": {
+    "name": "api.subscriptions.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\SubscriptionController@create",
+    "uri": "api/v1/subscriptions/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.subscriptions.store": {
+    "name": "api.subscriptions.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\SubscriptionController@store",
+    "uri": "api/v1/subscriptions",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.subscriptions.show": {
+    "name": "api.subscriptions.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\SubscriptionController@show",
+    "uri": "api/v1/subscriptions/{subscription}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.subscriptions.edit": {
+    "name": "api.subscriptions.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\SubscriptionController@edit",
+    "uri": "api/v1/subscriptions/{subscription}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.subscriptions.update": {
+    "name": "api.subscriptions.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\SubscriptionController@update",
+    "uri": "api/v1/subscriptions/{subscription}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.subscriptions.destroy": {
+    "name": "api.subscriptions.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\SubscriptionController@destroy",
+    "uri": "api/v1/subscriptions/{subscription}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.subscriptions.bulk": {
+    "name": "api.subscriptions.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\SubscriptionController@bulk",
+    "uri": "api/v1/subscriptions/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.generated::zZ2P4Bv0V7vIT5yd": {
+    "name": "api.generated::zZ2P4Bv0V7vIT5yd",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\StaticController",
+    "uri": "api/v1/statics",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "sms_reset.generate": {
+    "name": "sms_reset.generate",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TwilioController@generate2faResetCode",
+    "uri": "api/v1/sms_reset",
+    "method": [
+      "POST"
+    ]
+  },
+  "sms_reset.confirm": {
+    "name": "sms_reset.confirm",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TwilioController@confirm2faResetCode",
+    "uri": "api/v1/sms_reset/confirm",
+    "method": [
+      "POST"
+    ]
+  },
+  "payment_webhook": {
+    "name": "payment_webhook",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PaymentWebhookController",
+    "uri": "payment_webhook/{company_key}/{company_gateway_id}",
+    "method": [
+      "GET",
+      "POST",
+      "HEAD"
+    ]
+  },
+  "payment_notification_webhook": {
+    "name": "payment_notification_webhook",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PaymentNotificationWebhookController",
+    "uri": "payment_notification_webhook/{company_key}/{company_gateway_id}/{client}",
+    "method": [
+      "GET",
+      "POST",
+      "HEAD"
+    ]
+  },
+  "generated::dqjsTN6aMAhjwTSV": {
+    "name": "generated::dqjsTN6aMAhjwTSV",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\PostMarkController@webhook",
+    "uri": "api/v1/postmark_webhook",
+    "method": [
+      "POST"
+    ]
+  },
+  "generated::ue4VSIJS2J2J1Bmt": {
+    "name": "generated::ue4VSIJS2J2J1Bmt",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\OneTimeTokenController@router",
+    "uri": "token_hash_router",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "generated::yjg1XceR0VYUK45D": {
+    "name": "generated::yjg1XceR0VYUK45D",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\WebCronController@index",
+    "uri": "webcron",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "generated::rFA1VJsphKzONWZJ": {
+    "name": "generated::rFA1VJsphKzONWZJ",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\HostedMigrationController@getAccount",
+    "uri": "api/v1/get_migration_account",
+    "method": [
+      "POST"
+    ]
+  },
+  "generated::L3ja4jUyYpaRB9gZ": {
+    "name": "generated::L3ja4jUyYpaRB9gZ",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\HostedMigrationController@confirmForwarding",
+    "uri": "api/v1/confirm_forwarding",
+    "method": [
+      "POST"
+    ]
+  },
+  "generated::rSYF9aQkFkN0nA7X": {
+    "name": "generated::rSYF9aQkFkN0nA7X",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\InAppPurchase\\AppleController@process_webhook",
+    "uri": "api/v1/process_webhook",
+    "method": [
+      "POST"
+    ]
+  },
+  "generated::JgsmCOnOfit74NXT": {
+    "name": "generated::JgsmCOnOfit74NXT",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\InAppPurchase\\AppleController@confirm_purchase",
+    "uri": "api/v1/confirm_purchase",
+    "method": [
+      "POST"
+    ]
+  },
+  "generated::bKh5Vto9fF0MKlAC": {
+    "name": "generated::bKh5Vto9fF0MKlAC",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Bank\\YodleeController@refreshWebhook",
+    "uri": "api/v1/yodlee/refresh",
+    "method": [
+      "POST"
+    ]
+  },
+  "generated::tEQ30KtHLa7JA1gu": {
+    "name": "generated::tEQ30KtHLa7JA1gu",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Bank\\YodleeController@dataUpdatesWebhook",
+    "uri": "api/v1/yodlee/data_updates",
+    "method": [
+      "POST"
+    ]
+  },
+  "generated::zP3MSpvkchzU05nO": {
+    "name": "generated::zP3MSpvkchzU05nO",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Bank\\YodleeController@refreshUpdatesWebhook",
+    "uri": "api/v1/yodlee/refresh_updates",
+    "method": [
+      "POST"
+    ]
+  },
+  "generated::Eq0DgbixFmitjnUq": {
+    "name": "generated::Eq0DgbixFmitjnUq",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Bank\\YodleeController@balanceWebhook",
+    "uri": "api/v1/yodlee/balance",
+    "method": [
+      "POST"
+    ]
+  },
+  "generated::0uYT4cW245KaVzQz": {
+    "name": "generated::0uYT4cW245KaVzQz",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BaseController@notFoundClient",
+    "uri": "{fallbackPlaceholder}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "generated::dwrWewfQhhKCzk0E": {
+    "name": "generated::dwrWewfQhhKCzk0E",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BaseController@flutterRoute",
+    "uri": "/",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "generated::F7mgNbpO6cafrnvp": {
+    "name": "generated::F7mgNbpO6cafrnvp",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\SetupController@index",
+    "uri": "setup",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "generated::p3IOWs4Wl5M0jWFQ": {
+    "name": "generated::p3IOWs4Wl5M0jWFQ",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\SetupController@doSetup",
+    "uri": "setup",
+    "method": [
+      "POST"
+    ]
+  },
+  "generated::f0ERLgsN0Y7aVkiS": {
+    "name": "generated::f0ERLgsN0Y7aVkiS",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\SetupController@update",
+    "uri": "update",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "generated::5XrpGkjxJhfOtVH2": {
+    "name": "generated::5XrpGkjxJhfOtVH2",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\SetupController@checkDB",
+    "uri": "setup/check_db",
+    "method": [
+      "POST"
+    ]
+  },
+  "generated::V8bmkfI9xjVF8s5H": {
+    "name": "generated::V8bmkfI9xjVF8s5H",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\SetupController@checkMail",
+    "uri": "setup/check_mail",
+    "method": [
+      "POST"
+    ]
+  },
+  "generated::oV553df4V6Hig7mx": {
+    "name": "generated::oV553df4V6Hig7mx",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\SetupController@checkPdf",
+    "uri": "setup/check_pdf",
+    "method": [
+      "POST"
+    ]
+  },
+  "password.request": {
+    "name": "password.request",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Auth\\ForgotPasswordController@showLinkRequestForm",
+    "uri": "password/reset",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "password.email": {
+    "name": "password.email",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Auth\\ForgotPasswordController@sendResetLinkEmail",
+    "uri": "password/email",
+    "method": [
+      "POST"
+    ]
+  },
+  "password.reset": {
+    "name": "password.reset",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Auth\\ResetPasswordController@showResetForm",
+    "uri": "password/reset/{token}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "password.update": {
+    "name": "password.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Auth\\ResetPasswordController@reset",
+    "uri": "password/reset",
+    "method": [
+      "POST"
+    ]
+  },
+  "wepay.signup": {
+    "name": "wepay.signup",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\WePayController@signup",
+    "uri": "wepay/signup/{token}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "wepay.finished": {
+    "name": "wepay.finished",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\WePayController@finished",
+    "uri": "wepay/finished",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "generated::lJgMQwl1x2JZcgJx": {
+    "name": "generated::lJgMQwl1x2JZcgJx",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Auth\\LoginController@redirectToProvider",
+    "uri": "auth/{provider}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "generated::qFxHBaW2ZxJNekzH": {
+    "name": "generated::qFxHBaW2ZxJNekzH",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\UserController@confirm",
+    "uri": "user/confirm/{confirmation_code}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "generated::chavmJGH61pwH7NJ": {
+    "name": "generated::chavmJGH61pwH7NJ",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\UserController@confirmWithPassword",
+    "uri": "user/confirm/{confirmation_code}",
+    "method": [
+      "POST"
+    ]
+  },
+  "stripe_connect.initialization": {
+    "name": "stripe_connect.initialization",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\StripeConnectController@initialize",
+    "uri": "stripe/signup/{token}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "stripe_connect.return": {
+    "name": "stripe_connect.return",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\StripeConnectController@completed",
+    "uri": "stripe/completed",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "yodlee.auth": {
+    "name": "yodlee.auth",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Bank\\YodleeController@auth",
+    "uri": "yodlee/onboard/{token}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "checkout.3ds_redirect": {
+    "name": "checkout.3ds_redirect",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Gateways\\Checkout3dsController@index",
+    "uri": "checkout/3ds_redirect/{company_key}/{company_gateway_id}/{hash}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "mollie.3ds_redirect": {
+    "name": "mollie.3ds_redirect",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Gateways\\Mollie3dsController@index",
+    "uri": "mollie/3ds_redirect/{company_key}/{company_gateway_id}/{hash}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "gocardless.ibp_redirect": {
+    "name": "gocardless.ibp_redirect",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Gateways\\GoCardlessController@ibpRedirect",
+    "uri": "gocardless/ibp_redirect/{company_key}/{company_gateway_id}/{hash}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "generated::2OkrIfB3RYLhUehk": {
+    "name": "generated::2OkrIfB3RYLhUehk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\ApplePayDomainController@showAppleMerchantId",
+    "uri": ".well-known/apple-developer-merchantid-domain-association",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "generated::0ene1gS3f0NBTeM7": {
+    "name": "generated::0ene1gS3f0NBTeM7",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Contact\\LoginController@apiLogin",
+    "uri": "api/v1/contact/login",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.contact.": {
+    "name": "api.contact.",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Contact\\InvoiceController@index",
+    "uri": "api/v1/contact/invoices",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "vendor.catchall": {
+    "name": "vendor.catchall",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Auth\\VendorContactLoginController@catch",
+    "uri": "vendors",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "contact_login": {
+    "name": "contact_login",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\VendorPortal\\VendorContactHashLoginController@login",
+    "uri": "vendor/key_login/{contact_key}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "vendor.": {
+    "name": "vendor.",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\VendorPortal\\InvitationController@purchaseOrder",
+    "uri": "vendor/purchase_order/{invitation_key}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "vendor.generated::XxkZDFuHuJP2pEqG": {
+    "name": "vendor.generated::XxkZDFuHuJP2pEqG",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\VendorPortal\\InvitationController@download",
+    "uri": "vendor/purchase_order/{invitation_key}/download",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "vendor.dashboard": {
+    "name": "vendor.dashboard",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\VendorPortal\\PurchaseOrderController@index",
+    "uri": "vendor/dashboard",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "vendor.purchase_orders.index": {
+    "name": "vendor.purchase_orders.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\VendorPortal\\PurchaseOrderController@index",
+    "uri": "vendor/purchase_orders",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "vendor.purchase_order.show": {
+    "name": "vendor.purchase_order.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\VendorPortal\\PurchaseOrderController@show",
+    "uri": "vendor/purchase_orders/{purchase_order}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "vendor.profile.edit": {
+    "name": "vendor.profile.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\VendorPortal\\VendorContactController@edit",
+    "uri": "vendor/profile/{vendor_contact}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "vendor.profile.update": {
+    "name": "vendor.profile.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\VendorPortal\\VendorContactController@update",
+    "uri": "vendor/profile/{vendor_contact}/edit",
+    "method": [
+      "PUT"
+    ]
+  },
+  "vendor.purchase_orders.bulk": {
+    "name": "vendor.purchase_orders.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\VendorPortal\\PurchaseOrderController@bulk",
+    "uri": "vendor/purchase_orders/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "vendor.logout": {
+    "name": "vendor.logout",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Auth\\VendorContactLoginController@logout",
+    "uri": "vendor/logout",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "vendor.upload.store": {
+    "name": "vendor.upload.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\VendorPortal\\UploadController@upload",
+    "uri": "vendor/purchase_order/upload/{purchase_order}",
+    "method": [
+      "POST"
+    ]
+  },
+  "vendor.documents.download_multiple": {
+    "name": "vendor.documents.download_multiple",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\VendorPortal\\DocumentController@downloadMultiple",
+    "uri": "vendor/documents/download_multiple",
+    "method": [
+      "POST"
+    ]
+  },
+  "vendor.documents.download": {
+    "name": "vendor.documents.download",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\VendorPortal\\DocumentController@download",
+    "uri": "vendor/documents/{document}/download",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "vendor.documents.download_pdf": {
+    "name": "vendor.documents.download_pdf",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\VendorPortal\\DocumentController@download",
+    "uri": "vendor/documents/{document}/download_pdf",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "vendor.documents.index": {
+    "name": "vendor.documents.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\VendorPortal\\DocumentController@index",
+    "uri": "vendor/documents",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "vendor.documents.show": {
+    "name": "vendor.documents.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\VendorPortal\\DocumentController@show",
+    "uri": "vendor/documents/{document}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.catchall": {
+    "name": "client.catchall",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Auth\\ContactLoginController@showLoginForm",
+    "uri": "client",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.login": {
+    "name": "client.login",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Auth\\ContactLoginController@showLoginForm",
+    "uri": "client/login/{company_key?}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.login.submit": {
+    "name": "client.login.submit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Auth\\ContactLoginController@login",
+    "uri": "client/login/{company_key?}",
+    "method": [
+      "POST"
+    ]
+  },
+  "client.register": {
+    "name": "client.register",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Auth\\ContactRegisterController@showRegisterForm",
+    "uri": "client/register/{company_key?}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "generated::30yDmD7SMnwmRFWP": {
+    "name": "generated::30yDmD7SMnwmRFWP",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Auth\\ContactRegisterController@register",
+    "uri": "client/register/{company_key?}",
+    "method": [
+      "POST"
+    ]
+  },
+  "client.password.request": {
+    "name": "client.password.request",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Auth\\ContactForgotPasswordController@showLinkRequestForm",
+    "uri": "client/password/reset",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.password.email": {
+    "name": "client.password.email",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Auth\\ContactForgotPasswordController@sendResetLinkEmail",
+    "uri": "client/password/email",
+    "method": [
+      "POST"
+    ]
+  },
+  "client.password.reset": {
+    "name": "client.password.reset",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Auth\\ContactResetPasswordController@showResetForm",
+    "uri": "client/password/reset/{token}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.password.update": {
+    "name": "client.password.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Auth\\ContactResetPasswordController@reset",
+    "uri": "client/password/reset",
+    "method": [
+      "POST"
+    ]
+  },
+  "client.entity_view": {
+    "name": "client.entity_view",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\EntityViewController@index",
+    "uri": "view/{entity_type}/{invitation_key}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.entity_view.password": {
+    "name": "client.entity_view.password",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\EntityViewController@password",
+    "uri": "view/{entity_type}/{invitation_key}/password",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "generated::gZavAJuPNs2n0aWt": {
+    "name": "generated::gZavAJuPNs2n0aWt",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\EntityViewController@handlePassword",
+    "uri": "view/{entity_type}/{invitation_key}/password",
+    "method": [
+      "POST"
+    ]
+  },
+  "client.set_password": {
+    "name": "client.set_password",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\EntityViewController@handlePasswordSet",
+    "uri": "set_password",
+    "method": [
+      "POST"
+    ]
+  },
+  "tmp_pdf": {
+    "name": "tmp_pdf",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\TempRouteController@index",
+    "uri": "tmp_pdf/{hash}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.contact_login": {
+    "name": "client.contact_login",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\ContactHashLoginController@login",
+    "uri": "client/key_login/{contact_key}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.contact_magic_link": {
+    "name": "client.contact_magic_link",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\ContactHashLoginController@magicLink",
+    "uri": "client/magic_link/{magic_link}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "documents.public_download": {
+    "name": "documents.public_download",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\DocumentController@publicDownload",
+    "uri": "documents/{document_hash}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.error": {
+    "name": "client.error",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\ContactHashLoginController@errorPage",
+    "uri": "error",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "generated::zY46jrZJBJXfFcZc": {
+    "name": "generated::zY46jrZJBJXfFcZc",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\InvitationController@paymentRouter",
+    "uri": "client/payment/{contact_key}/{payment_id}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.ninja_contact_login": {
+    "name": "client.ninja_contact_login",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\NinjaPlanController@index",
+    "uri": "client/ninja/{contact_key}/{company_key}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.trial.response": {
+    "name": "client.trial.response",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\NinjaPlanController@trial_confirmation",
+    "uri": "client/ninja/trial_confirmation",
+    "method": [
+      "POST"
+    ]
+  },
+  "client.dashboard": {
+    "name": "client.dashboard",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\DashboardController@index",
+    "uri": "client/dashboard",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.plan": {
+    "name": "client.plan",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\NinjaPlanController@plan",
+    "uri": "client/plan",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.invoices.index": {
+    "name": "client.invoices.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\InvoiceController@index",
+    "uri": "client/invoices",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.invoices.bulk": {
+    "name": "client.invoices.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\InvoiceController@bulk",
+    "uri": "client/invoices/payment",
+    "method": [
+      "POST"
+    ]
+  },
+  "client.invoices.catch_bulk": {
+    "name": "client.invoices.catch_bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\InvoiceController@catch_bulk",
+    "uri": "client/invoices/payment",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.invoices.download": {
+    "name": "client.invoices.download",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\InvoiceController@download",
+    "uri": "client/invoices/download",
+    "method": [
+      "POST"
+    ]
+  },
+  "client.invoice.show": {
+    "name": "client.invoice.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\InvoiceController@show",
+    "uri": "client/invoices/{invoice}/{hash?}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.invoice.show_invitation": {
+    "name": "client.invoice.show_invitation",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\InvoiceController@show",
+    "uri": "client/invoices/{invoice_invitation}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.recurring_invoices.index": {
+    "name": "client.recurring_invoices.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\RecurringInvoiceController@index",
+    "uri": "client/recurring_invoices",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.recurring_invoice.show": {
+    "name": "client.recurring_invoice.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\RecurringInvoiceController@show",
+    "uri": "client/recurring_invoices/{recurring_invoice}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.recurring_invoices.request_cancellation": {
+    "name": "client.recurring_invoices.request_cancellation",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\RecurringInvoiceController@requestCancellation",
+    "uri": "client/recurring_invoices/{recurring_invoice}/request_cancellation",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.payments.process": {
+    "name": "client.payments.process",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\PaymentController@process",
+    "uri": "client/payments/process",
+    "method": [
+      "POST"
+    ]
+  },
+  "client.payments.catch_process": {
+    "name": "client.payments.catch_process",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\PaymentController@catch_process",
+    "uri": "client/payments/process",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.payments.credit_response": {
+    "name": "client.payments.credit_response",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\PaymentController@credit_response",
+    "uri": "client/payments/credit_response",
+    "method": [
+      "POST"
+    ]
+  },
+  "client.payments.index": {
+    "name": "client.payments.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\PaymentController@index",
+    "uri": "client/payments",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.payments.show": {
+    "name": "client.payments.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\PaymentController@show",
+    "uri": "client/payments/{payment}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.profile.edit": {
+    "name": "client.profile.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\ProfileController@edit",
+    "uri": "client/profile/{client_contact}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.profile.update": {
+    "name": "client.profile.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\ProfileController@update",
+    "uri": "client/profile/{client_contact}/edit",
+    "method": [
+      "PUT"
+    ]
+  },
+  "client.profile.edit_client": {
+    "name": "client.profile.edit_client",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\ProfileController@updateClient",
+    "uri": "client/profile/{client_contact}/edit_client",
+    "method": [
+      "PUT"
+    ]
+  },
+  "client.profile.edit_localization": {
+    "name": "client.profile.edit_localization",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\ProfileController@updateClientLocalization",
+    "uri": "client/profile/{client_contact}/localization",
+    "method": [
+      "PUT"
+    ]
+  },
+  "client.payment_methods.verification": {
+    "name": "client.payment_methods.verification",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\PaymentMethodController@verify",
+    "uri": "client/payment_methods/{payment_method}/verification",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.": {
+    "name": "client.",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\PaymentMethodController@processVerification",
+    "uri": "client/payment_methods/{payment_method}/verification",
+    "method": [
+      "POST"
+    ]
+  },
+  "client.payment_methods.confirm": {
+    "name": "client.payment_methods.confirm",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\PaymentMethodController@store",
+    "uri": "client/payment_methods/confirm",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.payment_methods.index": {
+    "name": "client.payment_methods.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\PaymentMethodController@index",
+    "uri": "client/payment_methods",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.payment_methods.create": {
+    "name": "client.payment_methods.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\PaymentMethodController@create",
+    "uri": "client/payment_methods/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.payment_methods.store": {
+    "name": "client.payment_methods.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\PaymentMethodController@store",
+    "uri": "client/payment_methods",
+    "method": [
+      "POST"
+    ]
+  },
+  "client.payment_methods.show": {
+    "name": "client.payment_methods.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\PaymentMethodController@show",
+    "uri": "client/payment_methods/{payment_method}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.payment_methods.destroy": {
+    "name": "client.payment_methods.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\PaymentMethodController@destroy",
+    "uri": "client/payment_methods/{payment_method}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "client.quotes.bulk": {
+    "name": "client.quotes.bulk",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\QuoteController@bulk",
+    "uri": "client/quotes/approve",
+    "method": [
+      "GET",
+      "POST",
+      "HEAD"
+    ]
+  },
+  "client.quotes.index": {
+    "name": "client.quotes.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\QuoteController@index",
+    "uri": "client/quotes",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.quote.show": {
+    "name": "client.quote.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\QuoteController@show",
+    "uri": "client/quotes/{quote}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.quote.show_invitation": {
+    "name": "client.quote.show_invitation",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\QuoteController@show",
+    "uri": "client/quotes/{quote_invitation}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.quotes.download": {
+    "name": "client.quotes.download",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\QuoteController@download",
+    "uri": "client/quotes/download",
+    "method": [
+      "POST"
+    ]
+  },
+  "client.credits.index": {
+    "name": "client.credits.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\CreditController@index",
+    "uri": "client/credits",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.credit.show": {
+    "name": "client.credit.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\CreditController@show",
+    "uri": "client/credits/{credit}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.credits.show_invitation": {
+    "name": "client.credits.show_invitation",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\CreditController@show",
+    "uri": "client/credits/{credit_invitation}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.switch_company": {
+    "name": "client.switch_company",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\SwitchCompanyController",
+    "uri": "client/client/switch_company/{contact}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.documents.download_multiple": {
+    "name": "client.documents.download_multiple",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\DocumentController@downloadMultiple",
+    "uri": "client/documents/download_multiple",
+    "method": [
+      "POST"
+    ]
+  },
+  "client.documents.download": {
+    "name": "client.documents.download",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\DocumentController@download",
+    "uri": "client/documents/{document}/download",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.documents.index": {
+    "name": "client.documents.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\DocumentController@index",
+    "uri": "client/documents",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.documents.show": {
+    "name": "client.documents.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\DocumentController@show",
+    "uri": "client/documents/{document}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.subscription.plan_switch": {
+    "name": "client.subscription.plan_switch",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\SubscriptionPlanSwitchController@index",
+    "uri": "client/subscriptions/{recurring_invoice}/plan_switch/{target}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.subscriptions.show": {
+    "name": "client.subscriptions.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\SubscriptionController@show",
+    "uri": "client/subscriptions/{recurring_invoice}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.subscriptions.index": {
+    "name": "client.subscriptions.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\SubscriptionController@index",
+    "uri": "client/subscriptions",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.tasks.index": {
+    "name": "client.tasks.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\TaskController@index",
+    "uri": "client/tasks",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.statement": {
+    "name": "client.statement",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\StatementController@index",
+    "uri": "client/statement",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.statement.raw": {
+    "name": "client.statement.raw",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\StatementController@raw",
+    "uri": "client/statement/raw",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.upload.store": {
+    "name": "client.upload.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\UploadController",
+    "uri": "client/upload",
+    "method": [
+      "POST"
+    ]
+  },
+  "client.logout": {
+    "name": "client.logout",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Auth\\ContactLoginController@logout",
+    "uri": "client/logout",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.payments.response": {
+    "name": "client.payments.response",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\PaymentController@response",
+    "uri": "payments/process/response",
+    "method": [
+      "POST"
+    ]
+  },
+  "client.payments.response.get": {
+    "name": "client.payments.response.get",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\PaymentController@response",
+    "uri": "payments/process/response",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.subscription.purchase": {
+    "name": "client.subscription.purchase",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\SubscriptionPurchaseController@index",
+    "uri": "client/subscriptions/{subscription}/purchase",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.subscription.upgrade": {
+    "name": "client.subscription.upgrade",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\SubscriptionPurchaseController@upgrade",
+    "uri": "client/subscriptions/{subscription}/purchase/v2",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.generated::1Oze4NhoyvrdXvfz": {
+    "name": "client.generated::1Oze4NhoyvrdXvfz",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\InvitationController@recurringRouter",
+    "uri": "client/recurring_invoice/{invitation_key}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.generated::qMSamEoOASwFw6Iv": {
+    "name": "client.generated::qMSamEoOASwFw6Iv",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\InvitationController@invoiceRouter",
+    "uri": "client/invoice/{invitation_key}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.generated::VmsBd22GXPUgTG9l": {
+    "name": "client.generated::VmsBd22GXPUgTG9l",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\InvitationController@quoteRouter",
+    "uri": "client/quote/{invitation_key}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.generated::8lHrxP6LXOIMbEY1": {
+    "name": "client.generated::8lHrxP6LXOIMbEY1",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\InvitationController@creditRouter",
+    "uri": "client/credit/{invitation_key}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.recurring_invoice.download_invitation_key": {
+    "name": "client.recurring_invoice.download_invitation_key",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\RecurringInvoiceController@downloadPdf",
+    "uri": "client/recurring_invoice/{invitation_key}/download_pdf",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.invoice.download_invitation_key": {
+    "name": "client.invoice.download_invitation_key",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\InvoiceController@downloadPdf",
+    "uri": "client/invoice/{invitation_key}/download_pdf",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.quote.download_invitation_key": {
+    "name": "client.quote.download_invitation_key",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\QuoteController@downloadPdf",
+    "uri": "client/quote/{invitation_key}/download_pdf",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.credit.download_invitation_key": {
+    "name": "client.credit.download_invitation_key",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\CreditController@downloadPdf",
+    "uri": "client/credit/{invitation_key}/download_pdf",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.generated::VINDNQJiFeT63Bs7": {
+    "name": "client.generated::VINDNQJiFeT63Bs7",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\InvitationController@routerForDownload",
+    "uri": "client/{entity}/{invitation_key}/download",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.pay.invoice": {
+    "name": "client.pay.invoice",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\InvitationController@payInvoice",
+    "uri": "client/pay/{invitation_key}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "client.unsubscribe": {
+    "name": "client.unsubscribe",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ClientPortal\\InvitationController@unsubscribe",
+    "uri": "client/unsubscribe/{entity}/{invitation_key}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "phantom_view": {
+    "name": "phantom_view",
+    "domain": null,
+    "action": "App\\Utils\\PhantomJS\\Phantom@displayInvitation",
+    "uri": "phantom/{entity}/{invitation_key}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "generated::LQVgV0WxO0C9H5F7": {
+    "name": "generated::LQVgV0WxO0C9H5F7",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Shop\\ProductController@index",
+    "uri": "api/v1/shop/products",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "generated::oV1f6JZ4MCLaP3b1": {
+    "name": "generated::oV1f6JZ4MCLaP3b1",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Shop\\ClientController@store",
+    "uri": "api/v1/shop/clients",
+    "method": [
+      "POST"
+    ]
+  },
+  "generated::hXvguCWzFl07qsFH": {
+    "name": "generated::hXvguCWzFl07qsFH",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Shop\\InvoiceController@store",
+    "uri": "api/v1/shop/invoices",
+    "method": [
+      "POST"
+    ]
+  },
+  "generated::9Yk33FxibKHbhLId": {
+    "name": "generated::9Yk33FxibKHbhLId",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Shop\\ClientController@show",
+    "uri": "api/v1/shop/client/{contact_key}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "generated::lDUAbvV5Vm3qYUll": {
+    "name": "generated::lDUAbvV5Vm3qYUll",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Shop\\InvoiceController@show",
+    "uri": "api/v1/shop/invoice/{invitation_key}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "generated::Mh5H9otRVglBiKV4": {
+    "name": "generated::Mh5H9otRVglBiKV4",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Shop\\ProductController@show",
+    "uri": "api/v1/shop/product/{product_key}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "generated::hq4DU9367PfTZEdl": {
+    "name": "generated::hq4DU9367PfTZEdl",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\Shop\\ProfileController@show",
+    "uri": "api/v1/shop/profile",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "plan": {
+    "name": "plan",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\PlanController@store",
+    "uri": "api/admin/plan",
+    "method": [
+      "POST"
+    ]
+  },
+  "initial_purchase": {
+    "name": "initial_purchase",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\SubscriptionController@initialPurchase",
+    "uri": "api/admin/subscription",
+    "method": [
+      "POST"
+    ]
+  },
+  "store_cert": {
+    "name": "store_cert",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\CertificateController@store",
+    "uri": "api/admin/domain/store",
+    "method": [
+      "POST"
+    ]
+  },
+  "generated::Puf4g8gpjoIHfVBQ": {
+    "name": "generated::Puf4g8gpjoIHfVBQ",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\LicenseController@check",
+    "uri": "api/check",
+    "method": [
+      "POST"
+    ]
+  },
+  "admin.login": {
+    "name": "admin.login",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\LoginController@showLoginForm",
+    "uri": "admin/login",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "generated::yGAesNmhzPYnNSXQ": {
+    "name": "generated::yGAesNmhzPYnNSXQ",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\LoginController@login",
+    "uri": "admin/login",
+    "method": [
+      "POST"
+    ]
+  },
+  "admin.logout": {
+    "name": "admin.logout",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\LoginController@logout",
+    "uri": "admin/logout",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "admin.dashboard": {
+    "name": "admin.dashboard",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\AdminController@index",
+    "uri": "admin",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "admin.accounts.companies": {
+    "name": "admin.accounts.companies",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\AccountController@companies",
+    "uri": "admin/accounts/{account}/companies",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "admin.accounts.users": {
+    "name": "admin.accounts.users",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\AccountController@users",
+    "uri": "admin/accounts/{account}/users",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "admin.accounts.index": {
+    "name": "admin.accounts.index",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\AccountController@index",
+    "uri": "admin/accounts",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "admin.accounts.show": {
+    "name": "admin.accounts.show",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\AccountController@show",
+    "uri": "admin/accounts/{account}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "admin.companies.index": {
+    "name": "admin.companies.index",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\CompanyController@index",
+    "uri": "admin/companies",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "admin.companies.show": {
+    "name": "admin.companies.show",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\CompanyController@show",
+    "uri": "admin/companies/{company}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "admin.users.index": {
+    "name": "admin.users.index",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\UserController@index",
+    "uri": "admin/users",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "admin.users.show": {
+    "name": "admin.users.show",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\UserController@show",
+    "uri": "admin/users/{user}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "admin.database_switch": {
+    "name": "admin.database_switch",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\DatabaseSwitchController@switch",
+    "uri": "admin/database_switch",
+    "method": [
+      "POST"
+    ]
+  },
+  "admin.marketing.index": {
+    "name": "admin.marketing.index",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\MarketingController@index",
+    "uri": "admin/marketing",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "admin.marketing.create": {
+    "name": "admin.marketing.create",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\MarketingController@create",
+    "uri": "admin/marketing/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "admin.marketing.store": {
+    "name": "admin.marketing.store",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\MarketingController@store",
+    "uri": "admin/marketing",
+    "method": [
+      "POST"
+    ]
+  },
+  "admin.marketing.show": {
+    "name": "admin.marketing.show",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\MarketingController@show",
+    "uri": "admin/marketing/{marketing}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "admin.marketing.edit": {
+    "name": "admin.marketing.edit",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\MarketingController@edit",
+    "uri": "admin/marketing/{marketing}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "admin.marketing.update": {
+    "name": "admin.marketing.update",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\MarketingController@update",
+    "uri": "admin/marketing/{marketing}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "admin.marketing.destroy": {
+    "name": "admin.marketing.destroy",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\MarketingController@destroy",
+    "uri": "admin/marketing/{marketing}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "admin.tables.index": {
+    "name": "admin.tables.index",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\TableController@index",
+    "uri": "admin/tables",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "admin.tables.create": {
+    "name": "admin.tables.create",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\TableController@create",
+    "uri": "admin/tables/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "admin.tables.store": {
+    "name": "admin.tables.store",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\TableController@store",
+    "uri": "admin/tables",
+    "method": [
+      "POST"
+    ]
+  },
+  "admin.tables.show": {
+    "name": "admin.tables.show",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\TableController@show",
+    "uri": "admin/tables/{table}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "admin.tables.edit": {
+    "name": "admin.tables.edit",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\TableController@edit",
+    "uri": "admin/tables/{table}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "admin.tables.update": {
+    "name": "admin.tables.update",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\TableController@update",
+    "uri": "admin/tables/{table}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "admin.tables.destroy": {
+    "name": "admin.tables.destroy",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\TableController@destroy",
+    "uri": "admin/tables/{table}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "admin.server.index": {
+    "name": "admin.server.index",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\ServerController@index",
+    "uri": "admin/server",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "admin.server.create": {
+    "name": "admin.server.create",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\ServerController@create",
+    "uri": "admin/server/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "admin.server.store": {
+    "name": "admin.server.store",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\ServerController@store",
+    "uri": "admin/server",
+    "method": [
+      "POST"
+    ]
+  },
+  "admin.server.show": {
+    "name": "admin.server.show",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\ServerController@show",
+    "uri": "admin/server/{server}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "admin.server.edit": {
+    "name": "admin.server.edit",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\ServerController@edit",
+    "uri": "admin/server/{server}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "admin.server.update": {
+    "name": "admin.server.update",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\ServerController@update",
+    "uri": "admin/server/{server}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "admin.server.destroy": {
+    "name": "admin.server.destroy",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\ServerController@destroy",
+    "uri": "admin/server/{server}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "admin.campaigns.black_friday": {
+    "name": "admin.campaigns.black_friday",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\CampaignController@blackFriday",
+    "uri": "campaign/black_friday_2022",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "admin.campaigns.landing": {
+    "name": "admin.campaigns.landing",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\CampaignController@showLandingPage",
+    "uri": "campaign/{hash}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "generated::KckRdB5SJfD1z79j": {
+    "name": "generated::KckRdB5SJfD1z79j",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\OnboardingController@unsubscribe",
+    "uri": "onboarding/unsubscribe/{account_key}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "generated::4tyP6k6wnJvSets9": {
+    "name": "generated::4tyP6k6wnJvSets9",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\CertificateController@index",
+    "uri": ".well-known/acme-challenge/{challenge_token}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "generated::sSSdaZNhn3wZfq44": {
+    "name": "generated::sSSdaZNhn3wZfq44",
+    "domain": null,
+    "action": "Modules\\Admin\\Http\\Controllers\\LicenseController@claim",
+    "uri": "claim_license",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  }
+}

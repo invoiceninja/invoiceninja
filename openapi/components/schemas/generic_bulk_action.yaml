@@ -1,0 +1,15 @@
+
+    GenericBulkAction:
+      properties:
+        action:
+          type: string
+          example: archive
+          description: 'The action to perform ie. archive / restore / delete'
+        ids:
+          type: array
+          items:
+            format: string
+            type: string
+            example: 2J234DFA,D2J234DFA,D2J234DFA
+            description: string array of client hashed ids
+      type: object

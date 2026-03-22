@@ -1,0 +1,45 @@
+.dataTables_length {
+    @screen sm {
+        @apply my-5 #{!important};
+    }
+
+    @screen lg {
+        @apply my-4 #{!important};
+    }
+
+    select {
+        @apply bg-white input py-2 mx-2 px-2 #{!important};
+    }
+}
+
+.dataTables_filter {
+    @apply mb-4;
+
+    input {
+        @apply input #{!important};
+    }
+
+    @screen lg {
+        @apply -mt-12 #{!important};
+    }
+}
+
+.dataTables_paginate {
+    @apply pb-6 pt-2 #{!important};
+
+    .paginate_button {
+        @apply button bg-white border border-gray-300 text-sm leading-4 font-medium rounded text-gray-700 mr-1 py-2 cursor-pointer #{!important};
+    }
+
+    .current {
+        @apply bg-blue-600 text-white #{!important};
+    }
+}
+
+.dataTables_info {
+    @apply text-sm #{!important};
+}
+
+.dataTables_empty {
+    @apply py-4 #{!important};
+}

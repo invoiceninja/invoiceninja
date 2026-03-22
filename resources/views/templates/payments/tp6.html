@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<!-- Payment Receipt- TemplateID #TP6 -->
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        @import url($font_url);
+
+        .company-logo {
+            max-width: $company_logo_size;
+        }
+    </style>
+</head>
+
+<body>
+    <table class="Wrapper" align="center"
+        style="border:0;border-collapse:collapse;margin:0 auto!important;padding:0;max-width:600px;min-width:600px;width:600px">
+        <tbody>
+            <tr>
+                <td style="border:0;border-collapse:collapse;margin:0;padding:0">
+                    <table class="Divider--kill" width="100%"
+                        style="border:0;border-collapse:collapse;margin:0;padding:0">
+                        <tbody>
+                            <tr>
+                                <td height="20"
+                                    style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                    &nbsp;</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="border-bottom-left-radius:5px;border-bottom-right-radius:5px">
+                        <table dir="ltr" class=" Header" width="100%"
+                            style="border:0;border-collapse:collapse;margin:0;padding:0;background-color:#ffffff">
+                            <tbody>
+                                <tr>
+                                    <td class="Header-left Target"
+                                        style="background-color:$primary_color;border:0;border-collapse:collapse;margin:0;padding:0;font-size:0;line-height:0px;background-size:100% 100%;border-top-left-radius:5px; border-top-right-radius:5px;"
+                                        align="center" height="156" valign="middle" width="">
+                                        <img src="$company.logo" class="company-logo">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <table class="" width="100%"
+                            style="border:0;border-collapse:collapse;margin:0;padding:0;background-color:#ffffff;margin-top:1rem;">
+                            <tbody>
+                                <tr>
+                                    <td class="" width="64"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                        &nbsp;</td>
+                                    <td class="Content" align="center"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;width:472px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;vertical-align:middle;color:#32325d;font-size:24px;line-height:32px">
+                                        <span class="il">$receipt_label</span> $from_label <span
+                                            dir="ltr">$company.name</span>
+                                    </td>
+                                    <td class="" width="64"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                        &nbsp;</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <table class="" width="100%"
+                            style="border:0;border-collapse:collapse;margin:0;padding:0;background-color:#ffffff">
+                            <tbody>
+                                <tr>
+                                    <td height="8"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                        &nbsp;</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <table class="" width="100%"
+                            style="border:0;border-collapse:collapse;margin:0;padding:0;background-color:#ffffff">
+                            <tbody>
+                                <tr>
+                                    <td height="4"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                        &nbsp;</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <table class="" width="100%"
+                            style="border:0;border-collapse:collapse;margin:0;padding:0;background-color:#ffffff">
+                            <tbody>
+                                <tr>
+                                    <td class="" width="64"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                        &nbsp;</td>
+                                    <td class="Content" align="center"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;width:472px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;vertical-align:middle;color:#8898aa;font-size:15px;line-height:18px">
+                                        <span class="il">$receipt_label</span> #$number
+                                    </td>
+                                    <td class="" width="64"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                        &nbsp;</td>
+                                </tr>
+
+                                <ninja>
+                                    {%set payment = payments|first %}
+                                    {%if payment.transaction_reference %}
+                                    <tr>
+                                        <td class="" width="64"
+                                            style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                            &nbsp;</td>
+                                        <td class="Content" align="center"
+                                            style="border:0;border-collapse:collapse;margin:0;padding:0;width:472px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;vertical-align:middle;color:#8898aa;font-size:15px;line-height:18px">
+                                            <span class="il">Reference:</span> {{ payment.transaction_reference }}
+                                        </td>
+                                        <td class="" width="64"
+                                            style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                            &nbsp;</td>
+                                    </tr>
+                                    {% endif %}
+                                </ninja>
+
+                            </tbody>
+                        </table>
+
+                        <table class="" width="100%"
+                            style="border:0;border-collapse:collapse;margin:0;padding:0;background-color:#ffffff">
+                            <tbody>
+                                <tr>
+                                    <td height="24"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                        &nbsp;</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <table class="" width="100%"
+                            style="border:0;border-collapse:collapse;margin:0;padding:0;background-color:#ffffff;width:100%">
+                            <tbody>
+                                <tr>
+                                    <td class="" width="64"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                        &nbsp;</td>
+                                    <td class="Content"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;width:472px">
+                                        <table style="border:0;border-collapse:collapse;margin:0;padding:0;width:100%">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="DataBlocks-item" valign="top"
+                                                        style="border:0;border-collapse:collapse;margin:0;padding:0">
+                                                        <table
+                                                            style="border:0;border-collapse:collapse;margin:0;padding:0">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td
+                                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;vertical-align:middle;color:#8898aa;font-size:12px;line-height:16px;white-space:nowrap;font-weight:bold;text-transform:uppercase;">
+                                                                        $amount_paid_label
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td
+                                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;vertical-align:middle;color:#525f7f;font-size:15px;line-height:24px;white-space:nowrap">
+                                                                        $amount
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                    <td class="DataBlocks-spacer" width="20"
+                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                        &nbsp;</td>
+                                                    <td class="DataBlocks-item" valign="top"
+                                                        style="border:0;border-collapse:collapse;margin:0;padding:0">
+                                                        <table
+                                                            style="border:0;border-collapse:collapse;margin:0;padding:0">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td
+                                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;vertical-align:middle;color:#8898aa;font-size:12px;line-height:16px;white-space:nowrap;font-weight:bold;text-transform:uppercase">
+                                                                        $date_label
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td
+                                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;vertical-align:middle;color:#525f7f;font-size:15px;line-height:24px;white-space:nowrap">
+                                                                        $payment.date
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+
+                                                    <td class="DataBlocks-spacer" width="20"
+                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                        &nbsp;</td>
+                                                    <td class="DataBlocks-item" valign="top"
+                                                        style="border:0;border-collapse:collapse;margin:0;padding:0">
+                                                        <table
+                                                            style="border:0;border-collapse:collapse;margin:0;padding:0">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td
+                                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;vertical-align:middle;color:#8898aa;font-size:12px;line-height:16px;white-space:nowrap;font-weight:bold;text-transform:uppercase">
+                                                                        $method_label
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td
+                                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;vertical-align:middle;color:#525f7f;font-size:15px;line-height:24px;white-space:nowrap">
+                                                                        <span>
+                                                                            <ninja>
+                                                                                {% if payments is defined and payments is not empty %}
+                                                                                    {% set payment = payments|first %}
+                                                                                        {{ payment.method }}
+                                                                                {% endif %}
+                                                                            </ninja>
+                                                                        </span>
+                                                                        <span></span>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                    <td class="" width="64"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                        &nbsp;</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <table class="" width="100%"
+                            style="border:0;border-collapse:collapse;margin:0;padding:0;background-color:#ffffff">
+                            <tbody>
+                                <tr>
+                                    <td height="32"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                        &nbsp;</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <table class=""
+                            style="border:0;border-collapse:collapse;margin:0;padding:0;background-color:#ffffff">
+                            <tbody>
+                                <tr>
+                                    <td class="" width="64"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                        &nbsp;</td>
+                                    <td class="Content"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;width:472px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;vertical-align:middle;color:#8898aa;font-size:12px;line-height:16px;font-weight:bold;text-transform:uppercase">
+                                        Summary
+                                    </td>
+                                    <td class="" width="64"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                        &nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" height="12"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                        &nbsp;</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <table class="" width="100%"
+                            style="border:0;border-collapse:collapse;margin:0;padding:0;background-color:#ffffff">
+                            <tbody>
+                                <tr>
+                                    <td class="Spacer--kill" width="64"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                        &nbsp;</td>
+                                    <td class="Content"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;width:472px">
+                                        <table
+                                            style="border:0;border-collapse:collapse;margin:0;padding:0;width:100%;background-color:#f6f9fc;border-radius:4px">
+                                            <tbody>
+                                                <tr>
+                                                    <td colspan="3" height="4"
+                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                        &nbsp;</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="" width="20"
+                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                        &nbsp;</td>
+                                                    <td class="Table-content"
+                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;width:432px">
+                                                        <table class="Table-rows" width="432"
+                                                            style="border:0;border-collapse:collapse;margin:0;padding:0">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td colspan="3" height="6"
+                                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                                        &nbsp;</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td colspan="3" height="6"
+                                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                                        &nbsp;</td>
+                                                                </tr>
+                                                                <ninja>
+                                                                    {% set totalPrice = 0 %}
+                                                                    {% if payments is defined and payments is not empty %}
+                                                                        {% for payment in payments %}
+                                                                            {% for pivot in payment.paymentables|filter(pivot => pivot.is_credit == '0') %}
+                                                                    <tr>
+                                                                        <td
+                                                                            style="border:0;border-collapse:collapse;margin:0;padding:0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;vertical-align:middle;color:#8898aa;font-size:12px;line-height:16px;font-weight:bold;text-transform:uppercase">
+                                                                            {{ pivot.date }}
+                                                                        </td>
+                                                                        <td width="8"
+                                                                            style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                                            &nbsp;</td>
+                                                                        <td
+                                                                            style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                                            &nbsp;</td>
+                                                                    </tr>
+
+                                                                    <tr>
+                                                                        <td colspan="3" height="6"
+                                                                            style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                                            &nbsp;</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td colspan="3" height="6"
+                                                                            style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                                            &nbsp;</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td
+                                                                            style="border:0;border-collapse:collapse;margin:0;padding:0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;vertical-align:middle;color:#525f7f;font-size:15px;line-height:24px">
+                                                                            <div>
+                                                                                $invoice_label #{{ pivot.invoice }}
+                                                                                <span class="Content"
+                                                                                    style="border:0;border-collapse:collapse;margin:0;padding:0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#8898aa;font-size:14px;line-height:14px">
+
+                                                                                </span>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td width="8"
+                                                                            style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                                            &nbsp;</td>
+                                                                        <td align="right" valign="top"
+                                                                            style="border:0;border-collapse:collapse;margin:0;padding:0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;vertical-align:middle;color:#525f7f;font-size:15px;line-height:24px">
+                                                                            {{ pivot.amount }}
+                                                                        </td>
+                                                                    </tr>
+
+                                                                    <tr>
+                                                                        <td colspan="3" height="6"
+                                                                            style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                                            &nbsp;</td>
+                                                                    </tr>
+
+                                                                    <tr>
+                                                                        <td colspan="3" height="6"
+                                                                            style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                                            &nbsp;</td>
+                                                                    </tr>
+
+                                                                    <tr>
+                                                                        <td bgcolor="e6ebf1" colspan="3" height="1"
+                                                                            style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                                            &nbsp;</td>
+                                                                    </tr>
+
+                                                                    <tr>
+                                                                        <td colspan="3" height="8"
+                                                                            style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                                            &nbsp;</td>
+                                                                    </tr>
+
+                                                                    {% set totalPrice = totalPrice + pivot.amount_raw %}
+
+                                                                        {% endfor %}
+                                                                    {% endfor %}
+
+                                                                    <tr>
+                                                                        <td colspan="3" height="6"
+                                                                            style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                                            &nbsp;</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td
+                                                                            style="border:0;border-collapse:collapse;margin:0;padding:0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;vertical-align:middle;color:#525f7f;font-size:15px;line-height:24px;font-weight:bold">
+                                                                            $amount_paid_label
+                                                                        </td>
+                                                                        <td width="8"
+                                                                            style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                                            &nbsp;</td>
+
+                                                                        <td align="right" valign="top"
+                                                                            style="border:0;border-collapse:collapse;margin:0;padding:0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;vertical-align:middle;color:#525f7f;font-size:15px;line-height:24px;font-weight:bold">
+                                                                            ${{ totalPrice|format_currency(currency_code) }}
+                                                                        <td>
+                                                                    
+                                                                    {% endif %}
+                                                                </ninja>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="3" height="6"
+                                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                                        &nbsp;</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                    <td class="" width="20"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                        &nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" height="4"
+                                        style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                                        &nbsp;</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                </td>
+                <td class="Spacer--kill" width="64"
+                    style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                    &nbsp;</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table class="" width="100%" style="border:0;border-collapse:collapse;margin:0;padding:0;background-color:#ffffff">
+        <tbody>
+            <tr>
+                <td height="44"
+                    style="border:0;border-collapse:collapse;margin:0;padding:0;color:#ffffff;font-size:1px;line-height:1px">
+                    &nbsp;</td>
+            </tr>
+        </tbody>
+    </table>
+    </div>
+    </td>
+    </tr>
+    </tbody>
+    </table>
+</body>
+
+</html>

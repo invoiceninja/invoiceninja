@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- editado con XMLSpy v2019 sp1 (x64) (http://www.altova.com) por AEAT (Agencia Estatal de Administracion Tributaria ((AEAT))) -->
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:sfLR="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/SuministroLR.xsd" xmlns:sf="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/SuministroInformacion.xsd" xmlns:sfR="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/RespuestaSuministro.xsd" xmlns:sfLRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/ConsultaLR.xsd" xmlns:sfLRRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/RespuestaConsultaLR.xsd" xmlns:sfWdsl="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/SistemaFacturacion.wsdl" xmlns:ns="http://www.w3.org/2000/09/xmldsig#" targetNamespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/SistemaFacturacion.wsdl">
+	<wsdl:types>
+		<xs:schema targetNamespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/SistemaFacturacion.wsdl" elementFormDefault="qualified" xmlns:sfWdsl="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/SistemaFacturacion.wsdl" xmlns:sf="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/SuministroInformacion.xsd" xmlns:sfLR="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/SuministroLR.xsd" xmlns:sfLRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/ConsultaLR.xsd" xmlns:sfLRRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/RespuestaConsultaLR.xsd">
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/SuministroInformacion.xsd" schemaLocation="SuministroInformacion.xsd"/>
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/SuministroLR.xsd" schemaLocation="SuministroLR.xsd"/>
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/ConsultaLR.xsd" schemaLocation="ConsultaLR.xsd"/>
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/RespuestaConsultaLR.xsd" schemaLocation="RespuestaConsultaLR.xsd"/>
+			<xs:import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/RespuestaSuministro.xsd" schemaLocation="RespuestaSuministro.xsd"/>
+		</xs:schema>
+	</wsdl:types>
+	<wsdl:message name="EntradaRegFactuSistemaFacturacion">
+		<wsdl:part name="RegFactuSistemaFacturacion" element="sfLR:RegFactuSistemaFacturacion"/>
+	</wsdl:message>
+	<wsdl:message name="EntradaConsultaFactuSistemaFacturacion">
+		<wsdl:part name="ConsultaFactuSistemaFacturacion" element="sfLRC:ConsultaFactuSistemaFacturacion"/>
+	</wsdl:message>
+	<wsdl:message name="RespuestaRegFactuSistemaFacturacion">
+		<wsdl:part name="RespuestaRegFactuSistemaFacturacion" element="sfR:RespuestaRegFactuSistemaFacturacion"/>
+	</wsdl:message>
+	<wsdl:message name="RespuestaConsultaFactuSistemaFacturacion">
+		<wsdl:part name="RespuestaConsultaFactuSistemaFacturacion" element="sfLRRC:RespuestaConsultaFactuSistemaFacturacion"/>
+	</wsdl:message>
+	<wsdl:portType name="sfPortTypeVerifactu">
+		<wsdl:operation name="RegFactuSistemaFacturacion">
+			<wsdl:input message="sfWdsl:EntradaRegFactuSistemaFacturacion"/>
+			<wsdl:output message="sfWdsl:RespuestaRegFactuSistemaFacturacion"/>
+		</wsdl:operation>
+		<wsdl:operation name="ConsultaFactuSistemaFacturacion">
+			<wsdl:input message="sfWdsl:EntradaConsultaFactuSistemaFacturacion"/>
+			<wsdl:output message="sfWdsl:RespuestaConsultaFactuSistemaFacturacion"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:portType name="sfPortTypePorRequerimiento">
+		<wsdl:operation name="RegFactuSistemaFacturacion">
+			<wsdl:input message="sfWdsl:EntradaRegFactuSistemaFacturacion"/>
+			<wsdl:output message="sfWdsl:RespuestaRegFactuSistemaFacturacion"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:binding name="sfVerifactu" type="sfWdsl:sfPortTypeVerifactu">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="RegFactuSistemaFacturacion">
+			<soap:operation soapAction=""/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="ConsultaFactuSistemaFacturacion">
+			<soap:operation soapAction=""/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:binding name="sfRequerimiento" type="sfWdsl:sfPortTypePorRequerimiento">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="RegFactuSistemaFacturacion">
+			<soap:operation soapAction=""/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="sfVerifactu">
+		<!--  Sistemas que emiten facturas verificables. Entorno de PRODUCCION -->
+		<wsdl:port name="SistemaVerifactu" binding="sfWdsl:sfVerifactu">
+			<soap:address location="https://www1.agenciatributaria.gob.es/wlpl/TIKE-CONT/ws/SistemaFacturacion/VerifactuSOAP"/>
+		</wsdl:port>
+		<!--  Sistemas que emiten facturas verificables. Entorno de PRODUCCION para acceso con certificado de sello -->
+		<wsdl:port name="SistemaVerifactuSello" binding="sfWdsl:sfVerifactu">
+			<soap:address location="https://www10.agenciatributaria.gob.es/wlpl/TIKE-CONT/ws/SistemaFacturacion/VerifactuSOAP"/>
+		</wsdl:port>
+		<!--  Sistemas que emiten facturas verificables. Entorno de PRUEBAS -->
+		<wsdl:port name="SistemaVerifactuPruebas" binding="sfWdsl:sfVerifactu">
+			<soap:address location="https://prewww1.aeat.es/wlpl/TIKE-CONT/ws/SistemaFacturacion/VerifactuSOAP"/>
+		</wsdl:port>
+		<!--  Sistemas que emiten facturas verificables. Entorno de PRUEBAS para acceso con certificado de sello -->
+		<wsdl:port name="SistemaVerifactuSelloPruebas" binding="sfWdsl:sfVerifactu">
+			<soap:address location="https://prewww10.aeat.es/wlpl/TIKE-CONT/ws/SistemaFacturacion/VerifactuSOAP"/>
+		</wsdl:port>
+	</wsdl:service>
+	<wsdl:service name="sfRequerimiento">
+		<!-- Sistemas que emiten facturas NO verificables. (Remision bajo requerimiento). Entorno de PRODUCCION -->
+		<wsdl:port name="SistemaRequerimiento" binding="sfWdsl:sfRequerimiento">
+			<soap:address location="https://www1.agenciatributaria.gob.es/wlpl/TIKE-CONT/ws/SistemaFacturacion/RequerimientoSOAP"/>
+		</wsdl:port>
+		<!-- Sistemas que emiten facturas NO verificables. (Remision bajo requerimiento). Entorno de PRODUCCION para acceso con certificado de sello -->
+		<wsdl:port name="SistemaRequerimientoSello" binding="sfWdsl:sfRequerimiento">
+			<soap:address location="https://www10.agenciatributaria.gob.es/wlpl/TIKE-CONT/ws/SistemaFacturacion/RequerimientoSOAP"/>
+		</wsdl:port>
+		<!-- Sistemas que emiten facturas NO verificables. (Remision bajo requerimiento). Entorno de PRUEBAS -->
+		<wsdl:port name="SistemaRequerimientoPruebas" binding="sfWdsl:sfRequerimiento">
+			<soap:address location="https://prewww1.aeat.es/wlpl/TIKE-CONT/ws/SistemaFacturacion/RequerimientoSOAP"/>
+		</wsdl:port>
+		<!-- Sistemas que emiten facturas NO verificables. (Remision bajo requerimiento). Entorno de PRUEBAS para acceso con certificado de sello -->
+		<wsdl:port name="SistemaRequerimientoSelloPruebas" binding="sfWdsl:sfRequerimiento">
+			<soap:address location="https://prewww10.aeat.es/wlpl/TIKE-CONT/ws/SistemaFacturacion/RequerimientoSOAP"/>
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>

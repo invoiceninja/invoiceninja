@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:udt="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100"
+    elementFormDefault="qualified"
+    version="100.D22B">
+  <xsd:complexType name="AmountType">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:decimal">
+        <xsd:attribute name="currencyID" type="xsd:token"/>
+        <xsd:attribute name="currencyCodeListVersionID" type="xsd:token"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="BinaryObjectType">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:base64Binary">
+        <xsd:attribute name="format" type="xsd:string"/>
+        <xsd:attribute name="mimeCode" type="xsd:token"/>
+        <xsd:attribute name="encodingCode" type="xsd:token"/>
+        <xsd:attribute name="characterSetCode" type="xsd:token"/>
+        <xsd:attribute name="uri" type="xsd:anyURI"/>
+        <xsd:attribute name="filename" type="xsd:string"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="CodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:token">
+        <xsd:attribute name="listID" type="xsd:token"/>
+        <xsd:attribute name="listAgencyID" type="xsd:token"/>
+        <xsd:attribute name="listAgencyName" type="xsd:string"/>
+        <xsd:attribute name="listName" type="xsd:string"/>
+        <xsd:attribute name="listVersionID" type="xsd:token"/>
+        <xsd:attribute name="name" type="xsd:string"/>
+        <xsd:attribute name="languageID" type="xsd:token"/>
+        <xsd:attribute name="listURI" type="xsd:anyURI"/>
+        <xsd:attribute name="listSchemeURI" type="xsd:anyURI"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="DateTimeType">
+    <xsd:choice>
+      <xsd:element name="DateTimeString">
+        <xsd:complexType>
+          <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+              <xsd:attribute name="format" type="xsd:string"/>
+            </xsd:extension>
+          </xsd:simpleContent>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="DateTime" type="xsd:dateTime"/>
+    </xsd:choice>
+  </xsd:complexType>
+  <xsd:complexType name="DateType">
+    <xsd:choice>
+      <xsd:element name="DateString">
+        <xsd:complexType>
+          <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+              <xsd:attribute name="format" type="xsd:string"/>
+            </xsd:extension>
+          </xsd:simpleContent>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="Date" type="xsd:date"/>
+    </xsd:choice>
+  </xsd:complexType>
+  <xsd:complexType name="IDType">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:token">
+        <xsd:attribute name="schemeID" type="xsd:token"/>
+        <xsd:attribute name="schemeName" type="xsd:string"/>
+        <xsd:attribute name="schemeAgencyID" type="xsd:token"/>
+        <xsd:attribute name="schemeAgencyName" type="xsd:string"/>
+        <xsd:attribute name="schemeVersionID" type="xsd:token"/>
+        <xsd:attribute name="schemeDataURI" type="xsd:anyURI"/>
+        <xsd:attribute name="schemeURI" type="xsd:anyURI"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="IndicatorType">
+    <xsd:choice>
+      <xsd:element name="IndicatorString">
+        <xsd:complexType>
+          <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+              <xsd:attribute name="format" type="xsd:string"/>
+            </xsd:extension>
+          </xsd:simpleContent>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="Indicator" type="xsd:boolean"/>
+    </xsd:choice>
+  </xsd:complexType>
+  <xsd:complexType name="MeasureType">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:decimal">
+        <xsd:attribute name="unitCode" type="xsd:token"/>
+        <xsd:attribute name="unitCodeListVersionID" type="xsd:token"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="NumericType">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:decimal">
+        <xsd:attribute name="format" type="xsd:string"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="PercentType">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:decimal">
+        <xsd:attribute name="format" type="xsd:string"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="QuantityType">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:decimal">
+        <xsd:attribute name="unitCode" type="xsd:token"/>
+        <xsd:attribute name="unitCodeListID" type="xsd:token"/>
+        <xsd:attribute name="unitCodeListAgencyID" type="xsd:token"/>
+        <xsd:attribute name="unitCodeListAgencyName" type="xsd:string"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="RateType">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:decimal">
+        <xsd:attribute name="format" type="xsd:string"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="TextType">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:string">
+        <xsd:attribute name="languageID" type="xsd:token"/>
+        <xsd:attribute name="languageLocaleID" type="xsd:token"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+</xsd:schema>

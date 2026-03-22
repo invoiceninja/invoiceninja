@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:clm68051="urn:un:unece:uncefact:codelist:standard:UNECE:TransportMovementStageCode:D22A"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="urn:un:unece:uncefact:codelist:standard:UNECE:TransportMovementStageCode:D22A"
+    elementFormDefault="qualified"
+    version="3.1">
+  <xsd:simpleType name="TransportMovementStageCodeContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="1"/>
+      <xsd:enumeration value="2"/>
+      <xsd:enumeration value="3"/>
+      <xsd:enumeration value="4"/>
+      <xsd:enumeration value="5"/>
+      <xsd:enumeration value="6"/>
+      <xsd:enumeration value="10"/>
+      <xsd:enumeration value="11"/>
+      <xsd:enumeration value="12"/>
+      <xsd:enumeration value="13"/>
+      <xsd:enumeration value="15"/>
+      <xsd:enumeration value="16"/>
+      <xsd:enumeration value="17"/>
+      <xsd:enumeration value="18"/>
+      <xsd:enumeration value="19"/>
+      <xsd:enumeration value="20"/>
+      <xsd:enumeration value="21"/>
+      <xsd:enumeration value="22"/>
+      <xsd:enumeration value="23"/>
+      <xsd:enumeration value="24"/>
+      <xsd:enumeration value="25"/>
+      <xsd:enumeration value="26"/>
+      <xsd:enumeration value="27"/>
+      <xsd:enumeration value="28"/>
+      <xsd:enumeration value="29"/>
+      <xsd:enumeration value="30"/>
+      <xsd:enumeration value="31"/>
+      <xsd:enumeration value="32"/>
+      <xsd:enumeration value="33"/>
+      <xsd:enumeration value="34"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

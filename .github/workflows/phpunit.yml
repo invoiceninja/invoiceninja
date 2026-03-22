@@ -1,0 +1,134 @@
+on:
+  push:
+    branches:
+      - v5-develop
+      - v5-stable
+  pull_request:
+    branches:
+      - v5-develop
+
+name: phpunit
+jobs:
+  run:
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        operating-system: ['ubuntu-22.04','ubuntu-24.04']
+        php-versions: ['8.2','8.3','8.4']
+        phpunit-versions: ['latest']
+        ci_node_total: [ 8 ]
+        ci_node_index: [ 0, 1, 2, 3, 4, 5, 6, 7]
+        laravel: [11.*]
+        dependency-version: [prefer-stable]
+
+    env:
+      DB_CONNECTION: mysql
+      DB_DATABASE1: ninja
+      DB_USERNAME1: root
+      DB_PASSWORD1: ninja
+      DB_HOST1: '127.0.0.1'
+      DB_DATABASE: ninja
+      DB_USERNAME: root
+      DB_PASSWORD: ninja
+      DB_HOST: '127.0.0.1'
+      REDIS_PORT: 6379
+      BROADCAST_DRIVER: log
+      CACHE_DRIVER: redis
+      QUEUE_CONNECTION: redis
+      SESSION_DRIVER: redis
+      NINJA_ENVIRONMENT: hosted
+      MULTI_DB_ENABLED: false
+      NINJA_LICENSE: ${{ secrets.ninja_license }}
+      TRAVIS: true
+      MAIL_MAILER: log
+      PDF_GENERATOR: hosted_ninja
+
+    services:
+      mariadb:
+        image: mariadb:10.6
+        ports:
+          - 32768:3306
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_USER: ninja
+          MYSQL_PASSWORD: ninja
+          MYSQL_DATABASE: ninja
+          MYSQL_ROOT_PASSWORD: ninja
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+      redis:
+        image: redis
+        ports:
+          - 6379/tcp
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+    - name: Add hosts to /etc/hosts
+      run: |
+        sudo echo "127.0.0.1 ninja.test" | sudo tee -a /etc/hosts
+
+    - name: Start MariaDB service
+      run: |
+        sudo systemctl start mysql.service
+    - name: Verify MariaDB connection
+      env:
+        DB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        DB_PORT1: ${{ job.services.mariadb.ports[3306] }}
+
+      run: |
+        while ! mysqladmin ping -h"127.0.0.1" -P"$DB_PORT" --silent; do
+          sleep 1
+        done
+    - name: Setup PHP shivammathur/setup-php@v2
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-versions }}
+        extensions: mysql, mysqlnd, sqlite3, bcmath, gmp, gd, curl, zip, openssl, mbstring, xml, redis, :psr
+
+    - uses: actions/checkout@v4
+      with:
+        ref: v5-develop
+        fetch-depth: 1
+
+    - name: Copy .env
+      run: |
+        cp .env.ci .env
+
+    - name: Get Composer Cache Directory
+      id: composer-cache
+      run: |
+        echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+    - uses: actions/cache@v4
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ matrix.php }}-composer-
+
+    - name: Install composer dependencies
+      run: |
+        composer config -g github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}
+        composer install
+
+    - name: Prepare Laravel Application
+      env:
+        REDIS_PORT: ${{ job.services.redis.ports['6379'] }}
+      run: |
+        php artisan key:generate
+        php artisan config:clear
+        php artisan ninja:post-update
+        php artisan optimize
+        
+    - name: Migrate Database
+      run: |
+        php artisan migrate && php artisan db:seed
+  
+    - name: Run Testsuite
+      run: |
+        cat .env
+        vendor/bin/snappdf download
+        tests/ci
+      env:
+        DB_PORT: ${{ job.services.mysql.ports[3306] }}
+        PHP_CS_FIXER_IGNORE_ENV: true
+        CI_NODE_TOTAL: ${{ matrix.ci_node_total }}
+        CI_NODE_INDEX: ${{ matrix.ci_node_index }}

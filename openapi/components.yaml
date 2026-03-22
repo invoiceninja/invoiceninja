@@ -1,0 +1,19 @@
+components:
+  headers:
+    X-MINIMUM-CLIENT-VERSION:
+      description: 'The API version'
+      schema:
+        type: number
+    X-RateLimit-Remaining:
+      description: 'The number of requests left for the time window.'
+      schema:
+        type: integer
+    X-RateLimit-Limit:
+      description: 'The total number of requests in a given time window.'
+      schema:
+        type: integer
+  securitySchemes:
+    ApiKeyAuth:        
+      type: apiKey
+      in: header       
+      name: X-API-TOKEN 
