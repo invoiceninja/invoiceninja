@@ -711,6 +711,7 @@ class CompanyImport implements ShouldQueue
             $this->company->portal_domain = '';
         }
 
+        $this->company->enable_modules = 0;
         $this->company->save();
         $this->company = $this->company->fresh();
 
