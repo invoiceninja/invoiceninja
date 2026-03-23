@@ -51,21 +51,29 @@ class InvitationController extends Controller
 
     public function recurringRouter(string $invitation_key)
     {
+        Auth::logout();
+
         return $this->genericRouter('recurring_invoice', $invitation_key);
     }
 
     public function invoiceRouter(string $invitation_key)
     {
+        Auth::logout();
+
         return $this->genericRouter('invoice', $invitation_key);
     }
 
     public function quoteRouter(string $invitation_key)
     {
+        Auth::logout();
+
         return $this->genericRouter('quote', $invitation_key);
     }
 
     public function creditRouter(string $invitation_key)
     {
+        Auth::logout();
+
         return $this->genericRouter('credit', $invitation_key);
     }
 
