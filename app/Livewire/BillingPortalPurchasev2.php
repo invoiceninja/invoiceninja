@@ -242,7 +242,7 @@ class BillingPortalPurchasev2 extends Component
 
         if ($contact) {
             Auth::guard('contact')->loginUsingId($contact->id, true);
-
+            $this->dispatch('update-csrf', token: csrf_token());
         } else {
             $this->createBlankClient();
         }
@@ -777,6 +777,7 @@ class BillingPortalPurchasev2 extends Component
         $contact = $client->fresh()->contacts->first();
 
         Auth::guard('contact')->loginUsingId($contact->id, true);
+        $this->dispatch('update-csrf', token: csrf_token());
 
         return $contact;
     }
@@ -793,10 +794,6 @@ class BillingPortalPurchasev2 extends Component
     {
         if (array_key_exists('email', $this->request_data)) {
             $this->email = $this->request_data['email'];
-        }
-
-        if ($this->contact() instanceof ClientContact) {
-            $this->getPaymentMethods();
         }
 
         return render('components.livewire.billing-portal-purchasev2');

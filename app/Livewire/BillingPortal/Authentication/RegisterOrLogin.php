@@ -74,6 +74,7 @@ class RegisterOrLogin extends Component
             $client = $service->createClient([]);
             $contact = $service->createClientContact(['email' => $this->email], $client);
             auth()->guard('contact')->loginUsingId($contact->id, true);
+            $this->dispatch('update-csrf', token: csrf_token());
             $this->dispatch('purchase.next');
             return;
 
@@ -114,7 +115,10 @@ class RegisterOrLogin extends Component
         ]);
 
         if ($attempt) {
+            $this->dispatch('update-csrf', token: csrf_token());
             $this->dispatch('purchase.next');
+
+            return;
         }
 
         session()->flash('message', 'These credentials do not match our records.');
@@ -175,6 +179,7 @@ class RegisterOrLogin extends Component
 
         if ($contact) {
             auth()->guard('contact')->loginUsingId($contact->id, true);
+            $this->dispatch('update-csrf', token: csrf_token());
 
             // $this->dispatch('purchase.context', property: 'contact', value: $contact);
             $this->dispatch('purchase.next');
@@ -206,6 +211,7 @@ class RegisterOrLogin extends Component
         $contact = $service->createClientContact($data, $client);
 
         auth()->guard('contact')->loginUsingId($contact->id, true);
+        $this->dispatch('update-csrf', token: csrf_token());
 
         // $this->dispatch('purchase.context', property: 'contact', value: $contact);
         $this->dispatch('purchase.next');
@@ -226,6 +232,7 @@ class RegisterOrLogin extends Component
             $contact = $service->createClientContact(['email' => $this->email], $client);
 
             auth()->guard('contact')->loginUsingId($contact->id, true);
+            $this->dispatch('update-csrf', token: csrf_token());
 
             // $this->dispatch('purchase.context', property: 'contact', value: $contact);
             $this->dispatch('purchase.next');
