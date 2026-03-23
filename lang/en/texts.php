@@ -5947,6 +5947,7 @@ $lang = array(
     'invalid_id_number_format' => 'Invalid ID number format',
     'invalid_vat_number_format' => 'Invalid VAT number format',
     'invalid_routing_id_format' => 'Invalid routing ID format',
+    'sign_the_document' => 'Sign the document',
 );
 
 return $lang;

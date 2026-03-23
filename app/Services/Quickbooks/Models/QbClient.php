@@ -69,13 +69,12 @@ class QbClient implements SyncInterface
                 }
             }
 
-            $client = $this->findClient($ninja_data[0]['id']);
+            $client = $this->findClient($ninja_data[0]['id'], $ninja_data[0]['name'] ?? null, $ninja_data[1]['email'] ?? null);
             if (! $client) {
                 continue;
             }
 
             $client->fill($ninja_data[0]);
-            // During QB import, use saveQuietly() to prevent circular sync back to QuickBooks
             $client->service()->applyNumber()->save();
 
             $contact = $client->contacts()->where('email', $ninja_data[1]['email'])->first();
@@ -87,7 +86,7 @@ class QbClient implements SyncInterface
                 $contact->is_primary = true;
                 $contact->fill($ninja_data[1]);
                 $contact->saveQuietly();
-            } elseif ($this->service->syncable('client', \App\Enum\SyncDirection::PULL)) {
+            } else {
                 $contact->fill($ninja_data[1]);
                 $contact->saveQuietly();
             }
@@ -192,28 +191,68 @@ class QbClient implements SyncInterface
 
     public function sync(string $id, string $last_updated): void {}
 
-    private function findClient(string $key): ?Client
+    private function findClient(string $key, ?string $name = null, ?string $email = null): ?Client
     {
+        $company_id = $this->service->company->id;
+
+        // First, try to find by QB ID
         $search = Client::query()
                          ->withTrashed()
-                         ->where('company_id', $this->service->company->id)
+                         ->where('company_id', $company_id)
                          ->where('sync->qb_id', $key);
 
-        if ($search->count() == 0) {
-
-            $client = ClientFactory::create($this->service->company->id, $this->service->company->owner()->id);
-
-            $sync = new ClientSync();
-            $sync->qb_id = $key;
-            $client->sync = $sync;
-
-            return $client;
-
-        } elseif ($search->count() == 1) {
-            return $this->service->syncable('client', \App\Enum\SyncDirection::PULL) ? $search->first() : null;
+        if ($search->count() >= 1) {
+            return $search->first();
         }
 
-        return null;
+        // If not found by QB ID, try to find by exact client name
+        if ($search->count() == 0 && $name) {
+            $name_match = Client::query()
+                ->withTrashed()
+                ->where('company_id', $company_id)
+                ->where('name', $name)
+                ->first();
+
+         
+            if ($name_match) {
+                $sync = $name_match->sync ? clone $name_match->sync : new ClientSync();
+                $sync->qb_id = $key;
+                $name_match->sync = $sync;
+                $name_match->saveQuietly();
+
+                return $name_match;
+            }
+        }
+
+        // If not found by name, try to find by contact email
+        if ($search->count() == 0 && $email) {
+
+            $email_match = Client::query()
+                ->withTrashed()
+                ->where('company_id', $company_id)
+                ->whereHas('contacts', function ($query) use ($email) {
+                    $query->where('email', $email);
+                })
+                ->first();
+
+            if ($email_match) {
+                $sync = $email_match->sync ? clone $email_match->sync : new ClientSync();
+                $sync->qb_id = $key;
+                $email_match->sync = $sync;
+                $email_match->saveQuietly();
+
+                return $email_match;
+            }
+        }
+
+        // No match found - create a new client
+        $client = ClientFactory::create($company_id, $this->service->company->owner()->id);
+
+        $sync = new ClientSync();
+        $sync->qb_id = $key;
+        $client->sync = $sync;
+
+        return $client;
 
     }
 }

@@ -80,6 +80,18 @@ class ProductObserver
             WebhookHandler::dispatch($event, $product, $product->company)->delay(0);
         }
 
+        if ($product->company->quickbooks
+            && $product->company->shouldPushToQuickbooks('product')
+            && empty(\App\Services\Quickbooks\QuickbooksService::$importing[$product->company_id])) {
+
+            \App\Jobs\Quickbooks\PushToQuickbooks::dispatch(
+                'product',
+                $product->id,
+                $product->company->db
+            );
+
+        }
+
     }
 
     /**

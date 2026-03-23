@@ -376,6 +376,10 @@ class BraintreePaymentDriver extends BaseDriver
                     $line_total = (float) ($item->line_total ?? ($quantity * $unit_amount));
                     $tax_amount = (float) ($item->tax_amount ?? 0);
 
+                    if ($quantity <= 0 || $unit_amount <= 0) {
+                        continue;
+                    }
+
                     // Calculate item-level discount
                     $item_discount = 0.0;
                     $raw_discount = (float) ($item->discount ?? 0);

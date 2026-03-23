@@ -162,25 +162,18 @@ class CompanyUser extends Pivot
         return $this->belongsTo(Company::class);
     }
 
-    /**
-     * @return HasMany
-     */
+  
     public function users()
     {
         return $this->hasMany(User::class)->withTrashed();
     }
 
-    /**
-     * @return HasMany
-     */
+  
     public function token()
     {
         return $this->hasMany(CompanyToken::class, 'user_id', 'user_id');
     }
 
-    /**
-     * @return HasMany
-     */
     public function tokens()
     {
         return $this->hasMany(CompanyToken::class, 'user_id', 'user_id');

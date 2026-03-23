@@ -238,9 +238,13 @@ class BillingPortalPurchase extends Component
         if ($contact && $this->steps['existing_user']) {
             $attempt = Auth::guard('contact')->attempt(['email' => $this->email, 'password' => $this->password, 'company_id' => $this->subscription->company_id]);
 
-            return $attempt
-                ? $this->getPaymentMethods($contact)
-                : session()->flash('message', 'These credentials do not match our records.');
+            if (! $attempt) {
+                return session()->flash('message', 'These credentials do not match our records.');
+            }
+
+            $this->dispatch('update-csrf', token: csrf_token());
+
+            return $this->getPaymentMethods($contact);
         }
 
         $this->steps['existing_user'] = false;
@@ -248,6 +252,8 @@ class BillingPortalPurchase extends Component
         $this->contact = $this->createBlankClient();
 
         if ($this->contact && $this->contact instanceof ClientContact) {
+            Auth::guard('contact')->loginUsingId($this->contact->id, true);
+            $this->dispatch('update-csrf', token: csrf_token());
             $this->getPaymentMethods($this->contact);
         }
     }
@@ -339,8 +345,6 @@ class BillingPortalPurchase extends Component
     protected function getPaymentMethods(ClientContact $contact): self
     {
         $this->contact = $contact;
-
-        Auth::guard('contact')->loginUsingId($contact->id, true);
 
         if ($this->subscription->trial_enabled) {
             $this->heading_text = ctrans('texts.plan_trial');
@@ -437,6 +441,8 @@ class BillingPortalPurchase extends Component
         $this->steps['started_payment'] = true;
         $this->steps['show_loading_bar'] = true;
 
+        try {
+
         $data = [
             'client_id' => $this->contact->client->id,
             'date' => now()->format('Y-m-d'),
@@ -489,6 +495,11 @@ class BillingPortalPurchase extends Component
         ], now()->addMinutes(60));
 
         $this->dispatch('beforePaymentEventsCompleted');
+
+        } catch (\Throwable $e) {
+            \Log::error("handleBeforePaymentEvents FAILED: " . $e->getMessage() . " at " . $e->getFile() . ":" . $e->getLine());
+            throw $e;
+        }
     }
 
     /**
@@ -601,10 +612,6 @@ class BillingPortalPurchase extends Component
     {
         if (array_key_exists('email', $this->request_data)) {
             $this->email = $this->request_data['email'];
-        }
-
-        if ($this->contact instanceof ClientContact) {
-            $this->getPaymentMethods($this->contact);
         }
 
         return render('components.livewire.billing-portal-purchase');
