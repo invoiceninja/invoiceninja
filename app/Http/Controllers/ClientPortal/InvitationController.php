@@ -44,35 +44,35 @@ class InvitationController extends Controller
 
     public function router(string $entity, string $invitation_key)
     {
-        Auth::logout();
+        auth()->guard('contact')->logout();
 
         return $this->genericRouter($entity, $invitation_key);
     }
 
     public function recurringRouter(string $invitation_key)
     {
-        Auth::logout();
+        auth()->guard('contact')->logout();
 
         return $this->genericRouter('recurring_invoice', $invitation_key);
     }
 
     public function invoiceRouter(string $invitation_key)
     {
-        Auth::logout();
+        auth()->guard('contact')->logout();
 
         return $this->genericRouter('invoice', $invitation_key);
     }
 
     public function quoteRouter(string $invitation_key)
     {
-        Auth::logout();
+        auth()->guard('contact')->logout();
 
         return $this->genericRouter('quote', $invitation_key);
     }
 
     public function creditRouter(string $invitation_key)
     {
-        Auth::logout();
+        auth()->guard('contact')->logout();
 
         return $this->genericRouter('credit', $invitation_key);
     }
@@ -121,10 +121,10 @@ class InvitationController extends Controller
         } elseif ((bool) $invitation->contact->client->getSetting('enable_client_portal_password') !== false) {
             //if no contact password has been set - allow user to set password - then continue to view entity
             if (empty($invitation->contact->password)) {
-                return $this->render('view_entity.set_password', [
-                    'root' => 'themes',
+                return redirect()->route('client.set_password_form', [
                     'entity_type' => $entity,
                     'invitation_key' => $invitation_key,
+                    'hash' => hash_hmac('sha256', $invitation_key, config('app.key')),
                 ]);
             }
 
@@ -229,6 +229,36 @@ class InvitationController extends Controller
 
     public function routerForIframe(string $entity, string $client_hash, string $invitation_key) {}
 
+
+    public function setPasswordForm(Request $request)
+    {
+        if (!in_array($request->entity_type, ['invoice', 'quote', 'credit', 'recurring_invoice'])) {
+            abort(404);
+        }
+
+        if (!hash_equals(hash_hmac('sha256', $request->invitation_key, config('app.key')), $request->hash ?? '')) {
+            abort(403);
+        }
+
+        $entity_obj = 'App\Models\\' . ucfirst(Str::camel($request->entity_type)) . 'Invitation';
+
+        $invitation = $entity_obj::where('key', $request->invitation_key)
+                                    ->whereHas($request->entity_type, function ($query) {
+                                        $query->where('is_deleted', 0);
+                                    })
+                                    ->with('contact')
+                                    ->firstOrFail();
+
+        if (!empty($invitation->contact->password)) {
+            abort(404);
+        }
+
+        return $this->render('view_entity.set_password', [
+            'root' => 'themes',
+            'entity_type' => $request->entity_type,
+            'invitation_key' => $request->invitation_key,
+        ]);
+    }
 
     public function handlePasswordSet(Request $request)
     {
