@@ -44,7 +44,7 @@
         <div class="px-4 py-3 sm:px-6" id="payware-status-container">
             <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; font-size: 0.875rem; font-weight: 500; color: #92400e; background-color: #fef3c7; border-radius: 0.375rem;" id="payware-status">
                 <span style="display: inline-block; width: 1rem; height: 1rem; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: payware-spin 0.75s linear infinite;" id="payware-spinner"></span>
-                <span id="payware-status-text">{{ ctrans('texts.payware_awaiting_payment') }}</span>
+                <span id="payware-status-text">{{ ctrans('texts.awaiting_payment') }}</span>
             </div>
         </div>
 
@@ -101,7 +101,7 @@
             statusEl.style.color = '#991b1b';
             statusEl.style.backgroundColor = '#fee2e2';
             document.getElementById('payware-spinner').style.display = 'none';
-            document.getElementById('payware-status-text').textContent = '{{ ctrans("texts.payware_payment_expired") }}';
+            document.getElementById('payware-status-text').textContent = '{{ ctrans("texts.payment_expired") }}';
             return;
         }
 
@@ -133,7 +133,7 @@
                 statusEl.style.color = '#065f46';
                 statusEl.style.backgroundColor = '#d1fae5';
                 document.getElementById('payware-spinner').style.display = 'none';
-                document.getElementById('payware-status-text').textContent = '{{ ctrans("texts.payware_payment_confirmed") }}';
+                document.getElementById('payware-status-text').textContent = '{{ ctrans("texts.payment_confirmed") }}';
                 if (data.redirect) {
                     setTimeout(function() { window.location.href = data.redirect; }, 1500);
                 }

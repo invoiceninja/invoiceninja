@@ -5945,10 +5945,9 @@ $lang = array(
     'debit' => 'Debit',
     'auto_convert_credit_help' => 'Automatically link or create a payment matching these rules.',
     'mobile_payment' => 'Мобилно плащане',
-    'payware_awaiting_payment' => 'Изчаква плащане',
-    'payware_payment_confirmed' => 'Платена',
-    'payware_payment_expired' => 'Плащането изтече. Моля, върнете се и опитайте отново.',
-    'payware_certified_by' => 'Сертифицирано от',
+    'awaiting_payment' => 'Изчаква плащане',
+    'payment_confirmed' => 'Платена',
+    'payment_expired' => 'Плащането изтече. Моля, върнете се и опитайте отново.',
 );
 
 return $lang;

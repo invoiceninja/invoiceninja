@@ -163,6 +163,12 @@ class PaywareApi
             throw new \Exception('JWT audience mismatch');
         }
 
+        // Verify iat freshness (reject tokens older than 5 minutes to prevent replay attacks)
+        $iat = $decoded['payload']->iat ?? null;
+        if ($iat !== null && abs(time() - (int) $iat) > 300) {
+            throw new \Exception('JWT token too old (iat beyond 5-minute window)');
+        }
+
         // Verify content hash
         $headerContentMd5 = $decoded['header']->contentMd5 ?? null;
         if ($headerContentMd5) {

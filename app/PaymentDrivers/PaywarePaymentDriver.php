@@ -17,6 +17,7 @@ use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\Jobs\Util\SystemLogger;
 use App\PaymentDrivers\Payware\BankTransfer;
 use App\PaymentDrivers\Payware\PaywareApi;
 use App\Http\Requests\Payments\PaymentNotificationWebhookRequest;
@@ -41,11 +42,6 @@ class PaywarePaymentDriver extends BaseDriver
     public const SYSTEM_LOG_TYPE = SystemLog::TYPE_PAYWARE;
 
     private ?PaywareApi $api = null;
-
-    public function init()
-    {
-        return $this;
-    }
 
     public function gatewayTypes(): array
     {
@@ -98,7 +94,7 @@ class PaywarePaymentDriver extends BaseDriver
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
-        // payware does not support refunds via API
+        return [];
     }
 
     public function processWebhookRequest(PaymentNotificationWebhookRequest $request)
@@ -145,7 +141,6 @@ class PaywarePaymentDriver extends BaseDriver
             return response()->json(['error' => 'Missing Authorization header'], 401);
         }
 
-        $this->init();
         $api = $this->getApi();
 
         try {
@@ -183,9 +178,9 @@ class PaywarePaymentDriver extends BaseDriver
                 $this->client = $invoice->client;
 
                 $paymentData = [
-                    'payment_method' => '',
+                    'payment_method' => GatewayType::MOBILE_PAYMENT,
                     'payment_type' => PaymentType::BANK_TRANSFER,
-                    'amount' => $invoice->amount,
+                    'amount' => $paymentHash->data->amount_with_fee,
                     'gateway_type_id' => GatewayType::MOBILE_PAYMENT,
                     'transaction_reference' => $transactionId,
                 ];
@@ -194,16 +189,32 @@ class PaywarePaymentDriver extends BaseDriver
 
                 $hashData['payware_payment_id'] = $payment->id;
 
+                SystemLogger::dispatch(
+                    ['response' => (array) $webhookData, 'data' => $paymentData],
+                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                    SystemLog::EVENT_GATEWAY_SUCCESS,
+                    SystemLog::TYPE_PAYWARE,
+                    $this->client,
+                    $this->client->company,
+                );
+
                 nlog('payware: Payment confirmed - ' . $transactionId);
             }
-        } elseif ($status === 'DECLINED') {
-            nlog('payware: Payment declined - ' . $transactionId . ' - ' . $statusMessage);
-        } elseif ($status === 'FAILED') {
-            nlog('payware: Payment failed - ' . $transactionId . ' - ' . $statusMessage);
-        } elseif ($status === 'CANCELLED') {
-            nlog('payware: Payment cancelled - ' . $transactionId . ' - ' . $statusMessage);
-        } elseif ($status === 'EXPIRED') {
-            nlog('payware: Payment expired - ' . $transactionId);
+        } elseif (in_array($status, ['DECLINED', 'FAILED', 'CANCELLED', 'EXPIRED'])) {
+            $client = $paymentHash->fee_invoice?->client;
+
+            if ($client) {
+                SystemLogger::dispatch(
+                    ['response' => (array) $webhookData, 'data' => ['status' => $status, 'message' => $statusMessage]],
+                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                    SystemLog::EVENT_GATEWAY_FAILURE,
+                    SystemLog::TYPE_PAYWARE,
+                    $client,
+                    $client->company,
+                );
+            }
+
+            nlog('payware: Payment ' . strtolower($status) . ' - ' . $transactionId . ($statusMessage ? ' - ' . $statusMessage : ''));
         }
 
         $paymentHash->data = $hashData;
