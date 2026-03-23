@@ -51,12 +51,16 @@ class CreateInvitations extends AbstractService
                 ->first();
 
             if (! $invitation) {
-                $ii = CreditInvitationFactory::create($this->credit->company_id, $this->credit->user_id);
-                $ii->key = $this->createDbHash($this->credit->company->db);
-                $ii->credit_id = $this->credit->id;
-                $ii->client_contact_id = $contact->id;
-                $ii->can_sign = $contact->can_sign;
-                $ii->save();
+                try {
+                    $ii = CreditInvitationFactory::create($this->credit->company_id, $this->credit->user_id);
+                    $ii->key = $this->createDbHash($this->credit->company->db);
+                    $ii->credit_id = $this->credit->id;
+                    $ii->client_contact_id = $contact->id;
+                    $ii->can_sign = $contact->can_sign;
+                    $ii->save();
+                } catch (\Illuminate\Database\QueryException $e) {
+                    nlog("Duplicate invitation for credit {$this->credit->id} contact {$contact->id}: " . $e->getMessage());
+                }
             } elseif (! $contact->send_email) {
                 $invitation->delete();
             }
@@ -81,12 +85,16 @@ class CreateInvitations extends AbstractService
                 }
             }
 
-            $ii = CreditInvitationFactory::create($this->credit->company_id, $this->credit->user_id);
-            $ii->key = $this->createDbHash($this->credit->company->db);
-            $ii->credit_id = $this->credit->id;
-            $ii->client_contact_id = $contact->id;
-            $ii->can_sign = $contact->can_sign;
-            $ii->save();
+            try {
+                $ii = CreditInvitationFactory::create($this->credit->company_id, $this->credit->user_id);
+                $ii->key = $this->createDbHash($this->credit->company->db);
+                $ii->credit_id = $this->credit->id;
+                $ii->client_contact_id = $contact->id;
+                $ii->can_sign = $contact->can_sign;
+                $ii->save();
+            } catch (\Illuminate\Database\QueryException $e) {
+                nlog("Duplicate invitation for credit {$this->credit->id} contact {$contact->id}: " . $e->getMessage());
+            }
         }
 
         if($this->credit->invitations()->where('can_sign', true)->count() == 0){
