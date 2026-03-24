@@ -5906,7 +5906,6 @@ $lang = array(
     'welcome_to_docuninja' => 'Welcome to DocuNinja',
     'yodlee' => 'Yodlee',
     'location_name' => 'Location Name',
-    'is_shipping_location' => 'Is Shipping Location',
     'quote_rejected' => 'Quote Rejected',
     'e_invoice_received_notification' => 'E-Invoice Received Notification',
     'e_invoice_received_notification_help' => 'Send an email when an e-invoice has been received',

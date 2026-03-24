@@ -66,7 +66,7 @@ class ARSummaryReportController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        if ($request->has('send_email') && $request->missing('output')) {
+        if ($request->has('send_email') && filter_var($request->input('send_email'), FILTER_VALIDATE_BOOLEAN) && $request->missing('output')) {
             SendToAdmin::dispatch($user->company(), $request->all(), ARSummaryReport::class, $this->filename);
 
             return response()->json(['message' => 'working...'], 200);

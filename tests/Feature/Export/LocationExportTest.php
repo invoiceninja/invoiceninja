@@ -27,6 +27,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Http;
 use League\Csv\Reader;
+use League\Csv\ResultSet;
 use Tests\TestCase;
 
 class LocationExportTest extends TestCase
@@ -165,7 +166,7 @@ class LocationExportTest extends TestCase
         $reader = Reader::fromString($csv);
         $reader->setHeaderOffset(0);
 
-        $res = $reader->fetchColumnByName($column);
+        $res = ResultSet::from($reader)->fetchColumn($column);
         $res = iterator_to_array($res, true);
 
         return $res[1];
@@ -452,17 +453,23 @@ class LocationExportTest extends TestCase
         $this->account->forceDelete();
     }
 
-    public function testVendorLocationsAreExcluded()
+    public function testVendorAndClientLocationsAreIncluded()
     {
         $this->createLocation([
             'name' => 'Client Location',
+        ]);
+
+        $vendor = \App\Models\Vendor::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'name' => 'Some Vendor',
         ]);
 
         Location::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
             'client_id' => null,
-            'vendor_id' => 1,
+            'vendor_id' => $vendor->id,
             'name' => 'Vendor Location',
         ]);
 
@@ -480,8 +487,46 @@ class LocationExportTest extends TestCase
         $reader->setHeaderOffset(0);
         $records = iterator_to_array($reader->getRecords());
 
+        $this->assertCount(2, $records);
+
+        $names = array_column($records, 'Location Name');
+        $this->assertContains('Client Location', $names);
+        $this->assertContains('Vendor Location', $names);
+
+        $this->account->forceDelete();
+    }
+
+    public function testOrphanedLocationsAreExcluded()
+    {
+        $this->createLocation([
+            'name' => 'Valid Location',
+        ]);
+
+        // Location with no client or vendor
+        Location::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => null,
+            'vendor_id' => null,
+            'name' => 'Orphaned Location',
+        ]);
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => ['location.name'],
+            'send_email' => false,
+            'user_id' => $this->user->id,
+        ];
+
+        $export = new LocationExport($this->company, $data);
+        $csv = $export->run();
+
+        $reader = Reader::fromString($csv);
+        $reader->setHeaderOffset(0);
+        $records = iterator_to_array($reader->getRecords());
+
         $this->assertCount(1, $records);
-        $this->assertEquals('Client Location', reset($records)['Location Name']);
+        $this->assertEquals('Valid Location', reset($records)['Location Name']);
 
         $this->account->forceDelete();
     }
@@ -579,6 +624,133 @@ class LocationExportTest extends TestCase
         $this->assertEquals('Test Client', $row['Name']);
         $this->assertEmpty($row['Location Name']);
         $this->assertEmpty($row['Location City']);
+
+        $this->account->forceDelete();
+    }
+
+    public function testLocationExportIncludesClientName()
+    {
+        $this->createLocation([
+            'name' => 'Client HQ',
+            'city' => 'Boston',
+        ]);
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => [
+                'location.name',
+                'location.city',
+                'client.name',
+            ],
+            'send_email' => false,
+            'user_id' => $this->user->id,
+        ];
+
+        $export = new LocationExport($this->company, $data);
+        $csv = $export->run();
+
+        $reader = Reader::fromString($csv);
+        $reader->setHeaderOffset(0);
+        $records = iterator_to_array($reader->getRecords());
+
+        $this->assertCount(1, $records);
+
+        $row = reset($records);
+        $this->assertEquals('Client HQ', $row['Location Name']);
+        $this->assertEquals('Test Client', $row['Client Name']);
+
+        $this->account->forceDelete();
+    }
+
+    public function testLocationExportIncludesVendorName()
+    {
+        $vendor = \App\Models\Vendor::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'name' => 'Test Vendor',
+        ]);
+
+        Location::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => null,
+            'vendor_id' => $vendor->id,
+            'name' => 'Vendor Warehouse',
+            'city' => 'Chicago',
+        ]);
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => [
+                'location.name',
+                'location.city',
+                'vendor.name',
+            ],
+            'send_email' => false,
+            'user_id' => $this->user->id,
+        ];
+
+        $export = new LocationExport($this->company, $data);
+        $csv = $export->run();
+
+        $reader = Reader::fromString($csv);
+        $reader->setHeaderOffset(0);
+        $records = iterator_to_array($reader->getRecords());
+
+        $row = collect($records)->firstWhere('Location Name', 'Vendor Warehouse');
+        $this->assertNotNull($row);
+        $this->assertEquals('Test Vendor', $row['Vendor Name']);
+
+        $this->account->forceDelete();
+    }
+
+    public function testLocationExportWithBothClientAndVendorNames()
+    {
+        $this->createLocation([
+            'name' => 'Client Office',
+        ]);
+
+        $vendor = \App\Models\Vendor::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'name' => 'Acme Vendor',
+        ]);
+
+        Location::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => null,
+            'vendor_id' => $vendor->id,
+            'name' => 'Vendor Depot',
+        ]);
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => [
+                'location.name',
+                'client.name',
+                'vendor.name',
+            ],
+            'send_email' => false,
+            'user_id' => $this->user->id,
+        ];
+
+        $export = new LocationExport($this->company, $data);
+        $csv = $export->run();
+
+        $reader = Reader::fromString($csv);
+        $reader->setHeaderOffset(0);
+        $records = iterator_to_array($reader->getRecords());
+
+        $this->assertCount(2, $records);
+
+        $clientRow = collect($records)->firstWhere('Location Name', 'Client Office');
+        $this->assertEquals('Test Client', $clientRow['Client Name']);
+        $this->assertEmpty($clientRow['Vendor Name']);
+
+        $vendorRow = collect($records)->firstWhere('Location Name', 'Vendor Depot');
+        $this->assertEmpty($vendorRow['Client Name']);
+        $this->assertEquals('Acme Vendor', $vendorRow['Vendor Name']);
 
         $this->account->forceDelete();
     }

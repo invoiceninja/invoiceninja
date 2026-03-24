@@ -488,6 +488,7 @@ class StorecoveRouter
             'CY:VAT'     => '9928',
             'CZ:VAT'     => '9929',
             'DE:VAT'     => '9930',
+            'DE:STNR'    => '9930',  // German tax number (Steuernummer) for individuals
             'EE:VAT'     => '9931',
             'GB:VAT'     => '9932',
             'GR:VAT'     => '9933',

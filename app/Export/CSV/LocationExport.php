@@ -57,9 +57,12 @@ class LocationExport extends BaseExport
 
         $query = Location::query()
                         ->where('company_id', $this->company->id)
-                        ->whereNotNull('client_id')
-                        ->whereHas('client', function ($q) {
-                            $q->where('is_deleted', false);
+                        ->where(function ($q) {
+                            $q->whereHas('client', function ($c) {
+                                $c->where('is_deleted', false);
+                            })->orWhereHas('vendor', function ($v) {
+                                $v->where('is_deleted', false);
+                            });
                         });
 
         $query = $this->addDateRange($query, 'locations');
@@ -115,6 +118,10 @@ class LocationExport extends BaseExport
 
             if ($parts[0] == 'location' && array_key_exists($parts[1], $transformed_location)) {
                 $entity[$key] = $transformed_location[$parts[1]];
+            } elseif ($key == 'client.name') {
+                $entity[$key] = $location->client ? $location->client->present()->name() : '';
+            } elseif ($key == 'vendor.name') {
+                $entity[$key] = $location->vendor ? $location->vendor->name : '';
             } else {
                 $entity[$key] = $this->decorator->transform($key, $location);
             }

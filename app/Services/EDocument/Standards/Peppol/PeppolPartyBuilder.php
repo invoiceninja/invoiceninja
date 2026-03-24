@@ -56,7 +56,11 @@ class PeppolPartyBuilder
 
             $pi = new PartyIdentification();
             $vatID = new ID();
-            $vatID->schemeID = $this->resolveScheme();
+            $scheme = $this->resolveScheme();
+            // BR-CL-10: PartyIdentification/ID schemeID only accepts ICD codes (0xxx), not EAS codes (9xxx)
+            if (str_starts_with($scheme, '0')) {
+                $vatID->schemeID = $scheme;
+            }
             $vatID->value = strlen($this->peppol->getOverrideVatNumber()) > 1 ? $this->peppol->getOverrideVatNumber() : preg_replace("/[^a-zA-Z0-9]/", "", $invoice->company->settings->vat_number); //todo if we are cross border - switch to the supplier local vat number
 
             $pi->ID = $vatID;
@@ -168,7 +172,11 @@ if (strlen($company->settings->vat_number ?? '') <= 1
             $pi = new PartyIdentification();
 
             $vatID = new ID();
-            $vatID->schemeID = $this->resolveScheme(true);
+            $scheme = $this->resolveScheme(true);
+            // BR-CL-10: PartyIdentification/ID schemeID only accepts ICD codes (0xxx), not EAS codes (9xxx)
+            if (str_starts_with($scheme, '0')) {
+                $vatID->schemeID = $scheme;
+            }
             $vatID->value = preg_replace("/[^a-zA-Z0-9]/", "", $invoice->client->vat_number);
             $pi->ID = $vatID;
 
@@ -329,7 +337,13 @@ if (strlen($company->settings->vat_number ?? '') <= 1
             : 'business';
 
         $router = $this->peppol->getGateway()->router;
+        $router->setInvoice($invoice);
         $friendly_scheme = $router->resolveRouting($country_code, $classification);
+
+        // Handle composite "scheme:value" format (e.g. "0009:11000201100044" for FR government)
+        if (str_contains($friendly_scheme, ':') && ctype_digit(explode(':', $friendly_scheme, 2)[0])) {
+            return explode(':', $friendly_scheme, 2)[0];
+        }
 
         return $router->resolveIso6523Scheme($friendly_scheme);
     }

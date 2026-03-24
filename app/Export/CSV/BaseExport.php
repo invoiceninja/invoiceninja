@@ -152,7 +152,7 @@ class BaseExport
         'custom_value2' => 'location.custom_value2',
         'custom_value3' => 'location.custom_value3',
         'custom_value4' => 'location.custom_value4',
-        'is_shipping_location' => 'location.is_shipping_location',
+        'is_shipping' => 'location.is_shipping_location',
     ];
 
     protected array $invoice_report_keys = [
@@ -1742,7 +1742,15 @@ class BaseExport
     public function filterByUserPermissions(Builder $query): Builder
     {
 
+        if (! ($this->input['user_id'] ?? false)) {
+            return $query;
+        }
+
         $user = User::withTrashed()->where('id', $this->input['user_id'])->where('account_id', $this->company->account_id)->first();
+
+        if (! $user) {
+            return $query;
+        }
 
         if ($user->isAdmin() || $user->hasExactPermission('view_all') || $user->hasExactPermission('edit_all')) { // No State? Do we need to ensure -> isAdmin() binds to the correct company?
             return $query;

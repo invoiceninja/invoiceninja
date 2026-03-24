@@ -42,7 +42,7 @@ class ClientStatementController extends BaseController
 
         $send_email = false;
 
-        if ($request->has('send_email') && $request->send_email == 'true') {
+        if ($request->has('send_email') && filter_var($request->input('send_email'), FILTER_VALIDATE_BOOLEAN) && $request->send_email == 'true') {
             $send_email = true;
         }
 
