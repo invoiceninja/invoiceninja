@@ -104,7 +104,6 @@ class SendEDocument implements ShouldQueue
 
         nlog("payload", $payload);
 
-
         //Self Hosted Sending Code Path
         if (Ninja::isSelfHost() && ($model instanceof Invoice || $model instanceof Credit) && $model->company->peppolSendingEnabled()) {
 

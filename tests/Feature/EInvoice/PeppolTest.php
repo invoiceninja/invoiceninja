@@ -1068,7 +1068,6 @@ class PeppolTest extends TestCase
             'is_tax_exempt' => false,
         ];
 
-
         $entity_data = $this->setupTestData($scenario);
 
         $invoice = $entity_data['invoice'];
