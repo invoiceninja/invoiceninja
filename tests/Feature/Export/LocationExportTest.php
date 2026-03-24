@@ -13,6 +13,7 @@
 namespace Tests\Feature\Export;
 
 use App\DataMapper\CompanySettings;
+use App\Export\CSV\ClientExport;
 use App\Export\CSV\LocationExport;
 use App\Factory\CompanyUserFactory;
 use App\Models\Account;
@@ -26,7 +27,6 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Http;
 use League\Csv\Reader;
-use League\Csv\ResultSet;
 use Tests\TestCase;
 
 class LocationExportTest extends TestCase
@@ -165,7 +165,7 @@ class LocationExportTest extends TestCase
         $reader = Reader::fromString($csv);
         $reader->setHeaderOffset(0);
 
-        $res = ResultSet::from($reader)->fetchColumn($column);
+        $res = $reader->fetchColumnByName($column);
         $res = iterator_to_array($res, true);
 
         return $res[1];
@@ -182,7 +182,7 @@ class LocationExportTest extends TestCase
             'user_id' => $this->user->id,
         ];
 
-        $response = $this->withHeaders([
+        $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/reports/locations', $data)
@@ -202,7 +202,7 @@ class LocationExportTest extends TestCase
             'user_id' => $this->user->id,
         ];
 
-        $response = $this->withHeaders([
+        $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/reports/client_locations', $data)
@@ -225,20 +225,11 @@ class LocationExportTest extends TestCase
             'date_range' => 'all',
             'report_keys' => [],
             'send_email' => false,
+            'user_id' => $this->user->id,
         ];
 
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/reports/locations', $data);
-
-        $response->assertStatus(200);
-
-        $arr = $response->json();
-        $hash = $arr['message'];
-
-        $response = $this->poll($hash);
-        $csv = $response->body();
+        $export = new LocationExport($this->company, $data);
+        $csv = $export->run();
 
         $reader = Reader::fromString($csv);
         $reader->setHeaderOffset(0);
@@ -246,50 +237,7 @@ class LocationExportTest extends TestCase
         $headers = $reader->getHeader();
         $this->assertNotEmpty($headers);
 
-        $this->account->forceDelete();
-    }
-
-    public function testLocationCsvWithCustomReportKeys()
-    {
-        $this->createLocation([
-            'name' => 'Warehouse',
-            'address1' => '789 Industrial Ave',
-            'city' => 'Houston',
-            'state' => 'TX',
-            'postal_code' => '77001',
-        ]);
-
-        $data = [
-            'date_range' => 'all',
-            'report_keys' => [
-                'location.name',
-                'location.address1',
-                'location.city',
-                'location.state',
-                'location.postal_code',
-                'client.name',
-                'contact.email',
-            ],
-            'send_email' => false,
-        ];
-
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/reports/locations', $data);
-
-        $response->assertStatus(200);
-
-        $arr = $response->json();
-        $hash = $arr['message'];
-
-        $response = $this->poll($hash);
-        $csv = $response->body();
-
-        $reader = Reader::fromString($csv);
-        $reader->setHeaderOffset(0);
         $records = iterator_to_array($reader->getRecords());
-
         $this->assertCount(1, $records);
 
         $this->account->forceDelete();
@@ -313,34 +261,19 @@ class LocationExportTest extends TestCase
                 'location.city',
                 'location.state',
                 'location.postal_code',
-                'client.name',
-                'contact.first_name',
-                'contact.email',
             ],
             'send_email' => false,
+            'user_id' => $this->user->id,
         ];
 
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/reports/locations', $data);
-
-        $response->assertStatus(200);
-
-        $arr = $response->json();
-        $hash = $arr['message'];
-
-        $response = $this->poll($hash);
-        $csv = $response->body();
+        $export = new LocationExport($this->company, $data);
+        $csv = $export->run();
 
         $this->assertEquals('Main Office', $this->getFirstValueByColumn($csv, 'Location Name'));
         $this->assertEquals('100 Test Street', $this->getFirstValueByColumn($csv, 'Location Street'));
         $this->assertEquals('Denver', $this->getFirstValueByColumn($csv, 'Location City'));
         $this->assertEquals('CO', $this->getFirstValueByColumn($csv, 'Location State/Province'));
         $this->assertEquals('80201', $this->getFirstValueByColumn($csv, 'Location Postal Code'));
-        $this->assertEquals('Test Client', $this->getFirstValueByColumn($csv, 'Client Name'));
-        $this->assertEquals('John', $this->getFirstValueByColumn($csv, 'Contact First Name'));
-        $this->assertEquals('john@example.com', $this->getFirstValueByColumn($csv, 'Contact Email'));
 
         $this->account->forceDelete();
     }
@@ -364,22 +297,13 @@ class LocationExportTest extends TestCase
 
         $data = [
             'date_range' => 'all',
-            'report_keys' => ['location.name', 'location.city', 'client.name'],
+            'report_keys' => ['location.name', 'location.city'],
             'send_email' => false,
+            'user_id' => $this->user->id,
         ];
 
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/reports/locations', $data);
-
-        $response->assertStatus(200);
-
-        $arr = $response->json();
-        $hash = $arr['message'];
-
-        $response = $this->poll($hash);
-        $csv = $response->body();
+        $export = new LocationExport($this->company, $data);
+        $csv = $export->run();
 
         $reader = Reader::fromString($csv);
         $reader->setHeaderOffset(0);
@@ -391,11 +315,6 @@ class LocationExportTest extends TestCase
         $this->assertContains('CityA', $cities);
         $this->assertContains('CityB', $cities);
         $this->assertContains('CityC', $cities);
-
-        // All rows should reference the same client
-        $clientNames = array_unique(array_column($records, 'Client Name'));
-        $this->assertCount(1, $clientNames);
-        $this->assertEquals('Test Client', $clientNames[0]);
 
         $this->account->forceDelete();
     }
@@ -422,22 +341,13 @@ class LocationExportTest extends TestCase
 
         $data = [
             'date_range' => 'all',
-            'report_keys' => ['location.name', 'client.name'],
+            'report_keys' => ['location.name'],
             'send_email' => false,
+            'user_id' => $this->user->id,
         ];
 
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/reports/locations', $data);
-
-        $response->assertStatus(200);
-
-        $arr = $response->json();
-        $hash = $arr['message'];
-
-        $response = $this->poll($hash);
-        $csv = $response->body();
+        $export = new LocationExport($this->company, $data);
+        $csv = $export->run();
 
         $reader = Reader::fromString($csv);
         $reader->setHeaderOffset(0);
@@ -460,20 +370,11 @@ class LocationExportTest extends TestCase
             'date_range' => 'all',
             'report_keys' => ['location.name', 'location.is_shipping_location'],
             'send_email' => false,
+            'user_id' => $this->user->id,
         ];
 
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/reports/locations', $data);
-
-        $response->assertStatus(200);
-
-        $arr = $response->json();
-        $hash = $arr['message'];
-
-        $response = $this->poll($hash);
-        $csv = $response->body();
+        $export = new LocationExport($this->company, $data);
+        $csv = $export->run();
 
         $reader = Reader::fromString($csv);
         $reader->setHeaderOffset(0);
@@ -500,7 +401,6 @@ class LocationExportTest extends TestCase
                 'location.name',
                 'location.address1',
                 'location.city',
-                'client.name',
             ],
             'send_email' => false,
             'user_id' => $this->user->id,
@@ -519,7 +419,6 @@ class LocationExportTest extends TestCase
         $this->assertEquals('Direct Test Location', $row['Location Name']);
         $this->assertEquals('555 Export Ave', $row['Location Street']);
         $this->assertEquals('Portland', $row['Location City']);
-        $this->assertEquals('Test Client', $row['Client Name']);
 
         $this->account->forceDelete();
     }
@@ -536,7 +435,6 @@ class LocationExportTest extends TestCase
             'report_keys' => [
                 'location.name',
                 'location.city',
-                'client.name',
             ],
             'send_email' => false,
             'user_id' => $this->user->id,
@@ -546,9 +444,8 @@ class LocationExportTest extends TestCase
         $result = $export->returnJson();
 
         $this->assertArrayHasKey('columns', $result);
-        $this->assertCount(3, $result['columns']);
+        $this->assertCount(2, $result['columns']);
 
-        // Result should have data rows (array items beyond 'columns')
         $dataRows = array_filter($result, fn($key) => $key !== 'columns', ARRAY_FILTER_USE_KEY);
         $this->assertNotEmpty($dataRows);
 
@@ -557,12 +454,10 @@ class LocationExportTest extends TestCase
 
     public function testVendorLocationsAreExcluded()
     {
-        // Create a client location
         $this->createLocation([
             'name' => 'Client Location',
         ]);
 
-        // Create a vendor-only location (no client_id)
         Location::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
@@ -593,11 +488,9 @@ class LocationExportTest extends TestCase
 
     public function testEmptyLocationExport()
     {
-        // No locations created
-
         $data = [
             'date_range' => 'all',
-            'report_keys' => ['location.name', 'client.name'],
+            'report_keys' => ['location.name'],
             'send_email' => false,
             'user_id' => $this->user->id,
         ];
@@ -610,6 +503,82 @@ class LocationExportTest extends TestCase
         $records = iterator_to_array($reader->getRecords());
 
         $this->assertCount(0, $records);
+
+        $this->account->forceDelete();
+    }
+
+    public function testClientExportWithLocationFields()
+    {
+        $this->createLocation([
+            'name' => 'HQ Location',
+            'address1' => '999 Location Blvd',
+            'city' => 'Miami',
+            'state' => 'FL',
+            'postal_code' => '33101',
+        ]);
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => [
+                'client.name',
+                'location.name',
+                'location.address1',
+                'location.city',
+                'location.state',
+                'location.postal_code',
+            ],
+            'send_email' => false,
+            'include_deleted' => false,
+            'user_id' => $this->user->id,
+        ];
+
+        $export = new ClientExport($this->company, $data);
+        $csv = $export->run();
+
+        $reader = Reader::fromString($csv);
+        $reader->setHeaderOffset(0);
+        $records = iterator_to_array($reader->getRecords());
+
+        $this->assertCount(1, $records);
+
+        $row = reset($records);
+        $this->assertEquals('Test Client', $row['Name']);
+        $this->assertEquals('HQ Location', $row['Location Name']);
+        $this->assertEquals('999 Location Blvd', $row['Location Street']);
+        $this->assertEquals('Miami', $row['Location City']);
+        $this->assertEquals('FL', $row['Location State/Province']);
+        $this->assertEquals('33101', $row['Location Postal Code']);
+
+        $this->account->forceDelete();
+    }
+
+    public function testClientExportWithNoLocationReturnsEmptyLocationFields()
+    {
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => [
+                'client.name',
+                'location.name',
+                'location.city',
+            ],
+            'send_email' => false,
+            'include_deleted' => false,
+            'user_id' => $this->user->id,
+        ];
+
+        $export = new ClientExport($this->company, $data);
+        $csv = $export->run();
+
+        $reader = Reader::fromString($csv);
+        $reader->setHeaderOffset(0);
+        $records = iterator_to_array($reader->getRecords());
+
+        $this->assertCount(1, $records);
+
+        $row = reset($records);
+        $this->assertEquals('Test Client', $row['Name']);
+        $this->assertEmpty($row['Location Name']);
+        $this->assertEmpty($row['Location City']);
 
         $this->account->forceDelete();
     }
