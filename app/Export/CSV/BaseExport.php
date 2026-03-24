@@ -140,6 +140,21 @@ class BaseExport
         'classification' => 'client.classification',
     ];
 
+    protected array $location_report_keys = [
+        'name' => 'location.name',
+        'address1' => 'location.address1',
+        'address2' => 'location.address2',
+        'city' => 'location.city',
+        'state' => 'location.state',
+        'postal_code' => 'location.postal_code',
+        'country' => 'location.country_id',
+        'custom_value1' => 'location.custom_value1',
+        'custom_value2' => 'location.custom_value2',
+        'custom_value3' => 'location.custom_value3',
+        'custom_value4' => 'location.custom_value4',
+        'is_shipping_location' => 'location.is_shipping_location',
+    ];
+
     protected array $invoice_report_keys = [
         'name' => 'client.name',
         "currency" => "client.currency_id",
@@ -1455,6 +1470,11 @@ class BaseExport
             }
 
             if (!$key) {
+                $prefix = stripos($value, 'location.') !== false ? ctrans('texts.location') . " " : '';
+                $key = array_search($value, $this->location_report_keys);
+            }
+
+            if (!$key) {
                 $prefix = '';
             }
 
@@ -1473,6 +1493,7 @@ class BaseExport
             $key = str_replace('payment.', '', $key);
             $key = str_replace('expense.', '', $key);
             $key = str_replace('product.', '', $key);
+            $key = str_replace('location.', '', $key);
             $key = str_replace('task.', '', $key);
 
 
@@ -1488,7 +1509,7 @@ class BaseExport
 
                 $parts = explode(".", $value);
 
-                if (count($parts) == 2 && in_array($parts[0], ['contact', 'client','credit','quote','invoice','purchase_order','recurring_invoice'])) {
+                if (count($parts) == 2 && in_array($parts[0], ['contact', 'client','credit','quote','invoice','purchase_order','recurring_invoice','location'])) {
                     $entity = $parts[0] . substr($parts[1], -1);
                     $prefix = ctrans("texts." . $parts[0]);
                     $fallback = "custom_value" . substr($parts[1], -1);
