@@ -29,6 +29,8 @@ class Mutator implements MutatorInterface
 
     private array $storecove_meta = [];
 
+    private string $override_vat_number = '';
+
     private MutatorUtil $mutator_util;
 
     public function __construct(public Storecove $storecove)
@@ -122,6 +124,17 @@ class Mutator implements MutatorInterface
     public function getInvoice(): mixed
     {
         return $this->invoice;
+    }
+
+    public function setOverrideVatNumber(string $vat_number): self
+    {
+        $this->override_vat_number = $vat_number;
+        return $this;
+    }
+
+    public function getOverrideVatNumber(): string
+    {
+        return $this->override_vat_number;
     }
 
     /**

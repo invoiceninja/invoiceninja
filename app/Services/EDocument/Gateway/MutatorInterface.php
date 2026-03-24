@@ -41,4 +41,8 @@ interface MutatorInterface
     public function getInvoice(): mixed;
 
     public function getSetting(string $property_path): mixed;
+
+    public function setOverrideVatNumber(string $vat_number): self;
+
+    public function getOverrideVatNumber(): string;
 }

@@ -28,9 +28,14 @@ class DK extends BaseCountry
         array $storecove_meta
     ): array {
 
+        $override_vat_number = $mutator_util->mutator->getOverrideVatNumber();
+
+        // if we are overriding set the correct generic scheme vs DK scheme
+        $scheme_id = strlen($override_vat_number) > 1 ? '0037' : '0184';
+
         $companyID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CompanyID();
-        $companyID->schemeID = "0184";
-        $companyID->value = preg_replace("/[^a-zA-Z0-9]/", "", $invoice->company->settings->id_number);
+        $companyID->schemeID = $scheme_id;
+        $companyID->value = strlen($override_vat_number) > 1 ? $override_vat_number : preg_replace("/[^a-zA-Z0-9]/", "", $invoice->company->settings->id_number);
 
         $p_invoice->AccountingSupplierParty->Party->PartyLegalEntity[0]->CompanyID = $companyID;
 

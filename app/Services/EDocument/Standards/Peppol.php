@@ -376,6 +376,10 @@ class Peppol extends AbstractService
 
 
             //isolate this class to only peppol changes
+            if (strlen($this->override_vat_number) > 1) {
+                $this->gateway->mutator->setOverrideVatNumber($this->override_vat_number);
+            }
+
             $this->p_invoice = $this->gateway
                                     ->mutator
                                     ->senderSpecificLevelMutators()
