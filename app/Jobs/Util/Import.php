@@ -749,7 +749,8 @@ class Import implements ShouldQueue
 
     private function checkUniqueConstraint($model, $column, $value)
     {
-        $value = trim($value);
+
+        $value = trim($value ?? '');
 
         $model_query = $model::where($column, $value)
                              ->where('company_id', $this->company->id)

@@ -189,9 +189,11 @@ class Mutator implements MutatorInterface
 
     public function DK(): self
     {
+
+        $scheme_id = strlen($this->override_vat_number ?? '') > 1 ? '0037' : '0184';
         //Block that handle CVR for Denmark
         $companyID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CompanyID();
-        $companyID->schemeID = "0184";
+        $companyID->schemeID = $scheme_id;
         $companyID->value = $this->override_vat_number ?? preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->company->settings->id_number);
 
         $this->p_invoice->AccountingSupplierParty->Party->PartyLegalEntity[0]->CompanyID = $companyID;
