@@ -264,7 +264,29 @@ class GoCardlessPaymentDriver extends BaseDriver
         $this->init();
 
         nlog('GoCardless Event');
-        // nlog($request->all());
+
+        $webhook_secret = $this->company_gateway->getConfigField('webhookSecret');
+
+        if ($webhook_secret) {
+            $sig_header = $request->header('Webhook-Signature');
+
+            if (! $sig_header) {
+                return response()->json(['error' => 'No signature header'], 403);
+            }
+
+            try {
+                \GoCardlessPro\Webhook::parse(
+                    $request->getContent(),
+                    $sig_header,
+                    $webhook_secret
+                );
+            } catch (\GoCardlessPro\Core\Exception\InvalidSignatureException $e) {
+                nlog('GoCardless webhook signature verification failed: ' . $e->getMessage());
+
+                return response()->json(['error' => 'Invalid signature'], 403);
+            }
+        }
+
         if (! $request->has('events')) {
             nlog('No GoCardless events to process in response?');
 

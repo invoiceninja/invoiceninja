@@ -33,6 +33,7 @@ use App\PaymentDrivers\Stripe\BankTransfer;
 use App\Services\ClientPortal\InstantPayment;
 use App\Services\Subscription\SubscriptionService;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Http\Requests\ClientPortal\Payments\ShowPaymentRequest;
 
 /**
  * Class PaymentController.
@@ -55,11 +56,11 @@ class PaymentController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param Request $request
+     * @param ShowPaymentRequest $request
      * @param Payment $payment
      * @return Factory|View|RedirectResponse|Redirector
      */
-    public function show(Request $request, Payment $payment)
+    public function show(ShowPaymentRequest $request, Payment $payment)
     {
         $payment->load('invoices');
         $bank_details = false;
