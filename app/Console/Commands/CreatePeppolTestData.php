@@ -115,10 +115,10 @@ class CreatePeppolTestData extends Command
                 'gov_id' => 'S2800001A', 'individual_id' => '12345678Z', 'individual_vat' => '',
             ],
             'FI' => [
-                'vat' => 'FI12345678', 'id_number' => '1234567-8', 'tax_rate' => 25.5, 'tax_name' => 'ALV',
+                'vat' => 'FI12345678', 'id_number' => '003712345678', 'tax_rate' => 25.5, 'tax_name' => 'ALV',
                 'city' => 'Helsinki', 'state' => 'Uusimaa', 'postal_code' => '00100', 'currency' => '3',
                 'address1' => 'Mannerheimintie 1',
-                'gov_id' => '0245437-2', 'individual_id' => '', 'individual_vat' => '',
+                'gov_id' => '003798765432', 'individual_id' => '', 'individual_vat' => '',
             ],
             'FR' => [
                 'vat' => 'FR82345678911', 'id_number' => '82345678911', 'tax_rate' => 20, 'tax_name' => 'TVA',
@@ -692,6 +692,25 @@ class CreatePeppolTestData extends Command
         return null;
     }
 
+    /**
+     * Country codes that exist in the countries DB table (cached per run).
+     */
+    private function validCountryCodes(): array
+    {
+        static $codes = null;
+
+        if ($codes === null) {
+            $supported = array_keys($this->countryDefaults());
+            $codes = Country::whereIn('iso_3166_2', $supported)
+                ->pluck('iso_3166_2')
+                ->filter()
+                ->values()
+                ->all();
+        }
+
+        return $codes;
+    }
+
     private function pickSameRegionCountry(string $countryCode): ?string
     {
         $region = $this->getRegion($countryCode);
@@ -700,10 +719,10 @@ class CreatePeppolTestData extends Command
             return null;
         }
 
-        $supported = array_keys($this->countryDefaults());
+        $valid = $this->validCountryCodes();
         $candidates = array_filter(
             $this->region_map[$region],
-            fn (string $c) => $c !== $countryCode && in_array($c, $supported)
+            fn (string $c) => $c !== $countryCode && in_array($c, $valid)
         );
 
         if (empty($candidates)) {
@@ -716,16 +735,15 @@ class CreatePeppolTestData extends Command
     private function pickDifferentRegionCountry(string $countryCode): string
     {
         $region = $this->getRegion($countryCode);
-        $supported = array_keys($this->countryDefaults());
+        $valid = $this->validCountryCodes();
 
-        $candidates = array_filter($supported, function (string $c) use ($countryCode, $region) {
+        $candidates = array_filter($valid, function (string $c) use ($countryCode, $region) {
             $otherRegion = $this->getRegion($c);
             return $c !== $countryCode && $otherRegion !== $region;
         });
 
         if (empty($candidates)) {
-            // Fallback: just pick any other supported country
-            $candidates = array_filter($supported, fn (string $c) => $c !== $countryCode);
+            $candidates = array_filter($valid, fn (string $c) => $c !== $countryCode);
         }
 
         return $candidates[array_rand($candidates)];
