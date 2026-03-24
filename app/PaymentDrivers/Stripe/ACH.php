@@ -134,8 +134,8 @@ class ACH implements LivewireMethodInterface
 
             // If microdeposit verification is required, store the verification URL
             if ($status === 'requires_action'
-                && isset($setup_intent->next_action)
-                && ($setup_intent->next_action->type ?? null) === 'verify_with_microdeposits') { //@phpstan-ignore-line
+               && isset($setup_intent->next_action)
+               && ($setup_intent->next_action->type ?? null) === 'verify_with_microdeposits') { //@phpstan-ignore-line
                 $method->next_action = $setup_intent->next_action->verify_with_microdeposits->hosted_verification_url ?? null; //@phpstan-ignore-line
             }
 

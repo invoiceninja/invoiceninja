@@ -381,7 +381,7 @@ class PeppolTest extends TestCase
             nlog($validator->getErrors());
         }
 
-        $this->assertCount(0, $validator->getErrors());
+        $this->assertCount(0, $validator->getErrors(), "XSLT validation errors: " . json_encode($validator->getErrors()));
 
     }
 

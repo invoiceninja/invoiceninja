@@ -82,7 +82,7 @@ class QbPayment implements SyncInterface
 
             // Only sync completed or partially-refunded payments
             if ($payment->status_id !== Payment::STATUS_COMPLETED
-                && $payment->status_id !== Payment::STATUS_PARTIALLY_REFUNDED) {
+               && $payment->status_id !== Payment::STATUS_PARTIALLY_REFUNDED) {
                 continue;
             }
 

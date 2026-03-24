@@ -124,9 +124,9 @@ class BaseImport
             // Remove Invoice Ninja headers
             if (
                 is_array($headers)
-                && count($headers) > 0
-                && count($data) > 4
-                && $this->import_type === 'csv'
+               && count($headers) > 0
+               && count($data) > 4
+               && $this->import_type === 'csv'
             ) {
                 $first_cell = $headers[0];
                 if (strstr($first_cell, config('ninja.app_name'))) {
@@ -451,7 +451,7 @@ class BaseImport
                 // If we don't have a client ID, but we do have client data, go ahead and create the client.
                 if (
                     empty($invoice_data['client_id'])
-                    && ! empty($invoice_data['client'])
+                   && ! empty($invoice_data['client'])
                 ) {
                     $client_data = $invoice_data['client'];
                     $client_data['user_id'] = $this->getUserIDForRecord(
@@ -617,7 +617,7 @@ class BaseImport
                 // If we don't have a client ID, but we do have client data, go ahead and create the client.
                 if (
                     empty($invoice_data['client_id'])
-                    && ! empty($invoice_data['client'])
+                   && ! empty($invoice_data['client'])
                 ) {
                     $client_data = $invoice_data['client'];
                     $client_data['user_id'] = $this->getUserIDForRecord(
@@ -846,7 +846,7 @@ class BaseImport
                 // If we don't have a client ID, but we do have client data, go ahead and create the client.
                 if (
                     empty($quote_data['client_id'])
-                    && ! empty($quote_data['client'])
+                   && ! empty($quote_data['client'])
                 ) {
                     $client_data = $quote_data['client'];
                     $client_data['user_id'] = $this->getUserIDForRecord(

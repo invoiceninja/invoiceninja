@@ -248,10 +248,10 @@ class Rule extends BaseRule implements RuleInterface
 
         // B2B within EU with valid VAT
         if ($this->client_subregion != $this->client->company->tax_data->seller_subregion
-            && in_array($this->client_subregion, $this->eu_country_codes)
-            && $this->client->vat_number
-            && $this->client->has_valid_vat_number
-            && $this->eu_business_tax_exempt) {
+           && in_array($this->client_subregion, $this->eu_country_codes)
+           && $this->client->vat_number
+           && $this->client->has_valid_vat_number
+           && $this->eu_business_tax_exempt) {
             $this->tax_rate = 0;
             $this->reduced_tax_rate = 0;
             return $this;

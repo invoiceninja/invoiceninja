@@ -26,6 +26,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Http;
 use League\Csv\Reader;
+use League\Csv\ResultSet;
 use Tests\TestCase;
 
 class LocationExportTest extends TestCase
@@ -164,7 +165,7 @@ class LocationExportTest extends TestCase
         $reader = Reader::fromString($csv);
         $reader->setHeaderOffset(0);
 
-        $res = $reader->fetchColumnByName($column);
+        $res = ResultSet::from($reader)->fetchColumn($column);
         $res = iterator_to_array($res, true);
 
         return $res[1];
@@ -337,9 +338,9 @@ class LocationExportTest extends TestCase
         $this->assertEquals('Denver', $this->getFirstValueByColumn($csv, 'Location City'));
         $this->assertEquals('CO', $this->getFirstValueByColumn($csv, 'Location State/Province'));
         $this->assertEquals('80201', $this->getFirstValueByColumn($csv, 'Location Postal Code'));
-        $this->assertEquals('Test Client', $this->getFirstValueByColumn($csv, 'Name'));
-        $this->assertEquals('John', $this->getFirstValueByColumn($csv, 'First Name'));
-        $this->assertEquals('john@example.com', $this->getFirstValueByColumn($csv, 'Email'));
+        $this->assertEquals('Test Client', $this->getFirstValueByColumn($csv, 'Client Name'));
+        $this->assertEquals('John', $this->getFirstValueByColumn($csv, 'Contact First Name'));
+        $this->assertEquals('john@example.com', $this->getFirstValueByColumn($csv, 'Contact Email'));
 
         $this->account->forceDelete();
     }
@@ -392,7 +393,7 @@ class LocationExportTest extends TestCase
         $this->assertContains('CityC', $cities);
 
         // All rows should reference the same client
-        $clientNames = array_unique(array_column($records, 'Name'));
+        $clientNames = array_unique(array_column($records, 'Client Name'));
         $this->assertCount(1, $clientNames);
         $this->assertEquals('Test Client', $clientNames[0]);
 
@@ -518,7 +519,7 @@ class LocationExportTest extends TestCase
         $this->assertEquals('Direct Test Location', $row['Location Name']);
         $this->assertEquals('555 Export Ave', $row['Location Street']);
         $this->assertEquals('Portland', $row['Location City']);
-        $this->assertEquals('Test Client', $row['Name']);
+        $this->assertEquals('Test Client', $row['Client Name']);
 
         $this->account->forceDelete();
     }

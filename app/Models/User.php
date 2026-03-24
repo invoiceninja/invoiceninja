@@ -935,7 +935,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
         $updated_earnings = $earnings->map(function ($earning) use ($entity) {
             if ($earning->account_key === $entity->account_key
-                && $earning->period_ending === $entity->period_ending) {
+               && $earning->period_ending === $entity->period_ending) {
                 return $entity;
             }
 

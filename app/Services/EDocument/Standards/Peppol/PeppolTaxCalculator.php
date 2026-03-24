@@ -108,8 +108,8 @@ class PeppolTaxCalculator
             $reason_code = 'vatex-eu-ae';
             $reason = 'Reverse charge';
         } elseif ((in_array($company->country()->iso_3166_2, $eu_states)
-                   && in_array($invoice->client->country->iso_3166_2, $eu_states))
-                   && $invoice->company->country()->iso_3166_2 != $invoice->client->country->iso_3166_2) {
+                  && in_array($invoice->client->country->iso_3166_2, $eu_states))
+                  && $invoice->company->country()->iso_3166_2 != $invoice->client->country->iso_3166_2) {
             $tax_type = 'K'; // EEA Exempt
             $reason_code = 'vatex-eu-ic';
             $reason = 'Intra-Community supply';

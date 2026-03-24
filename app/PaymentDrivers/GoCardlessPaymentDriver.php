@@ -71,16 +71,16 @@ class GoCardlessPaymentDriver extends BaseDriver
 
         if (
             $this->client
-            && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ['USA'])
+           && isset($this->client->country)
+           && in_array($this->client->country->iso_3166_3, ['USA'])
         ) {
             $types[] = GatewayType::BANK_TRANSFER;
         }
 
         if (
             $this->client
-            && isset($this->client->country)
-            && in_array($this->client->currency()->code, ['EUR', 'GBP','DKK','SEK','AUD','NZD','CAD'])
+           && isset($this->client->country)
+           && in_array($this->client->currency()->code, ['EUR', 'GBP','DKK','SEK','AUD','NZD','CAD'])
         ) {
             $types[] = GatewayType::DIRECT_DEBIT;
         }

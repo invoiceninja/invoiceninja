@@ -32,7 +32,7 @@ class StoreEntityRequest extends FormRequest
         }
 
         return $user->account->isPaid() && $user->isAdmin()
-            && $user->company()->legal_entity_id === null;
+           && $user->company()->legal_entity_id === null;
     }
 
     /**

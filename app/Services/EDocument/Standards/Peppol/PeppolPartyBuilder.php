@@ -133,8 +133,8 @@ class PeppolPartyBuilder
 
 // if no vat number, we should inject the id_number as the company identifier!
 if (strlen($company->settings->vat_number ?? '') <= 1
-    && strlen($this->peppol->getOverrideVatNumber()) <= 1
-    && strlen($company->settings->id_number ?? '') > 1)
+   && strlen($this->peppol->getOverrideVatNumber()) <= 1
+   && strlen($company->settings->id_number ?? '') > 1)
 {
     $companyID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CompanyID();
     $companyID->value = preg_replace("/[^a-zA-Z0-9]/", "", $company->settings->id_number);

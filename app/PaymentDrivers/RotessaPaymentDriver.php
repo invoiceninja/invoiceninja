@@ -55,18 +55,18 @@ class RotessaPaymentDriver extends BaseDriver
         /*
         // TODO: needs to test with US test account
         if ($this->client
-         && $this->client->currency()
-         && in_array($this->client->currency()->code, ['USD'])
-         && isset($this->client->country)
-         && in_array($this->client->country->iso_3166_2, ['US'])) {
+        && $this->client->currency()
+        && in_array($this->client->currency()->code, ['USD'])
+        && isset($this->client->country)
+        && in_array($this->client->country->iso_3166_2, ['US'])) {
              $types[] = GatewayType::BANK_TRANSFER;
          }*/
 
         if ($this->client
-            && $this->client->currency()
-            && in_array($this->client->currency()->code, ['CAD'])
-            && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_2, ['CA'])) {
+           && $this->client->currency()
+           && in_array($this->client->currency()->code, ['CAD'])
+           && isset($this->client->country)
+           && in_array($this->client->country->iso_3166_2, ['CA'])) {
             $types[] = GatewayType::ACSS;
         }
 

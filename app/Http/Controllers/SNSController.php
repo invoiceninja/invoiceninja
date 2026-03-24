@@ -387,8 +387,8 @@ class SNSController extends BaseController
     {
         // Check if it looks like a valid X.509 certificate
         return strpos($certificate, '-----BEGIN CERTIFICATE-----') !== false
-               && strpos($certificate, '-----END CERTIFICATE-----') !== false
-               && strlen($certificate) > 1000; // Reasonable minimum size
+              && strpos($certificate, '-----END CERTIFICATE-----') !== false
+              && strlen($certificate) > 1000; // Reasonable minimum size
     }
 
     /**

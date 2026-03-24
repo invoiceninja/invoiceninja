@@ -550,7 +550,7 @@ class CreditController extends BaseController
             return response(['message' => 'Please verify your account to send emails.'], 400);
         }
 
-        if (Ninja::isHosted()  && $user->account->emailQuotaExceeded()) {
+        if (Ninja::isHosted() && $user->account->emailQuotaExceeded()) {
             return response(['message' => ctrans('texts.email_quota_exceeded_subject')], 400);
         }
 

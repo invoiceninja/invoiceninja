@@ -928,7 +928,7 @@ class Invoice extends BaseModel
     {
         return once(function () {
             $client_is_verifactu = in_array($this->client->country->iso_3166_2, (new \App\DataMapper\Tax\BaseRule())->eu_country_codes)
-            && (strlen($this->client->vat_number ?? '') > 0 || strlen($this->client->id_number ?? '') > 0);
+           && (strlen($this->client->vat_number ?? '') > 0 || strlen($this->client->id_number ?? '') > 0);
             return $this->company->verifactuEnabled() && $client_is_verifactu;
         });
     }

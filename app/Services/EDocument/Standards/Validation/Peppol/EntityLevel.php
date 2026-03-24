@@ -433,7 +433,7 @@ class EntityLevel implements EntityLevelInterface
 
             // First, determine if we're over threshold
             $is_over_threshold = isset($client->company->tax_data->regions->EU->has_sales_above_threshold)
-                                && $client->company->tax_data->regions->EU->has_sales_above_threshold;
+                               && $client->company->tax_data->regions->EU->has_sales_above_threshold;
 
             // Is this B2B or B2C?
             $is_b2c = strlen($client->vat_number ?? '') < 2

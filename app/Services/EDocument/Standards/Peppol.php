@@ -1079,8 +1079,8 @@ class Peppol extends AbstractService
         }
 
         if (isset($this->invoice->e_invoice->Invoice->InvoicePeriod[0])
-        && isset($this->invoice->e_invoice->Invoice->InvoicePeriod[0]->StartDate)
-        && isset($this->invoice->e_invoice->Invoice->InvoicePeriod[0]->EndDate)) {
+       && isset($this->invoice->e_invoice->Invoice->InvoicePeriod[0]->StartDate)
+       && isset($this->invoice->e_invoice->Invoice->InvoicePeriod[0]->EndDate)) {
 
             $start_date = $this->invoice->e_invoice->Invoice->InvoicePeriod[0]->StartDate->date ?? $this->invoice->e_invoice->Invoice->InvoicePeriod[0]->StartDate;
             $end_date = $this->invoice->e_invoice->Invoice->InvoicePeriod[0]->EndDate->date ?? $this->invoice->e_invoice->Invoice->InvoicePeriod[0]->EndDate;

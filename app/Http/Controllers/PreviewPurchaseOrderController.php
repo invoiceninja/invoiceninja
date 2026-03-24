@@ -74,8 +74,8 @@ class PreviewPurchaseOrderController extends BaseController
     public function show(ShowPreviewRequest $request)
     {
         if ($request->input('entity', false)
-            && $request->input('entity_id', false) != '-1'
-            && $request->has('body')) {
+           && $request->input('entity_id', false) != '-1'
+           && $request->has('body')) {
 
             $design_object = json_decode(json_encode($request->input('design')), true);
 
