@@ -1,0 +1,17 @@
+# Environment Setup
+
+## Tools Installed
+- XAMPP (Apache, MySQL, PHP)
+- Composer (Dependency Manager)
+- Git (Version Control)
+- Visual Studio Code (Code Editor)
+
+## Purpose of Tools
+- XAMPP: Provides local server environment
+- Composer: Manages PHP dependencies
+- Git: Tracks project changes
+- VS Code: Code editing and debugging
+
+## Setup Approach
+The application will be deployed locally using XAMPP.
+All testing will be conducted in a controlled environment.
