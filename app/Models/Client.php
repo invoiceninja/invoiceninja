@@ -1074,4 +1074,17 @@ class Client extends BaseModel implements HasLocalePreference
         return "Country {$this->country->full_name} ( {$this->country->iso_3166_2} ) is not supported by the PEPPOL network for e-delivery.";
 
     }
+
+    public function requiresDocuNinjaSigning(): bool
+    {
+        return $this->getSetting('require_invoice_signature')
+            && $this->company->docuninjaActive();
+    }
+
+    public function requiresSignature(): bool
+    {
+        return $this->getSetting('require_invoice_signature')
+            && $this->company->account->hasFeature(Account::FEATURE_INVOICE_SETTINGS)
+            && !$this->company->docuninjaActive();
+    }
 }

@@ -54,7 +54,7 @@ class CompanyExport implements ShouldQueue
     
     private $file_name;
     
-    public $timeout = 10800;
+    public $timeout = 21600;
 
     /**
      * Create a new job instance.

@@ -132,7 +132,7 @@ class PaymentController extends Controller
     public function process(Request $request)
     {
 
-        if(in_array($request->input('docuninja_active', false), [true, 'true', 1, '1'], true)){
+        if(auth()->guard('contact')->user()->client->requiresDocuNinjaSigning()){
         
             $request_hash = \Illuminate\Support\Str::random(64);
             $payable_invoices = array_column($request->input('payable_invoices'), 'invoice_id');

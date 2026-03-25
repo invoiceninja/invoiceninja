@@ -12,7 +12,6 @@
 
 namespace App\Services\EDocument\Standards\Validation\Peppol;
 
-use XSLTProcessor;
 use App\Models\Quote;
 use App\Models\Client;
 use App\Models\Credit;
@@ -381,9 +380,11 @@ class EntityLevel implements EntityLevelInterface
         //If not an individual, you MUST have a VAT number
         if ($company->getSetting('classification') != 'individual' && !$this->validString($company->getSetting('vat_number'))) {
             $errors[] = ['field' => 'vat_number', 'label' => ctrans("texts.vat_number")];
-        } elseif ($company->getSetting('classification') == 'individual' && !$this->validString($company->getSetting('id_number'))) {
-            $errors[] = ['field' => 'id_number', 'label' => ctrans("texts.id_number")];
-        }
+        } 
+        
+        // elseif ($company->getSetting('classification') == 'individual' && !$this->validString($company->getSetting('id_number'))) {
+        //     $errors[] = ['field' => 'id_number', 'label' => ctrans("texts.id_number")];
+        // }
 
 
         // foreach($this->company_fields as $field)
