@@ -363,6 +363,10 @@ class StorecoveAdapter
             //NON-EU Sale
             nlog("non eu");
             $this->nexus = $company_country_code;
+        } elseif (!in_array($company_country_code, $eu_countries) && in_array($client_country_code, $eu_countries)) {
+            // Non-EU sender to EU receiver - tax nexus is the client's country
+            nlog("non-eu to eu");
+            $this->nexus = $client_country_code;
         } elseif (in_array($client_country_code, $eu_countries)) {
 
             // First, determine if we're over threshold

@@ -270,12 +270,12 @@ class Mutator implements MutatorInterface
         }
 
         $country_prefix = $this->invoice->client->country->iso_3166_2;
-        $identifier = str_ireplace(["FR", "BE", $country_prefix], "", $identifier);
         $identifier = preg_replace("/[^a-zA-Z0-9]/", "", $identifier);
-
 
         //Check the recipient is on the network, and can be delivered the correct document.
         if($this->invoice->client->country->iso_3166_2 == "BE"){
+
+            $identifier = preg_replace("/^{$country_prefix}/i", "", $identifier);
 
             if ($this->storecove->discovery($identifier, 'BE:EN')) {
                     $this->setStorecoveMeta($this->buildRouting([

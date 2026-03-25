@@ -361,9 +361,9 @@ class CreatePeppolTestData extends Command
 
             // ── GLN-only (no country-specific VAT, uses GLN as identifier) ──
             'XX' => [
-                'vat' => '', 'id_number' => '5070004489700', 'tax_rate' => 19, 'tax_name' => 'VAT',
-                'city' => 'Berlin', 'state' => 'Berlin', 'postal_code' => '10115', 'currency' => '3',
-                'address1' => 'Unter den Linden 1',
+                'vat' => '', 'id_number' => '0088:5070004489700', 'tax_rate' => 0, 'tax_name' => 'Tax',
+                'city' => 'New York', 'state' => 'NY', 'postal_code' => '10001', 'currency' => '1',
+                'address1' => 'Broadway 1',
                 'gov_id' => 'GOV-GLN-001', 'individual_id' => '', 'individual_vat' => '',
             ],
 
@@ -474,9 +474,9 @@ class CreatePeppolTestData extends Command
             return self::FAILURE;
         }
 
-        // XX is a GLN-only entity — uses DE as the base country
+        // XX is a GLN-only entity — uses US as the base country
         $isGln = $countryCode === 'XX';
-        $resolvedCountryCode = $isGln ? 'DE' : $countryCode;
+        $resolvedCountryCode = $isGln ? 'US' : $countryCode;
 
         $country = Country::where('iso_3166_2', $resolvedCountryCode)->first();
 
@@ -487,7 +487,7 @@ class CreatePeppolTestData extends Command
 
         $cd = $defaults[$countryCode];
 
-        $label = $isGln ? 'XX / GLN-only (based in DE)' : "{$countryCode} ({$country->full_name})";
+        $label = $isGln ? 'XX / GLN-only (based in US)' : "{$countryCode} ({$country->full_name})";
         $this->info("Creating Peppol test data for {$label}...");
 
         // ── Look up existing dev user & account ──
@@ -513,7 +513,7 @@ class CreatePeppolTestData extends Command
         $settings->city = $cd['city'];
         $settings->state = $cd['state'];
         $settings->postal_code = $cd['postal_code'];
-        $settings->name = "Peppol Test Company ({$countryCode})";
+        $settings->name = "{$countryCode} Peppol Test Company";
 
         $tax_data = new TaxModel();
         $tax_data->seller_subregion = $resolvedCountryCode;
@@ -666,6 +666,7 @@ class CreatePeppolTestData extends Command
         };
 
         $client = Client::create($clientData);
+        $client = $client->service()->applyNumber()->save();
 
         ClientContact::factory()->create([
             'client_id' => $client->id,
