@@ -616,12 +616,8 @@ class ACH implements LivewireMethodInterface
 
         $source = ClientGatewayToken::query()
             ->where('id', $this->decodePrimaryKey($request->source))
-            ->where('company_id', auth()->guard('contact')->user()->client->company->id)
-            ->first();
-
-        if (! $source) {
-            throw new PaymentFailed(ctrans('texts.payment_token_not_found'), 401);
-        }
+            ->where('client_id', $this->stripe->client->id)
+            ->firstOrFail();
 
         $state = [
             'payment_method' => $request->payment_method_id,

@@ -174,7 +174,7 @@ class PaymentMethod implements MethodInterface, LivewireMethodInterface
             }
 
             $transaction = array_merge($this->transaction, [
-                'amount' => $request->input('amount'),
+                'amount' => array_sum(array_column($this->rotessa->payment_hash->invoices(), 'amount')) + $this->rotessa->payment_hash->fee_total,
                 'process_date' => now()->addSeconds($customer->client->utc_offset())->format('Y-m-d'),
                 'comment' => $this->rotessa->getDescription(false),
                 'customer_id' => $customer->gateway_customer_reference,

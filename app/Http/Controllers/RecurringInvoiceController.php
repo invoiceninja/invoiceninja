@@ -430,7 +430,7 @@ class RecurringInvoiceController extends BaseController
             return response()->json(['message' => 'Update in progress.'], 200);
         }
 
-        $recurring_invoices = RecurringInvoice::withTrashed()->find($request->ids);
+        $recurring_invoices = RecurringInvoice::withTrashed()->company()->find($request->ids);
 
         if ($request->action == 'bulk_update' && $user->can('edit', $recurring_invoices->first())) {
 

@@ -569,7 +569,7 @@ class TaskController extends BaseController
             }
         });
 
-        return $this->listResponse(Task::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(Task::withTrashed()->company()->whereIn('id', $this->transformKeys($ids)));
     }
 
     /**

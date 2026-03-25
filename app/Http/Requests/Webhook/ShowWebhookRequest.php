@@ -23,6 +23,6 @@ class ShowWebhookRequest extends Request
      */
     public function authorize(): bool
     {
-        return auth()->user()->isAdmin();
+        return auth()->user()->can('view', $this->webhook);
     }
 }

@@ -167,6 +167,49 @@ class XssSanitizationTest extends TestCase
         $this->assertStringNotContainsString('alert(', $result[0]['notes']);
     }
 
+    public function test_purify_strips_svg_event_handlers_beyond_denylist()
+    {
+        $payloads = [
+            '<svg onmouseover="alert(1)" width="100" height="100"><text>hover</text></svg>',
+            '<svg onclick="alert(1)" width="100"><rect width="100" height="100"/></svg>',
+            '<svg onfocus="alert(1)" tabindex="0" width="100" height="100"></svg>',
+            '<svg onfocusin="alert(1)" width="100"></svg>',
+            '<svg onmouseenter="alert(1)" width="100"></svg>',
+            '<svg onpointerover="alert(1)" width="100"></svg>',
+            '<svg ontouchstart="alert(1)" width="100"></svg>',
+            '<svg onmousedown="alert(1)" width="100"></svg>',
+        ];
+
+        foreach ($payloads as $payload) {
+            $result = Purify::clean($payload);
+            $this->assertDoesNotMatchRegularExpression('/\bon\w+\s*=/i', $result, "Event handler survived in: {$payload}");
+        }
+    }
+
+    public function test_purify_preserves_safe_svg_attributes()
+    {
+        $result = Purify::clean('<svg width="100" height="100" viewBox="0 0 100 100"><rect width="50" height="50" fill="red"/></svg>');
+
+        $this->assertStringContainsString('<svg', $result);
+        $this->assertStringContainsString('width', $result);
+        $this->assertStringContainsString('height', $result);
+        $this->assertStringContainsString('fill', $result);
+        // DOMDocument lowercases viewBox to viewbox — verify it survives
+        $this->assertMatchesRegularExpression('/viewbox/i', $result);
+    }
+
+    public function test_purify_preserves_epc_qr_code_svg()
+    {
+        // Simulates the SVG structure from EpcQrGenerator
+        $svg = "<svg viewBox='0 0 200 200' width='200' height='200' x='0' y='0' xmlns='http://www.w3.org/2000/svg'><rect x='0' y='0' width='100%' height='100%'/></svg>";
+        $result = Purify::clean($svg);
+
+        $this->assertStringContainsString('<svg', $result);
+        $this->assertMatchesRegularExpression('/viewbox/i', $result);
+        $this->assertStringContainsString('width', $result);
+        $this->assertStringContainsString('height', $result);
+    }
+
     // =========================================================================
     // Vulnerability #3 — Markdown HTML injection in Product notes
     // =========================================================================
