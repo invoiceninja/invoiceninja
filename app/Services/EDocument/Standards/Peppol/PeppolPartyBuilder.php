@@ -61,15 +61,17 @@ class PeppolPartyBuilder
             if (str_starts_with($scheme, '0')) {
                 $vatID->schemeID = $scheme;
             }
-            $vatID->value = strlen($this->peppol->getOverrideVatNumber()) > 1 ? $this->peppol->getOverrideVatNumber() : preg_replace("/[^a-zA-Z0-9]/", "", $invoice->company->settings->vat_number); //todo if we are cross border - switch to the supplier local vat number
 
+            $company_vat_number = strlen($this->peppol->getOverrideVatNumber()) > 1 ? $this->peppol->getOverrideVatNumber() : $invoice->company->settings->vat_number;
+
+            $vatID->value = preg_replace("/[^a-zA-Z0-9]/", "", $company_vat_number);
             $pi->ID = $vatID;
             $party->PartyIdentification[] = $pi;
 
             $companyID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CompanyID();
 
             $pts = new \InvoiceNinja\EInvoice\Models\Peppol\PartyTaxSchemeType\PartyTaxScheme();
-            $companyID->value = strlen($this->peppol->getOverrideVatNumber()) > 1 ? $this->peppol->getOverrideVatNumber() : preg_replace("/[^a-zA-Z0-9]/", "", $invoice->company->settings->vat_number); //todo if we are cross border - switch to the supplier local vat number
+            $companyID->value = preg_replace("/[^a-zA-Z0-9]/", "", $company_vat_number);
             $pts->CompanyID = $companyID;
 
             $ts = new TaxScheme();
@@ -80,7 +82,7 @@ class PeppolPartyBuilder
 
             $id = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\EndpointID();
             $id->value = preg_replace("/[^a-zA-Z0-9]/", "", $company->settings->vat_number);
-            $id->schemeID = $this->resolveScheme();
+            $id->schemeID = $scheme;
             $party->EndpointID = $id;
             $party->PartyTaxScheme[] = $pts;
         }

@@ -255,6 +255,8 @@ class Mutator implements MutatorInterface
 
         if ($this->invoice->client->country->iso_3166_2 == 'FR') {
             $identifier = $this->invoice->client->id_number;
+        } elseif ($this->invoice->client->country->iso_3166_2 == 'DK') {
+            $identifier = $this->invoice->client->id_number;
         } elseif ($this->invoice->client->country->iso_3166_2 == 'SE' && strlen($this->invoice->client->id_number ?? '') > 2) {
             $identifier = $this->invoice->client->id_number;
         } else {

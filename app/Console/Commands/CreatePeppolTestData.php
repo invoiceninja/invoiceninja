@@ -50,7 +50,7 @@ class CreatePeppolTestData extends Command
             ],
             'AL' => [
                 'vat' => 'ALK12345678A', 'id_number' => 'K12345678A', 'tax_rate' => 20, 'tax_name' => 'TVSH',
-                'city' => 'Tirana', 'state' => 'Tirana', 'postal_code' => '1001', 'currency' => '3',
+                'city' => 'Tirana', 'state' => 'Tirana', 'postal_code' => '1001', 'currency' => '94',
                 'address1' => 'Bulevardi Deshmoret e Kombit 1',
                 'gov_id' => 'GOV-AL-001', 'individual_id' => '', 'individual_vat' => '',
             ],
@@ -98,7 +98,7 @@ class CreatePeppolTestData extends Command
             ],
             'DK' => [
                 'vat' => 'DK12345678', 'id_number' => '12345678', 'tax_rate' => 25, 'tax_name' => 'Moms',
-                'city' => 'Copenhagen', 'state' => 'Capital Region', 'postal_code' => '1050', 'currency' => '20',
+                'city' => 'Copenhagen', 'state' => 'Capital Region', 'postal_code' => '1050', 'currency' => '5',
                 'address1' => 'Stroget 1',
                 'gov_id' => '87654321', 'individual_id' => '', 'individual_vat' => '',
             ],
@@ -206,7 +206,7 @@ class CreatePeppolTestData extends Command
             ],
             'PL' => [
                 'vat' => 'PL1234567890', 'id_number' => '1234567890', 'tax_rate' => 23, 'tax_name' => 'VAT',
-                'city' => 'Warsaw', 'state' => 'Masovia', 'postal_code' => '00-001', 'currency' => '3',
+                'city' => 'Warsaw', 'state' => 'Masovia', 'postal_code' => '00-001', 'currency' => '49',
                 'address1' => 'Nowy Swiat 1',
                 'gov_id' => '9876543210', 'individual_id' => '', 'individual_vat' => '',
             ],
@@ -218,7 +218,7 @@ class CreatePeppolTestData extends Command
             ],
             'RO' => [
                 'vat' => 'RO010105019', 'id_number' => '010105019', 'tax_rate' => 19, 'tax_name' => 'TVA',
-                'city' => 'SECTOR1', 'state' => 'RO-B', 'postal_code' => '010001', 'currency' => '3',
+                'city' => 'SECTOR1', 'state' => 'RO-B', 'postal_code' => '010001', 'currency' => '42',
                 'address1' => 'Calea Victoriei 1',
                 'gov_id' => 'RO87654321', 'individual_id' => '', 'individual_vat' => '',
             ],
@@ -230,7 +230,7 @@ class CreatePeppolTestData extends Command
             ],
             'SE' => [
                 'vat' => 'SE123456789101', 'id_number' => '1234567891', 'tax_rate' => 25, 'tax_name' => 'Moms',
-                'city' => 'Stockholm', 'state' => 'Stockholm', 'postal_code' => '111 57', 'currency' => '41',
+                'city' => 'Stockholm', 'state' => 'Stockholm', 'postal_code' => '111 57', 'currency' => '7',
                 'address1' => 'Drottninggatan 1',
                 'gov_id' => '9876543210', 'individual_id' => '', 'individual_vat' => '',
             ],
@@ -328,7 +328,7 @@ class CreatePeppolTestData extends Command
             ],
             'NZ' => [
                 'vat' => '123456789', 'id_number' => '123456789', 'tax_rate' => 15, 'tax_name' => 'GST',
-                'city' => 'Auckland', 'state' => 'Auckland', 'postal_code' => '1010', 'currency' => '54',
+                'city' => 'Auckland', 'state' => 'Auckland', 'postal_code' => '1010', 'currency' => '15',
                 'address1' => 'Queen Street 1',
                 'gov_id' => '987654321', 'individual_id' => '', 'individual_vat' => '',
             ],
@@ -348,13 +348,13 @@ class CreatePeppolTestData extends Command
             ],
             'MY' => [
                 'vat' => 'MY123456789012', 'id_number' => 'C12345678', 'tax_rate' => 8, 'tax_name' => 'SST',
-                'city' => 'Kuala Lumpur', 'state' => 'WP Kuala Lumpur', 'postal_code' => '50000', 'currency' => '51',
+                'city' => 'Kuala Lumpur', 'state' => 'WP Kuala Lumpur', 'postal_code' => '50000', 'currency' => '19',
                 'address1' => 'Jalan Bukit Bintang 1',
                 'gov_id' => 'GOV-MY-001', 'individual_id' => '', 'individual_vat' => '',
             ],
             'SG' => [
                 'vat' => '202912345K', 'id_number' => '202912345K', 'tax_rate' => 9, 'tax_name' => 'GST',
-                'city' => 'Singapore', 'state' => 'Singapore', 'postal_code' => '018960', 'currency' => '38',
+                'city' => 'Singapore', 'state' => 'Singapore', 'postal_code' => '018960', 'currency' => '13',
                 'address1' => 'Raffles Place 1',
                 'gov_id' => 'T08GA0028A', 'individual_id' => '', 'individual_vat' => '',
             ],
@@ -375,6 +375,72 @@ class CreatePeppolTestData extends Command
                 'gov_id' => 'GOV-SA-001', 'individual_id' => '', 'individual_vat' => '',
             ],
         ];
+    }
+
+    /**
+     * Country-specific bank details for realistic PaymentMeans test data.
+     *
+     * @return array{bic: string, iban: string, payment_means_code: string}
+     */
+    private function bankDefaults(string $countryCode): array
+    {
+        // DK only allows PaymentMeansCode: 1, 10, 31, 42, 48, 49, 50, 58, 59, 93, 97
+        $banks = [
+            'AD' => ['bic' => 'BACAADADXXX', 'iban' => 'AD1200012030200359100100'],
+            'AL' => ['bic' => 'SGABORPPXXX', 'iban' => 'AL47212110090000000235698741'],
+            'AT' => ['bic' => 'BKAUATWWXXX', 'iban' => 'AT611904300234573201'],
+            'BA' => ['bic' => 'RABORAGSXXX', 'iban' => 'BA391290079401028494'],
+            'BE' => ['bic' => 'GEBABEBB36A', 'iban' => 'BE68539007547034'],
+            'BG' => ['bic' => 'BNAABORGSOF', 'iban' => 'BG80BNBG96611020345678'],
+            'CA' => ['bic' => 'ROYCCAT2XXX', 'iban' => 'CA00012345678901234'],
+            'CH' => ['bic' => 'UBSWCHZH80A', 'iban' => 'CH9300762011623852957'],
+            'CY' => ['bic' => 'BCABORNICYX', 'iban' => 'CY17002001280000001200527600'],
+            'CZ' => ['bic' => 'CABORPRG1XX', 'iban' => 'CZ6508000000192000145399'],
+            'DE' => ['bic' => 'DEUTDEMMXXX', 'iban' => 'DE89370400440532013000'],
+            'DK' => ['bic' => 'DABADKKKXXX', 'iban' => 'DK5000400440116243'],
+            'EE' => ['bic' => 'HABAEE2XXXX', 'iban' => 'EE382200221020145685'],
+            'ES' => ['bic' => 'CABORESMXXX', 'iban' => 'ES9121000418450200051332'],
+            'FI' => ['bic' => 'NDEAFIHH', 'iban' => 'FI2112345600000785'],
+            'FR' => ['bic' => 'BNPAFRPPXXX', 'iban' => 'FR7630006000011234567890189'],
+            'GB' => ['bic' => 'NWBKGB2LXXX', 'iban' => 'GB29NWBK60161331926819'],
+            'GR' => ['bic' => 'ETHNGRAA', 'iban' => 'GR1601101250000000012300695'],
+            'HR' => ['bic' => 'ZABAHR2XXXX', 'iban' => 'HR1210010051863000160'],
+            'HU' => ['bic' => 'OKHBHUHBXXX', 'iban' => 'HU42117730161111101800000000'],
+            'IE' => ['bic' => 'BOABORFIXX', 'iban' => 'IE29AIBK93115212345678'],
+            'IS' => ['bic' => 'LANBIS22XXX', 'iban' => 'IS140159260076545510730339'],
+            'IT' => ['bic' => 'BCITITMM', 'iban' => 'IT60X0542811101000000123456'],
+            'LI' => ['bic' => 'BALPLI22XXX', 'iban' => 'LI21088100002324013AA'],
+            'LT' => ['bic' => 'HABALT22XXX', 'iban' => 'LT121000011101001000'],
+            'LU' => ['bic' => 'BCEELULL', 'iban' => 'LU280019400644750000'],
+            'LV' => ['bic' => 'HABALV22XXX', 'iban' => 'LV80BANK0000435195001'],
+            'MC' => ['bic' => 'CMCIFRPPXXX', 'iban' => 'MC5811222000010123456789030'],
+            'ME' => ['bic' => 'PODGORICAXB', 'iban' => 'ME25505000012345678951'],
+            'MK' => ['bic' => 'NBRMMK2XXXX', 'iban' => 'MK07250120000058984'],
+            'MT' => ['bic' => 'VALLMTMTXXX', 'iban' => 'MT84MALT011000012345MTLCAST001S'],
+            'MX' => ['bic' => 'BIMEMXMMXXX', 'iban' => 'MX00000000000000012345'],
+            'NL' => ['bic' => 'ABNANL2AXXX', 'iban' => 'NL91ABNA0417164300'],
+            'NO' => ['bic' => 'DNBANOKK', 'iban' => 'NO9386011117947'],
+            'PL' => ['bic' => 'BPKOPLPWXXX', 'iban' => 'PL61109010140000071219812874'],
+            'PT' => ['bic' => 'CGDIPTPL', 'iban' => 'PT50000201231234567890154'],
+            'RO' => ['bic' => 'BRABORBUCRP', 'iban' => 'RO49AAAA1B31007593840000'],
+            'RS' => ['bic' => 'NBSRRSBE', 'iban' => 'RS35260005601001611379'],
+            'SA' => ['bic' => 'SABBSARI', 'iban' => 'SA0380000000608010167519'],
+            'SE' => ['bic' => 'ESSESESSXXX', 'iban' => 'SE4550000000058398257466'],
+            'SI' => ['bic' => 'BSLJSI2XXXX', 'iban' => 'SI56263300012039086'],
+            'SK' => ['bic' => 'TAABORSKBXX', 'iban' => 'SK3112000000198742637541'],
+            'SM' => ['bic' => 'CSSMSM22XXX', 'iban' => 'SM86U0322509800000000270100'],
+            'TR' => ['bic' => 'ISBKTRIS', 'iban' => 'TR330006100519786457841326'],
+            'US' => ['bic' => 'CHASUS33XXX', 'iban' => 'US00021000021234567890'],
+            'VA' => ['bic' => 'ABORVAVRXXX', 'iban' => 'VA59001123000012345678'],
+        ];
+
+        $default = ['bic' => 'DEUTDEMMXXX', 'iban' => 'DE89370400440532013000'];
+        $bank = $banks[$countryCode] ?? $default;
+
+        // DK only allows specific payment means codes — use 58 (SEPA credit transfer)
+        $bank['payment_means_code'] = $countryCode === 'DK' ? '58' : '30';
+
+        return $bank;
     }
 
     /**
@@ -404,7 +470,7 @@ class CreatePeppolTestData extends Command
         'CZ' => 0, 
         'DE' => 295616, // DE973356489
         //'DE' => 307482, //DE:STNR1234567890
-        'DK' => 0, 
+        'DK' => 763738, //DK12335668 
         'EE' => 0,
         'ES' => 0, 
         'FI' => 0, 
@@ -528,12 +594,14 @@ class CreatePeppolTestData extends Command
         // ── E-invoice stub with PaymentMeans ──
         $einvoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
 
+        $bankDefaults = $this->bankDefaults($resolvedCountryCode);
+
         $fib = new \InvoiceNinja\EInvoice\Models\Peppol\BranchType\FinancialInstitutionBranch();
-        $fib->ID = 'DEUTDEMMXXX';
+        $fib->ID = $bankDefaults['bic'];
 
         $pfa = new \InvoiceNinja\EInvoice\Models\Peppol\FinancialAccountType\PayeeFinancialAccount();
         $id = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID();
-        $id->value = 'DE89370400440532013000';
+        $id->value = $bankDefaults['iban'];
         $pfa->ID = $id;
         $pfa->Name = 'PFA-NAME';
         $pfa->FinancialInstitutionBranch = $fib;
@@ -541,7 +609,7 @@ class CreatePeppolTestData extends Command
         $pm = new \InvoiceNinja\EInvoice\Models\Peppol\PaymentMeans();
         $pm->PayeeFinancialAccount = $pfa;
         $pmc = new \InvoiceNinja\EInvoice\Models\Peppol\CodeType\PaymentMeansCode();
-        $pmc->value = '30';
+        $pmc->value = $bankDefaults['payment_means_code'];
         $pm->PaymentMeansCode = $pmc;
         $einvoice->PaymentMeans[] = $pm;
 
