@@ -21,6 +21,7 @@ use App\Models\Backup;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Design;
+use App\Services\Pdf\Purify;
 use App\Models\Vendor;
 use App\Models\Company;
 use App\Models\Expense;
@@ -654,7 +655,7 @@ class CompanyImport implements ShouldQueue
         $settings->company_logo = (strlen($settings->company_logo) > 2 && stripos($settings->company_logo, 'http') !== false) ? $settings->company_logo : "https://{$settings->company_logo}";
 
         foreach ($this->protected_input as $protected_var) {
-            $settings->{$protected_var} = str_replace("script", "", $settings->{$protected_var});
+            $settings->{$protected_var} = Purify::clean($settings->{$protected_var}, true);
         }
 
         $this->company->saveSettings($settings, $this->company);

@@ -49,7 +49,7 @@ class StoreShopInvoiceRequest extends Request
             $rules['documents'] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
         }
 
-        $rules['client_id'] = 'required|exists:clients,id,company_id,' . $this->company->id;
+        $rules['client_id'] = 'required|integer|exists:clients,id,company_id,' . $this->company->id;
 
         $rules['invitations.*.client_contact_id'] = 'distinct';
 

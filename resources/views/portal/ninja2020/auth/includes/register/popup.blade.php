@@ -43,7 +43,7 @@
                         </h3>
                         <div class="mt-2" style="max-height: calc(90vh - 200px); overflow-y: auto;">
                             <p class="text-sm leading-5 text-gray-500 whitespace-pre-line">
-                                {!! nl2br(e($content)) !!}
+                                {!! $content !!}
                             </p>
                         </div>
                     </div>

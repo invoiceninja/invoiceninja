@@ -49,7 +49,7 @@ class UpdateExpenseRequest extends Request
         }
 
         if ($this->client_id) {
-            $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,' . $user->company()->id;
+            $rules['client_id'] = 'bail|sometimes|integer|exists:clients,id,company_id,' . $user->company()->id;
         }
 
         $rules['category_id'] = 'bail|sometimes|nullable|exists:expense_categories,id,company_id,' . $user->company()->id . ',is_deleted,0';

@@ -12,17 +12,18 @@
 
 namespace App\Http\Requests\Company;
 
-use App\Utils\Ninja;
-use App\Http\Requests\Request;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Validation\Rule;
 use App\DataMapper\CompanySettings;
 use App\Http\Requests\EInvoice\Peppol\AddTaxIdentifierRequest;
-use App\Http\ValidationRules\ValidSettingsRule;
-use App\Http\ValidationRules\Company\ValidSubdomain;
+use App\Http\Requests\Request;
 use App\Http\ValidationRules\Company\ValidExpenseMailbox;
+use App\Http\ValidationRules\Company\ValidSubdomain;
 use App\Http\ValidationRules\EInvoice\ValidCompanyScheme;
+use App\Http\ValidationRules\ValidSettingsRule;
 use App\Rules\CommaSeparatedEmails;
+use App\Services\Pdf\Purify;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Validation\Rule;
 
 class UpdateCompanyRequest extends Request
 {
@@ -92,24 +93,6 @@ class UpdateCompanyRequest extends Request
         $rules['inbound_mailbox_allow_unknown'] = ['sometimes','boolean'];
         $rules['inbound_mailbox_whitelist'] = ['sometimes', 'string', 'nullable', 'regex:/^[\w\-\.\+]+@([\w-]+\.)+[\w-]{2,4}(,[\w\-\.\+]+@([\w-]+\.)+[\w-]{2,4})*$/'];
         $rules['inbound_mailbox_blacklist'] = ['sometimes', 'string', 'nullable', 'regex:/^[\w\-\.\+]+@([\w-]+\.)+[\w-]{2,4}(,[\w\-\.\+]+@([\w-]+\.)+[\w-]{2,4})*$/'];
-
-        // $rules['settings.vat_number'] = [
-        //         'nullable',
-        //         'string',
-        //         'bail',
-        //         'sometimes',
-        //         Rule::requiredIf(function () use ($user) {
-        //             return $this->input('settings.e_invoice_type') === 'PEPPOL' && $user->company()->settings->classification != 'individual';
-        //         }),
-        //         function ($attribute, $value, $fail) {
-        //             $country_code = $this->getCountryCode();
-        //             if ($country_code && isset(AddTaxIdentifierRequest::$vat_regex_patterns[$country_code]) && $this->input('settings.e_invoice_type') === 'PEPPOL') {
-        //                 if (!preg_match(AddTaxIdentifierRequest::$vat_regex_patterns[$country_code], $value)) {
-        //                     $fail(ctrans('texts.invalid_vat_number'));
-        //                 }
-        //             }
-        //         },
-        //     ];
 
         $rules['settings.ses_secret_key'] = 'required_if:settings.email_sending_method,client_ses'; //ses specific rules
         $rules['settings.ses_access_key'] = 'required_if:settings.email_sending_method,client_ses'; //ses specific rules
@@ -222,16 +205,18 @@ class UpdateCompanyRequest extends Request
         $account = $this->company->account;
 
         if (Ninja::isHosted()) {
+
             foreach ($this->protected_input as $protected_var) {
 
                 if (isset($settings[$protected_var])) {
-                    $settings[$protected_var] = str_replace("script", "", $settings[$protected_var]);
+                    $settings[$protected_var] = Purify::clean($settings[$protected_var], true);
                 }
             }
 
-            if ($this->company->getSetting('e_invoice_type') == 'VERIFACTU') {
-                $settings['e_invoice_type'] = 'VERIFACTU';
-            }
+            /** Verifactu is not compulsory until 2027 */
+            // if ($this->company->getSetting('e_invoice_type') == 'VERIFACTU') {
+            //     $settings['e_invoice_type'] = 'VERIFACTU';
+            // }
 
         }
 
