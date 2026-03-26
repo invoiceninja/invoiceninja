@@ -467,7 +467,7 @@ class LocationController extends BaseController
 
         $ids = request()->input('ids');
 
-        $locations = Location::withTrashed()->find($this->transformKeys($ids));
+        $locations = Location::withTrashed()->company()->find($this->transformKeys($ids));
 
         $locations->each(function ($location, $key) use ($action, $user) {
             if ($user->can('edit', $location)) {
@@ -475,6 +475,6 @@ class LocationController extends BaseController
             }
         });
 
-        return $this->listResponse(Location::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(Location::withTrashed()->company()->whereIn('id', $this->transformKeys($ids)));
     }
 }

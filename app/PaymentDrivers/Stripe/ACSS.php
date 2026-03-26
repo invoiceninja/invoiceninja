@@ -275,7 +275,10 @@ class ACSS implements LivewireMethodInterface
 
         $gateway_response = json_decode($request->gateway_response);
 
-        $cgt = ClientGatewayToken::find($this->decodePrimaryKey($request->token));
+        $cgt = ClientGatewayToken::query()
+            ->where('id', $this->decodePrimaryKey($request->token))
+            ->where('client_id', $this->stripe->client->id)
+            ->firstOrFail();
 
         /** @var \Stripe\PaymentIntent $intent */
         $intent = $this->tokenIntent($cgt);

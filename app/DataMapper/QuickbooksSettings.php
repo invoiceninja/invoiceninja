@@ -130,10 +130,10 @@ class QuickbooksSettings implements Castable
     public function isEmpty(): bool
     {
         return empty($this->accessTokenKey)
-            && empty($this->refresh_token)
-            && empty($this->realmID)
-            && $this->accessTokenExpiresAt === 0
-            && $this->refreshTokenExpiresAt === 0
-            && empty($this->baseURL);
+           && empty($this->refresh_token)
+           && empty($this->realmID)
+           && $this->accessTokenExpiresAt === 0
+           && $this->refreshTokenExpiresAt === 0
+           && empty($this->baseURL);
     }
 }

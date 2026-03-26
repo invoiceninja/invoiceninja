@@ -173,7 +173,7 @@ class QuickbooksService
             
             // Check if refresh token is also expired - if so, don't attempt refresh
             $refresh_token_expired = $this->company->quickbooks->refreshTokenExpiresAt > 0 
-                && $this->company->quickbooks->refreshTokenExpiresAt < time();
+               && $this->company->quickbooks->refreshTokenExpiresAt < time();
             
             if ($refresh_token_expired) {
                 $this->markRequiresReconnect();

@@ -42,12 +42,16 @@ class CreateInvitations extends AbstractService
                                         ->first();
 
             if (! $invitation && $contact->send_email) {
-                $ii = InvoiceInvitationFactory::create($this->invoice->company_id, $this->invoice->user_id);
-                $ii->key = $this->createDbHash($this->invoice->company->db);
-                $ii->invoice_id = $this->invoice->id;
-                $ii->client_contact_id = $contact->id;
-                $ii->can_sign = $contact->can_sign;
-                $ii->save();
+                try {
+                    $ii = InvoiceInvitationFactory::create($this->invoice->company_id, $this->invoice->user_id);
+                    $ii->key = $this->createDbHash($this->invoice->company->db);
+                    $ii->invoice_id = $this->invoice->id;
+                    $ii->client_contact_id = $contact->id;
+                    $ii->can_sign = $contact->can_sign;
+                    $ii->save();
+                } catch (\Illuminate\Database\QueryException $e) {
+                    nlog("Duplicate invitation for invoice {$this->invoice->id} contact {$contact->id}: " . $e->getMessage());
+                }
             } elseif ($invitation && ! $contact->send_email) {
                 $invitation->delete();
             }
@@ -72,12 +76,16 @@ class CreateInvitations extends AbstractService
                 }
             }
 
-            $ii = InvoiceInvitationFactory::create($this->invoice->company_id, $this->invoice->user_id);
-            $ii->key = $this->createDbHash($this->invoice->company->db);
-            $ii->invoice_id = $this->invoice->id;
-            $ii->client_contact_id = $contact->id;
-            $ii->can_sign = $contact->can_sign;
-            $ii->save();
+            try {
+                $ii = InvoiceInvitationFactory::create($this->invoice->company_id, $this->invoice->user_id);
+                $ii->key = $this->createDbHash($this->invoice->company->db);
+                $ii->invoice_id = $this->invoice->id;
+                $ii->client_contact_id = $contact->id;
+                $ii->can_sign = $contact->can_sign;
+                $ii->save();
+            } catch (\Illuminate\Database\QueryException $e) {
+                nlog("Duplicate invitation for invoice {$this->invoice->id} contact {$contact->id}: " . $e->getMessage());
+            }
         }
 
         if($this->invoice->invitations()->where('can_sign', true)->count() == 0){

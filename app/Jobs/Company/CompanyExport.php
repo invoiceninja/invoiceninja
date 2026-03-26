@@ -49,8 +49,13 @@ class CompanyExport implements ShouldQueue
     private $export_format = 'json';
 
     private $export_data = [];
+
     private $writer;
+    
     private $file_name;
+    
+    public $timeout = 21600;
+
     /**
      * Create a new job instance.
      *

@@ -203,6 +203,267 @@ class ProductSalesReportTest extends TestCase
     }
 
 
+    public function testExclusiveTaxReport()
+    {
+        $this->buildData();
+
+        $this->payload = [
+            'start_date' => '2000-01-01',
+            'end_date' => '2030-01-11',
+            'date_range' => 'custom',
+            'client_id' => $this->client->id,
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ];
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 2;
+        $item->cost = 100;
+        $item->product_key = 'tax_test';
+        $item->notes = 'exclusive tax product';
+        $item->tax_name1 = 'GST';
+        $item->tax_rate1 = 10;
+
+        $i = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 0,
+            'balance' => 0,
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => now()->format('Y-m-d'),
+            'discount' => 0,
+            'uses_inclusive_taxes' => false,
+            'line_items' => [$item],
+        ]);
+
+        $i = $i->calc()->getInvoice();
+        $i->save();
+
+        $pl = new ProductSalesExport($this->company, $this->payload);
+        $response = $pl->run();
+
+        $this->assertIsString($response);
+        $this->assertStringContainsString('tax_test', $response);
+        // 2 * 100 = 200 line_total, 10% tax = 20
+        $this->assertStringContainsString('20', $response);
+
+        $this->account->delete();
+    }
+
+    public function testInclusiveTaxReport()
+    {
+        $this->buildData();
+
+        $this->payload = [
+            'start_date' => '2000-01-01',
+            'end_date' => '2030-01-11',
+            'date_range' => 'custom',
+            'client_id' => $this->client->id,
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ];
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 110;
+        $item->product_key = 'inclusive_test';
+        $item->notes = 'inclusive tax product';
+        $item->tax_name1 = 'VAT';
+        $item->tax_rate1 = 10;
+
+        $i = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 0,
+            'balance' => 0,
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => now()->format('Y-m-d'),
+            'discount' => 0,
+            'uses_inclusive_taxes' => true,
+            'line_items' => [$item],
+        ]);
+
+        $i = $i->calc()->getInvoice();
+        $i->save();
+
+        $pl = new ProductSalesExport($this->company, $this->payload);
+        $response = $pl->run();
+
+        $this->assertIsString($response);
+        $this->assertStringContainsString('inclusive_test', $response);
+        // 110 inclusive of 10% VAT: tax = 110 - 110/1.1 = 10
+        $this->assertStringContainsString('10', $response);
+
+        $this->account->delete();
+    }
+
+    public function testAmountDiscountWithTaxReport()
+    {
+        $this->buildData();
+
+        $this->payload = [
+            'start_date' => '2000-01-01',
+            'end_date' => '2030-01-11',
+            'date_range' => 'custom',
+            'client_id' => $this->client->id,
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ];
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 200;
+        $item->product_key = 'discount_tax_test';
+        $item->notes = 'amount discount with tax';
+        $item->tax_name1 = 'GST';
+        $item->tax_rate1 = 10;
+        $item->discount = 0;
+
+        $i = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 0,
+            'balance' => 0,
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => now()->format('Y-m-d'),
+            'discount' => 50,
+            'is_amount_discount' => true,
+            'uses_inclusive_taxes' => false,
+            'line_items' => [$item],
+        ]);
+
+        $i = $i->calc()->getInvoice();
+        $i->save();
+
+        $line_item = $i->line_items[0];
+        // tax_amount is set by the calc engine, accounting for the amount discount correctly
+        $this->assertGreaterThan(0, $line_item->tax_amount);
+
+        $pl = new ProductSalesExport($this->company, $this->payload);
+        $response = $pl->run();
+
+        $this->assertIsString($response);
+        $this->assertStringContainsString('discount_tax_test', $response);
+        // tax = (200 - 50) * 10% = 15, the calc engine handles this correctly
+        $this->assertStringContainsString('15', $response);
+
+        $this->account->delete();
+    }
+
+    public function testMultipleTaxRatesReport()
+    {
+        $this->buildData();
+
+        $this->payload = [
+            'start_date' => '2000-01-01',
+            'end_date' => '2030-01-11',
+            'date_range' => 'custom',
+            'client_id' => $this->client->id,
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ];
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 100;
+        $item->product_key = 'multi_tax_test';
+        $item->notes = 'multiple tax rates';
+        $item->tax_name1 = 'GST';
+        $item->tax_rate1 = 10;
+        $item->tax_name2 = 'PST';
+        $item->tax_rate2 = 5;
+
+        $i = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 0,
+            'balance' => 0,
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => now()->format('Y-m-d'),
+            'discount' => 0,
+            'uses_inclusive_taxes' => false,
+            'line_items' => [$item],
+        ]);
+
+        $i = $i->calc()->getInvoice();
+        $i->save();
+
+        $line_item = $i->line_items[0];
+        // 100 * 10% = 10, 100 * 5% = 5, total = 15
+        $this->assertEquals(15, $line_item->tax_amount);
+
+        $pl = new ProductSalesExport($this->company, $this->payload);
+        $response = $pl->run();
+
+        $this->assertIsString($response);
+        $this->assertStringContainsString('multi_tax_test', $response);
+        // Verify the CSV contains the tax total of 15
+        $this->assertStringContainsString('15', $response);
+
+        $this->account->delete();
+    }
+
+    public function testTaxTotalInSummaryAggregation()
+    {
+        $this->buildData();
+
+        $this->payload = [
+            'start_date' => '2000-01-01',
+            'end_date' => '2030-01-11',
+            'date_range' => 'custom',
+            'client_id' => $this->client->id,
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ];
+
+        $item1 = InvoiceItemFactory::create();
+        $item1->quantity = 1;
+        $item1->cost = 100;
+        $item1->product_key = 'agg_test';
+        $item1->notes = 'aggregation test 1';
+        $item1->tax_name1 = 'GST';
+        $item1->tax_rate1 = 10;
+
+        $item2 = InvoiceItemFactory::create();
+        $item2->quantity = 1;
+        $item2->cost = 200;
+        $item2->product_key = 'agg_test';
+        $item2->notes = 'aggregation test 2';
+        $item2->tax_name1 = 'GST';
+        $item2->tax_rate1 = 10;
+
+        $i = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 0,
+            'balance' => 0,
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => now()->format('Y-m-d'),
+            'discount' => 0,
+            'uses_inclusive_taxes' => false,
+            'line_items' => [$item1, $item2],
+        ]);
+
+        $i = $i->calc()->getInvoice();
+        $i->save();
+
+        $pl = new ProductSalesExport($this->company, $this->payload);
+        $response = $pl->run();
+
+        $this->assertIsString($response);
+        // 100 * 10% = 10, 200 * 10% = 20, total tax = 30
+        // The summary section should aggregate both line items for 'agg_test'
+        $this->assertStringContainsString('agg_test', $response);
+        $this->assertStringContainsString('30', $response);
+
+        $this->account->delete();
+    }
+
     private function buildLineItems()
     {
         $line_items = [];
@@ -212,22 +473,16 @@ class ProductSalesReportTest extends TestCase
         $item->cost = 10;
         $item->product_key = 'test';
         $item->notes = 'test_product';
-        // $item->task_id = $this->encodePrimaryKey($this->task->id);
-        // $item->expense_id = $this->encodePrimaryKey($this->expense->id);
 
         $line_items[] = $item;
-
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
         $item->cost = 10;
         $item->product_key = 'pumpkin';
         $item->notes = 'test_pumpkin';
-        // $item->task_id = $this->encodePrimaryKey($this->task->id);
-        // $item->expense_id = $this->encodePrimaryKey($this->expense->id);
 
         $line_items[] = $item;
-
 
         return $line_items;
     }

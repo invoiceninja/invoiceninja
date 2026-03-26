@@ -64,7 +64,17 @@ class StorecoveTest extends TestCase
         );
 
     }
-
+    
+    /**
+     * setupTestData
+     *
+     * Setups a base company and client with data
+     * prepped for a test scenario.
+     * 
+     * company/client metadata can be passed in as parameters.
+     * @param  array $params
+     * @return array
+     */
     private function setupTestData(array $params = []): array
     {
 
@@ -166,7 +176,19 @@ class StorecoveTest extends TestCase
 
         return compact('company', 'client', 'invoice');
     }
-
+    
+    /**
+     * testDEtoFRB2BReverseCharge
+     *
+     * Tests a scenario where a DE company sends an invoice to a FR client
+     * in the B2B Reverse Charge regime.
+     * 
+     * The company has a valid VAT number, but the client does not.
+     * The company is not over the threshold for reverse charge.
+     * The client is tax exempt.
+     * 
+     * @return void
+     */
     public function testDEtoFRB2BReverseCharge()
     {
 

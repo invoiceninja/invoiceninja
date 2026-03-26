@@ -142,9 +142,9 @@ class ReminderJob implements ShouldQueue
             }
 
             if (in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3', 'reminder_endless', 'endless_reminder'])
-            && $invoice->client->getSetting($enabled_reminder)
-            && $invoice->client->getSetting('send_reminders')
-            && (Ninja::isSelfHost() || $invoice->company->account->isPaidHostedClient())) {
+           && $invoice->client->getSetting($enabled_reminder)
+           && $invoice->client->getSetting('send_reminders')
+           && (Ninja::isSelfHost() || $invoice->company->account->isPaidHostedClient())) {
 
                 $event_fired = false;
 
@@ -228,9 +228,9 @@ class ReminderJob implements ShouldQueue
         }
 
         if (in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3', 'reminder_endless', 'endless_reminder'])
-                && $invoice->client->getSetting($enabled_reminder)
-                && $invoice->client->getSetting('send_reminders')
-                && (Ninja::isSelfHost() || $invoice->company->account->isPaidHostedClient())) {
+               && $invoice->client->getSetting($enabled_reminder)
+               && $invoice->client->getSetting('send_reminders')
+               && (Ninja::isSelfHost() || $invoice->company->account->isPaidHostedClient())) {
             $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
                 if ($invitation->contact && !$invitation->contact->trashed() && $invitation->contact->email && !$invitation->contact->is_locked) {
                     EmailEntity::dispatch($invitation->withoutRelations(), $invitation->company->db, $reminder_template);

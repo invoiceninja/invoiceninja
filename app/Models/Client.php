@@ -1060,18 +1060,33 @@ class Client extends BaseModel implements HasLocalePreference
         }
 
         $br = new \App\DataMapper\Tax\BaseRule();
+        $supported_countries = array_unique(array_merge($br->peppol_business_countries, $br->peppol_government_countries));
+        $country_code = $this->country->iso_3166_2;
 
-        $government_countries = array_merge($br->peppol_business_countries, $br->peppol_government_countries);
-
-        if (in_array($this->country->iso_3166_2, $government_countries) && $this->classification == 'government') {
-            return null;
+        if (!in_array($country_code, $supported_countries)) {
+            return "Country {$this->country->full_name} ( {$country_code} ) is not supported by the PEPPOL network for e-delivery.";
         }
 
-        if (in_array($this->country->iso_3166_2, $br->peppol_business_countries)) {
-            return null;
+        $router = new \App\Services\EDocument\Gateway\Storecove\StorecoveRouter();
+
+        if (!$router->isClassificationRoutable($country_code, $this->classification)) {
+            return ucfirst($this->classification) . " clients in {$this->country->full_name} ( {$country_code} ) are not routable on the Peppol network.";
         }
 
-        return "Country {$this->country->full_name} ( {$this->country->iso_3166_2} ) is not supported by the PEPPOL network for e-delivery.";
+        return null;
 
+    }
+
+    public function requiresDocuNinjaSigning(): bool
+    {
+        return $this->getSetting('require_invoice_signature')
+            && $this->company->docuninjaActive();
+    }
+
+    public function requiresSignature(): bool
+    {
+        return $this->getSetting('require_invoice_signature')
+            && $this->company->account->hasFeature(Account::FEATURE_INVOICE_SETTINGS)
+            && !$this->company->docuninjaActive();
     }
 }

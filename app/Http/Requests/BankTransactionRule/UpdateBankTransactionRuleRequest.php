@@ -52,7 +52,7 @@ class UpdateBankTransactionRuleRequest extends Request
         }
 
         if (isset($this->client_id)) {
-            $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,' . auth()->user()->company()->id . ',is_deleted,0';
+            $rules['client_id'] = 'bail|sometimes|integer|exists:clients,id,company_id,' . auth()->user()->company()->id . ',is_deleted,0';
         }
 
 

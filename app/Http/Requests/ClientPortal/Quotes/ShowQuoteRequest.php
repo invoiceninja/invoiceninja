@@ -23,7 +23,7 @@ class ShowQuoteRequest extends FormRequest
         auth()->guard('contact')->user()->loadMissing(['company']);
 
         return (int) auth()->guard('contact')->user()->client->id === (int) $this->quote->client_id
-             && (bool) (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_QUOTES);
+            && (bool) (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_QUOTES);
     }
 
     public function rules()

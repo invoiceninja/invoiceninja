@@ -185,8 +185,8 @@ class SubscriptionStatus extends AbstractService
                                 ->first();
 
         if ($primary_invoice
-        && $primary_invoice->status_id == Invoice::STATUS_PAID
-        && Carbon::parse($primary_invoice->date)->addSeconds($this->recurring_invoice->subscription->refund_period)->lte(now()->startOfDay()->addSeconds($primary_invoice->client->timezone_offset()))
+       && $primary_invoice->status_id == Invoice::STATUS_PAID
+       && Carbon::parse($primary_invoice->date)->addSeconds($this->recurring_invoice->subscription->refund_period)->lte(now()->startOfDay()->addSeconds($primary_invoice->client->timezone_offset()))
         ) {
             return $this->setRefundable(true);
         }

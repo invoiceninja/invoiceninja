@@ -99,12 +99,16 @@ class CreateInvitations extends AbstractService
                 }
             }
 
-            $ii = PurchaseOrderInvitationFactory::create($this->purchase_order->company_id, $this->purchase_order->user_id);
-            $ii->key = $this->createDbHash($this->purchase_order->company->db);
-            $ii->purchase_order_id = $this->purchase_order->id;
-            $ii->vendor_contact_id = $contact->id;
-            $ii->can_sign = $contact->can_sign;
-            $ii->save();
+            try {
+                $ii = PurchaseOrderInvitationFactory::create($this->purchase_order->company_id, $this->purchase_order->user_id);
+                $ii->key = $this->createDbHash($this->purchase_order->company->db);
+                $ii->purchase_order_id = $this->purchase_order->id;
+                $ii->vendor_contact_id = $contact->id;
+                $ii->can_sign = $contact->can_sign;
+                $ii->save();
+            } catch (\Illuminate\Database\QueryException $e) {
+                nlog("Duplicate invitation for purchase_order {$this->purchase_order->id} contact {$contact->id}: " . $e->getMessage());
+            }
         }
 
         if($this->purchase_order->invitations()->where('can_sign', true)->count() == 0){

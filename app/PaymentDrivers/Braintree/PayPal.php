@@ -89,8 +89,6 @@ class PayPal implements LivewireMethodInterface
             'purchaseOrderNumber' => substr($po_number, 0, 16),
         ];
 
-        $data = array_merge($data, $this->braintree->getLevel23Data($this->braintree->payment_hash));
-
         $result = $this->braintree->gateway->transaction()->sale($data);
 
         if ($result->success) {

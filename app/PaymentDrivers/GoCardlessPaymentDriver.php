@@ -71,16 +71,16 @@ class GoCardlessPaymentDriver extends BaseDriver
 
         if (
             $this->client
-            && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ['USA'])
+           && isset($this->client->country)
+           && in_array($this->client->country->iso_3166_3, ['USA'])
         ) {
             $types[] = GatewayType::BANK_TRANSFER;
         }
 
         if (
             $this->client
-            && isset($this->client->country)
-            && in_array($this->client->currency()->code, ['EUR', 'GBP','DKK','SEK','AUD','NZD','CAD'])
+           && isset($this->client->country)
+           && in_array($this->client->currency()->code, ['EUR', 'GBP','DKK','SEK','AUD','NZD','CAD'])
         ) {
             $types[] = GatewayType::DIRECT_DEBIT;
         }
@@ -264,7 +264,29 @@ class GoCardlessPaymentDriver extends BaseDriver
         $this->init();
 
         nlog('GoCardless Event');
-        // nlog($request->all());
+
+        $webhook_secret = $this->company_gateway->getConfigField('webhookSecret');
+
+        if ($webhook_secret) {
+            $sig_header = $request->header('Webhook-Signature');
+
+            if (! $sig_header) {
+                return response()->json(['error' => 'No signature header'], 403);
+            }
+
+            try {
+                \GoCardlessPro\Webhook::parse(
+                    $request->getContent(),
+                    $sig_header,
+                    $webhook_secret
+                );
+            } catch (\GoCardlessPro\Core\Exception\InvalidSignatureException $e) {
+                nlog('GoCardless webhook signature verification failed: ' . $e->getMessage());
+
+                return response()->json(['error' => 'Invalid signature'], 403);
+            }
+        }
+
         if (! $request->has('events')) {
             nlog('No GoCardless events to process in response?');
 

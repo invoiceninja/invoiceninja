@@ -109,7 +109,10 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         );
 
         if ($request->shouldUseToken()) {
-            $cgt = ClientGatewayToken::query()->where('token', $request->token)->first();
+            $cgt = ClientGatewayToken::query()
+                ->where('token', $request->token)
+                ->where('client_id', $this->square_driver->client->id)
+                ->firstOrFail();
             $token = $cgt->token;
         }
 

@@ -1536,8 +1536,8 @@ class PdfBuilder
 
             if (
                 !is_null($this->service->config->entity->{$property})
-                && !empty($this->service->config->entity->{$property})
-                && $this->service->config->entity->{$property} != 0
+               && !empty($this->service->config->entity->{$property})
+               && $this->service->config->entity->{$property} != 0
             ) {
                 continue;
             }

@@ -60,9 +60,9 @@ class CBAPowerBoardPaymentDriver extends BaseDriver
         $types = [];
 
         if ($this->client
-            && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ['AUS'])
-            && in_array($this->client->currency()->code, ['AUD'])
+           && isset($this->client->country)
+           && in_array($this->client->country->iso_3166_3, ['AUS'])
+           && in_array($this->client->currency()->code, ['AUD'])
         ) {
             $types[] = GatewayType::CREDIT_CARD;
         }

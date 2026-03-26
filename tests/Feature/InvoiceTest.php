@@ -48,6 +48,50 @@ class InvoiceTest extends TestCase
     }
 
 
+    public function testClientIdMustBeInteger()
+    {
+        $line_items = [];
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 100;
+        $item->type_id = '1';
+
+        $line_items[] = $item;
+
+        // Valid hashed_id should pass (decoded to integer in prepareForValidation)
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'line_items' => $line_items,
+        ];
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/invoices', $data)
+            ->assertStatus(200);
+
+        // Array should fail
+        $data['client_id'] = ['invalid'];
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/invoices', $data)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['client_id']);
+
+        // Boolean should fail
+        $data['client_id'] = true;
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/invoices', $data)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['client_id']);
+    }
+
     public function testLineItemValidation()
     {
 

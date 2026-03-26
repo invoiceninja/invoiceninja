@@ -154,7 +154,10 @@ class ACH implements LivewireMethodInterface
         //Handle Token Billing
         if ($request->token && strlen($request->token) > 4) {
 
-            $cgt = \App\Models\ClientGatewayToken::where('token', $request->token)->firstOrFail();
+            $cgt = \App\Models\ClientGatewayToken::query()
+                ->where('token', $request->token)
+                ->where('client_id', $this->forte->client->id)
+                ->firstOrFail();
             $payment = $this->tokenBilling($cgt, $payment_hash);
 
             return redirect()->route('client.payments.show', ['payment' => $payment->hashed_id]);

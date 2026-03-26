@@ -41,8 +41,8 @@ class ProductObserver
         // 2. Product sync is enabled
         // 3. We're NOT currently importing from QuickBooks (prevent circular sync)
         if ($product->company->quickbooks
-            && $product->company->shouldPushToQuickbooks('product')
-            && empty(\App\Services\Quickbooks\QuickbooksService::$importing[$product->company_id])) {
+           && $product->company->shouldPushToQuickbooks('product')
+           && empty(\App\Services\Quickbooks\QuickbooksService::$importing[$product->company_id])) {
 
             \App\Jobs\Quickbooks\PushToQuickbooks::dispatch(
                 'product',
@@ -81,8 +81,8 @@ class ProductObserver
         }
 
         if ($product->company->quickbooks
-            && $product->company->shouldPushToQuickbooks('product')
-            && empty(\App\Services\Quickbooks\QuickbooksService::$importing[$product->company_id])) {
+           && $product->company->shouldPushToQuickbooks('product')
+           && empty(\App\Services\Quickbooks\QuickbooksService::$importing[$product->company_id])) {
 
             \App\Jobs\Quickbooks\PushToQuickbooks::dispatch(
                 'product',

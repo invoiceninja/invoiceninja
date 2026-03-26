@@ -71,7 +71,7 @@ class InvoiceItemExport extends BaseExport
 
         $query = Invoice::query()
                         ->withTrashed()
-                        ->with('client')
+                        ->with('client', 'location')
                         ->whereHas('client', function ($q) {
                             $q->where('is_deleted', false);
                         })

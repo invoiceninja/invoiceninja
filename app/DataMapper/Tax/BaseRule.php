@@ -368,7 +368,7 @@ class BaseRule implements RuleInterface
                 $client_country_code = $this->client->country->iso_3166_2;
 
                 $is_over_threshold = isset($this->client->company->tax_data->regions->EU->has_sales_above_threshold)
-                                    && $this->client->company->tax_data->regions->EU->has_sales_above_threshold;
+                                   && $this->client->company->tax_data->regions->EU->has_sales_above_threshold;
 
                 $is_b2c = strlen($this->client->vat_number) < 2
                         || !($this->client->has_valid_vat_number ?? false)

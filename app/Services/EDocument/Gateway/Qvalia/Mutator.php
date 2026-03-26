@@ -26,6 +26,8 @@ class Mutator implements MutatorInterface
 
     private $invoice;
 
+    private string $override_vat_number = '';
+
     private MutatorUtil $mutator_util;
 
     public function __construct(public Qvalia $qvalia)
@@ -86,6 +88,17 @@ class Mutator implements MutatorInterface
     public function getSetting(string $property_path): mixed
     {
         return $this->mutator_util->getSetting($property_path);
+    }
+
+    public function setOverrideVatNumber(string $vat_number): self
+    {
+        $this->override_vat_number = $vat_number;
+        return $this;
+    }
+
+    public function getOverrideVatNumber(): string
+    {
+        return $this->override_vat_number;
     }
 
     /**

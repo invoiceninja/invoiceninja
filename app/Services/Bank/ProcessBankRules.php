@@ -106,7 +106,7 @@ class ProcessBankRules extends AbstractService
 
                 // Use match expression to handle each search key
                 match($rule['search_key']) {
-                    '$invoice.number' => $matched = $this->searchInvoiceNumber($invoiceNumber),
+                    '$invoice.number' => $matched = $this->searchInvoiceNumber($invoiceNumber, $rule),
                     '$invoice.po_number' => $matched = $this->searchInvoicePONumber($invoicePONumbers, $rule),
                     '$invoice.amount' => $matched = $this->searchInvoiceAmount($invoiceAmounts, $rule),
                     '$invoice.custom1' => $matched = $this->searchInvoiceCustomField($invoiceCustomMatches, 'custom_value1', $rule),
@@ -120,7 +120,7 @@ class ProcessBankRules extends AbstractService
                     '$payment.custom3' => $matched = $this->searchPaymentCustomField($paymentCustomMatches, 'custom_value3', $rule),
                     '$payment.custom4' => $matched = $this->searchPaymentCustomField($paymentCustomMatches, 'custom_value4', $rule),
                     '$client.id_number' => $matched = $this->searchClientIdNumber($clientIdNumbers, $rule),
-                    '$client.email' => $matched = $this->searchClientEmail($clientEmails),
+                    '$client.email' => $matched = $this->searchClientEmail($clientEmails, $rule),
                     '$client.custom1' => $matched = $this->searchClientCustomField($clientCustomMatches, 'custom_value1', $rule),
                     '$client.custom2' => $matched = $this->searchClientCustomField($clientCustomMatches, 'custom_value2', $rule),
                     '$client.custom3' => $matched = $this->searchClientCustomField($clientCustomMatches, 'custom_value3', $rule),
@@ -281,8 +281,9 @@ class ProcessBankRules extends AbstractService
                 continue;
             }
 
+            $rule_count = count($bank_transaction_rule['rules']);
+
             foreach ($bank_transaction_rule['rules'] as $rule) {
-                $rule_count = count($bank_transaction_rule['rules']);
 
                 if ($rule['search_key'] == 'description') {
                     if ($this->matchStringOperator($this->bank_transaction->description ?? '', $rule['value'] ?? '', $rule['operator'] ?? '')) {
@@ -295,37 +296,36 @@ class ProcessBankRules extends AbstractService
                         $matches++;
                     }
                 }
+            }
 
-                if (($bank_transaction_rule['matches_on_all'] && ($matches == $rule_count)) || (!$bank_transaction_rule['matches_on_all'] && $matches > 0)) {
-                    // $this->bank_transaction->client_id = empty($rule['client_id']) ? null : $rule['client_id'];
-                    $this->bank_transaction->vendor_id = $bank_transaction_rule->vendor_id;
-                    $this->bank_transaction->ninja_category_id = $bank_transaction_rule->category_id;
-                    $this->bank_transaction->status_id = BankTransaction::STATUS_MATCHED;
-                    $this->bank_transaction->bank_transaction_rule_id = $bank_transaction_rule->id;
+            if (($bank_transaction_rule['matches_on_all'] && ($matches == $rule_count)) || (!$bank_transaction_rule['matches_on_all'] && $matches > 0)) {
+                $this->bank_transaction->vendor_id = $bank_transaction_rule->vendor_id;
+                $this->bank_transaction->ninja_category_id = $bank_transaction_rule->category_id;
+                $this->bank_transaction->status_id = BankTransaction::STATUS_MATCHED;
+                $this->bank_transaction->bank_transaction_rule_id = $bank_transaction_rule->id;
+                $this->bank_transaction->save();
+
+                if ($bank_transaction_rule['auto_convert']) {
+                    $expense = ExpenseFactory::create($this->bank_transaction->company_id, $this->bank_transaction->user_id);
+                    $expense->category_id = $bank_transaction_rule->category_id ?: $this->resolveCategory();
+                    $expense->amount = $this->bank_transaction->amount;
+                    $expense->number = $this->getNextExpenseNumber($expense);
+                    $expense->currency_id = $this->bank_transaction->currency_id;
+                    $expense->date = Carbon::parse($this->bank_transaction->date);
+                    $expense->payment_date = Carbon::parse($this->bank_transaction->date);
+                    $expense->transaction_reference = $this->bank_transaction->description;
+                    $expense->transaction_id = $this->bank_transaction->id;
+                    $expense->vendor_id = $bank_transaction_rule->vendor_id;
+                    $expense->invoice_documents = $this->bank_transaction->company->invoice_expense_documents;
+                    $expense->should_be_invoiced = $this->bank_transaction->company->mark_expenses_invoiceable;
+                    $expense->save();
+
+                    $this->bank_transaction->expense_id = $this->coalesceExpenses($expense->hashed_id);
+                    $this->bank_transaction->status_id = BankTransaction::STATUS_CONVERTED;
                     $this->bank_transaction->save();
-
-                    if ($bank_transaction_rule['auto_convert']) {
-                        $expense = ExpenseFactory::create($this->bank_transaction->company_id, $this->bank_transaction->user_id);
-                        $expense->category_id = $bank_transaction_rule->category_id ?: $this->resolveCategory();
-                        $expense->amount = $this->bank_transaction->amount;
-                        $expense->number = $this->getNextExpenseNumber($expense);
-                        $expense->currency_id = $this->bank_transaction->currency_id;
-                        $expense->date = Carbon::parse($this->bank_transaction->date);
-                        $expense->payment_date = Carbon::parse($this->bank_transaction->date);
-                        $expense->transaction_reference = $this->bank_transaction->description;
-                        $expense->transaction_id = $this->bank_transaction->id;
-                        $expense->vendor_id = $bank_transaction_rule->vendor_id;
-                        $expense->invoice_documents = $this->bank_transaction->company->invoice_expense_documents;
-                        $expense->should_be_invoiced = $this->bank_transaction->company->mark_expenses_invoiceable;
-                        $expense->save();
-
-                        $this->bank_transaction->expense_id = $this->coalesceExpenses($expense->hashed_id);
-                        $this->bank_transaction->status_id = BankTransaction::STATUS_CONVERTED;
-                        $this->bank_transaction->save();
-
-                        break;
-                    }
                 }
+
+                break; // Stop after first successful match
             }
         }
     }
@@ -393,22 +393,18 @@ class ProcessBankRules extends AbstractService
         };
     }
 
-    private function searchInvoiceNumber(&$invoiceNumber): bool
+    private function searchInvoiceNumber(&$invoiceNumber, array $rule): bool
     {
         if ($invoiceNumber !== null) {
             return $invoiceNumber !== false;
         }
 
-        $invoices = Invoice::query()
-            ->withTrashed()
-            ->where('company_id', $this->bank_transaction->company_id)
-            ->whereIn('status_id', [1,2,3])
-            ->where('is_deleted', 0)
-            ->get();
-
-        $invoiceNumber = $invoices->first(function ($value) {
-            $description = str_replace("\n", "", $this->bank_transaction->description);
-            return str_contains($description, $value->number);
+        $invoiceNumber = $this->invoices->first(function ($value) use ($rule) {
+            return $this->matchStringOperator(
+                $this->bank_transaction->description,
+                $value->number,
+                $rule['operator']
+            );
         });
 
         return $invoiceNumber !== null;
@@ -575,7 +571,7 @@ class ProcessBankRules extends AbstractService
         return $clientIdNumbers->count() > 0;
     }
 
-    private function searchClientEmail(&$clientEmails): bool
+    private function searchClientEmail(&$clientEmails, array $rule): bool
     {
         if ($clientEmails !== null) {
             return $clientEmails->count() > 0;
@@ -583,10 +579,17 @@ class ProcessBankRules extends AbstractService
 
         $clientEmails = Client::query()
             ->where('company_id', $this->bank_transaction->company_id)
-            ->whereHas('contacts', function ($q) {
-                $q->where('email', $this->bank_transaction->description);
-            })
-            ->get();
+            ->with('contacts')
+            ->get()
+            ->filter(function ($client) use ($rule) {
+                return $client->contacts->contains(function ($contact) use ($rule) {
+                    return $this->matchStringOperator(
+                        $this->bank_transaction->description,
+                        $contact->email,
+                        $rule['operator']
+                    );
+                });
+            });
 
         return $clientEmails->count() > 0;
     }
