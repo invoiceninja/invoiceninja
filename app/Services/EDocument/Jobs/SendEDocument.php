@@ -76,6 +76,11 @@ class SendEDocument implements ShouldQueue
             return; //Bad Actor present.
         }
 
+        if ($model->client && $model->client->checkDeliveryNetwork()) {
+            nlog("Client is not routable on the Peppol network.");
+            return;
+        }
+
         $model = $model->service()->markSent()->save();
 
         /** Concrete implementation current linked to Storecove only */
