@@ -4,6 +4,7 @@
           description: 'The expense hashed id'
           type: string
           example: 'Opnel5aKBz'
+          readOnly: true
         user_id:
           description: 'The user hashed id'
           type: string

@@ -4,6 +4,7 @@
           description: 'The unique hashed identifier for the quote'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         user_id:
           description: 'The unique hashed identifier for the user who created the quote'
           type: string
