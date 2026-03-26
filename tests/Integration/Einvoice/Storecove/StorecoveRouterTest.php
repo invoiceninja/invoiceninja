@@ -947,12 +947,13 @@ class StorecoveRouterTest extends TestCase
         $this->assertEquals('DE:LWID', $required['id_number']);
     }
 
-    public function testResolveRequiredFieldsCaBusinessNeedsIdOnly()
+    public function testResolveRequiredFieldsCaBusinessNeedsCbn()
     {
         $storecove = new Storecove();
         $required = $storecove->router->resolveRequiredClientFields('CA', 'business');
 
-        $this->assertArrayNotHasKey('vat_number', $required);
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertEquals('CA:CBN', $required['vat_number']);
         $this->assertArrayHasKey('id_number', $required);
         $this->assertEquals('CA:CBN', $required['id_number']);
     }
