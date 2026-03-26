@@ -331,7 +331,7 @@ class InvoiceFilters extends QueryFilters
 
         if ($sort_col[0] == 'project_id') {
 
-            return $this->builder->orderByRaw('ISNULL(project_id), project_id ' . $dir)
+            return $this->builder->orderByRaw('ISNULL(project_id)')
                              ->orderBy(\App\Models\Project::select('name')
                              ->whereColumn('projects.id', 'invoices.project_id'), $dir);
 

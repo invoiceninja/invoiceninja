@@ -68,7 +68,7 @@ class ProjectFilters extends QueryFilters
         $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
 
         if ($sort_col[0] == 'client_id') {
-            return $this->builder->orderByRaw('ISNULL(client_id), client_id ' . $dir)
+            return $this->builder->orderByRaw('ISNULL(client_id)')
                     ->orderBy(\App\Models\Client::select('name')
                     ->whereColumn('clients.id', 'projects.client_id'), $dir);
         }
