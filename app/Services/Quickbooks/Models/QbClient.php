@@ -191,6 +191,75 @@ class QbClient implements SyncInterface
 
     public function sync(string $id, string $last_updated): void {}
 
+    /**
+     * findOrCreateClient
+     *
+     * Finds a Ninja client by QB customer ID, or fetches the customer
+     * from QuickBooks and creates/links a Ninja client.
+     *
+     * @param  string $qb_customer_id
+     * @return int|null
+     */
+    public function findOrCreateClient(string $qb_customer_id): ?int
+    {
+        $company_id = $this->service->company->id;
+
+        // Fast path: already linked by QB ID
+        $existing = Client::query()
+            ->withTrashed()
+            ->where('company_id', $company_id)
+            ->where('sync->qb_id', $qb_customer_id)
+            ->first();
+
+        if ($existing) {
+            return $existing->id;
+        }
+
+        // Fetch the full customer record from QuickBooks
+        try {
+            $qb_customer = $this->find($qb_customer_id);
+        } catch (\Exception $e) {
+            nlog("QuickBooks: Failed to fetch customer {$qb_customer_id} from QB API: {$e->getMessage()}");
+            return null;
+        }
+
+        if (!$qb_customer) {
+            nlog("QuickBooks: Customer {$qb_customer_id} not found in QB API — skipping invoice");
+            return null;
+        }
+
+        // Transform and run through the standard find/create flow
+        $ninja_data = $this->client_transformer->qbToNinja($qb_customer, $this->service);
+
+        $client = $this->findClient($ninja_data[0]['id'], $ninja_data[0]['name'] ?? null, $ninja_data[1]['email'] ?? null);
+
+        if (!$client) {
+            nlog("QuickBooks: Unable to resolve client for QB customer {$qb_customer_id}");
+            return null;
+        }
+
+        $client->fill($ninja_data[0]);
+        $client->service()->applyNumber()->save();
+
+        $contact = $client->contacts()->where('email', $ninja_data[1]['email'])->first();
+
+        if (!$contact) {
+            $contact = ClientContactFactory::create($this->service->company->id, $this->service->company->owner()->id);
+            $contact->client_id = $client->id;
+            $contact->send_email = true;
+            $contact->is_primary = true;
+            $contact->fill($ninja_data[1]);
+            $contact->saveQuietly();
+        } else {
+            $contact->fill($ninja_data[1]);
+            $contact->saveQuietly();
+        }
+
+        nlog("QuickBooks: Auto-linked/created Ninja client {$client->id} for QB customer {$qb_customer_id}");
+
+        return $client->id;
+    }
+
     private function findClient(string $key, ?string $name = null, ?string $email = null): ?Client
     {
         $company_id = $this->service->company->id;

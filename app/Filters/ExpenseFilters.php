@@ -239,7 +239,7 @@ class ExpenseFilters extends QueryFilters
 
         if ($sort_col[0] == 'client_id' && in_array($sort_col[1], ['asc', 'desc'])) {
             return $this->builder
-                    ->orderByRaw('ISNULL(client_id), client_id ' . $sort_col[1])
+                    ->orderByRaw('ISNULL(client_id)')
                     ->orderBy(\App\Models\Client::select('name')
                     ->whereColumn('clients.id', 'expenses.client_id'), $sort_col[1]);
         }
@@ -247,14 +247,14 @@ class ExpenseFilters extends QueryFilters
 
         if ($sort_col[0] == 'project' && in_array($sort_col[1], ['asc', 'desc'])) {
             return $this->builder
-                    ->orderByRaw('ISNULL(project_id), project_id ' . $sort_col[1])
+                    ->orderByRaw('ISNULL(project_id)')
                     ->orderBy(\App\Models\Project::select('name')
                     ->whereColumn('projects.id', 'expenses.project_id'), $sort_col[1]);
         }
 
         if ($sort_col[0] == 'vendor_id' && in_array($sort_col[1], ['asc', 'desc'])) {
             return $this->builder
-                    ->orderByRaw('ISNULL(vendor_id), vendor_id ' . $sort_col[1])
+                    ->orderByRaw('ISNULL(vendor_id)')
                     ->orderBy(\App\Models\Vendor::select('name')
                     ->whereColumn('vendors.id', 'expenses.vendor_id'), $sort_col[1]);
 
@@ -262,7 +262,7 @@ class ExpenseFilters extends QueryFilters
 
         if ($sort_col[0] == 'category_id' && in_array($sort_col[1], ['asc', 'desc'])) {
             return $this->builder
-                    ->orderByRaw('ISNULL(category_id), category_id ' . $sort_col[1])
+                    ->orderByRaw('ISNULL(category_id)')
                     ->orderBy(\App\Models\ExpenseCategory::select('name')
                     ->whereColumn('expense_categories.id', 'expenses.category_id'), $sort_col[1]);
         }
