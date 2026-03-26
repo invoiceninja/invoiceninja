@@ -267,7 +267,7 @@ class CheckDeliveryNetworkTest extends TestCase
     // Null classification — must NOT silently pass
     // ──────────────────────────��───────────────────────────
 
-    public function testNullClassificationBeIsBlocked(): void
+    public function testNullClassificationBeIsClassedAsBusiness(): void
     {
         $client = Client::factory()->create([
             'user_id' => $this->user->id,
@@ -277,10 +277,10 @@ class CheckDeliveryNetworkTest extends TestCase
         ]);
 
         $result = $client->fresh()->checkDeliveryNetwork();
-        $this->assertIsString($result, "BE with null classification should be blocked");
+        $this->assertNull($result);
     }
 
-    public function testNullClassificationDeIsBlocked(): void
+    public function testNullClassificationDeIsClassedAsBusiness(): void
     {
         $client = Client::factory()->create([
             'user_id' => $this->user->id,
@@ -290,7 +290,7 @@ class CheckDeliveryNetworkTest extends TestCase
         ]);
 
         $result = $client->fresh()->checkDeliveryNetwork();
-        $this->assertIsString($result, "DE with null classification should be blocked");
+        $this->assertNull($result);
     }
 
     // ──────────────────────────────────────────────────────
