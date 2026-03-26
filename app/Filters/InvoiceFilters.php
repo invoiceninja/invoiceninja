@@ -278,7 +278,12 @@ class InvoiceFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
-        if (!is_array($sort_col) || count($sort_col) != 2 || (!in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable())) && !str_starts_with($sort_col[0], 'client.') && !str_starts_with($sort_col[0], 'contact.') && !str_starts_with($sort_col[0], 'documents'))) {
+        if (!is_array($sort_col) || 
+        count($sort_col) != 2 || 
+        (!in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable())) 
+            && !str_starts_with($sort_col[0], 'client.') 
+            && !str_starts_with($sort_col[0], 'contact.') 
+            && !str_starts_with($sort_col[0], 'documents'))) {
             return $this->builder;
         }
 
@@ -289,7 +294,7 @@ class InvoiceFilters extends QueryFilters
             return $this->builder->withCount('documents')->orderBy('documents_count', $dir);
         }
 
-        if ($sort_col[0] == 'client_id') {
+        if (in_array($sort_col[0],['client.name','client_id'])) {
 
             /**
              * future options for order by raw if this is not performant:
@@ -331,7 +336,7 @@ class InvoiceFilters extends QueryFilters
 
         if ($sort_col[0] == 'project_id') {
 
-            return $this->builder->orderByRaw('ISNULL(project_id)')
+            return $this->builder->orderByRaw('ISNULL(project_id), project_id ' . $dir)
                              ->orderBy(\App\Models\Project::select('name')
                              ->whereColumn('projects.id', 'invoices.project_id'), $dir);
 
