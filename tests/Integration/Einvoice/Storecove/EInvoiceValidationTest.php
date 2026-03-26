@@ -283,7 +283,7 @@ class EInvoiceValidationTest extends TestCase
             'company_id' => $company->id,
             'classification' => 'individual',
             'vat_number' => '',
-            'country_id' => 1,
+            'country_id' => 56,
             'address1' => '10 Wallaby Way',
             'address2' => '',
             'city' => '',
@@ -364,7 +364,7 @@ class EInvoiceValidationTest extends TestCase
         $client = Client::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $company->id,
-            'classification' => 'individual',
+            'classification' => 'business',
             'vat_number' => '',
             'country_id' => 276,
             'address1' => '10 Wallaby Way',
@@ -390,7 +390,7 @@ class EInvoiceValidationTest extends TestCase
             nlog($validation);
         }
 
-        $this->assertTrue($validation['passes']);
+        $this->assertFalse($validation['passes']);
 
     }
 
@@ -685,7 +685,7 @@ class EInvoiceValidationTest extends TestCase
             'account_id' => $this->account->id,
         ]);
 
-        // SE individual with no VAT or id_number — should still pass
+        // SE individual with no VAT or id_number — should fail
         $client = Client::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $company->id,
@@ -711,7 +711,7 @@ class EInvoiceValidationTest extends TestCase
         $el = new EntityLevel();
         $validation = $el->checkClient($client);
 
-        $this->assertTrue($validation['passes']);
+        $this->assertFalse($validation['passes']);
     }
 
     public function testDeGovClientNeedsIdNumber()
