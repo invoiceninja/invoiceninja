@@ -121,7 +121,7 @@ class CreatePeppolTestData extends Command
                 'gov_id' => '003798765432', 'individual_id' => '', 'individual_vat' => '',
             ],
             'FR' => [
-                'vat' => 'FR82345678911', 'id_number' => '82345678911', 'tax_rate' => 20, 'tax_name' => 'TVA',
+                'vat' => 'FR82345678911', 'id_number' => '823456789', 'tax_rate' => 20, 'tax_name' => 'TVA',
                 'city' => 'Paris', 'state' => 'Ile-de-France', 'postal_code' => '75001', 'currency' => '3',
                 'address1' => 'Rue de Rivoli 1',
                 'gov_id' => '12345678901234', 'individual_id' => '', 'individual_vat' => '',
@@ -321,7 +321,7 @@ class CreatePeppolTestData extends Command
 
             // ── Oceania ──
             'AU' => [
-                'vat' => '12345678901', 'id_number' => 'ABN12345678901', 'tax_rate' => 10, 'tax_name' => 'GST',
+                'vat' => '12345678901', 'id_number' => '12345678901', 'tax_rate' => 10, 'tax_name' => 'GST',
                 'city' => 'Sydney', 'state' => 'NSW', 'postal_code' => '2000', 'currency' => '12',
                 'address1' => 'George Street 1',
                 'gov_id' => 'ABN98765432100', 'individual_id' => '', 'individual_vat' => '',
@@ -347,7 +347,7 @@ class CreatePeppolTestData extends Command
                 'gov_id' => 'T9876543210987', 'individual_id' => '', 'individual_vat' => '',
             ],
             'MY' => [
-                'vat' => 'MY123456789012', 'id_number' => 'C12345678', 'tax_rate' => 8, 'tax_name' => 'SST',
+                'vat' => 'MY123456789012', 'id_number' => 'C1234567890', 'tax_rate' => 8, 'tax_name' => 'SST',
                 'city' => 'Kuala Lumpur', 'state' => 'WP Kuala Lumpur', 'postal_code' => '50000', 'currency' => '19',
                 'address1' => 'Jalan Bukit Bintang 1',
                 'gov_id' => 'GOV-MY-001', 'individual_id' => '', 'individual_vat' => '',

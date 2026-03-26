@@ -26,8 +26,8 @@ class StorecoveRouter
             ["B","DUNS, GLN, LEI","US:EIN","DUNS, GLN, LEI"],
             // ["B","DUNS, GLN, LEI","US:SSN","DUNS, GLN, LEI"],
         ],
-        "CA" => ["B","CA:CBN",false,"CA:CBN"],
-        "MX" => ["B","MX:RFC",false,"MX:RFC"],
+        "CA" => ["B","CA:CBN","CA:CBN","CA:CBN"],
+        "MX" => ["B","MX:RFC","MX:RFC","MX:RFC"],
         "AU" => ["B+G","AU:ABN","AU:ABN","AU:ABN"],
         "NZ" => ["B+G","GLN","NZ:GST","GLN"],
         "CH" => ["B+G","CH:UIDB","CH:VAT","CH:UIDB"],
@@ -70,7 +70,7 @@ class StorecoveRouter
             ["G","","IT:IVA","IT:CUUO"],// (SDI)
         ],
         "LT" => ["B+G","LT:LEC","LT:VAT","LT:LEC"],
-        "LU" => ["B+G","LU:MAT","LU:VAT","LU:VAT"],
+        "LU" => ["B+G","LU:VAT","LU:VAT","LU:VAT"],
         "LV" => ["B+G","","LV:VAT","LV:VAT"],
         "MC" => ["B+G","","MC:VAT","MC:VAT"],
         "ME" => ["B+G","","ME:VAT","ME:VAT"],
@@ -165,7 +165,7 @@ class StorecoveRouter
         'SE:ORGNR' => '/^\d{10}$/',
         'NO:ORG'   => '/^\d{9}$/',
         'BE:EN'    => '/^(BE)?\d{10}$/i',
-        'DK:DIGST' => '/^\d{8,10}$/',
+        'DK:DIGST' => '/^(DK)?\d{8}$/i',
         'EE:CC'    => '/^\d{8}$/',
         'FI:OVT'   => '/^\d{12,13}$/',
         'FR:SIRENE' => '/^\d{9}$/',
@@ -314,6 +314,43 @@ class StorecoveRouter
         }
 
         return $rules[0][2];
+    }
+
+    /**
+     * Checks whether a classification (business/government/individual) is routable
+     * on the Peppol network for a given country.
+     *
+     * @param  string $country ISO 3166-2 country code
+     * @param  string $classification business|government|individual
+     * @return bool
+     */
+    public function isClassificationRoutable(string $country, string $classification): bool
+    {
+        $rules = $this->routing_rules[$country] ?? null;
+
+        if (!$rules) {
+            return false;
+        }
+
+        $code = match ($classification) {
+            'government' => 'G',
+            'individual' => 'C',
+            default => 'B',
+        };
+
+        // Single-array country (e.g. ["B+G", ...])
+        if (is_array($rules) && !is_array($rules[0])) {
+            return stripos($rules[0], $code) !== false;
+        }
+
+        // Multi-array — check if any rule matches this classification
+        foreach ($rules as $r) {
+            if (stripos($r[0], $code) !== false) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -518,6 +555,42 @@ class StorecoveRouter
         ];
 
         return $map[$scheme] ?? $scheme;
+    }
+
+    /**
+     * Returns a static delivery map for all supported countries.
+     *
+     * Each entry contains routability by classification and the required
+     * client identifiers, so the UI can determine sendability without
+     * calling the validation endpoint.
+     *
+     * @return array<string, array{
+     *   classifications: array<string, bool>,
+     *   required_fields: array<string, array<string, string>>
+     * }>
+     */
+    public function getDeliveryMap(): array
+    {
+        $map = [];
+
+        foreach ($this->routing_rules as $country => $rules) {
+            $entry = [
+                'classifications' => [
+                    'business' => $this->isClassificationRoutable($country, 'business'),
+                    'government' => $this->isClassificationRoutable($country, 'government'),
+                    'individual' => $this->isClassificationRoutable($country, 'individual'),
+                ],
+                'required_fields' => [
+                    'business' => $this->resolveRequiredClientFields($country, 'business'),
+                    'government' => $this->resolveRequiredClientFields($country, 'government'),
+                    'individual' => $this->resolveRequiredClientFields($country, 'individual'),
+                ],
+            ];
+
+            $map[$country] = $entry;
+        }
+
+        return $map;
     }
 
     public function resolveIdentifierTypeByValue(string $identifier): string

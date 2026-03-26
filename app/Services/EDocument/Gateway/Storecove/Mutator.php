@@ -253,11 +253,16 @@ class Mutator implements MutatorInterface
 
         $identifier = false;
 
+        // Non-VAT routing schemes (DK:DIGST, SE:ORGNR, FI:OVT, EE:CC, NO:ORG, LT:LEC, etc.)
+        // use id_number (org/registry number), not vat_number.
+        // IT:CUUO uses routing_id (SDI code).
+        $is_vat_scheme = str_contains($code, ':VAT') || str_contains($code, ':IVA') || str_contains($code, ':CF');
+
         if ($this->invoice->client->country->iso_3166_2 == 'FR') {
             $identifier = $this->invoice->client->id_number;
-        } elseif ($this->invoice->client->country->iso_3166_2 == 'DK') {
-            $identifier = $this->invoice->client->id_number;
-        } elseif ($this->invoice->client->country->iso_3166_2 == 'SE' && strlen($this->invoice->client->id_number ?? '') > 2) {
+        } elseif (str_contains($code, ':CUUO') && strlen($this->invoice->client->routing_id ?? '') > 1) {
+            $identifier = $this->invoice->client->routing_id;
+        } elseif (!$is_vat_scheme && strlen($this->invoice->client->id_number ?? '') > 1) {
             $identifier = $this->invoice->client->id_number;
         } else {
             $identifier = $this->invoice->client->vat_number;
@@ -273,6 +278,11 @@ class Mutator implements MutatorInterface
 
         $country_prefix = $this->invoice->client->country->iso_3166_2;
         $identifier = preg_replace("/[^a-zA-Z0-9]/", "", $identifier);
+
+        // DK:DIGST expects DK prefix on the CVR number — ensure it's present
+        if ($code === 'DK:DIGST' && !str_starts_with(strtoupper($identifier), 'DK')) {
+            $identifier = 'DK' . $identifier;
+        }
 
         //Check the recipient is on the network, and can be delivered the correct document.
         if($this->invoice->client->country->iso_3166_2 == "BE"){

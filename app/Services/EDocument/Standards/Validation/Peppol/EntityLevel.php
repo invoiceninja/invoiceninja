@@ -176,6 +176,7 @@ class EntityLevel implements EntityLevelInterface
     public function checkClient(Client $client): array
     {
         $this->init($client->locale());
+
         $this->errors['client'] = $this->testClientState($client);
         $this->errors['passes'] = count($this->errors['client']) == 0;
 
@@ -204,7 +205,7 @@ class EntityLevel implements EntityLevelInterface
         $this->init($invoice->client->locale());
 
         $this->errors['invoice'] = [];
-        $this->errors['client'] = $this->testClientState($invoice->client);
+        $this->errors['client'] = $this->testClientState($invoice->client);        
         $this->errors['company'] = $this->testCompanyState($invoice->client); // uses client level settings which is what we want
 
         if (count($this->errors['client']) > 0) {
@@ -312,19 +313,19 @@ class EntityLevel implements EntityLevelInterface
             }
         }
 
-
-
         //Primary contact email is present.
         if ($client->present()->email() == 'No Email Set') {
             $errors[] = ['field' => 'email', 'label' => ctrans("texts.email")];
         }
 
-        $delivery_network_supported = $client->checkDeliveryNetwork();
 
-        if (is_string($delivery_network_supported)) {
-            $errors[] = ['field' => ctrans("texts.country"), 'label' => $delivery_network_supported];
+        if ($client->country_id && $client->country) {
+            $non_routable = $client->checkDeliveryNetwork();
+
+            if (is_string($non_routable)) {
+                $errors[] = ['field' => 'classification', 'label' => $non_routable];
+            }
         }
-
 
 
         return $errors;
