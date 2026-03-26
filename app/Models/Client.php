@@ -1069,7 +1069,7 @@ class Client extends BaseModel implements HasLocalePreference
 
         $router = new \App\Services\EDocument\Gateway\Storecove\StorecoveRouter();
 
-        if (!$router->isClassificationRoutable($country_code, $this->classification)) {
+        if (!$router->isClassificationRoutable($country_code, $this->classification ?? 'business')) {
             return ucfirst($this->classification) . " clients in {$this->country->full_name} ( {$country_code} ) are not routable on the Peppol network.";
         }
 
