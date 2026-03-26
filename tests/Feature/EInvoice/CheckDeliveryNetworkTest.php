@@ -17,6 +17,7 @@ use App\Models\Client;
 use App\Models\Company;
 use Tests\MockAccountData;
 use App\Models\ClientContact;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class CheckDeliveryNetworkTest extends TestCase
@@ -79,27 +80,21 @@ class CheckDeliveryNetworkTest extends TestCase
     // AT, BE, DK, EE, FI, DE, IS, LT, LU, NL, NO, SE, IE
     // ──────────────────────────────────��───────────────────
 
-    /**
-     * @dataProvider peppolBusinessCountryProvider
-     */
+    #[DataProvider('peppolBusinessCountryProvider')]
     public function testBusinessCountryBusinessIsRoutable(int $countryId, string $countryCode): void
     {
         $client = $this->makeClient($countryId, 'business');
         $this->assertNull($client->checkDeliveryNetwork(), "$countryCode business should be routable");
     }
 
-    /**
-     * @dataProvider peppolBusinessCountryProvider
-     */
+    #[DataProvider('peppolBusinessCountryProvider')]
     public function testBusinessCountryGovernmentIsRoutable(int $countryId, string $countryCode): void
     {
         $client = $this->makeClient($countryId, 'government');
         $this->assertNull($client->checkDeliveryNetwork(), "$countryCode government should be routable");
     }
 
-    /**
-     * @dataProvider peppolBusinessCountryProvider
-     */
+    #[DataProvider('peppolBusinessCountryProvider')]
     public function testBusinessCountryIndividualIsBlocked(int $countryId, string $countryCode): void
     {
         $client = $this->makeClient($countryId, 'individual');
@@ -132,18 +127,14 @@ class CheckDeliveryNetworkTest extends TestCase
     // FR, GR, PT, RO, SI, ES, GB
     // ──────────────────────────────────────────────────────
 
-    /**
-     * @dataProvider peppolGovernmentCountryProvider
-     */
+    #[DataProvider('peppolGovernmentCountryProvider')]
     public function testGovernmentCountryGovernmentIsRoutable(int $countryId, string $countryCode): void
     {
         $client = $this->makeClient($countryId, 'government');
         $this->assertNull($client->checkDeliveryNetwork(), "$countryCode government should be routable");
     }
 
-    /**
-     * @dataProvider peppolGovernmentCountryProvider
-     */
+    #[DataProvider('peppolGovernmentCountryProvider')]
     public function testGovernmentCountryIndividualIsBlocked(int $countryId, string $countryCode): void
     {
         $client = $this->makeClient($countryId, 'individual');
@@ -196,9 +187,7 @@ class CheckDeliveryNetworkTest extends TestCase
     // Unsupported countries — all classifications blocked
     // ───────────────────��─────────────────────────────��────
 
-    /**
-     * @dataProvider unsupportedCountryProvider
-     */
+    #[DataProvider('unsupportedCountryProvider')]
     public function testUnsupportedCountryBusinessIsBlocked(int $countryId, string $countryCode): void
     {
         $client = $this->makeClient($countryId, 'business');
@@ -206,9 +195,7 @@ class CheckDeliveryNetworkTest extends TestCase
         $this->assertIsString($result, "$countryCode business should be blocked");
     }
 
-    /**
-     * @dataProvider unsupportedCountryProvider
-     */
+    #[DataProvider('unsupportedCountryProvider')]
     public function testUnsupportedCountryGovernmentIsBlocked(int $countryId, string $countryCode): void
     {
         $client = $this->makeClient($countryId, 'government');
@@ -216,9 +203,7 @@ class CheckDeliveryNetworkTest extends TestCase
         $this->assertIsString($result, "$countryCode government should be blocked");
     }
 
-    /**
-     * @dataProvider unsupportedCountryProvider
-     */
+    #[DataProvider('unsupportedCountryProvider')]
     public function testUnsupportedCountryIndividualIsBlocked(int $countryId, string $countryCode): void
     {
         $client = $this->makeClient($countryId, 'individual');
