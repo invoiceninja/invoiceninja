@@ -38,7 +38,7 @@ class StorePaymentMethodRequest extends FormRequest
             ->pluck('gateway_type_id')
             ->toArray();
 
-        return in_array($this->query('method'), $available_methods);
+        return in_array((int)$this->query('method'), $available_methods);
     }
 
     /**
