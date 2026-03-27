@@ -247,6 +247,7 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::post('einvoice/validateEntity', [EInvoiceController::class, 'validateEntity'])->name('einvoice.validateEntity');
     Route::post('einvoice/configurations', [EInvoiceController::class, 'configurations'])->name('einvoice.configurations');
 
+    Route::post('einvoice/peppol/discovery', [EInvoicePeppolController::class, 'discovery'])->name('einvoice.peppol.discovery');
     Route::post('einvoice/peppol/legal_entity', [EInvoicePeppolController::class, 'show'])->name('einvoice.peppol.legal_entity');
     Route::post('einvoice/peppol/setup', [EInvoicePeppolController::class, 'setup'])->name('einvoice.peppol.setup');
     Route::post('einvoice/peppol/disconnect', [EInvoicePeppolController::class, 'disconnect'])->name('einvoice.peppol.disconnect');

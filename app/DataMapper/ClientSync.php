@@ -24,10 +24,14 @@ class ClientSync implements Castable
 
     public bool $dn_dirty = false;
 
+    /** @var ?bool null = not yet checked, true = found on network, false = checked and not found */
+    public ?bool $peppol_discovery = null;
+
     public function __construct(array $attributes = [])
     {
         $this->qb_id = $attributes['qb_id'] ?? '';
         $this->dn_dirty = $attributes['dn_dirty'] ?? false;
+        $this->peppol_discovery = array_key_exists('peppol_discovery', $attributes) ? $attributes['peppol_discovery'] : null;
     }
     /**
      * Get the name of the caster class to use when casting from / to this cast target.

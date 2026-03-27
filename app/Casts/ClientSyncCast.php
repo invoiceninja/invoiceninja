@@ -33,6 +33,7 @@ class ClientSyncCast implements CastsAttributes
         $is = new ClientSync();
         $is->qb_id = $data['qb_id'] ?? '';
         $is->dn_dirty = $data['dn_dirty'] ?? false;
+        $is->peppol_discovery = array_key_exists('peppol_discovery', $data) ? $data['peppol_discovery'] : null;
 
         return $is;
     }
@@ -49,6 +50,7 @@ class ClientSyncCast implements CastsAttributes
             $key => json_encode([
                 'qb_id' => $value->qb_id,
                 'dn_dirty' => $value->dn_dirty,
+                'peppol_discovery' => $value->peppol_discovery,
             ]),
         ];
     }

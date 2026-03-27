@@ -216,17 +216,12 @@ class Mutator implements MutatorInterface
     public function setClientRoutingCode(): self
     {
 
-        if ($this->invoice->client->classification == 'individual' || (strlen($this->invoice->client->vat_number ?? '') < 2 && strlen($this->invoice->client->id_number ?? '') < 2)) {
-            return $this->setEmailRouting($this->getIndividualEmailRoute());
+        if (strlen($this->invoice->client->vat_number ?? '') < 2 && strlen($this->invoice->client->id_number ?? '') < 2) {
+            if ($this->invoice->client->classification == 'individual') {
+                return $this->setEmailRouting($this->getIndividualEmailRoute());
+            }
+            return $this;
         }
-
-        //Regardless, always include the client email address as a route - Storecove will only use this as a fallback.
-        $client_email = $this->getIndividualEmailRoute();
-
-        if (strlen($client_email) > 2) {
-            $this->setEmailRouting($client_email);
-        }
-
 
         if (stripos($this->invoice->client->routing_id ?? '', ":") !== false) {
 

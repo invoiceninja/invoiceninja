@@ -327,6 +327,20 @@ class EntityLevel implements EntityLevelInterface
             }
         }
 
+        // Check PEPPOL network discovery — the client must be identifiable on the network
+        // null = not yet checked (allow, but dispatch async check to populate for next time)
+        // true = found on network
+        // false = checked and not found (block)
+        if ($client->classification !== 'individual') {
+            $discovery = $client->sync?->peppol_discovery;
+
+            if ($discovery === false) {
+                $errors[] = ['field' => 'peppol_discovery', 'label' => ctrans('texts.client_not_found_on_peppol_network')];
+            } elseif ($discovery === null && $client->company->peppolSendingEnabled() && is_null($client->checkDeliveryNetwork())) {
+                \App\Jobs\Client\CheckPeppolDiscovery::dispatch($client, $client->company);
+            }
+        }
+
 
         return $errors;
 

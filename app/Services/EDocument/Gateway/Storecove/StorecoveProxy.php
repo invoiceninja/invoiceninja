@@ -225,6 +225,34 @@ class StorecoveProxy
         return $error;
     }
 
+    /**
+     * Check if a recipient is discoverable on the PEPPOL network.
+     *
+     * Hosted: calls Storecove directly.
+     * Self-hosted: proxies through the hosted Ninja server.
+     */
+    public function discovery(string $identifier, string $scheme): bool
+    {
+        if (Ninja::isHosted()) {
+            return $this->storecove->discovery($identifier, $scheme);
+        }
+
+        $payload = [
+            'identifier' => $identifier,
+            'scheme' => $scheme,
+        ];
+
+        $response = Http::baseUrl(config('ninja.hosted_ninja_url'))
+            ->withHeaders($this->getHeaders())
+            ->post('/api/einvoice/peppol/discovery', $payload);
+
+        if ($response->successful()) {
+            return ($response->json()['discovered'] ?? false) === true;
+        }
+
+        return false;
+    }
+
     private function remoteRequest(string $uri, array $payload = []): array
     {
 
