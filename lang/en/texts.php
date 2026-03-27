@@ -5948,7 +5948,7 @@ $lang = array(
     'invalid_vat_number_format' => 'Invalid VAT number format',
     'invalid_routing_id_format' => 'Invalid routing ID format',
     'sign_the_document' => 'Sign the document',
-    'client_not_found_on_peppol_network' => 'Client could not be identified on the PEPPOL network. Please verify their identifiers.',
+    'client_not_found_on_peppol_network' => 'Client could not be identified on the PEPPOL network.',
 );
 
 return $lang;

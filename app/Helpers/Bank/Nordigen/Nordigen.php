@@ -285,7 +285,7 @@ class Nordigen
             nlog("Nordigen:: AccountActiveStatus:: {$e->getMessage()} {$e->getCode()}");
 
             if (strpos($e->getMessage(), 'Invalid Account ID') !== false) {
-                ['status' => 'Invalid Account ID'];
+                return ['status' => 'Invalid Account ID'];
             }
 
             return ['status' => 'EXPIRED'];

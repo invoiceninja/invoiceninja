@@ -231,7 +231,7 @@ class Mutator implements MutatorInterface
                 $scheme = $parts[0];
                 $id = $parts[1];
 
-                if ($this->storecove->discovery($id, $scheme)) {
+                if ($this->proxyDiscovery($id, $scheme)) {
                     $this->setStorecoveMeta($this->buildRouting([
                         ["scheme" => $scheme, "id" => $id],
                     ]));
@@ -284,14 +284,14 @@ class Mutator implements MutatorInterface
 
             $identifier = preg_replace("/^{$country_prefix}/i", "", $identifier);
 
-            if ($this->storecove->discovery($identifier, 'BE:EN')) {
+            if ($this->proxyDiscovery($identifier, 'BE:EN')) {
                     $this->setStorecoveMeta($this->buildRouting([
                         ["scheme" => 'BE:EN', "id" => $identifier],
                     ]));
 
                     return $this;
             }
-            elseif($this->storecove->discovery("BE".$identifier, 'BE:VAT')) {
+            elseif($this->proxyDiscovery("BE".$identifier, 'BE:VAT')) {
                 $this->setStorecoveMeta($this->buildRouting([
                     ["scheme" => 'BE:VAT', "id" => "BE".$identifier],
                 ]));
@@ -338,6 +338,17 @@ class Mutator implements MutatorInterface
     private function getClientRoutingCode(): string
     {
         return (new StorecoveRouter())->setInvoice($this->invoice)->resolveRouting($this->invoice->client->country->iso_3166_2, $this->invoice->client->classification);
+    }
+
+    /**
+     * Route discovery through the proxy so self-hosted instances
+     * can reach the Storecove API via the hosted server.
+     */
+    private function proxyDiscovery(string $identifier, string $scheme): bool
+    {
+        return $this->storecove->proxy
+            ->setCompany($this->invoice->company)
+            ->discovery($identifier, $scheme);
     }
 
 

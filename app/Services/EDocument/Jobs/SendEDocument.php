@@ -88,6 +88,16 @@ class SendEDocument implements ShouldQueue
         $p = new Peppol($model);
         $p->run();
         $identifiers = $p->gateway->mutator->setClientRoutingCode()->getStorecoveMeta();
+
+        // Fail early if the client could not be discovered on the PEPPOL network.
+        // setClientRoutingCode() performs live discovery via the routing_rules matrix —
+        // if no routing was resolved, the recipient is not reachable.
+        if (!isset($identifiers['routing']['eIdentifiers']) && !isset($identifiers['routing']['emails'])) {
+            nlog("Client {$model->client->present()->name()} could not be discovered on the PEPPOL network");
+            $this->writeActivity($model, Activity::EINVOICE_DELIVERY_FAILURE, ctrans('texts.client_not_found_on_peppol_network'));
+            return;
+        }
+
         $result = $storecove->build($model)->getResult();
 
         if (count($result['errors']) > 0) {

@@ -5943,6 +5943,11 @@ $lang = array(
     'unapplied_payments' => 'Thanh toán chưa áp dụng',
     'debit' => 'Ghi nợ',
     'auto_convert_credit_help' => 'Tự động liên kết hoặc Tạo Sự chi trả phù hợp với các quy tắc này.',
+    'clone_client_description' => 'Điều này sẽ nhân bản khách hàng thành một bản ghi khách hàng mới .',
+    'invalid_id_number_format' => 'Số ID không hợp lệ Định dạng',
+    'invalid_vat_number_format' => 'Mã số VAT không hợp lệ Định dạng',
+    'invalid_routing_id_format' => 'Định dạng ID định tuyến không hợp lệ',
+    'sign_the_document' => 'Ký vào tài liệu',
 );
 
 return $lang;

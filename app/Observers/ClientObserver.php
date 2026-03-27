@@ -12,7 +12,6 @@
 
 namespace App\Observers;
 
-use App\Jobs\Client\CheckPeppolDiscovery;
 use App\Jobs\Client\CheckVat;
 use App\Jobs\Client\UpdateTaxData;
 use App\Jobs\Util\WebhookHandler;
@@ -111,11 +110,6 @@ class ClientObserver
             CheckVat::dispatch($client, $client->company);
         }
 
-        /** Check PEPPOL discovery when routing-relevant fields change */
-        if ($this->shouldCheckPeppolDiscovery($client)) {
-            CheckPeppolDiscovery::dispatch($client, $client->company);
-        }
-
         $event = Webhook::EVENT_UPDATE_CLIENT;
 
         if ($client->getOriginal('deleted_at') && !$client->deleted_at) {
@@ -168,40 +162,6 @@ class ClientObserver
         if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_CLIENT, $client, $client->company)->delay(2);
         }
-    }
-
-    /**
-     * Determines whether a PEPPOL discovery check should be dispatched.
-     *
-     * Fires when: a routing-relevant field changed AND the company is
-     * PEPPOL-enabled AND the client is on a routable delivery network.
-     */
-    private function shouldCheckPeppolDiscovery(Client $client): bool
-    {
-        $peppolFields = ['id_number', 'vat_number', 'routing_id'];
-
-        $changed = false;
-        
-        foreach ($peppolFields as $field) {
-            if ($client->getOriginal($field) != $client->{$field}) {
-                $changed = true;
-                break;
-            }
-        }
-
-        if (!$changed) {
-            return false;
-        }
-
-        if (!$client->company->peppolSendingEnabled()) {
-            return false;
-        }
-
-        if (!is_null($client->checkDeliveryNetwork())) {
-            return false;
-        }
-
-        return true;
     }
 
 }
