@@ -143,7 +143,7 @@ Route::group(['middleware' => ['throttle:api', 'api_secret_check']], function ()
 
 Route::group(['middleware' => ['throttle:login', 'api_secret_check', 'email_db']], function () {
     Route::post('api/v1/login', [LoginController::class, 'apiLogin'])->name('login.submit');
-    Route::post('api/v1/reset_password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
+    Route::post('api/v1/reset_password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->middleware('throttle:2,1');
     Route::post('api/v1/passkeys/login/options', [PasskeyController::class, 'loginOptions'])->name('passkeys.login.options');
 });
 
