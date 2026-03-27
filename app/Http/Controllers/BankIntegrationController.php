@@ -280,7 +280,7 @@ class BankIntegrationController extends BaseController
         BankIntegration::where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->where('account_id', $user->account_id)->whereNotNull('nordigen_account_id')->each(function (BankIntegration $bank_integration) use ($nordigen) {
             $account_meta = $nordigen->isAccountActive($bank_integration->nordigen_account_id);
 
-            if (in_array($account_meta['status'] ?? '', ['EXPIRED', 'DELETED', 'SUSPENDED', 'ERROR', 'FAILED'])) {
+            if (in_array($account_meta['status'] ?? '', ['EXPIRED', 'DELETED', 'SUSPENDED', 'ERROR', 'FAILED', 'Invalid Account ID'])) {
                 $bank_integration->disabled_upstream = true;
                 $bank_integration->bank_account_status = $account_meta['status'];
                 $bank_integration->save();
