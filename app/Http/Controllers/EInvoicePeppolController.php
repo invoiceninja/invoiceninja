@@ -22,11 +22,27 @@ use App\Http\Requests\EInvoice\Peppol\ShowEntityRequest;
 use App\Http\Requests\EInvoice\Peppol\StoreEntityRequest;
 use App\Http\Requests\EInvoice\Peppol\UpdateEntityRequest;
 use App\Services\EDocument\Standards\Verifactu\SendToAeat;
+use App\Http\Requests\EInvoice\Peppol\DiscoveryRequest;
 use App\Http\Requests\EInvoice\Peppol\AddTaxIdentifierRequest;
 use App\Http\Requests\EInvoice\Peppol\RemoveTaxIdentifierRequest;
 
 class EInvoicePeppolController extends BaseController
 {
+    /**
+     * Check whether a recipient is discoverable on the PEPPOL network.
+     *
+     * Used by self-hosted instances proxying through the hosted server.
+     */
+    public function discovery(DiscoveryRequest $request, Storecove $storecove): JsonResponse
+    {
+        $discovered = $storecove->discovery(
+            $request->validated('identifier'),
+            $request->validated('scheme'),
+        );
+
+        return response()->json(['discovered' => $discovered]);
+    }
+
     /**
      * Returns the legal entity ID
      *

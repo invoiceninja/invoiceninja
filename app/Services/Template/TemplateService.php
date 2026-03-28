@@ -353,6 +353,8 @@ class TemplateService
 
             try {
                 $template = $this->twig->createTemplate(html_entity_decode($template));
+                // nlog($template->getSourceContext()->getCode()); //this is a nice way to access the twig template
+                $template = $template->render($this->data);
             } catch (SyntaxError $e) {
                 nlog($e->getMessage());
                 throw ($e);
@@ -369,9 +371,6 @@ class TemplateService
                 nlog("error = " . $e->getMessage());
                 throw ($e);
             }
-
-            // nlog($template->getSourceContext()->getCode()); //this is a nice way to access the twig template
-            $template = $template->render($this->data);
 
             $f = $this->document->createDocumentFragment();
 

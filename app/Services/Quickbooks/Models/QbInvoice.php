@@ -79,6 +79,7 @@ class QbInvoice implements SyncInterface
             $client_id = $ninja_invoice_data['client_id'] ?? null;
 
             if (is_null($client_id)) {
+                nlog("QuickBooks importToNinja: Skipping invoice — client could not be resolved");
                 continue;
             }
 
@@ -660,6 +661,7 @@ class QbInvoice implements SyncInterface
         $client_id = $ninja_invoice_data['client_id'] ?? null;
 
         if (is_null($client_id)) {
+            nlog("QuickBooks syncNinjaInvoice: Skipping invoice — client could not be resolved");
             return;
         }
 

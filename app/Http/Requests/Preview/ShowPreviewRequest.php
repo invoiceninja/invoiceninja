@@ -33,7 +33,7 @@ class ShowPreviewRequest extends Request
     public function rules()
     {
         $rules = [
-            'design.design.body' => ['sometimes', 'required_if:design.design.is_template,true',  new TwigLint()],
+            'design.design.body' => ['sometimes', new TwigLint()],
         ];
 
         return $rules;

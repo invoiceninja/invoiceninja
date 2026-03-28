@@ -150,6 +150,7 @@ class SetupController extends Controller
             Artisan::call('migrate', ['--force' => true]);
             Artisan::call('db:seed', ['--force' => true]);
             Artisan::call('config:clear');
+            Artisan::call('cache:clear');
 
             Storage::disk('local')->delete('test.pdf');
 

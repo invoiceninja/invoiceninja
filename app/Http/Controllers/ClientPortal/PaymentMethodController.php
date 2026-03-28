@@ -24,6 +24,7 @@ use App\Models\GatewayType;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -62,6 +63,7 @@ class PaymentMethodController extends Controller
         /** @var \App\Models\ClientContact auth()->guard('contact')->user() **/
         $client_contact = auth()->guard('contact')->user();
         $data['client'] = $client_contact->client;
+        $data['contact_id'] = $client_contact->id;
 
         return $gateway
             ->driver($client_contact->client)
@@ -76,7 +78,7 @@ class PaymentMethodController extends Controller
      * @param Request $request
      * @return \Illuminate\View\View
      */
-    public function store(StorePaymentMethodRequest $request)
+    public function store(Request $request)
     {
         $gateway = $this->getClientGateway();
 

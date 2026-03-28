@@ -644,6 +644,182 @@ class EInvoiceValidationTest extends TestCase
         $this->assertFalse($validation['passes']);
     }
 
+    public function testBeBusinessClientPassesWithBothValidIdentifiers()
+    {
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+        ]);
+
+        // BE business with valid VAT and valid id_number (EN) — should pass
+        // 0202239951 is a known valid mod-97 enterprise number
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'classification' => 'business',
+            'vat_number' => 'BE0202239951',
+            'id_number' => '0202239951',
+            'country_id' => 56,
+            'address1' => '10 Rue de la Loi',
+            'city' => 'Brussels',
+            'state' => 'Brussels',
+            'postal_code' => '1000',
+        ]);
+
+        $cc = ClientContact::factory()->create([
+            'client_id' => $client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'first_name' => 'Bob',
+            'last_name' => 'Doe',
+            'email' => 'bob@example.com',
+        ]);
+
+        $el = new EntityLevel();
+        $validation = $el->checkClient($client);
+
+        $this->assertTrue($validation['passes']);
+    }
+
+    public function testBeBusinessClientFailsWithInvalidCheckdigit()
+    {
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+        ]);
+
+        // 0123456789 fails mod-97 checkdigit
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'classification' => 'business',
+            'vat_number' => 'BE0123456789',
+            'id_number' => '0123456789',
+            'country_id' => 56,
+            'address1' => '10 Rue de la Loi',
+            'city' => 'Brussels',
+            'state' => 'Brussels',
+            'postal_code' => '1000',
+        ]);
+
+        $cc = ClientContact::factory()->create([
+            'client_id' => $client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'first_name' => 'Bob',
+            'last_name' => 'Doe',
+            'email' => 'bob@example.com',
+        ]);
+
+        $el = new EntityLevel();
+        $validation = $el->checkClient($client);
+
+        $this->assertFalse($validation['passes']);
+    }
+
+    public function testBeGovClientPassesWithValidIdentifiers()
+    {
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+        ]);
+
+        // BE government with valid identifiers — should pass (routing rules say B+G)
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'classification' => 'government',
+            'vat_number' => 'BE0404616494',
+            'id_number' => '0404616494',
+            'country_id' => 56,
+            'address1' => '16 Rue de la Loi',
+            'city' => 'Brussels',
+            'state' => 'Brussels',
+            'postal_code' => '1000',
+        ]);
+
+        $cc = ClientContact::factory()->create([
+            'client_id' => $client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'first_name' => 'Bob',
+            'last_name' => 'Doe',
+            'email' => 'bob@example.com',
+        ]);
+
+        $el = new EntityLevel();
+        $validation = $el->checkClient($client);
+
+        $this->assertTrue($validation['passes']);
+    }
+
+    public function testBeBusinessClientFailsWithNoVat()
+    {
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+        ]);
+
+        // BE business with id_number but no VAT — should fail
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'classification' => 'business',
+            'vat_number' => '',
+            'id_number' => '0202239951',
+            'country_id' => 56,
+            'address1' => '10 Rue de la Loi',
+            'city' => 'Brussels',
+            'state' => 'Brussels',
+            'postal_code' => '1000',
+        ]);
+
+        $cc = ClientContact::factory()->create([
+            'client_id' => $client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'first_name' => 'Bob',
+            'last_name' => 'Doe',
+            'email' => 'bob@example.com',
+        ]);
+
+        $el = new EntityLevel();
+        $validation = $el->checkClient($client);
+
+        $this->assertFalse($validation['passes']);
+    }
+
+    public function testBeBusinessClientPassesWithPrefixedIdNumber()
+    {
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+        ]);
+
+        // BE:EN regex allows optional BE prefix on id_number
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'classification' => 'business',
+            'vat_number' => 'BE0471811661',
+            'id_number' => 'BE0471811661',
+            'country_id' => 56,
+            'address1' => '10 Rue de la Loi',
+            'city' => 'Brussels',
+            'state' => 'Brussels',
+            'postal_code' => '1000',
+        ]);
+
+        $cc = ClientContact::factory()->create([
+            'client_id' => $client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'first_name' => 'Bob',
+            'last_name' => 'Doe',
+            'email' => 'bob@example.com',
+        ]);
+
+        $el = new EntityLevel();
+        $validation = $el->checkClient($client);
+
+        $this->assertTrue($validation['passes']);
+    }
+
     public function testAtGovClientNeedsIdNumber()
     {
         $company = Company::factory()->create([

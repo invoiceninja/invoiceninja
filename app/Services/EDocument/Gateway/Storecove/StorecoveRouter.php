@@ -186,6 +186,87 @@ class StorecoveRouter
         'IT:CUUO'  => '/^[A-Z0-9]{6,7}$/i',
     ];
 
+    /**
+     * Human-readable format examples for identifier schemes.
+     * Used in validation error messages to guide users.
+     */
+    private array $identifier_format_examples = [
+        // VAT number formats
+        'AT:VAT'   => 'ATU12345678',
+        'BE:VAT'   => 'BE0202239951',
+        'BG:VAT'   => 'BG123456789',
+        'CY:VAT'   => 'CY12345678A',
+        'CZ:VAT'   => 'CZ12345678',
+        'DE:VAT'   => 'DE123456789',
+        'DK:ERST'  => 'DK12345678',
+        'EE:VAT'   => 'EE123456789',
+        'ES:VAT'   => 'ESA1234567B',
+        'FI:VAT'   => 'FI12345678',
+        'FR:VAT'   => 'FRXX123456789',
+        'GR:VAT'   => 'EL123456789',
+        'HR:VAT'   => 'HR12345678901',
+        'HU:VAT'   => 'HU12345678',
+        'IE:VAT'   => 'IE1A23456B',
+        'IT:IVA'   => 'IT12345678901',
+        'IT:CF'    => 'RSSMRA85M01H501Z',
+        'LT:VAT'   => 'LT123456789',
+        'LU:VAT'   => 'LU12345678',
+        'LV:VAT'   => 'LV12345678901',
+        'MT:VAT'   => 'MT12345678',
+        'NL:VAT'   => 'NL123456789B01',
+        'PL:VAT'   => 'PL1234567890',
+        'PT:VAT'   => 'PT123456789',
+        'RO:VAT'   => 'RO1234567890',
+        'SE:VAT'   => 'SE123456789012',
+        'SI:VAT'   => 'SI12345678',
+        'SK:VAT'   => 'SK1234567890',
+        'AD:VAT'   => 'ADA123456B',
+        'AL:VAT'   => 'ALA12345678B',
+        'BA:VAT'   => 'BA123456789012',
+        'LI:VAT'   => 'LI12345',
+        'MC:VAT'   => 'FRXX123456789',
+        'ME:VAT'   => 'ME12345678',
+        'MK:VAT'   => 'MK1234567890123',
+        'SM:VAT'   => 'SM12345',
+        'TR:VAT'   => 'TR1234567890',
+        'VA:VAT'   => 'VA12345678901',
+        'RS:VAT'   => 'RS123456789',
+        'IS:VAT'   => 'IS12345',
+        'NO:VAT'   => 'NO123456789MVA',
+        'CH:VAT'   => 'CHE123456789MWST',
+        'GB:VAT'   => 'GB123456789',
+        'AU:ABN'   => '12345678901',
+        'NZ:GST'   => '12345678',
+        'US:EIN'   => '12-3456789',
+        'IN:GSTIN' => '12ABCDE1234F1Z1',
+        'JP:IIN'   => 'T1234567890123',
+        'SG:GST'   => 'M12345678',
+        'SA:TIN'   => '1234567890',
+        'MY:TIN'   => 'C1234567890',
+
+        // ID number formats
+        'SE:ORGNR' => '1234567890',
+        'NO:ORG'   => '123456789',
+        'BE:EN'    => '0202239951',
+        'DK:DIGST' => 'DK12345678',
+        'EE:CC'    => '12345678',
+        'FI:OVT'   => '123456789012',
+        'FR:SIRENE' => '123456789',
+        'FR:SIRET' => '12345678901234',
+        'NL:KVK'   => '12345678',
+        'NL:OINO'  => '12345678901234567890',
+        'LT:LEC'   => '1234567',
+        'LU:MAT'   => '12345678901',
+        'CH:UIDB'  => 'CHE123456789',
+        'IS:KTNR'  => '123456',
+        'CA:CBN'   => '123456789',
+        'MX:RFC'   => 'ABC1234567A1',
+        'JP:SST'   => 'T1234567890123',
+        'MY:EIF'   => 'C1234567890',
+        'SG:UEN'   => '12345678A',
+        'IT:CUUO'  => 'A1B2C3',
+    ];
+
     private $invoice;
 
     public function __construct() {}
@@ -335,6 +416,7 @@ class StorecoveRouter
         $code = match ($classification) {
             'government' => 'G',
             'individual' => 'C',
+            'other' => 'O', // Bypasses e-invoicing altogether and makes the client non-routable
             default => 'B',
         };
 
@@ -462,7 +544,89 @@ class StorecoveRouter
             return strlen($cleanValue) >= 2;
         }
 
-        return (bool) preg_match($this->identifier_regex[$scheme], $cleanValue);
+        if (!preg_match($this->identifier_regex[$scheme], $cleanValue)) {
+            return false;
+        }
+
+        // Checkdigit validation (null = no algorithm for this scheme, treat as pass)
+        $checkdigitResult = $this->checkdigit($scheme, $cleanValue);
+
+        return $checkdigitResult !== false;
+    }
+
+    /**
+     * Validate the checkdigit of an identifier value for a given scheme.
+     *
+     * Can be called publicly to distinguish format errors from checkdigit errors.
+     *
+     * @param  string $scheme The scheme label (e.g. "BE:EN", "BE:VAT")
+     * @param  string $value  The identifier value to validate
+     * @return ?bool  true = valid, false = invalid checkdigit, null = no algorithm for this scheme
+     */
+    public function validateIdentifierCheckdigit(string $scheme, string $value): ?bool
+    {
+        $cleanValue = preg_replace("/[\s.\-]/", "", $value);
+
+        return $this->checkdigit($scheme, $cleanValue);
+    }
+
+    /**
+     * Internal checkdigit dispatch (operates on already-cleaned value).
+     */
+    private function checkdigit(string $scheme, string $cleanValue): ?bool
+    {
+        return match ($scheme) {
+            'BE:EN' => $this->mod97Check($this->stripCountryPrefix($cleanValue, 'BE')),
+            'BE:VAT' => $this->mod97Check($this->stripCountryPrefix($cleanValue, 'BE')),
+            default => null,
+        };
+    }
+
+    /**
+     * Belgian mod-97 checkdigit: 97 - (first_8_digits % 97) == last_2_digits.
+     *
+     * @param  string $digits 10-digit number (without country prefix)
+     */
+    private function mod97Check(string $digits): bool
+    {
+        if (strlen($digits) !== 10 || !ctype_digit($digits)) {
+            return false;
+        }
+
+        $body = (int) substr($digits, 0, 8);
+        $check = (int) substr($digits, 8, 2);
+
+        return (97 - ($body % 97)) === $check;
+    }
+
+    /**
+     * Strip an optional country prefix from an identifier value.
+     */
+    private function stripCountryPrefix(string $value, string $prefix): string
+    {
+        if (stripos($value, $prefix) === 0) {
+            return substr($value, strlen($prefix));
+        }
+
+        return $value;
+    }
+
+    /**
+     * Get a human-readable format example for an identifier scheme.
+     *
+     * @param  string $scheme The scheme label (e.g. "SE:VAT", "FR:SIRET")
+     * @return ?string Example format string, or null if none defined
+     */
+    public function getFormatExample(string $scheme): ?string
+    {
+        // Handle composite scheme labels like "FR:SIRENE or FR:SIRET"
+        if (stripos($scheme, ' or ') !== false) {
+            $schemes = array_map('trim', explode(' or ', $scheme));
+            $examples = array_filter(array_map(fn ($s) => $this->getFormatExample($s), $schemes));
+            return count($examples) > 0 ? implode(' or ', $examples) : null;
+        }
+
+        return $this->identifier_format_examples[$scheme] ?? null;
     }
 
     /**
@@ -630,81 +794,5 @@ class StorecoveRouter
         return '';
 
     }
-    /**
-    * used as a proxy for
-    * the schemeID of partyidentification
-    * property - for Storecove only:
-    *
-    * Used in the format key:value
-    *
-    * ie. IT:IVA / DE:VAT
-    *
-    * Note there are multiple options for the following countries:
-    *
-    * US (EIN/SSN) employer identification number / social security number
-    * IT (CF/IVA) Codice Fiscale (person/company identifier) / company vat number
-    *
-    * @var array
-    * @deprecated
-    */
-    private array $schemeIdIdentifiers = [
-        'US' => 'EIN',
-        'US' => 'SSN',
-        'NZ' => 'GST',
-        'CH' => 'VAT', // VAT number = CHE - 999999999 - MWST|IVA|VAT
-        'IS' => 'VAT',
-        'LI' => 'VAT',
-        'NO' => 'VAT',
-        'AD' => 'VAT',
-        'AL' => 'VAT',
-        'AT' => 'VAT', //Tested - Routing GOV + Business
-        'BA' => 'VAT',
-        'BE' => 'VAT',
-        'BG' => 'VAT',
-        'AU' => 'ABN', //Australia
-        'CA' => 'CBN', //Canada
-        'MX' => 'RFC', //Mexico
-        'NZ' => 'GST', //Nuuu zulund
-        'GB' => 'VAT', //Great Britain
-        'SA' => 'TIN', //South Africa
-        'CY' => 'VAT',
-        'CZ' => 'VAT',
-        'DE' => 'VAT', //tested - Requires Payment Means to be defined.
-        'DK' => 'ERST',
-        'EE' => 'VAT',
-        'ES' => 'VAT', //tested - B2G pending
-        'FI' => 'VAT',
-        'FR' => 'VAT', //tested - Need to ensure Siren/Siret routing
-        'GR' => 'VAT',
-        'HR' => 'VAT',
-        'HU' => 'VAT',
-        'IE' => 'VAT',
-        'IT' => 'IVA', //tested - Requires a Customer Party Identification (VAT number) - 'IT senders must first be provisioned in the partner system.' Cannot test currently
-        'IT' => 'CF', //tested - Requires a Customer Party Identification (VAT number) - 'IT senders must first be provisioned in the partner system.' Cannot test currently
-        'LT' => 'VAT',
-        'LU' => 'VAT',
-        'LV' => 'VAT',
-        'MC' => 'VAT',
-        'ME' => 'VAT',
-        'MK' => 'VAT',
-        'MT' => 'VAT',
-        'NL' => 'VAT',
-        'PL' => 'VAT',
-        'PT' => 'VAT',
-        'RO' => 'VAT',
-        'RS' => 'VAT',
-        'SE' => 'VAT',
-        'SI' => 'VAT',
-        'SK' => 'VAT',
-        'SM' => 'VAT',
-        'TR' => 'VAT',
-        'VA' => 'VAT',
-        'IN' => 'GSTIN',
-        'JP' => 'IIN',
-        'MY' => 'TIN',
-        'SG' => 'GST',
-        'GB' => 'VAT',
-        'SA' => 'TIN',
-    ];
-
+   
 }

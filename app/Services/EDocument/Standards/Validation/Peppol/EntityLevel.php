@@ -273,7 +273,7 @@ class EntityLevel implements EntityLevelInterface
                 continue;
             }
 
-            if (in_array($field, ['address1', 'address2', 'city', 'state', 'postal_code']) && strlen($client->address1 ?? '') < 2) {
+            if (in_array($field, ['address1', 'address2', 'city', 'state', 'postal_code']) && strlen($client->{$field} ?? '') < 2) {
                 $errors[] = ['field' => $field, 'label' => ctrans("texts.{$field}")];
             }
 
@@ -305,10 +305,21 @@ class EntityLevel implements EntityLevelInterface
             );
 
             foreach ($required as $field => $scheme) {
+                $example = $router->getFormatExample($scheme);
+
                 if (!$this->validString($client->{$field})) {
-                    $errors[] = ['field' => $field, 'label' => ctrans("texts.{$field}") . " ({$scheme})"];
+                    $hint = $example ? " ({$scheme}: {$example})" : " ({$scheme})";
+                    $errors[] = ['field' => $field, 'label' => ctrans("texts.{$field}") . $hint];
                 } elseif (!$router->validateIdentifierFormat($scheme, $client->{$field})) {
-                    $errors[] = ['field' => $field, 'label' => ctrans("texts.invalid_{$field}_format") . " ({$scheme})"];
+                    // Distinguish format error from checkdigit error
+                    $checkdigitResult = $router->validateIdentifierCheckdigit($scheme, $client->{$field});
+
+                    if ($checkdigitResult === false) {
+                        $errors[] = ['field' => $field, 'label' => ctrans("texts.invalid_{$field}_checkdigit") . " ({$scheme}: {$client->{$field}})"];
+                    } else {
+                        $hint = $example ? " ({$scheme}) - e.g. {$example}" : " ({$scheme})";
+                        $errors[] = ['field' => $field, 'label' => ctrans("texts.invalid_{$field}_format") . $hint];
+                    }
                 }
             }
         }
@@ -326,6 +337,7 @@ class EntityLevel implements EntityLevelInterface
                 $errors[] = ['field' => 'classification', 'label' => $non_routable];
             }
         }
+
 
 
         return $errors;
@@ -379,19 +391,9 @@ class EntityLevel implements EntityLevelInterface
         }
 
         //If not an individual, you MUST have a VAT number
-        if ($company->getSetting('classification') != 'individual' && !$this->validString($company->getSetting('vat_number'))) {
+        if (!in_array($company->getSetting('classification'),['other', 'individual']) && !$this->validString($company->getSetting('vat_number'))) {
             $errors[] = ['field' => 'vat_number', 'label' => ctrans("texts.vat_number")];
         } 
-        
-        // elseif ($company->getSetting('classification') == 'individual' && !$this->validString($company->getSetting('id_number'))) {
-        //     $errors[] = ['field' => 'id_number', 'label' => ctrans("texts.id_number")];
-        // }
-
-
-        // foreach($this->company_fields as $field)
-        // {
-
-        // }
 
         return $errors;
 
