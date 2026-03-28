@@ -125,12 +125,14 @@ class StoreSubscriptionRequest extends Request
         // gethostbyname returns the hostname if resolution fails
         if ($ip === $host && !filter_var($host, FILTER_VALIDATE_IP)) {
             // DNS resolution failed - allow it (external DNS might resolve differently)
+            $validator->errors()->add($field, 'Unable to resolve hostname.');
             return;
         }
 
         // Block private and reserved IP ranges (SSRF protection)
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
             $validator->errors()->add($field, ctrans('texts.invalid_url'));
+            return;
         }
     }
 
