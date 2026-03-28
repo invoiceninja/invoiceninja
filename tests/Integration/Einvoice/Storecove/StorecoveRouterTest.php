@@ -1063,6 +1063,67 @@ class StorecoveRouterTest extends TestCase
         $this->assertFalse($storecove->router->validateIdentifierFormat('IT:CUUO', 'AB'));
     }
 
+    // Checkdigit validation tests
+
+    public function testValidateBeEnCheckdigitValid()
+    {
+        $storecove = new Storecove();
+
+        // Known valid Belgian enterprise numbers (mod-97 checkdigit)
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:EN', '0202239951')); // KBO/BCE
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:EN', '0404616494')); // BNP Paribas Fortis
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:EN', '0403199702')); // bpost
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:EN', '0471811661')); // ING Belgium
+
+        // With optional BE prefix
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:EN', 'BE0202239951'));
+    }
+
+    public function testValidateBeEnCheckdigitInvalid()
+    {
+        $storecove = new Storecove();
+
+        // Invalid checkdigit — the exact case from the Storecove error
+        $this->assertFalse($storecove->router->validateIdentifierFormat('BE:EN', '0123456789'));
+
+        // Valid format but wrong check digits
+        $this->assertFalse($storecove->router->validateIdentifierFormat('BE:EN', '0202239952'));
+
+        // With prefix, still invalid
+        $this->assertFalse($storecove->router->validateIdentifierFormat('BE:EN', 'BE0123456789'));
+    }
+
+    public function testValidateBeVatCheckdigitValid()
+    {
+        $storecove = new Storecove();
+
+        // Belgian VAT uses same mod-97 on the 10-digit portion
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:VAT', 'BE0202239951'));
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:VAT', 'BE0471811661'));
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:VAT', '0404616494'));
+    }
+
+    public function testValidateBeVatCheckdigitInvalid()
+    {
+        $storecove = new Storecove();
+
+        $this->assertFalse($storecove->router->validateIdentifierFormat('BE:VAT', 'BE0123456789'));
+        $this->assertFalse($storecove->router->validateIdentifierFormat('BE:VAT', '0123456789'));
+    }
+
+    // Ensure other schemes are not affected by checkdigit validation
+
+    public function testValidateOtherSchemesUnaffected()
+    {
+        $storecove = new Storecove();
+
+        // These should still pass — no checkdigit algorithm defined
+        $this->assertTrue($storecove->router->validateIdentifierFormat('DE:VAT', 'DE123456789'));
+        $this->assertTrue($storecove->router->validateIdentifierFormat('SE:VAT', 'SE123456789012'));
+        $this->assertTrue($storecove->router->validateIdentifierFormat('SE:ORGNR', '5567891234'));
+        $this->assertTrue($storecove->router->validateIdentifierFormat('IT:CUUO', 'ABC1234'));
+    }
+
     public function testResolveRequiredFieldsNlBusinessNeedsBoth()
     {
         $storecove = new Storecove();
@@ -1114,6 +1175,149 @@ class StorecoveRouterTest extends TestCase
         $this->assertArrayHasKey('id_number', $required);
         $this->assertEquals('AU:ABN', $required['vat_number']);
         $this->assertEquals('AU:ABN', $required['id_number']);
+    }
+
+    // BE-specific comprehensive tests
+
+    public function testResolveRequiredFieldsBeGovNeedsBoth()
+    {
+        $storecove = new Storecove();
+        $required = $storecove->router->resolveRequiredClientFields('BE', 'government');
+
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('BE:VAT', $required['vat_number']);
+        $this->assertEquals('BE:EN', $required['id_number']);
+    }
+
+    public function testResolveRequiredFieldsBeIndividualReturnsEmpty()
+    {
+        $storecove = new Storecove();
+        $this->assertEmpty($storecove->router->resolveRequiredClientFields('BE', 'individual'));
+    }
+
+    public function testBeClassificationRoutability()
+    {
+        $storecove = new Storecove();
+
+        $this->assertTrue($storecove->router->isClassificationRoutable('BE', 'business'));
+        $this->assertTrue($storecove->router->isClassificationRoutable('BE', 'government'));
+        $this->assertFalse($storecove->router->isClassificationRoutable('BE', 'individual'));
+    }
+
+    public function testBeIso6523SchemeMapping()
+    {
+        $storecove = new Storecove();
+
+        $this->assertEquals('0208', $storecove->router->resolveIso6523Scheme('BE:EN'));
+        $this->assertEquals('9925', $storecove->router->resolveIso6523Scheme('BE:VAT'));
+    }
+
+    public function testBeEnFormatValidationVariants()
+    {
+        $storecove = new Storecove();
+
+        // Valid: 10 digits starting with 0 or 1, valid checkdigit
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:EN', '0202239951'));
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:EN', 'BE0202239951'));
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:EN', '0403199702'));
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:EN', '0471811661'));
+
+        // Invalid: too short
+        $this->assertFalse($storecove->router->validateIdentifierFormat('BE:EN', '02022'));
+
+        // Invalid: too long
+        $this->assertFalse($storecove->router->validateIdentifierFormat('BE:EN', '02022399510'));
+
+        // Invalid: non-numeric
+        $this->assertFalse($storecove->router->validateIdentifierFormat('BE:EN', 'ABCDEFGHIJ'));
+    }
+
+    public function testBeVatFormatValidationVariants()
+    {
+        $storecove = new Storecove();
+
+        // Valid: BE prefix + 0/1 + 9 digits, valid checkdigit
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:VAT', 'BE0202239951'));
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:VAT', '0471811661'));
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:VAT', 'BE0404616494'));
+
+        // Invalid: starts with 2 (not 0 or 1)
+        $this->assertFalse($storecove->router->validateIdentifierFormat('BE:VAT', 'BE2123456789'));
+
+        // Invalid: too short
+        $this->assertFalse($storecove->router->validateIdentifierFormat('BE:VAT', 'BE012345'));
+    }
+
+    public function testBeCheckdigitDistinguishesFormatVsCheckdigitErrors()
+    {
+        $storecove = new Storecove();
+
+        // Valid format, valid checkdigit → true
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:EN', '0202239951'));
+
+        // Valid format, invalid checkdigit → false (from checkdigit, not format)
+        $this->assertFalse($storecove->router->validateIdentifierFormat('BE:EN', '0202239952'));
+
+        // Public checkdigit method: returns false for bad checkdigit
+        $this->assertFalse($storecove->router->validateIdentifierCheckdigit('BE:EN', '0202239952'));
+
+        // Public checkdigit method: returns true for valid
+        $this->assertTrue($storecove->router->validateIdentifierCheckdigit('BE:EN', '0202239951'));
+
+        // Public checkdigit method: returns null for schemes without checkdigit algo
+        $this->assertNull($storecove->router->validateIdentifierCheckdigit('DE:VAT', 'DE123456789'));
+    }
+
+    public function testBeBusinessClientRoutingUsesIdNumber()
+    {
+        $invoice = $this->buildData();
+
+        $client = $invoice->client;
+        $client->country_id = 56;
+        $client->vat_number = 'BE0202239951';
+        $client->id_number = '0202239951';
+        $client->classification = 'business';
+        $client->save();
+
+        $storecove = new Storecove();
+        $storecove->router->setInvoice($invoice->fresh());
+
+        // BE routing should be BE:EN
+        $this->assertEquals('BE:EN', $storecove->router->resolveRouting('BE', 'business'));
+
+        // Tax scheme should be BE:VAT
+        $this->assertEquals('BE:VAT', $storecove->router->resolveTaxScheme('BE', 'business'));
+
+        // ISO 6523 for routing (BE:EN) should be 0208
+        $this->assertEquals('0208', $storecove->router->resolveIso6523Scheme('BE:EN'));
+    }
+
+    public function testBeGovClientRoutingUsesIdNumber()
+    {
+        $invoice = $this->buildData();
+
+        $client = $invoice->client;
+        $client->country_id = 56;
+        $client->vat_number = 'BE0404616494';
+        $client->id_number = '0404616494';
+        $client->classification = 'government';
+        $client->save();
+
+        $storecove = new Storecove();
+        $storecove->router->setInvoice($invoice->fresh());
+
+        // BE government routing should also be BE:EN (B+G rule)
+        $this->assertEquals('BE:EN', $storecove->router->resolveRouting('BE', 'government'));
+        $this->assertEquals('BE:VAT', $storecove->router->resolveTaxScheme('BE', 'government'));
+    }
+
+    public function testBeGetFormatExamples()
+    {
+        $storecove = new Storecove();
+
+        $this->assertEquals('0202239951', $storecove->router->getFormatExample('BE:EN'));
+        $this->assertEquals('BE0202239951', $storecove->router->getFormatExample('BE:VAT'));
     }
 
 }
