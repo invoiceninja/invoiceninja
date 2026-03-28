@@ -4,6 +4,7 @@
           description: "The unique hashed ID of the credit"
           type: string
           example: Opnel5aKBz
+          readOnly: true
         user_id:
           description: "The unique hashed ID of the user associated with the credit"
           type: string

@@ -478,6 +478,8 @@ paths:
             type: number
             format: integer
           example: 50
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       responses:
         200:
           description: "A list of bank integrations"
@@ -933,6 +935,8 @@ paths:
             type: number
             format: integer
           example: 50
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       responses:
         200:
           description: "A list of bank integrations"
@@ -1339,6 +1343,8 @@ paths:
             type: number
             format: integer
           example: 50
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       responses:
         200:
           description: "A list of bank integrations"
@@ -1810,6 +1816,8 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
         - $ref: "#/components/parameters/index"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       responses:
         200:
           description: "A list of client_gateway_tokens"
@@ -2102,6 +2110,8 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       responses:
         200:
           description: "A list of companies"
@@ -2537,6 +2547,8 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       responses:
         200:
           description: "A list of company_gateways"
@@ -2969,6 +2981,8 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
         - $ref: "#/components/parameters/index"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       responses:
         200:
           description: "A list of designs"
@@ -3284,6 +3298,8 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
         - $ref: "#/components/parameters/index"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       responses:
         200:
           description: "A list of documents"
@@ -3400,6 +3416,8 @@ paths:
       operationId: getExpenseCategorys
       parameters:
         - $ref: "#/components/parameters/index"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       responses:
         200:
           description: "A list of expense_categories"
@@ -3703,6 +3721,8 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
         - $ref: "#/components/parameters/index"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       responses:
         200:
           description: "A list of expenses"
@@ -4095,6 +4115,8 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       responses:
         200:
           description: "A list of group_settings"
@@ -5325,6 +5347,8 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
         - $ref: "#/components/parameters/index"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       responses:
         200:
           description: "A list of payment terms"
@@ -5796,6 +5820,8 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
         - $ref: "#/components/parameters/index"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       responses:
         200:
           description: "A list of recurring_expenses"
@@ -6162,6 +6188,8 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       responses:
         200:
           description: "A list of recurring_quotes"
@@ -6516,6 +6544,8 @@ paths:
       operationId: getContactReport
       parameters:
         - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       requestBody:
         required: true
         content:
@@ -6549,6 +6579,8 @@ paths:
       operationId: getClientReport
       parameters:
         - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       requestBody:
         required: true
         content:
@@ -6615,6 +6647,8 @@ paths:
       operationId: getDocumentReport
       parameters:
         - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       requestBody:
         required: true
         content:
@@ -6681,6 +6715,8 @@ paths:
       operationId: getInvoiceItemReport
       parameters:
         - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       requestBody:
         required: true
         content:
@@ -6714,6 +6750,8 @@ paths:
       operationId: getInvoiceReport
       parameters:
         - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       requestBody:
         required: true
         content:
@@ -6747,6 +6785,8 @@ paths:
       operationId: getPaymentReport
       parameters:
         - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       requestBody:
         required: true
         content:
@@ -6780,6 +6820,8 @@ paths:
       operationId: getProductReport
       parameters:
         - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       requestBody:
         required: true
         content:
@@ -6813,6 +6855,8 @@ paths:
       operationId: getProductSalesReport
       parameters:
         - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       requestBody:
         required: true
         content:
@@ -6846,6 +6890,8 @@ paths:
       operationId: getProfitLossReport
       parameters:
         - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       requestBody:
         required: true
         content:
@@ -6879,6 +6925,8 @@ paths:
       operationId: getQuoteItemReport
       parameters:
         - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       requestBody:
         required: true
         content:
@@ -6912,6 +6960,8 @@ paths:
       operationId: getQuoteReport
       parameters:
         - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       requestBody:
         required: true
         content:
@@ -6945,6 +6995,8 @@ paths:
       operationId: getRecurringInvoiceReport
       parameters:
         - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       requestBody:
         required: true
         content:
@@ -6978,6 +7030,8 @@ paths:
       operationId: getTaskReport
       parameters:
         - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       requestBody:
         required: true
         content:
@@ -7501,6 +7555,8 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       responses:
         200:
           description: "A list of subscriptions"
@@ -7879,6 +7935,8 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       responses:
         200:
           description: "A list of system logs"
@@ -8017,6 +8075,8 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       responses:
         200:
           description: "A blank scheduler object"
@@ -8197,6 +8257,8 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
         - $ref: "#/components/parameters/index"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       responses:
         200:
           description: "A list of task statuses"
@@ -8509,6 +8571,8 @@ paths:
       operationId: getTaxRates
       parameters:
         - $ref: "#/components/parameters/index"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       responses:
         200:
           description: "A list of tax_rates"
@@ -8777,6 +8841,8 @@ paths:
       operationId: getShowTemplate
       parameters:
         - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       requestBody:
         description: "The template subject and body"
         required: true
@@ -8899,6 +8965,8 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
         - $ref: "#/components/parameters/index"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       responses:
         200:
           description: "A list of tokens"
@@ -9206,6 +9274,8 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       responses:
         200:
           description: "A list of users"
@@ -9661,6 +9731,8 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
         - $ref: "#/components/parameters/index"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       responses:
         200:
           description: "A list of Webhooks"

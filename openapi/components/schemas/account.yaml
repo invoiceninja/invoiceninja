@@ -4,6 +4,7 @@
           description: 'The account hashed id'
           type: string
           example: AS3df3A
+          readOnly: true
         account_sms_verified:
           description: 'Boolean flag if the account has been verified by sms'
           type: string

@@ -4,6 +4,7 @@
           description: 'The hashed id of the company gateway'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         gateway_key:
           description: 'The gateway key (hash)'
           type: string
