@@ -273,7 +273,8 @@ class EntityLevel implements EntityLevelInterface
                 continue;
             }
 
-            if (in_array($field, ['address1', 'address2', 'city', 'state', 'postal_code']) && strlen($client->{$field} ?? '') < 2) {
+            if (in_array($field, ['address1', 'address2', 'city', 'postal_code']) && strlen($client->{$field} ?? '') < 2) {
+            // if (in_array($field, ['address1', 'address2', 'city', 'state', 'postal_code']) && strlen($client->{$field} ?? '') < 2) {
                 $errors[] = ['field' => $field, 'label' => ctrans("texts.{$field}")];
             }
 
@@ -297,6 +298,7 @@ class EntityLevel implements EntityLevelInterface
             $this->eu_country_codes,
         ));
 
+        /*
         if (in_array($client->country->iso_3166_2, $supported_countries)) {
             $router = new StorecoveRouter();
             $required = $router->resolveRequiredClientFields(
@@ -323,6 +325,7 @@ class EntityLevel implements EntityLevelInterface
                 }
             }
         }
+*/
 
         //Primary contact email is present.
         if ($client->present()->email() == 'No Email Set') {
