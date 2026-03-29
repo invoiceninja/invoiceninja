@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\License\CheckRequest;
 use App\Models\Account;
+use App\Services\License\WhiteLabelRenewalService;
 use App\Utils\CurlUtils;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -226,10 +227,14 @@ class LicenseController extends BaseController
     {
         $account = auth()->user()->account;
 
-        if ($account->plan == 'white_label' && Carbon::parse($account->plan_expires)->lt(now())) {
-            $account->plan = null;
-            $account->plan_expires = null;
-            $account->save();
+        if ($account->plan == 'white_label' && $account->plan_expires && Carbon::parse($account->plan_expires)->lt(now())) {
+            $result = (new WhiteLabelRenewalService())->checkAndRenew($account);
+
+            if ($result === false) {
+                $account->plan = null;
+                $account->plan_expires = null;
+                $account->save();
+            }
         }
     }
 

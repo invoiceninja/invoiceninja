@@ -75,6 +75,28 @@ class ChartController extends BaseController
         return response()->json($cs->chart_summary($request->input('start_date'), $request->input('end_date')), 200);
     }
 
+    public function analytics_summary(ShowChartRequest $request)
+    {
+        /** @var \App\Models\User auth()->user() */
+        $user = auth()->user();
+        $admin_equivalent_permissions = $user->isAdmin() || $user->hasExactPermissionAndAll('view_all') || $user->hasExactPermissionAndAll('edit_all');
+
+        $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
+
+        return response()->json($cs->analytics_summary($request->input('start_date'), $request->input('end_date')), 200);
+    }
+
+    public function analytics_totals(ShowChartRequest $request)
+    {
+        /** @var \App\Models\User auth()->user() */
+        $user = auth()->user();
+        $admin_equivalent_permissions = $user->isAdmin() || $user->hasExactPermissionAndAll('view_all') || $user->hasExactPermissionAndAll('edit_all');
+
+        $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
+
+        return response()->json($cs->analytics_totals($request->input('start_date'), $request->input('end_date')), 200);
+    }
+
     public function calculatedFields(ShowCalculatedFieldRequest $request)
     {
 

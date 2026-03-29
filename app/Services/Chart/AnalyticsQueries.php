@@ -1,0 +1,1108 @@
+<?php
+
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
+
+namespace App\Services\Chart;
+
+use Illuminate\Support\Facades\DB;
+
+/**
+ * Trait AnalyticsQueries.
+ *
+ * Provides raw SQL queries for predictive analytics and forecasting.
+ * Expects $this->company, $this->user, and $this->is_admin from the consuming class.
+ */
+trait AnalyticsQueries
+{
+    /**
+     * Client Payment Delays
+     *
+     * Returns per-client payment delay statistics for completed payments.
+     * Joins invoices → paymentables → payments to compute days between
+     * invoice date and first payment date.
+     *
+     * @param int|null $client_id Optional single client filter
+     * @return array<int, \stdClass> Each row: client_id, invoice_id, invoice_date, due_date, payment_date, payment_days, amount, currency_id
+     */
+    public function getClientPaymentDelays(?int $client_id = null): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND invoices.user_id = ' . $this->user->id;
+        $client_filter = $client_id ? 'AND invoices.client_id = ' . $client_id : '';
+
+        return DB::select("
+            SELECT
+                invoices.client_id,
+                invoices.id as invoice_id,
+                invoices.date as invoice_date,
+                invoices.due_date,
+                MIN(payments.date) as payment_date,
+                DATEDIFF(MIN(payments.date), invoices.date) as payment_days,
+                invoices.amount,
+                IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) AS currency_id
+            FROM invoices
+            JOIN paymentables
+                ON paymentables.paymentable_id = invoices.id
+                AND paymentables.paymentable_type = 'invoices'
+                AND paymentables.deleted_at IS NULL
+            JOIN payments
+                ON payments.id = paymentables.payment_id
+                AND payments.status_id = 4
+                AND payments.is_deleted = 0
+            JOIN clients
+                ON clients.id = invoices.client_id
+                AND clients.is_deleted = 0
+            WHERE invoices.company_id = :company_id
+            AND invoices.is_deleted = 0
+            AND invoices.status_id = 4
+            {$user_filter}
+            {$client_filter}
+            GROUP BY invoices.client_id, invoices.id, invoices.date, invoices.due_date, invoices.amount, currency_id
+            ORDER BY invoices.client_id, invoices.date
+        ", [
+            'company_currency' => $this->company->settings->currency_id,
+            'company_id' => $this->company->id,
+        ]);
+    }
+
+    /**
+     * Client Payment Summary
+     *
+     * Returns aggregated payment statistics per client:
+     * average payment days, standard deviation, late payment ratio, and invoice count.
+     *
+     * @param int|null $client_id Optional single client filter
+     * @return array<int, \stdClass> Each row: client_id, avg_payment_days, stddev_payment_days, total_invoices, late_invoices, late_payment_ratio, currency_id
+     */
+    public function getClientPaymentSummary(?int $client_id = null): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND invoices.user_id = ' . $this->user->id;
+        $client_filter = $client_id ? 'AND invoices.client_id = ' . $client_id : '';
+
+        return DB::select("
+            SELECT
+                invoices.client_id,
+                ROUND(AVG(DATEDIFF(MIN_pay.first_payment_date, invoices.date)), 2) as avg_payment_days,
+                ROUND(STDDEV(DATEDIFF(MIN_pay.first_payment_date, invoices.date)), 2) as stddev_payment_days,
+                COUNT(*) as total_invoices,
+                SUM(CASE WHEN invoices.due_date IS NOT NULL AND MIN_pay.first_payment_date > invoices.due_date THEN 1 ELSE 0 END) as late_invoices,
+                ROUND(
+                    SUM(CASE WHEN invoices.due_date IS NOT NULL AND MIN_pay.first_payment_date > invoices.due_date THEN 1 ELSE 0 END)
+                    / COUNT(*), 4
+                ) as late_payment_ratio,
+                IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) AS currency_id
+            FROM invoices
+            JOIN (
+                SELECT
+                    paymentables.paymentable_id as invoice_id,
+                    MIN(payments.date) as first_payment_date
+                FROM paymentables
+                JOIN payments
+                    ON payments.id = paymentables.payment_id
+                    AND payments.status_id = 4
+                    AND payments.is_deleted = 0
+                WHERE paymentables.paymentable_type = 'invoices'
+                AND paymentables.deleted_at IS NULL
+                GROUP BY paymentables.paymentable_id
+            ) as MIN_pay
+                ON MIN_pay.invoice_id = invoices.id
+            JOIN clients
+                ON clients.id = invoices.client_id
+                AND clients.is_deleted = 0
+            WHERE invoices.company_id = :company_id
+            AND invoices.is_deleted = 0
+            AND invoices.status_id = 4
+            {$user_filter}
+            {$client_filter}
+            GROUP BY invoices.client_id, currency_id
+        ", [
+            'company_currency' => $this->company->settings->currency_id,
+            'company_id' => $this->company->id,
+        ]);
+    }
+
+    /**
+     * Company-Wide Payment Summary
+     *
+     * Returns a single row of aggregate payment statistics across all clients.
+     * Used as a fallback when a client has insufficient payment history.
+     *
+     * @return array<int, \stdClass> Single row: avg_payment_days, stddev_payment_days, total_invoices, late_invoices, late_payment_ratio
+     */
+    public function getCompanyPaymentSummary(): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND invoices.user_id = ' . $this->user->id;
+
+        return DB::select("
+            SELECT
+                ROUND(AVG(DATEDIFF(MIN_pay.first_payment_date, invoices.date)), 2) as avg_payment_days,
+                ROUND(STDDEV(DATEDIFF(MIN_pay.first_payment_date, invoices.date)), 2) as stddev_payment_days,
+                COUNT(*) as total_invoices,
+                SUM(CASE WHEN invoices.due_date IS NOT NULL AND MIN_pay.first_payment_date > invoices.due_date THEN 1 ELSE 0 END) as late_invoices,
+                ROUND(
+                    SUM(CASE WHEN invoices.due_date IS NOT NULL AND MIN_pay.first_payment_date > invoices.due_date THEN 1 ELSE 0 END)
+                    / NULLIF(COUNT(*), 0), 4
+                ) as late_payment_ratio
+            FROM invoices
+            JOIN (
+                SELECT
+                    paymentables.paymentable_id as invoice_id,
+                    MIN(payments.date) as first_payment_date
+                FROM paymentables
+                JOIN payments
+                    ON payments.id = paymentables.payment_id
+                    AND payments.status_id = 4
+                    AND payments.is_deleted = 0
+                WHERE paymentables.paymentable_type = 'invoices'
+                AND paymentables.deleted_at IS NULL
+                GROUP BY paymentables.paymentable_id
+            ) as MIN_pay
+                ON MIN_pay.invoice_id = invoices.id
+            JOIN clients
+                ON clients.id = invoices.client_id
+                AND clients.is_deleted = 0
+            WHERE invoices.company_id = :company_id
+            AND invoices.is_deleted = 0
+            AND invoices.status_id = 4
+            {$user_filter}
+        ", [
+            'company_id' => $this->company->id,
+        ]);
+    }
+
+    /**
+     * Outstanding Invoices With Client Analytics
+     *
+     * Returns all unpaid invoices (sent/partial) with their client's
+     * payment behavior for cash flow forecasting.
+     *
+     * @return array<int, \stdClass> Each row: invoice_id, client_id, amount, balance, date, due_date, currency_id, client_avg_payment_days, client_late_ratio
+     */
+    public function getOutstandingInvoicesForForecasting(): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND invoices.user_id = ' . $this->user->id;
+
+        return DB::select("
+            SELECT
+                invoices.id as invoice_id,
+                invoices.client_id,
+                invoices.amount,
+                invoices.balance,
+                invoices.date as invoice_date,
+                invoices.due_date,
+                IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) AS currency_id,
+                invoices.exchange_rate,
+                client_stats.avg_payment_days as client_avg_payment_days,
+                client_stats.late_payment_ratio as client_late_ratio,
+                client_stats.total_invoices as client_data_points
+            FROM invoices
+            JOIN clients
+                ON clients.id = invoices.client_id
+                AND clients.is_deleted = 0
+            LEFT JOIN (
+                SELECT
+                    inv.client_id,
+                    ROUND(AVG(DATEDIFF(MIN_pay.first_payment_date, inv.date)), 2) as avg_payment_days,
+                    ROUND(
+                        SUM(CASE WHEN inv.due_date IS NOT NULL AND MIN_pay.first_payment_date > inv.due_date THEN 1 ELSE 0 END)
+                        / COUNT(*), 4
+                    ) as late_payment_ratio,
+                    COUNT(*) as total_invoices
+                FROM invoices inv
+                JOIN (
+                    SELECT
+                        paymentables.paymentable_id as invoice_id,
+                        MIN(payments.date) as first_payment_date
+                    FROM paymentables
+                    JOIN payments
+                        ON payments.id = paymentables.payment_id
+                        AND payments.status_id = 4
+                        AND payments.is_deleted = 0
+                    WHERE paymentables.paymentable_type = 'invoices'
+                    AND paymentables.deleted_at IS NULL
+                    GROUP BY paymentables.paymentable_id
+                ) as MIN_pay
+                    ON MIN_pay.invoice_id = inv.id
+                WHERE inv.is_deleted = 0
+                AND inv.status_id = 4
+                AND inv.company_id = :company_id_stats
+                GROUP BY inv.client_id
+            ) as client_stats
+                ON client_stats.client_id = invoices.client_id
+            WHERE invoices.company_id = :company_id
+            AND invoices.is_deleted = 0
+            AND invoices.status_id IN (2, 3)
+            {$user_filter}
+            ORDER BY invoices.due_date ASC
+        ", [
+            'company_currency' => $this->company->settings->currency_id,
+            'company_id' => $this->company->id,
+            'company_id_stats' => $this->company->id,
+        ]);
+    }
+
+    /**
+     * Recurring Invoice Projections
+     *
+     * Returns active recurring invoices for forward projection of expected inflows.
+     *
+     * @return array<int, \stdClass> Each row: id, client_id, amount, frequency_id, next_send_date, remaining_cycles, auto_bill_enabled, currency_id
+     */
+    public function getRecurringInvoiceProjections(): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND recurring_invoices.user_id = ' . $this->user->id;
+
+        return DB::select("
+            SELECT
+                recurring_invoices.id,
+                recurring_invoices.client_id,
+                recurring_invoices.amount,
+                recurring_invoices.frequency_id,
+                recurring_invoices.next_send_date,
+                recurring_invoices.remaining_cycles,
+                recurring_invoices.auto_bill_enabled,
+                IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) AS currency_id,
+                recurring_invoices.exchange_rate
+            FROM recurring_invoices
+            JOIN clients
+                ON clients.id = recurring_invoices.client_id
+                AND clients.is_deleted = 0
+            WHERE recurring_invoices.company_id = :company_id
+            AND recurring_invoices.is_deleted = 0
+            AND recurring_invoices.status_id = 2
+            AND recurring_invoices.next_send_date IS NOT NULL
+            {$user_filter}
+        ", [
+            'company_currency' => $this->company->settings->currency_id,
+            'company_id' => $this->company->id,
+        ]);
+    }
+
+    /**
+     * Recurring Expense Projections
+     *
+     * Returns active recurring expenses for forward projection of expected outflows.
+     *
+     * @return array<int, \stdClass> Each row: id, amount, frequency_id, next_send_date, remaining_cycles, currency_id
+     */
+    public function getRecurringExpenseProjections(): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND recurring_expenses.user_id = ' . $this->user->id;
+
+        return DB::select("
+            SELECT
+                recurring_expenses.id,
+                recurring_expenses.amount,
+                recurring_expenses.frequency_id,
+                recurring_expenses.next_send_date,
+                recurring_expenses.remaining_cycles,
+                IFNULL(recurring_expenses.currency_id, :company_currency) as currency_id,
+                recurring_expenses.exchange_rate,
+                recurring_expenses.tax_rate1,
+                recurring_expenses.tax_rate2,
+                recurring_expenses.tax_rate3,
+                recurring_expenses.tax_amount1,
+                recurring_expenses.tax_amount2,
+                recurring_expenses.tax_amount3,
+                recurring_expenses.uses_inclusive_taxes
+            FROM recurring_expenses
+            WHERE recurring_expenses.company_id = :company_id
+            AND recurring_expenses.is_deleted = 0
+            AND recurring_expenses.status_id = 2
+            AND recurring_expenses.next_send_date IS NOT NULL
+            {$user_filter}
+        ", [
+            'company_currency' => $this->company->settings->currency_id,
+            'company_id' => $this->company->id,
+        ]);
+    }
+
+    /**
+     * Upcoming Expenses (Non-Recurring)
+     *
+     * Returns scheduled one-off expenses within a date range for cash flow forecasting.
+     *
+     * @param string $start_date
+     * @param string $end_date
+     * @return array<int, \stdClass> Each row: id, amount, date, currency_id
+     */
+    public function getUpcomingExpenses(string $start_date, string $end_date): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND expenses.user_id = ' . $this->user->id;
+
+        return DB::select("
+            SELECT
+                expenses.id,
+                CASE
+                    WHEN expenses.uses_inclusive_taxes = 0 THEN
+                        expenses.amount +
+                        (COALESCE(expenses.tax_amount1, 0) + COALESCE(expenses.tax_amount2, 0) + COALESCE(expenses.tax_amount3, 0)) +
+                        (
+                            (expenses.amount * COALESCE(expenses.tax_rate1, 0)/100) +
+                            (expenses.amount * COALESCE(expenses.tax_rate2, 0)/100) +
+                            (expenses.amount * COALESCE(expenses.tax_rate3, 0)/100)
+                        )
+                    ELSE expenses.amount
+                END as amount,
+                expenses.date,
+                IFNULL(expenses.currency_id, :company_currency) as currency_id,
+                expenses.exchange_rate
+            FROM expenses
+            LEFT JOIN clients
+                ON clients.id = expenses.client_id
+            LEFT JOIN vendors
+                ON vendors.id = expenses.vendor_id
+            WHERE expenses.company_id = :company_id
+            AND expenses.is_deleted = 0
+            AND (expenses.date BETWEEN :start_date AND :end_date)
+            {$user_filter}
+            AND (clients.id IS NULL OR clients.is_deleted = 0)
+            AND (vendors.id IS NULL OR vendors.is_deleted = 0)
+            ORDER BY expenses.date ASC
+        ", [
+            'company_currency' => $this->company->settings->currency_id,
+            'company_id' => $this->company->id,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+        ]);
+    }
+
+    /**
+     * Quote Conversion History
+     *
+     * Returns quote-to-invoice conversion data for forecasting open quote revenue.
+     * Groups by client to compute per-client conversion rates.
+     *
+     * @return array<int, \stdClass> Each row: client_id, total_quotes, converted_quotes, conversion_rate, avg_conversion_days, total_value, converted_value
+     */
+    public function getQuoteConversionHistory(): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND quotes.user_id = ' . $this->user->id;
+
+        return DB::select("
+            SELECT
+                quotes.client_id,
+                COUNT(*) as total_quotes,
+                SUM(CASE WHEN quotes.invoice_id IS NOT NULL THEN 1 ELSE 0 END) as converted_quotes,
+                ROUND(
+                    SUM(CASE WHEN quotes.invoice_id IS NOT NULL THEN 1 ELSE 0 END) / COUNT(*), 4
+                ) as conversion_rate,
+                ROUND(
+                    AVG(
+                        CASE WHEN quotes.invoice_id IS NOT NULL
+                            THEN DATEDIFF(invoices.date, quotes.date)
+                            ELSE NULL
+                        END
+                    ), 2
+                ) as avg_conversion_days,
+                SUM(quotes.amount) as total_value,
+                SUM(CASE WHEN quotes.invoice_id IS NOT NULL THEN quotes.amount ELSE 0 END) as converted_value,
+                IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) AS currency_id
+            FROM quotes
+            JOIN clients
+                ON clients.id = quotes.client_id
+                AND clients.is_deleted = 0
+            LEFT JOIN invoices
+                ON invoices.id = quotes.invoice_id
+                AND invoices.is_deleted = 0
+            WHERE quotes.company_id = :company_id
+            AND quotes.is_deleted = 0
+            AND quotes.status_id IN (2, 3, 4, 5)
+            {$user_filter}
+            GROUP BY quotes.client_id, currency_id
+        ", [
+            'company_currency' => $this->company->settings->currency_id,
+            'company_id' => $this->company->id,
+        ]);
+    }
+
+    /**
+     * Open Quotes For Forecasting
+     *
+     * Returns active/approved quotes that haven't been converted yet,
+     * along with their client's historical conversion rate.
+     *
+     * @return array<int, \stdClass> Each row: quote_id, client_id, amount, date, due_date, currency_id, client_conversion_rate, client_avg_conversion_days
+     */
+    public function getOpenQuotesForForecasting(): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND quotes.user_id = ' . $this->user->id;
+
+        return DB::select("
+            SELECT
+                quotes.id as quote_id,
+                quotes.client_id,
+                quotes.amount,
+                quotes.date,
+                quotes.due_date,
+                IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) AS currency_id,
+                quotes.exchange_rate,
+                COALESCE(client_conv.conversion_rate, 0) as client_conversion_rate,
+                COALESCE(client_conv.avg_conversion_days, 0) as client_avg_conversion_days
+            FROM quotes
+            JOIN clients
+                ON clients.id = quotes.client_id
+                AND clients.is_deleted = 0
+            LEFT JOIN (
+                SELECT
+                    q.client_id,
+                    ROUND(
+                        SUM(CASE WHEN q.invoice_id IS NOT NULL THEN 1 ELSE 0 END) / COUNT(*), 4
+                    ) as conversion_rate,
+                    ROUND(
+                        AVG(
+                            CASE WHEN q.invoice_id IS NOT NULL
+                                THEN DATEDIFF(inv.date, q.date)
+                                ELSE NULL
+                            END
+                        ), 2
+                    ) as avg_conversion_days
+                FROM quotes q
+                LEFT JOIN invoices inv
+                    ON inv.id = q.invoice_id
+                    AND inv.is_deleted = 0
+                WHERE q.is_deleted = 0
+                AND q.status_id IN (2, 3, 4, 5)
+                AND q.company_id = :company_id_conv
+                GROUP BY q.client_id
+            ) as client_conv
+                ON client_conv.client_id = quotes.client_id
+            WHERE quotes.company_id = :company_id
+            AND quotes.is_deleted = 0
+            AND quotes.status_id IN (2, 3)
+            AND quotes.invoice_id IS NULL
+            {$user_filter}
+            ORDER BY quotes.date ASC
+        ", [
+            'company_currency' => $this->company->settings->currency_id,
+            'company_id' => $this->company->id,
+            'company_id_conv' => $this->company->id,
+        ]);
+    }
+
+    /**
+     * Invoice Payment Timeline
+     *
+     * Returns a time-series of invoice-to-payment delays for trend analysis.
+     * Groups by month to show how payment behavior changes over time.
+     *
+     * @param string $start_date
+     * @param string $end_date
+     * @return array<int, \stdClass> Each row: month, avg_payment_days, invoice_count, late_count, on_time_count
+     */
+    public function getPaymentDelayTrend(string $start_date, string $end_date): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND invoices.user_id = ' . $this->user->id;
+
+        return DB::select("
+            SELECT
+                DATE_FORMAT(invoices.date, '%Y-%m') as month,
+                ROUND(AVG(DATEDIFF(MIN_pay.first_payment_date, invoices.date)), 2) as avg_payment_days,
+                COUNT(*) as invoice_count,
+                SUM(CASE WHEN invoices.due_date IS NOT NULL AND MIN_pay.first_payment_date > invoices.due_date THEN 1 ELSE 0 END) as late_count,
+                SUM(CASE WHEN invoices.due_date IS NULL OR MIN_pay.first_payment_date <= invoices.due_date THEN 1 ELSE 0 END) as on_time_count
+            FROM invoices
+            JOIN (
+                SELECT
+                    paymentables.paymentable_id as invoice_id,
+                    MIN(payments.date) as first_payment_date
+                FROM paymentables
+                JOIN payments
+                    ON payments.id = paymentables.payment_id
+                    AND payments.status_id = 4
+                    AND payments.is_deleted = 0
+                WHERE paymentables.paymentable_type = 'invoices'
+                AND paymentables.deleted_at IS NULL
+                GROUP BY paymentables.paymentable_id
+            ) as MIN_pay
+                ON MIN_pay.invoice_id = invoices.id
+            JOIN clients
+                ON clients.id = invoices.client_id
+                AND clients.is_deleted = 0
+            WHERE invoices.company_id = :company_id
+            AND invoices.is_deleted = 0
+            AND invoices.status_id = 4
+            AND (invoices.date BETWEEN :start_date AND :end_date)
+            {$user_filter}
+            GROUP BY month
+            ORDER BY month ASC
+        ", [
+            'company_id' => $this->company->id,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+        ]);
+    }
+
+    // ─── Chartable Time-Series Queries ──────────────────────────────
+
+    /**
+     * MRR Chart (per currency)
+     *
+     * Historical MRR based on actual invoices generated from recurring invoices.
+     * Groups by first-of-month to show recurring revenue per month.
+     * Returns {total, date} pairs for line chart rendering.
+     *
+     * @param string $start_date
+     * @param string $end_date
+     * @param int $currency_id
+     * @return array<int, \stdClass>
+     */
+    public function getMrrChartQuery(string $start_date, string $end_date, int $currency_id): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = ' . $this->user->id;
+
+        return DB::select("
+            SELECT
+                SUM(invoices.amount) as total,
+                DATE_FORMAT(invoices.date, '%Y-%m-01') as date
+            FROM invoices
+            JOIN clients
+                ON clients.id = invoices.client_id
+                AND clients.is_deleted = 0
+            WHERE invoices.company_id = :company_id
+            AND invoices.is_deleted = 0
+            AND invoices.recurring_id IS NOT NULL
+            AND invoices.status_id IN (2, 3, 4)
+            AND (invoices.date BETWEEN :start_date AND :end_date)
+            AND IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) = :currency_id
+            {$user_filter}
+            GROUP BY DATE_FORMAT(invoices.date, '%Y-%m-01')
+            ORDER BY DATE_FORMAT(invoices.date, '%Y-%m-01') ASC
+        ", [
+            'company_currency' => (int) $this->company->settings->currency_id,
+            'currency_id' => $currency_id,
+            'company_id' => $this->company->id,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+        ]);
+    }
+
+    /**
+     * MRR Chart (aggregate across currencies)
+     *
+     * Same as getMrrChartQuery but converts all currencies to company currency
+     * using exchange_rate for a single aggregate line.
+     *
+     * @param string $start_date
+     * @param string $end_date
+     * @return array<int, \stdClass>
+     */
+    public function getAggregateMrrChartQuery(string $start_date, string $end_date): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = ' . $this->user->id;
+
+        return DB::select("
+            SELECT
+                SUM(invoices.amount / COALESCE(NULLIF(invoices.exchange_rate, 0), 1)) as total,
+                DATE_FORMAT(invoices.date, '%Y-%m-01') as date
+            FROM invoices
+            JOIN clients
+                ON clients.id = invoices.client_id
+                AND clients.is_deleted = 0
+            WHERE invoices.company_id = :company_id
+            AND invoices.is_deleted = 0
+            AND invoices.recurring_id IS NOT NULL
+            AND invoices.status_id IN (2, 3, 4)
+            AND (invoices.date BETWEEN :start_date AND :end_date)
+            {$user_filter}
+            GROUP BY DATE_FORMAT(invoices.date, '%Y-%m-01')
+            ORDER BY DATE_FORMAT(invoices.date, '%Y-%m-01') ASC
+        ", [
+            'company_id' => $this->company->id,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+        ]);
+    }
+
+    /**
+     * Current MRR/ARR Total (per currency)
+     *
+     * Snapshot of current MRR based on active recurring invoices,
+     * with frequency normalization to monthly equivalent.
+     *
+     * @return array<int, \stdClass> Each row: mrr, arr, currency_id
+     */
+    public function getMrrTotalQuery(): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND recurring_invoices.user_id = ' . $this->user->id;
+
+        return DB::select("
+            SELECT
+                ROUND(SUM(
+                    CASE recurring_invoices.frequency_id
+                        WHEN 1 THEN recurring_invoices.amount * 30.44
+                        WHEN 2 THEN recurring_invoices.amount * 4.33
+                        WHEN 3 THEN recurring_invoices.amount * 2.17
+                        WHEN 4 THEN recurring_invoices.amount * 2.17
+                        WHEN 5 THEN recurring_invoices.amount
+                        WHEN 6 THEN recurring_invoices.amount / 2
+                        WHEN 7 THEN recurring_invoices.amount / 3
+                        WHEN 8 THEN recurring_invoices.amount / 4
+                        WHEN 9 THEN recurring_invoices.amount / 6
+                        WHEN 10 THEN recurring_invoices.amount / 12
+                        WHEN 11 THEN recurring_invoices.amount / 24
+                        WHEN 12 THEN recurring_invoices.amount / 36
+                        ELSE recurring_invoices.amount
+                    END
+                ), 2) as mrr,
+                ROUND(SUM(
+                    CASE recurring_invoices.frequency_id
+                        WHEN 1 THEN recurring_invoices.amount * 30.44 * 12
+                        WHEN 2 THEN recurring_invoices.amount * 4.33 * 12
+                        WHEN 3 THEN recurring_invoices.amount * 2.17 * 12
+                        WHEN 4 THEN recurring_invoices.amount * 2.17 * 12
+                        WHEN 5 THEN recurring_invoices.amount * 12
+                        WHEN 6 THEN recurring_invoices.amount * 6
+                        WHEN 7 THEN recurring_invoices.amount * 4
+                        WHEN 8 THEN recurring_invoices.amount * 3
+                        WHEN 9 THEN recurring_invoices.amount * 2
+                        WHEN 10 THEN recurring_invoices.amount
+                        WHEN 11 THEN recurring_invoices.amount / 2
+                        WHEN 12 THEN recurring_invoices.amount / 3
+                        ELSE recurring_invoices.amount * 12
+                    END
+                ), 2) as arr,
+                IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) AS currency_id
+            FROM recurring_invoices
+            JOIN clients
+                ON clients.id = recurring_invoices.client_id
+                AND clients.is_deleted = 0
+            WHERE recurring_invoices.company_id = :company_id
+            AND recurring_invoices.is_deleted = 0
+            AND recurring_invoices.status_id = 2
+            {$user_filter}
+            GROUP BY currency_id
+        ", [
+            'company_currency' => $this->company->settings->currency_id,
+            'company_id' => $this->company->id,
+        ]);
+    }
+
+    /**
+     * Current MRR/ARR Total (aggregate)
+     *
+     * Single row with company-wide MRR/ARR converted to company currency.
+     *
+     * @return array<int, \stdClass> Single row: mrr, arr
+     */
+    public function getAggregateMrrTotalQuery(): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND recurring_invoices.user_id = ' . $this->user->id;
+
+        return DB::select("
+            SELECT
+                ROUND(SUM(
+                    CASE recurring_invoices.frequency_id
+                        WHEN 1 THEN recurring_invoices.amount * 30.44
+                        WHEN 2 THEN recurring_invoices.amount * 4.33
+                        WHEN 3 THEN recurring_invoices.amount * 2.17
+                        WHEN 4 THEN recurring_invoices.amount * 2.17
+                        WHEN 5 THEN recurring_invoices.amount
+                        WHEN 6 THEN recurring_invoices.amount / 2
+                        WHEN 7 THEN recurring_invoices.amount / 3
+                        WHEN 8 THEN recurring_invoices.amount / 4
+                        WHEN 9 THEN recurring_invoices.amount / 6
+                        WHEN 10 THEN recurring_invoices.amount / 12
+                        WHEN 11 THEN recurring_invoices.amount / 24
+                        WHEN 12 THEN recurring_invoices.amount / 36
+                        ELSE recurring_invoices.amount
+                    END
+                    / COALESCE(NULLIF(recurring_invoices.exchange_rate, 0), 1)
+                ), 2) as mrr,
+                ROUND(SUM(
+                    CASE recurring_invoices.frequency_id
+                        WHEN 1 THEN recurring_invoices.amount * 30.44 * 12
+                        WHEN 2 THEN recurring_invoices.amount * 4.33 * 12
+                        WHEN 3 THEN recurring_invoices.amount * 2.17 * 12
+                        WHEN 4 THEN recurring_invoices.amount * 2.17 * 12
+                        WHEN 5 THEN recurring_invoices.amount * 12
+                        WHEN 6 THEN recurring_invoices.amount * 6
+                        WHEN 7 THEN recurring_invoices.amount * 4
+                        WHEN 8 THEN recurring_invoices.amount * 3
+                        WHEN 9 THEN recurring_invoices.amount * 2
+                        WHEN 10 THEN recurring_invoices.amount
+                        WHEN 11 THEN recurring_invoices.amount / 2
+                        WHEN 12 THEN recurring_invoices.amount / 3
+                        ELSE recurring_invoices.amount * 12
+                    END
+                    / COALESCE(NULLIF(recurring_invoices.exchange_rate, 0), 1)
+                ), 2) as arr
+            FROM recurring_invoices
+            JOIN clients
+                ON clients.id = recurring_invoices.client_id
+                AND clients.is_deleted = 0
+            WHERE recurring_invoices.company_id = :company_id
+            AND recurring_invoices.is_deleted = 0
+            AND recurring_invoices.status_id = 2
+            {$user_filter}
+        ", [
+            'company_id' => $this->company->id,
+        ]);
+    }
+
+    /**
+     * Payment Delay Chart (per currency)
+     *
+     * Average payment delay per month for a specific currency.
+     * Returns {total, date} pairs where total = avg days to payment.
+     *
+     * @param string $start_date
+     * @param string $end_date
+     * @param int $currency_id
+     * @return array<int, \stdClass>
+     */
+    public function getPaymentDelayChartQuery(string $start_date, string $end_date, int $currency_id): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND invoices.user_id = ' . $this->user->id;
+
+        return DB::select("
+            SELECT
+                ROUND(AVG(DATEDIFF(MIN_pay.first_payment_date, invoices.date)), 2) as total,
+                DATE_FORMAT(invoices.date, '%Y-%m-01') as date
+            FROM invoices
+            JOIN (
+                SELECT
+                    paymentables.paymentable_id as invoice_id,
+                    MIN(payments.date) as first_payment_date
+                FROM paymentables
+                JOIN payments
+                    ON payments.id = paymentables.payment_id
+                    AND payments.status_id = 4
+                    AND payments.is_deleted = 0
+                WHERE paymentables.paymentable_type = 'invoices'
+                AND paymentables.deleted_at IS NULL
+                GROUP BY paymentables.paymentable_id
+            ) as MIN_pay
+                ON MIN_pay.invoice_id = invoices.id
+            JOIN clients
+                ON clients.id = invoices.client_id
+                AND clients.is_deleted = 0
+            WHERE invoices.company_id = :company_id
+            AND invoices.is_deleted = 0
+            AND invoices.status_id = 4
+            AND (invoices.date BETWEEN :start_date AND :end_date)
+            AND IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) = :currency_id
+            {$user_filter}
+            GROUP BY DATE_FORMAT(invoices.date, '%Y-%m-01')
+            ORDER BY DATE_FORMAT(invoices.date, '%Y-%m-01') ASC
+        ", [
+            'company_currency' => (int) $this->company->settings->currency_id,
+            'currency_id' => $currency_id,
+            'company_id' => $this->company->id,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+        ]);
+    }
+
+    /**
+     * Payment Delay Chart (aggregate)
+     *
+     * Average payment delay per month across all currencies.
+     *
+     * @param string $start_date
+     * @param string $end_date
+     * @return array<int, \stdClass>
+     */
+    public function getAggregatePaymentDelayChartQuery(string $start_date, string $end_date): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND invoices.user_id = ' . $this->user->id;
+
+        return DB::select("
+            SELECT
+                ROUND(AVG(DATEDIFF(MIN_pay.first_payment_date, invoices.date)), 2) as total,
+                DATE_FORMAT(invoices.date, '%Y-%m-01') as date
+            FROM invoices
+            JOIN (
+                SELECT
+                    paymentables.paymentable_id as invoice_id,
+                    MIN(payments.date) as first_payment_date
+                FROM paymentables
+                JOIN payments
+                    ON payments.id = paymentables.payment_id
+                    AND payments.status_id = 4
+                    AND payments.is_deleted = 0
+                WHERE paymentables.paymentable_type = 'invoices'
+                AND paymentables.deleted_at IS NULL
+                GROUP BY paymentables.paymentable_id
+            ) as MIN_pay
+                ON MIN_pay.invoice_id = invoices.id
+            JOIN clients
+                ON clients.id = invoices.client_id
+                AND clients.is_deleted = 0
+            WHERE invoices.company_id = :company_id
+            AND invoices.is_deleted = 0
+            AND invoices.status_id = 4
+            AND (invoices.date BETWEEN :start_date AND :end_date)
+            {$user_filter}
+            GROUP BY DATE_FORMAT(invoices.date, '%Y-%m-01')
+            ORDER BY DATE_FORMAT(invoices.date, '%Y-%m-01') ASC
+        ", [
+            'company_id' => $this->company->id,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+        ]);
+    }
+
+    /**
+     * Quote Pipeline Chart (per currency)
+     *
+     * Total value of open quotes (sent/approved, not converted) grouped by date.
+     * Returns {total, date} pairs for line chart rendering.
+     *
+     * @param string $start_date
+     * @param string $end_date
+     * @param int $currency_id
+     * @return array<int, \stdClass>
+     */
+    public function getQuotePipelineChartQuery(string $start_date, string $end_date, int $currency_id): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND quotes.user_id = ' . $this->user->id;
+
+        return DB::select("
+            SELECT
+                SUM(quotes.amount) as total,
+                quotes.date
+            FROM quotes
+            JOIN clients
+                ON clients.id = quotes.client_id
+                AND clients.is_deleted = 0
+            WHERE quotes.company_id = :company_id
+            AND quotes.is_deleted = 0
+            AND quotes.status_id IN (2, 3)
+            AND quotes.invoice_id IS NULL
+            AND (quotes.date BETWEEN :start_date AND :end_date)
+            AND IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) = :currency_id
+            {$user_filter}
+            GROUP BY quotes.date
+            ORDER BY quotes.date ASC
+        ", [
+            'company_currency' => (int) $this->company->settings->currency_id,
+            'currency_id' => $currency_id,
+            'company_id' => $this->company->id,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+        ]);
+    }
+
+    /**
+     * Quote Pipeline Chart (aggregate)
+     *
+     * Total open quote value across all currencies, converted to company currency.
+     *
+     * @param string $start_date
+     * @param string $end_date
+     * @return array<int, \stdClass>
+     */
+    public function getAggregateQuotePipelineChartQuery(string $start_date, string $end_date): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND quotes.user_id = ' . $this->user->id;
+
+        return DB::select("
+            SELECT
+                SUM(quotes.amount / COALESCE(NULLIF(quotes.exchange_rate, 0), 1)) as total,
+                quotes.date
+            FROM quotes
+            JOIN clients
+                ON clients.id = quotes.client_id
+                AND clients.is_deleted = 0
+            WHERE quotes.company_id = :company_id
+            AND quotes.is_deleted = 0
+            AND quotes.status_id IN (2, 3)
+            AND quotes.invoice_id IS NULL
+            AND (quotes.date BETWEEN :start_date AND :end_date)
+            {$user_filter}
+            GROUP BY quotes.date
+            ORDER BY quotes.date ASC
+        ", [
+            'company_id' => $this->company->id,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+        ]);
+    }
+
+    /**
+     * Late Payment Rate Chart (per currency)
+     *
+     * Percentage of invoices paid late per month.
+     * Returns {total, date} pairs where total = late ratio (0-1).
+     *
+     * @param string $start_date
+     * @param string $end_date
+     * @param int $currency_id
+     * @return array<int, \stdClass>
+     */
+    public function getLatePaymentRateChartQuery(string $start_date, string $end_date, int $currency_id): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND invoices.user_id = ' . $this->user->id;
+
+        return DB::select("
+            SELECT
+                ROUND(
+                    SUM(CASE WHEN invoices.due_date IS NOT NULL AND MIN_pay.first_payment_date > invoices.due_date THEN 1 ELSE 0 END)
+                    / NULLIF(COUNT(*), 0), 4
+                ) as total,
+                DATE_FORMAT(invoices.date, '%Y-%m-01') as date
+            FROM invoices
+            JOIN (
+                SELECT
+                    paymentables.paymentable_id as invoice_id,
+                    MIN(payments.date) as first_payment_date
+                FROM paymentables
+                JOIN payments
+                    ON payments.id = paymentables.payment_id
+                    AND payments.status_id = 4
+                    AND payments.is_deleted = 0
+                WHERE paymentables.paymentable_type = 'invoices'
+                AND paymentables.deleted_at IS NULL
+                GROUP BY paymentables.paymentable_id
+            ) as MIN_pay
+                ON MIN_pay.invoice_id = invoices.id
+            JOIN clients
+                ON clients.id = invoices.client_id
+                AND clients.is_deleted = 0
+            WHERE invoices.company_id = :company_id
+            AND invoices.is_deleted = 0
+            AND invoices.status_id = 4
+            AND (invoices.date BETWEEN :start_date AND :end_date)
+            AND IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) = :currency_id
+            {$user_filter}
+            GROUP BY DATE_FORMAT(invoices.date, '%Y-%m-01')
+            ORDER BY DATE_FORMAT(invoices.date, '%Y-%m-01') ASC
+        ", [
+            'company_currency' => (int) $this->company->settings->currency_id,
+            'currency_id' => $currency_id,
+            'company_id' => $this->company->id,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+        ]);
+    }
+
+    /**
+     * Late Payment Rate Chart (aggregate)
+     *
+     * Percentage of invoices paid late per month across all currencies.
+     *
+     * @param string $start_date
+     * @param string $end_date
+     * @return array<int, \stdClass>
+     */
+    public function getAggregateLatePaymentRateChartQuery(string $start_date, string $end_date): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND invoices.user_id = ' . $this->user->id;
+
+        return DB::select("
+            SELECT
+                ROUND(
+                    SUM(CASE WHEN invoices.due_date IS NOT NULL AND MIN_pay.first_payment_date > invoices.due_date THEN 1 ELSE 0 END)
+                    / NULLIF(COUNT(*), 0), 4
+                ) as total,
+                DATE_FORMAT(invoices.date, '%Y-%m-01') as date
+            FROM invoices
+            JOIN (
+                SELECT
+                    paymentables.paymentable_id as invoice_id,
+                    MIN(payments.date) as first_payment_date
+                FROM paymentables
+                JOIN payments
+                    ON payments.id = paymentables.payment_id
+                    AND payments.status_id = 4
+                    AND payments.is_deleted = 0
+                WHERE paymentables.paymentable_type = 'invoices'
+                AND paymentables.deleted_at IS NULL
+                GROUP BY paymentables.paymentable_id
+            ) as MIN_pay
+                ON MIN_pay.invoice_id = invoices.id
+            JOIN clients
+                ON clients.id = invoices.client_id
+                AND clients.is_deleted = 0
+            WHERE invoices.company_id = :company_id
+            AND invoices.is_deleted = 0
+            AND invoices.status_id = 4
+            AND (invoices.date BETWEEN :start_date AND :end_date)
+            {$user_filter}
+            GROUP BY DATE_FORMAT(invoices.date, '%Y-%m-01')
+            ORDER BY DATE_FORMAT(invoices.date, '%Y-%m-01') ASC
+        ", [
+            'company_id' => $this->company->id,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+        ]);
+    }
+
+    /**
+     * AR Aging Bucket Totals (per currency)
+     *
+     * Current snapshot of outstanding invoice amounts by aging bucket.
+     * For stacked bar chart rendering.
+     *
+     * @return array<int, \stdClass> Each row: current_amount, age_0_30, age_31_60, age_61_90, age_91_120, age_120_plus, currency_id
+     */
+    public function getAgingBucketTotals(): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND invoices.user_id = ' . $this->user->id;
+
+        return DB::select("
+            SELECT
+                SUM(CASE WHEN invoices.due_date >= CURDATE() THEN invoices.balance ELSE 0 END) as current_amount,
+                SUM(CASE WHEN invoices.due_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 30 DAY) AND DATE_SUB(CURDATE(), INTERVAL 1 DAY) THEN invoices.balance ELSE 0 END) as age_0_30,
+                SUM(CASE WHEN invoices.due_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 60 DAY) AND DATE_SUB(CURDATE(), INTERVAL 31 DAY) THEN invoices.balance ELSE 0 END) as age_31_60,
+                SUM(CASE WHEN invoices.due_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 90 DAY) AND DATE_SUB(CURDATE(), INTERVAL 61 DAY) THEN invoices.balance ELSE 0 END) as age_61_90,
+                SUM(CASE WHEN invoices.due_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 120 DAY) AND DATE_SUB(CURDATE(), INTERVAL 91 DAY) THEN invoices.balance ELSE 0 END) as age_91_120,
+                SUM(CASE WHEN invoices.due_date < DATE_SUB(CURDATE(), INTERVAL 120 DAY) THEN invoices.balance ELSE 0 END) as age_120_plus,
+                IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) AS currency_id
+            FROM invoices
+            JOIN clients
+                ON clients.id = invoices.client_id
+                AND clients.is_deleted = 0
+            WHERE invoices.company_id = :company_id
+            AND invoices.is_deleted = 0
+            AND invoices.status_id IN (2, 3)
+            AND invoices.balance > 0
+            {$user_filter}
+            GROUP BY currency_id
+        ", [
+            'company_currency' => $this->company->settings->currency_id,
+            'company_id' => $this->company->id,
+        ]);
+    }
+
+    /**
+     * AR Aging Bucket Totals (aggregate)
+     *
+     * Company-wide aging snapshot with exchange rate conversion.
+     *
+     * @return array<int, \stdClass> Single row: current_amount, age_0_30, age_31_60, age_61_90, age_91_120, age_120_plus
+     */
+    public function getAggregateAgingBucketTotals(): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND invoices.user_id = ' . $this->user->id;
+
+        return DB::select("
+            SELECT
+                SUM(CASE WHEN invoices.due_date >= CURDATE() THEN invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1) ELSE 0 END) as current_amount,
+                SUM(CASE WHEN invoices.due_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 30 DAY) AND DATE_SUB(CURDATE(), INTERVAL 1 DAY) THEN invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1) ELSE 0 END) as age_0_30,
+                SUM(CASE WHEN invoices.due_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 60 DAY) AND DATE_SUB(CURDATE(), INTERVAL 31 DAY) THEN invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1) ELSE 0 END) as age_31_60,
+                SUM(CASE WHEN invoices.due_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 90 DAY) AND DATE_SUB(CURDATE(), INTERVAL 61 DAY) THEN invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1) ELSE 0 END) as age_61_90,
+                SUM(CASE WHEN invoices.due_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 120 DAY) AND DATE_SUB(CURDATE(), INTERVAL 91 DAY) THEN invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1) ELSE 0 END) as age_91_120,
+                SUM(CASE WHEN invoices.due_date < DATE_SUB(CURDATE(), INTERVAL 120 DAY) THEN invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1) ELSE 0 END) as age_120_plus
+            FROM invoices
+            JOIN clients
+                ON clients.id = invoices.client_id
+                AND clients.is_deleted = 0
+            WHERE invoices.company_id = :company_id
+            AND invoices.is_deleted = 0
+            AND invoices.status_id IN (2, 3)
+            AND invoices.balance > 0
+            {$user_filter}
+        ", [
+            'company_id' => $this->company->id,
+        ]);
+    }
+}

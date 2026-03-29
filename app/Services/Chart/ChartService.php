@@ -26,6 +26,7 @@ class ChartService
 {
     use ChartQueries;
     use ChartCalculations;
+    use AnalyticsQueries;
 
     public function __construct(public Company $company, private User $user, private bool $is_admin, private bool $include_drafts = false) {}
 
@@ -210,6 +211,72 @@ class ChartService
 
         return '';
     }
+
+    /* Analytics */
+
+    /**
+     * Analytics chart summary — time-series data for analytics charts.
+     * Returns per-currency + aggregate (key 999) data matching chart_summary() format.
+     */
+    public function analytics_summary($start_date, $end_date): array
+    {
+        $currencies = $this->getCurrencyCodes();
+
+        $data = [];
+        $data['start_date'] = $start_date;
+        $data['end_date'] = $end_date;
+
+        foreach ($currencies as $key => $value) {
+            $data[$key]['mrr'] = $this->getMrrChartQuery($start_date, $end_date, $key);
+            $data[$key]['payment_delay'] = $this->getPaymentDelayChartQuery($start_date, $end_date, $key);
+            $data[$key]['quote_pipeline'] = $this->getQuotePipelineChartQuery($start_date, $end_date, $key);
+            $data[$key]['late_payment_rate'] = $this->getLatePaymentRateChartQuery($start_date, $end_date, $key);
+        }
+
+        $data[999]['mrr'] = $this->getAggregateMrrChartQuery($start_date, $end_date);
+        $data[999]['payment_delay'] = $this->getAggregatePaymentDelayChartQuery($start_date, $end_date);
+        $data[999]['quote_pipeline'] = $this->getAggregateQuotePipelineChartQuery($start_date, $end_date);
+        $data[999]['late_payment_rate'] = $this->getAggregateLatePaymentRateChartQuery($start_date, $end_date);
+
+        return $data;
+    }
+
+    /**
+     * Analytics totals — snapshot KPIs for analytics dashboard cards.
+     * Returns per-currency + aggregate (key 999) data matching totals() format.
+     */
+    public function analytics_totals($start_date, $end_date): array
+    {
+        $data = [];
+
+        $data['currencies'] = $this->getCurrencyCodes();
+        $data['start_date'] = $start_date;
+        $data['end_date'] = $end_date;
+
+        $mrr_totals = $this->getMrrTotalQuery();
+        $aging_totals = $this->getAgingBucketTotals();
+        $client_analytics = $this->getClientPaymentSummary();
+
+        foreach ($data['currencies'] as $key => $value) {
+            $mrr_set = array_search($key, array_column($mrr_totals, 'currency_id'));
+            $aging_set = array_search($key, array_column($aging_totals, 'currency_id'));
+
+            $data[$key]['mrr'] = $mrr_set !== false ? $mrr_totals[$mrr_set] : new \stdClass();
+            $data[$key]['aging'] = $aging_set !== false ? $aging_totals[$aging_set] : new \stdClass();
+        }
+
+        $aggregate_mrr = $this->getAggregateMrrTotalQuery();
+        $aggregate_aging = $this->getAggregateAgingBucketTotals();
+        $company_payment = $this->getCompanyPaymentSummary();
+
+        $data[999]['mrr'] = ! empty($aggregate_mrr) ? reset($aggregate_mrr) : new \stdClass();
+        $data[999]['aging'] = ! empty($aggregate_aging) ? reset($aggregate_aging) : new \stdClass();
+        $data[999]['payment_analytics'] = ! empty($company_payment) ? reset($company_payment) : new \stdClass();
+
+        return $data;
+    }
+
+    /* Analytics */
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
