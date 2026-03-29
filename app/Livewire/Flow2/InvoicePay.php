@@ -255,6 +255,7 @@ class InvoicePay extends Component
     #[Computed()]
     public function componentUniqueId(): string
     {
+        // return "purchase-" . md5($this->component().$this->invitation_id); // this will prevent stale components loading potentially!
         return "purchase-" . md5(microtime());
     }
 
