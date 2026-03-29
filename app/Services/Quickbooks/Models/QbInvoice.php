@@ -137,6 +137,17 @@ class QbInvoice implements SyncInterface
             }
 
             try {
+                // Ensure client exists in QuickBooks before pushing the invoice
+                $client = $invoice->client;
+                if (empty($client->sync->qb_id ?? null)) {
+                    $qb_client_id = $this->service->client->createQbClient($client);
+                    if (empty($qb_client_id)) {
+                        nlog("QuickBooks: Skipping invoice {$invoice->id} — unable to create client {$client->id} in QuickBooks");
+                        continue;
+                    }
+                    $client->refresh();
+                }
+
                 // Transform invoice to QuickBooks format
                 $qb_invoice_data = $this->invoice_transformer->ninjaToQb($invoice, $this->service);
 
