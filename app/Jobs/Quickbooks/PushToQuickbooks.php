@@ -98,6 +98,7 @@ class PushToQuickbooks implements ShouldQueue
             // Note: Success activities are not logged to avoid spamming the activities table.
             // Only failures are logged as they require user attention.
         } catch (\Throwable $e) {
+            app('sentry')->captureException($e);
             nlog("Quickbooks push to Quickbooks job failed => " . $e->getMessage());
             $this->logActivityFailure($entity, $this->extractReadableError($e->getMessage()));
 
@@ -253,6 +254,7 @@ class PushToQuickbooks implements ShouldQueue
 
     public function failed($exception)
     {
+        app('sentry')->captureException($exception);
         nlog("Quickbooks push to Quickbooks job failed => " . $exception->getMessage());
         config(['queue.failed.driver' => null]);
 

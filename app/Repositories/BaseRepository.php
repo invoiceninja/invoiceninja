@@ -360,6 +360,7 @@ class BaseRepository
                         (new \App\Jobs\Quickbooks\PushToQuickbooks('invoice', $model->id, $model->company->db))->handle();
                     }
                     catch(\Throwable $e){
+                        app('sentry')->captureException($e);
                         nlog("Quickbooks push to Quickbooks job failed => " . $e->getMessage());
                     }
                 }
