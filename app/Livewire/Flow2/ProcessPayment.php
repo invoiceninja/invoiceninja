@@ -30,6 +30,7 @@ class ProcessPayment extends Component
 
     public $isLoading = true;
     public $_key;
+
     public function mount()
     {
 
