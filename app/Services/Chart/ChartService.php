@@ -252,22 +252,26 @@ class ChartService
 
         $mrr_totals = $this->getMrrTotalQuery();
         $aging_totals = $this->getAgingBucketTotals();
-        $client_analytics = $this->getClientPaymentSummary();
+        $recurring_expense_totals = $this->getRecurringExpenseTotalQuery();
 
         foreach ($data['currencies'] as $key => $value) {
             $mrr_set = array_search($key, array_column($mrr_totals, 'currency_id'));
             $aging_set = array_search($key, array_column($aging_totals, 'currency_id'));
+            $re_set = array_search($key, array_column($recurring_expense_totals, 'currency_id'));
 
             $data[$key]['mrr'] = $mrr_set !== false ? $mrr_totals[$mrr_set] : new \stdClass();
             $data[$key]['aging'] = $aging_set !== false ? $aging_totals[$aging_set] : new \stdClass();
+            $data[$key]['recurring_expenses'] = $re_set !== false ? $recurring_expense_totals[$re_set] : new \stdClass();
         }
 
         $aggregate_mrr = $this->getAggregateMrrTotalQuery();
         $aggregate_aging = $this->getAggregateAgingBucketTotals();
+        $aggregate_recurring_expenses = $this->getAggregateRecurringExpenseTotalQuery();
         $company_payment = $this->getCompanyPaymentSummary();
 
         $data[999]['mrr'] = ! empty($aggregate_mrr) ? reset($aggregate_mrr) : new \stdClass();
         $data[999]['aging'] = ! empty($aggregate_aging) ? reset($aggregate_aging) : new \stdClass();
+        $data[999]['recurring_expenses'] = ! empty($aggregate_recurring_expenses) ? reset($aggregate_recurring_expenses) : new \stdClass();
         $data[999]['payment_analytics'] = ! empty($company_payment) ? reset($company_payment) : new \stdClass();
 
         return $data;
@@ -301,6 +305,17 @@ class ChartService
             $this->getClientPaymentSummary(null),
             $this->getCompanyPaymentSummary()
         );
+    }
+
+    /**
+     * Project analytics — budget utilization and profitability.
+     */
+    public function project_analytics(): array
+    {
+        return [
+            'budget_summary' => $this->getProjectBudgetSummary(),
+            'profitability' => $this->getProjectProfitability(),
+        ];
     }
 
     /* Analytics */

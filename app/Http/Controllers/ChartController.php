@@ -148,6 +148,22 @@ class ChartController extends BaseController
         return response()->json($data, 200);
     }
 
+    public function project_analytics(ShowChartRequest $request)
+    {
+        /** @var \App\Models\User auth()->user() */
+        $user = auth()->user();
+        $admin_equivalent_permissions = $user->isAdmin() || $user->hasExactPermissionAndAll('view_all') || $user->hasExactPermissionAndAll('edit_all');
+
+        $cacheKey = "project_analytics:{$user->company()->id}:{$user->id}";
+
+        $data = Cache::remember($cacheKey, now()->addMinutes(15), function () use ($user, $admin_equivalent_permissions) {
+            $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
+            return $cs->project_analytics();
+        });
+
+        return response()->json($data, 200);
+    }
+
     public function calculatedFields(ShowCalculatedFieldRequest $request)
     {
 
