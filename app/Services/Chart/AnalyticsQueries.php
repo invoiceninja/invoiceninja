@@ -919,19 +919,21 @@ trait AnalyticsQueries
         return DB::select("
             SELECT
                 SUM(quotes.amount) as total,
-                quotes.date
+                DATE_FORMAT(quotes.date, '%Y-%m-01') as date
             FROM quotes
             JOIN clients
                 ON clients.id = quotes.client_id
                 AND clients.is_deleted = 0
             WHERE quotes.company_id = :company_id
             AND quotes.is_deleted = 0
-            AND quotes.status_id IN (2, 3, 4, 5)
+            AND quotes.status_id IN (2, 3)
+            AND quotes.invoice_id IS NULL
+            AND (quotes.due_date IS NULL OR quotes.due_date >= CURDATE())
             AND (quotes.date BETWEEN :start_date AND :end_date)
             AND IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) = :currency_id
             {$user_filter}
-            GROUP BY quotes.date
-            ORDER BY quotes.date ASC
+            GROUP BY DATE_FORMAT(quotes.date, '%Y-%m-01')
+            ORDER BY DATE_FORMAT(quotes.date, '%Y-%m-01') ASC
         ", [
             'company_currency' => (int) $this->company->settings->currency_id,
             'currency_id' => $currency_id,
@@ -944,8 +946,9 @@ trait AnalyticsQueries
     /**
      * Quote Pipeline Chart (aggregate)
      *
-     * Total value of all non-draft quotes across all currencies,
-     * converted to company currency. Shows quoting activity over time.
+     * Total value of actionable quotes (sent/approved, not converted, not expired)
+     * across all currencies, converted to company currency. Grouped monthly.
+     * A quote is expired when due_date < today. Quotes with no due_date never expire.
      *
      * @param string $start_date
      * @param string $end_date
@@ -958,18 +961,20 @@ trait AnalyticsQueries
         return DB::select("
             SELECT
                 SUM(quotes.amount / COALESCE(NULLIF(quotes.exchange_rate, 0), 1)) as total,
-                quotes.date
+                DATE_FORMAT(quotes.date, '%Y-%m-01') as date
             FROM quotes
             JOIN clients
                 ON clients.id = quotes.client_id
                 AND clients.is_deleted = 0
             WHERE quotes.company_id = :company_id
             AND quotes.is_deleted = 0
-            AND quotes.status_id IN (2, 3, 4, 5)
+            AND quotes.status_id IN (2, 3)
+            AND quotes.invoice_id IS NULL
+            AND (quotes.due_date IS NULL OR quotes.due_date >= CURDATE())
             AND (quotes.date BETWEEN :start_date AND :end_date)
             {$user_filter}
-            GROUP BY quotes.date
-            ORDER BY quotes.date ASC
+            GROUP BY DATE_FORMAT(quotes.date, '%Y-%m-01')
+            ORDER BY DATE_FORMAT(quotes.date, '%Y-%m-01') ASC
         ", [
             'company_id' => $this->company->id,
             'start_date' => $start_date,

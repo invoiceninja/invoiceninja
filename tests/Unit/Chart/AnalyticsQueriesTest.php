@@ -1284,11 +1284,11 @@ class AnalyticsQueriesTest extends TestCase
         $this->assertCount(2, $results);
 
         $dates = collect($results)->keyBy('date');
-        $this->assertEquals(800.00, $dates['2026-03-15']->total); // 500 + 300
+        $this->assertEquals(800.00, $dates['2026-03-01']->total); // 500 + 300 grouped to month
         $this->assertEquals(200.00, $dates['2026-04-01']->total);
     }
 
-    public function testQuotePipelineIncludesAllNonDraftQuotes(): void
+    public function testQuotePipelineExcludesConvertedAndExpired(): void
     {
         $invoice = Invoice::factory()->create([
             'client_id' => $this->test_client->id,
@@ -1302,7 +1302,7 @@ class AnalyticsQueriesTest extends TestCase
             'exchange_rate' => 1,
         ]);
 
-        // Converted quote (should appear — pipeline shows all quoting activity)
+        // Converted quote (should NOT appear — already an invoice)
         Quote::factory()->create([
             'client_id' => $this->test_client->id,
             'user_id' => $this->user->id,
@@ -1315,7 +1315,21 @@ class AnalyticsQueriesTest extends TestCase
             'exchange_rate' => 1,
         ]);
 
-        // Open quote (should appear)
+        // Expired quote (due_date in the past, should NOT appear)
+        Quote::factory()->create([
+            'client_id' => $this->test_client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'amount' => 400.00,
+            'status_id' => Quote::STATUS_SENT,
+            'date' => '2026-03-10',
+            'due_date' => '2026-03-20',
+            'invoice_id' => null,
+            'is_deleted' => false,
+            'exchange_rate' => 1,
+        ]);
+
+        // Open quote with no due_date (never expires, should appear)
         Quote::factory()->create([
             'client_id' => $this->test_client->id,
             'user_id' => $this->user->id,
@@ -1323,6 +1337,21 @@ class AnalyticsQueriesTest extends TestCase
             'amount' => 300.00,
             'status_id' => Quote::STATUS_SENT,
             'date' => '2026-03-15',
+            'due_date' => null,
+            'invoice_id' => null,
+            'is_deleted' => false,
+            'exchange_rate' => 1,
+        ]);
+
+        // Open quote with future due_date (not expired, should appear)
+        Quote::factory()->create([
+            'client_id' => $this->test_client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'amount' => 200.00,
+            'status_id' => Quote::STATUS_APPROVED,
+            'date' => '2026-03-18',
+            'due_date' => now()->addDays(30)->format('Y-m-d'),
             'invoice_id' => null,
             'is_deleted' => false,
             'exchange_rate' => 1,
@@ -1331,8 +1360,8 @@ class AnalyticsQueriesTest extends TestCase
         $cs = $this->getService();
         $results = $cs->getQuotePipelineChartQuery('2026-01-01', '2026-12-31', 1);
 
-        $this->assertCount(1, $results); // same date, grouped
-        $this->assertEquals(800.00, $results[0]->total); // 500 + 300
+        $this->assertCount(1, $results); // all in March
+        $this->assertEquals(500.00, $results[0]->total); // 300 + 200 (converted and expired excluded)
     }
 
     // ─── Chart Queries: Late Payment Rate ───────────────────────────
