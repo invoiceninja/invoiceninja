@@ -15,14 +15,9 @@ namespace App\Services\Chart;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Expense;
-use App\Models\Invoice;
-use App\Models\Payment;
-use App\Models\Quote;
-use App\Models\Task;
 use App\Models\User;
 use App\Services\Chart\CashFlowForecastService;
 use App\Services\Chart\ClientPaymentAnalyticsService;
-use Illuminate\Support\Facades\Cache;
 
 class ChartService
 {
