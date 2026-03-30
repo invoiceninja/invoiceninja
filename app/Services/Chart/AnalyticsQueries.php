@@ -188,6 +188,7 @@ trait AnalyticsQueries
     public function getOutstandingInvoicesForForecasting(): array
     {
         $user_filter = $this->is_admin ? '' : 'AND invoices.user_id = ' . $this->user->id;
+        $user_filter_inv = $this->is_admin ? '' : 'AND inv.user_id = ' . $this->user->id;
 
         return DB::select("
             SELECT
@@ -233,6 +234,7 @@ trait AnalyticsQueries
                 WHERE inv.is_deleted = 0
                 AND inv.status_id = 4
                 AND inv.company_id = :company_id_stats
+                {$user_filter_inv}
                 GROUP BY inv.client_id
             ) as client_stats
                 ON client_stats.client_id = invoices.client_id
@@ -434,6 +436,7 @@ trait AnalyticsQueries
     public function getOpenQuotesForForecasting(): array
     {
         $user_filter = $this->is_admin ? '' : 'AND quotes.user_id = ' . $this->user->id;
+        $user_filter_q = $this->is_admin ? '' : 'AND q.user_id = ' . $this->user->id;
 
         return DB::select("
             SELECT
@@ -471,6 +474,7 @@ trait AnalyticsQueries
                 WHERE q.is_deleted = 0
                 AND q.status_id IN (2, 3, 4, 5)
                 AND q.company_id = :company_id_conv
+                {$user_filter_q}
                 GROUP BY q.client_id
             ) as client_conv
                 ON client_conv.client_id = quotes.client_id
