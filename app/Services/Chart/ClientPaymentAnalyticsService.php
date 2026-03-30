@@ -12,10 +12,13 @@
 
 namespace App\Services\Chart;
 
+use App\Models\Client;
 use App\Models\Company;
+use App\Utils\Traits\MakesHash;
 
 class ClientPaymentAnalyticsService
 {
+    use MakesHash;
     private const THRESHOLDS = [
         'avg_days' => ['green' => 15, 'yellow' => 30],
         'stddev' => ['green' => 5, 'yellow' => 15],
@@ -41,6 +44,9 @@ class ClientPaymentAnalyticsService
     {
         $companySummary = ! empty($companyPaymentSummary) ? $companyPaymentSummary[0] : null;
 
+        $clientIds = array_map(fn ($c) => (int) $c->client_id, $clientSummaries);
+        $clientModels = Client::withTrashed()->whereIn('id', $clientIds)->get()->keyBy('id');
+
         $clients = [];
 
         foreach ($clientSummaries as $client) {
@@ -53,8 +59,11 @@ class ClientPaymentAnalyticsService
 
             $riskScore = $this->calculateRiskScore($client);
 
+            $clientModel = $clientModels->get((int) $client->client_id);
+
             $clients[] = [
-                'client_id' => (int) $client->client_id,
+                'client_id' => $this->encodePrimaryKey($client->client_id),
+                'client_name' => $clientModel ? $clientModel->present()->name() : '',
                 'currency_id' => (int) $client->currency_id,
                 'avg_payment_days' => round((float) ($client->avg_payment_days ?? 0), 2),
                 'stddev_payment_days' => round((float) ($client->stddev_payment_days ?? 0), 2),

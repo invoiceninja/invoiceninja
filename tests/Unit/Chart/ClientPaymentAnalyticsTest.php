@@ -142,7 +142,7 @@ class ClientPaymentAnalyticsTest extends TestCase
         $this->assertArrayHasKey('clients', $result);
         $this->assertNotEmpty($result['clients']);
 
-        $client = collect($result['clients'])->firstWhere('client_id', $this->test_client->id);
+        $client = collect($result['clients'])->firstWhere('client_id', $this->test_client->hashed_id);
         $this->assertNotNull($client);
 
         $this->assertEquals('green', $client['indicators']['avg_days']);
@@ -166,7 +166,7 @@ class ClientPaymentAnalyticsTest extends TestCase
         $cs = $this->getService();
         $result = $cs->client_payment_analytics();
 
-        $client = collect($result['clients'])->firstWhere('client_id', $this->test_client->id);
+        $client = collect($result['clients'])->firstWhere('client_id', $this->test_client->hashed_id);
         $this->assertNotNull($client);
 
         $this->assertEquals('red', $client['indicators']['avg_days']);
@@ -199,8 +199,8 @@ class ClientPaymentAnalyticsTest extends TestCase
         $this->assertCount(2, $result['clients']);
 
         // First client (highest risk) should be client_b
-        $this->assertEquals($this->test_client_b->id, $result['clients'][0]['client_id']);
-        $this->assertEquals($this->test_client->id, $result['clients'][1]['client_id']);
+        $this->assertEquals($this->test_client_b->hashed_id, $result['clients'][0]['client_id']);
+        $this->assertEquals($this->test_client->hashed_id, $result['clients'][1]['client_id']);
 
         // First should have higher risk score
         $this->assertGreaterThan($result['clients'][1]['risk_score'], $result['clients'][0]['risk_score']);
