@@ -647,18 +647,37 @@ trait AnalyticsQueries
         $frequencyId = (int) $ri->frequency_id;
         $remainingCycles = (int) $ri->remaining_cycles;
         $date = \Carbon\Carbon::parse($ri->next_send_date);
-        $iterations = 0;
         $maxIterations = ($frequencyId === 1) ? 365 : 1000;
+
+        // Skip past dates without consuming remaining_cycles
+        $skipped = 0;
+        while ($date->lt($start) && $skipped < $maxIterations) {
+            if ($remainingCycles !== -1 && $skipped >= $remainingCycles) {
+                return;
+            }
+
+            $date = $this->advanceByFrequency($date, $frequencyId);
+
+            if ($date === null) {
+                return;
+            }
+
+            $skipped++;
+
+            if ($remainingCycles !== -1) {
+                $remainingCycles--;
+            }
+        }
+
+        $iterations = 0;
 
         while ($date->lte($end) && $iterations < $maxIterations) {
             if ($remainingCycles !== -1 && $iterations >= $remainingCycles) {
                 break;
             }
 
-            if ($date->gte($start)) {
-                $key = $date->format('Y-m-01');
-                $buckets[$key] = ($buckets[$key] ?? 0) + $amount;
-            }
+            $key = $date->format('Y-m-01');
+            $buckets[$key] = ($buckets[$key] ?? 0) + $amount;
 
             $date = $this->advanceByFrequency($date, $frequencyId);
 
@@ -902,13 +921,13 @@ trait AnalyticsQueries
     /**
      * Quote Pipeline Chart (per currency)
      *
-     * Total value of all non-draft quotes created per period, regardless of
-     * current conversion status. Shows quoting activity over time without
-     * survivorship bias (converted quotes are not excluded).
-     * Returns {total, date} pairs for chart rendering.
+     * Total value of actionable quotes — sent/approved, not converted,
+     * not expired — for a specific currency. Grouped by creation month.
+     * Not bounded by date range: shows ALL currently open quotes.
+     * A quote is expired when due_date < today. Quotes with no due_date never expire.
      *
-     * @param string $start_date
-     * @param string $end_date
+     * @param string $start_date unused, kept for method signature consistency
+     * @param string $end_date unused
      * @param int $currency_id
      * @return array<int, \stdClass>
      */
@@ -1306,7 +1325,7 @@ trait AnalyticsQueries
         $user_filter = $this->is_admin ? '' : 'AND projects.user_id = ' . $this->user->id;
         $user_filter_tasks = $this->is_admin ? '' : 'AND tasks.user_id = ' . $this->user->id;
 
-        return DB::select("
+        $results = DB::select("
             SELECT
                 projects.id as project_id,
                 projects.name as project_name,
@@ -1357,6 +1376,21 @@ trait AnalyticsQueries
             'company_currency' => $this->company->settings->currency_id,
             'company_id' => $this->company->id,
         ]);
+
+        return array_map(function ($row) {
+            $row->budgeted_hours = (float) $row->budgeted_hours;
+            $row->current_hours = (float) $row->current_hours;
+            $row->task_rate = (float) $row->task_rate;
+            $row->total_tasks = (int) $row->total_tasks;
+            $row->invoiced_tasks = (int) $row->invoiced_tasks;
+            $row->uninvoiced_tasks = (int) $row->uninvoiced_tasks;
+            $row->running_tasks = (int) $row->running_tasks;
+            $row->utilization = (float) $row->utilization;
+            $row->hours_remaining = (float) $row->hours_remaining;
+            $row->currency_id = (string) $row->currency_id;
+
+            return $row;
+        }, $results);
     }
 
     /**
@@ -1373,7 +1407,7 @@ trait AnalyticsQueries
         $user_filter_inv = $this->is_admin ? '' : 'AND invoices.user_id = ' . $this->user->id;
         $user_filter_exp = $this->is_admin ? '' : 'AND expenses.user_id = ' . $this->user->id;
 
-        return DB::select("
+        $results = DB::select("
             SELECT
                 projects.id as project_id,
                 projects.name as project_name,
@@ -1424,5 +1458,15 @@ trait AnalyticsQueries
             'company_currency' => $this->company->settings->currency_id,
             'company_id' => $this->company->id,
         ]);
+
+        return array_map(function ($row) {
+            $row->invoiced_amount = (float) $row->invoiced_amount;
+            $row->expense_amount = (float) $row->expense_amount;
+            $row->net_margin = (float) $row->net_margin;
+            $row->margin_ratio = (float) $row->margin_ratio;
+            $row->currency_id = (string) $row->currency_id;
+
+            return $row;
+        }, $results);
     }
 }

@@ -428,10 +428,10 @@ class CashFlowForecastTest extends TestCase
             $totalQuoteRaw += $bucket['inflows']['quote_pipeline']['amount'];
         }
 
-        // Raw should be 1000
-        // Conversion rate = 1 converted / 3 total non-draft quotes (the open quote counts in history) = 33.33%
-        $this->assertEqualsWithDelta(1000.0, $totalQuoteRaw, 0.01);
-        $this->assertEqualsWithDelta(333.3, $totalQuoteWeighted, 0.5);
+        // Two open quotes: $200 (historical) + $1000 (new) = $1200 raw
+        // Conversion rate = 1/3 = 33.33%, weighted = 1200 * 0.3333 = ~400
+        $this->assertEqualsWithDelta(1200.0, $totalQuoteRaw, 0.01);
+        $this->assertEqualsWithDelta(400.0, $totalQuoteWeighted, 1.0);
     }
 
     // ─── Net Calculation ────────────────────────────────────────────

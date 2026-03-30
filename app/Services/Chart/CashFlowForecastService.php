@@ -176,8 +176,14 @@ class CashFlowForecastService
                 $weight = (1 - $lateRatio) * min($dataPoints / 30, 1.0);
             }
 
-            $expectedDate = Carbon::parse($invoice->invoice_date)->addDays((int) round($avgDays))->format('Y-m-d');
-            $bucketKey = $this->dateToBucketKey($expectedDate);
+            // Expected payment date based on historical avg, but never earlier than today
+            $expectedDate = Carbon::parse($invoice->invoice_date)->addDays((int) round($avgDays));
+
+            if ($expectedDate->lt(Carbon::now())) {
+                $expectedDate = Carbon::now();
+            }
+
+            $bucketKey = $this->dateToBucketKey($expectedDate->format('Y-m-d'));
 
             if ($bucketKey === null || ! isset($this->buckets[$bucketKey])) {
                 continue;
@@ -197,16 +203,39 @@ class CashFlowForecastService
      */
     private function projectRecurringInvoices(array $recurringInvoices): void
     {
+        $startDate = Carbon::parse($this->start_date);
+        $endDate = Carbon::parse($this->end_date);
+
         foreach ($recurringInvoices as $ri) {
             $weight = $ri->auto_bill_enabled ? self::WEIGHT_AUTO_BILL : self::WEIGHT_NO_AUTO_BILL;
             $amount = $this->normalizeToCompanyCurrency((float) $ri->amount, (float) ($ri->exchange_rate ?? 1));
             $remainingCycles = (int) $ri->remaining_cycles;
             $frequencyId = (int) $ri->frequency_id;
+            $maxIterations = ($frequencyId === RecurringInvoice::FREQUENCY_DAILY) ? self::MAX_DAILY_ITERATIONS : 1000;
 
             $date = Carbon::parse($ri->next_send_date);
-            $endDate = Carbon::parse($this->end_date);
+
+            // Skip past dates without consuming remaining_cycles
+            $skipped = 0;
+            while ($date->lt($startDate) && $skipped < $maxIterations) {
+                if ($remainingCycles !== -1 && $remainingCycles <= 0) {
+                    break 2; // exhausted before reaching window
+                }
+
+                $date = self::advanceDateByFrequency($date, $frequencyId);
+
+                if ($date === null) {
+                    break 2;
+                }
+
+                $skipped++;
+
+                if ($remainingCycles !== -1) {
+                    $remainingCycles--;
+                }
+            }
+
             $iterations = 0;
-            $maxIterations = ($frequencyId === RecurringInvoice::FREQUENCY_DAILY) ? self::MAX_DAILY_ITERATIONS : 1000;
 
             while ($date->lte($endDate) && $iterations < $maxIterations) {
                 if ($remainingCycles !== -1 && $iterations >= $remainingCycles) {
@@ -238,6 +267,9 @@ class CashFlowForecastService
      */
     private function projectRecurringExpenses(array $recurringExpenses): void
     {
+        $startDate = Carbon::parse($this->start_date);
+        $endDate = Carbon::parse($this->end_date);
+
         foreach ($recurringExpenses as $re) {
             $amount = $this->normalizeToCompanyCurrency(
                 $this->computeExpenseWithTax($re),
@@ -245,11 +277,31 @@ class CashFlowForecastService
             );
             $remainingCycles = (int) $re->remaining_cycles;
             $frequencyId = (int) $re->frequency_id;
+            $maxIterations = ($frequencyId === RecurringInvoice::FREQUENCY_DAILY) ? self::MAX_DAILY_ITERATIONS : 1000;
 
             $date = Carbon::parse($re->next_send_date);
-            $endDate = Carbon::parse($this->end_date);
+
+            // Skip past dates without consuming remaining_cycles
+            $skipped = 0;
+            while ($date->lt($startDate) && $skipped < $maxIterations) {
+                if ($remainingCycles !== -1 && $remainingCycles <= 0) {
+                    break 2;
+                }
+
+                $date = self::advanceDateByFrequency($date, $frequencyId);
+
+                if ($date === null) {
+                    break 2;
+                }
+
+                $skipped++;
+
+                if ($remainingCycles !== -1) {
+                    $remainingCycles--;
+                }
+            }
+
             $iterations = 0;
-            $maxIterations = ($frequencyId === RecurringInvoice::FREQUENCY_DAILY) ? self::MAX_DAILY_ITERATIONS : 1000;
 
             while ($date->lte($endDate) && $iterations < $maxIterations) {
                 if ($remainingCycles !== -1 && $iterations >= $remainingCycles) {
