@@ -86,7 +86,12 @@ class CashFlowForecastService
         $end = Carbon::parse($this->end_date);
 
         while ($current->lte($end)) {
-            if ($this->bucket_type === 'weekly') {
+            if ($this->bucket_type === 'daily') {
+                $key = $current->format('Y-m-d');
+                $periodStart = $key;
+                $periodEnd = $key;
+                $current->addDay();
+            } elseif ($this->bucket_type === 'weekly') {
                 $key = $current->format('o-\\WW');
                 $periodStart = $current->copy()->startOfWeek()->format('Y-m-d');
                 $periodEnd = $current->copy()->endOfWeek()->format('Y-m-d');
@@ -130,6 +135,10 @@ class CashFlowForecastService
 
         if ($d->lt($start) || $d->gt($end)) {
             return null;
+        }
+
+        if ($this->bucket_type === 'daily') {
+            return $d->format('Y-m-d');
         }
 
         if ($this->bucket_type === 'weekly') {

@@ -17,7 +17,7 @@ class ShowForecastRequest extends ShowChartRequest
     public function rules()
     {
         return array_merge(parent::rules(), [
-            'bucket_type' => 'bail|sometimes|string|in:weekly,monthly',
+            'bucket_type' => 'bail|sometimes|string|in:daily,weekly,monthly',
         ]);
     }
 
