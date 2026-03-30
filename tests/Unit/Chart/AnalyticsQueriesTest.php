@@ -1055,101 +1055,53 @@ class AnalyticsQueriesTest extends TestCase
 
     public function testMrrChartQueryReturnsRecurringInvoiceRevenue(): void
     {
-        // Create a recurring invoice
-        $recurring = RecurringInvoice::factory()->create([
+        // Monthly $500 recurring invoice, next fires in 1 month
+        RecurringInvoice::factory()->create([
             'client_id' => $this->test_client->id,
             'user_id' => $this->user->id,
             'company_id' => $this->test_company->id,
             'amount' => 500.00,
             'status_id' => RecurringInvoice::STATUS_ACTIVE,
             'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
-            'next_send_date' => now()->addMonth(),
+            'next_send_date' => now()->addDays(5)->format('Y-m-d'),
             'remaining_cycles' => -1,
             'is_deleted' => false,
             'exchange_rate' => 1,
         ]);
 
-        // Create invoices generated FROM that recurring invoice
-        Invoice::factory()->create([
-            'client_id' => $this->test_client->id,
-            'user_id' => $this->user->id,
-            'company_id' => $this->test_company->id,
-            'amount' => 500.00,
-            'balance' => 0,
-            'status_id' => Invoice::STATUS_PAID,
-            'date' => '2026-01-15',
-            'recurring_id' => $recurring->id,
-            'is_deleted' => false,
-            'exchange_rate' => 1,
-        ]);
-
-        Invoice::factory()->create([
-            'client_id' => $this->test_client->id,
-            'user_id' => $this->user->id,
-            'company_id' => $this->test_company->id,
-            'amount' => 500.00,
-            'balance' => 0,
-            'status_id' => Invoice::STATUS_PAID,
-            'date' => '2026-02-15',
-            'recurring_id' => $recurring->id,
-            'is_deleted' => false,
-            'exchange_rate' => 1,
-        ]);
-
-        // Non-recurring invoice (should NOT appear in MRR)
-        Invoice::factory()->create([
-            'client_id' => $this->test_client->id,
-            'user_id' => $this->user->id,
-            'company_id' => $this->test_company->id,
-            'amount' => 1000.00,
-            'balance' => 0,
-            'status_id' => Invoice::STATUS_PAID,
-            'date' => '2026-01-20',
-            'recurring_id' => null,
-            'is_deleted' => false,
-            'exchange_rate' => 1,
-        ]);
-
         $cs = $this->getService();
-        $results = $cs->getMrrChartQuery('2026-01-01', '2026-12-31', 1);
+        $start = now()->format('Y-m-d');
+        $end = now()->addMonths(3)->format('Y-m-d');
+        $results = $cs->getMrrChartQuery($start, $end, 1);
 
-        $this->assertCount(2, $results);
+        // Should project $500 into at least 3 months
+        $this->assertGreaterThanOrEqual(3, count($results));
 
-        $months = collect($results)->keyBy('date');
-        $this->assertEquals(500.00, $months['2026-01-01']->total);
-        $this->assertEquals(500.00, $months['2026-02-01']->total);
+        foreach ($results as $row) {
+            $this->assertEqualsWithDelta(500.00, $row->total, 0.01);
+        }
     }
 
     public function testAggregateMrrChartConvertsExchangeRate(): void
     {
-        $recurring = RecurringInvoice::factory()->create([
+        // Foreign currency recurring invoice with exchange_rate 2:1
+        RecurringInvoice::factory()->create([
             'client_id' => $this->test_client->id,
             'user_id' => $this->user->id,
             'company_id' => $this->test_company->id,
             'amount' => 200.00,
             'status_id' => RecurringInvoice::STATUS_ACTIVE,
             'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
-            'next_send_date' => now()->addMonth(),
-            'remaining_cycles' => -1,
+            'next_send_date' => now()->addDays(5)->format('Y-m-d'),
+            'remaining_cycles' => 1,
             'is_deleted' => false,
-            'exchange_rate' => 1,
-        ]);
-
-        Invoice::factory()->create([
-            'client_id' => $this->test_client->id,
-            'user_id' => $this->user->id,
-            'company_id' => $this->test_company->id,
-            'amount' => 200.00,
-            'balance' => 0,
-            'status_id' => Invoice::STATUS_PAID,
-            'date' => '2026-03-15',
-            'recurring_id' => $recurring->id,
-            'is_deleted' => false,
-            'exchange_rate' => 2, // foreign currency, rate 2:1
+            'exchange_rate' => 2,
         ]);
 
         $cs = $this->getService();
-        $results = $cs->getAggregateMrrChartQuery('2026-01-01', '2026-12-31');
+        $start = now()->format('Y-m-d');
+        $end = now()->addMonths(2)->format('Y-m-d');
+        $results = $cs->getAggregateMrrChartQuery($start, $end);
 
         $this->assertCount(1, $results);
         // 200 / 2 = 100 in company currency
@@ -1336,7 +1288,7 @@ class AnalyticsQueriesTest extends TestCase
         $this->assertEquals(200.00, $dates['2026-04-01']->total);
     }
 
-    public function testQuotePipelineExcludesConvertedQuotes(): void
+    public function testQuotePipelineIncludesAllNonDraftQuotes(): void
     {
         $invoice = Invoice::factory()->create([
             'client_id' => $this->test_client->id,
@@ -1350,7 +1302,7 @@ class AnalyticsQueriesTest extends TestCase
             'exchange_rate' => 1,
         ]);
 
-        // Converted (should NOT appear)
+        // Converted quote (should appear — pipeline shows all quoting activity)
         Quote::factory()->create([
             'client_id' => $this->test_client->id,
             'user_id' => $this->user->id,
@@ -1363,7 +1315,7 @@ class AnalyticsQueriesTest extends TestCase
             'exchange_rate' => 1,
         ]);
 
-        // Open (should appear)
+        // Open quote (should appear)
         Quote::factory()->create([
             'client_id' => $this->test_client->id,
             'user_id' => $this->user->id,
@@ -1379,8 +1331,8 @@ class AnalyticsQueriesTest extends TestCase
         $cs = $this->getService();
         $results = $cs->getQuotePipelineChartQuery('2026-01-01', '2026-12-31', 1);
 
-        $this->assertCount(1, $results);
-        $this->assertEquals(300.00, $results[0]->total);
+        $this->assertCount(1, $results); // same date, grouped
+        $this->assertEquals(800.00, $results[0]->total); // 500 + 300
     }
 
     // ─── Chart Queries: Late Payment Rate ───────────────────────────

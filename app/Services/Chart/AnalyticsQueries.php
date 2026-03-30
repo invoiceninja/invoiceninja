@@ -95,7 +95,7 @@ trait AnalyticsQueries
                 SUM(CASE WHEN invoices.due_date IS NOT NULL AND MIN_pay.first_payment_date > invoices.due_date THEN 1 ELSE 0 END) as late_invoices,
                 ROUND(
                     SUM(CASE WHEN invoices.due_date IS NOT NULL AND MIN_pay.first_payment_date > invoices.due_date THEN 1 ELSE 0 END)
-                    / COUNT(*), 4
+                    / NULLIF(SUM(CASE WHEN invoices.due_date IS NOT NULL THEN 1 ELSE 0 END), 0), 4
                 ) as late_payment_ratio,
                 IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) AS currency_id
             FROM invoices
@@ -148,7 +148,7 @@ trait AnalyticsQueries
                 SUM(CASE WHEN invoices.due_date IS NOT NULL AND MIN_pay.first_payment_date > invoices.due_date THEN 1 ELSE 0 END) as late_invoices,
                 ROUND(
                     SUM(CASE WHEN invoices.due_date IS NOT NULL AND MIN_pay.first_payment_date > invoices.due_date THEN 1 ELSE 0 END)
-                    / NULLIF(COUNT(*), 0), 4
+                    / NULLIF(SUM(CASE WHEN invoices.due_date IS NOT NULL THEN 1 ELSE 0 END), 0), 4
                 ) as late_payment_ratio
             FROM invoices
             JOIN (
@@ -212,7 +212,7 @@ trait AnalyticsQueries
                     ROUND(AVG(DATEDIFF(MIN_pay.first_payment_date, inv.date)), 2) as avg_payment_days,
                     ROUND(
                         SUM(CASE WHEN inv.due_date IS NOT NULL AND MIN_pay.first_payment_date > inv.due_date THEN 1 ELSE 0 END)
-                        / COUNT(*), 4
+                        / NULLIF(SUM(CASE WHEN inv.due_date IS NOT NULL THEN 1 ELSE 0 END), 0), 4
                     ) as late_payment_ratio,
                     COUNT(*) as total_invoices
                 FROM invoices inv
@@ -507,7 +507,7 @@ trait AnalyticsQueries
                 ROUND(AVG(DATEDIFF(MIN_pay.first_payment_date, invoices.date)), 2) as avg_payment_days,
                 COUNT(*) as invoice_count,
                 SUM(CASE WHEN invoices.due_date IS NOT NULL AND MIN_pay.first_payment_date > invoices.due_date THEN 1 ELSE 0 END) as late_count,
-                SUM(CASE WHEN invoices.due_date IS NULL OR MIN_pay.first_payment_date <= invoices.due_date THEN 1 ELSE 0 END) as on_time_count
+                SUM(CASE WHEN invoices.due_date IS NOT NULL AND MIN_pay.first_payment_date <= invoices.due_date THEN 1 ELSE 0 END) as on_time_count
             FROM invoices
             JOIN (
                 SELECT
@@ -542,11 +542,40 @@ trait AnalyticsQueries
 
     // ─── Chartable Time-Series Queries ──────────────────────────────
 
+    private const FREQUENCY_INTERVALS = [
+        1  => ['addDay', 1],
+        2  => ['addWeek', 1],
+        3  => ['addWeeks', 2],
+        4  => ['addWeeks', 4],
+        5  => ['addMonthNoOverflow', 1],
+        6  => ['addMonthsNoOverflow', 2],
+        7  => ['addMonthsNoOverflow', 3],
+        8  => ['addMonthsNoOverflow', 4],
+        9  => ['addMonthsNoOverflow', 6],
+        10 => ['addYear', 1],
+        11 => ['addYears', 2],
+        12 => ['addYears', 3],
+    ];
+
+    /**
+     * Advance a Carbon date by a recurring frequency.
+     */
+    private function advanceByFrequency(\Carbon\Carbon $date, int $frequencyId): ?\Carbon\Carbon
+    {
+        if (! isset(self::FREQUENCY_INTERVALS[$frequencyId])) {
+            return null;
+        }
+
+        [$method, $value] = self::FREQUENCY_INTERVALS[$frequencyId];
+
+        return $date->copy()->{$method}($value);
+    }
+
     /**
      * MRR Chart (per currency)
      *
-     * Historical MRR based on actual invoices generated from recurring invoices.
-     * Groups by first-of-month to show recurring revenue per month.
+     * Projects active recurring invoices forward by their frequency to show
+     * expected monthly recurring revenue across the date range.
      * Returns {total, date} pairs for line chart rendering.
      *
      * @param string $start_date
@@ -556,39 +585,30 @@ trait AnalyticsQueries
      */
     public function getMrrChartQuery(string $start_date, string $end_date, int $currency_id): array
     {
-        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = ' . $this->user->id;
+        $recurring = $this->getRecurringInvoiceProjections();
+        $start = \Carbon\Carbon::parse($start_date);
+        $end = \Carbon\Carbon::parse($end_date);
 
-        return DB::select("
-            SELECT
-                SUM(invoices.amount) as total,
-                DATE_FORMAT(invoices.date, '%Y-%m-01') as date
-            FROM invoices
-            JOIN clients
-                ON clients.id = invoices.client_id
-                AND clients.is_deleted = 0
-            WHERE invoices.company_id = :company_id
-            AND invoices.is_deleted = 0
-            AND invoices.recurring_id IS NOT NULL
-            AND invoices.status_id IN (2, 3, 4)
-            AND (invoices.date BETWEEN :start_date AND :end_date)
-            AND IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) = :currency_id
-            {$user_filter}
-            GROUP BY DATE_FORMAT(invoices.date, '%Y-%m-01')
-            ORDER BY DATE_FORMAT(invoices.date, '%Y-%m-01') ASC
-        ", [
-            'company_currency' => (int) $this->company->settings->currency_id,
-            'currency_id' => $currency_id,
-            'company_id' => $this->company->id,
-            'start_date' => $start_date,
-            'end_date' => $end_date,
-        ]);
+        $buckets = [];
+
+        foreach ($recurring as $ri) {
+            if ((int) $ri->currency_id !== $currency_id) {
+                continue;
+            }
+
+            $this->projectRecurringIntoMonthlyBuckets($ri, (float) $ri->amount, $start, $end, $buckets);
+        }
+
+        ksort($buckets);
+
+        return array_map(fn ($date, $total) => (object) ['total' => round($total, 2), 'date' => $date], array_keys($buckets), array_values($buckets));
     }
 
     /**
      * MRR Chart (aggregate across currencies)
      *
-     * Same as getMrrChartQuery but converts all currencies to company currency
-     * using exchange_rate for a single aggregate line.
+     * Projects active recurring invoices forward, converting all currencies
+     * to company currency via exchange_rate.
      *
      * @param string $start_date
      * @param string $end_date
@@ -596,29 +616,54 @@ trait AnalyticsQueries
      */
     public function getAggregateMrrChartQuery(string $start_date, string $end_date): array
     {
-        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = ' . $this->user->id;
+        $recurring = $this->getRecurringInvoiceProjections();
+        $start = \Carbon\Carbon::parse($start_date);
+        $end = \Carbon\Carbon::parse($end_date);
 
-        return DB::select("
-            SELECT
-                SUM(invoices.amount / COALESCE(NULLIF(invoices.exchange_rate, 0), 1)) as total,
-                DATE_FORMAT(invoices.date, '%Y-%m-01') as date
-            FROM invoices
-            JOIN clients
-                ON clients.id = invoices.client_id
-                AND clients.is_deleted = 0
-            WHERE invoices.company_id = :company_id
-            AND invoices.is_deleted = 0
-            AND invoices.recurring_id IS NOT NULL
-            AND invoices.status_id IN (2, 3, 4)
-            AND (invoices.date BETWEEN :start_date AND :end_date)
-            {$user_filter}
-            GROUP BY DATE_FORMAT(invoices.date, '%Y-%m-01')
-            ORDER BY DATE_FORMAT(invoices.date, '%Y-%m-01') ASC
-        ", [
-            'company_id' => $this->company->id,
-            'start_date' => $start_date,
-            'end_date' => $end_date,
-        ]);
+        $buckets = [];
+
+        foreach ($recurring as $ri) {
+            $rate = (float) ($ri->exchange_rate ?? 1);
+            $amount = (float) $ri->amount / ($rate == 0 ? 1 : $rate);
+
+            $this->projectRecurringIntoMonthlyBuckets($ri, $amount, $start, $end, $buckets);
+        }
+
+        ksort($buckets);
+
+        return array_map(fn ($date, $total) => (object) ['total' => round($total, 2), 'date' => $date], array_keys($buckets), array_values($buckets));
+    }
+
+    /**
+     * Iterate a recurring invoice/expense forward by frequency, accumulating
+     * the given amount into monthly buckets (keyed as YYYY-MM-01).
+     */
+    private function projectRecurringIntoMonthlyBuckets(\stdClass $ri, float $amount, \Carbon\Carbon $start, \Carbon\Carbon $end, array &$buckets): void
+    {
+        $frequencyId = (int) $ri->frequency_id;
+        $remainingCycles = (int) $ri->remaining_cycles;
+        $date = \Carbon\Carbon::parse($ri->next_send_date);
+        $iterations = 0;
+        $maxIterations = ($frequencyId === 1) ? 365 : 1000;
+
+        while ($date->lte($end) && $iterations < $maxIterations) {
+            if ($remainingCycles !== -1 && $iterations >= $remainingCycles) {
+                break;
+            }
+
+            if ($date->gte($start)) {
+                $key = $date->format('Y-m-01');
+                $buckets[$key] = ($buckets[$key] ?? 0) + $amount;
+            }
+
+            $date = $this->advanceByFrequency($date, $frequencyId);
+
+            if ($date === null) {
+                break;
+            }
+
+            $iterations++;
+        }
     }
 
     /**
@@ -853,8 +898,10 @@ trait AnalyticsQueries
     /**
      * Quote Pipeline Chart (per currency)
      *
-     * Total value of open quotes (sent/approved, not converted) grouped by date.
-     * Returns {total, date} pairs for line chart rendering.
+     * Total value of all non-draft quotes created per period, regardless of
+     * current conversion status. Shows quoting activity over time without
+     * survivorship bias (converted quotes are not excluded).
+     * Returns {total, date} pairs for chart rendering.
      *
      * @param string $start_date
      * @param string $end_date
@@ -875,8 +922,7 @@ trait AnalyticsQueries
                 AND clients.is_deleted = 0
             WHERE quotes.company_id = :company_id
             AND quotes.is_deleted = 0
-            AND quotes.status_id IN (2, 3)
-            AND quotes.invoice_id IS NULL
+            AND quotes.status_id IN (2, 3, 4, 5)
             AND (quotes.date BETWEEN :start_date AND :end_date)
             AND IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) = :currency_id
             {$user_filter}
@@ -894,7 +940,8 @@ trait AnalyticsQueries
     /**
      * Quote Pipeline Chart (aggregate)
      *
-     * Total open quote value across all currencies, converted to company currency.
+     * Total value of all non-draft quotes across all currencies,
+     * converted to company currency. Shows quoting activity over time.
      *
      * @param string $start_date
      * @param string $end_date
@@ -914,8 +961,7 @@ trait AnalyticsQueries
                 AND clients.is_deleted = 0
             WHERE quotes.company_id = :company_id
             AND quotes.is_deleted = 0
-            AND quotes.status_id IN (2, 3)
-            AND quotes.invoice_id IS NULL
+            AND quotes.status_id IN (2, 3, 4, 5)
             AND (quotes.date BETWEEN :start_date AND :end_date)
             {$user_filter}
             GROUP BY quotes.date
@@ -931,6 +977,7 @@ trait AnalyticsQueries
      * Late Payment Rate Chart (per currency)
      *
      * Percentage of invoices paid late per month.
+     * Invoices without a due_date are excluded entirely — they cannot be late.
      * Returns {total, date} pairs where total = late ratio (0-1).
      *
      * @param string $start_date
@@ -945,7 +992,7 @@ trait AnalyticsQueries
         return DB::select("
             SELECT
                 ROUND(
-                    SUM(CASE WHEN invoices.due_date IS NOT NULL AND MIN_pay.first_payment_date > invoices.due_date THEN 1 ELSE 0 END)
+                    SUM(CASE WHEN MIN_pay.first_payment_date > invoices.due_date THEN 1 ELSE 0 END)
                     / NULLIF(COUNT(*), 0), 4
                 ) as total,
                 DATE_FORMAT(invoices.date, '%Y-%m-01') as date
@@ -970,6 +1017,7 @@ trait AnalyticsQueries
             WHERE invoices.company_id = :company_id
             AND invoices.is_deleted = 0
             AND invoices.status_id = 4
+            AND invoices.due_date IS NOT NULL
             AND (invoices.date BETWEEN :start_date AND :end_date)
             AND IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) = :currency_id
             {$user_filter}
@@ -988,6 +1036,7 @@ trait AnalyticsQueries
      * Late Payment Rate Chart (aggregate)
      *
      * Percentage of invoices paid late per month across all currencies.
+     * Invoices without a due_date are excluded entirely.
      *
      * @param string $start_date
      * @param string $end_date
@@ -1000,7 +1049,7 @@ trait AnalyticsQueries
         return DB::select("
             SELECT
                 ROUND(
-                    SUM(CASE WHEN invoices.due_date IS NOT NULL AND MIN_pay.first_payment_date > invoices.due_date THEN 1 ELSE 0 END)
+                    SUM(CASE WHEN MIN_pay.first_payment_date > invoices.due_date THEN 1 ELSE 0 END)
                     / NULLIF(COUNT(*), 0), 4
                 ) as total,
                 DATE_FORMAT(invoices.date, '%Y-%m-01') as date
@@ -1025,6 +1074,7 @@ trait AnalyticsQueries
             WHERE invoices.company_id = :company_id
             AND invoices.is_deleted = 0
             AND invoices.status_id = 4
+            AND invoices.due_date IS NOT NULL
             AND (invoices.date BETWEEN :start_date AND :end_date)
             {$user_filter}
             GROUP BY DATE_FORMAT(invoices.date, '%Y-%m-01')
