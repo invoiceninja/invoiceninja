@@ -5947,7 +5947,12 @@ $lang = array(
     'invalid_id_number_format' => 'Số ID không hợp lệ Định dạng',
     'invalid_vat_number_format' => 'Mã số VAT không hợp lệ Định dạng',
     'invalid_routing_id_format' => 'Định dạng ID định tuyến không hợp lệ',
+    'invalid_id_number_checkdigit' => 'Mã số định danh không hợp lệ: lỗi kiểm tra chữ số, vui lòng xác minh lại mã số.',
+    'invalid_vat_number_checkdigit' => 'Mã số thuế GTGT không hợp lệ: lỗi chữ số kiểm tra, vui lòng xác minh lại mã số chính xác.',
+    'invalid_routing_id_checkdigit' => 'Mã định tuyến không hợp lệ: lỗi chữ số kiểm tra, vui lòng xác minh lại số điện thoại.',
     'sign_the_document' => 'Ký vào tài liệu',
+    'client_not_found_on_peppol_network' => 'Không thể xác định được Khách hàng trên mạng PEPPOL.',
+    'too_many_requests' => 'Quá nhiều yêu cầu',
 );
 
 return $lang;

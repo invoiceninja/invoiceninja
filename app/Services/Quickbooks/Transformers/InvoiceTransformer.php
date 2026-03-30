@@ -225,9 +225,9 @@ class InvoiceTransformer extends BaseTransformer
             $memo_value = trim($public_notes . ($public_notes && $terms ? "\n\n" : '') . $terms);
 
             if ($memo_value) {
-                // QuickBooks CustomerMemo max length is 4000 characters
+                // QuickBooks CustomerMemo max length is 1000 characters
                 $invoice_data['CustomerMemo'] = [
-                    'value' => mb_substr($memo_value, 0, 4000),
+                    'value' => mb_substr($memo_value, 0, 1000),
                 ];
             }
         }
