@@ -39,6 +39,8 @@ class CashFlowForecastService
     private const WEIGHT_NO_AUTO_BILL = 0.75;
     private const DEFAULT_PAYMENT_DAYS = 14;
     private const FALLBACK_CONFIDENCE_MULTIPLIER = 0.5;
+    private const DEFAULT_CONVERSION_RATE = 0.5;
+    private const DEFAULT_CONVERSION_DAYS = 30;
 
     /** @var array<string, array<string, mixed>> */
     private array $buckets = [];
@@ -300,11 +302,15 @@ class CashFlowForecastService
             $conversionRate = (float) ($quote->client_conversion_rate ?? 0);
             $avgConversionDays = (float) ($quote->client_avg_conversion_days ?? 0);
 
+            // No conversion history: use defaults with reduced confidence
             if ($conversionRate <= 0) {
-                continue;
+                $conversionRate = self::DEFAULT_CONVERSION_RATE * self::FALLBACK_CONFIDENCE_MULTIPLIER;
+                $avgConversionDays = self::DEFAULT_CONVERSION_DAYS;
             }
 
-            $expectedDate = Carbon::parse($quote->date)->addDays((int) round($avgConversionDays))->format('Y-m-d');
+            // Expected date is calculated from today (not quote creation date),
+            // since these are currently open quotes awaiting a decision.
+            $expectedDate = Carbon::now()->addDays((int) round($avgConversionDays))->format('Y-m-d');
             $bucketKey = $this->dateToBucketKey($expectedDate);
 
             if ($bucketKey === null || ! isset($this->buckets[$bucketKey])) {
