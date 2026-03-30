@@ -143,7 +143,12 @@ class InvoicePay extends Component
     public function payableAmount($payable_amount)
     {
         $invite = \App\Models\InvoiceInvitation::withTrashed()->find($this->invitation_id);
-        $this->setContext($invite->key, 'amount', $payable_amount);
+        // $this->setContext($invite->key, 'amount', $payable_amount);
+
+        $this->bulkSetContext($invite->key, [
+            'amount' => $payable_amount,
+            'payment_processed' => null,
+        ]);
         $this->under_over_payment = false;
     }
 
@@ -158,6 +163,7 @@ class InvoicePay extends Component
             'amount' => $amount,
             'pre_payment' => false,
             'is_recurring' => false,
+            'payment_processed' => null,
         ]);
 
 

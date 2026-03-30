@@ -20,6 +20,8 @@ use App\Models\Payment;
 use App\Models\Quote;
 use App\Models\Task;
 use App\Models\User;
+use App\Services\Chart\CashFlowForecastService;
+use App\Services\Chart\ClientPaymentAnalyticsService;
 use Illuminate\Support\Facades\Cache;
 
 class ChartService
@@ -274,6 +276,36 @@ class ChartService
         $data[999]['payment_analytics'] = ! empty($company_payment) ? reset($company_payment) : new \stdClass();
 
         return $data;
+    }
+
+    /**
+     * Cash flow forecast — time-bucketed inflow/outflow projection.
+     */
+    public function cashflow_forecast(string $start_date, string $end_date, string $bucket_type = 'monthly'): array
+    {
+        $forecast = new CashFlowForecastService($this->company, $start_date, $end_date, $bucket_type);
+
+        return $forecast->generate(
+            $this->getOutstandingInvoicesForForecasting(),
+            $this->getRecurringInvoiceProjections(),
+            $this->getRecurringExpenseProjections(),
+            $this->getUpcomingExpenses($start_date, $end_date),
+            $this->getOpenQuotesForForecasting(),
+            $this->getCompanyPaymentSummary()
+        );
+    }
+
+    /**
+     * Client payment analytics — scorecards with risk scoring.
+     */
+    public function client_payment_analytics(): array
+    {
+        $analytics = new ClientPaymentAnalyticsService($this->company);
+
+        return $analytics->generate(
+            $this->getClientPaymentSummary(null),
+            $this->getCompanyPaymentSummary()
+        );
     }
 
     /* Analytics */
