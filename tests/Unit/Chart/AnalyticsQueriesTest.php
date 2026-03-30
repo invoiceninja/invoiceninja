@@ -1571,4 +1571,86 @@ class AnalyticsQueriesTest extends TestCase
 
         $response->assertStatus(200);
     }
+
+    // ─── Quote Pipeline: Non-Zero Results ───────────────────────────
+
+    public function testQuotePipelineReturnsNonZeroForActionableQuotes(): void
+    {
+        // Open quote, no due_date (never expires)
+        Quote::factory()->create([
+            'client_id' => $this->test_client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'amount' => 750.00,
+            'status_id' => Quote::STATUS_SENT,
+            'date' => now()->format('Y-m-d'),
+            'due_date' => null,
+            'invoice_id' => null,
+            'is_deleted' => false,
+            'exchange_rate' => 1,
+        ]);
+
+        $cs = $this->getService();
+
+        // Per-currency
+        $results = $cs->getQuotePipelineChartQuery('2020-01-01', '2030-12-31', 1);
+        $this->assertNotEmpty($results, 'Quote pipeline per-currency should return data');
+        $total = array_sum(array_map(fn ($r) => (float) $r->total, $results));
+        $this->assertGreaterThan(0, $total, 'Quote pipeline per-currency total should be > 0');
+
+        // Aggregate
+        $aggregate = $cs->getAggregateQuotePipelineChartQuery('2020-01-01', '2030-12-31');
+        $this->assertNotEmpty($aggregate, 'Quote pipeline aggregate should return data');
+        $aggTotal = array_sum(array_map(fn ($r) => (float) $r->total, $aggregate));
+        $this->assertGreaterThan(0, $aggTotal, 'Quote pipeline aggregate total should be > 0');
+    }
+
+    public function testQuotePipelineViaAnalyticsSummaryReturnsNonZero(): void
+    {
+        // Open quote with future due_date
+        Quote::factory()->create([
+            'client_id' => $this->test_client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'amount' => 1200.00,
+            'status_id' => Quote::STATUS_APPROVED,
+            'date' => now()->format('Y-m-d'),
+            'due_date' => now()->addDays(60)->format('Y-m-d'),
+            'invoice_id' => null,
+            'is_deleted' => false,
+            'exchange_rate' => 1,
+        ]);
+
+        $cs = $this->getService();
+        $summary = $cs->analytics_summary(now()->subYear()->format('Y-m-d'), now()->format('Y-m-d'));
+
+        // Aggregate (999) quote_pipeline should have data
+        $this->assertNotEmpty($summary[999]['quote_pipeline'], 'analytics_summary.999.quote_pipeline should not be empty');
+
+        $total = array_sum(array_map(fn ($r) => (float) $r->total, $summary[999]['quote_pipeline']));
+        $this->assertGreaterThanOrEqual(1200.00, $total, 'analytics_summary quote_pipeline total should include the open quote');
+    }
+
+    public function testQuotePipelineExcludesFullyExpiredQuotes(): void
+    {
+        // Only create an expired quote for this test company — no actionable quotes
+        Quote::factory()->create([
+            'client_id' => $this->test_client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'amount' => 999.00,
+            'status_id' => Quote::STATUS_SENT,
+            'date' => now()->subDays(60)->format('Y-m-d'),
+            'due_date' => now()->subDays(30)->format('Y-m-d'), // expired 30 days ago
+            'invoice_id' => null,
+            'is_deleted' => false,
+            'exchange_rate' => 1,
+        ]);
+
+        $cs = $this->getService();
+        $results = $cs->getQuotePipelineChartQuery('2020-01-01', '2030-12-31', 1);
+
+        // The only quote we created is expired, so pipeline should be empty
+        $this->assertEmpty($results, 'Pipeline should be empty when only expired quotes exist');
+    }
 }
