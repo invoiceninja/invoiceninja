@@ -1240,15 +1240,19 @@ class AnalyticsQueriesTest extends TestCase
 
     // ─── Chart Queries: Quote Pipeline ──────────────────────────────
 
-    public function testQuotePipelineChartGroupsByDate(): void
+    public function testQuotePipelineChartGroupsByMonth(): void
     {
+        $thisMonth = now()->format('Y-m');
+        $nextMonth = now()->addMonth()->format('Y-m');
+
         Quote::factory()->create([
             'client_id' => $this->test_client->id,
             'user_id' => $this->user->id,
             'company_id' => $this->test_company->id,
             'amount' => 500.00,
             'status_id' => Quote::STATUS_SENT,
-            'date' => '2026-03-15',
+            'date' => now()->format('Y-m-d'),
+            'due_date' => null,
             'invoice_id' => null,
             'is_deleted' => false,
             'exchange_rate' => 1,
@@ -1260,7 +1264,8 @@ class AnalyticsQueriesTest extends TestCase
             'company_id' => $this->test_company->id,
             'amount' => 300.00,
             'status_id' => Quote::STATUS_APPROVED,
-            'date' => '2026-03-15',
+            'date' => now()->format('Y-m-d'),
+            'due_date' => null,
             'invoice_id' => null,
             'is_deleted' => false,
             'exchange_rate' => 1,
@@ -1272,20 +1277,22 @@ class AnalyticsQueriesTest extends TestCase
             'company_id' => $this->test_company->id,
             'amount' => 200.00,
             'status_id' => Quote::STATUS_SENT,
-            'date' => '2026-04-01',
+            'date' => now()->addMonth()->format('Y-m-01'),
+            'due_date' => null,
             'invoice_id' => null,
             'is_deleted' => false,
             'exchange_rate' => 1,
         ]);
 
         $cs = $this->getService();
-        $results = $cs->getQuotePipelineChartQuery('2026-01-01', '2026-12-31', 1);
+        // Date range is ignored — pipeline shows all actionable quotes
+        $results = $cs->getQuotePipelineChartQuery('2020-01-01', '2030-12-31', 1);
 
-        $this->assertCount(2, $results);
+        $this->assertGreaterThanOrEqual(2, count($results));
 
         $dates = collect($results)->keyBy('date');
-        $this->assertEquals(800.00, $dates['2026-03-01']->total); // 500 + 300 grouped to month
-        $this->assertEquals(200.00, $dates['2026-04-01']->total);
+        $this->assertEquals(800.00, $dates[now()->format('Y-m-01')]->total);
+        $this->assertEquals(200.00, $dates[now()->addMonth()->format('Y-m-01')]->total);
     }
 
     public function testQuotePipelineExcludesConvertedAndExpired(): void
@@ -1297,7 +1304,7 @@ class AnalyticsQueriesTest extends TestCase
             'amount' => 500.00,
             'balance' => 500.00,
             'status_id' => Invoice::STATUS_SENT,
-            'date' => '2026-03-20',
+            'date' => now()->format('Y-m-d'),
             'is_deleted' => false,
             'exchange_rate' => 1,
         ]);
@@ -1309,7 +1316,7 @@ class AnalyticsQueriesTest extends TestCase
             'company_id' => $this->test_company->id,
             'amount' => 500.00,
             'status_id' => Quote::STATUS_CONVERTED,
-            'date' => '2026-03-15',
+            'date' => now()->format('Y-m-d'),
             'invoice_id' => $invoice->id,
             'is_deleted' => false,
             'exchange_rate' => 1,
@@ -1322,8 +1329,8 @@ class AnalyticsQueriesTest extends TestCase
             'company_id' => $this->test_company->id,
             'amount' => 400.00,
             'status_id' => Quote::STATUS_SENT,
-            'date' => '2026-03-10',
-            'due_date' => '2026-03-20',
+            'date' => now()->format('Y-m-d'),
+            'due_date' => now()->subDays(5)->format('Y-m-d'),
             'invoice_id' => null,
             'is_deleted' => false,
             'exchange_rate' => 1,
@@ -1336,7 +1343,7 @@ class AnalyticsQueriesTest extends TestCase
             'company_id' => $this->test_company->id,
             'amount' => 300.00,
             'status_id' => Quote::STATUS_SENT,
-            'date' => '2026-03-15',
+            'date' => now()->format('Y-m-d'),
             'due_date' => null,
             'invoice_id' => null,
             'is_deleted' => false,
@@ -1350,7 +1357,7 @@ class AnalyticsQueriesTest extends TestCase
             'company_id' => $this->test_company->id,
             'amount' => 200.00,
             'status_id' => Quote::STATUS_APPROVED,
-            'date' => '2026-03-18',
+            'date' => now()->format('Y-m-d'),
             'due_date' => now()->addDays(30)->format('Y-m-d'),
             'invoice_id' => null,
             'is_deleted' => false,
@@ -1358,9 +1365,9 @@ class AnalyticsQueriesTest extends TestCase
         ]);
 
         $cs = $this->getService();
-        $results = $cs->getQuotePipelineChartQuery('2026-01-01', '2026-12-31', 1);
+        $results = $cs->getQuotePipelineChartQuery('2020-01-01', '2030-12-31', 1);
 
-        $this->assertCount(1, $results); // all in March
+        $this->assertCount(1, $results);
         $this->assertEquals(500.00, $results[0]->total); // 300 + 200 (converted and expired excluded)
     }
 

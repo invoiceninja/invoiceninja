@@ -929,7 +929,6 @@ trait AnalyticsQueries
             AND quotes.status_id IN (2, 3)
             AND quotes.invoice_id IS NULL
             AND (quotes.due_date IS NULL OR quotes.due_date >= CURDATE())
-            AND (quotes.date BETWEEN :start_date AND :end_date)
             AND IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) = :currency_id
             {$user_filter}
             GROUP BY DATE_FORMAT(quotes.date, '%Y-%m-01')
@@ -938,20 +937,22 @@ trait AnalyticsQueries
             'company_currency' => (int) $this->company->settings->currency_id,
             'currency_id' => $currency_id,
             'company_id' => $this->company->id,
-            'start_date' => $start_date,
-            'end_date' => $end_date,
         ]);
     }
 
     /**
      * Quote Pipeline Chart (aggregate)
      *
-     * Total value of actionable quotes (sent/approved, not converted, not expired)
-     * across all currencies, converted to company currency. Grouped monthly.
-     * A quote is expired when due_date < today. Quotes with no due_date never expire.
+     * Total value of all actionable quotes — sent/approved, not converted,
+     * not expired — across all currencies, converted to company currency.
+     * Grouped by creation month to show the age distribution of the pipeline.
      *
-     * @param string $start_date
-     * @param string $end_date
+     * Not bounded by date range: shows ALL currently open quotes regardless
+     * of when they were created. A quote is expired when due_date < today.
+     * Quotes with no due_date never expire.
+     *
+     * @param string $start_date unused, kept for method signature consistency
+     * @param string $end_date unused
      * @return array<int, \stdClass>
      */
     public function getAggregateQuotePipelineChartQuery(string $start_date, string $end_date): array
@@ -971,14 +972,11 @@ trait AnalyticsQueries
             AND quotes.status_id IN (2, 3)
             AND quotes.invoice_id IS NULL
             AND (quotes.due_date IS NULL OR quotes.due_date >= CURDATE())
-            AND (quotes.date BETWEEN :start_date AND :end_date)
             {$user_filter}
             GROUP BY DATE_FORMAT(quotes.date, '%Y-%m-01')
             ORDER BY DATE_FORMAT(quotes.date, '%Y-%m-01') ASC
         ", [
             'company_id' => $this->company->id,
-            'start_date' => $start_date,
-            'end_date' => $end_date,
         ]);
     }
 
