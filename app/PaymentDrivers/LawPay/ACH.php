@@ -14,7 +14,6 @@ namespace App\PaymentDrivers\LawPay;
 
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Http\Requests\Request;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -45,7 +44,7 @@ class ACH implements LivewireMethodInterface
         return render('gateways.lawpay.ach.authorize', $data);
     }
 
-    public function authorizeResponse(Request $request)
+    public function authorizeResponse($request)
     {
         $payment_meta = new \stdClass();
         $payment_meta->exp_month = '';
