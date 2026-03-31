@@ -1,0 +1,45 @@
+version: '3.7'
+
+services:
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ninja
+      MYSQL_DATABASE: ninja
+      MYSQL_USER: ninja
+      MYSQL_PASSWORD: ninja
+    ports:
+      - "3307:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+
+  app:
+    image: invoiceninja/invoiceninja:5
+    restart: always
+    depends_on:
+      - db
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      DB_HOST: db
+      DB_DATABASE: ninja
+      DB_USERNAME: ninja
+      DB_PASSWORD: ninja
+    volumes:
+      - app-data:/var/www/app
+
+  web:
+    image: nginx:alpine
+    restart: always
+    depends_on:
+      - app
+    ports:
+      - "8000:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - app-data:/var/www/app
+
+volumes:
+  db-data:
+  app-data:
