@@ -164,12 +164,14 @@ class EInvoicePullDocs implements ShouldQueue
                 $upload_document = null;
             }
 
-            foreach ($document['document']['invoice']['attachments'] as $attachment) {
+            if(isset($document['document']['invoice']['attachments'])){
+                foreach ($document['document']['invoice']['attachments'] as $attachment) {
 
-                $upload_document = TempFile::UploadedFileFromBase64($attachment['document'], $attachment['filename'], $attachment['mime_type']);
-                $this->saveDocument($upload_document, $expense, true);
-                $upload_document = null;
+                    $upload_document = TempFile::UploadedFileFromBase64($attachment['document'], $attachment['filename'], $attachment['mime_type']);
+                    $this->saveDocument($upload_document, $expense, true);
+                    $upload_document = null;
 
+                }
             }
 
             $this->einvoice_received_count++;

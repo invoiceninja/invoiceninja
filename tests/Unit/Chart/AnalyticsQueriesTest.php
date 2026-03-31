@@ -1103,9 +1103,124 @@ class AnalyticsQueriesTest extends TestCase
         $end = now()->addMonths(2)->format('Y-m-d');
         $results = $cs->getAggregateMrrChartQuery($start, $end);
 
-        $this->assertCount(1, $results);
+        $this->assertGreaterThanOrEqual(1, count($results));
         // 200 / 2 = 100 in company currency
-        $this->assertEqualsWithDelta(100.00, $results[0]->total, 0.01);
+        foreach ($results as $row) {
+            $this->assertEqualsWithDelta(100.00, $row->total, 0.01);
+        }
+    }
+
+    public function testMrrChartQueryNormalizesQuarterlyToMonthly(): void
+    {
+        // Quarterly $300 recurring invoice → should show $100/month MRR
+        RecurringInvoice::factory()->create([
+            'client_id' => $this->test_client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'amount' => 300.00,
+            'status_id' => RecurringInvoice::STATUS_ACTIVE,
+            'frequency_id' => RecurringInvoice::FREQUENCY_THREE_MONTHS,
+            'next_send_date' => now()->addDays(5)->format('Y-m-d'),
+            'remaining_cycles' => -1,
+            'is_deleted' => false,
+            'exchange_rate' => 1,
+        ]);
+
+        $cs = $this->getService();
+        $start = now()->format('Y-m-d');
+        $end = now()->addMonths(6)->format('Y-m-d');
+        $results = $cs->getMrrChartQuery($start, $end, 1);
+
+        $this->assertGreaterThanOrEqual(6, count($results));
+
+        foreach ($results as $row) {
+            $this->assertEqualsWithDelta(100.00, $row->total, 0.01);
+        }
+    }
+
+    public function testMrrChartQueryNormalizesAnnualToMonthly(): void
+    {
+        // Annual $1200 recurring invoice → should show $100/month MRR
+        RecurringInvoice::factory()->create([
+            'client_id' => $this->test_client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'amount' => 1200.00,
+            'status_id' => RecurringInvoice::STATUS_ACTIVE,
+            'frequency_id' => RecurringInvoice::FREQUENCY_ANNUALLY,
+            'next_send_date' => now()->addDays(5)->format('Y-m-d'),
+            'remaining_cycles' => -1,
+            'is_deleted' => false,
+            'exchange_rate' => 1,
+        ]);
+
+        $cs = $this->getService();
+        $start = now()->format('Y-m-d');
+        $end = now()->addMonths(12)->format('Y-m-d');
+        $results = $cs->getMrrChartQuery($start, $end, 1);
+
+        $this->assertGreaterThanOrEqual(12, count($results));
+
+        foreach ($results as $row) {
+            $this->assertEqualsWithDelta(100.00, $row->total, 0.01);
+        }
+    }
+
+    public function testMrrChartQueryRespectsFiniteCycles(): void
+    {
+        // Quarterly $300, remaining_cycles=2 → MRR for ~6 months then stops
+        RecurringInvoice::factory()->create([
+            'client_id' => $this->test_client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'amount' => 300.00,
+            'status_id' => RecurringInvoice::STATUS_ACTIVE,
+            'frequency_id' => RecurringInvoice::FREQUENCY_THREE_MONTHS,
+            'next_send_date' => now()->addDays(5)->format('Y-m-d'),
+            'remaining_cycles' => 2,
+            'is_deleted' => false,
+            'exchange_rate' => 1,
+        ]);
+
+        $cs = $this->getService();
+        $start = now()->format('Y-m-d');
+        $end = now()->addMonths(12)->format('Y-m-d');
+        $results = $cs->getMrrChartQuery($start, $end, 1);
+
+        // Should have MRR buckets only within the 2-cycle window (~7 months from chart start), not all 12
+        $this->assertLessThan(count(range(0, 12)), count($results));
+
+        foreach ($results as $row) {
+            $this->assertEqualsWithDelta(100.00, $row->total, 0.01);
+        }
+    }
+
+    public function testAggregateMrrChartNormalizesQuarterlyWithExchangeRate(): void
+    {
+        // Quarterly $600 with exchange_rate 2 → $300 in company currency → $100/month MRR
+        RecurringInvoice::factory()->create([
+            'client_id' => $this->test_client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'amount' => 600.00,
+            'status_id' => RecurringInvoice::STATUS_ACTIVE,
+            'frequency_id' => RecurringInvoice::FREQUENCY_THREE_MONTHS,
+            'next_send_date' => now()->addDays(5)->format('Y-m-d'),
+            'remaining_cycles' => -1,
+            'is_deleted' => false,
+            'exchange_rate' => 2,
+        ]);
+
+        $cs = $this->getService();
+        $start = now()->format('Y-m-d');
+        $end = now()->addMonths(6)->format('Y-m-d');
+        $results = $cs->getAggregateMrrChartQuery($start, $end);
+
+        $this->assertGreaterThanOrEqual(6, count($results));
+
+        foreach ($results as $row) {
+            $this->assertEqualsWithDelta(100.00, $row->total, 0.01);
+        }
     }
 
     // ─── Chart Queries: MRR/ARR Totals ──────────────────────────────

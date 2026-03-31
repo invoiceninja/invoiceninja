@@ -546,6 +546,21 @@ trait AnalyticsQueries
 
     // ─── Chartable Time-Series Queries ──────────────────────────────
 
+    private const FREQUENCY_MONTHLY_DIVISOR = [
+        1  => 0.032854209445585, // Daily:  1/30.44
+        2  => 0.23094688221709,  // Weekly: 1/4.33
+        3  => 0.46082949308756,  // Two Weeks: 1/2.17
+        4  => 0.91996319779209,  // Four Weeks: 1/1.087
+        5  => 1,                 // Monthly
+        6  => 2,                 // Two Months
+        7  => 3,                 // Three Months
+        8  => 4,                 // Four Months
+        9  => 6,                 // Six Months
+        10 => 12,                // Annually
+        11 => 24,                // Two Years
+        12 => 36,                // Three Years
+    ];
+
     private const FREQUENCY_INTERVALS = [
         1  => ['addDay', 1],
         2  => ['addWeek', 1],
@@ -639,53 +654,48 @@ trait AnalyticsQueries
     }
 
     /**
-     * Iterate a recurring invoice/expense forward by frequency, accumulating
-     * the given amount into monthly buckets (keyed as YYYY-MM-01).
+     * Normalize a recurring invoice's amount to its monthly equivalent and
+     * spread it across every month bucket in the active subscription window.
      */
     private function projectRecurringIntoMonthlyBuckets(\stdClass $ri, float $amount, \Carbon\Carbon $start, \Carbon\Carbon $end, array &$buckets): void
     {
         $frequencyId = (int) $ri->frequency_id;
         $remainingCycles = (int) $ri->remaining_cycles;
-        $date = \Carbon\Carbon::parse($ri->next_send_date);
-        $maxIterations = ($frequencyId === 1) ? 365 : 1000;
+        $nextSendDate = \Carbon\Carbon::parse($ri->next_send_date);
 
-        // Skip past dates without consuming remaining_cycles
-        $skipped = 0;
-        while ($date->lt($start) && $skipped < $maxIterations) {
-            if ($remainingCycles !== -1 && $skipped >= $remainingCycles) {
-                return;
-            }
+        $divisor = self::FREQUENCY_MONTHLY_DIVISOR[$frequencyId] ?? 1;
+        $monthlyMrr = $amount / $divisor;
 
-            $date = $this->advanceByFrequency($date, $frequencyId);
-
-            if ($date === null) {
-                return;
-            }
-
-            $skipped++;
-
-            if ($remainingCycles !== -1) {
-                $remainingCycles--;
+        // Determine when the subscription ends
+        if ($remainingCycles === -1) {
+            $subEnd = $end->copy();
+        } else {
+            $subEnd = $nextSendDate->copy();
+            for ($i = 0; $i < $remainingCycles; $i++) {
+                $next = $this->advanceByFrequency($subEnd, $frequencyId);
+                if ($next === null) {
+                    break;
+                }
+                $subEnd = $next;
             }
         }
 
-        $iterations = 0;
+        // Subscription ended before chart range
+        if ($subEnd->lt($start)) {
+            return;
+        }
 
-        while ($date->lte($end) && $iterations < $maxIterations) {
-            if ($remainingCycles !== -1 && $iterations >= $remainingCycles) {
-                break;
-            }
+        // Active subscriptions contribute MRR from the chart start (not next_send_date,
+        // which is just the next fire date, not subscription start).
+        $activeStart = $start->copy()->startOfMonth();
+        $activeEnd = $subEnd->lt($end) ? $subEnd->copy()->startOfMonth() : $end->copy()->startOfMonth();
 
-            $key = $date->format('Y-m-01');
-            $buckets[$key] = ($buckets[$key] ?? 0) + $amount;
+        $cursor = $activeStart->copy();
 
-            $date = $this->advanceByFrequency($date, $frequencyId);
-
-            if ($date === null) {
-                break;
-            }
-
-            $iterations++;
+        while ($cursor->lte($activeEnd)) {
+            $key = $cursor->format('Y-m-01');
+            $buckets[$key] = ($buckets[$key] ?? 0) + $monthlyMrr;
+            $cursor->addMonthNoOverflow();
         }
     }
 
