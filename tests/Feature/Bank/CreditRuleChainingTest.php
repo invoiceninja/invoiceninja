@@ -74,12 +74,14 @@ class CreditRuleChainingTest extends TestCase
             'applies_to' => 'CREDIT',
             'rules' => [
                 [
-                    'search_key' => '$invoice.number',
+                    'search_key' => 'description',
                     'operator' => 'contains',
+                    'value' => '$invoice.number',
                 ],
                 [
-                    'search_key' => '$invoice.amount',
+                    'search_key' => 'amount',
                     'operator' => '=',
+                    'value' => '$invoice.amount',
                 ]
             ]
         ]);
@@ -138,12 +140,14 @@ class CreditRuleChainingTest extends TestCase
             'applies_to' => 'CREDIT',
             'rules' => [
                 [
-                    'search_key' => '$invoice.number',
+                    'search_key' => 'description',
                     'operator' => 'contains',
+                    'value' => '$invoice.number',
                 ],
                 [
-                    'search_key' => '$invoice.amount',
+                    'search_key' => 'amount',
                     'operator' => '=',
+                    'value' => '$invoice.amount',
                 ]
             ]
         ]);
@@ -203,12 +207,14 @@ class CreditRuleChainingTest extends TestCase
             'applies_to' => 'CREDIT',
             'rules' => [
                 [
-                    'search_key' => '$invoice.number',
+                    'search_key' => 'description',
                     'operator' => 'contains',
+                    'value' => '$invoice.number',
                 ],
                 [
-                    'search_key' => '$invoice.amount',
+                    'search_key' => 'amount',
                     'operator' => '=',
+                    'value' => '$invoice.amount',
                 ]
             ]
         ]);
@@ -270,16 +276,19 @@ class CreditRuleChainingTest extends TestCase
             'applies_to' => 'CREDIT',
             'rules' => [
                 [
-                    'search_key' => '$invoice.number',
+                    'search_key' => 'description',
                     'operator' => 'contains',
+                    'value' => '$invoice.number',
                 ],
                 [
-                    'search_key' => '$invoice.amount',
+                    'search_key' => 'amount',
                     'operator' => '=',
+                    'value' => '$invoice.amount',
                 ],
                 [
-                    'search_key' => '$invoice.custom1',
+                    'search_key' => 'description',
                     'operator' => 'contains',
+                    'value' => '$invoice.custom1',
                 ]
             ]
         ]);
@@ -339,12 +348,14 @@ class CreditRuleChainingTest extends TestCase
             'applies_to' => 'CREDIT',
             'rules' => [
                 [
-                    'search_key' => '$invoice.amount',
+                    'search_key' => 'amount',
                     'operator' => '=',
+                    'value' => '$invoice.amount',
                 ],
                 [
-                    'search_key' => '$client.id_number',
+                    'search_key' => 'description',
                     'operator' => 'is',
+                    'value' => '$client.id_number',
                 ]
             ]
         ]);
@@ -406,12 +417,14 @@ class CreditRuleChainingTest extends TestCase
             'applies_to' => 'CREDIT',
             'rules' => [
                 [
-                    'search_key' => '$payment.amount',
+                    'search_key' => 'amount',
                     'operator' => '=',
+                    'value' => '$payment.amount',
                 ],
                 [
-                    'search_key' => '$client.id_number',
+                    'search_key' => 'description',
                     'operator' => 'is',
+                    'value' => '$client.id_number',
                 ]
             ]
         ]);
@@ -471,12 +484,14 @@ class CreditRuleChainingTest extends TestCase
             'applies_to' => 'CREDIT',
             'rules' => [
                 [
-                    'search_key' => '$invoice.custom1',
+                    'search_key' => 'description',
                     'operator' => 'contains',
+                    'value' => '$invoice.custom1',
                 ],
                 [
-                    'search_key' => '$invoice.custom2',
+                    'search_key' => 'description',
                     'operator' => 'contains',
+                    'value' => '$invoice.custom2',
                 ]
             ]
         ]);
@@ -535,8 +550,9 @@ class CreditRuleChainingTest extends TestCase
             'applies_to' => 'CREDIT',
             'rules' => [
                 [
-                    'search_key' => '$payment.custom1',
+                    'search_key' => 'description',
                     'operator' => 'contains',
+                    'value' => '$payment.custom1',
                 ]
             ]
         ]);
@@ -594,8 +610,9 @@ class CreditRuleChainingTest extends TestCase
             'applies_to' => 'CREDIT',
             'rules' => [
                 [
-                    'search_key' => '$invoice.custom1',
+                    'search_key' => 'description',
                     'operator' => 'contains',
+                    'value' => '$invoice.custom1',
                 ]
             ]
         ]);
@@ -609,8 +626,9 @@ class CreditRuleChainingTest extends TestCase
             'applies_to' => 'CREDIT',
             'rules' => [
                 [
-                    'search_key' => '$invoice.custom2',
+                    'search_key' => 'description',
                     'operator' => 'contains',
+                    'value' => '$invoice.custom2',
                 ]
             ]
         ]);

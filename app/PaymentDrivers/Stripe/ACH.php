@@ -94,7 +94,7 @@ class ACH implements LivewireMethodInterface
         return render('gateways.stripe.ach.authorize', array_merge($data));
     }
 
-    public function authorizeResponse(Request $request)
+    public function authorizeResponse($request)
     {
         $this->stripe->init();
 

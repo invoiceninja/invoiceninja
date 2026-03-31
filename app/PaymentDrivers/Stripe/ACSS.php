@@ -87,7 +87,7 @@ class ACSS implements LivewireMethodInterface
      * @param  Request $request
      * @return void
      */
-    public function authorizeResponse(Request $request)
+    public function authorizeResponse($request)
     {
         $setup_intent = json_decode($request->input('gateway_response'));
 

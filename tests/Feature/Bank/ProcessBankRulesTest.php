@@ -99,15 +99,17 @@ class ProcessBankRulesTest extends TestCase
 
     public function testInvoiceNumberOperatorIs()
     {
+        // Use lowercase in description so the case-sensitive simple match (str_contains) fails
+        // but the case-insensitive rule engine (matchStringOperator) succeeds
         $number = 'INV-' . Str::random(20);
 
         $bt = $this->createBankTransaction([
-            'description' => $number,
+            'description' => strtolower($number),
             'amount' => 100,
         ]);
 
         $this->createRule([
-            ['search_key' => '$invoice.number', 'operator' => 'is'],
+            ['search_key' => 'description', 'operator' => 'is', 'value' => '$invoice.number'],
         ]);
 
         $invoice = $this->createInvoice([
@@ -128,12 +130,12 @@ class ProcessBankRulesTest extends TestCase
         $number = 'INV-' . Str::random(20);
 
         $bt = $this->createBankTransaction([
-            'description' => 'Payment for ' . $number . ' received',
+            'description' => 'payment for ' . strtolower($number) . ' received',
             'amount' => 100,
         ]);
 
         $this->createRule([
-            ['search_key' => '$invoice.number', 'operator' => 'contains'],
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$invoice.number'],
         ]);
 
         $invoice = $this->createInvoice([
@@ -154,12 +156,12 @@ class ProcessBankRulesTest extends TestCase
         $number = 'INV-' . Str::random(20);
 
         $bt = $this->createBankTransaction([
-            'description' => $number . ' extra text',
+            'description' => strtolower($number) . ' extra text',
             'amount' => 100,
         ]);
 
         $this->createRule([
-            ['search_key' => '$invoice.number', 'operator' => 'starts_with'],
+            ['search_key' => 'description', 'operator' => 'starts_with', 'value' => '$invoice.number'],
         ]);
 
         $invoice = $this->createInvoice([
@@ -179,14 +181,14 @@ class ProcessBankRulesTest extends TestCase
     {
         $number = 'INV-' . Str::random(20);
 
-        // Description contains the number but is NOT an exact match
+        // Description has different case AND extra text — simple match fails, rule 'is' also fails
         $bt = $this->createBankTransaction([
-            'description' => 'Payment for ' . $number,
+            'description' => 'payment for ' . strtolower($number),
             'amount' => 100,
         ]);
 
         $this->createRule([
-            ['search_key' => '$invoice.number', 'operator' => 'is'],
+            ['search_key' => 'description', 'operator' => 'is', 'value' => '$invoice.number'],
         ]);
 
         $this->createInvoice([
@@ -198,10 +200,8 @@ class ProcessBankRulesTest extends TestCase
         (new ProcessBankRules($bt))->run();
         $bt = $bt->fresh();
 
-        // "is" requires exact match — "Payment for INV-xxx" != "INV-xxx"
-        // But the pre-rule simple match at lines 70-78 does str_contains and will match first
-        // So this tests the pre-rule behavior
-        $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
+        // "is" requires exact match — "paymentforinv-xxx" != "inv-xxx"
+        $this->assertEquals(BankTransaction::STATUS_UNMATCHED, $bt->status_id);
     }
 
     // ── $invoice.amount ──────────────────────────────────────────────
@@ -216,7 +216,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$invoice.amount', 'operator' => '='],
+            ['search_key' => 'amount', 'operator' => '=', 'value' => '$invoice.amount'],
         ]);
 
         $invoice = $this->createInvoice([
@@ -239,7 +239,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$invoice.amount', 'operator' => '>'],
+            ['search_key' => 'amount', 'operator' => '>', 'value' => '$invoice.amount'],
         ]);
 
         // invoice.amount = 100, bt.amount = 200 => 200 > 100 = true
@@ -264,7 +264,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$invoice.amount', 'operator' => '>'],
+            ['search_key' => 'amount', 'operator' => '>', 'value' => '$invoice.amount'],
         ]);
 
         // invoice.amount = 100, bt.amount = 0.01 => 0.01 > 100 = false
@@ -287,7 +287,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$invoice.amount', 'operator' => '<'],
+            ['search_key' => 'amount', 'operator' => '<', 'value' => '$invoice.amount'],
         ]);
 
         // invoice.amount = 100, bt.amount = 50 => 50 < 100 = true
@@ -312,7 +312,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$invoice.amount', 'operator' => '<='],
+            ['search_key' => 'amount', 'operator' => '<=', 'value' => '$invoice.amount'],
         ]);
 
         $invoice = $this->createInvoice([
@@ -336,7 +336,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$invoice.amount', 'operator' => '>='],
+            ['search_key' => 'amount', 'operator' => '>=', 'value' => '$invoice.amount'],
         ]);
 
         $invoice = $this->createInvoice([
@@ -362,7 +362,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$invoice.po_number', 'operator' => 'contains'],
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$invoice.po_number'],
         ]);
 
         $invoice = $this->createInvoice([
@@ -388,7 +388,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$invoice.po_number', 'operator' => 'is'],
+            ['search_key' => 'description', 'operator' => 'is', 'value' => '$invoice.po_number'],
         ]);
 
         $invoice = $this->createInvoice([
@@ -414,7 +414,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$invoice.po_number', 'operator' => 'starts_with'],
+            ['search_key' => 'description', 'operator' => 'starts_with', 'value' => '$invoice.po_number'],
         ]);
 
         $invoice = $this->createInvoice([
@@ -442,7 +442,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$invoice.custom1', 'operator' => 'contains'],
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$invoice.custom1'],
         ]);
 
         $invoice = $this->createInvoice([
@@ -468,7 +468,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$invoice.custom2', 'operator' => 'contains'],
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$invoice.custom2'],
         ]);
 
         $invoice = $this->createInvoice([
@@ -494,7 +494,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$invoice.custom3', 'operator' => 'contains'],
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$invoice.custom3'],
         ]);
 
         $invoice = $this->createInvoice([
@@ -520,7 +520,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$invoice.custom4', 'operator' => 'contains'],
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$invoice.custom4'],
         ]);
 
         $invoice = $this->createInvoice([
@@ -548,7 +548,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$payment.amount', 'operator' => '='],
+            ['search_key' => 'amount', 'operator' => '=', 'value' => '$payment.amount'],
         ]);
 
         $payment = $this->createPayment([
@@ -570,7 +570,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$payment.amount', 'operator' => '>'],
+            ['search_key' => 'amount', 'operator' => '>', 'value' => '$payment.amount'],
         ]);
 
         // bt.amount = 500, payment.amount = 100 => 500 > 100 = true
@@ -597,7 +597,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$payment.transaction_reference', 'operator' => 'contains'],
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$payment.transaction_reference'],
         ]);
 
         $payment = $this->createPayment([
@@ -622,7 +622,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$payment.transaction_reference', 'operator' => 'is'],
+            ['search_key' => 'description', 'operator' => 'is', 'value' => '$payment.transaction_reference'],
         ]);
 
         $payment = $this->createPayment([
@@ -647,7 +647,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$payment.transaction_reference', 'operator' => 'starts_with'],
+            ['search_key' => 'description', 'operator' => 'starts_with', 'value' => '$payment.transaction_reference'],
         ]);
 
         $payment = $this->createPayment([
@@ -674,7 +674,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$payment.custom1', 'operator' => 'contains'],
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$payment.custom1'],
         ]);
 
         $payment = $this->createPayment([
@@ -699,7 +699,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$payment.custom2', 'operator' => 'contains'],
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$payment.custom2'],
         ]);
 
         $payment = $this->createPayment([
@@ -724,7 +724,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$payment.custom3', 'operator' => 'contains'],
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$payment.custom3'],
         ]);
 
         $payment = $this->createPayment([
@@ -749,7 +749,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$payment.custom4', 'operator' => 'contains'],
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$payment.custom4'],
         ]);
 
         $payment = $this->createPayment([
@@ -776,8 +776,8 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$client.id_number', 'operator' => 'is'],
-            ['search_key' => '$invoice.amount', 'operator' => '='],
+            ['search_key' => 'description', 'operator' => 'is', 'value' => '$client.id_number'],
+            ['search_key' => 'amount', 'operator' => '=', 'value' => '$invoice.amount'],
         ], ['matches_on_all' => true]);
 
         $this->client->id_number = $idNumber;
@@ -805,8 +805,8 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$client.id_number', 'operator' => 'contains'],
-            ['search_key' => '$invoice.amount', 'operator' => '='],
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$client.id_number'],
+            ['search_key' => 'amount', 'operator' => '=', 'value' => '$invoice.amount'],
         ], ['matches_on_all' => true]);
 
         $this->client->id_number = $idNumber;
@@ -836,8 +836,8 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$client.email', 'operator' => 'contains'],
-            ['search_key' => '$invoice.amount', 'operator' => '='],
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$client.email'],
+            ['search_key' => 'amount', 'operator' => '=', 'value' => '$invoice.amount'],
         ], ['matches_on_all' => true]);
 
         $invoice = $this->createInvoice([
@@ -862,8 +862,8 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$client.email', 'operator' => 'is'],
-            ['search_key' => '$invoice.amount', 'operator' => '='],
+            ['search_key' => 'description', 'operator' => 'is', 'value' => '$client.email'],
+            ['search_key' => 'amount', 'operator' => '=', 'value' => '$invoice.amount'],
         ], ['matches_on_all' => true]);
 
         $invoice = $this->createInvoice([
@@ -893,8 +893,8 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$client.custom1', 'operator' => 'contains'],
-            ['search_key' => '$invoice.amount', 'operator' => '='],
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$client.custom1'],
+            ['search_key' => 'amount', 'operator' => '=', 'value' => '$invoice.amount'],
         ], ['matches_on_all' => true]);
 
         $invoice = $this->createInvoice([
@@ -921,8 +921,8 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$client.custom2', 'operator' => 'contains'],
-            ['search_key' => '$invoice.amount', 'operator' => '='],
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$client.custom2'],
+            ['search_key' => 'amount', 'operator' => '=', 'value' => '$invoice.amount'],
         ], ['matches_on_all' => true]);
 
         $invoice = $this->createInvoice([
@@ -949,8 +949,8 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$client.custom3', 'operator' => 'contains'],
-            ['search_key' => '$invoice.amount', 'operator' => '='],
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$client.custom3'],
+            ['search_key' => 'amount', 'operator' => '=', 'value' => '$invoice.amount'],
         ], ['matches_on_all' => true]);
 
         $invoice = $this->createInvoice([
@@ -977,8 +977,8 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$client.custom4', 'operator' => 'contains'],
-            ['search_key' => '$invoice.amount', 'operator' => '='],
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$client.custom4'],
+            ['search_key' => 'amount', 'operator' => '=', 'value' => '$invoice.amount'],
         ], ['matches_on_all' => true]);
 
         $invoice = $this->createInvoice([
@@ -1005,8 +1005,8 @@ class ProcessBankRulesTest extends TestCase
 
         // Rule requires BOTH amount AND po_number match
         $this->createRule([
-            ['search_key' => '$invoice.amount', 'operator' => '='],
-            ['search_key' => '$invoice.po_number', 'operator' => 'contains'],
+            ['search_key' => 'amount', 'operator' => '=', 'value' => '$invoice.amount'],
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$invoice.po_number'],
         ], ['matches_on_all' => true]);
 
         // Invoice matches amount but NOT po_number (description doesn't contain it)
@@ -1033,8 +1033,8 @@ class ProcessBankRulesTest extends TestCase
 
         // Rule requires ANY of amount OR po_number match
         $this->createRule([
-            ['search_key' => '$invoice.amount', 'operator' => '='],
-            ['search_key' => '$invoice.po_number', 'operator' => 'contains'],
+            ['search_key' => 'amount', 'operator' => '=', 'value' => '$invoice.amount'],
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$invoice.po_number'],
         ], ['matches_on_all' => false]);
 
         // Invoice matches amount but NOT po_number
@@ -1063,7 +1063,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$invoice.amount', 'operator' => '='],
+            ['search_key' => 'amount', 'operator' => '=', 'value' => '$invoice.amount'],
         ]);
 
         $this->createInvoice([
@@ -1088,7 +1088,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$invoice.amount', 'operator' => '='],
+            ['search_key' => 'amount', 'operator' => '=', 'value' => '$invoice.amount'],
         ]);
 
         $this->createInvoice([
@@ -1493,7 +1493,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$invoice.amount', 'operator' => '='],
+            ['search_key' => 'amount', 'operator' => '=', 'value' => '$invoice.amount'],
         ], ['applies_to' => 'CREDIT']);
 
         $this->createInvoice([
@@ -1544,7 +1544,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$nonexistent.field', 'operator' => '='],
+            ['search_key' => 'amount', 'operator' => '=', 'value' => '$nonexistent.field'],
         ]);
 
         $this->createInvoice([
@@ -1570,8 +1570,8 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$invoice.number', 'operator' => 'contains'],
-            ['search_key' => '$invoice.amount', 'operator' => '='],
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$invoice.number'],
+            ['search_key' => 'amount', 'operator' => '=', 'value' => '$invoice.amount'],
         ], ['matches_on_all' => false]);
 
         // Invoice matching by number
@@ -1606,7 +1606,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$invoice.amount', 'operator' => '='],
+            ['search_key' => 'amount', 'operator' => '=', 'value' => '$invoice.amount'],
         ]);
 
         // Create a DELETED invoice with matching amount
@@ -1630,7 +1630,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$invoice.amount', 'operator' => '='],
+            ['search_key' => 'amount', 'operator' => '=', 'value' => '$invoice.amount'],
         ]);
 
         // status_id 4 = paid
@@ -1656,7 +1656,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => '$payment.amount', 'operator' => '='],
+            ['search_key' => 'amount', 'operator' => '=', 'value' => '$payment.amount'],
         ]);
 
         // Payment already linked to another transaction

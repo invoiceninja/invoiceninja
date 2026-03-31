@@ -105,7 +105,7 @@ class ProcessBankRules extends AbstractService
                 $matched = false;
 
                 // Use match expression to handle each search key
-                match($rule['search_key']) {
+                match($rule['value']) {
                     '$invoice.number' => $matched = $this->searchInvoiceNumber($invoiceNumber, $rule),
                     '$invoice.po_number' => $matched = $this->searchInvoicePONumber($invoicePONumbers, $rule),
                     '$invoice.amount' => $matched = $this->searchInvoiceAmount($invoiceAmounts, $rule),
