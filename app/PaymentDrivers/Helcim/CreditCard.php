@@ -41,67 +41,95 @@ class CreditCard implements MethodInterface
     {
         $data['gateway'] = $this->helcim_driver;
         
+        // Initialize HelcimPay.js session for card verification (PCI compliant)
+        try {
+            $session = $this->helcim_driver->initializeHelcimPaySession([
+                'paymentType' => 'verify',
+                'currency' => $this->helcim_driver->client->currency()->code,
+                'amount' => 0, // Verify doesn't charge
+            ]);
+            
+            $data['checkout_token'] = $session['checkoutToken'];
+            $data['secret_token'] = $session['secretToken'];
+        } catch (\Exception $e) {
+            SystemLogger::dispatch(
+                ['error' => $e->getMessage()],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_HELCIM,
+                $this->helcim_driver->client,
+                $this->helcim_driver->client->company
+            );
+            
+            throw new PaymentFailed('Failed to initialize payment form: ' . $e->getMessage(), 400);
+        }
+        
         return render('gateways.helcim.credit_card.authorize', $data);
     }
 
     /**
      * Handle authorization response (saving a payment method)
      * 
-     * SECURITY: Card data is processed server-side only
+     * PCI COMPLIANCE: This now processes tokenized data from HelcimPay.js
+     * instead of raw card data. Card information never touches our servers.
      */
     public function authorizeResponse(Request $request)
     {
-        $cardNumber = $request->input('card_number');
-        $cardExpiry = $request->input('card_expiry');
-        $cardCvv = $request->input('card_cvv');
-        $cardholderName = $request->input('cardholder_name');
+        $transactionData = $request->input('transaction_data');
+        $transactionHash = $request->input('transaction_hash');
+        $secretToken = $request->input('secret_token');
         $isDefault = $request->input('is_default', false);
 
-        // Validate card inputs
-        if (empty($cardNumber) || empty($cardExpiry) || empty($cardCvv)) {
-            throw new PaymentFailed('Please provide complete card information', 400);
+        // Validate required fields
+        if (empty($transactionData) || empty($transactionHash) || empty($secretToken)) {
+            throw new PaymentFailed('Invalid payment response', 400);
         }
-
-        // Parse expiry (MM/YY format)
-        $expiryParts = explode('/', $cardExpiry);
-        if (count($expiryParts) !== 2) {
-            throw new PaymentFailed('Invalid expiry date format', 400);
-        }
-
-        $expiryMonth = str_pad($expiryParts[0], 2, '0', STR_PAD_LEFT);
-        $expiryYear = '20' . $expiryParts[1]; // Assuming 20XX
 
         try {
-            // Create card token via Helcim API (server-side only)
-            $response = $this->helcim_driver->gatewayRequest('/payment/card-verify', [
-                'cardNumber' => $cardNumber,
-                'cardExpiry' => $expiryMonth . $expiryYear,
-                'cardCVV' => $cardCvv,
-                'cardHolderName' => $cardholderName,
-            ]);
-
-            if (!isset($response['cardToken'])) {
-                throw new PaymentFailed($response['message'] ?? 'Failed to verify card', 400);
+            // Decode transaction data
+            $data = json_decode($transactionData, true);
+            
+            if (!$data) {
+                throw new PaymentFailed('Invalid transaction data format', 400);
             }
 
+            // Validate the response hash (PCI compliance check)
+            if (!$this->helcim_driver->validateHelcimPayResponse($data, $transactionHash, $secretToken)) {
+                throw new PaymentFailed('Transaction validation failed - data may have been tampered with', 400);
+            }
+
+            // Check transaction status
+            if (!isset($data['status']) || $data['status'] !== 'APPROVED') {
+                throw new PaymentFailed('Card verification failed: ' . ($data['warning'] ?? 'Unknown error'), 400);
+            }
+
+            // Extract card token from response
+            if (!isset($data['cardToken'])) {
+                throw new PaymentFailed('No card token received', 400);
+            }
+
+            // Parse expiry date from response
+            $expiryMonth = null;
+            $expiryYear = null;
+            
             // Store the payment method
             $payment_meta = new \stdClass();
             $payment_meta->exp_month = $expiryMonth;
             $payment_meta->exp_year = $expiryYear;
-            $payment_meta->brand = $response['cardType'] ?? 'Unknown';
-            $payment_meta->last4 = substr($cardNumber, -4);
+            $payment_meta->brand = $data['cardType'] ?? 'Unknown';
+            $payment_meta->last4 = $data['cardNumber'] ?? ''; // Last 4 digits only
             $payment_meta->type = GatewayType::CREDIT_CARD;
 
-            $data = [
+            $tokenData = [
                 'payment_meta' => $payment_meta,
-                'token' => $response['cardToken'],
+                'token' => $data['cardToken'],
                 'payment_method_id' => GatewayType::CREDIT_CARD,
             ];
 
-            $this->helcim_driver->storeGatewayToken($data, ['gateway_customer_reference' => $response['cardToken']]);
+            $this->helcim_driver->storeGatewayToken($tokenData, ['gateway_customer_reference' => $data['cardToken']]);
 
             SystemLogger::dispatch(
-                ['response' => $response, 'data' => $data],
+                ['response' => $data, 'data' => $tokenData],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_SUCCESS,
                 SystemLog::TYPE_HELCIM,
@@ -139,13 +167,37 @@ class CreditCard implements MethodInterface
             ->where('gateway_type_id', GatewayType::CREDIT_CARD)
             ->get();
 
+        // Initialize HelcimPay.js session for new card payments (PCI compliant)
+        try {
+            $session = $this->helcim_driver->initializeHelcimPaySession([
+                'paymentType' => 'purchase',
+                'amount' => $data['amount'],
+                'currency' => $data['currency'],
+            ]);
+            
+            $data['checkout_token'] = $session['checkoutToken'];
+            $data['secret_token'] = $session['secretToken'];
+        } catch (\Exception $e) {
+            SystemLogger::dispatch(
+                ['error' => $e->getMessage()],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_HELCIM,
+                $this->helcim_driver->client,
+                $this->helcim_driver->client->company
+            );
+            
+            throw new PaymentFailed('Failed to initialize payment form: ' . $e->getMessage(), 400);
+        }
+
         return render('gateways.helcim.credit_card.pay', $data);
     }
 
     /**
      * Process payment response
      * 
-     * SECURITY: All payment processing happens server-side
+     * PCI COMPLIANCE: This now processes tokenized data from HelcimPay.js
+     * instead of raw card data.
      */
     public function paymentResponse(Request $request)
     {
@@ -155,11 +207,10 @@ class CreditCard implements MethodInterface
 
         $useToken = $request->input('use_token', false);
         $tokenId = $request->input('token');
-        $storeCard = $request->input('store_card', false);
 
         try {
             if ($useToken && $tokenId) {
-                // Payment with saved card
+                // Payment with saved card token
                 $token = $this->helcim_driver->client->gateway_tokens()
                     ->where('hashed_id', $tokenId)
                     ->where('company_gateway_id', $this->helcim_driver->company_gateway->id)
@@ -167,8 +218,8 @@ class CreditCard implements MethodInterface
 
                 return $this->processTokenPayment($token, $paymentHash);
             } else {
-                // Payment with new card
-                return $this->processNewCardPayment($request, $paymentHash, $storeCard);
+                // Payment with HelcimPay.js (new card)
+                return $this->processHelcimPayPayment($request, $paymentHash);
             }
         } catch (\Exception $e) {
             SystemLogger::dispatch(
@@ -224,81 +275,79 @@ class CreditCard implements MethodInterface
     }
 
     /**
-     * Process payment with a new card
+     * Process payment with HelcimPay.js tokenized data
+     * 
+     * PCI COMPLIANCE: Processes tokenized payment from HelcimPay.js
      */
-    private function processNewCardPayment(Request $request, PaymentHash $paymentHash, bool $storeCard)
+    private function processHelcimPayPayment(Request $request, PaymentHash $paymentHash)
     {
-        $cardNumber = $request->input('card_number');
-        $cardExpiry = $request->input('card_expiry');
-        $cardCvv = $request->input('card_cvv');
-        $cardholderName = $request->input('cardholder_name');
+        $transactionData = $request->input('transaction_data');
+        $transactionHash = $request->input('transaction_hash');
+        $secretToken = $request->input('secret_token');
+        $storeCard = $request->input('store_card', false);
 
-        if (empty($cardNumber) || empty($cardExpiry) || empty($cardCvv)) {
-            throw new PaymentFailed('Please provide complete card information', 400);
+        // Validate required fields
+        if (empty($transactionData) || empty($transactionHash) || empty($secretToken)) {
+            throw new PaymentFailed('Invalid payment response', 400);
         }
 
-        // Parse expiry
-        $expiryParts = explode('/', $cardExpiry);
-        if (count($expiryParts) !== 2) {
-            throw new PaymentFailed('Invalid expiry date format', 400);
+        // Decode transaction data
+        $data = json_decode($transactionData, true);
+        
+        if (!$data) {
+            throw new PaymentFailed('Invalid transaction data format', 400);
         }
 
-        $expiryMonth = str_pad($expiryParts[0], 2, '0', STR_PAD_LEFT);
-        $expiryYear = '20' . $expiryParts[1];
+        // Validate the response hash (PCI compliance check)
+        if (!$this->helcim_driver->validateHelcimPayResponse($data, $transactionHash, $secretToken)) {
+            throw new PaymentFailed('Transaction validation failed - data may have been tampered with', 400);
+        }
+
+        // Check transaction status
+        if (!isset($data['status']) || $data['status'] !== 'APPROVED') {
+            throw new PaymentFailed('Payment failed: ' . ($data['warning'] ?? 'Unknown error'), 400);
+        }
 
         $amount = $paymentHash->data->amount_with_fee;
 
-        // Process payment via Helcim API
-        $response = $this->helcim_driver->gatewayRequest('/payment/purchase', [
-            'cardNumber' => $cardNumber,
-            'cardExpiry' => $expiryMonth . $expiryYear,
-            'cardCVV' => $cardCvv,
-            'cardHolderName' => $cardholderName,
+        // Create payment record
+        $paymentData = [
+            'payment_type' => PaymentType::CREDIT_CARD_OTHER,
             'amount' => $amount,
-            'currency' => $this->helcim_driver->client->currency()->code,
-        ]);
+            'transaction_reference' => $data['transactionId'] ?? '',
+            'gateway_type_id' => GatewayType::CREDIT_CARD,
+        ];
 
-        if (isset($response['status']) && $response['status'] === 'APPROVED') {
-            $data = [
-                'payment_type' => PaymentType::CREDIT_CARD_OTHER,
-                'amount' => $amount,
-                'transaction_reference' => $response['transactionId'] ?? '',
-                'gateway_type_id' => GatewayType::CREDIT_CARD,
+        $payment = $this->helcim_driver->createPayment($paymentData, Payment::STATUS_COMPLETED);
+
+        // Store card if requested and token is available
+        if ($storeCard && isset($data['cardToken'])) {
+            $payment_meta = new \stdClass();
+            $payment_meta->exp_month = null;
+            $payment_meta->exp_year = null;
+            $payment_meta->brand = $data['cardType'] ?? 'Unknown';
+            $payment_meta->last4 = $data['cardNumber'] ?? ''; // Last 4 digits only
+            $payment_meta->type = GatewayType::CREDIT_CARD;
+
+            $tokenData = [
+                'payment_meta' => $payment_meta,
+                'token' => $data['cardToken'],
+                'payment_method_id' => GatewayType::CREDIT_CARD,
             ];
 
-            $payment = $this->helcim_driver->createPayment($data, Payment::STATUS_COMPLETED);
-
-            // Store card if requested
-            if ($storeCard && isset($response['cardToken'])) {
-                $payment_meta = new \stdClass();
-                $payment_meta->exp_month = $expiryMonth;
-                $payment_meta->exp_year = $expiryYear;
-                $payment_meta->brand = $response['cardType'] ?? 'Unknown';
-                $payment_meta->last4 = substr($cardNumber, -4);
-                $payment_meta->type = GatewayType::CREDIT_CARD;
-
-                $tokenData = [
-                    'payment_meta' => $payment_meta,
-                    'token' => $response['cardToken'],
-                    'payment_method_id' => GatewayType::CREDIT_CARD,
-                ];
-
-                $this->helcim_driver->storeGatewayToken($tokenData, ['gateway_customer_reference' => $response['cardToken']]);
-            }
-
-            SystemLogger::dispatch(
-                ['response' => $response, 'data' => $data],
-                SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                SystemLog::EVENT_GATEWAY_SUCCESS,
-                SystemLog::TYPE_HELCIM,
-                $this->helcim_driver->client,
-                $this->helcim_driver->client->company
-            );
-
-            return redirect()->route('client.payments.show', ['payment' => $this->helcim_driver->encodePrimaryKey($payment->id)]);
+            $this->helcim_driver->storeGatewayToken($tokenData, ['gateway_customer_reference' => $data['cardToken']]);
         }
 
-        throw new PaymentFailed($response['message'] ?? 'Payment failed', 400);
+        SystemLogger::dispatch(
+            ['response' => $data, 'data' => $paymentData],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            SystemLog::TYPE_HELCIM,
+            $this->helcim_driver->client,
+            $this->helcim_driver->client->company
+        );
+
+        return redirect()->route('client.payments.show', ['payment' => $this->helcim_driver->encodePrimaryKey($payment->id)]);
     }
 
     /**

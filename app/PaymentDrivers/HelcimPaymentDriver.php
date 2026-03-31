@@ -168,6 +168,72 @@ class HelcimPaymentDriver extends BaseDriver
     }
 
     /**
+     * Initialize a HelcimPay.js checkout session
+     * 
+     * PCI COMPLIANCE: This method creates a secure checkout session that
+     * allows HelcimPay.js to handle card data collection without it touching our servers.
+     */
+    public function initializeHelcimPaySession(array $params): array
+    {
+        $endpoint = '/helcim-pay/initialize';
+        
+        // Generate idempotency key for the request
+        $idempotencyKey = \Illuminate\Support\Str::uuid()->toString();
+        
+        $headers = [
+            'api-token: ' . $this->getApiToken(),
+            'Content-Type: application/json',
+            'Accept: application/json',
+            'idempotency-key: ' . $idempotencyKey,
+        ];
+
+        $url = $this->getApiUrl() . $endpoint;
+        
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($error) {
+            throw new \Exception('Helcim API Error: ' . $error);
+        }
+
+        $responseData = json_decode($response, true);
+
+        if ($httpCode !== 200 && $httpCode !== 201) {
+            $errorMessage = $responseData['errors'] ?? $responseData['message'] ?? 'Unknown error';
+            throw new \Exception('HelcimPay.js initialization failed: ' . $errorMessage . ' (HTTP ' . $httpCode . ')');
+        }
+
+        return $responseData;
+    }
+
+    /**
+     * Validate HelcimPay.js transaction response
+     * 
+     * PCI COMPLIANCE: This validates that the transaction response from HelcimPay.js
+     * hasn't been tampered with by comparing the hash.
+     */
+    public function validateHelcimPayResponse(array $data, string $hash, string $secretToken): bool
+    {
+        // JSON encode the data (Helcim uses specific encoding)
+        $jsonData = json_encode($data);
+        
+        // Calculate our hash
+        $calculatedHash = hash('sha256', $jsonData . $secretToken);
+        
+        // Compare hashes
+        return hash_equals($calculatedHash, $hash);
+    }
+
+    /**
      * Make a request to the Helcim API
      * 
      * SECURITY: This method handles all API communication server-side.
@@ -178,11 +244,19 @@ class HelcimPaymentDriver extends BaseDriver
         $url = $this->getApiUrl() . $endpoint;
         $token = $this->getApiToken();
 
+        // Generate idempotency key for POST requests
+        $idempotencyKey = \Illuminate\Support\Str::uuid()->toString();
+
         $headers = [
-            'Authorization: Bearer ' . $token,
+            'api-token: ' . $token,
             'Content-Type: application/json',
             'Accept: application/json',
         ];
+
+        // Add idempotency key for POST requests
+        if ($method === 'POST') {
+            $headers[] = 'idempotency-key: ' . $idempotencyKey;
+        }
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -206,7 +280,10 @@ class HelcimPaymentDriver extends BaseDriver
         $responseData = json_decode($response, true);
 
         if ($httpCode !== 200 && $httpCode !== 201) {
-            $errorMessage = $responseData['message'] ?? 'Unknown error';
+            $errorMessage = $responseData['errors'] ?? $responseData['message'] ?? 'Unknown error';
+            if (is_array($errorMessage)) {
+                $errorMessage = json_encode($errorMessage);
+            }
             throw new \Exception('Helcim API returned error: ' . $errorMessage . ' (HTTP ' . $httpCode . ')');
         }
 

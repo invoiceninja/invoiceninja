@@ -1,7 +1,8 @@
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.payment_type_credit_card'), 'card_title' => ctrans('texts.payment_type_credit_card')])
 
 @section('gateway_head')
-    {{-- SECURITY: NO API token is exposed to the frontend --}}
+    {{-- PCI COMPLIANCE: HelcimPay.js handles card data securely in an iframe --}}
+    <script type="text/javascript" src="https://secure.helcim.app/helcim-pay/services/start.js"></script>
 @endsection
 
 @section('gateway_content')
@@ -10,6 +11,9 @@
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->getCompanyGatewayId() }}">
         <input type="hidden" name="payment_method_id" value="1">
         <input type="hidden" name="is_default" id="is_default" value="0">
+        <input type="hidden" name="transaction_data" id="transaction_data" value="">
+        <input type="hidden" name="transaction_hash" id="transaction_hash" value="">
+        <input type="hidden" name="secret_token" id="secret_token" value="{{ $secret_token }}">
     </form>
 
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
@@ -19,48 +23,9 @@
     @endcomponent
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.card_details')])
-        <div class="mb-4">
-            <label for="cardholder_name" class="block text-sm font-medium text-gray-700 mb-1">
-                {{ ctrans('texts.cardholder_name') }}
-            </label>
-            <input type="text" id="cardholder_name" name="cardholder_name" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                required>
-        </div>
-
-        <div class="mb-4">
-            <label for="card_number" class="block text-sm font-medium text-gray-700 mb-1">
-                {{ ctrans('texts.card_number') }}
-            </label>
-            <input type="text" id="card_number" name="card_number" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="1234 5678 9012 3456"
-                maxlength="19"
-                required>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4 mb-4">
-            <div>
-                <label for="card_expiry" class="block text-sm font-medium text-gray-700 mb-1">
-                    {{ ctrans('texts.expiry_date') }}
-                </label>
-                <input type="text" id="card_expiry" name="card_expiry" 
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="MM/YY"
-                    maxlength="5"
-                    required>
-            </div>
-            <div>
-                <label for="card_cvv" class="block text-sm font-medium text-gray-700 mb-1">
-                    {{ ctrans('texts.cvv') }}
-                </label>
-                <input type="text" id="card_cvv" name="card_cvv" 
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="123"
-                    maxlength="4"
-                    required>
-            </div>
-        </div>
+        <p class="text-sm text-gray-600 mb-4">
+            {{ ctrans('texts.click_to_add_card') }}
+        </p>
     @endcomponent
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.default_payment_method')])
@@ -78,6 +43,8 @@
             const serverResponseForm = document.getElementById('server_response');
             const isDefaultCheckbox = document.getElementById('proxy_is_default');
             const isDefaultInput = document.getElementById('is_default');
+            const checkoutToken = '{{ $checkout_token }}';
+            const secretToken = '{{ $secret_token }}';
 
             // Handle default checkbox
             if (isDefaultCheckbox) {
@@ -86,61 +53,63 @@
                 });
             }
 
-            // Handle form submission
+            // PCI COMPLIANCE: Listen for HelcimPay.js verification events
+            window.addEventListener('message', (event) => {
+                const helcimPayJsIdentifierKey = 'helcim-pay-js-' + checkoutToken;
+                
+                if (event.data.eventName === helcimPayJsIdentifierKey) {
+                    if (event.data.eventStatus === 'ABORTED') {
+                        console.error('Card verification failed!', event.data.eventMessage);
+                        authorizeButton.disabled = false;
+                        
+                        const errorsDiv = document.getElementById('errors');
+                        errorsDiv.textContent = 'Card verification failed: ' + (event.data.eventMessage || 'Unknown error');
+                        errorsDiv.hidden = false;
+                    }
+                    
+                    if (event.data.eventStatus === 'SUCCESS') {
+                        console.log('Card verification success!', event.data.eventMessage);
+                        
+                        // Extract transaction data and hash
+                        const transactionData = event.data.eventMessage.data;
+                        const transactionHash = event.data.eventMessage.hash;
+                        
+                        // Store in form
+                        document.getElementById('transaction_data').value = JSON.stringify(transactionData);
+                        document.getElementById('transaction_hash').value = transactionHash;
+                        
+                        // Remove the iframe
+                        removeHelcimPayIframe();
+                        
+                        // Submit the form
+                        serverResponseForm.submit();
+                    }
+                    
+                    if (event.data.eventStatus === 'HIDE') {
+                        console.log('Modal closed.');
+                        authorizeButton.disabled = false;
+                    }
+                }
+            });
+
+            // Handle authorize button click
             if (authorizeButton) {
                 authorizeButton.addEventListener('click', (e) => {
                     e.preventDefault();
                     
-                    // Validate card inputs
-                    const cardNumber = document.getElementById('card_number').value;
-                    const cardExpiry = document.getElementById('card_expiry').value;
-                    const cardCvv = document.getElementById('card_cvv').value;
-                    const cardholderName = document.getElementById('cardholder_name').value;
-                    
-                    if (!cardNumber || !cardExpiry || !cardCvv || !cardholderName) {
-                        alert('Please fill in all card details');
-                        return;
-                    }
-
-                    // Add card fields to form (they will be processed server-side)
-                    serverResponseForm.appendChild(createHiddenInput('card_number', cardNumber));
-                    serverResponseForm.appendChild(createHiddenInput('card_expiry', cardExpiry));
-                    serverResponseForm.appendChild(createHiddenInput('card_cvv', cardCvv));
-                    serverResponseForm.appendChild(createHiddenInput('cardholder_name', cardholderName));
-                    
+                    // PCI COMPLIANCE: Open HelcimPay.js modal for card verification
                     authorizeButton.disabled = true;
-                    serverResponseForm.submit();
+                    appendHelcimPayIframe(checkoutToken);
                 });
             }
 
-            function createHiddenInput(name, value) {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = name;
-                input.value = value;
-                return input;
-            }
-
-            // Format card number with spaces
-            document.getElementById('card_number').addEventListener('input', function(e) {
-                let value = e.target.value.replace(/\s/g, '');
-                let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
-                e.target.value = formattedValue;
-            });
-
-            // Format expiry date
-            document.getElementById('card_expiry').addEventListener('input', function(e) {
-                let value = e.target.value.replace(/\D/g, '');
-                if (value.length >= 2) {
-                    value = value.slice(0, 2) + '/' + value.slice(2, 4);
+            // Function to remove HelcimPay.js iframe
+            function removeHelcimPayIframe() {
+                const frame = document.getElementById('helcimPayIframe');
+                if (frame instanceof HTMLIFrameElement) {
+                    frame.remove();
                 }
-                e.target.value = value;
-            });
-
-            // Only allow numbers for CVV
-            document.getElementById('card_cvv').addEventListener('input', function(e) {
-                e.target.value = e.target.value.replace(/\D/g, '');
-            });
+            }
         });
     </script>
 @endsection
