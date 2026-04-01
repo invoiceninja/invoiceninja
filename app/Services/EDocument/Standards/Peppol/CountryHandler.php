@@ -65,11 +65,11 @@ interface CountryHandler
      * Override routing resolution for special cases (e.g. DE:STNR for individuals).
      * Return null to use default resolution logic.
      */
-    public function resolveRoutingOverride(string $classification, ?object $invoice = null): ?string;
+    public function resolveRoutingOverride(?string $classification, ?object $invoice = null): ?string;
 
     /**
      * Override tax scheme resolution for special cases.
      * Return null to use default resolution logic.
      */
-    public function resolveTaxSchemeOverride(string $classification, ?object $invoice = null): ?string;
+    public function resolveTaxSchemeOverride(?string $classification, ?object $invoice = null): ?string;
 }

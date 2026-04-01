@@ -24,7 +24,7 @@ class FR extends BaseCountry
         ];
     }
 
-    public function resolveRoutingOverride(string $classification, ?object $invoice = null): ?string
+    public function resolveRoutingOverride(?string $classification, ?object $invoice = null): ?string
     {
         if (!$invoice) {
             return null;
@@ -47,7 +47,7 @@ class FR extends BaseCountry
         return null;
     }
 
-    public function resolveTaxSchemeOverride(string $classification, ?object $invoice = null): ?string
+    public function resolveTaxSchemeOverride(?string $classification, ?object $invoice = null): ?string
     {
         if (!$invoice) {
             return null;

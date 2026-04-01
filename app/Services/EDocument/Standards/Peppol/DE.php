@@ -24,7 +24,7 @@ class DE extends BaseCountry
         ];
     }
 
-    public function resolveRoutingOverride(string $classification, ?object $invoice = null): ?string
+    public function resolveRoutingOverride(?string $classification, ?object $invoice = null): ?string
     {
         if ($classification === 'individual') {
             return 'DE:STNR';
@@ -33,7 +33,7 @@ class DE extends BaseCountry
         return null;
     }
 
-    public function resolveTaxSchemeOverride(string $classification, ?object $invoice = null): ?string
+    public function resolveTaxSchemeOverride(?string $classification, ?object $invoice = null): ?string
     {
         if ($classification === 'individual') {
             return 'DE:STNR';
