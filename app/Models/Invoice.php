@@ -912,6 +912,22 @@ class Invoice extends BaseModel
         return ctrans('texts.payment_schedule_interval', ['index' => $index + 1, 'total' => count($schedule_array), 'amount' => $amount]);
     }
 
+    public function paymentScheduleCount(): string
+    {
+        $schedule = \App\Models\Scheduler::where('company_id', $this->company_id)
+                            ->where('template', 'payment_schedule')
+                            ->where('parameters->invoice_id', $this->hashed_id)
+                            ->first();
+
+        if (!$schedule) {
+            return '';
+        }
+
+        $schedule_array = $schedule->parameters['schedule'] ?? [];
+
+        return (string) count($schedule_array);
+    }
+
     public function hasSentAeat(): bool
     {
         return $this->backup->guid != "";
