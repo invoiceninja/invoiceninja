@@ -53,4 +53,126 @@ class UploadFileTest extends TestCase
 
         $this->assertNotNull($document);
     }
+
+    public function testForwardSlashInFileNameIsSanitized()
+    {
+        $image = UploadedFile::fake()->create('path/to/file.pdf', 100, 'application/pdf');
+
+        $document = (new UploadFile(
+            $image,
+            UploadFile::DOCUMENT,
+            $this->invoice->user,
+            $this->invoice->company,
+            $this->invoice
+        ))->handle();
+
+        $this->assertNotNull($document);
+        $this->assertStringNotContainsString('/', $document->name);
+        $this->assertEquals('path_to_file.pdf', $document->name);
+    }
+
+    public function testBackslashInFileNameIsSanitized()
+    {
+        $image = UploadedFile::fake()->create('path\to\file.pdf', 100, 'application/pdf');
+
+        $document = (new UploadFile(
+            $image,
+            UploadFile::DOCUMENT,
+            $this->invoice->user,
+            $this->invoice->company,
+            $this->invoice
+        ))->handle();
+
+        $this->assertNotNull($document);
+        $this->assertStringNotContainsString('\\', $document->name);
+        $this->assertEquals('path_to_file.pdf', $document->name);
+    }
+
+    public function testDirectoryTraversalIsSanitized()
+    {
+        $image = UploadedFile::fake()->create('..%2F..%2Fetc%2Fpasswd.pdf', 100, 'application/pdf');
+
+        $document = (new UploadFile(
+            $image,
+            UploadFile::DOCUMENT,
+            $this->invoice->user,
+            $this->invoice->company,
+            $this->invoice
+        ))->handle();
+
+        $this->assertNotNull($document);
+        $this->assertStringNotContainsString('..', $document->name);
+    }
+
+    public function testSpecialCharactersAreSanitized()
+    {
+        $image = UploadedFile::fake()->create('file<name>with:illegal|chars?.pdf', 100, 'application/pdf');
+
+        $document = (new UploadFile(
+            $image,
+            UploadFile::DOCUMENT,
+            $this->invoice->user,
+            $this->invoice->company,
+            $this->invoice
+        ))->handle();
+
+        $this->assertNotNull($document);
+        $this->assertStringNotContainsString('<', $document->name);
+        $this->assertStringNotContainsString('>', $document->name);
+        $this->assertStringNotContainsString(':', $document->name);
+        $this->assertStringNotContainsString('|', $document->name);
+        $this->assertStringNotContainsString('?', $document->name);
+        $this->assertEquals('file_name_with_illegal_chars_.pdf', $document->name);
+    }
+
+    public function testQuotesAndAsterisksAreSanitized()
+    {
+        $image = UploadedFile::fake()->create('file"name*here.pdf', 100, 'application/pdf');
+
+        $document = (new UploadFile(
+            $image,
+            UploadFile::DOCUMENT,
+            $this->invoice->user,
+            $this->invoice->company,
+            $this->invoice
+        ))->handle();
+
+        $this->assertNotNull($document);
+        $this->assertStringNotContainsString('"', $document->name);
+        $this->assertStringNotContainsString('*', $document->name);
+        $this->assertEquals('file_name_here.pdf', $document->name);
+    }
+
+    public function testCleanFileNameIsUnchanged()
+    {
+        $image = UploadedFile::fake()->create('my-document_v2 (final).pdf', 100, 'application/pdf');
+
+        $document = (new UploadFile(
+            $image,
+            UploadFile::DOCUMENT,
+            $this->invoice->user,
+            $this->invoice->company,
+            $this->invoice
+        ))->handle();
+
+        $this->assertNotNull($document);
+        $this->assertEquals('my-document_v2 (final).pdf', $document->name);
+    }
+
+    public function testDoubleDotSequenceIsSanitized()
+    {
+        $image = UploadedFile::fake()->create('../../etc/passwd.pdf', 100, 'application/pdf');
+
+        $document = (new UploadFile(
+            $image,
+            UploadFile::DOCUMENT,
+            $this->invoice->user,
+            $this->invoice->company,
+            $this->invoice
+        ))->handle();
+
+        $this->assertNotNull($document);
+        $this->assertStringNotContainsString('..', $document->name);
+        $this->assertStringNotContainsString('/', $document->name);
+    }
 }
