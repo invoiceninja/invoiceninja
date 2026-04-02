@@ -162,7 +162,7 @@ class CheckData extends Command
         $this->logMessage('Done: ' . strtoupper($this->isValid ? Account::RESULT_SUCCESS : Account::RESULT_FAILURE));
         $this->logMessage('Total execution time in seconds: ' . (microtime(true) - $time_start));
 
-        $errorEmail = config('ninja.error_email');
+        $errorEmail = config('ninja.error.email');
 
         if (strlen($errorEmail) > 1) {
             Mail::raw($this->log, function ($message) use ($errorEmail, $database) {
