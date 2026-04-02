@@ -171,7 +171,6 @@ class GoCardlessPaymentDriver extends BaseDriver
                 ],
             ]);
 
-            nlog("tokenbilling", $payment);
             if (in_array($payment->status, ['submitted', 'pending_submission'])) {
 
                 $data = [
