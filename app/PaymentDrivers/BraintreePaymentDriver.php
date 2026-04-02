@@ -346,7 +346,6 @@ class BraintreePaymentDriver extends BaseDriver
                     if ($invoice->is_amount_discount) {
                         $total_discount += $invoice->discount;
                     } else {
-                        // Percentage discount — calculate from subtotal
                         $subtotal = collect($invoice->line_items)->sum(function ($item) {
                             return (float) ($item->line_total ?? 0);
                         });
@@ -388,8 +387,11 @@ class BraintreePaymentDriver extends BaseDriver
                         $item_discount = $is_amount ? $raw_discount : round(($quantity * $unit_amount) * ($raw_discount / 100), 2);
                     }
 
+                    $product_key = trim($item->product_key ?? '');
+                    $item_name = $product_key !== '' ? $product_key : 'Item';
+
                     $bt_item = [
-                        'name' => substr($item->product_key ?? 'Item', 0, 35),
+                        'name' => substr($item_name, 0, 35),
                         'kind' => \Braintree\TransactionLineItem::DEBIT,
                         'quantity' => number_format($quantity, 4, '.', ''),
                         'unitAmount' => number_format(abs($unit_amount), 4, '.', ''),
@@ -397,11 +399,15 @@ class BraintreePaymentDriver extends BaseDriver
                         'taxAmount' => number_format(abs($tax_amount), 2, '.', ''),
                         'discountAmount' => number_format(abs($item_discount), 2, '.', ''),
                         'unitOfMeasure' => 'EA',
-                        'productCode' => substr($item->product_key ?? '', 0, 12),
                     ];
 
-                    // Add description if available
-                    $notes = $item->notes ?? '';
+                    // Only include productCode if non-empty
+                    if ($product_key !== '') {
+                        $bt_item['productCode'] = substr($product_key, 0, 12);
+                    }
+
+                    // Strip HTML and add description if non-empty
+                    $notes = trim(strip_tags($item->notes ?? ''));
                     if ($notes !== '') {
                         $bt_item['description'] = substr($notes, 0, 127);
                     }

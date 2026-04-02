@@ -256,7 +256,18 @@ class PushToQuickbooks implements ShouldQueue
     {
         app('sentry')->captureException($exception);
         nlog("Quickbooks push to Quickbooks job failed => " . $exception->getMessage());
-        config(['queue.failed.driver' => null]);
 
+        try {
+            MultiDB::setDb($this->db);
+            $entity = $this->resolveEntity();
+
+            if ($entity) {
+                $this->logActivityFailure($entity, $this->extractReadableError($exception->getMessage()));
+            }
+        } catch (\Throwable $e) {
+            nlog("QuickBooks: Could not log failure activity: " . $e->getMessage());
+        }
+
+        config(['queue.failed.driver' => null]);
     }
 }

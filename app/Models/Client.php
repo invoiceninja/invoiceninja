@@ -1015,11 +1015,21 @@ class Client extends BaseModel implements HasLocalePreference
             $offset -= 10;
         }
 
-        $offset -= $this->company->utc_offset();
+        $timezone = $this->timezone();
+
+        date_default_timezone_set('GMT');
+        $date = new \DateTime("now", new \DateTimeZone($timezone->name ?? 'UTC'));
+        $offset -= $date->getOffset();
 
         $offset += ($entity_send_time * 3600);
 
         return $offset;
+        
+        // $offset -= $this->company->utc_offset();
+
+        // $offset += ($entity_send_time * 3600);
+
+        // return $offset;
     }
 
     public function translate_entity(): string

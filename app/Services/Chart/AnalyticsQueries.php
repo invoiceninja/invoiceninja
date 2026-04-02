@@ -56,6 +56,7 @@ trait AnalyticsQueries
                 ON payments.id = paymentables.payment_id
                 AND payments.status_id = 4
                 AND payments.is_deleted = 0
+                AND payments.company_id = :company_id_pay
             JOIN clients
                 ON clients.id = invoices.client_id
                 AND clients.is_deleted = 0
@@ -65,10 +66,12 @@ trait AnalyticsQueries
             {$user_filter}
             {$client_filter}
             GROUP BY invoices.client_id, invoices.id, invoices.date, invoices.due_date, invoices.amount, currency_id
+            HAVING DATEDIFF(MIN(payments.date), invoices.date) >= 0
             ORDER BY invoices.client_id, invoices.date
         ", [
             'company_currency' => $this->company->settings->currency_id,
             'company_id' => $this->company->id,
+            'company_id_pay' => $this->company->id,
         ]);
     }
 
@@ -99,19 +102,7 @@ trait AnalyticsQueries
                 ) as late_payment_ratio,
                 IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) AS currency_id
             FROM invoices
-            JOIN (
-                SELECT
-                    paymentables.paymentable_id as invoice_id,
-                    MIN(payments.date) as first_payment_date
-                FROM paymentables
-                JOIN payments
-                    ON payments.id = paymentables.payment_id
-                    AND payments.status_id = 4
-                    AND payments.is_deleted = 0
-                WHERE paymentables.paymentable_type = 'invoices'
-                AND paymentables.deleted_at IS NULL
-                GROUP BY paymentables.paymentable_id
-            ) as MIN_pay
+            JOIN ({$this->minPaymentSubquerySql()}) as MIN_pay
                 ON MIN_pay.invoice_id = invoices.id
             JOIN clients
                 ON clients.id = invoices.client_id
@@ -119,12 +110,14 @@ trait AnalyticsQueries
             WHERE invoices.company_id = :company_id
             AND invoices.is_deleted = 0
             AND invoices.status_id = 4
+            AND MIN_pay.first_payment_date >= invoices.date
             {$user_filter}
             {$client_filter}
             GROUP BY invoices.client_id, currency_id
         ", [
             'company_currency' => $this->company->settings->currency_id,
             'company_id' => $this->company->id,
+            'company_id_pay' => $this->company->id,
         ]);
     }
 
@@ -151,19 +144,7 @@ trait AnalyticsQueries
                     / NULLIF(SUM(CASE WHEN invoices.due_date IS NOT NULL THEN 1 ELSE 0 END), 0), 4
                 ) as late_payment_ratio
             FROM invoices
-            JOIN (
-                SELECT
-                    paymentables.paymentable_id as invoice_id,
-                    MIN(payments.date) as first_payment_date
-                FROM paymentables
-                JOIN payments
-                    ON payments.id = paymentables.payment_id
-                    AND payments.status_id = 4
-                    AND payments.is_deleted = 0
-                WHERE paymentables.paymentable_type = 'invoices'
-                AND paymentables.deleted_at IS NULL
-                GROUP BY paymentables.paymentable_id
-            ) as MIN_pay
+            JOIN ({$this->minPaymentSubquerySql()}) as MIN_pay
                 ON MIN_pay.invoice_id = invoices.id
             JOIN clients
                 ON clients.id = invoices.client_id
@@ -171,9 +152,11 @@ trait AnalyticsQueries
             WHERE invoices.company_id = :company_id
             AND invoices.is_deleted = 0
             AND invoices.status_id = 4
+            AND MIN_pay.first_payment_date >= invoices.date
             {$user_filter}
         ", [
             'company_id' => $this->company->id,
+            'company_id_pay' => $this->company->id,
         ]);
     }
 
@@ -217,23 +200,12 @@ trait AnalyticsQueries
                     ) as late_payment_ratio,
                     COUNT(*) as total_invoices
                 FROM invoices inv
-                JOIN (
-                    SELECT
-                        paymentables.paymentable_id as invoice_id,
-                        MIN(payments.date) as first_payment_date
-                    FROM paymentables
-                    JOIN payments
-                        ON payments.id = paymentables.payment_id
-                        AND payments.status_id = 4
-                        AND payments.is_deleted = 0
-                    WHERE paymentables.paymentable_type = 'invoices'
-                    AND paymentables.deleted_at IS NULL
-                    GROUP BY paymentables.paymentable_id
-                ) as MIN_pay
+                JOIN ({$this->minPaymentSubquerySql('company_id_pay_inner')}) as MIN_pay
                     ON MIN_pay.invoice_id = inv.id
                 WHERE inv.is_deleted = 0
                 AND inv.status_id = 4
                 AND inv.company_id = :company_id_stats
+                AND MIN_pay.first_payment_date >= inv.date
                 {$user_filter_inv}
                 GROUP BY inv.client_id
             ) as client_stats
@@ -247,6 +219,7 @@ trait AnalyticsQueries
             'company_currency' => $this->company->settings->currency_id,
             'company_id' => $this->company->id,
             'company_id_stats' => $this->company->id,
+            'company_id_pay_inner' => $this->company->id,
         ]);
     }
 
@@ -267,6 +240,7 @@ trait AnalyticsQueries
                 recurring_invoices.client_id,
                 recurring_invoices.amount,
                 recurring_invoices.frequency_id,
+                recurring_invoices.date,
                 recurring_invoices.next_send_date,
                 recurring_invoices.remaining_cycles,
                 recurring_invoices.auto_bill_enabled,
@@ -279,7 +253,6 @@ trait AnalyticsQueries
             WHERE recurring_invoices.company_id = :company_id
             AND recurring_invoices.is_deleted = 0
             AND recurring_invoices.status_id = 2
-            AND recurring_invoices.next_send_date IS NOT NULL
             {$user_filter}
         ", [
             'company_currency' => $this->company->settings->currency_id,
@@ -513,19 +486,7 @@ trait AnalyticsQueries
                 SUM(CASE WHEN invoices.due_date IS NOT NULL AND MIN_pay.first_payment_date > invoices.due_date THEN 1 ELSE 0 END) as late_count,
                 SUM(CASE WHEN invoices.due_date IS NOT NULL AND MIN_pay.first_payment_date <= invoices.due_date THEN 1 ELSE 0 END) as on_time_count
             FROM invoices
-            JOIN (
-                SELECT
-                    paymentables.paymentable_id as invoice_id,
-                    MIN(payments.date) as first_payment_date
-                FROM paymentables
-                JOIN payments
-                    ON payments.id = paymentables.payment_id
-                    AND payments.status_id = 4
-                    AND payments.is_deleted = 0
-                WHERE paymentables.paymentable_type = 'invoices'
-                AND paymentables.deleted_at IS NULL
-                GROUP BY paymentables.paymentable_id
-            ) as MIN_pay
+            JOIN ({$this->minPaymentSubquerySql()}) as MIN_pay
                 ON MIN_pay.invoice_id = invoices.id
             JOIN clients
                 ON clients.id = invoices.client_id
@@ -533,18 +494,35 @@ trait AnalyticsQueries
             WHERE invoices.company_id = :company_id
             AND invoices.is_deleted = 0
             AND invoices.status_id = 4
+            AND MIN_pay.first_payment_date >= invoices.date
             AND (invoices.date BETWEEN :start_date AND :end_date)
             {$user_filter}
             GROUP BY month
             ORDER BY month ASC
         ", [
             'company_id' => $this->company->id,
+            'company_id_pay' => $this->company->id,
             'start_date' => $start_date,
             'end_date' => $end_date,
         ]);
     }
 
     // ─── Chartable Time-Series Queries ──────────────────────────────
+
+    private const FREQUENCY_MONTHLY_DIVISOR = [
+        1  => 0.032854209445585, // Daily:  1/30.44
+        2  => 0.23094688221709,  // Weekly: 1/4.33
+        3  => 0.46082949308756,  // Two Weeks: 1/2.17
+        4  => 0.91996319779209,  // Four Weeks: 1/1.087
+        5  => 1,                 // Monthly
+        6  => 2,                 // Two Months
+        7  => 3,                 // Three Months
+        8  => 4,                 // Four Months
+        9  => 6,                 // Six Months
+        10 => 12,                // Annually
+        11 => 24,                // Two Years
+        12 => 36,                // Three Years
+    ];
 
     private const FREQUENCY_INTERVALS = [
         1  => ['addDay', 1],
@@ -560,6 +538,27 @@ trait AnalyticsQueries
         11 => ['addYears', 2],
         12 => ['addYears', 3],
     ];
+
+    /**
+     * SQL for the first-payment-date-per-invoice subquery, scoped by company.
+     */
+    private function minPaymentSubquerySql(string $companyParam = 'company_id_pay'): string
+    {
+        return "
+            SELECT
+                paymentables.paymentable_id as invoice_id,
+                MIN(payments.date) as first_payment_date
+            FROM paymentables
+            JOIN payments
+                ON payments.id = paymentables.payment_id
+                AND payments.status_id = 4
+                AND payments.is_deleted = 0
+                AND payments.company_id = :{$companyParam}
+            WHERE paymentables.paymentable_type = 'invoices'
+            AND paymentables.deleted_at IS NULL
+            GROUP BY paymentables.paymentable_id
+        ";
+    }
 
     /**
      * Advance a Carbon date by a recurring frequency.
@@ -639,53 +638,49 @@ trait AnalyticsQueries
     }
 
     /**
-     * Iterate a recurring invoice/expense forward by frequency, accumulating
-     * the given amount into monthly buckets (keyed as YYYY-MM-01).
+     * Normalize a recurring invoice's amount to its monthly equivalent and
+     * spread it across every month bucket in the active subscription window.
      */
     private function projectRecurringIntoMonthlyBuckets(\stdClass $ri, float $amount, \Carbon\Carbon $start, \Carbon\Carbon $end, array &$buckets): void
     {
         $frequencyId = (int) $ri->frequency_id;
         $remainingCycles = (int) $ri->remaining_cycles;
-        $date = \Carbon\Carbon::parse($ri->next_send_date);
-        $maxIterations = ($frequencyId === 1) ? 365 : 1000;
+        $nextSendDate = $ri->next_send_date ? \Carbon\Carbon::parse($ri->next_send_date) : null;
 
-        // Skip past dates without consuming remaining_cycles
-        $skipped = 0;
-        while ($date->lt($start) && $skipped < $maxIterations) {
-            if ($remainingCycles !== -1 && $skipped >= $remainingCycles) {
-                return;
-            }
+        $divisor = self::FREQUENCY_MONTHLY_DIVISOR[$frequencyId] ?? 1;
+        $monthlyMrr = $amount / $divisor;
 
-            $date = $this->advanceByFrequency($date, $frequencyId);
-
-            if ($date === null) {
-                return;
-            }
-
-            $skipped++;
-
-            if ($remainingCycles !== -1) {
-                $remainingCycles--;
+        // Determine when the subscription ends
+        if ($remainingCycles === -1 || $nextSendDate === null) {
+            $subEnd = $end->copy();
+        } else {
+            $subEnd = $nextSendDate->copy();
+            for ($i = 0; $i < $remainingCycles; $i++) {
+                $next = $this->advanceByFrequency($subEnd, $frequencyId);
+                if ($next === null) {
+                    break;
+                }
+                $subEnd = $next;
             }
         }
 
-        $iterations = 0;
+        // Subscription ended before chart range
+        if ($subEnd->lt($start)) {
+            return;
+        }
 
-        while ($date->lte($end) && $iterations < $maxIterations) {
-            if ($remainingCycles !== -1 && $iterations >= $remainingCycles) {
-                break;
-            }
+        // Subscription contributes MRR from its start date (the `date` field),
+        // falling back to next_send_date, then chart start.
+        $subscriptionStart = $ri->date ? \Carbon\Carbon::parse($ri->date) : ($nextSendDate ?? $start->copy());
+        $activeStart = $subscriptionStart->gt($start) ? $subscriptionStart->copy()->startOfMonth() : $start->copy()->startOfMonth();
+        $activeEnd = $subEnd->lt($end) ? $subEnd->copy()->startOfMonth() : $end->copy()->startOfMonth();
 
-            $key = $date->format('Y-m-01');
-            $buckets[$key] = ($buckets[$key] ?? 0) + $amount;
+        $cursor = $activeStart->copy();
 
-            $date = $this->advanceByFrequency($date, $frequencyId);
-
-            if ($date === null) {
-                break;
-            }
-
-            $iterations++;
+        while ($cursor->lte($activeEnd)) {
+            $key = $cursor->format('Y-m-01');
+            $buckets[$key] = ($buckets[$key] ?? 0) + $monthlyMrr;
+            $cursor->addMonthNoOverflow();
         }
     }
 
@@ -835,19 +830,7 @@ trait AnalyticsQueries
                 ROUND(AVG(DATEDIFF(MIN_pay.first_payment_date, invoices.date)), 2) as total,
                 DATE_FORMAT(invoices.date, '%Y-%m-01') as date
             FROM invoices
-            JOIN (
-                SELECT
-                    paymentables.paymentable_id as invoice_id,
-                    MIN(payments.date) as first_payment_date
-                FROM paymentables
-                JOIN payments
-                    ON payments.id = paymentables.payment_id
-                    AND payments.status_id = 4
-                    AND payments.is_deleted = 0
-                WHERE paymentables.paymentable_type = 'invoices'
-                AND paymentables.deleted_at IS NULL
-                GROUP BY paymentables.paymentable_id
-            ) as MIN_pay
+            JOIN ({$this->minPaymentSubquerySql()}) as MIN_pay
                 ON MIN_pay.invoice_id = invoices.id
             JOIN clients
                 ON clients.id = invoices.client_id
@@ -855,6 +838,7 @@ trait AnalyticsQueries
             WHERE invoices.company_id = :company_id
             AND invoices.is_deleted = 0
             AND invoices.status_id = 4
+            AND MIN_pay.first_payment_date >= invoices.date
             AND (invoices.date BETWEEN :start_date AND :end_date)
             AND IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) = :currency_id
             {$user_filter}
@@ -864,6 +848,7 @@ trait AnalyticsQueries
             'company_currency' => (int) $this->company->settings->currency_id,
             'currency_id' => $currency_id,
             'company_id' => $this->company->id,
+            'company_id_pay' => $this->company->id,
             'start_date' => $start_date,
             'end_date' => $end_date,
         ]);
@@ -887,19 +872,7 @@ trait AnalyticsQueries
                 ROUND(AVG(DATEDIFF(MIN_pay.first_payment_date, invoices.date)), 2) as total,
                 DATE_FORMAT(invoices.date, '%Y-%m-01') as date
             FROM invoices
-            JOIN (
-                SELECT
-                    paymentables.paymentable_id as invoice_id,
-                    MIN(payments.date) as first_payment_date
-                FROM paymentables
-                JOIN payments
-                    ON payments.id = paymentables.payment_id
-                    AND payments.status_id = 4
-                    AND payments.is_deleted = 0
-                WHERE paymentables.paymentable_type = 'invoices'
-                AND paymentables.deleted_at IS NULL
-                GROUP BY paymentables.paymentable_id
-            ) as MIN_pay
+            JOIN ({$this->minPaymentSubquerySql()}) as MIN_pay
                 ON MIN_pay.invoice_id = invoices.id
             JOIN clients
                 ON clients.id = invoices.client_id
@@ -907,12 +880,14 @@ trait AnalyticsQueries
             WHERE invoices.company_id = :company_id
             AND invoices.is_deleted = 0
             AND invoices.status_id = 4
+            AND MIN_pay.first_payment_date >= invoices.date
             AND (invoices.date BETWEEN :start_date AND :end_date)
             {$user_filter}
             GROUP BY DATE_FORMAT(invoices.date, '%Y-%m-01')
             ORDER BY DATE_FORMAT(invoices.date, '%Y-%m-01') ASC
         ", [
             'company_id' => $this->company->id,
+            'company_id_pay' => $this->company->id,
             'start_date' => $start_date,
             'end_date' => $end_date,
         ]);
@@ -923,11 +898,11 @@ trait AnalyticsQueries
      *
      * Total value of actionable quotes — sent/approved, not converted,
      * not expired — for a specific currency. Grouped by creation month.
-     * Not bounded by date range: shows ALL currently open quotes.
-     * A quote is expired when due_date < today. Quotes with no due_date never expire.
+     * Bounded by date range. A quote is expired when due_date < today.
+     * Quotes with no due_date never expire.
      *
-     * @param string $start_date unused, kept for method signature consistency
-     * @param string $end_date unused
+     * @param string $start_date
+     * @param string $end_date
      * @param int $currency_id
      * @return array<int, \stdClass>
      */
@@ -948,6 +923,7 @@ trait AnalyticsQueries
             AND quotes.status_id IN (2, 3)
             AND quotes.invoice_id IS NULL
             AND (quotes.due_date IS NULL OR quotes.due_date >= CURDATE())
+            AND (quotes.date BETWEEN :start_date AND :end_date)
             AND IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) = :currency_id
             {$user_filter}
             GROUP BY DATE_FORMAT(quotes.date, '%Y-%m-01')
@@ -956,6 +932,8 @@ trait AnalyticsQueries
             'company_currency' => (int) $this->company->settings->currency_id,
             'currency_id' => $currency_id,
             'company_id' => $this->company->id,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
         ]);
     }
 
@@ -964,14 +942,11 @@ trait AnalyticsQueries
      *
      * Total value of all actionable quotes — sent/approved, not converted,
      * not expired — across all currencies, converted to company currency.
-     * Grouped by creation month to show the age distribution of the pipeline.
+     * Grouped by creation month. Bounded by date range.
+     * A quote is expired when due_date < today. Quotes with no due_date never expire.
      *
-     * Not bounded by date range: shows ALL currently open quotes regardless
-     * of when they were created. A quote is expired when due_date < today.
-     * Quotes with no due_date never expire.
-     *
-     * @param string $start_date unused, kept for method signature consistency
-     * @param string $end_date unused
+     * @param string $start_date
+     * @param string $end_date
      * @return array<int, \stdClass>
      */
     public function getAggregateQuotePipelineChartQuery(string $start_date, string $end_date): array
@@ -991,11 +966,14 @@ trait AnalyticsQueries
             AND quotes.status_id IN (2, 3)
             AND quotes.invoice_id IS NULL
             AND (quotes.due_date IS NULL OR quotes.due_date >= CURDATE())
+            AND (quotes.date BETWEEN :start_date AND :end_date)
             {$user_filter}
             GROUP BY DATE_FORMAT(quotes.date, '%Y-%m-01')
             ORDER BY DATE_FORMAT(quotes.date, '%Y-%m-01') ASC
         ", [
             'company_id' => $this->company->id,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
         ]);
     }
 
@@ -1018,32 +996,27 @@ trait AnalyticsQueries
         return DB::select("
             SELECT
                 ROUND(
-                    SUM(CASE WHEN MIN_pay.first_payment_date > invoices.due_date THEN 1 ELSE 0 END)
+                    SUM(CASE
+                        WHEN invoices.status_id = 4 AND MIN_pay.first_payment_date > invoices.due_date THEN 1
+                        WHEN invoices.status_id IN (2, 3) AND invoices.due_date < CURDATE() THEN 1
+                        ELSE 0
+                    END)
                     / NULLIF(COUNT(*), 0), 4
                 ) as total,
                 DATE_FORMAT(invoices.date, '%Y-%m-01') as date
             FROM invoices
-            JOIN (
-                SELECT
-                    paymentables.paymentable_id as invoice_id,
-                    MIN(payments.date) as first_payment_date
-                FROM paymentables
-                JOIN payments
-                    ON payments.id = paymentables.payment_id
-                    AND payments.status_id = 4
-                    AND payments.is_deleted = 0
-                WHERE paymentables.paymentable_type = 'invoices'
-                AND paymentables.deleted_at IS NULL
-                GROUP BY paymentables.paymentable_id
-            ) as MIN_pay
+            LEFT JOIN ({$this->minPaymentSubquerySql()}) as MIN_pay
                 ON MIN_pay.invoice_id = invoices.id
             JOIN clients
                 ON clients.id = invoices.client_id
                 AND clients.is_deleted = 0
             WHERE invoices.company_id = :company_id
             AND invoices.is_deleted = 0
-            AND invoices.status_id = 4
             AND invoices.due_date IS NOT NULL
+            AND (
+                invoices.status_id = 4
+                OR (invoices.status_id IN (2, 3) AND invoices.due_date < CURDATE())
+            )
             AND (invoices.date BETWEEN :start_date AND :end_date)
             AND IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) = :currency_id
             {$user_filter}
@@ -1053,6 +1026,7 @@ trait AnalyticsQueries
             'company_currency' => (int) $this->company->settings->currency_id,
             'currency_id' => $currency_id,
             'company_id' => $this->company->id,
+            'company_id_pay' => $this->company->id,
             'start_date' => $start_date,
             'end_date' => $end_date,
         ]);
@@ -1075,38 +1049,34 @@ trait AnalyticsQueries
         return DB::select("
             SELECT
                 ROUND(
-                    SUM(CASE WHEN MIN_pay.first_payment_date > invoices.due_date THEN 1 ELSE 0 END)
+                    SUM(CASE
+                        WHEN invoices.status_id = 4 AND MIN_pay.first_payment_date > invoices.due_date THEN 1
+                        WHEN invoices.status_id IN (2, 3) AND invoices.due_date < CURDATE() THEN 1
+                        ELSE 0
+                    END)
                     / NULLIF(COUNT(*), 0), 4
                 ) as total,
                 DATE_FORMAT(invoices.date, '%Y-%m-01') as date
             FROM invoices
-            JOIN (
-                SELECT
-                    paymentables.paymentable_id as invoice_id,
-                    MIN(payments.date) as first_payment_date
-                FROM paymentables
-                JOIN payments
-                    ON payments.id = paymentables.payment_id
-                    AND payments.status_id = 4
-                    AND payments.is_deleted = 0
-                WHERE paymentables.paymentable_type = 'invoices'
-                AND paymentables.deleted_at IS NULL
-                GROUP BY paymentables.paymentable_id
-            ) as MIN_pay
+            LEFT JOIN ({$this->minPaymentSubquerySql()}) as MIN_pay
                 ON MIN_pay.invoice_id = invoices.id
             JOIN clients
                 ON clients.id = invoices.client_id
                 AND clients.is_deleted = 0
             WHERE invoices.company_id = :company_id
             AND invoices.is_deleted = 0
-            AND invoices.status_id = 4
             AND invoices.due_date IS NOT NULL
+            AND (
+                invoices.status_id = 4
+                OR (invoices.status_id IN (2, 3) AND invoices.due_date < CURDATE())
+            )
             AND (invoices.date BETWEEN :start_date AND :end_date)
             {$user_filter}
             GROUP BY DATE_FORMAT(invoices.date, '%Y-%m-01')
             ORDER BY DATE_FORMAT(invoices.date, '%Y-%m-01') ASC
         ", [
             'company_id' => $this->company->id,
+            'company_id_pay' => $this->company->id,
             'start_date' => $start_date,
             'end_date' => $end_date,
         ]);

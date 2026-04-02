@@ -280,6 +280,7 @@ class StorecoveRouter
      */
     public function resolveRouting(string $country, ?string $classification = 'business'): string
     {
+        $classification ??= 'business';
         $code = 'B';
 
         match ($classification) {
@@ -346,6 +347,7 @@ class StorecoveRouter
      */
     public function resolveTaxScheme(string $country, ?string $classification = "business"): string
     {
+        $classification ??= 'business';
         $code = "B";
 
         match ($classification) {
