@@ -33,11 +33,11 @@ class SubdomainController extends BaseController
         }
 
         if (!MultiDB::checkDomainAvailable(request()->input('subdomain'))) {
-            return response()->json(['message' => ctrans('texts.subdomain_is_not_available')], 401);
+            return response()->json(['message' => ctrans('texts.subdomain_is_not_available')], 400);
         }
 
         if (!preg_match('/^[A-Za-z0-9](?:[A-Za-z0-9\-]{0,61}[A-Za-z0-9])?$/', request()->input('subdomain'))) {
-            return response()->json(['message' => "Invalid subdomain format."], 401);
+            return response()->json(['message' => "Invalid subdomain format."], 400);
         }
 
 

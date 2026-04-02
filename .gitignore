@@ -30,12 +30,11 @@ _ide_helper.php
 
 # Ignore local migrations
 storage/migrations
-nbproject
 
 .php_cs.cache
 public/test.pdf
 public/storage/test.pdf
-/Modules
+Modules/
 _ide_helper_models.php
 _ide_helper.php
 /composer.phar

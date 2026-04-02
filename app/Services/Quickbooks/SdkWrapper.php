@@ -20,7 +20,7 @@ use QuickBooksOnline\API\Core\OAuth\OAuth2\OAuth2AccessToken;
 
 class SdkWrapper
 {
-    public const MAXRESULTS = 10000;
+    public const MAXRESULTS = 1000;
 
     private $entities = ['Customer','Invoice', 'Item', 'SalesReceipt', 'Vendor', 'Purchase', 'Payment'];
 

@@ -4,6 +4,7 @@
           description: 'The hashed id of the client gateway token'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         client_id:
           description: 'The hashed_id of the client'
           type: string

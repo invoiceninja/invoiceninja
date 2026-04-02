@@ -118,25 +118,38 @@ class EmailPayment implements ShouldQueue
 
         $invoice = $this->payment->invoices->first();
 
-        $invoice->invitations->filter(function ($invite) {
+        $validInvitations = $invoice->invitations->filter(function ($invite) {
             return $invite->contact->send_email && filter_var($invite->contact->email, FILTER_VALIDATE_EMAIL) !== false;
-        })->each(function ($invite) {
-
-
-            $email_builder = (new PaymentEmailEngine($this->payment, $invite->contact))->build();
-
-            $nmo = new NinjaMailerObject();
-            $nmo->mailable = new TemplateEmail($email_builder, $invite->contact, $invite);
-            $nmo->to_user = $invite->contact;
-            $nmo->settings = $this->settings;
-            $nmo->company = $this->company;
-            $nmo->entity = $this->payment;
-            (new NinjaMailerJob($nmo))->handle();
-            $nmo = null;
-
-            event(new PaymentWasEmailed($this->payment, $this->payment->company, $invite->contact, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-
         });
+
+        if ($validInvitations->isEmpty()) {
+            return;
+        }
+
+        $primaryInvite = $validInvitations->first();
+
+        $ccEmails = $validInvitations->slice(1)->map(function ($invite) {
+            return $invite->contact->email;
+        })->values()->all();
+
+        $email_builder = (new PaymentEmailEngine($this->payment, $primaryInvite->contact))->build();
+
+        $nmo = new NinjaMailerObject();
+        $mailable = new TemplateEmail($email_builder, $primaryInvite->contact, $primaryInvite);
+
+        if (!empty($ccEmails)) {
+            $mailable->cc($ccEmails);
+        }
+
+        $nmo->mailable = $mailable;
+        $nmo->to_user = $primaryInvite->contact;
+        $nmo->settings = $this->settings;
+        $nmo->company = $this->company;
+        $nmo->entity = $this->payment;
+
+        (new NinjaMailerJob($nmo))->handle();
+
+        event(new PaymentWasEmailed($this->payment, $this->payment->company, $primaryInvite->contact, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
     }
 }

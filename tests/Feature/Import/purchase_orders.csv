@@ -1,0 +1,6 @@
+purchase_order_number,vendor_name,date,due_date,amount,discount,po_number,public_notes,private_notes,status,item_product_key,item_notes,item_cost,item_quantity
+PO-001,Ludwig Krajcik DVM,2024-01-15,2024-02-15,100.00,0,EXT-PO-001,Public note for PO1,Private note for PO1,sent,Widget A,Widget A description,50.00,2
+PO-002,Bradly Jaskolski Sr.,2024-02-01,2024-03-01,75.50,5,EXT-PO-002,Public note for PO2,Private note for PO2,draft,Gadget B,Gadget B description,75.50,1
+PO-003,Mr. Dustin Stehr I,2024-03-10,2024-04-10,200.00,0,EXT-PO-003,Public note for PO3,,accepted,Part C,Part C description,100.00,2
+PO-004,Ludwig Krajcik DVM,2024-04-01,2024-05-01,150.00,10,EXT-PO-004,,,sent,Supply D,Supply D line 1,50.00,1
+PO-004,Ludwig Krajcik DVM,2024-04-01,2024-05-01,150.00,10,EXT-PO-004,,,sent,Supply E,Supply E line 2,100.00,1

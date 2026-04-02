@@ -53,4 +53,76 @@ class UploadFileTest extends TestCase
 
         $this->assertNotNull($document);
     }
+
+    public function testSpecialCharactersAreSanitized()
+    {
+        $image = UploadedFile::fake()->create('file<name>with:illegal|chars?.pdf', 100, 'application/pdf');
+
+        $document = (new UploadFile(
+            $image,
+            UploadFile::DOCUMENT,
+            $this->invoice->user,
+            $this->invoice->company,
+            $this->invoice
+        ))->handle();
+
+        $this->assertNotNull($document);
+        $this->assertStringNotContainsString('<', $document->name);
+        $this->assertStringNotContainsString('>', $document->name);
+        $this->assertStringNotContainsString(':', $document->name);
+        $this->assertStringNotContainsString('|', $document->name);
+        $this->assertStringNotContainsString('?', $document->name);
+        $this->assertEquals('file_name_with_illegal_chars_.pdf', $document->name);
+    }
+
+    public function testQuotesAndAsterisksAreSanitized()
+    {
+        $image = UploadedFile::fake()->create('file"name*here.pdf', 100, 'application/pdf');
+
+        $document = (new UploadFile(
+            $image,
+            UploadFile::DOCUMENT,
+            $this->invoice->user,
+            $this->invoice->company,
+            $this->invoice
+        ))->handle();
+
+        $this->assertNotNull($document);
+        $this->assertStringNotContainsString('"', $document->name);
+        $this->assertStringNotContainsString('*', $document->name);
+        $this->assertEquals('file_name_here.pdf', $document->name);
+    }
+
+    public function testDoubleDotSequenceIsSanitized()
+    {
+        $image = UploadedFile::fake()->create('file..name.pdf', 100, 'application/pdf');
+
+        $document = (new UploadFile(
+            $image,
+            UploadFile::DOCUMENT,
+            $this->invoice->user,
+            $this->invoice->company,
+            $this->invoice
+        ))->handle();
+
+        $this->assertNotNull($document);
+        $this->assertStringNotContainsString('..', $document->name);
+        $this->assertEquals('file_name.pdf', $document->name);
+    }
+
+    public function testCleanFileNameIsUnchanged()
+    {
+        $image = UploadedFile::fake()->create('my-document_v2 (final).pdf', 100, 'application/pdf');
+
+        $document = (new UploadFile(
+            $image,
+            UploadFile::DOCUMENT,
+            $this->invoice->user,
+            $this->invoice->company,
+            $this->invoice
+        ))->handle();
+
+        $this->assertNotNull($document);
+        $this->assertEquals('my-document_v2 (final).pdf', $document->name);
+    }
 }

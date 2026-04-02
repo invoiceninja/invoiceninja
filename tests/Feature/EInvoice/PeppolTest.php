@@ -381,7 +381,7 @@ class PeppolTest extends TestCase
             nlog($validator->getErrors());
         }
 
-        $this->assertCount(0, $validator->getErrors());
+        $this->assertCount(0, $validator->getErrors(), "XSLT validation errors: " . json_encode($validator->getErrors()));
 
     }
 
@@ -1067,7 +1067,6 @@ class PeppolTest extends TestCase
             'legal_entity_id' => 290868,
             'is_tax_exempt' => false,
         ];
-
 
         $entity_data = $this->setupTestData($scenario);
 

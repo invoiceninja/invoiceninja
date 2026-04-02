@@ -153,7 +153,7 @@ class PreviewController extends BaseController
         }
 
         if ($request->input('entity', false)
-            && $request->input('entity_id', false) != '-1') {
+           && $request->input('entity_id', false) != '-1') {
 
             $design_object = json_decode(json_encode($request->input('design')));
 

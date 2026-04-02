@@ -359,7 +359,13 @@ class InvitationController extends Controller
             $amount = round($invoice->balance, (int) $invoice->client->currency()->precision);
         }
 
-        $gateways = $invitation->contact->client->service()->getPaymentMethods($amount);
+        $client = $invitation->contact->client;
+
+        if (($client->requiresDocuNinjaSigning() || $client->requiresSignature()) && !$invoice->sync?->dn_completed) {
+            return redirect()->route('client.invoice.show', ['invoice' => $this->encodePrimaryKey($invitation->invoice_id)]);
+        }
+
+        $gateways = $client->service()->getPaymentMethods($amount);
 
         if (is_array($gateways) && count($gateways) >= 1) {
             $data = [

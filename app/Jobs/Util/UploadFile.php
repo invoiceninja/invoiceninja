@@ -105,7 +105,8 @@ class UploadFile implements ShouldQueue
         $document->user_id = $this->user->id;
         $document->company_id = $this->company->id;
         $document->url = $instance;
-        $document->name = str_replace("/", "-", $this->file->getClientOriginalName());
+        $document->name = $this->sanitizeFileName($this->file->getClientOriginalName());
+        // $document->name = str_replace("/", "-", $this->file->getClientOriginalName());
         $document->type = $this->file->extension();
         $document->disk = $this->disk;
         $document->hash = $this->file->hashName();
@@ -120,6 +121,14 @@ class UploadFile implements ShouldQueue
         $this->entity->documents()->save($document);
 
         return $document;
+    }
+
+    private function sanitizeFileName(string $name): string
+    {
+        $name = str_replace(['/', '\\'], '_', $name);
+        $name = preg_replace('/[<>:"|?*\x00-\x1F]/', '_', $name);
+        $name = str_replace('..', '_', $name);
+        return trim($name, '. ');
     }
 
     private function generatePreview($preview_path): string

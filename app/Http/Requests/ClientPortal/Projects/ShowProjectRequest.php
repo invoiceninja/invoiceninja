@@ -28,6 +28,6 @@ class ShowProjectRequest extends Request
         auth()->guard('contact')->user()->loadMissing(['company']);
 
         return (int) auth()->guard('contact')->user()->client_id === (int) $this->project->client_id
-            && (bool) (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_TASKS);
+           && (bool) (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_TASKS);
     }
 }

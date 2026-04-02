@@ -39,8 +39,8 @@ class PaymentObserver
         }
 
         if ($payment->company->shouldPushToQuickbooks('payment')
-            && empty(QuickbooksService::$importing[$payment->company_id])
-            && $payment->status_id === Payment::STATUS_COMPLETED) {
+           && empty(QuickbooksService::$importing[$payment->company_id])
+           && $payment->status_id === Payment::STATUS_COMPLETED) {
             PushToQuickbooks::dispatch('payment', $payment->id, $payment->company->db);
         }
     }
@@ -73,7 +73,7 @@ class PaymentObserver
         }
 
         if ($payment->company->shouldPushToQuickbooks('payment')
-            && empty(QuickbooksService::$importing[$payment->company_id])) {
+           && empty(QuickbooksService::$importing[$payment->company_id])) {
             PushToQuickbooks::dispatch('payment', $payment->id, $payment->company->db);
         }
     }

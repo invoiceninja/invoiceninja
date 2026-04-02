@@ -145,7 +145,10 @@ class CreditCard implements LivewireMethodInterface
         $response_array = $request->all();
 
         if ($request->token) {
-            $token = ClientGatewayToken::find($this->decodePrimaryKey($request->token));
+            $token = ClientGatewayToken::query()
+                ->where('id', $this->decodePrimaryKey($request->token))
+                ->where('client_id', $this->paytrace->client->id)
+                ->firstOrFail();
 
             return $this->processTokenPayment($token->token, $request);
         }
@@ -162,7 +165,7 @@ class CreditCard implements LivewireMethodInterface
             'enc_key' => $response_array['enc_key'],
             'integrator_id' =>  $this->paytrace->company_gateway->getConfigField('integratorId'),
             'billing_address' => $this->buildBillingAddress(),
-            'amount' => $request->input('amount_with_fee'),
+            'amount' => array_sum(array_column($this->paytrace->payment_hash->invoices(), 'amount')) + $this->paytrace->payment_hash->fee_total,
             'invoice_id' => $this->harvestInvoiceId(),
         ];
 
@@ -180,7 +183,7 @@ class CreditCard implements LivewireMethodInterface
         $data = [
             'customer_id' => $token,
             'integrator_id' =>  $this->paytrace->company_gateway->getConfigField('integratorId'),
-            'amount' => $request->input('amount_with_fee'),
+            'amount' => array_sum(array_column($this->paytrace->payment_hash->invoices(), 'amount')) + $this->paytrace->payment_hash->fee_total,
             'invoice_id' => $this->harvestInvoiceId(),
         ];
 

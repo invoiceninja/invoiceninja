@@ -165,7 +165,7 @@ class QuoteFilters extends QueryFilters
             return $this->builder->withCount('documents')->orderBy('documents_count', $dir);
         }
 
-        if ($sort_col[0] == 'client_id') {
+        if (in_array($sort_col[0], ['client.name', 'client_id'])) {
             return $this->builder
             ->orderByRaw(
                 "

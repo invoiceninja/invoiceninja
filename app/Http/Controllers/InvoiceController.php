@@ -535,14 +535,16 @@ class InvoiceController extends BaseController
          */
 
         if ($action == 'bulk_download' && $invoices->count() > 1) {
-            $invoices->each(function ($invoice) use ($user, $request) {
-                if ($user->cannot('view', $invoice)) {
-                    Atomic::del($request->lock_key);
-                    return response()->json(['message' => ctrans('text.access_denied')]);
-                }
+            $authorized = $invoices->filter(function ($invoice) use ($user) {
+                return $user->can('view', $invoice);
             });
 
-            ZipInvoices::dispatch($invoices->pluck('id'), $invoices->first()->company, auth()->user());
+            if ($authorized->isEmpty()) {
+                Atomic::del($request->lock_key);
+                return response()->json(['message' => ctrans('texts.access_denied')], 403);
+            }
+
+            ZipInvoices::dispatch($authorized->pluck('id'), $authorized->first()->company, auth()->user());
             Atomic::del($request->lock_key);
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
@@ -559,7 +561,16 @@ class InvoiceController extends BaseController
             }, $filename, ['Content-Type' => 'application/pdf']);
         }
 
-        if ($action == 'bulk_print' && $user->can('view', $invoices->first())) {
+        if ($action == 'bulk_print') {
+            $invoices = $invoices->filter(function ($invoice) use ($user) {
+                return $user->can('view', $invoice);
+            });
+
+            if ($invoices->isEmpty()) {
+                Atomic::del($request->lock_key);
+                return response()->json(['message' => ctrans('texts.access_denied')], 403);
+            }
+
             $start = microtime(true);
 
             $batch_id = (new \App\Jobs\Invoice\PrintEntityBatch(Invoice::class, $invoices->pluck('id')->toArray(), $user->company()->db))->handle();
@@ -592,8 +603,17 @@ class InvoiceController extends BaseController
             ]);
         }
 
-        if ($action == 'template' && $user->can('view', $invoices->first())) {
+        if ($action == 'template') {
+            $invoices = $invoices->filter(function ($invoice) use ($user) {
+                return $user->can('view', $invoice);
+            });
 
+            if ($invoices->isEmpty()) {
+                Atomic::del($request->lock_key);
+                return response()->json(['message' => ctrans('texts.access_denied')], 403);
+            }
+
+            $ids = $invoices->pluck('hashed_id')->toArray();
             $hash_or_response = $request->boolean('send_email') ? 'email sent' : \Illuminate\Support\Str::uuid();
 
             TemplateAction::dispatch(

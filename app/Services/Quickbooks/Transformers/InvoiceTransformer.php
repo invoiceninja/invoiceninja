@@ -225,9 +225,9 @@ class InvoiceTransformer extends BaseTransformer
             $memo_value = trim($public_notes . ($public_notes && $terms ? "\n\n" : '') . $terms);
 
             if ($memo_value) {
-                // QuickBooks CustomerMemo max length is 4000 characters
+                // QuickBooks CustomerMemo max length is 1000 characters
                 $invoice_data['CustomerMemo'] = [
-                    'value' => mb_substr($memo_value, 0, 4000),
+                    'value' => mb_substr($memo_value, 0, 1000),
                 ];
             }
         }
@@ -416,13 +416,23 @@ class InvoiceTransformer extends BaseTransformer
      */
     public function transform(mixed $qb_data, ?\App\Services\Quickbooks\QuickbooksService $qb_service = null): array|bool
     {
-        $client_id = $this->getClientId(data_get($qb_data, 'CustomerRef', null));
+        $customer_ref = data_get($qb_data, 'CustomerRef', null);
+
+        // Use find-or-create when the QB service is available (fetches & creates the client from QB if needed)
+        $client_id = ($qb_service && $customer_ref)
+            ? $qb_service->client->findOrCreateClient((string) $customer_ref)
+            : $this->getClientId($customer_ref);
 
         // Use helper for business logic if available, otherwise return basic transformation
         $tax_array = $qb_service ? $qb_service->helper->calculateTotalTax($qb_data) : [0, ''];
         $custom_surcharge1 = $qb_service ? $qb_service->helper->checkIfDiscountAfterTax($qb_data) : 0;
 
-        return $client_id ? [
+        if (!$client_id) {
+            nlog("QuickBooks: Skipping invoice " . data_get($qb_data, 'Id', '?') . " — unable to resolve client for CustomerRef {$customer_ref}");
+            return false;
+        }
+
+        return [
             'id' => data_get($qb_data, 'Id', false),
             'client_id' => $client_id,
             'number' => data_get($qb_data, 'DocNumber', false),
@@ -438,7 +448,7 @@ class InvoiceTransformer extends BaseTransformer
             'custom_surcharge1' => $custom_surcharge1,
             'balance' => data_get($qb_data, 'Balance', 0),
 
-        ] : false;
+        ];
     }
 
 }

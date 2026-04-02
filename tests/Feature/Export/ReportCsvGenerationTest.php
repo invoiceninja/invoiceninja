@@ -33,6 +33,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Http;
 use League\Csv\Reader;
+use League\Csv\ResultSet;
 use Tests\TestCase;
 
 /**
@@ -308,6 +309,30 @@ class ReportCsvGenerationTest extends TestCase
 
         $this->account->forceDelete();
 
+    }
+
+    public function testFilterByUserPermissionsWithoutUserId()
+    {
+        Invoice::factory()->count(3)->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+        ]);
+
+        $export = new \App\Export\CSV\InvoiceExport($this->company, [
+            'date_range' => 'all',
+            'report_keys' => [],
+            'send_email' => false,
+            'include_deleted' => false,
+            'client_id' => null,
+            'status' => null,
+        ]);
+
+        $query = $export->init();
+
+        $this->assertGreaterThanOrEqual(3, $query->count());
+
+        $this->account->forceDelete();
     }
 
     public function testForcedInsertionOfMandatoryColumns()
@@ -1137,12 +1162,12 @@ class ReportCsvGenerationTest extends TestCase
         $reader = Reader::fromString($csv);
         $reader->setHeaderOffset(0);
 
-        $res = $reader->fetchColumnByName('Street');
+        $res = ResultSet::from($reader)->fetchColumn('Street');
         $res = iterator_to_array($res, true);
 
         $this->assertEquals('1234', $res[1]);
 
-        $res = $reader->fetchColumnByName('Name');
+        $res = ResultSet::from($reader)->fetchColumn('Name');
         $res = iterator_to_array($res, true);
 
         $this->assertEquals('bob', $res[1]);
@@ -1986,17 +2011,17 @@ class ReportCsvGenerationTest extends TestCase
         $reader = Reader::fromString($csv);
         $reader->setHeaderOffset(0);
 
-        $res = $reader->fetchColumnByName('Contact First Name');
+        $res = ResultSet::from($reader)->fetchColumn('Contact First Name');
         $res = iterator_to_array($res, true);
 
         $this->assertEquals('john', $res[1]);
 
-        $res = $reader->fetchColumnByName('Contact Last Name');
+        $res = ResultSet::from($reader)->fetchColumn('Contact Last Name');
         $res = iterator_to_array($res, true);
 
         $this->assertEquals('doe', $res[1]);
 
-        $res = $reader->fetchColumnByName('Contact Email');
+        $res = ResultSet::from($reader)->fetchColumn('Contact Email');
         $res = iterator_to_array($res, true);
 
         $this->assertEquals('john@doe.com', $res[1]);
@@ -2017,7 +2042,7 @@ class ReportCsvGenerationTest extends TestCase
         $reader = Reader::fromString($csv);
         $reader->setHeaderOffset(0);
 
-        $res = $reader->fetchColumnByName($column);
+        $res = ResultSet::from($reader)->fetchColumn($column);
         $res = iterator_to_array($res, true);
 
         return $res[1];

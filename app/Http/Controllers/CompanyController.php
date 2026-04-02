@@ -441,18 +441,24 @@ class CompanyController extends BaseController
             $this->saveDocuments($request->input('documents'), $company, $request->input('is_public', true));
         }
 
-        if ($request->has('e_invoice_certificate') && !is_null($request->file("e_invoice_certificate"))) {
+        /** Explicitly handle the e-invoice certificate */
+        if ($request->has('e_invoice_certificate')) {
 
-            $company->e_invoice_certificate = base64_encode($request->file("e_invoice_certificate")->get());
+            if(!is_null($request->file("e_invoice_certificate"))){
+                $company->e_invoice_certificate = base64_encode($request->file("e_invoice_certificate")->get());
+            }
+            else {
+                $company->e_invoice_certificate = null;
+                $company->e_invoice_certificate_passphrase = null;
+            }
 
             $settings = $company->settings;
             $settings->enable_e_invoice = true;
+            $company->settings = $settings;
 
             $company->save();
 
         }
-
-        // $this->uploadLogo($request->file('company_logo'), $company, $company);
 
         if ($request->has('sync_send_time') && $request->input('sync_send_time') == 'true') {
 
@@ -480,8 +486,6 @@ class CompanyController extends BaseController
                                 $recurring_invoice->save();
 
                             });
-
-
 
         }
 

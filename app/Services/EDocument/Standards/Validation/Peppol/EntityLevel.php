@@ -12,7 +12,6 @@
 
 namespace App\Services\EDocument\Standards\Validation\Peppol;
 
-use XSLTProcessor;
 use App\Models\Quote;
 use App\Models\Client;
 use App\Models\Credit;
@@ -177,6 +176,7 @@ class EntityLevel implements EntityLevelInterface
     public function checkClient(Client $client): array
     {
         $this->init($client->locale());
+
         $this->errors['client'] = $this->testClientState($client);
         $this->errors['passes'] = count($this->errors['client']) == 0;
 
@@ -205,7 +205,7 @@ class EntityLevel implements EntityLevelInterface
         $this->init($invoice->client->locale());
 
         $this->errors['invoice'] = [];
-        $this->errors['client'] = $this->testClientState($invoice->client);
+        $this->errors['client'] = $this->testClientState($invoice->client);        
         $this->errors['company'] = $this->testCompanyState($invoice->client); // uses client level settings which is what we want
 
         if (count($this->errors['client']) > 0) {
@@ -273,7 +273,8 @@ class EntityLevel implements EntityLevelInterface
                 continue;
             }
 
-            if (in_array($field, ['address1', 'address2', 'city', 'state', 'postal_code']) && strlen($client->address1 ?? '') < 2) {
+            if (in_array($field, ['address1', 'address2', 'city', 'postal_code']) && strlen($client->{$field} ?? '') < 2) {
+            // if (in_array($field, ['address1', 'address2', 'city', 'state', 'postal_code']) && strlen($client->{$field} ?? '') < 2) {
                 $errors[] = ['field' => $field, 'label' => ctrans("texts.{$field}")];
             }
 
@@ -297,6 +298,7 @@ class EntityLevel implements EntityLevelInterface
             $this->eu_country_codes,
         ));
 
+        /*
         if (in_array($client->country->iso_3166_2, $supported_countries)) {
             $router = new StorecoveRouter();
             $required = $router->resolveRequiredClientFields(
@@ -305,25 +307,38 @@ class EntityLevel implements EntityLevelInterface
             );
 
             foreach ($required as $field => $scheme) {
+                $example = $router->getFormatExample($scheme);
+
                 if (!$this->validString($client->{$field})) {
-                    $errors[] = ['field' => $field, 'label' => ctrans("texts.{$field}") . " ({$scheme})"];
+                    $hint = $example ? " ({$scheme}: {$example})" : " ({$scheme})";
+                    $errors[] = ['field' => $field, 'label' => ctrans("texts.{$field}") . $hint];
                 } elseif (!$router->validateIdentifierFormat($scheme, $client->{$field})) {
-                    $errors[] = ['field' => $field, 'label' => ctrans("texts.invalid_{$field}_format") . " ({$scheme})"];
+                    // Distinguish format error from checkdigit error
+                    $checkdigitResult = $router->validateIdentifierCheckdigit($scheme, $client->{$field});
+
+                    if ($checkdigitResult === false) {
+                        $errors[] = ['field' => $field, 'label' => ctrans("texts.invalid_{$field}_checkdigit") . " ({$scheme}: {$client->{$field}})"];
+                    } else {
+                        $hint = $example ? " ({$scheme}) - e.g. {$example}" : " ({$scheme})";
+                        $errors[] = ['field' => $field, 'label' => ctrans("texts.invalid_{$field}_format") . $hint];
+                    }
                 }
             }
         }
-
-
+*/
 
         //Primary contact email is present.
         if ($client->present()->email() == 'No Email Set') {
             $errors[] = ['field' => 'email', 'label' => ctrans("texts.email")];
         }
 
-        $delivery_network_supported = $client->checkDeliveryNetwork();
 
-        if (is_string($delivery_network_supported)) {
-            $errors[] = ['field' => ctrans("texts.country"), 'label' => $delivery_network_supported];
+        if ($client->country_id && $client->country) {
+            $non_routable = $client->checkDeliveryNetwork();
+
+            if (is_string($non_routable)) {
+                $errors[] = ['field' => 'classification', 'label' => $non_routable];
+            }
         }
 
 
@@ -379,17 +394,9 @@ class EntityLevel implements EntityLevelInterface
         }
 
         //If not an individual, you MUST have a VAT number
-        if ($company->getSetting('classification') != 'individual' && !$this->validString($company->getSetting('vat_number'))) {
+        if (!in_array($company->getSetting('classification'),['other', 'individual']) && !$this->validString($company->getSetting('vat_number'))) {
             $errors[] = ['field' => 'vat_number', 'label' => ctrans("texts.vat_number")];
-        } elseif ($company->getSetting('classification') == 'individual' && !$this->validString($company->getSetting('id_number'))) {
-            $errors[] = ['field' => 'id_number', 'label' => ctrans("texts.id_number")];
-        }
-
-
-        // foreach($this->company_fields as $field)
-        // {
-
-        // }
+        } 
 
         return $errors;
 
@@ -433,7 +440,7 @@ class EntityLevel implements EntityLevelInterface
 
             // First, determine if we're over threshold
             $is_over_threshold = isset($client->company->tax_data->regions->EU->has_sales_above_threshold)
-                                && $client->company->tax_data->regions->EU->has_sales_above_threshold;
+                               && $client->company->tax_data->regions->EU->has_sales_above_threshold;
 
             // Is this B2B or B2C?
             $is_b2c = strlen($client->vat_number ?? '') < 2

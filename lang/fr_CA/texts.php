@@ -5942,6 +5942,16 @@ Développe automatiquement la section des notes dans le tableau de produits pour
     'unapplied_payments' => 'Paiements non appliqués',
     'debit' => 'Débit',
     'auto_convert_credit_help' => 'Associer ou créer automatiquement un paiement correspondant à ces règles.',
+    'clone_client_description' => 'Cette action dupliquera le client dans un nouvel enregistrement.',
+    'invalid_id_number_format' => 'Format du numéro d\'identifiant invalide',
+    'invalid_vat_number_format' => 'Format du numéro VAT invalide',
+    'invalid_routing_id_format' => 'Format du numéro de routage invalide',
+    'invalid_id_number_checkdigit' => 'Numéro d\'identification invalide : erreur de clé de contrôle, veuillez vérifier que le numéro est correct.',
+    'invalid_vat_number_checkdigit' => 'Numéro de TVA invalide : erreur de clé de contrôle, veuillez vérifier que le numéro est correct.',
+    'invalid_routing_id_checkdigit' => 'Code de routage invalide : erreur de clé de contrôle, veuillez vérifier que le numéro est correct.',
+    'sign_the_document' => 'Signer le document',
+    'client_not_found_on_peppol_network' => 'Le client n\'a pas pu être identifié sur le réseau PEPPOL.',
+    'too_many_requests' => 'Trop de requêtes',
 );
 
 return $lang;

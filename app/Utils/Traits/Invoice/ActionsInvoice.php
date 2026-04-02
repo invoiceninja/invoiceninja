@@ -67,18 +67,18 @@ trait ActionsInvoice
     public function invoiceCancellable($invoice): bool
     {
         if ($invoice->company->verifactuEnabled()
-        && $invoice->backup->document_type === 'F1'
-        && $invoice->backup->child_invoice_ids->count() == 0
-        && in_array($invoice->status_id, [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
-        && $invoice->is_deleted == false) {
+       && $invoice->backup->document_type === 'F1'
+       && $invoice->backup->child_invoice_ids->count() == 0
+       && in_array($invoice->status_id, [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+       && $invoice->is_deleted == false) {
             return true;
         } elseif ($invoice->company->verifactuEnabled()) {
             return false;
         }
 
         if (in_array($invoice->status_id, [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
-             && $invoice->is_deleted == false
-             && $invoice->deleted_at == null) {
+            && $invoice->is_deleted == false
+            && $invoice->deleted_at == null) {
             return true;
         }
 
@@ -95,8 +95,8 @@ trait ActionsInvoice
              || $invoice->status_id == Invoice::STATUS_PARTIAL
              || $invoice->status_id == Invoice::STATUS_CANCELLED
              || $invoice->status_id == Invoice::STATUS_PAID)
-             && $invoice->is_deleted == false
-             && $invoice->deleted_at == null) {
+            && $invoice->is_deleted == false
+            && $invoice->deleted_at == null) {
             return true;
         }
 

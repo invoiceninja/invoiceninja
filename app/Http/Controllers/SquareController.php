@@ -73,11 +73,6 @@ class SquareController extends BaseController
             'code' => $request->query('code'),
         ]);
 
-        nlog($base_url);
-        nlog($config('services.square.application_id'));
-        nlog($config('services.square.application_secret'));
-        nlog($request->query('code'));
-        nlog($response->body());
         if ($response->failed()) {
             return view('auth.square_connect.access_denied');
         }

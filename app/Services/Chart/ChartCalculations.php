@@ -325,16 +325,14 @@ trait ChartCalculations
 
         return $query->get()
                     ->when($data['currency_id'] == '999', function ($collection) {
-                        $collection->map(function ($t) {
+                        return $collection->map(function ($t) {
                             return $t->taskCompanyValue();
                         });
                     })
                     ->when($data['currency_id'] != '999', function ($collection) {
-
-                        $collection->map(function ($t) {
+                        return $collection->map(function ($t) {
                             return $t->taskValue();
                         });
-
                     });
 
     }

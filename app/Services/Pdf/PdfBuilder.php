@@ -1536,8 +1536,8 @@ class PdfBuilder
 
             if (
                 !is_null($this->service->config->entity->{$property})
-                && !empty($this->service->config->entity->{$property})
-                && $this->service->config->entity->{$property} != 0
+               && !empty($this->service->config->entity->{$property})
+               && $this->service->config->entity->{$property} != 0
             ) {
                 continue;
             }
@@ -2009,6 +2009,11 @@ class PdfBuilder
     {
         foreach ($items as $key => $item) {
             foreach ($item as $variable => $value) {
+
+                if(str_contains($value, '<')) {
+                    continue;
+                }
+
                 $item[$variable] = str_replace("\n", '<br/>', $value);
             }
 

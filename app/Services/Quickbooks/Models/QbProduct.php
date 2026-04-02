@@ -190,7 +190,7 @@ class QbProduct implements SyncInterface
 
         $item_name = strlen($line_item->product_key ?? '') > 0 ? $line_item->product_key : 'Product ' . uniqid();
 
-        $escaped_name = str_replace("'", "''", $item_name);
+        $escaped_name = str_replace("'", "\\'", $item_name);
         // Only match items that can be used as line items (exclude Category/Group types)
         // QB doesn't support != operator, so we use IN with valid types
         $query = "SELECT * FROM Item WHERE Name = '{$escaped_name}' AND Active = true AND Type IN ('Service', 'NonInventory', 'Inventory') MAXRESULTS 1";

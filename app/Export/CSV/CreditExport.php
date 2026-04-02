@@ -104,7 +104,7 @@ class CreditExport extends BaseExport
 
         $query = Credit::query()
                         ->withTrashed()
-                        ->with('client')
+                        ->with('client', 'location')
                         ->whereHas('client', function ($q) {
                             $q->where('is_deleted', false);
                         })

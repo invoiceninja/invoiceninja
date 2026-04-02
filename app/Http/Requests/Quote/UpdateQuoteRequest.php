@@ -50,7 +50,7 @@ class UpdateQuoteRequest extends Request
         $rules['invitations.*.client_contact_id'] = 'bail|required|distinct';
 
         $rules['number'] = ['bail', 'sometimes', 'nullable', Rule::unique('quotes')->where('company_id', $user->company()->id)->ignore($this->quote->id)];
-        $rules['client_id'] = ['bail', 'sometimes', Rule::in([$this->quote->client_id])];
+        $rules['client_id'] = ['bail', 'sometimes', 'integer', Rule::in([$this->quote->client_id])];
         $rules['line_items'] = 'array';
         $rules['discount'] = 'sometimes|numeric|max:99999999999999';
         $rules['is_amount_discount'] = ['boolean'];

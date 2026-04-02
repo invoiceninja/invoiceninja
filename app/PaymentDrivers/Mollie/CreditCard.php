@@ -62,7 +62,10 @@ class CreditCard implements LivewireMethodInterface
 
         if (! empty($request->token)) {
             try {
-                $cgt = ClientGatewayToken::where('token', $request->token)->firstOrFail();
+                $cgt = ClientGatewayToken::query()
+                    ->where('token', $request->token)
+                    ->where('client_id', $this->mollie->client->id)
+                    ->firstOrFail();
 
                 $payment = $this->mollie->gateway->payments->create([
                     'method' => 'creditcard',

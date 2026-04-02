@@ -31,7 +31,7 @@ class UpdateCompanyGatewayRequest extends Request
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        return $user->isAdmin();
+        return $user->can('edit', $this->company_gateway);
     }
 
     public function rules()

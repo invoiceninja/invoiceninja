@@ -87,7 +87,7 @@ class ACSS implements LivewireMethodInterface
      * @param  Request $request
      * @return void
      */
-    public function authorizeResponse(Request $request)
+    public function authorizeResponse($request)
     {
         $setup_intent = json_decode($request->input('gateway_response'));
 
@@ -275,7 +275,10 @@ class ACSS implements LivewireMethodInterface
 
         $gateway_response = json_decode($request->gateway_response);
 
-        $cgt = ClientGatewayToken::find($this->decodePrimaryKey($request->token));
+        $cgt = ClientGatewayToken::query()
+            ->where('id', $this->decodePrimaryKey($request->token))
+            ->where('client_id', $this->stripe->client->id)
+            ->firstOrFail();
 
         /** @var \Stripe\PaymentIntent $intent */
         $intent = $this->tokenIntent($cgt);

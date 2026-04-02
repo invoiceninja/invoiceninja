@@ -4,6 +4,7 @@
           description: 'The hashed id of the task'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         user_id:
           description: 'The hashed id of the user who created the task'
           type: string

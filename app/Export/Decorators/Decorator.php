@@ -99,6 +99,11 @@ class Decorator implements DecoratorInterface
         return new PurchaseOrderDecorator();
     }
 
+    public function location(): LocationDecorator
+    {
+        return new LocationDecorator();
+    }
+
     public function getKeyPart(int $index, string $key): ?string
     {
         $parts = explode('.', $key);

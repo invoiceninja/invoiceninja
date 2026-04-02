@@ -287,6 +287,7 @@ class Email implements ShouldQueue
         /* Attempt the send! */
         try {
             nlog("Using mailer => " . $this->mailer . " " . now()->toDateTimeString());
+            nlog("Trying to send to " . reset($this->email_object->to)?->address . " " . now()->toDateTimeString());
 
             $mailer->send($this->mailable);
 
@@ -585,8 +586,8 @@ class Email implements ShouldQueue
                 $email = $address_object->address ?? '';
                 $domain = explode("@", $email)[1] ?? "";
                 $dns = dns_get_record($domain, DNS_MX);
-                $server = $dns[0]["target"];
-                if (stripos($server, "outlook.com") !== false) {
+
+                if (is_array($dns) && isset($dns[0]["target"]) && stripos($dns[0]["target"], "outlook.com") !== false) {
 
                     if (property_exists($this->email_object->settings, 'email_from_name') && strlen($this->email_object->settings->email_from_name) > 1) {
                         $email_from_name = $this->email_object->settings->email_from_name;
@@ -602,8 +603,9 @@ class Email implements ShouldQueue
                     return $this;
 
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 nlog("problem switching outlook driver - hosted");
+                nlog($email);
                 nlog($e->getMessage());
             }
         }

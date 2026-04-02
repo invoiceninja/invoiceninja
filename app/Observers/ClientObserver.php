@@ -82,7 +82,7 @@ class ClientObserver
         // 1. QuickBooks is connected and client sync is enabled
         // 2. We're NOT currently importing from QuickBooks (prevent circular sync)
         if ($client->company->shouldPushToQuickbooks('client')
-            && empty(\App\Services\Quickbooks\QuickbooksService::$importing[$client->company_id])) {
+           && empty(\App\Services\Quickbooks\QuickbooksService::$importing[$client->company_id])) {
             \App\Jobs\Quickbooks\PushToQuickbooks::dispatch(
                 'client',
                 $client->id,
@@ -133,8 +133,8 @@ class ClientObserver
         // 2. We're NOT currently importing from QuickBooks (prevent circular sync)
         // 3. Only financial fields changed (not balance fields which are auto-calculated)
         if ($client->company->shouldPushToQuickbooks('client')
-            && empty(\App\Services\Quickbooks\QuickbooksService::$importing[$client->company_id])
-            && !$client->isDirty(['paid_to_date','balance','credit_balance','payment_balance'])) {
+           && empty(\App\Services\Quickbooks\QuickbooksService::$importing[$client->company_id])
+           && !$client->isDirty(['paid_to_date','balance','credit_balance','payment_balance'])) {
             \App\Jobs\Quickbooks\PushToQuickbooks::dispatch(
                 'client',
                 $client->id,

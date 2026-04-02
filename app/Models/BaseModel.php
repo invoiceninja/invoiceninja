@@ -257,7 +257,7 @@ class BaseModel extends Model
                 \App\Services\EDocument\Jobs\SendEDocument::dispatch(get_class($this), $this->id, $this->company->db);
             }
         } //Special Catch Here For Verifactu.
-        elseif (in_array($event_id, [Webhook::EVENT_SENT_INVOICE]) && $this->company->verifactuEnabled()  && ($this instanceof Invoice) && $this->backup->guid == "") {
+        elseif (in_array($event_id, [Webhook::EVENT_SENT_INVOICE]) && $this->company->verifactuEnabled() && ($this instanceof Invoice) && $this->backup->guid == "") {
             $this->service()->sendVerifactu();
         }
 
