@@ -62,7 +62,7 @@ class ReminderJob implements ShouldQueue
                  ->where('is_deleted', 0)
                  ->whereNull('deleted_at')
                  ->where('balance', '>', 0)
-                 ->whereBetween('next_send_date', [now()->subMonth()->startOfDay(), now()->addDay()->startOfDay()])
+                 ->whereBetween('next_send_date', [now()->subMonth()->startOfDay(), now()])
                  ->whereHas('client', function ($query) {
                      $query->where('is_deleted', 0)
                            ->where('deleted_at', null);
@@ -124,6 +124,12 @@ class ReminderJob implements ShouldQueue
 
             $reminder_template = $invoice->calculateTemplate('invoice');
             nrlog("#{$invoice->number} => reminder template = {$reminder_template}");
+
+            /** If we have not calculated an appropriate template, we may not be at the exact correct TIME || 2026-04-02 10:00:00 */
+            if (!in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3', 'reminder_endless', 'endless_reminder'])) {
+                return;
+            }
+
             $invoice->service()->touchReminder($reminder_template)->save();
 
             $fees = $this->calcLateFee($invoice, $reminder_template);

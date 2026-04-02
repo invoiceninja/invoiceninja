@@ -753,8 +753,8 @@ class ReminderTest extends TestCase
         $this->client->push();
 
         $client_settings = $settings;
-        $client_settings->timezone_id = '5';
-        $client_settings->entity_send_time = 8;
+        $client_settings->timezone_id = '109';
+        $client_settings->entity_send_time = 6;
 
         $this->invoice->client->settings = $client_settings;
         $this->invoice->push();
@@ -770,21 +770,22 @@ class ReminderTest extends TestCase
         $this->travelTo(now()->startOfDay());
 
         $travel_date = Carbon::parse($this->invoice->next_send_date);
-        $x = false;
+        $y = false;
+
         for ($x = 0; $x < 50; $x++) {
 
             (new ReminderJob())->handle();
 
-            if (now()->gt($travel_date) && !$x) {
+            if (now()->gte($travel_date) && !$y) {
 
-
+                $this->invoice = $this->invoice->fresh();
                 $this->assertNotNull($this->invoice->reminder1_sent);
                 $this->assertNotNull($this->invoice->reminder_last_sent);
-                $x = true;
+                $y = true;
             }
 
 
-            if (!$x) {
+            if (!$y) {
                 $this->invoice = $this->invoice->fresh();
                 $this->assertNull($this->invoice->reminder1_sent);
                 $this->assertNull($this->invoice->reminder_last_sent);
@@ -794,7 +795,6 @@ class ReminderTest extends TestCase
 
         }
 
-        // nlog("traveller ".now()->format('Y-m-d'));
         (new ReminderJob())->handle();
         $this->invoice = $this->invoice->fresh();
         $this->assertNotNull($this->invoice->reminder1_sent);
