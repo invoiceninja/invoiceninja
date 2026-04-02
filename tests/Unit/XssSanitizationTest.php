@@ -539,4 +539,104 @@ class XssSanitizationTest extends TestCase
 
         $this->assertStringNotContainsString('alert(', $result);
     }
+
+    // =========================================================================
+    // Style block sanitization — @import / url() SSRF vectors
+    // =========================================================================
+
+    /**
+     * Extract <style> block content from Purify::clean() output.
+     */
+    private function extractStyleContent(string $html): string
+    {
+        if (preg_match('/<style>(.*?)<\/style>/si', $html, $matches)) {
+            return $matches[1];
+        }
+        return '';
+    }
+
+    public function test_purify_strips_http_import_from_style_block()
+    {
+        $html = '<html><head><style>@import url("http://127.0.0.1:9999/ssrf");</style></head><body><p>Test</p></body></html>';
+        $css = $this->extractStyleContent(Purify::clean($html));
+
+        $this->assertStringNotContainsString('http://', $css);
+    }
+
+    public function test_purify_strips_metadata_import_from_style_block()
+    {
+        $html = '<html><head><style>@import url("http://169.254.169.254/latest/meta-data/");</style></head><body><p>Test</p></body></html>';
+        $css = $this->extractStyleContent(Purify::clean($html));
+
+        $this->assertStringNotContainsString('http://', $css);
+    }
+
+    public function test_purify_strips_internal_network_import_from_style_block()
+    {
+        $html = '<html><head><style>@import url("http://10.0.0.1:8080/internal-api");</style></head><body><p>Test</p></body></html>';
+        $css = $this->extractStyleContent(Purify::clean($html));
+
+        $this->assertStringNotContainsString('http://', $css);
+    }
+
+    public function test_purify_allows_https_import_in_style_block()
+    {
+        $html = '<html><head><style>@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");</style></head><body><p>Test</p></body></html>';
+        $css = $this->extractStyleContent(Purify::clean($html));
+
+        $this->assertStringContainsString('@import', $css);
+        $this->assertStringContainsString('https://fonts.googleapis.com', $css);
+    }
+
+    public function test_purify_strips_http_url_from_style_block_declarations()
+    {
+        $html = '<html><head><style>body { background: url("http://10.0.0.1/internal"); }</style></head><body><p>Test</p></body></html>';
+        $css = $this->extractStyleContent(Purify::clean($html));
+
+        $this->assertStringNotContainsString('http://', $css);
+    }
+
+    public function test_purify_strips_non_url_import_syntax_from_style_block()
+    {
+        $html = '<html><head><style>@import "http://evil.com/steal.css";</style></head><body><p>Test</p></body></html>';
+        $css = $this->extractStyleContent(Purify::clean($html));
+
+        $this->assertStringNotContainsString('http://', $css);
+    }
+
+    public function test_purify_preserves_normal_css_in_style_block()
+    {
+        $html = '<html><head><style>body { font-size: 14px; color: #333; } .invoice { margin: 20px; }</style></head><body><p>Test</p></body></html>';
+        $css = $this->extractStyleContent(Purify::clean($html));
+
+        $this->assertStringContainsString('font-size', $css);
+        $this->assertStringContainsString('color', $css);
+        $this->assertStringContainsString('.invoice', $css);
+    }
+
+    public function test_purify_strips_css_unicode_escaped_http_from_style_block()
+    {
+        // \68\74\74\70\3a\2f\2f = http:// via CSS unicode escapes
+        $html = '<html><head><style>@import url("\68\74\74\70\3a\2f\2f 127.0.0.1/ssrf");</style></head><body><p>Test</p></body></html>';
+        $css = $this->extractStyleContent(Purify::clean($html));
+
+        $this->assertStringNotContainsString('http://', $css);
+    }
+
+    public function test_purify_strips_file_protocol_from_style_block()
+    {
+        $html = '<html><head><style>body { background: url("file:///etc/passwd"); }</style></head><body><p>Test</p></body></html>';
+        $css = $this->extractStyleContent(Purify::clean($html));
+
+        $this->assertStringNotContainsString('file://', $css);
+    }
+
+    public function test_purify_strips_unicode_escaped_file_protocol_from_style_block()
+    {
+        // \66\69\6c\65\3a\2f\2f = file:// via CSS unicode escapes
+        $html = '<html><head><style>body { background: url("\66\69\6c\65\3a\2f\2f /etc/passwd"); }</style></head><body><p>Test</p></body></html>';
+        $css = $this->extractStyleContent(Purify::clean($html));
+
+        $this->assertStringNotContainsString('file://', $css);
+    }
 }

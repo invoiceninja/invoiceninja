@@ -231,11 +231,21 @@ class Purify
      */
     private static function sanitizeStyleBlockContent(string $css): string
     {
-        // Strip comments first to prevent obfuscation
+
         $css = preg_replace('/\/\*.*?\*\//s', '', $css);
 
-        // Remove any CSS rule whose selector references the whitelabel logo
         $css = preg_replace('/[^{}]*invoiceninja[\-_]whitelabel[^{}]*\{[^}]*\}/i', '', $css);
+
+        // Normalize CSS unicode escapes before filtering
+        $css = preg_replace_callback(
+            '/\\\\([0-9a-fA-F]{1,6})\s?/',
+            fn($m) => mb_chr(intval($m[1], 16)),
+            $css
+        );
+
+        // Block http:// (SSRF vector to internal services) and file:// (local file access)
+        $css = preg_replace('/http\s*:\s*\/\//i', '', $css);
+        $css = preg_replace('/file\s*:\s*\/\//i', '', $css);
 
         return $css;
     }
