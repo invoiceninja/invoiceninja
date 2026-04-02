@@ -233,7 +233,7 @@ class RecurringInvoiceItemExport extends BaseExport
         };
     }
 
-    private function buildRow(RecurringInvoice $invoice): array
+    protected function buildRow(RecurringInvoice $invoice): array
     {
         $transformed_invoice = $this->invoice_transformer->transform($invoice);
 

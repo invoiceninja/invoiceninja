@@ -195,6 +195,17 @@ class ExpenseFilters extends QueryFilters
         return $this->builder->whereIn('category_id', $categories_keys);
     }
 
+    public function payment_type(string $payment_type = ''): Builder
+    {
+        $payment_types_exploded = explode(",", $payment_type);
+
+        if (empty($payment_type) || count(array_filter($payment_types_exploded)) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->whereIn('payment_type_id', $payment_types_exploded);
+    }
+
     public function amount(string $amount = ''): Builder
     {
         if (strlen($amount) == 0) {

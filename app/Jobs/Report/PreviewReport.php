@@ -42,7 +42,13 @@ class PreviewReport implements ShouldQueue
         /** @var \App\Export\CSV\BaseExport $export */
         $export = new $this->report_class($this->company, $this->request);
 
-        if (isset($this->request['output']) && $this->request['output'] == 'json') {
+        if ($export->isGroupByActive()) {
+            if (isset($this->request['output']) && $this->request['output'] == 'json') {
+                $report = $export->groupedReturnJson();
+            } else {
+                $report = base64_encode($export->groupedRun());
+            }
+        } elseif (isset($this->request['output']) && $this->request['output'] == 'json') {
             $report = $export->returnJson();
         } elseif (!empty($this->request['template_id'])) {
             $builder = $export->init();
