@@ -368,7 +368,7 @@ class AuthorizePaymentDriver extends BaseDriver
                     'amount' => Number::formatMoney($payment_hash->amount_with_fee(), $client)
                 ]);
 
-                } else {
+            } else {
                 $error = 'Payment for ' . $payment->client->present()->name() . " for {$payment->amount} failed";
             }
 
