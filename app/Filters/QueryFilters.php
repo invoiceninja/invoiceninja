@@ -391,6 +391,28 @@ abstract class QueryFilters
 
     }
 
+    public function assigned_user_ids(string $assigned_user_ids = ''): Builder
+    {
+        if (strlen($assigned_user_ids) == 0 || !in_array('assigned_user_id', \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))) {
+            return $this->builder;
+        }
+
+        return $this->builder->where(function ($q) use ($assigned_user_ids){
+            $q->whereIn('assigned_user_id', $this->transformKeys(explode(',', $assigned_user_ids)));
+        });
+    }
+
+    public function client_ids(string $client_ids = ''): Builder
+    {
+        if (strlen($client_ids) == 0 || !in_array('client_id', \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))) {
+            return $this->builder;
+        }
+
+        return $this->builder->where(function ($q) use ($client_ids){
+            $q->whereIn('client_id', $this->transformKeys(explode(',', $client_ids)));
+        });
+    }
+    
     /**
      * Filter by due date range
      *

@@ -145,7 +145,7 @@ class ExpenseExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(Expense $expense): array
+    protected function buildRow(Expense $expense): array
     {
         $transformed_expense = $this->expense_transformer->transform($expense);
         $transformed_expense['currency_id'] =  $expense->currency ? $expense->currency->code : $expense->company->currency()->code;

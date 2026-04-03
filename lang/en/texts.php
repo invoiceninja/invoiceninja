@@ -5953,6 +5953,7 @@ $lang = array(
     'sign_the_document' => 'Sign the document',
     'client_not_found_on_peppol_network' => 'Client could not be identified on the PEPPOL network.',
     'too_many_requests' => 'Too many requests',
+    'cloned_client' => 'Successfully cloned client',
 );
 
 return $lang;

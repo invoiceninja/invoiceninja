@@ -195,6 +195,17 @@ class ExpenseFilters extends QueryFilters
         return $this->builder->whereIn('category_id', $categories_keys);
     }
 
+    public function payment_type(string $payment_type = ''): Builder
+    {
+        $payment_types_exploded = explode(",", $payment_type);
+
+        if (empty($payment_type) || count(array_filter($payment_types_exploded)) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->whereIn('payment_type_id', $payment_types_exploded);
+    }
+
     public function amount(string $amount = ''): Builder
     {
         if (strlen($amount) == 0) {
@@ -321,6 +332,13 @@ class ExpenseFilters extends QueryFilters
         if ($sort_col[0] == 'payment_date' && in_array($sort_col[1], ['asc', 'desc'])) {
             return $this->builder
                     ->orderByRaw('ISNULL(payment_date), payment_date ' . $sort_col[1]);
+        }
+
+        if ($sort_col[0] == 'payment_type_id' && in_array($sort_col[1], ['asc', 'desc'])) {
+            return $this->builder
+                    ->orderByRaw('ISNULL(payment_type_id)')
+                    ->orderBy(\App\Models\PaymentType::select('name')
+                    ->whereColumn('payment_types.id', 'expenses.payment_type_id'), $sort_col[1]);
         }
 
         if ($sort_col[0] == 'number') {

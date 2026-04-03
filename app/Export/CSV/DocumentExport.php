@@ -111,7 +111,7 @@ class DocumentExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(Document $document): array
+    protected function buildRow(Document $document): array
     {
         $transformed_entity = $this->entity_transformer->transform($document);
 
