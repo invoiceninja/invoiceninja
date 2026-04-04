@@ -16,6 +16,7 @@ use Elastic\ScoutDriverPlus\Searchable;
 use App\Utils\Traits\AppSetup;
 use App\DataMapper\CompanySettings;
 use Illuminate\Support\Facades\App;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Support\Facades\Cache;
 use App\Services\Vendor\VendorService;
 use App\Utils\Traits\GeneratesCounter;
@@ -227,6 +228,25 @@ class Vendor extends BaseModel
     public function contacts(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(VendorContact::class)->orderBy('is_primary', 'desc');
+    }
+
+    /**
+     * Returns CC-only contacts as an array of Address objects.
+     * Capped at 4 to stay within provider limits.
+     *
+     * @return array<int, Address>
+     */
+    public function cc_contacts(): array
+    {
+        return $this->contacts()
+            ->where('cc_only', true)
+            ->whereNotNull('email')
+            ->where('email', '!=', '')
+            ->where('is_locked', false)
+            ->limit(4)
+            ->get()
+            ->map(fn ($c) => new Address($c->email, $c->present()->name()))
+            ->toArray();
     }
 
     public function activities(): \Illuminate\Database\Eloquent\Relations\HasMany

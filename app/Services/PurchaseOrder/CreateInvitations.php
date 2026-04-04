@@ -64,7 +64,7 @@ class CreateInvitations extends AbstractService
                 ->withTrashed()
                 ->first();
 
-            if (! $invitation) {
+            if (! $invitation && $contact->send_email && ! $contact->cc_only) {
                 try {
                     $ii = PurchaseOrderInvitationFactory::create($this->purchase_order->company_id, $this->purchase_order->user_id);
                     $ii->key = $this->createDbHash($this->purchase_order->company->db);
@@ -75,7 +75,7 @@ class CreateInvitations extends AbstractService
                 } catch (\Exception $e) {
                     nlog($e->getMessage());
                 }
-            } elseif (! $contact->send_email) {
+            } elseif ($invitation && (! $contact->send_email || $contact->cc_only)) {
                 $invitation->delete();
             }
         });

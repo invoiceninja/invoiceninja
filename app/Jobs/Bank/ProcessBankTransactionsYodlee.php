@@ -138,6 +138,8 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
         //Get int count
         $count = $transaction_count->transaction->TOTAL->count;
 
+        sleep(1);
+
         //get transactions array
         $transactions = $yodlee->getTransactions($data);
 

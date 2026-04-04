@@ -148,9 +148,13 @@ class NinjaMailerJob implements ShouldQueue
                 $mailable->build();
             }
 
-            $mailer
-                ->to($this->nmo->to_user->email)
-                ->send($mailable);
+            $pendingMail = $mailer->to($this->nmo->to_user->email);
+
+            if (!empty($this->nmo->cc)) {
+                $pendingMail->cc($this->nmo->cc);
+            }
+
+            $pendingMail->send($mailable);
 
             /* Count the amount of emails sent across all the users accounts */
 

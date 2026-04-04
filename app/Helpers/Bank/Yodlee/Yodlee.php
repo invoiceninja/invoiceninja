@@ -42,6 +42,8 @@ class Yodlee
 
     protected ?string $bank_account_id;
 
+    private ?string $accessToken = null;
+
     public function __construct(?string $bank_account_id = null)
     {
         $this->bank_account_id = $bank_account_id;
@@ -93,6 +95,10 @@ class Yodlee
      */
     public function getAccessToken($is_admin = false)
     {
+        if ($this->accessToken) {
+            return $this->accessToken;
+        }
+
         if ($is_admin) {
             $user = $this->admin_name;
         } else {
@@ -101,7 +107,9 @@ class Yodlee
 
         $response = $this->bankFormRequest('/auth/token', 'post', [], ['loginName' => $user]);
 
-        return $response->token->accessToken;
+        $this->accessToken = $response->token->accessToken;
+
+        return $this->accessToken;
     }
 
 

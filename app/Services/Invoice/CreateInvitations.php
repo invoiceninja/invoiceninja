@@ -41,7 +41,7 @@ class CreateInvitations extends AbstractService
                                         ->withTrashed()
                                         ->first();
 
-            if (! $invitation && $contact->send_email) {
+            if (! $invitation && $contact->send_email && ! $contact->cc_only) {
                 try {
                     $ii = InvoiceInvitationFactory::create($this->invoice->company_id, $this->invoice->user_id);
                     $ii->key = $this->createDbHash($this->invoice->company->db);
@@ -52,7 +52,7 @@ class CreateInvitations extends AbstractService
                 } catch (\Illuminate\Database\QueryException $e) {
                     nlog("Duplicate invitation for invoice {$this->invoice->id} contact {$contact->id}: " . $e->getMessage());
                 }
-            } elseif ($invitation && ! $contact->send_email) {
+            } elseif ($invitation && (! $contact->send_email || $contact->cc_only)) {
                 $invitation->delete();
             }
         });

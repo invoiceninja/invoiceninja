@@ -278,14 +278,40 @@ class EmailDefaults
     }
 
     /**
-     * Sets the CC of the email
+     * Sets the CC of the email from cc_only contacts.
+     * Feature-gated: hosted free accounts are excluded.
+     * Deduplicates against any existing CC addresses (e.g. manual cc_email from request).
      */
     private function setCc(): self
     {
+        if (Ninja::isHosted() && !$this->email->company->account->isPremium()) {
+            return $this;
+        }
+
+        $entity = $this->email->email_object->entity;
+
+        if (!$entity) {
+            return $this;
+        }
+
+        $cc_addresses = [];
+
+        if ($entity->client ?? null) {
+            $cc_addresses = $entity->client->cc_contacts();
+        } elseif ($entity->vendor ?? null) {
+            $cc_addresses = $entity->vendor->cc_contacts();
+        }
+
+        if (empty($cc_addresses)) {
+            return $this;
+        }
+
+        $existing_emails = collect($this->email->email_object->cc)->map(fn ($a) => $a->address)->toArray();
+        $cc_addresses = array_filter($cc_addresses, fn ($a) => !in_array($a->address, $existing_emails));
+
+        $this->email->email_object->cc = array_merge($this->email->email_object->cc, array_values($cc_addresses));
+
         return $this;
-        // return $this->email->email_object->cc;
-        // return [
-        // ];
     }
 
     /**
