@@ -1077,9 +1077,13 @@ class ReminderTest extends TestCase
      */
     public function testReminderChicagoTimezone91DaysAfterInvoiceDate(): void
     {
+        // Ensure server is running in UTC (as production does)
+        $this->assertEquals('UTC', config('app.timezone'));
+        $this->assertContains(date_default_timezone_get(), ['UTC', 'GMT']);
+
         $settings = CompanySettings::defaults();
         $settings->timezone_id = '14'; // America/Chicago
-        $settings->entity_send_time = 8;
+        $settings->entity_send_time = 1; // 1am Chicago time
         $settings->send_reminders = true;
         $settings->enable_reminder1 = true;
         $settings->enable_reminder2 = true;
@@ -1101,8 +1105,9 @@ class ReminderTest extends TestCase
 
         $this->buildData($settings);
 
-        // Travel to invoice creation date (CST - winter)
-        $this->travelTo(Carbon::parse('2025-12-26')->startOfDay()->addHours(10));
+        // Invoice created 2025-12-26 10:00 UTC (CST winter, UTC-6)
+        $this->travelTo(Carbon::parse('2025-12-26 10:00:00'));
+        $this->assertContains(now()->timezoneName, ['UTC', 'GMT']);
 
         $line_item = new InvoiceItem();
         $line_item->quantity = 1;
@@ -1130,29 +1135,44 @@ class ReminderTest extends TestCase
 
         $initial_line_item_count = count($invoice->line_items);
 
-        // Set the reminder - this calculates next_send_date
+        // Set the reminder — this calculates next_send_date using timezone_offset()
+        // At this point (2025-12-26), Chicago is in CST (UTC-6)
+        // timezone_offset() = -(-21600) + (1 * 3600) = 21600 + 3600 = 25200 seconds
+        // next_send_date = 2026-03-27 00:00:00 + 25200 = 2026-03-27 07:00:00 UTC
+        // 1am Chicago CST = 07:00 UTC, but on 2026-03-27 Chicago is CDT so true 1am = 06:00 UTC
         $invoice->service()->setReminder($settings)->save();
         $invoice = $invoice->fresh();
 
-        // next_send_date should be set and should target 2026-03-27 (91 days after invoice)
         $this->assertNotNull($invoice->next_send_date);
         $this->assertEquals('2026-03-27', Carbon::parse($invoice->next_send_date)->format('Y-m-d'));
 
-        // Travel to 2026-03-27 (CDT - spring, DST started March 8 2026)
-        // Start at midnight UTC and advance hourly until reminder fires
-        $this->travelTo(Carbon::parse('2026-03-27')->startOfDay());
+        // Verify the stored next_send_date UTC hour
+        // Offset calculated during CST (UTC-6): 1am + 6h = 07:00 UTC
+        // True 1am CDT (UTC-5) = 06:00 UTC — DST drift of 1 hour
+        $next_send_utc_hour = (int) Carbon::parse($invoice->next_send_date)->format('H');
+        $this->assertGreaterThanOrEqual(6, $next_send_utc_hour, 'next_send_date should be >= 06:00 UTC (1am CDT)');
+        $this->assertLessThanOrEqual(7, $next_send_utc_hour, 'next_send_date should be <= 07:00 UTC (1am CST offset)');
 
-        // Capture balance before the reminder fires
+        // Travel to 2026-03-27 00:00 UTC — start of the target day
+        // DST started March 8 2026, so Chicago is now CDT (UTC-5)
+        // At 00:00 UTC it's 7pm CDT on March 26 — too early for the reminder
+        $this->travelTo(Carbon::parse('2026-03-27 00:00:00'));
+        $this->assertContains(now()->timezoneName, ['UTC', 'GMT']);
+
         $balance_before_reminder = $invoice->balance;
 
         $reminder1_fired = false;
         $hours_checked = 0;
+        $fired_at_utc_hour = null;
 
         do {
             $this->travelTo(now()->addHour());
             (new ReminderJob())->handle();
             $invoice = $invoice->fresh();
             $reminder1_fired = (bool) $invoice->reminder1_sent;
+            if ($reminder1_fired) {
+                $fired_at_utc_hour = (int) now()->format('H');
+            }
             $hours_checked++;
         } while (!$reminder1_fired && $hours_checked < 24);
 
@@ -1160,6 +1180,13 @@ class ReminderTest extends TestCase
         $this->assertTrue($reminder1_fired, "Reminder1 should have fired on 2026-03-27 but did not fire within 24 hourly cron runs");
         $this->assertNotNull($invoice->reminder1_sent);
         $this->assertEquals('2026-03-27', Carbon::parse($invoice->reminder_last_sent)->format('Y-m-d'));
+
+        // Verify the reminder fired at the expected UTC hour
+        // entity_send_time=1 (1am Chicago). On 2026-03-27 (CDT, UTC-5), 1am CDT = 06:00 UTC
+        // But offset was calculated during CST (UTC-6), so it fires at 07:00 UTC (2am CDT)
+        $this->assertNotNull($fired_at_utc_hour);
+        $this->assertGreaterThanOrEqual(6, $fired_at_utc_hour, 'Should fire no earlier than 06:00 UTC (1am CDT)');
+        $this->assertLessThanOrEqual(8, $fired_at_utc_hour, 'Should fire no later than 08:00 UTC');
 
         // Late fee must have been added to the invoice as a line item
         $this->assertCount($initial_line_item_count + 1, $invoice->line_items, 'Late fee line item should have been added');
@@ -1187,9 +1214,13 @@ class ReminderTest extends TestCase
      */
     public function testReminderMissedWhenRecalculatedAfterDueDate(): void
     {
+        // Ensure server is running in UTC (as production does)
+        $this->assertEquals('UTC', config('app.timezone'));
+        $this->assertContains(date_default_timezone_get(), ['UTC', 'GMT']);
+
         $settings = CompanySettings::defaults();
         $settings->timezone_id = '14'; // America/Chicago
-        $settings->entity_send_time = 8;
+        $settings->entity_send_time = 1; // 1am Chicago time
         $settings->send_reminders = true;
         $settings->enable_reminder1 = true;
         $settings->enable_reminder2 = true;
@@ -1211,8 +1242,9 @@ class ReminderTest extends TestCase
 
         $this->buildData($settings);
 
-        // Travel to invoice creation date
-        $this->travelTo(Carbon::parse('2025-12-26')->startOfDay()->addHours(10));
+        // Invoice created 2025-12-26 10:00 UTC (CST winter, UTC-6)
+        $this->travelTo(Carbon::parse('2025-12-26 10:00:00'));
+        $this->assertContains(now()->timezoneName, ['UTC', 'GMT']);
 
         $line_item = new InvoiceItem();
         $line_item->quantity = 1;
@@ -1246,11 +1278,13 @@ class ReminderTest extends TestCase
         $this->assertNotNull($invoice->next_send_date);
         $this->assertEquals('2026-03-27', Carbon::parse($invoice->next_send_date)->format('Y-m-d'));
 
-        // Travel PAST the reminder1 date — simulate the cron not having run yet
-        // but something triggers a recalculation (e.g. invoice was updated)
-        $this->travelTo(Carbon::parse('2026-03-28')->startOfDay()->addHours(10));
+        // Travel PAST the reminder1 date on the UTC server — 2026-03-28 10:00 UTC
+        // In Chicago this is 2026-03-28 05:00 CDT (DST active since March 8)
+        $this->travelTo(Carbon::parse('2026-03-28 10:00:00'));
+        $this->assertContains(now()->timezoneName, ['UTC', 'GMT']);
 
-        // This recalculation is the critical moment — the reminder date is now in the past
+        // Simulate something triggering a recalculation (e.g. invoice update)
+        // The reminder date is now in the past from the UTC server's perspective
         $invoice->service()->setReminder($settings)->save();
         $invoice = $invoice->fresh();
 
@@ -1271,11 +1305,11 @@ class ReminderTest extends TestCase
             'next_send_date jumped to reminder2 — reminder1 date was discarded because it is in the past'
         );
 
-        // However, when the cron eventually fires on 2026-06-27, calculateTemplate()
-        // uses inReminderWindow() which checks <= $today, so it will return 'reminder1'
-        // (since reminder1_sent is null). This means reminder1 fires 3 months late
-        // on reminder2's scheduled date, and reminder2 gets pushed further out.
-        $this->travelTo(Carbon::parse('2026-06-27')->startOfDay());
+        // When the cron fires on 2026-06-27 (UTC server), calculateTemplate() returns
+        // 'reminder1' (since reminder1_sent is null and inReminderWindow uses <=).
+        // Reminder1 fires 3 months late, and reminder2 gets cascaded further out.
+        $this->travelTo(Carbon::parse('2026-06-27 00:00:00'));
+        $this->assertContains(now()->timezoneName, ['UTC', 'GMT']);
 
         // Capture balance before the late reminder fires
         $balance_before_late_reminder = $invoice->balance;

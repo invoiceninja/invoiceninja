@@ -96,6 +96,7 @@ class Yodlee
     public function getAccessToken($is_admin = false)
     {
         if ($this->accessToken) {
+            nlog("YODLEE:: access token found in cache {$this->accessToken}");
             return $this->accessToken;
         }
 
@@ -109,6 +110,8 @@ class Yodlee
 
         $this->accessToken = $response->token->accessToken;
 
+        nlog("YODLEE:: access token not found in cache, fetching from Yodlee {$this->accessToken}");
+        
         return $this->accessToken;
     }
 

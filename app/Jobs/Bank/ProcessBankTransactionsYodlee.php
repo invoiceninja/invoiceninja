@@ -97,21 +97,13 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
     {
         $yodlee = new Yodlee($this->bank_integration_account_id);
 
-        if (!$yodlee->getAccount($this->bank_integration->bank_account_id)) {
-            $this->bank_integration->disabled_upstream = true;
-            $this->bank_integration->save();
-            $this->stop_loop = false;
-            return;
-        }
-
         try {
             $account_summary = $yodlee->getAccountSummary($this->bank_integration->bank_account_id);
-
+    
             if ($account_summary) {
-
                 $at = new AccountTransformer();
                 $account = $at->transform($account_summary);
-
+    
                 if ($account[0]['current_balance']) {
                     $this->bank_integration->balance = $account[0]['current_balance'];
                     $this->bank_integration->currency = $account[0]['account_currency'];
@@ -119,11 +111,48 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
                     $this->bank_integration->disabled_upstream = $account[0]['disabled_upstream'];
                     $this->bank_integration->save();
                 }
-
             }
         } catch (\Exception $e) {
             nlog("YODLEE: unable to update account summary for {$this->bank_integration->bank_account_id} => " . $e->getMessage());
+            $this->bank_integration->disabled_upstream = true;
+            $this->bank_integration->save();
+            $this->stop_loop = false;
+            return;
         }
+    
+        if ($this->bank_integration->disabled_upstream) {
+            nlog("Yodlee: account disabled upstream: {$this->bank_integration->bank_account_id} status: {$this->bank_integration->bank_account_status}");
+            $this->stop_loop = false;
+            return;
+        }
+        
+        // if (!$yodlee->getAccount($this->bank_integration->bank_account_id)) {
+        //     $this->bank_integration->disabled_upstream = true;
+        //     $this->bank_integration->save();
+        //     $this->stop_loop = false;
+        //     return;
+        // }
+
+        // try {
+        //     $account_summary = $yodlee->getAccountSummary($this->bank_integration->bank_account_id);
+
+        //     if ($account_summary) {
+
+        //         $at = new AccountTransformer();
+        //         $account = $at->transform($account_summary);
+
+        //         if ($account[0]['current_balance']) {
+        //             $this->bank_integration->balance = $account[0]['current_balance'];
+        //             $this->bank_integration->currency = $account[0]['account_currency'];
+        //             $this->bank_integration->bank_account_status = $account[0]['account_status'];
+        //             $this->bank_integration->disabled_upstream = $account[0]['disabled_upstream'];
+        //             $this->bank_integration->save();
+        //         }
+
+        //     }
+        // } catch (\Exception $e) {
+        //     nlog("YODLEE: unable to update account summary for {$this->bank_integration->bank_account_id} => " . $e->getMessage());
+        // }
 
         $data = [
             'top' => 500,
