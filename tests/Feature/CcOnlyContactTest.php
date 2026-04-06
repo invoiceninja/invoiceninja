@@ -437,6 +437,12 @@ class CcOnlyContactTest extends TestCase
     {
         Queue::fake();
 
+        // Ensure isPremium() passes on hosted CI (needs paid + non-trial + >2 months old)
+        $this->account->plan = 'pro';
+        $this->account->plan_paid = now()->subMonths(3);
+        $this->account->created_at = now()->subMonths(3);
+        $this->account->save();
+
         ClientContact::factory()->create([
             'user_id' => $this->user->id,
             'client_id' => $this->client->id,
