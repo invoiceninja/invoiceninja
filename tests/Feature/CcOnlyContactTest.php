@@ -437,11 +437,14 @@ class CcOnlyContactTest extends TestCase
     {
         Queue::fake();
 
-        // Ensure isPremium() passes on hosted CI (needs paid + non-trial + >2 months old)
+        // Ensure isPremium() passes on hosted CI (needs isHosted + isNinja + paid + non-trial + >2 months old)
+        config(['ninja.environment' => 'hosted', 'ninja.production' => true]);
         $this->account->plan = 'pro';
         $this->account->plan_paid = now()->subMonths(3);
+        $this->account->plan_expires = now()->addMonth();
         $this->account->created_at = now()->subMonths(3);
         $this->account->save();
+        $this->company->load('account');
 
         ClientContact::factory()->create([
             'user_id' => $this->user->id,
