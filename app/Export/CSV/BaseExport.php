@@ -1547,6 +1547,14 @@ class BaseExport
                     $header[] = "{$prefix}" . ctrans("texts.{$key}");
                 }
 
+            } elseif (stripos($value, 'custom_surcharge') !== false) {
+                $custom_field_label = (string) $helper->makeCustomField($this->company->custom_fields, $key);
+
+                if (strlen($custom_field_label) >= 1) {
+                    $header[] = $custom_field_label;
+                } else {
+                    $header[] = "{$prefix}" . ctrans("texts.{$key}");
+                }
             } else {
                 $header[] = "{$prefix}" . ctrans("texts.{$key}");
             }
