@@ -296,6 +296,11 @@ class BaseRepository
             $ii->saveQuietly();
         }
 
+        /* Distribute invoice-level taxes to line items for QuickBooks sync */
+        if ($model instanceof Invoice && $model->company->shouldPushToQuickbooks('invoice')) {
+            $model->service()->distributeInvoiceLevelTaxes();
+        }
+
         /* Recalculate invoice amounts */
         $model = $model->calc()->getInvoice();
 

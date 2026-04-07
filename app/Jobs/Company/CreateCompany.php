@@ -13,12 +13,12 @@
 namespace App\Jobs\Company;
 
 use App\DataMapper\ClientRegistrationFields;
+use App\DataMapper\CompanyDefaults\CountryDefaults;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\Tax\TaxModel;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\Country;
-use App\Models\TaxRate;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -56,15 +56,13 @@ class CreateCompany
 
         $settings->name = $this->request['name'] ?? '';
 
-        if ($country_id = $this->resolveCountry()) {
-            $settings->country_id = $country_id;
-        }
+        $country_id = $this->resolveCountry();
+        $settings->country_id = $country_id;
 
         $company = new Company();
         $company->account_id = $this->account->id;
         $company->company_key = $this->createHash();
         $company->ip = request()->ip();
-        $company->settings = $settings;
         $company->db = config('database.default');
         $company->enabled_modules = config('ninja.enabled_modules');
         $company->subdomain = $this->request['subdomain'] ?? MultiDB::randomSubdomainGenerator();
@@ -81,16 +79,70 @@ class CreateCompany
             $company->subdomain = '';
         }
 
-        /** Location Specific Configuration */
-        match ($settings->country_id) {
-            '724' => $company = $this->spanishSetup($company),
-            '36'  => $company = $this->australiaSetup($company),
-            '710' => $company = $this->southAfticaSetup($company),
-            '554' => $company = $this->newZealandSetup($company),
-            default => $company->save(),
-        };
+        $this->applyCountryDefaults($company, $settings, $country_id);
 
         return $company;
+    }
+
+    /**
+     * Apply country-specific defaults to company and settings.
+     */
+    private function applyCountryDefaults(Company $company, mixed $settings, string $country_id): void
+    {
+        try {
+
+            $defaults = CountryDefaults::get($country_id);
+
+            $currency_id = CountryDefaults::resolveCurrencyId($country_id);
+            if ($currency_id) {
+                $settings->currency_id = $currency_id;
+            }
+
+            $timezone_id = CountryDefaults::resolveTimezoneId($country_id);
+            if ($timezone_id) {
+                $settings->timezone_id = $timezone_id;
+            }
+
+            if ($defaults['language_id']) {
+                $settings->language_id = $defaults['language_id'];
+            }
+
+            if ($defaults['e_invoice_type']) {
+                $settings->e_invoice_type = $defaults['e_invoice_type'];
+            }
+
+            if ($defaults['lock_invoices']) {
+                $settings->lock_invoices = $defaults['lock_invoices'];
+            }
+
+            if ($defaults['translations']) {
+                $translations = new \stdClass();
+                foreach ($defaults['translations'] as $key => $value) {
+                    $translations->{$key} = $value;
+                }
+                $settings->translations = $translations;
+            }
+
+            $company->enabled_tax_rates = $defaults['enabled_tax_rates'];
+            $company->enabled_item_tax_rates = $defaults['enabled_item_tax_rates'];
+
+            if ($defaults['custom_fields']) {
+                $custom_fields = new \stdClass();
+                foreach ($defaults['custom_fields'] as $key => $value) {
+                    $custom_fields->{$key} = $value;
+                }
+                $company->custom_fields = $custom_fields;
+            }
+
+            $company->settings = $settings;
+            $company->save();
+
+        } catch (\Exception $e) {
+            nlog("Exception:: CreateCompany::applyCountryDefaults::" . $e->getMessage());
+
+            $company->settings = $settings;
+            $company->save();
+        }
     }
 
     /**
@@ -131,127 +183,6 @@ class CreateCompany
         }
 
         return '840';
-
-    }
-
-    private function newZealandSetup($company): Company
-    {
-
-        $company->enabled_tax_rates = 1;
-
-        $settings = $company->settings;
-        $settings->currency_id = '15';
-        $settings->timezone_id = '113';
-
-        $company->settings = $settings;
-
-        $company->save();
-
-        return $company;
-    }
-
-    private function spanishSetup(Company $company): Company
-    {
-        try {
-
-            $custom_fields = new \stdClass();
-            $custom_fields->contact1 = "Rol|CONTABLE,FISCAL,GESTOR,RECEPTOR,TRAMITADOR,PAGADOR,PROPONENTE,B2B_FISCAL,B2B_PAYER,B2B_BUYER,B2B_COLLECTOR,B2B_SELLER,B2B_PAYMENT_RECEIVER,B2B_COLLECTION_RECEIVER,B2B_ISSUER";
-            $custom_fields->contact2 = "Code|single_line_text";
-            $custom_fields->contact3 = "Nombre|single_line_text";
-            $custom_fields->client1 = "Administración Pública|switch";
-
-            $company->custom_fields = $custom_fields;
-            $company->enabled_item_tax_rates = 1;
-
-            $settings = $company->settings;
-            $settings->language_id = '7';
-            $settings->e_invoice_type = 'Facturae_3.2.2'; //change this to verifactu
-            $settings->currency_id = '3';
-            $settings->timezone_id = '42';
-            $settings->lock_invoices = 'when_sent';
-
-            $company->settings = $settings;
-
-            $company->save();
-
-            return $company;
-
-        } catch (\Exception $e) {
-            nlog("Exception:: CreateCompany::" . $e->getMessage());
-            nlog("SETUP: could not complete setup for Spanish Locale");
-        }
-
-        $company->save();
-
-        return $company;
-
-    }
-
-    private function southAfticaSetup(Company $company): Company
-    {
-
-        try {
-
-            $company->enabled_item_tax_rates = 1;
-            $company->enabled_tax_rates = 1;
-
-            $translations = new \stdClass();
-            $translations->invoice = "Tax Invoice";
-
-            $settings = $company->settings;
-            $settings->currency_id = '4';
-            $settings->timezone_id = '56';
-            $settings->translations = $translations;
-
-            $company->settings = $settings;
-
-            $company->save();
-
-            return $company;
-
-        } catch (\Exception $e) {
-            nlog($e->getMessage());
-            nlog("Exception:: CreateCompany::" . $e->getMessage());
-            nlog("SETUP: could not complete setup for South African Locale");
-        }
-
-        $company->save();
-
-        return $company;
-
-
-    }
-
-    private function australiaSetup(Company $company): Company
-    {
-        try {
-
-            $company->enabled_item_tax_rates = 1;
-            $company->enabled_tax_rates = 1;
-
-            $translations = new \stdClass();
-            $translations->invoice = "Tax Invoice";
-
-            $settings = $company->settings;
-            $settings->currency_id = '12';
-            $settings->timezone_id = '109';
-            $settings->translations = $translations;
-
-            $company->settings = $settings;
-
-            $company->save();
-
-            return $company;
-
-        } catch (\Exception $e) {
-            nlog($e->getMessage());
-            nlog("Exception:: CreateCompany::" . $e->getMessage());
-            nlog("SETUP: could not complete setup for Australian Locale");
-        }
-
-        $company->save();
-
-        return $company;
 
     }
 

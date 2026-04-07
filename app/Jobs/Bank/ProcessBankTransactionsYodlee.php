@@ -72,29 +72,6 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
 
         nlog("Yodlee: Processing transactions for account: {$this->bank_integration->account->key}");
 
-        do {
-            try {
-                $this->processTransactions();
-            } catch (\Exception $e) {
-                nlog("Yodlee: {$this->bank_integration->bank_account_id} - exited abnormally => " . $e->getMessage());
-
-                $content = [
-                    "Processing transactions for account: {$this->bank_integration->bank_account_id} failed",
-                    "Exception Details => ",
-                    $e->getMessage(),
-                ];
-
-                $this->bank_integration->company->notification(new GenericNinjaAdminNotification($content))->ninja();
-                return;
-            }
-        } while ($this->stop_loop);
-
-        BankMatchingService::dispatch($this->company->id, $this->company->db);
-    }
-
-
-    private function processTransactions()
-    {
         $yodlee = new Yodlee($this->bank_integration_account_id);
 
         try {
@@ -125,35 +102,34 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
             $this->stop_loop = false;
             return;
         }
+
+
+        do {
+            try {
+                $this->processTransactions($yodlee);
+            } catch (\Exception $e) {
+                nlog("Yodlee: {$this->bank_integration->bank_account_id} - exited abnormally => " . $e->getMessage());
+
+                $content = [
+                    "Processing transactions for account: {$this->bank_integration->bank_account_id} failed",
+                    "Exception Details => ",
+                    $e->getMessage(),
+                ];
+
+                $this->bank_integration->company->notification(new GenericNinjaAdminNotification($content))->ninja();
+                return;
+            }
+        } while ($this->stop_loop);
+
+        BankMatchingService::dispatch($this->company->id, $this->company->db);
+    }
+
+
+    private function processTransactions(Yodlee $yodlee)
+    {
+
+       
         
-        // if (!$yodlee->getAccount($this->bank_integration->bank_account_id)) {
-        //     $this->bank_integration->disabled_upstream = true;
-        //     $this->bank_integration->save();
-        //     $this->stop_loop = false;
-        //     return;
-        // }
-
-        // try {
-        //     $account_summary = $yodlee->getAccountSummary($this->bank_integration->bank_account_id);
-
-        //     if ($account_summary) {
-
-        //         $at = new AccountTransformer();
-        //         $account = $at->transform($account_summary);
-
-        //         if ($account[0]['current_balance']) {
-        //             $this->bank_integration->balance = $account[0]['current_balance'];
-        //             $this->bank_integration->currency = $account[0]['account_currency'];
-        //             $this->bank_integration->bank_account_status = $account[0]['account_status'];
-        //             $this->bank_integration->disabled_upstream = $account[0]['disabled_upstream'];
-        //             $this->bank_integration->save();
-        //         }
-
-        //     }
-        // } catch (\Exception $e) {
-        //     nlog("YODLEE: unable to update account summary for {$this->bank_integration->bank_account_id} => " . $e->getMessage());
-        // }
-
         $data = [
             'top' => 500,
             'fromDate' => $this->from_date,
