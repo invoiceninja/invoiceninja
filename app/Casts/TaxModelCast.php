@@ -17,15 +17,13 @@ use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 
 class TaxModelCast implements CastsAttributes
 {
-    private const CURRENT_VERSION = 'eta';
-
     public function get($model, string $key, $value, array $attributes): TaxModel
     {
         $data = is_null($value) ? null : json_decode($value);
 
         $taxModel = new TaxModel($data);
 
-        if ($data && ($data->version ?? 'delta') !== self::CURRENT_VERSION) {
+        if ($data && $taxModel->version !== ($data->version ?? 'delta')) {
             $model->updateQuietly([$key => $taxModel]);
         }
 
