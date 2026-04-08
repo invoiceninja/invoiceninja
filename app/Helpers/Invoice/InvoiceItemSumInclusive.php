@@ -94,6 +94,8 @@ class InvoiceItemSumInclusive
         'US', // USA
 
         'AU', // Australia
+
+        'SG', // Singapore
     ];
 
     protected RecurringInvoice|Invoice|Quote|Credit|PurchaseOrder|RecurringQuote $invoice;

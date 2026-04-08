@@ -113,6 +113,8 @@ class InvoiceItemSum
         'AU', // Australia
 
         'GB', // GB
+
+        'SG', // Singapore
     ];
 
     protected RecurringInvoice|Invoice|Quote|Credit|PurchaseOrder|RecurringQuote $invoice;

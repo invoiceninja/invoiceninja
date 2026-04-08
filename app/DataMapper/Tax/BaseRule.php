@@ -110,6 +110,8 @@ class BaseRule implements RuleInterface
         'AU' => 'AU', // Australia
 
         'GB' => 'UK', //Great Britain
+
+        'SG' => 'SG', // Singapore
     ];
 
     /** EU TAXES */
@@ -271,6 +273,7 @@ class BaseRule implements RuleInterface
             'EU' => $this->client_subregion = $this->client->country->iso_3166_2,
             'AU' => $this->client_subregion = 'AU',
             'UK' => $this->client_subregion = 'GB',
+            'SG' => $this->client_subregion = 'SG',
             default => $this->client_subregion = $this->client->country->iso_3166_2,
         };
 

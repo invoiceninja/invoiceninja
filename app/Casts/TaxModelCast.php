@@ -17,7 +17,7 @@ use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 
 class TaxModelCast implements CastsAttributes
 {
-    private const CURRENT_VERSION = 'zeta';
+    private const CURRENT_VERSION = 'eta';
 
     public function get($model, string $key, $value, array $attributes): TaxModel
     {

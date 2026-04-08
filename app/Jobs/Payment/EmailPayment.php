@@ -68,6 +68,10 @@ class EmailPayment implements ShouldQueue
             $this->contact = $this->payment->client->contacts()->orderBy('is_primary', 'desc')->orderBy('send_email', 'desc')->first();
         }
 
+        if (!$this->contact) {
+            return;
+        }
+
         if ($this->company->is_disabled) {
             nlog("company disabled");
             return;

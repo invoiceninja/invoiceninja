@@ -67,7 +67,7 @@ class AndorraTaxTest extends TestCase
         $tax_model = new TaxModel($model);
 
         $this->assertTrue(property_exists($tax_model->regions, 'AD'));
-        $this->assertEquals('zeta', $tax_model->version);
+        $this->assertEquals('eta', $tax_model->version);
         $this->assertEquals(4.5, $tax_model->regions->AD->subregions->AD->tax_rate);
     }
 }
