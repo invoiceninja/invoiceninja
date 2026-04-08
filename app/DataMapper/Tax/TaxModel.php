@@ -144,6 +144,23 @@ class TaxModel
             $this->version = 'epsilon';
         }
 
+        if ($this->version == 'epsilon') {
+
+            $this->regions->AD = new \stdClass();
+            $this->regions->AD->has_sales_above_threshold = false;
+            $this->regions->AD->tax_all_subregions = false;
+            $this->regions->AD->tax_threshold = 40000;
+            $this->regions->AD->subregions = new \stdClass();
+            $this->regions->AD->subregions->AD = new \stdClass();
+            $this->regions->AD->subregions->AD->tax_rate = 4.5;
+            $this->regions->AD->subregions->AD->tax_name = 'IGI';
+            $this->regions->AD->subregions->AD->reduced_tax_rate = 1;
+            $this->regions->AD->subregions->AD->apply_tax = false;
+            $this->regions->AD->subregions->AD->vat_number = '';
+
+            $this->version = 'zeta';
+        }
+
         return $this;
     }
 

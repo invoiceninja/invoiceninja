@@ -20,6 +20,7 @@ use Illuminate\Validation\Validator;
 class AddTaxIdentifierRequest extends FormRequest
 {
     public static array $vat_regex_patterns = [
+        'AD' => '/^AD\d{8}$/',                     // Andorra
         'AT' => '/^ATU\d{8}$/',                     // Austria
         'BE' => '/^BE[01]\d{9}$/',                  // Belgium
         'BG' => '/^BG\d{9,10}$/',                   // Bulgaria

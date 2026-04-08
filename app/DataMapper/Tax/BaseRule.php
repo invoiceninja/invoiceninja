@@ -73,6 +73,7 @@ class BaseRule implements RuleInterface
     ];
 
     public array $region_codes = [
+        'AD' => 'AD', // Andorra
         'AT' => 'EU', // Austria
         'BE' => 'EU', // Belgium
         'BG' => 'EU', // Bulgaria
@@ -115,6 +116,7 @@ class BaseRule implements RuleInterface
 
     /** Supported E Delivery Countries */
     public array $peppol_business_countries = [
+        'AD',
         'AT',
         'BE',
         'DK',
@@ -133,6 +135,7 @@ class BaseRule implements RuleInterface
     ];
 
     public array $peppol_government_countries = [
+        'AD',
         'FR',
         'GR',
         'PT',

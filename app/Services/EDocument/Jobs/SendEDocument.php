@@ -105,6 +105,8 @@ class SendEDocument implements ShouldQueue
             return $result['errors'];
         }
 
+        nlog($identifiers);
+        
         $payload = [
             'legal_entity_id' => $model->company->legal_entity_id,
             "idempotencyGuid" => \Illuminate\Support\Str::uuid()->toString(),

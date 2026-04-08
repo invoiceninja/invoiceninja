@@ -457,7 +457,7 @@ class CreatePeppolTestData extends Command
      * When present, company.legal_entity_id is set and e_invoice_type = 'PEPPOL'.
      */
     private array $legal_entity_ids = [
-        'AD' => 0, // Andorra
+        'AD' => 987690, // Andorra
         'AL' => 0, // Albania
         'AT' => 293801, // ATU92335648
         'AU' => 0, // Australia
