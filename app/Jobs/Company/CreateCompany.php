@@ -93,14 +93,12 @@ class CreateCompany
 
             $defaults = CountryDefaults::get($country_id);
 
-            $currency_id = CountryDefaults::resolveCurrencyId($country_id);
-            if ($currency_id) {
-                $settings->currency_id = $currency_id;
+            if ($defaults['currency_id']) {
+                $settings->currency_id = $defaults['currency_id'];
             }
 
-            $timezone_id = CountryDefaults::resolveTimezoneId($country_id);
-            if ($timezone_id) {
-                $settings->timezone_id = $timezone_id;
+            if ($defaults['timezone_id']) {
+                $settings->timezone_id = $defaults['timezone_id'];
             }
 
             if ($defaults['language_id']) {
@@ -109,10 +107,6 @@ class CreateCompany
 
             if ($defaults['e_invoice_type']) {
                 $settings->e_invoice_type = $defaults['e_invoice_type'];
-            }
-
-            if ($defaults['lock_invoices']) {
-                $settings->lock_invoices = $defaults['lock_invoices'];
             }
 
             if ($defaults['translations']) {
