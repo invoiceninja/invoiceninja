@@ -114,38 +114,6 @@ class BaseRule implements RuleInterface
 
     /** EU TAXES */
 
-    /** Supported E Delivery Countries */
-    public array $peppol_business_countries = [
-        'AD',
-        'AT',
-        'BE',
-        'DK',
-        'EE',
-        'FI',
-        'DE',
-        'IS',
-        // 'IT',
-        'LT',
-        'LU',
-        'NL',
-        'NO',
-        // 'PL',
-        'SE',
-        'IE',
-    ];
-
-    public array $peppol_government_countries = [
-        'AD',
-        'FR',
-        'GR',
-        'PT',
-        'RO',
-        'SI',
-        'ES',
-        'GB',
-    ];
-    /** Supported E Delivery Countries */
-
     public string $tax_name1 = '';
     public float $tax_rate1 = 0;
 

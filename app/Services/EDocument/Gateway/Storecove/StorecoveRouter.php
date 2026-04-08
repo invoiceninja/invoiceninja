@@ -17,6 +17,28 @@ use App\Services\EDocument\Standards\Peppol\CountryFactory;
 class StorecoveRouter
 {
     /**
+     * Countries on the Peppol e-delivery network.
+     * Curated subset of $routing_rules — excludes countries
+     * routed via other networks (SDI, FacturX, etc.).
+     */
+    private static array $peppol_network = [
+        'AD', 'AT', 'BE', 'DK', 'EE', 'FI', 'DE', 'IS',
+        'LT', 'LU', 'NL', 'NO', 'SE', 'IE',
+        'FR', 'GR', 'PT', 'RO', 'SI', 'ES', 'GB',
+    ];
+
+    public static function isPeppolCountry(string $countryCode): bool
+    {
+        return in_array($countryCode, self::$peppol_network, true);
+    }
+
+    /** @return string[] */
+    public static function peppolCountries(): array
+    {
+        return self::$peppol_network;
+    }
+
+    /**
      * Provides a country matrix for the correct scheme to send via
      * [ "iso_3166_2" =>  [<business_type>, <identifier1>, <tax_identifier>, <routing_identifier>]
      * @var array $routing_rules

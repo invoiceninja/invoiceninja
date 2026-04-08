@@ -1089,11 +1089,9 @@ class Client extends BaseModel implements HasLocalePreference
             return "Client has no country set!";
         }
 
-        $br = new \App\DataMapper\Tax\BaseRule();
-        $supported_countries = array_unique(array_merge($br->peppol_business_countries, $br->peppol_government_countries));
         $country_code = $this->country->iso_3166_2;
 
-        if (!in_array($country_code, $supported_countries)) {
+        if (!\App\Services\EDocument\Gateway\Storecove\StorecoveRouter::isPeppolCountry($country_code)) {
             return "Country {$this->country->full_name} ( {$country_code} ) is not supported by the PEPPOL network for e-delivery.";
         }
 
