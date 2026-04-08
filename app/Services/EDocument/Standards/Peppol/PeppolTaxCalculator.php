@@ -76,7 +76,8 @@ class PeppolTaxCalculator
         if (empty($tax_type)) {
             if ((in_array($company->country()->iso_3166_2, $eu_states) && in_array($invoice->client->country->iso_3166_2, $eu_states)) && $invoice->company->country()->iso_3166_2 != $invoice->client->country->iso_3166_2) {
                 $tax_type = 'K'; // EEA Exempt
-            } elseif (!in_array($invoice->client->country->iso_3166_2, $eu_states)) {
+            } elseif (!in_array($invoice->client->country->iso_3166_2, $eu_states)
+                      || !in_array($company->country()->iso_3166_2, $eu_states)) {
                 $tax_type = 'G'; //Free export item, VAT not charged
             } else {
                 $tax_type = 'S'; //Standard rate
@@ -114,7 +115,8 @@ class PeppolTaxCalculator
             $reason_code = 'vatex-eu-ic';
             $reason = 'Intra-Community supply';
 
-        } elseif (!in_array($invoice->client->country->iso_3166_2, $eu_states)) {
+        } elseif (!in_array($invoice->client->country->iso_3166_2, $eu_states)
+                  || !in_array($company->country()->iso_3166_2, $eu_states)) {
             $tax_type = 'G'; //Free export item, VAT not charged
             $reason_code = 'vatex-eu-g';
             $reason = 'Export outside the EU';
