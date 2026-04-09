@@ -310,6 +310,18 @@ class Storecove
                 return $response;
             }
 
+            /** Fire C5 IRAS email activation automatically */
+            if (isset($data['c5_signer_name']) && isset($data['c5_signer_email'])) {
+                $c5_response = $this->c5->activate(
+                    $legal_entity_response['id'],
+                    $data['id_number'],
+                    $data['c5_signer_name'],
+                    $data['c5_signer_email'],
+                );
+
+                nlog(['c5_iras_activation' => is_array($c5_response) ? $c5_response : $c5_response->json()]);
+            }
+
             return array_merge($response, [
                 'legal_entity_id' => $legal_entity_response['id'],
                 'tax_data' => [
