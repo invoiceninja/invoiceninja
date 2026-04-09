@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Livewire\Component;
+use Livewire\Attributes\Locked;
 
 class BillingPortalPurchase extends Component
 {
@@ -88,6 +89,7 @@ class BillingPortalPurchase extends Component
      *
      * @var string|integer
      */
+    #[Locked] 
     public $company_gateway_id;
 
     /**
@@ -95,6 +97,7 @@ class BillingPortalPurchase extends Component
      *
      * @var string|integer
      */
+    #[Locked] 
     public $payment_method_id;
 
     private $user_coupon;

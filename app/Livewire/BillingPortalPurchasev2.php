@@ -52,7 +52,7 @@ class BillingPortalPurchasev2 extends Component
      */
     public $email;
 
-
+    #[Locked] 
     public $subscription_id;
 
 
@@ -61,6 +61,7 @@ class BillingPortalPurchasev2 extends Component
      *
      * @var string|integer
      */
+    #[Locked] 
     public $company_gateway_id;
 
     /**
@@ -68,6 +69,7 @@ class BillingPortalPurchasev2 extends Component
      *
      * @var string|integer
      */
+    #[Locked] 
     public $payment_method_id;
 
     /**
