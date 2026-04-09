@@ -552,10 +552,22 @@ class PeppolCountryTest extends TestCase
         ]);
         $result = $this->runAndValidate($data['invoice'], 'FR => FR (business)');
 
-        if (isset($result['meta']['routing'])) {
-            $siretRoute = $this->findRoutingScheme($result['meta'], 'FR:SIRET');
-            $this->assertNotNull($siretRoute, 'FR business should route via FR:SIRET');
-        }
+        $siretRoute = $this->findRoutingScheme($result['meta'], 'FR:SIRET');
+        $this->assertNotNull($siretRoute, 'FR business with 14-digit id should route via FR:SIRET');
+    }
+
+    public function testFR_Domestic_Business_SIRENE(): void
+    {
+        $data = $this->buildScenario([
+            'company_country' => 'FR', 'client_country' => 'FR',
+            'client_id_number' => '123456789', // 9 digits = SIRENE
+        ]);
+        $result = $this->runAndValidate($data['invoice'], 'FR => FR (business SIRENE)');
+
+        $sireneRoute = $this->findRoutingScheme($result['meta'], 'FR:SIRENE');
+        $this->assertNotNull($sireneRoute, 'FR business with 9-digit id should route via FR:SIRENE');
+        $siretRoute = $this->findRoutingScheme($result['meta'], 'FR:SIRET');
+        $this->assertNull($siretRoute, 'FR SIRENE routing should not also include FR:SIRET');
     }
 
     public function testFR_Domestic_Government(): void
@@ -567,10 +579,13 @@ class PeppolCountryTest extends TestCase
         ]);
         $result = $this->runAndValidate($data['invoice'], 'FR => FR (government)');
 
-        if (isset($result['meta']['routing'])) {
-            $siretRoute = $this->findRoutingScheme($result['meta'], 'FR:SIRET');
-            $this->assertNotNull($siretRoute, 'FR government should route via FR:SIRET (Chorus Pro)');
-        }
+        $siretRoute = $this->findRoutingScheme($result['meta'], 'FR:SIRET');
+        $this->assertNotNull($siretRoute, 'FR government should route via FR:SIRET (Chorus Pro)');
+        $this->assertEquals('11000201100044', $siretRoute['id'], 'FR government should route to Chorus Pro SIRET');
+
+        // Should not have SIRENE routing (no double-routing)
+        $sireneRoute = $this->findRoutingScheme($result['meta'], 'FR:SIRENE');
+        $this->assertNull($sireneRoute, 'FR government should not have duplicate SIRENE routing');
     }
 
     // ── IT (Italy) ──
@@ -757,9 +772,13 @@ class PeppolCountryTest extends TestCase
     {
         $data = $this->buildScenario([
             'company_country' => 'DE', 'client_country' => 'FR',
+            'client_id_number' => '12345678901234', // 14 digits = SIRET
             'has_valid_vat' => true,
         ]);
-        $this->runAndValidate($data['invoice'], 'DE => FR (B2B)');
+        $result = $this->runAndValidate($data['invoice'], 'DE => FR (B2B)');
+
+        $siretRoute = $this->findRoutingScheme($result['meta'], 'FR:SIRET');
+        $this->assertNotNull($siretRoute, 'DE => FR should set FR:SIRET routing for receiver');
     }
 
     public function testFR_to_DE_Business(): void
