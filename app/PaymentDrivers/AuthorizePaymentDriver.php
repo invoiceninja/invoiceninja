@@ -311,7 +311,11 @@ class AuthorizePaymentDriver extends BaseDriver
 
         // Check event type
         $eventType = $data['eventType'] ?? null;
-        $transactionId = $data['payload']['id'] ?? 'unknown';
+        $transactionId = $data['payload']['id'] ?? false;
+
+        if (!$transactionId) {
+            return response()->noContent();
+        }
 
         switch ($eventType) {
             case 'net.authorize.payment.void.created':
