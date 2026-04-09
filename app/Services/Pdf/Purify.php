@@ -295,13 +295,16 @@ class Purify
             return $html;
         }
 
-        // Check before DOMDocument processing whether the input already has <p> tags
-        $original_had_p_tags = preg_match('/<p[\s>]/i', $html) === 1;
-
         libxml_use_internal_errors(true);
 
         $document = new \DOMDocument();
-        $html = '<?xml encoding="UTF-8">' . $html;
+
+        // Wrap fragments in a <div> container so DOMDocument does not inject
+        // <p> tags around loose text that precedes block-level elements.
+        $html = $is_fragment
+            ? '<?xml encoding="UTF-8"><div>' . $html . '</div>'
+            : '<?xml encoding="UTF-8">' . $html;
+
         @$document->loadHTML(htmlspecialchars_decode(htmlspecialchars($html, ENT_QUOTES, 'UTF-8')), LIBXML_NONET);
 
         // Function to recursively check nodes
@@ -445,18 +448,20 @@ class Purify
             $cleanNodes($document->documentElement);
 
             if ($is_fragment) {
+                // Extract content from inside the wrapper <div> we added before parsing.
                 $body = $document->getElementsByTagName('body')->item(0);
                 $html = '';
                 if ($body) {
-                    foreach ($body->childNodes as $child) {
-                        $html .= $document->saveHTML($child);
+                    $wrapper = $body->firstChild;
+                    if ($wrapper && $wrapper->nodeName === 'div') {
+                        foreach ($wrapper->childNodes as $child) {
+                            $html .= $document->saveHTML($child);
+                        }
+                    } else {
+                        foreach ($body->childNodes as $child) {
+                            $html .= $document->saveHTML($child);
+                        }
                     }
-                }
-
-                // DOMDocument wraps loose text in <p> tags — strip them if the
-                // original input did not contain any <p> elements.
-                if (!$original_had_p_tags) {
-                    $html = preg_replace('/<\/?p(?:\s[^>]*)?>/', '', $html);
                 }
             } else {
                 $html = $document->saveHTML();
