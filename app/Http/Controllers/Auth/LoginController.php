@@ -626,7 +626,7 @@ class LoginController extends BaseController
             return response()->json(['message' => 'Invalid response from oauth server, no access token in response.'], 400);
         }
 
-        $expectedClientId = config('ninja.auth.microsoft.client_id') ?: config('services.microsoft.client_id');
+        $expectedClientId = config('services.microsoft.client_id');
 
         if ($expectedClientId) {
             $parts = explode('.', $accessToken);
