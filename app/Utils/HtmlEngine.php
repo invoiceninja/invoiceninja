@@ -855,7 +855,7 @@ class HtmlEngine
                 $invoice_period = $this->translateDate($period->StartDate, $this->client->date_format(), $this->client->locale()) . ' - ' . $this->translateDate($period->EndDate, $this->client->date_format(), $this->client->locale());
             }
             catch(\Throwable $e) {
-                nlog("Error getting invoice period: {$e->getMessage()}");
+                nlog("Error getting invoice period: HE:: {$e->getMessage()}");
             }
         }
 

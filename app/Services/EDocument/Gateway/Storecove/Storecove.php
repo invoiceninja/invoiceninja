@@ -64,6 +64,8 @@ class Storecove
 
     public StorecoveProxy $proxy;
 
+    public StorecoveC5 $c5;
+
     public function __construct()
     {
         $this->router = new StorecoveRouter();
@@ -71,6 +73,7 @@ class Storecove
         $this->adapter = new StorecoveAdapter($this);
         $this->expense = new StorecoveExpense($this);
         $this->proxy = new StorecoveProxy($this);
+        $this->c5 = new StorecoveC5($this);
     }
 
     /**
@@ -305,6 +308,18 @@ class Storecove
             if (! is_array($response)) {
                 $this->deleteIdentifier($legal_entity_response['id']);
                 return $response;
+            }
+
+            /** Fire C5 IRAS email activation automatically */
+            if (isset($data['c5_signer_name']) && isset($data['c5_signer_email'])) {
+                $c5_response = $this->c5->activate(
+                    $legal_entity_response['id'],
+                    $data['id_number'],
+                    $data['c5_signer_name'],
+                    $data['c5_signer_email'],
+                );
+
+                nlog(['c5_iras_activation' => is_array($c5_response) ? $c5_response : $c5_response->json()]);
             }
 
             return array_merge($response, [
@@ -693,7 +708,7 @@ class Storecove
      * @param  array $headers
      * @return \Illuminate\Http\Client\Response
      */
-    private function httpClient(string $uri, string $verb, array $data, ?array $headers = [])
+    public function httpClient(string $uri, string $verb, array $data, ?array $headers = [])
     {
 
         try {

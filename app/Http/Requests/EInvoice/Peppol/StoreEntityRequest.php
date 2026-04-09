@@ -40,6 +40,8 @@ class StoreEntityRequest extends FormRequest
      */
     public function rules(): array
     {
+        $isSG = $this->input('country') == '702' || $this->country_id == 702;
+
         return [
             'party_name' => ['required', 'string'],
             'line1' => ['required', 'string'],
@@ -54,6 +56,8 @@ class StoreEntityRequest extends FormRequest
             'classification' => ['required', 'in:business,individual'],
             'vat_number' => [Rule::requiredIf(fn() => $this->input('classification') !== 'individual')],
             'id_number' => [Rule::requiredIf(fn() => $this->input('classification') === 'individual')],
+            'c5_signer_name' => [Rule::requiredIf($isSG), 'nullable', 'string', 'min:2', 'max:64'],
+            'c5_signer_email' => [Rule::requiredIf($isSG), 'nullable', 'email'],
         ];
     }
 

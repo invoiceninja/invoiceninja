@@ -616,7 +616,7 @@ class TemplateService
                             $invoice_period = $this->translateDate($period->StartDate, $invoice->client->date_format(), $invoice->client->locale()) . ' - ' . $this->translateDate($period->EndDate, $invoice->client->date_format(), $invoice->client->locale());
                         }
                         catch(\Throwable $e) {
-                            nlog("Error getting invoice period: {$e->getMessage()}");
+                            nlog("Error getting invoice period: TS:: {$e->getMessage()}");
                         }
                     }
                     

@@ -25,6 +25,9 @@ use App\Services\EDocument\Standards\Verifactu\SendToAeat;
 use App\Http\Requests\EInvoice\Peppol\DiscoveryRequest;
 use App\Http\Requests\EInvoice\Peppol\AddTaxIdentifierRequest;
 use App\Http\Requests\EInvoice\Peppol\RemoveTaxIdentifierRequest;
+use App\Http\Requests\EInvoice\Peppol\C5ActivateRequest;
+use App\Http\Requests\EInvoice\Peppol\C5DeactivateRequest;
+use App\Http\Requests\EInvoice\Peppol\C5CancelRequest;
 
 class EInvoicePeppolController extends BaseController
 {
@@ -287,6 +290,54 @@ class EInvoicePeppolController extends BaseController
         $company->save();
 
         return response()->json([]);
+    }
+
+    public function c5Activate(C5ActivateRequest $request, Storecove $storecove): JsonResponse
+    {
+        $company = auth()->user()->company();
+
+        $response = $storecove
+            ->proxy
+            ->setCompany($company)
+            ->c5Activate($request->name, $request->email);
+
+        if (data_get($response, 'status') === 'error') {
+            return response()->json(data_get($response, 'message'), status: $response['code']);
+        }
+
+        return response()->json(['message' => 'ok'], 200);
+    }
+
+    public function c5Deactivate(C5DeactivateRequest $request, Storecove $storecove): JsonResponse
+    {
+        $company = auth()->user()->company();
+
+        $response = $storecove
+            ->proxy
+            ->setCompany($company)
+            ->c5Deactivate($request->name, $request->email);
+
+        if (data_get($response, 'status') === 'error') {
+            return response()->json(data_get($response, 'message'), status: $response['code']);
+        }
+
+        return response()->json(['message' => 'ok'], 200);
+    }
+
+    public function c5Cancel(C5CancelRequest $request, Storecove $storecove): JsonResponse
+    {
+        $company = auth()->user()->company();
+
+        $response = $storecove
+            ->proxy
+            ->setCompany($company)
+            ->c5Cancel();
+
+        if (data_get($response, 'status') === 'error') {
+            return response()->json(data_get($response, 'message'), status: $response['code']);
+        }
+
+        return response()->json(['message' => 'ok'], 200);
     }
 
     public function retrySend(RetrySendRequest $request)
