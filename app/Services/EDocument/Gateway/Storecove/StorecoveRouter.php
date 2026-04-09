@@ -23,7 +23,7 @@ class StorecoveRouter
      */
     private static array $peppol_network = [
         'AD', 'AT', 'BE', 'DK', 'EE', 'FI', 'DE', 'IS',
-        'LT', 'LU', 'NL', 'NO', 'SE', 'IE',
+        'LT', 'LU', 'NL', 'NO', 'PL', 'SE', 'IE',
         'FR', 'GR', 'PT', 'RO', 'SI', 'ES', 'GB',
     ];
 
