@@ -48,7 +48,7 @@ class SendToAdmin implements ShouldQueue
     {
         MultiDB::setDb($this->company->db);
         $export = new $this->report_class($this->company, $this->request);
-        $csv_file = $export->isGroupByActive() ? $export->groupedRun() : $export->run();
+        $csv_file = ($export instanceof \App\Export\CSV\BaseExport && $export->isGroupByActive()) ? $export->groupedRun() : $export->run();
         $csv = base64_encode($csv_file);
         $mime = 'text/csv';
 
