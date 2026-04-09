@@ -12,19 +12,20 @@
 
 namespace App\PaymentDrivers;
 
-use App\Models\Payment;
-use App\Models\SystemLog;
-use App\Models\GatewayType;
-use App\Models\PaymentHash;
-use App\Models\ClientGatewayToken;
-use App\Jobs\Mail\PaymentFailedMailer;
-use App\PaymentDrivers\Authorize\AuthorizeACH;
-use net\authorize\api\constants\ANetEnvironment;
-use App\PaymentDrivers\Authorize\AuthorizeCustomer;
-use App\PaymentDrivers\Authorize\RefundTransaction;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
+use App\Jobs\Mail\PaymentFailedMailer;
+use App\Models\ClientGatewayToken;
+use App\Models\GatewayType;
+use App\Models\Payment;
+use App\Models\PaymentHash;
+use App\Models\SystemLog;
+use App\PaymentDrivers\Authorize\AuthorizeACH;
 use App\PaymentDrivers\Authorize\AuthorizeCreditCard;
+use App\PaymentDrivers\Authorize\AuthorizeCustomer;
 use App\PaymentDrivers\Authorize\AuthorizePaymentMethod;
+use App\PaymentDrivers\Authorize\RefundTransaction;
+use App\Utils\Number;
+use net\authorize\api\constants\ANetEnvironment;
 use net\authorize\api\contract\v1\GetMerchantDetailsRequest;
 use net\authorize\api\contract\v1\MerchantAuthenticationType;
 use net\authorize\api\controller\GetMerchantDetailsController;
@@ -353,6 +354,8 @@ class AuthorizePaymentDriver extends BaseDriver
 
         if ($payment && $payment->status_id == Payment::STATUS_COMPLETED) {
 
+            $client = $payment->client;
+            
             $payment->service()->deletePayment();
             $payment->status_id = Payment::STATUS_FAILED;
             $payment->save();
@@ -362,7 +365,9 @@ class AuthorizePaymentDriver extends BaseDriver
             if ($payment_hash) {
                 $error = ctrans('texts.client_payment_failure_body', [
                     'invoice' => implode(',', $payment->invoices->pluck('number')->toArray()),
-                    'amount' => array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total, ]);
+                    'amount' => Number::formatMoney($payment_hash->amount_with_fee(), $client)
+                ]);
+
             } else {
                 $error = 'Payment for ' . $payment->client->present()->name() . " for {$payment->amount} failed";
             }

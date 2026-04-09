@@ -2495,5 +2495,74 @@ class ReportCsvGenerationTest extends TestCase
 
     }
 
+    public function testSurchargeCustomLabelsInCsvHeader()
+    {
+        $custom_fields = new \stdClass();
+        $custom_fields->surcharge1 = 'Freight|number';
+        $custom_fields->surcharge2 = 'Handling Fee|number';
+        $this->company->custom_fields = $custom_fields;
+        $this->company->save();
+
+        Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'custom_surcharge1' => 10.00,
+            'custom_surcharge2' => 5.00,
+        ]);
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => ['invoice.number', 'invoice.custom_surcharge1', 'invoice.custom_surcharge2'],
+            'send_email' => false,
+            'include_deleted' => false,
+        ];
+
+        $export = new \App\Export\CSV\InvoiceExport($this->company, $data);
+        $csv = $export->run();
+
+        $reader = Reader::fromString($csv);
+        $reader->setHeaderOffset(0);
+        $header = $reader->getHeader();
+
+        $this->assertContains('Freight', $header);
+        $this->assertContains('Handling Fee', $header);
+        $this->assertNotContains('Custom Surcharge 1', $header);
+        $this->assertNotContains('Custom Surcharge 2', $header);
+
+        $this->account->forceDelete();
+    }
+
+    public function testSurchargeDefaultLabelsWhenNoCustomLabel()
+    {
+        $this->company->custom_fields = new \stdClass();
+        $this->company->save();
+
+        Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'custom_surcharge1' => 10.00,
+        ]);
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => ['invoice.number', 'invoice.custom_surcharge1'],
+            'send_email' => false,
+            'include_deleted' => false,
+        ];
+
+        $export = new \App\Export\CSV\InvoiceExport($this->company, $data);
+        $csv = $export->run();
+
+        $reader = Reader::fromString($csv);
+        $reader->setHeaderOffset(0);
+        $header = $reader->getHeader();
+
+        $this->assertContains('Invoice Custom Surcharge 1', $header);
+
+        $this->account->forceDelete();
+    }
+
 
 }

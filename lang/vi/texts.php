@@ -5953,6 +5953,7 @@ $lang = array(
     'sign_the_document' => 'Ký vào tài liệu',
     'client_not_found_on_peppol_network' => 'Không thể xác định được Khách hàng trên mạng PEPPOL.',
     'too_many_requests' => 'Quá nhiều yêu cầu',
+    'cloned_client' => 'Thành công đã nhân bản khách hàng',
 );
 
 return $lang;

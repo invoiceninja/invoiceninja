@@ -68,23 +68,27 @@ class PeppolPartyBuilder
             $pi->ID = $vatID;
             $party->PartyIdentification[] = $pi;
 
-            $companyID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CompanyID();
-
-            $pts = new \InvoiceNinja\EInvoice\Models\Peppol\PartyTaxSchemeType\PartyTaxScheme();
-            $companyID->value = preg_replace("/[^a-zA-Z0-9]/", "", $company_vat_number);
-            $pts->CompanyID = $companyID;
-
-            $ts = new TaxScheme();
-            $id = new ID();
-            $id->value = $taxCalculator->standardizeTaxSchemeId('vat');
-            $ts->ID = $id;
-            $pts->TaxScheme = $ts;
-
             $id = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\EndpointID();
             $id->value = preg_replace("/[^a-zA-Z0-9]/", "", $company->settings->vat_number);
             $id->schemeID = $scheme;
             $party->EndpointID = $id;
-            $party->PartyTaxScheme[] = $pts;
+
+            // BR-O-02: Do not include Seller VAT identifier when tax category is 'O' (Not subject to VAT)
+            if (!$this->peppol->hasCategoryO()) {
+                $companyID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CompanyID();
+
+                $pts = new \InvoiceNinja\EInvoice\Models\Peppol\PartyTaxSchemeType\PartyTaxScheme();
+                $companyID->value = preg_replace("/[^a-zA-Z0-9]/", "", $company_vat_number);
+                $pts->CompanyID = $companyID;
+
+                $ts = new TaxScheme();
+                $id = new ID();
+                $id->value = $taxCalculator->standardizeTaxSchemeId('vat');
+                $ts->ID = $id;
+                $pts->TaxScheme = $ts;
+
+                $party->PartyTaxScheme[] = $pts;
+            }
         }
 
         if (strlen($company->settings->vat_number ?? '') <= 1 && strlen($this->peppol->getOverrideVatNumber()) <= 1) {
@@ -184,8 +188,8 @@ if (strlen($company->settings->vat_number ?? '') <= 1
 
             $party->PartyIdentification[] = $pi;
 
-            // Do Not Show The Customer VAT number if the tax category is not subject to VAT
-            if ($this->peppol->getTaxCategoryId() !== 'O') {
+            // BR-O-02: Do not include Buyer VAT identifier when tax category is 'O' (Not subject to VAT)
+            if (!$this->peppol->hasCategoryO()) {
             //// If this is intracommunity supply, ensure that the country prefix is on the party tax scheme
                 $pts = new \InvoiceNinja\EInvoice\Models\Peppol\PartyTaxSchemeType\PartyTaxScheme();
                 $companyID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CompanyID();

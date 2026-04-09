@@ -223,7 +223,6 @@ class CompanyTransformer extends EntityTransformer
             'e_invoice' => $company->e_invoice ?: new \stdClass(),
             'legal_entity_id' =>  $company->legal_entity_id ? (int) $company->legal_entity_id : null,
             'quickbooks' => $company->getRawOriginal('quickbooks') ? $company->quickbooks->toArray() : null,
-            'legal_entity_id' => $company->legal_entity_id ?? null,
             'enable_modules' => (bool)$company->enable_modules,
         ];
 

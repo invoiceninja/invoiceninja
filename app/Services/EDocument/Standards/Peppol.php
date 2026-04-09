@@ -148,6 +148,8 @@ class Peppol extends AbstractService
 
     private string $tax_category_id = 'S';
 
+    private bool $has_category_O = false;
+
     private array $errors = [];
 
     /** @var PeppolTaxCalculator */
@@ -224,6 +226,15 @@ class Peppol extends AbstractService
     public function setTaxCategoryId($id): void
     {
         $this->tax_category_id = $id;
+
+        if ($id === 'O') {
+            $this->has_category_O = true;
+        }
+    }
+
+    public function hasCategoryO(): bool
+    {
+        return $this->has_category_O;
     }
 
     public function getOverrideVatNumber(): string

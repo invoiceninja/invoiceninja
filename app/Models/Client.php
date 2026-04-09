@@ -21,6 +21,7 @@ use App\Models\Traits\Excludable;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use Illuminate\Support\Facades\App;
+use Illuminate\Mail\Mailables\Address;
 use App\Services\Client\ClientService;
 use App\Utils\Traits\GeneratesCounter;
 use Laracasts\Presenter\PresentableTrait;
@@ -376,6 +377,25 @@ class Client extends BaseModel implements HasLocalePreference
     public function contacts(): HasMany
     {
         return $this->hasMany(ClientContact::class)->orderBy('is_primary', 'desc');
+    }
+
+    /**
+     * Returns CC-only contacts as an array of Address objects.
+     * Capped at 4 to stay within provider limits.
+     *
+     * @return array<int, Address>
+     */
+    public function cc_contacts(): array
+    {
+        return $this->contacts()
+            ->where('cc_only', true)
+            ->whereNotNull('email')
+            ->where('email', '!=', '')
+            ->where('is_locked', false)
+            ->limit(4)
+            ->get()
+            ->map(fn ($c) => new Address($c->email, $c->present()->name())) // @phpstan-ignore-line
+            ->toArray();
     }
 
     public function primary_contact(): HasMany
@@ -1069,11 +1089,9 @@ class Client extends BaseModel implements HasLocalePreference
             return "Client has no country set!";
         }
 
-        $br = new \App\DataMapper\Tax\BaseRule();
-        $supported_countries = array_unique(array_merge($br->peppol_business_countries, $br->peppol_government_countries));
         $country_code = $this->country->iso_3166_2;
 
-        if (!in_array($country_code, $supported_countries)) {
+        if (!\App\Services\EDocument\Gateway\Storecove\StorecoveRouter::isPeppolCountry($country_code)) {
             return "Country {$this->country->full_name} ( {$country_code} ) is not supported by the PEPPOL network for e-delivery.";
         }
 

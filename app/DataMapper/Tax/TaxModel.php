@@ -144,6 +144,40 @@ class TaxModel
             $this->version = 'epsilon';
         }
 
+        if ($this->version == 'epsilon') {
+
+            $this->regions->AD = new \stdClass();
+            $this->regions->AD->has_sales_above_threshold = false;
+            $this->regions->AD->tax_all_subregions = false;
+            $this->regions->AD->tax_threshold = 40000;
+            $this->regions->AD->subregions = new \stdClass();
+            $this->regions->AD->subregions->AD = new \stdClass();
+            $this->regions->AD->subregions->AD->tax_rate = 4.5;
+            $this->regions->AD->subregions->AD->tax_name = 'IGI';
+            $this->regions->AD->subregions->AD->reduced_tax_rate = 1;
+            $this->regions->AD->subregions->AD->apply_tax = false;
+            $this->regions->AD->subregions->AD->vat_number = '';
+
+            $this->version = 'zeta';
+        }
+
+        if ($this->version == 'zeta') {
+
+            $this->regions->SG = new \stdClass();
+            $this->regions->SG->has_sales_above_threshold = false;
+            $this->regions->SG->tax_all_subregions = false;
+            $this->regions->SG->tax_threshold = 1000000;
+            $this->regions->SG->subregions = new \stdClass();
+            $this->regions->SG->subregions->SG = new \stdClass();
+            $this->regions->SG->subregions->SG->tax_rate = 9;
+            $this->regions->SG->subregions->SG->tax_name = 'GST';
+            $this->regions->SG->subregions->SG->reduced_tax_rate = 0;
+            $this->regions->SG->subregions->SG->apply_tax = false;
+            $this->regions->SG->subregions->SG->vat_number = '';
+
+            $this->version = 'eta';
+        }
+
         return $this;
     }
 
@@ -162,6 +196,7 @@ class TaxModel
              ->euRegion()
              ->auRegion()
              ->ukRegion()
+             ->sgRegion()
              ->stubVatNumbersOnSubregions();
 
 
@@ -304,6 +339,9 @@ class TaxModel
         // AU Subregions
         $this->regions->AU->subregions->AU->vat_number = '';
 
+        // SG Subregions
+        $this->regions->SG->subregions->SG->vat_number = '';
+
         return $this;
     }
 
@@ -336,6 +374,39 @@ class TaxModel
         $this->regions->AU->subregions->AU->apply_tax = false;
         $this->regions->AU->subregions->AU->tax_rate = 10;
         $this->regions->AU->subregions->AU->tax_name = 'GST';
+
+        return $this;
+    }
+
+    /**
+     * Builds the model for Singapore Taxes
+     *
+     * @return self
+     */
+    private function sgRegion(): self
+    {
+        $this->regions->SG = new \stdClass();
+        $this->regions->SG->has_sales_above_threshold = false;
+        $this->regions->SG->tax_all_subregions = false;
+        $this->regions->SG->tax_threshold = 1000000;
+        $this->sgSubRegions();
+
+        return $this;
+    }
+
+    /**
+     * Builds the model for Singapore Subregions
+     *
+     * @return self
+     */
+    private function sgSubRegions(): self
+    {
+        $this->regions->SG->subregions = new \stdClass();
+        $this->regions->SG->subregions->SG = new \stdClass();
+        $this->regions->SG->subregions->SG->apply_tax = false;
+        $this->regions->SG->subregions->SG->tax_rate = 9;
+        $this->regions->SG->subregions->SG->tax_name = 'GST';
+        $this->regions->SG->subregions->SG->reduced_tax_rate = 0;
 
         return $this;
     }

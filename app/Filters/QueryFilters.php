@@ -328,12 +328,20 @@ abstract class QueryFilters
         }
 
         if ($this->with_property == 'id') {
-            $value = $this->decodePrimaryKey($value);
+
+            if (str_contains($value, ',')) {
+                $value = $this->transformKeys(explode(',', $value));
+            } else {
+                $value = [$this->decodePrimaryKey($value)];
+            }
+
+        } else {
+            $value = [$value];
         }
 
         return $this->builder
-            ->orWhere($this->with_property, $value)
-            ->orderByRaw("{$this->with_property} = ? DESC", [$value])
+            ->orWhereIn($this->with_property, $value)
+            ->orderByRaw("{$this->with_property} = ? DESC", [$value[0]])
             ->company();
     }
 

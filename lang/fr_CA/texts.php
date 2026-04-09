@@ -5952,6 +5952,7 @@ Développe automatiquement la section des notes dans le tableau de produits pour
     'sign_the_document' => 'Signer le document',
     'client_not_found_on_peppol_network' => 'Le client n\'a pas pu être identifié sur le réseau PEPPOL.',
     'too_many_requests' => 'Trop de requêtes',
+    'cloned_client' => 'Le client a été cloné',
 );
 
 return $lang;

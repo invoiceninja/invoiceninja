@@ -45,6 +45,7 @@ use Illuminate\Contracts\Translation\HasLocalePreference;
  * @property string|null $custom_value3
  * @property string|null $custom_value4
  * @property bool $send_email
+ * @property bool $cc_only
  * @property string|null $email_verified_at
  * @property string|null $confirmation_code
  * @property bool $confirmed
@@ -125,6 +126,7 @@ class VendorContact extends Authenticatable implements HasLocalePreference
         'is_primary',
         'vendor_id',
         'send_email',
+        'cc_only',
         'can_sign',
     ];
 

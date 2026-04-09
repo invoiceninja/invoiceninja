@@ -72,6 +72,7 @@ class InvoiceItemSum
     ];
 
     private array $tax_jurisdictions = [
+        'AD', // Andorra
         'AT', // Austria
         'BE', // Belgium
         'BG', // Bulgaria
@@ -112,6 +113,8 @@ class InvoiceItemSum
         'AU', // Australia
 
         'GB', // GB
+
+        'SG', // Singapore
     ];
 
     protected RecurringInvoice|Invoice|Quote|Credit|PurchaseOrder|RecurringQuote $invoice;

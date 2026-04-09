@@ -165,11 +165,21 @@ class PaymentFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
-        if (!is_array($sort_col) || count($sort_col) != 2 || (!in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable())) && !str_starts_with($sort_col[0], 'client.') && !str_starts_with($sort_col[0], 'contact.') && !str_starts_with($sort_col[0], 'documents'))) {
+        if (!is_array($sort_col) || 
+        count($sort_col) != 2 || 
+            (!in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable())) && 
+            !str_starts_with($sort_col[0], 'client.') && 
+            !str_starts_with($sort_col[0], 'contact.') && 
+            !str_starts_with($sort_col[0], 'documents') && 
+            !str_starts_with($sort_col[0], 'invoices'))) {
             return $this->builder;
         }
 
         $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
+
+        if ($sort_col[0] == 'documents') {
+            return $this->builder->withCount('documents')->orderBy('documents_count', $dir);
+        }
 
         if (in_array($sort_col[0], ['client.name', 'client_id'])) {
             return $this->builder
@@ -230,8 +240,26 @@ class PaymentFilters extends QueryFilters
                 ->limit(1), $dir);
         }
 
+        /** Relationship sorting - invoices (via paymentables pivot) */
+        if ($sort_col[0] === 'invoices') {
+
+            return $this->builder->orderByRaw(
+                "REGEXP_REPLACE(
+                    COALESCE(
+                        (SELECT invoices.number FROM invoices
+                         INNER JOIN paymentables ON paymentables.paymentable_id = invoices.id
+                           AND paymentables.paymentable_type = 'invoices'
+                         WHERE paymentables.payment_id = payments.id
+                         ORDER BY paymentables.id ASC
+                         LIMIT 1),
+                        ''
+                    ), '[^0-9]+', ''
+                )+0 " . $dir
+            );
+        }
+
         if ($sort_col[0] == 'number') {
-            return $this->builder->orderByRaw("REGEXP_REPLACE(number,'[^0-9]+','')+0 " . $dir);
+            return $this->builder->orderByRaw("REGEXP_REPLACE(payments.number,'[^0-9]+','')+0 " . $dir);
         }
 
         return $this->builder->orderBy($sort_col[0], $dir);
