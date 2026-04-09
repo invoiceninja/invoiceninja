@@ -211,7 +211,7 @@ class InvoiceService
 
     public function getEInvoice($contact = null)
     {
-        return (new CreateEDocument($this->invoice))->handle();
+        return (new CreateEDocument($this->invoice, contact: $contact))->handle();
     }
 
     public function getEDocument($contact = null)

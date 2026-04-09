@@ -16,6 +16,7 @@ use App\Utils\Ninja;
 use App\Models\Quote;
 use App\Models\Credit;
 use App\Models\Invoice;
+use App\Models\ClientContact;
 use App\Models\PurchaseOrder;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\App;
@@ -41,7 +42,7 @@ class CreateEDocument implements ShouldQueue
 
     public $deleteWhenMissingModels = true;
 
-    public function __construct(private object $document, private bool $returnObject = false) {}
+    public function __construct(private object $document, private bool $returnObject = false, private ?ClientContact $contact = null) {}
 
     /**
      * Execute the job.
@@ -87,7 +88,7 @@ class CreateEDocument implements ShouldQueue
                 case "XInvoice-Basic":
 
                     //New implementation now the default 2025-02-04 - requires zugferd_version_two=false to disable
-                    $zugferd = (new ZugferdEDocument($this->document))->run();
+                    $zugferd = (new ZugferdEDocument($this->document, contact: $this->contact))->run();
 
                     return $this->returnObject ? $zugferd->xdocument : $zugferd->getXml();
                 case "Facturae_3.2":
@@ -96,7 +97,7 @@ class CreateEDocument implements ShouldQueue
                     return (new FacturaEInvoice($this->document, str_replace("Facturae_", "", $e_document_type)))->run();
                 default:
 
-                    $zugferd = (new ZugferdEDokument($this->document))->run();
+                    $zugferd = (new ZugferdEDokument($this->document, contact: $this->contact))->run();
 
                     return $this->returnObject ? $zugferd : $zugferd->getXml();
 
@@ -135,10 +136,10 @@ class CreateEDocument implements ShouldQueue
                 case "XInvoice-Extended":
                 case "XInvoice-BasicWL":
                 case "XInvoice-Basic":
-                    $zugferd = (new ZugferdEDokument($this->document))->run();
+                    $zugferd = (new ZugferdEDokument($this->document, contact: $this->contact))->run();
                     return $this->returnObject ? $zugferd->xdocument : $zugferd->getXml();
                 default:
-                    $zugferd = (new ZugferdEDokument($this->document))->run();
+                    $zugferd = (new ZugferdEDokument($this->document, contact: $this->contact))->run();
                     return $this->returnObject ? $zugferd : $zugferd->getXml();
             }
         } else {

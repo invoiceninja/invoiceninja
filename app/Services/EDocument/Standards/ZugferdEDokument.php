@@ -18,6 +18,7 @@ use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Product;
 use App\Models\Quote;
+use App\Models\ClientContact;
 use App\Services\AbstractService;
 use horstoeko\zugferd\codelists\ZugferdDutyTaxFeeCategories;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
@@ -39,7 +40,7 @@ class ZugferdEDokument extends AbstractService
      * @param  array $tax_map
      * @return void
      */
-    public function __construct(public \App\Models\Invoice|\App\Models\Quote|\App\Models\PurchaseOrder|\App\Models\Credit $document, private readonly bool $returnObject = false, private array $tax_map = []) {}
+    public function __construct(public \App\Models\Invoice|\App\Models\Quote|\App\Models\PurchaseOrder|\App\Models\Credit $document, private readonly bool $returnObject = false, private array $tax_map = [], private ?ClientContact $contact = null) {}
 
     public function run(): self
     {
@@ -68,17 +69,19 @@ class ZugferdEDokument extends AbstractService
         $this->xdocument = ZugferdDocumentBuilder::CreateNew($profile);
 
         $user_or_company_phone = strlen($this->document->user->present()->phone()) > 3 ? $this->document->user->present()->phone() : $company->present()->phone;
+        $company_email = $company->getSetting('email') ?: $this->document->user->email;
+        $buyer_contact = $this->resolveBuyerContact($client);
 
         $this->xdocument
             ->setDocumentSupplyChainEvent(date_create($this->document->date ?? now()->format('Y-m-d')))
             ->setDocumentSeller($company->getSetting('name'))
             ->setDocumentSellerAddress($company->getSetting("address1"), $company->getSetting("address2"), "", $company->getSetting("postal_code"), $company->getSetting("city"), $company->country()->iso_3166_2, $company->getSetting("state"))
-            ->setDocumentSellerContact($this->document->user->present()->getFullName(), "", $user_or_company_phone, "", $this->document->user->email)
-            ->setDocumentSellerCommunication("EM", $this->document->user->email)
+            ->setDocumentSellerContact($this->document->user->present()->getFullName(), "", $user_or_company_phone, "", $company_email)
+            ->setDocumentSellerCommunication("EM", $company_email)
             ->setDocumentBuyer($client->present()->name(), $client->number)
             ->setDocumentBuyerAddress($client->address1, "", "", $client->postal_code, $client->city, $client->country->iso_3166_2, $client->state)
-            ->setDocumentBuyerContact($client->present()->primary_contact_name(), "", $client->present()->phone(), "", $client->present()->email())
-            ->setDocumentBuyerCommunication("EM", $client->present()->email())
+            ->setDocumentBuyerContact($this->getBuyerContactName($client, $buyer_contact), "", $buyer_contact?->phone ?: $client->present()->phone(), "", $this->getBuyerContactEmail($client, $buyer_contact))
+            ->setDocumentBuyerCommunication("EM", $this->getBuyerContactEmail($client, $buyer_contact))
             ->addDocumentPaymentTerm(ctrans("texts.xinvoice_payable", ['payeddue' => date_create($this->document->date ?? now()->format('Y-m-d'))->diff(date_create($this->document->due_date ?? now()->format('Y-m-d')))->format("%d"), 'paydate' => $this->document->due_date]));
 
         if (!empty($this->document->public_notes)) {
@@ -304,6 +307,43 @@ class ZugferdEDokument extends AbstractService
         }
 
         return $this;
+    }
+
+    private function resolveBuyerContact(\App\Models\Client $client): ?ClientContact
+    {
+        if ($this->contact && $this->contact->client_id === $client->id) {
+            return $this->contact;
+        }
+
+        $invitation = $this->document->invitations()->with('contact')->whereNotNull('client_contact_id')->first();
+
+        if ($invitation?->contact) {
+            return $invitation->contact;
+        }
+
+        return $client->primary_contact()->first()
+            ?: $client->contacts()->whereNotNull('email')->first()
+            ?: $client->contacts()->first();
+    }
+
+    private function getBuyerContactName(\App\Models\Client $client, ?ClientContact $contact): string
+    {
+        if (! $contact) {
+            return $client->present()->primary_contact_name();
+        }
+
+        $name = trim("{$contact->first_name} {$contact->last_name}");
+
+        return $name !== '' ? $name : ($contact->email ?: $client->present()->name());
+    }
+
+    private function getBuyerContactEmail(\App\Models\Client $client, ?ClientContact $contact): string
+    {
+        if ($contact && filter_var($contact->email, FILTER_VALIDATE_EMAIL)) {
+            return $contact->email;
+        }
+
+        return $client->present()->email();
     }
     /**
      * Returns the XML document

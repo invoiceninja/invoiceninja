@@ -344,7 +344,7 @@ class InvoiceController extends Controller
             foreach ($invoices as $invoice) {
 
                 if ($invoice->client->getSetting('enable_e_invoice')) {
-                    $xml = $invoice->service()->getEInvoice();
+                    $xml = $invoice->service()->getEInvoice(auth()->guard('contact')->user());
                     $zipFile->addFromString($invoice->getFileName("xml"), $xml);
                 }
 
