@@ -79,17 +79,26 @@ class PdfMock
 
         $this->pdf_service->config = $pdf_config;
 
-        if (isset($this->request['design']) && is_array($this->request['design'])) {
-            $pdf_designer = (new PdfDesigner($this->pdf_service))->buildFromPartials($this->request['design']);
-        } else {
-            $pdf_designer = (new PdfDesigner($this->pdf_service))->build();
-        }
-
-        $this->pdf_service->designer = $pdf_designer;
-
         $this->pdf_service->html_variables = $document_type == 'purchase_order' ? $this->getVendorStubVariables() : $this->getStubVariables();
 
-        $pdf_builder = (new PdfBuilder($this->pdf_service))->build();
+        $designData = isset($this->request['design']) && is_array($this->request['design']) ? $this->request['design'] : null;
+
+        if ($designData && isset($designData['blocks'])) {
+            $this->pdf_service->designer = new PdfDesigner($this->pdf_service);
+            $this->pdf_service->designer->template = '';
+            $this->pdf_service->setJsonDesignHtml(
+                (new JsonDesignService($this->pdf_service, $designData))->build()
+            );
+            $pdf_builder = new PdfBuilder($this->pdf_service);
+        } else {
+            if ($designData) {
+                $pdf_designer = (new PdfDesigner($this->pdf_service))->buildFromPartials($designData);
+            } else {
+                $pdf_designer = (new PdfDesigner($this->pdf_service))->build();
+            }
+            $this->pdf_service->designer = $pdf_designer;
+            $pdf_builder = (new PdfBuilder($this->pdf_service))->build();
+        }
         $this->pdf_service->builder = $pdf_builder;
 
         return $this;
