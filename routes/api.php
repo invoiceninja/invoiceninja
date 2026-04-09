@@ -261,6 +261,10 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::delete('einvoice/peppol/remove_additional_legal_identifier', [EInvoicePeppolController::class, 'removeAdditionalTaxIdentifier'])->name('einvoice.peppol.remove_additional_legal_identifier');
     Route::post('einvoice/peppol/send', [EInvoicePeppolController::class, 'retrySend'])->name('einvoice.peppol.retry_send');
 
+    Route::post('einvoice/peppol/sg/c5/activate', [EInvoicePeppolController::class, 'c5Activate'])->name('einvoice.peppol.sg.c5.activate');
+    Route::post('einvoice/peppol/sg/c5/deactivate', [EInvoicePeppolController::class, 'c5Deactivate'])->name('einvoice.peppol.sg.c5.deactivate');
+    Route::put('einvoice/peppol/sg/c5/cancel', [EInvoicePeppolController::class, 'c5Cancel'])->name('einvoice.peppol.sg.c5.cancel');
+
     Route::post('einvoice/token/update', EInvoiceTokenController::class)->name('einvoice.token.update');
     Route::get('einvoice/quota', [EInvoiceController::class, 'quota'])->name('einvoice.quota');
     Route::get('einvoice/health_check', [EInvoiceController::class, 'healthcheck'])->name('einvoice.healthcheck');

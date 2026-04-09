@@ -64,6 +64,8 @@ class Storecove
 
     public StorecoveProxy $proxy;
 
+    public StorecoveC5 $c5;
+
     public function __construct()
     {
         $this->router = new StorecoveRouter();
@@ -71,6 +73,7 @@ class Storecove
         $this->adapter = new StorecoveAdapter($this);
         $this->expense = new StorecoveExpense($this);
         $this->proxy = new StorecoveProxy($this);
+        $this->c5 = new StorecoveC5($this);
     }
 
     /**
@@ -693,7 +696,7 @@ class Storecove
      * @param  array $headers
      * @return \Illuminate\Http\Client\Response
      */
-    private function httpClient(string $uri, string $verb, array $data, ?array $headers = [])
+    public function httpClient(string $uri, string $verb, array $data, ?array $headers = [])
     {
 
         try {
