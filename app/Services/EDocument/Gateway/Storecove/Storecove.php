@@ -303,14 +303,17 @@ class Storecove
             $response = $this->startCorpPassFlow($legal_entity_response['id'], $data['id_number']);
 
             if (! is_array($response)) {
-                return array_merge($response, [
-                    'legal_entity_id' => $legal_entity_response['id'],
-                    'tax_data' => [
-                        'acts_as_sender' => $data['acts_as_sender'],
-                        'acts_as_receiver' => $data['acts_as_receiver'],
-                    ]
-                ]);
+                $this->deleteIdentifier($legal_entity_response['id']);
+                return $response;
             }
+
+            return array_merge($response, [
+                'legal_entity_id' => $legal_entity_response['id'],
+                'tax_data' => [
+                    'acts_as_sender' => $data['acts_as_sender'],
+                    'acts_as_receiver' => $data['acts_as_receiver'],
+                ]
+            ]);
         }
         
         $add_identifier_response = $this->addIdentifier(
@@ -320,6 +323,7 @@ class Storecove
         );
 
         if (! is_array($add_identifier_response)) {
+            $this->deleteIdentifier($legal_entity_response['id']);
             return $add_identifier_response;
         }
 
@@ -338,8 +342,6 @@ class Storecove
         if ($data['country'] == "DK") {
             $add_identifier_response = $this->addIdentifier($legal_entity_response['id'], str_replace(" ", "", $data['vat_number']), "DK:DIGST");
         }
-
-        /** For Singapore, we start the CorpPass flow */
 
 
 
@@ -613,7 +615,7 @@ class Storecove
                 'flow_type' => 'corppass_flow_redirect',
                 'client_redirect_fail_url' => config('ninja.react_url') . '/einvoice/registration/failed',
                 'client_redirect_success_url' => config('ninja.react_url') . '/einvoice/registration/success',
-                'simulate_corppass' => true, // only for development!!
+                'simulate_corppass' => config('ninja.app_env') === 'local',
             ]
         ];
 
@@ -635,7 +637,7 @@ class Storecove
          */ 
         if ($r->successful()) {
             nlog($r->json());
-            return [];
+            return $r->json();
         }
 
         return $r;

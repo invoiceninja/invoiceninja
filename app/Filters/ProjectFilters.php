@@ -71,6 +71,10 @@ class ProjectFilters extends QueryFilters
 
         $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
 
+        if ($sort_col[0] == 'documents') {
+            return $this->builder->withCount('documents')->orderBy('documents_count', $dir);
+        }
+
         if (in_array($sort_col[0], ['client.name', 'client_id'])) {
             return $this->builder
                 ->orderByRaw(

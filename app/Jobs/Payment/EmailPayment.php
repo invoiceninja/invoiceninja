@@ -92,10 +92,8 @@ class EmailPayment implements ShouldQueue
 
         if ($this->payment->invoices && $this->payment->invoices->count() >= 1) {
 
-            if ($this->contact) {
-                $invitation = $this->payment->invoices->first()->invitations()->where('client_contact_id', $this->contact->id)->first();
-            } 
-
+            $invitation = $this->payment->invoices->first()->invitations()->where('client_contact_id', $this->contact->id)->first();
+            
             if(!$invitation) {
                 $invitation = $this->payment->invoices->first()->invitations()->first();
             }
@@ -110,6 +108,9 @@ class EmailPayment implements ShouldQueue
         $nmo->settings = $this->settings;
         $nmo->company = $this->company;
         $nmo->entity = $this->payment;
+        $nmo->cc = collect($this->payment->client->cc_contacts())
+        ->map(fn ($address) => $address->address)
+        ->toArray();
 
         (new NinjaMailerJob($nmo))->handle();
 
@@ -132,9 +133,17 @@ class EmailPayment implements ShouldQueue
 
         $primaryInvite = $validInvitations->first();
 
+        /** Contacts who have an invite and need a copy of the receipt */
         $ccEmails = $validInvitations->slice(1)->map(function ($invite) {
             return $invite->contact->email;
         })->values()->all();
+
+        /** Merge in the CC only contacts who DON'T have an invite */
+        $ccOnlyEmails = collect($this->payment->client->cc_contacts())
+            ->map(fn ($address) => $address->address)
+            ->toArray();
+
+        $ccEmails = array_unique(array_merge($ccEmails, $ccOnlyEmails));
 
         $email_builder = (new PaymentEmailEngine($this->payment, $primaryInvite->contact))->build();
 

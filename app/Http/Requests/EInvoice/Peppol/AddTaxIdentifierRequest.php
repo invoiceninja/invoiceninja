@@ -51,6 +51,7 @@ class AddTaxIdentifierRequest extends FormRequest
         'SE' => '/^SE\d{12}$/',                     // Sweden
         'SI' => '/^SI\d{8}$/',                     // Slovenia
         'SK' => '/^SK\d{10}$/',                    // Slovakia
+        'SG' => '/^SG(\d{8}[A-Z]|\d{9}[A-Z]|[TS]\d{2}[A-Z]{2}\d{4}[A-Z])$/',
     ];
 
     public function authorize(): bool

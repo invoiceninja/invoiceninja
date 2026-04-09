@@ -394,7 +394,7 @@ class Client extends BaseModel implements HasLocalePreference
             ->where('is_locked', false)
             ->limit(4)
             ->get()
-            ->map(fn ($c) => new Address($c->email, $c->present()->name()))
+            ->map(fn ($c) => new Address($c->email, $c->present()->name())) // @phpstan-ignore-line
             ->toArray();
     }
 
