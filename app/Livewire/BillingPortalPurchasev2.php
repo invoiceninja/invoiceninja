@@ -34,6 +34,7 @@ use Illuminate\Support\Facades\Cache;
 use App\Repositories\ClientRepository;
 use App\Repositories\ClientContactRepository;
 use Laracasts\Presenter\Exceptions\PresenterException;
+use Livewire\Attributes\Locked;
 
 class BillingPortalPurchasev2 extends Component
 {
@@ -115,6 +116,7 @@ class BillingPortalPurchasev2 extends Component
      *
      * @var string
      */
+    #[Locked]
     public string $db;
 
     /**

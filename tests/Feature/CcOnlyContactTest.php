@@ -658,7 +658,7 @@ class CcOnlyContactTest extends TestCase
         $this->contact->update(['send_email' => true, 'cc_only' => false]);
 
         // Create a second send_email contact
-        $contact2 = ClientContact::factory()->create([
+        ClientContact::factory()->create([
             'user_id' => $this->user->id,
             'client_id' => $this->client->id,
             'company_id' => $this->company->id,

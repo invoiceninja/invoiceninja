@@ -213,7 +213,7 @@ class ProcessBankRulesTest extends TestCase
             ['search_key' => 'description', 'operator' => 'contains', 'value' => '$invoice.number'],
         ]);
 
-        $shortInvoice = $this->createInvoice([
+        $this->createInvoice([
             'number' => 'INV-001',
             'amount' => 50,
             'balance' => 50,

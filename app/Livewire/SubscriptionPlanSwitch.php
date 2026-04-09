@@ -38,6 +38,7 @@ class SubscriptionPlanSwitch extends Component
     #[Locked] 
     public $contact_id;
 
+    #[Locked]
     public $db;
 
     /**

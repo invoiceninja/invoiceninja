@@ -175,8 +175,10 @@ class BillingPortalPurchase extends Component
      *
      * @var \App\Models\Company
      */
+    #[Locked]
     public $company;
 
+    #[Locked]
     public $db;
 
     /**
