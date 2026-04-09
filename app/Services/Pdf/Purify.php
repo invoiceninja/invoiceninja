@@ -295,6 +295,9 @@ class Purify
             return $html;
         }
 
+        // Check before DOMDocument processing whether the input already has <p> tags
+        $original_had_p_tags = preg_match('/<p[\s>]/i', $html) === 1;
+
         libxml_use_internal_errors(true);
 
         $document = new \DOMDocument();
@@ -448,6 +451,12 @@ class Purify
                     foreach ($body->childNodes as $child) {
                         $html .= $document->saveHTML($child);
                     }
+                }
+
+                // DOMDocument wraps loose text in <p> tags — strip them if the
+                // original input did not contain any <p> elements.
+                if (!$original_had_p_tags) {
+                    $html = preg_replace('/<\/?p(?:\s[^>]*)?>/', '', $html);
                 }
             } else {
                 $html = $document->saveHTML();
