@@ -280,6 +280,7 @@ class EmailDefaults
     /**
      * Sets the CC of the email from cc_only contacts.
      * Feature-gated: hosted free accounts are excluded.
+     * CC-only contacts receive one copy only — attached to the first invitation for the entity.
      * Deduplicates against any existing CC addresses (e.g. manual cc_email from request).
      */
     private function setCc(): self
@@ -291,6 +292,12 @@ class EmailDefaults
         $entity = $this->email->email_object->entity;
 
         if (!$entity) {
+            return $this;
+        }
+
+        /* Only attach cc_only contacts to the first invitation for this entity */
+        $invitation = $this->email->email_object->invitation;
+        if ($invitation && $entity->invitations()->orderBy('id')->first()?->id !== $invitation->id) {
             return $this;
         }
 

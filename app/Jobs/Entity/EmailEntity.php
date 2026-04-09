@@ -64,7 +64,6 @@ class EmailEntity implements ShouldQueue
     /**
      * EmailEntity constructor.
      *
-     *
      * @param mixed $invitation
      * @param ?string    $reminder_template
      * @param array      $template_data
@@ -125,7 +124,8 @@ class EmailEntity implements ShouldQueue
         $nmo->reminder_template = $this->reminder_template;
         $nmo->entity = $this->entity->withoutRelations();
 
-        if (Ninja::isSelfHost() || $this->invitation->company->account->isPremium()) {
+        /* CC-only contacts receive one copy only — attached to the first invitation for this entity */
+        if ($this->isFirstInvitation() && (Ninja::isSelfHost() || $this->invitation->company->account->isPremium())) {
             if ($this->entity->client ?? null) {
                 $nmo->cc = $this->entity->client->cc_contacts();
             }
@@ -158,6 +158,15 @@ class EmailEntity implements ShouldQueue
         }
 
         return '';
+    }
+
+    /**
+     * Determines if this invitation is the first for its parent entity.
+     * Used to ensure cc_only contacts are only CC'd once per entity send.
+     */
+    private function isFirstInvitation(): bool
+    {
+        return $this->entity->invitations()->orderBy('id')->first()?->id === $this->invitation->id;
     }
 
     /* Builds the email builder object */

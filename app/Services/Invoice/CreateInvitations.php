@@ -34,7 +34,7 @@ class CreateInvitations extends AbstractService
             $this->createBlankContact();
         }
         
-        $this->invoice->client->contacts()->each(function ($contact) {
+        $this->invoice->client->contacts()->each(function (\App\Models\ClientContact $contact) {
             $invitation = InvoiceInvitation::query()->where('company_id', $this->invoice->company_id)
                                         ->where('client_contact_id', $contact->id)
                                         ->where('invoice_id', $this->invoice->id)

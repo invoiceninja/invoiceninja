@@ -33,7 +33,7 @@ class CountryDefaults
      * Only keys that differ from DEFAULTS need to be specified.
      * currency_id and timezone_id are static seeded IDs.
      *
-     * @var array<string, array<string, mixed>>
+     * @var array
      */
     private const DATA = [
 

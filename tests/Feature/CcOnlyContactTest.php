@@ -19,6 +19,7 @@ use App\Services\Credit\CreateInvitations as CreditCreateInvitations;
 use App\Services\Recurring\CreateRecurringInvitations;
 use App\Services\Email\EmailObject;
 use App\Services\Email\Email;
+use App\Repositories\ClientContactRepository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Mail\Mailables\Address;
@@ -528,8 +529,43 @@ class CcOnlyContactTest extends TestCase
 
     public function testCcOnlyCanBeUpdatedViaApi(): void
     {
-        $this->contact->update(['cc_only' => false]);
+        $secondary = ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'email' => 'secondary-api@test.com',
+            'cc_only' => false,
+            'is_primary' => false,
+        ]);
 
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/clients/' . $this->client->hashed_id, [
+            'contacts' => [
+                [
+                    'id' => $this->contact->hashed_id,
+                    'email' => $this->contact->email,
+                    'is_primary' => true,
+                ],
+                [
+                    'id' => $secondary->hashed_id,
+                    'email' => $secondary->email,
+                    'cc_only' => true,
+                ],
+            ],
+        ]);
+
+        $response->assertStatus(200);
+
+        $updated = collect($response->json('data.contacts'))
+            ->firstWhere('id', $secondary->hashed_id);
+
+        $this->assertTrue($updated['cc_only']);
+    }
+
+    public function testCcOnlyCannotBeSetOnPrimaryContactViaApi(): void
+    {
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
@@ -548,7 +584,7 @@ class CcOnlyContactTest extends TestCase
         $updated = collect($response->json('data.contacts'))
             ->firstWhere('id', $this->contact->hashed_id);
 
-        $this->assertTrue($updated['cc_only']);
+        $this->assertFalse($updated['cc_only'], 'Primary contact cc_only must always be forced to false');
     }
 
     public function testCcOnlyDefaultsToFalse(): void
@@ -572,6 +608,118 @@ class CcOnlyContactTest extends TestCase
             ->firstWhere('email', 'default-cc@test.com');
 
         $this->assertFalse($contact['cc_only'], 'cc_only should default to false');
+    }
+
+    // ─── Primary contact cc_only protection ──────────────────────
+
+    public function testPrimaryContactCcOnlyAlwaysForcedFalse(): void
+    {
+        $repo = new ClientContactRepository();
+
+        $repo->save([
+            'contacts' => [
+                [
+                    'email' => 'primary@test.com',
+                    'is_primary' => true,
+                    'cc_only' => true,
+                ],
+                [
+                    'email' => 'secondary@test.com',
+                    'is_primary' => false,
+                    'cc_only' => true,
+                ],
+            ],
+        ], $this->client);
+
+        $primary = $this->client->contacts()->where('email', 'primary@test.com')->first();
+        $secondary = $this->client->contacts()->where('email', 'secondary@test.com')->first();
+
+        $this->assertTrue((bool) $primary->is_primary);
+        $this->assertFalse((bool) $primary->cc_only, 'Primary contact must never have cc_only enabled');
+        $this->assertTrue((bool) $secondary->cc_only, 'Secondary contact should retain cc_only');
+    }
+
+    // ─── First-invitation CC logic ───────────────────────────────
+
+    public function testCcOnlyContactsAttachedToFirstInvitationOnly(): void
+    {
+        Queue::fake();
+
+        // Ensure isPremium() passes
+        config(['ninja.environment' => 'hosted', 'ninja.production' => true]);
+        $this->account->plan = 'pro';
+        $this->account->plan_paid = now()->subMonths(3);
+        $this->account->plan_expires = now()->addMonth();
+        $this->account->created_at = now()->subMonths(3);
+        $this->account->save();
+        $this->company->load('account');
+
+        // Ensure primary contact has send_email
+        $this->contact->update(['send_email' => true, 'cc_only' => false]);
+
+        // Create a second send_email contact
+        $contact2 = ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'email' => 'contact2@test.com',
+            'send_email' => true,
+            'cc_only' => false,
+            'is_primary' => false,
+        ]);
+
+        // Create a cc_only contact
+        ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'email' => 'cc-first-only@test.com',
+            'cc_only' => true,
+            'is_locked' => false,
+            'is_primary' => false,
+        ]);
+
+        // Rebuild invitations so both send_email contacts get one
+        $this->invoice->invitations()->forceDelete();
+        (new InvoiceCreateInvitations($this->invoice->fresh()))->run();
+        $this->invoice->refresh();
+
+        $this->assertGreaterThanOrEqual(2, $this->invoice->invitations->count());
+
+        $firstInvitation = $this->invoice->invitations()->orderBy('id')->first();
+        $secondInvitation = $this->invoice->invitations()->orderBy('id')->skip(1)->first();
+
+        $this->assertNotNull($firstInvitation);
+        $this->assertNotNull($secondInvitation);
+
+        // Build EmailObjects for each invitation (simulating the Email service path)
+        $mo1 = new EmailObject();
+        $mo1->entity_id = $this->invoice->id;
+        $mo1->entity_class = Invoice::class;
+        $mo1->invitation_id = $firstInvitation->id;
+        $mo1->client_id = $this->client->id;
+        $mo1->email_template_body = 'email_template_invoice';
+        $mo1->email_template_subject = 'email_subject_invoice';
+
+        $email1 = new Email($mo1, $this->company);
+        $email1->handle();
+
+        $mo2 = new EmailObject();
+        $mo2->entity_id = $this->invoice->id;
+        $mo2->entity_class = Invoice::class;
+        $mo2->invitation_id = $secondInvitation->id;
+        $mo2->client_id = $this->client->id;
+        $mo2->email_template_body = 'email_template_invoice';
+        $mo2->email_template_subject = 'email_subject_invoice';
+
+        $email2 = new Email($mo2, $this->company);
+        $email2->handle();
+
+        $cc1 = array_map(fn ($a) => $a->address, $mo1->cc);
+        $cc2 = array_map(fn ($a) => $a->address, $mo2->cc);
+
+        $this->assertContains('cc-first-only@test.com', $cc1, 'First invitation should include cc_only contact');
+        $this->assertNotContains('cc-first-only@test.com', $cc2, 'Second invitation should NOT include cc_only contact');
     }
 
     // ─── Entity update: invitation removed for cc_only contact ──
