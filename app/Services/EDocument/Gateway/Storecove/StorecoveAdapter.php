@@ -251,8 +251,25 @@ class StorecoveAdapter
         $accounting_customer_party = $this->storecove_invoice->getAccountingCustomerParty();
 
         if (strlen($this->ninja_invoice->client->vat_number ?? '') > 2) {
-            $id =  preg_replace("/[^a-zA-Z0-9]/", "", $this->ninja_invoice->client->vat_number ?? '');
-            $scheme = $this->storecove->router->setInvoice($this->ninja_invoice)->resolveTaxScheme($this->ninja_invoice->client->country->iso_3166_2, $this->ninja_invoice->client->classification ?? 'individual');
+            $id = preg_replace("/[^a-zA-Z0-9]/", "", $this->ninja_invoice->client->vat_number ?? '');
+            $country = $this->ninja_invoice->client->country->iso_3166_2;
+            $classification = $this->ninja_invoice->client->classification ?? 'individual';
+            $router = $this->storecove->router->setInvoice($this->ninja_invoice);
+            $scheme = $router->resolveTaxScheme($country, $classification);
+
+            if (empty($scheme)) {
+                $scheme = $router->resolveIdentifierScheme($country, $classification);
+            }
+
+            // If the value doesn't match the tax scheme format (e.g. UEN in vat_number
+            // instead of GST number), fall back to the identifier scheme for this country.
+            if ($scheme && !$router->matchesSchemeFormat($scheme, $id)) {
+                $altScheme = $router->resolveIdentifierScheme($country, $classification);
+                if ($altScheme && $router->matchesSchemeFormat($altScheme, $id)) {
+                    $scheme = $altScheme;
+                }
+            }
+
             $pi = new \App\Services\EDocument\Gateway\Storecove\Models\PublicIdentifiers($scheme, $id);
             $accounting_customer_party->addPublicIdentifiers($pi);
             $this->storecove_invoice->setAccountingCustomerParty($accounting_customer_party);
@@ -409,6 +426,18 @@ class StorecoveAdapter
 
         }
 
+        if (!isset($this->nexus)) {
+            $client_region = $br->region_codes[$client_country_code] ?? null;
+
+            if ($client_region && $this->companyHasTaxRegistration($client_region, $client_country_code)) {
+                nlog("fallback nexus to client country - company has tax registration in {$client_country_code}");
+                $this->nexus = $client_country_code;
+            } else {
+                nlog("fallback nexus to company country - export/no registration");
+                $this->nexus = $company_country_code;
+            }
+        }
+
         if ($company_country_code == 'DE' && $client_country_code == 'DE' && $this->ninja_invoice->client->classification == 'government') {
             $this->removeSupplierVatNumber();
         }
@@ -439,6 +468,13 @@ class StorecoveAdapter
         $this->storecove_invoice->setAccountingSupplierParty($asp);
 
         return $this;
+    }
+
+    private function companyHasTaxRegistration(string $region, string $country_code): bool
+    {
+        $vat_number = $this->ninja_invoice->company->tax_data->regions->{$region}->subregions->{$country_code}->vat_number ?? '';
+
+        return strlen($vat_number) > 1;
     }
 
     private function tranformTaxCode(string $code): ?string

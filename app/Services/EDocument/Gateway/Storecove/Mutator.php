@@ -302,9 +302,17 @@ class Mutator implements MutatorInterface
         }
 
 
-        $this->setStorecoveMeta($this->buildRouting([
-            ["scheme" => $code, "id" => $identifier],
-        ]));
+        // Composite routing codes (e.g. "0195:SGUENT08GA0028A") encode a fixed
+        // gateway endpoint as scheme:id — split and use directly.
+        if (preg_match('/^(\d{4}):(.+)$/', $code, $m)) {
+            $this->setStorecoveMeta($this->buildRouting([
+                ["scheme" => $m[1], "id" => $m[2]],
+            ]));
+        } else {
+            $this->setStorecoveMeta($this->buildRouting([
+                ["scheme" => $code, "id" => $identifier],
+            ]));
+        }
 
         $this->setSvefakturaNetwork();
 

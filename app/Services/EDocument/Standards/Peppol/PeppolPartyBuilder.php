@@ -78,7 +78,7 @@ class PeppolPartyBuilder
                 $companyID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CompanyID();
 
                 $pts = new \InvoiceNinja\EInvoice\Models\Peppol\PartyTaxSchemeType\PartyTaxScheme();
-                $companyID->value = preg_replace("/[^a-zA-Z0-9]/", "", $company_vat_number);
+                $companyID->value = $this->ensureVatNumberPrefix($company_vat_number, $invoice->company->country()->iso_3166_2);
                 $pts->CompanyID = $companyID;
 
                 $ts = new TaxScheme();

@@ -38,6 +38,11 @@ class StorecoveRouter
         return self::$peppol_network;
     }
 
+    public function hasRoutingRules(string $countryCode): bool
+    {
+        return isset($this->routing_rules[$countryCode]);
+    }
+
     /**
      * Provides a country matrix for the correct scheme to send via
      * [ "iso_3166_2" =>  [<business_type>, <identifier1>, <tax_identifier>, <routing_identifier>]
@@ -179,7 +184,7 @@ class StorecoveRouter
         'US:EIN'   => '/^\d{2}\-?\d{7}$/',
         'IN:GSTIN' => '/^\d{2}[A-Z]{5}\d{4}[A-Z]\d[A-Z0-9][A-Z0-9]$/i',
         'JP:IIN'   => '/^T?\d{13}$/',
-        'SG:GST'   => '/^[A-Z0-9]{8,10}$/i',
+        'SG:GST'   => '/^[A-Z0-9]{2}-\d{7}-[A-Z0-9]$/i',
         'SA:TIN'   => '/^\d{10,15}$/',
         'MY:TIN'   => '/^[A-Z0-9]{10,14}$/i',
 
@@ -262,7 +267,7 @@ class StorecoveRouter
         'US:EIN'   => '12-3456789',
         'IN:GSTIN' => '12ABCDE1234F1Z1',
         'JP:IIN'   => 'T1234567890123',
-        'SG:GST'   => 'M12345678',
+        'SG:GST'   => 'M2-1234567-X',
         'SA:TIN'   => '1234567890',
         'MY:TIN'   => 'C1234567890',
 
@@ -293,132 +298,157 @@ class StorecoveRouter
 
     public function __construct() {}
 
-    /**
-     * Return the routing code based on country and entity classification
-     *
-     * @param  string $country
-     * @param  ?string $classification DE:STNR
-     * @return string
-     */
-    public function resolveRouting(string $country, ?string $classification = 'business'): string
-    {
-        $classification ??= 'business';
-        $code = 'B';
-
-        match ($classification) {
-            "business" => $code = "B",
-            "government" => $code = "G",
-            "individual" => $code = "C",
-            default => $code = "B",
-        };
-
-        // Try country handler first
-        if (CountryFactory::has($country)) {
-            $handler = CountryFactory::make($country);
-
-            // Check for special-case override
-            $override = $handler->resolveRoutingOverride($classification, $this->invoice);
-            if ($override !== null) {
-                return $override;
-            }
-
-            // Check for handler-provided routing rules
-            $rules = $handler->getRoutingRules();
-            if ($rules !== null) {
-                return $this->resolveFromRules($rules, $code);
-            }
-        }
-
-        // Fall back to built-in routing_rules array
-        $rules = $this->routing_rules[$country];
-
-        return $this->resolveFromRules($rules, $code);
-    }
-
-    /**
-     * Resolve routing identifier from a rules array.
-     */
-    private function resolveFromRules(array $rules, string $code): string
-    {
-        //Single array
-        if (!is_array($rules[0])) {
-            return $rules[3];
-        }
-
-        //Multi Array - iterate
-        foreach ($rules as $rule) {
-            if (stripos($rule[0], $code) !== false) {
-                return $rule[3];
-            }
-        }
-
-        return $rules[0][3];
-    }
-
     public function setInvoice($invoice): self
     {
         $this->invoice = $invoice;
         return $this;
     }
+
     /**
-     * resolveTaxScheme
+     * Routing rules column indices.
      *
-     * @param  string $country
+     * Each routing rule is an array: [classification, identifier, tax, routing]
+     * These constants name the columns for readability.
+     */
+    private const COL_IDENTIFIER = 1;
+    private const COL_TAX        = 2;
+    private const COL_ROUTING    = 3;
+
+    /**
+     * Map a classification label to the single-char code used in routing rules.
+     */
+    private function classificationCode(?string $classification): string
+    {
+        return match ($classification ?? 'business') {
+            'government' => 'G',
+            'individual' => 'C',
+            default      => 'B',
+        };
+    }
+
+    /**
+     * Generic resolver: extract a column value from the routing rules
+     * for a given country and classification.
+     *
+     * Checks the CountryFactory handler first (override callback, then
+     * handler-provided rules), falling back to the built-in routing_rules.
+     *
+     * @param  string  $country         ISO 3166-2 country code
+     * @param  string  $code            Classification code (B/G/C)
+     * @param  int     $column          Column index to extract (use COL_* constants)
+     * @param  ?string $overrideMethod  CountryHandler method to call for special-case overrides
+     * @param  ?string $classification  Original classification label (passed to override)
+     * @return string
+     */
+    private function resolveRuleColumn(string $country, string $code, int $column, ?string $overrideMethod = null, ?string $classification = null): string
+    {
+        if (CountryFactory::has($country)) {
+            $handler = CountryFactory::make($country);
+
+            if ($overrideMethod) {
+                $override = $handler->$overrideMethod($classification, $this->invoice);
+                if ($override !== null) {
+                    return $override;
+                }
+            }
+
+            $rules = $handler->getRoutingRules();
+            if ($rules !== null) {
+                return $this->extractFromRules($rules, $code, $column);
+            }
+        }
+
+        $rules = $this->routing_rules[$country] ?? [false, false, false, false];
+
+        return $this->extractFromRules($rules, $code, $column);
+    }
+
+    /**
+     * Extract a column value from a single or multi-row rules array.
+     *
+     * @param  array  $rules  Single rule or array of rules
+     * @param  string $code   Classification code to match (B/G/C)
+     * @param  int    $column Column index to extract
+     * @return string         The resolved value, or empty string if falsy
+     */
+    private function extractFromRules(array $rules, string $code, int $column): string
+    {
+        // Single-array country (e.g. ["B+G", "NO:ORG", "NO:VAT", "NO:ORG"])
+        if (!is_array($rules[0])) {
+            return $rules[$column] ?: '';
+        }
+
+        // Multi-array — find matching classification
+        foreach ($rules as $rule) {
+            if (stripos($rule[0], $code) !== false) {
+                return $rule[$column] ?: '';
+            }
+        }
+
+        return $rules[0][$column] ?: '';
+    }
+
+    /**
+     * Resolve the routing identifier (rule column 3) for delivery.
+     *
+     * For most countries this is a scheme label like "SE:ORGNR".
+     * For fixed-endpoint countries (e.g. SG Government) it may be a
+     * composite "icd:endpointId" like "0195:SGUENT08GA0028A".
+     *
+     * @param  string  $country
+     * @param  ?string $classification
+     * @return string
+     */
+    public function resolveRouting(string $country, ?string $classification = 'business'): string
+    {
+        return $this->resolveRuleColumn(
+            $country,
+            $this->classificationCode($classification),
+            self::COL_ROUTING,
+            'resolveRoutingOverride',
+            $classification,
+        );
+    }
+
+    /**
+     * Resolve the tax scheme (rule column 2) for a country/classification.
+     *
+     * Returns empty string when no tax scheme applies (e.g. government
+     * entities that route via a central gateway rather than a tax identifier).
+     *
+     * @param  string  $country
      * @param  ?string $classification
      * @return string
      */
     public function resolveTaxScheme(string $country, ?string $classification = "business"): string
     {
-        $classification ??= 'business';
-        $code = "B";
-
-        match ($classification) {
-            "business" => $code = "B",
-            "government" => $code = "G",
-            "individual" => $code = "C",
-            default => $code = "B",
-        };
-
-        // Try country handler first
-        if (CountryFactory::has($country)) {
-            $handler = CountryFactory::make($country);
-
-            // Check for special-case override
-            $override = $handler->resolveTaxSchemeOverride($classification, $this->invoice);
-            if ($override !== null) {
-                return $override;
-            }
-
-            // Check for handler-provided routing rules
-            $rules = $handler->getRoutingRules();
-            if ($rules !== null) {
-                return $this->resolveTaxFromRules($rules, $code);
-            }
-        }
-
-        // Fall back to built-in routing_rules array
-        $rules = $this->routing_rules[$country] ?? [false, false, false, false];
-
-        return $this->resolveTaxFromRules($rules, $code);
+        return $this->resolveRuleColumn(
+            $country,
+            $this->classificationCode($classification),
+            self::COL_TAX,
+            'resolveTaxSchemeOverride',
+            $classification,
+        );
     }
 
     /**
-     * Resolve tax scheme from a rules array.
+     * Resolve the identifier scheme (rule column 1) for a country/classification.
+     *
+     * This is the primary identifier type (e.g. SG:UEN, SE:ORGNR) as opposed
+     * to the tax-specific scheme in column 2. Used as a fallback when the tax
+     * scheme is empty (e.g. SG Government).
+     *
+     * @param  string  $country
+     * @param  ?string $classification
+     * @return string
      */
-    private function resolveTaxFromRules(array $rules, string $code)
+    public function resolveIdentifierScheme(string $country, ?string $classification = "business"): string
     {
-        //single array
-        if (!is_array($rules[0])) {
-            return $rules[2];
-        }
-
-        foreach ($rules as $rule) {
-            if (stripos($rule[0], $code) !== false) {
-                return $rule[2];
-            }
-        }
-
-        return $rules[0][2];
+        return $this->resolveRuleColumn(
+            $country,
+            $this->classificationCode($classification),
+            self::COL_IDENTIFIER,
+        );
     }
 
     /**
@@ -437,15 +467,13 @@ class StorecoveRouter
             return false;
         }
 
-        $code = match ($classification) {
-            'government' => 'G',
-            'individual' => 'C',
-            'other' => 'O', // Bypasses e-invoicing altogether and makes the client non-routable
-            default => 'B',
-        };
+        // 'other' bypasses e-invoicing altogether
+        $code = $classification === 'other'
+            ? 'O'
+            : $this->classificationCode($classification);
 
         // Single-array country (e.g. ["B+G", ...])
-        if (is_array($rules) && !is_array($rules[0])) {
+        if (!is_array($rules[0])) {
             return stripos($rules[0], $code) !== false;
         }
 
@@ -485,42 +513,19 @@ class StorecoveRouter
             return [];
         }
 
-        $code = match ($classification) {
-            'government' => 'G',
-            'individual' => 'C',
-            default => 'B',
-        };
-
-        // Find the matching rule
-        $rule = null;
-
-        // Single-array country (applies to all classifications)
-        if (is_array($rules) && !is_array($rules[0])) {
-            $rule = $rules;
-        } else {
-            // Multi-array — find matching classification
-            foreach ($rules as $r) {
-                if (stripos($r[0], $code) !== false) {
-                    $rule = $r;
-                    break;
-                }
-            }
-            // Fallback to first rule if no match
-            if (!$rule) {
-                $rule = $rules[0];
-            }
-        }
+        $code = $this->classificationCode($classification);
+        $rule = $this->findMatchingRule($rules, $code);
 
         $required = [];
 
-        // Column 2: tax_identifier → vat_number
-        if (!empty($rule[2])) {
-            $required['vat_number'] = $rule[2];
+        // Column 2 (tax_identifier) → vat_number
+        if (!empty($rule[self::COL_TAX])) {
+            $required['vat_number'] = $rule[self::COL_TAX];
         }
 
-        // Column 1: identifier1 → id_number
-        if (!empty($rule[1])) {
-            $required['id_number'] = $rule[1];
+        // Column 1 (identifier) → id_number
+        if (!empty($rule[self::COL_IDENTIFIER])) {
+            $required['id_number'] = $rule[self::COL_IDENTIFIER];
         }
 
         // IT B2B/B2G requires routing_id (Codice Destinatario)
@@ -529,6 +534,30 @@ class StorecoveRouter
         }
 
         return $required;
+    }
+
+    /**
+     * Find the matching rule row for a classification code.
+     *
+     * @param  array  $rules  Single rule or array of rules
+     * @param  string $code   Classification code (B/G/C)
+     * @return array           The matched rule row
+     */
+    private function findMatchingRule(array $rules, string $code): array
+    {
+        // Single-array country
+        if (!is_array($rules[0])) {
+            return $rules;
+        }
+
+        // Multi-array — find matching classification
+        foreach ($rules as $rule) {
+            if (stripos($rule[0], $code) !== false) {
+                return $rule;
+            }
+        }
+
+        return $rules[0];
     }
 
     /**
@@ -576,6 +605,20 @@ class StorecoveRouter
         $checkdigitResult = $this->checkdigit($scheme, $cleanValue);
 
         return $checkdigitResult !== false;
+    }
+
+    /**
+     * Strict format check — preserves dashes/hyphens in the value.
+     * Used at send-time to verify the value matches the exact format
+     * expected by the delivery network (e.g. Storecove).
+     */
+    public function matchesSchemeFormat(string $scheme, string $value): bool
+    {
+        if (!isset($this->identifier_regex[$scheme])) {
+            return strlen($value) >= 2;
+        }
+
+        return (bool) preg_match($this->identifier_regex[$scheme], $value);
     }
 
     /**
