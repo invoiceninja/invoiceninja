@@ -40,8 +40,6 @@ class StorecoveAdapter
 
     private array $errors = [];
 
-    private bool $valid_document = true;
-
     private $ninja_invoice;
 
     private string $nexus;
