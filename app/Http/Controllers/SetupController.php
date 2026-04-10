@@ -191,7 +191,7 @@ class SetupController extends Controller
         try {
             $status = SystemHealth::dbCheck($request);
 
-            if (is_array($status) && $status['success'] === true) {
+            if ($status['success'] === true) {
                 return response([], 200);
             }
 

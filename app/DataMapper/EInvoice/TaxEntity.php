@@ -49,7 +49,7 @@ class TaxEntity
             $this->{$key} = $value;
         }
 
-        $this->migrate();
+        $this->migrate(); //@phpstan-ignore-line
     }
 
     public function init(): self
