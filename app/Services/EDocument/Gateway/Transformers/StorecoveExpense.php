@@ -51,6 +51,12 @@ class StorecoveExpense
 
     public function __construct(private Storecove $storecove) {}
 
+    /**
+     * Deserializes a raw Storecove JSON string into a Storecove Invoice model.
+     *
+     * @param  string $storecove_json
+     * @return Invoice
+     */
     public function getStorecoveInvoice($storecove_json)
     {
 
@@ -112,6 +118,14 @@ class StorecoveExpense
         return $storecove_invoice;
     }
 
+    /**
+     * Creates an expense and vendor from a Storecove invoice, logs the activity,
+     * and attaches any embedded document attachments.
+     *
+     * @param  Invoice $storecove_invoice
+     * @param  Company $company
+     * @return \App\Models\Expense
+     */
     public function createExpense(Invoice $storecove_invoice, Company $company)
     {
 
@@ -177,6 +191,13 @@ class StorecoveExpense
 
     }
 
+    /**
+     * Transforms a Storecove Invoice model into an expense array with vendor data,
+     * tax breakdowns, and currency resolution.
+     *
+     * @param  Invoice $storecove_invoice
+     * @return array
+     */
     public function transform(Invoice $storecove_invoice): array
     {
 

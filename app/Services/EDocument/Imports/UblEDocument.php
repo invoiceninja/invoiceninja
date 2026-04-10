@@ -39,7 +39,10 @@ class UblEDocument extends AbstractService
     }
 
     /**
+     * Parses a UBL XML file into a Peppol model and creates an expense with vendor.
+     *
      * @throws \Throwable
+     * @return \App\Models\Expense
      */
     public function run(): \App\Models\Expense
     {
@@ -228,6 +231,12 @@ class UblEDocument extends AbstractService
 
     }
 
+    /**
+     * Resolves a currency code (e.g. 'EUR') to its database ID, falling back to company default.
+     *
+     * @param  string $currency_code
+     * @return int
+     */
     private function resolveCurrencyId(string $currency_code): int
     {
 
@@ -240,7 +249,11 @@ class UblEDocument extends AbstractService
     }
 
     /**
+     * Finds an existing vendor by VAT number, routing ID, id number, or name,
+     * or creates a new one from the supplier party data.
+     *
      * @param \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice
+     * @return Vendor
      */
     private function findOrCreateVendor(\InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): Vendor
     {
@@ -274,7 +287,10 @@ class UblEDocument extends AbstractService
     }
 
     /**
+     * Resolves the supplier name from PartyName or PartyLegalEntity.
+     *
      * @param \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice
+     * @return string
      */
     private function resolveSupplierName(\InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): string
     {
@@ -292,7 +308,10 @@ class UblEDocument extends AbstractService
     }
 
     /**
+     * Extracts the supplier's party identification number (e.g. company registration number).
+     *
      * @param \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice
+     * @return string
      */
     private function resolveVendorIdNumber(\InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): string
     {
@@ -304,7 +323,10 @@ class UblEDocument extends AbstractService
     }
 
     /**
+     * Extracts the supplier's VAT number from the PartyTaxScheme CompanyID.
+     *
      * @param \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice
+     * @return string
      */
     private function resolveVendorVat(\InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): string
     {
@@ -316,7 +338,10 @@ class UblEDocument extends AbstractService
     }
 
     /**
+     * Creates a new vendor from the Peppol supplier party data, including address and contact.
+     *
      * @param \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice
+     * @return Vendor
      */
     private function newVendor(\InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): Vendor
     {
@@ -355,6 +380,12 @@ class UblEDocument extends AbstractService
 
     }
 
+    /**
+     * Resolves an ISO country code to its database ID, falling back to company default.
+     *
+     * @param  string|null $iso_country_code
+     * @return int
+     */
     private function resolveCountry(?string $iso_country_code): int
     {
         return Country::query()

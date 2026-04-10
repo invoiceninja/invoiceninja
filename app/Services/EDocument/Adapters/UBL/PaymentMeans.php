@@ -102,6 +102,11 @@ class PaymentMeans implements PaymentMeansInterface
         'ZZZ' => 'Mutually defined',
     ];
 
+    /**
+     * Builds the UBL payment means structure (not yet implemented).
+     *
+     * @return void
+     */
     public function run() {}
 
 }

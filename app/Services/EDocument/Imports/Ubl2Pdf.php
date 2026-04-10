@@ -43,6 +43,11 @@ class Ubl2Pdf extends AbstractService
         $this->invoice = $invoice;
     }
 
+    /**
+     * Renders a UBL e-invoice as a styled PDF using the TD14 HTML template.
+     *
+     * @return void
+     */
     public function run()
     {
 
@@ -78,6 +83,11 @@ class Ubl2Pdf extends AbstractService
 
     }
 
+    /**
+     * Returns a keyed array of common translated labels for the PDF template.
+     *
+     * @return array
+     */
     private function getGenericTranslations(): array
     {
         return [
@@ -103,6 +113,12 @@ class Ubl2Pdf extends AbstractService
         ];
     }
 
+    /**
+     * Strips null/empty values and formats DateTime objects using the company date format.
+     *
+     * @param  array $array
+     * @return array
+     */
     private function processValues(array $array): array
     {
 
@@ -120,6 +136,11 @@ class Ubl2Pdf extends AbstractService
 
     }
 
+    /**
+     * Extracts the buyer/customer party details from the Peppol invoice.
+     *
+     * @return array
+     */
     private function clientDetails(): array
     {
         return $this->processValues([
@@ -137,6 +158,11 @@ class Ubl2Pdf extends AbstractService
         ]);
     }
 
+    /**
+     * Extracts the seller/supplier party details from the Peppol invoice.
+     *
+     * @return array
+     */
     private function supplierDetails(): array
     {
         return $this->processValues([
@@ -157,6 +183,11 @@ class Ubl2Pdf extends AbstractService
         ]);
     }
 
+    /**
+     * Generates custom CSS column widths for the invoice line items table.
+     *
+     * @return string
+     */
     private function customCss(): string
     {
         $css = '';
@@ -171,6 +202,11 @@ class Ubl2Pdf extends AbstractService
 
     }
 
+    /**
+     * Extracts document-level details (currency, type code, number, dates) and line items.
+     *
+     * @return array
+     */
     private function invoiceDetails(): array
     {
 
@@ -187,6 +223,11 @@ class Ubl2Pdf extends AbstractService
         return $data;
     }
 
+    /**
+     * Extracts document metadata including currency, terms, and public notes.
+     *
+     * @return array
+     */
     private function metadata(): array
     {
 
@@ -197,6 +238,11 @@ class Ubl2Pdf extends AbstractService
         ]);
     }
 
+    /**
+     * Collects payment means and terms from the invoice into a newline-separated string.
+     *
+     * @return string
+     */
     private function harvestTerms(): string
     {
 
@@ -217,6 +263,11 @@ class Ubl2Pdf extends AbstractService
 
     }
 
+    /**
+     * Transforms Peppol InvoiceLine items into a formatted array for the PDF template.
+     *
+     * @return array
+     */
     private function invoiceLines(): array
     {
         $lines = data_get($this->invoice, 'InvoiceLine', []);
@@ -239,6 +290,11 @@ class Ubl2Pdf extends AbstractService
         }, $lines);
     }
 
+    /**
+     * Extracts subtotals, tax breakdowns, and balance due from LegalMonetaryTotal and TaxTotal.
+     *
+     * @return array
+     */
     private function totals(): array
     {
         $tax_inc = data_get($this->invoice, 'LegalMonetaryTotal.TaxInclusiveAmount.amount', 0);

@@ -49,7 +49,7 @@ class SG extends BaseCountry
         $uen = $company->settings->id_number ?? '';
 
         // Fix supplier EndpointID: must be UEN, not GST number
-        if (strlen($uen) > 1 && isset($p_invoice->AccountingSupplierParty->Party->EndpointID)) {
+        if (strlen($uen) > 1 && isset($p_invoice->AccountingSupplierParty->Party->EndpointID)) { //@phpstan-ignore-line
             $p_invoice->AccountingSupplierParty->Party->EndpointID->value = preg_replace("/[^a-zA-Z0-9]/", "", $uen);
             $p_invoice->AccountingSupplierParty->Party->EndpointID->schemeID = '0195';
         }
@@ -74,7 +74,7 @@ class SG extends BaseCountry
         $uen = $client->id_number ?? '';
 
         // Fix customer EndpointID: must be UEN, not GST number
-        if (strlen($uen) > 1 && isset($p_invoice->AccountingCustomerParty->Party->EndpointID)) {
+        if (strlen($uen) > 1 && isset($p_invoice->AccountingCustomerParty->Party->EndpointID)) { //@phpstan-ignore-line
             $p_invoice->AccountingCustomerParty->Party->EndpointID->value = preg_replace("/[^a-zA-Z0-9]/", "", $uen);
             $p_invoice->AccountingCustomerParty->Party->EndpointID->schemeID = '0195';
         }

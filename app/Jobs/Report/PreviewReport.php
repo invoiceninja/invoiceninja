@@ -39,7 +39,7 @@ class PreviewReport implements ShouldQueue
     {
         MultiDB::setDb($this->company->db);
 
-        /** @var \App\Export\CSV\BaseExport $export */
+        /** @var \App\Services\Report\ProfitLoss|\App\Export\CSV\BaseExport $export */
         $export = new $this->report_class($this->company, $this->request);
 
         if ($export instanceof \App\Export\CSV\BaseExport) {
