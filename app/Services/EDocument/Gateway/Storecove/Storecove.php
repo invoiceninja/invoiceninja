@@ -87,8 +87,7 @@ class Storecove
         // return
         $this->adapter
              ->transform($model)
-             ->decorate()
-             ->validate();
+             ->decorate();
 
         return $this;
     }

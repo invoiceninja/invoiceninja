@@ -46,21 +46,21 @@ class StorecoveAdapter
 
     private bool $has_error = false;
 
-    public function validate(): self
-    {
-
-        if ($this->has_error) {
-            return $this;
-        }
-
-        return $this;
-    }
-
+    /**
+     * Returns the transformed Storecove invoice model.
+     *
+     * @return Invoice
+     */
     public function getInvoice(): Invoice
     {
         return $this->storecove_invoice;
     }
 
+    /**
+     * Returns the array of accumulated validation and transformation errors.
+     *
+     * @return array
+     */
     public function getErrors(): array
     {
         return $this->errors;
@@ -81,6 +81,12 @@ class StorecoveAdapter
         return $this;
     }
 
+    /**
+     * Deserializes a raw Storecove API response into a Storecove Invoice model.
+     *
+     * @param  array $storecove_object
+     * @return Invoice
+     */
     public function deserialize($storecove_object)
     {
 
@@ -143,11 +149,22 @@ class StorecoveAdapter
 
     }
 
+    /**
+     * Returns the resolved tax nexus country code (ISO 3166-2).
+     *
+     * @return string
+     */
     public function getNexus(): string
     {
         return $this->nexus;
     }
 
+    /**
+     * Decorates the Storecove invoice with tax nexus data, payment means codes,
+     * allowance/charge adjustments, and customer public identifiers.
+     *
+     * @return self
+     */
     public function decorate(): self
     {
         if ($this->has_error) {
@@ -276,6 +293,12 @@ class StorecoveAdapter
         return $this;
     }
 
+    /**
+     * Builds a Symfony Serializer configured with Storecove-compatible
+     * normalizers, name converters, and encoders.
+     *
+     * @return Serializer
+     */
     private function getSerializer()
     {
 
@@ -361,6 +384,12 @@ class StorecoveAdapter
         return $array;
     }
 
+    /**
+     * Determines the tax nexus country based on company/client locations,
+     * EU thresholds, B2B/B2C classification, and VAT registration status.
+     *
+     * @return self
+     */
     private function buildNexus(): self
     {
         nlog("building nexus");
@@ -443,6 +472,12 @@ class StorecoveAdapter
         return $this;
     }
 
+    /**
+     * Removes VAT public identifiers from the supplier party,
+     * required for DE government invoices (XRechnung).
+     *
+     * @return self
+     */
     private function removeSupplierVatNumber(): self
     {
 
@@ -453,6 +488,13 @@ class StorecoveAdapter
         return $this;
     }
 
+    /**
+     * Configures destination-country VAT for B2C cross-border EU sales
+     * by enabling consumer tax mode and adding the supplier's destination VAT identifier.
+     *
+     * @param  string $client_country_code
+     * @return self
+     */
     private function setupDestinationVAT($client_country_code): self
     {
 
@@ -468,6 +510,13 @@ class StorecoveAdapter
         return $this;
     }
 
+    /**
+     * Checks whether the company has a VAT registration in the given region and country.
+     *
+     * @param  string $region
+     * @param  string $country_code
+     * @return bool
+     */
     private function companyHasTaxRegistration(string $region, string $country_code): bool
     {
         $vat_number = $this->ninja_invoice->company->tax_data->regions->{$region}->subregions->{$country_code}->vat_number ?? '';
@@ -475,6 +524,13 @@ class StorecoveAdapter
         return strlen($vat_number) > 1;
     }
 
+    /**
+     * Maps a Peppol tax category code (e.g. 'S', 'Z', 'AE') to its
+     * Storecove equivalent (e.g. 'standard', 'zero_rated', 'reverse_charge').
+     *
+     * @param  string $code
+     * @return string|null
+     */
     private function tranformTaxCode(string $code): ?string
     {
 
@@ -504,6 +560,13 @@ class StorecoveAdapter
         };
     }
 
+    /**
+     * Maps a UNCL4461 payment means code to its Storecove string equivalent
+     * (e.g. '30' => 'credit_transfer', '48' => 'card').
+     *
+     * @param  string|null $code
+     * @return string
+     */
     private function transformPaymentMeansCode(?string $code): string
     {
         return match ($code) {
