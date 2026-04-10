@@ -16,7 +16,6 @@ use App\Models\Credit;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Product;
-use App\Models\Document;
 use App\Helpers\Invoice\Taxer;
 use App\Utils\Traits\MakesHash;
 use App\DataMapper\Tax\BaseRule;
@@ -28,6 +27,7 @@ use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Services\EDocument\Standards\Peppol\PeppolLineBuilder;
 use App\Services\EDocument\Standards\Peppol\PeppolTaxCalculator;
 use App\Services\EDocument\Standards\Peppol\PeppolPartyBuilder;
+use App\Services\EDocument\Standards\Peppol\PeppolAttachmentBuilder;
 use InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\PayableAmount;
@@ -161,6 +161,9 @@ class Peppol extends AbstractService
     /** @var PeppolPartyBuilder */
     private PeppolPartyBuilder $partyBuilder;
 
+    /** @var PeppolAttachmentBuilder */
+    private PeppolAttachmentBuilder $attachmentBuilder;
+
     public function __construct(public Invoice|Credit $invoice)
     {
         $this->company = $invoice->company;
@@ -172,6 +175,7 @@ class Peppol extends AbstractService
         $this->taxCalculator = new PeppolTaxCalculator($this);
         $this->lineBuilder = new PeppolLineBuilder($this);
         $this->partyBuilder = new PeppolPartyBuilder($this);
+        $this->attachmentBuilder = new PeppolAttachmentBuilder($this);
 
         $this->setSettings()->setInvoice();
     }
@@ -665,162 +669,16 @@ class Peppol extends AbstractService
 
     }
 
-    /**
-     * buildAttachmentObject
-     *
-     * Attached third party documents to the invoice.
-     *
-     * @param  Document $document
-     * @return self
-     */
-    private function addThirdPartyAttachment(Document $document): self
-    {
-
-        // Only the invoice itself to start with:
-        $filename = $document->name;
-        $file = $document->getFile();
-        $mime_code = $document->getMimeType();
-
-        if (!$file || !in_array($mime_code, ['application/pdf', 'application/xml'])) {
-            return $this;
-        }
-
-        $adr = new \InvoiceNinja\EInvoice\Models\Peppol\DocumentReferenceType\AdditionalDocumentReference();
-
-        // Set ID
-        $id = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID();
-        $id->value = $filename;
-        $adr->ID = $id;
-
-        // Create EmbeddedDocumentBinaryObject
-        $attachment = new \InvoiceNinja\EInvoice\Models\Peppol\AttachmentType\Attachment();
-
-        $binary = new \InvoiceNinja\EInvoice\Models\Peppol\EmbeddedDocumentBinaryObjectType\EmbeddedDocumentBinaryObject();
-        $binary->value = base64_encode($file);
-        $binary->mimeCode = $mime_code;
-        $binary->filename = str_replace(' ', '_', $filename);
-        $attachment->EmbeddedDocumentBinaryObject = $binary;
-
-        $adr->Attachment = $attachment;
-
-        $this->p_invoice->AdditionalDocumentReference[] = $adr;
-
-        return $this;
-    }
-
     private function addThirdPartyAttachments(): self
     {
-        if ($this->company->account->hasFeature(\App\Models\Account::FEATURE_DOCUMENTS) && $this->invoice->client->getSetting('document_email_attachment') !== false) {
-
-
-            if ($this->invoice->recurring_invoice()->exists()) {
-                $this->invoice->recurring_invoice->documents()->where('is_public', true)->cursor()->each(function ($document) {
-                    if ($document->size <= $this->max_attachment_size) {
-
-                        $this->addThirdPartyAttachment($document);
-
-                    }
-                });
-            }
-
-            // Storage::url
-            $this->invoice->documents()->where('is_public', true)->cursor()->each(function ($document) {
-                if ($document->size <= $this->max_attachment_size) {
-
-                    $this->addThirdPartyAttachment($document);
-
-                }
-            });
-
-            $this->invoice->company->documents()->where('is_public', true)->cursor()->each(function ($document) {
-                if ($document->size <= $this->max_attachment_size) {
-
-                    $this->addThirdPartyAttachment($document);
-                }
-            });
-
-            $line_items = $this->invoice->line_items;
-
-            foreach ($line_items as $item) {
-                $expense_ids = [];
-
-                if (property_exists($item, 'expense_id')) {
-                    $expense_ids[] = $item->expense_id;
-                }
-
-                if (count($expense_ids) > 0) {
-                    \App\Models\Expense::query()->whereIn('id', $this->transformKeys($expense_ids))
-                        ->where('invoice_documents', 1)
-                        ->cursor()
-                        ->each(function ($expense) {
-                            $expense->documents()->where('is_public', true)->cursor()->each(function ($document) {
-                                if ($document->size <= $this->max_attachment_size) {
-
-                                    $this->addThirdPartyAttachment($document);
-
-                                }
-                            });
-                        });
-                }
-
-                $task_ids = [];
-
-                if (property_exists($item, 'task_id')) {
-                    $task_ids[] = $item->task_id;
-                }
-
-                if (count($task_ids) > 0 && $this->invoice->company->invoice_task_documents) {
-                    \App\Models\Task::query()->whereIn('id', $this->transformKeys($task_ids))
-                        ->cursor()
-                        ->each(function ($task) {
-                            $task->documents()->where('is_public', true)->cursor()->each(function ($document) {
-                                if ($document->size <= $this->max_attachment_size) {
-
-                                    $this->addThirdPartyAttachment($document);
-
-                                }
-                            });
-                        });
-                }
-            }
-
-        }
+        $this->attachmentBuilder->addThirdPartyAttachments();
 
         return $this;
     }
 
     private function addAttachments(): self
     {
-
-        // Only the invoice itself to start with:
-        $filename = $this->invoice->getFileName();
-        $pdf = $this->invoice instanceof \App\Models\Credit ? $this->invoice->service()->getCreditPdf($this->invoice->invitations->first()) : $this->invoice->service()->getInvoicePdf();
-        $mime_code = 'application/pdf';
-
-        $adr = new \InvoiceNinja\EInvoice\Models\Peppol\DocumentReferenceType\AdditionalDocumentReference();
-
-        // Set ID
-        $id = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID();
-        $id->value = $filename;
-        $adr->ID = $id;
-
-        // Create EmbeddedDocumentBinaryObject
-        $attachment = new \InvoiceNinja\EInvoice\Models\Peppol\AttachmentType\Attachment();
-
-        $binary = new \InvoiceNinja\EInvoice\Models\Peppol\EmbeddedDocumentBinaryObjectType\EmbeddedDocumentBinaryObject();
-        $binary->value = base64_encode($pdf);
-        $binary->mimeCode = $mime_code;
-        $binary->filename = str_replace(' ', '_', $filename);
-        $attachment->EmbeddedDocumentBinaryObject = $binary;
-
-        $adr->Attachment = $attachment;
-
-        // Add to invoice
-        if (!isset($this->p_invoice->AdditionalDocumentReference)) {
-            $this->p_invoice->AdditionalDocumentReference = [];
-        }
-
-        $this->p_invoice->AdditionalDocumentReference[] = $adr;
+        $this->attachmentBuilder->addPrimaryAttachment();
 
         return $this;
     }
@@ -872,72 +730,24 @@ class Peppol extends AbstractService
             $allowances[] = $allowanceCharge;
         }
 
-        //Invoice level surcharges (@todo React - need to turn back on surcharge taxes and use the first tax....)
-        if ($this->invoice->custom_surcharge1 > 0) {
+        //Invoice level surcharges
+        foreach (['custom_surcharge1', 'custom_surcharge2', 'custom_surcharge3', 'custom_surcharge4'] as $surcharge) {
 
-            // Add Allowance Charge to Price
-            $allowanceCharge = new \InvoiceNinja\EInvoice\Models\Peppol\AllowanceChargeType\AllowanceCharge();
-            $allowanceCharge->ChargeIndicator = 'true';
-            $allowanceCharge->Amount = new \InvoiceNinja\EInvoice\Models\Peppol\AmountType\Amount();
-            $allowanceCharge->Amount->currencyID = $this->invoice->client->currency()->code;
-            $allowanceCharge->Amount->amount = number_format($this->invoice->custom_surcharge1, 2, '.', '');
+            $surchargeAmount = $this->invoice->{$surcharge};
 
-            $this->taxCalculator->calculateTaxMap($this->invoice->custom_surcharge1);
+            if ($surchargeAmount > 0) {
+                $allowanceCharge = new \InvoiceNinja\EInvoice\Models\Peppol\AllowanceChargeType\AllowanceCharge();
+                $allowanceCharge->ChargeIndicator = 'true';
+                $allowanceCharge->Amount = new \InvoiceNinja\EInvoice\Models\Peppol\AmountType\Amount();
+                $allowanceCharge->Amount->currencyID = $this->invoice->client->currency()->code;
+                $allowanceCharge->Amount->amount = number_format($surchargeAmount, 2, '.', '');
 
-            $allowanceCharge->TaxCategory = $this->globalTaxCategories;
-            $allowanceCharge->AllowanceChargeReason = ctrans('texts.surcharge');
-            $allowances[] = $allowanceCharge;
+                $this->taxCalculator->calculateTaxMap($surchargeAmount);
 
-        }
-
-        if ($this->invoice->custom_surcharge2 > 0) {
-
-            // Add Allowance Charge to Price
-            $allowanceCharge = new \InvoiceNinja\EInvoice\Models\Peppol\AllowanceChargeType\AllowanceCharge();
-            $allowanceCharge->ChargeIndicator = 'true';
-            $allowanceCharge->Amount = new \InvoiceNinja\EInvoice\Models\Peppol\AmountType\Amount();
-            $allowanceCharge->Amount->currencyID = $this->invoice->client->currency()->code;
-            $allowanceCharge->Amount->amount = number_format($this->invoice->custom_surcharge2, 2, '.', '');
-
-            $this->taxCalculator->calculateTaxMap($this->invoice->custom_surcharge2);
-
-            $allowanceCharge->TaxCategory = $this->globalTaxCategories;
-            $allowanceCharge->AllowanceChargeReason = ctrans('texts.surcharge');
-            $allowances[] = $allowanceCharge;
-
-        }
-
-        if ($this->invoice->custom_surcharge3 > 0) {
-
-            // Add Allowance Charge to Price
-            $allowanceCharge = new \InvoiceNinja\EInvoice\Models\Peppol\AllowanceChargeType\AllowanceCharge();
-            $allowanceCharge->ChargeIndicator = 'true';
-            $allowanceCharge->Amount = new \InvoiceNinja\EInvoice\Models\Peppol\AmountType\Amount();
-            $allowanceCharge->Amount->currencyID = $this->invoice->client->currency()->code;
-            $allowanceCharge->Amount->amount = number_format($this->invoice->custom_surcharge3, 2, '.', '');
-
-            $this->taxCalculator->calculateTaxMap($this->invoice->custom_surcharge3);
-
-            $allowanceCharge->TaxCategory = $this->globalTaxCategories;
-            $allowanceCharge->AllowanceChargeReason = ctrans('texts.surcharge');
-            $allowances[] = $allowanceCharge;
-
-        }
-
-        if ($this->invoice->custom_surcharge4 > 0) {
-
-            // Add Allowance Charge to Price
-            $allowanceCharge = new \InvoiceNinja\EInvoice\Models\Peppol\AllowanceChargeType\AllowanceCharge();
-            $allowanceCharge->ChargeIndicator = 'true';
-            $allowanceCharge->Amount = new \InvoiceNinja\EInvoice\Models\Peppol\AmountType\Amount();
-            $allowanceCharge->Amount->currencyID = $this->invoice->client->currency()->code;
-            $allowanceCharge->Amount->amount = number_format($this->invoice->custom_surcharge4, 2, '.', '');
-
-            $this->taxCalculator->calculateTaxMap($this->invoice->custom_surcharge4);
-
-            $allowanceCharge->TaxCategory = $this->globalTaxCategories;
-            $allowanceCharge->AllowanceChargeReason = ctrans('texts.surcharge');
-            $allowances[] = $allowanceCharge;
+                $allowanceCharge->TaxCategory = $this->globalTaxCategories;
+                $allowanceCharge->AllowanceChargeReason = ctrans('texts.surcharge');
+                $allowances[] = $allowanceCharge;
+            }
 
         }
 
@@ -1007,6 +817,27 @@ class Peppol extends AbstractService
     /////////////////  Helper Methods /////////////////////////
 
     /**
+     * Merges properties from a settings source onto the Peppol document,
+     * skipping properties that belong to the wrong document type.
+     */
+    private function mergeSettingsInto(?object $settings): void
+    {
+        if (!$settings) {
+            return;
+        }
+
+        $skipProps = $this->isCreditNote
+            ? ['InvoiceTypeCode', 'InvoiceLine', 'InvoicePeriod']
+            : ['CreditNoteTypeCode', 'CreditNoteLine'];
+
+        foreach (get_object_vars($settings) as $prop => $value) {
+            if (!in_array($prop, $skipProps)) {
+                $this->p_invoice->{$prop} = $value;
+            }
+        }
+    }
+
+    /**
      * setInvoiceDefaults
      *
      * Stubs a default einvoice
@@ -1014,48 +845,13 @@ class Peppol extends AbstractService
      */
     public function setInvoiceDefaults(): self
     {
-        // Properties that are Invoice-specific and should not be assigned to CreditNote
-        $invoiceOnlyProps = ['InvoiceTypeCode', 'InvoiceLine', 'InvoicePeriod'];
-        // Properties that are CreditNote-specific and should not be assigned to Invoice
-        $creditNoteOnlyProps = ['CreditNoteTypeCode', 'CreditNoteLine'];
+        // Merge company settings, then client settings (client wins), then existing e_invoice data
+        $this->mergeSettingsInto($this->_company_settings);
+        $this->mergeSettingsInto($this->_client_settings);
 
-        // Stub new invoice with company settings.
-        if ($this->_company_settings) {
-            foreach (get_object_vars($this->_company_settings) as $prop => $value) {
-                // Skip Invoice-specific properties when building CreditNote
-                if ($this->isCreditNote && in_array($prop, $invoiceOnlyProps)) {
-                    continue;
-                }
-                // Skip CreditNote-specific properties when building Invoice
-                if (!$this->isCreditNote && in_array($prop, $creditNoteOnlyProps)) {
-                    continue;
-                }
-                $this->p_invoice->{$prop} = $value;
-            }
-        }
-
-        // Overwrite with any client level settings
-        if ($this->_client_settings) {
-            foreach (get_object_vars($this->_client_settings) as $prop => $value) {
-                // Skip Invoice-specific properties when building CreditNote
-                if ($this->isCreditNote && in_array($prop, $invoiceOnlyProps)) {
-                    continue;
-                }
-                // Skip CreditNote-specific properties when building Invoice
-                if (!$this->isCreditNote && in_array($prop, $creditNoteOnlyProps)) {
-                    continue;
-                }
-                $this->p_invoice->{$prop} = $value;
-            }
-        }
-
-        // Handle existing e_invoice data
-        $existingData = null;
-        if ($this->isCreditNote && isset($this->invoice->e_invoice->CreditNote)) {
-            $existingData = $this->invoice->e_invoice->CreditNote;
-        } elseif (!$this->isCreditNote && isset($this->invoice->e_invoice->Invoice)) {
-            $existingData = $this->invoice->e_invoice->Invoice;
-        }
+        $existingData = $this->isCreditNote
+            ? ($this->invoice->e_invoice->CreditNote ?? null)
+            : ($this->invoice->e_invoice->Invoice ?? null);
 
         if ($existingData) {
             foreach (get_object_vars($existingData) as $prop => $value) {

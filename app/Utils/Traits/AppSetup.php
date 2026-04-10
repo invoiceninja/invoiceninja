@@ -85,10 +85,10 @@ trait AppSetup
             $env[$position] = "{$property}=" . '"' . $value . '"' . "\n"; // If value of variable is more than one word, surround with quotes.
         }
 
-        try {
-            file_put_contents(base_path('.env'), $env);
-        } catch (\Exception $e) {
-            info($e->getMessage());
+        $result = file_put_contents(base_path('.env'), $env);
+
+        if ($result === false) {
+            throw new \RuntimeException("Failed to write to .env file at " . base_path('.env') . ". Check file permissions.");
         }
     }
 }

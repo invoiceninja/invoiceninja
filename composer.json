@@ -169,11 +169,18 @@
             "merge-extra-deep": false,
             "merge-replace": true,
             "merge-scripts": false
-        }
+        },
+        "google/apiclient-services": [
+            "Gmail",
+            "Oauth2"
+        ]
     },
     "scripts": {
-        "post-install-cmd": [],
+        "post-install-cmd": [
+            "Google\\Task\\Composer::cleanup"
+        ],
         "post-update-cmd": [
+            "Google\\Task\\Composer::cleanup",
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
         ],
         "post-root-package-install": [
