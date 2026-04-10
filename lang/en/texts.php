@@ -5955,6 +5955,7 @@ $lang = array(
     'too_many_requests' => 'Too many requests',
     'cloned_client' => 'Successfully cloned client',
     'update_tax_details' => 'Update Tax Details',
+    'cc_only' => 'CC Only',
 );
 
 return $lang;
