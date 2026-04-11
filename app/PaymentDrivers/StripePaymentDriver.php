@@ -26,7 +26,7 @@ use Stripe\PaymentIntent;
 use Stripe\PaymentMethod;
 use App\Models\GatewayType;
 use App\Models\PaymentHash;
-use App\Http\Requests\Request;
+use Illuminate\Http\Request;
 use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
 use App\Exceptions\PaymentFailed;
