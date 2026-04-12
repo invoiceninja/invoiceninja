@@ -860,13 +860,13 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                 }
 
                 return response()->json([], 200);
-            } elseif ($request->data['object']['status'] == "inactive" && $request->data['object']['payment_method']) {
-                // Delete payment method
+            } 
+            elseif ($request->data['object']['status'] == "inactive" && $request->data['object']['payment_method']) {
                 $clientgateway = ClientGatewayToken::query()
                     ->where('token', $request->data['object']['payment_method'])
                     ->first();
 
-                if ($clientgateway) {
+                if ($clientgateway && !str_starts_with($clientgateway->token, 'ba_')) {
                     $clientgateway->delete();
                 }
 
