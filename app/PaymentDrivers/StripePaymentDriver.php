@@ -921,7 +921,6 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
      * https://stripe.com/docs/api/payment_methods/detach
      *
      * @param ClientGatewayToken $token
-     * @return void
      */
     public function detach(ClientGatewayToken $token)
     {
