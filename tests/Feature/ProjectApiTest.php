@@ -22,6 +22,7 @@ use App\Models\Project;
 use Tests\MockAccountData;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -586,5 +587,74 @@ class ProjectApiTest extends TestCase
         $arr = $response->json();
 
         $this->assertTrue($arr['data'][0]['is_deleted']);
+    }
+
+    public function testProjectListNPlusOneWithUserIncludes()
+    {
+        $assigned = \App\Models\User::factory()->create([
+            'account_id' => $this->account->id,
+            'email' => 'assigned_' . md5(uniqid()) . '@example.com',
+        ]);
+
+        $assigned->companies()->attach($this->company->id, [
+            'account_id' => $this->account->id,
+            'is_owner' => false,
+            'is_admin' => false,
+            'is_locked' => false,
+            'notifications' => CompanyUser::NOTIFICATIONS_DEFAULTS,
+            'permissions' => '',
+            'settings' => null,
+        ]);
+
+        for ($i = 0; $i < 10; $i++) {
+            Project::factory()->create([
+                'user_id' => $this->user->id,
+                'assigned_user_id' => $assigned->id,
+                'company_id' => $this->company->id,
+                'client_id' => $this->client->id,
+                'name' => "N+1 Test Project {$i}",
+            ]);
+        }
+
+        // Warm up: first request to prime any caches
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->getJson('/api/v1/projects?include=user,assigned_user&per_page=50');
+
+        DB::enableQueryLog();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->getJson('/api/v1/projects?include=user,assigned_user&per_page=50');
+
+        $response->assertStatus(200);
+
+        $queries = DB::getQueryLog();
+        DB::disableQueryLog();
+
+        $arr = $response->json();
+        $projectCount = count($arr['data']);
+
+        // With eager loading, we expect a fixed number of queries regardless of
+        // how many projects are returned. Typically:
+        // 1. Count query for pagination
+        // 2. Projects query
+        // 3. Documents (default include)
+        // 4. Users (for user include - single query)
+        // 5. Users (for assigned_user include - single query, may be combined with #4)
+        //
+        // An N+1 would show as queries scaling with project count (e.g. 2 + 2*N)
+        $queryCount = count($queries);
+
+        // Dump queries for debugging if this fails
+        $queryDescriptions = array_map(fn ($q) => $q['query'], $queries);
+
+        $this->assertGreaterThanOrEqual(10, $projectCount, 'Expected at least 10 projects in results');
+        $this->assertLessThanOrEqual(10, $queryCount,
+            "Possible N+1 detected: {$queryCount} queries for {$projectCount} projects. "
+            . "Queries:\n" . implode("\n", $queryDescriptions)
+        );
     }
 }

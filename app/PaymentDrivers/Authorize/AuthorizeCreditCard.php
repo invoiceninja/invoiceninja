@@ -276,7 +276,7 @@ class AuthorizeCreditCard implements LivewireMethodInterface
 
         $vars = [
             'invoices' => $payment_hash->invoices(),
-            'amount' => array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total,
+            'amount' => $payment_hash->amount_with_fee(),
         ];
 
         $logger_message = [

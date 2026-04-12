@@ -47,7 +47,6 @@ class ProjectTransformer extends EntityTransformer
         'assigned_user',
     ];
 
-
     public function includeUser(Project $project): ?Item
     {
         $transformer = new UserTransformer($this->serializer);
