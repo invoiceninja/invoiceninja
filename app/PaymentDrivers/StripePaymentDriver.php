@@ -866,7 +866,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                     ->where('token', $request->data['object']['payment_method'])
                     ->first();
 
-                if ($clientgateway && !str_starts_with($clientgateway->token, 'ba_')) {
+                if ($clientgateway && !str_starts_with($clientgateway->token, 'ba_')) { //ba_ tokens should not be deleted
                     $clientgateway->delete();
                 }
 
@@ -944,6 +944,8 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                 $this->client->company
             );
         }
+
+        return true;
     }
 
     public function getCompanyGatewayId(): int

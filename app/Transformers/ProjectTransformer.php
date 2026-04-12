@@ -19,6 +19,7 @@ use App\Models\Invoice;
 use App\Models\Project;
 use App\Models\Quote;
 use App\Models\Task;
+use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use League\Fractal\Resource\Item;
 
