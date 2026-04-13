@@ -317,6 +317,10 @@ class Mutator implements MutatorInterface
 
         $code = $this->getClientRoutingCode();
 
+        if ($code === 'Email') {
+            return $this->setEmailRouting($this->getIndividualEmailRoute());
+        }
+
         $identifier = false;
 
         // Non-VAT routing schemes (DK:DIGST, SE:ORGNR, FI:OVT, EE:CC, NO:ORG, LT:LEC, etc.)

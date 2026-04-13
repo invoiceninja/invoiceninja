@@ -265,29 +265,28 @@ class StorecoveAdapter
         //resolve and set the public identifier for the customer
         $accounting_customer_party = $this->storecove_invoice->getAccountingCustomerParty();
 
-        if (strlen($this->ninja_invoice->client->vat_number ?? '') > 2) {
-            $id = preg_replace("/[^a-zA-Z0-9]/", "", $this->ninja_invoice->client->vat_number ?? '');
-            $country = $this->ninja_invoice->client->country->iso_3166_2;
-            $classification = $this->ninja_invoice->client->classification ?? 'individual';
-            $router = $this->storecove->router->setInvoice($this->ninja_invoice);
-            $scheme = $router->resolveTaxScheme($country, $classification);
+        $client = $this->ninja_invoice->client;
+        $country = $client->country->iso_3166_2;
+        $classification = $client->classification ?? 'individual';
+        $router = $this->storecove->router->setInvoice($this->ninja_invoice);
+        $scheme = $router->resolveRouting($country, $classification);
 
-            if (empty($scheme)) {
-                $scheme = $router->resolveIdentifierScheme($country, $classification);
+        if (!empty($scheme) && !preg_match('/^\d{4}:/', $scheme)) {
+            $is_vat_scheme = str_contains($scheme, ':VAT') || str_contains($scheme, ':IVA') || str_contains($scheme, ':CF');
+
+            if (!$is_vat_scheme && strlen($client->id_number ?? '') > 1) {
+                $id = preg_replace("/[^a-zA-Z0-9]/", "", $client->id_number);
+            } elseif (strlen($client->vat_number ?? '') > 2) {
+                $id = preg_replace("/[^a-zA-Z0-9]/", "", $client->vat_number);
+            } else {
+                $id = null;
             }
 
-            // If the value doesn't match the tax scheme format (e.g. UEN in vat_number
-            // instead of GST number), fall back to the identifier scheme for this country.
-            if ($scheme && !$router->matchesSchemeFormat($scheme, $id)) {
-                $altScheme = $router->resolveIdentifierScheme($country, $classification);
-                if ($altScheme && $router->matchesSchemeFormat($altScheme, $id)) {
-                    $scheme = $altScheme;
-                }
+            if ($id) {
+                $pi = new \App\Services\EDocument\Gateway\Storecove\Models\PublicIdentifiers($scheme, $id);
+                $accounting_customer_party->addPublicIdentifiers($pi);
+                $this->storecove_invoice->setAccountingCustomerParty($accounting_customer_party);
             }
-
-            $pi = new \App\Services\EDocument\Gateway\Storecove\Models\PublicIdentifiers($scheme, $id);
-            $accounting_customer_party->addPublicIdentifiers($pi);
-            $this->storecove_invoice->setAccountingCustomerParty($accounting_customer_party);
         }
 
         return $this;

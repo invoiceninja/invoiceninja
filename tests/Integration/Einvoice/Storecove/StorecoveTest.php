@@ -2097,5 +2097,62 @@ class StorecoveTest extends TestCase
 
     }
 
+    /**
+     * testSgToInReceiverUsesEmailRouting
+     *
+     * When sending SG -> IN, the Indian recipient's routing code resolves to "Email".
+     * The routing payload must use emails (not eIdentifiers with the GSTIN).
+     */
+    public function testSgToInReceiverUsesEmailRouting(): void
+    {
+        $this->routing_id = 290868;
+
+        $scenario = [
+            'company_vat' => '',
+            'company_id_number' => 'T08GA0028A',
+            'company_country' => 'SG',
+            'company_classification' => 'business',
+            'client_country' => 'IN',
+            'client_vat' => '22AAAAA0000A1Z5',
+            'client_id_number' => '',
+            'classification' => 'business',
+            'has_valid_vat' => false,
+            'over_threshold' => false,
+            'legal_entity_id' => 290868,
+            'is_tax_exempt' => false,
+        ];
+
+        $data = $this->setupTestData($scenario);
+
+        $invoice = $data['invoice'];
+        $invoice = $invoice->calc()->getInvoice();
+        $client = $data['client'];
+
+        $this->assertEquals('SG', $data['company']->country()->iso_3166_2);
+        $this->assertEquals('IN', $client->country->iso_3166_2);
+
+        $invoice->save();
+
+        $p = new Peppol($invoice);
+        $p->run();
+
+        $identifiers = $p->gateway->mutator->setClientRoutingCode()->getStorecoveMeta();
+
+        // Must use email routing, NOT eIdentifiers
+        $this->assertArrayHasKey('routing', $identifiers);
+        $this->assertArrayHasKey('emails', $identifiers['routing'], 'IN receiver should use email routing, not eIdentifiers');
+        $this->assertArrayNotHasKey('eIdentifiers', $identifiers['routing'], 'IN receiver should not have eIdentifiers — GSTIN must not be sent as an email-scheme identifier');
+
+        // The email should be the client contact's email
+        $contactEmail = $client->present()->email();
+        $this->assertContains($contactEmail, $identifiers['routing']['emails']);
+
+        // Peppol XML EndpointID must use a valid EAS code (0088/GLN), not "Email"
+        $peppolInvoice = $p->getInvoice();
+        $endpointId = $peppolInvoice->AccountingCustomerParty->Party->EndpointID;
+        $this->assertEquals('0202', $endpointId->schemeID, 'EndpointID schemeID must be 0202 for email-routed countries');
+        $this->assertEquals('22AAAAA0000A1Z5', $endpointId->value, 'EndpointID value must be the client GSTIN for IN receivers');
+    }
+
 
 }
