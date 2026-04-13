@@ -623,7 +623,7 @@ class Storecove
         
         $payload = [
             "scheme" => "SG:UEN",
-            "identifier" => "SGUEN".$identifier,
+            "identifier" => $identifier,
             "superscheme" => "iso6523-actorid-upis",
             "corppass" => [
                 'flow_type' => 'corppass_flow_redirect',

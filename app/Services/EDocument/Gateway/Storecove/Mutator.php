@@ -350,10 +350,6 @@ class Mutator implements MutatorInterface
             $identifier = 'DK' . $identifier;
         }
 
-        // SG:UEN — Storecove requires a prefix (SGUEN/SGGST/SGTST) on the identifier for 0195 scheme
-        if ($code === 'SG:UEN' && !preg_match('/^SG(UEN|GST|TST)/i', $identifier)) {
-            $identifier = 'SGUEN' . $identifier;
-        }
 
         //Check the recipient is on the network, and can be delivered the correct document.
         if($this->invoice->client->country->iso_3166_2 == "BE"){

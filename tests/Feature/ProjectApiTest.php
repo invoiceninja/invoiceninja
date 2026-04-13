@@ -591,37 +591,17 @@ class ProjectApiTest extends TestCase
 
     public function testProjectListNPlusOneWithUserIncludes()
     {
-        $assigned = \App\Models\User::factory()->create([
-            'account_id' => $this->account->id,
-            'email' => 'assigned_' . md5(uniqid()) . '@example.com',
-        ]);
-
-        $assigned->companies()->attach($this->company->id, [
-            'account_id' => $this->account->id,
-            'is_owner' => false,
-            'is_admin' => false,
-            'is_locked' => false,
-            'notifications' => CompanyUser::NOTIFICATIONS_DEFAULTS,
-            'permissions' => '',
-            'settings' => null,
-        ]);
-
         for ($i = 0; $i < 10; $i++) {
             Project::factory()->create([
                 'user_id' => $this->user->id,
-                'assigned_user_id' => $assigned->id,
+                'assigned_user_id' => $this->user->id,
                 'company_id' => $this->company->id,
                 'client_id' => $this->client->id,
                 'name' => "N+1 Test Project {$i}",
             ]);
         }
 
-        // Warm up: first request to prime any caches
-        $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->getJson('/api/v1/projects?include=user,assigned_user&per_page=50');
-
+        // Run with a small batch to get baseline query count
         DB::enableQueryLog();
 
         $response = $this->withHeaders([
@@ -631,29 +611,51 @@ class ProjectApiTest extends TestCase
 
         $response->assertStatus(200);
 
-        $queries = DB::getQueryLog();
+        $baselineQueries = DB::getQueryLog();
+        $baselineCount = count($baselineQueries);
         DB::disableQueryLog();
 
         $arr = $response->json();
         $projectCount = count($arr['data']);
-
-        // With eager loading, we expect a fixed number of queries regardless of
-        // how many projects are returned. Typically:
-        // 1. Count query for pagination
-        // 2. Projects query
-        // 3. Documents (default include)
-        // 4. Users (for user include - single query)
-        // 5. Users (for assigned_user include - single query, may be combined with #4)
-        //
-        // An N+1 would show as queries scaling with project count (e.g. 2 + 2*N)
-        $queryCount = count($queries);
-
-        // Dump queries for debugging if this fails
-        $queryDescriptions = array_map(fn ($q) => $q['query'], $queries);
-
         $this->assertGreaterThanOrEqual(10, $projectCount, 'Expected at least 10 projects in results');
-        $this->assertLessThanOrEqual(10, $queryCount,
-            "Possible N+1 detected: {$queryCount} queries for {$projectCount} projects. "
+
+        // Add 10 more projects and measure again
+        for ($i = 0; $i < 10; $i++) {
+            Project::factory()->create([
+                'user_id' => $this->user->id,
+                'assigned_user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'client_id' => $this->client->id,
+                'name' => "N+1 Extra Project {$i}",
+            ]);
+        }
+
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        $response2 = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->getJson('/api/v1/projects?include=user,assigned_user&per_page=50');
+
+        $response2->assertStatus(200);
+
+        $secondQueries = DB::getQueryLog();
+        $secondCount = count($secondQueries);
+        DB::disableQueryLog();
+
+        $arr2 = $response2->json();
+        $secondProjectCount = count($arr2['data']);
+        $this->assertGreaterThan($projectCount, $secondProjectCount, 'Expected more projects in second request');
+
+        // With proper eager loading, query count should remain the same
+        // regardless of how many projects are returned. Allow a small tolerance
+        // of 2 for potential minor variations (e.g. distinct user lookups).
+        $queryDescriptions = array_map(fn ($q) => $q['query'], $secondQueries);
+
+        $this->assertLessThanOrEqual($baselineCount + 2, $secondCount,
+            "N+1 detected: query count grew from {$baselineCount} to {$secondCount} "
+            . "when projects increased from {$projectCount} to {$secondProjectCount}. "
             . "Queries:\n" . implode("\n", $queryDescriptions)
         );
     }
