@@ -13,6 +13,7 @@
 namespace Tests\Integration\Einvoice\Storecove;
 
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Country;
@@ -2103,6 +2104,327 @@ class StorecoveTest extends TestCase
      * When sending SG -> IN, the Indian recipient's routing code resolves to "Email".
      * The routing payload must use emails (not eIdentifiers with the GSTIN).
      */
+    /**
+     * testBeToSgPublicIdentifierUsesUenScheme
+     *
+     * When sending BE -> SG, the Singapore client's vat_number (a UEN like
+     * "SGTST123457890SC") must be sent as scheme SG:UEN, NOT SG:GST.
+     * SG:GST expects a hyphenated format (XX-0000000-X) which a UEN does not match.
+     */
+    public function testBeToSgPublicIdentifierUsesUenScheme(): void
+    {
+        $this->routing_id = 290868;
+
+        $scenario = [
+            'company_vat' => 'BE0202239951',
+            'company_id_number' => '0202239951',
+            'company_country' => 'BE',
+            'company_classification' => 'business',
+            'client_country' => 'SG',
+            'client_vat' => 'SGTST123457890SC',
+            'client_id_number' => '',
+            'classification' => 'business',
+            'has_valid_vat' => false,
+            'over_threshold' => false,
+            'legal_entity_id' => 290868,
+            'is_tax_exempt' => false,
+        ];
+
+        $data = $this->setupTestData($scenario);
+        $invoice = $data['invoice'];
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->save();
+
+        $storecove = new Storecove();
+        $adapter = $storecove->adapter;
+        $adapter->transform($invoice)->decorate();
+
+        $customerParty = $adapter->getInvoice()->getAccountingCustomerParty();
+        $publicIdentifiers = $customerParty->getPublicIdentifiers();
+
+        $this->assertNotNull($publicIdentifiers, 'SG client must have a publicIdentifier');
+        $this->assertNotEmpty($publicIdentifiers, 'SG client must have at least one publicIdentifier');
+
+        $pi = $publicIdentifiers[0];
+        $this->assertEquals('SG:UEN', $pi->getScheme(), 'SG client with UEN in vat_number must use SG:UEN scheme, not SG:GST');
+        $this->assertEquals('SGTST123457890SC', $pi->getId(), 'Identifier value must be the cleaned UEN');
+    }
+
+    /**
+     * testBeToSgPublicIdentifierPrefersIdNumberForUen
+     *
+     * SG routing is SG:UEN. When a SG client has both a UEN in id_number
+     * and a GST in vat_number, the UEN (id_number) must be used since
+     * SG:UEN is a non-VAT scheme.
+     */
+    public function testBeToSgPublicIdentifierPrefersIdNumberForUen(): void
+    {
+        $this->routing_id = 290868;
+
+        $scenario = [
+            'company_vat' => 'BE0202239951',
+            'company_id_number' => '0202239951',
+            'company_country' => 'BE',
+            'company_classification' => 'business',
+            'client_country' => 'SG',
+            'client_vat' => 'M2-1234567-8',
+            'client_id_number' => 'T08GA0028A',
+            'classification' => 'business',
+            'has_valid_vat' => false,
+            'over_threshold' => false,
+            'legal_entity_id' => 290868,
+            'is_tax_exempt' => false,
+        ];
+
+        $data = $this->setupTestData($scenario);
+        $invoice = $data['invoice'];
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->save();
+
+        $storecove = new Storecove();
+        $adapter = $storecove->adapter;
+        $adapter->transform($invoice)->decorate();
+
+        $customerParty = $adapter->getInvoice()->getAccountingCustomerParty();
+        $publicIdentifiers = $customerParty->getPublicIdentifiers();
+
+        $this->assertNotNull($publicIdentifiers, 'SG client must have a publicIdentifier');
+        $this->assertNotEmpty($publicIdentifiers, 'SG client must have at least one publicIdentifier');
+
+        $pi = $publicIdentifiers[0];
+        $this->assertEquals('SG:UEN', $pi->getScheme(), 'SG routing always uses SG:UEN');
+        $this->assertEquals('T08GA0028A', $pi->getId(), 'Must prefer id_number (UEN) over vat_number (GST) for non-VAT scheme');
+    }
+
+    /**
+     * testBeClientWithIdNumberUsesEnScheme
+     *
+     * BE routing is BE:EN (enterprise number). When the client has an id_number
+     * (bare enterprise number like "1000000417"), it must be sent as BE:EN.
+     */
+    public function testBeClientWithIdNumberUsesEnScheme(): void
+    {
+        $this->routing_id = 290868;
+
+        $scenario = [
+            'company_vat' => '',
+            'company_id_number' => 'T08GA0028A',
+            'company_country' => 'SG',
+            'company_classification' => 'business',
+            'client_country' => 'BE',
+            'client_vat' => 'BE1000000417',
+            'client_id_number' => '1000000417',
+            'classification' => 'business',
+            'has_valid_vat' => false,
+            'over_threshold' => false,
+            'legal_entity_id' => 290868,
+            'is_tax_exempt' => false,
+        ];
+
+        $data = $this->setupTestData($scenario);
+        $invoice = $data['invoice'];
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->save();
+
+        $storecove = new Storecove();
+        $adapter = $storecove->adapter;
+        $adapter->transform($invoice)->decorate();
+
+        $customerParty = $adapter->getInvoice()->getAccountingCustomerParty();
+        $publicIdentifiers = $customerParty->getPublicIdentifiers();
+
+        $this->assertNotNull($publicIdentifiers, 'BE client must have a publicIdentifier');
+        $this->assertNotEmpty($publicIdentifiers, 'BE client must have at least one publicIdentifier');
+
+        $pi = $publicIdentifiers[0];
+        $this->assertEquals('BE:EN', $pi->getScheme(), 'BE routing uses BE:EN (enterprise number), not BE:VAT');
+        $this->assertEquals('1000000417', $pi->getId(), 'Enterprise number must be bare 10 digits without BE prefix');
+    }
+
+    /**
+     * testBeClientWithOnlyVatNumberStripsPrefix
+     *
+     * When a BE client has only a VAT number "BE1000000417" and no id_number,
+     * the country prefix "BE" is stripped to produce "1000000417" which matches
+     * BE:EN format (^[01]\d{9}$).
+     */
+    public function testBeClientWithOnlyVatNumberStripsPrefix(): void
+    {
+        $this->routing_id = 290868;
+
+        $scenario = [
+            'company_vat' => '',
+            'company_id_number' => 'T08GA0028A',
+            'company_country' => 'SG',
+            'company_classification' => 'business',
+            'client_country' => 'BE',
+            'client_vat' => 'BE1000000417',
+            'client_id_number' => '',
+            'classification' => 'business',
+            'has_valid_vat' => false,
+            'over_threshold' => false,
+            'legal_entity_id' => 290868,
+            'is_tax_exempt' => false,
+        ];
+
+        $data = $this->setupTestData($scenario);
+        $invoice = $data['invoice'];
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->save();
+
+        $storecove = new Storecove();
+        $adapter = $storecove->adapter;
+        $adapter->transform($invoice)->decorate();
+
+        $customerParty = $adapter->getInvoice()->getAccountingCustomerParty();
+        $publicIdentifiers = $customerParty->getPublicIdentifiers();
+
+        $this->assertNotEmpty($publicIdentifiers, 'BE client with VAT number should have publicIdentifier after prefix stripping');
+        $pi = $publicIdentifiers[0];
+        $this->assertEquals('BE:EN', $pi->getScheme(), 'BE routing uses BE:EN');
+        $this->assertEquals('1000000417', $pi->getId(), 'BE prefix must be stripped — Storecove requires bare 10-digit enterprise number');
+    }
+
+    /**
+     * Tests that resolveRouting() returns the correct scheme for every country
+     * and that the public identifier resolution picks the right value source.
+     *
+     * Each entry: [country, classification, client_vat, client_id_number, client_routing_id,
+     *              expected_scheme (null = skip), expected_id (null = skip)]
+     */
+    public static function publicIdentifierCountryProvider(): array
+    {
+        return [
+            // VAT-routed countries (scheme = :VAT, prefer vat_number)
+            'AD business' => ['AD', 'business', 'A123456B', '', '', 'AD:VAT', 'A123456B'],
+            'AL business' => ['AL', 'business', 'K12345678L', '', '', 'AL:VAT', 'K12345678L'],
+            'AT business' => ['AT', 'business', 'ATU12345678', '', '', 'AT:VAT', 'ATU12345678'],
+            'BA business' => ['BA', 'business', '123456789012', '', '', 'BA:VAT', '123456789012'],
+            'BG business' => ['BG', 'business', 'BG123456789', '', '', 'BG:VAT', 'BG123456789'],
+            'CY business' => ['CY', 'business', 'CY12345678A', '', '', 'CY:VAT', 'CY12345678A'],
+            'CZ business' => ['CZ', 'business', 'CZ12345678', '', '', 'CZ:VAT', 'CZ12345678'],
+            'DE business' => ['DE', 'business', 'DE123456789', '', '', 'DE:VAT', 'DE123456789'],
+            'ES business' => ['ES', 'business', 'ESA1234567B', '', '', 'ES:VAT', 'ESA1234567B'],
+            'GB business' => ['GB', 'business', 'GB123456789', '', '', 'GB:VAT', 'GB123456789'],
+            'GR business' => ['GR', 'business', 'EL123456789', '', '', 'GR:VAT', 'EL123456789'],
+            'HR business' => ['HR', 'business', 'HR12345678901', '', '', 'HR:VAT', 'HR12345678901'],
+            'HU business' => ['HU', 'business', 'HU12345678', '', '', 'HU:VAT', 'HU12345678'],
+            'IE business' => ['IE', 'business', 'IE1A23456B', '', '', 'IE:VAT', 'IE1A23456B'],
+            'LI business' => ['LI', 'business', 'LI12345', '', '', 'LI:VAT', 'LI12345'],
+            'LU business' => ['LU', 'business', 'LU12345678', '', '', 'LU:VAT', 'LU12345678'],
+            'LV business' => ['LV', 'business', 'LV12345678901', '', '', 'LV:VAT', 'LV12345678901'],
+            'MC business' => ['MC', 'business', 'FR12345678901', '', '', 'MC:VAT', 'FR12345678901'],
+            'ME business' => ['ME', 'business', 'ME12345678', '', '', 'ME:VAT', 'ME12345678'],
+            'MK business' => ['MK', 'business', 'MK1234567890123', '', '', 'MK:VAT', 'MK1234567890123'],
+            'MT business' => ['MT', 'business', 'MT12345678', '', '', 'MT:VAT', 'MT12345678'],
+            'PL business' => ['PL', 'business', 'PL1234567890', '', '', 'PL:VAT', 'PL1234567890'],
+            'PT business' => ['PT', 'business', 'PT123456789', '', '', 'PT:VAT', 'PT123456789'],
+            'RO business' => ['RO', 'business', 'RO1234567890', '', '', 'RO:VAT', 'RO1234567890'],
+            'RS business' => ['RS', 'business', 'RS123456789', '', '', 'RS:VAT', 'RS123456789'],
+            'SI business' => ['SI', 'business', 'SI12345678', '', '', 'SI:VAT', 'SI12345678'],
+            'SK business' => ['SK', 'business', 'SK1234567890', '', '', 'SK:VAT', 'SK1234567890'],
+            'SM business' => ['SM', 'business', 'SM12345', '', '', 'SM:VAT', 'SM12345'],
+            'TR business' => ['TR', 'business', 'TR1234567890', '', '', 'TR:VAT', 'TR1234567890'],
+            'VA business' => ['VA', 'business', 'VA12345678901', '', '', 'VA:VAT', 'VA12345678901'],
+            'NL business' => ['NL', 'business', 'NL123456789B01', '', '', 'NL:VAT', 'NL123456789B01'],
+
+            // VAT-routed with fallback to id_number
+            'DE vat_only'       => ['DE', 'business', 'DE123456789', '', '', 'DE:VAT', 'DE123456789'],
+            'DE id_fallback'    => ['DE', 'business', '', '123456789', '', 'DE:VAT', '123456789'], // id_number matches DE:VAT as fallback
+
+            // Non-VAT-routed countries (prefer id_number)
+            'BE with id'        => ['BE', 'business', 'BE1000000417', '1000000417', '', 'BE:EN', '1000000417'],
+            'BE vat fallback'   => ['BE', 'business', 'BE1000000417', '', '', 'BE:EN', '1000000417'], // BE prefix stripped from vat_number fallback
+            'SE with id'        => ['SE', 'business', 'SE123456789012', '1234567890', '', 'SE:ORGNR', '1234567890'],
+            'SE vat fallback'   => ['SE', 'business', 'SE123456789012', '', '', null, null], // VAT doesn't match SE:ORGNR
+            'DK with id'        => ['DK', 'business', 'DK12345678', 'DK12345678', '', 'DK:DIGST', 'DK12345678'],
+            'EE with id'        => ['EE', 'business', 'EE123456789', '12345678', '', 'EE:CC', '12345678'],
+            'NO with id'        => ['NO', 'business', 'NO123456789', '123456789', '', 'NO:ORG', '123456789'],
+            'FI with id'        => ['FI', 'business', 'FI12345678', '123456789012', '', 'FI:OVT', '123456789012'],
+            'LT with id'        => ['LT', 'business', 'LT123456789', '1234567', '', 'LT:LEC', '1234567'],
+            'IS with id'        => ['IS', 'business', 'IS123456', '1234567890', '', 'IS:KTNR', '1234567890'],
+            'CH with id'        => ['CH', 'business', 'CHE123456789MWST', 'CHE123456789', '', 'CH:UIDB', 'CHE123456789'],
+            'JP with id'        => ['JP', 'business', 'T1234567890123', 'T1234567890123', '', 'JP:SST', 'T1234567890123'],
+            'MY with id'        => ['MY', 'business', 'MY1234567890', 'A1B2C3D4E5', '', 'MY:EIF', 'A1B2C3D4E5'],
+            'SG with id'        => ['SG', 'business', 'M2-1234567-8', 'T08GA0028A', '', 'SG:UEN', 'T08GA0028A'],
+            'SG vat fallback'   => ['SG', 'business', 'SGTST123457890SC', '', '', 'SG:UEN', 'SGTST123457890SC'],
+            'CA with id'        => ['CA', 'business', '123456789', '123456789', '', 'CA:CBN', '123456789'],
+            'AU with id'        => ['AU', 'business', '12345678901', '12345678901', '', 'AU:ABN', '12345678901'],
+            'MX with id'        => ['MX', 'business', 'XAXX010101000', 'XAXX010101000', '', 'MX:RFC', 'XAXX010101000'],
+
+            // Email-routed (no publicIdentifier)
+            'IN business'       => ['IN', 'business', '22AAAAA0000A1Z5', '', '', null, null],
+            'SA business'       => ['SA', 'business', '1234567890', '', '', null, null],
+
+            // Government with composite/fixed endpoints (no publicIdentifier)
+            'AT government'     => ['AT', 'government', '', 'AT:GOV-ID', '', null, null],
+            'SG government'     => ['SG', 'government', '', 'T08GA0028A', '', null, null],
+
+            // IT:CUUO uses routing_id
+            'IT business'       => ['IT', 'business', 'IT12345678901', '', 'A1B2C3', 'IT:CUUO', 'A1B2C3'],
+            'IT no routing_id'  => ['IT', 'business', 'IT12345678901', '', '', null, null],
+        ];
+    }
+
+    #[DataProvider('publicIdentifierCountryProvider')]
+    public function testPublicIdentifierResolution(
+        string $clientCountry,
+        string $classification,
+        string $clientVat,
+        string $clientIdNumber,
+        string $clientRoutingId,
+        ?string $expectedScheme,
+        ?string $expectedId,
+    ): void {
+        $this->routing_id = 290868;
+
+        $scenario = [
+            'company_vat' => 'DE123456789',
+            'company_id_number' => '',
+            'company_country' => 'DE',
+            'company_classification' => 'business',
+            'client_country' => $clientCountry,
+            'client_vat' => $clientVat,
+            'client_id_number' => $clientIdNumber,
+            'classification' => $classification,
+            'has_valid_vat' => false,
+            'over_threshold' => false,
+            'legal_entity_id' => 290868,
+            'is_tax_exempt' => false,
+        ];
+
+        $data = $this->setupTestData($scenario);
+        $client = $data['client'];
+
+        // Set routing_id explicitly (clear factory default when empty)
+        $client->routing_id = $clientRoutingId ?: null;
+        $client->save();
+
+        $invoice = $data['invoice'];
+        $invoice->setRelation('client', $client->fresh());
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->save();
+
+        $storecove = new Storecove();
+        $adapter = $storecove->adapter;
+        $adapter->transform($invoice)->decorate();
+
+        $customerParty = $adapter->getInvoice()->getAccountingCustomerParty();
+        $publicIdentifiers = $customerParty->getPublicIdentifiers();
+
+        if ($expectedScheme === null) {
+            $this->assertTrue(
+                empty($publicIdentifiers),
+                "Expected no publicIdentifier for {$clientCountry} {$classification}, but got one"
+            );
+        } else {
+            $this->assertNotEmpty($publicIdentifiers, "Expected publicIdentifier for {$clientCountry} {$classification}");
+            $pi = $publicIdentifiers[0];
+            $this->assertEquals($expectedScheme, $pi->getScheme(), "Wrong scheme for {$clientCountry} {$classification}");
+            $this->assertEquals($expectedId, $pi->getId(), "Wrong identifier value for {$clientCountry} {$classification}");
+        }
+    }
+
     public function testSgToInReceiverUsesEmailRouting(): void
     {
         $this->routing_id = 290868;

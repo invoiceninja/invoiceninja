@@ -35,11 +35,11 @@ class LogRequestSending
 
     public function handle(RequestSending $event)
     {
-        nlog("Request");
-        nlog($event->request->headers());
-        nlog($event->request->url());
-        nlog(json_encode($event->request->headers()));
-        nlog($event->request->body());
+        // nlog("Request");
+        // nlog($event->request->headers());
+        // nlog($event->request->url());
+        // nlog(json_encode($event->request->headers()));
+        // nlog($event->request->body());
 
     }
 }

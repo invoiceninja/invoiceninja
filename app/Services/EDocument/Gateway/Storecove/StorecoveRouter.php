@@ -191,7 +191,7 @@ class StorecoveRouter
         // ID number patterns (identifier1)
         'SE:ORGNR' => '/^\d{10}$/',
         'NO:ORG'   => '/^\d{9}$/',
-        'BE:EN'    => '/^(BE)?\d{10}$/i',
+        'BE:EN'    => '/^(BE)?[01]\d{9}$/i',
         'DK:DIGST' => '/^(DK)?\d{8}$/i',
         'EE:CC'    => '/^\d{8}$/',
         'FI:OVT'   => '/^\d{12,13}$/',
@@ -207,7 +207,7 @@ class StorecoveRouter
         'MX:RFC'   => '/^[A-Z&Ñ]{3,4}\d{6}[A-Z0-9]{3}$/i',
         'JP:SST'   => '/^T?\d{13}$/',
         'MY:EIF'   => '/^[A-Z0-9]{10,14}$/i',
-        'SG:UEN'   => '/^[A-Z0-9]{9,10}$/i',
+        'SG:UEN'   => '/^[A-Z0-9]{9,16}$/i',
         'AT:GOV'   => '/^.{2,}$/',
         'DE:LWID'  => '/^.{2,}$/',
         'IT:CUUO'  => '/^[A-Z0-9]{6,7}$/i',

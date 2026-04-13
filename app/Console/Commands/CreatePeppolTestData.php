@@ -15,11 +15,13 @@ namespace App\Console\Commands;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\Tax\TaxModel;
+use App\DataMapper\EInvoice\TaxEntity;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\Country;
+use App\Models\License;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Console\Command;
@@ -652,6 +654,35 @@ class CreatePeppolTestData extends Command
         ]);
 
         $this->info("  Company created: {$settings->name}");
+
+        // ── Update License with TaxEntity ──
+        $licenseKey = config('ninja.license_key');
+
+        if ($licenseKey) {
+            $license = License::where('license_key', $licenseKey)->first();
+
+            if ($license) {
+                $taxEntity = new TaxEntity();
+                $taxEntity->company_key = $company->company_key;
+                $taxEntity->legal_entity_id = $company->legal_entity_id;
+                $taxEntity->acts_as_sender = $tax_data->acts_as_sender;
+                $taxEntity->acts_as_receiver = $tax_data->acts_as_receiver;
+
+                $existing = $license->findEntity('company_key', $company->company_key);
+
+                if ($existing) {
+                    $license->updateEntity($taxEntity, 'company_key');
+                    $this->info("  License TaxEntity updated for company_key: {$company->company_key}");
+                } else {
+                    $license->addEntity($taxEntity);
+                    $this->info("  License TaxEntity added for company_key: {$company->company_key}");
+                }
+            } else {
+                $this->warn("  License not found for key: {$licenseKey}");
+            }
+        } else {
+            $this->warn("  No license key configured (ninja.license_key)");
+        }
 
         // ── Domestic Clients (use resolved country for XX) ──
         $domesticDefaults = $isGln ? $defaults['DE'] : $cd;
