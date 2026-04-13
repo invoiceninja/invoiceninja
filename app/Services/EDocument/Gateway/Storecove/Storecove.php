@@ -406,7 +406,9 @@ class Storecove
             $data = array_merge([
                 'city' => $company->settings->city,
                 'country' => $company->country()->iso_3166_2,
-                'county' => $company->settings->state,
+                'county' => $company->country()->iso_3166_2 === 'IN'
+                    ? (new \App\Services\EDocument\Standards\Peppol\IN())->getStateCode($company->settings->state)
+                    : $company->settings->state,
                 'line1' => $company->settings->address1,
                 'line2' => $company->settings->address2,
                 'party_name' => $company->settings->name,

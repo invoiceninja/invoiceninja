@@ -253,6 +253,10 @@ if (strlen($company->settings->vat_number ?? '') <= 1
         }
 
         $address->PostalZone = $locationData['postal_code'];
+
+        if (strlen($locationData['state'] ?? '') > 1) {
+            $address->CountrySubentity = $locationData['state'];
+        }
         // $address->CountrySubentity = $invoice->client->state;
 
         $country = new Country();

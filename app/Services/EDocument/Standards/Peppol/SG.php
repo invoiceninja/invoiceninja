@@ -73,10 +73,19 @@ class SG extends BaseCountry
         $client = $invoice->client;
         $uen = $client->id_number ?? '';
 
+        $sanitised_uen = preg_replace("/[^a-zA-Z0-9]/", "", $uen);
+
         // Fix customer EndpointID: must be UEN, not GST number
         if (strlen($uen) > 1 && isset($p_invoice->AccountingCustomerParty->Party->EndpointID)) { //@phpstan-ignore-line
-            $p_invoice->AccountingCustomerParty->Party->EndpointID->value = preg_replace("/[^a-zA-Z0-9]/", "", $uen);
+            $p_invoice->AccountingCustomerParty->Party->EndpointID->value = $sanitised_uen;
             $p_invoice->AccountingCustomerParty->Party->EndpointID->schemeID = '0195';
+        }
+
+        // B2G: Storecove requires SG:UEN legal identifier alongside the centralized endpoint
+        if ($client->classification === 'government' && strlen($uen) > 1) {
+            $storecove_meta = $this->mergeMeta($storecove_meta, $this->buildRouting([
+                ["scheme" => 'SG:UEN', "id" => $sanitised_uen],
+            ]));
         }
 
         return ['p_invoice' => $p_invoice, 'storecove_meta' => $storecove_meta];

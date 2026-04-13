@@ -333,7 +333,10 @@ class Mutator implements MutatorInterface
         } elseif (str_contains($code, ':CUUO') && strlen($this->invoice->client->routing_id ?? '') > 1) {
             $identifier = $this->invoice->client->routing_id;
         } elseif (!$is_vat_scheme && strlen($this->invoice->client->id_number ?? '') > 1) {
-            $identifier = $this->invoice->client->id_number;
+            $clean_id = preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->client->id_number);
+            $identifier = (new StorecoveRouter())->matchesSchemeFormat($code, $clean_id)
+                ? $this->invoice->client->id_number
+                : $this->invoice->client->vat_number;
         } else {
             $identifier = $this->invoice->client->vat_number;
         }

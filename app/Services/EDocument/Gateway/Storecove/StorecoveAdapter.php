@@ -291,7 +291,7 @@ class StorecoveAdapter
      *  - GLN                → always routing_id
      *  - IT:CUUO            → always routing_id
      *  - Email              → skip (no publicIdentifier)
-     *  - Composite (0195:x) → skip (fixed endpoint)
+     *  - Composite (0195:x) → fall back to identifier scheme; use centralised endpoint ID if no client match
      *
      * @return array{scheme: string, id: string}|null
      */
@@ -303,14 +303,25 @@ class StorecoveAdapter
             return null;
         }
 
-        // Email-routed countries (IN, SA, IT consumer) — no publicIdentifier
+        // Email-routed countries (IN, SA, IT consumer) — routing goes via email,
+        // but Storecove still requires a tax identifier in publicIdentifiers.
         if ($scheme === 'Email') {
-            return null;
+            $scheme = $router->resolveTaxScheme($country, $classification);
+            if (empty($scheme)) {
+                return null;
+            }
         }
 
-        // Composite fixed endpoints (e.g. "0195:SGUENT08GA0028A", "9915:b") — no publicIdentifier
-        if (preg_match('/^\d{4}:/', $scheme)) {
-            return null;
+        // Composite fixed endpoints (e.g. "0195:SGUENT08GA0028A", "9915:b") —
+        // fall back to identifier scheme (column 1) for the publicIdentifier.
+        // If the client has no matching identifier, use the endpoint portion
+        // of the composite as the centralised fallback ID.
+        if (preg_match('/^(\d{4}):(.+)$/', $scheme, $m)) {
+            $compositeEndpointId = $m[2];
+            $scheme = $router->resolveIdentifierScheme($country, $classification);
+            if (empty($scheme)) {
+                return null;
+            }
         }
 
         // GLN and IT:CUUO always use routing_id
@@ -375,6 +386,12 @@ class StorecoveAdapter
 
                 return ['scheme' => $scheme, 'id' => $val];
             }
+        }
+
+        // No client identifier matched — if we came from a composite fixed
+        // endpoint, use the centralised endpoint ID as the fallback value.
+        if (isset($compositeEndpointId)) {
+            return ['scheme' => $scheme, 'id' => $compositeEndpointId];
         }
 
         return null;

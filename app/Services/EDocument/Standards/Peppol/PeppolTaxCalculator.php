@@ -112,7 +112,7 @@ class PeppolTaxCalculator
         // Non-EU company — use generic tax exempt categories
         if (!$company_in_eu) {
             if ($company_country != $client_country) {
-                $tax_type = 'Z';
+                $tax_type = 'O';
                 $reason_code = null;
                 $reason = null;
             } else {

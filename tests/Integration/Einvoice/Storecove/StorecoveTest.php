@@ -2197,6 +2197,98 @@ class StorecoveTest extends TestCase
     }
 
     /**
+     * testSgToSgGovernmentPublicIdentifierWithClientUen
+     *
+     * SG B2G routing uses the fixed endpoint "0195:SGUENT08GA0028A".
+     * When the client has a UEN in id_number, the publicIdentifier
+     * must use SG:UEN with the client's actual UEN.
+     */
+    public function testSgToSgGovernmentPublicIdentifierWithClientUen(): void
+    {
+        $this->routing_id = 290868;
+
+        $scenario = [
+            'company_vat' => '',
+            'company_id_number' => 'T08GA0028A',
+            'company_country' => 'SG',
+            'company_classification' => 'business',
+            'client_country' => 'SG',
+            'client_vat' => '',
+            'client_id_number' => 'T09CC0032B',
+            'classification' => 'government',
+            'has_valid_vat' => false,
+            'over_threshold' => false,
+            'legal_entity_id' => 290868,
+            'is_tax_exempt' => false,
+        ];
+
+        $data = $this->setupTestData($scenario);
+        $invoice = $data['invoice'];
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->save();
+
+        $storecove = new Storecove();
+        $adapter = $storecove->adapter;
+        $adapter->transform($invoice)->decorate();
+
+        $customerParty = $adapter->getInvoice()->getAccountingCustomerParty();
+        $publicIdentifiers = $customerParty->getPublicIdentifiers();
+
+        $this->assertNotNull($publicIdentifiers, 'SG B2G client must have a publicIdentifier');
+        $this->assertNotEmpty($publicIdentifiers, 'SG B2G client must have at least one publicIdentifier');
+
+        $pi = $publicIdentifiers[0];
+        $this->assertEquals('SG:UEN', $pi->getScheme(), 'SG B2G must use SG:UEN scheme');
+        $this->assertEquals('T09CC0032B', $pi->getId(), 'SG:UEN should contain the client UEN');
+    }
+
+    /**
+     * testSgToSgGovernmentPublicIdentifierFallsToCentralisedId
+     *
+     * SG B2G routing uses the fixed endpoint "0195:SGUENT08GA0028A".
+     * When the client has NO UEN, the publicIdentifier must fall back
+     * to the centralised endpoint ID "SGUENT08GA0028A".
+     */
+    public function testSgToSgGovernmentPublicIdentifierFallsToCentralisedId(): void
+    {
+        $this->routing_id = 290868;
+
+        $scenario = [
+            'company_vat' => '',
+            'company_id_number' => 'T08GA0028A',
+            'company_country' => 'SG',
+            'company_classification' => 'business',
+            'client_country' => 'SG',
+            'client_vat' => '',
+            'client_id_number' => '',
+            'classification' => 'government',
+            'has_valid_vat' => false,
+            'over_threshold' => false,
+            'legal_entity_id' => 290868,
+            'is_tax_exempt' => false,
+        ];
+
+        $data = $this->setupTestData($scenario);
+        $invoice = $data['invoice'];
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->save();
+
+        $storecove = new Storecove();
+        $adapter = $storecove->adapter;
+        $adapter->transform($invoice)->decorate();
+
+        $customerParty = $adapter->getInvoice()->getAccountingCustomerParty();
+        $publicIdentifiers = $customerParty->getPublicIdentifiers();
+
+        $this->assertNotNull($publicIdentifiers, 'SG B2G with no client UEN must still have a publicIdentifier');
+        $this->assertNotEmpty($publicIdentifiers, 'SG B2G with no client UEN must have at least one publicIdentifier');
+
+        $pi = $publicIdentifiers[0];
+        $this->assertEquals('SG:UEN', $pi->getScheme(), 'SG B2G fallback must use SG:UEN scheme');
+        $this->assertEquals('SGUENT08GA0028A', $pi->getId(), 'Must fall back to centralised endpoint ID');
+    }
+
+    /**
      * testBeClientWithIdNumberUsesEnScheme
      *
      * BE routing is BE:EN (enterprise number). When the client has an id_number
@@ -2352,13 +2444,13 @@ class StorecoveTest extends TestCase
             'AU with id'        => ['AU', 'business', '12345678901', '12345678901', '', 'AU:ABN', '12345678901'],
             'MX with id'        => ['MX', 'business', 'XAXX010101000', 'XAXX010101000', '', 'MX:RFC', 'XAXX010101000'],
 
-            // Email-routed (no publicIdentifier)
-            'IN business'       => ['IN', 'business', '22AAAAA0000A1Z5', '', '', null, null],
-            'SA business'       => ['SA', 'business', '1234567890', '', '', null, null],
+            // Email-routed — routing via email, but tax identifier still required in publicIdentifiers
+            'IN business'       => ['IN', 'business', '22AAAAA0000A1Z5', '', '', 'IN:GSTIN', '22AAAAA0000A1Z5'],
+            'SA business'       => ['SA', 'business', '1234567890', '', '', 'SA:TIN', '1234567890'],
 
-            // Government with composite/fixed endpoints (no publicIdentifier)
-            'AT government'     => ['AT', 'government', '', 'AT:GOV-ID', '', null, null],
-            'SG government'     => ['SG', 'government', '', 'T08GA0028A', '', null, null],
+            // Government with composite/fixed endpoints — falls back to identifier scheme (column 1)
+            'AT government'     => ['AT', 'government', '', 'AT:GOV-ID', '', 'AT:GOV', 'AT:GOV-ID'],
+            'SG government'     => ['SG', 'government', '', 'T08GA0028A', '', 'SG:UEN', 'T08GA0028A'],
 
             // IT:CUUO uses routing_id
             'IT business'       => ['IT', 'business', 'IT12345678901', '', 'A1B2C3', 'IT:CUUO', 'A1B2C3'],
@@ -2474,6 +2566,117 @@ class StorecoveTest extends TestCase
         $endpointId = $peppolInvoice->AccountingCustomerParty->Party->EndpointID;
         $this->assertEquals('0202', $endpointId->schemeID, 'EndpointID schemeID must be 0202 for email-routed countries');
         $this->assertEquals('22AAAAA0000A1Z5', $endpointId->value, 'EndpointID value must be the client GSTIN for IN receivers');
+    }
+
+    /**
+     * testSgToInPublicIdentifierUsesGstinTaxScheme
+     *
+     * IN routing is "Email" but Storecove still requires a tax identifier
+     * (IN:GSTIN) in publicIdentifiers. Verify the adapter falls back to
+     * resolveTaxScheme() and sends the GSTIN.
+     */
+    public function testSgToInPublicIdentifierUsesGstinTaxScheme(): void
+    {
+        $this->routing_id = 290868;
+
+        $scenario = [
+            'company_vat' => '',
+            'company_id_number' => 'T08GA0028A',
+            'company_country' => 'SG',
+            'company_classification' => 'business',
+            'client_country' => 'IN',
+            'client_vat' => '22AAAAA0000A1Z5',
+            'client_id_number' => '',
+            'classification' => 'business',
+            'has_valid_vat' => false,
+            'over_threshold' => false,
+            'legal_entity_id' => 290868,
+            'is_tax_exempt' => false,
+        ];
+
+        $data = $this->setupTestData($scenario);
+        $invoice = $data['invoice'];
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->save();
+
+        $storecove = new Storecove();
+        $adapter = $storecove->adapter;
+        $adapter->transform($invoice)->decorate();
+
+        $customerParty = $adapter->getInvoice()->getAccountingCustomerParty();
+        $publicIdentifiers = $customerParty->getPublicIdentifiers();
+
+        $this->assertNotEmpty($publicIdentifiers, 'IN client must have a publicIdentifier with tax scheme even though routing is via Email');
+
+        $pi = $publicIdentifiers[0];
+        $this->assertEquals('IN:GSTIN', $pi->getScheme(), 'IN routing is Email but publicIdentifier must use IN:GSTIN tax scheme');
+        $this->assertEquals('22AAAAA0000A1Z5', $pi->getId(), 'GSTIN value must be sent as the identifier');
+    }
+
+    /**
+     * testUsGlnToDeExemptProducesZeroRatedTaxCategory
+     *
+     * US sender (GLN, no VAT number) => DE client with tax-exempt line items.
+     * Currently produces 'zero_rated' tax category which Storecove rejects
+     * because zero_rated is a VAT concept and the sender has no VAT number.
+     */
+    public function testUsGlnToDeExemptProducesZeroRatedTaxCategory(): void
+    {
+        $this->routing_id = 290868;
+
+        $scenario = [
+            'company_vat' => '',
+            'company_id_number' => '',
+            'company_country' => 'US',
+            'company_classification' => 'business',
+            'client_country' => 'DE',
+            'client_vat' => 'DE123456789',
+            'client_id_number' => '',
+            'classification' => 'business',
+            'has_valid_vat' => true,
+            'over_threshold' => false,
+            'legal_entity_id' => 290868,
+            'is_tax_exempt' => true,
+        ];
+
+        $data = $this->setupTestData($scenario);
+        $client = $data['client'];
+        $client->routing_id = '1234567890123';
+        $client->save();
+
+        $invoice = $data['invoice'];
+        $invoice->setRelation('client', $client->fresh());
+
+        $line_items = $invoice->line_items;
+        foreach ($line_items as &$item) {
+            $item->tax_name1 = '';
+            $item->tax_rate1 = 0;
+            $item->tax_id = '';
+        }
+        unset($item);
+
+        $invoice->line_items = array_values($line_items);
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->save();
+
+        $storecove = new Storecove();
+        $adapter = $storecove->adapter;
+        $adapter->transform($invoice)->decorate();
+
+        $doc = $adapter->getDocument();
+        $this->assertArrayHasKey('document', $doc);
+
+        // Check tax_subtotals category — currently 'zero_rated', should be 'outside_scope'
+        $lines = $adapter->getInvoice()->getInvoiceLines();
+        $this->assertNotEmpty($lines, 'Invoice must have line items');
+
+        $firstLine = $lines[0];
+        $taxes = $firstLine->taxes_duties_fees ?? [];
+        $this->assertNotEmpty($taxes, 'Line item must have tax info');
+
+        $category = $taxes[0]->getCategory();
+
+        $this->assertEquals('outside_scope', $category, 'Non-EU sender tax-exempt line must use outside_scope, not zero_rated');
     }
 
 
