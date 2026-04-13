@@ -2378,6 +2378,61 @@ class StorecoveTest extends TestCase
     }
 
     /**
+     * When a BE client has an invalid id_number (e.g. "0003" — an ICD scheme code
+     * rather than a real enterprise number), the Mutator should fall back to
+     * vat_number for routing instead of sending the invalid value.
+     */
+    public function testBeClientWithInvalidIdNumberFallsBackToVatNumber(): void
+    {
+        $this->routing_id = 290868;
+
+        $scenario = [
+            'company_vat' => '',
+            'company_id_number' => 'T08GA0028A',
+            'company_country' => 'SG',
+            'company_classification' => 'business',
+            'client_country' => 'BE',
+            'client_vat' => 'BE0202239951',
+            'client_id_number' => '0003',
+            'classification' => 'business',
+            'has_valid_vat' => false,
+            'over_threshold' => false,
+            'legal_entity_id' => 290868,
+            'is_tax_exempt' => false,
+        ];
+
+        $data = $this->setupTestData($scenario);
+        $invoice = $data['invoice'];
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->save();
+
+        // Adapter publicIdentifier should use vat_number fallback
+        $storecove = new Storecove();
+        $adapter = $storecove->adapter;
+        $adapter->transform($invoice)->decorate();
+
+        $customerParty = $adapter->getInvoice()->getAccountingCustomerParty();
+        $publicIdentifiers = $customerParty->getPublicIdentifiers();
+
+        $this->assertNotEmpty($publicIdentifiers, 'BE client with invalid id_number should still get a publicIdentifier via vat_number fallback');
+        $pi = $publicIdentifiers[0];
+        $this->assertEquals('BE:EN', $pi->getScheme());
+        $this->assertEquals('0202239951', $pi->getId(), 'Should use enterprise number derived from vat_number, not invalid id_number "0003"');
+
+        // Mutator routing should also use the vat_number-derived identifier
+        $p = new Peppol($invoice);
+        $p->run();
+        $identifiers = $p->gateway->mutator->setClientRoutingCode()->getStorecoveMeta();
+
+        $this->assertArrayHasKey('routing', $identifiers);
+        $routing = $identifiers['routing'];
+        $this->assertArrayHasKey('eIdentifiers', $routing);
+
+        $eId = $routing['eIdentifiers'][0];
+        $this->assertNotEquals('0003', $eId['id'], 'Invalid id_number "0003" must not be used for routing');
+    }
+
+    /**
      * Tests that resolveRouting() returns the correct scheme for every country
      * and that the public identifier resolution picks the right value source.
      *
@@ -2614,13 +2669,14 @@ class StorecoveTest extends TestCase
     }
 
     /**
-     * testUsGlnToDeExemptProducesZeroRatedTaxCategory
+     * testUsGlnToDeExemptTaxCategoriesAreOutsideScope
      *
      * US sender (GLN, no VAT number) => DE client with tax-exempt line items.
-     * Currently produces 'zero_rated' tax category which Storecove rejects
-     * because zero_rated is a VAT concept and the sender has no VAT number.
+     * Every tax reference in the Storecove document (line items, tax subtotals,
+     * serialised payload) must use 'outside_scope' — never a VAT concept like
+     * 'zero_rated', 'export', or 'standard' — because the sender has no VAT number.
      */
-    public function testUsGlnToDeExemptProducesZeroRatedTaxCategory(): void
+    public function testUsGlnToDeExemptTaxCategoriesAreOutsideScope(): void
     {
         $this->routing_id = 290868;
 
@@ -2659,24 +2715,84 @@ class StorecoveTest extends TestCase
         $invoice = $invoice->calc()->getInvoice();
         $invoice->save();
 
+        // Build the Peppol XML and check it directly
+        $p = new Peppol($invoice);
+        $p->run();
+        $xml = $p->toXml();
+
+        // The Peppol XML must use tax category 'O' (outside scope), not 'Z' or 'G'
+        $this->assertStringContainsString('<cbc:ID>O</cbc:ID>', $xml, 'Peppol XML must use tax category O (outside scope) for non-EU sender');
+
+        // BR-O-10: category O requires TaxExemptionReasonCode and/or TaxExemptionReason
+        $this->assertStringContainsString('vatex-eu-o', $xml, 'Peppol XML must contain vatex-eu-o exemption reason code (BR-O-10)');
+        $this->assertStringContainsString('Not subject to VAT', $xml, 'Peppol XML must contain exemption reason text (BR-O-10)');
+
+        // Must NOT contain VAT-implying categories Z or G
+        $this->assertDoesNotMatchRegularExpression(
+            '/<cbc:ID>Z<\/cbc:ID>/',
+            $xml,
+            'Peppol XML must not use tax category Z (zero rated) for non-EU sender'
+        );
+        $this->assertDoesNotMatchRegularExpression(
+            '/<cbc:ID>G<\/cbc:ID>/',
+            $xml,
+            'Peppol XML must not use tax category G (export) for non-EU sender'
+        );
+
+        // ── XSD + XSLT/Schematron validation (BR-O-10 etc.) ──
+        $validator = new \App\Services\EDocument\Standards\Validation\XsltDocumentValidator($xml);
+        $validator->validate();
+        $errors = $validator->getErrors();
+
+        $fatal = [];
+        foreach (['xsd', 'stylesheet', 'general'] as $category) {
+            foreach ($errors[$category] ?? [] as $msg) {
+                if (stripos($msg, '[fatal]') !== false || stripos($msg, '[error]') !== false) {
+                    $fatal[] = "[{$category}] {$msg}";
+                }
+            }
+        }
+
+        $this->assertEmpty($fatal, "Peppol validation errors for US=>DE tax-exempt:\n" . implode("\n", $fatal));
+
+        // Now check the Storecove adapter output
         $storecove = new Storecove();
         $adapter = $storecove->adapter;
         $adapter->transform($invoice)->decorate();
 
         $doc = $adapter->getDocument();
         $this->assertArrayHasKey('document', $doc);
+        $this->assertNotFalse($doc['document'], 'Document must not be false (no transform errors)');
 
-        // Check tax_subtotals category — currently 'zero_rated', should be 'outside_scope'
+        // Check line-level tax categories
         $lines = $adapter->getInvoice()->getInvoiceLines();
         $this->assertNotEmpty($lines, 'Invoice must have line items');
 
-        $firstLine = $lines[0];
-        $taxes = $firstLine->taxes_duties_fees ?? [];
-        $this->assertNotEmpty($taxes, 'Line item must have tax info');
+        $vatCategories = ['zero_rated', 'standard', 'export', 'exempt', 'reverse_charge', 'intra_community'];
 
-        $category = $taxes[0]->getCategory();
+        foreach ($lines as $i => $line) {
+            $taxes = $line->taxes_duties_fees ?? [];
+            foreach ($taxes as $tax) {
+                $cat = $tax->getCategory();
+                $this->assertNotContains($cat, $vatCategories, "Line {$i} tax category '{$cat}' is a VAT concept — must be 'outside_scope' for non-EU sender");
+                $this->assertEquals('outside_scope', $cat, "Line {$i} tax category must be 'outside_scope'");
+            }
+        }
 
-        $this->assertEquals('outside_scope', $category, 'Non-EU sender tax-exempt line must use outside_scope, not zero_rated');
+        // Check invoice-level tax subtotals
+        $taxSubtotals = $adapter->getInvoice()->getTaxSubtotals();
+        if ($taxSubtotals) {
+            foreach ($taxSubtotals as $j => $sub) {
+                $cat = $sub->getCategory();
+                $this->assertNotContains($cat, $vatCategories, "Tax subtotal {$j} category '{$cat}' is a VAT concept — must be 'outside_scope'");
+                $this->assertEquals('outside_scope', $cat, "Tax subtotal {$j} must be 'outside_scope'");
+            }
+        }
+
+        // Check the serialised document has no VAT tax categories
+        $json = json_encode($doc['document']);
+        $this->assertStringNotContainsString('"zero_rated"', $json, 'Serialised document must not contain zero_rated');
+        $this->assertStringNotContainsString('"tax_exempt_reason"', $json, 'Serialised document must not contain tax_exempt_reason');
     }
 
 

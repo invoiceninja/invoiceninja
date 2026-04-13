@@ -113,8 +113,8 @@ class PeppolTaxCalculator
         if (!$company_in_eu) {
             if ($company_country != $client_country) {
                 $tax_type = 'O';
-                $reason_code = null;
-                $reason = null;
+                $reason_code = 'vatex-eu-o';
+                $reason = 'Not subject to VAT';
             } else {
                 $tax_type = 'E';
                 $reason_code = 'vatex-eu-o';
