@@ -307,12 +307,6 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
 
     Route::post('logout', [LogoutController::class, 'index'])->name('logout');
 
-    Route::post('migrate', [MigrationController::class, 'index'])->name('migrate.start');
-
-    Route::post('migration/purge/{company}', [MigrationController::class, 'purgeCompany'])->middleware('password_protected');
-    Route::post('migration/purge_save_settings/{company}', [MigrationController::class, 'purgeCompanySaveSettings'])->middleware('password_protected');
-    Route::post('migration/start', [MigrationController::class, 'startMigration']);
-
     Route::post('one_time_token', [OneTimeTokenController::class, 'create']);
 
     Route::resource('payments', PaymentController::class); // name = (payments. index / create / show / update / destroy / edit
