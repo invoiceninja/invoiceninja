@@ -26,10 +26,29 @@ class CompanyCreationOnboardingTest extends TestCase
 {
     use MockAccountData;
 
+    /** @var array<int, Account> */
+    private array $createdAccounts = [];
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->makeTestData();
+    }
+
+    protected function tearDown(): void
+    {
+        foreach ($this->createdAccounts as $account) {
+            // Delete all companies, users, and tax rates tied to this account
+            $companies = Company::where('account_id', $account->id)->get();
+            foreach ($companies as $company) {
+                TaxRate::where('company_id', $company->id)->forceDelete();
+                $company->forceDelete();
+            }
+            User::where('account_id', $account->id)->forceDelete();
+            $account->forceDelete();
+        }
+
+        parent::tearDown();
     }
 
     /**
@@ -42,6 +61,7 @@ class CompanyCreationOnboardingTest extends TestCase
             'hosted_client_count' => 1000,
             'hosted_company_count' => 10,
         ]);
+        $this->createdAccounts[] = $account;
 
         // Stub the cf-ipcountry header so resolveCountry() picks up the country
         $country = Country::find($countryId);
@@ -223,6 +243,7 @@ class CompanyCreationOnboardingTest extends TestCase
             'hosted_client_count' => 1000,
             'hosted_company_count' => 10,
         ]);
+        $this->createdAccounts[] = $account;
 
         $company = (new CreateCompany([
             'name' => 'Test Company Unknown',
@@ -279,6 +300,7 @@ class CompanyCreationOnboardingTest extends TestCase
                 'hosted_client_count' => 1000,
                 'hosted_company_count' => 10,
             ]);
+            $this->createdAccounts[] = $account;
 
             if ($country) {
                 request()->headers->set('cf-ipcountry', $country->iso_3166_2);

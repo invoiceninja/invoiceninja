@@ -348,6 +348,7 @@ class InvoiceItemSum
         $this->item->gross_line_total = $this->getLineTotal() + $item_tax;
 
         $this->item->tax_amount = $item_tax;
+        $this->item->net_cost = $this->item->cost;
 
         return $this;
     }

@@ -988,6 +988,8 @@ class PdfBuilder
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => 'task_table-task.tax3-td', 'visi' => $this->visibilityCheck($column_visibility, $cell)]];
                     } elseif ($cell == '$product.unit_cost' || $cell == '$task.rate') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['style' => 'white-space: nowrap;', 'data-ref' => "{$_type}_table-" . substr($cell, 1) . '-td', 'visi' => $this->visibilityCheck($column_visibility, $cell)]];
+                    } elseif ($cell == '$product.net_cost') {
+                        $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['style' => 'white-space: nowrap;', 'data-ref' => "{$_type}_table-" . substr($cell, 1) . '-td', 'visi' => $this->visibilityCheck($column_visibility, $cell)]];
                     } else {
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => "{$_type}_table-" . substr($cell, 1) . '-td', 'visi' => $this->visibilityCheck($column_visibility, $cell)]];
                     }
@@ -1056,6 +1058,8 @@ class PdfBuilder
                 $data[$key][$table_type . '.quantity'] = $this->service->config->formatValueNoTrailingZeroes($item->quantity);
 
                 $data[$key][$table_type . '.unit_cost'] = $this->service->config->formatMoneyNoRounding($item->cost);
+                
+                $data[$key][$table_type . '.net_cost'] = $this->service->config->formatMoneyNoRounding($item->net_cost);
 
                 $data[$key][$table_type . '.cost'] = $this->service->config->formatMoney($item->cost);
 
@@ -1064,6 +1068,8 @@ class PdfBuilder
                 $data[$key][$table_type . '.quantity'] = '';
 
                 $data[$key][$table_type . '.unit_cost'] = '';
+
+                $data[$key][$table_type . '.net_cost'] = '';
 
                 $data[$key][$table_type . '.cost'] = '';
 
