@@ -21,9 +21,7 @@ use App\Events\General\EntityWasEmailed;
 
 class SendEmail
 {
-    public function __construct(public Credit $credit, protected ?string $reminder_template = null, protected ?ClientContact $contact = null)
-    {
-    }
+    public function __construct(public Credit $credit, protected ?string $reminder_template = null, protected ?ClientContact $contact = null) {}
 
     /**
      * Builds the correct template to send.

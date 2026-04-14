@@ -157,8 +157,12 @@ class RO extends BaseCountry
         // Sort PartyIdentification by null values
         $query = $p_invoice->AccountingSupplierParty->Party->PartyIdentification;
         usort($query, function ($a, $b) {
-            if ($a->value === null && $b->value !== null) return -1; //@phpstan-ignore-line
-            if ($a->value !== null && $b->value === null) return 1; //@phpstan-ignore-line
+            if ($a->value === null && $b->value !== null) {
+                return -1;
+            } //@phpstan-ignore-line
+            if ($a->value !== null && $b->value === null) {
+                return 1;
+            } //@phpstan-ignore-line
             return 0;
         });
         $p_invoice->AccountingSupplierParty->Party->PartyIdentification = $query;

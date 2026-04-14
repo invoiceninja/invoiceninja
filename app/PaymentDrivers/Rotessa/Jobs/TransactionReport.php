@@ -129,9 +129,9 @@ class TransactionReport implements ShouldQueue
 
                                                 $error = ctrans('texts.client_payment_failure_body', [
                                                     'invoice' => implode(',', $payment->invoices->pluck('number')->toArray()),
-                                                    'amount' => Number::formatMoney($payment_hash->amount_with_fee(), $client)
+                                                    'amount' => Number::formatMoney($payment_hash->amount_with_fee(), $client),
                                                 ]);
-                                                
+
                                             } else {
                                                 $error = 'Payment for ' . $payment->client->present()->name() . " for {$payment->amount} failed";
                                             }

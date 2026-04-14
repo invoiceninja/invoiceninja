@@ -1104,7 +1104,7 @@ class Company extends BaseModel
             return $direction === 'push' || $direction === 'bidirectional';
         });
     }
-    
+
     public function docuninjaActive(): bool
     {
         return (app()->environment('local') || Ninja::isHosted()) && $this->enable_modules && $this->account->hasFeature(\App\Models\Account::FEATURE_INVOICE_SETTINGS);

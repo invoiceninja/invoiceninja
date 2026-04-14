@@ -82,11 +82,11 @@ class InvoiceOutstandingTasksService
                             $body = '';
 
                             if ($key == 0 && $task->company->invoice_task_project) {
-                            
-                                if($task->project) {
+
+                                if ($task->project) {
                                     $body .= '<div class="project-header">' . $task->project->name . '</div>' . $task->project?->public_notes ?? ''; //@phpstan-ignore-line
                                 }
-                                
+
                                 $body .= '<div class="task-time-details">' . $task->description() . '</div>';
                             } elseif (!$task->company->invoice_task_hours && !$task->company->invoice_task_timelog && !$task->company->invoice_task_datelog && !$task->company->invoice_task_item_description) {
                                 $body .= $task->description ?? '';

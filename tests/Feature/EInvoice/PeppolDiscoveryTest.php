@@ -389,4 +389,138 @@ class PeppolDiscoveryTest extends TestCase
         $this->assertEquals('LU:VAT', $meta['routing']['eIdentifiers'][0]['scheme']);
         $this->assertCount(1, $meta['routing']['eIdentifiers']);
     }
+
+    // ──────────────────────────────────────────────────────
+    // FR uses id_number (SIRENE/SIRET) for identifier
+    // ──────────────────────────────────────────────────────
+
+    public function testFrBusinessUsesIdNumberForIdentifier(): void
+    {
+        $client = $this->makeClient(250, 'business', [
+            'id_number' => '12345678901234', // SIRET
+            'vat_number' => 'FRAA123456789',
+        ]);
+
+        $meta = $this->runMutatorWithMock($client, fn () => false);
+
+        $this->assertNotEmpty($meta['routing']['eIdentifiers'] ?? []);
+        // FR should use id_number, not vat_number, for routing
+        $id = $meta['routing']['eIdentifiers'][0]['id'];
+        $this->assertEquals('12345678901234', $id);
+    }
+
+    // ──────────────────────────────────────────────────────
+    // SG government uses composite endpoint (0195:...)
+    // ──────────────────────────────────────────────────────
+
+    public function testSgGovernmentUsesCompositeEndpoint(): void
+    {
+        $client = $this->makeClient(702, 'government', [
+            'id_number' => '12345678A',
+            'vat_number' => '',
+        ]);
+
+        $meta = $this->runMutatorWithMock($client, fn () => false);
+
+        $this->assertNotEmpty($meta['routing']['eIdentifiers'] ?? []);
+        // SG government routes via composite endpoint 0195:SGUENT08GA0028A
+        $scheme = $meta['routing']['eIdentifiers'][0]['scheme'];
+        $id = $meta['routing']['eIdentifiers'][0]['id'];
+        $this->assertEquals('0195', $scheme);
+        $this->assertEquals('SGUENT08GA0028A', $id);
+    }
+
+    // ──────────────────────────────────────────────────────
+    // SE receiver enables Svefaktura network
+    // ──────────────────────────────────────────────────────
+
+    public function testSeReceiverEnablesSvefakturaNetwork(): void
+    {
+        $client = $this->makeClient(752, 'business', [
+            'id_number' => '1234567890',
+            'vat_number' => 'SE123456789012',
+        ]);
+
+        $meta = $this->runMutatorWithMock($client, fn () => false);
+
+        // SE should have Svefaktura network enabled
+        $this->assertArrayHasKey('networks', $meta['routing'] ?? []);
+        $networks = $meta['routing']['networks'];
+        $svefaktura = collect($networks)->firstWhere('application', 'svefaktura');
+        $this->assertNotNull($svefaktura, 'Svefaktura network should be enabled for SE');
+        $this->assertTrue($svefaktura['settings']['enabled']);
+    }
+
+    public function testNonSeReceiverDoesNotEnableSvefaktura(): void
+    {
+        $client = $this->makeClient(276, 'business', [
+            'vat_number' => 'DE123456789',
+        ]);
+
+        $meta = $this->runMutatorWithMock($client, fn () => false);
+
+        // Non-SE should NOT have Svefaktura network
+        $networks = $meta['routing']['networks'] ?? [];
+        $svefaktura = collect($networks)->firstWhere('application', 'svefaktura');
+        $this->assertNull($svefaktura, 'Svefaktura should not be set for non-SE receivers');
+    }
+
+    // ──────────────────────────────────────────────────────
+    // IT B2B/B2G uses routing_id for IT:CUUO
+    // ──────────────────────────────────────────────────────
+
+    public function testItBusinessUsesRoutingIdForCuuo(): void
+    {
+        $client = $this->makeClient(380, 'business', [
+            'vat_number' => 'IT12345678901',
+            'routing_id' => 'A1B2C3',
+        ]);
+
+        $meta = $this->runMutatorWithMock($client, fn () => false);
+
+        $this->assertNotEmpty($meta['routing']['eIdentifiers'] ?? []);
+        $this->assertEquals('IT:CUUO', $meta['routing']['eIdentifiers'][0]['scheme']);
+        $this->assertEquals('A1B2C3', $meta['routing']['eIdentifiers'][0]['id']);
+    }
+
+    // ──────────────────────────────────────────────────────
+    // IN routes via email
+    // ──────────────────────────────────────────────────────
+
+    public function testInBusinessRoutesViaEmail(): void
+    {
+        $client = $this->makeClient(356, 'business', [
+            'vat_number' => '22ABCDE1234F1Z1', // GSTIN
+            'id_number' => '',
+        ]);
+
+        $meta = $this->runMutatorWithMock($client, fn () => false);
+
+        // IN routes via email, not eIdentifiers
+        $this->assertArrayHasKey('emails', $meta['routing'] ?? []);
+    }
+
+    // ──────────────────────────────────────────────────────
+    // Explicit routing_id discovery failure falls through
+    // ──────────────────────────────────────────────────────
+
+    public function testExplicitRoutingIdFailsFallsThrough(): void
+    {
+        $client = $this->makeClient(276, 'business', [
+            'vat_number' => 'DE123456789',
+            'routing_id' => 'BADSCHEME:BADID',
+        ]);
+
+        $attempts = [];
+        $meta = $this->runMutatorWithMock($client, function ($identifier, $scheme) use (&$attempts) {
+            $attempts[] = $scheme;
+            return false;
+        });
+
+        // First attempt is the explicit routing_id, then falls through to standard resolution
+        $this->assertEquals('BADSCHEME', $attempts[0] ?? null);
+        // Should still resolve via standard DE:VAT
+        $this->assertNotEmpty($meta['routing']['eIdentifiers'] ?? []);
+        $this->assertEquals('DE:VAT', $meta['routing']['eIdentifiers'][0]['scheme']);
+    }
 }

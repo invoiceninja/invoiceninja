@@ -147,7 +147,7 @@ class PdfService
         if (config('ninja.log_pdf_html')) {
             nlog($html);
         }
-        
+
         return $html;
     }
 

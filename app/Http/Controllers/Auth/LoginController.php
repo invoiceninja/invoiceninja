@@ -73,7 +73,7 @@ class LoginController extends BaseController
     {
         parent::__construct();
     }
-    
+
     /**
      * validateLogin
      *

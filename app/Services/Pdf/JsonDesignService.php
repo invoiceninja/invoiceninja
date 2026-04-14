@@ -31,7 +31,6 @@ namespace App\Services\Pdf;
  */
 class JsonDesignService
 {
-    
     private JsonToSectionsAdapter $adapter;
 
     /**

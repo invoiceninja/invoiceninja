@@ -59,7 +59,7 @@ class SendRecurring implements ShouldQueue
     public function handle(): void
     {
         $this->recurring_invoice = $this->recurring_invoice->calc()->getRecurringInvoice();
-        
+
         // Generate Standard Invoice
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice, $this->recurring_invoice->client);
 
@@ -124,7 +124,7 @@ class SendRecurring implements ShouldQueue
 
             //04-08-2023 edge case to support where online payment notifications are not enabled
             if (!$invoice->client->getSetting('client_online_payment_notification')) {
-                $this->sendRecurringEmails($invoice);    
+                $this->sendRecurringEmails($invoice);
             }
 
             $invoice->sendEvent(Webhook::EVENT_SENT_INVOICE, "client");

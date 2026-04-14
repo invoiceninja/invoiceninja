@@ -679,12 +679,11 @@ class InvoiceService
     public function getDocuNinjaSignable(?\App\Models\InvoiceInvitation $invite = null)
     {
 
-        if (class_exists(\InvoiceNinja\AdminApi\Services\DocuNinja\DocuNinja::class))
-        {
+        if (class_exists(\InvoiceNinja\AdminApi\Services\DocuNinja\DocuNinja::class)) {
             $invite = $invite ?: $this->invoice->invitations->first();
             return (new \InvoiceNinja\AdminApi\Services\DocuNinja\DocuNinja())->signable->get($invite);
         }
-        
+
     }
 
     /**

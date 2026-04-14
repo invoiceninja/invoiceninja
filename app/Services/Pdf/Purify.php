@@ -267,7 +267,7 @@ class Purify
     {
         return in_array(strtolower($tagName), self::$dangerous_svg_elements);
     }
-    
+
     /**
      * clean
      *
@@ -277,7 +277,7 @@ class Purify
      */
     public static function clean(string $html, bool $is_fragment = false): string
     {
-        
+
         if (config('ninja.disable_purify_html') || strlen($html) <= 1) {
             return str_replace('%24', '$', $html);
         }

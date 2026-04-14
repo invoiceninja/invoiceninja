@@ -53,4 +53,16 @@ class DE extends BaseCountry
 
         return ['p_invoice' => $p_invoice, 'storecove_meta' => $storecove_meta];
     }
+
+    /**
+     * DE government uses routing_id (Leitweg-ID) for routing.
+     */
+    public function resolveIdentifier(string $scheme, object $client): ?string
+    {
+        if (($client->classification ?? 'business') === 'government') {
+            return $client->routing_id ?? null;
+        }
+
+        return null;
+    }
 }

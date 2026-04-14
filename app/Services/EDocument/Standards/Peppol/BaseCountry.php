@@ -69,6 +69,36 @@ class BaseCountry implements CountryHandler
         return null;
     }
 
+    public function resolveIdentifier(string $scheme, object $client): ?string
+    {
+        return null;
+    }
+
+    public function formatIdentifier(string $identifier, string $scheme): string
+    {
+        return $identifier;
+    }
+
+    public function getDiscoveryFallbacks(string $identifier, string $countryPrefix): array
+    {
+        return [];
+    }
+
+    public function getNetworkOverrides(): array
+    {
+        return [];
+    }
+
+    public function getAdditionalIdentifiers(array $data): array
+    {
+        return [];
+    }
+
+    public function getRegistrationFlow(object $storecove, int $legal_entity_id, array $data): ?array
+    {
+        return null;
+    }
+
     /**
      * Build a Storecove routing structure from an array of identifiers.
      */

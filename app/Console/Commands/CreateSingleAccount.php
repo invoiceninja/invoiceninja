@@ -423,7 +423,7 @@ class CreateSingleAccount extends Command
             'quantity' => 1,
         ]);
 
-        
+
         $p1a = Product::factory()->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
@@ -569,7 +569,7 @@ class CreateSingleAccount extends Command
             $sub->save();
 
         }
-       
+
 
         $sub = SubscriptionFactory::create($company->id, $user->id);
         $sub->id = 66;

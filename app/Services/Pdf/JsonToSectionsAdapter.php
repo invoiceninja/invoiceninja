@@ -593,7 +593,7 @@ class JsonToSectionsAdapter
         $filteredItems = [];
 
         foreach ($lineItems as $item) {
-            $itemTypeId = (string)($item->type_id ?? '1');
+            $itemTypeId = (string) ($item->type_id ?? '1');
 
             if ($tableType === 'product') {
                 // Include products (1) and related types (4, 5, 6)
@@ -714,13 +714,14 @@ class JsonToSectionsAdapter
                 if (isset($item->is_amount_discount) && $item->is_amount_discount) {
                     return $this->service->config->formatMoney($value);
                 } else {
-                    return $this->service->config->formatValueNoTrailingZeroes((float)$value) . '%';
+                    return $this->service->config->formatValueNoTrailingZeroes((float) $value) . '%';
                 }
 
+                // no break
             case 'tax_rate1':
             case 'tax_rate2':
             case 'tax_rate3':
-                return $this->service->config->formatValueNoTrailingZeroes((float)$value) . '%';
+                return $this->service->config->formatValueNoTrailingZeroes((float) $value) . '%';
 
             case 'notes':
             case 'description':
@@ -732,7 +733,7 @@ class JsonToSectionsAdapter
                 return \App\Utils\Helpers::processReservedKeywords($value, $this->service->config->currency_entity, $currentDateTime);
 
             default:
-                return (string)$value;
+                return (string) $value;
         }
     }
 

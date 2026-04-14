@@ -67,18 +67,18 @@ class PullPeppolDocs extends Command
         if (!isset($account->e_invoicing_token)) {
 
             $this->info("No e-invoicing token found! You will not be able to authenticate with the E-Invoice API. Try logging out and back in again.");
-            
+
             $this->info("Updating Token...");
 
             $response_array = $this->updateToken($account);
 
             $this->info($response[1]);
 
-            if($response_array[0] != 200){
+            if ($response_array[0] != 200) {
 
                 $this->error("Failed to update token exiting");
                 return;
-            } 
+            }
 
         }
 
@@ -119,7 +119,7 @@ class PullPeppolDocs extends Command
 
                     $hash = $response->header('X-CONFIRMATION-HASH');
 
-                    $this->info($response->body() );
+                    $this->info($response->body());
 
                     $this->handleSuccess($response->json(), $company, $hash);
                 } else {
@@ -148,7 +148,7 @@ class PullPeppolDocs extends Command
 
 
         if ($response->successful()) {
-            
+
             $account->update([
                 'e_invoicing_token' => $response->json('token'),
             ]);

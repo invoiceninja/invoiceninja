@@ -238,7 +238,7 @@ class Vendor extends BaseModel
      */
     public function cc_contacts(): array
     {
-        
+
         return $this->contacts()
             ->where('cc_only', true)
             ->whereNotNull('email')
@@ -246,7 +246,7 @@ class Vendor extends BaseModel
             ->where('is_locked', false)
             ->limit(4)
             ->get()
-            ->map(fn (\App\Models\VendorContact $c) => new Address($c->email, $c->present()->name()))
+            ->map(fn(\App\Models\VendorContact $c) => new Address($c->email, $c->present()->name()))
             ->toArray();
     }
 

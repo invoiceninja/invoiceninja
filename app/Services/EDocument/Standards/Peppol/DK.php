@@ -66,4 +66,26 @@ class DK extends BaseCountry
 
         return ['p_invoice' => $p_invoice, 'storecove_meta' => $storecove_meta];
     }
+
+    /**
+     * Register both DK:ERST and DK:DIGST identifiers.
+     */
+    public function getAdditionalIdentifiers(array $data): array
+    {
+        return [
+            ['identifier' => str_replace(' ', '', $data['vat_number']), 'scheme' => 'DK:DIGST'],
+        ];
+    }
+
+    /**
+     * DK:DIGST expects DK prefix on the CVR number.
+     */
+    public function formatIdentifier(string $identifier, string $scheme): string
+    {
+        if ($scheme === 'DK:DIGST' && !str_starts_with(strtoupper($identifier), 'DK')) {
+            return 'DK' . $identifier;
+        }
+
+        return $identifier;
+    }
 }

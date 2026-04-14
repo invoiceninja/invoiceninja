@@ -22,7 +22,7 @@ use App\Http\Requests\Quickbooks\SyncQuickbooksRequest;
 use App\Http\Requests\Quickbooks\DisconnectQuickbooksRequest;
 
 class QuickbooksController extends BaseController
-{    
+{
     /**
      * sync
      *
@@ -39,18 +39,18 @@ class QuickbooksController extends BaseController
 
         $syncable = [];
 
-        if($request->client) {
+        if ($request->client) {
             $syncable[] = 'Customer';
         }
-        if($request->product) {
+        if ($request->product) {
             $syncable[] = 'Item';
         }
-        if($request->invoice) {
+        if ($request->invoice) {
             $syncable[] = 'Invoice';
         }
 
         QuickbooksImport::dispatch($company->id, $company->db, $syncable);
-        
+
         return response()->noContent();
     }
 
@@ -87,17 +87,16 @@ class QuickbooksController extends BaseController
         $user = auth()->user();
         $company = $user->company();
 
-        try{
+        try {
             $qb = new QuickbooksService($company);
             $qb->disconnect();
-        }
-        catch(\Throwable $e){
+        } catch (\Throwable $e) {
             /** Regardless of what happens, we should always set the quickbooks object to null */
             $company->quickbooks = null;
             $company->save();
 
         }
-        
+
         return response()->noContent();
     }
 
@@ -121,7 +120,7 @@ class QuickbooksController extends BaseController
 
         // Generate a one-time token for the reconnect flow
         $token = Str::random(64);
-        
+
         Cache::put($token, [
             'context' => 'quickbooks.reconnect',
             'company_key' => $company->company_key,

@@ -272,12 +272,12 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
             $this->client
            && isset($this->client->country)
            && (
-                (in_array($this->client->country->iso_3166_2, ['FR', 'IE', 'NL', 'DE', 'ES']) && $this->client->currency()->code == 'EUR')
+               (in_array($this->client->country->iso_3166_2, ['FR', 'IE', 'NL', 'DE', 'ES']) && $this->client->currency()->code == 'EUR')
                 || ($this->client->country->iso_3166_2 == 'JP' && $this->client->currency()->code == 'JPY')
                 || ($this->client->country->iso_3166_2 == 'MX' && $this->client->currency()->code == 'MXN')
                 || ($this->client->country->iso_3166_2 == 'GB' && $this->client->currency()->code == 'GBP')
                 || ($this->client->country->iso_3166_2 == 'US' && $this->client->currency()->code == 'USD')
-            )
+           )
         ) {
             $types[] = GatewayType::DIRECT_DEBIT;
         }
@@ -860,8 +860,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                 }
 
                 return response()->json([], 200);
-            } 
-            elseif ($request->data['object']['status'] == "inactive" && $request->data['object']['payment_method']) {
+            } elseif ($request->data['object']['status'] == "inactive" && $request->data['object']['payment_method']) {
                 $clientgateway = ClientGatewayToken::query()
                     ->where('token', $request->data['object']['payment_method'])
                     ->first();

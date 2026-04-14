@@ -822,7 +822,7 @@ class CreatePeppolTestData extends Command
         $valid = $this->validCountryCodes();
         $candidates = array_filter(
             $this->region_map[$region],
-            fn (string $c) => $c !== $countryCode && in_array($c, $valid)
+            fn(string $c) => $c !== $countryCode && in_array($c, $valid)
         );
 
         if (empty($candidates)) {
@@ -843,7 +843,7 @@ class CreatePeppolTestData extends Command
         });
 
         if (empty($candidates)) {
-            $candidates = array_filter($valid, fn (string $c) => $c !== $countryCode);
+            $candidates = array_filter($valid, fn(string $c) => $c !== $countryCode);
         }
 
         return $candidates[array_rand($candidates)];

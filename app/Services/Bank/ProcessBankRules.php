@@ -93,7 +93,7 @@ class ProcessBankRules extends AbstractService
                 $matched = false;
 
                 // Use match expression to handle each search key
-                match($rule['value']) {
+                match ($rule['value']) {
                     '$invoice.number' => $matched = $this->searchInvoiceNumber($invoiceNumber, $rule),
                     '$invoice.po_number' => $matched = $this->searchInvoicePONumber($invoicePONumbers, $rule),
                     '$invoice.amount' => $matched = $this->searchInvoiceAmount($invoiceAmounts, $rule),
@@ -122,8 +122,8 @@ class ProcessBankRules extends AbstractService
             }
 
             // Check if rule criteria met - NOW OUTSIDE THE INNER FOREACH LOOP
-            if (($bank_transaction_rule['matches_on_all'] && ($matches == $rule_count)) ||
-                (!$bank_transaction_rule['matches_on_all'] && $matches > 0)) {
+            if (($bank_transaction_rule['matches_on_all'] && ($matches == $rule_count))
+                || (!$bank_transaction_rule['matches_on_all'] && $matches > 0)) {
 
                 // Determine which combination succeeded and link payment/invoice
                 $invoice_ids = null;
@@ -614,9 +614,9 @@ class ProcessBankRules extends AbstractService
 
     private function matchPaymentAndClient($payments, $clients): ?int
     {
-        foreach($payments as $payment) {
-            foreach($clients as $client) {
-                if($payment->client_id == $client->id) {
+        foreach ($payments as $payment) {
+            foreach ($clients as $client) {
+                if ($payment->client_id == $client->id) {
                     return $payment->id;
                 }
             }
@@ -627,9 +627,9 @@ class ProcessBankRules extends AbstractService
 
     private function matchInvoiceAndClient($invoices, $clients): ?string
     {
-        foreach($invoices as $invoice) {
-            foreach($clients as $client) {
-                if($invoice->client_id == $client->id) {
+        foreach ($invoices as $invoice) {
+            foreach ($clients as $client) {
+                if ($invoice->client_id == $client->id) {
                     return $invoice->hashed_id;
                 }
             }

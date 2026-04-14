@@ -76,11 +76,11 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
 
         try {
             $account_summary = $yodlee->getAccountSummary($this->bank_integration->bank_account_id);
-    
+
             if ($account_summary) {
                 $at = new AccountTransformer();
                 $account = $at->transform($account_summary);
-    
+
                 if ($account[0]['current_balance']) {
                     $this->bank_integration->balance = $account[0]['current_balance'];
                     $this->bank_integration->currency = $account[0]['account_currency'];
@@ -96,7 +96,7 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
             $this->stop_loop = false;
             return;
         }
-    
+
         if ($this->bank_integration->disabled_upstream) {
             nlog("Yodlee: account disabled upstream: {$this->bank_integration->bank_account_id} status: {$this->bank_integration->bank_account_status}");
             $this->stop_loop = false;
@@ -128,8 +128,8 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
     private function processTransactions(Yodlee $yodlee)
     {
 
-       
-        
+
+
         $data = [
             'top' => 500,
             'fromDate' => $this->from_date,

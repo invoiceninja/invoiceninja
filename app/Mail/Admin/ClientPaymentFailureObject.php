@@ -86,7 +86,7 @@ class ClientPaymentFailureObject
     private function getAmount()
     {
         $amount = $this->payment_hash->amount_with_fee();
-        
+
         return Number::formatMoney($amount, $this->client);
     }
 

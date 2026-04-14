@@ -101,7 +101,7 @@ class EntityLevel implements EntityLevelInterface
         $this->init($invoice->client->locale());
 
         $this->errors['invoice'] = [];
-        $this->errors['client'] = $this->testClientState($invoice->client);        
+        $this->errors['client'] = $this->testClientState($invoice->client);
         $this->errors['company'] = $this->testCompanyState($invoice->client); // uses client level settings which is what we want
 
         if (count($this->errors['client']) > 0) {
@@ -170,7 +170,7 @@ class EntityLevel implements EntityLevelInterface
             }
 
             if (in_array($field, ['address1', 'address2', 'city', 'postal_code']) && strlen($client->{$field} ?? '') < 2) {
-            // if (in_array($field, ['address1', 'address2', 'city', 'state', 'postal_code']) && strlen($client->{$field} ?? '') < 2) {
+                // if (in_array($field, ['address1', 'address2', 'city', 'state', 'postal_code']) && strlen($client->{$field} ?? '') < 2) {
                 $errors[] = ['field' => $field, 'label' => ctrans("texts.{$field}")];
             }
 
@@ -289,9 +289,9 @@ class EntityLevel implements EntityLevelInterface
         }
 
         //If not an individual, you MUST have a VAT number
-        if (!in_array($company->getSetting('classification'),['other', 'individual']) && !$this->validString($company->getSetting('vat_number'))) {
+        if (!in_array($company->getSetting('classification'), ['other', 'individual']) && !$this->validString($company->getSetting('vat_number'))) {
             $errors[] = ['field' => 'vat_number', 'label' => ctrans("texts.vat_number")];
-        } 
+        }
 
         return $errors;
 

@@ -47,7 +47,7 @@ class SendEDocument implements ShouldQueue
     public $deleteWhenMissingModels = true;
 
     public function __construct(private string $entity, private int $id, private string $db) {}
-    
+
     /**
      * Processes and sends an e-invoice/credit via the Storecove gateway,
      * handling self-hosted and hosted code paths, quota management, and activity logging.
@@ -63,7 +63,7 @@ class SendEDocument implements ShouldQueue
 
         $model = $this->entity::withTrashed()->find($this->id);
 
-        if(!$model){
+        if (!$model) {
             nlog("model not found");
             return; // Model not found.
         }
@@ -241,7 +241,7 @@ class SendEDocument implements ShouldQueue
         }
 
     }
-    
+
     /**
      * writeActivity
      *
@@ -294,7 +294,7 @@ class SendEDocument implements ShouldQueue
             "Content-Type" => "application/json",
         ];
     }
-    
+
     /**
      * middleware
      *
@@ -315,7 +315,7 @@ class SendEDocument implements ShouldQueue
         return [rand(5, 29), rand(30, 59), rand(240, 360), 3600, 7200];
     }
 
-    
+
     /**
      * failed
      *

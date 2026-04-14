@@ -153,7 +153,7 @@ class EInvoicePullDocs implements ShouldQueue
 
             nlog($document);
 
-            if(!isset($document['document']['invoice'])) {
+            if (!isset($document['document']['invoice'])) {
                 nlog("No invoice found in document!!");
                 continue;
             }
@@ -181,7 +181,7 @@ class EInvoicePullDocs implements ShouldQueue
                 }
             }
 
-            if(isset($document['document']['invoice']['attachments'])){
+            if (isset($document['document']['invoice']['attachments'])) {
                 foreach ($document['document']['invoice']['attachments'] as $attachment) {
 
                     $upload_document = TempFile::UploadedFileFromBase64($attachment['document'], $attachment['filename'], $attachment['mime_type']);

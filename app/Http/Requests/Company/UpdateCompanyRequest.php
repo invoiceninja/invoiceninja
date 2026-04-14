@@ -102,7 +102,7 @@ class UpdateCompanyRequest extends Request
         $rules['settings.bcc_email'] = ['sometimes', 'nullable', new \App\Rules\CommaSeparatedEmails()]; //ensure that the BCC's are valid comma separated emails
         $rules['settings.e_invoice_forward_email'] = 'sometimes|nullable|email';
         $rules['settings.skip_automatic_email_with_peppol'] = 'sometimes|boolean';
-        
+
         return $rules;
     }
 

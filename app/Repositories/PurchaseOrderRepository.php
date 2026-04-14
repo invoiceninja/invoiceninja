@@ -45,13 +45,12 @@ class PurchaseOrderRepository extends BaseRepository
 
             foreach ($data['invitations'] as $invitation) {
                 //if no invitations are present - create one.
-                if($invite = $this->getInvitation($invitation, 'PurchaseOrder')){
-                    if($dn_enabled){
-                        $invite->can_sign = isset($invitation['can_sign']) ? $invitation['can_sign'] : false;
+                if ($invite = $this->getInvitation($invitation, 'PurchaseOrder')) {
+                    if ($dn_enabled) {
+                        $invite->can_sign = $invitation['can_sign'] ?? false;
                         $invite->saveQuietly();
                     }
-                }
-                else{
+                } else {
                     if (isset($invitation['id'])) {
                         unset($invitation['id']);
                     }
@@ -72,7 +71,7 @@ class PurchaseOrderRepository extends BaseRepository
                             $new_invitation->purchase_order_id = $purchase_order->id;
                             $new_invitation->vendor_contact_id = $contact->id;
                             $new_invitation->key = $this->createDbHash($purchase_order->company->db);
-                            $new_invitation->can_sign = isset($invitation['can_sign']) ? $invitation['can_sign'] : false;
+                            $new_invitation->can_sign = $invitation['can_sign'] ?? false;
                             $new_invitation->saveQuietly();
                         }
                     }
@@ -85,8 +84,8 @@ class PurchaseOrderRepository extends BaseRepository
             $purchase_order->service()->createInvitations();
         }
 
-        if($dn_enabled && $purchase_order->invitations()->where('can_sign', true)->count() == 0){
-            $ii = $purchase_order->invitations()->whereHas('contact', function ($q){
+        if ($dn_enabled && $purchase_order->invitations()->where('can_sign', true)->count() == 0) {
+            $ii = $purchase_order->invitations()->whereHas('contact', function ($q) {
                 $q->where('is_primary', true);
             })->first() ?? $purchase_order->invitations()->first();
             $ii->can_sign = true;

@@ -44,7 +44,7 @@ class ClientPaymentAnalyticsService
     {
         $companySummary = ! empty($companyPaymentSummary) ? $companyPaymentSummary[0] : null;
 
-        $clientIds = array_map(fn ($c) => (int) $c->client_id, $clientSummaries);
+        $clientIds = array_map(fn($c) => (int) $c->client_id, $clientSummaries);
         $clientModels = Client::withTrashed()->whereIn('id', $clientIds)->get()->keyBy('id');
 
         $clients = [];
@@ -76,7 +76,7 @@ class ClientPaymentAnalyticsService
             ];
         }
 
-        usort($clients, fn ($a, $b) => $b['risk_score'] <=> $a['risk_score']);
+        usort($clients, fn($a, $b) => $b['risk_score'] <=> $a['risk_score']);
 
         return [
             'company_summary' => $companySummary ? [

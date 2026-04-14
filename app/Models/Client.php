@@ -394,7 +394,7 @@ class Client extends BaseModel implements HasLocalePreference
             ->where('is_locked', false)
             ->limit(4)
             ->get()
-            ->map(fn ($c) => new Address($c->email, $c->present()->name())) // @phpstan-ignore-line
+            ->map(fn($c) => new Address($c->email, $c->present()->name())) // @phpstan-ignore-line
             ->toArray();
     }
 
@@ -1044,7 +1044,7 @@ class Client extends BaseModel implements HasLocalePreference
         $offset += ($entity_send_time * 3600);
 
         return $offset;
-        
+
         // $offset -= $this->company->utc_offset();
 
         // $offset += ($entity_send_time * 3600);

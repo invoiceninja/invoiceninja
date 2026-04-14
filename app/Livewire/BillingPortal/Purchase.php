@@ -31,10 +31,10 @@ use Livewire\Attributes\Locked;
 class Purchase extends Component
 {
     use MakesHash;
-    #[Locked] 
+    #[Locked]
     public string $subscription_id;
 
-    #[Locked] 
+    #[Locked]
     public string $db;
 
     public array $request_data;

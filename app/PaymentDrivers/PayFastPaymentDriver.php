@@ -208,7 +208,7 @@ class PayFastPaymentDriver extends BaseDriver
 
         $passphrase = $this->company_gateway->getConfigField('passphrase') ?? '';
 
-        if(strlen($passphrase) > 0 && ! $this->verifyItnSignature($request->all(), $passphrase)){       
+        if (strlen($passphrase) > 0 && ! $this->verifyItnSignature($request->all(), $passphrase)) {
             return response()->json(['error' => 'Invalid Webhook Signature'], 400);
         }
 

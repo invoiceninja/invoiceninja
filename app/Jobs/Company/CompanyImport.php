@@ -2079,14 +2079,18 @@ class CompanyImport implements ShouldQueue
                 $new_obj->company_id = $this->company->id;
 
                 $obj_array['invoice_ids'] = collect(explode(",", $obj_array['invoice_ids'] ?? ''))
-                    ->filter(function ($id) { return strlen($id) > 1; })
+                    ->filter(function ($id) {
+                        return strlen($id) > 1;
+                    })
                     ->map(function ($id) {
                         $new_id = $this->transformId('invoices', $id);
                         return $new_id ? $this->encodePrimaryKey($new_id) : null;
                     })->filter()->implode(",");
 
                 $obj_array['expense_id'] = collect(explode(",", $obj_array['expense_id'] ?? ''))
-                    ->filter(function ($id) { return strlen($id) > 1; })
+                    ->filter(function ($id) {
+                        return strlen($id) > 1;
+                    })
                     ->map(function ($id) {
                         $new_id = $this->transformId('expenses', $id);
                         return $new_id ? $this->encodePrimaryKey($new_id) : null;

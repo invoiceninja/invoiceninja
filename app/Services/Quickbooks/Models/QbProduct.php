@@ -30,7 +30,7 @@ class QbProduct implements SyncInterface
         $this->product_transformer = new ProductTransformer($service->company);
 
     }
-    
+
     /**
      * find
      *
@@ -43,7 +43,7 @@ class QbProduct implements SyncInterface
     {
         return $this->service->sdk->FindById('Item', $id);
     }
-    
+
     /**
      * syncToNinja
      *
@@ -58,7 +58,7 @@ class QbProduct implements SyncInterface
         foreach ($records as $record) {
             // Double-check: Skip Category and Group items
             $item_type = data_get($record, 'Type');
-            
+
             if ($item_type === 'Category' || $item_type === 'Group') {
                 nlog("Skipping Category/Group item during sync: " . data_get($record, 'Name') . " (Type: {$item_type})");
                 continue;
@@ -73,7 +73,7 @@ class QbProduct implements SyncInterface
         }
 
     }
-    
+
     /**
      * syncToForeign
      *
@@ -82,7 +82,7 @@ class QbProduct implements SyncInterface
      * @param  array $records
      * @return void
      */
-    public function syncToForeign(array $records): void 
+    public function syncToForeign(array $records): void
     {
 
         foreach ($records as $product) {
@@ -95,7 +95,7 @@ class QbProduct implements SyncInterface
         }
     }
 
-        
+
     /**
      * findProduct
      *
@@ -116,7 +116,7 @@ class QbProduct implements SyncInterface
             return $search->first();
         }
 
-        if($product_key) {
+        if ($product_key) {
             $product_match = Product::query()
                 ->withTrashed()
                 ->where('company_id', $this->service->company->id)
@@ -142,7 +142,7 @@ class QbProduct implements SyncInterface
         return $product;
 
     }
-    
+
     /**
      * sync
      *

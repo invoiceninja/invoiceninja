@@ -150,4 +150,12 @@ class FR extends BaseCountry
     {
         return strlen($invoice->client->id_number ?? '') == 9 ? 'FR:SIRENE' : 'FR:SIRET';
     }
+
+    /**
+     * FR always uses id_number (SIRENE/SIRET) for routing identifier.
+     */
+    public function resolveIdentifier(string $scheme, object $client): ?string
+    {
+        return $client->id_number ?? null;
+    }
 }

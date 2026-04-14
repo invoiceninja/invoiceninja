@@ -72,4 +72,57 @@ interface CountryHandler
      * Return null to use default resolution logic.
      */
     public function resolveTaxSchemeOverride(?string $classification, ?object $invoice = null): ?string;
+
+    /**
+     * Override identifier selection for routing.
+     * Return the identifier value to use, or null to use default logic.
+     *
+     * Examples: FR returns id_number (SIRET), DE government returns routing_id.
+     */
+    public function resolveIdentifier(string $scheme, object $client): ?string;
+
+    /**
+     * Apply country-specific formatting to a routing identifier.
+     * Default: return unchanged.
+     *
+     * Example: DK adds 'DK' prefix for DK:DIGST scheme.
+     */
+    public function formatIdentifier(string $identifier, string $scheme): string;
+
+    /**
+     * Return alternative discovery attempts for this country.
+     * Each entry: ['scheme' => string, 'id' => string]
+     * Return empty array for default (no fallbacks).
+     *
+     * Example: BE tries BE:EN first, then BE:VAT.
+     */
+    public function getDiscoveryFallbacks(string $identifier, string $countryPrefix): array;
+
+    /**
+     * Return additional network configurations for this country's receivers.
+     * Return empty array for default (no network overrides).
+     *
+     * Example: SE enables Svefaktura network.
+     */
+    public function getNetworkOverrides(): array;
+
+    /**
+     * Return additional Peppol identifiers to register during legal entity setup.
+     * Each entry: ['identifier' => string, 'scheme' => string]
+     * Return empty array for countries that only need the primary identifier.
+     *
+     * Example: BE registers both BE:VAT and BE:EN for HERMES network support.
+     */
+    public function getAdditionalIdentifiers(array $data): array;
+
+    /**
+     * Return a custom registration flow if this country requires one.
+     * Return null to use the standard identifier registration.
+     *
+     * The callback receives (Storecove $storecove, int $legal_entity_id, array $data)
+     * and should return the API response array or Response on failure.
+     *
+     * Example: SG uses CorpPass OAuth + C5 IRAS email activation.
+     */
+    public function getRegistrationFlow(object $storecove, int $legal_entity_id, array $data): ?array;
 }

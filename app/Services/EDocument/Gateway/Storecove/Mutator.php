@@ -243,202 +243,37 @@ class Mutator implements MutatorInterface
 
     /////////////// Storecove Helpers ///////////////
 
-    /**
-     * Get the client's primary email for email-based delivery (individual/B2C recipients).
-     */
-    private function getIndividualEmailRoute(): string
-    {
-        return $this->invoice->client->present()->email();
-    }
-
-    /**
-     * Fallback: extract a sanitised alphanumeric identifier from the client.
-     * For individuals, prefers id_number; otherwise uses vat_number.
-     *
-     * @param  string $code  The resolved routing scheme code (unused but kept for signature consistency)
-     */
-    private function getClientPublicIdentifier(string $code): string
-    {
-        if ($this->invoice->client->classification == 'individual' && strlen($this->invoice->client->id_number ?? '') > 2) {
-            return preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->client->id_number ?? '');
-        }
-
-        return preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->client->vat_number ?? '');
-    }
+    // Routing logic extracted to RoutingResolver class.
 
     /**
      * Resolve and set the Storecove routing metadata for the receiving client.
      *
-     * This is the main routing orchestrator. It determines how Storecove should
-     * deliver the document to the recipient by building the `storecove_meta.routing`
-     * payload. The resolution order is:
-     *
-     *  1. If the client has no vat_number/id_number and is an individual -> email routing
-     *  2. If the client has an explicit routing_id in "scheme:id" format -> use directly (after proxy discovery)
-     *  3. Otherwise, resolve the scheme via StorecoveRouter based on country + classification,
-     *     pick the correct identifier (vat_number, id_number, or routing_id depending on scheme),
-     *     apply country-specific formatting (DK:DIGST prefix, SG:UEN prefix, BE fallback),
-     *     and build the eIdentifiers routing array
-     *
-     * Also enables the Svefaktura network for Swedish recipients.
+     * Delegates to RoutingResolver for the actual resolution logic, then applies
+     * the result to the storecove_meta and network configuration.
      *
      * @return self
      */
     public function setClientRoutingCode(): self
     {
+        $resolver = new RoutingResolver(
+            $this->invoice,
+            $this->storecove->proxy,
+            $this->storecove->router,
+        );
 
-        if (strlen($this->invoice->client->vat_number ?? '') < 2 && strlen($this->invoice->client->id_number ?? '') < 2) {
-            if ($this->invoice->client->classification == 'individual') {
-                return $this->setEmailRouting($this->getIndividualEmailRoute());
-            }
+        $result = $resolver->resolve();
+
+        if ($result['type'] === 'none') {
             return $this;
         }
 
-        if (stripos($this->invoice->client->routing_id ?? '', ":") !== false) {
+        $this->setStorecoveMeta($result['meta']);
 
-            $parts = explode(":", $this->invoice->client->routing_id);
-
-            if (count($parts) == 2) {
-                $scheme = $parts[0];
-                $id = $parts[1];
-
-                if ($this->proxyDiscovery($id, $scheme)) {
-                    $this->setStorecoveMeta($this->buildRouting([
-                        ["scheme" => $scheme, "id" => $id],
-                    ]));
-
-                    $this->setSvefakturaNetwork();
-
-                    return $this;
-                }
-            }
-
-        }
-
-        $code = $this->getClientRoutingCode();
-
-        if ($code === 'Email') {
-            return $this->setEmailRouting($this->getIndividualEmailRoute());
-        }
-
-        $identifier = false;
-
-        // Non-VAT routing schemes (DK:DIGST, SE:ORGNR, FI:OVT, EE:CC, NO:ORG, LT:LEC, etc.)
-        // use id_number (org/registry number), not vat_number.
-        // IT:CUUO uses routing_id (SDI code).
-        $is_vat_scheme = str_contains($code, ':VAT') || str_contains($code, ':IVA') || str_contains($code, ':CF');
-
-        if ($this->invoice->client->country->iso_3166_2 == 'FR') {
-            $identifier = $this->invoice->client->id_number;
-        } elseif (str_contains($code, ':CUUO') && strlen($this->invoice->client->routing_id ?? '') > 1) {
-            $identifier = $this->invoice->client->routing_id;
-        } elseif (!$is_vat_scheme && strlen($this->invoice->client->id_number ?? '') > 1) {
-            $clean_id = preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->client->id_number);
-            $identifier = (new StorecoveRouter())->matchesSchemeFormat($code, $clean_id)
-                ? $this->invoice->client->id_number
-                : $this->invoice->client->vat_number;
-        } else {
-            $identifier = $this->invoice->client->vat_number;
-        }
-
-        if ($this->invoice->client->country->iso_3166_2 == 'DE' && $this->invoice->client->classification == 'government') {
-            $identifier = $this->invoice->client->routing_id;
-        }
-
-        if (!$identifier) {
-            $identifier = $this->getClientPublicIdentifier($code);
-        }
-
-        $country_prefix = $this->invoice->client->country->iso_3166_2;
-        $identifier = preg_replace("/[^a-zA-Z0-9]/", "", $identifier);
-
-        // DK:DIGST expects DK prefix on the CVR number — ensure it's present
-        if ($code === 'DK:DIGST' && !str_starts_with(strtoupper($identifier), 'DK')) {
-            $identifier = 'DK' . $identifier;
-        }
-
-
-        //Check the recipient is on the network, and can be delivered the correct document.
-        if($this->invoice->client->country->iso_3166_2 == "BE"){
-
-            $identifier = preg_replace("/^{$country_prefix}/i", "", $identifier);
-
-            if ($this->proxyDiscovery($identifier, 'BE:EN')) {
-                    $this->setStorecoveMeta($this->buildRouting([
-                        ["scheme" => 'BE:EN', "id" => $identifier],
-                    ]));
-
-                    return $this;
-            }
-            elseif($this->proxyDiscovery("BE".$identifier, 'BE:VAT')) {
-                $this->setStorecoveMeta($this->buildRouting([
-                    ["scheme" => 'BE:VAT', "id" => "BE".$identifier],
-                ]));
-
-                return $this;
-            }
-
-        }
-
-
-        // Composite routing codes (e.g. "0195:SGUENT08GA0028A") encode a fixed
-        // gateway endpoint as scheme:id — split and use directly.
-        if (preg_match('/^(\d{4}):(.+)$/', $code, $m)) {
-            $this->setStorecoveMeta($this->buildRouting([
-                ["scheme" => $m[1], "id" => $m[2]],
-            ]));
-        } else {
-            $this->setStorecoveMeta($this->buildRouting([
-                ["scheme" => $code, "id" => $identifier],
-            ]));
-        }
-
-        $this->setSvefakturaNetwork();
-
-        return $this;
-    }
-
-    /**
-     * Sets the Svefaktura network in routing metadata when the receiver is Swedish.
-     */
-    private function setSvefakturaNetwork(): self
-    {
-        if ($this->invoice->client->country->iso_3166_2 == 'SE') {
-            $this->setStorecoveMeta(["routing" => ["networks" => [
-                [
-                    "application" => "svefaktura",
-                    "settings" => [
-                        "enabled" => true,
-                    ],
-                ],
-            ]]]);
+        if (!empty($result['networks'])) {
+            $this->setStorecoveMeta(['routing' => ['networks' => $result['networks']]]);
         }
 
         return $this;
-    }
-
-    /**
-     * Resolve the Storecove/Peppol routing scheme code for the client's country and classification.
-     *
-     * Delegates to StorecoveRouter which maintains the per-country routing rules matrix.
-     * Examples: 'DE:VAT', 'IT:CUUO', 'SE:ORGNR', 'SG:UEN', 'FR:SIRET'.
-     *
-     * @return string  The scheme code e.g. 'DE:VAT'
-     */
-    private function getClientRoutingCode(): string
-    {
-        return (new StorecoveRouter())->setInvoice($this->invoice)->resolveRouting($this->invoice->client->country->iso_3166_2, $this->invoice->client->classification);
-    }
-
-    /**
-     * Route discovery through the proxy so self-hosted instances
-     * can reach the Storecove API via the hosted server.
-     */
-    private function proxyDiscovery(string $identifier, string $scheme): bool
-    {
-        return $this->storecove->proxy
-            ->setCompany($this->invoice->company)
-            ->discovery($identifier, $scheme);
     }
 
 

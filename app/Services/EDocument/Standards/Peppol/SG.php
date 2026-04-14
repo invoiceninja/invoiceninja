@@ -90,4 +90,38 @@ class SG extends BaseCountry
 
         return ['p_invoice' => $p_invoice, 'storecove_meta' => $storecove_meta];
     }
+
+    /**
+     * SG uses CorpPass OAuth + optional C5 IRAS email activation
+     * instead of standard identifier registration.
+     */
+    public function getRegistrationFlow(object $storecove, int $legal_entity_id, array $data): ?array
+    {
+        $response = $storecove->startCorpPassFlow($legal_entity_id, $data['id_number']);
+
+        if (!is_array($response)) {
+            $storecove->deleteIdentifier($legal_entity_id);
+            return null; // Signal failure — caller should return $response
+        }
+
+        // Fire C5 IRAS email activation automatically if signer details provided
+        if (isset($data['c5_signer_name']) && isset($data['c5_signer_email'])) {
+            $c5_response = $storecove->c5->activate(
+                $legal_entity_id,
+                $data['id_number'],
+                $data['c5_signer_name'],
+                $data['c5_signer_email'],
+            );
+
+            nlog(['c5_iras_activation' => is_array($c5_response) ? $c5_response : $c5_response->json()]);
+        }
+
+        return array_merge($response, [
+            'legal_entity_id' => $legal_entity_id,
+            'tax_data' => [
+                'acts_as_sender' => $data['acts_as_sender'],
+                'acts_as_receiver' => $data['acts_as_receiver'],
+            ],
+        ]);
+    }
 }
