@@ -125,6 +125,11 @@ class PeppolCountryTest extends TestCase
                 'city' => 'Paris', 'state' => 'Ile-de-France', 'postal_code' => '75001', 'currency' => '3',
                 'address1' => 'Rue de Rivoli 1',
             ],
+            'IN' => [
+                'vat' => '27AABCU9603R1ZM', 'id_number' => 'U72200MH2009PTC123456', 'tax_rate' => 18, 'tax_name' => 'GST',
+                'city' => 'Mumbai', 'state' => 'Maharashtra', 'postal_code' => '400001', 'currency' => '11',
+                'address1' => 'Nariman Point 1',
+            ],
             'IT' => [
                 'vat' => 'IT92443356490', 'id_number' => '92443356490', 'tax_rate' => 22, 'tax_name' => 'IVA',
                 'city' => 'Rome', 'state' => 'Lazio', 'postal_code' => '00100', 'currency' => '3',
@@ -760,6 +765,77 @@ class PeppolCountryTest extends TestCase
             'company_country' => 'SG', 'client_country' => 'SG',
         ]);
         $this->runAndValidate($data['invoice'], 'SG => SG (business)');
+    }
+
+    public function testSG_Domestic_Government(): void
+    {
+        $data = $this->buildScenario([
+            'company_country' => 'SG', 'client_country' => 'SG',
+            'client_classification' => 'government',
+            'client_id_number' => '201234567K',
+        ]);
+        $result = $this->runAndValidate($data['invoice'], 'SG => SG (government)');
+
+        // B2G must include SG:UEN identifier for the government entity
+        $uen = $this->findRoutingScheme($result['meta'], 'SG:UEN');
+        $this->assertNotNull($uen, 'SG B2G should include SG:UEN routing identifier');
+        $this->assertEquals('201234567K', $uen['id'], 'SG:UEN should contain the client UEN');
+    }
+
+    // ── IN (India) ──
+
+    public function testIN_Domestic_Business(): void
+    {
+        $data = $this->buildScenario([
+            'company_country' => 'IN', 'client_country' => 'IN',
+            'client_classification' => 'business',
+        ]);
+        $result = $this->runAndValidate($data['invoice'], 'IN => IN (business)');
+
+        // Verify GSTIN routing
+        $gstin = $this->findRoutingScheme($result['meta'], 'IN:GSTIN');
+        $this->assertNotNull($gstin, 'IN domestic B2B should route via IN:GSTIN');
+
+        // Verify email routing
+        $this->assertNotEmpty($result['meta']['routing']['emails'] ?? [], 'IN should have email routing');
+    }
+
+    public function testIN_Domestic_Business_StateNameResolution(): void
+    {
+        $data = $this->buildScenario([
+            'company_country' => 'IN', 'client_country' => 'IN',
+            'client_classification' => 'business',
+            'company_state' => 'Karnataka',
+            'client_state' => 'Tamil Nadu',
+        ]);
+        $result = $this->runAndValidate($data['invoice'], 'IN => IN (state name resolution)');
+
+        // Verify supplier state resolved to ISO code
+        $supplierState = $result['peppol']->AccountingSupplierParty->Party->PostalAddress->CountrySubentity ?? null;
+        $this->assertEquals('KA', $supplierState, 'Supplier state "Karnataka" should resolve to KA');
+
+        // Verify client state resolved to ISO code
+        $clientState = $result['peppol']->AccountingCustomerParty->Party->PostalAddress->CountrySubentity ?? null;
+        $this->assertEquals('TN', $clientState, 'Client state "Tamil Nadu" should resolve to TN');
+    }
+
+    public function testIN_StateCode_Resolution(): void
+    {
+        $in = new \App\Services\EDocument\Standards\Peppol\IN();
+
+        // By code
+        $this->assertEquals('KA', $in->getStateCode('KA'));
+        // By name
+        $this->assertEquals('MH', $in->getStateCode('Maharashtra'));
+        // Case-insensitive
+        $this->assertEquals('TN', $in->getStateCode('tamil nadu'));
+        // Old name alias
+        $this->assertEquals('PY', $in->getStateCode('Pondicherry'));
+        $this->assertEquals('OD', $in->getStateCode('Orissa'));
+        // Unknown defaults to DL
+        $this->assertEquals('DL', $in->getStateCode('Unknown'));
+        // Empty defaults to DL
+        $this->assertEquals('DL', $in->getStateCode(''));
     }
 
     // ══════════════════════════════════════════════════════════════

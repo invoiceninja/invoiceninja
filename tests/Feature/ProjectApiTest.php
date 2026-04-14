@@ -22,6 +22,7 @@ use App\Models\Project;
 use Tests\MockAccountData;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -586,5 +587,76 @@ class ProjectApiTest extends TestCase
         $arr = $response->json();
 
         $this->assertTrue($arr['data'][0]['is_deleted']);
+    }
+
+    public function testProjectListNPlusOneWithUserIncludes()
+    {
+        for ($i = 0; $i < 10; $i++) {
+            Project::factory()->create([
+                'user_id' => $this->user->id,
+                'assigned_user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'client_id' => $this->client->id,
+                'name' => "N+1 Test Project {$i}",
+            ]);
+        }
+
+        // Run with a small batch to get baseline query count
+        DB::enableQueryLog();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->getJson('/api/v1/projects?include=user,assigned_user&per_page=50');
+
+        $response->assertStatus(200);
+
+        $baselineQueries = DB::getQueryLog();
+        $baselineCount = count($baselineQueries);
+        DB::disableQueryLog();
+
+        $arr = $response->json();
+        $projectCount = count($arr['data']);
+        $this->assertGreaterThanOrEqual(10, $projectCount, 'Expected at least 10 projects in results');
+
+        // Add 10 more projects and measure again
+        for ($i = 0; $i < 10; $i++) {
+            Project::factory()->create([
+                'user_id' => $this->user->id,
+                'assigned_user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'client_id' => $this->client->id,
+                'name' => "N+1 Extra Project {$i}",
+            ]);
+        }
+
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        $response2 = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->getJson('/api/v1/projects?include=user,assigned_user&per_page=50');
+
+        $response2->assertStatus(200);
+
+        $secondQueries = DB::getQueryLog();
+        $secondCount = count($secondQueries);
+        DB::disableQueryLog();
+
+        $arr2 = $response2->json();
+        $secondProjectCount = count($arr2['data']);
+        $this->assertGreaterThan($projectCount, $secondProjectCount, 'Expected more projects in second request');
+
+        // With proper eager loading, query count should remain the same
+        // regardless of how many projects are returned. Allow a small tolerance
+        // of 2 for potential minor variations (e.g. distinct user lookups).
+        $queryDescriptions = array_map(fn ($q) => $q['query'], $secondQueries);
+
+        $this->assertLessThanOrEqual($baselineCount + 2, $secondCount,
+            "N+1 detected: query count grew from {$baselineCount} to {$secondCount} "
+            . "when projects increased from {$projectCount} to {$secondProjectCount}. "
+            . "Queries:\n" . implode("\n", $queryDescriptions)
+        );
     }
 }

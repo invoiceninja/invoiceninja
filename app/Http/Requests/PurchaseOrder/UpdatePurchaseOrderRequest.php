@@ -62,6 +62,8 @@ class UpdatePurchaseOrderRequest extends Request
 
         $rules['file'] = 'bail|sometimes|array';
         $rules['file.*'] = $this->fileValidation();
+        $rules['documents'] = 'bail|sometimes|array';
+        $rules['documents.*'] = $this->fileValidation();
 
         $rules['status_id'] = 'sometimes|integer|in:1,2,3,4,5';
         $rules['exchange_rate'] = 'bail|sometimes|numeric';

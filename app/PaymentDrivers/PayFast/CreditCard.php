@@ -196,6 +196,13 @@ class CreditCard implements LivewireMethodInterface
     public function paymentResponse(Request $request)
     {
 
+        $expected = (float) $this->payfast->payment_hash->data->amount_with_fee;
+        $received = (float) $request->input('amount_gross');
+
+        if (abs($received - $expected) > 0.02) {
+            throw new PaymentFailed('Amount mismatch', 500);
+        }
+
         if ($request->token) {
             return $this->processTokenPayment($request->token, $request->payment_hash);
         }

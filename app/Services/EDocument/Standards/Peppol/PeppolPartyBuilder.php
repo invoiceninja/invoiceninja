@@ -78,7 +78,7 @@ class PeppolPartyBuilder
                 $companyID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CompanyID();
 
                 $pts = new \InvoiceNinja\EInvoice\Models\Peppol\PartyTaxSchemeType\PartyTaxScheme();
-                $companyID->value = preg_replace("/[^a-zA-Z0-9]/", "", $company_vat_number);
+                $companyID->value = $this->ensureVatNumberPrefix($company_vat_number, $invoice->company->country()->iso_3166_2);
                 $pts->CompanyID = $companyID;
 
                 $ts = new TaxScheme();
@@ -212,19 +212,27 @@ if (strlen($company->settings->vat_number ?? '') <= 1
 
         $id = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\EndpointID();
         $routing_id = $invoice->client->routing_id ?? '';
+        $resolved_scheme = $this->resolveScheme(true);
 
-        if (str_contains($routing_id, ':')) {
+        if ($resolved_scheme === 'Email') {
+            // Countries routed via email (IN, SA) have no Peppol EAS scheme —
+            // use EAS 0202 as a generic endpoint with the client's tax/id number.
+            $id->schemeID = '0202';
+            $id->value = preg_replace("/[^a-zA-Z0-9]/", "", $invoice->client->vat_number ?? '')
+                      ?: preg_replace("/[^a-zA-Z0-9]/", "", $invoice->client->id_number ?? '')
+                      ?: $invoice->client->present()->email();
+        } elseif (str_contains($routing_id, ':')) {
             // routing_id stored as "SCHEME:value" or already as "0088:value"
             [$scheme, $value] = explode(':', $routing_id, 2);
             $id->schemeID = $this->peppol->getGateway()->router->resolveIso6523Scheme($scheme);
             $id->value = $value;
         } elseif (strlen($routing_id) > 1) {
             // Raw routing value — scheme resolved from country/classification
-            $id->schemeID = $this->resolveScheme(true);
+            $id->schemeID = $resolved_scheme;
             $id->value = $routing_id;
         } else {
             // No routing_id — fall back to VAT or id_number
-            $id->schemeID = $this->resolveScheme(true);
+            $id->schemeID = $resolved_scheme;
             $id->value = preg_replace("/[^a-zA-Z0-9]/", "", $invoice->client->vat_number ?? '')
                       ?: preg_replace("/[^a-zA-Z0-9]/", "", $invoice->client->id_number ?? '')
                       ?: 'fallback1234';
@@ -245,6 +253,10 @@ if (strlen($company->settings->vat_number ?? '') <= 1
         }
 
         $address->PostalZone = $locationData['postal_code'];
+
+        if (strlen($locationData['state'] ?? '') > 1) {
+            $address->CountrySubentity = $locationData['state'];
+        }
         // $address->CountrySubentity = $invoice->client->state;
 
         $country = new Country();

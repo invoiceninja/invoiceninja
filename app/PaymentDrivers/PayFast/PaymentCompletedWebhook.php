@@ -78,8 +78,16 @@ class PaymentCompletedWebhook implements ShouldQueue
             return;
         }
 
-        nlog("yolo");
         $payment_hash = PaymentHash::where('hash', $this->data['m_payment_id'])->first();
+
+        $expected = (float) $payment_hash->data->amount_with_fee;
+        $received = (float) $this->data['amount_gross'];
+
+        if (abs($received - $expected) > 0.02) {
+            nlog("Payfast:: Amount mismatch");
+            return;
+        }
+
 
         $company_gateway = CompanyGateway::query()->where('company_id', $company->id)->where('id', $this->company_gateway_id)->first();
         $driver = $company_gateway->driver($payment_hash->fee_invoice->client)->init();

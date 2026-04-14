@@ -298,7 +298,13 @@ class Purify
         libxml_use_internal_errors(true);
 
         $document = new \DOMDocument();
-        $html = '<?xml encoding="UTF-8">' . $html;
+
+        // Wrap fragments in a <div> container so DOMDocument does not inject
+        // <p> tags around loose text that precedes block-level elements.
+        $html = $is_fragment
+            ? '<?xml encoding="UTF-8"><div>' . $html . '</div>'
+            : '<?xml encoding="UTF-8">' . $html;
+
         @$document->loadHTML(htmlspecialchars_decode(htmlspecialchars($html, ENT_QUOTES, 'UTF-8')), LIBXML_NONET);
 
         // Function to recursively check nodes
@@ -442,11 +448,19 @@ class Purify
             $cleanNodes($document->documentElement);
 
             if ($is_fragment) {
+                // Extract content from inside the wrapper <div> we added before parsing.
                 $body = $document->getElementsByTagName('body')->item(0);
                 $html = '';
                 if ($body) {
-                    foreach ($body->childNodes as $child) {
-                        $html .= $document->saveHTML($child);
+                    $wrapper = $body->firstChild;
+                    if ($wrapper && $wrapper->nodeName === 'div') {
+                        foreach ($wrapper->childNodes as $child) {
+                            $html .= $document->saveHTML($child);
+                        }
+                    } else {
+                        foreach ($body->childNodes as $child) {
+                            $html .= $document->saveHTML($child);
+                        }
                     }
                 }
             } else {

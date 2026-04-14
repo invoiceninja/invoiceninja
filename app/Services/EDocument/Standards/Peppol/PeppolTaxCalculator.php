@@ -104,23 +104,35 @@ class PeppolTaxCalculator
 
         $eu_states = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "EL", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "ES-CE", "ES-ML", "ES-CN", "SE", "IS", "LI", "NO", "CH"];
 
-        if ($item->tax_id == '9') {
+        $company_country = $company->country()->iso_3166_2;
+        $client_country = $invoice->client->country->iso_3166_2;
+        $company_in_eu = in_array($company_country, $eu_states);
+        $client_in_eu = in_array($client_country, $eu_states);
+
+        // Non-EU company — use generic tax exempt categories
+        if (!$company_in_eu) {
+            if ($company_country != $client_country) {
+                $tax_type = 'O';
+                $reason_code = 'vatex-eu-o';
+                $reason = 'Not subject to VAT';
+            } else {
+                $tax_type = 'E';
+                $reason_code = 'vatex-eu-o';
+                $reason = 'Not subject to VAT';
+            }
+        } elseif ($item->tax_id == '9') {
             $tax_type = 'AE'; // EEA Exempt
             $reason_code = 'vatex-eu-ae';
             $reason = 'Reverse charge';
-        } elseif ((in_array($company->country()->iso_3166_2, $eu_states)
-                  && in_array($invoice->client->country->iso_3166_2, $eu_states))
-                  && $invoice->company->country()->iso_3166_2 != $invoice->client->country->iso_3166_2) {
+        } elseif ($company_in_eu && $client_in_eu && $company_country != $client_country) {
             $tax_type = 'K'; // EEA Exempt
             $reason_code = 'vatex-eu-ic';
             $reason = 'Intra-Community supply';
-
-        } elseif (!in_array($invoice->client->country->iso_3166_2, $eu_states)
-                  || !in_array($company->country()->iso_3166_2, $eu_states)) {
+        } elseif (!$client_in_eu) {
             $tax_type = 'G'; //Free export item, VAT not charged
             $reason_code = 'vatex-eu-g';
             $reason = 'Export outside the EU';
-        } elseif ($invoice->client->country->iso_3166_2 == $company->country()->iso_3166_2) {
+        } elseif ($company_country == $client_country) {
             $tax_type = 'E';
             $reason_code = "vatex-eu-o";
             $reason = 'Services outside scope of tax';
@@ -146,10 +158,13 @@ class PeppolTaxCalculator
         $taxScheme->ID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID();
         $taxScheme->ID->value = $this->standardizeTaxSchemeId('vat');
         $taxCategory->TaxScheme = $taxScheme;
-        $terc = new \InvoiceNinja\EInvoice\Models\Peppol\CodeType\TaxExemptionReasonCode();
-        $terc->value = $reason_code;
-        $taxCategory->TaxExemptionReasonCode = $terc;
-        $taxCategory->TaxExemptionReason = $reason;
+
+        if ($reason_code !== null) {
+            $terc = new \InvoiceNinja\EInvoice\Models\Peppol\CodeType\TaxExemptionReasonCode();
+            $terc->value = $reason_code;
+            $taxCategory->TaxExemptionReasonCode = $terc;
+            $taxCategory->TaxExemptionReason = $reason;
+        }
 
         $this->peppol->setGlobalTaxCategories([$taxCategory]);
 

@@ -19,6 +19,7 @@ use App\Utils\TempFile;
 use Illuminate\Console\Command;
 use App\Utils\Traits\SavesDocuments;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
+use App\Services\EDocument\Gateway\Storecove\EInvoiceForwarder;
 
 class PullPeppolDocs extends Command
 {
@@ -119,11 +120,13 @@ class PullPeppolDocs extends Command
                     $hash = $response->header('X-CONFIRMATION-HASH');
 
                     $this->info($response->body() );
-                    
+
                     $this->handleSuccess($response->json(), $company, $hash);
                 } else {
                     nlog($response->body());
                 }
+
+                $this->pullSentDocuments($company);
 
             });
 
@@ -169,6 +172,7 @@ class PullPeppolDocs extends Command
     {
 
         $storecove = new Storecove();
+        $forwarder = new EInvoiceForwarder($company);
 
         $doc_count = count($received_documents);
 
@@ -196,6 +200,11 @@ class PullPeppolDocs extends Command
                     $upload_document = TempFile::UploadedFileFromBase64($document['original_base64_xml'], "{$file_name}.xml", 'application/xml');
                     $this->saveDocument($upload_document, $expense, true);
                     $upload_document = null;
+
+                    if ($forwarder->isConfigured()) {
+                        $forwarder->forward(base64_decode($document['original_base64_xml']), "{$file_name}.xml", 'received');
+                        $this->info("Forwarded received document {$file_name}.xml to {$company->settings->e_invoice_forward_email}");
+                    }
                 }
 
                 foreach ($document['document']['invoice']['attachments'] as $attachment) {
@@ -232,6 +241,82 @@ class PullPeppolDocs extends Command
             $this->info("Finished flushing upstream.");
             $this->info("Finished task!");
         }
+    }
+
+    /**
+     * Pulls confirmed-sent XML documents from the hosted server and forwards
+     * them to the company's forwarding email. Skips if no forwarding email
+     * is configured.
+     *
+     * @param  Company $company
+     * @return void
+     */
+    private function pullSentDocuments(Company $company): void
+    {
+        $forwarder = new EInvoiceForwarder($company);
+
+        if (!$forwarder->isConfigured()) {
+            $this->info("No forwarding email configured, skipping sent document pull.");
+            return;
+        }
+
+        $this->info("Pulling sent documents for forwarding...");
+
+        $response = \Illuminate\Support\Facades\Http::baseUrl(config('ninja.hosted_ninja_url'))
+            ->withHeaders([
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+                'X-EInvoice-Token' => $company->account->e_invoicing_token,
+            ])
+            ->post('/api/einvoice/peppol/documents/sent', data: [
+                'license_key' => config('ninja.license_key'),
+                'account_key' => $company->account->key,
+                'company_key' => $company->company_key,
+                'legal_entity_id' => $company->legal_entity_id,
+            ]);
+
+        if (!$response->successful()) {
+            $this->error("Failed to pull sent documents: " . $response->body());
+            return;
+        }
+
+        $sent_documents = $response->json();
+        $hash = $response->header('X-CONFIRMATION-HASH');
+
+        if (empty($sent_documents)) {
+            $this->info("No sent documents to forward.");
+            return;
+        }
+
+        $this->info(count($sent_documents) . " sent document(s) found.");
+
+        foreach ($sent_documents as $document) {
+            $guid = $document['guid'] ?? '';
+            $xml_base64 = $document['xml_base64'] ?? '';
+
+            if (strlen($xml_base64) > 5) {
+                $forwarder->forward(base64_decode($xml_base64), "{$guid}.xml", 'sent');
+                $this->info("Forwarded sent document {$guid}.xml to {$company->settings->e_invoice_forward_email}");
+            }
+        }
+
+        $this->info("Flushing sent documents upstream...");
+
+        \Illuminate\Support\Facades\Http::baseUrl(config('ninja.hosted_ninja_url'))
+            ->withHeaders([
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+                'X-EInvoice-Token' => $company->account->e_invoicing_token,
+            ])
+            ->post('/api/einvoice/peppol/documents/sent/flush', data: [
+                'license_key' => config('ninja.license_key'),
+                'account_key' => $company->account->key,
+                'company_key' => $company->company_key,
+                'legal_entity_id' => $company->legal_entity_id,
+                'hash' => $hash,
+            ]);
+
+        $this->info("Finished forwarding sent documents.");
     }
 
 }

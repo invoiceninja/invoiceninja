@@ -32,6 +32,7 @@ class Address
     #[SerializedPath('[cbc:PostalZone]')]
     public ?string $zip;
 
+    #[SerializedPath('[cbc:CountrySubentity]')]
     public ?string $county;
 
     public function __construct(

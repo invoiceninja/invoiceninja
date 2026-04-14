@@ -1091,11 +1091,11 @@ class Client extends BaseModel implements HasLocalePreference
 
         $country_code = $this->country->iso_3166_2;
 
-        if (!\App\Services\EDocument\Gateway\Storecove\StorecoveRouter::isPeppolCountry($country_code)) {
-            return "Country {$this->country->full_name} ( {$country_code} ) is not supported by the PEPPOL network for e-delivery.";
-        }
-
         $router = new \App\Services\EDocument\Gateway\Storecove\StorecoveRouter();
+
+        if (!$router->hasRoutingRules($country_code)) {
+            return "Country {$this->country->full_name} ( {$country_code} ) is not supported for e-delivery.";
+        }
 
         if (!$router->isClassificationRoutable($country_code, $this->classification ?? 'business')) {
             return ucfirst($this->classification) . " clients in {$this->country->full_name} ( {$country_code} ) are not routable on the Peppol network.";

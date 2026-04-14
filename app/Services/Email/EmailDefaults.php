@@ -296,8 +296,12 @@ class EmailDefaults
         }
 
         /* Only attach cc_only contacts to the first invitation for this entity */
+        /** @var \App\Models\InvoiceInvitation|\App\Models\QuoteInvitation|\App\Models\CreditInvitation|\App\Models\PurchaseOrderInvitation $invitation */
         $invitation = $this->email->email_object->invitation;
-        if ($invitation && $entity->invitations()->orderBy('id')->first()?->id !== $invitation->id) {
+        /** @var \App\Models\InvoiceInvitation|\App\Models\QuoteInvitation|\App\Models\CreditInvitation|\App\Models\PurchaseOrderInvitation $first_invitation */
+        $first_invitation = $entity->invitations()->orderBy('id')->first();
+        
+        if ($invitation && $first_invitation && $first_invitation->id !== $invitation->id) {
             return $this;
         }
 

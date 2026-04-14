@@ -42,9 +42,9 @@ class TaxModel
             $this->regions = $this->init();
         } else {
 
-            $this->seller_subregion = $model->seller_subregion ?? '';
-            $this->acts_as_sender = $model->acts_as_sender ?? false;
-            $this->acts_as_receiver = $model->acts_as_receiver ?? false;
+            $this->seller_subregion = $model->seller_subregion ?? ''; //@phpstan-ignore-line
+            $this->acts_as_sender = $model->acts_as_sender ?? false; //@phpstan-ignore-line
+            $this->acts_as_receiver = $model->acts_as_receiver ?? false; //@phpstan-ignore-line
 
             $modelArray = get_object_vars($model);
 
