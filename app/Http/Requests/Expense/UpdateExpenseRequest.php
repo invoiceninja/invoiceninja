@@ -56,6 +56,7 @@ class UpdateExpenseRequest extends Request
         $rules['transaction_id'] = 'bail|sometimes|nullable|exists:bank_transactions,id,company_id,' . $user->company()->id;
         $rules['invoice_id'] = 'bail|sometimes|nullable|exists:invoices,id,company_id,' . $user->company()->id;
         $rules['documents'] = 'bail|sometimes|array';
+        $rules['documents.*'] = $this->fileValidation();
         $rules['amount'] = ['sometimes', 'bail', 'nullable', 'numeric', 'max:99999999999999'];
 
         $rules['file'] = 'bail|sometimes|array';

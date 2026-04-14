@@ -32,7 +32,7 @@ class PreImportRequest extends Request
     public function rules()
     {
         return [
-            'files.*' => 'file|mimetypes:text/csv,text/plain,application/octet-stream',
+            'files.*' => 'file|mimetypes:text/csv,text/plain,application/octet-stream|max:20000',
             'files' => 'required|array|min:1|max:6',
             'import_type' => 'required',
         ];
