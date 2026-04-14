@@ -25,8 +25,7 @@ class ES extends BaseCountry
         mixed $p_invoice,
         mixed $invoice,
         MutatorUtil $mutator_util,
-        array $storecove_meta
-    ): array {
+    ): mixed {
 
         if (!isset($invoice->due_date)) {
             $p_invoice->DueDate = new \DateTime($invoice->date);
@@ -37,12 +36,6 @@ class ES extends BaseCountry
             $mutator_util->setPaymentMeans(true);
         }
 
-        // For B2G, provide three ES:FACE identifiers in the routing object,
-        // as well as the ES:VAT tax identifier in the accountingCustomerParty.publicIdentifiers.
-        // The invoice will then be routed through the FACe network.
-        // The three required ES:FACE identifiers are:
-        //   ES-01-FISCAL, ES-02-RECEPTOR, ES-03-PAGADOR
-
-        return ['p_invoice' => $p_invoice, 'storecove_meta' => $storecove_meta];
+        return $p_invoice;
     }
 }

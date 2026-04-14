@@ -15,6 +15,7 @@ namespace App\Services\EDocument\Gateway\Storecove;
 use App\Models\Company;
 use Turbo124\Beacon\Facades\LightLogs;
 use App\DataMapper\Analytics\LegalEntityCreated;
+use App\Enum\HttpVerb;
 use App\Services\EDocument\Standards\Peppol\CountryFactory;
 
 /**
@@ -246,15 +247,15 @@ class LegalEntityService
         $legal_entity = $this->get($legal_entity_id);
 
         if (isset($legal_entity['additional_tax_identifiers']) && is_array($legal_entity['additional_tax_identifiers'])) {
-            $identifer = collect($legal_entity['additional_tax_identifiers'])
+            $identifier = collect($legal_entity['additional_tax_identifiers'])
                 ->filter(fn($id) => $id['identifier'] == $tax_identifier)
                 ->first();
 
-            if (! $identifer) {
+            if (! $identifier) {
                 return false;
             }
 
-            $uri = "legal_entities/{$legal_entity_id}/additional_tax_identifiers/{$identifer['id']}";
+            $uri = "legal_entities/{$legal_entity_id}/additional_tax_identifiers/{$identifier['id']}";
 
             $r = $this->storecove->httpClient($uri, (HttpVerb::DELETE)->value, []);
 

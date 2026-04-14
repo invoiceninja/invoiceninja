@@ -27,14 +27,19 @@ use App\Services\EDocument\Standards\Peppol\PeppolTaxCalculator;
 use App\Services\EDocument\Standards\Peppol\PeppolPartyBuilder;
 use App\Services\EDocument\Standards\Peppol\PeppolAttachmentBuilder;
 use InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID;
+use App\Services\EDocument\Gateway\MutatorUtil;
+use App\Services\EDocument\Gateway\MutatorInterface;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
+use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
+use App\Services\EDocument\Standards\Peppol\CountryFactory;
+use App\Services\EDocument\Standards\Settings\PropertyResolver;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\PayableAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\LineExtensionAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\OrderReferenceType\OrderReference;
 use InvoiceNinja\EInvoice\Models\Peppol\MonetaryTotalType\LegalMonetaryTotal;
 use InvoiceNinja\EInvoice\Models\Peppol\BillingReferenceType\BillingReference;
 
-class Peppol extends AbstractService
+class Peppol extends AbstractService implements MutatorInterface
 {
     use Taxer;
     use NumberFormatter;
@@ -145,16 +150,15 @@ class Peppol extends AbstractService
 
     /**
      *
-     * The API network to use for the Peppol document
+     * Router for resolving ISO 6523 schemes and routing rules.
      *
-     * @var string $api_network
+     * @var StorecoveRouter $router
      **/
-    private string $api_network = Storecove::class; // Storecove::class;
+    public StorecoveRouter $router;
 
     /**
-     *
+     * @deprecated Use $router directly. Kept for backward compatibility.
      * @var Storecove $gateway
-     *
      **/
     public Storecove $gateway;
 
@@ -252,7 +256,8 @@ class Peppol extends AbstractService
         $this->company = $invoice->company;
         $this->calc = $this->invoice->calc();
         $this->e = new EInvoice();
-        $this->gateway = new $this->api_network();
+        $this->router = new StorecoveRouter();
+        $this->gateway = new Storecove();
         $this->isCreditNote = $this->shouldBeCreditNote();
 
         $this->taxCalculator = new PeppolTaxCalculator($this);
@@ -260,7 +265,14 @@ class Peppol extends AbstractService
         $this->partyBuilder = new PeppolPartyBuilder($this);
         $this->attachmentBuilder = new PeppolAttachmentBuilder($this);
 
-        $this->setSettings()->setInvoice();
+        $this->setSettings()->initDocument();
+
+        // Sync gateway mutator for backward compatibility with code that accesses $p->gateway->mutator
+        $this->gateway->mutator
+            ->setInvoice($this->invoice)
+            ->setPeppol($this->p_invoice)
+            ->setClientSettings($this->_client_settings)
+            ->setCompanySettings($this->_company_settings);
     }
 
     /**
@@ -351,16 +363,14 @@ class Peppol extends AbstractService
                  ->setDocumentReference();
 
 
-            //isolate this class to only peppol changes
-            if (strlen($this->override_vat_number) > 1) {
-                $this->gateway->mutator->setOverrideVatNumber($this->override_vat_number);
-            }
+            // Apply country-specific UBL mutations directly via CountryFactory
+            $mutatorUtil = new MutatorUtil($this);
 
-            $this->p_invoice = $this->gateway
-                                    ->mutator
-                                    ->senderSpecificLevelMutators()
-                                    ->receiverSpecificLevelMutators()
-                                    ->getPeppol();
+            $senderHandler = CountryFactory::make($this->invoice->company->country()->iso_3166_2);
+            $this->p_invoice = $senderHandler->senderMutations($this->p_invoice, $this->invoice, $mutatorUtil);
+
+            $receiverHandler = CountryFactory::make($this->invoice->client->country->iso_3166_2);
+            $this->p_invoice = $receiverHandler->receiverMutations($this->p_invoice, $this->invoice, $mutatorUtil);
 
         } catch (\Throwable $th) {
             nlog("Unable to create Peppol Invoice - " . $th->getMessage());
@@ -391,35 +401,17 @@ class Peppol extends AbstractService
      *
      * @return self
      */
-    private function setInvoice(): self
+    private function initDocument(): self
     {
         /** Handle Existing CreditNote Document */
         if ($this->isCreditNote && $this->invoice->e_invoice && isset($this->invoice->e_invoice->CreditNote) && isset($this->invoice->e_invoice->CreditNote->ID)) {
-
             $this->decode($this->invoice->e_invoice->CreditNote, 'CreditNote');
-
-            $this->gateway
-                ->mutator
-                ->setInvoice($this->invoice)
-                ->setPeppol($this->p_invoice)
-                ->setClientSettings($this->_client_settings)
-                ->setCompanySettings($this->_company_settings);
-
             return $this;
         }
 
         /** Handle Existing Invoice Document */
         if (!$this->isCreditNote && $this->invoice->e_invoice && isset($this->invoice->e_invoice->Invoice) && isset($this->invoice->e_invoice->Invoice->ID)) {
-
             $this->decode($this->invoice->e_invoice->Invoice, 'Invoice');
-
-            $this->gateway
-                ->mutator
-                ->setInvoice($this->invoice)
-                ->setPeppol($this->p_invoice)
-                ->setClientSettings($this->_client_settings)
-                ->setCompanySettings($this->_company_settings);
-
             return $this;
         }
 
@@ -429,14 +421,6 @@ class Peppol extends AbstractService
         } else {
             $this->p_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
         }
-
-        /** Set Props */
-        $this->gateway
-            ->mutator
-            ->setInvoice($this->invoice)
-            ->setPeppol($this->p_invoice)
-            ->setClientSettings($this->_client_settings)
-            ->setCompanySettings($this->_company_settings);
 
         $this->setInvoiceDefaults();
 
@@ -473,7 +457,10 @@ class Peppol extends AbstractService
      * @deprecated Use getDocument() instead
      * @return \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote
      */
-    public function getInvoice(): \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote
+    /**
+     * @deprecated Use getDocument() instead.
+     */
+    public function getPeppolInvoice(): \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote
     {
         return $this->p_invoice;
     }
@@ -840,7 +827,7 @@ class Peppol extends AbstractService
         //only scans for top level props
         foreach ($settings as $prop => $visibility) {
 
-            if ($prop_value = $this->gateway->mutator->getSetting($prop)) {
+            if ($prop_value = $this->getSetting($prop)) {
                 $this->p_invoice->{$prop} = $prop_value;
             }
 
@@ -909,9 +896,94 @@ class Peppol extends AbstractService
         $this->p_invoice = $doc;
     }
 
+    /**
+     * @deprecated Access $router directly for routing/ISO 6523 lookups.
+     */
     public function getGateway(): Storecove
     {
+        if (!isset($this->gateway)) {
+            $this->gateway = new Storecove();
+        }
         return $this->gateway;
+    }
+
+    public function getRouter(): StorecoveRouter
+    {
+        return $this->router;
+    }
+
+    // ── MutatorInterface implementation ──
+
+    public function receiverSpecificLevelMutators(): self
+    {
+        return $this;
+    }
+
+    public function senderSpecificLevelMutators(): self
+    {
+        return $this;
+    }
+
+    public function setInvoice($invoice): self
+    {
+        $this->invoice = $invoice;
+        return $this;
+    }
+
+    public function setPeppol($p_invoice): self
+    {
+        $this->p_invoice = $p_invoice;
+        return $this;
+    }
+
+    public function getPeppol(): mixed
+    {
+        return $this->p_invoice;
+    }
+
+    public function setClientSettings($client_settings): self
+    {
+        $this->_client_settings = $client_settings;
+        return $this;
+    }
+
+    public function setCompanySettings($company_settings): self
+    {
+        $this->_company_settings = $company_settings;
+        return $this;
+    }
+
+    public function getClientSettings(): mixed
+    {
+        return $this->_client_settings;
+    }
+
+    public function getCompanySettings(): mixed
+    {
+        return $this->_company_settings;
+    }
+
+    public function getInvoice(): mixed
+    {
+        return $this->invoice;
+    }
+
+    public function getSetting(string $property_path): mixed
+    {
+        if ($prop_value = PropertyResolver::resolve($this->p_invoice, $property_path)) {
+            return $prop_value;
+        } elseif ($prop_value = PropertyResolver::resolve($this->_client_settings, $property_path)) {
+            return $prop_value;
+        } elseif ($prop_value = PropertyResolver::resolve($this->_company_settings, $property_path)) {
+            return $prop_value;
+        }
+        return null;
+    }
+
+    public function setOverrideVatNumber(string $vat_number): self
+    {
+        $this->override_vat_number = $vat_number;
+        return $this;
     }
 
     public function getGlobalTaxCategories()
@@ -946,11 +1018,6 @@ class Peppol extends AbstractService
     public function getOverrideVatNumber(): string
     {
         return $this->override_vat_number;
-    }
-
-    public function setOverrideVatNumber($vat): void
-    {
-        $this->override_vat_number = $vat;
     }
 
     public function getTaxMap(): array

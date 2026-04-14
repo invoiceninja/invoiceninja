@@ -28,17 +28,13 @@ class AT extends BaseCountry
         mixed $p_invoice,
         mixed $invoice,
         MutatorUtil $mutator_util,
-        array $storecove_meta
-    ): array {
+    ): mixed {
 
         if ($invoice->client->classification == 'government') {
-            // Route to AT:GOV - "b" for production, "test" for test environment
-            $storecove_meta = $this->mergeMeta($storecove_meta, $this->buildRouting(["scheme" => 'AT:GOV', "id" => 'b']));
-
             // For government clients, customerAssignedAccountId must be set
             $mutator_util->setCustomerAssignedAccountId(true);
         }
 
-        return ['p_invoice' => $p_invoice, 'storecove_meta' => $storecove_meta];
+        return $p_invoice;
     }
 }

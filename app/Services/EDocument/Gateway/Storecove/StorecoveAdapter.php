@@ -106,37 +106,72 @@ class StorecoveAdapter
     }
 
     /**
-     * transform
+     * Transform a Ninja invoice/credit into a Storecove model by building a fresh Peppol document.
      *
-     * @param  \App\Models\Invoice |\App\Models\Credit $invoice
+     * @deprecated Use transformFromPeppol() to avoid double Peppol builds.
+     * @param  \App\Models\Invoice|\App\Models\Credit $invoice
      * @return self
      */
     public function transform(\App\Models\Invoice|\App\Models\Credit $invoice): self
     {
+        $peppol = (new Peppol($invoice))->run();
+        return $this->transformFromPeppol($invoice, $peppol->getDocument(), $peppol->isCreditNote());
+    }
+
+    /**
+     * Transform a pre-built Peppol document into a Storecove model.
+     *
+     * Serialization roundtrip: Peppol object → XML → decode → JSON → Storecove model.
+     * This is required because the Storecove API JSON structure differs from Peppol UBL.
+     *
+     * @param  \App\Models\Invoice|\App\Models\Credit $invoice
+     * @param  \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $peppolDocument
+     * @param  bool $isCreditNote
+     * @return self
+     */
+    public function transformFromPeppol(
+        \App\Models\Invoice|\App\Models\Credit $invoice,
+        \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $peppolDocument,
+        bool $isCreditNote = false,
+    ): self {
         try {
             $this->ninja_invoice = $invoice;
             $serializer = $this->getSerializer();
 
-            /** Currently - due to class structures, the serialization process goes like this:
-             *
-             * e-invoice => Peppol -> XML -> Peppol Decoded -> encode to Peppol -> deserialize to Storecove
-             */
-            $p = (new Peppol($invoice))->run()->toXml();
+            $e = new \InvoiceNinja\EInvoice\EInvoice();
+            $xml = $e->encode($peppolDocument, 'xml');
+
+            // Wrap with proper XML namespace declarations
+            if ($isCreditNote || $peppolDocument instanceof \InvoiceNinja\EInvoice\Models\Peppol\CreditNote) {
+                $prefix = '<?xml version="1.0" encoding="UTF-8"?>
+<CreditNote xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+    xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
+    xmlns="urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2">';
+                $suffix = '</CreditNote>';
+            } else {
+                $prefix = '<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+    xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
+    xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">';
+                $suffix = '</Invoice>';
+            }
+
+            $xml = str_ireplace(['\n', '<?xml version="1.0"?>'], ['', $prefix], $xml);
+            $xml .= $suffix;
+
             $context = [
                 DateTimeNormalizer::FORMAT_KEY => 'Y-m-d',
                 AbstractObjectNormalizer::SKIP_NULL_VALUES => true,
             ];
 
-            $e = new \InvoiceNinja\EInvoice\EInvoice();
-            $peppolInvoice = $e->decode('Peppol', $p, 'xml');
+            $decoded = $e->decode('Peppol', $xml, 'xml');
 
-            // $parent = $invoice instanceof \App\Models\Credit ? \App\Services\EDocument\Gateway\Storecove\Models\Credit::class : \App\Services\EDocument\Gateway\Storecove\Models\Invoice::class;
-            $parent = ($invoice instanceof \App\Models\Credit || $peppolInvoice instanceof \InvoiceNinja\EInvoice\Models\Peppol\CreditNote)
-    ? \App\Services\EDocument\Gateway\Storecove\Models\Credit::class
-    : \App\Services\EDocument\Gateway\Storecove\Models\Invoice::class;
+            $parent = ($invoice instanceof \App\Models\Credit || $decoded instanceof \InvoiceNinja\EInvoice\Models\Peppol\CreditNote)
+                ? Credit::class
+                : Invoice::class;
 
-            $peppolInvoice = $e->encode($peppolInvoice, 'json');
-            $this->storecove_invoice = $serializer->deserialize($peppolInvoice, $parent, 'json', $context);
+            $encoded = $e->encode($decoded, 'json');
+            $this->storecove_invoice = $serializer->deserialize($encoded, $parent, 'json', $context);
 
             $nexusResolver = new NexusResolver($invoice, $this->storecove_invoice, $this->storecove->router);
             $nexusResolver->resolve();
@@ -151,7 +186,6 @@ class StorecoveAdapter
         }
 
         return $this;
-
     }
 
     /**
@@ -185,7 +219,7 @@ class StorecoveAdapter
                     $tax->country = $this->nexus;
                     $tax->percentage ??= 0;
                     if (property_exists($tax, 'category')) {
-                        $tax->category = $this->tranformTaxCode($tax->category);
+                        $tax->category = $this->transformTaxCode($tax->category);
                     }
                 }
                 unset($tax);
@@ -201,7 +235,7 @@ class StorecoveAdapter
                     foreach ($allowance->getTaxesDutiesFees() ?? [] as &$tax) {
 
                         if (property_exists($tax, 'category')) {
-                            $tax->category = $this->tranformTaxCode($tax->category);
+                            $tax->category = $this->transformTaxCode($tax->category);
                         }
 
                     }
@@ -220,7 +254,7 @@ class StorecoveAdapter
             $tax->percentage ??= 0;
 
             if (property_exists($tax, 'category')) {
-                $tax->category = $this->tranformTaxCode($tax->category);
+                $tax->category = $this->transformTaxCode($tax->category);
             }
 
         }
@@ -248,7 +282,7 @@ class StorecoveAdapter
                 $tax->percentage ??= 0;
 
                 if (property_exists($tax, 'category')) {
-                    $tax->category = $this->tranformTaxCode($tax->category);
+                    $tax->category = $this->transformTaxCode($tax->category);
                 }
             }
             unset($tax);
@@ -502,7 +536,7 @@ class StorecoveAdapter
      * @param  string $code
      * @return string|null
      */
-    private function tranformTaxCode(string $code): ?string
+    private function transformTaxCode(string $code): ?string
     {
 
         if ($code == 'O' && $this->ninja_invoice->client->classification == 'government') {

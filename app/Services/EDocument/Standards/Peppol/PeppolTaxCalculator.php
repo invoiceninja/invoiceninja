@@ -60,7 +60,7 @@ class PeppolTaxCalculator
                 break;
             case Product::PRODUCT_TYPE_REVERSE_TAX:
                 $tax_type = 'AE';
-                // no break
+                break;
             case Product::PRODUCT_INTRA_COMMUNITY:
                 $tax_type = 'K';
                 break;

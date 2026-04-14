@@ -25,8 +25,7 @@ class DK extends BaseCountry
         mixed $p_invoice,
         mixed $invoice,
         MutatorUtil $mutator_util,
-        array $storecove_meta
-    ): array {
+    ): mixed {
 
         $override_vat_number = $mutator_util->mutator->getOverrideVatNumber();
 
@@ -64,7 +63,7 @@ class DK extends BaseCountry
             }
         }
 
-        return ['p_invoice' => $p_invoice, 'storecove_meta' => $storecove_meta];
+        return $p_invoice;
     }
 
     /**
@@ -78,14 +77,19 @@ class DK extends BaseCountry
     }
 
     /**
-     * DK:DIGST expects DK prefix on the CVR number.
+     * DK uses DK:DIGST with DK prefix on the CVR number.
      */
-    public function formatIdentifier(string $identifier, string $scheme): string
+    public function getCandidates(object $client, string $classification, object $router): array
     {
-        if ($scheme === 'DK:DIGST' && !str_starts_with(strtoupper($identifier), 'DK')) {
-            return 'DK' . $identifier;
+        $id = preg_replace("/[^a-zA-Z0-9]/", "", $client->vat_number ?? '');
+        if (strlen($id) < 2) {
+            return [];
         }
 
-        return $identifier;
+        $prefixed = str_starts_with(strtoupper($id), 'DK') ? $id : 'DK' . $id;
+
+        return [
+            ['scheme' => 'DK:DIGST', 'id' => $prefixed],
+        ];
     }
 }

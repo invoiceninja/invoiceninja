@@ -92,18 +92,10 @@ class StorecoveRouter
      * @param  ?string $classification  Original classification label (passed to override)
      * @return string
      */
-    private function resolveRuleColumn(string $country, string $code, int $column, ?string $overrideMethod = null, ?string $classification = null): string
+    private function resolveRuleColumn(string $country, string $code, int $column): string
     {
         if (CountryFactory::has($country)) {
             $handler = CountryFactory::make($country);
-
-            if ($overrideMethod) {
-                $override = $handler->$overrideMethod($classification, $this->invoice);
-                if ($override !== null) {
-                    return $override;
-                }
-            }
-
             $rules = $handler->getRoutingRules();
             if ($rules !== null) {
                 return $this->extractFromRules($rules, $code, $column);
@@ -157,8 +149,6 @@ class StorecoveRouter
             $country,
             $this->classificationCode($classification),
             self::COL_ROUTING,
-            'resolveRoutingOverride',
-            $classification,
         );
     }
 
@@ -178,8 +168,6 @@ class StorecoveRouter
             $country,
             $this->classificationCode($classification),
             self::COL_TAX,
-            'resolveTaxSchemeOverride',
-            $classification,
         );
     }
 
@@ -518,7 +506,11 @@ class StorecoveRouter
             return 'routing_id';
         }
 
-        $rules = $this->routing_rules[$country];
+        $rules = $this->routing_rules[$country] ?? null;
+
+        if ($rules === null) {
+            return '';
+        }
 
         if (is_array($rules) && !is_array($rules[0])) {
 

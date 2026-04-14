@@ -200,15 +200,11 @@ class Mutator implements MutatorInterface
         $countryCode = $this->invoice->company->country()->iso_3166_2;
 
         $handler = CountryFactory::make($countryCode);
-        $result = $handler->senderMutations(
+        $this->p_invoice = $handler->senderMutations(
             $this->p_invoice,
             $this->invoice,
             $this->mutator_util,
-            $this->storecove_meta
         );
-
-        $this->p_invoice = $result['p_invoice'];
-        $this->storecove_meta = $result['storecove_meta'];
 
         return $this;
     }
@@ -218,8 +214,7 @@ class Mutator implements MutatorInterface
      *
      * Resolves the client's country code, looks up a handler via CountryFactory,
      * and delegates to handler->receiverMutations(). Handlers may modify the Peppol
-     * document (e.g. adding buyer tax registration, electronic address schemes)
-     * and/or inject Storecove-specific metadata.
+     * document (e.g. adding buyer tax registration, electronic address schemes).
      *
      * @return self
      */
@@ -228,15 +223,11 @@ class Mutator implements MutatorInterface
         $countryCode = $this->invoice->client->country->iso_3166_2;
 
         $handler = CountryFactory::make($countryCode);
-        $result = $handler->receiverMutations(
+        $this->p_invoice = $handler->receiverMutations(
             $this->p_invoice,
             $this->invoice,
             $this->mutator_util,
-            $this->storecove_meta
         );
-
-        $this->p_invoice = $result['p_invoice'];
-        $this->storecove_meta = $result['storecove_meta'];
 
         return $this;
     }
@@ -276,50 +267,6 @@ class Mutator implements MutatorInterface
         return $this;
     }
 
-
-    /**
-     * Build the Storecove routing.eIdentifiers structure.
-     *
-     * @param  array<int, array{scheme: string, id: string}> $identifiers  One or more scheme/id pairs
-     * @return array{routing: array{eIdentifiers: array}}
-     */
-    private function buildRouting(array $identifiers): array
-    {
-        return
-        [
-            "routing" => [
-                "eIdentifiers"
-                    => $identifiers,
-
-            ],
-        ];
-    }
-
-
-    /**
-     * Add an email address to the Storecove routing metadata.
-     * Used as a delivery fallback for individual/B2C recipients not on the Peppol network.
-     * Multiple emails can be accumulated (appended, not replaced).
-     *
-     * @param  string $email
-     * @return self
-     */
-    private function setEmailRouting(string $email): self
-    {
-        $meta = $this->getStorecoveMeta();
-
-        if (isset($meta['routing']['emails'])) {
-            $emails = $meta['routing']['emails'];
-            array_push($emails, $email);
-            $meta['routing']['emails'] = $emails;
-        } else {
-            $meta['routing']['emails'] = [$email];
-        }
-
-        $this->setStorecoveMeta($meta);
-
-        return $this;
-    }
 
 
 

@@ -820,7 +820,11 @@ class StorecoveRouterTest extends TestCase
         $storecove = new Storecove();
         $storecove->router->setInvoice($invoice->fresh());
 
-        $this->assertEquals('DE:STNR', $storecove->router->resolveRouting('DE', 'individual'));
+        // DE:STNR for individuals is now handled by DE::getCandidates(), not resolveRouting()
+        $handler = \App\Services\EDocument\Standards\Peppol\CountryFactory::make('DE');
+        $candidates = $handler->getCandidates($invoice->fresh()->client, 'individual', $storecove->router);
+        $this->assertNotEmpty($candidates);
+        $this->assertEquals('DE:STNR', $candidates[0]['scheme']);
 
     }
 

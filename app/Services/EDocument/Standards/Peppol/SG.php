@@ -42,8 +42,7 @@ class SG extends BaseCountry
         mixed $p_invoice,
         mixed $invoice,
         MutatorUtil $mutator_util,
-        array $storecove_meta
-    ): array {
+    ): mixed {
 
         $company = $invoice->company;
         $uen = $company->settings->id_number ?? '';
@@ -54,7 +53,7 @@ class SG extends BaseCountry
             $p_invoice->AccountingSupplierParty->Party->EndpointID->schemeID = '0195';
         }
 
-        return ['p_invoice' => $p_invoice, 'storecove_meta' => $storecove_meta];
+        return $p_invoice;
     }
 
     /**
@@ -67,8 +66,7 @@ class SG extends BaseCountry
         mixed $p_invoice,
         mixed $invoice,
         MutatorUtil $mutator_util,
-        array $storecove_meta
-    ): array {
+    ): mixed {
 
         $client = $invoice->client;
         $uen = $client->id_number ?? '';
@@ -81,14 +79,7 @@ class SG extends BaseCountry
             $p_invoice->AccountingCustomerParty->Party->EndpointID->schemeID = '0195';
         }
 
-        // B2G: Storecove requires SG:UEN legal identifier alongside the centralized endpoint
-        if ($client->classification === 'government' && strlen($uen) > 1) {
-            $storecove_meta = $this->mergeMeta($storecove_meta, $this->buildRouting([
-                ["scheme" => 'SG:UEN', "id" => $sanitised_uen],
-            ]));
-        }
-
-        return ['p_invoice' => $p_invoice, 'storecove_meta' => $storecove_meta];
+        return $p_invoice;
     }
 
     /**
@@ -113,7 +104,6 @@ class SG extends BaseCountry
                 $data['c5_signer_email'],
             );
 
-            nlog(['c5_iras_activation' => is_array($c5_response) ? $c5_response : $c5_response->json()]);
         }
 
         return array_merge($response, [

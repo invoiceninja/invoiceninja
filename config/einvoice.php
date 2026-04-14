@@ -18,7 +18,7 @@ return [
     'peppol_network' => [
         'AD', 'AT', 'BE', 'DK', 'EE', 'FI', 'DE', 'IS',
         'LT', 'LU', 'NL', 'NO', 'PL', 'SE', 'IE',
-        'FR', 'GR', 'PT', 'RO', 'SI', 'ES', 'GB',
+        'FR', 'GR', 'RO', 'SG', 'SI', 'ES', 'GB',
     ],
 
     /*
@@ -79,7 +79,6 @@ return [
             ["G", "", "IT:IVA", "IT:CUUO"],
             ["B", "", "IT:IVA", "IT:CUUO"],
             ["C", "", "IT:CF", "Email"],
-            ["G", "", "IT:IVA", "IT:CUUO"],
         ],
         "LT" => ["B+G", "LT:LEC", "LT:VAT", "LT:LEC"],
         "LU" => ["B+G", "LU:VAT", "LU:VAT", "LU:VAT"],

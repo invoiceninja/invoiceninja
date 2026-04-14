@@ -12,7 +12,6 @@
 
 namespace App\Services\EDocument\Standards\Peppol;
 
-use App\Models\Invoice;
 use App\Services\EDocument\Gateway\MutatorUtil;
 
 class RO extends BaseCountry
@@ -20,6 +19,11 @@ class RO extends BaseCountry
     public function getRoutingRules(): ?array
     {
         return ["G+B", "", "RO:VAT", "RO:VAT"];
+    }
+
+    public function getNetworkOverrides(): array
+    {
+        return [['application' => 'ro-anaf', 'settings' => ['enabled' => true]]];
     }
 
     public array $countrySubEntity = [
@@ -126,23 +130,7 @@ class RO extends BaseCountry
         mixed $p_invoice,
         mixed $invoice,
         MutatorUtil $mutator_util,
-        array $storecove_meta
-    ): array {
-
-        // Enable RO-ANAF network
-        $storecove_meta = $this->mergeMeta($storecove_meta, ["networks" => [
-            [
-                "application" => "ro-anaf",
-                "settings" => [
-                    "enabled" => true,
-                ],
-            ],
-        ]]);
-
-        // Set VAT routing
-        $storecove_meta = $this->mergeMeta($storecove_meta, $this->buildRouting([
-            ["scheme" => 'RO:VAT', "id" => $invoice->client->vat_number],
-        ]));
+    ): mixed {
 
         // Resolve state and sector codes
         $client_state = $mutator_util->getClientSetting('Invoice.AccountingSupplierParty.Party.PostalAddress.Address.CountrySubentity');
@@ -167,7 +155,7 @@ class RO extends BaseCountry
         });
         $p_invoice->AccountingSupplierParty->Party->PartyIdentification = $query;
 
-        return ['p_invoice' => $p_invoice, 'storecove_meta' => $storecove_meta];
+        return $p_invoice;
     }
 
     public function getStateCode(?string $state_code, mixed $invoice = null): string

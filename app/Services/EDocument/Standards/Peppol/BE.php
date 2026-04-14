@@ -19,9 +19,7 @@ class BE extends BaseCountry
      */
     public function getAdditionalIdentifiers(array $data): array
     {
-        $identifier = $data['classification'] === 'individual'
-            ? str_replace('/', '', $data['id_number'])
-            : str_replace([' ', 'BE'], '', $data['vat_number']);
+        $identifier = str_replace([' ', 'BE'], '', $data['vat_number']);
 
         return [
             ['identifier' => $identifier, 'scheme' => 'BE:EN'],
@@ -34,9 +32,14 @@ class BE extends BaseCountry
      * Belgium supports both BE:EN (Enterprise Number via HERMES) and BE:VAT.
      * Try BE:EN first (stripped of country prefix), then BE:VAT (with prefix).
      */
-    public function getDiscoveryFallbacks(string $identifier, string $countryPrefix): array
+    public function getCandidates(object $client, string $classification, object $router): array
     {
-        $stripped = preg_replace("/^{$countryPrefix}/i", "", $identifier);
+        $vat = preg_replace("/[^a-zA-Z0-9]/", "", $client->vat_number ?? '');
+        $stripped = preg_replace("/^BE/i", "", $vat);
+
+        if (strlen($stripped) < 2) {
+            return [];
+        }
 
         return [
             ['scheme' => 'BE:EN', 'id' => $stripped],

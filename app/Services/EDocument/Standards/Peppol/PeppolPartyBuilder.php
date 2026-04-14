@@ -39,7 +39,6 @@ class PeppolPartyBuilder
     {
         $invoice = $this->peppol->getInvoiceModel();
         $company = $this->peppol->getCompany();
-        $gateway = $this->peppol->getGateway();
         $taxCalculator = $this->peppol->getTaxCalculator();
 
         $asp = new AccountingSupplierParty();
@@ -129,9 +128,9 @@ class PeppolPartyBuilder
         $contact_name = strlen($invoice->company->owner()->present()->name() ?? '') > 2 ? $invoice->company->owner()->present()->name() : $invoice->company->present()->name();
 
         $contact = new Contact();
-        $contact->ElectronicMail = $gateway->mutator->getSetting('Invoice.AccountingSupplierParty.Party.Contact') ?? $invoice->company->owner()->present()->email();
-        $contact->Telephone = $gateway->mutator->getSetting('Invoice.AccountingSupplierParty.Party.Telephone') ?? $invoice->company->getSetting('phone');
-        $contact->Name = $gateway->mutator->getSetting('Invoice.AccountingSupplierParty.Party.Name') ?? $contact_name;
+        $contact->ElectronicMail = $this->peppol->getSetting('Invoice.AccountingSupplierParty.Party.Contact') ?? $invoice->company->owner()->present()->email();
+        $contact->Telephone = $this->peppol->getSetting('Invoice.AccountingSupplierParty.Party.Telephone') ?? $invoice->company->getSetting('phone');
+        $contact->Name = $this->peppol->getSetting('Invoice.AccountingSupplierParty.Party.Name') ?? $contact_name;
 
         $party->Contact = $contact;
 
@@ -220,7 +219,7 @@ class PeppolPartyBuilder
         } elseif (str_contains($routing_id, ':')) {
             // routing_id stored as "SCHEME:value" or already as "0088:value"
             [$scheme, $value] = explode(':', $routing_id, 2);
-            $id->schemeID = $this->peppol->getGateway()->router->resolveIso6523Scheme($scheme);
+            $id->schemeID = $this->peppol->getRouter()->resolveIso6523Scheme($scheme);
             $id->value = $value;
         } elseif (strlen($routing_id) > 1) {
             // Raw routing value — scheme resolved from country/classification
@@ -350,7 +349,7 @@ class PeppolPartyBuilder
             ? ($invoice->client->classification ?? 'business')
             : 'business';
 
-        $router = $this->peppol->getGateway()->router;
+        $router = $this->peppol->getRouter();
         $router->setInvoice($invoice);
         $friendly_scheme = $router->resolveRouting($country_code, $classification);
 

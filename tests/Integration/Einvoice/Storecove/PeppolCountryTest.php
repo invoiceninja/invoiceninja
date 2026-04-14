@@ -343,8 +343,6 @@ class PeppolCountryTest extends TestCase
         $xml = $p->toXml();
         $this->assertNotEmpty($xml, "{$label}: pipeline should produce XML");
 
-        $meta = $p->gateway->mutator->getStorecoveMeta();
-
         // ── Dump XML ──
         if ($this->dumpXml) {
             $filename = str_replace([' ', '=>', '(', ')'], ['_', '_to_', '', ''], $label) . '.xml';
@@ -365,7 +363,6 @@ class PeppolCountryTest extends TestCase
         return [
             'peppol' => $peppol,
             'xml' => $xml,
-            'meta' => $meta,
         ];
     }
 
@@ -419,23 +416,6 @@ class PeppolCountryTest extends TestCase
         $this->assertEmpty($messages, "{$label}: XSLT validation errors:\n" . implode("\n", $messages));
     }
 
-    /**
-     * Helper to find a routing scheme in storecove meta.
-     */
-    private function findRoutingScheme(array $meta, string $scheme): ?array
-    {
-        $identifiers = $meta['routing']['eIdentifiers'] ?? [];
-        if (isset($identifiers['scheme'])) {
-            return $identifiers['scheme'] === $scheme ? $identifiers : null;
-        }
-        foreach ($identifiers as $id) {
-            if (($id['scheme'] ?? '') === $scheme) {
-                return $id;
-            }
-        }
-        return null;
-    }
-
     // ══════════════════════════════════════════════════════════════
     //  DOMESTIC TESTS (XX => XX)
     // ══════════════════════════════════════════════════════════════
@@ -458,12 +438,7 @@ class PeppolCountryTest extends TestCase
             'client_classification' => 'government',
             'client_id_number' => 'GOV123',
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'AT => AT (government)');
-
-        if (isset($result['meta']['routing'])) {
-            $govRoute = $this->findRoutingScheme($result['meta'], 'AT:GOV');
-            $this->assertNotNull($govRoute, 'AT government should route via AT:GOV');
-        }
+        $this->runAndValidate($data['invoice'], 'AT => AT (government)');
     }
 
     // ── AU (Australia) ──
@@ -555,10 +530,7 @@ class PeppolCountryTest extends TestCase
             'company_country' => 'FR', 'client_country' => 'FR',
             'client_id_number' => '12345678901234', // 14 digits = SIRET
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'FR => FR (business)');
-
-        $siretRoute = $this->findRoutingScheme($result['meta'], 'FR:SIRET');
-        $this->assertNotNull($siretRoute, 'FR business with 14-digit id should route via FR:SIRET');
+        $this->runAndValidate($data['invoice'], 'FR => FR (business)');
     }
 
     public function testFR_Domestic_Business_SIRENE(): void
@@ -567,12 +539,7 @@ class PeppolCountryTest extends TestCase
             'company_country' => 'FR', 'client_country' => 'FR',
             'client_id_number' => '123456789', // 9 digits = SIRENE
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'FR => FR (business SIRENE)');
-
-        $sireneRoute = $this->findRoutingScheme($result['meta'], 'FR:SIRENE');
-        $this->assertNotNull($sireneRoute, 'FR business with 9-digit id should route via FR:SIRENE');
-        $siretRoute = $this->findRoutingScheme($result['meta'], 'FR:SIRET');
-        $this->assertNull($siretRoute, 'FR SIRENE routing should not also include FR:SIRET');
+        $this->runAndValidate($data['invoice'], 'FR => FR (business SIRENE)');
     }
 
     public function testFR_Domestic_Government(): void
@@ -582,15 +549,7 @@ class PeppolCountryTest extends TestCase
             'client_classification' => 'government',
             'client_id_number' => '12345678901234',
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'FR => FR (government)');
-
-        $siretRoute = $this->findRoutingScheme($result['meta'], 'FR:SIRET');
-        $this->assertNotNull($siretRoute, 'FR government should route via FR:SIRET (Chorus Pro)');
-        $this->assertEquals('11000201100044', $siretRoute['id'], 'FR government should route to Chorus Pro SIRET');
-
-        // Should not have SIRENE routing (no double-routing)
-        $sireneRoute = $this->findRoutingScheme($result['meta'], 'FR:SIRENE');
-        $this->assertNull($sireneRoute, 'FR government should not have duplicate SIRENE routing');
+        $this->runAndValidate($data['invoice'], 'FR => FR (government)');
     }
 
     // ── IT (Italy) ──
@@ -601,12 +560,7 @@ class PeppolCountryTest extends TestCase
             'company_country' => 'IT', 'client_country' => 'IT',
             'client_routing_id' => 'SCSCSCS',
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'IT => IT (B2B)');
-
-        if (isset($result['meta']['routing'])) {
-            $this->assertNotNull($this->findRoutingScheme($result['meta'], 'IT:IVA'), 'IT B2B should include IT:IVA');
-            $this->assertNotNull($this->findRoutingScheme($result['meta'], 'IT:CUUO'), 'IT B2B should include IT:CUUO');
-        }
+        $this->runAndValidate($data['invoice'], 'IT => IT (B2B)');
     }
 
     public function testIT_Domestic_B2C(): void
@@ -617,11 +571,7 @@ class PeppolCountryTest extends TestCase
             'client_vat' => 'RSSMRA85M01H501Z',
             'client_id_number' => 'RSSMRA85M01H501Z',
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'IT => IT (B2C)');
-
-        if (isset($result['meta']['routing'])) {
-            $this->assertNotNull($this->findRoutingScheme($result['meta'], 'IT:CF'), 'IT B2C should include IT:CF');
-        }
+        $this->runAndValidate($data['invoice'], 'IT => IT (B2C)');
     }
 
     public function testIT_Domestic_B2G(): void
@@ -631,12 +581,7 @@ class PeppolCountryTest extends TestCase
             'client_classification' => 'government',
             'client_routing_id' => 'SCSCSCS',
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'IT => IT (B2G)');
-
-        if (isset($result['meta']['routing'])) {
-            $this->assertNotNull($this->findRoutingScheme($result['meta'], 'IT:IVA'), 'IT B2G should include IT:IVA');
-            $this->assertNotNull($this->findRoutingScheme($result['meta'], 'IT:CUUO'), 'IT B2G should include IT:CUUO');
-        }
+        $this->runAndValidate($data['invoice'], 'IT => IT (B2G)');
     }
 
     // ── MY (Malaysia) ──
@@ -677,11 +622,7 @@ class PeppolCountryTest extends TestCase
             'company_country' => 'PL', 'client_country' => 'PL',
             'client_state' => 'PL-MZ',
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'PL => PL (business)');
-
-        $this->assertNotEmpty($result['meta']['networks'] ?? [], 'PL domestic should enable KSeF network');
-        $this->assertEquals('pl-ksef', $result['meta']['networks'][0]['application']);
-        $this->assertTrue($result['meta']['networks'][0]['settings']['enabled']);
+        $this->runAndValidate($data['invoice'], 'PL => PL (business)');
     }
 
     public function testPL_Domestic_Government(): void
@@ -691,10 +632,7 @@ class PeppolCountryTest extends TestCase
             'client_classification' => 'government',
             'client_state' => 'PL-MZ',
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'PL => PL (government)');
-
-        $this->assertEquals('pl-ksef', $result['meta']['networks'][0]['application']);
-        $this->assertTrue($result['meta']['networks'][0]['settings']['enabled']);
+        $this->runAndValidate($data['invoice'], 'PL => PL (government)');
     }
 
     public function testPL_Domestic_Individual(): void
@@ -704,10 +642,7 @@ class PeppolCountryTest extends TestCase
             'client_classification' => 'individual',
             'client_state' => 'PL-MZ',
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'PL => PL (individual)');
-
-        $this->assertEquals('pl-ksef', $result['meta']['networks'][0]['application']);
-        $this->assertNotEmpty($result['meta']['routing']['emails'] ?? [], 'PL B2C should have email routing');
+        $this->runAndValidate($data['invoice'], 'PL => PL (individual)');
     }
 
     public function testPL_Voivodeship_Resolution(): void
@@ -733,18 +668,7 @@ class PeppolCountryTest extends TestCase
             'client_state' => 'RO-B',
             'client_city' => 'SECTOR1',
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'RO => RO (business)');
-
-        if (isset($result['meta']['networks'])) {
-            $anafFound = false;
-            foreach ($result['meta']['networks'] as $network) {
-                if (($network['application'] ?? '') === 'ro-anaf') {
-                    $anafFound = true;
-                    $this->assertTrue($network['settings']['enabled']);
-                }
-            }
-            $this->assertTrue($anafFound, 'RO should enable ro-anaf network');
-        }
+        $this->runAndValidate($data['invoice'], 'RO => RO (business)');
     }
 
     // ── SE (Sweden) ──
@@ -774,12 +698,7 @@ class PeppolCountryTest extends TestCase
             'client_classification' => 'government',
             'client_id_number' => '201234567K',
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'SG => SG (government)');
-
-        // B2G must include SG:UEN identifier for the government entity
-        $uen = $this->findRoutingScheme($result['meta'], 'SG:UEN');
-        $this->assertNotNull($uen, 'SG B2G should include SG:UEN routing identifier');
-        $this->assertEquals('201234567K', $uen['id'], 'SG:UEN should contain the client UEN');
+        $this->runAndValidate($data['invoice'], 'SG => SG (government)');
     }
 
     // ── IN (India) ──
@@ -790,14 +709,7 @@ class PeppolCountryTest extends TestCase
             'company_country' => 'IN', 'client_country' => 'IN',
             'client_classification' => 'business',
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'IN => IN (business)');
-
-        // Verify GSTIN routing
-        $gstin = $this->findRoutingScheme($result['meta'], 'IN:GSTIN');
-        $this->assertNotNull($gstin, 'IN domestic B2B should route via IN:GSTIN');
-
-        // Verify email routing
-        $this->assertNotEmpty($result['meta']['routing']['emails'] ?? [], 'IN should have email routing');
+        $this->runAndValidate($data['invoice'], 'IN => IN (business)');
     }
 
     public function testIN_Domestic_Business_StateNameResolution(): void
@@ -851,10 +763,7 @@ class PeppolCountryTest extends TestCase
             'client_id_number' => '12345678901234', // 14 digits = SIRET
             'has_valid_vat' => true,
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'DE => FR (B2B)');
-
-        $siretRoute = $this->findRoutingScheme($result['meta'], 'FR:SIRET');
-        $this->assertNotNull($siretRoute, 'DE => FR should set FR:SIRET routing for receiver');
+        $this->runAndValidate($data['invoice'], 'DE => FR (B2B)');
     }
 
     public function testFR_to_DE_Business(): void
@@ -927,9 +836,7 @@ class PeppolCountryTest extends TestCase
             'company_country' => 'PL', 'client_country' => 'DE',
             'has_valid_vat' => true,
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'PL => DE (B2B)');
-
-        $this->assertEquals('pl-ksef', $result['meta']['networks'][0]['application']);
+        $this->runAndValidate($data['invoice'], 'PL => DE (B2B)');
     }
 
     public function testDE_to_PL_Business(): void
@@ -938,11 +845,7 @@ class PeppolCountryTest extends TestCase
             'company_country' => 'DE', 'client_country' => 'PL',
             'has_valid_vat' => true,
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'DE => PL (B2B)');
-
-        $routing = $result['meta']['routing']['eIdentifiers'] ?? [];
-        $plVatRouting = array_filter($routing, fn ($r) => $r['scheme'] === 'PL:VAT');
-        $this->assertNotEmpty($plVatRouting, 'DE => PL should set PL:VAT routing for receiver');
+        $this->runAndValidate($data['invoice'], 'DE => PL (B2B)');
     }
 
     public function testNL_to_FR_Business(): void

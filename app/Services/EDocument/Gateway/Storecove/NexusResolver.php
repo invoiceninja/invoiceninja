@@ -108,7 +108,7 @@ class NexusResolver
             $this->nexus = $company_country_code;
         } elseif ($is_b2c) {
             if ($is_over_threshold) {
-                if (!isset($this->invoice->company->tax_data->regions->EU->subregions->{$client_country_code}->vat_number)) {
+                if (strlen($this->invoice->company->tax_data->regions->EU->subregions->{$client_country_code}->vat_number ?? '') < 2) {
                     $this->nexus = $client_country_code;
                     $this->errors[] = "Tax Nexus is client country ({$client_country_code}) - however VAT number not present for this region. Document not sent!";
                     return;
@@ -120,8 +120,6 @@ class NexusResolver
                 nlog("under threshold origin country");
                 $this->nexus = $company_country_code;
             }
-        } elseif ($is_over_threshold && !in_array($company_country_code, $eu_countries)) {
-            $this->nexus = $client_country_code;
         } else {
             nlog("B2B with valid vat");
             $this->nexus = $company_country_code;

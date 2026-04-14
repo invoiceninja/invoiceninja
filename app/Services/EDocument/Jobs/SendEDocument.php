@@ -34,6 +34,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use App\Services\EDocument\Standards\Peppol;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
+use App\Services\EDocument\Gateway\Storecove\RoutingResolver;
 
 class SendEDocument implements ShouldQueue
 {
@@ -86,27 +87,44 @@ class SendEDocument implements ShouldQueue
 
         $model = $model->service()->markSent()->save();
 
-        /** Concrete implementation current linked to Storecove only */
-        $p = new Peppol($model);
-        $p->run();
-        $identifiers = $p->gateway->mutator->setClientRoutingCode()->getStorecoveMeta();
+        // ── Step 1: Build Peppol UBL document (once) ──
+        $peppol = new Peppol($model);
+        $peppol->run();
 
-        // Fail early if the client could not be discovered on the PEPPOL network.
-        // setClientRoutingCode() performs live discovery via the routing_rules matrix —
-        // if no routing was resolved, the recipient is not reachable.
-        if (!isset($identifiers['routing']['eIdentifiers']) && !isset($identifiers['routing']['emails'])) {
+        // ── Step 2: Resolve routing (fail-fast) ──
+        $resolver = new RoutingResolver($model, $storecove->proxy, $storecove->router);
+        $routingResult = $resolver->resolve();
+
+        if ($routingResult['type'] === 'none') {
             nlog("Client {$model->client->present()->name()} could not be discovered on the PEPPOL network");
             $this->writeActivity($model, Activity::EINVOICE_DELIVERY_FAILURE, ctrans('texts.client_not_found_on_peppol_network'));
             return;
         }
 
-        $result = $storecove->build($model)->getResult();
+        $routing = $routingResult['meta']['routing'] ?? [];
+        if (!empty($routingResult['networks'])) {
+            $routing['networks'] = $routingResult['networks'];
+        }
+
+        if (!isset($routing['eIdentifiers']) && !isset($routing['emails'])) {
+            nlog("Client {$model->client->present()->name()} could not be discovered on the PEPPOL network");
+            $this->writeActivity($model, Activity::EINVOICE_DELIVERY_FAILURE, ctrans('texts.client_not_found_on_peppol_network'));
+            return;
+        }
+
+        // ── Step 3: Serialize to Storecove + decorate ──
+        $storecove->adapter
+            ->transformFromPeppol($model, $peppol->getDocument(), $peppol->isCreditNote())
+            ->decorate();
+
+        $result = $storecove->adapter->getDocument();
 
         if (count($result['errors']) > 0) {
             nlog($result);
             return $result['errors'];
         }
 
+        // ── Step 4: Assemble payload ──
         $payload = [
             'legal_entity_id' => $model->company->legal_entity_id,
             "idempotencyGuid" => \Illuminate\Support\Str::uuid()->toString(),
@@ -115,7 +133,7 @@ class SendEDocument implements ShouldQueue
                 'invoice' => $result['document'],
             ],
             'tenant_id' => $model->company->company_key,
-            'routing' => $identifiers['routing'],
+            'routing' => $routing,
             'account_key' => $model->company->account->key,
             'e_invoicing_token' => $model->company->account->e_invoicing_token,
         ];
