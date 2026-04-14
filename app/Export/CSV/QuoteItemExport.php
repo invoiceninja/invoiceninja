@@ -210,7 +210,7 @@ class QuoteItemExport extends BaseExport
         }
     }
 
-    private function buildRow(Quote $quote): array
+    protected function buildRow(Quote $quote): array
     {
         $transformed_quote = $this->quote_transformer->transform($quote);
 

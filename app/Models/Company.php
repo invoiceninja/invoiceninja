@@ -393,7 +393,7 @@ class Company extends BaseModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'client_registration_fields' => 'array',
-        'tax_data' => 'object',
+        'tax_data' => \App\Casts\TaxModelCast::class,
         'origin_tax_data' => 'object',
         'e_invoice_certificate_passphrase' => EncryptedCast::class,
         'smtp_username' => 'encrypted',

@@ -37,8 +37,12 @@ class ProjectFilters extends QueryFilters
                   ->orWhereHas('client', function ($q) use ($filter) {
                       $q->where('name', 'like', '%' . $filter . '%');
                   })
-                  ->orWhere('public_notes', 'like', '%' . $filter . '%')
-                  ->orWhere('private_notes', 'like', '%' . $filter . '%');
+                ->orWhere('public_notes', 'like', '%' . $filter . '%')
+                ->orWhere('private_notes', 'like', '%' . $filter . '%')
+                ->orWhere('custom_value1', 'like', '%' . $filter . '%')
+                ->orWhere('custom_value2', 'like', '%' . $filter . '%')
+                ->orWhere('custom_value3', 'like', '%' . $filter . '%')
+                ->orWhere('custom_value4', 'like', '%' . $filter . '%');
         });
     }
 
@@ -66,6 +70,10 @@ class ProjectFilters extends QueryFilters
         }
 
         $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
+
+        if ($sort_col[0] == 'documents') {
+            return $this->builder->withCount('documents')->orderBy('documents_count', $dir);
+        }
 
         if (in_array($sort_col[0], ['client.name', 'client_id'])) {
             return $this->builder

@@ -59,24 +59,12 @@ class ProcessBankRules extends AbstractService
 
     private function matchCredit()
     {
-        // First try simple invoice number match in description
         $this->invoices = Invoice::query()
                                 ->withTrashed()
                                 ->where('company_id', $this->bank_transaction->company_id)
                                 ->whereIn('status_id', [1,2,3])
                                 ->where('is_deleted', 0)
                                 ->get();
-
-        $invoice = $this->invoices->first(function ($value, $key) {
-            return str_contains($this->bank_transaction->description, $value->number) || str_contains(str_replace("\n", "", $this->bank_transaction->description), $value->number);
-        });
-
-        if ($invoice) {
-            $this->bank_transaction->invoice_ids = $invoice->hashed_id;
-            $this->bank_transaction->status_id = BankTransaction::STATUS_MATCHED;
-            $this->bank_transaction->save();
-            return;
-        }
 
         // Process credit rules
         $this->credit_rules = $this->bank_transaction->company->credit_rules();
@@ -105,7 +93,7 @@ class ProcessBankRules extends AbstractService
                 $matched = false;
 
                 // Use match expression to handle each search key
-                match($rule['search_key']) {
+                match($rule['value']) {
                     '$invoice.number' => $matched = $this->searchInvoiceNumber($invoiceNumber, $rule),
                     '$invoice.po_number' => $matched = $this->searchInvoicePONumber($invoicePONumbers, $rule),
                     '$invoice.amount' => $matched = $this->searchInvoiceAmount($invoiceAmounts, $rule),
@@ -399,13 +387,23 @@ class ProcessBankRules extends AbstractService
             return $invoiceNumber !== false;
         }
 
-        $invoiceNumber = $this->invoices->first(function ($value) use ($rule) {
-            return $this->matchStringOperator(
-                $this->bank_transaction->description,
-                $value->number,
-                $rule['operator']
-            );
-        });
+        $description = $this->bank_transaction->description ?? '';
+
+        $invoiceNumber = $this->invoices
+            ->filter(function ($invoice) use ($description) {
+                if (empty($invoice->number) || mb_strlen($invoice->number) < 2) {
+                    return false;
+                }
+
+                $pattern = '/\b' . preg_quote($invoice->number, '/') . '\b/i';
+
+                return preg_match($pattern, $description)
+                    || preg_match($pattern, str_replace("\n", ' ', $description));
+            })
+            ->sortByDesc(function ($invoice) {
+                return mb_strlen($invoice->number);
+            })
+            ->first();
 
         return $invoiceNumber !== null;
     }

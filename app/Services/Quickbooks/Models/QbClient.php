@@ -115,7 +115,8 @@ class QbClient implements SyncInterface
 
     private function findClientIdByName(?string $name): mixed
     {
-        return $this->service->sdk->Query("SELECT Id FROM Customer WHERE DisplayName = '{$name}'",1,1);
+        $escaped_name = str_replace("'", "\\'", $name ?? '');
+        return $this->service->sdk->Query("SELECT Id FROM Customer WHERE DisplayName = '{$escaped_name}'",1,1);
     }
     
     /**
@@ -185,6 +186,51 @@ class QbClient implements SyncInterface
 
         } catch (\Exception $e) {
             nlog("QuickBooks: Error pushing client {$client->id} to QuickBooks: {$e->getMessage()}");
+
+            // Handle duplicate name error (code 6240) - try to find and link existing QB customer
+            if (str_contains($e->getMessage(), '6240') || str_contains($e->getMessage(), 'Duplicate Name Exists')) {
+                // First, try to find a matching Customer by DisplayName
+                $customers = $this->findClientIdByName($client->present()->name());
+                if ($customers) {
+                    if (!is_array($customers)) {
+                        $customers = [$customers];
+                    }
+                    if (isset($customers[0])) {
+                        $qb_id = data_get($customers[0], 'Id') ?? data_get($customers[0], 'Id.value');
+                        $sync = new \App\DataMapper\ClientSync();
+                        $sync->qb_id = $qb_id;
+                        $client->sync = $sync;
+                        $client->saveQuietly();
+
+                        nlog("QuickBooks: Resolved duplicate - linked client {$client->id} to existing QB customer (QB ID: {$qb_id})");
+                        return $qb_id;
+                    }
+                }
+
+                // Name collision is with a Vendor or Employee — retry with a unique DisplayName
+                $unique_name = mb_substr($client->present()->name(), 0, 95) . ' (C)';
+                $qb_client_data = $this->client_transformer->ninjaToQb($client, $this->service);
+                $qb_client_data['DisplayName'] = $unique_name;
+
+                nlog("QuickBooks: Name collision with Vendor/Employee for client {$client->id}, retrying as '{$unique_name}'");
+
+                $customer = \QuickBooksOnline\API\Facades\Customer::create($qb_client_data);
+                $resulting_customer = $this->service->sdk->Add($customer);
+
+                $qb_id = data_get($resulting_customer, 'Id') ?? data_get($resulting_customer, 'Id.value');
+
+                $sync = new \App\DataMapper\ClientSync();
+                $sync->qb_id = $qb_id;
+                $client->sync = $sync;
+                $client->saveQuietly();
+
+                nlog("QuickBooks: Created client {$client->id} with unique name '{$unique_name}' (QB ID: {$qb_id})");
+                return $qb_id;
+            }
+
+            app('sentry')->captureException($e);
+
+            
             throw $e;
         }
     }

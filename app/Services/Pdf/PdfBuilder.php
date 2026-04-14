@@ -2009,6 +2009,11 @@ class PdfBuilder
     {
         foreach ($items as $key => $item) {
             foreach ($item as $variable => $value) {
+
+                // if(str_contains($value, '<')) {
+                //     continue;
+                // }
+
                 $item[$variable] = str_replace("\n", '<br/>', $value);
             }
 

@@ -47,12 +47,14 @@ class SendEDocument implements ShouldQueue
     public $deleteWhenMissingModels = true;
 
     public function __construct(private string $entity, private int $id, private string $db) {}
-
-    public function backoff()
-    {
-        return [rand(5, 29), rand(30, 59), rand(240, 360), 3600, 7200];
-    }
-
+    
+    /**
+     * Processes and sends an e-invoice/credit via the Storecove gateway,
+     * handling self-hosted and hosted code paths, quota management, and activity logging.
+     *
+     * @param  Storecove $storecove
+     * @return array|void
+     */
     public function handle(Storecove $storecove)
     {
         MultiDB::setDB($this->db);
@@ -136,7 +138,8 @@ class SendEDocument implements ShouldQueue
 
                 nlog("Model {$model->number} was successfully sent for third party processing via hosted Invoice Ninja");
                 $data = $r->json();
-                return $this->writeActivity($model, Activity::EINVOICE_DELIVERY_SUCCESS, $data['guid']);
+                $this->writeActivity($model, Activity::EINVOICE_DELIVERY_SUCCESS, $data['guid']);
+                return;
             }
 
             if ($r->failed()) {
@@ -224,19 +227,38 @@ class SendEDocument implements ShouldQueue
                     \Modules\Admin\Jobs\Account\SuspendESendReceive::dispatch($account->key);
                 }
 
-                return $this->writeActivity($model, Activity::EINVOICE_DELIVERY_SUCCESS, $r);
+                $this->writeActivity($model, Activity::EINVOICE_DELIVERY_SUCCESS, $r);
+                return;
             }
 
             if ($r->failed()) {
                 nlog("Model {$model->number} failed to be accepted by invoice ninja, error follows:");
                 $notes = data_get($r->json(), 'errors.0.details', 'Unhandled errors, check logs');
-                return $this->writeActivity($model, Activity::EINVOICE_DELIVERY_FAILURE, $notes);
+                $this->writeActivity($model, Activity::EINVOICE_DELIVERY_FAILURE, $notes);
+                return;
             }
 
         }
 
     }
-
+    
+    /**
+     * writeActivity
+     *
+     * @param  mixed $model
+     * @param  int $activity_id
+     * @param  string $notes
+     * @return void
+     */
+    /**
+     * Records an e-invoicing activity (success or failure) and stores the
+     * Storecove GUID on the model backup when delivery succeeds.
+     *
+     * @param  \App\Models\Invoice|\App\Models\Credit $model
+     * @param  int $activity_id
+     * @param  string $notes
+     * @return void
+     */
     private function writeActivity($model, int $activity_id, string $notes = '')
     {
         $activity = new Activity();
@@ -263,7 +285,6 @@ class SendEDocument implements ShouldQueue
     /**
      * Self hosted request headers
      *
-     *
      **/
     private function getHeaders(): array
     {
@@ -273,7 +294,34 @@ class SendEDocument implements ShouldQueue
             "Content-Type" => "application/json",
         ];
     }
+    
+    /**
+     * middleware
+     *
+     * @return array
+     */
+    public function middleware(): array
+    {
+        return [(new WithoutOverlapping($this->entity . $this->id . $this->db))->releaseAfter(60)->expireAfter(60)];
+    }
 
+    /**
+     * backoff
+     *
+     * @return array
+     */
+    public function backoff()
+    {
+        return [rand(5, 29), rand(30, 59), rand(240, 360), 3600, 7200];
+    }
+
+    
+    /**
+     * failed
+     *
+     * @param  mixed $exception
+     * @return void
+     */
     public function failed($exception = null)
     {
         if ($exception) {
@@ -281,11 +329,7 @@ class SendEDocument implements ShouldQueue
             nlog($exception->getMessage());
         }
 
-        // config(['queue.failed.driver' => null]);
     }
 
-    public function middleware()
-    {
-        return [(new WithoutOverlapping($this->entity . $this->id . $this->db))->releaseAfter(60)->expireAfter(60)];
-    }
+
 }

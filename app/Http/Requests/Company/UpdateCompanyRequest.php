@@ -100,7 +100,9 @@ class UpdateCompanyRequest extends Request
         $rules['settings.ses_from_address'] = 'required_if:settings.email_sending_method,client_ses'; //ses specific rules
         $rules['settings.reply_to_email'] = 'sometimes|nullable|email'; // ensures that the reply to email address is a valid email address
         $rules['settings.bcc_email'] = ['sometimes', 'nullable', new \App\Rules\CommaSeparatedEmails()]; //ensure that the BCC's are valid comma separated emails
-
+        $rules['settings.e_invoice_forward_email'] = 'sometimes|nullable|email';
+        $rules['settings.skip_automatic_email_with_peppol'] = 'sometimes|boolean';
+        
         return $rules;
     }
 

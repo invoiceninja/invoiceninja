@@ -15,17 +15,15 @@ namespace App\Services\Chart;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Expense;
-use App\Models\Invoice;
-use App\Models\Payment;
-use App\Models\Quote;
-use App\Models\Task;
 use App\Models\User;
-use Illuminate\Support\Facades\Cache;
+use App\Services\Chart\CashFlowForecastService;
+use App\Services\Chart\ClientPaymentAnalyticsService;
 
 class ChartService
 {
     use ChartQueries;
     use ChartCalculations;
+    use AnalyticsQueries;
 
     public function __construct(public Company $company, private User $user, private bool $is_admin, private bool $include_drafts = false) {}
 
@@ -210,6 +208,117 @@ class ChartService
 
         return '';
     }
+
+    /* Analytics */
+
+    /**
+     * Analytics chart summary — time-series data for analytics charts.
+     * Returns per-currency + aggregate (key 999) data matching chart_summary() format.
+     */
+    public function analytics_summary($start_date, $end_date): array
+    {
+        $currencies = $this->getCurrencyCodes();
+
+        $data = [];
+        $data['start_date'] = $start_date;
+        $data['end_date'] = $end_date;
+
+        foreach ($currencies as $key => $value) {
+            $data[$key]['mrr'] = $this->getMrrChartQuery($start_date, $end_date, $key);
+            $data[$key]['payment_delay'] = $this->getPaymentDelayChartQuery($start_date, $end_date, $key);
+            $data[$key]['quote_pipeline'] = $this->getQuotePipelineChartQuery($start_date, $end_date, $key);
+            $data[$key]['late_payment_rate'] = $this->getLatePaymentRateChartQuery($start_date, $end_date, $key);
+        }
+
+        $data[999]['mrr'] = $this->getAggregateMrrChartQuery($start_date, $end_date);
+        $data[999]['payment_delay'] = $this->getAggregatePaymentDelayChartQuery($start_date, $end_date);
+        $data[999]['quote_pipeline'] = $this->getAggregateQuotePipelineChartQuery($start_date, $end_date);
+        $data[999]['late_payment_rate'] = $this->getAggregateLatePaymentRateChartQuery($start_date, $end_date);
+
+        return $data;
+    }
+
+    /**
+     * Analytics totals — snapshot KPIs for analytics dashboard cards.
+     * Returns per-currency + aggregate (key 999) data matching totals() format.
+     */
+    public function analytics_totals($start_date, $end_date): array
+    {
+        $data = [];
+
+        $data['currencies'] = $this->getCurrencyCodes();
+        $data['start_date'] = $start_date;
+        $data['end_date'] = $end_date;
+
+        $mrr_totals = $this->getMrrTotalQuery();
+        $aging_totals = $this->getAgingBucketTotals();
+        $recurring_expense_totals = $this->getRecurringExpenseTotalQuery();
+
+        foreach ($data['currencies'] as $key => $value) {
+            $mrr_set = array_search($key, array_column($mrr_totals, 'currency_id'));
+            $aging_set = array_search($key, array_column($aging_totals, 'currency_id'));
+            $re_set = array_search($key, array_column($recurring_expense_totals, 'currency_id'));
+
+            $data[$key]['mrr'] = $mrr_set !== false ? $mrr_totals[$mrr_set] : new \stdClass();
+            $data[$key]['aging'] = $aging_set !== false ? $aging_totals[$aging_set] : new \stdClass();
+            $data[$key]['recurring_expenses'] = $re_set !== false ? $recurring_expense_totals[$re_set] : new \stdClass();
+        }
+
+        $aggregate_mrr = $this->getAggregateMrrTotalQuery();
+        $aggregate_aging = $this->getAggregateAgingBucketTotals();
+        $aggregate_recurring_expenses = $this->getAggregateRecurringExpenseTotalQuery();
+        $company_payment = $this->getCompanyPaymentSummary();
+
+        $data[999]['mrr'] = ! empty($aggregate_mrr) ? reset($aggregate_mrr) : new \stdClass();
+        $data[999]['aging'] = ! empty($aggregate_aging) ? reset($aggregate_aging) : new \stdClass();
+        $data[999]['recurring_expenses'] = ! empty($aggregate_recurring_expenses) ? reset($aggregate_recurring_expenses) : new \stdClass();
+        $data[999]['payment_analytics'] = ! empty($company_payment) ? reset($company_payment) : new \stdClass();
+
+        return $data;
+    }
+
+    /**
+     * Cash flow forecast — time-bucketed inflow/outflow projection.
+     */
+    public function cashflow_forecast(string $start_date, string $end_date, string $bucket_type = 'monthly'): array
+    {
+        $forecast = new CashFlowForecastService($this->company, $start_date, $end_date, $bucket_type);
+
+        return $forecast->generate(
+            $this->getOutstandingInvoicesForForecasting(),
+            $this->getRecurringInvoiceProjections(),
+            $this->getRecurringExpenseProjections(),
+            $this->getUpcomingExpenses($start_date, $end_date),
+            $this->getOpenQuotesForForecasting(),
+            $this->getCompanyPaymentSummary()
+        );
+    }
+
+    /**
+     * Client payment analytics — scorecards with risk scoring.
+     */
+    public function client_payment_analytics(): array
+    {
+        $analytics = new ClientPaymentAnalyticsService($this->company);
+
+        return $analytics->generate(
+            $this->getClientPaymentSummary(null),
+            $this->getCompanyPaymentSummary()
+        );
+    }
+
+    /**
+     * Project analytics — budget utilization and profitability.
+     */
+    public function project_analytics(): array
+    {
+        return [
+            'budget_summary' => $this->getProjectBudgetSummary(),
+            'profitability' => $this->getProjectProfitability(),
+        ];
+    }
+
+    /* Analytics */
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

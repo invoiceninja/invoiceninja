@@ -15,11 +15,13 @@ namespace App\Console\Commands;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\Tax\TaxModel;
+use App\DataMapper\EInvoice\TaxEntity;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\Country;
+use App\Models\License;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Console\Command;
@@ -457,59 +459,59 @@ class CreatePeppolTestData extends Command
      * When present, company.legal_entity_id is set and e_invoice_type = 'PEPPOL'.
      */
     private array $legal_entity_ids = [
-        'AD' => 0, 
-        'AL' => 0, 
+        'AD' => 987690, // Andorra - Sending tested AD => AD, AD => Global
+        'AL' => 0, // Albania
         'AT' => 293801, // ATU92335648
-        'AU' => 0, 
-        'BA' => 0, 
+        'AU' => 0, // Australia
+        'BA' => 0, // Bosnia and Herzegovina
         'BE' => 580406, //BE1000000417 - 1000000417
-        'BG' => 0,
-        'CA' => 0, 
+        'BG' => 0, // Bulgaria
+        'CA' => 0, // Canada
         'CH' => 291394, //CHE923356489MWST
-        'CY' => 0, 
-        'CZ' => 0, 
+        'CY' => 0, // Cyprus
+        'CZ' => 0, // Czech Republic
         'DE' => 295616, // DE973356489
         //'DE' => 307482, //DE:STNR1234567890
-        'DK' => 763738, //DK12335668 
-        'EE' => 0,
-        'ES' => 0, 
-        'FI' => 0, 
+        'DK' => 763738, //DK12335668
+        'EE' => 0, // Estonia
+        'ES' => 0, // Spain
+        'FI' => 0, // Finland
         'FR' => 293338, // FR82345678911
-        'GB' => 0, 
-        'GR' => 0, 
-        'HR' => 0, 
-        'HU' => 0,
-        'IE' => 0, 
-        'IN' => 0, 
-        'IS' => 0, 
-        'IT' => 291391, //IT92443356489 
-        'JP' => 0, 
-        'LI' => 0, 
-        'LT' => 0,
-        'LU' => 0, 
-        'LV' => 0, 
-        'MC' => 0, 
-        'ME' => 0, 
-        'MK' => 0, 
-        'MT' => 0, 
-        'MX' => 0,
-        'MY' => 0, 
-        'NL' => 0, 
-        'NO' => 0, 
-        'NZ' => 0, 
-        'PL' => 0, 
-        'PT' => 0, 
+        'GB' => 0, // United Kingdom
+        'GR' => 0, // Greece
+        'HR' => 0, // Croatia
+        'HU' => 0, // Hungary
+        'IE' => 0, // Ireland
+        'IN' => 0, // India
+        'IS' => 0, // Iceland
+        'IT' => 291391, //IT92443356489
+        'JP' => 0, // Japan
+        'LI' => 0, // Liechtenstein
+        'LT' => 0, // Lithuania
+        'LU' => 0, // Luxembourg
+        'LV' => 0, // Latvia
+        'MC' => 0, // Monaco
+        'ME' => 0, // Montenegro
+        'MK' => 0, // North Macedonia
+        'MT' => 0, // Malta
+        'MX' => 0, // Mexico
+        'MY' => 0, // Malaysia
+        'NL' => 0, // Netherlands
+        'NO' => 0, // Norway
+        'NZ' => 0, // New Zealand
+        'PL' => 0, // Poland
+        'PT' => 0, // Portugal
         'RO' => 294639, //RO010105019
-        'RS' => 0, 
-        'SA' => 0, 
-        'SE' => 0, 
+        'RS' => 0, // Serbia
+        'SA' => 0, // Saudi Arabia
+        'SE' => 0, // Sweden
         'SG' => 637339, // UEN202912345K
-        'SI' => 0, 
-        'SK' => 0, 
-        'SM' => 0,
-        'TR' => 0, 
-        'US' => 0, 
-        'VA' => 0,
+        'SI' => 0, // Slovenia
+        'SK' => 0, // Slovakia
+        'SM' => 0, // San Marino
+        'TR' => 0, // Turkey
+        'US' => 0, // United States
+        'VA' => 0, // Vatican City
         'XX' => 634328, // GLN 5070004489700
     ];
 
@@ -652,6 +654,35 @@ class CreatePeppolTestData extends Command
         ]);
 
         $this->info("  Company created: {$settings->name}");
+
+        // ── Update License with TaxEntity ──
+        $licenseKey = config('ninja.license_key');
+
+        if ($licenseKey) {
+            $license = License::where('license_key', $licenseKey)->first();
+
+            if ($license) {
+                $taxEntity = new TaxEntity();
+                $taxEntity->company_key = $company->company_key;
+                $taxEntity->legal_entity_id = $company->legal_entity_id;
+                $taxEntity->acts_as_sender = $tax_data->acts_as_sender;
+                $taxEntity->acts_as_receiver = $tax_data->acts_as_receiver;
+
+                $existing = $license->findEntity('company_key', $company->company_key);
+
+                if ($existing) {
+                    $license->updateEntity($taxEntity, 'company_key');
+                    $this->info("  License TaxEntity updated for company_key: {$company->company_key}");
+                } else {
+                    $license->addEntity($taxEntity);
+                    $this->info("  License TaxEntity added for company_key: {$company->company_key}");
+                }
+            } else {
+                $this->warn("  License not found for key: {$licenseKey}");
+            }
+        } else {
+            $this->warn("  No license key configured (ninja.license_key)");
+        }
 
         // ── Domestic Clients (use resolved country for XX) ──
         $domesticDefaults = $isGln ? $defaults['DE'] : $cd;

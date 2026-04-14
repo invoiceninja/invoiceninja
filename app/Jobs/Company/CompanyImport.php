@@ -527,7 +527,9 @@ class CompanyImport implements ShouldQueue
         $file_path = sys_get_temp_dir() . '/' . sha1(microtime());
 
         if ($res === true) {
-            echo "ok";
+
+            $this->validateZipEntries($zip);
+
             $extraction_res = $zip->extractTo($file_path);
 
             nlog($extraction_res);
@@ -536,7 +538,7 @@ class CompanyImport implements ShouldQueue
             nlog($closer);
 
         } else {
-            echo "failed, code: " . $res;
+            throw new ImportCompanyFailed("ZIP open failed, code: {$res}");
         }
 
         $file_path = "{$file_path}/backup.json";
@@ -548,6 +550,22 @@ class CompanyImport implements ShouldQueue
         }
 
         return $file_path;
+    }
+
+    /**
+     * Validate ZIP entries to prevent path traversal (zip slip).
+     * Rejects entries containing '..' or starting with '/'.
+     */
+    private function validateZipEntries(ZipArchive $zip): void
+    {
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $entryName = $zip->getNameIndex($i);
+
+            if (str_contains($entryName, '..') || str_starts_with($entryName, '/')) {
+                $zip->close();
+                throw new ImportCompanyFailed('Invalid file path detected in ZIP archive.');
+            }
+        }
     }
 
 
@@ -1418,6 +1436,11 @@ class CompanyImport implements ShouldQueue
                 continue;
             }
 
+            if (!$this->isAllowedDocumentExtension($document->url)) {
+                nlog("Skipping document with disallowed extension: {$document->url}");
+                continue;
+            }
+
             /** @var string $storage_url */
             $storage_url = (object) $this->getObject('storage_url', true);
 
@@ -1427,6 +1450,11 @@ class CompanyImport implements ShouldQueue
 
             if (!Storage::exists($document->url) && is_string($storage_url)) {
                 $url = $storage_url . $document->url;
+
+                if (!$this->isAllowedRemoteUrl($url)) {
+                    nlog("Blocked remote document fetch: {$url}");
+                    continue;
+                }
 
                 $file = @file_get_contents($url);
 
@@ -1484,6 +1512,48 @@ class CompanyImport implements ShouldQueue
         }
 
         return $this;
+    }
+
+    /**
+     * Validate that a remote URL is safe to fetch.
+     * Blocks private/internal IPs to prevent SSRF.
+     * Self-hosted allows http://, hosted requires https://.
+     */
+    private function isAllowedRemoteUrl(string $url): bool
+    {
+        $parsed = parse_url($url);
+
+        if (!$parsed || empty($parsed['scheme']) || empty($parsed['host'])) {
+            return false;
+        }
+
+        $allowed_schemes = Ninja::isSelfHost() ? ['https', 'http'] : ['https'];
+
+        if (!in_array(strtolower($parsed['scheme']), $allowed_schemes, true)) {
+            return false;
+        }
+
+        $ip = gethostbyname($parsed['host']);
+
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Validate file extension against the allowed upload types.
+     */
+    private function isAllowedDocumentExtension(string $url): bool
+    {
+        $allowed = ['png', 'ai', 'jpeg', 'jpg', 'tiff', 'pdf', 'gif', 'psd', 'txt',
+            'doc', 'xls', 'ppt', 'xlsx', 'docx', 'pptx', 'webp', 'xml', 'zip',
+            'csv', 'ods', 'odt', 'odp'];
+
+        $extension = strtolower(pathinfo($url, PATHINFO_EXTENSION));
+
+        return in_array($extension, $allowed, true);
     }
 
     private function import_webhooks()

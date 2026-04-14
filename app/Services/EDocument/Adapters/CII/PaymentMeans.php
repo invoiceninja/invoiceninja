@@ -481,6 +481,11 @@ class PaymentMeans implements PaymentMeansInterface
 
     public ?string $bic = null;
 
+    /**
+     * Initializes payment means properties from an existing object, if provided.
+     *
+     * @param  mixed $existing_payment_means
+     */
     public function __construct(mixed $existing_payment_means = null)
     {
         if ($existing_payment_means) {
@@ -521,6 +526,12 @@ class PaymentMeans implements PaymentMeansInterface
     //  * @param  string|null $payeePropId      __BT-, From __ National account number (not for SEPA)
     //  * @param  string|null $bic         __BT-, From __ Seller's banking institution, An identifier for the payment service provider with whom the payment account is managed, such as the BIC or a national bank code, if required. No identification scheme is to be used.
     //  *
+    /**
+     * Builds a CII/Zugferd TradeSettlementPaymentMeans structure from the configured
+     * payment properties (card, IBAN, BIC, debtor/creditor accounts).
+     *
+     * @return void
+     */
     public function run()
     {
 
@@ -554,6 +565,11 @@ class PaymentMeans implements PaymentMeansInterface
 
     }
 
+    /**
+     * Returns the list of valid UNTDID 4461 payment means codes.
+     *
+     * @return array
+     */
     public static function getPaymentMeansCodelist()
     {
         return array_keys(self::$payment_means_requirements_codes);

@@ -25,6 +25,7 @@ use App\Models\Invoice;
 use App\Models\PaymentType;
 use App\Models\Product;
 use App\Models\Project;
+use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Models\TaxRate;
@@ -665,6 +666,21 @@ class BaseTransformer
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`number`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $quote_number)),
+            ])
+            ->exists();
+    }
+
+    /**
+     * @param $purchase_order_number
+     *
+     * @return bool
+     */
+    public function hasPurchaseOrder($purchase_order_number)
+    {
+        return PurchaseOrder::query()->where('company_id', $this->company->id)
+            ->where('is_deleted', false)
+            ->whereRaw("LOWER(REPLACE(`number`, ' ' ,''))  = ?", [
+                strtolower(str_replace(' ', '', $purchase_order_number)),
             ])
             ->exists();
     }

@@ -31,23 +31,6 @@ trait MakesInvoiceHtml
         return $section;
     }
 
-    /**
-     * Parses the blade file string and processes the template variables.
-     *
-     * @param string $string The Blade file string
-     * @param array $data The array of template variables
-     * @return string         The return HTML string
-     * @deprecated // not needed!
-     * @throws FatalThrowableError
-     */
-    public function renderView($string, $data = []): string
-    {
-        $data['__env'] = app(Factory::class);
-
-        return Blade::render($string, $data); //potential fix for removing eval()
-
-    }
-
     /*
      * Returns the base template we will be using.
      */

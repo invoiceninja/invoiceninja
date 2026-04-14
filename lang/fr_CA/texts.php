@@ -5946,7 +5946,14 @@ Développe automatiquement la section des notes dans le tableau de produits pour
     'invalid_id_number_format' => 'Format du numéro d\'identifiant invalide',
     'invalid_vat_number_format' => 'Format du numéro VAT invalide',
     'invalid_routing_id_format' => 'Format du numéro de routage invalide',
+    'invalid_id_number_checkdigit' => 'Numéro d\'identification invalide : erreur de clé de contrôle, veuillez vérifier que le numéro est correct.',
+    'invalid_vat_number_checkdigit' => 'Numéro de TVA invalide : erreur de clé de contrôle, veuillez vérifier que le numéro est correct.',
+    'invalid_routing_id_checkdigit' => 'Code de routage invalide : erreur de clé de contrôle, veuillez vérifier que le numéro est correct.',
     'sign_the_document' => 'Signer le document',
+    'client_not_found_on_peppol_network' => 'Le client n\'a pas pu être identifié sur le réseau PEPPOL.',
+    'too_many_requests' => 'Trop de requêtes',
+    'cloned_client' => 'Le client a été cloné',
+    'update_tax_details' => 'Mettre à jour les informations de taxes',
 );
 
 return $lang;

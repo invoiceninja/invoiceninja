@@ -72,9 +72,41 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
 
         nlog("Yodlee: Processing transactions for account: {$this->bank_integration->account->key}");
 
+        $yodlee = new Yodlee($this->bank_integration_account_id);
+
+        try {
+            $account_summary = $yodlee->getAccountSummary($this->bank_integration->bank_account_id);
+    
+            if ($account_summary) {
+                $at = new AccountTransformer();
+                $account = $at->transform($account_summary);
+    
+                if ($account[0]['current_balance']) {
+                    $this->bank_integration->balance = $account[0]['current_balance'];
+                    $this->bank_integration->currency = $account[0]['account_currency'];
+                    $this->bank_integration->bank_account_status = $account[0]['account_status'];
+                    $this->bank_integration->disabled_upstream = $account[0]['disabled_upstream'];
+                    $this->bank_integration->save();
+                }
+            }
+        } catch (\Exception $e) {
+            nlog("YODLEE: unable to update account summary for {$this->bank_integration->bank_account_id} => " . $e->getMessage());
+            $this->bank_integration->disabled_upstream = true;
+            $this->bank_integration->save();
+            $this->stop_loop = false;
+            return;
+        }
+    
+        if ($this->bank_integration->disabled_upstream) {
+            nlog("Yodlee: account disabled upstream: {$this->bank_integration->bank_account_id} status: {$this->bank_integration->bank_account_status}");
+            $this->stop_loop = false;
+            return;
+        }
+
+
         do {
             try {
-                $this->processTransactions();
+                $this->processTransactions($yodlee);
             } catch (\Exception $e) {
                 nlog("Yodlee: {$this->bank_integration->bank_account_id} - exited abnormally => " . $e->getMessage());
 
@@ -93,38 +125,11 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
     }
 
 
-    private function processTransactions()
+    private function processTransactions(Yodlee $yodlee)
     {
-        $yodlee = new Yodlee($this->bank_integration_account_id);
 
-        if (!$yodlee->getAccount($this->bank_integration->bank_account_id)) {
-            $this->bank_integration->disabled_upstream = true;
-            $this->bank_integration->save();
-            $this->stop_loop = false;
-            return;
-        }
-
-        try {
-            $account_summary = $yodlee->getAccountSummary($this->bank_integration->bank_account_id);
-
-            if ($account_summary) {
-
-                $at = new AccountTransformer();
-                $account = $at->transform($account_summary);
-
-                if ($account[0]['current_balance']) {
-                    $this->bank_integration->balance = $account[0]['current_balance'];
-                    $this->bank_integration->currency = $account[0]['account_currency'];
-                    $this->bank_integration->bank_account_status = $account[0]['account_status'];
-                    $this->bank_integration->disabled_upstream = $account[0]['disabled_upstream'];
-                    $this->bank_integration->save();
-                }
-
-            }
-        } catch (\Exception $e) {
-            nlog("YODLEE: unable to update account summary for {$this->bank_integration->bank_account_id} => " . $e->getMessage());
-        }
-
+       
+        
         $data = [
             'top' => 500,
             'fromDate' => $this->from_date,
@@ -137,6 +142,8 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
 
         //Get int count
         $count = $transaction_count->transaction->TOTAL->count;
+
+        sleep(1);
 
         //get transactions array
         $transactions = $yodlee->getTransactions($data);

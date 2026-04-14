@@ -17,7 +17,6 @@ use App\Models\SystemLog;
 use App\Models\GatewayType;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use App\Http\Requests\Request;
 use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
 use App\Models\ClientGatewayToken;
@@ -124,7 +123,7 @@ class ACH implements LivewireMethodInterface
     }
 
 
-    public function authorizeResponse(Request $request)
+    public function authorizeResponse($request)
     {
         $data = [
             'account_holder_name' => $request->account_holder_name,

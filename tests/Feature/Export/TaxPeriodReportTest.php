@@ -28,7 +28,6 @@ use App\Listeners\Invoice\InvoiceTransactionEventEntry;
 use App\Listeners\Payment\PaymentTransactionEventEntry;
 use App\Listeners\Invoice\InvoiceTransactionEventEntryCash;
 use App\Repositories\InvoiceRepository;
-use Google\Service\BeyondCorp\Resource\V;
 use Illuminate\Queue\Middleware\Skip;
 
 /**

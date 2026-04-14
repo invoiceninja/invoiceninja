@@ -34,13 +34,13 @@ trait ChartCalculations
                     ->where('is_deleted', 0)
                     ->whereIn('status_id', [2,3,4]);
 
-        if (in_array($data['period'], ['current,previous'])) {
+        if (in_array($data['period'], ['current','previous'])) {
             $q->whereBetween('date', [$data['start_date'], $data['end_date']]);
         }
 
         match ($data['calculation']) {
-            'sum' => $result = $q->sum('amount'),
-            'avg' => $result = $q->avg('amount'),
+            'sum' => $result = $q->sum('amount') ?? 0,
+            'avg' => $result = $q->avg('amount') ?? 0,
             'count' => $result = $q->count(),
             default => $result = 0,
         };
@@ -59,13 +59,13 @@ trait ChartCalculations
                     ->where('is_deleted', 0)
                     ->whereIn('status_id', [2,3]);
 
-        if (in_array($data['period'], ['current,previous'])) {
+        if (in_array($data['period'], ['current','previous'])) {
             $q->whereBetween('date', [$data['start_date'], $data['end_date']]);
         }
 
         match ($data['calculation']) {
-            'sum' => $result = $q->sum('balance'),
-            'avg' => $result = $q->avg('balance'),
+            'sum' => $result = $q->sum('balance') ?? 0,
+            'avg' => $result = $q->avg('balance') ?? 0,
             'count' => $result = $q->count(),
             default => $result = 0,
         };
@@ -84,13 +84,13 @@ trait ChartCalculations
                     ->where('is_deleted', 0)
                     ->where('status_id', 4);
 
-        if (in_array($data['period'], ['current,previous'])) {
+        if (in_array($data['period'], ['current','previous'])) {
             $q->whereBetween('date', [$data['start_date'], $data['end_date']]);
         }
 
         match ($data['calculation']) {
-            'sum' => $result = $q->sum('amount'),
-            'avg' => $result = $q->avg('amount'),
+            'sum' => $result = $q->sum('amount') ?? 0,
+            'avg' => $result = $q->avg('amount') ?? 0,
             'count' => $result = $q->count(),
             default => $result = 0,
         };
@@ -109,13 +109,13 @@ trait ChartCalculations
                     ->where('is_deleted', 0)
                     ->whereIn('status_id', [5,6]);
 
-        if (in_array($data['period'], ['current,previous'])) {
+        if (in_array($data['period'], ['current','previous'])) {
             $q->whereBetween('date', [$data['start_date'], $data['end_date']]);
         }
 
         match ($data['calculation']) {
-            'sum' => $result = $q->sum('refunded'),
-            'avg' => $result = $q->avg('refunded'),
+            'sum' => $result = $q->sum('refunded') ?? 0,
+            'avg' => $result = $q->avg('refunded') ?? 0,
             'count' => $result = $q->count(),
             default => $result = 0,
         };
@@ -137,13 +137,13 @@ trait ChartCalculations
                         $qq->where('due_date', '>=', now()->toDateString())->orWhereNull('due_date');
                     });
 
-        if (in_array($data['period'], ['current,previous'])) {
+        if (in_array($data['period'], ['current','previous'])) {
             $q->whereBetween('date', [$data['start_date'], $data['end_date']]);
         }
 
         match ($data['calculation']) {
-            'sum' => $result = $q->sum('amount'),
-            'avg' => $result = $q->avg('amount'),
+            'sum' => $result = $q->sum('amount') ?? 0,
+            'avg' => $result = $q->avg('amount') ?? 0,
             'count' => $result = $q->count(),
             default => $result = 0,
         };
@@ -165,13 +165,13 @@ trait ChartCalculations
                         $qq->where('due_date', '>=', now()->toDateString())->orWhereNull('due_date');
                     });
 
-        if (in_array($data['period'], ['current,previous'])) {
+        if (in_array($data['period'], ['current','previous'])) {
             $q->whereBetween('date', [$data['start_date'], $data['end_date']]);
         }
 
         match ($data['calculation']) {
-            'sum' => $result = $q->sum('refunded'),
-            'avg' => $result = $q->avg('refunded'),
+            'sum' => $result = $q->sum('refunded') ?? 0,
+            'avg' => $result = $q->avg('refunded') ?? 0,
             'count' => $result = $q->count(),
             default => $result = 0,
         };
@@ -272,9 +272,9 @@ trait ChartCalculations
         $calculated = $this->expenseCalculator($query, $data);
 
         match ($data['calculation']) {
-            'sum' => $result = $calculated->sum(),
-            'avg' => $result = $calculated->avg(),
-            'count' => $result = $query->count(),
+            'sum' => $result = $calculated->sum() ?? 0,
+            'avg' => $result = $calculated->avg() ?? 0,
+            'count' => $result = $query->count() ?? 0,
             default => $result = 0,
         };
 
@@ -312,7 +312,7 @@ trait ChartCalculations
                         ->where('company_id', $this->company->id)
                         ->where('is_deleted', 0);
 
-        if (in_array($data['period'], ['current,previous'])) {
+        if (in_array($data['period'], ['current','previous'])) {
             $query->whereBetween('date', [$data['start_date'], $data['end_date']]);
         }
 
@@ -325,16 +325,14 @@ trait ChartCalculations
 
         return $query->get()
                     ->when($data['currency_id'] == '999', function ($collection) {
-                        $collection->map(function ($t) {
+                        return $collection->map(function ($t) {
                             return $t->taskCompanyValue();
                         });
                     })
                     ->when($data['currency_id'] != '999', function ($collection) {
-
-                        $collection->map(function ($t) {
+                        return $collection->map(function ($t) {
                             return $t->taskValue();
                         });
-
                     });
 
     }
@@ -346,7 +344,7 @@ trait ChartCalculations
                     ->where('company_id', $this->company->id)
                     ->where('is_deleted', 0);
 
-        if (in_array($data['period'], ['current,previous'])) {
+        if (in_array($data['period'], ['current','previous'])) {
             $q->whereBetween('calculated_start_date', [$data['start_date'], $data['end_date']]);
         }
 
@@ -380,9 +378,9 @@ trait ChartCalculations
         }
 
         match ($data['calculation']) {
-            'sum' => $result = $calculated->sum(),
-            'avg' => $result = $calculated->avg(),
-            'count' => $result = $q->count(),
+            'sum' => $result = $calculated->sum() ?? 0,
+            'avg' => $result = $calculated->avg() ?? 0,
+            'count' => $result = $q->count() ?? 0,
             default => $result = 0,
         };
 

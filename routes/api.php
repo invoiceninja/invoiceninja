@@ -181,6 +181,11 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::post('charts/totals_v2', [ChartController::class, 'totalsV2'])->name('chart.totals_v2');
     Route::post('charts/chart_summary_v2', [ChartController::class, 'chart_summaryV2'])->name('chart.chart_summary_v2');
     Route::post('charts/calculated_fields', [ChartController::class, 'calculatedFields'])->name('chart.calculated_fields');
+    Route::post('charts/analytics_summary', [ChartController::class, 'analytics_summary'])->name('chart.analytics_summary');
+    Route::post('charts/analytics_totals', [ChartController::class, 'analytics_totals'])->name('chart.analytics_totals');
+    Route::post('charts/cashflow_forecast', [ChartController::class, 'cashflow_forecast'])->name('chart.cashflow_forecast');
+    Route::post('charts/client_payment_analytics', [ChartController::class, 'client_payment_analytics'])->name('chart.client_payment_analytics');
+    Route::post('charts/project_analytics', [ChartController::class, 'project_analytics'])->name('chart.project_analytics');
 
     Route::post('claim_license', [LicenseController::class, 'index'])->name('license.index');
     Route::post('check_license', [LicenseController::class, 'check'])->name('license.check');
@@ -256,6 +261,10 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::delete('einvoice/peppol/remove_additional_legal_identifier', [EInvoicePeppolController::class, 'removeAdditionalTaxIdentifier'])->name('einvoice.peppol.remove_additional_legal_identifier');
     Route::post('einvoice/peppol/send', [EInvoicePeppolController::class, 'retrySend'])->name('einvoice.peppol.retry_send');
 
+    Route::post('einvoice/peppol/sg/c5/activate', [EInvoicePeppolController::class, 'c5Activate'])->name('einvoice.peppol.sg.c5.activate');
+    Route::post('einvoice/peppol/sg/c5/deactivate', [EInvoicePeppolController::class, 'c5Deactivate'])->name('einvoice.peppol.sg.c5.deactivate');
+    Route::put('einvoice/peppol/sg/c5/cancel', [EInvoicePeppolController::class, 'c5Cancel'])->name('einvoice.peppol.sg.c5.cancel');
+
     Route::post('einvoice/token/update', EInvoiceTokenController::class)->name('einvoice.token.update');
     Route::get('einvoice/quota', [EInvoiceController::class, 'quota'])->name('einvoice.quota');
     Route::get('einvoice/health_check', [EInvoiceController::class, 'healthcheck'])->name('einvoice.healthcheck');
@@ -297,12 +306,6 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::post('locations/bulk', [LocationController::class, 'bulk'])->name('locations.bulk');
 
     Route::post('logout', [LogoutController::class, 'index'])->name('logout');
-
-    Route::post('migrate', [MigrationController::class, 'index'])->name('migrate.start');
-
-    Route::post('migration/purge/{company}', [MigrationController::class, 'purgeCompany'])->middleware('password_protected');
-    Route::post('migration/purge_save_settings/{company}', [MigrationController::class, 'purgeCompanySaveSettings'])->middleware('password_protected');
-    Route::post('migration/start', [MigrationController::class, 'startMigration']);
 
     Route::post('one_time_token', [OneTimeTokenController::class, 'create']);
 

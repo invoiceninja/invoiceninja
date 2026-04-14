@@ -76,6 +76,7 @@ class BankTransactionSync implements ShouldQueue
                 if ($account->isEnterprisePaidClient()) {
                     $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_YODLEE)->where('auto_sync', true)->where('disabled_upstream', 0)->cursor()->each(function ($bank_integration) use ($account) {
                         (new ProcessBankTransactionsYodlee($account->bank_integration_account_id, $bank_integration))->handle();
+                        sleep(1);
                     });
                 }
 

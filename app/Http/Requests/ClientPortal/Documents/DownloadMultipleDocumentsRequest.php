@@ -31,7 +31,7 @@ class DownloadMultipleDocumentsRequest extends FormRequest
         /** @var \App\Models\ClientContact $contact */
         $contact = auth()->guard('contact')->user();
 
-        $document_ids = $this->transformKeys($this->file_hash);
+        $document_ids = $this->transformKeys($this->file_hash ?? []);
 
         $documents = Document::query()
             ->whereIn('id', $document_ids)

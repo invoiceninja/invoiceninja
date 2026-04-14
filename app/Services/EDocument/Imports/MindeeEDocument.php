@@ -43,7 +43,11 @@ class MindeeEDocument extends AbstractService
     }
 
     /**
+     * Sends the uploaded file to Mindee OCR, parses the prediction result,
+     * and creates an expense with vendor from the extracted invoice data.
+     *
      * @throws Exception
+     * @return Expense
      */
     public function run(): Expense
     {
@@ -165,6 +169,13 @@ class MindeeEDocument extends AbstractService
         return $expense;
     }
 
+    /**
+     * Validates that daily and monthly Mindee API rate limits have not been exceeded
+     * at both the global and per-account level.
+     *
+     * @throws Exception
+     * @return void
+     */
     private function checkLimits()
     {
         Cache::add('mindeeTotalDailyRequests', 0, now()->endOfDay());
@@ -185,6 +196,11 @@ class MindeeEDocument extends AbstractService
         }
     }
 
+    /**
+     * Increments the global and per-account daily/monthly Mindee API request counters.
+     *
+     * @return void
+     */
     private function incrementRequestCounts()
     {
         Cache::increment('mindeeTotalDailyRequests');

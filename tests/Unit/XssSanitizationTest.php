@@ -539,4 +539,184 @@ class XssSanitizationTest extends TestCase
 
         $this->assertStringNotContainsString('alert(', $result);
     }
+
+    // =========================================================================
+    // Fragment mode — DOMDocument must not inject <p> tags
+    // =========================================================================
+
+    public function test_fragment_does_not_wrap_plain_text_with_divs_in_p_tags()
+    {
+        // Simulates task time details in invoice line item notes
+        $input = '## Vince Bailey<div class="task-time-details"> 16/Mar/2026 02:54:58 PM - 08:09:58 PM • 5.25 Hours </div>';
+        $result = Purify::clean($input, true);
+
+        $this->assertStringNotContainsString('<p>', $result);
+        $this->assertStringContainsString('## Vince Bailey', $result);
+        $this->assertStringContainsString('task-time-details', $result);
+    }
+
+    public function test_fragment_preserves_existing_p_tags()
+    {
+        $input = '<p>This paragraph is intentional.</p><div class="task-time-details">Details</div>';
+        $result = Purify::clean($input, true);
+
+        $this->assertStringContainsString('<p>', $result);
+        $this->assertStringContainsString('This paragraph is intentional.', $result);
+        $this->assertStringContainsString('task-time-details', $result);
+    }
+
+    public function test_fragment_does_not_add_p_to_text_before_html_elements()
+    {
+        // Plain text followed by HTML — DOMDocument wraps the text in <p>
+        $input = 'Some description text <b>bold</b> and <em>italic</em>';
+        $result = Purify::clean($input, true);
+
+        $this->assertStringNotContainsString('<p>', $result);
+        $this->assertStringContainsString('Some description text', $result);
+        $this->assertStringContainsString('<b>bold</b>', $result);
+    }
+
+    public function test_fragment_with_only_inline_html_no_p_wrapping()
+    {
+        $input = '<b>Product A</b> - Premium widget';
+        $result = Purify::clean($input, true);
+
+        $this->assertStringNotContainsString('<p>', $result);
+        $this->assertStringContainsString('<b>Product A</b>', $result);
+    }
+
+    public function test_fragment_still_sanitizes_xss_without_p_wrapping()
+    {
+        $input = 'Description <script>alert(1)</script><div class="details">Safe content</div>';
+        $result = Purify::clean($input, true);
+
+        $this->assertStringNotContainsString('<script>', $result);
+        $this->assertStringNotContainsString('alert(', $result);
+        $this->assertStringNotContainsString('<p>', $result);
+        $this->assertStringContainsString('Safe content', $result);
+    }
+
+    public function test_fragment_with_markdown_converted_html_preserves_p_tags()
+    {
+        // When markdown_enabled is true, commonmark converts markdown to HTML
+        // before it reaches Purify. The resulting <p> tags should be preserved.
+        $input = '<h2>Heading</h2><p>Paragraph from markdown.</p><ul><li>Item 1</li></ul>';
+        $result = Purify::clean($input, true);
+
+        $this->assertStringContainsString('<p>', $result);
+        $this->assertStringContainsString('<h2>', $result);
+        $this->assertStringContainsString('<ul>', $result);
+    }
+
+    public function test_fragment_multiple_task_time_divs_no_p_wrapping()
+    {
+        $input = 'Task notes here <div class="task-time-details"> 16/Mar/2026 • 5.25 Hours </div> '
+               . '<div class="task-time-details"> 17/Mar/2026 • 8.75 Hours </div>';
+        $result = Purify::clean($input, true);
+
+        $this->assertStringNotContainsString('<p>', $result);
+        $this->assertStringContainsString('Task notes here', $result);
+        $this->assertStringContainsString('5.25 Hours', $result);
+        $this->assertStringContainsString('8.75 Hours', $result);
+    }
+
+    // =========================================================================
+    // Style block sanitization — @import / url() SSRF vectors
+    // =========================================================================
+
+    /**
+     * Extract <style> block content from Purify::clean() output.
+     */
+    private function extractStyleContent(string $html): string
+    {
+        if (preg_match('/<style>(.*?)<\/style>/si', $html, $matches)) {
+            return $matches[1];
+        }
+        return '';
+    }
+
+    public function test_purify_strips_http_import_from_style_block()
+    {
+        $html = '<html><head><style>@import url("http://127.0.0.1:9999/ssrf");</style></head><body><p>Test</p></body></html>';
+        $css = $this->extractStyleContent(Purify::clean($html));
+
+        $this->assertStringNotContainsString('http://', $css);
+    }
+
+    public function test_purify_strips_metadata_import_from_style_block()
+    {
+        $html = '<html><head><style>@import url("http://169.254.169.254/latest/meta-data/");</style></head><body><p>Test</p></body></html>';
+        $css = $this->extractStyleContent(Purify::clean($html));
+
+        $this->assertStringNotContainsString('http://', $css);
+    }
+
+    public function test_purify_strips_internal_network_import_from_style_block()
+    {
+        $html = '<html><head><style>@import url("http://10.0.0.1:8080/internal-api");</style></head><body><p>Test</p></body></html>';
+        $css = $this->extractStyleContent(Purify::clean($html));
+
+        $this->assertStringNotContainsString('http://', $css);
+    }
+
+    public function test_purify_allows_https_import_in_style_block()
+    {
+        $html = '<html><head><style>@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");</style></head><body><p>Test</p></body></html>';
+        $css = $this->extractStyleContent(Purify::clean($html));
+
+        $this->assertStringContainsString('@import', $css);
+        $this->assertStringContainsString('https://fonts.googleapis.com', $css);
+    }
+
+    public function test_purify_strips_http_url_from_style_block_declarations()
+    {
+        $html = '<html><head><style>body { background: url("http://10.0.0.1/internal"); }</style></head><body><p>Test</p></body></html>';
+        $css = $this->extractStyleContent(Purify::clean($html));
+
+        $this->assertStringNotContainsString('http://', $css);
+    }
+
+    public function test_purify_strips_non_url_import_syntax_from_style_block()
+    {
+        $html = '<html><head><style>@import "http://evil.com/steal.css";</style></head><body><p>Test</p></body></html>';
+        $css = $this->extractStyleContent(Purify::clean($html));
+
+        $this->assertStringNotContainsString('http://', $css);
+    }
+
+    public function test_purify_preserves_normal_css_in_style_block()
+    {
+        $html = '<html><head><style>body { font-size: 14px; color: #333; } .invoice { margin: 20px; }</style></head><body><p>Test</p></body></html>';
+        $css = $this->extractStyleContent(Purify::clean($html));
+
+        $this->assertStringContainsString('font-size', $css);
+        $this->assertStringContainsString('color', $css);
+        $this->assertStringContainsString('.invoice', $css);
+    }
+
+    public function test_purify_strips_css_unicode_escaped_http_from_style_block()
+    {
+        // \68\74\74\70\3a\2f\2f = http:// via CSS unicode escapes
+        $html = '<html><head><style>@import url("\68\74\74\70\3a\2f\2f 127.0.0.1/ssrf");</style></head><body><p>Test</p></body></html>';
+        $css = $this->extractStyleContent(Purify::clean($html));
+
+        $this->assertStringNotContainsString('http://', $css);
+    }
+
+    public function test_purify_strips_file_protocol_from_style_block()
+    {
+        $html = '<html><head><style>body { background: url("file:///etc/passwd"); }</style></head><body><p>Test</p></body></html>';
+        $css = $this->extractStyleContent(Purify::clean($html));
+
+        $this->assertStringNotContainsString('file://', $css);
+    }
+
+    public function test_purify_strips_unicode_escaped_file_protocol_from_style_block()
+    {
+        // \66\69\6c\65\3a\2f\2f = file:// via CSS unicode escapes
+        $html = '<html><head><style>body { background: url("\66\69\6c\65\3a\2f\2f /etc/passwd"); }</style></head><body><p>Test</p></body></html>';
+        $css = $this->extractStyleContent(Purify::clean($html));
+
+        $this->assertStringNotContainsString('file://', $css);
+    }
 }

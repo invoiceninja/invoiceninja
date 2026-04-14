@@ -49,6 +49,8 @@ class UpdateInvoiceRequest extends Request
 
         $rules['file'] = 'bail|sometimes|array';
         $rules['file.*'] = $this->fileValidation();
+        $rules['documents'] = 'bail|sometimes|array';
+        $rules['documents.*'] = $this->fileValidation();
 
         $rules['number'] = ['bail', 'sometimes', 'nullable', Rule::unique('invoices')->where('company_id', $user->company()->id)->ignore($this->invoice->id)];
 

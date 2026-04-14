@@ -58,6 +58,8 @@ class SendRecurring implements ShouldQueue
      */
     public function handle(): void
     {
+        $this->recurring_invoice = $this->recurring_invoice->calc()->getRecurringInvoice();
+        
         // Generate Standard Invoice
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice, $this->recurring_invoice->client);
 
@@ -122,9 +124,11 @@ class SendRecurring implements ShouldQueue
 
             //04-08-2023 edge case to support where online payment notifications are not enabled
             if (!$invoice->client->getSetting('client_online_payment_notification')) {
-                $this->sendRecurringEmails($invoice);
-                $invoice->sendEvent(Webhook::EVENT_SENT_INVOICE, "client");
+                $this->sendRecurringEmails($invoice);    
             }
+
+            $invoice->sendEvent(Webhook::EVENT_SENT_INVOICE, "client");
+
         } elseif ($invoice->auto_bill_enabled && $invoice->client->getSetting('auto_bill_date') == 'on_due_date' && $invoice->client->getSetting('auto_email_invoice') && ($invoice->due_date && Carbon::parse($invoice->due_date)->startOfDay()->lte(now()->startOfDay()))) {
             nlog("attempting to autobill {$invoice->number}");
             AutoBill::dispatch($invoice->id, $this->db, true)->delay(rand(1, 2));
@@ -132,8 +136,9 @@ class SendRecurring implements ShouldQueue
             //04-08-2023 edge case to support where online payment notifications are not enabled
             if (!$invoice->client->getSetting('client_online_payment_notification')) {
                 $this->sendRecurringEmails($invoice);
-                $invoice->sendEvent(Webhook::EVENT_SENT_INVOICE, "client");
             }
+
+            $invoice->sendEvent(Webhook::EVENT_SENT_INVOICE, "client");
 
         } elseif ($invoice->client->getSetting('auto_email_invoice')) {
             $this->sendRecurringEmails($invoice);
@@ -151,6 +156,11 @@ class SendRecurring implements ShouldQueue
      */
     private function sendRecurringEmails(Invoice $invoice): void
     {
+        if ($invoice->client->getSetting('skip_automatic_email_with_peppol') && $invoice->client->peppolSendingEnabled()) {
+            nlog("Skipping automatic email for invoice {$invoice->number} - client is on Peppol network");
+            return;
+        }
+
         //Admin notification for recurring invoice sent.
         if ($invoice->invitations->count() >= 1) {
 

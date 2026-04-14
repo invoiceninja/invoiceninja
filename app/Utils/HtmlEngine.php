@@ -190,12 +190,14 @@ class HtmlEngine
 
         $data['$payment_schedule'] = ['value' => '', 'label' => ctrans('texts.payment_schedule')];
         $data['$payment_schedule_interval'] = ['value' => '', 'label' => ctrans('texts.payment_schedule')];
+        $data['$payment_schedule_count'] = ['value' => '', 'label' => ctrans('texts.payment_schedule')];
 
         $data['$days_overdue'] = ['value' => $this->daysOverdue(), 'label' => ctrans('texts.overdue')];
 
         if (method_exists($this->entity, 'paymentSchedule')) {
             $data['$payment_schedule'] = ['value' => $this->entity->paymentSchedule(true), 'label' => ctrans('texts.payment_schedule')];
             $data['$payment_schedule_interval'] = ['value' => $this->entity->paymentScheduleInterval(), 'label' => ctrans('texts.payment_schedule')];
+            $data['$payment_schedule_count'] = ['value' => $this->entity->paymentScheduleCount(), 'label' => ctrans('texts.payment_schedule')];
         }
 
         $data['$location1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'location1', $this->entity->location?->custom_value1, $this->client) ?: ' ', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'location1')];
@@ -853,7 +855,7 @@ class HtmlEngine
                 $invoice_period = $this->translateDate($period->StartDate, $this->client->date_format(), $this->client->locale()) . ' - ' . $this->translateDate($period->EndDate, $this->client->date_format(), $this->client->locale());
             }
             catch(\Throwable $e) {
-                nlog("Error getting invoice period: {$e->getMessage()}");
+                nlog("Error getting invoice period: HE:: {$e->getMessage()}");
             }
         }
 
