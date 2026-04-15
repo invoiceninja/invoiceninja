@@ -12,27 +12,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Console\Commands\ImportMigrations;
-use App\DataMapper\CompanySettings;
-use App\Jobs\Mail\NinjaMailerJob;
-use App\Jobs\Mail\NinjaMailerObject;
-use App\Jobs\Util\StartMigration;
-use App\Mail\ExistingMigration;
-use App\Mail\Migration\MaxCompanies;
 use App\Models\Company;
-use App\Models\CompanyToken;
 use App\Utils\Ninja;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Str;
 
 class MigrationController extends BaseController
 {
     use DispatchesJobs;
-
-    public bool $silent_migration = false;
 
     public function __construct()
     {
