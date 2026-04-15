@@ -12,72 +12,73 @@
 
 namespace App\Jobs\Company;
 
-use ZipArchive;
-use App\Models\Task;
-use App\Models\User;
-use App\Utils\Ninja;
-use App\Models\Quote;
-use App\Models\Backup;
-use App\Models\Client;
-use App\Models\Credit;
-use App\Models\Design;
-use App\Services\Pdf\Purify;
-use App\Models\Vendor;
-use App\Models\Company;
-use App\Models\Expense;
-use App\Models\Invoice;
-use App\Models\Payment;
-use App\Models\Product;
-use App\Models\Project;
-use App\Models\TaxRate;
-use App\Models\Webhook;
-use App\Utils\TempFile;
-use App\Models\Activity;
-use App\Models\Document;
-use App\Models\Location;
+use App\Exceptions\ImportCompanyFailed;
+use App\Exceptions\NonExistingMigrationFile;
+use App\Factory\ClientContactFactory;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
-use App\Models\TaskStatus;
-use App\Models\CompanyUser;
-use App\Models\Paymentable;
-use App\Models\PaymentTerm;
-use Illuminate\Support\Str;
-use App\Models\GroupSetting;
-use App\Models\Subscription;
-use JsonMachine\JsonMachine;
-use App\Models\ClientContact;
-use App\Models\CompanyLedger;
-use App\Models\PurchaseOrder;
-use App\Models\VendorContact;
-use Illuminate\Bus\Queueable;
-use App\Models\CompanyGateway;
+use App\Mail\Import\CompanyImportFailure;
+use App\Mail\Import\ImportCompleted;
+use App\Models\Activity;
+use App\Models\Backup;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
-use App\Models\EInvoicingToken;
-use App\Models\ExpenseCategory;
-use App\Models\QuoteInvitation;
-use App\Utils\Traits\MakesHash;
+use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\ClientGatewayToken;
+use App\Models\Company;
+use App\Models\CompanyGateway;
+use App\Models\CompanyLedger;
+use App\Models\CompanyUser;
+use App\Models\Credit;
 use App\Models\CreditInvitation;
+use App\Models\Design;
+use App\Models\Document;
+use App\Models\EInvoicingToken;
+use App\Models\Expense;
+use App\Models\ExpenseCategory;
+use App\Models\GroupSetting;
+use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
+use App\Models\Location;
+use App\Models\Payment;
+use App\Models\Paymentable;
+use App\Models\PaymentTerm;
+use App\Models\Product;
+use App\Models\Project;
+use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderInvitation;
+use App\Models\Quote;
+use App\Models\QuoteInvitation;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
-use App\Jobs\Mail\NinjaMailerJob;
-use App\Models\InvoiceInvitation;
-use App\Models\ClientGatewayToken;
-use Illuminate\Support\Facades\App;
-use App\Jobs\Mail\NinjaMailerObject;
-use App\Mail\Import\ImportCompleted;
-use App\Factory\ClientContactFactory;
-use App\Utils\Traits\GeneratesCounter;
-use Illuminate\Queue\SerializesModels;
-use App\Exceptions\ImportCompanyFailed;
-use App\Models\PurchaseOrderInvitation;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Queue\InteractsWithQueue;
-use App\Mail\Import\CompanyImportFailure;
 use App\Models\RecurringInvoiceInvitation;
+use App\Models\Subscription;
+use App\Models\Task;
+use App\Models\TaskStatus;
+use App\Models\TaxRate;
+use App\Models\User;
+use App\Models\Vendor;
+use App\Models\VendorContact;
+use App\Models\Webhook;
+use App\Services\Pdf\Purify;
+use App\Utils\Ninja;
+use App\Utils\TempFile;
+use App\Utils\Traits\GeneratesCounter;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use JsonMachine\JsonDecoder\ExtJsonDecoder;
-use App\Exceptions\NonExistingMigrationFile;
+use JsonMachine\JsonMachine;
+use ZipArchive;
 
 class CompanyImport implements ShouldQueue
 {
@@ -1456,8 +1457,15 @@ class CompanyImport implements ShouldQueue
                     continue;
                 }
 
-                $file = @file_get_contents($url);
-
+                $response = Http::withOptions([
+                    'redirects' => false,
+                ])->get($url);
+                if ($response->successful()) {
+                    $file = $response->body();
+                } else {
+                    $file = false;
+                }
+                
                 if ($file) {
                     try {
                         Storage::disk(config('filesystems.default'))->put($new_document_url, $file);

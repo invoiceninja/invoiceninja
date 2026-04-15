@@ -5984,6 +5984,13 @@ $lang = array(
     'download_html' => 'Download HTML',
     'blocks_in_design' => 'blocks in design',
     'actual_invoices_use_real_data' => 'Actual invoices will use real client and invoice data',
+    'cloned_client' => 'Successfully cloned client',
+    'update_tax_details' => 'Update Tax Details',
+    'cc_only' => 'CC Only',
+    'e_invoice_forward_email' => 'PEPPOL Forwarding Email Service',
+    'e_invoice_forward_email_help' => 'Forwards sent/received e-invoices to a third party processing service like Yuki or WinAuditor',
+    'skip_automatic_email_with_peppol' => 'Disable Email When Sent via PEPPOL',
+    'skip_automatic_email_with_peppol_help' => 'If enabled, invoices sent through the PEPPOL network will not be emailed to the client.',
 );
 
 return $lang;
