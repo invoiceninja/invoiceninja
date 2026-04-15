@@ -15,7 +15,7 @@
     "file": "assets/wait-8f4ae121.js"
   },
   "resources/js/app.js": {
-    "file": "assets/app-144919a0.js",
+    "file": "assets/app-cb46e9cd.js",
     "imports": [
       "_index-08e160a7.js",
       "__commonjsHelpers-725317a4.js"
@@ -173,6 +173,22 @@
     ],
     "isEntry": true,
     "src": "resources/js/clients/payments/forte-credit-card-payment.js"
+  },
+  "resources/js/clients/payments/lawpay-ach-payment.js": {
+    "file": "assets/lawpay-ach-payment-82aa3ccf.js",
+    "imports": [
+      "_wait-8f4ae121.js"
+    ],
+    "isEntry": true,
+    "src": "resources/js/clients/payments/lawpay-ach-payment.js"
+  },
+  "resources/js/clients/payments/lawpay-credit-card-payment.js": {
+    "file": "assets/lawpay-credit-card-payment-64ad2272.js",
+    "imports": [
+      "_wait-8f4ae121.js"
+    ],
+    "isEntry": true,
+    "src": "resources/js/clients/payments/lawpay-credit-card-payment.js"
   },
   "resources/js/clients/payments/mollie-credit-card.js": {
     "file": "assets/mollie-credit-card-182bf0e2.js",
@@ -410,7 +426,7 @@
     "src": "resources/js/setup/setup.js"
   },
   "resources/sass/app.scss": {
-    "file": "assets/app-af825579.css",
+    "file": "assets/app-eb3eee26.css",
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }
