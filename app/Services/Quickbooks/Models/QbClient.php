@@ -69,7 +69,10 @@ class QbClient implements SyncInterface
                 }
             }
 
-            $client = $this->findClient($ninja_data[0]['id'], $ninja_data[0]['name'] ?? null, $ninja_data[1]['email'] ?? null);
+            $qb_id = $ninja_data[0]['id'];
+            unset($ninja_data[0]['terms'], $ninja_data[0]['id']);
+            $client = $this->findClient($qb_id, $ninja_data[0]['name'] ?? null, $ninja_data[1]['email'] ?? null);
+
             if (! $client) {
                 continue;
             }
@@ -277,7 +280,10 @@ class QbClient implements SyncInterface
         // Transform and run through the standard find/create flow
         $ninja_data = $this->client_transformer->qbToNinja($qb_customer, $this->service);
 
-        $client = $this->findClient($ninja_data[0]['id'], $ninja_data[0]['name'] ?? null, $ninja_data[1]['email'] ?? null);
+        $qb_id = $ninja_data[0]['id'];
+        unset($ninja_data[0]['terms'], $ninja_data[0]['id']);
+
+        $client = $this->findClient($qb_id, $ninja_data[0]['name'] ?? null, $ninja_data[1]['email'] ?? null);
 
         if (!$client) {
             nlog("QuickBooks: Unable to resolve client for QB customer {$qb_customer_id}");
