@@ -15,6 +15,7 @@ namespace App\Utils;
 use Illuminate\Http\File;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Http;
 
 class TempFile
 {
@@ -102,14 +103,23 @@ class TempFile
     }
 
     /* create a tmp file from a raw string: https://gist.github.com/waska14/8b3bcebfad1f86f7fcd3b82927576e38*/
-    public static function UploadedFileFromUrl(string $url, ?string $fileName = null, ?string $mimeType = null): UploadedFile
+    public static function UploadedFileFromUrl(string $url, ?string $fileName = null, ?string $mimeType = null): ?UploadedFile
     {
         // Create temp file and get its absolute path
         $tempFile = tmpfile();
         $tempFilePath = stream_get_meta_data($tempFile)['uri'];
 
         // Save file data in file
-        file_put_contents($tempFilePath, file_get_contents($url));
+        $response = Http::withOptions([
+            'redirects' => false,
+        ])->get($url);
+
+        if ($response->successful()) {
+            file_put_contents($tempFilePath, $response->body());
+        } else {
+            fclose($tempFile);
+            return null;
+        }
 
         $tempFileObject = new File($tempFilePath);
         $file = new UploadedFile(
@@ -120,13 +130,12 @@ class TempFile
             true // Mark it as test, since the file isn't from real HTTP POST.
         );
 
-        // Close this file after response is sent.
-        // Closing the file will cause to remove it from temp director!
+        // Close this file after response is sent. (removes from tmp dir)
+
         app()->terminating(function () use ($tempFile) {
             fclose($tempFile);
         });
 
-        // return UploadedFile object
         return $file;
     }
 }

@@ -204,6 +204,8 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
         }
 
 
+        BankTransaction::reguard();
+
         $this->skip = $this->skip + 500;
 
         if ($count < 500) {

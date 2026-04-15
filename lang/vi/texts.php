@@ -5955,6 +5955,10 @@ $lang = array(
     'too_many_requests' => 'Quá nhiều yêu cầu',
     'cloned_client' => 'Thành công đã nhân bản khách hàng',
     'update_tax_details' => 'Cập nhật thuế chi tiết',
-);
+    'cc_only' => 'Chỉ CC',
+    'e_invoice_forward_email' => 'Dịch vụ chuyển tiếp email PEPPOL',
+    'e_invoice_forward_email_help' => 'Chuyển tiếp Hóa đơn tử đã gửi/nhận đến dịch vụ xử lý của bên thứ ba như Yuki hoặc WinAuditor.',
+    'skip_automatic_email_with_peppol' => 'Vô hiệu hóa email khi được gửi qua PEPPOL',
+    'skip_automatic_email_with_peppol_help' => 'Nếu bật, Hóa đơn gửi qua mạng PEPPOL sẽ không được gửi qua email đến khách hàng .',);
 
 return $lang;
