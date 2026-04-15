@@ -251,18 +251,6 @@ class UpdateCompanyRequest extends Request
         return $settings;
     }
 
-
-    /**
-     * forceScheme
-     *
-     * @param  string $url
-     * @return string
-     */
-    private function forceScheme(string $url): string
-    {
-        return stripos($url, 'http') !== false ? $url : "https://{$url}";
-    }
-
     /**
      * addScheme
      *

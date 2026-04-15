@@ -159,13 +159,11 @@ class PeppolTaxCalculator
         $taxScheme->ID->value = $this->standardizeTaxSchemeId('vat');
         $taxCategory->TaxScheme = $taxScheme;
 
-        if ($reason_code !== null) {
-            $terc = new \InvoiceNinja\EInvoice\Models\Peppol\CodeType\TaxExemptionReasonCode();
-            $terc->value = $reason_code;
-            $taxCategory->TaxExemptionReasonCode = $terc;
-            $taxCategory->TaxExemptionReason = $reason;
-        }
-
+        $terc = new \InvoiceNinja\EInvoice\Models\Peppol\CodeType\TaxExemptionReasonCode();
+        $terc->value = $reason_code;
+        $taxCategory->TaxExemptionReasonCode = $terc;
+        $taxCategory->TaxExemptionReason = $reason;
+    
         $this->peppol->setGlobalTaxCategories([$taxCategory]);
 
         if ($ctc) {
