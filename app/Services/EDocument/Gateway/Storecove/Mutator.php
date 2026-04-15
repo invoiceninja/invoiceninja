@@ -21,17 +21,15 @@ use App\Services\EDocument\Standards\Peppol\CountryFactory;
  *
  * Transforms a Peppol Invoice/CreditNote model into a Storecove-ready payload by:
  *  - Applying country-specific sender/receiver mutations (delegated to CountryFactory handlers)
- *  - Resolving client routing (eIdentifiers, email fallback, Peppol/SDI/Svefaktura networks)
- *  - Building the `storecove_meta` array that wraps the document for the Storecove send API
+ *  - Applying country-specific sender/receiver mutations for e-invoicing compliance
  *
  * Typical pipeline (orchestrated by StorecoveAdapter):
  *   $mutator->setInvoice()->setPeppol()->setClientSettings()->setCompanySettings()
  *           ->senderSpecificLevelMutators()
  *           ->receiverSpecificLevelMutators()
- *           ->setClientRoutingCode()
  *
- * The resulting Peppol model (getPeppol()) and routing metadata (getStorecoveMeta())
- * are then serialised and POSTed to Storecove.
+ * The resulting Peppol model (getPeppol()) is then serialised and POSTed to Storecove.
+ * Routing metadata is resolved separately via RoutingResolver.
  *
  * @see \App\Services\EDocument\Gateway\Storecove\StorecoveAdapter  Orchestrates the full send flow
  * @see \App\Services\EDocument\Standards\Peppol\CountryFactory      Dispatches country-specific mutations
@@ -50,15 +48,6 @@ class Mutator implements MutatorInterface
 
     /** @var \App\Models\Invoice|\App\Models\Credit The Invoice Ninja invoice/credit being sent */
     private $invoice;
-
-    /**
-     * Storecove API envelope metadata (routing, emails, network config).
-     * Built up incrementally by setClientRoutingCode() and its helpers,
-     * then read by StorecoveAdapter when constructing the final API payload.
-     *
-     * @var array{routing?: array{eIdentifiers?: array, emails?: string[], networks?: array}}
-     */
-    private array $storecove_meta = [];
 
     /**
      * When set, country handlers should use this VAT number instead of the
@@ -231,72 +220,5 @@ class Mutator implements MutatorInterface
 
         return $this;
     }
-
-    /////////////// Storecove Helpers ///////////////
-
-    // Routing logic extracted to RoutingResolver class.
-
-    /**
-     * Resolve and set the Storecove routing metadata for the receiving client.
-     *
-     * Delegates to RoutingResolver for the actual resolution logic, then applies
-     * the result to the storecove_meta and network configuration.
-     *
-     * @return self
-     */
-    public function setClientRoutingCode(): self
-    {
-        $resolver = new RoutingResolver(
-            $this->invoice,
-            $this->storecove->proxy,
-            $this->storecove->router,
-        );
-
-        $result = $resolver->resolve();
-
-        if ($result['type'] === 'none') {
-            return $this;
-        }
-
-        $this->setStorecoveMeta($result['meta']);
-
-        if (!empty($result['networks'])) {
-            $this->setStorecoveMeta(['routing' => ['networks' => $result['networks']]]);
-        }
-
-        return $this;
-    }
-
-
-
-
-    /**
-     * Merge additional metadata into the Storecove API envelope.
-     *
-     * Uses array_merge_recursive so nested keys (routing.eIdentifiers, routing.emails, etc.)
-     * are accumulated rather than overwritten. This allows multiple helpers to contribute
-     * routing data without clobbering each other.
-     *
-     * @param  array $meta  Partial metadata to merge (e.g. routing, network config)
-     * @return self
-     */
-    private function setStorecoveMeta(array $meta): self
-    {
-
-        $this->storecove_meta = array_merge_recursive($this->storecove_meta, $meta);
-
-        return $this;
-    }
-
-    /**
-     * Get the accumulated Storecove routing/network metadata for the API send payload.
-     *
-     * @return array{routing?: array{eIdentifiers?: array, emails?: string[], networks?: array}}
-     */
-    public function getStorecoveMeta(): array
-    {
-        return $this->storecove_meta;
-    }
-
 
 }

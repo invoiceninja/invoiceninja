@@ -18,15 +18,14 @@ use Tests\MockAccountData;
 use App\Models\ClientContact;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
 use App\Services\EDocument\Gateway\Storecove\StorecoveProxy;
-use App\Services\EDocument\Gateway\Storecove\Mutator;
+use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
+use App\Services\EDocument\Gateway\Storecove\RoutingResolver;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * Tests that SendEDocument fails early when the Mutator cannot resolve
- * PEPPOL routing (i.e. the client has no usable identifiers).
- *
- * Discovery is performed live at send time via Mutator::setClientRoutingCode()
- * — these tests verify the scheme/identifier resolution that feeds into it.
+ * Tests that RoutingResolver correctly resolves PEPPOL routing
+ * (scheme + identifier) for recipients based on country, classification,
+ * and available identifiers (vat_number, id_number, routing_id).
  */
 class PeppolDiscoveryTest extends TestCase
 {
@@ -60,8 +59,8 @@ class PeppolDiscoveryTest extends TestCase
     }
 
     /**
-     * Build a Mutator wired to a mocked Storecove, run setClientRoutingCode(),
-     * and return the resulting storecove_meta.
+     * Build a RoutingResolver with a mocked StorecoveProxy, resolve routing,
+     * and return the resulting storecove_meta routing array.
      */
     private function runMutatorWithMock(Client $client, callable $discoveryCallback): array
     {
@@ -76,15 +75,17 @@ class PeppolDiscoveryTest extends TestCase
         $proxyMock->method('discovery')->willReturnCallback($discoveryCallback);
         $proxyMock->method('setCompany')->willReturnSelf();
 
-        $storecove = new Storecove();
-        $storecove->proxy = $proxyMock;
+        $router = new StorecoveRouter();
+        $resolver = new RoutingResolver($this->invoice, $proxyMock, $router);
+        $result = $resolver->resolve();
 
-        $mutator = new Mutator($storecove);
-        $mutator->setInvoice($this->invoice);
+        // Build the same meta structure the old Mutator produced
+        $meta = $result['meta'] ?? [];
+        if (!empty($result['networks'])) {
+            $meta['routing']['networks'] = $result['networks'];
+        }
 
-        $mutator->setClientRoutingCode();
-
-        return $mutator->getStorecoveMeta();
+        return $meta;
     }
 
     // ──────────────────────────────────────────────────────

@@ -438,7 +438,13 @@ class PeppolCountryTest extends TestCase
             'client_classification' => 'government',
             'client_id_number' => 'GOV123',
         ]);
-        $this->runAndValidate($data['invoice'], 'AT => AT (government)');
+        $result = $this->runAndValidate($data['invoice'], 'AT => AT (government)');
+
+        // AT government requires CustomerAssignedAccountID
+        $this->assertNotNull(
+            $result['peppol']->AccountingCustomerParty->CustomerAssignedAccountID ?? null,
+            'AT government should set CustomerAssignedAccountID'
+        );
     }
 
     // ── AU (Australia) ──
@@ -470,7 +476,8 @@ class PeppolCountryTest extends TestCase
         ]);
         $result = $this->runAndValidate($data['invoice'], 'DE => DE (business)');
 
-        $this->assertNotNull($result['peppol']->PaymentMeans, 'DE should set PaymentMeans');
+        $this->assertNotEmpty($result['peppol']->PaymentMeans, 'DE should set PaymentMeans');
+        $this->assertNotNull($result['peppol']->PaymentMeans[0]->PaymentMeansCode, 'DE PaymentMeans should have PaymentMeansCode');
     }
 
     public function testDE_Domestic_Individual(): void
@@ -498,6 +505,10 @@ class PeppolCountryTest extends TestCase
         if ($companyID) {
             $this->assertEquals('0184', $companyID->schemeID, 'Domestic DK should use scheme 0184 (DK:DIGST)');
         }
+
+        // DK remaps PaymentMeansCode 30 to 58 (SEPA credit transfer)
+        $this->assertNotEmpty($result['peppol']->PaymentMeans, 'DK should have PaymentMeans');
+        $this->assertEquals('58', $result['peppol']->PaymentMeans[0]->PaymentMeansCode->value, 'DK should remap PaymentMeansCode 30 to 58');
     }
 
     // ── ES (Spain) ──
@@ -549,7 +560,13 @@ class PeppolCountryTest extends TestCase
             'client_classification' => 'government',
             'client_id_number' => '12345678901234',
         ]);
-        $this->runAndValidate($data['invoice'], 'FR => FR (government)');
+        $result = $this->runAndValidate($data['invoice'], 'FR => FR (government)');
+
+        // FR B2G requires CustomerAssignedAccountID (client's SIRET)
+        $this->assertNotNull(
+            $result['peppol']->AccountingCustomerParty->CustomerAssignedAccountID ?? null,
+            'FR B2G should set CustomerAssignedAccountID'
+        );
     }
 
     // ── IT (Italy) ──
@@ -622,7 +639,11 @@ class PeppolCountryTest extends TestCase
             'company_country' => 'PL', 'client_country' => 'PL',
             'client_state' => 'PL-MZ',
         ]);
-        $this->runAndValidate($data['invoice'], 'PL => PL (business)');
+        $result = $this->runAndValidate($data['invoice'], 'PL => PL (business)');
+
+        // PL senderMutations resolves customer voivodeship on the peppol document
+        $clientState = $result['peppol']->AccountingCustomerParty->Party->PostalAddress->CountrySubentity ?? null;
+        $this->assertEquals('PL-MZ', $clientState, 'PL customer state should resolve to PL-MZ (Mazowieckie)');
     }
 
     public function testPL_Domestic_Government(): void
@@ -688,7 +709,19 @@ class PeppolCountryTest extends TestCase
         $data = $this->buildScenario([
             'company_country' => 'SG', 'client_country' => 'SG',
         ]);
-        $this->runAndValidate($data['invoice'], 'SG => SG (business)');
+        $result = $this->runAndValidate($data['invoice'], 'SG => SG (business)');
+
+        // SG supplier EndpointID should use UEN scheme 0195
+        $supplierEndpoint = $result['peppol']->AccountingSupplierParty->Party->EndpointID ?? null;
+        $this->assertNotNull($supplierEndpoint, 'SG supplier should have EndpointID');
+        $this->assertEquals('0195', $supplierEndpoint->schemeID, 'SG supplier EndpointID should use scheme 0195');
+        $this->assertEquals('201234567K', $supplierEndpoint->value, 'SG supplier EndpointID should be the UEN (id_number)');
+
+        // SG customer EndpointID should use UEN scheme 0195
+        $customerEndpoint = $result['peppol']->AccountingCustomerParty->Party->EndpointID ?? null;
+        $this->assertNotNull($customerEndpoint, 'SG customer should have EndpointID');
+        $this->assertEquals('0195', $customerEndpoint->schemeID, 'SG customer EndpointID should use scheme 0195');
+        $this->assertEquals('201234567K', $customerEndpoint->value, 'SG customer EndpointID should be the UEN (id_number)');
     }
 
     public function testSG_Domestic_Government(): void
@@ -709,7 +742,15 @@ class PeppolCountryTest extends TestCase
             'company_country' => 'IN', 'client_country' => 'IN',
             'client_classification' => 'business',
         ]);
-        $this->runAndValidate($data['invoice'], 'IN => IN (business)');
+        $result = $this->runAndValidate($data['invoice'], 'IN => IN (business)');
+
+        // IN senderMutations resolves supplier state to ISO code (Maharashtra => MH)
+        $supplierState = $result['peppol']->AccountingSupplierParty->Party->PostalAddress->CountrySubentity ?? null;
+        $this->assertEquals('MH', $supplierState, 'IN supplier state "Maharashtra" should resolve to MH');
+
+        // IN receiverMutations resolves customer state to ISO code (Maharashtra => MH)
+        $clientState = $result['peppol']->AccountingCustomerParty->Party->PostalAddress->CountrySubentity ?? null;
+        $this->assertEquals('MH', $clientState, 'IN customer state "Maharashtra" should resolve to MH');
     }
 
     public function testIN_Domestic_Business_StateNameResolution(): void

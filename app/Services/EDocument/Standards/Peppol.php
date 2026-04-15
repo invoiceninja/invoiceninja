@@ -29,7 +29,6 @@ use App\Services\EDocument\Standards\Peppol\PeppolAttachmentBuilder;
 use InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID;
 use App\Services\EDocument\Gateway\MutatorUtil;
 use App\Services\EDocument\Gateway\MutatorInterface;
-use App\Services\EDocument\Gateway\Storecove\Storecove;
 use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
 use App\Services\EDocument\Standards\Peppol\CountryFactory;
 use App\Services\EDocument\Standards\Settings\PropertyResolver;
@@ -157,12 +156,6 @@ class Peppol extends AbstractService implements MutatorInterface
     public StorecoveRouter $router;
 
     /**
-     * @deprecated Use $router directly. Kept for backward compatibility.
-     * @var Storecove $gateway
-     **/
-    public Storecove $gateway;
-
-    /**
      *
      * @var string $customizationID
      *
@@ -257,7 +250,6 @@ class Peppol extends AbstractService implements MutatorInterface
         $this->calc = $this->invoice->calc();
         $this->e = new EInvoice();
         $this->router = new StorecoveRouter();
-        $this->gateway = new Storecove();
         $this->isCreditNote = $this->shouldBeCreditNote();
 
         $this->taxCalculator = new PeppolTaxCalculator($this);
@@ -266,13 +258,6 @@ class Peppol extends AbstractService implements MutatorInterface
         $this->attachmentBuilder = new PeppolAttachmentBuilder($this);
 
         $this->setSettings()->initDocument();
-
-        // Sync gateway mutator for backward compatibility with code that accesses $p->gateway->mutator
-        $this->gateway->mutator
-            ->setInvoice($this->invoice)
-            ->setPeppol($this->p_invoice)
-            ->setClientSettings($this->_client_settings)
-            ->setCompanySettings($this->_company_settings);
     }
 
     /**
@@ -894,17 +879,6 @@ class Peppol extends AbstractService implements MutatorInterface
     public function setPeppolDocument($doc): void
     {
         $this->p_invoice = $doc;
-    }
-
-    /**
-     * @deprecated Access $router directly for routing/ISO 6523 lookups.
-     */
-    public function getGateway(): Storecove
-    {
-        if (!isset($this->gateway)) {
-            $this->gateway = new Storecove();
-        }
-        return $this->gateway;
     }
 
     public function getRouter(): StorecoveRouter

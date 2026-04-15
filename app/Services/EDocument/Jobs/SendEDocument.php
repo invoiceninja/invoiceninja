@@ -62,15 +62,17 @@ class SendEDocument implements ShouldQueue
 
         nlog("trying to send {$this->entity} {$this->id} on {$this->db}");
 
+        /** Hydrate model for sending */
         $model = $this->entity::withTrashed()->find($this->id);
 
-        if (!$model) {
-            nlog("model not found");
+        /** Guard clauses ensuring model is in a valid sending state */
+        if (!$model || $model->is_deleted) {
+            nlog("Model not found or deleted");
             return; // Model not found.
         }
 
         if (isset($model->backup->guid) && is_string($model->backup->guid) && strlen($model->backup->guid) > 3) {
-            nlog("already sent!");
+            nlog("Already sent!");
             return; //Do not double send.
         }
 
@@ -79,6 +81,7 @@ class SendEDocument implements ShouldQueue
             return; //Bad Actor present.
         }
 
+        /** Ensure client is routable on the PEPPOL Network */
         if ($model->client && ($error = $model->client->checkDeliveryNetwork())) {
             nlog("Client is not routable on the Peppol network: {$error}");
             $this->writeActivity($model, Activity::EINVOICE_DELIVERY_FAILURE, $error);
@@ -173,6 +176,7 @@ class SendEDocument implements ShouldQueue
                         $model->company
                     )
                 )->handle();
+                
                 $this->writeActivity($model, Activity::EINVOICE_DELIVERY_FAILURE, data_get($r->json(), 'errors.0.details', 'Unhandled error, check logs'));
             }
 

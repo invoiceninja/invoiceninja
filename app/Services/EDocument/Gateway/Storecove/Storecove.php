@@ -162,9 +162,10 @@ class Storecove
     }
 
     /**
-     * Unused as yet
-     * @todo
+     * Submit a document to the Storecove API.
+     *
      * @param  array $payload
+     * @return string|\Illuminate\Http\Client\Response  GUID on success, Response on failure
      */
     public function sendJsonDocument(array $payload): string|\Illuminate\Http\Client\Response
     {
