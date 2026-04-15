@@ -216,5 +216,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
 
         $this->bank_integration->from_date = now()->subDays(5);
         $this->bank_integration->save();
+
+        BankTransaction::reguard();
     }
 }
