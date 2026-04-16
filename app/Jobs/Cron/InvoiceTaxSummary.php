@@ -128,11 +128,14 @@ class InvoiceTaxSummary implements ShouldQueue
 
     private function processCompanyTaxSummary($company)
     {
-        // Your existing tax summary logic here
-        // This will only run for companies in timezones that just transitioned
+        // Calculate the target month from the company's local timezone.
+        // The job fires when a timezone crosses midnight into the new month,
+        // so "yesterday" in that timezone is the last day of the month that just ended.
+        $timezone = $company->timezone()->name ?? 'UTC';
+        $yesterdayLocal = now()->setTimezone($timezone)->subDay();
 
-        $startDate = now()->subMonth()->startOfMonth()->format('Y-m-d');
-        $endDate = now()->subMonth()->endOfMonth()->format('Y-m-d');
+        $startDate = $yesterdayLocal->copy()->startOfMonth()->format('Y-m-d');
+        $endDate = $yesterdayLocal->copy()->endOfMonth()->format('Y-m-d');
 
         // Process tax summary for the company
         $this->generateTaxSummary($company, $startDate, $endDate);
@@ -198,7 +201,7 @@ class InvoiceTaxSummary implements ShouldQueue
                 })
                 ->whereHas('payments', function ($query) use ($startDateUtc, $endDateUtc) {
                     $query->whereHas('paymentables', function ($subQuery) use ($startDateUtc, $endDateUtc) {
-                        $subQuery->where('paymentable_type', Invoice::class)
+                        $subQuery->where('paymentable_type', 'invoices')
                                 ->whereBetween('created_at', [$startDateUtc, $endDateUtc]);
                     });
                 })

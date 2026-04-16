@@ -38,8 +38,6 @@ class InvoiceTransactionEventEntryCash
             return;
         }
 
-        $this->setPaidRatio($invoice);
-
         $this->payments = $invoice->payments->flatMap(function ($payment) use ($start_date, $end_date) {
             return $payment->invoices()->get()->map(function ($invoice) use ($payment) {
                 return [
@@ -54,6 +52,7 @@ class InvoiceTransactionEventEntryCash
             });
         });
 
+        $this->setPaidRatio($invoice);
 
         TransactionEvent::create([
             'invoice_id' => $invoice->id,
@@ -83,7 +82,9 @@ class InvoiceTransactionEventEntryCash
             return $this;
         }
 
-        $this->paid_ratio = $invoice->paid_to_date / $invoice->amount;
+        $periodPaid = $this->payments->sum('amount') - $this->payments->sum('refunded');
+
+        $this->paid_ratio = $periodPaid / $invoice->amount;
 
         return $this;
     }
