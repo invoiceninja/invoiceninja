@@ -99,16 +99,20 @@ class InvoiceTransactionEventEntry
         }
 
         nlog("invoice amount => {$invoice->amount}");
-        $this->payments = $invoice->payments->flatMap(function ($payment) {
-            return $payment->invoices()->get()->map(function ($invoice) use ($payment) {
-                return [
-                    'number' => $payment->number,
-                    'amount' => $invoice->pivot->amount,
-                    'refunded' => $invoice->pivot->refunded,
-                    'date' => $invoice->pivot->created_at->format('Y-m-d'),
-                ];
-            });
-        });
+        $this->payments = $invoice->payments->map(function ($payment) use ($invoice) {
+            $pivot = $payment->invoices()->where('paymentable_id', $invoice->id)->first()?->pivot;
+
+            if (!$pivot) {
+                return null;
+            }
+
+            return [
+                'number' => $payment->number,
+                'amount' => $pivot->amount,
+                'refunded' => $pivot->refunded,
+                'date' => $pivot->created_at->format('Y-m-d'),
+            ];
+        })->filter();
 
         TransactionEvent::create([
             'invoice_id' => $invoice->id,
