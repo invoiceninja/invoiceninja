@@ -24,6 +24,7 @@ class InvoiceItemFactory
         $item = new stdClass();
         $item->quantity = 0;
         $item->cost = 0;
+        $item->net_cost = 0;
         $item->product_key = '';
         $item->notes = '';
         $item->discount = 0;

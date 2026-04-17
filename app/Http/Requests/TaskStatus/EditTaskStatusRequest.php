@@ -23,7 +23,7 @@ class EditTaskStatusRequest extends Request
      */
     public function authorize()
     {
-        return auth()->user()->isAdmin();
+        return auth()->user()->can('edit', $this->task_status);
     }
 
     public function rules()

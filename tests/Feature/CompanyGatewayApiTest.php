@@ -14,8 +14,13 @@ namespace Tests\Feature;
 
 use App\DataMapper\FeesAndLimits;
 use App\Factory\CompanyGatewayFactory;
+use App\Factory\CompanyUserFactory;
+use App\Models\Account;
+use App\Models\Company;
 use App\Models\CompanyGateway;
+use App\Models\CompanyToken;
 use App\Models\GatewayType;
+use App\Models\User;
 use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
@@ -556,6 +561,57 @@ class CompanyGatewayApiTest extends TestCase
         $company_gateway = CompanyGateway::find($id);
 
         $this->assertEquals(12, $company_gateway->calcGatewayFee(10, GatewayType::CREDIT_CARD, true));
+    }
+
+    public function testCrossCompanyShowCompanyGatewayDenied()
+    {
+        // Create a company gateway in the first company
+        $cg = CompanyGatewayFactory::create($this->company->id, $this->user->id);
+        $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
+        $cg->save();
+
+        // Create a completely separate account/company/user/token
+        $account = Account::factory()->create([
+            'hosted_client_count' => 1000,
+            'hosted_company_count' => 1000,
+        ]);
+
+        $account->num_users = 3;
+        $account->save();
+
+        $company = Company::factory()->create([
+            'account_id' => $account->id,
+        ]);
+
+        $user = User::factory()->create([
+            'account_id' => $account->id,
+            'confirmation_code' => '123',
+            'email' => $this->faker->safeEmail(),
+        ]);
+
+        $cu = CompanyUserFactory::create($user->id, $company->id, $account->id);
+        $cu->is_owner = true;
+        $cu->is_admin = true;
+        $cu->save();
+
+        $other_token = \Illuminate\Support\Str::random(64);
+
+        $company_token = new CompanyToken();
+        $company_token->user_id = $user->id;
+        $company_token->company_id = $company->id;
+        $company_token->account_id = $account->id;
+        $company_token->name = 'test token';
+        $company_token->token = $other_token;
+        $company_token->is_system = true;
+        $company_token->save();
+
+        // Attempt to view the first company's gateway using the other company's token
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $other_token,
+        ])->get('/api/v1/company_gateways/' . $this->encodePrimaryKey($cg->id));
+
+        $response->assertStatus(403);
     }
 
     public function testFeesAndLimitsFeePercentAndAmountAndDoubleTaxCalcuationWithFeeCap()

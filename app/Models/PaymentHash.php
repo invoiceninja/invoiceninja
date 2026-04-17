@@ -57,11 +57,11 @@ class PaymentHash extends Model
     }
 
     /**
-     * @return float|null
+     * @return float
      */
     public function amount_with_fee()
     {
-        return $this->data->amount_with_fee;
+        return $this->data->amount_with_fee ?? 0;
     }
 
     /**

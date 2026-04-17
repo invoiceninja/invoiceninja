@@ -34,6 +34,7 @@ use Illuminate\Support\Facades\Cache;
 use App\Repositories\ClientRepository;
 use App\Repositories\ClientContactRepository;
 use Laracasts\Presenter\Exceptions\PresenterException;
+use Livewire\Attributes\Locked;
 
 class BillingPortalPurchasev2 extends Component
 {
@@ -52,7 +53,7 @@ class BillingPortalPurchasev2 extends Component
      */
     public $email;
 
-
+    #[Locked] 
     public $subscription_id;
 
 
@@ -61,6 +62,7 @@ class BillingPortalPurchasev2 extends Component
      *
      * @var string|integer
      */
+    #[Locked] 
     public $company_gateway_id;
 
     /**
@@ -68,6 +70,7 @@ class BillingPortalPurchasev2 extends Component
      *
      * @var string|integer
      */
+    #[Locked] 
     public $payment_method_id;
 
     /**
@@ -113,6 +116,7 @@ class BillingPortalPurchasev2 extends Component
      *
      * @var string
      */
+    #[Locked]
     public string $db;
 
     /**
@@ -242,7 +246,7 @@ class BillingPortalPurchasev2 extends Component
 
         if ($contact) {
             Auth::guard('contact')->loginUsingId($contact->id, true);
-
+            $this->dispatch('update-csrf', token: csrf_token());
         } else {
             $this->createBlankClient();
         }
@@ -777,6 +781,7 @@ class BillingPortalPurchasev2 extends Component
         $contact = $client->fresh()->contacts->first();
 
         Auth::guard('contact')->loginUsingId($contact->id, true);
+        $this->dispatch('update-csrf', token: csrf_token());
 
         return $contact;
     }
@@ -793,10 +798,6 @@ class BillingPortalPurchasev2 extends Component
     {
         if (array_key_exists('email', $this->request_data)) {
             $this->email = $this->request_data['email'];
-        }
-
-        if ($this->contact() instanceof ClientContact) {
-            $this->getPaymentMethods();
         }
 
         return render('components.livewire.billing-portal-purchasev2');

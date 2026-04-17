@@ -149,7 +149,7 @@ class TaskExport extends BaseExport
         return array_merge(['columns' => $header], $this->storage_item_array);
     }
 
-    private function buildRow(Task $task)
+    protected function buildRow(Task $task)
     {
         $entity = [];
         $transformed_entity = $this->entity_transformer->transform($task);

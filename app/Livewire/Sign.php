@@ -13,16 +13,23 @@ use Livewire\Attributes\Computed;
 use App\Livewire\Flow2\DocuNinjaLoader;
 use App\Models\PurchaseOrderInvitation;
 use App\Utils\Traits\WithSecureContext;
+use Livewire\Attributes\Locked;
 
 class Sign extends Component
 {
     use WithSecureContext;
 
+    #[Locked] 
     public $invitation_id;
+
+    #[Locked] 
     public $entity_type;
+
+    #[Locked] 
     public $db;
 
     public $docu_ninja_ready = false;
+    
     public $signature_accepted = false;
 
     public $request_hash;

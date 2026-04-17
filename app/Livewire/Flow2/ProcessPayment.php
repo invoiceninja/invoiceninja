@@ -30,14 +30,24 @@ class ProcessPayment extends Component
 
     public $isLoading = true;
     public $_key;
+
     public function mount()
     {
 
         MultiDB::setDb($this->getContext($this->_key)['db']);
 
+        $_context = $this->getContext($this->_key);
+
+    if (isset($_context['payment_processed'])) {
+        $this->payment_view = $_context['payment_processed']['payment_view'];
+        $this->payment_data_payload = $_context['payment_processed']['payment_data_payload'];
+        $this->isLoading = false;
+        return;
+    }
+
         $invitation = InvoiceInvitation::find($this->getContext($this->_key)['invitation_id']);
 
-        $_context = $this->getContext($this->_key);
+        // $_context = $this->getContext($this->_key);
 
         $data = [
             'company_gateway_id' => $_context['company_gateway_id'],
@@ -90,6 +100,11 @@ class ProcessPayment extends Component
             );
         }
 
+        $this->setContext($this->_key, 'payment_processed', [
+            'payment_view' => $this->payment_view,
+            'payment_data_payload' => $this->payment_data_payload,
+        ]);
+        
         $this->isLoading = false;
 
     }

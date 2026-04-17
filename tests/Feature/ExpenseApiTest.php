@@ -563,4 +563,72 @@ class ExpenseApiTest extends TestCase
         $arr = $response->json();
         $response->assertStatus(200);
     }
+
+    public function testPaymentTypeFilter(): void
+    {
+        Expense::query()->where('company_id', $this->company->id)->forceDelete();
+
+        Expense::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 100,
+            'payment_type_id' => 1,
+        ]);
+
+        Expense::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 200,
+            'payment_type_id' => 2,
+        ]);
+
+        Expense::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 50,
+            'payment_type_id' => null,
+        ]);
+
+        // Filter by payment_type_id = 1
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/expenses?payment_type=1');
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+        $this->assertCount(1, $arr['data']);
+        $this->assertEquals(100, $arr['data'][0]['amount']);
+
+        // Filter by payment_type_id = 2
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/expenses?payment_type=2');
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+        $this->assertCount(1, $arr['data']);
+        $this->assertEquals(200, $arr['data'][0]['amount']);
+
+        // Filter by multiple payment types
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/expenses?payment_type=1,2');
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+        $this->assertCount(2, $arr['data']);
+
+        // No filter returns all
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/expenses');
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+        $this->assertCount(3, $arr['data']);
+    }
 }

@@ -40,7 +40,6 @@ use App\Utils\Traits\SystemLogTrait;
 use App\Events\Invoice\InvoiceWasPaid;
 use App\Jobs\Mail\PaymentFailedMailer;
 use App\Events\Payment\PaymentWasCreated;
-use App\Mail\Admin\ClientPaymentFailureObject;
 use App\Services\Subscription\SubscriptionService;
 
 /**
@@ -554,8 +553,6 @@ class BaseDriver extends AbstractPaymentDriver
             throw new PaymentFailed($error, $e->getCode());
         }
 
-        $amount = array_sum(array_column($this->payment_hash->invoices(), 'amount')) + $this->payment_hash->fee_total;
-
         $this->sendFailureMail($error);
 
         SystemLogger::dispatch(
@@ -592,25 +589,6 @@ class BaseDriver extends AbstractPaymentDriver
         );
     }
 
-    public function clientPaymentFailureMailer($error)
-    {
-        if ($this->payment_hash && is_array($this->payment_hash->invoices())) {
-            $nmo = new NinjaMailerObject();
-            $nmo->mailable = new NinjaMailer((new ClientPaymentFailureObject($this->client, $error, $this->client->company, $this->payment_hash))->build());
-            $nmo->company = $this->client->company;
-            $nmo->settings = $this->client->company->settings;
-
-            $invoices = Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
-
-            $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
-                if ((bool) $invitation->contact->send_email !== false && $invitation->contact->email && !$invitation->contact->is_locked) {
-                    $nmo->to_user = $invitation->contact;
-                    NinjaMailerJob::dispatch($nmo);
-                }
-            });
-        }
-    }
-
     /**
      * Wrapper method for checking if resource is good.
      *
@@ -630,29 +608,12 @@ class BaseDriver extends AbstractPaymentDriver
     public function processUnsuccessfulTransaction($response, $client_present = true)
     {
         $error = array_key_exists('error', $response) ? $response['error'] : 'Undefined Error';
-        $error_code = array_key_exists('error_code', $response) ? $response['error_code'] : 'Undefined Error Code';
 
         if ($this->payment_hash) {
             $this->unWindGatewayFees($this->payment_hash);
         }
 
         $this->sendFailureMail($error);
-
-        $nmo = new NinjaMailerObject();
-        $nmo->mailable = new NinjaMailer((new ClientPaymentFailureObject($this->client, $error, $this->client->company, $this->payment_hash))->build());
-        $nmo->company = $this->client->company;
-        $nmo->settings = $this->client->company->settings;
-
-        if ($this->payment_hash) {
-            $invoices = Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
-
-            $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
-                if (! $invitation->contact->trashed()) {
-                    $nmo->to_user = $invitation->contact;
-                    NinjaMailerJob::dispatch($nmo);
-                }
-            });
-        }
 
         $message = [
             'server_response' => $response,

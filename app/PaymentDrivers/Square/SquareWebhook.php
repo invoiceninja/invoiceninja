@@ -23,6 +23,7 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\SquarePaymentDriver;
 use App\PaymentDrivers\Stripe\Utilities;
+use App\Utils\Number;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -97,7 +98,7 @@ class SquareWebhook implements ShouldQueue
             if ($this->driver->payment_hash) {
                 $error = ctrans('texts.client_payment_failure_body', [
                     'invoice' => implode(',', $payment->invoices->pluck('number')->toArray()),
-                    'amount' => array_sum(array_column($this->driver->payment_hash->invoices(), 'amount')) + $this->driver->payment_hash->fee_total,
+                    'amount' => Number::formatMoney($this->driver->payment_hash->amount_with_fee(), $payment->client)
                 ]);
             } else {
                 $error = 'Payment for ' . $payment->client->present()->name() . " for {$payment->amount} failed";

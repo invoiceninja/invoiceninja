@@ -912,6 +912,22 @@ class Invoice extends BaseModel
         return ctrans('texts.payment_schedule_interval', ['index' => $index + 1, 'total' => count($schedule_array), 'amount' => $amount]);
     }
 
+    public function paymentScheduleCount(): string
+    {
+        $schedule = \App\Models\Scheduler::where('company_id', $this->company_id)
+                            ->where('template', 'payment_schedule')
+                            ->where('parameters->invoice_id', $this->hashed_id)
+                            ->first();
+
+        if (!$schedule) {
+            return '';
+        }
+
+        $schedule_array = $schedule->parameters['schedule'] ?? [];
+
+        return (string) count($schedule_array);
+    }
+
     public function hasSentAeat(): bool
     {
         return $this->backup->guid != "";
@@ -928,7 +944,7 @@ class Invoice extends BaseModel
     {
         return once(function () {
             $client_is_verifactu = in_array($this->client->country->iso_3166_2, (new \App\DataMapper\Tax\BaseRule())->eu_country_codes)
-            && (strlen($this->client->vat_number ?? '') > 0 || strlen($this->client->id_number ?? '') > 0);
+           && (strlen($this->client->vat_number ?? '') > 0 || strlen($this->client->id_number ?? '') > 0);
             return $this->company->verifactuEnabled() && $client_is_verifactu;
         });
     }

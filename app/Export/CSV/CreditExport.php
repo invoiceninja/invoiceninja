@@ -104,7 +104,7 @@ class CreditExport extends BaseExport
 
         $query = Credit::query()
                         ->withTrashed()
-                        ->with('client')
+                        ->with('client', 'location')
                         ->whereHas('client', function ($q) {
                             $q->where('is_deleted', false);
                         })
@@ -155,7 +155,7 @@ class CreditExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(Credit $credit): array
+    protected function buildRow(Credit $credit): array
     {
         $transformed_credit = $this->credit_transformer->transform($credit);
 

@@ -75,7 +75,6 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
         // UPDATE ACCOUNT
         try {
             $this->updateAccount();
-            $this->nordigen_account = true;
         } catch (\Exception $e) {
             nlog("Nordigen: {$this->bank_integration->nordigen_account_id} - exited abnormally => " . $e->getMessage());
 
@@ -131,7 +130,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
         $account_status = $this->nordigen->isAccountActive($this->bank_integration->nordigen_account_id);
 
         //Return early if the account status is not in a good state
-        if (isset($account_status['status']) && in_array($account_status['status'], ['EXPIRED','DELETED'])) {
+        if (isset($account_status['status']) && in_array($account_status['status'], ['EXPIRED', 'DELETED', 'Invalid Account ID'])) {
 
             $this->bank_integration->disabled_upstream = true;
             $this->bank_integration->bank_account_status = $account_status['status'];
@@ -217,5 +216,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
 
         $this->bank_integration->from_date = now()->subDays(5);
         $this->bank_integration->save();
+
+        BankTransaction::reguard();
     }
 }

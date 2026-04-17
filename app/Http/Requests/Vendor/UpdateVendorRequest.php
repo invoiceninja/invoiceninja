@@ -63,6 +63,8 @@ class UpdateVendorRequest extends Request
         $rules['currency_id'] = 'bail|sometimes|exists:currencies,id';
         $rules['file'] = 'bail|sometimes|array';
         $rules['file.*'] = $this->fileValidation();
+        $rules['documents'] = 'bail|sometimes|array';
+        $rules['documents.*'] = $this->fileValidation();
 
         $rules['language_id'] = 'bail|nullable|sometimes|exists:languages,id';
         $rules['classification'] = 'bail|sometimes|nullable|in:individual,business,company,partnership,trust,charity,government,other';

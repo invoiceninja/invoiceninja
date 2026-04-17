@@ -18,6 +18,7 @@ use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Vendor;
+use App\Services\License\WhiteLabelRenewalService;
 use App\Utils\Ninja;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
@@ -59,10 +60,14 @@ class VersionCheck implements ShouldQueue
                 return;
             }
 
-            if ($account->plan == 'white_label' && $account->plan_expires && Carbon::parse($account->plan_expires)->lt(now())) {
-                $account->plan = null;
-                $account->plan_expires = null;
-                $account->saveQuietly();
+            if ($account->plan == 'white_label' && $account->plan_expires && (Carbon::parse($account->plan_expires)->lt(now()) || Carbon::parse($account->plan_expires)->gt(now()->addYear()->addDays(30)))) {
+                $result = (new WhiteLabelRenewalService())->checkAndRenew($account);
+
+                if ($result === false) {
+                    $account->plan = null;
+                    $account->plan_expires = null;
+                    $account->saveQuietly();
+                }
             }
 
             Client::query()->whereNull('country_id')->cursor()->each(function ($client) {

@@ -477,6 +477,6 @@ class PaymentTermController extends BaseController
             }
         });
 
-        return $this->listResponse(PaymentTerm::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(PaymentTerm::withTrashed()->company()->whereIn('id', $this->transformKeys($ids)));
     }
 }

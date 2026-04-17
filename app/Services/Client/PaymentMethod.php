@@ -199,7 +199,7 @@ class PaymentMethod
             // Show credits as only payment option if both statements are true.
             if (
                 $this->client->service()->getCreditBalance() > $this->amount
-                && $this->client->getSetting('use_credits_payment') == 'always') {
+               && $this->client->getSetting('use_credits_payment') == 'always') {
                 $payment_urls = [];
             }
 

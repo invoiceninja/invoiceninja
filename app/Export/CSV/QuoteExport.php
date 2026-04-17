@@ -58,7 +58,7 @@ class QuoteExport extends BaseExport
 
         $query = Quote::query()
                         ->withTrashed()
-                        ->with('client')
+                        ->with('client', 'location')
                         ->whereHas('client', function ($q) {
                             $q->where('is_deleted', false);
                         })
@@ -136,7 +136,7 @@ class QuoteExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(Quote $quote): array
+    protected function buildRow(Quote $quote): array
     {
         $transformed_invoice = $this->quote_transformer->transform($quote);
 

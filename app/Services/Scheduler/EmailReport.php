@@ -40,6 +40,7 @@ use App\Services\Report\UserSalesReport;
 use App\Services\Report\TaxSummaryReport;
 use App\Export\CSV\RecurringInvoiceExport;
 use App\Services\Report\ClientSalesReport;
+use App\Export\CSV\LocationExport;
 use App\Services\Report\ClientBalanceReport;
 
 class EmailReport
@@ -84,6 +85,10 @@ class EmailReport
             'clients' => $export = (new ClientExport($this->scheduler->company, $data)),
             'client_contact' => $export = (new ContactExport($this->scheduler->company, $data)),
             'client_contacts' => $export = (new ContactExport($this->scheduler->company, $data)),
+            'location' => $export = (new LocationExport($this->scheduler->company, $data)),
+            'locations' => $export = (new LocationExport($this->scheduler->company, $data)),
+            'client_location' => $export = (new LocationExport($this->scheduler->company, $data)),
+            'client_locations' => $export = (new LocationExport($this->scheduler->company, $data)),
             'credit' => $export = (new CreditExport($this->scheduler->company, $data)),
             'credits' => $export = (new CreditExport($this->scheduler->company, $data)),
             'document' => $export = (new DocumentExport($this->scheduler->company, $data)),

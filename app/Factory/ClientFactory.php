@@ -33,7 +33,7 @@ class ClientFactory
         $client->is_deleted = false;
         $client->client_hash = Str::random(40);
         $client->settings = ClientSettings::defaults();
-        $client->classification = '';
+        $client->classification = 'business';
 
         return $client;
     }

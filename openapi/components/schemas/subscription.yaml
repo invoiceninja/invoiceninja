@@ -4,6 +4,7 @@
           description: Unique identifier for the subscription
           type: string
           example: Opnel5aKBz
+          readOnly: true
         user_id:
           description: Unique identifier for the user associated with the subscription
           type: string

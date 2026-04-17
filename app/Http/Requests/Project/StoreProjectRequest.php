@@ -44,7 +44,7 @@ class StoreProjectRequest extends Request
         $rules = [];
 
         $rules['name'] = 'required';
-        $rules['client_id'] = 'required|exists:clients,id,company_id,' . $user->company()->id;
+        $rules['client_id'] = 'required|integer|exists:clients,id,company_id,' . $user->company()->id;
         $rules['budgeted_hours'] = 'sometimes|numeric';
         $rules['task_rate'] = 'required|bail|numeric';
 

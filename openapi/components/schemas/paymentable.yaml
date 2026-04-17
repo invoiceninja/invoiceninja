@@ -4,6 +4,7 @@
           description: 'The paymentable hashed id'
           type: string
           example: AS3df3A
+          readOnly: true
         invoice_id:
           description: 'The invoice hashed id'
           type: string

@@ -141,4 +141,95 @@ class CompanyTokenApiTest extends TestCase
 
         $this->assertEquals(0, $arr['data']['archived_at']);
     }
+
+    public function testCompanyTokenBulkArchive()
+    {
+        $this->withoutMiddleware(PasswordProtection::class);
+
+        $company_token = CompanyToken::whereCompanyId($this->company->id)->where('is_system', false)->first();
+
+        if (! $company_token) {
+            $company_token = new CompanyToken();
+            $company_token->user_id = $this->user->id;
+            $company_token->company_id = $this->company->id;
+            $company_token->account_id = $this->account->id;
+            $company_token->name = 'bulk test token';
+            $company_token->token = \Illuminate\Support\Str::random(64);
+            $company_token->is_system = false;
+            $company_token->save();
+        }
+
+        $data = [
+            'ids' => [$this->encodePrimaryKey($company_token->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/tokens/bulk', $data);
+
+        $arr = $response->json();
+        $this->assertNotNull($arr['data'][0]['archived_at']);
+    }
+
+    public function testCompanyTokenBulkRestore()
+    {
+        $this->withoutMiddleware(PasswordProtection::class);
+
+        $company_token = new CompanyToken();
+        $company_token->user_id = $this->user->id;
+        $company_token->company_id = $this->company->id;
+        $company_token->account_id = $this->account->id;
+        $company_token->name = 'restore test token';
+        $company_token->token = \Illuminate\Support\Str::random(64);
+        $company_token->is_system = false;
+        $company_token->save();
+
+        // Archive first
+        $company_token->delete();
+
+        $data = [
+            'ids' => [$this->encodePrimaryKey($company_token->id)],
+            'action' => 'restore',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/tokens/bulk', $data);
+
+        $arr = $response->json();
+        $this->assertEquals(0, $arr['data'][0]['archived_at']);
+    }
+
+    public function testCompanyTokenBulkDelete()
+    {
+        $this->withoutMiddleware(PasswordProtection::class);
+
+        $company_token = new CompanyToken();
+        $company_token->user_id = $this->user->id;
+        $company_token->company_id = $this->company->id;
+        $company_token->account_id = $this->account->id;
+        $company_token->name = 'delete test token';
+        $company_token->token = \Illuminate\Support\Str::random(64);
+        $company_token->is_system = false;
+        $company_token->save();
+
+        $data = [
+            'ids' => [$this->encodePrimaryKey($company_token->id)],
+            'action' => 'delete',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/tokens/bulk', $data);
+
+        $arr = $response->json();
+        $this->assertTrue($arr['data'][0]['is_deleted']);
+    }
 }

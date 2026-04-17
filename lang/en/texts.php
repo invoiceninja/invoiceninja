@@ -5947,6 +5947,19 @@ $lang = array(
     'invalid_id_number_format' => 'Invalid ID number format',
     'invalid_vat_number_format' => 'Invalid VAT number format',
     'invalid_routing_id_format' => 'Invalid routing ID format',
+    'invalid_id_number_checkdigit' => 'Invalid ID number: check digit error, please verify the number is correct',
+    'invalid_vat_number_checkdigit' => 'Invalid VAT number: check digit error, please verify the number is correct',
+    'invalid_routing_id_checkdigit' => 'Invalid routing ID: check digit error, please verify the number is correct',
+    'sign_the_document' => 'Sign the document',
+    'client_not_found_on_peppol_network' => 'Client could not be identified on the PEPPOL network.',
+    'too_many_requests' => 'Too many requests',
+    'cloned_client' => 'Successfully cloned client',
+    'update_tax_details' => 'Update Tax Details',
+    'cc_only' => 'CC Only',
+    'e_invoice_forward_email' => 'PEPPOL Forwarding Email Service',
+    'e_invoice_forward_email_help' => 'Forwards sent/received e-invoices to a third party processing service like Yuki or WinAuditor',
+    'skip_automatic_email_with_peppol' => 'Disable Email When Sent via PEPPOL',
+    'skip_automatic_email_with_peppol_help' => 'If enabled, invoices sent through the PEPPOL network will not be emailed to the client.',
 );
 
 return $lang;

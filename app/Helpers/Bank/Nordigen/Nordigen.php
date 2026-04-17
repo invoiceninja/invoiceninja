@@ -104,11 +104,11 @@ class Nordigen
                     $isNotExpired = !isset($eua['status']) || $eua['status'] !== 'EXPIRED';
 
                     return $eua['institution_id'] === $institutionId
-                        && $eua['accepted'] === null
-                        && $isNotExpired
-                        && $eua['max_historical_days'] >= $txDays
-                        && $eua['access_valid_for_days'] >= $accessDays
-                        && !array_diff($requiredScopes, $eua['access_scope'] ?? []);
+                       && $eua['accepted'] === null
+                       && $isNotExpired
+                       && $eua['max_historical_days'] >= $txDays
+                       && $eua['access_valid_for_days'] >= $accessDays
+                       && !array_diff($requiredScopes, $eua['access_scope'] ?? []);
                 },
                 null
             );
@@ -285,7 +285,7 @@ class Nordigen
             nlog("Nordigen:: AccountActiveStatus:: {$e->getMessage()} {$e->getCode()}");
 
             if (strpos($e->getMessage(), 'Invalid Account ID') !== false) {
-                ['status' => 'Invalid Account ID'];
+                return ['status' => 'Invalid Account ID'];
             }
 
             return ['status' => 'EXPIRED'];

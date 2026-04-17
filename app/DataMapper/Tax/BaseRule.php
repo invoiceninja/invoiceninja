@@ -73,6 +73,7 @@ class BaseRule implements RuleInterface
     ];
 
     public array $region_codes = [
+        'AD' => 'AD', // Andorra
         'AT' => 'EU', // Austria
         'BE' => 'EU', // Belgium
         'BG' => 'EU', // Bulgaria
@@ -109,39 +110,11 @@ class BaseRule implements RuleInterface
         'AU' => 'AU', // Australia
 
         'GB' => 'UK', //Great Britain
+
+        'SG' => 'SG', // Singapore
     ];
 
     /** EU TAXES */
-
-    /** Supported E Delivery Countries */
-    public array $peppol_business_countries = [
-        'AT',
-        'BE',
-        'DK',
-        'EE',
-        'FI',
-        'DE',
-        'IS',
-        // 'IT',
-        'LT',
-        'LU',
-        'NL',
-        'NO',
-        // 'PL',
-        'SE',
-        'IE',
-    ];
-
-    public array $peppol_government_countries = [
-        'FR',
-        'GR',
-        'PT',
-        'RO',
-        'SI',
-        'ES',
-        'GB',
-    ];
-    /** Supported E Delivery Countries */
 
     public string $tax_name1 = '';
     public float $tax_rate1 = 0;
@@ -300,6 +273,7 @@ class BaseRule implements RuleInterface
             'EU' => $this->client_subregion = $this->client->country->iso_3166_2,
             'AU' => $this->client_subregion = 'AU',
             'UK' => $this->client_subregion = 'GB',
+            'SG' => $this->client_subregion = 'SG',
             default => $this->client_subregion = $this->client->country->iso_3166_2,
         };
 
@@ -368,9 +342,9 @@ class BaseRule implements RuleInterface
                 $client_country_code = $this->client->country->iso_3166_2;
 
                 $is_over_threshold = isset($this->client->company->tax_data->regions->EU->has_sales_above_threshold)
-                                    && $this->client->company->tax_data->regions->EU->has_sales_above_threshold;
+                                   && $this->client->company->tax_data->regions->EU->has_sales_above_threshold;
 
-                $is_b2c = strlen($this->client->vat_number) < 2
+                $is_b2c = strlen($this->client->vat_number ?? '') < 2
                         || !($this->client->has_valid_vat_number ?? false)
                         || $this->client->classification == 'individual';
 

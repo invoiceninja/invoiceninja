@@ -13,7 +13,7 @@
 namespace App\PaymentDrivers\Stripe;
 
 use App\Exceptions\PaymentFailed;
-use App\Jobs\Mail\PaymentFailureMailer;
+
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -62,7 +62,9 @@ class FPX implements LivewireMethodInterface
             return $this->processSuccessfulPayment($request->payment_intent);
         }
 
-        return $this->processUnsuccessfulPayment();
+        $error = "FPX payment failed with status: {$request->redirect_status}";
+
+        return $this->processUnsuccessfulPayment($error);
     }
 
     public function processSuccessfulPayment(string $payment_intent)
@@ -94,16 +96,11 @@ class FPX implements LivewireMethodInterface
 
     }
 
-    public function processUnsuccessfulPayment()
+    public function processUnsuccessfulPayment(string $error = '')
     {
         $server_response = $this->stripe->payment_hash->data;
 
-        PaymentFailureMailer::dispatch(
-            $this->stripe->client,
-            $server_response,
-            $this->stripe->client->company,
-            $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency())
-        );
+        $this->stripe->sendFailureMail($error ?: 'FPX payment was not successful');
 
         $message = [
             'server_response' => $server_response,

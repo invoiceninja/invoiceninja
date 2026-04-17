@@ -43,4 +43,6 @@ class NinjaMailerObject
     public $entity = false;
 
     public $reminder_template = '';
+
+    public array $cc = [];
 }

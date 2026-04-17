@@ -42,6 +42,7 @@ class GenericReportRequest extends Request
             'include_deleted' => 'required|bool',
             'product_key' => 'sometimes|string|nullable',
             'template_id' => 'sometimes|string|nullable',
+            'group_by' => 'sometimes|string|nullable',
             // 'status' => 'sometimes|string|nullable|in:all,draft,sent,viewed,paid,unpaid,overdue',
         ];
     }
@@ -81,6 +82,14 @@ class GenericReportRequest extends Request
         }
 
         $input['include_deleted'] = array_key_exists('include_deleted', $input) ? filter_var($input['include_deleted'], FILTER_VALIDATE_BOOLEAN) : false;
+
+        if (! array_key_exists('group_by', $input)) {
+            $input['group_by'] = '';
+        }
+
+        if (! empty($input['group_by']) && ! in_array($input['group_by'], $input['report_keys'])) {
+            array_unshift($input['report_keys'], $input['group_by']);
+        }
 
         $input['user_id'] = auth()->user()->id;
 

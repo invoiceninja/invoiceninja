@@ -13,6 +13,7 @@
 namespace App\Jobs\Expense;
 
 use App\Libraries\MultiDB;
+use App\Models\Account;
 use App\Models\Activity;
 use App\Models\Expense;
 use App\Models\VendorContact;
@@ -92,6 +93,10 @@ class VendorExpenseNotify implements ShouldQueue
             'transaction_reference' => $this->expense->transaction_reference ?? '',
             'number' => $this->expense->number,
         ];
+
+        if ($this->expense->company->settings->document_email_attachment && $this->expense->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
+            $mo->documents = $this->expense->documents()->where('is_public', true)->pluck('id')->toArray();
+        }
 
         Email::dispatch($mo, $this->expense->company);
 

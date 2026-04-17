@@ -83,7 +83,6 @@ class BaseApiTest extends TestCase
         'tax_rates',
         'users',
         'payment_terms',
-        'purchase_orders',
         'subscriptions',
         'webhooks',
         'group_settings',

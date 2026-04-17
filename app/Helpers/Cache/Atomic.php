@@ -12,6 +12,7 @@
 
 namespace App\Helpers\Cache;
 
+use App\Utils\Ninja;
 use Illuminate\Contracts\Redis\Factory as RedisFactory;
 use Illuminate\Support\Facades\Cache;
 
@@ -20,6 +21,10 @@ class Atomic
     public static function set(string $key, mixed $value = true, int $ttl = 1): bool
     {
         $new_ttl = now()->addSeconds($ttl);
+
+        if (!Ninja::isHosted()) {
+            return Cache::add($key, $value, $new_ttl) ? true : false;
+        }
 
         try {
             /** @var RedisFactory $redis */
@@ -33,6 +38,10 @@ class Atomic
 
     public static function get(string $key): mixed
     {
+        if (!Ninja::isHosted()) {
+            return Cache::get($key);
+        }
+
         try {
             /** @var RedisFactory $redis */
             $redis = app('redis');
@@ -44,6 +53,10 @@ class Atomic
 
     public static function del(string $key): mixed
     {
+        if (!Ninja::isHosted()) {
+            return Cache::forget($key);
+        }
+
         try {
             /** @var RedisFactory $redis */
             $redis = app('redis');

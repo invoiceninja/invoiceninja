@@ -13,7 +13,7 @@
 namespace App\PaymentDrivers\Stripe;
 
 use App\Exceptions\PaymentFailed;
-use App\Http\Requests\Request;
+use Illuminate\Http\Request;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Util\SystemLogger;
@@ -72,21 +72,23 @@ class ACH implements LivewireMethodInterface
         $customer = $this->stripe->findOrCreateCustomer();
 
         // Create SetupIntent with Financial Connections for instant verification
-        $intent = \Stripe\SetupIntent::create([
-            'customer' => $customer->id,
-            'usage' => 'off_session',
-            'payment_method_types' => ['us_bank_account'],
-            'payment_method_options' => [
-                'us_bank_account' => [
-                    'financial_connections' => [
-                        'permissions' => ['payment_method'],
-                        // Optional: add 'balances', 'ownership' for additional data
+        try {
+            $intent = \Stripe\SetupIntent::create([
+                'customer' => $customer->id,
+                'usage' => 'off_session',
+                'payment_method_types' => ['us_bank_account'],
+                'payment_method_options' => [
+                    'us_bank_account' => [
+                        'financial_connections' => [
+                            'permissions' => ['payment_method'],
+                        ],
+                        'verification_method' => 'automatic',
                     ],
-                    'verification_method' => 'automatic', // instant with microdeposit fallback
-                    // Or use 'instant' to require instant only (no fallback)
                 ],
-            ],
-        ], $this->stripe->stripe_connect_auth);
+            ], $this->stripe->stripe_connect_auth);
+        } catch (InvalidRequestException $e) {
+            throw new PaymentFailed($e->getMessage(), $e->getCode());
+        }
 
         $data['client_secret'] = $intent->client_secret;
         $data['customer'] = $customer;
@@ -94,7 +96,7 @@ class ACH implements LivewireMethodInterface
         return render('gateways.stripe.ach.authorize', array_merge($data));
     }
 
-    public function authorizeResponse(Request $request)
+    public function authorizeResponse($request)
     {
         $this->stripe->init();
 
@@ -134,8 +136,8 @@ class ACH implements LivewireMethodInterface
 
             // If microdeposit verification is required, store the verification URL
             if ($status === 'requires_action'
-                && isset($setup_intent->next_action)
-                && ($setup_intent->next_action->type ?? null) === 'verify_with_microdeposits') { //@phpstan-ignore-line
+               && isset($setup_intent->next_action)
+               && ($setup_intent->next_action->type ?? null) === 'verify_with_microdeposits') { //@phpstan-ignore-line
                 $method->next_action = $setup_intent->next_action->verify_with_microdeposits->hosted_verification_url ?? null; //@phpstan-ignore-line
             }
 
@@ -616,12 +618,8 @@ class ACH implements LivewireMethodInterface
 
         $source = ClientGatewayToken::query()
             ->where('id', $this->decodePrimaryKey($request->source))
-            ->where('company_id', auth()->guard('contact')->user()->client->company->id)
-            ->first();
-
-        if (! $source) {
-            throw new PaymentFailed(ctrans('texts.payment_token_not_found'), 401);
-        }
+            ->where('client_id', $this->stripe->client->id)
+            ->firstOrFail();
 
         $state = [
             'payment_method' => $request->payment_method_id,

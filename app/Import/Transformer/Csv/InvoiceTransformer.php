@@ -192,6 +192,33 @@ class InvoiceTransformer extends BaseTransformer
                     ),
                 ],
             ];
+        } elseif (
+            isset($invoice_data['invoice.balance']) &&
+            $amount > 0 &&
+            $transformed['balance'] < $amount
+        ) {
+            // An explicit balance less than the invoice amount implies a partial payment has
+            // already been made. Create an implied payment for the paid portion so that the
+            // invoice balance and client balance are both set correctly during import.
+            // Without this, calc()->getInvoice() resets balance to the full amount because
+            // paid_to_date is 0, causing the client balance to be over-counted.
+            $currency = $this->company->currency();
+            $implied_paid = round($amount - $transformed['balance'], $currency->precision);
+
+            if ($implied_paid > 0) {
+                $transformed['payments'] = [
+                    [
+                        'date' => isset($invoice_data['payment.date'])
+                            ? $this->parseDate($invoice_data['payment.date'])
+                            : date('Y-m-d'),
+                        'transaction_reference' => $this->getString(
+                            $invoice_data,
+                            'payment.transaction_reference'
+                        ),
+                        'amount' => $implied_paid,
+                    ],
+                ];
+            }
         }
 
 

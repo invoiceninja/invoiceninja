@@ -27,7 +27,7 @@ use App\Utils\Traits\MakesHash;
 use App\Exceptions\PaymentFailed;
 use App\Models\ClientGatewayToken;
 use Illuminate\Support\Facades\Cache;
-use App\Jobs\Mail\PaymentFailureMailer;
+
 use App\PaymentDrivers\StripePaymentDriver;
 use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
@@ -87,7 +87,7 @@ class ACSS implements LivewireMethodInterface
      * @param  Request $request
      * @return void
      */
-    public function authorizeResponse(Request $request)
+    public function authorizeResponse($request)
     {
         $setup_intent = json_decode($request->input('gateway_response'));
 
@@ -152,7 +152,7 @@ class ACSS implements LivewireMethodInterface
             'amount' => $this->stripe->convertToStripeAmount($this->stripe->payment_hash->amount_with_fee(), $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
             'currency' => $this->stripe->client->currency()->code,
             'payment_method_types' => ['acss_debit'],
-            'customer' => $this->stripe->findOrCreateCustomer(),
+            'customer' => $token->gateway_customer_reference,
             'description' => $this->stripe->getDescription(false),
             'metadata' => [
                 'payment_hash' => $this->stripe->payment_hash->hash,
@@ -275,7 +275,10 @@ class ACSS implements LivewireMethodInterface
 
         $gateway_response = json_decode($request->gateway_response);
 
-        $cgt = ClientGatewayToken::find($this->decodePrimaryKey($request->token));
+        $cgt = ClientGatewayToken::query()
+            ->where('id', $this->decodePrimaryKey($request->token))
+            ->where('client_id', $this->stripe->client->id)
+            ->firstOrFail();
 
         /** @var \Stripe\PaymentIntent $intent */
         $intent = $this->tokenIntent($cgt);
@@ -288,7 +291,9 @@ class ACSS implements LivewireMethodInterface
             return $this->processSuccessfulPayment($intent->id);
         }
 
-        return $this->processUnsuccessfulPayment();
+        $error = $intent->last_payment_error?->message ?? $intent->cancellation_reason ?? "ACSS payment failed with status: {$intent->status}";
+
+        return $this->processUnsuccessfulPayment($error);
     }
 
     /**
@@ -348,16 +353,11 @@ class ACSS implements LivewireMethodInterface
         return redirect()->route('client.payments.show', $payment->hashed_id);
     }
 
-    public function processUnsuccessfulPayment()
+    public function processUnsuccessfulPayment(string $error = '')
     {
         $server_response = $this->stripe->payment_hash->data;
 
-        PaymentFailureMailer::dispatch(
-            $this->stripe->client,
-            $server_response,
-            $this->stripe->client->company,
-            $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency())
-        );
+        $this->stripe->sendFailureMail($error ?: 'ACSS payment was not successful');
 
         $message = [
             'server_response' => $server_response,
@@ -404,6 +404,9 @@ class ACSS implements LivewireMethodInterface
 
             return $this->stripe->storeGatewayToken($data, ['gateway_customer_reference' => $method->customer]);
         } catch (\Exception $e) {
+
+            nlog("ACSS::Error: " . $e->getMessage());
+            $e = new \Exception("There was a problem processing this payment method", 500);
             return $this->stripe->processInternallyFailedPayment($this->stripe, $e);
         }
     }
