@@ -152,7 +152,7 @@ class ACSS implements LivewireMethodInterface
             'amount' => $this->stripe->convertToStripeAmount($this->stripe->payment_hash->amount_with_fee(), $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
             'currency' => $this->stripe->client->currency()->code,
             'payment_method_types' => ['acss_debit'],
-            'customer' => $this->stripe->findOrCreateCustomer(),
+            'customer' => $token->gateway_customer_reference,
             'description' => $this->stripe->getDescription(false),
             'metadata' => [
                 'payment_hash' => $this->stripe->payment_hash->hash,
