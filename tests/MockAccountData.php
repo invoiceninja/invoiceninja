@@ -242,6 +242,14 @@ trait MockAccountData
 
         });
 
+        app()->singleton('countries', function ($app) {
+
+            $resource = Country::query()->orderBy('name')->get();
+            Cache::forever('countries', $resource);
+            return $resource;
+
+        });
+
         $this->faker = \Faker\Factory::create();
         $fake_email = $this->faker->email();
 
