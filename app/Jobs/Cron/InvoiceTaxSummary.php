@@ -128,24 +128,23 @@ class InvoiceTaxSummary implements ShouldQueue
 
     private function processCompanyTaxSummary($company)
     {
-        // Calculate the target month from the company's local timezone.
-        // The job fires when a timezone crosses midnight into the new month,
-        // so "yesterday" in that timezone is the last day of the month that just ended.
         $timezone = $company->timezone()->name ?? 'UTC';
         $yesterdayLocal = now()->setTimezone($timezone)->subDay();
+
+        // Only process when yesterday was the last day of the month
+        // (i.e., company's local timezone just crossed into a new month)
+        if ($yesterdayLocal->day !== $yesterdayLocal->daysInMonth) {
+            return;
+        }
 
         $startDate = $yesterdayLocal->copy()->startOfMonth()->format('Y-m-d');
         $endDate = $yesterdayLocal->copy()->endOfMonth()->format('Y-m-d');
 
-        // Process tax summary for the company
         $this->generateTaxSummary($company, $startDate, $endDate);
     }
 
     private function generateTaxSummary($company, $startDate, $endDate)
     {
-        $todayStart = now()->subHours(15)->timestamp;
-        $todayEnd = now()->endOfDay()->timestamp;
-
         // Convert company timezone dates to UTC for database query
         // $startDate and $endDate are in Y-m-d format (e.g., "2024-01-01")
         $timezone = $company->timezone()->name ?? 'UTC';
@@ -159,7 +158,7 @@ class InvoiceTaxSummary implements ShouldQueue
             ->format('Y-m-d H:i:s');
 
         Invoice::withTrashed()
-                ->with('payments', )
+                ->with('payments')
                 ->where('company_id', $company->id)
                 ->whereIn('status_id', [2,3,4,5])
                 // ->where('is_deleted', 0) I still need to assess deleted invoices, and ensure if there is an entry present, we reverse it!!!
@@ -172,12 +171,6 @@ class InvoiceTaxSummary implements ShouldQueue
                         $q->where('is_flagged', false);
                     });
                 })
-                // ->whereBetween('date', [$startDate, $endDate])
-                // ->whereDoesntHave('transaction_events', function ($query) use ($todayStart, $todayEnd) {
-                //         $query->where('timestamp', '>=', $todayStart)
-                //             ->where('timestamp', '<=', $todayEnd)
-                //             ->where('event_id', TransactionEvent::INVOICE_UPDATED);
-                // })
                 ->whereBetween('updated_at', [$startDateUtc, $endDateUtc])
                 ->cursor()
                 ->each(function (Invoice $invoice) use ($endDate) {
@@ -205,10 +198,9 @@ class InvoiceTaxSummary implements ShouldQueue
                                 ->whereBetween('created_at', [$startDateUtc, $endDateUtc]);
                     });
                 })
-                ->whereDoesntHave('transaction_events', function ($q) use ($todayStart, $todayEnd) {
+                ->whereDoesntHave('transaction_events', function ($q) use ($endDate) {
                     $q->where('event_id', TransactionEvent::PAYMENT_CASH)
-                        ->where('timestamp', '>=', $todayStart)
-                        ->where('timestamp', '<=', $todayEnd);
+                        ->where('period', $endDate);
                 })
                 ->cursor()
                 ->each(function (Invoice $invoice) use ($startDate, $endDate) {

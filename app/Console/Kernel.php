@@ -74,8 +74,8 @@ class Kernel extends ConsoleKernel
         /* Checks for scheduled tasks */
         $schedule->job(new TaskScheduler())->hourlyAt(10)->withoutOverlapping()->name('task-scheduler-job')->onOneServer();
 
-        // Run hourly daily - timezone-aware processing ensures each company
-        // is only processed when its local timezone transitions to the next day
+        // Run hourly - timezone-aware processing ensures each company
+        // is only processed once, at its local month-end midnight
         $schedule->job(new InvoiceTaxSummary())
             ->hourly()
             ->withoutOverlapping()
