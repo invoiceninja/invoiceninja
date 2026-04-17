@@ -100,6 +100,8 @@ class InvoiceTransactionEventEntry
 
         nlog("invoice amount => {$invoice->amount}");
         $this->payments = $invoice->payments->map(function ($payment) use ($invoice) {
+
+            /** @var \App\Models\Paymentable $pivot */
             $pivot = $payment->invoices()->where('paymentable_id', $invoice->id)->first()?->pivot;
 
             if (!$pivot) {
@@ -110,7 +112,7 @@ class InvoiceTransactionEventEntry
                 'number' => $payment->number,
                 'amount' => $pivot->amount,
                 'refunded' => $pivot->refunded,
-                'date' => $pivot->created_at->format('Y-m-d'),
+                'date' => \Carbon\Carbon::createFromTimestamp($pivot->created_at)->format('Y-m-d'),
             ];
         })->filter();
 
