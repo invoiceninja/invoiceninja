@@ -51,6 +51,7 @@ class UpdatePurchaseOrderRequest extends Request
 
         $rules['number'] = ['bail', 'sometimes', 'nullable', Rule::unique('purchase_orders')->where('company_id', $user->company()->id)->ignore($this->purchase_order->id)];
         $rules['vendor_id'] = ['bail', 'sometimes', Rule::in([$this->purchase_order->vendor_id])];
+        $rules['client_id'] = ['nullable', 'bail', 'integer', Rule::exists('clients', 'id')->where('company_id', $user->company()->id)->where('is_deleted', 0)];
 
         $rules['line_items'] = 'array';
 
