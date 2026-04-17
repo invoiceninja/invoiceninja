@@ -19,7 +19,7 @@ use App\Utils\Traits\MakesHash;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Exceptions\PaymentFailed;
-use App\Jobs\Mail\PaymentFailureMailer;
+
 use Illuminate\Mail\Mailables\Address;
 use App\Services\Email\EmailObject;
 use App\Services\Email\Email;
@@ -108,7 +108,7 @@ class BTCPay implements MethodInterface, LivewireMethodInterface
 
             return redirect($rep->getCheckoutLink());
         } catch (\Throwable $e) {
-            PaymentFailureMailer::dispatch($drv->client, $drv->payment_hash->data, $drv->client->company, $request->amount);
+            $drv->sendFailureMail('Error during BTCPay payment: ' . $e->getMessage());
             throw new PaymentFailed('Error during BTCPay payment : ' . $e->getMessage());
         }
     }
