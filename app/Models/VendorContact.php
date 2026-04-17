@@ -159,10 +159,12 @@ class VendorContact extends Authenticatable implements HasLocalePreference
         return $this->company->db . ":" . $this->id;
     }
 
-    public function avatar()
+    public function avatarUrl(): string
     {
-        if ($this->avatar) {
-            return $this->avatar;
+        $avatar = $this->attributes['avatar'] ?? '';
+
+        if ($avatar) {
+            return $avatar;
         }
 
         return asset('images/svg/user.svg');

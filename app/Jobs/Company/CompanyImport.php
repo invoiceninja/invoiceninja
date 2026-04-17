@@ -1437,6 +1437,11 @@ class CompanyImport implements ShouldQueue
                 continue;
             }
 
+            if (!$this->isValidFilePath($document->url)) {
+                nlog("Skipping document with invalid path: {$document->url}");
+                continue;
+            }
+
             if (!$this->isAllowedDocumentExtension($document->url)) {
                 nlog("Skipping document with disallowed extension: {$document->url}");
                 continue;
@@ -1562,6 +1567,19 @@ class CompanyImport implements ShouldQueue
         $extension = strtolower(pathinfo($url, PATHINFO_EXTENSION));
 
         return in_array($extension, $allowed, true);
+    }
+
+    private function isValidFilePath(string $filename): bool
+    {
+        if (str_contains($filename, "\0")) {
+            return false;
+        }
+
+        if (str_contains($filename, '..')) {
+            return false;
+        }
+
+        return true;
     }
 
     private function import_webhooks()
@@ -1941,7 +1959,9 @@ class CompanyImport implements ShouldQueue
             if ($new_obj instanceof CompanyLedger || $new_obj instanceof EInvoicingToken) {
             } elseif ($new_obj instanceof Backup) {
 
-                if (is_file("{$this->root_file_path}backups/{$obj->filename}")) {
+                if (!$this->isValidFilePath($obj->filename)) {
+                    nlog("Skipping backup with invalid path: {$obj->filename}");
+                } elseif (is_file("{$this->root_file_path}backups/{$obj->filename}")) {
                     $file = file_get_contents("{$this->root_file_path}backups/{$obj->filename}");
                     $new_obj->filename = str_replace($this->old_company_key, $this->company->company_key, $obj->filename);
                     $new_obj->save();
