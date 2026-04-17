@@ -39,6 +39,14 @@ class StorecoveRouterTest extends TestCase
 
         $this->faker = \Faker\Factory::create();
 
+        app()->singleton('countries', function ($app) {
+
+            $resource = Country::query()->orderBy('name')->get();
+            Cache::forever('countries', $resource);
+            return $resource;
+
+        });
+        
     }
 
     private function buildData()
