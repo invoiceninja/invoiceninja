@@ -548,11 +548,7 @@ class DesignController extends BaseController
 
         Design::withTrashed()
                 ->company()
-                ->whereIn('id', $this->transformKeys($ids))->each(function ($design, $key) use ($action, $user) {
-                    if ($user->can('edit', $design)) {
-                        $this->design_repo->{$action}($design);
-                    }
-                })
+                ->whereIn('id', $this->transformKeys($ids))
                 ->cursor()
                 ->each(function ($design, $key) use ($action, $user) {
                     if ($user->can('edit', $design)) {
