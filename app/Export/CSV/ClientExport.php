@@ -194,11 +194,11 @@ class ClientExport extends BaseExport
         foreach (array_values($this->input['report_keys']) as $key) {
             $parts = explode('.', $key);
 
-            if (is_array($parts) && $parts[0] == 'client' && array_key_exists($parts[1], $transformed_client)) {
+            if (count($parts) == 2 && $parts[0] == 'client' && array_key_exists($parts[1], $transformed_client)) {
                 $entity[$key] = $transformed_client[$parts[1]];
-            } elseif (is_array($parts) && $parts[0] == 'contact' && array_key_exists($parts[1], $transformed_contact)) {
+            } elseif (count($parts) == 2 && $parts[0] == 'contact' && array_key_exists($parts[1], $transformed_contact)) {
                 $entity[$key] = $transformed_contact[$parts[1]];
-            } elseif (is_array($parts) && $parts[0] == 'location' && array_key_exists($parts[1], $transformed_location)) {
+            } elseif (count($parts) == 2 && $parts[0] == 'location' && array_key_exists($parts[1], $transformed_location)) {
                 $entity[$key] = $transformed_location[$parts[1]];
             } else {
                 $entity[$key] = $this->decorator->transform($key, $client);
