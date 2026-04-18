@@ -532,9 +532,9 @@ class BaseExport
 
     protected function resolveKey($key, $entity, $transformer): string
     {
-        $parts = explode(".", $key);
+        $parts = explode(".", $key ?? '');
 
-        if (!is_array($parts) || count($parts) < 2) {
+        if (count($parts) < 2) {
             return '';
         }
 
