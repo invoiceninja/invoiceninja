@@ -5355,7 +5355,7 @@ $lang = array(
     'inbound_mailbox_allow_unknown' => 'Allow All Senders',
     'inbound_mailbox_allow_unknown_help' => 'Allow anyone to send an expense email for processing',
     'quick_actions' => 'Quick Actions',
-    'end_all_sessions_help' => 'Logs out all users and requires all active users to reauthenticate.',
+    'end_all_sessions_help' => 'Logs out all users, requires users to re-authenticate.',
     'updated_records' => 'Updated Records',
     'vat_not_registered' => 'Seller not VAT registered',
     'small_company_info' => 'No disclosure of sales tax in accordance with § 19 UStG',
@@ -5960,6 +5960,8 @@ $lang = array(
     'e_invoice_forward_email_help' => 'Forwards sent/received e-invoices to a third party processing service like Yuki or WinAuditor',
     'skip_automatic_email_with_peppol' => 'Disable Email When Sent via PEPPOL',
     'skip_automatic_email_with_peppol_help' => 'If enabled, invoices sent through the PEPPOL network will not be emailed to the client.',
+    'web_session_timeout_help' => 'Time a browser session will remain active prior to being logged out.',
+    'password_timeout_help' => 'Time before an admin password is required to be re-entered.'
 );
 
 return $lang;
