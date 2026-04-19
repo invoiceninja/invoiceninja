@@ -69,7 +69,7 @@ class PaymentIntentWebhook implements ShouldQueue
             $ninja_promo = data_get($transaction, 'charges.data.0.metadata.product', false);
 
             if ($ninja_promo && class_exists(\Modules\Admin\Jobs\Stripe\CampaignCharge::class)) {
-                \Modules\Admin\Jobs\Stripe\CampaignCharge::dispatch(data_get($transaction, 'charges.data.0'));
+                \Modules\Admin\Jobs\Stripe\CampaignCharge::dispatch(data_get($transaction, 'charges.data.0'))->delay(5);
                 continue;
             }
 
