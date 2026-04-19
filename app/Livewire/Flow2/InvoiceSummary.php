@@ -13,11 +13,13 @@
 namespace App\Livewire\Flow2;
 
 use App\Models\InvoiceInvitation;
+use App\Utils\Ninja;
 use App\Utils\Number;
-use Livewire\Component;
-use Livewire\Attributes\On;
 use App\Utils\Traits\WithSecureContext;
+use Illuminate\Support\Facades\App;
 use Livewire\Attributes\Lazy;
+use Livewire\Attributes\On;
+use Livewire\Component;
 
 class InvoiceSummary extends Component
 {
@@ -44,6 +46,13 @@ class InvoiceSummary extends Component
     {
         $_context = $this->getContext($this->_key);
 
+        $contact = $_context['contact'] ?? auth()->guard('contact')->user();
+
+        \Illuminate\Support\Facades\App::forgetInstance('translator');
+        $t = app('translator');
+        \Illuminate\Support\Facades\App::setLocale($contact->preferredLocale());
+        $t->replace(\App\Utils\Ninja::transformTranslations($contact->client->getMergedSettings()));
+        
         if (!empty($_context)) {
             $this->isReady = true;
             $this->loadContextData();
