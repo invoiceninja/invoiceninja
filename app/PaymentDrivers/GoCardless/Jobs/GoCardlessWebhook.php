@@ -142,6 +142,7 @@ class GoCardlessWebhook implements ShouldQueue
 
     public function middleware()
     {
-        return [new WithoutOverlapping("gocardless-webhook-{$this->company_key}-{$this->company_gateway_id}")];
+        return [(new WithoutOverlapping("gocardless-webhook-{$this->company_key}-{$this->company_gateway_id}"))
+            ->expireAfter(600)];
     }
 }

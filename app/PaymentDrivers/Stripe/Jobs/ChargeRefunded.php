@@ -171,6 +171,8 @@ class ChargeRefunded implements ShouldQueue
 
     public function middleware()
     {
-        return [(new WithoutOverlapping($this->company_key))->dontRelease()];
+        return [(new WithoutOverlapping($this->company_key))
+            ->expireAfter(600)
+            ->dontRelease()];
     }
 }
