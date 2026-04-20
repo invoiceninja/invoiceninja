@@ -148,7 +148,7 @@ class UserRepository extends BaseRepository
         }
 
         if (array_key_exists('company_user', $data)) {
-            
+
             $company = auth()->user()->company();
 
             $cu = CompanyUser::query()->whereUserId($user->id)
@@ -342,7 +342,7 @@ class UserRepository extends BaseRepository
         });
 
         $company = $new_owner_user->account->default_company ?? $new_owner_user->companies->first();
-        
+
         event(new UserWasPurged($new_owner_user, $notes, $company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
     }
 }

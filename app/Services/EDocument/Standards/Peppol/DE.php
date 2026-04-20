@@ -24,33 +24,31 @@ class DE extends BaseCountry
         ];
     }
 
-    public function resolveRoutingOverride(?string $classification, ?object $invoice = null): ?string
+    public function getCandidates(object $client, string $classification, object $router): array
     {
-        if ($classification === 'individual') {
-            return 'DE:STNR';
+        if ($classification === 'government') {
+            $id = preg_replace("/[^a-zA-Z0-9]/", "", $client->routing_id ?? '');
+            return strlen($id) >= 2 ? [['scheme' => 'DE:LWID', 'id' => $id]] : [];
         }
 
-        return null;
-    }
-
-    public function resolveTaxSchemeOverride(?string $classification, ?object $invoice = null): ?string
-    {
         if ($classification === 'individual') {
-            return 'DE:STNR';
+            $id = preg_replace("/[^a-zA-Z0-9]/", "", $client->id_number ?? '');
+            return strlen($id) >= 2 ? [['scheme' => 'DE:STNR', 'id' => $id]] : [];
         }
 
-        return null;
+        // Business: default VAT
+        $id = preg_replace("/[^a-zA-Z0-9]/", "", $client->vat_number ?? '');
+        return strlen($id) >= 2 ? [['scheme' => 'DE:VAT', 'id' => $id]] : [];
     }
 
     public function senderMutations(
         mixed $p_invoice,
         mixed $invoice,
         MutatorUtil $mutator_util,
-        array $storecove_meta
-    ): array {
+    ): mixed {
 
         $mutator_util->setPaymentMeans(true);
 
-        return ['p_invoice' => $p_invoice, 'storecove_meta' => $storecove_meta];
+        return $p_invoice;
     }
 }

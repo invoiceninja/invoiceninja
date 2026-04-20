@@ -444,10 +444,9 @@ class CompanyController extends BaseController
         /** Explicitly handle the e-invoice certificate */
         if ($request->has('e_invoice_certificate')) {
 
-            if(!is_null($request->file("e_invoice_certificate"))){
+            if (!is_null($request->file("e_invoice_certificate"))) {
                 $company->e_invoice_certificate = base64_encode($request->file("e_invoice_certificate")->get());
-            }
-            else {
+            } else {
                 $company->e_invoice_certificate = null;
                 $company->e_invoice_certificate_passphrase = null;
             }

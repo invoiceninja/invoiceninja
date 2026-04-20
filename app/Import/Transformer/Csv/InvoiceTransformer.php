@@ -193,9 +193,9 @@ class InvoiceTransformer extends BaseTransformer
                 ],
             ];
         } elseif (
-            isset($invoice_data['invoice.balance']) &&
-            $amount > 0 &&
-            $transformed['balance'] < $amount
+            isset($invoice_data['invoice.balance'])
+            && $amount > 0
+            && $transformed['balance'] < $amount
         ) {
             // An explicit balance less than the invoice amount implies a partial payment has
             // already been made. Create an implied payment for the paid portion so that the

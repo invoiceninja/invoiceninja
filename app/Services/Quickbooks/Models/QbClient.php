@@ -119,9 +119,9 @@ class QbClient implements SyncInterface
     private function findClientIdByName(?string $name): mixed
     {
         $escaped_name = str_replace("'", "\\'", $name ?? '');
-        return $this->service->sdk->Query("SELECT Id FROM Customer WHERE DisplayName = '{$escaped_name}'",1,1);
+        return $this->service->sdk->Query("SELECT Id FROM Customer WHERE DisplayName = '{$escaped_name}'", 1, 1);
     }
-    
+
     /**
      * createQbClient
      *
@@ -149,15 +149,14 @@ class QbClient implements SyncInterface
 
                     return $client->sync->qb_id;
                 }
-            }
-            else {
+            } else {
                 $customers = $this->findClientIdByName($client->present()->name());
                 if ($customers) {
                     // QB SDK can return a single object or an array; normalize to array
                     if (!is_array($customers)) {
                         $customers = [$customers];
                     }
-                    
+
                     if (isset($customers[0])) {
                         $customer = $customers[0];
                         $qb_id = data_get($customer, 'Id') ?? data_get($customer, 'Id.value');
@@ -166,7 +165,7 @@ class QbClient implements SyncInterface
                         $sync->qb_id = $qb_id;
                         $client->sync = $sync;
                         $client->saveQuietly();
-                        
+
                         return $qb_id;
                     }
                 }
@@ -233,7 +232,7 @@ class QbClient implements SyncInterface
 
             app('sentry')->captureException($e);
 
-            
+
             throw $e;
         }
     }
@@ -334,7 +333,7 @@ class QbClient implements SyncInterface
                 ->where('name', $name)
                 ->first();
 
-         
+
             if ($name_match) {
                 $sync = $name_match->sync ? clone $name_match->sync : new ClientSync();
                 $sync->qb_id = $key;

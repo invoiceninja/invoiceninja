@@ -25,12 +25,12 @@ class QuoteSync implements Castable
         public array $invitations = [],
         public bool $dn_completed = false,
         public string $dn_document_hashed_id = '',
-    ){}
-     /**
-     * Get the name of the caster class to use when casting from / to this cast target.
-     *
-     * @param  array<string, mixed>  $arguments
-     */
+    ) {}
+    /**
+    * Get the name of the caster class to use when casting from / to this cast target.
+    *
+    * @param  array<string, mixed>  $arguments
+    */
     public static function castUsing(array $arguments): string
     {
         return QuoteSyncCast::class;
@@ -48,7 +48,7 @@ class QuoteSync implements Castable
 
     /**
      * Add an invitation to the invitations array
-     * 
+     *
      * @param string $invitation_key The invitation key
      * @param string $dn_id The DocuNinja ID
      * @param string $dn_invitation_id The DocuNinja invitation ID
@@ -70,7 +70,7 @@ class QuoteSync implements Castable
 
     /**
      * Get invitation data by invitation key
-     * 
+     *
      * @param string $invitation_key The invitation key
      * @return array|null The invitation data or null if not found
      */
@@ -86,12 +86,12 @@ class QuoteSync implements Castable
 
     /**
      * Remove an invitation by invitation key
-     * 
+     *
      * @param string $invitation_key The invitation key
      */
     public function removeInvitation(string $invitation_key): void
     {
-        $this->invitations = array_filter($this->invitations, function($invitation) use ($invitation_key) {
+        $this->invitations = array_filter($this->invitations, function ($invitation) use ($invitation_key) {
             return $invitation['invitation_key'] !== $invitation_key;
         });
         // Re-index the array to maintain numeric keys

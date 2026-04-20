@@ -12,8 +12,8 @@
 
 namespace App\Services\EDocument\Gateway\Storecove;
 
-use App\DataMapper\Tax\BaseRule;
 use App\Services\EDocument\Standards\Peppol;
+use App\Services\EDocument\Gateway\Storecove\NexusResolver;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -106,39 +106,79 @@ class StorecoveAdapter
     }
 
     /**
-     * transform
+     * Transform a Ninja invoice/credit into a Storecove model by building a fresh Peppol document.
      *
-     * @param  \App\Models\Invoice |\App\Models\Credit $invoice
+     * @deprecated Use transformFromPeppol() to avoid double Peppol builds.
+     * @param  \App\Models\Invoice|\App\Models\Credit $invoice
      * @return self
      */
     public function transform(\App\Models\Invoice|\App\Models\Credit $invoice): self
     {
+        $peppol = (new Peppol($invoice))->run();
+        return $this->transformFromPeppol($invoice, $peppol->getDocument(), $peppol->isCreditNote());
+    }
+
+    /**
+     * Transform a pre-built Peppol document into a Storecove model.
+     *
+     * Serialization roundtrip: Peppol object → XML → decode → JSON → Storecove model.
+     * This is required because the Storecove API JSON structure differs from Peppol UBL.
+     *
+     * @param  \App\Models\Invoice|\App\Models\Credit $invoice
+     * @param  \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $peppolDocument
+     * @param  bool $isCreditNote
+     * @return self
+     */
+    public function transformFromPeppol(
+        \App\Models\Invoice|\App\Models\Credit $invoice,
+        \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $peppolDocument,
+        bool $isCreditNote = false,
+    ): self {
         try {
             $this->ninja_invoice = $invoice;
             $serializer = $this->getSerializer();
 
-            /** Currently - due to class structures, the serialization process goes like this:
-             *
-             * e-invoice => Peppol -> XML -> Peppol Decoded -> encode to Peppol -> deserialize to Storecove
-             */
-            $p = (new Peppol($invoice))->run()->toXml();
+            $e = new \InvoiceNinja\EInvoice\EInvoice();
+            $xml = $e->encode($peppolDocument, 'xml');
+
+            // Wrap with proper XML namespace declarations
+            if ($isCreditNote || $peppolDocument instanceof \InvoiceNinja\EInvoice\Models\Peppol\CreditNote) {
+                $prefix = '<?xml version="1.0" encoding="UTF-8"?>
+<CreditNote xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+    xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
+    xmlns="urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2">';
+                $suffix = '</CreditNote>';
+            } else {
+                $prefix = '<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+    xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
+    xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">';
+                $suffix = '</Invoice>';
+            }
+
+            $xml = str_ireplace(['\n', '<?xml version="1.0"?>'], ['', $prefix], $xml);
+            $xml .= $suffix;
+
             $context = [
                 DateTimeNormalizer::FORMAT_KEY => 'Y-m-d',
                 AbstractObjectNormalizer::SKIP_NULL_VALUES => true,
             ];
 
-            $e = new \InvoiceNinja\EInvoice\EInvoice();
-            $peppolInvoice = $e->decode('Peppol', $p, 'xml');
+            $decoded = $e->decode('Peppol', $xml, 'xml');
 
-            // $parent = $invoice instanceof \App\Models\Credit ? \App\Services\EDocument\Gateway\Storecove\Models\Credit::class : \App\Services\EDocument\Gateway\Storecove\Models\Invoice::class;
-            $parent = ($invoice instanceof \App\Models\Credit || $peppolInvoice instanceof \InvoiceNinja\EInvoice\Models\Peppol\CreditNote)
-    ? \App\Services\EDocument\Gateway\Storecove\Models\Credit::class 
-    : \App\Services\EDocument\Gateway\Storecove\Models\Invoice::class;
+            $parent = ($invoice instanceof \App\Models\Credit || $decoded instanceof \InvoiceNinja\EInvoice\Models\Peppol\CreditNote)
+                ? Credit::class
+                : Invoice::class;
 
-            $peppolInvoice = $e->encode($peppolInvoice, 'json');
-            $this->storecove_invoice = $serializer->deserialize($peppolInvoice, $parent, 'json', $context);
+            $encoded = $e->encode($decoded, 'json');
+            $this->storecove_invoice = $serializer->deserialize($encoded, $parent, 'json', $context);
 
-            $this->buildNexus();
+            $nexusResolver = new NexusResolver($invoice, $this->storecove_invoice, $this->storecove->router);
+            $nexusResolver->resolve();
+            $this->nexus = $nexusResolver->getNexus();
+            foreach ($nexusResolver->getErrors() as $error) {
+                $this->addError($error);
+            }
         } catch (\Throwable $th) {
 
             $this->addError($th->getMessage());
@@ -146,7 +186,6 @@ class StorecoveAdapter
         }
 
         return $this;
-
     }
 
     /**
@@ -180,7 +219,7 @@ class StorecoveAdapter
                     $tax->country = $this->nexus;
                     $tax->percentage ??= 0;
                     if (property_exists($tax, 'category')) {
-                        $tax->category = $this->tranformTaxCode($tax->category);
+                        $tax->category = $this->transformTaxCode($tax->category);
                     }
                 }
                 unset($tax);
@@ -196,7 +235,7 @@ class StorecoveAdapter
                     foreach ($allowance->getTaxesDutiesFees() ?? [] as &$tax) {
 
                         if (property_exists($tax, 'category')) {
-                            $tax->category = $this->tranformTaxCode($tax->category);
+                            $tax->category = $this->transformTaxCode($tax->category);
                         }
 
                     }
@@ -215,7 +254,7 @@ class StorecoveAdapter
             $tax->percentage ??= 0;
 
             if (property_exists($tax, 'category')) {
-                $tax->category = $this->tranformTaxCode($tax->category);
+                $tax->category = $this->transformTaxCode($tax->category);
             }
 
         }
@@ -243,7 +282,7 @@ class StorecoveAdapter
                 $tax->percentage ??= 0;
 
                 if (property_exists($tax, 'category')) {
-                    $tax->category = $this->tranformTaxCode($tax->category);
+                    $tax->category = $this->transformTaxCode($tax->category);
                 }
             }
             unset($tax);
@@ -488,145 +527,7 @@ class StorecoveAdapter
         return $array;
     }
 
-    /**
-     * Determines the tax nexus country based on company/client locations,
-     * EU thresholds, B2B/B2C classification, and VAT registration status.
-     *
-     * @return self
-     */
-    private function buildNexus(): self
-    {
-        nlog("building nexus");
-        //Calculate nexus
-        $company_country_code = $this->ninja_invoice->company->country()->iso_3166_2;
-        $client_country_code = $this->ninja_invoice->client->country->iso_3166_2;
-        $br = new BaseRule();
-        $eu_countries = $br->eu_country_codes;
-
-        if ($client_country_code == $company_country_code) {
-            //Domestic Sales
-            nlog("domestic sales");
-            $this->nexus = $company_country_code;
-        } elseif (in_array($company_country_code, $eu_countries) && !in_array($client_country_code, $eu_countries)) {
-            //NON-EU Sale
-            nlog("non eu");
-            $this->nexus = $company_country_code;
-        } elseif (!in_array($company_country_code, $eu_countries) && in_array($client_country_code, $eu_countries)) {
-            // Non-EU sender to EU receiver - tax nexus is the client's country
-            nlog("non-eu to eu");
-            $this->nexus = $client_country_code;
-        } elseif (in_array($client_country_code, $eu_countries)) {
-
-            // First, determine if we're over threshold
-            $is_over_threshold = isset($this->ninja_invoice->company->tax_data->regions->EU->has_sales_above_threshold)
-                               && $this->ninja_invoice->company->tax_data->regions->EU->has_sales_above_threshold;
-
-            // Is this B2B or B2C?
-            $is_b2c = strlen($this->ninja_invoice->client->vat_number ?? '') < 2
-                    || !($this->ninja_invoice->client->has_valid_vat_number ?? false)
-                    || $this->ninja_invoice->client->classification == 'individual';
-
-
-            // B2C, under threshold, no Company VAT Registerd - must charge origin country VAT
-            if ($is_b2c && !$is_over_threshold && strlen($this->ninja_invoice->company->settings->vat_number ?? '') < 2) {
-                nlog("no company vat");
-                $this->nexus = $company_country_code;
-            } elseif ($is_b2c) {
-                if ($is_over_threshold) {
-                    // B2C over threshold - need destination VAT number
-                    if (!isset($this->ninja_invoice->company->tax_data->regions->EU->subregions->{$client_country_code}->vat_number)) {
-                        $this->nexus = $client_country_code;
-                        $this->addError("Tax Nexus is client country ({$client_country_code}) - however VAT number not present for this region. Document not sent!");
-                        return $this;
-                    }
-                    nlog("B2C");
-                    $this->nexus = $client_country_code;
-                    $this->setupDestinationVAT($client_country_code);
-                } else {
-                    nlog("under threshold origin country");
-                    // B2C under threshold - origin country VAT
-                    $this->nexus = $company_country_code;
-                }
-            } elseif ($is_over_threshold && !in_array($company_country_code, $eu_countries)) {
-                $this->nexus = $client_country_code;
-            } else {
-                nlog("B2B with valid vat");
-                // B2B with valid VAT - origin country
-                $this->nexus = $company_country_code;
-            }
-
-        }
-
-        if (!isset($this->nexus)) {
-            $client_region = $br->region_codes[$client_country_code] ?? null;
-
-            if ($client_region && $this->companyHasTaxRegistration($client_region, $client_country_code)) {
-                nlog("fallback nexus to client country - company has tax registration in {$client_country_code}");
-                $this->nexus = $client_country_code;
-            } else {
-                nlog("fallback nexus to company country - export/no registration");
-                $this->nexus = $company_country_code;
-            }
-        }
-
-        if ($company_country_code == 'DE' && $client_country_code == 'DE' && $this->ninja_invoice->client->classification == 'government') {
-            $this->removeSupplierVatNumber();
-        }
-
-        return $this;
-    }
-
-    /**
-     * Removes VAT public identifiers from the supplier party,
-     * required for DE government invoices (XRechnung).
-     *
-     * @return self
-     */
-    private function removeSupplierVatNumber(): self
-    {
-
-        $asp = $this->storecove_invoice->getAccountingSupplierParty();
-        $asp->setPublicIdentifiers([]);
-        $this->storecove_invoice->setAccountingSupplierParty($asp);
-
-        return $this;
-    }
-
-    /**
-     * Configures destination-country VAT for B2C cross-border EU sales
-     * by enabling consumer tax mode and adding the supplier's destination VAT identifier.
-     *
-     * @param  string $client_country_code
-     * @return self
-     */
-    private function setupDestinationVAT($client_country_code): self
-    {
-
-        $this->storecove_invoice->setConsumerTaxMode(true);
-        $id = $this->ninja_invoice->company->tax_data->regions->EU->subregions->{$client_country_code}->vat_number;
-        $scheme = $this->storecove->router->setInvoice($this->ninja_invoice)->resolveTaxScheme($client_country_code, $this->ninja_invoice->client->classification ?? 'individual');
-
-        $pi = new \App\Services\EDocument\Gateway\Storecove\Models\PublicIdentifiers($scheme, $id);
-        $asp = $this->storecove_invoice->getAccountingSupplierParty();
-        $asp->addPublicIdentifiers($pi);
-        $this->storecove_invoice->setAccountingSupplierParty($asp);
-
-        return $this;
-    }
-
-    /**
-     * Checks whether the company has a VAT registration in the given region and country.
-     *
-     * @param  string $region
-     * @param  string $country_code
-     * @return bool
-     */
-    private function companyHasTaxRegistration(string $region, string $country_code): bool
-    {
-        $vat_number = $this->ninja_invoice->company->tax_data->regions->{$region}->subregions->{$country_code}->vat_number ?? '';
-
-        return strlen($vat_number) > 1;
-    }
+    // Nexus resolution logic has been extracted to NexusResolver class.
 
     /**
      * Maps a Peppol tax category code (e.g. 'S', 'Z', 'AE') to its
@@ -635,7 +536,7 @@ class StorecoveAdapter
      * @param  string $code
      * @return string|null
      */
-    private function tranformTaxCode(string $code): ?string
+    private function transformTaxCode(string $code): ?string
     {
 
         if ($code == 'O' && $this->ninja_invoice->client->classification == 'government') {

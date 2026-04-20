@@ -75,12 +75,12 @@ class QuickbooksService
     {
         $this->init();
     }
-    
+
     /**
      * init
      *
      * Initializes the Quickbooks service by configuring the SDK and checking the token.
-     * 
+     *
      * @return self
      */
     private function init(): self
@@ -99,7 +99,7 @@ class QuickbooksService
             // Don't merge expired tokens when reconnection is required
             // This allows getAuthorizationUrl() to work correctly
             $requires_reconnect = $this->company->quickbooks && $this->company->quickbooks->requires_reconnect;
-            
+
             if (!$requires_reconnect) {
                 $config = array_merge($config, $this->ninjaAccessToken());
             }
@@ -111,7 +111,7 @@ class QuickbooksService
             $this->sdk->throwExceptionOnError(true);
 
             if (!$requires_reconnect) {
-            $this->checkToken();
+                $this->checkToken();
             }
         }
 
@@ -170,11 +170,11 @@ class QuickbooksService
 
         // Access token is expired, check if we can refresh it
         if ($this->company->quickbooks->accessTokenExpiresAt && $this->company->quickbooks->accessTokenExpiresAt < time() && $this->try_refresh) {
-            
+
             // Check if refresh token is also expired - if so, don't attempt refresh
-            $refresh_token_expired = $this->company->quickbooks->refreshTokenExpiresAt > 0 
+            $refresh_token_expired = $this->company->quickbooks->refreshTokenExpiresAt > 0
                && $this->company->quickbooks->refreshTokenExpiresAt < time();
-            
+
             if ($refresh_token_expired) {
                 $this->markRequiresReconnect();
                 nlog('Quickbooks tokens expired (both access and refresh) => ' . $this->company->company_key);
@@ -194,7 +194,7 @@ class QuickbooksService
                     $this->markRequiresReconnect();
                     throw new \Exception('Quickbooks refresh token invalid/expired');
                 }
-                
+
                 nlog("QB: failure to refresh token: " . $error_message);
                 // Only attempt disconnect if it's not a token expiration issue
                 // Disconnect will try to revoke the token, which will fail if token is expired
@@ -274,7 +274,7 @@ class QuickbooksService
      * sdk
      *
      * Wrapper class for fluent type accessors
-     * 
+     *
      * @return SdkWrapper
      */
     public function sdk(): SdkWrapper
@@ -296,7 +296,7 @@ class QuickbooksService
      * findEntityById
      *
      * Returns a Quickbooks entity by ID.
-     * 
+     *
      * @param  string $entity
      * @param  string $id
      * @return mixed
@@ -310,7 +310,7 @@ class QuickbooksService
      * query
      *
      * Returns an array (or null) of Quickbooks entities.
-     * 
+     *
      * @param  string $query
      * @return mixed
      */
@@ -525,12 +525,12 @@ class QuickbooksService
 
     /**
      * Load tax codes into memory cache.
-     * 
-     * Called once during initial sync. 
+     *
+     * Called once during initial sync.
      * Tax codes are never persisted.
      *
      * Tax codes allow us to reference exact Tax Rates for a given Tax Code.
-     * 
+     *
      * @return self
      */
     public function loadTaxCodes(): self
@@ -565,7 +565,7 @@ class QuickbooksService
      */
     public function getTaxCode(?string $tax_code_id): ?array
     {
-        if(!$this->tax_codes_cache) {
+        if (!$this->tax_codes_cache) {
             $this->loadTaxCodes();
         }
 
@@ -656,12 +656,12 @@ class QuickbooksService
         }
 
     }
-    
+
     /**
      * getIncomeAccountId
      *
      * Returns the default income account ID from the Quickbooks settings.
-     * 
+     *
      * @return string
      */
     public function getIncomeAccountId(): ?string
@@ -673,7 +673,7 @@ class QuickbooksService
      * disconnect
      *
      * Revokes the current token.
-     * 
+     *
      * @return self
      */
     public function disconnect(): self
@@ -691,7 +691,7 @@ class QuickbooksService
         return $this;
 
     }
-    
+
     /**
      * companySync
      *
@@ -710,7 +710,7 @@ class QuickbooksService
         $automatic_taxes = data_get($company_preferences, 'TaxPrefs.PartnerTaxEnabled', false);
 
         $default_income_account = strlen($this->company->quickbooks->settings->qb_income_account_id ?? '') >= 1 ? $this->company->quickbooks->settings->qb_income_account_id : ($income_accounts[0]['id'] ?? null);
-        
+
         $this->company->quickbooks->settings->income_account_map = $income_accounts;
         $this->company->quickbooks->settings->qb_income_account_id = $default_income_account;
         $this->company->quickbooks->companyName = $companyInfo->CompanyName ?? '';
@@ -819,16 +819,16 @@ class QuickbooksService
 
         // Iterate through the Quickbooks tax rates and create new Invoice Ninja tax rates
         foreach ($tax_rates as $tax_rate) {
-        
+
             $tr = TaxRate::firstOrNew(
                 ['name' => $tax_rate['name'], 'company_id' => $this->company->id, 'rate' => $tax_rate['rate']],
-            []
+                []
             );
 
             $tr->company_id = $this->company->id;
             $tr->user_id = $this->company->owner()->id;
             $tr->save();
-        
+
         }
 
         return $this;

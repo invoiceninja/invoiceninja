@@ -75,14 +75,14 @@ class InvoicePay extends Component
         'shipping_country_id',
     ];
 
-    #[Locked] 
+    #[Locked]
     public $invitation_id;
 
     public $invoices;
 
     public $variables;
 
-    #[Locked] 
+    #[Locked]
     public $db;
 
     public $settings;
@@ -139,7 +139,7 @@ class InvoicePay extends Component
     #[On('docuninja-loader-ready')]
     public function docuninjaLoaderReady()
     {
-        $this->docu_ninja_ready = true;    
+        $this->docu_ninja_ready = true;
     }
 
     #[On('payable-amount')]
@@ -234,14 +234,13 @@ class InvoicePay extends Component
         }
 
         /** Async loading of DocuNinja component needs to be done like this. ie. need full payload prior to passing in. */
-        if($this->docu_ninja_active && !$this->signature_accepted) {
+        if ($this->docu_ninja_active && !$this->signature_accepted) {
             if ($this->docu_ninja_ready) {
                 return \App\Livewire\Flow2\DocuNinja::class;
             } else {
                 return \App\Livewire\Flow2\DocuNinjaLoader::class;
             }
-        }
-        elseif (!$this->signature_accepted && !$this->docu_ninja_active) {
+        } elseif (!$this->signature_accepted && !$this->docu_ninja_active) {
             return Signature::class;
         }
 
@@ -310,7 +309,7 @@ class InvoicePay extends Component
         $this->under_over_payment = $settings->client_portal_allow_over_payment || $settings->client_portal_allow_under_payment;
         $this->required_fields = false;
 
-        if($invite->invoice->sync?->dn_completed === true){
+        if ($invite->invoice->sync?->dn_completed === true) {
             $this->signature_accepted = true;
         }
 

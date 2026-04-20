@@ -55,7 +55,6 @@ use App\Http\Controllers\LicenseController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\MailgunController;
-use App\Http\Controllers\MigrationController;
 use App\Http\Controllers\OneTimeTokenController;
 use App\Http\Controllers\PasskeyController;
 use App\Http\Controllers\PaymentController;

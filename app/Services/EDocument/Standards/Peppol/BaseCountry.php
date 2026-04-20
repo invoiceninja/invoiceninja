@@ -13,38 +13,35 @@
 namespace App\Services\EDocument\Standards\Peppol;
 
 use App\Services\EDocument\Gateway\MutatorUtil;
+use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
 
 class BaseCountry implements CountryHandler
 {
     /**
      * Default sender mutations — no-op.
-     * Override in country-specific subclasses.
      */
     public function senderMutations(
         mixed $p_invoice,
         mixed $invoice,
         MutatorUtil $mutator_util,
-        array $storecove_meta
-    ): array {
-        return ['p_invoice' => $p_invoice, 'storecove_meta' => $storecove_meta];
+    ): mixed {
+        return $p_invoice;
     }
 
     /**
      * Default receiver mutations — no-op.
-     * Override in country-specific subclasses.
      */
     public function receiverMutations(
         mixed $p_invoice,
         mixed $invoice,
         MutatorUtil $mutator_util,
-        array $storecove_meta
-    ): array {
-        return ['p_invoice' => $p_invoice, 'storecove_meta' => $storecove_meta];
+    ): mixed {
+        return $p_invoice;
     }
 
     /**
      * Return the routing rules for this country.
-     * Return null to fall back to StorecoveRouter's built-in rules.
+     * Return null to fall back to the default routing rules.
      */
     public function getRoutingRules(): ?array
     {
@@ -52,54 +49,48 @@ class BaseCountry implements CountryHandler
     }
 
     /**
-     * Override routing resolution for special cases.
-     * Return null to use default resolution logic.
+     * Default getCandidates: resolve from StorecoveRouter config.
+     *
+     * Picks the routing scheme for this country/classification, then selects
+     * the appropriate identifier (vat_number for VAT schemes, id_number otherwise).
+     * Returns a single candidate or empty array.
      */
-    public function resolveRoutingOverride(?string $classification, ?object $invoice = null): ?string
+    public function getCandidates(object $client, string $classification, object $router): array
     {
-        return null;
-    }
+        /** @var StorecoveRouter $router */
+        $country = $client->country->iso_3166_2;
+        $scheme = $router->resolveRouting($country, $classification);
 
-    /**
-     * Override tax scheme resolution for special cases.
-     * Return null to use default resolution logic.
-     */
-    public function resolveTaxSchemeOverride(?string $classification, ?object $invoice = null): ?string
-    {
-        return null;
-    }
-
-    /**
-     * Build a Storecove routing structure from an array of identifiers.
-     */
-    protected function buildRouting(array $identifiers): array
-    {
-        return [
-            'routing' => [
-                'eIdentifiers' => $identifiers,
-            ],
-        ];
-    }
-
-    /**
-     * Set email routing on storecove meta.
-     */
-    protected function setEmailRouting(array $storecove_meta, string $email): array
-    {
-        if (isset($storecove_meta['routing']['emails'])) {
-            $storecove_meta['routing']['emails'][] = $email;
-        } else {
-            $storecove_meta['routing']['emails'] = [$email];
+        if ($scheme === 'Email' || empty($scheme)) {
+            return [];
         }
 
-        return $storecove_meta;
+        // Composite schemes like "0195:SGUENT08GA0028A" — use as-is
+        if (preg_match('/^(\d{4}):(.+)$/', $scheme, $m)) {
+            return [['scheme' => $m[1], 'id' => $m[2]]];
+        }
+
+        // Pick identifier: VAT schemes use vat_number, others use id_number
+        $isVatScheme = str_contains($scheme, ':VAT') || str_contains($scheme, ':IVA') || str_contains($scheme, ':CF');
+        $id = $isVatScheme
+            ? preg_replace("/[^a-zA-Z0-9]/", "", $client->vat_number ?? '')
+            : preg_replace("/[^a-zA-Z0-9]/", "", $client->id_number ?: $client->vat_number ?? '');
+
+        return strlen($id) >= 2 ? [['scheme' => $scheme, 'id' => $id]] : [];
     }
 
-    /**
-     * Merge new meta into existing storecove meta.
-     */
-    protected function mergeMeta(array $storecove_meta, array $new_meta): array
+    public function getNetworkOverrides(): array
     {
-        return array_merge_recursive($storecove_meta, $new_meta);
+        return [];
+    }
+
+    public function getAdditionalIdentifiers(array $data): array
+    {
+        return [];
+    }
+
+    public function getRegistrationFlow(object $storecove, int $legal_entity_id, array $data): ?array
+    {
+        return null;
     }
 }

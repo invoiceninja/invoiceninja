@@ -35,10 +35,10 @@ class SdkWrapper
     {
         // Only set access token if quickbooks settings exist and have valid token data
         // During reconnection flow, we may not have valid tokens yet
-        if ($this->company->quickbooks && 
-            $this->company->quickbooks->accessTokenKey && 
-            !$this->company->quickbooks->requires_reconnect) {
-        $this->setNinjaAccessToken($this->company->quickbooks);
+        if ($this->company->quickbooks
+            && $this->company->quickbooks->accessTokenKey
+            && !$this->company->quickbooks->requires_reconnect) {
+            $this->setNinjaAccessToken($this->company->quickbooks);
         }
 
         return $this;

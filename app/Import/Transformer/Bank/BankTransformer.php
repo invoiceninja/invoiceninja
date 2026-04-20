@@ -102,8 +102,8 @@ class BankTransformer extends BaseTransformer
         }
 
         if (array_key_exists('transaction.amount', $transaction)) {
-            
-            if($this->getFloat($transaction, 'transaction.amount') > 0) {
+
+            if ($this->getFloat($transaction, 'transaction.amount') > 0) {
                 return 'CREDIT';
             }
         }

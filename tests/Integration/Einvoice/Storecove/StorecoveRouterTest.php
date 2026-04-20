@@ -19,6 +19,8 @@ use App\Models\Country;
 use App\Models\Invoice;
 use App\Models\User;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
+use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
+use App\Services\EDocument\Gateway\Storecove\RoutingResolver;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Artisan;
@@ -381,19 +383,13 @@ class StorecoveRouterTest extends TestCase
         // Routing scheme should be SE:ORGNR
         $this->assertEquals('SE:ORGNR', $storecove->router->resolveRouting('SE', 'business'));
 
-        // The Mutator should use id_number (org number) as the routing identifier value, not vat_number
-        $storecove->mutator->setInvoice($invoice);
+        // RoutingResolver should use id_number (org number) as the routing identifier value, not vat_number
+        $resolver = new RoutingResolver($invoice->fresh(), $storecove->proxy, $storecove->router);
+        $result = $resolver->resolve();
 
-        $storecove->mutator->setClientRoutingCode();
+        $this->assertEquals('eIdentifiers', $result['type']);
+        $eIdentifiers = $result['meta']['routing']['eIdentifiers'];
 
-        $meta = $storecove->mutator->getStorecoveMeta();
-
-        $this->assertArrayHasKey('routing', $meta);
-        $this->assertArrayHasKey('eIdentifiers', $meta['routing']);
-
-        $eIdentifiers = $meta['routing']['eIdentifiers'];
-
-        // Find the SE:ORGNR identifier
         $orgnrIdentifier = collect($eIdentifiers)->firstWhere('scheme', 'SE:ORGNR');
 
         $this->assertNotNull($orgnrIdentifier, 'SE:ORGNR routing identifier should be present');
@@ -412,16 +408,12 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->mutator->setInvoice($invoice->fresh());
-        $storecove->mutator->setClientRoutingCode();
+        $resolver = new RoutingResolver($invoice->fresh(), $storecove->proxy, $storecove->router);
+        $result = $resolver->resolve();
 
-        $meta = $storecove->mutator->getStorecoveMeta();
+        $this->assertNotEmpty($result['networks']);
 
-        $this->assertArrayHasKey('routing', $meta);
-        $this->assertArrayHasKey('networks', $meta['routing']);
-
-        $networks = $meta['routing']['networks'];
-        $svefaktura = collect($networks)->firstWhere('application', 'svefaktura');
+        $svefaktura = collect($result['networks'])->firstWhere('application', 'svefaktura');
 
         $this->assertNotNull($svefaktura, 'Svefaktura network should be present when sending to SE receiver');
         $this->assertTrue($svefaktura['settings']['enabled']);
@@ -835,7 +827,11 @@ class StorecoveRouterTest extends TestCase
         $storecove = new Storecove();
         $storecove->router->setInvoice($invoice->fresh());
 
-        $this->assertEquals('DE:STNR', $storecove->router->resolveRouting('DE', 'individual'));
+        // DE:STNR for individuals is now handled by DE::getCandidates(), not resolveRouting()
+        $handler = \App\Services\EDocument\Standards\Peppol\CountryFactory::make('DE');
+        $candidates = $handler->getCandidates($invoice->fresh()->client, 'individual', $storecove->router);
+        $this->assertNotEmpty($candidates);
+        $this->assertEquals('DE:STNR', $candidates[0]['scheme']);
 
     }
 

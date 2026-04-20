@@ -78,21 +78,21 @@ class CompanyPresenter extends EntityPresenter
         if (config('ninja.is_docker') || config('ninja.local_download')) {
             return $this->logoDocker($settings);
         }
-        
+
         $basename = basename($settings->company_logo);
         $disk = \App\Utils\Ninja::isHosted() ? 'backup' : config('filesystems.default');
 
-        try{
+        try {
             $logo = Storage::disk($disk)->get($this->company_key . '/' . $basename);
 
-            if(!empty($logo)){
+            if (!empty($logo)) {
                 return "data:image/png;base64," . base64_encode($logo);
             }
 
-        }catch(\Throwable $e){
+        } catch (\Throwable $e) {
             //fall through
         }
-      
+
         try {
             $response = Http::withOptions([
                 'redirects' => false,

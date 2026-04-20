@@ -13,7 +13,13 @@
 namespace App\Helpers;
 
 class Sanitizer
-{
+{    
+    /**
+     * removeBlanks from an array
+     *
+     * @param  mixed $input
+     * @return array
+     */
     public static function removeBlanks($input): array
     {
         foreach ($input as &$value) {

@@ -27,9 +27,7 @@ use App\Services\EDocument\Standards\Peppol;
 
 class PeppolTaxCalculator
 {
-    public function __construct(private Peppol $peppol)
-    {
-    }
+    public function __construct(private Peppol $peppol) {}
 
     /**
      * getTaxType
@@ -62,7 +60,7 @@ class PeppolTaxCalculator
                 break;
             case Product::PRODUCT_TYPE_REVERSE_TAX:
                 $tax_type = 'AE';
-                // no break
+                break;
             case Product::PRODUCT_INTRA_COMMUNITY:
                 $tax_type = 'K';
                 break;
@@ -71,7 +69,7 @@ class PeppolTaxCalculator
         $company = $this->peppol->getCompany();
         $invoice = $this->peppol->getInvoiceModel();
 
-        $eu_states = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "EL", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "ES-CE", "ES-ML", "ES-CN", "SE", "IS", "LI", "NO", "CH"];
+        $eu_states = BaseRule::EU_TAX_EXEMPT_COUNTRY_CODES;
 
         if (empty($tax_type)) {
             if ((in_array($company->country()->iso_3166_2, $eu_states) && in_array($invoice->client->country->iso_3166_2, $eu_states)) && $invoice->company->country()->iso_3166_2 != $invoice->client->country->iso_3166_2) {
@@ -102,7 +100,7 @@ class PeppolTaxCalculator
         $company = $this->peppol->getCompany();
         $invoice = $this->peppol->getInvoiceModel();
 
-        $eu_states = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "EL", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "ES-CE", "ES-ML", "ES-CN", "SE", "IS", "LI", "NO", "CH"];
+        $eu_states = BaseRule::EU_TAX_EXEMPT_COUNTRY_CODES;
 
         $company_country = $company->country()->iso_3166_2;
         $client_country = $invoice->client->country->iso_3166_2;
@@ -163,7 +161,7 @@ class PeppolTaxCalculator
         $terc->value = $reason_code;
         $taxCategory->TaxExemptionReasonCode = $terc;
         $taxCategory->TaxExemptionReason = $reason;
-    
+
         $this->peppol->setGlobalTaxCategories([$taxCategory]);
 
         if ($ctc) {
@@ -298,8 +296,8 @@ class PeppolTaxCalculator
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $invoice->client->currency()->code;
             // $tax_amount->amount = (string) round($this->peppol->normalizeAmount($invoice->total_taxes), 2);
-                $tax_amount->amount = (string) \App\Utils\BcMath::round((string) $this->peppol->normalizeAmount($invoice->total_taxes), 2);
-                $tax_total->TaxAmount = $tax_amount;
+            $tax_amount->amount = (string) \App\Utils\BcMath::round((string) $this->peppol->normalizeAmount($invoice->total_taxes), 2);
+            $tax_total->TaxAmount = $tax_amount;
 
             // Required: TaxSubtotal (BG-23)
             $tax_subtotal = new TaxSubtotal();

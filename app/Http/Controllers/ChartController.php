@@ -87,7 +87,7 @@ class ChartController extends BaseController
         $end = $request->input('end_date');
         $cacheKey = "analytics_summary:{$user->company()->id}:{$user->id}:{$start}:{$end}";
 
-        $data = Cache::remember($cacheKey, now()->addMinutes(15), function () use ($user, $admin_equivalent_permissions, $start, $end) {
+        $data = Cache::remember($cacheKey, (int)0, function () use ($user, $admin_equivalent_permissions, $start, $end) {
             $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
             return $cs->analytics_summary($start, $end);
         });
@@ -105,7 +105,7 @@ class ChartController extends BaseController
         $end = $request->input('end_date');
         $cacheKey = "analytics_totals:{$user->company()->id}:{$user->id}:{$start}:{$end}";
 
-        $data = Cache::remember($cacheKey, now()->addMinutes(15), function () use ($user, $admin_equivalent_permissions, $start, $end) {
+        $data = Cache::remember($cacheKey, (int)0, function () use ($user, $admin_equivalent_permissions, $start, $end) {
             $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
             return $cs->analytics_totals($start, $end);
         });
@@ -124,7 +124,7 @@ class ChartController extends BaseController
         $bucket = $request->input('bucket_type', 'monthly');
         $cacheKey = "cashflow_forecast:{$user->company()->id}:{$user->id}:{$start}:{$end}:{$bucket}";
 
-        $data = Cache::remember($cacheKey, now()->addMinutes(15), function () use ($user, $admin_equivalent_permissions, $start, $end, $bucket) {
+        $data = Cache::remember($cacheKey, (int)0, function () use ($user, $admin_equivalent_permissions, $start, $end, $bucket) {
             $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
             return $cs->cashflow_forecast($start, $end, $bucket);
         });
@@ -140,7 +140,7 @@ class ChartController extends BaseController
 
         $cacheKey = "client_payment_analytics:{$user->company()->id}:{$user->id}";
 
-        $data = Cache::remember($cacheKey, now()->addMinutes(15), function () use ($user, $admin_equivalent_permissions) {
+        $data = Cache::remember($cacheKey, (int)0, function () use ($user, $admin_equivalent_permissions) {
             $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
             return $cs->client_payment_analytics();
         });
@@ -156,7 +156,7 @@ class ChartController extends BaseController
 
         $cacheKey = "project_analytics:{$user->company()->id}:{$user->id}";
 
-        $data = Cache::remember($cacheKey, now()->addMinutes(15), function () use ($user, $admin_equivalent_permissions) {
+        $data = Cache::remember($cacheKey, (int)0, function () use ($user, $admin_equivalent_permissions) {
             $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
             return $cs->project_analytics();
         });

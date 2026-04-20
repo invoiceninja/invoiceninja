@@ -848,14 +848,13 @@ class HtmlEngine
         }
 
         $data['$actual_delivery_date'] = ['value' => $this->translateDate(data_get($this->entity, 'e_invoice.Invoice.Delivery.0.ActualDeliveryDate', ''), $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.actual_delivery_date')];
-        
+
         $invoice_period = '';
 
-        if($period = data_get($this->entity, 'e_invoice.Invoice.InvoicePeriod.0', false)) {
-            try{
+        if ($period = data_get($this->entity, 'e_invoice.Invoice.InvoicePeriod.0', false)) {
+            try {
                 $invoice_period = $this->translateDate($period->StartDate, $this->client->date_format(), $this->client->locale()) . ' - ' . $this->translateDate($period->EndDate, $this->client->date_format(), $this->client->locale());
-            }
-            catch(\Throwable $e) {
+            } catch (\Throwable $e) {
                 nlog("Error getting invoice period: HE:: {$e->getMessage()}");
             }
         }
@@ -1038,7 +1037,7 @@ Código seguro de verificación (CSV): {$verifactu_log->status}";
 
         return $data;
     }
-    
+
     public function generateLabelsAndValues()
     {
         $data = [];

@@ -262,6 +262,9 @@ class ChartService
             $data[$key]['mrr'] = $mrr_set !== false ? $mrr_totals[$mrr_set] : new \stdClass();
             $data[$key]['aging'] = $aging_set !== false ? $aging_totals[$aging_set] : new \stdClass();
             $data[$key]['recurring_expenses'] = $re_set !== false ? $recurring_expense_totals[$re_set] : new \stdClass();
+
+            $currency_payment = $this->getCompanyPaymentSummaryByCurrency((int) $key);
+            $data[$key]['payment_analytics'] = ! empty($currency_payment) ? reset($currency_payment) : new \stdClass();
         }
 
         $aggregate_mrr = $this->getAggregateMrrTotalQuery();
