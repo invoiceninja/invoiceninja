@@ -412,6 +412,7 @@ class EInvoiceValidationTest extends TestCase
             'city' => 'Sydney',
             'state' => 'NSW',
             'postal_code' => '2113',
+            'routing_id' => '',
         ]);
 
 
@@ -427,7 +428,7 @@ class EInvoiceValidationTest extends TestCase
 
         $el = new EntityLevel();
         $validation = $el->checkClient($client);
-
+nlog($validation);
         $this->assertTrue($validation['passes']);
 
     }
