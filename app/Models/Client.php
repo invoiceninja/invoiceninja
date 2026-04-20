@@ -1093,6 +1093,19 @@ class Client extends BaseModel implements HasLocalePreference
 
         $router = new \App\Services\EDocument\Gateway\Storecove\StorecoveRouter();
 
+        // Gate on the actual delivery-capable list, not routing_rules.
+        // routing_rules carries tax metadata for many more countries (HR, CZ,
+        // HU, SK, ...) that are not actual Peppol destinations. IT is
+        // deliverable via SDI rather than Peppol proper.
+        $deliverable = array_merge(
+            \App\Services\EDocument\Gateway\Storecove\StorecoveRouter::peppolCountries(),
+            ['IT', 'PT'],
+        );
+
+        if (!in_array($country_code, $deliverable, true)) {
+            return "Country {$this->country->full_name} ( {$country_code} ) is not supported for e-delivery.";
+        }
+
         if (!$router->hasRoutingRules($country_code)) {
             return "Country {$this->country->full_name} ( {$country_code} ) is not supported for e-delivery.";
         }

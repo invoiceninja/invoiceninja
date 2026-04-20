@@ -26,6 +26,7 @@ use App\Exceptions\PeppolValidationException;
 use App\Services\EDocument\Standards\Validation\EntityLevelInterface;
 use App\Services\EDocument\Standards\Validation\XsltDocumentValidator;
 use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
+use App\Services\EDocument\Standards\Peppol\CountryFactory;
 
 class EntityLevel implements EntityLevelInterface
 {
@@ -180,53 +181,15 @@ class EntityLevel implements EntityLevelInterface
 
         }
 
-        // Validate required client identifiers based on country routing rules
         if (!$client->country) {
             $errors[] = ['field' => 'country_id', 'label' => ctrans("texts.country")];
             return $errors;
         }
 
-        // Only validate identifier requirements for countries supported by Peppol or in the EU
-        $br = new \App\DataMapper\Tax\BaseRule();
-        $supported_countries = array_unique(array_merge(
-            StorecoveRouter::peppolCountries(),
-            $br->eu_country_codes,
-        ));
-
-        /*
-        if (in_array($client->country->iso_3166_2, $supported_countries)) {
-            $router = new StorecoveRouter();
-            $required = $router->resolveRequiredClientFields(
-                $client->country->iso_3166_2,
-                $client->classification ?? 'business'
-            );
-
-            foreach ($required as $field => $scheme) {
-                $example = $router->getFormatExample($scheme);
-
-                if (!$this->validString($client->{$field})) {
-                    $hint = $example ? " ({$scheme}: {$example})" : " ({$scheme})";
-                    $errors[] = ['field' => $field, 'label' => ctrans("texts.{$field}") . $hint];
-                } elseif (!$router->validateIdentifierFormat($scheme, $client->{$field})) {
-                    // Distinguish format error from checkdigit error
-                    $checkdigitResult = $router->validateIdentifierCheckdigit($scheme, $client->{$field});
-
-                    if ($checkdigitResult === false) {
-                        $errors[] = ['field' => $field, 'label' => ctrans("texts.invalid_{$field}_checkdigit") . " ({$scheme}: {$client->{$field}})"];
-                    } else {
-                        $hint = $example ? " ({$scheme}) - e.g. {$example}" : " ({$scheme})";
-                        $errors[] = ['field' => $field, 'label' => ctrans("texts.invalid_{$field}_format") . $hint];
-                    }
-                }
-            }
-        }
-*/
-
         //Primary contact email is present.
         if ($client->present()->email() == 'No Email Set') {
             $errors[] = ['field' => 'email', 'label' => ctrans("texts.email")];
         }
-
 
         if ($client->country_id && $client->country) {
             $non_routable = $client->checkDeliveryNetwork();
@@ -236,11 +199,86 @@ class EntityLevel implements EntityLevelInterface
             }
         }
 
+        // Identifier validation — offline (no network I/O).
+        // Only runs once all earlier checks pass AND the client's country is on the Peppol network.
+        if (count($errors) === 0
+            && in_array($client->country->iso_3166_2, StorecoveRouter::peppolCountries(), true)) {
 
+            $errors = array_merge($errors, $this->testClientIdentifiers($client));
+        }
 
         return $errors;
 
     }
+
+    /**
+     * Validates that the client can be routed on the Peppol network.
+     *
+     * The country handler's getCandidates() defines exactly what the send-time
+     * RoutingResolver will try — a list of (scheme, id) pairs derived from the
+     * client's data. Validation succeeds if ANY one of those candidates passes
+     * format+checkdigit validation: that is what it means to be routable.
+     *
+     * Multiple candidates exist for countries where several schemes are
+     * interchangeable (e.g. BE derives both BE:EN and BE:VAT from vat_number),
+     * so requiring a specific scheme would be wrong.
+     *
+     * Offline validation only — no SMP discovery; that is the send-time
+     * RoutingResolver's responsibility.
+     *
+     * @return array<int, array{field: string, label: string}>
+     */
+    private function testClientIdentifiers(Client $client): array
+    {
+        $router         = new StorecoveRouter();
+        $country        = $client->country->iso_3166_2;
+        $classification = $client->classification ?? 'business';
+
+        $candidates = CountryFactory::make($country)
+            ->getCandidates($client, $classification, $router);
+
+        foreach ($candidates as $candidate) {
+            if ($router->validateIdentifierFormat($candidate['scheme'], $candidate['id'])) {
+                return [];
+            }
+        }
+
+        return [$this->buildIdentifierError($candidates, $client, $router)];
+    }
+
+    /**
+     * Builds a single error when no candidate is routable. Mentions every
+     * scheme the handler attempted, so the user can see what inputs would
+     * satisfy delivery — not a single "required field" that may be misleading.
+     *
+     * @param  array<int, array{scheme: string, id: string}> $candidates
+     * @return array{field: string, label: string}
+     */
+    private function buildIdentifierError(array $candidates, Client $client, StorecoveRouter $router): array
+    {
+        $countryName = $client->country->full_name ?? $client->country->iso_3166_2;
+
+        if (empty($candidates)) {
+            return [
+                'field' => 'vat_number',
+                'label' => "A valid routing identifier is required for Peppol delivery to {$countryName}.",
+            ];
+        }
+
+        $parts = [];
+        foreach ($candidates as $c) {
+            $example = $router->getFormatExample($c['scheme']);
+            $parts[] = $example
+                ? "{$c['scheme']} (e.g. {$example})"
+                : $c['scheme'];
+        }
+
+        return [
+            'field' => 'vat_number',
+            'label' => "No valid Peppol routing identifier for {$countryName}. Any one of: " . implode(', ', $parts) . '.',
+        ];
+    }
+
 
     private function testCompanyState(mixed $entity): array
     {
