@@ -234,6 +234,16 @@ class EntityLevel implements EntityLevelInterface
         $country        = $client->country->iso_3166_2;
         $classification = $client->classification ?? 'business';
 
+        // FIRST: explicit routing_id override (scheme:id form). If set, it must
+        // validate — don't silently fall through to the handler and give the
+        // user a generic "no valid routing identifier" when the problem is a
+        // malformed routing_id.
+        $routingError = $this->validateExplicitRoutingId($client, $router);
+        if ($routingError !== null) {
+            return $routingError === [] ? [] : [$routingError];
+        }
+
+        // SECOND: handler-driven candidates (vat_number, id_number, etc.).
         $candidates = CountryFactory::make($country)
             ->getCandidates($client, $classification, $router);
 
@@ -244,6 +254,149 @@ class EntityLevel implements EntityLevelInterface
         }
 
         return [$this->buildIdentifierError($candidates, $client, $router)];
+    }
+
+    /**
+     * Validates an explicit routing_id override on the client.
+     *
+     * Returns:
+     *   - []    → routing_id is set AND valid — caller should return empty (pass).
+     *   - array → routing_id is set AND invalid — caller should return this single error.
+     *   - null  → no routing_id set — caller should fall through to handler candidates.
+     *
+     * A scheme-prefixed routing_id (e.g. "0088:1234567890123") short-circuits
+     * validation: it is what the send-time RoutingResolver tries first.
+     *
+     * @return array{field: string, label: string}|array{}|null
+     */
+    private function validateExplicitRoutingId(Client $client, StorecoveRouter $router): ?array
+    {
+        $value = trim($client->routing_id ?? '');
+
+        if ($value === '') {
+            return null;
+        }
+
+        // scheme:id form — always validated strictly.
+        if (strpos($value, ':') !== false) {
+            return $this->validateSchemeColonId($value, $router);
+        }
+
+        // Bare value. For countries whose handler natively consumes routing_id
+        // (IT wraps as IT:CUUO; DE government wraps as DE:LWID), let the
+        // handler interpret the raw value — don't guess here.
+        if ($this->handlerConsumesBareRoutingId($client)) {
+            return null;
+        }
+
+        // Bare value on a country that doesn't natively use routing_id. The
+        // user is attempting an override. Numeric values look like GLN
+        // attempts; give a GLN-specific error so the user knows what to fix.
+        if (ctype_digit($value)) {
+            return $this->validateGln($value, $value);
+        }
+
+        return [
+            'field' => 'routing_id',
+            'label' => "routing_id \"{$value}\" must be in scheme:id format (e.g. 0088:1234567890123 for GLN).",
+        ];
+    }
+
+    /**
+     * Validates a "scheme:id" routing_id value.
+     *
+     * @return array{field: string, label: string}|array{} error or [] on pass
+     */
+    private function validateSchemeColonId(string $value, StorecoveRouter $router): array
+    {
+        $parts = explode(':', $value, 2);
+
+        if (count($parts) !== 2 || $parts[0] === '' || $parts[1] === '') {
+            return [
+                'field' => 'routing_id',
+                'label' => ctrans('texts.routing_id') . "'{$value}' must be in scheme:id format (e.g. 0088:1234567890123 for GLN).",
+            ];
+        }
+
+        [$scheme, $id] = $parts;
+
+        // GLN (ICD 0088) — must be 14 numeric digits with a valid GS1 mod-10
+        // check digit. The router has no regex entry for numeric ICD schemes,
+        // so this has to be enforced here.
+        if ($scheme === '0088') {
+            return $this->validateGln($id, "{$scheme}:{$id}");
+        }
+
+        if (!$router->validateIdentifierFormat($scheme, $id)) {
+            return [
+                'field' => 'routing_id',
+                'label' => ctrans('texts.routing_id') . " {$scheme}:{$id} does not match the expected format for {$scheme}.",
+            ];
+        }
+
+        return []; // valid
+    }
+
+    /**
+     * Validates a GLN: 14 numeric digits with a valid GS1 mod-10 check digit.
+     *
+     * Storecove (scheme 0088) enforces `^\d{14}$` and rejects anything else
+     * with a 422. On top of that, GS1 requires the rightmost digit to be a
+     * mod-10 check over the preceding 13: starting from the rightmost body
+     * digit (position 2 from the right), weights alternate 3, 1, 3, 1, ...;
+     * check = (10 − (weighted_sum mod 10)) mod 10.
+     *
+     * @param  string $digits  The numeric value to validate (14 digits expected)
+     * @param  string $display The user-visible value used in error messages
+     * @return array{field: string, label: string}|array{} error or [] on pass
+     */
+    private function validateGln(string $digits, string $display): array
+    {
+        if (!ctype_digit($digits) || strlen($digits) !== 14) {
+            return [
+                'field' => 'routing_id',
+                'label' => "routing_id \"{$display}\" looks like a GLN but must be 14 digits (got " . strlen($digits) . "). Use format 0088:<14-digit-GLN> if that was your intent.",
+            ];
+        }
+
+        if (StorecoveRouter::isValidGln($digits)) {
+            return [];
+        }
+
+        // Length was right, so the only remaining failure mode is the check digit.
+        $sum = 0;
+        $weights = [3, 1];
+        for ($i = 12, $j = 0; $i >= 0; $i--, $j++) {
+            $sum += ((int) $digits[$i]) * $weights[$j % 2];
+        }
+        $expected = (10 - ($sum % 10)) % 10;
+        $actual   = (int) $digits[13];
+
+        return [
+            'field' => 'routing_id',
+            'label' => "routing_id GLN \"{$display}\" has an invalid check digit (expected {$expected}, got {$actual}). Verify the value.",
+        ];
+    }
+
+    /**
+     * Countries whose handler reads routing_id directly as a raw value.
+     * For these, a bare routing_id is not an "override" — it IS the native
+     * routing input (e.g. IT:CUUO).
+     */
+    private function handlerConsumesBareRoutingId(Client $client): bool
+    {
+        $country = $client->country->iso_3166_2;
+        $classification = $client->classification ?? 'business';
+
+        if ($country === 'IT') {
+            return true;
+        }
+
+        if ($country === 'DE' && $classification === 'government') {
+            return true;
+        }
+
+        return false;
     }
 
     /**

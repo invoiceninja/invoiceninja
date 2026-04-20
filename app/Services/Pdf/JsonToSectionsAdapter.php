@@ -51,14 +51,22 @@ class JsonToSectionsAdapter
     private array $blocksByRow = [];
 
     /**
+     * Fetches and inlines user-supplied image URLs so Chromium never fetches
+     * untrusted content. Constructor-injected so tests can stub it.
+     */
+    private ImageFetcher $imageFetcher;
+
+    /**
      * @param array $jsonDesign Complete JSON design with blocks and pageSettings
      * @param PdfService $service
+     * @param ImageFetcher|null $imageFetcher Optional override (defaults to a fresh ImageFetcher)
      */
-    public function __construct(array $jsonDesign, PdfService $service)
+    public function __construct(array $jsonDesign, PdfService $service, ?ImageFetcher $imageFetcher = null)
     {
         $this->jsonBlocks = $jsonDesign['blocks'] ?? [];
         $this->pageSettings = $jsonDesign['pageSettings'] ?? [];
         $this->service = $service;
+        $this->imageFetcher = $imageFetcher ?? new ImageFetcher($service->company->company_key ?? null);
     }
 
     /**
@@ -187,6 +195,11 @@ class JsonToSectionsAdapter
     {
         $props = $block['properties'];
         $blockId = $block['id'];
+        $source = is_string($props['source'] ?? null) ? $props['source'] : '';
+        // Inline the remote asset as a data: URI so Chromium never fetches a
+        // user-supplied URL. Fails closed to an empty src if the URL can't be
+        // safely retrieved (rejected scheme/host, 3xx, wrong content-type, etc.).
+        $src = $source === '' ? '' : ($this->imageFetcher->inline($source) ?? '');
 
         return [
             'id' => $blockId,
@@ -201,7 +214,7 @@ class JsonToSectionsAdapter
                         [
                             'element' => 'img',
                             'properties' => [
-                                'src' => $props['source'] ?? '',
+                                'src' => $src,
                                 'alt' => $block['type'] === 'logo' ? 'Company Logo' : 'Image',
                                 'data-ref' => $blockId,
                                 'style' => $this->buildImageStyle($props),

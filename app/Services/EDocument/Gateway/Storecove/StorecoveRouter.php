@@ -407,6 +407,34 @@ class StorecoveRouter
     }
 
     /**
+     * Validates a GLN (ICD 0088): 14 numeric digits with a valid GS1 mod-10
+     * check digit. Storecove's own validator uses `^\d{14}$`; we additionally
+     * enforce the check digit so transposed/miskeyed values fail fast.
+     *
+     * Accepts either a bare 14-digit value or the "0088:<14digits>" form.
+     */
+    public static function isValidGln(string $value): bool
+    {
+        $value = trim($value);
+
+        if (str_starts_with($value, '0088:')) {
+            $value = substr($value, 5);
+        }
+
+        if (!ctype_digit($value) || strlen($value) !== 14) {
+            return false;
+        }
+
+        $sum     = 0;
+        $weights = [3, 1];
+        for ($i = 12, $j = 0; $i >= 0; $i--, $j++) {
+            $sum += ((int) $value[$i]) * $weights[$j % 2];
+        }
+
+        return ((10 - ($sum % 10)) % 10) === (int) $value[13];
+    }
+
+    /**
      * Strip an optional country prefix from an identifier value.
      */
     private function stripCountryPrefix(string $value, string $prefix): string

@@ -524,4 +524,107 @@ class PeppolDiscoveryTest extends TestCase
         $this->assertNotEmpty($meta['routing']['eIdentifiers'] ?? []);
         $this->assertEquals('DE:VAT', $meta['routing']['eIdentifiers'][0]['scheme']);
     }
+
+    // ──────────────────────────────────────────────────────
+    // GLN priority — a valid GLN in routing_id ALWAYS wins
+    // over handler candidates, regardless of country and
+    // regardless of whether discovery succeeds.
+    // ──────────────────────────────────────────────────────
+
+    public function testValidGlnOnFrClientBeatsSiretCandidate(): void
+    {
+        // FR handler would normally produce FR:SIRET/SIRENE from id_number.
+        // A valid GLN in routing_id must take priority.
+        $client = $this->makeClient(250, 'business', [
+            'vat_number' => 'FR12345678901',
+            'id_number'  => '123456789', // would otherwise become FR:SIRENE
+            'routing_id' => '12345678901231', // valid 14-digit GLN
+        ]);
+
+        $meta = $this->runMutatorWithMock($client, fn () => false);
+
+        $this->assertEquals('0088', $meta['routing']['eIdentifiers'][0]['scheme']);
+        $this->assertEquals('12345678901231', $meta['routing']['eIdentifiers'][0]['id']);
+    }
+
+    public function testGlnWithSchemePrefixOnFrClientWins(): void
+    {
+        $client = $this->makeClient(250, 'business', [
+            'id_number'  => '123456789',
+            'routing_id' => '0088:12345678901231',
+        ]);
+
+        $meta = $this->runMutatorWithMock($client, fn () => false);
+
+        $this->assertEquals('0088', $meta['routing']['eIdentifiers'][0]['scheme']);
+        $this->assertEquals('12345678901231', $meta['routing']['eIdentifiers'][0]['id']);
+    }
+
+    public function testValidGlnOnDeClientBeatsVatCandidate(): void
+    {
+        $client = $this->makeClient(276, 'business', [
+            'vat_number' => 'DE123456789',
+            'routing_id' => '12345678901231',
+        ]);
+
+        $meta = $this->runMutatorWithMock($client, fn () => false);
+
+        $this->assertEquals('0088', $meta['routing']['eIdentifiers'][0]['scheme']);
+        $this->assertEquals('12345678901231', $meta['routing']['eIdentifiers'][0]['id']);
+    }
+
+    public function testValidGlnOnBeClientBeatsBeEnCandidate(): void
+    {
+        $client = $this->makeClient(56, 'business', [
+            'vat_number' => 'BE0202239951',
+            'routing_id' => '12345678901231',
+        ]);
+
+        $meta = $this->runMutatorWithMock($client, fn () => false);
+
+        $this->assertEquals('0088', $meta['routing']['eIdentifiers'][0]['scheme']);
+    }
+
+    public function testGlnSurvivesFailedDiscovery(): void
+    {
+        // User's complaint: GLN was silently dropped when discovery failed,
+        // falling through to SIRET. That must not happen — GLN is authoritative.
+        $client = $this->makeClient(250, 'business', [
+            'id_number'  => '123456789',
+            'routing_id' => '12345678901231',
+        ]);
+
+        // Discovery returns false for everything
+        $meta = $this->runMutatorWithMock($client, fn () => false);
+
+        $this->assertEquals('0088', $meta['routing']['eIdentifiers'][0]['scheme'], 'GLN must not silently fall through when discovery fails');
+    }
+
+    public function testInvalidGlnCheckdigitFallsThroughToHandler(): void
+    {
+        // A bad-checksum "GLN" is not really a GLN. It should NOT override
+        // handler candidates. (Validation at EntityLevel will have flagged
+        // it for the user; send-time falls through safely.)
+        $client = $this->makeClient(276, 'business', [
+            'vat_number' => 'DE123456789',
+            'routing_id' => '12345678901232', // bad checkdigit
+        ]);
+
+        $meta = $this->runMutatorWithMock($client, fn () => false);
+
+        $this->assertEquals('DE:VAT', $meta['routing']['eIdentifiers'][0]['scheme']);
+    }
+
+    public function testShortNumericRoutingIdNotTreatedAsGln(): void
+    {
+        // 10 digits is not a GLN. Must not be used.
+        $client = $this->makeClient(276, 'business', [
+            'vat_number' => 'DE123456789',
+            'routing_id' => '1234567890',
+        ]);
+
+        $meta = $this->runMutatorWithMock($client, fn () => false);
+
+        $this->assertEquals('DE:VAT', $meta['routing']['eIdentifiers'][0]['scheme']);
+    }
 }

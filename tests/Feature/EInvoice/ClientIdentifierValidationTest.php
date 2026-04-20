@@ -49,6 +49,7 @@ class ClientIdentifierValidationTest extends TestCase
             'city' => 'Brussels',
             'postal_code' => '1000',
             'vat_number' => 'BE0202239951',
+            'routing_id' => '', // factory populates random digits; force empty for baseline.
         ], $overrides));
 
         ClientContact::factory()->create([
@@ -329,5 +330,200 @@ class ClientIdentifierValidationTest extends TestCase
             'SK' => [703, 'SK'], // Slovakia
             'CH' => [756, 'CH'], // Switzerland
         ];
+    }
+
+    // ──────────────────────────────────────────────────────
+    // Explicit routing_id override (scheme:id form) is the
+    // first thing checked — mirrors RoutingResolver at send
+    // time. A valid routing_id overrides handler candidates.
+    // ──────────────────────────────────────────────────────
+
+    public function testValidGlnRoutingIdOverrideOnFrClient(): void
+    {
+        // FR handler reads id_number only; absent here. A valid GLN in
+        // routing_id must still make the client routable.
+        $client = $this->makeClient([
+            'country_id' => 250, // FR
+            'vat_number' => '',
+            'id_number'  => '',
+            'routing_id' => '0088:12345678901231', // 13-digit GLN
+        ]);
+
+        $result = (new EntityLevel())->checkClient($client);
+
+        $this->assertTrue(
+            $result['passes'],
+            'FR client with valid GLN routing_id should pass. Errors: ' . json_encode($result['client'] ?? [])
+        );
+    }
+
+    public function testValidGlnRoutingIdOverrideOnBeClient(): void
+    {
+        // BE handler reads vat_number only; absent here. Valid GLN override passes.
+        $client = $this->makeClient([
+            'vat_number' => '',
+            'routing_id' => '0088:12345678901231',
+        ]);
+
+        $result = (new EntityLevel())->checkClient($client);
+
+        $this->assertTrue($result['passes'], 'BE client with valid GLN routing_id should pass. Errors: ' . json_encode($result['client'] ?? []));
+    }
+
+    public function testGlnRoutingIdTooShortGivesSpecificError(): void
+    {
+        $client = $this->makeClient([
+            'country_id' => 250, // FR
+            'vat_number' => '',
+            'id_number'  => '',
+            'routing_id' => '0088:4334343', // 7 digits, not 14
+        ]);
+
+        $errors = $this->clientErrors($client);
+
+        $this->assertTrue($this->hasErrorForField($errors, 'routing_id'), 'Expected routing_id error. Got: ' . json_encode($errors));
+
+        $label = $this->firstErrorLabel($errors, 'routing_id');
+        $this->assertStringContainsStringIgnoringCase('GLN', $label);
+        $this->assertStringContainsStringIgnoringCase('14 digits', $label);
+    }
+
+    public function testBareNumericRoutingIdOnFrGivesGlnSpecificError(): void
+    {
+        // FR does not natively use routing_id. A bare numeric value is clearly
+        // a GLN attempt — the error must SAY so, not fall through to the
+        // generic "no valid routing identifier" message.
+        $client = $this->makeClient([
+            'country_id' => 250, // FR
+            'vat_number' => '',
+            'id_number'  => '',
+            'routing_id' => '2435345543', // 10 digits, not 14
+        ]);
+
+        $errors = $this->clientErrors($client);
+
+        $this->assertTrue($this->hasErrorForField($errors, 'routing_id'), 'Expected routing_id error for bare numeric on FR. Got: ' . json_encode($errors));
+
+        $label = $this->firstErrorLabel($errors, 'routing_id');
+        $this->assertStringContainsStringIgnoringCase('GLN', $label);
+        $this->assertStringContainsStringIgnoringCase('14 digits', $label);
+    }
+
+    public function testBare13DigitRoutingIdOnFrPassesAsGln(): void
+    {
+        // A 13-digit numeric value on a non-native-routing-id country is
+        // accepted as an implicit GLN (scheme 0088) iff the GS1 mod-10
+        // check digit is valid. 12345678901231 is a valid GLN.
+        $client = $this->makeClient([
+            'country_id' => 250, // FR
+            'vat_number' => '',
+            'id_number'  => '',
+            'routing_id' => '12345678901231',
+        ]);
+
+        $result = (new EntityLevel())->checkClient($client);
+
+        $this->assertTrue($result['passes'], 'Bare 13-digit value with valid mod-10 should pass. Errors: ' . json_encode($result['client'] ?? []));
+    }
+
+    public function testGlnWithBadCheckdigitIsRejected(): void
+    {
+        // 14 digits but wrong check digit — the last "2" should be "1".
+        $client = $this->makeClient([
+            'country_id' => 250, // FR
+            'vat_number' => '',
+            'id_number'  => '',
+            'routing_id' => '12345678901232',
+        ]);
+
+        $errors = $this->clientErrors($client);
+
+        $this->assertTrue($this->hasErrorForField($errors, 'routing_id'));
+
+        $label = $this->firstErrorLabel($errors, 'routing_id');
+        $this->assertStringContainsStringIgnoringCase('check digit', $label);
+        $this->assertStringContainsString('expected 1', $label);
+    }
+
+    public function testGlnWithBadCheckdigitInSchemeFormIsRejected(): void
+    {
+        $client = $this->makeClient([
+            'country_id' => 250, // FR
+            'vat_number' => '',
+            'id_number'  => '',
+            'routing_id' => '0088:12345678901232',
+        ]);
+
+        $errors = $this->clientErrors($client);
+
+        $this->assertTrue($this->hasErrorForField($errors, 'routing_id'));
+        $this->assertStringContainsStringIgnoringCase('check digit', $this->firstErrorLabel($errors, 'routing_id'));
+    }
+
+    public function testBareAlphanumericRoutingIdOnFrRejected(): void
+    {
+        // Non-numeric bare routing_id on FR is not a GLN and not in scheme:id
+        // form. Give a clear error pointing to the expected format.
+        $client = $this->makeClient([
+            'country_id' => 250, // FR
+            'vat_number' => '',
+            'id_number'  => '',
+            'routing_id' => 'SUBM70N',
+        ]);
+
+        $errors = $this->clientErrors($client);
+
+        $this->assertTrue($this->hasErrorForField($errors, 'routing_id'));
+        $this->assertStringContainsStringIgnoringCase('scheme:id', $this->firstErrorLabel($errors, 'routing_id'));
+    }
+
+    public function testBareRoutingIdOnItFallsThroughToHandler(): void
+    {
+        // IT handler natively consumes routing_id as a raw IT:CUUO value.
+        // Bare values on IT must NOT trigger a routing_id override error —
+        // they are the native input.
+        // IT is not in peppol_network so identifier validation doesn't fire
+        // at all; this test documents that bare routing_id isn't intercepted.
+        $client = $this->makeClient([
+            'country_id' => 380, // IT
+            'vat_number' => 'IT12345678901',
+            'id_number'  => '',
+            'routing_id' => 'SUBM70N',
+        ]);
+
+        $errors = $this->clientErrors($client);
+
+        $this->assertFalse($this->hasErrorForField($errors, 'routing_id'), 'IT bare routing_id must not trigger override error.');
+    }
+
+    public function testRoutingIdEmptyIdAfterColonGivesSpecificError(): void
+    {
+        $client = $this->makeClient([
+            'country_id' => 250, // FR
+            'vat_number' => '',
+            'id_number'  => '',
+            'routing_id' => '0088:',
+        ]);
+
+        $errors = $this->clientErrors($client);
+
+        $this->assertTrue($this->hasErrorForField($errors, 'routing_id'));
+        $this->assertStringContainsStringIgnoringCase('scheme:id', $this->firstErrorLabel($errors, 'routing_id'));
+    }
+
+    public function testValidSgUenRoutingIdOverride(): void
+    {
+        // Another non-GLN ICD scheme: SG:UEN = 0195. Router has no regex for
+        // "0195", so format validation degrades to non-empty — passes.
+        $client = $this->makeClient([
+            'country_id' => 702, // SG
+            'vat_number' => '',
+            'id_number'  => '',
+            'routing_id' => '0195:SGUENT08GA0028A',
+        ]);
+
+        $result = (new EntityLevel())->checkClient($client);
+
+        $this->assertTrue($result['passes'], 'SG client with valid SG:UEN override should pass. Errors: ' . json_encode($result['client'] ?? []));
     }
 }

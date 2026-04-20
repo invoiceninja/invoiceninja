@@ -623,6 +623,25 @@ class Invoice extends BaseModel
     }
 
     /**
+     * Determines whether automatic tax calculation
+     * should be blocked from mutating this invoice.
+     *
+     * Prevents the `calculate_taxes` company setting from
+     * silently adding taxes to invoices whose totals must
+     * not change after the fact.
+     *
+     * @return bool
+     */
+    public function isTaxImmutable(): bool
+    {
+        return in_array($this->status_id, [
+            self::STATUS_PAID,
+            self::STATUS_CANCELLED,
+            self::STATUS_REVERSED,
+        ], true);
+    }
+
+    /**
      * Filtering logic to determine
      * whether an invoice is locked
      * based on the current status of the invoice.

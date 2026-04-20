@@ -476,7 +476,6 @@ class Import implements ShouldQueue
 
         if (isset($data['settings']->company_logo) && strlen($data['settings']->company_logo) > 0) {
 
-
             try {
                 $logoUrl = $data['settings']->company_logo;
 
@@ -499,7 +498,11 @@ class Import implements ShouldQueue
                 }
 
                 // 4. Use HTTP client with timeout and size limits instead of copy()
-                $response = \Illuminate\Support\Facades\Http::timeout(20)->get($logoUrl);
+                $response = \Illuminate\Support\Facades\Http::timeout(5)
+                                        ->withOptions([
+                                            'verify' => !Ninja::isSelfHost(), 
+                                            'allow_redirects' => false,
+                                            ])->get($logoUrl);
 
                 if ($response->successful() && strlen($response->body()) < 20 * 1024 * 1024) { // 5MB limit
                     $tempImage = tempnam(sys_get_temp_dir(), 'logo_');

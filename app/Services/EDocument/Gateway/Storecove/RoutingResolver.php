@@ -49,12 +49,20 @@ class RoutingResolver
     {
         $result = ['type' => 'none', 'meta' => [], 'networks' => []];
 
-        // 1. Explicit routing_id override (scheme:id format)
+        // 1. GLN always wins if the client has supplied one (bare 14 digits
+        //    or "0088:<14digits>"). No discovery gate — a valid GLN is the
+        //    recipient's authoritative identifier. If Storecove can't find it,
+        //    fail loud rather than silently rerouting to VAT/SIRET.
+        if ($gln = $this->resolveGlnRoutingId()) {
+            return $gln;
+        }
+
+        // 2. Explicit scheme:id routing_id override (non-GLN schemes)
         if ($explicit = $this->resolveExplicitRoutingId()) {
             return $explicit;
         }
 
-        // 2. Handler-provided candidates — try discovery, first hit wins.
+        // 3. Handler-provided candidates — try discovery, first hit wins.
         //    If no discovery succeeds, use the first valid candidate (config-based).
         $candidates = $this->handler->getCandidates(
             $this->invoice->client,
@@ -88,17 +96,46 @@ class RoutingResolver
             return $result;
         }
 
-        // 3. Email fallback for individuals
+        // 4. Email fallback for individuals
         if ($this->classification === 'individual') {
             return $this->emailResult($this->invoice->client->present()->email());
         }
 
-        // 4. Check config for Email routing (IN, SA, IT B2C)
+        // 5. Check config for Email routing (IN, SA, IT B2C)
         $code = $this->router->setInvoice($this->invoice)
             ->resolveRouting($this->countryCode, $this->classification);
         if ($code === 'Email') {
             return $this->emailResult($this->invoice->client->present()->email());
         }
+
+        return $result;
+    }
+
+    /**
+     * If the client has a valid GLN in routing_id (bare 14 digits or
+     * "0088:<14digits>"), route via scheme 0088 unconditionally — GLN wins
+     * over every handler candidate. Discovery is attempted for network
+     * overrides, but a failed discovery does NOT cause fall-through: the
+     * value stands.
+     */
+    private function resolveGlnRoutingId(): ?array
+    {
+        $routingId = trim($this->invoice->client->routing_id ?? '');
+
+        if ($routingId === '' || !StorecoveRouter::isValidGln($routingId)) {
+            return null;
+        }
+
+        $gln = str_starts_with($routingId, '0088:')
+            ? substr($routingId, 5)
+            : $routingId;
+
+        // Attempt discovery for network-override resolution, but don't gate
+        // the result on it.
+        $this->proxyDiscovery($gln, '0088');
+
+        $result = $this->eIdentifierResult('0088', $gln);
+        $result['networks'] = $this->resolveNetworkOverrides();
 
         return $result;
     }

@@ -127,6 +127,7 @@ class SendEDocument implements ShouldQueue
             return $result['errors'];
         }
 
+        
         // ── Step 4: Assemble payload ──
         $payload = [
             'legal_entity_id' => $model->company->legal_entity_id,

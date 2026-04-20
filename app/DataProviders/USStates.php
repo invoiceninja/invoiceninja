@@ -33907,8 +33907,10 @@ class USStates
     {
 
         $response = Http::withOptions([
-            'redirects' => false,
-        ])->get("https://api.zippopotam.us/us/{$zip}");
+            'allow_redirects' => false,
+        ])
+        ->timeout(5)
+        ->get("https://api.zippopotam.us/us/{$zip}");
 
         if ($response->failed()) {
             return false;
