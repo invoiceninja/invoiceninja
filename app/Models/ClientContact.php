@@ -340,7 +340,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
     }
 
     /**
-     * @return mixed|string
+     * @return string
      */
     public function avatarUrl(): string
     {

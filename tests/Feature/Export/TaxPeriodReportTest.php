@@ -2717,4 +2717,348 @@ nlog($dec_delta_item_report);
 
         $this->travelBack();
     }
+
+    /**
+     * Cash mode: invoice with N payments unwraps to one row per (tax_detail × payment).
+     * 0% tax case (Inv41532-shape): 4 payments × 1 tax_detail = 4 rows; column sums equal aggregate.
+     */
+    public function testCashUnwrapMultiplePaymentsZeroTaxSumsExactly()
+    {
+        $this->buildData();
+        $this->travelTo(\Carbon\Carbon::createFromDate(2026, 3, 10)->startOfDay());
+
+        $line_items = [];
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 1434.95;
+        $item->tax_name1 = 'Oregon 0%';
+        $item->tax_rate1 = 0;
+        $line_items[] = $item;
+
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'line_items' => $line_items,
+            'status_id' => Invoice::STATUS_DRAFT,
+            'discount' => 0,
+            'is_amount_discount' => false,
+            'uses_inclusive_taxes' => false,
+            'tax_name1' => '', 'tax_rate1' => 0,
+            'tax_name2' => '', 'tax_rate2' => 0,
+            'tax_name3' => '', 'tax_rate3' => 0,
+            'custom_surcharge1' => 0, 'custom_surcharge2' => 0,
+            'custom_surcharge3' => 0, 'custom_surcharge4' => 0,
+            'date' => now()->format('Y-m-d'),
+            'due_date' => now()->addDays(30)->format('Y-m-d'),
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->service()->markSent()->createInvitations()->save();
+
+        $invoice = $invoice->fresh();
+        $invoice->service()->applyPaymentAmount(160.00, 'p1')->save();
+        $invoice = $invoice->fresh();
+        $invoice->service()->applyPaymentAmount(65.00, 'p2')->save();
+        $invoice = $invoice->fresh();
+        $invoice->service()->applyPaymentAmount(300.00, 'p3')->save();
+        $invoice = $invoice->fresh();
+        $invoice->service()->applyPaymentAmount(909.95, 'p4')->save();
+        $invoice = $invoice->fresh();
+
+        (new InvoiceTransactionEventEntryCash())->run($invoice, '2026-03-01', '2026-03-31');
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2026, 4, 1)->startOfDay());
+
+        $payload = [
+            'start_date' => '2026-03-01',
+            'end_date' => '2026-03-31',
+            'date_range' => 'custom',
+            'is_income_billed' => false,
+        ];
+
+        $data = $this->executeTaxPeriodReportAndSave('testCashUnwrapMultiplePaymentsZeroTaxSumsExactly', $this->company, $payload, true);
+
+        // Header + 4 cartesian rows (1 tax_detail × 4 payments)
+        $this->assertCount(5, $data['invoice_items'], 'Expected header + 4 invoice_item rows for 4 payments');
+
+        $sum_taxable = 0.0;
+        $sum_tax = 0.0;
+        for ($i = 1; $i < count($data['invoice_items']); $i++) {
+            $sum_tax += $data['invoice_items'][$i][4];
+            $sum_taxable += $data['invoice_items'][$i][5];
+        }
+        $this->assertEquals(1434.95, round($sum_taxable, 2), 'Pro-rata taxable_amount must sum to aggregate');
+        $this->assertEquals(0.00, round($sum_tax, 2), 'Pro-rata tax_amount must sum to aggregate');
+
+        // Payment columns are appended after base 8 + regional columns. Last 4 cols on each row are payment cols.
+        for ($i = 1; $i < count($data['invoice_items']); $i++) {
+            $row = $data['invoice_items'][$i];
+            $payment_amount_col = count($row) - 2; // payment columns: number, date, amount, refunded
+            $payment_number_col = count($row) - 4;
+            $this->assertNotEmpty($row[$payment_number_col] ?? null, "Row {$i} should have payment_number column populated");
+            $this->assertIsNumeric($row[$payment_amount_col] ?? null, "Row {$i} should have payment_amount column populated");
+        }
+
+        $this->travelBack();
+    }
+
+    /**
+     * Cash mode: pro-rata rounding allocates remainder to the last (date-sorted) payment
+     * so column sums equal aggregate to the cent.
+     */
+    public function testCashUnwrapRoundingRemainderAllocation()
+    {
+        $this->buildData();
+        $this->travelTo(\Carbon\Carbon::createFromDate(2026, 3, 10)->startOfDay());
+
+        // $100 taxable @ 9% GST = $9 tax. Three payments: $33.33, $33.33, $33.34.
+        // Pro-rata: 0.3333 * 9 = 2.9997, 0.3333 * 9 = 2.9997, last absorbs remainder.
+        $line_items = [];
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 100;
+        $item->tax_name1 = 'GST';
+        $item->tax_rate1 = 9;
+        $line_items[] = $item;
+
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'line_items' => $line_items,
+            'status_id' => Invoice::STATUS_DRAFT,
+            'discount' => 0,
+            'is_amount_discount' => false,
+            'uses_inclusive_taxes' => false,
+            'tax_name1' => '', 'tax_rate1' => 0,
+            'tax_name2' => '', 'tax_rate2' => 0,
+            'tax_name3' => '', 'tax_rate3' => 0,
+            'custom_surcharge1' => 0, 'custom_surcharge2' => 0,
+            'custom_surcharge3' => 0, 'custom_surcharge4' => 0,
+            'date' => now()->format('Y-m-d'),
+            'due_date' => now()->addDays(30)->format('Y-m-d'),
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->service()->markSent()->createInvitations()->save();
+        $this->assertEquals(109, $invoice->amount);
+
+        $invoice = $invoice->fresh();
+        $invoice->service()->applyPaymentAmount(36.33, 'p1')->save();
+        $invoice = $invoice->fresh();
+        $invoice->service()->applyPaymentAmount(36.33, 'p2')->save();
+        $invoice = $invoice->fresh();
+        $invoice->service()->applyPaymentAmount(36.34, 'p3')->save();
+        $invoice = $invoice->fresh();
+
+        (new InvoiceTransactionEventEntryCash())->run($invoice, '2026-03-01', '2026-03-31');
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2026, 4, 1)->startOfDay());
+
+        $payload = [
+            'start_date' => '2026-03-01',
+            'end_date' => '2026-03-31',
+            'date_range' => 'custom',
+            'is_income_billed' => false,
+        ];
+
+        $data = $this->executeTaxPeriodReportAndSave('testCashUnwrapRoundingRemainderAllocation', $this->company, $payload, true);
+
+        $this->assertCount(4, $data['invoice_items'], 'Expected header + 3 cartesian rows');
+
+        $sum_taxable = 0.0;
+        $sum_tax = 0.0;
+        for ($i = 1; $i < count($data['invoice_items']); $i++) {
+            $sum_tax += $data['invoice_items'][$i][4];
+            $sum_taxable += $data['invoice_items'][$i][5];
+        }
+        // Aggregate must be preserved exactly even when individual rows would round inexactly
+        $this->assertEquals(100.00, round($sum_taxable, 2), 'Taxable sum must equal aggregate exactly');
+        $this->assertEquals(9.00, round($sum_tax, 2), 'Tax sum must equal aggregate exactly');
+
+        $this->travelBack();
+    }
+
+    /**
+     * Cash mode: invoice with two distinct tax rates × multiple payments produces
+     * cartesian rows. Per-tax-name sums equal that tax's aggregate.
+     */
+    public function testCashUnwrapMultipleTaxesCartesian()
+    {
+        $this->buildData();
+        $this->travelTo(\Carbon\Carbon::createFromDate(2026, 3, 10)->startOfDay());
+
+        // Single line item with TWO taxes (GST 10% + STATE 5%) on $100 base = $115 invoice
+        $line_items = [];
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 100;
+        $item->tax_name1 = 'GST';
+        $item->tax_rate1 = 10;
+        $item->tax_name2 = 'STATE';
+        $item->tax_rate2 = 5;
+        $line_items[] = $item;
+
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'line_items' => $line_items,
+            'status_id' => Invoice::STATUS_DRAFT,
+            'discount' => 0,
+            'is_amount_discount' => false,
+            'uses_inclusive_taxes' => false,
+            'tax_name1' => '', 'tax_rate1' => 0,
+            'tax_name2' => '', 'tax_rate2' => 0,
+            'tax_name3' => '', 'tax_rate3' => 0,
+            'custom_surcharge1' => 0, 'custom_surcharge2' => 0,
+            'custom_surcharge3' => 0, 'custom_surcharge4' => 0,
+            'date' => now()->format('Y-m-d'),
+            'due_date' => now()->addDays(30)->format('Y-m-d'),
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->service()->markSent()->createInvitations()->save();
+        $this->assertEquals(115, $invoice->amount);
+
+        $invoice = $invoice->fresh();
+        $invoice->service()->applyPaymentAmount(40, 'p1')->save();
+        $invoice = $invoice->fresh();
+        $invoice->service()->applyPaymentAmount(35, 'p2')->save();
+        $invoice = $invoice->fresh();
+        $invoice->service()->applyPaymentAmount(40, 'p3')->save();
+        $invoice = $invoice->fresh();
+
+        (new InvoiceTransactionEventEntryCash())->run($invoice, '2026-03-01', '2026-03-31');
+
+        $event = $invoice->fresh()->transaction_events()
+            ->where('event_id', \App\Models\TransactionEvent::PAYMENT_CASH)
+            ->first();
+        $this->assertCount(2, $event->metadata->tax_report->tax_details, 'Sanity: invoice should have 2 tax_details');
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2026, 4, 1)->startOfDay());
+
+        $payload = [
+            'start_date' => '2026-03-01',
+            'end_date' => '2026-03-31',
+            'date_range' => 'custom',
+            'is_income_billed' => false,
+        ];
+
+        $data = $this->executeTaxPeriodReportAndSave('testCashUnwrapMultipleTaxesCartesian', $this->company, $payload, true);
+
+        // 2 tax_details × 3 payments = 6 cartesian rows + header
+        $this->assertCount(7, $data['invoice_items'], 'Expected header + 6 cartesian rows (2 taxes × 3 payments)');
+
+        // Per-tax aggregation: GST sums to $10, STATE sums to $5
+        $by_tax = [];
+        for ($i = 1; $i < count($data['invoice_items']); $i++) {
+            $row = $data['invoice_items'][$i];
+            $name = $row[2];
+            $by_tax[$name]['tax'] = ($by_tax[$name]['tax'] ?? 0) + $row[4];
+            $by_tax[$name]['taxable'] = ($by_tax[$name]['taxable'] ?? 0) + $row[5];
+        }
+
+        // tax_name format from listener metadata may include rate suffix (e.g. "GST 10%")
+        $gst_key = collect(array_keys($by_tax))->first(fn ($k) => str_starts_with($k, 'GST'));
+        $state_key = collect(array_keys($by_tax))->first(fn ($k) => str_starts_with($k, 'STATE'));
+        $this->assertNotNull($gst_key, 'GST tax_detail rows expected');
+        $this->assertNotNull($state_key, 'STATE tax_detail rows expected');
+        $this->assertEquals(10.00, round($by_tax[$gst_key]['tax'], 2));
+        $this->assertEquals(100.00, round($by_tax[$gst_key]['taxable'], 2));
+        $this->assertEquals(5.00, round($by_tax[$state_key]['tax'], 2));
+        $this->assertEquals(100.00, round($by_tax[$state_key]['taxable'], 2));
+
+        $this->travelBack();
+    }
+
+    /**
+     * Defensive: a PAYMENT_CASH event with empty payment_history must not divide-by-zero
+     * and must fall back to one row per tax_detail.
+     */
+    public function testCashUnwrapFallbackWhenPaymentHistoryEmpty()
+    {
+        $this->buildData();
+        $this->travelTo(\Carbon\Carbon::createFromDate(2026, 3, 10)->startOfDay());
+
+        $line_items = [];
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 100;
+        $item->tax_name1 = 'GST';
+        $item->tax_rate1 = 10;
+        $line_items[] = $item;
+
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'line_items' => $line_items,
+            'status_id' => Invoice::STATUS_DRAFT,
+            'discount' => 0,
+            'is_amount_discount' => false,
+            'uses_inclusive_taxes' => false,
+            'tax_name1' => '', 'tax_rate1' => 0,
+            'tax_name2' => '', 'tax_rate2' => 0,
+            'tax_name3' => '', 'tax_rate3' => 0,
+            'custom_surcharge1' => 0, 'custom_surcharge2' => 0,
+            'custom_surcharge3' => 0, 'custom_surcharge4' => 0,
+            'date' => now()->format('Y-m-d'),
+            'due_date' => now()->addDays(30)->format('Y-m-d'),
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->service()->markSent()->createInvitations()->save();
+        $invoice = $invoice->fresh();
+
+        // Craft a PAYMENT_CASH event with empty payment_history (defensive scenario)
+        \App\Models\TransactionEvent::create([
+            'invoice_id' => $invoice->id,
+            'client_id' => $invoice->client_id,
+            'client_balance' => $invoice->client->balance,
+            'client_paid_to_date' => $invoice->client->paid_to_date,
+            'client_credit_balance' => $invoice->client->credit_balance,
+            'invoice_balance' => $invoice->balance,
+            'invoice_amount' => $invoice->amount,
+            'invoice_partial' => $invoice->partial ?? 0,
+            'invoice_paid_to_date' => 0,
+            'invoice_status' => $invoice->status_id,
+            'payment_refunded' => 0,
+            'payment_applied' => 0,
+            'payment_amount' => 0,
+            'event_id' => \App\Models\TransactionEvent::PAYMENT_CASH,
+            'timestamp' => now()->timestamp,
+            'metadata' => new \App\DataMapper\TransactionEventMetadata([
+                'tax_report' => [
+                    'tax_details' => [
+                        ['tax_name' => 'GST', 'tax_rate' => 10, 'taxable_amount' => 100, 'tax_amount' => 10, 'line_total' => 100, 'total_tax' => 10, 'postal_code' => null],
+                    ],
+                    'payment_history' => [],
+                    'tax_summary' => ['taxable_amount' => 100, 'tax_amount' => 10, 'status' => 'updated'],
+                ],
+            ]),
+            'period' => '2026-03-31',
+        ]);
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2026, 4, 1)->startOfDay());
+
+        $payload = [
+            'start_date' => '2026-03-01',
+            'end_date' => '2026-03-31',
+            'date_range' => 'custom',
+            'is_income_billed' => false,
+        ];
+
+        $data = $this->executeTaxPeriodReportAndSave('testCashUnwrapFallbackWhenPaymentHistoryEmpty', $this->company, $payload, true);
+
+        // Header + 1 tax_detail row (no per-payment unwrap, no /0)
+        $this->assertCount(2, $data['invoice_items'], 'Empty payment_history must fall back to one row per tax_detail');
+
+        $row = $data['invoice_items'][1];
+        $this->assertEquals(10, $row[4], 'Fallback row carries the full tax_amount');
+        $this->assertEquals(100, $row[5], 'Fallback row carries the full taxable_amount');
+
+        $this->travelBack();
+    }
 }

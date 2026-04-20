@@ -13,10 +13,7 @@
 namespace App\Services\Report;
 
 use Carbon\Carbon;
-use App\Models\User;
 use App\Utils\Ninja;
-use App\Utils\Number;
-use App\Models\Client;
 use League\Csv\Writer;
 use App\Models\Company;
 use App\Models\Invoice;
@@ -27,7 +24,6 @@ use App\Utils\Traits\MakesDates;
 use Illuminate\Support\Facades\App;
 use Illuminate\Database\Eloquent\Builder;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use App\Services\Template\TemplateService;
 use App\Listeners\Invoice\InvoiceTransactionEventEntry;
 use App\Listeners\Invoice\InvoiceTransactionEventEntryCash;
 use App\Services\Report\TaxPeriod\TaxSummary;
@@ -36,6 +32,7 @@ use App\Services\Report\TaxPeriod\InvoiceReportRow;
 use App\Services\Report\TaxPeriod\InvoiceItemReportRow;
 use App\Services\Report\TaxPeriod\RegionalTaxCalculator;
 use App\Services\Report\TaxPeriod\RegionalTaxCalculatorFactory;
+use App\DataMapper\TaxReport\PaymentHistory;
 
 class TaxPeriodReport extends BaseExport
 {
@@ -411,7 +408,34 @@ class TaxPeriodReport extends BaseExport
         $worksheet->getStyle('E:E')->getNumberFormat()->setFormatCode($this->currency_format);
         $worksheet->getStyle('F:F')->getNumberFormat()->setFormatCode($this->currency_format);
 
+        // When cash mode emits per-payment rows, payment columns are appended after
+        // the base 8 columns and any regional columns. Compute their offset and style them.
+        if ($this->cash_accounting) {
+            $regional_column_count = $this->regional_calculator
+                ? count($this->regional_calculator->getHeaders())
+                : 0;
+            $payment_first_index = 8 + $regional_column_count; // 0-based: payment_number
+            $payment_date_letter = $this->columnLetter($payment_first_index + 1);
+            $payment_amount_letter = $this->columnLetter($payment_first_index + 2);
+            $payment_refunded_letter = $this->columnLetter($payment_first_index + 3);
+
+            $worksheet->getStyle("{$payment_date_letter}:{$payment_date_letter}")
+                ->getNumberFormat()->setFormatCode($this->date_format);
+            $worksheet->getStyle("{$payment_amount_letter}:{$payment_amount_letter}")
+                ->getNumberFormat()->setFormatCode($this->currency_format);
+            $worksheet->getStyle("{$payment_refunded_letter}:{$payment_refunded_letter}")
+                ->getNumberFormat()->setFormatCode($this->currency_format);
+        }
+
         return $this;
+    }
+
+    /**
+     * Convert a 0-based column index to its spreadsheet letter (A, B, ..., Z, AA, AB, ...).
+     */
+    private function columnLetter(int $index): string
+    {
+        return \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($index + 1);
     }
 
 
@@ -425,7 +449,7 @@ class TaxPeriodReport extends BaseExport
 
         // Initialize with headers
         $this->data['invoices'] = [InvoiceReportRow::getHeaders($this->regional_calculator)];
-        $this->data['invoice_items'] = [InvoiceItemReportRow::getHeaders($this->regional_calculator)];
+        $this->data['invoice_items'] = [InvoiceItemReportRow::getHeaders($this->regional_calculator, $this->cash_accounting)];
 
         $query->cursor()->each(function ($invoice) {
 
@@ -463,7 +487,7 @@ class TaxPeriodReport extends BaseExport
     {
         $tax_summary = TaxSummary::fromMetadata($event->metadata->tax_report->tax_summary);
 
-        // Build and add invoice row
+        // Build and add invoice row (one per event regardless of payment count)
         $invoice_row_builder = new InvoiceReportRow(
             $invoice,
             $event,
@@ -473,8 +497,18 @@ class TaxPeriodReport extends BaseExport
 
         $this->data['invoices'][] = $invoice_row_builder->build();
 
-        // Build and add invoice item rows for each tax detail
-        foreach ($event->metadata->tax_report->tax_details ?? [] as $tax_detail_data) {
+        $tax_details = $event->metadata->tax_report->tax_details ?? [];
+        $payments = $this->orderedPaymentHistory($event);
+
+        // Cash-mode PAYMENT_CASH events with payments: emit cartesian (tax_detail × payment) rows
+        // with pro-rated tax/taxable so column sums equal aggregate totals exactly.
+        if ($this->shouldUnwrapByPayment($event, $payments)) {
+            $this->emitItemRowsPerPayment($invoice, $tax_summary, $tax_details, $payments);
+            return;
+        }
+
+        // All other events: one row per tax_detail (existing behaviour)
+        foreach ($tax_details as $tax_detail_data) {
             $tax_detail = TaxDetail::fromMetadata($tax_detail_data);
 
             $item_row_builder = new InvoiceItemReportRow(
@@ -486,6 +520,96 @@ class TaxPeriodReport extends BaseExport
 
             $this->data['invoice_items'][] = $item_row_builder->buildForStatus();
         }
+    }
+
+    /**
+     * Cartesian unwrap: emit one row per (tax_detail, payment) with pro-rata tax/taxable.
+     * Last payment for each tax_detail absorbs the rounding remainder so column sums match.
+     */
+    private function emitItemRowsPerPayment(Invoice $invoice, TaxSummary $tax_summary, array $tax_details, array $payments): void
+    {
+        $total_payment_amount = array_sum(array_map(fn (PaymentHistory $p) => $p->amount, $payments));
+
+        if ($total_payment_amount <= 0) {
+            // Defensive fallback: no positive payment basis — emit one row per tax_detail without payment context
+            foreach ($tax_details as $tax_detail_data) {
+                $tax_detail = TaxDetail::fromMetadata($tax_detail_data);
+                $this->data['invoice_items'][] = (new InvoiceItemReportRow(
+                    $invoice,
+                    $tax_detail,
+                    $tax_summary->status,
+                    $this->regional_calculator
+                ))->buildForStatus();
+            }
+            return;
+        }
+
+        $precision = $invoice->client?->currency()?->precision ?? 2;
+        $payment_count = count($payments);
+
+        foreach ($tax_details as $tax_detail_data) {
+            $tax_detail = TaxDetail::fromMetadata($tax_detail_data);
+
+            $running_taxable = 0.0;
+            $running_tax = 0.0;
+
+            foreach ($payments as $i => $payment) {
+                $is_last = ($i === $payment_count - 1);
+                $ratio = $payment->amount / $total_payment_amount;
+
+                if ($is_last) {
+                    $row_taxable = round($tax_detail->taxable_amount - $running_taxable, $precision);
+                    $row_tax = round($tax_detail->tax_amount - $running_tax, $precision);
+                } else {
+                    $row_taxable = round($tax_detail->taxable_amount * $ratio, $precision);
+                    $row_tax = round($tax_detail->tax_amount * $ratio, $precision);
+                    $running_taxable += $row_taxable;
+                    $running_tax += $row_tax;
+                }
+
+                $prorated_detail = new TaxDetail(
+                    tax_name: $tax_detail->tax_name,
+                    tax_rate: $tax_detail->tax_rate,
+                    taxable_amount: $row_taxable,
+                    tax_amount: $row_tax,
+                    line_total: $tax_detail->line_total,
+                    total_tax: $tax_detail->total_tax,
+                    postal_code: $tax_detail->postal_code,
+                );
+
+                $this->data['invoice_items'][] = (new InvoiceItemReportRow(
+                    $invoice,
+                    $prorated_detail,
+                    $tax_summary->status,
+                    $this->regional_calculator,
+                    $payment,
+                ))->buildForStatus();
+            }
+        }
+    }
+
+    /**
+     * @return array<int, PaymentHistory>
+     */
+    private function orderedPaymentHistory(TransactionEvent $event): array
+    {
+        $payment_history = $event->metadata->tax_report->payment_history ?? null;
+
+        if (! $payment_history) {
+            return [];
+        }
+
+        return $payment_history
+            ->sortBy([['date', 'asc'], ['number', 'asc']])
+            ->values()
+            ->all();
+    }
+
+    private function shouldUnwrapByPayment(TransactionEvent $event, array $payments): bool
+    {
+        return $this->cash_accounting
+            && $event->event_id === TransactionEvent::PAYMENT_CASH
+            && count($payments) > 0;
     }
 
     public function getData()
