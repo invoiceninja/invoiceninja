@@ -107,6 +107,15 @@ trait MakesDates
             return '';
         }
 
+        // PHP's DateTime serializes to JSON as {date, timezone_type, timezone}.
+        // Fields stored on JSON-cast columns (e.g. Invoice::$e_invoice) round-trip
+        // as a stdClass in this shape — normalize to the inner string so Carbon
+        // can parse it. See PeppolPartyBuilder::getDelivery() for the original
+        // workaround we are generalizing here.
+        if (is_object($date) && !($date instanceof \DateTimeInterface) && isset($date->date)) {
+            $date = $date->date;
+        }
+
         Carbon::setLocale($locale);
 
         try {

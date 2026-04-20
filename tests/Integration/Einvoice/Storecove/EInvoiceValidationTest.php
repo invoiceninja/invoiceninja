@@ -428,7 +428,7 @@ class EInvoiceValidationTest extends TestCase
 
         $el = new EntityLevel();
         $validation = $el->checkClient($client);
-nlog($validation);
+
         $this->assertTrue($validation['passes']);
 
     }

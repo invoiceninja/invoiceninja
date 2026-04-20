@@ -54,6 +54,9 @@ class CreateRawPdf
      */
     public function __construct($invitation, private ?string $type = null)
     {
+        if ($invitation === null) {
+            throw new \InvalidArgumentException('CreateRawPdf requires an invitation, got null. Ensure the entity has invitations before generating a PDF.');
+        }
 
         $this->invitation = $invitation;
         $this->company = $invitation->company;

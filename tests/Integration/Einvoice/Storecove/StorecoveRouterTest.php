@@ -1224,6 +1224,17 @@ class StorecoveRouterTest extends TestCase
         $this->assertEquals('9925', $storecove->router->resolveIso6523Scheme('BE:VAT'));
     }
 
+    public function testCompositeSchemeResolvesToFirstAtomicEasCode()
+    {
+        $storecove = new Storecove();
+
+        // BR-CL-25 regression: never emit "FR:SIRENE or FR:SIRET" verbatim
+        // as a UBL schemeID — must resolve to a 4-digit EAS code.
+        $this->assertEquals('0002', $storecove->router->resolveIso6523Scheme('FR:SIRENE or FR:SIRET'));
+        $this->assertEquals('0002', $storecove->router->resolveIso6523Scheme('FR:SIRENE'));
+        $this->assertEquals('0009', $storecove->router->resolveIso6523Scheme('FR:SIRET'));
+    }
+
     public function testBeEnFormatValidationVariants()
     {
         $storecove = new Storecove();

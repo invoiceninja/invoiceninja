@@ -226,11 +226,12 @@ class PeppolPartyBuilder
             $id->schemeID = $resolved_scheme;
             $id->value = $routing_id;
         } else {
-            // No routing_id — fall back to VAT or id_number
-            $id->schemeID = $resolved_scheme;
-            $id->value = preg_replace("/[^a-zA-Z0-9]/", "", $invoice->client->vat_number ?? '')
-                      ?: preg_replace("/[^a-zA-Z0-9]/", "", $invoice->client->id_number ?? '')
-                      ?: 'fallback1234';
+            // No routing_id — defer to the country handler so composite schemes
+            // (e.g. FR "SIRENE or SIRET") are disambiguated against the client's
+            // id_number / vat_number rather than emitted verbatim (BR-CL-25).
+            $candidate = $this->resolveClientEndpointCandidate($invoice, $resolved_scheme);
+            $id->schemeID = $candidate['schemeID'];
+            $id->value = $candidate['value'];
         }
 
         $party->EndpointID = $id;
@@ -359,6 +360,43 @@ class PeppolPartyBuilder
         }
 
         return $router->resolveIso6523Scheme($friendly_scheme);
+    }
+
+    /**
+     * Resolve the customer EndpointID schemeID + value via the country handler.
+     *
+     * Delegates to CountryHandler::getCandidates() so country-specific
+     * disambiguation (e.g. FR's SIRENE-vs-SIRET on id_number length) is the
+     * authoritative source. Falls back to the previously resolved EAS code +
+     * VAT/id_number when the handler returns no candidates.
+     *
+     * @param  object $invoice
+     * @param  string $resolved_scheme  Pre-resolved EAS code (numeric)
+     * @return array{schemeID: string, value: string}
+     */
+    private function resolveClientEndpointCandidate(object $invoice, string $resolved_scheme): array
+    {
+        $router = $this->peppol->getRouter();
+        $country_code = $invoice->client->country->iso_3166_2;
+        $classification = $invoice->client->classification ?? 'business';
+
+        $handler = CountryFactory::make($country_code);
+        $candidates = $handler->getCandidates($invoice->client, $classification, $router);
+
+        if (count($candidates) > 0 && !empty($candidates[0]['scheme']) && !empty($candidates[0]['id'])) {
+            $candidate = $candidates[0];
+            return [
+                'schemeID' => $router->resolveIso6523Scheme((string) $candidate['scheme']),
+                'value' => (string) $candidate['id'],
+            ];
+        }
+
+        return [
+            'schemeID' => $resolved_scheme,
+            'value' => preg_replace("/[^a-zA-Z0-9]/", "", $invoice->client->vat_number ?? '')
+                ?: preg_replace("/[^a-zA-Z0-9]/", "", $invoice->client->id_number ?? '')
+                ?: 'fallback1234',
+        ];
     }
 
     /**

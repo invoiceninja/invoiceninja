@@ -137,6 +137,7 @@ class StorecoveTest extends TestCase
             'name' => 'Test Client',
             'is_tax_exempt' => $params['is_tax_exempt'] ?? false,
             'id_number' => $params['client_id_number'] ?? '',
+            'routing_id' => '',
         ]);
 
         $contact = ClientContact::factory()->create([
@@ -2639,7 +2640,7 @@ class StorecoveTest extends TestCase
         $this->assertContains($contactEmail, $identifiers['routing']['emails']);
 
         // Peppol XML EndpointID must use a valid EAS code (0088/GLN), not "Email"
-        $peppolInvoice = $p->getInvoice();
+        $peppolInvoice = $p->getDocument();
         $endpointId = $peppolInvoice->AccountingCustomerParty->Party->EndpointID;
         $this->assertEquals('0202', $endpointId->schemeID, 'EndpointID schemeID must be 0202 for email-routed countries');
         $this->assertEquals('22AAAAA0000A1Z5', $endpointId->value, 'EndpointID value must be the client GSTIN for IN receivers');

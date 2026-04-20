@@ -482,7 +482,22 @@ class StorecoveRouter
         }
 
         $map = config('einvoice.iso6523_map');
-        return $map[$scheme] ?? $scheme;
+
+        if (isset($map[$scheme])) {
+            return $map[$scheme];
+        }
+
+        // Composite "X or Y" (e.g. "FR:SIRENE or FR:SIRET") — never emit verbatim
+        // as a UBL schemeID (BR-CL-25). Resolve the first atomic option that maps.
+        if (stripos($scheme, ' or ') !== false) {
+            foreach (array_map('trim', explode(' or ', $scheme)) as $atomic) {
+                if (isset($map[$atomic])) {
+                    return $map[$atomic];
+                }
+            }
+        }
+
+        return $scheme;
     }
 
     /**

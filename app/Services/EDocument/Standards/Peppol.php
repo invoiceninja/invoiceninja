@@ -358,7 +358,8 @@ class Peppol extends AbstractService implements MutatorInterface
             $this->p_invoice = $receiverHandler->receiverMutations($this->p_invoice, $this->invoice, $mutatorUtil);
 
         } catch (\Throwable $th) {
-            nlog("Unable to create Peppol Invoice - " . $th->getMessage());
+            nlog("Unable to create Peppol Invoice - " . $th->getMessage() . ' at ' . $th->getFile() . ':' . $th->getLine());
+            nlog($th->getTraceAsString());
             $this->errors[] = $th->getMessage();
         }
 
