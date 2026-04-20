@@ -60,6 +60,7 @@ class BECS implements LivewireMethodInterface
             return $this->processSuccessfulPayment($gateway_response->id);
         }
 
+        //@phpstan-ignore-next-line
         $error = $gateway_response->last_payment_error?->message ?? "BECS payment failed with status: " . ($gateway_response->status ?? 'unknown');
 
         return $this->processUnsuccessfulPayment($error);

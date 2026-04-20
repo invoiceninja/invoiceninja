@@ -544,7 +544,7 @@ class TaxPeriodReport extends BaseExport
             return;
         }
 
-        $precision = $invoice->client?->currency()?->precision ?? 2;
+        $precision = $invoice->client->currency()->precision ?? 2;
         $payment_count = count($payments);
 
         foreach ($tax_details as $tax_detail_data) {
