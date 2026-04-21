@@ -322,7 +322,7 @@ class PeppolDiscoveryTest extends TestCase
         $meta = $this->runMutatorWithMock($client, fn () => false);
 
         $this->assertEquals('DE:LWID', $meta['routing']['eIdentifiers'][0]['scheme']);
-        $this->assertEquals('04011000123456123456', $meta['routing']['eIdentifiers'][0]['id']);
+        $this->assertEquals('04011000-1234561234-56', $meta['routing']['eIdentifiers'][0]['id']);
     }
 
     // ──────────────────────────────────────────────────────
