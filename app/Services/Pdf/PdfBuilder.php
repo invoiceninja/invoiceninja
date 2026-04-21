@@ -1500,7 +1500,7 @@ class PdfBuilder
         $elements = [
             ['element' => 'div', 'properties' => ['style' => 'display: flex; flex-direction: column;'], 'elements' => [
                 ['element' => 'div', 'properties' => ['data-ref' => 'total_table-public_notes', 'style' => 'text-align: left;'], 'elements' => [
-                    ['element' => 'div', 'content' => strtr(str_replace(["labels", "values"], ["",""], $_variables['values']['$entity.public_notes']), $_variables)],
+                    ['element' => 'div', 'content' => strtr(str_replace(["labels", "values"], ["",""], $_variables['values']['$entity.public_notes'] ?? ''), $_variables)],
                 ]],
                 ['element' => 'div', 'content' => '', 'properties' => ['style' => 'text-align: left; display: flex; flex-direction: column; page-break-inside: auto;'], 'elements' => [
                     ['element' => 'div', 'content' => '$entity.terms_label: ', 'properties' => ['data-ref' => 'total_table-terms-label', 'style' => "font-weight:bold; text-align: left; margin-top: 1rem; {$show_terms_label}"]],

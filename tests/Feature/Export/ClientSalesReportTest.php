@@ -199,6 +199,71 @@ class ClientSalesReportTest extends TestCase
         $this->account->delete();
     }
 
+    /**
+     * Exercises the GROUP BY aggregate path with multiple clients × multiple
+     * statuses. Asserts the report runs end-to-end and that draft invoices
+     * are excluded from the aggregate (status filter check).
+     */
+    public function testReportAggregatesAcrossClients()
+    {
+        $this->buildData();
+
+        $payload = [
+            'start_date' => '2000-01-01',
+            'end_date' => '2030-01-11',
+            'date_range' => 'custom',
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ];
+
+        $clients = collect();
+        for ($i = 0; $i < 3; $i++) {
+            $clients->push(Client::factory()->create([
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'is_deleted' => 0,
+                'name' => 'Test Client ' . $i,
+                'balance' => ($i + 1) * 100,
+            ]));
+        }
+
+        foreach ($clients as $idx => $client) {
+            foreach ([Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID, Invoice::STATUS_DRAFT] as $status) {
+                Invoice::factory()->create([
+                    'client_id' => $client->id,
+                    'user_id' => $this->user->id,
+                    'company_id' => $this->company->id,
+                    'amount' => 100 + $idx,
+                    'balance' => 50 + $idx,
+                    'total_taxes' => 10,
+                    'status_id' => $status,
+                    'date' => now()->format('Y-m-d'),
+                    'discount' => 0,
+                    'tax_rate1' => 0,
+                    'tax_rate2' => 0,
+                    'tax_rate3' => 0,
+                    'tax_name1' => '',
+                    'tax_name2' => '',
+                    'tax_name3' => '',
+                    'uses_inclusive_taxes' => false,
+                    'line_items' => $this->buildLineItems(),
+                ]);
+            }
+        }
+
+        $report = new ClientSalesReport($this->company, $payload);
+        $output = $report->run();
+
+        $this->assertIsString($output);
+        // Each client created 4 invoices but only 3 (sent/partial/paid) are aggregated.
+        // Spot-check by ensuring a "3" appears as the invoice-count column for at least one client.
+        $this->assertStringContainsString(',3,', $output);
+        // Draft status (count=1 in raw data) must not leak — assert no aggregate of 4 appears.
+        $this->assertStringNotContainsString(',4,', $output);
+
+        $this->account->delete();
+    }
+
 
     private function buildLineItems()
     {

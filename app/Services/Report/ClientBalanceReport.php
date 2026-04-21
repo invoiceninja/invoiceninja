@@ -37,12 +37,6 @@ class ClientBalanceReport extends BaseExport
 
     public string $date_key = 'created_at';
 
-    /**
-     * Toggle between optimized and legacy implementation
-     * Set to false to rollback to legacy per-client queries
-     */
-    private bool $useOptimizedQuery = true;
-
     private string $template = '/views/templates/reports/client_balance_report.html';
 
     private array $clients = [];
@@ -95,19 +89,6 @@ class ClientBalanceReport extends BaseExport
 
         $this->csv->insertOne($this->buildHeader());
 
-        if ($this->useOptimizedQuery) {
-            return $this->runOptimized();
-        }
-
-        return $this->runLegacy();
-    }
-
-    /**
-     * Optimized implementation: Single query for all invoice aggregates
-     * Reduces N+1 queries to 1 query total
-     */
-    private function runOptimized(): string
-    {
         // Fetch all clients
         $query = Client::query()
             ->where('company_id', $this->company->id)
@@ -125,29 +106,6 @@ class ClientBalanceReport extends BaseExport
             /** @var \App\Models\Client $client */
             $this->csv->insertOne($this->buildRowOptimized($client));
         }
-
-        return $this->csv->toString();
-    }
-
-    /**
-     * Legacy implementation: Preserved for rollback
-     * Makes 2 queries per client (count + sum)
-     */
-    private function runLegacy(): string
-    {
-        $query = Client::query()
-            ->where('company_id', $this->company->id)
-            ->where('is_deleted', 0);
-
-        $query = $this->filterByUserPermissions($query);
-
-        $query->where('balance', '!=', 0)
-            ->orderBy('balance', 'desc')
-            ->cursor()
-            ->each(function ($client) {
-                /** @var \App\Models\Client $client */
-                $this->csv->insertOne($this->buildRow($client));
-            });
 
         return $this->csv->toString();
     }
@@ -248,29 +206,4 @@ class ClientBalanceReport extends BaseExport
         return $ts_instance->getPdf();
     }
 
-    /**
-     * Legacy row builder: Preserved for rollback
-     * Makes 2 queries per client
-     */
-    private function buildRow(Client $client): array
-    {
-        $query = Invoice::query()->where('client_id', $client->id)
-                                ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL]);
-
-        $query = $this->addDateRange($query, 'invoices');
-
-        $item = [
-            $client->present()->name(),
-            $client->number,
-            $client->id_number,
-            $query->count(),
-            $query->sum('balance'),
-            Number::formatMoney($client->credit_balance, $this->company),
-            Number::formatMoney($client->payment_balance, $this->company),
-        ];
-
-        $this->clients[] = $item;
-
-        return $item;
-    }
 }

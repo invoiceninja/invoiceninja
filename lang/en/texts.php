@@ -5961,7 +5961,9 @@ $lang = array(
     'skip_automatic_email_with_peppol' => 'Disable Email When Sent via PEPPOL',
     'skip_automatic_email_with_peppol_help' => 'If enabled, invoices sent through the PEPPOL network will not be emailed to the client.',
     'web_session_timeout_help' => 'Time a browser session will remain active prior to being logged out.',
-    'password_timeout_help' => 'Time before an admin password is required to be re-entered.'
+    'password_timeout_help' => 'Time before an admin password is required to be re-entered.',
+    'invoice_status_paid' => 'Please note that the status of your invoice has been paid. The record has now been updated.',
+
 );
 
 return $lang;

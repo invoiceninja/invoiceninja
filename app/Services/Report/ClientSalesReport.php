@@ -41,6 +41,8 @@ class ClientSalesReport extends BaseExport
 
     private array $clients = [];
 
+    private array $invoiceData = [];
+
     public array $report_keys = [
         'client_name',
         'client_number',
@@ -89,21 +91,88 @@ class ClientSalesReport extends BaseExport
         $this->csv->insertOne($this->buildHeader());
 
         $query = Client::query()
+            ->with('contacts')
             ->where('company_id', $this->company->id)
             ->where('is_deleted', 0);
 
         $query = $this->filterByUserPermissions($query);
 
-        $query->orderBy('balance', 'desc')
-            ->cursor()
-            ->each(function ($client) {
-                /** @var \App\Models\Client $client */
-                $this->csv->insertOne($this->buildRow($client));
+        $clients = $query->orderBy('balance', 'desc')->get();
 
-            });
+        $this->invoiceData = $this->getInvoiceData($clients->pluck('id')->toArray());
+
+        foreach ($clients as $client) {
+            /** @var \App\Models\Client $client */
+            $this->csv->insertOne($this->buildRow($client));
+        }
 
         return $this->csv->toString();
+    }
 
+    /**
+     * Fetch invoice aggregates for every client in a single GROUP BY query.
+     * Filters: status_id IN (sent, partial, paid) + the report's date range.
+     *
+     * @param  array $clientIds
+     * @return array<int, array{count: int, amount: float, balance: float, total_taxes: float}>
+     */
+    private function getInvoiceData(array $clientIds): array
+    {
+        if (empty($clientIds)) {
+            return [];
+        }
+
+        $query = Invoice::query()
+            ->select('client_id')
+            ->selectRaw('COUNT(*) as invoice_count')
+            ->selectRaw('SUM(amount) as total_amount')
+            ->selectRaw('SUM(balance) as total_balance')
+            ->selectRaw('SUM(total_taxes) as total_taxes_sum')
+            ->where('company_id', $this->company->id)
+            ->whereIn('client_id', $clientIds)
+            ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
+            ->groupBy('client_id');
+
+        $query = $this->addDateRange($query, 'invoices');
+
+        $data = [];
+
+        foreach ($query->get() as $row) {
+            $data[$row->client_id] = [ // @phpstan-ignore-line
+                'count' => (int) $row->invoice_count, // @phpstan-ignore-line
+                'amount' => (float) ($row->total_amount ?? 0),
+                'balance' => (float) ($row->total_balance ?? 0),
+                'total_taxes' => (float) ($row->total_taxes_sum ?? 0),
+            ];
+        }
+
+        return $data;
+    }
+
+    /**
+     * Build a row using pre-fetched aggregate data from getInvoiceData().
+     */
+    private function buildRow(Client $client): array
+    {
+        $invoiceData = $this->invoiceData[$client->id] ?? ['count' => 0, 'amount' => 0.0, 'balance' => 0.0, 'total_taxes' => 0.0];
+
+        $amount = $invoiceData['amount'];
+        $balance = $invoiceData['balance'];
+
+        $item = [
+            $client->present()->name(),
+            $client->number,
+            $client->id_number,
+            $invoiceData['count'],
+            Number::formatMoney($amount, $this->company),
+            Number::formatMoney($balance, $this->company),
+            Number::formatMoney($invoiceData['total_taxes'], $this->company),
+            Number::formatMoney($amount - $balance, $this->company),
+        ];
+
+        $this->clients[] = $item;
+
+        return $item;
     }
 
     public function getPdf()
@@ -129,34 +198,6 @@ class ClientSalesReport extends BaseExport
                     ->save();
 
         return $ts_instance->getPdf();
-    }
-
-    private function buildRow(Client $client): array
-    {
-        $query = Invoice::query()->where('client_id', $client->id)
-                                ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID]);
-
-        $query = $this->addDateRange($query, 'invoices');
-
-        $amount = $query->sum('amount');
-        $balance = $query->sum('balance');
-        $paid = $amount - $balance;
-
-        $item = [
-            $client->present()->name(),
-            $client->number,
-            $client->id_number,
-            $query->count(),
-            Number::formatMoney($amount, $this->company),
-            Number::formatMoney($balance, $this->company),
-            Number::formatMoney($query->sum('total_taxes'), $this->company),
-            Number::formatMoney($amount - $balance, $this->company),
-
-        ];
-
-        $this->clients[] = $item;
-
-        return $item;
     }
 
     public function buildHeader(): array
