@@ -547,6 +547,51 @@ class StorecoveProxyTest extends TestCase
         $this->assertEquals('cancelled', $result['status']);
     }
 
+    public function testC5ActivateSelfHosted404TranslatesToFriendlyError(): void
+    {
+        $this->setSelfHosted();
+
+        Http::fake([
+            '*/api/einvoice/peppol/sg/c5/activate' => Http::response([], 404),
+        ]);
+
+        $result = $this->proxy->c5Activate('John Doe', 'john@example.com');
+
+        $this->assertEquals('error', $result['status']);
+        $this->assertEquals(503, $result['code']);
+        $this->assertStringContainsString('Singapore C5', $result['message']);
+    }
+
+    public function testC5DeactivateSelfHosted404TranslatesToFriendlyError(): void
+    {
+        $this->setSelfHosted();
+
+        Http::fake([
+            '*/api/einvoice/peppol/sg/c5/deactivate' => Http::response([], 404),
+        ]);
+
+        $result = $this->proxy->c5Deactivate('John Doe', 'john@example.com');
+
+        $this->assertEquals('error', $result['status']);
+        $this->assertEquals(503, $result['code']);
+        $this->assertStringContainsString('Singapore C5', $result['message']);
+    }
+
+    public function testC5CancelSelfHosted404TranslatesToFriendlyError(): void
+    {
+        $this->setSelfHosted();
+
+        Http::fake([
+            '*/api/einvoice/peppol/sg/c5/cancel' => Http::response([], 404),
+        ]);
+
+        $result = $this->proxy->c5Cancel();
+
+        $this->assertEquals('error', $result['status']);
+        $this->assertEquals(503, $result['code']);
+        $this->assertStringContainsString('Singapore C5', $result['message']);
+    }
+
     // ════════════════════════════════════════════════════════════════════
     // discovery
     // ════════════════════════════════════════════════════════════════════
@@ -618,6 +663,19 @@ class StorecoveProxyTest extends TestCase
         $result = $this->proxy->discovery('DE923356489', 'DE:VAT');
 
         $this->assertFalse($result);
+    }
+
+    public function testDiscoverySelfHosted404FallsBackToDiscoverable(): void
+    {
+        $this->setSelfHosted();
+
+        Http::fake([
+            '*/api/einvoice/peppol/discovery' => Http::response([], 404),
+        ]);
+
+        $result = $this->proxy->discovery('DE923356489', 'DE:VAT');
+
+        $this->assertTrue($result);
     }
 
     // ════════════════════════════════════════════════════════════════════

@@ -330,7 +330,12 @@ class StorecoveRouter
             return strlen(preg_replace("/[\s.\-]/", "", $value)) >= 2;
         }
 
-        $cleanValue = preg_replace("/[\s.\-]/", "", $value);
+        // Schemes where dashes are semantically significant (e.g. DE:LWID's
+        // Grobadresse-Feinadresse-Prüfziffer). Preserve them; Storecove
+        // enforces the dashed form.
+        $cleanValue = self::dashSignificantScheme($scheme)
+            ? preg_replace('/\s+/', '', $value)
+            : preg_replace("/[\s.\-]/", "", $value);
 
         if (!isset($this->identifier_regex[$scheme])) {
             // No regex defined — just check presence
@@ -404,6 +409,17 @@ class StorecoveRouter
         $check = (int) substr($digits, 8, 2);
 
         return (97 - ($body % 97)) === $check;
+    }
+
+    /**
+     * Schemes whose format regex expects dashes to be preserved in the value.
+     * The default `validateIdentifierFormat` behaviour strips `\s.\-` as a
+     * courtesy for user-formatted input; that is wrong for schemes whose
+     * structure is defined BY the dashes (e.g. DE:LWID's Grob-Fein-Prüf).
+     */
+    public static function dashSignificantScheme(string $scheme): bool
+    {
+        return $scheme === 'DE:LWID';
     }
 
     /**

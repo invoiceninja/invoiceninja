@@ -96,7 +96,7 @@ class CreatePeppolTestData extends Command
                 'vat' => 'DE973356489', 'id_number' => '973356489', 'tax_rate' => 19, 'tax_name' => 'VAT',
                 'city' => 'Berlin', 'state' => 'Berlin', 'postal_code' => '10115', 'currency' => '3',
                 'address1' => 'Unter den Linden 1',
-                'gov_id' => 'LWID-DE-99001', 'individual_id' => 'STNR-12345678', 'individual_vat' => '',
+                'gov_id' => '10101010-STO-10', 'individual_id' => 'STNR-12345678', 'individual_vat' => '',
             ],
             'DK' => [
                 'vat' => 'DK12345678', 'id_number' => '12345678', 'tax_rate' => 25, 'tax_name' => 'Moms',
@@ -464,15 +464,15 @@ class CreatePeppolTestData extends Command
         'AT' => 293801, // ATU92335648
         'AU' => 0, // Australia
         'BA' => 0, // Bosnia and Herzegovina
-        'BE' => 580406, //BE1000000417 - 1000000417
+        'BE' => 580406, //BE1000000417 - 1000000417 - Tests pass!
         'BG' => 0, // Bulgaria
         'CA' => 0, // Canada
         'CH' => 291394, //CHE923356489MWST
         'CY' => 0, // Cyprus
         'CZ' => 0, // Czech Republic
-        'DE' => 295616, // DE973356489
+        'DE' => 295616, // DE973356489 - Tests pass!
         //'DE' => 307482, //DE:STNR1234567890
-        'DK' => 763738, //DK12335668
+        'DK' => 763738, //DK12335668 -  Tests pass!
         'EE' => 0, // Estonia
         'ES' => 0, // Spain
         'FI' => 0, // Finland
@@ -512,7 +512,7 @@ class CreatePeppolTestData extends Command
         'TR' => 0, // Turkey
         'US' => 0, // United States
         'VA' => 0, // Vatican City
-        'XX' => 634328, // GLN 5070004489700
+        'XX' => 634328, // GLN 5070004489700 -  Tests pass!
     ];
 
     /**
@@ -582,6 +582,7 @@ class CreatePeppolTestData extends Command
         $settings->state = $cd['state'];
         $settings->postal_code = $cd['postal_code'];
         $settings->name = "{$countryCode} Peppol Test Company";
+        $settings->payment_terms = '7';
 
         $tax_data = new TaxModel();
         $tax_data->seller_subregion = $resolvedCountryCode;

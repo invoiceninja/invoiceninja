@@ -73,7 +73,13 @@ class RoutingResolver
         $firstValid = null;
 
         foreach ($candidates as $candidate) {
-            $id = preg_replace("/[^a-zA-Z0-9]/", "", $candidate['id']);
+            // Preserve dashes for schemes where they are semantically part of
+            // the identifier (e.g. DE:LWID). For everything else, strip them
+            // so minor user formatting doesn't block discovery.
+            $id = StorecoveRouter::dashSignificantScheme($candidate['scheme'])
+                ? preg_replace('/\s+/', '', $candidate['id'])
+                : preg_replace("/[^a-zA-Z0-9]/", "", $candidate['id']);
+
             if (strlen($id) < 2) {
                 continue;
             }

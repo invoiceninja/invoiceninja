@@ -1426,7 +1426,7 @@ class StorecoveRouterTest extends TestCase
             'MY:EIF'    => '/^[A-Z0-9]{10,14}$/i',
             'SG:UEN'    => '/^[A-Z0-9]{9,16}$/i',
             'AT:GOV'    => '/^.{2,}$/',
-            'DE:LWID'   => '/^.{2,}$/',
+            'DE:LWID'   => '/(?=.{0,45}$)^[0-9]{0,12}(\-[0-9a-zA-Z]{0,30}(\-[0-9]{2}))$/',
             'IT:CUUO'   => '/^[A-Z0-9]{6,7}$/i',
         ];
 

@@ -27,8 +27,16 @@ class DE extends BaseCountry
     public function getCandidates(object $client, string $classification, object $router): array
     {
         if ($classification === 'government') {
-            $id = preg_replace("/[^a-zA-Z0-9]/", "", $client->routing_id ?? '');
-            return strlen($id) >= 2 ? [['scheme' => 'DE:LWID', 'id' => $id]] : [];
+            $candidates = [];
+            foreach (['routing_id', 'id_number', 'vat_number'] as $field) {
+                // Preserve dashes — the Leitweg-ID format is Grobadresse-Feinadresse-Prüfziffer
+                // and Storecove enforces the dashed form. Strip only whitespace.
+                $id = preg_replace('/\s+/', '', $client->{$field} ?? '');
+                if (strlen($id) >= 2) {
+                    $candidates[] = ['scheme' => 'DE:LWID', 'id' => $id];
+                }
+            }
+            return $candidates;
         }
 
         if ($classification === 'individual') {

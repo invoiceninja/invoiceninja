@@ -193,6 +193,83 @@ class ClientIdentifierValidationTest extends TestCase
     }
 
     // ──────────────────────────────────────────────────────
+    // DE government — LWID may be supplied in any of
+    // routing_id, id_number, or vat_number.
+    // ──────────────────────────────────────────────────────
+
+    public function testDeGovernmentLwidInIdNumberPasses(): void
+    {
+        $client = $this->makeClient([
+            'country_id' => 276, // DE
+            'classification' => 'government',
+            'vat_number' => '',
+            'id_number'  => '991-33333TEST-33',
+            'routing_id' => '',
+        ]);
+
+        $result = (new EntityLevel())->checkClient($client);
+
+        $this->assertTrue(
+            $result['passes'],
+            'DE government with LWID in id_number should pass. Errors: ' . json_encode($result['client'] ?? [])
+        );
+    }
+
+    public function testDeGovernmentLwidInVatNumberPasses(): void
+    {
+        $client = $this->makeClient([
+            'country_id' => 276, // DE
+            'classification' => 'government',
+            'vat_number' => '991-33333TEST-33',
+            'id_number'  => '',
+            'routing_id' => '',
+        ]);
+
+        $result = (new EntityLevel())->checkClient($client);
+
+        $this->assertTrue(
+            $result['passes'],
+            'DE government with LWID in vat_number should pass. Errors: ' . json_encode($result['client'] ?? [])
+        );
+    }
+
+    public function testDeGovernmentLwidInRoutingIdPasses(): void
+    {
+        $client = $this->makeClient([
+            'country_id' => 276, // DE
+            'classification' => 'government',
+            'vat_number' => '',
+            'id_number'  => '',
+            'routing_id' => '991-33333TEST-33',
+        ]);
+
+        $result = (new EntityLevel())->checkClient($client);
+
+        $this->assertTrue(
+            $result['passes'],
+            'DE government with bare LWID in routing_id should pass. Errors: ' . json_encode($result['client'] ?? [])
+        );
+    }
+
+    public function testDeGovernmentWithNoIdentifierIsBlocked(): void
+    {
+        $client = $this->makeClient([
+            'country_id' => 276, // DE
+            'classification' => 'government',
+            'vat_number' => '',
+            'id_number'  => '',
+            'routing_id' => '',
+        ]);
+
+        $errors = $this->clientErrors($client);
+
+        $this->assertTrue(
+            $this->hasErrorForField($errors, 'vat_number'),
+            'DE government with no identifier should raise a vat_number error pointing at DE:LWID. Got: ' . json_encode($errors)
+        );
+    }
+
+    // ──────────────────────────────────────────────────────
     // Individual — gated out by checkDeliveryNetwork (BE
     // individual is not routable) so identifier block is
     // short-circuited by the count($errors) === 0 check.
