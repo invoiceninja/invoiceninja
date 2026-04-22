@@ -92,8 +92,6 @@ class BankTransactionRule extends BaseModel
     protected array $search_keys = [
         'description' => 'string',
         'amount' => 'number',
-        'participant' => 'string',
-        'participant_name' => 'string',
     ];
 
     /* Amount */
