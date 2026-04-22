@@ -19,6 +19,7 @@ use App\Models\Client;
 use League\Csv\Writer;
 use App\Models\Company;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Libraries\MultiDB;
 use App\Export\CSV\BaseExport;
 use App\Utils\Traits\MakesDates;
@@ -35,13 +36,15 @@ class ClientSalesReport extends BaseExport
 
     public Writer $csv;
 
-    public string $date_key = 'created_at';
+    public string $date_key = 'date';
 
     private string $template = '/views/templates/reports/client_sales_report.html';
 
     private array $clients = [];
 
     private array $invoiceData = [];
+
+    private array $paymentData = [];
 
     public array $report_keys = [
         'client_name',
@@ -99,7 +102,9 @@ class ClientSalesReport extends BaseExport
 
         $clients = $query->orderBy('balance', 'desc')->get();
 
-        $this->invoiceData = $this->getInvoiceData($clients->pluck('id')->toArray());
+        $clientIds = $clients->pluck('id')->toArray();
+        $this->invoiceData = $this->getInvoiceData($clientIds);
+        $this->paymentData = $this->getPaymentData($clientIds);
 
         foreach ($clients as $client) {
             /** @var \App\Models\Client $client */
@@ -123,12 +128,14 @@ class ClientSalesReport extends BaseExport
         }
 
         $query = Invoice::query()
+            ->withTrashed()
             ->select('client_id')
             ->selectRaw('COUNT(*) as invoice_count')
             ->selectRaw('SUM(amount) as total_amount')
             ->selectRaw('SUM(balance) as total_balance')
             ->selectRaw('SUM(total_taxes) as total_taxes_sum')
             ->where('company_id', $this->company->id)
+            ->where('is_deleted', 0)
             ->whereIn('client_id', $clientIds)
             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
             ->groupBy('client_id');
@@ -150,24 +157,73 @@ class ClientSalesReport extends BaseExport
     }
 
     /**
-     * Build a row using pre-fetched aggregate data from getInvoiceData().
+     * Fetch payment aggregates for every client in a single GROUP BY query.
+     *
+     * Payments are scoped by their own `date` column so the figure reflects
+     * cash actually received in the reporting period, regardless of when the
+     * related invoice was issued. Refunded amounts are subtracted.
+     *
+     * @param  array $clientIds
+     * @return array<int, array{amount_paid: float}>
+     */
+    private function getPaymentData(array $clientIds): array
+    {
+        if (empty($clientIds)) {
+            return [];
+        }
+
+        $query = Payment::query()
+            ->withTrashed()
+            ->select('client_id')
+            ->selectRaw('SUM(amount - refunded) as total_paid')
+            ->where('company_id', $this->company->id)
+            ->where('is_deleted', 0)
+            ->whereIn('client_id', $clientIds)
+            ->whereIn('status_id', [
+                Payment::STATUS_COMPLETED,
+                Payment::STATUS_PARTIALLY_REFUNDED,
+                Payment::STATUS_REFUNDED,
+            ])
+            ->groupBy('client_id');
+
+        $previous_date_key = $this->date_key;
+        $this->date_key = 'date';
+
+        try {
+            $query = $this->addDateRange($query, 'payments');
+        } finally {
+            $this->date_key = $previous_date_key;
+        }
+
+        $data = [];
+
+        foreach ($query->get() as $row) {
+            $data[$row->client_id] = [ // @phpstan-ignore-line
+                'amount_paid' => (float) ($row->total_paid ?? 0), // @phpstan-ignore-line
+            ];
+        }
+
+        return $data;
+    }
+
+    /**
+     * Build a row using pre-fetched aggregate data from getInvoiceData()
+     * and getPaymentData().
      */
     private function buildRow(Client $client): array
     {
         $invoiceData = $this->invoiceData[$client->id] ?? ['count' => 0, 'amount' => 0.0, 'balance' => 0.0, 'total_taxes' => 0.0];
-
-        $amount = $invoiceData['amount'];
-        $balance = $invoiceData['balance'];
+        $paymentData = $this->paymentData[$client->id] ?? ['amount_paid' => 0.0];
 
         $item = [
             $client->present()->name(),
             $client->number,
             $client->id_number,
             $invoiceData['count'],
-            Number::formatMoney($amount, $this->company),
-            Number::formatMoney($balance, $this->company),
+            Number::formatMoney($invoiceData['amount'], $this->company),
+            Number::formatMoney($invoiceData['balance'], $this->company),
             Number::formatMoney($invoiceData['total_taxes'], $this->company),
-            Number::formatMoney($amount - $balance, $this->company),
+            Number::formatMoney($paymentData['amount_paid'], $this->company),
         ];
 
         $this->clients[] = $item;

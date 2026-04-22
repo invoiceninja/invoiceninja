@@ -109,6 +109,7 @@ class DocuNinjaLoader extends Component
             // Check if signing is not successful (already completed or error)
             if (isset($signable['success']) && !$signable['success']) {
                 $this->dispatch('docuninja-signature-captured');
+                $this->isLoading = false;
                 return;
             }
 

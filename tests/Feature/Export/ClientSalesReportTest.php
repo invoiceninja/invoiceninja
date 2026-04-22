@@ -18,6 +18,7 @@ use App\Models\Account;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\User;
 use App\Services\Report\ClientSalesReport;
 use App\Utils\Traits\MakesHash;
@@ -264,6 +265,252 @@ class ClientSalesReportTest extends TestCase
         $this->account->delete();
     }
 
+
+    /**
+     * Invoices are counted by invoice date; payments by payment date. A report
+     * scoped to a window that contains ONLY the payment date must show zero
+     * invoiced and the full payment amount; a window that contains ONLY the
+     * invoice date must show the invoice amount and zero payments.
+     */
+    public function testInvoicedAndPaymentsUseTheirOwnDates()
+    {
+        $this->buildData();
+
+        $invoice_date = '2025-01-15';
+        $payment_date = '2025-03-20';
+
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 500,
+            'balance' => 0,
+            'total_taxes' => 50,
+            'status_id' => Invoice::STATUS_PAID,
+            'date' => $invoice_date,
+            'created_at' => $invoice_date . ' 00:00:00',
+            'discount' => 0,
+            'tax_rate1' => 0, 'tax_rate2' => 0, 'tax_rate3' => 0,
+            'tax_name1' => '', 'tax_name2' => '', 'tax_name3' => '',
+            'uses_inclusive_taxes' => false,
+            'line_items' => $this->buildLineItems(),
+        ]);
+
+        $payment = Payment::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 500,
+            'refunded' => 0,
+            'applied' => 500,
+            'status_id' => Payment::STATUS_COMPLETED,
+            'is_deleted' => false,
+            'date' => $payment_date,
+        ]);
+        $payment->invoices()->attach($invoice->id, ['amount' => 500]);
+
+        // Window covers invoice only.
+        $invoice_window = new ClientSalesReport($this->company, [
+            'start_date' => '2025-01-01',
+            'end_date' => '2025-01-31',
+            'date_range' => 'custom',
+            'client_id' => $this->client->id,
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ]);
+        $out = $invoice_window->run();
+        $this->assertStringContainsString('$500.00', $out); // invoiced amount
+        $this->assertStringContainsString('$0.00', $out);   // amount_paid column = 0
+
+        // Window covers payment only.
+        $payment_window = new ClientSalesReport($this->company, [
+            'start_date' => '2025-03-01',
+            'end_date' => '2025-03-31',
+            'date_range' => 'custom',
+            'client_id' => $this->client->id,
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ]);
+        $out = $payment_window->run();
+        $lines = explode("\n", trim($out));
+        $data_row = str_getcsv(end($lines));
+        // report_keys: [client_name, client_number, id_number, invoices, amount, balance, total_taxes, amount_paid]
+        $this->assertSame('0', (string) $data_row[3]);          // invoice count
+        $this->assertStringContainsString('0.00', $data_row[4]); // invoiced amount = 0
+        $this->assertStringContainsString('500.00', $data_row[7]); // amount_paid = 500
+
+        $this->account->delete();
+    }
+
+    /**
+     * Refunded portion of a payment must be excluded from amount_paid.
+     */
+    public function testPaymentsSubtractRefunds()
+    {
+        $this->buildData();
+
+        $payment_date = '2025-06-10';
+
+        Payment::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 300,
+            'refunded' => 100,
+            'status_id' => Payment::STATUS_PARTIALLY_REFUNDED,
+            'is_deleted' => false,
+            'date' => $payment_date,
+        ]);
+
+        $report = new ClientSalesReport($this->company, [
+            'start_date' => '2025-06-01',
+            'end_date' => '2025-06-30',
+            'date_range' => 'custom',
+            'client_id' => $this->client->id,
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ]);
+
+        $out = $report->run();
+        $lines = explode("\n", trim($out));
+        $data_row = str_getcsv(end($lines));
+        $this->assertStringContainsString('200.00', $data_row[7]);
+
+        $this->account->delete();
+    }
+
+    /**
+     * The invoice aggregate must filter on `invoices.date` (business date),
+     * not `created_at`. An invoice drafted in December but dated and sent
+     * in January must appear in a January report.
+     */
+    public function testInvoiceFilteredByBusinessDateNotCreatedAt()
+    {
+        $this->buildData();
+
+        Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 750,
+            'balance' => 750,
+            'total_taxes' => 0,
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => '2025-01-10',
+            'created_at' => '2024-12-20 09:00:00',
+            'updated_at' => '2025-01-10 09:00:00',
+            'discount' => 0,
+            'tax_rate1' => 0, 'tax_rate2' => 0, 'tax_rate3' => 0,
+            'tax_name1' => '', 'tax_name2' => '', 'tax_name3' => '',
+            'uses_inclusive_taxes' => false,
+            'line_items' => $this->buildLineItems(),
+        ]);
+
+        $report = new ClientSalesReport($this->company, [
+            'start_date' => '2025-01-01',
+            'end_date' => '2025-01-31',
+            'date_range' => 'custom',
+            'client_id' => $this->client->id,
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ]);
+
+        $out = $report->run();
+        $lines = explode("\n", trim($out));
+        $data_row = str_getcsv(end($lines));
+        $this->assertSame('1', (string) $data_row[3]);
+        $this->assertStringContainsString('750.00', $data_row[4]);
+
+        $this->account->delete();
+    }
+
+    /**
+     * Archived (soft-deleted) invoices and payments are still real business
+     * records in Invoice Ninja's model — only `is_deleted = 1` means truly
+     * deleted. The aggregates must include `deleted_at IS NOT NULL` rows and
+     * only exclude `is_deleted = 1`.
+     */
+    public function testArchivedRecordsAreIncludedButTrulyDeletedAreNot()
+    {
+        $this->buildData();
+
+        $invoice_date = '2025-02-05';
+        $payment_date = '2025-02-10';
+
+        $archived = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 400, 'balance' => 0, 'total_taxes' => 0,
+            'status_id' => Invoice::STATUS_PAID,
+            'date' => $invoice_date,
+            'deleted_at' => now(),
+            'is_deleted' => 0,
+            'discount' => 0,
+            'tax_rate1' => 0, 'tax_rate2' => 0, 'tax_rate3' => 0,
+            'tax_name1' => '', 'tax_name2' => '', 'tax_name3' => '',
+            'uses_inclusive_taxes' => false,
+            'line_items' => $this->buildLineItems(),
+        ]);
+
+        Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 999, 'balance' => 999, 'total_taxes' => 0,
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => $invoice_date,
+            'deleted_at' => now(),
+            'is_deleted' => 1,
+            'discount' => 0,
+            'tax_rate1' => 0, 'tax_rate2' => 0, 'tax_rate3' => 0,
+            'tax_name1' => '', 'tax_name2' => '', 'tax_name3' => '',
+            'uses_inclusive_taxes' => false,
+            'line_items' => $this->buildLineItems(),
+        ]);
+
+        Payment::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 400, 'refunded' => 0,
+            'status_id' => Payment::STATUS_COMPLETED,
+            'is_deleted' => false,
+            'deleted_at' => now(),
+            'date' => $payment_date,
+        ]);
+
+        Payment::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 888, 'refunded' => 0,
+            'status_id' => Payment::STATUS_COMPLETED,
+            'is_deleted' => true,
+            'date' => $payment_date,
+        ]);
+
+        $report = new ClientSalesReport($this->company, [
+            'start_date' => '2025-02-01',
+            'end_date' => '2025-02-28',
+            'date_range' => 'custom',
+            'client_id' => $this->client->id,
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ]);
+
+        $out = $report->run();
+        $lines = explode("\n", trim($out));
+        $data_row = str_getcsv(end($lines));
+
+        $this->assertSame('1', (string) $data_row[3]);
+        $this->assertStringContainsString('400.00', $data_row[4]);
+        $this->assertStringContainsString('400.00', $data_row[7]);
+        $this->assertStringNotContainsString('999', $data_row[4]);
+        $this->assertStringNotContainsString('888', $data_row[7]);
+
+        $this->account->delete();
+    }
 
     private function buildLineItems()
     {

@@ -85,10 +85,6 @@ class Sign extends Component
     public function docuNinjaSignatureCaptured()
     {
 
-        if (!$this->docu_ninja_ready) {
-            return;
-        }
-
         if (!$this->signature_accepted) {
             $this->signature_accepted = true;
         }
