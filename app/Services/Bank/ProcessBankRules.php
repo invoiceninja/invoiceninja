@@ -59,15 +59,21 @@ class ProcessBankRules extends AbstractService
 
     private function matchCredit()
     {
-        $this->invoices = Invoice::query()
-                                ->withTrashed()
-                                ->where('company_id', $this->bank_transaction->company_id)
-                                ->whereIn('status_id', [1,2,3])
-                                ->where('is_deleted', 0)
-                                ->get();
+
 
         // Process credit rules
         $this->credit_rules = $this->bank_transaction->company->credit_rules();
+
+        if($this->credit_rules->count() == 0) {
+            return;
+        }
+
+        $this->invoices = Invoice::query()
+                        ->withTrashed()
+                        ->where('company_id', $this->bank_transaction->company_id)
+                        ->whereIn('status_id', [1,2,3])
+                        ->where('is_deleted', 0)
+                        ->get();                        
 
         foreach ($this->credit_rules as $bank_transaction_rule) {
             if (!is_array($bank_transaction_rule['rules'])) {
