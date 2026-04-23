@@ -4,6 +4,7 @@
           description: "The unique hashed identifier for the company"
           type: string
           example: WJxbojagwO
+          readOnly: true
         size_id:
           description: "The unique identifier representing the company's size category"
           type: string

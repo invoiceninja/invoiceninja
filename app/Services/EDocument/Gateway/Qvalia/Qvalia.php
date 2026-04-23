@@ -65,6 +65,11 @@ class Qvalia
         $this->mutator = new Mutator($this);
     }
 
+    /**
+     * Initializes the base URL, switching to sandbox in test mode.
+     *
+     * @return self
+     */
     private function init(): self
     {
 
@@ -75,6 +80,12 @@ class Qvalia
         return $this;
     }
 
+    /**
+     * Sends an outgoing invoice document to Qvalia for the given legal entity.
+     *
+     * @param  string $legal_entity_id
+     * @return void
+     */
     public function sendDocument($legal_entity_id)
     {
         $uri = "/transaction/{$legal_entity_id}/invoices/outgoing";

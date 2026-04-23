@@ -34,8 +34,8 @@ class TokenAuth
     {
 
         if (config('ninja.db.multi_db_enabled')
-            && $request->header('X-API-TOKEN')
-             && ($company_token = MultiDB::getCompanyToken($request->header('X-API-TOKEN')))) {
+           && $request->header('X-API-TOKEN')
+            && ($company_token = MultiDB::getCompanyToken($request->header('X-API-TOKEN')))) {
         } elseif ($request->header('X-API-TOKEN') && ($company_token = CompanyToken::with([
             'user.account',
             'company',

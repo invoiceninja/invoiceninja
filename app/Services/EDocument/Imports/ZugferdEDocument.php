@@ -47,7 +47,11 @@ class ZugferdEDocument extends AbstractService
     }
 
     /**
+     * Parses a Zugferd/Factur-X XML or PDF, creates an expense with vendor,
+     * renders a PDF visualisation, and attaches documents.
+     *
      * @throws Exception
+     * @return Expense
      */
     public function run(): Expense
     {

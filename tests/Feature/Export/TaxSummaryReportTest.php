@@ -828,6 +828,204 @@ class TaxSummaryReportTest extends TestCase
         $this->account->delete();
     }
 
+    /**
+     * Archived (soft-deleted) payments with is_deleted=0 must be included
+     * in cash accounting. The inner $period_paid query uses
+     * whereHas('payment', ...) which applies Payment's SoftDeletes scope,
+     * excluding archived payments and producing $0.00 amounts.
+     */
+    public function testArchivedPaymentIncludedInCashReport()
+    {
+        $this->buildData();
+
+        $this->payload = [
+            'start_date' => '2000-01-01',
+            'end_date' => '2030-01-11',
+            'date_range' => 'custom',
+            'client_id' => $this->client->id,
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ];
+
+        // Create a taxable invoice and pay it
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 0,
+            'balance' => 0,
+            'status_id' => Invoice::STATUS_SENT,
+            'total_taxes' => 1,
+            'date' => now()->format('Y-m-d'),
+            'discount' => 0,
+            'tax_rate1' => 10,
+            'tax_name1' => 'GST',
+            'tax_rate2' => 0,
+            'tax_name2' => '',
+            'tax_rate3' => 0,
+            'tax_name3' => '',
+            'uses_inclusive_taxes' => false,
+            'line_items' => $this->buildLineItems(),
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice();
+        // 2 x $10 = $20 + 10% GST = $22
+        $this->assertEquals(22, $invoice->amount);
+
+        $invoice->service()->markPaid()->save();
+        $invoice = $invoice->fresh();
+
+        $this->assertEquals(Invoice::STATUS_PAID, $invoice->status_id);
+
+        $payment = $invoice->payments()->first();
+        $this->assertNotNull($payment);
+
+        // Archive the payment (soft delete but NOT hard delete)
+        $payment->deleted_at = now();
+        $payment->is_deleted = 0;
+        $payment->save();
+
+        // Also archive the invoice (mirrors real-world scenario from user's data)
+        $invoice->deleted_at = now();
+        $invoice->is_deleted = 0;
+        $invoice->save();
+
+        // Run the report
+        $report = new TaxSummaryReport($this->company, $this->payload);
+        $csv = $report->run();
+
+        $ref = new \ReflectionClass($report);
+        $prop = $ref->getProperty('taxes');
+        $prop->setAccessible(true);
+        $taxes = $prop->getValue($report);
+
+        $cash_gross_raw = (float) preg_replace('/[^0-9.\-]/', '', $taxes['cash_gross_sales']);
+
+        // Archived payment should still count — cash_gross_sales should be $22
+        $this->assertEquals(
+            22.0,
+            $cash_gross_raw,
+            "Archived payment (deleted_at set, is_deleted=0) must be included in cash report. cash_gross_sales is {$cash_gross_raw} but should be 22.00."
+        );
+
+        // Verify the tax amount is also correct (not $0)
+        $cash_map = $taxes['cash_map'];
+        $this->assertArrayHasKey('GST 10%', $cash_map);
+
+        $gst_raw = (float) preg_replace('/[^0-9.\-]/', '', $cash_map['GST 10%']['tax_amount']);
+        $this->assertEquals(
+            2.0,
+            $gst_raw,
+            "GST tax amount should be 2.00 but is {$gst_raw}. Archived payment taxes are being zeroed out."
+        );
+
+        $this->account->delete();
+    }
+
+    /**
+     * Cash report should only include invoices with payments received
+     * within the date range. The outer whereHas must constrain the
+     * paymentable check to the current invoice, not any invoice on the
+     * same payment.
+     */
+    public function testCashReportExcludesInvoicesPaidOutsideDateRange()
+    {
+        $this->buildData();
+
+        // Invoice A: paid in January (inside range)
+        $invoiceA = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 0,
+            'balance' => 0,
+            'status_id' => Invoice::STATUS_SENT,
+            'total_taxes' => 1,
+            'date' => '2026-01-15',
+            'discount' => 0,
+            'tax_rate1' => 10,
+            'tax_name1' => 'GST',
+            'tax_rate2' => 0,
+            'tax_name2' => '',
+            'tax_rate3' => 0,
+            'tax_name3' => '',
+            'uses_inclusive_taxes' => false,
+            'line_items' => $this->buildLineItems(),
+        ]);
+        $invoiceA = $invoiceA->calc()->getInvoice();
+
+        $this->travelTo(now()->setDate(2026, 1, 16));
+        $invoiceA->service()->markPaid()->save();
+        $invoiceA = $invoiceA->fresh();
+
+        // Invoice B: paid in December (outside range)
+        $this->travelTo(now()->setDate(2025, 12, 10));
+
+        $invoiceB = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 0,
+            'balance' => 0,
+            'status_id' => Invoice::STATUS_SENT,
+            'total_taxes' => 1,
+            'date' => '2025-12-01',
+            'discount' => 0,
+            'tax_rate1' => 10,
+            'tax_name1' => 'GST',
+            'tax_rate2' => 0,
+            'tax_name2' => '',
+            'tax_rate3' => 0,
+            'tax_name3' => '',
+            'uses_inclusive_taxes' => false,
+            'line_items' => $this->buildLineItems(),
+        ]);
+        $invoiceB = $invoiceB->calc()->getInvoice();
+        $invoiceB->service()->markPaid()->save();
+        $invoiceB = $invoiceB->fresh();
+
+        $this->travelBack();
+
+        // Report for January 2026 only
+        $this->payload = [
+            'start_date' => '2026-01-01',
+            'end_date' => '2026-01-31',
+            'date_range' => 'custom',
+            'client_id' => $this->client->id,
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ];
+
+        $report = new TaxSummaryReport($this->company, $this->payload);
+        $csv = $report->run();
+
+        $ref = new \ReflectionClass($report);
+        $prop = $ref->getProperty('taxes');
+        $prop->setAccessible(true);
+        $taxes = $prop->getValue($report);
+
+        $cash_gross_raw = (float) preg_replace('/[^0-9.\-]/', '', $taxes['cash_gross_sales']);
+
+        // Only Invoice A ($22) should be in cash section, not Invoice B
+        $this->assertEquals(
+            22.0,
+            $cash_gross_raw,
+            "Cash report should only include Invoice A (\$22) paid in January. Got {$cash_gross_raw}. Invoice B paid in December should be excluded."
+        );
+
+        // Verify the detail rows only contain Invoice A
+        $cash_invoice_map = $taxes['cash_invoice_map'];
+        foreach ($cash_invoice_map as $row) {
+            $this->assertStringContainsString(
+                $invoiceA->number,
+                $row['number'],
+                "Cash detail should only contain Invoice A ({$invoiceA->number}), but found {$row['number']}"
+            );
+        }
+
+        $this->account->delete();
+    }
+
     private function buildLineItems()
     {
         $line_items = [];

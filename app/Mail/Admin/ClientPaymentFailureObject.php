@@ -85,8 +85,8 @@ class ClientPaymentFailureObject
 
     private function getAmount()
     {
-        $amount = array_sum(array_column($this->payment_hash->invoices(), 'amount')) + $this->payment_hash->fee_total;
-
+        $amount = $this->payment_hash->amount_with_fee();
+        
         return Number::formatMoney($amount, $this->client);
     }
 

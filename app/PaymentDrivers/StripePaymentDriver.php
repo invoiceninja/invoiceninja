@@ -26,7 +26,7 @@ use Stripe\PaymentIntent;
 use Stripe\PaymentMethod;
 use App\Models\GatewayType;
 use App\Models\PaymentHash;
-use App\Http\Requests\Request;
+use Illuminate\Http\Request;
 use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
 use App\Exceptions\PaymentFailed;
@@ -157,121 +157,121 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
         ];
 
         if ($this->client
-            && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ['AUT', 'BEL', 'DEU', 'ITA', 'NLD', 'ESP'])) {
+           && isset($this->client->country)
+           && in_array($this->client->country->iso_3166_3, ['AUT', 'BEL', 'DEU', 'ITA', 'NLD', 'ESP'])) {
             $types[] = GatewayType::SOFORT;
         }
 
         if ($this->client
-            && isset($this->client->country)
-            && (in_array($this->client->country->iso_3166_3, ['USA']) || ($this->client->gateway_tokens()->where('gateway_type_id', GatewayType::BANK_TRANSFER)->exists()))
+           && isset($this->client->country)
+           && (in_array($this->client->country->iso_3166_3, ['USA']) || ($this->client->gateway_tokens()->where('gateway_type_id', GatewayType::BANK_TRANSFER)->exists()))
         ) {
             $types[] = GatewayType::BANK_TRANSFER;
         }
 
         if ($this->client
-            && $this->client->currency()
-            && in_array($this->client->currency()->code, ['CNY', 'AUD', 'CAD', 'EUR', 'GBP', 'HKD', 'JPY', 'SGD', 'MYR', 'NZD', 'USD'])) {
+           && $this->client->currency()
+           && in_array($this->client->currency()->code, ['CNY', 'AUD', 'CAD', 'EUR', 'GBP', 'HKD', 'JPY', 'SGD', 'MYR', 'NZD', 'USD'])) {
             // && isset($this->client->country)
             // && in_array($this->client->country->iso_3166_3, ['AUS', 'DNK', 'DEU', 'ITA', 'LUX', 'NOR', 'SVN', 'GBR', 'AUT', 'EST', 'GRC', 'JPN', 'MYS', 'PRT', 'ESP', 'USA', 'BEL', 'FIN', 'HKG', 'LVA', 'NLD', 'SGP', 'SWE', 'CAN', 'FRA', 'IRL', 'LTU', 'NZL', 'SVK', 'CHE'])) {
             $types[] = GatewayType::ALIPAY;
         }
 
         if ($this->client
-            && $this->client->currency()
-            && ($this->client->currency()->code == 'EUR')
-            && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ['AUT', 'BEL', 'CHE', 'CYP', 'CZE', 'BGR', 'DNK', 'DEU', 'ESP', 'FIN', 'FRA', 'HUN', 'IRL', 'ITA', 'LVA', 'LUX', 'LTA', 'MLT', 'NLD', 'NOR', 'POL', 'ROU', 'SVK', 'SVN', 'SWE', 'GBR', 'EST', 'GRC', 'PRT'])) { // TODO: More has to be added https://stripe.com/docs/payments/sepa-debit
+           && $this->client->currency()
+           && ($this->client->currency()->code == 'EUR')
+           && isset($this->client->country)
+           && in_array($this->client->country->iso_3166_3, ['AUT', 'BEL', 'CHE', 'CYP', 'CZE', 'BGR', 'DNK', 'DEU', 'ESP', 'FIN', 'FRA', 'HUN', 'IRL', 'ITA', 'LVA', 'LUX', 'LTA', 'MLT', 'NLD', 'NOR', 'POL', 'ROU', 'SVK', 'SVN', 'SWE', 'GBR', 'EST', 'GRC', 'PRT'])) { // TODO: More has to be added https://stripe.com/docs/payments/sepa-debit
             $types[] = GatewayType::SEPA;
         }
 
         if ($this->client
-            && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ['POL'])) {
+           && isset($this->client->country)
+           && in_array($this->client->country->iso_3166_3, ['POL'])) {
             $types[] = GatewayType::PRZELEWY24;
         }
 
         if ($this->client
-            && $this->client->currency()
-            && ($this->client->currency()->code == 'EUR')
-            && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ['DEU'])) {
+           && $this->client->currency()
+           && ($this->client->currency()->code == 'EUR')
+           && isset($this->client->country)
+           && in_array($this->client->country->iso_3166_3, ['DEU'])) {
             $types[] = GatewayType::GIROPAY;
         }
 
         if ($this->client
-            && $this->client->currency()
-            && ($this->client->currency()->code == 'EUR')
-            && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ['NLD'])) {
+           && $this->client->currency()
+           && ($this->client->currency()->code == 'EUR')
+           && isset($this->client->country)
+           && in_array($this->client->country->iso_3166_3, ['NLD'])) {
             $types[] = GatewayType::IDEAL;
         }
 
         if ($this->client
-            && $this->client->currency()
-            && ($this->client->currency()->code == 'EUR')
-            && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ['AUT'])) {
+           && $this->client->currency()
+           && ($this->client->currency()->code == 'EUR')
+           && isset($this->client->country)
+           && in_array($this->client->country->iso_3166_3, ['AUT'])) {
             $types[] = GatewayType::EPS;
         }
 
         if ($this->client
-            && $this->client->currency()
-            && ($this->client->currency()->code == 'MYR')
-            && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ['MYS'])) {
+           && $this->client->currency()
+           && ($this->client->currency()->code == 'MYR')
+           && isset($this->client->country)
+           && in_array($this->client->country->iso_3166_3, ['MYS'])) {
             $types[] = GatewayType::FPX;
         }
 
         if ($this->client
-            && $this->client->currency()
-            && ($this->client->currency()->code == 'EUR')
-            && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ['BEL'])) {
+           && $this->client->currency()
+           && ($this->client->currency()->code == 'EUR')
+           && isset($this->client->country)
+           && in_array($this->client->country->iso_3166_3, ['BEL'])) {
             $types[] = GatewayType::BANCONTACT;
         }
 
         if ($this->client
-            && $this->client->currency()
-            && ($this->client->currency()->code == 'AUD')
-            && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ['AUS'])) {
+           && $this->client->currency()
+           && ($this->client->currency()->code == 'AUD')
+           && isset($this->client->country)
+           && in_array($this->client->country->iso_3166_3, ['AUS'])) {
             $types[] = GatewayType::BECS;
         }
 
         if ($this->client
-            && $this->client->currency()
-            && in_array($this->client->currency()->code, ['CAD', 'USD'])
-            && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ['CAN', 'USA'])) {
+           && $this->client->currency()
+           && in_array($this->client->currency()->code, ['CAD', 'USD'])
+           && isset($this->client->country)
+           && in_array($this->client->country->iso_3166_3, ['CAN', 'USA'])) {
             $types[] = GatewayType::ACSS;
         }
         if ($this->client
-            && $this->client->currency()
-            && in_array($this->client->currency()->code, ['GBP'])
-            && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ['GBR'])) {
+           && $this->client->currency()
+           && in_array($this->client->currency()->code, ['GBP'])
+           && isset($this->client->country)
+           && in_array($this->client->country->iso_3166_3, ['GBR'])) {
             $types[] = GatewayType::BACS;
         }
         if ($this->client
-            && $this->client->currency()
-            && in_array($this->client->currency()->code, ['EUR', 'DKK', 'GBP', 'NOK', 'SEK', 'AUD', 'NZD', 'CAD', 'PLN', 'CHF'])
-            && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ['AUT','BEL','DNK','FIN','FRA','DEU','IRL','ITA','NLD','NOR','ESP','SWE','GBR'])) {
+           && $this->client->currency()
+           && in_array($this->client->currency()->code, ['EUR', 'DKK', 'GBP', 'NOK', 'SEK', 'AUD', 'NZD', 'CAD', 'PLN', 'CHF'])
+           && isset($this->client->country)
+           && in_array($this->client->country->iso_3166_3, ['AUT','BEL','DNK','FIN','FRA','DEU','IRL','ITA','NLD','NOR','ESP','SWE','GBR'])) {
             $types[] = GatewayType::KLARNA;
         }
         if ($this->client
-            && $this->client->currency()
-            && in_array($this->client->currency()->code, ['EUR', 'DKK', 'GBP', 'NOK', 'SEK', 'AUD', 'NZD', 'CAD', 'PLN', 'CHF', 'USD'])
-            && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ['AUT','BEL','DNK','FIN','FRA','DEU','IRL','ITA','NLD','NOR','ESP','SWE','GBR','USA'])) {
+           && $this->client->currency()
+           && in_array($this->client->currency()->code, ['EUR', 'DKK', 'GBP', 'NOK', 'SEK', 'AUD', 'NZD', 'CAD', 'PLN', 'CHF', 'USD'])
+           && isset($this->client->country)
+           && in_array($this->client->country->iso_3166_3, ['AUT','BEL','DNK','FIN','FRA','DEU','IRL','ITA','NLD','NOR','ESP','SWE','GBR','USA'])) {
             $types[] = GatewayType::KLARNA;
         }
 
         if (
             $this->client
-            && isset($this->client->country)
-            && (
+           && isset($this->client->country)
+           && (
                 (in_array($this->client->country->iso_3166_2, ['FR', 'IE', 'NL', 'DE', 'ES']) && $this->client->currency()->code == 'EUR')
                 || ($this->client->country->iso_3166_2 == 'JP' && $this->client->currency()->code == 'JPY')
                 || ($this->client->country->iso_3166_2 == 'MX' && $this->client->currency()->code == 'MXN')
@@ -860,13 +860,13 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                 }
 
                 return response()->json([], 200);
-            } elseif ($request->data['object']['status'] == "inactive" && $request->data['object']['payment_method']) {
-                // Delete payment method
+            } 
+            elseif ($request->data['object']['status'] == "inactive" && $request->data['object']['payment_method']) {
                 $clientgateway = ClientGatewayToken::query()
                     ->where('token', $request->data['object']['payment_method'])
                     ->first();
 
-                if ($clientgateway) {
+                if ($clientgateway && !str_starts_with($clientgateway->token, 'ba_')) { //ba_ tokens should not be deleted
                     $clientgateway->delete();
                 }
 
@@ -921,7 +921,6 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
      * https://stripe.com/docs/api/payment_methods/detach
      *
      * @param ClientGatewayToken $token
-     * @return void
      */
     public function detach(ClientGatewayToken $token)
     {
@@ -945,6 +944,8 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                 $this->client->company
             );
         }
+
+        return true;
     }
 
     public function getCompanyGatewayId(): int

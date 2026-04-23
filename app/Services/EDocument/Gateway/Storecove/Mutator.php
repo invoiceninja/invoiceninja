@@ -13,23 +13,60 @@
 namespace App\Services\EDocument\Gateway\Storecove;
 
 use App\Services\EDocument\Gateway\MutatorUtil;
-use App\Services\EDocument\Standards\Peppol\RO;
 use App\Services\EDocument\Gateway\MutatorInterface;
-use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
+use App\Services\EDocument\Standards\Peppol\CountryFactory;
 
+/**
+ * Storecove-specific Mutator for e-invoicing via the Storecove API.
+ *
+ * Transforms a Peppol Invoice/CreditNote model into a Storecove-ready payload by:
+ *  - Applying country-specific sender/receiver mutations (delegated to CountryFactory handlers)
+ *  - Resolving client routing (eIdentifiers, email fallback, Peppol/SDI/Svefaktura networks)
+ *  - Building the `storecove_meta` array that wraps the document for the Storecove send API
+ *
+ * Typical pipeline (orchestrated by StorecoveAdapter):
+ *   $mutator->setInvoice()->setPeppol()->setClientSettings()->setCompanySettings()
+ *           ->senderSpecificLevelMutators()
+ *           ->receiverSpecificLevelMutators()
+ *           ->setClientRoutingCode()
+ *
+ * The resulting Peppol model (getPeppol()) and routing metadata (getStorecoveMeta())
+ * are then serialised and POSTed to Storecove.
+ *
+ * @see \App\Services\EDocument\Gateway\Storecove\StorecoveAdapter  Orchestrates the full send flow
+ * @see \App\Services\EDocument\Standards\Peppol\CountryFactory      Dispatches country-specific mutations
+ * @see \App\Services\EDocument\Gateway\Storecove\StorecoveRouter    Resolves routing scheme codes per country
+ */
 class Mutator implements MutatorInterface
 {
-    /** @var \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote */
+    /** @var \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote The Peppol document being mutated */
     private \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $p_invoice;
 
+    /** @var ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice Peppol settings configured at the client level (e_invoice field on the client) */
     private ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice $_client_settings;
 
+    /** @var ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice Peppol settings configured at the company level (e_invoice field on the company) */
     private ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice $_company_settings;
 
+    /** @var \App\Models\Invoice|\App\Models\Credit The Invoice Ninja invoice/credit being sent */
     private $invoice;
 
+    /**
+     * Storecove API envelope metadata (routing, emails, network config).
+     * Built up incrementally by setClientRoutingCode() and its helpers,
+     * then read by StorecoveAdapter when constructing the final API payload.
+     *
+     * @var array{routing?: array{eIdentifiers?: array, emails?: string[], networks?: array}}
+     */
     private array $storecove_meta = [];
 
+    /**
+     * When set, country handlers should use this VAT number instead of the
+     * company's own vat_number. Used for tax-representative / fiscal-representative scenarios.
+     */
+    private string $override_vat_number = '';
+
+    /** @var MutatorUtil Shared helpers for setting payment means, customer IDs, and resolving cascading settings */
     private MutatorUtil $mutator_util;
 
     public function __construct(public Storecove $storecove)
@@ -38,9 +75,9 @@ class Mutator implements MutatorInterface
     }
 
     /**
-     * setInvoice
+     * Set the Invoice Ninja invoice or credit note to be sent.
      *
-     * @param  mixed $invoice
+     * @param  \App\Models\Invoice|\App\Models\Credit $invoice
      * @return self
      */
     public function setInvoice($invoice): self
@@ -50,7 +87,7 @@ class Mutator implements MutatorInterface
     }
 
     /**
-     * setPeppol
+     * Set the Peppol UBL document model that will be mutated and serialised.
      *
      * @param  \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $p_invoice
      * @return self
@@ -62,7 +99,7 @@ class Mutator implements MutatorInterface
     }
 
     /**
-     * getPeppol
+     * Get the current Peppol UBL document model (after any mutations applied).
      *
      * @return \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote
      */
@@ -72,9 +109,10 @@ class Mutator implements MutatorInterface
     }
 
     /**
-     * setClientSettings
+     * Set the Peppol settings stored on the client (client.e_invoice).
+     * These take precedence over company-level settings when resolving properties via MutatorUtil::getSetting().
      *
-     * @param  mixed $client_settings
+     * @param  \InvoiceNinja\EInvoice\Models\Peppol\Invoice|null $client_settings
      * @return self
      */
     public function setClientSettings($client_settings): self
@@ -84,9 +122,10 @@ class Mutator implements MutatorInterface
     }
 
     /**
-     * setCompanySettings
+     * Set the Peppol settings stored on the company (company.e_invoice).
+     * Acts as the lowest-priority fallback in the settings cascade (invoice -> client -> company).
      *
-     * @param  \InvoiceNinja\EInvoice\Models\Peppol\Invoice $company_settings
+     * @param  \InvoiceNinja\EInvoice\Models\Peppol\Invoice|null $company_settings
      * @return self
      */
     public function setCompanySettings($company_settings): self
@@ -96,9 +135,7 @@ class Mutator implements MutatorInterface
     }
 
     /**
-     * getClientSettings
-     *
-     * @return \InvoiceNinja\EInvoice\Models\Peppol\Invoice
+     * @return \InvoiceNinja\EInvoice\Models\Peppol\Invoice|null
      */
     public function getClientSettings(): mixed
     {
@@ -106,9 +143,7 @@ class Mutator implements MutatorInterface
     }
 
     /**
-     * getCompanySettings
-     *
-     * @return \InvoiceNinja\EInvoice\Models\Peppol\Invoice
+     * @return \InvoiceNinja\EInvoice\Models\Peppol\Invoice|null
      */
     public function getCompanySettings(): mixed
     {
@@ -116,9 +151,7 @@ class Mutator implements MutatorInterface
     }
 
     /**
-     * getInvoice
-     *
-     * @return mixed
+     * @return \App\Models\Invoice|\App\Models\Credit
      */
     public function getInvoice(): mixed
     {
@@ -126,445 +159,104 @@ class Mutator implements MutatorInterface
     }
 
     /**
-     * getSetting
+     * Override the company VAT number for fiscal-representative scenarios.
+     * Country handlers check this before falling back to company->settings->vat_number.
+     */
+    public function setOverrideVatNumber(string $vat_number): self
+    {
+        $this->override_vat_number = $vat_number;
+        return $this;
+    }
+
+    public function getOverrideVatNumber(): string
+    {
+        return $this->override_vat_number;
+    }
+
+    /**
+     * Resolve a Peppol property using the three-tier cascade: invoice -> client -> company.
+     * Delegates to MutatorUtil which uses PropertyResolver under the hood.
      *
-     * @param  string $property_path
-     * @return mixed
+     * @param  string $property_path  Dot-notation path e.g. 'Invoice.PaymentMeans'
+     * @return mixed  The resolved value, or null if not set at any level
      */
     public function getSetting(string $property_path): mixed
     {
         return $this->mutator_util->getSetting($property_path);
     }
+
     /**
-     * senderSpecificLevelMutators
+     * Apply country-specific mutations for the sender (company) side.
      *
-     * Runs sender level specific requirements for the e-invoice,
-     *
-     * ie, mutations that are required by the senders country.
+     * Resolves the company's country code, looks up a handler via CountryFactory,
+     * and delegates to handler->senderMutations(). Handlers may modify the Peppol
+     * document (e.g. adding AccountingSupplierParty tax schemes, fiscal identifiers)
+     * and/or inject Storecove-specific metadata.
      *
      * @return self
      */
     public function senderSpecificLevelMutators(): self
     {
-        if (method_exists($this, $this->invoice->company->country()->iso_3166_2)) {
-            $this->{$this->invoice->company->country()->iso_3166_2}();
-        }
+        $countryCode = $this->invoice->company->country()->iso_3166_2;
+
+        $handler = CountryFactory::make($countryCode);
+        $result = $handler->senderMutations(
+            $this->p_invoice,
+            $this->invoice,
+            $this->mutator_util,
+            $this->storecove_meta
+        );
+
+        $this->p_invoice = $result['p_invoice'];
+        $this->storecove_meta = $result['storecove_meta'];
 
         return $this;
     }
 
     /**
-     * receiverSpecificLevelMutators
+     * Apply country-specific mutations for the receiver (client) side.
      *
-     * Runs receiver level specific requirements for the e-invoice
+     * Resolves the client's country code, looks up a handler via CountryFactory,
+     * and delegates to handler->receiverMutations(). Handlers may modify the Peppol
+     * document (e.g. adding buyer tax registration, electronic address schemes)
+     * and/or inject Storecove-specific metadata.
      *
-     * ie mutations that are required by the receiving country
      * @return self
      */
     public function receiverSpecificLevelMutators(): self
     {
+        $countryCode = $this->invoice->client->country->iso_3166_2;
+
+        $handler = CountryFactory::make($countryCode);
+        $result = $handler->receiverMutations(
+            $this->p_invoice,
+            $this->invoice,
+            $this->mutator_util,
+            $this->storecove_meta
+        );
+
+        $this->p_invoice = $result['p_invoice'];
+        $this->storecove_meta = $result['storecove_meta'];
 
-        if (method_exists($this, "client_{$this->invoice->company->country()->iso_3166_2}")) {
-            $this->{"client_{$this->invoice->company->country()->iso_3166_2}"}();
-        }
-
-        return $this;
-    }
-
-    /**
-     * DE
-     *
-     * @Completed
-     * @Tested
-     *
-     * @return self
-     */
-    public function DE(): self
-    {
-
-        $this->mutator_util->setPaymentMeans(true);
-
-        return $this;
-    }
-
-    public function DK(): self
-    {
-        //Block that handle CVR for Denmark
-        $companyID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CompanyID();
-        $companyID->schemeID = "0184";
-        $companyID->value = $this->override_vat_number ?? preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->company->settings->id_number);
-
-        $this->p_invoice->AccountingSupplierParty->Party->PartyLegalEntity[0]->CompanyID = $companyID;
-
-        return $this;
-
-    }
-
-    /**
-     * CH
-     *
-     * @Completed
-     *
-     * Completed - QR-Bill to be implemented at a later date.
-     * @return self
-     */
-    public function CH(): self
-    {
-        return $this;
-    }
-
-    /**
-     * AT
-     *
-     * @Pending
-     *
-     * Need to ensure when sending to government entities that we route appropriately
-     * Also need to ensure customerAssignedAccountIdValue is set so that the sender can be resolved.
-     *
-     * Need a way to define if the client is a government entity.
-     *
-     * @return self
-     */
-    public function AT(): self
-    {
-        //special fields for sending to AT:GOV
-
-        if ($this->invoice->client->classification == 'government') {
-            //routing "b" for production "test" for test environment
-            $this->setStorecoveMeta($this->buildRouting(["scheme" => 'AT:GOV', "id" => 'b']));
-
-            //for government clients this must be set.
-            $this->mutator_util->setCustomerAssignedAccountId(true);
-        }
-
-        return $this;
-    }
-
-    public function AU(): self
-    {
-
-        //if payment means are included, they must be the same `type`
-        return $this;
-    }
-
-    /**
-     * ES
-     *
-     * @Pending
-     * B2G configuration
-     * B2G Testing
-     *
-     * testing. // routing identifier - 293098
-     *
-     * @return self
-     */
-    public function ES(): self
-    {
-
-        if (!isset($this->invoice->due_date)) {
-            $this->p_invoice->DueDate = new \DateTime($this->invoice->date);
-        }
-
-        if ($this->invoice->client->classification == 'business' && $this->invoice->company->getSetting('classification') == 'business') {
-            //must have a paymentmeans as credit_transfer
-            $this->mutator_util->setPaymentMeans(true);
-        }
-
-        // For B2G, provide three ES:FACE identifiers in the routing object,
-        // as well as the ES:VAT tax identifier in the accountingCustomerParty.publicIdentifiers.
-        // The invoice will then be routed through the FACe network. The three required ES:FACE identifiers are as follows:
-        //   "routing": {
-        //     "eIdentifiers":[
-        //       {
-        //         "scheme": "ES:FACE",
-        //         "id": "L01234567",
-        //         "role": "ES-01-FISCAL"
-        //       },
-        //       {
-        //         "scheme": "ES:FACE",
-        //         "id": "L01234567",
-        //         "role": "ES-02-RECEPTOR"
-        //       },
-        //       {
-        //         "scheme": "ES:FACE",
-        //         "id": "L01234567",
-        //         "role": "ES-03-PAGADOR"
-        //       }
-        //     ]
-        //   }
-
-        return $this;
-    }
-
-    /**
-     * FI
-     *
-     * @return self
-     */
-    public function FI(): self
-    {
-
-        // For Finvoice, provide an FI:OPID routing identifier and an FI:OVT legal identifier.
-        // An FI:VAT is recommended. In many cases (depending on the sender/receiver country and the type of service/goods)
-        // an FI:VAT is required. So we recommend always including this.
-
-        return $this;
-    }
-
-    /**
-     * FR
-     * @Pending - clarification on codes needed
-     *
-     * @return self
-     */
-    public function FR(): self
-    {
-
-        // When sending invoices to the French government (Chorus Pro):
-        // All invoices have to be routed to SIRET 0009:11000201100044. There is no test environment for sending to public entities.
-        // The SIRET / 0009 identifier of the final recipient is to be included in the invoice.accountingCustomerParty.publicIdentifiers array.
-
-        if ($this->invoice->client->classification == 'government') {
-            //route to SIRET 0009:11000201100044
-            $this->setStorecoveMeta($this->buildRouting([
-                ["scheme" => 'FR:SIRET', "id" => '11000201100044'],
-
-                // ["scheme" => 'FR:SIRET', "id" => '0009:11000201100044']
-            ]));
-
-            // The SIRET / 0009 identifier of the final recipient is to be included in the invoice.accountingCustomerParty.publicIdentifiers array.
-            $this->mutator_util->setCustomerAssignedAccountId(true);
-
-        }
-
-        if (strlen($this->invoice->client->id_number ?? '') == 9) {
-            //SIREN
-            $this->setStorecoveMeta($this->buildRouting([
-                ["scheme" => 'FR:SIRET', "id" => "{$this->invoice->client->id_number}"],
-
-                // ["scheme" => 'FR:SIRET', "id" => "0002:{$this->invoice->client->id_number}"]
-            ]));
-        } else {
-            //SIRET
-            $this->setStorecoveMeta($this->buildRouting([
-                ["scheme" => 'FR:SIRET', "id" => "{$this->invoice->client->id_number}"],
-
-                // ["scheme" => 'FR:SIRET', "id" => "0009:{$this->invoice->client->id_number}"]
-            ]));
-        }
-
-        return $this;
-    }
-
-    /**
-     * IT
-     *
-     * @return self
-     */
-    public function IT(): self
-    {
-
-        // IT Sender, IT Receiver, B2B/B2G
-        // Provide the receiver IT:VAT and the receiver IT:CUUO (codice destinatario)
-        if (in_array($this->invoice->client->classification, ['business','government']) && $this->invoice->company->country()->iso_3166_2 == 'IT') {
-
-            $this->setStorecoveMeta($this->buildRouting([
-                ["scheme" => 'IT:IVA', "id" => $this->invoice->client->vat_number],
-                ["scheme" => 'IT:CUUO', "id" => $this->invoice->client->routing_id],
-            ]));
-
-            return $this;
-        }
-
-        // IT Sender, IT Receiver, B2C
-        // Provide the receiver IT:CF and the receiver IT:CUUO (codice destinatario)
-        if ($this->invoice->client->classification == 'individual' && $this->invoice->company->country()->iso_3166_2 == 'IT') {
-
-            $this->setStorecoveMeta($this->buildRouting([
-                ["scheme" => 'IT:CF', "id" => $this->invoice->client->vat_number],
-                // ["scheme" => 'IT:CUUO', "id" => $this->invoice->client->routing_id]
-            ]));
-
-            $this->setEmailRouting($this->getIndividualEmailRoute());
-
-            return $this;
-        }
-
-        // IT Sender, non-IT Receiver
-        // Provide the receiver tax identifier and any routing identifier applicable to the receiving country (see Receiver Identifiers).
-        if ($this->invoice->client->country->iso_3166_2 != 'IT' && $this->invoice->company->country()->iso_3166_2 == 'IT') {
-
-            $code = $this->getClientRoutingCode();
-
-            nlog("foreign receiver");
-            $this->setStorecoveMeta($this->buildRouting([
-                ["scheme" => $code, "id" => $this->invoice->client->vat_number],
-            ]));
-
-            return $this;
-        }
-
-        return $this;
-    }
-
-    /**
-     * client_IT
-     *
-     * @return self
-     */
-    public function client_IT(): self
-    {
-
-        // non-IT Sender, IT Receiver, B2C
-        // Provide the receiver IT:CF and an optional email. The invoice will be eReported and sent via email. Note that this cannot be a PEC email address.
-        if (in_array($this->invoice->client->classification, ['individual']) && $this->invoice->company->country()->iso_3166_2 != 'IT') {
-
-            return $this;
-        }
-
-        // non-IT Sender, IT Receiver, B2B/B2G
-        // Provide the receiver IT:VAT and the receiver IT:CUUO (codice destinatario)
-
-        return $this;
-
-    }
-
-    /**
-     * MY
-     *
-     * @return self
-     */
-    public function MY(): self
-    {
-        //way too much to digest here, delayed.
-        return $this;
-    }
-
-    /**
-     * NL
-     *
-     * @return self
-     */
-    public function NL(): self
-    {
-
-        // When sending to public entities, the invoice.accountingSupplierParty.party.contact.email is mandatory.
-
-        // Dutch senders and receivers require a legal identifier. For companies, this is NL:KVK, for public entities this is NL:OINO.
-
-        return $this;
-    }
-
-    /**
-     * NZ
-     *
-     * @return self
-     */
-    public function NZ(): self
-    {
-        // New Zealand uses a GLN to identify businesses. In addition, when sending invoices to a New Zealand customer, make sure you include the pseudo identifier NZ:GST as their tax identifier.
-        return $this;
-    }
-
-    /**
-     * PL
-     *
-     * @return self
-     */
-    public function PL(): self
-    {
-
-        // Because using this network is not yet mandatory, the default workflow is to not use this network. Therefore, you have to force its use, as follows:
-
-        // "routing": {
-        //   "eIdentifiers": [
-        //     {
-        //         "scheme": "PL:VAT",
-        //         "id": "PL0101010101"
-        //     }
-        //   ],
-        //   "networks": [
-        //     {
-        //       "application": "pl-ksef",
-        //       "settings": {
-        //         "enabled": true
-        //       }
-        //     }
-        //   ]
-        // }
-        // Note this will only work if your LegalEntity has been setup for this network.
-
-        return $this;
-    }
-
-    /**
-     * RO
-     *
-     * @return self
-     */
-    public function RO(): self
-    {
-        // Because using this network is not yet mandatory, the default workflow is to not use this network. Therefore, you have to force its use, as follows:
-        $meta = ["networks" => [
-            [
-                "application" => "ro-anaf",
-                "settings" => [
-                    "enabled" => true,
-                ],
-            ],
-        ]];
-
-        $this->setStorecoveMeta($meta);
-
-        $this->setStorecoveMeta($this->buildRouting([
-            ["scheme" => 'RO:VAT', "id" => $this->invoice->client->vat_number],
-        ]));
-
-        $ro = new RO($this->invoice);
-
-        $client_state = $this->mutator_util->getClientSetting('Invoice.AccountingSupplierParty.Party.PostalAddress.Address.CountrySubentity');
-        $client_city = $this->mutator_util->getClientSetting('Invoice.AccountingCustomerParty.Party.PostalAddress.Address.CityName');
-
-        $resolved_state = $ro->getStateCode($client_state);
-        $resolved_city = $ro->getSectorCode($client_city);
-
-        $this->p_invoice->AccountingCustomerParty->Party->PostalAddress->CountrySubentity = $resolved_state;
-        $this->p_invoice->AccountingCustomerParty->Party->PostalAddress->CityName = $resolved_city;
-
-        $query = $this->p_invoice->AccountingSupplierParty->Party->PartyIdentification;
-        usort($query, function($a, $b) {
-            if ($a->value === null && $b->value !== null) return -1; //@phpstan-ignore-line
-            if ($a->value !== null && $b->value === null) return 1; //@phpstan-ignore-line
-            return 0;
-        });
-        $this->p_invoice->AccountingSupplierParty->Party->PartyIdentification = $query;
-
-        return $this;
-    }
-
-    /**
-     * SG
-     *
-     * @return self
-     */
-    public function SG(): self
-    {
-        //delayed  - stage 2
-        return $this;
-    }
-
-    //Sweden — Svefaktura network is set in setSvefakturaNetwork() based on receiver country
-    public function SE(): self
-    {
         return $this;
     }
 
     /////////////// Storecove Helpers ///////////////
+
+    /**
+     * Get the client's primary email for email-based delivery (individual/B2C recipients).
+     */
     private function getIndividualEmailRoute(): string
     {
         return $this->invoice->client->present()->email();
     }
 
+    /**
+     * Fallback: extract a sanitised alphanumeric identifier from the client.
+     * For individuals, prefers id_number; otherwise uses vat_number.
+     *
+     * @param  string $code  The resolved routing scheme code (unused but kept for signature consistency)
+     */
     private function getClientPublicIdentifier(string $code): string
     {
         if ($this->invoice->client->classification == 'individual' && strlen($this->invoice->client->id_number ?? '') > 2) {
@@ -574,20 +266,33 @@ class Mutator implements MutatorInterface
         return preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->client->vat_number ?? '');
     }
 
+    /**
+     * Resolve and set the Storecove routing metadata for the receiving client.
+     *
+     * This is the main routing orchestrator. It determines how Storecove should
+     * deliver the document to the recipient by building the `storecove_meta.routing`
+     * payload. The resolution order is:
+     *
+     *  1. If the client has no vat_number/id_number and is an individual -> email routing
+     *  2. If the client has an explicit routing_id in "scheme:id" format -> use directly (after proxy discovery)
+     *  3. Otherwise, resolve the scheme via StorecoveRouter based on country + classification,
+     *     pick the correct identifier (vat_number, id_number, or routing_id depending on scheme),
+     *     apply country-specific formatting (DK:DIGST prefix, SG:UEN prefix, BE fallback),
+     *     and build the eIdentifiers routing array
+     *
+     * Also enables the Svefaktura network for Swedish recipients.
+     *
+     * @return self
+     */
     public function setClientRoutingCode(): self
     {
 
-        if ($this->invoice->client->classification == 'individual' || (strlen($this->invoice->client->vat_number ?? '') < 2 && strlen($this->invoice->client->id_number ?? '') < 2)) {
-            return $this->setEmailRouting($this->getIndividualEmailRoute());
+        if (strlen($this->invoice->client->vat_number ?? '') < 2 && strlen($this->invoice->client->id_number ?? '') < 2) {
+            if ($this->invoice->client->classification == 'individual') {
+                return $this->setEmailRouting($this->getIndividualEmailRoute());
+            }
+            return $this;
         }
-
-        //Regardless, always include the client email address as a route - Storecove will only use this as a fallback.
-        $client_email = $this->getIndividualEmailRoute();
-
-        if (strlen($client_email) > 2) {
-            $this->setEmailRouting($client_email);
-        }
-
 
         if (stripos($this->invoice->client->routing_id ?? '', ":") !== false) {
 
@@ -597,7 +302,7 @@ class Mutator implements MutatorInterface
                 $scheme = $parts[0];
                 $id = $parts[1];
 
-                if ($this->storecove->discovery($id, $scheme)) {
+                if ($this->proxyDiscovery($id, $scheme)) {
                     $this->setStorecoveMeta($this->buildRouting([
                         ["scheme" => $scheme, "id" => $id],
                     ]));
@@ -612,12 +317,26 @@ class Mutator implements MutatorInterface
 
         $code = $this->getClientRoutingCode();
 
+        if ($code === 'Email') {
+            return $this->setEmailRouting($this->getIndividualEmailRoute());
+        }
+
         $identifier = false;
+
+        // Non-VAT routing schemes (DK:DIGST, SE:ORGNR, FI:OVT, EE:CC, NO:ORG, LT:LEC, etc.)
+        // use id_number (org/registry number), not vat_number.
+        // IT:CUUO uses routing_id (SDI code).
+        $is_vat_scheme = str_contains($code, ':VAT') || str_contains($code, ':IVA') || str_contains($code, ':CF');
 
         if ($this->invoice->client->country->iso_3166_2 == 'FR') {
             $identifier = $this->invoice->client->id_number;
-        } elseif ($this->invoice->client->country->iso_3166_2 == 'SE' && strlen($this->invoice->client->id_number ?? '') > 2) {
-            $identifier = $this->invoice->client->id_number;
+        } elseif (str_contains($code, ':CUUO') && strlen($this->invoice->client->routing_id ?? '') > 1) {
+            $identifier = $this->invoice->client->routing_id;
+        } elseif (!$is_vat_scheme && strlen($this->invoice->client->id_number ?? '') > 1) {
+            $clean_id = preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->client->id_number);
+            $identifier = (new StorecoveRouter())->matchesSchemeFormat($code, $clean_id)
+                ? $this->invoice->client->id_number
+                : $this->invoice->client->vat_number;
         } else {
             $identifier = $this->invoice->client->vat_number;
         }
@@ -631,21 +350,27 @@ class Mutator implements MutatorInterface
         }
 
         $country_prefix = $this->invoice->client->country->iso_3166_2;
-        $identifier = str_ireplace(["FR", "BE", $country_prefix], "", $identifier);
         $identifier = preg_replace("/[^a-zA-Z0-9]/", "", $identifier);
+
+        // DK:DIGST expects DK prefix on the CVR number — ensure it's present
+        if ($code === 'DK:DIGST' && !str_starts_with(strtoupper($identifier), 'DK')) {
+            $identifier = 'DK' . $identifier;
+        }
 
 
         //Check the recipient is on the network, and can be delivered the correct document.
         if($this->invoice->client->country->iso_3166_2 == "BE"){
 
-            if ($this->storecove->discovery($identifier, 'BE:EN')) {
+            $identifier = preg_replace("/^{$country_prefix}/i", "", $identifier);
+
+            if ($this->proxyDiscovery($identifier, 'BE:EN')) {
                     $this->setStorecoveMeta($this->buildRouting([
                         ["scheme" => 'BE:EN', "id" => $identifier],
                     ]));
 
                     return $this;
             }
-            elseif($this->storecove->discovery("BE".$identifier, 'BE:VAT')) {
+            elseif($this->proxyDiscovery("BE".$identifier, 'BE:VAT')) {
                 $this->setStorecoveMeta($this->buildRouting([
                     ["scheme" => 'BE:VAT', "id" => "BE".$identifier],
                 ]));
@@ -656,9 +381,17 @@ class Mutator implements MutatorInterface
         }
 
 
-        $this->setStorecoveMeta($this->buildRouting([
-            ["scheme" => $code, "id" => $identifier],
-        ]));
+        // Composite routing codes (e.g. "0195:SGUENT08GA0028A") encode a fixed
+        // gateway endpoint as scheme:id — split and use directly.
+        if (preg_match('/^(\d{4}):(.+)$/', $code, $m)) {
+            $this->setStorecoveMeta($this->buildRouting([
+                ["scheme" => $m[1], "id" => $m[2]],
+            ]));
+        } else {
+            $this->setStorecoveMeta($this->buildRouting([
+                ["scheme" => $code, "id" => $identifier],
+            ]));
+        }
 
         $this->setSvefakturaNetwork();
 
@@ -685,21 +418,35 @@ class Mutator implements MutatorInterface
     }
 
     /**
-     * getClientRoutingCode
+     * Resolve the Storecove/Peppol routing scheme code for the client's country and classification.
      *
-     * @return string
+     * Delegates to StorecoveRouter which maintains the per-country routing rules matrix.
+     * Examples: 'DE:VAT', 'IT:CUUO', 'SE:ORGNR', 'SG:UEN', 'FR:SIRET'.
+     *
+     * @return string  The scheme code e.g. 'DE:VAT'
      */
     private function getClientRoutingCode(): string
     {
         return (new StorecoveRouter())->setInvoice($this->invoice)->resolveRouting($this->invoice->client->country->iso_3166_2, $this->invoice->client->classification);
     }
 
+    /**
+     * Route discovery through the proxy so self-hosted instances
+     * can reach the Storecove API via the hosted server.
+     */
+    private function proxyDiscovery(string $identifier, string $scheme): bool
+    {
+        return $this->storecove->proxy
+            ->setCompany($this->invoice->company)
+            ->discovery($identifier, $scheme);
+    }
+
 
     /**
-     * Builds the Routing object for StoreCove
+     * Build the Storecove routing.eIdentifiers structure.
      *
-     * @param  array $identifiers
-     * @return array
+     * @param  array<int, array{scheme: string, id: string}> $identifiers  One or more scheme/id pairs
+     * @return array{routing: array{eIdentifiers: array}}
      */
     private function buildRouting(array $identifiers): array
     {
@@ -715,7 +462,9 @@ class Mutator implements MutatorInterface
 
 
     /**
-     * setEmailRouting
+     * Add an email address to the Storecove routing metadata.
+     * Used as a delivery fallback for individual/B2C recipients not on the Peppol network.
+     * Multiple emails can be accumulated (appended, not replaced).
      *
      * @param  string $email
      * @return self
@@ -740,11 +489,13 @@ class Mutator implements MutatorInterface
 
 
     /**
-     * setStorecoveMeta
+     * Merge additional metadata into the Storecove API envelope.
      *
-     * updates the storecove payload for sending documents
+     * Uses array_merge_recursive so nested keys (routing.eIdentifiers, routing.emails, etc.)
+     * are accumulated rather than overwritten. This allows multiple helpers to contribute
+     * routing data without clobbering each other.
      *
-     * @param  array $meta
+     * @param  array $meta  Partial metadata to merge (e.g. routing, network config)
      * @return self
      */
     private function setStorecoveMeta(array $meta): self
@@ -756,9 +507,9 @@ class Mutator implements MutatorInterface
     }
 
     /**
-     * getStorecoveMeta
+     * Get the accumulated Storecove routing/network metadata for the API send payload.
      *
-     * @return array
+     * @return array{routing?: array{eIdentifiers?: array, emails?: string[], networks?: array}}
      */
     public function getStorecoveMeta(): array
     {

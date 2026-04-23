@@ -900,9 +900,10 @@ class JsonToSectionsAdapter
             'elements' => [
                 [
                     'element' => 'div',
-                    'content' => '{{QR_CODE:' . ($props['data'] ?? '$invoice.public_url') . '}}',
+                    'content' => ($props['data'] ?? '$payment_qr_code'),
                     'properties' => [
                         'data-ref' => "{$block['id']}-qr",
+                        'data-state' => "encoded-html",
                         'style' => "text-align: " . ($props['align'] ?? 'left') . ";",
                     ],
                 ],

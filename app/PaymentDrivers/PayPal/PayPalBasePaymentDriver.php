@@ -326,10 +326,10 @@ class PayPalBasePaymentDriver extends BaseDriver
         /** If we have a complete address, add it to the order, otherwise leave it blank! */
         if (
             strlen($this->client->shipping_address1 ?? '') > 2
-            && strlen($this->client->shipping_city ?? '') > 2
-            && strlen($this->client->shipping_state ?? '') >= 2
-            && strlen($this->client->shipping_postal_code ?? '') > 2
-            && strlen($this->client->shipping_country->iso_3166_2 ?? '') >= 2
+           && strlen($this->client->shipping_city ?? '') > 2
+           && strlen($this->client->shipping_state ?? '') >= 2
+           && strlen($this->client->shipping_postal_code ?? '') > 2
+           && strlen($this->client->shipping_country->iso_3166_2 ?? '') >= 2
         ) {
             $order['paypal']['address'] = [
                 "address_line_1" => $this->client->shipping_address1,
@@ -341,10 +341,10 @@ class PayPalBasePaymentDriver extends BaseDriver
             ];
         } elseif (
             strlen($this->client->address1 ?? '') > 2
-            && strlen($this->client->city ?? '') > 2
-            && strlen($this->client->state ?? '') >= 2
-            && strlen($this->client->postal_code ?? '') > 2
-            && strlen($this->client->country->iso_3166_2 ?? '') >= 2
+           && strlen($this->client->city ?? '') > 2
+           && strlen($this->client->state ?? '') >= 2
+           && strlen($this->client->postal_code ?? '') > 2
+           && strlen($this->client->country->iso_3166_2 ?? '') >= 2
         ) {
             $order['paypal']['address'] = [
                 "address_line_1" => $this->client->address1,

@@ -48,8 +48,8 @@ class ShowDocumentRequest extends FormRequest
         // Public documents on entities (Invoice, Quote, etc.) belonging to a client
         // this contact has access to.
         if ($document->is_public
-            && ($entity = $document->documentable)
-            && isset($entity->client_id)) {
+           && ($entity = $document->documentable)
+           && isset($entity->client_id)) {
             return ClientContact::where('client_id', $entity->client_id)
                                 ->where('email', $contact->email)
                                 ->where('company_id', $contact->company_id)

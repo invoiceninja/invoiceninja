@@ -214,7 +214,7 @@ class InstantPayment
          * by adding it as a line item, and then subtract
          * the starting and finishing amounts of the invoice.
          */
-        $fee_totals = $first_invoice->balance - $starting_invoice_amount;
+        $fee_totals = round(($first_invoice->balance - $starting_invoice_amount), $client->currency()->precision);
 
         if ($gateway) {
             $tokens = $client->gateway_tokens()
@@ -231,7 +231,7 @@ class InstantPayment
         $hash_data = [
             'invoices' => $payable_invoices->toArray(),
             'credits' => $credit_totals,
-            'amount_with_fee' => max(0, (($invoice_totals + $fee_totals) - $credit_totals)),
+            'amount_with_fee' => round(max(0, (($invoice_totals + $fee_totals) - $credit_totals)), $client->currency()->precision),
             'pre_payment' => $this->request->pre_payment,
             'frequency_id' => $this->request->frequency_id,
             'remaining_cycles' => $this->request->remaining_cycles,

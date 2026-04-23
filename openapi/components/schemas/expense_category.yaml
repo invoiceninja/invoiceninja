@@ -4,6 +4,7 @@
           description: 'The expense hashed id'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         name:
           description: 'The expense category name'
           type: string

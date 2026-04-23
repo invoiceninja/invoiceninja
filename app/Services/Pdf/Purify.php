@@ -66,6 +66,7 @@ class Purify
         //SVG
         'd' => ['*'],
         'viewBox' => ['*'],
+        'viewbox' => ['*'], // DOMDocument lowercases viewBox
         'xmlns' => ['http://www.w3.org/2000/svg'],
         'fill' => ['*'],
         'stroke' => ['*'],
@@ -78,6 +79,7 @@ class Purify
         'transform' => ['*'],
         'points' => ['*'],
         'preserveAspectRatio' => ['*'],
+        'preserveaspectratio' => ['*'], // DOMDocument lowercases preserveAspectRatio
         'version' => ['*'],
         'xlink:href' => ['#*'], // Only allow internal references
         'fill-rule' => ['nonzero', 'evenodd'],
@@ -229,11 +231,21 @@ class Purify
      */
     private static function sanitizeStyleBlockContent(string $css): string
     {
-        // Strip comments first to prevent obfuscation
+
         $css = preg_replace('/\/\*.*?\*\//s', '', $css);
 
-        // Remove any CSS rule whose selector references the whitelabel logo
         $css = preg_replace('/[^{}]*invoiceninja[\-_]whitelabel[^{}]*\{[^}]*\}/i', '', $css);
+
+        // Normalize CSS unicode escapes before filtering
+        $css = preg_replace_callback(
+            '/\\\\([0-9a-fA-F]{1,6})\s?/',
+            fn($m) => mb_chr(intval($m[1], 16)),
+            $css
+        );
+
+        // Block http:// (SSRF vector to internal services) and file:// (local file access)
+        $css = preg_replace('/http\s*:\s*\/\//i', '', $css);
+        $css = preg_replace('/file\s*:\s*\/\//i', '', $css);
 
         return $css;
     }
@@ -286,7 +298,13 @@ class Purify
         libxml_use_internal_errors(true);
 
         $document = new \DOMDocument();
-        $html = '<?xml encoding="UTF-8">' . $html;
+
+        // Wrap fragments in a <div> container so DOMDocument does not inject
+        // <p> tags around loose text that precedes block-level elements.
+        $html = $is_fragment
+            ? '<?xml encoding="UTF-8"><div>' . $html . '</div>'
+            : '<?xml encoding="UTF-8">' . $html;
+
         @$document->loadHTML(htmlspecialchars_decode(htmlspecialchars($html, ENT_QUOTES, 'UTF-8')), LIBXML_NONET);
 
         // Function to recursively check nodes
@@ -334,39 +352,13 @@ class Purify
                     $current_attributes[$attr->name] = $attr->value;
                 }
 
-                // Handle SVG node separately
-                if ($node->tagName === 'svg') {
-                    // Keep only allowed SVG attributes
-                    $current_attributes = [];
-                    foreach ($node->attributes as $attr) {
-
-                        if (in_array($attr->name, self::$dangerous_svg_elements)) {
-                            $node->removeAttribute($attr->name);
-                        }
-
-                    }
-
-                } else {
-                    // First, remove ALL attributes from the node
-                    // while ($node->attributes->length > 0) {
-                    //     $attr = $node->attributes->item(0);
-                    //     $node->removeAttribute($attr->nodeName);
-                    // }
-
-
-                    if ($node instanceof \DOMElement) {
-                        // Create a list of attributes to remove
-                        $attributes_to_remove = [];
-                        foreach ($node->attributes as $attr) {
-                            $attributes_to_remove[] = $attr->nodeName;
-                        }
-
-                        // Remove the attributes
-                        foreach ($attributes_to_remove as $attr_name) {
-                            $node->removeAttribute($attr_name);
-                        }
-                    }
-
+                // Remove ALL attributes from the node, then re-add only allowed ones below
+                $attributes_to_remove = [];
+                foreach ($node->attributes as $attr) {
+                    $attributes_to_remove[] = $attr->nodeName;
+                }
+                foreach ($attributes_to_remove as $attr_name) {
+                    $node->removeAttribute($attr_name);
                 }
 
                 // Then add back only the allowed attributes
@@ -456,11 +448,19 @@ class Purify
             $cleanNodes($document->documentElement);
 
             if ($is_fragment) {
+                // Extract content from inside the wrapper <div> we added before parsing.
                 $body = $document->getElementsByTagName('body')->item(0);
                 $html = '';
                 if ($body) {
-                    foreach ($body->childNodes as $child) {
-                        $html .= $document->saveHTML($child);
+                    $wrapper = $body->firstChild;
+                    if ($wrapper && $wrapper->nodeName === 'div') {
+                        foreach ($wrapper->childNodes as $child) {
+                            $html .= $document->saveHTML($child);
+                        }
+                    } else {
+                        foreach ($body->childNodes as $child) {
+                            $html .= $document->saveHTML($child);
+                        }
                     }
                 }
             } else {

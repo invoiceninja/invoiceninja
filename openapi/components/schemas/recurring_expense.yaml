@@ -4,6 +4,7 @@
           description: 'The hashed id of the recurring expense'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         user_id:
           description: 'The hashed id of the user who created the recurring expense'
           type: string

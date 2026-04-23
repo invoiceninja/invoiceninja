@@ -12,9 +12,23 @@ class PaymentResponseRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
-        return true;
+        $contact = auth()->guard('contact')->user();
+
+        if (! $contact) {
+            return false;
+        }
+
+        if ($this->has('payment_hash')) {
+            $ph = PaymentHash::with('fee_invoice')->where('hash', $this->payment_hash)->first();
+
+            if ($ph && $ph->fee_invoice) {
+                return $contact->client_id === $ph->fee_invoice->client_id;
+            }
+        }
+
+        return false;
     }
 
     /**

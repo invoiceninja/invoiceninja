@@ -472,7 +472,7 @@ class SubscriptionController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $subscriptions = Subscription::withTrashed()->find($request->ids);
+        $subscriptions = Subscription::withTrashed()->company()->find($request->ids);
 
         if (in_array($request->action, ['assign_invoice'])) {
 
@@ -482,7 +482,7 @@ class SubscriptionController extends BaseController
                 }
             });
 
-            return $this->listResponse(Subscription::withTrashed()->whereIn('id', $request->ids));
+            return $this->listResponse(Subscription::withTrashed()->company()->whereIn('id', $request->ids));
 
         }
 
@@ -492,6 +492,6 @@ class SubscriptionController extends BaseController
             }
         });
 
-        return $this->listResponse(Subscription::withTrashed()->whereIn('id', $request->ids));
+        return $this->listResponse(Subscription::withTrashed()->company()->whereIn('id', $request->ids));
     }
 }

@@ -4,6 +4,7 @@
           description: 'The design hashed id'
           type: string
           example: AS3df3A
+          readOnly: true
         name:
           description: 'The design name'
           type: string

@@ -52,6 +52,10 @@ class ForgotPasswordController extends Controller
      */
     public function sendResetLinkEmail(Request $request)
     {
+        $request->validate([
+            'email' => ['required', 'email:dns'],
+        ]);
+
         MultiDB::userFindAndSetDb($request->input('email'));
         $user = MultiDB::hasUser(['email' => $request->input('email')]);
 
@@ -71,7 +75,7 @@ class ForgotPasswordController extends Controller
 
             return $response == Password::RESET_LINK_SENT
                 ? response()->json(['message' => 'Reset link sent to your email.', 'status' => true], 201)
-                : response()->json(['message' => 'Email not found', 'status' => false], 401);
+                : response()->json(['message' => 'Reset link sent to your email.', 'status' => true], 201); //never hint that the email is not found
         }
 
         return $response == Password::RESET_LINK_SENT

@@ -62,7 +62,7 @@ class ReminderJob implements ShouldQueue
                  ->where('is_deleted', 0)
                  ->whereNull('deleted_at')
                  ->where('balance', '>', 0)
-                 ->whereBetween('next_send_date', [now()->subMonth()->startOfDay(), now()->addDay()->startOfDay()])
+                 ->whereBetween('next_send_date', [now()->subMonth()->startOfDay(), now()])
                  ->whereHas('client', function ($query) {
                      $query->where('is_deleted', 0)
                            ->where('deleted_at', null);
@@ -124,6 +124,12 @@ class ReminderJob implements ShouldQueue
 
             $reminder_template = $invoice->calculateTemplate('invoice');
             nrlog("#{$invoice->number} => reminder template = {$reminder_template}");
+
+            /** If we have not calculated an appropriate template, we may not be at the exact correct TIME || 2026-04-02 10:00:00 */
+            if (!in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3', 'reminder_endless', 'endless_reminder'])) {
+                return;
+            }
+
             $invoice->service()->touchReminder($reminder_template)->save();
 
             $fees = $this->calcLateFee($invoice, $reminder_template);
@@ -142,9 +148,9 @@ class ReminderJob implements ShouldQueue
             }
 
             if (in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3', 'reminder_endless', 'endless_reminder'])
-            && $invoice->client->getSetting($enabled_reminder)
-            && $invoice->client->getSetting('send_reminders')
-            && (Ninja::isSelfHost() || $invoice->company->account->isPaidHostedClient())) {
+           && $invoice->client->getSetting($enabled_reminder)
+           && $invoice->client->getSetting('send_reminders')
+           && (Ninja::isSelfHost() || $invoice->company->account->isPaidHostedClient())) {
 
                 $event_fired = false;
 
@@ -228,9 +234,9 @@ class ReminderJob implements ShouldQueue
         }
 
         if (in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3', 'reminder_endless', 'endless_reminder'])
-                && $invoice->client->getSetting($enabled_reminder)
-                && $invoice->client->getSetting('send_reminders')
-                && (Ninja::isSelfHost() || $invoice->company->account->isPaidHostedClient())) {
+               && $invoice->client->getSetting($enabled_reminder)
+               && $invoice->client->getSetting('send_reminders')
+               && (Ninja::isSelfHost() || $invoice->company->account->isPaidHostedClient())) {
             $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
                 if ($invitation->contact && !$invitation->contact->trashed() && $invitation->contact->email && !$invitation->contact->is_locked) {
                     EmailEntity::dispatch($invitation->withoutRelations(), $invitation->company->db, $reminder_template);

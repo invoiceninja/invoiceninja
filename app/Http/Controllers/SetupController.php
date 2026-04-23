@@ -58,6 +58,11 @@ class SetupController extends Controller
 
     public function doSetup(StoreSetupRequest $request)
     {
+
+        if (Ninja::isHosted() || (Schema::hasTable('accounts') && Account::first())) {
+            return redirect('/');
+        }
+
         try {
             $check = SystemHealth::check(false, false);
         } catch (Exception $e) {
@@ -150,6 +155,7 @@ class SetupController extends Controller
             Artisan::call('migrate', ['--force' => true]);
             Artisan::call('db:seed', ['--force' => true]);
             Artisan::call('config:clear');
+            Artisan::call('cache:clear');
 
             Storage::disk('local')->delete('test.pdf');
 
@@ -185,7 +191,7 @@ class SetupController extends Controller
         try {
             $status = SystemHealth::dbCheck($request);
 
-            if (is_array($status) && $status['success'] === true) {
+            if ($status['success'] === true) {
                 return response([], 200);
             }
 

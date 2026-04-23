@@ -153,6 +153,83 @@ class StorecoveProxy
         return $this->remoteRequest('/api/einvoice/peppol/add_additional_legal_identifier', $data);
     }
 
+    public function c5Activate(string $name, string $email): array
+    {
+        $data = [
+            'legal_entity_id' => $this->company->legal_entity_id,
+            'id_number' => $this->company->settings->id_number,
+            'name' => $name,
+            'email' => $email,
+        ];
+
+        if (Ninja::isHosted()) {
+            $response = $this->storecove->c5->activate(
+                $data['legal_entity_id'],
+                $data['id_number'],
+                $name,
+                $email,
+            );
+
+            if (is_array($response)) {
+                return $response;
+            }
+
+            return $this->handleResponseError($response);
+        }
+
+        return $this->remoteRequest('/api/einvoice/peppol/sg/c5/activate', $data);
+    }
+
+    public function c5Deactivate(string $name, string $email): array
+    {
+        $data = [
+            'legal_entity_id' => $this->company->legal_entity_id,
+            'id_number' => $this->company->settings->id_number,
+            'name' => $name,
+            'email' => $email,
+        ];
+
+        if (Ninja::isHosted()) {
+            $response = $this->storecove->c5->deactivate(
+                $data['legal_entity_id'],
+                $data['id_number'],
+                $name,
+                $email,
+            );
+
+            if (is_array($response)) {
+                return $response;
+            }
+
+            return $this->handleResponseError($response);
+        }
+
+        return $this->remoteRequest('/api/einvoice/peppol/sg/c5/deactivate', $data);
+    }
+
+    public function c5Cancel(): array
+    {
+        $data = [
+            'legal_entity_id' => $this->company->legal_entity_id,
+            'id_number' => $this->company->settings->id_number,
+        ];
+
+        if (Ninja::isHosted()) {
+            $response = $this->storecove->c5->cancel(
+                $data['legal_entity_id'],
+                $data['id_number'],
+            );
+
+            if (is_array($response)) {
+                return $response;
+            }
+
+            return $this->handleResponseError($response);
+        }
+
+        return $this->remoteRequest('/api/einvoice/peppol/sg/c5/cancel', $data);
+    }
+
     public function removeAdditionalTaxIdentifier(array $data): array|false
     {
         $data['legal_entity_id'] = $this->company->legal_entity_id;
@@ -223,6 +300,34 @@ class StorecoveProxy
         ]);
 
         return $error;
+    }
+
+    /**
+     * Check if a recipient is discoverable on the PEPPOL network.
+     *
+     * Hosted: calls Storecove directly.
+     * Self-hosted: proxies through the hosted Ninja server.
+     */
+    public function discovery(string $identifier, string $scheme): bool
+    {
+        if (Ninja::isHosted()) {
+            return $this->storecove->discovery($identifier, $scheme);
+        }
+
+        $payload = [
+            'identifier' => $identifier,
+            'scheme' => $scheme,
+        ];
+
+        $response = Http::baseUrl(config('ninja.hosted_ninja_url'))
+            ->withHeaders($this->getHeaders())
+            ->post('/api/einvoice/peppol/discovery', $payload);
+
+        if ($response->successful()) {
+            return ($response->json()['discovered'] ?? false) === true;
+        }
+
+        return false;
     }
 
     private function remoteRequest(string $uri, array $payload = []): array

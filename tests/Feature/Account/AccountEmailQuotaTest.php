@@ -19,6 +19,7 @@ use App\Models\Account;
 use App\Models\Company;
 use App\DataMapper\CompanySettings;
 use App\Factory\CompanyUserFactory;
+use App\Helpers\Cache\Atomic;
 use Illuminate\Support\Facades\Cache;
 use App\DataMapper\ClientRegistrationFields;
 
@@ -94,16 +95,16 @@ class AccountEmailQuotaTest extends TestCase
         $account->save();
 
 
-        Cache::put("email_quota".$account->key, 3000);
+        Atomic::set("email_quota".$account->key, 3000, 60);
 
         $this->assertFalse($account->isPaid());
         $this->assertTrue(Ninja::isNinja());
         $this->assertEquals(20, $account->getDailyEmailLimit());
 
-        $this->assertEquals(3000, Cache::get("email_quota".$account->key));
+        $this->assertEquals(3000, Atomic::get("email_quota".$account->key));
         $this->assertTrue($account->emailQuotaExceeded());
 
-        Cache::forget("email_quota".'123ifyouknowwhatimean');
+        Atomic::del("email_quota".$account->key);
     }
 
     public function testQuotaValidRule()
@@ -120,11 +121,11 @@ class AccountEmailQuotaTest extends TestCase
         $account->num_users = 3;
         $account->save();
 
-        Cache::increment("email_quota".$account->key);
+        Atomic::set("email_quota".$account->key, 1, 60);
 
         $this->assertFalse($account->emailQuotaExceeded());
 
-        Cache::forget("email_quota".'123ifyouknowwhatimean');
+        Atomic::del("email_quota".$account->key);
     }
 
     public function testEmailSentCount()
@@ -142,12 +143,12 @@ class AccountEmailQuotaTest extends TestCase
         $account->save();
 
 
-        Cache::put("email_quota".$account->key, 3000);
+        Atomic::set("email_quota".$account->key, 3000, 60);
 
         $count = $account->emailsSent();
 
         $this->assertEquals(3000, $count);
 
-        Cache::forget("email_quota".'123ifyouknowwhatimean');
+        Atomic::del("email_quota".$account->key);
     }
 }

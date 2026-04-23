@@ -74,7 +74,7 @@ class TemplateMock
         $this->engines['entity'] = $this->generateEntityDataArray();
 
         // Check if expense_data property was actually set (may fail if property definition is too long)
-        if (!isset($this->expense_data) || empty($this->expense_data)) {
+        if (!isset($this->expense_data) || empty($this->expense_data)) { //@phpstan-ignore-line
             nlog('expense_data property is empty or not set - property definition may be too long for PHP to parse');
             $this->engines['expenses'] = null;
         } else {

@@ -12,9 +12,7 @@
 
 namespace App\Services\Invoice;
 
-use App\Events\Invoice\InvoiceWasDeleted;
 use App\Jobs\Inventory\AdjustProductInventory;
-use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Services\AbstractService;

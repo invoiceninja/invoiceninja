@@ -55,7 +55,7 @@ class StoreBankTransactionRuleRequest extends Request
 
         $rules['category_id'] = 'bail|sometimes|nullable|exists:expense_categories,id,company_id,' . $user->company()->id . ',is_deleted,0';
         $rules['vendor_id'] = 'bail|sometimes|nullable|exists:vendors,id,company_id,' . $user->company()->id . ',is_deleted,0';
-        $rules['client_id'] = 'bail|sometimes|nullable|exists:clients,id,company_id,' . $user->company()->id . ',is_deleted,0';
+        $rules['client_id'] = 'bail|sometimes|nullable|integer|exists:clients,id,company_id,' . $user->company()->id . ',is_deleted,0';
 
         return $rules;
     }

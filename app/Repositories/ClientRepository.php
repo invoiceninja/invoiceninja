@@ -224,6 +224,7 @@ class ClientRepository extends BaseRepository
         $clone_client->client_hash = \Illuminate\Support\Str::random(40);
         $clone_client->sync = null;
         $clone_client->number = null;
+        $clone_client->id_number = null;
         $clone_client->balance = 0;
         $clone_client->paid_to_date = 0;
         $clone_client->credit_balance = 0;

@@ -50,14 +50,14 @@ class CreateRecurringInvitations extends AbstractService
                                             ->withTrashed()
                                             ->first();
 
-                if (! $invitation && $contact->send_email) {
+                if (! $invitation && $contact->send_email && ! $contact->cc_only) {
                     $ii = $this->invitation_factory::create($this->entity->company_id, $this->entity->user_id);
                     $ii->key = $this->createDbHash($this->entity->company->db);
                     $ii->{$this->entity_id_name} = $this->entity->id;
                     $ii->client_contact_id = $contact->id;
                     $ii->can_sign = $contact->can_sign;
                     $ii->save();
-                } elseif ($invitation && ! $contact->send_email) {
+                } elseif ($invitation && (! $contact->send_email || $contact->cc_only)) {
                     $invitation->delete();
                 }
             });

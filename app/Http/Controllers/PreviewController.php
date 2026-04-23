@@ -153,7 +153,7 @@ class PreviewController extends BaseController
         }
 
         if ($request->input('entity', false)
-            && $request->input('entity_id', false) != '-1') {
+           && $request->input('entity_id', false) != '-1') {
 
             $design_object = json_decode(json_encode($request->input('design')));
 
@@ -193,12 +193,18 @@ class PreviewController extends BaseController
                 $request->input('entity') . "s" => [$entity_obj],
             ]);
 
-            $ps->boot()
-            ->designer
-            ->buildFromPartials($request->design['design']);
+            $requestDesign = $request->design['design'];
 
-            $ps->builder
-            ->build();
+            $ps->boot();
+
+            if (isset($requestDesign['blocks'])) {
+                $ps->setJsonDesignHtml(
+                    (new \App\Services\Pdf\JsonDesignService($ps, $requestDesign))->build()
+                );
+            } else {
+                $ps->designer->buildFromPartials($requestDesign);
+                $ps->builder->build();
+            }
 
             if ($request->query('html') == 'true') {
                 return $ps->getHtml();

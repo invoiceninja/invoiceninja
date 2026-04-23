@@ -497,7 +497,7 @@ class ExpenseController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $expenses = Expense::withTrashed()->find($request->ids);
+        $expenses = Expense::withTrashed()->company()->find($request->ids);
 
         if ($request->action == 'template' && $user->can('view', $expenses->first())) {
 
@@ -541,7 +541,7 @@ class ExpenseController extends BaseController
             }
         });
 
-        return $this->listResponse(Expense::withTrashed()->whereIn('id', $request->ids));
+        return $this->listResponse(Expense::withTrashed()->company()->whereIn('id', $request->ids));
     }
 
     /**

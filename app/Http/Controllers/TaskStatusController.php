@@ -179,6 +179,6 @@ class TaskStatusController extends BaseController
                     $this->task_status_repo->{$action}($task_status);
                 });
 
-        return $this->listResponse(TaskStatus::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(TaskStatus::withTrashed()->company()->whereIn('id', $this->transformKeys($ids)));
     }
 }

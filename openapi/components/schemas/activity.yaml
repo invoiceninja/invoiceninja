@@ -4,6 +4,7 @@
           description: 'The id field of the activity'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         activity_type_id:
           description: 'The activity type id'
           type: string

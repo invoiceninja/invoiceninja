@@ -30,8 +30,8 @@ trait MakesMenu
 
         foreach (Module::getCached() as $module) {
             if (! $module['sidebar']
-                && $module['active'] == 1
-                && in_array(strtolower(class_basename($entity)), $module['views'])) {
+               && $module['active'] == 1
+               && in_array(strtolower(class_basename($entity)), $module['views'])) {
                 $tabs[] = $module;
             }
         }

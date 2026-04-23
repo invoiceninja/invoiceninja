@@ -4,6 +4,7 @@
           description: 'The location hashed id'
           type: string
           example: Kd5S2M
+          readOnly: true
         name:
           description: 'The location name'
           type: string

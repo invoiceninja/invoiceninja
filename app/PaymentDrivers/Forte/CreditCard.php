@@ -171,7 +171,10 @@ class CreditCard implements LivewireMethodInterface
         if (strlen($request->token ?? '') > 3) {
 
 
-            $cgt = \App\Models\ClientGatewayToken::find($this->decodePrimaryKey($request->token));
+            $cgt = \App\Models\ClientGatewayToken::query()
+                ->where('id', $this->decodePrimaryKey($request->token))
+                ->where('client_id', $this->forte->client->id)
+                ->firstOrFail();
 
             $payment = $this->forte->tokenBilling($cgt, $payment_hash);
 

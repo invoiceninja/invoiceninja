@@ -52,7 +52,7 @@ class EntityTransformer extends TransformerAbstract
 
     public function getAvailableIncludes(): array
     {
-        return $this->availableIncludes ?? [];
+        return $this->availableIncludes ?? []; //@phpstan-ignore-line
     }
 
     protected function getDefaults($entity) {}

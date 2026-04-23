@@ -109,6 +109,6 @@ class InvoiceTransformer extends BaseTransformer
     /** @return float  */
     public function getFreshbookQuantityFloat($data, $field)
     {
-        return $data[$field];
+        return $data[$field] ?? 0;
     }
 }

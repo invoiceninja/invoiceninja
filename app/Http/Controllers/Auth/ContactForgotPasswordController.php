@@ -124,7 +124,9 @@ class ContactForgotPasswordController extends Controller
         if ($contact) {
             /* Update all instances of the client */
             $token = Str::random(60);
-            ClientContact::where('email', $contact->email)->update(['token' => $token]);
+            ClientContact::where('email', $contact->email)
+                ->where('company_id', $contact->company_id)
+                ->update(['token' => $token]);
             $contact->sendPasswordResetNotification($token);
             $response = Password::RESET_LINK_SENT;
         } else {

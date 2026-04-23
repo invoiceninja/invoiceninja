@@ -61,26 +61,25 @@ class ClientContactObserver
 
         InvoiceInvitation::withTrashed()->where('client_contact_id', $client_contact_id)->cursor()->each(function ($invite) {
             /** @var \App\Models\InvoiceInvitation $invite */
-            if ($invite->invoice()->doesnthave('invitations')) { // @phpstan-ignore-line
+            if ($invite->invoice && $invite->invoice->invitations()->doesntExist()) {
                 $invite->invoice->service()->createInvitations();
             }
         });
 
-
         QuoteInvitation::withTrashed()->where('client_contact_id', $client_contact_id)->cursor()->each(function ($invite) {
-            if ($invite->quote()->doesnthave('invitations')) { // @phpstan-ignore-line
+            if ($invite->quote && $invite->quote->invitations()->doesntExist()) {
                 $invite->quote->service()->createInvitations();
             }
         });
 
         RecurringInvoiceInvitation::withTrashed()->where('client_contact_id', $client_contact_id)->cursor()->each(function ($invite) {
-            if ($invite->recurring_invoice()->doesnthave('invitations')) {// @phpstan-ignore-line
+            if ($invite->recurring_invoice && $invite->recurring_invoice->invitations()->doesntExist()) {
                 $invite->recurring_invoice->service()->createInvitations();
             }
         });
 
         CreditInvitation::withTrashed()->where('client_contact_id', $client_contact_id)->cursor()->each(function ($invite) {
-            if ($invite->credit()->doesnthave('invitations')) {// @phpstan-ignore-line
+            if ($invite->credit && $invite->credit->invitations()->doesntExist()) {
                 $invite->credit->service()->createInvitations();
             }
         });

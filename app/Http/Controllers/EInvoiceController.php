@@ -19,6 +19,7 @@ use App\Http\Requests\EInvoice\UpdateEInvoiceConfiguration;
 use App\Services\EDocument\Standards\Validation\Peppol\EntityLevel;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
+use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
 use InvoiceNinja\EInvoice\Models\Peppol\BranchType\FinancialInstitutionBranch;
 use InvoiceNinja\EInvoice\Models\Peppol\FinancialInstitutionType\FinancialInstitution;
 use InvoiceNinja\EInvoice\Models\Peppol\FinancialAccountType\PayeeFinancialAccount;
@@ -196,6 +197,19 @@ class EInvoiceController extends BaseController
         return response()->json([
             'quota' => $account->e_invoice_quota,
         ]);
+    }
+
+    /**
+     * Returns the static Peppol delivery map for the UI.
+     *
+     * Per country: which classifications are routable and
+     * what client identifiers are required for each.
+     */
+    public function deliveryMap(): JsonResponse
+    {
+        $router = new StorecoveRouter();
+
+        return response()->json($router->getDeliveryMap());
     }
 
     public function healthcheck(HealthcheckRequest $request): JsonResponse

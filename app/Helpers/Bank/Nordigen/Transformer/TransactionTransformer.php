@@ -107,22 +107,25 @@ class TransactionTransformer implements BankRevenueInterface
         $amount = (float) $transaction["transactionAmount"]["amount"];
         $base_type = $amount < 0 ? 'DEBIT' : 'CREDIT';
 
-        // description could be in varios places
+        // description could be in various places
         $description = '';
         if (array_key_exists('remittanceInformationStructured', $transaction)) {
             $description = $transaction["remittanceInformationStructured"];
         } elseif (array_key_exists('remittanceInformationStructuredArray', $transaction)) {
-            $description = implode('\n', $transaction["remittanceInformationStructuredArray"]);
+            $remittanceInformationStructuredArray = $transaction["remittanceInformationStructuredArray"];
+            if (array_key_exists('rawTransactionDescription', $remittanceInformationStructuredArray)) {
+                $description = $remittanceInformationStructuredArray["rawTransactionDescription"];
+            } else {
+                $description = implode('\n', $transaction["remittanceInformationStructuredArray"]);
+            }
         } elseif (array_key_exists('remittanceInformationUnstructured', $transaction)) {
             $description = $transaction["remittanceInformationUnstructured"];
         } elseif (array_key_exists('remittanceInformationUnstructuredArray', $transaction)) {
             $description = implode('\n', $transaction["remittanceInformationUnstructuredArray"]);
-        } elseif (array_key_exists('creditorName', $transaction)) {
-            $description = $transaction["creditorName"];
         } else {
             Log::warning("Missing description for the following transaction: " . json_encode($transaction));
         }
-
+        
         // enrich description with currencyExchange informations
         if (isset($transaction['currencyExchange'])) {
             foreach ($transaction["currencyExchange"] as $exchangeRate) {

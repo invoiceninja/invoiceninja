@@ -19,6 +19,8 @@ use App\Utils\Ninja;
 
 class LoginRequest extends Request
 {
+    protected $stopOnFirstFailure = true;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -37,9 +39,9 @@ class LoginRequest extends Request
     public function rules()
     {
         if (Ninja::isHosted()) {
-            $email_rules = ['required', new EmailBlackListRule()];
+            $email_rules = ['required', 'bail',new EmailBlackListRule()];
         } else {
-            $email_rules = 'required';
+            $email_rules = 'required|bail';
         }
 
         return [

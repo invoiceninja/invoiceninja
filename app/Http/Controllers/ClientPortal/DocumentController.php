@@ -21,7 +21,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Requests\Document\DownloadMultipleDocumentsRequest;
+use App\Http\Requests\ClientPortal\Documents\DownloadMultipleDocumentsRequest;
 use App\Http\Requests\ClientPortal\Documents\ShowDocumentRequest;
 
 class DocumentController extends Controller

@@ -115,10 +115,13 @@ class ContactResetPasswordController extends Controller
 
         $hashed_password = Hash::make($request->input('password'));
 
-        ClientContact::where('email', $user->email)->update([
-            'password' => $hashed_password,
-            'remember_token' => Str::random(60),
-        ]);
+        ClientContact::where('email', $user->email)
+            ->where('company_id', $user->company_id)
+            ->update([
+                'password' => $hashed_password,
+                'remember_token' => Str::random(60),
+                'token' => null,
+            ]);
 
         event(new PasswordReset($user));
 

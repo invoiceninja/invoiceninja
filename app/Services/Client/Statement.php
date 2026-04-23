@@ -12,21 +12,22 @@
 
 namespace App\Services\Client;
 
-use App\Utils\Number;
+use App\Factory\InvoiceItemFactory;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Services\Pdf\Purify;
+use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
-use Illuminate\Support\Carbon;
-use App\Utils\Traits\MakesHash;
+use App\Utils\Number;
 use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\MakesDates;
-use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Pdf\PdfMaker;
-use App\Factory\InvoiceItemFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 
 class Statement
 {
@@ -170,7 +171,7 @@ class Statement
             $html = $ts->getHtml();
         }
 
-        return $this->convertToPdf($html);
+        return $this->convertToPdf(Purify::clean($html));
     }
 
     private function convertToPdf(string $html): mixed

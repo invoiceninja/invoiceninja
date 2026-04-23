@@ -12,32 +12,33 @@
 
 namespace App\Http\Controllers;
 
-use stdClass;
-use App\Models\Task;
-use App\Utils\Ninja;
-use App\Models\Quote;
+use App\Http\Requests\Activity\DownloadHistoricalEntityRequest;
+use App\Http\Requests\Activity\ShowActivityRequest;
+use App\Http\Requests\Activity\StoreNoteRequest;
+use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Credit;
-use App\Models\Vendor;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
-use App\Models\Activity;
-use Illuminate\Http\Request;
 use App\Models\PurchaseOrder;
-use App\Utils\Traits\MakesHash;
+use App\Models\Quote;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
-use App\Utils\PhantomJS\Phantom;
-use App\Utils\HostedPDF\NinjaPdf;
-use App\Utils\Traits\Pdf\PdfMaker;
-use App\Utils\Traits\Pdf\PageNumbering;
-use Illuminate\Support\Facades\Storage;
+use App\Models\Task;
+use App\Models\Vendor;
+use App\Services\Pdf\Purify;
 use App\Transformers\ActivityTransformer;
-use App\Http\Requests\Activity\StoreNoteRequest;
-use App\Http\Requests\Activity\ShowActivityRequest;
-use App\Http\Requests\Activity\DownloadHistoricalEntityRequest;
+use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\Ninja;
+use App\Utils\PhantomJS\Phantom;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\Pdf\PageNumbering;
+use App\Utils\Traits\Pdf\PdfMaker;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use stdClass;
 
 class ActivityController extends BaseController
 {
@@ -164,7 +165,7 @@ class ActivityController extends BaseController
                 $pdf = $numbered_pdf;
             }
         } else {
-            $pdf = $this->makePdf(null, null, $html_backup);
+            $pdf = $this->makePdf(null, null, Purify::clean($html_backup));
 
             $numbered_pdf = $this->pageNumbering($pdf, $activity->company);
 

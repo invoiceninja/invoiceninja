@@ -14,5 +14,10 @@ namespace App\Services\EDocument\Interfaces;
 
 interface PaymentMeansInterface
 {
+    /**
+     * Builds the payment means structure for the e-document.
+     *
+     * @return mixed
+     */
     public function run();
 }

@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         \Illuminate\Database\Eloquent\Model::unguard();
 
-        if (! Gateway::find(66)) {
+        if (! Gateway::find(67)) {
             $fields = new \stdClass;
             $fields->partnerId = '';
             $fields->vposId = '';
@@ -18,7 +18,7 @@ return new class extends Migration {
             $fields->timeToLive = 600;
 
             $gateway = new Gateway();
-            $gateway->id = 66;
+            $gateway->id = 67;
             $gateway->name = 'payware';
             $gateway->key = 'b0a6294fca4488c2bab58f3e11e3c623';
             $gateway->provider = 'Payware';

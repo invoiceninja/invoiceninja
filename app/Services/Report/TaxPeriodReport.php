@@ -49,6 +49,8 @@ class TaxPeriodReport extends BaseExport
 
     private string $number_format;
 
+    private string $date_format;
+
     private bool $cash_accounting = false;
 
     private ?RegionalTaxCalculator $regional_calculator = null;
@@ -160,7 +162,7 @@ class TaxPeriodReport extends BaseExport
                     })
                     ->map(function ($group) {
                         return $group->first();
-                    })->each(function ($pp) {
+                    })->each(function (\App\Models\Paymentable $pp) {
                         (new InvoiceTransactionEventEntryCash())->run($pp->paymentable, \Carbon\Carbon::parse($pp->created_at)->startOfMonth()->format('Y-m-d'), \Carbon\Carbon::parse($pp->created_at)->endOfMonth()->format('Y-m-d'));
                     });
 
@@ -318,14 +320,36 @@ class TaxPeriodReport extends BaseExport
     {
         $currency = $this->company->currency();
 
-        $formatted = number_format(90.00, $currency->precision, $currency->decimal_separator, $currency->thousand_separator);
-        $formatted = str_replace('9', '#', $formatted);
-        $this->number_format = $formatted;
-
-        $formatted = "{$currency->symbol}{$formatted}";
-        $this->currency_format = $formatted;
+        $decimal_places = str_repeat('0', $currency->precision);
+        $this->number_format = '#,##0' . ($currency->precision > 0 ? '.' . $decimal_places : '');
+        $this->currency_format = '"' . $currency->symbol . '"' . $this->number_format;
+        $this->date_format = $this->convertPhpDateFormatToExcel($this->company->date_format());
 
         return $this;
+    }
+
+    /**
+     * Convert a PHP date format string to an Excel-compatible format code.
+     *
+     * @param string $php_format PHP date() format string (e.g. 'd/m/Y', 'M j, Y')
+     * @return string Excel format code (e.g. 'dd/mm/yyyy', 'mmm d, yyyy')
+     */
+    private function convertPhpDateFormatToExcel(string $php_format): string
+    {
+        $replacements = [
+            'Y' => 'yyyy',
+            'y' => 'yy',
+            'F' => 'mmmm',
+            'M' => 'mmm',
+            'm' => 'mm',
+            'n' => 'm',
+            'd' => 'dd',
+            'j' => 'd',
+            'D' => 'ddd',
+            'l' => 'dddd',
+        ];
+
+        return strtr($php_format, $replacements);
     }
 
 
@@ -356,13 +380,13 @@ class TaxPeriodReport extends BaseExport
     public function createInvoiceSummarySheet()
     {
 
-        $worksheet_title = $this->cash_accounting ? ctrans('texts.cash_accounting') : ctrans('texts.accrual_accounting');
+        $worksheet_title = $this->cash_accounting ? ctrans('texts.cash_accounting') : ctrans('texts.cash_vs_accrual');
 
         $worksheet = $this->spreadsheet->createSheet();
-        $worksheet->setTitle(substr(ctrans('texts.invoice') . " " . $worksheet_title, 0, 30));
+        $worksheet->setTitle(substr(ctrans('texts.invoice') . " " . $worksheet_title, 0, 31));
         $worksheet->fromArray($this->data['invoices'], null, 'A1');
 
-        $worksheet->getStyle('B:B')->getNumberFormat()->setFormatCode($this->company->date_format());
+        $worksheet->getStyle('B:B')->getNumberFormat()->setFormatCode($this->date_format);
         $worksheet->getStyle('C:C')->getNumberFormat()->setFormatCode($this->currency_format);
         $worksheet->getStyle('D:D')->getNumberFormat()->setFormatCode($this->currency_format);
         $worksheet->getStyle('E:E')->getNumberFormat()->setFormatCode($this->currency_format);
@@ -376,14 +400,14 @@ class TaxPeriodReport extends BaseExport
      */
     public function createInvoiceItemSummarySheet()
     {
-        $worksheet_title = $this->cash_accounting ? ctrans('texts.cash_accounting') : ctrans('texts.accrual_accounting');
+        $worksheet_title = $this->cash_accounting ? ctrans('texts.cash_accounting') : ctrans('texts.cash_vs_accrual');
 
         $worksheet = $this->spreadsheet->createSheet();
-        $worksheet->setTitle(substr(ctrans('texts.invoice_item') . " " . $worksheet_title, 0, 30));
+        $worksheet->setTitle(substr(ctrans('texts.invoice_item') . " " . $worksheet_title, 0, 31));
         $worksheet->fromArray($this->data['invoice_items'], null, 'A1');
 
-        $worksheet->getStyle('B:B')->getNumberFormat()->setFormatCode($this->company->date_format());
-        $worksheet->getStyle('D:D')->getNumberFormat()->setFormatCode($this->number_format);
+        $worksheet->getStyle('B:B')->getNumberFormat()->setFormatCode($this->date_format);
+        $worksheet->getStyle('D:D')->getNumberFormat()->setFormatCode('0.00');
         $worksheet->getStyle('E:E')->getNumberFormat()->setFormatCode($this->currency_format);
         $worksheet->getStyle('F:F')->getNumberFormat()->setFormatCode($this->currency_format);
 

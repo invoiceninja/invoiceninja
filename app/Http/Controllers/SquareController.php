@@ -58,7 +58,7 @@ class SquareController extends BaseController
         /** @var \App\Models\Company $company */
         $company = $request->getCompany();
 
-        if ($request->has('error')) {
+        if ($request->query('error')) {
             return view('auth.square_connect.access_denied');
         }
 
@@ -66,7 +66,7 @@ class SquareController extends BaseController
             ? 'https://connect.squareup.com'
             : 'https://connect.squareupsandbox.com';
 
-        $response = Http::post("{$base_url}/oauth2/token", [
+        $response = Http::asJson()->post("{$base_url}/oauth2/token", [
             'client_id' => config('services.square.application_id'),
             'client_secret' => config('services.square.application_secret'),
             'grant_type' => 'authorization_code',

@@ -44,6 +44,13 @@ class UploadMigrationFileRequest extends Request
             $rules['migration'] = ['required', 'file', 'mimes:zip'];
         }
 
+        // Validate all uploaded files are zip archives
+        foreach ($this->allFiles() as $key => $file) {
+            if (app()->environment() !== 'testing') {
+                $rules[$key] = ['file', 'mimes:zip'];
+            }
+        }
+
         return $rules;
     }
 }

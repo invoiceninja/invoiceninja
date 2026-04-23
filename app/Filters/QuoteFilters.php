@@ -165,7 +165,7 @@ class QuoteFilters extends QueryFilters
             return $this->builder->withCount('documents')->orderBy('documents_count', $dir);
         }
 
-        if ($sort_col[0] == 'client_id') {
+        if (in_array($sort_col[0], ['client.name', 'client_id'])) {
             return $this->builder
             ->orderByRaw(
                 "
@@ -177,9 +177,9 @@ class QuoteFilters extends QueryFilters
                         COALESCE((SELECT last_name FROM client_contacts WHERE client_contacts.client_id = quotes.client_id AND client_contacts.email IS NOT NULL ORDER BY client_contacts.is_primary DESC, client_contacts.id ASC LIMIT 1), '')
                     )) >= 1 
                         THEN TRIM(CONCAT(
-                            COALESCE((SELECT first_name FROM client_contacts WHERE client_contacts.client_id = invoices.client_id AND client_contacts.email IS NOT NULL ORDER BY client_contacts.is_primary DESC, client_contacts.id ASC LIMIT 1), ''), 
+                            COALESCE((SELECT first_name FROM client_contacts WHERE client_contacts.client_id = quotes.client_id AND client_contacts.email IS NOT NULL ORDER BY client_contacts.is_primary DESC, client_contacts.id ASC LIMIT 1), ''), 
                             ' ', 
-                            COALESCE((SELECT last_name FROM client_contacts WHERE client_contacts.client_id = invoices.client_id AND client_contacts.email IS NOT NULL ORDER BY client_contacts.is_primary DESC, client_contacts.id ASC LIMIT 1), '')
+                            COALESCE((SELECT last_name FROM client_contacts WHERE client_contacts.client_id = quotes.client_id AND client_contacts.email IS NOT NULL ORDER BY client_contacts.is_primary DESC, client_contacts.id ASC LIMIT 1), '')
                         ))
                     WHEN CHAR_LENGTH((SELECT email FROM client_contacts WHERE client_contacts.client_id = quotes.client_id AND client_contacts.email IS NOT NULL ORDER BY client_contacts.is_primary DESC, client_contacts.id ASC LIMIT 1)) > 0 
                         THEN (SELECT email FROM client_contacts WHERE client_contacts.client_id = quotes.client_id AND client_contacts.email IS NOT NULL ORDER BY client_contacts.is_primary DESC, client_contacts.id ASC LIMIT 1)

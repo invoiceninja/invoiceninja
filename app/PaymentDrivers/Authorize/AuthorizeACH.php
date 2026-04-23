@@ -106,7 +106,8 @@ class AuthorizeACH implements LivewireMethodInterface
         if ($request->token) {
             $client_gateway_token = ClientGatewayToken::query()
                 ->where('id', $this->decodePrimaryKey($request->token))
-                ->first();
+                ->where('client_id', $this->authorize->client->id)
+                ->firstOrFail();
         } else {
             $data = $request->all();
 

@@ -12,8 +12,37 @@
 
 namespace App\Services\EDocument\Gateway\Storecove;
 
+use App\Services\EDocument\Standards\Peppol\CountryFactory;
+
 class StorecoveRouter
 {
+    /**
+     * Countries on the Peppol e-delivery network.
+     * Curated subset of $routing_rules — excludes countries
+     * routed via other networks (SDI, FacturX, etc.).
+     */
+    private static array $peppol_network = [
+        'AD', 'AT', 'BE', 'DK', 'EE', 'FI', 'DE', 'IS',
+        'LT', 'LU', 'NL', 'NO', 'PL', 'SE', 'IE',
+        'FR', 'GR', 'PT', 'RO', 'SI', 'ES', 'GB',
+    ];
+
+    public static function isPeppolCountry(string $countryCode): bool
+    {
+        return in_array($countryCode, self::$peppol_network, true);
+    }
+
+    /** @return string[] */
+    public static function peppolCountries(): array
+    {
+        return self::$peppol_network;
+    }
+
+    public function hasRoutingRules(string $countryCode): bool
+    {
+        return isset($this->routing_rules[$countryCode]);
+    }
+
     /**
      * Provides a country matrix for the correct scheme to send via
      * [ "iso_3166_2" =>  [<business_type>, <identifier1>, <tax_identifier>, <routing_identifier>]
@@ -24,8 +53,8 @@ class StorecoveRouter
             ["B","DUNS, GLN, LEI","US:EIN","DUNS, GLN, LEI"],
             // ["B","DUNS, GLN, LEI","US:SSN","DUNS, GLN, LEI"],
         ],
-        "CA" => ["B","CA:CBN",false,"CA:CBN"],
-        "MX" => ["B","MX:RFC",false,"MX:RFC"],
+        "CA" => ["B","CA:CBN","CA:CBN","CA:CBN"],
+        "MX" => ["B","MX:RFC","MX:RFC","MX:RFC"],
         "AU" => ["B+G","AU:ABN","AU:ABN","AU:ABN"],
         "NZ" => ["B+G","GLN","NZ:GST","GLN"],
         "CH" => ["B+G","CH:UIDB","CH:VAT","CH:UIDB"],
@@ -68,7 +97,7 @@ class StorecoveRouter
             ["G","","IT:IVA","IT:CUUO"],// (SDI)
         ],
         "LT" => ["B+G","LT:LEC","LT:VAT","LT:LEC"],
-        "LU" => ["B+G","LU:MAT","LU:VAT","LU:VAT"],
+        "LU" => ["B+G","LU:VAT","LU:VAT","LU:VAT"],
         "LV" => ["B+G","","LV:VAT","LV:VAT"],
         "MC" => ["B+G","","MC:VAT","MC:VAT"],
         "ME" => ["B+G","","ME:VAT","ME:VAT"],
@@ -155,15 +184,15 @@ class StorecoveRouter
         'US:EIN'   => '/^\d{2}\-?\d{7}$/',
         'IN:GSTIN' => '/^\d{2}[A-Z]{5}\d{4}[A-Z]\d[A-Z0-9][A-Z0-9]$/i',
         'JP:IIN'   => '/^T?\d{13}$/',
-        'SG:GST'   => '/^[A-Z0-9]{8,10}$/i',
+        'SG:GST'   => '/^[A-Z0-9]{2}-\d{7}-[A-Z0-9]$/i',
         'SA:TIN'   => '/^\d{10,15}$/',
         'MY:TIN'   => '/^[A-Z0-9]{10,14}$/i',
 
         // ID number patterns (identifier1)
         'SE:ORGNR' => '/^\d{10}$/',
         'NO:ORG'   => '/^\d{9}$/',
-        'BE:EN'    => '/^(BE)?\d{10}$/i',
-        'DK:DIGST' => '/^\d{8,10}$/',
+        'BE:EN'    => '/^(BE)?[01]\d{9}$/i',
+        'DK:DIGST' => '/^(DK)?\d{8}$/i',
         'EE:CC'    => '/^\d{8}$/',
         'FI:OVT'   => '/^\d{12,13}$/',
         'FR:SIRENE' => '/^\d{9}$/',
@@ -178,117 +207,284 @@ class StorecoveRouter
         'MX:RFC'   => '/^[A-Z&Ñ]{3,4}\d{6}[A-Z0-9]{3}$/i',
         'JP:SST'   => '/^T?\d{13}$/',
         'MY:EIF'   => '/^[A-Z0-9]{10,14}$/i',
-        'SG:UEN'   => '/^[A-Z0-9]{9,10}$/i',
+        'SG:UEN'   => '/^[A-Z0-9]{9,16}$/i',
         'AT:GOV'   => '/^.{2,}$/',
         'DE:LWID'  => '/^.{2,}$/',
         'IT:CUUO'  => '/^[A-Z0-9]{6,7}$/i',
+    ];
+
+    /**
+     * Human-readable format examples for identifier schemes.
+     * Used in validation error messages to guide users.
+     */
+    private array $identifier_format_examples = [
+        // VAT number formats
+        'AT:VAT'   => 'ATU12345678',
+        'BE:VAT'   => 'BE0202239951',
+        'BG:VAT'   => 'BG123456789',
+        'CY:VAT'   => 'CY12345678A',
+        'CZ:VAT'   => 'CZ12345678',
+        'DE:VAT'   => 'DE123456789',
+        'DK:ERST'  => 'DK12345678',
+        'EE:VAT'   => 'EE123456789',
+        'ES:VAT'   => 'ESA1234567B',
+        'FI:VAT'   => 'FI12345678',
+        'FR:VAT'   => 'FRXX123456789',
+        'GR:VAT'   => 'EL123456789',
+        'HR:VAT'   => 'HR12345678901',
+        'HU:VAT'   => 'HU12345678',
+        'IE:VAT'   => 'IE1A23456B',
+        'IT:IVA'   => 'IT12345678901',
+        'IT:CF'    => 'RSSMRA85M01H501Z',
+        'LT:VAT'   => 'LT123456789',
+        'LU:VAT'   => 'LU12345678',
+        'LV:VAT'   => 'LV12345678901',
+        'MT:VAT'   => 'MT12345678',
+        'NL:VAT'   => 'NL123456789B01',
+        'PL:VAT'   => 'PL1234567890',
+        'PT:VAT'   => 'PT123456789',
+        'RO:VAT'   => 'RO1234567890',
+        'SE:VAT'   => 'SE123456789012',
+        'SI:VAT'   => 'SI12345678',
+        'SK:VAT'   => 'SK1234567890',
+        'AD:VAT'   => 'ADA123456B',
+        'AL:VAT'   => 'ALA12345678B',
+        'BA:VAT'   => 'BA123456789012',
+        'LI:VAT'   => 'LI12345',
+        'MC:VAT'   => 'FRXX123456789',
+        'ME:VAT'   => 'ME12345678',
+        'MK:VAT'   => 'MK1234567890123',
+        'SM:VAT'   => 'SM12345',
+        'TR:VAT'   => 'TR1234567890',
+        'VA:VAT'   => 'VA12345678901',
+        'RS:VAT'   => 'RS123456789',
+        'IS:VAT'   => 'IS12345',
+        'NO:VAT'   => 'NO123456789MVA',
+        'CH:VAT'   => 'CHE123456789MWST',
+        'GB:VAT'   => 'GB123456789',
+        'AU:ABN'   => '12345678901',
+        'NZ:GST'   => '12345678',
+        'US:EIN'   => '12-3456789',
+        'IN:GSTIN' => '12ABCDE1234F1Z1',
+        'JP:IIN'   => 'T1234567890123',
+        'SG:GST'   => 'M2-1234567-X',
+        'SA:TIN'   => '1234567890',
+        'MY:TIN'   => 'C1234567890',
+
+        // ID number formats
+        'SE:ORGNR' => '1234567890',
+        'NO:ORG'   => '123456789',
+        'BE:EN'    => '0202239951',
+        'DK:DIGST' => 'DK12345678',
+        'EE:CC'    => '12345678',
+        'FI:OVT'   => '123456789012',
+        'FR:SIRENE' => '123456789',
+        'FR:SIRET' => '12345678901234',
+        'NL:KVK'   => '12345678',
+        'NL:OINO'  => '12345678901234567890',
+        'LT:LEC'   => '1234567',
+        'LU:MAT'   => '12345678901',
+        'CH:UIDB'  => 'CHE123456789',
+        'IS:KTNR'  => '123456',
+        'CA:CBN'   => '123456789',
+        'MX:RFC'   => 'ABC1234567A1',
+        'JP:SST'   => 'T1234567890123',
+        'MY:EIF'   => 'C1234567890',
+        'SG:UEN'   => '12345678A',
+        'IT:CUUO'  => 'A1B2C3',
     ];
 
     private $invoice;
 
     public function __construct() {}
 
-    /**
-     * Return the routing code based on country and entity classification
-     *
-     * @param  string $country
-     * @param  ?string $classification DE:STNR
-     * @return string
-     */
-    public function resolveRouting(string $country, ?string $classification = 'business'): string
-    {
-        $rules = $this->routing_rules[$country];
-
-        $code = 'B';
-
-        match ($classification) {
-            "business" => $code = "B",
-            "government" => $code = "G",
-            "individual" => $code = "C",
-            default => $code = "B",
-        };
-
-        //DE we can route via Steurnummer? double check with storecove @blocked
-        if ($country == "DE" && $classification == 'individual') {
-            return 'DE:STNR';
-        }
-
-        //France determine routing scheme
-        if ($this->invoice && $country == 'FR') {
-
-            if ($code == 'B' && strlen($this->invoice->client->id_number) == 9) {
-                return 'FR:SIRENE';
-            } elseif ($code == 'B' && strlen($this->invoice->client->id_number) == 14) {
-                return 'FR:SIRET';
-            } elseif ($code == 'G') {
-                return '0009:11000201100044';
-            }
-
-        }
-
-        //Single array
-        if (is_array($rules) && !is_array($rules[0])) {
-            return $rules[3];
-        }
-
-        //Multi Array - iterate
-        foreach ($rules as $rule) {
-            if (stripos($rule[0], $code) !== false) {
-                return $rule[3];
-            }
-        }
-
-        return $rules[0][3];
-    }
-
     public function setInvoice($invoice): self
     {
         $this->invoice = $invoice;
         return $this;
     }
+
     /**
-     * resolveTaxScheme
+     * Routing rules column indices.
      *
-     * @param  string $country
+     * Each routing rule is an array: [classification, identifier, tax, routing]
+     * These constants name the columns for readability.
+     */
+    private const COL_IDENTIFIER = 1;
+    private const COL_TAX        = 2;
+    private const COL_ROUTING    = 3;
+
+    /**
+     * Map a classification label to the single-char code used in routing rules.
+     */
+    private function classificationCode(?string $classification): string
+    {
+        return match ($classification ?? 'business') {
+            'government' => 'G',
+            'individual' => 'C',
+            default      => 'B',
+        };
+    }
+
+    /**
+     * Generic resolver: extract a column value from the routing rules
+     * for a given country and classification.
+     *
+     * Checks the CountryFactory handler first (override callback, then
+     * handler-provided rules), falling back to the built-in routing_rules.
+     *
+     * @param  string  $country         ISO 3166-2 country code
+     * @param  string  $code            Classification code (B/G/C)
+     * @param  int     $column          Column index to extract (use COL_* constants)
+     * @param  ?string $overrideMethod  CountryHandler method to call for special-case overrides
+     * @param  ?string $classification  Original classification label (passed to override)
+     * @return string
+     */
+    private function resolveRuleColumn(string $country, string $code, int $column, ?string $overrideMethod = null, ?string $classification = null): string
+    {
+        if (CountryFactory::has($country)) {
+            $handler = CountryFactory::make($country);
+
+            if ($overrideMethod) {
+                $override = $handler->$overrideMethod($classification, $this->invoice);
+                if ($override !== null) {
+                    return $override;
+                }
+            }
+
+            $rules = $handler->getRoutingRules();
+            if ($rules !== null) {
+                return $this->extractFromRules($rules, $code, $column);
+            }
+        }
+
+        $rules = $this->routing_rules[$country] ?? [false, false, false, false];
+
+        return $this->extractFromRules($rules, $code, $column);
+    }
+
+    /**
+     * Extract a column value from a single or multi-row rules array.
+     *
+     * @param  array  $rules  Single rule or array of rules
+     * @param  string $code   Classification code to match (B/G/C)
+     * @param  int    $column Column index to extract
+     * @return string         The resolved value, or empty string if falsy
+     */
+    private function extractFromRules(array $rules, string $code, int $column): string
+    {
+        // Single-array country (e.g. ["B+G", "NO:ORG", "NO:VAT", "NO:ORG"])
+        if (!is_array($rules[0])) {
+            return $rules[$column] ?: '';
+        }
+
+        // Multi-array — find matching classification
+        foreach ($rules as $rule) {
+            if (stripos($rule[0], $code) !== false) {
+                return $rule[$column] ?: '';
+            }
+        }
+
+        return $rules[0][$column] ?: '';
+    }
+
+    /**
+     * Resolve the routing identifier (rule column 3) for delivery.
+     *
+     * For most countries this is a scheme label like "SE:ORGNR".
+     * For fixed-endpoint countries (e.g. SG Government) it may be a
+     * composite "icd:endpointId" like "0195:SGUENT08GA0028A".
+     *
+     * @param  string  $country
+     * @param  ?string $classification
+     * @return string
+     */
+    public function resolveRouting(string $country, ?string $classification = 'business'): string
+    {
+        return $this->resolveRuleColumn(
+            $country,
+            $this->classificationCode($classification),
+            self::COL_ROUTING,
+            'resolveRoutingOverride',
+            $classification,
+        );
+    }
+
+    /**
+     * Resolve the tax scheme (rule column 2) for a country/classification.
+     *
+     * Returns empty string when no tax scheme applies (e.g. government
+     * entities that route via a central gateway rather than a tax identifier).
+     *
+     * @param  string  $country
      * @param  ?string $classification
      * @return string
      */
     public function resolveTaxScheme(string $country, ?string $classification = "business"): string
     {
+        return $this->resolveRuleColumn(
+            $country,
+            $this->classificationCode($classification),
+            self::COL_TAX,
+            'resolveTaxSchemeOverride',
+            $classification,
+        );
+    }
 
-        $rules = $this->routing_rules[$country] ?? [false, false, false, false];
+    /**
+     * Resolve the identifier scheme (rule column 1) for a country/classification.
+     *
+     * This is the primary identifier type (e.g. SG:UEN, SE:ORGNR) as opposed
+     * to the tax-specific scheme in column 2. Used as a fallback when the tax
+     * scheme is empty (e.g. SG Government).
+     *
+     * @param  string  $country
+     * @param  ?string $classification
+     * @return string
+     */
+    public function resolveIdentifierScheme(string $country, ?string $classification = "business"): string
+    {
+        return $this->resolveRuleColumn(
+            $country,
+            $this->classificationCode($classification),
+            self::COL_IDENTIFIER,
+        );
+    }
 
-        $code = "B";
+    /**
+     * Checks whether a classification (business/government/individual) is routable
+     * on the Peppol network for a given country.
+     *
+     * @param  string $country ISO 3166-2 country code
+     * @param  string $classification business|government|individual
+     * @return bool
+     */
+    public function isClassificationRoutable(string $country, string $classification): bool
+    {
+        $rules = $this->routing_rules[$country] ?? null;
 
-        match ($classification) {
-            "business" => $code = "B",
-            "government" => $code = "G",
-            "individual" => $code = "C",
-            default => $code = "B",
-        };
-
-        //France determine routing scheme
-        if ($this->invoice && $country == 'FR' && $code == 'G') {
-            return '0009:11000201100044';
+        if (!$rules) {
+            return false;
         }
 
-        //DE we can route via Steurnummer? double check with storecove @blocked
-        if ($country == "DE" && $classification == 'individual') {
-            return 'DE:STNR';
+        // 'other' bypasses e-invoicing altogether
+        $code = $classification === 'other'
+            ? 'O'
+            : $this->classificationCode($classification);
+
+        // Single-array country (e.g. ["B+G", ...])
+        if (!is_array($rules[0])) {
+            return stripos($rules[0], $code) !== false;
         }
 
-        //single array
-        if (is_array($rules) && !is_array($rules[0])) {
-            return $rules[2];
-        }
-
-        foreach ($rules as $rule) {
-            if (stripos($rule[0], $code) !== false) {
-                return $rule[2];
+        // Multi-array — check if any rule matches this classification
+        foreach ($rules as $r) {
+            if (stripos($r[0], $code) !== false) {
+                return true;
             }
         }
 
-        return $rules[0][2];
+        return false;
     }
 
     /**
@@ -317,42 +513,19 @@ class StorecoveRouter
             return [];
         }
 
-        $code = match ($classification) {
-            'government' => 'G',
-            'individual' => 'C',
-            default => 'B',
-        };
-
-        // Find the matching rule
-        $rule = null;
-
-        // Single-array country (applies to all classifications)
-        if (is_array($rules) && !is_array($rules[0])) {
-            $rule = $rules;
-        } else {
-            // Multi-array — find matching classification
-            foreach ($rules as $r) {
-                if (stripos($r[0], $code) !== false) {
-                    $rule = $r;
-                    break;
-                }
-            }
-            // Fallback to first rule if no match
-            if (!$rule) {
-                $rule = $rules[0];
-            }
-        }
+        $code = $this->classificationCode($classification);
+        $rule = $this->findMatchingRule($rules, $code);
 
         $required = [];
 
-        // Column 2: tax_identifier → vat_number
-        if (!empty($rule[2])) {
-            $required['vat_number'] = $rule[2];
+        // Column 2 (tax_identifier) → vat_number
+        if (!empty($rule[self::COL_TAX])) {
+            $required['vat_number'] = $rule[self::COL_TAX];
         }
 
-        // Column 1: identifier1 → id_number
-        if (!empty($rule[1])) {
-            $required['id_number'] = $rule[1];
+        // Column 1 (identifier) → id_number
+        if (!empty($rule[self::COL_IDENTIFIER])) {
+            $required['id_number'] = $rule[self::COL_IDENTIFIER];
         }
 
         // IT B2B/B2G requires routing_id (Codice Destinatario)
@@ -364,9 +537,34 @@ class StorecoveRouter
     }
 
     /**
+     * Find the matching rule row for a classification code.
+     *
+     * @param  array  $rules  Single rule or array of rules
+     * @param  string $code   Classification code (B/G/C)
+     * @return array           The matched rule row
+     */
+    private function findMatchingRule(array $rules, string $code): array
+    {
+        // Single-array country
+        if (!is_array($rules[0])) {
+            return $rules;
+        }
+
+        // Multi-array — find matching classification
+        foreach ($rules as $rule) {
+            if (stripos($rule[0], $code) !== false) {
+                return $rule;
+            }
+        }
+
+        return $rules[0];
+    }
+
+    /**
      * Validate an identifier value against the expected format for a scheme.
      *
      * @param  string $scheme The scheme label (e.g. "SE:VAT", "FR:SIRET")
+     * @param  string $value  The identifier value to validate
      * @return bool True if valid or no regex defined for scheme
      */
     public function validateIdentifierFormat(string $scheme, string $value): bool
@@ -388,7 +586,6 @@ class StorecoveRouter
         }
 
         // Handle scheme + extra info like "FR:SIRET + customerAssignedAccountIdValue"
-        // These are composite requirements with special handling — just validate presence
         if (stripos($scheme, ' + ') !== false) {
             return strlen(preg_replace("/[\s.\-]/", "", $value)) >= 2;
         }
@@ -400,7 +597,231 @@ class StorecoveRouter
             return strlen($cleanValue) >= 2;
         }
 
-        return (bool) preg_match($this->identifier_regex[$scheme], $cleanValue);
+        if (!preg_match($this->identifier_regex[$scheme], $cleanValue)) {
+            return false;
+        }
+
+        // Checkdigit validation (null = no algorithm for this scheme, treat as pass)
+        $checkdigitResult = $this->checkdigit($scheme, $cleanValue);
+
+        return $checkdigitResult !== false;
+    }
+
+    /**
+     * Strict format check — preserves dashes/hyphens in the value.
+     * Used at send-time to verify the value matches the exact format
+     * expected by the delivery network (e.g. Storecove).
+     */
+    public function matchesSchemeFormat(string $scheme, string $value): bool
+    {
+        if (!isset($this->identifier_regex[$scheme])) {
+            return strlen($value) >= 2;
+        }
+
+        return (bool) preg_match($this->identifier_regex[$scheme], $value);
+    }
+
+    /**
+     * Validate the checkdigit of an identifier value for a given scheme.
+     *
+     * Can be called publicly to distinguish format errors from checkdigit errors.
+     *
+     * @param  string $scheme The scheme label (e.g. "BE:EN", "BE:VAT")
+     * @param  string $value  The identifier value to validate
+     * @return ?bool  true = valid, false = invalid checkdigit, null = no algorithm for this scheme
+     */
+    public function validateIdentifierCheckdigit(string $scheme, string $value): ?bool
+    {
+        $cleanValue = preg_replace("/[\s.\-]/", "", $value);
+
+        return $this->checkdigit($scheme, $cleanValue);
+    }
+
+    /**
+     * Internal checkdigit dispatch (operates on already-cleaned value).
+     */
+    private function checkdigit(string $scheme, string $cleanValue): ?bool
+    {
+        return match ($scheme) {
+            'BE:EN' => $this->mod97Check($this->stripCountryPrefix($cleanValue, 'BE')),
+            'BE:VAT' => $this->mod97Check($this->stripCountryPrefix($cleanValue, 'BE')),
+            default => null,
+        };
+    }
+
+    /**
+     * Belgian mod-97 checkdigit: 97 - (first_8_digits % 97) == last_2_digits.
+     *
+     * @param  string $digits 10-digit number (without country prefix)
+     */
+    private function mod97Check(string $digits): bool
+    {
+        if (strlen($digits) !== 10 || !ctype_digit($digits)) {
+            return false;
+        }
+
+        $body = (int) substr($digits, 0, 8);
+        $check = (int) substr($digits, 8, 2);
+
+        return (97 - ($body % 97)) === $check;
+    }
+
+    /**
+     * Strip an optional country prefix from an identifier value.
+     */
+    private function stripCountryPrefix(string $value, string $prefix): string
+    {
+        if (stripos($value, $prefix) === 0) {
+            return substr($value, strlen($prefix));
+        }
+
+        return $value;
+    }
+
+    /**
+     * Get a human-readable format example for an identifier scheme.
+     *
+     * @param  string $scheme The scheme label (e.g. "SE:VAT", "FR:SIRET")
+     * @return ?string Example format string, or null if none defined
+     */
+    public function getFormatExample(string $scheme): ?string
+    {
+        // Handle composite scheme labels like "FR:SIRENE or FR:SIRET"
+        if (stripos($scheme, ' or ') !== false) {
+            $schemes = array_map('trim', explode(' or ', $scheme));
+            $examples = array_filter(array_map(fn ($s) => $this->getFormatExample($s), $schemes));
+            return count($examples) > 0 ? implode(' or ', $examples) : null;
+        }
+
+        return $this->identifier_format_examples[$scheme] ?? null;
+    }
+
+    /**
+     * resolveIso6523Scheme
+     *
+     * Maps a Storecove/PEPPOL friendly scheme name to its ISO 6523 / EAS numeric code
+     * for use in UBL document EndpointID and PartyIdentification schemeID attributes.
+     * Numeric-only inputs are returned as-is (already an ISO code).
+     *
+     * @param  string $scheme  e.g. 'GLN', 'DE:LWID', 'BE:EN', 'DE:VAT'
+     * @return string          ISO 6523 EAS code, e.g. '0088', '0204', '0208', '9930'
+     */
+    public function resolveIso6523Scheme(string $scheme): string
+    {
+        // Already a numeric ISO code — pass through
+        if (ctype_digit($scheme)) {
+            return $scheme;
+        }
+
+        $map = [
+            // ICD codes (ISO 6523 / PEPPOL EAS)
+            'FR:SIRENE'  => '0002',  // French SIRENE (company registry)
+            'SE:ORGNR'   => '0007',  // Swedish organisation number
+            'FR:SIRET'   => '0009',  // French SIRET (establishment)
+            'FI:OVT'     => '0037',  // Finnish OVT identifier
+            'DUNS'       => '0060',  // DUNS number
+            'GLN'        => '0088',  // GS1 Global Location Number
+            'NL:KVK'     => '0106',  // Dutch Chamber of Commerce
+            'AU:ABN'     => '0151',  // Australian Business Number
+            'CH:UIDB'    => '0183',  // Swiss UID-B
+            'DK:DIGST'   => '0184',  // Danish CVR / DIGST
+            'NL:OINO'    => '0190',  // Dutch government OINO
+            'EE:CC'      => '0191',  // Estonian company code
+            'NO:ORG'     => '0192',  // Norwegian organisation number
+            'SG:UEN'     => '0195',  // Singapore UEN
+            'IS:KTNR'    => '0196',  // Icelandic legal entity
+            'DK:ERST'    => '0198',  // Danish ERST
+            'LT:LEC'     => '0200',  // Lithuanian legal entity code
+            'IT:CUUO'    => '0201',  // Italian IPA code (public administration)
+            'DE:LWID'    => '0204',  // German Leitweg-ID
+            'BE:EN'      => '0208',  // Belgian enterprise number
+            'IT:CF'      => '0210',  // Italian Codice Fiscale
+            'IT:IVA'     => '0211',  // Italian Partita IVA
+            'FI:ORG'     => '0212',  // Finnish organisation identifier
+            'JP:IIN'     => '0221',  // Japanese invoicing institution number
+            'JP:SST'     => '0221',
+            'MY:EIF'     => '0230',  // Malaysian e-invoice framework
+
+            // EAS codes (OpenPEPPOL 9xxx range — VAT-based schemes)
+            'HU:VAT'     => '9910',
+            'AT:VAT'     => '9914',  // Austrian VAT (Umsatzsteuer-ID)
+            'AT:GOV'     => '9915',  // Austrian administrative (Verwaltungs-ID)
+            'ES:VAT'     => '9920',  // Spanish tax authority scheme
+            'AD:VAT'     => '9922',
+            'AL:VAT'     => '9923',
+            'BA:VAT'     => '9924',
+            'BE:VAT'     => '9925',
+            'BG:VAT'     => '9926',
+            'CH:VAT'     => '9927',
+            'CY:VAT'     => '9928',
+            'CZ:VAT'     => '9929',
+            'DE:VAT'     => '9930',
+            'DE:STNR'    => '9930',  // German tax number (Steuernummer) for individuals
+            'EE:VAT'     => '9931',
+            'GB:VAT'     => '9932',
+            'GR:VAT'     => '9933',
+            'HR:VAT'     => '9934',
+            'IE:VAT'     => '9935',
+            'LI:VAT'     => '9936',
+            'LT:VAT'     => '9937',
+            'LU:VAT'     => '9938',
+            'LV:VAT'     => '9939',
+            'MC:VAT'     => '9940',
+            'ME:VAT'     => '9941',
+            'MK:VAT'     => '9942',
+            'MT:VAT'     => '9943',
+            'NL:VAT'     => '9944',
+            'NO:VAT'     => '9909',  // deprecated in EAS but still in use
+            'PL:VAT'     => '9945',
+            'PT:VAT'     => '9946',
+            'RO:VAT'     => '9947',
+            'RS:VAT'     => '9948',
+            'SI:VAT'     => '9949',
+            'SK:VAT'     => '9950',
+            'SM:VAT'     => '9951',
+            'TR:VAT'     => '9952',
+            'VA:VAT'     => '9953',
+            'FR:VAT'     => '9957',
+            'US:EIN'     => '9959',
+        ];
+
+        return $map[$scheme] ?? $scheme;
+    }
+
+    /**
+     * Returns a static delivery map for all supported countries.
+     *
+     * Each entry contains routability by classification and the required
+     * client identifiers, so the UI can determine sendability without
+     * calling the validation endpoint.
+     *
+     * @return array<string, array{
+     *   classifications: array<string, bool>,
+     *   required_fields: array<string, array<string, string>>
+     * }>
+     */
+    public function getDeliveryMap(): array
+    {
+        $map = [];
+
+        foreach ($this->routing_rules as $country => $rules) {
+            $entry = [
+                'classifications' => [
+                    'business' => $this->isClassificationRoutable($country, 'business'),
+                    'government' => $this->isClassificationRoutable($country, 'government'),
+                    'individual' => $this->isClassificationRoutable($country, 'individual'),
+                ],
+                'required_fields' => [
+                    'business' => $this->resolveRequiredClientFields($country, 'business'),
+                    'government' => $this->resolveRequiredClientFields($country, 'government'),
+                    'individual' => $this->resolveRequiredClientFields($country, 'individual'),
+                ],
+            ];
+
+            $map[$country] = $entry;
+        }
+
+        return $map;
     }
 
     public function resolveIdentifierTypeByValue(string $identifier): string
@@ -440,81 +861,5 @@ class StorecoveRouter
         return '';
 
     }
-    /**
-    * used as a proxy for
-    * the schemeID of partyidentification
-    * property - for Storecove only:
-    *
-    * Used in the format key:value
-    *
-    * ie. IT:IVA / DE:VAT
-    *
-    * Note there are multiple options for the following countries:
-    *
-    * US (EIN/SSN) employer identification number / social security number
-    * IT (CF/IVA) Codice Fiscale (person/company identifier) / company vat number
-    *
-    * @var array
-    * @deprecated
-    */
-    private array $schemeIdIdentifiers = [
-        'US' => 'EIN',
-        'US' => 'SSN',
-        'NZ' => 'GST',
-        'CH' => 'VAT', // VAT number = CHE - 999999999 - MWST|IVA|VAT
-        'IS' => 'VAT',
-        'LI' => 'VAT',
-        'NO' => 'VAT',
-        'AD' => 'VAT',
-        'AL' => 'VAT',
-        'AT' => 'VAT', //Tested - Routing GOV + Business
-        'BA' => 'VAT',
-        'BE' => 'VAT',
-        'BG' => 'VAT',
-        'AU' => 'ABN', //Australia
-        'CA' => 'CBN', //Canada
-        'MX' => 'RFC', //Mexico
-        'NZ' => 'GST', //Nuuu zulund
-        'GB' => 'VAT', //Great Britain
-        'SA' => 'TIN', //South Africa
-        'CY' => 'VAT',
-        'CZ' => 'VAT',
-        'DE' => 'VAT', //tested - Requires Payment Means to be defined.
-        'DK' => 'ERST',
-        'EE' => 'VAT',
-        'ES' => 'VAT', //tested - B2G pending
-        'FI' => 'VAT',
-        'FR' => 'VAT', //tested - Need to ensure Siren/Siret routing
-        'GR' => 'VAT',
-        'HR' => 'VAT',
-        'HU' => 'VAT',
-        'IE' => 'VAT',
-        'IT' => 'IVA', //tested - Requires a Customer Party Identification (VAT number) - 'IT senders must first be provisioned in the partner system.' Cannot test currently
-        'IT' => 'CF', //tested - Requires a Customer Party Identification (VAT number) - 'IT senders must first be provisioned in the partner system.' Cannot test currently
-        'LT' => 'VAT',
-        'LU' => 'VAT',
-        'LV' => 'VAT',
-        'MC' => 'VAT',
-        'ME' => 'VAT',
-        'MK' => 'VAT',
-        'MT' => 'VAT',
-        'NL' => 'VAT',
-        'PL' => 'VAT',
-        'PT' => 'VAT',
-        'RO' => 'VAT',
-        'RS' => 'VAT',
-        'SE' => 'VAT',
-        'SI' => 'VAT',
-        'SK' => 'VAT',
-        'SM' => 'VAT',
-        'TR' => 'VAT',
-        'VA' => 'VAT',
-        'IN' => 'GSTIN',
-        'JP' => 'IIN',
-        'MY' => 'TIN',
-        'SG' => 'GST',
-        'GB' => 'VAT',
-        'SA' => 'TIN',
-    ];
-
+   
 }

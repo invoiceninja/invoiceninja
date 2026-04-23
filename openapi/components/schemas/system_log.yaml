@@ -4,6 +4,7 @@
           description: 'The account hashed id'
           type: string
           example: AS3df3A
+          readOnly: true
         user_id:
           description: 'The user_id hashed id'
           type: string
