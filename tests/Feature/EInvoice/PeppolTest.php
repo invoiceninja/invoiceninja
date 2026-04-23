@@ -126,6 +126,7 @@ class PeppolTest extends TestCase
             'name' => 'Test Client',
             'is_tax_exempt' => $params['is_tax_exempt'] ?? false,
             'id_number' => $params['client_id_number'] ?? '',
+            'routing_id' => '',
         ]);
 
         $client->setRelation('company', $company);
@@ -505,7 +506,7 @@ class PeppolTest extends TestCase
 
             $p = new Peppol($invoice);
             nlog($p->run()->toXml());
-            nlog($invoice->withoutRelations()->toArray());
+            // nlog($invoice->withoutRelations()->toArray());
             nlog($response->json());
         }
 
@@ -811,7 +812,7 @@ class PeppolTest extends TestCase
                 'company_country' => 'DE',
                 'client_country' => 'DE',
                 'client_vat' => '', // Empty VAT number
-                'client_id_number' => '123456789',
+                'client_id_number' => '04011000-1234567890-06', // valid DE:LWID format
                 'classification' => $classification,
                 'has_valid_vat' => false,
                 'over_threshold' => true,
@@ -1051,7 +1052,7 @@ class PeppolTest extends TestCase
 
             $p = new Peppol($invoice);
             nlog($p->run()->toXml());
-            nlog($invoice->withoutRelations()->toArray());
+            // nlog($invoice->withoutRelations()->toArray());
             nlog($response->json());
         }
 
@@ -1296,11 +1297,11 @@ class PeppolTest extends TestCase
 
             if (count($validator->getErrors()) > 0) {
                 nlog("index {$x}");
-                nlog($invoice->calc()->getTotalTaxes());
-                nlog($invoice->calc()->getTotal());
-                nlog($invoice->calc()->getSubtotal());
-                nlog($invoice->calc()->getTaxMap());
-                nlog($invoice->withoutRelations()->toArray());
+                // nlog($invoice->calc()->getTotalTaxes());
+                // nlog($invoice->calc()->getTotal());
+                // nlog($invoice->calc()->getSubtotal());
+                // nlog($invoice->calc()->getTaxMap());
+                // nlog($invoice->withoutRelations()->toArray());
                 nlog($p->toXml());
                 nlog($validator->getErrors());
             }
@@ -1337,12 +1338,12 @@ class PeppolTest extends TestCase
             if (count($validator->getErrors()) > 0) {
                 nlog("De-De tax");
 
-                nlog("index {$x}");
-                nlog($invoice->calc()->getTotalTaxes());
-                nlog($invoice->calc()->getTotal());
-                nlog($invoice->calc()->getSubtotal());
-                nlog($invoice->calc()->getTaxMap());
-                nlog($invoice->withoutRelations()->toArray());
+                // nlog("index {$x}");
+                // nlog($invoice->calc()->getTotalTaxes());
+                // nlog($invoice->calc()->getTotal());
+                // nlog($invoice->calc()->getSubtotal());
+                // nlog($invoice->calc()->getTaxMap());
+                // nlog($invoice->withoutRelations()->toArray());
 
                 nlog($p->toXml());
                 nlog($validator->getErrors());
@@ -1462,7 +1463,7 @@ class PeppolTest extends TestCase
         $peppol->run();
 
 
-        nlog($peppol->toXml());
+        // nlog($peppol->toXml());
 
         // nlog($peppol->toObject());
 

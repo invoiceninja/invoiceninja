@@ -189,7 +189,7 @@ class QbInvoice implements SyncInterface
                     $this->processQuickbooksTaxResponse($result, $invoice);
                 }
 
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 nlog("QuickBooks: Error pushing invoice {$invoice->id} to QuickBooks: {$e->getMessage()}", [
                     'trace' => $e->getTraceAsString(),
                 ]);

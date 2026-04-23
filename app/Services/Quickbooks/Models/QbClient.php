@@ -367,6 +367,7 @@ class QbClient implements SyncInterface
 
         // No match found - create a new client
         $client = ClientFactory::create($company_id, $this->service->company->owner()->id);
+        $client->country_id = $this->service->company->settings->country_id;
 
         $sync = new ClientSync();
         $sync->qb_id = $key;

@@ -317,6 +317,20 @@ class StorecoveAdapter
             $this->storecove_invoice->setAccountingCustomerParty($accounting_customer_party);
         }
 
+        // AT government: the supplier must be identified via customerAssignedAccountIdValue
+        // on the accountingSupplierParty.party. Storecove uses this to look up the actual
+        // recipient from the purchase order reference inside the document.
+        if ($country === 'AT' && $classification === 'government') {
+            $company_id = $this->ninja_invoice->company->settings->id_number ?? '';
+            if (strlen($company_id) > 1) {
+                $supplier = $this->storecove_invoice->getAccountingSupplierParty();
+                if ($supplier?->getParty()) {
+                    $supplier->getParty()->setCustomerAssignedAccountIdValue($company_id);
+                    $this->storecove_invoice->setAccountingSupplierParty($supplier);
+                }
+            }
+        }
+
         return $this;
     }
 

@@ -419,6 +419,7 @@ class EntityLevel implements EntityLevelInterface
         }
 
         $parts = [];
+        
         foreach ($candidates as $c) {
             $example = $router->getFormatExample($c['scheme']);
             $parts[] = $example

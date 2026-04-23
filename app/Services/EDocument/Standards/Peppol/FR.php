@@ -27,7 +27,7 @@ class FR extends BaseCountry
     public function getRoutingRules(): ?array
     {
         return [
-            ["G", "FR:SIRET + customerAssignedAccountIdValue", false, "0009:11000201100044"],
+            ["G", "FR:SIRET", false, "0009:11000201100044"],
             ["B", "FR:SIRENE or FR:SIRET", "FR:VAT", "FR:SIRENE or FR:SIRET"],
         ];
     }
@@ -53,11 +53,6 @@ class FR extends BaseCountry
         MutatorUtil $mutator_util,
     ): mixed {
 
-        // FR sender, FR receiver (domestic), B2G: customerAssignedAccountId required
-        if ($invoice->client->country->iso_3166_2 == 'FR' && $invoice->client->classification == 'government') {
-            $mutator_util->setCustomerAssignedAccountId(true);
-        }
-
         return $p_invoice;
     }
 
@@ -69,11 +64,6 @@ class FR extends BaseCountry
         mixed $invoice,
         MutatorUtil $mutator_util,
     ): mixed {
-
-        // non-FR sender, FR receiver, B2G: customerAssignedAccountId required
-        if ($invoice->client->classification == 'government') {
-            $mutator_util->setCustomerAssignedAccountId(true);
-        }
 
         return $p_invoice;
     }

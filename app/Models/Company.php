@@ -674,8 +674,6 @@ class Company extends BaseModel
             /** @var \Illuminate\Support\Collection<\App\Models\Country> */
 
             $countries = app('countries');
-            nlog($countries->count());
-            nlog($this->getSetting('country_id'));
             $country_id = $this->getSetting('country_id');
 
             return $countries->first(function ($item) use ($country_id) {

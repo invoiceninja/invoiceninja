@@ -23,6 +23,7 @@ use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxableAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\TaxCategoryType\TaxCategory;
 use InvoiceNinja\EInvoice\Models\Peppol\TaxSubtotalType\TaxSubtotal;
 use InvoiceNinja\EInvoice\Models\Peppol\CodeType\IdentificationCode;
+use InvoiceNinja\EInvoice\Models\Peppol\CodeType\TaxExemptionReasonCode;
 use App\Services\EDocument\Standards\Peppol;
 
 class PeppolTaxCalculator
@@ -95,7 +96,13 @@ class PeppolTaxCalculator
         return $tax_type;
     }
 
-    public function resolveTaxExemptReason($item, $ctc = null): mixed
+    /**
+     * VAT exemption metadata for Peppol / EN 16931 (BT-120, BT-121) on zero-rated lines.
+     *
+     * @param  object{tax_id?: string|int}  $item
+     * @return array{tax_type: string, reason_code: string, reason: string}
+     */
+    public function getExemptionReasonMetadataForItem(object $item): array
     {
         $company = $this->peppol->getCompany();
         $invoice = $this->peppol->getInvoiceModel();
@@ -107,38 +114,42 @@ class PeppolTaxCalculator
         $company_in_eu = in_array($company_country, $eu_states);
         $client_in_eu = in_array($client_country, $eu_states);
 
+        $tax_id = (string) ($item->tax_id ?? '');
+
         // Non-EU company — use generic tax exempt categories
         if (!$company_in_eu) {
             if ($company_country != $client_country) {
-                $tax_type = 'O';
-                $reason_code = 'vatex-eu-o';
-                $reason = 'Not subject to VAT';
-            } else {
-                $tax_type = 'E';
-                $reason_code = 'vatex-eu-o';
-                $reason = 'Not subject to VAT';
+                return ['tax_type' => 'O', 'reason_code' => 'vatex-eu-o', 'reason' => 'Not subject to VAT'];
             }
-        } elseif ($item->tax_id == '9') {
-            $tax_type = 'AE'; // EEA Exempt
-            $reason_code = 'vatex-eu-ae';
-            $reason = 'Reverse charge';
-        } elseif ($company_in_eu && $client_in_eu && $company_country != $client_country) {
-            $tax_type = 'K'; // EEA Exempt
-            $reason_code = 'vatex-eu-ic';
-            $reason = 'Intra-Community supply';
-        } elseif (!$client_in_eu) {
-            $tax_type = 'G'; //Free export item, VAT not charged
-            $reason_code = 'vatex-eu-g';
-            $reason = 'Export outside the EU';
-        } elseif ($company_country == $client_country) {
-            $tax_type = 'E';
-            $reason_code = "vatex-eu-o";
-            $reason = 'Services outside scope of tax';
-        } else {
-            $tax_type = 'O';
-            $reason_code = "vatex-eu-o";
-            $reason = 'Services outside scope of tax';
+
+            return ['tax_type' => 'E', 'reason_code' => 'vatex-eu-o', 'reason' => 'Not subject to VAT'];
         }
+
+        if ($tax_id === (string) Product::PRODUCT_TYPE_REVERSE_TAX) {
+            return ['tax_type' => 'AE', 'reason_code' => 'vatex-eu-ae', 'reason' => 'Reverse charge'];
+        }
+
+        if ($company_in_eu && $client_in_eu && $company_country != $client_country) {
+            return ['tax_type' => 'K', 'reason_code' => 'vatex-eu-ic', 'reason' => 'Intra-Community supply'];
+        }
+
+        if (!$client_in_eu) {
+            return ['tax_type' => 'G', 'reason_code' => 'vatex-eu-g', 'reason' => 'Export outside the EU'];
+        }
+
+        if ($company_country == $client_country) {
+            return ['tax_type' => 'E', 'reason_code' => 'vatex-eu-o', 'reason' => 'Services outside scope of tax'];
+        }
+
+        return ['tax_type' => 'O', 'reason_code' => 'vatex-eu-o', 'reason' => 'Services outside scope of tax'];
+    }
+
+    public function resolveTaxExemptReason($item, $ctc = null): mixed
+    {
+        $meta = $this->getExemptionReasonMetadataForItem($item);
+        $tax_type = $meta['tax_type'];
+        $reason_code = $meta['reason_code'];
+        $reason = $meta['reason'];
 
         $this->peppol->setTaxCategoryId($tax_type);
 
@@ -263,22 +274,7 @@ class PeppolTaxCalculator
 
             $tax_subtotal->TaxAmount = $subtotal_tax_amount;
 
-            // Required: TaxCategory (BG-23)
-            $tax_category = new TaxCategory();
-
-            // Required: TaxCategory ID (BT-118)
-            $category_id = new ID();
-            $category_id->value = $this->peppol->getTaxCategoryId(); // Exempt
-
-            $tax_category->ID = $category_id;
-
-            // Required: TaxScheme (BG-23)
-            $tax_scheme = new TaxScheme();
-            $scheme_id = new ID();
-            $scheme_id->value = $this->standardizeTaxSchemeId("taxname");
-            $tax_scheme->ID = $scheme_id;
-            $tax_category->TaxScheme = $tax_scheme;
-
+            // BG-23: use line-derived global category (includes BT-120/BT-121 from resolveTaxExemptReason).
             $tax_subtotal->TaxCategory = $this->peppol->getGlobalTaxCategories()[0];
 
             $tax_total->TaxSubtotal[] = $tax_subtotal;
@@ -306,7 +302,11 @@ class PeppolTaxCalculator
             $taxable_amount = new TaxableAmount();
             $taxable_amount->currencyID = $invoice->client->currency()->code;
 
-            if (floatval($grouped_tax['total']) === 0.0) {
+            // When the whole invoice has no VAT, only a *single* BG-23 row may use the
+            // document total as taxable base. If several zero-VAT groups exist (different
+            // tax keys), each must use its own base_amount or sums double-count and
+            // Storecove rejects payload (amountIncludingVat vs tax subtotals).
+            if (count($taxes) === 1 && floatval($grouped_tax['total']) === 0.0 && floatval($invoice->total_taxes) == 0) {
                 $taxable_amount->amount = (string) round($this->peppol->normalizeAmount($invoice->amount), 2);
             } else {
                 $taxable_amount->amount = (string) round($this->peppol->normalizeAmount($grouped_tax['base_amount']), 2);
@@ -331,9 +331,22 @@ class PeppolTaxCalculator
 
             $tax_category->ID = $category_id;
 
-            // Required: TaxCategory Rate (BT-119)
-            if ($grouped_tax['tax_rate'] > 0) {
+            // BT-119 (BR-48): category rate required unless invoice is outside VAT scope (e.g. O without percent).
+            if (floatval($grouped_tax['tax_rate']) > 0) {
                 $tax_category->Percent = (string) $grouped_tax['tax_rate'];
+            } elseif ($category_id->value !== 'O') {
+                $tax_category->Percent = '0';
+            }
+
+            // BR-E-10: category "E" (Exempt from VAT) requires BT-121 and/or BT-120 on the VAT breakdown.
+            if ($category_id->value === 'E') {
+                $meta = $this->getExemptionReasonMetadataForItem((object) [
+                    'tax_id' => (string) ($grouped_tax['tax_id'] ?? ''),
+                ]);
+                $terc = new TaxExemptionReasonCode();
+                $terc->value = $meta['reason_code'];
+                $tax_category->TaxExemptionReasonCode = $terc;
+                $tax_category->TaxExemptionReason = $meta['reason'];
             }
 
             // Required: TaxScheme (BG-23)
@@ -347,8 +360,10 @@ class PeppolTaxCalculator
 
             $tax_total->TaxSubtotal[] = $tax_subtotal;
 
-            $p_invoice->TaxTotal[] = $tax_total;
+            
         }
+
+        $p_invoice->TaxTotal[] = $tax_total;
 
         $this->peppol->setPeppolDocument($p_invoice);
 

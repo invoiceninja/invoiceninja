@@ -82,6 +82,10 @@ class InvoiceTransformer extends BaseTransformer
 
                 // Skip line items where product creation failed (null or empty)
                 if (empty($product_qb_id)) {
+                    nlog('QuickBooks: ninjaToQb skipped line — findOrCreateProduct returned empty QuickBooks item Id', [
+                        'invoice_id' => $invoice->id,
+                        'product_key' => $line_item->product_key ?? null,
+                    ]);
                     continue;
                 }
 
@@ -120,7 +124,12 @@ class InvoiceTransformer extends BaseTransformer
 
                 $line_num++;
             } catch (\Throwable $e) {
-                // Skip line items that fail to process
+                nlog('QuickBooks: ninjaToQb skipped line — product find/create or line build failed', [
+                    'invoice_id' => $invoice->id,
+                    'product_key' => $line_item->product_key ?? null,
+                    'exception' => $e::class,
+                    'message' => $e->getMessage(),
+                ]);
                 continue;
             }
         }

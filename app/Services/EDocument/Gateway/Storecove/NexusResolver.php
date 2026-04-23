@@ -60,7 +60,6 @@ class NexusResolver
      */
     public function resolve(): self
     {
-        nlog("building nexus");
 
         $company_country_code = $this->invoice->company->country()->iso_3166_2;
         $client_country_code = $this->invoice->client->country->iso_3166_2;

@@ -30,11 +30,6 @@ class AT extends BaseCountry
         MutatorUtil $mutator_util,
     ): mixed {
 
-        if ($invoice->client->classification == 'government') {
-            // For government clients, customerAssignedAccountId must be set
-            $mutator_util->setCustomerAssignedAccountId(true);
-        }
-
         return $p_invoice;
     }
 }

@@ -24,6 +24,7 @@ use App\DataMapper\Tax\TaxModel;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Services\EDocument\Standards\Peppol;
+use App\Services\EDocument\Gateway\Storecove\Storecove;
 use App\Services\EDocument\Standards\Validation\XsltDocumentValidator;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
@@ -360,9 +361,17 @@ class PeppolCountryTest extends TestCase
             $this->validateXslt($xml, $label);
         }
 
+        // ── Storecove adapter (transform + decorate) ──
+        $storecove = new Storecove();
+        $storecove->adapter
+            ->transformFromPeppol($fresh, $peppol, $p->isCreditNote())
+            ->decorate();
+        $storecoveInvoice = $storecove->adapter->getInvoice();
+
         return [
-            'peppol' => $peppol,
-            'xml' => $xml,
+            'peppol'    => $peppol,
+            'xml'       => $xml,
+            'storecove' => $storecoveInvoice,
         ];
     }
 
@@ -440,10 +449,11 @@ class PeppolCountryTest extends TestCase
         ]);
         $result = $this->runAndValidate($data['invoice'], 'AT => AT (government)');
 
-        // AT government requires CustomerAssignedAccountID
+        // AT government: the company's id_number must be set as customerAssignedAccountIdValue
+        // on the Storecove accountingSupplierParty.party so the AT:GOV gateway can identify the sender.
         $this->assertNotNull(
-            $result['peppol']->AccountingCustomerParty->CustomerAssignedAccountID ?? null,
-            'AT government should set CustomerAssignedAccountID'
+            $result['storecove']->getAccountingSupplierParty()?->getParty()?->getCustomerAssignedAccountIdValue() ?? null,
+            'AT government should set customerAssignedAccountIdValue on accountingSupplierParty.party'
         );
     }
 
@@ -562,14 +572,129 @@ class PeppolCountryTest extends TestCase
         ]);
         $result = $this->runAndValidate($data['invoice'], 'FR => FR (government)');
 
-        // FR B2G requires CustomerAssignedAccountID (client's SIRET)
-        $this->assertNotNull(
-            $result['peppol']->AccountingCustomerParty->CustomerAssignedAccountID ?? null,
-            'FR B2G should set CustomerAssignedAccountID'
-        );
+        // FR B2G: the customer's SIRET must appear as a public identifier on
+        // accountingCustomerParty so Storecove can route to Chorus Pro.
+        $publicIdentifiers = $result['storecove']->getAccountingCustomerParty()?->getPublicIdentifiers() ?? [];
+        $siretFound = false;
+        foreach ($publicIdentifiers as $pi) {
+            if ($pi->getScheme() === 'FR:SIRET' && strlen($pi->getId() ?? '') > 0) {
+                $siretFound = true;
+                break;
+            }
+        }
+        $this->assertTrue($siretFound, 'FR B2G should set FR:SIRET public identifier on accountingCustomerParty');
     }
 
-    // ── IT (Italy) ──
+    public function testFR_Government_StorecoveJsonContainsSiretPublicIdentifier(): void
+    {
+        $siret = '12345678901234';
+
+        $data = $this->buildScenario([
+            'company_country'       => 'DE',
+            'client_country'        => 'FR',
+            'client_classification' => 'government',
+            'client_id_number'      => $siret,
+        ]);
+
+        $invoice = $data['invoice']->fresh();
+        $p = new Peppol($invoice);
+        $p->run();
+
+        $storecove = new Storecove();
+        $storecove->adapter
+            ->transformFromPeppol($invoice, $p->getDocument(), $p->isCreditNote())
+            ->decorate();
+
+        $document = $storecove->adapter->getDocument();
+
+        $this->assertArrayHasKey('document', $document, 'Storecove document key missing');
+        $this->assertEmpty($document['errors'], 'Storecove adapter produced errors: ' . implode('; ', $document['errors']));
+
+        $json = $document['document'];
+
+        $publicIdentifiers = data_get($json, 'accounting_customer_party.public_identifiers', []);
+
+        $this->assertNotEmpty($publicIdentifiers, 'accountingCustomerParty.publicIdentifiers must not be empty for FR government');
+
+        $siretEntry = collect($publicIdentifiers)->first(
+            fn ($pi) => ($pi['scheme'] ?? null) === 'FR:SIRET'
+        );
+
+        $this->assertNotNull($siretEntry, 'No FR:SIRET entry found in accountingCustomerParty.publicIdentifiers');
+        $this->assertSame($siret, $siretEntry['id'], 'FR:SIRET id must match the client SIRET');
+    }
+
+    public function testFR_Government_RoutingPublicIdentifierSchemeIsExactlyFrSiret(): void
+    {
+        $siret = '12345678901234';
+
+        $data = $this->buildScenario([
+            'company_country'       => 'DE',
+            'client_country'        => 'FR',
+            'client_classification' => 'government',
+            'client_id_number'      => $siret,
+        ]);
+
+        $invoice = $data['invoice']->fresh();
+        $p = new Peppol($invoice);
+        $p->run();
+
+        $storecove = new Storecove();
+        $storecove->adapter
+            ->transformFromPeppol($invoice, $p->getDocument(), $p->isCreditNote())
+            ->decorate();
+
+        $document = $storecove->adapter->getDocument();
+        $this->assertEmpty($document['errors'], implode('; ', $document['errors']));
+
+        $publicIdentifiers = data_get($document['document'], 'accounting_customer_party.public_identifiers', []);
+
+        $this->assertCount(1, $publicIdentifiers, 'FR government should produce exactly one publicIdentifier on accountingCustomerParty');
+
+        $entry = $publicIdentifiers[0];
+        $this->assertSame('FR:SIRET', $entry['scheme'], 'Scheme must be exactly "FR:SIRET" — not polluted with routing-rule annotations');
+        $this->assertSame($siret, $entry['id'], 'Id must be the client SIRET');
+    }
+
+    public function testAT_Government_SupplierPartyHasCustomerAssignedAccountIdValue(): void
+    {
+        $companyIdNumber = 'AT-GOV-SENDER-123';
+
+        $data = $this->buildScenario([
+            'company_country'        => 'AT',
+            'company_id_number'      => $companyIdNumber,
+            'client_country'         => 'AT',
+            'client_classification'  => 'government',
+            'client_id_number'       => 'GOV123',
+        ]);
+
+        $invoice = $data['invoice']->fresh();
+        $p = new Peppol($invoice);
+        $p->run();
+
+        $storecove = new Storecove();
+        $storecove->adapter
+            ->transformFromPeppol($invoice, $p->getDocument(), $p->isCreditNote())
+            ->decorate();
+
+        $document = $storecove->adapter->getDocument();
+        $this->assertEmpty($document['errors'], implode('; ', $document['errors']));
+
+        $customerAssignedAccountIdValue = data_get(
+            $document['document'],
+            'accounting_supplier_party.party.customer_assigned_account_id_value'
+        );
+
+        $this->assertNotNull(
+            $customerAssignedAccountIdValue,
+            'AT government must set accountingSupplierParty.party.customerAssignedAccountIdValue'
+        );
+        $this->assertSame(
+            $companyIdNumber,
+            $customerAssignedAccountIdValue,
+            'customerAssignedAccountIdValue must equal the company id_number'
+        );
+    }
 
     public function testIT_Domestic_B2B(): void
     {

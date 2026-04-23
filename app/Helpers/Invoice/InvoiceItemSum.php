@@ -415,7 +415,7 @@ class InvoiceItemSum
         $key = str_replace(' ', '', $tax_name . $tax_rate);
 
         //Handles an edge case where a blank line is entered.
-        if ($tax_rate > 0 && $amount == 0) {
+        if ($tax_name == '' && $tax_rate == 0 && $amount == 0) {
             return;
         }
 
@@ -523,7 +523,7 @@ class InvoiceItemSum
 
             $item_tax += $item_tax_rate1_total;
 
-            if ($item_tax_rate1_total != 0) {
+            if (strlen($this->item->tax_name1) > 1 || $item_tax_rate1_total != 0) {
                 $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total, $amount, $this->item->tax_id ?? '1');
             }
 
@@ -531,7 +531,7 @@ class InvoiceItemSum
 
             $item_tax += $item_tax_rate2_total;
 
-            if ($item_tax_rate2_total != 0) {
+            if (strlen($this->item->tax_name2) > 1 || $item_tax_rate2_total != 0) {
                 $this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total, $amount, $this->item->tax_id ?? '1');
             }
 
@@ -539,7 +539,7 @@ class InvoiceItemSum
 
             $item_tax += $item_tax_rate3_total;
 
-            if ($item_tax_rate3_total != 0) {
+            if (strlen($this->item->tax_name3) > 1 || $item_tax_rate3_total != 0) {
                 $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total, $amount, $this->item->tax_id ?? '1');
             }
 

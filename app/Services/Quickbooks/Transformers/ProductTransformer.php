@@ -31,6 +31,7 @@ class ProductTransformer extends BaseTransformer
     {
         // QuickBooks Name max length is 100 characters, Description max length is 4000 characters
         $product_name = strlen($line_item->product_key ?? '') > 0 ? $line_item->product_key : 'Product ' . uniqid();
+
         return [
             'Name' => mb_substr($product_name, 0, 100),
             'Description' => mb_substr($line_item->notes ?? '', 0, 4000),
@@ -40,6 +41,7 @@ class ProductTransformer extends BaseTransformer
             'IncomeAccountRef' => [
                 'value' => strlen($line_item->income_account_id ?? '') > 0 ? $line_item->income_account_id : $income_account_id,
             ],
+            'Taxable' => in_array($line_item->tax_id, ['5','8']) ? false : true
         ];
     }
 
