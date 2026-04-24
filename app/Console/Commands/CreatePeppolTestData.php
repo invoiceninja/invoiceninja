@@ -16,6 +16,7 @@ use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\Tax\TaxModel;
 use App\DataMapper\EInvoice\TaxEntity;
+use App\Factory\PaymentTermFactory;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
@@ -41,12 +42,12 @@ class CreatePeppolTestData extends Command
      * When present, company.legal_entity_id is set and e_invoice_type = 'PEPPOL'.
      */
     private array $legal_entity_ids = [
-        'AD' => 987690, // Andorra - Sending tested AD => AD, AD => Global
+        'AD' => 987690, // Andorra - Tests pass!  ✓
         'AL' => 0, // Albania
-        'AT' => 293801, // ATU92335648
+        'AT' => 293801, // ATU92335648 (testing for government routing is as per spec, but storecove returns NO ACTION TAKEN)
         'AU' => 0, // Australia
         'BA' => 0, // Bosnia and Herzegovina
-        'BE' => 580406, //BE1000000417 - 1000000417 - Tests pass!
+        'BE' => 580406, //BE1000000417 - 1000000417 - Tests pass!  ✓
         'BG' => 0, // Bulgaria
         'CA' => 0, // Canada
         'CH' => 291394, //CHE923356489MWST
@@ -675,6 +676,9 @@ class CreatePeppolTestData extends Command
 
         $company = Company::factory()->create($companyData);
 
+        $company->enabled_item_tax_rates = 1;
+        $company->save();
+
         $company_token = new CompanyToken();
         $company_token->user_id = $user->id;
         $company_token->company_id = $company->id;
@@ -694,6 +698,13 @@ class CreatePeppolTestData extends Command
         ]);
 
         $this->info("  Company created: {$settings->name}");
+
+        $paymentTerm = PaymentTermFactory::create($company->id, $user->id);
+        $paymentTerm->num_days = 7;
+        $paymentTerm->name = 'Net 7';
+        $paymentTerm->save();
+
+        $this->info("  Payment term created: Net 7 (7 days)");
 
         // ── Update License with TaxEntity ──
         $licenseKey = config('ninja.license_key');

@@ -80,7 +80,7 @@ class RoutingResolver
                 ? preg_replace('/\s+/', '', $candidate['id'])
                 : preg_replace("/[^a-zA-Z0-9]/", "", $candidate['id']);
 
-            if (strlen($id) < 2) {
+            if (strlen($id) < 1) {
                 continue;
             }
 

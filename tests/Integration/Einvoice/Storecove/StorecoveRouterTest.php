@@ -779,6 +779,29 @@ class StorecoveRouterTest extends TestCase
 
     }
 
+    public function testAtGovRoutingResolverProducesFixedEndpoint(): void
+    {
+        $invoice = $this->buildData();
+
+        $invoice->client->country_id = 40;
+        $invoice->client->vat_number = 'ATU123456789';
+        $invoice->client->id_number = 'GOV-AT-123';
+        $invoice->client->classification = 'government';
+        $invoice->client->push();
+
+        $storecove = new Storecove();
+        $resolver = new RoutingResolver($invoice->fresh(), $storecove->proxy, $storecove->router);
+        $result = $resolver->resolve();
+
+        $this->assertSame('eIdentifiers', $result['type'], 'AT government should resolve to eIdentifiers, not none');
+
+        $eIdentifiers = $result['meta']['routing']['eIdentifiers'];
+        $atGovIdentifier = collect($eIdentifiers)->firstWhere('scheme', 'AT:GOV');
+
+        $this->assertNotNull($atGovIdentifier, 'AT:GOV identifier should be present in routing');
+        $this->assertSame('b', $atGovIdentifier['id'], 'AT:GOV routing id must always be "b"');
+    }
+
     public function testAtBusinessClientTaxIdentifier()
     {
         $invoice = $this->buildData();

@@ -117,7 +117,7 @@ class PeppolCountryTest extends TestCase
                 'address1' => 'Gran Via 1',
             ],
             'FI' => [
-                'vat' => 'FI12345678', 'id_number' => '1234567-8', 'tax_rate' => 25.5, 'tax_name' => 'ALV',
+                'vat' => 'FI12345678', 'id_number' => '003712345678', 'tax_rate' => 25.5, 'tax_name' => 'ALV',
                 'city' => 'Helsinki', 'state' => 'Uusimaa', 'postal_code' => '00100', 'currency' => '3',
                 'address1' => 'Mannerheimintie 1',
             ],
@@ -455,6 +455,12 @@ class PeppolCountryTest extends TestCase
             $result['storecove']->getAccountingSupplierParty()?->getParty()?->getCustomerAssignedAccountIdValue() ?? null,
             'AT government should set customerAssignedAccountIdValue on accountingSupplierParty.party'
         );
+
+        // AT:GOV always routes to the fixed endpoint "b" per Storecove docs — never the client's id_number.
+        $publicIdentifiers = $result['storecove']->getAccountingCustomerParty()?->getPublicIdentifiers() ?? [];
+        $this->assertNotEmpty($publicIdentifiers, 'AT government should have a public identifier on accountingCustomerParty');
+        $this->assertSame('AT:GOV', $publicIdentifiers[0]->getScheme(), 'AT:GOV routing must use scheme AT:GOV');
+        $this->assertSame('b', $publicIdentifiers[0]->getId(), 'AT:GOV routing id must always be "b"');
     }
 
     // ── AU (Australia) ──
@@ -658,14 +664,14 @@ class PeppolCountryTest extends TestCase
 
     public function testAT_Government_SupplierPartyHasCustomerAssignedAccountIdValue(): void
     {
-        $companyIdNumber = 'AT-GOV-SENDER-123';
+        $clientIdNumber = 'GOV123';
 
         $data = $this->buildScenario([
             'company_country'        => 'AT',
-            'company_id_number'      => $companyIdNumber,
+            'company_id_number'      => 'AT-GOV-SENDER-123',
             'client_country'         => 'AT',
             'client_classification'  => 'government',
-            'client_id_number'       => 'GOV123',
+            'client_id_number'       => $clientIdNumber,
         ]);
 
         $invoice = $data['invoice']->fresh();
@@ -690,9 +696,9 @@ class PeppolCountryTest extends TestCase
             'AT government must set accountingSupplierParty.party.customerAssignedAccountIdValue'
         );
         $this->assertSame(
-            $companyIdNumber,
+            $clientIdNumber,
             $customerAssignedAccountIdValue,
-            'customerAssignedAccountIdValue must equal the company id_number'
+            'customerAssignedAccountIdValue must equal the client id_number (identifies the government entity)'
         );
     }
 
@@ -985,6 +991,23 @@ class PeppolCountryTest extends TestCase
             'has_valid_vat' => true,
         ]);
         $this->runAndValidate($data['invoice'], 'AT => DE (B2B)');
+    }
+
+    public function testAT_to_FI_Business(): void
+    {
+        $data = $this->buildScenario([
+            'company_country' => 'AT', 'client_country' => 'FI',
+            'has_valid_vat' => true,
+        ]);
+        $result = $this->runAndValidate($data['invoice'], 'AT => FI (B2B)');
+
+        // Finland requires both FI:OVT (routing) and FI:VAT (tax) in publicIdentifiers.
+        // Storecove rejects the invoice if the receiver has no VAT-scheme identifier when VAT is present.
+        $publicIdentifiers = $result['storecove']->getAccountingCustomerParty()?->getPublicIdentifiers() ?? [];
+        $schemes = array_map(fn ($pi) => $pi->getScheme(), $publicIdentifiers);
+
+        $this->assertContains('FI:OVT', $schemes, 'FI receiver must have FI:OVT (routing) in publicIdentifiers');
+        $this->assertContains('FI:VAT', $schemes, 'FI receiver must have FI:VAT in publicIdentifiers when invoice has VAT');
     }
 
     public function testSE_to_DK_Business(): void

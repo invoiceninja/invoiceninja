@@ -13,6 +13,7 @@
 namespace App\Services\EDocument\Standards\Peppol;
 
 use App\Services\EDocument\Gateway\MutatorUtil;
+use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
 
 class AT extends BaseCountry
 {
@@ -22,6 +23,22 @@ class AT extends BaseCountry
             ["G", "AT:GOV", false, "9915:b"],
             ["B", "", "AT:VAT", "AT:VAT"],
         ];
+    }
+
+    /**
+     * AT government routing uses the fixed Storecove endpoint AT:GOV:b.
+     * Validation passes whenever the client has an id_number, which is
+     * required for customerAssignedAccountIdValue on the supplier party.
+     */
+    public function getCandidates(object $client, string $classification, object $router): array
+    {
+        /** @var StorecoveRouter $router */
+        if ($classification === 'government') {
+            $id = trim($client->id_number ?? '');
+            return strlen($id) >= 1 ? [['scheme' => 'AT:GOV', 'id' => 'b']] : [];
+        }
+
+        return parent::getCandidates($client, $classification, $router);
     }
 
     public function senderMutations(

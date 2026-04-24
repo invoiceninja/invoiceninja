@@ -306,7 +306,7 @@ class StorecoveAdapter
 
         $client = $this->ninja_invoice->client;
         $country = $client->country->iso_3166_2;
-        $classification = $client->classification ?? 'individual';
+        $classification = $client->classification ?? 'business';
         $router = $this->storecove->router->setInvoice($this->ninja_invoice);
 
         $resolved = $this->resolvePublicIdentifier($router, $client, $country, $classification);
@@ -314,6 +314,20 @@ class StorecoveAdapter
         if ($resolved) {
             $pi = new \App\Services\EDocument\Gateway\Storecove\Models\PublicIdentifiers($resolved['scheme'], $resolved['id']);
             $accounting_customer_party->addPublicIdentifiers($pi);
+
+            // For countries where the tax scheme differs from the routing scheme (e.g. FI:OVT + FI:VAT,
+            // BE:EN + BE:VAT), Storecove requires a VAT-scheme identifier on the receiver when the
+            // invoice contains VAT or a taxExemptReason.
+            $taxScheme = $router->resolveTaxScheme($country, $classification);
+            if (!empty($taxScheme) && $taxScheme !== $resolved['scheme']) {
+                $vatRaw = trim($client->vat_number ?? '');
+                if (strlen($vatRaw) > 1 && $router->matchesSchemeFormat($taxScheme, $vatRaw)) {
+                    $accounting_customer_party->addPublicIdentifiers(
+                        new \App\Services\EDocument\Gateway\Storecove\Models\PublicIdentifiers($taxScheme, $vatRaw)
+                    );
+                }
+            }
+
             $this->storecove_invoice->setAccountingCustomerParty($accounting_customer_party);
         }
 
@@ -321,11 +335,11 @@ class StorecoveAdapter
         // on the accountingSupplierParty.party. Storecove uses this to look up the actual
         // recipient from the purchase order reference inside the document.
         if ($country === 'AT' && $classification === 'government') {
-            $company_id = $this->ninja_invoice->company->settings->id_number ?? '';
-            if (strlen($company_id) > 1) {
+            $customer_assigned_account_id_value = trim($client->id_number ?? '');
+            if (strlen($customer_assigned_account_id_value) > 1) {
                 $supplier = $this->storecove_invoice->getAccountingSupplierParty();
                 if ($supplier?->getParty()) {
-                    $supplier->getParty()->setCustomerAssignedAccountIdValue($company_id);
+                    $supplier->getParty()->setCustomerAssignedAccountIdValue($customer_assigned_account_id_value);
                     $this->storecove_invoice->setAccountingSupplierParty($supplier);
                 }
             }
@@ -375,6 +389,12 @@ class StorecoveAdapter
             if (empty($scheme)) {
                 return null;
             }
+        }
+
+        // AT:GOV always routes to the fixed endpoint "b" per Storecove docs.
+        // The client's id_number is used for customerAssignedAccountIdValue (set elsewhere).
+        if ($country === 'AT' && $classification === 'government') {
+            return ['scheme' => 'AT:GOV', 'id' => 'b'];
         }
 
         // GLN and IT:CUUO always use routing_id

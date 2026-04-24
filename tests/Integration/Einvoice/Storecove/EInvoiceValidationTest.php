@@ -821,40 +821,77 @@ class EInvoiceValidationTest extends TestCase
     //     $this->assertTrue($validation['passes']);
     // }
 
-    // public function testAtGovClientNeedsIdNumber()
-    // {
-    //     $company = Company::factory()->create([
-    //         'account_id' => $this->account->id,
-    //     ]);
+    public function testAtGovClientNeedsIdNumber(): void
+    {
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+        ]);
 
-    //     // AT government with no id_number (AT:GOV) — should fail
-    //     $client = Client::factory()->create([
-    //         'user_id' => $this->user->id,
-    //         'company_id' => $company->id,
-    //         'classification' => 'government',
-    //         'vat_number' => 'ATU12345678',
-    //         'id_number' => '',
-    //         'country_id' => 40,
-    //         'address1' => '10 Ballhausplatz',
-    //         'city' => 'Vienna',
-    //         'state' => 'Vienna',
-    //         'postal_code' => '1010',
-    //     ]);
+        // AT government with no id_number (AT:GOV) — should fail
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'classification' => 'government',
+            'vat_number' => 'ATU12345678',
+            'id_number' => '',
+            'routing_id' => '',
+            'country_id' => 40,
+            'address1' => '10 Ballhausplatz',
+            'city' => 'Vienna',
+            'state' => 'Vienna',
+            'postal_code' => '1010',
+        ]);
 
-    //     $cc = ClientContact::factory()->create([
-    //         'client_id' => $client->id,
-    //         'user_id' => $this->user->id,
-    //         'company_id' => $company->id,
-    //         'first_name' => 'Bob',
-    //         'last_name' => 'Doe',
-    //         'email' => 'bob@example.com',
-    //     ]);
+        ClientContact::factory()->create([
+            'client_id' => $client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'first_name' => 'Bob',
+            'last_name' => 'Doe',
+            'email' => 'bob@example.com',
+        ]);
 
-    //     $el = new EntityLevel();
-    //     $validation = $el->checkClient($client);
+        $el = new EntityLevel();
+        $validation = $el->checkClient($client);
 
-    //     $this->assertFalse($validation['passes']);
-    // }
+        $this->assertFalse($validation['passes']);
+    }
+
+    public function testAtGovClientPassesWithIdNumber(): void
+    {
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+        ]);
+
+        // AT government with a valid id_number — should pass
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'classification' => 'government',
+            'vat_number' => 'ATU12345678',
+            'id_number' => 'GOV-AT-123',
+            'routing_id' => '',
+            'country_id' => 40,
+            'address1' => '10 Ballhausplatz',
+            'city' => 'Vienna',
+            'state' => 'Vienna',
+            'postal_code' => '1010',
+        ]);
+
+        ClientContact::factory()->create([
+            'client_id' => $client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'first_name' => 'Bob',
+            'last_name' => 'Doe',
+            'email' => 'bob@example.com',
+        ]);
+
+        $el = new EntityLevel();
+        $validation = $el->checkClient($client);
+
+        $this->assertTrue($validation['passes']);
+    }
 
     // public function testIndividualClientSkipsIdentifierValidation()
     // {
