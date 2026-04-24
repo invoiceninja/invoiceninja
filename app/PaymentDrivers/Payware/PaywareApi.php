@@ -61,7 +61,11 @@ class PaywareApi
     {
         $cookieJar = new CookieJar();
 
-        $response = Http::withOptions(['cookies' => $cookieJar])
+        $response = Http::withOptions([
+            'cookies' => $cookieJar,
+            'verify' => true,
+            'allow_redirects' => false,
+        ])
             ->asForm()
             ->post($this->baseUrl . '/vpos/login', [
                 'username' => $this->vposId,
@@ -114,7 +118,11 @@ class PaywareApi
             ],
         ];
 
-        $response = Http::withOptions(['cookies' => $cookieJar])
+        $response = Http::withOptions([
+            'cookies' => $cookieJar,
+            'verify' => true,
+            'allow_redirects' => false,
+        ])
             ->timeout(30)
             ->acceptJson()
             ->post($this->baseUrl . '/vpos/api/transactions', $payload);

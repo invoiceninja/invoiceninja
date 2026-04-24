@@ -21,12 +21,9 @@ use App\Jobs\Util\SystemLogger;
 use App\PaymentDrivers\Payware\BankTransfer;
 use App\PaymentDrivers\Payware\PaywareApi;
 use App\Http\Requests\Payments\PaymentNotificationWebhookRequest;
-use App\Utils\Traits\MakesHash;
 
 class PaywarePaymentDriver extends BaseDriver
 {
-    use MakesHash;
-
     public $refundable = false;
 
     public $token_billing = false;
@@ -115,7 +112,7 @@ class PaywarePaymentDriver extends BaseDriver
 
             if ($status === 'CONFIRMED' && isset($data['payware_payment_id'])) {
                 $response['redirect'] = route('client.payments.show', [
-                    'payment' => $this->encodePrimaryKey($data['payware_payment_id']),
+                    'payment' => $data['payware_payment_id'],
                 ]);
             }
 
@@ -187,7 +184,7 @@ class PaywarePaymentDriver extends BaseDriver
 
                 $payment = $this->createPayment($paymentData, Payment::STATUS_COMPLETED);
 
-                $hashData['payware_payment_id'] = $payment->id;
+                $hashData['payware_payment_id'] = $payment->hashed_id;
 
                 SystemLogger::dispatch(
                     ['response' => (array) $webhookData, 'data' => $paymentData],

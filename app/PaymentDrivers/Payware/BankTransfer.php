@@ -18,13 +18,10 @@ use App\Models\PaymentHash;
 use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\PaywarePaymentDriver;
-use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 
 class BankTransfer implements MethodInterface, LivewireMethodInterface
 {
-    use MakesHash;
-
     public function __construct(protected PaywarePaymentDriver $driver)
     {
         $this->driver->init();
@@ -67,7 +64,7 @@ class BankTransfer implements MethodInterface, LivewireMethodInterface
 
             if ($status === 'CONFIRMED' && isset($data['payware_payment_id'])) {
                 $response['redirect'] = route('client.payments.show', [
-                    'payment' => $this->encodePrimaryKey($data['payware_payment_id']),
+                    'payment' => $data['payware_payment_id'],
                 ]);
             }
 
@@ -81,7 +78,7 @@ class BankTransfer implements MethodInterface, LivewireMethodInterface
         // Handle final redirect after webhook confirmation
         if ($status === 'CONFIRMED' && isset($data['payware_payment_id'])) {
             return redirect()->route('client.payments.show', [
-                'payment' => $this->encodePrimaryKey($data['payware_payment_id']),
+                'payment' => $data['payware_payment_id'],
             ]);
         }
 
