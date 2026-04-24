@@ -31,6 +31,7 @@ class TaskScheduler implements ShouldQueue
 
     public $deleteWhenMissingModels = true;
 
+    public $timeout = 10800;
     /**
      * Create a new job instance.
      *
