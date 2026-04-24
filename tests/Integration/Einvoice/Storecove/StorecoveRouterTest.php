@@ -1434,7 +1434,7 @@ class StorecoveRouterTest extends TestCase
             'BE:EN'     => '/^(BE)?[01]\d{9}$/i',
             'DK:DIGST'  => '/^(DK)?\d{8}$/i',
             'EE:CC'     => '/^\d{8}$/',
-            'FI:OVT'    => '/^\d{12,13}$/',
+            'FI:OVT'    => '/^\d{12,13}[a-zA-Z0-9]{0,5}$/',
             'FR:SIRENE' => '/^\d{9}$/',
             'FR:SIRET'  => '/^\d{14}$/',
             'NL:KVK'    => '/^\d{8}$/',
@@ -1448,7 +1448,7 @@ class StorecoveRouterTest extends TestCase
             'JP:SST'    => '/^T?\d{13}$/',
             'MY:EIF'    => '/^[A-Z0-9]{10,14}$/i',
             'SG:UEN'    => '/^[A-Z0-9]{9,16}$/i',
-            'AT:GOV'    => '/^.{2,}$/',
+            'AT:GOV'    => '/^.+$/',
             'DE:LWID'   => '/(?=.{0,45}$)^[0-9]{0,12}(\-[0-9a-zA-Z]{0,30}(\-[0-9]{2}))$/',
             'IT:CUUO'   => '/^[A-Z0-9]{6,7}$/i',
         ];
