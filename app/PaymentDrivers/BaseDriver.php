@@ -359,7 +359,7 @@ class BaseDriver extends AbstractPaymentDriver
 
         event('eloquent.created: App\Models\Payment', $payment);
 
-        if ($this->client->getSetting('client_online_payment_notification') && in_array($status, [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING])) {
+        if ($this->client->getSetting('client_online_payment_notification') && $status === Payment::STATUS_COMPLETED) {
             $payment->service()->sendEmail();
         }
 

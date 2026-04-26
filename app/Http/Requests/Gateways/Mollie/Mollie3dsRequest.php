@@ -71,6 +71,6 @@ class Mollie3dsRequest extends FormRequest
 
     public function getPaymentId(): ?string
     {
-        return $this->getPaymentHash()->data->payment_id;
+        return $this->getPaymentHash()->data->transaction_reference;
     }
 }

@@ -12,59 +12,25 @@
 
 namespace App\PaymentDrivers\Mollie;
 
-use App\Exceptions\PaymentFailed;
-use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
-use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\Common\MethodInterface;
-use App\PaymentDrivers\MolliePaymentDriver;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\View\View;
+use Mollie\Api\Exceptions\ApiException;
 
-class IDEAL implements MethodInterface, LivewireMethodInterface
+class IDEAL extends MolliePaymentMethod implements MethodInterface, LivewireMethodInterface
 {
-    protected MolliePaymentDriver $mollie;
+    protected const MOLLIE_PAYMENT_METHOD = 'ideal';
 
-    public function __construct(MolliePaymentDriver $mollie)
-    {
-        $this->mollie = $mollie;
+    protected const GATEWAY_TYPE_ID = GatewayType::IDEAL;
 
-        $this->mollie->init();
-    }
+    protected const PAYMENT_TYPE_ID = PaymentType::IDEAL;
 
-    /**
-     * Show the authorization page for iDEAL.
-     *
-     * @param array $data
-     * @return \Illuminate\View\View
-     */
-    public function authorizeView(array $data): View
-    {
-        return render('gateways.mollie.ideal.authorize', $data);
-    }
+    protected const AUTHORIZE_VIEW_TEMPLATE = 'gateways.mollie.ideal.authorize';
 
-    /**
-     * Handle the authorization for iDEAL.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function authorizeResponse(Request $request): RedirectResponse
-    {
-        return redirect()->route('client.payment_methods.index');
-    }
-
-    /**
-     * Show the payment page for iDEAL.
-     *
-     * @param array $data
-     * @return \Illuminate\Http\RedirectResponseor|RedirectResponse
-     */
+    /** @inheritDoc */
     public function paymentView(array $data)
     {
         $this->mollie->payment_hash
@@ -72,11 +38,11 @@ class IDEAL implements MethodInterface, LivewireMethodInterface
             ->withData('client_id', $this->mollie->client->id);
 
         try {
-            $payment = $this->mollie->gateway->payments->create([
+            $data = [
                 'method' => 'ideal',
                 'amount' => [
                     'currency' => $this->mollie->client->currency()->code,
-                    'value' => $this->mollie->convertToMollieAmount((float) $this->mollie->payment_hash->data->amount_with_fee),
+                    'value' => $this->mollie->convertToMollieAmount((float)$this->mollie->payment_hash->data->amount_with_fee),
                 ],
                 'description' => \sprintf('%s: %s', ctrans('texts.invoices'), \implode(', ', collect($data['invoices'])->pluck('invoice_number')->toArray())),
                 'redirectUrl' => route('client.payments.response', [
@@ -91,157 +57,66 @@ class IDEAL implements MethodInterface, LivewireMethodInterface
                     'gateway_type_id' => GatewayType::IDEAL,
                     'payment_type_id' => PaymentType::IDEAL,
                 ],
-            ]);
+            ];
 
-            $this->mollie->payment_hash->withData('payment_id', $payment->id);
+            if ($this->mollie->company_gateway->token_billing == 'always') {
+                // Check if a mollie CustomerId already exists for this client, if so, use that
+                $gateway_customer_reference = null;
+                if ($this->mollie->client->gateway_tokens->count() > 0) {
+                    $gateway_customer_reference = $this->mollie->client->gateway_tokens->first()->gateway_customer_reference;
+                } else {
+                    // Only if a ClientGatewayToken a.k.a. mandate doesn't exist, we need to set the sequenceType to first to create one
+                    $data['sequenceType'] = 'first';
+                }
+                if (!$gateway_customer_reference) {
+                    $customer = $this->mollie->gateway->customers->create([
+                        'name' => $this->mollie->client->name,
+                        'email' => $this->mollie->client->present()->email(),
+                        'metadata' => [
+                            'id' => $this->mollie->client->hashed_id,
+                        ],
+                    ]);
+                    $gateway_customer_reference = $customer->id;
+                }
 
-            return redirect(
-                $payment->getCheckoutUrl()
-            );
-        } catch (\Mollie\Api\Exceptions\ApiException|\Exception $exception) {
+                $data['customerId'] = $gateway_customer_reference;
+
+                $this->mollie->payment_hash
+                    ->withData('mollieCustomerId', $gateway_customer_reference)
+                    ->withData('shouldStoreToken', true);
+            }
+
+            try {
+                $molliePayment = $this->mollie->gateway->payments->create($data);
+            } catch (ApiException $e) {
+                if (preg_match('/method selected.*not accept recurring payments/', $e->getMessage())) {
+                    // Can't create mandate, log
+                    SystemLogger::dispatch(
+                        ['error' => 'Could not create mandate upon iDeal payment. Check if all required payment methods are enabled in Mollie (e.g. SEPA Direct Debit).',
+                            'exception' => $e->getMessage()],
+                        SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                        SystemLog::EVENT_GATEWAY_ERROR,
+                        SystemLog::TYPE_MOLLIE,
+                        $this->mollie->client,
+                        $this->mollie->client->company,
+                    );
+
+                    // Try again without creating mandate
+                    unset($data['customerId']);
+                    unset($data['sequenceType']);
+                    $molliePayment = $this->mollie->gateway->payments->create($data);
+                } else {
+                    // Fail in the usual way
+                    throw $e;
+                }
+            }
+
+            $this->mollie->payment_hash->withData('transaction_reference', $molliePayment->id);
+
+            return redirect($molliePayment->getCheckoutUrl());
+        } catch (\Exception $exception) {
             return $this->processUnsuccessfulPayment($exception);
         }
     }
 
-    /**
-     * Handle unsuccessful payment.
-     *
-     * @param Exception $exception
-     * @throws PaymentFailed
-     * @return void
-     */
-    public function processUnsuccessfulPayment(\Exception $exception): void
-    {
-        $this->mollie->sendFailureMail($exception->getMessage());
-
-        SystemLogger::dispatch(
-            $exception->getMessage(),
-            SystemLog::CATEGORY_GATEWAY_RESPONSE,
-            SystemLog::EVENT_GATEWAY_FAILURE,
-            SystemLog::TYPE_MOLLIE,
-            $this->mollie->client,
-            $this->mollie->client->company,
-        );
-
-        throw new PaymentFailed($exception->getMessage(), $exception->getCode());
-    }
-
-    /**
-     * Handle the payments for the iDEAL.
-     *
-     * @param PaymentResponseRequest $request
-     * @return mixed
-     */
-    public function paymentResponse(PaymentResponseRequest $request)
-    {
-        if (! \property_exists($this->mollie->payment_hash->data, 'payment_id')) {
-            return $this->processUnsuccessfulPayment(
-                new PaymentFailed('Whoops, something went wrong. Missing required [payment_id] parameter. Please contact administrator. Reference hash: ' . $this->mollie->payment_hash->hash)
-            );
-        }
-
-        try {
-            $payment = $this->mollie->gateway->payments->get(
-                $this->mollie->payment_hash->data->payment_id
-            );
-
-            if ($payment->status === 'paid') {
-                return $this->processSuccessfulPayment($payment);
-            }
-
-            if ($payment->status === 'open') {
-                return $this->processOpenPayment($payment);
-            }
-
-            if ($payment->status === 'failed') {
-                return $this->processUnsuccessfulPayment(
-                    new PaymentFailed(ctrans('texts.status_failed'))
-                );
-            }
-
-            return $this->processUnsuccessfulPayment(
-                new PaymentFailed(ctrans('texts.status_voided'))
-            );
-        } catch (\Mollie\Api\Exceptions\ApiException|\Exception $exception) {
-            return $this->processUnsuccessfulPayment($exception);
-        }
-    }
-
-    /**
-     * Handle the successful payment for iDEAL.
-     *
-     * @param string $status
-     * @param ResourcesPayment $payment
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function processSuccessfulPayment(\Mollie\Api\Resources\Payment $payment, string $status = 'paid'): RedirectResponse
-    {
-        $p = \App\Models\Payment::query()
-                    ->withTrashed()
-                    ->where('company_id', $this->mollie->client->company_id)
-                    ->where('transaction_reference', $payment->id)
-                    ->first();
-
-        if ($p) {
-            $p->status_id = Payment::STATUS_COMPLETED;
-            $p->save();
-
-            return redirect()->route('client.payments.show', ['payment' => $p->hashed_id]);
-        }
-
-        $data = [
-            'gateway_type_id' => GatewayType::IDEAL,
-            'amount' => array_sum(array_column($this->mollie->payment_hash->invoices(), 'amount')) + $this->mollie->payment_hash->fee_total,
-            'payment_type' => PaymentType::IDEAL,
-            'transaction_reference' => $payment->id,
-            'idempotency_key' => substr("{$payment->id}{$this->mollie->payment_hash->hash}", 0, 64),
-        ];
-
-        $payment_record = $this->mollie->createPayment(
-            $data,
-            $status === 'paid' ? Payment::STATUS_COMPLETED : Payment::STATUS_PENDING
-        );
-
-        SystemLogger::dispatch(
-            ['response' => $payment, 'data' => $data],
-            SystemLog::CATEGORY_GATEWAY_RESPONSE,
-            SystemLog::EVENT_GATEWAY_SUCCESS,
-            SystemLog::TYPE_MOLLIE,
-            $this->mollie->client,
-            $this->mollie->client->company,
-        );
-
-        return redirect()->route('client.payments.show', ['payment' => $payment_record->hashed_id]);
-    }
-
-    /**
-     * Handle 'open' payment status for IDEAL.
-     *
-     * @param \Mollie\Api\Resources\Payment $payment
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function processOpenPayment(\Mollie\Api\Resources\Payment $payment): RedirectResponse
-    {
-        return $this->processSuccessfulPayment($payment, 'open');
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function livewirePaymentView(array $data): string
-    {
-        // Doesn't support, it's offsite payment method.
-
-        return '';
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function paymentData(array $data): array
-    {
-        $this->paymentView($data);
-
-        return $data;
-    }
 }

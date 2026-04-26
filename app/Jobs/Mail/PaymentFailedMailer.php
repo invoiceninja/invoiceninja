@@ -100,8 +100,6 @@ class PaymentFailedMailer implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
-                $invitation = $invoice->invitations->first();
-
                 $mail_obj = (new PaymentFailureObject($this->client, $this->error, $this->company, $amount, $this->payment_hash, $company_user->portalType()))->build();
 
                 $nmo = new NinjaMailerObject();
