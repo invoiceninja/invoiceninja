@@ -269,6 +269,67 @@ class Purify
     }
 
     /**
+     * Reject host strings that signal SSRF intent without DNS resolution.
+     *
+     * Caller must ensure the URL has already passed the http(s)://host.tld
+     * pattern in the src/href validation block, so this helper does not need
+     * to handle ports, IP literals, IPv6 brackets, userinfo, or non-ASCII
+     * hosts — those are filtered upstream.
+     */
+    private static function isHostSafe(string $url): bool
+    {
+        $host = parse_url($url, PHP_URL_HOST);
+
+        if (!is_string($host) || $host === '') {
+            return false;
+        }
+
+        $host = strtolower($host);
+
+        // IP-shape prefix: e.g. 127.0.0.1.attacker.com, 169.254.169.254.foo.test.
+        // Four numeric octets at the start signal intent to imply an IP target.
+        if (preg_match('/^\d{1,3}(\.\d{1,3}){3}\./', $host) === 1) {
+            return false;
+        }
+
+        static $internal_suffixes = [
+            '.local',         // mDNS / RFC 6762
+            '.localhost',     // RFC 6761
+            '.localdomain',   // common /etc/hosts entry
+            '.internal',      // GCP, common corp networks
+            '.intranet',
+            '.lan',
+            '.private',
+            '.corp',          // ICANN reserved (undelegated)
+            '.home',          // ICANN reserved (undelegated)
+        ];
+        foreach ($internal_suffixes as $suffix) {
+            if (str_ends_with($host, $suffix)) {
+                return false;
+            }
+        }
+
+        // Public DNS-rebinding services that resolve subdomains to caller-chosen IPs.
+        static $rebinding_suffixes = [
+            '.nip.io',
+            '.sslip.io',
+            '.xip.io',
+            '.traefik.me',
+            '.localtest.me',
+            '.lvh.me',
+            '.vcap.me',
+            '.1u.ms',
+        ];
+        foreach ($rebinding_suffixes as $suffix) {
+            if (str_ends_with($host, $suffix)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * clean
      *
      * @param  string $html
@@ -423,8 +484,10 @@ class Purify
                         }
 
                         if ($is_allowed) {
-                            $node->setAttribute($name, $value);
-                        } else {
+                            $is_http = str_starts_with($value, 'http://') || str_starts_with($value, 'https://');
+                            if (!$is_http || self::isHostSafe($value)) {
+                                $node->setAttribute($name, $value);
+                            }
                         }
                         continue;
                     }

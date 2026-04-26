@@ -65,12 +65,6 @@ class StoreInvoiceRequest extends Request
         $rules['due_date'] = ['bail', 'sometimes', 'nullable', 'after:partial_due_date', Rule::requiredIf(fn() => strlen($this->partial_due_date ?? '') > 1), 'date'];
 
         $rules['line_items'] = ['bail', 'array'];
-        // $rules['line_items.*.notes'] = 'nullable|string';
-        // $rules['line_items.*.product_key'] = 'nullable|string';
-        // $rules['line_items.*.custom_value1'] = 'nullable|string';
-        // $rules['line_items.*.custom_value2'] = 'nullable|string';
-        // $rules['line_items.*.custom_value3'] = 'nullable|string';
-        // $rules['line_items.*.custom_value4'] = 'nullable|string';
 
         $rules['discount'] = 'sometimes|numeric|max:99999999999999';
         $rules['tax_rate1'] = 'bail|sometimes|numeric';

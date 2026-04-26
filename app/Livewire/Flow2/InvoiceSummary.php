@@ -70,7 +70,7 @@ class InvoiceSummary extends Component
         $contact = $_context['contact'] ?? auth()->guard('contact')->user();
         $this->invoices = $_context['payable_invoices'] ?? [];
         $this->amount = isset($_context['amount']) ? Number::formatMoney($_context['amount'], $contact->client) : '';
-        $this->gateway_fee = isset($_context['gateway_fee']) ? Number::formatMoney($_context['gateway_fee'], $contact->client) : false;
+        $this->gateway_fee = isset($_context['gateway_fee']) && $_context['gateway_fee'] > 0 ? Number::formatMoney($_context['gateway_fee'], $contact->client) : false;
     }
 
     #[On(self::CONTEXT_UPDATE)]
