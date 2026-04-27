@@ -62,11 +62,11 @@ class PaywareApi
      *
      * @throws \Exception
      */
-    private function login(): CookieJar
+    private function login(bool $bypassFailureCache = false): CookieJar
     {
         $cacheKey = $this->loginFailureCacheKey();
 
-        if (Cache::has($cacheKey)) {
+        if (!$bypassFailureCache && Cache::has($cacheKey)) {
             throw new \Exception('payware login skipped: previous attempt failed, awaiting cooldown to avoid vPOS lockout');
         }
 
@@ -88,7 +88,26 @@ class PaywareApi
             throw new \Exception('payware login failed (HTTP ' . $response->status() . ')');
         }
 
+        // Successful login clears any prior failure marker so the breaker doesn't
+        // continue blocking customer traffic after an admin fixes the credentials.
+        Cache::forget($cacheKey);
+
         return $cookieJar;
+    }
+
+    /**
+     * Admin-initiated credential check. Bypasses the circuit breaker so that
+     * the admin always gets a fresh result, and clears the failure marker on
+     * success so customer traffic resumes immediately when creds are fixed.
+     */
+    public function verifyConnection(): bool
+    {
+        try {
+            $this->login(true);
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     private function loginFailureCacheKey(): string

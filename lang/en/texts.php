@@ -5031,6 +5031,7 @@ $lang = array(
     'payment_was_not_completed' => 'Payment was not completed. Please try again.',
     'no_compatible_app_installed' => 'If nothing happens, you may not have a compatible app installed.',
     'payment_type_Mobile Payment' => 'Mobile Payment',
+    'gateway_temporarily_unavailable' => 'This payment method is temporarily unavailable. Please try again later or choose another payment method.',
     'mybank' => 'MyBank',
     'paypal_paylater' => 'Pay in 4',
     'district' => 'District',

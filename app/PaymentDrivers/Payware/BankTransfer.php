@@ -14,7 +14,9 @@ namespace App\PaymentDrivers\Payware;
 
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Jobs\Util\SystemLogger;
 use App\Models\PaymentHash;
+use App\Models\SystemLog;
 use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\PaywarePaymentDriver;
@@ -115,7 +117,18 @@ class BankTransfer implements MethodInterface, LivewireMethodInterface
             $data['time_to_live'] = $timeToLive;
 
         } catch (\Exception $e) {
-            throw new PaymentFailed('payware: Failed to create payment - ' . $e->getMessage());
+            // Surface the technical detail to admins via SystemLog (visible in
+            // gateway logs view), but never to the paying customer.
+            SystemLogger::dispatch(
+                ['error' => $e->getMessage(), 'context' => 'createTransaction'],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_PAYWARE,
+                $this->driver->client,
+                $this->driver->client->company,
+            );
+
+            throw new PaymentFailed(ctrans('texts.gateway_temporarily_unavailable'));
         }
 
         return $data;

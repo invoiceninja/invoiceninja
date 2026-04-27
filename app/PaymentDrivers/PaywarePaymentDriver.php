@@ -94,6 +94,11 @@ class PaywarePaymentDriver extends BaseDriver
         return [];
     }
 
+    public function auth(): string
+    {
+        return $this->getApi()->verifyConnection() ? 'ok' : 'error';
+    }
+
     public function processWebhookRequest(PaymentNotificationWebhookRequest $request)
     {
         // Handle GET status check (polling from browser)
