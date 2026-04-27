@@ -5965,6 +5965,9 @@ $lang = array(
     'awaiting_payment' => 'Изчаква плащане',
     'payment_confirmed' => 'Платена',
     'payment_expired' => 'Плащането изтече. Моля, върнете се и опитайте отново.',
+    'payment_was_not_completed' => 'Плащането не беше извършено. Моля, опитайте отново.',
+    'no_compatible_app_installed' => 'Ако нищо не се случва, може би нямате инсталирано съвместимо приложение.',
+    'payment_type_Mobile Payment' => 'Мобилно плащане',
 );
 
 return $lang;

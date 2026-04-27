@@ -106,18 +106,12 @@ class PaywarePaymentDriver extends BaseDriver
             }
 
             $data = (array) $paymentHash->data;
-            $status = $data['payware_status'] ?? 'PENDING';
+            $status = $data['payware_status'] ?? 'ACTIVE';
 
             $response = ['status' => $status];
 
-            if ($status === 'CONFIRMED' && isset($data['payware_payment_id'])) {
-                $response['redirect'] = route('client.payments.show', [
-                    'payment' => $data['payware_payment_id'],
-                ]);
-            }
-
             if (in_array($status, ['DECLINED', 'FAILED', 'CANCELLED', 'EXPIRED'])) {
-                $response['message'] = $data['payware_status_message'] ?? 'Payment was not completed.';
+                $response['message'] = $data['payware_status_message'] ?? '';
             }
 
             return response()->json($response);
@@ -147,8 +141,21 @@ class PaywarePaymentDriver extends BaseDriver
             return response()->json(['error' => $e->getMessage()], 401);
         }
 
+        // payware emits two callback types per transaction: TRANSACTION_PROCESSED (interim)
+        // and TRANSACTION_FINALIZED (terminal). Only act on the terminal callback.
+        $callbackType = $webhookData->callbackType ?? '';
+        if ($callbackType !== 'TRANSACTION_FINALIZED') {
+            nlog('payware: ignoring callbackType=' . $callbackType);
+            return response()->json(['status' => 'ok']);
+        }
+
         if (empty($webhookData->passbackParams)) {
             return response()->json(['error' => 'Missing passbackParams'], 400);
+        }
+
+        $transactionId = $webhookData->transactionId ?? '';
+        if ($transactionId === '') {
+            return response()->json(['error' => 'Missing transactionId'], 400);
         }
 
         $paymentHash = PaymentHash::where('hash', $webhookData->passbackParams)->first();
@@ -159,7 +166,6 @@ class PaywarePaymentDriver extends BaseDriver
 
         $hashData = (array) $paymentHash->data;
         $status = $webhookData->status ?? 'UNKNOWN';
-        $transactionId = $webhookData->transactionId ?? '';
         $statusMessage = $webhookData->statusMessage ?? '';
 
         $hashData['payware_status'] = $status;
@@ -174,28 +180,39 @@ class PaywarePaymentDriver extends BaseDriver
             if ($invoice) {
                 $this->client = $invoice->client;
 
-                $paymentData = [
-                    'payment_method' => GatewayType::MOBILE_PAYMENT,
-                    'payment_type' => PaymentType::BANK_TRANSFER,
-                    'amount' => $paymentHash->data->amount_with_fee,
-                    'gateway_type_id' => GatewayType::MOBILE_PAYMENT,
-                    'transaction_reference' => $transactionId,
-                ];
+                // Idempotency: payware retries up to 15 times on non-2xx, so a duplicate
+                // CONFIRMED callback must not create a second Payment row.
+                $existingPayment = Payment::where('transaction_reference', $transactionId)
+                    ->where('company_id', $this->company_gateway->company_id)
+                    ->first();
 
-                $payment = $this->createPayment($paymentData, Payment::STATUS_COMPLETED);
+                if ($existingPayment) {
+                    $hashData['payware_payment_id'] = $existingPayment->hashed_id;
+                    nlog('payware: duplicate CONFIRMED webhook for ' . $transactionId . ' - already recorded');
+                } else {
+                    $paymentData = [
+                        'payment_method' => GatewayType::MOBILE_PAYMENT,
+                        'payment_type' => PaymentType::MOBILE_PAYMENT,
+                        'amount' => $paymentHash->data->amount_with_fee,
+                        'gateway_type_id' => GatewayType::MOBILE_PAYMENT,
+                        'transaction_reference' => $transactionId,
+                    ];
 
-                $hashData['payware_payment_id'] = $payment->hashed_id;
+                    $payment = $this->createPayment($paymentData, Payment::STATUS_COMPLETED);
 
-                SystemLogger::dispatch(
-                    ['response' => (array) $webhookData, 'data' => $paymentData],
-                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                    SystemLog::EVENT_GATEWAY_SUCCESS,
-                    SystemLog::TYPE_PAYWARE,
-                    $this->client,
-                    $this->client->company,
-                );
+                    $hashData['payware_payment_id'] = $payment->hashed_id;
 
-                nlog('payware: Payment confirmed - ' . $transactionId);
+                    SystemLogger::dispatch(
+                        ['response' => (array) $webhookData, 'data' => $paymentData],
+                        SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                        SystemLog::EVENT_GATEWAY_SUCCESS,
+                        SystemLog::TYPE_PAYWARE,
+                        $this->client,
+                        $this->client->company,
+                    );
+
+                    nlog('payware: Payment confirmed - ' . $transactionId);
+                }
             }
         } elseif (in_array($status, ['DECLINED', 'FAILED', 'CANCELLED', 'EXPIRED'])) {
             $client = $paymentHash->fee_invoice?->client;

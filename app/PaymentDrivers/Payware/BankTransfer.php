@@ -49,33 +49,12 @@ class BankTransfer implements MethodInterface, LivewireMethodInterface
         $paymentHash = PaymentHash::where('hash', $request->payment_hash)->first();
 
         if (!$paymentHash) {
-            if ($request->has('payware_check_status')) {
-                return response()->json(['status' => 'FAILED', 'message' => 'Payment hash not found']);
-            }
             throw new PaymentFailed('payware: Payment hash not found.');
         }
 
         $data = (array) $paymentHash->data;
-        $status = $data['payware_status'] ?? 'PENDING';
+        $status = $data['payware_status'] ?? 'ACTIVE';
 
-        // Handle AJAX status polling
-        if ($request->has('payware_check_status')) {
-            $response = ['status' => $status];
-
-            if ($status === 'CONFIRMED' && isset($data['payware_payment_id'])) {
-                $response['redirect'] = route('client.payments.show', [
-                    'payment' => $data['payware_payment_id'],
-                ]);
-            }
-
-            if (in_array($status, ['DECLINED', 'FAILED', 'CANCELLED', 'EXPIRED'])) {
-                $response['message'] = $data['payware_status_message'] ?? 'Payment was not completed.';
-            }
-
-            return response()->json($response);
-        }
-
-        // Handle final redirect after webhook confirmation
         if ($status === 'CONFIRMED' && isset($data['payware_payment_id'])) {
             return redirect()->route('client.payments.show', [
                 'payment' => $data['payware_payment_id'],
@@ -112,6 +91,7 @@ class BankTransfer implements MethodInterface, LivewireMethodInterface
             $reason = $companyName . ', order #' . ($invoice->invoice_number ?? '');
 
             $timeToLive = (int) ($this->driver->company_gateway->getConfigField('timeToLive') ?: 600);
+            $currencyPrecision = (int) ($this->driver->client->currency()->precision ?? 2);
 
             $result = $api->createTransaction(
                 (float) $data['amount'],
@@ -120,12 +100,13 @@ class BankTransfer implements MethodInterface, LivewireMethodInterface
                 $callbackUrl,
                 $this->driver->payment_hash->hash,
                 $timeToLive,
+                $currencyPrecision,
             );
 
             // Store transaction data in payment_hash for webhook and polling
             $hashData = (array) $this->driver->payment_hash->data;
             $hashData['payware_transaction_id'] = $result['transactionId'];
-            $hashData['payware_status'] = 'PENDING';
+            $hashData['payware_status'] = 'ACTIVE';
             $hashData['payware_created_at'] = time();
             $this->driver->payment_hash->data = $hashData;
             $this->driver->payment_hash->save();

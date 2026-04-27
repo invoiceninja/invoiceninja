@@ -13,6 +13,7 @@
 namespace App\PaymentDrivers\Payware;
 
 use GuzzleHttp\Cookie\CookieJar;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
 class PaywareApi
@@ -25,6 +26,10 @@ class PaywareApi
     private const SANDBOX_PUBLIC_KEY = "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAr969qg5NpsDNfvICxnXlDtIFgCPql3Dh58dAYhgI0iMYEQpT4EsmhN6+m9xuTjj0zCQPIX38MSIWBQy/sYASBrgGa0q+W9roO0FSEp0pKcXe8K6GhugoFnuqat41jQCfBoAVa/AYl9ZVdTAdAnOX/oIxq359G5p013ntoFoK5QYEgIAKIFnaiz3Z18bvZHmmK5xhtCMQcza+GOqn28iUdlCQOVhVshd6b1NCxuvXhvz42dIL5FDWldnQjNO0uVZkB0e6tZZYPbY4Mp/xukyaOiaAFdu8N6+IDWj8493FeLd2Oepn1mNq5nfNnQSuMNKGOVRmMAgpkfwDvjKJYCuasQIDAQAB\n-----END PUBLIC KEY-----";
 
     private const DEFAULT_TIME_TO_LIVE = 600;
+
+    // Circuit breaker: cooldown after a failed login. Caps cascading attempts
+    // against payware's 5-strike vPOS lockout (15 min) when credentials are misconfigured.
+    private const LOGIN_FAILURE_COOLDOWN_SECONDS = 60;
 
     private string $baseUrl;
     private string $partnerId;
@@ -59,6 +64,12 @@ class PaywareApi
      */
     private function login(): CookieJar
     {
+        $cacheKey = $this->loginFailureCacheKey();
+
+        if (Cache::has($cacheKey)) {
+            throw new \Exception('payware login skipped: previous attempt failed, awaiting cooldown to avoid vPOS lockout');
+        }
+
         $cookieJar = new CookieJar();
 
         $response = Http::withOptions([
@@ -73,10 +84,16 @@ class PaywareApi
             ]);
 
         if ($response->failed()) {
+            Cache::put($cacheKey, time(), self::LOGIN_FAILURE_COOLDOWN_SECONDS);
             throw new \Exception('payware login failed (HTTP ' . $response->status() . ')');
         }
 
         return $cookieJar;
+    }
+
+    private function loginFailureCacheKey(): string
+    {
+        return 'payware_login_failed:' . hash('sha256', $this->baseUrl . '|' . $this->partnerId . '|' . $this->vposId);
     }
 
     /**
@@ -98,9 +115,11 @@ class PaywareApi
         string $reason,
         string $callbackUrl,
         string $passbackParams,
-        int $timeToLive = self::DEFAULT_TIME_TO_LIVE
+        int $timeToLive = self::DEFAULT_TIME_TO_LIVE,
+        int $currencyPrecision = 2
     ): array {
         $timeToLive = max(60, min(600, $timeToLive));
+        $currencyPrecision = max(0, min(4, $currencyPrecision));
 
         $cookieJar = $this->login();
 
@@ -108,7 +127,7 @@ class PaywareApi
             'passbackParams' => $passbackParams,
             'callbackUrl' => $callbackUrl,
             'trData' => [
-                'amount' => number_format($amount, 2, '.', ''),
+                'amount' => number_format($amount, $currencyPrecision, '.', ''),
                 'currency' => $currency,
                 'reasonL1' => mb_substr($reason, 0, 100),
             ],
@@ -171,19 +190,24 @@ class PaywareApi
             throw new \Exception('JWT audience mismatch');
         }
 
-        // Verify iat freshness (reject tokens older than 5 minutes to prevent replay attacks)
+        // Verify iat freshness: allow up to 60s clock skew forward, 300s backward to prevent replay
         $iat = $decoded['payload']->iat ?? null;
-        if ($iat !== null && abs(time() - (int) $iat) > 300) {
-            throw new \Exception('JWT token too old (iat beyond 5-minute window)');
+        if ($iat === null) {
+            throw new \Exception('JWT missing iat claim');
+        }
+        $now = time();
+        if ((int) $iat > $now + 60 || (int) $iat < $now - 300) {
+            throw new \Exception('JWT iat outside acceptable window');
         }
 
-        // Verify content hash
-        $headerContentMd5 = $decoded['header']->contentMd5 ?? null;
-        if ($headerContentMd5) {
-            $calculatedMd5 = base64_encode(md5($rawBody, true));
-            if ($calculatedMd5 !== $headerContentMd5) {
-                throw new \Exception('Content MD5 mismatch');
-            }
+        // Verify body integrity via SHA-256 hash carried in JWT header (server-side hardening)
+        $headerContentSha256 = $decoded['header']->contentSha256 ?? null;
+        if (!$headerContentSha256) {
+            throw new \Exception('JWT missing contentSha256 header');
+        }
+        $calculatedSha256 = base64_encode(hash('sha256', $rawBody, true));
+        if (!hash_equals($headerContentSha256, $calculatedSha256)) {
+            throw new \Exception('Content SHA-256 mismatch');
         }
 
         return json_decode($rawBody);
