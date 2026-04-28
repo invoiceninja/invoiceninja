@@ -22,7 +22,7 @@ use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\PaywarePaymentDriver;
 use Illuminate\Http\Request;
 
-class BankTransfer implements MethodInterface, LivewireMethodInterface
+class MobilePayment implements MethodInterface, LivewireMethodInterface
 {
     public function __construct(protected PaywarePaymentDriver $driver)
     {

@@ -18,7 +18,7 @@ use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\Jobs\Util\SystemLogger;
-use App\PaymentDrivers\Payware\BankTransfer;
+use App\PaymentDrivers\Payware\MobilePayment;
 use App\PaymentDrivers\Payware\PaywareApi;
 use App\Http\Requests\Payments\PaymentNotificationWebhookRequest;
 
@@ -33,7 +33,7 @@ class PaywarePaymentDriver extends BaseDriver
     public $payment_method;
 
     public static $methods = [
-        GatewayType::MOBILE_PAYMENT => BankTransfer::class,
+        GatewayType::MOBILE_PAYMENT => MobilePayment::class,
     ];
 
     public const SYSTEM_LOG_TYPE = SystemLog::TYPE_PAYWARE;
