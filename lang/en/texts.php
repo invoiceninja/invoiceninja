@@ -5963,7 +5963,8 @@ $lang = array(
     'web_session_timeout_help' => 'Time a browser session will remain active prior to being logged out.',
     'password_timeout_help' => 'Time before an admin password is required to be re-entered.',
     'invoice_status_paid' => 'Invoice has just been paid! The record has now been updated.',
-
+    'attach_audit_log_to_completed_email' => 'Attach Audit Log to Completed Email',
+    'attach_audit_log_to_completed_email_help' => 'If enabled, the audit log will be attached to the signed documentcompleted email.',
 );
 
 return $lang;

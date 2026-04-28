@@ -37,7 +37,7 @@ class UpdateCompanyGatewayRequest extends Request
     public function rules()
     {
         $rules = [
-            'fees_and_limits' => new ValidCompanyGatewayFeesAndLimitsRule(),
+            'fees_and_limits' => ['bail', 'sometimes', 'nullable', 'array', new ValidCompanyGatewayFeesAndLimitsRule()],
         ];
 
         return $rules;
@@ -46,7 +46,7 @@ class UpdateCompanyGatewayRequest extends Request
     public function prepareForValidation()
     {
         $input = $this->all();
-
+nlog($input['fees_and_limits']);
         /*Force gateway properties */
         if (isset($input['config']) && is_object(json_decode($input['config'])) && array_key_exists('gateway_key', $input)) {
             $gateway = Gateway::query()->where('key', $input['gateway_key'])->first();
@@ -61,7 +61,7 @@ class UpdateCompanyGatewayRequest extends Request
 
         $input['config'] = encrypt($input['config']);
 
-        if (isset($input['fees_and_limits'])) {
+        if (isset($input['fees_and_limits']) && is_array($input['fees_and_limits'])) {
             $input['fees_and_limits'] = $this->cleanFeesAndLimits($input['fees_and_limits']);
         }
 
