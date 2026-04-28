@@ -5964,7 +5964,9 @@ $lang = array(
     'password_timeout_help' => 'Time before an admin password is required to be re-entered.',
     'invoice_status_paid' => 'Invoice has just been paid! The record has now been updated.',
     'attach_audit_log_to_completed_email' => 'Attach Audit Log to Completed Email',
-    'attach_audit_log_to_completed_email_help' => 'If enabled, the audit log will be attached to the signed documentcompleted email.',
+    'attach_audit_log_to_completed_email_help' => 'If enabled, the audit log will be attached to the signed document completed email.',
+    'e_expense_forward_email' => 'Expense Forwarding Email Service',
+    'e_expense_forward_email_help' => 'Forwards sent/received e-expenses to a third party processing service like Yuki or WinAuditor',
 );
 
 return $lang;

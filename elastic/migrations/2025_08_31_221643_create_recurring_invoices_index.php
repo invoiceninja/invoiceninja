@@ -16,10 +16,12 @@ final class CreateRecurringInvoicesIndex implements MigrationInterface
     {
         // Check if index already exists (idempotency)
         $client = ClientBuilder::fromConfig(config('elastic.client.connections.default'));
-        if ($client->indices()->exists(['index' => 'recurring_invoices_v2'])) {
-            return; // Index already exists, skip creation
+              
+        $indexExistsResponse = $client->indices()->exists(['index' => 'recurring_invoices']);
+        if ($indexExistsResponse->getStatusCode() === 200) {
+            return;
         }
-        
+
         $mapping = [
             'properties' => [
                 // Core recurring invoice fields
@@ -83,7 +85,7 @@ final class CreateRecurringInvoicesIndex implements MigrationInterface
             ]
         ];
 
-        Index::createRaw('recurring_invoices_v2', $mapping);
+        Index::createRaw('recurring_invoices', $mapping);
     }
 
     /**
@@ -91,6 +93,6 @@ final class CreateRecurringInvoicesIndex implements MigrationInterface
      */
     public function down(): void
     {
-        Index::dropIfExists('recurring_invoices_v2');
+        Index::dropIfExists('recurring_invoices');
     }
 }

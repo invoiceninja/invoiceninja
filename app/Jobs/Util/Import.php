@@ -921,7 +921,7 @@ class Import implements ShouldQueue
                     $modified_contacts[$key]['company_id'] = $this->company->id;
                     $modified_contacts[$key]['user_id'] = $this->processUserId($resource);
                     $modified_contacts[$key]['vendor_id'] = $vendor->id;
-                    $modified_contacts[$key]['password'] = 'mysuperpassword'; // @todo, and clean up the code..
+                    $modified_contacts[$key]['password'] = 'mysuperpassword'; 
                     unset($modified_contacts[$key]['id']);
                 }
 

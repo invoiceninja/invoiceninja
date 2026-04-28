@@ -95,7 +95,7 @@ class UserRepository extends BaseRepository
             throw new \Illuminate\Auth\Access\AuthorizationException("Illegal operation encountered for {$user->hashed_id}", 401);
         }
 
-        $user->account_id = $account->id;//@todo we should never change the account_id if it is set at this point.
+        $user->account_id = $account->id; //We should never change the account_id if it is set at this point.
 
         if (strlen($user->password ?? '') >= 1) {
             $user->has_password = true;

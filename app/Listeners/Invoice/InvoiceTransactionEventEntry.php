@@ -242,7 +242,6 @@ class InvoiceTransactionEventEntry
             $details[] = $tax_detail;
         }
 
-        //@todo what happens if this is triggered in the "NEXT FINANCIAL PERIOD?
         return new TransactionEventMetadata([
             'tax_report' => [
                 'tax_details' => $details,
@@ -287,7 +286,6 @@ class InvoiceTransactionEventEntry
             $details[] = $tax_detail;
         }
 
-        //@todo what happens if this is triggered in the "NEXT FINANCIAL PERIOD?
         return new TransactionEventMetadata([
             'tax_report' => [
                 'tax_details' => $details,

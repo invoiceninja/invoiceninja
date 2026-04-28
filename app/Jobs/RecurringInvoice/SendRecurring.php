@@ -64,7 +64,7 @@ class SendRecurring implements ShouldQueue
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice, $this->recurring_invoice->client);
 
         // $date = now()->addSeconds($this->recurring_invoice->client->timezone_offset())->format('Y-m-d'); Rev 1
-        // $date = date('Y-m-d'); //@todo this will always pull UTC date.  Rev 2.
+        // $date = date('Y-m-d'); 
         // 2025-01-23 - We need to know the current date in the users timezone, as we send recurring invoices around the
         // clock the actual date is not always the same as the UTC date.
         // be _very_ careful with this, as it will change the due date of the invoice.
