@@ -21,17 +21,34 @@ use Illuminate\Mail\Mailables\Address;
  * Forwards Peppol XML documents to an external accounting system
  * (e.g. Yuki, WinAuditor, Exact Online) via email.
  *
- * Reads the forwarding address from company->settings->e_invoice_forward_email.
+ * Reads the forwarding address from company settings based on the selected flow.
  * Callers should check isConfigured() before invoking forward() to avoid
  * unnecessary work when no forwarding address is set.
  */
 class EInvoiceForwarder
 {
+    public const TARGET_INVOICE = 'invoice';
+
+    public const TARGET_EXPENSE = 'expense';
+
     private string $forward_email;
 
-    public function __construct(private Company $company)
+    public function __construct(private Company $company, private string $target = self::TARGET_INVOICE)
     {
-        $this->forward_email = $this->company->settings->e_invoice_forward_email ?? '';
+        $this->forward_email = match ($this->target) {
+            self::TARGET_EXPENSE => $this->company->settings->e_expense_forward_email ?? '',
+            default => $this->company->settings->e_invoice_forward_email ?? '',
+        };
+    }
+
+    public static function forInvoices(Company $company): self
+    {
+        return new self($company, self::TARGET_INVOICE);
+    }
+
+    public static function forExpenses(Company $company): self
+    {
+        return new self($company, self::TARGET_EXPENSE);
     }
 
     /**
@@ -42,6 +59,11 @@ class EInvoiceForwarder
     public function isConfigured(): bool
     {
         return filter_var($this->forward_email, FILTER_VALIDATE_EMAIL) !== false;
+    }
+
+    public function getForwardEmail(): string
+    {
+        return $this->forward_email;
     }
 
     /**

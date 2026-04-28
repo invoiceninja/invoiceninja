@@ -172,7 +172,7 @@ class PullPeppolDocs extends Command
     {
 
         $storecove = new Storecove();
-        $forwarder = new EInvoiceForwarder($company);
+        $forwarder = EInvoiceForwarder::forExpenses($company);
 
         $doc_count = count($received_documents);
 
@@ -203,7 +203,7 @@ class PullPeppolDocs extends Command
 
                     if ($forwarder->isConfigured()) {
                         $forwarder->forward(base64_decode($document['original_base64_xml']), "{$file_name}.xml", 'received');
-                        $this->info("Forwarded received document {$file_name}.xml to {$company->settings->e_invoice_forward_email}");
+                        $this->info("Forwarded received document {$file_name}.xml to {$forwarder->getForwardEmail()}");
                     }
                 }
 

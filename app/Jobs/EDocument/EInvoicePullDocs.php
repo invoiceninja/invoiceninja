@@ -135,7 +135,7 @@ class EInvoicePullDocs implements ShouldQueue
      *
      * Creates expenses and vendors from each Storecove invoice, saves
      * HTML/XML/attachments to the expense, and forwards the XML to
-     * the company's forwarding email if configured. Flushes the
+     * the company's expense forwarding email if configured. Flushes the
      * documents from S3 after processing.
      *
      * @param  array<int, array>  $received_documents
@@ -147,7 +147,7 @@ class EInvoicePullDocs implements ShouldQueue
     {
 
         $storecove = new Storecove();
-        $forwarder = new EInvoiceForwarder($company);
+        $forwarder = EInvoiceForwarder::forExpenses($company);
 
         foreach ($received_documents as $document) {
 
