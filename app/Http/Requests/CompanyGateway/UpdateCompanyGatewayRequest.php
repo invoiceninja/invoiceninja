@@ -46,7 +46,6 @@ class UpdateCompanyGatewayRequest extends Request
     public function prepareForValidation()
     {
         $input = $this->all();
-nlog($input['fees_and_limits']);
         /*Force gateway properties */
         if (isset($input['config']) && is_object(json_decode($input['config'])) && array_key_exists('gateway_key', $input)) {
             $gateway = Gateway::query()->where('key', $input['gateway_key'])->first();
