@@ -127,6 +127,11 @@ class EInvoiceForwarderTest extends TestCase
 
     private function makeReceiveDocumentJob(): ReceiveDocument
     {
+
+        if(!class_exists(ReceiveDocument::class)){
+            $this->markTestSkipped('ReceiveDocument class does not exist');
+        }
+        
         $expense = new Expense();
         $expense->private_notes = 'SUP-123';
 
