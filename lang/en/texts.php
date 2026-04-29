@@ -5967,6 +5967,9 @@ $lang = array(
     'attach_audit_log_to_completed_email_help' => 'If enabled, the audit log will be attached to the signed document completed email.',
     'e_expense_forward_email' => 'Expense Forwarding Email Service',
     'e_expense_forward_email_help' => 'Forwards sent/received e-expenses to a third party processing service like Yuki or WinAuditor',
+    'regenerate_token' => 'Regenerate Token',
+    'token_regenerated' => 'Token regenerated successfully',
+    'token_regeneration_failed' => 'Token regeneration failed',
 );
 
 return $lang;
