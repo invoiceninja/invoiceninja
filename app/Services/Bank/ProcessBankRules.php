@@ -412,19 +412,53 @@ class ProcessBankRules extends AbstractService
         return $invoiceNumber !== null;
     }
 
+    private function canonicalizeForComparison(string $value): string
+    {
+        if ($value === '') {
+            return '';
+        }
+        if (! mb_check_encoding($value, 'UTF-8')) {
+            $value = mb_convert_encoding($value, 'UTF-8', 'UTF-8');
+        }
+        if (class_exists(\Normalizer::class)) {
+            $nfc = \Normalizer::normalize($value, \Normalizer::FORM_C);
+            if ($nfc !== false) {
+                $value = $nfc;
+            }
+        }
+        $value = preg_replace('/\p{Pd}/u', '-', $value) ?? $value;
+
+        // NBSP, ZWSP, ZWNJ, ZWJ, UTF-8 BOM → ASCII space
+        $value = str_replace(
+            ["\xC2\xA0", "\xE2\x80\x8B", "\xE2\x80\x8C", "\xE2\x80\x8D", "\xEF\xBB\xBF"],
+            ' ',
+            $value
+        );
+        $value = str_replace(["\r\n", "\r", "\n", "\t", "\v", "\f"], ' ', $value);
+        // Any run of Unicode “separator” characters → single ASCII space
+        $value = preg_replace('/\p{Z}+/u', ' ', $value);
+        if ($value === null) {
+            $value = '';
+        }
+        $value = trim($value);
+        return mb_strtolower($value, 'UTF-8');
+    }
+
     private function matchInvoiceNumberOperator(string $description, string $invoiceNumber, string $operator): bool
     {
-        $description = str_replace("\n", ' ', $description);
-        $normalizedDescription = strtolower(trim((string) preg_replace('/\s+/', ' ', $description)));
-        $invoiceNumber = trim($invoiceNumber);
+        $normalizedDescription = $this->canonicalizeForComparison($description);
+        $invoiceNumber = $this->canonicalizeForComparison($invoiceNumber);
         $quotedInvoiceNumber = preg_quote($invoiceNumber, '/');
 
         return match ($operator) {
-            'is' => $normalizedDescription === strtolower($invoiceNumber),
-            'starts_with' => preg_match('/^\s*' . $quotedInvoiceNumber . '(?![a-z0-9])/i', $description) === 1,
+            'is' => $normalizedDescription === $invoiceNumber,
+            'starts_with' => preg_match(
+                '/^' . $quotedInvoiceNumber . '(?![a-z0-9])/iu',
+                $normalizedDescription
+            ) === 1,
             'contains' => preg_match(
-                '/(?<![a-z0-9])' . $quotedInvoiceNumber . '(?![a-z0-9])/i',
-                $description
+                '/(?<![a-z0-9])' . $quotedInvoiceNumber . '(?![a-z0-9])/iu',
+                $normalizedDescription
             ) === 1,
             default => false,
         };

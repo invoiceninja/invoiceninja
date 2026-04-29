@@ -13,13 +13,12 @@
 namespace Tests\Unit;
 
 use App\Services\Pdf\Purify;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class PurifyHostSafetyTest extends TestCase
 {
-    /**
-     * @dataProvider safeHostProvider
-     */
+    #[DataProvider('safeHostProvider')]
     public function test_safe_hosts_pass_through(string $url): void
     {
         $result = Purify::clean('<img src="' . $url . '">', true);
@@ -28,9 +27,7 @@ class PurifyHostSafetyTest extends TestCase
         $this->assertStringContainsString($url, $result, "Expected URL to be preserved for {$url}");
     }
 
-    /**
-     * @dataProvider unsafeHostProvider
-     */
+    #[DataProvider('unsafeHostProvider')]
     public function test_unsafe_hosts_have_src_stripped(string $url): void
     {
         $result = Purify::clean('<img src="' . $url . '">', true);
@@ -39,9 +36,7 @@ class PurifyHostSafetyTest extends TestCase
         $this->assertStringNotContainsString($url, $result, "Expected URL not to appear in output for {$url}");
     }
 
-    /**
-     * @dataProvider unsafeHostProvider
-     */
+    #[DataProvider('unsafeHostProvider')]
     public function test_unsafe_hosts_in_anchor_have_href_stripped(string $url): void
     {
         $result = Purify::clean('<a href="' . $url . '">link</a>', true);

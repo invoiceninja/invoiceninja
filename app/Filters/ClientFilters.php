@@ -173,7 +173,7 @@ class ClientFilters extends QueryFilters
             $sort_col[0] = 'name';
         }
 
-        if (is_array($sort_col) && $sort_col[0] == 'contacts') {
+        if (is_array($sort_col) && in_array($sort_col[0], ['contacts', 'contact_email'])) {
         } elseif (!is_array($sort_col) || count($sort_col) != 2 || !in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))) {
             return $this->builder;
         }
@@ -203,6 +203,12 @@ class ClientFilters extends QueryFilters
             );
         }
 
+
+        if($sort_col[0] == 'contact_email') {
+            return $this->builder->orderBy(\App\Models\ClientContact::select('email')
+            ->whereColumn('client_contacts.client_id', 'clients.client_id')
+            ->limit(1), $dir);
+        }
 
         if ($sort_col[0] == 'contacts') {
             return $this->builder->orderByRaw(
