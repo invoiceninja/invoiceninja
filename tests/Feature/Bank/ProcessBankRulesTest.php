@@ -188,7 +188,7 @@ class ProcessBankRulesTest extends TestCase
         ]);
 
         $this->createRule([
-            ['search_key' => 'description', 'operator' => 'is', 'value' => '$invoice.number'],
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$invoice.number'],
         ]);
 
         $invoice = $this->createInvoice([
