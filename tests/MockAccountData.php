@@ -222,7 +222,7 @@ trait MockAccountData
     {
         config(['database.default' => config('ninja.db.default')]);
 
-        if (Country::count() == 0) {
+        if (! Schema::hasTable('countries') || Country::count() == 0) {
             Artisan::call('migrate', ['--force' => true]);
             Artisan::call('db:seed', ['--force' => true]);
         }

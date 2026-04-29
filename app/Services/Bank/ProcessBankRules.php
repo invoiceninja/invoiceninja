@@ -394,17 +394,15 @@ class ProcessBankRules extends AbstractService
         }
 
         $description = $this->bank_transaction->description ?? '';
+        $operator = $rule['operator'] ?? 'contains';
 
         $invoiceNumber = $this->invoices
-            ->filter(function ($invoice) use ($description) {
+            ->filter(function ($invoice) use ($description, $operator) {
                 if (empty($invoice->number) || mb_strlen($invoice->number) < 2) {
                     return false;
                 }
 
-                $pattern = '/\b' . preg_quote($invoice->number, '/') . '\b/i';
-
-                return preg_match($pattern, $description)
-                    || preg_match($pattern, str_replace("\n", ' ', $description));
+                return $this->matchInvoiceNumberOperator($description, $invoice->number, $operator);
             })
             ->sortByDesc(function ($invoice) {
                 return mb_strlen($invoice->number);
@@ -412,6 +410,24 @@ class ProcessBankRules extends AbstractService
             ->first();
 
         return $invoiceNumber !== null;
+    }
+
+    private function matchInvoiceNumberOperator(string $description, string $invoiceNumber, string $operator): bool
+    {
+        $description = str_replace("\n", ' ', $description);
+        $normalizedDescription = strtolower(trim((string) preg_replace('/\s+/', ' ', $description)));
+        $invoiceNumber = trim($invoiceNumber);
+        $quotedInvoiceNumber = preg_quote($invoiceNumber, '/');
+
+        return match ($operator) {
+            'is' => $normalizedDescription === strtolower($invoiceNumber),
+            'starts_with' => preg_match('/^\s*' . $quotedInvoiceNumber . '(?![a-z0-9])/i', $description) === 1,
+            'contains' => preg_match(
+                '/(?<![a-z0-9])' . $quotedInvoiceNumber . '(?![a-z0-9])/i',
+                $description
+            ) === 1,
+            default => false,
+        };
     }
 
     private function searchInvoicePONumber(&$invoicePONumbers, array $rule): bool
