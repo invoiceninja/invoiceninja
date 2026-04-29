@@ -94,9 +94,10 @@ interface CountryHandler
      * Return null to use the standard identifier registration.
      *
      * The callback receives (Storecove $storecove, int $legal_entity_id, array $data)
-     * and should return the API response array or Response on failure.
+     * and should return the API response array, Response on failure, or null
+     * to use the standard identifier registration.
      *
      * Example: SG uses CorpPass OAuth + C5 IRAS email activation.
      */
-    public function getRegistrationFlow(object $storecove, int $legal_entity_id, array $data): ?array;
+    public function getRegistrationFlow(object $storecove, int $legal_entity_id, array $data): array|\Illuminate\Http\Client\Response|null;
 }

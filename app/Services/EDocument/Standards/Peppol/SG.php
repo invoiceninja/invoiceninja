@@ -86,13 +86,13 @@ class SG extends BaseCountry
      * SG uses CorpPass OAuth + optional C5 IRAS email activation
      * instead of standard identifier registration.
      */
-    public function getRegistrationFlow(object $storecove, int $legal_entity_id, array $data): ?array
+    public function getRegistrationFlow(object $storecove, int $legal_entity_id, array $data): array|\Illuminate\Http\Client\Response|null
     {
         $response = $storecove->startCorpPassFlow($legal_entity_id, $data['id_number']);
 
         if (!is_array($response)) {
             $storecove->deleteIdentifier($legal_entity_id);
-            return null; // Signal failure — caller should return $response
+            return $response;
         }
 
         // Fire C5 IRAS email activation automatically if signer details provided

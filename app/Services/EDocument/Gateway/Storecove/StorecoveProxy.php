@@ -316,10 +316,6 @@ class StorecoveProxy
             ],
         ]);
 
-        nlog([
-            'Storecove API Error (local)' => $error,
-        ]);
-
         return $error;
     }
 
