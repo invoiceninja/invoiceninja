@@ -5952,6 +5952,12 @@ Développe automatiquement la section des notes dans le tableau de produits pour
     'sign_the_document' => 'Signer le document',
     'client_not_found_on_peppol_network' => 'Le client n\'a pas pu être identifié sur le réseau PEPPOL.',
     'too_many_requests' => 'Trop de requêtes',
-);
+    'cloned_client' => 'Le client a été cloné',
+    'update_tax_details' => 'Mettre à jour les informations de taxes',
+    'cc_only' => 'Seulement CC',
+    'e_invoice_forward_email' => 'Service de transfert de courriels PEPPOL',
+    'e_invoice_forward_email_help' => 'Transfère les factures électroniques envoyées/reçues vers un service de traitement tiers tel que Yuki ou WinAuditor.',
+    'skip_automatic_email_with_peppol' => 'Désactiver le courriel si envoi via PEPPOL',
+    'skip_automatic_email_with_peppol_help' => 'Si cette option est activée, les factures envoyées via le réseau PEPPOL ne seront pas transmises par e-mail au client.',);
 
 return $lang;

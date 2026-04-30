@@ -34,7 +34,7 @@ class StoreUploadRequest extends FormRequest
     public function rules()
     {
         return [
-            'file' => ['file', 'mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000'],
+            'file' => ['file', 'mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx', 'max:20000'],
         ];
     }
 

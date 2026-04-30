@@ -3,7 +3,7 @@
 namespace App\PaymentDrivers\GoCardless;
 
 use App\Exceptions\PaymentFailed;
-use App\Jobs\Mail\PaymentFailureMailer;
+
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -205,7 +205,7 @@ class InstantBankPay implements MethodInterface, LivewireMethodInterface
      */
     public function processUnsuccessfulPayment(\GoCardlessPro\Resources\Payment $payment): void
     {
-        PaymentFailureMailer::dispatch($this->go_cardless->client, $payment->status, $this->go_cardless->client->company, $this->go_cardless->payment_hash->data->amount_with_fee);
+        $this->go_cardless->sendFailureMail("Instant Bank Pay payment failed with status: {$payment->status}");
 
         $message = [
             'server_response' => $payment,

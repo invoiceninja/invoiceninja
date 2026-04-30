@@ -99,8 +99,8 @@ class ProcessBankRulesTest extends TestCase
 
     public function testInvoiceNumberOperatorIs()
     {
-        // Use lowercase in description so the case-sensitive simple match (str_contains) fails
-        // but the case-insensitive rule engine (matchStringOperator) succeeds
+        // Word-boundary match is case-insensitive and works when the
+        // description is exactly the invoice number (different case)
         $number = 'INV-' . Str::random(20);
 
         $bt = $this->createBankTransaction([
@@ -177,11 +177,11 @@ class ProcessBankRulesTest extends TestCase
         $this->assertEquals($invoice->hashed_id, $bt->invoice_ids);
     }
 
-    public function testInvoiceNumberOperatorIsDoesNotFalseMatch()
+    public function testInvoiceNumberMatchesWithSurroundingText()
     {
         $number = 'INV-' . Str::random(20);
 
-        // Description has different case AND extra text — simple match fails, rule 'is' also fails
+        // Word-boundary match finds the invoice number even with surrounding text
         $bt = $this->createBankTransaction([
             'description' => 'payment for ' . strtolower($number),
             'amount' => 100,
@@ -191,7 +191,7 @@ class ProcessBankRulesTest extends TestCase
             ['search_key' => 'description', 'operator' => 'is', 'value' => '$invoice.number'],
         ]);
 
-        $this->createInvoice([
+        $invoice = $this->createInvoice([
             'number' => $number,
             'amount' => 100,
             'balance' => 100,
@@ -200,8 +200,380 @@ class ProcessBankRulesTest extends TestCase
         (new ProcessBankRules($bt))->run();
         $bt = $bt->fresh();
 
-        // "is" requires exact match — "paymentforinv-xxx" != "inv-xxx"
+        $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
+        $this->assertEquals($invoice->hashed_id, $bt->invoice_ids);
+    }
+
+    // ── $invoice.number edge cases ─────────────────────────────────
+
+    public function testInvoiceNumberSubstringDoesNotFalseMatch()
+    {
+        // INV-001 must NOT match when the description contains INV-0010
+        $this->createRule([
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$invoice.number'],
+        ]);
+
+        $this->createInvoice([
+            'number' => 'INV-001',
+            'amount' => 50,
+            'balance' => 50,
+        ]);
+
+        $longInvoice = $this->createInvoice([
+            'number' => 'INV-0010',
+            'amount' => 100,
+            'balance' => 100,
+        ]);
+
+        $bt = $this->createBankTransaction([
+            'description' => 'Payment for INV-0010',
+            'amount' => 100,
+        ]);
+
+        (new ProcessBankRules($bt))->run();
+        $bt = $bt->fresh();
+
+        $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
+        $this->assertEquals($longInvoice->hashed_id, $bt->invoice_ids);
+    }
+
+    public function testInvoiceNumberPrefixSubstringDoesNotFalseMatch()
+    {
+        // INV-10 must NOT match when description contains INV-100
+        $this->createRule([
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$invoice.number'],
+        ]);
+
+        $this->createInvoice([
+            'number' => 'INV-10',
+            'amount' => 50,
+            'balance' => 50,
+        ]);
+
+        $correctInvoice = $this->createInvoice([
+            'number' => 'INV-100',
+            'amount' => 100,
+            'balance' => 100,
+        ]);
+
+        $bt = $this->createBankTransaction([
+            'description' => 'Ref INV-100 thank you',
+            'amount' => 100,
+        ]);
+
+        (new ProcessBankRules($bt))->run();
+        $bt = $bt->fresh();
+
+        $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
+        $this->assertEquals($correctInvoice->hashed_id, $bt->invoice_ids);
+    }
+
+    public function testInvoiceNumberNumericOnlySubstring()
+    {
+        // Pure numeric invoice "001" must NOT match description "10010"
+        $this->createRule([
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$invoice.number'],
+        ]);
+
+        $this->createInvoice([
+            'number' => '001',
+            'amount' => 50,
+            'balance' => 50,
+        ]);
+
+        $bt = $this->createBankTransaction([
+            'description' => 'Transfer ref 10010',
+            'amount' => 100,
+        ]);
+
+        (new ProcessBankRules($bt))->run();
+        $bt = $bt->fresh();
+
         $this->assertEquals(BankTransaction::STATUS_UNMATCHED, $bt->status_id);
+    }
+
+    public function testInvoiceNumberAtStartOfDescription()
+    {
+        $number = 'INV-' . Str::random(10);
+
+        $this->createRule([
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$invoice.number'],
+        ]);
+
+        $invoice = $this->createInvoice([
+            'number' => $number,
+            'amount' => 100,
+            'balance' => 100,
+        ]);
+
+        $bt = $this->createBankTransaction([
+            'description' => $number . ' payment received',
+            'amount' => 100,
+        ]);
+
+        (new ProcessBankRules($bt))->run();
+        $bt = $bt->fresh();
+
+        $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
+        $this->assertEquals($invoice->hashed_id, $bt->invoice_ids);
+    }
+
+    public function testInvoiceNumberAtEndOfDescription()
+    {
+        $number = 'INV-' . Str::random(10);
+
+        $this->createRule([
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$invoice.number'],
+        ]);
+
+        $invoice = $this->createInvoice([
+            'number' => $number,
+            'amount' => 100,
+            'balance' => 100,
+        ]);
+
+        $bt = $this->createBankTransaction([
+            'description' => 'Payment received for ' . $number,
+            'amount' => 100,
+        ]);
+
+        (new ProcessBankRules($bt))->run();
+        $bt = $bt->fresh();
+
+        $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
+        $this->assertEquals($invoice->hashed_id, $bt->invoice_ids);
+    }
+
+    public function testInvoiceNumberCaseInsensitiveMatch()
+    {
+        $this->createRule([
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$invoice.number'],
+        ]);
+
+        $invoice = $this->createInvoice([
+            'number' => 'INV-ABC123',
+            'amount' => 100,
+            'balance' => 100,
+        ]);
+
+        $bt = $this->createBankTransaction([
+            'description' => 'payment inv-abc123 done',
+            'amount' => 100,
+        ]);
+
+        (new ProcessBankRules($bt))->run();
+        $bt = $bt->fresh();
+
+        $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
+        $this->assertEquals($invoice->hashed_id, $bt->invoice_ids);
+    }
+
+    public function testInvoiceNumberNoMatchWhenAbsentFromDescription()
+    {
+        $this->createRule([
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$invoice.number'],
+        ]);
+
+        $this->createInvoice([
+            'number' => 'INV-999',
+            'amount' => 100,
+            'balance' => 100,
+        ]);
+
+        $bt = $this->createBankTransaction([
+            'description' => 'General deposit from client',
+            'amount' => 100,
+        ]);
+
+        (new ProcessBankRules($bt))->run();
+        $bt = $bt->fresh();
+
+        $this->assertEquals(BankTransaction::STATUS_UNMATCHED, $bt->status_id);
+    }
+
+    public function testInvoiceNumberWithNewlineInDescription()
+    {
+        $number = 'INV-' . Str::random(10);
+
+        $this->createRule([
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$invoice.number'],
+        ]);
+
+        $invoice = $this->createInvoice([
+            'number' => $number,
+            'amount' => 100,
+            'balance' => 100,
+        ]);
+
+        $bt = $this->createBankTransaction([
+            'description' => "Payment\nfor " . $number . "\nreceived",
+            'amount' => 100,
+        ]);
+
+        (new ProcessBankRules($bt))->run();
+        $bt = $bt->fresh();
+
+        $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
+        $this->assertEquals($invoice->hashed_id, $bt->invoice_ids);
+    }
+
+    public function testInvoiceNumberSplitAcrossNewlineDoesNotMatch()
+    {
+        // Invoice number split by a newline should not match
+        $this->createRule([
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$invoice.number'],
+        ]);
+
+        $this->createInvoice([
+            'number' => 'INV-12345',
+            'amount' => 100,
+            'balance' => 100,
+        ]);
+
+        $bt = $this->createBankTransaction([
+            'description' => "Reference INV-123\n45 paid",
+            'amount' => 100,
+        ]);
+
+        (new ProcessBankRules($bt))->run();
+        $bt = $bt->fresh();
+
+        $this->assertEquals(BankTransaction::STATUS_UNMATCHED, $bt->status_id);
+    }
+
+    public function testInvoiceNumberWithSpecialRegexChars()
+    {
+        // Ensure invoice numbers containing regex metacharacters are handled safely
+        $this->createRule([
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$invoice.number'],
+        ]);
+
+        $invoice = $this->createInvoice([
+            'number' => 'INV(2026).001',
+            'amount' => 100,
+            'balance' => 100,
+        ]);
+
+        $bt = $this->createBankTransaction([
+            'description' => 'Payment for INV(2026).001 received',
+            'amount' => 100,
+        ]);
+
+        (new ProcessBankRules($bt))->run();
+        $bt = $bt->fresh();
+
+        $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
+        $this->assertEquals($invoice->hashed_id, $bt->invoice_ids);
+    }
+
+    public function testInvoiceNumberDeletedInvoiceIsExcluded()
+    {
+        $number = 'INV-' . Str::random(10);
+
+        $this->createRule([
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$invoice.number'],
+        ]);
+
+        // Soft-deleted AND is_deleted = true should be excluded
+        $this->createInvoice([
+            'number' => $number,
+            'amount' => 100,
+            'balance' => 100,
+            'is_deleted' => true,
+        ]);
+
+        $bt = $this->createBankTransaction([
+            'description' => 'Payment ' . $number,
+            'amount' => 100,
+        ]);
+
+        (new ProcessBankRules($bt))->run();
+        $bt = $bt->fresh();
+
+        $this->assertEquals(BankTransaction::STATUS_UNMATCHED, $bt->status_id);
+    }
+
+    public function testInvoiceNumberPaidInvoiceIsExcluded()
+    {
+        $number = 'INV-' . Str::random(10);
+
+        $this->createRule([
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$invoice.number'],
+        ]);
+
+        // status_id 4 = paid — should not match
+        $this->createInvoice([
+            'number' => $number,
+            'amount' => 100,
+            'balance' => 0,
+            'status_id' => 4,
+        ]);
+
+        $bt = $this->createBankTransaction([
+            'description' => 'Payment ' . $number,
+            'amount' => 100,
+        ]);
+
+        (new ProcessBankRules($bt))->run();
+        $bt = $bt->fresh();
+
+        $this->assertEquals(BankTransaction::STATUS_UNMATCHED, $bt->status_id);
+    }
+
+    public function testInvoiceNumberSingleCharNumberIsIgnored()
+    {
+        // Invoice numbers shorter than 2 characters should be skipped
+        $this->createRule([
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$invoice.number'],
+        ]);
+
+        $this->createInvoice([
+            'number' => '1',
+            'amount' => 100,
+            'balance' => 100,
+        ]);
+
+        $bt = $this->createBankTransaction([
+            'description' => 'Payment reference 1 received',
+            'amount' => 100,
+        ]);
+
+        (new ProcessBankRules($bt))->run();
+        $bt = $bt->fresh();
+
+        $this->assertEquals(BankTransaction::STATUS_UNMATCHED, $bt->status_id);
+    }
+
+    public function testInvoiceNumberLongestMatchWins()
+    {
+        // When multiple invoices match, the longest number should be chosen
+        $this->createRule([
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => '$invoice.number'],
+        ]);
+
+        // Both "R-50" and "R-500" exist; description has both as valid tokens
+        $this->createInvoice([
+            'number' => 'R-50',
+            'amount' => 50,
+            'balance' => 50,
+        ]);
+
+        $longerInvoice = $this->createInvoice([
+            'number' => 'R-500',
+            'amount' => 500,
+            'balance' => 500,
+        ]);
+
+        $bt = $this->createBankTransaction([
+            'description' => 'Payment for R-50 and R-500',
+            'amount' => 500,
+        ]);
+
+        (new ProcessBankRules($bt))->run();
+        $bt = $bt->fresh();
+
+        $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
+        $this->assertEquals($longerInvoice->hashed_id, $bt->invoice_ids);
     }
 
     // ── $invoice.amount ──────────────────────────────────────────────
@@ -1671,9 +2043,9 @@ class ProcessBankRulesTest extends TestCase
         $this->assertEquals(BankTransaction::STATUS_UNMATCHED, $bt->status_id);
     }
 
-    // ── Pre-rule simple invoice number match ─────────────────────────
+    // ── No rule = no match ─────────────────────────────────────────
 
-    public function testPreRuleSimpleInvoiceNumberMatch()
+    public function testNoRuleDoesNotMatchInvoiceNumber()
     {
         $number = 'INV-' . Str::random(20);
 
@@ -1682,8 +2054,8 @@ class ProcessBankRulesTest extends TestCase
             'amount' => 100,
         ]);
 
-        // No rules needed — the pre-rule match at lines 70-78 should catch this
-        $invoice = $this->createInvoice([
+        // No rules configured — should NOT match without a rule
+        $this->createInvoice([
             'number' => $number,
             'amount' => 100,
             'balance' => 100,
@@ -1692,7 +2064,6 @@ class ProcessBankRulesTest extends TestCase
         (new ProcessBankRules($bt))->run();
         $bt = $bt->fresh();
 
-        $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
-        $this->assertEquals($invoice->hashed_id, $bt->invoice_ids);
+        $this->assertEquals(BankTransaction::STATUS_UNMATCHED, $bt->status_id);
     }
 }

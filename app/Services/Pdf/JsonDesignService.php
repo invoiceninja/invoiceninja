@@ -86,9 +86,9 @@ class JsonDesignService
         $html = $builder->getCompiledHTML();
 
         // Log the final HTML output before PDF conversion
-        \Log::info('=== JSON Design: Final HTML Output (Before PDF Conversion) ===');
-        \Log::info($html);
-        \Log::info('=== End of HTML Output ===');
+        // \Log::info('=== JSON Design: Final HTML Output (Before PDF Conversion) ===');
+        // \Log::info($html);
+        // \Log::info('=== End of HTML Output ===');
 
         return $html;
     }

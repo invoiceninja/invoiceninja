@@ -35,16 +35,16 @@ class LogResponseReceived
 
     public function handle(ResponseReceived $event)
     {
-        nlog("Request");
-        nlog($event->request->headers());
-        nlog($event->request->url());
-        nlog(json_encode($event->request->headers()));
-        nlog($event->request->body());
+        // nlog("Request");
+        // nlog($event->request->headers());
+        // nlog($event->request->url());
+        // nlog(json_encode($event->request->headers()));
+        // nlog($event->request->body());
 
-        nlog("Response");
-        nlog($event->response->headers());
-        nlog(json_encode($event->response->headers()));
-        nlog($event->response->body());
-        nlog($event->response->json());
+        // nlog("Response");
+        // nlog($event->response->headers());
+        // nlog(json_encode($event->response->headers()));
+        // nlog($event->response->body());
+        // nlog($event->response->json());
     }
 }

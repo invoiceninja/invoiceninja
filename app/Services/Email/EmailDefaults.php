@@ -278,14 +278,51 @@ class EmailDefaults
     }
 
     /**
-     * Sets the CC of the email
+     * Sets the CC of the email from cc_only contacts.
+     * Feature-gated: hosted free accounts are excluded.
+     * CC-only contacts receive one copy only — attached to the first invitation for the entity.
+     * Deduplicates against any existing CC addresses (e.g. manual cc_email from request).
      */
     private function setCc(): self
     {
+        if (Ninja::isHosted() && !$this->email->company->account->isPremium()) {
+            return $this;
+        }
+
+        $entity = $this->email->email_object->entity;
+
+        if (!$entity) {
+            return $this;
+        }
+
+        /* Only attach cc_only contacts to the first invitation for this entity */
+        /** @var \App\Models\InvoiceInvitation|\App\Models\QuoteInvitation|\App\Models\CreditInvitation|\App\Models\PurchaseOrderInvitation $invitation */
+        $invitation = $this->email->email_object->invitation;
+        /** @var \App\Models\InvoiceInvitation|\App\Models\QuoteInvitation|\App\Models\CreditInvitation|\App\Models\PurchaseOrderInvitation $first_invitation */
+        $first_invitation = $entity->invitations()->orderBy('id')->first();
+        
+        if ($invitation && $first_invitation && $first_invitation->id !== $invitation->id) {
+            return $this;
+        }
+
+        $cc_addresses = [];
+
+        if ($entity->client ?? null) {
+            $cc_addresses = $entity->client->cc_contacts();
+        } elseif ($entity->vendor ?? null) {
+            $cc_addresses = $entity->vendor->cc_contacts();
+        }
+
+        if (empty($cc_addresses)) {
+            return $this;
+        }
+
+        $existing_emails = collect($this->email->email_object->cc)->map(fn ($a) => $a->address)->toArray();
+        $cc_addresses = array_filter($cc_addresses, fn ($a) => !in_array($a->address, $existing_emails));
+
+        $this->email->email_object->cc = array_merge($this->email->email_object->cc, array_values($cc_addresses));
+
         return $this;
-        // return $this->email->email_object->cc;
-        // return [
-        // ];
     }
 
     /**

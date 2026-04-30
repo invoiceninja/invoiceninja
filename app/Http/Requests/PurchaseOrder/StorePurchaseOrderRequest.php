@@ -48,6 +48,7 @@ class StorePurchaseOrderRequest extends Request
         $rules = [];
 
         $rules['vendor_id'] = 'bail|required|exists:vendors,id,company_id,' . $user->company()->id . ',is_deleted,0';
+        $rules['client_id'] = ['nullable', 'bail', 'integer', Rule::exists('clients', 'id')->where('company_id', $user->company()->id)->where('is_deleted', 0)];
 
         $rules['number'] = ['nullable', Rule::unique('purchase_orders')->where('company_id', $user->company()->id)];
 

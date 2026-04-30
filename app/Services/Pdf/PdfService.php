@@ -121,9 +121,14 @@ class PdfService
     /**
      * Renders the dom document to HTML
      *
-     * @return string
+     * @return void
      *
      */
+    public function setJsonDesignHtml(string $html): void
+    {
+        $this->json_design_html = $html;
+    }
+
     public function getHtml(): string
     {
         // If JSON design was used, return the pre-generated HTML

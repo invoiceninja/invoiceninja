@@ -261,6 +261,10 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::delete('einvoice/peppol/remove_additional_legal_identifier', [EInvoicePeppolController::class, 'removeAdditionalTaxIdentifier'])->name('einvoice.peppol.remove_additional_legal_identifier');
     Route::post('einvoice/peppol/send', [EInvoicePeppolController::class, 'retrySend'])->name('einvoice.peppol.retry_send');
 
+    Route::post('einvoice/peppol/sg/c5/activate', [EInvoicePeppolController::class, 'c5Activate'])->name('einvoice.peppol.sg.c5.activate');
+    Route::post('einvoice/peppol/sg/c5/deactivate', [EInvoicePeppolController::class, 'c5Deactivate'])->name('einvoice.peppol.sg.c5.deactivate');
+    Route::put('einvoice/peppol/sg/c5/cancel', [EInvoicePeppolController::class, 'c5Cancel'])->name('einvoice.peppol.sg.c5.cancel');
+
     Route::post('einvoice/token/update', EInvoiceTokenController::class)->name('einvoice.token.update');
     Route::get('einvoice/quota', [EInvoiceController::class, 'quota'])->name('einvoice.quota');
     Route::get('einvoice/health_check', [EInvoiceController::class, 'healthcheck'])->name('einvoice.healthcheck');
@@ -302,12 +306,6 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::post('locations/bulk', [LocationController::class, 'bulk'])->name('locations.bulk');
 
     Route::post('logout', [LogoutController::class, 'index'])->name('logout');
-
-    Route::post('migrate', [MigrationController::class, 'index'])->name('migrate.start');
-
-    Route::post('migration/purge/{company}', [MigrationController::class, 'purgeCompany'])->middleware('password_protected');
-    Route::post('migration/purge_save_settings/{company}', [MigrationController::class, 'purgeCompanySaveSettings'])->middleware('password_protected');
-    Route::post('migration/start', [MigrationController::class, 'startMigration']);
 
     Route::post('one_time_token', [OneTimeTokenController::class, 'create']);
 
@@ -513,9 +511,6 @@ Route::post('api/v1/brevo_webhook', [BrevoController::class, 'webhook'])->middle
 Route::post('api/v1/brevo_inbound_webhook', [BrevoController::class, 'inboundWebhook'])->middleware('throttle:1000,1');
 Route::get('token_hash_router', [OneTimeTokenController::class, 'router'])->middleware('throttle:500,1');
 Route::get('webcron', [WebCronController::class, 'index'])->middleware('throttle:100,1');
-Route::post('api/v1/get_migration_account', [HostedMigrationController::class, 'getAccount'])->middleware('guest')->middleware('throttle:100,1');
-Route::post('api/v1/confirm_forwarding', [HostedMigrationController::class, 'confirmForwarding'])->middleware('guest')->middleware('throttle:100,1');
-Route::post('api/v1/check_status', [HostedMigrationController::class, 'checkStatus'])->middleware('guest')->middleware('throttle:100,1');
 Route::post('api/v1/process_webhook', [AppleController::class, 'process_webhook'])->middleware('throttle:1000,1');
 Route::post('api/v1/confirm_purchase', [AppleController::class, 'confirm_purchase'])->middleware('throttle:1000,1');
 

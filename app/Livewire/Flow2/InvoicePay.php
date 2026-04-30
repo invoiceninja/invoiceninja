@@ -22,6 +22,7 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesDates;
 use Livewire\Attributes\Computed;
 use App\Utils\Traits\WithSecureContext;
+use Livewire\Attributes\Locked;
 
 class InvoicePay extends Component
 {
@@ -74,12 +75,14 @@ class InvoicePay extends Component
         'shipping_country_id',
     ];
 
+    #[Locked] 
     public $invitation_id;
 
     public $invoices;
 
     public $variables;
 
+    #[Locked] 
     public $db;
 
     public $settings;

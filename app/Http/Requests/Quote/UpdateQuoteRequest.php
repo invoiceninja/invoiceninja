@@ -45,6 +45,8 @@ class UpdateQuoteRequest extends Request
 
         $rules['file'] = 'bail|sometimes|array';
         $rules['file.*'] = $this->fileValidation();
+        $rules['documents'] = 'bail|sometimes|array';
+        $rules['documents.*'] = $this->fileValidation();
 
         $rules['invitations'] = 'sometimes|bail|array';
         $rules['invitations.*.client_contact_id'] = 'bail|required|distinct';

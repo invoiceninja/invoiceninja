@@ -26,7 +26,7 @@ use Stripe\PaymentIntent;
 use Stripe\PaymentMethod;
 use App\Models\GatewayType;
 use App\Models\PaymentHash;
-use App\Http\Requests\Request;
+use Illuminate\Http\Request;
 use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
 use App\Exceptions\PaymentFailed;
@@ -860,13 +860,13 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                 }
 
                 return response()->json([], 200);
-            } elseif ($request->data['object']['status'] == "inactive" && $request->data['object']['payment_method']) {
-                // Delete payment method
+            } 
+            elseif ($request->data['object']['status'] == "inactive" && $request->data['object']['payment_method']) {
                 $clientgateway = ClientGatewayToken::query()
                     ->where('token', $request->data['object']['payment_method'])
                     ->first();
 
-                if ($clientgateway) {
+                if ($clientgateway && !str_starts_with($clientgateway->token, 'ba_')) { //ba_ tokens should not be deleted
                     $clientgateway->delete();
                 }
 
@@ -921,7 +921,6 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
      * https://stripe.com/docs/api/payment_methods/detach
      *
      * @param ClientGatewayToken $token
-     * @return void
      */
     public function detach(ClientGatewayToken $token)
     {
@@ -945,6 +944,8 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                 $this->client->company
             );
         }
+
+        return true;
     }
 
     public function getCompanyGatewayId(): int

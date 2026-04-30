@@ -86,7 +86,7 @@ class AuthorizeCreditCard implements LivewireMethodInterface
             $payment_profile_id = $payment_profile->getPaymentProfile()->getCustomerPaymentProfileId();
 
             $payment_hash = PaymentHash::where('hash', $request->input('payment_hash'))->firstOrFail();
-            $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($gateway_customer_reference, $payment_profile_id, $payment_hash->data->amount_with_fee);
+            $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($gateway_customer_reference, $payment_profile_id, round($payment_hash->data->amount_with_fee,2));
 
             $authorise_payment_method->payment_method = GatewayType::CREDIT_CARD;
             $client_gateway_token = $authorise_payment_method->createClientGatewayToken($payment_profile, $gateway_customer_reference);
@@ -276,7 +276,7 @@ class AuthorizeCreditCard implements LivewireMethodInterface
 
         $vars = [
             'invoices' => $payment_hash->invoices(),
-            'amount' => array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total,
+            'amount' => $payment_hash->amount_with_fee(),
         ];
 
         $logger_message = [

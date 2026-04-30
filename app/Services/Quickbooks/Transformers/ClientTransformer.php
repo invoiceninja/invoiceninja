@@ -50,8 +50,10 @@ class ClientTransformer extends BaseTransformer
         // DisplayName/CompanyName: 100 chars, GivenName/FamilyName: 25 chars
         // Address Line1/Line2: 41 chars, City: 31 chars, State: 21 chars, PostalCode: 13 chars
         // Email: 100 chars, Phone: 21 chars, Website: 100 chars, Notes: 4000 chars, BusinessNumber: 20 chars
-        $display_name = mb_substr($client->present()->name(), 0, 100);
-        $company_name = mb_substr($client->present()->name(), 0, 100);
+        // QuickBooks DisplayName disallows: colon, double quote, single quote, ampersand, angle brackets
+        $name = str_replace([':', '"', "'", '&', '<', '>'], ['-', '', '', '&amp;', '', ''], $client->present()->name());
+        $display_name = mb_substr($name, 0, 100);
+        $company_name = mb_substr($name, 0, 100);
         
         return [
             'DisplayName' => $display_name,

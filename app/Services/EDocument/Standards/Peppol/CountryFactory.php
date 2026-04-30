@@ -22,6 +22,7 @@ class CountryFactory
      * and add the mapping here.
      */
     private static array $handlers = [
+        'AD' => AD::class,
         'AT' => AT::class,
         'AU' => AU::class,
         'CH' => CH::class,
@@ -30,6 +31,7 @@ class CountryFactory
         'ES' => ES::class,
         'FI' => FI::class,
         'FR' => FR::class,
+        'IN' => IN::class,
         'IT' => IT::class,
         'MY' => MY::class,
         'NL' => NL::class,

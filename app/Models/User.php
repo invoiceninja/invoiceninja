@@ -131,7 +131,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $presenter = UserPresenter::class;
 
-    protected $with = []; // ? companies also
+    protected $with = ['passkey_credentials'];
 
     protected $dateFormat = 'Y-m-d H:i:s.u';
 

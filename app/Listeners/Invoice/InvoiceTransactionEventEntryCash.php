@@ -38,22 +38,28 @@ class InvoiceTransactionEventEntryCash
             return;
         }
 
+        $this->payments = $invoice->payments->map(function ($payment) use ($invoice, $start_date, $end_date) {
+            $pivot = $payment->invoices()->where('paymentable_id', $invoice->id)->first()?->pivot;
+
+            if (!$pivot) {
+                return null;
+            }
+
+            $date = $pivot->created_at->format('Y-m-d');
+
+            if (!\Carbon\Carbon::parse($date)->isBetween($start_date, $end_date)) {
+                return null;
+            }
+
+            return [
+                'number' => $payment->number,
+                'amount' => $pivot->amount,
+                'refunded' => $pivot->refunded,
+                'date' => $date,
+            ];
+        })->filter();
+
         $this->setPaidRatio($invoice);
-
-        $this->payments = $invoice->payments->flatMap(function ($payment) use ($start_date, $end_date) {
-            return $payment->invoices()->get()->map(function ($invoice) use ($payment) {
-                return [
-                    'number' => $payment->number,
-                    'amount' => $invoice->pivot->amount,
-                    'refunded' => $invoice->pivot->refunded,
-                    'date' => $invoice->pivot->created_at->format('Y-m-d'),
-                ];
-            })->filter(function ($payment) use ($start_date, $end_date) {
-                // Filter payments where the pivot created_at is within the date boundaries
-                return \Carbon\Carbon::parse($payment['date'])->isBetween($start_date, $end_date);
-            });
-        });
-
 
         TransactionEvent::create([
             'invoice_id' => $invoice->id,
@@ -83,7 +89,9 @@ class InvoiceTransactionEventEntryCash
             return $this;
         }
 
-        $this->paid_ratio = $invoice->paid_to_date / $invoice->amount;
+        $periodPaid = $this->payments->sum('amount') - $this->payments->sum('refunded');
+
+        $this->paid_ratio = $periodPaid / $invoice->amount;
 
         return $this;
     }

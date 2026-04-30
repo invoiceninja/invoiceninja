@@ -135,7 +135,7 @@ class PurchaseOrderExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(PurchaseOrder $purchase_order): array
+    protected function buildRow(PurchaseOrder $purchase_order): array
     {
         $transformed_purchase_order = $this->purchase_order_transformer->transform($purchase_order);
 

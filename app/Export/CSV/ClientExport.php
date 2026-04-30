@@ -171,7 +171,7 @@ class ClientExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(Client $client): array
+    protected function buildRow(Client $client): array
     {
         $transformed_contact = false;
 

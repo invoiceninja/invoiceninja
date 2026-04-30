@@ -1320,4 +1320,106 @@ class StorecoveRouterTest extends TestCase
         $this->assertEquals('BE0202239951', $storecove->router->getFormatExample('BE:VAT'));
     }
 
+    /**
+     * Locks down every identifier_regex pattern so accidental changes
+     * are caught immediately. If a regex genuinely needs updating,
+     * update the expected value here — that forces a conscious decision.
+     */
+    public function testIdentifierRegexPatternsAreStable(): void
+    {
+        $router = (new Storecove())->router;
+
+        $expected = [
+            // VAT number patterns
+            'AT:VAT'    => '/^(AT)?U\d{8}$/i',
+            'BE:VAT'    => '/^(BE)?[01]\d{9}$/i',
+            'BG:VAT'    => '/^(BG)?\d{9,10}$/i',
+            'CY:VAT'    => '/^(CY)?\d{8}[A-Z]$/i',
+            'CZ:VAT'    => '/^(CZ)?\d{8,10}$/i',
+            'DE:VAT'    => '/^(DE)?\d{9}$/i',
+            'DK:ERST'   => '/^(DK)?\d{8}$/i',
+            'EE:VAT'    => '/^(EE)?\d{9}$/i',
+            'ES:VAT'    => '/^(ES)?[A-Z0-9]\d{7}[A-Z0-9]$/i',
+            'FI:VAT'    => '/^(FI)?\d{8}$/i',
+            'FR:VAT'    => '/^(FR)?[A-HJ-NP-Z0-9]{2}\d{9}$/i',
+            'GR:VAT'    => '/^(GR|EL)?\d{9}$/i',
+            'HR:VAT'    => '/^(HR)?\d{11}$/i',
+            'HU:VAT'    => '/^(HU)?\d{8}$/i',
+            'IE:VAT'    => '/^(IE)?\d[A-Z0-9\+\*]\d{5}[A-Z]{1,2}$/i',
+            'IT:IVA'    => '/^(IT)?\d{11}$/i',
+            'IT:CF'     => '/^[A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z]$/i',
+            'LT:VAT'    => '/^(LT)?(\d{9}|\d{12})$/i',
+            'LU:VAT'    => '/^(LU)?\d{8}$/i',
+            'LV:VAT'    => '/^(LV)?\d{11}$/i',
+            'MT:VAT'    => '/^(MT)?\d{8}$/i',
+            'NL:VAT'    => '/^(NL)?\d{9}B\d{2}$/i',
+            'PL:VAT'    => '/^(PL)?\d{10}$/i',
+            'PT:VAT'    => '/^(PT)?\d{9}$/i',
+            'RO:VAT'    => '/^(RO)?\d{2,10}$/i',
+            'SE:VAT'    => '/^(SE)?\d{12}$/i',
+            'SI:VAT'    => '/^(SI)?\d{8}$/i',
+            'SK:VAT'    => '/^(SK)?\d{10}$/i',
+            'AD:VAT'    => '/^(AD)?[A-Z]\d{6}[A-Z]$/i',
+            'AL:VAT'    => '/^(AL)?[A-Z]\d{8}[A-Z]$/i',
+            'BA:VAT'    => '/^(BA)?\d{12}$/i',
+            'LI:VAT'    => '/^(LI)?\d{5}$/i',
+            'MC:VAT'    => '/^(MC|FR)?[A-HJ-NP-Z0-9]{2}\d{9}$/i',
+            'ME:VAT'    => '/^(ME)?\d{8}$/i',
+            'MK:VAT'    => '/^(MK)?\d{13}$/i',
+            'SM:VAT'    => '/^(SM)?\d{5}$/i',
+            'TR:VAT'    => '/^(TR)?\d{10}$/i',
+            'VA:VAT'    => '/^(VA)?\d{11}$/i',
+            'RS:VAT'    => '/^(RS)?\d{9}$/i',
+            'IS:VAT'    => '/^(IS)?\d{5,6}$/i',
+            'NO:VAT'    => '/^(NO)?\d{9}(MVA)?$/i',
+            'CH:VAT'    => '/^(CHE)?\d{9}(MWST|TVA|IVA)?$/i',
+            'GB:VAT'    => '/^(GB)?\d{9}(\d{3})?$/i',
+            'AU:ABN'    => '/^\d{11}$/',
+            'NZ:GST'    => '/^\d{8,9}$/',
+            'US:EIN'    => '/^\d{2}\-?\d{7}$/',
+            'IN:GSTIN'  => '/^\d{2}[A-Z]{5}\d{4}[A-Z]\d[A-Z0-9][A-Z0-9]$/i',
+            'JP:IIN'    => '/^T?\d{13}$/',
+            'SG:GST'    => '/^[A-Z0-9]{2}-\d{7}-[A-Z0-9]$/i',
+            'SA:TIN'    => '/^\d{10,15}$/',
+            'MY:TIN'    => '/^[A-Z0-9]{10,14}$/i',
+
+            // ID number patterns
+            'SE:ORGNR'  => '/^\d{10}$/',
+            'NO:ORG'    => '/^\d{9}$/',
+            'BE:EN'     => '/^(BE)?[01]\d{9}$/i',
+            'DK:DIGST'  => '/^(DK)?\d{8}$/i',
+            'EE:CC'     => '/^\d{8}$/',
+            'FI:OVT'    => '/^\d{12,13}$/',
+            'FR:SIRENE' => '/^\d{9}$/',
+            'FR:SIRET'  => '/^\d{14}$/',
+            'NL:KVK'    => '/^\d{8}$/',
+            'NL:OINO'   => '/^\d{20}$/',
+            'LT:LEC'    => '/^\d{7,9}$/',
+            'LU:MAT'    => '/^\d{11}$/',
+            'CH:UIDB'   => '/^(CHE)?\d{9}$/i',
+            'IS:KTNR'   => '/^\d{6,10}$/',
+            'CA:CBN'    => '/^\d{9}$/',
+            'MX:RFC'    => '/^[A-Z&Ñ]{3,4}\d{6}[A-Z0-9]{3}$/i',
+            'JP:SST'    => '/^T?\d{13}$/',
+            'MY:EIF'    => '/^[A-Z0-9]{10,14}$/i',
+            'SG:UEN'    => '/^[A-Z0-9]{9,16}$/i',
+            'AT:GOV'    => '/^.{2,}$/',
+            'DE:LWID'   => '/^.{2,}$/',
+            'IT:CUUO'   => '/^[A-Z0-9]{6,7}$/i',
+        ];
+
+        $reflection = new \ReflectionClass($router);
+        $property = $reflection->getProperty('identifier_regex');
+        $property->setAccessible(true);
+        $regexMap = $property->getValue($router);
+
+        foreach ($expected as $scheme => $regex) {
+            $this->assertArrayHasKey($scheme, $regexMap, "Scheme {$scheme} missing from identifier_regex");
+            $this->assertEquals($regex, $regexMap[$scheme], "Regex for {$scheme} has been changed");
+        }
+
+        // Ensure no new schemes were added without updating this test
+        $this->assertCount(count($expected), $regexMap, 'identifier_regex has schemes not covered by this test — add them to $expected');
+    }
+
 }

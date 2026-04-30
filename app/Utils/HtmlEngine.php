@@ -669,6 +669,7 @@ class HtmlEngine
         $data['$product.product_key'] = ['value' => '', 'label' => ctrans('texts.product_key')];
         $data['$product.description'] = ['value' => '', 'label' => ctrans('texts.description')];
         $data['$product.unit_cost'] = ['value' => '', 'label' => ctrans('texts.unit_cost')];
+        $data['$product.net_cost'] = ['value' => '', 'label' => ctrans('texts.unit_cost')];
         $data['$product.quantity'] = ['value' => '', 'label' => ctrans('texts.quantity')];
         $data['$product.tax_name1'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$product.tax'] = ['value' => '', 'label' => ctrans('texts.tax')];
@@ -855,7 +856,7 @@ class HtmlEngine
                 $invoice_period = $this->translateDate($period->StartDate, $this->client->date_format(), $this->client->locale()) . ' - ' . $this->translateDate($period->EndDate, $this->client->date_format(), $this->client->locale());
             }
             catch(\Throwable $e) {
-                nlog("Error getting invoice period: {$e->getMessage()}");
+                nlog("Error getting invoice period: HE:: {$e->getMessage()}");
             }
         }
 

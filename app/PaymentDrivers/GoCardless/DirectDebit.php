@@ -16,7 +16,7 @@ use App\Exceptions\PaymentFailed;
 use App\Http\Controllers\ClientPortal\InvoiceController;
 use App\Http\Requests\ClientPortal\Invoices\ProcessInvoicesInBulkRequest;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Jobs\Mail\PaymentFailureMailer;
+
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Invoice;
@@ -287,14 +287,7 @@ class DirectDebit implements MethodInterface, LivewireMethodInterface
      */
     public function processUnsuccessfulPayment(\GoCardlessPro\Resources\Payment $payment)
     {
-        PaymentFailureMailer::dispatch($this->go_cardless->client, $payment->status, $this->go_cardless->client->company, $this->go_cardless->payment_hash->data->amount_with_fee);
-
-        PaymentFailureMailer::dispatch(
-            $this->go_cardless->client,
-            $payment,
-            $this->go_cardless->client->company,
-            $payment->amount
-        );
+        $this->go_cardless->sendFailureMail("Direct Debit payment failed with status: {$payment->status}");
 
         $message = [
             'server_response' => $payment,

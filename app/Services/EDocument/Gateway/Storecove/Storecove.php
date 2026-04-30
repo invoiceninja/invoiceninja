@@ -64,6 +64,8 @@ class Storecove
 
     public StorecoveProxy $proxy;
 
+    public StorecoveC5 $c5;
+
     public function __construct()
     {
         $this->router = new StorecoveRouter();
@@ -71,6 +73,7 @@ class Storecove
         $this->adapter = new StorecoveAdapter($this);
         $this->expense = new StorecoveExpense($this);
         $this->proxy = new StorecoveProxy($this);
+        $this->c5 = new StorecoveC5($this);
     }
 
     /**
@@ -84,8 +87,7 @@ class Storecove
         // return
         $this->adapter
              ->transform($model)
-             ->decorate()
-             ->validate();
+             ->decorate();
 
         return $this;
     }
@@ -303,14 +305,29 @@ class Storecove
             $response = $this->startCorpPassFlow($legal_entity_response['id'], $data['id_number']);
 
             if (! is_array($response)) {
-                return array_merge($response, [
-                    'legal_entity_id' => $legal_entity_response['id'],
-                    'tax_data' => [
-                        'acts_as_sender' => $data['acts_as_sender'],
-                        'acts_as_receiver' => $data['acts_as_receiver'],
-                    ]
-                ]);
+                $this->deleteIdentifier($legal_entity_response['id']);
+                return $response;
             }
+
+            /** Fire C5 IRAS email activation automatically */
+            if (isset($data['c5_signer_name']) && isset($data['c5_signer_email'])) {
+                $c5_response = $this->c5->activate(
+                    $legal_entity_response['id'],
+                    $data['id_number'],
+                    $data['c5_signer_name'],
+                    $data['c5_signer_email'],
+                );
+
+                nlog(['c5_iras_activation' => is_array($c5_response) ? $c5_response : $c5_response->json()]);
+            }
+
+            return array_merge($response, [
+                'legal_entity_id' => $legal_entity_response['id'],
+                'tax_data' => [
+                    'acts_as_sender' => $data['acts_as_sender'],
+                    'acts_as_receiver' => $data['acts_as_receiver'],
+                ]
+            ]);
         }
         
         $add_identifier_response = $this->addIdentifier(
@@ -320,6 +337,7 @@ class Storecove
         );
 
         if (! is_array($add_identifier_response)) {
+            $this->deleteIdentifier($legal_entity_response['id']);
             return $add_identifier_response;
         }
 
@@ -338,8 +356,6 @@ class Storecove
         if ($data['country'] == "DK") {
             $add_identifier_response = $this->addIdentifier($legal_entity_response['id'], str_replace(" ", "", $data['vat_number']), "DK:DIGST");
         }
-
-        /** For Singapore, we start the CorpPass flow */
 
 
 
@@ -390,7 +406,9 @@ class Storecove
             $data = array_merge([
                 'city' => $company->settings->city,
                 'country' => $company->country()->iso_3166_2,
-                'county' => $company->settings->state,
+                'county' => $company->country()->iso_3166_2 === 'IN'
+                    ? (new \App\Services\EDocument\Standards\Peppol\IN())->getStateCode($company->settings->state)
+                    : $company->settings->state,
                 'line1' => $company->settings->address1,
                 'line2' => $company->settings->address2,
                 'party_name' => $company->settings->name,
@@ -607,13 +625,13 @@ class Storecove
         
         $payload = [
             "scheme" => "SG:UEN",
-            "identifier" => "SGUEN".$identifier,
+            "identifier" => $identifier,
             "superscheme" => "iso6523-actorid-upis",
             "corppass" => [
                 'flow_type' => 'corppass_flow_redirect',
                 'client_redirect_fail_url' => config('ninja.react_url') . '/einvoice/registration/failed',
                 'client_redirect_success_url' => config('ninja.react_url') . '/einvoice/registration/success',
-                'simulate_corppass' => true, // only for development!!
+                'simulate_corppass' => config('ninja.app_env') === 'local',
             ]
         ];
 
@@ -635,7 +653,7 @@ class Storecove
          */ 
         if ($r->successful()) {
             nlog($r->json());
-            return [];
+            return $r->json();
         }
 
         return $r;
@@ -691,7 +709,7 @@ class Storecove
      * @param  array $headers
      * @return \Illuminate\Http\Client\Response
      */
-    private function httpClient(string $uri, string $verb, array $data, ?array $headers = [])
+    public function httpClient(string $uri, string $verb, array $data, ?array $headers = [])
     {
 
         try {
