@@ -1185,6 +1185,69 @@ class TaxPeriodReportTest extends TestCase
      * Test: Invoice with partial payment then cancelled (accrual)
      * Expected: Report taxes on paid portion only
      */
+    public function testInvoiceTransactionPaymentHistoryUsesPaymentableCreatedAtDate()
+    {
+        $this->buildData();
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());
+
+        $line_items = [];
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 300;
+        $item->tax_name1 = 'GST';
+        $item->tax_rate1 = 10;
+        $line_items[] = $item;
+
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'line_items' => $line_items,
+            'status_id' => Invoice::STATUS_DRAFT,
+            'discount' => 0,
+            'is_amount_discount' => false,
+            'uses_inclusive_taxes' => false,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+            'custom_surcharge1' => 0,
+            'custom_surcharge2' => 0,
+            'custom_surcharge3' => 0,
+            'custom_surcharge4' => 0,
+            'date' => now()->format('Y-m-d'),
+            'due_date' => now()->addDays(30)->format('Y-m-d'),
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->service()->markSent()->save();
+
+        $this->travelTo(\Carbon\Carbon::create(2025, 10, 15, 9, 30, 0));
+
+        $invoice->service()->applyPaymentAmount(165, 'partial-payment')->save();
+        $invoice = $invoice->fresh();
+
+        (new InvoiceTransactionEventEntry())->run($invoice);
+
+        $transaction_event = $invoice->fresh()
+            ->transaction_events()
+            ->where('event_id', TransactionEvent::INVOICE_UPDATED)
+            ->first();
+
+        $this->assertNotNull($transaction_event);
+
+        $payment_history = $transaction_event->metadata->tax_report->payment_history;
+
+        $this->assertCount(1, $payment_history);
+        $this->assertEquals('2025-10-15', $payment_history->first()->date);
+        $this->assertNotEquals('1970-01-01', $payment_history->first()->date);
+
+        $this->travelBack();
+    }
+
     public function testCancelledInvoiceWithPartialPaymentAccrual()
     {
         $this->buildData();

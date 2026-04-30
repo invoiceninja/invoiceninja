@@ -112,7 +112,7 @@ class InvoiceTransactionEventEntry
                 'number' => $payment->number,
                 'amount' => $pivot->amount,
                 'refunded' => $pivot->refunded,
-                'date' => \Carbon\Carbon::createFromTimestamp($pivot->created_at)->format('Y-m-d'),
+                'date' => $pivot->created_at->format('Y-m-d'),
             ];
         })->filter();
 
