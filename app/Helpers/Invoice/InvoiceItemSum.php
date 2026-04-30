@@ -72,6 +72,7 @@ class InvoiceItemSum
     ];
 
     private array $tax_jurisdictions = [
+        'AD', // Andorra
         'AT', // Austria
         'BE', // Belgium
         'BG', // Bulgaria
@@ -112,6 +113,8 @@ class InvoiceItemSum
         'AU', // Australia
 
         'GB', // GB
+
+        'SG', // Singapore
     ];
 
     protected RecurringInvoice|Invoice|Quote|Credit|PurchaseOrder|RecurringQuote $invoice;
@@ -195,7 +198,7 @@ class InvoiceItemSum
     private function shouldCalculateTax(): self
     {
 
-        if (!$this->invoice->client || !$this->invoice->company?->calculate_taxes || $this->invoice->company->account->isFreeHostedClient()) { //@phpstan-ignore-line
+        if (!$this->invoice->client || !$this->invoice->company?->calculate_taxes || $this->invoice->company->account->isFreeHostedClient() || $this->invoice->status_id == Invoice::STATUS_PAID) { //@phpstan-ignore-line
             $this->calc_tax = false;
             return $this;
         }
@@ -345,6 +348,7 @@ class InvoiceItemSum
         $this->item->gross_line_total = $this->getLineTotal() + $item_tax;
 
         $this->item->tax_amount = $item_tax;
+        $this->item->net_cost = $this->item->cost;
 
         return $this;
     }
@@ -541,7 +545,7 @@ class InvoiceItemSum
 
             $this->item->gross_line_total = $this->getLineTotal() + $item_tax;
             $this->item->tax_amount = $item_tax;
-
+            $this->item->net_cost = $this->item->cost;
             $this->line_items[$key] = $this->item;
 
             $this->setTotalTaxes($this->getTotalTaxes() + $item_tax);

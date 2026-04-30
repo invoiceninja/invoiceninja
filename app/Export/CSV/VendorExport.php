@@ -119,7 +119,7 @@ class VendorExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(Vendor $vendor): array
+    protected function buildRow(Vendor $vendor): array
     {
         $transformed_contact = false;
 

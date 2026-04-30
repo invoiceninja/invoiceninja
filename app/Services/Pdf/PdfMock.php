@@ -79,17 +79,26 @@ class PdfMock
 
         $this->pdf_service->config = $pdf_config;
 
-        if (isset($this->request['design']) && is_array($this->request['design'])) {
-            $pdf_designer = (new PdfDesigner($this->pdf_service))->buildFromPartials($this->request['design']);
-        } else {
-            $pdf_designer = (new PdfDesigner($this->pdf_service))->build();
-        }
-
-        $this->pdf_service->designer = $pdf_designer;
-
         $this->pdf_service->html_variables = $document_type == 'purchase_order' ? $this->getVendorStubVariables() : $this->getStubVariables();
 
-        $pdf_builder = (new PdfBuilder($this->pdf_service))->build();
+        $designData = isset($this->request['design']) && is_array($this->request['design']) ? $this->request['design'] : null;
+
+        if ($designData && isset($designData['blocks'])) {
+            $this->pdf_service->designer = new PdfDesigner($this->pdf_service);
+            $this->pdf_service->designer->template = '';
+            $this->pdf_service->setJsonDesignHtml(
+                (new JsonDesignService($this->pdf_service, $designData))->build()
+            );
+            $pdf_builder = new PdfBuilder($this->pdf_service);
+        } else {
+            if ($designData) {
+                $pdf_designer = (new PdfDesigner($this->pdf_service))->buildFromPartials($designData);
+            } else {
+                $pdf_designer = (new PdfDesigner($this->pdf_service))->build();
+            }
+            $this->pdf_service->designer = $pdf_designer;
+            $pdf_builder = (new PdfBuilder($this->pdf_service))->build();
+        }
         $this->pdf_service->builder = $pdf_builder;
 
         return $this;
@@ -363,6 +372,7 @@ class PdfMock
              '$company.address1' => $this->settings->address1,
              '$credit.credit_no' => '0029',
              '$invoice.datetime' => '2023-10-25 01:10:00',
+             '$product.net_cost' => '$10.00',
              '$contact.custom1' => null,
              '$contact.custom2' => null,
              '$contact.custom3' => null,
@@ -681,6 +691,7 @@ class PdfMock
             '$entity_issued_to_label' => ctrans("texts.{$this->entity_string}_issued_to") ?: ctrans('texts.quote_issued_to'),
             '$partial_due_date_label' => ctrans('texts.partial_due_date'),
             '$invoice.datetime_label' => ctrans('texts.datetime_format_id'),
+            '$product.net_cost_label' => ctrans('texts.unit_cost'),
             '$invoice.due_date_label' => ctrans('texts.invoice_due_date'),
             '$company.address1_label' => ctrans('texts.address1'),
             '$company.address2_label' => ctrans('texts.address2'),

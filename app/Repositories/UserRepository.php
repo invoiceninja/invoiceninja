@@ -148,8 +148,7 @@ class UserRepository extends BaseRepository
         }
 
         if (array_key_exists('company_user', $data)) {
-            // $this->forced_includes = 'company_users'; //2026-02-23 - not needed @deprecate and remove in 5.13.0
-
+            
             $company = auth()->user()->company();
 
             $cu = CompanyUser::query()->whereUserId($user->id)

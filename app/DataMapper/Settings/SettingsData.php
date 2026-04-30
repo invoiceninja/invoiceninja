@@ -485,7 +485,7 @@ class SettingsData
 
                 try {
                     settype($object->{$key}, gettype($this->{$key}));
-                } catch (\Exception|\Error|\Throwable $e) {
+                } catch (\Exception|\Error|\Throwable $e) { //@phpstan-ignore-line
 
                     if (property_exists($this, $key)) {
                         $object->{$key} = $this->{$key};

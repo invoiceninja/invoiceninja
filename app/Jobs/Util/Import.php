@@ -80,6 +80,7 @@ use App\Utils\Traits\Uploadable;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Queue\InteractsWithQueue;
@@ -286,6 +287,8 @@ class Import implements ShouldQueue
         } catch (\Exception $e) {
             nlog("problem unsetting file");
         }
+
+        Model::reguard();
     }
 
     private function fixData()

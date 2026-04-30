@@ -626,6 +626,20 @@ class LoginController extends BaseController
             return response()->json(['message' => 'Invalid response from oauth server, no access token in response.'], 400);
         }
 
+        $expectedClientId = config('services.microsoft.client_id');
+
+        if ($expectedClientId) {
+            $parts = explode('.', $accessToken);
+            if (count($parts) === 3) {
+                $payload = json_decode(base64_decode(strtr($parts[1], '-_', '+/')), true);
+                $tokenClientId = $payload['appid'] ?? $payload['azp'] ?? null;
+
+                if ($tokenClientId !== $expectedClientId) {
+                    return response()->json(['message' => 'Invalid Microsoft token: audience mismatch.'], 403);
+                }
+            }
+        }
+
         $graph = new \Microsoft\Graph\Graph();
         $graph->setAccessToken($accessToken);
 

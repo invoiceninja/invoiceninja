@@ -27,6 +27,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Document;
+use League\Csv\Writer;
 use League\Fractal\Manager;
 use App\Jobs\Quote\ZipQuotes;
 use App\Models\ClientContact;
@@ -59,6 +60,17 @@ class BaseExport
     public string $start_date = '';
 
     public string $end_date = '';
+
+    protected bool $skip_float_conversion = false;
+
+    protected array $raw_rows = [];
+
+    protected array $non_summable_patterns = [
+        'tax_rate',
+        'exchange_rate',
+        'is_amount_discount',
+        'uses_inclusive_taxes',
+    ];
 
     public string $client_description = 'All Clients';
 
@@ -1535,6 +1547,14 @@ class BaseExport
                     $header[] = "{$prefix}" . ctrans("texts.{$key}");
                 }
 
+            } elseif (stripos($value, 'custom_surcharge') !== false) {
+                $custom_field_label = (string) $helper->makeCustomField($this->company->custom_fields, $key);
+
+                if (strlen($custom_field_label) >= 1) {
+                    $header[] = $custom_field_label;
+                } else {
+                    $header[] = "{$prefix}" . ctrans("texts.{$key}");
+                }
             } else {
                 $header[] = "{$prefix}" . ctrans("texts.{$key}");
             }
@@ -1720,6 +1740,11 @@ class BaseExport
 
     public function convertFloats(iterable $entity): iterable
     {
+        if ($this->skip_float_conversion) {
+            $this->raw_rows[] = (array) $entity;
+            return $entity;
+        }
+
         $currency = $this->company->currency();
 
         foreach ($entity as $key => $value) {
@@ -1814,6 +1839,184 @@ class BaseExport
             default => null,
         };
     }
+    public function isGroupByActive(): bool
+    {
+        return ! empty($this->input['group_by']);
+    }
+
+    /**
+     * Run the export with grouping applied.
+     * Executes the normal run() to collect raw rows via convertFloats(),
+     * then groups and aggregates the collected data.
+     */
+    public function groupedRun(): string
+    {
+        $this->skip_float_conversion = true;
+        $this->raw_rows = [];
+
+        $this->run();
+
+        $this->skip_float_conversion = false;
+
+        $summary = $this->groupRows($this->raw_rows);
+
+        $csv = Writer::fromString();
+        \League\Csv\CharsetConverter::addTo($csv, 'UTF-8', 'UTF-8');
+
+        $header = $this->buildHeader();
+        $header[] = ctrans('texts.count');
+        $csv->insertOne($header);
+
+        foreach ($summary as $row) {
+            $csv->insertOne(array_values($this->convertFloats($row)));
+        }
+
+        return $csv->toString();
+    }
+
+    /**
+     * Return JSON with grouping applied.
+     * Executes the normal run() to collect raw rows,
+     * then groups and returns aggregated summary.
+     */
+    public function groupedReturnJson(): array
+    {
+        $this->skip_float_conversion = true;
+        $this->raw_rows = [];
+
+        $this->run();
+
+        $this->skip_float_conversion = false;
+
+        $summary = $this->groupRows($this->raw_rows);
+
+        $headerdisplay = $this->buildHeader();
+
+        $header = collect($this->input['report_keys'])->map(function ($key, $value) use ($headerdisplay) {
+            return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
+        })->toArray();
+
+        $header[] = ['identifier' => 'group.count', 'display_value' => ctrans('texts.count')];
+
+        $report = [];
+
+        foreach ($summary as $row) {
+            $formatted = (array) $this->convertFloats($row);
+            $clean_row = [];
+            $i = 0;
+
+            foreach (array_values($this->input['report_keys']) as $key) {
+                $parts = explode('.', $key);
+                $clean_row[$i] = [
+                    'entity' => $parts[0],
+                    'id' => $parts[1] ?? $parts[0],
+                    'hashed_id' => null,
+                    'value' => $formatted[$key] ?? '',
+                    'identifier' => $key,
+                    'display_value' => $formatted[$key] ?? '',
+                ];
+                $i++;
+            }
+
+            $clean_row[$i] = [
+                'entity' => 'group',
+                'id' => 'count',
+                'hashed_id' => null,
+                'value' => $row['group.count'],
+                'identifier' => 'group.count',
+                'display_value' => (string) $row['group.count'],
+            ];
+
+            $report[] = $clean_row;
+        }
+
+        return array_merge(['columns' => $header], $report);
+    }
+
+    /**
+     * Group rows by the group_by key and aggregate numeric columns.
+     *
+     * @param array<int, array<string, mixed>> $rows Raw (unformatted) rows
+     * @return array<int, array<string, mixed>> Aggregated summary rows
+     */
+    protected function groupRows(array $rows): array
+    {
+        if (empty($rows)) {
+            return [];
+        }
+
+        $group_by = $this->input['group_by'];
+        $grouped = [];
+
+        foreach ($rows as $row) {
+            $key = (string) ($row[$group_by] ?? '');
+            $grouped[$key][] = $row;
+        }
+
+        $numeric_columns = $this->detectNumericColumns($rows);
+
+        $summary = [];
+
+        foreach ($grouped as $group_value => $group_rows) {
+            $summary_row = [];
+
+            foreach (array_keys($rows[0]) as $column) {
+                if ($column === $group_by) {
+                    $summary_row[$column] = $group_value;
+                } elseif (isset($numeric_columns[$column]) && $numeric_columns[$column] && ! $this->isNonSummable($column)) {
+                    $summary_row[$column] = array_sum(array_column($group_rows, $column));
+                } else {
+                    $summary_row[$column] = '';
+                }
+            }
+
+            $summary_row['group.count'] = count($group_rows);
+            $summary[] = $summary_row;
+        }
+
+        return $summary;
+    }
+
+    /**
+     * Detect which columns contain numeric values.
+     *
+     * @param array<int, array<string, mixed>> $rows
+     * @return array<string, bool>
+     */
+    protected function detectNumericColumns(array $rows): array
+    {
+        $numeric = [];
+
+        foreach (array_keys($rows[0]) as $column) {
+            foreach ($rows as $row) {
+                $value = $row[$column] ?? '';
+
+                if ($value === '' || $value === null) {
+                    continue;
+                }
+
+                $numeric[$column] = is_numeric($value);
+                break;
+            }
+        }
+
+        return $numeric;
+    }
+
+    /**
+     * Check if a column key matches a non-summable pattern.
+     */
+    protected function isNonSummable(string $key): bool
+    {
+        foreach ($this->non_summable_patterns as $pattern) {
+            if (str_contains($key, $pattern)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private function resolveEntityFilters(User $user, Builder $query): Builder
     {
 

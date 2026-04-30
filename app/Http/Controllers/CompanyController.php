@@ -784,7 +784,10 @@ class CompanyController extends BaseController
             if (Ninja::isHosted() && ! $this->isLogoUrlAllowed($logo)) {
                 $logo = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=');
             } else {
-                $response = \Illuminate\Support\Facades\Http::get($logo);
+
+                $response = \Illuminate\Support\Facades\Http::withOptions([
+                    'allow_redirects' => false,
+                ])->get($logo);
 
                 if ($response->successful()) {
                     $logo = $response->body();

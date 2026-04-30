@@ -12,72 +12,73 @@
 
 namespace App\Jobs\Company;
 
-use ZipArchive;
-use App\Models\Task;
-use App\Models\User;
-use App\Utils\Ninja;
-use App\Models\Quote;
-use App\Models\Backup;
-use App\Models\Client;
-use App\Models\Credit;
-use App\Models\Design;
-use App\Services\Pdf\Purify;
-use App\Models\Vendor;
-use App\Models\Company;
-use App\Models\Expense;
-use App\Models\Invoice;
-use App\Models\Payment;
-use App\Models\Product;
-use App\Models\Project;
-use App\Models\TaxRate;
-use App\Models\Webhook;
-use App\Utils\TempFile;
-use App\Models\Activity;
-use App\Models\Document;
-use App\Models\Location;
+use App\Exceptions\ImportCompanyFailed;
+use App\Exceptions\NonExistingMigrationFile;
+use App\Factory\ClientContactFactory;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
-use App\Models\TaskStatus;
-use App\Models\CompanyUser;
-use App\Models\Paymentable;
-use App\Models\PaymentTerm;
-use Illuminate\Support\Str;
-use App\Models\GroupSetting;
-use App\Models\Subscription;
-use JsonMachine\JsonMachine;
-use App\Models\ClientContact;
-use App\Models\CompanyLedger;
-use App\Models\PurchaseOrder;
-use App\Models\VendorContact;
-use Illuminate\Bus\Queueable;
-use App\Models\CompanyGateway;
+use App\Mail\Import\CompanyImportFailure;
+use App\Mail\Import\ImportCompleted;
+use App\Models\Activity;
+use App\Models\Backup;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
-use App\Models\EInvoicingToken;
-use App\Models\ExpenseCategory;
-use App\Models\QuoteInvitation;
-use App\Utils\Traits\MakesHash;
+use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\ClientGatewayToken;
+use App\Models\Company;
+use App\Models\CompanyGateway;
+use App\Models\CompanyLedger;
+use App\Models\CompanyUser;
+use App\Models\Credit;
 use App\Models\CreditInvitation;
+use App\Models\Design;
+use App\Models\Document;
+use App\Models\EInvoicingToken;
+use App\Models\Expense;
+use App\Models\ExpenseCategory;
+use App\Models\GroupSetting;
+use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
+use App\Models\Location;
+use App\Models\Payment;
+use App\Models\Paymentable;
+use App\Models\PaymentTerm;
+use App\Models\Product;
+use App\Models\Project;
+use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderInvitation;
+use App\Models\Quote;
+use App\Models\QuoteInvitation;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
-use App\Jobs\Mail\NinjaMailerJob;
-use App\Models\InvoiceInvitation;
-use App\Models\ClientGatewayToken;
-use Illuminate\Support\Facades\App;
-use App\Jobs\Mail\NinjaMailerObject;
-use App\Mail\Import\ImportCompleted;
-use App\Factory\ClientContactFactory;
-use App\Utils\Traits\GeneratesCounter;
-use Illuminate\Queue\SerializesModels;
-use App\Exceptions\ImportCompanyFailed;
-use App\Models\PurchaseOrderInvitation;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Queue\InteractsWithQueue;
-use App\Mail\Import\CompanyImportFailure;
 use App\Models\RecurringInvoiceInvitation;
+use App\Models\Subscription;
+use App\Models\Task;
+use App\Models\TaskStatus;
+use App\Models\TaxRate;
+use App\Models\User;
+use App\Models\Vendor;
+use App\Models\VendorContact;
+use App\Models\Webhook;
+use App\Services\Pdf\Purify;
+use App\Utils\Ninja;
+use App\Utils\TempFile;
+use App\Utils\Traits\GeneratesCounter;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use JsonMachine\JsonDecoder\ExtJsonDecoder;
-use App\Exceptions\NonExistingMigrationFile;
+use JsonMachine\JsonMachine;
+use ZipArchive;
 
 class CompanyImport implements ShouldQueue
 {
@@ -527,7 +528,9 @@ class CompanyImport implements ShouldQueue
         $file_path = sys_get_temp_dir() . '/' . sha1(microtime());
 
         if ($res === true) {
-            echo "ok";
+
+            $this->validateZipEntries($zip);
+
             $extraction_res = $zip->extractTo($file_path);
 
             nlog($extraction_res);
@@ -536,7 +539,7 @@ class CompanyImport implements ShouldQueue
             nlog($closer);
 
         } else {
-            echo "failed, code: " . $res;
+            throw new ImportCompanyFailed("ZIP open failed, code: {$res}");
         }
 
         $file_path = "{$file_path}/backup.json";
@@ -548,6 +551,22 @@ class CompanyImport implements ShouldQueue
         }
 
         return $file_path;
+    }
+
+    /**
+     * Validate ZIP entries to prevent path traversal (zip slip).
+     * Rejects entries containing '..' or starting with '/'.
+     */
+    private function validateZipEntries(ZipArchive $zip): void
+    {
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $entryName = $zip->getNameIndex($i);
+
+            if (str_contains($entryName, '..') || str_starts_with($entryName, '/')) {
+                $zip->close();
+                throw new ImportCompanyFailed('Invalid file path detected in ZIP archive.');
+            }
+        }
     }
 
 
@@ -1418,6 +1437,16 @@ class CompanyImport implements ShouldQueue
                 continue;
             }
 
+            if (!$this->isValidFilePath($document->url)) {
+                nlog("Skipping document with invalid path: {$document->url}");
+                continue;
+            }
+
+            if (!$this->isAllowedDocumentExtension($document->url)) {
+                nlog("Skipping document with disallowed extension: {$document->url}");
+                continue;
+            }
+
             /** @var string $storage_url */
             $storage_url = (object) $this->getObject('storage_url', true);
 
@@ -1428,8 +1457,20 @@ class CompanyImport implements ShouldQueue
             if (!Storage::exists($document->url) && is_string($storage_url)) {
                 $url = $storage_url . $document->url;
 
-                $file = @file_get_contents($url);
+                if (!$this->isAllowedRemoteUrl($url)) {
+                    nlog("Blocked remote document fetch: {$url}");
+                    continue;
+                }
 
+                $response = Http::withOptions([
+                    'redirects' => false,
+                ])->get($url);
+                if ($response->successful()) {
+                    $file = $response->body();
+                } else {
+                    $file = false;
+                }
+                
                 if ($file) {
                     try {
                         Storage::disk(config('filesystems.default'))->put($new_document_url, $file);
@@ -1484,6 +1525,61 @@ class CompanyImport implements ShouldQueue
         }
 
         return $this;
+    }
+
+    /**
+     * Validate that a remote URL is safe to fetch.
+     * Blocks private/internal IPs to prevent SSRF.
+     * Self-hosted allows http://, hosted requires https://.
+     */
+    private function isAllowedRemoteUrl(string $url): bool
+    {
+        $parsed = parse_url($url);
+
+        if (!$parsed || empty($parsed['scheme']) || empty($parsed['host'])) {
+            return false;
+        }
+
+        $allowed_schemes = Ninja::isSelfHost() ? ['https', 'http'] : ['https'];
+
+        if (!in_array(strtolower($parsed['scheme']), $allowed_schemes, true)) {
+            return false;
+        }
+
+        $ip = gethostbyname($parsed['host']);
+
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Validate file extension against the allowed upload types.
+     */
+    private function isAllowedDocumentExtension(string $url): bool
+    {
+        $allowed = ['png', 'ai', 'jpeg', 'jpg', 'tiff', 'pdf', 'gif', 'psd', 'txt',
+            'doc', 'xls', 'ppt', 'xlsx', 'docx', 'pptx', 'webp', 'xml', 'zip',
+            'csv', 'ods', 'odt', 'odp'];
+
+        $extension = strtolower(pathinfo($url, PATHINFO_EXTENSION));
+
+        return in_array($extension, $allowed, true);
+    }
+
+    private function isValidFilePath(string $filename): bool
+    {
+        if (str_contains($filename, "\0")) {
+            return false;
+        }
+
+        if (str_contains($filename, '..')) {
+            return false;
+        }
+
+        return true;
     }
 
     private function import_webhooks()
@@ -1863,7 +1959,9 @@ class CompanyImport implements ShouldQueue
             if ($new_obj instanceof CompanyLedger || $new_obj instanceof EInvoicingToken) {
             } elseif ($new_obj instanceof Backup) {
 
-                if (is_file("{$this->root_file_path}backups/{$obj->filename}")) {
+                if (!$this->isValidFilePath($obj->filename)) {
+                    nlog("Skipping backup with invalid path: {$obj->filename}");
+                } elseif (is_file("{$this->root_file_path}backups/{$obj->filename}")) {
                     $file = file_get_contents("{$this->root_file_path}backups/{$obj->filename}");
                     $new_obj->filename = str_replace($this->old_company_key, $this->company->company_key, $obj->filename);
                     $new_obj->save();

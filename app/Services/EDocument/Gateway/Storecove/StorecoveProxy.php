@@ -153,6 +153,83 @@ class StorecoveProxy
         return $this->remoteRequest('/api/einvoice/peppol/add_additional_legal_identifier', $data);
     }
 
+    public function c5Activate(string $name, string $email): array
+    {
+        $data = [
+            'legal_entity_id' => $this->company->legal_entity_id,
+            'id_number' => $this->company->settings->id_number,
+            'name' => $name,
+            'email' => $email,
+        ];
+
+        if (Ninja::isHosted()) {
+            $response = $this->storecove->c5->activate(
+                $data['legal_entity_id'],
+                $data['id_number'],
+                $name,
+                $email,
+            );
+
+            if (is_array($response)) {
+                return $response;
+            }
+
+            return $this->handleResponseError($response);
+        }
+
+        return $this->remoteRequest('/api/einvoice/peppol/sg/c5/activate', $data);
+    }
+
+    public function c5Deactivate(string $name, string $email): array
+    {
+        $data = [
+            'legal_entity_id' => $this->company->legal_entity_id,
+            'id_number' => $this->company->settings->id_number,
+            'name' => $name,
+            'email' => $email,
+        ];
+
+        if (Ninja::isHosted()) {
+            $response = $this->storecove->c5->deactivate(
+                $data['legal_entity_id'],
+                $data['id_number'],
+                $name,
+                $email,
+            );
+
+            if (is_array($response)) {
+                return $response;
+            }
+
+            return $this->handleResponseError($response);
+        }
+
+        return $this->remoteRequest('/api/einvoice/peppol/sg/c5/deactivate', $data);
+    }
+
+    public function c5Cancel(): array
+    {
+        $data = [
+            'legal_entity_id' => $this->company->legal_entity_id,
+            'id_number' => $this->company->settings->id_number,
+        ];
+
+        if (Ninja::isHosted()) {
+            $response = $this->storecove->c5->cancel(
+                $data['legal_entity_id'],
+                $data['id_number'],
+            );
+
+            if (is_array($response)) {
+                return $response;
+            }
+
+            return $this->handleResponseError($response);
+        }
+
+        return $this->remoteRequest('/api/einvoice/peppol/sg/c5/cancel', $data);
+    }
+
     public function removeAdditionalTaxIdentifier(array $data): array|false
     {
         $data['legal_entity_id'] = $this->company->legal_entity_id;

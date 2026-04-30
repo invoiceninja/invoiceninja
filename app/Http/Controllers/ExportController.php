@@ -61,10 +61,13 @@ class ExportController extends BaseController
         $user = auth()->user();
 
         $hash = Str::uuid()->toString();
-        $url = \Illuminate\Support\Facades\URL::temporarySignedRoute('protected_download', now()->addHour(), ['hash' => $hash]);
-        Cache::put($hash, $url, 3600);
+        $total_activities = $user->getCompany()->all_activities()->count();
+        $expiry_hours = $total_activities > 10000 ? 5 : 1;
 
-        CompanyExport::dispatch($user->getCompany(), $user, $hash);
+        $url = \Illuminate\Support\Facades\URL::temporarySignedRoute('protected_download', now()->addHours($expiry_hours), ['hash' => $hash]);
+        Cache::put($hash, $url, $expiry_hours * 3600);
+
+        CompanyExport::dispatch($user->getCompany(), $user, $hash, $total_activities);
 
         return response()->json(['message' => 'Processing', 'url' => $url], 200);
     }

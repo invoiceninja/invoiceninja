@@ -113,7 +113,7 @@ class ContactExport extends BaseExport
     }
 
 
-    private function buildRow(ClientContact $contact): array
+    protected function buildRow(ClientContact $contact): array
     {
         $transformed_contact = false;
 

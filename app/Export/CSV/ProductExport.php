@@ -115,7 +115,7 @@ class ProductExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(Product $product): array
+    protected function buildRow(Product $product): array
     {
         $transformed_entity = $this->entity_transformer->transform($product);
 

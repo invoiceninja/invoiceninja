@@ -107,7 +107,7 @@ class LocationExport extends BaseExport
         return array_merge(['columns' => $header], $report);
     }
 
-    private function buildRow(Location $location): array
+    protected function buildRow(Location $location): array
     {
         $transformed_location = $this->location_transformer->transform($location);
 

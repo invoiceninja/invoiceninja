@@ -24,7 +24,7 @@ class EDocumentRequest extends Request
     {
         $rules = [];
 
-        $rules['documents.*'] = 'required|file|max:1000000';
+        $rules['documents.*'] = 'required|file|max:1000000|mimes:xml,pdf,json,p7s,p7m,html,txt,csv,zip,ods';
 
         return $rules;
     }

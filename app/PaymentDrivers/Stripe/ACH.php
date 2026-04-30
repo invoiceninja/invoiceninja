@@ -13,7 +13,7 @@
 namespace App\PaymentDrivers\Stripe;
 
 use App\Exceptions\PaymentFailed;
-use App\Http\Requests\Request;
+use Illuminate\Http\Request;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Util\SystemLogger;
@@ -72,21 +72,23 @@ class ACH implements LivewireMethodInterface
         $customer = $this->stripe->findOrCreateCustomer();
 
         // Create SetupIntent with Financial Connections for instant verification
-        $intent = \Stripe\SetupIntent::create([
-            'customer' => $customer->id,
-            'usage' => 'off_session',
-            'payment_method_types' => ['us_bank_account'],
-            'payment_method_options' => [
-                'us_bank_account' => [
-                    'financial_connections' => [
-                        'permissions' => ['payment_method'],
-                        // Optional: add 'balances', 'ownership' for additional data
+        try {
+            $intent = \Stripe\SetupIntent::create([
+                'customer' => $customer->id,
+                'usage' => 'off_session',
+                'payment_method_types' => ['us_bank_account'],
+                'payment_method_options' => [
+                    'us_bank_account' => [
+                        'financial_connections' => [
+                            'permissions' => ['payment_method'],
+                        ],
+                        'verification_method' => 'automatic',
                     ],
-                    'verification_method' => 'automatic', // instant with microdeposit fallback
-                    // Or use 'instant' to require instant only (no fallback)
                 ],
-            ],
-        ], $this->stripe->stripe_connect_auth);
+            ], $this->stripe->stripe_connect_auth);
+        } catch (InvalidRequestException $e) {
+            throw new PaymentFailed($e->getMessage(), $e->getCode());
+        }
 
         $data['client_secret'] = $intent->client_secret;
         $data['customer'] = $customer;

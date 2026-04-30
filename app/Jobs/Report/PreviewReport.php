@@ -39,15 +39,25 @@ class PreviewReport implements ShouldQueue
     {
         MultiDB::setDb($this->company->db);
 
-        /** @var \App\Export\CSV\BaseExport $export */
+        /** @var \App\Services\Report\ProfitLoss|\App\Export\CSV\BaseExport $export */
         $export = new $this->report_class($this->company, $this->request);
 
-        if (isset($this->request['output']) && $this->request['output'] == 'json') {
-            $report = $export->returnJson();
-        } elseif (!empty($this->request['template_id'])) {
-            $builder = $export->init();
-            $report = $export->exportTemplate($builder, $this->request['template_id']);
-            $report = base64_encode($report);
+        if ($export instanceof \App\Export\CSV\BaseExport) {
+            if ($export->isGroupByActive()) {
+                if (isset($this->request['output']) && $this->request['output'] == 'json') {
+                    $report = $export->groupedReturnJson();
+                } else {
+                    $report = base64_encode($export->groupedRun());
+                }
+            } elseif (isset($this->request['output']) && $this->request['output'] == 'json') {
+                $report = $export->returnJson();
+            } elseif (!empty($this->request['template_id'])) {
+                $builder = $export->init();
+                $report = $export->exportTemplate($builder, $this->request['template_id']);
+                $report = base64_encode($report);
+            } else {
+                $report = base64_encode($export->run());
+            }
         } else {
             $report = base64_encode($export->run());
         }

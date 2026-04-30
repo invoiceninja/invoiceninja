@@ -789,6 +789,38 @@ class InvoiceService
     }
 
     /**
+     * Distribute invoice-level taxes to line items for QuickBooks sync.
+     *
+     * Moves global taxes (tax_name1/2/3 on the invoice) onto every line item
+     * and clears the invoice-level tax fields.
+     *
+     * @return self
+     */
+    public function distributeInvoiceLevelTaxes(): self
+    {
+        $line_items = $this->invoice->line_items;
+
+        foreach ([1, 2, 3] as $i) {
+            $name_field = "tax_name{$i}";
+            $rate_field = "tax_rate{$i}";
+
+            if (is_string($this->invoice->{$name_field}) && strlen($this->invoice->{$name_field}) > 1) {
+                foreach ($line_items as $item) {
+                    $item->{$name_field} = $this->invoice->{$name_field};
+                    $item->{$rate_field} = $this->invoice->{$rate_field};
+                }
+
+                $this->invoice->{$name_field} = '';
+                $this->invoice->{$rate_field} = 0;
+            }
+        }
+
+        $this->invoice->line_items = $line_items;
+
+        return $this;
+    }
+
+    /**
      * Saves the invoice.
      * @return Invoice object
      */
