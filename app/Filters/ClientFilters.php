@@ -206,7 +206,7 @@ class ClientFilters extends QueryFilters
 
         if($sort_col[0] == 'contact_email') {
             return $this->builder->orderBy(\App\Models\ClientContact::select('email')
-            ->whereColumn('client_contacts.client_id', 'clients.client_id')
+            ->whereColumn('client_contacts.client_id', 'clients.id')
             ->limit(1), $dir);
         }
 
