@@ -5990,6 +5990,8 @@ $lang = array(
     'cell_padding' => 'Cell Padding',
     'suffix' => 'Suffix',
     'hide_if_empty' => 'Hide if Empty',
+    'qr_code' => 'QR Code',
+    'qr_code_type' => 'QR Code Type',
 );
 
 return $lang;

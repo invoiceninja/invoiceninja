@@ -196,10 +196,16 @@ class JsonToSectionsAdapter
         $props = $block['properties'];
         $blockId = $block['id'];
         $source = is_string($props['source'] ?? null) ? $props['source'] : '';
+
+        $values = $this->service->html_variables['values'] ?? [];
+        $toInline = $block['type'] === 'logo'
+            ? strtr($source, $values)
+            : $source;
+
         // Inline the remote asset as a data: URI so Chromium never fetches a
         // user-supplied URL. Fails closed to an empty src if the URL can't be
         // safely retrieved (rejected scheme/host, 3xx, wrong content-type, etc.).
-        $src = $source === '' ? '' : ($this->imageFetcher->inline($source) ?? '');
+        $src = $toInline === '' ? '' : ($this->imageFetcher->inline($toInline) ?? '');
 
         return [
             'id' => $blockId,
