@@ -15,9 +15,11 @@ namespace App\PaymentDrivers;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Helcim\CreditCard;
+use Illuminate\Support\Facades\Http;
 
 class HelcimPaymentDriver extends BaseDriver
 {
@@ -105,15 +107,17 @@ class HelcimPaymentDriver extends BaseDriver
         $this->init();
 
         $response = $this->gatewayRequest('/payment/refund', [
-            'transactionId' => $payment->transaction_reference,
+            'originalTransactionId' => (int) $payment->transaction_reference,
             'amount' => $amount,
+            'ipAddress' => request()->ip(),
+            'ecommerce' => true,
         ], 'POST');
 
         if (isset($response['status']) && $response['status'] === 'APPROVED') {
             $data = [
                 'transaction_reference' => $response['transactionId'] ?? '',
                 'success' => true,
-                'description' => $response['message'] ?? ctrans('texts.refund_successful'),
+                'description' => $response['message'] ?? ctrans('texts.refunded'),
                 'code' => $response['responseCode'] ?? '',
             ];
 
@@ -133,7 +137,7 @@ class HelcimPaymentDriver extends BaseDriver
             return $data;
         }
 
-        $error = $response['message'] ?? ctrans('texts.refund_failed');
+        $error = $response['message'] ?? ctrans('texts.refunded_payment');
         
         SystemLogger::dispatch(
             ['error' => $error, 'response' => $response],
@@ -157,17 +161,6 @@ class HelcimPaymentDriver extends BaseDriver
     }
 
     /**
-     * Process token billing (charge using saved payment method)
-     */
-    public function tokenBilling(ClientGatewayToken $cgt, float $amount)
-    {
-        $this->init();
-        $this->setPaymentMethod($cgt->gateway_type_id);
-
-        return $this->creditCard()->tokenBilling($cgt, $amount);
-    }
-
-    /**
      * Initialize a HelcimPay.js checkout session
      * 
      * PCI COMPLIANCE: This method creates a secure checkout session that
@@ -176,43 +169,21 @@ class HelcimPaymentDriver extends BaseDriver
     public function initializeHelcimPaySession(array $params): array
     {
         $endpoint = '/helcim-pay/initialize';
-        
-        // Generate idempotency key for the request
         $idempotencyKey = \Illuminate\Support\Str::uuid()->toString();
-        
-        $headers = [
-            'api-token: ' . $this->getApiToken(),
-            'Content-Type: application/json',
-            'Accept: application/json',
-            'idempotency-key: ' . $idempotencyKey,
-        ];
 
-        $url = $this->getApiUrl() . $endpoint;
-        
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
+        $response = Http::withOptions(['verify' => true, 'allow_redirects' => false])
+            ->withHeaders([
+                'api-token' => $this->getApiToken(),
+                'idempotency-key' => $idempotencyKey,
+            ])
+            ->post($this->getApiUrl() . $endpoint, $params);
 
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error = curl_error($ch);
-        curl_close($ch);
-
-        if ($error) {
-            throw new \Exception('Helcim API Error: ' . $error);
+        if ($response->failed()) {
+            $errorMessage = $response->json('errors') ?? $response->json('message') ?? 'Unknown error';
+            throw new \Exception('HelcimPay.js initialization failed: ' . (is_array($errorMessage) ? json_encode($errorMessage) : $errorMessage) . ' (HTTP ' . $response->status() . ')');
         }
 
-        $responseData = json_decode($response, true);
-
-        if ($httpCode !== 200 && $httpCode !== 201) {
-            $errorMessage = $responseData['errors'] ?? $responseData['message'] ?? 'Unknown error';
-            throw new \Exception('HelcimPay.js initialization failed: ' . $errorMessage . ' (HTTP ' . $httpCode . ')');
-        }
-
-        return $responseData;
+        return $response->json();
     }
 
     /**
@@ -242,52 +213,39 @@ class HelcimPaymentDriver extends BaseDriver
     public function gatewayRequest(string $endpoint, array $data, string $method = 'POST')
     {
         $url = $this->getApiUrl() . $endpoint;
-        $token = $this->getApiToken();
 
-        // Generate idempotency key for POST requests
-        $idempotencyKey = \Illuminate\Support\Str::uuid()->toString();
-
-        $headers = [
-            'api-token: ' . $token,
-            'Content-Type: application/json',
-            'Accept: application/json',
-        ];
-
-        // Add idempotency key for POST requests
-        if ($method === 'POST') {
-            $headers[] = 'idempotency-key: ' . $idempotencyKey;
-        }
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        $http = Http::withOptions(['verify' => true, 'allow_redirects' => false])
+            ->withHeaders(['api-token' => $this->getApiToken()]);
 
         if ($method === 'POST') {
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+            $idempotencyKey = \Illuminate\Support\Str::uuid()->toString();
+            $http = $http->withHeaders(['idempotency-key' => $idempotencyKey]);
+            $response = $http->post($url, $data);
+        } else {
+            $response = $http->get($url, $data);
         }
 
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error = curl_error($ch);
-        curl_close($ch);
-
-        if ($error) {
-            throw new \Exception('Helcim API Error: ' . $error);
-        }
-
-        $responseData = json_decode($response, true);
-
-        if ($httpCode !== 200 && $httpCode !== 201) {
-            $errorMessage = $responseData['errors'] ?? $responseData['message'] ?? 'Unknown error';
+        if ($response->failed()) {
+            $errorMessage = $response->json('errors') ?? $response->json('message') ?? 'Unknown error';
             if (is_array($errorMessage)) {
                 $errorMessage = json_encode($errorMessage);
             }
-            throw new \Exception('Helcim API returned error: ' . $errorMessage . ' (HTTP ' . $httpCode . ')');
+            throw new \Exception('Helcim API returned error: ' . $errorMessage . ' (HTTP ' . $response->status() . ')');
         }
 
-        return $responseData;
+        return $response->json();
+    }
+
+    /**
+     * Process token billing (charge using saved payment method)
+     */
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
+    {
+        $this->payment_hash = $payment_hash;
+        $this->init();
+        $this->setPaymentMethod($cgt->gateway_type_id);
+
+        return $this->creditCard()->tokenBilling($cgt, $payment_hash);
     }
 
     /**

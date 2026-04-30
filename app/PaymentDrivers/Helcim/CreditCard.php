@@ -244,9 +244,11 @@ class CreditCard implements MethodInterface
         $amount = $paymentHash->data->amount_with_fee;
 
         $response = $this->helcim_driver->gatewayRequest('/payment/purchase', [
-            'cardToken' => $token->token,
+            'cardData' => ['cardToken' => $token->token],
             'amount' => $amount,
             'currency' => $this->helcim_driver->client->currency()->code,
+            'ipAddress' => request()->ip(),
+            'ecommerce' => true,
         ]);
 
         if (isset($response['status']) && $response['status'] === 'APPROVED') {
@@ -353,12 +355,16 @@ class CreditCard implements MethodInterface
     /**
      * Process token billing (recurring payments)
      */
-    public function tokenBilling(ClientGatewayToken $cgt, float $amount)
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
+        $amount = $payment_hash->data->amount_with_fee;
+
         $response = $this->helcim_driver->gatewayRequest('/payment/purchase', [
-            'cardToken' => $cgt->token,
+            'cardData' => ['cardToken' => $cgt->token],
             'amount' => $amount,
             'currency' => $this->helcim_driver->client->currency()->code,
+            'ipAddress' => request()->ip(),
+            'ecommerce' => true,
         ]);
 
         if (isset($response['status']) && $response['status'] === 'APPROVED') {

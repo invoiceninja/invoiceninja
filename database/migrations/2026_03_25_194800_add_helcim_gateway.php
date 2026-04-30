@@ -13,11 +13,11 @@ return new class extends Migration
     public function up(): void
     {
         if (Schema::hasTable('gateways')) {
-            $gateway = Gateway::find(66);
+            $gateway = Gateway::find(67);
 
             if (!$gateway) {
                 $gateway = new Gateway();
-                $gateway->id = 66;
+                $gateway->id = 67;
                 $gateway->name = 'Helcim';
                 $gateway->key = 'ca3b3f7e4be811c96a8a1f4cafe2a97f';
                 $gateway->provider = 'Helcim';
