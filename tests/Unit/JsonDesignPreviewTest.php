@@ -514,4 +514,75 @@ class JsonDesignPreviewTest extends TestCase
         $this->assertGreaterThan(100, strlen($cleanedHtml),
             'Cleaned HTML should have substantial content (>100 chars)');
     }
+
+    // -----------------------------------------------------------------------
+    // invoice-details: padding prop is OUTER container padding (per spec)
+    // -----------------------------------------------------------------------
+    public function testInvoiceDetailsPaddingAppliedToOuterContainer(): void
+    {
+        $invitation = $this->invoice->invitations()->first();
+        $ps = new PdfService($invitation, 'product');
+        $ps->config = (new PdfConfiguration($ps))->init();
+        $ps->html_variables = (new \App\Utils\HtmlEngine($invitation))->generateLabelsAndValues();
+
+        $design = [
+            'pageSettings' => [],
+            'blocks' => [[
+                'id' => 'invoice-details-pad',
+                'type' => 'invoice-details',
+                'gridPosition' => ['x' => 0, 'y' => 0, 'w' => 6, 'h' => 3],
+                'properties' => [
+                    'padding' => '6px 4px',
+                    'items' => [
+                        ['variable' => '$invoice.number', 'label' => 'Invoice #:', 'show' => true],
+                    ],
+                ],
+            ]],
+        ];
+
+        $sections = (new JsonToSectionsAdapter($design, $ps))->toSections();
+        $table = $sections['invoice-details-pad']['elements'][0];
+        $table_style = $table['properties']['style'];
+
+        $this->assertStringContainsString('padding: 6px 4px', $table_style,
+            'Outer table must receive the block-level padding prop');
+
+        // Cells get labelPadding/valuePadding (default "0"), not the block padding.
+        $cells = $table['elements'][0]['elements'];
+        $label_style = $cells[0]['properties']['style'];
+        $value_style = $cells[1]['properties']['style'];
+        $this->assertStringNotContainsString('padding: 6px 4px', $label_style,
+            'Cells must not receive the block padding (it goes on the outer container)');
+        $this->assertStringNotContainsString('padding: 6px 4px', $value_style,
+            'Cells must not receive the block padding (it goes on the outer container)');
+    }
+
+    public function testInvoiceDetailsNoPaddingOnContainerWhenUnset(): void
+    {
+        $invitation = $this->invoice->invitations()->first();
+        $ps = new PdfService($invitation, 'product');
+        $ps->config = (new PdfConfiguration($ps))->init();
+        $ps->html_variables = (new \App\Utils\HtmlEngine($invitation))->generateLabelsAndValues();
+
+        $design = [
+            'pageSettings' => [],
+            'blocks' => [[
+                'id' => 'invoice-details-nopad',
+                'type' => 'invoice-details',
+                'gridPosition' => ['x' => 0, 'y' => 0, 'w' => 6, 'h' => 3],
+                'properties' => [
+                    'items' => [
+                        ['variable' => '$invoice.number', 'label' => 'Invoice #:', 'show' => true],
+                    ],
+                ],
+            ]],
+        ];
+
+        $sections = (new JsonToSectionsAdapter($design, $ps))->toSections();
+        $table_style = $sections['invoice-details-nopad']['elements'][0]['properties']['style'];
+
+        // No `padding:` shorthand on the table when the prop is unset.
+        $this->assertDoesNotMatchRegularExpression('/(^|\W)padding: /', $table_style,
+            'Outer table must not emit padding shorthand when prop unset');
+    }
 }

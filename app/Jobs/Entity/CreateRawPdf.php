@@ -177,7 +177,14 @@ class CreateRawPdf
             $pdf = (new MergeEDocument($this->entity, $pdf))->handle();
         }
 
-        $merge_docs = isset($this->entity->client) ? $this->entity->client->getSetting('embed_documents') : $this->company->getSetting('embed_documents');
+        // Prefer the resolved settings on PdfService (which may have been
+        // overridden by a JSON design's documentSettings.embedDocuments) over
+        // the raw client/company merged settings.
+        $merge_docs = isset($ps->config->settings->embed_documents)
+            ? (bool) $ps->config->settings->embed_documents
+            : (isset($this->entity->client)
+                ? $this->entity->client->getSetting('embed_documents')
+                : $this->company->getSetting('embed_documents'));
 
         if ($merge_docs && ($this->entity->documents()->where('is_public', true)->count() > 0 || $this->company->documents()->where('is_public', true)->count() > 0)) {
             $pdf = $this->entity->documentMerge($pdf);

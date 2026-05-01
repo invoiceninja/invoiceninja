@@ -21,6 +21,7 @@ use App\Models\CreditInvitation;
 use App\Utils\Traits\MakesDates;
 use App\Models\InvoiceInvitation;
 use App\Helpers\Epc\EpcQrGenerator;
+use App\Helpers\Invoice\InvoiceSum;
 use Illuminate\Support\Facades\App;
 use App\Utils\Traits\DesignCalculator;
 use App\Helpers\SwissQr\SwissQrGenerator;
@@ -52,10 +53,13 @@ class HtmlEngine
     /** @var \App\DataMapper\CompanySettings|\stdClass $settings **/
     public $settings;
 
+    /** @var \App\Helpers\Invoice\InvoiceSum|\App\Helpers\Invoice\InvoiceSumInclusive $entity_calc */
     public $entity_calc;
 
+    /** @var string */
     public $entity_string;
 
+    /** @var \App\Utils\Helpers $helpers */
     private $helpers;
 
 
@@ -77,7 +81,7 @@ class HtmlEngine
 
         $this->contact = $invitation->contact->load('client');
 
-        $this->client = $this->contact->client->load('company', 'country');
+        $this->client = $this->contact->client->load(['company', 'country']);
 
         $this->entity->load('client');
 
@@ -88,6 +92,12 @@ class HtmlEngine
         $this->helpers = new Helpers();
     }
 
+    /**
+     * setSettings
+     *
+     * @param  mixed $settings
+     * @return self
+     */
     public function setSettings($settings): self
     {
         $this->settings = $settings;

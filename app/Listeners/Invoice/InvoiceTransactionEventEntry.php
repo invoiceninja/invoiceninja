@@ -17,6 +17,7 @@ use App\Models\Invoice;
 use App\Models\TransactionEvent;
 use Illuminate\Support\Collection;
 use App\DataMapper\TransactionEventMetadata;
+use App\Services\Report\TaxPeriod\TaxClassificationCalculator;
 
 /**
  * Handles entries for invoices.
@@ -207,6 +208,7 @@ class InvoiceTransactionEventEntry
         return new TransactionEventMetadata([
             'tax_report' => [
                 'tax_details' => $details,
+                'tax_details_by_classification' => $this->buildDeltaByClassification($invoice),
                 'payment_history' => $this->payments->toArray() ?? [], //@phpstan-ignore-line
                 'tax_summary' => [
                     'taxable_amount' => $calc->getNetSubtotal() - $cumulative_taxable,
@@ -217,7 +219,13 @@ class InvoiceTransactionEventEntry
         ]);
 
     }
-
+    
+    /**
+     * getReversedMetaData
+     *
+     * @param  mixed $invoice
+     * @return TransactionEventMetadata
+     */
     private function getReversedMetaData($invoice)
     {
         $calc = $invoice->calc();
@@ -245,6 +253,7 @@ class InvoiceTransactionEventEntry
         return new TransactionEventMetadata([
             'tax_report' => [
                 'tax_details' => $details,
+                'tax_details_by_classification' => TaxClassificationCalculator::calculate($invoice, $this->paid_ratio * -1, $details),
                 'payment_history' => $this->payments->toArray() ?? [], //@phpstan-ignore-line
                 'tax_summary' => [
                     'taxable_amount' => $calc->getNetSubtotal() * $this->paid_ratio * -1,
@@ -289,6 +298,7 @@ class InvoiceTransactionEventEntry
         return new TransactionEventMetadata([
             'tax_report' => [
                 'tax_details' => $details,
+                'tax_details_by_classification' => TaxClassificationCalculator::calculate($invoice, $this->paid_ratio, $details),
                 'payment_history' => $this->payments->toArray() ?? [], //@phpstan-ignore-line
                 'tax_summary' => [
                     'taxable_amount' => $calc->getNetSubtotal() * $this->paid_ratio,
@@ -331,6 +341,7 @@ class InvoiceTransactionEventEntry
         return new TransactionEventMetadata([
             'tax_report' => [
                 'tax_details' => $details,
+                'tax_details_by_classification' => TaxClassificationCalculator::calculate($invoice, -1, $details),
                 'payment_history' => $this->payments->toArray(),
                 'tax_summary' => [
                     'taxable_amount' => $calc->getNetSubtotal() * -1,
@@ -342,7 +353,13 @@ class InvoiceTransactionEventEntry
 
     }
 
-    private function getMetadata($invoice)
+    /**
+     * getMetadata
+     *
+     * @param  mixed $invoice
+     * @return TransactionEventMetadata
+     */
+    private function getMetadata($invoice): TransactionEventMetadata
     {
 
         if ($invoice->status_id == Invoice::STATUS_CANCELLED) {
@@ -378,6 +395,7 @@ class InvoiceTransactionEventEntry
         return new TransactionEventMetadata([
             'tax_report' => [
                 'tax_details' => $details,
+                'tax_details_by_classification' => TaxClassificationCalculator::calculate($invoice, 1.0, $details),
                 'payment_history' => $this->payments->toArray(),
                 'tax_summary' => [
                     'taxable_amount' => $calc->getNetSubtotal(),
@@ -387,6 +405,85 @@ class InvoiceTransactionEventEntry
             ],
         ]);
 
+    }
+
+    /**
+     * Delta semantics mirror the existing tax_details flow:
+     *  - taxable_amount / tax_amount are the period delta
+     *  - line_total / total_tax are the full current snapshot (so the next
+     *    delta event can subtract from them)
+     *
+     * The previous event's `line_total` and `total_tax` carry its full
+     * cumulative current per classification.
+     */
+    private function buildDeltaByClassification(Invoice $invoice): array
+    {
+        $current = TaxClassificationCalculator::calculate($invoice, 1.0, $this->fullCurrentAggregate($invoice));
+
+        $previous_event = TransactionEvent::where('event_id', TransactionEvent::INVOICE_UPDATED)
+            ->where('invoice_id', $invoice->id)
+            ->orderBy('timestamp', 'desc')
+            ->first();
+
+        $previous_index = [];
+        if ($previous_event) {
+            $previous = $previous_event->metadata->tax_report->tax_details_by_classification ?? [];
+            // if ($previous instanceof \Illuminate\Support\Collection) {
+            //     $previous = $previous->toArray();
+            // }
+
+            foreach ($previous as $row) {
+                $row = is_array($row) ? $row : (array) $row;
+                $key = ($row['tax_name'] ?? '') . '|' . ($row['tax_rate'] ?? 0) . '|' . ($row['classification'] ?? '');
+                $previous_index[$key] = $row;
+            }
+        }
+
+        $delta = [];
+        foreach ($current as $row) {
+            $key = $row['tax_name'] . '|' . $row['tax_rate'] . '|' . $row['classification'];
+            $prev = $previous_index[$key] ?? null;
+
+            $prev_full_taxable = (float) ($prev['line_total'] ?? 0);
+            $prev_full_tax = (float) ($prev['total_tax'] ?? 0);
+
+            $delta[] = [
+                'tax_name' => $row['tax_name'],
+                'tax_rate' => $row['tax_rate'],
+                'classification' => $row['classification'],
+                'taxable_amount' => round($row['taxable_amount'] - $prev_full_taxable, 2),
+                'tax_amount' => round($row['tax_amount'] - $prev_full_tax, 2),
+                'line_total' => $row['taxable_amount'],
+                'total_tax' => $row['tax_amount'],
+                'postal_code' => $row['postal_code'],
+            ];
+        }
+
+        return $delta;
+    }
+
+    /**
+     * Build the un-multiplied aggregate tax_details (current state) so the
+     * classification calculator can reconcile against authoritative totals
+     * before delta subtraction.
+     */
+    private function fullCurrentAggregate(Invoice $invoice): array
+    {
+        $calc = $invoice->calc();
+        $taxes = array_merge($calc->getTaxMap()->merge($calc->getTotalTaxMap())->toArray());
+        $postal_code = $invoice->client->postal_code;
+
+        $aggregate = [];
+        foreach ($taxes as $tax) {
+            $aggregate[] = [
+                'tax_name' => $tax['name'],
+                'tax_rate' => $tax['tax_rate'],
+                'taxable_amount' => $tax['base_amount'] ?? $calc->getNetSubtotal(),
+                'tax_amount' => $tax['total'],
+                'postal_code' => $postal_code,
+            ];
+        }
+        return $aggregate;
     }
 
 }

@@ -61,12 +61,36 @@ class JsonToSectionsAdapter
      * @param PdfService $service
      * @param ImageFetcher|null $imageFetcher Optional override (defaults to a fresh ImageFetcher)
      */
+    /**
+     * Block-id validation pattern. Block ids are interpolated into HTML `id`
+     * attributes and `data-ref` strings without further escaping by the
+     * adapter and by JsonDesignService::generateBaseTemplate(). The pattern
+     * accepts everything the FE actually emits — kebab-case names, UUIDs,
+     * and the dotted/underscored variants — and rejects anything that could
+     * break out of an attribute (`"`, `'`, `<`, `>`, `&`, `/`, whitespace,
+     * control chars). The 128-char cap prevents extreme attribute sizes.
+     */
+    private const BLOCK_ID_PATTERN = '/^[A-Za-z0-9._-]{1,128}$/';
+
     public function __construct(array $jsonDesign, PdfService $service, ?ImageFetcher $imageFetcher = null)
     {
-        $this->jsonBlocks = $jsonDesign['blocks'] ?? [];
+        $this->jsonBlocks = self::filterValidBlocks($jsonDesign['blocks'] ?? []);
         $this->pageSettings = $jsonDesign['pageSettings'] ?? [];
         $this->service = $service;
         $this->imageFetcher = $imageFetcher ?? new ImageFetcher($service->company->company_key ?? null);
+    }
+
+    /**
+     * Drop blocks with missing or unsafe ids. Static so JsonDesignService
+     * can apply the same filter to its generateBaseTemplate input from the
+     * same source of truth. Returns the surviving blocks unchanged.
+     */
+    public static function filterValidBlocks(array $blocks): array
+    {
+        return array_values(array_filter($blocks, static function ($block) {
+            $id = $block['id'] ?? null;
+            return is_string($id) && preg_match(self::BLOCK_ID_PATTERN, $id) === 1;
+        }));
     }
 
     /**
@@ -176,6 +200,7 @@ class JsonToSectionsAdapter
             'logo', 'image' => $this->convertImageBlock($block),
             'company-info' => $this->convertCompanyInfoBlock($block),
             'client-info' => $this->convertClientInfoBlock($block),
+            'client-shipping-info' => $this->convertClientShippingInfoBlock($block),
             'invoice-details' => $this->convertInvoiceDetailsBlock($block),
             'table' => $this->convertTableBlock($block),
             'total' => $this->convertTotalBlock($block),
@@ -372,45 +397,72 @@ class JsonToSectionsAdapter
     }
 
     /**
+     * Convert client-shipping-info block.
+     *
+     * Structurally identical to client-info — the frontend supplies the
+     * shipping variables (e.g. $client.shipping_address1) through the same
+     * fieldConfigs shape — so we delegate to convertClientInfoBlock.
+     *
+     * No show_shipping_address gate: the user's design choice (placing this
+     * block on the canvas) is the source of truth. The legacy
+     * show_shipping_address setting affects traditional designs where the
+     * shipping section is implicit; in JSON designs the user is explicit, so
+     * if they don't want shipping rendered they remove the block.
+     */
+    private function convertClientShippingInfoBlock(array $block): array
+    {
+        return $this->convertClientInfoBlock($block);
+    }
+
+    /**
      * Convert invoice-details block
      */
     private function convertInvoiceDetailsBlock(array $block): array
     {
         $props = $block['properties'];
         $items = $props['items'] ?? null;
+        $fieldConfigs = $props['fieldConfigs'] ?? null;
+        $showLabels = (bool) ($props['showLabels'] ?? true);
         $elements = [];
 
-        if ($items && is_array($items)) {
+        if ($fieldConfigs && is_array($fieldConfigs)) {
+            // New format: shared fieldConfigs shape (same as company-info /
+            // client-info). Each entry contributes one <tr> with a label cell
+            // (config.label) and a value cell (config.variable). hideIfEmpty
+            // suppresses the row when the variable resolves to empty.
+            foreach ($fieldConfigs as $index => $config) {
+                $label = $config['label'] ?? '';
+                $variable = $config['variable'] ?? '';
+                $hideIfEmpty = $config['hideIfEmpty'] ?? true;
+
+                $elements[] = $this->buildInvoiceDetailsRow(
+                    $block['id'],
+                    $index,
+                    $label,
+                    $variable,
+                    !$hideIfEmpty,
+                    $props,
+                    $config,
+                    $showLabels,
+                );
+            }
+        } elseif ($items && is_array($items)) {
             // Structured format: items array with label/variable pairs
             foreach ($items as $index => $item) {
                 if (!($item['show'] ?? true)) {
                     continue;
                 }
 
-                $elements[] = [
-                    'element' => 'tr',
-                    'properties' => [
-                        'data-ref' => "{$block['id']}-row-{$index}",
-                    ],
-                    'elements' => [
-                        [
-                            'element' => 'th',
-                            'content' => $item['label'] ?? '',
-                            'properties' => [
-                                'data-ref' => "{$block['id']}-label-{$index}",
-                                'style' => $this->buildLabelStyle($props),
-                            ],
-                        ],
-                        [
-                            'element' => 'th',
-                            'content' => $item['variable'] ?? '',
-                            'properties' => [
-                                'data-ref' => "{$block['id']}-value-{$index}",
-                                'style' => $this->buildValueStyle($props),
-                            ],
-                        ],
-                    ],
-                ];
+                $elements[] = $this->buildInvoiceDetailsRow(
+                    $block['id'],
+                    $index,
+                    $item['label'] ?? '',
+                    $item['variable'] ?? '',
+                    true,
+                    $props,
+                    $item,
+                    $showLabels,
+                );
             }
         } elseif (isset($props['content']) && !empty($props['content'])) {
             // Legacy format: content string with "Label: $variable" format
@@ -422,36 +474,20 @@ class JsonToSectionsAdapter
                     continue;
                 }
 
-                // Parse "Label: $variable" format
                 $parts = explode(':', $line, 2);
                 $label = isset($parts[0]) ? trim($parts[0]) . ':' : '';
                 $variable = isset($parts[1]) ? trim($parts[1]) : '';
 
-                $elements[] = [
-                    'element' => 'tr',
-                    'properties' => [
-                        'data-ref' => "{$block['id']}-row-{$index}",
-                    ],
-                    'elements' => [
-                        [
-                            'element' => 'th',
-                            'content' => $label,
-                            'properties' => [
-                                'data-ref' => "{$block['id']}-label-{$index}",
-                                'style' => $this->buildLabelStyle($props),
-                            ],
-                        ],
-                        [
-                            'element' => 'th',
-                            'content' => $variable,
-                            'show_empty' => false, // Hide row if variable is empty
-                            'properties' => [
-                                'data-ref' => "{$block['id']}-value-{$index}",
-                                'style' => $this->buildValueStyle($props),
-                            ],
-                        ],
-                    ],
-                ];
+                $elements[] = $this->buildInvoiceDetailsRow(
+                    $block['id'],
+                    $index,
+                    $label,
+                    $variable,
+                    false,
+                    $props,
+                    [],
+                    $showLabels,
+                );
             }
         }
 
@@ -460,11 +496,162 @@ class JsonToSectionsAdapter
             'elements' => [[
                 'element' => 'table',
                 'properties' => [
-                    'style' => $this->buildTableStyle($props),
+                    'style' => $this->buildInvoiceDetailsTableStyle($props),
                 ],
                 'elements' => $elements,
             ]],
         ];
+    }
+
+    /**
+     * Build a single <tr> for the invoice-details block, honoring per-row
+     * labelStyle/valueStyle overrides and the showLabels block flag.
+     */
+    private function buildInvoiceDetailsRow(string $blockId, mixed $index, string $label, string $variable, bool $showEmpty, array $props, array $row, bool $showLabels): array
+    {
+        $columnStyles = $this->invoiceDetailsColumnStyles($props);
+        $resolver = new CellStyleResolver();
+        $context = ['kind' => CellStyleResolver::KIND_INVOICE_DETAILS];
+
+        $valueCell = [
+            'element' => 'th',
+            'content' => $variable,
+            'show_empty' => $showEmpty,
+            'properties' => [
+                'data-ref' => "{$blockId}-value-{$index}",
+                'style' => $this->composeCellStyle(
+                    $resolver->resolveValue($props, $row, $context),
+                    $columnStyles['value'],
+                ),
+            ],
+        ];
+
+        if (!$showLabels) {
+            return [
+                'element' => 'tr',
+                'properties' => ['data-ref' => "{$blockId}-row-{$index}"],
+                'elements' => [$valueCell],
+            ];
+        }
+
+        $labelCell = [
+            'element' => 'th',
+            'content' => $label,
+            'properties' => [
+                'data-ref' => "{$blockId}-label-{$index}",
+                'style' => $this->composeCellStyle(
+                    $resolver->resolveLabel($props, $row, $context),
+                    $columnStyles['label'],
+                ),
+            ],
+        ];
+
+        return [
+            'element' => 'tr',
+            'properties' => ['data-ref' => "{$blockId}-row-{$index}"],
+            'elements' => [$labelCell, $valueCell],
+        ];
+    }
+
+    /**
+     * Compute the column-level (non-typography) styles applied uniformly to
+     * every label and value cell in an invoice-details block.
+     *
+     * @return array{label: array<string,string>, value: array<string,string>}
+     */
+    private function invoiceDetailsColumnStyles(array $props): array
+    {
+        $align = $props['align'] ?? 'left';
+        $labelAlign = $props['labelAlign'] ?? 'left';
+        $valueAlign = $props['valueAlign'] ?? $align;
+        $labelPadding = $props['labelPadding'] ?? '0';
+        $valuePadding = $props['valuePadding'] ?? '0';
+        $labelValueGap = $props['labelValueGap'] ?? '12px';
+        $rowSpacing = $props['rowSpacing'] ?? '0';
+        $lineHeight = $props['lineHeight'] ?? null;
+
+        $label = [
+            'text-align' => $labelAlign,
+            'padding' => $labelPadding,
+            // padding-right asserted after `padding` so labelValueGap survives the shorthand
+            'padding-right' => $labelValueGap,
+            'padding-bottom' => $rowSpacing,
+            'white-space' => 'nowrap',
+        ];
+
+        $value = [
+            'text-align' => $valueAlign,
+            'padding' => $valuePadding,
+            'padding-bottom' => $rowSpacing,
+            'white-space' => 'nowrap',
+        ];
+
+        if (isset($props['valueMinWidth']) && $props['valueMinWidth'] !== '') {
+            $value['min-width'] = (string) $props['valueMinWidth'];
+        }
+
+        if ($lineHeight !== null && $lineHeight !== '') {
+            $label['line-height'] = (string) $lineHeight;
+            $value['line-height'] = (string) $lineHeight;
+        }
+
+        return ['label' => $label, 'value' => $value];
+    }
+
+    /**
+     * Build the outer <table> style for an invoice-details block. The
+     * `padding` block prop applies here (outer container), per spec.
+     */
+    private function buildInvoiceDetailsTableStyle(array $props): string
+    {
+        $styles = [];
+        $styles[] = 'border-collapse: collapse';
+        $styles[] = 'width: fit-content';
+        $styles[] = 'max-width: 100%';
+
+        if (isset($props['padding']) && $props['padding'] !== '') {
+            $styles[] = 'padding: ' . $props['padding'];
+        }
+
+        if (isset($props['align'])) {
+            $align = $props['align'];
+            if ($align === 'right') {
+                $styles[] = 'margin-left: auto';
+            } elseif ($align === 'center') {
+                $styles[] = 'margin: 0 auto';
+            }
+        }
+
+        return implode('; ', $styles) . ';';
+    }
+
+    /**
+     * Compose the typography map and the column-level overrides into a CSS
+     * declaration string. Order matters: typography first (so column-level
+     * `padding-right` overrides any padding shorthand from the resolver).
+     *
+     * @param array<string, ?string> $typography Resolver output (font-size, font-weight, font-style, color)
+     * @param array<string, string>  $columnStyles Column-level styles applied uniformly to all rows
+     */
+    private function composeCellStyle(array $typography, array $columnStyles): string
+    {
+        $declarations = [];
+
+        foreach ($typography as $property => $value) {
+            if ($value === null || $value === '') {
+                continue;
+            }
+            $declarations[] = $property . ': ' . $value;
+        }
+
+        foreach ($columnStyles as $property => $value) {
+            if ($value === '') {
+                continue;
+            }
+            $declarations[] = $property . ': ' . $value;
+        }
+
+        return $declarations === [] ? '' : (implode('; ', $declarations) . ';');
     }
 
     /**
@@ -779,6 +966,9 @@ class JsonToSectionsAdapter
     {
         $props = $block['properties'];
         $items = $props['items'] ?? [];
+        $showLabels = (bool) ($props['showLabels'] ?? true);
+        $columnStyles = $this->totalColumnStyles($props);
+        $resolver = new CellStyleResolver();
         $rowElements = [];
 
         foreach ($items as $index => $item) {
@@ -786,37 +976,51 @@ class JsonToSectionsAdapter
                 continue;
             }
 
-            $isTotal = $item['isTotal'] ?? false;
-            $isBalance = $item['isBalance'] ?? false;
+            $isTotal = (bool) ($item['isTotal'] ?? false);
+            $isBalance = (bool) ($item['isBalance'] ?? false);
+            $context = [
+                'kind' => CellStyleResolver::KIND_TOTAL,
+                'isTotal' => $isTotal,
+                'isBalance' => $isBalance,
+            ];
 
-            // Create table row with label and value cells
+            $valueCell = [
+                'element' => 'td',
+                'content' => $item['field'] ?? '',
+                'properties' => [
+                    'data-ref' => "{$block['id']}-value-{$index}",
+                    'class' => 'totals-value',
+                    'style' => $this->composeCellStyle(
+                        $resolver->resolveValue($props, $item, $context),
+                        $columnStyles['value'],
+                    ),
+                ],
+            ];
+
+            $cells = [];
+            if ($showLabels) {
+                $cells[] = [
+                    'element' => 'td',
+                    'content' => ($item['label'] ?? '') . ':',
+                    'properties' => [
+                        'data-ref' => "{$block['id']}-label-{$index}",
+                        'class' => 'totals-label',
+                        'style' => $this->composeCellStyle(
+                            $resolver->resolveLabel($props, $item, $context),
+                            $columnStyles['label'],
+                        ),
+                    ],
+                ];
+            }
+            $cells[] = $valueCell;
+
             $rowElements[] = [
                 'element' => 'tr',
                 'properties' => [
                     'data-ref' => "{$block['id']}-row-{$index}",
                     'class' => $this->buildTotalRowClass($isTotal, $isBalance),
-                    'style' => $this->buildTotalRowStyle($props, $isTotal),
                 ],
-                'elements' => [
-                    [
-                        'element' => 'td',
-                        'content' => $item['label'] . ':',
-                        'properties' => [
-                            'data-ref' => "{$block['id']}-label-{$index}",
-                            'class' => 'totals-label',
-                            'style' => $this->buildTotalLabelStyle($props),
-                        ],
-                    ],
-                    [
-                        'element' => 'td',
-                        'content' => $item['field'],
-                        'properties' => [
-                            'data-ref' => "{$block['id']}-value-{$index}",
-                            'class' => 'totals-value',
-                            'style' => $this->buildTotalValueStyle($props, $isTotal, $isBalance),
-                        ],
-                    ],
-                ],
+                'elements' => $cells,
             ];
         }
 
@@ -836,6 +1040,46 @@ class JsonToSectionsAdapter
                 ],
             ]],
         ];
+    }
+
+    /**
+     * Column-level styles applied to every label/value cell in the total
+     * block. labelAlign/valueAlign default to 'right' (preserving the prior
+     * hardcoded behaviour); spacing / labelValueGap / labelPadding /
+     * valuePadding / valueMinWidth honor existing keys per spec.
+     *
+     * @return array{label: array<string,string>, value: array<string,string>}
+     */
+    private function totalColumnStyles(array $props): array
+    {
+        $labelAlign = $props['labelAlign'] ?? 'right';
+        $valueAlign = $props['valueAlign'] ?? 'right';
+        $labelPadding = $props['labelPadding'] ?? '0';
+        $valuePadding = $props['valuePadding'] ?? '0';
+        $labelValueGap = $props['labelValueGap'] ?? '20px';
+        $spacing = $props['spacing'] ?? '4px';
+
+        $label = [
+            'text-align' => $labelAlign,
+            'padding' => $labelPadding,
+            // padding-right asserted after `padding` so labelValueGap survives
+            'padding-right' => $labelValueGap,
+            'padding-bottom' => $spacing,
+            'white-space' => 'nowrap',
+        ];
+
+        $value = [
+            'text-align' => $valueAlign,
+            'padding' => $valuePadding,
+            'padding-bottom' => $spacing,
+            'white-space' => 'nowrap',
+        ];
+
+        if (isset($props['valueMinWidth']) && $props['valueMinWidth'] !== '') {
+            $value['min-width'] = (string) $props['valueMinWidth'];
+        }
+
+        return ['label' => $label, 'value' => $value];
     }
 
     /**
@@ -1044,51 +1288,22 @@ class JsonToSectionsAdapter
     private function buildTitleStyle(array $props): string
     {
         $styles = [];
-        $styles[] = 'font-size: ' . ($props['fontSize'] ?? '12px');
+        $styles[] = 'font-size: '   . ($props['titleFontSize']   ?? $props['fontSize'] ?? '12px');
         $styles[] = 'font-weight: ' . ($props['titleFontWeight'] ?? 'bold');
-        $styles[] = 'color: ' . ($props['color'] ?? '#374151');
+
+        // font-style is conditional — emitting `font-style: normal` by default
+        // would override CSS that came in via the cascade.
+        if (isset($props['titleFontStyle'])) {
+            $styles[] = 'font-style: ' . $props['titleFontStyle'];
+        }
+
+        $styles[] = 'color: '      . ($props['titleColor'] ?? $props['color'] ?? '#374151');
+        $styles[] = 'text-align: ' . ($props['titleAlign'] ?? $props['align'] ?? 'left');
         $styles[] = 'margin-bottom: 8px';
 
         return implode('; ', $styles) . ';';
     }
 
-    private function buildLabelStyle(array $props): string
-    {
-        $styles = [];
-        $styles[] = 'font-size: ' . ($props['fontSize'] ?? '12px');
-        $styles[] = 'color: ' . ($props['labelColor'] ?? '#6B7280');
-        $styles[] = 'text-align: ' . ($props['align'] ?? 'left');
-        $styles[] = 'padding-right: 12px';
-        $styles[] = 'white-space: nowrap';
-
-        return implode('; ', $styles) . ';';
-    }
-
-    private function buildValueStyle(array $props): string
-    {
-        $styles = [];
-        $styles[] = 'font-size: ' . ($props['fontSize'] ?? '12px');
-        $styles[] = 'color: ' . ($props['color'] ?? '#374151');
-        $styles[] = 'text-align: ' . ($props['align'] ?? 'left');
-
-        return implode('; ', $styles) . ';';
-    }
-
-    private function buildTableStyle(array $props): string
-    {
-        $styles = [];
-        $styles[] = 'border-collapse: collapse';
-        if (isset($props['align'])) {
-            $align = $props['align'];
-            if ($align === 'right') {
-                $styles[] = 'margin-left: auto';
-            } elseif ($align === 'center') {
-                $styles[] = 'margin: 0 auto';
-            }
-        }
-
-        return implode('; ', $styles) . ';';
-    }
 
     private function buildTableHeaderStyle(array $props, array $column): string
     {
@@ -1163,49 +1378,13 @@ class JsonToSectionsAdapter
         return implode(' ', $classes);
     }
 
-    private function buildTotalRowStyle(array $props, bool $isTotal): string
-    {
-        $styles = [];
-        $styles[] = 'font-size: ' . ($isTotal ? ($props['totalFontSize'] ?? '14px') : ($props['fontSize'] ?? '12px'));
-        $styles[] = 'font-weight: ' . ($isTotal ? ($props['totalFontWeight'] ?? 'bold') : 'normal');
-
-        return implode('; ', $styles) . ';';
-    }
-
-    private function buildTotalLabelStyle(array $props): string
-    {
-        $styles = [];
-        $styles[] = 'color: ' . ($props['labelColor'] ?? '#6B7280');
-        $styles[] = 'text-align: right';
-        $styles[] = 'white-space: nowrap';
-        $styles[] = 'padding-right: ' . ($props['labelValueGap'] ?? '20px');
-        $styles[] = 'padding-bottom: ' . ($props['spacing'] ?? '4px');
-
-        return implode('; ', $styles) . ';';
-    }
-
-    private function buildTotalValueStyle(array $props, bool $isTotal, bool $isBalance): string
-    {
-        $color = $props['amountColor'] ?? '#374151';
-        if ($isTotal) {
-            $color = $props['totalColor'] ?? $color;
-        }
-        if ($isBalance) {
-            $color = $props['balanceColor'] ?? $color;
-        }
-
-        $styles = [];
-        $styles[] = 'color: ' . $color;
-        $styles[] = 'text-align: right';
-        $styles[] = 'white-space: nowrap';
-        $styles[] = 'padding-bottom: ' . ($props['spacing'] ?? '4px');
-
-        return implode('; ', $styles) . ';';
-    }
-
     private function buildTotalContainerStyle(array $props): string
     {
         $styles = [];
+        $styles[] = 'border-collapse: collapse';
+        $styles[] = 'width: fit-content';
+        $styles[] = 'max-width: 100%';
+
         if (isset($props['align'])) {
             $align = $props['align'];
             if ($align === 'right') {
@@ -1213,6 +1392,18 @@ class JsonToSectionsAdapter
             } elseif ($align === 'center') {
                 $styles[] = 'margin: 0 auto';
             }
+        }
+
+        // FE-controlled page-break behavior for the totals table only.
+        // Default true: keep the whole totals block on one page (matches
+        // the most common user expectation). When explicitly false, the
+        // totals table is allowed to flow across pages — individual rows
+        // still don't split because the global `tr { break-inside: avoid }`
+        // rule applies.
+        $keepTogether = (bool) ($props['keepTogether'] ?? true);
+        if ($keepTogether) {
+            $styles[] = 'break-inside: avoid';
+            $styles[] = 'page-break-inside: avoid';
         }
 
         return implode('; ', $styles) . ';';

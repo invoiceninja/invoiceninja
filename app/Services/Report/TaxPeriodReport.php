@@ -196,7 +196,84 @@ class TaxPeriodReport extends BaseExport
 
         });
 
+        $this->backfillClassificationBreakdown();
+
         return $this;
+    }
+
+    /**
+     * Lazy backfill: any TransactionEvent within the report's window whose
+     * metadata lacks tax_details_by_classification has the breakdown
+     * recomputed in-place from the persisted aggregate tax_details and the
+     * current invoice's line items.
+     *
+     * Caveat: historical events are computed against the *current* line
+     * composition, so accuracy depends on the invoice not having been
+     * reclassified after the event period. This is consistent with the
+     * snapshot model used elsewhere in the report.
+     */
+    private function backfillClassificationBreakdown(): void
+    {
+        TransactionEvent::query()
+            ->whereBetween('period', [$this->start_date, $this->end_date])
+            ->whereNull('metadata->tax_report->tax_details_by_classification')
+            ->with('invoice')
+            ->cursor()
+            ->each(function (TransactionEvent $event) {
+                $invoice = $event->invoice;
+                if (!$invoice) {
+                    return;
+                }
+
+                $aggregate = collect($event->metadata->tax_report->tax_details ?? [])
+                    ->map(function ($detail) {
+                        if (is_array($detail)) {
+                            return $detail;
+                        }
+                        if (is_object($detail) && method_exists($detail, 'toArray')) {
+                            return $detail->toArray();
+                        }
+                        return (array) $detail;
+                    })
+                    ->all();
+
+                $multiplier = $this->multiplierForEvent($event);
+
+                $by_classification = \App\Services\Report\TaxPeriod\TaxClassificationCalculator::calculate(
+                    $invoice,
+                    $multiplier,
+                    $aggregate,
+                );
+
+                $metadata = $event->metadata;
+                $metadata->tax_report->tax_details_by_classification = $by_classification;
+                $event->metadata = $metadata;
+                $event->saveQuietly();
+            });
+    }
+
+    /**
+     * Reverse-engineer the multiplier that was applied when the event was
+     * recorded so the recomputed by-classification snapshot ties back to
+     * the persisted aggregate tax_details.
+     */
+    private function multiplierForEvent(TransactionEvent $event): float
+    {
+        $status = $event->metadata->tax_report->tax_summary->status ?? 'updated';
+
+        $invoice = $event->invoice;
+        if (!$invoice) {
+            return 1.0;
+        }
+
+        $paid_ratio = ($invoice->amount > 0) ? ($invoice->paid_to_date / $invoice->amount) : 0.0;
+
+        return match ($status) {
+            'reversed' => $paid_ratio * -1,
+            'cancelled' => $paid_ratio,
+            'deleted' => -1.0,
+            default => $event->event_id === TransactionEvent::PAYMENT_CASH ? $paid_ratio : 1.0,
+        };
     }
 
     /**
@@ -414,7 +491,7 @@ class TaxPeriodReport extends BaseExport
             $regional_column_count = $this->regional_calculator
                 ? count($this->regional_calculator->getHeaders())
                 : 0;
-            $payment_first_index = 8 + $regional_column_count; // 0-based: payment_number
+            $payment_first_index = 9 + $regional_column_count; // 0-based: payment_number (after type column)
             $payment_date_letter = $this->columnLetter($payment_first_index + 1);
             $payment_amount_letter = $this->columnLetter($payment_first_index + 2);
             $payment_refunded_letter = $this->columnLetter($payment_first_index + 3);
@@ -497,7 +574,9 @@ class TaxPeriodReport extends BaseExport
 
         $this->data['invoices'][] = $invoice_row_builder->build();
 
-        $tax_details = $event->metadata->tax_report->tax_details ?? [];
+        $tax_details = $event->metadata->tax_report->tax_details_by_classification
+            ?? $event->metadata->tax_report->tax_details
+            ?? [];
         $payments = $this->orderedPaymentHistory($event);
 
         // Cash-mode PAYMENT_CASH events with payments: emit cartesian (tax_detail × payment) rows

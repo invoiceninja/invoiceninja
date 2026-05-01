@@ -42,6 +42,7 @@ class InvoiceItemReportRow
             ctrans('texts.taxable_amount'),
             ctrans('texts.status'),
             ctrans('texts.postal_code'),
+            ctrans('texts.type'),
         ];
 
         if ($regional_calculator) {
@@ -74,6 +75,7 @@ class InvoiceItemReportRow
             $this->tax_detail->taxable_amount,
             $this->status->label(),
             $this->tax_detail->postal_code,
+            $this->tax_detail->classification ?: ctrans('texts.unknown'),
         ];
 
         $row = $this->appendRegionalColumns($row, $this->tax_detail->tax_amount);
@@ -95,6 +97,7 @@ class InvoiceItemReportRow
             $this->tax_detail->taxable_amount,
             $this->status->label(),
             $this->tax_detail->postal_code,
+            $this->tax_detail->classification ?: ctrans('texts.unknown'),
         ];
 
         $row = $this->appendRegionalColumns($row, $this->tax_detail->tax_amount);

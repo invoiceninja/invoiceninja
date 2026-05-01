@@ -5913,7 +5913,6 @@ $lang = array(
     'access_key' => 'Access Key',
     'payment_type_FPX' => 'FPX',
     'payment_type_Stripe Bank Transfer' => 'Stripe Bank Transfer',
-    'activity_164' => 'QuickBooks sync failed. :notes',
     'activity_166' => 'User :notes was purged by :user',
     'purged_user' => 'Successfully purged user',
     'quickbooks_connect_description' => 'Connect your QuickBooks account to Invoice Ninja to automatically sync your transactions and invoices.',
@@ -5981,7 +5980,6 @@ $lang = array(
     'fix_overlaps' => 'Fix Overlaps',
     'spacer' => 'Spacer',
     'bill_to' => 'Bill To',
-    'ship_to' => 'Ship To',
     'line_height' => 'Line Height',
     'text_color' => 'Text Color',
     'font_style' => 'Font Style',
@@ -5992,6 +5990,12 @@ $lang = array(
     'hide_if_empty' => 'Hide if Empty',
     'qr_code' => 'QR Code',
     'qr_code_type' => 'QR Code Type',
+    'label_padding' => 'Space around each label.',
+    'value_padding' => 'Space around each value.',
+    'label_value_gap' => 'Gap between label and value.',
+    'row_spacing' => 'How much vertical space sits between each row.',
+    'value_min_width' => 'Minimum width for values.',
+
 );
 
 return $lang;
