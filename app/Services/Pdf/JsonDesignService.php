@@ -113,20 +113,34 @@ class JsonDesignService
         // Get blocks grouped by row for layout
         $rows = $this->adapter->getRowGroupedBlocks();
 
+        // Grid constants (must match frontend InvoiceBuilder.tsx / grid-converter.ts)
+        $row_height = 60;
+        $margin_vertical = 16;
+        
+        // The designer adds a 28px toolbar bar and 24px content padding (p-3)
+        // to every block. The PDF has neither, so we subtract that chrome
+        // so the content area in the PDF matches the usable area in the designer.
+
+        $chrome_editor_height = 52;
+
         // Build container divs with flex row wrapping for multi-block rows
         $blockContainers = '';
         foreach ($rows as $rowBlocks) {
             if (count($rowBlocks) === 1) {
-                // Single block - render normally
+                // Single block - render with grid-based min-height minus editor chrome
                 $block = $rowBlocks[0];
-                $blockContainers .= "<div id=\"{$block['id']}\"></div>\n";
+                $h = $block['gridPosition']['h'] ?? 1;
+                $minHeight = max(0, $h * $row_height + ($h - 1) * $margin_vertical - $chrome_editor_height);
+                $blockContainers .= "<div id=\"{$block['id']}\" style=\"min-height: {$minHeight}px;\"></div>\n";
             } else {
                 // Multiple blocks on same row - wrap in flex container
                 $blockContainers .= "<div class=\"flex-row\">\n";
                 foreach ($rowBlocks as $block) {
                     $widthPercent = ($block['gridPosition']['w'] / 12) * 100;
-                    $blockContainers .= "  <div class=\"flex-col\" style=\"width: {$widthPercent}%;\">\n";
-                    $blockContainers .= "    <div id=\"{$block['id']}\"></div>\n";
+                    $h = $block['gridPosition']['h'] ?? 1;
+                    $minHeight = max(0, $h * $row_height + ($h - 1) * $margin_vertical - $chrome_editor_height);
+                    $blockContainers .= "  <div class=\"flex-col\" style=\"width: {$widthPercent}%; min-height: {$minHeight}px;\">\n";
+                    $blockContainers .= "    <div id=\"{$block['id']}\" style=\"min-height: {$minHeight}px;\"></div>\n";
                     $blockContainers .= "  </div>\n";
                 }
                 $blockContainers .= "</div>\n";
@@ -198,7 +212,8 @@ class JsonDesignService
                         display: flex;
                         flex-wrap: nowrap;
                         gap: 10px;
-                        margin-bottom: 10px;
+                        margin-bottom: 16px;
+                        align-items: flex-start;
                     }
                     .flex-col {
                         box-sizing: border-box;
