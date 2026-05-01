@@ -701,7 +701,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
 
     public function processWebhookRequest(PaymentWebhookRequest $request)
     {
-        nlog($request->all());
+        // nlog($request->all());
         $webhook_secret = $this->company_gateway->getConfigField('webhookSecret');
 
         if ($webhook_secret) {
@@ -758,7 +758,6 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
         }
 
         if ($request->type === 'charge.refunded' && $request->data['object']['status'] == 'succeeded') {
-            nlog("charge.refunded - firing job");
             ChargeRefunded::dispatch($request->data, $request->company_key)->delay(now()->addSeconds(5));
 
             return response()->json([], 200);

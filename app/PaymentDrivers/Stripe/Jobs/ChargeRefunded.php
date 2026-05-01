@@ -62,22 +62,23 @@ class ChargeRefunded implements ShouldQueue
         /** @var \App\Models\Payment|null $payment **/
         $payment = self::findPaymentByStripeReference($company->id, $source, true);
 
-        if (! $payment && $payment_hash_key) {
-            $payment_hash = PaymentHash::query()->where('hash', $payment_hash_key)->first();
+        /** @var \App\Models\PaymentHash|null $payment_hash **/
+        $payment_hash = $payment_hash_key
+            ? PaymentHash::query()->where('hash', $payment_hash_key)->first()
+            : null;
+
+        if (! $payment) {
             $payment = $payment_hash?->payment;
         }
 
         //don't touch if already refunded
-        if (!$payment || $payment->status_id == Payment::STATUS_REFUNDED || $payment->is_deleted) {
-            nlog("charge.refunded: payment not found for charge={$charge_id} pi={$payment_intent}");
+        if (!$payment || $payment->status_id == Payment::STATUS_REFUNDED || $payment->is_deleted || !$payment_hash) {
             return;
         }
 
-        $payment_hash = $payment->payment_hash;
         $company_gateway = $payment->company_gateway;
-
         $stripe_driver = $company_gateway->driver()->init();
-        $stripe_driver->payment_hash = $payment_hash;
+        $stripe_driver->setPaymentHash($payment_hash);
         $stripe_driver->client = $payment->client;
 
         $amount_refunded = $stripe_driver->convertFromStripeAmount($amount_refunded, $payment->client->currency()->precision, $payment->client->currency());
@@ -155,7 +156,7 @@ class ChargeRefunded implements ShouldQueue
             'via_webhook' => true,
         ];
 
-        nlog($data);
+        // nlog($data);
 
         $payment->refund($data);
 

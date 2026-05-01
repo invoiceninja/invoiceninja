@@ -31,15 +31,37 @@ trait Utilities
      */
     public static function findPaymentByStripeReference(int $companyId, array $source, bool $withTrashed = false): ?Payment
     {
-        $chargeId = $source['id'] ?? null;
+        $candidates = [];
+
+        $id = $source['id'] ?? null;
         $paymentIntentId = $source['payment_intent'] ?? null;
 
-        if (is_string($chargeId) && str_starts_with($chargeId, 'pi_')) {
-            $paymentIntentId = $paymentIntentId ?? $chargeId;
-            $chargeId = null;
+        if (is_string($id) && str_starts_with($id, 'pi_')) {
+            $paymentIntentId = $paymentIntentId ?? $id;
+            $id = null;
         }
 
-        if (! $chargeId && ! $paymentIntentId) {
+        if (is_string($id)) {
+            $candidates[] = $id;
+        }
+
+        if (is_string($paymentIntentId)) {
+            $candidates[] = $paymentIntentId;
+        }
+
+        $latestCharge = $source['latest_charge'] ?? null;
+        if (is_string($latestCharge)) {
+            $candidates[] = $latestCharge;
+        }
+
+        $nestedChargeId = $source['charges']['data'][0]['id'] ?? null;
+        if (is_string($nestedChargeId)) {
+            $candidates[] = $nestedChargeId;
+        }
+
+        $candidates = array_values(array_unique(array_filter($candidates, fn ($v) => is_string($v) && $v !== '')));
+
+        if (empty($candidates)) {
             return null;
         }
 
@@ -51,14 +73,7 @@ trait Utilities
 
         return $query
             ->where('company_id', $companyId)
-            ->where(function ($q) use ($chargeId, $paymentIntentId) {
-                if ($chargeId) {
-                    $q->orWhere('transaction_reference', $chargeId);
-                }
-                if ($paymentIntentId) {
-                    $q->orWhere('transaction_reference', $paymentIntentId);
-                }
-            })
+            ->whereIn('transaction_reference', $candidates)
             ->first();
     }
 
