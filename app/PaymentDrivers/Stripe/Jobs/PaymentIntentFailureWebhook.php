@@ -65,24 +65,7 @@ class PaymentIntentFailureWebhook implements ShouldQueue
 
             nlog($transaction);
 
-            $payment = Payment::query()
-                ->where('company_id', $company->id)
-                ->where(function ($query) use ($transaction) {
-
-                    if (isset($transaction['payment_intent'])) {
-                        $query->where('transaction_reference', $transaction['payment_intent']);
-                    }
-
-                    if (isset($transaction['payment_intent']) && isset($transaction['id'])) {
-                        $query->orWhere('transaction_reference', $transaction['id']);
-                    }
-
-                    if (!isset($transaction['payment_intent']) && isset($transaction['id'])) {
-                        $query->where('transaction_reference', $transaction['id']);
-                    }
-
-                })
-                ->first();
+            $payment = self::findPaymentByStripeReference($company->id, $transaction);
 
             if ($payment) {
                 $client = $payment->client;

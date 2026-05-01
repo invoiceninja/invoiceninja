@@ -701,7 +701,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
 
     public function processWebhookRequest(PaymentWebhookRequest $request)
     {
-        // nlog($request->all());
+        nlog($request->all());
         $webhook_secret = $this->company_gateway->getConfigField('webhookSecret');
 
         if ($webhook_secret) {
@@ -758,6 +758,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
         }
 
         if ($request->type === 'charge.refunded' && $request->data['object']['status'] == 'succeeded') {
+            nlog("charge.refunded - firing job");
             ChargeRefunded::dispatch($request->data, $request->company_key)->delay(now()->addSeconds(5));
 
             return response()->json([], 200);
@@ -766,25 +767,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
         if ($request->type === 'charge.succeeded') {
             foreach ($request->data as $transaction) {
 
-                $payment = Payment::query()
-                    ->where('company_id', $this->company_gateway->company_id)
-                    ->where(function ($query) use ($transaction) {
-
-                        if (isset($transaction['payment_intent'])) {
-                            $query->where('transaction_reference', $transaction['payment_intent']);
-                        }
-
-                        if (isset($transaction['payment_intent']) && isset($transaction['id'])) {
-                            $query->orWhere('transaction_reference', $transaction['id']);
-                        }
-
-                        if (!isset($transaction['payment_intent']) && isset($transaction['id'])) {
-                            $query->where('transaction_reference', $transaction['id']);
-                        }
-
-                    })
-                    ->first();
-
+                $payment = self::findPaymentByStripeReference($this->company_gateway->company_id, $transaction);
 
                 if ($payment) {
 
@@ -812,27 +795,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
 
                 if ($charge->captured) {
 
-
-                    $payment = Payment::query()
-                        ->where('company_id', $this->company_gateway->company_id)
-                        ->where(function ($query) use ($transaction) {
-
-                            if (isset($transaction['payment_intent'])) {
-                                $query->where('transaction_reference', $transaction['payment_intent']);
-                            }
-
-                            if (isset($transaction['payment_intent']) && isset($transaction['id'])) {
-                                $query->orWhere('transaction_reference', $transaction['id']);
-                            }
-
-                            if (!isset($transaction['payment_intent']) && isset($transaction['id'])) {
-                                $query->where('transaction_reference', $transaction['id']);
-                            }
-
-                        })
-                        ->first();
-
-
+                    $payment = self::findPaymentByStripeReference($this->company_gateway->company_id, $transaction);
 
                     if ($payment) {
                         $payment->status_id = Payment::STATUS_COMPLETED;
