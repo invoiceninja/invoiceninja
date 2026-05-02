@@ -91,7 +91,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
                 throw new PaymentFailed('Transaction validation failed - data may have been tampered with', 400);
             }
 
-            if (!isset($data['status']) || $data['status'] !== 'APPROVED') {
+            if (!$this->isApprovedAchResponse($data)) {
                 throw new PaymentFailed('Bank account verification failed: ' . ($data['warning'] ?? 'Unknown error'), 400);
             }
 
@@ -105,12 +105,13 @@ class ACH implements MethodInterface, LivewireMethodInterface
             $payment_meta->exp_month = null;
             $payment_meta->exp_year = null;
             $payment_meta->brand = 'ACH';
-            $payment_meta->last4 = $data['cardNumber'] ?? '';
+            $payment_meta->last4 = substr((string) ($data['bankAccountNumber'] ?? $data['cardNumber'] ?? ''), -4);
             $payment_meta->type = GatewayType::BANK_TRANSFER;
             $payment_meta->customerCode = $data['customerCode'] ?? null;
             // Store bankAccountId and customerId if provided for future token billing
             $payment_meta->bankAccountId = $data['bankAccountId'] ?? null;
             $payment_meta->customerId = $data['customerId'] ?? null;
+            $payment_meta->bankToken = $data['bankToken'] ?? null;
 
             $tokenData = [
                 'payment_meta' => $payment_meta,
@@ -250,7 +251,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
             throw new PaymentFailed('Transaction validation failed - data may have been tampered with', 400);
         }
 
-        if (!isset($data['status']) || $data['status'] !== 'APPROVED') {
+        if (!$this->isApprovedAchResponse($data)) {
             throw new PaymentFailed('ACH payment failed: ' . ($data['warning'] ?? 'Unknown error'), 400);
         }
 
@@ -272,11 +273,12 @@ class ACH implements MethodInterface, LivewireMethodInterface
             $payment_meta->exp_month = null;
             $payment_meta->exp_year = null;
             $payment_meta->brand = 'ACH';
-            $payment_meta->last4 = $data['cardNumber'] ?? '';
+            $payment_meta->last4 = substr((string) ($data['bankAccountNumber'] ?? $data['cardNumber'] ?? ''), -4);
             $payment_meta->type = GatewayType::BANK_TRANSFER;
             $payment_meta->customerCode = $data['customerCode'] ?? null;
             $payment_meta->bankAccountId = $data['bankAccountId'] ?? null;
             $payment_meta->customerId = $data['customerId'] ?? null;
+            $payment_meta->bankToken = $data['bankToken'] ?? null;
 
             $tokenData = [
                 'payment_meta' => $payment_meta,
@@ -356,6 +358,16 @@ class ACH implements MethodInterface, LivewireMethodInterface
         }
 
         return $data;
+    }
+
+    /**
+     * HelcimPay.js ACH responses use statusAuth/statusClearing instead of card status.
+     */
+    private function isApprovedAchResponse(array $data): bool
+    {
+        return ($data['status'] ?? null) === 'APPROVED'
+            || in_array(($data['statusAuth'] ?? null), ['PENDING', 'APPROVED'], true)
+            || in_array(($data['statusClearing'] ?? null), ['OPENED', 'CLEARED'], true);
     }
 
     /**

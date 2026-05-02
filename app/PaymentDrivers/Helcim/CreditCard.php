@@ -24,7 +24,6 @@ use App\PaymentDrivers\HelcimPaymentDriver;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\Common\LivewireMethodInterface;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class CreditCard implements MethodInterface, LivewireMethodInterface
 {

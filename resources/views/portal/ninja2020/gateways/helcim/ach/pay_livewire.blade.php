@@ -57,7 +57,7 @@
 </div>
 
 @assets
-    <script src="https://helcimpaystatic.com/sdk/javascript/1.0.0/helcim-pay.js"></script>
+    <script src="https://secure.helcim.app/helcim-pay/services/start.js"></script>
     <script>
         var helcimAchCheckoutToken = '{{ $checkout_token }}';
         var helcimAchSecretToken = '{{ $secret_token }}';
@@ -82,27 +82,49 @@
                 document.getElementById('server_response').submit();
             } else {
                 this.disabled = true;
-                window.appendHelcimIframe(helcimAchCheckoutToken);
+                window.appendHelcimPayIframe(helcimAchCheckoutToken);
             }
         });
 
         window.addEventListener('message', function(event) {
             if (event.origin.indexOf('helcim') === -1) return;
 
-            var eventData = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+            var eventData;
+            try {
+                eventData = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+            } catch (e) {
+                return;
+            }
 
-            if (eventData.eventType === 'HELCIM_PAY_JS_CLOSE' || eventData.eventType === 'HELCIM_PAY_JS_INIT_ERROR') {
-                window.removeHelcimIframe();
+            if (!eventData || eventData.eventName !== 'helcim-pay-js-' + helcimAchCheckoutToken) {
+                return;
+            }
+
+            if (eventData.eventStatus === 'HIDE' || eventData.eventStatus === 'ABORTED') {
+                window.removeHelcimPayIframe();
                 document.getElementById('pay-now').disabled = false;
                 return;
             }
 
-            if (eventData.eventType === 'HELCIM_PAY_JS_TRANSACTION_RESPONSE') {
-                var transactionResponse = eventData.eventMessage;
-                document.getElementById('transaction_data').value = JSON.stringify(transactionResponse.data);
-                document.getElementById('transaction_hash').value = transactionResponse.hash;
+            if (eventData.eventStatus === 'SUCCESS') {
+                var transactionResponse = eventData.eventMessage || {};
+
+                if (typeof transactionResponse === 'string') {
+                    try {
+                        transactionResponse = JSON.parse(transactionResponse);
+                    } catch (e) {
+                        transactionResponse = {};
+                    }
+                }
+
+                var responseData = transactionResponse.data || {};
+                var transactionData = responseData.data || responseData;
+                var transactionHash = responseData.hash || transactionResponse.hash;
+
+                document.getElementById('transaction_data').value = JSON.stringify(transactionData);
+                document.getElementById('transaction_hash').value = transactionHash;
                 document.getElementById('use_token').value = '0';
-                window.removeHelcimIframe();
+                window.removeHelcimPayIframe();
                 document.getElementById('server_response').submit();
             }
         });

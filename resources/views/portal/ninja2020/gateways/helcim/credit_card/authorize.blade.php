@@ -40,7 +40,7 @@
 @endsection
 
 @section('gateway_footer')
-    <script src="https://helcimpaystatic.com/sdk/javascript/1.0.0/helcim-pay.js"></script>
+    <script src="https://secure.helcim.app/helcim-pay/services/start.js"></script>
     <script>
         var checkoutToken = document.querySelector('meta[name="helcim-checkout-token"]').content;
         var secretToken = document.querySelector('meta[name="helcim-secret-token"]').content;
@@ -50,31 +50,52 @@
             document.getElementById('btn-spinner').classList.remove('hidden');
             document.getElementById('btn-label').classList.add('hidden');
 
-            window.appendHelcimIframe(checkoutToken);
+            window.appendHelcimPayIframe(checkoutToken);
         }
 
-        // Listen for HelcimPay.js transaction response
+        // Listen for HelcimPay.js transaction response.
+        // Current HelcimPay.js emits eventName/eventStatus, not eventType.
         window.addEventListener('message', function(event) {
-            var origin = event.origin;
-            if (origin.indexOf('helcim') === -1) return;
+            if (event.origin.indexOf('helcim') === -1) return;
 
-            var eventData = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+            var eventData;
+            try {
+                eventData = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+            } catch (e) {
+                return;
+            }
 
-            if (eventData.eventType === 'HELCIM_PAY_JS_CLOSE' || eventData.eventType === 'HELCIM_PAY_JS_INIT_ERROR') {
-                window.removeHelcimIframe();
+            if (!eventData || eventData.eventName !== 'helcim-pay-js-' + checkoutToken) {
+                return;
+            }
+
+            if (eventData.eventStatus === 'HIDE' || eventData.eventStatus === 'ABORTED') {
+                window.removeHelcimPayIframe();
                 document.getElementById('pay-button').disabled = false;
                 document.getElementById('btn-spinner').classList.add('hidden');
                 document.getElementById('btn-label').classList.remove('hidden');
                 return;
             }
 
-            if (eventData.eventType === 'HELCIM_PAY_JS_TRANSACTION_RESPONSE') {
-                var transactionResponse = eventData.eventMessage;
+            if (eventData.eventStatus === 'SUCCESS') {
+                var transactionResponse = eventData.eventMessage || {};
 
-                document.getElementById('transaction_data').value = JSON.stringify(transactionResponse.data);
-                document.getElementById('transaction_hash').value = transactionResponse.hash;
+                if (typeof transactionResponse === 'string') {
+                    try {
+                        transactionResponse = JSON.parse(transactionResponse);
+                    } catch (e) {
+                        transactionResponse = {};
+                    }
+                }
 
-                window.removeHelcimIframe();
+                var responseData = transactionResponse.data || {};
+                var transactionData = responseData.data || responseData;
+                var transactionHash = responseData.hash || transactionResponse.hash;
+
+                document.getElementById('transaction_data').value = JSON.stringify(transactionData);
+                document.getElementById('transaction_hash').value = transactionHash;
+
+                window.removeHelcimPayIframe();
                 document.getElementById('server_response').submit();
             }
         });
