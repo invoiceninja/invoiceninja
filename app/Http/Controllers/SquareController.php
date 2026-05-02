@@ -23,9 +23,14 @@ use App\Models\GatewayType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class SquareController extends BaseController
 {
+    private const STATE_CACHE_PREFIX = 'square_oauth_state:';
+
+    private const LOCATION_CACHE_PREFIX = 'square_oauth_location:';
+
     /**
      * Redirect to Square OAuth authorization page.
      */
@@ -38,11 +43,17 @@ class SquareController extends BaseController
             ? 'https://connect.squareup.com'
             : 'https://connect.squareupsandbox.com';
 
+        $state = Str::random(64);
+
+        Cache::put(self::STATE_CACHE_PREFIX . $state, [
+            'company_key' => $company->company_key,
+        ], now()->addMinutes(10));
+
         $params = [
             'client_id' => config('services.square.application_id'),
             'scope' => 'PAYMENTS_WRITE PAYMENTS_READ ORDERS_WRITE ORDERS_READ CUSTOMERS_WRITE CUSTOMERS_READ ITEMS_READ ITEMS_WRITE MERCHANT_PROFILE_READ',
             'session' => false,
-            'state' => $company->company_key,
+            'state' => $state,
         ];
 
         return redirect()->to(
@@ -55,8 +66,18 @@ class SquareController extends BaseController
      */
     public function callback(OAuthCallbackRequest $request): \Illuminate\Http\RedirectResponse|\Illuminate\View\View
     {
+        $state_context = Cache::pull(self::STATE_CACHE_PREFIX . $request->query('state'));
+
+        if (! is_array($state_context) || empty($state_context['company_key'])) {
+            return view('auth.square_connect.access_denied');
+        }
+
         /** @var \App\Models\Company $company */
-        $company = $request->getCompany();
+        MultiDB::findAndSetDbByCompanyKey($state_context['company_key']);
+
+        $company = Company::query()
+            ->where('company_key', $state_context['company_key'])
+            ->firstOrFail();
 
         if ($request->query('error')) {
             return view('auth.square_connect.access_denied');
@@ -98,18 +119,19 @@ class SquareController extends BaseController
         }
 
         // Store token data in cache so we can finalize after location selection
-        $cache_key = 'square_oauth_' . $company->company_key;
-        Cache::put($cache_key, [
+        $selection_token = Str::random(64);
+
+        Cache::put(self::LOCATION_CACHE_PREFIX . $selection_token, [
             'company_key' => $company->company_key,
             'access_token' => $data['access_token'],
             'refresh_token' => $data['refresh_token'] ?? '',
             'expires_at' => $data['expires_at'] ?? '',
             'merchant_id' => $data['merchant_id'] ?? '',
-        ], 600);
+        ], now()->addMinutes(10));
 
         return view('auth.square_connect.select_location', [
             'locations' => $locations,
-            'company_key' => $company->company_key,
+            'selection_token' => $selection_token,
         ]);
     }
 
@@ -119,11 +141,11 @@ class SquareController extends BaseController
     public function selectLocation(Request $request): \Illuminate\Http\RedirectResponse|\Illuminate\View\View
     {
         $request->validate([
-            'company_key' => 'required|string',
+            'selection_token' => 'required|string',
             'location_id' => 'required|string',
         ]);
 
-        $cache_key = 'square_oauth_' . $request->input('company_key');
+        $cache_key = self::LOCATION_CACHE_PREFIX . $request->input('selection_token');
         $cached = Cache::pull($cache_key);
 
         if (! $cached) {

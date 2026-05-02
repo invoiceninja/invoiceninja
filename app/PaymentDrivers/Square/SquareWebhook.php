@@ -98,7 +98,7 @@ class SquareWebhook implements ShouldQueue
             if ($this->driver->payment_hash) {
                 $error = ctrans('texts.client_payment_failure_body', [
                     'invoice' => implode(',', $payment->invoices->pluck('number')->toArray()),
-                    'amount' => Number::formatMoney($this->driver->payment_hash->amount_with_fee(), $payment->client)
+                    'amount' => Number::formatMoney($this->driver->payment_hash->amount_with_fee(), $payment->client),
                 ]);
             } else {
                 $error = 'Payment for ' . $payment->client->present()->name() . " for {$payment->amount} failed";

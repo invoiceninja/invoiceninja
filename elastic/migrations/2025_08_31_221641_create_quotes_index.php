@@ -16,9 +16,13 @@ final class CreateQuotesIndex implements MigrationInterface
     {
         // Check if index already exists (idempotency)
         $client = ClientBuilder::fromConfig(config('elastic.client.connections.default'));
-        if ($client->indices()->exists(['index' => 'quotes_v2'])) {
-            return; // Index already exists, skip creation
+        
+        $indexExistsResponse = $client->indices()->exists(['index' => 'quotes']);
+        if ($indexExistsResponse->getStatusCode() === 200) {
+            return;
         }
+
+
 
         $mapping = [
             'properties' => [
@@ -83,7 +87,7 @@ final class CreateQuotesIndex implements MigrationInterface
             ]
         ];
 
-        Index::createRaw('quotes_v2', $mapping);
+        Index::createRaw('quotes', $mapping);
     }
 
     /**
@@ -91,6 +95,6 @@ final class CreateQuotesIndex implements MigrationInterface
      */
     public function down(): void
     {
-        Index::dropIfExists('quotes_v2');
+        Index::dropIfExists('quotes');
     }
 }

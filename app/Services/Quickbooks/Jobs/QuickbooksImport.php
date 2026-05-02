@@ -65,7 +65,7 @@ class QuickbooksImport implements ShouldQueue
 
         try {
 
-            if(count($this->syncable) > 0) {
+            if (count($this->syncable) > 0) {
                 /** @var mixed $this- */
                 return $this->performInitialSync();
             }
@@ -107,7 +107,7 @@ class QuickbooksImport implements ShouldQueue
         };
     }
 
-    
+
     /**
      * performInitialSync
      *
@@ -117,7 +117,7 @@ class QuickbooksImport implements ShouldQueue
      */
     private function performInitialSync(): void
     {
-        foreach($this->syncable as $entity) {
+        foreach ($this->syncable as $entity) {
             nlog('performing initial sync for ' . $entity);
             $this->processEntitySync($entity, $this->qbs->sdk()->fetchRecords($entity));
         }

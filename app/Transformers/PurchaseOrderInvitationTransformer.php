@@ -25,7 +25,7 @@ class PurchaseOrderInvitationTransformer extends EntityTransformer
             'email_status' => $invitation->email_status ?: '',
             'email_error' => (string) $invitation->email_error,
             'message_id'        => (string) $invitation->message_id ?: '',
-            'can_sign'          => (bool)$invitation->can_sign,
+            'can_sign'          => (bool) $invitation->can_sign,
 
         ];
     }

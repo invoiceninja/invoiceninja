@@ -125,7 +125,7 @@ class TransactionTransformer implements BankRevenueInterface
         } else {
             Log::warning("Missing description for the following transaction: " . json_encode($transaction));
         }
-        
+
         // enrich description with currencyExchange informations
         if (isset($transaction['currencyExchange'])) {
             foreach ($transaction["currencyExchange"] as $exchangeRate) {

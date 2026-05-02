@@ -17,14 +17,11 @@ use App\Models\Payment;
 use App\Models\SystemLog;
 use App\Models\GatewayType;
 use App\Models\ClientContact;
-use App\Factory\ClientFactory;
 use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
 use App\PaymentDrivers\Forte\ACH;
 use Illuminate\Support\Facades\Http;
-use App\Repositories\ClientRepository;
 use App\PaymentDrivers\Forte\CreditCard;
-use App\Repositories\ClientContactRepository;
 use App\PaymentDrivers\Factory\ForteCustomerFactory;
 
 class FortePaymentDriver extends BaseDriver
@@ -424,32 +421,9 @@ class FortePaymentDriver extends BaseDriver
 
     }
 
-    public function importCustomers()
+    public function importCustomers(): void
     {
-
-        $response = $this->stubRequest()
-                    ->withQueryParameters(['page_size' => 10000])
-                    ->get("{$this->baseUri()}/organizations/{$this->getOrganisationId()}/locations/{$this->getLocationId()}/customers");
-
-        if ($response->successful()) {
-
-            foreach ($response->json()['results'] as $customer) {
-
-                $client_repo = new ClientRepository(new ClientContactRepository());
-                $factory = new ForteCustomerFactory();
-
-                $data = $factory->convertToNinja($customer, $this->company_gateway->company);
-
-                if (strlen($data['email']) == 0 || $this->getClient($data['email'])) {
-                    continue;
-                }
-
-                $client_repo->save($data, ClientFactory::create($this->company_gateway->company_id, $this->company_gateway->user_id));
-
-                //persist any payment methods here!
-            }
-        }
-
+        (new \App\PaymentDrivers\Forte\ImportCustomers($this))->run();
     }
 
 }

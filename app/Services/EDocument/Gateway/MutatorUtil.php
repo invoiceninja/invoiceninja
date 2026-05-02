@@ -15,7 +15,6 @@ namespace App\Services\EDocument\Gateway;
 use App\Exceptions\PeppolValidationException;
 use App\Services\EDocument\Gateway\MutatorInterface;
 use App\Services\EDocument\Standards\Settings\PropertyResolver;
-use InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CustomerAssignedAccountID;
 
 /**
  * Class MutatorUtil
@@ -110,41 +109,6 @@ class MutatorUtil
     public function checkRequired(bool $required, string $section): self
     {
         return $required ? throw new PeppolValidationException("e-invoice generation halted:: {$section} required", $section, 400) : $this;
-    }
-
-    /**
-     * setCustomerAssignedAccountId
-     *
-     * Sets the client id_number CAN rely on settings
-     *
-     * @param  bool $required
-     * @return self
-     */
-    public function setCustomerAssignedAccountId(bool $required = false): self
-    {
-        $peppol = $this->mutator->getPeppol();
-        $invoice = $this->mutator->getInvoice();
-
-        //@phpstan-ignore-next-line
-        if (isset($peppol->AccountingCustomerParty->CustomerAssignedAccountID)) {
-            return $this;
-        } elseif ($customer_assigned_account_id = $this->getSetting('Invoice.AccountingCustomerParty.CustomerAssignedAccountID')) {
-
-            $peppol->AccountingCustomerParty->CustomerAssignedAccountID = $customer_assigned_account_id;
-            $this->mutator->setPeppol($peppol);
-            return $this;
-        } elseif (strlen($invoice->client->id_number ?? '') > 1) {
-
-            $customer_assigned_account_id = new CustomerAssignedAccountID();
-            $customer_assigned_account_id->value = $invoice->client->id_number;
-
-            $peppol->AccountingCustomerParty->CustomerAssignedAccountID = $customer_assigned_account_id;
-            return $this;
-        }
-
-        //@phpstan-ignore-next-line
-        return $this->checkRequired($required, 'Client ID Number');
-
     }
 
 }

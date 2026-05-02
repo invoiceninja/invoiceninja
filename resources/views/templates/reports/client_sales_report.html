@@ -187,6 +187,62 @@
             </tbody>
         </table>
     </div>
+
+    {% if monthly_skipped is defined and monthly_skipped %}
+        <div class="report-meta" style="margin-top: 10mm;">
+            <em>{{ t('monthly_breakdown_skipped') }}</em>
+        </div>
+    {% else %}
+        {% if monthly_invoices is defined and monthly_invoices is not empty %}
+            <h2 class="report-title" style="margin-top: 10mm;">{{ t('invoices_by_month') }}</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>{{ t('client_name') }}</th>
+                            {% for label in monthly_header %}
+                                <th>{{ label }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in monthly_invoices %}
+                            <tr>
+                                {% for cell in row %}
+                                    <td>{{ cell }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+
+        {% if monthly_payments is defined and monthly_payments is not empty %}
+            <h2 class="report-title" style="margin-top: 10mm;">{{ t('payments_by_month') }}</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>{{ t('client_name') }}</th>
+                            {% for label in monthly_header %}
+                                <th>{{ label }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in monthly_payments %}
+                            <tr>
+                                {% for cell in row %}
+                                    <td>{{ cell }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    {% endif %}
 	</ninja>
 </body>
 </html>

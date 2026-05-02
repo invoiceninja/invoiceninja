@@ -16,9 +16,14 @@ use setasign\Fpdi\PdfParser\StreamReader;
 
 trait PageNumbering
 {
-    private function pageNumbering($pdf_data_object, $company)
+    private function pageNumbering($pdf_data_object, $company, ?object $resolvedSettings = null)
     {
-        if (! property_exists($company->settings, 'page_numbering') || ! $company->settings->page_numbering) {
+        // Per-design overrides (JSON-designer documentSettings) take precedence
+        // over company.settings; fall back to company.settings for everything
+        // else.
+        $settings = $resolvedSettings ?? $company->settings;
+
+        if (! property_exists($settings, 'page_numbering') || ! $settings->page_numbering) {
             return $pdf_data_object;
         }
 

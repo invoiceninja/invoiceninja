@@ -130,6 +130,8 @@ class PaymentMethodsTest extends TestCase
 
         // Owner should not get 403 - authorization passes
         $this->assertNotEquals(403, $response->getStatusCode());
+
+        $this->account->delete();
     }
 
     public function testShowPaymentMethodOtherClientForbidden(): void
@@ -139,6 +141,9 @@ class PaymentMethodsTest extends TestCase
         $response = $this->get(route('client.payment_methods.show', $this->cgt->hashed_id));
 
         $response->assertStatus(403);
+
+
+        $this->account->delete();
     }
 
     public function testDestroyPaymentMethodOtherClientForbidden(): void
@@ -150,6 +155,8 @@ class PaymentMethodsTest extends TestCase
         $this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class)
             ->withoutExceptionHandling()
             ->delete(route('client.payment_methods.destroy', $this->cgt->hashed_id));
+
+        $this->account->delete();
     }
 
     public function testDestroyPaymentMethodOwnerCanAccess(): void
@@ -161,6 +168,8 @@ class PaymentMethodsTest extends TestCase
 
         // Owner should not get 403 - authorization passes
         $this->assertNotEquals(403, $response->getStatusCode());
+
+        $this->account->delete();
     }
 
     public function testVerifyPaymentMethodOtherClientForbidden(): void
@@ -170,6 +179,8 @@ class PaymentMethodsTest extends TestCase
         $response = $this->get(route('client.payment_methods.verification', $this->cgt->hashed_id));
 
         $response->assertStatus(403);
+
+        $this->account->delete();
     }
 
     public function testVerifyPaymentMethodOwnerCanAccess(): void
@@ -180,5 +191,8 @@ class PaymentMethodsTest extends TestCase
 
         // Owner should not get 403 - authorization passes
         $this->assertNotEquals(403, $response->getStatusCode());
+
+        $this->account->delete();
     }
+
 }

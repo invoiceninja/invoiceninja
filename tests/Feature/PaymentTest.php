@@ -1238,6 +1238,437 @@ class PaymentTest extends TestCase
         $this->assertEquals($invoice->balance, 4);
     }
 
+    /**
+     * Helpers for the ApplyPayment regression/contract tests below.
+     *
+     * The HTTP path validates payment_amount <= invoice.balance, so overpayment
+     * scenarios are only reachable via direct service calls (QuickBooks sync,
+     * migration importers, PaymentTransformer, etc.). These helpers produce a
+     * SENT invoice with an optional partial amount and apply a payment through
+     * the service layer — the same shape those bypass callers use.
+     */
+    private function buildSentInvoiceForApplyPayment(float $cost, ?float $partial = null): array
+    {
+        $client = ClientFactory::create($this->company->id, $this->user->id);
+        $client->balance = 0;
+        $client->paid_to_date = 0;
+        $client->save();
+
+        ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+        ]);
+
+        $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+        $invoice->client_id = $client->id;
+
+        $line_items = $this->buildLineItems();
+        $line_items[0]->cost = $cost;
+        $invoice->line_items = $line_items;
+        $invoice->uses_inclusive_taxes = false;
+
+        if ($partial !== null) {
+            $invoice->partial = $partial;
+        }
+
+        $invoice->save();
+
+        $invoice_calc = new InvoiceSum($invoice);
+        $invoice_calc->build();
+        $invoice = $invoice_calc->getInvoice();
+        $invoice->save();
+
+        $invoice->service()->markSent()->createInvitations()->save();
+
+        return [$client->fresh(), $invoice->fresh()];
+    }
+
+    private function applyPaymentDirectly(Client $client, Invoice $invoice, float $payment_amount): Payment
+    {
+        $payment = PaymentFactory::create($this->company->id, $this->user->id);
+        $payment->client_id = $client->id;
+        $payment->amount = $payment_amount;
+        $payment->status_id = Payment::STATUS_COMPLETED;
+        $payment->date = now()->format('Y-m-d');
+        $payment->save();
+
+        $payment->invoices()->attach($invoice->id, ['amount' => $payment_amount]);
+
+        $invoice->service()->applyPayment($payment, $payment_amount)->save();
+
+        return $payment->fresh();
+    }
+
+    /**
+     * Contract: hasPartial + payment_amount == balance (partial < payment case).
+     *
+     * Scenario: amount=10, partial=5, balance=10, payment=10.
+     * Expected: partial cleared, invoice fully paid, client balance returns to 0
+     * (markSent had bumped it to 10), invoice.paid_to_date = 10.
+     *
+     * This exercises today's "partial < payment_amount" branch and passes on
+     * current code because balance rounds to zero and auto-promotes to PAID —
+     * the test locks that behaviour down so the refactor can't regress it.
+     */
+    public function testPaymentEqualToBalanceWithPartial()
+    {
+        [$client, $invoice] = $this->buildSentInvoiceForApplyPayment(cost: 10.0, partial: 5.0);
+
+        $this->assertEquals(10.0, $invoice->balance);
+        $this->assertEquals(5.0, $invoice->partial);
+        $this->assertEquals(10.0, $client->balance);
+
+        $this->applyPaymentDirectly($client, $invoice, 10.0);
+
+        $invoice = $invoice->fresh();
+        $client = $client->fresh();
+
+        $this->assertEquals(0.0, $invoice->balance);
+        $this->assertEquals(Invoice::STATUS_PAID, $invoice->status_id);
+        $this->assertEquals(0, $invoice->partial);
+        $this->assertEquals(10.0, $invoice->paid_to_date);
+        $this->assertEquals(0.0, $client->balance);
+    }
+
+    /**
+     * Contract: hasPartial + payment_amount > balance (overpayment on partial).
+     *
+     * Scenario: amount=50, partial=10, balance=50, payment=100.
+     * Expected: partial cleared, balance capped at 0 (not negative),
+     * status=PAID, invoice.paid_to_date=50 (not 100), client balance returns
+     * to 0 (markSent bumped it to 50, payment should only deduct 50).
+     *
+     * This FAILS on current code: the "partial < payment_amount" branch
+     * applies the full payment_amount without capping at balance, driving
+     * invoice.balance to -50 and over-deducting client balance by 50.
+     */
+    public function testPaymentExceedsBalanceWithPartial()
+    {
+        [$client, $invoice] = $this->buildSentInvoiceForApplyPayment(cost: 50.0, partial: 10.0);
+
+        $this->assertEquals(50.0, $invoice->balance);
+        $this->assertEquals(10.0, $invoice->partial);
+        $this->assertEquals(50.0, $client->balance);
+
+        $this->applyPaymentDirectly($client, $invoice, 100.0);
+
+        $invoice = $invoice->fresh();
+        $client = $client->fresh();
+
+        $this->assertEquals(0.0, $invoice->balance, 'Invoice balance must not go negative from overpayment.');
+        $this->assertEquals(Invoice::STATUS_PAID, $invoice->status_id);
+        $this->assertEquals(0, $invoice->partial);
+        $this->assertEquals(50.0, $invoice->paid_to_date, 'Invoice paid_to_date must not exceed invoice amount.');
+        $this->assertEquals(0.0, $client->balance, 'Client balance must not be over-deducted beyond the invoice balance.');
+    }
+
+    /**
+     * Contract: no partial + payment_amount == balance.
+     *
+     * Scenario: amount=10, balance=10, no partial, payment=10.
+     * Expected: balance=0, status=PAID, client balance returns to 0.
+     *
+     * Passes on current code via the "payment_amount == balance" branch.
+     * Locked down to catch regressions from the refactor.
+     */
+    public function testPaymentEqualToBalanceNoPartial()
+    {
+        [$client, $invoice] = $this->buildSentInvoiceForApplyPayment(cost: 10.0);
+
+        $this->assertEquals(10.0, $invoice->balance);
+        $this->assertEquals(10.0, $client->balance);
+
+        $this->applyPaymentDirectly($client, $invoice, 10.0);
+
+        $invoice = $invoice->fresh();
+        $client = $client->fresh();
+
+        $this->assertEquals(0.0, $invoice->balance);
+        $this->assertEquals(Invoice::STATUS_PAID, $invoice->status_id);
+        $this->assertEquals(10.0, $invoice->paid_to_date);
+        $this->assertEquals(0.0, $client->balance);
+    }
+
+    /**
+     * Contract: no partial + payment_amount > balance (overpayment).
+     *
+     * Scenario: amount=10, balance=10, no partial, payment=25.
+     * Expected: balance capped at 0, status=PAID, invoice.paid_to_date=10
+     * (not 25), client balance returns to 0 (deducted by 10, not 25).
+     *
+     * Passes on current code via the "payment_amount > balance" branch, which
+     * already caps at invoice balance. Locked down to catch regressions.
+     */
+    public function testPaymentExceedsBalanceNoPartial()
+    {
+        [$client, $invoice] = $this->buildSentInvoiceForApplyPayment(cost: 10.0);
+
+        $this->assertEquals(10.0, $invoice->balance);
+        $this->assertEquals(10.0, $client->balance);
+
+        $this->applyPaymentDirectly($client, $invoice, 25.0);
+
+        $invoice = $invoice->fresh();
+        $client = $client->fresh();
+
+        $this->assertEquals(0.0, $invoice->balance);
+        $this->assertEquals(Invoice::STATUS_PAID, $invoice->status_id);
+        $this->assertEquals(10.0, $invoice->paid_to_date);
+        $this->assertEquals(0.0, $client->balance);
+    }
+
+    /**
+     * End-to-end HTTP test for applying an unapplied payment.
+     *
+     * Flow:
+     *   1. POST /api/v1/payments — create an unapplied payment for 10000
+     *      (no invoices array).
+     *   2. PUT  /api/v1/payments/{id} — attempt to apply 10000 to an invoice
+     *      whose balance is only 2000 (partial=1000).
+     *
+     * The HTTP update validator (PaymentAppliedValidAmount) must reject step 2
+     * with 422 "Amount cannot be greater than invoice balance" — this is the
+     * guard that keeps the ApplyPayment overpayment cap from ever being
+     * exercised on the normal API surface.
+     */
+    public function testApplyOversizedPaymentViaApiIsRejected()
+    {
+        $client = ClientFactory::create($this->company->id, $this->user->id);
+        $client->balance = 0;
+        $client->paid_to_date = 0;
+        $client->save();
+
+        ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+        ]);
+
+        // Invoice: amount=2000, partial=1000, status=SENT after markSent().
+        $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+        $invoice->client_id = $client->id;
+
+        $line_items = $this->buildLineItems();
+        $line_items[0]->cost = 2000;
+        $invoice->line_items = $line_items;
+        $invoice->uses_inclusive_taxes = false;
+        $invoice->partial = 1000;
+        $invoice->save();
+
+        $invoice_calc = new InvoiceSum($invoice);
+        $invoice_calc->build();
+        $invoice = $invoice_calc->getInvoice();
+        $invoice->save();
+        $invoice->service()->markSent()->createInvitations()->save();
+
+        $invoice = $invoice->fresh();
+        $this->assertEquals(2000.0, $invoice->amount);
+        $this->assertEquals(2000.0, $invoice->balance);
+        $this->assertEquals(1000.0, $invoice->partial);
+        $this->assertEquals(Invoice::STATUS_SENT, $invoice->status_id);
+
+        // Step 1 — create an unapplied payment for 10000 (no invoices array).
+        $create_response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments', [
+            'amount' => 10000,
+            'client_id' => $client->hashed_id,
+            'date' => '2020/01/01',
+        ]);
+
+        $create_response->assertStatus(200);
+        $payment_hashed_id = $create_response->json('data.id');
+        $payment_id = $this->decodePrimaryKey($payment_hashed_id);
+
+        $payment = Payment::find($payment_id);
+        $this->assertEquals(10000.0, $payment->amount);
+        $this->assertEquals(0.0, $payment->applied);
+
+        $client = $client->fresh();
+        $this->assertEquals(10000.0, $client->paid_to_date, 'Unapplied payment should bump client paid_to_date by the payment amount.');
+        // Client balance reflects the SENT invoice (2000) — it was incremented by markSent()
+        // before the payment was created. Creating an unapplied payment does NOT change balance.
+        $this->assertEquals(2000.0, $client->balance);
+
+        // Step 2 — attempt to apply 10000 to an invoice whose balance is 2000.
+        $apply_response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/payments/{$payment_hashed_id}", [
+            'invoices' => [
+                [
+                    'invoice_id' => $invoice->hashed_id,
+                    'amount' => 10000,
+                ],
+            ],
+        ]);
+
+        // Expected: validator rejects with 422.
+        $apply_response->assertStatus(422);
+
+        // And the application must NOT have been persisted.
+        $invoice = $invoice->fresh();
+        $client = $client->fresh();
+        $payment = $payment->fresh();
+
+        $this->assertEquals(2000.0, $invoice->balance, 'Invoice balance must be untouched after a rejected apply.');
+        $this->assertEquals(Invoice::STATUS_SENT, $invoice->status_id);
+        $this->assertEquals(1000.0, $invoice->partial);
+        $this->assertEquals(0.0, $payment->applied);
+        // Client balance still reflects the SENT invoice only — no allocation happened.
+        $this->assertEquals(2000.0, $client->balance);
+    }
+
+    /**
+     * Shared setup + apply for the boundary-amount tests below.
+     *
+     * Produces: client (balance=2000 post-markSent, paid_to_date=10000),
+     * invoice (amount=2000, partial=1000, balance=2000, status=SENT), and a
+     * fully-unapplied payment (amount=10000, applied=0). Then PUTs the apply
+     * request with the given $apply_amount and asserts status 200.
+     *
+     * @return array{0: Client, 1: Invoice, 2: Payment}
+     */
+    private function setupAndApplyPaymentOfAmount(float $apply_amount): array
+    {
+        $client = ClientFactory::create($this->company->id, $this->user->id);
+        $client->balance = 0;
+        $client->paid_to_date = 0;
+        $client->save();
+
+        ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+        ]);
+
+        $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+        $invoice->client_id = $client->id;
+        $line_items = $this->buildLineItems();
+        $line_items[0]->cost = 2000;
+        $invoice->line_items = $line_items;
+        $invoice->uses_inclusive_taxes = false;
+        $invoice->partial = 1000;
+        $invoice->save();
+
+        $invoice_calc = new InvoiceSum($invoice);
+        $invoice_calc->build();
+        $invoice = $invoice_calc->getInvoice();
+        $invoice->save();
+        $invoice->service()->markSent()->createInvitations()->save();
+
+        $create_response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments', [
+            'amount' => 10000,
+            'client_id' => $client->hashed_id,
+            'date' => '2020/01/01',
+        ]);
+        $create_response->assertStatus(200);
+        $payment_hashed_id = $create_response->json('data.id');
+
+        $apply_response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/payments/{$payment_hashed_id}", [
+            'invoices' => [
+                [
+                    'invoice_id' => $invoice->hashed_id,
+                    'amount' => $apply_amount,
+                ],
+            ],
+        ]);
+        $apply_response->assertStatus(200);
+
+        return [
+            $client->fresh(),
+            $invoice->fresh(),
+            Payment::find($this->decodePrimaryKey($payment_hashed_id)),
+        ];
+    }
+
+    /**
+     * Apply amount = 100 — under the partial (1000). Stage 1 of ApplyPayment:
+     * partial is decremented (900), status stays SENT, balance=1900.
+     */
+    public function testApplyPaymentBelowPartial()
+    {
+        [$client, $invoice, $payment] = $this->setupAndApplyPaymentOfAmount(100);
+
+        $this->assertEquals(1900.0, $invoice->balance);
+        $this->assertEquals(900.0, $invoice->partial);
+        $this->assertEquals(Invoice::STATUS_SENT, $invoice->status_id);
+        $this->assertEquals(100.0, $invoice->paid_to_date);
+
+        $this->assertEquals(1900.0, $client->balance);
+        $this->assertEquals(10000.0, $client->paid_to_date);
+
+        $this->assertEquals(100.0, $payment->applied);
+    }
+
+    /**
+     * Apply amount = 1000.01 — just over the partial, still under balance.
+     * Stage 2: partial cleared, status=PARTIAL, balance=999.99.
+     */
+    public function testApplyPaymentJustOverPartial()
+    {
+        [$client, $invoice, $payment] = $this->setupAndApplyPaymentOfAmount(1000.01);
+
+        $this->assertEquals(999.99, $invoice->balance);
+        $this->assertEquals(0, $invoice->partial);
+        $this->assertEquals(Invoice::STATUS_PARTIAL, $invoice->status_id);
+        $this->assertEquals(1000.01, $invoice->paid_to_date);
+
+        $this->assertEquals(999.99, $client->balance);
+        $this->assertEquals(10000.0, $client->paid_to_date);
+
+        $this->assertEquals(1000.01, $payment->applied);
+    }
+
+    /**
+     * Apply amount = 1999.99 — one cent under balance. Stage 2: partial cleared,
+     * status=PARTIAL (balance rounds to 0.01, not 0), invoice.balance=0.01.
+     */
+    public function testApplyPaymentJustUnderBalance()
+    {
+        [$client, $invoice, $payment] = $this->setupAndApplyPaymentOfAmount(1999.99);
+
+        $this->assertEquals(0.01, $invoice->balance);
+        $this->assertEquals(0, $invoice->partial);
+        $this->assertEquals(Invoice::STATUS_PARTIAL, $invoice->status_id);
+        $this->assertEquals(1999.99, $invoice->paid_to_date);
+
+        $this->assertEquals(0.01, $client->balance);
+        $this->assertEquals(10000.0, $client->paid_to_date);
+
+        $this->assertEquals(1999.99, $payment->applied);
+    }
+
+    /**
+     * Apply amount = 2000 — exact balance. Stage 2: partial cleared,
+     * status=PAID, invoice.balance=0, client fully settled on this invoice.
+     */
+    public function testApplyPaymentExactBalance()
+    {
+        [$client, $invoice, $payment] = $this->setupAndApplyPaymentOfAmount(2000);
+
+        $this->assertEquals(0.0, $invoice->balance);
+        $this->assertEquals(0, $invoice->partial);
+        $this->assertEquals(Invoice::STATUS_PAID, $invoice->status_id);
+        $this->assertEquals(2000.0, $invoice->paid_to_date);
+
+        $this->assertEquals(0.0, $client->balance);
+        $this->assertEquals(10000.0, $client->paid_to_date);
+
+        $this->assertEquals(2000.0, $payment->applied);
+    }
+
     public function testPaymentLessThanPartialAmount()
     {
         $invoice = null;

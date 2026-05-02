@@ -116,6 +116,7 @@ class AuthorizePaymentMethod
             $gateway_customer_reference = $client_gateway_token->gateway_customer_reference;
         } else {
             $gateway_customer_reference = (new AuthorizeCreateCustomer($this->authorize, $this->authorize->client))->create($data);
+            usleep(750000);
             $payment_profile = $this->addPaymentMethodToClient($gateway_customer_reference, $data);
 
         }

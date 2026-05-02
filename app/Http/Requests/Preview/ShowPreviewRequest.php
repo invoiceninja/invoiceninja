@@ -42,7 +42,7 @@ class ShowPreviewRequest extends Request
     public function prepareForValidation()
     {
         $input = $this->all();
-
+        $input = $this->decodePrimaryKeys($input);
         $this->replace($input);
     }
 }

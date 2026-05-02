@@ -69,30 +69,11 @@ class PaymentIntentWebhook implements ShouldQueue
             $ninja_promo = data_get($transaction, 'charges.data.0.metadata.product', false);
 
             if ($ninja_promo && class_exists(\Modules\Admin\Jobs\Stripe\CampaignCharge::class)) {
-                \Modules\Admin\Jobs\Stripe\CampaignCharge::dispatch(data_get($transaction, 'charges.data.0'));
+                \Modules\Admin\Jobs\Stripe\CampaignCharge::dispatch(data_get($transaction, 'charges.data.0'))->delay(5);
                 continue;
             }
 
-            $payment = Payment::query()
-                ->where('company_id', $company->id)
-                ->where(function ($query) use ($transaction) {
-
-                    if (isset($transaction['payment_intent'])) {
-                        $query->where('transaction_reference', $transaction['payment_intent']);
-                    }
-
-                    if (isset($transaction['payment_intent']) && isset($transaction['id'])) {
-                        $query->orWhere('transaction_reference', $transaction['id']);
-                    }
-
-                    if (!isset($transaction['payment_intent']) && isset($transaction['id'])) {
-                        $query->where('transaction_reference', $transaction['id']);
-                    }
-
-                })
-                ->first();
-
-
+            $payment = self::findPaymentByStripeReference($company->id, $transaction);
 
             if ($payment) {
                 $payment->status_id = Payment::STATUS_COMPLETED;
@@ -145,10 +126,10 @@ class PaymentIntentWebhook implements ShouldQueue
         $company = Company::where('company_key', $this->company_key)->first();
 
         /** @var \App\Models\Payment $payment **/
-        $payment = Payment::query()
-                         ->where('company_id', $company->id)
-                         ->where('transaction_reference', $charge['id'])
-                         ->first();
+        $payment = self::findPaymentByStripeReference($company->id, [
+            'id' => $charge['id'] ?? null,
+            'payment_intent' => $pi->id ?? null,
+        ]);
 
         //return early
         if ($payment && $payment->status_id == Payment::STATUS_COMPLETED) {

@@ -220,8 +220,9 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
                 try {
 
                     $data = Http::withOptions([
-                        'redirects' => false,
-                    ])->get($messageUrl);
+                        'allow_redirects' => false,
+                    ])->timeout(5)
+                    ->get($messageUrl);
                     
                     $mail = json_decode($data->body());
                 } catch (\Error $e) {
@@ -235,8 +236,10 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
 
                         try {
                             $data = Http::withOptions([
-                                'redirects' => false,
-                            ])->get($messageUrl);
+                                'allow_redirects' => false,
+                                ])
+                                ->timeout(5)
+                                ->get($messageUrl);
 
                             $mail = json_decode($data->body());
                             
@@ -257,8 +260,10 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
                 $messageUrl = str_replace("https://", "https://" . $credentials, $messageUrl);
 
                 $response = Http::withOptions([
-                    'redirects' => false,
-                ])->get($messageUrl);
+                    'allow_redirects' => false,
+                    ])
+                    ->timeout(5)
+                    ->get($messageUrl);
                 if ($response->successful()) {
                     $mail = json_decode($response->body());
                 } else {

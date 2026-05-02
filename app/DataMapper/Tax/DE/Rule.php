@@ -137,7 +137,7 @@ class Rule extends BaseRule implements RuleInterface
      */
     public function taxExempt($item): self
     {
-        $this->tax_name1 = '';
+        $this->tax_name1 = ctrans('texts.tax_exempt');
         $this->tax_rate1 = 0;
 
         return $this;

@@ -136,7 +136,7 @@ class AutoBillInvoice extends AbstractService
         }
 
         $fee = round($fee, $this->client->currency()->precision);
-        
+
         /* Build payment hash */
 
         $payment_hash = PaymentHash::create([

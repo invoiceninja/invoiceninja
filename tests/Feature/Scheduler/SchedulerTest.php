@@ -17,6 +17,7 @@ use Tests\TestCase;
 use App\Models\Task;
 use App\Models\Client;
 use App\Models\Invoice;
+use App\Models\Project;
 use App\Models\Scheduler;
 use Tests\MockAccountData;
 use App\Utils\Traits\MakesHash;
@@ -30,9 +31,9 @@ use Illuminate\Validation\ValidationException;
 use App\Services\Scheduler\EmailStatementService;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use App\Services\Scheduler\InvoiceOutstandingTasksService;
 use App\Http\Requests\TaskScheduler\PaymentScheduleRequest;
 use App\Utils\Traits\MakesDates;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  *
@@ -59,6 +60,240 @@ class SchedulerTest extends TestCase
 
     }
 
+    private function makeIoTBillableTask(
+        Client $client,
+        string $calculatedStartDate,
+        ?int $invoiceId = null,
+        ?int $projectId = null,
+        bool $billableInterval = true,
+        bool $running = false,
+    ): Task {
+        $dayStart = Carbon::parse($calculatedStartDate.' 12:00:00', 'UTC')->timestamp;
+        $dayEnd = $running ? 0 : ($dayStart + 7200);
+        $billFlag = $billableInterval ? 'true' : 'false';
+        $timeLog = '[['.$dayStart.','.$dayEnd.',null,'.$billFlag.']]';
+
+        $task = Task::factory()->create([
+            'company_id' => $this->company->id,
+            'client_id' => $client->id,
+            'user_id' => $this->user->id,
+            'description' => 'IoT test '.$calculatedStartDate,
+            'time_log' => $timeLog,
+            'rate' => 100,
+            'invoice_id' => $invoiceId,
+            'project_id' => $projectId,
+        ]);
+        $task->forceFill(['calculated_start_date' => $calculatedStartDate])->save();
+
+        return $task->fresh();
+    }
+
+    private function createInvoiceOutstandingTasksSchedulerViaApi(array $parameterOverrides = [], array $payloadOverrides = []): Scheduler
+    {
+        $parameters = array_merge([
+            'clients' => [],
+            'include_project_tasks' => false,
+            'auto_send' => false,
+            'date_range' => EmailStatement::THIS_MONTH,
+        ], $parameterOverrides);
+
+        $payload = array_merge([
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'invoice_outstanding_tasks',
+            'parameters' => $parameters,
+        ], $payloadOverrides);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $payload);
+
+        $response->assertStatus(200);
+
+        return Scheduler::with('company')->findOrFail($this->decodePrimaryKey($response->json('data.id')));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function collectTaskIdsFromInvoiceLineItems(?Invoice $invoice): array
+    {
+        if ($invoice === null) {
+            return [];
+        }
+
+        return collect((array) $invoice->line_items)
+            ->map(fn ($item) => (array) $item)
+            ->pluck('task_id')
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    private function clientPrimaryInvoiceCount(): int
+    {
+        return Invoice::query()
+            ->where('company_id', $this->company->id)
+            ->where('client_id', $this->client->id)
+            ->count();
+    }
+
+    private function clientInvoiceCount(Client $client): int
+    {
+        return Invoice::query()
+            ->where('company_id', $this->company->id)
+            ->where('client_id', $client->id)
+            ->count();
+    }
+
+    private function assertSchedulerNextRunMonthly(Scheduler $scheduler): void
+    {
+        $scheduler->refresh();
+        $expectedNextClient = now()->startOfDay()->addMonthNoOverflow();
+        $this->assertTrue(
+            $scheduler->next_run_client->equalTo($expectedNextClient),
+            'next_run_client should be start of day plus one month from the frozen clock.'
+        );
+        $offset = $scheduler->company->timezone_offset();
+        $this->assertTrue(
+            $scheduler->next_run->equalTo($expectedNextClient->copy()->addSeconds($offset)),
+            'next_run should match next_run_client adjusted by company timezone_offset().'
+        );
+    }
+
+    /**
+     * @param  array<int, string>  $expectedTwoDates
+     * @param  array<int, string>  $actualTwoDates
+     */
+    private function assertSameTwoDateStringsOrderIndependent(array $expectedTwoDates, array $actualTwoDates): void
+    {
+        $this->assertCount(2, $expectedTwoDates);
+        $this->assertCount(2, $actualTwoDates);
+        $e = array_values($expectedTwoDates);
+        $a = array_values($actualTwoDates);
+        sort($e);
+        sort($a);
+        $this->assertSame($e, $a);
+    }
+
+    private function assertTaskHashedIdInList(string $hashedId, array $taskHashedIds): void
+    {
+        $this->assertTrue(
+            in_array($hashedId, $taskHashedIds, true),
+            sprintf('Expected task id %s in %s', $hashedId, json_encode($taskHashedIds))
+        );
+    }
+
+    private function assertTaskHashedIdNotInList(string $hashedId, array $taskHashedIds): void
+    {
+        $this->assertFalse(
+            in_array($hashedId, $taskHashedIds, true),
+            sprintf('Did not expect task id %s in %s', $hashedId, json_encode($taskHashedIds))
+        );
+    }
+
+    public static function invoiceOutstandingTasksDateRangeProvider(): iterable
+    {
+        $june = '2026-06-15 12:00:00';
+
+        yield 'last7_days' => [
+            'frozenAt' => $june,
+            'dateRange' => EmailStatement::LAST7,
+            'dateInRange' => '2026-06-10',
+            'dateOutOfRange' => '2026-06-01',
+            'customStart' => null,
+            'customEnd' => null,
+        ];
+        yield 'last30_days' => [
+            'frozenAt' => $june,
+            'dateRange' => EmailStatement::LAST30,
+            'dateInRange' => '2026-05-20',
+            'dateOutOfRange' => '2026-04-01',
+            'customStart' => null,
+            'customEnd' => null,
+        ];
+        yield 'last365_days' => [
+            'frozenAt' => $june,
+            'dateRange' => EmailStatement::LAST365,
+            'dateInRange' => '2025-08-01',
+            'dateOutOfRange' => '2024-01-01',
+            'customStart' => null,
+            'customEnd' => null,
+        ];
+        yield 'this_month' => [
+            'frozenAt' => $june,
+            'dateRange' => EmailStatement::THIS_MONTH,
+            'dateInRange' => '2026-06-10',
+            'dateOutOfRange' => '2026-05-15',
+            'customStart' => null,
+            'customEnd' => null,
+        ];
+        yield 'last_month' => [
+            'frozenAt' => $june,
+            'dateRange' => EmailStatement::LAST_MONTH,
+            'dateInRange' => '2026-05-10',
+            'dateOutOfRange' => '2026-06-02',
+            'customStart' => null,
+            'customEnd' => null,
+        ];
+        yield 'this_quarter' => [
+            'frozenAt' => $june,
+            'dateRange' => EmailStatement::THIS_QUARTER,
+            'dateInRange' => '2026-05-01',
+            'dateOutOfRange' => '2026-03-01',
+            'customStart' => null,
+            'customEnd' => null,
+        ];
+        yield 'last_quarter' => [
+            'frozenAt' => $june,
+            'dateRange' => EmailStatement::LAST_QUARTER,
+            'dateInRange' => '2026-03-15',
+            'dateOutOfRange' => '2026-05-01',
+            'customStart' => null,
+            'customEnd' => null,
+        ];
+        yield 'this_year' => [
+            'frozenAt' => $june,
+            'dateRange' => EmailStatement::THIS_YEAR,
+            'dateInRange' => '2026-03-01',
+            'dateOutOfRange' => '2025-12-01',
+            'customStart' => null,
+            'customEnd' => null,
+        ];
+        yield 'last_year' => [
+            'frozenAt' => $june,
+            'dateRange' => EmailStatement::LAST_YEAR,
+            'dateInRange' => '2025-08-01',
+            'dateOutOfRange' => '2026-02-01',
+            'customStart' => null,
+            'customEnd' => null,
+        ];
+        yield 'all_time' => [
+            'frozenAt' => $june,
+            'dateRange' => EmailStatement::ALL_TIME,
+            'dateInRange' => '2024-06-01',
+            'dateOutOfRange' => '2027-01-01',
+            'customStart' => null,
+            'customEnd' => null,
+        ];
+        yield 'date_range_all_maps_to_default_this_month' => [
+            'frozenAt' => $june,
+            'dateRange' => 'all',
+            'dateInRange' => '2026-06-12',
+            'dateOutOfRange' => '2026-05-01',
+            'customStart' => null,
+            'customEnd' => null,
+        ];
+        yield 'custom' => [
+            'frozenAt' => $june,
+            'dateRange' => EmailStatement::CUSTOM_RANGE,
+            'dateInRange' => '2026-05-10',
+            'dateOutOfRange' => '2026-05-25',
+            'customStart' => '2026-05-05',
+            'customEnd' => '2026-05-20',
+        ];
+    }
 
     public function testPaymentScheduleCalculationsIsPercentageWithAutoBill()
     {
@@ -646,54 +881,244 @@ class SchedulerTest extends TestCase
 
     public function testInvoiceOutstandingTasks()
     {
+        $this->travelTo(Carbon::parse('2026-06-15 12:00:00', 'UTC'));
 
-        $start = now()->subMonth()->addDays(1)->timestamp;
-        $end = now()->subMonth()->addDays(5)->timestamp;
+        $inRangeTask = $this->makeIoTBillableTask($this->client, '2026-05-10', null, null, true, false);
+        $outOfRangeTask = $this->makeIoTBillableTask($this->client, '2026-06-02');
 
-        Task::factory()->count(10)->create([
+        $existingInvoice = Invoice::factory()->create([
             'company_id' => $this->company->id,
-            'client_id' => $this->client->id,
             'user_id' => $this->user->id,
-            'description' => 'Test task',
-            'time_log' => '[['.$start.','.$end.',null,false]]',
-            'rate' => 100,
+            'client_id' => $this->client->id,
+            'date' => '2026-05-01',
+            'due_date' => '2026-06-01',
+        ]);
+        $inRangeInvoicedTask = $this->makeIoTBillableTask($this->client, '2026-05-20', $existingInvoice->id);
+
+        $scheduler = $this->createInvoiceOutstandingTasksSchedulerViaApi([
+            'include_project_tasks' => true,
+            'date_range' => EmailStatement::LAST_MONTH,
         ]);
 
-        $data = [
-            'name' => 'A test invoice outstanding tasks scheduler',
-            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
-            'next_run' => now()->format('Y-m-d'),
-            'template' => 'invoice_outstanding_tasks',
-            'parameters' => [
-                'clients' => [],
-                'include_project_tasks' => true,
-                'auto_send' => true,
-                'date_range' => 'last_month',
-            ],
+        $invoicesBefore = $this->clientPrimaryInvoiceCount();
+        $scheduler->service()->runTask();
+
+        $this->assertSame($invoicesBefore + 1, $this->clientPrimaryInvoiceCount());
+
+        $newInvoice = Invoice::query()
+            ->where('company_id', $this->company->id)
+            ->where('client_id', $this->client->id)
+            ->orderByDesc('id')
+            ->first();
+
+        $taskIdsOnInvoice = $this->collectTaskIdsFromInvoiceLineItems($newInvoice);
+        $this->assertCount(1, $taskIdsOnInvoice);
+        $this->assertTaskHashedIdInList($inRangeTask->hashed_id, $taskIdsOnInvoice);
+        $this->assertTaskHashedIdNotInList($outOfRangeTask->hashed_id, $taskIdsOnInvoice);
+        $this->assertTaskHashedIdNotInList($inRangeInvoicedTask->hashed_id, $taskIdsOnInvoice);
+
+        $this->assertSchedulerNextRunMonthly($scheduler);
+    }
+
+    #[DataProvider('invoiceOutstandingTasksDateRangeProvider')]
+    public function testInvoiceOutstandingTasksRespectsEachDateRange(
+        string $frozenAt,
+        string $dateRange,
+        string $dateInRange,
+        string $dateOutOfRange,
+        ?string $customStart,
+        ?string $customEnd,
+    ): void {
+        $this->travelTo(Carbon::parse($frozenAt, 'UTC'));
+
+        $inTask = $this->makeIoTBillableTask($this->client, $dateInRange);
+        $outTask = $this->makeIoTBillableTask($this->client, $dateOutOfRange);
+
+        $parameters = [
+            'date_range' => $dateRange,
+            'include_project_tasks' => false,
         ];
+        if ($dateRange === EmailStatement::CUSTOM_RANGE) {
+            $this->assertNotNull($customStart);
+            $this->assertNotNull($customEnd);
+            $parameters['start_date'] = $customStart;
+            $parameters['end_date'] = $customEnd;
+        }
 
-        $response = false;
+        $scheduler = $this->createInvoiceOutstandingTasksSchedulerViaApi($parameters);
+        $before = $this->clientPrimaryInvoiceCount();
+        $scheduler->service()->runTask();
 
-        $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/task_schedulers', $data);
+        $this->assertSame($before + 1, $this->clientPrimaryInvoiceCount());
 
-        $response->assertStatus(200);
+        $invoice = Invoice::query()
+            ->where('company_id', $this->company->id)
+            ->where('client_id', $this->client->id)
+            ->orderByDesc('id')
+            ->first();
 
-        $arr = $response->json();
+        $ids = $this->collectTaskIdsFromInvoiceLineItems($invoice);
+        $this->assertTaskHashedIdInList($inTask->hashed_id, $ids);
+        $this->assertTaskHashedIdNotInList($outTask->hashed_id, $ids);
+    }
 
-        $id = $this->decodePrimaryKey($arr['data']['id']);
-        $scheduler = Scheduler::find($id);
-        $user = $scheduler->user;
-        $user->email = "{rand(5,555555}@gmail.com";
-        $user->save();
+    public function testInvoiceOutstandingTasksIncludeProjectTasksWhenEnabled()
+    {
+        $this->travelTo(Carbon::parse('2026-06-15 12:00:00', 'UTC'));
 
-        $this->assertNotNull($scheduler);
+        $project = Project::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+        ]);
 
-        $export = (new InvoiceOutstandingTasksService($scheduler))->run();
+        $onProject = $this->makeIoTBillableTask($this->client, '2026-05-11', null, $project->id);
+        $noProject = $this->makeIoTBillableTask($this->client, '2026-05-12');
 
+        $scheduler = $this->createInvoiceOutstandingTasksSchedulerViaApi([
+            'include_project_tasks' => true,
+            'date_range' => EmailStatement::LAST_MONTH,
+        ]);
 
+        $before = $this->clientPrimaryInvoiceCount();
+        $scheduler->service()->runTask();
+        $this->assertSame($before + 1, $this->clientPrimaryInvoiceCount());
+
+        $invoice = Invoice::query()
+            ->where('company_id', $this->company->id)
+            ->where('client_id', $this->client->id)
+            ->orderByDesc('id')
+            ->first();
+
+        $ids = $this->collectTaskIdsFromInvoiceLineItems($invoice);
+        $this->assertCount(2, $ids);
+        $this->assertTaskHashedIdInList($onProject->hashed_id, $ids);
+        $this->assertTaskHashedIdInList($noProject->hashed_id, $ids);
+    }
+
+    public function testInvoiceOutstandingTasksExcludesProjectTasksWhenDisabled()
+    {
+        $this->travelTo(Carbon::parse('2026-06-15 12:00:00', 'UTC'));
+
+        $project = Project::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+        ]);
+
+        $withProject = $this->makeIoTBillableTask($this->client, '2026-05-12', null, $project->id);
+        $withoutProject = $this->makeIoTBillableTask($this->client, '2026-05-14');
+
+        $scheduler = $this->createInvoiceOutstandingTasksSchedulerViaApi([
+            'include_project_tasks' => false,
+            'date_range' => EmailStatement::LAST_MONTH,
+        ]);
+
+        $scheduler->service()->runTask();
+
+        $newInvoice = Invoice::query()
+            ->where('company_id', $this->company->id)
+            ->where('client_id', $this->client->id)
+            ->orderByDesc('id')
+            ->first();
+
+        $taskIdsOnInvoice = $this->collectTaskIdsFromInvoiceLineItems($newInvoice);
+        $this->assertCount(1, $taskIdsOnInvoice);
+        $this->assertTaskHashedIdInList($withoutProject->hashed_id, $taskIdsOnInvoice);
+        $this->assertTaskHashedIdNotInList($withProject->hashed_id, $taskIdsOnInvoice);
+    }
+
+    public function testInvoiceOutstandingTasksRespectsClientsFilter()
+    {
+        $this->travelTo(Carbon::parse('2026-06-15 12:00:00', 'UTC'));
+
+        $otherClient = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+        ]);
+
+        $this->makeIoTBillableTask($this->client, '2026-05-10');
+        $otherClientTask = $this->makeIoTBillableTask($otherClient, '2026-05-11');
+
+        $scheduler = $this->createInvoiceOutstandingTasksSchedulerViaApi([
+            'clients' => [$otherClient->hashed_id],
+            'date_range' => EmailStatement::LAST_MONTH,
+            'include_project_tasks' => false,
+        ]);
+
+        $beforePrimary = $this->clientPrimaryInvoiceCount();
+        $beforeOther = $this->clientInvoiceCount($otherClient);
+
+        $scheduler->service()->runTask();
+
+        $this->assertSame($beforePrimary, $this->clientPrimaryInvoiceCount());
+        $this->assertSame($beforeOther + 1, $this->clientInvoiceCount($otherClient));
+
+        $invoice = Invoice::query()
+            ->where('company_id', $this->company->id)
+            ->where('client_id', $otherClient->id)
+            ->orderByDesc('id')
+            ->first();
+
+        $ids = $this->collectTaskIdsFromInvoiceLineItems($invoice);
+        $this->assertSame([$otherClientTask->hashed_id], $ids);
+    }
+
+    public function testInvoiceOutstandingTasksNoNewInvoiceWhenOnlyOutOfRangeTasks()
+    {
+        $this->travelTo(Carbon::parse('2026-06-15 12:00:00', 'UTC'));
+
+        $this->makeIoTBillableTask($this->client, '2026-06-25');
+        $this->makeIoTBillableTask($this->client, '2026-04-01');
+
+        $scheduler = $this->createInvoiceOutstandingTasksSchedulerViaApi([
+            'date_range' => EmailStatement::LAST_MONTH,
+        ]);
+
+        $before = $this->clientPrimaryInvoiceCount();
+        $scheduler->service()->runTask();
+        $this->assertSame($before, $this->clientPrimaryInvoiceCount());
+    }
+
+    public function testInvoiceOutstandingTasksSkipsInvoiceWhenBillableDurationIsZero()
+    {
+        $this->travelTo(Carbon::parse('2026-06-15 12:00:00', 'UTC'));
+
+        $this->makeIoTBillableTask($this->client, '2026-05-10', null, null, false, false);
+
+        $scheduler = $this->createInvoiceOutstandingTasksSchedulerViaApi([
+            'date_range' => EmailStatement::LAST_MONTH,
+        ]);
+
+        $before = $this->clientPrimaryInvoiceCount();
+        $scheduler->service()->runTask();
+        $this->assertSame($before, $this->clientPrimaryInvoiceCount());
+    }
+
+    public function testInvoiceOutstandingTasksSkipsRunningTaskOnInvoiceLineItems()
+    {
+        $this->travelTo(Carbon::parse('2026-06-15 12:00:00', 'UTC'));
+
+        $runningOnly = $this->makeIoTBillableTask($this->client, '2026-05-09', null, null, true, true);
+        $billable = $this->makeIoTBillableTask($this->client, '2026-05-11');
+
+        $scheduler = $this->createInvoiceOutstandingTasksSchedulerViaApi([
+            'date_range' => EmailStatement::LAST_MONTH,
+        ]);
+
+        $before = $this->clientPrimaryInvoiceCount();
+        $scheduler->service()->runTask();
+        $this->assertSame($before + 1, $this->clientPrimaryInvoiceCount());
+
+        $invoice = Invoice::query()
+            ->where('company_id', $this->company->id)
+            ->where('client_id', $this->client->id)
+            ->orderByDesc('id')
+            ->first();
+
+        $ids = $this->collectTaskIdsFromInvoiceLineItems($invoice);
+        $this->assertTaskHashedIdInList($billable->hashed_id, $ids);
+        $this->assertTaskHashedIdNotInList($runningOnly->hashed_id, $ids);
     }
 
 
@@ -1282,7 +1707,7 @@ class SchedulerTest extends TestCase
 
         $this->assertEquals(EmailStatement::LAST_MONTH, $scheduler->parameters['date_range']);
 
-        $this->assertEqualsCanonicalizing(['2022-12-01','2022-12-31'], $method);
+        $this->assertSameTwoDateStringsOrderIndependent(['2022-12-01', '2022-12-31'], $method);
     }
 
     public function testCalculateStatementProperties()
@@ -1320,13 +1745,13 @@ class SchedulerTest extends TestCase
     {
         $this->travelTo(Carbon::parse('2023-01-14'));
 
-        $this->assertEqualsCanonicalizing(['2023-01-01','2023-01-31'], $this->getDateRange(EmailStatement::THIS_MONTH));
-        $this->assertEqualsCanonicalizing(['2023-01-01','2023-03-31'], $this->getDateRange(EmailStatement::THIS_QUARTER));
-        $this->assertEqualsCanonicalizing(['2023-01-01','2023-12-31'], $this->getDateRange(EmailStatement::THIS_YEAR));
+        $this->assertSameTwoDateStringsOrderIndependent(['2023-01-01', '2023-01-31'], $this->getDateRange(EmailStatement::THIS_MONTH));
+        $this->assertSameTwoDateStringsOrderIndependent(['2023-01-01', '2023-03-31'], $this->getDateRange(EmailStatement::THIS_QUARTER));
+        $this->assertSameTwoDateStringsOrderIndependent(['2023-01-01', '2023-12-31'], $this->getDateRange(EmailStatement::THIS_YEAR));
 
-        $this->assertEqualsCanonicalizing(['2022-12-01','2022-12-31'], $this->getDateRange(EmailStatement::LAST_MONTH));
-        $this->assertEqualsCanonicalizing(['2022-10-01','2022-12-31'], $this->getDateRange(EmailStatement::LAST_QUARTER));
-        $this->assertEqualsCanonicalizing(['2022-01-01','2022-12-31'], $this->getDateRange(EmailStatement::LAST_YEAR));
+        $this->assertSameTwoDateStringsOrderIndependent(['2022-12-01', '2022-12-31'], $this->getDateRange(EmailStatement::LAST_MONTH));
+        $this->assertSameTwoDateStringsOrderIndependent(['2022-10-01', '2022-12-31'], $this->getDateRange(EmailStatement::LAST_QUARTER));
+        $this->assertSameTwoDateStringsOrderIndependent(['2022-01-01', '2022-12-31'], $this->getDateRange(EmailStatement::LAST_YEAR));
 
         $this->travelBack();
     }

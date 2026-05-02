@@ -24,4 +24,15 @@ class SE extends BaseCountry
     {
         return ["G+B", "SE:ORGNR", "SE:VAT", "SE:ORGNR"];
     }
+
+    /**
+     * Enable Svefaktura network for Swedish receivers.
+     */
+    public function getNetworkOverrides(): array
+    {
+        return [[
+            'application' => 'svefaktura',
+            'settings' => ['enabled' => true],
+        ]];
+    }
 }

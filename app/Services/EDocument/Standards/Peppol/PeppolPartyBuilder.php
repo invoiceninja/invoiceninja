@@ -28,9 +28,7 @@ use App\Services\EDocument\Standards\Peppol;
 
 class PeppolPartyBuilder
 {
-    public function __construct(private Peppol $peppol)
-    {
-    }
+    public function __construct(private Peppol $peppol) {}
 
     /**
      * getAccountingSupplierParty
@@ -41,7 +39,6 @@ class PeppolPartyBuilder
     {
         $invoice = $this->peppol->getInvoiceModel();
         $company = $this->peppol->getCompany();
-        $gateway = $this->peppol->getGateway();
         $taxCalculator = $this->peppol->getTaxCalculator();
 
         $asp = new AccountingSupplierParty();
@@ -96,11 +93,10 @@ class PeppolPartyBuilder
             $id = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\EndpointID();
             $scheme_parts = explode(':', $company->settings->id_number ?? '');
 
-            if(count($scheme_parts) === 2) {
+            if (count($scheme_parts) === 2) {
                 $id->schemeID = $scheme_parts[0];
                 $id->value = $scheme_parts[1];
-            }
-            else {
+            } else {
                 $id->schemeID = $this->resolveScheme();
                 $id->value = preg_replace("/[^a-zA-Z0-9]/", "", $company->settings->id_number ?? '');
             }
@@ -132,24 +128,23 @@ class PeppolPartyBuilder
         $contact_name = strlen($invoice->company->owner()->present()->name() ?? '') > 2 ? $invoice->company->owner()->present()->name() : $invoice->company->present()->name();
 
         $contact = new Contact();
-        $contact->ElectronicMail = $gateway->mutator->getSetting('Invoice.AccountingSupplierParty.Party.Contact') ?? $invoice->company->owner()->present()->email();
-        $contact->Telephone = $gateway->mutator->getSetting('Invoice.AccountingSupplierParty.Party.Telephone') ?? $invoice->company->getSetting('phone');
-        $contact->Name = $gateway->mutator->getSetting('Invoice.AccountingSupplierParty.Party.Name') ?? $contact_name;
+        $contact->ElectronicMail = $this->peppol->getSetting('Invoice.AccountingSupplierParty.Party.Contact') ?? $invoice->company->owner()->present()->email();
+        $contact->Telephone = $this->peppol->getSetting('Invoice.AccountingSupplierParty.Party.Telephone') ?? $invoice->company->getSetting('phone');
+        $contact->Name = $this->peppol->getSetting('Invoice.AccountingSupplierParty.Party.Name') ?? $contact_name;
 
         $party->Contact = $contact;
 
         $ple = new \InvoiceNinja\EInvoice\Models\Peppol\PartyLegalEntity();
         $ple->RegistrationName = $invoice->company->present()->name();
 
-// if no vat number, we should inject the id_number as the company identifier!
-if (strlen($company->settings->vat_number ?? '') <= 1
-   && strlen($this->peppol->getOverrideVatNumber()) <= 1
-   && strlen($company->settings->id_number ?? '') > 1)
-{
-    $companyID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CompanyID();
-    $companyID->value = preg_replace("/[^a-zA-Z0-9]/", "", $company->settings->id_number);
-    $ple->CompanyID = $companyID;
-}
+        // if no vat number, we should inject the id_number as the company identifier!
+        if (strlen($company->settings->vat_number ?? '') <= 1
+           && strlen($this->peppol->getOverrideVatNumber()) <= 1
+           && strlen($company->settings->id_number ?? '') > 1) {
+            $companyID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CompanyID();
+            $companyID->value = preg_replace("/[^a-zA-Z0-9]/", "", $company->settings->id_number);
+            $ple->CompanyID = $companyID;
+        }
 
 
         $party->PartyLegalEntity[] = $ple;
@@ -190,7 +185,7 @@ if (strlen($company->settings->vat_number ?? '') <= 1
 
             // BR-O-02: Do not include Buyer VAT identifier when tax category is 'O' (Not subject to VAT)
             if (!$this->peppol->hasCategoryO()) {
-            //// If this is intracommunity supply, ensure that the country prefix is on the party tax scheme
+                //// If this is intracommunity supply, ensure that the country prefix is on the party tax scheme
                 $pts = new \InvoiceNinja\EInvoice\Models\Peppol\PartyTaxSchemeType\PartyTaxScheme();
                 $companyID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CompanyID();
                 $companyID->value = $this->ensureVatNumberPrefix($invoice->client->vat_number, $invoice->client->country->iso_3166_2);
@@ -224,18 +219,19 @@ if (strlen($company->settings->vat_number ?? '') <= 1
         } elseif (str_contains($routing_id, ':')) {
             // routing_id stored as "SCHEME:value" or already as "0088:value"
             [$scheme, $value] = explode(':', $routing_id, 2);
-            $id->schemeID = $this->peppol->getGateway()->router->resolveIso6523Scheme($scheme);
+            $id->schemeID = $this->peppol->getRouter()->resolveIso6523Scheme($scheme);
             $id->value = $value;
         } elseif (strlen($routing_id) > 1) {
             // Raw routing value — scheme resolved from country/classification
             $id->schemeID = $resolved_scheme;
             $id->value = $routing_id;
         } else {
-            // No routing_id — fall back to VAT or id_number
-            $id->schemeID = $resolved_scheme;
-            $id->value = preg_replace("/[^a-zA-Z0-9]/", "", $invoice->client->vat_number ?? '')
-                      ?: preg_replace("/[^a-zA-Z0-9]/", "", $invoice->client->id_number ?? '')
-                      ?: 'fallback1234';
+            // No routing_id — defer to the country handler so composite schemes
+            // (e.g. FR "SIRENE or SIRET") are disambiguated against the client's
+            // id_number / vat_number rather than emitted verbatim (BR-CL-25).
+            $candidate = $this->resolveClientEndpointCandidate($invoice, $resolved_scheme);
+            $id->schemeID = $candidate['schemeID'];
+            $id->value = $candidate['value'];
         }
 
         $party->EndpointID = $id;
@@ -354,7 +350,7 @@ if (strlen($company->settings->vat_number ?? '') <= 1
             ? ($invoice->client->classification ?? 'business')
             : 'business';
 
-        $router = $this->peppol->getGateway()->router;
+        $router = $this->peppol->getRouter();
         $router->setInvoice($invoice);
         $friendly_scheme = $router->resolveRouting($country_code, $classification);
 
@@ -364,6 +360,43 @@ if (strlen($company->settings->vat_number ?? '') <= 1
         }
 
         return $router->resolveIso6523Scheme($friendly_scheme);
+    }
+
+    /**
+     * Resolve the customer EndpointID schemeID + value via the country handler.
+     *
+     * Delegates to CountryHandler::getCandidates() so country-specific
+     * disambiguation (e.g. FR's SIRENE-vs-SIRET on id_number length) is the
+     * authoritative source. Falls back to the previously resolved EAS code +
+     * VAT/id_number when the handler returns no candidates.
+     *
+     * @param  object $invoice
+     * @param  string $resolved_scheme  Pre-resolved EAS code (numeric)
+     * @return array{schemeID: string, value: string}
+     */
+    private function resolveClientEndpointCandidate(object $invoice, string $resolved_scheme): array
+    {
+        $router = $this->peppol->getRouter();
+        $country_code = $invoice->client->country->iso_3166_2;
+        $classification = $invoice->client->classification ?? 'business';
+
+        $handler = CountryFactory::make($country_code);
+        $candidates = $handler->getCandidates($invoice->client, $classification, $router);
+
+        if (count($candidates) > 0 && !empty($candidates[0]['scheme']) && !empty($candidates[0]['id'])) {
+            $candidate = $candidates[0];
+            return [
+                'schemeID' => $router->resolveIso6523Scheme((string) $candidate['scheme']),
+                'value' => (string) $candidate['id'],
+            ];
+        }
+
+        return [
+            'schemeID' => $resolved_scheme,
+            'value' => preg_replace("/[^a-zA-Z0-9]/", "", $invoice->client->vat_number ?? '')
+                ?: preg_replace("/[^a-zA-Z0-9]/", "", $invoice->client->id_number ?? '')
+                ?: 'fallback1234',
+        ];
     }
 
     /**

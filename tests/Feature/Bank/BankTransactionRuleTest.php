@@ -75,8 +75,9 @@ class BankTransactionRuleTest extends TestCase
             'applies_to' => 'CREDIT',
             'rules' => [
                 [
-                    'search_key' => '$invoice.number',
+                    'search_key' => 'description',
                     'operator' => 'starts_with',
+                    'value' => '$invoice.number',
                 ]
             ]
         ]);
@@ -135,8 +136,9 @@ class BankTransactionRuleTest extends TestCase
             'applies_to' => 'CREDIT',
             'rules' => [
                 [
-                    'search_key' => '$invoice.number',
+                    'search_key' => 'description',
                     'operator' => 'contains',
+                    'value' => '$invoice.number',
                 ]
             ]
         ]);
@@ -156,7 +158,7 @@ class BankTransactionRuleTest extends TestCase
 
         (new ProcessBankRules($bt))->run();
 
-        $bt->fresh();
+        $bt = $bt->fresh();
 
         $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
         $this->assertNotNull($i->id);
@@ -195,8 +197,9 @@ class BankTransactionRuleTest extends TestCase
             'applies_to' => 'CREDIT',
             'rules' => [
                 [
-                    'search_key' => '$invoice.number',
+                    'search_key' => 'description',
                     'operator' => 'is',
+                    'value' => '$invoice.number',
                 ]
             ]
         ]);
@@ -256,8 +259,9 @@ class BankTransactionRuleTest extends TestCase
             'applies_to' => 'CREDIT',
             'rules' => [
                 [
-                    'search_key' => '$invoice.amount',
+                    'search_key' => 'amount',
                     'operator' => '=',
+                    'value' => '$invoice.amount',
                 ]
             ]
         ]);
@@ -276,7 +280,7 @@ class BankTransactionRuleTest extends TestCase
 
         (new ProcessBankRules($bt))->run();
 
-        $bt->fresh();
+        $bt = $bt->fresh();
 
         $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
         $this->assertNotNull($i->id);
@@ -315,8 +319,9 @@ class BankTransactionRuleTest extends TestCase
             'applies_to' => 'CREDIT',
             'rules' => [
                 [
-                    'search_key' => '$payment.custom1',
+                    'search_key' => 'description',
                     'operator' => 'starts_with',
+                    'value' => '$payment.custom1',
                 ]
             ]
         ]);
@@ -372,8 +377,9 @@ class BankTransactionRuleTest extends TestCase
             'applies_to' => 'CREDIT',
             'rules' => [
                 [
-                    'search_key' => '$payment.transaction_reference',
+                    'search_key' => 'description',
                     'operator' => 'starts_with',
+                    'value' => '$payment.transaction_reference',
                 ]
             ]
         ]);
@@ -430,8 +436,9 @@ class BankTransactionRuleTest extends TestCase
             'applies_to' => 'CREDIT',
             'rules' => [
                 [
-                    'search_key' => '$payment.amount',
+                    'search_key' => 'amount',
                     'operator' => '=',
+                    'value' => '$payment.amount',
                 ]
             ]
         ]);
@@ -488,8 +495,9 @@ class BankTransactionRuleTest extends TestCase
             'applies_to' => 'CREDIT',
             'rules' => [
                 [
-                    'search_key' => '$payment.transaction_reference',
+                    'search_key' => 'description',
                     'operator' => 'is',
+                    'value' => '$payment.transaction_reference',
                 ]
             ]
         ]);
@@ -546,8 +554,9 @@ class BankTransactionRuleTest extends TestCase
             'applies_to' => 'CREDIT',
             'rules' => [
                 [
-                    'search_key' => '$payment.transaction_reference',
+                    'search_key' => 'description',
                     'operator' => 'contains',
+                    'value' => '$payment.transaction_reference',
                 ]
             ]
         ]);
@@ -603,8 +612,9 @@ class BankTransactionRuleTest extends TestCase
             'applies_to' => 'CREDIT',
             'rules' => [
                 [
-                    'search_key' => '$invoice.number',
+                    'search_key' => 'description',
                     'operator' => 'is',
+                    'value' => '$invoice.number',
                 ]
             ]
         ]);

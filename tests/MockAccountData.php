@@ -222,7 +222,8 @@ trait MockAccountData
     {
         config(['database.default' => config('ninja.db.default')]);
 
-        if (Country::count() == 0) {
+        if (! Schema::hasTable('countries') || Country::count() == 0) {
+            Artisan::call('migrate', ['--force' => true]);
             Artisan::call('db:seed', ['--force' => true]);
         }
 
@@ -238,6 +239,14 @@ trait MockAccountData
 
             $resource = Language::query()->orderBy('name')->get();
             Cache::forever('languages', $resource);
+            return $resource;
+
+        });
+
+        app()->singleton('countries', function ($app) {
+
+            $resource = Country::query()->orderBy('name')->get();
+            Cache::forever('countries', $resource);
             return $resource;
 
         });

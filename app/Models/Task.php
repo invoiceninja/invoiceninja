@@ -140,7 +140,14 @@ class Task extends BaseModel
         return self::class;
     }
 
-    public function toSearchableArray()
+    public function toSearchableArray(): array
+    {
+        return config('scout.index_version', 'legacy') === 'v2'
+            ? $this->toSearchableArrayV2()
+            : $this->toSearchableArrayLegacy();
+    }
+
+    public function toSearchableArrayLegacy(): array
     {
         $locale = $this->company->locale();
 
@@ -164,7 +171,7 @@ class Task extends BaseModel
             'custom_value4' => (string) $this->custom_value4,
             'company_key' => $this->company->company_key,
             'time_log' => $this->normalizeTimeLog($this->time_log),
-            'calculated_start_date' => (string) $this->calculated_start_date,
+            'calculated_start_date' => $this->calculated_start_date,
         ];
 
         return $data;
@@ -206,6 +213,11 @@ class Task extends BaseModel
         }
 
         return $normalized;
+    }
+
+    public function toSearchableArrayV2(): array
+    {
+        return $this->toSearchableArrayLegacy();
     }
 
     public function getScoutKey()

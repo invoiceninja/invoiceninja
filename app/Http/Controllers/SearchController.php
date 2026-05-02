@@ -88,9 +88,7 @@ class SearchController extends Controller
         $elastic = ClientBuilder::fromConfig(config('elastic.client.connections.default'));
 
         $params = [
-            // 'index' => 'clients,invoices,client_contacts',
-            'index' => 'clients,invoices,client_contacts,quotes,expenses_v2,credits,recurring_invoices,vendors,vendor_contacts,purchase_orders,projects',
-            // 'index' => 'clients_v2,invoices_v2,client_contacts_v2,quotes_v2,expenses_v2,credits_v2,recurring_invoices_v2,vendors_v2,vendor_contacts_v2,purchase_orders_v2,projects_v2,tasks_v2',
+            'index' => 'clients,invoices,client_contacts,quotes,expenses,credits,recurring_invoices,vendors,vendor_contacts,purchase_orders,projects,tasks',
             'body' => [
                 'query' => [
                     'bool' => [
@@ -138,8 +136,6 @@ class SearchController extends Controller
 
 
         $results = $elastic->search($params);
-
-        // nlog($results['hits']);
 
         $this->mapResults($results['hits']['hits'] ?? []);
 

@@ -187,7 +187,7 @@ class TaxSummaryReport extends BaseExport
                   ->where('paymentables.paymentable_type', 'invoices')
                   ->where('payments.is_deleted', 0)
                   ->whereNull('paymentables.deleted_at');
-            
+
                 if (!$is_all) {
                     $q->whereBetween('payments.date', [$this->start_date, $this->end_date]);
                 }
@@ -222,7 +222,7 @@ class TaxSummaryReport extends BaseExport
                                                     $q->whereBetween('date', [$this->start_date, $this->end_date]);
                                                 }
                                             });
-                                            
+
             $period_paid = $period_paid_query->selectRaw('COALESCE(SUM(amount - refunded), 0) as net_paid')->value('net_paid');
 
             $payment_ratio = $invoice->amount > 0 ? $period_paid / $invoice->amount : 0;

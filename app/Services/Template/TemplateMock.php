@@ -95,8 +95,9 @@ class TemplateMock
     {
         $invite = $this->company->invoice_invitations()->first() ?? $this->company->quote_invitations()->first() ?? null;
 
-        if(!$invite)
+        if (!$invite) {
             return [];
+        }
 
         $html_engine = new \App\Utils\HtmlEngine($invite);
         $data = $html_engine->buildEntityDataArray();
@@ -104,11 +105,11 @@ class TemplateMock
         $result = [];
 
         foreach ($data as $key => $value) {
-            
+
             $cleanKey = ltrim($key, '$');
             \Illuminate\Support\Arr::set($result, $cleanKey, $value['value']);
         }
-    
+
         return $result;
 
     }

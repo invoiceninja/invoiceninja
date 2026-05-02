@@ -345,7 +345,7 @@ class ExpenseFilters extends QueryFilters
             return $this->builder->orderByRaw("REGEXP_REPLACE(number,'[^0-9]+','')+0 " . $dir);
         }
 
-        if (is_array($sort_col) && in_array($sort_col[1], ['asc', 'desc']) && in_array($sort_col[0], ['amount', 'public_notes', 'date', 'id_number', 'custom_value1', 'custom_value2', 'custom_value3', 'custom_value4'])) {
+        if (in_array($sort_col[1], ['asc', 'desc']) && in_array($sort_col[0], ['amount', 'public_notes', 'date', 'id_number', 'custom_value1', 'custom_value2', 'custom_value3', 'custom_value4'])) {
             return $this->builder->orderBy($sort_col[0], $sort_col[1]);
         }
 

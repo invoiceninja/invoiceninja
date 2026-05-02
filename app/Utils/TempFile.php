@@ -111,8 +111,10 @@ class TempFile
 
         // Save file data in file
         $response = Http::withOptions([
-            'redirects' => false,
-        ])->get($url);
+            'allow_redirects' => false,
+        ])
+        ->timeout(5)
+        ->get($url);
 
         if ($response->successful()) {
             file_put_contents($tempFilePath, $response->body());

@@ -19,7 +19,7 @@
     @else
         <form method="POST" action="{{ route('square.oauth.select_location') }}" class="w-full max-w-md">
             @csrf
-            <input type="hidden" name="company_key" value="{{ $company_key }}">
+            <input type="hidden" name="selection_token" value="{{ $selection_token }}">
 
             <div class="space-y-3 mb-6">
                 @foreach($locations as $location)

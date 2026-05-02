@@ -4182,17 +4182,17 @@ class BlackListRule implements ValidationRule
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $parts = explode("@", $value);
+        $parts = explode("@", $value ?? '');
 
-        if (is_array($parts) && in_array($parts[1], $this->blacklist)) {
+        if (isset($parts[1]) && in_array($parts[1], $this->blacklist)) {
             $fail('This domain is blacklisted, if you think this is in error, please email contact@invoiceninja.com');
-        } elseif (is_array($parts) && substr($parts[1], -4) === ".sbs") {
+        } elseif (isset($parts[1]) && substr($parts[1], -4) === ".sbs") {
             $fail('This domain is blacklisted, if you think this is in error, please email contact@invoiceninja.com');
-        } elseif (is_array($parts) && substr($parts[1], -3) === ".ru") {
+        } elseif (isset($parts[1]) && substr($parts[1], -3) === ".ru") {
             $fail('This domain is blacklisted, if you think this is in error, please email contact@invoiceninja.com');
-        } elseif (is_array($parts) && substr($parts[1], -4) === ".lol") {
+        } elseif (isset($parts[1]) && substr($parts[1], -4) === ".lol") {
             $fail('This domain is blacklisted, if you think this is in error, please email contact@invoiceninja.com');
-        } elseif (is_array($parts) && isset($parts[1]) && in_array($parts[1], cache()->get('spam_domains', []))) {
+        } elseif (isset($parts[1]) && in_array($parts[1], cache()->get('spam_domains', []))) {
             $fail('This domain is blacklisted, if you think this is in error, please email contact@invoiceninja.com');
         }
     }

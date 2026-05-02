@@ -237,6 +237,19 @@ class ZugferdEDocument extends AbstractService
         //taxable amount and net subtotal should be the same
         $adjustment = round($taxable_amount - $net_subtotal, 2);
 
+        /** Iterate and ensure all taxes are grouped so that we do not have duplicates */
+        $tax_map = $this->calc->getTaxMap()
+                        ->groupBy('tax_rate')
+                        ->map(function ($group) {
+                            return [
+                                'tax_id'      => $group->first()['tax_id'],
+                                'tax_rate'    => $group->first()['tax_rate'],
+                                'base_amount' => $group->sum('base_amount'),
+                                'total'       => $group->sum('total'),
+                            ];
+                        })
+                        ->values();
+
         // Process each tax rate group
         foreach ($tax_map as $item) {
             $tax_type = $this->getTaxType($item["tax_id"]);

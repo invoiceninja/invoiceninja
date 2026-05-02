@@ -28,7 +28,7 @@ class Number
      */
     public static function roundValue(float $value, int $precision = 2): float
     {
-        $str = sprintf('%.'.($precision + 3).'f', $value);
+        $str = sprintf('%.' . ($precision + 3) . 'f', $value);
         return (float) \App\Utils\BcMath::round($str, $precision);
         // return round($value, $precision, PHP_ROUND_HALF_UP);
     }

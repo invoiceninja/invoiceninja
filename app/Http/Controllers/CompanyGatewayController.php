@@ -455,19 +455,23 @@ class CompanyGatewayController extends BaseController
         $company_gateway->fill($request->all());
 
         /*Always ensure at least one fees and limits object is set per gateway*/
-        $gateway_types = $company_gateway->driver(new Client())->getAvailableMethods();
+        if($driver =$company_gateway->driver(new Client())){
+            $gateway_types = $driver->getAvailableMethods();
 
-        $fees_and_limits = $company_gateway->fees_and_limits;
+            $fees_and_limits = $company_gateway->fees_and_limits;
 
-        foreach ($gateway_types as $key => $gateway_type) {
-            if (!property_exists($fees_and_limits, $key)) {
-                $fees_and_limits->{$key} = new FeesAndLimits();
+            foreach ($gateway_types as $key => $gateway_type) {
+                if (!property_exists($fees_and_limits, $key)) {
+                    $fees_and_limits->{$key} = new FeesAndLimits();
+                }
             }
+
+            $company_gateway->fees_and_limits = $fees_and_limits;
+            
         }
 
-        $company_gateway->fees_and_limits = $fees_and_limits;
         $company_gateway->save();
-
+        
         switch ($company_gateway->gateway_key) {
 
             case $this->checkout_key:

@@ -248,8 +248,8 @@ class CheckData extends Command
     private function checkDuplicateRecurringInvoices()
     {
 
-        if (Ninja::isHosted() && $this->option('database') == 'db-ninja-01'){
-            
+        if (Ninja::isHosted() && $this->option('database') == 'db-ninja-01') {
+
             Client::on('db-ninja-01')->where('company_id', config('ninja.ninja_default_company_id'))
                 ->with('recurring_invoices')
                 ->cursor()

@@ -31,7 +31,6 @@ namespace App\Services\Pdf;
  */
 class JsonDesignService
 {
-    
     private JsonToSectionsAdapter $adapter;
 
     /**
@@ -55,42 +54,113 @@ class JsonDesignService
             $this->pdfService->init();
         }
 
-        // Convert JSON blocks to PdfBuilder sections
-        $sections = $this->adapter->toSections();
-
-        // Generate base template for JSON design
-        $baseTemplate = $this->generateBaseTemplate();
-
-        // Set the template on the designer
-        $this->pdfService->designer->template = $baseTemplate;
-
-        // Create PdfBuilder instance
-        $builder = new PdfBuilder($this->pdfService);
-
-        // Override the document type to use custom sections
-        // This prevents buildSections() from generating default sections
         $this->pdfService->document_type = 'json_design';
 
-        // Table bodies are already built by JsonToSectionsAdapter with custom columns
-        // No need to populate them here
+        // Live rendering must go through generateBaseTemplate() +
+        // JsonToSectionsAdapter::toSections(), because:
+        //
+        //   - generateBaseTemplate() emits <div id="block-X"></div>
+        //     placeholders keyed by block id.
+        //   - the adapter pulls $entity->line_items, formats rows, and
+        //     returns sections keyed by block id.
+        //   - PdfBuilder::updateElementProperties() then matches the two by
+        //     getElementById() and injects the dynamic content.
+        //
+        // The new design payload also ships a `body` string with the
+        // designer's WYSIWYG snapshot. That body has the visual layout / CSS
+        // baked in but uses literal placeholder text ("item.notes",
+        // "item.quantity") rather than any template syntax, has only one
+        // dummy <tr> regardless of line-item count, and tags its block divs
+        // with `class="block"` but no id — so it cannot drive live data
+        // rendering. We still consume the design's `documentSettings` (page
+        // size / fonts / show_paid_stamp etc.) via DocumentSettingsResolver,
+        // and rewrite the output's @page from those resolved settings.
+        $sections = $this->adapter->toSections();
 
-        // Inject our sections before build
+        $this->pdfService->designer->template = $this->generateBaseTemplate();
+
+        $builder = new PdfBuilder($this->pdfService);
         $builder->setSections($sections);
-
-        // Now build normally - buildSections() will be a no-op for 'json_design' type
-        // We need to manually run the pipeline steps since build() is private
-        // Actually, let's just use the existing build process
         $builder->build();
 
-        // Get the compiled HTML
-        $html = $builder->getCompiledHTML();
+        return $this->applyPageOverrides($builder->getCompiledHTML(), $this->pdfService->config->settings);
+    }
 
-        // Log the final HTML output before PDF conversion
-        // \Log::info('=== JSON Design: Final HTML Output (Before PDF Conversion) ===');
-        // \Log::info($html);
-        // \Log::info('=== End of HTML Output ===');
+    /**
+     * Rewrite the body's @page size/orientation from the resolved settings.
+     *
+     * The frontend bakes A4/letter into the body's @page rule and never emits
+     * landscape, so for any other size or orientation the body is wrong. The
+     * resolver gives us the authoritative values (design.documentSettings →
+     * company.settings); always rewrite the @page size/orientation pair so
+     * the headless-Chrome / Phantom / Gotenberg engines all see the right
+     * paper.
+     */
+    public function applyPageOverrides(string $html, object $settings): string
+    {
+        $size = $this->cssSizeFor(
+            $settings->page_size ?? 'A4',
+            $settings->page_layout ?? 'portrait'
+        );
 
-        return $html;
+        if ($size === null) {
+            return $html;
+        }
+
+        // Rewrite `size: <anything>;` (or trailing-} case) inside the first
+        // @page block. If no @page block exists, prepend one.
+        $pattern = '/(@page\s*\{[^}]*?size\s*:\s*)([^;}]+)(\s*[;}])/i';
+
+        if (preg_match($pattern, $html)) {
+            return preg_replace($pattern, '${1}' . $size . '${3}', $html, 1);
+        }
+
+        $injected = "<style>@page { size: {$size}; }</style>";
+
+        if (stripos($html, '</head>') !== false) {
+            return preg_replace('/<\/head>/i', $injected . '</head>', $html, 1);
+        }
+
+        return $injected . $html;
+    }
+
+    /**
+     * Map a settings page_size + orientation pair to the CSS @page size
+     * keyword form: `<paper-name> <orientation>` (e.g. "A4 portrait",
+     * "Letter landscape"). Browsers/print engines resolve the dimensions
+     * themselves — keeping the keywords means we never have to worry about
+     * mm conversions or per-engine quirks.
+     *
+     * Returns null when the size isn't a recognized CSS @page keyword
+     * (caller leaves the body's existing @page in place rather than emit
+     * something invalid).
+     */
+    private function cssSizeFor(string $pageSize, string $orientation): ?string
+    {
+        // Canonical normalized output forms — what we'll actually emit.
+        $allowed = [
+            'a0'      => 'A0',
+            'a1'      => 'A1',
+            'a2'      => 'A2',
+            'a3'      => 'A3',
+            'a4'      => 'A4',
+            'a5'      => 'A5',
+            'a6'      => 'A6',
+            'letter'  => 'Letter',
+            'legal'   => 'Legal',
+            'tabloid' => 'Tabloid',
+            'ledger'  => 'Ledger',
+        ];
+
+        $key = strtolower(trim($pageSize));
+
+        if (!isset($allowed[$key])) {
+            return null;
+        }
+
+        $orient = strtolower(trim($orientation)) === 'landscape' ? 'landscape' : 'portrait';
+
+        return "{$allowed[$key]} {$orient}";
     }
 
 
@@ -113,19 +183,32 @@ class JsonDesignService
         // Get blocks grouped by row for layout
         $rows = $this->adapter->getRowGroupedBlocks();
 
-        // Build container divs with flex row wrapping for multi-block rows
+        // Build container divs with flex row wrapping for multi-block rows.
+        // Every block container — single-block placeholder OR a multi-block
+        // flex-row — carries `class="json-block"` so the single
+        // .json-block { margin-bottom } rule controls inter-block spacing.
+        // The `flex-col` children inside a multi-block row don't get the
+        // class because margin-bottom on flex children is a no-op (the row
+        // height is the tallest column).
         $blockContainers = '';
         foreach ($rows as $rowBlocks) {
             if (count($rowBlocks) === 1) {
-                // Single block - render normally
+                // Single block - render normally. rowAlign still applies to
+                // the placeholder div: `margin-left/right: auto` aligns any
+                // block-level element with a non-100% width within its parent.
                 $block = $rowBlocks[0];
-                $blockContainers .= "<div id=\"{$block['id']}\"></div>\n";
+                $alignStyle = $this->rowAlignStyle($block);
+                $blockContainers .= "<div id=\"{$block['id']}\" class=\"json-block\" style=\"{$alignStyle}\"></div>\n";
             } else {
-                // Multiple blocks on same row - wrap in flex container
-                $blockContainers .= "<div class=\"flex-row\">\n";
+                // Multiple blocks on same row - wrap in flex container.
+                // rowAlign maps to margin-auto on the flex-col, which in a
+                // flex container absorbs the available space on the
+                // appropriate side(s).
+                $blockContainers .= "<div class=\"flex-row json-block\">\n";
                 foreach ($rowBlocks as $block) {
                     $widthPercent = ($block['gridPosition']['w'] / 12) * 100;
-                    $blockContainers .= "  <div class=\"flex-col\" style=\"width: {$widthPercent}%;\">\n";
+                    $alignStyle = $this->rowAlignStyle($block);
+                    $blockContainers .= "  <div class=\"flex-col\" style=\"width: {$widthPercent}%; {$alignStyle}\">\n";
                     $blockContainers .= "    <div id=\"{$block['id']}\"></div>\n";
                     $blockContainers .= "  </div>\n";
                 }
@@ -154,6 +237,29 @@ class JsonDesignService
     }
 
     /**
+     * Map a block's top-level `rowAlign` property to inline CSS.
+     *
+     * left   → margin-right: auto;                     (default)
+     * right  → margin-left: auto;
+     * center → margin-left: auto; margin-right: auto;
+     *
+     * Applied to the flex-col wrapper for multi-block rows, and to the
+     * placeholder div directly for single-block rows. Both work because
+     * `margin: auto` aligns any block-level element with a defined width —
+     * either as a flex item (multi-block) or as a normal block (single).
+     */
+    private function rowAlignStyle(array $block): string
+    {
+        $align = strtolower((string) ($block['rowAlign'] ?? 'left'));
+
+        return match ($align) {
+            'right'  => 'margin-left: auto;',
+            'center' => 'margin-left: auto; margin-right: auto;',
+            default  => 'margin-right: auto;',
+        };
+    }
+
+    /**
      * Build CSS from page settings
      *
      * @param array $pageSettings
@@ -162,61 +268,143 @@ class JsonDesignService
     private function buildPageCSS(array $pageSettings): string
     {
         $pageSize = $this->getPageSizeCSS($pageSettings);
-        $pageMargins = $this->getPageMarginsCSS($pageSettings);
-        $fontFamily = $pageSettings['fontFamily'] ?? 'Inter, sans-serif';
+        $fontFamily = $this->fontFamilyWithFallback($pageSettings['fontFamily'] ?? 'Inter, sans-serif');
         $fontSize = $pageSettings['fontSize'] ?? '12px';
         $textColor = $pageSettings['textColor'] ?? '#374151';
         $lineHeight = $pageSettings['lineHeight'] ?? '1.5';
         $backgroundColor = $pageSettings['backgroundColor'] ?? '#ffffff';
+
+        // @page is the single source of truth for page-level inset. CSS
+        // @page only supports `margin` (no padding), so when the design
+        // ships both pageMargin* and pagePadding* keys we sum them per side
+        // and emit the combined value as @page margin. Legacy designs with
+        // neither key fall back to getPageMarginsCSS (10mm default).
+        $pageMargins = $this->hasLayoutOverrides()
+            ? $this->combinedPageInset()
+            : $this->getPageMarginsCSS($pageSettings);
 
         return <<<CSS
                     @page {
                         size: {$pageSize};
                         margin: {$pageMargins};
                     }
-                    * {
-                        margin: 0;
-                        padding: 0;
-                        box-sizing: border-box;
-                    }
                     body {
                         font-family: {$fontFamily};
-                        font-size: {$fontSize};
+                        font-size: {$fontSize} !important;
                         color: {$textColor};
                         line-height: {$lineHeight};
                         background-color: {$backgroundColor};
+                        -webkit-font-smoothing: antialiased;
+                        -moz-osx-font-smoothing: grayscale;
                         -webkit-print-color-adjust: exact;
                         print-color-adjust: exact;
-                    }
-                    .invoice-container {
-                        width: 794px;
-                        background: {$backgroundColor};
-                        margin: 0 auto;
-                        padding: 30px;
+                        zoom: 80%;
                     }
                     .flex-row {
                         display: flex;
                         flex-wrap: nowrap;
                         gap: 10px;
-                        margin-bottom: 10px;
                     }
                     .flex-col {
                         box-sizing: border-box;
+                    }
+                    /* Inter-block spacing — each block carries its own
+                       bottom margin, no sibling cascade. */
+                    .json-block {
+                        margin-bottom: 12px;
                     }
                     table {
                         width: 100%;
                         border-collapse: collapse;
                     }
-                    @media print {
-                        body {
-                            margin: 0;
-                            padding: 0;
-                        }
-                        .invoice-container {
-                            margin: 0;
-                        }
+                    /* Tables flow across pages: rows never split, headers
+                       and footers repeat at the top/bottom of each page
+                       the table spans. Universal print convention. */
+                    thead { display: table-header-group; }
+                    tfoot { display: table-footer-group; }
+                    tr {
+                        break-inside: avoid;
+                        page-break-inside: avoid;
                     }
             CSS;
+    }
+
+    /**
+     * Ensure the font-family chain ends with `Helvetica, sans-serif` so the
+     * PDF renderer always has a guaranteed-available fallback. Idempotent —
+     * if Helvetica or sans-serif is already in the chain, it isn't added
+     * again. Mirrors what the traditional templates emit.
+     */
+    private function fontFamilyWithFallback(string $fontFamily): string
+    {
+        $tokens = array_map('trim', explode(',', $fontFamily));
+        $tokens = array_values(array_filter($tokens, static fn ($t) => $t !== ''));
+
+        $hasHelvetica = false;
+        $hasSansSerif = false;
+        foreach ($tokens as $t) {
+            $lower = strtolower($t);
+            if ($lower === 'helvetica') {
+                $hasHelvetica = true;
+            }
+            if ($lower === 'sans-serif') {
+                $hasSansSerif = true;
+            }
+        }
+
+        if (!$hasHelvetica) {
+            $tokens[] = 'Helvetica';
+        }
+        if (!$hasSansSerif) {
+            $tokens[] = 'sans-serif';
+        }
+
+        return implode(', ', $tokens);
+    }
+
+    /**
+     * Whether the design's documentSettings carries any of the page-margin /
+     * page-padding keys. Used to decide whether to render the new
+     * design-driven layout or the legacy defaults.
+     */
+    private function hasLayoutOverrides(): bool
+    {
+        $docSettings = $this->jsonDesign['documentSettings'] ?? [];
+
+        foreach (['pageMarginTop', 'pageMarginRight', 'pageMarginBottom', 'pageMarginLeft',
+                  'pagePaddingTop', 'pagePaddingRight', 'pagePaddingBottom', 'pagePaddingLeft'] as $key) {
+            if (isset($docSettings[$key])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Build the combined @page margin shorthand by summing pageMargin* +
+     * pagePadding* per edge. Both prop families come from the design's
+     * documentSettings; missing values default to 0. Result is in `Npx`
+     * with the standard top/right/bottom/left order.
+     *
+     * The collapse exists because CSS @page supports only `margin`, not
+     * `padding`. Treating the two prop families as a single visual
+     * "page inset" keeps page-level spacing in one CSS rule (@page) and
+     * avoids competing margin/padding declarations elsewhere in the sheet.
+     */
+    private function combinedPageInset(): string
+    {
+        $docSettings = $this->jsonDesign['documentSettings'] ?? [];
+        $edges = ['Top', 'Right', 'Bottom', 'Left'];
+        $values = [];
+
+        foreach ($edges as $edge) {
+            $margin  = (int) ($docSettings['pageMargin' . $edge]  ?? 0);
+            $padding = (int) ($docSettings['pagePadding' . $edge] ?? 0);
+            $values[] = ($margin + $padding) . 'px';
+        }
+
+        return implode(' ', $values);
     }
 
     /**
