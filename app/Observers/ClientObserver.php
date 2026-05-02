@@ -17,6 +17,7 @@ use App\Jobs\Client\UpdateTaxData;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Client;
 use App\Models\Webhook;
+use App\Services\Quickbooks\QuickbooksBatchCollector;
 
 class ClientObserver
 {
@@ -60,10 +61,11 @@ class ClientObserver
         // 2. We're NOT currently importing from QuickBooks (prevent circular sync)
         if ($client->company->shouldPushToQuickbooks('client')
            && empty(\App\Services\Quickbooks\QuickbooksService::$importing[$client->company_id])) {
-            \App\Jobs\Quickbooks\PushToQuickbooks::dispatch(
+            QuickbooksBatchCollector::collect(
                 'client',
                 $client->id,
                 $client->company->db,
+                $client->company_id,
             );
         }
     }
@@ -112,10 +114,11 @@ class ClientObserver
         if ($client->company->shouldPushToQuickbooks('client')
            && empty(\App\Services\Quickbooks\QuickbooksService::$importing[$client->company_id])
            && !$client->isDirty(['paid_to_date','balance','credit_balance','payment_balance'])) {
-            \App\Jobs\Quickbooks\PushToQuickbooks::dispatch(
+            QuickbooksBatchCollector::collect(
                 'client',
                 $client->id,
                 $client->company->db,
+                $client->company_id,
             );
         }
     }

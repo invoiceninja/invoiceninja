@@ -13,9 +13,9 @@
 namespace App\Observers;
 
 use App\Jobs\Util\WebhookHandler;
-use App\Jobs\Quickbooks\PushToQuickbooks;
 use App\Models\Payment;
 use App\Models\Webhook;
+use App\Services\Quickbooks\QuickbooksBatchCollector;
 use App\Services\Quickbooks\QuickbooksService;
 
 class PaymentObserver
@@ -41,7 +41,15 @@ class PaymentObserver
         if ($payment->company->shouldPushToQuickbooks('payment')
            && empty(QuickbooksService::$importing[$payment->company_id])
            && $payment->status_id === Payment::STATUS_COMPLETED) {
-            PushToQuickbooks::dispatch('payment', $payment->id, $payment->company->db);
+            // LOW priority (30s window) so the invoice's NORMAL batch (10s) flushes first —
+            // the payment's LinkedTxn lookup needs invoice->sync->qb_id to be populated.
+            QuickbooksBatchCollector::collect(
+                'payment',
+                $payment->id,
+                $payment->company->db,
+                $payment->company_id,
+                QuickbooksBatchCollector::PRIORITY_LOW,
+            );
         }
     }
 
@@ -74,7 +82,13 @@ class PaymentObserver
 
         if ($payment->company->shouldPushToQuickbooks('payment')
            && empty(QuickbooksService::$importing[$payment->company_id])) {
-            PushToQuickbooks::dispatch('payment', $payment->id, $payment->company->db);
+            QuickbooksBatchCollector::collect(
+                'payment',
+                $payment->id,
+                $payment->company->db,
+                $payment->company_id,
+                QuickbooksBatchCollector::PRIORITY_LOW,
+            );
         }
     }
 
