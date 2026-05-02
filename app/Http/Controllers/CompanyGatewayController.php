@@ -49,8 +49,6 @@ class CompanyGatewayController extends BaseController
 
     protected $entity_transformer = CompanyGatewayTransformer::class;
 
-    protected $company_repo;
-
     public $forced_includes = [];
 
     private array $stripe_keys = ['d14dd26a47cecc30fdd65700bfb67b34', 'd14dd26a37cecc30fdd65700bfb55b23'];
@@ -65,11 +63,10 @@ class CompanyGatewayController extends BaseController
      * CompanyGatewayController constructor.
      * @param CompanyGatewayRepository $company_repo
      */
-    public function __construct(CompanyGatewayRepository $company_repo)
+    public function __construct(protected CompanyGatewayRepository $company_repo)
     {
         parent::__construct();
 
-        $this->company_repo = $company_repo;
     }
 
     /**
