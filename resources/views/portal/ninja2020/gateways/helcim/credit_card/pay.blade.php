@@ -38,6 +38,7 @@
                                 type="radio"
                                 data-token="{{ $token->hashed_id }}"
                                 name="payment-type"
+                                @if($loop->first) checked @endif
                                 class="form-check-input text-indigo-600 rounded-full cursor-pointer toggle-payment-with-token"/>
                             <span class="ml-1 cursor-pointer">
                                 {{ $token->meta?->brand ?? ctrans('texts.credit_card') }}
@@ -55,7 +56,7 @@
                         id="toggle-payment-with-new-card"
                         class="form-check-input text-indigo-600 rounded-full cursor-pointer"
                         name="payment-type"
-                        checked/>
+                        @if(count($tokens) === 0) checked @endif/>
                     <span class="ml-1 cursor-pointer">{{ ctrans('texts.new_card') }}</span>
                 </label>
             </li>
@@ -69,21 +70,10 @@
     <script src="https://secure.helcim.app/helcim-pay/services/start.js"></script>
     <script>
         var checkoutToken = document.querySelector('meta[name="helcim-checkout-token"]').content;
-        var selectedToken = null;
-
-        // Handle saved token selection
-        document.querySelectorAll('.toggle-payment-with-token').forEach(function(radio) {
-            radio.addEventListener('change', function() {
-                selectedToken = this.dataset.token;
-            });
-        });
-
-        document.getElementById('toggle-payment-with-new-card')?.addEventListener('change', function() {
-            selectedToken = null;
-        });
-
         document.getElementById('pay-now').addEventListener('click', function(e) {
             e.preventDefault();
+            var selectedPaymentType = document.querySelector('input[name="payment-type"]:checked');
+            var selectedToken = selectedPaymentType?.dataset?.token || null;
 
             if (selectedToken) {
                 // Pay with saved token
@@ -92,6 +82,12 @@
                 document.getElementById('server_response').submit();
             } else {
                 // Open HelcimPay.js modal for new card
+                if (!checkoutToken) {
+                    console.error('Helcim checkout token is missing.');
+                    this.disabled = false;
+                    return;
+                }
+
                 this.disabled = true;
                 window.appendHelcimPayIframe(checkoutToken);
             }

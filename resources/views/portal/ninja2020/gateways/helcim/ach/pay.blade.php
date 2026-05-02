@@ -38,6 +38,7 @@
                                 type="radio"
                                 data-token="{{ $token->hashed_id }}"
                                 name="payment-type"
+                                @if($loop->first) checked @endif
                                 class="form-check-input text-indigo-600 rounded-full cursor-pointer toggle-payment-with-token"/>
                             <span class="ml-1 cursor-pointer">
                                 ACH **** {{ $token->meta?->last4 ?? '****' }}
@@ -54,7 +55,7 @@
                         id="toggle-payment-with-new-bank"
                         class="form-check-input text-indigo-600 rounded-full cursor-pointer"
                         name="payment-type"
-                        checked/>
+                        @if(count($tokens) === 0) checked @endif/>
                     <span class="ml-1 cursor-pointer">{{ ctrans('texts.new_bank_account') }}</span>
                 </label>
             </li>
@@ -68,21 +69,10 @@
     <script src="https://secure.helcim.app/helcim-pay/services/start.js"></script>
     <script>
         var checkoutToken = document.querySelector('meta[name="helcim-checkout-token"]').content;
-        var selectedToken = null;
-
-        // Handle saved bank account selection
-        document.querySelectorAll('.toggle-payment-with-token').forEach(function(radio) {
-            radio.addEventListener('change', function() {
-                selectedToken = this.dataset.token;
-            });
-        });
-
-        document.getElementById('toggle-payment-with-new-bank')?.addEventListener('change', function() {
-            selectedToken = null;
-        });
-
         document.getElementById('pay-now').addEventListener('click', function(e) {
             e.preventDefault();
+            var selectedPaymentType = document.querySelector('input[name="payment-type"]:checked');
+            var selectedToken = selectedPaymentType?.dataset?.token || null;
 
             if (selectedToken) {
                 // Pay with saved bank account token
@@ -91,6 +81,12 @@
                 document.getElementById('server_response').submit();
             } else {
                 // Open HelcimPay.js modal for new bank account
+                if (!checkoutToken) {
+                    console.error('Helcim ACH checkout token is missing.');
+                    this.disabled = false;
+                    return;
+                }
+
                 this.disabled = true;
                 window.appendHelcimPayIframe(checkoutToken);
             }

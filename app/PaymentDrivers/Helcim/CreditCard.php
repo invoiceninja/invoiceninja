@@ -94,7 +94,7 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
             }
 
             // Validate the response hash (PCI compliance check)
-            if (!$this->helcim_driver->validateHelcimPayResponse($data, $transactionHash, $secretToken)) {
+            if (!$this->helcim_driver->validateHelcimPayResponse($transactionData, $transactionHash, $secretToken)) {
                 throw new PaymentFailed('Transaction validation failed - data may have been tampered with', 400);
             }
 
@@ -212,7 +212,7 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
             if ($useToken && $tokenId) {
                 // Payment with saved card token
                 $token = $this->helcim_driver->client->gateway_tokens()
-                    ->where('hashed_id', $tokenId)
+                    ->where('id', $this->helcim_driver->decodePrimaryKey($tokenId))
                     ->where('company_gateway_id', $this->helcim_driver->company_gateway->id)
                     ->firstOrFail();
 
@@ -301,7 +301,7 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         }
 
         // Validate the response hash (PCI compliance check)
-        if (!$this->helcim_driver->validateHelcimPayResponse($data, $transactionHash, $secretToken)) {
+        if (!$this->helcim_driver->validateHelcimPayResponse($transactionData, $transactionHash, $secretToken)) {
             throw new PaymentFailed('Transaction validation failed - data may have been tampered with', 400);
         }
 

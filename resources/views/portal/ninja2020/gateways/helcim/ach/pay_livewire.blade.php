@@ -30,6 +30,7 @@
                                 type="radio"
                                 data-token="{{ $token->hashed_id }}"
                                 name="payment-type"
+                                @if($loop->first) checked @endif
                                 class="form-check-input text-indigo-600 rounded-full cursor-pointer toggle-payment-with-token"/>
                             <span class="ml-1 cursor-pointer">
                                 ACH **** {{ $token->meta?->last4 ?? '****' }}
@@ -46,7 +47,7 @@
                         id="toggle-payment-with-new-bank"
                         class="form-check-input text-indigo-600 rounded-full cursor-pointer"
                         name="payment-type"
-                        checked/>
+                        @if(count($tokens) === 0) checked @endif/>
                     <span class="ml-1 cursor-pointer">{{ ctrans('texts.new_bank_account') }}</span>
                 </label>
             </li>
@@ -61,26 +62,22 @@
     <script>
         var helcimAchCheckoutToken = '{{ $checkout_token }}';
         var helcimAchSecretToken = '{{ $secret_token }}';
-        var helcimAchSelectedToken = null;
-
-        document.querySelectorAll('.toggle-payment-with-token').forEach(function(radio) {
-            radio.addEventListener('change', function() {
-                helcimAchSelectedToken = this.dataset.token;
-            });
-        });
-
-        document.getElementById('toggle-payment-with-new-bank')?.addEventListener('change', function() {
-            helcimAchSelectedToken = null;
-        });
-
         document.getElementById('pay-now').addEventListener('click', function(e) {
             e.preventDefault();
+            var selectedPaymentType = document.querySelector('input[name="payment-type"]:checked');
+            var helcimAchSelectedToken = selectedPaymentType?.dataset?.token || null;
 
             if (helcimAchSelectedToken) {
                 document.getElementById('use_token').value = '1';
                 document.getElementById('token_id').value = helcimAchSelectedToken;
                 document.getElementById('server_response').submit();
             } else {
+                if (!helcimAchCheckoutToken) {
+                    console.error('Helcim ACH checkout token is missing.');
+                    this.disabled = false;
+                    return;
+                }
+
                 this.disabled = true;
                 window.appendHelcimPayIframe(helcimAchCheckoutToken);
             }

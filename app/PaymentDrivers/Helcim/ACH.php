@@ -87,7 +87,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
                 throw new PaymentFailed('Invalid transaction data format', 400);
             }
 
-            if (!$this->helcim_driver->validateHelcimPayResponse($data, $transactionHash, $secretToken)) {
+            if (!$this->helcim_driver->validateHelcimPayResponse($transactionData, $transactionHash, $secretToken)) {
                 throw new PaymentFailed('Transaction validation failed - data may have been tampered with', 400);
             }
 
@@ -203,7 +203,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
         try {
             if ($useToken && $tokenId) {
                 $token = $this->helcim_driver->client->gateway_tokens()
-                    ->where('hashed_id', $tokenId)
+                    ->where('id', $this->helcim_driver->decodePrimaryKey($tokenId))
                     ->where('company_gateway_id', $this->helcim_driver->company_gateway->id)
                     ->firstOrFail();
 
@@ -247,7 +247,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
             throw new PaymentFailed('Invalid transaction data format', 400);
         }
 
-        if (!$this->helcim_driver->validateHelcimPayResponse($data, $transactionHash, $secretToken)) {
+        if (!$this->helcim_driver->validateHelcimPayResponse($transactionData, $transactionHash, $secretToken)) {
             throw new PaymentFailed('Transaction validation failed - data may have been tampered with', 400);
         }
 
