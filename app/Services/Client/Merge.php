@@ -38,10 +38,8 @@ class Merge extends AbstractService
 
         $mergeable_client = $this->mergable_client->present()->name();
 
-        $this->client->balance += $this->mergable_client->balance;
-        $this->client->paid_to_date += $this->mergable_client->paid_to_date;
-        $this->client->save();
-
+        $this->client->service()->updateBalanceAndPaidToDate($this->mergable_client->balance, $this->mergable_client->paid_to_date);
+        
         nlog("balance post {$this->client->balance}");
         nlog("paid_to_date post {$this->client->paid_to_date}");
 

@@ -25,13 +25,31 @@ class TaxDetail
         public float $line_total = 0,
         public float $total_tax = 0,
         public string $postal_code = '',
+        public string $classification = '',
     ) {}
 
     /**
-     * Create from transaction event metadata
+     * Create from transaction event metadata. Accepts either an object
+     * (DTO from persisted tax_details) or an array (raw from
+     * tax_details_by_classification).
+     *
+     * @param object|array $metadata
      */
-    public static function fromMetadata(object $metadata): self
+    public static function fromMetadata($metadata): self
     {
+        if (is_array($metadata)) {
+            return new self(
+                tax_name: (string) ($metadata['tax_name'] ?? ''),
+                tax_rate: (float) ($metadata['tax_rate'] ?? 0),
+                taxable_amount: (float) ($metadata['taxable_amount'] ?? 0),
+                tax_amount: (float) ($metadata['tax_amount'] ?? 0),
+                line_total: (float) ($metadata['line_total'] ?? 0),
+                total_tax: (float) ($metadata['total_tax'] ?? 0),
+                postal_code: (string) ($metadata['postal_code'] ?? ''),
+                classification: (string) ($metadata['classification'] ?? ''),
+            );
+        }
+
         return new self(
             tax_name: $metadata->tax_name,
             tax_rate: $metadata->tax_rate,
@@ -40,6 +58,7 @@ class TaxDetail
             line_total: $metadata->line_total ?? 0,
             total_tax: $metadata->total_tax ?? 0,
             postal_code: $metadata->postal_code ?? '',
+            classification: $metadata->classification ?? '',
         );
     }
 

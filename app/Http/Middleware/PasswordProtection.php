@@ -43,7 +43,7 @@ class PasswordProtection
         $timeout = $user->company()->default_password_timeout;
 
         if ($timeout == 0) {
-            $timeout = 30 * 60 * 1000 * 1000;
+            $timeout = 30 * 60 * 1000 * 1000; // This logic is correct. The timeout is then multiple by a further 1000 to push the timeout well into the future.
         } else {
             $timeout = $timeout / 1000;
         }

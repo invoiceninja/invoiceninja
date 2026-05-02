@@ -161,6 +161,48 @@ trait AnalyticsQueries
     }
 
     /**
+     * Company-Wide Payment Summary (per currency)
+     *
+     * Same as getCompanyPaymentSummary() but filtered to a specific currency.
+     *
+     * @param int $currency_id
+     * @return array<int, \stdClass> Single row: avg_payment_days, stddev_payment_days, total_invoices, late_invoices, late_payment_ratio
+     */
+    public function getCompanyPaymentSummaryByCurrency(int $currency_id): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND invoices.user_id = ' . $this->user->id;
+
+        return DB::select("
+            SELECT
+                ROUND(AVG(DATEDIFF(MIN_pay.first_payment_date, invoices.date)), 2) as avg_payment_days,
+                ROUND(STDDEV(DATEDIFF(MIN_pay.first_payment_date, invoices.date)), 2) as stddev_payment_days,
+                COUNT(*) as total_invoices,
+                SUM(CASE WHEN invoices.due_date IS NOT NULL AND MIN_pay.first_payment_date > invoices.due_date THEN 1 ELSE 0 END) as late_invoices,
+                ROUND(
+                    SUM(CASE WHEN invoices.due_date IS NOT NULL AND MIN_pay.first_payment_date > invoices.due_date THEN 1 ELSE 0 END)
+                    / NULLIF(SUM(CASE WHEN invoices.due_date IS NOT NULL THEN 1 ELSE 0 END), 0), 4
+                ) as late_payment_ratio
+            FROM invoices
+            JOIN ({$this->minPaymentSubquerySql()}) as MIN_pay
+                ON MIN_pay.invoice_id = invoices.id
+            JOIN clients
+                ON clients.id = invoices.client_id
+                AND clients.is_deleted = 0
+            WHERE invoices.company_id = :company_id
+            AND invoices.is_deleted = 0
+            AND invoices.status_id = 4
+            AND MIN_pay.first_payment_date >= invoices.date
+            AND IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) = :currency_id
+            {$user_filter}
+        ", [
+            'company_currency' => $this->company->settings->currency_id,
+            'currency_id' => $currency_id,
+            'company_id' => $this->company->id,
+            'company_id_pay' => $this->company->id,
+        ]);
+    }
+
+    /**
      * Outstanding Invoices With Client Analytics
      *
      * Returns all unpaid invoices (sent/partial) with their client's
@@ -604,7 +646,7 @@ trait AnalyticsQueries
 
         ksort($buckets);
 
-        return array_map(fn ($date, $total) => (object) ['total' => round($total, 2), 'date' => $date], array_keys($buckets), array_values($buckets));
+        return array_map(fn($date, $total) => (object) ['total' => round($total, 2), 'date' => $date], array_keys($buckets), array_values($buckets));
     }
 
     /**
@@ -634,7 +676,7 @@ trait AnalyticsQueries
 
         ksort($buckets);
 
-        return array_map(fn ($date, $total) => (object) ['total' => round($total, 2), 'date' => $date], array_keys($buckets), array_values($buckets));
+        return array_map(fn($date, $total) => (object) ['total' => round($total, 2), 'date' => $date], array_keys($buckets), array_values($buckets));
     }
 
     /**
@@ -1096,12 +1138,14 @@ trait AnalyticsQueries
 
         return DB::select("
             SELECT
+                SUM(invoices.balance) as total,
                 SUM(CASE WHEN invoices.due_date IS NULL OR invoices.due_date >= CURDATE() THEN invoices.balance ELSE 0 END) as current_amount,
                 SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 30 DAY) AND DATE_SUB(CURDATE(), INTERVAL 1 DAY) THEN invoices.balance ELSE 0 END) as age_0_30,
                 SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 60 DAY) AND DATE_SUB(CURDATE(), INTERVAL 31 DAY) THEN invoices.balance ELSE 0 END) as age_31_60,
                 SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 90 DAY) AND DATE_SUB(CURDATE(), INTERVAL 61 DAY) THEN invoices.balance ELSE 0 END) as age_61_90,
                 SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 120 DAY) AND DATE_SUB(CURDATE(), INTERVAL 91 DAY) THEN invoices.balance ELSE 0 END) as age_91_120,
                 SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date < DATE_SUB(CURDATE(), INTERVAL 120 DAY) THEN invoices.balance ELSE 0 END) as age_120_plus,
+                COUNT(*) as outstanding_count,
                 IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) AS currency_id
             FROM invoices
             JOIN clients
@@ -1132,12 +1176,14 @@ trait AnalyticsQueries
 
         return DB::select("
             SELECT
+                SUM(invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1)) as total,
                 SUM(CASE WHEN invoices.due_date IS NULL OR invoices.due_date >= CURDATE() THEN invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1) ELSE 0 END) as current_amount,
                 SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 30 DAY) AND DATE_SUB(CURDATE(), INTERVAL 1 DAY) THEN invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1) ELSE 0 END) as age_0_30,
                 SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 60 DAY) AND DATE_SUB(CURDATE(), INTERVAL 31 DAY) THEN invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1) ELSE 0 END) as age_31_60,
                 SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 90 DAY) AND DATE_SUB(CURDATE(), INTERVAL 61 DAY) THEN invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1) ELSE 0 END) as age_61_90,
                 SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 120 DAY) AND DATE_SUB(CURDATE(), INTERVAL 91 DAY) THEN invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1) ELSE 0 END) as age_91_120,
-                SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date < DATE_SUB(CURDATE(), INTERVAL 120 DAY) THEN invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1) ELSE 0 END) as age_120_plus
+                SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date < DATE_SUB(CURDATE(), INTERVAL 120 DAY) THEN invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1) ELSE 0 END) as age_120_plus,
+                COUNT(*) as outstanding_count
             FROM invoices
             JOIN clients
                 ON clients.id = invoices.client_id

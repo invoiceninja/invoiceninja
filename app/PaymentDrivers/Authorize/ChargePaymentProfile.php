@@ -83,6 +83,10 @@ class ChargePaymentProfile
         $tax->setName('tax');
         $tax->setAmount($taxAmount);
 
+        $duplicateWindowSetting = new SettingType();
+        $duplicateWindowSetting->setSettingName("duplicateWindow");
+        $duplicateWindowSetting->setSettingValue("3");
+
         $transactionRequestType = new TransactionRequestType();
         $transactionRequestType->setTransactionType('authCaptureTransaction');
         $transactionRequestType->setAmount($amount);
@@ -91,6 +95,7 @@ class ChargePaymentProfile
         $transactionRequestType->setOrder($order);
         $transactionRequestType->setProfile($profileToCharge);
         $transactionRequestType->setCurrencyCode($this->authorize->client->currency()->code);
+        $transactionRequestType->addToTransactionSettings($duplicateWindowSetting);
 
         $solution = new \net\authorize\api\contract\v1\SolutionType();
         $solution->setId($this->authorize->company_gateway->getConfigField('testMode') ? 'AAA100303' : 'AAA172036');

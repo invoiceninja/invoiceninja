@@ -113,7 +113,7 @@ class PurchaseOrderController extends Controller
             'variables' => false,
             'requires_signature' => !$signature_accepted && $requires_signature,
             'docuninja_active' => $docuninja_active && !$signature_accepted && $requires_signature,
-            'request_hash' => $request->hash ?? false, 
+            'request_hash' => $request->hash ?? false,
         ];
 
         if ($request->query('mode') === 'fullscreen') {

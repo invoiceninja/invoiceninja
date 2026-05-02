@@ -85,7 +85,7 @@ class QuoteController extends Controller
 
     public function bulk(ProcessQuotesInBulkRequest $request)
     {
-        if($request->has('request_hash')){
+        if ($request->has('request_hash')) {
             $request_hash = $request->input('request_hash');
             $request_array = Cache::get($request_hash);
             $request->merge($request_array);
@@ -99,7 +99,7 @@ class QuoteController extends Controller
 
         if ($request->action == 'approve') {
 
-            if(auth()->guard('contact')->user()->company->docuninjaActive()){
+            if (auth()->guard('contact')->user()->company->docuninjaActive()) {
                 $invitations = \App\Models\QuoteInvitation::with('quote')
                                         ->whereIn('quote_id', $transformed_ids)
                                         ->where('client_contact_id', auth()->guard('contact')->user()->id)
@@ -107,8 +107,8 @@ class QuoteController extends Controller
                                         ->filter(function ($invitation) {
                                             return !$invitation->quote->sync?->dn_completed;
                                         });
-                
-                if($invitations->count() > 0){
+
+                if ($invitations->count() > 0) {
                     $request_hash = \Illuminate\Support\Str::random(64);
                     $request->merge(['entity_type' => 'invoice', 'db' => auth()->guard('contact')->user()->company->db, 'request_hash' => $request_hash]);
 

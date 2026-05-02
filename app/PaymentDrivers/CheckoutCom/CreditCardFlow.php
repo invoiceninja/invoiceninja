@@ -256,7 +256,7 @@ class CreditCardFlow implements MethodInterface, LivewireMethodInterface
             unset($state['store_card']);
         }
 
-        $stateForHash = array_filter($state, fn ($v) => $v !== null);
+        $stateForHash = array_filter($state, fn($v) => $v !== null);
         $this->checkout->payment_hash->data = array_merge((array) $this->checkout->payment_hash->data, $stateForHash);
         $this->checkout->payment_hash->save();
 
@@ -333,7 +333,7 @@ class CreditCardFlow implements MethodInterface, LivewireMethodInterface
     private function attemptPaymentUsingFlowResponse(PaymentResponseRequest $request, ?string $paymentId = null)
     {
         $gatewayResponse = json_decode($request->gateway_response ?? '', true);
-        $paymentId = $paymentId ?? ($gatewayResponse['id'] ?? null);
+        $paymentId ??= ($gatewayResponse['id'] ?? null);
 
         nlog(['checkout_flow_submission' => $gatewayResponse, 'payment_id' => $paymentId]);
 

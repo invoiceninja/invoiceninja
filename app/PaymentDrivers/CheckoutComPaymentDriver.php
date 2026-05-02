@@ -621,7 +621,7 @@ class CheckoutComPaymentDriver extends BaseDriver
         try {
             $this->init()->gateway->getCustomersClient('x');
             return 'ok';
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
 
         }
         return 'error';

@@ -27,9 +27,23 @@ class GetInvoicePdf extends AbstractService
             $this->contact = $this->invoice->client->primary_contact()->first() ?: $this->invoice->client->contacts()->first();
         }
 
-        $invitation = $this->invoice->invitations->where('client_contact_id', $this->contact->id)->first();
+        // Skip the client_contact_id match when the client has no contacts at all
+        // (a degenerate state that still occurs in tests and imports). The fallback
+        // below — first invitation, or auto-created — handles those cases.
+        $invitation = $this->contact
+            ? $this->invoice->invitations->where('client_contact_id', $this->contact->id)->first()
+            : null;
 
         if (! $invitation) {
+            $invitation = $this->invoice->invitations->first();
+        }
+
+        // Failsafe: an invoice persisted outside the repository (e.g. via factory
+        // in tests, or hydrated from an import) may have no invitations yet. Mirror
+        // BaseRepository::save()'s recovery path so PDF generation never receives null.
+        if (! $invitation) {
+            $this->invoice->service()->createInvitations()->save();
+            $this->invoice->load('invitations');
             $invitation = $this->invoice->invitations->first();
         }
 

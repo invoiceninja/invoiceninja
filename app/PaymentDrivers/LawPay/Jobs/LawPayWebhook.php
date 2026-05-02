@@ -40,8 +40,7 @@ class LawPayWebhook implements ShouldQueue
         public array $payload,
         public string $company_key,
         public int $company_gateway_id,
-    ) {
-    }
+    ) {}
 
     public function middleware(): array
     {

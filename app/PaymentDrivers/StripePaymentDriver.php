@@ -272,12 +272,12 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
             $this->client
            && isset($this->client->country)
            && (
-                (in_array($this->client->country->iso_3166_2, ['FR', 'IE', 'NL', 'DE', 'ES']) && $this->client->currency()->code == 'EUR')
+               (in_array($this->client->country->iso_3166_2, ['FR', 'IE', 'NL', 'DE', 'ES']) && $this->client->currency()->code == 'EUR')
                 || ($this->client->country->iso_3166_2 == 'JP' && $this->client->currency()->code == 'JPY')
                 || ($this->client->country->iso_3166_2 == 'MX' && $this->client->currency()->code == 'MXN')
                 || ($this->client->country->iso_3166_2 == 'GB' && $this->client->currency()->code == 'GBP')
                 || ($this->client->country->iso_3166_2 == 'US' && $this->client->currency()->code == 'USD')
-            )
+           )
         ) {
             $types[] = GatewayType::DIRECT_DEBIT;
         }
@@ -766,25 +766,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
         if ($request->type === 'charge.succeeded') {
             foreach ($request->data as $transaction) {
 
-                $payment = Payment::query()
-                    ->where('company_id', $this->company_gateway->company_id)
-                    ->where(function ($query) use ($transaction) {
-
-                        if (isset($transaction['payment_intent'])) {
-                            $query->where('transaction_reference', $transaction['payment_intent']);
-                        }
-
-                        if (isset($transaction['payment_intent']) && isset($transaction['id'])) {
-                            $query->orWhere('transaction_reference', $transaction['id']);
-                        }
-
-                        if (!isset($transaction['payment_intent']) && isset($transaction['id'])) {
-                            $query->where('transaction_reference', $transaction['id']);
-                        }
-
-                    })
-                    ->first();
-
+                $payment = self::findPaymentByStripeReference($this->company_gateway->company_id, $transaction);
 
                 if ($payment) {
 
@@ -812,27 +794,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
 
                 if ($charge->captured) {
 
-
-                    $payment = Payment::query()
-                        ->where('company_id', $this->company_gateway->company_id)
-                        ->where(function ($query) use ($transaction) {
-
-                            if (isset($transaction['payment_intent'])) {
-                                $query->where('transaction_reference', $transaction['payment_intent']);
-                            }
-
-                            if (isset($transaction['payment_intent']) && isset($transaction['id'])) {
-                                $query->orWhere('transaction_reference', $transaction['id']);
-                            }
-
-                            if (!isset($transaction['payment_intent']) && isset($transaction['id'])) {
-                                $query->where('transaction_reference', $transaction['id']);
-                            }
-
-                        })
-                        ->first();
-
-
+                    $payment = self::findPaymentByStripeReference($this->company_gateway->company_id, $transaction);
 
                     if ($payment) {
                         $payment->status_id = Payment::STATUS_COMPLETED;
@@ -860,8 +822,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                 }
 
                 return response()->json([], 200);
-            } 
-            elseif ($request->data['object']['status'] == "inactive" && $request->data['object']['payment_method']) {
+            } elseif ($request->data['object']['status'] == "inactive" && $request->data['object']['payment_method']) {
                 $clientgateway = ClientGatewayToken::query()
                     ->where('token', $request->data['object']['payment_method'])
                     ->first();

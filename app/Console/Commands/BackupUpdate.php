@@ -92,8 +92,9 @@ class BackupUpdate extends Command
                    }
 
                    $response = Http::withOptions([
-                       'redirects' => false,
-                   ])->get($company_logo_path);
+                       'allow_redirects' => false,
+                   ])->timeout(5)
+                   ->get($company_logo_path);
                    if ($response->successful()) {
                        $logo = $response->body();
                    } else {
@@ -125,8 +126,9 @@ class BackupUpdate extends Command
                   $company_logo_path = $client->settings->company_logo;
 
                   $response = Http::withOptions([
-                      'redirects' => false,
-                  ])->get($company_logo_path);
+                        'allow_redirects' => false,
+                    ])->timeout(5)
+                    ->get($company_logo_path);
                   if ($response->successful()) {
                       $logo = $response->body();
                   } else {
@@ -164,8 +166,10 @@ class BackupUpdate extends Command
                   }
 
                   $response = Http::withOptions([
-                      'redirects' => false,
-                  ])->get($company_logo_path);
+                      'allow_redirects' => false,
+                  ])
+                  ->timeout(5)
+                  ->get($company_logo_path);
                   if ($response->successful()) {
                       $logo = $response->body();
                   } else {

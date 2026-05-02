@@ -53,35 +53,32 @@ class ChargeRefunded implements ShouldQueue
         $company = Company::query()->where('company_key', $this->company_key)->first();
 
         $source = $this->stripe_request['object'];
-        $charge_id = $source['id'];
+        $charge_id = $source['id'] ?? null;
+        $payment_intent = $source['payment_intent'] ?? null;
         $amount_refunded = $source['amount_refunded'] ?? 0;
 
         $payment_hash_key = $source['metadata']['payment_hash'] ?? null;
 
-        if (is_null($payment_hash_key)) {
-            nlog("charge.refunded not found");
-            return;
+        /** @var \App\Models\Payment|null $payment **/
+        $payment = self::findPaymentByStripeReference($company->id, $source, true);
+
+        /** @var \App\Models\PaymentHash|null $payment_hash **/
+        $payment_hash = $payment_hash_key
+            ? PaymentHash::query()->where('hash', $payment_hash_key)->first()
+            : null;
+
+        if (! $payment) {
+            $payment = $payment_hash?->payment;
         }
-
-        $payment_hash = PaymentHash::query()->where('hash', $payment_hash_key)->first();
-        $company_gateway = $payment_hash->payment->company_gateway;
-
-        $stripe_driver = $company_gateway->driver()->init();
-
-        $stripe_driver->payment_hash = $payment_hash;
-
-        /** @var \App\Models\Payment $payment **/
-        $payment = Payment::query()
-                         ->withTrashed()
-                         ->where('company_id', $company->id)
-                         ->where('transaction_reference', $charge_id)
-                         ->first();
 
         //don't touch if already refunded
-        if (!$payment || $payment->status_id == Payment::STATUS_REFUNDED || $payment->is_deleted) {
+        if (!$payment || $payment->status_id == Payment::STATUS_REFUNDED || $payment->is_deleted || !$payment_hash) {
             return;
         }
 
+        $company_gateway = $payment->company_gateway;
+        $stripe_driver = $company_gateway->driver()->init();
+        $stripe_driver->setPaymentHash($payment_hash);
         $stripe_driver->client = $payment->client;
 
         $amount_refunded = $stripe_driver->convertFromStripeAmount($amount_refunded, $payment->client->currency()->precision, $payment->client->currency());
@@ -159,7 +156,7 @@ class ChargeRefunded implements ShouldQueue
             'via_webhook' => true,
         ];
 
-        nlog($data);
+        // nlog($data);
 
         $payment->refund($data);
 

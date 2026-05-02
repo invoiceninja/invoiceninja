@@ -489,6 +489,8 @@ class CompanySettings extends BaseSettings
 
     public $e_invoice_forward_email = '';
 
+    public $e_expense_forward_email = '';
+
     public $skip_automatic_email_with_peppol = false;
 
     public $delivery_note_design_id = '';
@@ -541,6 +543,7 @@ class CompanySettings extends BaseSettings
     public string $ses_from_address = '';
 
     public static $casts = [
+        'e_expense_forward_email' => 'string',
         'ses_from_address' => 'string',
         'ses_topic_arn' => 'string',
         'ses_secret_key' => 'string',

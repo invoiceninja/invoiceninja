@@ -16,9 +16,14 @@ final class CreateExpensesIndex implements MigrationInterface
     {
         // Check if index already exists (idempotency)
         $client = ClientBuilder::fromConfig(config('elastic.client.connections.default'));
-        if ($client->indices()->exists(['index' => 'expenses_v2'])) {
-            return; // Index already exists, skip creation
+       
+
+
+        $indexExistsResponse = $client->indices()->exists(['index' => 'expenses']);
+        if ($indexExistsResponse->getStatusCode() === 200) {
+            return;
         }
+
 
         $mapping = [
             'properties' => [
@@ -65,7 +70,7 @@ final class CreateExpensesIndex implements MigrationInterface
             ]
         ];
 
-        Index::createRaw('expenses_v2', $mapping);
+        Index::createRaw('expenses', $mapping);
     }
 
     /**
@@ -73,6 +78,6 @@ final class CreateExpensesIndex implements MigrationInterface
      */
     public function down(): void
     {
-        Index::dropIfExists('expenses_v2');
+        Index::dropIfExists('expenses');
     }
 }

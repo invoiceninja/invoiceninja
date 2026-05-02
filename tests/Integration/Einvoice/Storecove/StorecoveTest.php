@@ -29,6 +29,7 @@ use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
+use App\Services\EDocument\Gateway\Storecove\RoutingResolver;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractor;
 use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
@@ -136,6 +137,7 @@ class StorecoveTest extends TestCase
             'name' => 'Test Client',
             'is_tax_exempt' => $params['is_tax_exempt'] ?? false,
             'id_number' => $params['client_id_number'] ?? '',
+            'routing_id' => '',
         ]);
 
         $contact = ClientContact::factory()->create([
@@ -449,11 +451,16 @@ class StorecoveTest extends TestCase
         $p = new Peppol($invoice);
         $p->run();
 
-        // Build routing identifiers (same as SendEDocument line 84)
-        $identifiers = $p->gateway->mutator->setClientRoutingCode()->getStorecoveMeta();
+        // Build routing identifiers via RoutingResolver
+        $storecove = new Storecove();
+        $resolver = new RoutingResolver($invoice, $storecove->proxy, $storecove->router);
+        $routingResult = $resolver->resolve();
+        $identifiers = $routingResult['meta'] ?? [];
+        if (!empty($routingResult['networks'])) {
+            $identifiers['routing']['networks'] = $routingResult['networks'];
+        }
 
         // Build the Storecove document (same as SendEDocument line 86)
-        $storecove = new Storecove();
         $result = $storecove->build($invoice)->getResult();
 
         $this->assertCount(0, $result['errors'], 'Storecove build should produce no errors: ' . json_encode($result['errors']));
@@ -515,7 +522,12 @@ class StorecoveTest extends TestCase
 
         $this->assertCount(0, $validator->getErrors());
 
-        $identifiers = $p->gateway->mutator->setClientRoutingCode()->getStorecoveMeta();
+        $resolver = new RoutingResolver($model, $storecove->proxy, $storecove->router);
+        $routingResult = $resolver->resolve();
+        $identifiers = $routingResult['meta'] ?? [];
+        if (!empty($routingResult['networks'])) {
+            $identifiers['routing']['networks'] = $routingResult['networks'];
+        }
 
         $result = $storecove->build($model)->getResult();
 
@@ -2422,7 +2434,12 @@ class StorecoveTest extends TestCase
         // Mutator routing should also use the vat_number-derived identifier
         $p = new Peppol($invoice);
         $p->run();
-        $identifiers = $p->gateway->mutator->setClientRoutingCode()->getStorecoveMeta();
+        $resolver = new RoutingResolver($invoice, $storecove->proxy, $storecove->router);
+        $routingResult = $resolver->resolve();
+        $identifiers = $routingResult['meta'] ?? [];
+        if (!empty($routingResult['networks'])) {
+            $identifiers['routing']['networks'] = $routingResult['networks'];
+        }
 
         $this->assertArrayHasKey('routing', $identifiers);
         $routing = $identifiers['routing'];
@@ -2605,7 +2622,13 @@ class StorecoveTest extends TestCase
         $p = new Peppol($invoice);
         $p->run();
 
-        $identifiers = $p->gateway->mutator->setClientRoutingCode()->getStorecoveMeta();
+        $storecove = new Storecove();
+        $resolver = new RoutingResolver($invoice, $storecove->proxy, $storecove->router);
+        $routingResult = $resolver->resolve();
+        $identifiers = $routingResult['meta'] ?? [];
+        if (!empty($routingResult['networks'])) {
+            $identifiers['routing']['networks'] = $routingResult['networks'];
+        }
 
         // Must use email routing, NOT eIdentifiers
         $this->assertArrayHasKey('routing', $identifiers);
@@ -2617,7 +2640,7 @@ class StorecoveTest extends TestCase
         $this->assertContains($contactEmail, $identifiers['routing']['emails']);
 
         // Peppol XML EndpointID must use a valid EAS code (0088/GLN), not "Email"
-        $peppolInvoice = $p->getInvoice();
+        $peppolInvoice = $p->getDocument();
         $endpointId = $peppolInvoice->AccountingCustomerParty->Party->EndpointID;
         $this->assertEquals('0202', $endpointId->schemeID, 'EndpointID schemeID must be 0202 for email-routed countries');
         $this->assertEquals('22AAAAA0000A1Z5', $endpointId->value, 'EndpointID value must be the client GSTIN for IN receivers');

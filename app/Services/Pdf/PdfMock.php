@@ -269,14 +269,14 @@ class PdfMock
 
         $entity_terms = $this->company->settings->invoice_terms;
         $entity_footer = $this->company->settings->invoice_footer;
-        
-        if($this->entity_string == 'quote') {
+
+        if ($this->entity_string == 'quote') {
             $entity_terms = $this->company->settings->quote_terms;
             $entity_footer = $this->company->settings->quote_footer;
-        } elseif($this->entity_string == 'credit') {
+        } elseif ($this->entity_string == 'credit') {
             $entity_terms = $this->company->settings->credit_terms;
             $entity_footer = $this->company->settings->credit_footer;
-        } 
+        }
 
         return ['values'
          => [

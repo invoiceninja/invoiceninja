@@ -213,9 +213,9 @@ class BTCPayPaymentDriver extends BaseDriver
 
         $error = ctrans('texts.client_payment_failure_body', [
             'invoice' => implode(',', $payment->invoices->pluck('number')->toArray()),
-            'amount' => Number::formatMoney($this->payment_hash->amount_with_fee(), $payment->client)
+            'amount' => Number::formatMoney($this->payment_hash->amount_with_fee(), $payment->client),
         ]);
-        
+
         PaymentFailedMailer::dispatch(
             $this->payment_hash,
             $payment->client->company,

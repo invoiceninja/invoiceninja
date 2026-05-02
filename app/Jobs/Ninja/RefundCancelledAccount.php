@@ -67,9 +67,6 @@ class RefundCancelledAccount implements ShouldQueue
 
         $refund = $this->calculateRefundAmount($paid, $plan_expires);
 
-        /* Are there any edge cases? */
-
-        //@TODO process refund by refunding directly to the payment_id;
     }
 
     private function calculateRefundAmount($amount, $plan_expires)

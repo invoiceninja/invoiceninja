@@ -16,8 +16,10 @@ final class CreateClientContactsIndex implements MigrationInterface
     {
         // Check if index already exists (idempotency)
         $client = ClientBuilder::fromConfig(config('elastic.client.connections.default'));
-        if ($client->indices()->exists(['index' => 'client_contacts_v2'])) {
-            return; // Index already exists, skip creation
+       
+        $indexExistsResponse = $client->indices()->exists(['index' => 'client_contacts']);
+        if ($indexExistsResponse->getStatusCode() === 200) {
+            return;
         }
 
         $mapping = [
@@ -50,7 +52,7 @@ final class CreateClientContactsIndex implements MigrationInterface
             ]
         ];
 
-        Index::createRaw('client_contacts_v2', $mapping);
+        Index::createRaw('client_contacts', $mapping);
     }
 
     /**
@@ -58,6 +60,6 @@ final class CreateClientContactsIndex implements MigrationInterface
      */
     public function down(): void
     {
-        Index::dropIfExists('client_contacts_v2');
+        Index::dropIfExists('client_contacts');
     }
 }

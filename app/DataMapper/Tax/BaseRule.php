@@ -22,6 +22,28 @@ use App\Models\RecurringInvoice;
 
 class BaseRule implements RuleInterface
 {
+    /**
+     * Strict EU member states including Spanish autonomous territories.
+     * Used for tax threshold calculations, VAT registration, and nexus determination.
+     */
+    public const EU_COUNTRY_CODES = [
+        'AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'ES-CN', 'ES-CE', 'ES-ML',
+        'FI', 'FR', 'GR', 'HR', 'HU', 'IE', 'IT', 'LT', 'LU', 'LV', 'MT', 'NL',
+        'PL', 'PT', 'RO', 'SE', 'SI', 'SK',
+    ];
+
+    /**
+     * EU + EEA (IS, LI, NO) + Switzerland — the broader VAT zone.
+     * Used for Peppol tax category determination and exemption reason codes,
+     * where EEA/EFTA countries follow EU-like VAT rules.
+     * Includes EL (Greece alternate ISO code) for document format compatibility.
+     */
+    public const EU_TAX_EXEMPT_COUNTRY_CODES = [
+        'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'GR',
+        'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI',
+        'ES', 'ES-CE', 'ES-ML', 'ES-CN', 'SE', 'IS', 'LI', 'NO', 'CH',
+    ];
+
     /** EU TAXES */
     public bool $consumer_tax_exempt = false;
 
@@ -39,38 +61,7 @@ class BaseRule implements RuleInterface
 
     public string $client_subregion = '';
 
-    public array $eu_country_codes = [
-        'AT', // Austria
-        'BE', // Belgium
-        'BG', // Bulgaria
-        'CY', // Cyprus
-        'CZ', // Czech Republic
-        'DE', // Germany
-        'DK', // Denmark
-        'EE', // Estonia
-        'ES', // Spain
-        'ES-CN', // Canary Islands
-        'ES-CE', // Ceuta
-        'ES-ML', // Melilla
-        'FI', // Finland
-        'FR', // France
-        'GR', // Greece
-        'HR', // Croatia
-        'HU', // Hungary
-        'IE', // Ireland
-        'IT', // Italy
-        'LT', // Lithuania
-        'LU', // Luxembourg
-        'LV', // Latvia
-        'MT', // Malta
-        'NL', // Netherlands
-        'PL', // Poland
-        'PT', // Portugal
-        'RO', // Romania
-        'SE', // Sweden
-        'SI', // Slovenia
-        'SK', // Slovakia
-    ];
+    public array $eu_country_codes = self::EU_COUNTRY_CODES;
 
     public array $region_codes = [
         'AD' => 'AD', // Andorra

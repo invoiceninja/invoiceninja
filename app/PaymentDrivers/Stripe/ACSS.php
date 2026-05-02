@@ -291,6 +291,7 @@ class ACSS implements LivewireMethodInterface
             return $this->processSuccessfulPayment($intent->id);
         }
 
+        //@phpstan-ignore-next-line
         $error = $intent->last_payment_error?->message ?? $intent->cancellation_reason ?? "ACSS payment failed with status: {$intent->status}";
 
         return $this->processUnsuccessfulPayment($error);

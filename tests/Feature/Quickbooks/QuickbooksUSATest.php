@@ -177,7 +177,6 @@ class QuickbooksUSATest extends TestCase
             'QtyOnHand' => 50,
             'Type' => 'NonInventory',
             'IncomeAccountRef' => ['value' => '30'],
-            'SalesTaxCodeRef' => ['value' => 'TAX'],
         ];
 
         $ninja_data = $this->product_transformer->transform($qb_item);
@@ -202,7 +201,6 @@ class QuickbooksUSATest extends TestCase
             'UnitPrice' => 85.00,
             'Type' => 'Service',
             'IncomeAccountRef' => ['value' => '31'],
-            'SalesTaxCodeRef' => ['value' => 'TAX'],
         ];
 
         $ninja_data = $this->product_transformer->transform($qb_item);
@@ -223,7 +221,6 @@ class QuickbooksUSATest extends TestCase
             'UnitPrice' => 25.00,
             'Type' => 'NonInventory',
             'IncomeAccountRef' => ['value' => '30'],
-            'SalesTaxCodeRef' => ['value' => 'NON'],
         ];
 
         $ninja_data = $this->product_transformer->transform($qb_item);
@@ -265,6 +262,8 @@ class QuickbooksUSATest extends TestCase
         $line_item->cost = $product->price;
         $line_item->type_id = '1';
         $line_item->tax_id = '1';
+        $line_item->tax_name1 = $product->tax_name1;
+        $line_item->tax_rate1 = $product->tax_rate1;
 
         $qb_data = $this->product_transformer->qbTransform($line_item, '30');
 
@@ -281,7 +280,6 @@ class QuickbooksUSATest extends TestCase
             'PurchaseCost' => $qb_data['PurchaseCost'],
             'Type' => $qb_data['Type'],
             'IncomeAccountRef' => $qb_data['IncomeAccountRef'],
-            'SalesTaxCodeRef' => ['value' => 'TAX'], // US uses TAX/NON
         ];
 
         $ninja_back = $this->product_transformer->transform($qb_response);

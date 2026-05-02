@@ -23,7 +23,7 @@ use App\Helpers\Invoice\InvoiceSumInclusive;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Services\PurchaseOrder\PurchaseOrderService;
 use App\Events\PurchaseOrder\PurchaseOrderWasEmailed;
-
+use App\Models\Traits\IndexableItems;
 /**
  * App\Models\PurchaseOrder
  *
@@ -136,7 +136,7 @@ class PurchaseOrder extends BaseModel
     use Filterable;
     use SoftDeletes;
     use Searchable;
-
+    use IndexableItems;
     /**
      * Get the index name for the model.
      *
@@ -228,7 +228,14 @@ class PurchaseOrder extends BaseModel
     public const STATUS_CANCELLED = 5;
 
 
-    public function toSearchableArray()
+    public function toSearchableArray(): array
+    {
+        return config('scout.index_version', 'legacy') === 'v2'
+            ? $this->toSearchableArrayV2()
+            : $this->toSearchableArrayLegacy();
+    }
+
+    public function toSearchableArrayLegacy(): array
     {
         $locale = $this->company->locale();
         App::setLocale($locale);
@@ -250,6 +257,32 @@ class PurchaseOrder extends BaseModel
             'company_key' => $this->company->company_key,
             'po_number' => (string) $this->po_number,
         ];
+    }
+
+    public function toSearchableArrayV2(): array
+    {
+        $locale = $this->company->locale();
+        App::setLocale($locale);
+
+        return [
+            'id' => $this->company->db . ":" . $this->id,
+            'name' => ctrans('texts.purchase_order') . " " . $this->number . " | " . $this->vendor->present()->name() . ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
+            'hashed_id' => $this->hashed_id,
+            'number' => (string) $this->number,
+            'is_deleted' => (bool)$this->is_deleted,
+            'amount' => (float) $this->amount,
+            'balance' => (float) $this->balance,
+            'due_date' => $this->due_date,
+            'date' => $this->date,
+            'custom_value1' => (string) $this->custom_value1,
+            'custom_value2' => (string) $this->custom_value2,
+            'custom_value3' => (string) $this->custom_value3,
+            'custom_value4' => (string) $this->custom_value4,
+            'company_key' => $this->company->company_key,
+            'po_number' => (string) $this->po_number,
+            'line_items' => $this->indexLineItems(),
+        ];
+
     }
 
     public function getScoutKey()

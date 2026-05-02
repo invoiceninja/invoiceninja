@@ -24,18 +24,18 @@ use Livewire\Attributes\Locked;
 
 class SubscriptionPlanSwitch extends Component
 {
-    #[Locked] 
+    #[Locked]
     public $recurring_invoice_id;
 
-    #[Locked] 
+    #[Locked]
     public $subscription_id;
 
     public $amount;
 
-    #[Locked] 
+    #[Locked]
     public $target_id;
 
-    #[Locked] 
+    #[Locked]
     public $contact_id;
 
     #[Locked]
