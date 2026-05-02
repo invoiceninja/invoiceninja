@@ -27,7 +27,7 @@
         "@apidevtools/swagger-parser": "^10.1.1",
         "@checkout.com/checkout-web-components": "^1.7.1",
         "@docuninja/builder2.0": "^0.0.90",
-        "axios": "^0.25",
+        "axios": "^0.31",
         "card-js": "^1.0.13",
         "card-validator": "^8.1.1",
         "chartjs": "^0.3.24",
