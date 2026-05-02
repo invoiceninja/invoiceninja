@@ -581,9 +581,53 @@ class ClientSalesReportTest extends TestCase
     }
 
     /**
-     * date_range = "all" also suppresses the monthly pivot.
+     * date_range = "all" derives the axis end from the most recent invoice or
+     * payment in the company and clips back 24 months. The skip-line marker
+     * must NOT appear when data is present.
      */
-    public function testMonthlySectionsSkippedForAllRange()
+    public function testMonthlySectionsClippedForAllRange()
+    {
+        $this->buildData();
+
+        Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 175, 'balance' => 0, 'total_taxes' => 0,
+            'status_id' => Invoice::STATUS_PAID,
+            'date' => '2025-08-01',
+            'discount' => 0,
+            'tax_rate1' => 0, 'tax_rate2' => 0, 'tax_rate3' => 0,
+            'tax_name1' => '', 'tax_name2' => '', 'tax_name3' => '',
+            'uses_inclusive_taxes' => false,
+            'line_items' => $this->buildLineItems(),
+        ]);
+
+        $report = new ClientSalesReport($this->company, [
+            'date_range' => 'all',
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ]);
+
+        $out = $report->run();
+
+        $this->assertStringNotContainsString('Monthly breakdown skipped', $out);
+        $this->assertStringContainsString('Invoices by month', $out);
+        // Most recent activity is August 2025 → end-of-axis column present.
+        $this->assertStringContainsString('August-2025', $out);
+
+        $row = $this->findPivotRow($out, $this->client, 'Invoices by month');
+        $this->assertNotNull($row);
+        $this->assertStringContainsString('175.00', implode('|', $row));
+
+        $this->account->delete();
+    }
+
+    /**
+     * date_range = "all" with no invoice/payment data at all falls back to
+     * the skip-line marker since there's no anchor to clip from.
+     */
+    public function testMonthlySectionsSkippedForAllRangeWithNoData()
     {
         $this->buildData();
 

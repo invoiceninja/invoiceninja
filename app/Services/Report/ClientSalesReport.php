@@ -263,23 +263,45 @@ class ClientSalesReport extends BaseExport
     private function resolveMonthAxis(): void
     {
         $dateRange = $this->input['date_range'] ?? '';
+        $unresolved = $dateRange === 'all' || $this->start_date === 'All available data' || empty($this->start_date) || empty($this->end_date);
 
-        if ($dateRange === 'all' || $this->start_date === 'All available data' || empty($this->start_date) || empty($this->end_date)) {
-            $this->monthlySkipped = true;
-            return;
-        }
+        if ($unresolved) {
+            // No explicit range: derive an end date from the most recent
+            // invoice or payment in the company, then clip the lower bound
+            // to the standard 24-month window. Skip only when there's no
+            // data at all.
+            $maxInvoice = Invoice::query()->withTrashed()
+                ->where('company_id', $this->company->id)->where('is_deleted', 0)->max('date');
+            $maxPayment = Payment::query()->withTrashed()
+                ->where('company_id', $this->company->id)->where('is_deleted', 0)->max('date');
 
-        try {
-            $cursor = \Carbon\Carbon::parse($this->start_date)->startOfMonth();
-            $end = \Carbon\Carbon::parse($this->end_date)->endOfMonth();
-        } catch (\Throwable) {
-            $this->monthlySkipped = true;
-            return;
-        }
+            $max = max((string) $maxInvoice, (string) $maxPayment);
 
-        if ($cursor->greaterThan($end)) {
-            $this->monthlySkipped = true;
-            return;
+            if (! $max) {
+                $this->monthlySkipped = true;
+                return;
+            }
+
+            try {
+                $end = \Carbon\Carbon::parse($max)->endOfMonth();
+                $cursor = $end->copy()->subMonths(self::MAX_MONTHS - 1)->startOfMonth();
+            } catch (\Throwable) {
+                $this->monthlySkipped = true;
+                return;
+            }
+        } else {
+            try {
+                $cursor = \Carbon\Carbon::parse($this->start_date)->startOfMonth();
+                $end = \Carbon\Carbon::parse($this->end_date)->endOfMonth();
+            } catch (\Throwable) {
+                $this->monthlySkipped = true;
+                return;
+            }
+
+            if ($cursor->greaterThan($end)) {
+                $this->monthlySkipped = true;
+                return;
+            }
         }
 
         // Clip the lower bound so the axis spans at most MAX_MONTHS, anchored
