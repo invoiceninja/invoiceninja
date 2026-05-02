@@ -312,6 +312,18 @@ class ACH implements MethodInterface
     }
 
     /**
+     * Prepare payment data for the Livewire/view payment flow.
+     * Called by BaseDriver::processPaymentViewData().
+     */
+    public function paymentData(array $data): array
+    {
+        $this->helcim_driver->payment_hash->data = array_merge((array) $this->helcim_driver->payment_hash->data, $data);
+        $this->helcim_driver->payment_hash->save();
+        $data['gateway'] = $this->helcim_driver;
+        return $data;
+    }
+
+    /**
      * Recurring ACH billing via PUT /ach/withdraw
      * Requires bankAccountId and customerId stored in token meta from initial authorization
      */
