@@ -259,9 +259,10 @@ class Gateway extends StaticModel
                 return [
                     GatewayType::CRYPTO => ['refund' => false, 'token_billing' => false, 'webhooks' => ['confirmed', 'paid_out', 'failed', 'fulfilled']],
                 ]; //Blockonomics
-            case 66:
+            case 67:
                 return [
                     GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true, 'webhooks' => ['all']],
+                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['all']],
                 ]; //Helcim
             default:
                 return [];

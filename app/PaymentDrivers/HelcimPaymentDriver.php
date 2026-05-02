@@ -12,11 +12,11 @@
 
 namespace App\PaymentDrivers;
 
+use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentHash;
-use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Helcim\ACH;
 use App\PaymentDrivers\Helcim\CreditCard;
@@ -329,6 +329,30 @@ class HelcimPaymentDriver extends BaseDriver
         }
 
         return $response->json();
+    }
+
+    /**
+     * Validate the API token against Helcim's API.
+     * Called by the "Check Credentials" button in the admin UI.
+     *
+     * @return string 'ok' on success, error message on failure
+     */
+    public function auth(): string
+    {
+        try {
+            $response = Http::withOptions(['verify' => true, 'allow_redirects' => false])
+                ->withHeaders(['api-token' => $this->getApiToken()])
+                ->get($this->getApiUrl() . '/customers', ['search-value' => 'ping', 'limit' => 1]);
+
+            if ($response->status() === 401 || $response->status() === 403) {
+                $error = $response->json('errors') ?? $response->json('message') ?? 'Invalid API token';
+                return is_array($error) ? json_encode($error) : (string) $error;
+            }
+
+            return 'ok';
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
     }
 
     /**
