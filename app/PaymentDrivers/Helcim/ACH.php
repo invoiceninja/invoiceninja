@@ -20,11 +20,12 @@ use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\HelcimPaymentDriver;
 use Illuminate\Http\Request;
 
-class ACH implements MethodInterface
+class ACH implements MethodInterface, LivewireMethodInterface
 {
     protected HelcimPaymentDriver $helcim_driver;
 
@@ -312,14 +313,48 @@ class ACH implements MethodInterface
     }
 
     /**
+     * Return the Livewire-compatible blade view path.
+     * Called by BaseDriver::livewirePaymentView().
+     */
+    public function livewirePaymentView(array $data): string
+    {
+        return 'gateways.helcim.ach.pay_livewire';
+    }
+
+    /**
      * Prepare payment data for the Livewire/view payment flow.
      * Called by BaseDriver::processPaymentViewData().
+     * Must include ALL variables the pay_livewire.blade.php view needs.
      */
     public function paymentData(array $data): array
     {
         $this->helcim_driver->payment_hash->data = array_merge((array) $this->helcim_driver->payment_hash->data, $data);
         $this->helcim_driver->payment_hash->save();
+
         $data['gateway'] = $this->helcim_driver;
+        $data['payment_hash'] = $this->helcim_driver->payment_hash->hash;
+        $data['payment_method_id'] = GatewayType::BANK_TRANSFER;
+        $data['amount'] = $this->helcim_driver->payment_hash->data->amount_with_fee;
+        $data['currency'] = $this->helcim_driver->client->currency()->code;
+        $data['tokens'] = $this->helcim_driver->client->gateway_tokens()
+            ->where('company_gateway_id', $this->helcim_driver->company_gateway->id)
+            ->where('gateway_type_id', GatewayType::BANK_TRANSFER)
+            ->get();
+
+        try {
+            $session = $this->helcim_driver->initializeHelcimPaySession([
+                'paymentType' => 'purchase',
+                'amount' => $data['amount'],
+                'currency' => $data['currency'],
+                'paymentMethod' => 'ach',
+            ]);
+            $data['checkout_token'] = $session['checkoutToken'];
+            $data['secret_token'] = $session['secretToken'];
+        } catch (\Exception $e) {
+            $data['checkout_token'] = '';
+            $data['secret_token'] = '';
+        }
+
         return $data;
     }
 
