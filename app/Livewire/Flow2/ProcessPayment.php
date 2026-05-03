@@ -39,12 +39,6 @@ class ProcessPayment extends Component
 
         $_context = $this->getContext($this->_key);
 
-        if (isset($_context['payment_processed'])) {
-            $this->payment_view = $_context['payment_processed']['payment_view'];
-            $this->payment_data_payload = $_context['payment_processed']['payment_data_payload'];
-            return;
-        }
-
         $data = [
             'company_gateway_id' => $_context['company_gateway_id'],
             'payment_method_id' => $_context['gateway_type_id'],
@@ -99,11 +93,6 @@ class ProcessPayment extends Component
                 $this->payment_data_payload,
             );
         }
-
-        $this->setContext($this->_key, 'payment_processed', [
-            'payment_view' => $this->payment_view,
-            'payment_data_payload' => $this->payment_data_payload,
-        ]);
 
     }
 

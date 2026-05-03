@@ -65,9 +65,7 @@ class UpdateProjectRequest extends Request
             $this->files->set('file', [$this->file('file')]);
         }
 
-        if (isset($input['client_id'])) {
-            unset($input['client_id']);
-        }
+        $input['client_id'] = $this->project->client_id;
 
         if (array_key_exists('color', $input) && is_null($input['color'])) {
             $input['color'] = '';

@@ -1878,6 +1878,12 @@ class Import implements ShouldQueue
                 $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
             }
 
+            if (! isset($modified['client_id'])) {
+                nlog('Skipping project import row without client_id (legacy id: ' . ($resource['id'] ?? '') . ')');
+
+                continue;
+            }
+
             /** @var \App\Models\Project $project **/
             $project = Project::create($modified);
 

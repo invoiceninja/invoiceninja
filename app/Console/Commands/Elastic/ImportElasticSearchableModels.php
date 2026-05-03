@@ -57,7 +57,7 @@ use ReflectionMethod;
  */
 class ImportElasticSearchableModels extends Command
 {
-    private const LARGE_IMPORT_JOB_THRESHOLD = 10000;
+    private const LARGE_IMPORT_JOB_THRESHOLD = 20000;
 
     private const OPTION_DATABASE = 'database';
 

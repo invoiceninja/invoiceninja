@@ -801,17 +801,22 @@ class BaseTransformer
             ])
             ->first();
 
-        return $project ? $project->id : $this->createProject($name, $clientId);
+        if ($project) {
+            return $project->id;
+        }
+
+        if (! $clientId) {
+            return null;
+        }
+
+        return $this->createProject($name, $clientId);
     }
 
-    private function createProject($name, $clientId)
+    private function createProject(string $name, int $clientId): int
     {
         $project = ProjectFactory::create($this->company->id, $this->company->owner()->id);
         $project->name = $name;
-
-        if ($clientId) {
-            $project->client_id = $clientId;
-        }
+        $project->client_id = $clientId;
 
         $project->saveQuietly();
 
