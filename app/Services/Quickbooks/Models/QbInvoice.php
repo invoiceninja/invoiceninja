@@ -174,7 +174,7 @@ class QbInvoice implements SyncInterface
                 } else {
                     $result = $this->service->sdk->Add($qb_invoice);
 
-                    $sync = new InvoiceSync();
+                    $sync = $invoice->sync ?? new InvoiceSync();
                     $sync->qb_id = data_get($result, 'Id') ?? data_get($result, 'Id.value');
                     $invoice->sync = $sync;
                     $invoice->saveQuietly();

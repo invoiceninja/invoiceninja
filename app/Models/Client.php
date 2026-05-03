@@ -1057,11 +1057,6 @@ class Client extends BaseModel implements HasLocalePreference
 
         return $offset;
 
-        // $offset -= $this->company->utc_offset();
-
-        // $offset += ($entity_send_time * 3600);
-
-        // return $offset;
     }
 
     public function translate_entity(): string

@@ -2731,4 +2731,178 @@ class PeppolTest extends TestCase
 
     }
 
+    /**
+     * Standard scenario used for the blank-line tests below.
+     * DE→DE business with valid VAT — keeps test setup boilerplate to a
+     * minimum so each test can focus on what it's asserting.
+     */
+    private function blankItemScenario(): array
+    {
+        return [
+            'company_vat'      => 'DE923356489',
+            'company_country'  => 'DE',
+            'client_country'   => 'DE',
+            'client_vat'       => 'DE923256489',
+            'client_id_number' => '123456789',
+            'classification'   => 'business',
+            'has_valid_vat'    => true,
+            'over_threshold'   => true,
+            'legal_entity_id'  => 290868,
+            'is_tax_exempt'    => false,
+        ];
+    }
+
+    private function makeRealItem(string $key, float $cost = 100.0, float $qty = 1.0): InvoiceItem
+    {
+        $item = new InvoiceItem();
+        $item->product_key        = $key;
+        $item->cost               = $cost;
+        $item->quantity           = $qty;
+        $item->tax_name1          = 'VAT';
+        $item->tax_rate1          = 19;
+        $item->tax_id             = '1';
+        $item->is_amount_discount = false;
+        $item->discount           = 0;
+        return $item;
+    }
+
+    private function buildAndSave(array $line_items): Invoice
+    {
+        $entity_data = $this->setupTestData($this->blankItemScenario());
+
+        $invoice = $entity_data['invoice'];
+        $invoice->is_amount_discount   = false;
+        $invoice->discount             = 0;
+        $invoice->uses_inclusive_taxes = false;
+        $invoice->line_items           = $line_items;
+        $invoice = $invoice->calc()->getInvoice();
+
+        $repo = new InvoiceRepository();
+        $invoice = $repo->save([], $invoice);
+
+        $invoice->setRelation('company', $entity_data['company']);
+        $invoice->setRelation('client', $entity_data['client']);
+        $invoice->service()->markSent()->save();
+
+        return $invoice;
+    }
+
+    /**
+     * Integration: a fully-blank ghost row mixed with valid rows is
+     * dropped from the Peppol XML, surviving rows are renumbered
+     * contiguously, and the schematron passes cleanly.
+     */
+    public function testBlankRowDroppedFromPeppolXml(): void
+    {
+        $real1  = $this->makeRealItem('Widget A', 100, 2);
+        $blank  = new InvoiceItem(); // ghost row — all defaults
+        $real2  = $this->makeRealItem('Widget B', 50, 1);
+
+        $invoice = $this->buildAndSave([$real1, $blank, $real2]);
+
+        $peppol = new Peppol($invoice);
+        $peppol->run();
+        $xml = $peppol->toXml();
+
+        $dom = new \DOMDocument();
+        $dom->loadXML($xml);
+        $xpath = new \DOMXPath($dom);
+        $xpath->registerNamespace('cac', 'urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2');
+        $xpath->registerNamespace('cbc', 'urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2');
+
+        // Two surviving lines, not three.
+        $this->assertSame(2, $xpath->query('//cac:InvoiceLine')->length);
+
+        // IDs renumbered 1, 2 — no gap from the dropped middle row.
+        $ids = [];
+        foreach ($xpath->query('//cac:InvoiceLine/cbc:ID') as $node) {
+            $ids[] = $node->nodeValue;
+        }
+        $this->assertSame(['1', '2'], $ids);
+
+        // Surviving items keep their identity (Widget A and Widget B).
+        $names = [];
+        foreach ($xpath->query('//cac:InvoiceLine/cac:Item/cbc:Name') as $node) {
+            $names[] = $node->nodeValue;
+        }
+        $this->assertSame(['Widget A', 'Widget B'], $names);
+
+        // Schematron pipeline passes.
+        $validator = new XsltDocumentValidator($xml);
+        $validator->validate();
+        $this->assertCount(
+            0,
+            $validator->getErrors(),
+            'Schematron errors after dropping blank row: ' . json_encode($validator->getErrors())
+        );
+
+        // No errors pushed onto the Peppol service either.
+        $this->assertEmpty($peppol->getErrors());
+    }
+
+    /**
+     * Integration: an invoice consisting of only blank rows builds an XML
+     * with zero InvoiceLine elements. The schematron's existing "must have
+     * at least one line" rule (CEN-EN16931-UBL.xslt #957: `exists(cac:InvoiceLine)
+     * or exists(cac:CreditNoteLine)`) surfaces the failure naturally — the
+     * builder itself stays silent, consistent with the per-row drop policy.
+     */
+    public function testAllBlankInvoiceLeavesEmptyLinesForSchematronToCatch(): void
+    {
+        $invoice = $this->buildAndSave([new InvoiceItem(), new InvoiceItem()]);
+
+        $peppol = new Peppol($invoice);
+        $peppol->run();
+        $xml = $peppol->toXml();
+
+        $dom = new \DOMDocument();
+        $dom->loadXML($xml);
+        $xpath = new \DOMXPath($dom);
+        $xpath->registerNamespace('cac', 'urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2');
+
+        $this->assertSame(0, $xpath->query('//cac:InvoiceLine')->length);
+
+        // Schematron flags the empty-document case via its own rule.
+        $validator = new XsltDocumentValidator($xml);
+        $validator->validate();
+        $this->assertNotEmpty(
+            $validator->getErrors(),
+            'Schematron should reject an invoice with no InvoiceLine elements'
+        );
+    }
+
+    /**
+     * Integration: a billable row with a non-zero cost but missing
+     * tax_name1 must NOT be silently dropped — that would change the
+     * invoice total. The schematron should surface the real error.
+     */
+    public function testBillableRowMissingTaxNameIsKept(): void
+    {
+        $tagged = $this->makeRealItem('Widget A', 100, 1);
+
+        $untaxed = new InvoiceItem();
+        $untaxed->product_key = 'Untaxed';
+        $untaxed->cost        = 50;
+        $untaxed->quantity    = 1;
+        // deliberately no tax_name1 / tax_rate1
+
+        $invoice = $this->buildAndSave([$tagged, $untaxed]);
+
+        $peppol = new Peppol($invoice);
+        $peppol->run();
+        $xml = $peppol->toXml();
+
+        $dom = new \DOMDocument();
+        $dom->loadXML($xml);
+        $xpath = new \DOMXPath($dom);
+        $xpath->registerNamespace('cac', 'urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2');
+
+        // Both lines kept — predicate guarantees a non-zero cost row is never dropped.
+        $this->assertSame(
+            2,
+            $xpath->query('//cac:InvoiceLine')->length,
+            'Billable row missing tax_name1 must NOT be silently dropped'
+        );
+    }
+
 }
