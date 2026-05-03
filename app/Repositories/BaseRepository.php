@@ -356,8 +356,6 @@ class BaseRepository
             /** Quickbooks Sync Logic */
             if ($qb_model_changes && $model->company->quickbooks && empty(\App\Services\Quickbooks\QuickbooksService::$importing[$model->company_id]) && $model->company->shouldPushToQuickbooks('invoice')) {
 
-                nlog("base repo changes detected => status: " . $model->status_id);
-
                 if ($model->company->quickbooks->settings->automatic_taxes) {
 
                     try {

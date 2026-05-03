@@ -91,6 +91,8 @@ class QbPayment implements SyncInterface
                 continue;
             }
 
+            $this->ensureLinkedInvoicesSynced($payment);
+
             try {
                 // Refresh from DB to get latest qb_id — prevents duplicate
                 // creates if a prior job already pushed this payment to QB
@@ -135,6 +137,29 @@ class QbPayment implements SyncInterface
                 throw $e;
             }
         }
+    }
+
+    /**
+     * Ensure all linked invoices have a QB ID before pushing the payment.
+     *
+     * QuickBooks requires LinkedTxn invoices to already exist on its side.
+     * Catches code paths (MarkPaid on a draft, AutoBill, refund re-issue)
+     * that mark an invoice paid without first triggering its own QB push.
+     * Failures bubble up and the batch retries via the caller's try/catch.
+     */
+    private function ensureLinkedInvoicesSynced(Payment $payment): void
+    {
+        $unsynced = $payment->invoices()
+            ->get()
+            ->filter(fn ($invoice) => empty($invoice->sync->qb_id ?? null));
+
+        if ($unsynced->isEmpty()) {
+            return;
+        }
+
+        nlog("QuickBooks: Payment {$payment->id} has {$unsynced->count()} unsynced linked invoice(s) — pushing first");
+
+        (new QbInvoice($this->service))->syncToForeign($unsynced->all());
     }
 
     /**
