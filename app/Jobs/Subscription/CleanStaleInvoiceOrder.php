@@ -62,6 +62,7 @@ class CleanStaleInvoiceOrder implements ShouldQueue
     private function run($repo)
     {
         $proforma = Invoice::query()
+                        ->with('client')
                         ->withTrashed()
                         ->where('status_id', Invoice::STATUS_SENT)
                         ->where('is_proforma', 1)
@@ -76,6 +77,7 @@ class CleanStaleInvoiceOrder implements ShouldQueue
 
 
         $stale = Invoice::query()
+                        ->with('client')
                         ->withTrashed()
                         ->whereBetween('updated_at', [now()->subDay(), now()->subHour()])
                         ->where('status_id', Invoice::STATUS_SENT)
@@ -88,6 +90,7 @@ class CleanStaleInvoiceOrder implements ShouldQueue
         });
 
         $confirmed = Invoice::query()
+            ->with('client')
             ->withTrashed()
             ->whereIn('status_id', [Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
             ->whereBetween('updated_at', [now()->subHours(3), now()->subHour()])
