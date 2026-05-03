@@ -129,9 +129,11 @@ class Project extends BaseModel
         $locale = $this->company->locale();
         App::setLocale($locale);
 
+        $clientName = $this->client ? $this->client->present()->name() : '';
+
         return [
             'id' => (string) $this->company->db . ":" . $this->id,
-            'name' => ctrans('texts.project') . " " . $this->number . ' | ' . $this->name . " | " . $this->client->present()->name(),
+            'name' => ctrans('texts.project') . " " . $this->number . ' | ' . $this->name . " | " . $clientName,
             'hashed_id' => $this->hashed_id,
             'number' => (string) $this->number,
             'is_deleted' => (bool) $this->is_deleted,

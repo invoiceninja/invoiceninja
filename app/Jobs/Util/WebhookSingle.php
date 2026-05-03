@@ -54,8 +54,10 @@ class WebhookSingle implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param $event_id
+     * @param $subscription_id
      * @param $entity
+     * @param $db
+     * @param $includes
      */
     public function __construct($subscription_id, $entity, $db, $includes = '')
     {
@@ -81,8 +83,8 @@ class WebhookSingle implements ShouldQueue
         $subscription = Webhook::query()->with('company')->find($this->subscription_id);
 
         if (!$subscription) {
-            $this->fail();
             nlog("failed to fire event, could not find webhook ID {$this->subscription_id}");
+            $this->fail();
             return;
         }
 

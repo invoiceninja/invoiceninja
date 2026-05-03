@@ -240,9 +240,11 @@ class PurchaseOrder extends BaseModel
         $locale = $this->company->locale();
         App::setLocale($locale);
 
+        $vendorName = $this->vendor ? $this->vendor->present()->name() : '';
+
         return [
             'id' => $this->company->db . ":" . $this->id,
-            'name' => ctrans('texts.purchase_order') . " " . $this->number . " | " . $this->vendor->present()->name() . ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
+            'name' => ctrans('texts.purchase_order') . " " . $this->number . " | " . $vendorName . ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
             'hashed_id' => $this->hashed_id,
             'number' => (string) $this->number,
             'is_deleted' => $this->is_deleted,
@@ -263,10 +265,11 @@ class PurchaseOrder extends BaseModel
     {
         $locale = $this->company->locale();
         App::setLocale($locale);
+        $vendorName = $this->vendor ? $this->vendor->present()->name() : '';
 
         return [
             'id' => $this->company->db . ":" . $this->id,
-            'name' => ctrans('texts.purchase_order') . " " . $this->number . " | " . $this->vendor->present()->name() . ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
+            'name' => ctrans('texts.purchase_order') . " " . $this->number . " | " . $vendorName . ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
             'hashed_id' => $this->hashed_id,
             'number' => (string) $this->number,
             'is_deleted' => (bool)$this->is_deleted,

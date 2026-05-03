@@ -179,32 +179,33 @@ class NinjaMailerJob implements ShouldQueue
 
                 $message = "Recipient {$email} has been suppressed and cannot receive emails from you.";
 
-                $this->fail();
+                
                 $this->cleanUpMailers();
                 $this->logMailError($message, $this->company->clients()->first());
 
                 if ($this->nmo->entity) {
                     $this->entityEmailFailed($message);
                 }
-
+                $this->fail();
                 return;
             }
 
-            $this->fail();
+            
             $this->cleanUpMailers();
             $this->logMailError($e->getMessage(), $this->company->clients()->first());
+            $this->fail();
 
         } catch (\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
-            $this->fail();
             $this->cleanUpMailers();
             $this->logMailError($e->getMessage(), $this->company->clients()->first());
+            $this->fail();
             return;
         } catch (\Symfony\Component\Mime\Exception\LogicException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
-            $this->fail();
             $this->cleanUpMailers();
             $this->logMailError($e->getMessage(), $this->company->clients()->first());
+            $this->fail();
             return;
         } catch (\Google\Service\Exception $e) {
 
@@ -221,11 +222,11 @@ class NinjaMailerJob implements ShouldQueue
 
             nlog("Mailer failed with an Error Exception {$e->getMessage()}");
             $message = "Attachment size is too large.";
-            $this->fail();
             $this->logMailError($message, $this->company->clients()->first());
             $this->entityEmailFailed($message);
             $this->cleanUpMailers();
-
+            $this->fail();
+            
             return;
 
         } catch (\Exception $e) {
@@ -240,7 +241,6 @@ class NinjaMailerJob implements ShouldQueue
             if (stripos($e->getMessage(), 'code 300') !== false || stripos($e->getMessage(), 'code 413') !== false) {
                 $message = "Either Attachment too large, or recipient has been suppressed.";
 
-                $this->fail();
                 $this->logMailError($e->getMessage(), $this->company->clients()->first());
 
                 if ($this->nmo->entity) {
@@ -248,7 +248,8 @@ class NinjaMailerJob implements ShouldQueue
                 }
 
                 $this->cleanUpMailers();
-
+                $this->fail();
+            
                 return;
             }
 
@@ -279,10 +280,10 @@ class NinjaMailerJob implements ShouldQueue
                     $message = "Unknown issue sending via Postmark, please try again later.";
                 }
 
-                $this->fail();
                 $this->entityEmailFailed($message);
                 $this->cleanUpMailers();
-
+                $this->fail();
+            
                 return;
             }
 
