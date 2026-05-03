@@ -26,6 +26,9 @@ class TaxEntity
     /** @var array<string> */
     public array $received_documents = [];
 
+    /** @var array<string> */
+    public array $sent_documents = [];
+
     /** @var bool $acts_as_sender */
     public bool $acts_as_sender = true;
 
@@ -49,7 +52,7 @@ class TaxEntity
             $this->{$key} = $value;
         }
 
-        $this->migrate();
+        $this->migrate(); //@phpstan-ignore-line
     }
 
     public function init(): self

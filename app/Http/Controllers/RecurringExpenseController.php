@@ -493,7 +493,7 @@ class RecurringExpenseController extends BaseController
         $action = request()->input('action');
 
         $ids = request()->input('ids');
-        $recurring_expenses = RecurringExpense::withTrashed()->find($this->transformKeys($ids));
+        $recurring_expenses = RecurringExpense::withTrashed()->company()->find($this->transformKeys($ids));
 
         $recurring_expenses->each(function ($recurring_expense, $key) use ($action, $user) {
             if ($user->can('edit', $recurring_expense)) {
@@ -501,7 +501,7 @@ class RecurringExpenseController extends BaseController
             }
         });
 
-        return $this->listResponse(RecurringExpense::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(RecurringExpense::withTrashed()->company()->whereIn('id', $this->transformKeys($ids)));
     }
 
     private function performAction(RecurringExpense $recurring_expense, string $action, $bulk = false)

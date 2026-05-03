@@ -103,8 +103,8 @@ class ProcessMailgunWebhook implements ShouldQueue
         }
 
         /** Free accounts do not have email delivery meta data stored. */
-        if(Ninja::isHosted() && $company->account->isFreeHostedClient()) {
-          return;
+        if (!$company || ($company && Ninja::isHosted() && $company->account->isFreeHostedClient())) {
+            return;
         }
 
         $this->message_id = $this->request['event-data']['message']['headers']['message-id'];

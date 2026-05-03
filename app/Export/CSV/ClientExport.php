@@ -18,6 +18,7 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Transformers\ClientContactTransformer;
 use App\Transformers\ClientTransformer;
+use App\Transformers\LocationTransformer;
 use App\Utils\Ninja;
 use App\Utils\Number;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,6 +30,8 @@ class ClientExport extends BaseExport
     private $client_transformer;
 
     private $contact_transformer;
+
+    private $location_transformer;
 
     public Writer $csv;
 
@@ -87,6 +90,7 @@ class ClientExport extends BaseExport
         $this->input = $input;
         $this->client_transformer = new ClientTransformer();
         $this->contact_transformer = new ClientContactTransformer();
+        $this->location_transformer = new LocationTransformer();
         $this->decorator = new Decorator();
 
     }
@@ -126,7 +130,7 @@ class ClientExport extends BaseExport
             $this->input['report_keys'] = array_values($this->client_report_keys);
         }
 
-        $query = Client::query()->with('contacts')
+        $query = Client::query()->with('contacts', 'locations')
                                 ->withTrashed()
                                 ->where('company_id', $this->company->id);
 
@@ -167,7 +171,7 @@ class ClientExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(Client $client): array
+    protected function buildRow(Client $client): array
     {
         $transformed_contact = false;
 
@@ -179,15 +183,23 @@ class ClientExport extends BaseExport
             $transformed_contact = $this->contact_transformer->transform($contact);
         }
 
+        $transformed_location = [];
+
+        if ($location = $client->locations()->first()) {
+            $transformed_location = $this->location_transformer->transform($location);
+        }
+
         $entity = [];
 
         foreach (array_values($this->input['report_keys']) as $key) {
             $parts = explode('.', $key);
 
-            if (is_array($parts) && $parts[0] == 'client' && array_key_exists($parts[1], $transformed_client)) {
+            if (count($parts) == 2 && $parts[0] == 'client' && array_key_exists($parts[1], $transformed_client)) {
                 $entity[$key] = $transformed_client[$parts[1]];
-            } elseif (is_array($parts) && $parts[0] == 'contact' && array_key_exists($parts[1], $transformed_contact)) {
+            } elseif (count($parts) == 2 && $parts[0] == 'contact' && array_key_exists($parts[1], $transformed_contact)) {
                 $entity[$key] = $transformed_contact[$parts[1]];
+            } elseif (count($parts) == 2 && $parts[0] == 'location' && array_key_exists($parts[1], $transformed_location)) {
+                $entity[$key] = $transformed_location[$parts[1]];
             } else {
                 $entity[$key] = $this->decorator->transform($key, $client);
             }
@@ -246,6 +258,11 @@ class ClientExport extends BaseExport
 
         if (in_array('client.shipping_country_id', $this->input['report_keys']) && isset($client->shipping_country_id)) {
             $entity['client.shipping_country_id'] = $client->shipping_country ? $client->shipping_country->full_name : '';
+        }
+
+        if (in_array('location.country_id', $this->input['report_keys'])) {
+            $location = $client->locations()->first();
+            $entity['location.country_id'] = $location && $location->country ? $location->country->full_name : '';
         }
 
         return $entity;

@@ -89,6 +89,7 @@ class PurchaseOrderController extends Controller
     {
         set_time_limit(0);
 
+        /** @var PurchaseOrderInvitation $invitation */
         $invitation = $purchase_order->invitations()->where('vendor_contact_id', auth()->guard('vendor')->user()->id)->first();
 
         if ($invitation && auth()->guard('vendor') && ! session()->get('is_silent') && ! $invitation->viewed_date) {
@@ -100,7 +101,7 @@ class PurchaseOrderController extends Controller
 
         $requires_signature = $purchase_order->company->account->hasFeature(\App\Models\Account::FEATURE_INVOICE_SETTINGS) && $invitation->company->getSetting('require_purchase_order_signature');
         $docuninja_active = $invitation->company->docuninjaActive();
-        $signature_accepted = $invitation->purchase_order->sync?->dn_completed ?? false;
+        $signature_accepted = $invitation->purchase_order->sync?->dn_completed ?? false; //@phpstan-ignore-line
 
         $data = [
             'purchase_order' => $purchase_order,
@@ -112,7 +113,7 @@ class PurchaseOrderController extends Controller
             'variables' => false,
             'requires_signature' => !$signature_accepted && $requires_signature,
             'docuninja_active' => $docuninja_active && !$signature_accepted && $requires_signature,
-            'request_hash' => $request->hash ?? false, 
+            'request_hash' => $request->hash ?? false,
         ];
 
         if ($request->query('mode') === 'fullscreen') {

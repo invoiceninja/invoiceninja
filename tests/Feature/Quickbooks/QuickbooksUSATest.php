@@ -177,7 +177,6 @@ class QuickbooksUSATest extends TestCase
             'QtyOnHand' => 50,
             'Type' => 'NonInventory',
             'IncomeAccountRef' => ['value' => '30'],
-            'SalesTaxCodeRef' => ['value' => 'TAX'],
         ];
 
         $ninja_data = $this->product_transformer->transform($qb_item);
@@ -202,7 +201,6 @@ class QuickbooksUSATest extends TestCase
             'UnitPrice' => 85.00,
             'Type' => 'Service',
             'IncomeAccountRef' => ['value' => '31'],
-            'SalesTaxCodeRef' => ['value' => 'TAX'],
         ];
 
         $ninja_data = $this->product_transformer->transform($qb_item);
@@ -223,7 +221,6 @@ class QuickbooksUSATest extends TestCase
             'UnitPrice' => 25.00,
             'Type' => 'NonInventory',
             'IncomeAccountRef' => ['value' => '30'],
-            'SalesTaxCodeRef' => ['value' => 'NON'],
         ];
 
         $ninja_data = $this->product_transformer->transform($qb_item);
@@ -265,6 +262,8 @@ class QuickbooksUSATest extends TestCase
         $line_item->cost = $product->price;
         $line_item->type_id = '1';
         $line_item->tax_id = '1';
+        $line_item->tax_name1 = $product->tax_name1;
+        $line_item->tax_rate1 = $product->tax_rate1;
 
         $qb_data = $this->product_transformer->qbTransform($line_item, '30');
 
@@ -281,7 +280,6 @@ class QuickbooksUSATest extends TestCase
             'PurchaseCost' => $qb_data['PurchaseCost'],
             'Type' => $qb_data['Type'],
             'IncomeAccountRef' => $qb_data['IncomeAccountRef'],
-            'SalesTaxCodeRef' => ['value' => 'TAX'], // US uses TAX/NON
         ];
 
         $ninja_back = $this->product_transformer->transform($qb_response);
@@ -612,6 +610,42 @@ class QuickbooksUSATest extends TestCase
 
         // Line 3: TAX
         $this->assertEquals('TAX', $qb_data['Line'][2]['SalesItemLineDetail']['TaxCodeRef']['value']);
+    }
+
+    public function test_invoice_ninjaToQb_invoice_level_tax_merges_into_each_line_non_ast()
+    {
+        // Invoice carries the tax at the document level (no line-level tax).
+        // Under non-AST, US lines resolve via line-level rates — without the
+        // transformer merge they would all fall back to "NON".
+        $original_ast = $this->company->quickbooks->settings->automatic_taxes ?? false;
+        $this->company->quickbooks->settings->automatic_taxes = false;
+
+        try {
+            [$invoice, $qb_service] = $this->createUSInvoice([
+                $this->makeLineItem('Widget A', 100.00),
+                $this->makeLineItem('Widget B', 50.00),
+            ]);
+
+            $invoice->tax_name1 = 'Sales Tax';
+            $invoice->tax_rate1 = 8.25;
+            $invoice = $invoice->calc()->getInvoice();
+            $invoice->saveQuietly();
+
+            $qb_data = $this->invoice_transformer->ninjaToQb($invoice, $qb_service);
+
+            $this->assertEquals('TAX', $qb_data['Line'][0]['SalesItemLineDetail']['TaxCodeRef']['value']);
+            $this->assertEquals('TAX', $qb_data['Line'][1]['SalesItemLineDetail']['TaxCodeRef']['value']);
+
+            // The transformer must not mutate the source model.
+            $this->assertEquals('Sales Tax', $invoice->tax_name1);
+            $this->assertEquals(8.25, (float) $invoice->tax_rate1);
+            foreach ($invoice->line_items as $line_item) {
+                $this->assertSame('', $line_item->tax_name1 ?? '');
+                $this->assertEquals(0, (float) ($line_item->tax_rate1 ?? 0));
+            }
+        } finally {
+            $this->company->quickbooks->settings->automatic_taxes = $original_ast;
+        }
     }
 
     public function test_invoice_ninjaToQb_global_tax_calculation_for_ast()

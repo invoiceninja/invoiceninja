@@ -145,7 +145,7 @@ class ActivityExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(Activity $activity)
+    protected function buildRow(Activity $activity)
     {
 
         $this->csv->insertOne($this->buildActivityRow($activity));

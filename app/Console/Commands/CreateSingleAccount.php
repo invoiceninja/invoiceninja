@@ -423,7 +423,7 @@ class CreateSingleAccount extends Command
             'quantity' => 1,
         ]);
 
-        
+
         $p1a = Product::factory()->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
@@ -569,7 +569,7 @@ class CreateSingleAccount extends Command
             $sub->save();
 
         }
-       
+
 
         $sub = SubscriptionFactory::create($company->id, $user->id);
         $sub->id = 66;
@@ -666,21 +666,11 @@ class CreateSingleAccount extends Command
 
     private function createClient($company, $user)
     {
-        // dispatch(function () use ($company, $user) {
 
-        // });
         $client = Client::factory()->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
         ]);
-
-        // ClientContact::factory()->create([
-        //             'user_id' => $user->id,
-        //             'client_id' => $client->id,
-        //             'company_id' => $company->id,
-        //             'is_primary' => 1,
-        //             'email' => 'user@example.com',
-        //         ]);
 
         ClientContact::factory()->count(rand(1, 2))->create([
             'user_id' => $user->id,
@@ -741,7 +731,7 @@ class CreateSingleAccount extends Command
             'user_id' => $client->user->id,
             'company_id' => $client->company->id,
             'time_log' => $time_log,
-            'description' => $this->faker->paragraph,
+            'description' => $this->faker->paragraph(),
             'status_id' => $status->id ?? null,
             'number' => rand(10000, 100000000),
             'rate' => rand(1, 150),
@@ -762,7 +752,7 @@ class CreateSingleAccount extends Command
             $time_log[] = [
                 Carbon::now()->addSeconds($min)->timestamp,
                 Carbon::now()->addSeconds($min += $rando)->timestamp,
-                $this->faker->sentence,
+                $this->faker->sentence(),
                 rand(0, 1) === 0 ? false : true,
             ];
 
@@ -818,7 +808,7 @@ class CreateSingleAccount extends Command
             $invoice->tax_rate3 = 5;
         }
 
-        $invoice->custom_value1 = $faker->date;
+        $invoice->custom_value1 = $faker->date('Y-m-d');
         $invoice->custom_value2 = rand(0, 1) ? 'yes' : 'no';
 
         $invoice->save();
@@ -871,7 +861,7 @@ class CreateSingleAccount extends Command
         $faker = Factory::create();
 
         $quote = Quote::factory()->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
-        $quote->date = $faker->date();
+        $quote->date = $faker->date('Y-m-d');
         $quote->client_id = $client->id;
 
         $quote->setRelation('client', $client);
@@ -1277,7 +1267,7 @@ class CreateSingleAccount extends Command
             $invoice->tax_rate3 = 5;
         }
 
-        $invoice->custom_value1 = $faker->date;
+        $invoice->custom_value1 = $faker->date('Y-m-d');
         $invoice->custom_value2 = rand(0, 1) ? 'yes' : 'no';
 
         $invoice->status_id = RecurringInvoice::STATUS_ACTIVE;

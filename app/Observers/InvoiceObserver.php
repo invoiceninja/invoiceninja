@@ -27,9 +27,7 @@ class InvoiceObserver
      * @param Invoice $invoice
      * @return void
      */
-    public function updating(Invoice $invoice)
-    {       
-    }
+    public function updating(Invoice $invoice) {}
 
     /**
      * Handle the client "created" event.
@@ -46,7 +44,7 @@ class InvoiceObserver
         if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_CREATE_INVOICE, $invoice, $invoice->company, 'client')->delay(0);
         }
-        
+
     }
 
     /**

@@ -12,11 +12,20 @@
 
 namespace App\Services\EDocument\Standards\Peppol;
 
-use App\Models\Invoice;
-use App\Services\EDocument\Standards\Peppol;
+use App\Services\EDocument\Gateway\MutatorUtil;
 
 class RO extends BaseCountry
 {
+    public function getRoutingRules(): ?array
+    {
+        return ["G+B", "", "RO:VAT", "RO:VAT"];
+    }
+
+    public function getNetworkOverrides(): array
+    {
+        return [['application' => 'ro-anaf', 'settings' => ['enabled' => true]]];
+    }
+
     public array $countrySubEntity = [
         'RO-AB' => 'Alba',
         'RO-AG' => 'Argeș',
@@ -117,14 +126,43 @@ class RO extends BaseCountry
         'RO-VS'  => 'Agriculture',
     ];
 
+    public function senderMutations(
+        mixed $p_invoice,
+        mixed $invoice,
+        MutatorUtil $mutator_util,
+    ): mixed {
 
-    public function __construct(protected Invoice $invoice) {}
+        // Resolve state and sector codes
+        $client_state = $mutator_util->getClientSetting('Invoice.AccountingSupplierParty.Party.PostalAddress.Address.CountrySubentity');
+        $client_city = $mutator_util->getClientSetting('Invoice.AccountingCustomerParty.Party.PostalAddress.Address.CityName');
 
-    public function getStateCode(?string $state_code): string
+        $resolved_state = $this->getStateCode($client_state, $invoice);
+        $resolved_city = $this->getSectorCode($client_city, $invoice);
+
+        $p_invoice->AccountingCustomerParty->Party->PostalAddress->CountrySubentity = $resolved_state;
+        $p_invoice->AccountingCustomerParty->Party->PostalAddress->CityName = $resolved_city;
+
+        // Sort PartyIdentification by null values
+        $query = $p_invoice->AccountingSupplierParty->Party->PartyIdentification;
+        usort($query, function ($a, $b) {
+            if ($a->value === null && $b->value !== null) {
+                return -1;
+            } //@phpstan-ignore-line
+            if ($a->value !== null && $b->value === null) {
+                return 1;
+            } //@phpstan-ignore-line
+            return 0;
+        });
+        $p_invoice->AccountingSupplierParty->Party->PartyIdentification = $query;
+
+        return $p_invoice;
+    }
+
+    public function getStateCode(?string $state_code, mixed $invoice = null): string
     {
-        $state_code = strlen($state_code ?? '') > 1 ? $state_code : $this->invoice->client->state;
+        $state_code = strlen($state_code ?? '') > 1 ? $state_code : ($invoice ? $invoice->client->state : '');
 
-        //codes are configured by default
+        // Codes are configured by default
         if (isset($this->countrySubEntity[$state_code])) {
             return $state_code;
         }
@@ -138,15 +176,15 @@ class RO extends BaseCountry
         return 'RO-B';
     }
 
-    public function getSectorCode(?string $client_city): string
+    public function getSectorCode(?string $client_city, mixed $invoice = null): string
     {
-        $client_sector_code = $client_city ?? $this->invoice->client->city;
+        $client_sector_code = $client_city ?? ($invoice ? $invoice->client->city : '');
+        $client_state = $invoice ? $invoice->client->state : '';
 
-        if (in_array($this->getStateCode($this->invoice->client->state), ['BUCHAREST', 'RO-B'])) {
-            return in_array(strtoupper($this->invoice->client->city ?? ''), array_keys($this->sectorList)) ? strtoupper($this->invoice->client->city ?? '') : 'SECTOR1';
+        if (in_array($this->getStateCode($client_state, $invoice), ['BUCHAREST', 'RO-B'])) {
+            return in_array(strtoupper($invoice->client->city ?? ''), array_keys($this->sectorList)) ? strtoupper($invoice->client->city ?? '') : 'SECTOR1';
         }
 
         return $client_sector_code;
     }
-
 }

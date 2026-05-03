@@ -20,19 +20,25 @@ use App\Models\ClientContact;
 use App\Models\RecurringInvoice;
 use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\Cache;
+use Livewire\Attributes\Locked;
 
 class SubscriptionPlanSwitch extends Component
 {
+    #[Locked]
     public $recurring_invoice_id;
 
+    #[Locked]
     public $subscription_id;
 
     public $amount;
 
+    #[Locked]
     public $target_id;
 
+    #[Locked]
     public $contact_id;
 
+    #[Locked]
     public $db;
 
     /**

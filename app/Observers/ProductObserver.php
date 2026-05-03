@@ -15,6 +15,7 @@ namespace App\Observers;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Product;
 use App\Models\Webhook;
+use App\Services\Quickbooks\QuickbooksBatchCollector;
 
 class ProductObserver
 {
@@ -41,13 +42,14 @@ class ProductObserver
         // 2. Product sync is enabled
         // 3. We're NOT currently importing from QuickBooks (prevent circular sync)
         if ($product->company->quickbooks
-            && $product->company->shouldPushToQuickbooks('product')
-            && empty(\App\Services\Quickbooks\QuickbooksService::$importing[$product->company_id])) {
+           && $product->company->shouldPushToQuickbooks('product')
+           && empty(\App\Services\Quickbooks\QuickbooksService::$importing[$product->company_id])) {
 
-            \App\Jobs\Quickbooks\PushToQuickbooks::dispatch(
+            QuickbooksBatchCollector::collect(
                 'product',
                 $product->id,
-                $product->company->db
+                $product->company->db,
+                $product->company_id,
             );
 
         }
@@ -78,6 +80,19 @@ class ProductObserver
 
         if ($subscriptions) {
             WebhookHandler::dispatch($event, $product, $product->company)->delay(0);
+        }
+
+        if ($product->company->quickbooks
+           && $product->company->shouldPushToQuickbooks('product')
+           && empty(\App\Services\Quickbooks\QuickbooksService::$importing[$product->company_id])) {
+
+            QuickbooksBatchCollector::collect(
+                'product',
+                $product->id,
+                $product->company->db,
+                $product->company_id,
+            );
+
         }
 
     }

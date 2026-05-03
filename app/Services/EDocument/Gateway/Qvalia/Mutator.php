@@ -26,6 +26,8 @@ class Mutator implements MutatorInterface
 
     private $invoice;
 
+    private string $override_vat_number = '';
+
     private MutatorUtil $mutator_util;
 
     public function __construct(public Qvalia $qvalia)
@@ -33,6 +35,12 @@ class Mutator implements MutatorInterface
         $this->mutator_util = new MutatorUtil($this);
     }
 
+    /**
+     * Sets the Invoice Ninja invoice/credit model being processed.
+     *
+     * @param  mixed $invoice
+     * @return self
+     */
     public function setInvoice($invoice): self
     {
         $this->invoice = $invoice;
@@ -40,7 +48,10 @@ class Mutator implements MutatorInterface
     }
 
     /**
+     * Sets the Peppol invoice or credit note model.
+     *
      * @param \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $p_invoice
+     * @return self
      */
     public function setPeppol($p_invoice): self
     {
@@ -49,6 +60,8 @@ class Mutator implements MutatorInterface
     }
 
     /**
+     * Returns the current Peppol invoice or credit note model.
+     *
      * @return \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote
      */
     public function getPeppol(): mixed
@@ -56,36 +69,91 @@ class Mutator implements MutatorInterface
         return $this->p_invoice;
     }
 
+    /**
+     * Returns the client-level e-invoice settings.
+     *
+     * @return mixed
+     */
     public function getClientSettings(): mixed
     {
         return $this->_client_settings;
     }
 
+    /**
+     * Returns the company-level e-invoice settings.
+     *
+     * @return mixed
+     */
     public function getCompanySettings(): mixed
     {
         return $this->_company_settings;
     }
 
+    /**
+     * Sets the client-level e-invoice settings.
+     *
+     * @param  mixed $client_settings
+     * @return self
+     */
     public function setClientSettings($client_settings): self
     {
         $this->_client_settings = $client_settings;
         return $this;
     }
 
+    /**
+     * Sets the company-level e-invoice settings.
+     *
+     * @param  mixed $company_settings
+     * @return self
+     */
     public function setCompanySettings($company_settings): self
     {
         $this->_company_settings = $company_settings;
         return $this;
     }
 
+    /**
+     * Returns the Invoice Ninja invoice/credit model.
+     *
+     * @return mixed
+     */
     public function getInvoice(): mixed
     {
         return $this->invoice;
     }
 
+    /**
+     * Resolves a setting value by property path via MutatorUtil.
+     *
+     * @param  string $property_path
+     * @return mixed
+     */
     public function getSetting(string $property_path): mixed
     {
         return $this->mutator_util->getSetting($property_path);
+    }
+
+    /**
+     * Sets an override VAT number for the supplier party.
+     *
+     * @param  string $vat_number
+     * @return self
+     */
+    public function setOverrideVatNumber(string $vat_number): self
+    {
+        $this->override_vat_number = $vat_number;
+        return $this;
+    }
+
+    /**
+     * Returns the override VAT number, if set.
+     *
+     * @return string
+     */
+    public function getOverrideVatNumber(): string
+    {
+        return $this->override_vat_number;
     }
 
     /**

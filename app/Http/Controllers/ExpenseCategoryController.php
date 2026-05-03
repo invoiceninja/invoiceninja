@@ -467,7 +467,7 @@ class ExpenseCategoryController extends BaseController
 
         $ids = request()->input('ids');
 
-        $expense_categories = ExpenseCategory::withTrashed()->find($this->transformKeys($ids));
+        $expense_categories = ExpenseCategory::withTrashed()->company()->find($this->transformKeys($ids));
 
         $expense_categories->each(function ($expense_category, $key) use ($action, $user) {
             if ($user->can('edit', $expense_category)) {
@@ -475,6 +475,6 @@ class ExpenseCategoryController extends BaseController
             }
         });
 
-        return $this->listResponse(ExpenseCategory::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(ExpenseCategory::withTrashed()->company()->whereIn('id', $this->transformKeys($ids)));
     }
 }

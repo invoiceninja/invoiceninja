@@ -550,7 +550,7 @@ class CreditController extends BaseController
             return response(['message' => 'Please verify your account to send emails.'], 400);
         }
 
-        if (Ninja::isHosted()  && $user->account->emailQuotaExceeded()) {
+        if (Ninja::isHosted() && $user->account->emailQuotaExceeded()) {
             return response(['message' => ctrans('texts.email_quota_exceeded_subject')], 400);
         }
 
@@ -572,18 +572,28 @@ class CreditController extends BaseController
          */
 
         if ($action == 'bulk_download' && $credits->count() > 1) {
-            $credits->each(function ($credit) use ($user) {
-                if ($user->cannot('view', $credit)) {
-                    return response()->json(['message' => ctrans('text.access_denied')]);
-                }
+            $authorized = $credits->filter(function ($credit) use ($user) {
+                return $user->can('view', $credit);
             });
 
-            ZipCredits::dispatch($credits->pluck('id')->toArray(), $user->company(), $user);
+            if ($authorized->isEmpty()) {
+                return response()->json(['message' => ctrans('texts.access_denied')], 403);
+            }
+
+            ZipCredits::dispatch($authorized->pluck('id')->toArray(), $user->company(), $user);
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
 
-        if ($action == 'bulk_print' && $user->can('view', $credits->first())) {
+        if ($action == 'bulk_print') {
+            $credits = $credits->filter(function ($credit) use ($user) {
+                return $user->can('view', $credit);
+            });
+
+            if ($credits->isEmpty()) {
+                return response()->json(['message' => ctrans('texts.access_denied')], 403);
+            }
+
             // $paths = $credits->map(function ($credit) {
             //     return (new \App\Jobs\Entity\CreateRawPdf($credit->invitations->first()))->handle();
             // });

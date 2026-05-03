@@ -50,6 +50,8 @@ class UpdateProjectRequest extends Request
         $rules['task_rate'] = 'sometimes|bail|numeric';
         $rules['file'] = 'bail|sometimes|array';
         $rules['file.*'] = $this->fileValidation();
+        $rules['documents'] = 'bail|sometimes|array';
+        $rules['documents.*'] = $this->fileValidation();
 
         return $this->globalRules($rules);
     }

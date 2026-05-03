@@ -68,11 +68,11 @@ class PaymentAppliedValidAmount implements Rule
         $payment_amounts = $payment->amount - $payment->applied;
 
         if (request()->has('credits')
-            && is_array(request()->input('credits'))
-            && count(request()->input('credits')) == 0
-            && request()->has('invoices')
-            && is_array(request()->input('invoices'))
-            && count(request()->input('invoices')) == 0) {
+           && is_array(request()->input('credits'))
+           && count(request()->input('credits')) == 0
+           && request()->has('invoices')
+           && is_array(request()->input('invoices'))
+           && count(request()->input('invoices')) == 0) {
             return true;
         }
 

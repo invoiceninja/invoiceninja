@@ -49,7 +49,7 @@ class PurgedUserActivity implements ShouldQueue
         $fields->activity_type_id = Activity::PURGE_USER;
         $fields->account_id = $event->company->account_id;
         $fields->notes = $event->purged_user_name;
-        
+
         $this->activityRepo->save($fields, $event->admin_user, $event->event_vars);
     }
 }

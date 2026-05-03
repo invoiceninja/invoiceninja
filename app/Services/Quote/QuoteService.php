@@ -335,12 +335,11 @@ class QuoteService
     public function getDocuNinjaSignable(?\App\Models\QuoteInvitation $invite = null)
     {
 
-        if (class_exists(\InvoiceNinja\AdminApi\Services\DocuNinja\DocuNinja::class))
-        {
+        if (class_exists(\InvoiceNinja\AdminApi\Services\DocuNinja\DocuNinja::class)) {
             $invite = $invite ?: $this->quote->invitations->first();
             return (new \InvoiceNinja\AdminApi\Services\DocuNinja\DocuNinja())->signable->get($invite);
         }
-        
+
     }
 
     /**

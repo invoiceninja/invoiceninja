@@ -13,6 +13,8 @@ export default defineConfig({
             'resources/js/clients/payments/authorize-ach-payment.js',
             'resources/js/clients/payments/forte-credit-card-payment.js',
             'resources/js/clients/payments/forte-ach-payment.js',
+            'resources/js/clients/payments/lawpay-credit-card-payment.js',
+            'resources/js/clients/payments/lawpay-ach-payment.js',
             'resources/js/clients/payments/stripe-ach.js',
             'resources/js/clients/payments/stripe-klarna.js',
             'resources/js/clients/payments/stripe-bacs.js',

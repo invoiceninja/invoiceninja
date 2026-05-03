@@ -23,6 +23,6 @@ class DestroyTaskStatusRequest extends Request
      */
     public function authorize(): bool
     {
-        return auth()->user()->isAdmin();
+        return auth()->user()->can('edit', $this->task_status);
     }
 }

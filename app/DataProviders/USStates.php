@@ -33906,7 +33906,11 @@ class USStates
     public static function getStateFromZippo($zip): mixed
     {
 
-        $response = Http::get("https://api.zippopotam.us/us/{$zip}");
+        $response = Http::withOptions([
+            'allow_redirects' => false,
+        ])
+        ->timeout(5)
+        ->get("https://api.zippopotam.us/us/{$zip}");
 
         if ($response->failed()) {
             return false;

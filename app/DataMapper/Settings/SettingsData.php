@@ -186,6 +186,10 @@ class SettingsData
 
     public bool $require_purchase_order_signature = false;  //@TODO ben to confirm
 
+    public bool $require_invoice_signature = false;  //@TODO ben to confirm
+
+    public bool $require_quote_signature = false;  //@TODO ben to confirm
+
     public string $invoice_footer = ''; //@implemented
 
     public string $credit_footer = ''; //@implemented
@@ -485,7 +489,7 @@ class SettingsData
 
                 try {
                     settype($object->{$key}, gettype($this->{$key}));
-                } catch (\Exception|\Error|\Throwable $e) {
+                } catch (\Exception|\Error|\Throwable $e) { //@phpstan-ignore-line
 
                     if (property_exists($this, $key)) {
                         $object->{$key} = $this->{$key};

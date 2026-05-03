@@ -237,7 +237,9 @@ class ProcessBrevoInboundWebhook implements ShouldQueue
 
     public function middleware()
     {
-        return [(new WithoutOverlapping($this->input["From"]["Address"]))->dontRelease()];
+        return [(new WithoutOverlapping($this->input["From"]["Address"]))
+            ->expireAfter(600)
+            ->dontRelease()];
     }
 
     public function failed($exception)

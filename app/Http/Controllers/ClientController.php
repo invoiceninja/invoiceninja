@@ -455,11 +455,10 @@ class ClientController extends BaseController
             /** @var ?\Postmark\Models\DynamicResponseModel $response */
             $response = $postmark->activateBounce((int) $bounce_id);
 
-            if ($response && $response?->Message == 'OK' && !$response->Bounce->Inactive && $response->Bounce->Email) { // @phpstan-ignore-line
+            // if ($response && $response?->Message == 'OK' && !$response->Bounce->Inactive && $response->Bounce->Email) { // @phpstan-ignore-line
 
-                $email =  $response->Bounce->Email;
-                //remove email from quarantine. //@TODO
-            }
+            //     $email =  $response->Bounce->Email;
+            // }
 
             return response()->json(['message' => 'Success'], 200);
 

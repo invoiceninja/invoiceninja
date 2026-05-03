@@ -23,6 +23,6 @@ class ShowClientGatewayTokenRequest extends Request
      */
     public function authorize(): bool
     {
-        return auth()->user()->isAdmin();
+        return auth()->user()->can('view', $this->client_gateway_token->client);
     }
 }

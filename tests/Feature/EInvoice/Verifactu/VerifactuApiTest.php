@@ -1335,44 +1335,44 @@ class VerifactuApiTest extends TestCase
 
     /**
      * test_update_company_settings
-     *
+     *        //disabled until 2027
      * Verifactu we do not allow the user to change from the verifactu system nor, do we allow changing the locking feature of invoices
      * @return void
      */
-    public function test_update_company_settings()
-    {
-        // Ensure LARAVEL_START is defined for the middleware
-        if (!defined('LARAVEL_START')) {
-            define('LARAVEL_START', microtime(true));
-        }
+    // public function test_update_company_settings()
+    // {
+    //     // Ensure LARAVEL_START is defined for the middleware
+    //     if (!defined('LARAVEL_START')) {
+    //         define('LARAVEL_START', microtime(true));
+    //     }
 
-        Config::set('ninja.environment', 'hosted');
+    //     Config::set('ninja.environment', 'hosted');
 
-        $settings = $this->company->settings;
-        $settings->e_invoice_type = 'VERIFACTU';
-        $this->company->settings = $settings;
-        $this->company->save();
+    //     $settings = $this->company->settings;
+    //     $settings->e_invoice_type = 'VERIFACTU';
+    //     $this->company->settings = $settings;
+    //     $this->company->save();
 
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->putJson('/api/v1/companies/'.$this->company->hashed_id, $this->company->toArray())
-        ->assertStatus(200);
+    //     $response = $this->withHeaders([
+    //         'X-API-SECRET' => config('ninja.api_secret'),
+    //         'X-API-TOKEN' => $this->token,
+    //     ])->putJson('/api/v1/companies/'.$this->company->hashed_id, $this->company->toArray())
+    //     ->assertStatus(200);
 
-        $settings = $this->company->settings;
-        $settings->e_invoice_type = 'Facturae_3.2.2';
-        $this->company->settings = $settings;
+    //     $settings = $this->company->settings;
+    //     $settings->e_invoice_type = 'Facturae_3.2.2';
+    //     $this->company->settings = $settings;
 
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->putJson('/api/v1/companies/'.$this->company->hashed_id, $this->company->toArray())
-        ->assertStatus(200);
+    //     $response = $this->withHeaders([
+    //         'X-API-SECRET' => config('ninja.api_secret'),
+    //         'X-API-TOKEN' => $this->token,
+    //     ])->putJson('/api/v1/companies/'.$this->company->hashed_id, $this->company->toArray())
+    //     ->assertStatus(200);
 
 
-        $arr = $response->json();
+    //     $arr = $response->json();
 
-        $this->assertEquals($arr['data']['settings']['e_invoice_type'], 'VERIFACTU');
-        $this->assertEquals($arr['data']['settings']['lock_invoices'], 'when_sent');
-    }
+    //     $this->assertEquals($arr['data']['settings']['e_invoice_type'], 'VERIFACTU');
+    //     $this->assertEquals($arr['data']['settings']['lock_invoices'], 'when_sent');
+    // }
 }

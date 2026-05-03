@@ -487,6 +487,12 @@ class CompanySettings extends BaseSettings
 
     public $enable_e_invoice = false;
 
+    public $e_invoice_forward_email = '';
+
+    public $e_expense_forward_email = '';
+
+    public $skip_automatic_email_with_peppol = false;
+
     public $delivery_note_design_id = '';
 
     public $statement_design_id = '';
@@ -537,6 +543,7 @@ class CompanySettings extends BaseSettings
     public string $ses_from_address = '';
 
     public static $casts = [
+        'e_expense_forward_email' => 'string',
         'ses_from_address' => 'string',
         'ses_topic_arn' => 'string',
         'ses_secret_key' => 'string',
@@ -569,6 +576,8 @@ class CompanySettings extends BaseSettings
         'classification'                     => 'string',
         'default_expense_payment_type_id'    => 'string',
         'e_invoice_type'                     => 'string',
+        'e_invoice_forward_email'            => 'string',
+        'skip_automatic_email_with_peppol'   => 'bool',
         'mailgun_endpoint'                   => 'string',
         'client_initiated_payments'          => 'bool',
         'client_initiated_payments_minimum'  => 'float',

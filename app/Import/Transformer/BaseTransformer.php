@@ -25,6 +25,7 @@ use App\Models\Invoice;
 use App\Models\PaymentType;
 use App\Models\Product;
 use App\Models\Project;
+use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Models\TaxRate;
@@ -165,7 +166,7 @@ class BaseTransformer
             case RecurringInvoice::FREQUENCY_MONTHLY:
             case 'monthly':
             case 'month':
-                        return RecurringInvoice::FREQUENCY_MONTHLY;
+                return RecurringInvoice::FREQUENCY_MONTHLY;
             case RecurringInvoice::FREQUENCY_TWO_MONTHS:
             case 'bimonthly':
                 return RecurringInvoice::FREQUENCY_TWO_MONTHS;
@@ -273,7 +274,7 @@ class BaseTransformer
         }
 
         // 2026-03-05: If we don't have a client name or email, we can't create a client.
-        if(empty(trim($client_name ?? '')) && empty(trim($client_email ?? ''))) {
+        if (empty(trim($client_name ?? '')) && empty(trim($client_email ?? ''))) {
             nlog("A Client Name or Email is required, none provided! {$client_name}, {$client_email}");
             throw new \App\Import\ImportException("A Client Name or Email is required, none provided!");
         }
@@ -665,6 +666,21 @@ class BaseTransformer
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`number`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $quote_number)),
+            ])
+            ->exists();
+    }
+
+    /**
+     * @param $purchase_order_number
+     *
+     * @return bool
+     */
+    public function hasPurchaseOrder($purchase_order_number)
+    {
+        return PurchaseOrder::query()->where('company_id', $this->company->id)
+            ->where('is_deleted', false)
+            ->whereRaw("LOWER(REPLACE(`number`, ' ' ,''))  = ?", [
+                strtolower(str_replace(' ', '', $purchase_order_number)),
             ])
             ->exists();
     }

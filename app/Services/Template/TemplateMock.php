@@ -74,7 +74,7 @@ class TemplateMock
         $this->engines['entity'] = $this->generateEntityDataArray();
 
         // Check if expense_data property was actually set (may fail if property definition is too long)
-        if (!isset($this->expense_data) || empty($this->expense_data)) {
+        if (!isset($this->expense_data) || empty($this->expense_data)) { //@phpstan-ignore-line
             nlog('expense_data property is empty or not set - property definition may be too long for PHP to parse');
             $this->engines['expenses'] = null;
         } else {
@@ -95,8 +95,9 @@ class TemplateMock
     {
         $invite = $this->company->invoice_invitations()->first() ?? $this->company->quote_invitations()->first() ?? null;
 
-        if(!$invite)
+        if (!$invite) {
             return [];
+        }
 
         $html_engine = new \App\Utils\HtmlEngine($invite);
         $data = $html_engine->buildEntityDataArray();
@@ -104,11 +105,11 @@ class TemplateMock
         $result = [];
 
         foreach ($data as $key => $value) {
-            
+
             $cleanKey = ltrim($key, '$');
             \Illuminate\Support\Arr::set($result, $cleanKey, $value['value']);
         }
-    
+
         return $result;
 
     }

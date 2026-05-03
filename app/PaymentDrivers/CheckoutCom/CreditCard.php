@@ -202,12 +202,8 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
     {
         $cgt = ClientGatewayToken::query()
             ->where('id', $this->decodePrimaryKey($request->input('token')))
-            ->where('company_id', auth()->guard('contact')->user()->client->company_id)
-            ->first();
-
-        if (! $cgt) {
-            throw new PaymentFailed(ctrans('texts.payment_token_not_found'), 401);
-        }
+            ->where('client_id', $this->checkout->client->id)
+            ->firstOrFail();
 
         $paymentRequest = $this->checkout->bootTokenRequest($cgt->token);
 

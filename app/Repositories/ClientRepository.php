@@ -210,7 +210,7 @@ class ClientRepository extends BaseRepository
         PurgeClientDocuments::dispatch($data, $client->company);
 
     }
-    
+
     /**
      * clone/duplicate a client
      *
@@ -224,6 +224,7 @@ class ClientRepository extends BaseRepository
         $clone_client->client_hash = \Illuminate\Support\Str::random(40);
         $clone_client->sync = null;
         $clone_client->number = null;
+        $clone_client->id_number = null;
         $clone_client->balance = 0;
         $clone_client->paid_to_date = 0;
         $clone_client->credit_balance = 0;
@@ -231,7 +232,7 @@ class ClientRepository extends BaseRepository
         $clone_client->save();
 
         $clone_client->service()->applyNumber()->save();
-        
+
         $client->contacts->each(function (ClientContact $contact) use ($clone_client) {
             $clone_contact = $contact->replicate();
             $clone_contact->client_id = $clone_client->id;

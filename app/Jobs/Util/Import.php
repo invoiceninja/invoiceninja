@@ -80,6 +80,7 @@ use App\Utils\Traits\Uploadable;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Queue\InteractsWithQueue;
@@ -286,6 +287,8 @@ class Import implements ShouldQueue
         } catch (\Exception $e) {
             nlog("problem unsetting file");
         }
+
+        Model::reguard();
     }
 
     private function fixData()
@@ -473,7 +476,6 @@ class Import implements ShouldQueue
 
         if (isset($data['settings']->company_logo) && strlen($data['settings']->company_logo) > 0) {
 
-
             try {
                 $logoUrl = $data['settings']->company_logo;
 
@@ -496,7 +498,11 @@ class Import implements ShouldQueue
                 }
 
                 // 4. Use HTTP client with timeout and size limits instead of copy()
-                $response = \Illuminate\Support\Facades\Http::timeout(20)->get($logoUrl);
+                $response = \Illuminate\Support\Facades\Http::timeout(5)
+                                        ->withOptions([
+                                            'verify' => !Ninja::isSelfHost(), 
+                                            'allow_redirects' => false,
+                                            ])->get($logoUrl);
 
                 if ($response->successful() && strlen($response->body()) < 20 * 1024 * 1024) { // 5MB limit
                     $tempImage = tempnam(sys_get_temp_dir(), 'logo_');
@@ -749,7 +755,8 @@ class Import implements ShouldQueue
 
     private function checkUniqueConstraint($model, $column, $value)
     {
-        $value = trim($value);
+
+        $value = trim($value ?? '');
 
         $model_query = $model::where($column, $value)
                              ->where('company_id', $this->company->id)
@@ -914,7 +921,7 @@ class Import implements ShouldQueue
                     $modified_contacts[$key]['company_id'] = $this->company->id;
                     $modified_contacts[$key]['user_id'] = $this->processUserId($resource);
                     $modified_contacts[$key]['vendor_id'] = $vendor->id;
-                    $modified_contacts[$key]['password'] = 'mysuperpassword'; // @todo, and clean up the code..
+                    $modified_contacts[$key]['password'] = 'mysuperpassword'; 
                     unset($modified_contacts[$key]['id']);
                 }
 

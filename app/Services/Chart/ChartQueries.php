@@ -469,22 +469,27 @@ trait ChartQueries
     {
         $user_filter = $this->is_admin ? '' : 'AND clients.user_id = ' . $this->user->id;
 
-        $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3,4)' : 'AND invoices.status_id IN (2,3,4)';
+        $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3)' : 'AND invoices.status_id IN (2,3)';
 
         return DB::select("
             SELECT
-                SUM(invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1)) as total,
-            invoices.date
-            FROM clients
-            JOIN invoices
-            on invoices.client_id = clients.id
-            {$status_filter}
-            AND invoices.company_id = :company_id
-            AND clients.is_deleted = 0
-            AND invoices.is_deleted = 0
-            {$user_filter}
-            AND (invoices.date BETWEEN :start_date AND :end_date)
-            GROUP BY invoices.date
+                SUM(monthly_total) OVER (ORDER BY date) as total,
+                date
+            FROM (
+                SELECT
+                    SUM(invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1)) as monthly_total,
+                    LAST_DAY(invoices.date) as date
+                FROM clients
+                JOIN invoices
+                ON invoices.client_id = clients.id
+                {$status_filter}
+                AND invoices.company_id = :company_id
+                AND clients.is_deleted = 0
+                AND invoices.is_deleted = 0
+                {$user_filter}
+                AND (invoices.date BETWEEN :start_date AND :end_date)
+                GROUP BY LAST_DAY(invoices.date)
+            ) monthly_totals
         ", [
             'company_id' => $this->company->id,
             'start_date' => $start_date,
@@ -496,24 +501,28 @@ trait ChartQueries
     {
         $user_filter = $this->is_admin ? '' : 'AND clients.user_id = ' . $this->user->id;
 
-        $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3,4)' : 'AND invoices.status_id IN (2,3,4)';
-
+        $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3)' : 'AND invoices.status_id IN (2,3)';
 
         return DB::select("
             SELECT
-            sum(invoices.balance) as total,
-            invoices.date
-            FROM clients
-            JOIN invoices
-            on invoices.client_id = clients.id
-            {$status_filter}
-            AND invoices.company_id = :company_id
-            AND clients.is_deleted = 0
-            AND invoices.is_deleted = 0
-            {$user_filter}
-            AND (invoices.date BETWEEN :start_date AND :end_date)
-            AND IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) = :currency_id
-            GROUP BY invoices.date
+                SUM(monthly_total) OVER (ORDER BY date) as total,
+                date
+            FROM (
+                SELECT
+                    sum(invoices.balance) as monthly_total,
+                    LAST_DAY(invoices.date) as date
+                FROM clients
+                JOIN invoices
+                ON invoices.client_id = clients.id
+                {$status_filter}
+                AND invoices.company_id = :company_id
+                AND clients.is_deleted = 0
+                AND invoices.is_deleted = 0
+                {$user_filter}
+                AND (invoices.date BETWEEN :start_date AND :end_date)
+                AND IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) = :currency_id
+                GROUP BY LAST_DAY(invoices.date)
+            ) monthly_totals
         ", [
             'company_currency' => (int) $this->company->settings->currency_id,
             'currency_id' => $currency_id,
@@ -521,7 +530,6 @@ trait ChartQueries
             'start_date' => $start_date,
             'end_date' => $end_date,
         ]);
-
     }
 
 

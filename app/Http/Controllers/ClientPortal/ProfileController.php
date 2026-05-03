@@ -48,7 +48,7 @@ class ProfileController extends Controller
      */
     public function update(UpdateContactRequest $request, ClientContact $client_contact)
     {
-        $client_contact->fill($request->all());
+        $client_contact->fill($request->only(['first_name', 'last_name', 'email', 'password', 'phone']));
 
         if ($request->has('password')) {
             $client_contact->password = encrypt($request->password);
@@ -74,7 +74,7 @@ class ProfileController extends Controller
             }
         }
 
-        $client->fill($request->all());
+        $client->fill($request->only(['name', 'phone', 'vat_number', 'phone','website', 'address1', 'address2','city', 'state', 'postal_code', 'country_id','shipping_address1', 'shipping_address2', 'shipping_city', 'shipping_state', 'shipping_postal_code', 'shipping_country_id']));
         $client->save();
 
         return back()->withSuccess(

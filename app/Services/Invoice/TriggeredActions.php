@@ -31,6 +31,11 @@ class TriggeredActions extends AbstractService
 
     public function run()
     {
+        if ($this->request->has('mark_sent') && $this->request->input('mark_sent') == 'true' && $this->invoice->status_id == Invoice::STATUS_DRAFT) {
+            $this->invoice = $this->invoice->service()->markSent()->save(); //update notification NOT sent
+            $this->updated = true;
+        }
+
         if ($this->request->has('auto_bill') && $this->request->input('auto_bill') == 'true') {
             try {
                 $this->invoice->service()->autoBill();
@@ -41,11 +46,6 @@ class TriggeredActions extends AbstractService
 
         if ($this->request->has('paid') && $this->request->input('paid') == 'true') {
             $this->invoice = $this->invoice->service()->markPaid($this->request->input('reference'))->save(); //update notification sends automatically for this.
-        }
-
-        if ($this->request->has('mark_sent') && $this->request->input('mark_sent') == 'true' && $this->invoice->status_id == Invoice::STATUS_DRAFT) {
-            $this->invoice = $this->invoice->service()->markSent()->save(); //update notification NOT sent
-            $this->updated = true;
         }
 
         if ($this->request->has('amount_paid') && is_numeric($this->request->input('amount_paid'))) {

@@ -126,12 +126,11 @@ class RecurringInvoiceExport extends BaseExport
     }
 
 
-    private function buildRow(RecurringInvoice $invoice): array
+    protected function buildRow(RecurringInvoice $invoice): array
     {
         $transformed_invoice = $this->invoice_transformer->transform($invoice);
 
         $entity = [];
-        $currency = $this->company->currency();
 
         foreach (array_values($this->input['report_keys']) as $key) {
 
@@ -145,14 +144,11 @@ class RecurringInvoiceExport extends BaseExport
                 $entity[$key] = $this->decorator->transform($key, $invoice);
             }
 
-            if (is_float($entity[$key])) {
-                $entity[$key] = \App\Utils\Number::formatValue($entity[$key], $currency);
-            }
-
         }
 
-        // return $entity;
-        return $this->decorateAdvancedFields($invoice, $entity);
+        $entity = $this->decorateAdvancedFields($invoice, $entity);
+
+        return $this->convertFloats($entity);
     }
 
     private function decorateAdvancedFields(RecurringInvoice $invoice, array $entity): array

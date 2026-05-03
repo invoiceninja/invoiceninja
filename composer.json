@@ -44,13 +44,13 @@
         "babenkoivan/elastic-migrations": "^4.0|^5.0",
         "babenkoivan/elastic-scout-driver": "^4.0",
         "babenkoivan/elastic-scout-driver-plus": "^5.1",
-        "bacon/bacon-qr-code": "^2.0",
+        "bacon/bacon-qr-code": "^3.0",
         "beganovich/snappdf": "dev-master",
         "braintree/braintree_php": "^6.28",
         "btcpayserver/btcpayserver-greenfield-php": "^2.6",
         "checkout/checkout-sdk-php": "^3.0",
         "endroid/qr-code": "^5",
-        "eway/eway-rapid-php": "^1.3",
+        "eway/eway-rapid-php": "^2.0",
         "fakerphp/faker": "^1.14",
         "getbrevo/brevo-php": "^1.0",
         "gocardless/gocardless-pro": "^4.12",
@@ -79,9 +79,9 @@
         "lbuchs/webauthn": "^2.2",
         "league/csv": "^9.6",
         "league/flysystem-aws-s3-v3": "^3.0",
-        "league/fractal": "^0.20.0",
+        "league/fractal": "^0.21",
         "livewire/livewire": "^3",
-        "mailgun/mailgun-php": "^3.6",
+        "mailgun/mailgun-php": "^4.0",
         "microsoft/microsoft-graph": "^1.69",
         "mindee/mindee": "^1.8",
         "mollie/mollie-api-php": "^2.36",
@@ -127,7 +127,7 @@
         "friendsofphp/php-cs-fixer": "^3.14",
         "laracasts/cypress": "^3.0",
         "larastan/larastan": "^2|^3",
-        "laravel/boost": "^1.8",
+        "laravel/boost": "^2",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^8.1",
         "phpstan/phpstan": "^2.0",
@@ -169,11 +169,18 @@
             "merge-extra-deep": false,
             "merge-replace": true,
             "merge-scripts": false
-        }
+        },
+        "google/apiclient-services": [
+            "Gmail",
+            "Oauth2"
+        ]
     },
     "scripts": {
-        "post-install-cmd": [],
+        "post-install-cmd": [
+            "Google\\Task\\Composer::cleanup"
+        ],
         "post-update-cmd": [
+            "Google\\Task\\Composer::cleanup",
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
         ],
         "post-root-package-install": [

@@ -187,7 +187,7 @@ class CreateAccountRequest extends Request
      */
     public function authorize()
     {
-        return true;
+        return Ninja::isHosted();
     }
 
     /**
@@ -197,17 +197,12 @@ class CreateAccountRequest extends Request
      */
     public function rules()
     {
-        if (Ninja::isHosted()) {
-            $email_rules = ['bail', 'required', 'max:255', 'email:rfc,dns', new NewUniqueUserRule(), new BlackListRule(), new EmailBlackListRule()];
-        } else {
-            $email_rules = ['bail', 'required', 'max:255', 'email:rfc,dns', new NewUniqueUserRule()];
-        }
-
+        
         return [
             'first_name'        => 'string|max:100',
             'last_name'         =>  'string:max:100',
             'password'          => 'required|string|min:6|max:100',
-            'email'             =>  $email_rules,
+            'email'             =>  ['bail', 'required', 'max:255', 'email:rfc,dns', new NewUniqueUserRule(), new BlackListRule(), new EmailBlackListRule()],
             'privacy_policy'    => 'required|boolean',
             'terms_of_service'  => 'required|boolean',
             'utm_source'        => 'sometimes|nullable|string',

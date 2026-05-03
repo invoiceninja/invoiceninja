@@ -46,6 +46,7 @@ class ClientContactTransformer extends EntityTransformer
             'custom_value4' => $contact->custom_value4 ?: '',
             'contact_key' => $contact->contact_key ?: '',
             'send_email' => (bool) $contact->send_email,
+            'cc_only' => (bool) $contact->cc_only,
             'last_login' => (int) $contact->last_login,
             'password' => empty($contact->password) ? '' : '**********',
             'link' => $contact->getLoginLink(),

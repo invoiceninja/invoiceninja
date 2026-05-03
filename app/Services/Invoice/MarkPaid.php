@@ -42,6 +42,11 @@ class MarkPaid extends AbstractService
         $draft_balance_adjustment = 0;
 
         \DB::connection(config('database.default'))->transaction(function () use (&$already_paid, &$draft_balance_adjustment) {
+            
+            //reset these vars before each transaction
+            $already_paid = false;
+            $draft_balance_adjustment = 0;
+
             $this->invoice = Invoice::withTrashed()->where('id', $this->invoice->id)->lockForUpdate()->first();
 
             if ($this->invoice->status_id == Invoice::STATUS_PAID) {

@@ -278,25 +278,24 @@ class BankIntegrationController extends BaseController
         $nordigen = new Nordigen();
 
         BankIntegration::where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->where('account_id', $user->account_id)->whereNotNull('nordigen_account_id')->each(function (BankIntegration $bank_integration) use ($nordigen) {
-            $is_account_active = $nordigen->isAccountActive($bank_integration->nordigen_account_id);
+            $account_meta = $nordigen->isAccountActive($bank_integration->nordigen_account_id);
+
+            if (in_array($account_meta['status'] ?? '', ['EXPIRED', 'DELETED', 'SUSPENDED', 'ERROR', 'FAILED', 'Invalid Account ID'])) {
+                $bank_integration->disabled_upstream = true;
+                $bank_integration->bank_account_status = $account_meta['status'];
+                $bank_integration->save();
+
+                $nordigen->disabledAccountEmail($bank_integration);
+                return;
+            }
+
+            if (($account_meta['status'] ?? '') != 'READY') {
+                return; // PROCESSING, DISCOVERED — transient states, retry later
+            }
+
             $account = $nordigen->getAccount($bank_integration->nordigen_account_id);
 
-            if (is_array($account) && isset($account['code']) && $account['code'] == 429) {
-
-                $bank_integration->bank_account_status = "429 Rate limit reached, check back later....";
-                $bank_integration->save();
-                return;
-            } elseif (is_array($account) && isset($account['account_status']) && !in_array($account['account_status'], ['READY', 'PROCESSING', 'DISCOVERED'])) {
-                $bank_integration->disabled_upstream = true;
-                $bank_integration->save();
-
-                $nordigen->disabledAccountEmail($bank_integration);
-                return;
-            } elseif ($is_account_active['status'] != 'READY' || !$account || isset($account['requisition'])) {
-                $bank_integration->disabled_upstream = true;
-                $bank_integration->save();
-
-                $nordigen->disabledAccountEmail($bank_integration);
+            if (!$account || isset($account['error'])) {
                 return;
             }
 
@@ -325,8 +324,10 @@ class BankIntegrationController extends BaseController
         $account = $user->account;
 
         $bank_integration = BankIntegration::withTrashed()
-            ->where('bank_account_id', $acc_id)
-            ->orWhere('nordigen_account_id', $acc_id)
+            ->where(function ($query) use ($acc_id) {
+                $query->where('bank_account_id', $acc_id)
+                    ->orWhere('nordigen_account_id', $acc_id);
+            })
             ->company()
             ->firstOrFail();
 

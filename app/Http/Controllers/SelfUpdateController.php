@@ -13,6 +13,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\FilePermissionsFailure;
+use App\Models\Account;
 use App\Models\Company;
 use App\Utils\Ninja;
 use App\Utils\Traits\AppSetup;
@@ -48,7 +49,7 @@ class SelfUpdateController extends BaseController
         set_time_limit(0);
         define('STDIN', fopen('php://stdin', 'r'));
 
-        if (Ninja::isHosted() || config('ninja.disable_auto_update')) {
+        if (Ninja::isHosted() || config('ninja.disable_auto_update') || !($account = Account::first())) {
             return response()->json(['message' => ctrans('texts.self_update_not_available')], 403);
         }
 

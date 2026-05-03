@@ -39,7 +39,7 @@ class StoreCompanyGatewayRequest extends Request
     {
         $rules = [
             'gateway_key' => ['bail', 'required','alpha_num',Rule::exists('gateways', 'key')],
-            'fees_and_limits' => new ValidCompanyGatewayFeesAndLimitsRule(),
+            'fees_and_limits' => ['bail', 'sometimes', 'nullable', 'array', new ValidCompanyGatewayFeesAndLimitsRule()],
         ];
 
         return $rules;
@@ -65,7 +65,7 @@ class StoreCompanyGatewayRequest extends Request
                 $input['config'] = encrypt($input['config']);
             }
 
-            if (isset($input['fees_and_limits'])) {
+            if (isset($input['fees_and_limits']) && is_array($input['fees_and_limits'])) {
                 $input['fees_and_limits'] = $this->cleanFeesAndLimits($input['fees_and_limits']);
             }
 

@@ -27,12 +27,15 @@ class EmailRecord
     {
         $class = 'App\\Models\\' . Str::camel($this->scheduler->parameters['entity']);
 
-        $entity = $class::find($this->decodePrimaryKey($this->scheduler->parameters['entity_id']));
+        $entity = $class::where('id', $this->decodePrimaryKey($this->scheduler->parameters['entity_id']))
+                        ->where('is_deleted', false)
+                        ->first();
 
         if ($entity instanceof Invoice && $entity->company->verifactuEnabled() && !$entity->hasSentAeat()) {
             $entity->invitations()->update(['email_error' => 'primed']); // Flag the invitations as primed for AEAT submission
             $entity->service()->sendVerifactu();
-        } elseif ($entity) {
+        } 
+        elseif ($entity) {
 
             $template = $this->scheduler->parameters['template'] ?? $this->scheduler->parameters['entity'];
 

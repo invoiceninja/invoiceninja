@@ -60,7 +60,7 @@ class SquarePaymentDriver extends BaseDriver
     public function init()
     {
         if ($this->company_gateway->getConfigField('oauth2')
-            && Carbon::parse($this->company_gateway->getConfigField('expires_at'))->subMinutes(5)->isPast()
+           && Carbon::parse($this->company_gateway->getConfigField('expires_at'))->subMinutes(5)->isPast()
         ) {
             $this->refreshAccessToken();
         }

@@ -23,7 +23,7 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\BcMath;
 use App\Exceptions\PaymentFailed;
 use Illuminate\Support\Facades\Http;
-use App\Jobs\Mail\PaymentFailureMailer;
+
 use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\BlockonomicsPaymentDriver;
 use App\PaymentDrivers\Common\LivewireMethodInterface;
@@ -188,12 +188,7 @@ class Blockonomics implements LivewireMethodInterface
             return redirect()->route('client.payments.show', ['payment' => $payment->hashed_id]);
 
         } catch (\Throwable $e) {
-            $blockonomics = $this->blockonomics;
-            PaymentFailureMailer::dispatch(
-                $blockonomics->client,
-                $blockonomics->client->company,
-                $fiat_amount
-            );
+            $this->blockonomics->sendFailureMail('Error during Blockonomics payment: ' . $e->getMessage());
             throw new PaymentFailed('Error during Blockonomics payment: ' . $e->getMessage());
         }
     }

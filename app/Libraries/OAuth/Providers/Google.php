@@ -9,8 +9,10 @@ class Google implements ProviderInterface
     public function getTokenResponse($token)
     {
         $client = new Google_Client();
+        $client->setClientId(config('ninja.auth.google.client_id'));
 
         return $client->verifyIdToken($token);
+
     }
 
     public function harvestEmail($payload)

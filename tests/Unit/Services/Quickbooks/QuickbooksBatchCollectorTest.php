@@ -250,9 +250,9 @@ class QuickbooksBatchCollectorTest extends TestCase
 
         Queue::assertPushed(BatchPushToQuickbooks::class, function ($job) {
             return $job->entity_type === 'invoice'
-                && count($job->entity_ids) === 50
-                && $job->db === 'mydb'
-                && $job->company_id === 999;
+               && count($job->entity_ids) === 50
+               && $job->db === 'mydb'
+               && $job->company_id === 999;
         });
     }
 }

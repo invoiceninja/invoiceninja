@@ -393,7 +393,7 @@ class Company extends BaseModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'client_registration_fields' => 'array',
-        'tax_data' => 'object',
+        'tax_data' => \App\Casts\TaxModelCast::class,
         'origin_tax_data' => 'object',
         'e_invoice_certificate_passphrase' => EncryptedCast::class,
         'smtp_username' => 'encrypted',
@@ -672,6 +672,7 @@ class Company extends BaseModel
         return once(function () {
 
             /** @var \Illuminate\Support\Collection<\App\Models\Country> */
+
             $countries = app('countries');
             $country_id = $this->getSetting('country_id');
 
@@ -1104,7 +1105,7 @@ class Company extends BaseModel
             return $direction === 'push' || $direction === 'bidirectional';
         });
     }
-    
+
     public function docuninjaActive(): bool
     {
         return (app()->environment('local') || Ninja::isHosted()) && $this->enable_modules && $this->account->hasFeature(\App\Models\Account::FEATURE_INVOICE_SETTINGS);

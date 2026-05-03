@@ -22,6 +22,7 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesDates;
 use Livewire\Attributes\Computed;
 use App\Utils\Traits\WithSecureContext;
+use Livewire\Attributes\Locked;
 
 class InvoicePay extends Component
 {
@@ -74,12 +75,14 @@ class InvoicePay extends Component
         'shipping_country_id',
     ];
 
+    #[Locked]
     public $invitation_id;
 
     public $invoices;
 
     public $variables;
 
+    #[Locked]
     public $db;
 
     public $settings;
@@ -95,7 +98,12 @@ class InvoicePay extends Component
     public $required_fields = false;
 
     public $docu_ninja_active = false;
+    
     public $docu_ninja_ready = false;
+
+    public ?int $signing_invitation_id = null;
+    public ?string $signing_key = null;
+    public array $unsigned_invitation_queue = [];
 
     #[On('update.context')]
     public function handleContext(string $key, string $property, $value): self
@@ -127,23 +135,62 @@ class InvoicePay extends Component
     #[On('docuninja-signature-captured')]
     public function docuNinjaSignatureCaptured()
     {
-        $this->signature_accepted = true;
+        $signed_id = $this->signing_invitation_id ?? $this->invitation_id;
+        $invite = \App\Models\InvoiceInvitation::withTrashed()->find($signed_id);
 
-        // @todo: Rest of events...
+        if ($invite && $invite->invoice && !$invite->invoice->sync?->dn_completed) {
+            $invite->invoice->sync->dn_completed = true;
+            $invite->invoice->saveQuietly();
+        }
+
+        if (!empty($this->unsigned_invitation_queue)) {
+            $nextId = array_shift($this->unsigned_invitation_queue);
+            $nextInv = \App\Models\InvoiceInvitation::with('contact.client')->withTrashed()->find($nextId);
+
+            if ($nextInv) {
+                $this->advanceSigning($nextInv);
+                return;
+            }
+        }
+
+        $this->signing_invitation_id = null;
+        $this->signing_key = null;
+        $this->docu_ninja_ready = false;
+        $this->signature_accepted = true;
+    }
+
+    private function advanceSigning(\App\Models\InvoiceInvitation $inv): void
+    {
+        $this->signing_invitation_id = $inv->id;
+        $this->signing_key = $inv->key;
+        $this->docu_ninja_ready = false;
+
+        $this->bulkSetContext($inv->key, [
+            'contact' => $inv->contact,
+            'settings' => $inv->contact->client->getMergedSettings(),
+            'db' => $this->db,
+            'invitation_id' => $inv->id,
+            'entity_type' => 'invoice',
+        ]);
     }
 
     /** We need to have a valid docuninja payload prior to calling the DocuNinja component. */
     #[On('docuninja-loader-ready')]
     public function docuninjaLoaderReady()
     {
-        $this->docu_ninja_ready = true;    
+        $this->docu_ninja_ready = true;
     }
 
     #[On('payable-amount')]
     public function payableAmount($payable_amount)
     {
         $invite = \App\Models\InvoiceInvitation::withTrashed()->find($this->invitation_id);
-        $this->setContext($invite->key, 'amount', $payable_amount);
+        // $this->setContext($invite->key, 'amount', $payable_amount);
+
+        $this->bulkSetContext($invite->key, [
+            'amount' => $payable_amount,
+            'payment_processed' => null,
+        ]);
         $this->under_over_payment = false;
     }
 
@@ -158,6 +205,7 @@ class InvoicePay extends Component
             'amount' => $amount,
             'pre_payment' => false,
             'is_recurring' => false,
+            'payment_processed' => null,
         ]);
 
 
@@ -225,14 +273,13 @@ class InvoicePay extends Component
         }
 
         /** Async loading of DocuNinja component needs to be done like this. ie. need full payload prior to passing in. */
-        if($this->docu_ninja_active && !$this->signature_accepted) {
+        if ($this->docu_ninja_active && !$this->signature_accepted) {
             if ($this->docu_ninja_ready) {
                 return \App\Livewire\Flow2\DocuNinja::class;
             } else {
                 return \App\Livewire\Flow2\DocuNinjaLoader::class;
             }
-        }
-        elseif (!$this->signature_accepted && !$this->docu_ninja_active) {
+        } elseif (!$this->signature_accepted && !$this->docu_ninja_active) {
             return Signature::class;
         }
 
@@ -300,7 +347,24 @@ class InvoicePay extends Component
         $this->under_over_payment = $settings->client_portal_allow_over_payment || $settings->client_portal_allow_under_payment;
         $this->required_fields = false;
 
-        if($invite->invoice->sync?->dn_completed === true){
+        /** for multi invoice payments, build a queue of unsigned invitations so the client signs each in turn */
+        if ($this->docu_ninja_active && $settings->require_invoice_signature) {
+            $unsigned = $invoices->filter(fn ($i) => $i->sync?->dn_completed !== true);
+
+            $queue = $unsigned->map(function ($invoice) use ($invite) {
+                return \App\Models\InvoiceInvitation::where('invoice_id', $invoice->id)
+                    ->where('client_contact_id', $invite->client_contact_id)
+                    ->first();
+            })->filter()->values();
+
+            if ($queue->isEmpty()) {
+                $this->signature_accepted = true;
+            } else {
+                $this->signature_accepted = false;
+                $this->unsigned_invitation_queue = $queue->skip(1)->pluck('id')->map(fn ($id) => (int) $id)->toArray();
+                $this->advanceSigning($queue->first());
+            }
+        } elseif ($invoices->every(fn ($i) => $i->sync?->dn_completed === true)) {
             $this->signature_accepted = true;
         }
 

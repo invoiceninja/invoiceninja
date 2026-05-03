@@ -26,7 +26,7 @@ class PaymentSchedule
     public function run()
     {
         //Handle if the invoice_id has been deleted
-        if(!isset($this->scheduler->parameters['invoice_id'])) {
+        if (!isset($this->scheduler->parameters['invoice_id'])) {
             $this->scheduler->forceDelete();
             return;
         }
@@ -48,7 +48,7 @@ class PaymentSchedule
 
         foreach ($schedule as $key => $item) {
             if (now()->subSeconds($offset)->startOfDay()->eq(Carbon::parse($item['date'])->startOfDay())) {
-            // if (now()->startOfDay()->eq(Carbon::parse($item['date'])->subSeconds($offset)->startOfDay())) {
+                // if (now()->startOfDay()->eq(Carbon::parse($item['date'])->subSeconds($offset)->startOfDay())) {
                 $next_schedule = $item;
                 $schedule_index = $key;
             }

@@ -33,6 +33,7 @@ use App\Events\Invoice\InvoiceReminderWasEmailed;
 use App\DataMapper\InvoiceBackup;
 use App\Jobs\Ninja\TaskScheduler;
 use App\Utils\Number;
+use App\Models\Traits\IndexableItems;
 
 /**
  * App\Models\Invoice
@@ -159,6 +160,7 @@ class Invoice extends BaseModel
     use MakesReminders;
     use ActionsInvoice;
     use Searchable;
+    Use IndexableItems;
 
     protected $presenter = EntityPresenter::class;
 
@@ -260,7 +262,14 @@ class Invoice extends BaseModel
         return 'invoices';
     }
 
-    public function toSearchableArray()
+    public function toSearchableArray(): array
+    {
+        return config('scout.index_version', 'legacy') === 'v2'
+            ? $this->toSearchableArrayV2()
+            : $this->toSearchableArrayLegacy();
+    }
+
+    public function toSearchableArrayLegacy(): array
     {
         $locale = $this->company->locale();
         App::setLocale($locale);
@@ -281,8 +290,34 @@ class Invoice extends BaseModel
             'custom_value4' => (string) $this->custom_value4,
             'company_key' => $this->company->company_key,
             'po_number' => (string) $this->po_number,
-            //'line_items' => (array) $this->line_items, //@todo - reinstate this when elastic indexes have been rebuilt
         ];
+    }
+
+    public function toSearchableArrayV2(): array
+    {
+        
+        $locale = $this->company->locale();
+        App::setLocale($locale);
+
+        return [
+            'id' => (string) $this->company->db . ":" . $this->id,
+            'name' => ctrans('texts.invoice') . " " . $this->number . " | " . $this->client->present()->name() . ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
+            'hashed_id' => $this->hashed_id,
+            'number' => (string) $this->number,
+            'is_deleted' => (bool) $this->is_deleted,
+            'amount' => (float) $this->amount,
+            'balance' => (float) $this->balance,
+            'due_date' => $this->due_date,
+            'date' => $this->date,
+            'custom_value1' => (string) $this->custom_value1,
+            'custom_value2' => (string) $this->custom_value2,
+            'custom_value3' => (string) $this->custom_value3,
+            'custom_value4' => (string) $this->custom_value4,
+            'company_key' => $this->company->company_key,
+            'po_number' => (string) $this->po_number,
+            'line_items' => $this->indexLineItems(),
+        ];
+
     }
 
     public function getScoutKey()
@@ -623,6 +658,25 @@ class Invoice extends BaseModel
     }
 
     /**
+     * Determines whether automatic tax calculation
+     * should be blocked from mutating this invoice.
+     *
+     * Prevents the `calculate_taxes` company setting from
+     * silently adding taxes to invoices whose totals must
+     * not change after the fact.
+     *
+     * @return bool
+     */
+    public function isTaxImmutable(): bool
+    {
+        return in_array($this->status_id, [
+            self::STATUS_PAID,
+            self::STATUS_CANCELLED,
+            self::STATUS_REVERSED,
+        ], true);
+    }
+
+    /**
      * Filtering logic to determine
      * whether an invoice is locked
      * based on the current status of the invoice.
@@ -912,6 +966,22 @@ class Invoice extends BaseModel
         return ctrans('texts.payment_schedule_interval', ['index' => $index + 1, 'total' => count($schedule_array), 'amount' => $amount]);
     }
 
+    public function paymentScheduleCount(): string
+    {
+        $schedule = \App\Models\Scheduler::where('company_id', $this->company_id)
+                            ->where('template', 'payment_schedule')
+                            ->where('parameters->invoice_id', $this->hashed_id)
+                            ->first();
+
+        if (!$schedule) {
+            return '';
+        }
+
+        $schedule_array = $schedule->parameters['schedule'] ?? [];
+
+        return (string) count($schedule_array);
+    }
+
     public function hasSentAeat(): bool
     {
         return $this->backup->guid != "";
@@ -928,7 +998,7 @@ class Invoice extends BaseModel
     {
         return once(function () {
             $client_is_verifactu = in_array($this->client->country->iso_3166_2, (new \App\DataMapper\Tax\BaseRule())->eu_country_codes)
-            && (strlen($this->client->vat_number ?? '') > 0 || strlen($this->client->id_number ?? '') > 0);
+           && (strlen($this->client->vat_number ?? '') > 0 || strlen($this->client->id_number ?? '') > 0);
             return $this->company->verifactuEnabled() && $client_is_verifactu;
         });
     }

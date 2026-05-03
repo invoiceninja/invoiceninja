@@ -79,6 +79,7 @@ class QbInvoice implements SyncInterface
             $client_id = $ninja_invoice_data['client_id'] ?? null;
 
             if (is_null($client_id)) {
+                nlog("QuickBooks importToNinja: Skipping invoice — client could not be resolved");
                 continue;
             }
 
@@ -136,6 +137,17 @@ class QbInvoice implements SyncInterface
             }
 
             try {
+                // Ensure client exists in QuickBooks before pushing the invoice
+                $client = $invoice->client;
+                if (empty($client->sync->qb_id ?? null)) {
+                    $qb_client_id = $this->service->client->createQbClient($client);
+                    if (empty($qb_client_id)) {
+                        nlog("QuickBooks: Skipping invoice {$invoice->id} — unable to create client {$client->id} in QuickBooks");
+                        continue;
+                    }
+                    $client->refresh();
+                }
+
                 // Transform invoice to QuickBooks format
                 $qb_invoice_data = $this->invoice_transformer->ninjaToQb($invoice, $this->service);
 
@@ -162,7 +174,7 @@ class QbInvoice implements SyncInterface
                 } else {
                     $result = $this->service->sdk->Add($qb_invoice);
 
-                    $sync = new InvoiceSync();
+                    $sync = $invoice->sync ?? new InvoiceSync();
                     $sync->qb_id = data_get($result, 'Id') ?? data_get($result, 'Id.value');
                     $invoice->sync = $sync;
                     $invoice->saveQuietly();
@@ -177,7 +189,7 @@ class QbInvoice implements SyncInterface
                     $this->processQuickbooksTaxResponse($result, $invoice);
                 }
 
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 nlog("QuickBooks: Error pushing invoice {$invoice->id} to QuickBooks: {$e->getMessage()}", [
                     'trace' => $e->getTraceAsString(),
                 ]);
@@ -402,7 +414,7 @@ class QbInvoice implements SyncInterface
     {
         $aggregated_rate = $this->calculateAggregatedTaxRate($tax_details, true);
         $tax_name = $this->formatTaxName($aggregated_rate, $invoice);
-        
+
         $this->createTaxRateIfNeeded($tax_name, $aggregated_rate);
         $this->assignTaxToEntity($line_item, $tax_name, $aggregated_rate);
     }
@@ -421,7 +433,7 @@ class QbInvoice implements SyncInterface
 
         foreach ($tax_items as $tax_item) {
             // Handle both TaxLineDetail structure and direct tax detail
-            $tax_line_detail = $handle_nested 
+            $tax_line_detail = $handle_nested
                 ? (data_get($tax_item, 'TaxLineDetail') ?? $tax_item)
                 : data_get($tax_item, 'TaxLineDetail');
 
@@ -465,7 +477,7 @@ class QbInvoice implements SyncInterface
             $state = trim($invoice->client->state ?? '');
         }
 
-        return !empty($state) 
+        return !empty($state)
             ? "{$state}"
             : "{$rate}%";
     }
@@ -515,7 +527,7 @@ class QbInvoice implements SyncInterface
         $ninja_tax_rate->company_id = $this->service->company->id;
         $ninja_tax_rate->name = $tax_name;
         $ninja_tax_rate->rate = $tax_rate;
-        
+
         if (!$ninja_tax_rate->exists) {
             $ninja_tax_rate->user_id = $this->service->company->owner()->id;
             $ninja_tax_rate->save();
@@ -601,8 +613,8 @@ class QbInvoice implements SyncInterface
             $invoice->sync = $sync;
 
             return $invoice;
-        } elseif ($search->count() == 1) {
-            return $this->service->syncable('invoice', \App\Enum\SyncDirection::PULL) ? $search->first() : null;
+        } elseif ($search->count() >= 1) {
+            return $search->first();
         }
 
         return null;
@@ -660,6 +672,7 @@ class QbInvoice implements SyncInterface
         $client_id = $ninja_invoice_data['client_id'] ?? null;
 
         if (is_null($client_id)) {
+            nlog("QuickBooks syncNinjaInvoice: Skipping invoice — client could not be resolved");
             return;
         }
 

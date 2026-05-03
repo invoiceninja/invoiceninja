@@ -48,7 +48,7 @@ class StoreRecurringQuoteRequest extends Request
         $rules['file.*'] = $this->fileValidation();
         $rules['documents'] = 'bail|sometimes|array';
         $rules['documents.*'] = $this->fileValidation();
-        $rules['client_id'] = 'required|exists:clients,id,company_id,' . $user->company()->id;
+        $rules['client_id'] = 'required|integer|exists:clients,id,company_id,' . $user->company()->id;
 
         $rules['invitations.*.client_contact_id'] = 'distinct';
 

@@ -75,13 +75,21 @@ class InvoiceTransformer extends BaseTransformer
             $exempt_code = $taxable_code;
         }
 
+        $invoice_level_taxes = $this->extractInvoiceLevelTaxes($invoice);
+
         foreach ($invoice->line_items as $line_item) {
+            $line_item = $this->mergeInvoiceLevelTaxes($line_item, $invoice_level_taxes);
+
             try {
                 // Get product's QuickBooks ID (business logic handled by QbProduct)
                 $product_qb_id = $qb_service->product->findOrCreateProduct($line_item);
 
                 // Skip line items where product creation failed (null or empty)
                 if (empty($product_qb_id)) {
+                    nlog('QuickBooks: ninjaToQb skipped line — findOrCreateProduct returned empty QuickBooks item Id', [
+                        'invoice_id' => $invoice->id,
+                        'product_key' => $line_item->product_key ?? null,
+                    ]);
                     continue;
                 }
 
@@ -120,7 +128,12 @@ class InvoiceTransformer extends BaseTransformer
 
                 $line_num++;
             } catch (\Throwable $e) {
-                // Skip line items that fail to process
+                nlog('QuickBooks: ninjaToQb skipped line — product find/create or line build failed', [
+                    'invoice_id' => $invoice->id,
+                    'product_key' => $line_item->product_key ?? null,
+                    'exception' => $e::class,
+                    'message' => $e->getMessage(),
+                ]);
                 continue;
             }
         }
@@ -225,9 +238,9 @@ class InvoiceTransformer extends BaseTransformer
             $memo_value = trim($public_notes . ($public_notes && $terms ? "\n\n" : '') . $terms);
 
             if ($memo_value) {
-                // QuickBooks CustomerMemo max length is 4000 characters
+                // QuickBooks CustomerMemo max length is 1000 characters
                 $invoice_data['CustomerMemo'] = [
-                    'value' => mb_substr($memo_value, 0, 4000),
+                    'value' => mb_substr($memo_value, 0, 1000),
                 ];
             }
         }
@@ -266,6 +279,53 @@ class InvoiceTransformer extends BaseTransformer
      * @param  string $exempt_code Default exempt TaxCode ID
      * @return string The resolved TaxCode ID
      */
+    /**
+     * Build a map of non-empty invoice-level tax slots.
+     *
+     * QuickBooks only resolves TaxCodeRef from per-line tax fields; invoices
+     * carrying tax at the document level need those rates merged into each
+     * line for the resolver to pick the taxable code. Returning an empty
+     * array short-circuits the merge in {@see mergeInvoiceLevelTaxes()}.
+     *
+     * @return array<string, string|float>
+     */
+    private function extractInvoiceLevelTaxes(Invoice $invoice): array
+    {
+        $taxes = [];
+
+        foreach ([1, 2, 3] as $i) {
+            $name = $invoice->{"tax_name{$i}"};
+
+            if (is_string($name) && strlen($name) > 1) {
+                $taxes["tax_name{$i}"] = $name;
+                $taxes["tax_rate{$i}"] = $invoice->{"tax_rate{$i}"};
+            }
+        }
+
+        return $taxes;
+    }
+
+    /**
+     * Return a line item with invoice-level taxes copied in, without
+     * mutating the original. An invoice carries taxes at either the
+     * document level or the line level — never both — so the merge
+     * is unconditional.
+     */
+    private function mergeInvoiceLevelTaxes(object $line_item, array $invoice_level_taxes): object
+    {
+        if (empty($invoice_level_taxes)) {
+            return $line_item;
+        }
+
+        $merged = clone $line_item;
+
+        foreach ($invoice_level_taxes as $key => $value) {
+            $merged->{$key} = $value;
+        }
+
+        return $merged;
+    }
+
     private function resolveLineTaxCode(object $line_item, array $tax_rate_map, string $taxable_code, string $exempt_code): string
     {
         $has_line_tax = (
@@ -416,13 +476,23 @@ class InvoiceTransformer extends BaseTransformer
      */
     public function transform(mixed $qb_data, ?\App\Services\Quickbooks\QuickbooksService $qb_service = null): array|bool
     {
-        $client_id = $this->getClientId(data_get($qb_data, 'CustomerRef', null));
+        $customer_ref = data_get($qb_data, 'CustomerRef', null);
+
+        // Use find-or-create when the QB service is available (fetches & creates the client from QB if needed)
+        $client_id = ($qb_service && $customer_ref)
+            ? $qb_service->client->findOrCreateClient((string) $customer_ref)
+            : $this->getClientId($customer_ref);
 
         // Use helper for business logic if available, otherwise return basic transformation
         $tax_array = $qb_service ? $qb_service->helper->calculateTotalTax($qb_data) : [0, ''];
         $custom_surcharge1 = $qb_service ? $qb_service->helper->checkIfDiscountAfterTax($qb_data) : 0;
 
-        return $client_id ? [
+        if (!$client_id) {
+            nlog("QuickBooks: Skipping invoice " . data_get($qb_data, 'Id', '?') . " — unable to resolve client for CustomerRef {$customer_ref}");
+            return false;
+        }
+
+        return [
             'id' => data_get($qb_data, 'Id', false),
             'client_id' => $client_id,
             'number' => data_get($qb_data, 'DocNumber', false),
@@ -438,7 +508,7 @@ class InvoiceTransformer extends BaseTransformer
             'custom_surcharge1' => $custom_surcharge1,
             'balance' => data_get($qb_data, 'Balance', 0),
 
-        ] : false;
+        ];
     }
 
 }
