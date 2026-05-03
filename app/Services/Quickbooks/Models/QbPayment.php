@@ -95,8 +95,11 @@ class QbPayment implements SyncInterface
 
             try {
                 // Refresh from DB to get latest qb_id — prevents duplicate
-                // creates if a prior job already pushed this payment to QB
+                // creates if a prior job already pushed this payment to QB.
+                // load('invoices') ensures the relation reflects qb_ids just
+                // written by ensureLinkedInvoicesSynced.
                 $payment->refresh();
+                $payment->load('invoices');
 
                 $qb_payment_data = $transformer->ninjaToQb($payment, $this->service);
 

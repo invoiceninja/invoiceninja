@@ -88,10 +88,4 @@ class TaskScheduler implements ShouldQueue
 
     }
 
-    public function middleware()
-    {
-        return [
-            new WithoutOverlapping('task-scheduler-' . $this->db),
-        ];
-    }
 }
