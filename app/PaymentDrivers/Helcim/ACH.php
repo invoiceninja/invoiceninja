@@ -361,13 +361,22 @@ class ACH implements MethodInterface, LivewireMethodInterface
     }
 
     /**
-     * HelcimPay.js ACH responses use statusAuth/statusClearing instead of card status.
+     * HelcimPay.js ACH responses: treat any response that has a transactionId as success,
+     * since HelcimPay.js only fires eventStatus=SUCCESS for completed transactions.
+     * ACH uses statusAuth (PENDING/APPROVED) and statusClearing (OPENED/CLEARED) instead
+     * of the card-style status field.
      */
     private function isApprovedAchResponse(array $data): bool
     {
+        // If HelcimPay.js returned a transactionId, accept it unless explicitly declined
+        if (!empty($data['transactionId'])) {
+            $status = strtoupper($data['status'] ?? '');
+            return !in_array($status, ['DECLINED', 'FAILED', 'ERROR', 'REJECTED']);
+        }
+
         return ($data['status'] ?? null) === 'APPROVED'
-            || in_array(($data['statusAuth'] ?? null), ['PENDING', 'APPROVED'], true)
-            || in_array(($data['statusClearing'] ?? null), ['OPENED', 'CLEARED'], true);
+            || in_array(($data['statusAuth'] ?? null), ['PENDING', 'APPROVED', 'QUEUED', 'SUBMITTED'], true)
+            || in_array(($data['statusClearing'] ?? null), ['OPENED', 'CLEARED', 'SUBMITTED', 'PENDING'], true);
     }
 
     /**
