@@ -615,6 +615,37 @@ class QuickbooksCanadaTest extends TestCase
         }
     }
 
+    public function test_invoice_ninjaToQb_invoice_level_tax_merges_into_each_line()
+    {
+        // Invoice carries the tax at the document level; line items have no tax_name1.
+        // The transformer must merge the invoice-level rate into each line for resolution.
+        [$invoice, $qb_service] = $this->createCanadianInvoice([
+            $this->makeLineItem('Service A', 100.00),
+            $this->makeLineItem('Service B', 250.00),
+        ]);
+
+        $invoice->tax_name1 = 'HST ON';
+        $invoice->tax_rate1 = 13.0;
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->saveQuietly();
+
+        $qb_data = $this->invoice_transformer->ninjaToQb($invoice, $qb_service);
+
+        $expected = $this->findTaxCodeIdByRate(13.0, 'HST');
+        $this->assertNotNull($expected, 'HST tax code not found in tax_rate_map');
+
+        $this->assertEquals($expected, $qb_data['Line'][0]['SalesItemLineDetail']['TaxCodeRef']['value']);
+        $this->assertEquals($expected, $qb_data['Line'][1]['SalesItemLineDetail']['TaxCodeRef']['value']);
+
+        // The transformer must not mutate the source model.
+        $this->assertEquals('HST ON', $invoice->tax_name1);
+        $this->assertEquals(13.0, (float) $invoice->tax_rate1);
+        foreach ($invoice->line_items as $line_item) {
+            $this->assertSame('', $line_item->tax_name1 ?? '');
+            $this->assertEquals(0, (float) ($line_item->tax_rate1 ?? 0));
+        }
+    }
+
     public function test_invoice_ninjaToQb_exempt_line_item_uses_exempt_code()
     {
         [$invoice, $qb_service] = $this->createCanadianInvoice([
