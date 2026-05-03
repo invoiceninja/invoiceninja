@@ -124,9 +124,18 @@
                     }
                 }
 
-                var responseData = transactionResponse.data || {};
-                var transactionData = responseData.data || responseData;
-                var transactionHash = responseData.hash || transactionResponse.hash;
+                // Normalize HelcimPay.js response — eventMessage can be:
+                // (a) flat: { transactionId, status, bankAccountNumber, ... }
+                // (b) nested: { data: { data: { transactionId, ... }, hash: "..." } }
+                var transactionData, transactionHash;
+                if (transactionResponse && transactionResponse.transactionId) {
+                    transactionData = transactionResponse;
+                    transactionHash = transactionResponse.hash || '';
+                } else {
+                    var responseData = (transactionResponse && transactionResponse.data) ? transactionResponse.data : {};
+                    transactionData = (responseData && responseData.data) ? responseData.data : responseData;
+                    transactionHash = (responseData && responseData.hash) ? responseData.hash : ((transactionResponse && transactionResponse.hash) ? transactionResponse.hash : '');
+                }
 
                 document.getElementById('transaction_data').value = JSON.stringify(transactionData);
                 document.getElementById('transaction_hash').value = transactionHash;

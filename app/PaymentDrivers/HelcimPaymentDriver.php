@@ -122,6 +122,12 @@ class HelcimPaymentDriver extends BaseDriver
     {
         $this->init();
 
+        // Ensure $this->client is set — when called from the admin panel the driver
+        // may be instantiated without a client, so load it from the payment.
+        if (! $this->client) {
+            $this->client = $payment->client;
+        }
+
         // ACH refunds use a different endpoint: PUT /ach/transactions/{id}/refund
         if ($payment->gateway_type_id == GatewayType::BANK_TRANSFER) {
             return $this->refundAch($payment, $amount, $return_client_response);
