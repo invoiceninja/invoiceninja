@@ -13,6 +13,8 @@
 namespace App\Models\Presenters;
 
 use App\Models\Country;
+use App\Utils\Ninja;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -52,7 +54,6 @@ class CompanyPresenter extends EntityPresenter
             $settings = $this->entity->settings;
         }
 
-        // $basename = basename($this->settings->company_logo);
         $basename = basename($settings->company_logo);
 
         $logo = Storage::get("{$this->company_key}/{$basename}");
@@ -76,23 +77,28 @@ class CompanyPresenter extends EntityPresenter
         if (config('ninja.is_docker') || config('ninja.local_download')) {
             return $this->logoDocker($settings);
         }
-        
-        $basename = basename($settings->company_logo);
-        $disk = \App\Utils\Ninja::isHosted() ? 'backup' : config('filesystems.default');
 
-        try{
+        $basename = basename($settings->company_logo);
+
+        $disk = config('filesystems.default');
+
+        try {
             $logo = Storage::disk($disk)->get($this->company_key . '/' . $basename);
 
-            if(!empty($logo)){
+            if (!empty($logo)) {
                 return "data:image/png;base64," . base64_encode($logo);
             }
 
-        }catch(\Throwable $e){
+        } catch (\Throwable $e) {
             //fall through
         }
-      
+
         try {
-            $response = \Illuminate\Support\Facades\Http::timeout(5)->get($settings->company_logo);
+            $response = Http::withOptions([
+                'allow_redirects' => false,
+                'verify' => !Ninja::isSelfHost(), 
+            ])->timeout(5)
+            ->get($settings->company_logo);
             return $response->successful() ? "data:image/png;base64," . base64_encode($response->body()) : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
         } catch (\Throwable $e) {
             return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
@@ -102,21 +108,32 @@ class CompanyPresenter extends EntityPresenter
 
     public function logoFile($settings)
     {
-
-        $context_options = [
-            "ssl" => [
-                "verify_peer" => false,
-                "verify_peer_name" => false,
-            ],
-        ];
+        $logo_url = '';
 
         if (strlen($settings->company_logo) >= 1 && (strpos($settings->company_logo, 'http') !== false)) {
-            return @file_get_contents($settings->company_logo, false, stream_context_create($context_options));
+            $logo_url = $settings->company_logo;
         } elseif (strlen($settings->company_logo) >= 1) {
-            return @file_get_contents(url('') . $settings->company_logo, false, stream_context_create($context_options));
-        } else {
-            return '=b"ëPNG\r\n\x1A\n\0\0\0\rIHDR\0\0\0\x01\0\0\0\x01\x08\x04\0\0\0Á\x1C\f\x02\0\0\0\vIDATx┌cd`\0\0\0\x06\0\x020üð/\0\0\0\0IEND«B`é';
+            $logo_url = url('') . $settings->company_logo;
         }
+
+        if ($logo_url) {
+            try {
+                $response = Http::withOptions([
+                    'verify' => !Ninja::isSelfHost(), 
+                    'allow_redirects' => false,
+                    ])
+                    ->timeout(5)
+                    ->get($logo_url);
+
+                if ($response->successful()) {
+                    return $response->body();
+                }
+            } catch (\Throwable $e) {
+                // fall through to default
+            }
+        }
+
+        return '=b"ëPNG\r\n\x1A\n\0\0\0\rIHDR\0\0\0\x01\0\0\0\x01\x08\x04\0\0\0Á\x1C\f\x02\0\0\0\vIDATx┌cd`\0\0\0\x06\0\x020üð/\0\0\0\0IEND«B`é';
 
     }
 

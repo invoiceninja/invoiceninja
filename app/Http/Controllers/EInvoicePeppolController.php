@@ -22,11 +22,30 @@ use App\Http\Requests\EInvoice\Peppol\ShowEntityRequest;
 use App\Http\Requests\EInvoice\Peppol\StoreEntityRequest;
 use App\Http\Requests\EInvoice\Peppol\UpdateEntityRequest;
 use App\Services\EDocument\Standards\Verifactu\SendToAeat;
+use App\Http\Requests\EInvoice\Peppol\DiscoveryRequest;
 use App\Http\Requests\EInvoice\Peppol\AddTaxIdentifierRequest;
 use App\Http\Requests\EInvoice\Peppol\RemoveTaxIdentifierRequest;
+use App\Http\Requests\EInvoice\Peppol\C5ActivateRequest;
+use App\Http\Requests\EInvoice\Peppol\C5DeactivateRequest;
+use App\Http\Requests\EInvoice\Peppol\C5CancelRequest;
 
 class EInvoicePeppolController extends BaseController
 {
+    /**
+     * Check whether a recipient is discoverable on the PEPPOL network.
+     *
+     * Used by self-hosted instances proxying through the hosted server.
+     */
+    public function discovery(DiscoveryRequest $request, Storecove $storecove): JsonResponse
+    {
+        $discovered = $storecove->discovery(
+            $request->validated('identifier'),
+            $request->validated('scheme'),
+        );
+
+        return response()->json(['discovered' => $discovered]);
+    }
+
     /**
      * Returns the legal entity ID
      *
@@ -61,8 +80,6 @@ class EInvoicePeppolController extends BaseController
             ->proxy
             ->setCompany($company)
             ->setup($request->validated());
-
-        nlog($response);
 
         if (data_get($response, 'status') === 'error') {
             return response()->json(data_get($response, 'message'), status: $response['code']);
@@ -106,6 +123,11 @@ class EInvoicePeppolController extends BaseController
         $company->enabled_item_tax_rates = 1;
 
         $company->save();
+
+        /** For Singapore, return the CorpPass URL so the frontend can redirect the user */
+        if ($corppass_url = data_get($response, 'corppass.corppass_url')) {
+            return response()->json(['corppass_url' => $corppass_url], 200);
+        }
 
         return response()->noContent();
     }
@@ -195,7 +217,9 @@ class EInvoicePeppolController extends BaseController
         $vat_number = $request->vat_number;
         $country = $request->country;
 
-        if ($country == 'GB') {
+        if ($country == 'SG') {
+            $additional_vat = $tax_data->regions->SG->subregions->{$country}->vat_number ?? null;
+        } elseif ($country == 'GB') {
             $additional_vat = $tax_data->regions->UK->subregions->{$country}->vat_number ?? null;
         } else {
             $additional_vat = $tax_data->regions->EU->subregions->{$country}->vat_number ?? null;
@@ -214,7 +238,9 @@ class EInvoicePeppolController extends BaseController
             return response()->json(data_get($response, 'message'), status: $response['code']);
         }
 
-        if ($country == 'GB') {
+        if ($country == 'SG') {
+            $tax_data->regions->SG->subregions->{$country}->vat_number = $vat_number;
+        } elseif ($country == 'GB') {
             $tax_data->regions->UK->subregions->{$country}->vat_number = $vat_number;
         } else {
             $tax_data->regions->EU->subregions->{$country}->vat_number = $vat_number;
@@ -250,11 +276,11 @@ class EInvoicePeppolController extends BaseController
 
         $country = $request->country;
 
-        if ($request->country === 'GB' && data_get($tax_data->regions->UK->subregions, "{$country}.vat_number")) {
+        if ($country === 'SG' && data_get($tax_data->regions->SG->subregions, "{$country}.vat_number")) {
+            $tax_data->regions->SG->subregions->{$country}->vat_number = null;
+        } elseif ($country === 'GB' && data_get($tax_data->regions->UK->subregions, "{$country}.vat_number")) {
             $tax_data->regions->UK->subregions->{$country}->vat_number = null;
-        }
-
-        if ($request->country !== 'GB' && data_get($tax_data->regions->EU->subregions, "{$country}.vat_number")) {
+        } elseif ($country !== 'SG' && $country !== 'GB' && data_get($tax_data->regions->EU->subregions, "{$country}.vat_number")) {
             $tax_data->regions->EU->subregions->{$country}->vat_number = null;
         }
 
@@ -262,6 +288,54 @@ class EInvoicePeppolController extends BaseController
         $company->save();
 
         return response()->json([]);
+    }
+
+    public function c5Activate(C5ActivateRequest $request, Storecove $storecove): JsonResponse
+    {
+        $company = auth()->user()->company();
+
+        $response = $storecove
+            ->proxy
+            ->setCompany($company)
+            ->c5Activate($request->name, $request->email);
+
+        if (data_get($response, 'status') === 'error') {
+            return response()->json(data_get($response, 'message'), status: $response['code']);
+        }
+
+        return response()->json(['message' => 'ok'], 200);
+    }
+
+    public function c5Deactivate(C5DeactivateRequest $request, Storecove $storecove): JsonResponse
+    {
+        $company = auth()->user()->company();
+
+        $response = $storecove
+            ->proxy
+            ->setCompany($company)
+            ->c5Deactivate($request->name, $request->email);
+
+        if (data_get($response, 'status') === 'error') {
+            return response()->json(data_get($response, 'message'), status: $response['code']);
+        }
+
+        return response()->json(['message' => 'ok'], 200);
+    }
+
+    public function c5Cancel(C5CancelRequest $request, Storecove $storecove): JsonResponse
+    {
+        $company = auth()->user()->company();
+
+        $response = $storecove
+            ->proxy
+            ->setCompany($company)
+            ->c5Cancel();
+
+        if (data_get($response, 'status') === 'error') {
+            return response()->json(data_get($response, 'message'), status: $response['code']);
+        }
+
+        return response()->json(['message' => 'ok'], 200);
     }
 
     public function retrySend(RetrySendRequest $request)

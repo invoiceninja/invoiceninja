@@ -53,6 +53,11 @@ class ClientContactRepository extends BaseRepository
             return is_array($contact);
         })->map(function ($contact) {
             $contact['is_primary'] = $this->is_primary;
+
+            if ($this->is_primary) {
+                $contact['cc_only'] = false;
+            }
+
             $this->is_primary = false;
 
             if ($this->set_send_email_on_contact) {

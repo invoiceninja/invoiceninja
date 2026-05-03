@@ -96,7 +96,7 @@ class ImportQuickbooksController extends BaseController
         nlog($request->all());
 
         $state_data = Cache::get($request->query('state'));
-        
+
         // Handle both old format (string token) and new format (array with metadata)
         $expected_realm_id = is_array($state_data) ? ($state_data['expected_realm_id'] ?? null) : null;
         $is_reconnect = is_array($state_data) ? ($state_data['is_reconnect'] ?? false) : false;
@@ -131,7 +131,7 @@ class ImportQuickbooksController extends BaseController
         // Sync the company information from Quickbooks to Invoice Ninja
         $qb->companySync();
 
-        $redirect_url = $is_reconnect 
+        $redirect_url = $is_reconnect
             ? config('ninja.react_url') . '?quickbooks_reconnected=true'
             : config('ninja.react_url');
 

@@ -76,9 +76,14 @@ class InvoiceFilters extends QueryFilters
             }
 
             if (in_array('overdue', $status_parameters)) {
-                $query->orWhereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
-                                ->where('due_date', '<', Carbon::now())
-                                ->orWhere('partial_due_date', '<', Carbon::now());
+                $now = now()->addSeconds(auth()->user()->company()->utc_offset())->startOfDay()->format('Y-m-d');
+                $query->orWhere(function ($q) use ($now) {
+                    $q->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                      ->where(function ($qq) use ($now) {
+                          $qq->where('due_date', '<', $now)
+                             ->orWhere('partial_due_date', '<', $now);
+                      });
+                });
             }
         });
 
@@ -159,20 +164,22 @@ class InvoiceFilters extends QueryFilters
     public function upcoming(): Builder
     {
 
-        return $this->builder->where(function ($query) {
+        $now = now()->addSeconds(auth()->user()->company()->utc_offset())->startOfDay();
+
+        return $this->builder->where(function ($query) use ($now) {
             $query->whereIn('status_id', [Invoice::STATUS_PARTIAL, Invoice::STATUS_SENT])
             ->where('is_deleted', 0)
             ->where('balance', '>', 0)
-            ->where(function ($query) {
+            ->where(function ($query) use ($now) {
 
                 $query->whereNull('due_date')
-                    ->orWhere(function ($q) {
-                        $q->where('due_date', '>=', now()->startOfDay()->subSecond())->where(function ($qq) {
+                    ->orWhere(function ($q) use ($now) {
+                        $q->where('due_date', '>=', $now)->where(function ($qq) {
                             $qq->where('partial', 0)->orWhere('balance', '>', 0);
                         });
                     })
-                    ->orWhere(function ($q) {
-                        $q->where('partial_due_date', '>=', now()->startOfDay()->subSecond())->where('partial', '>', 0);
+                    ->orWhere(function ($q) use ($now) {
+                        $q->where('partial_due_date', '>=', $now)->where('partial', '>', 0);
                     });
 
             })
@@ -191,12 +198,14 @@ class InvoiceFilters extends QueryFilters
     {
         return $this->builder->where(function ($query) {
 
+            $now = now()->addSeconds(auth()->user()->company()->utc_offset())->startOfDay();
+
             $query->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                     ->where('is_deleted', 0)
                     ->where('balance', '>', 0)
-                    ->where(function ($query) {
-                        $query->where('due_date', '<', now()->startOfDay()->addDay())
-                            ->orWhere('partial_due_date', '<', now()->startOfDay()->addDay());
+                    ->where(function ($query) use ($now) {
+                        $query->where('due_date', '<', $now)
+                            ->orWhere('partial_due_date', '<', $now);
                     })
                     ->orderBy('due_date', 'ASC');
         });
@@ -278,7 +287,12 @@ class InvoiceFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
-        if (!is_array($sort_col) || count($sort_col) != 2 || (!in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable())) && !str_starts_with($sort_col[0], 'client.') && !str_starts_with($sort_col[0], 'contact.') && !str_starts_with($sort_col[0], 'documents'))) {
+        if (!is_array($sort_col)
+        || count($sort_col) != 2
+        || (!in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))
+            && !str_starts_with($sort_col[0], 'client.')
+            && !str_starts_with($sort_col[0], 'contact.')
+            && !str_starts_with($sort_col[0], 'documents'))) {
             return $this->builder;
         }
 
@@ -289,7 +303,7 @@ class InvoiceFilters extends QueryFilters
             return $this->builder->withCount('documents')->orderBy('documents_count', $dir);
         }
 
-        if ($sort_col[0] == 'client_id') {
+        if (in_array($sort_col[0], ['client.name','client_id'])) {
 
             /**
              * future options for order by raw if this is not performant:
@@ -355,23 +369,23 @@ class InvoiceFilters extends QueryFilters
         }
 
         /** Relationship sorting - clients */
-        if(str_starts_with($sort_col[0], 'client.')) {
-            
+        if (str_starts_with($sort_col[0], 'client.')) {
+
             $client_parts = explode('.', $sort_col[0]);
-            
-            if(!isset($client_parts[1]) || !in_array($client_parts[1], \Illuminate\Support\Facades\Schema::getColumnListing('clients'))) {  
+
+            if (!isset($client_parts[1]) || !in_array($client_parts[1], \Illuminate\Support\Facades\Schema::getColumnListing('clients'))) {
                 return $this->builder;
             }
-            
+
 
             if ($sort_col[0] === 'client.country_id') {
                 return $this->builder->orderBy(
-                        \App\Models\Client::select('countries.name')
+                    \App\Models\Client::select('countries.name')
                             ->join('countries', 'countries.id', '=', 'clients.country_id')
                             ->whereColumn('clients.id', 'invoices.client_id')
                             ->limit(1),
-                        $dir
-                    );
+                    $dir
+                );
             }
 
             return $this->builder->orderBy(\App\Models\Client::select($client_parts[1])
@@ -381,14 +395,14 @@ class InvoiceFilters extends QueryFilters
         }
 
         /** Relationship sorting - contacts */
-        if(str_starts_with($sort_col[0], 'contact.')) {
-        
+        if (str_starts_with($sort_col[0], 'contact.')) {
+
             $client_parts = explode('.', $sort_col[0]);
-            
-            if(!isset($client_parts[1]) || !in_array($client_parts[1], \Illuminate\Support\Facades\Schema::getColumnListing('client_contacts'))) {  
+
+            if (!isset($client_parts[1]) || !in_array($client_parts[1], \Illuminate\Support\Facades\Schema::getColumnListing('client_contacts'))) {
                 return $this->builder;
             }
-            
+
             return $this->builder->orderBy(\App\Models\ClientContact::select($client_parts[1])
                         ->whereColumn('client_contacts.client_id', 'invoices.client_id')
                         ->limit(1), $dir);

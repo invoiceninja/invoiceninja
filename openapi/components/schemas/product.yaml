@@ -154,3 +154,7 @@
                 PRODUCT_TYPE_REVERSE_TAX = '9'
                 ```
           example: '1'
+        income_account_id:
+          type: string
+          description: 'The accounting income account identifier this product maps to (used by external accounting integrations such as QuickBooks).'
+          example: '42'

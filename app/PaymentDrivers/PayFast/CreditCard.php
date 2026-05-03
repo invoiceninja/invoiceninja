@@ -196,6 +196,13 @@ class CreditCard implements LivewireMethodInterface
     public function paymentResponse(Request $request)
     {
 
+        $expected = (float) $this->payfast->payment_hash->data->amount_with_fee;
+        $received = (float) $request->input('amount_gross');
+
+        if (abs($received - $expected) > 0.02) {
+            throw new PaymentFailed('Amount mismatch', 500);
+        }
+
         if ($request->token) {
             return $this->processTokenPayment($request->token, $request->payment_hash);
         }
@@ -227,12 +234,8 @@ class CreditCard implements LivewireMethodInterface
 
         $client_gateway_token = \App\Models\ClientGatewayToken::query()
             ->where('token', $token)
-            ->where('company_id', auth()->guard('contact')->user()->client->company_id)
-            ->first();
-
-        if (! $client_gateway_token) {
-            throw new \App\Exceptions\PaymentFailed(ctrans('texts.payment_token_not_found'), 401);
-        }
+            ->where('client_id', $this->payfast->client->id)
+            ->firstOrFail();
 
         $payment_hash = \App\Models\PaymentHash::with('fee_invoice')->where('hash', $payment_hash)->firstOrFail();
 

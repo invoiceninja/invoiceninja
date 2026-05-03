@@ -59,7 +59,7 @@ class InvoiceExport extends BaseExport
 
         $query = Invoice::query()
                         ->withTrashed()
-                        ->with('client')
+                        ->with('client', 'location')
                         ->whereHas('client', function ($q) {
                             $q->where('is_deleted', false);
                         })
@@ -188,7 +188,7 @@ class InvoiceExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(Invoice $invoice): array
+    protected function buildRow(Invoice $invoice): array
     {
         $transformed_invoice = $this->invoice_transformer->transform($invoice);
 

@@ -21,6 +21,7 @@ use App\Factory\ProductFactory;
 use App\Factory\QuoteFactory;
 use App\Factory\RecurringInvoiceFactory;
 use App\Factory\TaskFactory;
+use App\Factory\PurchaseOrderFactory;
 use App\Factory\VendorFactory;
 use App\Http\Requests\BankTransaction\StoreBankTransactionRequest;
 use App\Http\Requests\Client\StoreClientRequest;
@@ -28,6 +29,7 @@ use App\Http\Requests\Expense\StoreExpenseRequest;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Payment\StorePaymentRequest;
 use App\Http\Requests\Product\StoreProductRequest;
+use App\Http\Requests\PurchaseOrder\StorePurchaseOrderRequest;
 use App\Http\Requests\Quote\StoreQuoteRequest;
 use App\Http\Requests\RecurringInvoice\StoreRecurringInvoiceRequest;
 use App\Http\Requests\Task\StoreTaskRequest;
@@ -38,6 +40,7 @@ use App\Import\Transformer\Csv\ExpenseTransformer;
 use App\Import\Transformer\Csv\InvoiceTransformer;
 use App\Import\Transformer\Csv\PaymentTransformer;
 use App\Import\Transformer\Csv\ProductTransformer;
+use App\Import\Transformer\Csv\PurchaseOrderTransformer;
 use App\Import\Transformer\Csv\QuoteTransformer;
 use App\Import\Transformer\Csv\RecurringInvoiceTransformer;
 use App\Import\Transformer\Csv\TaskTransformer;
@@ -48,6 +51,7 @@ use App\Repositories\ExpenseRepository;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\PaymentRepository;
 use App\Repositories\ProductRepository;
+use App\Repositories\PurchaseOrderRepository;
 use App\Repositories\QuoteRepository;
 use App\Repositories\RecurringInvoiceRepository;
 use App\Repositories\TaskRepository;
@@ -70,6 +74,7 @@ class Csv extends BaseImport implements ImportInterface
                 'invoice',
                 'payment',
                 'vendor',
+                'purchase_order',
                 'expense',
                 'quote',
                 'bank_transaction',
@@ -262,6 +267,35 @@ class Csv extends BaseImport implements ImportInterface
         $quote_count = $this->ingestQuotes($data, 'quote.number');
 
         $this->entity_count['quotes'] = $quote_count;
+    }
+
+    public function purchase_order()
+    {
+        $entity_type = 'purchase_order';
+
+        $data = $this->getCsvData($entity_type);
+
+        if (is_array($data)) {
+            $data = $this->preTransformCsv($data, $entity_type);
+        }
+
+        if (empty($data)) {
+            $this->entity_count['purchase_orders'] = 0;
+            return;
+        }
+
+        $this->request_name = StorePurchaseOrderRequest::class;
+        $this->repository_name = PurchaseOrderRepository::class;
+        $this->factory_name = PurchaseOrderFactory::class;
+
+        $this->repository = app()->make($this->repository_name);
+        $this->repository->import_mode = true;
+
+        $this->transformer = new PurchaseOrderTransformer($this->company);
+
+        $purchase_order_count = $this->ingestPurchaseOrders($data, 'purchase_order.number');
+
+        $this->entity_count['purchase_orders'] = $purchase_order_count;
     }
 
     public function payment()

@@ -261,7 +261,7 @@ class TemplateService
 
         $invite = $this->company->invoice_invitations()->first() ?? $this->company->quote_invitations()->first() ?? $this->company->credit_invitations()->first() ?? null;
 
-        if($invite){
+        if ($invite) {
 
         }
 
@@ -353,6 +353,8 @@ class TemplateService
 
             try {
                 $template = $this->twig->createTemplate(html_entity_decode($template));
+                // nlog($template->getSourceContext()->getCode()); //this is a nice way to access the twig template
+                $template = $template->render($this->data);
             } catch (SyntaxError $e) {
                 nlog($e->getMessage());
                 throw ($e);
@@ -369,9 +371,6 @@ class TemplateService
                 nlog("error = " . $e->getMessage());
                 throw ($e);
             }
-
-            // nlog($template->getSourceContext()->getCode()); //this is a nice way to access the twig template
-            $template = $template->render($this->data);
 
             $f = $this->document->createDocumentFragment();
 
@@ -612,15 +611,14 @@ class TemplateService
 
                     $invoice_period = '';
 
-                    if($period = data_get($invoice, 'e_invoice.Invoice.InvoicePeriod.0', false)) {
-                        try{
+                    if ($period = data_get($invoice, 'e_invoice.Invoice.InvoicePeriod.0', false)) {
+                        try {
                             $invoice_period = $this->translateDate($period->StartDate, $invoice->client->date_format(), $invoice->client->locale()) . ' - ' . $this->translateDate($period->EndDate, $invoice->client->date_format(), $invoice->client->locale());
-                        }
-                        catch(\Throwable $e) {
-                            nlog("Error getting invoice period: {$e->getMessage()}");
+                        } catch (\Throwable $e) {
+                            nlog("Error getting invoice period: TS:: {$e->getMessage()}");
                         }
                     }
-                    
+
                     return [
                         'amount' => Number::formatMoney($invoice->amount, $invoice->client),
                         'balance' => Number::formatMoney($invoice->balance, $invoice->client),

@@ -538,7 +538,7 @@ class ProjectController extends BaseController
             }
         });
 
-        return $this->listResponse(Project::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(Project::withTrashed()->company()->whereIn('id', $this->transformKeys($ids)));
     }
 
     /**

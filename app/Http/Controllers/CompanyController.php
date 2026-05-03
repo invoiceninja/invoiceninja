@@ -441,18 +441,23 @@ class CompanyController extends BaseController
             $this->saveDocuments($request->input('documents'), $company, $request->input('is_public', true));
         }
 
-        if ($request->has('e_invoice_certificate') && !is_null($request->file("e_invoice_certificate"))) {
+        /** Explicitly handle the e-invoice certificate */
+        if ($request->has('e_invoice_certificate')) {
 
-            $company->e_invoice_certificate = base64_encode($request->file("e_invoice_certificate")->get());
+            if (!is_null($request->file("e_invoice_certificate"))) {
+                $company->e_invoice_certificate = base64_encode($request->file("e_invoice_certificate")->get());
+            } else {
+                $company->e_invoice_certificate = null;
+                $company->e_invoice_certificate_passphrase = null;
+            }
 
             $settings = $company->settings;
             $settings->enable_e_invoice = true;
+            $company->settings = $settings;
 
             $company->save();
 
         }
-
-        // $this->uploadLogo($request->file('company_logo'), $company, $company);
 
         if ($request->has('sync_send_time') && $request->input('sync_send_time') == 'true') {
 
@@ -480,8 +485,6 @@ class CompanyController extends BaseController
                                 $recurring_invoice->save();
 
                             });
-
-
 
         }
 
@@ -776,13 +779,24 @@ class CompanyController extends BaseController
         $headers = ['Content-Disposition' => 'inline'];
 
         try {
-            // Validate URL scheme is https only. Resolve DNS and block private/reserved IP ranges before connecting.
-            if (Ninja::isHosted() && ! $this->isLogoUrlAllowed($logo)) {
+            // SafeExternalUrl short-circuits on self-hosted; on hosted it
+            // enforces https, no userinfo, and non-IP-literal host. Paired
+            // with allow_redirects=false below, this blocks the practical
+            // SSRF surface on hosted.
+            if (! \App\Rules\SafeExternalUrl::check($logo)['ok']) {
                 $logo = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=');
             } else {
-                $response = \Illuminate\Support\Facades\Http::get($logo);
 
-                if ($response->successful()) {
+                $response = \Illuminate\Support\Facades\Http::connectTimeout(3)
+                    ->timeout(10)
+                    ->withOptions([
+                        'allow_redirects' => false,
+                        'curl' => [
+                            CURLOPT_MAXFILESIZE => 2 * 1024 * 1024,
+                        ],
+                    ])->get($logo);
+
+                if ($response->successful() && strlen($response->body()) <= 2 * 1024 * 1024) {
                     $logo = $response->body();
                 } else {
                     $logo = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=');
@@ -800,45 +814,4 @@ class CompanyController extends BaseController
 
     }
 
-    /**
-     * Validate logo URL: https only, and resolve DNS to block private/reserved IP ranges (SSRF protection).
-     */
-    private function isLogoUrlAllowed(string $url): bool
-    {
-        $parsed = parse_url($url);
-        if ($parsed === false || ! isset($parsed['scheme'], $parsed['host']) || strtolower($parsed['scheme']) !== 'https') {
-            return false;
-        }
-
-        $host = $parsed['host'];
-        $ips = [];
-
-        if (filter_var($host, FILTER_VALIDATE_IP)) {
-            $ips = [$host];
-        } else {
-            $ipv4 = gethostbynamel($host);
-            if ($ipv4 !== false && $ipv4 !== []) {
-                $ips = array_merge($ips, $ipv4);
-            }
-            $aaaa = @dns_get_record($host, DNS_AAAA);
-            if (is_array($aaaa)) {
-                foreach ($aaaa as $record) {
-                    if (isset($record['ipv6'])) {
-                        $ips[] = $record['ipv6'];
-                    }
-                }
-            }
-            if ($ips === []) {
-                return false;
-            }
-        }
-
-        foreach ($ips as $ip) {
-            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
-                return false;
-            }
-        }
-
-        return true;
-    }
 }

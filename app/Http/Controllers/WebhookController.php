@@ -485,7 +485,7 @@ class WebhookController extends BaseController
 
         $ids = request()->input('ids');
 
-        $webhooks = Webhook::withTrashed()->find($this->transformKeys($ids));
+        $webhooks = Webhook::withTrashed()->company()->find($this->transformKeys($ids));
 
         $webhooks->each(function ($webhook, $key) use ($action) {
             /** @var \App\Models\User $user */
@@ -496,7 +496,7 @@ class WebhookController extends BaseController
             }
         });
 
-        return $this->listResponse(Webhook::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(Webhook::withTrashed()->company()->whereIn('id', $this->transformKeys($ids)));
     }
 
     public function retry(RetryWebhookRequest $request, Webhook $webhook)

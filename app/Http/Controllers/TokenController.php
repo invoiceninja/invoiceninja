@@ -491,7 +491,7 @@ class TokenController extends BaseController
         $action = request()->input('action');
 
         $ids = request()->input('ids');
-        $tokens = CompanyToken::withTrashed()->find($this->transformKeys($ids));
+        $tokens = CompanyToken::withTrashed()->company()->find($this->transformKeys($ids));
 
         $tokens->each(function ($token, $key) use ($action, $user) {
             if ($user->can('edit', $token)) {
@@ -499,6 +499,6 @@ class TokenController extends BaseController
             }
         });
 
-        return $this->listResponse(CompanyToken::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(CompanyToken::withTrashed()->company()->whereIn('id', $this->transformKeys($ids)));
     }
 }

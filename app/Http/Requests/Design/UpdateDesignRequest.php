@@ -42,7 +42,7 @@ class UpdateDesignRequest extends Request
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        return $user->isAdmin() && $user->account->hasFeature(Account::FEATURE_API);
+        return $user->can('edit', $this->route('design')) && $user->account->hasFeature(Account::FEATURE_API);
     }
 
     public function rules()

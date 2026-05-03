@@ -218,8 +218,8 @@ class Encode
         // 2. Must NOT contain replacement characters (indicating corruption)
         // 3. Additional check for double-encoded replacement
         return mb_check_encoding($data, 'UTF-8')
-               && !str_contains($data, "\xEF\xBF\xBD")  // UTF-8 replacement character bytes
-               && !str_contains($data, 'ï¿½'); // Double-encoded replacement character
+              && !str_contains($data, "\xEF\xBF\xBD")  // UTF-8 replacement character bytes
+              && !str_contains($data, 'ï¿½'); // Double-encoded replacement character
     }
 
 }

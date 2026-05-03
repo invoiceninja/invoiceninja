@@ -97,7 +97,7 @@ class TaskSchedulerController extends BaseController
 
         $ids = request()->input('ids');
 
-        $task_schedulers = Scheduler::withTrashed()->find($this->transformKeys($ids));
+        $task_schedulers = Scheduler::withTrashed()->company()->find($this->transformKeys($ids));
 
         $task_schedulers->each(function ($task_scheduler, $key) use ($action, $user) {
             if ($user->can('edit', $task_scheduler)) {
@@ -105,6 +105,6 @@ class TaskSchedulerController extends BaseController
             }
         });
 
-        return $this->listResponse(Scheduler::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(Scheduler::withTrashed()->company()->whereIn('id', $this->transformKeys($ids)));
     }
 }

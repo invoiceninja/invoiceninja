@@ -32,7 +32,7 @@ class CheckACHStatus implements ShouldQueue
         'settledSuccessfully',
         'refundSettledSuccessfully',
     ];
-    
+
     private array $authnet_failure_statuses = [
         'declined',
         'voided',
@@ -195,40 +195,39 @@ class CheckACHStatus implements ShouldQueue
             /**
              * Authorize ACH Payments that are pending for over 2 days
              */
-             Payment::with('client','company_gateway')
-                ->where('status_id', 1)
-                ->where('is_deleted', false)
-                ->where('created_at', '<', now()->startOfDay()->subDays(3))
-                ->where('gateway_type_id', 2)
-                    ->whereHas('company_gateway', function ($q) {
-                        $q->where('gateway_key', '3b6621f970ab18887c4f6dca78d3f8bb');
-                    })
-                    ->cursor()
-                    ->each(function ($p) {
-                                    
-                        try{
-                            $driver = $p->company_gateway->driver($p->client)->init();
-                            $authorize_transaction = new \App\PaymentDrivers\Authorize\AuthorizeTransactions($driver);
-                            $transaction_details = $authorize_transaction->getTransactionDetails($p->transaction_reference);
+            Payment::with('client', 'company_gateway')
+               ->where('status_id', 1)
+               ->where('is_deleted', false)
+               ->where('created_at', '<', now()->startOfDay()->subDays(3))
+               ->where('gateway_type_id', 2)
+                   ->whereHas('company_gateway', function ($q) {
+                       $q->where('gateway_key', '3b6621f970ab18887c4f6dca78d3f8bb');
+                   })
+                   ->cursor()
+                   ->each(function ($p) {
 
-                            $transaction = $transaction_details->getTransaction();
-                            $transaction_status = $transaction->getTransactionStatus();
+                       try {
+                           $driver = $p->company_gateway->driver($p->client)->init();
+                           $authorize_transaction = new \App\PaymentDrivers\Authorize\AuthorizeTransactions($driver);
+                           $transaction_details = $authorize_transaction->getTransactionDetails($p->transaction_reference);
 
-                            if(in_array($transaction_status, $this->authnet_success_statuses)) {
-                                $p->status_id = \App\Models\Payment::STATUS_COMPLETED;
-                                $p->saveQuietly();
-                                return;
-                            } elseif(in_array($transaction_status, $this->authnet_failure_statuses)) {
-                                $p->service()->deletePayment();
-                                $p->status_id = \App\Models\Payment::STATUS_FAILED;
-                                $p->save();
-                            }
-                        }
-                        catch(\Throwable $e){
-                            nlog("Error checking ACH status for payment {$p->id}: {$e->getMessage()}");
-                        }
+                           $transaction = $transaction_details->getTransaction();
+                           $transaction_status = $transaction->getTransactionStatus();
 
-                    });
+                           if (in_array($transaction_status, $this->authnet_success_statuses)) {
+                               $p->status_id = \App\Models\Payment::STATUS_COMPLETED;
+                               $p->saveQuietly();
+                               return;
+                           } elseif (in_array($transaction_status, $this->authnet_failure_statuses)) {
+                               $p->service()->deletePayment();
+                               $p->status_id = \App\Models\Payment::STATUS_FAILED;
+                               $p->save();
+                           }
+                       } catch (\Throwable $e) {
+                           nlog("Error checking ACH status for payment {$p->id}: {$e->getMessage()}");
+                       }
+
+                   });
         }
     }
 }

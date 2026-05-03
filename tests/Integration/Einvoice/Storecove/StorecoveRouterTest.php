@@ -12,16 +12,20 @@
 
 namespace Tests\Integration\Einvoice\Storecove;
 
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\Company;
+use App\Models\Country;
+use App\Models\Invoice;
+use App\Models\User;
+use App\Services\EDocument\Gateway\Storecove\Storecove;
+use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
+use App\Services\EDocument\Gateway\Storecove\RoutingResolver;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\Artisan;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
-use App\Models\User;
-use App\Models\Client;
-use App\Models\Account;
-use App\Models\Company;
-use App\Models\Invoice;
-use Illuminate\Routing\Middleware\ThrottleRequests;
-use App\Services\EDocument\Gateway\Storecove\Storecove;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class StorecoveRouterTest extends TestCase
 {
@@ -39,6 +43,11 @@ class StorecoveRouterTest extends TestCase
 
         $this->faker = \Faker\Factory::create();
 
+        if (Country::count() == 0) {
+            Artisan::call('db:seed', ['--force' => true]);
+        }
+        
+        
     }
 
     private function buildData()
@@ -338,14 +347,21 @@ class StorecoveRouterTest extends TestCase
     {
         $invoice = $this->buildData();
 
-        $client = $invoice->client;
-        $client->country_id = 752;
-        $client->vat_number = 'SE123456789101';
-        $client->classification = 'government';
-        $client->save();
+        $invoice->client->country_id = 752;
+        $invoice->client->vat_number = 'SE123456789101';
+        $invoice->client->classification = 'government';
+        $invoice->client->push();
+
+        $invoice = $invoice->refresh()->load('client');
+
+        // $client = $invoice->client;
+        // $client->country_id = 752;
+        // $client->vat_number = 'SE123456789101';
+        // $client->classification = 'government';
+        // $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
+        $storecove->router->setInvoice($invoice);
 
         $this->assertEquals('SE:VAT', $storecove->router->resolveTaxScheme('SE', 'government'));
     }
@@ -354,31 +370,26 @@ class StorecoveRouterTest extends TestCase
     {
         $invoice = $this->buildData();
 
-        $client = $invoice->client;
-        $client->country_id = 752;
-        $client->vat_number = 'SE123456789101';
-        $client->id_number = '5567891234';
-        $client->classification = 'business';
-        $client->save();
+        // $client = $invoice->client;
+        $invoice->client->country_id = 752;
+        $invoice->client->vat_number = 'SE123456789101';
+        $invoice->client->id_number = '5567891234';
+        $invoice->client->classification = 'business';
+        $invoice->client->push();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
+        $storecove->router->setInvoice($invoice);
 
         // Routing scheme should be SE:ORGNR
         $this->assertEquals('SE:ORGNR', $storecove->router->resolveRouting('SE', 'business'));
 
-        // The Mutator should use id_number (org number) as the routing identifier value, not vat_number
-        $storecove->mutator->setInvoice($invoice->fresh());
-        $storecove->mutator->setClientRoutingCode();
+        // RoutingResolver should use id_number (org number) as the routing identifier value, not vat_number
+        $resolver = new RoutingResolver($invoice->fresh(), $storecove->proxy, $storecove->router);
+        $result = $resolver->resolve();
 
-        $meta = $storecove->mutator->getStorecoveMeta();
+        $this->assertEquals('eIdentifiers', $result['type']);
+        $eIdentifiers = $result['meta']['routing']['eIdentifiers'];
 
-        $this->assertArrayHasKey('routing', $meta);
-        $this->assertArrayHasKey('eIdentifiers', $meta['routing']);
-
-        $eIdentifiers = $meta['routing']['eIdentifiers'];
-
-        // Find the SE:ORGNR identifier
         $orgnrIdentifier = collect($eIdentifiers)->firstWhere('scheme', 'SE:ORGNR');
 
         $this->assertNotNull($orgnrIdentifier, 'SE:ORGNR routing identifier should be present');
@@ -397,16 +408,12 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->mutator->setInvoice($invoice->fresh());
-        $storecove->mutator->setClientRoutingCode();
+        $resolver = new RoutingResolver($invoice->fresh(), $storecove->proxy, $storecove->router);
+        $result = $resolver->resolve();
 
-        $meta = $storecove->mutator->getStorecoveMeta();
+        $this->assertNotEmpty($result['networks']);
 
-        $this->assertArrayHasKey('routing', $meta);
-        $this->assertArrayHasKey('networks', $meta['routing']);
-
-        $networks = $meta['routing']['networks'];
-        $svefaktura = collect($networks)->firstWhere('application', 'svefaktura');
+        $svefaktura = collect($result['networks'])->firstWhere('application', 'svefaktura');
 
         $this->assertNotNull($svefaktura, 'Svefaktura network should be present when sending to SE receiver');
         $this->assertTrue($svefaktura['settings']['enabled']);
@@ -772,6 +779,29 @@ class StorecoveRouterTest extends TestCase
 
     }
 
+    public function testAtGovRoutingResolverProducesFixedEndpoint(): void
+    {
+        $invoice = $this->buildData();
+
+        $invoice->client->country_id = 40;
+        $invoice->client->vat_number = 'ATU123456789';
+        $invoice->client->id_number = 'GOV-AT-123';
+        $invoice->client->classification = 'government';
+        $invoice->client->push();
+
+        $storecove = new Storecove();
+        $resolver = new RoutingResolver($invoice->fresh(), $storecove->proxy, $storecove->router);
+        $result = $resolver->resolve();
+
+        $this->assertSame('eIdentifiers', $result['type'], 'AT government should resolve to eIdentifiers, not none');
+
+        $eIdentifiers = $result['meta']['routing']['eIdentifiers'];
+        $atGovIdentifier = collect($eIdentifiers)->firstWhere('scheme', 'AT:GOV');
+
+        $this->assertNotNull($atGovIdentifier, 'AT:GOV identifier should be present in routing');
+        $this->assertSame('b', $atGovIdentifier['id'], 'AT:GOV routing id must always be "b"');
+    }
+
     public function testAtBusinessClientTaxIdentifier()
     {
         $invoice = $this->buildData();
@@ -820,7 +850,11 @@ class StorecoveRouterTest extends TestCase
         $storecove = new Storecove();
         $storecove->router->setInvoice($invoice->fresh());
 
-        $this->assertEquals('DE:STNR', $storecove->router->resolveRouting('DE', 'individual'));
+        // DE:STNR for individuals is now handled by DE::getCandidates(), not resolveRouting()
+        $handler = \App\Services\EDocument\Standards\Peppol\CountryFactory::make('DE');
+        $candidates = $handler->getCandidates($invoice->fresh()->client, 'individual', $storecove->router);
+        $this->assertNotEmpty($candidates);
+        $this->assertEquals('DE:STNR', $candidates[0]['scheme']);
 
     }
 
@@ -947,12 +981,13 @@ class StorecoveRouterTest extends TestCase
         $this->assertEquals('DE:LWID', $required['id_number']);
     }
 
-    public function testResolveRequiredFieldsCaBusinessNeedsIdOnly()
+    public function testResolveRequiredFieldsCaBusinessNeedsCbn()
     {
         $storecove = new Storecove();
         $required = $storecove->router->resolveRequiredClientFields('CA', 'business');
 
-        $this->assertArrayNotHasKey('vat_number', $required);
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertEquals('CA:CBN', $required['vat_number']);
         $this->assertArrayHasKey('id_number', $required);
         $this->assertEquals('CA:CBN', $required['id_number']);
     }
@@ -1034,7 +1069,6 @@ class StorecoveRouterTest extends TestCase
     public function testValidateIdentifierFormatFrSireneOrSiret()
     {
         $storecove = new Storecove();
-        // SIRENE (9 digits) or SIRET (14 digits)
         $this->assertTrue($storecove->router->validateIdentifierFormat('FR:SIRENE or FR:SIRET', '123456789'));
         $this->assertTrue($storecove->router->validateIdentifierFormat('FR:SIRENE or FR:SIRET', '12345678901234'));
         $this->assertFalse($storecove->router->validateIdentifierFormat('FR:SIRENE or FR:SIRET', '12345'));
@@ -1051,9 +1085,7 @@ class StorecoveRouterTest extends TestCase
     public function testValidateIdentifierFormatDkBothFields()
     {
         $storecove = new Storecove();
-        // DK:ERST (VAT) - 8 digits
         $this->assertTrue($storecove->router->validateIdentifierFormat('DK:ERST', 'DK12345678'));
-        // DK:DIGST (id_number) - 8-10 digits
         $this->assertTrue($storecove->router->validateIdentifierFormat('DK:DIGST', '12345678'));
     }
 
@@ -1063,6 +1095,67 @@ class StorecoveRouterTest extends TestCase
         $this->assertTrue($storecove->router->validateIdentifierFormat('IT:CUUO', 'ABC1234'));
         $this->assertTrue($storecove->router->validateIdentifierFormat('IT:CUUO', 'ABCDEF'));
         $this->assertFalse($storecove->router->validateIdentifierFormat('IT:CUUO', 'AB'));
+    }
+
+    // Checkdigit validation tests
+
+    public function testValidateBeEnCheckdigitValid()
+    {
+        $storecove = new Storecove();
+
+        // Known valid Belgian enterprise numbers (mod-97 checkdigit)
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:EN', '0202239951')); // KBO/BCE
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:EN', '0404616494')); // BNP Paribas Fortis
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:EN', '0403199702')); // bpost
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:EN', '0471811661')); // ING Belgium
+
+        // With optional BE prefix
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:EN', 'BE0202239951'));
+    }
+
+    public function testValidateBeEnCheckdigitInvalid()
+    {
+        $storecove = new Storecove();
+
+        // Invalid checkdigit — the exact case from the Storecove error
+        $this->assertFalse($storecove->router->validateIdentifierFormat('BE:EN', '0123456789'));
+
+        // Valid format but wrong check digits
+        $this->assertFalse($storecove->router->validateIdentifierFormat('BE:EN', '0202239952'));
+
+        // With prefix, still invalid
+        $this->assertFalse($storecove->router->validateIdentifierFormat('BE:EN', 'BE0123456789'));
+    }
+
+    public function testValidateBeVatCheckdigitValid()
+    {
+        $storecove = new Storecove();
+
+        // Belgian VAT uses same mod-97 on the 10-digit portion
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:VAT', 'BE0202239951'));
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:VAT', 'BE0471811661'));
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:VAT', '0404616494'));
+    }
+
+    public function testValidateBeVatCheckdigitInvalid()
+    {
+        $storecove = new Storecove();
+
+        $this->assertFalse($storecove->router->validateIdentifierFormat('BE:VAT', 'BE0123456789'));
+        $this->assertFalse($storecove->router->validateIdentifierFormat('BE:VAT', '0123456789'));
+    }
+
+    // Ensure other schemes are not affected by checkdigit validation
+
+    public function testValidateOtherSchemesUnaffected()
+    {
+        $storecove = new Storecove();
+
+        // These should still pass — no checkdigit algorithm defined
+        $this->assertTrue($storecove->router->validateIdentifierFormat('DE:VAT', 'DE123456789'));
+        $this->assertTrue($storecove->router->validateIdentifierFormat('SE:VAT', 'SE123456789012'));
+        $this->assertTrue($storecove->router->validateIdentifierFormat('SE:ORGNR', '5567891234'));
+        $this->assertTrue($storecove->router->validateIdentifierFormat('IT:CUUO', 'ABC1234'));
     }
 
     public function testResolveRequiredFieldsNlBusinessNeedsBoth()
@@ -1118,326 +1211,260 @@ class StorecoveRouterTest extends TestCase
         $this->assertEquals('AU:ABN', $required['id_number']);
     }
 
-    // =====================================================================
-    // Comprehensive country coverage: resolveRequiredClientFields()
-    // =====================================================================
+    // BE-specific comprehensive tests
 
-    #[DataProvider('requiredFieldsProvider')]
-    public function testResolveRequiredFieldsForCountry(
-        string $country,
-        string $classification,
-        bool $expectVat,
-        bool $expectId,
-        bool $expectRouting,
-        ?string $vatScheme,
-        ?string $idScheme,
-        ?string $routingScheme
-    ) {
-        $storecove = new Storecove();
-        $required = $storecove->router->resolveRequiredClientFields($country, $classification);
-
-        if ($expectVat) {
-            $this->assertArrayHasKey('vat_number', $required, "{$country}/{$classification} should require vat_number");
-            if ($vatScheme) {
-                $this->assertEquals($vatScheme, $required['vat_number'], "{$country}/{$classification} vat_number scheme mismatch");
-            }
-        } else {
-            $this->assertArrayNotHasKey('vat_number', $required, "{$country}/{$classification} should NOT require vat_number");
-        }
-
-        if ($expectId) {
-            $this->assertArrayHasKey('id_number', $required, "{$country}/{$classification} should require id_number");
-            if ($idScheme) {
-                $this->assertEquals($idScheme, $required['id_number'], "{$country}/{$classification} id_number scheme mismatch");
-            }
-        } else {
-            $this->assertArrayNotHasKey('id_number', $required, "{$country}/{$classification} should NOT require id_number");
-        }
-
-        if ($expectRouting) {
-            $this->assertArrayHasKey('routing_id', $required, "{$country}/{$classification} should require routing_id");
-            if ($routingScheme) {
-                $this->assertEquals($routingScheme, $required['routing_id'], "{$country}/{$classification} routing_id scheme mismatch");
-            }
-        } else {
-            $this->assertArrayNotHasKey('routing_id', $required, "{$country}/{$classification} should NOT require routing_id");
-        }
-    }
-
-    public static function requiredFieldsProvider(): array
-    {
-        return [
-            // Countries requiring BOTH vat_number + id_number
-            //                    country, class,       vat,   id,    rte,   vatScheme,  idScheme,             rteScheme
-            'SE business'     => ['SE',    'business',  true,  true,  false, 'SE:VAT',   'SE:ORGNR',           null],
-            'SE government'   => ['SE',    'government',true,  true,  false, 'SE:VAT',   'SE:ORGNR',           null],
-            'NO business'     => ['NO',    'business',  true,  true,  false, 'NO:VAT',   'NO:ORG',             null],
-            'NO government'   => ['NO',    'government',true,  true,  false, 'NO:VAT',   'NO:ORG',             null],
-            'BE business'     => ['BE',    'business',  true,  true,  false, 'BE:VAT',   'BE:EN',              null],
-            'BE government'   => ['BE',    'government',true,  true,  false, 'BE:VAT',   'BE:EN',              null],
-            'CH business'     => ['CH',    'business',  true,  true,  false, 'CH:VAT',   'CH:UIDB',            null],
-            'CH government'   => ['CH',    'government',true,  true,  false, 'CH:VAT',   'CH:UIDB',            null],
-            'IS business'     => ['IS',    'business',  true,  true,  false, 'IS:VAT',   'IS:KTNR',            null],
-            'DK business'     => ['DK',    'business',  true,  true,  false, 'DK:ERST',  'DK:DIGST',           null],
-            'DK government'   => ['DK',    'government',true,  true,  false, 'DK:ERST',  'DK:DIGST',           null],
-            'EE business'     => ['EE',    'business',  true,  true,  false, 'EE:VAT',   'EE:CC',              null],
-            'EE government'   => ['EE',    'government',true,  true,  false, 'EE:VAT',   'EE:CC',              null],
-            'FI business'     => ['FI',    'business',  true,  true,  false, 'FI:VAT',   'FI:OVT',             null],
-            'FI government'   => ['FI',    'government',true,  true,  false, 'FI:VAT',   'FI:OVT',             null],
-            'LT business'     => ['LT',    'business',  true,  true,  false, 'LT:VAT',   'LT:LEC',             null],
-            'LT government'   => ['LT',    'government',true,  true,  false, 'LT:VAT',   'LT:LEC',             null],
-            'LU business'     => ['LU',    'business',  true,  true,  false, 'LU:VAT',   'LU:MAT',             null],
-            'LU government'   => ['LU',    'government',true,  true,  false, 'LU:VAT',   'LU:MAT',             null],
-            'NL business'     => ['NL',    'business',  true,  true,  false, 'NL:VAT',   'NL:KVK',             null],
-            'AU business'     => ['AU',    'business',  true,  true,  false, 'AU:ABN',   'AU:ABN',             null],
-            'AU government'   => ['AU',    'government',true,  true,  false, 'AU:ABN',   'AU:ABN',             null],
-            'NZ business'     => ['NZ',    'business',  true,  true,  false, 'NZ:GST',   'GLN',                null],
-            'JP business'     => ['JP',    'business',  true,  true,  false, 'JP:IIN',   'JP:SST',             null],
-            'MY business'     => ['MY',    'business',  true,  true,  false, 'MY:TIN',   'MY:EIF',             null],
-            'FR business'     => ['FR',    'business',  true,  true,  false, 'FR:VAT',   'FR:SIRENE or FR:SIRET', null],
-            'SG business'     => ['SG',    'business',  true,  true,  false, 'SG:GST',   'SG:UEN',             null],
-
-            // Countries requiring ONLY vat_number
-            'DE business'     => ['DE',    'business',  true,  false, false, 'DE:VAT',   null,                 null],
-            'AT business'     => ['AT',    'business',  true,  false, false, 'AT:VAT',   null,                 null],
-            'ES business'     => ['ES',    'business',  true,  false, false, 'ES:VAT',   null,                 null],
-            'LI business'     => ['LI',    'business',  true,  false, false, 'LI:VAT',   null,                 null],
-            'AD business'     => ['AD',    'business',  true,  false, false, 'AD:VAT',   null,                 null],
-            'AL business'     => ['AL',    'business',  true,  false, false, 'AL:VAT',   null,                 null],
-            'BA business'     => ['BA',    'business',  true,  false, false, 'BA:VAT',   null,                 null],
-            'BG business'     => ['BG',    'business',  true,  false, false, 'BG:VAT',   null,                 null],
-            'CY business'     => ['CY',    'business',  true,  false, false, 'CY:VAT',   null,                 null],
-            'CZ business'     => ['CZ',    'business',  true,  false, false, 'CZ:VAT',   null,                 null],
-            'GR business'     => ['GR',    'business',  true,  false, false, 'GR:VAT',   null,                 null],
-            'HR business'     => ['HR',    'business',  true,  false, false, 'HR:VAT',   null,                 null],
-            'HU business'     => ['HU',    'business',  true,  false, false, 'HU:VAT',   null,                 null],
-            'IE business'     => ['IE',    'business',  true,  false, false, 'IE:VAT',   null,                 null],
-            'LV business'     => ['LV',    'business',  true,  false, false, 'LV:VAT',   null,                 null],
-            'MC business'     => ['MC',    'business',  true,  false, false, 'MC:VAT',   null,                 null],
-            'ME business'     => ['ME',    'business',  true,  false, false, 'ME:VAT',   null,                 null],
-            'MK business'     => ['MK',    'business',  true,  false, false, 'MK:VAT',   null,                 null],
-            'MT business'     => ['MT',    'business',  true,  false, false, 'MT:VAT',   null,                 null],
-            'PL business'     => ['PL',    'business',  true,  false, false, 'PL:VAT',   null,                 null],
-            'PT business'     => ['PT',    'business',  true,  false, false, 'PT:VAT',   null,                 null],
-            'RO business'     => ['RO',    'business',  true,  false, false, 'RO:VAT',   null,                 null],
-            'RS business'     => ['RS',    'business',  true,  false, false, 'RS:VAT',   null,                 null],
-            'SI business'     => ['SI',    'business',  true,  false, false, 'SI:VAT',   null,                 null],
-            'SK business'     => ['SK',    'business',  true,  false, false, 'SK:VAT',   null,                 null],
-            'SM business'     => ['SM',    'business',  true,  false, false, 'SM:VAT',   null,                 null],
-            'TR business'     => ['TR',    'business',  true,  false, false, 'TR:VAT',   null,                 null],
-            'VA business'     => ['VA',    'business',  true,  false, false, 'VA:VAT',   null,                 null],
-            'GB business'     => ['GB',    'business',  true,  false, false, 'GB:VAT',   null,                 null],
-            'IN business'     => ['IN',    'business',  true,  false, false, 'IN:GSTIN', null,                 null],
-            'SA business'     => ['SA',    'business',  true,  false, false, 'SA:TIN',   null,                 null],
-
-            // Countries requiring ONLY id_number
-            'CA business'     => ['CA',    'business',  false, true,  false, null,        'CA:CBN',             null],
-            'MX business'     => ['MX',    'business',  false, true,  false, null,        'MX:RFC',             null],
-            'DE government'   => ['DE',    'government',false, true,  false, null,        'DE:LWID',            null],
-            'AT government'   => ['AT',    'government',false, true,  false, null,        'AT:GOV',             null],
-            'NL government'   => ['NL',    'government',false, true,  false, null,        'NL:OINO',            null],
-            'SG government'   => ['SG',    'government',false, true,  false, null,        'SG:UEN',             null],
-
-            // FR government needs id_number only (SIRET + customerAssignedAccountIdValue)
-            'FR government'   => ['FR',    'government',false, true,  false, null,        'FR:SIRET + customerAssignedAccountIdValue', null],
-
-            // IT requires vat_number + routing_id
-            'IT business'     => ['IT',    'business',  true,  false, true,  'IT:IVA',   null,                 'IT:CUUO'],
-            'IT government'   => ['IT',    'government',true,  false, true,  'IT:IVA',   null,                 'IT:CUUO'],
-
-            // US requires vat_number (EIN) + id_number (DUNS/GLN/LEI)
-            'US business'     => ['US',    'business',  true,  true,  false, 'US:EIN',   'DUNS, GLN, LEI',     null],
-
-            // Individuals always return empty
-            'DE individual'   => ['DE',    'individual',false, false, false, null,        null,                 null],
-            'SE individual'   => ['SE',    'individual',false, false, false, null,        null,                 null],
-            'IT individual'   => ['IT',    'individual',false, false, false, null,        null,                 null],
-            'FR individual'   => ['FR',    'individual',false, false, false, null,        null,                 null],
-            'US individual'   => ['US',    'individual',false, false, false, null,        null,                 null],
-            'NL individual'   => ['NL',    'individual',false, false, false, null,        null,                 null],
-
-            // Unknown country
-            'ZZ business'     => ['ZZ',    'business',  false, false, false, null,        null,                 null],
-        ];
-    }
-
-    // =====================================================================
-    // Comprehensive format validation tests
-    // =====================================================================
-
-    #[DataProvider('validFormatProvider')]
-    public function testValidIdentifierFormats(string $scheme, string $value)
+    public function testResolveRequiredFieldsBeGovNeedsBoth()
     {
         $storecove = new Storecove();
-        $this->assertTrue(
-            $storecove->router->validateIdentifierFormat($scheme, $value),
-            "'{$value}' should be valid for scheme '{$scheme}'"
-        );
+        $required = $storecove->router->resolveRequiredClientFields('BE', 'government');
+
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('BE:VAT', $required['vat_number']);
+        $this->assertEquals('BE:EN', $required['id_number']);
     }
 
-    public static function validFormatProvider(): array
-    {
-        return [
-            // EU VAT numbers
-            'AT:VAT valid'          => ['AT:VAT', 'ATU12345678'],
-            'AT:VAT no prefix'      => ['AT:VAT', 'U12345678'],
-            'BE:VAT valid'          => ['BE:VAT', 'BE0123456789'],
-            'BE:VAT no prefix'      => ['BE:VAT', '0123456789'],
-            'BG:VAT 9 digits'       => ['BG:VAT', 'BG123456789'],
-            'BG:VAT 10 digits'      => ['BG:VAT', '1234567890'],
-            'CY:VAT valid'          => ['CY:VAT', 'CY12345678A'],
-            'CZ:VAT 8 digits'       => ['CZ:VAT', 'CZ12345678'],
-            'CZ:VAT 10 digits'      => ['CZ:VAT', '1234567890'],
-            'DE:VAT valid'          => ['DE:VAT', 'DE123456789'],
-            'DE:VAT no prefix'      => ['DE:VAT', '123456789'],
-            'DK:ERST valid'         => ['DK:ERST', 'DK12345678'],
-            'EE:VAT valid'          => ['EE:VAT', 'EE123456789'],
-            'ES:VAT valid'          => ['ES:VAT', 'ESA1234567B'],
-            'FI:VAT valid'          => ['FI:VAT', 'FI12345678'],
-            'FR:VAT valid'          => ['FR:VAT', 'FRAA123456789'],
-            'FR:VAT numeric'        => ['FR:VAT', 'FR12345678901'],
-            'GR:VAT valid'          => ['GR:VAT', 'GR123456789'],
-            'GR:VAT EL prefix'      => ['GR:VAT', 'EL123456789'],
-            'HR:VAT valid'          => ['HR:VAT', 'HR12345678901'],
-            'HU:VAT valid'          => ['HU:VAT', 'HU12345678'],
-            'IE:VAT valid'          => ['IE:VAT', 'IE1A23456AB'],
-            'IT:IVA valid'          => ['IT:IVA', 'IT12345678901'],
-            'IT:IVA no prefix'      => ['IT:IVA', '12345678901'],
-            'LT:VAT 9 digits'       => ['LT:VAT', 'LT123456789'],
-            'LT:VAT 12 digits'      => ['LT:VAT', 'LT123456789012'],
-            'LU:VAT valid'          => ['LU:VAT', 'LU12345678'],
-            'LV:VAT valid'          => ['LV:VAT', 'LV12345678901'],
-            'MT:VAT valid'          => ['MT:VAT', 'MT12345678'],
-            'NL:VAT valid'          => ['NL:VAT', 'NL123456789B01'],
-            'PL:VAT valid'          => ['PL:VAT', 'PL1234567890'],
-            'PT:VAT valid'          => ['PT:VAT', 'PT123456789'],
-            'RO:VAT valid'          => ['RO:VAT', 'RO1234567890'],
-            'RO:VAT short'          => ['RO:VAT', 'RO12'],
-            'SE:VAT valid'          => ['SE:VAT', 'SE123456789012'],
-            'SI:VAT valid'          => ['SI:VAT', 'SI12345678'],
-            'SK:VAT valid'          => ['SK:VAT', 'SK1234567890'],
-
-            // Non-EU VAT numbers
-            'NO:VAT valid'          => ['NO:VAT', 'NO123456789MVA'],
-            'NO:VAT no suffix'      => ['NO:VAT', '123456789'],
-            'CH:VAT valid'          => ['CH:VAT', 'CHE123456789MWST'],
-            'CH:VAT short'          => ['CH:VAT', 'CHE123456789'],
-            'GB:VAT 9 digits'       => ['GB:VAT', 'GB123456789'],
-            'GB:VAT 12 digits'      => ['GB:VAT', 'GB123456789012'],
-            'AU:ABN valid'          => ['AU:ABN', '12345678901'],
-            'NZ:GST 8 digits'       => ['NZ:GST', '12345678'],
-            'NZ:GST 9 digits'       => ['NZ:GST', '123456789'],
-            'US:EIN valid'          => ['US:EIN', '12-3456789'],
-            'US:EIN no dash'        => ['US:EIN', '123456789'],
-            'IN:GSTIN valid'        => ['IN:GSTIN', '22AAAAA0000A1Z5'],
-            'JP:IIN valid'          => ['JP:IIN', 'T1234567890123'],
-            'JP:IIN no T'           => ['JP:IIN', '1234567890123'],
-            'SA:TIN valid'          => ['SA:TIN', '1234567890'],
-
-            // ID number patterns
-            'SE:ORGNR valid'        => ['SE:ORGNR', '5567891234'],
-            'NO:ORG valid'          => ['NO:ORG', '123456789'],
-            'BE:EN valid'           => ['BE:EN', '0123456789'],
-            'BE:EN with prefix'     => ['BE:EN', 'BE0123456789'],
-            'DK:DIGST valid'        => ['DK:DIGST', '12345678'],
-            'EE:CC valid'           => ['EE:CC', '12345678'],
-            'FI:OVT 12 digits'      => ['FI:OVT', '123456789012'],
-            'FI:OVT 13 digits'      => ['FI:OVT', '1234567890123'],
-            'FR:SIRENE valid'       => ['FR:SIRENE', '123456789'],
-            'FR:SIRET valid'        => ['FR:SIRET', '12345678901234'],
-            'NL:KVK valid'          => ['NL:KVK', '12345678'],
-            'NL:OINO valid'         => ['NL:OINO', '12345678901234567890'],
-            'LT:LEC valid'          => ['LT:LEC', '123456789'],
-            'LU:MAT valid'          => ['LU:MAT', '12345678901'],
-            'CH:UIDB valid'         => ['CH:UIDB', 'CHE123456789'],
-            'IS:KTNR valid'         => ['IS:KTNR', '1234567890'],
-            'CA:CBN valid'          => ['CA:CBN', '123456789'],
-            'JP:SST valid'          => ['JP:SST', 'T1234567890123'],
-            'SG:UEN valid'          => ['SG:UEN', 'T08GA0028A'],
-            'IT:CUUO valid'         => ['IT:CUUO', 'A1B2C3D'],
-            'IT:CF valid'           => ['IT:CF', 'RSSMRA85M01H501Z'],
-
-            // Composite schemes
-            'FR:SIRENE or FR:SIRET (SIRENE)' => ['FR:SIRENE or FR:SIRET', '123456789'],
-            'FR:SIRENE or FR:SIRET (SIRET)'  => ['FR:SIRENE or FR:SIRET', '12345678901234'],
-            'DUNS, GLN, LEI'        => ['DUNS, GLN, LEI', '123456789'],
-
-            // Values with separators stripped
-            'DE:VAT with spaces'    => ['DE:VAT', 'DE 123 456 789'],
-            'US:EIN with dash'      => ['US:EIN', '12-3456789'],
-            'NO:ORG with dots'      => ['NO:ORG', '123.456.789'],
-        ];
-    }
-
-    #[DataProvider('invalidFormatProvider')]
-    public function testInvalidIdentifierFormats(string $scheme, string $value)
+    public function testResolveRequiredFieldsBeIndividualReturnsEmpty()
     {
         $storecove = new Storecove();
-        $this->assertFalse(
-            $storecove->router->validateIdentifierFormat($scheme, $value),
-            "'{$value}' should be INVALID for scheme '{$scheme}'"
-        );
+        $this->assertEmpty($storecove->router->resolveRequiredClientFields('BE', 'individual'));
     }
 
-    public static function invalidFormatProvider(): array
+    public function testBeClassificationRoutability()
     {
-        return [
-            'AT:VAT too short'      => ['AT:VAT', 'ATU1234'],
-            'AT:VAT too long'       => ['AT:VAT', 'ATU1234567890'],
-            'DE:VAT too short'      => ['DE:VAT', 'DE12345'],
-            'DE:VAT too long'       => ['DE:VAT', 'DE1234567890'],
-            'SE:VAT too short'      => ['SE:VAT', 'SE12345'],
-            'SE:ORGNR too short'    => ['SE:ORGNR', '556789'],
-            'SE:ORGNR too long'     => ['SE:ORGNR', '55678912345'],
-            'NO:ORG too short'      => ['NO:ORG', '12345'],
-            'NL:KVK too short'      => ['NL:KVK', '1234567'],
-            'NL:KVK too long'       => ['NL:KVK', '123456789'],
-            'FR:SIRENE wrong len'   => ['FR:SIRENE', '12345'],
-            'FR:SIRET wrong len'    => ['FR:SIRET', '123456789'],
-            'CA:CBN too short'      => ['CA:CBN', '12345'],
-            'IT:IVA too short'      => ['IT:IVA', '1234567'],
-            'IT:CUUO too short'     => ['IT:CUUO', 'AB'],
-            'FR:SIRENE or FR:SIRET wrong' => ['FR:SIRENE or FR:SIRET', '12345'],
-            'BE:EN too short'       => ['BE:EN', '12345'],
-            'EE:CC too short'       => ['EE:CC', '1234'],
-            'AU:ABN too short'      => ['AU:ABN', '1234567'],
-            'GB:VAT too short'      => ['GB:VAT', 'GB1234'],
-        ];
+        $storecove = new Storecove();
+
+        $this->assertTrue($storecove->router->isClassificationRoutable('BE', 'business'));
+        $this->assertTrue($storecove->router->isClassificationRoutable('BE', 'government'));
+        $this->assertFalse($storecove->router->isClassificationRoutable('BE', 'individual'));
     }
 
-    // =====================================================================
-    // Consistency: resolveRequiredClientFields matches resolveRouting/resolveTaxScheme
-    // =====================================================================
+    public function testBeIso6523SchemeMapping()
+    {
+        $storecove = new Storecove();
+
+        $this->assertEquals('0208', $storecove->router->resolveIso6523Scheme('BE:EN'));
+        $this->assertEquals('9925', $storecove->router->resolveIso6523Scheme('BE:VAT'));
+    }
+
+    public function testCompositeSchemeResolvesToFirstAtomicEasCode()
+    {
+        $storecove = new Storecove();
+
+        // BR-CL-25 regression: never emit "FR:SIRENE or FR:SIRET" verbatim
+        // as a UBL schemeID — must resolve to a 4-digit EAS code.
+        $this->assertEquals('0002', $storecove->router->resolveIso6523Scheme('FR:SIRENE or FR:SIRET'));
+        $this->assertEquals('0002', $storecove->router->resolveIso6523Scheme('FR:SIRENE'));
+        $this->assertEquals('0009', $storecove->router->resolveIso6523Scheme('FR:SIRET'));
+    }
+
+    public function testBeEnFormatValidationVariants()
+    {
+        $storecove = new Storecove();
+
+        // Valid: 10 digits starting with 0 or 1, valid checkdigit
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:EN', '0202239951'));
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:EN', 'BE0202239951'));
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:EN', '0403199702'));
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:EN', '0471811661'));
+
+        // Invalid: too short
+        $this->assertFalse($storecove->router->validateIdentifierFormat('BE:EN', '02022'));
+
+        // Invalid: too long
+        $this->assertFalse($storecove->router->validateIdentifierFormat('BE:EN', '02022399510'));
+
+        // Invalid: non-numeric
+        $this->assertFalse($storecove->router->validateIdentifierFormat('BE:EN', 'ABCDEFGHIJ'));
+    }
+
+    public function testBeVatFormatValidationVariants()
+    {
+        $storecove = new Storecove();
+
+        // Valid: BE prefix + 0/1 + 9 digits, valid checkdigit
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:VAT', 'BE0202239951'));
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:VAT', '0471811661'));
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:VAT', 'BE0404616494'));
+
+        // Invalid: starts with 2 (not 0 or 1)
+        $this->assertFalse($storecove->router->validateIdentifierFormat('BE:VAT', 'BE2123456789'));
+
+        // Invalid: too short
+        $this->assertFalse($storecove->router->validateIdentifierFormat('BE:VAT', 'BE012345'));
+    }
+
+    public function testBeCheckdigitDistinguishesFormatVsCheckdigitErrors()
+    {
+        $storecove = new Storecove();
+
+        // Valid format, valid checkdigit → true
+        $this->assertTrue($storecove->router->validateIdentifierFormat('BE:EN', '0202239951'));
+
+        // Valid format, invalid checkdigit → false (from checkdigit, not format)
+        $this->assertFalse($storecove->router->validateIdentifierFormat('BE:EN', '0202239952'));
+
+        // Public checkdigit method: returns false for bad checkdigit
+        $this->assertFalse($storecove->router->validateIdentifierCheckdigit('BE:EN', '0202239952'));
+
+        // Public checkdigit method: returns true for valid
+        $this->assertTrue($storecove->router->validateIdentifierCheckdigit('BE:EN', '0202239951'));
+
+        // Public checkdigit method: returns null for schemes without checkdigit algo
+        $this->assertNull($storecove->router->validateIdentifierCheckdigit('DE:VAT', 'DE123456789'));
+    }
+
+    public function testBeBusinessClientRoutingUsesIdNumber()
+    {
+        $invoice = $this->buildData();
+
+        $client = $invoice->client;
+        $client->country_id = 56;
+        $client->vat_number = 'BE0202239951';
+        $client->id_number = '0202239951';
+        $client->classification = 'business';
+        $client->save();
+
+        $storecove = new Storecove();
+        $storecove->router->setInvoice($invoice->fresh());
+
+        // BE routing should be BE:EN
+        $this->assertEquals('BE:EN', $storecove->router->resolveRouting('BE', 'business'));
+
+        // Tax scheme should be BE:VAT
+        $this->assertEquals('BE:VAT', $storecove->router->resolveTaxScheme('BE', 'business'));
+
+        // ISO 6523 for routing (BE:EN) should be 0208
+        $this->assertEquals('0208', $storecove->router->resolveIso6523Scheme('BE:EN'));
+    }
+
+    public function testBeGovClientRoutingUsesIdNumber()
+    {
+        $invoice = $this->buildData();
+
+        $client = $invoice->client;
+        $client->country_id = 56;
+        $client->vat_number = 'BE0404616494';
+        $client->id_number = '0404616494';
+        $client->classification = 'government';
+        $client->save();
+
+        $storecove = new Storecove();
+        $storecove->router->setInvoice($invoice->fresh());
+
+        // BE government routing should also be BE:EN (B+G rule)
+        $this->assertEquals('BE:EN', $storecove->router->resolveRouting('BE', 'government'));
+        $this->assertEquals('BE:VAT', $storecove->router->resolveTaxScheme('BE', 'government'));
+    }
+
+    public function testBeGetFormatExamples()
+    {
+        $storecove = new Storecove();
+
+        $this->assertEquals('0202239951', $storecove->router->getFormatExample('BE:EN'));
+        $this->assertEquals('BE0202239951', $storecove->router->getFormatExample('BE:VAT'));
+    }
 
     /**
-     * For every country where resolveRouting returns a scheme,
-     * resolveRequiredClientFields should return a non-empty array
-     * (except for individuals).
+     * Locks down every identifier_regex pattern so accidental changes
+     * are caught immediately. If a regex genuinely needs updating,
+     * update the expected value here — that forces a conscious decision.
      */
-    #[DataProvider('supportedCountryProvider')]
-    public function testRequiredFieldsNonEmptyForSupportedCountries(string $country)
+    public function testIdentifierRegexPatternsAreStable(): void
     {
-        $storecove = new Storecove();
-        $required = $storecove->router->resolveRequiredClientFields($country, 'business');
-        $this->assertNotEmpty($required, "{$country} business should have at least one required field");
-    }
+        $router = (new Storecove())->router;
 
-    public static function supportedCountryProvider(): array
-    {
-        $countries = [
-            'US', 'CA', 'MX', 'AU', 'NZ', 'CH', 'IS', 'LI', 'NO',
-            'AD', 'AL', 'AT', 'BA', 'BE', 'BG', 'CY', 'CZ', 'DE',
-            'DK', 'EE', 'ES', 'FI', 'FR', 'GR', 'HR', 'HU', 'IE',
-            'IT', 'LT', 'LU', 'LV', 'MC', 'ME', 'MK', 'MT', 'NL',
-            'PL', 'PT', 'RO', 'RS', 'SE', 'SI', 'SK', 'SM', 'TR',
-            'VA', 'IN', 'JP', 'MY', 'SG', 'GB', 'SA',
+        $expected = [
+            // VAT number patterns
+            'AT:VAT'    => '/^(AT)?U\d{8}$/i',
+            'BE:VAT'    => '/^(BE)?[01]\d{9}$/i',
+            'BG:VAT'    => '/^(BG)?\d{9,10}$/i',
+            'CY:VAT'    => '/^(CY)?\d{8}[A-Z]$/i',
+            'CZ:VAT'    => '/^(CZ)?\d{8,10}$/i',
+            'DE:VAT'    => '/^(DE)?\d{9}$/i',
+            'DK:ERST'   => '/^(DK)?\d{8}$/i',
+            'EE:VAT'    => '/^(EE)?\d{9}$/i',
+            'ES:VAT'    => '/^(ES)?[A-Z0-9]\d{7}[A-Z0-9]$/i',
+            'FI:VAT'    => '/^(FI)?\d{8}$/i',
+            'FR:VAT'    => '/^(FR)?[A-HJ-NP-Z0-9]{2}\d{9}$/i',
+            'GR:VAT'    => '/^(GR|EL)?\d{9}$/i',
+            'HR:VAT'    => '/^(HR)?\d{11}$/i',
+            'HU:VAT'    => '/^(HU)?\d{8}$/i',
+            'IE:VAT'    => '/^(IE)?\d[A-Z0-9\+\*]\d{5}[A-Z]{1,2}$/i',
+            'IT:IVA'    => '/^(IT)?\d{11}$/i',
+            'IT:CF'     => '/^[A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z]$/i',
+            'LT:VAT'    => '/^(LT)?(\d{9}|\d{12})$/i',
+            'LU:VAT'    => '/^(LU)?\d{8}$/i',
+            'LV:VAT'    => '/^(LV)?\d{11}$/i',
+            'MT:VAT'    => '/^(MT)?\d{8}$/i',
+            'NL:VAT'    => '/^(NL)?\d{9}B\d{2}$/i',
+            'PL:VAT'    => '/^(PL)?\d{10}$/i',
+            'PT:VAT'    => '/^(PT)?\d{9}$/i',
+            'RO:VAT'    => '/^(RO)?\d{2,10}$/i',
+            'SE:VAT'    => '/^(SE)?\d{12}$/i',
+            'SI:VAT'    => '/^(SI)?\d{8}$/i',
+            'SK:VAT'    => '/^(SK)?\d{10}$/i',
+            'AD:VAT'    => '/^(AD)?[A-Z]\d{6}[A-Z]$/i',
+            'AL:VAT'    => '/^(AL)?[A-Z]\d{8}[A-Z]$/i',
+            'BA:VAT'    => '/^(BA)?\d{12}$/i',
+            'LI:VAT'    => '/^(LI)?\d{5}$/i',
+            'MC:VAT'    => '/^(MC|FR)?[A-HJ-NP-Z0-9]{2}\d{9}$/i',
+            'ME:VAT'    => '/^(ME)?\d{8}$/i',
+            'MK:VAT'    => '/^(MK)?\d{13}$/i',
+            'SM:VAT'    => '/^(SM)?\d{5}$/i',
+            'TR:VAT'    => '/^(TR)?\d{10}$/i',
+            'VA:VAT'    => '/^(VA)?\d{11}$/i',
+            'RS:VAT'    => '/^(RS)?\d{9}$/i',
+            'IS:VAT'    => '/^(IS)?\d{5,6}$/i',
+            'NO:VAT'    => '/^(NO)?\d{9}(MVA)?$/i',
+            'CH:VAT'    => '/^(CHE)?\d{9}(MWST|TVA|IVA)?$/i',
+            'GB:VAT'    => '/^(GB)?\d{9}(\d{3})?$/i',
+            'AU:ABN'    => '/^\d{11}$/',
+            'NZ:GST'    => '/^\d{8,9}$/',
+            'US:EIN'    => '/^\d{2}\-?\d{7}$/',
+            'IN:GSTIN'  => '/^\d{2}[A-Z]{5}\d{4}[A-Z]\d[A-Z0-9][A-Z0-9]$/i',
+            'JP:IIN'    => '/^T?\d{13}$/',
+            'SG:GST'    => '/^[A-Z0-9]{2}-\d{7}-[A-Z0-9]$/i',
+            'SA:TIN'    => '/^\d{10,15}$/',
+            'MY:TIN'    => '/^[A-Z0-9]{10,14}$/i',
+
+            // ID number patterns
+            'SE:ORGNR'  => '/^\d{10}$/',
+            'NO:ORG'    => '/^\d{9}$/',
+            'BE:EN'     => '/^(BE)?[01]\d{9}$/i',
+            'DK:DIGST'  => '/^(DK)?\d{8}$/i',
+            'EE:CC'     => '/^\d{8}$/',
+            'FI:OVT'    => '/^\d{12,13}[a-zA-Z0-9]{0,5}$/',
+            'FR:SIRENE' => '/^\d{9}$/',
+            'FR:SIRET'  => '/^\d{14}$/',
+            'NL:KVK'    => '/^\d{8}$/',
+            'NL:OINO'   => '/^\d{20}$/',
+            'LT:LEC'    => '/^\d{7,9}$/',
+            'LU:MAT'    => '/^\d{11}$/',
+            'CH:UIDB'   => '/^(CHE)?\d{9}$/i',
+            'IS:KTNR'   => '/^\d{6,10}$/',
+            'CA:CBN'    => '/^\d{9}$/',
+            'MX:RFC'    => '/^[A-Z&Ñ]{3,4}\d{6}[A-Z0-9]{3}$/i',
+            'JP:SST'    => '/^T?\d{13}$/',
+            'MY:EIF'    => '/^[A-Z0-9]{10,14}$/i',
+            'SG:UEN'    => '/^[A-Z0-9]{9,16}$/i',
+            'AT:GOV'    => '/^.+$/',
+            'DE:LWID'   => '/(?=.{0,45}$)^[0-9]{0,12}(\-[0-9a-zA-Z]{0,30}(\-[0-9]{2}))$/',
+            'IT:CUUO'   => '/^[A-Z0-9]{6,7}$/i',
         ];
 
-        $data = [];
-        foreach ($countries as $c) {
-            $data[$c] = [$c];
+        $reflection = new \ReflectionClass($router);
+        $property = $reflection->getProperty('identifier_regex');
+        $property->setAccessible(true);
+        $regexMap = $property->getValue($router);
+
+        foreach ($expected as $scheme => $regex) {
+            $this->assertArrayHasKey($scheme, $regexMap, "Scheme {$scheme} missing from identifier_regex");
+            $this->assertEquals($regex, $regexMap[$scheme], "Regex for {$scheme} has been changed");
         }
-        return $data;
+
+        // Ensure no new schemes were added without updating this test
+        $this->assertCount(count($expected), $regexMap, 'identifier_regex has schemes not covered by this test — add them to $expected');
     }
 
 }

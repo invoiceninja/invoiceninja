@@ -15,12 +15,16 @@ namespace App\Http\Controllers\ClientPortal;
 use App\Events\Payment\Methods\MethodDeleted;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\PaymentMethod\CreatePaymentMethodRequest;
-use App\Http\Requests\Request;
+use App\Http\Requests\ClientPortal\PaymentMethod\DestroyPaymentMethodRequest;
+use App\Http\Requests\ClientPortal\PaymentMethod\ShowPaymentMethodRequest;
+use App\Http\Requests\ClientPortal\PaymentMethod\StorePaymentMethodRequest;
+use App\Http\Requests\ClientPortal\PaymentMethod\VerifyPaymentMethodRequest;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -59,6 +63,7 @@ class PaymentMethodController extends Controller
         /** @var \App\Models\ClientContact auth()->guard('contact')->user() **/
         $client_contact = auth()->guard('contact')->user();
         $data['client'] = $client_contact->client;
+        $data['contact_id'] = $client_contact->id;
 
         return $gateway
             ->driver($client_contact->client)
@@ -93,33 +98,32 @@ class PaymentMethodController extends Controller
      * @param ClientGatewayToken $payment_method
      * @return Factory|View
      */
-    public function show(ClientGatewayToken $payment_method)
+    public function show(ShowPaymentMethodRequest $request, ClientGatewayToken $payment_method)
     {
         return $this->render('payment_methods.show', [
             'payment_method' => $payment_method,
         ]);
     }
 
-    public function verify(ClientGatewayToken $payment_method)
+    public function verify(VerifyPaymentMethodRequest $request, ClientGatewayToken $payment_method)
     {
-
         /** @var \App\Models\ClientContact auth()->guard('contact')->user() **/
         $client_contact = auth()->guard('contact')->user();
 
         return $payment_method->gateway
             ->driver($client_contact->client)
-            ->setPaymentMethod(request()->query('method'))
+            ->setPaymentMethod($request->query('method'))
             ->verificationView($payment_method);
     }
 
-    public function processVerification(Request $request, ClientGatewaytoken $payment_method)
+    public function processVerification(VerifyPaymentMethodRequest $request, ClientGatewayToken $payment_method)
     {
         /** @var \App\Models\ClientContact auth()->guard('contact')->user() **/
         $client_contact = auth()->guard('contact')->user();
 
         return $payment_method->gateway
             ->driver($client_contact->client)
-            ->setPaymentMethod(request()->query('method'))
+            ->setPaymentMethod($request->query('method'))
             ->processVerification($request, $payment_method);
     }
 
@@ -129,7 +133,7 @@ class PaymentMethodController extends Controller
      * @param ClientGatewayToken $payment_method
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy(ClientGatewayToken $payment_method)
+    public function destroy(DestroyPaymentMethodRequest $request, ClientGatewayToken $payment_method)
     {
         /** @var \App\Models\ClientContact auth()->guard('contact')->user() **/
         $client_contact = auth()->guard('contact')->user();

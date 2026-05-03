@@ -34,6 +34,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use App\Services\EDocument\Standards\Peppol;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
+use App\Services\EDocument\Gateway\Storecove\RoutingResolver;
 
 class SendEDocument implements ShouldQueue
 {
@@ -48,26 +49,30 @@ class SendEDocument implements ShouldQueue
 
     public function __construct(private string $entity, private int $id, private string $db) {}
 
-    public function backoff()
-    {
-        return [rand(5, 29), rand(30, 59), rand(240, 360), 3600, 7200];
-    }
-
+    /**
+     * Processes and sends an e-invoice/credit via the Storecove gateway,
+     * handling self-hosted and hosted code paths, quota management, and activity logging.
+     *
+     * @param  Storecove $storecove
+     * @return array|void
+     */
     public function handle(Storecove $storecove)
     {
         MultiDB::setDB($this->db);
 
         nlog("trying to send {$this->entity} {$this->id} on {$this->db}");
 
+        /** Hydrate model for sending */
         $model = $this->entity::withTrashed()->find($this->id);
 
-        if(!$model){
-            nlog("model not found");
+        /** Guard clauses ensuring model is in a valid sending state */
+        if (!$model || $model->is_deleted) {
+            nlog("Model not found or deleted");
             return; // Model not found.
         }
 
         if (isset($model->backup->guid) && is_string($model->backup->guid) && strlen($model->backup->guid) > 3) {
-            nlog("already sent!");
+            nlog("Already sent!");
             return; //Do not double send.
         }
 
@@ -76,19 +81,54 @@ class SendEDocument implements ShouldQueue
             return; //Bad Actor present.
         }
 
+        /** Ensure client is routable on the PEPPOL Network */
+        if ($model->client && ($error = $model->client->checkDeliveryNetwork())) {
+            nlog("Client is not routable on the Peppol network: {$error}");
+            $this->writeActivity($model, Activity::EINVOICE_DELIVERY_FAILURE, $error);
+            return;
+        }
+
         $model = $model->service()->markSent()->save();
 
-        /** Concrete implementation current linked to Storecove only */
-        $p = new Peppol($model);
-        $p->run();
-        $identifiers = $p->gateway->mutator->setClientRoutingCode()->getStorecoveMeta();
-        $result = $storecove->build($model)->getResult();
+        // ── Step 1: Build Peppol UBL document (once) ──
+        $peppol = new Peppol($model);
+        $peppol->run();
+
+        // ── Step 2: Resolve routing (fail-fast) ──
+        $resolver = new RoutingResolver($model, $storecove->proxy, $storecove->router);
+        $routingResult = $resolver->resolve();
+
+        if ($routingResult['type'] === 'none') {
+            nlog("Client {$model->client->present()->name()} could not be discovered on the PEPPOL network");
+            $this->writeActivity($model, Activity::EINVOICE_DELIVERY_FAILURE, ctrans('texts.client_not_found_on_peppol_network'));
+            return;
+        }
+
+        $routing = $routingResult['meta']['routing'] ?? [];
+        if (!empty($routingResult['networks'])) {
+            $routing['networks'] = $routingResult['networks'];
+        }
+
+        if (!isset($routing['eIdentifiers']) && !isset($routing['emails'])) {
+            nlog("Client {$model->client->present()->name()} could not be discovered on the PEPPOL network");
+            $this->writeActivity($model, Activity::EINVOICE_DELIVERY_FAILURE, ctrans('texts.client_not_found_on_peppol_network'));
+            return;
+        }
+
+        // ── Step 3: Serialize to Storecove + decorate ──
+        $storecove->adapter
+            ->transformFromPeppol($model, $peppol->getDocument(), $peppol->isCreditNote())
+            ->decorate();
+
+        $result = $storecove->adapter->getDocument();
 
         if (count($result['errors']) > 0) {
             nlog($result);
             return $result['errors'];
         }
 
+        
+        // ── Step 4: Assemble payload ──
         $payload = [
             'legal_entity_id' => $model->company->legal_entity_id,
             "idempotencyGuid" => \Illuminate\Support\Str::uuid()->toString(),
@@ -97,13 +137,12 @@ class SendEDocument implements ShouldQueue
                 'invoice' => $result['document'],
             ],
             'tenant_id' => $model->company->company_key,
-            'routing' => $identifiers['routing'],
+            'routing' => $routing,
             'account_key' => $model->company->account->key,
             'e_invoicing_token' => $model->company->account->e_invoicing_token,
         ];
 
-        nlog("payload", $payload);
-
+        // nlog("payload", $payload);
 
         //Self Hosted Sending Code Path
         if (Ninja::isSelfHost() && ($model instanceof Invoice || $model instanceof Credit) && $model->company->peppolSendingEnabled()) {
@@ -121,7 +160,8 @@ class SendEDocument implements ShouldQueue
 
                 nlog("Model {$model->number} was successfully sent for third party processing via hosted Invoice Ninja");
                 $data = $r->json();
-                return $this->writeActivity($model, Activity::EINVOICE_DELIVERY_SUCCESS, $data['guid']);
+                $this->writeActivity($model, Activity::EINVOICE_DELIVERY_SUCCESS, $data['guid']);
+                return;
             }
 
             if ($r->failed()) {
@@ -137,6 +177,7 @@ class SendEDocument implements ShouldQueue
                         $model->company
                     )
                 )->handle();
+                
                 $this->writeActivity($model, Activity::EINVOICE_DELIVERY_FAILURE, data_get($r->json(), 'errors.0.details', 'Unhandled error, check logs'));
             }
 
@@ -209,19 +250,38 @@ class SendEDocument implements ShouldQueue
                     \Modules\Admin\Jobs\Account\SuspendESendReceive::dispatch($account->key);
                 }
 
-                return $this->writeActivity($model, Activity::EINVOICE_DELIVERY_SUCCESS, $r);
+                $this->writeActivity($model, Activity::EINVOICE_DELIVERY_SUCCESS, $r);
+                return;
             }
 
             if ($r->failed()) {
                 nlog("Model {$model->number} failed to be accepted by invoice ninja, error follows:");
                 $notes = data_get($r->json(), 'errors.0.details', 'Unhandled errors, check logs');
-                return $this->writeActivity($model, Activity::EINVOICE_DELIVERY_FAILURE, $notes);
+                $this->writeActivity($model, Activity::EINVOICE_DELIVERY_FAILURE, $notes);
+                return;
             }
 
         }
 
     }
 
+    /**
+     * writeActivity
+     *
+     * @param  mixed $model
+     * @param  int $activity_id
+     * @param  string $notes
+     * @return void
+     */
+    /**
+     * Records an e-invoicing activity (success or failure) and stores the
+     * Storecove GUID on the model backup when delivery succeeds.
+     *
+     * @param  \App\Models\Invoice|\App\Models\Credit $model
+     * @param  int $activity_id
+     * @param  string $notes
+     * @return void
+     */
     private function writeActivity($model, int $activity_id, string $notes = '')
     {
         $activity = new Activity();
@@ -248,7 +308,6 @@ class SendEDocument implements ShouldQueue
     /**
      * Self hosted request headers
      *
-     *
      **/
     private function getHeaders(): array
     {
@@ -259,6 +318,33 @@ class SendEDocument implements ShouldQueue
         ];
     }
 
+    /**
+     * middleware
+     *
+     * @return array
+     */
+    public function middleware(): array
+    {
+        return [(new WithoutOverlapping($this->entity . $this->id . $this->db))->releaseAfter(60)->expireAfter(60)];
+    }
+
+    /**
+     * backoff
+     *
+     * @return array
+     */
+    public function backoff()
+    {
+        return [rand(5, 29), rand(30, 59), rand(240, 360), 3600, 7200];
+    }
+
+
+    /**
+     * failed
+     *
+     * @param  mixed $exception
+     * @return void
+     */
     public function failed($exception = null)
     {
         if ($exception) {
@@ -266,11 +352,7 @@ class SendEDocument implements ShouldQueue
             nlog($exception->getMessage());
         }
 
-        // config(['queue.failed.driver' => null]);
     }
 
-    public function middleware()
-    {
-        return [(new WithoutOverlapping($this->entity . $this->id . $this->db))->releaseAfter(60)->expireAfter(60)];
-    }
+
 }

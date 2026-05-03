@@ -37,7 +37,7 @@
                 <div>
                     <button data-ref="client-profile-dropdown" @click="open = !open"
                             class="max-w-xs flex items-center text-sm rounded-full focus:outline-none focus:ring">
-                        <img class="h-8 w-8 rounded-full" src="{{ auth()->guard('contact')->user()->avatar() }}" alt=""/>
+                        <img class="h-8 w-8 rounded-full" src="{{ auth()->guard('contact')->user()->avatarUrl() }}" alt=""/>
                         <span class="ml-2 hidden sm:block">{{ auth()->guard('contact')->user()->present()->name() }}</span>
                     </button>
                 </div>

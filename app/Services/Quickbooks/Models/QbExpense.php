@@ -148,7 +148,7 @@ class QbExpense implements SyncInterface
 
             return $expense;
         } elseif ($search->count() == 1) {
-            return $this->service->syncable('expense', \App\Enum\SyncDirection::PULL) ? $search->first() : null;
+            return $search->first();
         }
 
         return null;

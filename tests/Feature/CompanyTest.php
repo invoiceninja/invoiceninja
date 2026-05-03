@@ -158,12 +158,76 @@ class CompanyTest extends TestCase
         TaxRate::query()->delete();
 
         $settings = $this->company->settings;
-        $settings->country_id = '40';
+        $settings->country_id = '40'; // Austria - standard 20% + reduced 10%
+        $this->company->saveSettings($settings, $this->company);
+
+        $this->company->service()->localizeCompany($this->user);
+
+        $this->assertEquals(2, TaxRate::count());
+
+        $rates = TaxRate::query()->pluck('rate', 'name')->toArray();
+        $this->assertEquals(20, $rates['USt']);
+        $this->assertEquals(10, $rates['USt (ermäßigt)']);
+    }
+
+    public function testLocalizeCompanyGermanyCreatesStandardAndReducedRates(): void
+    {
+        TaxRate::query()->delete();
+
+        $settings = $this->company->settings;
+        $settings->country_id = '276'; // Germany
+        $this->company->saveSettings($settings, $this->company);
+
+        $this->company->service()->localizeCompany($this->user);
+
+        $this->assertEquals(2, TaxRate::count());
+
+        $rates = TaxRate::query()->pluck('rate', 'name')->toArray();
+        $this->assertEquals(19, $rates['MwSt']);
+        $this->assertEquals(7, $rates['MwSt (ermäßigt)']);
+    }
+
+    public function testLocalizeCompanyCanadaCreatesThreeRates(): void
+    {
+        TaxRate::query()->delete();
+
+        $settings = $this->company->settings;
+        $settings->country_id = '124'; // Canada
+        $this->company->saveSettings($settings, $this->company);
+
+        $this->company->service()->localizeCompany($this->user);
+
+        $this->assertEquals(3, TaxRate::count());
+    }
+
+    public function testLocalizeCompanyUnknownCountryCreatesNoRates(): void
+    {
+        TaxRate::query()->delete();
+
+        $settings = $this->company->settings;
+        $settings->country_id = '999';
+        $this->company->saveSettings($settings, $this->company);
+
+        $this->company->service()->localizeCompany($this->user);
+
+        $this->assertEquals(0, TaxRate::count());
+    }
+
+    public function testLocalizeCompanyDenmarkCreatesSingleRate(): void
+    {
+        TaxRate::query()->delete();
+
+        $settings = $this->company->settings;
+        $settings->country_id = '208'; // Denmark - no reduced rate
         $this->company->saveSettings($settings, $this->company);
 
         $this->company->service()->localizeCompany($this->user);
 
         $this->assertEquals(1, TaxRate::count());
+
+        $rate = TaxRate::query()->first();
+        $this->assertEquals('moms', $rate->name);
+        $this->assertEquals(25, $rate->rate);
     }
 
     public function testCompanyCurrent()
@@ -288,8 +352,6 @@ class CompanyTest extends TestCase
         $settings->quote_design_id = '1';
 
         $company->settings = $settings;
-
-        // nlog($company->toArray());
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),

@@ -17,39 +17,17 @@ use App\Jobs\Client\UpdateTaxData;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Client;
 use App\Models\Webhook;
+use App\Services\Quickbooks\QuickbooksBatchCollector;
 
 class ClientObserver
 {
     public $afterCommit = true;
 
-    private $eu_country_codes = [
-        'AT' => '40',
-        'BE' => '56',
-        'BG' => '100',
-        'CY' => '196',
-        'CZ' => '203',
-        'DE' => '276',
-        'DK' => '208',
-        'EE' => '233',
-        'ES' => '724',
-        'FI' => '246',
-        'FR' => '250',
-        'GR' => '300',
-        'HR' => '191',
-        'HU' => '348',
-        'IE' => '372',
-        'IT' => '380',
-        'LT' => '440',
-        'LU' => '442',
-        'LV' => '428',
-        'MT' => '470',
-        'NL' => '528',
-        'PL' => '616',
-        'PT' => '620',
-        'RO' => '642',
-        'SE' => '752',
-        'SI' => '705',
-        'SK' => '703',
+    /** Numeric country_ids for EU member states — mirrors BaseRule::$eu_country_codes */
+    private array $eu_country_ids = [
+        40, 56, 100, 196, 203, 276, 208, 233, 724, 246, 250, 300,
+        191, 348, 372, 380, 440, 442, 428, 470, 528, 616, 620, 642,
+        752, 705, 703,
     ];
 
     /**
@@ -66,7 +44,7 @@ class ClientObserver
         }
 
         /** Check VAT records for client */
-        if (in_array($client->country_id, $this->eu_country_codes) && $client->company->calculate_taxes) {
+        if (in_array($client->country_id, $this->eu_country_ids) && $client->company->calculate_taxes) {
             CheckVat::dispatch($client, $client->company);
         }
 
@@ -82,11 +60,12 @@ class ClientObserver
         // 1. QuickBooks is connected and client sync is enabled
         // 2. We're NOT currently importing from QuickBooks (prevent circular sync)
         if ($client->company->shouldPushToQuickbooks('client')
-            && empty(\App\Services\Quickbooks\QuickbooksService::$importing[$client->company_id])) {
-            \App\Jobs\Quickbooks\PushToQuickbooks::dispatch(
+           && empty(\App\Services\Quickbooks\QuickbooksService::$importing[$client->company_id])) {
+            QuickbooksBatchCollector::collect(
                 'client',
                 $client->id,
                 $client->company->db,
+                $client->company_id,
             );
         }
     }
@@ -106,7 +85,7 @@ class ClientObserver
         }
 
         /** Monitor vat numbers for EU based clients for tax calculations */
-        if ($client->getOriginal('vat_number') != $client->vat_number && in_array($client->country_id, $this->eu_country_codes) && $client->company->calculate_taxes) {
+        if ($client->getOriginal('vat_number') != $client->vat_number && in_array($client->country_id, $this->eu_country_ids) && $client->company->calculate_taxes) {
             CheckVat::dispatch($client, $client->company);
         }
 
@@ -133,12 +112,13 @@ class ClientObserver
         // 2. We're NOT currently importing from QuickBooks (prevent circular sync)
         // 3. Only financial fields changed (not balance fields which are auto-calculated)
         if ($client->company->shouldPushToQuickbooks('client')
-            && empty(\App\Services\Quickbooks\QuickbooksService::$importing[$client->company_id])
-            && !$client->isDirty(['paid_to_date','balance','credit_balance','payment_balance'])) {
-            \App\Jobs\Quickbooks\PushToQuickbooks::dispatch(
+           && empty(\App\Services\Quickbooks\QuickbooksService::$importing[$client->company_id])
+           && !$client->isDirty(['paid_to_date','balance','credit_balance','payment_balance'])) {
+            QuickbooksBatchCollector::collect(
                 'client',
                 $client->id,
                 $client->company->db,
+                $client->company_id,
             );
         }
     }

@@ -38,6 +38,8 @@ class UpdateProductRequest extends Request
         $rules = [];
         $rules['file'] = 'bail|sometimes|array';
         $rules['file.*'] = $this->fileValidation();
+        $rules['documents'] = 'bail|sometimes|array';
+        $rules['documents.*'] = $this->fileValidation();
 
         $rules['cost'] = 'numeric';
         $rules['price'] = 'numeric';

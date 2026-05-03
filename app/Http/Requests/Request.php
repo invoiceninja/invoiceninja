@@ -237,7 +237,7 @@ class Request extends FormRequest
      */
     public function toBoolean($bool): bool
     {
-        return filter_var($bool, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        return filter_var($bool, FILTER_VALIDATE_BOOLEAN);
     }
 
     public function checkTimeLog(array $log): bool

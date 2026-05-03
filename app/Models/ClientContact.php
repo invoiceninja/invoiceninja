@@ -64,6 +64,7 @@ use App\Mail\ClientContact\ClientContactResetPasswordObject;
  * @property string|null $token
  * @property bool $is_locked
  * @property bool $send_email
+ * @property bool $cc_only
  * @property bool $can_sign
  * @property string|null $contact_key
  * @property string|null $remember_token
@@ -152,6 +153,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         'email',
         'is_primary',
         'send_email',
+        'cc_only',
         'can_sign',
     ];
 
@@ -176,7 +178,14 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         return 'client_contacts';
     }
 
-    public function toSearchableArray()
+    public function toSearchableArray(): array
+    {
+        return config('scout.index_version', 'legacy') === 'v2'
+            ? $this->toSearchableArrayV2()
+            : $this->toSearchableArrayLegacy();
+    }
+
+    public function toSearchableArrayLegacy(): array
     {
         return [
             'id' => $this->company->db . ":" . $this->id,
@@ -193,6 +202,11 @@ class ClientContact extends Authenticatable implements HasLocalePreference
             'company_key' => $this->company->company_key,
             'client_id' => $this->client->hashed_id,
         ];
+    }
+
+    public function toSearchableArrayV2(): array
+    {
+        return $this->toSearchableArrayLegacy();
     }
 
     public function getScoutKey()
@@ -338,12 +352,14 @@ class ClientContact extends Authenticatable implements HasLocalePreference
     }
 
     /**
-     * @return mixed|string
+     * @return string
      */
-    public function avatar()
+    public function avatarUrl(): string
     {
-        if ($this->avatar) {
-            return $this->avatar;
+        $avatar = $this->attributes['avatar'] ?? '';
+
+        if ($avatar) {
+            return $avatar;
         }
 
         return asset('images/svg/user.svg');

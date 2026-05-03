@@ -71,7 +71,7 @@ class UserFilters extends QueryFilters
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        if($user->isOwner() && request()->input('showAccountUsers', false) == 'true'){
+        if ($user->isOwner() && request()->input('showAccountUsers', false) == 'true') {
             return $this->builder;
         }
 
@@ -90,8 +90,8 @@ class UserFilters extends QueryFilters
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        if($user->isOwner() && request()->input('showAccountUsers', false) == 'true'){
-            
+        if ($user->isOwner() && request()->input('showAccountUsers', false) == 'true') {
+
             return $this->builder->whereHas('company_users', function ($q) {
                 $q->where('is_owner', false);
             });
@@ -106,7 +106,7 @@ class UserFilters extends QueryFilters
     public function showAccountUsers(string $value = ''): Builder
     {
 
-        if($value !== 'true'){
+        if ($value !== 'true') {
             return $this->builder;
         }
 

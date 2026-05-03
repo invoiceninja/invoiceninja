@@ -26,13 +26,15 @@ use App\Livewire\BillingPortal\Payments\Methods;
 use App\Livewire\BillingPortal\Authentication\Login;
 use App\Livewire\BillingPortal\Authentication\Register;
 use App\Livewire\BillingPortal\Authentication\RegisterOrLogin;
+use Livewire\Attributes\Locked;
 
 class Purchase extends Component
 {
     use MakesHash;
-
+    #[Locked]
     public string $subscription_id;
 
+    #[Locked]
     public string $db;
 
     public array $request_data;

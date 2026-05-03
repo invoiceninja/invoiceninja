@@ -146,6 +146,8 @@ class ImportMigrations extends Command
             'settings' => null,
         ]);
 
+        CompanyToken::reguard();
+        
         return $user;
     }
 

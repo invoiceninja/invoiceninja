@@ -23,7 +23,7 @@ class EditCompanyGatewayRequest extends Request
      */
     public function authorize()
     {
-        return auth()->user()->isAdmin();
+        return auth()->user()->can('edit', $this->company_gateway);
     }
 
     public function rules()

@@ -14,6 +14,7 @@ namespace App\Import\Providers;
 
 use App\Models\User;
 use App\Utils\Ninja;
+use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use League\Csv\Reader;
 use App\Models\Company;
@@ -22,6 +23,7 @@ use League\Csv\Statement;
 use App\Factory\TaskFactory;
 use App\Factory\QuoteFactory;
 use App\Factory\ClientFactory;
+use App\Factory\PurchaseOrderFactory;
 use Illuminate\Support\Carbon;
 use App\Factory\InvoiceFactory;
 use App\Factory\PaymentFactory;
@@ -30,6 +32,7 @@ use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Repositories\TaskRepository;
 use App\Utils\Traits\CleanLineItems;
+use App\Repositories\PurchaseOrderRepository;
 use App\Repositories\QuoteRepository;
 use Illuminate\Support\Facades\Cache;
 use App\Repositories\ClientRepository;
@@ -38,6 +41,7 @@ use App\Repositories\InvoiceRepository;
 use App\Repositories\PaymentRepository;
 use App\Factory\RecurringInvoiceFactory;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\PurchaseOrder\StorePurchaseOrderRequest;
 use App\Http\Requests\Quote\StoreQuoteRequest;
 use App\Repositories\RecurringInvoiceRepository;
 use App\Notifications\Ninja\GenericNinjaAdminNotification;
@@ -124,9 +128,9 @@ class BaseImport
             // Remove Invoice Ninja headers
             if (
                 is_array($headers)
-                && count($headers) > 0
-                && count($data) > 4
-                && $this->import_type === 'csv'
+               && count($headers) > 0
+               && count($data) > 4
+               && $this->import_type === 'csv'
             ) {
                 $first_cell = $headers[0];
                 if (strstr($first_cell, config('ninja.app_name'))) {
@@ -451,7 +455,7 @@ class BaseImport
                 // If we don't have a client ID, but we do have client data, go ahead and create the client.
                 if (
                     empty($invoice_data['client_id'])
-                    && ! empty($invoice_data['client'])
+                   && ! empty($invoice_data['client'])
                 ) {
                     $client_data = $invoice_data['client'];
                     $client_data['user_id'] = $this->getUserIDForRecord(
@@ -617,7 +621,7 @@ class BaseImport
                 // If we don't have a client ID, but we do have client data, go ahead and create the client.
                 if (
                     empty($invoice_data['client_id'])
-                    && ! empty($invoice_data['client'])
+                   && ! empty($invoice_data['client'])
                 ) {
                     $client_data = $invoice_data['client'];
                     $client_data['user_id'] = $this->getUserIDForRecord(
@@ -846,7 +850,7 @@ class BaseImport
                 // If we don't have a client ID, but we do have client data, go ahead and create the client.
                 if (
                     empty($quote_data['client_id'])
-                    && ! empty($quote_data['client'])
+                   && ! empty($quote_data['client'])
                 ) {
                     $client_data = $quote_data['client'];
                     $client_data['user_id'] = $this->getUserIDForRecord(
@@ -906,6 +910,91 @@ class BaseImport
 
                 $this->error_array['quote'][] = [
                     'invoice' => $raw_quote,
+                    'error' => $message,
+                ];
+            }
+        }
+
+        return $count;
+    }
+
+    private function actionPurchaseOrderStatus(
+        $purchase_order,
+        $purchase_order_data,
+        $purchase_order_repository
+    ) {
+        if ($purchase_order->status_id === PurchaseOrder::STATUS_DRAFT) {
+        } elseif ($purchase_order->status_id === PurchaseOrder::STATUS_SENT) {
+            $purchase_order = $purchase_order
+                ->service()
+                ->markSent()
+                ->save();
+        }
+
+        return $purchase_order;
+    }
+
+    public function ingestPurchaseOrders($purchase_orders, $purchase_order_number_key)
+    {
+        $count = 0;
+
+        $purchase_order_transformer = $this->transformer;
+
+        $purchase_order_repository = new PurchaseOrderRepository();
+        $purchase_order_repository->import_mode = true;
+
+        $purchase_orders = $this->groupInvoices($purchase_orders, $purchase_order_number_key);
+
+        foreach ($purchase_orders as $raw_purchase_order) {
+
+            if (!is_array($raw_purchase_order)) {
+                continue;
+            }
+
+            try {
+                $purchase_order_data = $purchase_order_transformer->transform($raw_purchase_order);
+                $purchase_order_data['line_items'] = $this->cleanItems(
+                    $purchase_order_data['line_items'] ?? []
+                );
+
+                $validator = Validator::make(
+                    $purchase_order_data,
+                    (new StorePurchaseOrderRequest())->rules()
+                );
+                if ($validator->fails()) {
+                    $this->error_array['purchase_order'][] = [
+                        'purchase_order' => $purchase_order_data,
+                        'error' => $validator->errors()->all(),
+                    ];
+                } else {
+                    $purchase_order = PurchaseOrderFactory::create(
+                        $this->company->id,
+                        $this->getUserIDForRecord($purchase_order_data)
+                    );
+                    if (! empty($purchase_order_data['status_id'])) {
+                        $purchase_order->status_id = $purchase_order_data['status_id'];
+                    }
+
+                    $purchase_order_repository->save($purchase_order_data, $purchase_order);
+
+                    $count++;
+
+                    $this->actionPurchaseOrderStatus(
+                        $purchase_order,
+                        $purchase_order_data,
+                        $purchase_order_repository
+                    );
+                }
+            } catch (\Exception $ex) {
+                if ($ex instanceof ImportException) {
+                    $message = $ex->getMessage();
+                } else {
+                    report($ex);
+                    $message = 'Unknown error';
+                }
+
+                $this->error_array['purchase_order'][] = [
+                    'purchase_order' => $raw_purchase_order,
                     'error' => $message,
                 ];
             }
@@ -981,6 +1070,7 @@ class BaseImport
                 'invoice',
                 'payment',
                 'vendor',
+                'purchase_order',
                 'expense',
                 'quote',
                 'bank_transaction',

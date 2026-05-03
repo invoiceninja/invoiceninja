@@ -95,7 +95,7 @@ class UserRepository extends BaseRepository
             throw new \Illuminate\Auth\Access\AuthorizationException("Illegal operation encountered for {$user->hashed_id}", 401);
         }
 
-        $user->account_id = $account->id;//@todo we should never change the account_id if it is set at this point.
+        $user->account_id = $account->id; //We should never change the account_id if it is set at this point.
 
         if (strlen($user->password ?? '') >= 1) {
             $user->has_password = true;
@@ -148,7 +148,6 @@ class UserRepository extends BaseRepository
         }
 
         if (array_key_exists('company_user', $data)) {
-            // $this->forced_includes = 'company_users'; //2026-02-23 - not needed @deprecate and remove in 5.13.0
 
             $company = auth()->user()->company();
 
@@ -343,7 +342,7 @@ class UserRepository extends BaseRepository
         });
 
         $company = $new_owner_user->account->default_company ?? $new_owner_user->companies->first();
-        
+
         event(new UserWasPurged($new_owner_user, $notes, $company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
     }
 }

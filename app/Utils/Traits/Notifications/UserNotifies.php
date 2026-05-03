@@ -39,7 +39,7 @@ trait UserNotifies
         $notifications = $company_user->notifications;
 
         if ($company_user->company->is_disabled
-            && is_array($notifications->email)
+           && is_array($notifications->email)
             || $company_user->trashed()
             || ! $company_user->user
             || $company_user->user->trashed()) {
@@ -126,8 +126,10 @@ trait UserNotifies
         $notifiable_methods = [];
         $notifications = $company_user->notifications;
 
-        //conditional to define whether the company user has the required notification for the MAIL notification TYPE
-        if (count(array_intersect($required_permissions, $notifications->email)) >= 1 || count(array_intersect($required_permissions, ['all_user_notifications'])) >= 1 || count(array_intersect($required_permissions, ['all_notifications'])) >= 1) {
+        array_push($required_permissions, 'all_notifications');
+
+
+        if (count(array_intersect($required_permissions, $company_user->notifications->email)) >= 1) {
             array_push($notifiable_methods, 'mail');
         }
 

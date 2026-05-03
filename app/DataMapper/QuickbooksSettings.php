@@ -75,10 +75,10 @@ class QuickbooksSettings implements Castable
             'settings' => $this->settings->toArray(),
         ];
     }
-    
+
     /**
-     * 
-     * Patches our settings object with the 
+     *
+     * Patches our settings object with the
      * selected changes we authorize.
      *
      * @param  array $changes
@@ -107,7 +107,7 @@ class QuickbooksSettings implements Castable
         ];
 
         $final_settings['settings'] = array_merge($settings, $new_settings);
-        
+
         return new self(array_merge($this->toArray(), $final_settings));
     }
 
@@ -130,10 +130,10 @@ class QuickbooksSettings implements Castable
     public function isEmpty(): bool
     {
         return empty($this->accessTokenKey)
-            && empty($this->refresh_token)
-            && empty($this->realmID)
-            && $this->accessTokenExpiresAt === 0
-            && $this->refreshTokenExpiresAt === 0
-            && empty($this->baseURL);
+           && empty($this->refresh_token)
+           && empty($this->realmID)
+           && $this->accessTokenExpiresAt === 0
+           && $this->refreshTokenExpiresAt === 0
+           && empty($this->baseURL);
     }
 }

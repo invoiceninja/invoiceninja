@@ -21,6 +21,7 @@ use App\Models\Traits\Excludable;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use Illuminate\Support\Facades\App;
+use Illuminate\Mail\Mailables\Address;
 use App\Services\Client\ClientService;
 use App\Utils\Traits\GeneratesCounter;
 use Laracasts\Presenter\PresentableTrait;
@@ -255,7 +256,14 @@ class Client extends BaseModel implements HasLocalePreference
         'custom_value4',
     ];
 
-    public function toSearchableArray()
+    public function toSearchableArray(): array
+    {
+        return config('scout.index_version', 'legacy') === 'v2'
+            ? $this->toSearchableArrayV2()
+            : $this->toSearchableArrayLegacy();
+    }
+
+    public function toSearchableArrayLegacy(): array
     {
 
         $locale = $this->locale();
@@ -297,6 +305,11 @@ class Client extends BaseModel implements HasLocalePreference
             'custom_value4' => $this->custom_value4,
             'company_key' => $this->company->company_key,
         ];
+    }
+
+    public function toSearchableArrayV2(): array
+    {
+        return $this->toSearchableArrayLegacy();
     }
 
     public function getScoutKey()
@@ -376,6 +389,25 @@ class Client extends BaseModel implements HasLocalePreference
     public function contacts(): HasMany
     {
         return $this->hasMany(ClientContact::class)->orderBy('is_primary', 'desc');
+    }
+
+    /**
+     * Returns CC-only contacts as an array of Address objects.
+     * Capped at 4 to stay within provider limits.
+     *
+     * @return array<int, Address>
+     */
+    public function cc_contacts(): array
+    {
+        return $this->contacts()
+            ->where('cc_only', true)
+            ->whereNotNull('email')
+            ->where('email', '!=', '')
+            ->where('is_locked', false)
+            ->limit(4)
+            ->get()
+            ->map(fn($c) => new Address($c->email, $c->present()->name())) // @phpstan-ignore-line
+            ->toArray();
     }
 
     public function primary_contact(): HasMany
@@ -1015,11 +1047,16 @@ class Client extends BaseModel implements HasLocalePreference
             $offset -= 10;
         }
 
-        $offset -= $this->company->utc_offset();
+        $timezone = $this->timezone();
+
+        date_default_timezone_set('GMT');
+        $date = new \DateTime("now", new \DateTimeZone($timezone->name ?? 'UTC'));
+        $offset -= $date->getOffset();
 
         $offset += ($entity_send_time * 3600);
 
         return $offset;
+
     }
 
     public function translate_entity(): string
@@ -1059,19 +1096,45 @@ class Client extends BaseModel implements HasLocalePreference
             return "Client has no country set!";
         }
 
-        $br = new \App\DataMapper\Tax\BaseRule();
+        $country_code = $this->country->iso_3166_2;
 
-        $government_countries = array_merge($br->peppol_business_countries, $br->peppol_government_countries);
+        $router = new \App\Services\EDocument\Gateway\Storecove\StorecoveRouter();
 
-        if (in_array($this->country->iso_3166_2, $government_countries) && $this->classification == 'government') {
-            return null;
+        // Gate on the actual delivery-capable list, not routing_rules.
+        // routing_rules carries tax metadata for many more countries (HR, CZ,
+        // HU, SK, ...) that are not actual Peppol destinations. IT is
+        // deliverable via SDI rather than Peppol proper.
+        $deliverable = array_merge(
+            \App\Services\EDocument\Gateway\Storecove\StorecoveRouter::peppolCountries(),
+            ['IT', 'PT'],
+        );
+
+        if (!in_array($country_code, $deliverable, true)) {
+            return "Country {$this->country->full_name} ( {$country_code} ) is not supported for e-delivery.";
         }
 
-        if (in_array($this->country->iso_3166_2, $br->peppol_business_countries)) {
-            return null;
+        if (!$router->hasRoutingRules($country_code)) {
+            return "Country {$this->country->full_name} ( {$country_code} ) is not supported for e-delivery.";
         }
 
-        return "Country {$this->country->full_name} ( {$this->country->iso_3166_2} ) is not supported by the PEPPOL network for e-delivery.";
+        if (!$router->isClassificationRoutable($country_code, $this->classification ?? 'business')) {
+            return ucfirst($this->classification) . " clients in {$this->country->full_name} ( {$country_code} ) are not routable on the Peppol network.";
+        }
 
+        return null;
+
+    }
+
+    public function requiresDocuNinjaSigning(): bool
+    {
+        return $this->getSetting('require_invoice_signature')
+            && $this->company->docuninjaActive();
+    }
+
+    public function requiresSignature(): bool
+    {
+        return $this->getSetting('require_invoice_signature')
+            && $this->company->account->hasFeature(Account::FEATURE_INVOICE_SETTINGS)
+            && !$this->company->docuninjaActive();
     }
 }

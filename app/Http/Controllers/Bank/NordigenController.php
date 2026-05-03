@@ -214,10 +214,10 @@ class NordigenController extends BaseController
             }
         }
 
-        // perform update in background
-        $company->account->bank_integrations
-            ->where('integration_type', BankIntegration::INTEGRATION_TYPE_NORDIGEN)
+        // perform update in background for newly connected integrations only
+        BankIntegration::whereIn('id', $bank_integration_ids)
             ->where('auto_sync', true)
+            ->where('disabled_upstream', false)
             ->each(function ($bank_integration) {
                 ProcessBankTransactionsNordigen::dispatch($bank_integration)->delay(now()->addHour());
             });

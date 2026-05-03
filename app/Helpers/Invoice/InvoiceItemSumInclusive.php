@@ -62,6 +62,7 @@ class InvoiceItemSumInclusive
     ];
 
     private array $tax_jurisdictions = [
+        'AD', // Andorra
         'AT', // Austria
         'BE', // Belgium
         'BG', // Bulgaria
@@ -93,6 +94,8 @@ class InvoiceItemSumInclusive
         'US', // USA
 
         'AU', // Australia
+
+        'SG', // Singapore
     ];
 
     protected RecurringInvoice|Invoice|Quote|Credit|PurchaseOrder|RecurringQuote $invoice;
@@ -523,7 +526,7 @@ class InvoiceItemSumInclusive
     private function shouldCalculateTax(): self
     {
 
-        if (!$this->invoice->company?->calculate_taxes || $this->invoice->company->account->isFreeHostedClient()) {//@phpstan-ignore-line
+        if (!$this->invoice->company?->calculate_taxes || $this->invoice->company->account->isFreeHostedClient() || ($this->invoice instanceof Invoice && $this->invoice->isTaxImmutable())) {//@phpstan-ignore-line
             $this->calc_tax = false;
             return $this;
         }

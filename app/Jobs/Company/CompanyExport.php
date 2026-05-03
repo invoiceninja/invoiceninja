@@ -49,8 +49,13 @@ class CompanyExport implements ShouldQueue
     private $export_format = 'json';
 
     private $export_data = [];
+
     private $writer;
+
     private $file_name;
+
+    public $timeout = 21600;
+
     /**
      * Create a new job instance.
      *
@@ -58,7 +63,7 @@ class CompanyExport implements ShouldQueue
      * @param \App\Models\User $user
      * @param string $hash
      */
-    public function __construct(public Company $company, private User $user, public string $hash) {}
+    public function __construct(public Company $company, private User $user, public string $hash, private int $total_activities = 0) {}
 
     /**
      * Execute the job.
@@ -77,33 +82,36 @@ class CompanyExport implements ShouldQueue
         $this->writer->value('app_version', config('ninja.app_version'));
         $this->writer->value('storage_url', Storage::url(''));
 
-        $this->export_data['activities'] = $this->company->all_activities->map(function ($activity) {
-            $activity = $this->transformArrayOfKeys($activity, [
-                'user_id',
-                'company_id',
-                'client_id',
-                'client_contact_id',
-                'account_id',
-                'project_id',
-                'vendor_id',
-                'payment_id',
-                'invoice_id',
-                'credit_id',
-                'invitation_id',
-                'task_id',
-                'expense_id',
-                'token_id',
-                'quote_id',
-                'subscription_id',
-                'recurring_invoice_id',
-                'purchase_order_id',
-                'vendor_contact_id',
-                'recurring_expense_id',
-            ]);
+        if (Ninja::isHosted() && $this->total_activities > 10000) {
+            $this->export_data['activities'] = [];
+        } else {
+            $this->export_data['activities'] = $this->company->all_activities->map(function ($activity) {
+                $activity = $this->transformArrayOfKeys($activity, [
+                    'user_id',
+                    'company_id',
+                    'client_id',
+                    'client_contact_id',
+                    'account_id',
+                    'project_id',
+                    'vendor_id',
+                    'payment_id',
+                    'invoice_id',
+                    'credit_id',
+                    'invitation_id',
+                    'task_id',
+                    'expense_id',
+                    'token_id',
+                    'quote_id',
+                    'subscription_id',
+                    'recurring_invoice_id',
+                    'purchase_order_id',
+                    'vendor_contact_id',
+                    'recurring_expense_id',
+                ]);
 
-            return $activity;
-        })->makeHidden(['id'])->all();
-
+                return $activity;
+            })->makeHidden(['id'])->all();
+        }
 
         $x = $this->writer->collection('activities');
         $x->addItems($this->export_data['activities']);
@@ -186,7 +194,14 @@ class CompanyExport implements ShouldQueue
 
         $this->export_data['company_gateways'] = $this->company->company_gateways()->withTrashed()->cursor()->map(function ($company_gateway) {
             $company_gateway = $this->transformArrayOfKeys($company_gateway, ['company_id', 'user_id']);
-            $company_gateway->config = decrypt($company_gateway->config);
+
+            try{
+                $company_gateway->config = decrypt($company_gateway->config);
+            }
+            catch(\Illuminate\Contracts\Encryption\DecryptException $e){
+                nlog("Failed to decrypt company gateway config: " . $e->getMessage());
+                $company_gateway->config = '';
+            }
 
             return $company_gateway->makeVisible(['id']);
         })->all();
@@ -794,7 +809,8 @@ class CompanyExport implements ShouldQueue
 
         $url = Cache::get($this->hash);
 
-        Cache::put($this->hash, $storage_path, 3600);
+        $ttl = $this->total_activities > 10000 ? 18000 : 3600;
+        Cache::put($this->hash, $storage_path, $ttl);
 
         App::forgetInstance('translator');
         $t = app('translator');
@@ -808,7 +824,7 @@ class CompanyExport implements ShouldQueue
 
         (new NinjaMailerJob($nmo, true))->handle();
 
-        UnlinkFile::dispatch(config('filesystems.default'), $storage_path)->delay(now()->addHours(1));
+        UnlinkFile::dispatch(config('filesystems.default'), $storage_path)->delay(now()->addHours($this->total_activities > 10000 ? 5 : 1));
 
         if (Ninja::isHosted()) {
             sleep(3);

@@ -77,7 +77,7 @@ class InvoiceTransformer extends BaseTransformer
         if (! empty($invoice_data['Date Paid'])) {
             $transformed['payments'] = [[
                 'date'   => $this->parseDate($invoice_data['Date Paid']),
-                'amount' => round($transformed['amount'],2),
+                'amount' => round($transformed['amount'], 2),
             ]];
         }
 
@@ -109,6 +109,6 @@ class InvoiceTransformer extends BaseTransformer
     /** @return float  */
     public function getFreshbookQuantityFloat($data, $field)
     {
-        return $data[$field];
+        return $data[$field] ?? 0;
     }
 }

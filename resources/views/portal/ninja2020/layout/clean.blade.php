@@ -119,7 +119,15 @@
 
         @yield('body')
 
-        @livewireScriptConfig 
+        @livewireScriptConfig
+        <script>
+            document.addEventListener('livewire:init', () => {
+                Livewire.on('update-csrf', ({ token }) => {
+                    document.querySelector('meta[name="csrf-token"]')?.setAttribute('content', token);
+                    document.querySelector('[data-csrf]')?.setAttribute('data-csrf', token);
+                });
+            });
+        </script>
 
         <script src="{{ asset('vendor/cookieconsent@3/cookieconsent.min.js') }}" data-cfasync="false"></script>
         <script>

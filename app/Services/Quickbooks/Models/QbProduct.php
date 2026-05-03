@@ -30,7 +30,7 @@ class QbProduct implements SyncInterface
         $this->product_transformer = new ProductTransformer($service->company);
 
     }
-    
+
     /**
      * find
      *
@@ -43,7 +43,7 @@ class QbProduct implements SyncInterface
     {
         return $this->service->sdk->FindById('Item', $id);
     }
-    
+
     /**
      * syncToNinja
      *
@@ -58,6 +58,7 @@ class QbProduct implements SyncInterface
         foreach ($records as $record) {
             // Double-check: Skip Category and Group items
             $item_type = data_get($record, 'Type');
+
             if ($item_type === 'Category' || $item_type === 'Group') {
                 nlog("Skipping Category/Group item during sync: " . data_get($record, 'Name') . " (Type: {$item_type})");
                 continue;
@@ -65,14 +66,14 @@ class QbProduct implements SyncInterface
 
             $ninja_data = $this->product_transformer->qbToNinja($record, $this->service);
 
-            if ($product = $this->findProduct($ninja_data['id'])) {
+            if ($product = $this->findProduct($ninja_data['id'], $ninja_data['product_key'])) {
                 $product->fill($ninja_data);
                 $product->save();
             }
         }
 
     }
-    
+
     /**
      * syncToForeign
      *
@@ -81,7 +82,7 @@ class QbProduct implements SyncInterface
      * @param  array $records
      * @return void
      */
-    public function syncToForeign(array $records): void 
+    public function syncToForeign(array $records): void
     {
 
         foreach ($records as $product) {
@@ -94,40 +95,54 @@ class QbProduct implements SyncInterface
         }
     }
 
-        
+
     /**
      * findProduct
      *
      * Finds a product in Ninja by their ID.
      *
      * @param  string $key
+     * @param  string $product_key
      * @return Product
      */
-    private function findProduct(string $key): ?Product
+    private function findProduct(string $key, ?string $product_key = null): Product
     {
         $search = Product::query()
                          ->withTrashed()
                          ->where('company_id', $this->service->company->id)
                          ->where('sync->qb_id', $key);
 
-        if ($search->count() == 0) {
-
-            $product = ProductFactory::create($this->service->company->id, $this->service->company->owner()->id);
-
-            $sync = new ProductSync();
-            $sync->qb_id = $key;
-            $product->sync = $sync;
-
-            return $product;
-
-        } elseif ($search->count() == 1) {
-            return $this->service->syncable('product', \App\Enum\SyncDirection::PULL) ? $search->first() : null;
+        if ($search->count() >= 1) {
+            return $search->first();
         }
 
-        return null;
+        if ($product_key) {
+            $product_match = Product::query()
+                ->withTrashed()
+                ->where('company_id', $this->service->company->id)
+                ->where('product_key', $product_key)
+                ->first();
+
+            if ($product_match) {
+                $sync = $product_match->sync ? clone $product_match->sync : new ProductSync();
+                $sync->qb_id = $key;
+                $product_match->sync = $sync;
+                $product_match->saveQuietly();
+
+                return $product_match;
+            }
+        }
+
+        $product = ProductFactory::create($this->service->company->id, $this->service->company->owner()->id);
+
+        $sync = new ProductSync();
+        $sync->qb_id = $key;
+        $product->sync = $sync;
+
+        return $product;
 
     }
-    
+
     /**
      * sync
      *
@@ -175,7 +190,7 @@ class QbProduct implements SyncInterface
 
         $item_name = strlen($line_item->product_key ?? '') > 0 ? $line_item->product_key : 'Product ' . uniqid();
 
-        $escaped_name = str_replace("'", "''", $item_name);
+        $escaped_name = str_replace("'", "\\'", $item_name);
         // Only match items that can be used as line items (exclude Category/Group types)
         // QB doesn't support != operator, so we use IN with valid types
         $query = "SELECT * FROM Item WHERE Name = '{$escaped_name}' AND Active = true AND Type IN ('Service', 'NonInventory', 'Inventory') MAXRESULTS 1";
@@ -249,7 +264,19 @@ class QbProduct implements SyncInterface
                     $product_data['Id'] = $product->sync->qb_id;
 
                     $qb_item = \QuickBooksOnline\API\Facades\Item::create($product_data);
-                    $result = $this->service->sdk->Update($qb_item);
+                    try {
+                        $this->service->sdk->Update($qb_item);
+                    } catch (\Throwable $e) {
+                        nlog('QuickBooks: Item Update failed', [
+                            'company_id' => $this->service->company->id,
+                            'product_key' => $line_item->product_key ?? null,
+                            'qb_item_id' => $product->sync->qb_id,
+                            'exception' => $e::class,
+                            'message' => $e->getMessage(),
+                            'payload' => $product_data,
+                        ]);
+                        throw $e;
+                    }
 
                     return $product->sync->qb_id;
                 }
@@ -258,13 +285,28 @@ class QbProduct implements SyncInterface
 
         $qb_item = \QuickBooksOnline\API\Facades\Item::create($product_data);
 
-        $result = $this->service->sdk->Add($qb_item);
+        try {
+            $result = $this->service->sdk->Add($qb_item);
+        } catch (\Throwable $e) {
+            nlog('QuickBooks: Item Add failed', [
+                'company_id' => $this->service->company->id,
+                'product_key' => $line_item->product_key ?? null,
+                'exception' => $e::class,
+                'message' => $e->getMessage(),
+                'payload' => $product_data,
+            ]);
+            throw $e;
+        }
 
         $qb_id = data_get($result, 'Id') ?? data_get($result, 'Id.value');
 
         // Validate that we got a valid QB ID
         if (empty($qb_id)) {
-            nlog("QuickBooks: Failed to create product - no ID returned from QuickBooks API. Product key: " . ($line_item->product_key ?? 'unknown'));
+            nlog('QuickBooks: Item Add returned no Id — create product failed', [
+                'company_id' => $this->service->company->id,
+                'product_key' => $line_item->product_key ?? null,
+                'payload' => $product_data,
+            ]);
             throw new \RuntimeException("Failed to create product in QuickBooks - no ID returned");
         }
 

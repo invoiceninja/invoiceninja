@@ -75,6 +75,7 @@ class CsvImportCompleted extends Mailable
             'payment_count' => $this->data['entity_count']['payments'] ?? false,
             'recurring_invoice_count' => $this->data['entity_count']['recurring_invoices'] ?? false,
             'expense_count' => $this->data['entity_count']['expenses'] ?? false,
+            'purchase_order_count' => $this->data['entity_count']['purchase_orders'] ?? false,
             'company_gateway_count' => $this->data['entity_count']['company_gateways'] ?? false,
             'client_gateway_token_count' => $this->data['entity_count']['client_gateway_tokens'] ?? false,
             'tax_rate_count' => $this->data['entity_count']['tax_rates'] ?? false,

@@ -85,7 +85,7 @@ class AdminEmailMailable extends Mailable
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $mime  = finfo_buffer($finfo, base64_decode($file['file']));
             $mime = $mime ?: 'application/octet-stream';
-            finfo_close($finfo);
+            $finfo = null;
 
             return Attachment::fromData(fn() => base64_decode($file['file']), $file['name'])->withMime($mime);
         });

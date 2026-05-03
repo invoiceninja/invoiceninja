@@ -12,21 +12,22 @@
 
 namespace App\PaymentDrivers\Rotessa\Jobs;
 
-use App\Utils\Ninja;
-use App\Models\Payment;
-use App\Models\SystemLog;
-use App\Libraries\MultiDB;
-use App\Models\PaymentHash;
-use Illuminate\Bus\Queueable;
-use App\Models\CompanyGateway;
-use App\Jobs\Util\SystemLogger;
-use Illuminate\Support\Facades\App;
 use App\Jobs\Mail\PaymentFailedMailer;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Jobs\Util\SystemLogger;
+use App\Libraries\MultiDB;
+use App\Models\CompanyGateway;
+use App\Models\Payment;
+use App\Models\PaymentHash;
+use App\Models\SystemLog;
+use App\Utils\Ninja;
+use App\Utils\Number;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Artisan;
 
 class TransactionReport implements ShouldQueue
 {
@@ -128,7 +129,9 @@ class TransactionReport implements ShouldQueue
 
                                                 $error = ctrans('texts.client_payment_failure_body', [
                                                     'invoice' => implode(',', $payment->invoices->pluck('number')->toArray()),
-                                                    'amount' => array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total, ]);
+                                                    'amount' => Number::formatMoney($payment_hash->amount_with_fee(), $client),
+                                                ]);
+
                                             } else {
                                                 $error = 'Payment for ' . $payment->client->present()->name() . " for {$payment->amount} failed";
                                             }

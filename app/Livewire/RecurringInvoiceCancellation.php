@@ -15,11 +15,14 @@ namespace App\Livewire;
 use App\Libraries\MultiDB;
 use App\Models\RecurringInvoice;
 use Livewire\Component;
+use Livewire\Attributes\Locked;
 
 class RecurringInvoiceCancellation extends Component
 {
+    #[Locked]
     public $invoice_id;
 
+    #[Locked]
     public $db;
 
     public function mount()

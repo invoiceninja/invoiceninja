@@ -65,8 +65,10 @@ class SystemMaintenance implements ShouldQueue
         $this->maintainBackups($delete_backup_days);
     }
 
-    private function maintainPdfs(int $delete_pdf_days)
+    private function maintainPdfs($delete_pdf_days)
     {
+        $delete_pdf_days = (int) $delete_pdf_days;
+
         if ($delete_pdf_days == 0) {
             return;
         }
@@ -102,8 +104,10 @@ class SystemMaintenance implements ShouldQueue
                 });
     }
 
-    private function maintainBackups(int $delete_backup_days)
+    private function maintainBackups($delete_backup_days)
     {
+        $delete_backup_days = (int) $delete_backup_days;
+
         if ($delete_backup_days == 0) {
             return;
         }
@@ -120,47 +124,5 @@ class SystemMaintenance implements ShouldQueue
                     $backup->delete();
                 });
     }
-
-    //double check this is correct.
-
-    // private function cleanPdfs()
-    // {
-    //     $company_keys = Company::query()
-    //                             ->pluck('company_key')
-    //                             ->toArray();
-
-    //     $directories = Storage::disk(config('filesystems.default'))->directories();
-
-    //     $del_dirs = ['quotes','invoices','credits','recurring_invoices', 'e_invoice'];
-
-    //     collect($directories)->each(function ($parent_directory) use ($del_dirs, $company_keys) {
-
-    //         if (! in_array($parent_directory, $company_keys)) {
-    //             nlog("Deleting {$parent_directory}");
-
-    //             /* Ensure we are not deleting the root folder */
-    //             if (strlen($parent_directory) > 1) {
-    //                 nlog("Company No Longer Exists => deleting {$parent_directory}");
-    //                 Storage::disk(config('filesystems.default'))->deleteDirectory($parent_directory);
-    //                 return;
-    //             }
-
-    //         }
-
-    //         $sub_directories = Storage::allDirectories($parent_directory);
-
-    //         collect($sub_directories)->each(function ($sub_dir) use ($del_dirs) {
-    //             foreach($del_dirs as $del_dir) {
-    //                 if(stripos($sub_dir, $del_dir) !== false) {
-    //                     nlog("Deleting {$sub_dir} as it matches {$del_dir}");
-    //                     Storage::deleteDirectory($sub_dir);
-    //                 }
-    //             }
-
-    //         });
-
-    //     });
-
-    // }
 
 }

@@ -92,6 +92,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['id' => 63, 'name' => 'Rotessa', 'is_offsite' => false, 'sort_order' => 22, 'provider' => 'Rotessa', 'key' => '91be24c7b792230bced33e930ac61676', 'fields' => '{"apiKey":"", "testMode":false}'],
             ['id' => 64, 'name' => 'CBA PowerBoard', 'is_offsite' => false, 'sort_order' => 26, 'provider' => 'CBAPowerBoard', 'key' => 'b67581d804dbad1743b61c57285142ad', 'fields' => '{"publicKey":"", "secretKey":"", "testMode":false, "gatewayId":"", "amex":false, "ausbc":false, "discover":false, "japcb":false, "laser":false, "mastercard":true, "solo":false, "visa":true, "visa_white":false}'],
             ['id' => 65, 'name' => 'Blockonomics', 'is_offsite' => false, 'sort_order' => 27, 'provider' => 'Blockonomics', 'key' => 'wbhf02us6owgo7p4nfjd0ymssdshks4d', 'fields' => '{"apiKey":""}'],
+            ['id' => 66, 'name' => 'LawPay', 'is_offsite' => false, 'sort_order' => 28, 'provider' => 'LawPay', 'key' => 'f4lafbnygsmkflagbqp7zqnfpgeoekdn', 'fields' => '{"publicKey":"","secretKey":"","testMode":false}'],
         ];
 
         foreach ($gateways as $gateway) {

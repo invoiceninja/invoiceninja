@@ -33,6 +33,7 @@ use App\PaymentDrivers\Stripe\BankTransfer;
 use App\Services\ClientPortal\InstantPayment;
 use App\Services\Subscription\SubscriptionService;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Http\Requests\ClientPortal\Payments\ShowPaymentRequest;
 
 /**
  * Class PaymentController.
@@ -55,11 +56,11 @@ class PaymentController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param Request $request
+     * @param ShowPaymentRequest $request
      * @param Payment $payment
      * @return Factory|View|RedirectResponse|Redirector
      */
-    public function show(Request $request, Payment $payment)
+    public function show(ShowPaymentRequest $request, Payment $payment)
     {
         $payment->load('invoices');
         $bank_details = false;
@@ -109,7 +110,7 @@ class PaymentController extends Controller
     public function catch_process(Request $request)
     {
         /** If there is a request_hash prop, this is part of a DocuNinja Workflow which we need to handle */
-        if($request->has('request_hash')){
+        if ($request->has('request_hash')) {
             $request_hash = $request->input('request_hash');
             $request_array = Cache::get($request_hash);
             $request->merge($request_array);
@@ -131,8 +132,8 @@ class PaymentController extends Controller
     public function process(Request $request)
     {
 
-        if(in_array($request->input('docuninja_active', false), [true, 'true', 1, '1'], true)){
-        
+        if (auth()->guard('contact')->user()->client->requiresDocuNinjaSigning()) {
+
             $request_hash = \Illuminate\Support\Str::random(64);
             $payable_invoices = array_column($request->input('payable_invoices'), 'invoice_id');
             $ids = $this->transformKeys($payable_invoices);
@@ -145,14 +146,14 @@ class PaymentController extends Controller
                                                             return !$invitation->invoice->sync?->dn_completed;
                                                         });
 
-            if($invitations->count() > 0){
+            if ($invitations->count() > 0) {
 
                 $invitation = $invitations->first();
-                
+
                 $request->merge(['entity_type' => 'invoice', 'db' => auth()->guard('contact')->user()->company->db, 'request_hash' => $request_hash]);
 
                 Cache::put($request_hash, $request->all(), 60 * 60 * 24);
-                
+
                 return $this->render('components.docuninja', [
                     'invitation_id' => $invitation->id,
                     'entity_type' => 'invoice',

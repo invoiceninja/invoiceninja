@@ -4,6 +4,7 @@
           description: 'The payment hashed id'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         client_id:
           description: 'The client hashed id'
           type: string

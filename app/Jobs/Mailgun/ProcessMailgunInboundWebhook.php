@@ -12,17 +12,18 @@
 
 namespace App\Jobs\Mailgun;
 
-use App\Models\Company;
-use App\Utils\TempFile;
 use App\Libraries\MultiDB;
-use Illuminate\Bus\Queueable;
-use Illuminate\Support\Carbon;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Models\Company;
 use App\Services\InboundMail\InboundMail;
+use App\Services\InboundMail\InboundMailEngine;
+use App\Utils\TempFile;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\Services\InboundMail\InboundMailEngine;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Http;
 
 class ProcessMailgunInboundWebhook implements ShouldQueue
 {
@@ -217,7 +218,13 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
                 $messageUrl = str_replace("https://", "https://" . $credentials, $messageUrl);
 
                 try {
-                    $mail = json_decode(file_get_contents($messageUrl));
+
+                    $data = Http::withOptions([
+                        'allow_redirects' => false,
+                    ])->timeout(5)
+                    ->get($messageUrl);
+                    
+                    $mail = json_decode($data->body());
                 } catch (\Error $e) {
                     if (config('services.mailgun.secret')) {
                         nlog("[ProcessMailgunInboundWebhook] Error while downloading with company credentials, we try to use default credentials now...");
@@ -226,7 +233,19 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
                         $messageUrl = $this->message_url;//explode("|", $this->input)[2];
                         $messageUrl = str_replace("http://", "http://" . $credentials, $messageUrl);
                         $messageUrl = str_replace("https://", "https://" . $credentials, $messageUrl);
-                        $mail = json_decode(file_get_contents($messageUrl));
+
+                        try {
+                            $data = Http::withOptions([
+                                'allow_redirects' => false,
+                                ])
+                                ->timeout(5)
+                                ->get($messageUrl);
+
+                            $mail = json_decode($data->body());
+                            
+                        } catch (\Error $e) {
+                            throw $e;
+                        }
 
                     } else {
                         throw $e;
@@ -239,8 +258,19 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
                 $messageUrl = $this->message_url; //explode("|", $this->input)[2];
                 $messageUrl = str_replace("http://", "http://" . $credentials, $messageUrl);
                 $messageUrl = str_replace("https://", "https://" . $credentials, $messageUrl);
-                $mail = json_decode(file_get_contents($messageUrl));
 
+                $response = Http::withOptions([
+                    'allow_redirects' => false,
+                    ])
+                    ->timeout(5)
+                    ->get($messageUrl);
+                if ($response->successful()) {
+                    $mail = json_decode($response->body());
+                } else {
+                    throw new \Error("[ProcessMailgunInboundWebhook] Error while downloading with default credentials: " . $response->body());
+                }
+
+                
             }
 
             // prepare data for ingresEngine
@@ -265,7 +295,10 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
                         $url = $attachment->url;
                         $url = str_replace("http://", "http://" . $credentials, $url);
                         $url = str_replace("https://", "https://" . $credentials, $url);
-                        $inboundMail->documents[] = TempFile::UploadedFileFromUrl($url, $attachment->name, $attachment->{"content-type"});
+                        
+                        if($tmp_file = TempFile::UploadedFileFromUrl($url, $attachment->name, $attachment->{"content-type"}))
+                            $inboundMail->documents[] = $tmp_file;
+
 
                     } catch (\Error $e) {
                         if (config('services.mailgun.secret')) {
@@ -275,7 +308,9 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
                             $url = $attachment->url;
                             $url = str_replace("http://", "http://" . $credentials, $url);
                             $url = str_replace("https://", "https://" . $credentials, $url);
-                            $inboundMail->documents[] = TempFile::UploadedFileFromUrl($url, $attachment->name, $attachment->{"content-type"});
+                            
+                            if($tmp_file = TempFile::UploadedFileFromUrl($url, $attachment->name, $attachment->{"content-type"}))
+                                $inboundMail->documents[] = $tmp_file;
 
                         } else {
                             throw $e;
@@ -288,7 +323,9 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
                     $url = $attachment->url;
                     $url = str_replace("http://", "http://" . $credentials, $url);
                     $url = str_replace("https://", "https://" . $credentials, $url);
-                    $inboundMail->documents[] = TempFile::UploadedFileFromUrl($url, $attachment->name, $attachment->{"content-type"});
+                    
+                    if($tmp_file = TempFile::UploadedFileFromUrl($url, $attachment->name, $attachment->{"content-type"}))
+                        $inboundMail->documents[] = $tmp_file;
 
                 }
 

@@ -21,6 +21,7 @@ use App\Models\CreditInvitation;
 use App\Utils\Traits\MakesDates;
 use App\Models\InvoiceInvitation;
 use App\Helpers\Epc\EpcQrGenerator;
+use App\Helpers\Invoice\InvoiceSum;
 use Illuminate\Support\Facades\App;
 use App\Utils\Traits\DesignCalculator;
 use App\Helpers\SwissQr\SwissQrGenerator;
@@ -52,10 +53,13 @@ class HtmlEngine
     /** @var \App\DataMapper\CompanySettings|\stdClass $settings **/
     public $settings;
 
+    /** @var \App\Helpers\Invoice\InvoiceSum|\App\Helpers\Invoice\InvoiceSumInclusive $entity_calc */
     public $entity_calc;
 
+    /** @var string */
     public $entity_string;
 
+    /** @var \App\Utils\Helpers $helpers */
     private $helpers;
 
 
@@ -77,7 +81,7 @@ class HtmlEngine
 
         $this->contact = $invitation->contact->load('client');
 
-        $this->client = $this->contact->client->load('company', 'country');
+        $this->client = $this->contact->client->load(['company', 'country']);
 
         $this->entity->load('client');
 
@@ -88,6 +92,12 @@ class HtmlEngine
         $this->helpers = new Helpers();
     }
 
+    /**
+     * setSettings
+     *
+     * @param  mixed $settings
+     * @return self
+     */
     public function setSettings($settings): self
     {
         $this->settings = $settings;
@@ -190,12 +200,14 @@ class HtmlEngine
 
         $data['$payment_schedule'] = ['value' => '', 'label' => ctrans('texts.payment_schedule')];
         $data['$payment_schedule_interval'] = ['value' => '', 'label' => ctrans('texts.payment_schedule')];
+        $data['$payment_schedule_count'] = ['value' => '', 'label' => ctrans('texts.payment_schedule')];
 
         $data['$days_overdue'] = ['value' => $this->daysOverdue(), 'label' => ctrans('texts.overdue')];
 
         if (method_exists($this->entity, 'paymentSchedule')) {
             $data['$payment_schedule'] = ['value' => $this->entity->paymentSchedule(true), 'label' => ctrans('texts.payment_schedule')];
             $data['$payment_schedule_interval'] = ['value' => $this->entity->paymentScheduleInterval(), 'label' => ctrans('texts.payment_schedule')];
+            $data['$payment_schedule_count'] = ['value' => $this->entity->paymentScheduleCount(), 'label' => ctrans('texts.payment_schedule')];
         }
 
         $data['$location1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'location1', $this->entity->location?->custom_value1, $this->client) ?: ' ', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'location1')];
@@ -471,7 +483,7 @@ class HtmlEngine
 
         $data['$user_iban'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company1', $this->settings->custom_value1, $this->client) ?: ' ', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company1')];
 
-        $data['$invoice.public_notes'] = ['value' => Helpers::processReservedKeywords(\nl2br($this->entity->public_notes ?: ''), $this->client) ?: '', 'label' => ctrans('texts.public_notes')];
+        $data['$invoice.public_notes'] = ['value' => Helpers::processReservedKeywords(\nl2br($this->entity->public_notes ?? ''), $this->client) ?: '', 'label' => ctrans('texts.public_notes')];
         $data['$entity.public_notes'] = &$data['$invoice.public_notes'];
         $data['$public_notes'] = &$data['$invoice.public_notes'];
         $data['$notes'] = &$data['$public_notes'];
@@ -534,8 +546,8 @@ class HtmlEngine
         $data['$client.address2'] = &$data['$address2'];
         $data['$client_address'] = ['value' => $locationData['address'], 'label' => ctrans('texts.address')];
         $data['$client.address'] = &$data['$client_address'];
-        $data['$client.postal_code'] = ['value' => $locationData['postal_code'] ?: ' ', 'label' => ctrans('texts.postal_code')];
-        $data['$client.public_notes'] = ['value' => $this->client->public_notes ?: ' ', 'label' => ctrans('texts.notes')];
+        $data['$client.postal_code'] = ['value' => $locationData['postal_code'] ?? ' ', 'label' => ctrans('texts.postal_code')];
+        $data['$client.public_notes'] = ['value' => $this->client->public_notes ?? ' ', 'label' => ctrans('texts.notes')];
         $data['$client.city'] = ['value' => $locationData['city'] ?: ' ', 'label' => ctrans('texts.city')];
         $data['$client.state'] = ['value' => $locationData['state'] ?: ' ', 'label' => ctrans('texts.state')];
         $data['$client.id_number'] = &$data['$id_number'];
@@ -667,6 +679,7 @@ class HtmlEngine
         $data['$product.product_key'] = ['value' => '', 'label' => ctrans('texts.product_key')];
         $data['$product.description'] = ['value' => '', 'label' => ctrans('texts.description')];
         $data['$product.unit_cost'] = ['value' => '', 'label' => ctrans('texts.unit_cost')];
+        $data['$product.net_cost'] = ['value' => '', 'label' => ctrans('texts.unit_cost')];
         $data['$product.quantity'] = ['value' => '', 'label' => ctrans('texts.quantity')];
         $data['$product.tax_name1'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$product.tax'] = ['value' => '', 'label' => ctrans('texts.tax')];
@@ -720,8 +733,8 @@ class HtmlEngine
             $data['$vendor.country_2'] = ['value' => isset($this->entity->vendor->country) ? $this->entity->vendor->country->iso_3166_2 : '', 'label' => ctrans('texts.country')];
             $data['$vendor_address'] = ['value' => $this->entity->vendor->present()->address() ?: '&nbsp;', 'label' => ctrans('texts.address')];
             $data['$vendor.address'] = &$data['$vendor_address'];
-            $data['$vendor.postal_code'] = ['value' => $this->entity->vendor->postal_code ?: '&nbsp;', 'label' => ctrans('texts.postal_code')];
-            $data['$vendor.public_notes'] = ['value' => $this->entity->vendor->public_notes ?: '&nbsp;', 'label' => ctrans('texts.notes')];
+            $data['$vendor.postal_code'] = ['value' => $this->entity->vendor->postal_code ?? '&nbsp;', 'label' => ctrans('texts.postal_code')];
+            $data['$vendor.public_notes'] = ['value' => $this->entity->vendor->public_notes ?? '&nbsp;', 'label' => ctrans('texts.notes')];
             $data['$vendor.city'] = ['value' => $this->entity->vendor->city ?: '&nbsp;', 'label' => ctrans('texts.city')];
             $data['$vendor.state'] = ['value' => $this->entity->vendor->state ?: '&nbsp;', 'label' => ctrans('texts.state')];
             $data['$vendor.city_state_postal'] = ['value' => $this->entity->vendor->present()->cityStateZip($this->entity->vendor->city, $this->entity->vendor->state, $this->entity->vendor->postal_code, false) ?: '&nbsp;', 'label' => ctrans('texts.city_state_postal')];
@@ -845,15 +858,14 @@ class HtmlEngine
         }
 
         $data['$actual_delivery_date'] = ['value' => $this->translateDate(data_get($this->entity, 'e_invoice.Invoice.Delivery.0.ActualDeliveryDate', ''), $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.actual_delivery_date')];
-        
+
         $invoice_period = '';
 
-        if($period = data_get($this->entity, 'e_invoice.Invoice.InvoicePeriod.0', false)) {
-            try{
+        if ($period = data_get($this->entity, 'e_invoice.Invoice.InvoicePeriod.0', false)) {
+            try {
                 $invoice_period = $this->translateDate($period->StartDate, $this->client->date_format(), $this->client->locale()) . ' - ' . $this->translateDate($period->EndDate, $this->client->date_format(), $this->client->locale());
-            }
-            catch(\Throwable $e) {
-                nlog("Error getting invoice period: {$e->getMessage()}");
+            } catch (\Throwable $e) {
+                nlog("Error getting invoice period: HE:: {$e->getMessage()}");
             }
         }
 
@@ -1035,7 +1047,7 @@ Código seguro de verificación (CSV): {$verifactu_log->status}";
 
         return $data;
     }
-    
+
     public function generateLabelsAndValues()
     {
         $data = [];

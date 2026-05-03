@@ -29,7 +29,7 @@ class BaseTransformer
         $country = app('countries')->first(function ($c) use ($iso_3_code) {
 
             /** @var \App\Models\Country $c */
-            return $c->iso_3166_3 == $iso_3_code || $c->name == $iso_3_code;
+            return $c->iso_3166_2 == $iso_3_code || $c->iso_3166_3 == $iso_3_code || $c->name == $iso_3_code;
         });
 
         return $country ? (string) $country->id : $this->company->settings->country_id;

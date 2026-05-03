@@ -54,7 +54,7 @@ class UpdateTaskRequest extends Request
         }
 
         if (isset($this->client_id)) {
-            $rules['client_id'] = 'bail|required|exists:clients,id,company_id,' . $user->company()->id . ',is_deleted,0';
+            $rules['client_id'] = 'bail|required|integer|exists:clients,id,company_id,' . $user->company()->id . ',is_deleted,0';
         }
 
         if (isset($this->project_id)) {
@@ -119,7 +119,8 @@ class UpdateTaskRequest extends Request
 
         $rules['file'] = 'bail|sometimes|array';
         $rules['file.*'] = $this->fileValidation();
-
+        $rules['documents'] = 'bail|sometimes|array';
+        $rules['documents.*'] = $this->fileValidation();
 
         return $this->globalRules($rules);
     }

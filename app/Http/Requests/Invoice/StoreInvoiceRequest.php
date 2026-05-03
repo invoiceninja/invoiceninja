@@ -12,6 +12,7 @@
 
 namespace App\Http\Requests\Invoice;
 
+use App\Helpers\Cache\Atomic;
 use App\Models\Invoice;
 use App\Http\Requests\Request;
 use App\Utils\Traits\MakesHash;
@@ -46,7 +47,7 @@ class StoreInvoiceRequest extends Request
 
         $rules = [];
 
-        $rules['client_id'] = ['required', 'bail', new VerifactuAmountCheck($this->all()), Rule::exists('clients', 'id')->where('company_id', $user->company()->id)->where('is_deleted', 0)];
+        $rules['client_id'] = ['required', 'bail', 'integer',new VerifactuAmountCheck($this->all()), Rule::exists('clients', 'id')->where('company_id', $user->company()->id)->where('is_deleted', 0)];
 
         $rules['file'] = 'bail|sometimes|array';
         $rules['file.*'] = $this->fileValidation();
@@ -64,12 +65,6 @@ class StoreInvoiceRequest extends Request
         $rules['due_date'] = ['bail', 'sometimes', 'nullable', 'after:partial_due_date', Rule::requiredIf(fn() => strlen($this->partial_due_date ?? '') > 1), 'date'];
 
         $rules['line_items'] = ['bail', 'array'];
-        // $rules['line_items.*.notes'] = 'nullable|string';
-        // $rules['line_items.*.product_key'] = 'nullable|string';
-        // $rules['line_items.*.custom_value1'] = 'nullable|string';
-        // $rules['line_items.*.custom_value2'] = 'nullable|string';
-        // $rules['line_items.*.custom_value3'] = 'nullable|string';
-        // $rules['line_items.*.custom_value4'] = 'nullable|string';
 
         $rules['discount'] = 'sometimes|numeric|max:99999999999999';
         $rules['tax_rate1'] = 'bail|sometimes|numeric';
@@ -102,11 +97,9 @@ class StoreInvoiceRequest extends Request
         $client_id = is_string($this->input('client_id', '')) ? $this->input('client_id') : '';
         $key = $this->ip() . "|INVOICE|" . $client_id . "|" . $user->company()->company_key;
 
-        if (\Illuminate\Support\Facades\Cache::has($key)) {
-            usleep(200000);
+        if (!Atomic::set($key, 1, 2)) {
+            usleep(100000);
         }
-
-        \Illuminate\Support\Facades\Cache::put($key, 1);
 
         $input = $this->all();
 
@@ -175,10 +168,17 @@ class StoreInvoiceRequest extends Request
 
         $input['lock_key'] = $key;
 
-        if(isset($input['sync'])){
+        if (isset($input['sync'])) {
             unset($input['sync']);
         }
-        
+
         $this->replace($input);
+    }
+
+    public function messages(): array
+    {
+        return [
+            'client_id.integer' => 'The value for the client ID is invalid',
+        ];
     }
 }

@@ -45,6 +45,7 @@ use Illuminate\Contracts\Translation\HasLocalePreference;
  * @property string|null $custom_value3
  * @property string|null $custom_value4
  * @property bool $send_email
+ * @property bool $cc_only
  * @property string|null $email_verified_at
  * @property string|null $confirmation_code
  * @property bool $confirmed
@@ -125,6 +126,7 @@ class VendorContact extends Authenticatable implements HasLocalePreference
         'is_primary',
         'vendor_id',
         'send_email',
+        'cc_only',
         'can_sign',
     ];
 
@@ -133,7 +135,14 @@ class VendorContact extends Authenticatable implements HasLocalePreference
         return 'vendor_contacts';
     }
 
-    public function toSearchableArray()
+    public function toSearchableArray(): array
+    {
+        return config('scout.index_version', 'legacy') === 'v2'
+            ? $this->toSearchableArrayV2()
+            : $this->toSearchableArrayLegacy();
+    }
+
+    public function toSearchableArrayLegacy(): array
     {
         return [
             'id' => $this->company->db . ":" . $this->id,
@@ -152,15 +161,22 @@ class VendorContact extends Authenticatable implements HasLocalePreference
         ];
     }
 
+    public function toSearchableArrayV2(): array
+    {
+        return $this->toSearchableArrayLegacy();
+    }
+
     public function getScoutKey()
     {
         return $this->company->db . ":" . $this->id;
     }
 
-    public function avatar()
+    public function avatarUrl(): string
     {
-        if ($this->avatar) {
-            return $this->avatar;
+        $avatar = $this->attributes['avatar'] ?? '';
+
+        if ($avatar) {
+            return $avatar;
         }
 
         return asset('images/svg/user.svg');

@@ -17,11 +17,14 @@ use Livewire\Component;
 use App\Libraries\MultiDB;
 use App\Models\RecurringInvoice;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 
 class UpdateAutoBilling extends Component
 {
+    #[Locked]
     public $invoice_id;
 
+    #[Locked]
     public $db;
 
     public function mount()

@@ -28,6 +28,9 @@ class EmailStatementService
 
     public function run()
     {
+        //calculate next run dates;
+        $this->scheduler->calculateNextRun();
+
         $query = Client::query()
                 ->where('company_id', $this->scheduler->company_id)
                 ->where('is_deleted', 0);
@@ -43,13 +46,15 @@ class EmailStatementService
             ->each(function ($_client) {
 
                 //work out the date range
-                $statement_properties = $this->calculateStatementProperties($_client);
+                try {
+                    $statement_properties = $this->calculateStatementProperties($_client);
+                    $_client->service()->statement($statement_properties, true);
+                }
+                catch (\Throwable $th) {
+                    nlog("EXCEPTION:: EmailStatementService:: could not email statement for client {$_client->id} :: " . $th->getMessage());
+                }
 
-                $_client->service()->statement($statement_properties, true);
             });
-
-        //calculate next run dates;
-        $this->scheduler->calculateNextRun();
 
     }
 

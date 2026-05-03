@@ -42,13 +42,16 @@
 
             @endforeach
 
+            @php($hasShippingField = collect($fields)->contains(fn($f) => str_starts_with($f['name'], 'client_shipping')))
+            @if($hasShippingField)
             <div class="bg-white px-4 py-5 flex items-center w-full justify-end">
-                <button type="button" 
+                <button type="button"
                         id="copy-billing-button"
                         class="bg-gray-100 hover:bg-gray-200 px-4 py-2 text-sm rounded transition-colors">
                     {{ ctrans('texts.copy_billing') }}
                 </button>
             </div>
+            @endif
 
             <div class="bg-white px-4 py-5 flex items-center w-full justify-end space-x-3">
                 <svg wire:loading class="animate-spin h-5 w-5 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none"

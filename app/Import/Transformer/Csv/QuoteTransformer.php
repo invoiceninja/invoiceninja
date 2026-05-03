@@ -175,8 +175,8 @@ class QuoteTransformer extends BaseTransformer
             ];
         } elseif (
             isset($transformed['amount'])
-            && isset($transformed['balance'])
-            && $transformed['amount'] != $transformed['balance']
+           && isset($transformed['balance'])
+           && $transformed['amount'] != $transformed['balance']
         ) {
             $transformed['payments'] = [
                 [
@@ -202,8 +202,7 @@ class QuoteTransformer extends BaseTransformer
                 'discount' => $this->getFloat($record, 'item.discount'),
                 'is_amount_discount' => filter_var(
                     $this->getString($record, 'item.is_amount_discount'),
-                    FILTER_VALIDATE_BOOLEAN,
-                    FILTER_NULL_ON_FAILURE
+                    FILTER_VALIDATE_BOOLEAN
                 ),
                 'tax_name1' => $this->getString($record, 'item.tax_name1'),
                 'tax_rate1' => $this->getFloat($record, 'item.tax_rate1'),

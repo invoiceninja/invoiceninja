@@ -195,6 +195,17 @@ class ExpenseFilters extends QueryFilters
         return $this->builder->whereIn('category_id', $categories_keys);
     }
 
+    public function payment_type(string $payment_type = ''): Builder
+    {
+        $payment_types_exploded = explode(",", $payment_type);
+
+        if (empty($payment_type) || count(array_filter($payment_types_exploded)) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->whereIn('payment_type_id', $payment_types_exploded);
+    }
+
     public function amount(string $amount = ''): Builder
     {
         if (strlen($amount) == 0) {
@@ -231,30 +242,81 @@ class ExpenseFilters extends QueryFilters
             return $this->builder->withCount('documents')->orderBy('documents_count', $dir);
         }
 
-        if (!is_array($sort_col) || count($sort_col) != 2 || !in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))) {
+        if (!is_array($sort_col) || count($sort_col) != 2 || (!in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable())) && !str_starts_with($sort_col[0], 'client.') && !str_starts_with($sort_col[0], 'contact.') && !str_starts_with($sort_col[0], 'documents'))) {
             return $this->builder;
         }
 
         $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
 
-        if ($sort_col[0] == 'client_id' && in_array($sort_col[1], ['asc', 'desc'])) {
+        if (in_array($sort_col[0], ['client.name', 'client_id'])) {
             return $this->builder
-                    ->orderByRaw('ISNULL(client_id), client_id ' . $sort_col[1])
-                    ->orderBy(\App\Models\Client::select('name')
-                    ->whereColumn('clients.id', 'expenses.client_id'), $sort_col[1]);
+                ->orderByRaw(
+                    "
+                    CASE
+                        WHEN CHAR_LENGTH((SELECT name FROM clients WHERE clients.id = expenses.client_id LIMIT 1)) > 1
+                            THEN (SELECT name FROM clients WHERE clients.id = expenses.client_id LIMIT 1)
+                        WHEN CHAR_LENGTH(CONCAT(
+                            COALESCE((SELECT first_name FROM client_contacts WHERE client_contacts.client_id = expenses.client_id AND client_contacts.email IS NOT NULL ORDER BY client_contacts.is_primary DESC, client_contacts.id ASC LIMIT 1), ''),
+                            COALESCE((SELECT last_name FROM client_contacts WHERE client_contacts.client_id = expenses.client_id AND client_contacts.email IS NOT NULL ORDER BY client_contacts.is_primary DESC, client_contacts.id ASC LIMIT 1), '')
+                        )) >= 1
+                            THEN TRIM(CONCAT(
+                                COALESCE((SELECT first_name FROM client_contacts WHERE client_contacts.client_id = expenses.client_id AND client_contacts.email IS NOT NULL ORDER BY client_contacts.is_primary DESC, client_contacts.id ASC LIMIT 1), ''),
+                                ' ',
+                                COALESCE((SELECT last_name FROM client_contacts WHERE client_contacts.client_id = expenses.client_id AND client_contacts.email IS NOT NULL ORDER BY client_contacts.is_primary DESC, client_contacts.id ASC LIMIT 1), '')
+                            ))
+                        WHEN CHAR_LENGTH((SELECT email FROM client_contacts WHERE client_contacts.client_id = expenses.client_id AND client_contacts.email IS NOT NULL ORDER BY client_contacts.is_primary DESC, client_contacts.id ASC LIMIT 1)) > 0
+                            THEN (SELECT email FROM client_contacts WHERE client_contacts.client_id = expenses.client_id AND client_contacts.email IS NOT NULL ORDER BY client_contacts.is_primary DESC, client_contacts.id ASC LIMIT 1)
+                        ELSE 'No Contact Set'
+                    END " . $dir
+                );
         }
 
+        /** Relationship sorting - clients */
+        if (str_starts_with($sort_col[0], 'client.')) {
+            $client_parts = explode('.', $sort_col[0]);
+
+            if (!isset($client_parts[1]) || !in_array($client_parts[1], \Illuminate\Support\Facades\Schema::getColumnListing('clients'))) {
+                return $this->builder;
+            }
+
+            if ($sort_col[0] === 'client.country_id') {
+                return $this->builder->orderBy(
+                    \App\Models\Client::select('countries.name')
+                        ->join('countries', 'countries.id', '=', 'clients.country_id')
+                        ->whereColumn('clients.id', 'expenses.client_id')
+                        ->limit(1),
+                    $dir
+                );
+            }
+
+            return $this->builder->orderBy(\App\Models\Client::select($client_parts[1])
+                ->whereColumn('clients.id', 'expenses.client_id')
+                ->limit(1), $dir);
+        }
+
+        /** Relationship sorting - contacts */
+        if (str_starts_with($sort_col[0], 'contact.')) {
+            $client_parts = explode('.', $sort_col[0]);
+
+            if (!isset($client_parts[1]) || !in_array($client_parts[1], \Illuminate\Support\Facades\Schema::getColumnListing('client_contacts'))) {
+                return $this->builder;
+            }
+
+            return $this->builder->orderBy(\App\Models\ClientContact::select($client_parts[1])
+                ->whereColumn('client_contacts.client_id', 'expenses.client_id')
+                ->limit(1), $dir);
+        }
 
         if ($sort_col[0] == 'project' && in_array($sort_col[1], ['asc', 'desc'])) {
             return $this->builder
-                    ->orderByRaw('ISNULL(project_id), project_id ' . $sort_col[1])
+                    ->orderByRaw('ISNULL(project_id)')
                     ->orderBy(\App\Models\Project::select('name')
                     ->whereColumn('projects.id', 'expenses.project_id'), $sort_col[1]);
         }
 
         if ($sort_col[0] == 'vendor_id' && in_array($sort_col[1], ['asc', 'desc'])) {
             return $this->builder
-                    ->orderByRaw('ISNULL(vendor_id), vendor_id ' . $sort_col[1])
+                    ->orderByRaw('ISNULL(vendor_id)')
                     ->orderBy(\App\Models\Vendor::select('name')
                     ->whereColumn('vendors.id', 'expenses.vendor_id'), $sort_col[1]);
 
@@ -262,7 +324,7 @@ class ExpenseFilters extends QueryFilters
 
         if ($sort_col[0] == 'category_id' && in_array($sort_col[1], ['asc', 'desc'])) {
             return $this->builder
-                    ->orderByRaw('ISNULL(category_id), category_id ' . $sort_col[1])
+                    ->orderByRaw('ISNULL(category_id)')
                     ->orderBy(\App\Models\ExpenseCategory::select('name')
                     ->whereColumn('expense_categories.id', 'expenses.category_id'), $sort_col[1]);
         }
@@ -272,11 +334,18 @@ class ExpenseFilters extends QueryFilters
                     ->orderByRaw('ISNULL(payment_date), payment_date ' . $sort_col[1]);
         }
 
+        if ($sort_col[0] == 'payment_type_id' && in_array($sort_col[1], ['asc', 'desc'])) {
+            return $this->builder
+                    ->orderByRaw('ISNULL(payment_type_id)')
+                    ->orderBy(\App\Models\PaymentType::select('name')
+                    ->whereColumn('payment_types.id', 'expenses.payment_type_id'), $sort_col[1]);
+        }
+
         if ($sort_col[0] == 'number') {
             return $this->builder->orderByRaw("REGEXP_REPLACE(number,'[^0-9]+','')+0 " . $dir);
         }
 
-        if (is_array($sort_col) && in_array($sort_col[1], ['asc', 'desc']) && in_array($sort_col[0], ['amount', 'public_notes', 'date', 'id_number', 'custom_value1', 'custom_value2', 'custom_value3', 'custom_value4'])) {
+        if (in_array($sort_col[1], ['asc', 'desc']) && in_array($sort_col[0], ['amount', 'public_notes', 'date', 'id_number', 'custom_value1', 'custom_value2', 'custom_value3', 'custom_value4'])) {
             return $this->builder->orderBy($sort_col[0], $sort_col[1]);
         }
 

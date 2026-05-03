@@ -124,7 +124,7 @@ class PaymentExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(Payment $payment): array
+    protected function buildRow(Payment $payment): array
     {
         $transformed_entity = $this->entity_transformer->transform($payment);
 

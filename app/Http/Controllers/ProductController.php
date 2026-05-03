@@ -474,7 +474,7 @@ class ProductController extends BaseController
 
         $ids = $request->input('ids');
 
-        $products = Product::withTrashed()->whereIn('id', $ids);
+        $products = Product::withTrashed()->company()->whereIn('id', $ids);
 
         if ($action == 'set_tax_id') {
 
@@ -482,7 +482,7 @@ class ProductController extends BaseController
 
             $products->update(['tax_id' => $tax_id]);
 
-            return $this->listResponse(Product::withTrashed()->whereIn('id', $ids));
+            return $this->listResponse(Product::withTrashed()->company()->whereIn('id', $ids));
         }
 
         $products->cursor()->each(function ($product, $key) use ($action, $user) {
@@ -491,7 +491,7 @@ class ProductController extends BaseController
             }
         });
 
-        return $this->listResponse(Product::withTrashed()->whereIn('id', $ids));
+        return $this->listResponse(Product::withTrashed()->company()->whereIn('id', $ids));
     }
 
     /**
