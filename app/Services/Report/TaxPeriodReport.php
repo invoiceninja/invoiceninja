@@ -133,17 +133,29 @@ class TaxPeriodReport extends BaseExport
     private function initializeData(): self
     {
 
-        // First sweep: only active statuses (SENT/PARTIAL/PAID).
-        // CANCELLED/REVERSED/deleted invoices early-return without writing an
-        // event in InvoiceTransactionEventEntry::run, so including them here
-        // causes them to be reprocessed on every report run forever. The
-        // second sweep below handles their state transitions instead.
+        // First sweep. Active SENT/PARTIAL/PAID invoices always need an event for
+        // end_date if missing. CANCELLED/REVERSED/deleted invoices only need
+        // processing when no terminal-state event exists yet — once that event is
+        // written they would otherwise be reprocessed on every report run because
+        // InvoiceTransactionEventEntry::run early-returns without writing a new
+        // event for end_date when status already matches.
         $q = Invoice::withTrashed()
             ->with('payments')
             ->where('company_id', $this->company->id)
-            ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
-            ->where('is_deleted', false)
             ->whereBetween('date', ['1970-01-01', $this->end_date])
+            ->where(function ($q) {
+                $q->where(function ($q) {
+                    $q->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
+                      ->where('is_deleted', false);
+                })->orWhere(function ($q) {
+                    $q->where(function ($q) {
+                        $q->whereIn('status_id', [Invoice::STATUS_CANCELLED, Invoice::STATUS_REVERSED])
+                          ->orWhere('is_deleted', true);
+                    })->whereDoesntHave('transaction_events', function ($query) {
+                        $query->whereIn('metadata->tax_report->tax_summary->status', ['cancelled', 'reversed', 'deleted']);
+                    });
+                });
+            })
             ->whereDoesntHave('transaction_events', function ($query) {
                 $query->where('period', $this->end_date);
             });
@@ -290,25 +302,8 @@ class TaxPeriodReport extends BaseExport
     private function resolveQuery(): Builder
     {
 
-        $start_date = $this->start_date;
-        $end_date = $this->end_date;
-        $cash_accounting = $this->cash_accounting;
-
         $query = Invoice::query()
             ->withTrashed()
-            ->with(['transaction_events' => function ($q) use ($start_date, $end_date, $cash_accounting) {
-                $q->whereBetween('period', [$start_date, $end_date])
-                  ->orderBy('timestamp', 'desc');
-
-                if ($cash_accounting) {
-                    $q->where(function ($sub_q) {
-                        $sub_q->where('event_id', '!=', TransactionEvent::INVOICE_UPDATED)
-                              ->orWhere('metadata->tax_report->tax_summary->status', 'reversed');
-                    });
-                } else {
-                    $q->where('event_id', TransactionEvent::INVOICE_UPDATED);
-                }
-            }])
             ->where('company_id', $this->company->id);
 
         if ($this->cash_accounting) { //cash
@@ -554,12 +549,23 @@ class TaxPeriodReport extends BaseExport
 
         $query->cursor()->each(function ($invoice) {
 
-            // transaction_events were eager-loaded with the same filters in resolveQuery();
-            // iterate the loaded collection rather than firing a fresh query per invoice.
-            foreach ($invoice->transaction_events as $event) {
+            $invoice->transaction_events()
+            ->when(!$this->cash_accounting, function ($query) {
+                $query->where('event_id', TransactionEvent::INVOICE_UPDATED);
+            })
+            ->when($this->cash_accounting, function ($query) {
+                $query->where(function ($sub_q) {
+                    $sub_q->where('event_id', '!=', TransactionEvent::INVOICE_UPDATED)
+                        ->orWhere('metadata->tax_report->tax_summary->status', 'reversed');
+                });
+            })
+            ->whereBetween('period', [$this->start_date, $this->end_date])
+            ->orderBy('timestamp', 'desc')
+            ->cursor()
+            ->each(function ($event) use ($invoice) {
                 /** @var Invoice $invoice */
                 $this->processTransactionEvent($event, $invoice);
-            }
+            });
         });
 
         return $this;
