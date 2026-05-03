@@ -193,8 +193,8 @@ class AdminEmail implements ShouldQueue
                     nlog($message);
                 }
 
-                $this->fail();
                 $this->cleanUpMailers();
+                $this->fail();
                 return;
             }
 
