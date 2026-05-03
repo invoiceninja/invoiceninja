@@ -62,7 +62,16 @@
     <script>
         var helcimAchCheckoutToken = '{{ $checkout_token }}';
         var helcimAchSecretToken = '{{ $secret_token }}';
-        document.getElementById('pay-now').addEventListener('click', function(e) {
+        if (!window.helcimAchPayButtonBound) {
+            window.helcimAchPayButtonBound = true;
+
+            document.addEventListener('click', function(e) {
+            var payNowButton = e.target.closest('#pay-now');
+
+            if (!payNowButton) {
+                return;
+            }
+
             e.preventDefault();
             var selectedPaymentType = document.querySelector('input[name="payment-type"]:checked');
             var helcimAchSelectedToken = selectedPaymentType?.dataset?.token || null;
@@ -74,14 +83,15 @@
             } else {
                 if (!helcimAchCheckoutToken) {
                     console.error('Helcim ACH checkout token is missing.');
-                    this.disabled = false;
+                    payNowButton.disabled = false;
                     return;
                 }
 
-                this.disabled = true;
+                payNowButton.disabled = true;
                 window.appendHelcimPayIframe(helcimAchCheckoutToken);
             }
-        });
+            });
+        }
 
         window.addEventListener('message', function(event) {
             if (event.origin.indexOf('helcim') === -1) return;

@@ -63,7 +63,16 @@
     <script>
         var helcimCheckoutToken = '{{ $checkout_token }}';
         var helcimSecretToken = '{{ $secret_token }}';
-        document.getElementById('pay-now').addEventListener('click', function(e) {
+        if (!window.helcimCreditCardPayButtonBound) {
+            window.helcimCreditCardPayButtonBound = true;
+
+            document.addEventListener('click', function(e) {
+            var payNowButton = e.target.closest('#pay-now');
+
+            if (!payNowButton) {
+                return;
+            }
+
             e.preventDefault();
             var selectedPaymentType = document.querySelector('input[name="payment-type"]:checked');
             var helcimSelectedToken = selectedPaymentType?.dataset?.token || null;
@@ -75,14 +84,15 @@
             } else {
                 if (!helcimCheckoutToken) {
                     console.error('Helcim checkout token is missing.');
-                    this.disabled = false;
+                    payNowButton.disabled = false;
                     return;
                 }
 
-                this.disabled = true;
+                payNowButton.disabled = true;
                 window.appendHelcimPayIframe(helcimCheckoutToken);
             }
-        });
+            });
+        }
 
         window.addEventListener('message', function(event) {
             if (event.origin.indexOf('helcim') === -1) return;
