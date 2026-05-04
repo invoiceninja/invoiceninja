@@ -431,4 +431,9 @@ class Vendor extends BaseModel
     {
         return $this->hasMany(Quote::class)->withTrashed();
     }
+
+    public function purchase_orders(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PurchaseOrder::class)->withTrashed();
+    }
 }

@@ -3935,6 +3935,7 @@ $lang = array(
     'max_refundable_credit' => 'Attempting to refund more than allowed for credit :credit, maximum refundable amount is :amount',
     'project_client_do_not_match' => 'Project client does not match entity client',
     'quote_number_taken' => 'Quote number already taken',
+    'task_number_taken' => 'Task number already taken',
     'recurring_invoice_number_taken' => 'Recurring Invoice number :number already taken',
     'user_not_associated_with_account' => 'User not associated with this account',
     'amounts_do_not_balance' => 'Amounts do not balance correctly.',

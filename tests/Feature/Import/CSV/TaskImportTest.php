@@ -12,6 +12,7 @@
 
 namespace Tests\Feature\Import\CSV;
 
+use App\Factory\TaskFactory;
 use App\Import\Providers\Csv;
 use App\Import\Transformer\BaseTransformer;
 use App\Models\Task;
@@ -114,6 +115,57 @@ class TaskImportTest extends TestCase
     }
 
 
+
+    public function testTaskImportSkipsDuplicateNumbers()
+    {
+        Task::query()
+            ->where('company_id', $this->company->id)
+            ->forceDelete();
+
+        $existing = TaskFactory::create($this->company->id, $this->user->id);
+        $existing->number = 'x1234';
+        $existing->save();
+
+        $this->assertEquals(1, Task::withTrashed()->where('company_id', $this->company->id)->count());
+
+        $csv = file_get_contents(
+            base_path().'/tests/Feature/Import/tasks2.csv'
+        );
+        $hash = \Illuminate\Support\Str::random(32);
+        $column_map = [
+            0 => 'task.user_id',
+            3 => 'project.name',
+            2 => 'client.name',
+            4 => 'task.number',
+            5 => 'task.description',
+            6 => 'task.billable',
+            7 => 'task.start_date',
+            9 => 'task.end_date',
+            8 => 'task.start_time',
+            10 => 'task.end_time',
+            11 => 'task.duration',
+        ];
+
+        $data = [
+            'hash' => $hash,
+            'column_map' => ['task' => ['mapping' => $column_map]],
+            'skip_header' => true,
+            'import_type' => 'csv',
+        ];
+
+        Cache::put($hash.'-task', base64_encode($csv), 360);
+
+        $csv_importer = new Csv($data, $this->company);
+        $csv_importer->import('task');
+
+        $this->assertEquals(1, Task::where('company_id', $this->company->id)->where('number', 'x1234')->count());
+
+        $errors = $csv_importer->error_array['task'] ?? [];
+        $duplicate_errors = array_filter($errors, function ($e) {
+            return ($e['error'] ?? null) === ctrans('texts.task_number_taken');
+        });
+        $this->assertNotEmpty($duplicate_errors);
+    }
 
     public function testTaskImport()
     {

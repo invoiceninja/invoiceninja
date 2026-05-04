@@ -19,6 +19,7 @@ use App\Models\Quote;
 use League\Csv\Reader;
 use App\Models\Company;
 use App\Models\Invoice;
+use App\Models\Task;
 use League\Csv\Statement;
 use App\Factory\TaskFactory;
 use App\Factory\QuoteFactory;
@@ -540,6 +541,14 @@ class BaseImport
             try {
                 $task_data = $task_transformer->transform($raw_task);
                 $task_data['user_id'] = $this->company->owner()->id;
+
+                if (!empty($task_data['number']) && Task::query()->where('company_id', $this->company->id)->where('number', $task_data['number'])->exists()) {
+                    $this->error_array['task'][] = [
+                        'task' => $task_data,
+                        'error' => ctrans('texts.task_number_taken'),
+                    ];
+                    continue;
+                }
 
                 $validator = $this->request_name::runFormRequest($task_data);
 
