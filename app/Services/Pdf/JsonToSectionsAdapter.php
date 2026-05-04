@@ -48,7 +48,13 @@ class JsonToSectionsAdapter
     /**
      * Grouped blocks by row (for layout)
      */
-    private array $blocksByRow = [];
+    private ?array $blocksByRow = null;
+
+    /**
+     * Blocks sorted by grid position. Cached because section conversion and
+     * base-template row grouping both need the same deterministic order.
+     */
+    private ?array $sortedBlocks = null;
 
     /**
      * Fetches and inlines user-supplied image URLs so Chromium never fetches
@@ -102,11 +108,8 @@ class JsonToSectionsAdapter
     {
         $sections = [];
 
-        // Sort blocks by grid position (Y-axis primary, X-axis secondary)
-        $sortedBlocks = $this->sortBlocksByPosition($this->jsonBlocks);
-
         // Convert each block to a section (no row grouping here - that's done in template)
-        foreach ($sortedBlocks as $block) {
+        foreach ($this->sortedBlocks() as $block) {
             $section = $this->convertBlockToSection($block);
             if ($section !== null) {
                 $sections[$block['id']] = $section;
@@ -123,8 +126,24 @@ class JsonToSectionsAdapter
      */
     public function getRowGroupedBlocks(): array
     {
-        $sortedBlocks = $this->sortBlocksByPosition($this->jsonBlocks);
-        return $this->groupBlocksIntoRows($sortedBlocks);
+        if ($this->blocksByRow === null) {
+            $this->blocksByRow = $this->groupBlocksIntoRows($this->sortedBlocks());
+        }
+
+        return $this->blocksByRow;
+    }
+
+    /**
+     * Return blocks sorted by grid position, computing the order once for the
+     * adapter lifetime.
+     */
+    private function sortedBlocks(): array
+    {
+        if ($this->sortedBlocks === null) {
+            $this->sortedBlocks = $this->sortBlocksByPosition($this->jsonBlocks);
+        }
+
+        return $this->sortedBlocks;
     }
 
     /**
@@ -287,6 +306,7 @@ class JsonToSectionsAdapter
                     'element' => 'div',
                     'content' => $content,
                     'show_empty' => !$hideIfEmpty, // Invert: show_empty=false means hide when empty
+                    'empty_check' => $variable,
                     'properties' => [
                         'data-ref' => "{$block['id']}-field-{$index}",
                         'style' => $this->buildTextStyle($props),
@@ -363,6 +383,7 @@ class JsonToSectionsAdapter
                     'element' => 'div',
                     'content' => $content,
                     'show_empty' => !$hideIfEmpty, // Invert: show_empty=false means hide when empty
+                    'empty_check' => $variable,
                     'properties' => [
                         'data-ref' => "{$block['id']}-field-{$index}",
                         'style' => $this->buildTextStyle($props),
@@ -444,6 +465,7 @@ class JsonToSectionsAdapter
                     $props,
                     $config,
                     $showLabels,
+                    $variable,
                 );
             }
         } elseif ($items && is_array($items)) {
@@ -453,15 +475,19 @@ class JsonToSectionsAdapter
                     continue;
                 }
 
+                $variable = $item['variable'] ?? '';
+                $hideIfEmpty = $item['hideIfEmpty'] ?? true;
+
                 $elements[] = $this->buildInvoiceDetailsRow(
                     $block['id'],
                     $index,
                     $item['label'] ?? '',
-                    $item['variable'] ?? '',
-                    true,
+                    $variable,
+                    !$hideIfEmpty,
                     $props,
                     $item,
                     $showLabels,
+                    $variable,
                 );
             }
         } elseif (isset($props['content']) && !empty($props['content'])) {
@@ -487,6 +513,7 @@ class JsonToSectionsAdapter
                     $props,
                     [],
                     $showLabels,
+                    $variable,
                 );
             }
         }
@@ -507,7 +534,7 @@ class JsonToSectionsAdapter
      * Build a single <tr> for the invoice-details block, honoring per-row
      * labelStyle/valueStyle overrides and the showLabels block flag.
      */
-    private function buildInvoiceDetailsRow(string $blockId, mixed $index, string $label, string $variable, bool $showEmpty, array $props, array $row, bool $showLabels): array
+    private function buildInvoiceDetailsRow(string $blockId, mixed $index, string $label, string $variable, bool $showEmpty, array $props, array $row, bool $showLabels, ?string $emptyCheck = null): array
     {
         $columnStyles = $this->invoiceDetailsColumnStyles($props);
         $resolver = new CellStyleResolver();
@@ -527,11 +554,13 @@ class JsonToSectionsAdapter
         ];
 
         if (!$showLabels) {
-            return [
+            $rowElement = [
                 'element' => 'tr',
                 'properties' => ['data-ref' => "{$blockId}-row-{$index}"],
                 'elements' => [$valueCell],
             ];
+
+            return $this->withRowEmptyCheck($rowElement, $showEmpty, $emptyCheck ?? $variable);
         }
 
         $labelCell = [
@@ -546,11 +575,29 @@ class JsonToSectionsAdapter
             ],
         ];
 
-        return [
+        $rowElement = [
             'element' => 'tr',
             'properties' => ['data-ref' => "{$blockId}-row-{$index}"],
             'elements' => [$labelCell, $valueCell],
         ];
+
+        return $this->withRowEmptyCheck($rowElement, $showEmpty, $emptyCheck ?? $variable);
+    }
+
+    /**
+     * Attach hide-if-empty metadata to a whole row so labels do not survive
+     * after their value cell resolves to empty.
+     */
+    private function withRowEmptyCheck(array $rowElement, bool $showEmpty, string $emptyCheck): array
+    {
+        if ($showEmpty) {
+            return $rowElement;
+        }
+
+        $rowElement['show_empty'] = false;
+        $rowElement['empty_check'] = $emptyCheck;
+
+        return $rowElement;
     }
 
     /**
@@ -993,6 +1040,8 @@ class JsonToSectionsAdapter
                 continue;
             }
 
+            $field = $item['field'] ?? '';
+            $hideIfEmpty = $item['hideIfEmpty'] ?? true;
             $isTotal = (bool) ($item['isTotal'] ?? false);
             $isBalance = (bool) ($item['isBalance'] ?? false);
             $context = [
@@ -1003,7 +1052,7 @@ class JsonToSectionsAdapter
 
             $valueCell = [
                 'element' => 'td',
-                'content' => $item['field'] ?? '',
+                'content' => $field,
                 'properties' => [
                     'data-ref' => "{$block['id']}-value-{$index}",
                     'class' => 'totals-value',
@@ -1031,7 +1080,7 @@ class JsonToSectionsAdapter
             }
             $cells[] = $valueCell;
 
-            $rowElements[] = [
+            $rowElement = [
                 'element' => 'tr',
                 'properties' => [
                     'data-ref' => "{$block['id']}-row-{$index}",
@@ -1039,6 +1088,8 @@ class JsonToSectionsAdapter
                 ],
                 'elements' => $cells,
             ];
+
+            $rowElements[] = $this->withRowEmptyCheck($rowElement, !$hideIfEmpty, $field);
         }
 
         return [

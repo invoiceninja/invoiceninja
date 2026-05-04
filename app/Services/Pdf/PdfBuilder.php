@@ -2384,14 +2384,27 @@ class PdfBuilder
     private function isChildEmpty(array $child): bool
     {
         if (!isset($child['content']) && isset($child['show_empty']) && $child['show_empty'] === false) {
-            return true;
+            return !isset($child['empty_check']) || $this->resolvesEmpty($child['empty_check']);
         }
 
         if (isset($child['content']) && isset($child['show_empty']) && $child['show_empty'] === false) {
-            $value = strtr($child['content'], $this->service->html_variables['values']);
-            return empty($value) || $value === '&nbsp;' || $value === ' ';
+            return $this->resolvesEmpty($child['empty_check'] ?? $child['content']);
         }
 
         return false;
+    }
+
+    private function resolvesEmpty(string $content): bool
+    {
+        $value = strtr($content, $this->service->html_variables['labels'] ?? []);
+        $value = strtr($value, $this->service->html_variables['values'] ?? []);
+
+        if (preg_match('/\$[A-Za-z_][A-Za-z0-9_.]*/', $value) === 1) {
+            return true;
+        }
+
+        $value = trim(html_entity_decode($value, ENT_QUOTES | ENT_HTML5));
+
+        return $value === '' || $value === '&nbsp;' || $value === "\xc2\xa0";
     }
 }
