@@ -13,6 +13,7 @@
 namespace Tests\Feature\Import\CSV;
 
 use App\Factory\TaskFactory;
+use App\Http\Requests\Task\StoreTaskRequest;
 use App\Import\Providers\Csv;
 use App\Import\Transformer\BaseTransformer;
 use App\Models\Task;
@@ -101,20 +102,56 @@ class TaskImportTest extends TestCase
             $this->assertTrue($log[3]);
         }
 
-        $task = Task::where('company_id', $this->company->id)->where('number', 'x1233')->first();
-        $this->assertNotNull($task);
-        $this->assertEquals(9833, $task->calcDuration());
+        // x1233 spans two CSV rows (Bob 13:57:17→14:39:11 and James 14:29:25→16:31:24)
+        // whose time entries overlap. StoreTaskRequest's time_log validator rejects the
+        // grouped record, so it is captured in error_array and not persisted.
+        $this->assertNull(Task::where('company_id', $this->company->id)->where('number', 'x1233')->first());
 
-        $time_log = json_decode($task->time_log);
-
-        foreach ($time_log as $log) {
-            $this->assertTrue($log[3]);
+        $errors = $csv_importer->error_array['task'] ?? [];
+        $hasOverlapError = false;
+        foreach ($errors as $entry) {
+            $payload = $entry['invoice'] ?? $entry['task'] ?? [];
+            if (($payload['number'] ?? null) !== 'x1233') {
+                continue;
+            }
+            $messages = $entry['error'] ?? [];
+            $messages = is_array($messages) ? $messages : [$messages];
+            foreach ($messages as $msg) {
+                if (str_contains($msg, 'overlapping')) {
+                    $hasOverlapError = true;
+                    break 2;
+                }
+            }
         }
-
-
+        $this->assertTrue($hasOverlapError, 'Expected overlap validation error for x1233');
     }
 
 
+
+    public function testRunFormRequestResolvesSubclassRules()
+    {
+        $instance = StoreTaskRequest::runFormRequest([
+            'number' => 'rfr-test-' . uniqid(),
+        ]);
+
+        $this->assertArrayHasKey('number', $instance->getRules());
+    }
+
+    public function testRunFormRequestDetectsDuplicateTaskNumber()
+    {
+        $this->user->setCompany($this->company);
+
+        $existing = TaskFactory::create($this->company->id, $this->user->id);
+        $existing->number = 'duplicate-rfr-1';
+        $existing->save();
+
+        $instance = StoreTaskRequest::runFormRequest([
+            'number' => 'duplicate-rfr-1',
+        ]);
+
+        $this->assertTrue($instance->fails());
+        $this->assertContains('The number has already been taken.', $instance->errors()->all());
+    }
 
     public function testTaskImportSkipsDuplicateNumbers()
     {
@@ -126,12 +163,10 @@ class TaskImportTest extends TestCase
         $existing->number = 'x1234';
         $existing->save();
 
-        $this->assertEquals(1, Task::withTrashed()->where('company_id', $this->company->id)->count());
-
         $csv = file_get_contents(
             base_path().'/tests/Feature/Import/tasks2.csv'
         );
-        $hash = \Illuminate\Support\Str::random(32);
+        $hash = Str::random(32);
         $column_map = [
             0 => 'task.user_id',
             3 => 'project.name',
@@ -161,10 +196,18 @@ class TaskImportTest extends TestCase
         $this->assertEquals(1, Task::where('company_id', $this->company->id)->where('number', 'x1234')->count());
 
         $errors = $csv_importer->error_array['task'] ?? [];
-        $duplicate_errors = array_filter($errors, function ($e) {
-            return ($e['error'] ?? null) === ctrans('texts.task_number_taken');
-        });
-        $this->assertNotEmpty($duplicate_errors);
+        $hasUniqueError = false;
+        foreach ($errors as $entry) {
+            $messages = $entry['error'] ?? [];
+            $messages = is_array($messages) ? $messages : [$messages];
+            foreach ($messages as $msg) {
+                if (str_contains($msg, 'number has already been taken')) {
+                    $hasUniqueError = true;
+                    break 2;
+                }
+            }
+        }
+        $this->assertTrue($hasUniqueError, 'Expected unique-number validation error in import errors');
     }
 
     public function testTaskImport()
