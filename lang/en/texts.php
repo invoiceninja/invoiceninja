@@ -6029,6 +6029,7 @@ $lang = array(
     'label_value_gap' => 'Gap between label and value.',
     'row_spacing' => 'How much vertical space sits between each row.',
     'value_min_width' => 'Minimum width for values.',
+    'fix_overlaps' => 'Fix Overlaps',
 
 );
 

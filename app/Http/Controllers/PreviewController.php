@@ -195,7 +195,7 @@ class PreviewController extends BaseController
 
             $requestDesign = $request->design['design'];
 
-            $ps->boot();
+            $ps->bootForPreviewDesign($requestDesign);
 
             if (isset($requestDesign['blocks'])) {
                 $ps->setJsonDesignHtml(
