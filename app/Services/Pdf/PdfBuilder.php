@@ -251,10 +251,15 @@ class PdfBuilder
     private function parseTwigElements(): self
     {
 
+        $nodeList = $this->document->getElementsByTagName('ninja');
+
+        if ($nodeList->length === 0) {
+            return $this;
+        }
+
         $replacements = [];
 
         $contents = [];
-        $nodeList = $this->document->getElementsByTagName('ninja');
         for ($i = 0; $i < $nodeList->length; $i++) {
             $contents[] = $nodeList->item($i);
         }
