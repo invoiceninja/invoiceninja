@@ -665,41 +665,36 @@ class JsonToSectionsAdapter
         // Determine table type from column fields
         $tableType = $this->detectTableType($columns);
 
-        // Get filtered line items for visibility calculation
+        // Get filtered line items once; table body generation reuses the same
+        // array so large invoices don't walk line_items twice per table block.
         $filteredItems = $this->getFilteredLineItems($tableType);
-
-        // Calculate which columns are empty (for hiding)
-        $columnVisibility = $this->calculateColumnVisibility($columns, $filteredItems);
 
         // Check if we should hide empty columns
         $hideEmptyColumns = $this->service->config->settings->hide_empty_columns_on_pdf ?? false;
 
+        // Calculate which columns are empty only when the setting can use it.
+        $columnVisibility = $hideEmptyColumns
+            ? $this->calculateColumnVisibility($columns, $filteredItems)
+            : [];
+
+        $visibleColumns = $this->visibleTableColumns($columns, $props, $tableType, $columnVisibility, $hideEmptyColumns);
+
         // Build header elements (only for visible columns)
         $headerElements = [];
-        $visibleColumnIndices = [];
-        foreach ($columns as $index => $column) {
-            $columnId = $column['id'] ?? $index;
-            $isEmpty = $columnVisibility[$columnId] ?? false;
-
-            // Skip if column is empty and setting is enabled
-            if ($hideEmptyColumns && $isEmpty) {
-                continue;
-            }
-
-            $visibleColumnIndices[] = $index;
+        foreach ($visibleColumns as $column) {
             $headerElements[] = [
                 'element' => 'th',
-                'content' => $column['header'] ?? '',
+                'content' => $column['header'],
                 'properties' => [
-                    'data-ref' => "{$tableType}_table-{$column['id']}-th",
-                    'style' => $this->buildTableHeaderStyle($props, $column),
+                    'data-ref' => $column['header_ref'],
+                    'style' => $column['header_style'],
                     'visi' => true, // Mark as visible for border-radius logic
                 ],
             ];
         }
 
         // Build table body rows with only visible columns
-        $bodyRows = $this->buildTableBodyRows($columns, $tableType, $props, $columnVisibility, $hideEmptyColumns);
+        $bodyRows = $this->buildTableBodyRows($visibleColumns, $filteredItems, $tableType);
 
         return [
             'id' => $block['id'],
@@ -732,44 +727,66 @@ class JsonToSectionsAdapter
     }
 
     /**
-     * Build table body rows using JSON design's custom columns
+     * Precompute the visible column metadata and static styles once per table
+     * block rather than once per generated cell.
      *
      * @param array $columns Column definitions from JSON design
-     * @param string $tableType 'product' or 'task'
      * @param array $props Table properties for styling
+     * @param string $tableType 'product' or 'task'
      * @param array $columnVisibility Which columns are empty
      * @param bool $hideEmptyColumns Whether to hide empty columns
+     * @return array Visible table column metadata
+     */
+    private function visibleTableColumns(array $columns, array $props, string $tableType, array $columnVisibility, bool $hideEmptyColumns): array
+    {
+        $visibleColumns = [];
+
+        foreach ($columns as $index => $column) {
+            $columnId = $column['id'] ?? $index;
+            $isEmpty = $columnVisibility[$columnId] ?? false;
+
+            if ($hideEmptyColumns && $isEmpty) {
+                continue;
+            }
+
+            $visibleColumns[] = [
+                'field' => $column['field'] ?? '',
+                'header' => $column['header'] ?? '',
+                'header_ref' => "{$tableType}_table-{$columnId}-th",
+                'cell_ref' => "{$tableType}_table-{$columnId}-td",
+                'header_style' => $this->buildTableHeaderStyle($props, $column),
+                'cell_style' => $this->buildTableCellStyle($props, $column),
+            ];
+        }
+
+        return $visibleColumns;
+    }
+
+    /**
+     * Build table body rows using JSON design's custom columns
+     *
+     * @param array $visibleColumns Precomputed visible column metadata
+     * @param array $filteredItems Filtered line items for the table type
+     * @param string $tableType 'product' or 'task'
      * @return array Array of row elements
      */
-    private function buildTableBodyRows(array $columns, string $tableType, array $props, array $columnVisibility, bool $hideEmptyColumns): array
+    private function buildTableBodyRows(array $visibleColumns, array $filteredItems, string $tableType): array
     {
         $rows = [];
-
-        // Get filtered line items
-        $filteredItems = $this->getFilteredLineItems($tableType);
 
         // Build rows
         foreach ($filteredItems as $item) {
             $rowElements = [];
 
-            foreach ($columns as $index => $column) {
-                $columnId = $column['id'] ?? $index;
-                $isEmpty = $columnVisibility[$columnId] ?? false;
-
-                // Skip if column is empty and setting is enabled
-                if ($hideEmptyColumns && $isEmpty) {
-                    continue;
-                }
-
-                $field = $column['field'] ?? '';
-                $value = $this->getFieldValue($item, $field, $tableType);
+            foreach ($visibleColumns as $column) {
+                $value = $this->getFieldValue($item, $column['field'], $tableType);
 
                 $rowElements[] = [
                     'element' => 'td',
                     'content' => $value,
                     'properties' => [
-                        'data-ref' => "{$tableType}_table-{$column['id']}-td",
-                        'style' => $this->buildTableCellStyle($props, $column),
+                        'data-ref' => $column['cell_ref'],
+                        'style' => $column['cell_style'],
                         'visi' => true, // Mark as visible for border-radius logic
                     ],
                 ];
