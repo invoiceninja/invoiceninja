@@ -318,26 +318,25 @@ class Email implements ShouldQueue
                 $this->cleanUpMailers();
 
                 $this->entityEmailFailed($message);
-                $this->fail();
                 
                 return;
             }
 
             $this->cleanUpMailers();
             $this->logMailError($e->getMessage(), $this->company->clients()->first());
-            $this->fail();
+            return;
             
         } catch (\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
             $this->cleanUpMailers();
             $this->logMailError($e->getMessage(), $this->company->clients()->first());
-            $this->fail();
+            
             return;
         } catch (\Symfony\Component\Mime\Exception\LogicException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
             $this->cleanUpMailers();
             $this->logMailError($e->getMessage(), $this->company->clients()->first());
-            $this->fail();
+            
             return;
         } catch (\Google\Service\Exception $e) {
 
@@ -357,7 +356,6 @@ class Email implements ShouldQueue
             $this->cleanUpMailers();
 
             $this->entityEmailFailed($message);
-            $this->fail();
             
             return;
         } catch (\Exception|\RuntimeException $e) {
@@ -372,8 +370,6 @@ class Email implements ShouldQueue
                 $this->cleanUpMailers();
 
                 $this->entityEmailFailed($message);
-                $this->fail();
-            
                 return;
             }
 
@@ -405,7 +401,6 @@ class Email implements ShouldQueue
 
                 $this->entityEmailFailed($message);
                 $this->cleanUpMailers();
-                $this->fail();
                 
                 return;
             }

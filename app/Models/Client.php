@@ -258,13 +258,6 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function toSearchableArray(): array
     {
-        return config('scout.index_version', 'legacy') === 'v2'
-            ? $this->toSearchableArrayV2()
-            : $this->toSearchableArrayLegacy();
-    }
-
-    public function toSearchableArrayLegacy(): array
-    {
 
         $locale = $this->locale();
         App::setLocale($locale);
@@ -305,11 +298,6 @@ class Client extends BaseModel implements HasLocalePreference
             'custom_value4' => $this->custom_value4,
             'company_key' => $this->company->company_key,
         ];
-    }
-
-    public function toSearchableArrayV2(): array
-    {
-        return $this->toSearchableArrayLegacy();
     }
 
     public function getScoutKey()

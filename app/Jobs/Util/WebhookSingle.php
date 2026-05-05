@@ -84,7 +84,6 @@ class WebhookSingle implements ShouldQueue
 
         if (!$subscription) {
             nlog("failed to fire event, could not find webhook ID {$this->subscription_id}");
-            $this->fail();
             return;
         }
 
@@ -169,7 +168,6 @@ class WebhookSingle implements ShouldQueue
                     ))->handle();
 
                     $subscription->delete();
-                    $this->fail();
                     return;
                 }
 
@@ -187,7 +185,6 @@ class WebhookSingle implements ShouldQueue
                 ))->handle();
 
                 if (in_array($e->getResponse()->getStatusCode(), [400])) {
-                    $this->fail();
                     return;
                 }
 
@@ -208,7 +205,6 @@ class WebhookSingle implements ShouldQueue
                     $this->company
                 ))->handle();
 
-                $this->fail();
                 return;
             }
         } catch (ServerException $e) {

@@ -157,13 +157,11 @@ class AdminEmail implements ShouldQueue
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
             $this->cleanUpMailers();
             $this->logMailError($e->getMessage(), $this->company->clients()->first());
-            $this->fail();
             return;
         } catch (\Symfony\Component\Mime\Exception\LogicException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
             $this->cleanUpMailers();
             $this->logMailError($e->getMessage(), $this->company->clients()->first());
-            $this->fail();
             return;
         } catch (\Exception|\RuntimeException|\Google\Service\Exception $e) {
             nlog("Mailer failed with {$e->getMessage()}");
@@ -174,7 +172,6 @@ class AdminEmail implements ShouldQueue
 
                 $this->logMailError($e->getMessage(), $this->company->clients()->first());
                 $this->cleanUpMailers();
-                $this->fail();
 
                 return;
             }
@@ -194,7 +191,6 @@ class AdminEmail implements ShouldQueue
                 }
 
                 $this->cleanUpMailers();
-                $this->fail();
                 return;
             }
 

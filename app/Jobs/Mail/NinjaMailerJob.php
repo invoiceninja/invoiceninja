@@ -186,26 +186,26 @@ class NinjaMailerJob implements ShouldQueue
                 if ($this->nmo->entity) {
                     $this->entityEmailFailed($message);
                 }
-                $this->fail();
+
                 return;
             }
 
             
             $this->cleanUpMailers();
             $this->logMailError($e->getMessage(), $this->company->clients()->first());
-            $this->fail();
+            return;
 
         } catch (\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
             $this->cleanUpMailers();
             $this->logMailError($e->getMessage(), $this->company->clients()->first());
-            $this->fail();
+            
             return;
         } catch (\Symfony\Component\Mime\Exception\LogicException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
             $this->cleanUpMailers();
             $this->logMailError($e->getMessage(), $this->company->clients()->first());
-            $this->fail();
+            
             return;
         } catch (\Google\Service\Exception $e) {
 
@@ -225,7 +225,6 @@ class NinjaMailerJob implements ShouldQueue
             $this->logMailError($message, $this->company->clients()->first());
             $this->entityEmailFailed($message);
             $this->cleanUpMailers();
-            $this->fail();
             
             return;
 
@@ -248,7 +247,6 @@ class NinjaMailerJob implements ShouldQueue
                 }
 
                 $this->cleanUpMailers();
-                $this->fail();
             
                 return;
             }
@@ -282,7 +280,6 @@ class NinjaMailerJob implements ShouldQueue
 
                 $this->entityEmailFailed($message);
                 $this->cleanUpMailers();
-                $this->fail();
             
                 return;
             }

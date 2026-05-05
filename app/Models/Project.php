@@ -119,13 +119,7 @@ class Project extends BaseModel
 
     public function toSearchableArray(): array
     {
-        return config('scout.index_version', 'legacy') === 'v2'
-            ? $this->toSearchableArrayV2()
-            : $this->toSearchableArrayLegacy();
-    }
-
-    public function toSearchableArrayLegacy(): array
-    {
+       
         $locale = $this->company->locale();
         App::setLocale($locale);
 
@@ -149,11 +143,6 @@ class Project extends BaseModel
             'public_notes' => (string) $this->public_notes ?: '',
             'current_hours' => (int) $this->current_hours ?: 0,
         ];
-    }
-
-    public function toSearchableArrayV2(): array
-    {
-        return $this->toSearchableArrayLegacy();
     }
 
     public function getScoutKey()
