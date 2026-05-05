@@ -76,7 +76,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
         $transactionHash = $request->input('transaction_hash');
         $secretToken = $request->input('secret_token');
 
-        if (empty($transactionData) || empty($transactionHash) || empty($secretToken)) {
+        if (empty($transactionData) || empty($secretToken)) {
             throw new PaymentFailed('Invalid bank account response', 400);
         }
 
@@ -237,7 +237,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
         $secretToken = $request->input('secret_token');
         $storeAccount = $request->input('store_card', false);
 
-        if (empty($transactionData) || empty($transactionHash) || empty($secretToken)) {
+        if (empty($transactionData) || empty($secretToken)) {
             throw new PaymentFailed('Invalid ACH payment response', 400);
         }
 

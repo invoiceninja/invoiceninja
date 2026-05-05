@@ -81,7 +81,7 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         $isDefault = $request->input('is_default', false);
 
         // Validate required fields
-        if (empty($transactionData) || empty($transactionHash) || empty($secretToken)) {
+        if (empty($transactionData) || empty($secretToken)) {
             throw new PaymentFailed('Invalid payment response', 400);
         }
 
@@ -289,7 +289,7 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         $storeCard = $request->input('store_card', false);
 
         // Validate required fields
-        if (empty($transactionData) || empty($transactionHash) || empty($secretToken)) {
+        if (empty($transactionData) || empty($secretToken)) {
             throw new PaymentFailed('Invalid payment response', 400);
         }
 
