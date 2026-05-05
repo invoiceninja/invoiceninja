@@ -130,4 +130,183 @@ class InvoiceMarkPaidCycleTest extends TestCase
         $this->assertNotNull($payment_d);
         $this->assertEquals(3000, $payment_d->amount);
     }
+
+    /**
+     * Reproduces a production case: invoice 4422.01 paid down via three
+     * partial payments (1500, 1000, 1922.01). The third payment must zero
+     * out the balance — production was leaving balance at 1922.01 while
+     * paid_to_date and status_id transitioned correctly.
+     */
+    public function testPartialPaymentSequenceZeroesBalanceOnFinalPayment()
+    {
+        $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+        $invoice->client_id = $this->client->id;
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 4422.01;
+        $item->product_key = 'test';
+        $item->notes = 'test';
+        $invoice->line_items = [$item];
+        $invoice->uses_inclusive_taxes = false;
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->save();
+
+        $invoice = $invoice->service()->markSent()->save();
+        $this->assertEquals(4422.01, $invoice->balance);
+        $this->assertEquals(0, $invoice->paid_to_date);
+        $this->assertEquals(Invoice::STATUS_SENT, $invoice->status_id);
+
+        $applyPayment = function (float $amount) use ($invoice) {
+            $data = [
+                'amount' => $amount,
+                'client_id' => $this->client->id,
+                'invoices' => [
+                    ['invoice_id' => $invoice->id, 'amount' => $amount],
+                ],
+                'date' => '2026-01-01',
+            ];
+
+            $payment = PaymentFactory::create($this->company->id, $this->user->id);
+
+            return (new PaymentRepository(new \App\Repositories\CreditRepository()))
+                ->save($data, $payment);
+        };
+
+        // Payment 1: 1500.00
+        $applyPayment(1500.00);
+        $invoice = $invoice->fresh();
+        $this->assertEquals(2922.01, round($invoice->balance, 2));
+        $this->assertEquals(1500.00, round($invoice->paid_to_date, 2));
+        $this->assertEquals(Invoice::STATUS_PARTIAL, $invoice->status_id);
+
+        // Payment 2: 1000.00
+        $applyPayment(1000.00);
+        $invoice = $invoice->fresh();
+        $this->assertEquals(1922.01, round($invoice->balance, 2));
+        $this->assertEquals(2500.00, round($invoice->paid_to_date, 2));
+        $this->assertEquals(Invoice::STATUS_PARTIAL, $invoice->status_id);
+
+        // Payment 3: 1922.01 — final payment, balance MUST reach 0
+        $applyPayment(1922.01);
+        $invoice = $invoice->fresh();
+        $this->assertEquals(0, round($invoice->balance, 2), 'balance must be 0 after final partial payment');
+        $this->assertEquals(4422.01, round($invoice->paid_to_date, 2));
+        $this->assertEquals(Invoice::STATUS_PAID, $invoice->status_id);
+    }
+
+    /**
+     * Same production amounts (4422.01 / 1500 / 1000 / 1922.01) but the
+     * final settlement happens via the Mark Paid button (InvoiceService::markPaid
+     * → MarkPaid::run) instead of creating a payment record explicitly.
+     */
+    public function testPartialPaymentsThenMarkPaidZeroesBalance()
+    {
+        $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+        $invoice->client_id = $this->client->id;
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 4422.01;
+        $item->product_key = 'test';
+        $item->notes = 'test';
+        $invoice->line_items = [$item];
+        $invoice->uses_inclusive_taxes = false;
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->save();
+
+        $invoice = $invoice->service()->markSent()->save();
+
+        $applyPayment = function (float $amount) use ($invoice) {
+            $data = [
+                'amount' => $amount,
+                'client_id' => $this->client->id,
+                'invoices' => [
+                    ['invoice_id' => $invoice->id, 'amount' => $amount],
+                ],
+                'date' => '2026-01-01',
+            ];
+
+            $payment = PaymentFactory::create($this->company->id, $this->user->id);
+
+            return (new PaymentRepository(new \App\Repositories\CreditRepository()))
+                ->save($data, $payment);
+        };
+
+        $applyPayment(1500.00);
+        $applyPayment(1000.00);
+
+        $invoice = $invoice->fresh();
+        $this->assertEquals(1922.01, round($invoice->balance, 2));
+        $this->assertEquals(2500.00, round($invoice->paid_to_date, 2));
+
+        // Final settlement: Mark Paid (creates payment for remaining balance)
+        $invoice = $invoice->service()->markPaid()->save();
+        $invoice = $invoice->fresh();
+
+        $this->assertEquals(0, round($invoice->balance, 2), 'balance must be 0 after MarkPaid on remaining partial');
+        $this->assertEquals(4422.01, round($invoice->paid_to_date, 2));
+        $this->assertEquals(Invoice::STATUS_PAID, $invoice->status_id);
+
+        $mark_paid_payment = $invoice->payments()->orderByDesc('id')->first();
+        $this->assertNotNull($mark_paid_payment);
+        $this->assertEquals(1922.01, round($mark_paid_payment->amount, 2));
+    }
+
+    /**
+     * Same scenario but the partial payments are mixed: PaymentRepository for
+     * the first two, then MarkPaid for the last. Also covers the case where
+     * $invoice->partial is set non-zero before the final payment lands.
+     */
+    public function testPartialAttributeSetThenMarkPaidZeroesBalance()
+    {
+        $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+        $invoice->client_id = $this->client->id;
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 4422.01;
+        $item->product_key = 'test';
+        $item->notes = 'test';
+        $invoice->line_items = [$item];
+        $invoice->uses_inclusive_taxes = false;
+        $invoice->partial = 1500.00;
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->save();
+
+        $invoice = $invoice->service()->markSent()->save();
+
+        $applyPayment = function (float $amount) use ($invoice) {
+            $data = [
+                'amount' => $amount,
+                'client_id' => $this->client->id,
+                'invoices' => [
+                    ['invoice_id' => $invoice->id, 'amount' => $amount],
+                ],
+                'date' => '2026-01-01',
+            ];
+
+            $payment = PaymentFactory::create($this->company->id, $this->user->id);
+
+            return (new PaymentRepository(new \App\Repositories\CreditRepository()))
+                ->save($data, $payment);
+        };
+
+        // Pay the partial deposit
+        $applyPayment(1500.00);
+        $invoice = $invoice->fresh();
+        $this->assertEquals(2922.01, round($invoice->balance, 2));
+
+        // Another partial
+        $applyPayment(1000.00);
+        $invoice = $invoice->fresh();
+        $this->assertEquals(1922.01, round($invoice->balance, 2));
+
+        // Final
+        $applyPayment(1922.01);
+        $invoice = $invoice->fresh();
+        $this->assertEquals(0, round($invoice->balance, 2), 'balance must be 0 even when partial was set on entry');
+        $this->assertEquals(4422.01, round($invoice->paid_to_date, 2));
+        $this->assertEquals(Invoice::STATUS_PAID, $invoice->status_id);
+    }
 }

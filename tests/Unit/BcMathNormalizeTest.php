@@ -90,6 +90,29 @@ class BcMathNormalizeTest extends TestCase
     // Hand-anchored cases — the original bug + classic foot-guns
     // =========================================================
 
+    public function testBcMathScenarioOne()
+    {
+        $value = 1922.01;
+        $string_value = "1922.01";
+
+        $this->assertFalse(BcMath::lessThan($string_value, $value));
+        $this->assertFalse(BcMath::lessThan($value, $string_value));
+        $this->assertTrue(BcMath::equal($string_value, $value));
+        $this->assertTrue(BcMath::equal($value, $string_value));
+
+
+
+        $value = 1922.010000;
+        $string_value = "1922.01";
+
+        $this->assertFalse(BcMath::lessThan($string_value, $value));
+        $this->assertFalse(BcMath::lessThan($value, $string_value));
+        $this->assertTrue(BcMath::equal($string_value, $value));
+        $this->assertTrue(BcMath::equal($value, $string_value));
+
+
+    }
+
     public function testHandAnchoredCriticalCases(): void
     {
         $cases = [
