@@ -292,7 +292,7 @@ class HelcimPaymentDriver extends BaseDriver
      * PCI COMPLIANCE: This validates that the transaction response from HelcimPay.js
      * hasn't been tampered with by comparing the hash.
      */
-    public function validateHelcimPayResponse(array|string $data, string $hash, string $secretToken): bool
+    public function validateHelcimPayResponse(array|string $data, string $hash = '', string $secretToken = ''): bool
     {
         // HelcimPay.js has already processed the transaction inside Helcim's secure iframe.
         // The hash is an optional client-side integrity check, but Helcim's event payload

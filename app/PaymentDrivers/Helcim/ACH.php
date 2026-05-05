@@ -73,7 +73,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
     public function authorizeResponse(Request $request)
     {
         $transactionData = $request->input('transaction_data');
-        $transactionHash = $request->input('transaction_hash');
+        $transactionHash = $request->input('transaction_hash') ?? '';
         $secretToken = $request->input('secret_token');
 
         if (empty($transactionData) || empty($secretToken)) {
@@ -233,7 +233,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
     private function processHelcimPayAchPayment(Request $request, PaymentHash $paymentHash)
     {
         $transactionData = $request->input('transaction_data');
-        $transactionHash = $request->input('transaction_hash');
+        $transactionHash = $request->input('transaction_hash') ?? '';
         $secretToken = $request->input('secret_token');
         $storeAccount = $request->input('store_card', false);
 

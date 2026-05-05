@@ -76,7 +76,7 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
     public function authorizeResponse(Request $request)
     {
         $transactionData = $request->input('transaction_data');
-        $transactionHash = $request->input('transaction_hash');
+        $transactionHash = $request->input('transaction_hash') ?? '';
         $secretToken = $request->input('secret_token');
         $isDefault = $request->input('is_default', false);
 
@@ -284,7 +284,7 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
     private function processHelcimPayPayment(Request $request, PaymentHash $paymentHash)
     {
         $transactionData = $request->input('transaction_data');
-        $transactionHash = $request->input('transaction_hash');
+        $transactionHash = $request->input('transaction_hash') ?? '';
         $secretToken = $request->input('secret_token');
         $storeCard = $request->input('store_card', false);
 
