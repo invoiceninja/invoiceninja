@@ -97,11 +97,6 @@
     const clientId = "{{ $client_id }}";
     const orderId = "{!! $order_id !!}";
 
-    const bootCardFields = () => {
-        if (typeof paypal === 'undefined' || !document.getElementById('card-number-field-container')) {
-            return requestAnimationFrame(bootCardFields);
-        }
-
     const cardField = paypal.CardFields({
         createOrder: function(data, actions) {
             return orderId;
@@ -296,9 +291,6 @@
 
     }
 
-    }
-
-    bootCardFields();
 
 </script>
 @endscript
