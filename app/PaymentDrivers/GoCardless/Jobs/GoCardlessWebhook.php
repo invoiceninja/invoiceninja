@@ -48,10 +48,9 @@ class GoCardlessWebhook implements ShouldQueue
         $company = $company_gateway->company;
 
         foreach ($this->events as $event) {
-            nlog("GoCardless Webhook: " . $event['action']);
-
             nlog($event);
-
+            nlog("GoCardless Webhook: " . $event['action']);
+            
             /** 2026-03-20: Set the correct payment type for the payment */
             if ($event['resource_type'] == 'payments' && $event['action'] == 'created' && isset($event['details']['scheme']) && isset($event['links']['payment'])) {
 
