@@ -13,7 +13,6 @@
 namespace App\Jobs\Entity;
 
 use App\Exceptions\FilePermissionsFailure;
-use App\Jobs\EDocument\MergeEDocument;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
 use App\Models\Invoice;
@@ -24,6 +23,7 @@ use App\Models\Quote;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoice;
 use App\Models\RecurringInvoiceInvitation;
+use App\Services\EDocument\ZugferdPdfMerger;
 use App\Services\Pdf\PdfService;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
@@ -164,6 +164,7 @@ class CreateRawPdf
             'client' => $this->entity->client ?? false,
             'vendor' => $this->entity->vendor ?? false,
             "{$this->entity_string}s" => [$this->entity],
+            'skip_e_invoice_pdf_merge' => true,
         ]);
 
         try {
@@ -171,10 +172,6 @@ class CreateRawPdf
         } catch (\Throwable $e) {
             nlog($e->getMessage());
             throw new FilePermissionsFailure('Unable to generate the raw PDF => ' . $e->getMessage());
-        }
-
-        if ($this->entity_string == "invoice" && $this->entity->client->getSetting("merge_e_invoice_to_pdf")) {
-            $pdf = (new MergeEDocument($this->entity, $pdf))->handle();
         }
 
         // Prefer the resolved settings on PdfService (which may have been
@@ -188,6 +185,10 @@ class CreateRawPdf
 
         if ($merge_docs && ($this->entity->documents()->where('is_public', true)->count() > 0 || $this->company->documents()->where('is_public', true)->count() > 0)) {
             $pdf = $this->entity->documentMerge($pdf);
+        }
+
+        if ($this->entity instanceof Invoice && ZugferdPdfMerger::shouldMerge($this->entity, $ps->config->settings)) {
+            $pdf = (new ZugferdPdfMerger($this->entity, $pdf, $ps->config->settings->e_invoice_type ?? null))->handle();
         }
 
         return $pdf;

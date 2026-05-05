@@ -6,28 +6,37 @@ use Illuminate\Support\Facades\Http;
 
 class GotenbergPdf
 {
+    public const PDF_A_3B = 'PDF/A-3b';
+
     /**
      * Convert HTML to PDF using Gotenberg service
      *
      * @param string $html
+     * @param string|null $pdfa
      * @return string PDF content
      * @throws \Exception
      */
-    public function convertHtmlToPdf(string $html): string
+    public function convertHtmlToPdf(string $html, ?string $pdfa = null): string
     {
         $url = config('ninja.gotenberg_url') ?: env('GOTENBERG_API_URL', 'http://localhost:3000');
+
+        $options = [
+            'marginTop' => '0',
+            'marginBottom' => '0',
+            'marginLeft' => '0',
+            'marginRight' => '0',
+            'preferCssPageSize' => 'true',
+        ];
+
+        if ($pdfa) {
+            $options['pdfa'] = $pdfa;
+        }
 
         try {
             $response = Http::timeout(60)
                 ->asMultipart()
                 ->attach('files', $html, 'index.html')
-                ->post("{$url}/forms/chromium/convert/html", [
-                    'marginTop' => '0',
-                    'marginBottom' => '0',
-                    'marginLeft' => '0',
-                    'marginRight' => '0',
-                    'preferCssPageSize' => 'true',
-                ]);
+                ->post("{$url}/forms/chromium/convert/html", $options);
 
             if ($response->successful()) {
                 return $response->body();
