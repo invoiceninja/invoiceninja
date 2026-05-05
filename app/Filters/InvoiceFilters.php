@@ -286,7 +286,7 @@ class InvoiceFilters extends QueryFilters
     public function sort(string $sort = ''): Builder
     {
         $sort_col = explode('|', $sort);
-
+        
         if (!is_array($sort_col)
         || count($sort_col) != 2
         || (!in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))

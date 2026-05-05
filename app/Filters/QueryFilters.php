@@ -89,6 +89,17 @@ abstract class QueryFilters
                 continue;
             }
 
+            //potential multi column sort
+            // if ($name === 'sort' && is_array($value)) {
+            //     foreach ($value as $sort) {
+            //         if (is_string($sort) && strlen($sort)) {
+            //             $this->$name($sort);
+            //         }
+            //     }
+
+            //     continue;
+            // }
+            
             if (is_string($value) && strlen($value)) {
                 $this->$name($value);
             } else {
