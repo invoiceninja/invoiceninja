@@ -46,9 +46,6 @@ class BraintreePaymentDriver extends BaseDriver
 
     private bool $completed = true;
 
-    /**
-     * @var Gateway;
-     */
     public Gateway $gateway;
 
     public static $methods = [

@@ -5962,8 +5962,6 @@ $lang = array(
     'product_line_items_with_columns' => 'Product line items with columns',
     'task_line_items_with_columns' => 'Task line items with columns',
     'divider_line' => 'Horizontal separator',
-    'spacer' => 'Empty space for layout',
-    'qr_code' => 'QR code for payment or compliance',
     'signature_line' => 'Signature area',
     'authorized_signature' => 'Authorized Signature',
     'essential' => 'Essential',
@@ -6013,7 +6011,6 @@ $lang = array(
     'padding' => 'Padding',
     'fix_overlaps' => 'Fix Overlaps',
     'spacer' => 'Spacer',
-    'bill_to' => 'Bill To',
     'line_height' => 'Line Height',
     'text_color' => 'Text Color',
     'font_style' => 'Font Style',
@@ -6029,8 +6026,6 @@ $lang = array(
     'label_value_gap' => 'Gap between label and value.',
     'row_spacing' => 'How much vertical space sits between each row.',
     'value_min_width' => 'Minimum width for values.',
-    'fix_overlaps' => 'Fix Overlaps',
-
 );
 
 return $lang;

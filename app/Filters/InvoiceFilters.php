@@ -190,7 +190,7 @@ class InvoiceFilters extends QueryFilters
     }
 
     /**
-     * @return void
+     * 
      * @return Builder
      * @throws InvalidArgumentException
      */
