@@ -114,15 +114,20 @@ class WebhookSingle implements ShouldQueue
         $base_headers = [
             'Content-Length' => strlen(json_encode($data)),
             'Accept'         => 'application/json',
+            'User-Agent'     => 'InvoiceNinja/' . config('ninja.app_version') . ' (+https://invoiceninja.com)',
         ];
 
-        $client = new Client(['headers' => array_merge($base_headers, $headers)]);
+        $client = new Client([
+            'headers' => array_merge($base_headers, $headers),
+        ]);
 
         try {
             $verb = $subscription->rest_method ?? 'post';
 
             $response = $client->{$verb}($subscription->target_url, [
-                RequestOptions::JSON => $data, // or 'json' => [...]
+                RequestOptions::JSON => $data,
+                RequestOptions::CONNECT_TIMEOUT => 10,
+                RequestOptions::TIMEOUT => 30,
             ]);
 
             (new SystemLogger(
