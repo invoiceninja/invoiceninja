@@ -650,7 +650,8 @@ class Client extends BaseModel implements HasLocalePreference
 
                 $cg = CompanyGateway::query()->find($pm['company_gateway_id']);
 
-                if ($cg->gateway_key == '80af24a6a691230bbec33e930ab40666') { //ensure we don't attempt to authorize paypal platform - yet.
+                //skip PayPal + Custom Gateways from authorization attempts
+                if (in_array($cg->gateway_key, ['80af24a6a691230bbec33e930ab40666','54faab2ab6e3223dbe848b1686490baa'])) { //ensure we don't attempt to authorize paypal platform - yet.
                     continue;
                 }
 
