@@ -14,13 +14,13 @@ namespace App\Services\Pdf;
 
 use App\Models\Company;
 use App\Models\CreditInvitation;
+use App\Utils\Gotenberg\GotenbergPdf;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\PurchaseOrderInvitation;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
 use App\Services\EDocument\ZugferdPdfMerger;
-use App\Utils\Gotenberg\GotenbergPdf;
 use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
 use App\Utils\PhantomJS\Phantom;
@@ -107,9 +107,9 @@ class PdfService
                 $pdf = $this->mergeEInvoiceToPdf($pdf);
             }
 
-        } catch (\Throwable $e) {
+        } catch (\Exception $e) {
             nlog($e->getMessage());
-            throw new \Exception($e->getMessage(), (int) $e->getCode(), $e);
+            throw new \Exception($e->getMessage(), $e->getCode());
         }
 
         $this->execution_time = microtime(true) - $this->start_time;

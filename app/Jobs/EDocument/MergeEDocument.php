@@ -5,10 +5,10 @@ namespace App\Jobs\EDocument;
 use App\Models\Invoice;
 use App\Services\EDocument\ZugferdPdfMerger;
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
 class MergeEDocument implements ShouldQueue
 {
@@ -19,9 +19,7 @@ class MergeEDocument implements ShouldQueue
 
     public $deleteWhenMissingModels = true;
 
-    public function __construct(private mixed $document, private string $pdf_file)
-    {
-    }
+    public function __construct(private mixed $document, private string $pdf_file) {}
 
     /**
      * Execute the job.
