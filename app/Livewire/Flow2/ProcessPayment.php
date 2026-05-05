@@ -21,7 +21,6 @@ use App\Utils\Traits\WithSecureContext;
 use App\Services\ClientPortal\LivewireInstantPayment;
 use Livewire\Attributes\Lazy;
 
-#[Lazy]
 class ProcessPayment extends Component
 {
     use WithSecureContext;

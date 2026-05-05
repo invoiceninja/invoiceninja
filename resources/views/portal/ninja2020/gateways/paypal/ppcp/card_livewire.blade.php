@@ -14,12 +14,7 @@
 <div class="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden py-5 bg-white sm:gap-4"
     id="paypal-credit-card-payment">
 
-    <meta http-equiv="Content-Security-Policy" content="
-        img-src 'self' https://c.paypal.com https://b.stats.paypal.com; 
-        frame-src 'self' https://c.paypal.com; 
-        script-src 'self' https://c.paypal.com;">
-
-        <form action="{{ route('client.payments.response') }}" method="post" id="server_response">
+    <form action="{{ route('client.payments.response') }}" method="post" id="server_response">
         @csrf
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->company_gateway->id }}">
@@ -37,22 +32,27 @@
    <div id="paypal-button-container" class="paypal-button-container"></div>
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
+    <ul class="list-none">
         @if (count($tokens) > 0)
             @foreach ($tokens as $token)
-                <label class="mr-4">
-                    <input type="radio" data-token="{{ $token->token }}" name="payment-type"
-                        class="form-radio cursor-pointer toggle-payment-with-token" />
-                    <span class="ml-1 cursor-pointer">**** {{ $token->meta?->last4 }}</span>
-                </label>
+                <li class="py-2 cursor-pointer">
+                    <label class="mr-4">
+                        <input type="radio" data-token="{{ $token->token }}" name="payment-type"
+                            class="form-radio cursor-pointer toggle-payment-with-token" />
+                        <span class="ml-1 cursor-pointer">**** {{ $token->meta?->last4 }}</span>
+                    </label>
+                </li>
             @endforeach
         @endisset
 
-        <label>
-            <input type="radio" id="toggle-payment-with-credit-card" class="form-radio cursor-pointer" name="payment-type"
-                checked />
-            <span class="ml-1 cursor-pointer">{{ __('texts.new_card') }}</span>
-        </label>
-
+        <li class="py-2 cursor-pointer">
+            <label>
+                <input type="radio" id="toggle-payment-with-credit-card" class="form-radio cursor-pointer" name="payment-type"
+                    checked />
+                <span class="ml-1 cursor-pointer">{{ __('texts.new_card') }}</span>
+            </label>
+        </li>
+    </ul>
     @endcomponent
       
     <div id="checkout-form">
@@ -68,7 +68,9 @@
       @include('portal.ninja2020.gateways.includes.pay_now', ['id' => 'pay-now'])
     </div>
 
-    @include('portal.ninja2020.gateways.includes.pay_now', ['id' => 'pay-now-token'])
+    <div id="pay-now-token--container" class="hidden">
+        @include('portal.ninja2020.gateways.includes.pay_now', ['id' => 'pay-now-token'])
+    </div>
 
     <script type="application/json" fncls="fnparams-dede7cc5-15fd-4c75-a9f4-36c430ee3a99">
     {
@@ -95,10 +97,14 @@
     const clientId = "{{ $client_id }}";
     const orderId = "{!! $order_id !!}";
 
+    const bootCardFields = () => {
+        if (typeof paypal === 'undefined' || !document.getElementById('card-number-field-container')) {
+            return requestAnimationFrame(bootCardFields);
+        }
+
     const cardField = paypal.CardFields({
-        client: clientId,
         createOrder: function(data, actions) {
-            return orderId;  
+            return orderId;
         },
         onApprove: function(data, actions) {
 
@@ -270,12 +276,12 @@
             JSON.parse(errorMessage);
             return errorMessage;
         } catch (e) {
-            
+
         }
 
         const startIndex = errorMessage.indexOf('{');
         const endIndex = errorMessage.lastIndexOf('}');
-        
+
         if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
             const jsonString = errorMessage.substring(startIndex, endIndex + 1);
             try {
@@ -290,11 +296,16 @@
 
     }
 
+    }
+
+    bootCardFields();
+
 </script>
 @endscript
 
 @script
 <script>
+
   Array
       .from(document.getElementsByClassName('toggle-payment-with-token'))
       .forEach((element) => element.addEventListener('click', (e) => {
@@ -303,7 +314,7 @@
           document
               .getElementById('checkout-form').classList.add('hidden');
         document
-              .getElementById('pay-now-token').classList.remove('hidden');
+              .getElementById('pay-now-token--container').classList.remove('hidden');
 
           document
               .getElementById('token').value = e.target.dataset.token;
@@ -320,13 +331,11 @@
               .getElementById('checkout-form').classList.remove('hidden');
 
             document
-              .getElementById('pay-now-token').classList.add('hidden');
+              .getElementById('pay-now-token--container').classList.add('hidden');
 
               document
                   .getElementById('token').value = null;
           });
-
-    payWithCreditCardToggle.click();
   }
 
   let payNowButton = document.getElementById('pay-now-token');
@@ -356,6 +365,5 @@
 
           });
   }
-
 </script>
 @endscript
