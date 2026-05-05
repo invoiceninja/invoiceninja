@@ -158,7 +158,15 @@ class DeletePaymentV2
 
                 $this->_paid_to_date_deleted = BcMath::add($this->_paid_to_date_deleted, $net_deletable, 2);
 
-                $paymentable_invoice = $paymentable_invoice->fresh();
+                /* Lock the invoice row to prevent races with concurrent MarkPaid / ApplyPayment.
+                   Without this, MarkPaid can read a mid-flight balance and either create a $0
+                   payment or set status incorrectly. */
+
+                /** 2026-05-05 - Take a lock on the invoice row to prevent race conditions with MarkPaid */
+                $paymentable_invoice = Invoice::withTrashed()
+                    ->where('id', $paymentable_invoice->id)
+                    ->lockForUpdate()
+                    ->first();
 
                 /** For cancelled invoices, we only reduce the paid to date - balance never changes */
                 if ($paymentable_invoice->status_id == Invoice::STATUS_CANCELLED) {

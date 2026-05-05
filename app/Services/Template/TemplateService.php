@@ -509,6 +509,10 @@ class TemplateService
         $html .= $partials['design']['body'];
         $html .= $partials['design']['footer'];
 
+        if ($html === '') {
+            $html = '<p></p>';
+        }
+        
         @$this->document->loadHTML($this->convertHtmlToEntities($html));
         // @$this->document->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
 
