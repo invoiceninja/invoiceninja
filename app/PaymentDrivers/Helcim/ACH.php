@@ -95,32 +95,40 @@ class ACH implements MethodInterface, LivewireMethodInterface
                 throw new PaymentFailed('Bank account verification failed: ' . ($data['warning'] ?? 'Unknown error'), 400);
             }
 
-            $transactionId = $data['transactionId'] ?? null;
+            $transactionId = $this->extractValue($data, ['transactionId', 'transaction.id', 'id']);
+            $bankAccountId = $this->extractValue($data, ['bankAccountId', 'bankAccount.id', 'bank.id', 'paymentMethod.id']);
+            $customerId = $this->extractValue($data, ['customerId', 'customer.id']);
+            $bankToken = $this->extractValue($data, ['bankToken', 'token', 'paymentMethod.token']);
+            $customerCode = $this->extractValue($data, ['customerCode', 'customer.code']);
 
-            if (!$transactionId) {
-                throw new PaymentFailed('No transaction reference received from bank account verification', 400);
+            $tokenReference = (string) ($bankToken ?: $bankAccountId ?: $transactionId ?: '');
+
+            if ($tokenReference === '') {
+                throw new PaymentFailed('No bank account reference received from Helcim verification', 400);
             }
 
             $payment_meta = new \stdClass();
             $payment_meta->exp_month = null;
             $payment_meta->exp_year = null;
             $payment_meta->brand = 'ACH';
-            $payment_meta->last4 = substr((string) ($data['bankAccountNumber'] ?? $data['cardNumber'] ?? ''), -4);
+            $accountNumber = (string) ($this->extractValue($data, ['bankAccountNumber', 'bankAccount.number', 'maskedAccountNumber', 'cardNumber']) ?? '');
+            $payment_meta->last4 = $accountNumber !== '' ? substr($accountNumber, -4) : '';
             $payment_meta->type = GatewayType::BANK_TRANSFER;
-            $payment_meta->customerCode = $data['customerCode'] ?? null;
+            $payment_meta->customerCode = $customerCode;
             // Store bankAccountId and customerId if provided for future token billing
-            $payment_meta->bankAccountId = $data['bankAccountId'] ?? null;
-            $payment_meta->customerId = $data['customerId'] ?? null;
-            $payment_meta->bankToken = $data['bankToken'] ?? null;
+            $payment_meta->bankAccountId = $bankAccountId;
+            $payment_meta->customerId = $customerId;
+            $payment_meta->bankToken = $bankToken;
+            $payment_meta->transactionId = $transactionId;
 
             $tokenData = [
                 'payment_meta' => $payment_meta,
-                'token' => (string) $transactionId,
+                'token' => $tokenReference,
                 'payment_method_id' => GatewayType::BANK_TRANSFER,
             ];
 
             $this->helcim_driver->storeGatewayToken($tokenData, [
-                'gateway_customer_reference' => $data['customerCode'] ?? (string) $transactionId,
+                'gateway_customer_reference' => (string) ($customerCode ?: $customerId ?: $transactionId ?: $tokenReference),
             ]);
 
             SystemLogger::dispatch(
@@ -135,7 +143,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
             return redirect()->route('client.payment_methods.index');
         } catch (\Exception $e) {
             SystemLogger::dispatch(
-                ['error' => $e->getMessage()],
+                ['error' => $e->getMessage(), 'transaction_data' => $transactionData],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_FAILURE,
                 SystemLog::TYPE_HELCIM,
@@ -268,26 +276,48 @@ class ACH implements MethodInterface, LivewireMethodInterface
         $payment = $this->helcim_driver->createPayment($paymentData, Payment::STATUS_PENDING);
 
         // Store bank account for future use if requested
-        if ($storeAccount && isset($data['transactionId'])) {
+        if ($storeAccount) {
+            $transactionId = $this->extractValue($data, ['transactionId', 'transaction.id', 'id']);
+            $bankAccountId = $this->extractValue($data, ['bankAccountId', 'bankAccount.id', 'bank.id', 'paymentMethod.id']);
+            $customerId = $this->extractValue($data, ['customerId', 'customer.id']);
+            $bankToken = $this->extractValue($data, ['bankToken', 'token', 'paymentMethod.token']);
+            $customerCode = $this->extractValue($data, ['customerCode', 'customer.code']);
+            $tokenReference = (string) ($bankToken ?: $bankAccountId ?: $transactionId ?: '');
+
+            if ($tokenReference === '') {
+                SystemLogger::dispatch(
+                    ['warning' => 'Unable to save ACH token, missing token reference', 'response' => $data],
+                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                    SystemLog::EVENT_GATEWAY_FAILURE,
+                    SystemLog::TYPE_HELCIM,
+                    $this->helcim_driver->client,
+                    $this->helcim_driver->client->company
+                );
+
+                return redirect()->route('client.payments.show', ['payment' => $this->helcim_driver->encodePrimaryKey($payment->id)]);
+            }
+
             $payment_meta = new \stdClass();
             $payment_meta->exp_month = null;
             $payment_meta->exp_year = null;
             $payment_meta->brand = 'ACH';
-            $payment_meta->last4 = substr((string) ($data['bankAccountNumber'] ?? $data['cardNumber'] ?? ''), -4);
+            $accountNumber = (string) ($this->extractValue($data, ['bankAccountNumber', 'bankAccount.number', 'maskedAccountNumber', 'cardNumber']) ?? '');
+            $payment_meta->last4 = $accountNumber !== '' ? substr($accountNumber, -4) : '';
             $payment_meta->type = GatewayType::BANK_TRANSFER;
-            $payment_meta->customerCode = $data['customerCode'] ?? null;
-            $payment_meta->bankAccountId = $data['bankAccountId'] ?? null;
-            $payment_meta->customerId = $data['customerId'] ?? null;
-            $payment_meta->bankToken = $data['bankToken'] ?? null;
+            $payment_meta->customerCode = $customerCode;
+            $payment_meta->bankAccountId = $bankAccountId;
+            $payment_meta->customerId = $customerId;
+            $payment_meta->bankToken = $bankToken;
+            $payment_meta->transactionId = $transactionId;
 
             $tokenData = [
                 'payment_meta' => $payment_meta,
-                'token' => (string) $data['transactionId'],
+                'token' => $tokenReference,
                 'payment_method_id' => GatewayType::BANK_TRANSFER,
             ];
 
             $this->helcim_driver->storeGatewayToken($tokenData, [
-                'gateway_customer_reference' => $data['customerCode'] ?? (string) $data['transactionId'],
+                'gateway_customer_reference' => (string) ($customerCode ?: $customerId ?: $transactionId ?: $tokenReference),
             ]);
         }
 
@@ -377,6 +407,19 @@ class ACH implements MethodInterface, LivewireMethodInterface
         return ($data['status'] ?? null) === 'APPROVED'
             || in_array(($data['statusAuth'] ?? null), ['PENDING', 'APPROVED', 'QUEUED', 'SUBMITTED'], true)
             || in_array(($data['statusClearing'] ?? null), ['OPENED', 'CLEARED', 'SUBMITTED', 'PENDING'], true);
+    }
+
+    private function extractValue(array $data, array $keys)
+    {
+        foreach ($keys as $key) {
+            $value = data_get($data, $key);
+
+            if ($value !== null && $value !== '') {
+                return $value;
+            }
+        }
+
+        return null;
     }
 
     /**
