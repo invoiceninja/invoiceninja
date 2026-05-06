@@ -214,10 +214,18 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
         }
 
         // update balance if last transaction has optional "balanceAfterTransaction"
-        $last_transaction = $transactions[0];
-        if (!empty($last_transaction['balance_after_transaction'])) {
-            $this->bank_integration->balance = $last_transaction['balance_after_transaction']['balanceAmount']['amount'];
-            $this->bank_integration->currency = $last_transaction['balance_after_transaction']['balanceAmount']['currency'];
+        $newest_balance_transaction = null;
+        foreach ($transactions as $transaction) {
+            if (!empty($transaction['balance_after_transaction'])) {
+                $newest_balance_transaction = $transaction;
+                break;
+            }
+        }
+
+        if ($newest_balance_transaction) {
+            $balance_data = $newest_balance_transaction['balance_after_transaction'];
+            $this->bank_integration->balance = $balance_data['balanceAmount']['amount'];
+            $this->bank_integration->currency = $balance_data['balanceAmount']['currency'];
         }
 
         $this->bank_integration->from_date = now()->subDays(5);
