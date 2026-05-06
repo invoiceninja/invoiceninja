@@ -119,6 +119,12 @@
                     (eventData && eventData.hash) ||
                     '';
 
+                // Final fallback: if normalized payload is effectively empty,
+                // send full event wrapper so backend can inspect eventStatus/eventMessage.
+                if (!transactionData || Object.keys(transactionData).length === 0) {
+                    transactionData = eventData || {};
+                }
+
                 document.getElementById('transaction_data').value = JSON.stringify(transactionData);
                 document.getElementById('transaction_hash').value = transactionHash;
 
