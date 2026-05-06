@@ -27,11 +27,11 @@
         /api/v1/locations?name=warehouse*
         ```
         
-        You can also sort the results (`column|asc` or `column|desc`). For multiple sort levels, use repeated `sort[]` query parameters.
+        Sorting uses `column|asc` or `column|desc`. Use a single `sort` parameter for one column, or repeated `sort[]` parameters for multi-level ordering (first is primary):
 
         ```html
-        /api/v1/locations?sort=name|desc
-        /api/v1/locations?sort[]=city|asc&sort[]=name|desc
+        /api/v1/locations?sort=id|desc
+        /api/v1/locations?sort[]=id|desc&sort[]=name|asc
         ```
 
         For pagination, use per_page and page parameters:
