@@ -81,13 +81,13 @@ class ACH implements MethodInterface, LivewireMethodInterface
         }
 
         try {
-            $data = json_decode($transactionData, true);
+            $rawData = json_decode($transactionData, true);
 
-            if (!$data) {
+            if (!$rawData) {
                 throw new PaymentFailed('Invalid transaction data format', 400);
             }
 
-            $data = $this->normalizeHelcimPayPayload($data);
+            $data = $this->normalizeHelcimPayPayload($rawData);
 
             if (!$this->helcim_driver->validateHelcimPayResponse($transactionData, $transactionHash, $secretToken)) {
                 throw new PaymentFailed('Transaction validation failed - data may have been tampered with', 400);
@@ -97,15 +97,27 @@ class ACH implements MethodInterface, LivewireMethodInterface
                 throw new PaymentFailed('Bank account verification failed: ' . $this->extractFailureReason($data), 400);
             }
 
-            $transactionId = $this->extractValue($data, ['transactionId', 'transaction.id', 'id']);
-            $bankAccountId = $this->extractValue($data, ['bankAccountId', 'bankAccount.id', 'bank.id', 'paymentMethod.id']);
-            $customerId = $this->extractValue($data, ['customerId', 'customer.id']);
-            $bankToken = $this->extractValue($data, ['bankToken', 'token', 'paymentMethod.token']);
-            $customerCode = $this->extractValue($data, ['customerCode', 'customer.code']);
+            $transactionId = $this->extractValue($data, ['transactionId', 'transaction.id', 'id', 'transactionId.id', 'verification.transactionId']);
+            $bankAccountId = $this->extractValue($data, ['bankAccountId', 'bankAccount.id', 'bank.id', 'paymentMethod.id', 'bankAccountId.id', 'account.id']);
+            $customerId = $this->extractValue($data, ['customerId', 'customer.id', 'customer.customerId', 'account.customerId']);
+            $bankToken = $this->extractValue($data, ['bankToken', 'token', 'paymentMethod.token', 'bank.token', 'account.token', 'achToken']);
+            $customerCode = $this->extractValue($data, ['customerCode', 'customer.code', 'customer.customerCode']);
 
             $tokenReference = (string) ($bankToken ?: $bankAccountId ?: $transactionId ?: '');
 
             if ($tokenReference === '') {
+                SystemLogger::dispatch(
+                    [
+                        'error' => 'No bank account reference received from Helcim verification',
+                        'diagnostics' => $this->buildAchDiagnostics($rawData, $data),
+                    ],
+                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                    SystemLog::EVENT_GATEWAY_FAILURE,
+                    SystemLog::TYPE_HELCIM,
+                    $this->helcim_driver->client,
+                    $this->helcim_driver->client->company
+                );
+
                 throw new PaymentFailed('No bank account reference received from Helcim verification', 400);
             }
 
@@ -145,7 +157,12 @@ class ACH implements MethodInterface, LivewireMethodInterface
             return redirect()->route('client.payment_methods.index');
         } catch (\Exception $e) {
             SystemLogger::dispatch(
-                ['error' => $e->getMessage(), 'transaction_data' => $transactionData],
+                [
+                    'error' => $e->getMessage(),
+                    'diagnostics' => isset($rawData) && is_array($rawData)
+                        ? $this->buildAchDiagnostics($rawData, $data ?? [])
+                        : ['has_transaction_data' => !empty($transactionData)],
+                ],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_FAILURE,
                 SystemLog::TYPE_HELCIM,
@@ -251,13 +268,13 @@ class ACH implements MethodInterface, LivewireMethodInterface
             throw new PaymentFailed('Invalid ACH payment response', 400);
         }
 
-        $data = json_decode($transactionData, true);
+        $rawData = json_decode($transactionData, true);
 
-        if (!$data) {
+        if (!$rawData) {
             throw new PaymentFailed('Invalid transaction data format', 400);
         }
 
-        $data = $this->normalizeHelcimPayPayload($data);
+        $data = $this->normalizeHelcimPayPayload($rawData);
 
         if (!$this->helcim_driver->validateHelcimPayResponse($transactionData, $transactionHash, $secretToken)) {
             throw new PaymentFailed('Transaction validation failed - data may have been tampered with', 400);
@@ -281,11 +298,11 @@ class ACH implements MethodInterface, LivewireMethodInterface
 
         // Store bank account for future use if requested
         if ($storeAccount) {
-            $transactionId = $this->extractValue($data, ['transactionId', 'transaction.id', 'id']);
-            $bankAccountId = $this->extractValue($data, ['bankAccountId', 'bankAccount.id', 'bank.id', 'paymentMethod.id']);
-            $customerId = $this->extractValue($data, ['customerId', 'customer.id']);
-            $bankToken = $this->extractValue($data, ['bankToken', 'token', 'paymentMethod.token']);
-            $customerCode = $this->extractValue($data, ['customerCode', 'customer.code']);
+            $transactionId = $this->extractValue($data, ['transactionId', 'transaction.id', 'id', 'transactionId.id', 'verification.transactionId']);
+            $bankAccountId = $this->extractValue($data, ['bankAccountId', 'bankAccount.id', 'bank.id', 'paymentMethod.id', 'bankAccountId.id', 'account.id']);
+            $customerId = $this->extractValue($data, ['customerId', 'customer.id', 'customer.customerId', 'account.customerId']);
+            $bankToken = $this->extractValue($data, ['bankToken', 'token', 'paymentMethod.token', 'bank.token', 'account.token', 'achToken']);
+            $customerCode = $this->extractValue($data, ['customerCode', 'customer.code', 'customer.customerCode']);
             $tokenReference = (string) ($bankToken ?: $bankAccountId ?: $transactionId ?: '');
 
             if ($tokenReference === '') {
@@ -549,6 +566,27 @@ class ACH implements MethodInterface, LivewireMethodInterface
         }
 
         return $payload;
+    }
+
+    /**
+     * Non-sensitive structured diagnostics to identify which branch fails in production.
+     */
+    private function buildAchDiagnostics(array $rawData, array $normalizedData): array
+    {
+        $rawKeys = array_keys($rawData);
+        $normalizedKeys = array_keys($normalizedData);
+
+        return [
+            'raw_keys' => array_values(array_slice($rawKeys, 0, 30)),
+            'normalized_keys' => array_values(array_slice($normalizedKeys, 0, 30)),
+            'raw_event_status' => data_get($rawData, 'eventStatus'),
+            'raw_event_name' => data_get($rawData, 'eventName'),
+            'normalized_status' => $this->extractValue($normalizedData, ['status', 'statusAuth', 'statusClearing', 'transaction.status']),
+            'transaction_id' => $this->extractValue($normalizedData, ['transactionId', 'transaction.id', 'id', 'verification.transactionId']),
+            'bank_account_id' => $this->extractValue($normalizedData, ['bankAccountId', 'bankAccount.id', 'bank.id', 'paymentMethod.id', 'account.id']),
+            'customer_id' => $this->extractValue($normalizedData, ['customerId', 'customer.id', 'customer.customerId', 'account.customerId']),
+            'has_bank_token' => !empty($this->extractValue($normalizedData, ['bankToken', 'token', 'paymentMethod.token', 'bank.token', 'account.token', 'achToken'])),
+        ];
     }
 
     /**
