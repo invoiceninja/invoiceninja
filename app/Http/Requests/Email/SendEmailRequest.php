@@ -102,12 +102,16 @@ class SendEmailRequest extends Request
         }
 
         if (isset($input['cc_email'])) {
-            $input['cc_email'] = collect(explode(",", $input['cc_email']))
+            //** accept comma or space separated list of emails and deduplicate */
+            $input['cc_email'] = collect(array_merge(explode(",", $input['cc_email']), explode(" ", $input['cc_email'])))
                                 ->map(function ($email) {
-                                    return trim($email);
+                                    return strtolower(trim($email));
                                 })->filter(function ($email) {
                                     return filter_var($email, FILTER_VALIDATE_EMAIL);
-                                })->slice(0, 4)->toArray();
+                                })
+                                ->unique()
+                                ->values()
+                                ->slice(0, 4)->toArray();
         }
 
         if (\App\Utils\Ninja::isHosted() && !$user->account->isPaid()) {
