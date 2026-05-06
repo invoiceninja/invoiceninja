@@ -419,6 +419,21 @@ class ACH implements MethodInterface, LivewireMethodInterface
      */
     private function isApprovedAchResponse(array $data): bool
     {
+        $paymentType = strtoupper((string) ($this->extractValue($data, ['paymentType', 'data.paymentType']) ?? ''));
+        $hasBankToken = !empty($this->extractValue($data, [
+            'bankToken',
+            'token',
+            'paymentMethod.token',
+            'bank.token',
+            'account.token',
+            'achToken',
+        ]));
+        $hasMaskedAccount = !empty($this->extractValue($data, [
+            'bankAccountNumber',
+            'bankAccount.number',
+            'maskedAccountNumber',
+        ]));
+
         $statusCandidates = [
             $data['status'] ?? null,
             $data['statusAuth'] ?? null,
@@ -446,6 +461,20 @@ class ACH implements MethodInterface, LivewireMethodInterface
             if (in_array($status, $explicitFailureStatuses, true)) {
                 return false;
             }
+        }
+
+        // ACH verify/tokenization responses may not include transaction/status fields.
+        // Accept verify success when Helcim returns a token (or masked account) and
+        // no explicit failure status is present.
+        if ($paymentType === 'VERIFY' && ($hasBankToken || $hasMaskedAccount)) {
+            return true;
+        }
+
+        // Some ACH payload variants may omit paymentType but still include only tokenized
+        // account details (without transactionId/status). Accept if token exists unless
+        // explicitly failed above.
+        if ($hasBankToken) {
+            return true;
         }
 
         $transactionId = $this->extractValue($data, [
