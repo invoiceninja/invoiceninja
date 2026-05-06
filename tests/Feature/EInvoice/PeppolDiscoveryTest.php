@@ -611,46 +611,46 @@ class PeppolDiscoveryTest extends TestCase
         $client = $this->makeClient(250, 'business', [
             'vat_number' => 'FR12345678901',
             'id_number'  => '123456789', // would otherwise become FR:SIRENE
-            'routing_id' => '12345678901231', // valid 14-digit GLN
+            'routing_id' => '0088:1234567890128',
         ]);
 
         $meta = $this->runMutatorWithMock($client, fn () => false);
 
         $this->assertEquals('0088', $meta['routing']['eIdentifiers'][0]['scheme']);
-        $this->assertEquals('12345678901231', $meta['routing']['eIdentifiers'][0]['id']);
+        $this->assertEquals('1234567890128', $meta['routing']['eIdentifiers'][0]['id']);
     }
 
     public function testGlnWithSchemePrefixOnFrClientWins(): void
     {
         $client = $this->makeClient(250, 'business', [
             'id_number'  => '123456789',
-            'routing_id' => '0088:12345678901231',
+            'routing_id' => '0088:1234567890128',
         ]);
 
         $meta = $this->runMutatorWithMock($client, fn () => false);
 
         $this->assertEquals('0088', $meta['routing']['eIdentifiers'][0]['scheme']);
-        $this->assertEquals('12345678901231', $meta['routing']['eIdentifiers'][0]['id']);
+        $this->assertEquals('1234567890128', $meta['routing']['eIdentifiers'][0]['id']);
     }
 
     public function testValidGlnOnDeClientBeatsVatCandidate(): void
     {
         $client = $this->makeClient(276, 'business', [
             'vat_number' => 'DE123456789',
-            'routing_id' => '12345678901231',
+            'routing_id' => '0088:1234567890128',
         ]);
 
         $meta = $this->runMutatorWithMock($client, fn () => false);
 
         $this->assertEquals('0088', $meta['routing']['eIdentifiers'][0]['scheme']);
-        $this->assertEquals('12345678901231', $meta['routing']['eIdentifiers'][0]['id']);
+        $this->assertEquals('1234567890128', $meta['routing']['eIdentifiers'][0]['id']);
     }
 
     public function testValidGlnOnBeClientBeatsBeEnCandidate(): void
     {
         $client = $this->makeClient(56, 'business', [
             'vat_number' => 'BE0202239951',
-            'routing_id' => '12345678901231',
+            'routing_id' => '0088:1234567890128',
         ]);
 
         $meta = $this->runMutatorWithMock($client, fn () => false);
@@ -664,7 +664,7 @@ class PeppolDiscoveryTest extends TestCase
         // falling through to SIRET. That must not happen — GLN is authoritative.
         $client = $this->makeClient(250, 'business', [
             'id_number'  => '123456789',
-            'routing_id' => '12345678901231',
+            'routing_id' => '0088:1234567890128',
         ]);
 
         // Discovery returns false for everything
@@ -673,14 +673,11 @@ class PeppolDiscoveryTest extends TestCase
         $this->assertEquals('0088', $meta['routing']['eIdentifiers'][0]['scheme'], 'GLN must not silently fall through when discovery fails');
     }
 
-    public function testInvalidGlnCheckdigitFallsThroughToHandler(): void
+    public function testMalformed0088RoutingIdFallsThroughToHandler(): void
     {
-        // A bad-checksum "GLN" is not really a GLN. It should NOT override
-        // handler candidates. (Validation at EntityLevel will have flagged
-        // it for the user; send-time falls through safely.)
         $client = $this->makeClient(276, 'business', [
             'vat_number' => 'DE123456789',
-            'routing_id' => '12345678901232', // bad checkdigit
+            'routing_id' => '0088:123456789012',
         ]);
 
         $meta = $this->runMutatorWithMock($client, fn () => false);

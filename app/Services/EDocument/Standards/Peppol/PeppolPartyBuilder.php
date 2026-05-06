@@ -24,6 +24,7 @@ use InvoiceNinja\EInvoice\Models\Peppol\TaxSchemeType\TaxScheme;
 use InvoiceNinja\EInvoice\Models\Peppol\CodeType\IdentificationCode;
 use InvoiceNinja\EInvoice\Models\Peppol\CustomerPartyType\AccountingCustomerParty;
 use InvoiceNinja\EInvoice\Models\Peppol\SupplierPartyType\AccountingSupplierParty;
+use App\Services\EDocument\Support\GlnIdentifier;
 use App\Services\EDocument\Standards\Peppol;
 
 class PeppolPartyBuilder
@@ -221,6 +222,9 @@ class PeppolPartyBuilder
             [$scheme, $value] = explode(':', $routing_id, 2);
             $id->schemeID = $this->peppol->getRouter()->resolveIso6523Scheme($scheme);
             $id->value = $value;
+            if ($id->schemeID === '0088' && ($gln = GlnIdentifier::tryParse($routing_id))) {
+                $id->value = $gln;
+            }
         } elseif (strlen($routing_id) > 1) {
             // Raw routing value — scheme resolved from country/classification
             $id->schemeID = $resolved_scheme;

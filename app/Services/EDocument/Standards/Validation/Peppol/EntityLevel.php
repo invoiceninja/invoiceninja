@@ -12,6 +12,7 @@
 
 namespace App\Services\EDocument\Standards\Validation\Peppol;
 
+use App\Services\EDocument\Support\GlnIdentifier;
 use App\Models\Quote;
 use App\Models\Client;
 use App\Models\Credit;
@@ -287,12 +288,15 @@ class EntityLevel implements EntityLevelInterface
         // user is attempting an override. Numeric values look like GLN
         // attempts; give a GLN-specific error so the user knows what to fix.
         if (ctype_digit($value)) {
-            return $this->validateGln($value, $value);
+            return [
+                'field' => 'routing_id',
+                'label' => 'For GLN (ICD 0088) use routing_id in the form 0088: followed by exactly 13 digits.',
+            ];
         }
 
         return [
             'field' => 'routing_id',
-            'label' => "routing_id \"{$value}\" must be in scheme:id format (e.g. 0088:1234567890123 for GLN).",
+            'label' => "routing_id \"{$value}\" must be in scheme:id format (e.g. 0088:5401205000102 for GLN).",
         ];
     }
 
@@ -308,17 +312,20 @@ class EntityLevel implements EntityLevelInterface
         if (count($parts) !== 2 || $parts[0] === '' || $parts[1] === '') {
             return [
                 'field' => 'routing_id',
-                'label' => ctrans('texts.routing_id') . "'{$value}' must be in scheme:id format (e.g. 0088:1234567890123 for GLN).",
+                'label' => ctrans('texts.routing_id') . "'{$value}' must be in scheme:id format (e.g. 0088:5401205000102 for GLN).",
             ];
         }
 
         [$scheme, $id] = $parts;
+        $id = trim($id);
 
-        // GLN (ICD 0088) — must be 14 numeric digits with a valid GS1 mod-10
-        // check digit. The router has no regex entry for numeric ICD schemes,
-        // so this has to be enforced here.
         if ($scheme === '0088') {
-            return $this->validateGln($id, "{$scheme}:{$id}");
+            return GlnIdentifier::tryParse('0088:'.$id) !== null
+                ? []
+                : [
+                    'field' => 'routing_id',
+                    'label' => "routing_id GLN must be 0088: followed by exactly 13 digits. Got \"{$scheme}:{$id}\".",
+                ];
         }
 
         if (!$router->validateIdentifierFormat($scheme, $id)) {
@@ -329,47 +336,6 @@ class EntityLevel implements EntityLevelInterface
         }
 
         return []; // valid
-    }
-
-    /**
-     * Validates a GLN: 14 numeric digits with a valid GS1 mod-10 check digit.
-     *
-     * Storecove (scheme 0088) enforces `^\d{14}$` and rejects anything else
-     * with a 422. On top of that, GS1 requires the rightmost digit to be a
-     * mod-10 check over the preceding 13: starting from the rightmost body
-     * digit (position 2 from the right), weights alternate 3, 1, 3, 1, ...;
-     * check = (10 − (weighted_sum mod 10)) mod 10.
-     *
-     * @param  string $digits  The numeric value to validate (14 digits expected)
-     * @param  string $display The user-visible value used in error messages
-     * @return array{field: string, label: string}|array{} error or [] on pass
-     */
-    private function validateGln(string $digits, string $display): array
-    {
-        if (!ctype_digit($digits) || strlen($digits) !== 14) {
-            return [
-                'field' => 'routing_id',
-                'label' => "routing_id \"{$display}\" looks like a GLN but must be 14 digits (got " . strlen($digits) . "). Use format 0088:<14-digit-GLN> if that was your intent.",
-            ];
-        }
-
-        if (StorecoveRouter::isValidGln($digits)) {
-            return [];
-        }
-
-        // Length was right, so the only remaining failure mode is the check digit.
-        $sum = 0;
-        $weights = [3, 1];
-        for ($i = 12, $j = 0; $i >= 0; $i--, $j++) {
-            $sum += ((int) $digits[$i]) * $weights[$j % 2];
-        }
-        $expected = (10 - ($sum % 10)) % 10;
-        $actual   = (int) $digits[13];
-
-        return [
-            'field' => 'routing_id',
-            'label' => "routing_id GLN \"{$display}\" has an invalid check digit (expected {$expected}, got {$actual}). Verify the value.",
-        ];
     }
 
     private function testCompanyState(mixed $entity): array

@@ -12,6 +12,7 @@
 
 namespace App\Services\EDocument\Gateway\Storecove;
 
+use App\Services\EDocument\Support\GlnIdentifier;
 use App\Services\EDocument\Standards\Peppol\CountryFactory;
 use App\Services\EDocument\Standards\Peppol\CountryHandler;
 use App\Services\EDocument\Standards\Peppol\IT as ItalyCountryHandler;
@@ -54,8 +55,8 @@ class RoutingResolver
     {
         $result = ['type' => 'none', 'meta' => [], 'networks' => []];
 
-        // 1. GLN always wins if the client has supplied one (bare 14 digits
-        //    or "0088:<14digits>"). No discovery gate — a valid GLN is the
+        // 1. GLN always wins if the client has supplied one (valid 13-digit GS1
+        //    GLN bare or "0088:<GLN>"). No discovery gate — a valid GLN is the
         //    recipient's authoritative identifier. If Storecove can't find it,
         //    fail loud rather than silently rerouting to VAT/SIRET.
         if ($gln = $this->resolveGlnRoutingId()) {
@@ -134,23 +135,18 @@ class RoutingResolver
     }
 
     /**
-     * If the client has a valid GLN in routing_id (bare 14 digits or
-     * "0088:<14digits>"), route via scheme 0088 unconditionally — GLN wins
-     * over every handler candidate. Discovery is attempted for network
-     * overrides, but a failed discovery does NOT cause fall-through: the
-     * value stands.
+     * Valid GS1 GLN (13 digits, ICD 0088) in routing_id wins over handler candidates.
+     *
+     * @see \App\Services\EDocument\Support\GlnIdentifier
      */
     private function resolveGlnRoutingId(): ?array
     {
         $routingId = trim($this->invoice->client->routing_id ?? '');
 
-        if ($routingId === '' || !StorecoveRouter::isValidGln($routingId)) {
+        $gln = GlnIdentifier::tryParse($routingId);
+        if ($gln === null) {
             return null;
         }
-
-        $gln = str_starts_with($routingId, '0088:')
-            ? substr($routingId, 5)
-            : $routingId;
 
         // Attempt discovery for network-override resolution, but don't gate
         // the result on it.

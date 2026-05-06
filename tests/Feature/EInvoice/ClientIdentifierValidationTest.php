@@ -423,7 +423,7 @@ class ClientIdentifierValidationTest extends TestCase
             'country_id' => 250, // FR
             'vat_number' => '',
             'id_number'  => '',
-            'routing_id' => '0088:12345678901231', // 13-digit GLN
+            'routing_id' => '0088:1234567890128', // valid 13-digit GS1 GLN
         ]);
 
         $result = (new EntityLevel())->checkClient($client);
@@ -439,7 +439,7 @@ class ClientIdentifierValidationTest extends TestCase
         // BE handler reads vat_number only; absent here. Valid GLN override passes.
         $client = $this->makeClient([
             'vat_number' => '',
-            'routing_id' => '0088:12345678901231',
+            'routing_id' => '0088:1234567890128',
         ]);
 
         $result = (new EntityLevel())->checkClient($client);
@@ -453,7 +453,7 @@ class ClientIdentifierValidationTest extends TestCase
             'country_id' => 250, // FR
             'vat_number' => '',
             'id_number'  => '',
-            'routing_id' => '0088:4334343', // 7 digits, not 14
+            'routing_id' => '0088:4334343',
         ]);
 
         $errors = $this->clientErrors($client);
@@ -461,8 +461,8 @@ class ClientIdentifierValidationTest extends TestCase
         $this->assertTrue($this->hasErrorForField($errors, 'routing_id'), 'Expected routing_id error. Got: ' . json_encode($errors));
 
         $label = $this->firstErrorLabel($errors, 'routing_id');
-        $this->assertStringContainsStringIgnoringCase('GLN', $label);
-        $this->assertStringContainsStringIgnoringCase('14 digits', $label);
+        $this->assertStringContainsStringIgnoringCase('0088:', $label);
+        $this->assertStringContainsString('13', $label);
     }
 
     public function testBareNumericRoutingIdOnFrGivesGlnSpecificError(): void
@@ -474,7 +474,7 @@ class ClientIdentifierValidationTest extends TestCase
             'country_id' => 250, // FR
             'vat_number' => '',
             'id_number'  => '',
-            'routing_id' => '2435345543', // 10 digits, not 14
+            'routing_id' => '2435345543', // 10 digits, not a GLN
         ]);
 
         $errors = $this->clientErrors($client);
@@ -482,59 +482,65 @@ class ClientIdentifierValidationTest extends TestCase
         $this->assertTrue($this->hasErrorForField($errors, 'routing_id'), 'Expected routing_id error for bare numeric on FR. Got: ' . json_encode($errors));
 
         $label = $this->firstErrorLabel($errors, 'routing_id');
-        $this->assertStringContainsStringIgnoringCase('GLN', $label);
-        $this->assertStringContainsStringIgnoringCase('14 digits', $label);
+        $this->assertStringContainsStringIgnoringCase('0088:', $label);
     }
 
-    public function testBare13DigitRoutingIdOnFrPassesAsGln(): void
+    public function testBare13DigitRoutingIdOnFrRejectedRequires0088Prefix(): void
     {
-        // A 13-digit numeric value on a non-native-routing-id country is
-        // accepted as an implicit GLN (scheme 0088) iff the GS1 mod-10
-        // check digit is valid. 12345678901231 is a valid GLN.
         $client = $this->makeClient([
             'country_id' => 250, // FR
             'vat_number' => '',
             'id_number'  => '',
-            'routing_id' => '12345678901231',
+            'routing_id' => '1234567890128',
+        ]);
+
+        $errors = $this->clientErrors($client);
+
+        $this->assertTrue($this->hasErrorForField($errors, 'routing_id'));
+        $this->assertStringContainsStringIgnoringCase('0088:', $this->firstErrorLabel($errors, 'routing_id'));
+    }
+
+    public function testVerifiedRealWorldGlnPasses(): void
+    {
+        $client = $this->makeClient([
+            'country_id' => 250,
+            'vat_number' => '',
+            'id_number'  => '',
+            'routing_id' => '0088:5401205000102',
         ]);
 
         $result = (new EntityLevel())->checkClient($client);
 
-        $this->assertTrue($result['passes'], 'Bare 13-digit value with valid mod-10 should pass. Errors: ' . json_encode($result['client'] ?? []));
+        $this->assertTrue($result['passes'], json_encode($result['client'] ?? []));
     }
 
-    public function testGlnWithBadCheckdigitIsRejected(): void
-    {
-        // 14 digits but wrong check digit — the last "2" should be "1".
-        $client = $this->makeClient([
-            'country_id' => 250, // FR
-            'vat_number' => '',
-            'id_number'  => '',
-            'routing_id' => '12345678901232',
-        ]);
-
-        $errors = $this->clientErrors($client);
-
-        $this->assertTrue($this->hasErrorForField($errors, 'routing_id'));
-
-        $label = $this->firstErrorLabel($errors, 'routing_id');
-        $this->assertStringContainsStringIgnoringCase('check digit', $label);
-        $this->assertStringContainsString('expected 1', $label);
-    }
-
-    public function testGlnWithBadCheckdigitInSchemeFormIsRejected(): void
+    public function testGln0088PassesRegardlessOfTraditionalChecksumSemantics(): void
     {
         $client = $this->makeClient([
             'country_id' => 250, // FR
             'vat_number' => '',
             'id_number'  => '',
-            'routing_id' => '0088:12345678901232',
+            'routing_id' => '0088:1234567890129',
+        ]);
+
+        $result = (new EntityLevel())->checkClient($client);
+
+        $this->assertTrue($result['passes'], json_encode($result['client'] ?? []));
+    }
+
+    public function testBareNumeric13DigitStillRequires0088Scheme(): void
+    {
+        $client = $this->makeClient([
+            'country_id' => 250, // FR
+            'vat_number' => '',
+            'id_number'  => '',
+            'routing_id' => '1234567890129',
         ]);
 
         $errors = $this->clientErrors($client);
 
         $this->assertTrue($this->hasErrorForField($errors, 'routing_id'));
-        $this->assertStringContainsStringIgnoringCase('check digit', $this->firstErrorLabel($errors, 'routing_id'));
+        $this->assertStringContainsStringIgnoringCase('0088:', $this->firstErrorLabel($errors, 'routing_id'));
     }
 
     public function testBareAlphanumericRoutingIdOnFrRejected(): void
