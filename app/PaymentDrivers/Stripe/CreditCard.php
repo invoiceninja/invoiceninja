@@ -176,7 +176,7 @@ class CreditCard implements LivewireMethodInterface
         if ($payment->invoices()->whereHas('subscription')->exists()) {
             $subscription = $payment->invoices()->first()->subscription;
 
-            if ($subscription && array_key_exists('return_url', $subscription->webhook_configuration) && strlen($subscription->webhook_configuration['return_url']) >= 1) {
+            if ($subscription && array_key_exists('return_url', $subscription->webhook_configuration) && strlen($subscription->webhook_configuration['return_url'] ?? '') >= 1) {
                 return redirect($subscription->webhook_configuration['return_url']);
             }
         }
