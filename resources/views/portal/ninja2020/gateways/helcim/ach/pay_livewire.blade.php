@@ -126,16 +126,29 @@
 
                 // Normalize HelcimPay.js response — eventMessage can be:
                 // (a) flat: { transactionId, status, bankAccountNumber, ... }
-                // (b) nested: { data: { data: { transactionId, ... }, hash: "..." } }
-                var transactionData, transactionHash;
-                if (transactionResponse && transactionResponse.transactionId) {
+                // (b) nested: { data: { ... } }
+                // (c) deeply nested: { data: { data: {...}, hash: "..." } }
+                var responseData = (transactionResponse && transactionResponse.data) ? transactionResponse.data : transactionResponse;
+                var nestedData = (responseData && responseData.data) ? responseData.data : null;
+
+                var transactionData = (nestedData && typeof nestedData === 'object' && !Array.isArray(nestedData))
+                    ? nestedData
+                    : ((responseData && typeof responseData === 'object' && !Array.isArray(responseData)) ? responseData : {});
+
+                if (!transactionData.transactionId && transactionResponse && transactionResponse.transactionId) {
                     transactionData = transactionResponse;
-                    transactionHash = transactionResponse.hash || '';
-                } else {
-                    var responseData = (transactionResponse && transactionResponse.data) ? transactionResponse.data : {};
-                    transactionData = (responseData && responseData.data) ? responseData.data : responseData;
-                    transactionHash = (responseData && responseData.hash) ? responseData.hash : ((transactionResponse && transactionResponse.hash) ? transactionResponse.hash : '');
                 }
+
+                if (!transactionData.transactionId && eventData && eventData.transactionId) {
+                    transactionData = eventData;
+                }
+
+                var transactionHash =
+                    (nestedData && nestedData.hash) ||
+                    (responseData && responseData.hash) ||
+                    (transactionResponse && transactionResponse.hash) ||
+                    (eventData && eventData.hash) ||
+                    '';
 
                 document.getElementById('transaction_data').value = JSON.stringify(transactionData);
                 document.getElementById('transaction_hash').value = transactionHash;

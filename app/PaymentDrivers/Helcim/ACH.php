@@ -92,7 +92,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
             }
 
             if (!$this->isApprovedAchResponse($data)) {
-                throw new PaymentFailed('Bank account verification failed: ' . ($data['warning'] ?? 'Unknown error'), 400);
+                throw new PaymentFailed('Bank account verification failed: ' . $this->extractFailureReason($data), 400);
             }
 
             $transactionId = $this->extractValue($data, ['transactionId', 'transaction.id', 'id']);
@@ -260,7 +260,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
         }
 
         if (!$this->isApprovedAchResponse($data)) {
-            throw new PaymentFailed('ACH payment failed: ' . ($data['warning'] ?? 'Unknown error'), 400);
+            throw new PaymentFailed('ACH payment failed: ' . $this->extractFailureReason($data), 400);
         }
 
         $amount = $paymentHash->data->amount_with_fee;
@@ -398,15 +398,103 @@ class ACH implements MethodInterface, LivewireMethodInterface
      */
     private function isApprovedAchResponse(array $data): bool
     {
-        // If HelcimPay.js returned a transactionId, accept it unless explicitly declined
-        if (!empty($data['transactionId'])) {
-            $status = strtoupper($data['status'] ?? '');
-            return !in_array($status, ['DECLINED', 'FAILED', 'ERROR', 'REJECTED']);
+        $statusCandidates = [
+            $data['status'] ?? null,
+            $data['statusAuth'] ?? null,
+            $data['statusClearing'] ?? null,
+            $data['eventStatus'] ?? null,
+            data_get($data, 'transaction.status'),
+            data_get($data, 'transaction.statusAuth'),
+            data_get($data, 'transaction.statusClearing'),
+            data_get($data, 'data.status'),
+            data_get($data, 'data.statusAuth'),
+            data_get($data, 'data.statusClearing'),
+        ];
+
+        $normalizedStatuses = array_values(array_filter(array_map(static function ($status) {
+            if ($status === null || $status === '') {
+                return null;
+            }
+
+            return strtoupper((string) $status);
+        }, $statusCandidates)));
+
+        $explicitFailureStatuses = ['DECLINED', 'FAILED', 'ERROR', 'REJECTED', 'VOIDED', 'CANCELLED'];
+
+        foreach ($normalizedStatuses as $status) {
+            if (in_array($status, $explicitFailureStatuses, true)) {
+                return false;
+            }
         }
 
-        return ($data['status'] ?? null) === 'APPROVED'
-            || in_array(($data['statusAuth'] ?? null), ['PENDING', 'APPROVED', 'QUEUED', 'SUBMITTED'], true)
-            || in_array(($data['statusClearing'] ?? null), ['OPENED', 'CLEARED', 'SUBMITTED', 'PENDING'], true);
+        $transactionId = $this->extractValue($data, [
+            'transactionId',
+            'transaction.id',
+            'id',
+            'data.transactionId',
+            'data.transaction.id',
+            'data.id',
+        ]);
+
+        // If HelcimPay.js returned a transaction id, accept unless explicitly declined
+        if (!empty($transactionId)) {
+            return true;
+        }
+
+        if (in_array('SUCCESS', $normalizedStatuses, true)) {
+            return true;
+        }
+
+        $approvedStatuses = ['APPROVED', 'PENDING', 'QUEUED', 'SUBMITTED', 'OPENED', 'CLEARED'];
+
+        foreach ($normalizedStatuses as $status) {
+            if (in_array($status, $approvedStatuses, true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function extractFailureReason(array $data): string
+    {
+        $reason = $this->extractValue($data, [
+            'warning',
+            'message',
+            'error',
+            'responseMessage',
+            'statusMessage',
+            'errors.0.message',
+            'errors.0.error',
+            'data.warning',
+            'data.message',
+            'data.error',
+            'transaction.message',
+        ]);
+
+        $diagnostics = [
+            'status' => $this->extractValue($data, ['status', 'data.status', 'transaction.status']),
+            'statusAuth' => $this->extractValue($data, ['statusAuth', 'data.statusAuth', 'transaction.statusAuth']),
+            'statusClearing' => $this->extractValue($data, ['statusClearing', 'data.statusClearing', 'transaction.statusClearing']),
+            'transactionId' => $this->extractValue($data, ['transactionId', 'transaction.id', 'id', 'data.transactionId']),
+        ];
+
+        $diagnosticParts = [];
+        foreach ($diagnostics as $key => $value) {
+            if ($value !== null && $value !== '') {
+                $diagnosticParts[] = sprintf('%s=%s', $key, (string) $value);
+            }
+        }
+
+        if ($reason) {
+            return $diagnosticParts
+                ? sprintf('%s (%s)', $reason, implode(', ', $diagnosticParts))
+                : (string) $reason;
+        }
+
+        return $diagnosticParts
+            ? sprintf('Gateway response not approved (%s)', implode(', ', $diagnosticParts))
+            : 'Gateway response not approved';
     }
 
     private function extractValue(array $data, array $keys)
