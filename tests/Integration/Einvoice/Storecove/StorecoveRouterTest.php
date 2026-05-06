@@ -12,16 +12,20 @@
 
 namespace Tests\Integration\Einvoice\Storecove;
 
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\Company;
+use App\Models\Country;
+use App\Models\Invoice;
+use App\Models\User;
+use App\Services\EDocument\Gateway\Storecove\Storecove;
+use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
+use App\Services\EDocument\Gateway\Storecove\RoutingResolver;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\Artisan;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
-use App\Models\User;
-use App\Models\Client;
-use App\Models\Account;
-use App\Models\Company;
-use App\Models\Invoice;
-use Illuminate\Routing\Middleware\ThrottleRequests;
-use App\Services\EDocument\Gateway\Storecove\Storecove;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class StorecoveRouterTest extends TestCase
 {
@@ -39,6 +43,11 @@ class StorecoveRouterTest extends TestCase
 
         $this->faker = \Faker\Factory::create();
 
+        if (Country::count() == 0) {
+            Artisan::call('db:seed', ['--force' => true]);
+        }
+        
+        
     }
 
     private function buildData()
@@ -338,14 +347,21 @@ class StorecoveRouterTest extends TestCase
     {
         $invoice = $this->buildData();
 
-        $client = $invoice->client;
-        $client->country_id = 752;
-        $client->vat_number = 'SE123456789101';
-        $client->classification = 'government';
-        $client->save();
+        $invoice->client->country_id = 752;
+        $invoice->client->vat_number = 'SE123456789101';
+        $invoice->client->classification = 'government';
+        $invoice->client->push();
+
+        $invoice = $invoice->refresh()->load('client');
+
+        // $client = $invoice->client;
+        // $client->country_id = 752;
+        // $client->vat_number = 'SE123456789101';
+        // $client->classification = 'government';
+        // $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
+        $storecove->router->setInvoice($invoice);
 
         $this->assertEquals('SE:VAT', $storecove->router->resolveTaxScheme('SE', 'government'));
     }
@@ -354,31 +370,26 @@ class StorecoveRouterTest extends TestCase
     {
         $invoice = $this->buildData();
 
-        $client = $invoice->client;
-        $client->country_id = 752;
-        $client->vat_number = 'SE123456789101';
-        $client->id_number = '5567891234';
-        $client->classification = 'business';
-        $client->save();
+        // $client = $invoice->client;
+        $invoice->client->country_id = 752;
+        $invoice->client->vat_number = 'SE123456789101';
+        $invoice->client->id_number = '5567891234';
+        $invoice->client->classification = 'business';
+        $invoice->client->push();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
+        $storecove->router->setInvoice($invoice);
 
         // Routing scheme should be SE:ORGNR
         $this->assertEquals('SE:ORGNR', $storecove->router->resolveRouting('SE', 'business'));
 
-        // The Mutator should use id_number (org number) as the routing identifier value, not vat_number
-        $storecove->mutator->setInvoice($invoice->fresh());
-        $storecove->mutator->setClientRoutingCode();
+        // RoutingResolver should use id_number (org number) as the routing identifier value, not vat_number
+        $resolver = new RoutingResolver($invoice->fresh(), $storecove->proxy, $storecove->router);
+        $result = $resolver->resolve();
 
-        $meta = $storecove->mutator->getStorecoveMeta();
+        $this->assertEquals('eIdentifiers', $result['type']);
+        $eIdentifiers = $result['meta']['routing']['eIdentifiers'];
 
-        $this->assertArrayHasKey('routing', $meta);
-        $this->assertArrayHasKey('eIdentifiers', $meta['routing']);
-
-        $eIdentifiers = $meta['routing']['eIdentifiers'];
-
-        // Find the SE:ORGNR identifier
         $orgnrIdentifier = collect($eIdentifiers)->firstWhere('scheme', 'SE:ORGNR');
 
         $this->assertNotNull($orgnrIdentifier, 'SE:ORGNR routing identifier should be present');
@@ -397,16 +408,12 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->mutator->setInvoice($invoice->fresh());
-        $storecove->mutator->setClientRoutingCode();
+        $resolver = new RoutingResolver($invoice->fresh(), $storecove->proxy, $storecove->router);
+        $result = $resolver->resolve();
 
-        $meta = $storecove->mutator->getStorecoveMeta();
+        $this->assertNotEmpty($result['networks']);
 
-        $this->assertArrayHasKey('routing', $meta);
-        $this->assertArrayHasKey('networks', $meta['routing']);
-
-        $networks = $meta['routing']['networks'];
-        $svefaktura = collect($networks)->firstWhere('application', 'svefaktura');
+        $svefaktura = collect($result['networks'])->firstWhere('application', 'svefaktura');
 
         $this->assertNotNull($svefaktura, 'Svefaktura network should be present when sending to SE receiver');
         $this->assertTrue($svefaktura['settings']['enabled']);
@@ -772,6 +779,29 @@ class StorecoveRouterTest extends TestCase
 
     }
 
+    public function testAtGovRoutingResolverProducesFixedEndpoint(): void
+    {
+        $invoice = $this->buildData();
+
+        $invoice->client->country_id = 40;
+        $invoice->client->vat_number = 'ATU123456789';
+        $invoice->client->id_number = 'GOV-AT-123';
+        $invoice->client->classification = 'government';
+        $invoice->client->push();
+
+        $storecove = new Storecove();
+        $resolver = new RoutingResolver($invoice->fresh(), $storecove->proxy, $storecove->router);
+        $result = $resolver->resolve();
+
+        $this->assertSame('eIdentifiers', $result['type'], 'AT government should resolve to eIdentifiers, not none');
+
+        $eIdentifiers = $result['meta']['routing']['eIdentifiers'];
+        $atGovIdentifier = collect($eIdentifiers)->firstWhere('scheme', 'AT:GOV');
+
+        $this->assertNotNull($atGovIdentifier, 'AT:GOV identifier should be present in routing');
+        $this->assertSame('b', $atGovIdentifier['id'], 'AT:GOV routing id must always be "b"');
+    }
+
     public function testAtBusinessClientTaxIdentifier()
     {
         $invoice = $this->buildData();
@@ -820,7 +850,11 @@ class StorecoveRouterTest extends TestCase
         $storecove = new Storecove();
         $storecove->router->setInvoice($invoice->fresh());
 
-        $this->assertEquals('DE:STNR', $storecove->router->resolveRouting('DE', 'individual'));
+        // DE:STNR for individuals is now handled by DE::getCandidates(), not resolveRouting()
+        $handler = \App\Services\EDocument\Standards\Peppol\CountryFactory::make('DE');
+        $candidates = $handler->getCandidates($invoice->fresh()->client, 'individual', $storecove->router);
+        $this->assertNotEmpty($candidates);
+        $this->assertEquals('DE:STNR', $candidates[0]['scheme']);
 
     }
 
@@ -1213,6 +1247,17 @@ class StorecoveRouterTest extends TestCase
         $this->assertEquals('9925', $storecove->router->resolveIso6523Scheme('BE:VAT'));
     }
 
+    public function testCompositeSchemeResolvesToFirstAtomicEasCode()
+    {
+        $storecove = new Storecove();
+
+        // BR-CL-25 regression: never emit "FR:SIRENE or FR:SIRET" verbatim
+        // as a UBL schemeID — must resolve to a 4-digit EAS code.
+        $this->assertEquals('0002', $storecove->router->resolveIso6523Scheme('FR:SIRENE or FR:SIRET'));
+        $this->assertEquals('0002', $storecove->router->resolveIso6523Scheme('FR:SIRENE'));
+        $this->assertEquals('0009', $storecove->router->resolveIso6523Scheme('FR:SIRET'));
+    }
+
     public function testBeEnFormatValidationVariants()
     {
         $storecove = new Storecove();
@@ -1389,7 +1434,7 @@ class StorecoveRouterTest extends TestCase
             'BE:EN'     => '/^(BE)?[01]\d{9}$/i',
             'DK:DIGST'  => '/^(DK)?\d{8}$/i',
             'EE:CC'     => '/^\d{8}$/',
-            'FI:OVT'    => '/^\d{12,13}$/',
+            'FI:OVT'    => '/^\d{12,13}[a-zA-Z0-9]{0,5}$/',
             'FR:SIRENE' => '/^\d{9}$/',
             'FR:SIRET'  => '/^\d{14}$/',
             'NL:KVK'    => '/^\d{8}$/',
@@ -1403,8 +1448,8 @@ class StorecoveRouterTest extends TestCase
             'JP:SST'    => '/^T?\d{13}$/',
             'MY:EIF'    => '/^[A-Z0-9]{10,14}$/i',
             'SG:UEN'    => '/^[A-Z0-9]{9,16}$/i',
-            'AT:GOV'    => '/^.{2,}$/',
-            'DE:LWID'   => '/^.{2,}$/',
+            'AT:GOV'    => '/^.+$/',
+            'DE:LWID'   => '/(?=.{0,45}$)^[0-9]{0,12}(\-[0-9a-zA-Z]{0,30}(\-[0-9]{2}))$/',
             'IT:CUUO'   => '/^[A-Z0-9]{6,7}$/i',
         ];
 

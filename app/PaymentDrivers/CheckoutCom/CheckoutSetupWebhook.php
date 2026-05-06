@@ -50,7 +50,7 @@ class CheckoutSetupWebhook implements ShouldQueue
     {
 
         nlog("Checkout Setup Webhook");
-        
+
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
         /** @var \App\Models\CompanyGateway $company_gateway */

@@ -143,7 +143,7 @@ class PushToQuickbooks implements ShouldQueue
      */
     private function pushClient(QuickbooksService $qbService, Client $client): void
     {
-        
+
         $qbService->client->syncToForeign([$client]);
     }
 
@@ -156,7 +156,7 @@ class PushToQuickbooks implements ShouldQueue
      */
     private function pushProduct(QuickbooksService $qbService, Product $product): void
     {
-        
+
         $qbService->product->syncToForeign([$product]);
     }
 
@@ -171,8 +171,8 @@ class PushToQuickbooks implements ShouldQueue
     private function pushInvoice(QuickbooksService $qbService, Invoice $invoice): void
     {
         // Skip invoices with no line items - QuickBooks requires at least one line item
-        $line_items_count = is_array($invoice->line_items) ? count($invoice->line_items) : (is_object($invoice->line_items) ? count((array)$invoice->line_items) : 0);
-        
+        $line_items_count = is_array($invoice->line_items) ? count($invoice->line_items) : (is_object($invoice->line_items) ? count((array) $invoice->line_items) : 0);
+
         if ($line_items_count === 0) {
             nlog("QuickBooks: Skipping push for invoice {$invoice->id} - invoice has no line items");
             return;

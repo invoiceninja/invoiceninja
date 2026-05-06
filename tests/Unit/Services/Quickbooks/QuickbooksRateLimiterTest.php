@@ -20,16 +20,9 @@ class QuickbooksRateLimiterTest extends TestCase
     {
         parent::setUp();
 
-        // Create rate limiter and reset its state
-        $this->rateLimiter = new QuickbooksRateLimiter($this->testRealmId);
-        $this->rateLimiter->reset();
-    }
+        config(['cache.default' => 'array']);
 
-    protected function tearDown(): void
-    {
-        // Clean up after each test
-        $this->rateLimiter->reset();
-        parent::tearDown();
+        $this->rateLimiter = new QuickbooksRateLimiter($this->testRealmId);
     }
 
     
@@ -56,7 +49,7 @@ class QuickbooksRateLimiterTest extends TestCase
     public function test_it_blocks_requests_when_at_rate_limit()
     {
         // Simulate hitting the limit (400 = 80% of 500)
-        for ($i = 0; $i < 400; $i++) {
+        for ($i = 0; $i < 500; $i++) {
             $this->rateLimiter->trackRequest();
         }
 

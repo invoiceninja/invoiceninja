@@ -26,9 +26,7 @@ class PeppolAttachmentBuilder
 {
     use MakesHash;
 
-    public function __construct(private Peppol $peppol)
-    {
-    }
+    public function __construct(private Peppol $peppol) {}
 
     /**
      * Build an AdditionalDocumentReference from raw content.

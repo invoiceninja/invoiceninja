@@ -430,7 +430,11 @@ class InvoiceController extends BaseController
                 ->triggeredActions($request)
                 ->adjustInventory($old_invoice);
 
-        event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        $skip_event = $request->has('mark_sent') || $request->has('send_email') || ($request->input('paid') == 'true');
+
+        if (!$skip_event) {
+            event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        }
 
         return $this->itemResponse($invoice->fresh());
     }

@@ -339,9 +339,6 @@ class TaxModel
         // AU Subregions
         $this->regions->AU->subregions->AU->vat_number = '';
 
-        // SG Subregions
-        $this->regions->SG->subregions->SG->vat_number = '';
-
         return $this;
     }
 

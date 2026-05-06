@@ -32,6 +32,7 @@ class MarkInvoiceDeleted extends AbstractService
 
     public function run()
     {
+        $this->refreshInvoiceForDeletion();
 
         if ($this->invoice->company->track_inventory) {
             (new AdjustProductInventory($this->invoice->company, $this->invoice, []))->handleDeletedInvoice();
@@ -50,6 +51,18 @@ class MarkInvoiceDeleted extends AbstractService
         event(new \App\Events\Invoice\InvoiceWasDeleted($this->invoice, $this->invoice->company, \App\Utils\Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->invoice;
+    }
+
+    private function refreshInvoiceForDeletion(): self
+    {
+        \DB::connection(config('database.default'))->transaction(function () {
+            $this->invoice = Invoice::withTrashed()
+                                    ->where('id', $this->invoice->id)
+                                    ->lockForUpdate()
+                                    ->firstOrFail();
+        }, 2);
+
+        return $this;
     }
 
     private function adjustLedger()
@@ -134,7 +147,7 @@ class MarkInvoiceDeleted extends AbstractService
 
         $this->total_payments = $this->invoice->payments->sum('amount') - $this->invoice->payments->sum('refunded');
 
-        $this->balance_adjustment = $this->invoice->balance;
+        $this->balance_adjustment = $this->invoice->status_id == Invoice::STATUS_CANCELLED ? 0 : $this->invoice->balance;
 
         $pre_count = count((array) $this->invoice->line_items);
 

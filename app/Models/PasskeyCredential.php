@@ -12,6 +12,8 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+
 class PasskeyCredential extends BaseModel
 {
     protected $fillable = [

@@ -54,7 +54,6 @@ class CompanyPresenter extends EntityPresenter
             $settings = $this->entity->settings;
         }
 
-        // $basename = basename($this->settings->company_logo);
         $basename = basename($settings->company_logo);
 
         $logo = Storage::get("{$this->company_key}/{$basename}");
@@ -78,26 +77,28 @@ class CompanyPresenter extends EntityPresenter
         if (config('ninja.is_docker') || config('ninja.local_download')) {
             return $this->logoDocker($settings);
         }
-        
-        $basename = basename($settings->company_logo);
-        $disk = \App\Utils\Ninja::isHosted() ? 'backup' : config('filesystems.default');
 
-        try{
+        $basename = basename($settings->company_logo);
+
+        $disk = config('filesystems.default');
+
+        try {
             $logo = Storage::disk($disk)->get($this->company_key . '/' . $basename);
 
-            if(!empty($logo)){
+            if (!empty($logo)) {
                 return "data:image/png;base64," . base64_encode($logo);
             }
 
-        }catch(\Throwable $e){
+        } catch (\Throwable $e) {
             //fall through
         }
-      
+
         try {
             $response = Http::withOptions([
-                'redirects' => false,
+                'allow_redirects' => false,
                 'verify' => !Ninja::isSelfHost(), 
-            ])->timeout(5)->get($settings->company_logo);
+            ])->timeout(5)
+            ->get($settings->company_logo);
             return $response->successful() ? "data:image/png;base64," . base64_encode($response->body()) : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
         } catch (\Throwable $e) {
             return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
@@ -117,10 +118,12 @@ class CompanyPresenter extends EntityPresenter
 
         if ($logo_url) {
             try {
-                $response = Http::timeout(5)->withOptions([
+                $response = Http::withOptions([
                     'verify' => !Ninja::isSelfHost(), 
-                    'redirects' => false
-                    ])->get($logo_url);
+                    'allow_redirects' => false,
+                    ])
+                    ->timeout(5)
+                    ->get($logo_url);
 
                 if ($response->successful()) {
                     return $response->body();

@@ -526,7 +526,7 @@ class InvoiceItemSumInclusive
     private function shouldCalculateTax(): self
     {
 
-        if (!$this->invoice->company?->calculate_taxes || $this->invoice->company->account->isFreeHostedClient()) {//@phpstan-ignore-line
+        if (!$this->invoice->company?->calculate_taxes || $this->invoice->company->account->isFreeHostedClient() || ($this->invoice instanceof Invoice && $this->invoice->isTaxImmutable())) {//@phpstan-ignore-line
             $this->calc_tax = false;
             return $this;
         }

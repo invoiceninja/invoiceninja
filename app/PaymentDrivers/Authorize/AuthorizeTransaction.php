@@ -88,7 +88,7 @@ class AuthorizeTransaction
         // Add values for transaction settings
         $duplicateWindowSetting = new SettingType();
         $duplicateWindowSetting->setSettingName("duplicateWindow");
-        $duplicateWindowSetting->setSettingValue("60");
+        $duplicateWindowSetting->setSettingValue("3");
 
         $contact = $this->authorize->client->primary_contact()->first() ?: $this->authorize->client->contacts()->first();
 

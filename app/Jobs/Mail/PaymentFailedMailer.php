@@ -84,6 +84,7 @@ class PaymentFailedMailer implements ShouldQueue
         $amount = 0;
         $invoice = false;
         $invitation = false;
+        $contact = false;
 
         if ($this->payment_hash) {
 
@@ -114,10 +115,20 @@ class PaymentFailedMailer implements ShouldQueue
             }
         });
 
-        //add client payment failures here.
+        if ($this->payment_hash && 
+        $invitation && 
+        $invitation->contact && 
+        $invitation->contact->send_email &&
+        filter_var($invitation->contact->email, FILTER_VALIDATE_EMAIL) !== false) 
+        {
+            $contact = $invitation->contact;
+        }
+        elseif($this->client->contacts()->whereNotNull('email')->exists() && $this->payment_hash){
+            $contact = $this->client->contacts()->whereNotNull('email')->orderBy('is_primary', 'desc')->orderBy('send_email', 'desc')->first();
+        }
 
-        if ($this->client->contacts()->whereNotNull('email')->exists() && $this->payment_hash) {
-            $contact = $this->client->contacts()->whereNotNull('email')->first();
+        //add client payment failures here.
+        if ($contact) {
 
             $mail_obj = (new ClientPaymentFailureObject($this->client, $this->error, $this->company, $this->payment_hash))->build();
 

@@ -174,9 +174,18 @@ class SystemHealth
         return false;
     }
 
-    public static function checkPendingMigrations()
+    /**
+     * Compare filesystem migration files to the **configured** default DB's `migrations` table.
+     *
+     * Always uses {@see config()} `database.default`, not {@see \Illuminate\Support\Facades\DB::getDefaultConnection()},
+     * so callers that temporarily switch the default connection (e.g. shard imports) do not get a false
+     * "pending migrations" result from a tenant DB whose migration history differs from the app codebase.
+     */
+    public static function checkPendingMigrations(): bool
     {
-        $run_count = DB::table('migrations')->count();
+        $connectionName = config('database.default');
+
+        $run_count = DB::connection($connectionName)->table('migrations')->count();
 
         $directory = base_path('database/migrations');
         $iterator = new \FilesystemIterator($directory);

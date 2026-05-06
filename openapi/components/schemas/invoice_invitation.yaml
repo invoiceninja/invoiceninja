@@ -55,3 +55,8 @@
           description: 'The email status'
           type: string
           readOnly: true
+        can_sign:
+          description: 'Indicates whether the recipient contact may electronically sign this invitation. Mirrors the can_sign flag on the linked client contact at the time the invitation was issued.'
+          type: boolean
+          example: false
+          readOnly: true

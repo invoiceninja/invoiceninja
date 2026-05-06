@@ -31,6 +31,7 @@ class ProductTransformer extends BaseTransformer
     {
         // QuickBooks Name max length is 100 characters, Description max length is 4000 characters
         $product_name = strlen($line_item->product_key ?? '') > 0 ? $line_item->product_key : 'Product ' . uniqid();
+
         return [
             'Name' => mb_substr($product_name, 0, 100),
             'Description' => mb_substr($line_item->notes ?? '', 0, 4000),
@@ -40,6 +41,7 @@ class ProductTransformer extends BaseTransformer
             'IncomeAccountRef' => [
                 'value' => strlen($line_item->income_account_id ?? '') > 0 ? $line_item->income_account_id : $income_account_id,
             ],
+            'Taxable' => in_array($line_item->tax_id, ['5','8']) ? false : true
         ];
     }
 
@@ -57,11 +59,11 @@ class ProductTransformer extends BaseTransformer
         $tax_rate_name = '';
         $tax_rate_percentage = 0.0;
         $tax_code = null;
-        
+
         if ($sales_tax_code_ref && $qb_service && ($tax_code = $qb_service->getTaxCode($sales_tax_code_ref))) {
 
             $tax_rate_ref = data_get($tax_code, 'SalesTaxRateList.TaxRateDetail.TaxRateRef', null);
-            
+
             if ($tax_rate_ref) {
                 $tax_rate_map_by_id = collect($qb_service->company->quickbooks->settings->tax_rate_map ?? [])->keyBy('id')->toArray();
                 $tax_rate = $tax_rate_map_by_id[$tax_rate_ref] ?? null;
@@ -73,11 +75,11 @@ class ProductTransformer extends BaseTransformer
         }
 
         $tax_id = '1';
-        
+
         if ($sales_tax_code_ref && stripos($sales_tax_code_ref, 'NON') !== false) {
             $tax_id = '5';
         }
-        
+
         if ($tax_id === '1' && data_get($data, 'Type') === 'Service') {
             $tax_id = '2';
         }

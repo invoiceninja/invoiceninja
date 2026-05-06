@@ -186,6 +186,10 @@ class SettingsData
 
     public bool $require_purchase_order_signature = false;  //@TODO ben to confirm
 
+    public bool $require_invoice_signature = false;  //@TODO ben to confirm
+
+    public bool $require_quote_signature = false;  //@TODO ben to confirm
+
     public string $invoice_footer = ''; //@implemented
 
     public string $credit_footer = ''; //@implemented

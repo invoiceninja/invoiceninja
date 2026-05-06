@@ -12,24 +12,27 @@
 
 namespace App\Providers;
 
-use App\Utils\Ninja;
-use Livewire\Livewire;
+use App\Helpers\Mail\GmailTransport;
+use App\Helpers\Mail\Office365MailTransport;
+use App\Http\Middleware\SetDomainNameDb;
 use App\Models\Invoice;
 use App\Models\Proposal;
+use App\Utils\Ninja;
 use App\Utils\TruthSource;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Mail\Mailer;
+use Illuminate\Queue\Events\JobFailed;
+use Illuminate\Queue\Events\JobProcessing;
+use Illuminate\Queue\MaxAttemptsExceededException;
+use Illuminate\Queue\TimeoutExceededException;
 use Illuminate\Support\Facades\App;
-use App\Helpers\Mail\GmailTransport;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
-use App\Http\Middleware\SetDomainNameDb;
-use Illuminate\Queue\Events\JobProcessing;
-use App\Helpers\Mail\Office365MailTransport;
-use Illuminate\Database\Eloquent\Relations\Relation;
+use Livewire\Livewire;
 use Symfony\Component\Mailer\Bridge\Brevo\Transport\BrevoTransportFactory;
 use Symfony\Component\Mailer\Transport\Dsn;
 
@@ -85,6 +88,31 @@ class AppServiceProvider extends ServiceProvider
         Queue::before(function (JobProcessing $event) {
             App::forgetInstance(TruthSource::class);
         });
+
+        /** Catch any jobs that run past their timeout or max attempts */
+        Queue::failing(function (JobFailed $event) {
+            if (! app()->bound('sentry')) {
+                return;
+            }
+    
+            $type = match (true) {
+                $event->exception instanceof TimeoutExceededException     => 'timeout',
+                $event->exception instanceof MaxAttemptsExceededException => 'retries_exhausted',
+                default                                                   => 'exception',
+            };
+    
+            \Sentry\withScope(function (\Sentry\State\Scope $scope) use ($event, $type) {
+                $scope->setTag('job', $event->job->resolveName());
+                $scope->setTag('connection', $event->connectionName);
+                $scope->setTag('failure_type', $type);
+                $scope->setContext('job', [
+                    'attempts' => $event->job->attempts(),
+                    'uuid'     => $event->job->uuid(),
+                ]);
+                \Sentry\captureException($event->exception);
+            });
+        });
+
 
         app()->instance(TruthSource::class, new TruthSource());
 

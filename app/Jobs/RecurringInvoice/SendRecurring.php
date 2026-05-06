@@ -59,12 +59,12 @@ class SendRecurring implements ShouldQueue
     public function handle(): void
     {
         $this->recurring_invoice = $this->recurring_invoice->calc()->getRecurringInvoice();
-        
+
         // Generate Standard Invoice
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice, $this->recurring_invoice->client);
 
         // $date = now()->addSeconds($this->recurring_invoice->client->timezone_offset())->format('Y-m-d'); Rev 1
-        // $date = date('Y-m-d'); //@todo this will always pull UTC date.  Rev 2.
+        // $date = date('Y-m-d'); 
         // 2025-01-23 - We need to know the current date in the users timezone, as we send recurring invoices around the
         // clock the actual date is not always the same as the UTC date.
         // be _very_ careful with this, as it will change the due date of the invoice.
@@ -124,7 +124,7 @@ class SendRecurring implements ShouldQueue
 
             //04-08-2023 edge case to support where online payment notifications are not enabled
             if (!$invoice->client->getSetting('client_online_payment_notification')) {
-                $this->sendRecurringEmails($invoice);    
+                $this->sendRecurringEmails($invoice);
             }
 
             $invoice->sendEvent(Webhook::EVENT_SENT_INVOICE, "client");

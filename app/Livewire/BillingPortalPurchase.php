@@ -89,7 +89,7 @@ class BillingPortalPurchase extends Component
      *
      * @var string|integer
      */
-    #[Locked] 
+    #[Locked]
     public $company_gateway_id;
 
     /**
@@ -97,7 +97,7 @@ class BillingPortalPurchase extends Component
      *
      * @var string|integer
      */
-    #[Locked] 
+    #[Locked]
     public $payment_method_id;
 
     private $user_coupon;
@@ -448,58 +448,58 @@ class BillingPortalPurchase extends Component
 
         try {
 
-        $data = [
-            'client_id' => $this->contact->client->id,
-            'date' => now()->format('Y-m-d'),
-            'invitations' => [[
-                'key' => '',
-                'client_contact_id' => $this->contact->hashed_id,
-            ]],
-            'user_input_promo_code' => $this->coupon,
-            'coupon' => empty($this->subscription->promo_code) ? '' : $this->coupon,
-            'quantity' => $this->quantity,
-        ];
+            $data = [
+                'client_id' => $this->contact->client->id,
+                'date' => now()->format('Y-m-d'),
+                'invitations' => [[
+                    'key' => '',
+                    'client_contact_id' => $this->contact->hashed_id,
+                ]],
+                'user_input_promo_code' => $this->coupon,
+                'coupon' => empty($this->subscription->promo_code) ? '' : $this->coupon,
+                'quantity' => $this->quantity,
+            ];
 
-        $is_eligible = $this->subscription->service()->isEligible($this->contact);
+            $is_eligible = $this->subscription->service()->isEligible($this->contact);
 
-        if (is_array($is_eligible) && $is_eligible['message'] != 'Success') {
-            $this->steps['not_eligible'] = true;
-            $this->steps['not_eligible_message'] = $is_eligible['message'];
-            $this->steps['show_loading_bar'] = false;
+            if (is_array($is_eligible) && $is_eligible['message'] != 'Success') {
+                $this->steps['not_eligible'] = true;
+                $this->steps['not_eligible_message'] = $is_eligible['message'];
+                $this->steps['show_loading_bar'] = false;
 
-            return;
-        }
+                return;
+            }
 
-        $this->invoice = $this->subscription
-            ->service()
-            ->createInvoice($data, $this->quantity)
-            ->service()
-            ->markSent()
-            ->fillDefaults()
-            ->adjustInventory()
-            ->save();
+            $this->invoice = $this->subscription
+                ->service()
+                ->createInvoice($data, $this->quantity)
+                ->service()
+                ->markSent()
+                ->fillDefaults()
+                ->adjustInventory()
+                ->save();
 
-        $context = 'purchase';
+            $context = 'purchase';
 
-        if (config('ninja.ninja_default_company_id') == $this->subscription->company_id && $this->subscription->service()->recurring_products()->first()?->product_key == 'whitelabel') {
-            $context = 'whitelabel';
-        }
+            if (config('ninja.ninja_default_company_id') == $this->subscription->company_id && $this->subscription->service()->recurring_products()->first()?->product_key == 'whitelabel') {
+                $context = 'whitelabel';
+            }
 
-        if (config('ninja.ninja_default_company_id') == $this->subscription->company_id && in_array($this->subscription->service()->products()->first()?->product_key, ['peppol_500','peppol_1000','selfhost_peppol_500','selfhost_peppol_1000'])) {
-            $context = $this->subscription->service()->products()->first()?->product_key;
-        }
+            if (config('ninja.ninja_default_company_id') == $this->subscription->company_id && in_array($this->subscription->service()->products()->first()?->product_key, ['peppol_500','peppol_1000','selfhost_peppol_500','selfhost_peppol_1000'])) {
+                $context = $this->subscription->service()->products()->first()?->product_key;
+            }
 
-        Cache::put($this->hash, [
-            'subscription_id' => $this->subscription->hashed_id,
-            'email' => $this->email ?? $this->contact->email,
-            'client_id' => $this->contact->client->hashed_id,
-            'invoice_id' => $this->invoice->hashed_id,
-            'context' => $context,
-            'campaign' => $this->campaign,
-            'request_data' => $this->request_data,
-        ], now()->addMinutes(60));
+            Cache::put($this->hash, [
+                'subscription_id' => $this->subscription->hashed_id,
+                'email' => $this->email ?? $this->contact->email,
+                'client_id' => $this->contact->client->hashed_id,
+                'invoice_id' => $this->invoice->hashed_id,
+                'context' => $context,
+                'campaign' => $this->campaign,
+                'request_data' => $this->request_data,
+            ], now()->addMinutes(60));
 
-        $this->dispatch('beforePaymentEventsCompleted');
+            $this->dispatch('beforePaymentEventsCompleted');
 
         } catch (\Throwable $e) {
             \Log::error("handleBeforePaymentEvents FAILED: " . $e->getMessage() . " at " . $e->getFile() . ":" . $e->getLine());

@@ -37,7 +37,7 @@
         <ul class="list-none hover:list-disc mt-5">
 
             @foreach($tokens as $token)
-                <li class="py-2 hover:text-blue hover:bg-blue-600">
+                <li class="py-2 hover:bg-blue-600">
 
                 <label class="mr-4">
                     <input

@@ -57,7 +57,7 @@ class Summary extends Component
 
             $default_quantity = $bundle['recurring_products'][$product->hashed_id]['quantity'] ?? 1;
 
-            if($subscription->use_inventory_management && $product['in_stock_quantity'] < 1){
+            if ($subscription->use_inventory_management && $product['in_stock_quantity'] < 1) {
                 $default_quantity = 0;
             }
 
@@ -115,7 +115,7 @@ class Summary extends Component
                 'notes' => $product->markdownNotes(),
             ];
 
-            
+
             $bundle['optional_one_time_products'][$product->hashed_id]['product']['is_recurring'] = false;
         }
 

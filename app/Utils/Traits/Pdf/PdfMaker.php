@@ -80,11 +80,7 @@ trait PdfMaker
             '--virtual-time-budget=10000',
         ];
 
-        // if (config('ninja.snappdf_chromium_arguments')) {
-        // $pdf->clearChromiumArguments();
-        // $pdf->addChromiumArguments(config('ninja.snappdf_chromium_arguments'));
         $pdf->addChromiumArguments(implode(' ', $chrome_flags));
-        // }
 
         if (config('ninja.snappdf_chromium_path')) {
             $pdf->setChromiumPath(config('ninja.snappdf_chromium_path'));

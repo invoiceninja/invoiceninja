@@ -405,7 +405,7 @@ abstract class QueryFilters
             return $this->builder;
         }
 
-        return $this->builder->where(function ($q) use ($assigned_user_ids){
+        return $this->builder->where(function ($q) use ($assigned_user_ids) {
             $q->whereIn('assigned_user_id', $this->transformKeys(explode(',', $assigned_user_ids)));
         });
     }
@@ -416,11 +416,11 @@ abstract class QueryFilters
             return $this->builder;
         }
 
-        return $this->builder->where(function ($q) use ($client_ids){
+        return $this->builder->where(function ($q) use ($client_ids) {
             $q->whereIn('client_id', $this->transformKeys(explode(',', $client_ids)));
         });
     }
-    
+
     /**
      * Filter by due date range
      *

@@ -136,7 +136,7 @@ class ValidRefundableRequest implements Rule
     /**
      * Validate that the total refund amount doesn't exceed maximum refundable.
      * Maximum refundable = (payment.amount - payment.refunded) + sum of available credit refunds
-     * 
+     *
      * This prevents refunding more than what was actually paid (cash + credits).
      *
      * @param Payment $payment
@@ -147,7 +147,7 @@ class ValidRefundableRequest implements Rule
     {
         // Calculate total refund amount requested
         $total_refund_requested = 0;
-        
+
         if (count($request_invoices) > 0) {
             $total_refund_requested = collect($request_invoices)->sum('amount');
         } elseif (array_key_exists('amount', $this->input)) {
@@ -173,7 +173,7 @@ class ValidRefundableRequest implements Rule
 
         if ($total_refund_requested > $max_total_refundable) {
             $this->error_msg = ctrans('texts.max_refundable_payment', [
-                'max_refundable' => $max_total_refundable
+                'max_refundable' => $max_total_refundable,
             ]);
 
             return false;

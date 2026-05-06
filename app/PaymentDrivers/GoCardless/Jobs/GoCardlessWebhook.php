@@ -37,9 +37,7 @@ class GoCardlessWebhook implements ShouldQueue
 
     public $tries = 3;
 
-    public function __construct(private array $events, private string $company_key, private int $company_gateway_id)
-    {
-    }
+    public function __construct(private array $events, private string $company_key, private int $company_gateway_id) {}
 
     public function handle()
     {
@@ -55,11 +53,11 @@ class GoCardlessWebhook implements ShouldQueue
             nlog($event);
 
             /** 2026-03-20: Set the correct payment type for the payment */
-            if($event['resource_type'] == 'payments' && $event['action'] == 'created' && isset($event['details']['scheme']) && isset($event['links']['payment'])) {
+            if ($event['resource_type'] == 'payments' && $event['action'] == 'created' && isset($event['details']['scheme']) && isset($event['links']['payment'])) {
 
                 $scheme = $event['details']['scheme'];
 
-                $payment_type = match($scheme){
+                $payment_type = match ($scheme) {
                     'ach' => PaymentType::ACH,
                     'autogiro' => PaymentType::DIRECT_DEBIT,
                     'bacs' => PaymentType::BACS,
@@ -78,7 +76,7 @@ class GoCardlessWebhook implements ShouldQueue
                             ->where('company_id', $company->id)
                             ->first();
 
-                if($payment){
+                if ($payment) {
                     $payment->type_id = $payment_type;
                     $payment->saveQuietly();
                 }
@@ -112,7 +110,7 @@ class GoCardlessWebhook implements ShouldQueue
                     ->first();
 
                 if ($payment) {
-                    
+
                     if ($payment->status_id == Payment::STATUS_PENDING) {
                         $payment->service()->deletePayment();
                     }
@@ -142,6 +140,7 @@ class GoCardlessWebhook implements ShouldQueue
 
     public function middleware()
     {
-        return [new WithoutOverlapping("gocardless-webhook-{$this->company_key}-{$this->company_gateway_id}")];
+        return [(new WithoutOverlapping("gocardless-webhook-{$this->company_key}-{$this->company_gateway_id}"))
+            ->expireAfter(600)];
     }
 }

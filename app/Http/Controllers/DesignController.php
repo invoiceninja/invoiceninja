@@ -546,13 +546,15 @@ class DesignController extends BaseController
             return response()->noContent();
         }
 
-        $designs = Design::withTrashed()->company()->whereIn('id', $this->transformKeys($ids));
-
-        $designs->each(function ($design, $key) use ($action, $user) {
-            if ($user->can('edit', $design)) {
-                $this->design_repo->{$action}($design);
-            }
-        });
+        Design::withTrashed()
+                ->company()
+                ->whereIn('id', $this->transformKeys($ids))
+                ->cursor()
+                ->each(function ($design, $key) use ($action, $user) {
+                    if ($user->can('edit', $design)) {
+                        $this->design_repo->{$action}($design);
+                    }
+                });
 
         return $this->listResponse(Design::withTrashed()->company()->whereIn('id', $this->transformKeys($ids)));
     }

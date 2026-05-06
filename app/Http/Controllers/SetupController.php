@@ -59,12 +59,17 @@ class SetupController extends Controller
     public function doSetup(StoreSetupRequest $request)
     {
 
-        if (Ninja::isHosted() || (Schema::hasTable('accounts') && Account::first())) {
+        if (Ninja::isHosted()) {
             return redirect('/');
         }
 
         try {
             $check = SystemHealth::check(false, false);
+
+             if($check['simple_db_check'] && Schema::hasTable('accounts') && $account = Account::first()){
+                return redirect('/');
+             }
+
         } catch (Exception $e) {
             nlog(['message' => $e->getMessage(), 'action' => 'SetupController::doSetup()']);
 

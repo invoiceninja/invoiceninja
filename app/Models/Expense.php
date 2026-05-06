@@ -112,7 +112,7 @@ class Expense extends BaseModel
      */
     public function searchableAs(): string
     {
-        return 'expenses_v2';
+        return 'expenses';
     }
 
     protected $fillable = [
@@ -181,7 +181,14 @@ class Expense extends BaseModel
 
     protected $touches = [];
 
-    public function toSearchableArray()
+    public function toSearchableArray(): array
+    {
+        return config('scout.index_version', 'legacy') === 'v2'
+            ? $this->toSearchableArrayV2()
+            : $this->toSearchableArrayLegacy();
+    }
+
+    public function toSearchableArrayLegacy(): array
     {
         $locale = $this->company->locale();
 
@@ -203,6 +210,11 @@ class Expense extends BaseModel
             'public_notes' => (string) $this->public_notes,
             'private_notes' => (string) $this->private_notes,
         ];
+    }
+
+    public function toSearchableArrayV2(): array
+    {
+        return $this->toSearchableArrayLegacy();
     }
 
     public function getScoutKey()

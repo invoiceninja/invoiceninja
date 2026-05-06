@@ -75,13 +75,21 @@ class InvoiceTransformer extends BaseTransformer
             $exempt_code = $taxable_code;
         }
 
+        $invoice_level_taxes = $this->extractInvoiceLevelTaxes($invoice);
+
         foreach ($invoice->line_items as $line_item) {
+            $line_item = $this->mergeInvoiceLevelTaxes($line_item, $invoice_level_taxes);
+
             try {
                 // Get product's QuickBooks ID (business logic handled by QbProduct)
                 $product_qb_id = $qb_service->product->findOrCreateProduct($line_item);
 
                 // Skip line items where product creation failed (null or empty)
                 if (empty($product_qb_id)) {
+                    nlog('QuickBooks: ninjaToQb skipped line — findOrCreateProduct returned empty QuickBooks item Id', [
+                        'invoice_id' => $invoice->id,
+                        'product_key' => $line_item->product_key ?? null,
+                    ]);
                     continue;
                 }
 
@@ -120,7 +128,12 @@ class InvoiceTransformer extends BaseTransformer
 
                 $line_num++;
             } catch (\Throwable $e) {
-                // Skip line items that fail to process
+                nlog('QuickBooks: ninjaToQb skipped line — product find/create or line build failed', [
+                    'invoice_id' => $invoice->id,
+                    'product_key' => $line_item->product_key ?? null,
+                    'exception' => $e::class,
+                    'message' => $e->getMessage(),
+                ]);
                 continue;
             }
         }
@@ -266,6 +279,53 @@ class InvoiceTransformer extends BaseTransformer
      * @param  string $exempt_code Default exempt TaxCode ID
      * @return string The resolved TaxCode ID
      */
+    /**
+     * Build a map of non-empty invoice-level tax slots.
+     *
+     * QuickBooks only resolves TaxCodeRef from per-line tax fields; invoices
+     * carrying tax at the document level need those rates merged into each
+     * line for the resolver to pick the taxable code. Returning an empty
+     * array short-circuits the merge in {@see mergeInvoiceLevelTaxes()}.
+     *
+     * @return array<string, string|float>
+     */
+    private function extractInvoiceLevelTaxes(Invoice $invoice): array
+    {
+        $taxes = [];
+
+        foreach ([1, 2, 3] as $i) {
+            $name = $invoice->{"tax_name{$i}"};
+
+            if (is_string($name) && strlen($name) > 1) {
+                $taxes["tax_name{$i}"] = $name;
+                $taxes["tax_rate{$i}"] = $invoice->{"tax_rate{$i}"};
+            }
+        }
+
+        return $taxes;
+    }
+
+    /**
+     * Return a line item with invoice-level taxes copied in, without
+     * mutating the original. An invoice carries taxes at either the
+     * document level or the line level — never both — so the merge
+     * is unconditional.
+     */
+    private function mergeInvoiceLevelTaxes(object $line_item, array $invoice_level_taxes): object
+    {
+        if (empty($invoice_level_taxes)) {
+            return $line_item;
+        }
+
+        $merged = clone $line_item;
+
+        foreach ($invoice_level_taxes as $key => $value) {
+            $merged->{$key} = $value;
+        }
+
+        return $merged;
+    }
+
     private function resolveLineTaxCode(object $line_item, array $tax_rate_map, string $taxable_code, string $exempt_code): string
     {
         $has_line_tax = (

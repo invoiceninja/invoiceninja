@@ -263,7 +263,8 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
 
     Route::post('einvoice/peppol/sg/c5/activate', [EInvoicePeppolController::class, 'c5Activate'])->name('einvoice.peppol.sg.c5.activate');
     Route::post('einvoice/peppol/sg/c5/deactivate', [EInvoicePeppolController::class, 'c5Deactivate'])->name('einvoice.peppol.sg.c5.deactivate');
-    Route::put('einvoice/peppol/sg/c5/cancel', [EInvoicePeppolController::class, 'c5Cancel'])->name('einvoice.peppol.sg.c5.cancel');
+    // @todo revert to Route::put() after the next hosted release ships the matching admin route verb
+    Route::post('einvoice/peppol/sg/c5/cancel', [EInvoicePeppolController::class, 'c5Cancel'])->name('einvoice.peppol.sg.c5.cancel');
 
     Route::post('einvoice/token/update', EInvoiceTokenController::class)->name('einvoice.token.update');
     Route::get('einvoice/quota', [EInvoiceController::class, 'quota'])->name('einvoice.quota');

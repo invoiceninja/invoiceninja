@@ -66,7 +66,6 @@ class Rule extends BaseRule implements RuleInterface
     public function taxByType($item): self
     {
 
-
         if ($this->client->is_tax_exempt || !property_exists($item, 'tax_id') || (isset($item->type_id) && $item->type_id == '5')) {
             return $this->taxExempt($item);
         }

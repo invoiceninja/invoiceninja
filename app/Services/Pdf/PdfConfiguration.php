@@ -67,6 +67,19 @@ class PdfConfiguration
 
     public object $settings;
 
+    public ?DocumentSettingsResolver $document_settings_resolver = null;
+
+    /**
+     * Cached associative-array form of $design->design.
+     *
+     * Eloquent stores the design column as an object cast (stdClass tree).
+     * The JSON-design pipeline reads it as an associative array, which means
+     * round-tripping it through json_decode(json_encode(...), true). Caching
+     * the result avoids repeating that work on every isJsonDesign() /
+     * resolver / build call within a single render.
+     */
+    private ?array $decoded_design = null;
+
     public $settings_object;
 
     public ?Vendor $vendor;
@@ -87,6 +100,30 @@ class PdfConfiguration
      * @return void
      */
     public function __construct(public PdfService $service) {}
+
+    /**
+     * Lazily decode the design column into an associative array, memoizing
+     * the result. Callers that need the array form (isJsonDesign() check,
+     * DocumentSettingsResolver, JsonDesignService::build()) all share this
+     * single decode rather than re-running json_encode/json_decode each.
+     *
+     * Returns null when the design column is missing or not an object —
+     * callers treat that as "not a JSON design".
+     */
+    public function decodedDesign(): ?array
+    {
+        if ($this->decoded_design !== null) {
+            return $this->decoded_design;
+        }
+
+        if (!isset($this->design) || !is_object($this->design->design)) {
+            return null;
+        }
+
+        $this->decoded_design = json_decode(json_encode($this->design->design), true);
+
+        return $this->decoded_design;
+    }
 
     /**
      * init

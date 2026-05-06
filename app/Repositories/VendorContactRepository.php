@@ -23,7 +23,7 @@ use Illuminate\Support\Str;
 class VendorContactRepository extends BaseRepository
 {
     public $is_primary;
-    
+
     private bool $set_send_email_on_contact = false;
 
     public function save(array $data, Vendor $vendor): void
@@ -48,7 +48,7 @@ class VendorContactRepository extends BaseRepository
         if (! $vendor->contacts->contains('send_email', true)) {
             $this->set_send_email_on_contact = true;
         }
-        
+
         /* Set first record to primary - always */
         $contacts = $contacts->sortByDesc('is_primary')->map(function ($contact) {
             $contact['is_primary'] = $this->is_primary;
