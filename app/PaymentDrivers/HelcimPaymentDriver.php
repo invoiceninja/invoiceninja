@@ -17,6 +17,7 @@ use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentHash;
+use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Helcim\ACH;
 use App\PaymentDrivers\Helcim\CreditCard;
@@ -128,8 +129,25 @@ class HelcimPaymentDriver extends BaseDriver
             $this->client = $payment->client;
         }
 
+        if (empty($payment->transaction_reference)) {
+            $error = 'Missing transaction reference for refund';
+
+            if ($return_client_response) {
+                return [
+                    'transaction_reference' => '',
+                    'success' => false,
+                    'description' => $error,
+                    'code' => '',
+                ];
+            }
+
+            throw new \Exception($error);
+        }
+
+        $amount = round((float) $amount, 2);
+
         // ACH refunds use a different endpoint: PUT /ach/transactions/{id}/refund
-        if ($payment->gateway_type_id == GatewayType::BANK_TRANSFER) {
+        if ($this->isAchPayment($payment)) {
             return $this->refundAch($payment, $amount, $return_client_response);
         }
 
@@ -186,6 +204,19 @@ class HelcimPaymentDriver extends BaseDriver
         }
 
         throw new \Exception($error);
+    }
+
+    private function isAchPayment(Payment $payment): bool
+    {
+        if ((int) $payment->gateway_type_id === GatewayType::BANK_TRANSFER) {
+            return true;
+        }
+
+        if ((int) $payment->type_id === PaymentType::ACH) {
+            return true;
+        }
+
+        return stripos((string) $payment->transaction_reference, 'ach_') === 0;
     }
 
     /**
