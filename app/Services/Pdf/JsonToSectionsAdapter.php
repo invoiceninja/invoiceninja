@@ -223,6 +223,8 @@ class JsonToSectionsAdapter
             'invoice-details' => $this->convertInvoiceDetailsBlock($block),
             'table' => $this->convertTableBlock($block),
             'total' => $this->convertTotalBlock($block),
+            // Preset text blocks from the visual designer (same JSON shape as `text`).
+            'terms', 'footer', 'public-notes' => $this->convertTextBlock($block),
             'text' => $this->convertTextBlock($block),
             'divider' => $this->convertDividerBlock($block),
             'spacer' => $this->convertSpacerBlock($block),
