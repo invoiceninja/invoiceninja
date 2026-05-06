@@ -107,6 +107,10 @@ class TransactionTransformer implements BankRevenueInterface
         $amount = (float) $transaction["transactionAmount"]["amount"];
         $base_type = $amount < 0 ? 'DEBIT' : 'CREDIT';
 
+        if (array_key_exists('balanceAfterTransaction', $transaction)) {
+            $balanceAfterTransaction = $transaction['balanceAfterTransaction'];
+        }
+
         // description could be in various places
         $description = '';
         if (array_key_exists('remittanceInformationStructured', $transaction)) {
@@ -149,6 +153,7 @@ class TransactionTransformer implements BankRevenueInterface
             'nordigen_transaction_id' => $transactionId,
             'amount' => abs($amount),
             'currency_id' => $this->convertCurrency($transaction["transactionAmount"]["currency"]),
+            'balance_after_transaction' => $balanceAfterTransaction ?? null,
             'category_id' => null,
             'category_type' => array_key_exists('additionalInformation', $transaction) ? $transaction["additionalInformation"] : '',
             'date' => $transaction["bookingDate"],
