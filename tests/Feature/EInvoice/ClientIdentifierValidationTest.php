@@ -556,13 +556,10 @@ class ClientIdentifierValidationTest extends TestCase
 
     public function testBareRoutingIdOnItFallsThroughToHandler(): void
     {
-        // IT handler natively consumes routing_id as a raw IT:CUUO value.
-        // Bare values on IT must NOT trigger a routing_id override error —
-        // they are the native input.
-        // IT is not in peppol_network so identifier validation doesn't fire
-        // at all; this test documents that bare routing_id isn't intercepted.
+        // IT B2B: bare routing_id is Codice Destinatario (CUUO); VAT + CUUO both required.
         $client = $this->makeClient([
             'country_id' => 380, // IT
+            'classification' => 'business',
             'vat_number' => 'IT12345678901',
             'id_number'  => '',
             'routing_id' => 'SUBM70N',
@@ -571,6 +568,82 @@ class ClientIdentifierValidationTest extends TestCase
         $errors = $this->clientErrors($client);
 
         $this->assertFalse($this->hasErrorForField($errors, 'routing_id'), 'IT bare routing_id must not trigger override error.');
+        $this->assertFalse($this->hasErrorForField($errors, 'vat_number'), 'Valid IT VAT + CUUO should pass.');
+    }
+
+    public function testItBusinessMissingCuuoIsBlocked(): void
+    {
+        $client = $this->makeClient([
+            'country_id' => 380,
+            'classification' => 'business',
+            'vat_number' => 'IT12345678901',
+            'routing_id' => '',
+        ]);
+
+        $errors = $this->clientErrors($client);
+
+        $this->assertTrue($this->hasErrorForField($errors, 'routing_id'));
+    }
+
+    public function testItBusinessMissingVatIsBlocked(): void
+    {
+        $client = $this->makeClient([
+            'country_id' => 380,
+            'classification' => 'business',
+            'vat_number' => '',
+            'routing_id' => 'SUBM70N',
+        ]);
+
+        $errors = $this->clientErrors($client);
+
+        $this->assertTrue($this->hasErrorForField($errors, 'vat_number'));
+    }
+
+    public function testItDomesticConsumerRequiresCodiceFiscaleAndCuuo(): void
+    {
+        $originalCountryId = $this->testCompany->settings->country_id;
+        $settings = $this->testCompany->settings;
+        $settings->country_id = '380';
+        $this->testCompany->settings = $settings;
+        $this->testCompany->save();
+
+        try {
+            $client = $this->makeClient([
+                'country_id' => 380,
+                'classification' => 'individual',
+                'id_number' => 'RSSMRA85M01H501Z',
+                'vat_number' => '',
+                'routing_id' => '',
+            ]);
+
+            $errors = $this->clientErrors($client);
+
+            $this->assertTrue($this->hasErrorForField($errors, 'routing_id'));
+        } finally {
+            $settings = $this->testCompany->settings;
+            $settings->country_id = $originalCountryId;
+            $this->testCompany->settings = $settings;
+            $this->testCompany->save();
+        }
+    }
+
+    public function testItForeignConsumerRejectsPecEmail(): void
+    {
+        $client = $this->makeClient([
+            'country_id' => 380,
+            'classification' => 'individual',
+            'id_number' => 'RSSMRA85M01H501Z',
+            'vat_number' => '',
+            'routing_id' => '',
+        ]);
+
+        $contact = $client->contacts()->where('is_primary', 1)->first();
+        $contact->email = 'azienda@pec.it';
+        $contact->save();
+
+        $errors = $this->clientErrors($client->fresh());
+
+        $this->assertTrue($this->hasErrorForField($errors, 'email'));
     }
 
     public function testRoutingIdEmptyIdAfterColonGivesSpecificError(): void

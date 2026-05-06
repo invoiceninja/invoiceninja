@@ -14,15 +14,20 @@ namespace App\Services\EDocument\Gateway\Storecove;
 
 use App\Services\EDocument\Standards\Peppol\CountryFactory;
 use App\Services\EDocument\Standards\Peppol\CountryHandler;
+use App\Services\EDocument\Standards\Peppol\IT as ItalyCountryHandler;
 
 /**
  * Resolves Storecove routing metadata for a recipient.
  *
  * Single cascading pipeline:
- *  1. Explicit routing_id in "scheme:id" format → discover → return
- *  2. Handler getCandidates() → for each: discover → return first hit
- *  3. Email fallback (individuals or Email-routed countries)
- *  4. None
+ *  1. GLN in routing_id (bare or 0088:) → return
+ *  2. Italy B2B/B2G bare CUUO + Partita IVA (IT:IVA) → IT:CUUO + IT:IVA eIdentifiers
+ *  3. Italy domestic consumer (sender IT) bare CUUO + CF → IT:CUUO + IT:CF
+ *  4. Explicit routing_id in "scheme:id" format → discover → return
+ *  5. Foreign sender → IT consumer: IT:CF + optional non-PEC email
+ *  6. Handler getCandidates() → for each: discover → return first hit
+ *  7. Email fallback (individuals or Email-routed countries)
+ *  8. None
  */
 class RoutingResolver
 {
@@ -57,12 +62,27 @@ class RoutingResolver
             return $gln;
         }
 
-        // 2. Explicit scheme:id routing_id override (non-GLN schemes)
+        // 2. Italy B2B/B2G: IT:CUUO + IT:IVA (Partita IVA / VAT ID).
+        if ($italyBg = $this->resolveItalyBusinessGovernmentDualIdentifiers()) {
+            return $italyBg;
+        }
+
+        // 3. Italy domestic consumer: IT:CUUO + IT:CF (sender must be IT — checked inside).
+        if ($italyConsumer = $this->resolveItalyDomesticIndividualDualIdentifiers()) {
+            return $italyConsumer;
+        }
+
+        // 4. Explicit scheme:id routing_id override (non-GLN schemes)
         if ($explicit = $this->resolveExplicitRoutingId()) {
             return $explicit;
         }
 
-        // 3. Handler-provided candidates — try discovery, first hit wins.
+        // 5. Foreign sender → IT consumer: IT:CF + optional email (not PEC).
+        if ($italyForeign = $this->resolveItalyForeignConsumerCombinedRouting()) {
+            return $italyForeign;
+        }
+
+        // 6. Handler-provided candidates — try discovery, first hit wins.
         //    If no discovery succeeds, use the first valid candidate (config-based).
         $candidates = $this->handler->getCandidates(
             $this->invoice->client,
@@ -89,25 +109,21 @@ class RoutingResolver
             }
 
             if ($this->proxyDiscovery($id, $candidate['scheme'])) {
-                $result = $this->eIdentifierResult($candidate['scheme'], $id);
-                $result['networks'] = $this->resolveNetworkOverrides();
-                return $result;
+                return $this->eIdentifierResult($candidate['scheme'], $id);
             }
         }
 
         // No discovery succeeded — use the first valid candidate from config
         if ($firstValid !== null) {
-            $result = $this->eIdentifierResult($firstValid['scheme'], $firstValid['id']);
-            $result['networks'] = $this->resolveNetworkOverrides();
-            return $result;
+            return $this->eIdentifierResult($firstValid['scheme'], $firstValid['id']);
         }
 
-        // 4. Email fallback for individuals
+        // 7. Email fallback for individuals
         if ($this->classification === 'individual') {
             return $this->emailResult($this->invoice->client->present()->email());
         }
 
-        // 5. Check config for Email routing (IN, SA, IT B2C)
+        // 8. Check config for Email routing (IN, SA, IT B2C)
         $code = $this->router->setInvoice($this->invoice)
             ->resolveRouting($this->countryCode, $this->classification);
         if ($code === 'Email') {
@@ -140,10 +156,124 @@ class RoutingResolver
         // the result on it.
         $this->proxyDiscovery($gln, '0088');
 
-        $result = $this->eIdentifierResult('0088', $gln);
-        $result['networks'] = $this->resolveNetworkOverrides();
+        return $this->eIdentifierResult('0088', $gln);
+    }
 
-        return $result;
+    /**
+     * Italy business/government: Storecove SDI routing expects Codice Destinatario (CUUO) with Partita IVA.
+     *
+     * When routing_id is bare (not scheme:pairs) and both CUUO and VAT are format-valid, return both
+     * eIdentifiers. Skips when a GLN is present (handled above) or when routing_id uses explicit scheme:id.
+     */
+    private function resolveItalyBusinessGovernmentDualIdentifiers(): ?array
+    {
+        if ($this->countryCode !== 'IT' || !in_array($this->classification, ['business', 'government'], true)) {
+            return null;
+        }
+
+        $client = $this->invoice->client;
+        $routingRaw = trim($client->routing_id ?? '');
+
+        if ($routingRaw === '' || StorecoveRouter::isValidGln($routingRaw) || str_contains($routingRaw, ':')) {
+            return null;
+        }
+
+        $vatClean = preg_replace("/[^a-zA-Z0-9]/", "", $client->vat_number ?? '');
+        $cuuoClean = preg_replace("/[^a-zA-Z0-9]/", "", $routingRaw);
+
+        if (strlen($vatClean) < 2 || strlen($cuuoClean) < 2) {
+            return null;
+        }
+
+        if (!$this->router->validateIdentifierFormat('IT:IVA', $vatClean)
+            || !$this->router->validateIdentifierFormat('IT:CUUO', $cuuoClean)) {
+            return null;
+        }
+
+        return $this->eIdentifiersBundle([
+            ['scheme' => 'IT:CUUO', 'id' => $cuuoClean],
+            ['scheme' => 'IT:IVA', 'id' => $vatClean],
+        ]);
+    }
+
+    /**
+     * Italy sender → Italy consumer (Codice Fiscale + Codice Destinatario).
+     */
+    private function resolveItalyDomesticIndividualDualIdentifiers(): ?array
+    {
+        if ($this->countryCode !== 'IT' || $this->classification !== 'individual') {
+            return null;
+        }
+
+        if ($this->invoice->company->country()->iso_3166_2 !== 'IT') {
+            return null;
+        }
+
+        $client = $this->invoice->client;
+        $routingRaw = trim($client->routing_id ?? '');
+
+        if ($routingRaw === '' || StorecoveRouter::isValidGln($routingRaw) || str_contains($routingRaw, ':')) {
+            return null;
+        }
+
+        $cfClean = preg_replace("/[^a-zA-Z0-9]/", "", $client->id_number ?? '');
+        $cuuoClean = preg_replace("/[^a-zA-Z0-9]/", "", $routingRaw);
+
+        if (strlen($cfClean) < 2 || strlen($cuuoClean) < 2) {
+            return null;
+        }
+
+        if (!$this->router->validateIdentifierFormat('IT:CF', $cfClean)
+            || !$this->router->validateIdentifierFormat('IT:CUUO', $cuuoClean)) {
+            return null;
+        }
+
+        return $this->eIdentifiersBundle([
+            ['scheme' => 'IT:CUUO', 'id' => $cuuoClean],
+            ['scheme' => 'IT:CF', 'id' => $cfClean],
+        ]);
+    }
+
+    /**
+     * Non-IT sender → IT consumer: IT:CF for SDI with optional ordinary email (PEC excluded at validation).
+     */
+    private function resolveItalyForeignConsumerCombinedRouting(): ?array
+    {
+        if ($this->countryCode !== 'IT' || $this->classification !== 'individual') {
+            return null;
+        }
+
+        if ($this->invoice->company->country()->iso_3166_2 === 'IT') {
+            return null;
+        }
+
+        $client = $this->invoice->client;
+        $cfClean = preg_replace("/[^a-zA-Z0-9]/", "", $client->id_number ?? '');
+
+        if (strlen($cfClean) < 2 || !$this->router->validateIdentifierFormat('IT:CF', $cfClean)) {
+            return null;
+        }
+
+        $emailRaw = $client->present()->email();
+        $routing = [
+            'eIdentifiers' => [
+                ['scheme' => 'IT:CF', 'id' => $cfClean],
+            ],
+        ];
+
+        if ($emailRaw !== 'No Email Set'
+            && $emailRaw !== ''
+            && !ItalyCountryHandler::isItalianPecEmail($emailRaw)) {
+            $routing['emails'] = [$emailRaw];
+        }
+
+        return [
+            'type' => 'eIdentifiers',
+            'meta' => [
+                'routing' => $routing,
+            ],
+            'networks' => $this->resolveNetworkOverrides(),
+        ];
     }
 
     /**
@@ -166,9 +296,7 @@ class RoutingResolver
         [$scheme, $id] = $parts;
 
         if ($this->proxyDiscovery($id, $scheme)) {
-            $result = $this->eIdentifierResult($scheme, $id);
-            $result['networks'] = $this->resolveNetworkOverrides();
-            return $result;
+            return $this->eIdentifierResult($scheme, $id);
         }
 
         return null;
@@ -200,19 +328,29 @@ class RoutingResolver
             ->discovery($identifier, $scheme);
     }
 
-    private function eIdentifierResult(string $scheme, string $id): array
+    /**
+     * @param  array<int, array{scheme: string, id: string}>  $pairs
+     * @return array{type: string, meta: array, networks: array}
+     */
+    private function eIdentifiersBundle(array $pairs): array
     {
         return [
             'type' => 'eIdentifiers',
             'meta' => [
                 'routing' => [
-                    'eIdentifiers' => [
-                        ['scheme' => $scheme, 'id' => $id],
-                    ],
+                    'eIdentifiers' => array_values(array_map(
+                        static fn (array $p): array => ['scheme' => $p['scheme'], 'id' => $p['id']],
+                        $pairs,
+                    )),
                 ],
             ],
-            'networks' => [],
+            'networks' => $this->resolveNetworkOverrides(),
         ];
+    }
+
+    private function eIdentifierResult(string $scheme, string $id): array
+    {
+        return $this->eIdentifiersBundle([['scheme' => $scheme, 'id' => $id]]);
     }
 
     private function emailResult(string $email): array
@@ -224,7 +362,7 @@ class RoutingResolver
                     'emails' => [$email],
                 ],
             ],
-            'networks' => [],
+            'networks' => $this->resolveNetworkOverrides(),
         ];
     }
 }

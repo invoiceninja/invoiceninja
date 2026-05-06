@@ -214,14 +214,10 @@ class EntityLevel implements EntityLevelInterface
     /**
      * Validates that the client can be routed on the Peppol network.
      *
-     * The country handler's getCandidates() defines exactly what the send-time
-     * RoutingResolver will try — a list of (scheme, id) pairs derived from the
-     * client's data. Validation succeeds if ANY one of those candidates passes
-     * format+checkdigit validation: that is what it means to be routable.
-     *
-     * Multiple candidates exist for countries where several schemes are
-     * interchangeable (e.g. BE derives both BE:EN and BE:VAT from vat_number),
-     * so requiring a specific scheme would be wrong.
+     * Country handlers implement receiver-side rules (e.g. OR over candidates for BE,
+     * combined IT:IVA + IT:CUUO for Italy B2B/B2G). Explicit routing_id values are
+     * validated for format first; valid scheme:id fields still delegate to the handler
+     * for composite requirements.
      *
      * Offline validation only — no SMP discovery; that is the send-time
      * RoutingResolver's responsibility.
@@ -235,25 +231,22 @@ class EntityLevel implements EntityLevelInterface
         $classification = $client->classification ?? 'business';
 
         // FIRST: explicit routing_id override (scheme:id form). If set, it must
-        // validate — don't silently fall through to the handler and give the
-        // user a generic "no valid routing identifier" when the problem is a
-        // malformed routing_id.
+        // validate — malformed routing_id fails here. Valid explicit scheme:id ([]).
+        // ends identifier checks (same as send-time GLN / explicit routing). Bare
+        // routing_id on IT/DE is deferred (null) so composite IT rules still run.
         $routingError = $this->validateExplicitRoutingId($client, $router);
-        if ($routingError !== null) {
-            return $routingError === [] ? [] : [$routingError];
+        if ($routingError !== null && $routingError !== []) {
+            return [$routingError];
         }
 
-        // SECOND: handler-driven candidates (vat_number, id_number, etc.).
-        $candidates = CountryFactory::make($country)
-            ->getCandidates($client, $classification, $router);
-
-        foreach ($candidates as $candidate) {
-            if ($router->validateIdentifierFormat($candidate['scheme'], $candidate['id'])) {
-                return [];
-            }
+        if ($routingError === []) {
+            return [];
         }
 
-        return [$this->buildIdentifierError($candidates, $client, $router)];
+        $senderCountry = $client->company?->country()?->iso_3166_2;
+
+        return CountryFactory::make($country)
+            ->validateReceiverRoutingIdentifiers($client, $classification, $router, $senderCountry);
     }
 
     /**
@@ -285,7 +278,8 @@ class EntityLevel implements EntityLevelInterface
         // Bare value. For countries whose handler natively consumes routing_id
         // (IT wraps as IT:CUUO; DE government wraps as DE:LWID), let the
         // handler interpret the raw value — don't guess here.
-        if ($this->handlerConsumesBareRoutingId($client)) {
+        if (CountryFactory::make($client->country->iso_3166_2)
+            ->consumesBareRoutingId($client->classification ?? 'business')) {
             return null;
         }
 
@@ -377,62 +371,6 @@ class EntityLevel implements EntityLevelInterface
             'label' => "routing_id GLN \"{$display}\" has an invalid check digit (expected {$expected}, got {$actual}). Verify the value.",
         ];
     }
-
-    /**
-     * Countries whose handler reads routing_id directly as a raw value.
-     * For these, a bare routing_id is not an "override" — it IS the native
-     * routing input (e.g. IT:CUUO).
-     */
-    private function handlerConsumesBareRoutingId(Client $client): bool
-    {
-        $country = $client->country->iso_3166_2;
-        $classification = $client->classification ?? 'business';
-
-        if ($country === 'IT') {
-            return true;
-        }
-
-        if ($country === 'DE' && $classification === 'government') {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Builds a single error when no candidate is routable. Mentions every
-     * scheme the handler attempted, so the user can see what inputs would
-     * satisfy delivery — not a single "required field" that may be misleading.
-     *
-     * @param  array<int, array{scheme: string, id: string}> $candidates
-     * @return array{field: string, label: string}
-     */
-    private function buildIdentifierError(array $candidates, Client $client, StorecoveRouter $router): array
-    {
-        $countryName = $client->country->full_name ?? $client->country->iso_3166_2;
-
-        if (empty($candidates)) {
-            return [
-                'field' => 'vat_number',
-                'label' => "A valid routing identifier is required for Peppol delivery to {$countryName}.",
-            ];
-        }
-
-        $parts = [];
-        
-        foreach ($candidates as $c) {
-            $example = $router->getFormatExample($c['scheme']);
-            $parts[] = $example
-                ? "{$c['scheme']} (e.g. {$example})"
-                : $c['scheme'];
-        }
-
-        return [
-            'field' => 'vat_number',
-            'label' => "No valid Peppol routing identifier for {$countryName}. Any one of: " . implode(', ', $parts) . '.',
-        ];
-    }
-
 
     private function testCompanyState(mixed $entity): array
     {

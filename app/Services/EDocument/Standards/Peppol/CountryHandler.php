@@ -12,7 +12,9 @@
 
 namespace App\Services\EDocument\Standards\Peppol;
 
+use App\Models\Client;
 use App\Services\EDocument\Gateway\MutatorUtil;
+use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
 
 interface CountryHandler
 {
@@ -100,4 +102,27 @@ interface CountryHandler
      * Example: SG uses CorpPass OAuth + C5 IRAS email activation.
      */
     public function getRegistrationFlow(object $storecove, int $legal_entity_id, array $data): array|\Illuminate\Http\Client\Response|null;
+
+    /**
+     * Required client fields for forms / UX, derived from routing policy for this country.
+     *
+     * @param  ?string  $senderCountryCode  ISO 3166-2 for the sender (company) when known; null if generic map / unknown.
+     * @return array<string, string> Keys are client attribute names, values are scheme labels
+     */
+    public function resolveRequiredClientFields(string $country, ?string $classification, StorecoveRouter $router, ?string $senderCountryCode = null): array;
+
+    /**
+     * Whether a bare routing_id (no "scheme:id" prefix) is this country's native routing input.
+     */
+    public function consumesBareRoutingId(?string $classification): bool;
+
+    /**
+     * Validates receiver Peppol routing identifiers offline (format regex only).
+     *
+     * Default: success if any candidate from getCandidates() passes validateIdentifierFormat (OR semantics).
+     *
+     * @param  ?string  $senderCountryCode  ISO 3166-2 for the sender (company); pass null only when unavailable.
+     * @return array<int, array{field: string, label: string}>
+     */
+    public function validateReceiverRoutingIdentifiers(Client $client, string $classification, StorecoveRouter $router, ?string $senderCountryCode = null): array;
 }

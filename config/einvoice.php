@@ -17,8 +17,8 @@ return [
 
     'peppol_network' => [
         'AD', 'AT', 'BE', 'DK', 'EE', 'FI', 'DE', 'IS',
-        'LT', 'LU', 'NL', 'NO', 'PL', 'SE', 'IE',
-        'FR', 'GR', 'RO', 'SG', 'SI', 'ES', 'GB',
+        'LT', 'LU', 'NL', 'NO', 'PL', 'PT', 'SE', 'IE',
+        'FR', 'GR', 'RO', 'SG', 'SI', 'ES', 'GB', 'IT',
     ],
 
     /*

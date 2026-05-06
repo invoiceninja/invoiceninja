@@ -230,26 +230,58 @@ class StorecoveRouter
     /**
      * Returns the required client fields for a given country/classification.
      *
-     * Derives requirements from the routing_rules matrix:
-     * - Column 1 (identifier1) non-empty → id_number required
-     * - Column 2 (tax_identifier) non-empty → vat_number required
-     * - Both can be required simultaneously (e.g. SE needs ORGNR + VAT)
-     * - IT B2B/B2G additionally requires routing_id (IT:CUUO)
+     * Delegates to {@see \App\Services\EDocument\Standards\Peppol\CountryHandler::resolveRequiredClientFields()}
+     * (via {@see CountryFactory}) so country-specific policy lives on the handler.
      *
      * @param  string $country ISO 3166-2 country code
      * @param  ?string $classification business|government|individual
+     * @param  ?string $senderCountryCode ISO 3166-2 sender (company) country when known
      * @return array<string, string> Keys are client field names, values are scheme labels
      */
-    public function resolveRequiredClientFields(string $country, ?string $classification = 'business'): array
+    public function resolveRequiredClientFields(string $country, ?string $classification = 'business', ?string $senderCountryCode = null): array
     {
-        $rules = $this->routing_rules[$country] ?? null;
+        return CountryFactory::make($country)
+            ->resolveRequiredClientFields($country, $classification, $this, $senderCountryCode);
+    }
 
-        if (!$rules) {
+    /**
+     * Routing rules for a country: handler matrix when the handler defines rules, else config.
+     *
+     * @return array<int|string, mixed>|null Same shape as config routing_rules entries
+     */
+    public function effectiveRoutingRules(string $country): ?array
+    {
+        if (CountryFactory::has($country)) {
+            $handler = CountryFactory::make($country);
+            $rules = $handler->getRoutingRules();
+
+            if ($rules !== null) {
+                return $rules;
+            }
+        }
+
+        return $this->routing_rules[$country] ?? null;
+    }
+
+    /**
+     * Required client fields from the effective routing matrix only (no country-specific extras).
+     *
+     * Used by {@see \App\Services\EDocument\Standards\Peppol\BaseCountry::resolveRequiredClientFields()}
+     * and handlers that extend it. Individuals return [] here — handlers may override (e.g. IT).
+     *
+     * @return array<string, string>
+     */
+    public function requiredClientFieldsFromEffectiveMatrix(string $country, ?string $classification): array
+    {
+        $classification ??= 'business';
+
+        if ($classification === 'individual') {
             return [];
         }
 
-        // Individuals route via email — no identifier requirements
-        if ($classification === 'individual') {
+        $rules = $this->effectiveRoutingRules($country);
+
+        if (!$rules) {
             return [];
         }
 
@@ -258,19 +290,12 @@ class StorecoveRouter
 
         $required = [];
 
-        // Column 2 (tax_identifier) → vat_number
         if (!empty($rule[self::COL_TAX])) {
             $required['vat_number'] = $rule[self::COL_TAX];
         }
 
-        // Column 1 (identifier) → id_number
         if (!empty($rule[self::COL_IDENTIFIER])) {
             $required['id_number'] = $rule[self::COL_IDENTIFIER];
-        }
-
-        // IT B2B/B2G requires routing_id (Codice Destinatario)
-        if ($country === 'IT' && in_array($classification, ['business', 'government'])) {
-            $required['routing_id'] = 'IT:CUUO';
         }
 
         return $required;

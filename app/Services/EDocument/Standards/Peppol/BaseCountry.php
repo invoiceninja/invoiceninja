@@ -12,6 +12,7 @@
 
 namespace App\Services\EDocument\Standards\Peppol;
 
+use App\Models\Client;
 use App\Services\EDocument\Gateway\MutatorUtil;
 use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
 
@@ -92,5 +93,74 @@ class BaseCountry implements CountryHandler
     public function getRegistrationFlow(object $storecove, int $legal_entity_id, array $data): array|\Illuminate\Http\Client\Response|null
     {
         return null;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * Individuals use email routing for most countries — no identifier columns required by default.
+     */
+    public function resolveRequiredClientFields(string $country, ?string $classification, StorecoveRouter $router, ?string $senderCountryCode = null): array
+    {
+        $classification ??= 'business';
+
+        if ($classification === 'individual') {
+            return [];
+        }
+
+        return $router->requiredClientFieldsFromEffectiveMatrix($country, $classification);
+    }
+
+    public function consumesBareRoutingId(?string $classification): bool
+    {
+        return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * OR semantics: any one candidate with valid format passes.
+     */
+    public function validateReceiverRoutingIdentifiers(Client $client, string $classification, StorecoveRouter $router, ?string $senderCountryCode = null): array
+    {
+        $candidates = $this->getCandidates($client, $classification, $router);
+
+        foreach ($candidates as $candidate) {
+            if ($router->validateIdentifierFormat($candidate['scheme'], $candidate['id'])) {
+                return [];
+            }
+        }
+
+        return [$this->buildRoutingIdentifierValidationError($candidates, $client, $router)];
+    }
+
+    /**
+     * @param  array<int, array{scheme: string, id: string}>  $candidates
+     * @return array{field: string, label: string}
+     */
+    protected function buildRoutingIdentifierValidationError(array $candidates, Client $client, StorecoveRouter $router): array
+    {
+        $countryName = $client->country->full_name ?? $client->country->iso_3166_2;
+
+        if ($candidates === []) {
+            return [
+                'field' => 'vat_number',
+                'label' => "A valid routing identifier is required for Peppol delivery to {$countryName}.",
+            ];
+        }
+
+        $parts = [];
+
+        foreach ($candidates as $c) {
+            $example = $router->getFormatExample($c['scheme']);
+            $parts[] = $example
+                ? "{$c['scheme']} (e.g. {$example})"
+                : $c['scheme'];
+        }
+
+        return [
+            'field' => 'vat_number',
+            'label' => "No valid Peppol routing identifier for {$countryName}. Any one of: " . implode(', ', $parts) . '.',
+        ];
     }
 }

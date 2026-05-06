@@ -49,6 +49,11 @@ class DE extends BaseCountry
         return strlen($id) >= 2 ? [['scheme' => 'DE:VAT', 'id' => $id]] : [];
     }
 
+    public function consumesBareRoutingId(?string $classification): bool
+    {
+        return ($classification ?? 'business') === 'government';
+    }
+
     public function senderMutations(
         mixed $p_invoice,
         mixed $invoice,

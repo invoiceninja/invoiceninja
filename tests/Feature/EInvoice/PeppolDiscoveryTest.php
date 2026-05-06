@@ -14,6 +14,7 @@ namespace Tests\Feature\EInvoice;
 
 use Tests\TestCase;
 use App\Models\Client;
+use App\Models\Company;
 use Tests\MockAccountData;
 use App\Models\ClientContact;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
@@ -467,7 +468,7 @@ class PeppolDiscoveryTest extends TestCase
     }
 
     // ──────────────────────────────────────────────────────
-    // IT B2B/B2G uses routing_id for IT:CUUO
+    // IT B2B/B2G: Codice Destinatario (CUUO) + Partita IVA for SDI
     // ──────────────────────────────────────────────────────
 
     public function testItBusinessUsesRoutingIdForCuuo(): void
@@ -479,9 +480,81 @@ class PeppolDiscoveryTest extends TestCase
 
         $meta = $this->runMutatorWithMock($client, fn () => false);
 
-        $this->assertNotEmpty($meta['routing']['eIdentifiers'] ?? []);
-        $this->assertEquals('IT:CUUO', $meta['routing']['eIdentifiers'][0]['scheme']);
-        $this->assertEquals('A1B2C3', $meta['routing']['eIdentifiers'][0]['id']);
+        $identifiers = $meta['routing']['eIdentifiers'] ?? [];
+        $this->assertCount(2, $identifiers);
+        $this->assertEquals('IT:CUUO', $identifiers[0]['scheme']);
+        $this->assertEquals('A1B2C3', $identifiers[0]['id']);
+        $this->assertEquals('IT:IVA', $identifiers[1]['scheme']);
+        $this->assertEquals('IT12345678901', $identifiers[1]['id']);
+    }
+
+    public function testItDomesticIndividualIncludesCuuoAndCfIdentifiers(): void
+    {
+        $itCompany = Company::factory()->create([
+            'account_id' => $this->account->id,
+        ]);
+        $settings = $itCompany->settings;
+        $settings->country_id = '380';
+        $itCompany->settings = $settings;
+        $itCompany->save();
+
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $itCompany->id,
+            'country_id' => 380,
+            'classification' => 'individual',
+            'address1' => 'Via Roma 1',
+            'city' => 'Roma',
+            'postal_code' => '00100',
+            'id_number' => 'RSSMRA85M01H501Z',
+            'routing_id' => 'SUBM70N',
+            'vat_number' => '',
+        ]);
+
+        ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $itCompany->id,
+            'is_primary' => 1,
+            'email' => 'test@example.com',
+        ]);
+
+        $client = $client->fresh(['country']);
+
+        $this->invoice->company_id = $itCompany->id;
+        $this->invoice->client_id = $client->id;
+        $this->invoice->save();
+        $this->invoice->setRelation('company', $itCompany->fresh());
+        $this->invoice->setRelation('client', $client);
+
+        $proxyMock = $this->createMock(StorecoveProxy::class);
+        $proxyMock->method('discovery')->willReturn(false);
+        $proxyMock->method('setCompany')->willReturnSelf();
+
+        $resolver = new RoutingResolver($this->invoice, $proxyMock, new StorecoveRouter());
+        $result = $resolver->resolve();
+
+        $identifiers = $result['meta']['routing']['eIdentifiers'] ?? [];
+        $this->assertCount(2, $identifiers);
+        $this->assertEquals('IT:CUUO', $identifiers[0]['scheme']);
+        $this->assertEquals('SUBM70N', $identifiers[0]['id']);
+        $this->assertEquals('IT:CF', $identifiers[1]['scheme']);
+    }
+
+    public function testItForeignIndividualIncludesCfAndEmailRouting(): void
+    {
+        $client = $this->makeClient(380, 'individual', [
+            'id_number' => 'RSSMRA85M01H501Z',
+            'routing_id' => '',
+            'vat_number' => '',
+        ]);
+
+        $meta = $this->runMutatorWithMock($client, fn () => false);
+
+        $this->assertEquals('IT:CF', $meta['routing']['eIdentifiers'][0]['scheme']);
+        $this->assertEquals('RSSMRA85M01H501Z', $meta['routing']['eIdentifiers'][0]['id']);
+        $this->assertArrayHasKey('emails', $meta['routing']);
+        $this->assertContains('test@example.com', $meta['routing']['emails']);
     }
 
     // ──────────────────────────────────────────────────────

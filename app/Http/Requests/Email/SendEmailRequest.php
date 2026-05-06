@@ -102,11 +102,12 @@ class SendEmailRequest extends Request
         }
 
         if (isset($input['cc_email'])) {
-            $input['cc_email'] = collect(explode(",", $input['cc_email']))->map(function ($email) {
-                return trim($email);
-            })->filter(function ($email) {
-                return filter_var($email, FILTER_VALIDATE_EMAIL);
-            })->slice(0, 4)->toArray();
+            $input['cc_email'] = collect(explode(",", $input['cc_email']))
+                                ->map(function ($email) {
+                                    return trim($email);
+                                })->filter(function ($email) {
+                                    return filter_var($email, FILTER_VALIDATE_EMAIL);
+                                })->slice(0, 4)->toArray();
         }
 
         if (\App\Utils\Ninja::isHosted() && !$user->account->isPaid()) {

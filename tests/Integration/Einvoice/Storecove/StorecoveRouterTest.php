@@ -1043,6 +1043,27 @@ class StorecoveRouterTest extends TestCase
         $this->assertEmpty($storecove->router->resolveRequiredClientFields('FR', 'individual'));
     }
 
+    public function testResolveRequiredFieldsItIndividualNeedsCodiceFiscale(): void
+    {
+        $storecove = new Storecove();
+        $required = $storecove->router->resolveRequiredClientFields('IT', 'individual');
+
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('IT:CF', $required['id_number']);
+        $this->assertArrayNotHasKey('routing_id', $required);
+    }
+
+    public function testResolveRequiredFieldsItIndividualDomesticSenderAlsoNeedsCuuo(): void
+    {
+        $storecove = new Storecove();
+        $required = $storecove->router->resolveRequiredClientFields('IT', 'individual', 'IT');
+
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertArrayHasKey('routing_id', $required);
+        $this->assertEquals('IT:CF', $required['id_number']);
+        $this->assertEquals('IT:CUUO', $required['routing_id']);
+    }
+
     public function testResolveRequiredFieldsUnknownCountryReturnsEmpty()
     {
         $storecove = new Storecove();

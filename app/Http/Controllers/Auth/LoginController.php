@@ -767,7 +767,6 @@ class LoginController extends BaseController
                 return response()->json(['message' => 'Please use your email and password to login.'], 400);
             }
 
-
         }
 
         if ($user) {
