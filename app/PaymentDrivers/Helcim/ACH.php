@@ -87,6 +87,8 @@ class ACH implements MethodInterface, LivewireMethodInterface
                 throw new PaymentFailed('Invalid transaction data format', 400);
             }
 
+            $data = $this->normalizeHelcimPayPayload($data);
+
             if (!$this->helcim_driver->validateHelcimPayResponse($transactionData, $transactionHash, $secretToken)) {
                 throw new PaymentFailed('Transaction validation failed - data may have been tampered with', 400);
             }
@@ -254,6 +256,8 @@ class ACH implements MethodInterface, LivewireMethodInterface
         if (!$data) {
             throw new PaymentFailed('Invalid transaction data format', 400);
         }
+
+        $data = $this->normalizeHelcimPayPayload($data);
 
         if (!$this->helcim_driver->validateHelcimPayResponse($transactionData, $transactionHash, $secretToken)) {
             throw new PaymentFailed('Transaction validation failed - data may have been tampered with', 400);
@@ -508,6 +512,43 @@ class ACH implements MethodInterface, LivewireMethodInterface
         }
 
         return null;
+    }
+
+    /**
+     * Normalize HelcimPay.js payloads which may arrive as:
+     * - raw transaction object
+     * - {data: {...}}
+     * - {data: {data: {...}}}
+     * - event wrapper {eventStatus, eventMessage: {...|"json"}}
+     */
+    private function normalizeHelcimPayPayload(array $data): array
+    {
+        $payload = $data;
+
+        if (isset($payload['eventMessage'])) {
+            $eventMessage = $payload['eventMessage'];
+
+            if (is_string($eventMessage)) {
+                $decoded = json_decode($eventMessage, true);
+                if (is_array($decoded)) {
+                    $eventMessage = $decoded;
+                }
+            }
+
+            if (is_array($eventMessage)) {
+                $payload = $eventMessage;
+            }
+        }
+
+        if (isset($payload['data']) && is_array($payload['data'])) {
+            $payload = $payload['data'];
+        }
+
+        if (isset($payload['data']) && is_array($payload['data'])) {
+            $payload = $payload['data'];
+        }
+
+        return $payload;
     }
 
     /**
