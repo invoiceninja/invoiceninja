@@ -16,11 +16,6 @@ use App\Services\EDocument\Gateway\MutatorUtil;
 
 class ES extends BaseCountry
 {
-    public function getRoutingRules(): ?array
-    {
-        return ["B", "", "ES:VAT", "ES:VAT"];
-    }
-
     public function senderMutations(
         mixed $p_invoice,
         mixed $invoice,

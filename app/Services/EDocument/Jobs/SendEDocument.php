@@ -127,7 +127,7 @@ class SendEDocument implements ShouldQueue
             return $result['errors'];
         }
 
-        nlog($result['document']);
+        // nlog($result['document']);
         
         // ── Step 4: Assemble payload ──
         $payload = [

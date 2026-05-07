@@ -16,7 +16,7 @@ use App\Http\Requests\EInvoice\HealthcheckRequest;
 use App\Http\Requests\EInvoice\ShowQuotaRequest;
 use App\Http\Requests\EInvoice\UpdateEInvoiceConfiguration;
 use App\Http\Requests\EInvoice\ValidateEInvoiceRequest;
-use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
+use App\Services\EDocument\Gateway\Storecove\StorecoveDeliveryMap;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
 use InvoiceNinja\EInvoice\Models\Peppol\BranchType\FinancialInstitutionBranch;
@@ -206,9 +206,9 @@ class EInvoiceController extends BaseController
      */
     public function deliveryMap(): JsonResponse
     {
-        $router = new StorecoveRouter();
+        $deliveryMap = new StorecoveDeliveryMap();
 
-        return response()->json($router->getDeliveryMap());
+        return response()->json($deliveryMap->all());
     }
 
     public function healthcheck(HealthcheckRequest $request): JsonResponse

@@ -13,11 +13,21 @@
 namespace App\Services\EDocument\Standards\Peppol;
 
 use App\Models\Client;
+use App\Models\Company;
 use App\Services\EDocument\Gateway\MutatorUtil;
+use App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveIdentifierValidator;
+use App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveSchemeResolver;
 use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
+use App\Services\EDocument\Support\GlnIdentifier;
 
 class BaseCountry implements CountryHandler
 {
+    public function __construct(
+        private ?StorecoveIdentifierValidator $identifierValidator = null,
+        private ?StorecoveSchemeResolver $schemeResolver = null,
+    ) {
+    }
+
     /**
      * Default sender mutations — no-op.
      */
@@ -38,15 +48,6 @@ class BaseCountry implements CountryHandler
         MutatorUtil $mutator_util,
     ): mixed {
         return $p_invoice;
-    }
-
-    /**
-     * Return the routing rules for this country.
-     * Return null to fall back to the default routing rules.
-     */
-    public function getRoutingRules(): ?array
-    {
-        return null;
     }
 
     /**
@@ -95,22 +96,6 @@ class BaseCountry implements CountryHandler
         return null;
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * Individuals use email routing for most countries — no identifier columns required by default.
-     */
-    public function resolveRequiredClientFields(string $country, ?string $classification, StorecoveRouter $router, ?string $senderCountryCode = null): array
-    {
-        $classification ??= 'business';
-
-        if ($classification === 'individual') {
-            return [];
-        }
-
-        return $router->requiredClientFieldsFromEffectiveMatrix($country, $classification);
-    }
-
     public function consumesBareRoutingId(?string $classification): bool
     {
         return false;
@@ -126,19 +111,250 @@ class BaseCountry implements CountryHandler
         $candidates = $this->getCandidates($client, $classification, $router);
 
         foreach ($candidates as $candidate) {
-            if ($router->validateIdentifierFormat($candidate['scheme'], $candidate['id'])) {
+            if ($this->identifierValidator()->validFormat($candidate['scheme'], $candidate['id'])) {
                 return [];
             }
         }
 
-        return [$this->buildRoutingIdentifierValidationError($candidates, $client, $router)];
+        return [$this->buildRoutingIdentifierValidationError($candidates, $client)];
+    }
+
+    public function storecoveCustomerPartyPublicIdentifiers(object $client, object $invoice, StorecoveRouter $router): array
+    {
+        $country = $client->country->iso_3166_2;
+        $classification = $client->classification ?? 'business';
+        $primary = $this->resolvePrimaryStorecoveReceiverPair($client, $router, $country, $classification);
+        if ($primary === null) {
+            return [];
+        }
+
+        $pairs = [$primary];
+
+        $taxScheme = $router->resolveTaxScheme($country, $classification);
+        if (!empty($taxScheme) && $taxScheme !== $primary['scheme']) {
+            $vatRaw = trim($client->vat_number ?? '');
+            if (strlen($vatRaw) > 1 && $this->identifierValidator()->matchesSchemeFormat($taxScheme, $vatRaw)) {
+                $pairs[] = ['scheme' => $taxScheme, 'id' => $vatRaw];
+            }
+        }
+
+        return $pairs;
+    }
+    
+    /**
+     * resolveCompanyScheme
+     * 
+     * The base case is that we always return the companys VAT and a generic ICD code 
+     * 
+     * @param Company $company
+     * @return array
+     */
+    public function resolveEndpointScheme(Company $company): array
+    {
+        /** Prioritize GLN if Present */
+        if(stripos($company->settings->id_number ?? '', '0088:') !== false){
+
+            return [
+                'scheme' => '0088',
+                'id' => str_replace('0088:', '', $company->settings->id_number),    
+            ];
+
+        }
+
+        // Fallback to VAT => ID Number.
+        $endpoint_id = strlen($company->settings->vat_number) > 1 ? $company->settings->vat_number : $company->settings->id_number ?? '';
+        $endpoint_id = preg_replace("/[^a-zA-Z0-9]/", "", $endpoint_id);
+
+        /** empty string for SchemeID - should allow validation exceptions to be raised if no valid endpoint is present */
+        $scheme = strlen($endpoint_id) > 1 ? '0203' : '';
+
+        return [
+            'scheme' => $scheme,
+            'id' => $endpoint_id
+        ];
+    }
+
+    public function resolvePartyIdentificationScheme(Company $company): ?array
+    {
+        return null;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * Default cascade for the buyer's electronic address:
+     *   1. `routing_id` prefixed `0088:` → emit GLN scheme `0088`.
+     *   2. `routing_id` shaped `NNNN:value` → split as ICD/EAS scheme + id.
+     *   3. Otherwise delegate to {@see self::getCandidates()} and convert the
+     *      first friendly scheme to its ISO 6523 code.
+     *   4. Nothing resolvable → empty scheme + empty id (validator catches it).
+     */
+    public function resolveClientEndpointScheme(Client $client, StorecoveRouter $router): array
+    {
+        $routing_id = trim((string) ($client->routing_id ?? ''));
+
+        if (str_starts_with($routing_id, '0088:')) {
+            $gln = GlnIdentifier::tryParse($routing_id);
+
+            return [
+                'scheme' => '0088',
+                'id' => $gln ?? preg_replace("/[^0-9]/", "", substr($routing_id, 5)),
+            ];
+        }
+
+        if (preg_match('/^(\d{4}):(.+)$/', $routing_id, $matches)) {
+            return [
+                'scheme' => $matches[1],
+                'id' => $matches[2],
+            ];
+        }
+
+        $classification = $client->classification ?? 'business';
+        $candidates = $this->getCandidates($client, $classification, $router);
+
+        if (count($candidates) > 0 && !empty($candidates[0]['scheme']) && !empty($candidates[0]['id'])) {
+            $candidate = $candidates[0];
+
+            return [
+                'scheme' => $this->schemeResolver()->iso6523((string) $candidate['scheme']),
+                'id' => (string) $candidate['id'],
+            ];
+        }
+
+        // Countries routed via email (IN, SA, IT B2C) have no Peppol EAS scheme —
+        // emit EAS 0202 carrying the client's VAT / id_number / email so the
+        // resulting EndpointID is a valid EAS code with a deliverable value.
+        $country = $client->country->iso_3166_2 ?? null;
+        if ($country !== null) {
+            $code = $router->resolveRouting($country, $classification);
+            if ($code === 'Email') {
+                $vat = preg_replace("/[^a-zA-Z0-9]/", "", $client->vat_number ?? '');
+                if (strlen($vat) > 1) {
+                    return ['scheme' => '0202', 'id' => $vat];
+                }
+
+                $idNumber = preg_replace("/[^a-zA-Z0-9]/", "", $client->id_number ?? '');
+                if (strlen($idNumber) > 1) {
+                    return ['scheme' => '0202', 'id' => $idNumber];
+                }
+
+                return [
+                    'scheme' => '0202',
+                    'id' => $client->present()->email(),
+                ];
+            }
+        }
+
+        return [
+            'scheme' => '',
+            'id' => '',
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * Default: do not emit `cac:PartyIdentification` for the buyer. Country
+     * handlers may override (e.g. BE mirrors EndpointID into PartyIdentification).
+     */
+    public function resolveClientPartyIdentificationScheme(Client $client): ?array
+    {
+        return null;
+    }
+
+    /**
+     * Primary receiver `publicIdentifiers` entry for the Storecove document (legal/routing id column semantics match legacy adapter).
+     *
+     * @return array{scheme: string, id: string}|null
+     */
+    protected function resolvePrimaryStorecoveReceiverPair(object $client, StorecoveRouter $router, string $country, string $classification): ?array
+    {
+        $scheme = $router->resolveRouting($country, $classification);
+
+        if (empty($scheme)) {
+            return null;
+        }
+
+        if ($scheme === 'Email') {
+            $scheme = $router->resolveTaxScheme($country, $classification);
+            if (empty($scheme)) {
+                return null;
+            }
+        }
+
+        $compositeEndpointId = null;
+        if (preg_match('/^(\d{4}):(.+)$/', $scheme, $m)) {
+            $compositeEndpointId = $m[2];
+            $scheme = $router->resolveIdentifierScheme($country, $classification);
+            if (empty($scheme)) {
+                return null;
+            }
+        }
+
+        if ($country === 'AT' && $classification === 'government') {
+            return ['scheme' => 'AT:GOV', 'id' => 'b'];
+        }
+
+        if ($scheme === 'GLN' || str_contains($scheme, ':CUUO')) {
+            $raw = $client->routing_id ?? '';
+            if (strlen($raw) > 1) {
+                return ['scheme' => $scheme, 'id' => trim($raw)];
+            }
+
+            return null;
+        }
+
+        $isVatScheme = str_contains($scheme, ':VAT') || str_contains($scheme, ':IVA') || str_contains($scheme, ':CF');
+        $sources = $isVatScheme
+            ? [$client->vat_number ?? '', $client->id_number ?? '']
+            : [$client->id_number ?? '', $client->vat_number ?? ''];
+
+        foreach ($sources as $raw) {
+            if (strlen($raw) < 2) {
+                continue;
+            }
+
+            $light = preg_replace("/[\s.]/", "", $raw);
+            $heavy = preg_replace("/[^a-zA-Z0-9]/", "", $raw);
+            $stripped = (stripos($heavy, $country) === 0 && strlen($heavy) > strlen($country))
+                ? substr($heavy, strlen($country))
+                : null;
+
+            $variants = [$light, $heavy, $stripped];
+            $seen = [];
+            foreach ($variants as $val) {
+                if ($val === null || $val === '' || isset($seen[$val])) {
+                    continue;
+                }
+                $seen[$val] = true;
+
+                if (!$this->identifierValidator()->matchesSchemeFormat($scheme, $val)) {
+                    continue;
+                }
+
+                $idOut = $val;
+                if ($stripped !== null && $stripped !== ''
+                    && in_array($scheme, ['BE:EN', 'DK:DIGST', 'CH:UIDB'], true)
+                    && $this->identifierValidator()->matchesSchemeFormat($scheme, $stripped)) {
+                    $idOut = $stripped;
+                }
+
+                return ['scheme' => $scheme, 'id' => $idOut];
+            }
+        }
+
+        if ($compositeEndpointId !== null) {
+            return ['scheme' => $scheme, 'id' => $compositeEndpointId];
+        }
+
+        return null;
     }
 
     /**
      * @param  array<int, array{scheme: string, id: string}>  $candidates
      * @return array{field: string, label: string}
      */
-    protected function buildRoutingIdentifierValidationError(array $candidates, Client $client, StorecoveRouter $router): array
+    protected function buildRoutingIdentifierValidationError(array $candidates, Client $client): array
     {
         $countryName = $client->country->full_name ?? $client->country->iso_3166_2;
 
@@ -152,7 +368,7 @@ class BaseCountry implements CountryHandler
         $parts = [];
 
         foreach ($candidates as $c) {
-            $example = $router->getFormatExample($c['scheme']);
+            $example = $this->identifierValidator()->formatExample($c['scheme']);
             $parts[] = $example
                 ? "{$c['scheme']} (e.g. {$example})"
                 : $c['scheme'];
@@ -162,5 +378,15 @@ class BaseCountry implements CountryHandler
             'field' => 'vat_number',
             'label' => "No valid Peppol routing identifier for {$countryName}. Any one of: " . implode(', ', $parts) . '.',
         ];
+    }
+
+    protected function identifierValidator(): StorecoveIdentifierValidator
+    {
+        return $this->identifierValidator ??= new StorecoveIdentifierValidator();
+    }
+
+    protected function schemeResolver(): StorecoveSchemeResolver
+    {
+        return $this->schemeResolver ??= new StorecoveSchemeResolver();
     }
 }

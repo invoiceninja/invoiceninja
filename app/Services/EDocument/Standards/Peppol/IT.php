@@ -14,6 +14,7 @@ namespace App\Services\EDocument\Standards\Peppol;
 
 use App\Models\Client;
 use App\Services\EDocument\Gateway\MutatorUtil;
+use App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveIdentifierValidator;
 use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
 
 /**
@@ -21,15 +22,6 @@ use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
  */
 class IT extends BaseCountry
 {
-    public function getRoutingRules(): ?array
-    {
-        return [
-            ["G", "", "IT:IVA", "IT:CUUO"],
-            ["B", "", "IT:IVA", "IT:CUUO"],
-            ["C", "", "IT:CF", "Email"],
-        ];
-    }
-
     public function getCandidates(object $client, string $classification, object $router): array
     {
         if ($classification === 'individual') {
@@ -39,7 +31,7 @@ class IT extends BaseCountry
         // B2B/B2G: Codice Destinatario first for discovery, then Partita IVA (IT:IVA).
         $candidates = [];
         $routingId = trim($client->routing_id ?? '');
-        if ($routingId !== '' && !StorecoveRouter::isValidGln($routingId)) {
+        if ($routingId !== '' && !StorecoveIdentifierValidator::isValidGln($routingId)) {
             $cuuo = preg_replace("/[^a-zA-Z0-9]/", "", $routingId);
             if (strlen($cuuo) >= 2) {
                 $candidates[] = ['scheme' => 'IT:CUUO', 'id' => $cuuo];
@@ -60,7 +52,7 @@ class IT extends BaseCountry
     {
         $candidates = [];
         $routingId = trim($client->routing_id ?? '');
-        if ($routingId !== '' && !StorecoveRouter::isValidGln($routingId)) {
+        if ($routingId !== '' && !StorecoveIdentifierValidator::isValidGln($routingId)) {
             $cuuo = preg_replace("/[^a-zA-Z0-9]/", "", $routingId);
             if (strlen($cuuo) >= 2) {
                 $candidates[] = ['scheme' => 'IT:CUUO', 'id' => $cuuo];
@@ -95,34 +87,6 @@ class IT extends BaseCountry
         return $p_invoice;
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * Domestic sender + consumer: Codice Fiscale + Codice Destinatario.
-     * Foreign sender + consumer: Codice Fiscale only (email optional at routing).
-     */
-    public function resolveRequiredClientFields(string $country, ?string $classification, StorecoveRouter $router, ?string $senderCountryCode = null): array
-    {
-        $classification ??= 'business';
-
-        if ($classification === 'individual') {
-            $fields = ['id_number' => 'IT:CF'];
-            if ($senderCountryCode === 'IT') {
-                $fields['routing_id'] = 'IT:CUUO';
-            }
-
-            return $fields;
-        }
-
-        $required = $router->requiredClientFieldsFromEffectiveMatrix($country, $classification);
-
-        if (in_array($classification, ['business', 'government'], true)) {
-            $required['routing_id'] = 'IT:CUUO';
-        }
-
-        return $required;
-    }
-
     public function consumesBareRoutingId(?string $classification): bool
     {
         return true;
@@ -139,18 +103,18 @@ class IT extends BaseCountry
     {
         $routingRaw = trim($client->routing_id ?? '');
 
-        if ($routingRaw !== '' && StorecoveRouter::isValidGln($routingRaw)) {
+        if ($routingRaw !== '' && StorecoveIdentifierValidator::isValidGln($routingRaw)) {
             return [];
         }
 
         if (in_array($classification, ['business', 'government'], true)) {
-            return $this->validateItalyBusinessGovernment($client, $router);
+            return $this->validateItalyBusinessGovernment($client);
         }
 
         if ($classification === 'individual') {
             return $senderCountryCode === 'IT'
-                ? $this->validateItalyDomesticConsumer($client, $router)
-                : $this->validateItalyForeignConsumer($client, $router);
+                ? $this->validateItalyDomesticConsumer($client)
+                : $this->validateItalyForeignConsumer($client);
         }
 
         return parent::validateReceiverRoutingIdentifiers($client, $classification, $router, $senderCountryCode);
@@ -159,7 +123,7 @@ class IT extends BaseCountry
     /**
      * @return array<int, array{field: string, label: string}>
      */
-    private function validateItalyBusinessGovernment(Client $client, StorecoveRouter $router): array
+    private function validateItalyBusinessGovernment(Client $client): array
     {
         $routingRaw = trim($client->routing_id ?? '');
         $vatClean = preg_replace("/[^a-zA-Z0-9]/", "", $client->vat_number ?? '');
@@ -167,11 +131,11 @@ class IT extends BaseCountry
 
         $errors = [];
 
-        $vatOk = strlen($vatClean) >= 2 && $router->validateIdentifierFormat('IT:IVA', $vatClean);
-        $cuuoOk = strlen($cuuoClean) >= 2 && $router->validateIdentifierFormat('IT:CUUO', $cuuoClean);
+        $vatOk = strlen($vatClean) >= 2 && $this->identifierValidator()->validFormat('IT:IVA', $vatClean);
+        $cuuoOk = strlen($cuuoClean) >= 2 && $this->identifierValidator()->validFormat('IT:CUUO', $cuuoClean);
 
         if (!$vatOk) {
-            $example = $router->getFormatExample('IT:IVA');
+            $example = $this->identifierValidator()->formatExample('IT:IVA');
             $errors[] = [
                 'field' => 'vat_number',
                 'label' => $example
@@ -181,7 +145,7 @@ class IT extends BaseCountry
         }
 
         if (!$cuuoOk) {
-            $example = $router->getFormatExample('IT:CUUO');
+            $example = $this->identifierValidator()->formatExample('IT:CUUO');
             $errors[] = [
                 'field' => 'routing_id',
                 'label' => $example
@@ -196,7 +160,7 @@ class IT extends BaseCountry
     /**
      * @return array<int, array{field: string, label: string}>
      */
-    private function validateItalyDomesticConsumer(Client $client, StorecoveRouter $router): array
+    private function validateItalyDomesticConsumer(Client $client): array
     {
         $routingRaw = trim($client->routing_id ?? '');
         $cfClean = preg_replace("/[^a-zA-Z0-9]/", "", $client->id_number ?? '');
@@ -204,11 +168,11 @@ class IT extends BaseCountry
 
         $errors = [];
 
-        $cfOk = strlen($cfClean) >= 2 && $router->validateIdentifierFormat('IT:CF', $cfClean);
-        $cuuoOk = strlen($cuuoClean) >= 2 && $router->validateIdentifierFormat('IT:CUUO', $cuuoClean);
+        $cfOk = strlen($cfClean) >= 2 && $this->identifierValidator()->validFormat('IT:CF', $cfClean);
+        $cuuoOk = strlen($cuuoClean) >= 2 && $this->identifierValidator()->validFormat('IT:CUUO', $cuuoClean);
 
         if (!$cfOk) {
-            $example = $router->getFormatExample('IT:CF');
+            $example = $this->identifierValidator()->formatExample('IT:CF');
             $errors[] = [
                 'field' => 'id_number',
                 'label' => $example
@@ -218,7 +182,7 @@ class IT extends BaseCountry
         }
 
         if (!$cuuoOk) {
-            $example = $router->getFormatExample('IT:CUUO');
+            $example = $this->identifierValidator()->formatExample('IT:CUUO');
             $errors[] = [
                 'field' => 'routing_id',
                 'label' => $example
@@ -235,13 +199,13 @@ class IT extends BaseCountry
      *
      * @return array<int, array{field: string, label: string}>
      */
-    private function validateItalyForeignConsumer(Client $client, StorecoveRouter $router): array
+    private function validateItalyForeignConsumer(Client $client): array
     {
         $cfClean = preg_replace("/[^a-zA-Z0-9]/", "", $client->id_number ?? '');
         $errors = [];
 
-        if (strlen($cfClean) < 2 || !$router->validateIdentifierFormat('IT:CF', $cfClean)) {
-            $example = $router->getFormatExample('IT:CF');
+        if (strlen($cfClean) < 2 || !$this->identifierValidator()->validFormat('IT:CF', $cfClean)) {
+            $example = $this->identifierValidator()->formatExample('IT:CF');
             $errors[] = [
                 'field' => 'id_number',
                 'label' => $example

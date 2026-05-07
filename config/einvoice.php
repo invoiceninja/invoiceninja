@@ -68,7 +68,7 @@ return [
         "ES" => ["B", "", "ES:VAT", "ES:VAT"],
         "FI" => ["B+G", "FI:OVT", "FI:VAT", "FI:OVT"],
         "FR" => [
-            ["G", "FR:SIRET + customerAssignedAccountIdValue", false, "0009:11000201100044"],
+            ["G", "FR:SIRET", false, "0009:11000201100044"],
             ["B", "FR:SIRENE or FR:SIRET", "FR:VAT", "FR:SIRENE or FR:SIRET"],
         ],
         "GR" => ["B+G", "", "GR:VAT", "GR:VAT"],

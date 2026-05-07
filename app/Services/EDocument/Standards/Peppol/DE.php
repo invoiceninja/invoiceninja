@@ -16,14 +16,6 @@ use App\Services\EDocument\Gateway\MutatorUtil;
 
 class DE extends BaseCountry
 {
-    public function getRoutingRules(): ?array
-    {
-        return [
-            ["G", "DE:LWID", false, "DE:LWID"],
-            ["B", "", "DE:VAT", "DE:VAT"],
-        ];
-    }
-
     public function getCandidates(object $client, string $classification, object $router): array
     {
         if ($classification === 'government') {

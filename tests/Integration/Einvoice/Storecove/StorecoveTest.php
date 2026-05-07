@@ -389,6 +389,7 @@ class StorecoveTest extends TestCase
             'company_country' => 'DE',
             'client_country' => 'DE',
             'client_vat' => '',
+            'client_id_number' => '12345/67890',
             'classification' => 'individual',
             'has_valid_vat' => false,
             'over_threshold' => true,
