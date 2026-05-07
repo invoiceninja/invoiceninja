@@ -179,6 +179,7 @@ class PurchaseOrderController extends Controller
         $purchase_orders = PurchaseOrder::query()
                                         ->whereIn('id', $this->transformKeys($data['purchase_orders']))
                                         ->where('company_id', auth()->guard('vendor')->user()->vendor->company_id)
+                                        ->where('vendor_id', auth()->guard('vendor')->user()->vendor->id)
                                         ->where('is_deleted', 0)
                                         ->withTrashed();
 
