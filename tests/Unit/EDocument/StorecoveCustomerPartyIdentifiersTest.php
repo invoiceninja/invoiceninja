@@ -206,7 +206,10 @@ class StorecoveCustomerPartyIdentifiersTest extends TestCase
             $vatNumber = '';
         }
 
-        if ($legalScheme === '' && !self::taxLikeScheme($routingScheme) && !self::fixedEndpointScheme($routingScheme)) {
+        if ($legalScheme === ''
+            && $routingScheme !== 'Email'
+            && !self::taxLikeScheme($routingScheme)
+            && !self::fixedEndpointScheme($routingScheme)) {
             $idNumber = self::identifierFixtureFor($routingScheme);
         }
 

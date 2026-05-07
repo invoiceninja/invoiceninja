@@ -691,8 +691,8 @@ class User extends Authenticatable implements MustVerifyEmail
             $all_permission = $parts[0] . '_all';
         }
 
-        return  (stripos($this->token()->cu->permissions, $all_permission) !== false)
-                || (stripos($this->token()->cu->permissions, $permission) !== false);
+        return  (stripos($this->token()->cu->permissions ?? '', $all_permission) !== false)
+                || (stripos($this->token()->cu->permissions ?? '', $permission) !== false);
     }
 
     /**
