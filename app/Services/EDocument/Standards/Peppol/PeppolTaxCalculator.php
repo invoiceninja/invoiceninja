@@ -257,13 +257,21 @@ class PeppolTaxCalculator
 
         $tax_total = new TaxTotal();
         $taxes = $calc->getTaxMap();
+        $global_tax_categories = $this->peppol->getGlobalTaxCategories();
 
-        if (count($taxes) < 1 || (count($taxes) == 1 && $invoice->total_taxes == 0)) {
+        if (count($taxes) < 1 || (count($taxes) == 1 && $invoice->total_taxes == 0 && isset($global_tax_categories[0]))) {
 
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $invoice->client->currency()->code;
             $tax_amount->amount = (string) 0;
             $tax_total->TaxAmount = $tax_amount;
+
+            if (!isset($global_tax_categories[0])) {
+                $p_invoice->TaxTotal[] = $tax_total;
+                $this->peppol->setPeppolDocument($p_invoice);
+
+                return $this->peppol;
+            }
 
             $tax_subtotal = new TaxSubtotal();
 
@@ -282,7 +290,7 @@ class PeppolTaxCalculator
             $tax_subtotal->TaxAmount = $subtotal_tax_amount;
 
             // BG-23: use line-derived global category (includes BT-120/BT-121 from resolveTaxExemptReason).
-            $tax_subtotal->TaxCategory = $this->peppol->getGlobalTaxCategories()[0];
+            $tax_subtotal->TaxCategory = $global_tax_categories[0];
 
             $tax_total->TaxSubtotal[] = $tax_subtotal;
 
