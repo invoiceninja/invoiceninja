@@ -395,10 +395,82 @@ class HelcimPaymentDriver extends BaseDriver
     }
 
     /**
-     * Process webhook from Helcim
+     * Process webhook from Helcim.
+     *
+     * Helcim sends a JSON payload with at minimum:
+     *   { "transactionId": 123, "status": "APPROVED|RETURNED|FAILED|...", ... }
+     *
+     * If a `webhookVerifierToken` is configured in the gateway settings we validate
+     * the HMAC-SHA256 signature supplied in the `helcim-signature` request header.
      */
     public function processWebhookRequest($request)
     {
-        return response()->json(['message' => 'Webhook received'], 200);
+        $rawBody = $request->getContent();
+
+        // --- Optional signature verification ---
+        $verifierToken = $this->company_gateway->getConfigField('webhookVerifierToken');
+        if ($verifierToken) {
+            $signature = $request->header('helcim-signature') ?? $request->header('x-helcim-signature') ?? '';
+            $expected  = hash_hmac('sha256', $rawBody, $verifierToken);
+            if (!hash_equals($expected, strtolower($signature))) {
+                SystemLogger::dispatch(
+                    ['error' => 'Helcim webhook signature mismatch', 'received' => $signature],
+                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                    SystemLog::EVENT_GATEWAY_FAILURE,
+                    SystemLog::TYPE_HELCIM,
+                    null,
+                    $this->company_gateway->company
+                );
+                return response()->json(['message' => 'Invalid signature'], 401);
+            }
+        }
+
+        $payload = $request->json()->all();
+
+        if (empty($payload)) {
+            return response()->json(['message' => 'Empty payload'], 200);
+        }
+
+        $transactionId = (string) ($payload['transactionId'] ?? $payload['transaction_id'] ?? '');
+        $status        = strtoupper((string) ($payload['status'] ?? $payload['transactionStatus'] ?? ''));
+
+        if ($transactionId === '') {
+            return response()->json(['message' => 'No transactionId in payload'], 200);
+        }
+
+        /** @var Payment|null $payment */
+        $payment = Payment::where('transaction_reference', $transactionId)->first();
+
+        if (!$payment) {
+            // Nothing to update — may have been created outside Invoice Ninja
+            return response()->json(['message' => 'Payment not found'], 200);
+        }
+
+        // Map Helcim status → Invoice Ninja payment status
+        $completedStatuses = ['APPROVED', 'CLEARED', 'SETTLED', 'COMPLETED', 'SUCCESS'];
+        $failedStatuses    = ['RETURNED', 'FAILED', 'DECLINED', 'ERROR', 'REJECTED', 'NSF', 'VOIDED', 'CANCELLED'];
+
+        $newStatus = null;
+        if (in_array($status, $completedStatuses, true)) {
+            $newStatus = Payment::STATUS_COMPLETED;
+        } elseif (in_array($status, $failedStatuses, true)) {
+            $newStatus = Payment::STATUS_FAILED;
+        }
+
+        if ($newStatus !== null && $payment->status_id !== $newStatus) {
+            $payment->status_id = $newStatus;
+            $payment->save();
+
+            SystemLogger::dispatch(
+                ['webhook_payload' => $payload, 'new_status' => $newStatus, 'transaction_id' => $transactionId],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_SUCCESS,
+                SystemLog::TYPE_HELCIM,
+                $payment->client,
+                $payment->client->company
+            );
+        }
+
+        return response()->json(['message' => 'Webhook processed'], 200);
     }
 }

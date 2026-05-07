@@ -103,6 +103,14 @@ class ACH implements MethodInterface, LivewireMethodInterface
             $bankToken = $this->extractValue($data, ['bankToken', 'token', 'paymentMethod.token', 'bank.token', 'account.token', 'achToken']);
             $customerCode = $this->extractValue($data, ['customerCode', 'customer.code', 'customer.customerCode']);
 
+            // Resolve bankAccountId/customerId via API if absent (typical for ACH verify payloads).
+            // These are required for recurring/token billing via PUT /ach/withdraw.
+            if (!$bankAccountId || !$customerId) {
+                [$resolvedBankAccountId, $resolvedCustomerId] = $this->resolveAchBankAccountDetails($customerCode, $bankToken);
+                $bankAccountId = $bankAccountId ?: $resolvedBankAccountId;
+                $customerId = $customerId ?: $resolvedCustomerId;
+            }
+
             $tokenReference = (string) ($bankToken ?: $bankAccountId ?: $transactionId ?: '');
 
             if ($tokenReference === '') {
@@ -286,10 +294,15 @@ class ACH implements MethodInterface, LivewireMethodInterface
 
         $amount = $paymentHash->data->amount_with_fee;
 
+        $transactionRef = (string) ($data['transactionId'] ?? '');
+        if ($transactionRef === '') {
+            throw new PaymentFailed('ACH payment response did not include a transaction ID — cannot safely record this payment', 400);
+        }
+
         $paymentData = [
             'payment_type' => PaymentType::ACH,
             'amount' => $amount,
-            'transaction_reference' => (string) ($data['transactionId'] ?? ''),
+            'transaction_reference' => $transactionRef,
             'gateway_type_id' => GatewayType::BANK_TRANSFER,
         ];
 
@@ -616,6 +629,79 @@ class ACH implements MethodInterface, LivewireMethodInterface
             'customer_id' => $this->extractValue($normalizedData, ['customerId', 'customer.id', 'customer.customerId', 'account.customerId']),
             'has_bank_token' => !empty($this->extractValue($normalizedData, ['bankToken', 'token', 'paymentMethod.token', 'bank.token', 'account.token', 'achToken'])),
         ];
+    }
+
+    /**
+     * Attempt to resolve bankAccountId and customerId from Helcim API using customerCode and bankToken.
+     * Helcim ACH verify payloads typically do not include these fields directly,
+     * so we fetch them server-side to enable future recurring billing.
+     *
+     * @return array{0: string|int|null, 1: string|int|null} [$bankAccountId, $customerId]
+     */
+    private function resolveAchBankAccountDetails(?string $customerCode, ?string $bankToken): array
+    {
+        if (!$customerCode) {
+            return [null, null];
+        }
+
+        try {
+            $response = $this->helcim_driver->gatewayRequest('/customers', ['search-value' => $customerCode], 'GET');
+
+            $customerList = $response['customers'] ?? (isset($response[0]) ? $response : []);
+            if (empty($customerList)) {
+                return [null, null];
+            }
+
+            $customer = null;
+            foreach ($customerList as $c) {
+                if (isset($c['customerCode']) && $c['customerCode'] === $customerCode) {
+                    $customer = $c;
+                    break;
+                }
+            }
+            $customer = $customer ?? $customerList[0];
+            $customerId = $customer['customerId'] ?? $customer['id'] ?? null;
+
+            if (!$customerId) {
+                return [null, null];
+            }
+
+            $accountResponse = $this->helcim_driver->gatewayRequest('/bank-accounts', ['customerId' => $customerId], 'GET');
+            $accountList = $accountResponse['bankAccounts'] ?? (isset($accountResponse[0]) ? $accountResponse : []);
+
+            $bankAccountId = null;
+
+            if (!empty($accountList)) {
+                foreach ($accountList as $acct) {
+                    $acctToken = $acct['bankToken'] ?? $acct['token'] ?? null;
+                    if ($bankToken && $acctToken === $bankToken) {
+                        $bankAccountId = $acct['bankAccountId'] ?? $acct['id'] ?? null;
+                        break;
+                    }
+                }
+
+                if (!$bankAccountId) {
+                    $last = end($accountList);
+                    $bankAccountId = $last['bankAccountId'] ?? $last['id'] ?? null;
+                }
+            }
+
+            return [$bankAccountId, $customerId];
+        } catch (\Exception $e) {
+            SystemLogger::dispatch(
+                [
+                    'warning' => 'Could not resolve ACH bankAccountId/customerId from Helcim API — recurring billing may not work',
+                    'error' => $e->getMessage(),
+                ],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_HELCIM,
+                $this->helcim_driver->client,
+                $this->helcim_driver->client->company
+            );
+
+            return [null, null];
+        }
     }
 
     /**
