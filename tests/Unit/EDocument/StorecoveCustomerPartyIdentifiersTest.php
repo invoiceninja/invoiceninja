@@ -137,7 +137,7 @@ class StorecoveCustomerPartyIdentifiersTest extends TestCase
         if ($taxScheme !== '' && $taxScheme !== $primary['scheme']) {
             $pairs[] = [
                 'scheme' => $taxScheme,
-                'id' => self::identifierFixtureFor($taxScheme),
+                'id' => self::expectedIdentifierFor($taxScheme),
             ];
         }
 
@@ -161,7 +161,7 @@ class StorecoveCustomerPartyIdentifiersTest extends TestCase
         if ($routingScheme === 'Email') {
             return $taxScheme === ''
                 ? null
-                : ['scheme' => $taxScheme, 'id' => self::identifierFixtureFor($taxScheme)];
+                : ['scheme' => $taxScheme, 'id' => self::expectedIdentifierFor($taxScheme)];
         }
 
         if (preg_match('/^(\d{4}):(.+)$/', $routingScheme, $matches)) {
@@ -171,16 +171,16 @@ class StorecoveCustomerPartyIdentifiersTest extends TestCase
 
             return $legalScheme === ''
                 ? null
-                : ['scheme' => $legalScheme, 'id' => self::identifierFixtureFor($legalScheme, $matches[2])];
+                : ['scheme' => $legalScheme, 'id' => self::expectedIdentifierFor($legalScheme, $matches[2])];
         }
 
         if ($routingScheme === 'GLN' || str_contains($routingScheme, ':CUUO')) {
-            return ['scheme' => $routingScheme, 'id' => self::identifierFixtureFor($routingScheme)];
+            return ['scheme' => $routingScheme, 'id' => self::expectedIdentifierFor($routingScheme)];
         }
 
         return [
             'scheme' => $routingScheme,
-            'id' => self::identifierFixtureFor($routingScheme),
+            'id' => self::expectedIdentifierFor($routingScheme),
         ];
     }
 
@@ -241,6 +241,19 @@ class StorecoveCustomerPartyIdentifiersTest extends TestCase
         return str_contains($scheme, ':VAT')
             || str_contains($scheme, ':IVA')
             || str_contains($scheme, ':CF');
+    }
+
+    private static function expectedIdentifierFor(string $scheme, ?string $fallback = null): string
+    {
+        $identifier = self::identifierFixtureFor($scheme, $fallback);
+
+        if ($scheme === 'DK:DIGST') {
+            $cleanIdentifier = preg_replace("/[^a-zA-Z0-9]/", "", $identifier) ?? '';
+
+            return preg_replace('/^DK/i', '', $cleanIdentifier) ?? $cleanIdentifier;
+        }
+
+        return $identifier;
     }
 
     private static function identifierFixtureFor(string $scheme, ?string $fallback = null): string
