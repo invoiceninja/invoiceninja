@@ -89,8 +89,6 @@ class StorecoveRouter
      * @param  string  $country         ISO 3166-2 country code
      * @param  string  $code            Classification code (B/G/C)
      * @param  int     $column          Column index to extract (use COL_* constants)
-     * @param  ?string $overrideMethod  CountryHandler method to call for special-case overrides
-     * @param  ?string $classification  Original classification label (passed to override)
      * @return string
      */
     private function resolveRuleColumn(string $country, string $code, int $column): string

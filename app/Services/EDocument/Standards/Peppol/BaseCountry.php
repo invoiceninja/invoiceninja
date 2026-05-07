@@ -16,6 +16,7 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Services\EDocument\Gateway\MutatorUtil;
 use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
+use App\Services\EDocument\Support\GlnIdentifier;
 
 class BaseCountry implements CountryHandler
 {
@@ -140,7 +141,6 @@ class BaseCountry implements CountryHandler
     {
         $country = $client->country->iso_3166_2;
         $classification = $client->classification ?? 'business';
-
         $primary = $this->resolvePrimaryStorecoveReceiverPair($client, $router, $country, $classification);
         if ($primary === null) {
             return [];
@@ -193,6 +193,89 @@ class BaseCountry implements CountryHandler
     }
 
     public function resolvePartyIdentificationScheme(Company $company): ?array
+    {
+        return null;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * Default cascade for the buyer's electronic address:
+     *   1. `routing_id` prefixed `0088:` → emit GLN scheme `0088`.
+     *   2. `routing_id` shaped `NNNN:value` → split as ICD/EAS scheme + id.
+     *   3. Otherwise delegate to {@see self::getCandidates()} and convert the
+     *      first friendly scheme via the router.
+     *   4. Nothing resolvable → empty scheme + empty id (validator catches it).
+     */
+    public function resolveClientEndpointScheme(Client $client, StorecoveRouter $router): array
+    {
+        $routing_id = trim((string) ($client->routing_id ?? ''));
+
+        if (str_starts_with($routing_id, '0088:')) {
+            $gln = GlnIdentifier::tryParse($routing_id);
+
+            return [
+                'scheme' => '0088',
+                'id' => $gln ?? preg_replace("/[^0-9]/", "", substr($routing_id, 5)),
+            ];
+        }
+
+        if (preg_match('/^(\d{4}):(.+)$/', $routing_id, $matches)) {
+            return [
+                'scheme' => $matches[1],
+                'id' => $matches[2],
+            ];
+        }
+
+        $classification = $client->classification ?? 'business';
+        $candidates = $this->getCandidates($client, $classification, $router);
+
+        if (count($candidates) > 0 && !empty($candidates[0]['scheme']) && !empty($candidates[0]['id'])) {
+            $candidate = $candidates[0];
+
+            return [
+                'scheme' => $router->resolveIso6523Scheme((string) $candidate['scheme']),
+                'id' => (string) $candidate['id'],
+            ];
+        }
+
+        // Countries routed via email (IN, SA, IT B2C) have no Peppol EAS scheme —
+        // emit EAS 0202 carrying the client's VAT / id_number / email so the
+        // resulting EndpointID is a valid EAS code with a deliverable value.
+        $country = $client->country->iso_3166_2 ?? null;
+        if ($country !== null) {
+            $code = $router->resolveRouting($country, $classification);
+            if ($code === 'Email') {
+                $vat = preg_replace("/[^a-zA-Z0-9]/", "", $client->vat_number ?? '');
+                if (strlen($vat) > 1) {
+                    return ['scheme' => '0202', 'id' => $vat];
+                }
+
+                $idNumber = preg_replace("/[^a-zA-Z0-9]/", "", $client->id_number ?? '');
+                if (strlen($idNumber) > 1) {
+                    return ['scheme' => '0202', 'id' => $idNumber];
+                }
+
+                return [
+                    'scheme' => '0202',
+                    'id' => $client->present()->email(),
+                ];
+            }
+        }
+
+        return [
+            'scheme' => '',
+            'id' => '',
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * Default: do not emit `cac:PartyIdentification` for the buyer. Country
+     * handlers may override (e.g. BE mirrors EndpointID into PartyIdentification).
+     */
+    public function resolveClientPartyIdentificationScheme(Client $client): ?array
     {
         return null;
     }

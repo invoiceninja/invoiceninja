@@ -258,4 +258,143 @@ class StorecoveCustomerPartyIdentifiersTest extends TestCase
         $this->assertSame($routingCandidates[0]['scheme'], $documentPairs[0]['scheme']);
         $this->assertSame($routingCandidates[0]['id'], $documentPairs[0]['id']);
     }
+
+    /**
+     * BaseCountry::resolveClientEndpointScheme: an unconfigured client (no VAT, no id_number,
+     * no routing_id, non-email country) returns empty scheme + empty id so Peppol validation
+     * surfaces the misconfiguration (BR-CL-25 / PEPPOL-EN16931-CL008).
+     */
+    public function testBaseClientEndpointSchemeFallsBackToEmptyForUnsetClient(): void
+    {
+        $this->makeTestData();
+
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+        ]);
+
+        $de = Country::where('iso_3166_2', 'DE')->first();
+        $this->assertNotNull($de);
+
+        $client = Client::factory()->create([
+            'company_id' => $company->id,
+            'user_id' => $this->user->id,
+            'country_id' => $de->id,
+            'classification' => 'business',
+            'vat_number' => '',
+            'id_number' => '',
+            'routing_id' => '',
+        ]);
+
+        $client->load('country');
+
+        $router = new StorecoveRouter();
+
+        $resolved = CountryFactory::make('DE')->resolveClientEndpointScheme($client, $router);
+
+        $this->assertSame('', $resolved['scheme']);
+        $this->assertSame('', $resolved['id']);
+    }
+
+    /**
+     * BaseCountry::resolveClientEndpointScheme: when the country handler returns getCandidates,
+     * the first pair becomes the EndpointID scheme + id (with friendly scheme converted to ICD).
+     */
+    public function testBaseClientEndpointSchemeUsesGetCandidatesFirstPair(): void
+    {
+        $this->makeTestData();
+
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+        ]);
+
+        $be = Country::where('iso_3166_2', 'BE')->first();
+        $this->assertNotNull($be);
+
+        $client = Client::factory()->create([
+            'company_id' => $company->id,
+            'user_id' => $this->user->id,
+            'country_id' => $be->id,
+            'classification' => 'business',
+            'vat_number' => 'BE0202239951',
+            'id_number' => '',
+            'routing_id' => '',
+        ]);
+
+        $client->load('country');
+
+        $router = new StorecoveRouter();
+
+        $resolved = CountryFactory::make('BE')->resolveClientEndpointScheme($client, $router);
+
+        $this->assertSame('0208', $resolved['scheme']);
+        $this->assertSame('0202239951', $resolved['id']);
+    }
+
+    /**
+     * BE::resolveClientPartyIdentificationScheme mirrors the EndpointID scheme + value
+     * (0208 + 10-digit Enterprise Number) for buyer PartyIdentification consistency.
+     */
+    public function testBeClientPartyIdentificationSchemeMirrorsEndpoint(): void
+    {
+        $this->makeTestData();
+
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+        ]);
+
+        $be = Country::where('iso_3166_2', 'BE')->first();
+        $this->assertNotNull($be);
+
+        $client = Client::factory()->create([
+            'company_id' => $company->id,
+            'user_id' => $this->user->id,
+            'country_id' => $be->id,
+            'classification' => 'business',
+            'vat_number' => 'BE 0202.239.951',
+            'id_number' => '',
+        ]);
+
+        $client->load('country');
+
+        $resolved = CountryFactory::make('BE')->resolveClientPartyIdentificationScheme($client);
+
+        $this->assertNotNull($resolved);
+        $this->assertSame('0208', $resolved['scheme']);
+        $this->assertSame('0202239951', $resolved['id']);
+    }
+
+    /**
+     * Email-routed countries (IN, SA, IT B2C) emit EAS 0202 with VAT / id_number / email fallback,
+     * keeping the EndpointID a valid EAS code with a deliverable value.
+     */
+    public function testIndiaClientEndpointSchemeReturns0202WithGstinFallback(): void
+    {
+        $this->makeTestData();
+
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+        ]);
+
+        $in = Country::where('iso_3166_2', 'IN')->first();
+        $this->assertNotNull($in);
+
+        $client = Client::factory()->create([
+            'company_id' => $company->id,
+            'user_id' => $this->user->id,
+            'country_id' => $in->id,
+            'classification' => 'business',
+            'vat_number' => '29ABCDE1234F1Z5',
+            'id_number' => '',
+            'routing_id' => '',
+        ]);
+
+        $client->load('country');
+
+        $router = new StorecoveRouter();
+
+        $resolved = CountryFactory::make('IN')->resolveClientEndpointScheme($client, $router);
+
+        $this->assertSame('0202', $resolved['scheme']);
+        $this->assertSame('29ABCDE1234F1Z5', $resolved['id']);
+    }
 }

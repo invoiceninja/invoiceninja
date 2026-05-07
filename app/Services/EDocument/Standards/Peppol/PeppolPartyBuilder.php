@@ -24,7 +24,6 @@ use InvoiceNinja\EInvoice\Models\Peppol\TaxSchemeType\TaxScheme;
 use InvoiceNinja\EInvoice\Models\Peppol\CodeType\IdentificationCode;
 use InvoiceNinja\EInvoice\Models\Peppol\CustomerPartyType\AccountingCustomerParty;
 use InvoiceNinja\EInvoice\Models\Peppol\SupplierPartyType\AccountingSupplierParty;
-use App\Services\EDocument\Support\GlnIdentifier;
 use App\Services\EDocument\Standards\Peppol;
 
 class PeppolPartyBuilder
@@ -158,79 +157,50 @@ class PeppolPartyBuilder
 
         $party = new Party();
 
-        if (strlen($invoice->client->vat_number ?? '') > 1) {
+        $clientHandler = CountryFactory::make($invoice->client->country->iso_3166_2);
+
+        /** If the country handler resolves a buyer Party Identification, emit it. */
+        if ($identifier_scheme = $clientHandler->resolveClientPartyIdentificationScheme($invoice->client)) {
 
             $pi = new PartyIdentification();
-
-            $vatID = new ID();
-            $scheme = $this->resolveScheme(true);
-            // BR-CL-10: PartyIdentification/ID schemeID only accepts ICD codes (0xxx), not EAS codes (9xxx)
-            if (str_starts_with($scheme, '0')) {
-                $vatID->schemeID = $scheme;
-            }
-            $vatID->value = preg_replace("/[^a-zA-Z0-9]/", "", $invoice->client->vat_number);
-            $pi->ID = $vatID;
-
+            $clientIdentifierID = new ID();
+            $clientIdentifierID->schemeID = $identifier_scheme['scheme'];
+            $clientIdentifierID->value = $identifier_scheme['id'];
+            $pi->ID = $clientIdentifierID;
             $party->PartyIdentification[] = $pi;
-
-            // BR-O-02: Do not include Buyer VAT identifier when tax category is 'O' (Not subject to VAT)
-            if (!$this->peppol->hasCategoryO()) {
-                //// If this is intracommunity supply, ensure that the country prefix is on the party tax scheme
-                $pts = new \InvoiceNinja\EInvoice\Models\Peppol\PartyTaxSchemeType\PartyTaxScheme();
-                $companyID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CompanyID();
-                $companyID->value = $this->ensureVatNumberPrefix($invoice->client->vat_number, $invoice->client->country->iso_3166_2);
-                $pts->CompanyID = $companyID;
-                //// If this is intracommunity supply, ensure that the country prefix is on the party tax scheme
-
-                $ts = new TaxScheme();
-                $id = new ID();
-                $id->value = $taxCalculator->standardizeTaxSchemeId('vat');
-                $ts->ID = $id;
-                $pts->TaxScheme = $ts;
-
-                $party->PartyTaxScheme[] = $pts;
-            }
         }
 
-        $party_name = new PartyName();
-        $party_name->Name = $invoice->client->present()->name();
+        // BR-O-02: Do not include Buyer VAT identifier when tax category is 'O' (Not subject to VAT)
+        if (strlen($invoice->client->vat_number ?? '') > 1 && !$this->peppol->hasCategoryO()) {
+            $pts = new \InvoiceNinja\EInvoice\Models\Peppol\PartyTaxSchemeType\PartyTaxScheme();
+            $companyID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CompanyID();
+            $companyID->value = $this->ensureVatNumberPrefix($invoice->client->vat_number, $invoice->client->country->iso_3166_2);
+            $pts->CompanyID = $companyID;
+
+            $ts = new TaxScheme();
+            $id = new ID();
+            $id->value = $taxCalculator->standardizeTaxSchemeId('vat');
+            $ts->ID = $id;
+            $pts->TaxScheme = $ts;
+
+            $party->PartyTaxScheme[] = $pts;
+        }
+
+
+        /** Buyer electronic address. MANDATORY for all countries. */
+        $endpoint = $clientHandler->resolveClientEndpointScheme($invoice->client, $this->peppol->getRouter());
 
         $id = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\EndpointID();
-        $routing_id = $invoice->client->routing_id ?? '';
-        $resolved_scheme = $this->resolveScheme(true);
-
-        if ($resolved_scheme === 'Email') {
-            // Countries routed via email (IN, SA) have no Peppol EAS scheme —
-            // use EAS 0202 as a generic endpoint with the client's tax/id number.
-            $id->schemeID = '0202';
-            $id->value = preg_replace("/[^a-zA-Z0-9]/", "", $invoice->client->vat_number ?? '')
-                      ?: preg_replace("/[^a-zA-Z0-9]/", "", $invoice->client->id_number ?? '')
-                      ?: $invoice->client->present()->email();
-        } elseif (str_contains($routing_id, ':')) {
-            // routing_id stored as "SCHEME:value" or already as "0088:value"
-            [$scheme, $value] = explode(':', $routing_id, 2);
-            $id->schemeID = $this->peppol->getRouter()->resolveIso6523Scheme($scheme);
-            $id->value = $value;
-            if ($id->schemeID === '0088' && ($gln = GlnIdentifier::tryParse($routing_id))) {
-                $id->value = $gln;
-            }
-        } elseif (strlen($routing_id) > 1) {
-            // Raw routing value — scheme resolved from country/classification
-            $id->schemeID = $resolved_scheme;
-            $id->value = $routing_id;
-        } else {
-            // No routing_id — defer to the country handler so composite schemes
-            // (e.g. FR "SIRENE or SIRET") are disambiguated against the client's
-            // id_number / vat_number rather than emitted verbatim (BR-CL-25).
-            $candidate = $this->resolveClientEndpointCandidate($invoice, $resolved_scheme);
-            $id->schemeID = $candidate['schemeID'];
-            $id->value = $candidate['value'];
-        }
-
+        $id->schemeID = $endpoint['scheme'];
+        $id->value = $endpoint['id'];
         $party->EndpointID = $id;
 
+        /** Client Name */
+        $party_name = new PartyName();
+        $party_name->Name = $invoice->client->present()->name();
         $party->PartyName[] = $party_name;
 
+        /** Client Postal Address */
         $locationData = $invoice->service()->location();
 
         $address = new PostalAddress();
@@ -246,7 +216,6 @@ class PeppolPartyBuilder
         if (strlen($locationData['state'] ?? '') > 1) {
             $address->CountrySubentity = $locationData['state'];
         }
-        // $address->CountrySubentity = $invoice->client->state;
 
         $country = new Country();
 
@@ -258,6 +227,7 @@ class PeppolPartyBuilder
 
         $party->PostalAddress = $address;
 
+        /** Client Contact Details */
         $contact = new Contact();
         $contact->ElectronicMail = $invoice->client->present()->email();
 
@@ -267,6 +237,7 @@ class PeppolPartyBuilder
 
         $party->Contact = $contact;
 
+        /** Client Legal Entity Details */
         $ple = new \InvoiceNinja\EInvoice\Models\Peppol\PartyLegalEntity();
         $ple->RegistrationName = $invoice->client->present()->name();
         $party->PartyLegalEntity[] = $ple;
@@ -320,76 +291,6 @@ class PeppolPartyBuilder
 
         return [$delivery];
 
-    }
-
-    /**
-     * ResolveScheme
-     *
-     * Resolves the ISO 6523 / EAS schemeID for EndpointID and PartyIdentification
-     * based on the country and classification of the supplier or customer.
-     *
-     * @param  bool $is_client  true = customer party, false = supplier party
-     * @return string           ISO 6523 EAS code, e.g. '0088', '9930'
-     */
-    public function resolveScheme(bool $is_client = false): string
-    {
-        $invoice = $this->peppol->getInvoiceModel();
-
-        $country_code = $is_client
-            ? $invoice->client->country->iso_3166_2
-            : $invoice->company->country()->iso_3166_2;
-
-        $classification = $is_client
-            ? ($invoice->client->classification ?? 'business')
-            : 'business';
-
-        $router = $this->peppol->getRouter();
-        $router->setInvoice($invoice);
-        $friendly_scheme = $router->resolveRouting($country_code, $classification);
-
-        // Handle composite "scheme:value" format (e.g. "0009:11000201100044" for FR government)
-        if (str_contains($friendly_scheme, ':') && ctype_digit(explode(':', $friendly_scheme, 2)[0])) {
-            return explode(':', $friendly_scheme, 2)[0];
-        }
-
-        return $router->resolveIso6523Scheme($friendly_scheme);
-    }
-
-    /**
-     * Resolve the customer EndpointID schemeID + value via the country handler.
-     *
-     * Delegates to CountryHandler::getCandidates() so country-specific
-     * disambiguation (e.g. FR's SIRENE-vs-SIRET on id_number length) is the
-     * authoritative source. Falls back to the previously resolved EAS code +
-     * VAT/id_number when the handler returns no candidates.
-     *
-     * @param  object $invoice
-     * @param  string $resolved_scheme  Pre-resolved EAS code (numeric)
-     * @return array{schemeID: string, value: string}
-     */
-    private function resolveClientEndpointCandidate(object $invoice, string $resolved_scheme): array
-    {
-        $router = $this->peppol->getRouter();
-        $country_code = $invoice->client->country->iso_3166_2;
-        $classification = $invoice->client->classification ?? 'business';
-
-        $handler = CountryFactory::make($country_code);
-        $candidates = $handler->getCandidates($invoice->client, $classification, $router);
-
-        if (count($candidates) > 0 && !empty($candidates[0]['scheme']) && !empty($candidates[0]['id'])) {
-            $candidate = $candidates[0];
-            return [
-                'schemeID' => $router->resolveIso6523Scheme((string) $candidate['scheme']),
-                'value' => (string) $candidate['id'],
-            ];
-        }
-
-        return [
-            'schemeID' => $resolved_scheme,
-            'value' => preg_replace("/[^a-zA-Z0-9]/", "", $invoice->client->vat_number ?? '')
-                ?: preg_replace("/[^a-zA-Z0-9]/", "", $invoice->client->id_number ?? '')
-                ?: 'fallback1234',
-        ];
     }
 
     /**
