@@ -13,6 +13,7 @@
 namespace App\Services\EDocument\Gateway\Storecove;
 
 use App\Services\EDocument\Standards\Peppol;
+use App\Services\EDocument\Standards\Peppol\CountryFactory;
 use App\Services\EDocument\Gateway\Storecove\NexusResolver;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
@@ -306,30 +307,22 @@ class StorecoveAdapter
 
         $client = $this->ninja_invoice->client;
         $country = $client->country->iso_3166_2;
-        $classification = $client->classification ?? 'business';
         $router = $this->storecove->router->setInvoice($this->ninja_invoice);
 
-        $resolved = $this->resolvePublicIdentifier($router, $client, $country, $classification);
+        $handler = CountryFactory::make($country);
+        $identifierPairs = $handler->storecoveCustomerPartyPublicIdentifiers($client, $this->ninja_invoice, $router);
 
-        if ($resolved) {
-            $pi = new \App\Services\EDocument\Gateway\Storecove\Models\PublicIdentifiers($resolved['scheme'], $resolved['id']);
-            $accounting_customer_party->addPublicIdentifiers($pi);
+        foreach ($identifierPairs as $pair) {
+            $accounting_customer_party->addPublicIdentifiers(
+                new \App\Services\EDocument\Gateway\Storecove\Models\PublicIdentifiers($pair['scheme'], $pair['id'])
+            );
+        }
 
-            // For countries where the tax scheme differs from the routing scheme (e.g. FI:OVT + FI:VAT,
-            // BE:EN + BE:VAT), Storecove requires a VAT-scheme identifier on the receiver when the
-            // invoice contains VAT or a taxExemptReason.
-            $taxScheme = $router->resolveTaxScheme($country, $classification);
-            if (!empty($taxScheme) && $taxScheme !== $resolved['scheme']) {
-                $vatRaw = trim($client->vat_number ?? '');
-                if (strlen($vatRaw) > 1 && $router->matchesSchemeFormat($taxScheme, $vatRaw)) {
-                    $accounting_customer_party->addPublicIdentifiers(
-                        new \App\Services\EDocument\Gateway\Storecove\Models\PublicIdentifiers($taxScheme, $vatRaw)
-                    );
-                }
-            }
-
+        if (count($identifierPairs) > 0) {
             $this->storecove_invoice->setAccountingCustomerParty($accounting_customer_party);
         }
+
+        $classification = $client->classification ?? 'business';
 
         // AT government: the supplier must be identified via customerAssignedAccountIdValue
         // on the accountingSupplierParty.party. Storecove uses this to look up the actual
@@ -346,128 +339,6 @@ class StorecoveAdapter
         }
 
         return $this;
-    }
-
-    /**
-     * Resolves the correct scheme + cleaned identifier for the customer's publicIdentifiers.
-     *
-     * Uses resolveRouting() (column 3) to determine the routing scheme, then picks
-     * the best available value from the client record:
-     *  - :VAT schemes       → prefer vat_number, fall back to id_number
-     *  - Non-VAT schemes    → prefer id_number, fall back to vat_number
-     *  - GLN                → always routing_id
-     *  - IT:CUUO            → always routing_id
-     *  - Email              → skip (no publicIdentifier)
-     *  - Composite (0195:x) → fall back to identifier scheme; use centralised endpoint ID if no client match
-     *
-     * @return array{scheme: string, id: string}|null
-     */
-    private function resolvePublicIdentifier(StorecoveRouter $router, $client, string $country, string $classification): ?array
-    {
-        $scheme = $router->resolveRouting($country, $classification);
-
-        if (empty($scheme)) {
-            return null;
-        }
-
-        // Email-routed countries (IN, SA, IT consumer) — routing goes via email,
-        // but Storecove still requires a tax identifier in publicIdentifiers.
-        if ($scheme === 'Email') {
-            $scheme = $router->resolveTaxScheme($country, $classification);
-            if (empty($scheme)) {
-                return null;
-            }
-        }
-
-        // Composite fixed endpoints (e.g. "0195:SGUENT08GA0028A", "9915:b") —
-        // fall back to identifier scheme (column 1) for the publicIdentifier.
-        // If the client has no matching identifier, use the endpoint portion
-        // of the composite as the centralised fallback ID.
-        if (preg_match('/^(\d{4}):(.+)$/', $scheme, $m)) {
-            $compositeEndpointId = $m[2];
-            $scheme = $router->resolveIdentifierScheme($country, $classification);
-            if (empty($scheme)) {
-                return null;
-            }
-        }
-
-        // AT:GOV always routes to the fixed endpoint "b" per Storecove docs.
-        // The client's id_number is used for customerAssignedAccountIdValue (set elsewhere).
-        if ($country === 'AT' && $classification === 'government') {
-            return ['scheme' => 'AT:GOV', 'id' => 'b'];
-        }
-
-        // GLN and IT:CUUO always use routing_id
-        if ($scheme === 'GLN' || str_contains($scheme, ':CUUO')) {
-            $raw = $client->routing_id ?? '';
-            if (strlen($raw) > 1) {
-                return ['scheme' => $scheme, 'id' => trim($raw)];
-            }
-            return null;
-        }
-
-        // Determine value priority based on scheme type
-        $is_vat_scheme = str_contains($scheme, ':VAT') || str_contains($scheme, ':IVA') || str_contains($scheme, ':CF');
-
-        if ($is_vat_scheme) {
-            // [value, is_fallback_source]
-            $candidates = [
-                [$client->vat_number ?? '', false],
-                [$client->id_number ?? '', true],
-            ];
-        } else {
-            $candidates = [
-                [$client->id_number ?? '', false],
-                [$client->vat_number ?? '', true],
-            ];
-        }
-
-        foreach ($candidates as [$raw, $is_fallback]) {
-            if (strlen($raw) < 2) {
-                continue;
-            }
-
-            // Light clean: strip whitespace and dots only (preserves hyphens for SG:GST etc.)
-            $light = preg_replace("/[\s.]/", "", $raw);
-            // Heavy clean: strip all non-alphanumeric (for schemes needing bare digits)
-            $heavy = preg_replace("/[^a-zA-Z0-9]/", "", $raw);
-            // Strip country prefix (e.g. "BE1000000417" → "1000000417")
-            $stripped = (stripos($heavy, $country) === 0 && strlen($heavy) > strlen($country))
-                ? substr($heavy, strlen($country))
-                : null;
-
-            $variants = [$light, $heavy, $stripped];
-
-            $seen = [];
-            foreach ($variants as $val) {
-                if ($val === null || $val === '' || isset($seen[$val])) {
-                    continue;
-                }
-                $seen[$val] = true;
-
-                if (!$router->matchesSchemeFormat($scheme, $val)) {
-                    continue;
-                }
-
-                // Storecove rejects country prefixes on certain identifier schemes.
-                // Strip the prefix when using a vat_number fallback for these schemes.
-                if ($is_fallback && $stripped && $stripped !== $val
-                    && in_array($scheme, ['BE:EN', 'DK:DIGST', 'CH:UIDB'])
-                    && $router->matchesSchemeFormat($scheme, $stripped)) {
-                    return ['scheme' => $scheme, 'id' => $stripped];
-                }
-
-                return ['scheme' => $scheme, 'id' => $val];
-            }
-        }
-
-        // No client identifier matched — if we came from a composite fixed
-        // endpoint, use the centralised endpoint ID as the fallback value.
-        if (isset($compositeEndpointId)) {
-            return ['scheme' => $scheme, 'id' => $compositeEndpointId];
-        }
-
-        return null;
     }
 
     /**

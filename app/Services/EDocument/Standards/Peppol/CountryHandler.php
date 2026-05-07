@@ -13,6 +13,7 @@
 namespace App\Services\EDocument\Standards\Peppol;
 
 use App\Models\Client;
+use App\Models\Company;
 use App\Services\EDocument\Gateway\MutatorUtil;
 use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
 
@@ -116,13 +117,7 @@ interface CountryHandler
      */
     public function consumesBareRoutingId(?string $classification): bool;
 
-    /**
-     * Validates receiver Peppol routing identifiers offline (format regex only).
-     *
-     * Default: success if any candidate from getCandidates() passes validateIdentifierFormat (OR semantics).
-     *
-     * @param  ?string  $senderCountryCode  ISO 3166-2 for the sender (company); pass null only when unavailable.
-     * @return array<int, array{field: string, label: string}>
-     */
-    public function validateReceiverRoutingIdentifiers(Client $client, string $classification, StorecoveRouter $router, ?string $senderCountryCode = null): array;
+    public function resolveEndpointScheme(Company $company): array;
+
+    public function resolvePartyIdentificationScheme(Company $company): ?array;
 }

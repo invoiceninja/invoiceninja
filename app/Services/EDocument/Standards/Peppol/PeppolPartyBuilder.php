@@ -49,61 +49,50 @@ class PeppolPartyBuilder
         $party_name->Name = $invoice->company->present()->name();
         $party->PartyName[] = $party_name;
 
-
-        if (strlen($company->settings->vat_number ?? '') > 1) {
+        $countryHandler = $this->peppol->getCountryHandler();
+                
+        /** If the company has a valid identifier for the Party Identification, add it */
+        if($identifier_scheme = $countryHandler->resolvePartyIdentificationScheme($company)){
 
             $pi = new PartyIdentification();
-            $vatID = new ID();
-            $scheme = $this->resolveScheme();
+            $companyIdentifierID = new ID();
+            
             // BR-CL-10: PartyIdentification/ID schemeID only accepts ICD codes (0xxx), not EAS codes (9xxx)
-            if (str_starts_with($scheme, '0')) {
-                $vatID->schemeID = $scheme;
-            }
+            $companyIdentifierID->schemeID = $identifier_scheme['scheme'];
+            
+            $companyIdentifierID->value = $identifier_scheme['id'];
+            $pi->ID = $companyIdentifierID;            
+            $party->PartyIdentification[] = $pi;
+        }
 
+        /** Definition for the Senders electronic address. MANDATORY for all countries */
+        $scheme = $countryHandler->resolveEndpointScheme($company);
+        
+        $id = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\EndpointID();
+        $id->value = $scheme['id'];
+        $id->schemeID = $scheme['scheme'];
+        $party->EndpointID = $id;
+
+        // BR-O-02: Do not include Seller VAT identifier when tax category is 'O' (Not subject to VAT)
+        if (strlen($company->settings->vat_number ?? '') > 1 && !$this->peppol->hasCategoryO()) {
             $company_vat_number = strlen($this->peppol->getOverrideVatNumber()) > 1 ? $this->peppol->getOverrideVatNumber() : $invoice->company->settings->vat_number;
 
-            $vatID->value = preg_replace("/[^a-zA-Z0-9]/", "", $company_vat_number);
-            $pi->ID = $vatID;
-            $party->PartyIdentification[] = $pi;
+            $companyID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CompanyID();
 
-            $id = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\EndpointID();
-            $id->value = preg_replace("/[^a-zA-Z0-9]/", "", $company->settings->vat_number);
-            $id->schemeID = $scheme;
-            $party->EndpointID = $id;
+            $pts = new \InvoiceNinja\EInvoice\Models\Peppol\PartyTaxSchemeType\PartyTaxScheme();
+            $companyID->value = $this->ensureVatNumberPrefix($company_vat_number, $invoice->company->country()->iso_3166_2);
+            $pts->CompanyID = $companyID;
 
-            // BR-O-02: Do not include Seller VAT identifier when tax category is 'O' (Not subject to VAT)
-            if (!$this->peppol->hasCategoryO()) {
-                $companyID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CompanyID();
+            $ts = new TaxScheme();
+            $id = new ID();
+            $id->value = $taxCalculator->standardizeTaxSchemeId('vat');
+            $ts->ID = $id;
+            $pts->TaxScheme = $ts;
 
-                $pts = new \InvoiceNinja\EInvoice\Models\Peppol\PartyTaxSchemeType\PartyTaxScheme();
-                $companyID->value = $this->ensureVatNumberPrefix($company_vat_number, $invoice->company->country()->iso_3166_2);
-                $pts->CompanyID = $companyID;
-
-                $ts = new TaxScheme();
-                $id = new ID();
-                $id->value = $taxCalculator->standardizeTaxSchemeId('vat');
-                $ts->ID = $id;
-                $pts->TaxScheme = $ts;
-
-                $party->PartyTaxScheme[] = $pts;
-            }
+            $party->PartyTaxScheme[] = $pts;
         }
+        
 
-        if (strlen($company->settings->vat_number ?? '') <= 1 && strlen($this->peppol->getOverrideVatNumber()) <= 1) {
-
-            $id = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\EndpointID();
-            $scheme_parts = explode(':', $company->settings->id_number ?? '');
-
-            if (count($scheme_parts) === 2) {
-                $id->schemeID = $scheme_parts[0];
-                $id->value = $scheme_parts[1];
-            } else {
-                $id->schemeID = $this->resolveScheme();
-                $id->value = preg_replace("/[^a-zA-Z0-9]/", "", $company->settings->id_number ?? '');
-            }
-
-            $party->EndpointID = $id;
-        }
 
         $address = new PostalAddress();
         $address->CityName = $invoice->company->settings->city;
