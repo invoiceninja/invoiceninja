@@ -21,11 +21,248 @@ use Tests\MockAccountData;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
 use App\Services\EDocument\Standards\Peppol\CountryFactory;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class StorecoveCustomerPartyIdentifiersTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
+
+    /**
+     * @param  array<int, mixed>  $rule
+     * @param  array<int, array{scheme: string, id: string}>  $expectedPairs
+     */
+    #[DataProvider('storecovePublicIdentifierCases')]
+    public function testStorecovePublicIdentifiersResolveForEveryConfiguredRoutingRule(
+        string $country,
+        string $classification,
+        array $rule,
+        array $expectedPairs,
+    ): void {
+        $client = $this->fakeClientForPublicIdentifierRule($country, $classification, $rule);
+        $invoice = (object) ['client' => $client];
+
+        $pairs = CountryFactory::make($country)
+            ->storecoveCustomerPartyPublicIdentifiers($client, $invoice, new StorecoveRouter());
+
+        $this->assertSame($expectedPairs, $pairs);
+    }
+
+    /**
+     * @return array<string, array{
+     *   country: string,
+     *   classification: string,
+     *   rule: array<int, mixed>,
+     *   expectedPairs: array<int, array{scheme: string, id: string}>
+     * }>
+     */
+    public static function storecovePublicIdentifierCases(): array
+    {
+        $config = require dirname(__DIR__, 3) . '/config/einvoice.php';
+        $cases = [];
+
+        foreach ($config['routing_rules'] as $country => $rules) {
+            foreach (self::routingRows($rules) as $rule) {
+                foreach (self::classificationsForRule($rule) as $classification) {
+                    $expectedPairs = self::expectedPublicIdentifierPairs($country, $classification, $rule);
+
+                    if ($expectedPairs === []) {
+                        continue;
+                    }
+
+                    $cases["{$country} {$classification}"] = [
+                        'country' => $country,
+                        'classification' => $classification,
+                        'rule' => $rule,
+                        'expectedPairs' => $expectedPairs,
+                    ];
+                }
+            }
+        }
+
+        return $cases;
+    }
+
+    /**
+     * @param  array<int, mixed>  $rules
+     * @return array<int, array<int, mixed>>
+     */
+    private static function routingRows(array $rules): array
+    {
+        return isset($rules[0]) && is_array($rules[0]) ? $rules : [$rules];
+    }
+
+    /**
+     * @param  array<int, mixed>  $rule
+     * @return string[]
+     */
+    private static function classificationsForRule(array $rule): array
+    {
+        $classifications = [];
+        $code = (string) ($rule[0] ?? '');
+
+        if (str_contains($code, 'B')) {
+            $classifications[] = 'business';
+        }
+
+        if (str_contains($code, 'G')) {
+            $classifications[] = 'government';
+        }
+
+        if (str_contains($code, 'C')) {
+            $classifications[] = 'individual';
+        }
+
+        return $classifications;
+    }
+
+    /**
+     * @param  array<int, mixed>  $rule
+     * @return array<int, array{scheme: string, id: string}>
+     */
+    private static function expectedPublicIdentifierPairs(string $country, string $classification, array $rule): array
+    {
+        $legalScheme = self::schemeValue($rule[1] ?? '');
+        $taxScheme = self::schemeValue($rule[2] ?? '');
+        $routingScheme = self::schemeValue($rule[3] ?? '');
+
+        $primary = self::expectedPrimaryPublicIdentifierPair($country, $classification, $legalScheme, $taxScheme, $routingScheme);
+
+        if ($primary === null) {
+            return [];
+        }
+
+        $pairs = [$primary];
+
+        if ($taxScheme !== '' && $taxScheme !== $primary['scheme']) {
+            $pairs[] = [
+                'scheme' => $taxScheme,
+                'id' => self::identifierFixtureFor($taxScheme),
+            ];
+        }
+
+        return $pairs;
+    }
+
+    /**
+     * @return array{scheme: string, id: string}|null
+     */
+    private static function expectedPrimaryPublicIdentifierPair(
+        string $country,
+        string $classification,
+        string $legalScheme,
+        string $taxScheme,
+        string $routingScheme,
+    ): ?array {
+        if ($routingScheme === '') {
+            return null;
+        }
+
+        if ($routingScheme === 'Email') {
+            return $taxScheme === ''
+                ? null
+                : ['scheme' => $taxScheme, 'id' => self::identifierFixtureFor($taxScheme)];
+        }
+
+        if (preg_match('/^(\d{4}):(.+)$/', $routingScheme, $matches)) {
+            if ($country === 'AT' && $classification === 'government') {
+                return ['scheme' => 'AT:GOV', 'id' => 'b'];
+            }
+
+            return $legalScheme === ''
+                ? null
+                : ['scheme' => $legalScheme, 'id' => self::identifierFixtureFor($legalScheme, $matches[2])];
+        }
+
+        if ($routingScheme === 'GLN' || str_contains($routingScheme, ':CUUO')) {
+            return ['scheme' => $routingScheme, 'id' => self::identifierFixtureFor($routingScheme)];
+        }
+
+        return [
+            'scheme' => $routingScheme,
+            'id' => self::identifierFixtureFor($routingScheme),
+        ];
+    }
+
+    /**
+     * @param  array<int, mixed>  $rule
+     */
+    private function fakeClientForPublicIdentifierRule(string $country, string $classification, array $rule): object
+    {
+        $legalScheme = self::schemeValue($rule[1] ?? '');
+        $taxScheme = self::schemeValue($rule[2] ?? '');
+        $routingScheme = self::schemeValue($rule[3] ?? '');
+
+        $idNumber = $legalScheme !== '' ? self::identifierFixtureFor($legalScheme) : '';
+        $vatNumber = $taxScheme !== '' ? self::identifierFixtureFor($taxScheme) : '';
+        $routingId = '';
+
+        if ($routingScheme === 'GLN' || str_contains($routingScheme, ':CUUO')) {
+            $routingId = self::identifierFixtureFor($routingScheme);
+        }
+
+        if ($routingScheme === 'Email' && $taxScheme === 'IT:CF') {
+            $idNumber = self::identifierFixtureFor($taxScheme);
+            $vatNumber = '';
+        }
+
+        if ($legalScheme === '' && !self::taxLikeScheme($routingScheme) && !self::fixedEndpointScheme($routingScheme)) {
+            $idNumber = self::identifierFixtureFor($routingScheme);
+        }
+
+        if ($taxScheme === '' && self::taxLikeScheme($routingScheme)) {
+            $vatNumber = self::identifierFixtureFor($routingScheme);
+        }
+
+        return (object) [
+            'country' => (object) ['iso_3166_2' => $country],
+            'classification' => $classification,
+            'vat_number' => $vatNumber,
+            'id_number' => $idNumber,
+            'routing_id' => $routingId,
+        ];
+    }
+
+    private static function schemeValue(mixed $scheme): string
+    {
+        return !empty($scheme) ? (string) $scheme : '';
+    }
+
+    private static function fixedEndpointScheme(string $scheme): bool
+    {
+        return (bool) preg_match('/^\d{4}:.+$/', $scheme);
+    }
+
+    private static function taxLikeScheme(string $scheme): bool
+    {
+        return str_contains($scheme, ':VAT')
+            || str_contains($scheme, ':IVA')
+            || str_contains($scheme, ':CF');
+    }
+
+    private static function identifierFixtureFor(string $scheme, ?string $fallback = null): string
+    {
+        $examples = require dirname(__DIR__, 3) . '/config/einvoice.php';
+        $examples = $examples['identifier_format_examples'];
+
+        if (isset($examples[$scheme])) {
+            return $examples[$scheme];
+        }
+
+        if (str_contains($scheme, ' or ')) {
+            $atomicScheme = trim(explode(' or ', $scheme)[0]);
+
+            return self::identifierFixtureFor($atomicScheme, $fallback);
+        }
+
+        return match ($scheme) {
+            'DUNS, GLN, LEI' => '123456789',
+            'GLN' => '1234567890123',
+            'AT:GOV' => 'b',
+            'DE:LWID' => '123-ABC-12',
+            default => $fallback ?? '123456789',
+        };
+    }
 
     /**
      * Prefixed Belgian enterprise number on id_number must emit bare digits for BE:EN (Storecove canonical form).

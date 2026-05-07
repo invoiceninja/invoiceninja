@@ -334,7 +334,7 @@ class BaseCountry implements CountryHandler
 
                 $idOut = $val;
                 if ($stripped !== null && $stripped !== ''
-                    && in_array($scheme, ['BE:EN', 'DK:DIGST', 'CH:UIDB'], true)
+                    && in_array($scheme, ['BE:EN', 'CH:UIDB'], true)
                     && $this->identifierValidator()->matchesSchemeFormat($scheme, $stripped)) {
                     $idOut = $stripped;
                 }
