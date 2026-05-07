@@ -29,6 +29,8 @@ class BE extends BaseCountry
     /**
      * Belgium dual-scheme discovery cascade.
      *
+     * This methods determines the routing candidates for a client ordered in preference.
+     * 
      * Belgium supports both BE:EN (Enterprise Number via HERMES) and BE:VAT.
      * Try BE:EN first (stripped of country prefix), then BE:VAT (with prefix).
      */

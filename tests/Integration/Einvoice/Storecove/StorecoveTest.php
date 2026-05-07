@@ -2301,6 +2301,71 @@ class StorecoveTest extends TestCase
     }
 
     /**
+     * The Storecove adapter must read the client's id_number from the Client model
+     * at transform time — not a stale value from setup only.
+     */
+    public function testStorecoveDocumentAccountingCustomerPartyUsesClientModelIdNumber(): void
+    {
+        $this->routing_id = 290868;
+
+        $scenario = [
+            'company_vat' => '',
+            'company_id_number' => 'T08GA0028A',
+            'company_country' => 'SG',
+            'company_classification' => 'business',
+            'client_country' => 'BE',
+            'client_vat' => '',
+            'client_id_number' => '9999999999',
+            'classification' => 'business',
+            'has_valid_vat' => false,
+            'over_threshold' => false,
+            'legal_entity_id' => 290868,
+            'is_tax_exempt' => false,
+        ];
+
+        $data = $this->setupTestData($scenario);
+        $invoice = $data['invoice'];
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->save();
+
+        $expectedEnterpriseNumber = 'BE0202239951';
+        $client = $invoice->client;
+        $this->assertNotSame(
+            $expectedEnterpriseNumber,
+            $client->id_number,
+            'fixture id_number must differ from the value we assign on the model'
+        );
+
+        $client->id_number = $expectedEnterpriseNumber;
+        $client->vat_number = '';
+        $client->saveQuietly();
+        $invoice->unsetRelation('client');
+        $invoice->load('client');
+
+        $storecove = new Storecove();
+        $adapter = $storecove->adapter;
+        $adapter->transform($invoice)->decorate();
+
+        $customerParty = $adapter->getInvoice()->getAccountingCustomerParty();
+        $publicIdentifiers = $customerParty->getPublicIdentifiers();
+
+        nlog($publicIdentifiers);
+        $this->assertNotEmpty($publicIdentifiers);
+        $pi = $publicIdentifiers[0];
+        $this->assertSame('BE:EN', $pi->getScheme());
+        $this->assertSame(
+            $expectedEnterpriseNumber,
+            $pi->getId(),
+            'accountingCustomerParty.publicIdentifiers must reflect Client::id_number from the invoice model'
+        );
+        
+        // ^(?:0|1)\\d{9}$
+
+        $this->assertEquals('0202239951',$pi->getId());
+        
+    }
+
+    /**
      * testBeClientWithIdNumberUsesEnScheme
      *
      * BE routing is BE:EN (enterprise number). When the client has an id_number
