@@ -40,12 +40,12 @@ class LawPayWebhook implements ShouldQueue
         public array $payload,
         public string $company_key,
         public int $company_gateway_id,
-    ) {
-    }
+    ) {}
 
     public function middleware(): array
     {
-        return [new WithoutOverlapping($this->company_gateway_id)];
+        return [(new WithoutOverlapping($this->company_gateway_id))
+            ->expireAfter(600)];
     }
 
     public function handle(): void

@@ -218,12 +218,12 @@ class PdfBuilder
         // This matches the exact behavior of mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8')
         return mb_encode_numericentity($html, [0x80, 0x10FFFF, 0, 0xFFFF], 'UTF-8');
     }
-    
+
     /**
      * transformHtmlVariables
      *
      * Transform the html variables into a format compatible for use with Twig Templates.
-     * 
+     *
      * @return array
      */
     private function transformHtmlVariables(): array
@@ -232,12 +232,12 @@ class PdfBuilder
 
         $values = $this->service->html_variables['values'] ?? [];
         foreach ($values as $key => $value) {
-            
+
             $cleanKey = ltrim($key, '$');
             $clientKey = "entity.{$cleanKey}";
             \Illuminate\Support\Arr::set($result, $clientKey, $value);
         }
-    
+
         return $result;
     }
 
@@ -263,7 +263,7 @@ class PdfBuilder
         $template_service = new TemplateService();
         $template_service->setCompany($this->service->company);
         $data = $template_service->processData($this->service->options)->getData();
-        
+
         //2026-02-11 - merge the html variables into the data array so they are available to the template in entity.key format.
         $data = array_merge($data, $this->transformHtmlVariables());
         $template_service->setData($data);
@@ -1058,7 +1058,7 @@ class PdfBuilder
                 $data[$key][$table_type . '.quantity'] = $this->service->config->formatValueNoTrailingZeroes($item->quantity);
 
                 $data[$key][$table_type . '.unit_cost'] = $this->service->config->formatMoneyNoRounding($item->cost);
-                
+
                 $data[$key][$table_type . '.net_cost'] = $this->service->config->formatMoneyNoRounding($item->net_cost);
 
                 $data[$key][$table_type . '.cost'] = $this->service->config->formatMoney($item->cost);
@@ -1500,7 +1500,7 @@ class PdfBuilder
         $elements = [
             ['element' => 'div', 'properties' => ['style' => 'display: flex; flex-direction: column;'], 'elements' => [
                 ['element' => 'div', 'properties' => ['data-ref' => 'total_table-public_notes', 'style' => 'text-align: left;'], 'elements' => [
-                    ['element' => 'div', 'content' => strtr(str_replace(["labels", "values"], ["",""], $_variables['values']['$entity.public_notes']), $_variables)],
+                    ['element' => 'div', 'content' => strtr(str_replace(["labels", "values"], ["",""], $_variables['values']['$entity.public_notes'] ?? ''), $_variables)],
                 ]],
                 ['element' => 'div', 'content' => '', 'properties' => ['style' => 'text-align: left; display: flex; flex-direction: column; page-break-inside: auto;'], 'elements' => [
                     ['element' => 'div', 'content' => '$entity.terms_label: ', 'properties' => ['data-ref' => 'total_table-terms-label', 'style' => "font-weight:bold; text-align: left; margin-top: 1rem; {$show_terms_label}"]],
@@ -2015,11 +2015,6 @@ class PdfBuilder
     {
         foreach ($items as $key => $item) {
             foreach ($item as $variable => $value) {
-
-                // if(str_contains($value, '<')) {
-                //     continue;
-                // }
-
                 $item[$variable] = str_replace("\n", '<br/>', $value);
             }
 

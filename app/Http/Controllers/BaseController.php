@@ -1152,15 +1152,15 @@ class BaseController extends Controller
             } else {
                 $data = $this->first_load;
             }
-            
+
         } else {
             $included = request()->input('include') ?? '';
-            
+
             // Early return if no includes requested
             if (empty($included)) {
                 return $data;
             }
-            
+
             $included = explode(',', $included);
 
             // Get valid includes from transformer
@@ -1186,7 +1186,7 @@ class BaseController extends Controller
 
             foreach ($included as $include) {
                 $include = trim($include);
-                
+
                 if (empty($include)) {
                     continue;
                 }
@@ -1201,7 +1201,7 @@ class BaseController extends Controller
                 if (!empty($validIncludes)) {
                     // For nested includes (e.g., "client.group_settings"), extract the base relationship
                     $baseInclude = explode('.', $include)[0];
-                    
+
                     // Validate that the base relationship is in the transformer's available includes
                     if (in_array($baseInclude, $validIncludes)) {
                         $data[] = $include;

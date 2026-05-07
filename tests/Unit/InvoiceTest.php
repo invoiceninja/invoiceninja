@@ -1118,4 +1118,48 @@ class InvoiceTest extends TestCase
         //$this->assertEquals($this->invoice_calc->getTotalTaxes(), 4);
         //$this->assertEquals(count($this->invoice_calc->getTaxMap()), 1);
     }
+
+    public function testSingleLineItemOfTenCentsWithExclusiveTotalTaxOf21Percent()
+    {
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 0.10;
+        $item->tax_name1 = '';
+        $item->tax_rate1 = 0;
+        $item->tax_name2 = '';
+        $item->tax_rate2 = 0;
+        $item->tax_name3 = '';
+        $item->tax_rate3 = 0;
+        $item->type_id = '1';
+
+        $line_items = [$item];
+
+        $this->invoice->line_items = $line_items;
+        $this->invoice->discount = 0;
+        $this->invoice->tax_name1 = 'VAT';
+        $this->invoice->tax_rate1 = 21;
+        $this->invoice->tax_name2 = '';
+        $this->invoice->tax_rate2 = 0;
+        $this->invoice->tax_name3 = '';
+        $this->invoice->tax_rate3 = 0;
+        $this->invoice->uses_inclusive_taxes = false;
+        $this->invoice->is_amount_discount = false;
+
+        $this->invoice_calc = new InvoiceSum($this->invoice);
+        $this->invoice_calc->build();
+
+        $this->assertEquals(0.10, $this->invoice_calc->getSubTotal());
+        $this->assertEquals(0.02, $this->invoice_calc->getTotalTaxes());
+        $this->assertEqualsWithDelta(0.12, $this->invoice_calc->getTotal(), 0.001);
+
+        $invoice = $this->invoice_calc->getTempEntity();
+        $this->assertEquals(0.12, $invoice->amount);
+        $this->assertEquals(0.02, $invoice->total_taxes);
+
+        $tax_map = $this->invoice_calc->getTotalTaxMap();
+        $this->assertCount(1, $tax_map);
+        $this->assertEquals(0.02, $tax_map[0]['total']);
+        $this->assertEquals(21, $tax_map[0]['tax_rate']);
+        $this->assertEquals(0.10, $tax_map[0]['base_amount']);
+    }
 }

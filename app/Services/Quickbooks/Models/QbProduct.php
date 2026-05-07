@@ -30,7 +30,7 @@ class QbProduct implements SyncInterface
         $this->product_transformer = new ProductTransformer($service->company);
 
     }
-    
+
     /**
      * find
      *
@@ -43,7 +43,7 @@ class QbProduct implements SyncInterface
     {
         return $this->service->sdk->FindById('Item', $id);
     }
-    
+
     /**
      * syncToNinja
      *
@@ -58,7 +58,7 @@ class QbProduct implements SyncInterface
         foreach ($records as $record) {
             // Double-check: Skip Category and Group items
             $item_type = data_get($record, 'Type');
-            
+
             if ($item_type === 'Category' || $item_type === 'Group') {
                 nlog("Skipping Category/Group item during sync: " . data_get($record, 'Name') . " (Type: {$item_type})");
                 continue;
@@ -73,7 +73,7 @@ class QbProduct implements SyncInterface
         }
 
     }
-    
+
     /**
      * syncToForeign
      *
@@ -82,7 +82,7 @@ class QbProduct implements SyncInterface
      * @param  array $records
      * @return void
      */
-    public function syncToForeign(array $records): void 
+    public function syncToForeign(array $records): void
     {
 
         foreach ($records as $product) {
@@ -95,7 +95,7 @@ class QbProduct implements SyncInterface
         }
     }
 
-        
+
     /**
      * findProduct
      *
@@ -116,7 +116,7 @@ class QbProduct implements SyncInterface
             return $search->first();
         }
 
-        if($product_key) {
+        if ($product_key) {
             $product_match = Product::query()
                 ->withTrashed()
                 ->where('company_id', $this->service->company->id)
@@ -142,7 +142,7 @@ class QbProduct implements SyncInterface
         return $product;
 
     }
-    
+
     /**
      * sync
      *
@@ -264,7 +264,19 @@ class QbProduct implements SyncInterface
                     $product_data['Id'] = $product->sync->qb_id;
 
                     $qb_item = \QuickBooksOnline\API\Facades\Item::create($product_data);
-                    $result = $this->service->sdk->Update($qb_item);
+                    try {
+                        $this->service->sdk->Update($qb_item);
+                    } catch (\Throwable $e) {
+                        nlog('QuickBooks: Item Update failed', [
+                            'company_id' => $this->service->company->id,
+                            'product_key' => $line_item->product_key ?? null,
+                            'qb_item_id' => $product->sync->qb_id,
+                            'exception' => $e::class,
+                            'message' => $e->getMessage(),
+                            'payload' => $product_data,
+                        ]);
+                        throw $e;
+                    }
 
                     return $product->sync->qb_id;
                 }
@@ -273,13 +285,28 @@ class QbProduct implements SyncInterface
 
         $qb_item = \QuickBooksOnline\API\Facades\Item::create($product_data);
 
-        $result = $this->service->sdk->Add($qb_item);
+        try {
+            $result = $this->service->sdk->Add($qb_item);
+        } catch (\Throwable $e) {
+            nlog('QuickBooks: Item Add failed', [
+                'company_id' => $this->service->company->id,
+                'product_key' => $line_item->product_key ?? null,
+                'exception' => $e::class,
+                'message' => $e->getMessage(),
+                'payload' => $product_data,
+            ]);
+            throw $e;
+        }
 
         $qb_id = data_get($result, 'Id') ?? data_get($result, 'Id.value');
 
         // Validate that we got a valid QB ID
         if (empty($qb_id)) {
-            nlog("QuickBooks: Failed to create product - no ID returned from QuickBooks API. Product key: " . ($line_item->product_key ?? 'unknown'));
+            nlog('QuickBooks: Item Add returned no Id — create product failed', [
+                'company_id' => $this->service->company->id,
+                'product_key' => $line_item->product_key ?? null,
+                'payload' => $product_data,
+            ]);
             throw new \RuntimeException("Failed to create product in QuickBooks - no ID returned");
         }
 

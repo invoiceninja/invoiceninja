@@ -174,7 +174,7 @@ class QbInvoice implements SyncInterface
                 } else {
                     $result = $this->service->sdk->Add($qb_invoice);
 
-                    $sync = new InvoiceSync();
+                    $sync = $invoice->sync ?? new InvoiceSync();
                     $sync->qb_id = data_get($result, 'Id') ?? data_get($result, 'Id.value');
                     $invoice->sync = $sync;
                     $invoice->saveQuietly();
@@ -189,7 +189,7 @@ class QbInvoice implements SyncInterface
                     $this->processQuickbooksTaxResponse($result, $invoice);
                 }
 
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 nlog("QuickBooks: Error pushing invoice {$invoice->id} to QuickBooks: {$e->getMessage()}", [
                     'trace' => $e->getTraceAsString(),
                 ]);
@@ -414,7 +414,7 @@ class QbInvoice implements SyncInterface
     {
         $aggregated_rate = $this->calculateAggregatedTaxRate($tax_details, true);
         $tax_name = $this->formatTaxName($aggregated_rate, $invoice);
-        
+
         $this->createTaxRateIfNeeded($tax_name, $aggregated_rate);
         $this->assignTaxToEntity($line_item, $tax_name, $aggregated_rate);
     }
@@ -433,7 +433,7 @@ class QbInvoice implements SyncInterface
 
         foreach ($tax_items as $tax_item) {
             // Handle both TaxLineDetail structure and direct tax detail
-            $tax_line_detail = $handle_nested 
+            $tax_line_detail = $handle_nested
                 ? (data_get($tax_item, 'TaxLineDetail') ?? $tax_item)
                 : data_get($tax_item, 'TaxLineDetail');
 
@@ -477,7 +477,7 @@ class QbInvoice implements SyncInterface
             $state = trim($invoice->client->state ?? '');
         }
 
-        return !empty($state) 
+        return !empty($state)
             ? "{$state}"
             : "{$rate}%";
     }
@@ -527,7 +527,7 @@ class QbInvoice implements SyncInterface
         $ninja_tax_rate->company_id = $this->service->company->id;
         $ninja_tax_rate->name = $tax_name;
         $ninja_tax_rate->rate = $tax_rate;
-        
+
         if (!$ninja_tax_rate->exists) {
             $ninja_tax_rate->user_id = $this->service->company->owner()->id;
             $ninja_tax_rate->save();

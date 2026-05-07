@@ -36,7 +36,7 @@
             @foreach($invoices as $invoice)
             <div class="mb-4 w-full items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-gray-100">
                 <dl class="grid gap-1">
-                <div class="flex items-center justify-between font-semibold">{{ ctrans('texts.invoice') }} {{ $invoice['number'] }}</div>
+                <div class="flex items-center justify-between font-semibold">{{ ctrans('texts.invoice_number_placeholder', ['invoice' => $invoice['number']])}}</div>
                 
                 <div class="flex items-center justify-between">
                     <dt class="text-muted-foreground">{{ ctrans('texts.invoice_date') }}</dt>

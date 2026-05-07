@@ -81,8 +81,6 @@ class EInvoicePeppolController extends BaseController
             ->setCompany($company)
             ->setup($request->validated());
 
-        nlog($response);
-
         if (data_get($response, 'status') === 'error') {
             return response()->json(data_get($response, 'message'), status: $response['code']);
         }

@@ -161,7 +161,14 @@ class Vendor extends BaseModel
     ];
 
 
-    public function toSearchableArray()
+    public function toSearchableArray(): array
+    {
+        return config('scout.index_version', 'legacy') === 'v2'
+            ? $this->toSearchableArrayV2()
+            : $this->toSearchableArrayLegacy();
+    }
+
+    public function toSearchableArrayLegacy(): array
     {
 
         $locale = $this->locale();
@@ -196,6 +203,11 @@ class Vendor extends BaseModel
             'custom_value4' => $this->custom_value4,
             'company_key' => $this->company->company_key,
         ];
+    }
+
+    public function toSearchableArrayV2(): array
+    {
+        return $this->toSearchableArrayLegacy();
     }
 
     public function getScoutKey()
@@ -238,7 +250,7 @@ class Vendor extends BaseModel
      */
     public function cc_contacts(): array
     {
-        
+
         return $this->contacts()
             ->where('cc_only', true)
             ->whereNotNull('email')
@@ -246,7 +258,7 @@ class Vendor extends BaseModel
             ->where('is_locked', false)
             ->limit(4)
             ->get()
-            ->map(fn (\App\Models\VendorContact $c) => new Address($c->email, $c->present()->name()))
+            ->map(fn(\App\Models\VendorContact $c) => new Address($c->email, $c->present()->name()))
             ->toArray();
     }
 

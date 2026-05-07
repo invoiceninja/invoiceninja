@@ -12,8 +12,6 @@
 
 namespace App\Http\Requests\Square;
 
-use App\Libraries\MultiDB;
-use App\Models\Company;
 use Illuminate\Foundation\Http\FormRequest;
 
 class OAuthCallbackRequest extends FormRequest
@@ -30,18 +28,8 @@ class OAuthCallbackRequest extends FormRequest
     {
         return [
             'state' => ['required', 'string'],
-            'code' => ['required', 'string'],
+            'code' => ['required_without:error', 'nullable', 'string'],
+            'error' => ['sometimes', 'string'],
         ];
-    }
-
-    public function getCompany(): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder|\App\Models\BaseModel
-    {
-        MultiDB::findAndSetDbByCompanyKey(
-            $this->query('state'),
-        );
-
-        return Company::query()
-            ->where('company_key', $this->query('state'))
-            ->firstOrFail();
     }
 }

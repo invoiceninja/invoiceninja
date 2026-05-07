@@ -91,7 +91,7 @@ class InvoiceController extends Controller
 
         $default_flow = auth()->guard('contact')->user()->client->getSetting('payment_flow') == 'default';
 
-        if($default_flow){
+        if ($default_flow) {
             $docuninja_active = $invoice->company->docuninjaActive();
             $signature_required = $invoice->client->getSetting('require_invoice_signature');
             $signature_accepted = $invoice->sync?->dn_completed;
@@ -99,7 +99,7 @@ class InvoiceController extends Controller
             $data['docuninja_active'] = (bool) $set_docuninja;
 
             // If DocuNinja is active, we don't need to show the signature field.
-            if($docuninja_active){
+            if ($docuninja_active) {
                 $data['requires_signature'] = false;
             }
         }
@@ -135,7 +135,7 @@ class InvoiceController extends Controller
             nlog(array_merge(["showBlob"], $data ?? []));
         }
 
-        match($data['entity_type'] ?? 'invoice') {
+        match ($data['entity_type'] ?? 'invoice') {
             'invoice' => $invitation = InvoiceInvitation::withTrashed()->find($data['invitation_id']), //@todo - sometimes this is false!!
             'quote' => $invitation = QuoteInvitation::withTrashed()->find($data['invitation_id']),
             'credit' => $invitation = CreditInvitation::withTrashed()->find($data['invitation_id']),
@@ -283,25 +283,24 @@ class InvoiceController extends Controller
 
         $default_flow = auth()->guard('contact')->user()->client->getSetting('payment_flow') == 'default';
 
-        if($default_flow){
+        if ($default_flow) {
             $docuninja_active = $invoices->first()->company->docuninjaActive();
             $signature_required = $invoices->first()->client->getSetting('require_invoice_signature');
-            $signature_accepted = $invoices->reject(function ($invoice){
-                return !$invoice->sync?->dn_completed;
-            })->count() == 0;
+            
+            $signature_accepted = $invoices->every(fn($i) => $i->sync?->dn_completed === true);
 
             $set_docuninja = $docuninja_active && !$signature_accepted && $signature_required;
-            
+
             $data['docuninja_active'] = (bool) $set_docuninja;
 
             // If DocuNinja is active, we don't need to show the signature field.
-            if($docuninja_active){
+            if ($docuninja_active) {
                 $data['requires_signature'] = false;
             }
         }
 
         return $default_flow ? $this->render('invoices.payment', $data) : $this->render('invoices.show_smooth_multi', $data);
-    
+
     }
 
     /**
@@ -315,7 +314,7 @@ class InvoiceController extends Controller
         $invoices = Invoice::query()
                             ->whereIn('id', $ids)
                             ->withTrashed()
-                            ->whereClientId(auth()->guard('contact')->user()->client->id)
+                            ->whereClientId(auth()->guard('contact')->user()->client_id)
                             ->get();
 
         //generate pdf's of invoices locally

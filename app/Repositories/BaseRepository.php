@@ -242,13 +242,12 @@ class BaseRepository
 
             foreach ($data['invitations'] as $invitation) {
                 //if no invitations are present - create one.
-                if($invite = $this->getInvitation($invitation, $resource)){
-                    if($dn_enabled){
-                        $invite->can_sign = isset($invitation['can_sign']) ? $invitation['can_sign'] : false;
+                if ($invite = $this->getInvitation($invitation, $resource)) {
+                    if ($dn_enabled) {
+                        $invite->can_sign = $invitation['can_sign'] ?? false;
                         $invite->saveQuietly();
                     }
-                }
-                else{
+                } else {
                     if (isset($invitation['id'])) {
                         unset($invitation['id']);
                     }
@@ -272,13 +271,13 @@ class BaseRepository
                             $new_invitation->{$lcfirst_resource_id} = $model->id;
                             $new_invitation->client_contact_id = $contact->id;
                             $new_invitation->key = $this->createDbHash($model->company->db);
-                            $new_invitation->can_sign = isset($invitation['can_sign']) ? $invitation['can_sign'] : false;
+                            $new_invitation->can_sign = $invitation['can_sign'] ?? false;
                             $new_invitation->saveQuietly();
                         }
 
                     }
                 }
-                
+
             }
 
         }
@@ -288,17 +287,12 @@ class BaseRepository
             $model->service()->createInvitations();
         }
 
-        if($dn_enabled && $model->invitations()->where('can_sign', true)->count() == 0){
-            $ii = $model->invitations()->whereHas('contact', function ($q){
+        if ($dn_enabled && $model->invitations()->where('can_sign', true)->count() == 0) {
+            $ii = $model->invitations()->whereHas('contact', function ($q) {
                 $q->where('is_primary', true);
             })->first() ?? $model->invitations()->first();
             $ii->can_sign = true;
             $ii->saveQuietly();
-        }
-
-        /* Distribute invoice-level taxes to line items for QuickBooks sync */
-        if ($model instanceof Invoice && $model->company->shouldPushToQuickbooks('invoice')) {
-            $model->service()->distributeInvoiceLevelTaxes();
         }
 
         /* Recalculate invoice amounts */
@@ -306,7 +300,7 @@ class BaseRepository
 
         /* Check if the model has been changed in a way that is relevant to Quickbooks */
         $qb_model_changes = $model->wasChanged(['amount', 'line_items', 'total_taxes']);
-        
+
         /* We use this to compare to our starting amount */
         $state['finished_amount'] = $model->balance;
 
@@ -327,7 +321,7 @@ class BaseRepository
         if ($model instanceof Invoice) {
             if ($model->status_id != Invoice::STATUS_DRAFT) {
                 $model->service()->updateStatus()->save();
-            
+
                 /** replaced with BcMath */
                 // $adjustment = (float) BcMath::sub($state['finished_amount'], $state['starting_amount'], 2);
                 // if ($adjustment != 0) {
@@ -336,7 +330,7 @@ class BaseRepository
                 if (!BcMath::isZero($adjustment)) {
                     $model->client->service()->updateBalance((float) $adjustment);
                 }
-                
+
             }
 
             if (!$model->design_id) {
@@ -356,23 +350,19 @@ class BaseRepository
 
             /** Quickbooks Sync Logic */
             if ($qb_model_changes && $model->company->quickbooks && empty(\App\Services\Quickbooks\QuickbooksService::$importing[$model->company_id]) && $model->company->shouldPushToQuickbooks('invoice')) {
-    
-                nlog("base repo changes detected => status: " . $model->status_id);
 
-                if($model->company->quickbooks->settings->automatic_taxes){
-    
-                    try{
+                if ($model->company->quickbooks->settings->automatic_taxes) {
+
+                    try {
                         (new \App\Jobs\Quickbooks\PushToQuickbooks('invoice', $model->id, $model->company->db))->handle();
-                    }
-                    catch(\Throwable $e){
+                    } catch (\Throwable $e) {
                         app('sentry')->captureException($e);
                         nlog("Quickbooks push to Quickbooks job failed => " . $e->getMessage());
                     }
-                }
-                elseif($model->status_id != Invoice::STATUS_DRAFT){
+                } elseif ($model->status_id != Invoice::STATUS_DRAFT) {
                     \App\Services\Quickbooks\QuickbooksBatchCollector::collect('invoice', $model->id, $model->company->db, $model->company_id);
                 }
-    
+
             }
 
             /** If the client does not have tax_data - then populate this now */

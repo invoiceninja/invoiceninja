@@ -45,9 +45,7 @@ class QuickbooksRateLimiter
     private const PREFIX_CONCURRENT = 'qb_concurrent';
     private const PREFIX_BACKOFF = 'qb_backoff';
 
-    public function __construct(private string $realmId)
-    {
-    }
+    public function __construct(private string $realmId) {}
 
     /**
      * Check if we can make a request without hitting rate limits

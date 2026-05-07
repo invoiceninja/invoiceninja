@@ -72,7 +72,7 @@ class RefundReport extends BaseExport
 
         $this->csv->insertOne($this->buildHeader());
 
-    
+
         // Get all refund activities
         $query = Activity::query()
             ->where('company_id', $this->company->id)

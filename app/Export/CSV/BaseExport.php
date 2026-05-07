@@ -532,9 +532,9 @@ class BaseExport
 
     protected function resolveKey($key, $entity, $transformer): string
     {
-        $parts = explode(".", $key);
+        $parts = explode(".", $key ?? '');
 
-        if (!is_array($parts) || count($parts) < 2) {
+        if (count($parts) < 2) {
             return '';
         }
 
@@ -941,16 +941,18 @@ class BaseExport
      * Add Vendor Filter
      *
      * @param  \Illuminate\Database\Eloquent\Builder $query
-     * @param  string $vendors
+     * @param  ?string $vendors
      *
      * @return Builder
      */
-    protected function addVendorFilter(Builder$query, string $vendors): Builder
+    protected function addVendorFilter(Builder $query, ?string $vendors): Builder
     {
 
-        if (is_string($vendors)) {
-            $vendors =  explode(',', $vendors);
+        if (!is_string($vendors)) {
+            return $query;
         }
+
+        $vendors = explode(',', $vendors);
 
         $transformed_vendors = $this->transformKeys($vendors);
 
@@ -965,17 +967,18 @@ class BaseExport
      * AddProjectFilter
      *
      * @param  \Illuminate\Database\Eloquent\Builder $query
-     * @param  string $projects
+     * @param  ?string $projects
      *
      * @return Builder
      */
-    protected function addProjectFilter(Builder $query, string $projects): Builder
+    protected function addProjectFilter(Builder $query, ?string $projects): Builder
     {
 
-        if (is_string($projects)) {
-            $projects =  explode(',', $projects);
+        if (!is_string($projects)) {
+            return $query;
         }
-
+        
+        $projects =  explode(',', $projects);
         $transformed_projects = $this->transformKeys($projects);
 
         if (count($transformed_projects) > 0) {
@@ -989,16 +992,18 @@ class BaseExport
      * Add Category Filter
      *
      * @param  \Illuminate\Database\Eloquent\Builder $query
-     * @param  string $expense_categories
+     * @param  ?string $expense_categories
      *
      * @return Builder
      */
-    protected function addCategoryFilter(Builder $query, string $expense_categories): Builder
+    protected function addCategoryFilter(Builder $query, ?string $expense_categories): Builder
     {
 
-        if (is_string($expense_categories)) {
-            $expense_categories =  explode(',', $expense_categories);
+        if (!is_string($expense_categories)) {
+            return $query;
         }
+        
+        $expense_categories =  explode(',', $expense_categories);
 
         $transformed_expense_categories = $this->transformKeys($expense_categories);
 
@@ -1021,10 +1026,9 @@ class BaseExport
     protected function addPaymentStatusFilters(Builder $query, string $status): Builder
     {
 
-        /** @var array $status_parameters */
         $status_parameters = explode(',', $status);
 
-        if ((count($status_parameters) == 0) || in_array('all', $status_parameters)) {
+        if (in_array('all', $status_parameters)) {
             return $query;
         }
 
@@ -1079,10 +1083,9 @@ class BaseExport
     protected function addRecurringInvoiceStatusFilter(Builder $query, string $status): Builder
     {
 
-        /** @var array $status_parameters */
         $status_parameters = explode(',', $status);
 
-        if (in_array('all', $status_parameters) || count($status_parameters) == 0) {
+        if (in_array('all', $status_parameters)) {
             return $query;
         }
 
@@ -1188,10 +1191,9 @@ class BaseExport
     protected function addPurchaseOrderStatusFilter(Builder $query, string $status): Builder
     {
 
-        /** @var array $status_parameters */
         $status_parameters = explode(',', $status);
 
-        if (in_array('all', $status_parameters) || count($status_parameters) == 0) {
+        if (in_array('all', $status_parameters)) {
             return $query;
         }
 
@@ -1237,10 +1239,9 @@ class BaseExport
     protected function addInvoiceStatusFilter(Builder $query, string $status): Builder
     {
 
-        /** @var array $status_parameters */
         $status_parameters = explode(',', $status);
 
-        if (in_array('all', $status_parameters) || count($status_parameters) == 0) {
+        if (in_array('all', $status_parameters)) {
             return $query;
         }
 
@@ -1991,7 +1992,7 @@ class BaseExport
             foreach ($rows as $row) {
                 $value = $row[$column] ?? '';
 
-                if ($value === '' || $value === null) {
+                if (empty($value)) {
                     continue;
                 }
 

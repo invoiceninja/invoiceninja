@@ -98,7 +98,7 @@ class PdfService
             // nlog($html);
             $pdf = $this->resolvePdfEngine($html);
 
-            $numbered_pdf = $this->pageNumbering($pdf, $this->company);
+            $numbered_pdf = $this->pageNumbering($pdf, $this->company, $this->config->settings);
 
             if ($numbered_pdf) {
                 $pdf = $numbered_pdf;
@@ -147,7 +147,7 @@ class PdfService
         if (config('ninja.log_pdf_html')) {
             nlog($html);
         }
-        
+
         return $html;
     }
 
@@ -162,9 +162,21 @@ class PdfService
 
         $this->config = (new PdfConfiguration($this))->init();
 
-        $this->html_variables = ($this->invitation instanceof \App\Models\PurchaseOrderInvitation)
-                                    ? (new VendorHtmlEngine($this->invitation))->generateLabelsAndValues()
-                                    : (new HtmlEngine($this->invitation))->generateLabelsAndValues();
+        // For JSON-designer documents, apply per-template documentSettings overrides
+        // onto a cloned settings object before HtmlEngine reads them. This is how
+        // show_paid_stamp / show_shipping_address / fonts / page size on the design
+        // take precedence over the company defaults.
+        $this->applyJsonDesignSettingsOverrides();
+
+        $htmlEngine = ($this->invitation instanceof \App\Models\PurchaseOrderInvitation)
+                                    ? new VendorHtmlEngine($this->invitation)
+                                    : new HtmlEngine($this->invitation);
+
+        // HtmlEngine pulls settings directly from the client/company on construct,
+        // so propagate our resolved (possibly overridden) settings before it reads them.
+        $htmlEngine->setSettings($this->config->settings);
+
+        $this->html_variables = $htmlEngine->generateLabelsAndValues();
 
         // Check if this is a JSON-based design
         if ($this->isJsonDesign()) {
@@ -180,24 +192,45 @@ class PdfService
     }
 
     /**
+     * Build a DocumentSettingsResolver from the design and swap the merged
+     * settings on PdfConfiguration with the resolved clone so all downstream
+     * consumers (HtmlEngine, PdfBuilder, JsonToSectionsAdapter) see the
+     * per-template overrides without any of them needing to know they exist.
+     *
+     * No-op for non-JSON designs and for JSON designs with no documentSettings.
+     */
+    private function applyJsonDesignSettingsOverrides(): void
+    {
+        if (!$this->isJsonDesign()) {
+            return;
+        }
+
+        $designData = $this->config->decodedDesign();
+
+        $resolver = new DocumentSettingsResolver($designData, $this->config->settings);
+
+        if (!$resolver->hasOverrides()) {
+            return;
+        }
+
+        $this->config->document_settings_resolver = $resolver;
+        $this->config->settings = $resolver->resolve();
+    }
+
+    /**
      * Check if the current design is a JSON-based design
      *
      * @return bool
      */
     private function isJsonDesign(): bool
     {
-        if (!isset($this->config->design)) {
+        if (!isset($this->config->design) || !$this->config->design->is_custom) {
             return false;
         }
 
-        $design = $this->config->design;
+        $designData = $this->config->decodedDesign();
 
-        if ($design->is_custom && is_object($design->design)) {
-            $designData = json_decode(json_encode($design->design), true);
-            return isset($designData['blocks']);
-        }
-
-        return false;
+        return $designData !== null && isset($designData['blocks']);
     }
 
     /**
@@ -207,8 +240,7 @@ class PdfService
      */
     private function buildWithJsonDesign(): void
     {
-        // Convert design object to array
-        $designData = json_decode(json_encode($this->config->design->design), true);
+        $designData = $this->config->decodedDesign();
 
         // Ensure pageSettings exists (use defaults if missing)
         if (!isset($designData['pageSettings'])) {

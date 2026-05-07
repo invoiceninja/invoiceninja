@@ -110,7 +110,7 @@ class PaymentController extends Controller
     public function catch_process(Request $request)
     {
         /** If there is a request_hash prop, this is part of a DocuNinja Workflow which we need to handle */
-        if($request->has('request_hash')){
+        if ($request->has('request_hash')) {
             $request_hash = $request->input('request_hash');
             $request_array = Cache::get($request_hash);
             $request->merge($request_array);
@@ -132,8 +132,8 @@ class PaymentController extends Controller
     public function process(Request $request)
     {
 
-        if(auth()->guard('contact')->user()->client->requiresDocuNinjaSigning()){
-        
+        if (auth()->guard('contact')->user()->client->requiresDocuNinjaSigning()) {
+
             $request_hash = \Illuminate\Support\Str::random(64);
             $payable_invoices = array_column($request->input('payable_invoices'), 'invoice_id');
             $ids = $this->transformKeys($payable_invoices);
@@ -146,14 +146,14 @@ class PaymentController extends Controller
                                                             return !$invitation->invoice->sync?->dn_completed;
                                                         });
 
-            if($invitations->count() > 0){
+            if ($invitations->count() > 0) {
 
                 $invitation = $invitations->first();
-                
+
                 $request->merge(['entity_type' => 'invoice', 'db' => auth()->guard('contact')->user()->company->db, 'request_hash' => $request_hash]);
 
                 Cache::put($request_hash, $request->all(), 60 * 60 * 24);
-                
+
                 return $this->render('components.docuninja', [
                     'invitation_id' => $invitation->id,
                     'entity_type' => 'invoice',

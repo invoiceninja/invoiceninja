@@ -185,7 +185,7 @@ class AuthorizePaymentDriver extends BaseDriver
 
     public function mode(): string
     {
-        $test_mode =$this->company_gateway->getConfigField('testMode');
+        $test_mode = $this->company_gateway->getConfigField('testMode');
 
         $endpoint = $this->company_gateway->getConfigField(
             $test_mode ? 'developerEndpoint' : 'liveEndpoint'
@@ -197,7 +197,7 @@ class AuthorizePaymentDriver extends BaseDriver
         }
 
         return $test_mode ? ANetEnvironment::SANDBOX : ANetEnvironment::PRODUCTION;
-        
+
     }
 
     /**
@@ -359,7 +359,7 @@ class AuthorizePaymentDriver extends BaseDriver
         if ($payment && $payment->status_id == Payment::STATUS_COMPLETED) {
 
             $client = $payment->client;
-            
+
             $payment->service()->deletePayment();
             $payment->status_id = Payment::STATUS_FAILED;
             $payment->save();
@@ -369,7 +369,7 @@ class AuthorizePaymentDriver extends BaseDriver
             if ($payment_hash) {
                 $error = ctrans('texts.client_payment_failure_body', [
                     'invoice' => implode(',', $payment->invoices->pluck('number')->toArray()),
-                    'amount' => Number::formatMoney($payment_hash->amount_with_fee(), $client)
+                    'amount' => Number::formatMoney($payment_hash->amount_with_fee(), $client),
                 ]);
 
             } else {

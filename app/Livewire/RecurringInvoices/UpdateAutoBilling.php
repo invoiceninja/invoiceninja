@@ -21,10 +21,10 @@ use Livewire\Attributes\Locked;
 
 class UpdateAutoBilling extends Component
 {
-    #[Locked] 
+    #[Locked]
     public $invoice_id;
 
-    #[Locked] 
+    #[Locked]
     public $db;
 
     public function mount()

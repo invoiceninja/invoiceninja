@@ -42,7 +42,7 @@ class PasskeyController extends BaseController
 
         return response()->json([
             'data' => $user->passkey_credentials
-                ->map(fn (PasskeyCredential $credential) => [
+                ->map(fn(PasskeyCredential $credential) => [
                     'id' => $credential->hashed_id,
                     'name' => $credential->name,
                     'created_at' => $credential->created_at,

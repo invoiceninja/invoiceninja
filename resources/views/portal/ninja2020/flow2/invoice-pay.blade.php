@@ -15,7 +15,7 @@
             session()->forget('errors');
         @endphp
 
-        @livewire($this->component, ['invitation_id' => $this->invitation_id, '_key' => $_key], key($this->componentUniqueId()))
+        @livewire($this->component, ['invitation_id' => $this->signing_invitation_id ?? $this->invitation_id, '_key' => $this->signing_key ?? $_key], key($this->componentUniqueId()))
     </div>
 @else
     {{-- Two column layout for other components --}}
@@ -39,7 +39,7 @@
                 session()->forget('errors');
             @endphp
 
-            @livewire($this->component, ['invitation_id' => $this->invitation_id, '_key' => $_key], key($this->componentUniqueId()))
+            @livewire($this->component, ['invitation_id' => $this->signing_invitation_id ?? $this->invitation_id, '_key' => $this->signing_key ?? $_key], key($this->componentUniqueId()))
         </div>
     </div>
 @endif

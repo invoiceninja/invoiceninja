@@ -22,6 +22,19 @@ class QuickbooksDataComparisonTest extends TestCase
     use DatabaseTransactions;
 
     /**
+     * Toggle to enable/disable tests that require a live QuickBooks API connection.
+     * Set to false to skip all API-dependent tests.
+     */
+    private bool $enable_qb_api_tests = false;
+
+    private function skipIfApiDisabled(): void
+    {
+        if (!$this->enable_qb_api_tests) {
+            $this->markTestSkipped('QuickBooks API tests are disabled. Set $enable_qb_api_tests to true to run.');
+        }
+    }
+
+    /**
      * Get all companies with QuickBooks configured.
      *
      * @return \Illuminate\Support\Collection
@@ -98,6 +111,8 @@ class QuickbooksDataComparisonTest extends TestCase
 
     public function testSpecificInvoiceComparisonAstResponseWithTaxExemptProduct(): void
     {
+        $this->skipIfApiDisabled();
+
         $invoice_number = 'qb-2026-EXEMPT-0001';
 
         $company = Company::where('quickbooks->settings->automatic_taxes', true)->first();
@@ -110,10 +125,8 @@ class QuickbooksDataComparisonTest extends TestCase
             $this->markTestSkipped("QuickBooks token is expired and cannot be refreshed for company {$company->id}");
         }
         
-
         $this->assertNotNull($company);
 
-        
         $qb_service = new QuickbooksService($company);
            
         $this->assertNotNull($company, 'Company with automatic taxes is not found');
@@ -303,6 +316,8 @@ class QuickbooksDataComparisonTest extends TestCase
 
     public function testSpecificInvoiceComparisonAstResponse(): void
     {
+        $this->skipIfApiDisabled();
+
         $invoice_number = 'qb-2026-AST-0001';
 
         $company = Company::where('quickbooks->settings->automatic_taxes', true)->first();
@@ -460,6 +475,8 @@ class QuickbooksDataComparisonTest extends TestCase
      */
     public function testSpecificInvoiceComparison(): void
     {
+        $this->skipIfApiDisabled();
+
         $invoice_number = 'qb-2026-0001';
 
         // Find the invoice by number across all companies
@@ -764,6 +781,8 @@ class QuickbooksDataComparisonTest extends TestCase
      */
     public function testInvoiceDataComparison(): void
     {
+        $this->skipIfApiDisabled();
+
         $companies = $this->getQuickbooksCompanies();
 
         if ($companies->isEmpty()) {
@@ -1374,6 +1393,8 @@ class QuickbooksDataComparisonTest extends TestCase
      */
     public function testClientDataComparison(): void
     {
+        $this->skipIfApiDisabled();
+
         $companies = $this->getQuickbooksCompanies();
 
         if ($companies->isEmpty()) {
@@ -1784,6 +1805,8 @@ class QuickbooksDataComparisonTest extends TestCase
      */
     public function testProductDataComparison(): void
     {
+        $this->skipIfApiDisabled();
+
         $companies = $this->getQuickbooksCompanies();
 
         if ($companies->isEmpty()) {

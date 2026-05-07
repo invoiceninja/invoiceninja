@@ -27,7 +27,7 @@ class BcMath
      * Default scale for currency calculations (2 decimal places)
      */
     private const DEFAULT_SCALE = 10;
-    
+
     /**
      * normalizeNumber
      *
@@ -38,11 +38,10 @@ class BcMath
     {
         if ($number === null || $number === '') {
             return '0';
-        }
-        elseif (is_float($number)) {
+        } elseif (is_float($number)) {
             return rtrim(rtrim(number_format($number, 10, '.', ''), '0'), '.');
         }
-        
+
         return (string) $number;
     }
     /**
@@ -152,7 +151,7 @@ class BcMath
     public static function round($number, int $precision = self::DEFAULT_SCALE): string
     {
         $number = self::normalizeNumber($number);
-        
+
         /** New rounding implementation to work around changes to rounding in PHP 8.4 */
         $multiplier = bcpow('10', (string) $precision, 0);
 

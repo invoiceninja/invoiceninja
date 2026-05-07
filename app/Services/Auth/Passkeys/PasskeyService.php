@@ -35,7 +35,7 @@ class PasskeyService
         $name = $displayName ?: trim($user->first_name . ' ' . $user->last_name);
 
         $webAuthn = $this->makeWebAuthn();
-        $args = (array)$webAuthn->getCreateArgs(
+        $args = (array) $webAuthn->getCreateArgs(
             (string) $user->id,
             $user->email,
             $name ?: $user->email,
@@ -79,7 +79,7 @@ class PasskeyService
             ->first();
 
 
-        if($credential) {
+        if ($credential) {
             throw new \RuntimeException('Passkey credential already exists.');
         }
 
@@ -87,7 +87,7 @@ class PasskeyService
         $credential->account_id = $user->account_id;
         $credential->user_id = $user->id;
         $credential->credential_id = $credentialId;
-        $credential->name = $name ?: ctrans('texts.passkey'). " " . now()->format('Y-m-d H:i:s');
+        $credential->name = $name ?: ctrans('texts.passkey') . " " . now()->format('Y-m-d H:i:s');
         $credential->credential_public_key = base64_encode($result->credentialPublicKey);
         $credential->signature_counter = (int) ($result->signatureCounter ?? 0);
         $credential->transports = $payload['transports'] ?? null;
@@ -105,13 +105,13 @@ class PasskeyService
         if ($user) {
             $credentialIds = $user->passkey_credentials
                 ->pluck('credential_id')
-                ->map(fn (string $value) => base64_decode($value))
+                ->map(fn(string $value) => base64_decode($value))
                 ->filter()
                 ->values()
                 ->toArray();
         }
 
-        $args = (array)$webAuthn->getGetArgs(
+        $args = (array) $webAuthn->getGetArgs(
             $credentialIds,
             240,
             true,
@@ -129,7 +129,7 @@ class PasskeyService
         ]);
 
         return ['data' => array_merge($args, ['challenge_token' => $token])];
-        
+
     }
 
     public function authenticate(User $user, string $challengeToken, array $payload): User

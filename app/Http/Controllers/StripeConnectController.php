@@ -128,17 +128,66 @@ class StripeConnectController extends BaseController
             $stripe = $company_gateway->driver()->init();
             $a = \Stripe\Account::retrieve($response->stripe_user_id, $stripe->stripe_connect_auth);
 
-            if ($a->business_name ?? false) {
-                $company_gateway->label = substr("Stripe - {$a->business_name}", 0, 250);
+            if ($business_name = data_get($a, 'business_profile.name', false)) {
+                $company_gateway->label = substr("Stripe - {$business_name}", 0, 250);
                 $company_gateway->save();
             }
-        } catch (\Exception $e) {
+
+            /** Toggle Active Payment Methods ON by default */
+            $supported_capabilities = [
+                'us_bank_account_ach_payments' => GatewayType::BANK_TRANSFER,
+                'sofort_payments'             => GatewayType::SOFORT,
+                'sepa_debit_payments'         => GatewayType::SEPA,
+                'p24_payments'                => GatewayType::PRZELEWY24,
+                'giropay_payments'            => GatewayType::GIROPAY,
+                'ideal_payments'              => GatewayType::IDEAL,
+                'eps_payments'                => GatewayType::EPS,
+                'bancontact_payments'         => GatewayType::BANCONTACT,
+                'au_becs_debit_payments'      => GatewayType::BECS,
+                'acss_debit_payments'         => GatewayType::ACSS,
+                'fpx_payments'                => GatewayType::FPX,
+                'klarna_payments'             => GatewayType::KLARNA,
+                'bacs_debit_payments'         => GatewayType::BACS,
+                'bank_transfer_payments'      => GatewayType::DIRECT_DEBIT,
+            ];
+
+            $capabilities = data_get($a, 'capabilities', false);
+
+            if ($capabilities) {
+
+                $fees_and_limits = $company_gateway->fees_and_limits ?: new \stdClass();
+                $changed = false;
+
+                foreach ($capabilities->toArray() as $key => $value) {
+                    if ($value !== 'active') {
+                        continue;
+                    }
+
+                    $gateway_type = $supported_capabilities[$key] ?? null;
+
+                    if ($gateway_type === null) {
+                        continue;
+                    }
+
+                    if (!isset($fees_and_limits->{$gateway_type})) {
+                        $fees_and_limits->{$gateway_type} = new FeesAndLimits();
+                        $changed = true;
+                    }
+                }
+
+                if ($changed) {
+                    $company_gateway->fees_and_limits = $fees_and_limits;
+                    $company_gateway->save();
+                }
+            }
+            
+        } catch (\Throwable $e) {
             nlog("Exception:: StripeConnectController::" . $e->getMessage());
             nlog("could not harvest stripe company name");
         }
 
         if (isset($request->getTokenContent()['is_react']) && $request->getTokenContent()['is_react']) {
-            $redirect_uri = config('ninja.react_url') . '/#/settings/online_payments';
+            $redirect_uri = config('ninja.react_url') . "/#/settings/gateways/{$company_gateway->hashed_id}/edit";
         } else {
             $redirect_uri = config('ninja.app_url');
         }

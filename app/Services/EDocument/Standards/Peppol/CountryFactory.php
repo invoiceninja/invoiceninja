@@ -25,6 +25,7 @@ class CountryFactory
         'AD' => AD::class,
         'AT' => AT::class,
         'AU' => AU::class,
+        'BE' => BE::class,
         'CH' => CH::class,
         'DE' => DE::class,
         'DK' => DK::class,

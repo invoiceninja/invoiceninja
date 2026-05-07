@@ -36,9 +36,7 @@ class UserWasPurged
      * @param Company $company
      * @param array $event_vars
      */
-    public function __construct(public User $admin_user, public string $purged_user_name, public Company $company, public array $event_vars)
-    {
-    }
+    public function __construct(public User $admin_user, public string $purged_user_name, public Company $company, public array $event_vars) {}
 
     /**
      * Get the channels the event should broadcast on.

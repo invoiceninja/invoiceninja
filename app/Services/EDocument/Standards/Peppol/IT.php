@@ -13,7 +13,6 @@
 namespace App\Services\EDocument\Standards\Peppol;
 
 use App\Services\EDocument\Gateway\MutatorUtil;
-use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
 
 class IT extends BaseCountry
 {
@@ -23,57 +22,36 @@ class IT extends BaseCountry
             ["G", "", "IT:IVA", "IT:CUUO"],
             ["B", "", "IT:IVA", "IT:CUUO"],
             ["C", "", "IT:CF", "Email"],
-            ["G", "", "IT:IVA", "IT:CUUO"],
         ];
+    }
+
+    public function getCandidates(object $client, string $classification, object $router): array
+    {
+        if ($classification === 'individual') {
+            $cf = preg_replace("/[^a-zA-Z0-9]/", "", $client->id_number ?? '');
+            return strlen($cf) >= 2 ? [['scheme' => 'IT:CF', 'id' => $cf]] : [];
+        }
+
+        // B2B/B2G: CUUO (routing_id) for SDI delivery + IVA for identification
+        $candidates = [];
+        $routingId = $client->routing_id ?? '';
+        if (strlen($routingId) >= 2) {
+            $candidates[] = ['scheme' => 'IT:CUUO', 'id' => $routingId];
+        }
+        $vat = preg_replace("/[^a-zA-Z0-9]/", "", $client->vat_number ?? '');
+        if (strlen($vat) >= 2) {
+            $candidates[] = ['scheme' => 'IT:IVA', 'id' => $vat];
+        }
+        return $candidates;
     }
 
     public function senderMutations(
         mixed $p_invoice,
         mixed $invoice,
         MutatorUtil $mutator_util,
-        array $storecove_meta
-    ): array {
+    ): mixed {
 
-        // IT Sender, IT Receiver, B2B/B2G
-        // Provide the receiver IT:VAT and the receiver IT:CUUO (codice destinatario)
-        if (in_array($invoice->client->classification, ['business', 'government']) && $invoice->company->country()->iso_3166_2 == 'IT') {
-
-            $storecove_meta = $this->mergeMeta($storecove_meta, $this->buildRouting([
-                ["scheme" => 'IT:IVA', "id" => $invoice->client->vat_number],
-                ["scheme" => 'IT:CUUO', "id" => $invoice->client->routing_id],
-            ]));
-
-            return ['p_invoice' => $p_invoice, 'storecove_meta' => $storecove_meta];
-        }
-
-        // IT Sender, IT Receiver, B2C
-        // Provide the receiver IT:CF and email routing
-        if ($invoice->client->classification == 'individual' && $invoice->company->country()->iso_3166_2 == 'IT') {
-
-            $storecove_meta = $this->mergeMeta($storecove_meta, $this->buildRouting([
-                ["scheme" => 'IT:CF', "id" => $invoice->client->vat_number],
-            ]));
-
-            $storecove_meta = $this->setEmailRouting($storecove_meta, $invoice->client->present()->email());
-
-            return ['p_invoice' => $p_invoice, 'storecove_meta' => $storecove_meta];
-        }
-
-        // IT Sender, non-IT Receiver
-        // Provide the receiver tax identifier and any routing identifier applicable to the receiving country.
-        if ($invoice->client->country->iso_3166_2 != 'IT' && $invoice->company->country()->iso_3166_2 == 'IT') {
-
-            $code = (new StorecoveRouter())->setInvoice($invoice)->resolveRouting($invoice->client->country->iso_3166_2, $invoice->client->classification);
-
-            nlog("foreign receiver");
-            $storecove_meta = $this->mergeMeta($storecove_meta, $this->buildRouting([
-                ["scheme" => $code, "id" => $invoice->client->vat_number],
-            ]));
-
-            return ['p_invoice' => $p_invoice, 'storecove_meta' => $storecove_meta];
-        }
-
-        return ['p_invoice' => $p_invoice, 'storecove_meta' => $storecove_meta];
+        return $p_invoice;
     }
 
     /**
@@ -83,18 +61,8 @@ class IT extends BaseCountry
         mixed $p_invoice,
         mixed $invoice,
         MutatorUtil $mutator_util,
-        array $storecove_meta
-    ): array {
+    ): mixed {
 
-        // non-IT Sender, IT Receiver, B2C
-        // Provide the receiver IT:CF and an optional email.
-        if (in_array($invoice->client->classification, ['individual']) && $invoice->company->country()->iso_3166_2 != 'IT') {
-            return ['p_invoice' => $p_invoice, 'storecove_meta' => $storecove_meta];
-        }
-
-        // non-IT Sender, IT Receiver, B2B/B2G
-        // Provide the receiver IT:VAT and the receiver IT:CUUO (codice destinatario)
-
-        return ['p_invoice' => $p_invoice, 'storecove_meta' => $storecove_meta];
+        return $p_invoice;
     }
 }

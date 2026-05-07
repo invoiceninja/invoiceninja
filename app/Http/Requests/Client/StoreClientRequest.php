@@ -98,7 +98,7 @@ class StoreClientRequest extends Request
         }];
 
         $rules['settings.currency_id'] = 'required|exists:currencies,id';
-        
+
         return $rules;
     }
 
@@ -254,7 +254,7 @@ class StoreClientRequest extends Request
         $currencies = app('currencies');
 
         $code = strtoupper($code);
-        
+
         $currency = $currencies->first(function ($item) use ($code) {
             return $item->code == $code;
         });

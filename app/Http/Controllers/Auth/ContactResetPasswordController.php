@@ -107,7 +107,10 @@ class ContactResetPasswordController extends Controller
 
         $request->validate($this->rules(), $this->validationErrorMessages());
 
-        $user = ClientContact::where($request->only(['email', 'token']))->first();
+        $user = ClientContact::where([
+            'email' => $request->input('email'),
+            'token' => $request->input('token'),
+        ])->first();
 
         if (! $user) {
             return $this->sendResetFailedResponse($request, PASSWORD::INVALID_USER);
