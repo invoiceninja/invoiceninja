@@ -12,6 +12,7 @@
 
 namespace App\Services\EDocument\Gateway\Storecove;
 
+use App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveIdentifierValidator;
 use App\Services\EDocument\Support\GlnIdentifier;
 use App\Services\EDocument\Standards\Peppol\CountryFactory;
 use App\Services\EDocument\Standards\Peppol\CountryHandler;
@@ -40,10 +41,12 @@ class RoutingResolver
         private $invoice,
         private StorecoveProxy $proxy,
         private StorecoveRouter $router,
+        private ?StorecoveIdentifierValidator $identifierValidator = null,
     ) {
         $this->countryCode = $this->invoice->client->country->iso_3166_2;
         $this->classification = $this->invoice->client->classification ?? 'business';
         $this->handler = CountryFactory::make($this->countryCode);
+        $this->identifierValidator ??= new StorecoveIdentifierValidator();
     }
 
     /**
@@ -97,7 +100,7 @@ class RoutingResolver
             // Preserve dashes for schemes where they are semantically part of
             // the identifier (e.g. DE:LWID). For everything else, strip them
             // so minor user formatting doesn't block discovery.
-            $id = StorecoveRouter::dashSignificantScheme($candidate['scheme'])
+            $id = StorecoveIdentifierValidator::dashSignificantScheme($candidate['scheme'])
                 ? preg_replace('/\s+/', '', $candidate['id'])
                 : preg_replace("/[^a-zA-Z0-9]/", "", $candidate['id']);
 
@@ -125,8 +128,7 @@ class RoutingResolver
         }
 
         // 8. Check config for Email routing (IN, SA, IT B2C)
-        $code = $this->router->setInvoice($this->invoice)
-            ->resolveRouting($this->countryCode, $this->classification);
+        $code = $this->router->resolveRouting($this->countryCode, $this->classification);
         if ($code === 'Email') {
             return $this->emailResult($this->invoice->client->present()->email());
         }
@@ -170,7 +172,7 @@ class RoutingResolver
         $client = $this->invoice->client;
         $routingRaw = trim($client->routing_id ?? '');
 
-        if ($routingRaw === '' || StorecoveRouter::isValidGln($routingRaw) || str_contains($routingRaw, ':')) {
+        if ($routingRaw === '' || StorecoveIdentifierValidator::isValidGln($routingRaw) || str_contains($routingRaw, ':')) {
             return null;
         }
 
@@ -181,8 +183,8 @@ class RoutingResolver
             return null;
         }
 
-        if (!$this->router->validateIdentifierFormat('IT:IVA', $vatClean)
-            || !$this->router->validateIdentifierFormat('IT:CUUO', $cuuoClean)) {
+        if (!$this->identifierValidator->validFormat('IT:IVA', $vatClean)
+            || !$this->identifierValidator->validFormat('IT:CUUO', $cuuoClean)) {
             return null;
         }
 
@@ -208,7 +210,7 @@ class RoutingResolver
         $client = $this->invoice->client;
         $routingRaw = trim($client->routing_id ?? '');
 
-        if ($routingRaw === '' || StorecoveRouter::isValidGln($routingRaw) || str_contains($routingRaw, ':')) {
+        if ($routingRaw === '' || StorecoveIdentifierValidator::isValidGln($routingRaw) || str_contains($routingRaw, ':')) {
             return null;
         }
 
@@ -219,8 +221,8 @@ class RoutingResolver
             return null;
         }
 
-        if (!$this->router->validateIdentifierFormat('IT:CF', $cfClean)
-            || !$this->router->validateIdentifierFormat('IT:CUUO', $cuuoClean)) {
+        if (!$this->identifierValidator->validFormat('IT:CF', $cfClean)
+            || !$this->identifierValidator->validFormat('IT:CUUO', $cuuoClean)) {
             return null;
         }
 
@@ -246,7 +248,7 @@ class RoutingResolver
         $client = $this->invoice->client;
         $cfClean = preg_replace("/[^a-zA-Z0-9]/", "", $client->id_number ?? '');
 
-        if (strlen($cfClean) < 2 || !$this->router->validateIdentifierFormat('IT:CF', $cfClean)) {
+        if (strlen($cfClean) < 2 || !$this->identifierValidator->validFormat('IT:CF', $cfClean)) {
             return null;
         }
 

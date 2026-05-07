@@ -16,11 +16,6 @@ use App\Services\EDocument\Gateway\MutatorUtil;
 
 class RO extends BaseCountry
 {
-    public function getRoutingRules(): ?array
-    {
-        return ["G+B", "", "RO:VAT", "RO:VAT"];
-    }
-
     public function getNetworkOverrides(): array
     {
         return [['application' => 'ro-anaf', 'settings' => ['enabled' => true]]];

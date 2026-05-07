@@ -59,7 +59,6 @@ class StorecoveCustomerPartyIdentifiersTest extends TestCase
         $invoice->load('client.country');
 
         $router = new StorecoveRouter();
-        $router->setInvoice($invoice);
 
         $pairs = CountryFactory::make('BE')->storecoveCustomerPartyPublicIdentifiers($invoice->client, $invoice, $router);
 
@@ -121,7 +120,6 @@ class StorecoveCustomerPartyIdentifiersTest extends TestCase
         $invoice->load('client.country');
 
         $router = new StorecoveRouter();
-        $router->setInvoice($invoice);
 
         $pairs = CountryFactory::make('NL')->storecoveCustomerPartyPublicIdentifiers($invoice->client, $invoice, $router);
 
@@ -163,7 +161,6 @@ class StorecoveCustomerPartyIdentifiersTest extends TestCase
         $invoice->load('client.country');
 
         $router = new StorecoveRouter();
-        $router->setInvoice($invoice);
 
         $pairs = CountryFactory::make('NL')->storecoveCustomerPartyPublicIdentifiers($invoice->client, $invoice, $router);
 
@@ -204,7 +201,6 @@ class StorecoveCustomerPartyIdentifiersTest extends TestCase
         $invoice->load('client.country');
 
         $router = new StorecoveRouter();
-        $router->setInvoice($invoice);
 
         $pairs = CountryFactory::make('FI')->storecoveCustomerPartyPublicIdentifiers($invoice->client, $invoice, $router);
 
@@ -247,7 +243,6 @@ class StorecoveCustomerPartyIdentifiersTest extends TestCase
         $invoice->load('client.country');
 
         $router = new StorecoveRouter();
-        $router->setInvoice($invoice);
 
         $handler = CountryFactory::make('BE');
         $routingCandidates = $handler->getCandidates($invoice->client, 'business', $router);

@@ -17,14 +17,6 @@ use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
 
 class AT extends BaseCountry
 {
-    public function getRoutingRules(): ?array
-    {
-        return [
-            ["G", "AT:GOV", false, "9915:b"],
-            ["B", "", "AT:VAT", "AT:VAT"],
-        ];
-    }
-
     /**
      * AT government routing uses the fixed Storecove endpoint AT:GOV:b.
      * Validation passes whenever the client has an id_number, which is

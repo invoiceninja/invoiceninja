@@ -26,6 +26,7 @@ use App\Services\EDocument\Standards\Peppol;
 use App\Exceptions\PeppolValidationException;
 use App\Services\EDocument\Standards\Validation\EntityLevelInterface;
 use App\Services\EDocument\Standards\Validation\XsltDocumentValidator;
+use App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveIdentifierValidator;
 use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
 use App\Services\EDocument\Standards\Peppol\CountryFactory;
 
@@ -58,7 +59,9 @@ class EntityLevel implements EntityLevelInterface
 
     private array $errors = [];
 
-    public function __construct() {}
+    public function __construct(private ?StorecoveIdentifierValidator $identifierValidator = null)
+    {
+    }
 
     private function init(string $locale): self
     {
@@ -202,8 +205,10 @@ class EntityLevel implements EntityLevelInterface
 
         // Identifier validation — offline (no network I/O).
         // Only runs once all earlier checks pass AND the client's country is on the Peppol network.
+        $peppolCountries = config('einvoice.peppol_network', []);
         if (count($errors) === 0
-            && in_array($client->country->iso_3166_2, StorecoveRouter::peppolCountries(), true)) {
+            && is_array($peppolCountries)
+            && in_array($client->country->iso_3166_2, $peppolCountries, true)) {
 
             $errors = array_merge($errors, $this->testClientIdentifiers($client));
         }
@@ -235,7 +240,7 @@ class EntityLevel implements EntityLevelInterface
         // validate — malformed routing_id fails here. Valid explicit scheme:id ([]).
         // ends identifier checks (same as send-time GLN / explicit routing). Bare
         // routing_id on IT/DE is deferred (null) so composite IT rules still run.
-        $routingError = $this->validateExplicitRoutingId($client, $router);
+        $routingError = $this->validateExplicitRoutingId($client);
         if ($routingError !== null && $routingError !== []) {
             return [$routingError];
         }
@@ -263,7 +268,7 @@ class EntityLevel implements EntityLevelInterface
      *
      * @return array{field: string, label: string}|array{}|null
      */
-    private function validateExplicitRoutingId(Client $client, StorecoveRouter $router): ?array
+    private function validateExplicitRoutingId(Client $client): ?array
     {
         $value = trim($client->routing_id ?? '');
 
@@ -273,7 +278,7 @@ class EntityLevel implements EntityLevelInterface
 
         // scheme:id form — always validated strictly.
         if (strpos($value, ':') !== false) {
-            return $this->validateSchemeColonId($value, $router);
+            return $this->validateSchemeColonId($value);
         }
 
         // Bare value. For countries whose handler natively consumes routing_id
@@ -305,7 +310,7 @@ class EntityLevel implements EntityLevelInterface
      *
      * @return array{field: string, label: string}|array{} error or [] on pass
      */
-    private function validateSchemeColonId(string $value, StorecoveRouter $router): array
+    private function validateSchemeColonId(string $value): array
     {
         $parts = explode(':', $value, 2);
 
@@ -328,7 +333,7 @@ class EntityLevel implements EntityLevelInterface
                 ];
         }
 
-        if (!$router->validateIdentifierFormat($scheme, $id)) {
+        if (!$this->identifierValidator()->validFormat($scheme, $id)) {
             return [
                 'field' => 'routing_id',
                 'label' => ctrans('texts.routing_id') . " {$scheme}:{$id} does not match the expected format for {$scheme}.",
@@ -336,6 +341,11 @@ class EntityLevel implements EntityLevelInterface
         }
 
         return []; // valid
+    }
+
+    private function identifierValidator(): StorecoveIdentifierValidator
+    {
+        return $this->identifierValidator ??= new StorecoveIdentifierValidator();
     }
 
     private function testCompanyState(mixed $entity): array

@@ -54,14 +54,6 @@ interface CountryHandler
     ): mixed;
 
     /**
-     * Return the routing rules for this country.
-     * Format: single rule [business_type, legal_id, tax_id, routing_id]
-     * or multi: [[business_type, legal_id, tax_id, routing_id], ...]
-     * Return null if this country has no specific routing rules.
-     */
-    public function getRoutingRules(): ?array;
-
-    /**
      * Return ordered routing candidates for a recipient.
      *
      * Each candidate: ['scheme' => string, 'id' => string]
@@ -103,14 +95,6 @@ interface CountryHandler
      * Example: SG uses CorpPass OAuth + C5 IRAS email activation.
      */
     public function getRegistrationFlow(object $storecove, int $legal_entity_id, array $data): array|\Illuminate\Http\Client\Response|null;
-
-    /**
-     * Required client fields for forms / UX, derived from routing policy for this country.
-     *
-     * @param  ?string  $senderCountryCode  ISO 3166-2 for the sender (company) when known; null if generic map / unknown.
-     * @return array<string, string> Keys are client attribute names, values are scheme labels
-     */
-    public function resolveRequiredClientFields(string $country, ?string $classification, StorecoveRouter $router, ?string $senderCountryCode = null): array;
 
     /**
      * Whether a bare routing_id (no "scheme:id" prefix) is this country's native routing input.

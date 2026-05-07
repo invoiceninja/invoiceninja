@@ -307,7 +307,7 @@ class StorecoveAdapter
 
         $client = $this->ninja_invoice->client;
         $country = $client->country->iso_3166_2;
-        $router = $this->storecove->router->setInvoice($this->ninja_invoice);
+        $router = $this->storecove->router;
 
         $handler = CountryFactory::make($country);
         $identifierPairs = $handler->storecoveCustomerPartyPublicIdentifiers($client, $this->ninja_invoice, $router);
