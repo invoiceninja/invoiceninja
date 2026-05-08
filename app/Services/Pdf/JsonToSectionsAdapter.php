@@ -788,6 +788,7 @@ class JsonToSectionsAdapter
      */
     private function visibleTableColumns(array $columns, array $props, string $tableType, array $columnVisibility, bool $hideEmptyColumns): array
     {
+        $borders = $this->resolveTableBorderProps($props);
         $visibleColumns = [];
 
         foreach ($columns as $index => $column) {
@@ -803,8 +804,11 @@ class JsonToSectionsAdapter
                 'header' => $column['header'] ?? '',
                 'header_ref' => "{$tableType}_table-{$columnId}-th",
                 'cell_ref' => "{$tableType}_table-{$columnId}-td",
-                'header_style' => $this->buildTableHeaderStyle($props, $column),
-                'cell_style' => $this->buildTableCellStyle($props, $column),
+                'header_style' => $this->buildTableHeaderStyle($props, $column, $borders),
+                // Two body cell variants: the first-row variant suppresses its
+                // top stroke when the header bottom is enabled (seam rule).
+                'cell_style_first_row' => $this->buildTableCellStyle($props, $column, $borders, true),
+                'cell_style' => $this->buildTableCellStyle($props, $column, $borders, false),
             ];
         }
 
@@ -822,10 +826,12 @@ class JsonToSectionsAdapter
     private function buildTableBodyRows(array $visibleColumns, array $filteredItems, string $tableType): array
     {
         $rows = [];
+        $rowIndex = 0;
 
         // Build rows
         foreach ($filteredItems as $item) {
             $rowElements = [];
+            $isFirstRow = $rowIndex === 0;
 
             foreach ($visibleColumns as $column) {
                 $value = $this->getFieldValue($item, $column['field'], $tableType);
@@ -835,7 +841,7 @@ class JsonToSectionsAdapter
                     'content' => $value,
                     'properties' => [
                         'data-ref' => $column['cell_ref'],
-                        'style' => $column['cell_style'],
+                        'style' => $isFirstRow ? $column['cell_style_first_row'] : $column['cell_style'],
                         'visi' => true, // Mark as visible for border-radius logic
                     ],
                 ];
@@ -847,6 +853,7 @@ class JsonToSectionsAdapter
                     'element' => 'tr',
                     'elements' => $rowElements,
                 ];
+                $rowIndex++;
             }
         }
 
@@ -1375,7 +1382,7 @@ class JsonToSectionsAdapter
     }
 
 
-    private function buildTableHeaderStyle(array $props, array $column): string
+    private function buildTableHeaderStyle(array $props, array $column, array $borders): string
     {
         $styles = [];
         $styles[] = 'padding: ' . ($props['padding'] ?? '8px');
@@ -1383,8 +1390,15 @@ class JsonToSectionsAdapter
         if (isset($column['width'])) {
             $styles[] = 'width: ' . $column['width'];
         }
-        if ($props['showBorders'] ?? true) {
-            $styles[] = 'border: 1px solid ' . ($props['borderColor'] ?? '#E5E7EB');
+
+        if (!$borders['showActive']) {
+            $styles[] = 'border: none';
+        } else {
+            $h = $borders['header'];
+            $styles[] = 'border-top: '    . $this->buildBorderStroke($h, $h['sides']['top']);
+            $styles[] = 'border-right: '  . $this->buildBorderStroke($h, $h['sides']['right']);
+            $styles[] = 'border-bottom: ' . $this->buildBorderStroke($h, $h['sides']['bottom']);
+            $styles[] = 'border-left: '   . $this->buildBorderStroke($h, $h['sides']['left']);
         }
 
         return implode('; ', $styles) . ';';
@@ -1410,7 +1424,7 @@ class JsonToSectionsAdapter
         return implode('; ', $styles) . ';';
     }
 
-    private function buildTableCellStyle(array $props, array $column): string
+    private function buildTableCellStyle(array $props, array $column, array $borders, bool $isFirstRow): string
     {
         $styles = [];
         $styles[] = 'padding: ' . ($props['padding'] ?? '8px');
@@ -1420,8 +1434,23 @@ class JsonToSectionsAdapter
             $styles[] = 'width: ' . $column['width'];
         }
 
-        if ($props['showBorders'] ?? true) {
-            $styles[] = 'border: 1px solid ' . ($props['borderColor'] ?? '#E5E7EB');
+        if (!$borders['showActive']) {
+            $styles[] = 'border: none';
+        } else {
+            $b = $borders['row'];
+            $headerBottom = $borders['header']['sides']['bottom'];
+
+            // Seam rule: when the header already draws a bottom border, the
+            // first body row must not duplicate it as a top border. Otherwise
+            // the body's own top-side toggle decides.
+            $topEnabled = $isFirstRow
+                ? ($b['sides']['top'] && !$headerBottom)
+                : $b['sides']['top'];
+
+            $styles[] = 'border-top: '    . $this->buildBorderStroke($b, $topEnabled);
+            $styles[] = 'border-right: '  . $this->buildBorderStroke($b, $b['sides']['right']);
+            $styles[] = 'border-bottom: ' . $this->buildBorderStroke($b, $b['sides']['bottom']);
+            $styles[] = 'border-left: '   . $this->buildBorderStroke($b, $b['sides']['left']);
         }
 
         if (isset($props['cellColor'])) {
@@ -1433,6 +1462,106 @@ class JsonToSectionsAdapter
         }
 
         return implode('; ', $styles) . ';';
+    }
+
+    /**
+     * Resolve the table border configuration into a normalized structure
+     * that header + body cell builders can render directly.
+     *
+     * Output shape:
+     *   [
+     *     'showActive' => bool,
+     *     'header' => ['color' => string, 'widthPx' => int, 'sides' => [top,right,bottom,left]],
+     *     'row'    => ['color' => string, 'widthPx' => int, 'sides' => [top,right,bottom,left]],
+     *   ]
+     */
+    private function resolveTableBorderProps(array $props): array
+    {
+        return [
+            'showActive' => ($props['showBorders'] ?? null) === true,
+            'header' => $this->resolveTableRegionBorders($props['headerBorders'] ?? null),
+            'row' => $this->resolveTableRegionBorders($props['rowBorders'] ?? null),
+        ];
+    }
+
+    private function resolveTableRegionBorders($region): array
+    {
+        if (!is_array($region) || $region === []) {
+            return [
+                'color' => '#E5E7EB',
+                'widthPx' => 1,
+                'sides' => ['top' => true, 'right' => true, 'bottom' => true, 'left' => true],
+            ];
+        }
+
+        $color = (isset($region['color']) && is_string($region['color']) && $region['color'] !== '')
+            ? $region['color']
+            : '#E5E7EB';
+
+        $widthPx = array_key_exists('width', $region)
+            ? $this->coerceBorderWidthPx($region['width'])
+            : 1;
+
+        $sidesInput = is_array($region['sides'] ?? null) ? $region['sides'] : [];
+
+        // A side is enabled unless its stored value is *strictly* false.
+        // Missing / null / true / 0 / "false" all resolve to true (frontend parity).
+        $sides = [
+            'top'    => ($sidesInput['top']    ?? null) !== false,
+            'right'  => ($sidesInput['right']  ?? null) !== false,
+            'bottom' => ($sidesInput['bottom'] ?? null) !== false,
+            'left'   => ($sidesInput['left']   ?? null) !== false,
+        ];
+
+        return [
+            'color' => $color,
+            'widthPx' => $widthPx,
+            'sides' => $sides,
+        ];
+    }
+
+    /**
+     * Match the frontend's coerceBorderWidthPx: round to nearest int,
+     * clamp to [0, 20]. Strings may carry a trailing "px"; non-finite
+     * or unparseable inputs fall back to 1.
+     */
+    private function coerceBorderWidthPx($value): int
+    {
+        if (is_int($value)) {
+            return max(0, min(20, $value));
+        }
+
+        if (is_float($value)) {
+            if (!is_finite($value)) {
+                return 1;
+            }
+            return max(0, min(20, (int) round($value)));
+        }
+
+        if (is_string($value)) {
+            $trimmed = trim($value);
+            $stripped = preg_replace('/px$/i', '', $trimmed);
+            // JS parseFloat: pull a leading numeric token, else NaN.
+            if (preg_match('/^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?/', $stripped, $m)) {
+                $f = (float) $m[0];
+                if (!is_finite($f)) {
+                    return 1;
+                }
+                return max(0, min(20, (int) round($f)));
+            }
+            return 1;
+        }
+
+        return 1;
+    }
+
+    private function buildBorderStroke(array $region, bool $sideEnabled): string
+    {
+        if (!$sideEnabled) {
+            return 'none';
+        }
+
+        return $region['widthPx'] . 'px solid ' . $region['color'];
     }
 
     private function buildTotalRowClass(bool $isTotal, bool $isBalance): string
