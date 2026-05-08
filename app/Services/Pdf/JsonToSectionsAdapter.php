@@ -743,7 +743,7 @@ class JsonToSectionsAdapter
         }
 
         // Build table body rows with only visible columns
-        $bodyRows = $this->buildTableBodyRows($visibleColumns, $filteredItems, $tableType);
+        $bodyRows = $this->buildTableBodyRows($visibleColumns, $filteredItems, $tableType, $props);
 
         return [
             'id' => $block['id'],
@@ -823,7 +823,7 @@ class JsonToSectionsAdapter
      * @param string $tableType 'product' or 'task'
      * @return array Array of row elements
      */
-    private function buildTableBodyRows(array $visibleColumns, array $filteredItems, string $tableType): array
+    private function buildTableBodyRows(array $visibleColumns, array $filteredItems, string $tableType, array $props): array
     {
         $rows = [];
         $rowIndex = 0;
@@ -832,16 +832,25 @@ class JsonToSectionsAdapter
         foreach ($filteredItems as $item) {
             $rowElements = [];
             $isFirstRow = $rowIndex === 0;
+            $rowBackground = $this->resolveRowBackground($props, $rowIndex);
+
+            // Per spec §1.1.1: row background is painted on the <tr> for
+            // browsers and ALSO on each <td> because dompdf and similar
+            // print pipelines drop <tr> backgrounds under border-collapse.
+            $cellBgSuffix = $rowBackground !== null
+                ? ' background-color: ' . $rowBackground . ';'
+                : '';
 
             foreach ($visibleColumns as $column) {
                 $value = $this->getFieldValue($item, $column['field'], $tableType);
+                $baseStyle = $isFirstRow ? $column['cell_style_first_row'] : $column['cell_style'];
 
                 $rowElements[] = [
                     'element' => 'td',
                     'content' => $value,
                     'properties' => [
                         'data-ref' => $column['cell_ref'],
-                        'style' => $isFirstRow ? $column['cell_style_first_row'] : $column['cell_style'],
+                        'style' => $baseStyle . $cellBgSuffix,
                         'visi' => true, // Mark as visible for border-radius logic
                     ],
                 ];
@@ -849,10 +858,14 @@ class JsonToSectionsAdapter
 
             // Apply parseVisibleElements-style logic for first/last cells
             if (!empty($rowElements)) {
-                $rows[] = [
+                $tr = [
                     'element' => 'tr',
                     'elements' => $rowElements,
                 ];
+                if ($rowBackground !== null) {
+                    $tr['properties'] = ['style' => 'background: ' . $rowBackground . ';'];
+                }
+                $rows[] = $tr;
                 $rowIndex++;
             }
         }
@@ -1401,6 +1414,12 @@ class JsonToSectionsAdapter
             $styles[] = 'border-left: '   . $this->buildBorderStroke($h, $h['sides']['left']);
         }
 
+        // Repeat headerBg on each <th> so PDF engines that drop <thead>/<tr>
+        // backgrounds (dompdf and similar) still paint the header row.
+        if (isset($props['headerBg']) && is_string($props['headerBg']) && $props['headerBg'] !== '') {
+            $styles[] = 'background-color: ' . $props['headerBg'];
+        }
+
         return implode('; ', $styles) . ';';
     }
 
@@ -1457,9 +1476,9 @@ class JsonToSectionsAdapter
             $styles[] = 'color: ' . $props['cellColor'];
         }
 
-        if (isset($props['rowBg'])) {
-            $styles[] = 'background: ' . $props['rowBg'];
-        }
+        // Row background is painted per-row in buildTableBodyRows so that
+        // alternating stripes (rowBg / alternateRowBg) can be selected by
+        // row index — see resolveRowBackground.
 
         return implode('; ', $styles) . ';';
     }
@@ -1562,6 +1581,28 @@ class JsonToSectionsAdapter
         }
 
         return $region['widthPx'] . 'px solid ' . $region['color'];
+    }
+
+    /**
+     * Resolve the background colour for a body row at $rowIndex, matching
+     * the frontend ternary: alternateRows gates striping with strict ===
+     * equality, odd indices use alternateRowBg, even indices use rowBg.
+     *
+     * Returns null when the resolved value is missing or empty so callers
+     * can skip emitting a background declaration entirely (FE parity:
+     * `background: undefined` produces no rule).
+     */
+    private function resolveRowBackground(array $props, int $rowIndex): ?string
+    {
+        $isStripe = ($props['alternateRows'] ?? null) === true && ($rowIndex % 2) === 1;
+        $key = $isStripe ? 'alternateRowBg' : 'rowBg';
+
+        $value = $props[$key] ?? null;
+        if (is_string($value) && $value !== '') {
+            return $value;
+        }
+
+        return null;
     }
 
     private function buildTotalRowClass(bool $isTotal, bool $isBalance): string

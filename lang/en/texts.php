@@ -5959,6 +5959,9 @@ $lang = array(
     'restored_template' => 'Successfully Restored Template',
     'archived_template' => 'Successfully Archived Template',
     'deleted_template' => 'Successfully Deleted Template',
+    'top' => 'Top',
+    'table_rows' => 'Rows',
+    'style' => 'Style',
 );
 
 return $lang;
