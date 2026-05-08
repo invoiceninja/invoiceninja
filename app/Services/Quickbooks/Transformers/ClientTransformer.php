@@ -54,7 +54,7 @@ class ClientTransformer extends BaseTransformer
         $name = str_replace([':', '"', "'", '&', '<', '>'], ['-', '', '', '&amp;', '', ''], $client->present()->name());
         $display_name = mb_substr($name, 0, 100);
         $company_name = mb_substr($name, 0, 100);
-        
+
         return [
             'DisplayName' => $display_name,
             'PrimaryEmailAddr' => [
@@ -121,7 +121,7 @@ class ClientTransformer extends BaseTransformer
         // Get shipping address fields
         // If ShipAddr is NULL, QuickBooks indicates "same as billing" - copy billing address to shipping
         $ship_addr = data_get($data, 'ShipAddr');
-        
+
         if ($ship_addr === null) {
             // ShipAddr is NULL, so shipping address is same as billing address
             $ship_address1 = $bill_address1;

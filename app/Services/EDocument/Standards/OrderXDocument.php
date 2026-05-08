@@ -15,6 +15,7 @@ namespace App\Services\EDocument\Standards;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Product;
+use App\DataMapper\Tax\BaseRule;
 use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Services\AbstractService;
@@ -233,7 +234,7 @@ class OrderXDocument extends AbstractService
                 $tax_type = OrderDutyTaxFeeCategories::VAT_REVERSE_CHARGE;
                 break;
         }
-        $eu_states = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "EL", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE", "IS", "LI", "NO", "CH"];
+        $eu_states = BaseRule::EU_TAX_EXEMPT_COUNTRY_CODES;
         if (empty($tax_type)) {
             if ((in_array($this->document->company->country()->iso_3166_2, $eu_states) && in_array($this->document->client->country->iso_3166_2, $eu_states)) && $this->document->company->country()->iso_3166_2 != $this->document->client->country->iso_3166_2) {
                 $tax_type = OrderDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES;

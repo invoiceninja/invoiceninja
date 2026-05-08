@@ -166,9 +166,26 @@ class Scheduler extends BaseModel
                 $next_run =  null;
         }
 
+        if (is_numeric($this->remaining_cycles) && $this->remaining_cycles > 0) {
+            $this->remaining_cycles -= 1;
+        }
+
         $this->next_run_client = $next_run ?: null;
         $this->next_run = $next_run ? $next_run->copy()->addSeconds($offset) : null;
         $this->save();
+
+        if (is_numeric($this->remaining_cycles) && $this->remaining_cycles === 0) {
+            $this->archiveCompleted();
+        }
+    }
+
+    private function archiveCompleted(): void
+    {
+        $this->is_paused = true;
+        $this->next_run = null;
+        $this->next_run_client = null;
+        $this->save();
+        $this->delete();
     }
 
     public function adjustOffset(): void

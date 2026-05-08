@@ -218,12 +218,12 @@ class PdfBuilder
         // This matches the exact behavior of mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8')
         return mb_encode_numericentity($html, [0x80, 0x10FFFF, 0, 0xFFFF], 'UTF-8');
     }
-    
+
     /**
      * transformHtmlVariables
      *
      * Transform the html variables into a format compatible for use with Twig Templates.
-     * 
+     *
      * @return array
      */
     private function transformHtmlVariables(): array
@@ -232,12 +232,12 @@ class PdfBuilder
 
         $values = $this->service->html_variables['values'] ?? [];
         foreach ($values as $key => $value) {
-            
+
             $cleanKey = ltrim($key, '$');
             $clientKey = "entity.{$cleanKey}";
             \Illuminate\Support\Arr::set($result, $clientKey, $value);
         }
-    
+
         return $result;
     }
 
@@ -251,10 +251,15 @@ class PdfBuilder
     private function parseTwigElements(): self
     {
 
+        $nodeList = $this->document->getElementsByTagName('ninja');
+
+        if ($nodeList->length === 0) {
+            return $this;
+        }
+
         $replacements = [];
 
         $contents = [];
-        $nodeList = $this->document->getElementsByTagName('ninja');
         for ($i = 0; $i < $nodeList->length; $i++) {
             $contents[] = $nodeList->item($i);
         }
@@ -263,7 +268,7 @@ class PdfBuilder
         $template_service = new TemplateService();
         $template_service->setCompany($this->service->company);
         $data = $template_service->processData($this->service->options)->getData();
-        
+
         //2026-02-11 - merge the html variables into the data array so they are available to the template in entity.key format.
         $data = array_merge($data, $this->transformHtmlVariables());
         $template_service->setData($data);
@@ -1058,7 +1063,7 @@ class PdfBuilder
                 $data[$key][$table_type . '.quantity'] = $this->service->config->formatValueNoTrailingZeroes($item->quantity);
 
                 $data[$key][$table_type . '.unit_cost'] = $this->service->config->formatMoneyNoRounding($item->cost);
-                
+
                 $data[$key][$table_type . '.net_cost'] = $this->service->config->formatMoneyNoRounding($item->net_cost);
 
                 $data[$key][$table_type . '.cost'] = $this->service->config->formatMoney($item->cost);
@@ -1500,7 +1505,7 @@ class PdfBuilder
         $elements = [
             ['element' => 'div', 'properties' => ['style' => 'display: flex; flex-direction: column;'], 'elements' => [
                 ['element' => 'div', 'properties' => ['data-ref' => 'total_table-public_notes', 'style' => 'text-align: left;'], 'elements' => [
-                    ['element' => 'div', 'content' => strtr(str_replace(["labels", "values"], ["",""], $_variables['values']['$entity.public_notes']), $_variables)],
+                    ['element' => 'div', 'content' => strtr(str_replace(["labels", "values"], ["",""], $_variables['values']['$entity.public_notes'] ?? ''), $_variables)],
                 ]],
                 ['element' => 'div', 'content' => '', 'properties' => ['style' => 'text-align: left; display: flex; flex-direction: column; page-break-inside: auto;'], 'elements' => [
                     ['element' => 'div', 'content' => '$entity.terms_label: ', 'properties' => ['data-ref' => 'total_table-terms-label', 'style' => "font-weight:bold; text-align: left; margin-top: 1rem; {$show_terms_label}"]],
@@ -2015,11 +2020,6 @@ class PdfBuilder
     {
         foreach ($items as $key => $item) {
             foreach ($item as $variable => $value) {
-
-                // if(str_contains($value, '<')) {
-                //     continue;
-                // }
-
                 $item[$variable] = str_replace("\n", '<br/>', $value);
             }
 
@@ -2228,6 +2228,10 @@ class PdfBuilder
      */
     public function updateVariables(): self
     {
+        if (isset($this->service->document_type) && $this->service->document_type === 'json_design') {
+            return $this->updateJsonDesignVariables();
+        }
+
         $html = strtr($this->getCompiledHTML(), $this->service->html_variables['labels']);
         $html = strtr($html, $this->service->html_variables['values']);
 
@@ -2235,6 +2239,120 @@ class PdfBuilder
         $this->document->saveHTML();
 
         return $this;
+    }
+
+    /**
+     * JSON designs are assembled from section arrays into a fresh DOM. Replacing
+     * variables directly in that DOM avoids serializing and reparsing the whole
+     * document, which gets expensive for large line-item tables.
+     */
+    private function updateJsonDesignVariables(): self
+    {
+        $this->replaceVariablesInTextNodes();
+        $this->replaceVariablesInAttributes();
+
+        return $this;
+    }
+
+    private function replaceVariablesInTextNodes(): void
+    {
+        $xpath = new \DOMXPath($this->document);
+        $nodes = [];
+
+        foreach ($xpath->query('//text()[contains(., "$") or contains(., "%24")]') as $node) {
+            $nodes[] = $node;
+        }
+
+        foreach ($nodes as $node) {
+            $value = $this->replaceVariablesInString($node->nodeValue);
+
+            if ($value === $node->nodeValue) {
+                continue;
+            }
+
+            if ($this->containsHtml($value) && !$this->hasEncodedHtmlAncestor($node)) {
+                $this->replaceTextNodeWithHtml($node, $value);
+                continue;
+            }
+
+            $node->nodeValue = $value;
+        }
+    }
+
+    private function replaceVariablesInAttributes(): void
+    {
+        foreach ($this->document->getElementsByTagName('*') as $element) {
+            if (!$element->hasAttributes()) {
+                continue;
+            }
+
+            foreach ($element->attributes as $attribute) {
+                if (!str_contains($attribute->value, '$') && !str_contains($attribute->value, '%24')) {
+                    continue;
+                }
+
+                $attribute->value = $this->replaceVariablesInString($attribute->value);
+            }
+        }
+    }
+
+    private function replaceVariablesInString(string $value): string
+    {
+        $value = str_replace('%24', '$', $value);
+        $value = strtr($value, $this->service->html_variables['labels']);
+
+        return strtr($value, $this->service->html_variables['values']);
+    }
+
+    private function containsHtml(string $value): bool
+    {
+        return str_contains($value, '<') && str_contains($value, '>');
+    }
+
+    private function hasEncodedHtmlAncestor(\DOMNode $node): bool
+    {
+        while ($node = $node->parentNode) {
+            if ($node instanceof \DOMElement && $node->getAttribute('data-state') === 'encoded-html') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function replaceTextNodeWithHtml(\DOMNode $node, string $html): void
+    {
+        $parent = $node->parentNode;
+
+        if (!$parent) {
+            $node->nodeValue = $html;
+            return;
+        }
+
+        $temp = new \DOMDocument();
+        $wrappedHtml = '<?xml encoding="UTF-8"><div>' . str_ireplace('<br>', '<br/>', $html) . '</div>';
+
+        if (!@$temp->loadHTML($wrappedHtml, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD)) {
+            $node->nodeValue = $html;
+            return;
+        }
+
+        $wrapper = $temp->getElementsByTagName('div')->item(0);
+        if (!$wrapper) {
+            $node->nodeValue = $html;
+            return;
+        }
+
+        $children = [];
+        foreach ($wrapper->childNodes as $child) {
+            $children[] = $child;
+        }
+
+        foreach ($children as $child) {
+            $parent->insertBefore($this->document->importNode($child, true), $node);
+        }
+
+        $parent->removeChild($node);
     }
 
     public function getEmptyElements(): self
@@ -2266,14 +2384,27 @@ class PdfBuilder
     private function isChildEmpty(array $child): bool
     {
         if (!isset($child['content']) && isset($child['show_empty']) && $child['show_empty'] === false) {
-            return true;
+            return !isset($child['empty_check']) || $this->resolvesEmpty($child['empty_check']);
         }
 
         if (isset($child['content']) && isset($child['show_empty']) && $child['show_empty'] === false) {
-            $value = strtr($child['content'], $this->service->html_variables['values']);
-            return empty($value) || $value === '&nbsp;' || $value === ' ';
+            return $this->resolvesEmpty($child['empty_check'] ?? $child['content']);
         }
 
         return false;
+    }
+
+    private function resolvesEmpty(string $content): bool
+    {
+        $value = strtr($content, $this->service->html_variables['labels'] ?? []);
+        $value = strtr($value, $this->service->html_variables['values'] ?? []);
+
+        if (preg_match('/\$[A-Za-z_][A-Za-z0-9_.]*/', $value) === 1) {
+            return true;
+        }
+
+        $value = trim(html_entity_decode($value, ENT_QUOTES | ENT_HTML5));
+
+        return $value === '' || $value === '&nbsp;' || $value === "\xc2\xa0";
     }
 }

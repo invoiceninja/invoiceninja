@@ -33,6 +33,7 @@ use App\Events\Invoice\InvoiceReminderWasEmailed;
 use App\DataMapper\InvoiceBackup;
 use App\Jobs\Ninja\TaskScheduler;
 use App\Utils\Number;
+use App\Models\Traits\IndexableItems;
 
 /**
  * App\Models\Invoice
@@ -159,6 +160,7 @@ class Invoice extends BaseModel
     use MakesReminders;
     use ActionsInvoice;
     use Searchable;
+    Use IndexableItems;
 
     protected $presenter = EntityPresenter::class;
 
@@ -260,8 +262,9 @@ class Invoice extends BaseModel
         return 'invoices';
     }
 
-    public function toSearchableArray()
+    public function toSearchableArray(): array
     {
+        
         $locale = $this->company->locale();
         App::setLocale($locale);
 
@@ -281,8 +284,9 @@ class Invoice extends BaseModel
             'custom_value4' => (string) $this->custom_value4,
             'company_key' => $this->company->company_key,
             'po_number' => (string) $this->po_number,
-            //'line_items' => (array) $this->line_items, //@todo - reinstate this when elastic indexes have been rebuilt
+            'line_items' => $this->indexLineItems(),
         ];
+
     }
 
     public function getScoutKey()
@@ -620,6 +624,25 @@ class Invoice extends BaseModel
                 $invitation->save();
             }
         });
+    }
+
+    /**
+     * Determines whether automatic tax calculation
+     * should be blocked from mutating this invoice.
+     *
+     * Prevents the `calculate_taxes` company setting from
+     * silently adding taxes to invoices whose totals must
+     * not change after the fact.
+     *
+     * @return bool
+     */
+    public function isTaxImmutable(): bool
+    {
+        return in_array($this->status_id, [
+            self::STATUS_PAID,
+            self::STATUS_CANCELLED,
+            self::STATUS_REVERSED,
+        ], true);
     }
 
     /**

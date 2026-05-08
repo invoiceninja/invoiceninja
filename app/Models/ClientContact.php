@@ -178,8 +178,9 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         return 'client_contacts';
     }
 
-    public function toSearchableArray()
+    public function toSearchableArray(): array
     {
+        
         return [
             'id' => $this->company->db . ":" . $this->id,
             'name' => $this->present()->search_display(),
@@ -340,7 +341,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
     }
 
     /**
-     * @return mixed|string
+     * @return string
      */
     public function avatarUrl(): string
     {

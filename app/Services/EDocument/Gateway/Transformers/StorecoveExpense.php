@@ -30,6 +30,7 @@ use App\Services\EDocument\Gateway\Storecove\Storecove;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractor;
 use App\Services\EDocument\Gateway\Storecove\Models\Invoice;
+use App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveSchemeResolver;
 use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
@@ -214,9 +215,10 @@ class StorecoveExpense
         $vat_number = '';
         $id_number = '';
         $routing_id = '';
+        $schemeResolver = new StorecoveSchemeResolver();
 
         foreach ($pis as $pi) {
-            if ($ident = $this->storecove->router->resolveIdentifierTypeByValue($pi->getScheme())) {
+            if ($ident = $schemeResolver->publicIdentifierField($pi->getScheme())) {
                 if ($ident == 'vat_number') {
                     $vat_number = $pi->getId();
                 } elseif ($ident == 'id_number') {

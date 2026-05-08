@@ -21,7 +21,7 @@ class Terms extends Component
     use WithSecureContext;
 
     public $variables;
-    
+
     public $_key;
 
     public function mount()

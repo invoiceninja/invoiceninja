@@ -157,7 +157,7 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
         nlog("Process response =>");
 
         /**
-         * If we hit the next block, it will 
+         * If we hit the next block, it will
          * be due to an internal server error @ paypal!
          */
         if ($response instanceof \Illuminate\Http\JsonResponse) {
@@ -165,7 +165,7 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
             nlog($response);
         }
 
-        if(is_array($response)) {
+        if (is_array($response)) {
             nlog($response);
         }
 

@@ -166,8 +166,6 @@ class LivewireInstantPayment
 
         $fee_totals = round(($first_invoice->balance - $starting_invoice_amount), $client->currency()->precision);
 
-
-
         if ($company_gateway) {
             $tokens = $client->gateway_tokens()
                 ->whereCompanyGatewayId($company_gateway->id)

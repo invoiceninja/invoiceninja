@@ -66,7 +66,12 @@ class StripeWebhook implements ShouldQueue
         /** @var \App\Models\CompanyGateway $company_gateway **/
         $company_gateway = CompanyGateway::find($this->company_gateway_id);
 
-        $stripe = $company_gateway->driver()->init();
+        try{
+            $stripe = $company_gateway->driver()->init();
+        }
+        catch(\Throwable $e){
+            return;
+        }
 
         $endpoints = \Stripe\WebhookEndpoint::all([], $stripe->stripe_connect_auth);
 

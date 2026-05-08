@@ -164,20 +164,17 @@ class BatchPushToQuickbooks implements ShouldQueue
         $failureCount = 0;
         $rateLimitedIds = [];
 
-        foreach ($entities as $entity) {
+        foreach ($entities as $index => $entity) {
             // Check rate limit before each entity
             if (!$rateLimiter->canMakeRequest()) {
                 $delay = $rateLimiter->getRecommendedDelay();
-                nlog("QB Batch: Rate limit reached, pausing for {$delay} seconds");
+                nlog("QB Batch: Rate limit reached, re-queueing remaining " . (count($entities) - $index) . " entities after {$delay}s");
 
-                // Wait for recommended delay
-                if ($delay > 0 && $delay <= 10) {
-                    sleep($delay);
-                } else {
-                    // Delay too long, re-queue remaining entities
-                    $rateLimitedIds[] = $entity->id;
-                    continue;
+                // Re-queue current + remaining entities and free the worker
+                foreach (array_slice($entities, $index) as $remaining) {
+                    $rateLimitedIds[] = $remaining->id;
                 }
+                break;
             }
 
             // Track request

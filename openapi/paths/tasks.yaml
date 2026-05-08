@@ -28,6 +28,7 @@
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_tasks"
       responses:
         200:
           description: "A list of tasks"

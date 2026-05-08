@@ -117,17 +117,20 @@ class Project extends BaseModel
         return self::class;
     }
 
-    public function toSearchableArray()
+    public function toSearchableArray(): array
     {
+       
         $locale = $this->company->locale();
         App::setLocale($locale);
 
+        $clientName = $this->client ? $this->client->present()->name() : '';
+
         return [
             'id' => (string) $this->company->db . ":" . $this->id,
-            'name' => ctrans('texts.project') . " " . $this->number . ' | ' . $this->name . " | " . $this->client->present()->name(),
+            'name' => ctrans('texts.project') . " " . $this->number . ' | ' . $this->name . " | " . $clientName,
             'hashed_id' => $this->hashed_id,
             'number' => (string) $this->number,
-            'is_deleted' => $this->is_deleted,
+            'is_deleted' => (bool) $this->is_deleted,
             'task_rate' => (float) $this->task_rate,
             'budgeted_hours' => (float) $this->budgeted_hours,
             'due_date' => $this->due_date,

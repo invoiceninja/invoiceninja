@@ -671,7 +671,15 @@ class CompanyImport implements ShouldQueue
         $settings->purchase_order_number_counter = 1;
 
         $settings->email_style_custom = str_replace(['{!!','!!}','{{','}}','@dd', '@dump', '@if', '@if(','@endif','@isset','@unless','@auth','@empty','@guest','@env','@section','@switch', '@foreach', '@while', '@include', '@each', '@once', '@push', '@use', '@forelse', '@verbatim', '<?php', '@php', '@for','@class','</s','<s','html;base64'], '', $settings->email_style_custom);
-        $settings->company_logo = (strlen($settings->company_logo) > 2 && stripos($settings->company_logo, 'http') !== false) ? $settings->company_logo : "https://{$settings->company_logo}";
+
+        // SafeExternalUrl short-circuits on self-hosted; on hosted it rejects
+        // non-https URLs, userinfo, and IP-literal hosts. No fetch needed —
+        // import-time validation is a shape check only. Render-time re-runs
+        // the same primitive before embedding the URL in PDFs.
+        if (filter_var($settings->company_logo, FILTER_VALIDATE_URL)
+            && !\App\Rules\SafeExternalUrl::check($settings->company_logo)['ok']) {
+            $settings->company_logo = '';
+        }
 
         foreach ($this->protected_input as $protected_var) {
             $settings->{$protected_var} = Purify::clean($settings->{$protected_var}, true);
@@ -1463,8 +1471,11 @@ class CompanyImport implements ShouldQueue
                 }
 
                 $response = Http::withOptions([
-                    'redirects' => false,
-                ])->get($url);
+                    'allow_redirects' => false,
+                ])
+                ->timeout(5)
+                ->get($url);
+                
                 if ($response->successful()) {
                     $file = $response->body();
                 } else {
@@ -2107,14 +2118,18 @@ class CompanyImport implements ShouldQueue
                 $new_obj->company_id = $this->company->id;
 
                 $obj_array['invoice_ids'] = collect(explode(",", $obj_array['invoice_ids'] ?? ''))
-                    ->filter(function ($id) { return strlen($id) > 1; })
+                    ->filter(function ($id) {
+                        return strlen($id) > 1;
+                    })
                     ->map(function ($id) {
                         $new_id = $this->transformId('invoices', $id);
                         return $new_id ? $this->encodePrimaryKey($new_id) : null;
                     })->filter()->implode(",");
 
                 $obj_array['expense_id'] = collect(explode(",", $obj_array['expense_id'] ?? ''))
-                    ->filter(function ($id) { return strlen($id) > 1; })
+                    ->filter(function ($id) {
+                        return strlen($id) > 1;
+                    })
                     ->map(function ($id) {
                         $new_id = $this->transformId('expenses', $id);
                         return $new_id ? $this->encodePrimaryKey($new_id) : null;

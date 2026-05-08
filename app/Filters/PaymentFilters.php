@@ -165,13 +165,13 @@ class PaymentFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
-        if (!is_array($sort_col) || 
-        count($sort_col) != 2 || 
-            (!in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable())) && 
-            !str_starts_with($sort_col[0], 'client.') && 
-            !str_starts_with($sort_col[0], 'contact.') && 
-            !str_starts_with($sort_col[0], 'documents') && 
-            !str_starts_with($sort_col[0], 'invoices'))) {
+        if (!is_array($sort_col)
+        || count($sort_col) != 2
+            || (!in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))
+            && !str_starts_with($sort_col[0], 'client.')
+            && !str_starts_with($sort_col[0], 'contact.')
+            && !str_starts_with($sort_col[0], 'documents')
+            && !str_starts_with($sort_col[0], 'invoices'))) {
             return $this->builder;
         }
 

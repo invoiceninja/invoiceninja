@@ -48,17 +48,55 @@ class JsonToSectionsAdapter
     /**
      * Grouped blocks by row (for layout)
      */
-    private array $blocksByRow = [];
+    private ?array $blocksByRow = null;
+
+    /**
+     * Blocks sorted by grid position. Cached because section conversion and
+     * base-template row grouping both need the same deterministic order.
+     */
+    private ?array $sortedBlocks = null;
+
+    /**
+     * Fetches and inlines user-supplied image URLs so Chromium never fetches
+     * untrusted content. Constructor-injected so tests can stub it.
+     */
+    private ImageFetcher $imageFetcher;
 
     /**
      * @param array $jsonDesign Complete JSON design with blocks and pageSettings
      * @param PdfService $service
+     * @param ImageFetcher|null $imageFetcher Optional override (defaults to a fresh ImageFetcher)
      */
-    public function __construct(array $jsonDesign, PdfService $service)
+    /**
+     * Block-id validation pattern. Block ids are interpolated into HTML `id`
+     * attributes and `data-ref` strings without further escaping by the
+     * adapter and by JsonDesignService::generateBaseTemplate(). The pattern
+     * accepts everything the FE actually emits — kebab-case names, UUIDs,
+     * and the dotted/underscored variants — and rejects anything that could
+     * break out of an attribute (`"`, `'`, `<`, `>`, `&`, `/`, whitespace,
+     * control chars). The 128-char cap prevents extreme attribute sizes.
+     */
+    private const BLOCK_ID_PATTERN = '/^[A-Za-z0-9._-]{1,128}$/';
+
+    public function __construct(array $jsonDesign, PdfService $service, ?ImageFetcher $imageFetcher = null)
     {
-        $this->jsonBlocks = $jsonDesign['blocks'] ?? [];
+        $this->jsonBlocks = self::filterValidBlocks($jsonDesign['blocks'] ?? []);
         $this->pageSettings = $jsonDesign['pageSettings'] ?? [];
         $this->service = $service;
+        $this->imageFetcher = $imageFetcher ?? new ImageFetcher($service->company->company_key ?? null);
+    }
+
+    /**
+     * Drop blocks with missing or unsafe ids. Static so JsonDesignService
+     * can apply the same filter to its generateBaseTemplate input from the
+     * same source of truth. Returns the surviving blocks unchanged.
+     */
+    public static function filterValidBlocks(array $blocks): array
+    {
+        return array_values(array_filter($blocks, static function ($block) {
+            $id = $block['id'] ?? null;
+            return is_string($id) && preg_match(self::BLOCK_ID_PATTERN, $id) === 1;
+        }));
     }
 
     /**
@@ -70,11 +108,8 @@ class JsonToSectionsAdapter
     {
         $sections = [];
 
-        // Sort blocks by grid position (Y-axis primary, X-axis secondary)
-        $sortedBlocks = $this->sortBlocksByPosition($this->jsonBlocks);
-
         // Convert each block to a section (no row grouping here - that's done in template)
-        foreach ($sortedBlocks as $block) {
+        foreach ($this->sortedBlocks() as $block) {
             $section = $this->convertBlockToSection($block);
             if ($section !== null) {
                 $sections[$block['id']] = $section;
@@ -91,8 +126,24 @@ class JsonToSectionsAdapter
      */
     public function getRowGroupedBlocks(): array
     {
-        $sortedBlocks = $this->sortBlocksByPosition($this->jsonBlocks);
-        return $this->groupBlocksIntoRows($sortedBlocks);
+        if ($this->blocksByRow === null) {
+            $this->blocksByRow = $this->groupBlocksIntoRows($this->sortedBlocks());
+        }
+
+        return $this->blocksByRow;
+    }
+
+    /**
+     * Return blocks sorted by grid position, computing the order once for the
+     * adapter lifetime.
+     */
+    private function sortedBlocks(): array
+    {
+        if ($this->sortedBlocks === null) {
+            $this->sortedBlocks = $this->sortBlocksByPosition($this->jsonBlocks);
+        }
+
+        return $this->sortedBlocks;
     }
 
     /**
@@ -168,9 +219,12 @@ class JsonToSectionsAdapter
             'logo', 'image' => $this->convertImageBlock($block),
             'company-info' => $this->convertCompanyInfoBlock($block),
             'client-info' => $this->convertClientInfoBlock($block),
+            'client-shipping-info' => $this->convertClientShippingInfoBlock($block),
             'invoice-details' => $this->convertInvoiceDetailsBlock($block),
             'table' => $this->convertTableBlock($block),
             'total' => $this->convertTotalBlock($block),
+            // Preset text blocks from the visual designer (same JSON shape as `text`).
+            'terms', 'footer', 'public-notes' => $this->convertTextBlock($block),
             'text' => $this->convertTextBlock($block),
             'divider' => $this->convertDividerBlock($block),
             'spacer' => $this->convertSpacerBlock($block),
@@ -187,6 +241,17 @@ class JsonToSectionsAdapter
     {
         $props = $block['properties'];
         $blockId = $block['id'];
+        $source = is_string($props['source'] ?? null) ? $props['source'] : '';
+
+        $values = $this->service->html_variables['values'] ?? [];
+        $toInline = $block['type'] === 'logo'
+            ? strtr($source, $values)
+            : $source;
+
+        // Inline the remote asset as a data: URI so Chromium never fetches a
+        // user-supplied URL. Fails closed to an empty src if the URL can't be
+        // safely retrieved (rejected scheme/host, 3xx, wrong content-type, etc.).
+        $src = $toInline === '' ? '' : ($this->imageFetcher->inline($toInline) ?? '');
 
         return [
             'id' => $blockId,
@@ -201,7 +266,7 @@ class JsonToSectionsAdapter
                         [
                             'element' => 'img',
                             'properties' => [
-                                'src' => $props['source'] ?? '',
+                                'src' => $src,
                                 'alt' => $block['type'] === 'logo' ? 'Company Logo' : 'Image',
                                 'data-ref' => $blockId,
                                 'style' => $this->buildImageStyle($props),
@@ -243,6 +308,7 @@ class JsonToSectionsAdapter
                     'element' => 'div',
                     'content' => $content,
                     'show_empty' => !$hideIfEmpty, // Invert: show_empty=false means hide when empty
+                    'empty_check' => $variable,
                     'properties' => [
                         'data-ref' => "{$block['id']}-field-{$index}",
                         'style' => $this->buildTextStyle($props),
@@ -319,6 +385,7 @@ class JsonToSectionsAdapter
                     'element' => 'div',
                     'content' => $content,
                     'show_empty' => !$hideIfEmpty, // Invert: show_empty=false means hide when empty
+                    'empty_check' => $variable,
                     'properties' => [
                         'data-ref' => "{$block['id']}-field-{$index}",
                         'style' => $this->buildTextStyle($props),
@@ -353,45 +420,77 @@ class JsonToSectionsAdapter
     }
 
     /**
+     * Convert client-shipping-info block.
+     *
+     * Structurally identical to client-info — the frontend supplies the
+     * shipping variables (e.g. $client.shipping_address1) through the same
+     * fieldConfigs shape — so we delegate to convertClientInfoBlock.
+     *
+     * No show_shipping_address gate: the user's design choice (placing this
+     * block on the canvas) is the source of truth. The legacy
+     * show_shipping_address setting affects traditional designs where the
+     * shipping section is implicit; in JSON designs the user is explicit, so
+     * if they don't want shipping rendered they remove the block.
+     */
+    private function convertClientShippingInfoBlock(array $block): array
+    {
+        return $this->convertClientInfoBlock($block);
+    }
+
+    /**
      * Convert invoice-details block
      */
     private function convertInvoiceDetailsBlock(array $block): array
     {
         $props = $block['properties'];
         $items = $props['items'] ?? null;
+        $fieldConfigs = $props['fieldConfigs'] ?? null;
+        $showLabels = (bool) ($props['showLabels'] ?? true);
         $elements = [];
 
-        if ($items && is_array($items)) {
+        if ($fieldConfigs && is_array($fieldConfigs)) {
+            // New format: shared fieldConfigs shape (same as company-info /
+            // client-info). Each entry contributes one <tr> with a label cell
+            // (config.label) and a value cell (config.variable). hideIfEmpty
+            // suppresses the row when the variable resolves to empty.
+            foreach ($fieldConfigs as $index => $config) {
+                $label = $config['label'] ?? '';
+                $variable = $config['variable'] ?? '';
+                $hideIfEmpty = $config['hideIfEmpty'] ?? true;
+
+                $elements[] = $this->buildInvoiceDetailsRow(
+                    $block['id'],
+                    $index,
+                    $label,
+                    $variable,
+                    !$hideIfEmpty,
+                    $props,
+                    $config,
+                    $showLabels,
+                    $variable,
+                );
+            }
+        } elseif ($items && is_array($items)) {
             // Structured format: items array with label/variable pairs
             foreach ($items as $index => $item) {
                 if (!($item['show'] ?? true)) {
                     continue;
                 }
 
-                $elements[] = [
-                    'element' => 'tr',
-                    'properties' => [
-                        'data-ref' => "{$block['id']}-row-{$index}",
-                    ],
-                    'elements' => [
-                        [
-                            'element' => 'th',
-                            'content' => $item['label'] ?? '',
-                            'properties' => [
-                                'data-ref' => "{$block['id']}-label-{$index}",
-                                'style' => $this->buildLabelStyle($props),
-                            ],
-                        ],
-                        [
-                            'element' => 'th',
-                            'content' => $item['variable'] ?? '',
-                            'properties' => [
-                                'data-ref' => "{$block['id']}-value-{$index}",
-                                'style' => $this->buildValueStyle($props),
-                            ],
-                        ],
-                    ],
-                ];
+                $variable = $item['variable'] ?? '';
+                $hideIfEmpty = $item['hideIfEmpty'] ?? true;
+
+                $elements[] = $this->buildInvoiceDetailsRow(
+                    $block['id'],
+                    $index,
+                    $item['label'] ?? '',
+                    $variable,
+                    !$hideIfEmpty,
+                    $props,
+                    $item,
+                    $showLabels,
+                    $variable,
+                );
             }
         } elseif (isset($props['content']) && !empty($props['content'])) {
             // Legacy format: content string with "Label: $variable" format
@@ -403,36 +502,21 @@ class JsonToSectionsAdapter
                     continue;
                 }
 
-                // Parse "Label: $variable" format
                 $parts = explode(':', $line, 2);
                 $label = isset($parts[0]) ? trim($parts[0]) . ':' : '';
                 $variable = isset($parts[1]) ? trim($parts[1]) : '';
 
-                $elements[] = [
-                    'element' => 'tr',
-                    'properties' => [
-                        'data-ref' => "{$block['id']}-row-{$index}",
-                    ],
-                    'elements' => [
-                        [
-                            'element' => 'th',
-                            'content' => $label,
-                            'properties' => [
-                                'data-ref' => "{$block['id']}-label-{$index}",
-                                'style' => $this->buildLabelStyle($props),
-                            ],
-                        ],
-                        [
-                            'element' => 'th',
-                            'content' => $variable,
-                            'show_empty' => false, // Hide row if variable is empty
-                            'properties' => [
-                                'data-ref' => "{$block['id']}-value-{$index}",
-                                'style' => $this->buildValueStyle($props),
-                            ],
-                        ],
-                    ],
-                ];
+                $elements[] = $this->buildInvoiceDetailsRow(
+                    $block['id'],
+                    $index,
+                    $label,
+                    $variable,
+                    false,
+                    $props,
+                    [],
+                    $showLabels,
+                    $variable,
+                );
             }
         }
 
@@ -441,11 +525,182 @@ class JsonToSectionsAdapter
             'elements' => [[
                 'element' => 'table',
                 'properties' => [
-                    'style' => $this->buildTableStyle($props),
+                    'style' => $this->buildInvoiceDetailsTableStyle($props),
                 ],
                 'elements' => $elements,
             ]],
         ];
+    }
+
+    /**
+     * Build a single <tr> for the invoice-details block, honoring per-row
+     * labelStyle/valueStyle overrides and the showLabels block flag.
+     */
+    private function buildInvoiceDetailsRow(string $blockId, mixed $index, string $label, string $variable, bool $showEmpty, array $props, array $row, bool $showLabels, ?string $emptyCheck = null): array
+    {
+        $columnStyles = $this->invoiceDetailsColumnStyles($props);
+        $resolver = new CellStyleResolver();
+        $context = ['kind' => CellStyleResolver::KIND_INVOICE_DETAILS];
+
+        $valueCell = [
+            'element' => 'th',
+            'content' => $variable,
+            'show_empty' => $showEmpty,
+            'properties' => [
+                'data-ref' => "{$blockId}-value-{$index}",
+                'style' => $this->composeCellStyle(
+                    $resolver->resolveValue($props, $row, $context),
+                    $columnStyles['value'],
+                ),
+            ],
+        ];
+
+        if (!$showLabels) {
+            $rowElement = [
+                'element' => 'tr',
+                'properties' => ['data-ref' => "{$blockId}-row-{$index}"],
+                'elements' => [$valueCell],
+            ];
+
+            return $this->withRowEmptyCheck($rowElement, $showEmpty, $emptyCheck ?? $variable);
+        }
+
+        $labelCell = [
+            'element' => 'th',
+            'content' => $label,
+            'properties' => [
+                'data-ref' => "{$blockId}-label-{$index}",
+                'style' => $this->composeCellStyle(
+                    $resolver->resolveLabel($props, $row, $context),
+                    $columnStyles['label'],
+                ),
+            ],
+        ];
+
+        $rowElement = [
+            'element' => 'tr',
+            'properties' => ['data-ref' => "{$blockId}-row-{$index}"],
+            'elements' => [$labelCell, $valueCell],
+        ];
+
+        return $this->withRowEmptyCheck($rowElement, $showEmpty, $emptyCheck ?? $variable);
+    }
+
+    /**
+     * Attach hide-if-empty metadata to a whole row so labels do not survive
+     * after their value cell resolves to empty.
+     */
+    private function withRowEmptyCheck(array $rowElement, bool $showEmpty, string $emptyCheck): array
+    {
+        if ($showEmpty) {
+            return $rowElement;
+        }
+
+        $rowElement['show_empty'] = false;
+        $rowElement['empty_check'] = $emptyCheck;
+
+        return $rowElement;
+    }
+
+    /**
+     * Compute the column-level (non-typography) styles applied uniformly to
+     * every label and value cell in an invoice-details block.
+     *
+     * @return array{label: array<string,string>, value: array<string,string>}
+     */
+    private function invoiceDetailsColumnStyles(array $props): array
+    {
+        $align = $props['align'] ?? 'left';
+        $labelAlign = $props['labelAlign'] ?? 'left';
+        $valueAlign = $props['valueAlign'] ?? $align;
+        $labelPadding = $props['labelPadding'] ?? '0';
+        $valuePadding = $props['valuePadding'] ?? '0';
+        $labelValueGap = $props['labelValueGap'] ?? '12px';
+        $rowSpacing = $props['rowSpacing'] ?? '0';
+        $lineHeight = $props['lineHeight'] ?? null;
+
+        $label = [
+            'text-align' => $labelAlign,
+            'padding' => $labelPadding,
+            // padding-right asserted after `padding` so labelValueGap survives the shorthand
+            'padding-right' => $labelValueGap,
+            'padding-bottom' => $rowSpacing,
+            'white-space' => 'nowrap',
+        ];
+
+        $value = [
+            'text-align' => $valueAlign,
+            'padding' => $valuePadding,
+            'padding-bottom' => $rowSpacing,
+            'white-space' => 'nowrap',
+        ];
+
+        if (isset($props['valueMinWidth']) && $props['valueMinWidth'] !== '') {
+            $value['min-width'] = (string) $props['valueMinWidth'];
+        }
+
+        if ($lineHeight !== null && $lineHeight !== '') {
+            $label['line-height'] = (string) $lineHeight;
+            $value['line-height'] = (string) $lineHeight;
+        }
+
+        return ['label' => $label, 'value' => $value];
+    }
+
+    /**
+     * Build the outer <table> style for an invoice-details block. The
+     * `padding` block prop applies here (outer container), per spec.
+     */
+    private function buildInvoiceDetailsTableStyle(array $props): string
+    {
+        $styles = [];
+        $styles[] = 'border-collapse: collapse';
+        $styles[] = 'width: fit-content';
+        $styles[] = 'max-width: 100%';
+
+        if (isset($props['padding']) && $props['padding'] !== '') {
+            $styles[] = 'padding: ' . $props['padding'];
+        }
+
+        if (isset($props['align'])) {
+            $align = $props['align'];
+            if ($align === 'right') {
+                $styles[] = 'margin-left: auto';
+            } elseif ($align === 'center') {
+                $styles[] = 'margin: 0 auto';
+            }
+        }
+
+        return implode('; ', $styles) . ';';
+    }
+
+    /**
+     * Compose the typography map and the column-level overrides into a CSS
+     * declaration string. Order matters: typography first (so column-level
+     * `padding-right` overrides any padding shorthand from the resolver).
+     *
+     * @param array<string, ?string> $typography Resolver output (font-size, font-weight, font-style, color)
+     * @param array<string, string>  $columnStyles Column-level styles applied uniformly to all rows
+     */
+    private function composeCellStyle(array $typography, array $columnStyles): string
+    {
+        $declarations = [];
+
+        foreach ($typography as $property => $value) {
+            if ($value === null || $value === '') {
+                continue;
+            }
+            $declarations[] = $property . ': ' . $value;
+        }
+
+        foreach ($columnStyles as $property => $value) {
+            if ($value === '') {
+                continue;
+            }
+            $declarations[] = $property . ': ' . $value;
+        }
+
+        return $declarations === [] ? '' : (implode('; ', $declarations) . ';');
     }
 
     /**
@@ -459,41 +714,36 @@ class JsonToSectionsAdapter
         // Determine table type from column fields
         $tableType = $this->detectTableType($columns);
 
-        // Get filtered line items for visibility calculation
+        // Get filtered line items once; table body generation reuses the same
+        // array so large invoices don't walk line_items twice per table block.
         $filteredItems = $this->getFilteredLineItems($tableType);
-
-        // Calculate which columns are empty (for hiding)
-        $columnVisibility = $this->calculateColumnVisibility($columns, $filteredItems);
 
         // Check if we should hide empty columns
         $hideEmptyColumns = $this->service->config->settings->hide_empty_columns_on_pdf ?? false;
 
+        // Calculate which columns are empty only when the setting can use it.
+        $columnVisibility = $hideEmptyColumns
+            ? $this->calculateColumnVisibility($columns, $filteredItems)
+            : [];
+
+        $visibleColumns = $this->visibleTableColumns($columns, $props, $tableType, $columnVisibility, $hideEmptyColumns);
+
         // Build header elements (only for visible columns)
         $headerElements = [];
-        $visibleColumnIndices = [];
-        foreach ($columns as $index => $column) {
-            $columnId = $column['id'] ?? $index;
-            $isEmpty = $columnVisibility[$columnId] ?? false;
-
-            // Skip if column is empty and setting is enabled
-            if ($hideEmptyColumns && $isEmpty) {
-                continue;
-            }
-
-            $visibleColumnIndices[] = $index;
+        foreach ($visibleColumns as $column) {
             $headerElements[] = [
                 'element' => 'th',
-                'content' => $column['header'] ?? '',
+                'content' => $column['header'],
                 'properties' => [
-                    'data-ref' => "{$tableType}_table-{$column['id']}-th",
-                    'style' => $this->buildTableHeaderStyle($props, $column),
+                    'data-ref' => $column['header_ref'],
+                    'style' => $column['header_style'],
                     'visi' => true, // Mark as visible for border-radius logic
                 ],
             ];
         }
 
         // Build table body rows with only visible columns
-        $bodyRows = $this->buildTableBodyRows($columns, $tableType, $props, $columnVisibility, $hideEmptyColumns);
+        $bodyRows = $this->buildTableBodyRows($visibleColumns, $filteredItems, $tableType);
 
         return [
             'id' => $block['id'],
@@ -526,44 +776,66 @@ class JsonToSectionsAdapter
     }
 
     /**
-     * Build table body rows using JSON design's custom columns
+     * Precompute the visible column metadata and static styles once per table
+     * block rather than once per generated cell.
      *
      * @param array $columns Column definitions from JSON design
-     * @param string $tableType 'product' or 'task'
      * @param array $props Table properties for styling
+     * @param string $tableType 'product' or 'task'
      * @param array $columnVisibility Which columns are empty
      * @param bool $hideEmptyColumns Whether to hide empty columns
+     * @return array Visible table column metadata
+     */
+    private function visibleTableColumns(array $columns, array $props, string $tableType, array $columnVisibility, bool $hideEmptyColumns): array
+    {
+        $visibleColumns = [];
+
+        foreach ($columns as $index => $column) {
+            $columnId = $column['id'] ?? $index;
+            $isEmpty = $columnVisibility[$columnId] ?? false;
+
+            if ($hideEmptyColumns && $isEmpty) {
+                continue;
+            }
+
+            $visibleColumns[] = [
+                'field' => $column['field'] ?? '',
+                'header' => $column['header'] ?? '',
+                'header_ref' => "{$tableType}_table-{$columnId}-th",
+                'cell_ref' => "{$tableType}_table-{$columnId}-td",
+                'header_style' => $this->buildTableHeaderStyle($props, $column),
+                'cell_style' => $this->buildTableCellStyle($props, $column),
+            ];
+        }
+
+        return $visibleColumns;
+    }
+
+    /**
+     * Build table body rows using JSON design's custom columns
+     *
+     * @param array $visibleColumns Precomputed visible column metadata
+     * @param array $filteredItems Filtered line items for the table type
+     * @param string $tableType 'product' or 'task'
      * @return array Array of row elements
      */
-    private function buildTableBodyRows(array $columns, string $tableType, array $props, array $columnVisibility, bool $hideEmptyColumns): array
+    private function buildTableBodyRows(array $visibleColumns, array $filteredItems, string $tableType): array
     {
         $rows = [];
-
-        // Get filtered line items
-        $filteredItems = $this->getFilteredLineItems($tableType);
 
         // Build rows
         foreach ($filteredItems as $item) {
             $rowElements = [];
 
-            foreach ($columns as $index => $column) {
-                $columnId = $column['id'] ?? $index;
-                $isEmpty = $columnVisibility[$columnId] ?? false;
-
-                // Skip if column is empty and setting is enabled
-                if ($hideEmptyColumns && $isEmpty) {
-                    continue;
-                }
-
-                $field = $column['field'] ?? '';
-                $value = $this->getFieldValue($item, $field, $tableType);
+            foreach ($visibleColumns as $column) {
+                $value = $this->getFieldValue($item, $column['field'], $tableType);
 
                 $rowElements[] = [
                     'element' => 'td',
                     'content' => $value,
                     'properties' => [
-                        'data-ref' => "{$tableType}_table-{$column['id']}-td",
-                        'style' => $this->buildTableCellStyle($props, $column),
+                        'data-ref' => $column['cell_ref'],
+                        'style' => $column['cell_style'],
                         'visi' => true, // Mark as visible for border-radius logic
                     ],
                 ];
@@ -593,7 +865,7 @@ class JsonToSectionsAdapter
         $filteredItems = [];
 
         foreach ($lineItems as $item) {
-            $itemTypeId = (string)($item->type_id ?? '1');
+            $itemTypeId = (string) ($item->type_id ?? '1');
 
             if ($tableType === 'product') {
                 // Include products (1) and related types (4, 5, 6)
@@ -714,13 +986,14 @@ class JsonToSectionsAdapter
                 if (isset($item->is_amount_discount) && $item->is_amount_discount) {
                     return $this->service->config->formatMoney($value);
                 } else {
-                    return $this->service->config->formatValueNoTrailingZeroes((float)$value) . '%';
+                    return $this->service->config->formatValueNoTrailingZeroes((float) $value) . '%';
                 }
 
+                // no break
             case 'tax_rate1':
             case 'tax_rate2':
             case 'tax_rate3':
-                return $this->service->config->formatValueNoTrailingZeroes((float)$value) . '%';
+                return $this->service->config->formatValueNoTrailingZeroes((float) $value) . '%';
 
             case 'notes':
             case 'description':
@@ -732,7 +1005,7 @@ class JsonToSectionsAdapter
                 return \App\Utils\Helpers::processReservedKeywords($value, $this->service->config->currency_entity, $currentDateTime);
 
             default:
-                return (string)$value;
+                return (string) $value;
         }
     }
 
@@ -759,6 +1032,9 @@ class JsonToSectionsAdapter
     {
         $props = $block['properties'];
         $items = $props['items'] ?? [];
+        $showLabels = (bool) ($props['showLabels'] ?? true);
+        $columnStyles = $this->totalColumnStyles($props);
+        $resolver = new CellStyleResolver();
         $rowElements = [];
 
         foreach ($items as $index => $item) {
@@ -766,38 +1042,56 @@ class JsonToSectionsAdapter
                 continue;
             }
 
-            $isTotal = $item['isTotal'] ?? false;
-            $isBalance = $item['isBalance'] ?? false;
+            $field = $item['field'] ?? '';
+            $hideIfEmpty = $item['hideIfEmpty'] ?? true;
+            $isTotal = (bool) ($item['isTotal'] ?? false);
+            $isBalance = (bool) ($item['isBalance'] ?? false);
+            $context = [
+                'kind' => CellStyleResolver::KIND_TOTAL,
+                'isTotal' => $isTotal,
+                'isBalance' => $isBalance,
+            ];
 
-            // Create table row with label and value cells
-            $rowElements[] = [
+            $valueCell = [
+                'element' => 'td',
+                'content' => $field,
+                'properties' => [
+                    'data-ref' => "{$block['id']}-value-{$index}",
+                    'class' => 'totals-value',
+                    'style' => $this->composeCellStyle(
+                        $resolver->resolveValue($props, $item, $context),
+                        $columnStyles['value'],
+                    ),
+                ],
+            ];
+
+            $cells = [];
+            if ($showLabels) {
+                $cells[] = [
+                    'element' => 'td',
+                    'content' => ($item['label'] ?? '') . ':',
+                    'properties' => [
+                        'data-ref' => "{$block['id']}-label-{$index}",
+                        'class' => 'totals-label',
+                        'style' => $this->composeCellStyle(
+                            $resolver->resolveLabel($props, $item, $context),
+                            $columnStyles['label'],
+                        ),
+                    ],
+                ];
+            }
+            $cells[] = $valueCell;
+
+            $rowElement = [
                 'element' => 'tr',
                 'properties' => [
                     'data-ref' => "{$block['id']}-row-{$index}",
                     'class' => $this->buildTotalRowClass($isTotal, $isBalance),
-                    'style' => $this->buildTotalRowStyle($props, $isTotal),
                 ],
-                'elements' => [
-                    [
-                        'element' => 'td',
-                        'content' => $item['label'] . ':',
-                        'properties' => [
-                            'data-ref' => "{$block['id']}-label-{$index}",
-                            'class' => 'totals-label',
-                            'style' => $this->buildTotalLabelStyle($props),
-                        ],
-                    ],
-                    [
-                        'element' => 'td',
-                        'content' => $item['field'],
-                        'properties' => [
-                            'data-ref' => "{$block['id']}-value-{$index}",
-                            'class' => 'totals-value',
-                            'style' => $this->buildTotalValueStyle($props, $isTotal, $isBalance),
-                        ],
-                    ],
-                ],
+                'elements' => $cells,
             ];
+
+            $rowElements[] = $this->withRowEmptyCheck($rowElement, !$hideIfEmpty, $field);
         }
 
         return [
@@ -816,6 +1110,46 @@ class JsonToSectionsAdapter
                 ],
             ]],
         ];
+    }
+
+    /**
+     * Column-level styles applied to every label/value cell in the total
+     * block. labelAlign/valueAlign default to 'right' (preserving the prior
+     * hardcoded behaviour); spacing / labelValueGap / labelPadding /
+     * valuePadding / valueMinWidth honor existing keys per spec.
+     *
+     * @return array{label: array<string,string>, value: array<string,string>}
+     */
+    private function totalColumnStyles(array $props): array
+    {
+        $labelAlign = $props['labelAlign'] ?? 'right';
+        $valueAlign = $props['valueAlign'] ?? 'right';
+        $labelPadding = $props['labelPadding'] ?? '0';
+        $valuePadding = $props['valuePadding'] ?? '0';
+        $labelValueGap = $props['labelValueGap'] ?? '20px';
+        $spacing = $props['spacing'] ?? '4px';
+
+        $label = [
+            'text-align' => $labelAlign,
+            'padding' => $labelPadding,
+            // padding-right asserted after `padding` so labelValueGap survives
+            'padding-right' => $labelValueGap,
+            'padding-bottom' => $spacing,
+            'white-space' => 'nowrap',
+        ];
+
+        $value = [
+            'text-align' => $valueAlign,
+            'padding' => $valuePadding,
+            'padding-bottom' => $spacing,
+            'white-space' => 'nowrap',
+        ];
+
+        if (isset($props['valueMinWidth']) && $props['valueMinWidth'] !== '') {
+            $value['min-width'] = (string) $props['valueMinWidth'];
+        }
+
+        return ['label' => $label, 'value' => $value];
     }
 
     /**
@@ -1024,51 +1358,22 @@ class JsonToSectionsAdapter
     private function buildTitleStyle(array $props): string
     {
         $styles = [];
-        $styles[] = 'font-size: ' . ($props['fontSize'] ?? '12px');
+        $styles[] = 'font-size: '   . ($props['titleFontSize']   ?? $props['fontSize'] ?? '12px');
         $styles[] = 'font-weight: ' . ($props['titleFontWeight'] ?? 'bold');
-        $styles[] = 'color: ' . ($props['color'] ?? '#374151');
+
+        // font-style is conditional — emitting `font-style: normal` by default
+        // would override CSS that came in via the cascade.
+        if (isset($props['titleFontStyle'])) {
+            $styles[] = 'font-style: ' . $props['titleFontStyle'];
+        }
+
+        $styles[] = 'color: '      . ($props['titleColor'] ?? $props['color'] ?? '#374151');
+        $styles[] = 'text-align: ' . ($props['titleAlign'] ?? $props['align'] ?? 'left');
         $styles[] = 'margin-bottom: 8px';
 
         return implode('; ', $styles) . ';';
     }
 
-    private function buildLabelStyle(array $props): string
-    {
-        $styles = [];
-        $styles[] = 'font-size: ' . ($props['fontSize'] ?? '12px');
-        $styles[] = 'color: ' . ($props['labelColor'] ?? '#6B7280');
-        $styles[] = 'text-align: ' . ($props['align'] ?? 'left');
-        $styles[] = 'padding-right: 12px';
-        $styles[] = 'white-space: nowrap';
-
-        return implode('; ', $styles) . ';';
-    }
-
-    private function buildValueStyle(array $props): string
-    {
-        $styles = [];
-        $styles[] = 'font-size: ' . ($props['fontSize'] ?? '12px');
-        $styles[] = 'color: ' . ($props['color'] ?? '#374151');
-        $styles[] = 'text-align: ' . ($props['align'] ?? 'left');
-
-        return implode('; ', $styles) . ';';
-    }
-
-    private function buildTableStyle(array $props): string
-    {
-        $styles = [];
-        $styles[] = 'border-collapse: collapse';
-        if (isset($props['align'])) {
-            $align = $props['align'];
-            if ($align === 'right') {
-                $styles[] = 'margin-left: auto';
-            } elseif ($align === 'center') {
-                $styles[] = 'margin: 0 auto';
-            }
-        }
-
-        return implode('; ', $styles) . ';';
-    }
 
     private function buildTableHeaderStyle(array $props, array $column): string
     {
@@ -1143,49 +1448,13 @@ class JsonToSectionsAdapter
         return implode(' ', $classes);
     }
 
-    private function buildTotalRowStyle(array $props, bool $isTotal): string
-    {
-        $styles = [];
-        $styles[] = 'font-size: ' . ($isTotal ? ($props['totalFontSize'] ?? '14px') : ($props['fontSize'] ?? '12px'));
-        $styles[] = 'font-weight: ' . ($isTotal ? ($props['totalFontWeight'] ?? 'bold') : 'normal');
-
-        return implode('; ', $styles) . ';';
-    }
-
-    private function buildTotalLabelStyle(array $props): string
-    {
-        $styles = [];
-        $styles[] = 'color: ' . ($props['labelColor'] ?? '#6B7280');
-        $styles[] = 'text-align: right';
-        $styles[] = 'white-space: nowrap';
-        $styles[] = 'padding-right: ' . ($props['labelValueGap'] ?? '20px');
-        $styles[] = 'padding-bottom: ' . ($props['spacing'] ?? '4px');
-
-        return implode('; ', $styles) . ';';
-    }
-
-    private function buildTotalValueStyle(array $props, bool $isTotal, bool $isBalance): string
-    {
-        $color = $props['amountColor'] ?? '#374151';
-        if ($isTotal) {
-            $color = $props['totalColor'] ?? $color;
-        }
-        if ($isBalance) {
-            $color = $props['balanceColor'] ?? $color;
-        }
-
-        $styles = [];
-        $styles[] = 'color: ' . $color;
-        $styles[] = 'text-align: right';
-        $styles[] = 'white-space: nowrap';
-        $styles[] = 'padding-bottom: ' . ($props['spacing'] ?? '4px');
-
-        return implode('; ', $styles) . ';';
-    }
-
     private function buildTotalContainerStyle(array $props): string
     {
         $styles = [];
+        $styles[] = 'border-collapse: collapse';
+        $styles[] = 'width: fit-content';
+        $styles[] = 'max-width: 100%';
+
         if (isset($props['align'])) {
             $align = $props['align'];
             if ($align === 'right') {
@@ -1193,6 +1462,18 @@ class JsonToSectionsAdapter
             } elseif ($align === 'center') {
                 $styles[] = 'margin: 0 auto';
             }
+        }
+
+        // FE-controlled page-break behavior for the totals table only.
+        // Default true: keep the whole totals block on one page (matches
+        // the most common user expectation). When explicitly false, the
+        // totals table is allowed to flow across pages — individual rows
+        // still don't split because the global `tr { break-inside: avoid }`
+        // rule applies.
+        $keepTogether = (bool) ($props['keepTogether'] ?? true);
+        if ($keepTogether) {
+            $styles[] = 'break-inside: avoid';
+            $styles[] = 'page-break-inside: avoid';
         }
 
         return implode('; ', $styles) . ';';

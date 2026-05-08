@@ -362,7 +362,6 @@ class ACH implements LivewireMethodInterface
     /**
      * tokenBilling
      *
-     * @todo - clean up after confirmation that this is no longer necessary.
      */
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
@@ -370,51 +369,8 @@ class ACH implements LivewireMethodInterface
 
         $description = $this->stripe->getDescription(false);
 
-        //@2025-11-21: Charges API is deprecated for ACH, we can pass the ba_ token with mandate data now.
-        // if (substr($cgt->token, 0, 2) === 'pm') {
         return $this->paymentIntentTokenBilling($amount, $description, $cgt, false);
-        // }
 
-        $this->stripe->init();
-
-        $response = null;
-
-        try {
-            $state = [
-                'gateway_type_id' => GatewayType::BANK_TRANSFER,
-                'amount' => $this->stripe->convertToStripeAmount($amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
-                'currency' => $this->stripe->client->getCurrencyCode(),
-                'customer' => $cgt->gateway_customer_reference,
-                'source' => $cgt->token,
-            ];
-
-            $state['charge'] = \Stripe\Charge::create([
-                'amount' => $state['amount'],
-                'currency' => $state['currency'],
-                'customer' => $state['customer'],
-                'source' => $state['source'],
-                'description' => $description,
-                'metadata' => [
-                    'payment_hash' => $this->stripe->payment_hash->hash,
-                    'gateway_type_id' => GatewayType::BANK_TRANSFER,
-                ],
-            ], $this->stripe->stripe_connect_auth);
-
-            $payment_hash->data = array_merge((array) $payment_hash->data, $state);
-            $payment_hash->save();
-
-            if ($state['charge']->status === 'pending' && is_null($state['charge']->failure_message)) {
-                return $this->processPendingPayment($state, false);
-            }
-
-            return $this->processUnsuccessfulPayment($state);
-        } catch (Exception $e) {
-            if ($e instanceof CardException) {
-                return redirect()->route('client.payment_methods.verification', ['payment_method' => $cgt->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
-            }
-
-            throw new PaymentFailed($e->getMessage(), $e->getCode());
-        }
     }
 
     public function paymentIntentTokenBilling($amount, $description, $cgt, $client_present = true)

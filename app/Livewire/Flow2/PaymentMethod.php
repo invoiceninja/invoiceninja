@@ -20,8 +20,6 @@ class PaymentMethod extends Component
 {
     use WithSecureContext;
 
-    // public $invoice;
-
     public $variables;
 
     public $methods = [];
@@ -31,6 +29,7 @@ class PaymentMethod extends Component
     public $amount = 0;
 
     public $_key;
+
     public function placeholder()
     {
         return <<<'HTML'

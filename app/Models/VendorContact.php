@@ -135,8 +135,9 @@ class VendorContact extends Authenticatable implements HasLocalePreference
         return 'vendor_contacts';
     }
 
-    public function toSearchableArray()
+    public function toSearchableArray(): array
     {
+        
         return [
             'id' => $this->company->db . ":" . $this->id,
             'name' => $this->present()->search_display(),

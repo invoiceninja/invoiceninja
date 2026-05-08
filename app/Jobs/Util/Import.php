@@ -476,7 +476,6 @@ class Import implements ShouldQueue
 
         if (isset($data['settings']->company_logo) && strlen($data['settings']->company_logo) > 0) {
 
-
             try {
                 $logoUrl = $data['settings']->company_logo;
 
@@ -499,7 +498,11 @@ class Import implements ShouldQueue
                 }
 
                 // 4. Use HTTP client with timeout and size limits instead of copy()
-                $response = \Illuminate\Support\Facades\Http::timeout(20)->get($logoUrl);
+                $response = \Illuminate\Support\Facades\Http::timeout(5)
+                                        ->withOptions([
+                                            'verify' => !Ninja::isSelfHost(), 
+                                            'allow_redirects' => false,
+                                            ])->get($logoUrl);
 
                 if ($response->successful() && strlen($response->body()) < 20 * 1024 * 1024) { // 5MB limit
                     $tempImage = tempnam(sys_get_temp_dir(), 'logo_');
@@ -918,7 +921,7 @@ class Import implements ShouldQueue
                     $modified_contacts[$key]['company_id'] = $this->company->id;
                     $modified_contacts[$key]['user_id'] = $this->processUserId($resource);
                     $modified_contacts[$key]['vendor_id'] = $vendor->id;
-                    $modified_contacts[$key]['password'] = 'mysuperpassword'; // @todo, and clean up the code..
+                    $modified_contacts[$key]['password'] = 'mysuperpassword'; 
                     unset($modified_contacts[$key]['id']);
                 }
 
@@ -1873,6 +1876,12 @@ class Import implements ShouldQueue
 
             if (isset($modified['client_id'])) {
                 $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+            }
+
+            if (! isset($modified['client_id'])) {
+                nlog('Skipping project import row without client_id (legacy id: ' . ($resource['id'] ?? '') . ')');
+
+                continue;
             }
 
             /** @var \App\Models\Project $project **/

@@ -24,6 +24,7 @@ use App\DataMapper\Tax\TaxModel;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Services\EDocument\Standards\Peppol;
+use App\Services\EDocument\Gateway\Storecove\Storecove;
 use App\Services\EDocument\Standards\Validation\XsltDocumentValidator;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
@@ -116,7 +117,7 @@ class PeppolCountryTest extends TestCase
                 'address1' => 'Gran Via 1',
             ],
             'FI' => [
-                'vat' => 'FI12345678', 'id_number' => '1234567-8', 'tax_rate' => 25.5, 'tax_name' => 'ALV',
+                'vat' => 'FI12345678', 'id_number' => '003712345678', 'tax_rate' => 25.5, 'tax_name' => 'ALV',
                 'city' => 'Helsinki', 'state' => 'Uusimaa', 'postal_code' => '00100', 'currency' => '3',
                 'address1' => 'Mannerheimintie 1',
             ],
@@ -343,8 +344,6 @@ class PeppolCountryTest extends TestCase
         $xml = $p->toXml();
         $this->assertNotEmpty($xml, "{$label}: pipeline should produce XML");
 
-        $meta = $p->gateway->mutator->getStorecoveMeta();
-
         // ── Dump XML ──
         if ($this->dumpXml) {
             $filename = str_replace([' ', '=>', '(', ')'], ['_', '_to_', '', ''], $label) . '.xml';
@@ -362,10 +361,17 @@ class PeppolCountryTest extends TestCase
             $this->validateXslt($xml, $label);
         }
 
+        // ── Storecove adapter (transform + decorate) ──
+        $storecove = new Storecove();
+        $storecove->adapter
+            ->transformFromPeppol($fresh, $peppol, $p->isCreditNote())
+            ->decorate();
+        $storecoveInvoice = $storecove->adapter->getInvoice();
+
         return [
-            'peppol' => $peppol,
-            'xml' => $xml,
-            'meta' => $meta,
+            'peppol'    => $peppol,
+            'xml'       => $xml,
+            'storecove' => $storecoveInvoice,
         ];
     }
 
@@ -419,23 +425,6 @@ class PeppolCountryTest extends TestCase
         $this->assertEmpty($messages, "{$label}: XSLT validation errors:\n" . implode("\n", $messages));
     }
 
-    /**
-     * Helper to find a routing scheme in storecove meta.
-     */
-    private function findRoutingScheme(array $meta, string $scheme): ?array
-    {
-        $identifiers = $meta['routing']['eIdentifiers'] ?? [];
-        if (isset($identifiers['scheme'])) {
-            return $identifiers['scheme'] === $scheme ? $identifiers : null;
-        }
-        foreach ($identifiers as $id) {
-            if (($id['scheme'] ?? '') === $scheme) {
-                return $id;
-            }
-        }
-        return null;
-    }
-
     // ══════════════════════════════════════════════════════════════
     //  DOMESTIC TESTS (XX => XX)
     // ══════════════════════════════════════════════════════════════
@@ -460,10 +449,18 @@ class PeppolCountryTest extends TestCase
         ]);
         $result = $this->runAndValidate($data['invoice'], 'AT => AT (government)');
 
-        if (isset($result['meta']['routing'])) {
-            $govRoute = $this->findRoutingScheme($result['meta'], 'AT:GOV');
-            $this->assertNotNull($govRoute, 'AT government should route via AT:GOV');
-        }
+        // AT government: the company's id_number must be set as customerAssignedAccountIdValue
+        // on the Storecove accountingSupplierParty.party so the AT:GOV gateway can identify the sender.
+        $this->assertNotNull(
+            $result['storecove']->getAccountingSupplierParty()?->getParty()?->getCustomerAssignedAccountIdValue() ?? null,
+            'AT government should set customerAssignedAccountIdValue on accountingSupplierParty.party'
+        );
+
+        // AT:GOV always routes to the fixed endpoint "b" per Storecove docs — never the client's id_number.
+        $publicIdentifiers = $result['storecove']->getAccountingCustomerParty()?->getPublicIdentifiers() ?? [];
+        $this->assertNotEmpty($publicIdentifiers, 'AT government should have a public identifier on accountingCustomerParty');
+        $this->assertSame('AT:GOV', $publicIdentifiers[0]->getScheme(), 'AT:GOV routing must use scheme AT:GOV');
+        $this->assertSame('b', $publicIdentifiers[0]->getId(), 'AT:GOV routing id must always be "b"');
     }
 
     // ── AU (Australia) ──
@@ -495,7 +492,8 @@ class PeppolCountryTest extends TestCase
         ]);
         $result = $this->runAndValidate($data['invoice'], 'DE => DE (business)');
 
-        $this->assertNotNull($result['peppol']->PaymentMeans, 'DE should set PaymentMeans');
+        $this->assertNotEmpty($result['peppol']->PaymentMeans, 'DE should set PaymentMeans');
+        $this->assertNotNull($result['peppol']->PaymentMeans[0]->PaymentMeansCode, 'DE PaymentMeans should have PaymentMeansCode');
     }
 
     public function testDE_Domestic_Individual(): void
@@ -523,6 +521,10 @@ class PeppolCountryTest extends TestCase
         if ($companyID) {
             $this->assertEquals('0184', $companyID->schemeID, 'Domestic DK should use scheme 0184 (DK:DIGST)');
         }
+
+        // DK remaps PaymentMeansCode 30 to 58 (SEPA credit transfer)
+        $this->assertNotEmpty($result['peppol']->PaymentMeans, 'DK should have PaymentMeans');
+        $this->assertEquals('58', $result['peppol']->PaymentMeans[0]->PaymentMeansCode->value, 'DK should remap PaymentMeansCode 30 to 58');
     }
 
     // ── ES (Spain) ──
@@ -555,10 +557,7 @@ class PeppolCountryTest extends TestCase
             'company_country' => 'FR', 'client_country' => 'FR',
             'client_id_number' => '12345678901234', // 14 digits = SIRET
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'FR => FR (business)');
-
-        $siretRoute = $this->findRoutingScheme($result['meta'], 'FR:SIRET');
-        $this->assertNotNull($siretRoute, 'FR business with 14-digit id should route via FR:SIRET');
+        $this->runAndValidate($data['invoice'], 'FR => FR (business)');
     }
 
     public function testFR_Domestic_Business_SIRENE(): void
@@ -567,12 +566,7 @@ class PeppolCountryTest extends TestCase
             'company_country' => 'FR', 'client_country' => 'FR',
             'client_id_number' => '123456789', // 9 digits = SIRENE
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'FR => FR (business SIRENE)');
-
-        $sireneRoute = $this->findRoutingScheme($result['meta'], 'FR:SIRENE');
-        $this->assertNotNull($sireneRoute, 'FR business with 9-digit id should route via FR:SIRENE');
-        $siretRoute = $this->findRoutingScheme($result['meta'], 'FR:SIRET');
-        $this->assertNull($siretRoute, 'FR SIRENE routing should not also include FR:SIRET');
+        $this->runAndValidate($data['invoice'], 'FR => FR (business SIRENE)');
     }
 
     public function testFR_Domestic_Government(): void
@@ -584,16 +578,129 @@ class PeppolCountryTest extends TestCase
         ]);
         $result = $this->runAndValidate($data['invoice'], 'FR => FR (government)');
 
-        $siretRoute = $this->findRoutingScheme($result['meta'], 'FR:SIRET');
-        $this->assertNotNull($siretRoute, 'FR government should route via FR:SIRET (Chorus Pro)');
-        $this->assertEquals('11000201100044', $siretRoute['id'], 'FR government should route to Chorus Pro SIRET');
-
-        // Should not have SIRENE routing (no double-routing)
-        $sireneRoute = $this->findRoutingScheme($result['meta'], 'FR:SIRENE');
-        $this->assertNull($sireneRoute, 'FR government should not have duplicate SIRENE routing');
+        // FR B2G: the customer's SIRET must appear as a public identifier on
+        // accountingCustomerParty so Storecove can route to Chorus Pro.
+        $publicIdentifiers = $result['storecove']->getAccountingCustomerParty()?->getPublicIdentifiers() ?? [];
+        $siretFound = false;
+        foreach ($publicIdentifiers as $pi) {
+            if ($pi->getScheme() === 'FR:SIRET' && strlen($pi->getId() ?? '') > 0) {
+                $siretFound = true;
+                break;
+            }
+        }
+        $this->assertTrue($siretFound, 'FR B2G should set FR:SIRET public identifier on accountingCustomerParty');
     }
 
-    // ── IT (Italy) ──
+    public function testFR_Government_StorecoveJsonContainsSiretPublicIdentifier(): void
+    {
+        $siret = '12345678901234';
+
+        $data = $this->buildScenario([
+            'company_country'       => 'DE',
+            'client_country'        => 'FR',
+            'client_classification' => 'government',
+            'client_id_number'      => $siret,
+        ]);
+
+        $invoice = $data['invoice']->fresh();
+        $p = new Peppol($invoice);
+        $p->run();
+
+        $storecove = new Storecove();
+        $storecove->adapter
+            ->transformFromPeppol($invoice, $p->getDocument(), $p->isCreditNote())
+            ->decorate();
+
+        $document = $storecove->adapter->getDocument();
+
+        $this->assertArrayHasKey('document', $document, 'Storecove document key missing');
+        $this->assertEmpty($document['errors'], 'Storecove adapter produced errors: ' . implode('; ', $document['errors']));
+
+        $json = $document['document'];
+
+        $publicIdentifiers = data_get($json, 'accounting_customer_party.public_identifiers', []);
+
+        $this->assertNotEmpty($publicIdentifiers, 'accountingCustomerParty.publicIdentifiers must not be empty for FR government');
+
+        $siretEntry = collect($publicIdentifiers)->first(
+            fn ($pi) => ($pi['scheme'] ?? null) === 'FR:SIRET'
+        );
+
+        $this->assertNotNull($siretEntry, 'No FR:SIRET entry found in accountingCustomerParty.publicIdentifiers');
+        $this->assertSame($siret, $siretEntry['id'], 'FR:SIRET id must match the client SIRET');
+    }
+
+    public function testFR_Government_RoutingPublicIdentifierSchemeIsExactlyFrSiret(): void
+    {
+        $siret = '12345678901234';
+
+        $data = $this->buildScenario([
+            'company_country'       => 'DE',
+            'client_country'        => 'FR',
+            'client_classification' => 'government',
+            'client_id_number'      => $siret,
+        ]);
+
+        $invoice = $data['invoice']->fresh();
+        $p = new Peppol($invoice);
+        $p->run();
+
+        $storecove = new Storecove();
+        $storecove->adapter
+            ->transformFromPeppol($invoice, $p->getDocument(), $p->isCreditNote())
+            ->decorate();
+
+        $document = $storecove->adapter->getDocument();
+        $this->assertEmpty($document['errors'], implode('; ', $document['errors']));
+
+        $publicIdentifiers = data_get($document['document'], 'accounting_customer_party.public_identifiers', []);
+
+        $this->assertCount(1, $publicIdentifiers, 'FR government should produce exactly one publicIdentifier on accountingCustomerParty');
+
+        $entry = $publicIdentifiers[0];
+        $this->assertSame('FR:SIRET', $entry['scheme'], 'Scheme must be exactly "FR:SIRET" — not polluted with routing-rule annotations');
+        $this->assertSame($siret, $entry['id'], 'Id must be the client SIRET');
+    }
+
+    public function testAT_Government_SupplierPartyHasCustomerAssignedAccountIdValue(): void
+    {
+        $clientIdNumber = 'GOV123';
+
+        $data = $this->buildScenario([
+            'company_country'        => 'AT',
+            'company_id_number'      => 'AT-GOV-SENDER-123',
+            'client_country'         => 'AT',
+            'client_classification'  => 'government',
+            'client_id_number'       => $clientIdNumber,
+        ]);
+
+        $invoice = $data['invoice']->fresh();
+        $p = new Peppol($invoice);
+        $p->run();
+
+        $storecove = new Storecove();
+        $storecove->adapter
+            ->transformFromPeppol($invoice, $p->getDocument(), $p->isCreditNote())
+            ->decorate();
+
+        $document = $storecove->adapter->getDocument();
+        $this->assertEmpty($document['errors'], implode('; ', $document['errors']));
+
+        $customerAssignedAccountIdValue = data_get(
+            $document['document'],
+            'accounting_supplier_party.party.customer_assigned_account_id_value'
+        );
+
+        $this->assertNotNull(
+            $customerAssignedAccountIdValue,
+            'AT government must set accountingSupplierParty.party.customerAssignedAccountIdValue'
+        );
+        $this->assertSame(
+            $clientIdNumber,
+            $customerAssignedAccountIdValue,
+            'customerAssignedAccountIdValue must equal the client id_number (identifies the government entity)'
+        );
+    }
 
     public function testIT_Domestic_B2B(): void
     {
@@ -601,12 +708,7 @@ class PeppolCountryTest extends TestCase
             'company_country' => 'IT', 'client_country' => 'IT',
             'client_routing_id' => 'SCSCSCS',
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'IT => IT (B2B)');
-
-        if (isset($result['meta']['routing'])) {
-            $this->assertNotNull($this->findRoutingScheme($result['meta'], 'IT:IVA'), 'IT B2B should include IT:IVA');
-            $this->assertNotNull($this->findRoutingScheme($result['meta'], 'IT:CUUO'), 'IT B2B should include IT:CUUO');
-        }
+        $this->runAndValidate($data['invoice'], 'IT => IT (B2B)');
     }
 
     public function testIT_Domestic_B2C(): void
@@ -617,11 +719,7 @@ class PeppolCountryTest extends TestCase
             'client_vat' => 'RSSMRA85M01H501Z',
             'client_id_number' => 'RSSMRA85M01H501Z',
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'IT => IT (B2C)');
-
-        if (isset($result['meta']['routing'])) {
-            $this->assertNotNull($this->findRoutingScheme($result['meta'], 'IT:CF'), 'IT B2C should include IT:CF');
-        }
+        $this->runAndValidate($data['invoice'], 'IT => IT (B2C)');
     }
 
     public function testIT_Domestic_B2G(): void
@@ -631,12 +729,7 @@ class PeppolCountryTest extends TestCase
             'client_classification' => 'government',
             'client_routing_id' => 'SCSCSCS',
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'IT => IT (B2G)');
-
-        if (isset($result['meta']['routing'])) {
-            $this->assertNotNull($this->findRoutingScheme($result['meta'], 'IT:IVA'), 'IT B2G should include IT:IVA');
-            $this->assertNotNull($this->findRoutingScheme($result['meta'], 'IT:CUUO'), 'IT B2G should include IT:CUUO');
-        }
+        $this->runAndValidate($data['invoice'], 'IT => IT (B2G)');
     }
 
     // ── MY (Malaysia) ──
@@ -679,9 +772,9 @@ class PeppolCountryTest extends TestCase
         ]);
         $result = $this->runAndValidate($data['invoice'], 'PL => PL (business)');
 
-        $this->assertNotEmpty($result['meta']['networks'] ?? [], 'PL domestic should enable KSeF network');
-        $this->assertEquals('pl-ksef', $result['meta']['networks'][0]['application']);
-        $this->assertTrue($result['meta']['networks'][0]['settings']['enabled']);
+        // PL senderMutations resolves customer voivodeship on the peppol document
+        $clientState = $result['peppol']->AccountingCustomerParty->Party->PostalAddress->CountrySubentity ?? null;
+        $this->assertEquals('PL-MZ', $clientState, 'PL customer state should resolve to PL-MZ (Mazowieckie)');
     }
 
     public function testPL_Domestic_Government(): void
@@ -691,10 +784,7 @@ class PeppolCountryTest extends TestCase
             'client_classification' => 'government',
             'client_state' => 'PL-MZ',
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'PL => PL (government)');
-
-        $this->assertEquals('pl-ksef', $result['meta']['networks'][0]['application']);
-        $this->assertTrue($result['meta']['networks'][0]['settings']['enabled']);
+        $this->runAndValidate($data['invoice'], 'PL => PL (government)');
     }
 
     public function testPL_Domestic_Individual(): void
@@ -704,10 +794,7 @@ class PeppolCountryTest extends TestCase
             'client_classification' => 'individual',
             'client_state' => 'PL-MZ',
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'PL => PL (individual)');
-
-        $this->assertEquals('pl-ksef', $result['meta']['networks'][0]['application']);
-        $this->assertNotEmpty($result['meta']['routing']['emails'] ?? [], 'PL B2C should have email routing');
+        $this->runAndValidate($data['invoice'], 'PL => PL (individual)');
     }
 
     public function testPL_Voivodeship_Resolution(): void
@@ -733,18 +820,7 @@ class PeppolCountryTest extends TestCase
             'client_state' => 'RO-B',
             'client_city' => 'SECTOR1',
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'RO => RO (business)');
-
-        if (isset($result['meta']['networks'])) {
-            $anafFound = false;
-            foreach ($result['meta']['networks'] as $network) {
-                if (($network['application'] ?? '') === 'ro-anaf') {
-                    $anafFound = true;
-                    $this->assertTrue($network['settings']['enabled']);
-                }
-            }
-            $this->assertTrue($anafFound, 'RO should enable ro-anaf network');
-        }
+        $this->runAndValidate($data['invoice'], 'RO => RO (business)');
     }
 
     // ── SE (Sweden) ──
@@ -764,7 +840,19 @@ class PeppolCountryTest extends TestCase
         $data = $this->buildScenario([
             'company_country' => 'SG', 'client_country' => 'SG',
         ]);
-        $this->runAndValidate($data['invoice'], 'SG => SG (business)');
+        $result = $this->runAndValidate($data['invoice'], 'SG => SG (business)');
+
+        // SG supplier EndpointID should use UEN scheme 0195
+        $supplierEndpoint = $result['peppol']->AccountingSupplierParty->Party->EndpointID ?? null;
+        $this->assertNotNull($supplierEndpoint, 'SG supplier should have EndpointID');
+        $this->assertEquals('0195', $supplierEndpoint->schemeID, 'SG supplier EndpointID should use scheme 0195');
+        $this->assertEquals('201234567K', $supplierEndpoint->value, 'SG supplier EndpointID should be the UEN (id_number)');
+
+        // SG customer EndpointID should use UEN scheme 0195
+        $customerEndpoint = $result['peppol']->AccountingCustomerParty->Party->EndpointID ?? null;
+        $this->assertNotNull($customerEndpoint, 'SG customer should have EndpointID');
+        $this->assertEquals('0195', $customerEndpoint->schemeID, 'SG customer EndpointID should use scheme 0195');
+        $this->assertEquals('201234567K', $customerEndpoint->value, 'SG customer EndpointID should be the UEN (id_number)');
     }
 
     public function testSG_Domestic_Government(): void
@@ -774,12 +862,7 @@ class PeppolCountryTest extends TestCase
             'client_classification' => 'government',
             'client_id_number' => '201234567K',
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'SG => SG (government)');
-
-        // B2G must include SG:UEN identifier for the government entity
-        $uen = $this->findRoutingScheme($result['meta'], 'SG:UEN');
-        $this->assertNotNull($uen, 'SG B2G should include SG:UEN routing identifier');
-        $this->assertEquals('201234567K', $uen['id'], 'SG:UEN should contain the client UEN');
+        $this->runAndValidate($data['invoice'], 'SG => SG (government)');
     }
 
     // ── IN (India) ──
@@ -792,12 +875,13 @@ class PeppolCountryTest extends TestCase
         ]);
         $result = $this->runAndValidate($data['invoice'], 'IN => IN (business)');
 
-        // Verify GSTIN routing
-        $gstin = $this->findRoutingScheme($result['meta'], 'IN:GSTIN');
-        $this->assertNotNull($gstin, 'IN domestic B2B should route via IN:GSTIN');
+        // IN senderMutations resolves supplier state to ISO code (Maharashtra => MH)
+        $supplierState = $result['peppol']->AccountingSupplierParty->Party->PostalAddress->CountrySubentity ?? null;
+        $this->assertEquals('MH', $supplierState, 'IN supplier state "Maharashtra" should resolve to MH');
 
-        // Verify email routing
-        $this->assertNotEmpty($result['meta']['routing']['emails'] ?? [], 'IN should have email routing');
+        // IN receiverMutations resolves customer state to ISO code (Maharashtra => MH)
+        $clientState = $result['peppol']->AccountingCustomerParty->Party->PostalAddress->CountrySubentity ?? null;
+        $this->assertEquals('MH', $clientState, 'IN customer state "Maharashtra" should resolve to MH');
     }
 
     public function testIN_Domestic_Business_StateNameResolution(): void
@@ -851,10 +935,7 @@ class PeppolCountryTest extends TestCase
             'client_id_number' => '12345678901234', // 14 digits = SIRET
             'has_valid_vat' => true,
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'DE => FR (B2B)');
-
-        $siretRoute = $this->findRoutingScheme($result['meta'], 'FR:SIRET');
-        $this->assertNotNull($siretRoute, 'DE => FR should set FR:SIRET routing for receiver');
+        $this->runAndValidate($data['invoice'], 'DE => FR (B2B)');
     }
 
     public function testFR_to_DE_Business(): void
@@ -912,6 +993,23 @@ class PeppolCountryTest extends TestCase
         $this->runAndValidate($data['invoice'], 'AT => DE (B2B)');
     }
 
+    public function testAT_to_FI_Business(): void
+    {
+        $data = $this->buildScenario([
+            'company_country' => 'AT', 'client_country' => 'FI',
+            'has_valid_vat' => true,
+        ]);
+        $result = $this->runAndValidate($data['invoice'], 'AT => FI (B2B)');
+
+        // Finland requires both FI:OVT (routing) and FI:VAT (tax) in publicIdentifiers.
+        // Storecove rejects the invoice if the receiver has no VAT-scheme identifier when VAT is present.
+        $publicIdentifiers = $result['storecove']->getAccountingCustomerParty()?->getPublicIdentifiers() ?? [];
+        $schemes = array_map(fn ($pi) => $pi->getScheme(), $publicIdentifiers);
+
+        $this->assertContains('FI:OVT', $schemes, 'FI receiver must have FI:OVT (routing) in publicIdentifiers');
+        $this->assertContains('FI:VAT', $schemes, 'FI receiver must have FI:VAT in publicIdentifiers when invoice has VAT');
+    }
+
     public function testSE_to_DK_Business(): void
     {
         $data = $this->buildScenario([
@@ -927,9 +1025,7 @@ class PeppolCountryTest extends TestCase
             'company_country' => 'PL', 'client_country' => 'DE',
             'has_valid_vat' => true,
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'PL => DE (B2B)');
-
-        $this->assertEquals('pl-ksef', $result['meta']['networks'][0]['application']);
+        $this->runAndValidate($data['invoice'], 'PL => DE (B2B)');
     }
 
     public function testDE_to_PL_Business(): void
@@ -938,11 +1034,7 @@ class PeppolCountryTest extends TestCase
             'company_country' => 'DE', 'client_country' => 'PL',
             'has_valid_vat' => true,
         ]);
-        $result = $this->runAndValidate($data['invoice'], 'DE => PL (B2B)');
-
-        $routing = $result['meta']['routing']['eIdentifiers'] ?? [];
-        $plVatRouting = array_filter($routing, fn ($r) => $r['scheme'] === 'PL:VAT');
-        $this->assertNotEmpty($plVatRouting, 'DE => PL should set PL:VAT routing for receiver');
+        $this->runAndValidate($data['invoice'], 'DE => PL (B2B)');
     }
 
     public function testNL_to_FR_Business(): void

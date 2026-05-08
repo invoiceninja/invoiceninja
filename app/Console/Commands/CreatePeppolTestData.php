@@ -16,6 +16,7 @@ use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\Tax\TaxModel;
 use App\DataMapper\EInvoice\TaxEntity;
+use App\Factory\PaymentTermFactory;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
@@ -35,6 +36,68 @@ class CreatePeppolTestData extends Command
 
     protected $description = 'Scaffold a Peppol-ready company with test clients (business, government, individual) for domestic and cross-border scenarios';
 
+
+    /**
+     * Storecove legal entity IDs per country for Peppol-connected companies.
+     * When present, company.legal_entity_id is set and e_invoice_type = 'PEPPOL'.
+     */
+    private array $legal_entity_ids = [
+        'AD' => 987690, // Andorra - Tests pass!  ✓
+        'AL' => 0, // Albania
+        'AT' => 293801, // ATU92335648 (testing for government routing is as per spec, but storecove returns NO ACTION TAKEN)
+        'AU' => 0, // Australia
+        'BA' => 0, // Bosnia and Herzegovina
+        'BE' => 580406, //BE1000000417 - 1000000417 - Tests pass!  ✓
+        'BG' => 0, // Bulgaria
+        'CA' => 0, // Canada
+        'CH' => 291394, //CHE923356489MWST
+        'CY' => 0, // Cyprus
+        'CZ' => 0, // Czech Republic
+        'DE' => 295616, // DE973356489 - Tests pass!
+        //'DE' => 307482, //DE:STNR1234567890
+        'DK' => 763738, //DK12335668 -  Tests pass!
+        'EE' => 0, // Estonia
+        'ES' => 0, // Spain
+        'FI' => 0, // Finland
+        'FR' => 293338, // FR82345678911
+        'GB' => 0, // United Kingdom
+        'GR' => 0, // Greece
+        'HR' => 0, // Croatia
+        'HU' => 0, // Hungary
+        'IE' => 0, // Ireland
+        'IN' => 0, // India
+        'IS' => 0, // Iceland
+        'IT' => 291391, //IT92443356489
+        'JP' => 0, // Japan
+        'LI' => 0, // Liechtenstein
+        'LT' => 0, // Lithuania
+        'LU' => 0, // Luxembourg
+        'LV' => 0, // Latvia
+        'MC' => 0, // Monaco
+        'ME' => 0, // Montenegro
+        'MK' => 0, // North Macedonia
+        'MT' => 0, // Malta
+        'MX' => 0, // Mexico
+        'MY' => 0, // Malaysia
+        'NL' => 0, // Netherlands
+        'NO' => 0, // Norway
+        'NZ' => 0, // New Zealand
+        'PL' => 999794, // Poland
+        'PT' => 0, // Portugal
+        'RO' => 294639, //RO010105019
+        'RS' => 0, // Serbia
+        'SA' => 0, // Saudi Arabia
+        'SE' => 0, // Sweden
+        'SG' => 637339, // UEN202912345K
+        'SI' => 0, // Slovenia
+        'SK' => 0, // Slovakia
+        'SM' => 0, // San Marino
+        'TR' => 0, // Turkey
+        'US' => 0, // United States
+        'VA' => 0, // Vatican City
+        'XX' => 634328, // GLN 5070004489700 -  Tests pass!
+    ];
+    
     /**
      * Country-specific defaults for realistic Peppol test data.
      *
@@ -44,8 +107,9 @@ class CreatePeppolTestData extends Command
     {
         return [
             // ── EU countries ──
+            // AD — Storecove test: AD:VAT AD20394939
             'AD' => [
-                'vat' => 'ADA123456B', 'id_number' => 'A123456B', 'tax_rate' => 4.5, 'tax_name' => 'IGI',
+                'vat' => 'AD20394939', 'id_number' => '20394939', 'tax_rate' => 4.5, 'tax_name' => 'IGI',
                 'city' => 'Andorra la Vella', 'state' => 'Andorra la Vella', 'postal_code' => 'AD500', 'currency' => '3',
                 'address1' => 'Avinguda Meritxell 1',
                 'gov_id' => 'GOV-AD-001', 'individual_id' => '', 'individual_vat' => '',
@@ -56,11 +120,12 @@ class CreatePeppolTestData extends Command
                 'address1' => 'Bulevardi Deshmoret e Kombit 1',
                 'gov_id' => 'GOV-AL-001', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // AT — Storecove test: AT:VAT ATU87654321; AT:GOV 'test'
             'AT' => [
-                'vat' => 'ATU92335648', 'id_number' => '92335648', 'tax_rate' => 20, 'tax_name' => 'USt',
+                'vat' => 'ATU87654321', 'id_number' => '87654321', 'tax_rate' => 20, 'tax_name' => 'USt',
                 'city' => 'Vienna', 'state' => 'Vienna', 'postal_code' => '1010', 'currency' => '3',
                 'address1' => 'Stephansplatz 1',
-                'gov_id' => 'GOV-AT-001', 'individual_id' => 'IND-AT-12345', 'individual_vat' => '',
+                'gov_id' => 'test', 'individual_id' => 'IND-AT-12345', 'individual_vat' => '',
             ],
             'BA' => [
                 'vat' => 'BA123456789012', 'id_number' => '123456789012', 'tax_rate' => 17, 'tax_name' => 'PDV',
@@ -68,86 +133,100 @@ class CreatePeppolTestData extends Command
                 'address1' => 'Marsala Tita 1',
                 'gov_id' => 'GOV-BA-001', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // BE — Storecove test: BE:EN 0112233453 (enterprise number; VAT = BE + EN)
             'BE' => [
-                'vat' => 'BE1000000417', 'id_number' => '1000000417', 'tax_rate' => 21, 'tax_name' => 'BTW',
+                'vat' => 'BE0112233453', 'id_number' => '0112233453', 'tax_rate' => 21, 'tax_name' => 'BTW',
                 'city' => 'Brussels', 'state' => 'Brussels', 'postal_code' => '1000', 'currency' => '3',
                 'address1' => 'Grand Place 1',
                 'gov_id' => '0987654321', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // BG — Storecove test: BG:VAT BG010101010
             'BG' => [
-                'vat' => 'BG123456789', 'id_number' => '123456789', 'tax_rate' => 20, 'tax_name' => 'DDS',
+                'vat' => 'BG010101010', 'id_number' => '010101010', 'tax_rate' => 20, 'tax_name' => 'DDS',
                 'city' => 'Sofia', 'state' => 'Sofia City', 'postal_code' => '1000', 'currency' => '39',
                 'address1' => 'Vitosha Boulevard 1',
                 'gov_id' => 'GOV-BG-001', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // CY — Storecove test: CY:VAT CY33043933X
             'CY' => [
-                'vat' => 'CY12345678X', 'id_number' => '12345678X', 'tax_rate' => 19, 'tax_name' => 'FPA',
+                'vat' => 'CY33043933X', 'id_number' => '33043933X', 'tax_rate' => 19, 'tax_name' => 'FPA',
                 'city' => 'Nicosia', 'state' => 'Nicosia', 'postal_code' => '1010', 'currency' => '3',
                 'address1' => 'Makarios Avenue 1',
                 'gov_id' => 'GOV-CY-001', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // CZ — Storecove test: CZ:VAT CZ01010101
             'CZ' => [
-                'vat' => 'CZ12345678', 'id_number' => '12345678', 'tax_rate' => 21, 'tax_name' => 'DPH',
+                'vat' => 'CZ01010101', 'id_number' => '01010101', 'tax_rate' => 21, 'tax_name' => 'DPH',
                 'city' => 'Prague', 'state' => 'Prague', 'postal_code' => '110 00', 'currency' => '51',
                 'address1' => 'Vaclavske namesti 1',
                 'gov_id' => 'GOV-CZ-001', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // DE — Storecove test: DE:VAT DE010101010; DE:LWID 10101010-STO-10 (B2G)
             'DE' => [
-                'vat' => 'DE973356489', 'id_number' => '973356489', 'tax_rate' => 19, 'tax_name' => 'VAT',
+                'vat' => 'DE010101010', 'id_number' => '010101010', 'tax_rate' => 19, 'tax_name' => 'VAT',
                 'city' => 'Berlin', 'state' => 'Berlin', 'postal_code' => '10115', 'currency' => '3',
                 'address1' => 'Unter den Linden 1',
-                'gov_id' => 'LWID-DE-99001', 'individual_id' => 'STNR-12345678', 'individual_vat' => '',
+                'gov_id' => '10101010-STO-10', 'individual_id' => 'STNR-12345678', 'individual_vat' => '',
             ],
+            // DK — Storecove test: DK:DIGST DK10101011 (scheme is DIGST, not VAT)
             'DK' => [
-                'vat' => 'DK12345678', 'id_number' => '12345678', 'tax_rate' => 25, 'tax_name' => 'Moms',
+                'vat' => 'DK10101011', 'id_number' => '10101011', 'tax_rate' => 25, 'tax_name' => 'Moms',
                 'city' => 'Copenhagen', 'state' => 'Capital Region', 'postal_code' => '1050', 'currency' => '5',
                 'address1' => 'Stroget 1',
                 'gov_id' => '87654321', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // EE — Storecove test: EE:VAT EE010101010; EE:CC 10919191 (company code)
             'EE' => [
-                'vat' => 'EE123456789', 'id_number' => '12345678', 'tax_rate' => 22, 'tax_name' => 'KM',
+                'vat' => 'EE010101010', 'id_number' => '10919191', 'tax_rate' => 22, 'tax_name' => 'KM',
                 'city' => 'Tallinn', 'state' => 'Harju', 'postal_code' => '10111', 'currency' => '3',
                 'address1' => 'Viru 1',
                 'gov_id' => '87654321', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // ES — Storecove test: ES:VAT ESB53625999
             'ES' => [
-                'vat' => 'ESB12345678', 'id_number' => 'B12345678', 'tax_rate' => 21, 'tax_name' => 'IVA',
+                'vat' => 'ESB53625999', 'id_number' => 'B53625999', 'tax_rate' => 21, 'tax_name' => 'IVA',
                 'city' => 'Madrid', 'state' => 'Madrid', 'postal_code' => '28001', 'currency' => '3',
                 'address1' => 'Gran Via 1',
                 'gov_id' => 'S2800001A', 'individual_id' => '12345678Z', 'individual_vat' => '',
             ],
+            // FI — Storecove test: FI:OVT 003708888888CCC (FI:VAT is deprecated). Routing FI:OPID 003721291126.
             'FI' => [
-                'vat' => 'FI12345678', 'id_number' => '003712345678', 'tax_rate' => 25.5, 'tax_name' => 'ALV',
+                'vat' => 'FI01010101', 'id_number' => '003708888888CCC', 'tax_rate' => 25.5, 'tax_name' => 'ALV',
                 'city' => 'Helsinki', 'state' => 'Uusimaa', 'postal_code' => '00100', 'currency' => '3',
                 'address1' => 'Mannerheimintie 1',
                 'gov_id' => '003798765432', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // FR — Storecove test: FR:SIRENE 123456987 (scheme is SIRENE, not VAT)
             'FR' => [
-                'vat' => 'FR82345678911', 'id_number' => '823456789', 'tax_rate' => 20, 'tax_name' => 'TVA',
+                'vat' => 'FR82345678911', 'id_number' => '123456987', 'tax_rate' => 20, 'tax_name' => 'TVA',
                 'city' => 'Paris', 'state' => 'Ile-de-France', 'postal_code' => '75001', 'currency' => '3',
                 'address1' => 'Rue de Rivoli 1',
                 'gov_id' => '12345678901234', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // GR — Storecove test: GR:VAT EL999999999
             'GR' => [
-                'vat' => 'EL123456789', 'id_number' => '123456789', 'tax_rate' => 24, 'tax_name' => 'FPA',
+                'vat' => 'EL999999999', 'id_number' => '999999999', 'tax_rate' => 24, 'tax_name' => 'FPA',
                 'city' => 'Athens', 'state' => 'Attica', 'postal_code' => '105 57', 'currency' => '3',
                 'address1' => 'Ermou 1',
                 'gov_id' => 'GOV-GR-001', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // HR — Storecove test: HR:VAT HR01010101010
             'HR' => [
-                'vat' => 'HR12345678901', 'id_number' => '12345678901', 'tax_rate' => 25, 'tax_name' => 'PDV',
+                'vat' => 'HR01010101010', 'id_number' => '01010101010', 'tax_rate' => 25, 'tax_name' => 'PDV',
                 'city' => 'Zagreb', 'state' => 'Zagreb', 'postal_code' => '10000', 'currency' => '3',
                 'address1' => 'Ilica 1',
                 'gov_id' => 'GOV-HR-001', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // HU — Storecove test: HU:VAT HU01010101
             'HU' => [
-                'vat' => 'HU12345678', 'id_number' => '12345678', 'tax_rate' => 27, 'tax_name' => 'AFA',
+                'vat' => 'HU01010101', 'id_number' => '01010101', 'tax_rate' => 27, 'tax_name' => 'AFA',
                 'city' => 'Budapest', 'state' => 'Budapest', 'postal_code' => '1011', 'currency' => '69',
                 'address1' => 'Andrassy ut 1',
                 'gov_id' => 'GOV-HU-001', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // IE — Storecove test: IE:VAT IE4947949ED
             'IE' => [
-                'vat' => 'IE1234567WA', 'id_number' => '1234567WA', 'tax_rate' => 23, 'tax_name' => 'VAT',
+                'vat' => 'IE4947949ED', 'id_number' => '4947949ED', 'tax_rate' => 23, 'tax_name' => 'VAT',
                 'city' => 'Dublin', 'state' => 'Dublin', 'postal_code' => 'D01 F5P2', 'currency' => '3',
                 'address1' => "O'Connell Street 1",
                 'gov_id' => 'GOV-IE-001', 'individual_id' => '', 'individual_vat' => '',
@@ -158,20 +237,23 @@ class CreatePeppolTestData extends Command
                 'address1' => 'Via del Corso 1', 'routing_id' => 'SCSCSCS',
                 'gov_id' => '92443356489', 'individual_id' => 'RSSMRA85M01H501Z', 'individual_vat' => 'RSSMRA85M01H501Z',
             ],
+            // LT — Storecove test: LT:VAT LT010101010; LT:LEC 29202928282
             'LT' => [
-                'vat' => 'LT123456789', 'id_number' => '1234567', 'tax_rate' => 21, 'tax_name' => 'PVM',
+                'vat' => 'LT010101010', 'id_number' => '29202928282', 'tax_rate' => 21, 'tax_name' => 'PVM',
                 'city' => 'Vilnius', 'state' => 'Vilnius', 'postal_code' => 'LT-01100', 'currency' => '3',
                 'address1' => 'Gedimino pr. 1',
                 'gov_id' => '7654321', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // LU — Storecove test: LU:VAT LU01010101
             'LU' => [
-                'vat' => 'LU12345678', 'id_number' => '12345678901', 'tax_rate' => 17, 'tax_name' => 'TVA',
+                'vat' => 'LU01010101', 'id_number' => '01010101', 'tax_rate' => 17, 'tax_name' => 'TVA',
                 'city' => 'Luxembourg', 'state' => 'Luxembourg', 'postal_code' => 'L-1148', 'currency' => '3',
                 'address1' => 'Rue du Fosse 1',
                 'gov_id' => '98765432101', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // LV — Storecove test: LV:VAT LV01010101010
             'LV' => [
-                'vat' => 'LV12345678901', 'id_number' => '12345678901', 'tax_rate' => 21, 'tax_name' => 'PVN',
+                'vat' => 'LV01010101010', 'id_number' => '01010101010', 'tax_rate' => 21, 'tax_name' => 'PVN',
                 'city' => 'Riga', 'state' => 'Riga', 'postal_code' => 'LV-1050', 'currency' => '3',
                 'address1' => 'Brivibas iela 1',
                 'gov_id' => 'GOV-LV-001', 'individual_id' => '', 'individual_vat' => '',
@@ -200,14 +282,16 @@ class CreatePeppolTestData extends Command
                 'address1' => 'Republic Street 1',
                 'gov_id' => 'GOV-MT-001', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // NL — Storecove test: NL:VAT NL000000000B45 (B2B); NL:KVK 012345677; NL:OINO 10101010101010101010 (B2G)
             'NL' => [
-                'vat' => 'NL123456789B01', 'id_number' => '12345678', 'tax_rate' => 21, 'tax_name' => 'BTW',
+                'vat' => 'NL000000000B45', 'id_number' => '012345677', 'tax_rate' => 21, 'tax_name' => 'BTW',
                 'city' => 'Amsterdam', 'state' => 'North Holland', 'postal_code' => '1012', 'currency' => '3',
                 'address1' => 'Dam 1',
-                'gov_id' => '00000001234567891234', 'individual_id' => '', 'individual_vat' => '',
+                'gov_id' => '10101010101010101010', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // PL — Storecove test: PL:VAT PL0101010101
             'PL' => [
-                'vat' => 'PL1234567890', 'id_number' => '1234567890', 'tax_rate' => 23, 'tax_name' => 'VAT',
+                'vat' => 'PL0101010101', 'id_number' => '0101010101', 'tax_rate' => 23, 'tax_name' => 'VAT',
                 'city' => 'Warsaw', 'state' => 'Masovia', 'postal_code' => '00-001', 'currency' => '49',
                 'address1' => 'Nowy Swiat 1',
                 'gov_id' => '9876543210', 'individual_id' => '', 'individual_vat' => '',
@@ -218,8 +302,9 @@ class CreatePeppolTestData extends Command
                 'address1' => 'Rua Augusta 1',
                 'gov_id' => 'GOV-PT-001', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // RO — Storecove test: RO:VAT RO010101010
             'RO' => [
-                'vat' => 'RO010105019', 'id_number' => '010105019', 'tax_rate' => 19, 'tax_name' => 'TVA',
+                'vat' => 'RO010101010', 'id_number' => '010101010', 'tax_rate' => 19, 'tax_name' => 'TVA',
                 'city' => 'SECTOR1', 'state' => 'RO-B', 'postal_code' => '010001', 'currency' => '42',
                 'address1' => 'Calea Victoriei 1',
                 'gov_id' => 'RO87654321', 'individual_id' => '', 'individual_vat' => '',
@@ -230,20 +315,23 @@ class CreatePeppolTestData extends Command
                 'address1' => 'Knez Mihailova 1',
                 'gov_id' => 'GOV-RS-001', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // SE — Storecove test: SE:ORGNR 0012345674 (scheme is ORGNR, not VAT)
             'SE' => [
-                'vat' => 'SE123456789101', 'id_number' => '1234567891', 'tax_rate' => 25, 'tax_name' => 'Moms',
+                'vat' => 'SE123456789101', 'id_number' => '0012345674', 'tax_rate' => 25, 'tax_name' => 'Moms',
                 'city' => 'Stockholm', 'state' => 'Stockholm', 'postal_code' => '111 57', 'currency' => '7',
                 'address1' => 'Drottninggatan 1',
                 'gov_id' => '9876543210', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // SI — Storecove test: SI:VAT SI01010101
             'SI' => [
-                'vat' => 'SI12345678', 'id_number' => '12345678', 'tax_rate' => 22, 'tax_name' => 'DDV',
+                'vat' => 'SI01010101', 'id_number' => '01010101', 'tax_rate' => 22, 'tax_name' => 'DDV',
                 'city' => 'Ljubljana', 'state' => 'Ljubljana', 'postal_code' => '1000', 'currency' => '3',
                 'address1' => 'Presernov trg 1',
                 'gov_id' => 'GOV-SI-001', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // SK — Storecove test: SK:VAT SK0101010101
             'SK' => [
-                'vat' => 'SK1234567890', 'id_number' => '1234567890', 'tax_rate' => 20, 'tax_name' => 'DPH',
+                'vat' => 'SK0101010101', 'id_number' => '0101010101', 'tax_rate' => 20, 'tax_name' => 'DPH',
                 'city' => 'Bratislava', 'state' => 'Bratislava', 'postal_code' => '811 01', 'currency' => '3',
                 'address1' => 'Hviezdoslavovo namestie 1',
                 'gov_id' => 'GOV-SK-001', 'individual_id' => '', 'individual_vat' => '',
@@ -268,42 +356,48 @@ class CreatePeppolTestData extends Command
             ],
 
             // ── EFTA ──
+            // CH — Storecove test: CH:UIDB CHE123456785
             'CH' => [
-                'vat' => 'CHE923356489MWST', 'id_number' => 'CHE923356489', 'tax_rate' => 8.1, 'tax_name' => 'MWST',
+                'vat' => 'CHE123456785MWST', 'id_number' => 'CHE123456785', 'tax_rate' => 8.1, 'tax_name' => 'MWST',
                 'city' => 'Zurich', 'state' => 'ZH', 'postal_code' => '8001', 'currency' => '17',
                 'address1' => 'Bahnhofstrasse 1',
                 'gov_id' => 'CHE987654321', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // IS — Storecove test: IS:KTNR 4343454311 (Kennitala, not VAT)
             'IS' => [
-                'vat' => 'IS123456', 'id_number' => '1234567890', 'tax_rate' => 24, 'tax_name' => 'VSK',
+                'vat' => 'IS123456', 'id_number' => '4343454311', 'tax_rate' => 24, 'tax_name' => 'VSK',
                 'city' => 'Reykjavik', 'state' => 'Capital Region', 'postal_code' => '101', 'currency' => '63',
                 'address1' => 'Laugavegur 1',
                 'gov_id' => '9876543210', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // LI — Storecove test: LI:VAT 1293495 (no LI prefix)
             'LI' => [
-                'vat' => 'LI12345', 'id_number' => '12345', 'tax_rate' => 8.1, 'tax_name' => 'MWST',
+                'vat' => '1293495', 'id_number' => '1293495', 'tax_rate' => 8.1, 'tax_name' => 'MWST',
                 'city' => 'Vaduz', 'state' => 'Vaduz', 'postal_code' => '9490', 'currency' => '17',
                 'address1' => 'Stadtle 1',
                 'gov_id' => 'GOV-LI-001', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // NO — Storecove test: NO:ORG 010101018 (scheme is ORG, not VAT/MVA)
             'NO' => [
-                'vat' => 'NO123456789MVA', 'id_number' => '123456789', 'tax_rate' => 25, 'tax_name' => 'MVA',
+                'vat' => 'NO123456789MVA', 'id_number' => '010101018', 'tax_rate' => 25, 'tax_name' => 'MVA',
                 'city' => 'Oslo', 'state' => 'Oslo', 'postal_code' => '0151', 'currency' => '14',
                 'address1' => 'Karl Johans gate 1',
                 'gov_id' => '987654321', 'individual_id' => '', 'individual_vat' => '',
             ],
 
             // ── UK ──
+            // GB — Storecove test: GB:VAT GB303939483
             'GB' => [
-                'vat' => 'GB123456789', 'id_number' => '123456789', 'tax_rate' => 20, 'tax_name' => 'VAT',
+                'vat' => 'GB303939483', 'id_number' => '303939483', 'tax_rate' => 20, 'tax_name' => 'VAT',
                 'city' => 'London', 'state' => 'London', 'postal_code' => 'EC1A 1BB', 'currency' => '2',
                 'address1' => 'Oxford Street 1',
                 'gov_id' => 'GOV-GB-001', 'individual_id' => '', 'individual_vat' => '',
             ],
 
             // ── Americas ──
+            // US — Storecove test: GLN 1200109963131 (DBNAlliance)
             'US' => [
-                'vat' => '12-3456789', 'id_number' => '12-3456789', 'tax_rate' => 0, 'tax_name' => 'Tax',
+                'vat' => '12-3456789', 'id_number' => '1200109963131', 'tax_rate' => 0, 'tax_name' => 'Tax',
                 'city' => 'New York', 'state' => 'NY', 'postal_code' => '10001', 'currency' => '1',
                 'address1' => 'Broadway 1',
                 'gov_id' => '98-7654321', 'individual_id' => '', 'individual_vat' => '',
@@ -322,14 +416,16 @@ class CreatePeppolTestData extends Command
             ],
 
             // ── Oceania ──
+            // AU — Storecove test: AU:ABN 20234567890
             'AU' => [
-                'vat' => '12345678901', 'id_number' => '12345678901', 'tax_rate' => 10, 'tax_name' => 'GST',
+                'vat' => '20234567890', 'id_number' => '20234567890', 'tax_rate' => 10, 'tax_name' => 'GST',
                 'city' => 'Sydney', 'state' => 'NSW', 'postal_code' => '2000', 'currency' => '12',
                 'address1' => 'George Street 1',
                 'gov_id' => 'ABN98765432100', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // NZ — Storecove test: GLN 1200109837203 (advertised via GLN, not local)
             'NZ' => [
-                'vat' => '123456789', 'id_number' => '123456789', 'tax_rate' => 15, 'tax_name' => 'GST',
+                'vat' => '123456789', 'id_number' => '1200109837203', 'tax_rate' => 15, 'tax_name' => 'GST',
                 'city' => 'Auckland', 'state' => 'Auckland', 'postal_code' => '1010', 'currency' => '15',
                 'address1' => 'Queen Street 1',
                 'gov_id' => '987654321', 'individual_id' => '', 'individual_vat' => '',
@@ -342,28 +438,32 @@ class CreatePeppolTestData extends Command
                 'address1' => 'Marine Drive 1',
                 'gov_id' => '27AABCU9603R1ZP', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // JP — Storecove test: JP:SST 9234567899123
             'JP' => [
-                'vat' => 'T1234567890123', 'id_number' => 'T1234567890123', 'tax_rate' => 10, 'tax_name' => 'CT',
+                'vat' => '9234567899123', 'id_number' => '9234567899123', 'tax_rate' => 10, 'tax_name' => 'CT',
                 'city' => 'Tokyo', 'state' => 'Tokyo', 'postal_code' => '100-0001', 'currency' => '45',
                 'address1' => 'Chiyoda 1',
                 'gov_id' => 'T9876543210987', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // MY — Storecove test: MY:EIF 01202401123456
             'MY' => [
-                'vat' => 'MY123456789012', 'id_number' => 'C1234567890', 'tax_rate' => 8, 'tax_name' => 'SST',
+                'vat' => 'MY123456789012', 'id_number' => '01202401123456', 'tax_rate' => 8, 'tax_name' => 'SST',
                 'city' => 'Kuala Lumpur', 'state' => 'WP Kuala Lumpur', 'postal_code' => '50000', 'currency' => '19',
                 'address1' => 'Jalan Bukit Bintang 1',
                 'gov_id' => 'GOV-MY-001', 'individual_id' => '', 'individual_vat' => '',
             ],
+            // SG — Storecove test: SG:UEN SGTST123457890SC
             'SG' => [
-                'vat' => '202912345K', 'id_number' => '202912345K', 'tax_rate' => 9, 'tax_name' => 'GST',
+                'vat' => 'SGTST123457890SC', 'id_number' => 'SGTST123457890SC', 'tax_rate' => 9, 'tax_name' => 'GST',
                 'city' => 'Singapore', 'state' => 'Singapore', 'postal_code' => '018960', 'currency' => '13',
                 'address1' => 'Raffles Place 1',
                 'gov_id' => 'T08GA0028A', 'individual_id' => '', 'individual_vat' => '',
             ],
 
             // ── GLN-only (no country-specific VAT, uses GLN as identifier) ──
+            // XX — Storecove test: GLN 1200109963131 (DBNAlliance test)
             'XX' => [
-                'vat' => '', 'id_number' => '0088:5070004489700', 'tax_rate' => 0, 'tax_name' => 'Tax',
+                'vat' => '', 'id_number' => '0088:1200109963131', 'tax_rate' => 0, 'tax_name' => 'Tax',
                 'city' => 'New York', 'state' => 'NY', 'postal_code' => '10001', 'currency' => '1',
                 'address1' => 'Broadway 1',
                 'gov_id' => 'GOV-GLN-001', 'individual_id' => '', 'individual_vat' => '',
@@ -454,66 +554,6 @@ class CreatePeppolTestData extends Command
         'PT', 'RO', 'SE', 'SI', 'SK',
     ];
 
-    /**
-     * Storecove legal entity IDs per country for Peppol-connected companies.
-     * When present, company.legal_entity_id is set and e_invoice_type = 'PEPPOL'.
-     */
-    private array $legal_entity_ids = [
-        'AD' => 987690, // Andorra - Sending tested AD => AD, AD => Global
-        'AL' => 0, // Albania
-        'AT' => 293801, // ATU92335648
-        'AU' => 0, // Australia
-        'BA' => 0, // Bosnia and Herzegovina
-        'BE' => 580406, //BE1000000417 - 1000000417
-        'BG' => 0, // Bulgaria
-        'CA' => 0, // Canada
-        'CH' => 291394, //CHE923356489MWST
-        'CY' => 0, // Cyprus
-        'CZ' => 0, // Czech Republic
-        'DE' => 295616, // DE973356489
-        //'DE' => 307482, //DE:STNR1234567890
-        'DK' => 763738, //DK12335668
-        'EE' => 0, // Estonia
-        'ES' => 0, // Spain
-        'FI' => 0, // Finland
-        'FR' => 293338, // FR82345678911
-        'GB' => 0, // United Kingdom
-        'GR' => 0, // Greece
-        'HR' => 0, // Croatia
-        'HU' => 0, // Hungary
-        'IE' => 0, // Ireland
-        'IN' => 0, // India
-        'IS' => 0, // Iceland
-        'IT' => 291391, //IT92443356489
-        'JP' => 0, // Japan
-        'LI' => 0, // Liechtenstein
-        'LT' => 0, // Lithuania
-        'LU' => 0, // Luxembourg
-        'LV' => 0, // Latvia
-        'MC' => 0, // Monaco
-        'ME' => 0, // Montenegro
-        'MK' => 0, // North Macedonia
-        'MT' => 0, // Malta
-        'MX' => 0, // Mexico
-        'MY' => 0, // Malaysia
-        'NL' => 0, // Netherlands
-        'NO' => 0, // Norway
-        'NZ' => 0, // New Zealand
-        'PL' => 0, // Poland
-        'PT' => 0, // Portugal
-        'RO' => 294639, //RO010105019
-        'RS' => 0, // Serbia
-        'SA' => 0, // Saudi Arabia
-        'SE' => 0, // Sweden
-        'SG' => 637339, // UEN202912345K
-        'SI' => 0, // Slovenia
-        'SK' => 0, // Slovakia
-        'SM' => 0, // San Marino
-        'TR' => 0, // Turkey
-        'US' => 0, // United States
-        'VA' => 0, // Vatican City
-        'XX' => 634328, // GLN 5070004489700
-    ];
 
     /**
      * Region groupings for picking "same region" cross-border partners.
@@ -582,6 +622,7 @@ class CreatePeppolTestData extends Command
         $settings->state = $cd['state'];
         $settings->postal_code = $cd['postal_code'];
         $settings->name = "{$countryCode} Peppol Test Company";
+        $settings->payment_terms = '7';
 
         $tax_data = new TaxModel();
         $tax_data->seller_subregion = $resolvedCountryCode;
@@ -635,6 +676,9 @@ class CreatePeppolTestData extends Command
 
         $company = Company::factory()->create($companyData);
 
+        $company->enabled_item_tax_rates = 1;
+        $company->save();
+
         $company_token = new CompanyToken();
         $company_token->user_id = $user->id;
         $company_token->company_id = $company->id;
@@ -654,6 +698,13 @@ class CreatePeppolTestData extends Command
         ]);
 
         $this->info("  Company created: {$settings->name}");
+
+        $paymentTerm = PaymentTermFactory::create($company->id, $user->id);
+        $paymentTerm->num_days = 7;
+        $paymentTerm->name = 'Net 7';
+        $paymentTerm->save();
+
+        $this->info("  Payment term created: Net 7 (7 days)");
 
         // ── Update License with TaxEntity ──
         $licenseKey = config('ninja.license_key');
@@ -822,7 +873,7 @@ class CreatePeppolTestData extends Command
         $valid = $this->validCountryCodes();
         $candidates = array_filter(
             $this->region_map[$region],
-            fn (string $c) => $c !== $countryCode && in_array($c, $valid)
+            fn(string $c) => $c !== $countryCode && in_array($c, $valid)
         );
 
         if (empty($candidates)) {
@@ -843,7 +894,7 @@ class CreatePeppolTestData extends Command
         });
 
         if (empty($candidates)) {
-            $candidates = array_filter($valid, fn (string $c) => $c !== $countryCode);
+            $candidates = array_filter($valid, fn(string $c) => $c !== $countryCode);
         }
 
         return $candidates[array_rand($candidates)];

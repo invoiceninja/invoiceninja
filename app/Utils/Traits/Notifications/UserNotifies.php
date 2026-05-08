@@ -129,7 +129,7 @@ trait UserNotifies
         array_push($required_permissions, 'all_notifications');
 
 
-        if(count(array_intersect($required_permissions, $company_user->notifications->email)) >= 1){
+        if (count(array_intersect($required_permissions, $company_user->notifications->email)) >= 1) {
             array_push($notifiable_methods, 'mail');
         }
 

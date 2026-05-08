@@ -78,6 +78,9 @@ class QbClient implements SyncInterface
             }
 
             $client->fill($ninja_data[0]);
+            $client->forceFill([
+                'client_hash' => $ninja_data[0]['client_hash'] ?? $client->client_hash,
+            ]);
             $client->service()->applyNumber()->save();
 
             $contact = $client->contacts()->where('email', $ninja_data[1]['email'])->first();
@@ -119,9 +122,9 @@ class QbClient implements SyncInterface
     private function findClientIdByName(?string $name): mixed
     {
         $escaped_name = str_replace("'", "\\'", $name ?? '');
-        return $this->service->sdk->Query("SELECT Id FROM Customer WHERE DisplayName = '{$escaped_name}'",1,1);
+        return $this->service->sdk->Query("SELECT Id FROM Customer WHERE DisplayName = '{$escaped_name}'", 1, 1);
     }
-    
+
     /**
      * createQbClient
      *
@@ -149,15 +152,14 @@ class QbClient implements SyncInterface
 
                     return $client->sync->qb_id;
                 }
-            }
-            else {
+            } else {
                 $customers = $this->findClientIdByName($client->present()->name());
                 if ($customers) {
                     // QB SDK can return a single object or an array; normalize to array
                     if (!is_array($customers)) {
                         $customers = [$customers];
                     }
-                    
+
                     if (isset($customers[0])) {
                         $customer = $customers[0];
                         $qb_id = data_get($customer, 'Id') ?? data_get($customer, 'Id.value');
@@ -166,7 +168,7 @@ class QbClient implements SyncInterface
                         $sync->qb_id = $qb_id;
                         $client->sync = $sync;
                         $client->saveQuietly();
-                        
+
                         return $qb_id;
                     }
                 }
@@ -233,7 +235,7 @@ class QbClient implements SyncInterface
 
             app('sentry')->captureException($e);
 
-            
+
             throw $e;
         }
     }
@@ -332,9 +334,10 @@ class QbClient implements SyncInterface
                 ->withTrashed()
                 ->where('company_id', $company_id)
                 ->where('name', $name)
+                ->whereNull('sync')
                 ->first();
 
-         
+
             if ($name_match) {
                 $sync = $name_match->sync ? clone $name_match->sync : new ClientSync();
                 $sync->qb_id = $key;
@@ -354,6 +357,7 @@ class QbClient implements SyncInterface
                 ->whereHas('contacts', function ($query) use ($email) {
                     $query->where('email', $email);
                 })
+                ->whereNull('sync')
                 ->first();
 
             if ($email_match) {
@@ -368,6 +372,7 @@ class QbClient implements SyncInterface
 
         // No match found - create a new client
         $client = ClientFactory::create($company_id, $this->service->company->owner()->id);
+        $client->country_id = $this->service->company->settings->country_id;
 
         $sync = new ClientSync();
         $sync->qb_id = $key;

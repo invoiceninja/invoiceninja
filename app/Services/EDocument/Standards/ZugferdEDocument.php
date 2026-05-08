@@ -183,46 +183,55 @@ class ZugferdEDocument extends AbstractService
 
         if ((string) $this->document->total_taxes == '0') {
 
-            $base_amount = 0;
             $tax_amount = 0;
             $tax_rate = 0;
 
-            if (in_array($this->tax_code, [
-                ZugferdDutyTaxFeeCategories::VAT_REVERSE_CHARGE,
-                ZugferdDutyTaxFeeCategories::EXEMPT_FROM_TAX,
-                ZugferdDutyTaxFeeCategories::FREE_EXPORT_ITEM_TAX_NOT_CHARGED,
-                ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES,
-            ])) {
-                $base_amount = $this->document->amount;
+            $category_bases = $this->sumDutyTaxCategoryBasesFromLineItems();
+            $target_net = round((float) $this->document->amount - (float) $this->document->total_taxes, 2);
+            $category_bases = $this->reconcileTaxCategoryBasesToTarget($category_bases, $target_net);
+
+            $total_base_for_discount = array_sum($category_bases);
+
+            foreach ($category_bases as $duty_category => $base_amount) {
+                if (round($base_amount, 2) <= 0) {
+                    continue;
+                }
+
+                $this->xdocument->addDocumentTax(
+                    $duty_category,
+                    "VAT",
+                    round($base_amount, 2),
+                    $tax_amount,
+                    $tax_rate,
+                    $this->exemptionReasonTextForDutyCategory($duty_category),
+                    $this->exemptionReasonCodeForDutyCategory($duty_category)
+                );
             }
 
-            $this->xdocument->addDocumentTax(
-                $this->tax_code,
-                "VAT",
-                $base_amount,
-                $tax_amount,
-                $tax_rate,
-                null,
-                $this->exemption_reason_code
-            );
+            if ($this->calc->getTotalDiscount() > 0 && $total_base_for_discount > 0) {
 
+                foreach ($category_bases as $duty_category => $base_amount) {
+                    if (round($base_amount, 2) <= 0) {
+                        continue;
+                    }
 
-            if ($this->calc->getTotalDiscount() > 0) {
+                    $ratio = $base_amount / $total_base_for_discount;
 
-                $this->xdocument->addDocumentAllowanceCharge(
-                    $this->calc->getTotalDiscount(),
-                    false,
-                    $this->tax_code,
-                    "VAT",
-                    0,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    ctrans('texts.discount')
-                );
+                    $this->xdocument->addDocumentAllowanceCharge(
+                        round($this->calc->getTotalDiscount() * $ratio, 2),
+                        false,
+                        $duty_category,
+                        "VAT",
+                        0,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        ctrans('texts.discount')
+                    );
+                }
             }
 
             return $this;
@@ -236,6 +245,19 @@ class ZugferdEDocument extends AbstractService
 
         //taxable amount and net subtotal should be the same
         $adjustment = round($taxable_amount - $net_subtotal, 2);
+
+        /** Iterate and ensure all taxes are grouped so that we do not have duplicates */
+        $tax_map = $this->calc->getTaxMap()
+                        ->groupBy('tax_rate')
+                        ->map(function ($group) {
+                            return [
+                                'tax_id'      => $group->first()['tax_id'],
+                                'tax_rate'    => $group->first()['tax_rate'],
+                                'base_amount' => $group->sum('base_amount'),
+                                'total'       => $group->sum('total'),
+                            ];
+                        })
+                        ->values();
 
         // Process each tax rate group
         foreach ($tax_map as $item) {
@@ -407,21 +429,13 @@ class ZugferdEDocument extends AbstractService
                 );
 
             // 2. ALWAYS add tax information (even if zero)
-            if (strlen($item->tax_name1) > 1) {
-                $this->xdocument->addDocumentPositionTax(
-                    $this->getTaxType($item->tax_id ?? '2'),
-                    'VAT',
-                    $item->tax_rate1
-                );
-            } else {
-                // Use the document-level tax category (set in bootFlags) so line items
-                // match the document tax breakdown — required by BR-E-01, BR-G-08, etc.
-                $this->xdocument->addDocumentPositionTax(
-                    $this->tax_code ?? ZugferdDutyTaxFeeCategories::EXEMPT_FROM_TAX,
-                    'VAT',
-                    0
-                );
-            }
+            [$duty_category, $rate_percent] = $this->invoiceLineTradeTaxClassification($item);
+
+            $this->xdocument->addDocumentPositionTax(
+                $duty_category,
+                'VAT',
+                $rate_percent
+            );
 
             $line_discount = 0;
 
@@ -666,6 +680,93 @@ class ZugferdEDocument extends AbstractService
         }
 
         return $country_code . $vat_number;
+    }
+
+    private function getLineNetTotalForZugferd(object $item): float
+    {
+        return round(
+            $this->document->uses_inclusive_taxes
+                ? (float) $item->line_total - (float) $item->tax_amount
+                : (float) $item->line_total,
+            2
+        );
+    }
+
+    /**
+     * @return array{0: string, 1: float}
+     */
+    private function invoiceLineTradeTaxClassification(object $item): array
+    {
+        if (strlen($item->tax_name1 ?? '') > 1) {
+            return [$this->getTaxType($item->tax_id ?? '2'), (float) $item->tax_rate1];
+        }
+
+        return [$this->tax_code ?? ZugferdDutyTaxFeeCategories::EXEMPT_FROM_TAX, 0.0];
+    }
+
+    private function getPositionDutyTaxCategory(object $item): string
+    {
+        return $this->invoiceLineTradeTaxClassification($item)[0];
+    }
+
+    /**
+     * @return array<string, float>
+     */
+    private function sumDutyTaxCategoryBasesFromLineItems(): array
+    {
+        $category_bases = [];
+
+        foreach ($this->document->line_items as $item) {
+            $category = $this->getPositionDutyTaxCategory($item);
+            $net = $this->getLineNetTotalForZugferd($item);
+            $category_bases[$category] = ($category_bases[$category] ?? 0) + $net;
+        }
+
+        return $category_bases;
+    }
+
+    /**
+     * @param  array<string, float>  $category_bases
+     * @return array<string, float>
+     */
+    private function reconcileTaxCategoryBasesToTarget(array $category_bases, float $target_net): array
+    {
+        if (empty($category_bases)) {
+            $duty = $this->tax_code ?? ZugferdDutyTaxFeeCategories::EXEMPT_FROM_TAX;
+
+            return [$duty => $target_net];
+        }
+
+        $sum = round(array_sum($category_bases), 2);
+        $adjustment = round($target_net - $sum, 2);
+
+        if (abs($adjustment) >= 0.009) {
+            arsort($category_bases);
+            $top_category = array_key_first($category_bases);
+            $category_bases[$top_category] = round($category_bases[$top_category] + $adjustment, 2);
+        }
+
+        return $category_bases;
+    }
+
+    private function exemptionReasonCodeForDutyCategory(string $duty_category): ?string
+    {
+        return match ($duty_category) {
+            ZugferdDutyTaxFeeCategories::FREE_EXPORT_ITEM_TAX_NOT_CHARGED => 'VATEX-EU-G',
+            ZugferdDutyTaxFeeCategories::VAT_REVERSE_CHARGE => 'VATEX-EU-AE',
+            ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES => 'VATEX-EU-IC',
+            ZugferdDutyTaxFeeCategories::SERVICE_OUTSIDE_SCOPE_OF_TAX => 'VATEX-EU-O',
+            default => $this->exemption_reason_code,
+        };
+    }
+
+    private function exemptionReasonTextForDutyCategory(string $duty_category): ?string
+    {
+        if ($duty_category == ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES) {
+            return ctrans('texts.intracommunity_tax_info');
+        }
+
+        return null;
     }
 
     private function getTaxType(string $tax_id): string

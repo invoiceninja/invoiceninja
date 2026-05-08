@@ -61,59 +61,62 @@ class CleanStaleInvoiceOrder implements ShouldQueue
 
     private function run($repo)
     {
-        $proforma =Invoice::query()
+        $proforma = Invoice::query()
+                        ->with('client')
                         ->withTrashed()
                         ->where('status_id', Invoice::STATUS_SENT)
                         ->where('is_proforma', 1)
                         ->whereBetween('created_at', [now()->subHours(3), now()->subHour()])
                         ->get();
-        
+
         $proforma->each(function ($invoice) use ($repo) {
             $invoice->is_proforma = false;
             $invoice->save();
             $repo->delete($invoice);
         });
-        
+
 
         $stale = Invoice::query()
+                        ->with('client')
                         ->withTrashed()
                         ->whereBetween('updated_at', [now()->subDay(), now()->subHour()])
                         ->where('status_id', Invoice::STATUS_SENT)
                         ->where('balance', '>', 0)
                         ->get();
 
-            //    ->whereJsonContains('line_items', ['type_id' => '3'])
-            $stale->each(function ($invoice) {
-                $invoice->service()->removeUnpaidGatewayFees();
-            });
+        //    ->whereJsonContains('line_items', ['type_id' => '3'])
+        $stale->each(function ($invoice) {
+            $invoice->service()->removeUnpaidGatewayFees();
+        });
 
         $confirmed = Invoice::query()
+            ->with('client')
             ->withTrashed()
             ->whereIn('status_id', [Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
             ->whereBetween('updated_at', [now()->subHours(3), now()->subHour()])
             ->get();
 
-            //    ->whereJsonContains('line_items', ['type_id' => '3'])
-            //    ->cursor()
-            $confirmed->each(function ($invoice) {
+        //    ->whereJsonContains('line_items', ['type_id' => '3'])
+        //    ->cursor()
+        $confirmed->each(function ($invoice) {
 
-                $items = $invoice->line_items;
+            $items = $invoice->line_items;
 
-                foreach ($items as $key => $value) {
+            foreach ($items as $key => $value) {
 
-                    if ($value->type_id == "3" && isset($value->unit_code) && $ph = \App\Models\PaymentHash::where('hash', $value->unit_code)->first()) {
+                if ($value->type_id == "3" && isset($value->unit_code) && $ph = \App\Models\PaymentHash::where('hash', $value->unit_code)->first()) {
 
-                        if ($ph->payment_id && in_array($ph->payment?->status_id, [\App\Models\Payment::STATUS_COMPLETED, \App\Models\Payment::STATUS_PENDING])) {
-                            $items[$key]->type_id = "4";
-                        }
+                    if ($ph->payment_id && in_array($ph->payment?->status_id, [\App\Models\Payment::STATUS_COMPLETED, \App\Models\Payment::STATUS_PENDING])) {
+                        $items[$key]->type_id = "4";
                     }
-
                 }
 
-                $invoice->line_items = array_values($items);
-                $invoice = $invoice->calc()->getInvoice();
-                $invoice->service()->removeUnpaidGatewayFees();
-            });
+            }
+
+            $invoice->line_items = array_values($items);
+            $invoice = $invoice->calc()->getInvoice();
+            $invoice->service()->removeUnpaidGatewayFees();
+        });
 
     }
 

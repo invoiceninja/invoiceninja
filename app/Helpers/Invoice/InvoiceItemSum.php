@@ -198,7 +198,7 @@ class InvoiceItemSum
     private function shouldCalculateTax(): self
     {
 
-        if (!$this->invoice->client || !$this->invoice->company?->calculate_taxes || $this->invoice->company->account->isFreeHostedClient() || $this->invoice->status_id == Invoice::STATUS_PAID) { //@phpstan-ignore-line
+        if (!$this->invoice->client || !$this->invoice->company?->calculate_taxes || $this->invoice->company->account->isFreeHostedClient() || ($this->invoice instanceof Invoice && $this->invoice->isTaxImmutable())) { //@phpstan-ignore-line
             $this->calc_tax = false;
             return $this;
         }
@@ -345,9 +345,15 @@ class InvoiceItemSum
 
         $this->setTotalTaxes($this->formatValue($item_tax, $this->currency->precision));
 
-        $this->item->gross_line_total = $this->getLineTotal() + $item_tax;
-
-        $this->item->tax_amount = $item_tax;
+        /**
+         * Round per-item display fields. The unrounded $item_tax is intentionally
+         * kept inside tax_collection so the per-category sum in InvoiceSum::setTaxMap()
+         * is mathematically precise (matching PEPPOL's "round once at the category
+         * boundary" rule). gross_line_total and tax_amount are display values only —
+         * they must never be summed to derive invoice totals.
+         */
+        $this->item->tax_amount = round($item_tax, $this->currency->precision);
+        $this->item->gross_line_total = round($this->getLineTotal() + $item_tax, $this->currency->precision);
         $this->item->net_cost = $this->item->cost;
 
         return $this;
@@ -415,7 +421,7 @@ class InvoiceItemSum
         $key = str_replace(' ', '', $tax_name . $tax_rate);
 
         //Handles an edge case where a blank line is entered.
-        if ($tax_rate > 0 && $amount == 0) {
+        if ($tax_name == '' && $tax_rate == 0 && $amount == 0) {
             return;
         }
 
@@ -523,7 +529,7 @@ class InvoiceItemSum
 
             $item_tax += $item_tax_rate1_total;
 
-            if ($item_tax_rate1_total != 0) {
+            if (strlen($this->item->tax_name1) > 1 || $item_tax_rate1_total != 0) {
                 $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total, $amount, $this->item->tax_id ?? '1');
             }
 
@@ -531,7 +537,7 @@ class InvoiceItemSum
 
             $item_tax += $item_tax_rate2_total;
 
-            if ($item_tax_rate2_total != 0) {
+            if (strlen($this->item->tax_name2) > 1 || $item_tax_rate2_total != 0) {
                 $this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total, $amount, $this->item->tax_id ?? '1');
             }
 
@@ -539,12 +545,12 @@ class InvoiceItemSum
 
             $item_tax += $item_tax_rate3_total;
 
-            if ($item_tax_rate3_total != 0) {
+            if (strlen($this->item->tax_name3) > 1 || $item_tax_rate3_total != 0) {
                 $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total, $amount, $this->item->tax_id ?? '1');
             }
 
-            $this->item->gross_line_total = $this->getLineTotal() + $item_tax;
-            $this->item->tax_amount = $item_tax;
+            $this->item->tax_amount = round($item_tax, $this->currency->precision);
+            $this->item->gross_line_total = round($this->getLineTotal() + $item_tax, $this->currency->precision);
             $this->item->net_cost = $this->item->cost;
             $this->line_items[$key] = $this->item;
 

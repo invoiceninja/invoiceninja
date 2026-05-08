@@ -112,7 +112,7 @@ class Expense extends BaseModel
      */
     public function searchableAs(): string
     {
-        return 'expenses_v2';
+        return 'expenses';
     }
 
     protected $fillable = [
@@ -181,10 +181,10 @@ class Expense extends BaseModel
 
     protected $touches = [];
 
-    public function toSearchableArray()
+    public function toSearchableArray(): array
     {
+        
         $locale = $this->company->locale();
-
         App::setLocale($locale);
 
         return [

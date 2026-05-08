@@ -14,9 +14,7 @@ namespace App\Services\EDocument\Gateway\Storecove;
 
 class StorecoveC5
 {
-    public function __construct(private Storecove $storecove)
-    {
-    }
+    public function __construct(private Storecove $storecove) {}
 
     /**
      * Request a new C5 Email Activation with IRAS.

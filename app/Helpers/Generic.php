@@ -24,11 +24,6 @@ use App\Utils\Ninja;
 function nlog($output, $context = []): void
 {
 
-    //  if (getenv('GITHUB_ACTIONS')) {
-    //     // Debug level
-    //     echo "::debug::".print_r($output, true)."\n";
-    // }
-
     if (! config('ninja.expanded_logging')) {
         return;
     }

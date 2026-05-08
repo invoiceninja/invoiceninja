@@ -13,6 +13,7 @@
 namespace App\Services\Report\TaxPeriod;
 
 use App\Models\Invoice;
+use App\DataMapper\TaxReport\PaymentHistory;
 
 /**
  * Builds invoice item-level (tax detail) report rows
@@ -24,12 +25,13 @@ class InvoiceItemReportRow
         private TaxDetail $tax_detail,
         private TaxReportStatus $status,
         private ?RegionalTaxCalculator $regional_calculator = null,
+        private ?PaymentHistory $payment = null,
     ) {}
 
     /**
      * Get column headers
      */
-    public static function getHeaders(?RegionalTaxCalculator $regional_calculator = null): array
+    public static function getHeaders(?RegionalTaxCalculator $regional_calculator = null, bool $with_payment = false): array
     {
         $base_headers = [
             ctrans('texts.invoice_number'),
@@ -40,10 +42,20 @@ class InvoiceItemReportRow
             ctrans('texts.taxable_amount'),
             ctrans('texts.status'),
             ctrans('texts.postal_code'),
+            ctrans('texts.type'),
         ];
 
         if ($regional_calculator) {
-            return array_merge($base_headers, $regional_calculator->getHeaders());
+            $base_headers = array_merge($base_headers, $regional_calculator->getHeaders());
+        }
+
+        if ($with_payment) {
+            $base_headers = array_merge($base_headers, [
+                ctrans('texts.payment_number'),
+                ctrans('texts.payment_date'),
+                ctrans('texts.payment_amount'),
+                ctrans('texts.refunded'),
+            ]);
         }
 
         return $base_headers;
@@ -63,9 +75,12 @@ class InvoiceItemReportRow
             $this->tax_detail->taxable_amount,
             $this->status->label(),
             $this->tax_detail->postal_code,
+            $this->tax_detail->classification ?: ctrans('texts.unknown'),
         ];
 
-        return $this->appendRegionalColumns($row, $this->tax_detail->tax_amount);
+        $row = $this->appendRegionalColumns($row, $this->tax_detail->tax_amount);
+
+        return $this->appendPaymentColumns($row);
     }
 
     /**
@@ -82,9 +97,12 @@ class InvoiceItemReportRow
             $this->tax_detail->taxable_amount,
             $this->status->label(),
             $this->tax_detail->postal_code,
+            $this->tax_detail->classification ?: ctrans('texts.unknown'),
         ];
 
-        return $this->appendRegionalColumns($row, $this->tax_detail->tax_amount);
+        $row = $this->appendRegionalColumns($row, $this->tax_detail->tax_amount);
+
+        return $this->appendPaymentColumns($row);
     }
 
     /**
@@ -109,5 +127,22 @@ class InvoiceItemReportRow
         }
 
         return $row;
+    }
+
+    /**
+     * Append per-payment columns when this row was emitted as part of a payment unwrap
+     */
+    private function appendPaymentColumns(array $row): array
+    {
+        if ($this->payment === null) {
+            return $row;
+        }
+
+        return array_merge($row, [
+            $this->payment->number,
+            $this->payment->date,
+            $this->payment->amount,
+            $this->payment->refunded,
+        ]);
     }
 }

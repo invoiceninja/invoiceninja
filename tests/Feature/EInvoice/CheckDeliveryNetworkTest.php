@@ -154,6 +154,22 @@ class CheckDeliveryNetworkTest extends TestCase
     }
 
     // ──────────────────────────────────────────────────────
+    // BE business — explicit focused test
+    // ──────────────────────────────────────────────────────
+
+    public function testBeBusinessClientIsRoutable(): void
+    {
+        $client = $this->makeClient(56, 'business'); // BE
+
+        $result = $client->checkDeliveryNetwork();
+
+        $this->assertNull(
+            $result,
+            "Belgian business client should pass checkDeliveryNetwork(), got: " . var_export($result, true)
+        );
+    }
+
+    // ──────────────────────────────────────────────────────
     // ES and GB — business in routing rules
     // ─────────────────────────────────��────────────────────
 
@@ -216,6 +232,12 @@ class CheckDeliveryNetworkTest extends TestCase
         return [
             'BR' => [76, 'BR'],
             'CN' => [156, 'CN'],
+            // Countries with tax metadata in routing_rules but not Peppol destinations
+            'HR' => [191, 'HR'], // Croatia
+            'CZ' => [203, 'CZ'], // Czech Republic
+            'HU' => [348, 'HU'], // Hungary
+            'SK' => [703, 'SK'], // Slovakia
+            'CH' => [756, 'CH'], // Switzerland
         ];
     }
 

@@ -27,8 +27,8 @@ class ExpenseTransformer extends BaseTransformer
     public function transform($data)
     {
 
-        $clientId = isset($data['expense.client'])
-            ? $this->getClientId($data['expense.client'])
+        $clientId = (isset($data['expense.client']) && strlen(trim($data['expense.client'])) > 1)
+            ? $this->getClient($data['expense.client'], null)
             : null;
 
         return [
@@ -41,16 +41,14 @@ class ExpenseTransformer extends BaseTransformer
             'vendor_id' => isset($data['expense.vendor'])
                 ? $this->getVendorId($data['expense.vendor'])
                 : null,
-            'client_id' => isset($data['expense.client'])
-                ? $this->getClientId($data['expense.client'])
-                : null,
+            'client_id' => $clientId,
             'date' => strlen($this->getString($data, 'expense.date')) > 1 ? $this->parseDate($data['expense.date']) : now()->format('Y-m-d'),
             'public_notes' => $this->getString($data, 'expense.public_notes'),
             'private_notes' => $this->getString($data, 'expense.private_notes'),
             'category_id' => isset($data['expense.category'])
                 ? $this->getExpenseCategoryId($data['expense.category'])
                 : null,
-            'project_id' => isset($data['expense.project'])
+            'project_id' => isset($data['expense.project']) && strlen(trim($data['expense.project'])) > 1 && $clientId
                 ? $this->getProjectId($data['expense.project'], $clientId)
                 : null,
             'payment_type_id' => isset($data['expense.payment_type'])

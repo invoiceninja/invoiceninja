@@ -1,4 +1,15 @@
 <div>
+    <div class="flex justify-between items-center mb-4">
+        <form action="{{ route('client.quotes.bulk') }}" method="post">
+            @csrf
+            @foreach($selected as $hashed_id)
+                <input type="hidden" name="quotes[]" value="{{ $hashed_id }}">
+            @endforeach
+            <button type="submit" @disabled(count($selected) === 0) onclick="setTimeout(() => this.disabled = true, 0); setTimeout(() => this.disabled = false, 5000); return true;" class="button button-primary bg-primary disabled:opacity-50" name="action" value="download">{{ ctrans('texts.download') }}</button>
+            <button type="submit" @disabled(count($selected) === 0) onclick="setTimeout(() => this.disabled = true, 0); return true;" class="button button-primary bg-primary disabled:opacity-50" name="action" value="approve">{{ ctrans('texts.approve') }}</button>
+            <button type="submit" @disabled(count($selected) === 0) onclick="setTimeout(() => this.disabled = true, 0); return true;" class="button button-secondary bg-red-500 text-white hover:bg-red-600 disabled:opacity-50" name="action" value="reject">{{ ctrans('texts.reject') }}</button>
+        </form>
+    </div>
     <div class="flex items-center justify-between">
         <div class="flex items-center">
             <span class="hidden mr-2 text-sm md:block">{{ ctrans('texts.per_page') }}</span>
@@ -35,7 +46,7 @@
                     <tr>
                         <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
                             <label>
-                                <input type="checkbox" class="form-check form-check-parent">
+                                <input type="checkbox" class="form-check" wire:model.live="select_all" aria-label="{{ ctrans('texts.select_all') }}">
                             </label>
                         </th>
                         <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
@@ -68,10 +79,10 @@
                 </thead>
                 <tbody>
                     @forelse($quotes as $quote)
-                        <tr class="bg-white group hover:bg-gray-100">
+                        <tr class="bg-white group hover:bg-gray-100" wire:key="quote-{{ $quote->hashed_id }}">
                             <td class="px-6 py-4 text-sm font-medium leading-5 text-gray-900 whitespace-nowrap">
                                 <label>
-                                    <input type="checkbox" class="form-check form-check-child" data-value="{{ $quote->hashed_id }}">
+                                    <input type="checkbox" class="form-check" wire:model.live="selected" value="{{ $quote->hashed_id }}">
                                 </label>
                             </td>
                             <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
@@ -116,6 +127,3 @@
     </div>
 </div>
 
-@push('footer')
-    @vite('resources/js/clients/quotes/action-selectors.js')
-@endpush

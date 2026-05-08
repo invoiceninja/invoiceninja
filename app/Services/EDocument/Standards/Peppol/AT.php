@@ -13,32 +13,32 @@
 namespace App\Services\EDocument\Standards\Peppol;
 
 use App\Services\EDocument\Gateway\MutatorUtil;
+use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
 
 class AT extends BaseCountry
 {
-    public function getRoutingRules(): ?array
+    /**
+     * AT government routing uses the fixed Storecove endpoint AT:GOV:b.
+     * Validation passes whenever the client has an id_number, which is
+     * required for customerAssignedAccountIdValue on the supplier party.
+     */
+    public function getCandidates(object $client, string $classification, object $router): array
     {
-        return [
-            ["G", "AT:GOV", false, "9915:b"],
-            ["B", "", "AT:VAT", "AT:VAT"],
-        ];
+        /** @var StorecoveRouter $router */
+        if ($classification === 'government') {
+            $id = trim($client->id_number ?? '');
+            return strlen($id) >= 1 ? [['scheme' => 'AT:GOV', 'id' => 'b']] : [];
+        }
+
+        return parent::getCandidates($client, $classification, $router);
     }
 
     public function senderMutations(
         mixed $p_invoice,
         mixed $invoice,
         MutatorUtil $mutator_util,
-        array $storecove_meta
-    ): array {
+    ): mixed {
 
-        if ($invoice->client->classification == 'government') {
-            // Route to AT:GOV - "b" for production, "test" for test environment
-            $storecove_meta = $this->mergeMeta($storecove_meta, $this->buildRouting(["scheme" => 'AT:GOV', "id" => 'b']));
-
-            // For government clients, customerAssignedAccountId must be set
-            $mutator_util->setCustomerAssignedAccountId(true);
-        }
-
-        return ['p_invoice' => $p_invoice, 'storecove_meta' => $storecove_meta];
+        return $p_invoice;
     }
 }

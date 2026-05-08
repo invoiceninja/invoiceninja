@@ -177,7 +177,7 @@ class StorecoveProxy
             return $this->handleResponseError($response);
         }
 
-        return $this->remoteRequest('/api/einvoice/peppol/sg/c5/activate', $data);
+        return $this->translateC5Unavailable($this->remoteRequest('/api/einvoice/peppol/sg/c5/activate', $data));
     }
 
     public function c5Deactivate(string $name, string $email): array
@@ -204,7 +204,7 @@ class StorecoveProxy
             return $this->handleResponseError($response);
         }
 
-        return $this->remoteRequest('/api/einvoice/peppol/sg/c5/deactivate', $data);
+        return $this->translateC5Unavailable($this->remoteRequest('/api/einvoice/peppol/sg/c5/deactivate', $data));
     }
 
     public function c5Cancel(): array
@@ -227,7 +227,28 @@ class StorecoveProxy
             return $this->handleResponseError($response);
         }
 
-        return $this->remoteRequest('/api/einvoice/peppol/sg/c5/cancel', $data);
+        return $this->translateC5Unavailable($this->remoteRequest('/api/einvoice/peppol/sg/c5/cancel', $data));
+    }
+
+    /**
+     * Translate a 404 response from a self-hosted C5 proxy call into a clearer,
+     * user-facing error. The hosted admin server only exposes the c5 endpoints
+     * after the Apr 2026 admin release; until then self-hosted users would see
+     * the generic "Resource not found" message, which is confusing.
+     *
+     * @todo remove once every supported hosted release carries the c5 routes.
+     *
+     * @param  array $response
+     * @return array
+     */
+    private function translateC5Unavailable(array $response): array
+    {
+        if (($response['status'] ?? null) === 'error' && ($response['code'] ?? null) === 404) {
+            $response['message'] = 'Singapore C5 is not yet available on the hosted server. Please try again after the next release or contact support.';
+            $response['code'] = 503;
+        }
+
+        return $response;
     }
 
     public function removeAdditionalTaxIdentifier(array $data): array|false
@@ -295,10 +316,6 @@ class StorecoveProxy
             ],
         ]);
 
-        nlog([
-            'Storecove API Error (local)' => $error,
-        ]);
-
         return $error;
     }
 
@@ -327,6 +344,13 @@ class StorecoveProxy
             return ($response->json()['discovered'] ?? false) === true;
         }
 
+        // @todo remove this 404 branch after the next hosted release deploys the discovery route.
+        // Pre-deploy the hosted server returns 404; fall back to the pre-discovery behaviour
+        // (assume discoverable) so routing is not silently degraded for self-hosted users.
+        if ($response->status() === 404) {
+            return true;
+        }
+
         return false;
     }
 
@@ -339,12 +363,11 @@ class StorecoveProxy
 
         if ($response->successful()) {
             if ($response->hasHeader('X-EINVOICE-QUOTA')) {
-                // @dave is there any case this will run when user is not logged in? (async)
 
                 /**
                  * @var \App\Models\Account $account
                  */
-                $account = auth()->user()->company->account;
+                $account = $this->company->account;
 
                 $account->e_invoice_quota = (int) $response->header('X-EINVOICE-QUOTA');
                 $account->save();

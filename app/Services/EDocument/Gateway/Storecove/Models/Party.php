@@ -15,6 +15,8 @@ class Party
 
     public ?string $classification_code;
 
+    public ?string $customer_assigned_account_id_value;
+
     #[SerializedPath('[cac:PostalAddress]')]
     public ?Address $address;
 
@@ -26,13 +28,15 @@ class Party
         ?string $registration_name,
         ?string $classification_code,
         ?Address $address,
-        ?Contact $contact
+        ?Contact $contact,
+        ?string $customer_assigned_account_id_value = null,
     ) {
         $this->company_name = $company_name;
         $this->registration_name = $registration_name;
         $this->classification_code = $classification_code;
         $this->address = $address;
         $this->contact = $contact;
+        $this->customer_assigned_account_id_value = $customer_assigned_account_id_value;
     }
 
     public function getCompanyName(): ?string
@@ -87,6 +91,17 @@ class Party
     public function setContact(?Contact $contact): self
     {
         $this->contact = $contact;
+        return $this;
+    }
+
+    public function getCustomerAssignedAccountIdValue(): ?string
+    {
+        return $this->customer_assigned_account_id_value;
+    }
+
+    public function setCustomerAssignedAccountIdValue(?string $value): self
+    {
+        $this->customer_assigned_account_id_value = $value;
         return $this;
     }
 }

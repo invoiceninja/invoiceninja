@@ -25,12 +25,12 @@ class PurchaseOrderSync implements Castable
         public array $invitations = [],
         public bool $dn_completed = false,
         public string $dn_document_hashed_id = '',
-    ){}
-     /**
-     * Get the name of the caster class to use when casting from / to this cast target.
-     *
-     * @param  array<string, mixed>  $arguments
-     */
+    ) {}
+    /**
+    * Get the name of the caster class to use when casting from / to this cast target.
+    *
+    * @param  array<string, mixed>  $arguments
+    */
     public static function castUsing(array $arguments): string
     {
         return PurchaseOrderSyncCast::class;
@@ -91,7 +91,7 @@ class PurchaseOrderSync implements Castable
      */
     public function removeInvitation(string $invitation_key): void
     {
-        $this->invitations = array_filter($this->invitations, function($invitation) use ($invitation_key) {
+        $this->invitations = array_filter($this->invitations, function ($invitation) use ($invitation_key) {
             return $invitation['invitation_key'] !== $invitation_key;
         });
         // Re-index the array to maintain numeric keys

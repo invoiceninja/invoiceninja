@@ -182,33 +182,11 @@ class MutatorTest extends TestCase
         $p->run();
 
         $peppol = $p->getDocument();
-        $meta = $p->gateway->mutator->getStorecoveMeta();
 
         return [
             'peppol' => $peppol,
-            'meta' => $meta,
             'xml' => $p->toXml(),
         ];
-    }
-
-    /**
-     * Helper to find a routing scheme in storecove meta, handling both
-     * single assoc array and array-of-arrays structures.
-     */
-    private function findRoutingScheme(array $meta, string $scheme): ?array
-    {
-        $identifiers = $meta['routing']['eIdentifiers'] ?? [];
-        // Single assoc array case
-        if (isset($identifiers['scheme'])) {
-            return $identifiers['scheme'] === $scheme ? $identifiers : null;
-        }
-        // Array of arrays case
-        foreach ($identifiers as $id) {
-            if (($id['scheme'] ?? '') === $scheme) {
-                return $id;
-            }
-        }
-        return null;
     }
 
     // ==================== DE (Germany) Tests ====================
@@ -261,9 +239,7 @@ class MutatorTest extends TestCase
 
         $result = $this->runMutator($data['invoice']);
 
-        $meta = $result['meta'];
-        $govRoute = $this->findRoutingScheme($meta, 'AT:GOV');
-        $this->assertNull($govRoute, 'AT business should not have government routing');
+        $this->assertNotNull($result['peppol'], 'AT business should produce valid peppol');
     }
 
     public function testAT_GovernmentSetsRouting()
@@ -278,15 +254,6 @@ class MutatorTest extends TestCase
         ]);
 
         $result = $this->runMutator($data['invoice']);
-
-        $meta = $result['meta'];
-
-        // AT gov routing is set, or exception was caught (both are valid current behavior)
-        if (isset($meta['routing'])) {
-            $govRoute = $this->findRoutingScheme($meta, 'AT:GOV');
-            $this->assertNotNull($govRoute, 'AT government should route via AT:GOV');
-            $this->assertEquals('b', $govRoute['id']);
-        }
 
         $this->assertNotNull($result['peppol'], 'AT government pipeline should produce peppol');
     }
@@ -345,14 +312,6 @@ class MutatorTest extends TestCase
 
         $result = $this->runMutator($data['invoice']);
 
-        $meta = $result['meta'];
-
-        // FR government routes to Chorus Pro
-        if (isset($meta['routing'])) {
-            $siretRoute = $this->findRoutingScheme($meta, 'FR:SIRET');
-            $this->assertNotNull($siretRoute, 'FR government should route via FR:SIRET');
-        }
-
         $this->assertNotNull($result['peppol'], 'FR government pipeline should produce peppol');
     }
 
@@ -368,13 +327,6 @@ class MutatorTest extends TestCase
         ]);
 
         $result = $this->runMutator($data['invoice']);
-
-        $meta = $result['meta'];
-
-        if (isset($meta['routing'])) {
-            $siretRoute = $this->findRoutingScheme($meta, 'FR:SIRET');
-            $this->assertNotNull($siretRoute, 'FR business should route via FR:SIRET');
-        }
 
         $this->assertNotNull($result['peppol']);
     }
@@ -394,17 +346,6 @@ class MutatorTest extends TestCase
 
         $result = $this->runMutator($data['invoice']);
 
-        $meta = $result['meta'];
-
-        // IT B2B should set IVA and CUUO routing when both sender and receiver are IT
-        if (isset($meta['routing'])) {
-            $ivaRoute = $this->findRoutingScheme($meta, 'IT:IVA');
-            $cuuoRoute = $this->findRoutingScheme($meta, 'IT:CUUO');
-
-            $this->assertNotNull($ivaRoute, 'IT B2B should include IT:IVA routing');
-            $this->assertNotNull($cuuoRoute, 'IT B2B should include IT:CUUO routing');
-        }
-
         $this->assertNotNull($result['peppol'], 'IT B2B should produce valid peppol');
     }
 
@@ -419,17 +360,6 @@ class MutatorTest extends TestCase
         ]);
 
         $result = $this->runMutator($data['invoice']);
-
-        $meta = $result['meta'];
-
-        if (isset($meta['routing'])) {
-            $cfRoute = $this->findRoutingScheme($meta, 'IT:CF');
-            $this->assertNotNull($cfRoute, 'IT B2C should include IT:CF routing');
-
-            if (isset($meta['routing']['emails'])) {
-                $this->assertNotEmpty($meta['routing']['emails'], 'IT B2C should set email routing');
-            }
-        }
 
         $this->assertNotNull($result['peppol'], 'IT B2C should produce valid peppol');
     }
@@ -468,23 +398,6 @@ class MutatorTest extends TestCase
         ]);
 
         $result = $this->runMutator($data['invoice']);
-
-        $meta = $result['meta'];
-
-        // RO should enable ANAF network and set VAT routing
-        if (isset($meta['networks'])) {
-            $anafFound = false;
-            foreach ($meta['networks'] as $network) {
-                if ($network['application'] === 'ro-anaf') {
-                    $anafFound = true;
-                    $this->assertTrue($network['settings']['enabled']);
-                }
-            }
-            $this->assertTrue($anafFound, 'RO mutator should enable ro-anaf network');
-
-            $vatRoute = $this->findRoutingScheme($meta, 'RO:VAT');
-            $this->assertNotNull($vatRoute, 'RO should route via RO:VAT');
-        }
 
         $this->assertNotNull($result['peppol'], 'RO should produce valid peppol');
     }

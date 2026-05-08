@@ -61,62 +61,32 @@ class IN extends BaseCountry
         'WB' => 'West Bengal',
     ];
 
-    public function getRoutingRules(): ?array
-    {
-        return ["B", "", "IN:GSTIN", "Email"];
-    }
-
     public function senderMutations(
         mixed $p_invoice,
         mixed $invoice,
         MutatorUtil $mutator_util,
-        array $storecove_meta
-    ): array {
+    ): mixed {
 
         // Resolve supplier state to ISO 3166-2:IN code
         $supplier_state = $mutator_util->getClientSetting('Invoice.AccountingSupplierParty.Party.PostalAddress.Address.CountrySubentity');
         $resolved_state = $this->getStateCode($supplier_state, $invoice, 'supplier');
         $p_invoice->AccountingSupplierParty->Party->PostalAddress->CountrySubentity = $resolved_state;
 
-        // B2B/B2G domestic: route via GSTIN
-        if (in_array($invoice->client->classification, ['business', 'government'])
-            && strlen($invoice->client->vat_number ?? '') > 1) {
-
-            $storecove_meta = $this->mergeMeta($storecove_meta, $this->buildRouting([
-                ["scheme" => 'IN:GSTIN', "id" => $invoice->client->vat_number],
-            ]));
-
-        }
-
-        $storecove_meta = $this->setEmailRouting($storecove_meta, $invoice->client->present()->email());
-
-        return ['p_invoice' => $p_invoice, 'storecove_meta' => $storecove_meta];
+        return $p_invoice;
     }
 
     public function receiverMutations(
         mixed $p_invoice,
         mixed $invoice,
         MutatorUtil $mutator_util,
-        array $storecove_meta
-    ): array {
+    ): mixed {
 
         // non-IN sender, IN receiver — resolve customer state
         $client_state = $mutator_util->getClientSetting('Invoice.AccountingCustomerParty.Party.PostalAddress.Address.CountrySubentity');
         $resolved_state = $this->getStateCode($client_state, $invoice);
         $p_invoice->AccountingCustomerParty->Party->PostalAddress->CountrySubentity = $resolved_state;
 
-        // Route via GSTIN if B2B/B2G
-        if (in_array($invoice->client->classification, ['business', 'government'])) {
-
-            $storecove_meta = $this->mergeMeta($storecove_meta, $this->buildRouting([
-                ["scheme" => 'IN:GSTIN', "id" => $invoice->client->vat_number],
-            ]));
-
-        }
-
-        $storecove_meta = $this->setEmailRouting($storecove_meta, $invoice->client->present()->email());
-
-        return ['p_invoice' => $p_invoice, 'storecove_meta' => $storecove_meta];
+        return $p_invoice;
     }
 
     /**

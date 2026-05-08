@@ -15,10 +15,13 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Smtp\CheckSmtpRequest;
 use App\Mail\TestMailServer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class SmtpController extends BaseController
 {
+    private const SMTP_TIMEOUT = 5;
+
     public function __construct()
     {
         parent::__construct();
@@ -26,6 +29,8 @@ class SmtpController extends BaseController
 
     public function check(CheckSmtpRequest $request)
     {
+        $startedAt = microtime(true);
+
         /** @var \App\Models\User $user */
         $user = auth()->user();
         $company = $user->company();
@@ -48,11 +53,13 @@ class SmtpController extends BaseController
                 'encryption' => $smtp_encryption,
                 'local_domain' => $smtp_local_domain,
                 'verify_peer' => $smtp_verify_peer,
-                'timeout' => 5,
+                'timeout' => self::SMTP_TIMEOUT,
             ],
         ]);
 
         (new \Illuminate\Mail\MailServiceProvider(app()))->register();
+
+        $failed = false;
 
         try {
 
@@ -66,15 +73,42 @@ class SmtpController extends BaseController
                 ->to($user->email, $user->present()->name())
                 ->send($mailable);
 
-        } catch (\Exception $e) {
-            app('mail.manager')->forgetMailers();
-            return response()->json(['message' => $e->getMessage()], 400);
+        } catch (\Throwable $e) {
+            nlog('SMTP check failed', [
+                'company_id' => $company->id ?? null,
+                'host' => $smtp_host,
+                'port' => $smtp_port,
+                'error' => $e->getMessage(),
+            ]);
+            $failed = true;
         }
 
         app('mail.manager')->forgetMailers();
 
+        $this->padResponse($startedAt);
+
+        if ($failed) {
+            return response()->json(['message' => 'Could not connect to SMTP server'], 400);
+        }
+
         return response()->json(['message' => 'Ok'], 200);
-
     }
+    
+    /**
+     * padResponse
+     *
+     * provide a constant delay to avoid timing oracles.
+     * 
+     * @param  float $startedAt
+     * @return void
+     */
+    private function padResponse(float $startedAt): void
+    {
+        $elapsed = microtime(true) - $startedAt;
+        $remaining = self::SMTP_TIMEOUT - $elapsed;
 
+        if ($remaining > 0) {
+            usleep((int) ($remaining * 1_000_000));
+        }
+    }
 }

@@ -140,8 +140,9 @@ class Task extends BaseModel
         return self::class;
     }
 
-    public function toSearchableArray()
+    public function toSearchableArray(): array
     {
+        
         $locale = $this->company->locale();
 
         App::setLocale($locale);
@@ -164,7 +165,7 @@ class Task extends BaseModel
             'custom_value4' => (string) $this->custom_value4,
             'company_key' => $this->company->company_key,
             'time_log' => $this->normalizeTimeLog($this->time_log),
-            'calculated_start_date' => (string) $this->calculated_start_date,
+            'calculated_start_date' => $this->calculated_start_date,
         ];
 
         return $data;

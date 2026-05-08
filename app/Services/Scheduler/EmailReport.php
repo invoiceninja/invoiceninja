@@ -58,6 +58,11 @@ class EmailReport
         $start_end_dates = $this->calculateStartAndEndDates($this->scheduler->parameters, $this->scheduler->company);
         $data = $this->scheduler->parameters;
 
+        if(!$this->scheduler->user) {
+            $this->cancelSchedule(); // if no user_id or if the referenced user is deleted, then cancel the schedule.
+            return;
+        }
+
         if (!isset($data['user_id'])) {
             $data['user_id'] = $this->scheduler->user_id;
         }

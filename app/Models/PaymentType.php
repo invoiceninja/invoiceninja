@@ -212,7 +212,7 @@ class PaymentType extends StaticModel
             ['id' => 53, 'name' => 'Mobile Payment', 'gateway_type_id' => 30],
         ];
 
-        return collect($types)->map(fn (array $item): \stdClass => (object) $item)->values();
+        return collect($types)->map(fn(array $item): \stdClass => (object) $item)->values();
     }
 
     public static function parseCardType($cardName)

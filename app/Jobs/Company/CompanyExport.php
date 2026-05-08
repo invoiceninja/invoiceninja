@@ -51,9 +51,9 @@ class CompanyExport implements ShouldQueue
     private $export_data = [];
 
     private $writer;
-    
+
     private $file_name;
-    
+
     public $timeout = 21600;
 
     /**
@@ -82,10 +82,9 @@ class CompanyExport implements ShouldQueue
         $this->writer->value('app_version', config('ninja.app_version'));
         $this->writer->value('storage_url', Storage::url(''));
 
-        if(Ninja::isHosted() && $this->total_activities > 10000){
+        if (Ninja::isHosted() && $this->total_activities > 10000) {
             $this->export_data['activities'] = [];
-        }
-        else {
+        } else {
             $this->export_data['activities'] = $this->company->all_activities->map(function ($activity) {
                 $activity = $this->transformArrayOfKeys($activity, [
                     'user_id',
@@ -195,7 +194,14 @@ class CompanyExport implements ShouldQueue
 
         $this->export_data['company_gateways'] = $this->company->company_gateways()->withTrashed()->cursor()->map(function ($company_gateway) {
             $company_gateway = $this->transformArrayOfKeys($company_gateway, ['company_id', 'user_id']);
-            $company_gateway->config = decrypt($company_gateway->config);
+
+            try{
+                $company_gateway->config = decrypt($company_gateway->config);
+            }
+            catch(\Illuminate\Contracts\Encryption\DecryptException $e){
+                nlog("Failed to decrypt company gateway config: " . $e->getMessage());
+                $company_gateway->config = '';
+            }
 
             return $company_gateway->makeVisible(['id']);
         })->all();

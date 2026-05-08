@@ -161,9 +161,9 @@ class Vendor extends BaseModel
     ];
 
 
-    public function toSearchableArray()
+    public function toSearchableArray(): array
     {
-
+        
         $locale = $this->locale();
         App::setLocale($locale);
 
@@ -238,7 +238,7 @@ class Vendor extends BaseModel
      */
     public function cc_contacts(): array
     {
-        
+
         return $this->contacts()
             ->where('cc_only', true)
             ->whereNotNull('email')
@@ -246,7 +246,7 @@ class Vendor extends BaseModel
             ->where('is_locked', false)
             ->limit(4)
             ->get()
-            ->map(fn (\App\Models\VendorContact $c) => new Address($c->email, $c->present()->name()))
+            ->map(fn(\App\Models\VendorContact $c) => new Address($c->email, $c->present()->name()))
             ->toArray();
     }
 
@@ -418,5 +418,10 @@ class Vendor extends BaseModel
     public function quotes(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Quote::class)->withTrashed();
+    }
+
+    public function purchase_orders(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PurchaseOrder::class)->withTrashed();
     }
 }

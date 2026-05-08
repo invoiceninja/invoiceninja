@@ -35,7 +35,7 @@ trait MakesReminders
         $today = $entity_send_time === 0
             ? now()->startOfDay()->toDateString()
             : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString();
-            
+
         switch ($schedule_reminder) {
             case 'after_invoice_date':
                 // return Carbon::parse($this->date)->addDays((int)$num_days_reminder)->startOfDay()->addSeconds($offset)->isSameDay(Carbon::now());
@@ -44,7 +44,7 @@ trait MakesReminders
                             ->addDays((int) $num_days_reminder)
                             ->startOfDay()
                             ->toDateString() <= $today;
-                                // === ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
+                // === ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
 
             case 'before_due_date':
                 $partial_or_due_date = ($this->partial > 0 && isset($this->partial_due_date)) ? $this->partial_due_date : $this->due_date;
@@ -54,7 +54,7 @@ trait MakesReminders
                             ->subDays((int) $num_days_reminder)
                             ->startOfDay()
                             ->toDateString() <= $today;
-                                // === ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
+                // === ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
 
 
             case 'after_due_date':
@@ -65,7 +65,7 @@ trait MakesReminders
                             ->addDays((int) $num_days_reminder)
                             ->startOfDay()
                             ->toDateString() <= $today;
-                                // === ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
+                // === ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
 
             case 'after_quote_date':
 
@@ -73,7 +73,7 @@ trait MakesReminders
                             ->addDays((int) $num_days_reminder)
                             ->startOfDay()
                             ->toDateString() <= $today;
-                                // === ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
+                // === ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
 
             case 'after_valid_until_date':
 
@@ -81,7 +81,7 @@ trait MakesReminders
                             ->addDays((int) $num_days_reminder)
                             ->startOfDay()
                             ->toDateString() <= $today;
-                                // === ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
+                // === ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
 
             case 'before_valid_until_date':
 
@@ -89,7 +89,7 @@ trait MakesReminders
                             ->subDays((int) $num_days_reminder)
                             ->startOfDay()
                             ->toDateString() <= $today;
-                                // === ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
+                // === ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
 
             default:
                 return null;

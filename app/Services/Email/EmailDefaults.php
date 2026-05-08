@@ -300,7 +300,7 @@ class EmailDefaults
         $invitation = $this->email->email_object->invitation;
         /** @var \App\Models\InvoiceInvitation|\App\Models\QuoteInvitation|\App\Models\CreditInvitation|\App\Models\PurchaseOrderInvitation $first_invitation */
         $first_invitation = $entity->invitations()->orderBy('id')->first();
-        
+
         if ($invitation && $first_invitation && $first_invitation->id !== $invitation->id) {
             return $this;
         }
@@ -317,8 +317,8 @@ class EmailDefaults
             return $this;
         }
 
-        $existing_emails = collect($this->email->email_object->cc)->map(fn ($a) => $a->address)->toArray();
-        $cc_addresses = array_filter($cc_addresses, fn ($a) => !in_array($a->address, $existing_emails));
+        $existing_emails = collect($this->email->email_object->cc)->map(fn($a) => $a->address)->toArray();
+        $cc_addresses = array_filter($cc_addresses, fn($a) => !in_array($a->address, $existing_emails));
 
         $this->email->email_object->cc = array_merge($this->email->email_object->cc, array_values($cc_addresses));
 

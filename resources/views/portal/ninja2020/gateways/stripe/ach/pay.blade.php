@@ -36,7 +36,7 @@
 
         @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
             @if(count($tokens) > 0)
-            <ul class="list-none hover:list-disc">
+            <ul class="list-none">
                 @foreach($tokens as $token)
                     <li class="py-1 hover:text-blue hover:bg-blue-600">
                         <label class="mr-4">

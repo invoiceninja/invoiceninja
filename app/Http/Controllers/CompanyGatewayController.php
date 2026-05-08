@@ -49,8 +49,6 @@ class CompanyGatewayController extends BaseController
 
     protected $entity_transformer = CompanyGatewayTransformer::class;
 
-    protected $company_repo;
-
     public $forced_includes = [];
 
     private array $stripe_keys = ['d14dd26a47cecc30fdd65700bfb67b34', 'd14dd26a37cecc30fdd65700bfb55b23'];
@@ -65,11 +63,10 @@ class CompanyGatewayController extends BaseController
      * CompanyGatewayController constructor.
      * @param CompanyGatewayRepository $company_repo
      */
-    public function __construct(CompanyGatewayRepository $company_repo)
+    public function __construct(protected CompanyGatewayRepository $company_repo)
     {
         parent::__construct();
 
-        $this->company_repo = $company_repo;
     }
 
     /**
@@ -455,19 +452,23 @@ class CompanyGatewayController extends BaseController
         $company_gateway->fill($request->all());
 
         /*Always ensure at least one fees and limits object is set per gateway*/
-        $gateway_types = $company_gateway->driver(new Client())->getAvailableMethods();
+        if($driver =$company_gateway->driver(new Client())){
+            $gateway_types = $driver->getAvailableMethods();
 
-        $fees_and_limits = $company_gateway->fees_and_limits;
+            $fees_and_limits = $company_gateway->fees_and_limits;
 
-        foreach ($gateway_types as $key => $gateway_type) {
-            if (!property_exists($fees_and_limits, $key)) {
-                $fees_and_limits->{$key} = new FeesAndLimits();
+            foreach ($gateway_types as $key => $gateway_type) {
+                if (!property_exists($fees_and_limits, $key)) {
+                    $fees_and_limits->{$key} = new FeesAndLimits();
+                }
             }
+
+            $company_gateway->fees_and_limits = $fees_and_limits;
+            
         }
 
-        $company_gateway->fees_and_limits = $fees_and_limits;
         $company_gateway->save();
-
+        
         switch ($company_gateway->gateway_key) {
 
             case $this->checkout_key:

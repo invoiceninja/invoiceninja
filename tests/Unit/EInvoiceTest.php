@@ -82,7 +82,13 @@ class EInvoiceTest extends TestCase
 
     public function testEInvoiceGenerates()
     {
-        $this->company->e_invoice_type = "EN16931";
+        $settings = $this->company->settings;
+
+        $settings->e_invoice_type = "EN16931";
+        $settings->country_id = '276';
+        $this->company->settings = $settings;
+        $this->company->save();
+        
         $this->invoice->client->routing_id = 'DE123456789';
         $this->invoice->client->save();
         $e_invoice = (new CreateEDocument($this->invoice))->handle();

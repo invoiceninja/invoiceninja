@@ -54,8 +54,10 @@ class WebhookSingle implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param $event_id
+     * @param $subscription_id
      * @param $entity
+     * @param $db
+     * @param $includes
      */
     public function __construct($subscription_id, $entity, $db, $includes = '')
     {
@@ -81,7 +83,6 @@ class WebhookSingle implements ShouldQueue
         $subscription = Webhook::query()->with('company')->find($this->subscription_id);
 
         if (!$subscription) {
-            $this->fail();
             nlog("failed to fire event, could not find webhook ID {$this->subscription_id}");
             return;
         }
@@ -112,15 +113,20 @@ class WebhookSingle implements ShouldQueue
         $base_headers = [
             'Content-Length' => strlen(json_encode($data)),
             'Accept'         => 'application/json',
+            'User-Agent'     => 'InvoiceNinja/' . config('ninja.app_version') . ' (+https://invoiceninja.com)',
         ];
 
-        $client = new Client(['headers' => array_merge($base_headers, $headers)]);
+        $client = new Client([
+            'headers' => array_merge($base_headers, $headers),
+        ]);
 
         try {
             $verb = $subscription->rest_method ?? 'post';
 
             $response = $client->{$verb}($subscription->target_url, [
-                RequestOptions::JSON => $data, // or 'json' => [...]
+                RequestOptions::JSON => $data,
+                RequestOptions::CONNECT_TIMEOUT => 10,
+                RequestOptions::TIMEOUT => 30,
             ]);
 
             (new SystemLogger(
@@ -162,7 +168,6 @@ class WebhookSingle implements ShouldQueue
                     ))->handle();
 
                     $subscription->delete();
-                    $this->fail();
                     return;
                 }
 
@@ -180,7 +185,6 @@ class WebhookSingle implements ShouldQueue
                 ))->handle();
 
                 if (in_array($e->getResponse()->getStatusCode(), [400])) {
-                    $this->fail();
                     return;
                 }
 
@@ -201,7 +205,6 @@ class WebhookSingle implements ShouldQueue
                     $this->company
                 ))->handle();
 
-                $this->fail();
                 return;
             }
         } catch (ServerException $e) {

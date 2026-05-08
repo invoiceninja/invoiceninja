@@ -52,7 +52,9 @@ class RequiredFields extends Component
     public bool $is_loading = true;
 
     public array $errors = [];
+    
     public $_key;
+
     public function mount(): void
     {
         $_context = $this->getContext($this->_key);
@@ -66,7 +68,6 @@ class RequiredFields extends Component
         $contact = auth()->guard('contact')->user();
 
         $this->company_gateway = CompanyGateway::withTrashed()
-            ->with('company')
             ->find($_context['company_gateway_id']);
 
         $this->client_name = $contact->client->name;

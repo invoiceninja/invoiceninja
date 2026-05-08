@@ -23,14 +23,6 @@ use App\Services\EDocument\Gateway\MutatorUtil;
  */
 class SG extends BaseCountry
 {
-    public function getRoutingRules(): ?array
-    {
-        return [
-            ["G", "SG:UEN", false, "0195:SGUENT08GA0028A"],
-            ["B", "SG:UEN", "SG:GST", "SG:UEN"],
-        ];
-    }
-
     /**
      * SG sender mutations.
      *
@@ -42,8 +34,7 @@ class SG extends BaseCountry
         mixed $p_invoice,
         mixed $invoice,
         MutatorUtil $mutator_util,
-        array $storecove_meta
-    ): array {
+    ): mixed {
 
         $company = $invoice->company;
         $uen = $company->settings->id_number ?? '';
@@ -54,7 +45,7 @@ class SG extends BaseCountry
             $p_invoice->AccountingSupplierParty->Party->EndpointID->schemeID = '0195';
         }
 
-        return ['p_invoice' => $p_invoice, 'storecove_meta' => $storecove_meta];
+        return $p_invoice;
     }
 
     /**
@@ -67,8 +58,7 @@ class SG extends BaseCountry
         mixed $p_invoice,
         mixed $invoice,
         MutatorUtil $mutator_util,
-        array $storecove_meta
-    ): array {
+    ): mixed {
 
         $client = $invoice->client;
         $uen = $client->id_number ?? '';
@@ -81,13 +71,39 @@ class SG extends BaseCountry
             $p_invoice->AccountingCustomerParty->Party->EndpointID->schemeID = '0195';
         }
 
-        // B2G: Storecove requires SG:UEN legal identifier alongside the centralized endpoint
-        if ($client->classification === 'government' && strlen($uen) > 1) {
-            $storecove_meta = $this->mergeMeta($storecove_meta, $this->buildRouting([
-                ["scheme" => 'SG:UEN', "id" => $sanitised_uen],
-            ]));
+        return $p_invoice;
+    }
+
+    /**
+     * SG uses CorpPass OAuth + optional C5 IRAS email activation
+     * instead of standard identifier registration.
+     */
+    public function getRegistrationFlow(object $storecove, int $legal_entity_id, array $data): array|\Illuminate\Http\Client\Response|null
+    {
+        $response = $storecove->startCorpPassFlow($legal_entity_id, $data['id_number']);
+
+        if (!is_array($response)) {
+            $storecove->deleteIdentifier($legal_entity_id);
+            return $response;
         }
 
-        return ['p_invoice' => $p_invoice, 'storecove_meta' => $storecove_meta];
+        // Fire C5 IRAS email activation automatically if signer details provided
+        if (isset($data['c5_signer_name']) && isset($data['c5_signer_email'])) {
+            $c5_response = $storecove->c5->activate(
+                $legal_entity_id,
+                $data['id_number'],
+                $data['c5_signer_name'],
+                $data['c5_signer_email'],
+            );
+
+        }
+
+        return array_merge($response, [
+            'legal_entity_id' => $legal_entity_id,
+            'tax_data' => [
+                'acts_as_sender' => $data['acts_as_sender'],
+                'acts_as_receiver' => $data['acts_as_receiver'],
+            ],
+        ]);
     }
 }

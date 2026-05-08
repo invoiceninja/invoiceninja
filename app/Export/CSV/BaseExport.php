@@ -532,9 +532,9 @@ class BaseExport
 
     protected function resolveKey($key, $entity, $transformer): string
     {
-        $parts = explode(".", $key);
+        $parts = explode(".", $key ?? '');
 
-        if (!is_array($parts) || count($parts) < 2) {
+        if (count($parts) < 2) {
             return '';
         }
 
@@ -941,16 +941,18 @@ class BaseExport
      * Add Vendor Filter
      *
      * @param  \Illuminate\Database\Eloquent\Builder $query
-     * @param  string $vendors
+     * @param  ?string $vendors
      *
      * @return Builder
      */
-    protected function addVendorFilter(Builder$query, string $vendors): Builder
+    protected function addVendorFilter(Builder $query, ?string $vendors): Builder
     {
 
-        if (is_string($vendors)) {
-            $vendors =  explode(',', $vendors);
+        if (!is_string($vendors)) {
+            return $query;
         }
+
+        $vendors = explode(',', $vendors);
 
         $transformed_vendors = $this->transformKeys($vendors);
 
@@ -965,17 +967,18 @@ class BaseExport
      * AddProjectFilter
      *
      * @param  \Illuminate\Database\Eloquent\Builder $query
-     * @param  string $projects
+     * @param  ?string $projects
      *
      * @return Builder
      */
-    protected function addProjectFilter(Builder $query, string $projects): Builder
+    protected function addProjectFilter(Builder $query, ?string $projects): Builder
     {
 
-        if (is_string($projects)) {
-            $projects =  explode(',', $projects);
+        if (!is_string($projects)) {
+            return $query;
         }
-
+        
+        $projects =  explode(',', $projects);
         $transformed_projects = $this->transformKeys($projects);
 
         if (count($transformed_projects) > 0) {
@@ -989,16 +992,18 @@ class BaseExport
      * Add Category Filter
      *
      * @param  \Illuminate\Database\Eloquent\Builder $query
-     * @param  string $expense_categories
+     * @param  ?string $expense_categories
      *
      * @return Builder
      */
-    protected function addCategoryFilter(Builder $query, string $expense_categories): Builder
+    protected function addCategoryFilter(Builder $query, ?string $expense_categories): Builder
     {
 
-        if (is_string($expense_categories)) {
-            $expense_categories =  explode(',', $expense_categories);
+        if (!is_string($expense_categories)) {
+            return $query;
         }
+        
+        $expense_categories =  explode(',', $expense_categories);
 
         $transformed_expense_categories = $this->transformKeys($expense_categories);
 
@@ -1021,10 +1026,9 @@ class BaseExport
     protected function addPaymentStatusFilters(Builder $query, string $status): Builder
     {
 
-        /** @var array $status_parameters */
         $status_parameters = explode(',', $status);
 
-        if ((count($status_parameters) == 0) || in_array('all', $status_parameters)) {
+        if (in_array('all', $status_parameters)) {
             return $query;
         }
 
@@ -1079,10 +1083,9 @@ class BaseExport
     protected function addRecurringInvoiceStatusFilter(Builder $query, string $status): Builder
     {
 
-        /** @var array $status_parameters */
         $status_parameters = explode(',', $status);
 
-        if (in_array('all', $status_parameters) || count($status_parameters) == 0) {
+        if (in_array('all', $status_parameters)) {
             return $query;
         }
 
@@ -1188,10 +1191,9 @@ class BaseExport
     protected function addPurchaseOrderStatusFilter(Builder $query, string $status): Builder
     {
 
-        /** @var array $status_parameters */
         $status_parameters = explode(',', $status);
 
-        if (in_array('all', $status_parameters) || count($status_parameters) == 0) {
+        if (in_array('all', $status_parameters)) {
             return $query;
         }
 
@@ -1237,10 +1239,9 @@ class BaseExport
     protected function addInvoiceStatusFilter(Builder $query, string $status): Builder
     {
 
-        /** @var array $status_parameters */
         $status_parameters = explode(',', $status);
 
-        if (in_array('all', $status_parameters) || count($status_parameters) == 0) {
+        if (in_array('all', $status_parameters)) {
             return $query;
         }
 
@@ -1953,54 +1954,61 @@ class BaseExport
             $grouped[$key][] = $row;
         }
 
-        $numeric_columns = $this->detectNumericColumns($rows);
-
         $summary = [];
 
         foreach ($grouped as $group_value => $group_rows) {
             $summary_row = [];
-
+        
             foreach (array_keys($rows[0]) as $column) {
                 if ($column === $group_by) {
                     $summary_row[$column] = $group_value;
-                } elseif (isset($numeric_columns[$column]) && $numeric_columns[$column] && ! $this->isNonSummable($column)) {
-                    $summary_row[$column] = array_sum(array_column($group_rows, $column));
-                } else {
+                    continue;
+                }
+        
+                if ($this->isNonSummable($column)) {
                     $summary_row[$column] = '';
+                    continue;
+                }
+        
+                $values = array_column($group_rows, $column);
+                $numeric = array_filter($values, 'is_numeric');
+        
+                if ($numeric !== [] && count($numeric) === count($values)) {
+                    // All values numeric → aggregate.
+                    $summary_row[$column] = array_sum($numeric);
+                } else {
+                    // Non-numeric column → preserve if every row agrees, else blank.
+                    $distinct = array_unique(array_map(static fn ($v) => (string) $v, $values));
+                    $summary_row[$column] = count($distinct) === 1 ? reset($values) : '';
                 }
             }
-
+        
             $summary_row['group.count'] = count($group_rows);
             $summary[] = $summary_row;
         }
+        
+        // foreach ($grouped as $group_value => $group_rows) {
+        //     $summary_row = [];
+
+        //     foreach (array_keys($rows[0]) as $column) {
+        //         if ($column === $group_by) {
+        //             $summary_row[$column] = $group_value;
+        //         } elseif ($this->isNonSummable($column)) {
+        //             $summary_row[$column] = '';
+        //         } else {
+        //             $numeric = array_filter(
+        //                 array_column($group_rows, $column),
+        //                 'is_numeric'
+        //             );
+        //             $summary_row[$column] = $numeric === [] ? '' : array_sum($numeric);
+        //         }
+        //     }
+
+        //     $summary_row['group.count'] = count($group_rows);
+        //     $summary[] = $summary_row;
+        // }
 
         return $summary;
-    }
-
-    /**
-     * Detect which columns contain numeric values.
-     *
-     * @param array<int, array<string, mixed>> $rows
-     * @return array<string, bool>
-     */
-    protected function detectNumericColumns(array $rows): array
-    {
-        $numeric = [];
-
-        foreach (array_keys($rows[0]) as $column) {
-            foreach ($rows as $row) {
-                $value = $row[$column] ?? '';
-
-                if ($value === '' || $value === null) {
-                    continue;
-                }
-
-                $numeric[$column] = is_numeric($value);
-                break;
-            }
-        }
-
-        return $numeric;
     }
 
     /**

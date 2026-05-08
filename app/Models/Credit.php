@@ -30,7 +30,7 @@ use Laracasts\Presenter\PresentableTrait;
 use App\Models\Presenters\CreditPresenter;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use App\Models\Traits\IndexableItems;
 /**
  * App\Models\Credit
  *
@@ -152,7 +152,7 @@ class Credit extends BaseModel
     use MakesInvoiceValues;
     use MakesReminders;
     use Searchable;
-
+    Use IndexableItems;
     /**
      * Get the index name for the model.
      *
@@ -226,8 +226,9 @@ class Credit extends BaseModel
 
     public const STATUS_APPLIED = 4;
 
-    public function toSearchableArray()
+    public function toSearchableArray(): array
     {
+        
         $locale = $this->company->locale();
         App::setLocale($locale);
 
@@ -236,7 +237,7 @@ class Credit extends BaseModel
             'name' => ctrans('texts.credit') . " " . $this->number . " | " . $this->client->present()->name() . ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
             'hashed_id' => $this->hashed_id,
             'number' => (string) $this->number,
-            'is_deleted' => $this->is_deleted,
+            'is_deleted' => (bool) $this->is_deleted,
             'amount' => (float) $this->amount,
             'balance' => (float) $this->balance,
             'due_date' => $this->due_date,
@@ -247,6 +248,7 @@ class Credit extends BaseModel
             'custom_value4' => (string) $this->custom_value4,
             'company_key' => $this->company->company_key,
             'po_number' => (string) $this->po_number,
+            'line_items' => $this->indexLineItems(),
         ];
     }
 

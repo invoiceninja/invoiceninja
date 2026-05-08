@@ -261,7 +261,7 @@ class TemplateService
 
         $invite = $this->company->invoice_invitations()->first() ?? $this->company->quote_invitations()->first() ?? $this->company->credit_invitations()->first() ?? null;
 
-        if($invite){
+        if ($invite) {
 
         }
 
@@ -509,6 +509,10 @@ class TemplateService
         $html .= $partials['design']['body'];
         $html .= $partials['design']['footer'];
 
+        if ($html === '') {
+            $html = '<p></p>';
+        }
+        
         @$this->document->loadHTML($this->convertHtmlToEntities($html));
         // @$this->document->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
 
@@ -611,15 +615,14 @@ class TemplateService
 
                     $invoice_period = '';
 
-                    if($period = data_get($invoice, 'e_invoice.Invoice.InvoicePeriod.0', false)) {
-                        try{
+                    if ($period = data_get($invoice, 'e_invoice.Invoice.InvoicePeriod.0', false)) {
+                        try {
                             $invoice_period = $this->translateDate($period->StartDate, $invoice->client->date_format(), $invoice->client->locale()) . ' - ' . $this->translateDate($period->EndDate, $invoice->client->date_format(), $invoice->client->locale());
-                        }
-                        catch(\Throwable $e) {
+                        } catch (\Throwable $e) {
                             nlog("Error getting invoice period: TS:: {$e->getMessage()}");
                         }
                     }
-                    
+
                     return [
                         'amount' => Number::formatMoney($invoice->amount, $invoice->client),
                         'balance' => Number::formatMoney($invoice->balance, $invoice->client),

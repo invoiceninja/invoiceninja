@@ -15,10 +15,8 @@ namespace App\Services\EDocument\Standards;
 use App\Models\Credit;
 use App\Models\Company;
 use App\Models\Invoice;
-use App\Models\Product;
 use App\Helpers\Invoice\Taxer;
 use App\Utils\Traits\MakesHash;
-use App\DataMapper\Tax\BaseRule;
 use App\Services\AbstractService;
 use App\Helpers\Invoice\InvoiceSum;
 use InvoiceNinja\EInvoice\EInvoice;
@@ -29,17 +27,19 @@ use App\Services\EDocument\Standards\Peppol\PeppolTaxCalculator;
 use App\Services\EDocument\Standards\Peppol\PeppolPartyBuilder;
 use App\Services\EDocument\Standards\Peppol\PeppolAttachmentBuilder;
 use InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID;
-use App\Services\EDocument\Gateway\Storecove\Storecove;
+use App\Services\EDocument\Gateway\MutatorUtil;
+use App\Services\EDocument\Gateway\MutatorInterface;
+use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
+use App\Services\EDocument\Standards\Peppol\CountryFactory;
+use App\Services\EDocument\Standards\Settings\PropertyResolver;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\PayableAmount;
-use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxableAmount;
-use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxExclusiveAmount;
-use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxInclusiveAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\LineExtensionAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\OrderReferenceType\OrderReference;
 use InvoiceNinja\EInvoice\Models\Peppol\MonetaryTotalType\LegalMonetaryTotal;
 use InvoiceNinja\EInvoice\Models\Peppol\BillingReferenceType\BillingReference;
+use App\Services\EDocument\Standards\Peppol\CountryHandler;
 
-class Peppol extends AbstractService
+class Peppol extends AbstractService implements MutatorInterface
 {
     use Taxer;
     use NumberFormatter;
@@ -54,122 +54,144 @@ class Peppol extends AbstractService
      */
     public int $max_attachment_size = 2000000;
 
+    /**
+     *
+     * If the company has a VAT number in the client's country, this will be used instead of the company's VAT number.
+     * @var string $override_vat_number
+     *
+     **/
     private string $override_vat_number = '';
 
-    /** @var array $InvoiceTypeCodes */
-    private array $InvoiceTypeCodes = [
-        "380" => "Commercial invoice",
-        "381" => "Credit note",
-        "383" => "Corrected invoice",
-        "384" => "Prepayment invoice",
-        "386" => "Proforma invoice",
-        "875" => "Self-billed invoice",
-        "976" => "Factored invoice",
-        "84" => "Invoice for cross border services",
-        "82" => "Simplified invoice",
-        "80" => "Debit note",
-        "875" => "Self-billed credit note",
-        "896" => "Debit note related to self-billed invoice",
-    ];
-
-    /** @var array $tax_codes */
-    private array $tax_codes = [
-        'AE' => [
-            'name' => 'Vat Reverse Charge',
-            'description' => 'Code specifying that the standard VAT rate is levied from the invoicee.',
-        ],
-        'E' => [
-            'name' => 'Exempt from Tax',
-            'description' => 'Code specifying that taxes are not applicable.',
-        ],
-        'S' => [
-            'name' => 'Standard rate',
-            'description' => 'Code specifying the standard rate.',
-        ],
-        'Z' => [
-            'name' => 'Zero rated goods',
-            'description' => 'Code specifying that the goods are at a zero rate.',
-        ],
-        'G' => [
-            'name' => 'Free export item, VAT not charged',
-            'description' => 'Code specifying that the item is free export and taxes are not charged.',
-        ],
-        'O' => [
-            'name' => 'Services outside scope of tax',
-            'description' => 'Code specifying that taxes are not applicable to the services.',
-        ],
-        'K' => [
-            'name' => 'VAT exempt for EEA intra-community supply of goods and services',
-            'description' => 'A tax category code indicating the item is VAT exempt due to an intra-community supply in the European Economic Area.',
-        ],
-        'L' => [
-            'name' => 'Canary Islands general indirect tax',
-            'description' => 'Impuesto General Indirecto Canario (IGIC) is an indirect tax levied on goods and services supplied in the Canary Islands (Spain) by traders and professionals, as well as on import of goods.',
-        ],
-        'M' => [
-            'name' => 'Tax for production, services and importation in Ceuta and Melilla',
-            'description' => 'Impuesto sobre la Producción, los Servicios y la Importación (IPSI) is an indirect municipal tax, levied on the production, processing and import of all kinds of movable tangible property, the supply of services and the transfer of immovable property located in the cities of Ceuta and Melilla.',
-        ],
-        'B' => [
-            'name' => 'Transferred (VAT), In Italy',
-            'description' => 'VAT not to be paid to the issuer of the invoice but directly to relevant tax authority. This code is allowed in the EN 16931 for Italy only based on the Italian A-deviation.',
-        ],
-    ];
-
+    /** @var Company $company */
     private Company $company;
 
+    /** @var InvoiceSum|InvoiceSumInclusive $calc */
     private InvoiceSum|InvoiceSumInclusive $calc;
 
     /** @var \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote */
     private \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $p_invoice;
 
+    /** @var ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice $_client_settings */
     private ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice $_client_settings;
 
+    /** @var ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice $_company_settings */
     private ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice $_company_settings;
 
+    /** @var EInvoice $e */
     private EInvoice $e;
 
-    /** @var bool Flag to indicate if document is a Credit Note */
+    /**
+     *
+     * Flag to indicate if document is a Credit Note
+     *
+     *  @var bool $isCreditNote
+     **/
     private bool $isCreditNote = false;
 
-    private string $api_network = Storecove::class; // Storecove::class;
+    /**
+     *
+     * Router for resolving ISO 6523 schemes and routing rules.
+     *
+     * @var StorecoveRouter $router
+     **/
+    public StorecoveRouter $router;
 
-    public Storecove $gateway;
-
+    /**
+     *
+     * @var string $customizationID
+     *
+     **/
     private string $customizationID = 'urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0';
 
+    /** 
+     * 
+     * @var string $profileID
+     * 
+     **/
     private string $profileID = 'urn:fdc:peppol.eu:2017:poacc:billing:01:1.0';
 
+    /** 
+     * 
+     * @var array $tax_map
+     * 
+     **/
     private array $tax_map = [];
 
+    /** 
+     * 
+     * @var float $allowance_total
+     * 
+     **/
     private float $allowance_total = 0;
 
+    /** 
+     * 
+     * @var array $globalTaxCategories
+     * 
+     **/
     private $globalTaxCategories;
 
+    /** 
+     * 
+     * @var string $tax_category_id
+     * 
+     **/
     private string $tax_category_id = 'S';
 
+    /** 
+     * 
+     * @var bool $has_category_O
+     * 
+     **/
     private bool $has_category_O = false;
 
+    /** 
+     * 
+     * @var array $errors
+     * 
+     **/
     private array $errors = [];
 
-    /** @var PeppolTaxCalculator */
+    /** 
+     * 
+     * @var PeppolTaxCalculator
+     * 
+     **/
     private PeppolTaxCalculator $taxCalculator;
 
-    /** @var PeppolLineBuilder */
+    /** 
+     * 
+     * @var PeppolLineBuilder
+     * 
+     **/
     private PeppolLineBuilder $lineBuilder;
 
-    /** @var PeppolPartyBuilder */
+    /** 
+     * 
+     * @var PeppolPartyBuilder
+     * 
+     **/
     private PeppolPartyBuilder $partyBuilder;
 
-    /** @var PeppolAttachmentBuilder */
+    /** 
+     * 
+     * @var PeppolAttachmentBuilder
+     * 
+     **/
     private PeppolAttachmentBuilder $attachmentBuilder;
 
+    private CountryHandler $countryHandler;
+    /** 
+     * 
+     * @param Invoice|Credit $invoice
+     * 
+     **/
     public function __construct(public Invoice|Credit $invoice)
     {
         $this->company = $invoice->company;
         $this->calc = $this->invoice->calc();
         $this->e = new EInvoice();
-        $this->gateway = new $this->api_network();
+        $this->router = new StorecoveRouter();
         $this->isCreditNote = $this->shouldBeCreditNote();
 
         $this->taxCalculator = new PeppolTaxCalculator($this);
@@ -177,129 +199,10 @@ class Peppol extends AbstractService
         $this->partyBuilder = new PeppolPartyBuilder($this);
         $this->attachmentBuilder = new PeppolAttachmentBuilder($this);
 
-        $this->setSettings()->setInvoice();
-    }
+        $this->setSettings()->initDocument();
 
-    /////////////////  Accessor Methods for Builders /////////////////////////
+        $this->countryHandler = CountryFactory::make($this->company->country()->iso_3166_2);
 
-    public function getCompany(): Company
-    {
-        return $this->company;
-    }
-
-    public function getInvoiceModel(): Invoice|Credit
-    {
-        return $this->invoice;
-    }
-
-    public function getCalc(): InvoiceSum|InvoiceSumInclusive
-    {
-        return $this->calc;
-    }
-
-    public function getPeppolDocument(): \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote
-    {
-        return $this->p_invoice;
-    }
-
-    public function setPeppolDocument($doc): void
-    {
-        $this->p_invoice = $doc;
-    }
-
-    public function getGateway(): Storecove
-    {
-        return $this->gateway;
-    }
-
-    public function getGlobalTaxCategories()
-    {
-        return $this->globalTaxCategories;
-    }
-
-    public function setGlobalTaxCategories($cats): void
-    {
-        $this->globalTaxCategories = $cats;
-    }
-
-    public function getTaxCategoryId(): string
-    {
-        return $this->tax_category_id;
-    }
-
-    public function setTaxCategoryId($id): void
-    {
-        $this->tax_category_id = $id;
-
-        if ($id === 'O') {
-            $this->has_category_O = true;
-        }
-    }
-
-    public function hasCategoryO(): bool
-    {
-        return $this->has_category_O;
-    }
-
-    public function getOverrideVatNumber(): string
-    {
-        return $this->override_vat_number;
-    }
-
-    public function setOverrideVatNumber($vat): void
-    {
-        $this->override_vat_number = $vat;
-    }
-
-    public function getTaxMap(): array
-    {
-        return $this->tax_map;
-    }
-
-    public function addToTaxMap(array $entry): void
-    {
-        $this->tax_map[] = $entry;
-    }
-
-    public function addToAllowanceTotal(float $amount): void
-    {
-        $this->allowance_total += $amount;
-    }
-
-    public function isCreditNoteDocument(): bool
-    {
-        return $this->isCreditNote;
-    }
-
-    public function getTaxCalculator(): PeppolTaxCalculator
-    {
-        return $this->taxCalculator;
-    }
-
-    /////////////////  End Accessor Methods /////////////////////////
-
-    /**
-     * Determine if the document should be a Credit Note
-     *
-     * Credit Note is used when:
-     * - The entity is a Credit model
-     * - The entity is an Invoice with a negative amount
-     *
-     * @return bool
-     */
-    private function shouldBeCreditNote(): bool
-    {
-        // Credit model = always credit note
-        if ($this->invoice instanceof Credit) {
-            return true;
-        }
-
-        // Negative invoice = credit note
-        if ($this->invoice instanceof Invoice && $this->invoice->amount < 0) {
-            return true;
-        }
-
-        return false;
     }
 
     /**
@@ -326,7 +229,7 @@ class Peppol extends AbstractService
     public function run(): self
     {
         try {
-            $this->taxCalculator->getJurisdiction(); //Sets the nexus object into the Peppol document.
+            $this->taxCalculator->setJurisdiction(); //Sets the nexus object into the Peppol document.
             $this->taxCalculator->getAllUsedTaxes(); //Maps all used line item taxes
 
             /** Invoice Level Props */
@@ -390,19 +293,18 @@ class Peppol extends AbstractService
                  ->setDocumentReference();
 
 
-            //isolate this class to only peppol changes
-            if (strlen($this->override_vat_number) > 1) {
-                $this->gateway->mutator->setOverrideVatNumber($this->override_vat_number);
-            }
+            // Apply country-specific UBL mutations directly via CountryFactory
+            $mutatorUtil = new MutatorUtil($this);
 
-            $this->p_invoice = $this->gateway
-                                    ->mutator
-                                    ->senderSpecificLevelMutators()
-                                    ->receiverSpecificLevelMutators()
-                                    ->getPeppol();
+            $senderHandler = CountryFactory::make($this->invoice->company->country()->iso_3166_2);
+            $this->p_invoice = $senderHandler->senderMutations($this->p_invoice, $this->invoice, $mutatorUtil);
+
+            $receiverHandler = CountryFactory::make($this->invoice->client->country->iso_3166_2);
+            $this->p_invoice = $receiverHandler->receiverMutations($this->p_invoice, $this->invoice, $mutatorUtil);
 
         } catch (\Throwable $th) {
-            nlog("Unable to create Peppol Invoice - " . $th->getMessage());
+            nlog("Unable to create Peppol Invoice - " . $th->getMessage() . ' at ' . $th->getFile() . ':' . $th->getLine());
+            nlog($th->getTraceAsString());
             $this->errors[] = $th->getMessage();
         }
 
@@ -430,35 +332,17 @@ class Peppol extends AbstractService
      *
      * @return self
      */
-    private function setInvoice(): self
+    private function initDocument(): self
     {
         /** Handle Existing CreditNote Document */
         if ($this->isCreditNote && $this->invoice->e_invoice && isset($this->invoice->e_invoice->CreditNote) && isset($this->invoice->e_invoice->CreditNote->ID)) {
-
             $this->decode($this->invoice->e_invoice->CreditNote, 'CreditNote');
-
-            $this->gateway
-                ->mutator
-                ->setInvoice($this->invoice)
-                ->setPeppol($this->p_invoice)
-                ->setClientSettings($this->_client_settings)
-                ->setCompanySettings($this->_company_settings);
-
             return $this;
         }
 
         /** Handle Existing Invoice Document */
         if (!$this->isCreditNote && $this->invoice->e_invoice && isset($this->invoice->e_invoice->Invoice) && isset($this->invoice->e_invoice->Invoice->ID)) {
-
             $this->decode($this->invoice->e_invoice->Invoice, 'Invoice');
-
-            $this->gateway
-                ->mutator
-                ->setInvoice($this->invoice)
-                ->setPeppol($this->p_invoice)
-                ->setClientSettings($this->_client_settings)
-                ->setCompanySettings($this->_company_settings);
-
             return $this;
         }
 
@@ -468,14 +352,6 @@ class Peppol extends AbstractService
         } else {
             $this->p_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
         }
-
-        /** Set Props */
-        $this->gateway
-            ->mutator
-            ->setInvoice($this->invoice)
-            ->setPeppol($this->p_invoice)
-            ->setClientSettings($this->_client_settings)
-            ->setCompanySettings($this->_company_settings);
 
         $this->setInvoiceDefaults();
 
@@ -512,7 +388,10 @@ class Peppol extends AbstractService
      * @deprecated Use getDocument() instead
      * @return \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote
      */
-    public function getInvoice(): \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote
+    /**
+     * @deprecated Use getDocument() instead.
+     */
+    public function getPeppolInvoice(): \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote
     {
         return $this->p_invoice;
     }
@@ -879,7 +758,7 @@ class Peppol extends AbstractService
         //only scans for top level props
         foreach ($settings as $prop => $visibility) {
 
-            if ($prop_value = $this->gateway->mutator->getSetting($prop)) {
+            if ($prop_value = $this->getSetting($prop)) {
                 $this->p_invoice->{$prop} = $prop_value;
             }
 
@@ -921,6 +800,195 @@ class Peppol extends AbstractService
         return $this;
     }
 
+    /////////////////  Accessor Methods for Builders /////////////////////////
+
+    public function getCompany(): Company
+    {
+        return $this->company;
+    }
+
+    public function getInvoiceModel(): Invoice|Credit
+    {
+        return $this->invoice;
+    }
+
+    public function getCalc(): InvoiceSum|InvoiceSumInclusive
+    {
+        return $this->calc;
+    }
+
+    public function getPeppolDocument(): \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote
+    {
+        return $this->p_invoice;
+    }
+
+    public function setPeppolDocument($doc): void
+    {
+        $this->p_invoice = $doc;
+    }
+
+    public function getRouter(): StorecoveRouter
+    {
+        return $this->router;
+    }
+
+    // ── MutatorInterface implementation ──
+
+    public function receiverSpecificLevelMutators(): self
+    {
+        return $this;
+    }
+
+    public function senderSpecificLevelMutators(): self
+    {
+        return $this;
+    }
+
+    public function setInvoice($invoice): self
+    {
+        $this->invoice = $invoice;
+        return $this;
+    }
+
+    public function setPeppol($p_invoice): self
+    {
+        $this->p_invoice = $p_invoice;
+        return $this;
+    }
+
+    public function getPeppol(): mixed
+    {
+        return $this->p_invoice;
+    }
+
+    public function setClientSettings($client_settings): self
+    {
+        $this->_client_settings = $client_settings;
+        return $this;
+    }
+
+    public function setCompanySettings($company_settings): self
+    {
+        $this->_company_settings = $company_settings;
+        return $this;
+    }
+
+    public function getClientSettings(): mixed
+    {
+        return $this->_client_settings;
+    }
+
+    public function getCompanySettings(): mixed
+    {
+        return $this->_company_settings;
+    }
+
+    public function getInvoice(): mixed
+    {
+        return $this->invoice;
+    }
+
+    public function getSetting(string $property_path): mixed
+    {
+        if ($prop_value = PropertyResolver::resolve($this->p_invoice, $property_path)) {
+            return $prop_value;
+        } elseif ($prop_value = PropertyResolver::resolve($this->_client_settings, $property_path)) {
+            return $prop_value;
+        } elseif ($prop_value = PropertyResolver::resolve($this->_company_settings, $property_path)) {
+            return $prop_value;
+        }
+        return null;
+    }
+
+    public function setOverrideVatNumber(string $vat_number): self
+    {
+        $this->override_vat_number = preg_replace("/[^a-zA-Z0-9]/", "", $vat_number);
+        return $this;
+    }
+
+    public function getGlobalTaxCategories()
+    {
+        return $this->globalTaxCategories;
+    }
+
+    public function setGlobalTaxCategories($cats): void
+    {
+        $this->globalTaxCategories = $cats;
+    }
+
+    public function getTaxCategoryId(): string
+    {
+        return $this->tax_category_id;
+    }
+
+    public function setTaxCategoryId($id): void
+    {
+        $this->tax_category_id = $id;
+
+        if ($id === 'O') {
+            $this->has_category_O = true;
+        }
+    }
+
+    public function hasCategoryO(): bool
+    {
+        return $this->has_category_O;
+    }
+
+    public function getOverrideVatNumber(): string
+    {
+        return $this->override_vat_number;
+    }
+
+    public function getTaxMap(): array
+    {
+        return $this->tax_map;
+    }
+
+    public function addToTaxMap(array $entry): void
+    {
+        $this->tax_map[] = $entry;
+    }
+
+    public function addToAllowanceTotal(float $amount): void
+    {
+        $this->allowance_total += $amount;
+    }
+
+    public function isCreditNoteDocument(): bool
+    {
+        return $this->isCreditNote;
+    }
+
+    public function getTaxCalculator(): PeppolTaxCalculator
+    {
+        return $this->taxCalculator;
+    }
+
+    /**
+     * Determine if the document should be a Credit Note
+     *
+     * Credit Note is used when:
+     * - The entity is a Credit model
+     * - The entity is an Invoice with a negative amount
+     *
+     * @return bool
+     */
+    private function shouldBeCreditNote(): bool
+    {
+        // Credit model = always credit note
+        if ($this->invoice instanceof Credit) {
+            return true;
+        }
+
+        // Negative invoice = credit note
+        if ($this->invoice instanceof Invoice && $this->invoice->amount < 0) {
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * setPaymentTerms
      *
@@ -960,5 +1028,12 @@ class Peppol extends AbstractService
     {
         return $this->errors;
     }
+
+    public function getCountryHandler(): CountryHandler
+    {
+        return $this->countryHandler;
+    }
+
+    /////////////////  End Accessor Methods /////////////////////////
 
 }
