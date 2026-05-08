@@ -23,11 +23,6 @@
     "isEntry": true,
     "src": "resources/js/app.js"
   },
-  "resources/js/clients/invoices/action-selectors.js": {
-    "file": "assets/action-selectors-07ce2545.js",
-    "isEntry": true,
-    "src": "resources/js/clients/invoices/action-selectors.js"
-  },
   "resources/js/clients/invoices/payment.js": {
     "file": "assets/payment-292ee4d0.js",
     "isEntry": true,
@@ -380,16 +375,6 @@
     "file": "assets/accept-dd78827a.js",
     "isEntry": true,
     "src": "resources/js/clients/purchase_orders/accept.js"
-  },
-  "resources/js/clients/purchase_orders/action-selectors.js": {
-    "file": "assets/action-selectors-eeb4239e.js",
-    "isEntry": true,
-    "src": "resources/js/clients/purchase_orders/action-selectors.js"
-  },
-  "resources/js/clients/quotes/action-selectors.js": {
-    "file": "assets/action-selectors-0128f089.js",
-    "isEntry": true,
-    "src": "resources/js/clients/quotes/action-selectors.js"
   },
   "resources/js/clients/quotes/approve.js": {
     "file": "assets/approve-2a3e0f96.js",

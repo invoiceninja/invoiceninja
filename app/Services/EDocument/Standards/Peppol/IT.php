@@ -14,8 +14,8 @@ namespace App\Services\EDocument\Standards\Peppol;
 
 use App\Models\Client;
 use App\Services\EDocument\Gateway\MutatorUtil;
-use App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveIdentifierValidator;
 use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
+use App\Services\EDocument\Support\GlnIdentifier;
 
 /**
  * Italy (SDI / Peppol). Partita IVA uses scheme label {@see Storecove}'s IT:IVA (VAT tax identifier).
@@ -31,7 +31,7 @@ class IT extends BaseCountry
         // B2B/B2G: Codice Destinatario first for discovery, then Partita IVA (IT:IVA).
         $candidates = [];
         $routingId = trim($client->routing_id ?? '');
-        if ($routingId !== '' && !StorecoveIdentifierValidator::isValidGln($routingId)) {
+        if ($routingId !== '' && !GlnIdentifier::isValid($routingId)) {
             $cuuo = preg_replace("/[^a-zA-Z0-9]/", "", $routingId);
             if (strlen($cuuo) >= 2) {
                 $candidates[] = ['scheme' => 'IT:CUUO', 'id' => $cuuo];
@@ -52,7 +52,7 @@ class IT extends BaseCountry
     {
         $candidates = [];
         $routingId = trim($client->routing_id ?? '');
-        if ($routingId !== '' && !StorecoveIdentifierValidator::isValidGln($routingId)) {
+        if ($routingId !== '' && !GlnIdentifier::isValid($routingId)) {
             $cuuo = preg_replace("/[^a-zA-Z0-9]/", "", $routingId);
             if (strlen($cuuo) >= 2) {
                 $candidates[] = ['scheme' => 'IT:CUUO', 'id' => $cuuo];
@@ -103,7 +103,7 @@ class IT extends BaseCountry
     {
         $routingRaw = trim($client->routing_id ?? '');
 
-        if ($routingRaw !== '' && StorecoveIdentifierValidator::isValidGln($routingRaw)) {
+        if ($routingRaw !== '' && GlnIdentifier::isValid($routingRaw)) {
             return [];
         }
 

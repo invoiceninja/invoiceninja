@@ -68,24 +68,15 @@ class BE extends BaseCountry
      */
     public function resolveEndpointScheme(Company $company): array
     {
-        /** Prioritize GLN if Present */
-        if(stripos($company->settings->id_number ?? '', '0088:') !== false){
-
-            return [
-                'scheme' => '0088',
-                'id' => str_replace('0088:', '', $company->settings->id_number),    
-            ];
-
+        if ($gln = $this->glnEndpointFromIdentifier($company->settings->id_number ?? null)) {
+            return $gln;
         }
 
-        // Fallback to VAT => ID Number.
-        $endpoint_id = strlen($company->settings->vat_number) > 1 ? $company->settings->vat_number : $company->settings->id_number ?? '';
-        $endpoint_id = preg_replace("/[^a-zA-Z0-9]/", "", $endpoint_id);
-        $endpoint_id = preg_replace('/^BE/i', '', $endpoint_id);
+        $endpoint_id = preg_replace('/^BE/i', '', $this->rawCompanyEndpointValue($company));
 
         return [
             'scheme' => '0208',
-            'id' => $endpoint_id
+            'id' => $endpoint_id,
         ];
     }
 

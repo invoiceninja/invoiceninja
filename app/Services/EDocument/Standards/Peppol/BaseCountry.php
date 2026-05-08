@@ -151,27 +151,57 @@ class BaseCountry implements CountryHandler
      */
     public function resolveEndpointScheme(Company $company): array
     {
-        /** Prioritize GLN if Present */
-        if(stripos($company->settings->id_number ?? '', '0088:') !== false){
-
-            return [
-                'scheme' => '0088',
-                'id' => str_replace('0088:', '', $company->settings->id_number),    
-            ];
-
+        if ($gln = $this->glnEndpointFromIdentifier($company->settings->id_number ?? null)) {
+            return $gln;
         }
 
-        // Fallback to VAT => ID Number.
-        $endpoint_id = strlen($company->settings->vat_number) > 1 ? $company->settings->vat_number : $company->settings->id_number ?? '';
-        $endpoint_id = preg_replace("/[^a-zA-Z0-9]/", "", $endpoint_id);
+        $endpoint_id = $this->rawCompanyEndpointValue($company);
 
         /** empty string for SchemeID - should allow validation exceptions to be raised if no valid endpoint is present */
         $scheme = strlen($endpoint_id) > 1 ? '0203' : '';
 
         return [
             'scheme' => $scheme,
-            'id' => $endpoint_id
+            'id' => $endpoint_id,
         ];
+    }
+
+    /**
+     * GLN ICD `0088:` prefix wins over any other identifier when present.
+     * Returns null when the value is not a `0088:`-prefixed identifier.
+     *
+     * Used for both the supplier (`company->settings->id_number`) and the
+     * buyer (`client->routing_id`) so both sides apply the same GLN check
+     * (incl. {@see GlnIdentifier} checkdigit validation).
+     *
+     * @return array{scheme: string, id: string}|null
+     */
+    protected function glnEndpointFromIdentifier(?string $value): ?array
+    {
+        $value = (string) $value;
+
+        if (!str_starts_with($value, '0088:')) {
+            return null;
+        }
+
+        $gln = GlnIdentifier::tryParse($value);
+
+        return [
+            'scheme' => '0088',
+            'id' => $gln ?? preg_replace("/[^0-9]/", "", substr($value, 5)),
+        ];
+    }
+
+    /**
+     * Cleaned alphanumeric raw endpoint value: VAT preferred, id_number fallback.
+     */
+    protected function rawCompanyEndpointValue(Company $company): string
+    {
+        $raw = strlen($company->settings->vat_number ?? '') > 1
+            ? $company->settings->vat_number
+            : ($company->settings->id_number ?? '');
+
+        return preg_replace("/[^a-zA-Z0-9]/", "", $raw);
     }
 
     public function resolvePartyIdentificationScheme(Company $company): ?array
@@ -193,13 +223,8 @@ class BaseCountry implements CountryHandler
     {
         $routing_id = trim((string) ($client->routing_id ?? ''));
 
-        if (str_starts_with($routing_id, '0088:')) {
-            $gln = GlnIdentifier::tryParse($routing_id);
-
-            return [
-                'scheme' => '0088',
-                'id' => $gln ?? preg_replace("/[^0-9]/", "", substr($routing_id, 5)),
-            ];
+        if ($gln = $this->glnEndpointFromIdentifier($routing_id)) {
+            return $gln;
         }
 
         if (preg_match('/^(\d{4}):(.+)$/', $routing_id, $matches)) {

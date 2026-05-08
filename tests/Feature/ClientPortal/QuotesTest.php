@@ -5,19 +5,19 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace Tests\Feature\ClientPortal;
 
-use App\Livewire\InvoicesTable;
+use App\Livewire\QuotesTable;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
-use App\Models\Invoice;
+use App\Models\Quote;
 use App\Models\User;
 use App\Utils\Traits\AppSetup;
 use Faker\Factory;
@@ -25,7 +25,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Livewire\Livewire;
 use Tests\TestCase;
 
-class InvoicesTest extends TestCase
+class QuotesTest extends TestCase
 {
     use DatabaseTransactions;
     use AppSetup;
@@ -39,7 +39,7 @@ class InvoicesTest extends TestCase
         $this->faker = Factory::create();
     }
 
-    public function testInvoiceTableFilters()
+    public function testQuoteTableFilters()
     {
         $account = Account::factory()->create();
 
@@ -63,50 +63,48 @@ class InvoicesTest extends TestCase
             'company_id' => $company->id,
         ]);
 
-        $sent = Invoice::factory()->create([
+        $sent = Quote::factory()->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
             'client_id' => $client->id,
-            'number' => 'testing-number-02',
+            'number' => 'quote-testing-number-01',
             'due_date' => now()->addMonth(),
-            'status_id' => Invoice::STATUS_SENT,
+            'status_id' => Quote::STATUS_SENT,
         ]);
 
-        $paid = Invoice::factory()->create([
+        $approved = Quote::factory()->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
             'client_id' => $client->id,
-            'number' => 'testing-number-03',
-            'status_id' => Invoice::STATUS_PAID,
+            'number' => 'quote-testing-number-02',
+            'status_id' => Quote::STATUS_APPROVED,
         ]);
 
-        $unpaid = Invoice::factory()->create([
+        $rejected = Quote::factory()->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
             'client_id' => $client->id,
-            'number' => 'testing-number-04',
-            'due_date' => '',
-            'status_id' => Invoice::STATUS_UNPAID,
+            'number' => 'quote-testing-number-03',
+            'status_id' => Quote::STATUS_REJECTED,
         ]);
 
         $sent->load('client');
-        $paid->load('client');
-        $unpaid->load('client');
+        $approved->load('client');
+        $rejected->load('client');
 
         $this->actingAs($client->contacts()->first(), 'contact');
 
-        Livewire::test(InvoicesTable::class, ['company_id' => $company->id, 'db' => $company->db])
+        Livewire::test(QuotesTable::class, ['company_id' => $company->id, 'db' => $company->db])
             ->assertSee($sent->number)
-            ->assertSee($paid->number)
-            ->assertSee($unpaid->number);
+            ->assertSee($approved->number)
+            ->assertSee($rejected->number);
 
-        Livewire::test(InvoicesTable::class, ['company_id' => $company->id, 'db' => $company->db])
-            ->set('status', ['paid'])
-            ->assertSee($paid->number)
-            ->assertDontSee($unpaid->number);
+        Livewire::test(QuotesTable::class, ['company_id' => $company->id, 'db' => $company->db])
+            ->set('status', ['5'])
+            ->assertSee($rejected->number)
+            ->assertDontSee($approved->number);
 
         $account->delete();
-
     }
 
     public function testSelectionResetsOnPagination()
@@ -133,16 +131,16 @@ class InvoicesTest extends TestCase
             'company_id' => $company->id,
         ]);
 
-        Invoice::factory()->count(15)->create([
+        Quote::factory()->count(15)->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
             'client_id' => $client->id,
-            'status_id' => Invoice::STATUS_SENT,
+            'status_id' => Quote::STATUS_SENT,
         ]);
 
         $this->actingAs($client->contacts()->first(), 'contact');
 
-        Livewire::test(InvoicesTable::class, ['company_id' => $company->id, 'db' => $company->db])
+        Livewire::test(QuotesTable::class, ['company_id' => $company->id, 'db' => $company->db])
             ->set('select_all', true)
             ->assertSet('select_all', true)
             ->tap(fn ($c) => $this->assertCount(10, $c->get('selected')))
@@ -150,12 +148,12 @@ class InvoicesTest extends TestCase
             ->assertSet('selected', [])
             ->assertSet('select_all', false);
 
-        Livewire::test(InvoicesTable::class, ['company_id' => $company->id, 'db' => $company->db])
+        Livewire::test(QuotesTable::class, ['company_id' => $company->id, 'db' => $company->db])
             ->set('selected', ['abc', 'def'])
             ->set('per_page', 15)
             ->assertSet('selected', []);
 
-        Livewire::test(InvoicesTable::class, ['company_id' => $company->id, 'db' => $company->db])
+        Livewire::test(QuotesTable::class, ['company_id' => $company->id, 'db' => $company->db])
             ->set('selected', ['abc'])
             ->call('sortBy', 'number')
             ->assertSet('selected', [])

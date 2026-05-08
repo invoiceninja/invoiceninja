@@ -2,8 +2,6 @@
 
 namespace App\Services\EDocument\Gateway\Storecove\Identifiers;
 
-use App\Services\EDocument\Support\GlnIdentifier;
-
 class StorecoveIdentifierValidator
 {
     public function __construct(
@@ -81,11 +79,6 @@ class StorecoveIdentifierValidator
     public static function dashSignificantScheme(string $scheme): bool
     {
         return $scheme === 'DE:LWID';
-    }
-
-    public static function isValidGln(string $value): bool
-    {
-        return GlnIdentifier::isValid($value);
     }
 
     private function checkdigit(string $scheme, string $cleanValue): ?bool

@@ -172,7 +172,7 @@ class RoutingResolver
         $client = $this->invoice->client;
         $routingRaw = trim($client->routing_id ?? '');
 
-        if ($routingRaw === '' || StorecoveIdentifierValidator::isValidGln($routingRaw) || str_contains($routingRaw, ':')) {
+        if ($routingRaw === '' || GlnIdentifier::isValid($routingRaw) || str_contains($routingRaw, ':')) {
             return null;
         }
 
@@ -210,7 +210,7 @@ class RoutingResolver
         $client = $this->invoice->client;
         $routingRaw = trim($client->routing_id ?? '');
 
-        if ($routingRaw === '' || StorecoveIdentifierValidator::isValidGln($routingRaw) || str_contains($routingRaw, ':')) {
+        if ($routingRaw === '' || GlnIdentifier::isValid($routingRaw) || str_contains($routingRaw, ':')) {
             return null;
         }
 

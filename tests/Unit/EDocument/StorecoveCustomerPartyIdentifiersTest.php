@@ -45,7 +45,46 @@ class StorecoveCustomerPartyIdentifiersTest extends TestCase
         $pairs = CountryFactory::make($country)
             ->storecoveCustomerPartyPublicIdentifiers($client, $invoice, new StorecoveRouter());
 
-        $this->assertSame($expectedPairs, $pairs);
+        $debugContext = $this->storecovePublicIdentifierDebugContext($country, $classification, $rule, $client, $expectedPairs, $pairs);
+        $debugMessage = json_encode($debugContext, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) ?: var_export($debugContext, true);
+
+        // nlog($debugContext);
+
+        $this->assertSame($expectedPairs, $pairs, $debugMessage);
+    }
+
+    /**
+     * @param  array<int, mixed>  $rule
+     * @param  array<int, array{scheme: string, id: string}>  $expectedPairs
+     * @param  array<int, array{scheme: string, id: string}>  $actualPairs
+     * @return array{
+     *   country: string,
+     *   classification: string,
+     *   starting_values: array{routing_rule: array<int, mixed>, vat_number: mixed, id_number: mixed, routing_id: mixed},
+     *   expected: array<int, array{scheme: string, id: string}>,
+     *   actual: array<int, array{scheme: string, id: string}>
+     * }
+     */
+    private function storecovePublicIdentifierDebugContext(
+        string $country,
+        string $classification,
+        array $rule,
+        object $client,
+        array $expectedPairs,
+        array $actualPairs,
+    ): array {
+        return [
+            'country' => $country,
+            'classification' => $classification,
+            'starting_values' => [
+                'routing_rule' => $rule,
+                'vat_number' => $client->vat_number ?? '',
+                'id_number' => $client->id_number ?? '',
+                'routing_id' => $client->routing_id ?? '',
+            ],
+            'expected' => $expectedPairs,
+            'actual' => $actualPairs,
+        ];
     }
 
     /**

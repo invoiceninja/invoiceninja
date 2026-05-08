@@ -56,7 +56,7 @@ class PeppolPartyBuilder
             $pi = new PartyIdentification();
             $companyIdentifierID = new ID();
             
-            // BR-CL-10: PartyIdentification/ID schemeID only accepts ICD codes (0xxx), not EAS codes (9xxx)
+            // **note** BR-CL-10: PartyIdentification/ID schemeID only accepts ICD codes (0xxx), not EAS codes (9xxx)
             $companyIdentifierID->schemeID = $identifier_scheme['scheme'];
             
             $companyIdentifierID->value = $identifier_scheme['id'];
