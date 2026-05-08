@@ -4426,16 +4426,16 @@
         },
         {
             "name": "invoiceninja/ubl_invoice",
-            "version": "v3.0.1",
+            "version": "v3.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/invoiceninja/UBL_invoice.git",
-                "reference": "5f346d927ec02ad8cf7e695a32e20bc6334141d5"
+                "reference": "9627d79c9fc33d8e49acad056dbdae859acdafee"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/invoiceninja/UBL_invoice/zipball/5f346d927ec02ad8cf7e695a32e20bc6334141d5",
-                "reference": "5f346d927ec02ad8cf7e695a32e20bc6334141d5",
+                "url": "https://api.github.com/repos/invoiceninja/UBL_invoice/zipball/9627d79c9fc33d8e49acad056dbdae859acdafee",
+                "reference": "9627d79c9fc33d8e49acad056dbdae859acdafee",
                 "shasum": ""
             },
             "require": {
@@ -4491,9 +4491,9 @@
                 "xml invoice"
             ],
             "support": {
-                "source": "https://github.com/invoiceninja/UBL_invoice/tree/v3.0.1"
+                "source": "https://github.com/invoiceninja/UBL_invoice/tree/v3.0.2"
             },
-            "time": "2025-08-30T23:39:57+00:00"
+            "time": "2026-05-08T02:47:31+00:00"
         },
         {
             "name": "jean85/pretty-package-versions",
