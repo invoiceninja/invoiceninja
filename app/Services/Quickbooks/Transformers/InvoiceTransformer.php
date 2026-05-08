@@ -326,6 +326,16 @@ class InvoiceTransformer extends BaseTransformer
         return $merged;
     }
 
+    /**
+     * Resolve the TaxCodeRef for a single line item by matching its tax name/rate
+     * to the tax_rate_map (which includes tax_code_id from SalesTaxRateList).
+     *
+     * @param  object $line_item The invoice line item
+     * @param  array $tax_rate_map The tax rate map with tax_code_id entries
+     * @param  string $taxable_code Default taxable TaxCode ID
+     * @param  string $exempt_code Default exempt TaxCode ID
+     * @return string The resolved TaxCode ID
+     */
     private function resolveLineTaxCode(object $line_item, array $tax_rate_map, string $taxable_code, string $exempt_code): string
     {
         $has_line_tax = (

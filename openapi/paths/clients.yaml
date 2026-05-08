@@ -64,6 +64,7 @@
         - $ref: '#/components/parameters/index'
         - $ref: '#/components/parameters/per_page_meta'
         - $ref: '#/components/parameters/page_meta'
+        - $ref: "#/components/parameters/sort_clients"
         - $ref: "#/components/parameters/status"
         - $ref: "#/components/parameters/created_at"
         - $ref: "#/components/parameters/updated_at"
@@ -168,21 +169,6 @@
           schema:
             type: string
           example: a1039883
-        - name: sort
-          in: query
-          description: |
-            Returns the list sorted by column in ascending or descending order.
-
-            Ensure you use column | direction, ie.
-
-            ```html
-              ?sort=id|desc
-            ```
-          required: false
-          schema:
-            type: string
-          example: id|desc name|desc balance|asc 
-
         - name: group
           in: query
           description: |

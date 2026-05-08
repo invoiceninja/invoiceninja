@@ -12,6 +12,7 @@
 
 namespace App\Services\EDocument\Standards\Validation\Peppol;
 
+use App\Services\EDocument\Support\GlnIdentifier;
 use App\Models\Quote;
 use App\Models\Client;
 use App\Models\Credit;
@@ -25,6 +26,7 @@ use App\Services\EDocument\Standards\Peppol;
 use App\Exceptions\PeppolValidationException;
 use App\Services\EDocument\Standards\Validation\EntityLevelInterface;
 use App\Services\EDocument\Standards\Validation\XsltDocumentValidator;
+use App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveIdentifierValidator;
 use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
 use App\Services\EDocument\Standards\Peppol\CountryFactory;
 
@@ -57,7 +59,9 @@ class EntityLevel implements EntityLevelInterface
 
     private array $errors = [];
 
-    public function __construct() {}
+    public function __construct(private ?StorecoveIdentifierValidator $identifierValidator = null)
+    {
+    }
 
     private function init(string $locale): self
     {
@@ -201,8 +205,10 @@ class EntityLevel implements EntityLevelInterface
 
         // Identifier validation — offline (no network I/O).
         // Only runs once all earlier checks pass AND the client's country is on the Peppol network.
+        $peppolCountries = config('einvoice.peppol_network', []);
         if (count($errors) === 0
-            && in_array($client->country->iso_3166_2, StorecoveRouter::peppolCountries(), true)) {
+            && is_array($peppolCountries)
+            && in_array($client->country->iso_3166_2, $peppolCountries, true)) {
 
             $errors = array_merge($errors, $this->testClientIdentifiers($client));
         }
@@ -214,14 +220,10 @@ class EntityLevel implements EntityLevelInterface
     /**
      * Validates that the client can be routed on the Peppol network.
      *
-     * The country handler's getCandidates() defines exactly what the send-time
-     * RoutingResolver will try — a list of (scheme, id) pairs derived from the
-     * client's data. Validation succeeds if ANY one of those candidates passes
-     * format+checkdigit validation: that is what it means to be routable.
-     *
-     * Multiple candidates exist for countries where several schemes are
-     * interchangeable (e.g. BE derives both BE:EN and BE:VAT from vat_number),
-     * so requiring a specific scheme would be wrong.
+     * Country handlers implement receiver-side rules (e.g. OR over candidates for BE,
+     * combined IT:IVA + IT:CUUO for Italy B2B/B2G). Explicit routing_id values are
+     * validated for format first; valid scheme:id fields still delegate to the handler
+     * for composite requirements.
      *
      * Offline validation only — no SMP discovery; that is the send-time
      * RoutingResolver's responsibility.
@@ -235,25 +237,22 @@ class EntityLevel implements EntityLevelInterface
         $classification = $client->classification ?? 'business';
 
         // FIRST: explicit routing_id override (scheme:id form). If set, it must
-        // validate — don't silently fall through to the handler and give the
-        // user a generic "no valid routing identifier" when the problem is a
-        // malformed routing_id.
-        $routingError = $this->validateExplicitRoutingId($client, $router);
-        if ($routingError !== null) {
-            return $routingError === [] ? [] : [$routingError];
+        // validate — malformed routing_id fails here. Valid explicit scheme:id ([]).
+        // ends identifier checks (same as send-time GLN / explicit routing). Bare
+        // routing_id on IT/DE is deferred (null) so composite IT rules still run.
+        $routingError = $this->validateExplicitRoutingId($client);
+        if ($routingError !== null && $routingError !== []) {
+            return [$routingError];
         }
 
-        // SECOND: handler-driven candidates (vat_number, id_number, etc.).
-        $candidates = CountryFactory::make($country)
-            ->getCandidates($client, $classification, $router);
-
-        foreach ($candidates as $candidate) {
-            if ($router->validateIdentifierFormat($candidate['scheme'], $candidate['id'])) {
-                return [];
-            }
+        if ($routingError === []) {
+            return [];
         }
 
-        return [$this->buildIdentifierError($candidates, $client, $router)];
+        $senderCountry = $client->company?->country()?->iso_3166_2;
+
+        return CountryFactory::make($country)
+            ->validateReceiverRoutingIdentifiers($client, $classification, $router, $senderCountry);
     }
 
     /**
@@ -269,7 +268,7 @@ class EntityLevel implements EntityLevelInterface
      *
      * @return array{field: string, label: string}|array{}|null
      */
-    private function validateExplicitRoutingId(Client $client, StorecoveRouter $router): ?array
+    private function validateExplicitRoutingId(Client $client): ?array
     {
         $value = trim($client->routing_id ?? '');
 
@@ -279,13 +278,14 @@ class EntityLevel implements EntityLevelInterface
 
         // scheme:id form — always validated strictly.
         if (strpos($value, ':') !== false) {
-            return $this->validateSchemeColonId($value, $router);
+            return $this->validateSchemeColonId($value);
         }
 
         // Bare value. For countries whose handler natively consumes routing_id
         // (IT wraps as IT:CUUO; DE government wraps as DE:LWID), let the
         // handler interpret the raw value — don't guess here.
-        if ($this->handlerConsumesBareRoutingId($client)) {
+        if (CountryFactory::make($client->country->iso_3166_2)
+            ->consumesBareRoutingId($client->classification ?? 'business')) {
             return null;
         }
 
@@ -293,12 +293,15 @@ class EntityLevel implements EntityLevelInterface
         // user is attempting an override. Numeric values look like GLN
         // attempts; give a GLN-specific error so the user knows what to fix.
         if (ctype_digit($value)) {
-            return $this->validateGln($value, $value);
+            return [
+                'field' => 'routing_id',
+                'label' => 'For GLN (ICD 0088) use routing_id in the form 0088: followed by exactly 13 digits.',
+            ];
         }
 
         return [
             'field' => 'routing_id',
-            'label' => "routing_id \"{$value}\" must be in scheme:id format (e.g. 0088:1234567890123 for GLN).",
+            'label' => "routing_id \"{$value}\" must be in scheme:id format (e.g. 0088:5401205000102 for GLN).",
         ];
     }
 
@@ -307,27 +310,30 @@ class EntityLevel implements EntityLevelInterface
      *
      * @return array{field: string, label: string}|array{} error or [] on pass
      */
-    private function validateSchemeColonId(string $value, StorecoveRouter $router): array
+    private function validateSchemeColonId(string $value): array
     {
         $parts = explode(':', $value, 2);
 
         if (count($parts) !== 2 || $parts[0] === '' || $parts[1] === '') {
             return [
                 'field' => 'routing_id',
-                'label' => ctrans('texts.routing_id') . "'{$value}' must be in scheme:id format (e.g. 0088:1234567890123 for GLN).",
+                'label' => ctrans('texts.routing_id') . "'{$value}' must be in scheme:id format (e.g. 0088:5401205000102 for GLN).",
             ];
         }
 
         [$scheme, $id] = $parts;
+        $id = trim($id);
 
-        // GLN (ICD 0088) — must be 14 numeric digits with a valid GS1 mod-10
-        // check digit. The router has no regex entry for numeric ICD schemes,
-        // so this has to be enforced here.
         if ($scheme === '0088') {
-            return $this->validateGln($id, "{$scheme}:{$id}");
+            return GlnIdentifier::tryParse('0088:'.$id) !== null
+                ? []
+                : [
+                    'field' => 'routing_id',
+                    'label' => "routing_id GLN must be 0088: followed by exactly 13 digits. Got \"{$scheme}:{$id}\".",
+                ];
         }
 
-        if (!$router->validateIdentifierFormat($scheme, $id)) {
+        if (!$this->identifierValidator()->validFormat($scheme, $id)) {
             return [
                 'field' => 'routing_id',
                 'label' => ctrans('texts.routing_id') . " {$scheme}:{$id} does not match the expected format for {$scheme}.",
@@ -337,102 +343,10 @@ class EntityLevel implements EntityLevelInterface
         return []; // valid
     }
 
-    /**
-     * Validates a GLN: 14 numeric digits with a valid GS1 mod-10 check digit.
-     *
-     * Storecove (scheme 0088) enforces `^\d{14}$` and rejects anything else
-     * with a 422. On top of that, GS1 requires the rightmost digit to be a
-     * mod-10 check over the preceding 13: starting from the rightmost body
-     * digit (position 2 from the right), weights alternate 3, 1, 3, 1, ...;
-     * check = (10 − (weighted_sum mod 10)) mod 10.
-     *
-     * @param  string $digits  The numeric value to validate (14 digits expected)
-     * @param  string $display The user-visible value used in error messages
-     * @return array{field: string, label: string}|array{} error or [] on pass
-     */
-    private function validateGln(string $digits, string $display): array
+    private function identifierValidator(): StorecoveIdentifierValidator
     {
-        if (!ctype_digit($digits) || strlen($digits) !== 14) {
-            return [
-                'field' => 'routing_id',
-                'label' => "routing_id \"{$display}\" looks like a GLN but must be 14 digits (got " . strlen($digits) . "). Use format 0088:<14-digit-GLN> if that was your intent.",
-            ];
-        }
-
-        if (StorecoveRouter::isValidGln($digits)) {
-            return [];
-        }
-
-        // Length was right, so the only remaining failure mode is the check digit.
-        $sum = 0;
-        $weights = [3, 1];
-        for ($i = 12, $j = 0; $i >= 0; $i--, $j++) {
-            $sum += ((int) $digits[$i]) * $weights[$j % 2];
-        }
-        $expected = (10 - ($sum % 10)) % 10;
-        $actual   = (int) $digits[13];
-
-        return [
-            'field' => 'routing_id',
-            'label' => "routing_id GLN \"{$display}\" has an invalid check digit (expected {$expected}, got {$actual}). Verify the value.",
-        ];
+        return $this->identifierValidator ??= new StorecoveIdentifierValidator();
     }
-
-    /**
-     * Countries whose handler reads routing_id directly as a raw value.
-     * For these, a bare routing_id is not an "override" — it IS the native
-     * routing input (e.g. IT:CUUO).
-     */
-    private function handlerConsumesBareRoutingId(Client $client): bool
-    {
-        $country = $client->country->iso_3166_2;
-        $classification = $client->classification ?? 'business';
-
-        if ($country === 'IT') {
-            return true;
-        }
-
-        if ($country === 'DE' && $classification === 'government') {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Builds a single error when no candidate is routable. Mentions every
-     * scheme the handler attempted, so the user can see what inputs would
-     * satisfy delivery — not a single "required field" that may be misleading.
-     *
-     * @param  array<int, array{scheme: string, id: string}> $candidates
-     * @return array{field: string, label: string}
-     */
-    private function buildIdentifierError(array $candidates, Client $client, StorecoveRouter $router): array
-    {
-        $countryName = $client->country->full_name ?? $client->country->iso_3166_2;
-
-        if (empty($candidates)) {
-            return [
-                'field' => 'vat_number',
-                'label' => "A valid routing identifier is required for Peppol delivery to {$countryName}.",
-            ];
-        }
-
-        $parts = [];
-        
-        foreach ($candidates as $c) {
-            $example = $router->getFormatExample($c['scheme']);
-            $parts[] = $example
-                ? "{$c['scheme']} (e.g. {$example})"
-                : $c['scheme'];
-        }
-
-        return [
-            'field' => 'vat_number',
-            'label' => "No valid Peppol routing identifier for {$countryName}. Any one of: " . implode(', ', $parts) . '.',
-        ];
-    }
-
 
     private function testCompanyState(mixed $entity): array
     {

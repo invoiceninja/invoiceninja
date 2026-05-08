@@ -389,6 +389,7 @@ class StorecoveTest extends TestCase
             'company_country' => 'DE',
             'client_country' => 'DE',
             'client_vat' => '',
+            'client_id_number' => '12345/67890',
             'classification' => 'individual',
             'has_valid_vat' => false,
             'over_threshold' => true,
@@ -2301,6 +2302,71 @@ class StorecoveTest extends TestCase
     }
 
     /**
+     * The Storecove adapter must read the client's id_number from the Client model
+     * at transform time — not a stale value from setup only.
+     */
+    public function testStorecoveDocumentAccountingCustomerPartyUsesClientModelIdNumber(): void
+    {
+        $this->routing_id = 290868;
+
+        $scenario = [
+            'company_vat' => '',
+            'company_id_number' => 'T08GA0028A',
+            'company_country' => 'SG',
+            'company_classification' => 'business',
+            'client_country' => 'BE',
+            'client_vat' => '',
+            'client_id_number' => '9999999999',
+            'classification' => 'business',
+            'has_valid_vat' => false,
+            'over_threshold' => false,
+            'legal_entity_id' => 290868,
+            'is_tax_exempt' => false,
+        ];
+
+        $data = $this->setupTestData($scenario);
+        $invoice = $data['invoice'];
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->save();
+
+        $expectedEnterpriseNumber = 'BE0202239951';
+        $client = $invoice->client;
+        $this->assertNotSame(
+            $expectedEnterpriseNumber,
+            $client->id_number,
+            'fixture id_number must differ from the value we assign on the model'
+        );
+
+        $client->id_number = $expectedEnterpriseNumber;
+        $client->vat_number = '';
+        $client->saveQuietly();
+        $invoice->unsetRelation('client');
+        $invoice->load('client');
+
+        $storecove = new Storecove();
+        $adapter = $storecove->adapter;
+        $adapter->transform($invoice)->decorate();
+
+        $customerParty = $adapter->getInvoice()->getAccountingCustomerParty();
+        $publicIdentifiers = $customerParty->getPublicIdentifiers();
+
+        nlog($publicIdentifiers);
+        $this->assertNotEmpty($publicIdentifiers);
+        $pi = $publicIdentifiers[0];
+        $this->assertSame('BE:EN', $pi->getScheme());
+        // $this->assertSame(
+        //     $expectedEnterpriseNumber,
+        //     $pi->getId(),
+        //     'accountingCustomerParty.publicIdentifiers must reflect Client::id_number from the invoice model'
+        // );
+        
+        // ^(?:0|1)\\d{9}$
+
+        $this->assertEquals('0202239951',$pi->getId());
+        
+    }
+
+    /**
      * testBeClientWithIdNumberUsesEnScheme
      *
      * BE routing is BE:EN (enterprise number). When the client has an id_number
@@ -2501,7 +2567,7 @@ class StorecoveTest extends TestCase
             'BE vat fallback'   => ['BE', 'business', 'BE1000000417', '', '', 'BE:EN', '1000000417'], // BE prefix stripped from vat_number fallback
             'SE with id'        => ['SE', 'business', 'SE123456789012', '1234567890', '', 'SE:ORGNR', '1234567890'],
             'SE vat fallback'   => ['SE', 'business', 'SE123456789012', '', '', null, null], // VAT doesn't match SE:ORGNR
-            'DK with id'        => ['DK', 'business', 'DK12345678', 'DK12345678', '', 'DK:DIGST', 'DK12345678'],
+            'DK with id'        => ['DK', 'business', 'DK12345678', 'DK12345678', '', 'DK:DIGST', '12345678'],
             'EE with id'        => ['EE', 'business', 'EE123456789', '12345678', '', 'EE:CC', '12345678'],
             'NO with id'        => ['NO', 'business', 'NO123456789', '123456789', '', 'NO:ORG', '123456789'],
             'FI with id'        => ['FI', 'business', 'FI12345678', '123456789012', '', 'FI:OVT', '123456789012'],
@@ -2520,8 +2586,11 @@ class StorecoveTest extends TestCase
             'IN business'       => ['IN', 'business', '22AAAAA0000A1Z5', '', '', 'IN:GSTIN', '22AAAAA0000A1Z5'],
             'SA business'       => ['SA', 'business', '1234567890', '', '', 'SA:TIN', '1234567890'],
 
-            // Government with composite/fixed endpoints — falls back to identifier scheme (column 1)
-            'AT government'     => ['AT', 'government', '', 'AT:GOV-ID', '', 'AT:GOV', 'AT:GOV-ID'],
+            // Government with composite/fixed endpoints.
+            // AT:GOV always routes to fixed endpoint "b" per Storecove docs — the client's
+            // id_number flows to customerAssignedAccountIdValue on the supplier party, not here.
+            // SG:UEN composites resolve to the identifier scheme (column 1) with the client's id.
+            'AT government'     => ['AT', 'government', '', 'AT:GOV-ID', '', 'AT:GOV', 'b'],
             'SG government'     => ['SG', 'government', '', 'T08GA0028A', '', 'SG:UEN', 'T08GA0028A'],
 
             // IT:CUUO uses routing_id

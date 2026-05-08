@@ -137,13 +137,7 @@ class VendorContact extends Authenticatable implements HasLocalePreference
 
     public function toSearchableArray(): array
     {
-        return config('scout.index_version', 'legacy') === 'v2'
-            ? $this->toSearchableArrayV2()
-            : $this->toSearchableArrayLegacy();
-    }
-
-    public function toSearchableArrayLegacy(): array
-    {
+        
         return [
             'id' => $this->company->db . ":" . $this->id,
             'name' => $this->present()->search_display(),
@@ -159,11 +153,6 @@ class VendorContact extends Authenticatable implements HasLocalePreference
             'company_key' => $this->company->company_key,
             'vendor_id' => $this->vendor->hashed_id,
         ];
-    }
-
-    public function toSearchableArrayV2(): array
-    {
-        return $this->toSearchableArrayLegacy();
     }
 
     public function getScoutKey()

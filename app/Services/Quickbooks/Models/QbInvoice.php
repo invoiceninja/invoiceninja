@@ -700,6 +700,10 @@ class QbInvoice implements SyncInterface
 
             foreach ($payment_ids as $payment_id) {
 
+                if(!$payment_id) {  
+                    continue;
+                }
+
                 $payment = $this->service->sdk->FindById('Payment', $payment_id);
 
                 $payment_transformer = new PaymentTransformer($this->service->company);

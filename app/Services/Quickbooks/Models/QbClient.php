@@ -78,6 +78,9 @@ class QbClient implements SyncInterface
             }
 
             $client->fill($ninja_data[0]);
+            $client->forceFill([
+                'client_hash' => $ninja_data[0]['client_hash'] ?? $client->client_hash,
+            ]);
             $client->service()->applyNumber()->save();
 
             $contact = $client->contacts()->where('email', $ninja_data[1]['email'])->first();
@@ -331,6 +334,7 @@ class QbClient implements SyncInterface
                 ->withTrashed()
                 ->where('company_id', $company_id)
                 ->where('name', $name)
+                ->whereNull('sync')
                 ->first();
 
 
@@ -353,6 +357,7 @@ class QbClient implements SyncInterface
                 ->whereHas('contacts', function ($query) use ($email) {
                     $query->where('email', $email);
                 })
+                ->whereNull('sync')
                 ->first();
 
             if ($email_match) {

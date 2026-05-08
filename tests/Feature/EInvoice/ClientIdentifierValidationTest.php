@@ -423,7 +423,7 @@ class ClientIdentifierValidationTest extends TestCase
             'country_id' => 250, // FR
             'vat_number' => '',
             'id_number'  => '',
-            'routing_id' => '0088:12345678901231', // 13-digit GLN
+            'routing_id' => '0088:1234567890128', // valid 13-digit GS1 GLN
         ]);
 
         $result = (new EntityLevel())->checkClient($client);
@@ -439,7 +439,7 @@ class ClientIdentifierValidationTest extends TestCase
         // BE handler reads vat_number only; absent here. Valid GLN override passes.
         $client = $this->makeClient([
             'vat_number' => '',
-            'routing_id' => '0088:12345678901231',
+            'routing_id' => '0088:1234567890128',
         ]);
 
         $result = (new EntityLevel())->checkClient($client);
@@ -453,7 +453,7 @@ class ClientIdentifierValidationTest extends TestCase
             'country_id' => 250, // FR
             'vat_number' => '',
             'id_number'  => '',
-            'routing_id' => '0088:4334343', // 7 digits, not 14
+            'routing_id' => '0088:4334343',
         ]);
 
         $errors = $this->clientErrors($client);
@@ -461,8 +461,8 @@ class ClientIdentifierValidationTest extends TestCase
         $this->assertTrue($this->hasErrorForField($errors, 'routing_id'), 'Expected routing_id error. Got: ' . json_encode($errors));
 
         $label = $this->firstErrorLabel($errors, 'routing_id');
-        $this->assertStringContainsStringIgnoringCase('GLN', $label);
-        $this->assertStringContainsStringIgnoringCase('14 digits', $label);
+        $this->assertStringContainsStringIgnoringCase('0088:', $label);
+        $this->assertStringContainsString('13', $label);
     }
 
     public function testBareNumericRoutingIdOnFrGivesGlnSpecificError(): void
@@ -474,7 +474,7 @@ class ClientIdentifierValidationTest extends TestCase
             'country_id' => 250, // FR
             'vat_number' => '',
             'id_number'  => '',
-            'routing_id' => '2435345543', // 10 digits, not 14
+            'routing_id' => '2435345543', // 10 digits, not a GLN
         ]);
 
         $errors = $this->clientErrors($client);
@@ -482,59 +482,65 @@ class ClientIdentifierValidationTest extends TestCase
         $this->assertTrue($this->hasErrorForField($errors, 'routing_id'), 'Expected routing_id error for bare numeric on FR. Got: ' . json_encode($errors));
 
         $label = $this->firstErrorLabel($errors, 'routing_id');
-        $this->assertStringContainsStringIgnoringCase('GLN', $label);
-        $this->assertStringContainsStringIgnoringCase('14 digits', $label);
+        $this->assertStringContainsStringIgnoringCase('0088:', $label);
     }
 
-    public function testBare13DigitRoutingIdOnFrPassesAsGln(): void
+    public function testBare13DigitRoutingIdOnFrRejectedRequires0088Prefix(): void
     {
-        // A 13-digit numeric value on a non-native-routing-id country is
-        // accepted as an implicit GLN (scheme 0088) iff the GS1 mod-10
-        // check digit is valid. 12345678901231 is a valid GLN.
         $client = $this->makeClient([
             'country_id' => 250, // FR
             'vat_number' => '',
             'id_number'  => '',
-            'routing_id' => '12345678901231',
+            'routing_id' => '1234567890128',
+        ]);
+
+        $errors = $this->clientErrors($client);
+
+        $this->assertTrue($this->hasErrorForField($errors, 'routing_id'));
+        $this->assertStringContainsStringIgnoringCase('0088:', $this->firstErrorLabel($errors, 'routing_id'));
+    }
+
+    public function testVerifiedRealWorldGlnPasses(): void
+    {
+        $client = $this->makeClient([
+            'country_id' => 250,
+            'vat_number' => '',
+            'id_number'  => '',
+            'routing_id' => '0088:5401205000102',
         ]);
 
         $result = (new EntityLevel())->checkClient($client);
 
-        $this->assertTrue($result['passes'], 'Bare 13-digit value with valid mod-10 should pass. Errors: ' . json_encode($result['client'] ?? []));
+        $this->assertTrue($result['passes'], json_encode($result['client'] ?? []));
     }
 
-    public function testGlnWithBadCheckdigitIsRejected(): void
-    {
-        // 14 digits but wrong check digit — the last "2" should be "1".
-        $client = $this->makeClient([
-            'country_id' => 250, // FR
-            'vat_number' => '',
-            'id_number'  => '',
-            'routing_id' => '12345678901232',
-        ]);
-
-        $errors = $this->clientErrors($client);
-
-        $this->assertTrue($this->hasErrorForField($errors, 'routing_id'));
-
-        $label = $this->firstErrorLabel($errors, 'routing_id');
-        $this->assertStringContainsStringIgnoringCase('check digit', $label);
-        $this->assertStringContainsString('expected 1', $label);
-    }
-
-    public function testGlnWithBadCheckdigitInSchemeFormIsRejected(): void
+    public function testGln0088PassesRegardlessOfTraditionalChecksumSemantics(): void
     {
         $client = $this->makeClient([
             'country_id' => 250, // FR
             'vat_number' => '',
             'id_number'  => '',
-            'routing_id' => '0088:12345678901232',
+            'routing_id' => '0088:1234567890129',
+        ]);
+
+        $result = (new EntityLevel())->checkClient($client);
+
+        $this->assertTrue($result['passes'], json_encode($result['client'] ?? []));
+    }
+
+    public function testBareNumeric13DigitStillRequires0088Scheme(): void
+    {
+        $client = $this->makeClient([
+            'country_id' => 250, // FR
+            'vat_number' => '',
+            'id_number'  => '',
+            'routing_id' => '1234567890129',
         ]);
 
         $errors = $this->clientErrors($client);
 
         $this->assertTrue($this->hasErrorForField($errors, 'routing_id'));
-        $this->assertStringContainsStringIgnoringCase('check digit', $this->firstErrorLabel($errors, 'routing_id'));
+        $this->assertStringContainsStringIgnoringCase('0088:', $this->firstErrorLabel($errors, 'routing_id'));
     }
 
     public function testBareAlphanumericRoutingIdOnFrRejected(): void
@@ -556,13 +562,10 @@ class ClientIdentifierValidationTest extends TestCase
 
     public function testBareRoutingIdOnItFallsThroughToHandler(): void
     {
-        // IT handler natively consumes routing_id as a raw IT:CUUO value.
-        // Bare values on IT must NOT trigger a routing_id override error —
-        // they are the native input.
-        // IT is not in peppol_network so identifier validation doesn't fire
-        // at all; this test documents that bare routing_id isn't intercepted.
+        // IT B2B: bare routing_id is Codice Destinatario (CUUO); VAT + CUUO both required.
         $client = $this->makeClient([
             'country_id' => 380, // IT
+            'classification' => 'business',
             'vat_number' => 'IT12345678901',
             'id_number'  => '',
             'routing_id' => 'SUBM70N',
@@ -571,6 +574,82 @@ class ClientIdentifierValidationTest extends TestCase
         $errors = $this->clientErrors($client);
 
         $this->assertFalse($this->hasErrorForField($errors, 'routing_id'), 'IT bare routing_id must not trigger override error.');
+        $this->assertFalse($this->hasErrorForField($errors, 'vat_number'), 'Valid IT VAT + CUUO should pass.');
+    }
+
+    public function testItBusinessMissingCuuoIsBlocked(): void
+    {
+        $client = $this->makeClient([
+            'country_id' => 380,
+            'classification' => 'business',
+            'vat_number' => 'IT12345678901',
+            'routing_id' => '',
+        ]);
+
+        $errors = $this->clientErrors($client);
+
+        $this->assertTrue($this->hasErrorForField($errors, 'routing_id'));
+    }
+
+    public function testItBusinessMissingVatIsBlocked(): void
+    {
+        $client = $this->makeClient([
+            'country_id' => 380,
+            'classification' => 'business',
+            'vat_number' => '',
+            'routing_id' => 'SUBM70N',
+        ]);
+
+        $errors = $this->clientErrors($client);
+
+        $this->assertTrue($this->hasErrorForField($errors, 'vat_number'));
+    }
+
+    public function testItDomesticConsumerRequiresCodiceFiscaleAndCuuo(): void
+    {
+        $originalCountryId = $this->testCompany->settings->country_id;
+        $settings = $this->testCompany->settings;
+        $settings->country_id = '380';
+        $this->testCompany->settings = $settings;
+        $this->testCompany->save();
+
+        try {
+            $client = $this->makeClient([
+                'country_id' => 380,
+                'classification' => 'individual',
+                'id_number' => 'RSSMRA85M01H501Z',
+                'vat_number' => '',
+                'routing_id' => '',
+            ]);
+
+            $errors = $this->clientErrors($client);
+
+            $this->assertTrue($this->hasErrorForField($errors, 'routing_id'));
+        } finally {
+            $settings = $this->testCompany->settings;
+            $settings->country_id = $originalCountryId;
+            $this->testCompany->settings = $settings;
+            $this->testCompany->save();
+        }
+    }
+
+    public function testItForeignConsumerRejectsPecEmail(): void
+    {
+        $client = $this->makeClient([
+            'country_id' => 380,
+            'classification' => 'individual',
+            'id_number' => 'RSSMRA85M01H501Z',
+            'vat_number' => '',
+            'routing_id' => '',
+        ]);
+
+        $contact = $client->contacts()->where('is_primary', 1)->first();
+        $contact->email = 'azienda@pec.it';
+        $contact->save();
+
+        $errors = $this->clientErrors($client->fresh());
+
+        $this->assertTrue($this->hasErrorForField($errors, 'email'));
     }
 
     public function testRoutingIdEmptyIdAfterColonGivesSpecificError(): void

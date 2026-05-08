@@ -24,7 +24,7 @@ class ShowPlanSwitchRequest extends FormRequest
      */
     public function authorize()
     {
-        return (bool) $this->recurring_invoice->subscription->allow_plan_changes;
+        return (bool) $this->recurring_invoice->subscription->allow_plan_changes && ((int) $this->recurring_invoice->client_id === (int) auth()->guard('contact')->user()->client_id);
     }
 
     /**

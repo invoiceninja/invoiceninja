@@ -12,22 +12,29 @@
 
 namespace App\Services\EDocument\Standards\Peppol;
 
-use App\Models\Product;
 use App\DataMapper\Tax\BaseRule;
-use InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID;
-use InvoiceNinja\EInvoice\Models\Peppol\CountryType\Country;
-use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxAmount;
-use InvoiceNinja\EInvoice\Models\Peppol\TaxTotalType\TaxTotal;
-use InvoiceNinja\EInvoice\Models\Peppol\TaxSchemeType\TaxScheme;
+use App\Models\Product;
+use App\Services\EDocument\Standards\Peppol;
+use InvoiceNinja\EInvoice\Models\Peppol\AddressType\JurisdictionRegionAddress;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxableAmount;
-use InvoiceNinja\EInvoice\Models\Peppol\TaxCategoryType\TaxCategory;
-use InvoiceNinja\EInvoice\Models\Peppol\TaxSubtotalType\TaxSubtotal;
+use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\CodeType\IdentificationCode;
 use InvoiceNinja\EInvoice\Models\Peppol\CodeType\TaxExemptionReasonCode;
-use App\Services\EDocument\Standards\Peppol;
+use InvoiceNinja\EInvoice\Models\Peppol\CountryType\Country;
+use InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID;
+use InvoiceNinja\EInvoice\Models\Peppol\TaxCategoryType\TaxCategory;
+use InvoiceNinja\EInvoice\Models\Peppol\TaxSchemeType\TaxScheme;
+use InvoiceNinja\EInvoice\Models\Peppol\TaxSubtotalType\TaxSubtotal;
+use InvoiceNinja\EInvoice\Models\Peppol\TaxTotalType\TaxTotal;
 
 class PeppolTaxCalculator
 {
+    private ?JurisdictionRegionAddress $jurisdiction = null;
+
+    private string $nexus_country_code = '';
+
+    private string $nexus_vat_number = '';
+
     public function __construct(private Peppol $peppol) {}
 
     /**
@@ -250,13 +257,21 @@ class PeppolTaxCalculator
 
         $tax_total = new TaxTotal();
         $taxes = $calc->getTaxMap();
+        $global_tax_categories = $this->peppol->getGlobalTaxCategories();
 
-        if (count($taxes) < 1 || (count($taxes) == 1 && $invoice->total_taxes == 0)) {
+        if (count($taxes) < 1 || (count($taxes) == 1 && $invoice->total_taxes == 0 && isset($global_tax_categories[0]))) {
 
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $invoice->client->currency()->code;
             $tax_amount->amount = (string) 0;
             $tax_total->TaxAmount = $tax_amount;
+
+            if (!isset($global_tax_categories[0])) {
+                $p_invoice->TaxTotal[] = $tax_total;
+                $this->peppol->setPeppolDocument($p_invoice);
+
+                return $this->peppol;
+            }
 
             $tax_subtotal = new TaxSubtotal();
 
@@ -275,7 +290,7 @@ class PeppolTaxCalculator
             $tax_subtotal->TaxAmount = $subtotal_tax_amount;
 
             // BG-23: use line-derived global category (includes BT-120/BT-121 from resolveTaxExemptReason).
-            $tax_subtotal->TaxCategory = $this->peppol->getGlobalTaxCategories()[0];
+            $tax_subtotal->TaxCategory = $global_tax_categories[0];
 
             $tax_total->TaxSubtotal[] = $tax_subtotal;
 
@@ -395,7 +410,12 @@ class PeppolTaxCalculator
         return $this;
     }
 
-    public function getJurisdiction()
+    public function getJurisdiction(): JurisdictionRegionAddress
+    {
+        return $this->jurisdiction;
+    }
+
+    public function setJurisdiction(): self
     {
         $company = $this->peppol->getCompany();
         $invoice = $this->peppol->getInvoiceModel();
@@ -408,6 +428,8 @@ class PeppolTaxCalculator
         if ($invoice->client->country->iso_3166_2 == $company->country()->iso_3166_2) {
             //Domestic Sales
             $country_code = $company->country()->iso_3166_2;
+            $this->setNexusCountryCode($country_code);
+
         } elseif (in_array($country_code, $eu_countries) && !in_array($invoice->client->country->iso_3166_2, $eu_countries)) {
             //EU => FOREIGN sale
         } elseif (in_array($invoice->client->country->iso_3166_2, $eu_countries)) {
@@ -418,11 +440,13 @@ class PeppolTaxCalculator
 
                 if (isset($company->tax_data->regions->EU->subregions->{$country_code}->vat_number)) {
                     $this->peppol->setOverrideVatNumber($company->tax_data->regions->EU->subregions->{$country_code}->vat_number);
+                    $this->setNexusVatNumber($company->tax_data->regions->EU->subregions->{$country_code}->vat_number);
+                    $this->setNexusCountryCode($country_code);
                 }
             }
         }
 
-        $jurisdiction = new \InvoiceNinja\EInvoice\Models\Peppol\AddressType\JurisdictionRegionAddress();
+        $jurisdiction = new JurisdictionRegionAddress();
         $country = new Country();
         $ic = new IdentificationCode();
         $ic->value = $country_code;
@@ -432,8 +456,32 @@ class PeppolTaxCalculator
         $addressTypeCode->value = 'JURISDICTION';  // or the appropriate code from PEPPOL spec
         $jurisdiction->AddressTypeCode = $addressTypeCode;
 
-        return $jurisdiction;
+        $this->jurisdiction = $jurisdiction;
 
+        return $this;
+
+    }
+
+    public function getNexusCountryCode(): string
+    {
+        return $this->nexus_country_code;
+    }
+
+    public function getNexusVatNumber(): string
+    {
+        return $this->nexus_vat_number;
+    }
+
+    public function setNexusCountryCode(string $country_code): self
+    {
+        $this->nexus_country_code = $country_code;
+        return $this;
+    }
+
+    public function setNexusVatNumber(string $vat_number): self
+    {
+        $this->nexus_vat_number = $vat_number;
+        return $this;
     }
 
     public function standardizeTaxSchemeId(string $tax_name): string

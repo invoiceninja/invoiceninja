@@ -258,13 +258,6 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function toSearchableArray(): array
     {
-        return config('scout.index_version', 'legacy') === 'v2'
-            ? $this->toSearchableArrayV2()
-            : $this->toSearchableArrayLegacy();
-    }
-
-    public function toSearchableArrayLegacy(): array
-    {
 
         $locale = $this->locale();
         App::setLocale($locale);
@@ -305,11 +298,6 @@ class Client extends BaseModel implements HasLocalePreference
             'custom_value4' => $this->custom_value4,
             'company_key' => $this->company->company_key,
         ];
-    }
-
-    public function toSearchableArrayV2(): array
-    {
-        return $this->toSearchableArrayLegacy();
     }
 
     public function getScoutKey()
@@ -662,7 +650,8 @@ class Client extends BaseModel implements HasLocalePreference
 
                 $cg = CompanyGateway::query()->find($pm['company_gateway_id']);
 
-                if ($cg->gateway_key == '80af24a6a691230bbec33e930ab40666') { //ensure we don't attempt to authorize paypal platform - yet.
+                //skip PayPal + Custom Gateways from authorization attempts
+                if (in_array($cg->gateway_key, ['80af24a6a691230bbec33e930ab40666','54faab2ab6e3223dbe848b1686490baa'])) { //ensure we don't attempt to authorize paypal platform - yet.
                     continue;
                 }
 
@@ -1104,10 +1093,7 @@ class Client extends BaseModel implements HasLocalePreference
         // routing_rules carries tax metadata for many more countries (HR, CZ,
         // HU, SK, ...) that are not actual Peppol destinations. IT is
         // deliverable via SDI rather than Peppol proper.
-        $deliverable = array_merge(
-            \App\Services\EDocument\Gateway\Storecove\StorecoveRouter::peppolCountries(),
-            ['IT', 'PT'],
-        );
+        $deliverable = config('einvoice.peppol_network');
 
         if (!in_array($country_code, $deliverable, true)) {
             return "Country {$this->country->full_name} ( {$country_code} ) is not supported for e-delivery.";

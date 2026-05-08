@@ -387,7 +387,9 @@ class MolliePaymentDriver extends BaseDriver
 
                     $record->service()->deletePayment(false);
 
-                    $this->sendFailureMail($payment->details->failureMessage ?? "There was a problem processing your payment.");
+                    if(in_array($payment->status, ['canceled', 'failed'])) {
+                        $this->sendFailureMail($payment->details->failureMessage ?? "There was a problem processing your payment.");
+                    }
 
                 } else {
                     $response = SystemLog::EVENT_GATEWAY_SUCCESS;

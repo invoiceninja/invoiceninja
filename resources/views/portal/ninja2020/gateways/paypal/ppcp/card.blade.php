@@ -41,21 +41,27 @@
    <div id="paypal-button-container" class="paypal-button-container"></div>
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
+    <ul class="list-none">
         @if (count($tokens) > 0)
             @foreach ($tokens as $token)
-                <label class="mr-4">
-                    <input type="radio" data-token="{{ $token->token }}" name="payment-type"
-                        class="form-radio cursor-pointer toggle-payment-with-token" />
-                    <span class="ml-1 cursor-pointer">**** {{ $token->meta?->last4 }}</span>
-                </label>
+                <li class="py-2 cursor-pointer">
+                    <label class="mr-4">
+                        <input type="radio" data-token="{{ $token->token }}" name="payment-type"
+                            class="form-radio cursor-pointer toggle-payment-with-token" />
+                        <span class="ml-1 cursor-pointer">**** {{ $token->meta?->last4 }}</span>
+                    </label>
+                </li>
             @endforeach
         @endisset
 
-        <label>
-            <input type="radio" id="toggle-payment-with-credit-card" class="form-radio cursor-pointer" name="payment-type"
-                checked />
-            <span class="ml-1 cursor-pointer">{{ __('texts.new_card') }}</span>
-        </label>
+        <li class="py-2 cursor-pointer">
+            <label>
+                <input type="radio" id="toggle-payment-with-credit-card" class="form-radio cursor-pointer" name="payment-type"
+                    checked />
+                <span class="ml-1 cursor-pointer">{{ __('texts.new_card') }}</span>
+            </label>
+        </li>
+    </ul>
 
     @endcomponent
       
@@ -72,8 +78,10 @@
       @include('portal.ninja2020.gateways.includes.pay_now', ['id' => 'pay-now'])
     </div>
 
-    @include('portal.ninja2020.gateways.includes.pay_now', ['id' => 'pay-now-token'])
-    
+    <div id="pay-now-token--container" class="hidden">
+        @include('portal.ninja2020.gateways.includes.pay_now', ['id' => 'pay-now-token'])
+    </div>
+
 @endsection
 
 @section('gateway_footer')
@@ -318,7 +326,7 @@
           document
               .getElementById('checkout-form').classList.add('hidden');
         document
-              .getElementById('pay-now-token').classList.remove('hidden');
+              .getElementById('pay-now-token--container').classList.remove('hidden');
 
           document
               .getElementById('token').value = e.target.dataset.token;
@@ -335,7 +343,7 @@
               .getElementById('checkout-form').classList.remove('hidden');
 
             document
-              .getElementById('pay-now-token').classList.add('hidden');
+              .getElementById('pay-now-token--container').classList.add('hidden');
 
               document
                   .getElementById('token').value = null;

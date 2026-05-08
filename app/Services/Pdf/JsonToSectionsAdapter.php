@@ -48,7 +48,13 @@ class JsonToSectionsAdapter
     /**
      * Grouped blocks by row (for layout)
      */
-    private array $blocksByRow = [];
+    private ?array $blocksByRow = null;
+
+    /**
+     * Blocks sorted by grid position. Cached because section conversion and
+     * base-template row grouping both need the same deterministic order.
+     */
+    private ?array $sortedBlocks = null;
 
     /**
      * Fetches and inlines user-supplied image URLs so Chromium never fetches
@@ -102,11 +108,8 @@ class JsonToSectionsAdapter
     {
         $sections = [];
 
-        // Sort blocks by grid position (Y-axis primary, X-axis secondary)
-        $sortedBlocks = $this->sortBlocksByPosition($this->jsonBlocks);
-
         // Convert each block to a section (no row grouping here - that's done in template)
-        foreach ($sortedBlocks as $block) {
+        foreach ($this->sortedBlocks() as $block) {
             $section = $this->convertBlockToSection($block);
             if ($section !== null) {
                 $sections[$block['id']] = $section;
@@ -123,8 +126,24 @@ class JsonToSectionsAdapter
      */
     public function getRowGroupedBlocks(): array
     {
-        $sortedBlocks = $this->sortBlocksByPosition($this->jsonBlocks);
-        return $this->groupBlocksIntoRows($sortedBlocks);
+        if ($this->blocksByRow === null) {
+            $this->blocksByRow = $this->groupBlocksIntoRows($this->sortedBlocks());
+        }
+
+        return $this->blocksByRow;
+    }
+
+    /**
+     * Return blocks sorted by grid position, computing the order once for the
+     * adapter lifetime.
+     */
+    private function sortedBlocks(): array
+    {
+        if ($this->sortedBlocks === null) {
+            $this->sortedBlocks = $this->sortBlocksByPosition($this->jsonBlocks);
+        }
+
+        return $this->sortedBlocks;
     }
 
     /**
@@ -204,6 +223,8 @@ class JsonToSectionsAdapter
             'invoice-details' => $this->convertInvoiceDetailsBlock($block),
             'table' => $this->convertTableBlock($block),
             'total' => $this->convertTotalBlock($block),
+            // Preset text blocks from the visual designer (same JSON shape as `text`).
+            'terms', 'footer', 'public-notes' => $this->convertTextBlock($block),
             'text' => $this->convertTextBlock($block),
             'divider' => $this->convertDividerBlock($block),
             'spacer' => $this->convertSpacerBlock($block),
@@ -287,6 +308,7 @@ class JsonToSectionsAdapter
                     'element' => 'div',
                     'content' => $content,
                     'show_empty' => !$hideIfEmpty, // Invert: show_empty=false means hide when empty
+                    'empty_check' => $variable,
                     'properties' => [
                         'data-ref' => "{$block['id']}-field-{$index}",
                         'style' => $this->buildTextStyle($props),
@@ -363,6 +385,7 @@ class JsonToSectionsAdapter
                     'element' => 'div',
                     'content' => $content,
                     'show_empty' => !$hideIfEmpty, // Invert: show_empty=false means hide when empty
+                    'empty_check' => $variable,
                     'properties' => [
                         'data-ref' => "{$block['id']}-field-{$index}",
                         'style' => $this->buildTextStyle($props),
@@ -444,6 +467,7 @@ class JsonToSectionsAdapter
                     $props,
                     $config,
                     $showLabels,
+                    $variable,
                 );
             }
         } elseif ($items && is_array($items)) {
@@ -453,15 +477,19 @@ class JsonToSectionsAdapter
                     continue;
                 }
 
+                $variable = $item['variable'] ?? '';
+                $hideIfEmpty = $item['hideIfEmpty'] ?? true;
+
                 $elements[] = $this->buildInvoiceDetailsRow(
                     $block['id'],
                     $index,
                     $item['label'] ?? '',
-                    $item['variable'] ?? '',
-                    true,
+                    $variable,
+                    !$hideIfEmpty,
                     $props,
                     $item,
                     $showLabels,
+                    $variable,
                 );
             }
         } elseif (isset($props['content']) && !empty($props['content'])) {
@@ -487,6 +515,7 @@ class JsonToSectionsAdapter
                     $props,
                     [],
                     $showLabels,
+                    $variable,
                 );
             }
         }
@@ -507,7 +536,7 @@ class JsonToSectionsAdapter
      * Build a single <tr> for the invoice-details block, honoring per-row
      * labelStyle/valueStyle overrides and the showLabels block flag.
      */
-    private function buildInvoiceDetailsRow(string $blockId, mixed $index, string $label, string $variable, bool $showEmpty, array $props, array $row, bool $showLabels): array
+    private function buildInvoiceDetailsRow(string $blockId, mixed $index, string $label, string $variable, bool $showEmpty, array $props, array $row, bool $showLabels, ?string $emptyCheck = null): array
     {
         $columnStyles = $this->invoiceDetailsColumnStyles($props);
         $resolver = new CellStyleResolver();
@@ -527,11 +556,13 @@ class JsonToSectionsAdapter
         ];
 
         if (!$showLabels) {
-            return [
+            $rowElement = [
                 'element' => 'tr',
                 'properties' => ['data-ref' => "{$blockId}-row-{$index}"],
                 'elements' => [$valueCell],
             ];
+
+            return $this->withRowEmptyCheck($rowElement, $showEmpty, $emptyCheck ?? $variable);
         }
 
         $labelCell = [
@@ -546,11 +577,29 @@ class JsonToSectionsAdapter
             ],
         ];
 
-        return [
+        $rowElement = [
             'element' => 'tr',
             'properties' => ['data-ref' => "{$blockId}-row-{$index}"],
             'elements' => [$labelCell, $valueCell],
         ];
+
+        return $this->withRowEmptyCheck($rowElement, $showEmpty, $emptyCheck ?? $variable);
+    }
+
+    /**
+     * Attach hide-if-empty metadata to a whole row so labels do not survive
+     * after their value cell resolves to empty.
+     */
+    private function withRowEmptyCheck(array $rowElement, bool $showEmpty, string $emptyCheck): array
+    {
+        if ($showEmpty) {
+            return $rowElement;
+        }
+
+        $rowElement['show_empty'] = false;
+        $rowElement['empty_check'] = $emptyCheck;
+
+        return $rowElement;
     }
 
     /**
@@ -665,41 +714,36 @@ class JsonToSectionsAdapter
         // Determine table type from column fields
         $tableType = $this->detectTableType($columns);
 
-        // Get filtered line items for visibility calculation
+        // Get filtered line items once; table body generation reuses the same
+        // array so large invoices don't walk line_items twice per table block.
         $filteredItems = $this->getFilteredLineItems($tableType);
-
-        // Calculate which columns are empty (for hiding)
-        $columnVisibility = $this->calculateColumnVisibility($columns, $filteredItems);
 
         // Check if we should hide empty columns
         $hideEmptyColumns = $this->service->config->settings->hide_empty_columns_on_pdf ?? false;
 
+        // Calculate which columns are empty only when the setting can use it.
+        $columnVisibility = $hideEmptyColumns
+            ? $this->calculateColumnVisibility($columns, $filteredItems)
+            : [];
+
+        $visibleColumns = $this->visibleTableColumns($columns, $props, $tableType, $columnVisibility, $hideEmptyColumns);
+
         // Build header elements (only for visible columns)
         $headerElements = [];
-        $visibleColumnIndices = [];
-        foreach ($columns as $index => $column) {
-            $columnId = $column['id'] ?? $index;
-            $isEmpty = $columnVisibility[$columnId] ?? false;
-
-            // Skip if column is empty and setting is enabled
-            if ($hideEmptyColumns && $isEmpty) {
-                continue;
-            }
-
-            $visibleColumnIndices[] = $index;
+        foreach ($visibleColumns as $column) {
             $headerElements[] = [
                 'element' => 'th',
-                'content' => $column['header'] ?? '',
+                'content' => $column['header'],
                 'properties' => [
-                    'data-ref' => "{$tableType}_table-{$column['id']}-th",
-                    'style' => $this->buildTableHeaderStyle($props, $column),
+                    'data-ref' => $column['header_ref'],
+                    'style' => $column['header_style'],
                     'visi' => true, // Mark as visible for border-radius logic
                 ],
             ];
         }
 
         // Build table body rows with only visible columns
-        $bodyRows = $this->buildTableBodyRows($columns, $tableType, $props, $columnVisibility, $hideEmptyColumns);
+        $bodyRows = $this->buildTableBodyRows($visibleColumns, $filteredItems, $tableType);
 
         return [
             'id' => $block['id'],
@@ -732,44 +776,66 @@ class JsonToSectionsAdapter
     }
 
     /**
-     * Build table body rows using JSON design's custom columns
+     * Precompute the visible column metadata and static styles once per table
+     * block rather than once per generated cell.
      *
      * @param array $columns Column definitions from JSON design
-     * @param string $tableType 'product' or 'task'
      * @param array $props Table properties for styling
+     * @param string $tableType 'product' or 'task'
      * @param array $columnVisibility Which columns are empty
      * @param bool $hideEmptyColumns Whether to hide empty columns
+     * @return array Visible table column metadata
+     */
+    private function visibleTableColumns(array $columns, array $props, string $tableType, array $columnVisibility, bool $hideEmptyColumns): array
+    {
+        $visibleColumns = [];
+
+        foreach ($columns as $index => $column) {
+            $columnId = $column['id'] ?? $index;
+            $isEmpty = $columnVisibility[$columnId] ?? false;
+
+            if ($hideEmptyColumns && $isEmpty) {
+                continue;
+            }
+
+            $visibleColumns[] = [
+                'field' => $column['field'] ?? '',
+                'header' => $column['header'] ?? '',
+                'header_ref' => "{$tableType}_table-{$columnId}-th",
+                'cell_ref' => "{$tableType}_table-{$columnId}-td",
+                'header_style' => $this->buildTableHeaderStyle($props, $column),
+                'cell_style' => $this->buildTableCellStyle($props, $column),
+            ];
+        }
+
+        return $visibleColumns;
+    }
+
+    /**
+     * Build table body rows using JSON design's custom columns
+     *
+     * @param array $visibleColumns Precomputed visible column metadata
+     * @param array $filteredItems Filtered line items for the table type
+     * @param string $tableType 'product' or 'task'
      * @return array Array of row elements
      */
-    private function buildTableBodyRows(array $columns, string $tableType, array $props, array $columnVisibility, bool $hideEmptyColumns): array
+    private function buildTableBodyRows(array $visibleColumns, array $filteredItems, string $tableType): array
     {
         $rows = [];
-
-        // Get filtered line items
-        $filteredItems = $this->getFilteredLineItems($tableType);
 
         // Build rows
         foreach ($filteredItems as $item) {
             $rowElements = [];
 
-            foreach ($columns as $index => $column) {
-                $columnId = $column['id'] ?? $index;
-                $isEmpty = $columnVisibility[$columnId] ?? false;
-
-                // Skip if column is empty and setting is enabled
-                if ($hideEmptyColumns && $isEmpty) {
-                    continue;
-                }
-
-                $field = $column['field'] ?? '';
-                $value = $this->getFieldValue($item, $field, $tableType);
+            foreach ($visibleColumns as $column) {
+                $value = $this->getFieldValue($item, $column['field'], $tableType);
 
                 $rowElements[] = [
                     'element' => 'td',
                     'content' => $value,
                     'properties' => [
-                        'data-ref' => "{$tableType}_table-{$column['id']}-td",
-                        'style' => $this->buildTableCellStyle($props, $column),
+                        'data-ref' => $column['cell_ref'],
+                        'style' => $column['cell_style'],
                         'visi' => true, // Mark as visible for border-radius logic
                     ],
                 ];
@@ -976,6 +1042,8 @@ class JsonToSectionsAdapter
                 continue;
             }
 
+            $field = $item['field'] ?? '';
+            $hideIfEmpty = $item['hideIfEmpty'] ?? true;
             $isTotal = (bool) ($item['isTotal'] ?? false);
             $isBalance = (bool) ($item['isBalance'] ?? false);
             $context = [
@@ -986,7 +1054,7 @@ class JsonToSectionsAdapter
 
             $valueCell = [
                 'element' => 'td',
-                'content' => $item['field'] ?? '',
+                'content' => $field,
                 'properties' => [
                     'data-ref' => "{$block['id']}-value-{$index}",
                     'class' => 'totals-value',
@@ -1014,7 +1082,7 @@ class JsonToSectionsAdapter
             }
             $cells[] = $valueCell;
 
-            $rowElements[] = [
+            $rowElement = [
                 'element' => 'tr',
                 'properties' => [
                     'data-ref' => "{$block['id']}-row-{$index}",
@@ -1022,6 +1090,8 @@ class JsonToSectionsAdapter
                 ],
                 'elements' => $cells,
             ];
+
+            $rowElements[] = $this->withRowEmptyCheck($rowElement, !$hideIfEmpty, $field);
         }
 
         return [

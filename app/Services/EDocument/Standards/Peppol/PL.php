@@ -41,11 +41,6 @@ class PL extends BaseCountry
         'PL-ZP' => 'Zachodniopomorskie',
     ];
 
-    public function getRoutingRules(): ?array
-    {
-        return ["G+B", "", "PL:VAT", "PL:VAT"];
-    }
-
     public function getNetworkOverrides(): array
     {
         return [['application' => 'pl-ksef', 'settings' => ['enabled' => true]]];

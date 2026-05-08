@@ -480,6 +480,7 @@ paths:
           example: 50
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_bank_integrations"
       responses:
         200:
           description: "A list of bank integrations"
@@ -937,6 +938,7 @@ paths:
           example: 50
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_bank_transactions"
       responses:
         200:
           description: "A list of bank integrations"
@@ -1345,6 +1347,7 @@ paths:
           example: 50
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_bank_transaction_rules"
       responses:
         200:
           description: "A list of bank integrations"
@@ -2549,6 +2552,7 @@ paths:
         - $ref: "#/components/parameters/include"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_company_gateways"
       responses:
         200:
           description: "A list of company_gateways"
@@ -2983,6 +2987,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_designs"
       responses:
         200:
           description: "A list of designs"
@@ -3300,6 +3305,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_documents"
       responses:
         200:
           description: "A list of documents"
@@ -3418,6 +3424,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_expense_categories"
       responses:
         200:
           description: "A list of expense_categories"
@@ -3723,6 +3730,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_expenses"
       responses:
         200:
           description: "A list of expenses"
@@ -4117,6 +4125,7 @@ paths:
         - $ref: "#/components/parameters/include"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_group_settings"
       responses:
         200:
           description: "A list of group_settings"
@@ -5349,6 +5358,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_payment_terms"
       responses:
         200:
           description: "A list of payment terms"
@@ -5822,6 +5832,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_recurring_expenses"
       responses:
         200:
           description: "A list of recurring_expenses"
@@ -6190,6 +6201,7 @@ paths:
         - $ref: "#/components/parameters/include"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_recurring_quotes"
       responses:
         200:
           description: "A list of recurring_quotes"
@@ -7557,6 +7569,7 @@ paths:
         - $ref: "#/components/parameters/include"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_subscriptions"
       responses:
         200:
           description: "A list of subscriptions"
@@ -7937,6 +7950,7 @@ paths:
         - $ref: "#/components/parameters/include"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_system_logs"
       responses:
         200:
           description: "A list of system logs"
@@ -8259,6 +8273,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_task_statuses"
       responses:
         200:
           description: "A list of task statuses"
@@ -8573,6 +8588,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_tax_rates"
       responses:
         200:
           description: "A list of tax_rates"
@@ -8967,6 +8983,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_tokens"
       responses:
         200:
           description: "A list of tokens"
@@ -9276,6 +9293,7 @@ paths:
         - $ref: "#/components/parameters/include"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_users"
       responses:
         200:
           description: "A list of users"
@@ -9733,6 +9751,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_webhooks"
       responses:
         200:
           description: "A list of Webhooks"

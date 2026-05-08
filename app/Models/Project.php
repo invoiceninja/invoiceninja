@@ -119,19 +119,15 @@ class Project extends BaseModel
 
     public function toSearchableArray(): array
     {
-        return config('scout.index_version', 'legacy') === 'v2'
-            ? $this->toSearchableArrayV2()
-            : $this->toSearchableArrayLegacy();
-    }
-
-    public function toSearchableArrayLegacy(): array
-    {
+       
         $locale = $this->company->locale();
         App::setLocale($locale);
 
+        $clientName = $this->client ? $this->client->present()->name() : '';
+
         return [
             'id' => (string) $this->company->db . ":" . $this->id,
-            'name' => ctrans('texts.project') . " " . $this->number . ' | ' . $this->name . " | " . $this->client->present()->name(),
+            'name' => ctrans('texts.project') . " " . $this->number . ' | ' . $this->name . " | " . $clientName,
             'hashed_id' => $this->hashed_id,
             'number' => (string) $this->number,
             'is_deleted' => (bool) $this->is_deleted,
@@ -147,11 +143,6 @@ class Project extends BaseModel
             'public_notes' => (string) $this->public_notes ?: '',
             'current_hours' => (int) $this->current_hours ?: 0,
         ];
-    }
-
-    public function toSearchableArrayV2(): array
-    {
-        return $this->toSearchableArrayLegacy();
     }
 
     public function getScoutKey()

@@ -89,6 +89,17 @@ abstract class QueryFilters
                 continue;
             }
 
+            // potential multi column sort
+            if ($name === 'sort' && is_array($value)) {
+                foreach ($value as $sort) {
+                    if (is_string($sort) && strlen($sort)) {
+                        $this->$name($sort);
+                    }
+                }
+
+                continue;
+            }
+            
             if (is_string($value) && strlen($value)) {
                 $this->$name($value);
             } else {
@@ -96,10 +107,32 @@ abstract class QueryFilters
             }
         }
 
+        $this->ensureDefaultOrder();
+
         // nlog('[Search] SQL: ' . $this->builder->toSql() . " Bindings: " . implode(', ', $this->builder->getBindings()));
 
         return $this->builder->withTrashed();
     }
+    
+    /**
+     * ensureDefaultOrder
+     * 
+     * Ensures at least a single order by is applied to the query.
+     * @return Builder
+     */
+    protected function ensureDefaultOrder(): Builder
+    {
+        $query = $this->builder->getQuery();
+
+        if (! empty($query->orders) || ! empty($query->unionOrders)) {
+            return $this->builder;
+        }
+
+        return $this->builder->orderByDesc(
+            $this->builder->getModel()->getQualifiedKeyName()
+        );
+    }
+
 
     /**
      * Get all request filters data.

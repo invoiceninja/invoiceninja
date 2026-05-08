@@ -251,10 +251,15 @@ class PdfBuilder
     private function parseTwigElements(): self
     {
 
+        $nodeList = $this->document->getElementsByTagName('ninja');
+
+        if ($nodeList->length === 0) {
+            return $this;
+        }
+
         $replacements = [];
 
         $contents = [];
-        $nodeList = $this->document->getElementsByTagName('ninja');
         for ($i = 0; $i < $nodeList->length; $i++) {
             $contents[] = $nodeList->item($i);
         }
@@ -2223,6 +2228,10 @@ class PdfBuilder
      */
     public function updateVariables(): self
     {
+        if (isset($this->service->document_type) && $this->service->document_type === 'json_design') {
+            return $this->updateJsonDesignVariables();
+        }
+
         $html = strtr($this->getCompiledHTML(), $this->service->html_variables['labels']);
         $html = strtr($html, $this->service->html_variables['values']);
 
@@ -2230,6 +2239,120 @@ class PdfBuilder
         $this->document->saveHTML();
 
         return $this;
+    }
+
+    /**
+     * JSON designs are assembled from section arrays into a fresh DOM. Replacing
+     * variables directly in that DOM avoids serializing and reparsing the whole
+     * document, which gets expensive for large line-item tables.
+     */
+    private function updateJsonDesignVariables(): self
+    {
+        $this->replaceVariablesInTextNodes();
+        $this->replaceVariablesInAttributes();
+
+        return $this;
+    }
+
+    private function replaceVariablesInTextNodes(): void
+    {
+        $xpath = new \DOMXPath($this->document);
+        $nodes = [];
+
+        foreach ($xpath->query('//text()[contains(., "$") or contains(., "%24")]') as $node) {
+            $nodes[] = $node;
+        }
+
+        foreach ($nodes as $node) {
+            $value = $this->replaceVariablesInString($node->nodeValue);
+
+            if ($value === $node->nodeValue) {
+                continue;
+            }
+
+            if ($this->containsHtml($value) && !$this->hasEncodedHtmlAncestor($node)) {
+                $this->replaceTextNodeWithHtml($node, $value);
+                continue;
+            }
+
+            $node->nodeValue = $value;
+        }
+    }
+
+    private function replaceVariablesInAttributes(): void
+    {
+        foreach ($this->document->getElementsByTagName('*') as $element) {
+            if (!$element->hasAttributes()) {
+                continue;
+            }
+
+            foreach ($element->attributes as $attribute) {
+                if (!str_contains($attribute->value, '$') && !str_contains($attribute->value, '%24')) {
+                    continue;
+                }
+
+                $attribute->value = $this->replaceVariablesInString($attribute->value);
+            }
+        }
+    }
+
+    private function replaceVariablesInString(string $value): string
+    {
+        $value = str_replace('%24', '$', $value);
+        $value = strtr($value, $this->service->html_variables['labels']);
+
+        return strtr($value, $this->service->html_variables['values']);
+    }
+
+    private function containsHtml(string $value): bool
+    {
+        return str_contains($value, '<') && str_contains($value, '>');
+    }
+
+    private function hasEncodedHtmlAncestor(\DOMNode $node): bool
+    {
+        while ($node = $node->parentNode) {
+            if ($node instanceof \DOMElement && $node->getAttribute('data-state') === 'encoded-html') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function replaceTextNodeWithHtml(\DOMNode $node, string $html): void
+    {
+        $parent = $node->parentNode;
+
+        if (!$parent) {
+            $node->nodeValue = $html;
+            return;
+        }
+
+        $temp = new \DOMDocument();
+        $wrappedHtml = '<?xml encoding="UTF-8"><div>' . str_ireplace('<br>', '<br/>', $html) . '</div>';
+
+        if (!@$temp->loadHTML($wrappedHtml, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD)) {
+            $node->nodeValue = $html;
+            return;
+        }
+
+        $wrapper = $temp->getElementsByTagName('div')->item(0);
+        if (!$wrapper) {
+            $node->nodeValue = $html;
+            return;
+        }
+
+        $children = [];
+        foreach ($wrapper->childNodes as $child) {
+            $children[] = $child;
+        }
+
+        foreach ($children as $child) {
+            $parent->insertBefore($this->document->importNode($child, true), $node);
+        }
+
+        $parent->removeChild($node);
     }
 
     public function getEmptyElements(): self
@@ -2261,14 +2384,27 @@ class PdfBuilder
     private function isChildEmpty(array $child): bool
     {
         if (!isset($child['content']) && isset($child['show_empty']) && $child['show_empty'] === false) {
-            return true;
+            return !isset($child['empty_check']) || $this->resolvesEmpty($child['empty_check']);
         }
 
         if (isset($child['content']) && isset($child['show_empty']) && $child['show_empty'] === false) {
-            $value = strtr($child['content'], $this->service->html_variables['values']);
-            return empty($value) || $value === '&nbsp;' || $value === ' ';
+            return $this->resolvesEmpty($child['empty_check'] ?? $child['content']);
         }
 
         return false;
+    }
+
+    private function resolvesEmpty(string $content): bool
+    {
+        $value = strtr($content, $this->service->html_variables['labels'] ?? []);
+        $value = strtr($value, $this->service->html_variables['values'] ?? []);
+
+        if (preg_match('/\$[A-Za-z_][A-Za-z0-9_.]*/', $value) === 1) {
+            return true;
+        }
+
+        $value = trim(html_entity_decode($value, ENT_QUOTES | ENT_HTML5));
+
+        return $value === '' || $value === '&nbsp;' || $value === "\xc2\xa0";
     }
 }

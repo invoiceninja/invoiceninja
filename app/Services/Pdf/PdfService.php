@@ -83,6 +83,37 @@ class PdfService
     }
 
     /**
+     * Initialize the PDF context for design preview rendering without building
+     * the currently-saved design first. The caller will render the request
+     * design after this method prepares config, settings, locale variables, and
+     * the designer/builder shells.
+     */
+    public function bootForPreviewDesign(array $previewDesign): self
+    {
+        $this->start_time = microtime(true);
+
+        $this->config = (new PdfConfiguration($this))->init();
+
+        $this->applyJsonDesignSettingsOverrides($previewDesign);
+
+        $htmlEngine = ($this->invitation instanceof \App\Models\PurchaseOrderInvitation)
+                                    ? new VendorHtmlEngine($this->invitation)
+                                    : new HtmlEngine($this->invitation);
+
+        $htmlEngine->setSettings($this->config->settings);
+
+        $this->html_variables = $htmlEngine->generateLabelsAndValues();
+
+        $this->designer = new PdfDesigner($this);
+        $this->designer->template = '';
+        $this->builder = new PdfBuilder($this);
+        $this->builder->document = new \DOMDocument();
+        $this->builder->document->loadHTML('<!DOCTYPE html><html><body></body></html>');
+
+        return $this;
+    }
+
+    /**
      * Resolves the PDF generation type and
      * attempts to generate a PDF from the HTML
      * string.
@@ -199,13 +230,19 @@ class PdfService
      *
      * No-op for non-JSON designs and for JSON designs with no documentSettings.
      */
-    private function applyJsonDesignSettingsOverrides(): void
+    private function applyJsonDesignSettingsOverrides(?array $designData = null): void
     {
-        if (!$this->isJsonDesign()) {
-            return;
+        if ($designData === null) {
+            if (!$this->isJsonDesign()) {
+                return;
+            }
+
+            $designData = $this->config->decodedDesign();
         }
 
-        $designData = $this->config->decodedDesign();
+        if ($designData === null || !isset($designData['blocks'])) {
+            return;
+        }
 
         $resolver = new DocumentSettingsResolver($designData, $this->config->settings);
 
