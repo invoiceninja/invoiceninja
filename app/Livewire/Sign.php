@@ -119,7 +119,7 @@ class Sign extends Component
     #[Computed()]
     public function componentUniqueId(): string
     {
-        return "sign-" . md5(microtime());
+        return "sign-" . class_basename($this->component ?? '');
     }
 
     public function render()

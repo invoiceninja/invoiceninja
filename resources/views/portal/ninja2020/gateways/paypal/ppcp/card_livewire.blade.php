@@ -91,6 +91,10 @@
 
 @script
 <script>
+    // See note in gateways/paypal/pay_livewire.blade.php — defer past the
+    // Livewire morph for the lazy ProcessPayment parent so the card-field
+    // containers exist in the DOM before paypal.CardFields().render() runs.
+    setTimeout(() => {
 
     const clientId = "{{ $client_id }}";
     const orderId = "{!! $order_id !!}";
@@ -289,12 +293,14 @@
         }
 
     }
+    }, 0);
 
 </script>
 @endscript
 
 @script
 <script>
+  setTimeout(() => {
   Array
       .from(document.getElementsByClassName('toggle-payment-with-token'))
       .forEach((element) => element.addEventListener('click', (e) => {
@@ -356,6 +362,7 @@
 
           });
   }
+  }, 0);
 
 </script>
 @endscript

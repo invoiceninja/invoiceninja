@@ -29,6 +29,10 @@
 
 @script
 <script>
+    // See note in gateways/paypal/pay_livewire.blade.php — defer past the
+    // Livewire morph for the lazy ProcessPayment parent so the
+    // paypal-button-container div is in the DOM before render() runs.
+    setTimeout(() => {
     const fundingSource = "{!! $funding_source !!}";
     const clientId = "{{ $client_id }}";
     const orderId = "{!! $order_id !!}";
@@ -103,13 +107,13 @@
         
     });
     
-    document.getElementById("server_response").addEventListener('submit', (e) => {
+    document.getElementById("server_response")?.addEventListener('submit', (e) => {
 		if (document.getElementById("server_response").classList.contains('is-submitting')) {
 			e.preventDefault();
 		}
 		
 		document.getElementById("server_response").classList.add('is-submitting');
 	});
-
+    }, 0);
 </script>
 @endscript

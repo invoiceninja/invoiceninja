@@ -101,6 +101,13 @@
 
 @script
 <script>
+    // Defer past Livewire's deferred morph for a #[Lazy] parent
+    // (ProcessPayment): on lazy mount this script runs synchronously while
+    // the placeholder is still in the DOM, so #paypal-button-container
+    // does not yet exist and paypal.Buttons().render() throws
+    // "Document is ready and element #paypal-button-container does not exist".
+    // setTimeout(0) yields to the next macrotask, after the morph runs.
+    setTimeout(() => {
     const fundingSource = "{!! $funding_source !!}";
     const clientId = "{{ $client_id }}";
     const orderId = "{!! $order_id !!}";
@@ -187,14 +194,14 @@
         
     });
     
-    document.getElementById("server_response").addEventListener('submit', (e) => {
+    document.getElementById("server_response")?.addEventListener('submit', (e) => {
 		if (document.getElementById("server_response").classList.contains('is-submitting')) {
 			e.preventDefault();
 		}
 		
 		document.getElementById("server_response").classList.add('is-submitting');
 	});
-
+    }, 0);
 
 
 </script>

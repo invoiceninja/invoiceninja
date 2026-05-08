@@ -302,7 +302,7 @@ class InvoicePay extends Component
     #[Computed()]
     public function componentUniqueId(): string
     {
-        return "purchase-" . md5(microtime());
+        return "purchase-" . class_basename($this->component);
     }
 
     public function mount()
