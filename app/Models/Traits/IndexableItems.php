@@ -20,7 +20,7 @@ trait IndexableItems
         // Properly cast line items to ensure correct types
         $line_items = [];
 
-        if ($this->line_items) {
+        if ($this->line_items && is_array($this->line_items)) {
             foreach ($this->line_items as $item) {
                 $line_items[] = [
                     'quantity' => (float) ($item->quantity ?? 0),
