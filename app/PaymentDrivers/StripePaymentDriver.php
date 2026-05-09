@@ -828,7 +828,12 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                     ->first();
 
                 if ($clientgateway && !str_starts_with($clientgateway->token, 'ba_')) { //ba_ tokens should not be deleted
-                    $clientgateway->delete();
+                    
+                    $meta = $clientgateway->meta;
+                    $meta->state = 'inactive';
+                    $clientgateway->meta = $meta;
+                    $clientgateway->save();
+                    // $clientgateway->delete();
                 }
 
                 return response()->json([], 200);
