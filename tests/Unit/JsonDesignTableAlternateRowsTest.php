@@ -192,10 +192,11 @@ class JsonDesignTableAlternateRowsTest extends TestCase
         $service->company = $company;
 
         $invoice = new Invoice();
-        $invoice->line_items = [];
+        $items = [];
         for ($i = 0; $i < $rowCount; $i++) {
-            $invoice->line_items[] = (object) ['type_id' => '1', 'product_key' => 'A-' . $i];
+            $items[] = (object) ['type_id' => '1', 'product_key' => 'A-' . $i];
         }
+        $invoice->line_items = $items;
 
         $config = new PdfConfiguration($service);
         $config->entity = $invoice;
