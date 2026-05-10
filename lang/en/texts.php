@@ -5962,6 +5962,13 @@ $lang = array(
     'top' => 'Top',
     'table_rows' => 'Rows',
     'style' => 'Style',
+    'widget_defaults' => 'Widget Defaults',
+    'show_label' => 'Show Label',
+    'show_label_help' => 'Display the label of the widget next to its value.',
+    'widget_border_style' => 'Widget Border Style',
+    'widget_border_style_help' => 'Border style of the widget area.',
+    'widget_border_color' => 'Widget Border Color',
+    'widget_border_color_help' => 'Color of the border around the widget area.',
 );
 
 return $lang;
