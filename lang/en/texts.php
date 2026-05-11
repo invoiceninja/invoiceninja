@@ -5969,6 +5969,7 @@ $lang = array(
     'widget_border_style_help' => 'Border style of the widget area.',
     'widget_border_color' => 'Widget Border Color',
     'widget_border_color_help' => 'Color of the border around the widget area.',
+    'card_already_exists' => 'Card already exists',
 );
 
 return $lang;
