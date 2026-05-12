@@ -107,7 +107,7 @@ class PdfService
                 $pdf = $this->mergeEInvoiceToPdf($pdf);
             }
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             nlog($e->getMessage());
             throw new \Exception($e->getMessage(), $e->getCode());
         }
