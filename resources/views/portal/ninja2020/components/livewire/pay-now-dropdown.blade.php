@@ -35,7 +35,14 @@
                                    data-is-paypal="{{ $method['is_paypal'] }}"
                                    class="block px-4 py-2 text-sm leading-5 text-gray-700 dropdown-gateway-button hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900"
                                    dusk="payment-method">
-                                    {{ $method['label'] }}
+                                    @if($method['gateway_type_id'] == \App\Models\GatewayType::MOBILE_PAYMENT)
+                                        <span class="flex items-center justify-between w-full">
+                                            <span>{{ $method['label'] }}</span>
+                                            <img src="{{ asset('gateway-card-images/payware-certified-rc.svg') }}" alt="payware" class="h-4 ml-2">
+                                        </span>
+                                    @else
+                                        {{ $method['label'] }}
+                                    @endif
                                 </a>
                             @endif
                         @endforeach

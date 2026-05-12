@@ -5960,6 +5960,15 @@ $lang = array(
     'e_invoice_forward_email' => 'Услуга за препращане имейл PEPPOL',
     'e_invoice_forward_email_help' => 'Препраща изпратени/получени електронни Фактури до услуга за обработка на трета страна, като Yuki или WinAuditor',
     'skip_automatic_email_with_peppol' => 'Деактивиране имейл при изпращане чрез PEPPOL',
-    'skip_automatic_email_with_peppol_help' => 'Ако е разрешено, Фактури , изпратени през мрежата на PEPPOL, няма да бъдат изпращани по имейл до клиент .',);
+    'skip_automatic_email_with_peppol_help' => 'Ако е разрешено, Фактури , изпратени през мрежата на PEPPOL, няма да бъдат изпращани по имейл до клиент .',
+    'mobile_payment' => 'Мобилно плащане',
+    'awaiting_payment' => 'Изчаква плащане',
+    'payment_confirmed' => 'Платена',
+    'payment_expired' => 'Плащането изтече. Моля, върнете се и опитайте отново.',
+    'payment_was_not_completed' => 'Плащането не беше извършено. Моля, опитайте отново.',
+    'no_compatible_app_installed' => 'Ако нищо не се случва, може би нямате инсталирано съвместимо приложение.',
+    'payment_type_Mobile Payment' => 'Мобилно плащане',
+    'gateway_temporarily_unavailable' => 'Този начин на плащане е временно недостъпен. Моля, опитайте отново по-късно или изберете друг начин на плащане.',
+);
 
 return $lang;
