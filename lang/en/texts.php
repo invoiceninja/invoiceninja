@@ -5918,7 +5918,7 @@ $lang = array(
     'update_tax_details' => 'Update Tax Details',
     'cc_only' => 'CC Only',
     'e_invoice_forward_email' => 'PEPPOL Forwarding Email Service',
-    'e_invoice_forward_email_help' => 'Forwards sent/received e-invoices to a third party processing service like Yuki or WinAuditor',
+    'e_invoice_forward_email_help' => 'Forwards sent e-invoices to a third party processing service like Yuki or WinAuditor',
     'skip_automatic_email_with_peppol' => 'Disable Email When Sent via PEPPOL',
     'skip_automatic_email_with_peppol_help' => 'If enabled, invoices sent through the PEPPOL network will not be emailed to the client.',
     'web_session_timeout_help' => 'Time a browser session will remain active prior to being logged out.',
@@ -5927,7 +5927,7 @@ $lang = array(
     'attach_audit_log_to_completed_email' => 'Attach Audit Log to Completed Email',
     'attach_audit_log_to_completed_email_help' => 'If enabled, the audit log will be attached to the signed document completed email.',
     'e_expense_forward_email' => 'Expense Forwarding Email Service',
-    'e_expense_forward_email_help' => 'Forwards sent/received e-expenses to a third party processing service like Yuki or WinAuditor',
+    'e_expense_forward_email_help' => 'Forwards received e-expenses to a third party processing service like Yuki or WinAuditor',
     'regenerate_token' => 'Regenerate Token',
     'token_regenerated' => 'Token regenerated successfully',
     'token_regeneration_failed' => 'Token regeneration failed',
@@ -5970,6 +5970,7 @@ $lang = array(
     'widget_border_color' => 'Widget Border Color',
     'widget_border_color_help' => 'Color of the border around the widget area.',
     'card_already_exists' => 'Card already exists',
+    'income_account' => 'Income Account',
 );
 
 return $lang;

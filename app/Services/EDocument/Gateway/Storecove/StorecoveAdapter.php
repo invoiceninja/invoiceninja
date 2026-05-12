@@ -174,9 +174,22 @@ class StorecoveAdapter
             $encoded = $e->encode($decoded, 'json');
             $this->storecove_invoice = $serializer->deserialize($encoded, $parent, 'json', $context);
 
+
+            $client_country_code = $invoice->client->country->iso_3166_2;
+            $nexus_vat_number = isset($invoice->company->tax_data->regions->EU->subregions->{$client_country_code}->vat_number) 
+                                && strlen($invoice->company->tax_data->regions->EU->subregions->{$client_country_code}->vat_number) > 1 
+                                ? true
+                                : false;
+            
+            if($nexus_vat_number){
+                $this->storecove_invoice->setConsumerTaxMode(true);
+            }
+
             $nexusResolver = new NexusResolver($invoice, $this->storecove_invoice, $this->storecove->router);
             $nexusResolver->resolve();
+
             $this->nexus = $nexusResolver->getNexus();
+
             foreach ($nexusResolver->getErrors() as $error) {
                 $this->addError($error);
             }

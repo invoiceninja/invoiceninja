@@ -31,10 +31,6 @@ class PeppolTaxCalculator
 {
     private ?JurisdictionRegionAddress $jurisdiction = null;
 
-    private string $nexus_country_code = '';
-
-    private string $nexus_vat_number = '';
-
     public function __construct(private Peppol $peppol) {}
 
     /**
@@ -428,7 +424,6 @@ class PeppolTaxCalculator
         if ($invoice->client->country->iso_3166_2 == $company->country()->iso_3166_2) {
             //Domestic Sales
             $country_code = $company->country()->iso_3166_2;
-            $this->setNexusCountryCode($country_code);
 
         } elseif (in_array($country_code, $eu_countries) && !in_array($invoice->client->country->iso_3166_2, $eu_countries)) {
             //EU => FOREIGN sale
@@ -439,9 +434,7 @@ class PeppolTaxCalculator
                 $country_code = $invoice->client->country->iso_3166_2;
 
                 if (isset($company->tax_data->regions->EU->subregions->{$country_code}->vat_number)) {
-                    $this->peppol->setOverrideVatNumber($company->tax_data->regions->EU->subregions->{$country_code}->vat_number);
-                    $this->setNexusVatNumber($company->tax_data->regions->EU->subregions->{$country_code}->vat_number);
-                    $this->setNexusCountryCode($country_code);
+                    $this->peppol->setOverrideVatNumber($company->tax_data->regions->EU->subregions->{$country_code}->vat_number, $country_code);
                 }
             }
         }
@@ -460,28 +453,6 @@ class PeppolTaxCalculator
 
         return $this;
 
-    }
-
-    public function getNexusCountryCode(): string
-    {
-        return $this->nexus_country_code;
-    }
-
-    public function getNexusVatNumber(): string
-    {
-        return $this->nexus_vat_number;
-    }
-
-    public function setNexusCountryCode(string $country_code): self
-    {
-        $this->nexus_country_code = $country_code;
-        return $this;
-    }
-
-    public function setNexusVatNumber(string $vat_number): self
-    {
-        $this->nexus_vat_number = $vat_number;
-        return $this;
     }
 
     public function standardizeTaxSchemeId(string $tax_name): string

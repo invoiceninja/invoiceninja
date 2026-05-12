@@ -55,6 +55,8 @@ class Mutator implements MutatorInterface
      */
     private string $override_vat_number = '';
 
+    private string $override_country_code = '';
+
     /** @var MutatorUtil Shared helpers for setting payment means, customer IDs, and resolving cascading settings */
     private MutatorUtil $mutator_util;
 
@@ -151,9 +153,10 @@ class Mutator implements MutatorInterface
      * Override the company VAT number for fiscal-representative scenarios.
      * Country handlers check this before falling back to company->settings->vat_number.
      */
-    public function setOverrideVatNumber(string $vat_number): self
+    public function setOverrideVatNumber(string $vat_number, string $country_code): self
     {
         $this->override_vat_number = $vat_number;
+        $this->override_country_code = $country_code;
         return $this;
     }
 

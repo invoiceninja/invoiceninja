@@ -20,6 +20,7 @@ use App\DataMapper\CompanySettings;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
 use App\Services\EDocument\Gateway\Storecove\StorecoveProxy;
 use App\Services\EDocument\Gateway\Storecove\StorecoveC5;
+use App\Services\EDocument\Gateway\Storecove\LegalEntityService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Client\Response;
 use Illuminate\Routing\Middleware\ThrottleRequests;
@@ -48,6 +49,7 @@ class StorecoveProxyTest extends TestCase
 
     private StorecoveProxy $proxy;
     private Storecove $mockStorecove;
+    private LegalEntityService $mockLegalEntity;
     private Company $testCompany;
 
     protected function setUp(): void
@@ -93,6 +95,9 @@ class StorecoveProxyTest extends TestCase
 
         $mockC5 = Mockery::mock(StorecoveC5::class);
         $this->mockStorecove->c5 = $mockC5;
+
+        $this->mockLegalEntity = Mockery::mock(LegalEntityService::class);
+        $this->mockStorecove->legalEntity = $this->mockLegalEntity;
 
         $this->proxy = new StorecoveProxy($this->mockStorecove);
         $this->proxy->setCompany($this->testCompany);
@@ -378,9 +383,19 @@ class StorecoveProxyTest extends TestCase
     {
         $this->setHosted();
 
-        $this->mockStorecove
+        $this->testCompany->legal_entity_id = 290868;
+        $this->testCompany->save();
+
+        $this->mockLegalEntity
             ->shouldReceive('addAdditionalTaxIdentifier')
-            ->with(290868, 'FRAA123456789', 'FR:VAT')
+            ->withArgs(function ($legalEntityId, $data) {
+                return $legalEntityId === 290868
+                    && ($data['country'] ?? null) === 'FR'
+                    && ($data['vat_number'] ?? null) === 'FRAA123456789'
+                    && ($data['identifier'] ?? null) === 'FRAA123456789'
+                    && ($data['scheme'] ?? null) === 'FR:VAT'
+                    && ($data['legal_entity_id'] ?? null) === 290868;
+            })
             ->once()
             ->andReturn(['id' => 42, 'identifier' => 'FRAA123456789']);
 

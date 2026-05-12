@@ -100,9 +100,10 @@ interface MutatorInterface
      * Sets an override VAT number for the supplier party.
      *
      * @param  string $vat_number
+     * @param  string $country_code
      * @return self
      */
-    public function setOverrideVatNumber(string $vat_number): self;
+    public function setOverrideVatNumber(string $vat_number, string $country_code): self;
 
     /**
      * Returns the override VAT number, if set.
