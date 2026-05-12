@@ -171,7 +171,7 @@
 
             // Generate QR code (hidden on mobile via CSS)
             var script = document.createElement('script');
-            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+            script.src = @json(asset('vendor/qrcodejs/qrcode.min.js'));
             script.onload = function() {
                 var qrContainer = document.getElementById('payware-qr-container');
                 if (qrContainer) {
