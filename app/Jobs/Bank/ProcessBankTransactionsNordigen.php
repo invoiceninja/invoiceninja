@@ -213,6 +213,11 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
             );
         }
 
+        $transactions = collect($transactions)->sortByDesc(function ($transaction) {
+            return data_get($transaction, 'booking_date_time')
+                ?? data_get($transaction, 'booking_date');
+        });
+
         // update balance if last transaction has optional "balanceAfterTransaction"
         $newest_balance_transaction = null;
         foreach ($transactions as $transaction) {
