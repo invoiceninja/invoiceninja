@@ -442,6 +442,44 @@ class HelcimPaymentDriver extends BaseDriver
         $payment = Payment::where('transaction_reference', $transactionId)->first();
 
         if (!$payment) {
+            // Payment not found by transactionId. Check for pending ACH payments that were
+            // created with a placeholder reference (ach_pending_*) when HelcimPay.js fired
+            // SUCCESS before Helcim assigned a transactionId (asynchronous mandate flow).
+            $amount = isset($payload['amount']) ? (float) $payload['amount'] : null;
+
+            $pendingQuery = Payment::where('company_gateway_id', $this->company_gateway->id)
+                ->where('status_id', Payment::STATUS_PENDING)
+                ->where('transaction_reference', 'like', 'ach_pending_%')
+                ->orderBy('created_at', 'desc');
+
+            // Narrow by amount if present in the webhook payload
+            if ($amount !== null && $amount > 0) {
+                $pendingQuery->where('amount', $amount);
+            }
+
+            $payment = $pendingQuery->first();
+
+            if ($payment) {
+                // Update the placeholder reference to the real Helcim transactionId so that
+                // future lookups (refunds, etc.) work correctly.
+                $payment->transaction_reference = $transactionId;
+
+                SystemLogger::dispatch(
+                    [
+                        'info' => 'Matched webhook transactionId to pending ACH payment with placeholder reference',
+                        'transaction_id' => $transactionId,
+                        'payment_id' => $payment->id,
+                    ],
+                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                    SystemLog::EVENT_GATEWAY_SUCCESS,
+                    SystemLog::TYPE_HELCIM,
+                    $payment->client,
+                    $payment->client->company
+                );
+            }
+        }
+
+        if (!$payment) {
             // Nothing to update — may have been created outside Invoice Ninja
             return response()->json(['message' => 'Payment not found'], 200);
         }

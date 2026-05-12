@@ -295,8 +295,26 @@ class ACH implements MethodInterface, LivewireMethodInterface
         $amount = $paymentHash->data->amount_with_fee;
 
         $transactionRef = (string) ($data['transactionId'] ?? '');
+
+        // ACH mandates may be processed asynchronously — HelcimPay.js may fire SUCCESS
+        // before Helcim assigns a transactionId. Generate a placeholder reference so the
+        // payment is recorded as PENDING immediately; the webhook will update the status
+        // once Helcim settles (mirrors how Stripe handles pending ACH payments).
         if ($transactionRef === '') {
-            throw new PaymentFailed('ACH payment response did not include a transaction ID — cannot safely record this payment', 400);
+            $transactionRef = 'ach_pending_' . \Illuminate\Support\Str::uuid();
+
+            SystemLogger::dispatch(
+                [
+                    'warning' => 'ACH payment approved but no transactionId returned by HelcimPay.js — mandate is being processed asynchronously. Created PENDING payment with placeholder reference.',
+                    'placeholder_reference' => $transactionRef,
+                    'response_keys' => array_keys($data),
+                ],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_SUCCESS,
+                SystemLog::TYPE_HELCIM,
+                $this->helcim_driver->client,
+                $this->helcim_driver->client->company
+            );
         }
 
         $paymentData = [
