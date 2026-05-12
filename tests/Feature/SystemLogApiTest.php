@@ -120,4 +120,53 @@ class SystemLogApiTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->get('/api/v1/system_logs/create')->assertStatus(400);
     }
+
+    public function testCategoryIdAndEventIdFilters()
+    {
+        $matchA = SystemLog::create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'log' => 'cat_match',
+            'category_id' => 5,
+            'event_id' => 7,
+            'type_id' => 1,
+        ]);
+
+        $matchB = SystemLog::create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'log' => 'event_match',
+            'category_id' => 9,
+            'event_id' => 7,
+            'type_id' => 1,
+        ]);
+
+        $other = SystemLog::create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'log' => 'other',
+            'category_id' => 1,
+            'event_id' => 1,
+            'type_id' => 1,
+        ]);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->get('/api/v1/system_logs?category_id=5&per_page=500')
+            ->assertStatus(200);
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($this->encodePrimaryKey($matchA->id), $ids);
+        $this->assertNotContains($this->encodePrimaryKey($matchB->id), $ids);
+        $this->assertNotContains($this->encodePrimaryKey($other->id), $ids);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->get('/api/v1/system_logs?event_id=7&per_page=500')
+            ->assertStatus(200);
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($this->encodePrimaryKey($matchA->id), $ids);
+        $this->assertContains($this->encodePrimaryKey($matchB->id), $ids);
+        $this->assertNotContains($this->encodePrimaryKey($other->id), $ids);
+    }
 }
