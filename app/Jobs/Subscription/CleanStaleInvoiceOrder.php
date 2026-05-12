@@ -66,6 +66,7 @@ class CleanStaleInvoiceOrder implements ShouldQueue
                         ->withTrashed()
                         ->where('status_id', Invoice::STATUS_SENT)
                         ->where('is_proforma', 1)
+                        ->where('is_deleted', 0)
                         ->whereBetween('created_at', [now()->subHours(3), now()->subHour()])
                         ->get();
 

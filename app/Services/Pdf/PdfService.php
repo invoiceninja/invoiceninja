@@ -118,7 +118,7 @@ class PdfService
      * attempts to generate a PDF from the HTML
      * string.
      *
-     * @return mixed | Exception
+     * @return mixed | \Exception
      *
      */
     public function getPdf()

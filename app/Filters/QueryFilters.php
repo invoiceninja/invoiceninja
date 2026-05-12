@@ -156,8 +156,8 @@ abstract class QueryFilters
 
         $parts = new \stdClass();
 
-        $parts->value = $exploded_array[0];
-        $parts->operator = $this->operatorConvertor($exploded_array[1]);
+        $parts->value = $exploded_array[1];
+        $parts->operator = $this->operatorConvertor($exploded_array[0]);
 
         return $parts;
     }

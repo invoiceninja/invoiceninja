@@ -319,12 +319,6 @@ class Storecove
         return $this->legalEntity->addIdentifier($legal_entity_id, $identifier, $scheme);
     }
 
-    /** @deprecated Use $this->legalEntity->addAdditionalTaxIdentifier() */
-    public function addAdditionalTaxIdentifier(int $legal_entity_id, string $identifier, string $scheme): array|\Illuminate\Http\Client\Response
-    {
-        return $this->legalEntity->addAdditionalTaxIdentifier($legal_entity_id, $identifier, $scheme);
-    }
-
     /** @deprecated Use $this->legalEntity->removeAdditionalTaxIdentifier() */
     public function removeAdditionalTaxIdentifier(int $legal_entity_id, string $tax_identifier): array|false|\Illuminate\Http\Client\Response
     {

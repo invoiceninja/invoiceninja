@@ -72,8 +72,6 @@ class PullPeppolDocs extends Command
 
             $response_array = $this->updateToken($account);
 
-            $this->info($response[1]);
-
             if ($response_array[0] != 200) {
 
                 $this->error("Failed to update token exiting");

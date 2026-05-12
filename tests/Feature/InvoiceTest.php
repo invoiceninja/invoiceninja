@@ -668,4 +668,154 @@ class InvoiceTest extends TestCase
         ])->post('/api/v1/invoices/', $data)
         ->assertStatus(200);
     }
+
+    public function testDueDateFilter()
+    {
+        $future = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'due_date' => now()->addDays(30)->format('Y-m-d'),
+            'is_deleted' => 0,
+        ]);
+
+        $past = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'due_date' => now()->subDays(30)->format('Y-m-d'),
+            'is_deleted' => 0,
+        ]);
+
+        $cutoff = now()->format('Y-m-d');
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/invoices?due_date=' . $cutoff . '&per_page=500')
+            ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($future->hashed_id, $ids);
+        $this->assertNotContains($past->hashed_id, $ids);
+    }
+
+    public function testOverdueFilter()
+    {
+        $overdue = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'status_id' => Invoice::STATUS_SENT,
+            'due_date' => now()->subDays(7)->format('Y-m-d'),
+            'balance' => 100,
+            'is_deleted' => 0,
+        ]);
+
+        $notOverdueFuture = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'status_id' => Invoice::STATUS_SENT,
+            'due_date' => now()->addDays(7)->format('Y-m-d'),
+            'balance' => 100,
+            'is_deleted' => 0,
+        ]);
+
+        $paid = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'status_id' => Invoice::STATUS_PAID,
+            'due_date' => now()->subDays(7)->format('Y-m-d'),
+            'balance' => 0,
+            'is_deleted' => 0,
+        ]);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/invoices?overdue=true&per_page=500')
+            ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($overdue->hashed_id, $ids);
+        $this->assertNotContains($notOverdueFuture->hashed_id, $ids);
+        $this->assertNotContains($paid->hashed_id, $ids);
+    }
+
+    public function testPayableFilter()
+    {
+        $payable = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'status_id' => Invoice::STATUS_SENT,
+            'balance' => 100,
+            'is_deleted' => 0,
+        ]);
+
+        $paid = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'status_id' => Invoice::STATUS_PAID,
+            'balance' => 0,
+            'is_deleted' => 0,
+        ]);
+
+        $cancelled = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'status_id' => Invoice::STATUS_CANCELLED,
+            'balance' => 100,
+            'is_deleted' => 0,
+        ]);
+
+        $otherClient = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+        ]);
+        $otherClientInvoice = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $otherClient->id,
+            'status_id' => Invoice::STATUS_SENT,
+            'balance' => 100,
+            'is_deleted' => 0,
+        ]);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/invoices?payable=' . $this->client->hashed_id . '&per_page=500')
+            ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($payable->hashed_id, $ids);
+        $this->assertNotContains($paid->hashed_id, $ids);
+        $this->assertNotContains($cancelled->hashed_id, $ids);
+        $this->assertNotContains($otherClientInvoice->hashed_id, $ids);
+    }
+
+    public function testPrivateNotesFilter()
+    {
+        $needle = 'SecretNote_' . uniqid();
+
+        $match = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'private_notes' => 'prefix ' . $needle . ' suffix',
+        ]);
+
+        $noMatch = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'private_notes' => 'unrelated content',
+        ]);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/invoices?private_notes=' . urlencode($needle) . '&per_page=500')
+            ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($match->hashed_id, $ids);
+        $this->assertNotContains($noMatch->hashed_id, $ids);
+    }
 }

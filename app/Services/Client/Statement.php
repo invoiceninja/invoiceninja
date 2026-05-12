@@ -69,6 +69,7 @@ class Statement
                 $variables['values']['$end_date'] = $this->translateDate($this->options['end_date'], $this->client->date_format(), $this->client->locale());
                 $variables['labels']['$start_date_label'] = ctrans('texts.start_date');
                 $variables['labels']['$end_date_label'] = ctrans('texts.end_date');
+                $variables['values']['$entity_footer'] = $this->client->getSetting('invoice_footer');
 
                 $pdf = null;
 
@@ -84,6 +85,7 @@ class Statement
 
 
             $variables['values']['$show_paid_stamp'] = 'none';
+            $variables['values']['$entity_footer'] = $this->client->getSetting('invoice_footer');
 
             $options = [
                 // 'client' => $this->entity->client,

@@ -22,9 +22,12 @@ use App\Services\Quickbooks\QuickbooksService;
 use App\Services\Quickbooks\Transformers\InvoiceTransformer;
 use App\Services\Quickbooks\Transformers\PaymentTransformer;
 use App\Utils\BcMath;
+use App\Utils\Traits\MakesHash;
 
 class QbInvoice implements SyncInterface
 {
+    use MakesHash;
+    
     protected InvoiceTransformer $invoice_transformer;
 
     protected InvoiceRepository $invoice_repository;
@@ -607,6 +610,7 @@ class QbInvoice implements SyncInterface
         if ($search->count() == 0) {
             $invoice = InvoiceFactory::create($this->service->company->id, $this->service->company->owner()->id);
             $invoice->client_id = (int) $client_id;
+            $invoice->design_id = $this->decodePrimaryKey($this->service->company->settings->invoice_design_id);
 
             $sync = new InvoiceSync();
             $sync->qb_id = $id;

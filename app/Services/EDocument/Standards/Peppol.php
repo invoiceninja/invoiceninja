@@ -62,6 +62,8 @@ class Peppol extends AbstractService implements MutatorInterface
      **/
     private string $override_vat_number = '';
 
+    private string $override_country_code = '';
+
     /** @var Company $company */
     private Company $company;
 
@@ -900,10 +902,16 @@ class Peppol extends AbstractService implements MutatorInterface
         return null;
     }
 
-    public function setOverrideVatNumber(string $vat_number): self
+    public function setOverrideVatNumber(string $vat_number, string $country_code): self
     {
         $this->override_vat_number = preg_replace("/[^a-zA-Z0-9]/", "", $vat_number);
+        $this->override_country_code = $country_code;
         return $this;
+    }
+
+    public function getOverrideCountryCode(): string
+    {
+        return $this->override_country_code;
     }
 
     public function getGlobalTaxCategories()

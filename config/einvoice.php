@@ -304,12 +304,14 @@ return [
         'AU:ABN'     => '0151',
         'CH:UIDB'    => '0183',
         'DK:DIGST'   => '0184',
+        'DK:ERST'    => '0198',
         'NL:OINO'    => '0190',
         'EE:CC'      => '0191',
         'NO:ORG'     => '0192',
+        
         'SG:UEN'     => '0195',
         'IS:KTNR'    => '0196',
-        'DK:ERST'    => '0198',
+        'LEI'        => '0199',
         'LT:LEC'     => '0200',
         'IT:CUUO'    => '0201',
         'DE:LWID'    => '0204',
@@ -317,10 +319,11 @@ return [
         'IT:CF'      => '0210',
         'IT:IVA'     => '0211',
         'FI:ORG'     => '0212',
+        'FI:VAT'     => '0213',
         'JP:IIN'     => '0221',
-        'JP:SST'     => '0221',
+        'JP:SST'     => '0188',
         'MY:EIF'     => '0230',
-
+        'AE:TIN'     => '0235',
         // EAS codes (OpenPEPPOL 9xxx range — VAT-based schemes)
         'HU:VAT'     => '9910',
         'AT:VAT'     => '9914',
@@ -350,7 +353,7 @@ return [
         'MK:VAT'     => '9942',
         'MT:VAT'     => '9943',
         'NL:VAT'     => '9944',
-        'NO:VAT'     => '9909',
+        // 'NO:VAT'     => '9909', deprecated from EAS
         'PL:VAT'     => '9945',
         'PT:VAT'     => '9946',
         'RO:VAT'     => '9947',
