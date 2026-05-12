@@ -3,7 +3,6 @@
 use App\Models\Gateway;
 use App\Models\PaymentType;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
 
 return new class extends Migration {
 
@@ -27,7 +26,7 @@ return new class extends Migration {
             $gateway->is_offsite = false;
             $gateway->fields = \json_encode($fields);
             $gateway->visible = 1;
-            $gateway->sort_order = 28;
+            $gateway->sort_order = 29;
             $gateway->site_url = 'https://payware.eu';
             $gateway->default_gateway_type_id = 30;
             $gateway->save();
@@ -35,12 +34,12 @@ return new class extends Migration {
 
         // Generic Mobile Payment type for mobile-initiated payments (payware and any future
         // mobile gateway). Distinct from existing brand-specific entries (e.g. INSTANT_BANK_PAY).
-        if (! DB::table('payment_types')->where('id', PaymentType::MOBILE_PAYMENT)->exists()) {
-            DB::table('payment_types')->insert([
-                'id' => PaymentType::MOBILE_PAYMENT,
-                'name' => 'Mobile Payment',
-                'gateway_type_id' => 30,
-            ]);
+        if (! PaymentType::find(PaymentType::MOBILE_PAYMENT)) {
+            $paymentType = new PaymentType();
+            $paymentType->id = PaymentType::MOBILE_PAYMENT;
+            $paymentType->name = 'Mobile Payment';
+            $paymentType->gateway_type_id = 30;
+            $paymentType->save();
         }
     }
 

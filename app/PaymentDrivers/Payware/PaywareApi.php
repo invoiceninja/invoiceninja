@@ -29,6 +29,9 @@ class PaywareApi
 
     // Circuit breaker: cooldown after a failed login. Caps cascading attempts
     // against payware's 5-strike vPOS lockout (15 min) when credentials are misconfigured.
+    // The marker is keyed on the full credential set (baseUrl + partnerId + vposId + publicKey),
+    // so any admin save that changes a field rotates the cache key and immediately resumes traffic;
+    // verifyConnection() (Health Check) also explicitly forgets the marker on success.
     private const LOGIN_FAILURE_COOLDOWN_SECONDS = 60;
 
     private string $baseUrl;
@@ -112,7 +115,7 @@ class PaywareApi
 
     private function loginFailureCacheKey(): string
     {
-        return 'payware_login_failed:' . hash('sha256', $this->baseUrl . '|' . $this->partnerId . '|' . $this->vposId);
+        return 'payware_login_failed:' . hash('sha256', $this->baseUrl . '|' . $this->partnerId . '|' . $this->vposId . '|' . $this->publicKey);
     }
 
     /**
