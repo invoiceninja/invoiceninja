@@ -41,6 +41,9 @@ return new class extends Migration {
             $paymentType->gateway_type_id = 30;
             $paymentType->save();
         }
+
+        \Illuminate\Database\Eloquent\Model::reguard();
+
     }
 
     public function down(): void
