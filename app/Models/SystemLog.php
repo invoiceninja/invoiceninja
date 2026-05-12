@@ -175,6 +175,8 @@ class SystemLog extends Model
 
     public const TYPE_LAWPAY = 328;
 
+    public const TYPE_PAYWARE = 329;
+
     public const TYPE_QUOTA_EXCEEDED = 400;
 
     public const TYPE_UPSTREAM_FAILURE = 401;
