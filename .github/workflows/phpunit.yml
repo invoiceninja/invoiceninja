@@ -104,9 +104,10 @@ jobs:
           ${{ runner.os }}-${{ matrix.php }}-composer-
 
     - name: Install composer dependencies
+      env:
+        COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GITHUB_TOKEN }}"}}'
       run: |
-        composer config -g github-oauth.github.com ${{ secrets.GITHUB_TOKEN }} > /dev/null 2>&1
-        composer install
+        composer install --no-interaction --no-progress
 
     - name: Prepare Laravel Application
       env:
