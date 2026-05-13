@@ -117,19 +117,14 @@
             payware
         @endcomponent
 
-        <div class="px-4 py-2 sm:px-6">
-            <div class="payware-info-row">
-                <span class="payware-info-label">{{ ctrans('texts.payment') }} ID</span>
-                <span class="payware-info-value">
-                    <span class="payware-payment-id" id="payware-payment-id" title="Click to copy">{{ substr($transaction_id, 0, 16) }}...</span>
-                    <button type="button" class="payware-copy-btn" onclick="paywareCopyId()">{{ ctrans('texts.copy') }}</button>
-                </span>
-            </div>
-            <div class="payware-info-row">
-                <span class="payware-info-label">{{ ctrans('texts.expires') }}</span>
-                <span class="payware-countdown active" id="payware-countdown">--:--</span>
-            </div>
-        </div>
+        @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.payment') . ' ID'])
+            <span class="payware-payment-id" id="payware-payment-id" title="Click to copy">{{ substr($transaction_id, 0, 16) }}...</span>
+            <button type="button" class="payware-copy-btn" onclick="paywareCopyId()">{{ ctrans('texts.copy') }}</button>
+        @endcomponent
+
+        @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.expires')])
+            <span class="payware-countdown active" id="payware-countdown">--:--</span>
+        @endcomponent
 
         <div class="payware-qr-container" id="payware-qr-container" style="flex-direction: column; align-items: center; padding: 1rem;"></div>
 
@@ -281,7 +276,7 @@
                 navigator.clipboard.writeText(transactionId).then(function() {
                     const btn = document.querySelector('.payware-copy-btn');
                     const original = btn.textContent;
-                    btn.textContent = '{{ ctrans("texts.copied") }}';
+                    btn.textContent = '{{ ctrans("texts.link_copied") }}';
                     setTimeout(function() { btn.textContent = original; }, 2000);
                 });
             };

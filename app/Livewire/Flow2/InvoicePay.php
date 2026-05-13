@@ -256,7 +256,7 @@ class InvoicePay extends Component
             }
         }
 
-        if ($company_gateway->always_show_required_fields) {
+        if ($company_gateway->always_show_required_fields && !empty($fields)) {
             return $this->required_fields = true;
         }
 

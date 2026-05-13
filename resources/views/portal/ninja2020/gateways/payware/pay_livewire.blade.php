@@ -77,7 +77,7 @@
         confirmed: @json(ctrans('texts.payment_confirmed')),
         expired: @json(ctrans('texts.payment_expired')),
         notCompleted: @json(ctrans('texts.payment_was_not_completed')),
-        copied: @json(ctrans('texts.copied')),
+        copied: @json(ctrans("texts.link_copied")),
     };
     const FAILURE_STATUSES = ['DECLINED', 'FAILED', 'CANCELLED', 'EXPIRED'];
     const POLL_INTERVAL_MS = 3000;

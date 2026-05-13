@@ -47,7 +47,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 
 /**
  * Class BaseController.
- * @method static Illuminate\Database\Eloquent\Builder exclude($columns)
+ * @method static \Illuminate\Database\Eloquent\Builder exclude($columns)
  */
 class BaseController extends Controller
 {
@@ -531,7 +531,10 @@ class BaseController extends Controller
                 'company.task_statuses' => function ($query) {
                     $query->whereNotNull('updated_at');
                 },
-                'company.activities' => function ($query) use ($user) {
+                'company.activities' => function ($query) use ($user, $updated_at) {
+                    $floor = max((int) $updated_at, now()->subDays(90)->timestamp);
+                    $query->where('activities.updated_at', '>=', $floor);
+
                     if (! $user->isAdmin()) {
                         $query->where('activities.user_id', $user->id);
                     }
@@ -653,7 +656,10 @@ class BaseController extends Controller
                 'company.tax_rates' => function ($query) {
                     $query->whereNotNull('created_at');
                 },
-                'company.activities' => function ($query) use ($user) {
+                'company.activities' => function ($query) use ($user, $created_at) {
+                    $floor = max((int) $created_at, now()->subDays(90)->timestamp);
+                    $query->where('activities.created_at', '>=', $floor);
+
                     if (! $user->isAdmin()) {
                         $query->where('activities.user_id', $user->id);
                     }
@@ -890,7 +896,10 @@ class BaseController extends Controller
                 'company.task_statuses' => function ($query) use ($created_at) {
                     $query->where('created_at', '>=', $created_at);
                 },
-                'company.activities' => function ($query) use ($user) {
+                'company.activities' => function ($query) use ($user, $created_at) {
+                    $floor = max((int) $created_at, now()->subDays(90)->timestamp);
+                    $query->where('activities.created_at', '>=', $floor);
+
                     if (! $user->isAdmin()) {
                         $query->where('activities.user_id', $user->id);
                     }
