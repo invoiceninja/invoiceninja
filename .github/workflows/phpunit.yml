@@ -105,7 +105,7 @@ jobs:
 
     - name: Install composer dependencies
       run: |
-        composer config -g github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}
+        composer config -g github-oauth.github.com ${{ secrets.GITHUB_TOKEN }} > /dev/null 2>&1
         composer install
 
     - name: Prepare Laravel Application
