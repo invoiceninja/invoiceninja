@@ -111,7 +111,8 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        composer config --global github-oauth.github.com ${{ env.GH_TOKEN }}
+        composer config --global github-oauth.github.com "${{ github.token }}"
+
         composer install --no-interaction --no-progress
 
     - name: Prepare Laravel Application
