@@ -58,7 +58,7 @@ class ProductSalesExport extends BaseExport
         'tax_amount1' => 'tax_amount1',
         'tax_amount2' => 'tax_amount2',
         'tax_amount3' => 'tax_amount3',
-        'total_taxes' => 'tax_total',
+        'tax_amount' => 'tax_amount',
         'is_amount_discount' => 'is_amount_discount',
         'client' => 'client',
         'custom_value1' => 'custom_value1',
@@ -194,7 +194,7 @@ class ProductSalesExport extends BaseExport
                 'tax_amount1' => $key->sum('tax_amount1'),
                 'tax_amount2' => $key->sum('tax_amount2'),
                 'tax_amount3' => $key->sum('tax_amount3'),
-                'tax_total' => $key->sum('tax_total'),
+                'tax_amount' => $key->sum('tax_amount'),
                 'gross_line_total' => $key->sum('gross_line_total'),
             ];
 
@@ -303,7 +303,7 @@ class ProductSalesExport extends BaseExport
             $entity['tax_amount3'] = 0;
         }
 
-        $entity['tax_total'] = $total_tax;
+        // $entity['tax_total'] = $total_tax;
 
         if (isset($entity['tax_name1']) && strlen($entity['tax_name1']) > 1) {
             $entity['tax_name1'] = $entity['tax_name1'] . ' [' . $rate1 . '%]';
