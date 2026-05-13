@@ -11,8 +11,6 @@ name: phpunit
 jobs:
   run:
     runs-on: ${{ matrix.operating-system }}
-    permissions:
-      contents: read
     strategy:
       matrix:
         operating-system: ['ubuntu-22.04','ubuntu-24.04']
