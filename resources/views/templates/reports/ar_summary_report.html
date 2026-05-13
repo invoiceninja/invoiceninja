@@ -76,6 +76,13 @@
             overflow-x: auto;
         }
 
+        .currency-heading {
+            color: #2c3e50;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0 0 8px;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -154,43 +161,67 @@
             {% endif %}
         </div>
 	</div>
-    <div class="table-container">
-		<table>
-            <thead>
-                <tr>
-                    <th>{{ t('client_name') }}</th>
-                    <th>{{ t('client_number') }}</th>
-                    <th>{{ t('id_number') }}</th>
-                    <th>{{ t('current') }}</th>
-                    <th>{{ t('age_group_0') }}</th>
-                    <th>{{ t('age_group_30') }}</th>
-                    <th>{{ t('age_group_60') }}</th>
-                    <th>{{ t('age_group_90') }}</th>
-                    <th>{{ t('age_group_120') }}</th>
-                    <th>{{ t('total') }}</th>
-                </tr>
-            </thead>
-            <tbody>
-				{% if clients is defined and clients is not empty %}
-
-                {% for client in clients %}
+    {% if client_groups is defined and client_groups is not empty %}
+        {% for group in client_groups %}
+            <div class="table-container">
+                {% if client_groups|length > 1 %}
+                    <h2 class="currency-heading">{{ t('currency') }}: {{ group.currency }}</h2>
+                {% endif %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>{{ t('client_name') }}</th>
+                            <th>{{ t('client_number') }}</th>
+                            <th>{{ t('id_number') }}</th>
+                            <th>{{ t('current') }}</th>
+                            <th>{{ t('age_group_0') }}</th>
+                            <th>{{ t('age_group_30') }}</th>
+                            <th>{{ t('age_group_60') }}</th>
+                            <th>{{ t('age_group_90') }}</th>
+                            <th>{{ t('age_group_120') }}</th>
+                            <th>{{ t('total') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for client in group.clients %}
+                            <tr>
+                                <td>{{ client[0] }}</td>
+                                <td>{{ client[1] }}</td>
+                                <td>{{ client[2] }}</td>
+                                <td>{{ client[3] }}</td>
+                                <td>{{ client[4] }}</td>
+                                <td>{{ client[5] }}</td>
+                                <td>{{ client[6] }}</td>
+                                <td>{{ client[7] }}</td>
+                                <td>{{ client[8] }}</td>
+                                <td class="balance">{{ client[9] }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="table-container">
+            <table>
+                <thead>
                     <tr>
-                        <td>{{ client[0] }}</td>
-                        <td>{{ client[1] }}</td>
-                        <td>{{ client[2] }}</td>
-                        <td>{{ client[3] }}</td>
-                        <td>{{ client[4] }}</td>
-                        <td>{{ client[5] }}</td>
-                        <td>{{ client[6] }}</td>
-                        <td>{{ client[7] }}</td>
-                        <td>{{ client[8] }}</td>
-                        <td class="balance">{{ client[9] }}</td>
+                        <th>{{ t('client_name') }}</th>
+                        <th>{{ t('client_number') }}</th>
+                        <th>{{ t('id_number') }}</th>
+                        <th>{{ t('current') }}</th>
+                        <th>{{ t('age_group_0') }}</th>
+                        <th>{{ t('age_group_30') }}</th>
+                        <th>{{ t('age_group_60') }}</th>
+                        <th>{{ t('age_group_90') }}</th>
+                        <th>{{ t('age_group_120') }}</th>
+                        <th>{{ t('total') }}</th>
                     </tr>
-                {% endfor %}
-				{% endif %}
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    {% endif %}
 	</ninja>
 </body>
 </html>

@@ -12,6 +12,7 @@
 
 namespace Tests\Feature\Export;
 
+use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Factory\InvoiceItemFactory;
 use App\Models\Account;
@@ -195,6 +196,76 @@ class ArSummaryReportTest extends TestCase
         $response = $pl->run();
 
         $this->assertIsString($response);
+
+        $this->account->delete();
+    }
+
+    public function testReportGroupsMultipleClientCurrencies()
+    {
+        $this->buildData();
+
+        $company_settings = $this->company->settings;
+        $company_settings->currency_id = '1';
+        $company_settings->show_currency_code = true;
+        $this->company->settings = $company_settings;
+        $this->company->save();
+
+        $client_settings = ClientSettings::defaults();
+        $client_settings->currency_id = '2';
+        $client_settings->show_currency_code = true;
+        $this->client->settings = $client_settings;
+        $this->client->save();
+        $this->client->refresh();
+
+        $usd_client_settings = ClientSettings::defaults();
+        $usd_client_settings->currency_id = '1';
+        $usd_client_settings->show_currency_code = true;
+
+        $usd_client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'settings' => $usd_client_settings,
+            'is_deleted' => 0,
+        ]);
+
+        Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 100,
+            'balance' => 100,
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => now()->format('Y-m-d'),
+            'due_date' => now()->subDays(10)->format('Y-m-d'),
+            'is_deleted' => false,
+        ]);
+
+        Invoice::factory()->create([
+            'client_id' => $usd_client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 75,
+            'balance' => 75,
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => now()->format('Y-m-d'),
+            'due_date' => now()->subDays(10)->format('Y-m-d'),
+            'is_deleted' => false,
+        ]);
+
+        $this->payload = [
+            'start_date' => '2000-01-01',
+            'end_date' => '2030-01-11',
+            'date_range' => 'custom',
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ];
+
+        $response = (new ARSummaryReport($this->company->fresh(), $this->payload))->run();
+
+        $this->assertStringContainsString('Currency,GBP', $response);
+        $this->assertStringContainsString('Currency,USD', $response);
+        $this->assertStringContainsString('100.00 GBP', $response);
+        $this->assertStringContainsString('75.00 USD', $response);
 
         $this->account->delete();
     }

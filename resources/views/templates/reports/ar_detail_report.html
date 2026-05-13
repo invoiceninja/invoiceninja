@@ -76,6 +76,13 @@
             overflow-x: auto;
         }
 
+        .currency-heading {
+            color: #2c3e50;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0 0 8px;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -154,43 +161,67 @@
             {% endif %}
         </div>
 	</div>
-    <div class="table-container">
-		<table>
-            <thead>
-                <tr>
-                    <th>{{ t('date') }}</th>
-                    <th>{{ t('due_date') }}</th>
-                    <th>{{ t('invoice_number') }}</th>
-                    <th>{{ t('status') }}</th>
-                    <th>{{ t('client_name') }}</th>
-                    <th>{{ t('client_number') }}</th>
-                    <th>{{ t('id_number') }}</th>
-                    <th>{{ t('age') }}</th>
-                    <th>{{ t('amount') }}</th>
-                    <th>{{ t('balance') }}</th>
-                </tr>
-            </thead>
-            <tbody>
-				{% if invoices is defined and invoices is not empty %}
-
-                {% for invoice in invoices %}
+    {% if invoice_groups is defined and invoice_groups is not empty %}
+        {% for group in invoice_groups %}
+            <div class="table-container">
+                {% if invoice_groups|length > 1 %}
+                    <h2 class="currency-heading">{{ t('currency') }}: {{ group.currency }}</h2>
+                {% endif %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>{{ t('date') }}</th>
+                            <th>{{ t('due_date') }}</th>
+                            <th>{{ t('invoice_number') }}</th>
+                            <th>{{ t('status') }}</th>
+                            <th>{{ t('client_name') }}</th>
+                            <th>{{ t('client_number') }}</th>
+                            <th>{{ t('id_number') }}</th>
+                            <th>{{ t('age') }}</th>
+                            <th>{{ t('amount') }}</th>
+                            <th>{{ t('balance') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for invoice in group.invoices %}
+                            <tr>
+                                <td>{{ invoice[0] }}</td>
+                                <td>{{ invoice[1] }}</td>
+                                <td>{{ invoice[2] }}</td>
+                                <td>{{ invoice[3] }}</td>
+                                <td>{{ invoice[4] }}</td>
+                                <td>{{ invoice[5] }}</td>
+                                <td>{{ invoice[6] }}</td>
+                                <td>{{ invoice[7] }}</td>
+                                <td class="amount">{{ invoice[8] }}</td>
+                                <td class="balance">{{ invoice[9] }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="table-container">
+            <table>
+                <thead>
                     <tr>
-                        <td>{{ invoice[0] }}</td>
-                        <td>{{ invoice[1] }}</td>
-                        <td>{{ invoice[2] }}</td>
-                        <td>{{ invoice[3] }}</td>
-                        <td>{{ invoice[4] }}</td>
-                        <td>{{ invoice[5] }}</td>
-                        <td>{{ invoice[6] }}</td>
-                        <td>{{ invoice[7] }}</td>
-                        <td class="amount">{{ invoice[8] }}</td>
-                        <td class="balance">{{ invoice[9] }}</td>
+                        <th>{{ t('date') }}</th>
+                        <th>{{ t('due_date') }}</th>
+                        <th>{{ t('invoice_number') }}</th>
+                        <th>{{ t('status') }}</th>
+                        <th>{{ t('client_name') }}</th>
+                        <th>{{ t('client_number') }}</th>
+                        <th>{{ t('id_number') }}</th>
+                        <th>{{ t('age') }}</th>
+                        <th>{{ t('amount') }}</th>
+                        <th>{{ t('balance') }}</th>
                     </tr>
-                {% endfor %}
-				{% endif %}
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    {% endif %}
 	</ninja>
 </body>
 </html>
