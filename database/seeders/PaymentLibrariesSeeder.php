@@ -92,7 +92,9 @@ class PaymentLibrariesSeeder extends Seeder
             ['id' => 63, 'name' => 'Rotessa', 'is_offsite' => false, 'sort_order' => 22, 'provider' => 'Rotessa', 'key' => '91be24c7b792230bced33e930ac61676', 'fields' => '{"apiKey":"", "testMode":false}'],
             ['id' => 64, 'name' => 'CBA PowerBoard', 'is_offsite' => false, 'sort_order' => 26, 'provider' => 'CBAPowerBoard', 'key' => 'b67581d804dbad1743b61c57285142ad', 'fields' => '{"publicKey":"", "secretKey":"", "testMode":false, "gatewayId":"", "amex":false, "ausbc":false, "discover":false, "japcb":false, "laser":false, "mastercard":true, "solo":false, "visa":true, "visa_white":false}'],
             ['id' => 65, 'name' => 'Blockonomics', 'is_offsite' => false, 'sort_order' => 27, 'provider' => 'Blockonomics', 'key' => 'wbhf02us6owgo7p4nfjd0ymssdshks4d', 'fields' => '{"apiKey":""}'],
-            ['id' => 67, 'name' => 'Helcim', 'is_offsite' => false, 'sort_order' => 28, 'provider' => 'Helcim', 'key' => 'ca3b3f7e4be811c96a8a1f4cafe2a97f', 'fields' => '{"apiToken":"","testMode":false}'],
+            ['id' => 66, 'name' => 'LawPay', 'is_offsite' => false, 'sort_order' => 28, 'provider' => 'LawPay', 'key' => 'f4lafbnygsmkflagbqp7zqnfpgeoekdn', 'fields' => '{"publicKey":"","secretKey":"","testMode":false}'],
+            ['id' => 67, 'name' => 'payware', 'is_offsite' => false, 'sort_order' => 29, 'provider' => 'Payware', 'key' => 'b0a6294fca4488c2bab58f3e11e3c623', 'fields' => '{"partnerId":"","vposId":"","paywarePublicKey":"","testMode":false,"timeToLive":"600"}', 'default_gateway_type_id' => 30],
+            ['id' => 68, 'name' => 'Helcim', 'is_offsite' => false, 'sort_order' => 30, 'provider' => 'Helcim', 'key' => 'ca3b3f7e4be811c96a8a1f4cafe2a97f', 'fields' => '{"apiToken":"","webhookVerifierToken":""}'],
         ];
 
         foreach ($gateways as $gateway) {
@@ -109,7 +111,7 @@ class PaymentLibrariesSeeder extends Seeder
 
         Gateway::query()->update(['visible' => 0]);
 
-        Gateway::whereIn('id', [1, 3, 7, 11, 15, 20, 39, 46, 55, 50, 57, 52, 58, 59, 60, 62, 63, 67])->update(['visible' => 1]);
+        Gateway::whereIn('id', [1, 3, 7, 11, 15, 20, 39, 46, 55, 50, 57, 52, 58, 59, 60, 62, 63, 67, 68])->update(['visible' => 1]);
 
         if (Ninja::isHosted()) {
             Gateway::whereIn('id', [20, 49])->update(['visible' => 0]);
