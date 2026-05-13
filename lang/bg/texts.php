@@ -5930,6 +5930,13 @@ $lang = array(
     'no_compatible_app_installed' => 'Ако нищо не се случва, може би нямате инсталирано съвместимо приложение.',
     'payment_type_Mobile Payment' => 'Мобилно плащане',
     'gateway_temporarily_unavailable' => 'Този начин на плащане е временно недостъпен. Моля, опитайте отново по-късно или изберете друг начин на плащане.',
+    'payment_period' => 'Период на плащане',
+    'payment_period_help' => 'Времето за завършване на плащането в секунди. Допустим диапазон 60 - 600.',
+    'payware_partner_id_label' => 'Идентификатор на партньор',
+    'payware_partner_id_help' => 'Предоставя се от payware при регистрация',
+    'payware_vpos_id_label' => 'Идентификатор на webPOS',
+    'payware_vpos_id_help' => 'Идентификатор на webPOS от таблото на payware',
+    'payware_public_key_help' => 'RSA публичен ключ за валидиране на подписа на webhook',
 );
 
 return $lang;

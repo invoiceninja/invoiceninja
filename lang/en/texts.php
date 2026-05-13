@@ -5979,6 +5979,13 @@ $lang = array(
     'widget_border_color_help' => 'Color of the border around the widget area.',
     'card_already_exists' => 'Card already exists',
     'income_account' => 'Income Account',
+    'payment_period' => 'Payment Period',
+    'payment_period_help' => 'The time allowed for payment completion in seconds. Accepted range 60 - 600.',
+    'payware_partner_id_label' => 'Partner Identifier',
+    'payware_partner_id_help' => 'Provided by payware upon registration',
+    'payware_vpos_id_label' => 'webPOS Identifier',
+    'payware_vpos_id_help' => 'webPOS identifier from the payware dashboard',
+    'payware_public_key_help' => 'RSA public key for webhook signature validation',
 );
 
 return $lang;
