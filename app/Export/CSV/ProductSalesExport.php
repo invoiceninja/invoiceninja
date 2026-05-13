@@ -58,7 +58,7 @@ class ProductSalesExport extends BaseExport
         'tax_amount1' => 'tax_amount1',
         'tax_amount2' => 'tax_amount2',
         'tax_amount3' => 'tax_amount3',
-        'tax_total' => 'tax_total',
+        'total_taxes' => 'tax_total',
         'is_amount_discount' => 'is_amount_discount',
         'client' => 'client',
         'custom_value1' => 'custom_value1',
