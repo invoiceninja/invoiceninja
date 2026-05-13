@@ -5878,6 +5878,13 @@ $lang = array(
     'awaiting_payment' => 'Esperando pago',
     'payment_confirmed' => 'Pago confirmado',
     'payment_expired' => 'El pago ha expirado. Por favor, vuelva e inténtelo de nuevo.',
+    'payment_period' => 'Período de pago',
+    'payment_period_help' => 'El tiempo permitido para completar el pago en segundos. Rango aceptado 60 - 600.',
+    'payware_partner_id_label' => 'Identificador de socio',
+    'payware_partner_id_help' => 'Proporcionado por payware al registrarse',
+    'payware_vpos_id_label' => 'Identificador de webPOS',
+    'payware_vpos_id_help' => 'Identificador de webPOS desde el panel de payware',
+    'payware_public_key_help' => 'Clave pública RSA para la validación de firma del webhook',
 );
 
 return $lang;
