@@ -109,10 +109,15 @@ jobs:
 
     - name: Install composer dependencies
       env:
-        GITHUB_TOKEN: ${{ github.token }}
-        COMPOSER_AUTH: '{"github-oauth":{"github.com":"${GITHUB_TOKEN}"}}'
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        composer install --no-interaction --no-progress
+        export COMPOSER_AUTH=$(php -r 'echo json_encode([
+          "github-oauth" => [
+            "github.com" => getenv("GH_TOKEN")
+          ]
+        ]);')
+
+        composer install --no-interaction --prefer-dist
 
     - name: Prepare Laravel Application
       env:
