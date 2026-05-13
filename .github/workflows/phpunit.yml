@@ -109,10 +109,9 @@ jobs:
 
     - name: Install composer dependencies
       env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ github.token }}
+        COMPOSER_AUTH: '{"github-oauth":{"github.com":"${GITHUB_TOKEN}"}}'
       run: |
-        composer config --global github-oauth.github.com "${{ github.token }}"
-
         composer install --no-interaction --no-progress
 
     - name: Prepare Laravel Application
