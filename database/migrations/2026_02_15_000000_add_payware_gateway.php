@@ -25,7 +25,7 @@ return new class extends Migration {
             $gateway->provider = 'Payware';
             $gateway->is_offsite = false;
             $gateway->fields = \json_encode($fields);
-            $gateway->visible = 1;
+            $gateway->visible = true;
             $gateway->sort_order = 29;
             $gateway->site_url = 'https://payware.eu';
             $gateway->default_gateway_type_id = 30;
@@ -41,6 +41,9 @@ return new class extends Migration {
             $paymentType->gateway_type_id = 30;
             $paymentType->save();
         }
+
+        \Illuminate\Database\Eloquent\Model::reguard();
+
     }
 
     public function down(): void
