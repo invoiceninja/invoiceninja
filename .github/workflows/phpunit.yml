@@ -82,6 +82,7 @@ jobs:
       with:
         php-version: ${{ matrix.php-versions }}
         extensions: mysql, mysqlnd, sqlite3, bcmath, gmp, gd, curl, zip, openssl, mbstring, xml, redis, :psr
+        tools: composer:v2
 
     - uses: actions/checkout@v4
       with:

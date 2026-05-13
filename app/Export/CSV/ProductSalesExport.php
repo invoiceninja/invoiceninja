@@ -250,6 +250,7 @@ class ProductSalesExport extends BaseExport
         }
 
         $entity['tax_amount'] = (float) ($invoice_item->tax_amount ?? 0);
+        $entity['gross_line_total'] = (float) ($invoice_item->gross_line_total ?? 0);
 
         $entity = $this->decorateAdvancedFields($invoice, $entity);
 
