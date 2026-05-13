@@ -254,7 +254,6 @@ class ProductSalesExport extends BaseExport
 
         $entity = $this->decorateAdvancedFields($invoice, $entity);
 
-        nlog($entity);
         $this->sales->push($entity);
 
         return $entity;

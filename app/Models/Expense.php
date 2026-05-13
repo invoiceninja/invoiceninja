@@ -202,6 +202,7 @@ class Expense extends BaseModel
             'company_key' => $this->company->company_key,
             'public_notes' => (string) $this->public_notes,
             'private_notes' => (string) $this->private_notes,
+            'transaction_reference' => (string) $this->transaction_reference,
         ];
     }
 
