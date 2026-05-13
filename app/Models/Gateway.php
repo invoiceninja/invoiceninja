@@ -112,6 +112,8 @@ class Gateway extends StaticModel
             $link = 'https://help.blockonomics.co/a/solutions/articles/33000291849';
         } elseif ($this->id == 67) {
             $link = 'https://payware.eu';
+        } elseif ($this->id == 68) {
+            $link = 'https://www.helcim.com/';
         }
 
         return $link;
@@ -261,21 +263,20 @@ class Gateway extends StaticModel
                 return [
                     GatewayType::CRYPTO => ['refund' => false, 'token_billing' => false, 'webhooks' => ['confirmed', 'paid_out', 'failed', 'fulfilled']],
                 ]; //Blockonomics
-            case 67:
+            case 66:
                 return [
-<<<<<<< HEAD
-                    GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true, 'webhooks' => ['all']],
-                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['all']],
-                ]; //Helcim
-=======
                     GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true],
                     GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true],
                 ]; //LawPay
             case 67:
                 return [
                     GatewayType::MOBILE_PAYMENT => ['refund' => false, 'token_billing' => false, 'webhooks' => ['CONFIRMED', 'DECLINED', 'FAILED', 'CANCELLED', 'EXPIRED']],
-                ]; //payware
->>>>>>> upstream/v5-develop
+                ]; //Payware
+            case 68:
+                return [
+                    GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true, 'webhooks' => ['all']],
+                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['all']],
+                ]; //Helcim
             default:
                 return [];
         }
