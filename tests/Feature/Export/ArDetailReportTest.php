@@ -237,6 +237,18 @@ class ArDetailReportTest extends TestCase
             'is_deleted' => 0,
         ]);
 
+        $zero_client_settings = ClientSettings::defaults();
+        $zero_client_settings->currency_id = '3';
+        $zero_client_settings->show_currency_code = true;
+
+        $zero_client = Client::factory()->create([
+            'name' => 'Zero Balance EUR Client',
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'settings' => $zero_client_settings,
+            'is_deleted' => 0,
+        ]);
+
         Invoice::factory()->create([
             'client_id' => $this->client->id,
             'user_id' => $this->user->id,
@@ -261,6 +273,19 @@ class ArDetailReportTest extends TestCase
             'is_deleted' => false,
         ]);
 
+        Invoice::factory()->create([
+            'client_id' => $zero_client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'number' => 'ZERO-BALANCE-EUR',
+            'amount' => 50,
+            'balance' => 0,
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => now()->format('Y-m-d'),
+            'due_date' => now()->subDays(5)->format('Y-m-d'),
+            'is_deleted' => false,
+        ]);
+
         $this->payload = [
             'start_date' => '2000-01-01',
             'end_date' => '2030-01-11',
@@ -269,12 +294,21 @@ class ArDetailReportTest extends TestCase
             'user_id' => $this->user->id,
         ];
 
-        $response = (new ARDetailReport($this->company->fresh(), $this->payload))->run();
+        $report = new ARDetailReport($this->company->fresh(), $this->payload);
+        $response = $report->run();
 
         $this->assertStringContainsString('Currency,GBP', $response);
         $this->assertStringContainsString('Currency,USD', $response);
+        $this->assertStringNotContainsString('Currency,EUR', $response);
+        $this->assertStringNotContainsString('Zero Balance EUR Client', $response);
+        $this->assertStringNotContainsString('ZERO-BALANCE-EUR', $response);
         $this->assertStringContainsString('100.00 GBP', $response);
         $this->assertStringContainsString('75.00 USD', $response);
+
+        $reflection = new \ReflectionClass($report);
+        $property = $reflection->getProperty('invoice_groups');
+        $property->setAccessible(true);
+        $this->assertArrayNotHasKey('EUR', $property->getValue($report));
 
         $this->account->delete();
     }

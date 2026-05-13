@@ -279,46 +279,33 @@ class ARSummaryReport extends BaseExport
     /**
      * Build row using pre-fetched aging data (optimized).
      */
-    private function buildRowOptimized(Client $client, Collection $agingData): array
+    private function buildRowOptimized(Client $client, Collection $agingData): ?array
     {
         $data = $agingData->get($client->id);
-        $currency_code = $client->currency()->code;
 
-        // If no invoices for this client, use zeros
-        if (!$data) {
-            $row = [
-                $client->present()->name(),
-                $client->number,
-                $client->id_number,
-                Number::formatMoney(0, $client),
-                Number::formatMoney(0, $client),
-                Number::formatMoney(0, $client),
-                Number::formatMoney(0, $client),
-                Number::formatMoney(0, $client),
-                Number::formatMoney(0, $client),
-                Number::formatMoney(0, $client),
-            ];
-        } else {
-            $row = [
-                $client->present()->name(),
-                $client->number,
-                $client->id_number,
-                Number::formatMoney($data->current, $client),
-                Number::formatMoney($data->age_30, $client),
-                Number::formatMoney($data->age_60, $client),
-                Number::formatMoney($data->age_90, $client),
-                Number::formatMoney($data->age_120, $client),
-                Number::formatMoney($data->age_120_plus, $client),
-                Number::formatMoney($data->total, $client),
-            ];
+        if (!$data || (float) $data->total <= 0) {
+            return null;
         }
 
-        $this->storeClientRow($currency_code, $row);
+        $row = [
+            $client->present()->name(),
+            $client->number,
+            $client->id_number,
+            Number::formatMoney($data->current, $client),
+            Number::formatMoney($data->age_30, $client),
+            Number::formatMoney($data->age_60, $client),
+            Number::formatMoney($data->age_90, $client),
+            Number::formatMoney($data->age_120, $client),
+            Number::formatMoney($data->age_120_plus, $client),
+            Number::formatMoney($data->total, $client),
+        ];
+
+        $this->storeClientRow($client->currency()->code, $row);
 
         return $row;
     }
 
-    private function buildRow(Client $client): array
+    private function buildRow(Client $client): ?array
     {
         $this->client = $client;
 
@@ -334,6 +321,12 @@ class ARSummaryReport extends BaseExport
             $this->getAgingAmount('120+'),
             Number::formatMoney($this->total, $this->client),
         ];
+
+        if ($this->total <= 0) {
+            $this->total = 0;
+
+            return null;
+        }
 
         $this->total = 0;
 
