@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\Email\SendEmailRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use ReflectionMethod;
 
 /**
  *
@@ -273,6 +274,29 @@ class InvoiceEmailTest extends TestCase
 
         $response->assertStatus(200);
 
+    }
+
+    public function test_cc_email_prepare_for_validation_splits_on_whitespace_and_deduplicates(): void
+    {
+        $this->user->setCompany($this->company);
+        $this->actingAs($this->user);
+
+        $request = new SendEmailRequest();
+        $request->merge([
+            'template' => 'email_template_invoice',
+            'entity' => 'invoice',
+            'entity_id' => $this->invoice->hashed_id,
+            'cc_email' => 'first@test.com  second@test.com   first@test.com FIRST@test.com',
+        ]);
+
+        $prepare = new ReflectionMethod(SendEmailRequest::class, 'prepareForValidation');
+        $prepare->setAccessible(true);
+        $prepare->invoke($request);
+
+        $this->assertSame(
+            ['first@test.com', 'second@test.com'],
+            $request->input('cc_email')
+        );
     }
 
     public function test_initial_email_send_emails()

@@ -219,17 +219,17 @@ class LegalEntityService
 
     /**
      * Add an additional tax identifier for cross-border VAT registration.
+     * @param int $legal_entity_id
+     * @param array $data [identifier => string, scheme => string, country => string]
      */
-    public function addAdditionalTaxIdentifier(int $legal_entity_id, string $identifier, string $scheme): array|\Illuminate\Http\Client\Response
+    public function addAdditionalTaxIdentifier(int $legal_entity_id, array $data): array|\Illuminate\Http\Client\Response
     {
         $uri = "legal_entities/{$legal_entity_id}/additional_tax_identifiers";
 
-        $data = [
-            "identifier" => $identifier,
-            "scheme" => $scheme,
+        $data = array_merge($data, [
             "superscheme" => "iso6523-actorid-upis",
-        ];
-
+        ]);
+        
         $r = $this->storecove->httpClient($uri, (HttpVerb::POST)->value, $data);
 
         if ($r->successful()) {

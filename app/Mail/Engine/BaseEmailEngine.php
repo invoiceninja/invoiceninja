@@ -40,7 +40,7 @@ class BaseEmailEngine implements EngineInterface
 
     public $text_footer;
 
-    public int $max_attachment_size = 3000000;
+    public int $max_attachment_size = 2800000;
 
     public function setFooter($footer)
     {

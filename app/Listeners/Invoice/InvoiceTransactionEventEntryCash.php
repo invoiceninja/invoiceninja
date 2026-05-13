@@ -32,14 +32,19 @@ class InvoiceTransactionEventEntryCash
      * Handle the event.
      *
      */
-    public function run($invoice, $start_date, $end_date)
+    public function run(?Invoice $invoice, string $start_date, string $end_date): void
     {
 
-        if (!$invoice) {
+        if (!$invoice || $invoice->transaction_events()
+            ->where('event_id', TransactionEvent::PAYMENT_CASH)
+            ->where('period', $end_date)
+            ->exists()) {
             return;
         }
 
         $this->payments = $invoice->payments->map(function ($payment) use ($invoice, $start_date, $end_date) {
+            
+            /** @var mixed $pivot */
             $pivot = $payment->invoices()->where('paymentable_id', $invoice->id)->first()?->pivot;
 
             if (!$pivot) {
@@ -97,7 +102,7 @@ class InvoiceTransactionEventEntryCash
         return $this;
     }
 
-    private function getMetadata($invoice)
+    private function getMetadata(Invoice $invoice): TransactionEventMetadata
     {
 
         $calc = $invoice->calc();

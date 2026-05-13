@@ -13,15 +13,19 @@
 namespace App\Livewire;
 
 use App\Libraries\MultiDB;
-use App\Models\Company;
 use App\Models\Invoice;
+use App\Utils\Traits\WithBulkSelection;
 use App\Utils\Traits\WithSorting;
 use Carbon\Carbon;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class InvoicesTable extends Component
 {
+    use WithBulkSelection;
     use WithPagination;
     use WithSorting;
 
@@ -33,7 +37,7 @@ class InvoicesTable extends Component
 
     public string $db;
 
-    public function mount()
+    public function mount(): void
     {
         MultiDB::setDb($this->db);
 
@@ -42,7 +46,31 @@ class InvoicesTable extends Component
         $this->sort_field = 'date';
     }
 
-    public function render()
+    public function updatedStatus(): void
+    {
+        $this->resetSelection();
+    }
+
+    public function sortBy($field): void
+    {
+        $this->sort_field === $field
+            ? $this->sort_asc = ! $this->sort_asc
+            : $this->sort_asc = true;
+
+        $this->sort_field = $field;
+
+        $this->resetSelection();
+    }
+
+    protected function selectablePageIds(): array
+    {
+        return $this->buildQuery()
+            ->paginate($this->per_page, ['id'], 'page', $this->getPage())
+            ->pluck('hashed_id')
+            ->toArray();
+    }
+
+    private function buildQuery(): Builder
     {
         $local_status = [];
 
@@ -57,7 +85,6 @@ class InvoicesTable extends Component
             ->when($this->sort_field != 'number', function ($q) {
                 $q->orderBy($this->sort_field, ($this->sort_asc ? 'asc' : 'desc'));
             });
-        // ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
 
         if (in_array('paid', $this->status)) {
             $local_status[] = Invoice::STATUS_PAID;
@@ -85,18 +112,22 @@ class InvoicesTable extends Component
             });
         }
 
-        $query = $query
+        return $query
             ->where('client_id', auth()->guard('contact')->user()->client_id)
             ->where('status_id', '<>', Invoice::STATUS_DRAFT)
             ->where('status_id', '<>', Invoice::STATUS_CANCELLED)
-            ->withTrashed()
-            ->paginate($this->per_page);
+            ->withTrashed();
+    }
+
+    public function render(): Factory|View
+    {
+        $invoices = $this->buildQuery()->paginate($this->per_page);
 
         /** @var \App\Models\ClientContact $client_contact */
         $client_contact = auth()->user();
 
         return render('components.livewire.invoices-table', [
-            'invoices' => $query,
+            'invoices' => $invoices,
             'gateway_available' => ! empty($client_contact->client->service()->getPaymentMethods(-1)),
         ]);
     }

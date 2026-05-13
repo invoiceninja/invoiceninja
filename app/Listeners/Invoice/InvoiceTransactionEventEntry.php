@@ -85,7 +85,8 @@ class InvoiceTransactionEventEntry
             } elseif ($invoice->is_deleted) {
 
             }
-            /** If the invoice hasn't changed its state... return early!! */ elseif (BcMath::comp($invoice->amount, $event->invoice_amount) == 0 || $event->period->format('Y-m-d') == $period) {
+            /** If the invoice hasn't changed its state... return early!! */ 
+            elseif (BcMath::comp($invoice->amount, $event->invoice_amount) == 0 || $event->period->format('Y-m-d') == $period) {
                 nlog("event period => {$period} => " . $event->period->format('Y-m-d'));
                 nlog("invoice amount => {$invoice->amount} => " . $event->invoice_amount);
                 nlog("apparently no change in amount or period");

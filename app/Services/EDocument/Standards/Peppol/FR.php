@@ -24,14 +24,6 @@ use App\Services\EDocument\Gateway\MutatorUtil;
  */
 class FR extends BaseCountry
 {
-    public function getRoutingRules(): ?array
-    {
-        return [
-            ["G", "FR:SIRET", false, "0009:11000201100044"],
-            ["B", "FR:SIRENE or FR:SIRET", "FR:VAT", "FR:SIRENE or FR:SIRET"],
-        ];
-    }
-
     public function getCandidates(object $client, string $classification, object $router): array
     {
         if ($classification === 'government') {

@@ -90,7 +90,7 @@ class RouteServiceProvider extends ServiceProvider
             if (Ninja::isSelfHost()) {
                 return Limit::none();
             } else {
-                return Limit::perDay(3)->by($request->user()?->email ?? $request->ip());
+                return Limit::perDay(12)->by($request->user()?->email ?? $request->ip());
             }
         });
 

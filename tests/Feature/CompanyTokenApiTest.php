@@ -232,4 +232,47 @@ class CompanyTokenApiTest extends TestCase
         $arr = $response->json();
         $this->assertTrue($arr['data'][0]['is_deleted']);
     }
+
+    public function testIsSystemFilter()
+    {
+        $this->withoutMiddleware(PasswordProtection::class);
+
+        $systemToken = new CompanyToken();
+        $systemToken->user_id = $this->user->id;
+        $systemToken->company_id = $this->company->id;
+        $systemToken->account_id = $this->account->id;
+        $systemToken->name = 'system_token_' . uniqid();
+        $systemToken->token = \Illuminate\Support\Str::random(64);
+        $systemToken->is_system = true;
+        $systemToken->save();
+
+        $userToken = new CompanyToken();
+        $userToken->user_id = $this->user->id;
+        $userToken->company_id = $this->company->id;
+        $userToken->account_id = $this->account->id;
+        $userToken->name = 'user_token_' . uniqid();
+        $userToken->token = \Illuminate\Support\Str::random(64);
+        $userToken->is_system = false;
+        $userToken->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/tokens?is_system=true&per_page=500')->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($systemToken->hashed_id, $ids);
+        $this->assertNotContains($userToken->hashed_id, $ids);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/tokens?is_system=false&per_page=500')->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($userToken->hashed_id, $ids);
+        $this->assertNotContains($systemToken->hashed_id, $ids);
+    }
 }

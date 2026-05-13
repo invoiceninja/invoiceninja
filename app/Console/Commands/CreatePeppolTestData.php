@@ -82,7 +82,7 @@ class CreatePeppolTestData extends Command
         'NL' => 0, // Netherlands
         'NO' => 0, // Norway
         'NZ' => 0, // New Zealand
-        'PL' => 0, // Poland
+        'PL' => 999794, // Poland
         'PT' => 0, // Portugal
         'RO' => 294639, //RO010105019
         'RS' => 0, // Serbia

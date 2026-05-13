@@ -112,7 +112,14 @@ class PaymentIntentWebhook implements ShouldQueue
             return;
         }
 
-        $pi = \Stripe\PaymentIntent::retrieve($this->stripe_request['object']['id'], $stripe_driver->stripe_connect_auth);
+        try{
+            $pi = \Stripe\PaymentIntent::retrieve($this->stripe_request['object']['id'], $stripe_driver->stripe_connect_auth);
+        }
+        catch(\Throwable $e){
+            nlog("error retrieving payment intent");
+            nlog($e->getMessage());
+            return;
+        }
 
         $charge = \Stripe\Charge::retrieve($charge_id, $stripe_driver->stripe_connect_auth);
 

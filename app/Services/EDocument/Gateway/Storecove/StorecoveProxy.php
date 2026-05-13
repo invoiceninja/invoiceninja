@@ -131,6 +131,7 @@ class StorecoveProxy
     public function addAdditionalTaxIdentifier(array $data): array
     {
         $scheme = $this->storecove->router->resolveTaxScheme($data['country'], $this->company->settings->classification);
+        $data['identifier'] = $data['identifier'] ?? $data['vat_number'] ?? null;
 
         $data = [
             ...$data,
@@ -141,7 +142,7 @@ class StorecoveProxy
 
         if (Ninja::isHosted()) {
 
-            $response = $this->storecove->addAdditionalTaxIdentifier($data['legal_entity_id'], $data['vat_number'], $scheme);
+            $response = $this->storecove->legalEntity->addAdditionalTaxIdentifier($data['legal_entity_id'], $data);
 
             if (is_array($response)) {
                 return $response;

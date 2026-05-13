@@ -65,7 +65,7 @@ class UblEDocument extends AbstractService
      */
     private function extractInvoiceUbl(string $xml): string
     {
-        $xml = str_replace('<?xml version="1.0" encoding="UTF-8"?>', '', $xml);
+        $xml = str_replace(['<?xml version="1.0" encoding="UTF-8"?>', "<?xml version='1.0' encoding='UTF-8'?>"], '', $xml);
 
         $dom = new \DOMDocument();
         $dom->loadXML($xml);
@@ -75,6 +75,7 @@ class UblEDocument extends AbstractService
         // Register the namespaces
         $xpath->registerNamespace('sh', 'http://www.unece.org/cefact/namespaces/StandardBusinessDocumentHeader');
         $xpath->registerNamespace('ubl-inv', 'urn:oasis:names:specification:ubl:schema:xsd:Invoice-2');
+        $xpath->registerNamespace('inv', 'urn:oasis:names:specification:ubl:schema:xsd:Invoice-2');
         $xpath->registerNamespace('ubl-cn', 'urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2');
 
         // Try to find Invoice first
@@ -296,12 +297,12 @@ class UblEDocument extends AbstractService
     {
         if (data_get($invoice, 'AccountingSupplierParty.Party.PartyName', false)) {
             $party_name = data_get($invoice, 'AccountingSupplierParty.Party.PartyName', false);
-            return data_get($party_name[0], 'Name', '');
+            return is_array($party_name) ? data_get($party_name[0], 'Name', '') : '';
         }
 
         if (data_get($invoice, 'AccountingSupplierParty.Party.PartyLegalEntity', false)) {
-            $ple = data_get($invoice, 'AccountingSupplierParty.Party.PartyName', false);
-            return data_get($ple[0], 'RegistrationName', '');
+            $ple = data_get($invoice, 'AccountingSupplierParty.Party.PartyLegalEntity', false);
+            return is_array($ple) ? data_get($ple[0], 'RegistrationName', '') : '';
         }
 
         return '';

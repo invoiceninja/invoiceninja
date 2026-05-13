@@ -75,6 +75,8 @@ class ApplyPayment extends AbstractService
                     ->save();
         }
 
+        $this->invoice = $this->invoice->fresh();
+
         // Legacy behaviour: reminder state is re-evaluated only when the
         // invoice had a partial on entry (the old hasPartial block always
         // ended with checkReminderStatus; the non-partial block did not).

@@ -20,18 +20,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Search Index Version
-    |--------------------------------------------------------------------------
-    |
-    | This option controls which searchable payload version is returned by
-    | models when syncing records to the search index.
-    |
-    */
-
-    'index_version' => env('SEARCH_INDEX_VERSION', 'legacy'),
-
-    /*
-    |--------------------------------------------------------------------------
     | Index Prefix
     |--------------------------------------------------------------------------
     |

@@ -133,11 +133,29 @@ class TaxPeriodReport extends BaseExport
     private function initializeData(): self
     {
 
+        // First sweep. Active SENT/PARTIAL/PAID invoices always need an event for
+        // end_date if missing. CANCELLED/REVERSED/deleted invoices only need
+        // processing when no terminal-state event exists yet — once that event is
+        // written they would otherwise be reprocessed on every report run because
+        // InvoiceTransactionEventEntry::run early-returns without writing a new
+        // event for end_date when status already matches.
         $q = Invoice::withTrashed()
+            ->with('payments')
             ->where('company_id', $this->company->id)
-            ->whereIn('status_id', [2,3,4,5,6])
             ->whereBetween('date', ['1970-01-01', $this->end_date])
-            // ->whereDoesntHave('transaction_events'); //filter by no transaction events for THIS month.
+            ->where(function ($q) {
+                $q->where(function ($q) {
+                    $q->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
+                      ->where('is_deleted', false);
+                })->orWhere(function ($q) {
+                    $q->where(function ($q) {
+                        $q->whereIn('status_id', [Invoice::STATUS_CANCELLED, Invoice::STATUS_REVERSED])
+                          ->orWhere('is_deleted', true);
+                    })->whereDoesntHave('transaction_events', function ($query) {
+                        $query->whereIn('metadata->tax_report->tax_summary->status', ['cancelled', 'reversed', 'deleted']);
+                    });
+                });
+            })
             ->whereDoesntHave('transaction_events', function ($query) {
                 $query->where('period', $this->end_date);
             });
@@ -152,6 +170,7 @@ class TaxPeriodReport extends BaseExport
 
                 //Harvest point in time records for cash payments.
                 \App\Models\Paymentable::where('paymentable_type', 'invoices')
+                    ->where('paymentable_id', $invoice->id)
                     ->whereIn('payment_id', $invoice->payments->pluck('id'))
                     ->get()
                     ->groupBy(function ($paymentable) {
@@ -159,8 +178,9 @@ class TaxPeriodReport extends BaseExport
                     })
                     ->map(function ($group) {
                         return $group->first();
-                    })->each(function (\App\Models\Paymentable $pp) {
-                        (new InvoiceTransactionEventEntryCash())->run($pp->paymentable, \Carbon\Carbon::parse($pp->created_at)->startOfMonth()->format('Y-m-d'), \Carbon\Carbon::parse($pp->created_at)->endOfMonth()->format('Y-m-d'));
+                    })->each(function (\App\Models\Paymentable $pp) use ($invoice) {
+                        // Pass $invoice directly to avoid morph lazy-load on $pp->paymentable.
+                        (new InvoiceTransactionEventEntryCash())->run($invoice, \Carbon\Carbon::parse($pp->created_at)->startOfMonth()->format('Y-m-d'), \Carbon\Carbon::parse($pp->created_at)->endOfMonth()->format('Y-m-d'));
                     });
 
             }
@@ -196,7 +216,7 @@ class TaxPeriodReport extends BaseExport
 
         });
 
-        $this->backfillClassificationBreakdown();
+        $this->backfillClassificationBreakdown(); // TEMP disabled to test perf impact
 
         return $this;
     }
@@ -284,7 +304,6 @@ class TaxPeriodReport extends BaseExport
 
         $query = Invoice::query()
             ->withTrashed()
-            ->with('transaction_events')
             ->where('company_id', $this->company->id);
 
         if ($this->cash_accounting) { //cash
@@ -538,19 +557,14 @@ class TaxPeriodReport extends BaseExport
                 $query->where(function ($sub_q) {
                     $sub_q->where('event_id', '!=', TransactionEvent::INVOICE_UPDATED)
                         ->orWhere('metadata->tax_report->tax_summary->status', 'reversed');
-
                 });
-
-                // $query->where('event_id', '!=', TransactionEvent::INVOICE_UPDATED);
             })
             ->whereBetween('period', [$this->start_date, $this->end_date])
             ->orderBy('timestamp', 'desc')
             ->cursor()
             ->each(function ($event) use ($invoice) {
-
                 /** @var Invoice $invoice */
                 $this->processTransactionEvent($event, $invoice);
-
             });
         });
 
