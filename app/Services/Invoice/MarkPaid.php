@@ -67,7 +67,8 @@ class MarkPaid extends AbstractService
 
                 $draft_balance_adjustment = $this->invoice->amount;
                 /* Perform additional actions on invoice */
-                $this->invoice
+
+                $this->invoice = $this->invoice
                     ->service()
                     ->applyNumber()
                     ->setDueDate()
@@ -83,15 +84,15 @@ class MarkPaid extends AbstractService
             if ($this->invoice) {
                 $this->payable_balance = $this->invoice->balance;
 
-                $this->invoice
-                    ->service()
-                    ->setExchangeRate()
-                    ->clearPartial()
-                    ->updateBalance($this->payable_balance * -1)
-                    ->updatePaidToDate($this->payable_balance)
-                    ->setStatus(Invoice::STATUS_PAID)
-                    ->unlockDocuments()
-                    ->save();
+                $this->invoice = $this->invoice
+                                        ->service()
+                                        ->setExchangeRate()
+                                        ->clearPartial()
+                                        ->updateBalance($this->payable_balance * -1)
+                                        ->updatePaidToDate($this->payable_balance)
+                                        ->setStatus(Invoice::STATUS_PAID)
+                                        ->unlockDocuments()
+                                        ->save();
             }
         }, 2);
 
@@ -144,7 +145,7 @@ class MarkPaid extends AbstractService
 
         $this->invoice->next_send_date = null;
 
-        $this->invoice
+        $this->invoice = $this->invoice
                 ->service()
                 ->applyNumber()
                 ->save();
