@@ -38,6 +38,7 @@ class InvoiceTransformer extends EntityTransformer
         'activities',
         'location',
         'project',
+        'credits',
     ];
 
     public function includeLocation(Invoice $invoice)
