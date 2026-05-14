@@ -349,12 +349,15 @@ class ArDetailReportTest extends TestCase
 
         $this->assertStringContainsString($clientName, $html);
         $this->assertStringContainsString('width: auto;', $html);
-        $this->assertStringContainsString('table-layout: auto;', $html);
         $this->assertStringContainsString('max-width: 100%;', $html);
-        $this->assertStringContainsString('padding: 0;', $html);
-        $this->assertStringNotContainsString('padding: 3px 0;', $html);
+        $this->assertStringContainsString('min-width: 100%;', $html);
+        $this->assertStringContainsString('table-layout: fixed;', $html);
+        $this->assertStringContainsString('padding-top: 4px;', $html);
+        $this->assertStringContainsString('padding-bottom: 4px;', $html);
+        $this->assertStringNotContainsString('padding-left:', $html);
+        $this->assertStringNotContainsString('padding-right:', $html);
+        $this->assertStringNotContainsString('padding: 0;', $html);
         $this->assertStringContainsString('overflow-wrap: anywhere;', $html);
-        $this->assertStringContainsString('width: 1%;', $html);
         $this->assertStringContainsString('class="col-client-name"', $html);
         $this->assertStringContainsString('class="col-balance"', $html);
         $this->assertSame(1, substr_count($html, '<colgroup>'));

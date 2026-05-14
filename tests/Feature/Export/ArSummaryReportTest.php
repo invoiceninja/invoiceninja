@@ -21,6 +21,7 @@ use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\User;
 use App\Services\Report\ARSummaryReport;
+use App\Services\Template\TemplateService;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Tests\TestCase;
@@ -302,6 +303,51 @@ class ArSummaryReportTest extends TestCase
 
         $this->assertMatchesRegularExpression('/order by [`"]name[`"] asc, [`"]id[`"] asc/', $sql);
         $this->assertStringNotContainsString('balance', $sql);
+    }
+
+    public function testPdfTemplateKeepsSummaryTableWithinPrintableWidth(): void
+    {
+        $template = file_get_contents(resource_path('/views/templates/reports/ar_summary_report.html'));
+        $clientName = str_repeat('Long Client Name ', 8);
+
+        $this->assertIsString($template);
+
+        $html = (new TemplateService())
+            ->setData([
+                'client_groups' => [[
+                    'currency' => 'USD',
+                    'clients' => [[
+                        $clientName,
+                        str_repeat('CLIENT-', 8),
+                        str_repeat('ID-', 12),
+                        '$1,000.00 USD',
+                        '$2,000.00 USD',
+                        '$3,000.00 USD',
+                        '$4,000.00 USD',
+                        '$5,000.00 USD',
+                        '$6,000.00 USD',
+                        '$21,000.00 USD',
+                    ]],
+                ]],
+                'company_logo' => '',
+                'created_on' => '2026-05-13',
+                'created_by' => 'Invoice Ninja',
+            ])
+            ->setRawTemplate($template)
+            ->parseNinjaBlocks()
+            ->save()
+            ->getHtml();
+
+        $this->assertStringContainsString($clientName, $html);
+        $this->assertStringContainsString('width: auto;', $html);
+        $this->assertStringContainsString('max-width: 100%;', $html);
+        $this->assertStringContainsString('min-width: 100%;', $html);
+        $this->assertStringContainsString('table-layout: fixed;', $html);
+        $this->assertStringContainsString('padding-top: 4px;', $html);
+        $this->assertStringContainsString('padding-bottom: 4px;', $html);
+        $this->assertStringNotContainsString('padding-left:', $html);
+        $this->assertStringNotContainsString('padding-right:', $html);
+        $this->assertStringNotContainsString('overflow-x: auto;', $html);
     }
 
 
