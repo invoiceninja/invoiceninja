@@ -236,23 +236,23 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
             $paymentRequest->payment_type = 'Recurring';
         }
 
+        $paymentRequest->{'success_url'} = route('checkout.3ds_redirect', [
+            'company_key' => $this->checkout->client->company->company_key,
+            'company_gateway_id' => $this->checkout->company_gateway->hashed_id,
+            'hash' => $this->checkout->payment_hash->hash,
+        ]);
+
+        $paymentRequest->{'failure_url'} = route('checkout.3ds_redirect', [
+            'company_key' => $this->checkout->client->company->company_key,
+            'company_gateway_id' => $this->checkout->company_gateway->hashed_id,
+            'hash' => $this->checkout->payment_hash->hash,
+        ]);
+
         $this->checkout->payment_hash->data = array_merge((array) $this->checkout->payment_hash->data, ['checkout_payment_ref' => $paymentRequest]);
         $this->checkout->payment_hash->save();
 
         if (! $isTokenPayment && ($this->checkout->client->currency()->code == 'EUR' || $this->checkout->company_gateway->getConfigField('threeds'))) {
             $paymentRequest->{'3ds'} = ['enabled' => true];
-
-            $paymentRequest->{'success_url'} = route('checkout.3ds_redirect', [
-                'company_key' => $this->checkout->client->company->company_key,
-                'company_gateway_id' => $this->checkout->company_gateway->hashed_id,
-                'hash' => $this->checkout->payment_hash->hash,
-            ]);
-
-            $paymentRequest->{'failure_url'} = route('checkout.3ds_redirect', [
-                'company_key' => $this->checkout->client->company->company_key,
-                'company_gateway_id' => $this->checkout->company_gateway->hashed_id,
-                'hash' => $this->checkout->payment_hash->hash,
-            ]);
         }
 
         try {

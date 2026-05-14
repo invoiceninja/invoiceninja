@@ -14,6 +14,11 @@
             line-height: 1.6;
             color: #333;
             margin: 0px;
+            width: 100%;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         .report-header {
@@ -73,7 +78,7 @@
 
         .table-container {
             margin-top: 30px;
-            overflow-x: auto;
+            width: 100%;
         }
 
         .currency-heading {
@@ -85,22 +90,60 @@
 
         table {
             width: 100%;
+            max-width: 100%;
+            table-layout: fixed;
             border-collapse: collapse;
             background: white;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            font-size: 8px;
+            line-height: 1.25;
+        }
+
+        .col-date {
+            width: 8%;
+        }
+
+        .col-invoice-number {
+            width: 11%;
+        }
+
+        .col-status {
+            width: 8%;
+        }
+
+        .col-client-name {
+            width: 18%;
+        }
+
+        .col-client-number,
+        .col-id-number {
+            width: 10%;
+        }
+
+        .col-age {
+            width: 5%;
+        }
+
+        .col-amount,
+        .col-balance {
+            width: 11%;
         }
 
         th {
             background: #34495e;
             color: white;
-            padding: 6px;
+            padding: 4px;
             text-align: center;
+            overflow-wrap: anywhere;
+            word-break: break-word;
         }
 
         td {
-            padding: 6px;
+            padding: 4px;
             border-bottom: 1px solid #eee;
             text-align: center;
+            overflow-wrap: anywhere;
+            word-break: break-word;
         }
 
         tr {
@@ -168,6 +211,18 @@
                     <h2 class="currency-heading">{{ t('currency') }}: {{ group.currency }}</h2>
                 {% endif %}
                 <table>
+                    <colgroup>
+                        <col class="col-date">
+                        <col class="col-date">
+                        <col class="col-invoice-number">
+                        <col class="col-status">
+                        <col class="col-client-name">
+                        <col class="col-client-number">
+                        <col class="col-id-number">
+                        <col class="col-age">
+                        <col class="col-amount">
+                        <col class="col-balance">
+                    </colgroup>
                     <thead>
                         <tr>
                             <th>{{ t('date') }}</th>
@@ -204,6 +259,18 @@
     {% else %}
         <div class="table-container">
             <table>
+                <colgroup>
+                    <col class="col-date">
+                    <col class="col-date">
+                    <col class="col-invoice-number">
+                    <col class="col-status">
+                    <col class="col-client-name">
+                    <col class="col-client-number">
+                    <col class="col-id-number">
+                    <col class="col-age">
+                    <col class="col-amount">
+                    <col class="col-balance">
+                </colgroup>
                 <thead>
                     <tr>
                         <th>{{ t('date') }}</th>

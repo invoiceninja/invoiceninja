@@ -21,6 +21,7 @@ use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\User;
 use App\Services\Report\ARDetailReport;
+use App\Services\Template\TemplateService;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
@@ -311,6 +312,49 @@ class ArDetailReportTest extends TestCase
         $this->assertArrayNotHasKey('EUR', $property->getValue($report));
 
         $this->account->delete();
+    }
+
+    public function testPdfTemplateKeepsDetailedTableWithinPrintableWidth(): void
+    {
+        $template = file_get_contents(resource_path('/views/templates/reports/ar_detail_report.html'));
+        $clientName = str_repeat('Long Client Name ', 8);
+
+        $this->assertIsString($template);
+
+        $html = (new TemplateService())
+            ->setData([
+                'invoice_groups' => [[
+                    'currency' => 'USD',
+                    'invoices' => [[
+                        '2026-05-01',
+                        '2026-06-01',
+                        str_repeat('INV-1234567890', 2),
+                        'Sent',
+                        $clientName,
+                        str_repeat('CLIENT-', 8),
+                        str_repeat('ID-', 12),
+                        '120',
+                        '$123,456,789.99 USD',
+                        '$987,654,321.99 USD',
+                    ]],
+                ]],
+                'company_logo' => '',
+                'created_on' => '2026-05-13',
+                'created_by' => 'Invoice Ninja',
+            ])
+            ->setRawTemplate($template)
+            ->parseNinjaBlocks()
+            ->save()
+            ->getHtml();
+
+        $this->assertStringContainsString($clientName, $html);
+        $this->assertStringContainsString('table-layout: fixed;', $html);
+        $this->assertStringContainsString('max-width: 100%;', $html);
+        $this->assertStringContainsString('overflow-wrap: anywhere;', $html);
+        $this->assertStringContainsString('class="col-client-name"', $html);
+        $this->assertStringContainsString('class="col-balance"', $html);
+        $this->assertSame(1, substr_count($html, '<colgroup>'));
+        $this->assertStringNotContainsString('overflow-x: auto;', $html);
     }
 
 
