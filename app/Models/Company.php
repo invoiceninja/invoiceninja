@@ -405,21 +405,6 @@ class Company extends BaseModel
 
     protected $with = [];
 
-    // public static $modules = [
-    //     self::ENTITY_RECURRING_INVOICE => 1,
-    //     self::ENTITY_CREDIT => 2,
-    //     self::ENTITY_QUOTE => 4,
-    //     self::ENTITY_TASK => 8,
-    //     self::ENTITY_EXPENSE => 16,
-    //     self::ENTITY_PROJECT => 32,
-    //     self::ENTITY_VENDOR => 64,
-    //     self::ENTITY_TICKET => 128,
-    //     self::ENTITY_PROPOSAL => 256,
-    //     self::ENTITY_RECURRING_EXPENSE => 512,
-    //     self::ENTITY_RECURRING_TASK => 1024,
-    //     self::ENTITY_RECURRING_QUOTE => 2048,
-    // ];
-
     public function shouldCalculateTax()
     {
         return $this->calculate_taxes && in_array($this->getSetting('country_id'), $this->tax_coverage_countries);
