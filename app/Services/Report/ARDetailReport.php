@@ -24,6 +24,7 @@ use App\Export\CSV\BaseExport;
 use App\Models\User;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Support\Facades\App;
+use Illuminate\Database\Eloquent\Builder;
 use App\Services\Template\TemplateService;
 
 class ARDetailReport extends BaseExport
@@ -96,13 +97,13 @@ class ARDetailReport extends BaseExport
                 })
                 ->where('invoices.company_id', $this->company->id)
                 ->where('invoices.is_deleted', 0)
-                ->where('invoices.balance', '>', 0)
-                ->orderBy('invoices.due_date', 'ASC');
+                ->where('invoices.balance', '>', 0);
 
         $query = $this->addDateRange($query, 'invoices');
 
         $query = $this->filterByClients($query);
         $query = $this->filterByUserPermissions($query);
+        $query = $this->sortByClientAndDate($query);
 
         $query->cursor()
             ->each(function ($invoice) {
@@ -113,6 +114,21 @@ class ARDetailReport extends BaseExport
         $this->writeCsvTables();
 
         return $this->csv->toString();
+    }
+
+    private function sortByClientAndDate(Builder $query): Builder
+    {
+        return $query
+            ->reorder()
+            ->orderBy(
+                Client::query()
+                    ->select('name')
+                    ->whereColumn('clients.id', 'invoices.client_id')
+                    ->limit(1),
+                'ASC'
+            )
+            ->orderBy('invoices.date', 'ASC')
+            ->orderBy('invoices.id', 'ASC');
     }
 
     public function getPdf()

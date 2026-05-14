@@ -290,6 +290,20 @@ class ArSummaryReportTest extends TestCase
         $this->account->delete();
     }
 
+    public function testSummaryReportSortsByClientName(): void
+    {
+        $report = new ARSummaryReport(new Company(), ['report_keys' => []]);
+        $query = Client::query()->orderBy('balance', 'DESC');
+        $method = new \ReflectionMethod($report, 'sortClientsByName');
+        $method->setAccessible(true);
+
+        $sortedQuery = $method->invoke($report, $query);
+        $sql = strtolower($sortedQuery->toSql());
+
+        $this->assertMatchesRegularExpression('/order by [`"]name[`"] asc, [`"]id[`"] asc/', $sql);
+        $this->assertStringNotContainsString('balance', $sql);
+    }
+
 
     private function buildLineItems()
     {

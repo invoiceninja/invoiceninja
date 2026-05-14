@@ -348,13 +348,39 @@ class ArDetailReportTest extends TestCase
             ->getHtml();
 
         $this->assertStringContainsString($clientName, $html);
-        $this->assertStringContainsString('table-layout: fixed;', $html);
+        $this->assertStringContainsString('width: auto;', $html);
+        $this->assertStringContainsString('table-layout: auto;', $html);
         $this->assertStringContainsString('max-width: 100%;', $html);
+        $this->assertStringContainsString('padding: 0;', $html);
+        $this->assertStringNotContainsString('padding: 3px 0;', $html);
         $this->assertStringContainsString('overflow-wrap: anywhere;', $html);
+        $this->assertStringContainsString('width: 1%;', $html);
         $this->assertStringContainsString('class="col-client-name"', $html);
         $this->assertStringContainsString('class="col-balance"', $html);
         $this->assertSame(1, substr_count($html, '<colgroup>'));
         $this->assertStringNotContainsString('overflow-x: auto;', $html);
+        $this->assertStringNotContainsString('nth-child', $html);
+        $this->assertStringNotContainsString('white-space: nowrap;', $html);
+        $this->assertStringNotContainsString('max-width: 35mm;', $html);
+        $this->assertStringNotContainsString('max-width: 24mm;', $html);
+    }
+
+    public function testDetailedReportSortsByClientNameThenInvoiceDate(): void
+    {
+        $report = new ARDetailReport(new Company(), ['report_keys' => []]);
+        $query = Invoice::query()->orderBy('invoices.due_date', 'DESC');
+        $method = new \ReflectionMethod($report, 'sortByClientAndDate');
+        $method->setAccessible(true);
+
+        $sortedQuery = $method->invoke($report, $query);
+        $sql = strtolower($sortedQuery->toSql());
+
+        $this->assertStringContainsString('order by', $sql);
+        $this->assertMatchesRegularExpression('/select [`"]name[`"] from [`"]clients[`"]/', $sql);
+        $this->assertMatchesRegularExpression('/[`"]clients[`"]\\.[`"]id[`"] = [`"]invoices[`"]\\.[`"]client_id[`"]/', $sql);
+        $this->assertMatchesRegularExpression('/[`"]invoices[`"]\\.[`"]date[`"] asc/', $sql);
+        $this->assertMatchesRegularExpression('/[`"]invoices[`"]\\.[`"]id[`"] asc/', $sql);
+        $this->assertStringNotContainsString('due_date', $sql);
     }
 
 

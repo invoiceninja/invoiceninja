@@ -89,66 +89,41 @@
         }
 
         table {
-            width: 100%;
+            width: auto;
             max-width: 100%;
+            min-width: 100%;
             table-layout: fixed;
             border-collapse: collapse;
             background: white;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             font-size: 8px;
             line-height: 1.25;
-        }
 
-        .col-date {
-            width: 8%;
-        }
-
-        .col-invoice-number {
-            width: 11%;
-        }
-
-        .col-status {
-            width: 8%;
-        }
-
-        .col-client-name {
-            width: 18%;
-        }
-
-        .col-client-number,
-        .col-id-number {
-            width: 10%;
-        }
-
-        .col-age {
-            width: 5%;
-        }
-
-        .col-amount,
-        .col-balance {
-            width: 11%;
         }
 
         th {
             background: #34495e;
             color: white;
-            padding: 4px;
             text-align: center;
             overflow-wrap: anywhere;
             word-break: break-word;
+            padding-top: 4px;
+            padding-bottom: 4px;
         }
 
         td {
-            padding: 4px;
             border-bottom: 1px solid #eee;
             text-align: center;
             overflow-wrap: anywhere;
             word-break: break-word;
+            padding-top: 4px;
+            padding-bottom: 4px;
         }
 
         tr {
             page-break-inside: avoid;
             break-inside: avoid;
+            
         }
 
         /* Optional: Keep header with first few rows */
@@ -200,7 +175,7 @@
 		</div>
 		<div class="header-right">
             {% if company_logo is not empty %}
-                {{ img(company_logo) }}
+                {{ img(company_logo, 'max-width: 100%; height: auto; object-fit: contain;') }}
             {% endif %}
         </div>
 	</div>

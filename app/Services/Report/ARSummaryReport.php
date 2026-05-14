@@ -23,6 +23,7 @@ use App\Libraries\MultiDB;
 use App\Export\CSV\BaseExport;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Support\Facades\App;
+use Illuminate\Database\Eloquent\Builder;
 use App\Services\Template\TemplateService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
@@ -129,7 +130,7 @@ class ARSummaryReport extends BaseExport
 
         $query = $this->filterByUserPermissions($query);
 
-        $query->orderBy('balance', 'desc')
+        $this->sortClientsByName($query)
             ->cursor()
             ->each(function ($client) {
                 /** @var \App\Models\Client $client */
@@ -152,7 +153,7 @@ class ARSummaryReport extends BaseExport
 
         // Process clients in chunks to avoid whereIn() SQL limits
         // For 100,000 clients, this creates 100 chunks with 1 query each
-        $query->orderBy('balance', 'desc')
+        $this->sortClientsByName($query)
             ->chunk($this->chunkSize, function ($clientChunk) {
                 $clientIds = $clientChunk->pluck('id')->toArray();
 
@@ -171,6 +172,14 @@ class ARSummaryReport extends BaseExport
 
                 return true; // Continue to next chunk
             });
+    }
+
+    private function sortClientsByName(Builder $query): Builder
+    {
+        return $query
+            ->reorder()
+            ->orderBy('name', 'ASC')
+            ->orderBy('id', 'ASC');
     }
 
     public function getPdf()
