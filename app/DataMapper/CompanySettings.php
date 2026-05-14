@@ -546,6 +546,8 @@ class CompanySettings extends BaseSettings
     public string $france_reporting_schedule = 'ten_days'; //ten_days, monthly
 
     public static $casts = [
+        'france_reporting_enabled' => 'bool',
+        'france_reporting_schedule' => 'string',
         'e_expense_forward_email' => 'string',
         'ses_from_address' => 'string',
         'ses_topic_arn' => 'string',
