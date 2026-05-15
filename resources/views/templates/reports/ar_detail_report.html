@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Accounts Receivable Details Report</title>
+    <title>Accounts Receivable Detailed Report</title>
     <style> 
 		@page {
             size: landscape;
@@ -83,16 +83,14 @@
 
         .currency-heading {
             color: #2c3e50;
-            font-size: 14px;
+            font-size: 18px;
             font-weight: 600;
             margin: 0 0 8px;
         }
 
         table {
-            width: auto;
-            max-width: 100%;
-            min-width: 100%;
-            table-layout: fixed;
+            width: 100%;
+            table-layout: auto;
             border-collapse: collapse;
             background: white;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
@@ -109,6 +107,12 @@
             word-break: break-word;
             padding-top: 4px;
             padding-bottom: 4px;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+            white-space: nowrap;
+            font-size: min(2vw, 18px);
+            border-right: 1px solid #fff;
+
         }
 
         td {
@@ -118,6 +122,10 @@
             word-break: break-word;
             padding-top: 4px;
             padding-bottom: 4px;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+            white-space: nowrap;
+            font-size: min(2vw, 18px);
         }
 
         tr {

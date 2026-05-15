@@ -12,6 +12,7 @@
 
 namespace App\Models;
 
+use App\DataMapper\ReportData;
 use App\DataMapper\TransactionEventMetadata;
 
 /**
@@ -33,8 +34,8 @@ use App\DataMapper\TransactionEventMetadata;
  * @property float $payment_amount
  * @property float $payment_applied
  * @property float $payment_refunded
- * @property int|null $payment_status
- * @property array|null $paymentables
+ * @property int|null $reporting_status
+ * @property ReportData|null $reporting_data
  * @property int $event_id
  * @property int $timestamp
  * @property array|null $payment_request
@@ -56,7 +57,7 @@ class TransactionEvent extends StaticModel
     public $casts = [
         'metadata' => TransactionEventMetadata::class,
         'payment_request' => 'array',
-        'paymentables' => 'array',
+        'reporting_data' => ReportData::class,
         'period' => 'date',
     ];
 

@@ -41,6 +41,8 @@ class ClientBalanceReport extends BaseExport
 
     private array $clients = [];
 
+    private array $client_groups = [];
+
     private array $invoiceData = [];
 
     public array $report_keys = [
@@ -87,8 +89,6 @@ class ClientBalanceReport extends BaseExport
             $this->input['report_keys'] = $this->report_keys;
         }
 
-        $this->csv->insertOne($this->buildHeader());
-
         // Fetch all clients
         $query = Client::query()
             ->where('company_id', $this->company->id)
@@ -101,11 +101,17 @@ class ClientBalanceReport extends BaseExport
         // Fetch all invoice aggregates in a single query
         $this->invoiceData = $this->getInvoiceDataOptimized($clients->pluck('id')->toArray());
 
+        $clients = $clients->filter(function (Client $client): bool {
+            return (float) ($this->invoiceData[$client->id]['balance'] ?? 0) > 0;
+        });
+
         // Build rows using pre-fetched data
         foreach ($clients as $client) {
             /** @var \App\Models\Client $client */
-            $this->csv->insertOne($this->buildRowOptimized($client));
+            $this->buildRowOptimized($client);
         }
+
+        $this->writeCsvTables();
 
         return $this->csv->toString();
     }
@@ -159,21 +165,61 @@ class ClientBalanceReport extends BaseExport
             $client->number,
             $client->id_number,
             $invoiceData['count'],
-            $invoiceData['balance'],
-            Number::formatMoney($client->credit_balance, $this->company),
-            Number::formatMoney($client->payment_balance, $this->company),
+            Number::formatMoney($invoiceData['balance'], $client),
+            Number::formatMoney($client->credit_balance, $client),
+            Number::formatMoney($client->payment_balance, $client),
         ];
 
-        $this->clients[] = $item;
+        $this->storeClientRow($client->currency()->code, $item);
 
         return $item;
+    }
+
+    private function storeClientRow(string $currency_code, array $row): void
+    {
+        $this->clients[] = $row;
+
+        if (!isset($this->client_groups[$currency_code])) {
+            $this->client_groups[$currency_code] = [
+                'currency' => $currency_code,
+                'clients' => [],
+            ];
+        }
+
+        $this->client_groups[$currency_code]['clients'][] = $row;
+    }
+
+    private function writeCsvTables(): void
+    {
+        if (count($this->client_groups) <= 1) {
+            $this->csv->insertOne($this->buildHeader());
+
+            foreach ($this->clients as $row) {
+                $this->csv->insertOne($row);
+            }
+
+            return;
+        }
+
+        foreach (array_values($this->client_groups) as $index => $group) {
+            if ($index > 0) {
+                $this->csv->insertOne([]);
+            }
+
+            $this->csv->insertOne([ctrans('texts.currency'), $group['currency']]);
+            $this->csv->insertOne($this->buildHeader());
+
+            foreach ($group['clients'] as $row) {
+                $this->csv->insertOne($row);
+            }
+        }
     }
 
     public function buildHeader(): array
     {
         $headers = [];
 
-        foreach ($this->report_keys as $key) {
+        foreach ($this->input['report_keys'] as $key) {
             $headers[] = ctrans("texts.{$key}");
         }
 
@@ -189,6 +235,7 @@ class ClientBalanceReport extends BaseExport
 
         $data = [
             'clients' => $this->clients,
+            'client_groups' => array_values($this->client_groups),
             'company_logo' => $this->company->present()->logo(),
             'company_name' => $this->company->present()->name(),
             'created_on' => $this->translateDate(now()->format('Y-m-d'), $this->company->date_format(), $this->company->locale()),

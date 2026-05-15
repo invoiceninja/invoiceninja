@@ -83,16 +83,14 @@
 
         .currency-heading {
             color: #2c3e50;
-            font-size: 14px;
+            font-size: 18px;
             font-weight: 600;
             margin: 0 0 8px;
         }
 
         table {
-            width: auto;
-            max-width: 100%;
-            min-width: 100%;
-            table-layout: fixed;
+            width: 100%;
+            table-layout: auto;
             border-collapse: collapse;
             background: white;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
@@ -109,6 +107,9 @@
             word-break: break-word;
             padding-top: 4px;
             padding-bottom: 4px;
+            white-space: nowrap;
+            font-size: min(2vw, 18px);
+            border-right: 1px solid #fff;
         }
 
         td {
@@ -118,6 +119,8 @@
             word-break: break-word;
             padding-top: 4px;
             padding-bottom: 4px;
+            white-space: nowrap;
+            font-size: min(2vw, 18px);
         }
 
         tr {
@@ -161,6 +164,11 @@
             background: #e8f5e9;
             color: #2e7d32;
         }
+
+        .align-left{
+            text-align: left;
+        }
+
     </style>
 </head>
 <body>
@@ -188,9 +196,9 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>{{ t('client_name') }}</th>
-                            <th>{{ t('client_number') }}</th>
-                            <th>{{ t('id_number') }}</th>
+                            <th class="align-left">{{ t('name') }}</th>
+                            <th>{{ t('number') }}</th>
+                            <th class="align-left">{{ t('id_number') }}</th>
                             <th>{{ t('current') }}</th>
                             <th>{{ t('age_group_0') }}</th>
                             <th>{{ t('age_group_30') }}</th>
@@ -203,9 +211,9 @@
                     <tbody>
                         {% for client in group.clients %}
                             <tr>
-                                <td>{{ client[0] }}</td>
+                                <td class="align-left">{{ client[0]|slice(0,25) }}</td>
                                 <td>{{ client[1] }}</td>
-                                <td>{{ client[2] }}</td>
+                                <td class="align-left">{{ client[2]|slice(0, 14) }}</td>
                                 <td>{{ client[3] }}</td>
                                 <td>{{ client[4] }}</td>
                                 <td>{{ client[5] }}</td>
@@ -224,9 +232,9 @@
             <table>
                 <thead>
                     <tr>
-                        <th>{{ t('client_name') }}</th>
-                        <th>{{ t('client_number') }}</th>
-                        <th>{{ t('id_number') }}</th>
+                        <th class="align-left">{{ t('client_name') }}</th>
+                        <th class="align-left">{{ t('client_number') }}</th>
+                        <th class="align-left">{{ t('id_number') }}</th>
                         <th>{{ t('current') }}</th>
                         <th>{{ t('age_group_0') }}</th>
                         <th>{{ t('age_group_30') }}</th>

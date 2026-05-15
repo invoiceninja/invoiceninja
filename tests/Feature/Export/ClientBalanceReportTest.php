@@ -12,6 +12,7 @@
 
 namespace Tests\Feature\Export;
 
+use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Factory\InvoiceItemFactory;
 use App\Models\Account;
@@ -20,6 +21,7 @@ use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\User;
 use App\Services\Report\ClientBalanceReport;
+use App\Services\Template\TemplateService;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Tests\TestCase;
@@ -197,6 +199,198 @@ class ClientBalanceReportTest extends TestCase
         $this->assertIsString($response);
 
         $this->account->delete();
+    }
+
+    public function testReportGroupsMultipleClientCurrencies()
+    {
+        $this->buildData();
+
+        $company_settings = $this->company->settings;
+        $company_settings->currency_id = '1';
+        $company_settings->show_currency_code = true;
+        $this->company->settings = $company_settings;
+        $this->company->save();
+
+        $client_settings = ClientSettings::defaults();
+        $client_settings->currency_id = '2';
+        $client_settings->show_currency_code = true;
+        $this->client->settings = $client_settings;
+        $this->client->credit_balance = 12;
+        $this->client->payment_balance = 7;
+        $this->client->save();
+        $this->client->refresh();
+
+        $usd_client_settings = ClientSettings::defaults();
+        $usd_client_settings->currency_id = '1';
+        $usd_client_settings->show_currency_code = true;
+
+        $usd_client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'settings' => $usd_client_settings,
+            'credit_balance' => 6,
+            'payment_balance' => 4,
+            'is_deleted' => 0,
+        ]);
+
+        Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 100,
+            'balance' => 100,
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => now()->format('Y-m-d'),
+            'is_deleted' => false,
+        ]);
+
+        Invoice::factory()->create([
+            'client_id' => $usd_client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 75,
+            'balance' => 75,
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => now()->format('Y-m-d'),
+            'is_deleted' => false,
+        ]);
+
+        $this->payload = [
+            'start_date' => '2000-01-01',
+            'end_date' => '2030-01-11',
+            'date_range' => 'custom',
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ];
+
+        $report = new ClientBalanceReport($this->company->fresh(), $this->payload);
+        $response = $report->run();
+
+        $this->assertStringContainsString('Currency,GBP', $response);
+        $this->assertStringContainsString('Currency,USD', $response);
+        $this->assertStringContainsString('100.00 GBP', $response);
+        $this->assertStringContainsString('75.00 USD', $response);
+        $this->assertStringContainsString('12.00 GBP', $response);
+        $this->assertStringContainsString('6.00 USD', $response);
+
+        $reflection = new \ReflectionClass($report);
+        $property = $reflection->getProperty('client_groups');
+        $property->setAccessible(true);
+        $groups = $property->getValue($report);
+
+        $this->assertArrayHasKey('GBP', $groups);
+        $this->assertArrayHasKey('USD', $groups);
+
+        $this->account->delete();
+    }
+
+    public function testReportExcludesClientsWithZeroBalance(): void
+    {
+        $this->buildData();
+
+        $positive_balance_client = Client::factory()->create([
+            'name' => 'Positive Balance Client',
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'is_deleted' => 0,
+        ]);
+
+        $zero_balance_client = Client::factory()->create([
+            'name' => 'Zero Balance Client',
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'credit_balance' => 25,
+            'payment_balance' => 10,
+            'is_deleted' => 0,
+        ]);
+
+        Invoice::factory()->create([
+            'client_id' => $positive_balance_client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 125,
+            'balance' => 125,
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => '2025-05-10',
+            'created_at' => '2025-05-10 00:00:00',
+            'updated_at' => '2025-05-10 00:00:00',
+            'is_deleted' => false,
+        ]);
+
+        Invoice::factory()->create([
+            'client_id' => $zero_balance_client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 80,
+            'balance' => 0,
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => '2025-05-10',
+            'created_at' => '2025-05-10 00:00:00',
+            'updated_at' => '2025-05-10 00:00:00',
+            'is_deleted' => false,
+        ]);
+
+        $report = new ClientBalanceReport($this->company, [
+            'start_date' => '2025-05-01',
+            'end_date' => '2025-05-31',
+            'date_range' => 'custom',
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ]);
+
+        $out = $report->run();
+
+        $this->assertStringContainsString('Positive Balance Client', $out);
+        $this->assertStringContainsString('125.00', $out);
+        $this->assertStringNotContainsString('Zero Balance Client', $out);
+        $this->assertStringNotContainsString('80.00', $out);
+
+        $this->account->delete();
+    }
+
+    public function testPdfTemplateKeepsBalanceTableWithinPrintableWidth(): void
+    {
+        $template = file_get_contents(resource_path('/views/templates/reports/client_balance_report.html'));
+        $clientName = str_repeat('Long Client Name ', 8);
+
+        $this->assertIsString($template);
+
+        $html = (new TemplateService())
+            ->setData([
+                'client_groups' => [[
+                    'currency' => 'GBP',
+                    'clients' => [[
+                        $clientName,
+                        str_repeat('CLIENT-', 8),
+                        str_repeat('ID-', 12),
+                        '12',
+                        '123,456,789.99 GBP',
+                        '987,654,321.99 GBP',
+                        '456,789,123.99 GBP',
+                    ]],
+                ]],
+                'company_logo' => '',
+                'created_on' => '2026-05-13',
+                'created_by' => 'Invoice Ninja',
+            ])
+            ->setRawTemplate($template)
+            ->parseNinjaBlocks()
+            ->save()
+            ->getHtml();
+
+        $this->assertStringContainsString($clientName, $html);
+        $this->assertStringContainsString('width: auto;', $html);
+        $this->assertStringContainsString('max-width: 100%;', $html);
+        $this->assertStringContainsString('min-width: 100%;', $html);
+        $this->assertStringContainsString('table-layout: fixed;', $html);
+        $this->assertStringContainsString('padding-top: 4px;', $html);
+        $this->assertStringContainsString('padding-bottom: 4px;', $html);
+        $this->assertStringContainsString('overflow-wrap: anywhere;', $html);
+        $this->assertStringContainsString('word-break: break-word;', $html);
+        $this->assertStringNotContainsString('padding-left:', $html);
+        $this->assertStringNotContainsString('padding-right:', $html);
+        $this->assertStringNotContainsString('padding: 0;', $html);
+        $this->assertStringNotContainsString('overflow-x: auto;', $html);
     }
 
 

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Accounts Receivable Details Report</title>
+    <title>Client Sales Report</title>
     <style> 
 		@page {
             size: landscape;
@@ -14,6 +14,11 @@
             line-height: 1.6;
             color: #333;
             margin: 0px;
+            width: 100%;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         .report-header {
@@ -73,27 +78,49 @@
 
         .table-container {
             margin-top: 30px;
-            overflow-x: auto;
+            width: 100%;
+        }
+
+        .currency-heading {
+            color: #2c3e50;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 8px;
         }
 
         table {
             width: 100%;
+            table-layout: auto;
             border-collapse: collapse;
             background: white;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            line-height: 1.25;
         }
 
         th {
             background: #34495e;
             color: white;
-            padding: 6px;
             text-align: center;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            padding-top: 4px;
+            padding-bottom: 4px;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+            white-space: nowrap;
+            font-size: min(2vw, 18px);
+            border-right: 1px solid #fff;
         }
 
         td {
-            padding: 6px;
             border-bottom: 1px solid #eee;
             text-align: center;
+            overflow-wrap: anywhere;
+            white-space: nowrap;
+            font-size: min(2vw, 18px);
+            word-break: break-word;
+            padding-top: 4px;
+            padding-bottom: 4px;
         }
 
         tr {
@@ -125,6 +152,38 @@
             font-family: monospace;
         }
 
+        .monthly-table {
+            font-size: 8px;
+            line-height: 1.25;
+        }
+
+        .monthly-table th,
+        .monthly-table td {
+            text-align: center;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            padding-top: 4px;
+            padding-bottom: 4px;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+            white-space: nowrap;
+            font-size: min(2vw, 18px);
+        }
+
+        .monthly-table th {
+            color: white;
+            background: #34495e;
+            border-right: 1px solid #fff;
+        }
+
+        .monthly-client {
+            width: 16%;
+        }
+
+        .monthly-period {
+            width: auto;
+        }
+
         .status {
             padding: 4px 8px;
             border-radius: 4px;
@@ -152,55 +211,132 @@
             {% if company_logo is not empty %}
                 {{ img(company_logo, 'max-height: 80px; width: auto; object-fit: contain;') }}
             {% endif %}
-        </div>
+		</div>
 	</div>
-    <div class="table-container">
-		<table>
-            <thead>
-                <tr>
-                    <th>{{ t('client_name') }}</th>
-                    <th>{{ t('client_number') }}</th>
-                    <th>{{ t('id_number') }}</th>
-                    <th>{{ t('invoices') }}</th>
-                    <th>{{ t('amount') }}</th>
-                    <th>{{ t('balance') }}</th>
-                    <th>{{ t('total_taxes') }}</th>
-                    <th>{{ t('amount_paid') }}</th>
-                </tr>
-            </thead>
-            <tbody>
-				{% if clients is defined and clients is not empty %}
-
-                {% for client in clients %}
+    {% if client_groups is defined and client_groups is not empty %}
+        {% for group in client_groups %}
+            <div class="table-container">
+                {% if client_groups|length > 1 %}
+                    <h2 class="currency-heading">{{ t('currency') }}: {{ group.currency }}</h2>
+                {% endif %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>{{ t('client_name') }}</th>
+                            <th>{{ t('client_number') }}</th>
+                            <th>{{ t('id_number') }}</th>
+                            <th>{{ t('invoices') }}</th>
+                            <th>{{ t('amount') }}</th>
+                            <th>{{ t('balance') }}</th>
+                            <th>{{ t('total_taxes') }}</th>
+                            <th>{{ t('amount_paid') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for client in group.clients %}
+                            <tr>
+                                <td>{{ client[0] }}</td>
+                                <td>{{ client[1] }}</td>
+                                <td>{{ client[2] }}</td>
+                                <td>{{ client[3] }}</td>
+                                <td>{{ client[4] }}</td>
+                                <td>{{ client[5] }}</td>
+                                <td>{{ client[6] }}</td>
+                                <td>{{ client[7] }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="table-container">
+            <table>
+                <thead>
                     <tr>
-                        <td>{{ client[0] }}</td>
-                        <td>{{ client[1] }}</td>
-                        <td>{{ client[2] }}</td>
-                        <td>{{ client[3] }}</td>
-                        <td>{{ client[4] }}</td>
-                        <td>{{ client[5] }}</td>
-                        <td>{{ client[6] }}</td>
-                        <td>{{ client[7] }}</td>
+                        <th>{{ t('client_name') }}</th>
+                        <th>{{ t('client_number') }}</th>
+                        <th>{{ t('id_number') }}</th>
+                        <th>{{ t('invoices') }}</th>
+                        <th>{{ t('amount') }}</th>
+                        <th>{{ t('balance') }}</th>
+                        <th>{{ t('total_taxes') }}</th>
+                        <th>{{ t('amount_paid') }}</th>
                     </tr>
-                {% endfor %}
-				{% endif %}
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody>
+                    {% if clients is defined and clients is not empty %}
+                        {% for client in clients %}
+                            <tr>
+                                <td>{{ client[0] }}</td>
+                                <td>{{ client[1] }}</td>
+                                <td>{{ client[2] }}</td>
+                                <td>{{ client[3] }}</td>
+                                <td>{{ client[4] }}</td>
+                                <td>{{ client[5] }}</td>
+                                <td>{{ client[6] }}</td>
+                                <td>{{ client[7] }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
 
     {% if monthly_skipped is defined and monthly_skipped %}
         <div class="report-meta" style="margin-top: 10mm;">
             <em>{{ t('monthly_breakdown_skipped') }}</em>
         </div>
     {% else %}
-        {% if monthly_invoices is defined and monthly_invoices is not empty %}
+        {% if monthly_invoice_groups is defined and monthly_invoice_groups is not empty %}
+            <h2 class="report-title" style="margin-top: 10mm;">{{ t('invoices_by_month') }}</h2>
+            {% for group in monthly_invoice_groups %}
+                <div class="table-container">
+                    {% if monthly_invoice_groups|length > 1 %}
+                        <h2 class="currency-heading">{{ t('currency') }}: {{ group.currency }}</h2>
+                    {% endif %}
+                    <table class="monthly-table">
+                        <colgroup>
+                            <col class="monthly-client">
+                            {% for label in monthly_invoice_header|default(monthly_header) %}
+                                <col class="monthly-period">
+                            {% endfor %}
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>{{ t('client_name') }}</th>
+                                {% for label in monthly_invoice_header|default(monthly_header) %}
+                                    <th>{{ label }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in group.rows %}
+                                <tr>
+                                    {% for cell in row %}
+                                        <td>{{ cell }}</td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endfor %}
+        {% elseif monthly_invoices is defined and monthly_invoices is not empty %}
             <h2 class="report-title" style="margin-top: 10mm;">{{ t('invoices_by_month') }}</h2>
             <div class="table-container">
-                <table>
+                <table class="monthly-table">
+                    <colgroup>
+                        <col class="monthly-client">
+                        {% for label in monthly_invoice_header|default(monthly_header) %}
+                            <col class="monthly-period">
+                        {% endfor %}
+                    </colgroup>
                     <thead>
                         <tr>
                             <th>{{ t('client_name') }}</th>
-                            {% for label in monthly_header %}
+                            {% for label in monthly_invoice_header|default(monthly_header) %}
                                 <th>{{ label }}</th>
                             {% endfor %}
                         </tr>
@@ -218,14 +354,54 @@
             </div>
         {% endif %}
 
-        {% if monthly_payments is defined and monthly_payments is not empty %}
+        {% if monthly_payment_groups is defined and monthly_payment_groups is not empty %}
+            <h2 class="report-title" style="margin-top: 10mm;">{{ t('payments_by_month') }}</h2>
+            {% for group in monthly_payment_groups %}
+                <div class="table-container">
+                    {% if monthly_payment_groups|length > 1 %}
+                        <h2 class="currency-heading">{{ t('currency') }}: {{ group.currency }}</h2>
+                    {% endif %}
+                    <table class="monthly-table">
+                        <colgroup>
+                            <col class="monthly-client">
+                            {% for label in monthly_payment_header|default(monthly_header) %}
+                                <col class="monthly-period">
+                            {% endfor %}
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>{{ t('client_name') }}</th>
+                                {% for label in monthly_payment_header|default(monthly_header) %}
+                                    <th>{{ label }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in group.rows %}
+                                <tr>
+                                    {% for cell in row %}
+                                        <td>{{ cell }}</td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endfor %}
+        {% elseif monthly_payments is defined and monthly_payments is not empty %}
             <h2 class="report-title" style="margin-top: 10mm;">{{ t('payments_by_month') }}</h2>
             <div class="table-container">
-                <table>
+                <table class="monthly-table">
+                    <colgroup>
+                        <col class="monthly-client">
+                        {% for label in monthly_payment_header|default(monthly_header) %}
+                            <col class="monthly-period">
+                        {% endfor %}
+                    </colgroup>
                     <thead>
                         <tr>
                             <th>{{ t('client_name') }}</th>
-                            {% for label in monthly_header %}
+                            {% for label in monthly_payment_header|default(monthly_header) %}
                                 <th>{{ label }}</th>
                             {% endfor %}
                         </tr>
