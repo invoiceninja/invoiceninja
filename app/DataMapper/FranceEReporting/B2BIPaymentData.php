@@ -26,16 +26,22 @@ final readonly class B2BIPaymentData implements Arrayable, JsonSerializable
     public function __construct(
         public string $invoiceNumber,
         public string $paymentDate,
-        public int|float|string $amount,
-        public string $currency,
+        public int|float|string|null $amount = null,
+        public ?string $currency = null,
         public ?string $issueDate = null,
         public ?string $paymentMeansCode = null,
         public array $taxSubtotals = [],
     ) {
         ReportDataValidator::assertNonEmptyString($this->invoiceNumber, 'b2biPayments.invoiceNumber');
         ReportDataValidator::assertDate($this->paymentDate, 'b2biPayments.paymentDate');
-        ReportDataValidator::assertNumeric($this->amount, 'b2biPayments.amount');
-        ReportDataValidator::assertNonEmptyString($this->currency, 'b2biPayments.currency');
+
+        if (! is_null($this->amount)) {
+            ReportDataValidator::assertNumeric($this->amount, 'b2biPayments.amount');
+        }
+
+        if (! is_null($this->currency)) {
+            ReportDataValidator::assertNonEmptyString($this->currency, 'b2biPayments.currency');
+        }
 
         if (! is_null($this->issueDate)) {
             ReportDataValidator::assertDate($this->issueDate, 'b2biPayments.issueDate');
@@ -50,8 +56,10 @@ final readonly class B2BIPaymentData implements Arrayable, JsonSerializable
         return new self(
             invoiceNumber: ReportDataValidator::assertNonEmptyString($data['invoiceNumber'] ?? null, 'b2biPayments.invoiceNumber'),
             paymentDate: ReportDataValidator::assertDate($data['paymentDate'] ?? null, 'b2biPayments.paymentDate'),
-            amount: ReportDataValidator::assertNumeric($data['amount'] ?? null, 'b2biPayments.amount'),
-            currency: ReportDataValidator::assertNonEmptyString($data['currency'] ?? null, 'b2biPayments.currency'),
+            amount: array_key_exists('amount', $data) && ! is_null($data['amount'])
+                ? ReportDataValidator::assertNumeric($data['amount'], 'b2biPayments.amount')
+                : null,
+            currency: ReportDataValidator::assertOptionalString($data['currency'] ?? null, 'b2biPayments.currency'),
             issueDate: array_key_exists('issueDate', $data) && ! is_null($data['issueDate'])
                 ? ReportDataValidator::assertDate($data['issueDate'], 'b2biPayments.issueDate')
                 : null,

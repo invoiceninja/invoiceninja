@@ -144,11 +144,11 @@ class ReportDataCastTest extends TestCase
                         date: '2026-09-25',
                         taxSubtotal: [
                             new TaxSubtotalData(
+                                percentage: '20.0',
+                                category: 'standard',
                                 taxableAmount: '1000.00',
                                 taxAmount: '200.00',
-                                percent: '20.0',
                                 currency: 'EUR',
-                                category: 'standard',
                             ),
                         ],
                     ),
@@ -201,11 +201,11 @@ class ReportDataCastTest extends TestCase
                         'vatPaymentOption' => 'on_collection',
                         'taxSubtotals' => [
                             [
+                                'category' => 'standard',
+                                'percentage' => '20.0',
                                 'taxableAmount' => '1000.00',
                                 'taxAmount' => '200.00',
-                                'percent' => '20.0',
                                 'currency' => 'EUR',
-                                'category' => 'standard',
                             ],
                         ],
                     ],
@@ -219,11 +219,11 @@ class ReportDataCastTest extends TestCase
                         'date' => '2026-09-25',
                         'taxSubtotal' => [
                             [
+                                'category' => 'standard',
+                                'percentage' => '20.0',
                                 'taxableAmount' => '1000.00',
                                 'taxAmount' => '200.00',
-                                'percent' => '20.0',
                                 'currency' => 'EUR',
-                                'category' => 'standard',
                             ],
                         ],
                     ],

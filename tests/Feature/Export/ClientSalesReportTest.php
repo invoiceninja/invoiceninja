@@ -470,6 +470,11 @@ class ClientSalesReportTest extends TestCase
     {
         $template = file_get_contents(resource_path('/views/templates/reports/client_sales_report.html'));
         $clientName = str_repeat('Long Client Name ', 8);
+        $monthlyClientName = str_repeat('Monthly Client Name ', 8);
+        $idNumber = str_repeat('ID-', 12);
+        $truncatedClientName = substr($clientName, 0, 25);
+        $truncatedMonthlyClientName = substr($monthlyClientName, 0, 25);
+        $truncatedIdNumber = substr($idNumber, 0, 14);
         $monthlyHeader = [];
 
         for ($month = 1; $month <= 24; $month++) {
@@ -480,11 +485,11 @@ class ClientSalesReportTest extends TestCase
         $paymentHeader = array_slice($monthlyHeader, 5);
 
         $invoiceMonthlyRow = array_merge(
-            [$clientName],
+            [$monthlyClientName],
             array_fill(0, count($invoiceHeader), '123,456,789.99 GBP')
         );
         $paymentMonthlyRow = array_merge(
-            [$clientName],
+            [$monthlyClientName],
             array_fill(0, count($paymentHeader), '123,456,789.99 GBP')
         );
 
@@ -497,7 +502,7 @@ class ClientSalesReportTest extends TestCase
                     'clients' => [[
                         $clientName,
                         str_repeat('CLIENT-', 8),
-                        str_repeat('ID-', 12),
+                        $idNumber,
                         '12',
                         '123,456,789.99 GBP',
                         '987,654,321.99 GBP',
@@ -526,23 +531,27 @@ class ClientSalesReportTest extends TestCase
             ->save()
             ->getHtml();
 
-        $this->assertStringContainsString($clientName, $html);
-        $this->assertStringContainsString('width: auto;', $html);
-        $this->assertStringContainsString('max-width: 100%;', $html);
-        $this->assertStringContainsString('min-width: 100%;', $html);
-        $this->assertStringContainsString('table-layout: fixed;', $html);
+        $this->assertStringContainsString($truncatedClientName, $html);
+        $this->assertStringContainsString($truncatedMonthlyClientName, $html);
+        $this->assertStringContainsString($truncatedIdNumber, $html);
+        $this->assertStringNotContainsString($clientName, $html);
+        $this->assertStringNotContainsString($monthlyClientName, $html);
+        $this->assertStringNotContainsString($idNumber, $html);
+        $this->assertStringContainsString('table-layout: auto;', $html);
         $this->assertStringContainsString('class="monthly-table"', $html);
         $this->assertStringContainsString('class="monthly-client"', $html);
         $this->assertStringContainsString('class="monthly-period"', $html);
-        $this->assertStringContainsString('font-size: 5px;', $html);
+        $this->assertStringContainsString('font-size: 8px;', $html);
+        $this->assertStringContainsString('font-size: min(2vw, 18px);', $html);
         $this->assertStringContainsString('padding-top: 4px;', $html);
         $this->assertStringContainsString('padding-bottom: 4px;', $html);
-        $this->assertStringContainsString('padding-top: 2px;', $html);
-        $this->assertStringContainsString('padding-bottom: 2px;', $html);
+        $this->assertStringContainsString('padding-left: 1rem !important;', $html);
+        $this->assertStringContainsString('padding-right: 1rem !important;', $html);
+        $this->assertStringContainsString('white-space: nowrap;', $html);
         $this->assertStringContainsString('overflow-wrap: anywhere;', $html);
         $this->assertStringContainsString('word-break: break-word;', $html);
-        $this->assertStringNotContainsString('padding-left:', $html);
-        $this->assertStringNotContainsString('padding-right:', $html);
+        $this->assertStringContainsString('class="align-left"', $html);
+        $this->assertStringNotContainsString('table-layout: fixed;', $html);
         $this->assertStringNotContainsString('padding: 0;', $html);
         $this->assertStringNotContainsString('Month-01-2025', $html);
         $this->assertStringContainsString('Month-03-2025', $html);

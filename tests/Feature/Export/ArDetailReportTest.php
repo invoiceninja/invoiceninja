@@ -318,6 +318,9 @@ class ArDetailReportTest extends TestCase
     {
         $template = file_get_contents(resource_path('/views/templates/reports/ar_detail_report.html'));
         $clientName = str_repeat('Long Client Name ', 8);
+        $idNumber = str_repeat('ID-', 12);
+        $truncatedClientName = substr($clientName, 0, 25);
+        $truncatedIdNumber = substr($idNumber, 0, 14);
 
         $this->assertIsString($template);
 
@@ -332,7 +335,7 @@ class ArDetailReportTest extends TestCase
                         'Sent',
                         $clientName,
                         str_repeat('CLIENT-', 8),
-                        str_repeat('ID-', 12),
+                        $idNumber,
                         '120',
                         '$123,456,789.99 USD',
                         '$987,654,321.99 USD',
@@ -347,23 +350,26 @@ class ArDetailReportTest extends TestCase
             ->save()
             ->getHtml();
 
-        $this->assertStringContainsString($clientName, $html);
-        $this->assertStringContainsString('width: auto;', $html);
-        $this->assertStringContainsString('max-width: 100%;', $html);
-        $this->assertStringContainsString('min-width: 100%;', $html);
-        $this->assertStringContainsString('table-layout: fixed;', $html);
+        $this->assertStringContainsString($truncatedClientName, $html);
+        $this->assertStringContainsString($truncatedIdNumber, $html);
+        $this->assertStringNotContainsString($clientName, $html);
+        $this->assertStringNotContainsString($idNumber, $html);
+        $this->assertStringContainsString('table-layout: auto;', $html);
         $this->assertStringContainsString('padding-top: 4px;', $html);
         $this->assertStringContainsString('padding-bottom: 4px;', $html);
-        $this->assertStringNotContainsString('padding-left:', $html);
-        $this->assertStringNotContainsString('padding-right:', $html);
+        $this->assertStringContainsString('padding-left: 0.5rem !important;', $html);
+        $this->assertStringContainsString('padding-right: 0.5rem !important;', $html);
+        $this->assertStringContainsString('white-space: nowrap;', $html);
+        $this->assertStringContainsString('font-size: min(2vw, 18px);', $html);
         $this->assertStringNotContainsString('padding: 0;', $html);
         $this->assertStringContainsString('overflow-wrap: anywhere;', $html);
+        $this->assertStringContainsString('class="align-left"', $html);
         $this->assertStringContainsString('class="col-client-name"', $html);
         $this->assertStringContainsString('class="col-balance"', $html);
         $this->assertSame(1, substr_count($html, '<colgroup>'));
         $this->assertStringNotContainsString('overflow-x: auto;', $html);
         $this->assertStringNotContainsString('nth-child', $html);
-        $this->assertStringNotContainsString('white-space: nowrap;', $html);
+        $this->assertStringNotContainsString('table-layout: fixed;', $html);
         $this->assertStringNotContainsString('max-width: 35mm;', $html);
         $this->assertStringNotContainsString('max-width: 24mm;', $html);
     }
