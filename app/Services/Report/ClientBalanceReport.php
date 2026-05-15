@@ -91,6 +91,7 @@ class ClientBalanceReport extends BaseExport
 
         // Fetch all clients
         $query = Client::query()
+            ->with(['company', 'country', 'group_settings'])
             ->where('company_id', $this->company->id)
             ->where('is_deleted', 0);
 
