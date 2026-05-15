@@ -175,7 +175,11 @@
             background: #34495e;
             border-right: 1px solid #fff;
         }
-
+    
+        .monthly-table td:first-child{
+            text-align:left;
+        }
+        
         .monthly-client {
             width: 16%;
         }
@@ -194,6 +198,11 @@
         .status-sent {
             background: #e8f5e9;
             color: #2e7d32;
+        }
+
+        .align-left{
+            text-align: left;
+            padding-left: 1rem;
         }
     </style>
 </head>
@@ -222,9 +231,9 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>{{ t('client_name') }}</th>
-                            <th>{{ t('client_number') }}</th>
-                            <th>{{ t('id_number') }}</th>
+                            <th class="align-left">{{ t('name') }}</th>
+                            <th>{{ t('number') }}</th>
+                            <th class="align-left">{{ t('id_number') }}</th>
                             <th>{{ t('invoices') }}</th>
                             <th>{{ t('amount') }}</th>
                             <th>{{ t('balance') }}</th>
@@ -235,9 +244,9 @@
                     <tbody>
                         {% for client in group.clients %}
                             <tr>
-                                <td>{{ client[0] }}</td>
+                                <td class="align-left">{{ client[0]|slice(0,25) }}</td>
                                 <td>{{ client[1] }}</td>
-                                <td>{{ client[2] }}</td>
+                                <td class="align-left">{{ client[2]|slice(0, 14) }}</td>
                                 <td>{{ client[3] }}</td>
                                 <td>{{ client[4] }}</td>
                                 <td>{{ client[5] }}</td>
@@ -254,9 +263,9 @@
             <table>
                 <thead>
                     <tr>
-                        <th>{{ t('client_name') }}</th>
-                        <th>{{ t('client_number') }}</th>
-                        <th>{{ t('id_number') }}</th>
+                        <th class="align-left">{{ t('name') }}</th>
+                        <th>{{ t('number') }}</th>
+                        <th class="align-left">{{ t('id_number') }}</th>
                         <th>{{ t('invoices') }}</th>
                         <th>{{ t('amount') }}</th>
                         <th>{{ t('balance') }}</th>
@@ -268,9 +277,9 @@
                     {% if clients is defined and clients is not empty %}
                         {% for client in clients %}
                             <tr>
-                                <td>{{ client[0] }}</td>
+                                <td class="align-left">{{ client[0]|slice(0,25) }}</td>
                                 <td>{{ client[1] }}</td>
-                                <td>{{ client[2] }}</td>
+                                <td class="align-left">{{ client[2]|slice(0, 14) }}</td>
                                 <td>{{ client[3] }}</td>
                                 <td>{{ client[4] }}</td>
                                 <td>{{ client[5] }}</td>
@@ -305,7 +314,7 @@
                         </colgroup>
                         <thead>
                             <tr>
-                                <th>{{ t('client_name') }}</th>
+                                <th class="align-left">{{ t('name') }}</th>
                                 {% for label in monthly_invoice_header|default(monthly_header) %}
                                     <th>{{ label }}</th>
                                 {% endfor %}
@@ -315,7 +324,13 @@
                             {% for row in group.rows %}
                                 <tr>
                                     {% for cell in row %}
-                                        <td>{{ cell }}</td>
+                                        <td{% if loop.first %} class="align-left"{% endif %}>
+                                            {% if loop.first %}
+                                                {{ cell|slice(0,25) }}
+                                            {% else %}
+                                                {{ cell }}
+                                            {% endif %}
+                                        </td>
                                     {% endfor %}
                                 </tr>
                             {% endfor %}
@@ -335,7 +350,7 @@
                     </colgroup>
                     <thead>
                         <tr>
-                            <th>{{ t('client_name') }}</th>
+                            <th class="align-left">{{ t('name') }}</th>
                             {% for label in monthly_invoice_header|default(monthly_header) %}
                                 <th>{{ label }}</th>
                             {% endfor %}
@@ -345,7 +360,13 @@
                         {% for row in monthly_invoices %}
                             <tr>
                                 {% for cell in row %}
-                                    <td>{{ cell }}</td>
+                                    <td{% if loop.first %} class="align-left"{% endif %}>
+                                        {% if loop.first %}
+                                            {{ cell|slice(0,25) }}
+                                        {% else %}
+                                            {{ cell }}
+                                        {% endif %}
+                                    </td>
                                 {% endfor %}
                             </tr>
                         {% endfor %}
@@ -370,7 +391,7 @@
                         </colgroup>
                         <thead>
                             <tr>
-                                <th>{{ t('client_name') }}</th>
+                                <th class="align-left">{{ t('name') }}</th>
                                 {% for label in monthly_payment_header|default(monthly_header) %}
                                     <th>{{ label }}</th>
                                 {% endfor %}
@@ -380,7 +401,13 @@
                             {% for row in group.rows %}
                                 <tr>
                                     {% for cell in row %}
-                                        <td>{{ cell }}</td>
+                                        <td{% if loop.first %} class="align-left"{% endif %}>
+                                            {% if loop.first %}
+                                                {{ cell|slice(0,25) }}
+                                            {% else %}
+                                                {{ cell }}
+                                            {% endif %}
+                                        </td>
                                     {% endfor %}
                                 </tr>
                             {% endfor %}
@@ -400,7 +427,7 @@
                     </colgroup>
                     <thead>
                         <tr>
-                            <th>{{ t('client_name') }}</th>
+                            <th class="align-left">{{ t('name') }}</th>
                             {% for label in monthly_payment_header|default(monthly_header) %}
                                 <th>{{ label }}</th>
                             {% endfor %}
@@ -410,7 +437,13 @@
                         {% for row in monthly_payments %}
                             <tr>
                                 {% for cell in row %}
-                                    <td>{{ cell }}</td>
+                                    <td{% if loop.first %} class="align-left"{% endif %}>
+                                        {% if loop.first %}
+                                            {{ cell|slice(0,25) }}
+                                        {% else %}
+                                            {{ cell }}
+                                        {% endif %}
+                                    </td>
                                 {% endfor %}
                             </tr>
                         {% endfor %}

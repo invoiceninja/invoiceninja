@@ -166,6 +166,10 @@
             background: #e8f5e9;
             color: #2e7d32;
         }
+
+        .align-left{
+            text-align: left;
+        }
     </style>
 </head>
 <body>
@@ -193,9 +197,9 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>{{ t('client_name') }}</th>
-                            <th>{{ t('client_number') }}</th>
-                            <th>{{ t('id_number') }}</th>
+                            <th class="align-left">{{ t('name') }}</th>
+                            <th>{{ t('number') }}</th>
+                            <th class="align-left">{{ t('id_number') }}</th>
                             <th>{{ t('invoices') }}</th>
                             <th>{{ t('invoice_balance') }}</th>
                             <th>{{ t('credit_balance') }}</th>
@@ -205,9 +209,9 @@
                     <tbody>
                         {% for client in group.clients %}
                             <tr>
-                                <td>{{ client[0] }}</td>
+                                <td class="align-left">{{ client[0]|slice(0,25) }}</td>
                                 <td>{{ client[1] }}</td>
-                                <td>{{ client[2] }}</td>
+                                <td class="align-left">{{ client[2]|slice(0, 14) }}</td>
                                 <td>{{ client[3] }}</td>
                                 <td>{{ client[4] }}</td>
                                 <td>{{ client[5] }}</td>
@@ -223,9 +227,9 @@
             <table>
                 <thead>
                     <tr>
-                        <th>{{ t('client_name') }}</th>
-                        <th>{{ t('client_number') }}</th>
-                        <th>{{ t('id_number') }}</th>
+                        <th class="align-left">{{ t('name') }}</th>
+                        <th>{{ t('number') }}</th>
+                        <th class="align-left">{{ t('id_number') }}</th>
                         <th>{{ t('invoices') }}</th>
                         <th>{{ t('invoice_balance') }}</th>
                         <th>{{ t('credit_balance') }}</th>
@@ -236,9 +240,9 @@
                     {% if clients is defined and clients is not empty %}
                         {% for client in clients %}
                             <tr>
-                                <td>{{ client[0] }}</td>
+                                <td class="align-left">{{ client[0]|slice(0,25) }}</td>
                                 <td>{{ client[1] }}</td>
-                                <td>{{ client[2] }}</td>
+                                <td class="align-left">{{ client[2]|slice(0, 14) }}</td>
                                 <td>{{ client[3] }}</td>
                                 <td>{{ client[4] }}</td>
                                 <td>{{ client[5] }}</td>

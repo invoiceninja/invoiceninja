@@ -107,8 +107,8 @@
             word-break: break-word;
             padding-top: 4px;
             padding-bottom: 4px;
-            padding-left: 1rem !important;
-            padding-right: 1rem !important;
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
             white-space: nowrap;
             font-size: min(2vw, 18px);
             border-right: 1px solid #fff;
@@ -122,8 +122,8 @@
             word-break: break-word;
             padding-top: 4px;
             padding-bottom: 4px;
-            padding-left: 1rem !important;
-            padding-right: 1rem !important;
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
             white-space: nowrap;
             font-size: min(2vw, 18px);
         }
@@ -169,6 +169,10 @@
             background: #e8f5e9;
             color: #2e7d32;
         }
+
+        .align-left{
+            text-align: left;
+        }
     </style>
 </head>
 <body>
@@ -212,9 +216,9 @@
                             <th>{{ t('due_date') }}</th>
                             <th>{{ t('invoice_number') }}</th>
                             <th>{{ t('status') }}</th>
-                            <th>{{ t('client_name') }}</th>
-                            <th>{{ t('client_number') }}</th>
-                            <th>{{ t('id_number') }}</th>
+                            <th class="align-left">{{ t('name') }}</th>
+                            <th>{{ t('number') }}</th>
+                            <th class="align-left">{{ t('id_number') }}</th>
                             <th>{{ t('age') }}</th>
                             <th>{{ t('amount') }}</th>
                             <th>{{ t('balance') }}</th>
@@ -227,9 +231,9 @@
                                 <td>{{ invoice[1] }}</td>
                                 <td>{{ invoice[2] }}</td>
                                 <td>{{ invoice[3] }}</td>
-                                <td>{{ invoice[4] }}</td>
+                                <td class="align-left">{{ invoice[4]|slice(0,25) }}</td>
                                 <td>{{ invoice[5] }}</td>
-                                <td>{{ invoice[6] }}</td>
+                                <td class="align-left">{{ invoice[6]|slice(0, 14) }}</td>
                                 <td>{{ invoice[7] }}</td>
                                 <td class="amount">{{ invoice[8] }}</td>
                                 <td class="balance">{{ invoice[9] }}</td>
@@ -260,9 +264,9 @@
                         <th>{{ t('due_date') }}</th>
                         <th>{{ t('invoice_number') }}</th>
                         <th>{{ t('status') }}</th>
-                        <th>{{ t('client_name') }}</th>
-                        <th>{{ t('client_number') }}</th>
-                        <th>{{ t('id_number') }}</th>
+                        <th class="align-left">{{ t('name') }}</th>
+                        <th>{{ t('number') }}</th>
+                        <th class="align-left">{{ t('id_number') }}</th>
                         <th>{{ t('age') }}</th>
                         <th>{{ t('amount') }}</th>
                         <th>{{ t('balance') }}</th>

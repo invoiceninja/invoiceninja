@@ -309,6 +309,9 @@ class ArSummaryReportTest extends TestCase
     {
         $template = file_get_contents(resource_path('/views/templates/reports/ar_summary_report.html'));
         $clientName = str_repeat('Long Client Name ', 8);
+        $idNumber = str_repeat('ID-', 12);
+        $truncatedClientName = substr($clientName, 0, 25);
+        $truncatedIdNumber = substr($idNumber, 0, 14);
 
         $this->assertIsString($template);
 
@@ -319,7 +322,7 @@ class ArSummaryReportTest extends TestCase
                     'clients' => [[
                         $clientName,
                         str_repeat('CLIENT-', 8),
-                        str_repeat('ID-', 12),
+                        $idNumber,
                         '$1,000.00 USD',
                         '$2,000.00 USD',
                         '$3,000.00 USD',
@@ -338,15 +341,17 @@ class ArSummaryReportTest extends TestCase
             ->save()
             ->getHtml();
 
-        $this->assertStringContainsString($clientName, $html);
-        $this->assertStringContainsString('width: auto;', $html);
-        $this->assertStringContainsString('max-width: 100%;', $html);
-        $this->assertStringContainsString('min-width: 100%;', $html);
-        $this->assertStringContainsString('table-layout: fixed;', $html);
+        $this->assertStringContainsString($truncatedClientName, $html);
+        $this->assertStringContainsString($truncatedIdNumber, $html);
+        $this->assertStringNotContainsString($clientName, $html);
+        $this->assertStringNotContainsString($idNumber, $html);
+        $this->assertStringContainsString('table-layout: auto;', $html);
         $this->assertStringContainsString('padding-top: 4px;', $html);
         $this->assertStringContainsString('padding-bottom: 4px;', $html);
-        $this->assertStringNotContainsString('padding-left:', $html);
-        $this->assertStringNotContainsString('padding-right:', $html);
+        $this->assertStringContainsString('white-space: nowrap;', $html);
+        $this->assertStringContainsString('font-size: min(2vw, 18px);', $html);
+        $this->assertStringContainsString('class="align-left"', $html);
+        $this->assertStringNotContainsString('table-layout: fixed;', $html);
         $this->assertStringNotContainsString('overflow-x: auto;', $html);
     }
 
