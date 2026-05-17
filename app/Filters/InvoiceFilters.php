@@ -130,6 +130,9 @@ class InvoiceFilters extends QueryFilters
                                 ->orWhere('last_name', 'like', '%' . $filter . '%')
                                 ->orWhere('email', 'like', '%' . $filter . '%');
                           })
+                          ->orWhereHas('project', function ($q) use ($filter) {
+                              $q->where('name', 'like', '%' . $filter . '%');
+                          })
                           ->orWhereRaw("
                             JSON_UNQUOTE(JSON_EXTRACT(
                                 JSON_ARRAY(
