@@ -94,7 +94,7 @@ class ClientFilters extends QueryFilters
             return $this->builder;
         }
 
-        return $this->builder->where('id_number', $id_number);
+        return $this->builder->where('id_number', 'like', '%' . $id_number . '%');
     }
 
     public function number(string $number = ''): Builder
@@ -103,7 +103,7 @@ class ClientFilters extends QueryFilters
             return $this->builder;
         }
 
-        return $this->builder->where('number', $number);
+        return $this->builder->where('number', 'like', $number . '%');
     }
 
     public function group(string $group_id = ''): Builder
@@ -114,6 +114,70 @@ class ClientFilters extends QueryFilters
 
         return $this->builder->where('group_settings_id', $this->decodePrimaryKey($group_id));
 
+    }
+
+    public function group_settings_id(string $group_settings_id = ''): Builder
+    {
+        $groups = explode(',', $group_settings_id);
+
+        if (strlen($group_settings_id) == 0 || count(array_filter($groups)) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->whereIn('group_settings_id', $this->transformKeys($groups));
+    }
+
+    public function country_id(string $country_id = ''): Builder
+    {
+        $countries = explode(',', $country_id);
+
+        if (strlen($country_id) == 0 || count(array_filter($countries)) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->whereIn('country_id', $countries);
+    }
+
+    public function industry_id(string $industry_id = ''): Builder
+    {
+        $industries = explode(',', $industry_id);
+
+        if (strlen($industry_id) == 0 || count(array_filter($industries)) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->whereIn('industry_id', $industries);
+    }
+
+    public function size_id(string $size_id = ''): Builder
+    {
+        $sizes = explode(',', $size_id);
+
+        if (strlen($size_id) == 0 || count(array_filter($sizes)) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->whereIn('size_id', $sizes);
+    }
+
+    public function classification(string $classification = ''): Builder
+    {
+        $classifications = explode(',', $classification);
+
+        if (strlen($classification) == 0 || count(array_filter($classifications)) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->whereIn('classification', $classifications);
+    }
+
+    public function vat_number(string $vat_number = ''): Builder
+    {
+        if (strlen($vat_number) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->where('vat_number', 'like', '%' . $vat_number . '%');
     }
 
     /**
