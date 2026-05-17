@@ -90,38 +90,15 @@ class QueryFilterEnhancementsTest extends TestCase
         $this->assertArrayNotHasKey('warnings', $arr['meta'] ?? []);
     }
 
-    public function testStrictModeRejectsUnknownFilterParam()
+    public function testStrictParamIsInertAndOnlyTheRealUnknownWarns()
     {
-        $response = $this->withHeaders($this->headers())
-            ->getJson('/api/v1/clients?bogus_param=1&strict=true')
-            ->assertStatus(422);
+        // strict was removed; ?strict is reserved (inert) so only bogus_param warns.
+        $arr = $this->withHeaders($this->headers())
+            ->get('/api/v1/clients?bogus_param=1&strict=true')
+            ->assertStatus(200)
+            ->json();
 
-        $this->assertArrayHasKey('filters', $response->json()['errors']);
-    }
-
-    public function testStrictModeViaHeaderRejectsUnknownFilterParam()
-    {
-        $this->withHeaders(array_merge($this->headers(), ['X-Strict-Filters' => '1']))
-            ->getJson('/api/v1/clients?bogus_param=1')
-            ->assertStatus(422);
-    }
-
-    public function testStrictModeAllowsKnownFilters()
-    {
-        $this->withHeaders($this->headers())
-            ->getJson('/api/v1/clients?status=active&strict=true')
-            ->assertStatus(200);
-    }
-
-    public function testStrictModeNeverRejectsAnUnsortableColumn()
-    {
-        // Invalid-sort detection is a heuristic (per-entity sort() accepts
-        // aliases the base cannot enumerate, e.g. expenses `project`). It is
-        // log-only and must never 422, even in strict mode, to avoid hard-
-        // failing a valid sort.
-        $this->withHeaders($this->headers())
-            ->getJson('/api/v1/expenses?sort=project|asc&strict=true')
-            ->assertStatus(200);
+        $this->assertSame(['bogus_param'], $arr['meta']['warnings']['unknown_filters']);
     }
 
     public function testLegacyDateRangeOnColumnlessEntityEmitsNoDeprecation()

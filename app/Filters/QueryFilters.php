@@ -17,7 +17,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Validation\ValidationException;
 
 /**
  * Class QueryFilters.
@@ -184,32 +183,19 @@ abstract class QueryFilters
     /**
      * surfaceFilterDiagnostics
      *
-     * Either aborts with a 422 (when the caller opted into strict filtering
-     * via ?strict=true / X-Strict-Filters) or, by default, stashes the
-     * collected warnings on the request so BaseController::response() can
-     * fold them into meta.warnings. The default path is additive and never
-     * changes the result set.
+     * Stashes the collected unknown-filter / deprecation notices on the
+     * request so BaseController::response() can fold them into meta.warnings.
+     * Purely additive — it never changes the result set or status code.
      *
      * @return void
      */
     protected function surfaceFilterDiagnostics(): void
     {
-        $this->filter_warnings = array_values(array_unique($this->filter_warnings));
-
-        $strict = $this->request->boolean('strict')
-            || filter_var($this->request->header('X-Strict-Filters'), FILTER_VALIDATE_BOOLEAN);
-
-        if ($strict && count($this->filter_warnings)) {
-            throw ValidationException::withMessages([
-                'filters' => ['Unknown filter parameter(s): ' . implode(', ', $this->filter_warnings)],
-            ]);
+        if ($this->filter_warnings) {
+            $this->request->attributes->set('filter_warnings', array_values(array_unique($this->filter_warnings)));
         }
 
-        if (count($this->filter_warnings)) {
-            $this->request->attributes->set('filter_warnings', $this->filter_warnings);
-        }
-
-        if (count($this->filter_deprecations)) {
+        if ($this->filter_deprecations) {
             $this->request->attributes->set('filter_deprecations', array_values(array_unique($this->filter_deprecations)));
         }
     }
