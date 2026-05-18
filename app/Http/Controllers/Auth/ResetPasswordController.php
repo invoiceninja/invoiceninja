@@ -72,7 +72,30 @@ class ResetPasswordController extends Controller
         }
 
 
-        return $this->render('auth.passwords.reset', ['root' => 'themes', 'token' => $token, 'account' => $account, 'email' => $request->email]);
+        return $this->render('auth.passwords.reset', [
+            'root'    => 'themes',
+            'token'   => $this->normalize((string) $token),
+            'account' => $account,
+            'email'   => $this->normalize((string) $request->query('email', '')),
+        ]);
+    }
+
+    /**
+     * Idempotently URL-decode an inbound link value (handles single and
+     * double encoding from SPA / email link rewriters). rawurldecode is
+     * used so '+' is preserved (plus-addressed emails).
+     */
+    private function normalize(string $value): string
+    {
+        for ($i = 0; $i < 3 && str_contains($value, '%'); $i++) {
+            $decoded = rawurldecode($value);
+            if ($decoded === $value) {
+                break;
+            }
+            $value = $decoded;
+        }
+
+        return trim($value);
     }
 
     /**
@@ -84,24 +107,6 @@ class ResetPasswordController extends Controller
      */
     public function reset(Request $request)
     {
-        // Safely decode URL-encoded token and email before validation
-        if ($request->has('token')) {
-            $token = $request->input('token');
-            // Only decode if it contains URL encoding characters
-            if (strpos($token, '%') !== false) {
-                $request->merge(['token' => urldecode($token)]);
-            }
-        }
-
-        if ($request->has('email')) {
-            $email = $request->input('email');
-            // Only decode if it contains URL encoding characters
-            if (strpos($email, '%') !== false) {
-                $request->merge(['email' => urldecode($email)]);
-            }
-
-        }
-
         $request->validate($this->rules(), $this->validationErrorMessages());
 
         // Here we will attempt to reset the user's password. If it is successful we
