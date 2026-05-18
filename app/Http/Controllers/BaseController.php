@@ -1053,6 +1053,7 @@ class BaseController extends Controller
             unset($response['meta']);
         } else {
             $meta = $response['meta'] ?? null;
+
             $response = [
                 $index => $response,
             ];

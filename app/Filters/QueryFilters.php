@@ -16,6 +16,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Class QueryFilters.
@@ -61,6 +62,17 @@ abstract class QueryFilters
     protected $with_property = 'id';
 
     /**
+     * Per-request cache of table column listings, keyed by table name.
+     *
+     * Schema::getColumnListing() is not request-cached on Laravel 12 (each
+     * call is an information_schema round-trip). The column set is stable
+     * within a request, so memoize it once per table.
+     *
+     * @var array<string, string[]>
+     */
+    protected array $column_cache = [];
+
+    /**
      * Create a new QueryFilters instance.
      *
      * @param Request $request
@@ -99,7 +111,7 @@ abstract class QueryFilters
 
                 continue;
             }
-            
+
             if (is_string($value) && strlen($value)) {
                 $this->$name($value);
             } else {
@@ -134,6 +146,7 @@ abstract class QueryFilters
     }
 
 
+
     /**
      * Get all request filters data.
      *
@@ -142,6 +155,18 @@ abstract class QueryFilters
     public function filters()
     {
         return $this->request->all();
+    }
+
+    /**
+     * Memoized column listing for the builder's table.
+     *
+     * @return string[]
+     */
+    protected function tableColumns(): array
+    {
+        $table = $this->builder->getModel()->getTable();
+
+        return $this->column_cache[$table] ??= Schema::getColumnListing($table);
     }
 
     /**
@@ -293,7 +318,7 @@ abstract class QueryFilters
 
     public function client_id(string $client_id = ''): Builder
     {
-        if (strlen($client_id) == 0 || !in_array('client_id', \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))) {
+        if (strlen($client_id) == 0 || !in_array('client_id', $this->tableColumns())) {
             return $this->builder;
         }
 
@@ -302,7 +327,7 @@ abstract class QueryFilters
 
     public function vendor_id(string $vendor_id = ''): Builder
     {
-        if (strlen($vendor_id) == 0 || !in_array('vendor_id', \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))) {
+        if (strlen($vendor_id) == 0 || !in_array('vendor_id', $this->tableColumns())) {
             return $this->builder;
         }
 
@@ -390,7 +415,7 @@ abstract class QueryFilters
     {
         $parts = explode(",", $date_range);
 
-        if (count($parts) != 2 || !in_array('created_at', \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))) {
+        if (count($parts) != 2 || !in_array('created_at', $this->tableColumns())) {
             return $this->builder;
         }
 
@@ -407,16 +432,16 @@ abstract class QueryFilters
     }
 
     /**
-     * Filter by date range
+     * Filter by updated at date range
      *
      * @param string $date_range
      * @return Builder
      */
-    public function date_range(string $date_range = ''): Builder
+    public function updated_between(string $date_range = ''): Builder
     {
         $parts = explode(",", $date_range);
 
-        if (count($parts) != 2 || !in_array('date', \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))) {
+        if (count($parts) != 2 || !in_array('updated_at', $this->tableColumns())) {
             return $this->builder;
         }
 
@@ -425,7 +450,59 @@ abstract class QueryFilters
             $start_date = Carbon::parse($parts[0]);
             $end_date = Carbon::parse($parts[1]);
 
-            return $this->builder->whereBetween('date', [$start_date, $end_date]);
+            return $this->builder->whereBetween('updated_at', [$start_date, $end_date]);
+        } catch (\Exception $e) {
+            return $this->builder;
+        }
+
+    }
+
+    /**
+     * Filter by date range.
+     *
+     * Canonical contract: "column,start,end" (column defaults to "date").
+     *
+     * Legacy shapes are still honoured for backward compatibility:
+     *  - "start,end"           -> 2-part on the `date` column (the old base /
+     *                             RecurringExpenseFilters contract)
+     *  - "_,start,end" where _ -> 3-part whose first part is not a real
+     *    is not a column          column (the old PaymentFilters contract)
+     *
+     * @param string $date_range
+     * @return Builder
+     */
+    public function date_range(string $date_range = ''): Builder
+    {
+        $parts = explode(",", $date_range);
+
+        $columns = $this->tableColumns();
+
+        if (count($parts) == 2) {
+            $column = 'date';
+            $start = $parts[0];
+            $end = $parts[1];
+        } elseif (count($parts) == 3 && in_array($parts[0], $columns, true)) {
+            $column = $parts[0];
+            $start = $parts[1];
+            $end = $parts[2];
+        } elseif (count($parts) == 3) {
+            $column = 'date';
+            $start = $parts[1];
+            $end = $parts[2];
+        } else {
+            return $this->builder;
+        }
+
+        if (!in_array($column, $columns, true)) {
+            return $this->builder;
+        }
+
+        try {
+
+            $start_date = Carbon::parse($start);
+            $end_date = Carbon::parse($end);
+
+            return $this->builder->whereBetween($column, [$start_date, $end_date]);
         } catch (\Exception $e) {
             return $this->builder;
         }
@@ -434,7 +511,7 @@ abstract class QueryFilters
 
     public function assigned_user_ids(string $assigned_user_ids = ''): Builder
     {
-        if (strlen($assigned_user_ids) == 0 || !in_array('assigned_user_id', \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))) {
+        if (strlen($assigned_user_ids) == 0 || !in_array('assigned_user_id', $this->tableColumns())) {
             return $this->builder;
         }
 
@@ -445,13 +522,49 @@ abstract class QueryFilters
 
     public function client_ids(string $client_ids = ''): Builder
     {
-        if (strlen($client_ids) == 0 || !in_array('client_id', \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))) {
+        if (strlen($client_ids) == 0 || !in_array('client_id', $this->tableColumns())) {
             return $this->builder;
         }
 
         return $this->builder->where(function ($q) use ($client_ids) {
             $q->whereIn('client_id', $this->transformKeys(explode(',', $client_ids)));
         });
+    }
+
+    public function custom_value1(string $value = ''): Builder
+    {
+        if (strlen($value) == 0 || !in_array('custom_value1', $this->tableColumns())) {
+            return $this->builder;
+        }
+
+        return $this->builder->where('custom_value1', 'like', '%' . $value . '%');
+    }
+
+    public function custom_value2(string $value = ''): Builder
+    {
+        if (strlen($value) == 0 || !in_array('custom_value2', $this->tableColumns())) {
+            return $this->builder;
+        }
+
+        return $this->builder->where('custom_value2', 'like', '%' . $value . '%');
+    }
+
+    public function custom_value3(string $value = ''): Builder
+    {
+        if (strlen($value) == 0 || !in_array('custom_value3', $this->tableColumns())) {
+            return $this->builder;
+        }
+
+        return $this->builder->where('custom_value3', 'like', '%' . $value . '%');
+    }
+
+    public function custom_value4(string $value = ''): Builder
+    {
+        if (strlen($value) == 0 || !in_array('custom_value4', $this->tableColumns())) {
+            return $this->builder;
+        }
+
+        return $this->builder->where('custom_value4', 'like', '%' . $value . '%');
     }
 
     /**
@@ -465,7 +578,7 @@ abstract class QueryFilters
 
         $parts = explode(",", $date_range);
 
-        if (count($parts) != 2 || !in_array('due_date', \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))) {
+        if (count($parts) != 2 || !in_array('due_date', $this->tableColumns())) {
             return $this->builder;
         }
 

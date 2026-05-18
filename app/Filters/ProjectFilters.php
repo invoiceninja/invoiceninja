@@ -56,6 +56,21 @@ class ProjectFilters extends QueryFilters
     }
 
     /**
+     * Singular alias for the inherited assigned_user_ids filter.
+     *
+     * projects.assigned_user_id exists, so the column-guarded base
+     * assigned_user_ids() already filters projects; this only adds the
+     * singular param name for cross-client parity.
+     *
+     * @param string $assigned_user
+     * @return Builder
+     */
+    public function assigned_user(string $assigned_user = ''): Builder
+    {
+        return $this->assigned_user_ids($assigned_user);
+    }
+
+    /**
      * Sorts the list based on $sort.
      *
      * @param string $sort formatted as column|asc
@@ -142,33 +157,6 @@ class ProjectFilters extends QueryFilters
 
     }
 
-    /**
-     * date_range
-     *
-     * only filters on date
-     * @param  string $date_range in format column,start_date,end_date
-     * @return Builder
-     */
-    public function date_range(string $date_range = ''): Builder
-    {
-        $parts = explode(",", $date_range);
-
-        if (count($parts) != 3 || !in_array($parts[0], \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))) {
-            return $this->builder;
-        }
-
-        try {
-
-            $start_date = \Carbon\Carbon::parse($parts[1]);
-            $end_date = \Carbon\Carbon::parse($parts[2]);
-
-
-            return $this->builder->whereBetween($parts[0], [$start_date, $end_date]);
-        } catch (\Exception $e) {
-            return $this->builder;
-        }
-
-    }
     /**
      * Filters the query by the users company ID.
      *
