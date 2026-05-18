@@ -62,21 +62,6 @@ abstract class QueryFilters
     protected $with_property = 'id';
 
     /**
-     * Request params that are framework/pagination concerns, not filters.
-     *
-     * These have no filter method by design; without this allow-list they
-     * would be reported as unknown filters in the meta.warnings envelope.
-     * Params that do have a filter method (filter, status, sort, client_status,
-     * client_id, with_trashed, is_deleted, ...) never reach that branch.
-     */
-    private const RESERVED_PARAMS = [
-        'page', 'per_page', 'include', 'index', 'serializer', 'first_load',
-        'include_static', 'einvoice', 'clear_cache', 't', '_', 'format',
-        'documents', 'search', 'since_updated_at', 'since_id', 'sort', 'stop',
-        'rows', 'flat', 'strict',
-    ];
-
-    /**
      * Per-request cache of table column listings, keyed by table name.
      *
      * Schema::getColumnListing() is not request-cached on Laravel 12 (each
@@ -86,20 +71,6 @@ abstract class QueryFilters
      * @var array<string, string[]>
      */
     protected array $column_cache = [];
-
-    /**
-     * Unknown filter params encountered during apply().
-     *
-     * @var string[]
-     */
-    protected array $filter_warnings = [];
-
-    /**
-     * Deprecated filter shapes encountered during apply().
-     *
-     * @var string[]
-     */
-    protected array $filter_deprecations = [];
 
     /**
      * Create a new QueryFilters instance.
@@ -127,10 +98,6 @@ abstract class QueryFilters
 
         foreach ($this->filters() as $name => $value) {
             if (! method_exists($this, $name)) {
-                if (! in_array($name, self::RESERVED_PARAMS, true)) {
-                    $this->filter_warnings[] = $name;
-                }
-
                 continue;
             }
 
@@ -151,8 +118,6 @@ abstract class QueryFilters
                 $this->$name();
             }
         }
-
-        $this->surfaceFilterDiagnostics();
 
         $this->ensureDefaultOrder();
 
@@ -180,25 +145,6 @@ abstract class QueryFilters
         );
     }
 
-    /**
-     * surfaceFilterDiagnostics
-     *
-     * Stashes the collected unknown-filter / deprecation notices on the
-     * request so BaseController::response() can fold them into meta.warnings.
-     * Purely additive — it never changes the result set or status code.
-     *
-     * @return void
-     */
-    protected function surfaceFilterDiagnostics(): void
-    {
-        if ($this->filter_warnings) {
-            $this->request->attributes->set('filter_warnings', array_values(array_unique($this->filter_warnings)));
-        }
-
-        if ($this->filter_deprecations) {
-            $this->request->attributes->set('filter_deprecations', array_values(array_unique($this->filter_deprecations)));
-        }
-    }
 
 
     /**
@@ -516,8 +462,7 @@ abstract class QueryFilters
      *
      * Canonical contract: "column,start,end" (column defaults to "date").
      *
-     * Legacy shapes are still honoured for one deprecation cycle and recorded
-     * on $filter_deprecations (surfaced via meta.warnings.deprecations):
+     * Legacy shapes are still honoured for backward compatibility:
      *  - "start,end"           -> 2-part on the `date` column (the old base /
      *                             RecurringExpenseFilters contract)
      *  - "_,start,end" where _ -> 3-part whose first part is not a real
@@ -532,13 +477,10 @@ abstract class QueryFilters
 
         $columns = $this->tableColumns();
 
-        $deprecation = null;
-
         if (count($parts) == 2) {
             $column = 'date';
             $start = $parts[0];
             $end = $parts[1];
-            $deprecation = 'date_range "start,end" (use "column,start,end")';
         } elseif (count($parts) == 3 && in_array($parts[0], $columns, true)) {
             $column = $parts[0];
             $start = $parts[1];
@@ -547,7 +489,6 @@ abstract class QueryFilters
             $column = 'date';
             $start = $parts[1];
             $end = $parts[2];
-            $deprecation = 'date_range "_,start,end" (use "column,start,end")';
         } else {
             return $this->builder;
         }
@@ -561,13 +502,7 @@ abstract class QueryFilters
             $start_date = Carbon::parse($start);
             $end_date = Carbon::parse($end);
 
-            $query = $this->builder->whereBetween($column, [$start_date, $end_date]);
-
-            if ($deprecation) {
-                $this->filter_deprecations[] = $deprecation;
-            }
-
-            return $query;
+            return $this->builder->whereBetween($column, [$start_date, $end_date]);
         } catch (\Exception $e) {
             return $this->builder;
         }

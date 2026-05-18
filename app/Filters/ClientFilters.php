@@ -94,7 +94,7 @@ class ClientFilters extends QueryFilters
             return $this->builder;
         }
 
-        return $this->builder->where('id_number', 'like', '%' . $id_number . '%');
+        return $this->builder->where('id_number', $id_number);
     }
 
     public function number(string $number = ''): Builder
@@ -103,7 +103,7 @@ class ClientFilters extends QueryFilters
             return $this->builder;
         }
 
-        return $this->builder->where('number', 'like', $number . '%');
+        return $this->builder->where('number', $number);
     }
 
     public function group(string $group_id = ''): Builder

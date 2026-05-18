@@ -1054,21 +1054,6 @@ class BaseController extends Controller
         } else {
             $meta = $response['meta'] ?? null;
 
-            $filter_warnings = request()->attributes->get('filter_warnings', []);
-            $filter_deprecations = request()->attributes->get('filter_deprecations', []);
-
-            if ($filter_warnings || $filter_deprecations) {
-                $meta = (array) $meta;
-
-                if ($filter_warnings) {
-                    $meta['warnings']['unknown_filters'] = $filter_warnings;
-                }
-
-                if ($filter_deprecations) {
-                    $meta['warnings']['deprecations'] = $filter_deprecations;
-                }
-            }
-
             $response = [
                 $index => $response,
             ];

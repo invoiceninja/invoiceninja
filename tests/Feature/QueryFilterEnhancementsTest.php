@@ -24,10 +24,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 /**
  * Covers the list filter / sort enhancements:
  *  - new column filters (country_id, custom_value*, project_ids, ...)
- *  - number / id_number LIKE
  *  - updated_between
- *  - meta.warnings unknown-filter + deprecation envelope
- *  - opt-in strict mode (422)
  *  - date_range standardisation
  *
  * @see \App\Filters\QueryFilters
@@ -66,7 +63,7 @@ class QueryFilterEnhancementsTest extends TestCase
         return array_column($arr['data'], 'id');
     }
 
-    public function testUnknownFilterParamIsWarnedNotFiltered()
+    public function testUnknownFilterParamIsIgnoredAndNotReflected()
     {
         $response = $this->withHeaders($this->headers())
             ->get('/api/v1/clients?bogus_param=1')
@@ -74,12 +71,14 @@ class QueryFilterEnhancementsTest extends TestCase
 
         $arr = $response->json();
 
-        $this->assertContains('bogus_param', $arr['meta']['warnings']['unknown_filters']);
+        // Unknown params are silently ignored — never echoed back, so no
+        // reflection / amplification surface in the response envelope.
+        $this->assertArrayNotHasKey('warnings', $arr['meta'] ?? []);
         // Non-breaking: the unknown param did not filter anything out.
         $this->assertNotEmpty($arr['data']);
     }
 
-    public function testReservedFrameworkParamsDoNotWarn()
+    public function testReservedFrameworkParamsAreInert()
     {
         $response = $this->withHeaders($this->headers())
             ->get('/api/v1/clients?per_page=20&t=123456&_=1736900000&clear_cache=true&include=')
@@ -90,21 +89,10 @@ class QueryFilterEnhancementsTest extends TestCase
         $this->assertArrayNotHasKey('warnings', $arr['meta'] ?? []);
     }
 
-    public function testStrictParamIsInertAndOnlyTheRealUnknownWarns()
+    public function testLegacyDateRangeOnColumnlessEntityIsSafeNoOp()
     {
-        // strict was removed; ?strict is reserved (inert) so only bogus_param warns.
-        $arr = $this->withHeaders($this->headers())
-            ->get('/api/v1/clients?bogus_param=1&strict=true')
-            ->assertStatus(200)
-            ->json();
-
-        $this->assertSame(['bogus_param'], $arr['meta']['warnings']['unknown_filters']);
-    }
-
-    public function testLegacyDateRangeOnColumnlessEntityEmitsNoDeprecation()
-    {
-        // clients has no `date` column: a 2-part date_range no-ops, so it must
-        // NOT surface a spurious meta.warnings.deprecations.
+        // clients has no `date` column: a 2-part date_range no-ops and the
+        // response envelope is unchanged.
         $arr = $this->withHeaders($this->headers())
             ->get('/api/v1/clients?date_range=2020-01-01,2020-12-31')
             ->assertStatus(200)
@@ -165,34 +153,50 @@ class QueryFilterEnhancementsTest extends TestCase
             ->assertStatus(200);
     }
 
-    public function testClientNumberIsPrefixMatched()
+    public function testClientNumberIsExactMatched()
     {
         $this->client->number = 'PREFIX-000123';
         $this->client->saveQuietly();
 
         $hash = $this->encodePrimaryKey($this->client->id);
 
-        $arr = $this->withHeaders($this->headers())
+        $match = $this->withHeaders($this->headers())
+            ->get('/api/v1/clients?number=PREFIX-000123')
+            ->assertStatus(200)
+            ->json();
+
+        $this->assertContains($hash, $this->ids($match));
+
+        // Exact match only — a prefix must NOT match (reverted LIKE change).
+        $miss = $this->withHeaders($this->headers())
             ->get('/api/v1/clients?number=PREFIX-000')
             ->assertStatus(200)
             ->json();
 
-        $this->assertContains($hash, $this->ids($arr));
+        $this->assertNotContains($hash, $this->ids($miss));
     }
 
-    public function testClientIdNumberIsSubstringMatched()
+    public function testClientIdNumberIsExactMatched()
     {
         $this->client->id_number = 'ID-MIDDLE-XYZ';
         $this->client->saveQuietly();
 
         $hash = $this->encodePrimaryKey($this->client->id);
 
-        $arr = $this->withHeaders($this->headers())
+        $match = $this->withHeaders($this->headers())
+            ->get('/api/v1/clients?id_number=ID-MIDDLE-XYZ')
+            ->assertStatus(200)
+            ->json();
+
+        $this->assertContains($hash, $this->ids($match));
+
+        // Exact match only — a substring must NOT match (reverted LIKE change).
+        $miss = $this->withHeaders($this->headers())
             ->get('/api/v1/clients?id_number=MIDDLE')
             ->assertStatus(200)
             ->json();
 
-        $this->assertContains($hash, $this->ids($arr));
+        $this->assertNotContains($hash, $this->ids($miss));
     }
 
     public function testExpenseProjectIdsFilter()
@@ -250,7 +254,7 @@ class QueryFilterEnhancementsTest extends TestCase
         $this->assertContains($hash, $this->ids($now));
     }
 
-    public function testDateRangeLegacyTwoPartStillFiltersAndEmitsDeprecation()
+    public function testDateRangeLegacyTwoPartStillFilters()
     {
         $this->invoice->date = '1971-01-02';
         $this->invoice->saveQuietly();
@@ -264,8 +268,6 @@ class QueryFilterEnhancementsTest extends TestCase
 
         // Legacy 2-part still maps to whereBetween('date', ...)
         $this->assertContains($hash, $this->ids($match));
-        // ... and the legacy shape is announced via the deprecation channel.
-        $this->assertNotEmpty($match['meta']['warnings']['deprecations']);
 
         $miss = $this->withHeaders($this->headers())
             ->get('/api/v1/invoices?date_range=1972-01-01,1972-12-31')
