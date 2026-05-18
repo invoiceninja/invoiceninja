@@ -242,22 +242,11 @@ class InvoiceFilters extends QueryFilters
      */
     public function date(string $date = ''): Builder
     {
-        if (strlen($date) == 0) {
-            return $this->builder;
-        }
-
-        if (is_numeric($date)) {
-            $date = Carbon::createFromTimestamp((int) $date);
-        } else {
-
-            try {
-                $date = Carbon::parse($date);
-            } catch (\Exception $e) {
-                return $this->builder;
-            }
-        }
-
-        return $this->builder->where('date', '>=', $date);
+        // Canonical prefix `op:value` (e.g. `gte:2026-01-01`); a bare
+        // date keeps the historical `>=`. `date` is a true DATE column,
+        // so the plain indexed where() is day-granular + safe no-op on
+        // malformed input — see QueryFilters::comparableDate().
+        return $this->comparableDate('date', $date, '>=');
     }
 
     /**
@@ -267,17 +256,11 @@ class InvoiceFilters extends QueryFilters
      */
     public function due_date(string $date = ''): Builder
     {
-        if (strlen($date) == 0) {
-            return $this->builder;
-        }
-
-        if (is_numeric($date)) {
-            $date = Carbon::createFromTimestamp((int) $date);
-        } else {
-            $date = Carbon::parse($date);
-        }
-
-        return $this->builder->where('due_date', '>=', $date);
+        // Was previously `Carbon::parse()` with NO try/catch — an
+        // `op:value` wire would 500. comparableDatetime() parses the op
+        // prefix and swallows malformed input. `due_date` is a DATETIME
+        // column → index-safe per-calendar-day range, not whereDate().
+        return $this->comparableDatetime('due_date', $date, '>=');
     }
 
     /**

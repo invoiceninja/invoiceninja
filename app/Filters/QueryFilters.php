@@ -260,42 +260,133 @@ abstract class QueryFilters
         return $this->builder;
     }
 
-    public function created_at($value = '')
+    /**
+     * Parses a comparable-date wire value into its operator + Carbon.
+     *
+     * Canonical wire is the PREFIX form `op:value`
+     * (`gte:2026-01-01`, `lt:2026-01-01`) where op is one of
+     * lt/gt/lte/gte/eq (mapped by operatorConvertor()). A bare value
+     * with no operator prefix falls back to $defaultOperator — for the
+     * date filters that is `>=`, preserving the historical
+     * `created_at=<date>` "on or after" behaviour.
+     *
+     * Returns [operator, Carbon $date, bool $dateOnly], or null when the
+     * value is empty or unparseable — callers translate null into the
+     * unfiltered builder to match the framework's silent-skip contract.
+     *
+     * @return array{0:string,1:\Carbon\Carbon,2:bool}|null
+     */
+    private function parseComparableDate($value, string $defaultOperator): ?array
     {
-        if ($value == '') {
-            return $this->builder;
+        if (is_null($value) || $value === '') {
+            return null;
+        }
+
+        $operator = $defaultOperator;
+        $raw = (string) $value;
+
+        $parts = explode(':', $raw, 2);
+        if (count($parts) === 2 && in_array($parts[0], ['lt', 'gt', 'lte', 'gte', 'eq'], true)) {
+            $operator = $this->operatorConvertor($parts[0]);
+            $raw = $parts[1];
+        }
+
+        $raw = trim($raw);
+
+        if ($raw === '') {
+            return null;
         }
 
         try {
-            if (is_numeric($value)) {
-                $created_at = Carbon::createFromTimestamp((int) $value);
-            } else {
-                $created_at = Carbon::parse($value);
-            }
+            $date_only = (bool) preg_match('/^\d{4}-\d{2}-\d{2}$/', $raw);
 
-            return $this->builder->where('created_at', '>=', $created_at);
+            if (is_numeric($raw)) {
+                $date = Carbon::createFromTimestamp((int) $raw);
+                $date_only = false;
+            } else {
+                $date = Carbon::parse($raw);
+            }
         } catch (\Exception $e) {
+            return null;
+        }
+
+        return [$operator, $date, $date_only];
+    }
+
+    /**
+     * Applies a comparable date filter on a true DATE column ($column).
+     *
+     * DATE columns compare correctly at day granularity with a plain,
+     * indexed where() — DATE(col) is equivalent to col here — so we never
+     * reach for whereDate() (which would wrap the column in a function and
+     * drop the index). Datetime columns must use comparableDatetime().
+     */
+    protected function comparableDate(string $column, $value, string $defaultOperator = '>='): Builder
+    {
+        $parsed = $this->parseComparableDate($value, $defaultOperator);
+
+        if ($parsed === null) {
             return $this->builder;
         }
+
+        [$operator, $date, $date_only] = $parsed;
+
+        return $this->builder->where($column, $operator, $date_only ? $date->toDateString() : $date);
+    }
+
+    /**
+     * Applies a comparable date filter on a DATETIME column ($column),
+     * e.g. created_at / updated_at / due_date.
+     *
+     * A bare date (`YYYY-MM-DD`) must compare per calendar day, not per
+     * microsecond. whereDate() would do that but wraps the column in
+     * DATE() and defeats the index. Instead we translate the operator
+     * into a half-open range on the bare column — provably identical to
+     * whereDate() for every operator while keeping the predicate sargable.
+     * A full timestamp (or numeric epoch) compares exactly, as before.
+     */
+    protected function comparableDatetime(string $column, $value, string $defaultOperator = '>='): Builder
+    {
+        $parsed = $this->parseComparableDate($value, $defaultOperator);
+
+        if ($parsed === null) {
+            return $this->builder;
+        }
+
+        [$operator, $date, $date_only] = $parsed;
+
+        if (! $date_only) {
+            return $this->builder->where($column, $operator, $date);
+        }
+
+        $start = $date->copy()->startOfDay();
+        $next = $start->copy()->addDay();
+
+        switch ($operator) {
+            case '>':
+                return $this->builder->where($column, '>=', $next);
+            case '>=':
+                return $this->builder->where($column, '>=', $start);
+            case '<':
+                return $this->builder->where($column, '<', $start);
+            case '<=':
+                return $this->builder->where($column, '<', $next);
+            case '=':
+            default:
+                return $this->builder
+                    ->where($column, '>=', $start)
+                    ->where($column, '<', $next);
+        }
+    }
+
+    public function created_at($value = '')
+    {
+        return $this->comparableDatetime('created_at', $value, '>=');
     }
 
     public function updated_at($value = '')
     {
-        if (is_null($value) || $value == '') {
-            return $this->builder;
-        }
-
-        try {
-            if (is_numeric($value)) {
-                $created_at = Carbon::createFromTimestamp((int) $value);
-            } else {
-                $created_at = Carbon::parse($value);
-            }
-
-            return $this->builder->where('updated_at', '>=', $created_at);
-        } catch (\Exception $e) {
-            return $this->builder;
-        }
+        return $this->comparableDatetime('updated_at', $value, '>=');
     }
 
     /**
@@ -568,26 +659,51 @@ abstract class QueryFilters
     }
 
     /**
-     * Filter by due date range
+     * Filter by due date range.
+     *
+     * Mirrors {@see date_range()} (arity-tolerant, column-aware) but
+     * defaults the column to `due_date` instead of `date`. Accepts:
+     *  - "start,end"            -> 2-part legacy, column = due_date
+     *  - "due_date,start,end"   -> 3-part canonical (column is a real
+     *                              table column)
+     *  - "_,start,end"          -> 3-part whose first part is not a real
+     *                              column -> defaults to due_date
      *
      * @param string $date_range
      * @return Builder
      */
     public function due_date_range(string $date_range = ''): Builder
     {
-
         $parts = explode(",", $date_range);
 
-        if (count($parts) != 2 || !in_array('due_date', $this->tableColumns())) {
+        $columns = $this->tableColumns();
+
+        if (count($parts) == 2) {
+            $column = 'due_date';
+            $start = $parts[0];
+            $end = $parts[1];
+        } elseif (count($parts) == 3 && in_array($parts[0], $columns, true)) {
+            $column = $parts[0];
+            $start = $parts[1];
+            $end = $parts[2];
+        } elseif (count($parts) == 3) {
+            $column = 'due_date';
+            $start = $parts[1];
+            $end = $parts[2];
+        } else {
+            return $this->builder;
+        }
+
+        if (!in_array($column, $columns, true)) {
             return $this->builder;
         }
 
         try {
 
-            $start_date = Carbon::parse($parts[0]);
-            $end_date = Carbon::parse($parts[1]);
+            $start_date = Carbon::parse($start);
+            $end_date = Carbon::parse($end);
 
-            return $this->builder->whereBetween('due_date', [$start_date, $end_date]);
+            return $this->builder->whereBetween($column, [$start_date, $end_date]);
         } catch (\Exception $e) {
             return $this->builder;
         }
