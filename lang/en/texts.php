@@ -5986,6 +5986,10 @@ $lang = array(
     'payware_vpos_id_label' => 'webPOS Identifier',
     'payware_vpos_id_help' => 'webPOS identifier from the payware dashboard',
     'payware_public_key_help' => 'RSA public key for webhook signature validation',
+    'gateway_onboarding_description' => 'Your payment gateway has been successfully connected. You can now configure payment methods and set transaction limits or fees.',
+    'gateway_onboarding_payment_methods_help' => 'Enable or disable accepted payment methods for your clients.',
+    'gateway_onboarding_limits_fees_help' => 'Set minimum and maximum transaction limits and configure processing fees.',
+    'gateway_setup_complete' => 'Gateway setup complete',
 );
 
 return $lang;
