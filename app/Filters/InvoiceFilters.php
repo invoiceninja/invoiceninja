@@ -240,9 +240,9 @@ class InvoiceFilters extends QueryFilters
     public function date(string $date = ''): Builder
     {
         // Canonical prefix `op:value` (e.g. `gte:2026-01-01`); a bare
-        // date keeps the historical `>=`. whereDate calendar-day
-        // semantics + safe no-op on malformed input — see
-        // QueryFilters::comparableDate().
+        // date keeps the historical `>=`. `date` is a true DATE column,
+        // so the plain indexed where() is day-granular + safe no-op on
+        // malformed input — see QueryFilters::comparableDate().
         return $this->comparableDate('date', $date, '>=');
     }
 
@@ -254,9 +254,10 @@ class InvoiceFilters extends QueryFilters
     public function due_date(string $date = ''): Builder
     {
         // Was previously `Carbon::parse()` with NO try/catch — an
-        // `op:value` wire would 500. comparableDate() parses the op
-        // prefix and swallows malformed input.
-        return $this->comparableDate('due_date', $date, '>=');
+        // `op:value` wire would 500. comparableDatetime() parses the op
+        // prefix and swallows malformed input. `due_date` is a DATETIME
+        // column → index-safe per-calendar-day range, not whereDate().
+        return $this->comparableDatetime('due_date', $date, '>=');
     }
 
     /**

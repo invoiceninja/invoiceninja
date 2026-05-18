@@ -126,8 +126,9 @@ class CreditFilters extends QueryFilters
 
     /**
      * Comparable `date` / `due_date` filters. Canonical prefix
-     * `op:value`; a bare date keeps `>=`. See
-     * QueryFilters::comparableDate().
+     * `op:value`; a bare date keeps `>=`. `date` is a DATE column
+     * (comparableDate); `due_date` is DATETIME (comparableDatetime —
+     * index-safe per-calendar-day range).
      */
     public function date(string $date = ''): Builder
     {
@@ -136,7 +137,7 @@ class CreditFilters extends QueryFilters
 
     public function due_date(string $date = ''): Builder
     {
-        return $this->comparableDate('due_date', $date, '>=');
+        return $this->comparableDatetime('due_date', $date, '>=');
     }
 
     public function number(string $number = ''): Builder

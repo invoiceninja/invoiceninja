@@ -261,7 +261,7 @@ abstract class QueryFilters
     }
 
     /**
-     * Applies a comparable date filter on $column.
+     * Parses a comparable-date wire value into its operator + Carbon.
      *
      * Canonical wire is the PREFIX form `op:value`
      * (`gte:2026-01-01`, `lt:2026-01-01`) where op is one of
@@ -270,15 +270,16 @@ abstract class QueryFilters
      * date filters that is `>=`, preserving the historical
      * `created_at=<date>` "on or after" behaviour.
      *
-     * Date-only values (`YYYY-MM-DD`) use whereDate() so `eq`/before/
-     * after compare per calendar day rather than per microsecond.
-     * Malformed input is swallowed (returns the unfiltered builder) to
-     * match the framework's silent-skip contract.
+     * Returns [operator, Carbon $date, bool $dateOnly], or null when the
+     * value is empty or unparseable — callers translate null into the
+     * unfiltered builder to match the framework's silent-skip contract.
+     *
+     * @return array{0:string,1:\Carbon\Carbon,2:bool}|null
      */
-    protected function comparableDate(string $column, $value, string $defaultOperator = '>='): Builder
+    private function parseComparableDate($value, string $defaultOperator): ?array
     {
         if (is_null($value) || $value === '') {
-            return $this->builder;
+            return null;
         }
 
         $operator = $defaultOperator;
@@ -293,7 +294,7 @@ abstract class QueryFilters
         $raw = trim($raw);
 
         if ($raw === '') {
-            return $this->builder;
+            return null;
         }
 
         try {
@@ -301,28 +302,91 @@ abstract class QueryFilters
 
             if (is_numeric($raw)) {
                 $date = Carbon::createFromTimestamp((int) $raw);
+                $date_only = false;
             } else {
                 $date = Carbon::parse($raw);
             }
-
-            if ($date_only) {
-                return $this->builder->whereDate($column, $operator, $date->toDateString());
-            }
-
-            return $this->builder->where($column, $operator, $date);
         } catch (\Exception $e) {
+            return null;
+        }
+
+        return [$operator, $date, $date_only];
+    }
+
+    /**
+     * Applies a comparable date filter on a true DATE column ($column).
+     *
+     * DATE columns compare correctly at day granularity with a plain,
+     * indexed where() — DATE(col) is equivalent to col here — so we never
+     * reach for whereDate() (which would wrap the column in a function and
+     * drop the index). Datetime columns must use comparableDatetime().
+     */
+    protected function comparableDate(string $column, $value, string $defaultOperator = '>='): Builder
+    {
+        $parsed = $this->parseComparableDate($value, $defaultOperator);
+
+        if ($parsed === null) {
             return $this->builder;
+        }
+
+        [$operator, $date, $date_only] = $parsed;
+
+        return $this->builder->where($column, $operator, $date_only ? $date->toDateString() : $date);
+    }
+
+    /**
+     * Applies a comparable date filter on a DATETIME column ($column),
+     * e.g. created_at / updated_at / due_date.
+     *
+     * A bare date (`YYYY-MM-DD`) must compare per calendar day, not per
+     * microsecond. whereDate() would do that but wraps the column in
+     * DATE() and defeats the index. Instead we translate the operator
+     * into a half-open range on the bare column — provably identical to
+     * whereDate() for every operator while keeping the predicate sargable.
+     * A full timestamp (or numeric epoch) compares exactly, as before.
+     */
+    protected function comparableDatetime(string $column, $value, string $defaultOperator = '>='): Builder
+    {
+        $parsed = $this->parseComparableDate($value, $defaultOperator);
+
+        if ($parsed === null) {
+            return $this->builder;
+        }
+
+        [$operator, $date, $date_only] = $parsed;
+
+        if (! $date_only) {
+            return $this->builder->where($column, $operator, $date);
+        }
+
+        $start = $date->copy()->startOfDay();
+        $next = $start->copy()->addDay();
+
+        switch ($operator) {
+            case '>':
+                return $this->builder->where($column, '>=', $next);
+            case '>=':
+                return $this->builder->where($column, '>=', $start);
+            case '<':
+                return $this->builder->where($column, '<', $start);
+            case '<=':
+                return $this->builder->where($column, '<', $next);
+            case '=':
+            default:
+                return $this->builder
+                    ->where($column, '>=', $start)
+                    ->where($column, '<', $next);
         }
     }
 
     public function created_at($value = '')
     {
-        return $this->comparableDate('created_at', $value, '>=');
+        return $this->comparableDatetime('created_at', $value, '>=');
     }
 
     public function updated_at($value = '')
     {
-        return $this->comparableDate('updated_at', $value, '>=');
+        return $this->comparableDatetime('updated_at', $value, '>=');
     }
 
     /**

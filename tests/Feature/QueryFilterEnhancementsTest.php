@@ -414,7 +414,8 @@ class QueryFilterEnhancementsTest extends TestCase
 
         $hash = $this->encodePrimaryKey($this->client->id);
 
-        // whereDate() → the time component is irrelevant; same calendar day matches.
+        // Date-only eq → half-open [day, day+1) range; the time component
+        // is irrelevant, same calendar day matches (index-safe, no whereDate).
         $match = $this->withHeaders($this->headers())
             ->get('/api/v1/clients?created_at=eq:2015-06-15')
             ->assertStatus(200)
