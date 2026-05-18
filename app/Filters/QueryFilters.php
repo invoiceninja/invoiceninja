@@ -260,42 +260,69 @@ abstract class QueryFilters
         return $this->builder;
     }
 
-    public function created_at($value = '')
+    /**
+     * Applies a comparable date filter on $column.
+     *
+     * Canonical wire is the PREFIX form `op:value`
+     * (`gte:2026-01-01`, `lt:2026-01-01`) where op is one of
+     * lt/gt/lte/gte/eq (mapped by operatorConvertor()). A bare value
+     * with no operator prefix falls back to $defaultOperator — for the
+     * date filters that is `>=`, preserving the historical
+     * `created_at=<date>` "on or after" behaviour.
+     *
+     * Date-only values (`YYYY-MM-DD`) use whereDate() so `eq`/before/
+     * after compare per calendar day rather than per microsecond.
+     * Malformed input is swallowed (returns the unfiltered builder) to
+     * match the framework's silent-skip contract.
+     */
+    protected function comparableDate(string $column, $value, string $defaultOperator = '>='): Builder
     {
-        if ($value == '') {
+        if (is_null($value) || $value === '') {
+            return $this->builder;
+        }
+
+        $operator = $defaultOperator;
+        $raw = (string) $value;
+
+        $parts = explode(':', $raw, 2);
+        if (count($parts) === 2 && in_array($parts[0], ['lt', 'gt', 'lte', 'gte', 'eq'], true)) {
+            $operator = $this->operatorConvertor($parts[0]);
+            $raw = $parts[1];
+        }
+
+        $raw = trim($raw);
+
+        if ($raw === '') {
             return $this->builder;
         }
 
         try {
-            if (is_numeric($value)) {
-                $created_at = Carbon::createFromTimestamp((int) $value);
+            $date_only = (bool) preg_match('/^\d{4}-\d{2}-\d{2}$/', $raw);
+
+            if (is_numeric($raw)) {
+                $date = Carbon::createFromTimestamp((int) $raw);
             } else {
-                $created_at = Carbon::parse($value);
+                $date = Carbon::parse($raw);
             }
 
-            return $this->builder->where('created_at', '>=', $created_at);
+            if ($date_only) {
+                return $this->builder->whereDate($column, $operator, $date->toDateString());
+            }
+
+            return $this->builder->where($column, $operator, $date);
         } catch (\Exception $e) {
             return $this->builder;
         }
     }
 
+    public function created_at($value = '')
+    {
+        return $this->comparableDate('created_at', $value, '>=');
+    }
+
     public function updated_at($value = '')
     {
-        if (is_null($value) || $value == '') {
-            return $this->builder;
-        }
-
-        try {
-            if (is_numeric($value)) {
-                $created_at = Carbon::createFromTimestamp((int) $value);
-            } else {
-                $created_at = Carbon::parse($value);
-            }
-
-            return $this->builder->where('updated_at', '>=', $created_at);
-        } catch (\Exception $e) {
-            return $this->builder;
-        }
+        return $this->comparableDate('updated_at', $value, '>=');
     }
 
     /**

@@ -296,4 +296,164 @@ class QueryFilterEnhancementsTest extends TestCase
             ->get('/api/v1/payments?date_range=_,2999-01-01,2999-12-31')
             ->assertStatus(200);
     }
+
+    // ── Comparable date / numeric operators (canonical prefix op:value) ──
+
+    public function testCreatedAtPrefixGtComparator()
+    {
+        $hash = $this->encodePrimaryKey($this->client->id);
+
+        // Client was created "now" → not after the year 2999.
+        $miss = $this->withHeaders($this->headers())
+            ->get('/api/v1/clients?created_at=gt:2999-01-01')
+            ->assertStatus(200)
+            ->json();
+        $this->assertNotContains($hash, $this->ids($miss));
+
+        $match = $this->withHeaders($this->headers())
+            ->get('/api/v1/clients?created_at=gt:2000-01-01')
+            ->assertStatus(200)
+            ->json();
+        $this->assertContains($hash, $this->ids($match));
+    }
+
+    public function testCreatedAtLteComparator()
+    {
+        $hash = $this->encodePrimaryKey($this->client->id);
+
+        // Created now → not on-or-before 2000.
+        $miss = $this->withHeaders($this->headers())
+            ->get('/api/v1/clients?created_at=lte:2000-01-01')
+            ->assertStatus(200)
+            ->json();
+        $this->assertNotContains($hash, $this->ids($miss));
+
+        $match = $this->withHeaders($this->headers())
+            ->get('/api/v1/clients?created_at=lte:2999-12-31')
+            ->assertStatus(200)
+            ->json();
+        $this->assertContains($hash, $this->ids($match));
+    }
+
+    public function testCreatedAtEqIsCalendarDay()
+    {
+        $this->client->created_at = '2015-06-15 13:45:00';
+        $this->client->saveQuietly();
+
+        $hash = $this->encodePrimaryKey($this->client->id);
+
+        // whereDate() → the time component is irrelevant; same calendar day matches.
+        $match = $this->withHeaders($this->headers())
+            ->get('/api/v1/clients?created_at=eq:2015-06-15')
+            ->assertStatus(200)
+            ->json();
+        $this->assertContains($hash, $this->ids($match));
+
+        $miss = $this->withHeaders($this->headers())
+            ->get('/api/v1/clients?created_at=eq:2015-06-16')
+            ->assertStatus(200)
+            ->json();
+        $this->assertNotContains($hash, $this->ids($miss));
+    }
+
+    public function testCreatedAtPlainDateStillAppliesGte()
+    {
+        // Backward compat: a bare date (no op prefix) keeps the historical
+        // `created_at >= value` behaviour for other API clients.
+        $hash = $this->encodePrimaryKey($this->client->id);
+
+        $match = $this->withHeaders($this->headers())
+            ->get('/api/v1/clients?created_at=2000-01-01')
+            ->assertStatus(200)
+            ->json();
+        $this->assertContains($hash, $this->ids($match));
+
+        $miss = $this->withHeaders($this->headers())
+            ->get('/api/v1/clients?created_at=2999-01-01')
+            ->assertStatus(200)
+            ->json();
+        $this->assertNotContains($hash, $this->ids($miss));
+    }
+
+    public function testBalancePrefixOperatorFilters()
+    {
+        $this->client->balance = 5000;
+        $this->client->saveQuietly();
+
+        $hash = $this->encodePrimaryKey($this->client->id);
+
+        foreach (['balance=gt:1000', 'balance=lt:9000', 'balance=eq:5000', 'balance=gte:5000'] as $q) {
+            $arr = $this->withHeaders($this->headers())
+                ->get('/api/v1/clients?' . $q)
+                ->assertStatus(200)
+                ->json();
+            $this->assertContains($hash, $this->ids($arr), "expected match for ?$q");
+        }
+
+        $miss = $this->withHeaders($this->headers())
+            ->get('/api/v1/clients?balance=gt:9000')
+            ->assertStatus(200)
+            ->json();
+        $this->assertNotContains($hash, $this->ids($miss));
+    }
+
+    public function testMalformedOperatorIsSafeNoOp()
+    {
+        // Documents the framework's silent-skip contract: an unparseable
+        // value returns the UNFILTERED set (no 422, no exception). If a
+        // future strict mode changes this, this test is the guard.
+        $hash = $this->encodePrimaryKey($this->client->id);
+
+        $arr = $this->withHeaders($this->headers())
+            ->get('/api/v1/clients?created_at=garbage:xxx')
+            ->assertStatus(200)
+            ->json();
+
+        $this->assertContains($hash, $this->ids($arr));
+    }
+
+    public function testInvoiceDateComparator()
+    {
+        $this->invoice->date = '2015-06-15';
+        $this->invoice->saveQuietly();
+        $hash = $this->encodePrimaryKey($this->invoice->id);
+
+        $match = $this->withHeaders($this->headers())
+            ->get('/api/v1/invoices?date=lte:2015-06-15')
+            ->assertStatus(200)
+            ->json();
+        $this->assertContains($hash, $this->ids($match));
+
+        $miss = $this->withHeaders($this->headers())
+            ->get('/api/v1/invoices?date=gt:2015-06-15')
+            ->assertStatus(200)
+            ->json();
+        $this->assertNotContains($hash, $this->ids($miss));
+    }
+
+    public function testInvoiceDueDateComparatorIsSafeOnOpPrefix()
+    {
+        // Regression guard: due_date() previously had no try/catch, so an
+        // `op:value` wire 500'd. It must now parse the prefix (or no-op).
+        $this->withHeaders($this->headers())
+            ->get('/api/v1/invoices?due_date=gte:2026-01-01')
+            ->assertStatus(200);
+        $this->withHeaders($this->headers())
+            ->get('/api/v1/invoices?due_date=garbage:xxx')
+            ->assertStatus(200);
+    }
+
+    public function testQuoteAndCreditDateComparator()
+    {
+        // Quote/Credit previously had no date() method (inherited base,
+        // which has none) — the param was silently ignored. Now applied.
+        $this->withHeaders($this->headers())
+            ->get('/api/v1/quotes?date=gte:2999-01-01')
+            ->assertStatus(200)
+            ->assertJsonCount(0, 'data');
+        $this->withHeaders($this->headers())
+            ->get('/api/v1/credits?date=gte:2999-01-01')
+            ->assertStatus(200)
+            ->assertJsonCount(0, 'data');
+    }
 }

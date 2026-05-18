@@ -239,22 +239,11 @@ class InvoiceFilters extends QueryFilters
      */
     public function date(string $date = ''): Builder
     {
-        if (strlen($date) == 0) {
-            return $this->builder;
-        }
-
-        if (is_numeric($date)) {
-            $date = Carbon::createFromTimestamp((int) $date);
-        } else {
-
-            try {
-                $date = Carbon::parse($date);
-            } catch (\Exception $e) {
-                return $this->builder;
-            }
-        }
-
-        return $this->builder->where('date', '>=', $date);
+        // Canonical prefix `op:value` (e.g. `gte:2026-01-01`); a bare
+        // date keeps the historical `>=`. whereDate calendar-day
+        // semantics + safe no-op on malformed input — see
+        // QueryFilters::comparableDate().
+        return $this->comparableDate('date', $date, '>=');
     }
 
     /**
@@ -264,17 +253,10 @@ class InvoiceFilters extends QueryFilters
      */
     public function due_date(string $date = ''): Builder
     {
-        if (strlen($date) == 0) {
-            return $this->builder;
-        }
-
-        if (is_numeric($date)) {
-            $date = Carbon::createFromTimestamp((int) $date);
-        } else {
-            $date = Carbon::parse($date);
-        }
-
-        return $this->builder->where('due_date', '>=', $date);
+        // Was previously `Carbon::parse()` with NO try/catch — an
+        // `op:value` wire would 500. comparableDate() parses the op
+        // prefix and swallows malformed input.
+        return $this->comparableDate('due_date', $date, '>=');
     }
 
     /**
