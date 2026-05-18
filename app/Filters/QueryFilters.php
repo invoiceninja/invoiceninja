@@ -595,26 +595,51 @@ abstract class QueryFilters
     }
 
     /**
-     * Filter by due date range
+     * Filter by due date range.
+     *
+     * Mirrors {@see date_range()} (arity-tolerant, column-aware) but
+     * defaults the column to `due_date` instead of `date`. Accepts:
+     *  - "start,end"            -> 2-part legacy, column = due_date
+     *  - "due_date,start,end"   -> 3-part canonical (column is a real
+     *                              table column)
+     *  - "_,start,end"          -> 3-part whose first part is not a real
+     *                              column -> defaults to due_date
      *
      * @param string $date_range
      * @return Builder
      */
     public function due_date_range(string $date_range = ''): Builder
     {
-
         $parts = explode(",", $date_range);
 
-        if (count($parts) != 2 || !in_array('due_date', $this->tableColumns())) {
+        $columns = $this->tableColumns();
+
+        if (count($parts) == 2) {
+            $column = 'due_date';
+            $start = $parts[0];
+            $end = $parts[1];
+        } elseif (count($parts) == 3 && in_array($parts[0], $columns, true)) {
+            $column = $parts[0];
+            $start = $parts[1];
+            $end = $parts[2];
+        } elseif (count($parts) == 3) {
+            $column = 'due_date';
+            $start = $parts[1];
+            $end = $parts[2];
+        } else {
+            return $this->builder;
+        }
+
+        if (!in_array($column, $columns, true)) {
             return $this->builder;
         }
 
         try {
 
-            $start_date = Carbon::parse($parts[0]);
-            $end_date = Carbon::parse($parts[1]);
+            $start_date = Carbon::parse($start);
+            $end_date = Carbon::parse($end);
 
-            return $this->builder->whereBetween('due_date', [$start_date, $end_date]);
+            return $this->builder->whereBetween($column, [$start_date, $end_date]);
         } catch (\Exception $e) {
             return $this->builder;
         }

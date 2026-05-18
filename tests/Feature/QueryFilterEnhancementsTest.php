@@ -297,6 +297,78 @@ class QueryFilterEnhancementsTest extends TestCase
             ->assertStatus(200);
     }
 
+    public function testDueDateRangeLegacyTwoPartStillFilters()
+    {
+        $this->invoice->due_date = '1971-01-02';
+        $this->invoice->saveQuietly();
+
+        $hash = $this->encodePrimaryKey($this->invoice->id);
+
+        $match = $this->withHeaders($this->headers())
+            ->get('/api/v1/invoices?due_date_range=1971-01-01,1971-01-03')
+            ->assertStatus(200)
+            ->json();
+
+        // Legacy 2-part still maps to whereBetween('due_date', ...)
+        $this->assertContains($hash, $this->ids($match));
+
+        $miss = $this->withHeaders($this->headers())
+            ->get('/api/v1/invoices?due_date_range=1972-01-01,1972-12-31')
+            ->assertStatus(200)
+            ->json();
+
+        $this->assertNotContains($hash, $this->ids($miss));
+    }
+
+    public function testDueDateRangeCanonicalThreePartFiltersInvoices()
+    {
+        // The Flutter client sends the 3-part canonical
+        // "due_date,start,end"; the base now applies it (previously a
+        // 2-part-only guard silently ignored it).
+        $this->invoice->due_date = '1971-01-02';
+        $this->invoice->saveQuietly();
+
+        $hash = $this->encodePrimaryKey($this->invoice->id);
+
+        $match = $this->withHeaders($this->headers())
+            ->get('/api/v1/invoices?due_date_range=due_date,1971-01-01,1971-01-03')
+            ->assertStatus(200)
+            ->json();
+        $this->assertContains($hash, $this->ids($match));
+
+        $miss = $this->withHeaders($this->headers())
+            ->get('/api/v1/invoices?due_date_range=due_date,2999-01-01,2999-12-31')
+            ->assertStatus(200)
+            ->json();
+        $this->assertNotContains($hash, $this->ids($miss));
+    }
+
+    public function testDueDateRangeThreePartOnQuotesAndCredits()
+    {
+        // Inherited base contract — no per-entity override needed.
+        $this->withHeaders($this->headers())
+            ->get('/api/v1/quotes?due_date_range=due_date,2999-01-01,2999-12-31')
+            ->assertStatus(200)
+            ->assertJsonCount(0, 'data');
+
+        $this->withHeaders($this->headers())
+            ->get('/api/v1/credits?due_date_range=due_date,2999-01-01,2999-12-31')
+            ->assertStatus(200)
+            ->assertJsonCount(0, 'data');
+    }
+
+    public function testDueDateRangeMalformedIsSafeNoOp()
+    {
+        // Single part / unparseable bounds → unfiltered set, no 422.
+        $this->withHeaders($this->headers())
+            ->get('/api/v1/invoices?due_date_range=only-one')
+            ->assertStatus(200);
+
+        $this->withHeaders($this->headers())
+            ->get('/api/v1/invoices?due_date_range=due_date,not-a-date,also-bad')
+            ->assertStatus(200);
+    }
+
     // ── Comparable date / numeric operators (canonical prefix op:value) ──
 
     public function testCreatedAtPrefixGtComparator()
