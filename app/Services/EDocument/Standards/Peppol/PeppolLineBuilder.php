@@ -91,7 +91,7 @@ class PeppolLineBuilder
             // Quantity
             if ($isCreditNote) {
                 $qty = new \InvoiceNinja\EInvoice\Models\Peppol\QuantityType\CreditedQuantity();
-                $qty->amount = (string) ($this->peppol->isCreditNoteDocument() ? abs($item->quantity) : $item->quantity);
+                $qty->amount = (string) $this->peppol->normalizeAmount($item->quantity);
                 $qty->unitCode = $item->unit_code ?? 'C62';
                 $line->CreditedQuantity = $qty;
             } else {
@@ -108,7 +108,7 @@ class PeppolLineBuilder
 
             $lea = new LineExtensionAmount();
             $lea->currencyID = $currencyCode;
-            $lea->amount = (string) ($isCreditNote ? abs($lineTotal) : $lineTotal);
+            $lea->amount = (string) $this->peppol->normalizeAmount($lineTotal);
             $line->LineExtensionAmount = $lea;
             $line->Item = $_item;
 

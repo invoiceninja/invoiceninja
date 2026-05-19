@@ -220,7 +220,20 @@ class Peppol extends AbstractService implements MutatorInterface
     public function normalizeAmount(float|int|string $amount): float
     {
         $value = (float) $amount;
-        return $this->isCreditNote ? abs($value) : $value;
+
+        if (!$this->isCreditNote) {
+            return $value;
+        }
+
+        // Use a sign multiplier based on the document total, so per-line and
+        // per-tax-group signs stay consistent with the monetary totals. abs()
+        // applied per partial breaks BR-CO-13 when a credit note contains an
+        // internal offset line in a separate VAT category.
+        $sign = ((float) $this->invoice->amount) < 0 ? -1 : 1;
+
+        return $value * $sign;
+        // $value = (float) $amount;
+        // return $this->isCreditNote ? abs($value) : $value;
     }
 
     /**
