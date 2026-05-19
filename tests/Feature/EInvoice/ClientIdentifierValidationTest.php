@@ -146,18 +146,24 @@ class ClientIdentifierValidationTest extends TestCase
     }
 
     // ──────────────────────────────────────────────────────
-    // Bad checkdigit — regex matches, mod-97 fails on both
-    // derived candidates.
+    // Bad checkdigit — regex matches but mod-97 fails. Client-
+    // level validation is lenient (format only); the check
+    // digit is enforced strictly on the registration/send
+    // path, not here.
     // ──────────────────────────────────────────────────────
 
-    public function testBeBusinessInvalidCheckdigitIsBlocked(): void
+    public function testBeBusinessInvalidCheckdigitPassesClientValidation(): void
     {
         // BE0202239951 is valid; mutating the last digit breaks the mod-97.
+        // Format still matches, so client-level validation passes.
         $client = $this->makeClient(['vat_number' => 'BE0202239952']);
 
-        $errors = $this->clientErrors($client);
+        $result = (new EntityLevel())->checkClient($client);
 
-        $this->assertTrue($this->hasErrorForField($errors, 'vat_number'));
+        $this->assertTrue(
+            $result['passes'],
+            'Client-level validation must be lenient on the check digit. Errors: ' . json_encode($result['client'] ?? [])
+        );
     }
 
     // ──────────────────────────────────────────────────────
