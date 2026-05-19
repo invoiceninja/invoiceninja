@@ -59,5 +59,17 @@ class FR extends BaseCountry
 
         return $p_invoice;
     }
+    
+    /**
+     * getNetworkOverrides
+     *
+     * @return array
+     */
+    public function getNetworkOverrides(): array
+    {
 
+        // FR => FR must route to DGFIP network. However, we may need to consider routing via PEPPOL if recipient != FR.
+        // @todo - currently hardcoded to DGFIP network.
+        return [['application' => 'fr-dgfip', 'settings' => ['enabled' => true]]];
+    }
 }

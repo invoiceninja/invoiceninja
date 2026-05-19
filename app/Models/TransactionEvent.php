@@ -34,7 +34,7 @@ use App\DataMapper\TransactionEventMetadata;
  * @property float $payment_amount
  * @property float $payment_applied
  * @property float $payment_refunded
- * @property int|null $reporting_status
+ * @property int|null $payment_status
  * @property ReportData|null $reporting_data
  * @property int $event_id
  * @property int $timestamp

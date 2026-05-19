@@ -46,7 +46,7 @@ class PurchaseOrderAcceptedListener implements ShouldQueue
             /* The User */
             $user = $company_user->user;
 
-            if (! $user) {
+            if ($company_user->trashed() || ! $user ) {
                 continue;
             }
 
