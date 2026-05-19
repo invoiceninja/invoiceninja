@@ -282,6 +282,7 @@ class InvoiceSum
             //     $this->invoice->balance = Number::roundValue($this->getTotal(), $this->precision);
             // }
 
+            // 2026-05-19 - This is a regression fix balance not decrementing after payments.
             $new_total     = Number::roundValue($this->getTotal(), $this->precision);
             $amount_delta  = $new_total - $this->invoice->amount;   // amount = persisted pre-edit value
             $this->invoice->balance = Number::roundValue($this->invoice->balance + $amount_delta, $this->precision);
