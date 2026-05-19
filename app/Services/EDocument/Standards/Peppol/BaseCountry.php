@@ -81,7 +81,7 @@ class BaseCountry implements CountryHandler
         return strlen($id) >= 2 ? [['scheme' => $scheme, 'id' => $id]] : [];
     }
 
-    public function getNetworkOverrides(): array
+    public function getNetworkOverrides(?Client $client = null): array
     {
         return [];
     }
@@ -111,7 +111,7 @@ class BaseCountry implements CountryHandler
         $candidates = $this->getCandidates($client, $classification, $router);
 
         foreach ($candidates as $candidate) {
-            if ($this->identifierValidator()->validFormat($candidate['scheme'], $candidate['id'])) {
+            if ($this->identifierValidator()->validFormat($candidate['scheme'], $candidate['id'], checkDigit: false)) {
                 return [];
             }
         }

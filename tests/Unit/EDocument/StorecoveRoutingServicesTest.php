@@ -88,7 +88,8 @@ class StorecoveRoutingServicesTest extends TestCase
 
         $this->assertTrue($validator->validFormat('BE:EN', '0202239951'));
         $this->assertFalse($validator->validFormat('BE:EN', '0202239952'));
-        $this->assertTrue($validator->validFormat('FR:SIRENE or FR:SIRET', '12345678901234'));
+        $this->assertTrue($validator->validFormat('FR:SIRENE or FR:SIRET', '73282932000074'));
+        $this->assertFalse($validator->validFormat('FR:SIRENE or FR:SIRET', '12345678901234'));
         $this->assertSame('123456789 or 12345678901234', $validator->formatExample('FR:SIRENE or FR:SIRET'));
     }
 

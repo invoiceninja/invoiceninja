@@ -333,7 +333,7 @@ class EntityLevel implements EntityLevelInterface
                 ];
         }
 
-        if (!$this->identifierValidator()->validFormat($scheme, $id)) {
+        if (!$this->identifierValidator()->validFormat($scheme, $id, checkDigit: false)) {
             return [
                 'field' => 'routing_id',
                 'label' => ctrans('texts.routing_id') . " {$scheme}:{$id} does not match the expected format for {$scheme}.",

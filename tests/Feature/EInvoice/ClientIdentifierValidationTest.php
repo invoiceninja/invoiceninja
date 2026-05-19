@@ -366,7 +366,7 @@ class ClientIdentifierValidationTest extends TestCase
             'PL' => [616, 'PL', ['vat_number' => 'PL1234567890']],
             'SE' => [752, 'SE', ['id_number'  => '1234567890']],
             'IE' => [372, 'IE', ['vat_number' => 'IE1A23456B']],
-            'FR' => [250, 'FR', ['id_number'  => '123456789']], // 9 digits → FR:SIRENE
+            'FR' => [250, 'FR', ['id_number'  => '732829320']], // 9 digits → FR:SIRENE (Luhn-valid)
             'GR' => [300, 'GR', ['vat_number' => 'EL123456789']],
             'RO' => [642, 'RO', ['vat_number' => 'RO1234567890']],
             'SI' => [705, 'SI', ['vat_number' => 'SI12345678']],
@@ -681,5 +681,80 @@ class ClientIdentifierValidationTest extends TestCase
         $result = (new EntityLevel())->checkClient($client);
 
         $this->assertTrue($result['passes'], 'SG client with valid SG:UEN override should pass. Errors: ' . json_encode($result['client'] ?? []));
+    }
+
+    // ──────────────────────────────────────────────────────
+    // FR business — either id_number (SIREN/SIRET) OR a
+    // VAT number (SIREN inferred from trailing 9 digits) is
+    // sufficient. id_number must NOT be mandatory when VAT
+    // is present.
+    // ──────────────────────────────────────────────────────
+
+    public function testFrBusinessWithVatNumberOnlyPasses(): void
+    {
+        $client = $this->makeClient([
+            'country_id' => 250, // FR
+            'vat_number' => 'FR44732829320', // trailing 9 = 732829320 (Luhn-valid SIREN)
+            'id_number'  => '',
+            'routing_id' => '',
+        ]);
+
+        $result = (new EntityLevel())->checkClient($client);
+
+        $this->assertTrue(
+            $result['passes'],
+            'FR business with VAT only must pass (SIREN inferred from VAT). Errors: ' . json_encode($result['client'] ?? [])
+        );
+    }
+
+    public function testFrBusinessWithIdNumberOnlyPasses(): void
+    {
+        $client = $this->makeClient([
+            'country_id' => 250, // FR
+            'vat_number' => '',
+            'id_number'  => '73282932000074', // Luhn-valid SIRET
+            'routing_id' => '',
+        ]);
+
+        $result = (new EntityLevel())->checkClient($client);
+
+        $this->assertTrue(
+            $result['passes'],
+            'FR business with id_number only must pass. Errors: ' . json_encode($result['client'] ?? [])
+        );
+    }
+
+    public function testFrBusinessLuhnInvalidButFormatValidIdentifierPassesClientValidation(): void
+    {
+        // 12345678900038 is a structurally valid 14-digit SIRET that fails the
+        // Luhn check. Client-level validation is lenient (format only); the
+        // Luhn check is enforced strictly on the registration/send path.
+        $client = $this->makeClient([
+            'country_id' => 250, // FR
+            'vat_number' => '',
+            'id_number'  => '12345678900038',
+            'routing_id' => '',
+        ]);
+
+        $result = (new EntityLevel())->checkClient($client);
+
+        $this->assertTrue(
+            $result['passes'],
+            'FR client-level validation must be lenient on the SIREN/SIRET check digit. Errors: ' . json_encode($result['client'] ?? [])
+        );
+    }
+
+    public function testFrBusinessWithNeitherIdNumberNorVatIsBlocked(): void
+    {
+        $client = $this->makeClient([
+            'country_id' => 250, // FR
+            'vat_number' => '',
+            'id_number'  => '',
+            'routing_id' => '',
+        ]);
+
+        $errors = $this->clientErrors($client);
+
+        $this->assertNotEmpty($errors, 'FR business with neither identifier must be blocked');
     }
 }

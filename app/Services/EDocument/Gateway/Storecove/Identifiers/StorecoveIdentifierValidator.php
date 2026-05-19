@@ -10,11 +10,19 @@ class StorecoveIdentifierValidator
     ) {
     }
 
-    public function validFormat(string $scheme, string $value): bool
+    /**
+     * @param  bool  $checkDigit  When false, only the structural regex is
+     *                             enforced and the scheme's check digit (e.g.
+     *                             SIREN/SIRET Luhn, BE mod-97) is skipped.
+     *                             Used by client-level validation, which must
+     *                             not block on a check digit - that is enforced
+     *                             strictly on the registration/send path.
+     */
+    public function validFormat(string $scheme, string $value, bool $checkDigit = true): bool
     {
         if (stripos($scheme, ' or ') !== false) {
             foreach (array_map('trim', explode(' or ', $scheme)) as $atomicScheme) {
-                if ($this->validFormat($atomicScheme, $value)) {
+                if ($this->validFormat($atomicScheme, $value, $checkDigit)) {
                     return true;
                 }
             }
@@ -42,6 +50,10 @@ class StorecoveIdentifierValidator
 
         if (!preg_match($regex[$scheme], $cleanValue)) {
             return false;
+        }
+
+        if (!$checkDigit) {
+            return true;
         }
 
         return $this->checkdigit($scheme, $cleanValue) !== false;
@@ -86,8 +98,46 @@ class StorecoveIdentifierValidator
         return match ($scheme) {
             'BE:EN' => $this->mod97Check($this->stripCountryPrefix($cleanValue, 'BE')),
             'BE:VAT' => $this->mod97Check($this->stripCountryPrefix($cleanValue, 'BE')),
+            'FR:SIRENE' => $this->frenchLuhnCheck($cleanValue),
+            'FR:SIRET' => $this->frenchLuhnCheck($cleanValue),
             default => null,
         };
+    }
+
+    /**
+     * SIREN (9 digits) and SIRET (14 digits) carry a Luhn check digit.
+     *
+     * Exception: La Poste establishments (SIREN 356000000) are not Luhn-valid;
+     * for those a SIRET is valid when the sum of its digits is divisible by 5.
+     */
+    private function frenchLuhnCheck(string $digits): bool
+    {
+        if (!ctype_digit($digits) || !in_array(strlen($digits), [9, 14], true)) {
+            return false;
+        }
+
+        if (strlen($digits) === 14 && str_starts_with($digits, '356000000')) {
+            return array_sum(str_split($digits)) % 5 === 0;
+        }
+
+        $sum = 0;
+        $double = false;
+
+        for ($i = strlen($digits) - 1; $i >= 0; $i--) {
+            $d = (int) $digits[$i];
+
+            if ($double) {
+                $d *= 2;
+                if ($d > 9) {
+                    $d -= 9;
+                }
+            }
+
+            $sum += $d;
+            $double = !$double;
+        }
+
+        return $sum % 10 === 0;
     }
 
     private function mod97Check(string $digits): bool
