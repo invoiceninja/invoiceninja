@@ -132,8 +132,6 @@ return [
         'ES:VAT'   => '/^(ES)?[A-Z0-9]\d{7}[A-Z0-9]$/i',
         'FI:VAT'   => '/^(FI)?\d{8}$/i',
         'FR:VAT'   => '/^(FR)?[A-HJ-NP-Z0-9]{2}\d{9}$/i',
-        'FR:SERENE' => '/^\d{9}$/i',
-        'FR:SIRET' => '/^\d{14}$/i',
         'GR:VAT'   => '/^(GR|EL)?\d{9}$/i',
         'HR:VAT'   => '/^(HR)?\d{11}$/i',
         'HU:VAT'   => '/^(HU)?\d{8}$/i',
