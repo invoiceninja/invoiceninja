@@ -187,33 +187,38 @@ class PayFastPaymentDriver extends BaseDriver
 
 
 
+    /**
+     * Verify the PayFast ITN signature.
+     *
+     * Must be built from the raw POST body — ConvertEmptyStringsToNull turns
+     * PayFast's empty ITN fields into null, and http_build_query drops nulls,
+     * so $request->all() would produce a string missing keys PayFast included.
+     */
     private function verifyItnSignature(array $data, string $passphrase): bool
     {
         $sig = $data['signature'] ?? '';
         unset($data['signature']);
 
-        // Rebuild query string in the order PayFast sends it
         $query = http_build_query($data);
         if ($passphrase !== '') {
             $query .= '&passphrase=' . urlencode($passphrase);
         }
+
         return hash_equals(md5($query), $sig);
     }
 
     public function processWebhookRequest(PaymentNotificationWebhookRequest $request, Payment $payment = null)
     {
-        $data = $request->all();
-        // nlog("payfast");
-        // nlog($data);
+        parse_str($request->getContent(), $data);
 
         $passphrase = $this->company_gateway->getConfigField('passphrase') ?? '';
 
-        if (strlen($passphrase) > 0 && ! $this->verifyItnSignature($request->all(), $passphrase)) {
+        if (strlen($passphrase) > 0 && ! $this->verifyItnSignature($data, $passphrase)) {
             return response()->json(['error' => 'Invalid Webhook Signature'], 400);
         }
 
         if (array_key_exists('pf_payment_id', $data) && strlen($data['pf_payment_id']) > 1) {
-            PaymentCompletedWebhook::dispatch($data, $request->company_key, $this->company_gateway->id)->delay(10);
+            PaymentCompletedWebhook::dispatch($data, $request->company_key, $this->company_gateway->id);
             return;
         }
 
