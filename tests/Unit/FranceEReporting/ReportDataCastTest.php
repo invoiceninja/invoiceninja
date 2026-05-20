@@ -61,7 +61,10 @@ class ReportDataCastTest extends TestCase
         $reportData = ReportData::fromArray($frReportPayload);
 
         $this->assertInstanceOf(FRReportData::class, $reportData->frReport);
-        $this->assertEquals([\n            'schemaVersion' => 1,\n            'frReport' => $frReportPayload,\n        ], $reportData->toArray());
+        $this->assertEquals([
+            'schemaVersion' => 1,
+            'frReport' => $frReportPayload,
+        ], $reportData->toArray());
     }
 
     public function testItDefaultsMissingSchemaVersionsToOne(): void
@@ -317,6 +320,7 @@ class ReportDataCastTest extends TestCase
             ],
         ];
     }
+
     /**
      * @return array<string, mixed>
      */
