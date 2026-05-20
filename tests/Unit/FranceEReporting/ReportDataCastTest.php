@@ -33,15 +33,25 @@ class ReportDataCastTest extends TestCase
         $this->assertInstanceOf(ReportData::class, $reportData);
         $this->assertInstanceOf(FRReportData::class, $reportData->frReport);
         $this->assertSame('IN', $reportData->frReport->typeCode);
-        $this->assertSame($frReportPayload, $reportData->frReport->toArray());
-        $this->assertSame($payload, $reportData->toArray());
+        $this->assertEquals($frReportPayload, $reportData->frReport->toArray());
+        $this->assertEquals($payload, $reportData->toArray());
         $this->assertSame(['schemaVersion', 'frReport'], array_keys($reportData->toArray()));
         $this->assertArrayNotHasKey('documentType', $reportData->frReport->toArray());
         $this->assertArrayNotHasKey('frEReport', $reportData->frReport->toArray());
 
+        $b2biInvoice = $reportData->frReport->transactionReport->b2biInvoices[0]->toArray();
+        $this->assertEquals($frReportPayload['transactionReport']['b2biInvoices'][0], $b2biInvoice);
+        $this->assertArrayHasKey('taxCategory', $b2biInvoice['taxSubtotals'][0]);
+        $this->assertArrayNotHasKey('category', $b2biInvoice['taxSubtotals'][0]);
+        $this->assertArrayHasKey('amountExcludingVat', $b2biInvoice['invoiceLines'][0]);
+        $this->assertArrayNotHasKey('amountExcludingTax', $b2biInvoice['invoiceLines'][0]);
+        $this->assertArrayHasKey('party', $b2biInvoice['accountingSupplierParty']);
+        $this->assertArrayHasKey('publicIdentifiers', $b2biInvoice['accountingSupplierParty']);
+        $this->assertArrayHasKey('taxSubtotal', $reportData->frReport->paymentReport->b2cPayments[0]->toArray());
+
         $event->reporting_data = $reportData;
 
-        $this->assertSame($payload, json_decode($event->getAttributes()['reporting_data'], true, 512, JSON_THROW_ON_ERROR));
+        $this->assertEquals($payload, json_decode($event->getAttributes()['reporting_data'], true, 512, JSON_THROW_ON_ERROR));
     }
 
     public function testItWrapsDirectFranceReportPayloadsForCompatibility(): void
@@ -51,10 +61,7 @@ class ReportDataCastTest extends TestCase
         $reportData = ReportData::fromArray($frReportPayload);
 
         $this->assertInstanceOf(FRReportData::class, $reportData->frReport);
-        $this->assertSame([
-            'schemaVersion' => 1,
-            'frReport' => $frReportPayload,
-        ], $reportData->toArray());
+        $this->assertEquals([\n            'schemaVersion' => 1,\n            'frReport' => $frReportPayload,\n        ], $reportData->toArray());
     }
 
     public function testItDefaultsMissingSchemaVersionsToOne(): void
@@ -179,26 +186,90 @@ class ReportDataCastTest extends TestCase
                     'address' => [
                         'country' => 'FR',
                     ],
-                    'publicIdentifiers' => [
-                        [
-                            'scheme' => 'FR:SIRET',
-                            'id' => '12345678900012',
-                        ],
+                ],
+                'publicIdentifiers' => [
+                    [
+                        'scheme' => 'FR:SIRET',
+                        'id' => '12345678900012',
                     ],
                 ],
             ],
             'transactionReport' => [
                 'period' => '2026-09-01 - 2026-09-10',
-                'b2biInvoices' => [],
+                'b2biInvoices' => [
+                    [
+                        'invoiceNumber' => 'S1F1_REPORT2025_001',
+                        'issueDate' => '2025-09-01',
+                        'dueDate' => '2025-09-30',
+                        'documentCurrency' => 'EUR',
+                        'amountIncludingVat' => 12000,
+                        'taxSubtotals' => [
+                            [
+                                'taxCategory' => 'standard',
+                                'percentage' => 20,
+                                'taxableAmount' => 10000,
+                                'taxAmount' => 2000,
+                                'country' => 'FR',
+                            ],
+                        ],
+                        'accountingSupplierParty' => [
+                            'party' => [
+                                'companyName' => 'LEVENDEURC3',
+                                'address' => [
+                                    'country' => 'FR',
+                                ],
+                            ],
+                            'publicIdentifiers' => [
+                                [
+                                    'scheme' => 'FR:SIRENE',
+                                    'id' => '352022154',
+                                ],
+                                [
+                                    'scheme' => 'FR:VAT',
+                                    'id' => 'FR99352022154',
+                                ],
+                            ],
+                        ],
+                        'accountingCustomerParty' => [
+                            'party' => [
+                                'companyName' => 'METACORTEX',
+                                'address' => [
+                                    'street1' => '987654321',
+                                    'street2' => 'METACORTEX',
+                                    'zip' => '98152',
+                                    'city' => 'Scala Ritiro',
+                                    'country' => 'IT',
+                                ],
+                            ],
+                            'publicIdentifiers' => [
+                                [
+                                    'scheme' => 'IT:VAT',
+                                    'id' => 'IT00987654321',
+                                ],
+                            ],
+                        ],
+                        'invoiceLines' => [
+                            [
+                                'description' => 'Bien 1',
+                                'amountExcludingVat' => 10000,
+                                'tax' => [
+                                    'percentage' => 20,
+                                    'category' => 'standard',
+                                    'country' => 'FR',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
                 'b2cTransactions' => [
                     [
                         'date' => '2026-09-10',
-                        'category' => 'services',
+                        'category' => 'TLB1',
                         'currency' => 'EUR',
                         'amountExcludingVat' => '1000.00',
                         'amountIncludingVat' => '1200.00',
                         'transactionsCount' => 4,
-                        'vatPaymentOption' => 'on_collection',
+                        'vatPaymentOption' => 'customer',
                         'taxSubtotals' => [
                             [
                                 'category' => 'standard',
@@ -213,7 +284,22 @@ class ReportDataCastTest extends TestCase
             ],
             'paymentReport' => [
                 'period' => '2026-09-01 - 2026-09-30',
-                'b2biPayments' => [],
+                'b2biPayments' => [
+                    [
+                        'invoiceNumber' => 'S2F3_REPORT2025_001',
+                        'issueDate' => '2025-09-03',
+                        'paymentDate' => '2025-09-22',
+                        'taxSubtotals' => [
+                            [
+                                'percentage' => 20,
+                                'category' => 'standard',
+                                'currency' => 'EUR',
+                                'country' => 'FR',
+                                'amountIncludingTax' => 30000,
+                            ],
+                        ],
+                    ],
+                ],
                 'b2cPayments' => [
                     [
                         'date' => '2026-09-25',
@@ -231,7 +317,6 @@ class ReportDataCastTest extends TestCase
             ],
         ];
     }
-
     /**
      * @return array<string, mixed>
      */

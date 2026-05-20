@@ -30,8 +30,8 @@ final readonly class B2BIInvoiceData implements Arrayable, JsonSerializable
         public string $documentCurrency,
         public int|float|string $amountIncludingVat,
         public ?string $dueDate = null,
-        public ?PartyData $accountingSupplierParty = null,
-        public ?PartyData $accountingCustomerParty = null,
+        public ?DeclarantPartyData $accountingSupplierParty = null,
+        public ?DeclarantPartyData $accountingCustomerParty = null,
         public array $taxSubtotals = [],
         public array $invoiceLines = [],
     ) {
@@ -59,10 +59,10 @@ final readonly class B2BIInvoiceData implements Arrayable, JsonSerializable
                 ? ReportDataValidator::assertDate($data['dueDate'], 'b2biInvoices.dueDate')
                 : null,
             accountingSupplierParty: array_key_exists('accountingSupplierParty', $data) && ! is_null($data['accountingSupplierParty'])
-                ? PartyData::fromArray(ReportDataValidator::assertArray($data['accountingSupplierParty'], 'b2biInvoices.accountingSupplierParty'))
+                ? DeclarantPartyData::fromArray(ReportDataValidator::assertArray($data['accountingSupplierParty'], 'b2biInvoices.accountingSupplierParty'))
                 : null,
             accountingCustomerParty: array_key_exists('accountingCustomerParty', $data) && ! is_null($data['accountingCustomerParty'])
-                ? PartyData::fromArray(ReportDataValidator::assertArray($data['accountingCustomerParty'], 'b2biInvoices.accountingCustomerParty'))
+                ? DeclarantPartyData::fromArray(ReportDataValidator::assertArray($data['accountingCustomerParty'], 'b2biInvoices.accountingCustomerParty'))
                 : null,
             taxSubtotals: self::taxSubtotalsFromArray($data['taxSubtotals'] ?? []),
             invoiceLines: self::invoiceLinesFromArray($data['invoiceLines'] ?? []),
@@ -120,10 +120,15 @@ final readonly class B2BIInvoiceData implements Arrayable, JsonSerializable
             static function (mixed $line): array {
                 $line = ReportDataValidator::assertArray($line, 'b2biInvoices.invoiceLines.*');
 
-                ReportDataValidator::assertNonEmptyString($line['id'] ?? null, 'b2biInvoices.invoiceLines.id');
                 ReportDataValidator::assertNonEmptyString($line['description'] ?? null, 'b2biInvoices.invoiceLines.description');
-                ReportDataValidator::assertNumeric($line['quantity'] ?? null, 'b2biInvoices.invoiceLines.quantity');
-                ReportDataValidator::assertNumeric($line['amountExcludingTax'] ?? null, 'b2biInvoices.invoiceLines.amountExcludingTax');
+                ReportDataValidator::assertNumeric($line['amountExcludingVat'] ?? null, 'b2biInvoices.invoiceLines.amountExcludingVat');
+
+                if (array_key_exists('tax', $line) && ! is_null($line['tax'])) {
+                    $tax = ReportDataValidator::assertArray($line['tax'], 'b2biInvoices.invoiceLines.tax');
+                    ReportDataValidator::assertNumeric($tax['percentage'] ?? null, 'b2biInvoices.invoiceLines.tax.percentage');
+                    ReportDataValidator::assertOptionalString($tax['category'] ?? null, 'b2biInvoices.invoiceLines.tax.category');
+                    ReportDataValidator::assertOptionalString($tax['country'] ?? null, 'b2biInvoices.invoiceLines.tax.country');
+                }
 
                 return $line;
             },

@@ -27,6 +27,9 @@ final readonly class DeclarantPartyData implements Arrayable, JsonSerializable
         public ?PartyData $party = null,
         public array $publicIdentifiers = [],
     ) {
+        if ($this->publicIdentifiers === []) {
+            throw new \InvalidArgumentException('declarantParty.publicIdentifiers requires at least one item.');
+        }
     }
 
     /**

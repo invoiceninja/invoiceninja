@@ -22,6 +22,7 @@ final readonly class TaxSubtotalData implements Arrayable, JsonSerializable
 {
     public function __construct(
         public int|float|string $percentage,
+        public ?string $taxCategory = null,
         public ?string $category = null,
         public int|float|string|null $taxableAmount = null,
         public int|float|string|null $taxAmount = null,
@@ -43,6 +44,14 @@ final readonly class TaxSubtotalData implements Arrayable, JsonSerializable
 
         if (! is_null($this->amountIncludingTax)) {
             ReportDataValidator::assertNumeric($this->amountIncludingTax, 'taxSubtotals.amountIncludingTax');
+        }
+
+        if (! is_null($this->taxCategory)) {
+            ReportDataValidator::assertNonEmptyString($this->taxCategory, 'taxSubtotals.taxCategory');
+        }
+
+        if (! is_null($this->category)) {
+            ReportDataValidator::assertNonEmptyString($this->category, 'taxSubtotals.category');
         }
 
         if (is_null($this->taxableAmount) !== is_null($this->taxAmount)) {
@@ -69,6 +78,7 @@ final readonly class TaxSubtotalData implements Arrayable, JsonSerializable
     {
         return new self(
             percentage: ReportDataValidator::assertNumeric($data['percentage'] ?? $data['percent'] ?? null, 'taxSubtotals.percentage'),
+            taxCategory: ReportDataValidator::assertOptionalString($data['taxCategory'] ?? null, 'taxSubtotals.taxCategory'),
             category: ReportDataValidator::assertOptionalString($data['category'] ?? null, 'taxSubtotals.category'),
             taxableAmount: array_key_exists('taxableAmount', $data) && ! is_null($data['taxableAmount'])
                 ? ReportDataValidator::assertNumeric($data['taxableAmount'], 'taxSubtotals.taxableAmount')
@@ -92,6 +102,7 @@ final readonly class TaxSubtotalData implements Arrayable, JsonSerializable
     public function toArray(): array
     {
         return array_filter([
+            'taxCategory' => $this->taxCategory,
             'category' => $this->category,
             'percentage' => $this->percentage,
             'taxableAmount' => $this->taxableAmount,
