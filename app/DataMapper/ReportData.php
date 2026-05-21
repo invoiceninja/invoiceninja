@@ -14,6 +14,7 @@ namespace App\DataMapper;
 
 use App\Casts\ReportDataCast;
 use App\DataMapper\FranceEReporting\FRReportData;
+use App\DataMapper\FranceEReporting\FRReportEntryData;
 use Illuminate\Contracts\Database\Eloquent\Castable;
 use Illuminate\Contracts\Support\Arrayable;
 use InvalidArgumentException;
@@ -28,6 +29,7 @@ final readonly class ReportData implements Arrayable, Castable, JsonSerializable
 
     public function __construct(
         public ?FRReportData $frReport = null,
+        public ?FRReportEntryData $frReportEntry = null,
         public int $schemaVersion = self::CURRENT_SCHEMA_VERSION,
     ) {
         $this->validate();
@@ -44,6 +46,11 @@ final readonly class ReportData implements Arrayable, Castable, JsonSerializable
     public static function fromFRReport(FRReportData $frReport): self
     {
         return new self(frReport: $frReport);
+    }
+
+    public static function fromFRReportEntry(FRReportEntryData $frReportEntry): self
+    {
+        return new self(frReportEntry: $frReportEntry);
     }
 
     /**
@@ -68,6 +75,9 @@ final readonly class ReportData implements Arrayable, Castable, JsonSerializable
             frReport: array_key_exists('frReport', $data) && ! is_null($data['frReport'])
                 ? FRReportData::fromArray(self::assertArray($data['frReport'], 'frReport'))
                 : null,
+            frReportEntry: array_key_exists('frReportEntry', $data) && ! is_null($data['frReportEntry'])
+                ? FRReportEntryData::fromArray(self::assertArray($data['frReportEntry'], 'frReportEntry'))
+                : null,
             schemaVersion: $schemaVersion,
         );
     }
@@ -80,6 +90,7 @@ final readonly class ReportData implements Arrayable, Castable, JsonSerializable
         return array_filter([
             'schemaVersion' => $this->schemaVersion,
             'frReport' => $this->frReport?->toArray(),
+            'frReportEntry' => $this->frReportEntry?->toArray(),
         ], static fn (mixed $value): bool => ! is_null($value));
     }
 
@@ -97,8 +108,8 @@ final readonly class ReportData implements Arrayable, Castable, JsonSerializable
             throw new InvalidArgumentException('Unsupported report data schemaVersion.');
         }
 
-        if (is_null($this->frReport)) {
-            throw new InvalidArgumentException('ReportData requires at least one regional report.');
+        if (is_null($this->frReport) && is_null($this->frReportEntry)) {
+            throw new InvalidArgumentException('ReportData requires at least one regional report or report entry.');
         }
     }
 

@@ -13,6 +13,7 @@
 namespace App\Casts;
 
 use App\DataMapper\FranceEReporting\FRReportData;
+use App\DataMapper\FranceEReporting\FRReportEntryData;
 use App\DataMapper\ReportData;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Model;
@@ -53,6 +54,8 @@ class ReportDataCast implements CastsAttributes
             $reportData = $value;
         } elseif ($value instanceof FRReportData) {
             $reportData = ReportData::fromFRReport($value);
+        } elseif ($value instanceof FRReportEntryData) {
+            $reportData = ReportData::fromFRReportEntry($value);
         } elseif (is_array($value)) {
             $reportData = ReportData::fromArray($value);
         } elseif (is_string($value)) {
@@ -62,7 +65,7 @@ class ReportDataCast implements CastsAttributes
                 throw new InvalidArgumentException("Invalid report data JSON: {$exception->getMessage()}", 0, $exception);
             }
         } else {
-            throw new InvalidArgumentException('reporting_data must be a ReportData instance, FRReportData instance, array, JSON string, or null.');
+            throw new InvalidArgumentException('reporting_data must be a ReportData instance, FRReportData instance, FRReportEntryData instance, array, JSON string, or null.');
         }
 
         return [

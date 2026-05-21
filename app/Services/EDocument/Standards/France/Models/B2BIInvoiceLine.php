@@ -21,6 +21,12 @@ class B2BIInvoiceLine
     #[SerializedPath('[cbc:InvoicedQuantity][@unitCode]')]
     public ?string $quantity_unit_code = null;
 
+    #[SerializedPath('[cbc:CreditedQuantity][#]')]
+    public int|float|string|null $credited_quantity = null;
+
+    #[SerializedPath('[cbc:CreditedQuantity][@unitCode]')]
+    public ?string $credited_quantity_unit_code = null;
+
     #[SerializedPath('[cbc:LineExtensionAmount][#]')]
     public int|float|string|null $amount_excluding_tax = null;
 
@@ -36,6 +42,8 @@ class B2BIInvoiceLine
         ?string $name = null,
         int|float|string|null $quantity = null,
         ?string $quantity_unit_code = null,
+        int|float|string|null $credited_quantity = null,
+        ?string $credited_quantity_unit_code = null,
         int|float|string|null $amount_excluding_tax = null,
         ?array $taxes = null,
     ) {
@@ -44,6 +52,8 @@ class B2BIInvoiceLine
         $this->name = $name;
         $this->quantity = $quantity;
         $this->quantity_unit_code = $quantity_unit_code;
+        $this->credited_quantity = $credited_quantity;
+        $this->credited_quantity_unit_code = $credited_quantity_unit_code;
         $this->amount_excluding_tax = $amount_excluding_tax;
         $this->taxes = $taxes;
     }

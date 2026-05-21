@@ -139,7 +139,7 @@ class MultiDB
     public static function checkUserEmailExists($email): bool
     {
         if (!config('ninja.db.multi_db_enabled')) {
-            return User::where(['email' => $email])->withTrashed()->exists();
+            return User::where('email',$email)->withTrashed()->exists();
         } // true >= 1 emails found / false -> == emails found
 
         $current_db = config('database.default');

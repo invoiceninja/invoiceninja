@@ -12,10 +12,13 @@
 
 namespace App\Jobs\EDocument;
 
+use App\DataMapper\FranceEReporting\FRReportEntryData;
+use App\DataMapper\ReportData;
 use App\Libraries\MultiDB;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\TransactionEvent;
+use App\Services\EDocument\Standards\France\FranceReportEntryBuilder;
 use App\Services\EDocument\Standards\France\ReportingCalendar;
 use App\Services\EDocument\Standards\France\ReportingProfile;
 use Carbon\CarbonImmutable;
@@ -88,10 +91,6 @@ class RecordFranceEReportingTransaction implements ShouldQueue
 
     private function resolveEventId(Invoice|Credit $document): int
     {
-        if ($document instanceof Credit) {
-            return TransactionEvent::FR_CORRECTIVE_TRANSACTION;
-        }
-
         if (($document->client->classification ?? 'business') === 'individual') {
             return TransactionEvent::FR_B2C_TRANSACTION;
         }
@@ -132,6 +131,7 @@ class RecordFranceEReportingTransaction implements ShouldQueue
     private function transactionEventPayload(Invoice|Credit $document, int $eventId, string $period): array
     {
         $isInvoice = $document instanceof Invoice;
+        $reportingData = $this->reportingData($document, $eventId);
 
         return [
             'company_id' => $document->company_id,
@@ -153,6 +153,18 @@ class RecordFranceEReportingTransaction implements ShouldQueue
             'credit_balance' => $isInvoice ? 0 : ($document->balance ?? 0),
             'credit_amount' => $isInvoice ? 0 : ($document->amount ?? 0),
             'credit_status' => $isInvoice ? null : $document->status_id,
+            'reporting_data' => $reportingData,
         ];
+    }
+
+    private function reportingData(Invoice|Credit $document, int $eventId): ?ReportData
+    {
+        if ($eventId !== TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION) {
+            return null;
+        }
+
+        return ReportData::fromFRReportEntry(
+            FRReportEntryData::fromB2BIInvoice(app(FranceReportEntryBuilder::class)->b2biInvoice($document)),
+        );
     }
 }

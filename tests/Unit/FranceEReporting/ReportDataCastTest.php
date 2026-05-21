@@ -5,6 +5,7 @@ namespace Tests\Unit\FranceEReporting;
 use App\DataMapper\FranceEReporting\B2CPaymentData;
 use App\DataMapper\FranceEReporting\B2CTransactionData;
 use App\DataMapper\FranceEReporting\FRReportData;
+use App\DataMapper\FranceEReporting\FRReportEntryData;
 use App\DataMapper\FranceEReporting\PaymentReportData;
 use App\DataMapper\FranceEReporting\TaxSubtotalData;
 use App\DataMapper\FranceEReporting\TransactionReportData;
@@ -54,6 +55,35 @@ class ReportDataCastTest extends TestCase
         $this->assertEquals($payload, json_decode($event->getAttributes()['reporting_data'], true, 512, JSON_THROW_ON_ERROR));
     }
 
+    public function testItHydratesAndSerializesAFranceReportEntryEnvelope(): void
+    {
+        $b2biInvoicePayload = $this->combinedReportPayload()['transactionReport']['b2biInvoices'][0];
+        $payload = [
+            'schemaVersion' => 1,
+            'frReportEntry' => [
+                'schemaVersion' => 1,
+                'b2biInvoice' => $b2biInvoicePayload,
+            ],
+        ];
+
+        $event = new TransactionEvent();
+        $event->setRawAttributes([
+            'reporting_data' => json_encode($payload, JSON_THROW_ON_ERROR),
+        ], true);
+
+        $reportData = $event->reporting_data;
+
+        $this->assertInstanceOf(ReportData::class, $reportData);
+        $this->assertNull($reportData->frReport);
+        $this->assertInstanceOf(FRReportEntryData::class, $reportData->frReportEntry);
+        $this->assertEquals($b2biInvoicePayload, $reportData->frReportEntry->b2biInvoice->toArray());
+        $this->assertSame(['schemaVersion', 'frReportEntry'], array_keys($reportData->toArray()));
+
+        $event->reporting_data = $reportData;
+
+        $this->assertEquals($payload, json_decode($event->getAttributes()['reporting_data'], true, 512, JSON_THROW_ON_ERROR));
+    }
+
     public function testItWrapsDirectFranceReportPayloadsForCompatibility(): void
     {
         $frReportPayload = $this->combinedReportPayload();
@@ -85,7 +115,7 @@ class ReportDataCastTest extends TestCase
     public function testItRequiresAtLeastOneRegionalReport(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('ReportData requires at least one regional report.');
+        $this->expectExceptionMessage('ReportData requires at least one regional report or report entry.');
 
         ReportData::fromArray([
             'schemaVersion' => 1,

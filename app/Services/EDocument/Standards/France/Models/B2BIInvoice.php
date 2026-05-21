@@ -46,6 +46,18 @@ class B2BIInvoice
     public ?array $invoice_lines_direct = null;
 
     /**
+     * @var array<int, B2BIInvoiceLine>|null
+     */
+    #[SerializedPath('[cac:CreditNoteLine]')]
+    public ?array $credit_note_lines = null;
+
+    /**
+     * @var array<int, B2BIInvoiceLine>|null
+     */
+    #[SerializedPath('[CreditNoteLine]')]
+    public ?array $credit_note_lines_direct = null;
+
+    /**
      * @var array<int, B2BITaxSubtotal>|null
      */
     #[SerializedPath('[cac:TaxTotal][0][cac:TaxSubtotal]')]
@@ -69,6 +81,8 @@ class B2BIInvoice
         ?B2BIParty $accounting_customer_party_direct = null,
         ?array $invoice_lines = null,
         ?array $invoice_lines_direct = null,
+        ?array $credit_note_lines = null,
+        ?array $credit_note_lines_direct = null,
         ?array $tax_subtotals = null,
         ?array $tax_total = null,
         ?array $tax_total_direct = null,
@@ -84,6 +98,8 @@ class B2BIInvoice
         $this->accounting_customer_party_direct = $accounting_customer_party_direct;
         $this->invoice_lines = $invoice_lines;
         $this->invoice_lines_direct = $invoice_lines_direct;
+        $this->credit_note_lines = $credit_note_lines;
+        $this->credit_note_lines_direct = $credit_note_lines_direct;
         $this->tax_subtotals = $tax_subtotals;
         $this->tax_total = $tax_total;
         $this->tax_total_direct = $tax_total_direct;
@@ -109,7 +125,14 @@ class B2BIInvoice
                 ?? [], $country),
             'accountingSupplierParty' => $supplier?->toArray(),
             'accountingCustomerParty' => ($this->accounting_customer_party ?? $this->accounting_customer_party_direct)?->toArray(),
-            'invoiceLines' => $this->invoiceLinesToArray($this->invoice_lines ?? $this->invoice_lines_direct ?? [], $country),
+            'invoiceLines' => $this->invoiceLinesToArray(
+                $this->invoice_lines
+                    ?? $this->invoice_lines_direct
+                    ?? $this->credit_note_lines
+                    ?? $this->credit_note_lines_direct
+                    ?? [],
+                $country,
+            ),
         ], static fn (mixed $value): bool => ! is_null($value) && $value !== []);
     }
 
