@@ -71,10 +71,10 @@ final readonly class B2CTransactionData implements Arrayable, JsonSerializable
             'amountIncludingVat' => $this->amountIncludingVat,
             'transactionsCount' => $this->transactionsCount,
             'vatPaymentOption' => $this->vatPaymentOption,
-            'taxSubtotals' => array_map(
+            'taxSubtotals' => array_values(array_map(
                 static fn (TaxSubtotalData $taxSubtotal): array => $taxSubtotal->toArray(),
                 $this->taxSubtotals,
-            ),
+            )),
         ], static fn (mixed $value): bool => ! is_null($value) && $value !== []);
     }
 

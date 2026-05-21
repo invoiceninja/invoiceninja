@@ -82,11 +82,11 @@ final readonly class B2BIInvoiceData implements Arrayable, JsonSerializable
             'amountIncludingVat' => $this->amountIncludingVat,
             'accountingSupplierParty' => $this->accountingSupplierParty?->toArray(),
             'accountingCustomerParty' => $this->accountingCustomerParty?->toArray(),
-            'taxSubtotals' => array_map(
+            'taxSubtotals' => array_values(array_map(
                 static fn (TaxSubtotalData $taxSubtotal): array => $taxSubtotal->toArray(),
                 $this->taxSubtotals,
-            ),
-            'invoiceLines' => $this->invoiceLines,
+            )),
+            'invoiceLines' => array_values($this->invoiceLines),
         ], static fn (mixed $value): bool => ! is_null($value) && $value !== []);
     }
 

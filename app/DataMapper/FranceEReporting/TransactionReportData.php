@@ -52,14 +52,14 @@ final readonly class TransactionReportData implements Arrayable, JsonSerializabl
     {
         return [
             'period' => $this->period,
-            'b2biInvoices' => array_map(
+            'b2biInvoices' => array_values(array_map(
                 static fn (B2BIInvoiceData $invoice): array => $invoice->toArray(),
                 $this->b2biInvoices,
-            ),
-            'b2cTransactions' => array_map(
+            )),
+            'b2cTransactions' => array_values(array_map(
                 static fn (B2CTransactionData $transaction): array => $transaction->toArray(),
                 $this->b2cTransactions,
-            ),
+            )),
         ];
     }
 

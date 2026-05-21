@@ -80,10 +80,10 @@ final readonly class B2BIPaymentData implements Arrayable, JsonSerializable
             'paymentMeansCode' => $this->paymentMeansCode,
             'amount' => $this->amount,
             'currency' => $this->currency,
-            'taxSubtotals' => array_map(
+            'taxSubtotals' => array_values(array_map(
                 static fn (TaxSubtotalData $taxSubtotal): array => $taxSubtotal->toArray(),
                 $this->taxSubtotals,
-            ),
+            )),
         ], static fn (mixed $value): bool => ! is_null($value) && $value !== []);
     }
 

@@ -132,8 +132,9 @@ class RecordFranceEReportingTransactionTest extends TestCase
         $this->assertSame($artifact, json_decode(file_get_contents($artifactPath), true, 512, JSON_THROW_ON_ERROR));
         $this->assertSame(TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION, $artifact['transactionEvent']['eventId']);
         $this->assertSame('2026-10-31', $artifact['transactionEvent']['period']);
-        $this->assertArrayHasKey('frReportEntry', $artifact['reportingData']);
-        $this->assertSame('1200', $artifact['reportingData']['frReportEntry']['b2biInvoice']['amountIncludingVat']);
+        $this->assertSame('FR-REPORT-DE-business', $artifact['reportingData']['invoiceNumber']);
+        $this->assertSame('1200', $artifact['reportingData']['amountIncludingVat']);
+        $this->assertArrayNotHasKey('frReportEntry', $artifact['reportingData']);
     }
 
     public function testItWritesAVatExcludedCreditReportDataArtifact(): void
@@ -156,8 +157,9 @@ class RecordFranceEReportingTransactionTest extends TestCase
         $this->assertSame($artifact, json_decode(file_get_contents($artifactPath), true, 512, JSON_THROW_ON_ERROR));
         $this->assertSame(TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION, $artifact['transactionEvent']['eventId']);
         $this->assertSame('2026-10-31', $artifact['transactionEvent']['period']);
-        $this->assertArrayHasKey('frReportEntry', $artifact['reportingData']);
-        $this->assertSame('-1200', $artifact['reportingData']['frReportEntry']['b2biInvoice']['amountIncludingVat']);
+        $this->assertSame('FR-CREDIT-REPORT-DE-business', $artifact['reportingData']['invoiceNumber']);
+        $this->assertSame('-1200', $artifact['reportingData']['amountIncludingVat']);
+        $this->assertArrayNotHasKey('frReportEntry', $artifact['reportingData']);
     }
 
     public function testItDoesNotRecordDomesticFrenchBusinessTransactions(): void
@@ -196,7 +198,9 @@ class RecordFranceEReportingTransactionTest extends TestCase
                 'eventId' => $event->event_id,
                 'period' => $event->period?->toDateString(),
             ],
-            'reportingData' => $event->reporting_data?->toArray(),
+            'reportingData' => is_null($event->getRawOriginal('reporting_data'))
+                ? null
+                : json_decode($event->getRawOriginal('reporting_data'), true, 512, JSON_THROW_ON_ERROR),
         ];
     }
 

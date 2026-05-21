@@ -48,10 +48,10 @@ final readonly class B2CPaymentData implements Arrayable, JsonSerializable
     {
         return array_filter([
             'date' => $this->date,
-            'taxSubtotal' => array_map(
+            'taxSubtotal' => array_values(array_map(
                 static fn (TaxSubtotalData $taxSubtotal): array => $taxSubtotal->toArray(),
                 $this->taxSubtotal,
-            ),
+            )),
         ], static fn (mixed $value): bool => ! is_null($value) && $value !== []);
     }
 
