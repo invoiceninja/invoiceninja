@@ -147,7 +147,13 @@ class ConnectedAccountController extends BaseController
 
         $google = new Google();
 
-        $user = $google->getTokenResponse(request()->input('id_token'));
+        // $user = $google->getTokenResponse(request()->input('id_token'));
+
+        if (request()->filled('id_token')) {
+            $user = $google->getTokenResponse(request()->input('id_token'));
+        } elseif (request()->filled('access_token')) {
+            $user = $google->harvestUser(request()->input('access_token'));
+        }
 
         if ($user) {
             $client = new Google_Client();

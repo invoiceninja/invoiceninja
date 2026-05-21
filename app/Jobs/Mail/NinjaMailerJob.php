@@ -309,10 +309,12 @@ class NinjaMailerJob implements ShouldQueue
 
     private function incrementEmailCounter(): void
     {
-        if (in_array($this->nmo->settings->email_sending_method, ['default','mailgun','postmark'])) {
+        if (in_array($this->mailer, ['default','mailgun','postmark','ses'])
+            && !$this->client_postmark_secret
+            && !$this->client_mailgun_secret
+            && !$this->client_ses_secret) {
             Cache::increment("email_quota" . $this->company->account->key);
         }
-
     }
     /**
      * Entity notification when an email fails to send
