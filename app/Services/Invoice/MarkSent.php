@@ -25,14 +25,16 @@ class MarkSent extends AbstractService
 
     public function run($fire_webhook = false)
     {
+        /** To prevent race conditions, we ensure that updating the invoice from the draft state to sent state is successful. */
         $claimed = Invoice::withTrashed()
             ->where('id', $this->invoice->id)
             ->where('status_id', Invoice::STATUS_DRAFT)
             ->where('is_deleted', false)
             ->update(['status_id' => Invoice::STATUS_SENT]);
 
+            /** If we did not succeed in updating it, then we simply return NOW, this kills the race condition. */
         if ($claimed === 0) {
-            return $this->invoice->fresh();
+            return $this->invoice;
         }
 
         $adjustment = $this->invoice->amount ?? 0;
