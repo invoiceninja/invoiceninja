@@ -35,10 +35,10 @@ class EInvoiceForwarder
 
     public function __construct(private Company $company, private string $target = self::TARGET_INVOICE)
     {
-        $this->forward_email = match ($this->target) {
+        $this->forward_email = trim(match ($this->target) {
             self::TARGET_EXPENSE => $this->company->settings->e_expense_forward_email ?? '',
             default => $this->company->settings->e_invoice_forward_email ?? '',
-        };
+        });
     }
 
     public static function forInvoices(Company $company): self
@@ -83,7 +83,7 @@ class EInvoiceForwarder
         $mo->text_body = "Peppol e-invoice document ({$direction}): {$filename}";
         $mo->company_key = $this->company->company_key;
         $mo->html_template = 'email.template.admin';
-        $mo->to = [new Address($this->forward_email)];
+        $mo->to = [new Address($this->forward_email, 'E-Invoice Forwarding')];
         $mo->attachments = [
             ['file' => base64_encode($xml), 'name' => $filename],
         ];
