@@ -153,18 +153,24 @@ class RecordFranceEReportingTransaction implements ShouldQueue
             'credit_balance' => $isInvoice ? 0 : ($document->balance ?? 0),
             'credit_amount' => $isInvoice ? 0 : ($document->amount ?? 0),
             'credit_status' => $isInvoice ? null : $document->status_id,
+            'payment_status' => TransactionEvent::FR_REPORTING_STATUS_PENDING,
             'reporting_data' => $reportingData,
         ];
     }
 
     private function reportingData(Invoice|Credit $document, int $eventId): ?ReportData
     {
-        if ($eventId !== TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION) {
-            return null;
-        }
+        /** @var FranceReportEntryBuilder $builder */
+        $builder = app(FranceReportEntryBuilder::class);
 
-        return ReportData::fromFRReportEntry(
-            FRReportEntryData::fromB2BIInvoice(app(FranceReportEntryBuilder::class)->b2biInvoice($document)),
-        );
+        return match ($eventId) {
+            TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION => ReportData::fromFRReportEntry(
+                FRReportEntryData::fromB2BIInvoice($builder->b2biInvoice($document)),
+            ),
+            TransactionEvent::FR_B2C_TRANSACTION => ReportData::fromFRReportEntry(
+                FRReportEntryData::fromB2CTransaction($builder->b2cTransaction($document)),
+            ),
+            default => null,
+        };
     }
 }

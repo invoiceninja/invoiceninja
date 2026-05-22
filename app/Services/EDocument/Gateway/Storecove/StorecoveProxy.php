@@ -270,6 +270,34 @@ class StorecoveProxy
     }
 
     /**
+     * Submit a Storecove document payload through the hosted or self-hosted path.
+     *
+     * @param  array<string, mixed> $payload
+     * @return array<string, mixed>
+     */
+    public function submitDocument(array $payload): array
+    {
+        $payload = [
+            ...$payload,
+            'legal_entity_id' => $payload['legal_entity_id'] ?? $payload['legalEntityId'] ?? $this->company->legal_entity_id,
+            'tenant_id' => $payload['tenant_id'] ?? $this->company->company_key,
+            'account_key' => $payload['account_key'] ?? $this->company->account->key,
+            'e_invoicing_token' => $payload['e_invoicing_token'] ?? $this->company->account->e_invoicing_token,
+        ];
+
+        if (Ninja::isHosted()) {
+            $response = $this->storecove->sendJsonDocument($payload);
+
+            if (is_string($response)) {
+                return ['guid' => str_replace('"', '', $response)];
+            }
+
+            return $this->handleResponseError($response);
+        }
+
+        return $this->remoteRequest('/api/einvoice/submission', $payload);
+    }
+    /**
      * handleResponseError
      *
      * Generic error handler that can return an array response

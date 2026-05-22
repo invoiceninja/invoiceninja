@@ -13,8 +13,14 @@
 namespace App\Services\EDocument\Standards\France;
 
 use App\DataMapper\FranceEReporting\B2BIInvoiceData;
+use App\DataMapper\FranceEReporting\B2BIPaymentData;
+use App\DataMapper\FranceEReporting\B2CPaymentData;
+use App\DataMapper\FranceEReporting\B2CTransactionData;
+use App\DataMapper\FranceEReporting\TaxSubtotalData;
 use App\Models\Credit;
+use App\Models\Currency;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Services\EDocument\Standards\France\Models\B2BIInvoice;
 use App\Services\EDocument\Standards\Peppol;
 use InvoiceNinja\EInvoice\EInvoice;
@@ -52,6 +58,43 @@ class FranceReportEntryBuilder
         return B2BIInvoiceData::fromArray($payload);
     }
 
+    public function b2cTransaction(Invoice|Credit $document): B2CTransactionData
+    {
+        $calc = $document->calc();
+
+        return new B2CTransactionData(
+            date: (string) ($document->date ?: now()->toDateString()),
+            category: $this->b2cCategory($document),
+            currency: $this->currencyCode($document),
+            amountExcludingVat: $this->signedDocumentAmount($calc->getNetSubtotal(), $document),
+            amountIncludingVat: $this->signedDocumentAmount($document->amount ?: $calc->getTotal(), $document),
+            transactionsCount: 1,
+            vatPaymentOption: 'customer',
+            taxSubtotals: $this->transactionTaxSubtotals($document),
+        );
+    }
+
+    public function b2biPayment(Payment $payment, Invoice $invoice): B2BIPaymentData
+    {
+        $amount = $this->paymentAmountForInvoice($payment, $invoice);
+
+        return new B2BIPaymentData(
+            invoiceNumber: (string) $invoice->number,
+            paymentDate: (string) ($payment->date ?: now()->toDateString()),
+            issueDate: (string) ($invoice->date ?: now()->toDateString()),
+            paymentMeansCode: $this->paymentMeansCode($payment),
+            taxSubtotals: $this->paymentTaxSubtotals($invoice, $amount, true),
+        );
+    }
+
+    public function b2cPayment(Payment $payment, Invoice $invoice): B2CPaymentData
+    {
+        return new B2CPaymentData(
+            date: (string) ($payment->date ?: now()->toDateString()),
+            taxSubtotal: $this->paymentTaxSubtotals($invoice, $this->paymentAmountForInvoice($payment, $invoice), false),
+        );
+    }
+
     private function serializer(): Serializer
     {
         $phpDocExtractor = new PhpDocExtractor();
@@ -69,6 +112,152 @@ class FranceReportEntryBuilder
             [new DateTimeNormalizer(), $normalizer, new ArrayDenormalizer()],
             [new XmlEncoder(['xml_format_output' => true, 'remove_empty_tags' => true]), new JsonEncoder()],
         );
+    }
+
+    /**
+     * @return array<int, TaxSubtotalData>
+     */
+    private function transactionTaxSubtotals(Invoice|Credit $document): array
+    {
+        $calc = $document->calc();
+        $taxes = $calc->getTaxMap()->merge($calc->getTotalTaxMap())->values();
+
+        if ($taxes->isEmpty()) {
+            return [
+                new TaxSubtotalData(
+                    percentage: '0',
+                    category: 'exempt',
+                    taxableAmount: $this->signedDocumentAmount($calc->getNetSubtotal(), $document),
+                    taxAmount: '0',
+                    currency: $this->currencyCode($document),
+                ),
+            ];
+        }
+
+        return $taxes->map(function (array $tax) use ($document, $calc): TaxSubtotalData {
+            $taxRate = $tax['tax_rate'] ?? 0;
+            $taxableAmount = $tax['base_amount'] ?? $calc->getNetSubtotal();
+            $taxAmount = $tax['total'] ?? 0;
+
+            return new TaxSubtotalData(
+                percentage: $this->normalizeAmount($taxRate),
+                category: $this->taxCategory($taxRate),
+                taxableAmount: $this->signedDocumentAmount($taxableAmount, $document),
+                taxAmount: $this->signedDocumentAmount($taxAmount, $document),
+                currency: $this->currencyCode($document),
+            );
+        })->all();
+    }
+
+    /**
+     * @return array<int, TaxSubtotalData>
+     */
+    private function paymentTaxSubtotals(Invoice $invoice, int|float|string $paymentAmount, bool $amountIncludingTaxOnly): array
+    {
+        $calc = $invoice->calc();
+        $taxes = $calc->getTaxMap()->merge($calc->getTotalTaxMap())->values();
+        $ratio = $this->paymentRatio($invoice, $paymentAmount);
+        $currency = $this->currencyCode($invoice);
+
+        if ($taxes->isEmpty()) {
+            return [
+                new TaxSubtotalData(
+                    percentage: '0',
+                    category: 'exempt',
+                    taxableAmount: $amountIncludingTaxOnly ? null : $this->normalizeAmount((float) $calc->getNetSubtotal() * $ratio),
+                    taxAmount: $amountIncludingTaxOnly ? null : '0',
+                    currency: $currency,
+                    country: 'FR',
+                    amountIncludingTax: $amountIncludingTaxOnly ? $this->normalizeAmount($paymentAmount) : null,
+                ),
+            ];
+        }
+
+        return $taxes->map(function (array $tax) use ($calc, $ratio, $currency, $amountIncludingTaxOnly): TaxSubtotalData {
+            $taxRate = $tax['tax_rate'] ?? 0;
+            $taxableAmount = (float) ($tax['base_amount'] ?? $calc->getNetSubtotal()) * $ratio;
+            $taxAmount = (float) ($tax['total'] ?? 0) * $ratio;
+
+            return new TaxSubtotalData(
+                percentage: $this->normalizeAmount($taxRate),
+                category: $this->taxCategory($taxRate),
+                taxableAmount: $amountIncludingTaxOnly ? null : $this->normalizeAmount($taxableAmount),
+                taxAmount: $amountIncludingTaxOnly ? null : $this->normalizeAmount($taxAmount),
+                currency: $currency,
+                country: 'FR',
+                amountIncludingTax: $amountIncludingTaxOnly ? $this->normalizeAmount($taxableAmount + $taxAmount) : null,
+            );
+        })->all();
+    }
+
+    private function paymentAmountForInvoice(Payment $payment, Invoice $invoice): string
+    {
+        return $this->normalizeAmount($invoice->amount ?? $payment->amount ?? 0);
+    }
+
+    private function paymentRatio(Invoice $invoice, int|float|string $paymentAmount): float
+    {
+        $invoiceAmount = (float) ($invoice->amount ?: 0);
+
+        if ($invoiceAmount == 0.0) {
+            return 1.0;
+        }
+
+        return abs((float) $paymentAmount) / abs($invoiceAmount);
+    }
+
+    private function paymentMeansCode(Payment $payment): ?string
+    {
+        return match ((int) $payment->type_id) {
+            Payment::TYPE_BANK_TRANSFER, Payment::TYPE_SEPA, Payment::TYPE_GOCARDLESS => '30',
+            Payment::TYPE_CREDIT_CARD, Payment::TYPE_TOKEN, Payment::TYPE_APPLE_PAY => '48',
+            default => null,
+        };
+    }
+
+    private function b2cCategory(Invoice|Credit $document): string
+    {
+        $category = (string) ($document->company->getSetting('france_b2c_transaction_category') ?: 'TLB1');
+
+        return trim($category) !== '' ? $category : 'TLB1';
+    }
+
+    private function currencyCode(Invoice|Credit|Payment $model): string
+    {
+        if ($model instanceof Payment) {
+            return $model->currency?->code ?: Currency::query()->find($model->currency_id)?->code ?: 'EUR';
+        }
+
+        $currencyId = $model->client?->getSetting('currency_id') ?: $model->company?->getSetting('currency_id');
+
+        return Currency::query()->find($currencyId)?->code ?: 'EUR';
+    }
+
+    private function taxCategory(int|float|string $taxRate): string
+    {
+        return (float) $taxRate > 0 ? 'standard' : 'exempt';
+    }
+
+    private function signedDocumentAmount(int|float|string $amount, Invoice|Credit $document): string
+    {
+        $amount = $this->normalizeAmount($amount);
+
+        if ($document instanceof Credit) {
+            return (string) $this->negativeAmount($amount);
+        }
+
+        return $amount;
+    }
+
+    private function normalizeAmount(int|float|string|null $amount): string
+    {
+        $amount = round((float) ($amount ?? 0), 2);
+
+        if (abs($amount - (int) $amount) < 0.00001) {
+            return (string) (int) $amount;
+        }
+
+        return number_format($amount, 2, '.', '');
     }
 
     /**
@@ -118,6 +307,7 @@ class FranceReportEntryBuilder
 
         return '-'.$amount;
     }
+
     /**
      * @param array<string, mixed> $array
      * @return array<string, mixed>

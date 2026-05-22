@@ -46,7 +46,12 @@ class RecordFranceEReportingTransactionTest extends TestCase
         $this->assertSame($this->company->id, $event->company_id);
         $this->assertSame($invoice->client_id, $event->client_id);
         $this->assertSame('2026-09-20', $event->period->toDateString());
-        $this->assertNull($event->reporting_data);
+        $this->assertNotNull($event->reporting_data);
+        $this->assertSame('2026-09-15', $event->reporting_data->frReportEntry->b2cTransaction->date);
+        $this->assertSame('TLB1', $event->reporting_data->frReportEntry->b2cTransaction->category);
+        $this->assertSame('EUR', $event->reporting_data->frReportEntry->b2cTransaction->currency);
+        $this->assertSame(1, $event->reporting_data->frReportEntry->b2cTransaction->transactionsCount);
+        $this->assertSame('1200', $event->reporting_data->frReportEntry->b2cTransaction->amountIncludingVat);
     }
 
     public function testItRecordsAForeignBusinessVatExcludedFranceReportingTransaction(): void

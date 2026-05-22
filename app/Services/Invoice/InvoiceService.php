@@ -16,6 +16,7 @@ use App\Models\Task;
 use App\Utils\Ninja;
 use App\Models\Expense;
 use App\Models\Invoice;
+use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
 use App\Models\Payment;
 use App\Models\Subscription;
 use App\Models\CompanyGateway;
@@ -121,6 +122,8 @@ class InvoiceService
         $this->invoice = $this->markSent()->save();
 
         $this->invoice = (new ApplyPayment($this->invoice, $payment, $payment_amount))->run();
+
+        app(FrancePaymentApplicationRecorder::class)->record($payment, $this->invoice);
 
         return $this;
     }

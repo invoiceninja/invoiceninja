@@ -32,6 +32,7 @@ use App\Models\ClientGatewayToken;
 use App\Events\Invoice\InvoiceWasPaid;
 use App\Repositories\CreditRepository;
 use App\Repositories\PaymentRepository;
+use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
 use App\Events\Payment\PaymentWasCreated;
 use App\Utils\Traits\MakesHash;
 
@@ -218,6 +219,8 @@ class AutoBillInvoice extends AbstractService
             ->service()
             ->setCalculatedStatus()
             ->save();
+
+        app(FrancePaymentApplicationRecorder::class)->record($payment, $this->invoice);
 
         $current_credit = false;
 

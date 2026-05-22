@@ -21,8 +21,6 @@ class TransactionEventFranceConstantsTest extends TestCase
             TransactionEvent::FR_B2C_PAYMENT,
             TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION,
             TransactionEvent::FR_VAT_EXCLUDED_PAYMENT,
-            TransactionEvent::FR_CORRECTIVE_TRANSACTION,
-            TransactionEvent::FR_CORRECTIVE_PAYMENT,
         ], TransactionEvent::FR_REPORTING_EVENTS);
 
         $this->assertEmpty(array_intersect(
@@ -40,5 +38,13 @@ class TransactionEventFranceConstantsTest extends TestCase
             TransactionEvent::FR_REPORTING_EVENTS,
             TransactionEvent::FR_REPORT_SUBMISSION_EVENTS
         ));
+
+        $this->assertSame(1001, TransactionEvent::FR_B2C_TRANSACTION);
+        $this->assertSame(1002, TransactionEvent::FR_B2C_PAYMENT);
+        $this->assertSame(1003, TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION);
+        $this->assertSame(1004, TransactionEvent::FR_VAT_EXCLUDED_PAYMENT);
+        $this->assertSame(1005, TransactionEvent::FR_REPORT_SUBMISSION_B2C);
+        $this->assertSame(1006, TransactionEvent::FR_REPORT_SUBMISSION_VAT_EXCLUDED);
+        $this->assertSame(1007, TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE);
     }
 }

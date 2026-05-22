@@ -77,15 +77,19 @@ class TransactionEvent extends StaticModel
 
     public const FR_VAT_EXCLUDED_PAYMENT = 1004;
 
-    public const FR_CORRECTIVE_TRANSACTION = 1005;
+    public const FR_REPORT_SUBMISSION_B2C = 1005;
 
-    public const FR_CORRECTIVE_PAYMENT = 1006;
+    public const FR_REPORT_SUBMISSION_VAT_EXCLUDED = 1006;
 
-    public const FR_REPORT_SUBMISSION_B2C = 1007;
+    public const FR_REPORT_SUBMISSION_CORRECTIVE = 1007;
 
-    public const FR_REPORT_SUBMISSION_VAT_EXCLUDED = 1008;
+    public const FR_REPORTING_STATUS_PENDING = 1;
 
-    public const FR_REPORT_SUBMISSION_CORRECTIVE = 1009;
+    public const FR_REPORTING_STATUS_COMPILED = 2;
+
+    public const FR_REPORTING_STATUS_SUBMITTED = 3;
+
+    public const FR_REPORTING_STATUS_FAILED = 4;
 
     public const TAX_REPORTING_EVENTS = [
         self::INVOICE_UPDATED,
@@ -99,8 +103,6 @@ class TransactionEvent extends StaticModel
         self::FR_B2C_PAYMENT,
         self::FR_VAT_EXCLUDED_TRANSACTION,
         self::FR_VAT_EXCLUDED_PAYMENT,
-        self::FR_CORRECTIVE_TRANSACTION,
-        self::FR_CORRECTIVE_PAYMENT,
     ];
 
     public const FR_REPORT_SUBMISSION_EVENTS = [

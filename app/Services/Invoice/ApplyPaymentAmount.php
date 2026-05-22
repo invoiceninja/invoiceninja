@@ -19,6 +19,7 @@ use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\AbstractService;
+use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Support\Carbon;
@@ -104,6 +105,8 @@ class ApplyPaymentAmount extends AbstractService
                 ->updatePaymentBalance($payment->amount * -1, "ApplyPaymentInvoice-");
 
         $this->invoice->service()->workFlow()->save();
+
+        app(FrancePaymentApplicationRecorder::class)->record($payment, $this->invoice);
 
         event('eloquent.created: App\Models\Payment', $payment);
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));

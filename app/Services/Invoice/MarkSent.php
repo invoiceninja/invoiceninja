@@ -25,9 +25,14 @@ class MarkSent extends AbstractService
 
     public function run($fire_webhook = false)
     {
-        /* Return immediately if status is not draft or invoice has been deleted */
-        if ($this->invoice && ($this->invoice->fresh()->status_id != Invoice::STATUS_DRAFT || $this->invoice->is_deleted)) {
-            return $this->invoice;
+        $claimed = Invoice::withTrashed()
+            ->where('id', $this->invoice->id)
+            ->where('status_id', Invoice::STATUS_DRAFT)
+            ->where('is_deleted', false)
+            ->update(['status_id' => Invoice::STATUS_SENT]);
+
+        if ($claimed === 0) {
+            return $this->invoice->fresh();
         }
 
         $adjustment = $this->invoice->amount ?? 0;
