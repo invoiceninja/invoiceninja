@@ -18,7 +18,6 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\RecurringInvoice;
-use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 
@@ -182,8 +181,6 @@ class UpdateInvoicePayment
             /*update paymentable record*/
             $pivot_invoice->pivot->amount = $paid_amount;
             $pivot_invoice->pivot->save();
-
-            app(FrancePaymentApplicationRecorder::class)->record($this->payment, $invoice);
 
             $this->payment->applied += $paid_amount;
 

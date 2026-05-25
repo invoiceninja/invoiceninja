@@ -19,7 +19,6 @@ use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\AbstractService;
-use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Support\Carbon;
@@ -150,8 +149,6 @@ class MarkPaid extends AbstractService
                 ->service()
                 ->applyNumber()
                 ->save();
-
-        app(FrancePaymentApplicationRecorder::class)->record($payment, $this->invoice);
 
         $payment->ledger()
                 ->updatePaymentBalance($this->payable_balance * -1, "Marked Paid Activity");
