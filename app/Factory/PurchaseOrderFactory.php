@@ -17,7 +17,7 @@ use App\Models\PurchaseOrder;
 
 class PurchaseOrderFactory
 {
-    public static function create(int $company_id, int $user_id, object $settings = null, Client $client = null): PurchaseOrder
+    public static function create(int $company_id, int $user_id, ?object $settings = null, ?Client $client = null): PurchaseOrder
     {
         $purchase_order = new PurchaseOrder();
         $purchase_order->status_id = PurchaseOrder::STATUS_DRAFT;

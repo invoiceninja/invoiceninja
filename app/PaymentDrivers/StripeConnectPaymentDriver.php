@@ -17,7 +17,7 @@ use App\Models\CompanyGateway;
 
 class StripeConnectPaymentDriver extends StripePaymentDriver
 {
-    public function __construct(CompanyGateway $company_gateway, Client $client = null, $invitation = false)
+    public function __construct(CompanyGateway $company_gateway, ?Client $client = null, $invitation = false)
     {
         parent::__construct($company_gateway, $client, $invitation);
 
