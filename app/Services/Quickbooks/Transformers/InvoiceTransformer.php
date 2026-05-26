@@ -13,6 +13,7 @@
 namespace App\Services\Quickbooks\Transformers;
 
 use App\Models\Invoice;
+use App\Services\Quickbooks\TaxCodeComponentKey;
 
 /**
  * Class InvoiceTransformer.
@@ -56,6 +57,7 @@ class InvoiceTransformer extends BaseTransformer
         $taxable_code = $qb_service->company->quickbooks->settings->default_taxable_code ?? 'TAX';
         $exempt_code = $qb_service->company->quickbooks->settings->default_exempt_code ?? 'NON';
         $tax_rate_map = $qb_service->company->quickbooks->settings->tax_rate_map ?? [];
+        $composite_tax_code_map = $qb_service->company->quickbooks->settings->composite_tax_code_map ?? [];
 
         // Determine region from stored QB company country (set by companySync)
         $qb_country = $qb_service->company->quickbooks->settings->country ?? 'US';
@@ -103,7 +105,7 @@ class InvoiceTransformer extends BaseTransformer
                     $tax_code_id = $this->resolveLineTaxCodeUS($line_item, $taxable_code, $exempt_code);
                 } else {
                     // Non-US companies (CA/AU/UK): resolve to numeric TaxCode ID from tax_rate_map
-                    $tax_code_id = $this->resolveLineTaxCode($line_item, $tax_rate_map, $taxable_code, $exempt_code);
+                    $tax_code_id = $this->resolveLineTaxCode($line_item, $tax_rate_map, $composite_tax_code_map, $taxable_code, $exempt_code);
                 }
 
                 $line_payload = [
@@ -336,33 +338,102 @@ class InvoiceTransformer extends BaseTransformer
      * @param  string $exempt_code Default exempt TaxCode ID
      * @return string The resolved TaxCode ID
      */
-    private function resolveLineTaxCode(object $line_item, array $tax_rate_map, string $taxable_code, string $exempt_code): string
+    private function resolveLineTaxCode(object $line_item, array $tax_rate_map, array $composite_tax_code_map, string $taxable_code, string $exempt_code): string
     {
-        $has_line_tax = (
-            (isset($line_item->tax_rate1) && $line_item->tax_rate1 > 0)
-            || (isset($line_item->tax_rate2) && $line_item->tax_rate2 > 0)
-            || (isset($line_item->tax_rate3) && $line_item->tax_rate3 > 0)
-        );
+        $components = $this->taxComponentsFromLineItem($line_item);
 
-        if (!$has_line_tax) {
+        if (empty($components)) {
             return $exempt_code;
         }
 
-        foreach (['tax_name1' => 'tax_rate1', 'tax_name2' => 'tax_rate2', 'tax_name3' => 'tax_rate3'] as $name_key => $rate_key) {
-            $rate = floatval($line_item->$rate_key ?? 0);
+        if (count($components) === 1) {
+            $tax_code_id = $this->findTaxCodeIdByRate($tax_rate_map, $components[0]['rate'], $components[0]['name']);
+
+            return $tax_code_id ?: $taxable_code;
+        }
+
+        $tax_code_id = $this->findCompositeTaxCodeId($components, $composite_tax_code_map);
+
+        if ($tax_code_id) {
+            return $tax_code_id;
+        }
+
+        nlog('QB: no composite TaxCode for combined invoice taxes; falling back to first tax component', [
+            'components' => $components,
+        ]);
+
+        $first = $this->findTaxCodeIdByRate($tax_rate_map, $components[0]['rate'], $components[0]['name']);
+
+        return $first ?: $taxable_code;
+    }
+
+    /**
+     * @return array<int, array{name: string, rate: float}>
+     */
+    private function taxComponentsFromLineItem(object $line_item): array
+    {
+        $components = [];
+
+        foreach ([1, 2, 3] as $index) {
+            $rate = (float) ($line_item->{"tax_rate{$index}"} ?? 0);
+
             if ($rate <= 0) {
                 continue;
             }
 
-            $name = trim((string) ($line_item->$name_key ?? ''));
-            $tax_code_id = $this->findTaxCodeIdByRate($tax_rate_map, $rate, $name);
+            $components[] = [
+                'name' => trim((string) ($line_item->{"tax_name{$index}"} ?? '')),
+                'rate' => $rate,
+            ];
+        }
 
-            if ($tax_code_id) {
-                return $tax_code_id;
+        return $components;
+    }
+
+    /**
+     * @param  array<int, array{name: string, rate: float}>  $components
+     */
+    private function findCompositeTaxCodeId(array $components, array $composite_tax_code_map): ?string
+    {
+        $component_key = TaxCodeComponentKey::fromComponents($components);
+        $candidates = $composite_tax_code_map[$component_key] ?? [];
+
+        if (is_string($candidates)) {
+            return $candidates;
+        }
+
+        if (!is_array($candidates) || empty($candidates)) {
+            return null;
+        }
+
+        if (isset($candidates['tax_code_id'])) {
+            $candidates = [$candidates];
+        }
+
+        $candidate_ids = [];
+
+        foreach ($candidates as $candidate) {
+            $candidate_id = is_array($candidate) ? (string) ($candidate['tax_code_id'] ?? '') : (string) $candidate;
+
+            if ($candidate_id !== '') {
+                $candidate_ids[] = $candidate_id;
             }
         }
 
-        return $taxable_code;
+        $candidate_ids = array_values(array_unique($candidate_ids));
+
+        if (count($candidate_ids) === 1) {
+            return $candidate_ids[0];
+        }
+
+        if (count($candidate_ids) > 1) {
+            nlog('QB: ambiguous composite TaxCode for combined invoice taxes; falling back to first tax component', [
+                'component_key' => $component_key,
+                'candidates' => $candidates,
+            ]);
+        }
+
+        return null;
     }
 
     /**
@@ -449,11 +520,13 @@ class InvoiceTransformer extends BaseTransformer
         $rate_only_match = null;
 
         foreach ($tax_rate_map as $entry) {
-            if (empty($entry['tax_code_id']) || floatval($entry['rate']) != $rate) {
+            if (empty($entry['tax_code_id']) || TaxCodeComponentKey::formatRate($entry['rate'] ?? 0) !== TaxCodeComponentKey::formatRate($rate)) {
                 continue;
             }
 
-            if ($name === '' || stripos($name, $entry['name']) !== false || stripos($entry['name'], $name) !== false) {
+            $entry_name = (string) ($entry['name'] ?? '');
+
+            if ($name === '' || $entry_name === '' || stripos($name, $entry_name) !== false || stripos($entry_name, $name) !== false) {
                 return $entry['tax_code_id'];
             }
 

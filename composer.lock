@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fc8bd31d23dcd471a873bf9002cd1512",
+    "content-hash": "ecd5cb939528dea2b3199a1d610f0f8c",
     "packages": [
         {
             "name": "apimatic/core",
@@ -11464,20 +11464,19 @@
         },
         {
             "name": "socialiteproviders/apple",
-            "version": "5.9.0",
+            "version": "5.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/SocialiteProviders/Apple.git",
-                "reference": "46e2e432c95f22de80739e6c7427b3f4bc198eac"
+                "reference": "11d871eb8193c31a2230fdf56929952eaf81fac2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/SocialiteProviders/Apple/zipball/46e2e432c95f22de80739e6c7427b3f4bc198eac",
-                "reference": "46e2e432c95f22de80739e6c7427b3f4bc198eac",
+                "url": "https://api.github.com/repos/SocialiteProviders/Apple/zipball/11d871eb8193c31a2230fdf56929952eaf81fac2",
+                "reference": "11d871eb8193c31a2230fdf56929952eaf81fac2",
                 "shasum": ""
             },
             "require": {
-                "ext-json": "*",
                 "ext-openssl": "*",
                 "firebase/php-jwt": "^7.0",
                 "lcobucci/clock": "^2.0 || ^3.0",
@@ -11532,7 +11531,7 @@
                 "issues": "https://github.com/socialiteproviders/providers/issues",
                 "source": "https://github.com/socialiteproviders/providers"
             },
-            "time": "2026-02-18T14:40:47+00:00"
+            "time": "2026-03-22T23:23:52+00:00"
         },
         {
             "name": "socialiteproviders/manager",

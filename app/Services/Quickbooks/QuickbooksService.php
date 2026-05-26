@@ -726,6 +726,8 @@ class QuickbooksService
         $default_taxable_code = null;
         $default_exempt_code = null;
         $tax_rate_to_tax_code = []; // TaxRate ID → TaxCode ID (sales only)
+        $tax_rates_by_id = collect($tax_rates)->keyBy(fn (array $tax_rate): string => (string) ($tax_rate['id'] ?? ''))->all();
+        $composite_tax_code_map = [];
 
         foreach ($tax_codes as $tax_code) {
             $tax_code_array = is_object($tax_code) ? json_decode(json_encode($tax_code), true) : $tax_code;
@@ -754,12 +756,41 @@ class QuickbooksService
                 $sales_rate_list = [$sales_rate_list]; // single entry
             }
 
+            $components = [];
+
             foreach ($sales_rate_list as $rate_detail) {
                 $rate_ref = data_get($rate_detail, 'TaxRateRef');
                 $tr_id = is_array($rate_ref) ? (string) ($rate_ref['value'] ?? '') : (string) ($rate_ref ?? '');
-                if ($tr_id !== '' && !isset($tax_rate_to_tax_code[$tr_id])) {
+
+                if ($tr_id === '') {
+                    continue;
+                }
+
+                if (!isset($tax_rate_to_tax_code[$tr_id])) {
                     $tax_rate_to_tax_code[$tr_id] = $tc_id;
                     nlog("QB TaxRate→TaxCode: rate_id={$tr_id} → tax_code_id={$tc_id} ({$name})");
+                }
+
+                $tax_rate = $tax_rates_by_id[$tr_id] ?? null;
+
+                if ($tax_rate && (float) ($tax_rate['rate'] ?? 0) > 0) {
+                    $components[] = [
+                        'name' => (string) ($tax_rate['name'] ?? ''),
+                        'rate' => $tax_rate['rate'] ?? 0,
+                    ];
+                }
+            }
+
+            if (count($components) >= 2 && count($components) <= 3) {
+                $component_key = TaxCodeComponentKey::fromComponents($components);
+
+                if ($component_key !== '') {
+                    $composite_tax_code_map[$component_key][] = [
+                        'tax_code_id' => $tc_id,
+                        'name' => $name,
+                    ];
+
+                    nlog("QB Composite TaxCode: id={$tc_id} name={$name} key={$component_key}");
                 }
             }
         }
@@ -806,8 +837,10 @@ class QuickbooksService
         }
 
         nlog("QB TaxCode resolution: country={$qb_country} taxable={$default_taxable_code} exempt={$default_exempt_code} rate_map_count=" . count($tax_rate_to_tax_code));
+        nlog('QB Composite TaxCode index: ' . count($composite_tax_code_map) . ' component buckets');
 
         $this->company->quickbooks->settings->tax_rate_map = $tax_rates;
+        $this->company->quickbooks->settings->composite_tax_code_map = $composite_tax_code_map;
         $this->company->quickbooks->settings->default_taxable_code = $default_taxable_code;
         $this->company->quickbooks->settings->default_exempt_code = $default_exempt_code;
 

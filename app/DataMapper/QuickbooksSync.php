@@ -52,6 +52,8 @@ class QuickbooksSync
 
     public array $tax_rate_map;
 
+    public ?array $composite_tax_code_map = null;
+
     public ?string $qb_income_account_id = null;
 
     public bool $automatic_taxes = false;
@@ -79,6 +81,7 @@ class QuickbooksSync
         $this->income_account_map = $attributes['income_account_map'] ?? [];
         $this->qb_income_account_id = $attributes['qb_income_account_id'] ?? null;
         $this->tax_rate_map = $attributes['tax_rate_map'] ?? [];
+        $this->composite_tax_code_map = $attributes['composite_tax_code_map'] ?? null;
         $this->automatic_taxes = $attributes['automatic_taxes'] ?? false; //requires us to syncronously push the invoice to QB, and return fully formed Invoice with taxes included.
         $this->default_taxable_code = $attributes['default_taxable_code'] ?? null;
         $this->default_exempt_code = $attributes['default_exempt_code'] ?? null;
@@ -102,6 +105,7 @@ class QuickbooksSync
             'income_account_map' => $this->income_account_map,
             'qb_income_account_id' => $this->qb_income_account_id,
             'tax_rate_map' => $this->tax_rate_map,
+            'composite_tax_code_map' => $this->composite_tax_code_map,
             'automatic_taxes' => $this->automatic_taxes,
             'default_taxable_code' => $this->default_taxable_code,
             'default_exempt_code' => $this->default_exempt_code,
