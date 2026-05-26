@@ -3105,6 +3105,9 @@ $lang = array(
     'multiselect' => 'Multiselect',
     'verify_password' => 'Verify Password',
     'applied' => 'Applied',
+    'applied_date' => 'Applied Date',
+    'applied_amount' => 'Applied Amount',
+    'applied_refunded' => 'Applied Refunded',
     'include_recent_errors' => 'Include recent errors from the logs',
     'your_message_has_been_received' => 'We have received your message and will try to respond promptly.',
     'show_product_details' => 'Show Product Details',
@@ -5986,6 +5989,16 @@ $lang = array(
     'payware_vpos_id_label' => 'webPOS Identifier',
     'payware_vpos_id_help' => 'webPOS identifier from the payware dashboard',
     'payware_public_key_help' => 'RSA public key for webhook signature validation',
+    'gateway_onboarding_description' => 'Your payment gateway has been successfully connected. You can now configure payment methods and set transaction limits or fees.',
+    'gateway_onboarding_payment_methods_help' => 'Enable or disable accepted payment methods for your clients.',
+    'gateway_onboarding_limits_fees_help' => 'Set minimum and maximum transaction limits and configure processing fees.',
+    'gateway_setup_complete' => 'Gateway setup complete',
+    'activity_167' => 'E-Invoice :invoice status updated to :notes',
+    'peppol_accepted' => 'E-Invoice accepted by receiver.',
+    'peppol_rejected' => 'E-Invoice rejected by receiver.',
+    'peppol_partially_paid' => 'E-Invoice partially paid.',
+    'peppol_paid' => 'E-Invoice paid.',
+
 );
 
 return $lang;

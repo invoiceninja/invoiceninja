@@ -13,8 +13,10 @@
 namespace Tests\Feature\EInvoice;
 
 use Tests\TestCase;
+use App\DataMapper\Tax\TaxModel;
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\Country;
 use Tests\MockAccountData;
 use App\Models\ClientContact;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
@@ -37,6 +39,43 @@ class PeppolDiscoveryTest extends TestCase
     {
         parent::setUp();
         $this->makeTestData();
+    }
+
+    private function countryId(string $countryCode): int
+    {
+        return (int) Country::where('iso_3166_2', $countryCode)->firstOrFail()->id;
+    }
+
+    private function setCompanyCountry(string $countryCode): void
+    {
+        $settings = $this->company->settings;
+        $settings->country_id = (string) $this->countryId($countryCode);
+        $this->company->settings = $settings;
+        $this->company->save();
+        $this->company = $this->company->fresh();
+    }
+
+    private function setCompanyVatNumber(string $vatNumber): void
+    {
+        $settings = $this->company->settings;
+        $settings->vat_number = $vatNumber;
+        $this->company->settings = $settings;
+        $this->company->save();
+        $this->company = $this->company->fresh();
+    }
+
+    private function setCompanyRegionalVatNumber(string $countryCode, string $vatNumber): void
+    {
+        $taxData = $this->company->tax_data ?? new TaxModel();
+
+        if (! isset($taxData->regions->EU->subregions->{$countryCode})) {
+            $taxData->regions->EU->subregions->{$countryCode} = new \stdClass();
+        }
+
+        $taxData->regions->EU->subregions->{$countryCode}->vat_number = $vatNumber;
+        $this->company->tax_data = $taxData;
+        $this->company->save();
+        $this->company = $this->company->fresh();
     }
 
     private function makeClient(int $countryId, string $classification, array $extra = []): Client
@@ -69,8 +108,10 @@ class PeppolDiscoveryTest extends TestCase
 
         // Use the existing test invoice but point it at our client
         $this->invoice->client_id = $client->id;
+        $this->invoice->company_id = $this->company->id;
         $this->invoice->save();
         $this->invoice->setRelation('client', $client);
+        $this->invoice->setRelation('company', $this->company);
 
         $proxyMock = $this->createMock(StorecoveProxy::class);
         $proxyMock->method('discovery')->willReturnCallback($discoveryCallback);
@@ -411,6 +452,115 @@ class PeppolDiscoveryTest extends TestCase
         $this->assertEquals('12345678901234', $id);
     }
 
+
+    public function testFrDomesticBusinessEnablesDgfipNetwork(): void
+    {
+        $this->setCompanyCountry('FR');
+
+        $client = $this->makeClient($this->countryId('FR'), 'business', [
+            'id_number' => '12345678901234',
+            'vat_number' => 'FRAA123456789',
+        ]);
+
+        $meta = $this->runMutatorWithMock($client, fn () => false);
+
+        $this->assertSame('FR:SIRET', $meta['routing']['eIdentifiers'][0]['scheme']);
+        $this->assertSame('12345678901234', $meta['routing']['eIdentifiers'][0]['id']);
+
+        $dgfip = collect($meta['routing']['networks'] ?? [])->firstWhere('application', 'fr-dgfip');
+        $this->assertNotNull($dgfip, 'FR domestic B2B should enable the DGFIP network');
+        $this->assertTrue($dgfip['settings']['enabled']);
+    }
+
+    public function testFrDomesticGovernmentDoesNotEnableDgfipNetwork(): void
+    {
+        $this->setCompanyCountry('FR');
+
+        $client = $this->makeClient($this->countryId('FR'), 'government', [
+            'id_number' => '12345678901234',
+            'vat_number' => 'FRAA123456789',
+        ]);
+
+        $meta = $this->runMutatorWithMock($client, fn () => false);
+
+        $this->assertSame('0009', $meta['routing']['eIdentifiers'][0]['scheme']);
+        $this->assertSame('11000201100044', $meta['routing']['eIdentifiers'][0]['id']);
+
+        $dgfip = collect($meta['routing']['networks'] ?? [])->firstWhere('application', 'fr-dgfip');
+        $this->assertNull($dgfip, 'FR government should stay on Chorus Pro routing, not DGFIP B2B routing');
+    }
+
+    public function testFrSenderToForeignReceiverDoesNotEnableDgfipNetwork(): void
+    {
+        $this->setCompanyCountry('FR');
+
+        $client = $this->makeClient($this->countryId('DE'), 'business', [
+            'vat_number' => 'DE123456789',
+        ]);
+
+        $meta = $this->runMutatorWithMock($client, fn () => false);
+
+        $this->assertSame('DE:VAT', $meta['routing']['eIdentifiers'][0]['scheme']);
+
+        $dgfip = collect($meta['routing']['networks'] ?? [])->firstWhere('application', 'fr-dgfip');
+        $this->assertNull($dgfip, 'FR to foreign Peppol receiver should not enable DGFIP domestic network');
+    }
+
+    public function testForeignSenderToFrReceiverDoesNotEnableDgfipNetwork(): void
+    {
+        $this->setCompanyCountry('DE');
+
+        $client = $this->makeClient($this->countryId('FR'), 'business', [
+            'id_number' => '12345678901234',
+            'vat_number' => 'FRAA123456789',
+        ]);
+
+        $meta = $this->runMutatorWithMock($client, fn () => false);
+
+        $this->assertSame('FR:SIRET', $meta['routing']['eIdentifiers'][0]['scheme']);
+
+        $this->assertSame('', data_get($client->company->tax_data, 'regions.EU.subregions.FR.vat_number', ''));
+        $dgfip = collect($meta['routing']['networks'] ?? [])->firstWhere('application', 'fr-dgfip');
+        $this->assertNull($dgfip, 'Foreign sender without French seller tax presence should not enable DGFIP domestic network');
+    }
+
+    public function testForeignSenderWithOnlyPrimaryFrenchVatDoesNotEnableDgfipForFrBusinessReceiver(): void
+    {
+        $this->setCompanyCountry('DE');
+        $this->setCompanyVatNumber('FR12345678901');
+
+        $client = $this->makeClient($this->countryId('FR'), 'business', [
+            'id_number' => '12345678901234',
+            'vat_number' => 'FRAA123456789',
+        ]);
+
+        $meta = $this->runMutatorWithMock($client, fn () => false);
+
+        $this->assertSame('FR:SIRET', $meta['routing']['eIdentifiers'][0]['scheme']);
+
+        $dgfip = collect($meta['routing']['networks'] ?? [])->firstWhere('application', 'fr-dgfip');
+        $this->assertNull($dgfip, 'Foreign sender primary VAT should not be treated as French regional tax presence');
+    }
+
+    public function testForeignSenderWithRegionalFrenchVatEnablesDgfipForFrBusinessReceiver(): void
+    {
+        $this->setCompanyCountry('DE');
+        $this->setCompanyRegionalVatNumber('FR', 'FR22345678901');
+
+        $client = $this->makeClient($this->countryId('FR'), 'business', [
+            'id_number' => '12345678901234',
+            'vat_number' => 'FRAA123456789',
+        ]);
+
+        $meta = $this->runMutatorWithMock($client, fn () => false);
+
+        $this->assertSame('FR:SIRET', $meta['routing']['eIdentifiers'][0]['scheme']);
+
+        $dgfip = collect($meta['routing']['networks'] ?? [])->firstWhere('application', 'fr-dgfip');
+        $this->assertNotNull($dgfip, 'Foreign sender with a French regional VAT registration should enable DGFIP for FR B2B routing');
+        $this->assertTrue($dgfip['settings']['enabled']);
+    }
+
     // ──────────────────────────────────────────────────────
     // SG government uses composite endpoint (0195:...)
     // ──────────────────────────────────────────────────────
@@ -465,6 +615,51 @@ class PeppolDiscoveryTest extends TestCase
         $networks = $meta['routing']['networks'] ?? [];
         $svefaktura = collect($networks)->firstWhere('application', 'svefaktura');
         $this->assertNull($svefaktura, 'Svefaktura should not be set for non-SE receivers');
+    }
+
+
+    public function testSeSenderToForeignReceiverDoesNotEnableSvefaktura(): void
+    {
+        $this->setCompanyCountry('SE');
+
+        $client = $this->makeClient($this->countryId('DE'), 'business', [
+            'vat_number' => 'DE123456789',
+        ]);
+
+        $meta = $this->runMutatorWithMock($client, fn () => false);
+
+        $svefaktura = collect($meta['routing']['networks'] ?? [])->firstWhere('application', 'svefaktura');
+        $this->assertNull($svefaktura, 'Svefaktura should only be enabled for SE receivers');
+    }
+
+    public function testPolishSenderEnablesKsefNetwork(): void
+    {
+        $this->setCompanyCountry('PL');
+
+        $client = $this->makeClient($this->countryId('DE'), 'business', [
+            'vat_number' => 'DE123456789',
+        ]);
+
+        $meta = $this->runMutatorWithMock($client, fn () => false);
+
+        $ksef = collect($meta['routing']['networks'] ?? [])->firstWhere('application', 'pl-ksef');
+        $this->assertNotNull($ksef, 'PL sender should enable KSeF network');
+        $this->assertTrue($ksef['settings']['enabled']);
+    }
+
+    public function testRomanianSenderEnablesAnafNetwork(): void
+    {
+        $this->setCompanyCountry('RO');
+
+        $client = $this->makeClient($this->countryId('DE'), 'business', [
+            'vat_number' => 'DE123456789',
+        ]);
+
+        $meta = $this->runMutatorWithMock($client, fn () => false);
+
+        $anaf = collect($meta['routing']['networks'] ?? [])->firstWhere('application', 'ro-anaf');
+        $this->assertNotNull($anaf, 'RO sender should enable ANAF network');
+        $this->assertTrue($anaf['settings']['enabled']);
     }
 
     // ──────────────────────────────────────────────────────

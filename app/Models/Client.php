@@ -1069,6 +1069,20 @@ class Client extends BaseModel implements HasLocalePreference
     {
         return $this->getSetting('e_invoice_type') == 'PEPPOL' && $this->company->peppolSendingEnabled() && is_null($this->checkDeliveryNetwork());
     }
+    
+    /**
+     * reportableFrTransaction
+     * 
+     * Determines if the client is reportable for France.
+     * 
+     * @return bool
+     */
+    public function reportableFrTransaction(): bool
+    {
+        return (bool) $this->getSetting('france_reporting_enabled')
+            && (($this->classification ?? 'business') === 'individual'
+                || $this->country?->iso_3166_2 !== 'FR');
+    }
 
     /**
      * checkDeliveryNetwork

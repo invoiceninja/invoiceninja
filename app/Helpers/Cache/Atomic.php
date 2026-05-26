@@ -18,6 +18,12 @@ use Illuminate\Support\Facades\Cache;
 
 class Atomic
 {
+
+    private static function prefixed(string $key): string
+    {
+        return config('cache.prefix') . $key;
+    }
+
     public static function set(string $key, mixed $value = true, int $ttl = 1): bool
     {
         $new_ttl = now()->addSeconds($ttl);
@@ -29,7 +35,7 @@ class Atomic
         try {
             /** @var RedisFactory $redis */
             $redis = app('redis');
-            $result = $redis->connection('sentinel-cache')->command('set', [$key, $value, 'EX', $ttl, 'NX']);
+            $result = $redis->connection('sentinel-cache')->command('set', [self::prefixed($key), $value, 'EX', $ttl, 'NX']);
             return (bool) $result;
         } catch (\Throwable) {
             return Cache::add($key, $value, $new_ttl) ? true : false;
@@ -45,7 +51,7 @@ class Atomic
         try {
             /** @var RedisFactory $redis */
             $redis = app('redis');
-            return $redis->connection('sentinel-cache')->command('get', [$key]);
+            return $redis->connection('sentinel-cache')->command('get', [self::prefixed($key)]);
         } catch (\Throwable) {
             return Cache::get($key);
         }
@@ -60,7 +66,7 @@ class Atomic
         try {
             /** @var RedisFactory $redis */
             $redis = app('redis');
-            return $redis->connection('sentinel-cache')->command('del', [$key]);
+            return $redis->connection('sentinel-cache')->command('del', [self::prefixed($key)]);
         } catch (\Throwable) {
             return Cache::forget($key);
         }

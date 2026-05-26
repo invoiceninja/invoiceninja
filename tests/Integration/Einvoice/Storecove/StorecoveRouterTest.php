@@ -1042,8 +1042,12 @@ class StorecoveRouterTest extends TestCase
 
     public function testValidateIdentifierFormatFrSireneOrSiret()
     {
-        $this->assertTrue($this->identifierValidator()->validFormat('FR:SIRENE or FR:SIRET', '123456789'));
-        $this->assertTrue($this->identifierValidator()->validFormat('FR:SIRENE or FR:SIRET', '12345678901234'));
+        // Luhn-valid SIREN / SIRET
+        $this->assertTrue($this->identifierValidator()->validFormat('FR:SIRENE or FR:SIRET', '732829320'));
+        $this->assertTrue($this->identifierValidator()->validFormat('FR:SIRENE or FR:SIRET', '73282932000074'));
+        // Correct length but failing the Luhn check digit
+        $this->assertFalse($this->identifierValidator()->validFormat('FR:SIRENE or FR:SIRET', '123456789'));
+        $this->assertFalse($this->identifierValidator()->validFormat('FR:SIRENE or FR:SIRET', '12345678901234'));
         $this->assertFalse($this->identifierValidator()->validFormat('FR:SIRENE or FR:SIRET', '12345'));
     }
 

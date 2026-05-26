@@ -24,6 +24,7 @@ use App\Export\CSV\BaseExport;
 use App\Models\User;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Support\Facades\App;
+use Illuminate\Database\Eloquent\Builder;
 use App\Services\Template\TemplateService;
 
 class ARDetailReport extends BaseExport
@@ -38,6 +39,8 @@ class ARDetailReport extends BaseExport
     private string $template = '/views/templates/reports/ar_detail_report.html';
 
     private array $invoices = [];
+
+    private array $invoice_groups = [];
 
     public array $report_keys = [
         'date',
@@ -86,8 +89,6 @@ class ARDetailReport extends BaseExport
             $this->input['report_keys'] = $this->report_keys;
         }
 
-        $this->csv->insertOne($this->buildHeader());
-
         $query = Invoice::query()
                 ->whereIn('invoices.status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                 ->withTrashed()
@@ -96,21 +97,38 @@ class ARDetailReport extends BaseExport
                 })
                 ->where('invoices.company_id', $this->company->id)
                 ->where('invoices.is_deleted', 0)
-                ->where('invoices.balance', '>', 0)
-                ->orderBy('invoices.due_date', 'ASC');
+                ->where('invoices.balance', '>', 0);
 
         $query = $this->addDateRange($query, 'invoices');
 
         $query = $this->filterByClients($query);
         $query = $this->filterByUserPermissions($query);
+        $query = $this->sortByClientAndDate($query);
 
         $query->cursor()
             ->each(function ($invoice) {
                 /** @var \App\Models\Invoice $invoice */
-                $this->csv->insertOne($this->buildRow($invoice));
+                $this->buildRow($invoice);
             });
 
+        $this->writeCsvTables();
+
         return $this->csv->toString();
+    }
+
+    private function sortByClientAndDate(Builder $query): Builder
+    {
+        return $query
+            ->reorder()
+            ->orderBy(
+                Client::query()
+                    ->select('name')
+                    ->whereColumn('clients.id', 'invoices.client_id')
+                    ->limit(1),
+                'ASC'
+            )
+            ->orderBy('invoices.date', 'ASC')
+            ->orderBy('invoices.id', 'ASC');
     }
 
     public function getPdf()
@@ -121,6 +139,7 @@ class ARDetailReport extends BaseExport
 
         $data = [
             'invoices' => $this->invoices,
+            'invoice_groups' => array_values($this->invoice_groups),
             'company_logo' => $this->company->present()->logo(),
             'company_name' => $this->company->present()->name(),
             'created_on' => $this->translateDate(now()->format('Y-m-d'), $this->company->date_format(), $this->company->locale()),
@@ -151,13 +170,53 @@ class ARDetailReport extends BaseExport
             $client->number,
             $client->id_number,
             intval(abs(Carbon::parse($invoice->due_date)->diffInDays(now()))),
-            Number::formatMoney($invoice->amount, $this->company),
-            Number::formatMoney($invoice->balance, $this->company),
+            Number::formatMoney($invoice->amount, $client),
+            Number::formatMoney($invoice->balance, $client),
         ];
 
-        $this->invoices[] = $item;
+        $this->storeInvoiceRow($client->currency()->code, $item);
 
         return $item;
+    }
+
+    private function storeInvoiceRow(string $currency_code, array $row): void
+    {
+        $this->invoices[] = $row;
+
+        if (!isset($this->invoice_groups[$currency_code])) {
+            $this->invoice_groups[$currency_code] = [
+                'currency' => $currency_code,
+                'invoices' => [],
+            ];
+        }
+
+        $this->invoice_groups[$currency_code]['invoices'][] = $row;
+    }
+
+    private function writeCsvTables(): void
+    {
+        if (count($this->invoice_groups) <= 1) {
+            $this->csv->insertOne($this->buildHeader());
+
+            foreach ($this->invoices as $row) {
+                $this->csv->insertOne($row);
+            }
+
+            return;
+        }
+
+        foreach (array_values($this->invoice_groups) as $index => $group) {
+            if ($index > 0) {
+                $this->csv->insertOne([]);
+            }
+
+            $this->csv->insertOne([ctrans('texts.currency'), $group['currency']]);
+            $this->csv->insertOne($this->buildHeader());
+
+            foreach ($group['invoices'] as $row) {
+                $this->csv->insertOne($row);
+            }
+        }
     }
 
     public function buildHeader(): array

@@ -971,4 +971,16 @@ class Invoice extends BaseModel
             return $this->company->verifactuEnabled() && $client_is_verifactu;
         });
     }
+
+    public function scopeUseReminderIndex($query)
+    {
+
+        if (\Illuminate\Support\Facades\DB::connection()->getDriverName() === 'mysql') {
+            $query->from(\Illuminate\Support\Facades\DB::raw(
+                'invoices FORCE INDEX (invoices_status_id_balance_index)'
+            ));
+        }
+
+        return $query;
+    }
 }

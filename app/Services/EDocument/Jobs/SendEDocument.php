@@ -143,7 +143,7 @@ class SendEDocument implements ShouldQueue
             'e_invoicing_token' => $model->company->account->e_invoicing_token,
         ];
 
-        nlog($routing);
+        // nlog($routing);
         // nlog("payload", $payload);
 
         //Self Hosted Sending Code Path

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Accounts Receivable Details Report</title>
+    <title>Client Balance Report</title>
     <style> 
 		@page {
             size: landscape;
@@ -14,6 +14,11 @@
             line-height: 1.6;
             color: #333;
             margin: 0px;
+            width: 100%;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         .report-header {
@@ -73,27 +78,52 @@
 
         .table-container {
             margin-top: 30px;
-            overflow-x: auto;
+            width: 100%;
+        }
+
+        .currency-heading {
+            color: #2c3e50;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 8px;
         }
 
         table {
             width: 100%;
+            table-layout: auto;
             border-collapse: collapse;
             background: white;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            font-size: 12px;
+            line-height: 1.25;
         }
 
         th {
             background: #34495e;
             color: white;
-            padding: 6px;
             text-align: center;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            padding-top: 4px;
+            padding-bottom: 4px;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+            white-space: nowrap;
+            font-size: min(2vw, 18px);
+            border-right: 1px solid #fff;
         }
 
         td {
-            padding: 6px;
             border-bottom: 1px solid #eee;
             text-align: center;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            padding-top: 4px;
+            padding-bottom: 4px;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+            white-space: nowrap;
+            font-size: min(2vw, 18px);
         }
 
         tr {
@@ -136,6 +166,10 @@
             background: #e8f5e9;
             color: #2e7d32;
         }
+
+        .align-left{
+            text-align: left;
+        }
     </style>
 </head>
 <body>
@@ -152,39 +186,74 @@
             {% if company_logo is not empty %}
                 {{ img(company_logo, 'max-height: 80px; width: auto; object-fit: contain;') }}
             {% endif %}
-        </div>
+		</div>
 	</div>
-    <div class="table-container">
-		<table>
-            <thead>
-                <tr>
-                    <th>{{ t('client_name') }}</th>
-                    <th>{{ t('client_number') }}</th>
-                    <th>{{ t('id_number') }}</th>
-                    <th>{{ t('invoices') }}</th>
-                    <th>{{ t('invoice_balance') }}</th>
-                    <th>{{ t('credit_balance') }}</th>
-                    <th>{{ t('payment_balance') }}</th>
-                </tr>
-            </thead>
-            <tbody>
-				{% if clients is defined and clients is not empty %}
-
-                {% for client in clients %}
+    {% if client_groups is defined and client_groups is not empty %}
+        {% for group in client_groups %}
+            <div class="table-container">
+                {% if client_groups|length > 1 %}
+                    <h2 class="currency-heading">{{ t('currency') }}: {{ group.currency }}</h2>
+                {% endif %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="align-left">{{ t('name') }}</th>
+                            <th>{{ t('number') }}</th>
+                            <th class="align-left">{{ t('id_number') }}</th>
+                            <th>{{ t('invoices') }}</th>
+                            <th>{{ t('invoice_balance') }}</th>
+                            <th>{{ t('credit_balance') }}</th>
+                            <th>{{ t('payment_balance') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for client in group.clients %}
+                            <tr>
+                                <td class="align-left">{{ client[0]|slice(0,25) }}</td>
+                                <td>{{ client[1] }}</td>
+                                <td class="align-left">{{ client[2]|slice(0, 14) }}</td>
+                                <td>{{ client[3] }}</td>
+                                <td>{{ client[4] }}</td>
+                                <td>{{ client[5] }}</td>
+                                <td>{{ client[6] }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="table-container">
+            <table>
+                <thead>
                     <tr>
-                        <td>{{ client[0] }}</td>
-                        <td>{{ client[1] }}</td>
-                        <td>{{ client[2] }}</td>
-                        <td>{{ client[3] }}</td>
-                        <td>{{ client[4] }}</td>
-                        <td>{{ client[5] }}</td>
-                        <td>{{ client[6] }}</td>
+                        <th class="align-left">{{ t('name') }}</th>
+                        <th>{{ t('number') }}</th>
+                        <th class="align-left">{{ t('id_number') }}</th>
+                        <th>{{ t('invoices') }}</th>
+                        <th>{{ t('invoice_balance') }}</th>
+                        <th>{{ t('credit_balance') }}</th>
+                        <th>{{ t('payment_balance') }}</th>
                     </tr>
-                {% endfor %}
-				{% endif %}
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody>
+                    {% if clients is defined and clients is not empty %}
+                        {% for client in clients %}
+                            <tr>
+                                <td class="align-left">{{ client[0]|slice(0,25) }}</td>
+                                <td>{{ client[1] }}</td>
+                                <td class="align-left">{{ client[2]|slice(0, 14) }}</td>
+                                <td>{{ client[3] }}</td>
+                                <td>{{ client[4] }}</td>
+                                <td>{{ client[5] }}</td>
+                                <td>{{ client[6] }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
 	</ninja>
 </body>
 </html>

@@ -505,6 +505,12 @@ class LoginController extends BaseController
                 return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
             }
 
+            if ($existing_login_user->oauth_provider_id && $existing_login_user->oauth_provider_id !== $provider) {
+                return response()->json([
+                    'message' => 'This email is already linked to '.$existing_login_user->oauth_provider_id.' sign-in. Please sign in with '.$existing_login_user->oauth_provider_id.'.',
+                ], 400);
+            }
+
             Auth::login($existing_login_user, false);
             /** @var \App\Models\User $user */
 

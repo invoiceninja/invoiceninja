@@ -113,6 +113,15 @@ class TaskFilters extends QueryFilters
 
     }
 
+    public function project_ids(string $project_ids = ''): Builder
+    {
+        if (strlen($project_ids) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->whereIn('project_id', $this->transformKeys(explode(',', $project_ids)));
+    }
+
     public function number(string $number = ''): Builder
     {
         if (strlen($number) == 0) {

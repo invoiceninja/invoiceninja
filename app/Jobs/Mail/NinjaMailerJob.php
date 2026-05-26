@@ -309,10 +309,12 @@ class NinjaMailerJob implements ShouldQueue
 
     private function incrementEmailCounter(): void
     {
-        if (in_array($this->nmo->settings->email_sending_method, ['default','mailgun','postmark'])) {
+        if (in_array($this->mailer, ['default','mailgun','postmark','ses'])
+            && !$this->client_postmark_secret
+            && !$this->client_mailgun_secret
+            && !$this->client_ses_secret) {
             Cache::increment("email_quota" . $this->company->account->key);
         }
-
     }
     /**
      * Entity notification when an email fails to send
@@ -351,7 +353,7 @@ class NinjaMailerJob implements ShouldQueue
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->nmo->settings));
 
-        if (Ninja::isHosted() && $this->nmo?->transport == 'default' && ($this->company->account->isNewHostedAccount() || !$this->company->account->isPaid())) {
+        if (Ninja::isHosted() && $this->nmo?->transport !== 'force' && ($this->company->account->isNewHostedAccount() || !$this->company->account->isPaid())) {
             $this->mailer = 'mailgun';
             $this->setHostedMailgunMailer();
             return $this;

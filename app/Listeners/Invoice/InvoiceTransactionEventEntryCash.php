@@ -68,6 +68,7 @@ class InvoiceTransactionEventEntryCash
         $this->setPaidRatio($invoice);
 
         TransactionEvent::create([
+            'company_id' => $invoice->company_id,
             'invoice_id' => $invoice->id,
             'client_id' => $invoice->client_id,
             'client_balance' => $invoice->client->balance,

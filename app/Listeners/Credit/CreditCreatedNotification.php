@@ -46,6 +46,9 @@ class CreditCreatedNotification implements ShouldQueue
             /* The User */
             $user = $company_user->user;
 
+            if ($company_user->trashed() || ! $user ) {
+                continue;
+            }
             /* This is only here to handle the alternate message channels - ie Slack */
             // $notification = new EntitySentNotification($event->invitation, 'credit');
 

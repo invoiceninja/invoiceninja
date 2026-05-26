@@ -147,9 +147,6 @@ class ConnectedAccountController extends BaseController
 
         $google = new Google();
 
-        // The google_sign_in v7 SDK used by the Flutter client no longer issues a
-        // usable id_token, so it sends only an access_token. Verify the id_token
-        // when present, otherwise fall back to the access_token (userinfo) path.
         if (request()->filled('id_token')) {
             $user = $google->getTokenResponse(request()->input('id_token'));
         } elseif (request()->filled('access_token')) {

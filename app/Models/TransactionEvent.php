@@ -12,6 +12,7 @@
 
 namespace App\Models;
 
+use App\DataMapper\ReportData;
 use App\DataMapper\TransactionEventMetadata;
 
 /**
@@ -34,7 +35,7 @@ use App\DataMapper\TransactionEventMetadata;
  * @property float $payment_applied
  * @property float $payment_refunded
  * @property int|null $payment_status
- * @property array|null $paymentables
+ * @property ReportData|null $reporting_data
  * @property int $event_id
  * @property int $timestamp
  * @property array|null $payment_request
@@ -56,7 +57,7 @@ class TransactionEvent extends StaticModel
     public $casts = [
         'metadata' => TransactionEventMetadata::class,
         'payment_request' => 'array',
-        'paymentables' => 'array',
+        'reporting_data' => ReportData::class,
         'period' => 'date',
     ];
 
@@ -67,5 +68,49 @@ class TransactionEvent extends StaticModel
     public const PAYMENT_DELETED = 3;
 
     public const PAYMENT_CASH = 4;
+
+    public const FR_B2C_TRANSACTION = 1001;
+
+    public const FR_B2C_PAYMENT = 1002;
+
+    public const FR_VAT_EXCLUDED_TRANSACTION = 1003;
+
+    public const FR_VAT_EXCLUDED_PAYMENT = 1004;
+
+    public const FR_REPORT_SUBMISSION_B2C = 1005;
+
+    public const FR_REPORT_SUBMISSION_VAT_EXCLUDED = 1006;
+
+    public const FR_REPORT_SUBMISSION_CORRECTIVE = 1007;
+
+    public const FR_REPORTING_STATUS_PENDING = 1;
+
+    public const FR_REPORTING_STATUS_COMPILED = 2;
+
+    public const FR_REPORTING_STATUS_SUBMITTED = 3;
+
+    public const FR_REPORTING_STATUS_FAILED = 4;
+
+    public const FR_REPORTING_STATUS_DEFERRED = 5;
+
+    public const TAX_REPORTING_EVENTS = [
+        self::INVOICE_UPDATED,
+        self::PAYMENT_REFUNDED,
+        self::PAYMENT_DELETED,
+        self::PAYMENT_CASH,
+    ];
+
+    public const FR_REPORTING_EVENTS = [
+        self::FR_B2C_TRANSACTION,
+        self::FR_B2C_PAYMENT,
+        self::FR_VAT_EXCLUDED_TRANSACTION,
+        self::FR_VAT_EXCLUDED_PAYMENT,
+    ];
+
+    public const FR_REPORT_SUBMISSION_EVENTS = [
+        self::FR_REPORT_SUBMISSION_B2C,
+        self::FR_REPORT_SUBMISSION_VAT_EXCLUDED,
+        self::FR_REPORT_SUBMISSION_CORRECTIVE,
+    ];
 
 }

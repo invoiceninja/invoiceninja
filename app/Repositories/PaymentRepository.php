@@ -21,6 +21,7 @@ use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Paymentable;
+use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
@@ -158,6 +159,22 @@ class PaymentRepository extends BaseRepository
                                        ->markSent()
                                        ->applyPayment($payment, $paid_invoice['amount'])
                                        ->save();
+
+                    try {
+                        $invoice->loadMissing(['client.country', 'client.company']);
+
+                        if ($invoice->client?->reportableFrTransaction()) {
+                            app(FrancePaymentApplicationRecorder::class)->recordMovement(
+                                payment: $payment,
+                                invoice: $invoice,
+                                paymentable: $paymentable,
+                                movementAmount: $paid_invoice['amount'],
+                                movementDate: $payment->date ?: now()->toDateString(),
+                            );
+                        }
+                    } catch (\Throwable $exception) {
+                        report($exception);
+                    }
                 }
             }
         } else {

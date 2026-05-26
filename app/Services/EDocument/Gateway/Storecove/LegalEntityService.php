@@ -71,13 +71,25 @@ class LegalEntityService
             return $add_identifier_response;
         }
 
-        // Country-specific additional identifiers (e.g. BE:EN, DK:DIGST)
+        // Country-specific additional identifiers (e.g. FR:SIRENE, BE:EN, DK:DIGST).
+        // Best-effort (does not roll back the legal entity), but a rejection must
+        // not be swallowed silently - log it so a missing identifier is detectable.
         foreach ($handler->getAdditionalIdentifiers($data) as $extra) {
-            $this->addIdentifier(
+            $extra_response = $this->addIdentifier(
                 legal_entity_id: $legal_entity_id,
                 identifier: $extra['identifier'],
                 scheme: $extra['scheme'],
             );
+
+            if (! is_array($extra_response)) {
+                nlog([
+                    'message' => 'Storecove rejected additional Peppol identifier registration',
+                    'legal_entity_id' => $legal_entity_id,
+                    'scheme' => $extra['scheme'],
+                    'identifier' => $extra['identifier'],
+                    'response' => $extra_response->json(),
+                ]);
+            }
         }
 
         return [
