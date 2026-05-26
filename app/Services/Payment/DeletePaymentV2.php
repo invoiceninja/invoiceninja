@@ -236,24 +236,28 @@ class DeletePaymentV2
 
                 }
 
-                $paymentable_invoice->loadMissing(['client.country', 'client.company']);
+                try {
+                    $paymentable_invoice->loadMissing(['client.country', 'client.company']);
 
-                if ($paymentable_invoice->client?->reportableFrTransaction()) {
-                    $paymentable = Paymentable::withTrashed()
-                        ->where('payment_id', $this->payment->id)
-                        ->where('paymentable_id', $paymentable_invoice->id)
-                        ->whereIn('paymentable_type', ['invoices', Invoice::class])
-                        ->latest('id')
-                        ->first();
+                    if ($paymentable_invoice->client?->reportableFrTransaction()) {
+                        $paymentable = Paymentable::withTrashed()
+                            ->where('payment_id', $this->payment->id)
+                            ->where('paymentable_id', $paymentable_invoice->id)
+                            ->where('paymentable_type', 'invoices')
+                            ->latest('id')
+                            ->first();
 
-                    app(FrancePaymentApplicationRecorder::class)->recordMovement(
-                        payment: $this->payment,
-                        invoice: $paymentable_invoice,
-                        paymentable: $paymentable,
-                        movementAmount: BcMath::mul($net_deletable, -1, 2),
-                        movementDate: now()->toDateString(),
-                        movementType: FrancePaymentApplicationRecorder::MOVEMENT_DELETED,
-                    );
+                        app(FrancePaymentApplicationRecorder::class)->recordMovement(
+                            payment: $this->payment,
+                            invoice: $paymentable_invoice,
+                            paymentable: $paymentable,
+                            movementAmount: BcMath::mul($net_deletable, -1, 2),
+                            movementDate: now()->toDateString(),
+                            movementType: FrancePaymentApplicationRecorder::MOVEMENT_DELETED,
+                        );
+                    }
+                } catch (\Throwable $exception) {
+                    report($exception);
                 }
 
                 PaymentTransactionEventEntry::dispatch($this->payment, [$paymentable_invoice->id], $this->payment->company->db, $net_deletable, true);

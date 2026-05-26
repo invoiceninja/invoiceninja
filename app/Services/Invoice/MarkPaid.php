@@ -137,23 +137,27 @@ class MarkPaid extends AbstractService
             'amount' => $this->payable_balance,
         ]);
 
-        $this->invoice->loadMissing(['client.country', 'client.company']);
+        try {
+            $this->invoice->loadMissing(['client.country', 'client.company']);
 
-        if ($this->invoice->client?->reportableFrTransaction()) {
-            $paymentable = Paymentable::withTrashed()
-                ->where('payment_id', $payment->id)
-                ->where('paymentable_id', $this->invoice->id)
-                ->whereIn('paymentable_type', ['invoices', Invoice::class])
-                ->latest('id')
-                ->first();
+            if ($this->invoice->client?->reportableFrTransaction()) {
+                $paymentable = Paymentable::withTrashed()
+                    ->where('payment_id', $payment->id)
+                    ->where('paymentable_id', $this->invoice->id)
+                    ->where('paymentable_type', 'invoices')
+                    ->latest('id')
+                    ->first();
 
-            app(FrancePaymentApplicationRecorder::class)->recordMovement(
-                payment: $payment,
-                invoice: $this->invoice,
-                paymentable: $paymentable,
-                movementAmount: $this->payable_balance,
-                movementDate: $payment->date ?: now()->toDateString(),
-            );
+                app(FrancePaymentApplicationRecorder::class)->recordMovement(
+                    payment: $payment,
+                    invoice: $this->invoice,
+                    paymentable: $paymentable,
+                    movementAmount: $this->payable_balance,
+                    movementDate: $payment->date ?: now()->toDateString(),
+                );
+            }
+        } catch (\Throwable $exception) {
+            report($exception);
         }
 
         if ($payment->client->getSetting('send_email_on_mark_paid')) {

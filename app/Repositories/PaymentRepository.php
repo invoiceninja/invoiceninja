@@ -160,16 +160,20 @@ class PaymentRepository extends BaseRepository
                                        ->applyPayment($payment, $paid_invoice['amount'])
                                        ->save();
 
-                    $invoice->loadMissing(['client.country', 'client.company']);
+                    try {
+                        $invoice->loadMissing(['client.country', 'client.company']);
 
-                    if ($invoice->client?->reportableFrTransaction()) {
-                        app(FrancePaymentApplicationRecorder::class)->recordMovement(
-                            payment: $payment,
-                            invoice: $invoice,
-                            paymentable: $paymentable,
-                            movementAmount: $paid_invoice['amount'],
-                            movementDate: $payment->date ?: now()->toDateString(),
-                        );
+                        if ($invoice->client?->reportableFrTransaction()) {
+                            app(FrancePaymentApplicationRecorder::class)->recordMovement(
+                                payment: $payment,
+                                invoice: $invoice,
+                                paymentable: $paymentable,
+                                movementAmount: $paid_invoice['amount'],
+                                movementDate: $payment->date ?: now()->toDateString(),
+                            );
+                        }
+                    } catch (\Throwable $exception) {
+                        report($exception);
                     }
                 }
             }

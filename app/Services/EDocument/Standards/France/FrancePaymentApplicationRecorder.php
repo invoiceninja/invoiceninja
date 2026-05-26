@@ -16,6 +16,7 @@ use App\Jobs\EDocument\RecordFranceEReportingPayment;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Paymentable;
+use Throwable;
 
 class FrancePaymentApplicationRecorder
 {
@@ -29,17 +30,21 @@ class FrancePaymentApplicationRecorder
 
     public function record(Payment $payment, Invoice $invoice): void
     {
-        $paymentable = $this->paymentable($payment, $invoice);
-        $movementAmount = $paymentable?->amount
-            ?? data_get($invoice, 'pivot.amount', $payment->applied ?: $payment->amount ?: 0);
+        try {
+            $paymentable = $this->paymentable($payment, $invoice);
+            $movementAmount = $paymentable?->amount
+                ?? data_get($invoice, 'pivot.amount', $payment->applied ?: $payment->amount ?: 0);
 
-        $this->recordMovement(
-            payment: $payment,
-            invoice: $invoice,
-            paymentable: $paymentable,
-            movementAmount: $movementAmount,
-            movementDate: $this->paymentableDate($paymentable) ?: ($payment->date ?: now()->toDateString()),
-        );
+            $this->recordMovement(
+                payment: $payment,
+                invoice: $invoice,
+                paymentable: $paymentable,
+                movementAmount: $movementAmount,
+                movementDate: $this->paymentableDate($paymentable) ?: ($payment->date ?: now()->toDateString()),
+            );
+        } catch (Throwable $exception) {
+            report($exception);
+        }
     }
 
     public function recordMovement(
@@ -50,29 +55,29 @@ class FrancePaymentApplicationRecorder
         ?string $movementDate = null,
         string $movementType = self::MOVEMENT_APPLIED,
     ): void {
-        if (! $this->shouldRecord($payment, $invoice, $movementAmount, $movementType)) {
-            return;
+        try {
+            if (! $this->shouldRecord($payment, $invoice, $movementAmount, $movementType)) {
+                return;
+            }
+
+            $sourceDate = $this->resolveMovementDate($payment, $paymentable, $movementDate, $movementType);
+
+            RecordFranceEReportingPayment::dispatch(
+                $payment->id,
+                $payment->company->db,
+                $invoice->id,
+                $paymentable?->id,
+                (string) $movementAmount,
+                $sourceDate,
+                $movementType,
+            )->afterCommit();
+        } catch (Throwable $exception) {
+            report($exception);
         }
-
-        $sourceDate = $this->resolveMovementDate($payment, $paymentable, $movementDate, $movementType);
-
-        RecordFranceEReportingPayment::dispatch(
-            $payment->id,
-            $payment->company->db,
-            $invoice->id,
-            $paymentable?->id,
-            (string) $movementAmount,
-            $sourceDate,
-            $movementType,
-        )->afterCommit();
     }
 
     private function shouldRecord(Payment $payment, Invoice $invoice, int|float|string $movementAmount, string $movementType): bool
     {
-        if (! $payment->company || ! $invoice->client) {
-            return false;
-        }
-
         if (! $invoice->client->relationLoaded('company')) {
             $invoice->client->setRelation('company', $payment->company);
         }
@@ -116,14 +121,11 @@ class FrancePaymentApplicationRecorder
 
     private function paymentable(Payment $payment, Invoice $invoice): ?Paymentable
     {
-        if (! $payment->exists || ! $invoice->exists) {
-            return null;
-        }
 
         return Paymentable::withTrashed()
             ->where('payment_id', $payment->id)
             ->where('paymentable_id', $invoice->id)
-            ->whereIn('paymentable_type', ['invoices', Invoice::class])
+            ->where('paymentable_type', 'invoices')
             ->latest('id')
             ->first();
     }

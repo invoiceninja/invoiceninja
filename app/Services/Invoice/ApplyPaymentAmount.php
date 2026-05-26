@@ -91,36 +91,17 @@ class ApplyPaymentAmount extends AbstractService
 
         $this->invoice->loadMissing(['client.country', 'client.company']);
 
-        if ($this->invoice->client?->reportableFrTransaction()) {
-            $paymentable = Paymentable::withTrashed()
-                ->where('payment_id', $payment->id)
-                ->where('paymentable_id', $this->invoice->id)
-                ->whereIn('paymentable_type', ['invoices', Invoice::class])
-                ->latest('id')
-                ->first();
-
-            app(FrancePaymentApplicationRecorder::class)->recordMovement(
-                payment: $payment,
-                invoice: $this->invoice,
-                paymentable: $paymentable,
-                movementAmount: $payment->amount,
-                movementDate: $payment->date ?: now()->toDateString(),
-            );
-        }
-
         $this->invoice
             ->client
             ->service()
             ->updateBalanceAndPaidToDate($payment->amount * -1, $payment->amount)
             ->save();
 
-
         if ($this->invoice->client->getSetting('client_manual_payment_notification')) {
             $payment->service()->sendEmail();
         }
 
         /* Update Invoice balance */
-
         $payment->ledger()
                 ->updatePaymentBalance($payment->amount * -1, "ApplyPaymentInvoice-");
 
@@ -129,6 +110,27 @@ class ApplyPaymentAmount extends AbstractService
         event('eloquent.created: App\Models\Payment', $payment);
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         event(new InvoiceWasPaid($this->invoice, $payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+
+        try {
+            if ($this->invoice->client?->reportableFrTransaction()) {
+                $paymentable = Paymentable::withTrashed()
+                    ->where('payment_id', $payment->id)
+                    ->where('paymentable_id', $this->invoice->id)
+                    ->where('paymentable_type', 'invoices')
+                    ->latest('id')
+                    ->first();
+
+                app(FrancePaymentApplicationRecorder::class)->recordMovement(
+                    payment: $payment,
+                    invoice: $this->invoice,
+                    paymentable: $paymentable,
+                    movementAmount: $payment->amount,
+                    movementDate: $payment->date ?: now()->toDateString(),
+                );
+            }
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
 
         return $this->invoice;
     }

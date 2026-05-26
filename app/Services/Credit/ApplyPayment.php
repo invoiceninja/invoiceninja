@@ -144,24 +144,28 @@ class ApplyPayment
 
         $this->invoice = $this->invoice->fresh() ?? $this->invoice;
 
-        $this->invoice->loadMissing(['client.country', 'client.company']);
+        try {
+            $this->invoice->loadMissing(['client.country', 'client.company']);
 
-        if ($this->invoice->client?->reportableFrTransaction()) {
-            $paymentable = Paymentable::withTrashed()
-                ->where('payment_id', $this->payment->id)
-                ->where('paymentable_id', $this->invoice->id)
-                ->whereIn('paymentable_type', ['invoices', Invoice::class])
-                ->latest('id')
-                ->first();
+            if ($this->invoice->client?->reportableFrTransaction()) {
+                $paymentable = Paymentable::withTrashed()
+                    ->where('payment_id', $this->payment->id)
+                    ->where('paymentable_id', $this->invoice->id)
+                    ->where('paymentable_type', 'invoices')
+                    ->latest('id')
+                    ->first();
 
-            app(FrancePaymentApplicationRecorder::class)->recordMovement(
-                payment: $this->payment,
-                invoice: $this->invoice,
-                paymentable: $paymentable,
-                movementAmount: $this->amount_applied,
-                movementDate: $this->payment->date ?: now()->toDateString(),
-                movementType: FrancePaymentApplicationRecorder::MOVEMENT_CREDIT_APPLIED,
-            );
+                app(FrancePaymentApplicationRecorder::class)->recordMovement(
+                    payment: $this->payment,
+                    invoice: $this->invoice,
+                    paymentable: $paymentable,
+                    movementAmount: $this->amount_applied,
+                    movementDate: $this->payment->date ?: now()->toDateString(),
+                    movementType: FrancePaymentApplicationRecorder::MOVEMENT_CREDIT_APPLIED,
+                );
+            }
+        } catch (\Throwable $exception) {
+            report($exception);
         }
 
         $this->credit

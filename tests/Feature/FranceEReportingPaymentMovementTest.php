@@ -549,6 +549,33 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->assertSame(0, TransactionEvent::query()->where("invoice_id", $invoice->id)->count());
     }
 
+    public function testPaymentRepositoryContinuesWhenFranceRecorderFails(): void
+    {
+        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-01");
+
+        $recorder = \Mockery::mock(FrancePaymentApplicationRecorder::class);
+        $recorder->shouldReceive("recordMovement")
+            ->once()
+            ->andThrow(new \RuntimeException("France recorder failed"));
+        $this->app->instance(FrancePaymentApplicationRecorder::class, $recorder);
+
+        $payment = app(PaymentRepository::class)->save([
+            "amount" => 1200,
+            "client_id" => $invoice->client_id,
+            "date" => "2026-09-15",
+            "invoices" => [
+                [
+                    "invoice_id" => $invoice->id,
+                    "amount" => 1200,
+                ],
+            ],
+        ], PaymentFactory::create($this->company->id, $this->user->id, $invoice->client_id));
+
+        $this->assertNotNull($payment->id);
+        $this->assertSame(1200.0, (float) $payment->fresh()->applied);
+        $this->assertSame(0.0, (float) $invoice->fresh()->balance);
+    }
+
 
     private function enableFranceReporting(string $schedule = 'ten_days'): void
     {

@@ -168,6 +168,14 @@ class RecordFranceEReportingPayment implements ShouldQueue
             return false;
         }
 
+        if (! $invoice->client->relationLoaded('company')) {
+            $invoice->client->setRelation('company', $payment->company);
+        }
+
+        if (! $invoice->client->reportableFrTransaction()) {
+            return false;
+        }
+
         if ($invoice->is_deleted && ! in_array($this->movementType, [
             FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
             FrancePaymentApplicationRecorder::MOVEMENT_DELETED,
@@ -175,11 +183,7 @@ class RecordFranceEReportingPayment implements ShouldQueue
             return false;
         }
 
-        if (! $invoice->client->relationLoaded('company')) {
-            $invoice->client->setRelation('company', $payment->company);
-        }
-
-        return $invoice->client->reportableFrTransaction();
+        return true;
     }
 
     private function paymentable(Payment $payment, Invoice $invoice): ?Paymentable
@@ -187,7 +191,7 @@ class RecordFranceEReportingPayment implements ShouldQueue
         $query = Paymentable::withTrashed()
             ->where('payment_id', $payment->id)
             ->where('paymentable_id', $invoice->id)
-            ->whereIn('paymentable_type', ['invoices', Invoice::class]);
+            ->where('paymentable_type', 'invoices');
 
         if (! is_null($this->paymentableId)) {
             $query->where('id', $this->paymentableId);

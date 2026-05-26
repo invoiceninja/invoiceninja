@@ -44,23 +44,27 @@ class PaymentService
             'amount' => $payment->amount,
         ]);
 
-        $invoice->loadMissing(['client.country', 'client.company']);
+        try {
+            $invoice->loadMissing(['client.country', 'client.company']);
 
-        if ($invoice->client?->reportableFrTransaction()) {
-            $paymentable = Paymentable::withTrashed()
-                ->where('payment_id', $payment->id)
-                ->where('paymentable_id', $invoice->id)
-                ->whereIn('paymentable_type', ['invoices', Invoice::class])
-                ->latest('id')
-                ->first();
+            if ($invoice->client?->reportableFrTransaction()) {
+                $paymentable = Paymentable::withTrashed()
+                    ->where('payment_id', $payment->id)
+                    ->where('paymentable_id', $invoice->id)
+                    ->where('paymentable_type', 'invoices')
+                    ->latest('id')
+                    ->first();
 
-            app(FrancePaymentApplicationRecorder::class)->recordMovement(
-                payment: $payment,
-                invoice: $invoice,
-                paymentable: $paymentable,
-                movementAmount: $payment->amount,
-                movementDate: $payment->date ?: now()->toDateString(),
-            );
+                app(FrancePaymentApplicationRecorder::class)->recordMovement(
+                    payment: $payment,
+                    invoice: $invoice,
+                    paymentable: $paymentable,
+                    movementAmount: $payment->amount,
+                    movementDate: $payment->date ?: now()->toDateString(),
+                );
+            }
+        } catch (\Throwable $exception) {
+            report($exception);
         }
 
         event('eloquent.created: App\Models\Payment', $payment);

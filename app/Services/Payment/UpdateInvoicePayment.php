@@ -184,23 +184,27 @@ class UpdateInvoicePayment
             $pivot_invoice->pivot->amount = $paid_amount;
             $pivot_invoice->pivot->save();
 
-            $invoice->loadMissing(['client.country', 'client.company']);
+            try {
+                $invoice->loadMissing(['client.country', 'client.company']);
 
-            if ($invoice->client?->reportableFrTransaction()) {
-                $paymentable = Paymentable::withTrashed()
-                    ->where('payment_id', $this->payment->id)
-                    ->where('paymentable_id', $invoice->id)
-                    ->whereIn('paymentable_type', ['invoices', Invoice::class])
-                    ->latest('id')
-                    ->first();
+                if ($invoice->client?->reportableFrTransaction()) {
+                    $paymentable = Paymentable::withTrashed()
+                        ->where('payment_id', $this->payment->id)
+                        ->where('paymentable_id', $invoice->id)
+                        ->where('paymentable_type', 'invoices')
+                        ->latest('id')
+                        ->first();
 
-                app(FrancePaymentApplicationRecorder::class)->recordMovement(
-                    payment: $this->payment,
-                    invoice: $invoice,
-                    paymentable: $paymentable,
-                    movementAmount: $paid_amount,
-                    movementDate: $this->payment->date ?: now()->toDateString(),
-                );
+                    app(FrancePaymentApplicationRecorder::class)->recordMovement(
+                        payment: $this->payment,
+                        invoice: $invoice,
+                        paymentable: $paymentable,
+                        movementAmount: $paid_amount,
+                        movementDate: $this->payment->date ?: now()->toDateString(),
+                    );
+                }
+            } catch (\Throwable $exception) {
+                report($exception);
             }
 
             $this->payment->applied += $paid_amount;

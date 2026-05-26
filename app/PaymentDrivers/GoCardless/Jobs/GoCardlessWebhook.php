@@ -122,7 +122,7 @@ class GoCardlessWebhook implements ShouldQueue
                         ->where('company_id', $company->id)
                         ->first();
 
-                    if ($payment && $payment->status_id != Payment::STATUS_FAILED) {
+                    if ($payment && !in_array($payment->status_id, [Payment::STATUS_FAILED, Payment::STATUS_CANCELLED])) {
 
                         if ($payment->status_id == Payment::STATUS_PENDING) {
                             $payment->service()->deletePayment();
