@@ -149,7 +149,7 @@ class WePayPaymentDriver extends BaseDriver
         return $this->payment_method->tokenBilling($cgt, $payment_hash);
     }
 
-    public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
+    public function processWebhookRequest(PaymentWebhookRequest $request, ?Payment $payment = null)
     {
         $this->init();
     }

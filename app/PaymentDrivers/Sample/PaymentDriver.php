@@ -95,5 +95,5 @@ class PaymentDriver extends BaseDriver
         //this is your custom implementation from here
     }
 
-    public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null) {}
+    public function processWebhookRequest(PaymentWebhookRequest $request, ?Payment $payment = null) {}
 }
