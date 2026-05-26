@@ -233,6 +233,89 @@ class CompanyTokenApiTest extends TestCase
         $this->assertTrue($arr['data'][0]['is_deleted']);
     }
 
+    public function testCompanyTokenPutWithTokenFieldInBody()
+    {
+        $this->withoutMiddleware(PasswordProtection::class);
+
+        $company_token = CompanyToken::whereCompanyId($this->company->id)->first();
+
+        // Real clients PUT the full token resource. The body contains a
+        // `token` field (the raw token string) which collides with the
+        // {token} route parameter via Request::__get's input-first lookup.
+        $data = [
+            'id' => $this->encodePrimaryKey($company_token->id),
+            'name' => 'newname-with-collision',
+            'token' => \Illuminate\Support\Str::random(64),
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/tokens/'.$this->encodePrimaryKey($company_token->id), $data);
+
+        $response->assertStatus(200);
+        $this->assertEquals('newname-with-collision', $response->json('data.name'));
+    }
+
+    public function testCompanyTokenGetWithTokenInQueryString()
+    {
+        $this->withoutMiddleware(PasswordProtection::class);
+
+        $company_token = CompanyToken::whereCompanyId($this->company->id)->first();
+
+        // Query-string `?token=...` is merged into $this->all() and would
+        // shadow the bound route param the same way a body field does.
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/tokens/'.$this->encodePrimaryKey($company_token->id).'?token=shadow-value');
+
+        $response->assertStatus(200);
+    }
+
+    public function testCompanyTokenEditWithTokenInQueryString()
+    {
+        $this->withoutMiddleware(PasswordProtection::class);
+
+        $company_token = CompanyToken::whereCompanyId($this->company->id)->first();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/tokens/'.$this->encodePrimaryKey($company_token->id).'/edit?token=shadow-value');
+
+        $response->assertStatus(200);
+    }
+
+    public function testCompanyTokenDeleteWithTokenFieldInBody()
+    {
+        $this->withoutMiddleware(PasswordProtection::class);
+
+        $company_token = new CompanyToken();
+        $company_token->user_id = $this->user->id;
+        $company_token->company_id = $this->company->id;
+        $company_token->account_id = $this->account->id;
+        $company_token->name = 'delete-collision-' . uniqid();
+        $company_token->token = \Illuminate\Support\Str::random(64);
+        $company_token->is_system = false;
+        $company_token->save();
+
+        $data = [
+            'token' => \Illuminate\Support\Str::random(64),
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+            'X-API-TOKEN' => $this->token,
+        ])->deleteJson('/api/v1/tokens/'.$this->encodePrimaryKey($company_token->id), $data);
+
+        $response->assertStatus(200);
+    }
+
     public function testIsSystemFilter()
     {
         $this->withoutMiddleware(PasswordProtection::class);

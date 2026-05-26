@@ -23,6 +23,6 @@ class ShowTokenRequest extends Request
      */
     public function authorize(): bool
     {
-        return auth()->user()->can('view', $this->token);
+        return auth()->user()->can('view', $this->route('token'));
     }
 }
