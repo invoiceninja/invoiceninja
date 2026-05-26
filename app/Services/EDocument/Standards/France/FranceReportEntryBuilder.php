@@ -74,24 +74,24 @@ class FranceReportEntryBuilder
         );
     }
 
-    public function b2biPayment(Payment $payment, Invoice $invoice): B2BIPaymentData
+    public function b2biPayment(Payment $payment, Invoice $invoice, int|float|string|null $paymentAmount = null, ?string $paymentDate = null): B2BIPaymentData
     {
-        $amount = $this->paymentAmountForInvoice($payment, $invoice);
+        $amount = $paymentAmount ?? $this->paymentAmountForInvoice($payment, $invoice);
 
         return new B2BIPaymentData(
             invoiceNumber: (string) $invoice->number,
-            paymentDate: (string) ($payment->date ?: now()->toDateString()),
+            paymentDate: (string) ($paymentDate ?: $payment->date ?: now()->toDateString()),
             issueDate: (string) ($invoice->date ?: now()->toDateString()),
             paymentMeansCode: $this->paymentMeansCode($payment),
             taxSubtotals: $this->paymentTaxSubtotals($invoice, $amount, true),
         );
     }
 
-    public function b2cPayment(Payment $payment, Invoice $invoice): B2CPaymentData
+    public function b2cPayment(Payment $payment, Invoice $invoice, int|float|string|null $paymentAmount = null, ?string $paymentDate = null): B2CPaymentData
     {
         return new B2CPaymentData(
-            date: (string) ($payment->date ?: now()->toDateString()),
-            taxSubtotal: $this->paymentTaxSubtotals($invoice, $this->paymentAmountForInvoice($payment, $invoice), false),
+            date: (string) ($paymentDate ?: $payment->date ?: now()->toDateString()),
+            taxSubtotal: $this->paymentTaxSubtotals($invoice, $paymentAmount ?? $this->paymentAmountForInvoice($payment, $invoice), false),
         );
     }
 
@@ -158,13 +158,14 @@ class FranceReportEntryBuilder
         $taxes = $calc->getTaxMap()->merge($calc->getTotalTaxMap())->values();
         $ratio = $this->paymentRatio($invoice, $paymentAmount);
         $currency = $this->currencyCode($invoice);
+        $sign = (float) $paymentAmount < 0 ? -1 : 1;
 
         if ($taxes->isEmpty()) {
             return [
                 new TaxSubtotalData(
                     percentage: '0',
                     category: 'exempt',
-                    taxableAmount: $amountIncludingTaxOnly ? null : $this->normalizeAmount((float) $calc->getNetSubtotal() * $ratio),
+                    taxableAmount: $amountIncludingTaxOnly ? null : $this->normalizeAmount((float) $calc->getNetSubtotal() * $ratio * $sign),
                     taxAmount: $amountIncludingTaxOnly ? null : '0',
                     currency: $currency,
                     country: 'FR',
@@ -173,10 +174,10 @@ class FranceReportEntryBuilder
             ];
         }
 
-        return $taxes->map(function (array $tax) use ($calc, $ratio, $currency, $amountIncludingTaxOnly): TaxSubtotalData {
+        return $taxes->map(function (array $tax) use ($calc, $ratio, $currency, $amountIncludingTaxOnly, $paymentAmount, $sign): TaxSubtotalData {
             $taxRate = $tax['tax_rate'] ?? 0;
-            $taxableAmount = (float) ($tax['base_amount'] ?? $calc->getNetSubtotal()) * $ratio;
-            $taxAmount = (float) ($tax['total'] ?? 0) * $ratio;
+            $taxableAmount = (float) ($tax['base_amount'] ?? $calc->getNetSubtotal()) * $ratio * $sign;
+            $taxAmount = (float) ($tax['total'] ?? 0) * $ratio * $sign;
 
             return new TaxSubtotalData(
                 percentage: $this->normalizeAmount($taxRate),
@@ -185,7 +186,7 @@ class FranceReportEntryBuilder
                 taxAmount: $amountIncludingTaxOnly ? null : $this->normalizeAmount($taxAmount),
                 currency: $currency,
                 country: 'FR',
-                amountIncludingTax: $amountIncludingTaxOnly ? $this->normalizeAmount($taxableAmount + $taxAmount) : null,
+                amountIncludingTax: $amountIncludingTaxOnly ? $this->normalizeAmount($paymentAmount) : null,
             );
         })->all();
     }

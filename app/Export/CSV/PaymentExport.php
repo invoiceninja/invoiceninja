@@ -15,7 +15,10 @@ namespace App\Export\CSV;
 use App\Export\Decorators\Decorator;
 use App\Libraries\MultiDB;
 use App\Models\Company;
+use App\Models\Credit;
+use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Paymentable;
 use App\Transformers\PaymentTransformer;
 use App\Utils\Ninja;
 use Illuminate\Database\Eloquent\Builder;
@@ -31,6 +34,16 @@ class PaymentExport extends BaseExport
     public Writer $csv;
 
     private Decorator $decorator;
+
+    private bool $fan_out = false;
+
+    private const APPLIED_TRIGGER_KEYS = ['invoice.number', 'credit.number'];
+
+    private const APPLIED_INJECTED_KEYS = [
+        'payment.applied_date',
+        'payment.applied_amount',
+        'payment.applied_refunded',
+    ];
 
     public function __construct(Company $company, array $input)
     {
@@ -54,6 +67,15 @@ class PaymentExport extends BaseExport
         }
 
         $this->input['report_keys'] = array_merge($this->input['report_keys'], array_diff($this->forced_client_fields, $this->input['report_keys']));
+
+        $this->fan_out = count(array_intersect(self::APPLIED_TRIGGER_KEYS, $this->input['report_keys'])) > 0;
+
+        if ($this->fan_out) {
+            $this->input['report_keys'] = array_merge(
+                $this->input['report_keys'],
+                array_diff(self::APPLIED_INJECTED_KEYS, $this->input['report_keys'])
+            );
+        }
 
         $query = Payment::query()
                             ->withTrashed()
@@ -92,13 +114,14 @@ class PaymentExport extends BaseExport
             return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
 
-        $report = $query->cursor()
-                ->map(function ($resource) {
+        $report = [];
 
-                    /** @var \App\Models\Payment $resource */
-                    $row = $this->buildRow($resource);
-                    return $this->processMetaData($row, $resource);
-                })->toArray();
+        $query->cursor()->each(function ($payment) use (&$report) {
+            /** @var \App\Models\Payment $payment */
+            $this->emitRows($payment, function (array $row) use (&$report, $payment) {
+                $report[] = $this->processMetaData($row, $payment);
+            });
+        });
 
         return array_merge(['columns' => $header], $report);
 
@@ -115,13 +138,53 @@ class PaymentExport extends BaseExport
         $this->csv->insertOne($this->buildHeader());
 
         $query->cursor()
-              ->each(function ($entity) {
-
-                  /** @var \App\Models\Payment $entity */
-                  $this->csv->insertOne($this->buildRow($entity));
+              ->each(function ($payment) {
+                  /** @var \App\Models\Payment $payment */
+                  $this->emitRows($payment, function (array $row) {
+                      $this->csv->insertOne($row);
+                  });
               });
 
         return $this->csv->toString();
+    }
+
+    private function emitRows(Payment $payment, \Closure $emit): void
+    {
+        if (! $this->fan_out) {
+            $emit($this->buildRow($payment));
+            return;
+        }
+
+        $paymentables = $this->loadPaymentables($payment);
+
+        if ($paymentables->isEmpty()) {
+            $payment->setRelation('current_paymentable', null);
+            $emit($this->buildRow($payment));
+            return;
+        }
+
+        foreach ($paymentables as $paymentable) {
+            $payment->setRelation('current_paymentable', $paymentable);
+            $emit($this->buildRow($payment));
+        }
+
+        $payment->setRelation('current_paymentable', null);
+    }
+
+    private function loadPaymentables(Payment $payment): \Illuminate\Support\Collection
+    {
+        $query = Paymentable::query()
+            ->where('payment_id', $payment->id)
+            ->whereIn('paymentable_type', ['invoices', Credit::class])
+            ->with('paymentable');
+
+        if (! ($this->input['include_deleted_applications'] ?? false)) {
+            $query->whereNull('deleted_at');
+        } else {
+            $query->withTrashed();
+        }
+
+        return $query->orderBy('created_at')->orderBy('id')->get();
     }
 
     protected function buildRow(Payment $payment): array

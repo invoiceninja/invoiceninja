@@ -17,7 +17,9 @@ use App\Factory\RecurringInvoiceFactory;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
+use App\Models\Paymentable;
 use App\Models\RecurringInvoice;
+use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 
@@ -181,6 +183,25 @@ class UpdateInvoicePayment
             /*update paymentable record*/
             $pivot_invoice->pivot->amount = $paid_amount;
             $pivot_invoice->pivot->save();
+
+            $invoice->loadMissing(['client.country', 'client.company']);
+
+            if ($invoice->client?->reportableFrTransaction()) {
+                $paymentable = Paymentable::withTrashed()
+                    ->where('payment_id', $this->payment->id)
+                    ->where('paymentable_id', $invoice->id)
+                    ->whereIn('paymentable_type', ['invoices', Invoice::class])
+                    ->latest('id')
+                    ->first();
+
+                app(FrancePaymentApplicationRecorder::class)->recordMovement(
+                    payment: $this->payment,
+                    invoice: $invoice,
+                    paymentable: $paymentable,
+                    movementAmount: $paid_amount,
+                    movementDate: $this->payment->date ?: now()->toDateString(),
+                );
+            }
 
             $this->payment->applied += $paid_amount;
 

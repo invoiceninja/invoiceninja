@@ -15,8 +15,10 @@ namespace App\Services\Payment;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Paymentable;
 use App\Models\BankTransaction;
 use App\Listeners\Payment\PaymentTransactionEventEntry;
+use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
 use App\Utils\BcMath;
 use Illuminate\Contracts\Container\BindingResolutionException;
 
@@ -232,6 +234,26 @@ class DeletePaymentV2
                                         ->save();
                     $paymentable_invoice->delete();
 
+                }
+
+                $paymentable_invoice->loadMissing(['client.country', 'client.company']);
+
+                if ($paymentable_invoice->client?->reportableFrTransaction()) {
+                    $paymentable = Paymentable::withTrashed()
+                        ->where('payment_id', $this->payment->id)
+                        ->where('paymentable_id', $paymentable_invoice->id)
+                        ->whereIn('paymentable_type', ['invoices', Invoice::class])
+                        ->latest('id')
+                        ->first();
+
+                    app(FrancePaymentApplicationRecorder::class)->recordMovement(
+                        payment: $this->payment,
+                        invoice: $paymentable_invoice,
+                        paymentable: $paymentable,
+                        movementAmount: BcMath::mul($net_deletable, -1, 2),
+                        movementDate: now()->toDateString(),
+                        movementType: FrancePaymentApplicationRecorder::MOVEMENT_DELETED,
+                    );
                 }
 
                 PaymentTransactionEventEntry::dispatch($this->payment, [$paymentable_invoice->id], $this->payment->company->db, $net_deletable, true);

@@ -16,6 +16,7 @@ use App\Export\Decorators\Decorator;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\Invoice;
+use App\Models\Paymentable;
 use App\Transformers\InvoiceTransformer;
 use App\Utils\Ninja;
 use Illuminate\Database\Eloquent\Builder;
@@ -33,6 +34,14 @@ class InvoiceExport extends BaseExport
     private Decorator $decorator;
 
     private array $tax_names = [];
+
+    private bool $fan_out = false;
+
+    private const APPLIED_INJECTED_KEYS = [
+        'payment.applied_date',
+        'payment.applied_amount',
+        'payment.applied_refunded',
+    ];
 
     public function __construct(Company $company, array $input)
     {
@@ -56,6 +65,17 @@ class InvoiceExport extends BaseExport
         }
 
         $this->input['report_keys'] = array_merge($this->input['report_keys'], array_diff($this->forced_client_fields, $this->input['report_keys']));
+
+        $has_invoice_number = in_array('invoice.number', $this->input['report_keys'], true);
+        $has_payment_column = count(array_filter($this->input['report_keys'], fn ($k) => is_string($k) && str_starts_with($k, 'payment.'))) > 0;
+        $this->fan_out = $has_invoice_number && $has_payment_column;
+
+        if ($this->fan_out) {
+            $this->input['report_keys'] = array_merge(
+                $this->input['report_keys'],
+                array_diff(self::APPLIED_INJECTED_KEYS, $this->input['report_keys'])
+            );
+        }
 
         $query = Invoice::query()
                         ->withTrashed()
@@ -107,13 +127,14 @@ class InvoiceExport extends BaseExport
             return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
 
-        $report = $query->cursor()
-                ->map(function ($resource) {
+        $report = [];
 
-                    /** @var \App\Models\Invoice $resource */
-                    $row = $this->buildRow($resource);
-                    return $this->processMetaData($row, $resource);
-                })->toArray();
+        $query->cursor()->each(function ($invoice) use (&$report) {
+            /** @var \App\Models\Invoice $invoice */
+            $this->emitRows($invoice, function (array $row) use (&$report, $invoice) {
+                $report[] = $this->processMetaData($row, $invoice);
+            });
+        });
 
         return array_merge(['columns' => $header], $report);
     }
@@ -180,12 +201,52 @@ class InvoiceExport extends BaseExport
 
         $query->cursor()
             ->each(function ($invoice) {
-
                 /** @var \App\Models\Invoice $invoice */
-                $this->csv->insertOne($this->buildRow($invoice));
+                $this->emitRows($invoice, function (array $row) {
+                    $this->csv->insertOne($row);
+                });
             });
 
         return $this->csv->toString();
+    }
+
+    private function emitRows(Invoice $invoice, \Closure $emit): void
+    {
+        if (! $this->fan_out) {
+            $emit($this->buildRow($invoice));
+            return;
+        }
+
+        $paymentables = $this->loadPaymentables($invoice);
+
+        if ($paymentables->isEmpty()) {
+            $invoice->setRelation('current_paymentable', null);
+            $emit($this->buildRow($invoice));
+            return;
+        }
+
+        foreach ($paymentables as $paymentable) {
+            $invoice->setRelation('current_paymentable', $paymentable);
+            $emit($this->buildRow($invoice));
+        }
+
+        $invoice->setRelation('current_paymentable', null);
+    }
+
+    private function loadPaymentables(Invoice $invoice): \Illuminate\Support\Collection
+    {
+        $query = Paymentable::query()
+            ->where('paymentable_type', 'invoices')
+            ->where('paymentable_id', $invoice->id)
+            ->with('payment');
+
+        if (! ($this->input['include_deleted_applications'] ?? false)) {
+            $query->whereNull('deleted_at');
+        } else {
+            $query->withTrashed();
+        }
+
+        return $query->orderBy('created_at')->orderBy('id')->get();
     }
 
     protected function buildRow(Invoice $invoice): array

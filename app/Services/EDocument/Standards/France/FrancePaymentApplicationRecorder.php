@@ -15,37 +15,61 @@ namespace App\Services\EDocument\Standards\France;
 use App\Jobs\EDocument\RecordFranceEReportingPayment;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Paymentable;
 
 class FrancePaymentApplicationRecorder
 {
+    public const MOVEMENT_APPLIED = 'applied';
+
+    public const MOVEMENT_CREDIT_APPLIED = 'credit_applied';
+
+    public const MOVEMENT_REFUNDED = 'refunded';
+
+    public const MOVEMENT_DELETED = 'deleted';
+
     public function record(Payment $payment, Invoice $invoice): void
     {
-        if (! $this->shouldRecord($payment, $invoice)) {
+        $paymentable = $this->paymentable($payment, $invoice);
+        $movementAmount = $paymentable?->amount
+            ?? data_get($invoice, 'pivot.amount', $payment->applied ?: $payment->amount ?: 0);
+
+        $this->recordMovement(
+            payment: $payment,
+            invoice: $invoice,
+            paymentable: $paymentable,
+            movementAmount: $movementAmount,
+            movementDate: $this->paymentableDate($paymentable) ?: ($payment->date ?: now()->toDateString()),
+        );
+    }
+
+    public function recordMovement(
+        Payment $payment,
+        Invoice $invoice,
+        ?Paymentable $paymentable,
+        int|float|string $movementAmount,
+        ?string $movementDate = null,
+        string $movementType = self::MOVEMENT_APPLIED,
+    ): void {
+        if (! $this->shouldRecord($payment, $invoice, $movementAmount, $movementType)) {
             return;
         }
+
+        $sourceDate = $this->resolveMovementDate($payment, $paymentable, $movementDate, $movementType);
 
         RecordFranceEReportingPayment::dispatch(
             $payment->id,
             $payment->company->db,
             $invoice->id,
+            $paymentable?->id,
+            (string) $movementAmount,
+            $sourceDate,
+            $movementType,
         )->afterCommit();
     }
 
-    private function shouldRecord(Payment $payment, Invoice $invoice): bool
+    private function shouldRecord(Payment $payment, Invoice $invoice, int|float|string $movementAmount, string $movementType): bool
     {
-        if (! $payment->company || $payment->is_deleted || $invoice->is_deleted) {
-            return false;
-        }
-
-        if (! in_array($payment->status_id, [Payment::STATUS_COMPLETED], true)) {
-            return false;
-        }
-
-        if (! $this->invoiceIsPaidInFull($invoice)) {
-            return false;
-        }
-
-        if (! $invoice->client) {
+        if (! $payment->company || ! $invoice->client) {
             return false;
         }
 
@@ -53,14 +77,90 @@ class FrancePaymentApplicationRecorder
             $invoice->client->setRelation('company', $payment->company);
         }
 
-        return $invoice->client->reportableFrTransaction();
+        if (! $invoice->client->reportableFrTransaction()) {
+            return false;
+        }
+
+        if ($this->isZero($movementAmount)) {
+            return false;
+        }
+
+        if ($payment->is_deleted && $movementType !== self::MOVEMENT_DELETED) {
+            return false;
+        }
+
+        if ($invoice->is_deleted && ! in_array($movementType, [self::MOVEMENT_REFUNDED, self::MOVEMENT_DELETED], true)) {
+            return false;
+        }
+
+        return $this->paymentStatusIsRecordable($payment, $movementType);
     }
 
-    private function invoiceIsPaidInFull(Invoice $invoice): bool
+    private function paymentStatusIsRecordable(Payment $payment, string $movementType): bool
     {
-        $invoice = $invoice->exists ? ($invoice->fresh() ?? $invoice) : $invoice;
+        return match ($movementType) {
+            self::MOVEMENT_REFUNDED => in_array($payment->status_id, [
+                Payment::STATUS_COMPLETED,
+                Payment::STATUS_PARTIALLY_REFUNDED,
+                Payment::STATUS_REFUNDED,
+            ], true),
+            self::MOVEMENT_DELETED => in_array($payment->status_id, [
+                Payment::STATUS_COMPLETED,
+                Payment::STATUS_PARTIALLY_REFUNDED,
+                Payment::STATUS_REFUNDED,
+                Payment::STATUS_CANCELLED,
+            ], true),
+            default => (int) $payment->status_id === Payment::STATUS_COMPLETED,
+        };
+    }
 
-        return (int) $invoice->status_id === Invoice::STATUS_PAID
-            || (float) $invoice->balance <= 0.0;
+    private function paymentable(Payment $payment, Invoice $invoice): ?Paymentable
+    {
+        if (! $payment->exists || ! $invoice->exists) {
+            return null;
+        }
+
+        return Paymentable::withTrashed()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_id', $invoice->id)
+            ->whereIn('paymentable_type', ['invoices', Invoice::class])
+            ->latest('id')
+            ->first();
+    }
+
+    private function resolveMovementDate(Payment $payment, ?Paymentable $paymentable, ?string $movementDate, string $movementType): string
+    {
+        $paymentableDate = $this->paymentableDate($paymentable);
+
+        if ($this->movementTypeUsesPaymentableDate($movementType) && $paymentableDate) {
+            return $paymentableDate;
+        }
+
+        if (! is_null($movementDate) && trim($movementDate) !== '') {
+            return $movementDate;
+        }
+
+        return $paymentableDate ?: ($payment->date ?: now()->toDateString());
+    }
+
+    private function movementTypeUsesPaymentableDate(string $movementType): bool
+    {
+        return in_array($movementType, [self::MOVEMENT_APPLIED, self::MOVEMENT_CREDIT_APPLIED], true);
+    }
+
+    private function paymentableDate(?Paymentable $paymentable): ?string
+    {
+        if (! $paymentable?->created_at) {
+            return null;
+        }
+
+        return is_numeric($paymentable->created_at)
+            ? now()->setTimestamp((int) $paymentable->created_at)->toDateString()
+            : (string) $paymentable->created_at;
+    }
+
+    private function isZero(int|float|string $amount): bool
+    {
+        return round((float) $amount, 2) == 0.0;
     }
 }

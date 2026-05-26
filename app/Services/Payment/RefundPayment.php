@@ -17,10 +17,12 @@ use App\Utils\Ninja;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Paymentable;
 use App\Models\Activity;
 use App\Exceptions\PaymentRefundFailed;
 use App\Jobs\Payment\EmailRefundPayment;
 use App\Repositories\ActivityRepository;
+use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
 use App\Listeners\Payment\PaymentTransactionEventEntry;
 
 class RefundPayment
@@ -348,6 +350,26 @@ class RefundPayment
                                   ->service()
                                   ->updateBalanceAndPaidToDate($refunded_invoice['amount'], -1 * $refunded_invoice['amount'])
                                   ->save();
+
+                $invoice->loadMissing(['client.country', 'client.company']);
+
+                if ($invoice->client?->reportableFrTransaction()) {
+                    $paymentable = Paymentable::withTrashed()
+                        ->where('payment_id', $this->payment->id)
+                        ->where('paymentable_id', $invoice->id)
+                        ->whereIn('paymentable_type', ['invoices', Invoice::class])
+                        ->latest('id')
+                        ->first();
+
+                    app(FrancePaymentApplicationRecorder::class)->recordMovement(
+                        payment: $this->payment,
+                        invoice: $invoice,
+                        paymentable: $paymentable,
+                        movementAmount: -1 * $refunded_invoice['amount'],
+                        movementDate: $this->refund_data['date'] ?? now()->toDateString(),
+                        movementType: FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
+                    );
+                }
 
                 if ($invoice->is_deleted) {
                     $invoice->delete();

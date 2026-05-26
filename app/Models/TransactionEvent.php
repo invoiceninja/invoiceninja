@@ -91,6 +91,8 @@ class TransactionEvent extends StaticModel
 
     public const FR_REPORTING_STATUS_FAILED = 4;
 
+    public const FR_REPORTING_STATUS_DEFERRED = 5;
+
     public const TAX_REPORTING_EVENTS = [
         self::INVOICE_UPDATED,
         self::PAYMENT_REFUNDED,

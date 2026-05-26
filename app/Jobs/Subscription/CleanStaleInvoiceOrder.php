@@ -52,7 +52,13 @@ class CleanStaleInvoiceOrder implements ShouldQueue
         foreach (MultiDB::$dbs as $db) {
             MultiDB::setDB($db);
 
-            $this->run($repo);
+            try {
+                $this->run($repo);
+            }
+            catch(\Throwable $e) {
+                nlog("Error cleaning stale invoices: " . $e->getMessage());
+                app('sentry')->captureException($e);
+            }
 
             \DB::connection($db)->table('password_resets')->where('created_at', '<', now()->subHours(12))->delete();
 

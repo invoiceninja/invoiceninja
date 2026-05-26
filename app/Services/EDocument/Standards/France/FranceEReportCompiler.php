@@ -22,6 +22,7 @@ use App\DataMapper\FranceEReporting\PartyData;
 use App\DataMapper\FranceEReporting\PaymentReportData;
 use App\DataMapper\FranceEReporting\PublicIdentifierData;
 use App\DataMapper\FranceEReporting\TransactionReportData;
+use App\Jobs\EDocument\RecordFranceEReportingPayment;
 use App\Models\Company;
 use App\Models\TransactionEvent;
 use Carbon\CarbonImmutable;
@@ -58,7 +59,9 @@ class FranceEReportCompiler
                     ->orWhere('payment_status', TransactionEvent::FR_REPORTING_STATUS_FAILED);
             })
             ->orderBy('id')
-            ->get();
+            ->get()
+            ->filter(fn (TransactionEvent $event): bool => $this->isSourceEventForSubmission($event, $submissionEventId))
+            ->values();
     }
 
     /**
@@ -153,11 +156,29 @@ class FranceEReportCompiler
                 TransactionEvent::FR_VAT_EXCLUDED_PAYMENT,
             ],
             TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE => [
+                TransactionEvent::FR_B2C_TRANSACTION,
                 TransactionEvent::FR_B2C_PAYMENT,
+                TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION,
                 TransactionEvent::FR_VAT_EXCLUDED_PAYMENT,
             ],
             default => throw new InvalidArgumentException("Unsupported France report submission event_id [{$submissionEventId}]."),
         };
+    }
+
+
+    private function isSourceEventForSubmission(TransactionEvent $event, int $submissionEventId): bool
+    {
+        if (data_get($event->payment_request, 'fr_kind') === RecordFranceEReportingPayment::KIND_MOVEMENT) {
+            return false;
+        }
+
+        $reportKind = data_get($event->payment_request, 'fr_report_kind', RecordFranceEReportingPayment::REPORT_KIND_INITIAL);
+
+        if ($submissionEventId === TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE) {
+            return $reportKind === RecordFranceEReportingPayment::REPORT_KIND_CORRECTIVE;
+        }
+
+        return $reportKind !== RecordFranceEReportingPayment::REPORT_KIND_CORRECTIVE;
     }
 
     /**
