@@ -200,7 +200,7 @@ class PayFastPaymentDriver extends BaseDriver
         return hash_equals(md5($query), $sig);
     }
 
-    public function processWebhookRequest(PaymentNotificationWebhookRequest $request, Payment $payment = null)
+    public function processWebhookRequest(PaymentNotificationWebhookRequest $request, ?Payment $payment = null)
     {
         $data = $request->all();
         // nlog("payfast");
