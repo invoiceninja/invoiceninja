@@ -691,4 +691,31 @@ class DesignApiTest extends TestCase
         $this->assertFalse((bool) $design->is_deleted);
         $this->assertNull($design->deleted_at);
     }
+
+    public function testCustomDesignFilter()
+    {
+        $custom = DesignFactory::create($this->company->id, $this->user->id);
+        $custom->name = 'CustomDesign_' . uniqid();
+        $custom->is_custom = true;
+        $custom->save();
+
+        $notCustom = DesignFactory::create($this->company->id, $this->user->id);
+        $notCustom->name = 'StandardDesign_' . uniqid();
+        $notCustom->is_custom = false;
+        $notCustom->save();
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/designs?custom=true&per_page=500')
+            ->assertStatus(200);
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($custom->hashed_id, $ids);
+        $this->assertNotContains($notCustom->hashed_id, $ids);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/designs?custom=false&per_page=500')
+            ->assertStatus(200);
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($notCustom->hashed_id, $ids);
+        $this->assertNotContains($custom->hashed_id, $ids);
+    }
 }

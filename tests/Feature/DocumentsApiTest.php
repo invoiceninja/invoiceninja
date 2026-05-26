@@ -374,4 +374,39 @@ class DocumentsApiTest extends TestCase
         $arr = $response->json();
         $this->assertArrayHasKey('documents', $arr['data'][0]);
     }
+
+    public function testCompanyDocumentsFilter()
+    {
+        Document::query()->withTrashed()->cursor()->each(fn($d) => $d->forceDelete());
+
+        $companyDoc = Document::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'name' => 'company_only.pdf',
+            'type' => 'pdf',
+        ]);
+        $this->company->documents()->save($companyDoc);
+
+        $clientDoc = Document::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'name' => 'client_only.pdf',
+            'type' => 'pdf',
+        ]);
+        $this->client->documents()->save($clientDoc);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/documents?company_documents=true&per_page=200')
+            ->assertStatus(200);
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($companyDoc->hashed_id, $ids);
+        $this->assertNotContains($clientDoc->hashed_id, $ids);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/documents?company_documents=false&per_page=200')
+            ->assertStatus(200);
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($companyDoc->hashed_id, $ids);
+        $this->assertContains($clientDoc->hashed_id, $ids);
+    }
 }

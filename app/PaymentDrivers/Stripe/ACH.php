@@ -278,7 +278,7 @@ class ACH implements LivewireMethodInterface
 
             }
 
-            if (isset($token->meta->state) && $token->meta->state === 'authorized') {
+            if (isset($token->meta->state) && in_array($token->meta->state, ['authorized','inactive'])) {
                 return redirect()
                     ->route('client.payment_methods.show', $token->hashed_id)
                     ->with('message', __('texts.payment_method_verified'));
@@ -397,17 +397,28 @@ class ACH implements LivewireMethodInterface
             if ($cgt->gateway_type_id == GatewayType::BANK_TRANSFER) {
                 $data['payment_method_types'] = ['us_bank_account'];
             }
-
-            if (str_starts_with($cgt->token, 'ba_')) {
+            
+            /** Update the mandate on existing ba_ tokens */
+            if (str_starts_with($cgt->token, 'ba_') && $cgt->meta?->state == 'inactive') {
 
                 $data["mandate_data"] = [
                     "customer_acceptance" => [
                         "type" => "offline",
                     ],
                 ];
+                $data['setup_future_usage'] = 'off_session';
+
             }
 
             $response = $this->stripe->createPaymentIntent($data);
+
+            /** Set as mandate updated. */
+            if(str_starts_with($cgt->token, 'ba_') && $cgt->meta?->state == 'inactive') {
+                $meta = $cgt->meta;
+                $meta->state = 'authorized';
+                $cgt->meta = $meta;
+                $cgt->save();
+            }
 
             SystemLogger::dispatch($response, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->stripe->client, $this->stripe->client->company);
         } catch (\Exception $e) {

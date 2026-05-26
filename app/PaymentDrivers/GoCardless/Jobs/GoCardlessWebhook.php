@@ -45,101 +45,116 @@ class GoCardlessWebhook implements ShouldQueue
 
         $company_gateway = CompanyGateway::withTrashed()->find($this->company_gateway_id);
 
+        if (! $company_gateway) {
+            nlog("GoCardless Webhook: company_gateway {$this->company_gateway_id} not found, aborting");
+            return;
+        }
+
         $company = $company_gateway->company;
 
         foreach ($this->events as $event) {
-            nlog("GoCardless Webhook: " . $event['action']);
+            try {
+                nlog($event);
+                nlog("GoCardless Webhook: " . $event['action']);
 
-            nlog($event);
+                /** 2026-03-20: Set the correct payment type for the payment */
+                if ($event['resource_type'] == 'payments' && $event['action'] == 'created' && isset($event['details']['scheme']) && isset($event['links']['payment'])) {
 
-            /** 2026-03-20: Set the correct payment type for the payment */
-            if ($event['resource_type'] == 'payments' && $event['action'] == 'created' && isset($event['details']['scheme']) && isset($event['links']['payment'])) {
+                    $scheme = $event['details']['scheme'];
 
-                $scheme = $event['details']['scheme'];
+                    $payment_type = match ($scheme) {
+                        'ach' => PaymentType::ACH,
+                        'autogiro' => PaymentType::DIRECT_DEBIT,
+                        'bacs' => PaymentType::BACS,
+                        'becs' => PaymentType::BECS,
+                        'becs_nz' => PaymentType::DIRECT_DEBIT,
+                        'betalingsservice' => PaymentType::DIRECT_DEBIT,
+                        'faster_payments' => PaymentType::INSTANT_BANK_PAY,
+                        'pad' => PaymentType::ACSS,
+                        'pay_to' => PaymentType::DIRECT_DEBIT,
+                        'sepa_core' => PaymentType::SEPA,
+                        default => PaymentType::DIRECT_DEBIT,
+                    };
 
-                $payment_type = match ($scheme) {
-                    'ach' => PaymentType::ACH,
-                    'autogiro' => PaymentType::DIRECT_DEBIT,
-                    'bacs' => PaymentType::BACS,
-                    'becs' => PaymentType::BECS,
-                    'becs_nz' => PaymentType::DIRECT_DEBIT,
-                    'betalingsservice' => PaymentType::DIRECT_DEBIT,
-                    'faster_payments' => PaymentType::INSTANT_BANK_PAY,
-                    'pad' => PaymentType::ACSS,
-                    'pay_to' => PaymentType::DIRECT_DEBIT,
-                    'sepa_core' => PaymentType::SEPA,
-                    default => PaymentType::DIRECT_DEBIT,
-                };
+                    $payment = Payment::query()
+                                ->where('transaction_reference', $event['links']['payment'])
+                                ->where('company_id', $company->id)
+                                ->first();
 
-                $payment = Payment::query()
-                            ->where('transaction_reference', $event['links']['payment'])
-                            ->where('company_id', $company->id)
-                            ->first();
-
-                if ($payment) {
-                    $payment->type_id = $payment_type;
-                    $payment->saveQuietly();
-                }
-
-            }
-
-            if (
-                ($event['resource_type'] == 'payments' && $event['action'] == 'confirmed')
-                || $event['action'] === 'paid_out') {
-                nlog('Searching for transaction reference');
-
-                $payment = Payment::query()
-                    ->where('transaction_reference', $event['links']['payment'])
-                    ->where('company_id', $company->id)
-                    ->first();
-
-                if ($payment) {
-                    $payment->status_id = Payment::STATUS_COMPLETED;
-                    $payment->save();
-                    nlog('GoCardless completed');
-                } else {
-                    nlog('I was unable to find the payment for this reference');
-                }
-                //finalize payments on invoices here.
-            }
-
-            if ($event['action'] === 'failed' && array_key_exists('payment', $event['links'])) {
-                $payment = Payment::query()
-                    ->where('transaction_reference', $event['links']['payment'])
-                    ->where('company_id', $company->id)
-                    ->first();
-
-                if ($payment) {
-
-                    if ($payment->status_id == Payment::STATUS_PENDING) {
-                        $payment->service()->deletePayment();
+                    if ($payment) {
+                        $payment->type_id = $payment_type;
+                        $payment->saveQuietly();
                     }
 
-                    $payment->status_id = Payment::STATUS_FAILED;
-                    $payment->save();
-
-                    $payment_hash = PaymentHash::where('payment_id', $payment->id)->first();
-                    $error = '';
-
-                    if (isset($event['details']['description'])) {
-                        $error = $event['details']['description'];
-                    }
-
-                    PaymentFailedMailer::dispatch(
-                        $payment_hash,
-                        $payment->client->company,
-                        $payment->client,
-                        $error
-                    );
                 }
+
+                if (
+                    (($event['resource_type'] == 'payments' && $event['action'] == 'confirmed')
+                        || $event['action'] === 'paid_out')
+                    && array_key_exists('payment', $event['links'] ?? [])
+                ) {
+                    nlog('Searching for transaction reference');
+
+                    $payment = Payment::query()
+                        ->where('transaction_reference', $event['links']['payment'])
+                        ->where('company_id', $company->id)
+                        ->first();
+
+                    if ($payment) {
+                        /** Idempotency: skip if already in a terminal/post-completed state so retries
+                            don't regress a REFUNDED/PARTIALLY_REFUNDED payment back to COMPLETED. */
+                        if (in_array($payment->status_id, [Payment::STATUS_COMPLETED, Payment::STATUS_REFUNDED, Payment::STATUS_PARTIALLY_REFUNDED], true)) {
+                            nlog('GoCardless: payment already settled, skipping');
+                        } else {
+                            $payment->status_id = Payment::STATUS_COMPLETED;
+                            $payment->save();
+                            nlog('GoCardless completed');
+                        }
+                    } else {
+                        nlog('I was unable to find the payment for this reference');
+                    }
+                    //finalize payments on invoices here.
+                }
+
+                if ($event['action'] === 'failed' && array_key_exists('payment', $event['links'] ?? [])) {
+                    $payment = Payment::query()
+                        ->where('transaction_reference', $event['links']['payment'])
+                        ->where('company_id', $company->id)
+                        ->first();
+
+                    if ($payment && !in_array($payment->status_id, [Payment::STATUS_FAILED, Payment::STATUS_CANCELLED])) {
+
+                        if ($payment->status_id == Payment::STATUS_PENDING) {
+                            $payment->service()->deletePayment();
+                        }
+
+                        $payment->status_id = Payment::STATUS_FAILED;
+                        $payment->save();
+
+                        $payment_hash = PaymentHash::where('payment_id', $payment->id)->first();
+                        $error = '';
+
+                        if (isset($event['details']['description'])) {
+                            $error = $event['details']['description'];
+                        }
+
+                        PaymentFailedMailer::dispatch(
+                            $payment_hash,
+                            $payment->client->company,
+                            $payment->client,
+                            $error
+                        );
+                    }
+                }
+            } catch (\Throwable $e) {
+                nlog("GoCardless Webhook: failed to process event " . ($event['id'] ?? 'unknown') . " action=" . ($event['action'] ?? 'unknown') . " :: " . $e->getMessage());
             }
-
-
         }
     }
 
     public function middleware()
     {
-        return [new WithoutOverlapping("gocardless-webhook-{$this->company_key}-{$this->company_gateway_id}")];
+        return [(new WithoutOverlapping("gocardless-webhook-{$this->company_key}-{$this->company_gateway_id}"))
+            ->expireAfter(600)];
     }
 }

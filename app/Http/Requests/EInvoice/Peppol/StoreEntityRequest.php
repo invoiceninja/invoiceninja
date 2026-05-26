@@ -41,6 +41,26 @@ class StoreEntityRequest extends FormRequest
     public function rules(): array
     {
         $isSG = $this->input('country') == '702' || $this->country_id == 702;
+        $isFRBusiness = $this->input('country') === 'FR' && $this->input('classification') !== 'individual';
+
+        $id_number_rules = [
+            Rule::requiredIf(fn() => $this->input('classification') === 'individual' || $isSG),
+            'nullable',
+        ];
+
+        if ($isFRBusiness) {
+            $id_number_rules[] = function ($attribute, $value, $fail) {
+                if ($value === null || $value === '') {
+                    return;
+                }
+
+                $siret = preg_replace("/[^0-9]/", "", (string) $value);
+
+                if (! (new \App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveIdentifierValidator())->validFormat('FR:SIRET', $siret)) {
+                    $fail('When supplied, id_number must be a valid 14-digit SIRET (FR:SIRET). The SIREN is derived from the VAT number.');
+                }
+            };
+        }
 
         return [
             'party_name' => ['required', 'string'],
@@ -55,7 +75,7 @@ class StoreEntityRequest extends FormRequest
             'tenant_id' => ['required'],
             'classification' => ['required', 'in:business,individual'],
             'vat_number' => [Rule::requiredIf(fn() => $this->input('classification') !== 'individual' && !$isSG)],
-            'id_number' => [Rule::requiredIf(fn() => $this->input('classification') === 'individual' || $isSG)],
+            'id_number' => $id_number_rules,
             'c5_signer_name' => [Rule::requiredIf($isSG), 'nullable', 'string', 'min:2', 'max:64'],
             'c5_signer_email' => [Rule::requiredIf($isSG), 'nullable', 'email'],
         ];

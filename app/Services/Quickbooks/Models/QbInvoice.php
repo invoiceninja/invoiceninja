@@ -22,9 +22,12 @@ use App\Services\Quickbooks\QuickbooksService;
 use App\Services\Quickbooks\Transformers\InvoiceTransformer;
 use App\Services\Quickbooks\Transformers\PaymentTransformer;
 use App\Utils\BcMath;
+use App\Utils\Traits\MakesHash;
 
 class QbInvoice implements SyncInterface
 {
+    use MakesHash;
+    
     protected InvoiceTransformer $invoice_transformer;
 
     protected InvoiceRepository $invoice_repository;
@@ -174,7 +177,7 @@ class QbInvoice implements SyncInterface
                 } else {
                     $result = $this->service->sdk->Add($qb_invoice);
 
-                    $sync = new InvoiceSync();
+                    $sync = $invoice->sync ?? new InvoiceSync();
                     $sync->qb_id = data_get($result, 'Id') ?? data_get($result, 'Id.value');
                     $invoice->sync = $sync;
                     $invoice->saveQuietly();
@@ -607,6 +610,7 @@ class QbInvoice implements SyncInterface
         if ($search->count() == 0) {
             $invoice = InvoiceFactory::create($this->service->company->id, $this->service->company->owner()->id);
             $invoice->client_id = (int) $client_id;
+            $invoice->design_id = $this->decodePrimaryKey($this->service->company->settings->invoice_design_id);
 
             $sync = new InvoiceSync();
             $sync->qb_id = $id;
@@ -699,6 +703,10 @@ class QbInvoice implements SyncInterface
             $invoice = $invoice->calc()->getInvoice()->service()->markSent()->applyNumber()->createInvitations()->save();
 
             foreach ($payment_ids as $payment_id) {
+
+                if(!$payment_id) {  
+                    continue;
+                }
 
                 $payment = $this->service->sdk->FindById('Payment', $payment_id);
 

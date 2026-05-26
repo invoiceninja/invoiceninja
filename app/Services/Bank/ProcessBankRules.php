@@ -279,6 +279,18 @@ class ProcessBankRules extends AbstractService
 
             foreach ($bank_transaction_rule['rules'] as $rule) {
 
+                if ($rule['search_key'] == 'participant') {
+                    if ($this->matchStringOperator($this->bank_transaction->participant ?? '', $rule['value'] ?? '', $rule['operator'] ?? '')) {
+                        $matches++;
+                    }
+                }
+
+                if ($rule['search_key'] == 'participant_name') {
+                    if ($this->matchStringOperator($this->bank_transaction->participant_name ?? '', $rule['value'] ?? '', $rule['operator'] ?? '')) {
+                        $matches++;
+                    }
+                }
+
                 if ($rule['search_key'] == 'description') {
                     if ($this->matchStringOperator($this->bank_transaction->description ?? '', $rule['value'] ?? '', $rule['operator'] ?? '')) {
                         $matches++;

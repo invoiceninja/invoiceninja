@@ -296,6 +296,17 @@ trait GeneratesCounter
      */
     public function getNextProjectNumber(Project $project): string
     {
+        if (! $project->client_id) {
+            $this->resetCompanyCounters($project->company);
+
+            $counter = $project->company->settings->project_number_counter;
+            $project_number = $this->checkEntityNumber(Project::class, $project, $counter, $project->company->settings->counter_padding, $project->company->settings->project_number_pattern);
+
+            $this->incrementCounter($project->company, 'project_number_counter');
+
+            return $this->replaceUserVars($project, $project_number);
+        }
+
         $entity_number = $this->getNextEntityNumber(Project::class, $project->client, false);
 
         return $this->replaceUserVars($project, $entity_number);

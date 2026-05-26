@@ -124,6 +124,22 @@ class CreditFilters extends QueryFilters
         });
     }
 
+    /**
+     * Comparable `date` / `due_date` filters. Canonical prefix
+     * `op:value`; a bare date keeps `>=`. `date` is a DATE column
+     * (comparableDate); `due_date` is DATETIME (comparableDatetime —
+     * index-safe per-calendar-day range).
+     */
+    public function date(string $date = ''): Builder
+    {
+        return $this->comparableDate('date', $date, '>=');
+    }
+
+    public function due_date(string $date = ''): Builder
+    {
+        return $this->comparableDatetime('due_date', $date, '>=');
+    }
+
     public function number(string $number = ''): Builder
     {
         if (strlen($number) == 0) {

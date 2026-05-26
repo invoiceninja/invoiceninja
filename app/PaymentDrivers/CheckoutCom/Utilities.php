@@ -201,6 +201,20 @@ trait Utilities
 
     private function processPendingPayment($_payment)
     {
+        if (isset($_payment['id'])) {
+            $data = [
+                'checkout_payment_id' => $_payment['id'],
+            ];
+        
+            if (isset($_payment['_links']['redirect']['href'])) {
+                $data['checkout_redirect_url'] = $_payment['_links']['redirect']['href'];
+            }
+        
+            $paymentHash = $this->getParent()->payment_hash;
+            $paymentHash->data = array_merge((array) $paymentHash->data, $data);
+            $paymentHash->save();
+        }
+        
         // Legacy Frames: 3DS redirect — the response contains a redirect link.
         // This must be checked first as legacy pending responses also have an 'id'.
         if (isset($_payment['_links']['redirect']['href'])) {

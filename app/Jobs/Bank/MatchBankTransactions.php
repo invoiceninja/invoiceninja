@@ -26,6 +26,8 @@ use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Paymentable;
+use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
@@ -378,6 +380,33 @@ class MatchBankTransactions implements ShouldQueue
             $payment->invoices()->attach($attachable_invoice['id'], [
                 'amount' => $attachable_invoice['amount'],
             ]);
+
+            $invoice = Invoice::withTrashed()->find($attachable_invoice['id']);
+
+            if ($invoice) {
+                try {
+                    $invoice->loadMissing(['client.country', 'client.company']);
+
+                    if ($invoice->client?->reportableFrTransaction()) {
+                        $paymentable = Paymentable::withTrashed()
+                            ->where('payment_id', $payment->id)
+                            ->where('paymentable_id', $attachable_invoice['id'])
+                            ->where('paymentable_type', 'invoices')
+                            ->latest('id')
+                            ->first();
+
+                        app(FrancePaymentApplicationRecorder::class)->recordMovement(
+                            payment: $payment,
+                            invoice: $invoice,
+                            paymentable: $paymentable,
+                            movementAmount: $attachable_invoice['amount'],
+                            movementDate: $payment->date ? Carbon::parse($payment->date)->toDateString() : now()->toDateString(),
+                        );
+                    }
+                } catch (\Throwable $exception) {
+                    report($exception);
+                }
+            }
         }
 
         event('eloquent.created: App\Models\Payment', $payment);

@@ -19,6 +19,7 @@ use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Paymentable;
 use App\Libraries\MultiDB;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
@@ -28,6 +29,7 @@ use App\Events\Invoice\InvoiceAutoBillFailed;
 use App\Events\Invoice\InvoiceAutoBillSuccess;
 use App\Factory\PaymentFactory;
 use App\Services\AbstractService;
+use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
 use App\Models\ClientGatewayToken;
 use App\Events\Invoice\InvoiceWasPaid;
 use App\Repositories\CreditRepository;
@@ -214,10 +216,34 @@ class AutoBillInvoice extends AbstractService
 
         $payment->invoices()->attach($this->invoice->id, ['amount' => $amount]);
 
-        $this->invoice
+        $this->invoice = $this->invoice
             ->service()
             ->setCalculatedStatus()
             ->save();
+
+        try {
+            $this->invoice->loadMissing(['client.country', 'client.company']);
+
+            if ($this->invoice->client?->reportableFrTransaction()) {
+                $paymentable = Paymentable::withTrashed()
+                    ->where('payment_id', $payment->id)
+                    ->where('paymentable_id', $this->invoice->id)
+                    ->where('paymentable_type', 'invoices')
+                    ->latest('id')
+                    ->first();
+
+                app(FrancePaymentApplicationRecorder::class)->recordMovement(
+                    payment: $payment,
+                    invoice: $this->invoice,
+                    paymentable: $paymentable,
+                    movementAmount: $amount,
+                    movementDate: $payment->date ?: now()->toDateString(),
+                    movementType: FrancePaymentApplicationRecorder::MOVEMENT_CREDIT_APPLIED,
+                );
+            }
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
 
         $current_credit = false;
 

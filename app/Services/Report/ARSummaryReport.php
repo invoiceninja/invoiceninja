@@ -23,6 +23,7 @@ use App\Libraries\MultiDB;
 use App\Export\CSV\BaseExport;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Support\Facades\App;
+use Illuminate\Database\Eloquent\Builder;
 use App\Services\Template\TemplateService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
@@ -41,6 +42,8 @@ class ARSummaryReport extends BaseExport
     private float $total = 0;
 
     private array $clients = [];
+
+    private array $client_groups = [];
 
     private string $template = '/views/templates/reports/ar_summary_report.html';
 
@@ -104,13 +107,13 @@ class ARSummaryReport extends BaseExport
             $this->input['report_keys'] = $this->report_keys;
         }
 
-        $this->csv->insertOne($this->buildHeader());
-
         if ($this->useOptimizedQuery) {
             $this->runOptimized();
         } else {
             $this->runLegacy();
         }
+
+        $this->writeCsvTables();
 
         return $this->csv->toString();
     }
@@ -127,11 +130,11 @@ class ARSummaryReport extends BaseExport
 
         $query = $this->filterByUserPermissions($query);
 
-        $query->orderBy('balance', 'desc')
+        $this->sortClientsByName($query)
             ->cursor()
             ->each(function ($client) {
                 /** @var \App\Models\Client $client */
-                $this->csv->insertOne($this->buildRow($client));
+                $this->buildRow($client);
             });
     }
 
@@ -150,7 +153,7 @@ class ARSummaryReport extends BaseExport
 
         // Process clients in chunks to avoid whereIn() SQL limits
         // For 100,000 clients, this creates 100 chunks with 1 query each
-        $query->orderBy('balance', 'desc')
+        $this->sortClientsByName($query)
             ->chunk($this->chunkSize, function ($clientChunk) {
                 $clientIds = $clientChunk->pluck('id')->toArray();
 
@@ -164,11 +167,19 @@ class ARSummaryReport extends BaseExport
                 // Build rows from cached data
                 foreach ($clientChunk as $client) {
                     /** @var \App\Models\Client $client */
-                    $this->csv->insertOne($this->buildRowOptimized($client, $agingData));
+                    $this->buildRowOptimized($client, $agingData);
                 }
 
                 return true; // Continue to next chunk
             });
+    }
+
+    private function sortClientsByName(Builder $query): Builder
+    {
+        return $query
+            ->reorder()
+            ->orderBy('name', 'ASC')
+            ->orderBy('id', 'ASC');
     }
 
     public function getPdf()
@@ -179,6 +190,7 @@ class ARSummaryReport extends BaseExport
 
         $data = [
             'clients' => $this->clients,
+            'client_groups' => array_values($this->client_groups),
             'company_logo' => $this->company->present()->logo(),
             'company_name' => $this->company->present()->name(),
             'created_on' => $this->translateDate(now()->format('Y-m-d'), $this->company->date_format(), $this->company->locale()),
@@ -276,45 +288,33 @@ class ARSummaryReport extends BaseExport
     /**
      * Build row using pre-fetched aging data (optimized).
      */
-    private function buildRowOptimized(Client $client, Collection $agingData): array
+    private function buildRowOptimized(Client $client, Collection $agingData): ?array
     {
         $data = $agingData->get($client->id);
 
-        // If no invoices for this client, use zeros
-        if (!$data) {
-            $row = [
-                $client->present()->name(),
-                $client->number,
-                $client->id_number,
-                Number::formatMoney(0, $this->company),
-                Number::formatMoney(0, $this->company),
-                Number::formatMoney(0, $this->company),
-                Number::formatMoney(0, $this->company),
-                Number::formatMoney(0, $this->company),
-                Number::formatMoney(0, $this->company),
-                Number::formatMoney(0, $this->company),
-            ];
-        } else {
-            $row = [
-                $client->present()->name(),
-                $client->number,
-                $client->id_number,
-                Number::formatMoney($data->current, $this->company),
-                Number::formatMoney($data->age_30, $this->company),
-                Number::formatMoney($data->age_60, $this->company),
-                Number::formatMoney($data->age_90, $this->company),
-                Number::formatMoney($data->age_120, $this->company),
-                Number::formatMoney($data->age_120_plus, $this->company),
-                Number::formatMoney($data->total, $this->company),
-            ];
+        if (!$data || (float) $data->total <= 0) {
+            return null;
         }
 
-        $this->clients[] = $row;
+        $row = [
+            $client->present()->name(),
+            $client->number,
+            $client->id_number,
+            Number::formatMoney($data->current, $client),
+            Number::formatMoney($data->age_30, $client),
+            Number::formatMoney($data->age_60, $client),
+            Number::formatMoney($data->age_90, $client),
+            Number::formatMoney($data->age_120, $client),
+            Number::formatMoney($data->age_120_plus, $client),
+            Number::formatMoney($data->total, $client),
+        ];
+
+        $this->storeClientRow($client->currency()->code, $row);
 
         return $row;
     }
 
-    private function buildRow(Client $client): array
+    private function buildRow(Client $client): ?array
     {
         $this->client = $client;
 
@@ -328,14 +328,60 @@ class ARSummaryReport extends BaseExport
             $this->getAgingAmount('90'),
             $this->getAgingAmount('120'),
             $this->getAgingAmount('120+'),
-            Number::formatMoney($this->total, $this->company),
+            Number::formatMoney($this->total, $this->client),
         ];
+
+        if ($this->total <= 0) {
+            $this->total = 0;
+
+            return null;
+        }
 
         $this->total = 0;
 
-        $this->clients[] = $row;
+        $this->storeClientRow($this->client->currency()->code, $row);
 
         return $row;
+    }
+
+    private function storeClientRow(string $currency_code, array $row): void
+    {
+        $this->clients[] = $row;
+
+        if (!isset($this->client_groups[$currency_code])) {
+            $this->client_groups[$currency_code] = [
+                'currency' => $currency_code,
+                'clients' => [],
+            ];
+        }
+
+        $this->client_groups[$currency_code]['clients'][] = $row;
+    }
+
+    private function writeCsvTables(): void
+    {
+        if (count($this->client_groups) <= 1) {
+            $this->csv->insertOne($this->buildHeader());
+
+            foreach ($this->clients as $row) {
+                $this->csv->insertOne($row);
+            }
+
+            return;
+        }
+
+        foreach (array_values($this->client_groups) as $index => $group) {
+            if ($index > 0) {
+                $this->csv->insertOne([]);
+            }
+
+            $this->csv->insertOne([ctrans('texts.currency'), $group['currency']]);
+            $this->csv->insertOne($this->buildHeader());
+
+            foreach ($group['clients'] as $row) {
+                $this->csv->insertOne($row);
+            }
+        }
     }
 
     private function getCurrent(): string

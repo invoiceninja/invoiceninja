@@ -421,6 +421,9 @@ class BaseExport
         "amount" => "payment.amount",
         "refunded" => "payment.refunded",
         "applied" => "payment.applied",
+        "applied_date" => "payment.applied_date",
+        "applied_amount" => "payment.applied_amount",
+        "applied_refunded" => "payment.applied_refunded",
         "transaction_reference" => "payment.transaction_reference",
         "currency" => "payment.currency",
         "exchange_rate" => "payment.exchange_rate",
@@ -1954,54 +1957,61 @@ class BaseExport
             $grouped[$key][] = $row;
         }
 
-        $numeric_columns = $this->detectNumericColumns($rows);
-
         $summary = [];
 
         foreach ($grouped as $group_value => $group_rows) {
             $summary_row = [];
-
+        
             foreach (array_keys($rows[0]) as $column) {
                 if ($column === $group_by) {
                     $summary_row[$column] = $group_value;
-                } elseif (isset($numeric_columns[$column]) && $numeric_columns[$column] && ! $this->isNonSummable($column)) {
-                    $summary_row[$column] = array_sum(array_column($group_rows, $column));
-                } else {
+                    continue;
+                }
+        
+                if ($this->isNonSummable($column)) {
                     $summary_row[$column] = '';
+                    continue;
+                }
+        
+                $values = array_column($group_rows, $column);
+                $numeric = array_filter($values, 'is_numeric');
+        
+                if ($numeric !== [] && count($numeric) === count($values)) {
+                    // All values numeric → aggregate.
+                    $summary_row[$column] = array_sum($numeric);
+                } else {
+                    // Non-numeric column → preserve if every row agrees, else blank.
+                    $distinct = array_unique(array_map(static fn ($v) => (string) $v, $values));
+                    $summary_row[$column] = count($distinct) === 1 ? reset($values) : '';
                 }
             }
-
+        
             $summary_row['group.count'] = count($group_rows);
             $summary[] = $summary_row;
         }
+        
+        // foreach ($grouped as $group_value => $group_rows) {
+        //     $summary_row = [];
+
+        //     foreach (array_keys($rows[0]) as $column) {
+        //         if ($column === $group_by) {
+        //             $summary_row[$column] = $group_value;
+        //         } elseif ($this->isNonSummable($column)) {
+        //             $summary_row[$column] = '';
+        //         } else {
+        //             $numeric = array_filter(
+        //                 array_column($group_rows, $column),
+        //                 'is_numeric'
+        //             );
+        //             $summary_row[$column] = $numeric === [] ? '' : array_sum($numeric);
+        //         }
+        //     }
+
+        //     $summary_row['group.count'] = count($group_rows);
+        //     $summary[] = $summary_row;
+        // }
 
         return $summary;
-    }
-
-    /**
-     * Detect which columns contain numeric values.
-     *
-     * @param array<int, array<string, mixed>> $rows
-     * @return array<string, bool>
-     */
-    protected function detectNumericColumns(array $rows): array
-    {
-        $numeric = [];
-
-        foreach (array_keys($rows[0]) as $column) {
-            foreach ($rows as $row) {
-                $value = $row[$column] ?? '';
-
-                if (empty($value)) {
-                    continue;
-                }
-
-                $numeric[$column] = is_numeric($value);
-                break;
-            }
-        }
-
-        return $numeric;
     }
 
     /**

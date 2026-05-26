@@ -378,8 +378,10 @@ class ReportGroupByTest extends TestCase
         $this->assertEquals('2', $alpha['Count']);
     }
 
-    public function testCsvNonNumericColumnsAreBlankExceptGroupKey(): void
+    public function testCsvNonNumericColumnPreservedWhenAllRowsAgree(): void
     {
+        // Single invoice for Client Alpha, grouped by status. The group has one
+        // row, so client.name is uniform across the group and must be preserved.
         Invoice::factory()->create([
             'client_id' => $this->client->id,
             'company_id' => $this->company->id,
@@ -398,17 +400,134 @@ class ReportGroupByTest extends TestCase
         ]);
 
         $csv = $export->groupedRun();
-        $this->writeArtifact('group_by_invoice_non_numeric_blank.csv', $csv);
+        $this->writeArtifact('group_by_invoice_non_numeric_preserved.csv', $csv);
 
         $rows = $this->parseCsvByFirstColumn($csv);
 
         $sent = $rows['Sent'];
 
-        // The group key (status) has a value
         $this->assertEquals('Sent', $sent['Invoice Status']);
+        // client.name is uniform across the group → preserved (was blanked under old logic).
+        $this->assertEquals('Client Alpha', $sent['Client Name']);
+    }
 
-        // client.name is auto-prepended as a forced field — should be blank since it's a non-group string
+    public function testCsvNonNumericColumnBlankedWhenRowsDiffer(): void
+    {
+        // Two clients in the same status group → client.name differs across the
+        // group → must be blanked because there is no single correct value.
+        Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 100.0,
+            'balance' => 100.0,
+            'status_id' => Invoice::STATUS_SENT,
+        ]);
+
+        Invoice::factory()->create([
+            'client_id' => $this->client2->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 200.0,
+            'balance' => 200.0,
+            'status_id' => Invoice::STATUS_SENT,
+        ]);
+
+        $export = new InvoiceExport($this->company, [
+            'date_range' => 'all',
+            'report_keys' => ['invoice.status', 'invoice.amount', 'invoice.balance'],
+            'send_email' => false,
+            'group_by' => 'invoice.status',
+            'include_deleted' => false,
+        ]);
+
+        $csv = $export->groupedRun();
+        $this->writeArtifact('group_by_invoice_non_numeric_differ.csv', $csv);
+
+        $rows = $this->parseCsvByFirstColumn($csv);
+
+        $sent = $rows['Sent'];
+
+        $this->assertEquals('Sent', $sent['Invoice Status']);
+        $this->assertEquals('300.00', $sent['Invoice Amount']);
+        // Different client names in the group → blank.
         $this->assertEquals('', $sent['Client Name']);
+    }
+
+    public function testCsvClientReportGroupByNumberPreservesName(): void
+    {
+        // The user-reported case: grouping clients by their (unique) number.
+        // Each group contains a single client, so name must render — not blank.
+        $this->client->number = 'C-0001';
+        $this->client->save();
+
+        $this->client2->number = 'C-0002';
+        $this->client2->save();
+
+        $export = new \App\Export\CSV\ClientExport($this->company, [
+            'date_range' => 'all',
+            'report_keys' => ['client.name', 'client.number', 'client.balance'],
+            'send_email' => false,
+            'group_by' => 'client.number',
+            'include_deleted' => false,
+        ]);
+
+        $csv = $export->groupedRun();
+        $this->writeArtifact('group_by_client_by_number.csv', $csv);
+
+        $rows = $this->parseCsvByFirstColumn($csv);
+
+        // Report column order is name, number, balance — so rows are keyed by name.
+        $this->assertArrayHasKey('Client Alpha', $rows);
+        $this->assertArrayHasKey('Client Beta', $rows);
+
+        $this->assertEquals('C-0001', $rows['Client Alpha']['Number']);
+        $this->assertEquals('100.00', $rows['Client Alpha']['Balance']);
+
+        $this->assertEquals('C-0002', $rows['Client Beta']['Number']);
+        $this->assertEquals('200.00', $rows['Client Beta']['Balance']);
+    }
+
+    public function testJsonNonNumericColumnPreservedWhenAllRowsAgree(): void
+    {
+        // Two invoices, same client → client.name is uniform across the status
+        // group → preserved in JSON output.
+        Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 100.0,
+            'balance' => 100.0,
+            'status_id' => Invoice::STATUS_SENT,
+        ]);
+
+        Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 200.0,
+            'balance' => 200.0,
+            'status_id' => Invoice::STATUS_SENT,
+        ]);
+
+        $export = new InvoiceExport($this->company, [
+            'date_range' => 'all',
+            'report_keys' => ['invoice.status', 'client.name', 'invoice.amount'],
+            'send_email' => false,
+            'group_by' => 'invoice.status',
+            'include_deleted' => false,
+        ]);
+
+        $result = $export->groupedReturnJson();
+        $this->writeArtifact('group_by_invoice_json_name_preserved.json', json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+        $data_rows = $this->extractJsonDataRows($result);
+        $sent_row = collect($data_rows)->first(fn ($row) => $this->getJsonCellValue($row, 'invoice.status') === 'Sent');
+
+        $this->assertNotNull($sent_row);
+        $this->assertEquals('Client Alpha', $this->getJsonCellValue($sent_row, 'client.name'));
+        $this->assertEquals('300.00', $this->getJsonCellValue($sent_row, 'invoice.amount'));
+        $this->assertEquals(2, $this->getJsonCellValue($sent_row, 'group.count'));
     }
 
     public function testCsvEmptyResultSetProducesHeaderOnly(): void
@@ -820,6 +939,244 @@ class ReportGroupByTest extends TestCase
         $this->assertEquals('1', $rows['Client Alpha']['Count']);
         $this->assertEquals('200.00', $rows['Client Beta']['Invoice Amount']);
         $this->assertEquals('1', $rows['Client Beta']['Count']);
+    }
+
+    // ---------------------------------------------------------------
+    // Mixed-type column resilience
+    //
+    // The previous detectNumericColumns() implementation classified an entire
+    // column as numeric based on the FIRST non-empty sample row, then fed the
+    // raw column to array_sum(). On PHP 8.3+ that throws
+    // "TypeError: array_sum(): Addition is not supported on type string"
+    // whenever a later row in the same column carried a non-numeric string.
+    //
+    // The free-text columns most exposed to this in production are
+    // custom_value1..4, vat_number, id_number, postal_code, phone, number,
+    // and po_number — all VARCHAR fields with no transformer-side casting.
+    // The tests below exercise that surface and document the current behaviour:
+    // mixed columns no longer throw; a column is summed only when every value
+    // is numeric; otherwise it falls into the string path (preserved if all
+    // rows agree, blanked if they differ).
+    // ---------------------------------------------------------------
+
+    public function testCsvHandlesMixedNumericAndNonNumericCustomValuesWithoutThrowing(): void
+    {
+        Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 100.0,
+            'balance' => 100.0,
+            'custom_value1' => '100',
+            'status_id' => Invoice::STATUS_SENT,
+        ]);
+
+        Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 50.0,
+            'balance' => 50.0,
+            'custom_value1' => 'not-a-number',
+            'status_id' => Invoice::STATUS_SENT,
+        ]);
+
+        $export = new InvoiceExport($this->company, [
+            'date_range' => 'all',
+            'report_keys' => ['client.name', 'invoice.amount', 'invoice.custom_value1'],
+            'send_email' => false,
+            'group_by' => 'client.name',
+            'include_deleted' => false,
+        ]);
+
+        $csv = $export->groupedRun();
+        $rows = $this->parseCsvByFirstColumn($csv);
+
+        $this->assertArrayHasKey('Client Alpha', $rows);
+        $this->assertEquals('150.00', $rows['Client Alpha']['Invoice Amount']);
+        // Mixed numeric + non-numeric: column is not fully numeric, so it falls
+        // into the string path. Values differ ('100' vs 'not-a-number') → blank.
+        // No partial sum is reported (which would be misleading).
+        $this->assertEquals('', $rows['Client Alpha']['Invoice Custom Value 1']);
+        $this->assertEquals('2', $rows['Client Alpha']['Count']);
+    }
+
+    public function testCsvAllNonNumericColumnYieldsBlank(): void
+    {
+        Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 100.0,
+            'balance' => 100.0,
+            'custom_value1' => 'alpha',
+            'status_id' => Invoice::STATUS_SENT,
+        ]);
+
+        Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 50.0,
+            'balance' => 50.0,
+            'custom_value1' => 'beta',
+            'status_id' => Invoice::STATUS_SENT,
+        ]);
+
+        $export = new InvoiceExport($this->company, [
+            'date_range' => 'all',
+            'report_keys' => ['client.name', 'invoice.amount', 'invoice.custom_value1'],
+            'send_email' => false,
+            'group_by' => 'client.name',
+            'include_deleted' => false,
+        ]);
+
+        $csv = $export->groupedRun();
+        $rows = $this->parseCsvByFirstColumn($csv);
+
+        $this->assertArrayHasKey('Client Alpha', $rows);
+        $this->assertEquals('150.00', $rows['Client Alpha']['Invoice Amount']);
+        $this->assertEquals('', $rows['Client Alpha']['Invoice Custom Value 1']);
+    }
+
+    public function testCsvFirstRowNumericLaterRowsNonNumericDoesNotThrow(): void
+    {
+        // Reproduces the exact pre-fix failure: first sample looks numeric so the
+        // column was classified summable, then array_sum hit a string in a later row.
+        Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 10.0,
+            'custom_value2' => '42',
+            'status_id' => Invoice::STATUS_SENT,
+        ]);
+
+        Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 20.0,
+            'custom_value2' => 'see-notes',
+            'status_id' => Invoice::STATUS_SENT,
+        ]);
+
+        Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 30.0,
+            'custom_value2' => '1,000.00', // locale-formatted, not is_numeric
+            'status_id' => Invoice::STATUS_SENT,
+        ]);
+
+        $export = new InvoiceExport($this->company, [
+            'date_range' => 'all',
+            'report_keys' => ['client.name', 'invoice.amount', 'invoice.custom_value2'],
+            'send_email' => false,
+            'group_by' => 'client.name',
+            'include_deleted' => false,
+        ]);
+
+        // Pre-fix: TypeError. Post-fix: completes cleanly.
+        $csv = $export->groupedRun();
+        $rows = $this->parseCsvByFirstColumn($csv);
+
+        $this->assertEquals('60.00', $rows['Client Alpha']['Invoice Amount']);
+        // Column has '42', 'see-notes', '1,000.00' — not all numeric, so the
+        // column falls into the string path. Values differ → blank.
+        $this->assertEquals('', $rows['Client Alpha']['Invoice Custom Value 2']);
+    }
+
+    /**
+     * Thesis verification: confirm that no amount-bearing column reaches
+     * groupRows() as a non-numeric string. If this test ever fails, the
+     * is_numeric() filter in groupRows() would silently drop real money
+     * from the totals, and we would need a stricter coercion strategy
+     * (e.g. (float) coercion) instead of array_filter('is_numeric').
+     */
+    public function testAmountColumnsArriveAtGroupRowsAsNumericValues(): void
+    {
+        Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 123.45,
+            'balance' => 67.89,
+            'paid_to_date' => 55.55,
+            'discount' => 5.0,
+            'partial' => 10.0,
+            'total_taxes' => 12.34,
+            'tax_rate1' => 10.0,
+            'exchange_rate' => 1.5,
+            'custom_surcharge1' => 1.0,
+            'custom_surcharge2' => 2.0,
+            'custom_surcharge3' => 3.0,
+            'custom_surcharge4' => 4.0,
+            'status_id' => Invoice::STATUS_SENT,
+            'is_amount_discount' => true,
+        ]);
+
+        $export = new InvoiceExport($this->company, [
+            'date_range' => 'all',
+            'report_keys' => [
+                'client.name',
+                'invoice.amount',
+                'invoice.balance',
+                'invoice.paid_to_date',
+                'invoice.discount',
+                'invoice.partial',
+                'invoice.total_taxes',
+                'invoice.tax_rate1',
+                'invoice.exchange_rate',
+                'invoice.custom_surcharge1',
+                'invoice.custom_surcharge2',
+                'invoice.custom_surcharge3',
+                'invoice.custom_surcharge4',
+            ],
+            'send_email' => false,
+            'group_by' => 'client.name',
+            'include_deleted' => false,
+        ]);
+
+        $export->groupedRun();
+
+        $reflection = new \ReflectionClass($export);
+        $rawRowsProp = $reflection->getProperty('raw_rows');
+        $rawRowsProp->setAccessible(true);
+        $rawRows = $rawRowsProp->getValue($export);
+
+        $this->assertNotEmpty($rawRows, 'raw_rows should be populated by groupedRun()');
+
+        $row = $rawRows[0];
+
+        $amountColumns = [
+            'invoice.amount',
+            'invoice.balance',
+            'invoice.paid_to_date',
+            'invoice.discount',
+            'invoice.partial',
+            'invoice.total_taxes',
+            'invoice.tax_rate1',
+            'invoice.exchange_rate',
+            'invoice.custom_surcharge1',
+            'invoice.custom_surcharge2',
+            'invoice.custom_surcharge3',
+            'invoice.custom_surcharge4',
+        ];
+
+        foreach ($amountColumns as $column) {
+            $this->assertArrayHasKey($column, $row, "Missing amount column {$column}");
+
+            $value = $row[$column];
+
+            $this->assertTrue(
+                is_float($value) || is_int($value) || (is_string($value) && is_numeric($value)),
+                "Amount column {$column} arrived as non-numeric type "
+                . gettype($value) . ' value=' . var_export($value, true)
+                . '. The is_numeric() filter in groupRows() would silently drop this value.'
+            );
+        }
     }
 
     public function testNormalRunUnchangedWhenGroupByAbsent(): void

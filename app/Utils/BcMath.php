@@ -34,15 +34,36 @@ class BcMath
      * @param  mixed $number
      * @return string
      */
+    // private static function normalizeNumberX(mixed $number): string
+    // {
+    //     if ($number === null || $number === '') {
+    //         return '0';
+    //     } elseif (is_float($number)) {
+    //         return rtrim(rtrim(number_format($number, 10, '.', ''), '0'), '.');
+    //     }
+
+    //     return (string) $number;
+    // }
+
     private static function normalizeNumber(mixed $number): string
     {
         if ($number === null || $number === '') {
             return '0';
-        } elseif (is_float($number)) {
-            return rtrim(rtrim(number_format($number, 10, '.', ''), '0'), '.');
         }
 
-        return (string) $number;
+        if (is_float($number) && !is_finite($number)) {
+            return '0';
+        }
+
+        $str = (string) $number;
+
+        if (stripos($str, 'e') !== false) {
+            // Float was small/large enough that PHP used scientific notation.
+            // Convert to fixed-point without padding extra precision.
+            return rtrim(rtrim(sprintf('%.20F', (float) $str), '0'), '.') ?: '0';
+        }
+
+        return $str;
     }
     /**
      * Add two numbers using bcmath

@@ -295,11 +295,6 @@ class BaseRepository
             $ii->saveQuietly();
         }
 
-        /* Distribute invoice-level taxes to line items for QuickBooks sync */
-        if ($model instanceof Invoice && $model->company->shouldPushToQuickbooks('invoice')) {
-            $model->service()->distributeInvoiceLevelTaxes();
-        }
-
         /* Recalculate invoice amounts */
         $model = $model->calc()->getInvoice();
 
@@ -355,8 +350,6 @@ class BaseRepository
 
             /** Quickbooks Sync Logic */
             if ($qb_model_changes && $model->company->quickbooks && empty(\App\Services\Quickbooks\QuickbooksService::$importing[$model->company_id]) && $model->company->shouldPushToQuickbooks('invoice')) {
-
-                nlog("base repo changes detected => status: " . $model->status_id);
 
                 if ($model->company->quickbooks->settings->automatic_taxes) {
 

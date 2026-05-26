@@ -30,7 +30,7 @@ class ContactTokenAuth
      */
     public function handle($request, Closure $next)
     {
-        if ($request->header('X-API-TOKEN') && ($client_contact = ClientContact::with(['company'])->where('token', $request->header('X-API-TOKEN'))->first())) {
+        if ($request->header('X-API-TOKEN') && ($client_contact = ClientContact::with(['company','client'])->where('token', $request->header('X-API-TOKEN'))->first())) {
             $error = [
                 'message' => 'Authentication disabled for user.',
                 'errors' => new stdClass(),
@@ -47,7 +47,7 @@ class ContactTokenAuth
             ];
 
             //client_contact who has been disabled
-            if ($client_contact->is_locked) {
+            if ($client_contact->is_locked || $client_contact->client->is_deleted) {
                 return response()->json($error, 403);
             }
 

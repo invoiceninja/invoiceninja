@@ -32,6 +32,7 @@
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_recurring_invoices"
         - $ref: "#/components/parameters/client_id"
         - $ref: "#/components/parameters/created_at"
         - $ref: "#/components/parameters/updated_at"
@@ -62,13 +63,6 @@
           schema:
             type: string
           example: ?client_status=active,paused
-        - name: sort
-          in: query
-          description: Returns the list sorted by column in ascending or descending order.
-          required: false
-          schema:
-            type: string
-          example: id|desc number|desc balance|asc 
         - name: number
           in: query
           description: |

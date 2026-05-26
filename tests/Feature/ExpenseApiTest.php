@@ -631,4 +631,37 @@ class ExpenseApiTest extends TestCase
         $arr = $response->json();
         $this->assertCount(3, $arr['data']);
     }
+
+    public function testHasInvoicesFilter()
+    {
+        $invoice = \App\Models\Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'status_id' => \App\Models\Invoice::STATUS_SENT,
+            'is_deleted' => 0,
+        ]);
+
+        $withInvoice = Expense::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'invoice_id' => $invoice->id,
+        ]);
+
+        $withoutInvoice = Expense::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'invoice_id' => null,
+        ]);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/expenses?has_invoices=client,' . $this->client->hashed_id . '&per_page=200')
+            ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($withInvoice->hashed_id, $ids);
+        $this->assertNotContains($withoutInvoice->hashed_id, $ids);
+    }
 }

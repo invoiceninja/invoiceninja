@@ -16,13 +16,5 @@
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
     </form>
 
-    @include('portal.ninja2020.gateways.includes.pay_now')
+    @include('portal.ninja2020.gateways.includes.pay_now', ['form' => 'server-response', 'type' => 'submit'])
 @endsection
-
-@push('footer')
-    <script>
-        document.getElementById('pay-now').addEventListener('click', function() {
-            document.getElementById('server-response').submit();
-        });
-    </script>
-@endpush

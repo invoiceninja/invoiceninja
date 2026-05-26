@@ -345,9 +345,15 @@ class InvoiceItemSum
 
         $this->setTotalTaxes($this->formatValue($item_tax, $this->currency->precision));
 
-        $this->item->gross_line_total = $this->getLineTotal() + $item_tax;
-
-        $this->item->tax_amount = $item_tax;
+        /**
+         * Round per-item display fields. The unrounded $item_tax is intentionally
+         * kept inside tax_collection so the per-category sum in InvoiceSum::setTaxMap()
+         * is mathematically precise (matching PEPPOL's "round once at the category
+         * boundary" rule). gross_line_total and tax_amount are display values only —
+         * they must never be summed to derive invoice totals.
+         */
+        $this->item->tax_amount = round($item_tax, $this->currency->precision);
+        $this->item->gross_line_total = round($this->getLineTotal() + $item_tax, $this->currency->precision);
         $this->item->net_cost = $this->item->cost;
 
         return $this;
@@ -543,8 +549,8 @@ class InvoiceItemSum
                 $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total, $amount, $this->item->tax_id ?? '1');
             }
 
-            $this->item->gross_line_total = $this->getLineTotal() + $item_tax;
-            $this->item->tax_amount = $item_tax;
+            $this->item->tax_amount = round($item_tax, $this->currency->precision);
+            $this->item->gross_line_total = round($this->getLineTotal() + $item_tax, $this->currency->precision);
             $this->item->net_cost = $this->item->cost;
             $this->line_items[$key] = $this->item;
 

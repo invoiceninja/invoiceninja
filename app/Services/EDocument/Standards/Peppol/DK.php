@@ -16,11 +16,6 @@ use App\Services\EDocument\Gateway\MutatorUtil;
 
 class DK extends BaseCountry
 {
-    public function getRoutingRules(): ?array
-    {
-        return ["B+G", "DK:DIGST", "DK:ERST", "DK:DIGST"];
-    }
-
     public function senderMutations(
         mixed $p_invoice,
         mixed $invoice,

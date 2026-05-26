@@ -218,8 +218,39 @@ class HtmlEngine
         $data['$location.custom2'] = &$data['$location2'];
         $data['$location.custom3'] = &$data['$location3'];
         $data['$location.custom4'] = &$data['$location4'];
-
         $data['$term_days'] = ['value' => '', 'label' => ctrans('texts.payment_terms')];
+
+        /** Default empty vars */
+        $data['$swiss_qr']                  = ['value' => '', 'label' => ''];
+        $data['$swiss_qr_raw']              = ['value' => '', 'label' => ''];
+        $data['$sepa_qr_code']              = ['value' => '', 'label' => ''];
+        $data['$sepa_qr_code_raw']          = ['value' => '', 'label' => ''];
+        $data['$show_paid_stamp']           = ['value' => 'none', 'label' => ''];
+        $data['$invoice.vendor']            = ['value' => '', 'label' => ctrans('texts.vendor_name')];
+        $data['$approveButton']             = ['value' => '', 'label' => ctrans('texts.approve')];
+        $data['$quote.reference']           = ['value' => '', 'label' => ctrans('texts.reference')];
+        $data['$contact.signature']         = ['value' => '', 'label' => ctrans('texts.signature')];
+        $data['$vendor_name']                = ['value' => '', 'label' => ctrans('texts.vendor_name')];
+        $data['$vendor.name']               = ['value' => '', 'label' => ctrans('texts.vendor_name')];
+        $data['$vendor.number']             = ['value' => '', 'label' => ctrans('texts.vendor_number')];
+        $data['$vendor.address1']           = ['value' => '', 'label' => ctrans('texts.address1')];
+        $data['$vendor.address2']           = ['value' => '', 'label' => ctrans('texts.address2')];
+        $data['$vendor_address']            = ['value' => '', 'label' => ctrans('texts.address')];
+        $data['$vendor.address']            = ['value' => '', 'label' => ctrans('texts.address')];
+        $data['$vendor.city']               = ['value' => '', 'label' => ctrans('texts.city')];
+        $data['$vendor.state']              = ['value' => '', 'label' => ctrans('texts.state')];
+        $data['$vendor.postal_code']        = ['value' => '', 'label' => ctrans('texts.postal_code')];
+        $data['$vendor.country']            = ['value' => '', 'label' => ctrans('texts.country')];
+        $data['$vendor.country_2']          = ['value' => '', 'label' => ctrans('texts.country')];
+        $data['$vendor.city_state_postal']  = ['value' => '', 'label' => ctrans('texts.city_state_postal')];
+        $data['$vendor.postal_city_state']  = ['value' => '', 'label' => ctrans('texts.postal_city_state')];
+        $data['$vendor.postal_city']        = ['value' => '', 'label' => ctrans('texts.postal_city')];
+        $data['$vendor.phone']              = ['value' => '', 'label' => ctrans('texts.phone')];
+        $data['$vendor.website']            = ['value' => '', 'label' => ctrans('texts.website')];
+        $data['$vendor.vat_number']         = ['value' => '', 'label' => ctrans('texts.vat_number')];
+        $data['$vendor.id_number']          = ['value' => '', 'label' => ctrans('texts.id_number')];
+        $data['$vendor.public_notes']       = ['value' => '', 'label' => ctrans('texts.public_notes')];
+        /** Default empty vars end */
 
         if ($this->entity_string == 'invoice' || $this->entity_string == 'recurring_invoice') {
 

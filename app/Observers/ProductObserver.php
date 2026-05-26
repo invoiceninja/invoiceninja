@@ -15,6 +15,7 @@ namespace App\Observers;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Product;
 use App\Models\Webhook;
+use App\Services\Quickbooks\QuickbooksBatchCollector;
 
 class ProductObserver
 {
@@ -44,10 +45,11 @@ class ProductObserver
            && $product->company->shouldPushToQuickbooks('product')
            && empty(\App\Services\Quickbooks\QuickbooksService::$importing[$product->company_id])) {
 
-            \App\Jobs\Quickbooks\PushToQuickbooks::dispatch(
+            QuickbooksBatchCollector::collect(
                 'product',
                 $product->id,
-                $product->company->db
+                $product->company->db,
+                $product->company_id,
             );
 
         }
@@ -84,10 +86,11 @@ class ProductObserver
            && $product->company->shouldPushToQuickbooks('product')
            && empty(\App\Services\Quickbooks\QuickbooksService::$importing[$product->company_id])) {
 
-            \App\Jobs\Quickbooks\PushToQuickbooks::dispatch(
+            QuickbooksBatchCollector::collect(
                 'product',
                 $product->id,
-                $product->company->db
+                $product->company->db,
+                $product->company_id,
             );
 
         }

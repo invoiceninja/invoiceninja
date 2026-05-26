@@ -252,7 +252,10 @@ class Email implements ShouldQueue
 
     private function incrementEmailCounter(): void
     {
-        if (in_array($this->email_object->settings->email_sending_method, ['default','mailgun','postmark'])) {
+        if (in_array($this->mailer, ['default','mailgun','postmark','ses'])
+            && !$this->client_postmark_secret
+            && !$this->client_mailgun_secret
+            && !$this->client_ses_secret) {
             Cache::increment("email_quota" . $this->company->account->key);
         }
     }
@@ -314,30 +317,29 @@ class Email implements ShouldQueue
 
                 $message = "Recipient {$email} has been suppressed and cannot receive emails from you.";
 
-                $this->fail();
                 $this->logMailError($message, $this->company->clients()->first());
                 $this->cleanUpMailers();
 
                 $this->entityEmailFailed($message);
-
+                
                 return;
             }
 
-            $this->fail();
-            $this->cleanUpMailers();
-            $this->logMailError($e->getMessage(), $this->company->clients()->first());
-
-        } catch (\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
-            nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
-            $this->fail();
             $this->cleanUpMailers();
             $this->logMailError($e->getMessage(), $this->company->clients()->first());
             return;
-        } catch (\Symfony\Component\Mime\Exception\LogicException $e) {
+            
+        } catch (\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
-            $this->fail();
             $this->cleanUpMailers();
             $this->logMailError($e->getMessage(), $this->company->clients()->first());
+            
+            return;
+        } catch (\Symfony\Component\Mime\Exception\LogicException $e) {
+            nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
+            $this->cleanUpMailers();
+            $this->logMailError($e->getMessage(), $this->company->clients()->first());
+            
             return;
         } catch (\Google\Service\Exception $e) {
 
@@ -353,12 +355,11 @@ class Email implements ShouldQueue
         } catch (\ErrorException $e) { //@todo - remove after symfony/mailer is updated with bug fix
 
             $message = "Attachment size is too large.";
-            $this->fail();
             $this->logMailError($message, $this->company->clients()->first());
             $this->cleanUpMailers();
 
             $this->entityEmailFailed($message);
-
+            
             return;
         } catch (\Exception|\RuntimeException $e) {
             nlog("Mailer failed with {$e->getMessage()}");
@@ -368,12 +369,10 @@ class Email implements ShouldQueue
             if (stripos($e->getMessage(), 'code 300') !== false || stripos($e->getMessage(), 'code 413') !== false) {
                 $message = "Either Attachment too large, or recipient has been suppressed.";
 
-                $this->fail();
                 $this->logMailError($e->getMessage(), $this->company->clients()->first());
                 $this->cleanUpMailers();
 
                 $this->entityEmailFailed($message);
-
                 return;
             }
 
@@ -403,10 +402,9 @@ class Email implements ShouldQueue
                     $message = "Unknown issue sending via Postmark, please try again later.";
                 }
 
-                $this->fail();
                 $this->entityEmailFailed($message);
                 $this->cleanUpMailers();
-
+                
                 return;
             }
 

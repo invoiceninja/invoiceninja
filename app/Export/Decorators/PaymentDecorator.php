@@ -12,6 +12,7 @@
 
 namespace App\Export\Decorators;
 
+use App\Models\Invoice;
 use App\Models\Payment;
 
 class PaymentDecorator extends Decorator implements DecoratorInterface
@@ -24,6 +25,12 @@ class PaymentDecorator extends Decorator implements DecoratorInterface
 
         if ($entity instanceof Payment) {
             $payment = $entity;
+        } elseif ($entity instanceof Invoice && $entity->relationLoaded('current_paymentable')) {
+            $paymentable = $entity->getRelation('current_paymentable');
+            if ($paymentable && $paymentable->payment) {
+                $payment = $paymentable->payment;
+                $payment->setRelation('current_paymentable', $paymentable);
+            }
         } elseif ($entity->payment) {
             $payment = $entity->payment;
         } elseif ($entity->payments()->exists()) {
@@ -52,6 +59,33 @@ class PaymentDecorator extends Decorator implements DecoratorInterface
     public function date(Payment $payment)
     {
         return $payment->date ?? '';
+    }
+
+    public function applied_date(Payment $payment)
+    {
+        $paymentable = $payment->relationLoaded('current_paymentable') ? $payment->getRelation('current_paymentable') : null;
+
+        if (! $paymentable) {
+            return '';
+        }
+
+        $ts = $paymentable->created_at;
+
+        return $ts ? \Carbon\Carbon::createFromTimestamp($ts)->setTimezone($payment->company->timezone()->name)->format('Y-m-d') : '';
+    }
+
+    public function applied_amount(Payment $payment)
+    {
+        $paymentable = $payment->relationLoaded('current_paymentable') ? $payment->getRelation('current_paymentable') : null;
+
+        return $paymentable ? $paymentable->amount : '';
+    }
+
+    public function applied_refunded(Payment $payment)
+    {
+        $paymentable = $payment->relationLoaded('current_paymentable') ? $payment->getRelation('current_paymentable') : null;
+
+        return $paymentable ? $paymentable->refunded : '';
     }
 
     public function amount(Payment $payment)

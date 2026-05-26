@@ -69,7 +69,12 @@ class PeppolLineBuilder
         $taxCalculator = $this->peppol->getTaxCalculator();
         $currencyCode = $invoice->client->currency()->code;
 
-        foreach ($invoice->line_items as $key => $item) {
+        $items = array_values(array_filter(
+            (array) $invoice->line_items,
+            fn($item) => !$this->isBlankItem($item)
+        ));
+
+        foreach ($items as $key => $item) {
 
             $_item = $this->buildItem($item, $taxCalculator);
 
@@ -86,7 +91,7 @@ class PeppolLineBuilder
             // Quantity
             if ($isCreditNote) {
                 $qty = new \InvoiceNinja\EInvoice\Models\Peppol\QuantityType\CreditedQuantity();
-                $qty->amount = (string) ($this->peppol->isCreditNoteDocument() ? abs($item->quantity) : $item->quantity);
+                $qty->amount = (string) $this->peppol->normalizeAmount($item->quantity);
                 $qty->unitCode = $item->unit_code ?? 'C62';
                 $line->CreditedQuantity = $qty;
             } else {
@@ -103,7 +108,7 @@ class PeppolLineBuilder
 
             $lea = new LineExtensionAmount();
             $lea->currencyID = $currencyCode;
-            $lea->amount = (string) ($isCreditNote ? abs($lineTotal) : $lineTotal);
+            $lea->amount = (string) $this->peppol->normalizeAmount($lineTotal);
             $line->LineExtensionAmount = $lea;
             $line->Item = $_item;
 
@@ -127,7 +132,7 @@ class PeppolLineBuilder
     {
         $_item = new Item();
         $_item->Name = strlen($item->product_key ?? '') >= 1 ? $item->product_key : ctrans('texts.item');
-        $_item->Description = $item->notes;
+        $_item->Description = $item->notes ?? '';
 
         $ctc = new ClassifiedTaxCategory();
         $ctc->ID = new ID();
@@ -256,5 +261,31 @@ class PeppolLineBuilder
 
         return ($item->cost * $item->quantity) * ($item->discount / 100);
 
+    }
+
+    /**
+     * A line item is "blank" — and dropped from the Peppol document — when it
+     * has neither a billable amount nor a usable tax-name signal. Such rows
+     * cannot produce a valid Peppol line and contribute nothing to totals,
+     * so dropping them is loss-less.
+     *
+     * Why both conditions: missing tax_name1 means the line gets a
+     * synthesised category code on the line (PeppolTaxCalculator::getTaxType)
+     * but no matching VAT breakdown entry (PeppolTaxCalculator::getAllUsedTaxes
+     * filters by `strlen(tax_name1) > 1`), so BR-S-01 / BR-Z-01 / BR-E-01 /
+     * BR-AE-01 / BR-K-01 / BR-G-01 / BR-O-01 fail. Combined with cost==0,
+     * dropping the row is loss-less.
+     *
+     * A row with non-zero cost is never dropped, even if tax_name1 is empty —
+     * that row is a real Peppol-validity failure and the schematron will
+     * surface it; silently dropping would change the invoice total.
+     *
+     * Half-cent epsilon for the cost comparison matches the rounding regime
+     * used elsewhere in the builder (round($..., 2)).
+     */
+    private function isBlankItem(object $item): bool
+    {
+        return abs((float) ($item->cost ?? 0)) < 0.005
+            && strlen((string) ($item->tax_name1 ?? '')) <= 1;
     }
 }

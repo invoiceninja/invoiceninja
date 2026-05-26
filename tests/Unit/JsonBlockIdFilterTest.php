@@ -13,6 +13,7 @@
 namespace Tests\Unit;
 
 use App\Services\Pdf\JsonToSectionsAdapter;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 /**
@@ -38,9 +39,7 @@ class JsonBlockIdFilterTest extends TestCase
         $this->assertCount(4, JsonToSectionsAdapter::filterValidBlocks($blocks));
     }
 
-    /**
-     * @dataProvider dangerousIds
-     */
+    #[DataProvider('dangerousIds')]
     public function testRejectsDangerousIds(mixed $id): void
     {
         $blocks = [['id' => $id, 'type' => 'company-info']];

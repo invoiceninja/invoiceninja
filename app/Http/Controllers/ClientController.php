@@ -413,6 +413,9 @@ class ClientController extends BaseController
                 ->orderBy('id', 'desc')
                 ->first();
 
+            if (!$log) 
+                return response()->json(['message' => 'Bounce ID not found'], 400);
+
             $resolved_bounce_id = false;
 
             if ($log && ($log?->log['ID'] ?? false)) {

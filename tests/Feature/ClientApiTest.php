@@ -19,7 +19,9 @@ use App\Http\Requests\Client\StoreClientRequest;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\ClientContact;
 use App\Models\CompanyToken;
+use App\Models\GroupSetting;
 use App\Models\User;
 use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
@@ -50,6 +52,301 @@ class ClientApiTest extends TestCase
         $this->makeTestData();
 
         Model::reguard();
+    }
+
+    public function testBalanceFilter()
+    {
+        Client::where('company_id', $this->company->id)->update(['balance' => 0]);
+
+        $low = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'balance' => 50,
+        ]);
+
+        $mid = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'balance' => 100,
+        ]);
+
+        $high = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'balance' => 200,
+        ]);
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->getJson('/api/v1/clients?balance=gt:100&per_page=100')
+          ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($high->hashed_id, $ids);
+        $this->assertNotContains($mid->hashed_id, $ids);
+        $this->assertNotContains($low->hashed_id, $ids);
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->getJson('/api/v1/clients?balance=lt:100&per_page=100')
+          ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($low->hashed_id, $ids);
+        $this->assertNotContains($mid->hashed_id, $ids);
+        $this->assertNotContains($high->hashed_id, $ids);
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->getJson('/api/v1/clients?balance=eq:100&per_page=100')
+          ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($mid->hashed_id, $ids);
+        $this->assertNotContains($low->hashed_id, $ids);
+        $this->assertNotContains($high->hashed_id, $ids);
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->getJson('/api/v1/clients?balance=gte:100&per_page=100')
+          ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($mid->hashed_id, $ids);
+        $this->assertContains($high->hashed_id, $ids);
+        $this->assertNotContains($low->hashed_id, $ids);
+    }
+
+    public function testBetweenBalanceFilter()
+    {
+        Client::where('company_id', $this->company->id)->update(['balance' => 0]);
+
+        $below = Client::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'balance' => 10]);
+        $inside = Client::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'balance' => 100]);
+        $above = Client::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'balance' => 500]);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/clients?between_balance=50:200&per_page=100')
+            ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($inside->hashed_id, $ids);
+        $this->assertNotContains($below->hashed_id, $ids);
+        $this->assertNotContains($above->hashed_id, $ids);
+    }
+
+    public function testNameFilter()
+    {
+        $needle = 'UniqueNameNeedle_' . uniqid();
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'name' => $needle,
+        ]);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/clients?name=' . urlencode(substr($needle, 0, 18)) . '&per_page=100')
+            ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($client->hashed_id, $ids);
+        $this->assertNotContains($this->client->hashed_id, $ids);
+    }
+
+    public function testEmailFilter()
+    {
+        $needleEmail = 'unique_' . uniqid() . '@example.test';
+
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+        ]);
+
+        ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $client->id,
+            'email' => $needleEmail,
+            'is_primary' => 1,
+        ]);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/clients?email=' . urlencode($needleEmail) . '&per_page=100')
+            ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($client->hashed_id, $ids);
+        $this->assertNotContains($this->client->hashed_id, $ids);
+    }
+
+    public function testClientIdFilter()
+    {
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+        ]);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/clients?client_id=' . $client->hashed_id . '&per_page=100')
+            ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertSame([$client->hashed_id], $ids);
+    }
+
+    public function testIdNumberFilter()
+    {
+        $needle = 'IDN_' . uniqid();
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'id_number' => $needle,
+        ]);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/clients?id_number=' . urlencode($needle) . '&per_page=100')
+            ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertSame([$client->hashed_id], $ids);
+    }
+
+    public function testNumberFilter()
+    {
+        $needle = 'NUM_' . uniqid();
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'number' => $needle,
+        ]);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/clients?number=' . urlencode($needle) . '&per_page=100')
+            ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertSame([$client->hashed_id], $ids);
+    }
+
+    public function testGroupFilter()
+    {
+        $gs = new GroupSetting();
+        $gs->name = 'FilterGroup_' . uniqid();
+        $gs->company_id = $this->company->id;
+        $gs->settings = ClientSettings::buildClientSettings($this->company->settings, $this->client->settings);
+        $gs->save();
+
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'group_settings_id' => $gs->id,
+        ]);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/clients?group=' . $this->encodePrimaryKey($gs->id) . '&per_page=100')
+            ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($client->hashed_id, $ids);
+        $this->assertNotContains($this->client->hashed_id, $ids);
+    }
+
+    public function testFilterDeprecatedSearch()
+    {
+        $needle = 'SearchNeedle' . uniqid();
+
+        $byName = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'name' => $needle . ' co',
+        ]);
+
+        $byIdNumber = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'id_number' => $needle,
+        ]);
+
+        $byNumber = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'number' => $needle,
+        ]);
+
+        $byCustom = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'custom_value1' => $needle,
+        ]);
+
+        $byContact = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+        ]);
+        ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $byContact->id,
+            'email' => $needle . '@example.test',
+            'is_primary' => 1,
+        ]);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/clients?filter=' . urlencode($needle) . '&per_page=100')
+            ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($byName->hashed_id, $ids);
+        $this->assertContains($byIdNumber->hashed_id, $ids);
+        $this->assertContains($byNumber->hashed_id, $ids);
+        $this->assertContains($byCustom->hashed_id, $ids);
+        $this->assertContains($byContact->hashed_id, $ids);
+        $this->assertNotContains($this->client->hashed_id, $ids);
+    }
+
+    public function testSortFilter()
+    {
+        Client::where('company_id', $this->company->id)->delete();
+
+        $a = Client::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'name' => 'AAA Sort']);
+        $b = Client::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'name' => 'MMM Sort']);
+        $c = Client::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'name' => 'ZZZ Sort']);
+
+        $asc = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/clients?sort=name|asc&per_page=100')
+            ->assertStatus(200)
+            ->json('data');
+        $ascIds = array_column($asc, 'id');
+        $this->assertSame(
+            [$a->hashed_id, $b->hashed_id, $c->hashed_id],
+            array_values(array_intersect($ascIds, [$a->hashed_id, $b->hashed_id, $c->hashed_id]))
+        );
+
+        $desc = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/clients?sort=name|desc&per_page=100')
+            ->assertStatus(200)
+            ->json('data');
+        $descIds = array_column($desc, 'id');
+        $this->assertSame(
+            [$c->hashed_id, $b->hashed_id, $a->hashed_id],
+            array_values(array_intersect($descIds, [$a->hashed_id, $b->hashed_id, $c->hashed_id]))
+        );
+    }
+
+    public function testFilterDetails()
+    {
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/clients?filter_details=true&per_page=5')
+            ->assertStatus(200);
+
+        $data = $response->json('data');
+        $this->assertNotEmpty($data);
+
+        $first = $data[0];
+        $this->assertArrayHasKey('id', $first);
+        $this->assertArrayHasKey('name', $first);
+        $this->assertArrayHasKey('number', $first);
+        $this->assertArrayHasKey('id_number', $first);
     }
 
     public function testCurrencyCodePassesValidation()

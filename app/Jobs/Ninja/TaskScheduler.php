@@ -18,8 +18,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Auth;
 
 class TaskScheduler implements ShouldQueue
 {
@@ -27,8 +27,6 @@ class TaskScheduler implements ShouldQueue
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
-
-    public $deleteWhenMissingModels = true;
 
     /**
      * Create a new job instance.
@@ -44,7 +42,6 @@ class TaskScheduler implements ShouldQueue
      */
     public function handle(): void
     {
-        Auth::logout();
 
         if (! config('ninja.db.multi_db_enabled')) {
            
@@ -90,4 +87,5 @@ class TaskScheduler implements ShouldQueue
         }
 
     }
+
 }

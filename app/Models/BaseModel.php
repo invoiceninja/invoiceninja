@@ -12,18 +12,19 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Str;
-use Illuminate\Support\Carbon;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesDates;
+use App\Jobs\EDocument\RecordFranceEReportingTransaction;
 use App\Jobs\Entity\CreateRawPdf;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Traits\Excludable;
 use App\Services\PdfMaker\PdfMerge;
-use Illuminate\Database\Eloquent\Model;
+use App\Utils\Traits\MakesDates;
+use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 /**
  * Class BaseModel
@@ -256,6 +257,11 @@ class BaseModel extends Model
             if ($this->client->peppolSendingEnabled()) {
                 \App\Services\EDocument\Jobs\SendEDocument::dispatch(get_class($this), $this->id, $this->company->db);
             }
+
+            if($this->client->reportableFrTransaction()){
+                RecordFranceEReportingTransaction::dispatch(get_class($this), $this->id, $this->company->db);
+            }
+            
         } //Special Catch Here For Verifactu.
         elseif (in_array($event_id, [Webhook::EVENT_SENT_INVOICE]) && $this->company->verifactuEnabled() && ($this instanceof Invoice) && $this->backup->guid == "") {
             $this->service()->sendVerifactu();

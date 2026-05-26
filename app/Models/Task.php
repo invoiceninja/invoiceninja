@@ -142,13 +142,7 @@ class Task extends BaseModel
 
     public function toSearchableArray(): array
     {
-        return config('scout.index_version', 'legacy') === 'v2'
-            ? $this->toSearchableArrayV2()
-            : $this->toSearchableArrayLegacy();
-    }
-
-    public function toSearchableArrayLegacy(): array
-    {
+        
         $locale = $this->company->locale();
 
         App::setLocale($locale);
@@ -213,11 +207,6 @@ class Task extends BaseModel
         }
 
         return $normalized;
-    }
-
-    public function toSearchableArrayV2(): array
-    {
-        return $this->toSearchableArrayLegacy();
     }
 
     public function getScoutKey()

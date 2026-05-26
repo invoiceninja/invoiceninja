@@ -1453,4 +1453,101 @@ class TaskApiTest extends TestCase
 
         $this->assertLessThan(5, strlen($arr['data']['time_log']));
     }
+
+    public function testHashFilter()
+    {
+        $needle = 'unique_hash_' . uniqid();
+        $task = Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'hash' => $needle,
+        ]);
+
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'hash' => 'other_' . uniqid(),
+        ]);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/tasks?hash=' . urlencode($needle) . '&per_page=200')
+            ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertSame([$task->hashed_id], $ids);
+    }
+
+    public function testProjectTasksFilter()
+    {
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+        ]);
+
+        $inProject = Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'project_id' => $project->id,
+        ]);
+
+        $outOfProject = Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'project_id' => null,
+        ]);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/tasks?project_tasks=' . $project->hashed_id . '&per_page=200')
+            ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($inProject->hashed_id, $ids);
+        $this->assertNotContains($outOfProject->hashed_id, $ids);
+    }
+
+    public function testTaskStatusFilter()
+    {
+        $status = \App\Models\TaskStatus::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'name' => 'FilterStatus_' . uniqid(),
+        ]);
+
+        $matched = Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'status_id' => $status->id,
+            'invoice_id' => null,
+        ]);
+
+        $invoiced = Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'status_id' => $status->id,
+            'invoice_id' => $this->invoice->id ?? null,
+        ]);
+
+        $unmatched = Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'status_id' => null,
+        ]);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/tasks?task_status=' . $status->hashed_id . '&per_page=200')
+            ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($matched->hashed_id, $ids);
+        $this->assertNotContains($invoiced->hashed_id, $ids);
+        $this->assertNotContains($unmatched->hashed_id, $ids);
+    }
 }

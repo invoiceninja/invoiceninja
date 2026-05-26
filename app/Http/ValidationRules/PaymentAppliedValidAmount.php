@@ -84,6 +84,12 @@ class PaymentAppliedValidAmount implements Rule
 
         if (isset($this->input['invoices']) && is_array($this->input['invoices'])) {
             foreach ($this->input['invoices'] as $invoice) {
+
+                if(!is_array($invoice) || !array_key_exists('amount', $invoice) || !array_key_exists('invoice_id', $invoice)){
+                    $this->message = 'Invalid invoice data. amount and invoice_id are required.';
+                    return false;
+                }
+
                 $invoice_amounts += $invoice['amount'];
 
                 $inv = $inv_collection->firstWhere('id', $invoice['invoice_id']);

@@ -547,28 +547,6 @@ class CheckData extends Command
         });
     }
 
-    private function fixInvitations($entities, $entity)
-    {
-        $entity_key = "{$entity}_id";
-
-        $entity_obj = 'App\Models\\' . ucfirst(Str::camel($entity)) . 'Invitation';
-
-        foreach ($entities as $entity) {
-            $invitation = new $entity_obj();
-            $invitation->company_id = $entity->company_id;
-            $invitation->user_id = $entity->user_id;
-            $invitation->{$entity_key} = $entity->id;
-            $invitation->client_contact_id = ClientContact::whereClientId($entity->client_id)->first()->id;
-            $invitation->key = Str::random(config('ninja.key_length'));
-
-            try {
-                $invitation->save();
-            } catch (\Exception $e) {
-                $invitation = null;
-            }
-        }
-    }
-
     private function clientPaidToDateQuery()
     {
         $results = \DB::select("
@@ -1097,7 +1075,20 @@ class CheckData extends Command
 
             $this->logMessage("# {$invoice->id} " . ' - ' . $invoice->number . " - Marked as paid, but balance = {$invoice->balance}");
 
-            if ($this->option('balance_status')) {
+            if($this->option('balance_taxes')){
+
+                if($invoice->company->calculate_taxes && round($invoice->amount - $invoice->paid_to_date,2) == $invoice->balance){
+                
+                    $invoice->amount = $invoice->paid_to_date;
+                    $invoice->balance = 0;
+                    $invoice->saveQuietly();
+
+                    $this->logMessage("Fixing {$invoice->id} for rounding due to taxes");
+
+                }
+
+            }
+            elseif ($this->option('balance_status')) {
                 $val = $invoice->balance;
 
                 $invoice->balance = 0;
@@ -1115,7 +1106,6 @@ class CheckData extends Command
                     $pivot->amount = $val;
                     $pivot->save();
                 }
-
 
                 $this->logMessage("Fixing {$invoice->id} settings payment to {$val}");
             }
