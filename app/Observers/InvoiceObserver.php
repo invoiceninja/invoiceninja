@@ -12,7 +12,6 @@
 
 namespace App\Observers;
 
-use App\Jobs\Quickbooks\PushToQuickbooks;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Invoice;
 use App\Models\Webhook;
