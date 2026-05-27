@@ -83,6 +83,8 @@ class TransactionEvent extends StaticModel
 
     public const FR_REPORT_SUBMISSION_CORRECTIVE = 1007;
 
+    public const FR_B2B_PAYMENT_RECEIVED_NOTIFICATION = 1008;
+
     public const FR_REPORTING_STATUS_PENDING = 1;
 
     public const FR_REPORTING_STATUS_COMPILED = 2;
@@ -105,6 +107,10 @@ class TransactionEvent extends StaticModel
         self::FR_B2C_PAYMENT,
         self::FR_VAT_EXCLUDED_TRANSACTION,
         self::FR_VAT_EXCLUDED_PAYMENT,
+    ];
+
+    public const FR_PAYMENT_NOTIFICATION_EVENTS = [
+        self::FR_B2B_PAYMENT_RECEIVED_NOTIFICATION,
     ];
 
     public const FR_REPORT_SUBMISSION_EVENTS = [

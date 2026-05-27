@@ -67,6 +67,10 @@ class RecordFranceEReportingTransaction implements ShouldQueue
             return;
         }
 
+        if (! $this->documentIsF10Reportable($document)) {
+            return;
+        }
+
         $eventId = $this->resolveEventId($document);
         $period = $this->resolvePeriodEnd($document, $eventId);
 
@@ -87,6 +91,15 @@ class RecordFranceEReportingTransaction implements ShouldQueue
                 ->releaseAfter(60)
                 ->expireAfter(60),
         ];
+    }
+
+    private function documentIsF10Reportable(Invoice|Credit $document): bool
+    {
+        if (($document->client->classification ?? 'business') === 'individual') {
+            return true;
+        }
+
+        return $document->client->country?->iso_3166_2 !== 'FR';
     }
 
     private function resolveEventId(Invoice|Credit $document): int

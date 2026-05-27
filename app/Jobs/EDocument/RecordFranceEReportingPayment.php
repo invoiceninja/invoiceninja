@@ -32,6 +32,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 
 class RecordFranceEReportingPayment implements ShouldQueue
@@ -44,6 +45,7 @@ class RecordFranceEReportingPayment implements ShouldQueue
     public const KIND_MOVEMENT = 'payment_movement';
 
     public const KIND_REPORT = 'payment_report';
+    public const KIND_PAYMENT_RECEIVED_NOTIFICATION = 'payment_received_notification';
 
     public const REPORT_KIND_INITIAL = 'initial';
 
@@ -88,6 +90,17 @@ class RecordFranceEReportingPayment implements ShouldQueue
             }
 
             $paymentable = $this->paymentable($payment, $invoice);
+            $movementDate = $this->resolveMovementDate($payment, $invoice, $paymentable);
+
+            if ($this->invoiceRequiresPaymentReceivedNotification($invoice)) {
+                $this->recordPaymentReceivedNotification($payment, $invoice, $paymentable, $movementDate);
+                continue;
+            }
+
+            if (! $this->invoiceIsF10Reportable($invoice)) {
+                continue;
+            }
+
             $movementAmount = $this->resolveMovementAmount($payment, $invoice, $paymentable);
 
             if (BcMath::isZero($movementAmount, 2)) {
@@ -95,7 +108,6 @@ class RecordFranceEReportingPayment implements ShouldQueue
             }
 
             $eventId = $this->resolveEventId($invoice);
-            $movementDate = $this->resolveMovementDate($payment, $invoice, $paymentable);
             $sourcePeriod = $this->resolvePeriodEnd($payment, $invoice, $eventId, $movementDate);
             $movementEvent = $this->recordMovementEvent($payment, $invoice, $paymentable, $eventId, $movementAmount, $movementDate, $sourcePeriod);
 
@@ -185,6 +197,21 @@ class RecordFranceEReportingPayment implements ShouldQueue
 
         return true;
     }
+    private function invoiceIsF10Reportable(Invoice $invoice): bool
+    {
+        if (($invoice->client->classification ?? 'business') === 'individual') {
+            return true;
+        }
+
+        return $invoice->client->country?->iso_3166_2 !== 'FR';
+    }
+
+    private function invoiceRequiresPaymentReceivedNotification(Invoice $invoice): bool
+    {
+        return ($invoice->client->classification ?? 'business') !== 'individual'
+            && $invoice->client->country?->iso_3166_2 === 'FR';
+    }
+
 
     private function paymentable(Payment $payment, Invoice $invoice): ?Paymentable
     {
