@@ -138,25 +138,18 @@ class InvoiceTransformer extends BaseTransformer
                     throw QuickbooksMissingTaxCode::forComponentGroups($unresolved_tax_components, $e);
                 }
 
-                if ($is_us) {
-                    $taxable_code = 'TAX';
-                    $exempt_code = 'NON';
-                }
             }
 
-            if (!$is_us && !$ast) {
-                $unresolved_tax_components = $this->unresolvedTaxCodeComponents($invoice, $invoice_level_taxes, $tax_rate_map, $composite_tax_code_map);
+            if (!empty($unresolved_tax_components)) {
+                nlog('QB: missing TaxCode for invoice taxes after create attempt; invoice push blocked', [
+                    'invoice_id' => $invoice->id,
+                    'company_id' => $qb_service->company->id,
+                    'component_keys' => array_keys($unresolved_tax_components),
+                ]);
 
-                if (!empty($unresolved_tax_components)) {
-                    nlog('QB: missing TaxCode for invoice taxes after create attempt; invoice push blocked', [
-                        'invoice_id' => $invoice->id,
-                        'company_id' => $qb_service->company->id,
-                        'component_keys' => array_keys($unresolved_tax_components),
-                    ]);
-
-                    throw QuickbooksMissingTaxCode::forComponentGroups($unresolved_tax_components);
-                }
+                throw QuickbooksMissingTaxCode::forComponentGroups($unresolved_tax_components);
             }
+
         }
 
         // Non-US regions (CA/AU/UK) require TaxCodeRef on EVERY line item using numeric tax code IDs.

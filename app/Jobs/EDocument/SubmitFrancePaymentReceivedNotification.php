@@ -14,6 +14,9 @@ namespace App\Jobs\EDocument;
 
 use App\Libraries\MultiDB;
 use App\Models\Company;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\Paymentable;
 use App\Models\TransactionEvent;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
 use Illuminate\Bus\Queueable;
@@ -69,6 +72,10 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
             return;
         }
 
+        if (! $this->eventIsStillEligible($event)) {
+            $this->markSkipped($event, "Payment received notification is no longer eligible.");
+            return;
+        }
         $idempotencyGuid = (string) (data_get($request, "idempotency_guid") ?: Str::uuid()->toString());
         $event->payment_request = [
             ...$request,
@@ -142,6 +149,62 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
         $event->save();
     }
 
+    private function eventIsStillEligible(TransactionEvent $event): bool
+    {
+        $paymentableId = (int) data_get($event->payment_request, "paymentable_id", 0);
+        if ($paymentableId <= 0) {
+            return false;
+        }
+        $payment = Payment::withTrashed()
+            ->with(["client.country", "client.company", "company"])
+            ->find($event->payment_id);
+        $invoice = Invoice::withTrashed()->find($event->invoice_id);
+        $paymentable = Paymentable::withTrashed()->find($paymentableId);
+        if (! $payment || ! $invoice || ! $paymentable) {
+            return false;
+        }
+        if ((int) $payment->status_id !== Payment::STATUS_COMPLETED || $payment->is_deleted) {
+            return false;
+        }
+        if ($invoice->is_deleted || ! $this->invoiceIsPaidInFull($invoice)) {
+            return false;
+        }
+        if (! is_null($paymentable->deleted_at)
+            || (int) $paymentable->payment_id !== (int) $payment->id
+            || (int) $paymentable->paymentable_id !== (int) $invoice->id
+            || $paymentable->paymentable_type !== "invoices") {
+            return false;
+        }
+        return $this->clientStillRequiresPaymentReceivedNotification($payment);
+    }
+    private function clientStillRequiresPaymentReceivedNotification(Payment $payment): bool
+    {
+        if (! $payment->client || ! $payment->company) {
+            return false;
+        }
+        if (! $payment->client->relationLoaded("company")) {
+            $payment->client->setRelation("company", $payment->company);
+        }
+        return $payment->client->reportableFrTransaction()
+            && ($payment->client->classification ?? "business") !== "individual"
+            && $payment->client->country?->iso_3166_2 === "FR";
+    }
+    private function invoiceIsPaidInFull(Invoice $invoice): bool
+    {
+        return (int) $invoice->status_id === Invoice::STATUS_PAID
+            || (float) ($invoice->balance ?? 0) <= 0.0;
+    }
+    private function markSkipped(TransactionEvent $event, string $reason): void
+    {
+        $event->payment_status = TransactionEvent::FR_REPORTING_STATUS_FAILED;
+        $event->payment_request = [
+            ...($event->payment_request ?? []),
+            "error" => ["message" => $reason],
+            "skip_reason" => $reason,
+            "skipped_at" => now()->toIso8601String(),
+        ];
+        $event->save();
+    }
     /**
      * @param array<string, mixed> $error
      */

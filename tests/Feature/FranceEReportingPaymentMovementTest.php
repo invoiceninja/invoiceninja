@@ -7,6 +7,7 @@ use App\DataMapper\Tax\TaxModel;
 use App\Factory\InvoiceItemFactory;
 use App\Factory\PaymentFactory;
 use App\Repositories\PaymentRepository;
+use App\Jobs\Cron\FranceEReportingCron;
 use App\Jobs\EDocument\RecordFranceEReportingPayment;
 use App\Jobs\EDocument\SubmitFrancePaymentReceivedNotification;
 use App\Models\Client;
@@ -20,6 +21,7 @@ use App\Services\EDocument\Standards\France\FranceEReportCompiler;
 use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
 use App\Services\EDocument\Gateway\Storecove\StorecoveProxy;
+use Carbon\CarbonImmutable;
 use Faker\Factory;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -611,7 +613,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->assertSame("original-storecove-guid", data_get($event->payment_request, "original_document_guid"));
         $this->assertSame(0, TransactionEvent::query()->where('invoice_id', $invoice->id)->where("event_id", TransactionEvent::FR_VAT_EXCLUDED_PAYMENT)->count());
 
-        Bus::assertDispatched(SubmitFrancePaymentReceivedNotification::class);
+        Bus::assertNotDispatched(SubmitFrancePaymentReceivedNotification::class);
     }
 
     public function testPaymentReportingPathIsResolvedOnceForEveryInvoiceOnAPayment(): void
@@ -644,7 +646,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
             ->where("event_id", TransactionEvent::FR_VAT_EXCLUDED_PAYMENT)
             ->count());
 
-        Bus::assertDispatched(SubmitFrancePaymentReceivedNotification::class);
+        Bus::assertNotDispatched(SubmitFrancePaymentReceivedNotification::class);
     }
 
     public function testDomesticFrenchBusinessPartialPaymentDoesNotCreatePaymentReceivedNotification(): void
@@ -694,6 +696,48 @@ class FranceEReportingPaymentMovementTest extends TestCase
         Bus::assertNotDispatched(SubmitFrancePaymentReceivedNotification::class);
     }
 
+    public function testFranceEReportingCronCreatesAndDispatchesDailyPaymentReceivedNotifications(): void
+    {
+        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-20 22:00:00", "Europe/Paris"));
+        try {
+            Bus::fake();
+            config(["ninja.db.multi_db_enabled" => false]);
+            $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
+            $invoice->backup->guid = "original-storecove-guid";
+            $invoice->save();
+            $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
+            $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
+            $invoice = $this->setInvoicePaymentState($invoice, "1200");
+            (new FranceEReportingCron())->handle();
+            $events = $this->paymentNotificationEvents($invoice);
+            $this->assertSame(1, $events->count());
+            $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_PENDING, $events->first()->payment_status);
+            Bus::assertDispatched(SubmitFrancePaymentReceivedNotification::class);
+        } finally {
+            CarbonImmutable::setTestNow();
+        }
+    }
+    public function testFranceEReportingCronDoesNotCreatePaymentNotificationForPendingPayment(): void
+    {
+        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-20 22:00:00", "Europe/Paris"));
+        try {
+            Bus::fake();
+            config(["ninja.db.multi_db_enabled" => false]);
+            $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
+            $invoice->backup->guid = "original-storecove-guid";
+            $invoice->save();
+            $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
+            $payment->status_id = Payment::STATUS_PENDING;
+            $payment->save();
+            $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
+            $invoice = $this->setInvoicePaymentState($invoice, "1200");
+            (new FranceEReportingCron())->handle();
+            $this->assertSame(0, $this->paymentNotificationEvents($invoice)->count());
+            Bus::assertNotDispatched(SubmitFrancePaymentReceivedNotification::class);
+        } finally {
+            CarbonImmutable::setTestNow();
+        }
+    }
     public function testPaymentReceivedNotificationSubmissionUsesOriginalStorecoveGuid(): void
     {
         Bus::fake([SubmitFrancePaymentReceivedNotification::class]);

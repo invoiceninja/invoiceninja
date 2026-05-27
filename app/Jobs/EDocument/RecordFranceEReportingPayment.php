@@ -291,13 +291,7 @@ class RecordFranceEReportingPayment implements ShouldQueue
             return;
         }
 
-        $event = $this->paymentReceivedNotificationEvent($payment, $invoice, $paymentable, $movementDate);
-
-        if ($event->payment_status === TransactionEvent::FR_REPORTING_STATUS_SUBMITTED) {
-            return;
-        }
-
-        SubmitFrancePaymentReceivedNotification::dispatch($event->id, $this->db)->afterCommit();
+        $this->paymentReceivedNotificationEvent($payment, $invoice, $paymentable, $movementDate);
     }
 
     private function paymentReceivedNotificationEvent(Payment $payment, Invoice $invoice, ?Paymentable $paymentable, string $movementDate): TransactionEvent
