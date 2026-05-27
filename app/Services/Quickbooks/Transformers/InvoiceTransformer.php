@@ -140,6 +140,9 @@ class InvoiceTransformer extends BaseTransformer
 
             }
 
+            // re-check for unresolved tax components after creating the tax codes
+            $unresolved_tax_components = $this->unresolvedTaxCodeComponents($invoice, $invoice_level_taxes, $tax_rate_map, $composite_tax_code_map);
+
             if (!empty($unresolved_tax_components)) {
                 nlog('QB: missing TaxCode for invoice taxes after create attempt; invoice push blocked', [
                     'invoice_id' => $invoice->id,

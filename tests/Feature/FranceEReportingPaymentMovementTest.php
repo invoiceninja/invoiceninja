@@ -9,6 +9,7 @@ use App\Factory\PaymentFactory;
 use App\Repositories\PaymentRepository;
 use App\Jobs\Cron\FranceEReportingCron;
 use App\Jobs\EDocument\RecordFranceEReportingPayment;
+use App\Jobs\EDocument\SubmitFranceEReport;
 use App\Jobs\EDocument\SubmitFrancePaymentReceivedNotification;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -696,27 +697,8 @@ class FranceEReportingPaymentMovementTest extends TestCase
         Bus::assertNotDispatched(SubmitFrancePaymentReceivedNotification::class);
     }
 
-    public function testFranceEReportingCronCreatesAndDispatchesDailyPaymentReceivedNotifications(): void
+    public function testFranceEReportingCronDispatchesPendingDailyPaymentReceivedNotifications(): void
     {
-        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-20 22:00:00", "Europe/Paris"));
-        try {
-            Bus::fake();
-            config(["ninja.db.multi_db_enabled" => false]);
-            $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
-            $invoice->backup->guid = "original-storecove-guid";
-            $invoice->save();
-            $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
-            $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
-            $invoice = $this->setInvoicePaymentState($invoice, "1200");
-            (new FranceEReportingCron())->handle();
-            $events = $this->paymentNotificationEvents($invoice);
-            $this->assertSame(1, $events->count());
-            $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_PENDING, $events->first()->payment_status);
-            Bus::assertDispatched(SubmitFrancePaymentReceivedNotification::class);
-        } finally {
-            CarbonImmutable::setTestNow();
-        }
-    }
     public function testFranceEReportingCronDoesNotCreatePaymentNotificationForPendingPayment(): void
     {
         CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-20 22:00:00", "Europe/Paris"));

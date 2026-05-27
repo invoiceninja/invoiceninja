@@ -169,7 +169,7 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
         if ($invoice->is_deleted || ! $this->invoiceIsPaidInFull($invoice)) {
             return false;
         }
-        if (! is_null($paymentable->deleted_at)
+        if ($paymentable->trashed()
             || (int) $paymentable->payment_id !== (int) $payment->id
             || (int) $paymentable->paymentable_id !== (int) $invoice->id
             || $paymentable->paymentable_type !== "invoices") {
@@ -179,9 +179,6 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
     }
     private function clientStillRequiresPaymentReceivedNotification(Payment $payment): bool
     {
-        if (! $payment->client || ! $payment->company) {
-            return false;
-        }
         if (! $payment->client->relationLoaded("company")) {
             $payment->client->setRelation("company", $payment->company);
         }

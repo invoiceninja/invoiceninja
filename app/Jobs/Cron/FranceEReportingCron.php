@@ -17,10 +17,8 @@ use App\Jobs\EDocument\SubmitFranceEReport;
 use App\Jobs\EDocument\SubmitFrancePaymentReceivedNotification;
 use App\Libraries\MultiDB;
 use App\Models\Company;
-use App\Models\Payment;
 use App\Models\TransactionEvent;
 use App\Services\EDocument\Standards\France\ReportingCalendar;
-use App\Services\EDocument\Standards\France\ReportingPeriod;
 use App\Services\EDocument\Standards\France\ReportingProfile;
 use Carbon\CarbonImmutable;
 use Illuminate\Bus\Queueable;
@@ -39,18 +37,23 @@ class FranceEReportingCron implements ShouldQueue
 
     public $tries = 1;
 
+    /** @var array<int, Company|null> */
+    private array $companies = [];
+
     public function handle(): void
     {
+        $parisNow = CarbonImmutable::now("Europe/Paris");
+
         if (config("ninja.db.multi_db_enabled")) {
             foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
-                $this->processDatabase($db);
+                $this->processDatabase($db, $parisNow);
             }
 
             return;
         }
 
-        $this->processDatabase((string) config("database.default"));
+        $this->processDatabase((string) config("database.default"), $parisNow);
     }
 
     /**
@@ -65,67 +68,23 @@ class FranceEReportingCron implements ShouldQueue
         ];
     }
 
-    private function processDatabase(string $db): void
+    private function processDatabase(string $db, CarbonImmutable $parisNow): void
     {
-        $parisNow = CarbonImmutable::now("Europe/Paris");
+        $this->companies = [];
 
-        Company::query()
-            ->with("account")
-            ->where("is_disabled", false)
-            ->whereHas("account", fn ($query) => $query->where("is_flagged", false))
-            ->cursor()
-            ->each(function (Company $company) use ($db, $parisNow): void {
-                if (! (bool) $company->getSetting("france_reporting_enabled")) {
-                    return;
-                }
-
-                $this->processCompany($company, $company->db ?: $db, $parisNow);
-            });
+        $this->dispatchPendingPaymentNotifications($db);
+        $this->dispatchDueReportSubmissions($db, $parisNow);
     }
 
-    private function processCompany(Company $company, string $db, CarbonImmutable $parisNow): void
-    {
-        $this->recordCompletedPaymentActivity($company, $db, $parisNow);
-        $this->dispatchPendingPaymentNotifications($company, $db);
-        $this->dispatchDueReportSubmissions($company, $db, $parisNow);
-    }
-
-    private function recordCompletedPaymentActivity(Company $company, string $db, CarbonImmutable $parisNow): void
-    {
-        $lookback = $parisNow->subDays(7)->startOfDay()->timestamp;
-
-        Payment::query()
-            ->with([
-                "client.country",
-                "client.company",
-                "company",
-            ])
-            ->where("company_id", $company->id)
-            ->where("status_id", Payment::STATUS_COMPLETED)
-            ->where("is_deleted", false)
-            ->where(function ($query) use ($lookback): void {
-                $query->where("updated_at", ">=", $lookback)
-                    ->orWhereHas("paymentables", function ($paymentableQuery) use ($lookback): void {
-                        $paymentableQuery
-                            ->where("paymentable_type", "invoices")
-                            ->where("updated_at", ">=", $lookback);
-                    });
-            })
-            ->cursor()
-            ->each(function (Payment $payment) use ($db): void {
-                (new RecordFranceEReportingPayment($payment->id, $db))->handle();
-            });
-    }
-
-    private function dispatchPendingPaymentNotifications(Company $company, string $db): void
+    private function dispatchPendingPaymentNotifications(string $db): void
     {
         TransactionEvent::query()
-            ->where("company_id", $company->id)
             ->where("event_id", TransactionEvent::FR_B2B_PAYMENT_RECEIVED_NOTIFICATION)
             ->whereIn("payment_status", [
                 TransactionEvent::FR_REPORTING_STATUS_PENDING,
                 TransactionEvent::FR_REPORTING_STATUS_FAILED,
             ])
+            ->orderBy("company_id")
             ->orderBy("id")
             ->cursor()
             ->each(function (TransactionEvent $event) use ($db): void {
@@ -133,72 +92,166 @@ class FranceEReportingCron implements ShouldQueue
                     return;
                 }
 
-                SubmitFrancePaymentReceivedNotification::dispatch($event->id, $db);
+                $company = $this->reportingCompany((int) $event->company_id);
+
+                if (! $company) {
+                    return;
+                }
+
+                SubmitFrancePaymentReceivedNotification::dispatch($event->id, $company->db ?: $db);
             });
     }
 
-    private function dispatchDueReportSubmissions(Company $company, string $db, CarbonImmutable $parisNow): void
+    private function dispatchDueReportSubmissions(string $db, CarbonImmutable $parisNow): void
     {
-        foreach ($this->dueSubmissionWindows($company, $parisNow) as $submissionEventId => $periods) {
-            foreach ($periods as $period) {
-                if ($this->submissionAlreadySubmitted($company, $submissionEventId, $period)) {
-                    continue;
+        $this->dispatchDueInitialReportSubmissions($db, $parisNow);
+        $this->dispatchDueCorrectiveReportSubmissions($db, $parisNow);
+    }
+
+    private function dispatchDueInitialReportSubmissions(string $db, CarbonImmutable $parisNow): void
+    {
+        TransactionEvent::query()
+            ->select(["company_id", "event_id", "period"])
+            ->whereIn("event_id", [
+                TransactionEvent::FR_B2C_PAYMENT,
+                TransactionEvent::FR_VAT_EXCLUDED_PAYMENT,
+            ])
+            ->whereIn("payment_status", [
+                TransactionEvent::FR_REPORTING_STATUS_PENDING,
+                TransactionEvent::FR_REPORTING_STATUS_FAILED,
+            ])
+            ->whereNotNull("period")
+            ->where(function ($query): void {
+                $query->whereNull("payment_request->fr_report_kind")
+                    ->orWhere("payment_request->fr_report_kind", RecordFranceEReportingPayment::REPORT_KIND_INITIAL);
+            })
+            ->groupBy("company_id", "event_id", "period")
+            ->orderBy("company_id")
+            ->orderBy("period")
+            ->cursor()
+            ->each(function (TransactionEvent $event) use ($db, $parisNow): void {
+                $this->dispatchDueSourceGroup($event, $this->submissionEventForSourceEvent((int) $event->event_id), $db, $parisNow);
+            });
+    }
+
+    private function dispatchDueCorrectiveReportSubmissions(string $db, CarbonImmutable $parisNow): void
+    {
+        $dispatched = [];
+
+        TransactionEvent::query()
+            ->select(["company_id", "event_id", "period"])
+            ->whereIn("event_id", [
+                TransactionEvent::FR_B2C_PAYMENT,
+                TransactionEvent::FR_VAT_EXCLUDED_PAYMENT,
+            ])
+            ->whereIn("payment_status", [
+                TransactionEvent::FR_REPORTING_STATUS_PENDING,
+                TransactionEvent::FR_REPORTING_STATUS_FAILED,
+            ])
+            ->whereNotNull("period")
+            ->where("payment_request->fr_report_kind", RecordFranceEReportingPayment::REPORT_KIND_CORRECTIVE)
+            ->groupBy("company_id", "event_id", "period")
+            ->orderBy("company_id")
+            ->orderBy("period")
+            ->cursor()
+            ->each(function (TransactionEvent $event) use ($db, $parisNow, &$dispatched): void {
+                $periodEnd = $this->periodEnd($event);
+
+                if (is_null($periodEnd)) {
+                    return;
                 }
 
-                SubmitFranceEReport::dispatch($company->id, $submissionEventId, $period->end->toDateString(), $db);
-            }
-        }
+                $key = $event->company_id."|".$periodEnd;
+
+                if (isset($dispatched[$key])) {
+                    return;
+                }
+
+                $dispatched[$key] = true;
+                $this->dispatchDueSourceGroup($event, TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE, $db, $parisNow);
+            });
     }
 
-    /**
-     * @return array<int, array<string, ReportingPeriod>>
-     */
-    private function dueSubmissionWindows(Company $company, CarbonImmutable $parisNow): array
+    private function dispatchDueSourceGroup(TransactionEvent $event, int $submissionEventId, string $db, CarbonImmutable $parisNow): void
     {
-        $profile = ReportingProfile::tryFrom((string) $company->getSetting("france_reporting_schedule"))
+        $periodEnd = $this->periodEnd($event);
+
+        if (is_null($periodEnd)) {
+            return;
+        }
+
+        $company = $this->reportingCompany((int) $event->company_id);
+
+        if (! $company || ! $this->sourcePeriodIsDue($company, (int) $event->event_id, $periodEnd, $parisNow)) {
+            return;
+        }
+
+        if ($this->submissionAlreadySubmitted((int) $company->id, $submissionEventId, $periodEnd)) {
+            return;
+        }
+
+        SubmitFranceEReport::dispatch($company->id, $submissionEventId, $periodEnd, $company->db ?: $db);
+    }
+
+    private function reportingCompany(int $companyId): ?Company
+    {
+        if (! array_key_exists($companyId, $this->companies)) {
+            $company = Company::query()
+                ->with("account")
+                ->where("id", $companyId)
+                ->where("is_disabled", false)
+                ->whereHas("account", fn ($query) => $query->where("is_flagged", false))
+                ->first();
+
+            if ($company && ! (bool) $company->getSetting("france_reporting_enabled")) {
+                $company = null;
+            }
+
+            $this->companies[$companyId] = $company;
+        }
+
+        return $this->companies[$companyId];
+    }
+
+    private function sourcePeriodIsDue(Company $company, int $sourceEventId, string $periodEnd, CarbonImmutable $parisNow): bool
+    {
+        $period = ReportingCalendar::currentPeriod(
+            $this->profileForSourceEvent($company, $sourceEventId),
+            CarbonImmutable::parse($periodEnd, "Europe/Paris"),
+        );
+
+        return $period->end->toDateString() === $periodEnd
+            && $period->dueDate->toDateString() === $parisNow->toDateString();
+    }
+
+    private function profileForSourceEvent(Company $company, int $sourceEventId): ReportingProfile
+    {
+        if ($sourceEventId === TransactionEvent::FR_VAT_EXCLUDED_PAYMENT) {
+            return ReportingProfile::BiMonthly;
+        }
+
+        return ReportingProfile::tryFrom((string) $company->getSetting("france_reporting_schedule"))
             ?? ReportingProfile::TenDay;
-        $b2cPeriods = $this->duePeriods($profile, $parisNow);
-        $vatExcludedPeriods = $this->duePeriods(ReportingProfile::BiMonthly, $parisNow);
-        $correctivePeriods = [];
-
-        foreach ([$b2cPeriods, $vatExcludedPeriods] as $periods) {
-            foreach ($periods as $period) {
-                $correctivePeriods[$period->end->toDateString()] = $period;
-            }
-        }
-
-        return [
-            TransactionEvent::FR_REPORT_SUBMISSION_B2C => $b2cPeriods,
-            TransactionEvent::FR_REPORT_SUBMISSION_VAT_EXCLUDED => $vatExcludedPeriods,
-            TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE => $correctivePeriods,
-        ];
     }
 
-    /**
-     * @return array<string, ReportingPeriod>
-     */
-    private function duePeriods(ReportingProfile $profile, CarbonImmutable $parisNow): array
+    private function submissionEventForSourceEvent(int $sourceEventId): int
     {
-        $periods = [];
-        $today = $parisNow->toDateString();
-
-        for ($daysBack = 0; $daysBack <= 75; $daysBack++) {
-            $period = ReportingCalendar::currentPeriod($profile, $parisNow->subDays($daysBack));
-
-            if ($period->dueDate->toDateString() === $today) {
-                $periods[$period->end->toDateString()] = $period;
-            }
-        }
-
-        return $periods;
+        return $sourceEventId === TransactionEvent::FR_VAT_EXCLUDED_PAYMENT
+            ? TransactionEvent::FR_REPORT_SUBMISSION_VAT_EXCLUDED
+            : TransactionEvent::FR_REPORT_SUBMISSION_B2C;
     }
 
-    private function submissionAlreadySubmitted(Company $company, int $submissionEventId, ReportingPeriod $period): bool
+    private function periodEnd(TransactionEvent $event): ?string
+    {
+        return $event->period?->toDateString();
+    }
+
+    private function submissionAlreadySubmitted(int $companyId, int $submissionEventId, string $periodEnd): bool
     {
         return TransactionEvent::query()
-            ->where("company_id", $company->id)
+            ->where("company_id", $companyId)
             ->where("event_id", $submissionEventId)
-            ->whereDate("period", $period->end->toDateString())
+            ->whereDate("period", $periodEnd)
             ->whereIn("payment_status", [
                 TransactionEvent::FR_REPORTING_STATUS_COMPILED,
                 TransactionEvent::FR_REPORTING_STATUS_SUBMITTED,
