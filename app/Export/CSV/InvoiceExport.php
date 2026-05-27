@@ -235,18 +235,23 @@ class InvoiceExport extends BaseExport
 
     private function loadPaymentables(Invoice $invoice): \Illuminate\Support\Collection
     {
-        $query = Paymentable::query()
-            ->where('paymentable_type', 'invoices')
-            ->where('paymentable_id', $invoice->id)
-            ->with('payment');
+        $query = $invoice->payments()
+            ->withPivot('id', 'paymentable_type', 'paymentable_id');
 
         if (! ($this->input['include_deleted_applications'] ?? false)) {
-            $query->whereNull('deleted_at');
-        } else {
-            $query->withTrashed();
+            $query->wherePivotNull('deleted_at');
         }
 
-        return $query->orderBy('created_at')->orderBy('id')->get();
+        return $query->orderByPivot('created_at')->orderByPivot('id')->get()
+            ->map(function ($payment) use ($invoice): Paymentable {
+                $paymentable = new Paymentable();
+                $paymentable->setRawAttributes($payment->pivot->getAttributes(), true);
+                $paymentable->exists = true;
+                $paymentable->setRelation('payment', $payment);
+                $paymentable->setRelation('paymentable', $invoice);
+
+                return $paymentable;
+            });
     }
 
     protected function buildRow(Invoice $invoice): array

@@ -32,7 +32,7 @@ class FrancePaymentApplicationRecorder
     {
         try {
             $paymentable = $this->paymentable($payment, $invoice);
-            $movementAmount = $paymentable?->amount
+            $movementAmount = $paymentable->amount
                 ?? data_get($invoice, 'pivot.amount', $payment->applied ?: $payment->amount ?: 0);
 
             $this->recordMovement(

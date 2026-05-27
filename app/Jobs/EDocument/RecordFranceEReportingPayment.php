@@ -206,7 +206,7 @@ class RecordFranceEReportingPayment implements ShouldQueue
             return $this->normalizeAmount($this->movementAmount);
         }
 
-        $amount = $paymentable?->amount
+        $amount = $paymentable->amount
             ?? data_get($invoice, 'pivot.amount', $payment->applied ?: $payment->amount ?: 0);
 
         return $this->normalizeAmount($amount);
@@ -498,8 +498,8 @@ class RecordFranceEReportingPayment implements ShouldQueue
         $request['source_date'] = $reportDate;
         $request['source_event_ids'] = $sourceEventIds;
 
-        $event->period = $period;
-        $event->payment_applied = $aggregateAmount;
+        $event->period = \Carbon\Carbon::parse($period);
+        $event->payment_applied = (float) $aggregateAmount;
         $event->payment_request = $request;
         $event->reporting_data = $this->reportingData($payment, $invoice, $event->event_id, $aggregateAmount, $reportDate);
         $event->save();
@@ -601,7 +601,7 @@ class RecordFranceEReportingPayment implements ShouldQueue
             'invoice_paid_to_date' => $invoice->paid_to_date ?? 0,
             'invoice_status' => $invoice->status_id,
             'payment_amount' => $payment->amount ?? 0,
-            'payment_applied' => $amount,
+            'payment_applied' => (float) $amount,
             'payment_refunded' => $payment->refunded ?? 0,
             'event_id' => $eventId,
             'timestamp' => now()->timestamp,

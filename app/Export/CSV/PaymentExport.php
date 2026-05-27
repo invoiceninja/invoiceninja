@@ -18,7 +18,6 @@ use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\Paymentable;
 use App\Transformers\PaymentTransformer;
 use App\Utils\Ninja;
 use Illuminate\Database\Eloquent\Builder;
@@ -173,8 +172,7 @@ class PaymentExport extends BaseExport
 
     private function loadPaymentables(Payment $payment): \Illuminate\Support\Collection
     {
-        $query = Paymentable::query()
-            ->where('payment_id', $payment->id)
+        $query = $payment->paymentables()
             ->whereIn('paymentable_type', ['invoices', Credit::class])
             ->with('paymentable');
 

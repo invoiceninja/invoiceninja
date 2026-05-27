@@ -85,7 +85,7 @@ class B2BIParty
                 ], static fn (mixed $value): bool => ! is_null($value) && $value !== ''),
             ], static fn (mixed $value): bool => ! is_null($value) && $value !== []),
             'publicIdentifiers' => $this->publicIdentifiers(),
-        ], static fn (mixed $value): bool => ! is_null($value) && $value !== []);
+        ], static fn (mixed $value): bool => $value !== []);
     }
 
     /**

@@ -113,7 +113,9 @@ final class ReportDataValidator
      */
     public static function assertList(mixed $value, string $field): array
     {
-        $value = self::assertArray($value, $field);
+        if (! is_array($value)) {
+            throw new InvalidArgumentException("{$field} must be an array.");
+        }
 
         if (! array_is_list($value)) {
             throw new InvalidArgumentException("{$field} must be a list.");

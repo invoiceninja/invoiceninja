@@ -46,7 +46,7 @@ class B2BITaxSubtotal
             'taxableAmount' => $this->taxable_amount,
             'taxAmount' => $this->tax_amount,
             'country' => $country,
-        ], static fn (mixed $value): bool => ! is_null($value) && $value !== []);
+        ], static fn (mixed $value): bool => ! is_null($value));
     }
 
     public static function normalizeTaxCategory(?string $category): ?string
