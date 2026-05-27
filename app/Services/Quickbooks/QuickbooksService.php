@@ -727,6 +727,8 @@ class QuickbooksService
         $default_exempt_code = null;
         $tax_rate_to_tax_code = []; // TaxRate ID → TaxCode ID (sales only)
         $tax_rates_by_id = collect($tax_rates)->keyBy(fn (array $tax_rate): string => (string) ($tax_rate['id'] ?? ''))->all();
+        $existing_tax_rate_map = $this->company->quickbooks->settings->tax_rate_map ?? [];
+        $existing_composite_tax_code_map = $this->company->quickbooks->settings->composite_tax_code_map ?? [];
         $composite_tax_code_map = [];
 
         foreach ($tax_codes as $tax_code) {
@@ -817,6 +819,38 @@ class QuickbooksService
             $rate_entry['tax_code_id'] = $tax_rate_to_tax_code[$tr_id] ?? null;
         }
         unset($rate_entry);
+
+        foreach ($existing_tax_rate_map as $existing_rate_entry) {
+            if (($existing_rate_entry['source'] ?? null) !== 'ninja') {
+                continue;
+            }
+
+            $existing_id = (string) ($existing_rate_entry['id'] ?? '');
+            $already_present = collect($tax_rates)->contains(fn (array $rate_entry): bool => (string) ($rate_entry['id'] ?? '') === $existing_id);
+
+            if (!$already_present) {
+                $tax_rates[] = $existing_rate_entry;
+            }
+        }
+
+        foreach ($existing_composite_tax_code_map as $component_key => $candidates) {
+            if (!is_array($candidates)) {
+                continue;
+            }
+
+            $ninja_candidates = array_values(array_filter($candidates, fn (mixed $candidate): bool => is_array($candidate) && ($candidate['source'] ?? null) === 'ninja'));
+
+            if (empty($ninja_candidates)) {
+                continue;
+            }
+
+            if (!isset($composite_tax_code_map[$component_key])) {
+                $composite_tax_code_map[$component_key] = $ninja_candidates;
+                continue;
+            }
+
+            $composite_tax_code_map[$component_key] = array_values(array_merge($composite_tax_code_map[$component_key], $ninja_candidates));
+        }
 
         // Derive default taxable code: pick the TaxCode with the highest non-zero sales rate
         if (!empty($tax_rate_to_tax_code)) {

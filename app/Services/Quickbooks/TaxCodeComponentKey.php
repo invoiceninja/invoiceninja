@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Services\Quickbooks;
 
 class TaxCodeComponentKey
@@ -29,8 +37,9 @@ class TaxCodeComponentKey
     public static function normalizeName(string $name): string
     {
         $name = strtolower(trim($name));
+        $name = preg_replace('/\s+\d+(?:\.\d+)?\s*%?$/', '', $name) ?? $name;
 
-        return preg_replace('/\s+/', ' ', $name) ?? $name;
+        return preg_replace('/\s+/', ' ', trim($name)) ?? $name;
     }
 
     public static function formatRate(float|int|string|null $rate): string

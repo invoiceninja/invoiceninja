@@ -16,7 +16,6 @@ use App\Export\Decorators\Decorator;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\Invoice;
-use App\Models\Paymentable;
 use App\Transformers\InvoiceTransformer;
 use App\Utils\Ninja;
 use Illuminate\Database\Eloquent\Builder;
@@ -235,23 +234,16 @@ class InvoiceExport extends BaseExport
 
     private function loadPaymentables(Invoice $invoice): \Illuminate\Support\Collection
     {
-        $query = $invoice->payments()
-            ->withPivot('id', 'paymentable_type', 'paymentable_id');
+        $query = $invoice->paymentables()
+            ->with(['payment' => fn ($q) => $q->withTrashed()]);
 
         if (! ($this->input['include_deleted_applications'] ?? false)) {
-            $query->wherePivotNull('deleted_at');
+            $query->whereNull('deleted_at');
+        } else {
+            $query->withTrashed();
         }
 
-        return $query->orderByPivot('created_at')->orderByPivot('id')->get()
-            ->map(function ($payment) use ($invoice): Paymentable {
-                $paymentable = new Paymentable();
-                $paymentable->setRawAttributes($payment->pivot->getAttributes(), true);
-                $paymentable->exists = true;
-                $paymentable->setRelation('payment', $payment);
-                $paymentable->setRelation('paymentable', $invoice);
-
-                return $paymentable;
-            });
+        return $query->orderBy('created_at')->orderBy('id')->get();
     }
 
     protected function buildRow(Invoice $invoice): array

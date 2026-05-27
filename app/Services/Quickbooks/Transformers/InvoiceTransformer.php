@@ -12,7 +12,7 @@
 
 namespace App\Services\Quickbooks\Transformers;
 
-use App\Exceptions\QuickbooksMissingCompositeTaxCode;
+use App\Exceptions\QuickbooksMissingTaxCode;
 use App\Models\Invoice;
 use App\Services\Quickbooks\TaxCodeComponentKey;
 
@@ -72,15 +72,15 @@ class InvoiceTransformer extends BaseTransformer
         }
 
         $invoice_level_taxes = $this->extractInvoiceLevelTaxes($invoice);
-        $unresolved_composite_tax_keys = (!$is_us && !$ast)
-            ? $this->unresolvedCompositeTaxCodeKeys($invoice, $invoice_level_taxes, $composite_tax_code_map)
+        $unresolved_tax_components = (!$is_us && !$ast)
+            ? $this->unresolvedTaxCodeComponents($invoice, $invoice_level_taxes, $tax_rate_map, $composite_tax_code_map)
             : [];
 
-        if (!empty($unresolved_composite_tax_keys)) {
-            nlog('QB: refreshing TaxCode index before invoice push for combined taxes', [
+        if (!empty($unresolved_tax_components)) {
+            nlog('QB: refreshing TaxCode index before invoice push for unresolved taxes', [
                 'invoice_id' => $invoice->id,
                 'company_id' => $qb_service->company->id,
-                'component_keys' => $unresolved_composite_tax_keys,
+                'component_keys' => array_keys($unresolved_tax_components),
             ]);
 
             try {
@@ -94,10 +94,10 @@ class InvoiceTransformer extends BaseTransformer
                 $qb_country = $qb_service->company->quickbooks->settings->country ?? 'US';
                 $is_us = ($qb_country === 'US');
             } catch (\Throwable $e) {
-                nlog('QB: failed to refresh TaxCode index before invoice push for combined taxes; continuing with cached tax map', [
+                nlog('QB: failed to refresh TaxCode index before invoice push for unresolved taxes; continuing with cached tax map', [
                     'invoice_id' => $invoice->id,
                     'company_id' => $qb_service->company->id,
-                    'component_keys' => $unresolved_composite_tax_keys,
+                    'component_keys' => array_keys($unresolved_tax_components),
                     'exception' => $e::class,
                     'message' => $e->getMessage(),
                 ]);
@@ -110,16 +110,52 @@ class InvoiceTransformer extends BaseTransformer
         }
 
         if (!$is_us && !$ast) {
-            $unresolved_composite_tax_keys = $this->unresolvedCompositeTaxCodeKeys($invoice, $invoice_level_taxes, $composite_tax_code_map);
+            $unresolved_tax_components = $this->unresolvedTaxCodeComponents($invoice, $invoice_level_taxes, $tax_rate_map, $composite_tax_code_map);
 
-            if (!empty($unresolved_composite_tax_keys)) {
-                nlog('QB: missing composite TaxCode for combined invoice taxes; invoice push blocked', [
+            if (!empty($unresolved_tax_components)) {
+                nlog('QB: creating missing TaxServices before invoice push', [
                     'invoice_id' => $invoice->id,
                     'company_id' => $qb_service->company->id,
-                    'component_keys' => $unresolved_composite_tax_keys,
+                    'component_keys' => array_keys($unresolved_tax_components),
                 ]);
 
-                throw QuickbooksMissingCompositeTaxCode::forComponentKeys($unresolved_composite_tax_keys);
+                try {
+                    foreach ($unresolved_tax_components as $components) {
+                        $qb_service->tax_rate->ensureTaxCodeForComponents($components);
+                    }
+
+                    $tax_rate_map = $qb_service->company->quickbooks->settings->tax_rate_map ?? [];
+                    $composite_tax_code_map = $qb_service->company->quickbooks->settings->composite_tax_code_map ?? [];
+                } catch (\Throwable $e) {
+                    nlog('QB: failed to create missing TaxServices before invoice push', [
+                        'invoice_id' => $invoice->id,
+                        'company_id' => $qb_service->company->id,
+                        'component_keys' => array_keys($unresolved_tax_components),
+                        'exception' => $e::class,
+                        'message' => $e->getMessage(),
+                    ]);
+
+                    throw QuickbooksMissingTaxCode::forComponentGroups($unresolved_tax_components, $e);
+                }
+
+                if ($is_us) {
+                    $taxable_code = 'TAX';
+                    $exempt_code = 'NON';
+                }
+            }
+
+            if (!$is_us && !$ast) {
+                $unresolved_tax_components = $this->unresolvedTaxCodeComponents($invoice, $invoice_level_taxes, $tax_rate_map, $composite_tax_code_map);
+
+                if (!empty($unresolved_tax_components)) {
+                    nlog('QB: missing TaxCode for invoice taxes after create attempt; invoice push blocked', [
+                        'invoice_id' => $invoice->id,
+                        'company_id' => $qb_service->company->id,
+                        'component_keys' => array_keys($unresolved_tax_components),
+                    ]);
+
+                    throw QuickbooksMissingTaxCode::forComponentGroups($unresolved_tax_components);
+                }
             }
         }
 
@@ -180,7 +216,7 @@ class InvoiceTransformer extends BaseTransformer
                 $line_items[] = $line_payload;
 
                 $line_num++;
-            } catch (QuickbooksMissingCompositeTaxCode $e) {
+            } catch (QuickbooksMissingTaxCode $e) {
                 throw $e;
             } catch (\Throwable $e) {
                 nlog('QuickBooks: ninjaToQb skipped line — product find/create or line build failed', [
@@ -372,11 +408,11 @@ class InvoiceTransformer extends BaseTransformer
     }
 
     /**
-     * @return array<int, string>
+     * @return array<string, array<int, array{name: string, rate: float}>>
      */
-    private function unresolvedCompositeTaxCodeKeys(Invoice $invoice, array $invoice_level_taxes, array $composite_tax_code_map): array
+    private function unresolvedTaxCodeComponents(Invoice $invoice, array $invoice_level_taxes, array $tax_rate_map, array $composite_tax_code_map): array
     {
-        $missing_keys = [];
+        $missing_components = [];
 
         foreach ($invoice->line_items as $line_item) {
             if (isset($line_item->tax_id) && in_array((string) $line_item->tax_id, ['5', '8'], true)) {
@@ -386,18 +422,27 @@ class InvoiceTransformer extends BaseTransformer
             $line_item = $this->mergeInvoiceLevelTaxes($line_item, $invoice_level_taxes);
             $components = $this->taxComponentsFromLineItem($line_item);
 
-            if (count($components) < 2) {
+            if (empty($components)) {
                 continue;
             }
 
             $component_key = TaxCodeComponentKey::fromComponents($components);
 
-            if ($component_key !== '' && $this->findCompositeTaxCodeId($components, $composite_tax_code_map) === null) {
-                $missing_keys[] = $component_key;
+            if ($component_key === '') {
+                continue;
+            }
+
+            if (count($components) === 1 && $this->findTaxCodeIdByRate($tax_rate_map, $components[0]['rate'], $components[0]['name']) === null) {
+                $missing_components[$component_key] = $components;
+                continue;
+            }
+
+            if (count($components) > 1 && $this->findCompositeTaxCodeId($components, $composite_tax_code_map) === null) {
+                $missing_components[$component_key] = $components;
             }
         }
 
-        return array_values(array_unique($missing_keys));
+        return $missing_components;
     }
 
     /**
@@ -421,7 +466,15 @@ class InvoiceTransformer extends BaseTransformer
         if (count($components) === 1) {
             $tax_code_id = $this->findTaxCodeIdByRate($tax_rate_map, $components[0]['rate'], $components[0]['name']);
 
-            return $tax_code_id ?: $taxable_code;
+            if ($tax_code_id) {
+                return $tax_code_id;
+            }
+
+            nlog('QB: no TaxCode for invoice tax; invoice push blocked', [
+                'components' => $components,
+            ]);
+
+            throw QuickbooksMissingTaxCode::forComponents($components);
         }
 
         $tax_code_id = $this->findCompositeTaxCodeId($components, $composite_tax_code_map);
@@ -434,7 +487,7 @@ class InvoiceTransformer extends BaseTransformer
             'components' => $components,
         ]);
 
-        throw QuickbooksMissingCompositeTaxCode::forComponents($components);
+        throw QuickbooksMissingTaxCode::forComponents($components);
     }
 
     /**

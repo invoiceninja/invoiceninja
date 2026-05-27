@@ -3,11 +3,16 @@
 namespace Tests\Feature\Quickbooks;
 
 use App\DataMapper\QuickbooksSettings;
-use App\Exceptions\QuickbooksMissingCompositeTaxCode;
+use App\Exceptions\QuickbooksMissingTaxCode;
 use App\Models\Company;
 use App\Models\Invoice;
+use App\Services\Quickbooks\Models\QbTaxRate;
+use App\Services\Quickbooks\QuickbooksService;
 use App\Services\Quickbooks\TaxCodeComponentKey;
 use App\Services\Quickbooks\Transformers\InvoiceTransformer;
+use Mockery;
+use QuickBooksOnline\API\Data\IPPTaxService;
+use QuickBooksOnline\API\DataService\DataService;
 use ReflectionMethod;
 use Tests\TestCase;
 
@@ -84,8 +89,8 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
             ['name' => 'PST', 'rate' => 7],
         ]);
 
-        $this->expectException(QuickbooksMissingCompositeTaxCode::class);
-        $this->expectExceptionMessage('QuickBooks requires a composite TaxCode for combined taxes');
+        $this->expectException(QuickbooksMissingTaxCode::class);
+        $this->expectExceptionMessage('QuickBooks requires a TaxCode for taxes');
 
         $this->resolveLineTaxCode($line_item, []);
     }
@@ -124,8 +129,8 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
             ['name' => 'PST', 'rate' => 7],
         ]);
 
-        $this->expectException(QuickbooksMissingCompositeTaxCode::class);
-        $this->expectExceptionMessage('QuickBooks requires a composite TaxCode for combined taxes');
+        $this->expectException(QuickbooksMissingTaxCode::class);
+        $this->expectExceptionMessage('QuickBooks requires a TaxCode for taxes');
 
         $this->resolveLineTaxCode($line_item, [
             $composite_key => [
@@ -145,36 +150,58 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
     public function test_unresolved_composite_tax_key_requests_lazy_tax_code_refresh(): void
     {
         $components = [
-            ['name' => 'GST', 'rate' => 5],
+            ['name' => 'GST', 'rate' => 5.0],
             ['name' => 'QST', 'rate' => 9.975],
         ];
         $component_key = TaxCodeComponentKey::fromComponents($components);
 
-        $this->assertSame([$component_key], $this->unresolvedCompositeTaxCodeKeys($this->invoiceWithTaxes($components), []));
+        $this->assertSame([$component_key => $components], $this->unresolvedTaxCodeComponents($this->invoiceWithTaxes($components), []));
     }
 
     public function test_resolved_composite_tax_key_skips_lazy_tax_code_refresh(): void
     {
         $components = [
-            ['name' => 'GST', 'rate' => 5],
+            ['name' => 'GST', 'rate' => 5.0],
             ['name' => 'QST', 'rate' => 9.975],
         ];
         $component_key = TaxCodeComponentKey::fromComponents($components);
 
-        $this->assertSame([], $this->unresolvedCompositeTaxCodeKeys($this->invoiceWithTaxes($components), [
+        $this->assertSame([], $this->unresolvedTaxCodeComponents($this->invoiceWithTaxes($components), [
             $component_key => [
                 ['tax_code_id' => 'GST_QST_QC', 'name' => 'GST/QST QC'],
             ],
         ]));
     }
 
-    public function test_single_tax_does_not_request_lazy_tax_code_refresh(): void
+    public function test_resolved_single_tax_does_not_request_lazy_tax_code_refresh(): void
     {
         $invoice = $this->invoiceWithTaxes([
             ['name' => 'GST', 'rate' => 5],
         ]);
 
-        $this->assertSame([], $this->unresolvedCompositeTaxCodeKeys($invoice, []));
+        $this->assertSame([], $this->unresolvedTaxCodeComponents($invoice, []));
+    }
+
+    public function test_unresolved_single_tax_requests_lazy_tax_code_creation(): void
+    {
+        $components = [
+            ['name' => 'QST', 'rate' => 9.975],
+        ];
+        $component_key = TaxCodeComponentKey::fromComponents($components);
+
+        $this->assertSame([$component_key => $components], $this->unresolvedTaxCodeComponents($this->invoiceWithTaxes($components), []));
+    }
+
+    public function test_missing_single_tax_code_blocks_invoice_push(): void
+    {
+        $line_item = $this->lineItemWithInvoiceTaxes([
+            ['name' => 'QST', 'rate' => 9.975],
+        ]);
+
+        $this->expectException(QuickbooksMissingTaxCode::class);
+        $this->expectExceptionMessage('QuickBooks requires a TaxCode for taxes');
+
+        $this->resolveLineTaxCode($line_item, []);
     }
 
     public function test_exempt_line_does_not_request_lazy_tax_code_refresh(): void
@@ -182,11 +209,11 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
         $line_item = $this->lineItem();
         $line_item->tax_id = '5';
         $invoice = $this->invoiceWithTaxes([
-            ['name' => 'GST', 'rate' => 5],
+            ['name' => 'GST', 'rate' => 5.0],
             ['name' => 'QST', 'rate' => 9.975],
         ], [$line_item]);
 
-        $this->assertSame([], $this->unresolvedCompositeTaxCodeKeys($invoice, []));
+        $this->assertSame([], $this->unresolvedTaxCodeComponents($invoice, []));
     }
 
     public function test_us_multi_component_tax_still_uses_tax_code_literal(): void
@@ -200,6 +227,269 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
         $method->setAccessible(true);
 
         $this->assertSame('TAX', $method->invoke($this->transformer, $line_item, 'TAX', 'NON'));
+    }
+
+    public function test_qb_tax_rate_creates_tax_service_for_missing_components(): void
+    {
+        $company = new Company();
+        $company->quickbooks = new QuickbooksSettings([
+            'settings' => [
+                'tax_rate_map' => [],
+                'composite_tax_code_map' => [],
+            ],
+        ]);
+
+        $service = Mockery::mock(QuickbooksService::class);
+        $service->company = $company;
+
+        $sdk = Mockery::mock(DataService::class);
+        $service->sdk = $sdk;
+        $tax_service_payload = null;
+
+        $sdk->shouldReceive('Query')
+            ->once()
+            ->with('SELECT * FROM TaxAgency')
+            ->andReturn([
+                (object) ['Id' => '10', 'DisplayName' => 'Receiver General'],
+                (object) ['Id' => '20', 'DisplayName' => 'Revenu Quebec'],
+            ]);
+
+        $sdk->shouldReceive('Add')
+            ->once()
+            ->with(Mockery::on(function (mixed $payload) use (&$tax_service_payload): bool {
+                $tax_service_payload = $payload;
+
+                return $payload instanceof IPPTaxService;
+            }))
+            ->andReturn((object) ['TaxService' => (object) ['TaxCodeId' => '999']]);
+
+        $tax_code_id = (new QbTaxRate($service))->ensureTaxCodeForComponents([
+            ['name' => 'GST', 'rate' => 5],
+            ['name' => 'QST', 'rate' => 9.975],
+        ]);
+
+        $component_key = TaxCodeComponentKey::fromComponents([
+            ['name' => 'GST', 'rate' => 5],
+            ['name' => 'QST', 'rate' => 9.975],
+        ]);
+
+        $this->assertSame('999', $tax_code_id);
+        $this->assertSame('GST 5% + QST 9.975%', $tax_service_payload->TaxCode);
+        $this->assertSame('10', $tax_service_payload->TaxRateDetails[0]->TaxAgencyId);
+        $this->assertSame('20', $tax_service_payload->TaxRateDetails[1]->TaxAgencyId);
+        $this->assertSame('999', $company->quickbooks->settings->composite_tax_code_map[$component_key][0]['tax_code_id']);
+    }
+
+    public function test_qb_tax_rate_creates_missing_tax_agency_for_component(): void
+    {
+        $company = new Company();
+        $company->quickbooks = new QuickbooksSettings([
+            'settings' => [
+                'tax_rate_map' => [],
+                'composite_tax_code_map' => [],
+            ],
+        ]);
+
+        $service = Mockery::mock(QuickbooksService::class);
+        $service->company = $company;
+
+        $sdk = Mockery::mock(DataService::class);
+        $service->sdk = $sdk;
+        $tax_service_payload = null;
+
+        $sdk->shouldReceive('Query')
+            ->once()
+            ->with('SELECT * FROM TaxAgency')
+            ->andReturn([
+                (object) ['Id' => '10', 'DisplayName' => 'Receiver General'],
+            ]);
+
+        $sdk->shouldReceive('Add')
+            ->once()
+            ->with(Mockery::on(fn (mixed $payload): bool => data_get($payload, 'DisplayName') === 'Revenu Quebec'))
+            ->andReturn((object) ['Id' => '20'])
+            ->ordered();
+
+        $sdk->shouldReceive('Add')
+            ->once()
+            ->with(Mockery::on(function (mixed $payload) use (&$tax_service_payload): bool {
+                $tax_service_payload = $payload;
+
+                return $payload instanceof IPPTaxService;
+            }))
+            ->andReturn((object) ['TaxService' => (object) ['TaxCodeId' => '999']])
+            ->ordered();
+
+        $tax_code_id = (new QbTaxRate($service))->ensureTaxCodeForComponents([
+            ['name' => 'QST', 'rate' => 9.975],
+        ]);
+
+        $this->assertSame('999', $tax_code_id);
+        $this->assertSame('20', $tax_service_payload->TaxRateDetails[0]->TaxAgencyId);
+        $this->assertSame('999', $company->quickbooks->settings->tax_rate_map[0]['tax_code_id']);
+        $this->assertSame('QST', $company->quickbooks->settings->tax_rate_map[0]['name']);
+    }
+
+    public function test_component_key_strips_generated_quickbooks_rate_suffix_from_names(): void
+    {
+        $this->assertSame(
+            TaxCodeComponentKey::fromComponents([
+                ['name' => 'GST', 'rate' => 5],
+                ['name' => 'QST', 'rate' => 9.975],
+            ]),
+            TaxCodeComponentKey::fromComponents([
+                ['name' => 'GST 5%', 'rate' => 5],
+                ['name' => 'QST 9.975%', 'rate' => 9.975],
+            ])
+        );
+    }
+
+    public function test_qb_tax_rate_reuses_existing_tax_code_after_duplicate_name_response(): void
+    {
+        $company = new Company();
+        $company->quickbooks = new QuickbooksSettings([
+            'settings' => [
+                'tax_rate_map' => [],
+                'composite_tax_code_map' => [],
+            ],
+        ]);
+
+        $service = Mockery::mock(QuickbooksService::class);
+        $service->company = $company;
+
+        $sdk = Mockery::mock(DataService::class);
+        $service->sdk = $sdk;
+        $first_payload = null;
+
+        $sdk->shouldReceive('Query')
+            ->once()
+            ->with('SELECT * FROM TaxAgency')
+            ->andReturn([
+                (object) ['Id' => '10', 'DisplayName' => 'Receiver General'],
+                (object) ['Id' => '20', 'DisplayName' => 'Revenu Quebec'],
+            ]);
+
+        $sdk->shouldReceive('Add')
+            ->once()
+            ->with(Mockery::on(function (mixed $payload) use (&$first_payload): bool {
+                $first_payload = $payload;
+
+                return $payload instanceof IPPTaxService;
+            }))
+            ->andThrow(new \Exception('Duplicate Name Exists Error code":"6240"'));
+
+        $service->shouldReceive('fetchTaxRates')
+            ->once()
+            ->andReturn([
+                ['id' => '101', 'name' => 'GST 5%', 'rate' => 5],
+                ['id' => '102', 'name' => 'QST 9.975%', 'rate' => 9.975],
+            ]);
+
+        $service->shouldReceive('fetchTaxCodes')
+            ->once()
+            ->andReturn([
+                [
+                    'Id' => ['value' => '999'],
+                    'Name' => 'GST 5% + QST 9.975%',
+                    'SalesTaxRateList' => [
+                        'TaxRateDetail' => [
+                            ['TaxRateRef' => ['value' => '101']],
+                            ['TaxRateRef' => ['value' => '102']],
+                        ],
+                    ],
+                ],
+            ]);
+
+        $tax_code_id = (new QbTaxRate($service))->ensureTaxCodeForComponents([
+            ['name' => 'GST', 'rate' => 5],
+            ['name' => 'QST', 'rate' => 9.975],
+        ]);
+
+        $component_key = TaxCodeComponentKey::fromComponents([
+            ['name' => 'GST', 'rate' => 5],
+            ['name' => 'QST', 'rate' => 9.975],
+        ]);
+
+        $this->assertSame('999', $tax_code_id);
+        $this->assertSame('GST 5% + QST 9.975%', $first_payload->TaxCode);
+        $this->assertSame('999', $company->quickbooks->settings->composite_tax_code_map[$component_key][0]['tax_code_id']);
+        $this->assertSame('ninja', $company->quickbooks->settings->composite_tax_code_map[$component_key][0]['source']);
+    }
+
+    public function test_qb_tax_rate_retries_tax_service_creation_with_generated_names_when_duplicate_is_not_matching_tax_code(): void
+    {
+        $company = new Company();
+        $company->quickbooks = new QuickbooksSettings([
+            'settings' => [
+                'tax_rate_map' => [],
+                'composite_tax_code_map' => [],
+            ],
+        ]);
+
+        $service = Mockery::mock(QuickbooksService::class);
+        $service->company = $company;
+
+        $sdk = Mockery::mock(DataService::class);
+        $service->sdk = $sdk;
+        $first_payload = null;
+        $retry_payload = null;
+
+        $sdk->shouldReceive('Query')
+            ->twice()
+            ->with('SELECT * FROM TaxAgency')
+            ->andReturn([
+                (object) ['Id' => '10', 'DisplayName' => 'Receiver General'],
+                (object) ['Id' => '20', 'DisplayName' => 'Revenu Quebec'],
+            ]);
+
+        $sdk->shouldReceive('Add')
+            ->once()
+            ->with(Mockery::on(function (mixed $payload) use (&$first_payload): bool {
+                $first_payload = $payload;
+
+                return $payload instanceof IPPTaxService;
+            }))
+            ->andThrow(new \Exception('Duplicate Name Exists Error code":"6240"'))
+            ->ordered();
+
+        $service->shouldReceive('fetchTaxRates')
+            ->once()
+            ->andReturn([
+                ['id' => '101', 'name' => 'GST 5%', 'rate' => 5],
+                ['id' => '102', 'name' => 'QST 9.975%', 'rate' => 9.975],
+            ]);
+
+        $service->shouldReceive('fetchTaxCodes')
+            ->once()
+            ->andReturn([]);
+
+        $sdk->shouldReceive('Add')
+            ->once()
+            ->with(Mockery::on(function (mixed $payload) use (&$retry_payload): bool {
+                $retry_payload = $payload;
+
+                return $payload instanceof IPPTaxService;
+            }))
+            ->andReturn((object) ['TaxService' => (object) ['TaxCodeId' => '999']])
+            ->ordered();
+
+        $tax_code_id = (new QbTaxRate($service))->ensureTaxCodeForComponents([
+            ['name' => 'GST', 'rate' => 5],
+            ['name' => 'QST', 'rate' => 9.975],
+        ]);
+
+        $component_key = TaxCodeComponentKey::fromComponents([
+            ['name' => 'GST', 'rate' => 5],
+            ['name' => 'QST', 'rate' => 9.975],
+        ]);
+
+        $this->assertSame('999', $tax_code_id);
+        $this->assertSame('GST 5% + QST 9.975%', $first_payload->TaxCode);
+        $this->assertStringStartsWith('Ninja Tax ', $retry_payload->TaxCode);
+        $this->assertNotSame($first_payload->TaxCode, $retry_payload->TaxCode);
+        $this->assertSame('101', $retry_payload->TaxRateDetails[0]->TaxRateId);
+        $this->assertSame('102', $retry_payload->TaxRateDetails[1]->TaxRateId);
+        $this->assertSame('999', $company->quickbooks->settings->composite_tax_code_map[$component_key][0]['tax_code_id']);
     }
 
     public function test_quickbooks_settings_serializes_composite_tax_code_map(): void
@@ -287,18 +577,18 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
     }
 
     /**
-     * @return array<int, string>
+     * @return array<string, array<int, array{name: string, rate: float}>>
      */
-    private function unresolvedCompositeTaxCodeKeys(Invoice $invoice, array $composite_tax_code_map): array
+    private function unresolvedTaxCodeComponents(Invoice $invoice, array $composite_tax_code_map): array
     {
         $extract_method = new ReflectionMethod(InvoiceTransformer::class, 'extractInvoiceLevelTaxes');
         $extract_method->setAccessible(true);
         $invoice_level_taxes = $extract_method->invoke($this->transformer, $invoice);
 
-        $method = new ReflectionMethod(InvoiceTransformer::class, 'unresolvedCompositeTaxCodeKeys');
+        $method = new ReflectionMethod(InvoiceTransformer::class, 'unresolvedTaxCodeComponents');
         $method->setAccessible(true);
 
-        return $method->invoke($this->transformer, $invoice, $invoice_level_taxes, $composite_tax_code_map);
+        return $method->invoke($this->transformer, $invoice, $invoice_level_taxes, $this->taxRateMap(), $composite_tax_code_map);
     }
 
     private function taxRateMap(): array
