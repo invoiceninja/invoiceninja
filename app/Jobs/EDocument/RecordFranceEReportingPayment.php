@@ -262,6 +262,68 @@ class RecordFranceEReportingPayment implements ShouldQueue
             || BcMath::lessThanOrEqual($invoice->balance ?? 0, '0', 2);
     }
 
+    private function recordPaymentReceivedNotification(Payment $payment, Invoice $invoice, ?Paymentable $paymentable, string $movementDate): void
+    {
+        if ($this->movementType !== FrancePaymentApplicationRecorder::MOVEMENT_APPLIED) {
+            return;
+        }
+
+        if (! $this->invoiceIsPaidInFull($invoice)) {
+            return;
+        }
+
+        if ($this->originalDocumentGuid($invoice) === "") {
+            return;
+        }
+
+        $event = $this->paymentReceivedNotificationEvent($payment, $invoice, $paymentable, $movementDate);
+
+        if ($event->payment_status === TransactionEvent::FR_REPORTING_STATUS_SUBMITTED) {
+            return;
+        }
+
+        SubmitFrancePaymentReceivedNotification::dispatch($event->id, $this->db)->afterCommit();
+    }
+
+    private function paymentReceivedNotificationEvent(Payment $payment, Invoice $invoice, ?Paymentable $paymentable, string $movementDate): TransactionEvent
+    {
+        $existing = TransactionEvent::query()
+            ->where("company_id", $payment->company_id)
+            ->where("invoice_id", $invoice->id)
+            ->where("event_id", TransactionEvent::FR_B2B_PAYMENT_RECEIVED_NOTIFICATION)
+            ->orderByDesc("id")
+            ->first();
+
+        if ($existing) {
+            return $existing;
+        }
+
+        $amount = $this->resolveMovementAmount($payment, $invoice, $paymentable);
+        $originalDocumentGuid = $this->originalDocumentGuid($invoice);
+
+        return TransactionEvent::create(array_merge(
+            $this->basePayload($payment, $invoice, TransactionEvent::FR_B2B_PAYMENT_RECEIVED_NOTIFICATION, $amount, $movementDate),
+            [
+                "payment_status" => TransactionEvent::FR_REPORTING_STATUS_PENDING,
+                "reporting_data" => null,
+                "payment_request" => [
+                    "fr_kind" => self::KIND_PAYMENT_RECEIVED_NOTIFICATION,
+                    "source_date" => $movementDate,
+                    "paymentable_id" => $paymentable?->id,
+                    "movement_type" => $this->movementType,
+                    "original_document_guid" => $originalDocumentGuid,
+                    "idempotency_guid" => Str::uuid()->toString(),
+                    "mode" => "auto",
+                ],
+            ]
+        ));
+    }
+
+    private function originalDocumentGuid(Invoice $invoice): string
+    {
+        return trim((string) ($invoice->backup->guid ?? ""));
+    }
+
     private function resolveEventId(Invoice $invoice): int
     {
         if (($invoice->client->classification ?? 'business') === 'individual') {

@@ -56,7 +56,7 @@ class UpdateFranceEReportSubmissionStatus implements ShouldQueue
 
         $submission = TransactionEvent::query()
             ->where('company_id', $company->id)
-            ->whereIn('event_id', TransactionEvent::FR_REPORT_SUBMISSION_EVENTS)
+            ->whereIn('event_id', array_merge(TransactionEvent::FR_REPORT_SUBMISSION_EVENTS, TransactionEvent::FR_PAYMENT_NOTIFICATION_EVENTS))
             ->get()
             ->first(fn (TransactionEvent $event): bool => data_get($event->payment_request, 'guid') === $guid);
 

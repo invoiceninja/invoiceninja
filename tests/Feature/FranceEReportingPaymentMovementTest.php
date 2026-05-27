@@ -8,6 +8,7 @@ use App\Factory\InvoiceItemFactory;
 use App\Factory\PaymentFactory;
 use App\Repositories\PaymentRepository;
 use App\Jobs\EDocument\RecordFranceEReportingPayment;
+use App\Jobs\EDocument\SubmitFrancePaymentReceivedNotification;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Country;
@@ -17,9 +18,12 @@ use App\Models\Paymentable;
 use App\Models\TransactionEvent;
 use App\Services\EDocument\Standards\France\FranceEReportCompiler;
 use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
+use App\Services\EDocument\Gateway\Storecove\Storecove;
+use App\Services\EDocument\Gateway\Storecove\StorecoveProxy;
 use Faker\Factory;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Bus;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -161,7 +165,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
             "2026-09-15",
         ))->handle();
 
-        $this->assertSame(0, TransactionEvent::query()->where("invoice_id", $invoice->id)->count());
+        $this->assertSame(0, TransactionEvent::query()->where('invoice_id', $invoice->id)->count());
     }
 
     public function testItRecordsForeignBusinessPaymentsAsVatExcludedBiMonthlyReports(): void
@@ -181,13 +185,13 @@ class FranceEReportingPaymentMovementTest extends TestCase
         ))->handle();
 
         $movement = TransactionEvent::query()
-            ->where("invoice_id", $invoice->id)
+            ->where('invoice_id', $invoice->id)
             ->where("event_id", TransactionEvent::FR_VAT_EXCLUDED_PAYMENT)
             ->where("payment_status", TransactionEvent::FR_REPORTING_STATUS_DEFERRED)
             ->firstOrFail();
 
         $report = TransactionEvent::query()
-            ->where("invoice_id", $invoice->id)
+            ->where('invoice_id', $invoice->id)
             ->where("event_id", TransactionEvent::FR_VAT_EXCLUDED_PAYMENT)
             ->where("payment_status", TransactionEvent::FR_REPORTING_STATUS_PENDING)
             ->firstOrFail();
@@ -526,12 +530,12 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->assertSame([null, null], $movements->map(fn (TransactionEvent $movement): mixed => data_get($movement->payment_request, "report_event_id"))->all());
     }
 
-    public function testPaymentRepositoryDoesNotInvokeFranceRecorderForDomesticFrenchBusinessInvoices(): void
+    public function testPaymentRepositoryInvokesFranceRecorderForDomesticFrenchBusinessInvoices(): void
     {
         $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
 
         $recorder = \Mockery::mock(FrancePaymentApplicationRecorder::class);
-        $recorder->shouldNotReceive("recordMovement");
+        $recorder->shouldReceive("recordMovement")->once();
         $this->app->instance(FrancePaymentApplicationRecorder::class, $recorder);
 
         app(PaymentRepository::class)->save([
@@ -546,7 +550,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
             ],
         ], PaymentFactory::create($this->company->id, $this->user->id, $invoice->client_id));
 
-        $this->assertSame(0, TransactionEvent::query()->where("invoice_id", $invoice->id)->count());
+        $this->assertSame(0, TransactionEvent::query()->where('invoice_id', $invoice->id)->count());
     }
 
     public function testPaymentRepositoryContinuesWhenFranceRecorderFails(): void
@@ -576,6 +580,136 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->assertSame(0.0, (float) $invoice->fresh()->balance);
     }
 
+
+    public function testDomesticFrenchBusinessFullPaymentCreatesPaymentReceivedNotificationEvent(): void
+    {
+        Bus::fake([SubmitFrancePaymentReceivedNotification::class]);
+
+        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
+        $invoice->backup->guid = "original-storecove-guid";
+        $invoice->save();
+
+        $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
+        $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
+        $invoice = $this->setInvoicePaymentState($invoice, "1200");
+
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            "1200",
+            "2026-09-15",
+        ))->handle();
+
+        $events = $this->paymentNotificationEvents($invoice);
+        $event = $events->first();
+
+        $this->assertTrue($invoice->client->reportableFrTransaction());
+        $this->assertSame(1, $events->count());
+        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_PENDING, $event->payment_status);
+        $this->assertSame(RecordFranceEReportingPayment::KIND_PAYMENT_RECEIVED_NOTIFICATION, data_get($event->payment_request, "fr_kind"));
+        $this->assertSame("original-storecove-guid", data_get($event->payment_request, "original_document_guid"));
+        $this->assertSame(0, TransactionEvent::query()->where('invoice_id', $invoice->id)->where("event_id", TransactionEvent::FR_VAT_EXCLUDED_PAYMENT)->count());
+
+        Bus::assertDispatched(SubmitFrancePaymentReceivedNotification::class);
+    }
+
+    public function testDomesticFrenchBusinessPartialPaymentDoesNotCreatePaymentReceivedNotification(): void
+    {
+        Bus::fake([SubmitFrancePaymentReceivedNotification::class]);
+
+        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
+        $invoice->backup->guid = "original-storecove-guid";
+        $invoice->save();
+
+        $payment = $this->makePayment($invoice->client, "2026-09-15", "400");
+        $paymentable = $this->makePaymentable($payment, $invoice, "400", "2026-09-15");
+        $invoice = $this->setInvoicePaymentState($invoice, "400");
+
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            "400",
+            "2026-09-15",
+        ))->handle();
+
+        $this->assertSame(0, $this->paymentNotificationEvents($invoice)->count());
+        Bus::assertNotDispatched(SubmitFrancePaymentReceivedNotification::class);
+    }
+
+    public function testDomesticFrenchBusinessPaymentWithoutStorecoveGuidDoesNotCreateNotification(): void
+    {
+        Bus::fake([SubmitFrancePaymentReceivedNotification::class]);
+
+        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
+        $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
+        $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
+        $invoice = $this->setInvoicePaymentState($invoice, "1200");
+
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            "1200",
+            "2026-09-15",
+        ))->handle();
+
+        $this->assertSame(0, $this->paymentNotificationEvents($invoice)->count());
+        Bus::assertNotDispatched(SubmitFrancePaymentReceivedNotification::class);
+    }
+
+    public function testPaymentReceivedNotificationSubmissionUsesOriginalStorecoveGuid(): void
+    {
+        Bus::fake([SubmitFrancePaymentReceivedNotification::class]);
+
+        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
+        $invoice->backup->guid = "original-storecove-guid";
+        $invoice->save();
+
+        $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
+        $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
+        $invoice = $this->setInvoicePaymentState($invoice, "1200");
+
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            "1200",
+            "2026-09-15",
+        ))->handle();
+
+        $event = $this->paymentNotificationEvents($invoice)->first();
+        $storecove = new Storecove();
+        $proxy = \Mockery::mock(StorecoveProxy::class);
+
+        $proxy->shouldReceive("setCompany")
+            ->once()
+            ->andReturnSelf();
+
+        $proxy->shouldReceive("submitDocument")
+            ->once()
+            ->with(\Mockery::on(function (array $payload): bool {
+                return $payload["forDocumentSubmissionGuid"] === "original-storecove-guid"
+                    && $payload["document"]["documentType"] === "payment_received_notification"
+                    && $payload["document"]["paymentReceivedNotification"]["mode"] === "auto"
+                    && ! array_key_exists("legal_entity_id", $payload);
+            }))
+            ->andReturn(["guid" => "notification-storecove-guid"]);
+
+        $storecove->proxy = $proxy;
+
+        (new SubmitFrancePaymentReceivedNotification($event->id, $this->company->db))->handle($storecove);
+
+        $event = $event->fresh();
+
+        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_SUBMITTED, $event->payment_status);
+        $this->assertSame("notification-storecove-guid", data_get($event->payment_request, "guid"));
+    }
 
     private function enableFranceReporting(string $schedule = 'ten_days'): void
     {
@@ -744,6 +878,15 @@ class FranceEReportingPaymentMovementTest extends TestCase
                 TransactionEvent::FR_REPORTING_STATUS_SUBMITTED,
                 TransactionEvent::FR_REPORTING_STATUS_FAILED,
             ])
+            ->orderBy('id')
+            ->get();
+    }
+
+    private function paymentNotificationEvents(Invoice $invoice): EloquentCollection
+    {
+        return TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->where('event_id', TransactionEvent::FR_B2B_PAYMENT_RECEIVED_NOTIFICATION)
             ->orderBy('id')
             ->get();
     }
