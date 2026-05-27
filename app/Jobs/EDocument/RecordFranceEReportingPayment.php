@@ -51,6 +51,9 @@ class RecordFranceEReportingPayment implements ShouldQueue
 
     public const REPORT_KIND_CORRECTIVE = 'corrective';
 
+    private const REPORTING_PATH_F10 = 'f10';
+
+    private const REPORTING_PATH_PAYMENT_RECEIVED_NOTIFICATION = 'payment_received_notification';
 
     public $deleteWhenMissingModels = true;
 
@@ -84,39 +87,31 @@ class RecordFranceEReportingPayment implements ShouldQueue
             return;
         }
 
+        $reportingPath = $this->resolveReportingPath($payment);
+
+        if (is_null($reportingPath)) {
+            return;
+        }
+
+        $f10EventId = $reportingPath === self::REPORTING_PATH_F10
+            ? $this->resolveF10EventId($payment)
+            : null;
+
         foreach ($this->invoices($payment) as $invoice) {
-            if (! $this->invoiceIsReportable($payment, $invoice)) {
+            if (! $this->invoiceAllowsMovement($invoice)) {
                 continue;
             }
 
             $paymentable = $this->paymentable($payment, $invoice);
             $movementDate = $this->resolveMovementDate($payment, $invoice, $paymentable);
 
-            if ($this->invoiceRequiresPaymentReceivedNotification($invoice)) {
+            if ($reportingPath === self::REPORTING_PATH_PAYMENT_RECEIVED_NOTIFICATION) {
                 $this->recordPaymentReceivedNotification($payment, $invoice, $paymentable, $movementDate);
                 continue;
             }
 
-            if (! $this->invoiceIsF10Reportable($invoice)) {
-                continue;
-            }
-
-            $movementAmount = $this->resolveMovementAmount($payment, $invoice, $paymentable);
-
-            if (BcMath::isZero($movementAmount, 2)) {
-                continue;
-            }
-
-            $eventId = $this->resolveEventId($invoice);
-            $sourcePeriod = $this->resolvePeriodEnd($payment, $invoice, $eventId, $movementDate);
-            $movementEvent = $this->recordMovementEvent($payment, $invoice, $paymentable, $eventId, $movementAmount, $movementDate, $sourcePeriod);
-
-            if (BcMath::isNegative($movementAmount, 2)) {
-                $this->applyNegativeReportMovement($payment, $invoice, $eventId, $movementAmount, $movementDate, $movementEvent);
-            }
-
-            if ($this->invoiceIsPaidInFull($invoice)) {
-                $this->promoteFullPaymentReport($payment, $invoice, $eventId, $movementDate);
+            if (! is_null($f10EventId)) {
+                $this->recordF10PaymentMovement($payment, $invoice, $paymentable, $movementDate, $f10EventId);
             }
         }
     }
@@ -174,20 +169,35 @@ class RecordFranceEReportingPayment implements ShouldQueue
         };
     }
 
-    private function invoiceIsReportable(Payment $payment, Invoice $invoice): bool
+    private function resolveReportingPath(Payment $payment): ?string
     {
-        if (! $invoice->client) {
-            return false;
+        if (! $payment->client) {
+            return null;
         }
 
-        if (! $invoice->client->relationLoaded('company')) {
-            $invoice->client->setRelation('company', $payment->company);
+        if (! $payment->client->relationLoaded('company')) {
+            $payment->client->setRelation('company', $payment->company);
         }
 
-        if (! $invoice->client->reportableFrTransaction()) {
-            return false;
+        if (! $payment->client->reportableFrTransaction()) {
+            return null;
         }
 
+        if ($this->paymentRequiresPaymentReceivedNotification($payment)) {
+            return self::REPORTING_PATH_PAYMENT_RECEIVED_NOTIFICATION;
+        }
+
+        return self::REPORTING_PATH_F10;
+    }
+
+    private function paymentRequiresPaymentReceivedNotification(Payment $payment): bool
+    {
+        return ($payment->client->classification ?? 'business') !== 'individual'
+            && $payment->client->country?->iso_3166_2 === 'FR';
+    }
+
+    private function invoiceAllowsMovement(Invoice $invoice): bool
+    {
         if ($invoice->is_deleted && ! in_array($this->movementType, [
             FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
             FrancePaymentApplicationRecorder::MOVEMENT_DELETED,
@@ -197,21 +207,26 @@ class RecordFranceEReportingPayment implements ShouldQueue
 
         return true;
     }
-    private function invoiceIsF10Reportable(Invoice $invoice): bool
+
+    private function recordF10PaymentMovement(Payment $payment, Invoice $invoice, ?Paymentable $paymentable, string $movementDate, int $eventId): void
     {
-        if (($invoice->client->classification ?? 'business') === 'individual') {
-            return true;
+        $movementAmount = $this->resolveMovementAmount($payment, $invoice, $paymentable);
+
+        if (BcMath::isZero($movementAmount, 2)) {
+            return;
         }
 
-        return $invoice->client->country?->iso_3166_2 !== 'FR';
-    }
+        $sourcePeriod = $this->resolvePeriodEnd($payment, $invoice, $eventId, $movementDate);
+        $movementEvent = $this->recordMovementEvent($payment, $invoice, $paymentable, $eventId, $movementAmount, $movementDate, $sourcePeriod);
 
-    private function invoiceRequiresPaymentReceivedNotification(Invoice $invoice): bool
-    {
-        return ($invoice->client->classification ?? 'business') !== 'individual'
-            && $invoice->client->country?->iso_3166_2 === 'FR';
-    }
+        if (BcMath::isNegative($movementAmount, 2)) {
+            $this->applyNegativeReportMovement($payment, $invoice, $eventId, $movementAmount, $movementDate, $movementEvent);
+        }
 
+        if ($this->invoiceIsPaidInFull($invoice)) {
+            $this->promoteFullPaymentReport($payment, $invoice, $eventId, $movementDate);
+        }
+    }
 
     private function paymentable(Payment $payment, Invoice $invoice): ?Paymentable
     {
@@ -324,9 +339,9 @@ class RecordFranceEReportingPayment implements ShouldQueue
         return trim((string) ($invoice->backup->guid ?? ""));
     }
 
-    private function resolveEventId(Invoice $invoice): int
+    private function resolveF10EventId(Payment $payment): int
     {
-        if (($invoice->client->classification ?? 'business') === 'individual') {
+        if (($payment->client->classification ?? 'business') === 'individual') {
             return TransactionEvent::FR_B2C_PAYMENT;
         }
 
@@ -729,7 +744,6 @@ class RecordFranceEReportingPayment implements ShouldQueue
             'movement_date' => $movementDate,
         ], JSON_THROW_ON_ERROR));
     }
-
 
     private function normalizeAmount(int|float|string|null $amount): string
     {

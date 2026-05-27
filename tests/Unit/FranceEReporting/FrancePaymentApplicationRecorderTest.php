@@ -97,7 +97,7 @@ class FrancePaymentApplicationRecorderTest extends TestCase
         });
     }
 
-    public function testItDoesNotDispatchForDomesticFrenchBusinessInvoices(): void
+    public function testItDispatchesForDomesticFrenchBusinessInvoicesSoFranceDomainCanChooseTheReportType(): void
     {
         Bus::fake();
 
@@ -107,7 +107,7 @@ class FrancePaymentApplicationRecorderTest extends TestCase
 
         (new FrancePaymentApplicationRecorder())->recordMovement($payment, $invoice, $this->paymentable(), '100', '2026-09-15');
 
-        Bus::assertNotDispatched(RecordFranceEReportingPayment::class);
+        Bus::assertDispatched(RecordFranceEReportingPayment::class);
     }
 
     public function testItDoesNotDispatchWhenFranceReportingIsDisabled(): void

@@ -19,6 +19,7 @@ use App\DataMapper\TransactionEventMetadata;
  * Class Bank.
  *
  * @property int $id
+ * @property int $company_id
  * @property int $client_id
  * @property int $invoice_id
  * @property int $payment_id
