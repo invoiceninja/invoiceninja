@@ -457,7 +457,7 @@ class BaseTransformer
     }
 
     /**
-     * @param $name
+     * @param $key
      *
      * @return string
      */

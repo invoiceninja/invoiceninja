@@ -5998,7 +5998,7 @@ $lang = array(
     'peppol_rejected' => 'E-Invoice rejected by receiver.',
     'peppol_partially_paid' => 'E-Invoice partially paid.',
     'peppol_paid' => 'E-Invoice paid.',
-
+    'server_not_reachable' => 'Server not reachable. Check your internet connection and try again later.',
 );
 
 return $lang;
