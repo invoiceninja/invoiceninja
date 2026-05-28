@@ -224,6 +224,49 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->assertFalse($b2cSources->contains("id", $report->id));
     }
 
+    public function testB2BIPaymentReportRepeatsTheFullPaymentAmountForEachTaxSubtotal(): void
+    {
+        $invoice = $this->makeInvoice(
+            clientCountry: "DE",
+            classification: "business",
+            date: "2026-09-01",
+            lineItems: [
+                $this->makeLineItemWithTax("CONSULTING-20", 100, "VAT20", 20),
+                $this->makeLineItemWithTax("CONSULTING-10", 100, "VAT10", 10),
+            ],
+        );
+        $payment = $this->makePayment($invoice->client, "2026-09-15", "230");
+        $paymentable = $this->makePaymentable($payment, $invoice, "230", "2026-09-15");
+        $invoice = $this->setInvoicePaymentState($invoice, "230");
+
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            "230",
+            "2026-09-15",
+        ))->handle();
+
+        $report = TransactionEvent::query()
+            ->where("invoice_id", $invoice->id)
+            ->where("event_id", TransactionEvent::FR_VAT_EXCLUDED_PAYMENT)
+            ->where("payment_status", TransactionEvent::FR_REPORTING_STATUS_PENDING)
+            ->firstOrFail();
+
+        $taxSubtotals = $report->reporting_data->frReportEntry->b2biPayment->taxSubtotals;
+        $amountsIncludingTax = collect($taxSubtotals)
+            ->map(fn (object $taxSubtotal): string => (string) $taxSubtotal->amountIncludingTax)
+            ->all();
+        $amountIncludingTaxTotal = collect($taxSubtotals)
+            ->sum(fn (object $taxSubtotal): float => (float) $taxSubtotal->amountIncludingTax);
+
+        $this->assertCount(2, $taxSubtotals);
+        $this->assertSame(["230", "230"], $amountsIncludingTax);
+        $this->assertSame(460.0, $amountIncludingTaxTotal);
+        $this->assertGreaterThan((float) $payment->amount, $amountIncludingTaxTotal);
+    }
+
     public function testRefundBeforeSubmissionUpdatesThePendingPaymentReport(): void
     {
         $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-01");
@@ -1626,7 +1669,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         }
     }
 
-    public function testUnknownFranceEReportWebhookEventsOnlyAppendHistory(): void
+    public function testSubmitFranceEReportCreatesACompiledSubmissionBeforeStorecoveResponds(): void
     {
         $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-01");
         $payment = $this->makePayment($invoice->client, "2026-09-05", "1200");
@@ -1642,54 +1685,39 @@ class FranceEReportingPaymentMovementTest extends TestCase
             "2026-09-05",
         ))->handle();
 
-        $sourceEvent = $this->reportEvents($invoice)->firstOrFail();
-        $sourceStatus = $sourceEvent->payment_status;
-        $submission = TransactionEvent::create([
-            "company_id" => $this->company->id,
-            "client_id" => $sourceEvent->client_id,
-            "invoice_id" => $sourceEvent->invoice_id,
-            "payment_id" => $sourceEvent->payment_id,
-            "credit_id" => $sourceEvent->credit_id,
-            "event_id" => TransactionEvent::FR_REPORT_SUBMISSION_B2C,
-            "timestamp" => now()->timestamp,
-            "period" => "2026-09-10",
-            "payment_status" => TransactionEvent::FR_REPORTING_STATUS_FAILED,
-            "payment_request" => [
-                "guid" => "report-storecove-guid",
-                "source_event_ids" => [$sourceEvent->id],
-            ],
-        ]);
+        $sourceReport = $this->reportEvents($invoice)->firstOrFail();
+        $storecove = new Storecove();
+        $proxy = \Mockery::mock(StorecoveProxy::class);
+        $proxy->shouldReceive("setCompany")->once()->andReturnSelf();
+        $proxy->shouldReceive("submitDocument")->once()->andThrow(new \RuntimeException("Storecove unavailable"));
+        $storecove->proxy = $proxy;
 
-        (new UpdateFranceEReportSubmissionStatus([
-            "tenant_id" => $this->company->company_key,
-            "guid" => "report-storecove-guid",
-            "event" => "processing",
-            "event_group" => "document",
-        ]))->handle();
+        try {
+            (new SubmitFranceEReport(
+                $this->company->id,
+                TransactionEvent::FR_REPORT_SUBMISSION_B2C,
+                "2026-09-10",
+                $this->company->db,
+            ))->handle($storecove, new FranceEReportCompiler(), new FranceEReportPayloadBuilder());
 
-        $submission = $submission->fresh();
-
-        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_FAILED, $submission->payment_status);
-        $this->assertSame($sourceStatus, $sourceEvent->fresh()->payment_status);
-        $this->assertSame("processing", data_get($submission->payment_request, "last_event"));
-        $this->assertSame("processing", data_get($submission->payment_request, "events.0.event"));
-    }
-
-    public function testCompiledFranceReportingStatusConstantIsNotReferenced(): void
-    {
-        $needle = "FR_REPORTING_STATUS_"."COMPILED";
-
-        foreach ([app_path(), base_path("tests")] as $directory) {
-            $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS));
-
-            foreach ($files as $file) {
-                if (! $file->isFile() || $file->getExtension() !== "php") {
-                    continue;
-                }
-
-                $this->assertStringNotContainsString($needle, file_get_contents($file->getPathname()), $file->getPathname());
-            }
+            $this->fail("Storecove exception was not thrown.");
+        } catch (\RuntimeException $exception) {
+            $this->assertSame("Storecove unavailable", $exception->getMessage());
         }
+
+        $submission = TransactionEvent::query()
+            ->where("company_id", $this->company->id)
+            ->where("event_id", TransactionEvent::FR_REPORT_SUBMISSION_B2C)
+            ->where("period", "2026-09-10")
+            ->firstOrFail();
+
+        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_COMPILED, $submission->payment_status);
+        $this->assertSame(
+            [(int) $sourceReport->id],
+            array_map("intval", data_get($submission->payment_request, "source_event_ids")),
+        );
+        $this->assertNotNull(data_get($submission->payment_request, "compiled_at"));
+        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_PENDING, $sourceReport->fresh()->payment_status);
     }
 
     public function testFailedPaymentReceivedNotificationWithoutSkipReasonIsRetriedByCron(): void
@@ -1963,11 +1991,10 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->company = $this->company->fresh();
     }
 
-    private function makeInvoice(string $clientCountry, string $classification, string $date, ?Client $client = null): Invoice
+    private function makeInvoice(string $clientCountry, string $classification, string $date, ?Client $client = null, ?array $lineItems = null): Invoice
     {
         $country = Country::query()->where('iso_3166_2', $clientCountry)->firstOrFail();
         $client ??= $this->makeClient($country, $classification, $clientCountry);
-        $item = $this->makeLineItem();
 
         $invoice = Invoice::factory()->create([
             'client_id' => $client->id,
@@ -1986,7 +2013,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
             'tax_rate3' => 0,
             'tax_name3' => '',
             'status_id' => Invoice::STATUS_SENT,
-            'line_items' => [$item],
+            'line_items' => $lineItems ?? [$this->makeLineItem()],
         ]);
 
         $invoice = $invoice->calc()->getInvoice();
@@ -2031,12 +2058,23 @@ class FranceEReportingPaymentMovementTest extends TestCase
 
     private function makeLineItem(): object
     {
+        return $this->makeLineItemWithTax('CONSULTING', 500, 'VAT', 20, 2);
+    }
+
+    private function makeLineItemWithTax(
+        string $productKey,
+        int|float $cost,
+        string $taxName,
+        int|float $taxRate,
+        int|float $quantity = 1,
+    ): object
+    {
         $item = InvoiceItemFactory::create();
-        $item->quantity = 2;
-        $item->cost = 500;
-        $item->tax_name1 = 'VAT';
-        $item->tax_rate1 = 20;
-        $item->product_key = 'CONSULTING';
+        $item->quantity = $quantity;
+        $item->cost = $cost;
+        $item->tax_name1 = $taxName;
+        $item->tax_rate1 = $taxRate;
+        $item->product_key = $productKey;
         $item->notes = 'Consulting services';
 
         return $item;
