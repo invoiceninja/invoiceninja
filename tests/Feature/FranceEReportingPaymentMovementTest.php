@@ -699,7 +699,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
 
     public function testFranceEReportingCronDispatchesPendingDailyPaymentReceivedNotifications(): void
     {
-        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-20 22:00:00", "Europe/Paris"));
+        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-18 22:00:00", "Europe/Paris"));
         try {
             Bus::fake();
             config(["ninja.db.multi_db_enabled" => false]);
@@ -729,7 +729,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
     }
     public function testFranceEReportingCronDoesNotCreatePaymentNotificationForPendingPayment(): void
     {
-        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-20 22:00:00", "Europe/Paris"));
+        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-18 22:00:00", "Europe/Paris"));
         try {
             Bus::fake();
             config(["ninja.db.multi_db_enabled" => false]);
@@ -748,9 +748,9 @@ class FranceEReportingPaymentMovementTest extends TestCase
             CarbonImmutable::setTestNow();
         }
     }
-    public function testFranceEReportingCronDispatchesDuePaymentReportsFromGroupedTransactionEvents(): void
+    public function testFranceEReportingCronDispatchesEligiblePaymentReportsFromGroupedTransactionEvents(): void
     {
-        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-20 22:00:00", "Europe/Paris"));
+        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-18 22:00:00", "Europe/Paris"));
         try {
             Bus::fake();
             config(["ninja.db.multi_db_enabled" => false]);
@@ -776,7 +776,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
     }
     public function testFranceEReportingCronSkipsPaymentReportsWhenNoReportingPeriodIsDueToday(): void
     {
-        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-21 22:00:00", "Europe/Paris"));
+        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-28 22:00:00", "Europe/Paris"));
         try {
             Bus::fake();
             config(["ninja.db.multi_db_enabled" => false]);
@@ -798,6 +798,62 @@ class FranceEReportingPaymentMovementTest extends TestCase
         } finally {
             CarbonImmutable::setTestNow();
         }
+    }
+
+    public function testSuccessfulPaymentNotificationDeletesSupersededFailedRowsForInvoice(): void
+    {
+        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
+        $invoice->backup->guid = "original-storecove-guid";
+        $invoice->save();
+
+        $paymentOne = $this->makePayment($invoice->client, "2026-09-15", "1200");
+        $paymentableOne = $this->makePaymentable($paymentOne, $invoice, "1200", "2026-09-15");
+        $invoice = $this->setInvoicePaymentState($invoice, "1200");
+
+        (new RecordFranceEReportingPayment(
+            $paymentOne->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentableOne->id,
+            "1200",
+            "2026-09-15",
+        ))->handle();
+
+        $failedEvent = $this->paymentNotificationEvents($invoice)->firstOrFail();
+        $paymentOne->status_id = Payment::STATUS_CANCELLED;
+        $paymentOne->save();
+
+        (new SubmitFrancePaymentReceivedNotification($failedEvent->id, $this->company->db))->handle(new Storecove());
+
+        $failedEvent = $failedEvent->fresh();
+        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_FAILED, $failedEvent->payment_status);
+        $this->assertNotNull(data_get($failedEvent->payment_request, "skip_reason"));
+
+        $paymentTwo = $this->makePayment($invoice->client, "2026-09-16", "1200");
+        $paymentableTwo = $this->makePaymentable($paymentTwo, $invoice, "1200", "2026-09-16");
+        $invoice = $this->setInvoicePaymentState($invoice, "1200");
+
+        (new RecordFranceEReportingPayment(
+            $paymentTwo->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentableTwo->id,
+            "1200",
+            "2026-09-16",
+        ))->handle();
+
+        $submittedEvent = $this->paymentNotificationEvents($invoice)->where("id", "!=", $failedEvent->id)->firstOrFail();
+        $storecove = new Storecove();
+        $proxy = \Mockery::mock(StorecoveProxy::class);
+        $proxy->shouldReceive("setCompany")->once()->andReturnSelf();
+        $proxy->shouldReceive("submitDocument")->once()->andReturn(["guid" => "notification-storecove-guid"]);
+        $storecove->proxy = $proxy;
+
+        (new SubmitFrancePaymentReceivedNotification($submittedEvent->id, $this->company->db))->handle($storecove);
+
+        $this->assertNull(TransactionEvent::query()->find($failedEvent->id));
+        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_SUBMITTED, $submittedEvent->fresh()->payment_status);
+        $this->assertSame(1, $this->paymentNotificationEvents($invoice)->count());
     }
 
     public function testPaymentReceivedNotificationSubmissionUsesOriginalStorecoveGuid(): void

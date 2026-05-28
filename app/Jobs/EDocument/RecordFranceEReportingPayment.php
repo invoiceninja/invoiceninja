@@ -299,6 +299,8 @@ class RecordFranceEReportingPayment implements ShouldQueue
         $existing = TransactionEvent::query()
             ->where("company_id", $payment->company_id)
             ->where("invoice_id", $invoice->id)
+            ->where("payment_id", $payment->id)
+            ->where("payment_request->paymentable_id", $paymentable?->id)
             ->where("event_id", TransactionEvent::FR_B2B_PAYMENT_RECEIVED_NOTIFICATION)
             ->orderByDesc("id")
             ->first();

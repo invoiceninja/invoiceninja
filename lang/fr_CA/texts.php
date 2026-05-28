@@ -3102,6 +3102,9 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'multiselect' => 'Sélection multiple',
     'verify_password' => 'Vérifier le mot de passe',
     'applied' => 'Appliqué',
+    'applied_date' => 'Date d\'imputation',
+    'applied_amount' => 'Montant imputé',
+    'applied_refunded' => 'Remboursement imputé',
     'include_recent_errors' => 'Inclut les erreurs récentes des journaux système',
     'your_message_has_been_received' => 'Nous avons reçu votre message et vous répondrons rapidement.',
     'show_product_details' => 'Afficher les détails du produit',
@@ -5985,6 +5988,16 @@ Développe automatiquement la section des notes dans le tableau de produits pour
     'payware_vpos_id_label' => 'Identifiant webPOS',
     'payware_vpos_id_help' => 'Identifiant webPOS du tableau de bord Payware',
     'payware_public_key_help' => 'Clé publique RSA pour la validation de la signature du webhook',
+    'gateway_onboarding_description' => 'Votre passerelle de paiement est connectée. Vous pouvez désormais configurer les moyens de paiement et définir les limites ou frais de transaction.',
+    'gateway_onboarding_payment_methods_help' => 'Activez ou désactivez les modes de paiement acceptés pour vos clients.',
+    'gateway_onboarding_limits_fees_help' => 'Définissez les limites de transaction minimales et maximales et configurez les frais de traitement.',
+    'gateway_setup_complete' => 'Configuration de la passerelle réussie',
+    'activity_167' => 'Le statut de la facture électronique :invoice a été mis à jour : :notes',
+    'peppol_accepted' => 'Facture électronique acceptée par le destinataire',
+    'peppol_rejected' => 'Facture électronique rejetée par le destinataire',
+    'peppol_partially_paid' => 'La facture électronique a été partiellement payée',
+    'peppol_paid' => 'La facture électronique a été payée',
+
 );
 
 return $lang;

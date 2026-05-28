@@ -147,6 +147,23 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
             "error" => $successful ? null : $response,
         ];
         $event->save();
+        if ($successful) {
+            $this->deleteSupersededNotificationEvents($event);
+        }
+    }
+
+    /**
+     * Remove superseded non-submitted notification rows once a later row has been accepted by Storecove.
+     */
+    private function deleteSupersededNotificationEvents(TransactionEvent $event): void
+    {
+        TransactionEvent::query()
+            ->where("company_id", $event->company_id)
+            ->where("invoice_id", $event->invoice_id)
+            ->where("event_id", TransactionEvent::FR_B2B_PAYMENT_RECEIVED_NOTIFICATION)
+            ->where("id", "!=", $event->id)
+            ->where("payment_status", "!=", TransactionEvent::FR_REPORTING_STATUS_SUBMITTED)
+            ->delete();
     }
 
     private function eventIsStillEligible(TransactionEvent $event): bool

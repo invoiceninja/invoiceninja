@@ -3105,6 +3105,9 @@ $lang = array(
     'multiselect' => 'Chọn nhiều',
     'verify_password' => 'Xác minh mật khẩu',
     'applied' => 'Đã áp dụng',
+    'applied_date' => 'Ngày nộp đơn',
+    'applied_amount' => 'Số tiền đã nộp',
+    'applied_refunded' => 'Đã áp dụng và được hoàn tiền',
     'include_recent_errors' => 'Bao gồm các lỗi gần đây từ nhật ký',
     'your_message_has_been_received' => 'Chúng tôi đã nhận được tin nhắn của bạn và sẽ cố gắng phản hồi sớm nhất.',
     'show_product_details' => 'Hiển thị chi tiết sản phẩm',
@@ -5986,6 +5989,16 @@ $lang = array(
     'payware_vpos_id_label' => 'Mã định danh webPOS',
     'payware_vpos_id_help' => 'Mã định danh webPOS từ bảng điều khiển phần mềm trả phí',
     'payware_public_key_help' => 'Khóa công khai RSA để xác thực chữ ký webhook',
+    'gateway_onboarding_description' => 'Cổng thanh toán của bạn đã được kết nối Thành công . Giờ đây, bạn có thể cấu hình phương thức Sự chi trả và thiết lập giới hạn giao dịch hoặc phí.',
+    'gateway_onboarding_payment_methods_help' => 'Bật hoặc tắt các phương thức Sự chi trả được chấp nhận cho Khách hàng của bạn .',
+    'gateway_onboarding_limits_fees_help' => 'Thiết lập giới hạn giao dịch tối thiểu và tối đa, đồng thời cấu hình phí xử lý.',
+    'gateway_setup_complete' => 'Thiết lập Gateway hoàn tất',
+    'activity_167' => 'E- Hóa đơn :invoice trạng thái đã cập nhật đến :notes',
+    'peppol_accepted' => 'E- Hóa đơn được người nhận chấp nhận.',
+    'peppol_rejected' => 'E- Hóa đơn bị người nhận từ chối.',
+    'peppol_partially_paid' => 'Hóa đơn điện tử đã được thanh toán một phần.',
+    'peppol_paid' => 'Hóa đơn đã được thanh toán.',
+
 );
 
 return $lang;

@@ -38,6 +38,10 @@ class FranceEReportingCron implements ShouldQueue
     use SerializesModels;
 
     public $tries = 1;
+    private const REPORT_SUBMISSION_LEAD_DAYS = 3;
+
+    private const REPORT_LATE_RECOVERY_DAYS = 7;
+
 
     /**
      * Execute the France e-reporting daily reconciliation for each configured database.
@@ -79,7 +83,7 @@ class FranceEReportingCron implements ShouldQueue
     /**
      * Process one physical database connection for France e-reporting work.
      *
-     * Daily payment notifications are always considered. Period reports only query source rows when the France reporting calendar says a period is due today.
+     * Daily payment notifications are always considered. Period reports only query source rows when the France reporting calendar says a period is eligible.
      */
     private function processDatabase(string $db, CarbonImmutable $parisNow): void
     {
@@ -137,9 +141,9 @@ class FranceEReportingCron implements ShouldQueue
     }
 
     /**
-     * Dispatch report submission jobs for source event periods that are due today in Europe/Paris.
+     * Dispatch report submission jobs for source event periods that are eligible in Europe/Paris.
      *
-     * This method is only called after the standardized France calendar has produced at least one due period for the day.
+     * This method is only called after the standardized France calendar has produced at least one eligible period for the day.
      *
      * @param Collection<string, ReportingPeriod> $duePeriods
      */
@@ -276,19 +280,19 @@ class FranceEReportingCron implements ShouldQueue
     }
 
     /**
-     * Calculate the standardized France reporting periods whose due date is today in Europe/Paris.
+     * Calculate the standardized France reporting periods eligible for submission today in Europe/Paris.
      *
-     * If this returns an empty collection the cron skips all period-report source queries for the day.
+     * A period is eligible from the configured lead window before its due date through the bounded late recovery window after its due date.
      *
      * @return Collection<string, ReportingPeriod>
      */
     private function dueReportPeriods(CarbonImmutable $parisNow): Collection
     {
-        $today = $parisNow->toDateString();
+        $today = $parisNow->startOfDay();
 
         return collect(ReportingProfile::cases())
             ->flatMap(fn (ReportingProfile $profile): Collection => $this->candidatePeriods($profile, $parisNow))
-            ->filter(fn (ReportingPeriod $period): bool => $period->dueDate->toDateString() === $today)
+            ->filter(fn (ReportingPeriod $period): bool => $this->periodIsEligibleForSubmission($period, $today))
             ->keyBy(fn (ReportingPeriod $period): string => $period->end->toDateString());
     }
 
@@ -359,7 +363,7 @@ class FranceEReportingCron implements ShouldQueue
     }
 
     /**
-     * Determine whether the grouped source period is due for submission on the current Paris reporting day.
+     * Determine whether the grouped source period is eligible for submission on the current Paris reporting day.
      *
      * This verifies the source period against the company cadence because the standardized due-period set can contain overlapping profile dates.
      */
@@ -371,7 +375,23 @@ class FranceEReportingCron implements ShouldQueue
         );
 
         return $period->end->toDateString() === $periodEnd
-            && $period->dueDate->toDateString() === $parisNow->toDateString();
+            && $this->periodIsEligibleForSubmission($period, $parisNow->startOfDay());
+    }
+
+    /**
+     * Check whether today falls inside the pre-due submission window or bounded late recovery window.
+     */
+    private function periodIsEligibleForSubmission(ReportingPeriod $period, CarbonImmutable $today): bool
+    {
+        $windowStart = $period->dueDate
+            ->subDays(self::REPORT_SUBMISSION_LEAD_DAYS)
+            ->startOfDay();
+        $windowEnd = $period->dueDate
+            ->addDays(self::REPORT_LATE_RECOVERY_DAYS)
+            ->endOfDay();
+
+        return $today->greaterThanOrEqualTo($windowStart)
+            && $today->lessThanOrEqualTo($windowEnd);
     }
 
     /**
