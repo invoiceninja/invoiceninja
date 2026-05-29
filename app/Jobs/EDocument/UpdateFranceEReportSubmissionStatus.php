@@ -72,7 +72,10 @@ class UpdateFranceEReportSubmissionStatus implements ShouldQueue
             'received_at' => now()->toIso8601String(),
         ];
 
-        $submission->payment_status = $status;
+        if (! is_null($status)) {
+            $submission->payment_status = $status;
+        }
+
         $submission->payment_request = [
             ...($submission->payment_request ?? []),
             'last_event' => $this->input['event'] ?? null,
@@ -80,6 +83,10 @@ class UpdateFranceEReportSubmissionStatus implements ShouldQueue
             'events' => $history,
         ];
         $submission->save();
+
+        if (is_null($status)) {
+            return;
+        }
 
         $sourceEventIds = $submission->payment_request['source_event_ids'] ?? [];
 
@@ -90,12 +97,12 @@ class UpdateFranceEReportSubmissionStatus implements ShouldQueue
         }
     }
 
-    private function statusForEvent(string $event): int
+    private function statusForEvent(string $event): ?int
     {
         return match ($event) {
             'succeeded', 'cleared', 'accepted' => TransactionEvent::FR_REPORTING_STATUS_SUBMITTED,
             'failed', 'rejected', 'no_action_taken' => TransactionEvent::FR_REPORTING_STATUS_FAILED,
-            default => TransactionEvent::FR_REPORTING_STATUS_COMPILED,
+            default => null,
         };
     }
 }

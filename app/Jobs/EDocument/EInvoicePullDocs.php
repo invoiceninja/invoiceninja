@@ -165,7 +165,10 @@ class EInvoicePullDocs implements ShouldQueue
                             continue;
                         }
 
-                        match($status['event']){
+                        $statusEvent = (string) ($status['event'] ?? '');
+                        $this->recordDocumentStatus($model, $statusEvent);
+
+                        match($statusEvent){
                             'cleared' => $this->writeActivity($model, Activity::EINVOICE_STATUS_UPDATED, ctrans('texts.peppol_cleared_for_sending')),
                             'accepted' => $this->writeActivity($model, Activity::EINVOICE_STATUS_UPDATED, ctrans('texts.peppol_accepted')),
                             'rejected' => $this->writeActivity($model, Activity::EINVOICE_STATUS_UPDATED, ctrans('texts.peppol_rejected')),
@@ -178,6 +181,22 @@ class EInvoicePullDocs implements ShouldQueue
                 
                 }
 
+    }
+
+
+    private function recordDocumentStatus(Invoice|Credit $model, string $status): void
+    {
+        if ($status === '') {
+            return;
+        }
+
+        $model->backup->e_invoice_status = $status;
+
+        if ($status === 'cleared' && is_null($model->backup->e_invoice_cleared_at)) {
+            $model->backup->e_invoice_cleared_at = now()->toIso8601String();
+        }
+
+        $model->saveQuietly();
     }
 
     private function writeActivity($model, int $activity_id, ?string $notes = '')

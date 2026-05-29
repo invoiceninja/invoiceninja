@@ -76,6 +76,12 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
             $this->markSkipped($event, "Payment received notification is no longer eligible.");
             return;
         }
+
+        if (! $this->originalInvoiceIsCleared($event)) {
+            $this->markFailed($event, ["message" => "Original Storecove document has not cleared yet."]);
+            return;
+        }
+
         $idempotencyGuid = (string) (data_get($request, "idempotency_guid") ?: Str::uuid()->toString());
         $event->payment_request = [
             ...$request,
@@ -203,6 +209,14 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
             && ($payment->client->classification ?? "business") !== "individual"
             && $payment->client->country?->iso_3166_2 === "FR";
     }
+
+    private function originalInvoiceIsCleared(TransactionEvent $event): bool
+    {
+        $invoice = Invoice::withTrashed()->find($event->invoice_id);
+
+        return $invoice && ($invoice->backup->e_invoice_status === "cleared" || ! is_null($invoice->backup->e_invoice_cleared_at));
+    }
+
     private function invoiceIsPaidInFull(Invoice $invoice): bool
     {
         return (int) $invoice->status_id === Invoice::STATUS_PAID

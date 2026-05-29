@@ -87,8 +87,10 @@ class FranceEReportingCron implements ShouldQueue
      */
     private function processDatabase(string $db, CarbonImmutable $parisNow): void
     {
+        /** First send out any pending payment notifications (FR => FR B2B Payment Received Notification) */
         $this->dispatchPendingPaymentNotifications($db);
 
+        /** Then submit any due report submissions (Submission) */
         $duePeriods = $this->dueReportPeriods($parisNow);
 
         if ($duePeriods->isEmpty()) {
@@ -154,18 +156,22 @@ class FranceEReportingCron implements ShouldQueue
     }
 
     /**
-     * Find initial B2C and VAT-excluded payment report groups for the due period set.
+     * Find initial B2C and VAT-excluded report groups for the due period set.
      *
-     * Groups are reduced at the database level by company, source event type, and period so the cron dispatches once per reportable bucket.
+     * Source rows are reduced at the database level, then deduplicated by company, submission type, and period so mixed transaction/payment buckets submit once.
      *
      * @param Collection<string, ReportingPeriod> $duePeriods
      */
     private function dispatchDueInitialReportSubmissions(string $db, CarbonImmutable $parisNow, Collection $duePeriods): void
     {
+        $dispatched = [];
+
         TransactionEvent::query()
             ->select(["company_id", "event_id", "period"])
             ->whereIn("event_id", [
+                TransactionEvent::FR_B2C_TRANSACTION,
                 TransactionEvent::FR_B2C_PAYMENT,
+                TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION,
                 TransactionEvent::FR_VAT_EXCLUDED_PAYMENT,
             ])
             ->whereIn("payment_status", [
@@ -181,20 +187,35 @@ class FranceEReportingCron implements ShouldQueue
             ->orderBy("company_id")
             ->orderBy("event_id")
             ->orderBy("period")
-            ->chunk(500, function (Collection $events) use ($db, $parisNow): void {
+            ->chunk(500, function (Collection $events) use ($db, $parisNow, &$dispatched): void {
                 $companies = $this->reportableCompanies($events->pluck("company_id")->all());
 
-                $events->each(function (TransactionEvent $event) use ($companies, $db, $parisNow): void {
+                $events->each(function (TransactionEvent $event) use ($companies, $db, $parisNow, &$dispatched): void {
                     $company = $companies->get((int) $event->company_id);
 
                     if (! $company) {
                         return;
                     }
 
+                    $periodEnd = $this->periodEnd($event);
+                    $submissionEventId = $this->submissionEventForSourceEvent((int) $event->event_id);
+
+                    if (is_null($periodEnd)) {
+                        return;
+                    }
+
+                    $key = $event->company_id."|".$submissionEventId."|".$periodEnd;
+
+                    if (isset($dispatched[$key])) {
+                        return;
+                    }
+
+                    $dispatched[$key] = true;
+
                     $this->dispatchDueSourceGroup(
                         event: $event,
                         company: $company,
-                        submissionEventId: $this->submissionEventForSourceEvent((int) $event->event_id),
+                        submissionEventId: $submissionEventId,
                         db: $db,
                         parisNow: $parisNow,
                     );
@@ -262,7 +283,7 @@ class FranceEReportingCron implements ShouldQueue
     /**
      * Validate a grouped source-event bucket and dispatch the matching report submission job.
      *
-     * The bucket is ignored when the company cadence does not match the source period or a compiled/submitted report already exists.
+     * The bucket is ignored when the company cadence does not match the source period or a submitted report already exists.
      */
     private function dispatchDueSourceGroup(TransactionEvent $event, Company $company, int $submissionEventId, string $db, CarbonImmutable $parisNow): void
     {
@@ -272,7 +293,7 @@ class FranceEReportingCron implements ShouldQueue
             return;
         }
 
-        if ($this->submissionAlreadySubmitted((int) $company->id, $submissionEventId, $periodEnd)) {
+        if ($this->submissionAlreadyAccepted((int) $company->id, $submissionEventId, $periodEnd)) {
             return;
         }
 
@@ -315,7 +336,7 @@ class FranceEReportingCron implements ShouldQueue
      *
      * This keeps notification dispatch company-scoped without querying every France-enabled company.
      *
-     * @return Collection<int, int>
+     * @return Collection<int, int|string>
      */
     private function pendingPaymentNotificationCompanyIds(): Collection
     {
@@ -328,8 +349,7 @@ class FranceEReportingCron implements ShouldQueue
             ])
             ->groupBy("company_id")
             ->orderBy("company_id")
-            ->pluck("company_id")
-            ->map(fn ($companyId): int => (int) $companyId);
+            ->pluck("company_id");
     }
 
     /**
@@ -397,11 +417,14 @@ class FranceEReportingCron implements ShouldQueue
     /**
      * Resolve the reporting cadence that controls a source event type.
      *
-     * VAT-excluded payments are always bi-monthly; B2C payments follow the company France reporting schedule with ten-day as the fallback.
+     * VAT-excluded transactions/payments are always bi-monthly; B2C transactions/payments follow the company France reporting schedule with ten-day as the fallback.
      */
     private function profileForSourceEvent(Company $company, int $sourceEventId): ReportingProfile
     {
-        if ($sourceEventId === TransactionEvent::FR_VAT_EXCLUDED_PAYMENT) {
+        if (in_array($sourceEventId, [
+            TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION,
+            TransactionEvent::FR_VAT_EXCLUDED_PAYMENT,
+        ], true)) {
             return ReportingProfile::BiMonthly;
         }
 
@@ -410,13 +433,16 @@ class FranceEReportingCron implements ShouldQueue
     }
 
     /**
-     * Map a payment source event id to the Storecove report submission event id.
+     * Map a source event id to the Storecove report submission event id.
      *
      * This keeps the grouped transaction_events query source-oriented while dispatching the correct submission job type.
      */
     private function submissionEventForSourceEvent(int $sourceEventId): int
     {
-        return $sourceEventId === TransactionEvent::FR_VAT_EXCLUDED_PAYMENT
+        return in_array($sourceEventId, [
+            TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION,
+            TransactionEvent::FR_VAT_EXCLUDED_PAYMENT,
+        ], true)
             ? TransactionEvent::FR_REPORT_SUBMISSION_VAT_EXCLUDED
             : TransactionEvent::FR_REPORT_SUBMISSION_B2C;
     }
@@ -430,20 +456,17 @@ class FranceEReportingCron implements ShouldQueue
     }
 
     /**
-     * Check whether this company, submission type, and period has already produced an immutable submission event.
+     * Check whether this company, submission type, and period has already been accepted by Storecove.
      *
      * Failed submissions are intentionally not treated as complete, allowing a future cron run to retry the same grouped source rows.
      */
-    private function submissionAlreadySubmitted(int $companyId, int $submissionEventId, string $periodEnd): bool
+    private function submissionAlreadyAccepted(int $companyId, int $submissionEventId, string $periodEnd): bool
     {
         return TransactionEvent::query()
             ->where("company_id", $companyId)
             ->where("event_id", $submissionEventId)
             ->whereDate("period", $periodEnd)
-            ->whereIn("payment_status", [
-                TransactionEvent::FR_REPORTING_STATUS_COMPILED,
-                TransactionEvent::FR_REPORTING_STATUS_SUBMITTED,
-            ])
+            ->where("payment_status", TransactionEvent::FR_REPORTING_STATUS_SUBMITTED)
             ->exists();
     }
 }

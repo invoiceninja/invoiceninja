@@ -88,8 +88,6 @@ class TransactionEvent extends StaticModel
 
     public const FR_REPORTING_STATUS_PENDING = 1;
 
-    public const FR_REPORTING_STATUS_COMPILED = 2;
-
     public const FR_REPORTING_STATUS_SUBMITTED = 3;
 
     public const FR_REPORTING_STATUS_FAILED = 4;
