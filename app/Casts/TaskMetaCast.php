@@ -27,11 +27,13 @@ class TaskMetaCast implements CastsAttributes
      */
     public function get(Model $model, string $key, mixed $value, array $attributes): ?TaskMeta
     {
-        if (is_null($value) || $value === '') {
+        if (is_null($value) || $value === '' || $value === '[]' || $value === '{}') {
             return null;
         }
 
-        return TaskMeta::fromArray($this->toArray($value, $key));
+        $meta = TaskMeta::fromArray($this->toArray($value, $key));
+
+        return $meta->isEmpty() ? null : $meta;
     }
 
     /**
@@ -48,6 +50,10 @@ class TaskMetaCast implements CastsAttributes
 
         if (! $value instanceof TaskMeta) {
             $value = TaskMeta::fromArray($this->toArray($value, $key));
+        }
+
+        if ($value->isEmpty()) {
+            return [$key => null];
         }
 
         return [

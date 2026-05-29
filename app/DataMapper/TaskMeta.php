@@ -22,14 +22,9 @@ use JsonSerializable;
  */
 class TaskMeta implements Arrayable, Castable, JsonSerializable
 {
-    public TaskNotification $notification;
-
     public function __construct(
         public string $calendar_event_id = '',
-        ?TaskNotification $notification = null,
-    ) {
-        $this->notification = $notification ?? new TaskNotification();
-    }
+    ) {}
 
     /**
      * @param array<string, mixed> $arguments
@@ -46,7 +41,6 @@ class TaskMeta implements Arrayable, Castable, JsonSerializable
     {
         return new self(
             calendar_event_id: (string) ($data['calendar_event_id'] ?? $data['event_id'] ?? ''),
-            notification: TaskNotification::fromArray(self::arrayValue($data['notification'] ?? [])),
         );
     }
 
@@ -57,7 +51,6 @@ class TaskMeta implements Arrayable, Castable, JsonSerializable
     {
         return [
             'calendar_event_id' => $this->calendar_event_id,
-            'notification' => $this->notification->toArray(),
         ];
     }
 
@@ -69,19 +62,8 @@ class TaskMeta implements Arrayable, Castable, JsonSerializable
         return $this->toArray();
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private static function arrayValue(mixed $value): array
+    public function isEmpty(): bool
     {
-        if (is_array($value)) {
-            return $value;
-        }
-
-        if (is_object($value)) {
-            return json_decode(json_encode($value, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE), true, 512, JSON_THROW_ON_ERROR);
-        }
-
-        return [];
+        return $this->calendar_event_id === '';
     }
 }

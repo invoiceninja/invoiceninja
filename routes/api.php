@@ -20,6 +20,7 @@ use App\Http\Controllers\Bank\YodleeController;
 use App\Http\Controllers\BankIntegrationController;
 use App\Http\Controllers\BankTransactionController;
 use App\Http\Controllers\BankTransactionRuleController;
+use App\Http\Controllers\CalendarConnectionController;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\BrevoController;
 use App\Http\Controllers\ChartController;
@@ -209,6 +210,12 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
 
     Route::post('connected_account', [ConnectedAccountController::class, 'index']);
     Route::post('connected_account/gmail', [ConnectedAccountController::class, 'handleGmailOauth']);
+
+    Route::get('calendar_connection', [CalendarConnectionController::class, 'show'])->name('calendar_connection.show');
+    Route::post('calendar_connection/{provider}/authorize', [CalendarConnectionController::class, 'authorizeProvider'])->name('calendar_connection.authorize');
+    Route::get('calendar_connection/calendars', [CalendarConnectionController::class, 'calendars'])->name('calendar_connection.calendars');
+    Route::put('calendar_connection/calendars', [CalendarConnectionController::class, 'updateCalendars'])->name('calendar_connection.calendars.update');
+    Route::delete('calendar_connection', [CalendarConnectionController::class, 'destroy'])->name('calendar_connection.destroy');
 
     Route::post('client_statement', [ClientStatementController::class, 'statement'])->name('client.statement');
 
