@@ -56,13 +56,12 @@ class ConfirmEnableBankingBankIntegrationRequest extends Request
      */
     public function getTokenContent(): ?array
     {
-        if ($this->state) {
-            $this->token = $this->state;
-        }
+        // On the OAuth return the token arrives as the "state" query parameter;
+        // fall back to the "token" input for direct calls. Avoid assigning a
+        // dynamic property on the request (deprecated as of PHP 8.2).
+        $token = $this->state ?: $this->token;
 
-        $data = Cache::get($this->token);
-
-        return $data;
+        return Cache::get($token);
     }
 
     public function getCompany(): Company

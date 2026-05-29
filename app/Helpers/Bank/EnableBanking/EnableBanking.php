@@ -194,7 +194,7 @@ class EnableBanking
     /**
      * Get transactions for an account
      */
-    public function getTransactions(Company $company, string $account_id, string $date_from = null): array
+    public function getTransactions(Company $company, string $account_id, ?string $date_from = null): array
     {
         $params = [];
         if ($date_from) {
