@@ -62,6 +62,10 @@ class SubmitFranceEReport implements ShouldQueue
             return;
         }
 
+        if (! (bool) $company->getSetting('france_reporting_enabled')) {
+            return;
+        }
+
         $sourceEvents = $compiler->sourceEvents($company, $this->submissionEventId, $this->periodEnd);
 
         if ($sourceEvents->isEmpty()) {

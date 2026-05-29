@@ -1448,6 +1448,55 @@ class FranceEReportingPaymentMovementTest extends TestCase
         }
     }
 
+    public function testQueuedFranceEReportReturnsWhenFranceReportingIsDisabledBeforeSubmission(): void
+    {
+        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-18 22:00:00", "Europe/Paris"));
+
+        try {
+            $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-01");
+            $payment = $this->makePayment($invoice->client, "2026-09-05", "1200");
+            $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-05");
+            $invoice = $this->setInvoicePaymentState($invoice, "1200");
+
+            (new RecordFranceEReportingPayment(
+                $payment->id,
+                $this->company->db,
+                $invoice->id,
+                $paymentable->id,
+                "1200",
+                "2026-09-05",
+            ))->handle();
+
+            $sourceEvent = $this->reportEvents($invoice)->firstOrFail();
+            $settings = $this->company->settings;
+            $settings->france_reporting_enabled = false;
+            $this->company->settings = $settings;
+            $this->company->save();
+
+            $storecove = new Storecove();
+            $proxy = \Mockery::mock(StorecoveProxy::class);
+            $proxy->shouldNotReceive("setCompany");
+            $proxy->shouldNotReceive("submitDocument");
+            $storecove->proxy = $proxy;
+
+            (new SubmitFranceEReport(
+                $this->company->id,
+                TransactionEvent::FR_REPORT_SUBMISSION_B2C,
+                "2026-09-10",
+                $this->company->db,
+            ))->handle($storecove, new FranceEReportCompiler(), new FranceEReportPayloadBuilder());
+
+            $this->assertFalse(TransactionEvent::query()
+                ->where("company_id", $this->company->id)
+                ->where("event_id", TransactionEvent::FR_REPORT_SUBMISSION_B2C)
+                ->whereDate("period", "2026-09-10")
+                ->exists());
+            $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_PENDING, $sourceEvent->fresh()->payment_status);
+        } finally {
+            CarbonImmutable::setTestNow();
+        }
+    }
+
     public function testFranceEReportStorecoveExceptionCreatesFailedAuditAndRemainsRetryable(): void
     {
         CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-18 22:00:00", "Europe/Paris"));
