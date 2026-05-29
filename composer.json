@@ -118,7 +118,7 @@
         "twilio/sdk": "^6.40",
         "wikimedia/composer-merge-plugin": "^2.1",
         "wildbit/postmark-php": "^4.0",
-        "firebase/php-jwt": "^6.0"
+        "firebase/php-jwt": "^7.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^4.0",
