@@ -181,7 +181,7 @@ class EnableBankingController extends BaseController
                 $bank_integration->company_id = $company->id;
                 $bank_integration->account_id = $company->account_id;
                 $bank_integration->user_id = $company->owner()->id;
-                $bank_integration->enablebanking_session_id = $session['session_id']; // TODO(FlorientR): Useless ?
+                $bank_integration->enablebanking_session_id = $session['session_id']; // used by ProcessBankTransactionsEnableBanking::updateAccount() to verify the session is still active
                 $bank_integration->enablebanking_account_id = $account['provider_account_id'];
                 $bank_integration->enablebanking_session_expired_at = new \DateTime($session['access']['valid_until'] ?? 'now');
                 $bank_integration->bank_account_type = $account['account_type'];
@@ -217,7 +217,8 @@ class EnableBankingController extends BaseController
 
         // prevent rerun of this method with same ref
         Cache::delete($data['state']);
-        $context['redirect'] = str_replace('#/', '', $context['redirect'] ?? ''); // TODO(FlorientR): Why # in the redirect URL ?
+        // Strip the hash-router prefix so the SPA router does not capture this server redirect
+        $context['redirect'] = str_replace('#/', '', $context['redirect'] ?? '');
         // Successfull Response => Redirect
         return response()->redirectTo($context['redirect'] . '?action=enablebanking_connect&status=success&bank_integrations=' . implode(',', $bank_integration_ids));
     }
@@ -253,8 +254,8 @@ class EnableBankingController extends BaseController
         Company $company,
     ): BankIntegration {
         return BankIntegration::withTrashed()
-            ->where('enablebanking_account_id', $account['provider_account_id'])
             ->where('company_id', $company->id)
+            ->where('enablebanking_account_id', $account['provider_account_id'])
             ->where('is_deleted', 0)
             ->firstOrFail();
     }

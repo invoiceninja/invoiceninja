@@ -85,17 +85,19 @@ class AccountTransformer
             }
 
             $balances = $enable_banking->getAccountBalances($account['uid']);
-            // TODO(FlorientR) : Need to selection specific balance ?
-            $balance = array_shift($balances['balances']);
+            $balance = $this->selectBalance($balances['balances'] ?? []);
 
             $transformed_accounts[] = [
                 'id' => $accountId,
                 'account_type' => $account['cash_account_type'] ?? 'CACC',
                 'account_name' => $account['name'] ?? '',
-                'account_status' => 'active', // TODO(FlorientR) I don't see status field in the doc
+                // EnableBanking exposes no account status field; the job derives the real
+                // status (READY/EXPIRED) from the session in ProcessBankTransactionsEnableBanking.
+                'account_status' => '',
                 'account_number' => $this->maskAccountNumber($account['account_id']['iban'] ?? ''),
                 'provider_account_id' => $account['uid'],
-                'provider_history' => 90, // TODO(FlorientR) No history field in the doc
+                // EnableBanking exposes no history window; default to 90 days for the initial sync.
+                'provider_history' => 90,
                 'nickname' => $account['name'] ?? '',
                 'current_balance' => $balance['balance_amount']['amount'] ?? 0,
                 'account_currency' => $balance['balance_amount']['currency'] ?? 'EUR',
@@ -105,6 +107,26 @@ class AccountTransformer
         return $transformed_accounts;
     }
     
+    /**
+     * Select the most relevant balance from the EnableBanking balances list.
+     *
+     * EnableBanking can return multiple balances per account (e.g. CLBD = closing
+     * booked, ITBD = interim booked). Prefer the closing booked balance, falling
+     * back to the first available one.
+     *
+     * @see https://enablebanking.com/docs/api/reference/#balanceresource
+     */
+    protected function selectBalance(array $balances): array
+    {
+        foreach ($balances as $balance) {
+            if (($balance['balance_type'] ?? null) === 'CLBD') {
+                return $balance;
+            }
+        }
+
+        return $balances[0] ?? [];
+    }
+
     /**
      * Mask account number for display
      */
