@@ -12,6 +12,7 @@
 
 namespace App\Models;
 
+use App\DataMapper\TaskMeta;
 use Carbon\CarbonInterval;
 use App\Models\CompanyUser;
 use Illuminate\Support\Carbon;
@@ -26,7 +27,7 @@ use App\Libraries\Currency\Conversion\CurrencyApi;
  *
  * @property int $id
  * @property string|null $hash
- * @property object|null $meta
+ * @property \App\DataMapper\TaskMeta|null $meta
  * @property int $user_id
  * @property int|null $assigned_user_id
  * @property int $company_id
@@ -115,7 +116,7 @@ class Task extends BaseModel
     ];
 
     protected $casts = [
-        'meta' => 'object',
+        'meta' => TaskMeta::class,
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
@@ -284,7 +285,7 @@ class Task extends BaseModel
         }
 
         if ($this->status) {
-            return '<h5><span class="badge badge-primary">' . $this->status?->name ?? ''; //@phpstan-ignore-line
+            return '<h5><span class="badge badge-primary">' . e($this->status?->name ?? '') . '</span></h5>'; //@phpstan-ignore-line
         }
 
         return '';
