@@ -319,8 +319,8 @@ class BankIntegrationController extends BaseController
 
         $enablebanking = new EnableBanking();
 
-        BankIntegration::where("integration_type", BankIntegration::INTEGRATION_TYPE_ENABLEBANKING)
-                       ->where('account_id', $user->account_id)
+        BankIntegration::where('account_id', $user->account_id)
+                       ->where("integration_type", BankIntegration::INTEGRATION_TYPE_ENABLEBANKING)
                        ->whereNotNull('enablebanking_account_id')
                        ->each(function (BankIntegration $bank_integration) use ($enablebanking) {
             $account = $enablebanking->getAccount($bank_integration->enablebanking_account_id);
