@@ -214,6 +214,7 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::get('calendar_connection', [CalendarConnectionController::class, 'show'])->name('calendar_connection.show');
     Route::post('calendar_connection/{provider}/authorize', [CalendarConnectionController::class, 'authorizeProvider'])->name('calendar_connection.authorize');
     Route::get('calendar_connection/calendars', [CalendarConnectionController::class, 'calendars'])->name('calendar_connection.calendars');
+    Route::get('calendar_connection/events', [CalendarConnectionController::class, 'events'])->name('calendar_connection.events');
     Route::put('calendar_connection/calendars', [CalendarConnectionController::class, 'updateCalendars'])->name('calendar_connection.calendars.update');
     Route::delete('calendar_connection', [CalendarConnectionController::class, 'destroy'])->name('calendar_connection.destroy');
 

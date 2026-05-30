@@ -44,7 +44,7 @@ class UpdateFranceEReportSubmissionStatus implements ShouldQueue
             return;
         }
 
-        if (! MultiDB::findAndSetDbByCompanyKey($tenantId)) {
+        if (config('ninja.db.multi_db_enabled') && ! MultiDB::findAndSetDbByCompanyKey($tenantId)) {
             return;
         }
 

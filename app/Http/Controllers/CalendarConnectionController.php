@@ -12,6 +12,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CalendarConnection\CalendarConnectionEventsRequest;
 use App\Http\Requests\CalendarConnection\UpdateCalendarConnectionCalendarsRequest;
 use App\Models\User;
 use App\Services\Calendar\CalendarConnectionService;
@@ -58,6 +59,19 @@ class CalendarConnectionController extends BaseController
         return response()->json([
             'data' => [
                 'calendars' => $service->availableCalendars($this->user()),
+            ],
+        ]);
+    }
+
+    public function events(CalendarConnectionEventsRequest $request, CalendarConnectionService $service): JsonResponse
+    {
+        return response()->json([
+            'data' => [
+                'events' => $service->events(
+                    $this->user(),
+                    (string) $request->validated('from'),
+                    (string) $request->validated('to'),
+                ),
             ],
         ]);
     }
