@@ -103,6 +103,7 @@ class UpdateSchedulerRequest extends Request
             'parameters.schedule.*.amount' => ['bail','sometimes', 'numeric'],
             'parameters.schedule.*.is_amount' => ['bail','sometimes', 'boolean'],
             'parameters.template_id' => ['bail','sometimes', 'string', 'nullable'],
+            'parameters.tag_ids' => ['bail', 'sometimes', 'nullable'],
         ];
 
         return $rules;
