@@ -67,6 +67,7 @@ class TaskExport extends BaseExport
         }
 
         $query = Task::query()
+                        ->with('tags')
                         ->withTrashed()
                         ->where('company_id', $this->company->id);
 

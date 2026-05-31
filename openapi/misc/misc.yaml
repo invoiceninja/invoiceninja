@@ -336,6 +336,11 @@ tags:
     description: |
       Endpoint definitions for system logs.
 
+  - name: tags
+    x-displayName: Tags
+    description: |
+      Endpoint definitions for interacting with tags.
+
   - name: task_schedulers
     x-displayName: Task Schedulers
     description: |
@@ -345,11 +350,6 @@ tags:
     x-displayName: Task Status
     description: |
       Endpoint definitions for interacting with task statuses.
-
-  - name: task_statuss
-    x-displayName: Task Status
-    description: |
-      Endpoint definitions for task status operations.
 
   - name: tax_rates
     x-displayName: Tax Rates

@@ -26,7 +26,7 @@ class IndexTagRequest extends Request
     public function rules(): array
     {
         return [
-            'entity_type' => ['required', 'string', Rule::in(Tag::TAGGABLE_TYPES)],
+            'entity_type' => ['required', 'string', Rule::in(array_keys(Tag::TAGGABLE_TYPES))],
         ];
     }
 }

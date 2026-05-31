@@ -61,7 +61,7 @@ class ProjectReport extends BaseExport
 
         $user_name = $user ? $user->present()->name() : '';
 
-        $query = \App\Models\Project::with(['invoices','expenses','tasks'])
+        $query = \App\Models\Project::with(['invoices','expenses','tasks','tags'])
                                 ->where('company_id', $this->company->id);
 
         $query = $this->filterByUserPermissions($query);

@@ -8458,7 +8458,7 @@ paths:
           $ref: "#/components/responses/default"
     delete:
       tags:
-        - task_statuss
+        - task_status
       summary: "Deletes a TaskStatus Term"
       description: "Handles the deletion of an TaskStatus by id"
       operationId: deleteTaskStatus

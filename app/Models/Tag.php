@@ -45,8 +45,8 @@ class Tag extends BaseModel
      * @var array<class-string>
      */
     public const TAGGABLE_TYPES = [
-        Task::class,
-        Project::class,
+        'task' =>Task::class,
+        'project' => Project::class,
     ];
 
     public $timestamps = true;

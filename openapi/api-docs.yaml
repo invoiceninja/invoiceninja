@@ -8577,7 +8577,7 @@ paths:
           $ref: "#/components/responses/default"
     delete:
       tags:
-        - task_statuss
+        - task_status
       summary: "Deletes a TaskStatus Term"
       description: "Handles the deletion of an TaskStatus by id"
       operationId: deleteTaskStatus
@@ -10695,8 +10695,8 @@ paths:
           schema:
             type: string
             enum:
-              - 'App\Models\Task'
-              - 'App\Models\Project'
+              - 'task'
+              - 'project'
           example: 'App\Models\Task'
         - name: filter
           in: query
@@ -10760,7 +10760,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TagRequest'
             example:
-              entity_type: 'App\Models\Task'
+              entity_type: 'task'
               name: Urgent
               color: '#FF0000'
       responses:
@@ -26737,7 +26737,6 @@ components:
       required:
         - id
         - name
-        - color
     Tag:
       type: object
       properties:
@@ -29740,6 +29739,11 @@ tags:
     description: |
       Endpoint definitions for system logs.
 
+  - name: tags
+    x-displayName: Tags
+    description: |
+      Endpoint definitions for interacting with tags.
+
   - name: task_schedulers
     x-displayName: Task Schedulers
     description: |
@@ -29749,11 +29753,6 @@ tags:
     x-displayName: Task Status
     description: |
       Endpoint definitions for interacting with task statuses.
-
-  - name: task_statuss
-    x-displayName: Task Status
-    description: |
-      Endpoint definitions for task status operations.
 
   - name: tax_rates
     x-displayName: Tax Rates

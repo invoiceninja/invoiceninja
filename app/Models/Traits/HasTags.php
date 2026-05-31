@@ -35,8 +35,8 @@ trait HasTags
     public function tags(): MorphToMany
     {
         return $this->morphToMany(Tag::class, 'taggable')
-            ->withTrashed()
-            ->where('tags.is_deleted', false);
+            ->withTrashed();
+            // ->where('tags.is_deleted', false);
     }
 
     /**
@@ -78,7 +78,7 @@ trait HasTags
             ->whereIn('id', $tag_ids)
             ->where('company_id', $company_id)
             ->where('entity_type', static::class)
-            ->where('is_deleted', false)
+            // ->where('is_deleted', false)
             ->pluck('id');
 
         if ($found->count() !== count($tag_ids)) {

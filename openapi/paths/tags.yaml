@@ -28,8 +28,8 @@
           schema:
             type: string
             enum:
-              - 'App\Models\Task'
-              - 'App\Models\Project'
+              - 'task'
+              - 'project'
           example: 'App\Models\Task'
         - name: filter
           in: query
@@ -93,7 +93,7 @@
             schema:
               $ref: '#/components/schemas/TagRequest'
             example:
-              entity_type: 'App\Models\Task'
+              entity_type: 'task'
               name: Urgent
               color: '#FF0000'
       responses:
