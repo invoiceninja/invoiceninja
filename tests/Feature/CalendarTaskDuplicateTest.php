@@ -129,6 +129,39 @@ class CalendarTaskDuplicateTest extends TestCase
         }
     }
 
+    public function testTaskUpdateDoesNotUseCalendarEventCreationLock(): void
+    {
+        $providerEventId = 'google:' . sha1('primary') . ':event-update-lock';
+        $calendarEventId = $this->user->id . ':' . $providerEventId;
+        $task = TaskFactory::create($this->company->id, $this->user->id);
+        $task->description = 'Unlocked update calendar task';
+        $task->saveQuietly();
+
+        $lock = Cache::lock('task-calendar-event:' . $this->user->id . ':' . sha1($calendarEventId), 10);
+
+        $this->assertTrue($lock->get());
+
+        try {
+            $response = $this->withHeaders($this->apiHeaders())
+                ->putJson('/api/v1/tasks/' . $task->hashed_id, [
+                    'description' => 'Updated while calendar event is locked',
+                    'time_log' => [],
+                    'meta' => [
+                        'provider_event_id' => $providerEventId,
+                    ],
+                ]);
+
+            $response->assertOk();
+
+            $task = $task->fresh();
+
+            $this->assertSame('Updated while calendar event is locked', $task->description);
+            $this->assertSame($calendarEventId, $task->meta->calendar_event_id);
+        } finally {
+            $lock->release();
+        }
+    }
+
     /**
      * @return array<string, string>
      */

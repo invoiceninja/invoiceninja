@@ -63,13 +63,7 @@ class TaskRepository extends BaseRepository
             return $data;
         }
 
-        $userId = (int) ($task->user_id ?: auth()->id());
-
-        if ($userId <= 0) {
-            $data['meta'] = $meta;
-
-            return $data;
-        }
+        $userId = (int) $task->user_id;
 
         $originalCalendarEventId = $meta->calendar_event_id;
         $meta->calendar_event_id = $this->userScopedCalendarEventId($userId, $meta->calendar_event_id);
@@ -119,19 +113,13 @@ class TaskRepository extends BaseRepository
             return null;
         }
 
-        $userId = (int) ($task->user_id ?: auth()->id());
-
-        if ($userId <= 0) {
-            return null;
-        }
-
-        $calendarEventId = $this->userScopedCalendarEventId($userId, $meta->calendar_event_id);
+        $calendarEventId = $this->userScopedCalendarEventId($task->user_id, $meta->calendar_event_id);
 
         if ($calendarEventId === '') {
             return null;
         }
 
-        return 'task-calendar-event:' . $userId . ':' . sha1($calendarEventId);
+        return 'task-calendar-event:' . $task->user_id . ':' . sha1($calendarEventId);
     }
 
     /**
@@ -140,9 +128,13 @@ class TaskRepository extends BaseRepository
     private function guardDuplicateCalendarEventTask(int $userId, string $calendarEventId, string $originalCalendarEventId, Task $task): void
     {
         $query = Task::query()
+            ->where('company_id', $task->company_id)
             ->where('user_id', $userId)
             ->where('is_deleted', false)
             ->whereNull('deleted_at')
+            ->when($task->id, function (Builder $query) use ($task): void {
+                $query->where('id', '!=', $task->id);
+            })
             ->where(function (Builder $query) use ($calendarEventId, $originalCalendarEventId): void {
                 $query->where('meta->calendar_event_id', $calendarEventId);
 
@@ -150,10 +142,6 @@ class TaskRepository extends BaseRepository
                     $query->orWhere('meta->calendar_event_id', $originalCalendarEventId);
                 }
             });
-
-        if ($task->id) {
-            $query->where('id', '!=', $task->id);
-        }
 
         if (! $query->exists()) {
             return;
@@ -184,11 +172,10 @@ class TaskRepository extends BaseRepository
 
         $tag_ids = null;
         if (array_key_exists('tags', $data) && is_array($data['tags'])) {
-            $company_id = (int) ($task->company_id ?: ($task->company->id ?? auth()->user()->company()->id));
-            $tag_ids = Task::resolveTagIds($data['tags'], $company_id);
+            $tag_ids = Task::resolveTagIds($data['tags'], (int) $task->company_id);
         }
 
-        $lockKey = $this->calendarEventLockKey($data, $task);
+        $lockKey = $this->new_task ? $this->calendarEventLockKey($data, $task) : null;
 
         if ($lockKey) {
             try {

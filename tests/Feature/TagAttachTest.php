@@ -94,6 +94,7 @@ class TagAttachTest extends TestCase
 
         $task->syncTags(['not-a-tag-id']);
     }
+
     public function testTaskUpdateRejectsRawNumericTagIdString(): void
     {
         $tag = $this->makeTag(Task::class, 'urgent');
@@ -162,6 +163,7 @@ class TagAttachTest extends TestCase
         $this->assertSame($this->encodePrimaryKey($tag->id), $tags[0]['id']);
         $this->assertSame('store-task', $tags[0]['name']);
     }
+
     public function testTaskUpdateWithTagsSyncs(): void
     {
         $tag = $this->makeTag(Task::class, 'urgent');
@@ -176,6 +178,21 @@ class TagAttachTest extends TestCase
         $this->assertCount(1, $tags);
         $this->assertSame($this->encodePrimaryKey($tag->id), $tags[0]['id']);
         $this->assertSame('urgent', $tags[0]['name']);
+    }
+
+    public function testTaskUpdateWithEmptyTagsDetachesAll(): void
+    {
+        $tag = $this->makeTag(Task::class, 'detachable-task');
+        $this->task->syncTags([$this->encodePrimaryKey($tag->id)]);
+
+        $response = $this->withHeaders($this->headers())
+            ->putJson('/api/v1/tasks/'.$this->encodePrimaryKey($this->task->id), [
+                'tags' => [],
+            ]);
+
+        $response->assertStatus(200);
+        $this->assertSame([], $response->json('data.tags'));
+        $this->assertSame(0, $this->task->fresh()->tags()->count());
     }
 
     public function testTaskUpdateWithCrossTypeTagFails(): void
@@ -222,6 +239,7 @@ class TagAttachTest extends TestCase
         $this->assertSame($this->encodePrimaryKey($tag->id), $tags[0]['id']);
         $this->assertSame('store-project', $tags[0]['name']);
     }
+
     public function testProjectUpdateWithTagsSyncs(): void
     {
         $tag = $this->makeTag(Project::class, 'client-facing');
@@ -236,6 +254,21 @@ class TagAttachTest extends TestCase
         $this->assertCount(1, $tags);
         $this->assertSame($this->encodePrimaryKey($tag->id), $tags[0]['id']);
         $this->assertSame('client-facing', $tags[0]['name']);
+    }
+
+    public function testProjectUpdateWithEmptyTagsDetachesAll(): void
+    {
+        $tag = $this->makeTag(Project::class, 'detachable-project');
+        $this->project->syncTags([$this->encodePrimaryKey($tag->id)]);
+
+        $response = $this->withHeaders($this->headers())
+            ->putJson('/api/v1/projects/'.$this->encodePrimaryKey($this->project->id), [
+                'tags' => [],
+            ]);
+
+        $response->assertStatus(200);
+        $this->assertSame([], $response->json('data.tags'));
+        $this->assertSame(0, $this->project->fresh()->tags()->count());
     }
 
     public function testDeletingTagCascadesPivot(): void
