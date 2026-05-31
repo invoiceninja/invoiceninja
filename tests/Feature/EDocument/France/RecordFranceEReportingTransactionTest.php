@@ -281,6 +281,9 @@ class RecordFranceEReportingTransactionTest extends TestCase
         $credit->setRelation('company', $this->company);
         $credit->save();
 
+        $credit->service()->createInvitations();
+        $credit->load('invitations');
+
         return $credit;
     }
 
@@ -315,6 +318,9 @@ class RecordFranceEReportingTransactionTest extends TestCase
         $invoice->setRelation('client', $client);
         $invoice->setRelation('company', $this->company);
         $invoice->save();
+
+        $invoice->service()->createInvitations();
+        $invoice->load('invitations');
 
         return $invoice;
     }
