@@ -200,7 +200,7 @@ class Verifactu extends AbstractService
 
             // Intentar usar el importe que realmente se envió a la AEAT (sin retenciones)
             try {
-                $state = @unserialize($log->state);
+                $state = @unserialize($log->state, ['allowed_classes' => [VerifactuInvoice::class]]);
 
                 if ($state instanceof VerifactuInvoice) {
                     $stateTotal = $state->getImporteTotal();

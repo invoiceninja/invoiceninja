@@ -1314,7 +1314,24 @@ class Invoice extends BaseXmlModel implements XmlModelInterface
 
     public static function unserialize(string $data): self
     {
-        $object = unserialize($data);
+        // Restrict deserialization to the Verifactu model classes to prevent
+        // PHP Object Injection via the verifactu_log.state database column.
+        $object = unserialize($data, [
+            'allowed_classes' => [
+                self::class,
+                IDFactura::class,
+                Encadenamiento::class,
+                RegistroAnterior::class,
+                RegistroAnulacion::class,
+                SistemaInformatico::class,
+                Desglose::class,
+                DesgloseRectificacion::class,
+                DetalleDesglose::class,
+                IDOtro::class,
+                PersonaFisicaJuridica::class,
+                Cupon::class,
+            ],
+        ]);
 
         if (!$object instanceof self) {
             throw new \InvalidArgumentException('Invalid serialized data - not an Invoice object');
