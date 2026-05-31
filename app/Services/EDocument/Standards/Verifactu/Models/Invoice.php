@@ -1314,7 +1314,23 @@ class Invoice extends BaseXmlModel implements XmlModelInterface
 
     public static function unserialize(string $data): self
     {
-        $object = unserialize($data);
+        $object = unserialize($data, [
+            'allowed_classes' => [
+                self::class,
+                BaseXmlModel::class,
+                SistemaInformatico::class,
+                PersonaFisicaJuridica::class,
+                RegistroAnterior::class,
+                Desglose::class,
+                DetalleDesglose::class,
+                DesgloseRectificacion::class,
+                Encadenamiento::class,
+                IDFactura::class,
+                IDOtro::class,
+                Cupon::class,
+                RegistroAnulacion::class,
+            ],
+        ]);
 
         if (!$object instanceof self) {
             throw new \InvalidArgumentException('Invalid serialized data - not an Invoice object');
