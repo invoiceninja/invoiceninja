@@ -96,7 +96,7 @@ class ProjectFilters extends QueryFilters
 
             return $this->builder
             ->leftJoin('taggables', function ($j) {
-                $j->on('taggables.taggable_id', '=', 'tasks.id')
+                $j->on('taggables.taggable_id', '=', 'projects.id')
                     ->where('taggables.taggable_type', '=', \App\Models\Project::class);
             })
             ->leftJoin('tags', 'tags.id', '=', 'taggables.tag_id')
