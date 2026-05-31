@@ -658,6 +658,18 @@ abstract class QueryFilters
         return $this->builder->where('custom_value4', 'like', '%' . $value . '%');
     }
 
+    public function tag_ids(string $tag_ids = ''): Builder
+    {
+        if (strlen($tag_ids) == 0 || !method_exists($this->builder->getModel(), 'tags')) {
+            return $this->builder;
+        }
+
+        $ids = $this->transformKeys(explode(',', $tag_ids));
+
+        return $this->builder->whereHas('tags', function (Builder $query) use ($ids) {
+            $query->whereIn('tags.id', $ids);
+        });
+    }
     /**
      * Filter by due date range.
      *

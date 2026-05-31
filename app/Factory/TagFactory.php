@@ -23,7 +23,7 @@ class TagFactory
         $tag->company_id = $company_id;
         $tag->entity_type = '';
         $tag->name = '';
-        $tag->color = null;
+        $tag->color = sprintf('#%06X', random_int(0, 0xFFFFFF));
 
         return $tag;
     }

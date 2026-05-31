@@ -67,6 +67,9 @@ class TagFilters extends QueryFilters
 
     public function entityFilter(): Builder
     {
-        return $this->builder->company();
+        return $this->builder
+            ->company()
+            ->whereNull('tags.deleted_at')
+            ->where('tags.is_deleted', false);
     }
 }

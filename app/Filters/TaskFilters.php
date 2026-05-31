@@ -147,6 +147,7 @@ class TaskFilters extends QueryFilters
         !str_starts_with($sort_col[0], 'client.') && 
         !str_starts_with($sort_col[0], 'contact.') &&
         !str_starts_with($sort_col[0], 'date') && 
+        !str_starts_with($sort_col[0], 'task_tag_ids') && 
         !str_starts_with($sort_col[0], 'documents'))) {
             return $this->builder;
         }
@@ -182,6 +183,20 @@ class TaskFilters extends QueryFilters
                         ELSE 'No Contact Set'
                     END " . $dir
                 );
+        }
+
+        if ($sort_col[0] == 'task_tag_ids') {
+
+            return $this->builder
+            ->leftJoin('taggables', function ($j) {
+                $j->on('taggables.taggable_id', '=', 'tasks.id')
+                  ->where('taggables.taggable_type', '=', \App\Models\Task::class);
+            })
+            ->leftJoin('tags', 'tags.id', '=', 'taggables.tag_id')
+            ->select('tasks.*')
+            ->groupBy('tasks.id')
+            ->orderByRaw('CASE WHEN GROUP_CONCAT(tags.name) IS NULL THEN 1 ELSE 0 END')
+            ->orderByRaw('GROUP_CONCAT(tags.name ORDER BY tags.name SEPARATOR ",") '.$dir);
         }
 
         /** Relationship sorting - clients */
