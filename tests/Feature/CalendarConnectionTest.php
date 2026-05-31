@@ -646,6 +646,114 @@ class CalendarConnectionTest extends TestCase
     }
 
 
+    public function testCalendarProviderHttpRequestsUseThirtySecondTimeout(): void
+    {
+        /** @var array<string, int|float|null> $timeouts */
+        $timeouts = [];
+
+        Http::fake(function ($request, array $options) use (&$timeouts) {
+            $url = $request->url();
+
+            if ($url === 'https://login.microsoftonline.com/common/oauth2/v2.0/token') {
+                $timeouts['refresh_token'] = $options['timeout'] ?? null;
+
+                return Http::response([
+                    'access_token' => 'microsoft-access-token',
+                    'refresh_token' => 'new-microsoft-refresh-token',
+                    'expires_in' => 3600,
+                ]);
+            }
+
+            if ($url === 'https://graph.microsoft.com/v1.0/me/calendars') {
+                $timeouts['calendar_list'] = $options['timeout'] ?? null;
+
+                return Http::response(['value' => []]);
+            }
+
+            if (str_starts_with($url, 'https://www.googleapis.com/calendar/v3/calendars/primary/events')) {
+                $timeouts['google_events'] = $options['timeout'] ?? null;
+
+                return Http::response(['items' => []]);
+            }
+
+            if (str_starts_with($url, 'https://graph.microsoft.com/v1.0/me/calendars/default-calendar/calendarView')) {
+                $timeouts['microsoft_events'] = $options['timeout'] ?? null;
+
+                return Http::response(['value' => []]);
+            }
+
+            return Http::response([], 404);
+        });
+
+        $this->user->referral_meta = new ReferralMeta([
+            'calendar_connection' => [
+                'provider' => CalendarConnection::PROVIDER_MICROSOFT,
+                'provider_user_id' => 'microsoft-user-1',
+                'email' => 'calendar@example.com',
+                'refresh_token' => 'microsoft-refresh-token',
+                'expires_at' => now()->subMinute()->timestamp,
+                'calendars' => [],
+            ],
+        ]);
+        $this->user->save();
+
+        $this->withHeaders($this->apiHeaders())
+            ->getJson(route('api.calendar_connection.calendars'))
+            ->assertOk();
+
+        $this->user->referral_meta = new ReferralMeta([
+            'calendar_connection' => [
+                'provider' => CalendarConnection::PROVIDER_GOOGLE,
+                'provider_user_id' => 'google-sub-1',
+                'email' => 'calendar@example.com',
+                'access_token' => 'google-access-token',
+                'refresh_token' => 'google-refresh-token',
+                'expires_at' => now()->addHour()->timestamp,
+                'calendars' => [
+                    ['calendar_id' => 'primary', 'name' => 'Primary', 'primary' => true, 'writable' => true],
+                ],
+            ],
+        ]);
+        $this->user->save();
+
+        $this->withHeaders($this->apiHeaders())
+            ->getJson(route('api.calendar_connection.events', [
+                'from' => '2026-04-01T00:00:00.000Z',
+                'to' => '2026-04-30T23:59:59.999Z',
+            ]))
+            ->assertOk();
+
+        $this->user->referral_meta = new ReferralMeta([
+            'calendar_connection' => [
+                'provider' => CalendarConnection::PROVIDER_MICROSOFT,
+                'provider_user_id' => 'microsoft-user-1',
+                'email' => 'calendar@example.com',
+                'access_token' => 'microsoft-access-token',
+                'refresh_token' => 'microsoft-refresh-token',
+                'expires_at' => now()->addHour()->timestamp,
+                'calendars' => [
+                    ['calendar_id' => 'default-calendar', 'name' => 'Calendar', 'primary' => true, 'writable' => true],
+                ],
+            ],
+        ]);
+        $this->user->save();
+
+        $this->withHeaders($this->apiHeaders())
+            ->getJson(route('api.calendar_connection.events', [
+                'from' => '2026-04-01T00:00:00.000Z',
+                'to' => '2026-04-30T23:59:59.999Z',
+            ]))
+            ->assertOk();
+
+        $this->assertSame([
+            'refresh_token' => 30,
+            'calendar_list' => 30,
+            'google_events' => 30,
+            'microsoft_events' => 30,
+        ], $timeouts);
+    }
+
+
     public function testGoogleEventsEndpointReturnsSelectedCalendarEventsInRange(): void
     {
         $this->user->referral_meta = new ReferralMeta([

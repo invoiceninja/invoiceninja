@@ -5999,6 +5999,17 @@ $lang = array(
     'peppol_partially_paid' => 'E-Invoice partially paid.',
     'peppol_paid' => 'E-Invoice paid.',
     'server_not_reachable' => 'Server not reachable. Check your internet connection and try again later.',
+    'connecting_calendar' => 'Connecting your calendar…',
+    'redirecting' => 'Redirecting…',
+    'calendar_connection_denied' => 'Connection cancelled',
+    'calendar_connection_denied_body' => 'You cancelled the connection. You can try again any time.',
+    'calendar_handoff_expired' => 'Connection link expired',
+    'calendar_handoff_expired_body' => 'The connection link is no longer valid. Please start the connection again.',
+    'calendar_handoff_invalid' => 'Could not complete connection',
+    'calendar_handoff_invalid_body' => 'Something went wrong validating the connection. Please try again.',
+    'calendar_connect_failed' => 'Calendar connect failed',
+    'calendar_connect_failed_body' => 'We couldn\'t finish connecting your calendar. Please try again.',
+    'back_to_calendar' => 'Back to calendar',
 );
 
 return $lang;

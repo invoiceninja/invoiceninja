@@ -48,6 +48,8 @@ class CalendarConnectionService
 
     private const MAX_EVENT_RANGE_DAYS = 45;
 
+    private const PROVIDER_HTTP_TIMEOUT_SECONDS = 30;
+
     /**
      * Returns the user's current calendar connection as an array payload,
      * or null when no provider has been connected yet.
@@ -269,6 +271,7 @@ class CalendarConnectionService
         $connection = $this->freshConnection($user, $connection);
 
         $response = Http::withToken((string) $connection->access_token)
+            ->timeout(self::PROVIDER_HTTP_TIMEOUT_SECONDS)
             ->acceptJson()
             ->get($this->calendarEndpoint((string) $connection->provider));
 
@@ -642,7 +645,9 @@ class CalendarConnectionService
     private function refreshTokenResponse(CalendarConnection $connection): array
     {
         $provider = (string) $connection->provider;
-        $response = Http::asForm()->post($this->tokenEndpoint($provider), $this->refreshTokenPayload($connection));
+        $response = Http::asForm()
+            ->timeout(self::PROVIDER_HTTP_TIMEOUT_SECONDS)
+            ->post($this->tokenEndpoint($provider), $this->refreshTokenPayload($connection));
 
         if ($response->failed() || !$response->json('access_token')) {
             throw ValidationException::withMessages(['calendar_connection' => 'Unable to refresh the calendar token.']);
@@ -732,6 +737,7 @@ class CalendarConnectionService
             }
 
             $response = Http::withToken((string) $connection->access_token)
+                ->timeout(self::PROVIDER_HTTP_TIMEOUT_SECONDS)
                 ->acceptJson()
                 ->get(sprintf(self::GOOGLE_EVENTS_ENDPOINT_FORMAT, rawurlencode($calendarId)), $query);
 
@@ -776,6 +782,7 @@ class CalendarConnectionService
 
         do {
             $response = Http::withToken((string) $connection->access_token)
+                ->timeout(self::PROVIDER_HTTP_TIMEOUT_SECONDS)
                 ->acceptJson()
                 ->withHeaders(['Prefer' => 'outlook.timezone="UTC", outlook.body-content-type="text"'])
                 ->get($url, $query);
