@@ -56,7 +56,7 @@ class TagFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
-        if (!is_array($sort_col) || count($sort_col) != 2 || !in_array($sort_col[0], Schema::getColumnListing('tags'))) {
+        if (count($sort_col) != 2 || !in_array($sort_col[0], Schema::getColumnListing('tags'))) {
             return $this->builder;
         }
 

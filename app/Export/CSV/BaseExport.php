@@ -498,6 +498,7 @@ class BaseExport
         'log_duration_words' => 'task.time_log_duration_words',
         'user' => 'task.user_id',
         'assigned_user' => 'task.assigned_user_id',
+        'tags' => 'task.tags',
     ];
 
     protected array $forced_client_fields = [
@@ -1838,7 +1839,6 @@ class BaseExport
             'App\Models\Expense' => 'expense',
             'App\Models\Document' => 'document',
             'App\Models\Activity' => 'activity',
-            'App\Models\Task' => 'task',
             'App\Models\Project' => 'project',
             default => null,
         };

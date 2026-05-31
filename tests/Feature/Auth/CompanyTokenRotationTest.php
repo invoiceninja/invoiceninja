@@ -18,6 +18,7 @@ use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -28,6 +29,16 @@ class CompanyTokenRotationTest extends TestCase
     use DatabaseTransactions;
 
     private const PASSWORD = '123456';
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->withoutMiddleware(
+            ThrottleRequests::class
+        );
+
+    }
 
     public function test_stale_system_token_rotates_on_successful_login(): void
     {

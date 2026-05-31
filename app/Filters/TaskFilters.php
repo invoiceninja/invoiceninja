@@ -273,7 +273,6 @@ class TaskFilters extends QueryFilters
             return $this->builder;
         }
 
-        /** @var array $status_parameters */
         $status_parameters = explode(',', $value);
 
         if (count($status_parameters) >= 1) {

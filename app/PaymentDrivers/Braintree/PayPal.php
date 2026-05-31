@@ -83,7 +83,7 @@ class PayPal implements LivewireMethodInterface
         $po_number = $invoice->po_number ?? $invoice->number ?? '';
 
         $data = [
-            'amount' => $this->braintree->payment_hash->data->amount_with_fee,
+            'amount' => $this->braintree->payment_hash->data->amount_with_fee, //@phpstan-ignore-line
             'paymentMethodToken' => $token,
             'deviceData' => $state['client-data'],
             'channel' => 'invoiceninja_BT',
