@@ -6010,6 +6010,16 @@ $lang = array(
     'calendar_connect_failed' => 'Calendar connect failed',
     'calendar_connect_failed_body' => 'We couldn\'t finish connecting your calendar. Please try again.',
     'back_to_calendar' => 'Back to calendar',
+    'tag' => 'Tag',
+    'new_tag' => 'New Tag',
+    'edit_tag' => 'Edit Tag',
+    'task_tags' => 'Task Tags',
+    'project_tags' => 'Project Tags',
+    'created_tag' => 'Successfully created tag',
+    'updated_tag' => 'Successfully updated tag',
+    'archived_tag' => 'Successfully archived tag',
+    'restored_tag' => 'Successfully restored tag',
+    'deleted_tag' => 'Successfully deleted tag',
 );
 
 return $lang;
