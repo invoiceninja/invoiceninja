@@ -128,4 +128,9 @@
           description: 'Alternative sort order for status'
           type: integer
           example: 1
+        tags:
+          description: 'Tags assigned to the task'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
       type: object

@@ -1122,7 +1122,7 @@ class TaskApiTest extends TestCase
 
         $arr = $response->json();
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
     }
 
 
