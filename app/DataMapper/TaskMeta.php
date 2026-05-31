@@ -40,7 +40,7 @@ class TaskMeta implements Arrayable, Castable, JsonSerializable
     public static function fromArray(array $data): self
     {
         return new self(
-            calendar_event_id: (string) ($data['calendar_event_id'] ?? $data['event_id'] ?? ''),
+            calendar_event_id: (string) ($data['calendar_event_id'] ?? $data['provider_event_id'] ?? $data['event_id'] ?? ''),
         );
     }
 

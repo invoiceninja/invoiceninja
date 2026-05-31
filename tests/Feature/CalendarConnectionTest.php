@@ -14,6 +14,8 @@ namespace Tests\Feature;
 
 use App\DataMapper\Referral\CalendarConnection;
 use App\DataMapper\Referral\ReferralMeta;
+use App\DataMapper\TaskMeta;
+use App\Factory\TaskFactory;
 use App\Services\Calendar\CalendarConnectionService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Cache;
@@ -47,14 +49,18 @@ class CalendarConnectionTest extends TestCase
         ]);
     }
 
-    public function testGoogleAuthorizeEndpointReturnsAProviderUrlWithOpaqueState(): void
+    public function testAuthorizeHashRedirectsToGoogleWithOpaqueState(): void
     {
-        $response = $this->withHeaders($this->apiHeaders())
-            ->postJson(route('api.calendar_connection.authorize', ['provider' => CalendarConnection::PROVIDER_GOOGLE]));
+        $hash = $this->cacheOneTimeToken('calendar_google');
 
-        $response->assertOk();
+        $response = $this->get(route('calendar_connection.authorize', [
+            'provider' => CalendarConnection::PROVIDER_GOOGLE,
+            'hash' => $hash,
+        ]));
 
-        $url = $response->json('data.url');
+        $response->assertStatus(302);
+
+        $url = $response->headers->get('Location');
         $query = $this->parseUrlQuery($url);
 
         $this->assertSame('accounts.google.com', parse_url($url, PHP_URL_HOST));
@@ -62,8 +68,12 @@ class CalendarConnectionTest extends TestCase
         $this->assertSame('offline', $query['access_type']);
         $this->assertSame('consent select_account', $query['prompt']);
         $this->assertSame('true', $query['include_granted_scopes']);
-        $this->assertStringContainsString('https://www.googleapis.com/auth/calendar.events', $query['scope']);
-        $this->assertStringContainsString('https://www.googleapis.com/auth/calendar.calendarlist.readonly', $query['scope']);
+
+        $scopes = explode(' ', $query['scope']);
+
+        $this->assertContains('https://www.googleapis.com/auth/calendar.events.readonly', $scopes);
+        $this->assertContains('https://www.googleapis.com/auth/calendar.calendarlist.readonly', $scopes);
+        $this->assertNotContains('https://www.googleapis.com/auth/calendar.events', $scopes);
         $this->assertNotEmpty($query['state']);
 
         $stateContext = Cache::get(CalendarConnectionService::STATE_CACHE_PREFIX . $query['state']);
@@ -73,7 +83,110 @@ class CalendarConnectionTest extends TestCase
         $this->assertSame(config('database.default'), $stateContext['database']);
     }
 
-    public function testCallbackStoresSingleCalendarConnectionAndAutoSelectsGooglePrimaryCalendar(): void
+    public function testAuthorizeMicrosoftRequestsReadOnlyCalendarScope(): void
+    {
+        $hash = $this->cacheOneTimeToken('calendar_microsoft');
+
+        $response = $this->get(route('calendar_connection.authorize', [
+            'provider' => CalendarConnection::PROVIDER_MICROSOFT,
+            'hash' => $hash,
+        ]));
+
+        $response->assertStatus(302);
+
+        $query = $this->parseUrlQuery($response->headers->get('Location'));
+        $scopes = explode(' ', $query['scope']);
+
+        $this->assertContains('Calendars.Read', $scopes);
+        $this->assertNotContains('Calendars.ReadWrite', $scopes);
+    }
+
+    public function testAuthorizeRejectsHashWithUnrelatedContext(): void
+    {
+        $hash = $this->cacheOneTimeToken('quickbooks');
+
+        $this->get(route('calendar_connection.authorize', [
+            'provider' => CalendarConnection::PROVIDER_GOOGLE,
+            'hash' => $hash,
+        ]))->assertStatus(403);
+    }
+
+    public function testAuthorizeRejectsHashIssuedForOtherProvider(): void
+    {
+        $hash = $this->cacheOneTimeToken('calendar_google');
+
+        $this->get(route('calendar_connection.authorize', [
+            'provider' => CalendarConnection::PROVIDER_MICROSOFT,
+            'hash' => $hash,
+        ]))->assertStatus(403);
+    }
+
+    public function testAuthorizeRejectsUnknownHash(): void
+    {
+        $this->get(route('calendar_connection.authorize', [
+            'provider' => CalendarConnection::PROVIDER_GOOGLE,
+            'hash' => Str::random(64),
+        ]))->assertStatus(403);
+    }
+
+    public function testCallbackBouncepointStoresHandoffAndForwardsOnlyTheHandoffToReact(): void
+    {
+        Socialite::shouldReceive('driver')->never();
+
+        $response = $this->get(route('calendar_connection.callback', [
+            'provider' => CalendarConnection::PROVIDER_GOOGLE,
+            'state' => 'opaque-state',
+            'code' => 'oauth-code',
+        ]));
+
+        $location = $response->headers->get('Location');
+
+        $this->assertStringStartsWith('https://react.test/#/calendar_connection/complete?', $location);
+        $query = $this->parseUrlFragmentParams($location);
+        $this->assertSame('pending', $query['calendar_connection']);
+        $this->assertSame(CalendarConnection::PROVIDER_GOOGLE, $query['provider']);
+        $this->assertArrayHasKey('handoff', $query);
+        $this->assertArrayNotHasKey('state', $query);
+        $this->assertArrayNotHasKey('code', $query);
+
+        $handoffContext = Cache::get(CalendarConnectionService::HANDOFF_CACHE_PREFIX . $query['handoff']);
+
+        $this->assertSame(CalendarConnection::PROVIDER_GOOGLE, $handoffContext['provider']);
+        $this->assertSame('opaque-state', $handoffContext['state']);
+        $this->assertSame('oauth-code', $handoffContext['code']);
+    }
+
+    public function testCallbackBouncepointReturnsDeniedOnProviderError(): void
+    {
+        Socialite::shouldReceive('driver')->never();
+
+        $response = $this->get(route('calendar_connection.callback', [
+            'provider' => CalendarConnection::PROVIDER_GOOGLE,
+            'error' => 'access_denied',
+        ]));
+
+        $query = $this->parseUrlFragmentParams($response->headers->get('Location'));
+        $this->assertSame('denied', $query['calendar_connection']);
+        $this->assertArrayNotHasKey('state', $query);
+        $this->assertArrayNotHasKey('code', $query);
+        $this->assertArrayNotHasKey('handoff', $query);
+    }
+
+    public function testCallbackBouncepointReturnsFailedWhenStateOrCodeMissing(): void
+    {
+        Socialite::shouldReceive('driver')->never();
+
+        $response = $this->get(route('calendar_connection.callback', [
+            'provider' => CalendarConnection::PROVIDER_GOOGLE,
+            'state' => 'present',
+        ]));
+
+        $query = $this->parseUrlFragmentParams($response->headers->get('Location'));
+        $this->assertSame('failed', $query['calendar_connection']);
+        $this->assertArrayNotHasKey('handoff', $query);
+    }
+
+    public function testCompleteStoresSingleCalendarConnectionAndAutoSelectsGooglePrimaryCalendar(): void
     {
         $state = $this->cacheCalendarState(CalendarConnection::PROVIDER_GOOGLE);
 
@@ -95,13 +208,13 @@ class CalendarConnectionTest extends TestCase
             ]),
         ]);
 
-        $response = $this->get(route('calendar_connection.callback', [
-            'provider' => CalendarConnection::PROVIDER_GOOGLE,
-            'state' => $state,
-            'code' => 'oauth-code',
-        ]));
+        $response = $this->withHeaders($this->apiHeaders())
+            ->postJson(route('api.calendar_connection.complete', ['provider' => CalendarConnection::PROVIDER_GOOGLE]), [
+                'state' => $state,
+                'code' => 'oauth-code',
+            ]);
 
-        $response->assertRedirect('https://react.test/#/settings/user_details/connect?calendar_connection=connected');
+        $response->assertOk();
         $this->assertFalse(Cache::has(CalendarConnectionService::STATE_CACHE_PREFIX . $state));
 
         $this->user->refresh();
@@ -118,12 +231,92 @@ class CalendarConnectionTest extends TestCase
         $this->assertSame('Primary', $connection->calendars[0]['name']);
         $this->assertTrue($connection->calendars[0]['primary']);
         $this->assertTrue($connection->calendars[0]['writable']);
-        $this->assertNull($this->user->oauth_user_id);
-        $this->assertNull($this->user->oauth_provider_id);
-        $this->assertNull($this->user->oauth_user_refresh_token);
     }
 
-    public function testCallbackPreservesExistingRefreshTokenAndSelectedCalendarsWhenProviderOmitsRefreshToken(): void
+    public function testCompleteConsumesCallbackHandoffAndConnects(): void
+    {
+        $state = $this->cacheCalendarState(CalendarConnection::PROVIDER_GOOGLE);
+        $handoff = $this->cacheCalendarHandoff(CalendarConnection::PROVIDER_GOOGLE, $state);
+
+        Socialite::fake(CalendarConnection::PROVIDER_GOOGLE, (new SocialiteUser())->map([
+            'id' => 'google-sub-1',
+            'name' => 'Calendar User',
+            'email' => 'calendar@example.com',
+        ])->setToken('google-access-token')
+            ->setRefreshToken('google-refresh-token')
+            ->setExpiresIn(3600));
+
+        Http::fake([
+            'https://www.googleapis.com/calendar/v3/users/me/calendarList' => Http::response([
+                'items' => [
+                    ['id' => 'primary', 'summary' => 'Primary', 'primary' => true, 'accessRole' => 'owner'],
+                ],
+            ]),
+        ]);
+
+        $response = $this->withHeaders($this->apiHeaders())
+            ->postJson(route('api.calendar_connection.complete', ['provider' => CalendarConnection::PROVIDER_GOOGLE]), [
+                'handoff' => $handoff,
+            ]);
+
+        $response->assertOk();
+        $this->assertFalse(Cache::has(CalendarConnectionService::HANDOFF_CACHE_PREFIX . $handoff));
+        $this->assertFalse(Cache::has(CalendarConnectionService::STATE_CACHE_PREFIX . $state));
+
+        $this->user->refresh();
+
+        $connection = $this->user->referral_meta->calendar_connection;
+
+        $this->assertInstanceOf(CalendarConnection::class, $connection);
+        $this->assertSame(CalendarConnection::PROVIDER_GOOGLE, $connection->provider);
+        $this->assertSame('google-sub-1', $connection->provider_user_id);
+        $this->assertSame('primary', $connection->calendars[0]['calendar_id']);
+    }
+
+    public function testCompleteRejectsReplayedCallbackHandoff(): void
+    {
+        $state = $this->cacheCalendarState(CalendarConnection::PROVIDER_GOOGLE);
+        $handoff = $this->cacheCalendarHandoff(CalendarConnection::PROVIDER_GOOGLE, $state);
+
+        Socialite::fake(CalendarConnection::PROVIDER_GOOGLE, (new SocialiteUser())->map([
+            'id' => 'google-sub-1',
+            'email' => 'calendar@example.com',
+        ])->setToken('google-access-token')
+            ->setRefreshToken('google-refresh-token')
+            ->setExpiresIn(3600));
+
+        Http::fake();
+
+        $this->withHeaders($this->apiHeaders())
+            ->postJson(route('api.calendar_connection.complete', ['provider' => CalendarConnection::PROVIDER_GOOGLE]), [
+                'handoff' => $handoff,
+            ])->assertOk();
+
+        $this->withHeaders($this->apiHeaders())
+            ->postJson(route('api.calendar_connection.complete', ['provider' => CalendarConnection::PROVIDER_GOOGLE]), [
+                'handoff' => $handoff,
+            ])->assertStatus(422)
+            ->assertJsonValidationErrors(['handoff']);
+    }
+
+    public function testCompleteRejectsHandoffIssuedForOtherProvider(): void
+    {
+        $state = $this->cacheCalendarState(CalendarConnection::PROVIDER_GOOGLE);
+        $handoff = $this->cacheCalendarHandoff(CalendarConnection::PROVIDER_GOOGLE, $state);
+
+        Socialite::shouldReceive('driver')->never();
+
+        $this->withHeaders($this->apiHeaders())
+            ->postJson(route('api.calendar_connection.complete', ['provider' => CalendarConnection::PROVIDER_MICROSOFT]), [
+                'handoff' => $handoff,
+            ])->assertStatus(422)
+            ->assertJsonValidationErrors(['handoff']);
+
+        $this->assertFalse(Cache::has(CalendarConnectionService::HANDOFF_CACHE_PREFIX . $handoff));
+        $this->assertTrue(Cache::has(CalendarConnectionService::STATE_CACHE_PREFIX . $state));
+    }
+
+    public function testCompletePreservesExistingRefreshTokenAndSelectedCalendarsWhenProviderOmitsRefreshToken(): void
     {
         $this->user->referral_meta = new ReferralMeta([
             'free' => 1,
@@ -154,11 +347,11 @@ class CalendarConnectionTest extends TestCase
         ])->setToken('new-access-token')
             ->setExpiresIn(3600));
 
-        $this->get(route('calendar_connection.callback', [
-            'provider' => CalendarConnection::PROVIDER_GOOGLE,
-            'state' => $state,
-            'code' => 'oauth-code',
-        ]))->assertRedirect('https://react.test/#/settings/user_details/connect?calendar_connection=connected');
+        $this->withHeaders($this->apiHeaders())
+            ->postJson(route('api.calendar_connection.complete', ['provider' => CalendarConnection::PROVIDER_GOOGLE]), [
+                'state' => $state,
+                'code' => 'oauth-code',
+            ])->assertOk();
 
         $this->user->refresh();
 
@@ -173,7 +366,7 @@ class CalendarConnectionTest extends TestCase
         $this->assertSame(3, $this->user->referral_meta->enterprise);
     }
 
-    public function testMicrosoftCallbackAutoSelectsDefaultWritableCalendar(): void
+    public function testMicrosoftCompleteAutoSelectsDefaultWritableCalendar(): void
     {
         $state = $this->cacheCalendarState(CalendarConnection::PROVIDER_MICROSOFT);
 
@@ -194,11 +387,11 @@ class CalendarConnectionTest extends TestCase
             ]),
         ]);
 
-        $this->get(route('calendar_connection.callback', [
-            'provider' => CalendarConnection::PROVIDER_MICROSOFT,
-            'state' => $state,
-            'code' => 'oauth-code',
-        ]))->assertRedirect('https://react.test/#/settings/user_details/connect?calendar_connection=connected');
+        $this->withHeaders($this->apiHeaders())
+            ->postJson(route('api.calendar_connection.complete', ['provider' => CalendarConnection::PROVIDER_MICROSOFT]), [
+                'state' => $state,
+                'code' => 'oauth-code',
+            ])->assertOk();
 
         $this->user->refresh();
 
@@ -211,7 +404,7 @@ class CalendarConnectionTest extends TestCase
         $this->assertTrue($connection->calendars[0]['writable']);
     }
 
-    public function testCallbackStillConnectsWhenCalendarLookupFails(): void
+    public function testCompleteStillConnectsWhenCalendarLookupFails(): void
     {
         $state = $this->cacheCalendarState(CalendarConnection::PROVIDER_GOOGLE);
 
@@ -227,11 +420,11 @@ class CalendarConnectionTest extends TestCase
             'https://www.googleapis.com/calendar/v3/users/me/calendarList' => Http::response([], 500),
         ]);
 
-        $this->get(route('calendar_connection.callback', [
-            'provider' => CalendarConnection::PROVIDER_GOOGLE,
-            'state' => $state,
-            'code' => 'oauth-code',
-        ]))->assertRedirect('https://react.test/#/settings/user_details/connect?calendar_connection=connected');
+        $this->withHeaders($this->apiHeaders())
+            ->postJson(route('api.calendar_connection.complete', ['provider' => CalendarConnection::PROVIDER_GOOGLE]), [
+                'state' => $state,
+                'code' => 'oauth-code',
+            ])->assertOk();
 
         $this->user->refresh();
 
@@ -242,7 +435,7 @@ class CalendarConnectionTest extends TestCase
         $this->assertSame([], $connection->calendars);
     }
 
-    public function testCallbackLeavesCalendarsEmptyWhenProviderOnlyReturnsReadOnlyCalendars(): void
+    public function testCompleteLeavesCalendarsEmptyWhenProviderOnlyReturnsReadOnlyCalendars(): void
     {
         $state = $this->cacheCalendarState(CalendarConnection::PROVIDER_GOOGLE);
 
@@ -263,15 +456,128 @@ class CalendarConnectionTest extends TestCase
             ]),
         ]);
 
-        $this->get(route('calendar_connection.callback', [
-            'provider' => CalendarConnection::PROVIDER_GOOGLE,
-            'state' => $state,
-            'code' => 'oauth-code',
-        ]))->assertRedirect('https://react.test/#/settings/user_details/connect?calendar_connection=connected');
+        $this->withHeaders($this->apiHeaders())
+            ->postJson(route('api.calendar_connection.complete', ['provider' => CalendarConnection::PROVIDER_GOOGLE]), [
+                'state' => $state,
+                'code' => 'oauth-code',
+            ])->assertOk();
 
         $this->user->refresh();
 
         $this->assertSame([], $this->user->referral_meta->calendar_connection->calendars);
+    }
+
+    public function testCompleteFailsWhenStateIsMissingFromCache(): void
+    {
+        Socialite::shouldReceive('driver')->never();
+
+        $this->withHeaders($this->apiHeaders())
+            ->postJson(route('api.calendar_connection.complete', ['provider' => CalendarConnection::PROVIDER_GOOGLE]), [
+                'state' => str_repeat('x', 64),
+                'code' => 'oauth-code',
+            ])->assertStatus(422);
+
+        $this->user->refresh();
+        $this->assertNull($this->user->referral_meta?->calendar_connection);
+    }
+
+    public function testCompleteRejectsCrossAccountStateInjection(): void
+    {
+        // Simulate Sally (another user) having initiated the OAuth flow:
+        // the cached state names Sally, but Bob (the authenticated caller)
+        // is the one POSTing /complete with that state and a code intended
+        // for him. The fix must reject this regardless of how the code was
+        // obtained.
+        $sallyUserId = $this->user->id + 9_999_999;
+
+        $state = Str::random(64);
+        Cache::put(CalendarConnectionService::STATE_CACHE_PREFIX . $state, [
+            'database' => config('database.default'),
+            'provider' => CalendarConnection::PROVIDER_GOOGLE,
+            'user_id' => $sallyUserId,
+        ], now()->addMinutes(10));
+
+        Socialite::shouldReceive('driver')->never();
+
+        $this->withHeaders($this->apiHeaders())
+            ->postJson(route('api.calendar_connection.complete', ['provider' => CalendarConnection::PROVIDER_GOOGLE]), [
+                'state' => $state,
+                'code' => 'oauth-code',
+            ])->assertStatus(422);
+
+        $this->assertFalse(Cache::has(CalendarConnectionService::STATE_CACHE_PREFIX . $state));
+
+        $this->user->refresh();
+        $this->assertNull($this->user->referral_meta?->calendar_connection);
+    }
+
+    public function testCompleteRejectsReplayedState(): void
+    {
+        $state = $this->cacheCalendarState(CalendarConnection::PROVIDER_GOOGLE);
+
+        Socialite::fake(CalendarConnection::PROVIDER_GOOGLE, (new SocialiteUser())->map([
+            'id' => 'google-sub-1',
+            'email' => 'calendar@example.com',
+        ])->setToken('google-access-token')
+            ->setRefreshToken('google-refresh-token')
+            ->setExpiresIn(3600));
+
+        Http::fake();
+
+        $this->withHeaders($this->apiHeaders())
+            ->postJson(route('api.calendar_connection.complete', ['provider' => CalendarConnection::PROVIDER_GOOGLE]), [
+                'state' => $state,
+                'code' => 'oauth-code',
+            ])->assertOk();
+
+        $this->withHeaders($this->apiHeaders())
+            ->postJson(route('api.calendar_connection.complete', ['provider' => CalendarConnection::PROVIDER_GOOGLE]), [
+                'state' => $state,
+                'code' => 'oauth-code',
+            ])->assertStatus(422);
+    }
+
+    public function testCompleteRejectsStateIssuedForOtherProvider(): void
+    {
+        $state = $this->cacheCalendarState(CalendarConnection::PROVIDER_GOOGLE);
+
+        Socialite::shouldReceive('driver')->never();
+
+        $this->withHeaders($this->apiHeaders())
+            ->postJson(route('api.calendar_connection.complete', ['provider' => CalendarConnection::PROVIDER_MICROSOFT]), [
+                'state' => $state,
+                'code' => 'oauth-code',
+            ])->assertStatus(422);
+
+        $this->assertFalse(Cache::has(CalendarConnectionService::STATE_CACHE_PREFIX . $state));
+    }
+
+    public function testCompleteRejectsStateFromDifferentTenant(): void
+    {
+        $state = Str::random(64);
+        Cache::put(CalendarConnectionService::STATE_CACHE_PREFIX . $state, [
+            'database' => 'db-other',
+            'provider' => CalendarConnection::PROVIDER_GOOGLE,
+            'user_id' => $this->user->id,
+        ], now()->addMinutes(10));
+
+        Socialite::shouldReceive('driver')->never();
+
+        $this->withHeaders($this->apiHeaders())
+            ->postJson(route('api.calendar_connection.complete', ['provider' => CalendarConnection::PROVIDER_GOOGLE]), [
+                'state' => $state,
+                'code' => 'oauth-code',
+            ])->assertStatus(422);
+    }
+
+    public function testCompleteRejectsInvalidStateLength(): void
+    {
+        $this->withHeaders($this->apiHeaders())
+            ->postJson(route('api.calendar_connection.complete', ['provider' => CalendarConnection::PROVIDER_GOOGLE]), [
+                'state' => 'too-short',
+                'code' => 'oauth-code',
+            ])->assertStatus(422)
+            ->assertJsonValidationErrors(['state']);
     }
 
     public function testCalendarListUpdateAndDisconnectFlow(): void
@@ -388,14 +694,20 @@ class CalendarConnectionTest extends TestCase
             ]));
 
         $response->assertOk();
+
+        $expectedEventId = $this->user->id . ':' . CalendarConnection::PROVIDER_GOOGLE . ':' . sha1('primary') . ':event-1';
+
+        $response->assertJsonPath('data.events.0.id', $expectedEventId);
+        $response->assertJsonPath('data.events.0.calendar_event_id', $expectedEventId);
         $response->assertJsonPath('data.events.0.provider', CalendarConnection::PROVIDER_GOOGLE);
-        $response->assertJsonPath('data.events.0.provider_event_id', 'event-1');
+        $response->assertJsonPath('data.events.0.provider_event_id', $expectedEventId);
         $response->assertJsonPath('data.events.0.calendar_id', 'primary');
         $response->assertJsonPath('data.events.0.calendar_name', 'Primary');
         $response->assertJsonPath('data.events.0.title', 'Discovery Call');
         $response->assertJsonPath('data.events.0.start', '2026-04-01T09:00:00.000Z');
         $response->assertJsonPath('data.events.0.end', '2026-04-01T09:30:00.000Z');
         $response->assertJsonPath('data.events.0.all_day', false);
+        $this->assertArrayNotHasKey('url', $response->json('data.events.0'));
         $response->assertJsonPath('data.events.1.title', 'Billing Day');
         $response->assertJsonPath('data.events.1.all_day', true);
 
@@ -454,8 +766,13 @@ class CalendarConnectionTest extends TestCase
             ]));
 
         $response->assertOk();
+
+        $expectedEventId = $this->user->id . ':' . CalendarConnection::PROVIDER_MICROSOFT . ':' . sha1('default-calendar') . ':graph-event-1';
+
+        $response->assertJsonPath('data.events.0.id', $expectedEventId);
+        $response->assertJsonPath('data.events.0.calendar_event_id', $expectedEventId);
         $response->assertJsonPath('data.events.0.provider', CalendarConnection::PROVIDER_MICROSOFT);
-        $response->assertJsonPath('data.events.0.provider_event_id', 'graph-event-1');
+        $response->assertJsonPath('data.events.0.provider_event_id', $expectedEventId);
         $response->assertJsonPath('data.events.0.calendar_id', 'default-calendar');
         $response->assertJsonPath('data.events.0.title', 'Planning');
         $response->assertJsonPath('data.events.0.description', 'Plan the work');
@@ -464,6 +781,7 @@ class CalendarConnectionTest extends TestCase
         $response->assertJsonPath('data.events.0.end', '2026-04-01T10:30:00.0000000Z');
         $response->assertJsonPath('data.events.0.all_day', false);
         $response->assertJsonPath('data.events.0.status', 'busy');
+        $this->assertArrayNotHasKey('url', $response->json('data.events.0'));
 
         Http::assertSent(function ($request): bool {
             parse_str((string) parse_url($request->url(), PHP_URL_QUERY), $query);
@@ -472,6 +790,60 @@ class CalendarConnectionTest extends TestCase
                 && $query['startDateTime'] === '2026-03-28T13:00:00.000000Z'
                 && $query['endDateTime'] === '2026-05-02T13:59:59.999000Z';
         });
+    }
+
+    public function testEventsEndpointSkipsEventsAlreadyConvertedToTasksForTheCurrentUser(): void
+    {
+        $this->user->referral_meta = new ReferralMeta([
+            'calendar_connection' => [
+                'provider' => CalendarConnection::PROVIDER_GOOGLE,
+                'provider_user_id' => 'google-sub-1',
+                'email' => 'calendar@example.com',
+                'access_token' => 'google-access-token',
+                'refresh_token' => 'google-refresh-token',
+                'expires_at' => now()->addHour()->timestamp,
+                'calendars' => [
+                    ['calendar_id' => 'primary', 'name' => 'Primary', 'primary' => true, 'writable' => true],
+                ],
+            ],
+        ]);
+        $this->user->save();
+
+        $convertedEventId = $this->user->id . ':' . CalendarConnection::PROVIDER_GOOGLE . ':' . sha1('primary') . ':event-1';
+        $task = TaskFactory::create($this->company->id, $this->user->id);
+        $task->description = 'Converted event';
+        $task->meta = new TaskMeta(calendar_event_id: $convertedEventId);
+        $task->saveQuietly();
+
+        Http::fake([
+            'https://www.googleapis.com/calendar/v3/calendars/primary/events*' => Http::response([
+                'items' => [
+                    [
+                        'id' => 'event-1',
+                        'summary' => 'Already converted',
+                        'start' => ['dateTime' => '2026-04-01T09:00:00.000Z'],
+                        'end' => ['dateTime' => '2026-04-01T09:30:00.000Z'],
+                    ],
+                    [
+                        'id' => 'event-2',
+                        'summary' => 'Available event',
+                        'start' => ['dateTime' => '2026-04-01T10:00:00.000Z'],
+                        'end' => ['dateTime' => '2026-04-01T10:30:00.000Z'],
+                    ],
+                ],
+            ]),
+        ]);
+
+        $response = $this->withHeaders($this->apiHeaders())
+            ->getJson(route('api.calendar_connection.events', [
+                'from' => '2026-04-01T00:00:00.000Z',
+                'to' => '2026-04-30T23:59:59.999Z',
+            ]));
+
+        $response->assertOk();
+        $response->assertJsonCount(1, 'data.events');
+        $response->assertJsonPath('data.events.0.title', 'Available event');
+        $response->assertJsonPath('data.events.0.calendar_event_id', $this->user->id . ':' . CalendarConnection::PROVIDER_GOOGLE . ':' . sha1('primary') . ':event-2');
     }
 
     public function testEventsEndpointReturnsEmptyWhenNoCalendarsAreSelected(): void
@@ -512,6 +884,42 @@ class CalendarConnectionTest extends TestCase
 
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['to']);
+    }
+
+    public function testEventsEndpointCapsOversizedRangesToAMonthViewWindow(): void
+    {
+        $this->user->referral_meta = new ReferralMeta([
+            'calendar_connection' => [
+                'provider' => CalendarConnection::PROVIDER_GOOGLE,
+                'provider_user_id' => 'google-sub-1',
+                'email' => 'calendar@example.com',
+                'access_token' => 'google-access-token',
+                'refresh_token' => 'google-refresh-token',
+                'expires_at' => now()->addHour()->timestamp,
+                'calendars' => [
+                    ['calendar_id' => 'primary', 'name' => 'Primary', 'primary' => true, 'writable' => true],
+                ],
+            ],
+        ]);
+        $this->user->save();
+
+        Http::fake([
+            'https://www.googleapis.com/calendar/v3/calendars/primary/events*' => Http::response(['items' => []]),
+        ]);
+
+        $this->withHeaders($this->apiHeaders())
+            ->getJson(route('api.calendar_connection.events', [
+                'from' => '2026-01-01T00:00:00.000Z',
+                'to' => '2026-04-01T00:00:00.000Z',
+            ]))
+            ->assertOk();
+
+        Http::assertSent(function ($request): bool {
+            parse_str((string) parse_url($request->url(), PHP_URL_QUERY), $query);
+
+            return $query['timeMin'] === '2026-01-01T00:00:00.000000Z'
+                && $query['timeMax'] === '2026-02-15T00:00:00.000000Z';
+        });
     }
 
     public function testMicrosoftCalendarsRefreshExpiredTokensAndNormalizeGraphShape(): void
@@ -580,6 +988,32 @@ class CalendarConnectionTest extends TestCase
         return $state;
     }
 
+    private function cacheCalendarHandoff(string $provider, string $state, string $code = 'oauth-code'): string
+    {
+        $handoff = Str::random(64);
+
+        Cache::put(CalendarConnectionService::HANDOFF_CACHE_PREFIX . $handoff, [
+            'provider' => $provider,
+            'state' => $state,
+            'code' => $code,
+        ], now()->addMinutes(5));
+
+        return $handoff;
+    }
+
+    private function cacheOneTimeToken(string $context): string
+    {
+        $hash = Str::random(64);
+
+        Cache::put($hash, [
+            'user_id' => $this->user->id,
+            'company_key' => $this->company->company_key,
+            'context' => $context,
+        ], 3600);
+
+        return $hash;
+    }
+
     /**
      * @return array<string, string>
      */
@@ -588,5 +1022,21 @@ class CalendarConnectionTest extends TestCase
         parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
 
         return $query;
+    }
+
+    /**
+     * Parses the fragment portion of a SPA URL of the form
+     * `https://host/#/path?a=1&b=2` into its query-style params.
+     *
+     * @return array<string, string>
+     */
+    private function parseUrlFragmentParams(string $url): array
+    {
+        $fragment = (string) parse_url($url, PHP_URL_FRAGMENT);
+        $queryPart = explode('?', $fragment, 2)[1] ?? '';
+        parse_str($queryPart, $params);
+
+        /** @var array<string, string> $params */
+        return $params;
     }
 }

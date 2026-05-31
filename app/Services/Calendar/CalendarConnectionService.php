@@ -4,7 +4,7 @@ namespace App\Services\Calendar;
 
 use App\DataMapper\Referral\CalendarConnection;
 use App\DataMapper\Referral\ReferralMeta;
-use App\Libraries\MultiDB;
+use App\Models\Task;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Arr;
@@ -28,6 +28,12 @@ class CalendarConnectionService
 {
     public const STATE_CACHE_PREFIX = 'calendar_connection:state:';
 
+    public const HANDOFF_CACHE_PREFIX = 'calendar_connection:handoff:';
+
+    private const STATE_TTL_MINUTES = 10;
+
+    private const HANDOFF_TTL_MINUTES = 5;
+
     private const GOOGLE_CALENDARS_ENDPOINT = 'https://www.googleapis.com/calendar/v3/users/me/calendarList';
 
     private const GOOGLE_EVENTS_ENDPOINT_FORMAT = 'https://www.googleapis.com/calendar/v3/calendars/%s/events';
@@ -39,6 +45,8 @@ class CalendarConnectionService
     private const MICROSOFT_CALENDAR_VIEW_ENDPOINT_FORMAT = 'https://graph.microsoft.com/v1.0/me/calendars/%s/calendarView';
 
     private const MICROSOFT_TOKEN_ENDPOINT = 'https://login.microsoftonline.com/common/oauth2/v2.0/token';
+
+    private const MAX_EVENT_RANGE_DAYS = 45;
 
     /**
      * Returns the user's current calendar connection as an array payload,
@@ -58,11 +66,11 @@ class CalendarConnectionService
     /**
      * Builds the provider authorization URL that kicks off the OAuth handshake.
      *
-     * Caches a random state token (bound to the current database, provider,
-     * and user) for 10 minutes so the callback can validate and resume the
-     * flow on the correct tenant.
+     * The opaque, single-use state token is stored server-side and bound to
+     * the initiating user/tenant so the authenticated `/complete` step can
+     * verify the same user is completing the flow they started.
      */
-    public function authorizeUrl(User $user, string $provider): string
+    public function buildAuthorizationUrl(User $user, string $provider): string
     {
         $provider = $this->validateProvider($provider);
         $state = Str::random(64);
@@ -71,8 +79,13 @@ class CalendarConnectionService
             'database' => config('database.default'),
             'provider' => $provider,
             'user_id' => $user->id,
-        ], now()->addMinutes(10));
+        ], now()->addMinutes(self::STATE_TTL_MINUTES));
 
+        return $this->providerAuthorizationUrl($provider, $state);
+    }
+
+    private function providerAuthorizationUrl(string $provider, string $state): string
+    {
         $driver = Socialite::driver($provider)
             ->stateless()
             ->redirectUrl($this->callbackUrl($provider))
@@ -86,32 +99,71 @@ class CalendarConnectionService
             ]);
         }
 
+        if ($provider === CalendarConnection::PROVIDER_MICROSOFT) {
+            $driver->with([
+                'prompt' => 'select_account',
+            ]);
+        }
+
         $url = $driver->redirect()->getTargetUrl();
         $separator = parse_url($url, PHP_URL_QUERY) ? '&' : '?';
 
         return $url . $separator . http_build_query(['state' => $state]);
     }
 
+    public function cacheCallbackHandoff(string $provider, string $state, string $code): string
+    {
+        $provider = $this->validateProvider($provider);
+        $handoff = Str::random(64);
+
+        Cache::put(self::HANDOFF_CACHE_PREFIX . $handoff, [
+            'provider' => $provider,
+            'state' => $state,
+            'code' => $code,
+        ], now()->addMinutes(self::HANDOFF_TTL_MINUTES));
+
+        return $handoff;
+    }
+
     /**
-     * Completes the OAuth callback for the given provider.
+     * @return array{state: string, code: string}
+     */
+    public function resolveCallbackHandoff(string $provider, string $handoff): array
+    {
+        $provider = $this->validateProvider($provider);
+        $handoffContext = Cache::pull(self::HANDOFF_CACHE_PREFIX . $handoff);
+
+        if (! is_array($handoffContext)
+            || ($handoffContext['provider'] ?? null) !== $provider
+            || empty($handoffContext['state'])
+            || empty($handoffContext['code'])) {
+            throw ValidationException::withMessages(['handoff' => 'Invalid calendar connection handoff.']);
+        }
+
+        return [
+            'state' => (string) $handoffContext['state'],
+            'code' => (string) $handoffContext['code'],
+        ];
+    }
+
+    /**
+     * Completes the OAuth handshake for the authenticated user.
      *
-     * Validates the cached state, switches to the originating database,
+     * Pulls the cached state, asserts the completing user matches the one
+     * that initiated the flow (closes cross-account OAuth injection),
      * exchanges the authorization code for tokens via Socialite, and
      * persists the resulting CalendarConnection on the user's referral
      * meta. A default writable calendar is auto-selected when none is
      * configured yet.
      *
-     * @throws ValidationException when the state is missing or invalid, or
-     *                             when the provider does not return a
-     *                             usable refresh token.
+     * @throws ValidationException when the state is missing/invalid, when
+     *                             the completing user does not match the
+     *                             cached initiator, or when the provider
+     *                             does not return a usable refresh token.
      */
-    public function handleCallback(string $provider, ?string $state): User
+    public function completeConnection(User $user, string $provider, string $state, string $code): User
     {
         $provider = $this->validateProvider($provider);
-
-        if (!$state) {
-            throw ValidationException::withMessages(['state' => 'Missing calendar connection state.']);
-        }
 
         $stateContext = Cache::pull(self::STATE_CACHE_PREFIX . $state);
 
@@ -121,11 +173,25 @@ class CalendarConnectionService
             throw ValidationException::withMessages(['state' => 'Invalid calendar connection state.']);
         }
 
-        if (isset($stateContext['database']) && is_string($stateContext['database'])) {
-            MultiDB::setDB($stateContext['database']);
+        if ((int) $stateContext['user_id'] !== (int) $user->id) {
+            report(new \RuntimeException(sprintf(
+                'Calendar connection state mismatch: expected user %d, got %d (provider %s).',
+                $stateContext['user_id'],
+                $user->id,
+                $provider,
+            )));
+
+            throw ValidationException::withMessages(['state' => 'Invalid calendar connection state.']);
         }
 
-        $user = User::query()->findOrFail((int) $stateContext['user_id']);
+        if (($stateContext['database'] ?? null) !== config('database.default')) {
+            throw ValidationException::withMessages(['state' => 'Invalid calendar connection state.']);
+        }
+
+        // Socialite's ->user() reads the `code` from the current request input.
+        // Merge it explicitly so the exchange works regardless of how the
+        // caller delivered the code (query, JSON body, form).
+        request()->merge(['code' => $code]);
 
         $socialiteUser = Socialite::driver($provider)
             ->stateless()
@@ -138,6 +204,23 @@ class CalendarConnectionService
             throw ValidationException::withMessages(['provider_user_id' => 'The calendar provider did not return a user id.']);
         }
 
+        $this->persistConnection($user, $provider, $socialiteUser, $providerUserId);
+
+        $this->selectDefaultCalendarAfterCallback($user);
+
+        return $user;
+    }
+
+    /**
+     * Writes the provider tokens and profile onto the user's referral meta,
+     * preserving an existing refresh token and prior calendar selection when
+     * the same provider account is being re-connected.
+     *
+     * @throws ValidationException when no refresh token is available (neither
+     *                             newly issued nor previously stored).
+     */
+    private function persistConnection(User $user, string $provider, SocialiteUser $socialiteUser, string $providerUserId): void
+    {
         $meta = $this->referralMeta($user);
         $existingConnection = $meta->calendar_connection;
 
@@ -167,10 +250,6 @@ class CalendarConnectionService
 
         $user->referral_meta = $meta;
         $user->save();
-
-        $this->selectDefaultCalendarAfterCallback($user);
-
-        return $user;
     }
 
     /**
@@ -245,16 +324,15 @@ class CalendarConnectionService
         }
 
         $connection = $this->freshConnection($user, $connection);
-        $from = $this->formatRangeDateTime($from);
-        $to = $this->formatRangeDateTime($to);
+        [$from, $to] = $this->formatRangeDateTimes($from, $to);
         $events = [];
 
         foreach ($connection->calendars as $calendar) {
             $events = [
                 ...$events,
                 ...match ($connection->provider) {
-                    CalendarConnection::PROVIDER_GOOGLE => $this->googleEvents($connection, $calendar, $from, $to),
-                    CalendarConnection::PROVIDER_MICROSOFT => $this->microsoftEvents($connection, $calendar, $from, $to),
+                    CalendarConnection::PROVIDER_GOOGLE => $this->googleEvents($user, $connection, $calendar, $from, $to),
+                    CalendarConnection::PROVIDER_MICROSOFT => $this->microsoftEvents($user, $connection, $calendar, $from, $to),
                     default => [],
                 },
             ];
@@ -262,7 +340,45 @@ class CalendarConnectionService
 
         usort($events, fn (array $first, array $second): int => strcmp((string) $first['start'], (string) $second['start']));
 
-        return $events;
+        return $this->withoutConvertedEvents($user, $events);
+    }
+
+    /**
+     * Removes events already converted into active tasks by this user.
+     *
+     * @param array<int, array<string, mixed>> $events
+     * @return array<int, array<string, mixed>>
+     */
+    private function withoutConvertedEvents(User $user, array $events): array
+    {
+        $eventIds = collect($events)
+            ->pluck('calendar_event_id')
+            ->filter(fn (mixed $eventId): bool => is_string($eventId) && $eventId !== '')
+            ->unique()
+            ->values();
+
+        if ($eventIds->isEmpty()) {
+            return $events;
+        }
+
+        $convertedEventIds = Task::query()
+            ->where('user_id', $user->id)
+            ->where('is_deleted', false)
+            ->whereNull('deleted_at')
+            ->whereIn('meta->calendar_event_id', $eventIds->all())
+            ->get(['meta'])
+            ->map(fn (Task $task): ?string => $task->meta?->calendar_event_id)
+            ->filter()
+            ->flip();
+
+        if ($convertedEventIds->isEmpty()) {
+            return $events;
+        }
+
+        return collect($events)
+            ->reject(fn (array $event): bool => $convertedEventIds->has((string) ($event['calendar_event_id'] ?? '')))
+            ->values()
+            ->all();
     }
 
     /**
@@ -419,7 +535,7 @@ class CalendarConnectionService
 
     /**
      * Returns the OAuth scopes requested for the given provider — enough to
-     * list calendars and read/write events on Google and Microsoft Graph.
+     * list calendars and read events on Google and Microsoft Graph.
      *
      * @return array<int, string>
      */
@@ -431,7 +547,7 @@ class CalendarConnectionService
                 'email',
                 'profile',
                 'https://www.googleapis.com/auth/calendar.calendarlist.readonly',
-                'https://www.googleapis.com/auth/calendar.events',
+                'https://www.googleapis.com/auth/calendar.events.readonly',
             ],
             CalendarConnection::PROVIDER_MICROSOFT => [
                 'openid',
@@ -439,7 +555,7 @@ class CalendarConnectionService
                 'profile',
                 'offline_access',
                 'User.Read',
-                'Calendars.ReadWrite',
+                'Calendars.Read',
             ],
             default => [],
         };
@@ -595,7 +711,7 @@ class CalendarConnectionService
      * @throws ValidationException when the Google API responds with a
      *                             non-2xx status.
      */
-    private function googleEvents(CalendarConnection $connection, array $calendar, string $from, string $to): array
+    private function googleEvents(User $user, CalendarConnection $connection, array $calendar, string $from, string $to): array
     {
         $calendarId = $calendar['calendar_id'];
         $pageToken = null;
@@ -625,7 +741,7 @@ class CalendarConnectionService
 
             foreach ($response->json('items') ?? [] as $event) {
                 if (is_array($event)) {
-                    $events[] = $this->normalizeGoogleEvent($event, $calendar);
+                    $events[] = $this->normalizeGoogleEvent($user, $event, $calendar);
                 }
             }
 
@@ -647,7 +763,7 @@ class CalendarConnectionService
      * @throws ValidationException when the Microsoft Graph API responds
      *                             with a non-2xx status.
      */
-    private function microsoftEvents(CalendarConnection $connection, array $calendar, string $from, string $to): array
+    private function microsoftEvents(User $user, CalendarConnection $connection, array $calendar, string $from, string $to): array
     {
         $calendarId = $calendar['calendar_id'];
         $events = [];
@@ -670,7 +786,7 @@ class CalendarConnectionService
 
             foreach ($response->json('value') ?? [] as $event) {
                 if (is_array($event)) {
-                    $events[] = $this->normalizeMicrosoftEvent($event, $calendar);
+                    $events[] = $this->normalizeMicrosoftEvent($user, $event, $calendar);
                 }
             }
 
@@ -691,17 +807,19 @@ class CalendarConnectionService
      * @param array{calendar_id: string, name?: string, primary?: bool, writable?: bool} $calendar
      * @return array<string, mixed>
      */
-    private function normalizeGoogleEvent(array $event, array $calendar): array
+    private function normalizeGoogleEvent(User $user, array $event, array $calendar): array
     {
         $start = is_array($event['start'] ?? null) ? $event['start'] : [];
         $end = is_array($event['end'] ?? null) ? $event['end'] : [];
         $providerEventId = (string) ($event['id'] ?? sha1(json_encode($event, JSON_THROW_ON_ERROR)));
+        $calendarEventId = $this->userScopedEventId($user, CalendarConnection::PROVIDER_GOOGLE, $calendar['calendar_id'], $providerEventId);
         $allDay = isset($start['date']);
 
         return $this->withoutNullValues([
-            'id' => $this->compoundEventId(CalendarConnection::PROVIDER_GOOGLE, $calendar['calendar_id'], $providerEventId),
+            'id' => $calendarEventId,
+            'calendar_event_id' => $calendarEventId,
             'provider' => CalendarConnection::PROVIDER_GOOGLE,
-            'provider_event_id' => $providerEventId,
+            'provider_event_id' => $calendarEventId,
             'calendar_id' => $calendar['calendar_id'],
             'calendar_name' => $calendar['name'] ?? null,
             'title' => (string) ($event['summary'] ?? 'Busy'),
@@ -711,7 +829,6 @@ class CalendarConnectionService
             'end' => $end['dateTime'] ?? $end['date'] ?? null,
             'all_day' => $allDay,
             'status' => $event['status'] ?? null,
-            'url' => $event['htmlLink'] ?? null,
             'updated' => $event['updated'] ?? null,
         ]);
     }
@@ -726,16 +843,18 @@ class CalendarConnectionService
      * @param array{calendar_id: string, name?: string, primary?: bool, writable?: bool} $calendar
      * @return array<string, mixed>
      */
-    private function normalizeMicrosoftEvent(array $event, array $calendar): array
+    private function normalizeMicrosoftEvent(User $user, array $event, array $calendar): array
     {
         $providerEventId = (string) ($event['id'] ?? sha1(json_encode($event, JSON_THROW_ON_ERROR)));
+        $calendarEventId = $this->userScopedEventId($user, CalendarConnection::PROVIDER_MICROSOFT, $calendar['calendar_id'], $providerEventId);
         $isCancelled = (bool) ($event['isCancelled'] ?? false);
         $body = is_array($event['body'] ?? null) ? $event['body'] : [];
 
         return $this->withoutNullValues([
-            'id' => $this->compoundEventId(CalendarConnection::PROVIDER_MICROSOFT, $calendar['calendar_id'], $providerEventId),
+            'id' => $calendarEventId,
+            'calendar_event_id' => $calendarEventId,
             'provider' => CalendarConnection::PROVIDER_MICROSOFT,
-            'provider_event_id' => $providerEventId,
+            'provider_event_id' => $calendarEventId,
             'calendar_id' => $calendar['calendar_id'],
             'calendar_name' => $calendar['name'] ?? null,
             'title' => (string) ($event['subject'] ?? 'Busy'),
@@ -745,7 +864,6 @@ class CalendarConnectionService
             'end' => $this->microsoftDateTime($event['end'] ?? null),
             'all_day' => (bool) ($event['isAllDay'] ?? false),
             'status' => $isCancelled ? 'cancelled' : ($event['showAs'] ?? null),
-            'url' => $event['webLink'] ?? null,
             'updated' => $event['lastModifiedDateTime'] ?? null,
         ]);
     }
@@ -773,12 +891,24 @@ class CalendarConnectionService
     }
 
     /**
-     * Parses an arbitrary user-supplied date/time string and renders it as
+     * Parses arbitrary user-supplied date/time strings and renders them as
      * the JSON-friendly UTC representation expected by both provider APIs.
+     * Ranges larger than a calendar month view are capped to prevent
+     * accidental provider fan-out from oversized requests.
+     *
+     * @return array{0: string, 1: string}
      */
-    private function formatRangeDateTime(string $value): string
+    private function formatRangeDateTimes(string $from, string $to): array
     {
-        return CarbonImmutable::parse($value)->utc()->toJSON();
+        $fromDate = CarbonImmutable::parse($from)->utc();
+        $toDate = CarbonImmutable::parse($to)->utc();
+        $maxToDate = $fromDate->addDays(self::MAX_EVENT_RANGE_DAYS);
+
+        if ($toDate->gt($maxToDate)) {
+            $toDate = $maxToDate;
+        }
+
+        return [$fromDate->toJSON(), $toDate->toJSON()];
     }
 
     /**
@@ -790,6 +920,15 @@ class CalendarConnectionService
     private function compoundEventId(string $provider, string $calendarId, string $eventId): string
     {
         return $provider . ':' . sha1($calendarId) . ':' . $eventId;
+    }
+
+    /**
+     * Builds the application-level calendar event id used for duplicate
+     * protection: one conversion per user per provider calendar event.
+     */
+    private function userScopedEventId(User $user, string $provider, string $calendarId, string $eventId): string
+    {
+        return $user->id . ':' . $this->compoundEventId($provider, $calendarId, $eventId);
     }
 
     /**

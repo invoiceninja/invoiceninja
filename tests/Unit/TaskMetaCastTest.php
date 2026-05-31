@@ -33,7 +33,22 @@ class TaskMetaCastTest extends TestCase
         $this->assertSame('cal_456', $stored['calendar_event_id']);
     }
 
-    public function testItAcceptsArrayInputAndLegacyEventIdAlias(): void
+    public function testItAcceptsArrayInputAndProviderEventIdAlias(): void
+    {
+        $task = new Task();
+        $task->meta = [
+            'provider_event_id' => 'provider_event_789',
+        ];
+
+        $this->assertSame('provider_event_789', $task->meta->calendar_event_id);
+
+        $stored = json_decode($task->getAttributes()['meta'], true, 512, JSON_THROW_ON_ERROR);
+
+        $this->assertSame('provider_event_789', $stored['calendar_event_id']);
+        $this->assertArrayNotHasKey('provider_event_id', $stored);
+    }
+
+    public function testItAcceptsLegacyEventIdAlias(): void
     {
         $task = new Task();
         $task->meta = [

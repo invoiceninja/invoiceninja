@@ -22,6 +22,10 @@ class CalendarConnection implements Arrayable, JsonSerializable
 
     public const PROVIDER_MICROSOFT = 'microsoft';
 
+    public const STATUS_CONNECTED = 'CONNECTED';
+
+    public const STATUS_DISCONNECTED = 'DISCONNECTED';
+
     public ?string $provider = null;
 
     public ?string $provider_user_id = null;
@@ -113,10 +117,14 @@ class CalendarConnection implements Arrayable, JsonSerializable
 
     public function toResponseObject(): \stdClass
     {
-        $payload = (object) $this->toArray();
-        $payload->calendars = array_map(fn (array $calendar): \stdClass => (object) $calendar, $this->calendars);
+        return (object) [
+            'status' => $this->status(),
+        ];
+    }
 
-        return $payload;
+    public function status(): string
+    {
+        return $this->isConnected() ? self::STATUS_CONNECTED : self::STATUS_DISCONNECTED;
     }
 
     /**

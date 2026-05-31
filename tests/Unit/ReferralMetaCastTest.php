@@ -37,10 +37,12 @@ class ReferralMetaCastTest extends TestCase
         $referralMeta = $payload['referral_meta'];
 
         $this->assertInstanceOf(\stdClass::class, $referralMeta);
-        $this->assertSame(['free', 'pro', 'enterprise'], array_keys(get_object_vars($referralMeta)));
+        $this->assertSame(['free', 'pro', 'enterprise', 'calendar_connection'], array_keys(get_object_vars($referralMeta)));
         $this->assertSame(2, $referralMeta->free);
         $this->assertSame(3, $referralMeta->pro);
         $this->assertSame(4, $referralMeta->enterprise);
+        $this->assertSame(CalendarConnection::STATUS_DISCONNECTED, $referralMeta->calendar_connection->status);
+        $this->assertSame(['status'], array_keys(get_object_vars($referralMeta->calendar_connection)));
     }
 
     public function testItDefaultsMissingReferralMetaToTheLegacyResponseShape(): void
@@ -49,10 +51,12 @@ class ReferralMetaCastTest extends TestCase
         $referralMeta = $payload['referral_meta'];
 
         $this->assertInstanceOf(\stdClass::class, $referralMeta);
-        $this->assertSame(['free', 'pro', 'enterprise'], array_keys(get_object_vars($referralMeta)));
+        $this->assertSame(['free', 'pro', 'enterprise', 'calendar_connection'], array_keys(get_object_vars($referralMeta)));
         $this->assertSame(0, $referralMeta->free);
         $this->assertSame(0, $referralMeta->pro);
         $this->assertSame(0, $referralMeta->enterprise);
+        $this->assertSame(CalendarConnection::STATUS_DISCONNECTED, $referralMeta->calendar_connection->status);
+        $this->assertSame(['status'], array_keys(get_object_vars($referralMeta->calendar_connection)));
     }
 
     public function testItStoresASingleCalendarConnectionWithMultipleCalendarsAndRedactsTokens(): void
@@ -119,16 +123,8 @@ class ReferralMetaCastTest extends TestCase
         $this->assertSame(2, $response->pro);
         $this->assertSame(3, $response->enterprise);
         $this->assertObjectHasProperty('calendar_connection', $response);
-        $this->assertSame(CalendarConnection::PROVIDER_GOOGLE, $response->calendar_connection->provider);
-        $this->assertSame('google-sub-1', $response->calendar_connection->provider_user_id);
-        $this->assertCount(2, $response->calendar_connection->calendars);
-        $this->assertSame('primary', $response->calendar_connection->calendars[0]->calendar_id);
-        $this->assertSame('Primary Calendar', $response->calendar_connection->calendars[0]->name);
-        $this->assertTrue($response->calendar_connection->calendars[0]->primary);
-        $this->assertTrue($response->calendar_connection->calendars[0]->writable);
-        $this->assertSame('family-calendar-id', $response->calendar_connection->calendars[1]->calendar_id);
-        $this->assertObjectNotHasProperty('access_token', $response->calendar_connection);
-        $this->assertObjectNotHasProperty('refresh_token', $response->calendar_connection);
+        $this->assertSame(CalendarConnection::STATUS_CONNECTED, $response->calendar_connection->status);
+        $this->assertSame(['status'], array_keys(get_object_vars($response->calendar_connection)));
     }
 
     public function testReferralCountUpdatesDoNotClearCalendarConnection(): void

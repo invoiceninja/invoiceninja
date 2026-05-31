@@ -141,7 +141,13 @@ class TaskFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
-        if (!is_array($sort_col) || count($sort_col) != 2 || (!in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing('tasks')) && !str_starts_with($sort_col[0], 'client.') && !str_starts_with($sort_col[0], 'contact.') && !str_starts_with($sort_col[0], 'documents'))) {
+        if (!is_array($sort_col) || 
+        count($sort_col) != 2 || 
+        (!in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing('tasks')) && 
+        !str_starts_with($sort_col[0], 'client.') && 
+        !str_starts_with($sort_col[0], 'contact.') &&
+        !str_starts_with($sort_col[0], 'date') && 
+        !str_starts_with($sort_col[0], 'documents'))) {
             return $this->builder;
         }
 
@@ -149,6 +155,10 @@ class TaskFilters extends QueryFilters
 
         if ($sort_col[0] == 'documents') {
             return $this->builder->withCount('documents')->orderBy('documents_count', $dir);
+        }
+
+        if ($sort_col[0] == 'date') {
+            return $this->builder->orderBy('calculated_start_date', $dir);
         }
 
         if (in_array($sort_col[0], ['client.name', 'client_id'])) {

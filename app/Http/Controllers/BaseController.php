@@ -16,6 +16,7 @@ use App\Models\User;
 use App\Utils\Ninja;
 use App\Models\Client;
 use App\Models\Design;
+use App\Models\Tag;
 use App\Utils\Statics;
 use App\Models\Account;
 use App\Models\TaxRate;
@@ -998,7 +999,7 @@ class BaseController extends Controller
                 } else {
                     $query->where('user_id', '=', $user->id);
                 }
-            } elseif (in_array($this->entity_type, [Design::class, GroupSetting::class, PaymentTerm::class, TaskStatus::class])) {
+            } elseif (in_array($this->entity_type, [Design::class, GroupSetting::class, PaymentTerm::class, Tag::class, TaskStatus::class])) {
                 // nlog($this->entity_type);
             } else {
                 $query->where(function ($q) use ($user) { //grouping these together improves query performance significantly)

@@ -62,6 +62,8 @@ class UpdateTaskRequest extends Request
         }
 
         $rules['hash'] = 'bail|sometimes|string|nullable';
+        $rules['tags'] = 'sometimes|array';
+        $rules['tags.*'] = 'required|string';
 
         $rules['time_log'] = ['bail', function ($attribute, $values, $fail) {
 

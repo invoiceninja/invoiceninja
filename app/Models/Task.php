@@ -16,6 +16,7 @@ use App\DataMapper\TaskMeta;
 use Carbon\CarbonInterval;
 use App\Models\CompanyUser;
 use Illuminate\Support\Carbon;
+use App\Models\Traits\HasTags;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\App;
 use Elastic\ScoutDriverPlus\Searchable;
@@ -58,7 +59,9 @@ use App\Libraries\Currency\Conversion\CurrencyApi;
  * @property-read \App\Models\Client|null $client
  * @property-read \App\Models\Company|null $company
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
  * @property-read int|null $documents_count
+ * @property-read int|null $tags_count
  * @property-read mixed $hashed_id
  * @property-read \App\Models\Invoice|null $invoice
  * @property-read \App\Models\Project|null $project
@@ -83,6 +86,7 @@ class Task extends BaseModel
     use SoftDeletes;
     use Filterable;
     use Searchable;
+    use HasTags;
 
 
     public static array $bulk_update_columns = [

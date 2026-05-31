@@ -121,6 +121,7 @@ use App\Http\Controllers\Support\Messages\SendingController;
 use App\Http\Controllers\SystemLogController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskSchedulerController;
+use App\Http\Controllers\TagController;
 use App\Http\Controllers\TaskStatusController;
 use App\Http\Controllers\TaxRateController;
 use App\Http\Controllers\TemplateController;
@@ -212,7 +213,7 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::post('connected_account/gmail', [ConnectedAccountController::class, 'handleGmailOauth']);
 
     Route::get('calendar_connection', [CalendarConnectionController::class, 'show'])->name('calendar_connection.show');
-    Route::post('calendar_connection/{provider}/authorize', [CalendarConnectionController::class, 'authorizeProvider'])->name('calendar_connection.authorize');
+    Route::post('calendar_connection/{provider}/complete', [CalendarConnectionController::class, 'complete'])->name('calendar_connection.complete')->middleware('throttle:10,1');
     Route::get('calendar_connection/calendars', [CalendarConnectionController::class, 'calendars'])->name('calendar_connection.calendars');
     Route::get('calendar_connection/events', [CalendarConnectionController::class, 'events'])->name('calendar_connection.events');
     Route::put('calendar_connection/calendars', [CalendarConnectionController::class, 'updateCalendars'])->name('calendar_connection.calendars.update');
@@ -430,6 +431,9 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::resource('task_statuses', TaskStatusController::class); // name = (task_statuses. index / create / show / update / destroy / edit
     Route::post('task_statuses/bulk', [TaskStatusController::class, 'bulk'])->name('task_statuses.bulk');
 
+    Route::resource('tags', TagController::class); // name = (tags. index / create / show / update / destroy / edit
+    Route::post('tags/bulk', [TagController::class, 'bulk'])->name('tags.bulk');
+
     Route::resource('tax_rates', TaxRateController::class); // name = (tax_rates. index / create / show / update / destroy / edit
     Route::post('tax_rates/bulk', [TaxRateController::class, 'bulk'])->name('tax_rates.bulk');
 
@@ -530,6 +534,8 @@ Route::post('api/v1/yodlee/balance', [YodleeController::class, 'balanceWebhook']
 
 Route::get('api/v1/protected_download/{hash}', [ProtectedDownloadController::class, 'index'])->name('protected_download')->middleware('throttle:300,1');
 Route::post('api/v1/ppcp/webhook', [PayPalPPCPPaymentDriver::class, 'processWebhookRequest'])->middleware('throttle:1000,1');
+
+Route::get('api/v1/calendar_connection/{provider}/authorize/{hash}', [CalendarConnectionController::class, 'redirectToProvider'])->name('calendar_connection.authorize')->middleware('throttle:10,1');
 
 Route::get('quickbooks/authorize/{token}', [ImportQuickbooksController::class, 'authorizeQuickbooks'])->name('quickbooks.authorize');
 Route::get('quickbooks/reconnect/{token}', [ImportQuickbooksController::class, 'reconnect'])->name('quickbooks.reconnect');

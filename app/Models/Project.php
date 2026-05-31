@@ -15,6 +15,7 @@ namespace App\Models;
 use App\Utils\Number;
 use Illuminate\Support\Facades\App;
 use Elastic\ScoutDriverPlus\Searchable;
+use App\Models\Traits\HasTags;
 use App\Services\Project\ProjectService;
 use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -78,6 +79,7 @@ class Project extends BaseModel
     use PresentableTrait;
     use Filterable;
     use Searchable;
+    use HasTags;
 
     /**
      * Get the index name for the model.
