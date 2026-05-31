@@ -31,10 +31,6 @@ class UpdateTaskRequest extends Request
      */
     public function authorize(): bool
     {
-        //prevent locked tasks from updating
-        if ($this->task->invoice_id && $this->task->company->invoice_task_lock) {
-            return false;
-        }
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -125,6 +121,20 @@ class UpdateTaskRequest extends Request
         $rules['documents.*'] = $this->fileValidation();
 
         return $this->globalRules($rules);
+    }
+
+
+    public function withValidator($validator)
+    {
+
+        $validator->after(function ($validator) {
+
+            //prevent locked tasks from updating
+            if ($this->task->invoice_id && $this->task->company->invoice_task_lock) {
+                $validator->errors()->add('id', ctrans('texts.task_update_authorization_error'));
+            }
+
+        });
     }
 
     public function prepareForValidation()

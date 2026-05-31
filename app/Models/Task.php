@@ -60,8 +60,8 @@ use App\Libraries\Currency\Conversion\CurrencyApi;
  * @property-read \App\Models\Company|null $company
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
- * @property-read int|null $documents_count
  * @property-read int|null $tags_count
+ * @property-read int|null $documents_count
  * @property-read mixed $hashed_id
  * @property-read \App\Models\Invoice|null $invoice
  * @property-read \App\Models\Project|null $project

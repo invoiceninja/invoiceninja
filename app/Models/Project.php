@@ -49,6 +49,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read \App\Models\Client|null $client
  * @property-read \App\Models\Company $company
  * @property-read int|null $documents_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
+ * @property-read int|null $tags_count
  * @property-read mixed $hashed_id
  * @property-read Project|null $project
  * @property-read int|null $tasks_count
