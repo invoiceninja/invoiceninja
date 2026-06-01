@@ -21,6 +21,7 @@ use App\Models\Country;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Paymentable;
+use App\Models\Product;
 use App\Models\TransactionEvent;
 use App\Observers\PaymentObserver;
 use App\Services\EDocument\Standards\France\FranceEReportCompiler;
@@ -2074,6 +2075,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $item->cost = $cost;
         $item->tax_name1 = $taxName;
         $item->tax_rate1 = $taxRate;
+        $item->tax_id = (string) Product::PRODUCT_TYPE_OVERRIDE_TAX;
         $item->product_key = $productKey;
         $item->notes = 'Consulting services';
 
