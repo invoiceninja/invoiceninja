@@ -279,7 +279,7 @@ class TagAttachTest extends TestCase
         $tag->delete();
 
         $index_response = $this->withHeaders($this->headers())
-            ->getJson('/api/v1/tags?entity_type='.urlencode(Task::class));
+            ->getJson('/api/v1/tags?entity_type=task');
 
         $index_response->assertStatus(200);
         $index_ids = collect($index_response->json('data'))->pluck('id')->all();
