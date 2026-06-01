@@ -28,7 +28,7 @@ class StoreTagRequest extends Request
         $company_id = auth()->user()->companyId();
 
         return [
-            'entity_type' => ['required', 'string', Rule::in(Tag::TAGGABLE_TYPES)],
+            'entity_type' => ['required', 'string', Rule::in(array_keys(Tag::TAGGABLE_TYPES))],
             'name' => [
                 'required',
                 'string',
