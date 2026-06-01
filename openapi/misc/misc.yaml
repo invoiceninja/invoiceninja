@@ -3,10 +3,10 @@ tags:
     x-displayName: Authentication
     description: |
       Attempts to authenticate with the API using a email/password combination.
-    
-      After authenticating with the API, the returned object is a CompanyUser object which is a bridge linking the user to the company. 
 
-      The company user object contains the users permissions (admin/owner or fine grained permissions) You will most likely want to 
+      After authenticating with the API, the returned object is a CompanyUser object which is a bridge linking the user to the company.
+
+      The company user object contains the users permissions (admin/owner or fine grained permissions) You will most likely want to
         also include in the response of this object both the company and the user object, this can be done by using the include parameter.
 
       ```html
@@ -16,7 +16,7 @@ tags:
   - name: clients
     x-displayName: Clients
     description: |
-      The Clients API provides endpoints for managing client records within your company. A client represents a customer 
+      The Clients API provides endpoints for managing client records within your company. A client represents a customer
       or business entity that you provide services or products to.
 
       ### Key Features
@@ -40,7 +40,7 @@ tags:
   - name: locations
     x-displayName: Locations
     description: |
-      The Locations API provides endpoints for managing location records within your company. A location represents a physical 
+      The Locations API provides endpoints for managing location records within your company. A location represents a physical
       address where you provide services or products to a client OR vendor.
 
   - name: products
@@ -49,11 +49,11 @@ tags:
       Endpoint definitions for interacting with products.
   - name: invoices
     x-displayName: Invoices
-  
+
     description: |
 
       ## Invoice Statuses
-      
+
       - STATUS_DRAFT = 1
         - Draft invoices are not visible in the client portal, are not active and they do not impact the client balance
       - STATUS_SENT = 2
@@ -70,7 +70,7 @@ tags:
         - An invoice which is still payable past its due date
       - STATUS_UNPAID = -2
         - An invoice which is not yet due, but also, not paid
-        
+
   - name: Recurring Invoices
     x-displayName: Recurring Invoices
     description: |
@@ -85,7 +85,7 @@ tags:
     x-displayName: Payments
     description: |
       Endpoint definitions for interacting with payments.
-  
+
   - name: quotes
     x-displayName: Quotes
     description: |
@@ -408,7 +408,3 @@ externalDocs:
     - name: User Guide
       description: Official user guide
       url: https://invoiceninja.github.io
-
-security:
-  - ApiKeyAuth: []
-    

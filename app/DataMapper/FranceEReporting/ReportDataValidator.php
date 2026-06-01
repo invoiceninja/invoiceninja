@@ -81,6 +81,18 @@ final class ReportDataValidator
         return $value;
     }
 
+    public static function numericValue(mixed $value, string $field): int|float
+    {
+        $value = self::assertNumeric($value, $field);
+        $number = (float) $value;
+
+        if (abs($number - (int) $number) < 0.00001) {
+            return (int) $number;
+        }
+
+        return $number;
+    }
+
     public static function assertPositiveInteger(mixed $value, string $field): int
     {
         if (! is_int($value) && ! ctype_digit((string) $value)) {

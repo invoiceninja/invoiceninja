@@ -118,6 +118,102 @@ servers:
     description: |
       ## Production API endpoint
 paths:
+
+  /api/v1/login:
+    post:
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          
+      - lang: curl
+        label: curl
+        source: |
+          curl --request POST \
+            --url 'https://demo.invoiceninja.com/api/v1/login?include=company,token' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'X-Requested-With: XMLHttpRequest' \
+            --header 'Accept: application/json'
+      tags:
+        - auth
+      summary: "Login"
+      description: |
+
+      operationId: postLogin
+      parameters:
+        - $ref: "#/components/parameters/X-API-SECRET"
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/login_include"
+        - $ref: "#/components/parameters/include_static"
+        - $ref: "#/components/parameters/clear_cache"
+      requestBody:
+        description: |
+          User credentials
+
+          ```json
+          {
+            "email" : "fred@flintstonze.com",
+            "password" : "magicpassword123",
+            "one_time_password" : "12345",
+          }
+          ```
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  description: "The users email address."
+                  type: string
+                  example: "demo@invoiceninja.com"
+                password:
+                  description: "The user password. Optional when performing passkey passwordless login."
+                  type: string
+                  example: "Password0"
+                one_time_password:
+                  description: "The one time password if 2FA is enabled"
+                  type: string
+                  example: "123456"
+                passkey_challenge_token:
+                  description: "Challenge token returned by passkey login options or second-factor challenge."
+                  type: string
+                  example: "f8f0cf1f4f6c4de5b6d6c5d4a0f8e5b2b89e1f1a"
+                passkey_authentication:
+                  description: "WebAuthn assertion payload."
+                  type: object
+                  additionalProperties: true
+              required:
+                - email
+              type: object
+      responses:
+        200:
+          description: "Returns the company user object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompanyUser"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        429:
+          $ref: "#/components/responses/429"
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"
+
   /api/v1/activities:
     get:
       tags:
@@ -311,7 +407,7 @@ paths:
   /api/v1/settings/passkeys:
     get:
       tags:
-        - settings
+        - auth
       summary: "List passkeys"
       operationId: getSettingsPasskeys
       parameters:
@@ -325,7 +421,7 @@ paths:
           $ref: "#/components/responses/default"
     post:
       tags:
-        - settings
+        - auth
       summary: "Create passkey"
       operationId: postSettingsPasskeys
       parameters:
@@ -360,7 +456,7 @@ paths:
   /api/v1/settings/passkeys/options:
     post:
       tags:
-        - settings
+        - auth
       summary: "Passkey registration options"
       operationId: postSettingsPasskeysOptions
       parameters:
@@ -376,7 +472,7 @@ paths:
   /api/v1/settings/passkeys/{passkey}:
     delete:
       tags:
-        - settings
+        - auth
       summary: "Delete passkey"
       operationId: deleteSettingsPasskey
       parameters:
@@ -396,100 +492,6 @@ paths:
         default:
           $ref: "#/components/responses/default"
 
-  /api/v1/login:
-    post:
-      x-codeSamples:
-      - lang: php
-        label: php
-        source: |
-          $ninja = new InvoiceNinja("your_token");
-          
-      - lang: curl
-        label: curl
-        source: |
-          curl --request POST \
-            --url 'https://demo.invoiceninja.com/api/v1/login?include=company,token' \
-            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
-            --header 'X-Requested-With: XMLHttpRequest' \
-            --header 'Accept: application/json'
-      tags:
-        - auth
-      summary: "Login"
-      description: |
-
-      operationId: postLogin
-      parameters:
-        - $ref: "#/components/parameters/X-API-SECRET"
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/login_include"
-        - $ref: "#/components/parameters/include_static"
-        - $ref: "#/components/parameters/clear_cache"
-      requestBody:
-        description: |
-          User credentials
-
-          ```json
-          {
-            "email" : "fred@flintstonze.com",
-            "password" : "magicpassword123",
-            "one_time_password" : "12345",
-          }
-          ```
-        required: true
-        content:
-          application/json:
-            schema:
-              properties:
-                email:
-                  description: "The users email address."
-                  type: string
-                  example: "demo@invoiceninja.com"
-                password:
-                  description: "The user password. Optional when performing passkey passwordless login."
-                  type: string
-                  example: "Password0"
-                one_time_password:
-                  description: "The one time password if 2FA is enabled"
-                  type: string
-                  example: "123456"
-                passkey_challenge_token:
-                  description: "Challenge token returned by passkey login options or second-factor challenge."
-                  type: string
-                  example: "f8f0cf1f4f6c4de5b6d6c5d4a0f8e5b2b89e1f1a"
-                passkey_authentication:
-                  description: "WebAuthn assertion payload."
-                  type: object
-                  additionalProperties: true
-              required:
-                - email
-              type: object
-      responses:
-        200:
-          description: "Returns the company user object"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/CompanyUser"
-        401:
-          $ref: "#/components/responses/401"
-        403:
-          $ref: "#/components/responses/403"
-        422:
-          $ref: "#/components/responses/422"
-        429:
-          $ref: "#/components/responses/429"
-        5XX:
-          description: 'Server error'
-        default:
-          $ref: "#/components/responses/default"
   /api/v1/refresh:
     post:
       tags:
@@ -18874,11 +18876,7 @@ components:
       description: 'The total number of requests in a given time window.'
       schema:
         type: integer
-  securitySchemes:
-    ApiKeyAuth:        
-      type: apiKey
-      in: header       
-      name: X-API-TOKEN 
+
   #examples:
    # Client:
    #   $ref: '#/components/schemas/Client'
@@ -29406,10 +29404,10 @@ tags:
     x-displayName: Authentication
     description: |
       Attempts to authenticate with the API using a email/password combination.
-    
-      After authenticating with the API, the returned object is a CompanyUser object which is a bridge linking the user to the company. 
 
-      The company user object contains the users permissions (admin/owner or fine grained permissions) You will most likely want to 
+      After authenticating with the API, the returned object is a CompanyUser object which is a bridge linking the user to the company.
+
+      The company user object contains the users permissions (admin/owner or fine grained permissions) You will most likely want to
         also include in the response of this object both the company and the user object, this can be done by using the include parameter.
 
       ```html
@@ -29419,7 +29417,7 @@ tags:
   - name: clients
     x-displayName: Clients
     description: |
-      The Clients API provides endpoints for managing client records within your company. A client represents a customer 
+      The Clients API provides endpoints for managing client records within your company. A client represents a customer
       or business entity that you provide services or products to.
 
       ### Key Features
@@ -29443,7 +29441,7 @@ tags:
   - name: locations
     x-displayName: Locations
     description: |
-      The Locations API provides endpoints for managing location records within your company. A location represents a physical 
+      The Locations API provides endpoints for managing location records within your company. A location represents a physical
       address where you provide services or products to a client OR vendor.
 
   - name: products
@@ -29452,11 +29450,11 @@ tags:
       Endpoint definitions for interacting with products.
   - name: invoices
     x-displayName: Invoices
-  
+
     description: |
 
       ## Invoice Statuses
-      
+
       - STATUS_DRAFT = 1
         - Draft invoices are not visible in the client portal, are not active and they do not impact the client balance
       - STATUS_SENT = 2
@@ -29473,7 +29471,7 @@ tags:
         - An invoice which is still payable past its due date
       - STATUS_UNPAID = -2
         - An invoice which is not yet due, but also, not paid
-        
+
   - name: Recurring Invoices
     x-displayName: Recurring Invoices
     description: |
@@ -29488,7 +29486,7 @@ tags:
     x-displayName: Payments
     description: |
       Endpoint definitions for interacting with payments.
-  
+
   - name: quotes
     x-displayName: Quotes
     description: |
@@ -29811,7 +29809,3 @@ externalDocs:
     - name: User Guide
       description: Official user guide
       url: https://invoiceninja.github.io
-
-security:
-  - ApiKeyAuth: []
-    

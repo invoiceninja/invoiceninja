@@ -9,6 +9,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 namespace App\Services\EDocument\Standards\France\Models;
+use App\DataMapper\FranceEReporting\ReportDataValidator;
 
 use Symfony\Component\Serializer\Attribute\SerializedPath;
 
@@ -73,7 +74,7 @@ class B2BIInvoiceLine
     {
         return array_filter([
             'description' => $this->description ?? $this->name,
-            'amountExcludingVat' => $this->amount_excluding_tax,
+            'amountExcludingVat' => is_null($this->amount_excluding_tax) ? null : ReportDataValidator::numericValue($this->amount_excluding_tax, 'b2biInvoices.invoiceLines.amountExcludingVat'),
             'tax' => $this->taxToArray($country),
         ], static fn (mixed $value): bool => ! is_null($value) && $value !== []);
     }
@@ -90,7 +91,7 @@ class B2BIInvoiceLine
         }
 
         return array_filter([
-            'percentage' => data_get($tax, 'cbc:Percent'),
+            'percentage' => is_null(data_get($tax, 'cbc:Percent')) ? null : ReportDataValidator::numericValue(data_get($tax, 'cbc:Percent'), 'b2biInvoices.invoiceLines.tax.percentage'),
             'category' => B2BITaxSubtotal::normalizeTaxCategory(data_get($tax, 'cbc:ID.#')),
             'country' => $country,
         ], static fn (mixed $value): bool => ! is_null($value) && $value !== '');

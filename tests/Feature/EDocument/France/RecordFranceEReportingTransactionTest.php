@@ -51,7 +51,7 @@ class RecordFranceEReportingTransactionTest extends TestCase
         $this->assertSame('TLB1', $event->reporting_data->frReportEntry->b2cTransaction->category);
         $this->assertSame('EUR', $event->reporting_data->frReportEntry->b2cTransaction->currency);
         $this->assertSame(1, $event->reporting_data->frReportEntry->b2cTransaction->transactionsCount);
-        $this->assertSame('1200', $event->reporting_data->frReportEntry->b2cTransaction->amountIncludingVat);
+        $this->assertSame(1200, $event->reporting_data->frReportEntry->b2cTransaction->amountIncludingVat);
     }
 
     public function testItRecordsAForeignBusinessVatExcludedFranceReportingTransaction(): void
@@ -71,7 +71,7 @@ class RecordFranceEReportingTransactionTest extends TestCase
         $this->assertNull($event->reporting_data->frReport);
         $this->assertSame($invoice->number, $event->reporting_data->frReportEntry->b2biInvoice->invoiceNumber);
         $this->assertSame('EUR', $event->reporting_data->frReportEntry->b2biInvoice->documentCurrency);
-        $this->assertSame('1200', $event->reporting_data->frReportEntry->b2biInvoice->amountIncludingVat);
+        $this->assertSame(1200, $event->reporting_data->frReportEntry->b2biInvoice->amountIncludingVat);
         $this->assertSame('standard', $event->reporting_data->frReportEntry->b2biInvoice->taxSubtotals[0]->taxCategory);
         $this->assertArrayHasKey('amountExcludingVat', $event->reporting_data->frReportEntry->b2biInvoice->invoiceLines[0]);
 
@@ -82,7 +82,7 @@ class RecordFranceEReportingTransactionTest extends TestCase
         $event = $event->fresh();
 
         $this->assertSame('FR-REPORT-DE-business', $event->reporting_data->frReportEntry->b2biInvoice->invoiceNumber);
-        $this->assertSame('1200', $event->reporting_data->frReportEntry->b2biInvoice->amountIncludingVat);
+        $this->assertSame(1200, $event->reporting_data->frReportEntry->b2biInvoice->amountIncludingVat);
     }
 
     public function testItRecordsAForeignBusinessCreditAsAVatExcludedTransactionWithSnapshotData(): void
@@ -102,12 +102,12 @@ class RecordFranceEReportingTransactionTest extends TestCase
         $this->assertNull($event->reporting_data->frReport);
         $this->assertSame($credit->number, $event->reporting_data->frReportEntry->b2biInvoice->invoiceNumber);
         $this->assertSame('EUR', $event->reporting_data->frReportEntry->b2biInvoice->documentCurrency);
-        $this->assertSame('-1200', $event->reporting_data->frReportEntry->b2biInvoice->amountIncludingVat);
+        $this->assertSame(-1200, $event->reporting_data->frReportEntry->b2biInvoice->amountIncludingVat);
         $this->assertNotEmpty($event->reporting_data->frReportEntry->b2biInvoice->invoiceLines);
         $this->assertSame('standard', $event->reporting_data->frReportEntry->b2biInvoice->taxSubtotals[0]->taxCategory);
-        $this->assertSame('-1000', $event->reporting_data->frReportEntry->b2biInvoice->taxSubtotals[0]->taxableAmount);
-        $this->assertSame('-200.00', $event->reporting_data->frReportEntry->b2biInvoice->taxSubtotals[0]->taxAmount);
-        $this->assertSame('-1000', $event->reporting_data->frReportEntry->b2biInvoice->invoiceLines[0]['amountExcludingVat']);
+        $this->assertSame(-1000, $event->reporting_data->frReportEntry->b2biInvoice->taxSubtotals[0]->taxableAmount);
+        $this->assertSame(-200, $event->reporting_data->frReportEntry->b2biInvoice->taxSubtotals[0]->taxAmount);
+        $this->assertSame(-1000, $event->reporting_data->frReportEntry->b2biInvoice->invoiceLines[0]['amountExcludingVat']);
 
         $credit->number = 'MUTATED-CREDIT-AFTER-CAPTURE';
         $credit->save();
@@ -138,7 +138,7 @@ class RecordFranceEReportingTransactionTest extends TestCase
         $this->assertSame(TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION, $artifact['transactionEvent']['eventId']);
         $this->assertSame('2026-10-31', $artifact['transactionEvent']['period']);
         $this->assertSame('FR-REPORT-DE-business', $artifact['reportingData']['invoiceNumber']);
-        $this->assertSame('1200', $artifact['reportingData']['amountIncludingVat']);
+        $this->assertSame(1200, $artifact['reportingData']['amountIncludingVat']);
         $this->assertArrayNotHasKey('frReportEntry', $artifact['reportingData']);
     }
 
@@ -163,7 +163,7 @@ class RecordFranceEReportingTransactionTest extends TestCase
         $this->assertSame(TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION, $artifact['transactionEvent']['eventId']);
         $this->assertSame('2026-10-31', $artifact['transactionEvent']['period']);
         $this->assertSame('FR-CREDIT-REPORT-DE-business', $artifact['reportingData']['invoiceNumber']);
-        $this->assertSame('-1200', $artifact['reportingData']['amountIncludingVat']);
+        $this->assertSame(-1200, $artifact['reportingData']['amountIncludingVat']);
         $this->assertArrayNotHasKey('frReportEntry', $artifact['reportingData']);
     }
 

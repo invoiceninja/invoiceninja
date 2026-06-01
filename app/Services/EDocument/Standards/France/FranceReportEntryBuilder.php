@@ -190,7 +190,7 @@ class FranceReportEntryBuilder
         })->all();
     }
 
-    private function paymentAmountForInvoice(Payment $payment, Invoice $invoice): string
+    private function paymentAmountForInvoice(Payment $payment, Invoice $invoice): int|float
     {
         return $this->normalizeAmount($invoice->amount ?? $payment->amount ?? 0);
     }
@@ -232,26 +232,26 @@ class FranceReportEntryBuilder
         return (float) $taxRate > 0 ? 'standard' : 'exempt';
     }
 
-    private function signedDocumentAmount(int|float|string $amount, Invoice|Credit $document): string
+    private function signedDocumentAmount(int|float|string $amount, Invoice|Credit $document): int|float
     {
         $amount = $this->normalizeAmount($amount);
 
         if ($document instanceof Credit) {
-            return (string) $this->negativeAmount($amount);
+            return $this->negativeAmount($amount);
         }
 
         return $amount;
     }
 
-    private function normalizeAmount(int|float|string|null $amount): string
+    private function normalizeAmount(int|float|string|null $amount): int|float
     {
         $amount = round((float) ($amount ?? 0), 2);
 
         if (abs($amount - (int) $amount) < 0.00001) {
-            return (string) (int) $amount;
+            return (int) $amount;
         }
 
-        return number_format($amount, 2, '.', '');
+        return $amount;
     }
 
     /**

@@ -13,6 +13,7 @@
 namespace App\DataMapper\FranceEReporting;
 
 use Illuminate\Contracts\Support\Arrayable;
+use App\Services\EDocument\Standards\France\FranceEReportTaxCategory;
 use JsonSerializable;
 
 /**
@@ -79,15 +80,38 @@ final readonly class B2BIInvoiceData implements Arrayable, JsonSerializable
             'issueDate' => $this->issueDate,
             'dueDate' => $this->dueDate,
             'documentCurrency' => $this->documentCurrency,
-            'amountIncludingVat' => $this->amountIncludingVat,
+            'amountIncludingVat' => ReportDataValidator::numericValue($this->amountIncludingVat, 'b2biInvoices.amountIncludingVat'),
             'accountingSupplierParty' => $this->accountingSupplierParty?->toArray(),
             'accountingCustomerParty' => $this->accountingCustomerParty?->toArray(),
             'taxSubtotals' => array_values(array_map(
                 static fn (TaxSubtotalData $taxSubtotal): array => $taxSubtotal->toArray(),
                 $this->taxSubtotals,
             )),
-            'invoiceLines' => array_values($this->invoiceLines),
+            'invoiceLines' => array_values(array_map([self::class, 'storecoveInvoiceLine'], $this->invoiceLines)),
         ], static fn (mixed $value): bool => ! is_null($value) && $value !== []);
+    }
+
+    /**
+     * @param array<string, mixed> $line
+     * @return array<string, mixed>
+     */
+    private static function storecoveInvoiceLine(array $line): array
+    {
+        if (array_key_exists('amountExcludingVat', $line) && ! is_null($line['amountExcludingVat'])) {
+            $line['amountExcludingVat'] = ReportDataValidator::numericValue($line['amountExcludingVat'], 'b2biInvoices.invoiceLines.amountExcludingVat');
+        }
+
+        if (array_key_exists('tax', $line) && is_array($line['tax'])) {
+            if (array_key_exists('percentage', $line['tax']) && ! is_null($line['tax']['percentage'])) {
+                $line['tax']['percentage'] = ReportDataValidator::numericValue($line['tax']['percentage'], 'b2biInvoices.invoiceLines.tax.percentage');
+            }
+
+            if (array_key_exists('category', $line['tax'])) {
+                $line['tax']['category'] = FranceEReportTaxCategory::normalize($line['tax']['category']);
+            }
+        }
+
+        return array_filter($line, static fn (mixed $value): bool => ! is_null($value) && $value !== []);
     }
 
     /**

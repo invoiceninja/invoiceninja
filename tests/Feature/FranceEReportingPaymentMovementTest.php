@@ -99,8 +99,8 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->assertCount(2, data_get($report->payment_request, 'source_event_ids'));
         $this->assertSame([(int) $report->id, (int) $report->id], $movements->map(fn (TransactionEvent $movement): int => (int) data_get($movement->payment_request, 'report_event_id'))->all());
         $this->assertSame('2026-10-02', $report->reporting_data->frReportEntry->b2cPayment->date);
-        $this->assertSame('1000', $report->reporting_data->frReportEntry->b2cPayment->taxSubtotal[0]->taxableAmount);
-        $this->assertSame('200', $report->reporting_data->frReportEntry->b2cPayment->taxSubtotal[0]->taxAmount);
+        $this->assertSame(1000, $report->reporting_data->frReportEntry->b2cPayment->taxSubtotal[0]->taxableAmount);
+        $this->assertSame(200, $report->reporting_data->frReportEntry->b2cPayment->taxSubtotal[0]->taxAmount);
     }
 
     public function testRefundAfterSubmittedPaymentCreatesCorrectivePaymentEvent(): void
@@ -214,7 +214,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->assertSame(1200.0, (float) $report->payment_applied);
         $this->assertSame("initial", data_get($report->payment_request, "fr_report_kind"));
         $this->assertSame("2026-09-15", $report->reporting_data->frReportEntry->b2biPayment->paymentDate);
-        $this->assertSame("1200", $report->reporting_data->frReportEntry->b2biPayment->taxSubtotals[0]->amountIncludingTax);
+        $this->assertSame(1200, $report->reporting_data->frReportEntry->b2biPayment->taxSubtotals[0]->amountIncludingTax);
 
         $compiler = new FranceEReportCompiler();
         $vatExcludedSources = $compiler->sourceEvents($this->company, TransactionEvent::FR_REPORT_SUBMISSION_VAT_EXCLUDED, "2026-10-31");
@@ -268,7 +268,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->assertSame("initial", data_get($report->payment_request, "fr_report_kind"));
         $this->assertCount(2, data_get($report->payment_request, "source_event_ids"));
         $this->assertSame("2026-09-18", $report->reporting_data->frReportEntry->b2cPayment->date);
-        $this->assertSame("833.33", $report->reporting_data->frReportEntry->b2cPayment->taxSubtotal[0]->taxableAmount);
+        $this->assertSame(833.33, $report->reporting_data->frReportEntry->b2cPayment->taxSubtotal[0]->taxableAmount);
     }
 
     public function testRefundBeforeSubmissionThatNetsToZeroRemovesThePendingReport(): void

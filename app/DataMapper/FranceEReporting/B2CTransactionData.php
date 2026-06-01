@@ -67,8 +67,8 @@ final readonly class B2CTransactionData implements Arrayable, JsonSerializable
             'date' => $this->date,
             'category' => $this->category,
             'currency' => $this->currency,
-            'amountExcludingVat' => $this->amountExcludingVat,
-            'amountIncludingVat' => $this->amountIncludingVat,
+            'amountExcludingVat' => ReportDataValidator::numericValue($this->amountExcludingVat, 'b2cTransactions.amountExcludingVat'),
+            'amountIncludingVat' => ReportDataValidator::numericValue($this->amountIncludingVat, 'b2cTransactions.amountIncludingVat'),
             'transactionsCount' => $this->transactionsCount,
             'vatPaymentOption' => $this->vatPaymentOption,
             'taxSubtotals' => array_values(array_map(
