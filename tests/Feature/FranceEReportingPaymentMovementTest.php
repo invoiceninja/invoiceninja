@@ -1670,7 +1670,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         }
     }
 
-    public function testSubmitFranceEReportCreatesACompiledSubmissionBeforeStorecoveResponds(): void
+    public function testSubmitFranceEReportPayloadBuildFailureDoesNotCreateSubmissionAttempt(): void
     {
         $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-01");
         $payment = $this->makePayment($invoice->client, "2026-09-05", "1200");
@@ -1689,9 +1689,11 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $sourceReport = $this->reportEvents($invoice)->firstOrFail();
         $storecove = new Storecove();
         $proxy = \Mockery::mock(StorecoveProxy::class);
-        $proxy->shouldReceive("setCompany")->once()->andReturnSelf();
-        $proxy->shouldReceive("submitDocument")->once()->andThrow(new \RuntimeException("Storecove unavailable"));
+        $proxy->shouldNotReceive("setCompany");
+        $proxy->shouldNotReceive("submitDocument");
         $storecove->proxy = $proxy;
+        $payloadBuilder = \Mockery::mock(FranceEReportPayloadBuilder::class);
+        $payloadBuilder->shouldReceive("build")->once()->andThrow(new \RuntimeException("Payload unavailable"));
 
         try {
             (new SubmitFranceEReport(
@@ -1699,25 +1701,18 @@ class FranceEReportingPaymentMovementTest extends TestCase
                 TransactionEvent::FR_REPORT_SUBMISSION_B2C,
                 "2026-09-10",
                 $this->company->db,
-            ))->handle($storecove, new FranceEReportCompiler(), new FranceEReportPayloadBuilder());
+            ))->handle($storecove, new FranceEReportCompiler(), $payloadBuilder);
 
-            $this->fail("Storecove exception was not thrown.");
+            $this->fail("Payload exception was not thrown.");
         } catch (\RuntimeException $exception) {
-            $this->assertSame("Storecove unavailable", $exception->getMessage());
+            $this->assertSame("Payload unavailable", $exception->getMessage());
         }
 
-        $submission = TransactionEvent::query()
+        $this->assertFalse(TransactionEvent::query()
             ->where("company_id", $this->company->id)
             ->where("event_id", TransactionEvent::FR_REPORT_SUBMISSION_B2C)
             ->where("period", "2026-09-10")
-            ->firstOrFail();
-
-        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_COMPILED, $submission->payment_status);
-        $this->assertSame(
-            [(int) $sourceReport->id],
-            array_map("intval", data_get($submission->payment_request, "source_event_ids")),
-        );
-        $this->assertNotNull(data_get($submission->payment_request, "compiled_at"));
+            ->exists());
         $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_PENDING, $sourceReport->fresh()->payment_status);
     }
 
