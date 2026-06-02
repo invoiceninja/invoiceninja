@@ -356,6 +356,7 @@ class NinjaMailerJob implements ShouldQueue
         if (Ninja::isHosted() && $this->nmo?->transport !== 'force' && (!$this->company->account->isPaid() || ($this->company->account->isNewHostedAccount() && $this->nmo->settings->email_sending_method == 'default'))) {
 
         // if (Ninja::isHosted() && $this->nmo?->transport !== 'force' && ($this->company->account->isNewHostedAccount() || !$this->company->account->isPaid())) {
+            $this->nmo->settings->email_sending_method = 'default';
             $this->mailer = 'mailgun';
             $this->setHostedMailgunMailer();
             return $this;
