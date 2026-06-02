@@ -12,9 +12,7 @@
 
 namespace App\Filters;
 
-use App\Models\Project;
 use App\Models\Tag;
-use App\Models\Task;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Schema;
 
@@ -44,13 +42,9 @@ class TagFilters extends QueryFilters
     public function entity_type(string $entity_type = ''): Builder
     {
 
-        $entity_type = match($entity_type) {
-            'task' => Task::class,
-            'project' => Project::class,
-            default => '',
-        };
+        $entity_type = Tag::normalizeEntityType($entity_type);
 
-        if (!in_array($entity_type, Tag::TAGGABLE_TYPES, true)) {
+        if ($entity_type === null) {
             return $this->builder;
         }
 

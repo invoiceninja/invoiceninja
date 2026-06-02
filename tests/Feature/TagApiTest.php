@@ -64,8 +64,28 @@ class TagApiTest extends TestCase
         $arr = $response->json();
 
         $this->assertSame('urgent', $arr['data']['name']);
-        $this->assertSame('task', $arr['data']['entity_type']);
+        $this->assertSame(Task::class, $arr['data']['entity_type']);
         $this->assertSame('#ff0000', $arr['data']['color']);
+    }
+
+    public function testTagCreatedViaApiCanBeAttachedToTask(): void
+    {
+        $create = $this->withHeaders($this->headers())->postJson('/api/v1/tags', [
+            'entity_type' => 'task',
+            'name' => 'inline-created',
+        ]);
+
+        $create->assertStatus(200);
+        $tag_id = $create->json('data.id');
+
+        $response = $this->withHeaders($this->headers())
+            ->putJson('/api/v1/tasks/'.$this->encodePrimaryKey($this->task->id), [
+                'tags' => [$tag_id],
+            ]);
+
+        $response->assertStatus(200);
+        $this->assertCount(1, $response->json('data.tags'));
+        $this->assertSame($tag_id, $response->json('data.tags.0.id'));
     }
 
     public function testStoreRejectsDisallowedEntityType(): void
@@ -127,7 +147,7 @@ class TagApiTest extends TestCase
         Tag::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
-            'entity_type' => 'task',
+            'entity_type' => Task::class,
             'name' => 'dup',
         ]);
 
@@ -144,7 +164,7 @@ class TagApiTest extends TestCase
         $tag = Tag::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
-            'entity_type' => 'task',
+            'entity_type' => Task::class,
             'name' => 'archived-dup',
         ]);
 
@@ -214,7 +234,7 @@ class TagApiTest extends TestCase
         $tag = Tag::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
-            'entity_type' => 'task',
+            'entity_type' => Task::class,
             'name' => 'immut',
         ]);
 
@@ -225,7 +245,7 @@ class TagApiTest extends TestCase
             ]);
 
         $response->assertStatus(200);
-        $this->assertSame('task', $response->json('data.entity_type'));
+        $this->assertSame(Task::class, $response->json('data.entity_type'));
     }
 
     public function testShowTag(): void
@@ -233,14 +253,14 @@ class TagApiTest extends TestCase
         $tag = Tag::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
-            'entity_type' => 'task',
+            'entity_type' => Task::class,
         ]);
 
         $response = $this->withHeaders($this->headers())
             ->getJson('/api/v1/tags/'.$this->encodePrimaryKey($tag->id));
 
         $response->assertStatus(200);
-        $this->assertSame('task', $response->json('data.entity_type'));
+        $this->assertSame(Task::class, $response->json('data.entity_type'));
     }
 
     public function testDestroyTag(): void

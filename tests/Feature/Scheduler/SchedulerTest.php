@@ -1016,6 +1016,17 @@ class SchedulerTest extends TestCase
         $this->assertEquals(100, $invoice->partial);
         $this->assertEquals(now()->format('Y-m-d'), Carbon::parse($invoice->partial_due_date)->format('Y-m-d'));
         $this->assertEquals(now()->addDays(30)->format('Y-m-d'), Carbon::parse($invoice->due_date)->format('Y-m-d'));
+
+        // Marking the draft sent must populate the balance without disturbing the seeded schedule.
+        $invoice->service()->markSent()->save();
+
+        $invoice = $invoice->fresh();
+
+        $this->assertEquals(Invoice::STATUS_SENT, $invoice->status_id);
+        $this->assertEquals(300, $invoice->balance);
+        $this->assertEquals(100, $invoice->partial);
+        $this->assertEquals(now()->format('Y-m-d'), Carbon::parse($invoice->partial_due_date)->format('Y-m-d'));
+        $this->assertEquals(now()->addDays(30)->format('Y-m-d'), Carbon::parse($invoice->due_date)->format('Y-m-d'));
     }
 
     public function testPaymentScheduleSingleInstalmentSeedsAsLast()

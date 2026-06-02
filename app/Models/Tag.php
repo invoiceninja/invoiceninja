@@ -49,6 +49,20 @@ class Tag extends BaseModel
         'project' => Project::class,
     ];
 
+    /**
+     * Translate a taggable reference into its canonical FQCN. Accepts either a
+     * short key (e.g. "task") or an already-resolved FQCN, and returns null for
+     * anything outside the catalog so callers can reject it.
+     */
+    public static function normalizeEntityType(string $entity_type): ?string
+    {
+        if (array_key_exists($entity_type, self::TAGGABLE_TYPES)) {
+            return self::TAGGABLE_TYPES[$entity_type];
+        }
+
+        return in_array($entity_type, self::TAGGABLE_TYPES, true) ? $entity_type : null;
+    }
+
     public $timestamps = true;
 
     protected $fillable = [
