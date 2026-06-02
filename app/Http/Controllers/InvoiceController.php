@@ -1131,6 +1131,10 @@ class InvoiceController extends BaseController
             $scheduler->forceDelete();
         }
 
+        $invoice->partial = 0;
+        $invoice->partial_due_date = null;
+        $invoice->save();
+
         return $this->itemResponse($invoice->fresh());
     }
 }

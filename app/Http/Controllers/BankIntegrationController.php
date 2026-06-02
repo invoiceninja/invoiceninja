@@ -280,17 +280,26 @@ class BankIntegrationController extends BaseController
         BankIntegration::where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->where('account_id', $user->account_id)->whereNotNull('nordigen_account_id')->each(function (BankIntegration $bank_integration) use ($nordigen) {
             $account_meta = $nordigen->isAccountActive($bank_integration->nordigen_account_id);
 
-            if (in_array($account_meta['status'] ?? '', ['EXPIRED', 'DELETED', 'SUSPENDED', 'ERROR', 'FAILED', 'Invalid Account ID'])) {
+            //Rate limited — leave enabled and retry later. Do not mutate state.
+            if (($account_meta['status'] ?? '') == 'RATE_LIMITED') {
+                return;
+            }
+
+            //Permanent failure only — aligned with ProcessBankTransactionsNordigen::updateAccount().
+            //ERROR/PROCESSING/DISCOVERED/TRANSIENT_ERROR are transient and must NOT disable here.
+            if (in_array($account_meta['status'] ?? '', ['EXPIRED', 'SUSPENDED', 'Invalid Account ID'])) {
                 $bank_integration->disabled_upstream = true;
                 $bank_integration->bank_account_status = $account_meta['status'];
                 $bank_integration->save();
 
-                $nordigen->disabledAccountEmail($bank_integration);
+                if (in_array($account_meta['status'], ['EXPIRED', 'SUSPENDED'])) {
+                    $nordigen->disabledAccountEmail($bank_integration);
+                }
                 return;
             }
 
             if (($account_meta['status'] ?? '') != 'READY') {
-                return; // PROCESSING, DISCOVERED — transient states, retry later
+                return; // ERROR, PROCESSING, DISCOVERED, TRANSIENT_ERROR — transient states, retry later
             }
 
             $account = $nordigen->getAccount($bank_integration->nordigen_account_id);

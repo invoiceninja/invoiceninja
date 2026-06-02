@@ -6020,6 +6020,11 @@ $lang = array(
     'archived_tag' => 'Successfully archived tag',
     'restored_tag' => 'Successfully restored tag',
     'deleted_tag' => 'Successfully deleted tag',
+    'e_reporting_enabled' => 'E-Reporting Enabled',
+    'ten_day_reporting' => 'Ten Day Reporting',
+    'monthly_reporting' => 'Monthly Reporting',
+    'ten_day_reporting_help' => 'Report transactions for the current period in 10-day increments.',
+    'monthly_reporting_help' => 'Report transactions for the current period in monthly increments.',
 );
 
 return $lang;
