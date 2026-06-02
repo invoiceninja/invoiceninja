@@ -447,6 +447,100 @@ class UserTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function testUserLanguageIdCanBeNull(): void
+    {
+        $this->withoutMiddleware(PasswordProtection::class);
+
+        $_user = MultiDB::hasUser(['email' => 'language.null@example.com']);
+
+        if ($_user) {
+            $_user->account->delete();
+        }
+
+        $company_token = $this->mockAccount();
+        $data = [
+            'first_name' => 'Language',
+            'last_name' => 'Null',
+            'email' => 'language.null@example.com',
+            'language_id' => null,
+            'company_user' => [
+                'is_admin' => false,
+                'is_owner' => false,
+                'permissions' => 'create_client,create_invoice',
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $company_token->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->postJson('/api/v1/users?include=company_user', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+        $user = User::find($this->decodePrimaryKey($arr['data']['id']));
+
+        $this->assertNotNull($user);
+        $this->assertNull($user->language_id);
+
+        $user->language_id = '13';
+        $user->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $company_token->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->putJson('/api/v1/users/'.$user->hashed_id.'?include=company_user', [
+            'language_id' => null,
+        ]);
+
+        $response->assertStatus(200);
+
+        $this->assertNull($user->fresh()->language_id);
+    }
+
+    public function testUserLanguageIdMustExist(): void
+    {
+        $this->withoutMiddleware(PasswordProtection::class);
+
+        $_user = MultiDB::hasUser(['email' => 'language.invalid@example.com']);
+
+        if ($_user) {
+            $_user->account->delete();
+        }
+
+        $company_token = $this->mockAccount();
+        $data = [
+            'first_name' => 'Language',
+            'last_name' => 'Invalid',
+            'email' => 'language.invalid@example.com',
+            'language_id' => '4431',
+            'company_user' => [
+                'is_admin' => false,
+                'is_owner' => false,
+                'permissions' => 'create_client,create_invoice',
+            ],
+        ];
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $company_token->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->postJson('/api/v1/users?include=company_user', $data)
+            ->assertStatus(422);
+
+        $user = auth()->user();
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $company_token->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->putJson('/api/v1/users/'.$user->hashed_id.'?include=company_user', [
+            'language_id' => '4431',
+        ])->assertStatus(422);
+    }
+
     public function testValidationRulesPhoneIsNull()
     {
         $this->withoutMiddleware(PasswordProtection::class);
