@@ -6026,6 +6026,9 @@ $lang = array(
     'ten_day_reporting_help' => 'Report transactions for the current period in 10-day increments.',
     'monthly_reporting_help' => 'Report transactions for the current period in monthly increments.',
     'quickbooks_deposit_disabled_warning' => 'Deposits are turned off in your connected QuickBooks account, this documentwill not sync to QuickBooks if a deposit is present.',
+    'tour_template_signatory_swap' => 'This document was created from your template. Use the dropdown to swap the placeholder signatory with a real client contact or user.',
+    'tour_template_save_document' => 'Click here to save your changes to the document.',
+    'tour_template_send_document' => 'When ready, click here to send the document to your signatories.',
 );
 
 return $lang;
