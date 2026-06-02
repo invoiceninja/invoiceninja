@@ -82,12 +82,14 @@ class ClientTransformer extends BaseTransformer
             'credit_balance' => 0,
             'settings' => $settings,
             'client_hash' => Str::random(40),
-            'country_id' => isset($data['client.country_id'])
-                ? $this->getCountryId($data['client.country_id'])
-                : $this->company->settings->country_id,
-            'shipping_country_id' => isset($data['client.shipping_country'])
-                ? $this->getCountryId($data['client.shipping_country'])
-                : $this->company->settings->country_id,
+            'country_id' => $this->resolveCountryIdOrCompanyDefault(
+                $data,
+                'client.country_id'
+            ),
+            'shipping_country_id' => $this->resolveCountryIdOrCompanyDefault(
+                $data,
+                ['client.shipping_country_id', 'client.shipping_country']
+            ),
         ];
 
         $contacts = [];
@@ -124,5 +126,34 @@ class ClientTransformer extends BaseTransformer
 
         return $client;
 
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @param array<int, string>|string $keys
+     */
+    private function resolveCountryIdOrCompanyDefault(array $data, array|string $keys): int|string|null
+    {
+        foreach ((array) $keys as $key) {
+            if (! array_key_exists($key, $data)) {
+                continue;
+            }
+
+            $country = trim((string) $data[$key]);
+
+            if ($country === '') {
+                return $this->company->settings->country_id;
+            }
+
+            $country_id = $this->getCountryId($country);
+
+            if ($country_id === null) {
+                return $this->company->settings->country_id;
+            }
+
+            return $country_id;
+        }
+
+        return $this->company->settings->country_id;
     }
 }
