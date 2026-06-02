@@ -387,7 +387,7 @@ class MatchBankTransactions implements ShouldQueue
                 try {
                     $invoice->loadMissing(['client.country', 'client.company']);
 
-                    if ($invoice->client?->reportableFrTransaction()) {
+                    if ($invoice->client->reportableFrTransaction()) {
                         $paymentable = Paymentable::withTrashed()
                             ->where('payment_id', $payment->id)
                             ->where('paymentable_id', $attachable_invoice['id'])

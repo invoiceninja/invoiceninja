@@ -62,6 +62,7 @@ class ClientSalesReport extends BaseExport
 
     private array $monthlyInvoiceHeader = [];
 
+    /** @var array<int, array{currency: string, rows: array<int, array<int, string>>}> */
     private array $monthly_invoice_groups = [];
 
     /** @var array<int, array<int, string>> CSV rows for the payment matrix (PDF use) */
@@ -69,6 +70,7 @@ class ClientSalesReport extends BaseExport
 
     private array $monthlyPaymentHeader = [];
 
+    /** @var array<int, array{currency: string, rows: array<int, array<int, string>>}> */
     private array $monthly_payment_groups = [];
 
     private const MAX_MONTHS = 24;
@@ -541,7 +543,8 @@ class ClientSalesReport extends BaseExport
                 continue;
             }
 
-            $row = [$client->present()->name()];
+            /** @var array<int, string> $row */
+            $row = [(string) $client->present()->name()];
 
             foreach (array_keys($monthAxis) as $ym) {
                 $row[] = isset($cells[$ym])
@@ -549,9 +552,9 @@ class ClientSalesReport extends BaseExport
                     : '';
             }
 
-            $currency_code = $client->currency()->code;
+            $currency_code = (string) $client->currency()->code;
 
-            if (!isset($rowsByCurrency[$currency_code])) {
+            if (! isset($rowsByCurrency[$currency_code])) {
                 $rowsByCurrency[$currency_code] = [
                     'currency' => $currency_code,
                     'rows' => [],

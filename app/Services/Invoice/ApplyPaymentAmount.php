@@ -112,7 +112,7 @@ class ApplyPaymentAmount extends AbstractService
         event(new InvoiceWasPaid($this->invoice, $payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         try {
-            if ($this->invoice->client?->reportableFrTransaction()) {
+            if ($this->invoice->client->reportableFrTransaction()) {
                 $paymentable = Paymentable::withTrashed()
                     ->where('payment_id', $payment->id)
                     ->where('paymentable_id', $this->invoice->id)

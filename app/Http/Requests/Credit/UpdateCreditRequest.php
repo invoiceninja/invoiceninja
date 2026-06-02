@@ -95,7 +95,6 @@ class UpdateCreditRequest extends Request
     {
         $input = $this->all();
 
-        nlog($input);
         $input = $this->decodePrimaryKeys($input);
 
         if (isset($input['documents'])) {

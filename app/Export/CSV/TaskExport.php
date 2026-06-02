@@ -67,6 +67,7 @@ class TaskExport extends BaseExport
         }
 
         $query = Task::query()
+                        ->with('tags')
                         ->withTrashed()
                         ->where('company_id', $this->company->id);
 
@@ -84,6 +85,20 @@ class TaskExport extends BaseExport
 
         if ($this->input['status'] ?? false) {
             $query = $this->addTaskStatusFilter($query, $this->input['status']);
+        }
+
+        $tag_ids = $this->input['tag_ids'] ?? null;
+
+        if ($tag_ids) {
+            $transformed_tag_ids = is_string($tag_ids)
+                ? $this->transformKeys(explode(',', $tag_ids))
+                : $this->transformKeys($tag_ids);
+
+            if (count($transformed_tag_ids) > 0) {
+                $query->whereHas('tags', function ($q) use ($transformed_tag_ids) {
+                    $q->whereIn('tags.id', $transformed_tag_ids);
+                });
+            }
         }
 
         $query = $this->filterByUserPermissions($query);
@@ -158,6 +173,11 @@ class TaskExport extends BaseExport
 
             $parts = explode('.', $key);
 
+            if ($key === 'task.tags' || $key === 'tags') {
+                $entity[$key] = $this->decorator->transform('task.tags', $task);
+                continue;
+            }
+
             if (is_array($parts) && $parts[0] == 'task' && array_key_exists($parts[1], $transformed_entity)) {
                 $entity[$key] = $transformed_entity[$parts[1]];
             } elseif (array_key_exists($key, $transformed_entity)) {
@@ -195,22 +215,31 @@ class TaskExport extends BaseExport
 
         $date_format_default = $this->date_format;
 
+        $wants_start_time = in_array('task.start_time', $this->input['report_keys']) || in_array('start_time', $this->input['report_keys']);
+        $wants_end_time = in_array('task.end_time', $this->input['report_keys']) || in_array('end_time', $this->input['report_keys']);
+
         foreach ($logs as $key => $item) {
             if (in_array('task.start_date', $this->input['report_keys']) || in_array('start_date', $this->input['report_keys'])) {
                 $carbon_object = Carbon::createFromTimeStamp((int) $item[0])->setTimezone($timezone_name);
                 $entity['task.start_date'] = $carbon_object->format($date_format_default);
-                $entity['task.start_time'] = $carbon_object->format('H:i:s');
+                if ($wants_start_time) {
+                    $entity['task.start_time'] = $carbon_object->format('H:i:s');
+                }
             }
 
             if ((in_array('task.end_date', $this->input['report_keys']) || in_array('end_date', $this->input['report_keys'])) && $item[1] > 0) {
                 $carbon_object = Carbon::createFromTimeStamp((int) $item[1])->setTimezone($timezone_name);
                 $entity['task.end_date'] = $carbon_object->format($date_format_default);
-                $entity['task.end_time'] = $carbon_object->format('H:i:s');
+                if ($wants_end_time) {
+                    $entity['task.end_time'] = $carbon_object->format('H:i:s');
+                }
             }
 
             if ((in_array('task.end_date', $this->input['report_keys']) || in_array('end_date', $this->input['report_keys'])) && $item[1] == 0) {
                 $entity['task.end_date'] = ctrans('texts.is_running');
-                $entity['task.end_time'] = ctrans('texts.is_running');
+                if ($wants_end_time) {
+                    $entity['task.end_time'] = ctrans('texts.is_running');
+                }
             }
 
             $seconds = $task->calcDuration();
@@ -268,10 +297,9 @@ class TaskExport extends BaseExport
     protected function addTaskStatusFilter(Builder $query, string $status): Builder
     {
 
-        /** @var array $status_parameters */
         $status_parameters = explode(',', $status);
 
-        if (in_array('all', $status_parameters) || count($status_parameters) == 0) {
+        if (in_array('all', $status_parameters) || count($status_parameters) == 0) { //@phpstan-ignore-line
             return $query;
         }
 

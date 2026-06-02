@@ -44,7 +44,7 @@ class PL extends BaseCountry
 
     public function getNetworkOverrides(?Client $client = null): array
     {
-        if ($client && $client->company?->country()?->iso_3166_2 !== 'PL') {
+        if ($client && $client->company->country()->iso_3166_2 !== 'PL') {
             return [];
         }
 

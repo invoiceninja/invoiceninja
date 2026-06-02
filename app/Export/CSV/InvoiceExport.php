@@ -16,7 +16,6 @@ use App\Export\Decorators\Decorator;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\Invoice;
-use App\Models\Paymentable;
 use App\Transformers\InvoiceTransformer;
 use App\Utils\Ninja;
 use Illuminate\Database\Eloquent\Builder;
@@ -235,10 +234,8 @@ class InvoiceExport extends BaseExport
 
     private function loadPaymentables(Invoice $invoice): \Illuminate\Support\Collection
     {
-        $query = Paymentable::query()
-            ->where('paymentable_type', 'invoices')
-            ->where('paymentable_id', $invoice->id)
-            ->with('payment');
+        $query = $invoice->paymentables()
+            ->with(['payment' => fn ($q) => $q->withTrashed()]);
 
         if (! ($this->input['include_deleted_applications'] ?? false)) {
             $query->whereNull('deleted_at');

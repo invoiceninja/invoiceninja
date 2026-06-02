@@ -279,11 +279,14 @@ class StorecoveProxy
     {
         $payload = [
             ...$payload,
-            'legal_entity_id' => $payload['legal_entity_id'] ?? $payload['legalEntityId'] ?? $this->company->legal_entity_id,
             'tenant_id' => $payload['tenant_id'] ?? $this->company->company_key,
             'account_key' => $payload['account_key'] ?? $this->company->account->key,
             'e_invoicing_token' => $payload['e_invoicing_token'] ?? $this->company->account->e_invoicing_token,
         ];
+
+        if (! array_key_exists('forDocumentSubmissionGuid', $payload)) {
+            $payload['legal_entity_id'] = $payload['legal_entity_id'] ?? $payload['legalEntityId'] ?? $this->company->legal_entity_id;
+        }
 
         if (Ninja::isHosted()) {
             $response = $this->storecove->sendJsonDocument($payload);
@@ -297,6 +300,7 @@ class StorecoveProxy
 
         return $this->remoteRequest('/api/einvoice/submission', $payload);
     }
+
     /**
      * handleResponseError
      *

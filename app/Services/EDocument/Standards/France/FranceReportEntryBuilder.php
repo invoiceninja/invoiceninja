@@ -18,7 +18,6 @@ use App\DataMapper\FranceEReporting\B2CPaymentData;
 use App\DataMapper\FranceEReporting\B2CTransactionData;
 use App\DataMapper\FranceEReporting\TaxSubtotalData;
 use App\Models\Credit;
-use App\Models\Currency;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\EDocument\Standards\France\Models\B2BIInvoice;
@@ -47,7 +46,7 @@ class FranceReportEntryBuilder
         ];
 
         $peppolInvoice = (new Peppol($invoice))->run()->getDocument();
-        $peppolJson = (new EInvoice())->encode($peppolInvoice, 'json', $context);
+        $peppolJson = (new EInvoice())->encode($peppolInvoice, 'json');
         $b2biInvoice = $this->serializer()->deserialize($peppolJson, B2BIInvoice::class, 'json', $context);
         $payload = $this->removeEmptyValues($b2biInvoice->toArray());
 
@@ -191,7 +190,7 @@ class FranceReportEntryBuilder
         })->all();
     }
 
-    private function paymentAmountForInvoice(Payment $payment, Invoice $invoice): string
+    private function paymentAmountForInvoice(Payment $payment, Invoice $invoice): int|float
     {
         return $this->normalizeAmount($invoice->amount ?? $payment->amount ?? 0);
     }
@@ -211,7 +210,7 @@ class FranceReportEntryBuilder
     {
         return match ((int) $payment->type_id) {
             Payment::TYPE_BANK_TRANSFER, Payment::TYPE_SEPA, Payment::TYPE_GOCARDLESS => '30',
-            Payment::TYPE_CREDIT_CARD, Payment::TYPE_TOKEN, Payment::TYPE_APPLE_PAY => '48',
+            Payment::TYPE_CREDIT_CARD, Payment::TYPE_APPLE_PAY => '48',
             default => null,
         };
     }
@@ -223,15 +222,9 @@ class FranceReportEntryBuilder
         return trim($category) !== '' ? $category : 'TLB1';
     }
 
-    private function currencyCode(Invoice|Credit|Payment $model): string
+    private function currencyCode(Invoice|Credit $model): string
     {
-        if ($model instanceof Payment) {
-            return $model->currency?->code ?: Currency::query()->find($model->currency_id)?->code ?: 'EUR';
-        }
-
-        $currencyId = $model->client?->getSetting('currency_id') ?: $model->company?->getSetting('currency_id');
-
-        return Currency::query()->find($currencyId)?->code ?: 'EUR';
+        return $model->client->currency()->code;
     }
 
     private function taxCategory(int|float|string $taxRate): string
@@ -239,26 +232,26 @@ class FranceReportEntryBuilder
         return (float) $taxRate > 0 ? 'standard' : 'exempt';
     }
 
-    private function signedDocumentAmount(int|float|string $amount, Invoice|Credit $document): string
+    private function signedDocumentAmount(int|float|string $amount, Invoice|Credit $document): int|float
     {
         $amount = $this->normalizeAmount($amount);
 
         if ($document instanceof Credit) {
-            return (string) $this->negativeAmount($amount);
+            return $this->negativeAmount($amount);
         }
 
         return $amount;
     }
 
-    private function normalizeAmount(int|float|string|null $amount): string
+    private function normalizeAmount(int|float|string|null $amount): int|float
     {
         $amount = round((float) ($amount ?? 0), 2);
 
         if (abs($amount - (int) $amount) < 0.00001) {
-            return (string) (int) $amount;
+            return (int) $amount;
         }
 
-        return number_format($amount, 2, '.', '');
+        return $amount;
     }
 
     /**

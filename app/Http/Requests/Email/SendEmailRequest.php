@@ -101,6 +101,11 @@ class SendEmailRequest extends Request
             $this->entity_plural = "purchase_orders";
         }
 
+        /** just in case an array is passed back from the fronted, gracefully handle it. */
+        if(isset($input['cc_email']) && is_array($input['cc_email'])) {
+            $input['cc_email'] = implode(',', $input['cc_email']);
+        }
+
         if (isset($input['cc_email'])) {
             //** accept comma or space separated list of emails and deduplicate */
             $input['cc_email'] = collect(array_merge(explode(",", $input['cc_email']), explode(" ", $input['cc_email'])))

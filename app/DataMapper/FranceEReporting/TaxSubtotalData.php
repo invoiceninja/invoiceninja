@@ -13,6 +13,7 @@
 namespace App\DataMapper\FranceEReporting;
 
 use Illuminate\Contracts\Support\Arrayable;
+use App\Services\EDocument\Standards\France\FranceEReportTaxCategory;
 use JsonSerializable;
 
 /**
@@ -102,14 +103,14 @@ final readonly class TaxSubtotalData implements Arrayable, JsonSerializable
     public function toArray(): array
     {
         return array_filter([
-            'taxCategory' => $this->taxCategory,
-            'category' => $this->category,
-            'percentage' => $this->percentage,
-            'taxableAmount' => $this->taxableAmount,
-            'taxAmount' => $this->taxAmount,
+            'taxCategory' => FranceEReportTaxCategory::normalize($this->taxCategory),
+            'category' => FranceEReportTaxCategory::normalize($this->category),
+            'percentage' => ReportDataValidator::numericValue($this->percentage, 'taxSubtotals.percentage'),
+            'taxableAmount' => is_null($this->taxableAmount) ? null : ReportDataValidator::numericValue($this->taxableAmount, 'taxSubtotals.taxableAmount'),
+            'taxAmount' => is_null($this->taxAmount) ? null : ReportDataValidator::numericValue($this->taxAmount, 'taxSubtotals.taxAmount'),
             'currency' => $this->currency,
             'country' => $this->country,
-            'amountIncludingTax' => $this->amountIncludingTax,
+            'amountIncludingTax' => is_null($this->amountIncludingTax) ? null : ReportDataValidator::numericValue($this->amountIncludingTax, 'taxSubtotals.amountIncludingTax'),
             'exemptionReason' => $this->exemptionReason,
             'exemptionReasonCode' => $this->exemptionReasonCode,
         ], static fn (mixed $value): bool => ! is_null($value));

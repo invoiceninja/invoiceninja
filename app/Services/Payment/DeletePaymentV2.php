@@ -239,7 +239,7 @@ class DeletePaymentV2
                 try {
                     $paymentable_invoice->loadMissing(['client.country', 'client.company']);
 
-                    if ($paymentable_invoice->client?->reportableFrTransaction()) {
+                    if ($paymentable_invoice->client->reportableFrTransaction()) {
                         $paymentable = Paymentable::withTrashed()
                             ->where('payment_id', $this->payment->id)
                             ->where('paymentable_id', $paymentable_invoice->id)

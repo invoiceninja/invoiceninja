@@ -61,7 +61,7 @@ class ProjectReport extends BaseExport
 
         $user_name = $user ? $user->present()->name() : '';
 
-        $query = \App\Models\Project::with(['invoices','expenses','tasks'])
+        $query = \App\Models\Project::with(['invoices','expenses','tasks','tags'])
                                 ->where('company_id', $this->company->id);
 
         $query = $this->filterByUserPermissions($query);
@@ -82,6 +82,20 @@ class ProjectReport extends BaseExport
 
         if ($clients) {
             $query = $this->addClientFilter($query, $clients);
+        }
+
+        $tag_ids = $this->input['tag_ids'] ?? null;
+
+        if ($tag_ids) {
+            $transformed_tag_ids = is_string($tag_ids)
+                ? $this->transformKeys(explode(',', $tag_ids))
+                : $this->transformKeys($tag_ids);
+
+            if (count($transformed_tag_ids) > 0) {
+                $query->whereHas('tags', function ($q) use ($transformed_tag_ids) {
+                    $q->whereIn('tags.id', $transformed_tag_ids);
+                });
+            }
         }
 
         $data = [

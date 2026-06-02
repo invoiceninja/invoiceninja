@@ -99,64 +99,25 @@ class Request extends FormRequest
 
     public function decodePrimaryKeys($input)
     {
-        if (array_key_exists('group_settings_id', $input) && is_string($input['group_settings_id'])) {
-            $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
-        }
-
-        if (array_key_exists('group_id', $input) && is_string($input['group_id'])) {
-            $input['group_id'] = $this->decodePrimaryKey($input['group_id']);
-        }
-
-        if (array_key_exists('subscription_id', $input) && is_string($input['subscription_id'])) {
-            $input['subscription_id'] = $this->decodePrimaryKey($input['subscription_id']);
-        }
-
-        if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
-            $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
-        }
-
-        if (array_key_exists('user_id', $input) && is_string($input['user_id'])) {
-            $input['user_id'] = $this->decodePrimaryKey($input['user_id']);
-        }
-
-        if (array_key_exists('vendor_id', $input) && is_string($input['vendor_id'])) {
-            $input['vendor_id'] = $this->decodePrimaryKey($input['vendor_id']);
-        }
-
-        if (array_key_exists('location_id', $input) && is_string($input['location_id'])) {
-            $input['location_id'] = $this->decodePrimaryKey($input['location_id']);
-        }
-
-        if (array_key_exists('client_id', $input) && is_string($input['client_id'])) {
-            $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
-        }
-
-        if (array_key_exists('invoice_id', $input) && is_string($input['invoice_id'])) {
-            $input['invoice_id'] = $this->decodePrimaryKey($input['invoice_id']);
-        }
-
-        if (array_key_exists('expense_id', $input) && is_string($input['expense_id'])) {
-            $input['expense_id'] = $this->decodePrimaryKey($input['expense_id']);
-        }
-
-        if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
-            $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
-        }
-
-        if (array_key_exists('project_id', $input) && is_string($input['project_id'])) {
-            $input['project_id'] = $this->decodePrimaryKey($input['project_id']);
-        }
-
-        if (array_key_exists('company_gateway_id', $input) && is_string($input['company_gateway_id'])) {
-            $input['company_gateway_id'] = $this->decodePrimaryKey($input['company_gateway_id']);
-        }
-
-        if (array_key_exists('transaction_id', $input) && is_string($input['transaction_id'])) {
-            $input['transaction_id'] = $this->decodePrimaryKey($input['transaction_id']);
-        }
-
-        if (array_key_exists('category_id', $input) && is_string($input['category_id'])) {
-            $input['category_id'] = $this->decodePrimaryKey($input['category_id']);
+        foreach([
+            'group_settings_id', 
+            'group_id', 
+            'subscription_id', 
+            'assigned_user_id', 
+            'user_id', 
+            'vendor_id', 
+            'location_id', 
+            'client_id', 
+            'invoice_id', 
+            'expense_id', 
+            'design_id', 
+            'project_id', 
+            'company_gateway_id', 
+            'transaction_id', 
+            'category_id'] as $field) {
+            if (array_key_exists($field, $input) && is_string($input[$field])) {
+                $input[$field] = $this->decodePrimaryKey($input[$field]);
+            }
         }
 
         if (isset($input['client_contacts'])) {

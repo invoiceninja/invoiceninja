@@ -12,9 +12,11 @@
 
 namespace App\Models;
 
+use App\DataMapper\TaskMeta;
 use Carbon\CarbonInterval;
 use App\Models\CompanyUser;
 use Illuminate\Support\Carbon;
+use App\Models\Traits\HasTags;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\App;
 use Elastic\ScoutDriverPlus\Searchable;
@@ -26,7 +28,7 @@ use App\Libraries\Currency\Conversion\CurrencyApi;
  *
  * @property int $id
  * @property string|null $hash
- * @property object|null $meta
+ * @property \App\DataMapper\TaskMeta|null $meta
  * @property int $user_id
  * @property int|null $assigned_user_id
  * @property int $company_id
@@ -57,6 +59,8 @@ use App\Libraries\Currency\Conversion\CurrencyApi;
  * @property-read \App\Models\Client|null $client
  * @property-read \App\Models\Company|null $company
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
+ * @property-read int|null $tags_count
  * @property-read int|null $documents_count
  * @property-read mixed $hashed_id
  * @property-read \App\Models\Invoice|null $invoice
@@ -82,6 +86,7 @@ class Task extends BaseModel
     use SoftDeletes;
     use Filterable;
     use Searchable;
+    use HasTags;
 
 
     public static array $bulk_update_columns = [
@@ -115,7 +120,7 @@ class Task extends BaseModel
     ];
 
     protected $casts = [
-        'meta' => 'object',
+        'meta' => TaskMeta::class,
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
@@ -284,7 +289,7 @@ class Task extends BaseModel
         }
 
         if ($this->status) {
-            return '<h5><span class="badge badge-primary">' . $this->status?->name ?? ''; //@phpstan-ignore-line
+            return '<h5><span class="badge badge-primary">' . e($this->status?->name ?? '') . '</span></h5>'; //@phpstan-ignore-line
         }
 
         return '';

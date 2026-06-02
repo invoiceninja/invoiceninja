@@ -83,6 +83,10 @@ class BatchPushToQuickbooks implements ShouldQueue
 
         MultiDB::setDb($this->db);
 
+        // Defensive de-duplication: rate-limit re-dispatch can merge IDs that
+        // overlap with a freshly collected batch.
+        $this->entity_ids = array_values(array_unique($this->entity_ids));
+
         $company = Company::find($this->company_id);
 
         if (!$company || !$company->quickbooks) {
@@ -103,10 +107,14 @@ class BatchPushToQuickbooks implements ShouldQueue
         $status = $rateLimiter->getStatus();
         nlog("QB Batch: Rate limit status before processing", $status);
 
-        // Wait for capacity if needed (max 60 seconds)
-        if (!$rateLimiter->waitForCapacity(60)) {
-            nlog("QB Batch: Rate limit capacity not available, releasing job for 60 seconds");
-            $this->release(60);
+        // If we have no capacity (rate limited / in backoff), don't block a
+        // worker sleeping — release the job back to the queue with an
+        // appropriate timeout derived from the rate limiter, and let it retry.
+        // The entity IDs travel in the job payload, so nothing is lost.
+        if (!$rateLimiter->canMakeRequest()) {
+            $delay = max($rateLimiter->getRecommendedDelay(), 30);
+            nlog("QB Batch: No rate-limit capacity, releasing job for {$delay}s", $rateLimiter->getStatus());
+            $this->release($delay);
             return;
         }
 

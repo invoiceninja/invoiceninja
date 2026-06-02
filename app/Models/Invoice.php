@@ -146,6 +146,7 @@ use App\Models\Traits\IndexableItems;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invitations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Paymentable> $paymentables
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
  * @property object|null $tax_data
  * @mixin \Eloquent
@@ -391,6 +392,14 @@ class Invoice extends BaseModel
     public function payments(): \Illuminate\Database\Eloquent\Relations\MorphToMany
     {
         return $this->morphToMany(Payment::class, 'paymentable')->withTrashed()->withPivot('amount', 'refunded', 'deleted_at')->withTimestamps();
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function paymentables(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(Paymentable::class, 'paymentable');
     }
 
     /**

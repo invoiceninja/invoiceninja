@@ -111,7 +111,7 @@ class StoreCompanyRequest extends Request
         }
 
         if (isset($input['smtp_verify_peer']) && is_string($input['smtp_verify_peer'])) {
-            $input['smtp_verify_peer'] == 'true' ? true : false;
+            $input['smtp_verify_peer'] = $input['smtp_verify_peer'] == 'true' ? true : false;
         }
 
         $this->replace($input);

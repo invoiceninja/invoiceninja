@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Services\EDocument\Standards\France\Models;
 
 use Symfony\Component\Serializer\Attribute\SerializedPath;
@@ -85,7 +93,7 @@ class B2BIParty
                 ], static fn (mixed $value): bool => ! is_null($value) && $value !== ''),
             ], static fn (mixed $value): bool => ! is_null($value) && $value !== []),
             'publicIdentifiers' => $this->publicIdentifiers(),
-        ], static fn (mixed $value): bool => ! is_null($value) && $value !== []);
+        ], static fn (mixed $value): bool => $value !== []);
     }
 
     /**

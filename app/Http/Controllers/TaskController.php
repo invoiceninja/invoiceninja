@@ -105,7 +105,7 @@ class TaskController extends BaseController
      */
     public function index(TaskFilters $filters)
     {
-        $tasks = Task::filter($filters);
+        $tasks = Task::filter($filters)->with(['tags', 'project.tags']);
 
         return $this->listResponse($tasks);
     }

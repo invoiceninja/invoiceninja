@@ -1072,16 +1072,14 @@ class Client extends BaseModel implements HasLocalePreference
     
     /**
      * reportableFrTransaction
-     * 
-     * Determines if the client is reportable for France.
-     * 
+     *
+     * Coarse gate for routing entities into the France reporting domain.
+     *
      * @return bool
      */
     public function reportableFrTransaction(): bool
     {
-        return (bool) $this->getSetting('france_reporting_enabled')
-            && (($this->classification ?? 'business') === 'individual'
-                || $this->country?->iso_3166_2 !== 'FR');
+        return (bool) $this->getSetting('france_reporting_enabled');
     }
 
     /**

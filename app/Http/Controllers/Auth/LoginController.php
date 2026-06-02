@@ -39,6 +39,7 @@ use Illuminate\Support\Facades\Response;
 use Laravel\Socialite\Facades\Socialite;
 use App\Http\Requests\Login\LoginRequest;
 use App\Services\Auth\Passkeys\PasskeyService;
+use App\Services\Company\CompanyTokenRotator;
 use App\Libraries\OAuth\Providers\Google;
 use Illuminate\Database\Eloquent\Builder;
 use App\DataMapper\Analytics\LoginFailure;
@@ -615,6 +616,8 @@ class LoginController extends BaseController
                 (new CreateCompanyToken($cu->company, $cu->user, request()->server('HTTP_USER_AGENT')))->handle(); //@phpstan-ignore-line
             }
         });
+
+        app(CompanyTokenRotator::class)->rotateDueTokensForUser($user);
 
         $truth->setCompanyToken(CompanyToken::where('user_id', $user->id)->where('company_id', $set_company->id)->where('is_system', true)->first());
 

@@ -560,7 +560,7 @@ class Company extends BaseModel
 
     public function activities(): HasMany
     {
-        return $this->hasMany(Activity::class)->where('created_at', '>=', now()->subDays(90)->timestamp)->orderBy('id', 'DESC')->take(50);
+        return $this->hasMany(Activity::class)->where('created_at', '>=', now()->subDays(90)->toDateTimeString())->orderBy('id', 'DESC')->take(50);
     }
 
     /**

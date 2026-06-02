@@ -16,6 +16,7 @@ use App\Models\User;
 use App\Utils\Ninja;
 use App\Models\Client;
 use App\Models\Design;
+use App\Models\Tag;
 use App\Utils\Statics;
 use App\Models\Account;
 use App\Models\TaxRate;
@@ -532,7 +533,7 @@ class BaseController extends Controller
                     $query->whereNotNull('updated_at');
                 },
                 'company.activities' => function ($query) use ($user, $updated_at) {
-                    $floor = max((int) $updated_at, now()->subDays(90)->timestamp);
+                    $floor = max($updated_at, now()->subDays(90)->toDateTimeString());
                     $query->where('activities.updated_at', '>=', $floor);
 
                     if (! $user->isAdmin()) {
@@ -578,22 +579,17 @@ class BaseController extends Controller
             ]
         );
 
-        if ($query instanceof Builder) {
-            $limit = $this->resolveQueryLimit();
+        $limit = $this->resolveQueryLimit();
 
-            $paginator = $query->paginate($limit);
+        $paginator = $query->paginate($limit);
 
-            /** @phpstan-ignore-next-line */
-            $query = $paginator->getCollection(); // @phpstan-ignore-line
+        /** @phpstan-ignore-next-line */
+        $query = $paginator->getCollection(); // @phpstan-ignore-line
 
-            $resource = new Collection($query, $transformer, $this->entity_type);
+        $resource = new Collection($query, $transformer, $this->entity_type);
 
-            $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
-        }
-
-        // else {
-        //     $resource = new Collection($query, $transformer, $this->entity_type);
-        // }
+        $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
+    
 
         return $this->response($this->manager->createData($resource)->toArray());
     }
@@ -657,7 +653,7 @@ class BaseController extends Controller
                     $query->whereNotNull('created_at');
                 },
                 'company.activities' => function ($query) use ($user, $created_at) {
-                    $floor = max((int) $created_at, now()->subDays(90)->timestamp);
+                    $floor = max($created_at, now()->subDays(90)->toDateTimeString());
                     $query->where('activities.created_at', '>=', $floor);
 
                     if (! $user->isAdmin()) {
@@ -689,18 +685,16 @@ class BaseController extends Controller
             ]
         );
 
-        if ($query instanceof Builder) {
-            $limit = $this->resolveQueryLimit();
+        $limit = $this->resolveQueryLimit();
 
-            $paginator = $query->paginate($limit);
+        $paginator = $query->paginate($limit);
 
-            /** @phpstan-ignore-next-line **/
-            $query = $paginator->getCollection();// @phpstan-ignore-line
+        /** @phpstan-ignore-next-line **/
+        $query = $paginator->getCollection();// @phpstan-ignore-line
 
-            $resource = new Collection($query, $transformer, $this->entity_type);
-            $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
-        }
-
+        $resource = new Collection($query, $transformer, $this->entity_type);
+        $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
+    
         return $this->response($this->manager->createData($resource)->toArray());
     }
 
@@ -897,7 +891,7 @@ class BaseController extends Controller
                     $query->where('created_at', '>=', $created_at);
                 },
                 'company.activities' => function ($query) use ($user, $created_at) {
-                    $floor = max((int) $created_at, now()->subDays(90)->timestamp);
+                    $floor = max($created_at, now()->subDays(90)->toDateTimeString());
                     $query->where('activities.created_at', '>=', $floor);
 
                     if (! $user->isAdmin()) {
@@ -957,17 +951,16 @@ class BaseController extends Controller
             ]
         );
 
-        if ($query instanceof Builder) {
-            $limit = $this->resolveQueryLimit();
+        $limit = $this->resolveQueryLimit();
 
-            $paginator = $query->paginate($limit);
+        $paginator = $query->paginate($limit);
 
-            /** @phpstan-ignore-next-line **/
-            $query = $paginator->getCollection();// @phpstan-ignore-line
+        /** @phpstan-ignore-next-line **/
+        $query = $paginator->getCollection();// @phpstan-ignore-line
 
-            $resource = new Collection($query, $transformer, $this->entity_type);
-            $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
-        }
+        $resource = new Collection($query, $transformer, $this->entity_type);
+        $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
+    
 
         return $this->response($this->manager->createData($resource)->toArray()); //@phpstan-ignore-line
     }
@@ -1006,7 +999,7 @@ class BaseController extends Controller
                 } else {
                     $query->where('user_id', '=', $user->id);
                 }
-            } elseif (in_array($this->entity_type, [Design::class, GroupSetting::class, PaymentTerm::class, TaskStatus::class])) {
+            } elseif (in_array($this->entity_type, [Design::class, GroupSetting::class, PaymentTerm::class, Tag::class, TaskStatus::class])) {
                 // nlog($this->entity_type);
             } else {
                 $query->where(function ($q) use ($user) { //grouping these together improves query performance significantly)
@@ -1027,15 +1020,13 @@ class BaseController extends Controller
             $this->entity_type = null;
         }
 
-        if ($query instanceof Builder) {
-            $limit = $this->resolveQueryLimit();
-            $paginator = $query->paginate($limit);
-            $query = $paginator->getCollection();// @phpstan-ignore-line
+        $limit = $this->resolveQueryLimit();
+        $paginator = $query->paginate($limit);
+        $query = $paginator->getCollection();// @phpstan-ignore-line
 
-            $resource = new Collection($query, $transformer, $this->entity_type);
-            $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
-        }
-
+        $resource = new Collection($query, $transformer, $this->entity_type);
+        $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
+    
         return $this->response($this->manager->createData($resource)->toArray());
     }
 

@@ -80,11 +80,32 @@ class ProjectFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
-        if (!is_array($sort_col) || count($sort_col) != 2 || (!in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing('projects')) && !str_starts_with($sort_col[0], 'client.') && !str_starts_with($sort_col[0], 'contact.') && !str_starts_with($sort_col[0], 'documents'))) {
+        if (!is_array($sort_col) || 
+        count($sort_col) != 2 || 
+        (!in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing('projects')) && 
+        !str_starts_with($sort_col[0], 'client.') && 
+        !str_starts_with($sort_col[0], 'contact.') && 
+        !str_starts_with($sort_col[0], 'project_tag_ids') && 
+        !str_starts_with($sort_col[0], 'documents'))) {
             return $this->builder;
         }
 
         $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
+
+        if ($sort_col[0] == 'project_tag_ids') {
+
+            return $this->builder
+            ->leftJoin('taggables', function ($j) {
+                $j->on('taggables.taggable_id', '=', 'projects.id')
+                    ->where('taggables.taggable_type', '=', \App\Models\Project::class);
+            })
+            ->leftJoin('tags', 'tags.id', '=', 'taggables.tag_id')
+            ->select('projects.*')
+            ->groupBy('projects.id')
+            ->orderByRaw('CASE WHEN GROUP_CONCAT(tags.name) IS NULL THEN 1 ELSE 0 END')
+            ->orderByRaw('GROUP_CONCAT(tags.name ORDER BY tags.name SEPARATOR ",") '.$dir);
+        
+        }
 
         if ($sort_col[0] == 'documents') {
             return $this->builder->withCount('documents')->orderBy('documents_count', $dir);

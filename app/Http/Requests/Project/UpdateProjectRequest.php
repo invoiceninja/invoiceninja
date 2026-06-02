@@ -48,6 +48,8 @@ class UpdateProjectRequest extends Request
 
         $rules['budgeted_hours'] = 'sometimes|bail|numeric';
         $rules['task_rate'] = 'sometimes|bail|numeric';
+        $rules['tags'] = 'sometimes|array';
+        $rules['tags.*'] = 'required|string';
         $rules['file'] = 'bail|sometimes|array';
         $rules['file.*'] = $this->fileValidation();
         $rules['documents'] = 'bail|sometimes|array';

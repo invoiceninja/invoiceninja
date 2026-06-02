@@ -141,7 +141,14 @@ class TaskFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
-        if (!is_array($sort_col) || count($sort_col) != 2 || (!in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing('tasks')) && !str_starts_with($sort_col[0], 'client.') && !str_starts_with($sort_col[0], 'contact.') && !str_starts_with($sort_col[0], 'documents'))) {
+        if (!is_array($sort_col) || 
+        count($sort_col) != 2 || 
+        (!in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing('tasks')) && 
+        !str_starts_with($sort_col[0], 'client.') && 
+        !str_starts_with($sort_col[0], 'contact.') &&
+        !str_starts_with($sort_col[0], 'date') && 
+        !str_starts_with($sort_col[0], 'task_tag_ids') && 
+        !str_starts_with($sort_col[0], 'documents'))) {
             return $this->builder;
         }
 
@@ -149,6 +156,10 @@ class TaskFilters extends QueryFilters
 
         if ($sort_col[0] == 'documents') {
             return $this->builder->withCount('documents')->orderBy('documents_count', $dir);
+        }
+
+        if ($sort_col[0] == 'date') {
+            return $this->builder->orderBy('calculated_start_date', $dir);
         }
 
         if (in_array($sort_col[0], ['client.name', 'client_id'])) {
@@ -172,6 +183,20 @@ class TaskFilters extends QueryFilters
                         ELSE 'No Contact Set'
                     END " . $dir
                 );
+        }
+
+        if ($sort_col[0] == 'task_tag_ids') {
+
+            return $this->builder
+            ->leftJoin('taggables', function ($j) {
+                $j->on('taggables.taggable_id', '=', 'tasks.id')
+                  ->where('taggables.taggable_type', '=', \App\Models\Task::class);
+            })
+            ->leftJoin('tags', 'tags.id', '=', 'taggables.tag_id')
+            ->select('tasks.*')
+            ->groupBy('tasks.id')
+            ->orderByRaw('CASE WHEN GROUP_CONCAT(tags.name) IS NULL THEN 1 ELSE 0 END')
+            ->orderByRaw('GROUP_CONCAT(tags.name ORDER BY tags.name SEPARATOR ",") '.$dir);
         }
 
         /** Relationship sorting - clients */
@@ -248,7 +273,6 @@ class TaskFilters extends QueryFilters
             return $this->builder;
         }
 
-        /** @var array $status_parameters */
         $status_parameters = explode(',', $value);
 
         if (count($status_parameters) >= 1) {
