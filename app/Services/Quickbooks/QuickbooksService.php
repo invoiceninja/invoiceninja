@@ -708,6 +708,7 @@ class QuickbooksService
         $tax_rates = $this->fetchTaxRates();
         $company_preferences = $this->sdk()->getPreferences();
         $automatic_taxes = data_get($company_preferences, 'TaxPrefs.PartnerTaxEnabled', false);
+        $allow_deposit = filter_var(data_get($company_preferences, 'SalesFormsPrefs.AllowDeposit', false), FILTER_VALIDATE_BOOLEAN);
 
         $default_income_account = strlen($this->company->quickbooks->settings->qb_income_account_id ?? '') >= 1 ? $this->company->quickbooks->settings->qb_income_account_id : ($income_accounts[0]['id'] ?? null);
 
@@ -715,6 +716,7 @@ class QuickbooksService
         $this->company->quickbooks->settings->qb_income_account_id = $default_income_account;
         $this->company->quickbooks->companyName = $companyInfo->CompanyName ?? '';
         $this->company->quickbooks->settings->automatic_taxes = $automatic_taxes;
+        $this->company->quickbooks->settings->allow_deposit = $allow_deposit;
 
         // Extract QB company country for region-aware tax code handling
         $qb_country = $this->extractCompanyCountry($companyInfo);

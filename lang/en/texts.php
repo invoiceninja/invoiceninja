@@ -6025,6 +6025,7 @@ $lang = array(
     'monthly_reporting' => 'Monthly Reporting',
     'ten_day_reporting_help' => 'Report transactions for the current period in 10-day increments.',
     'monthly_reporting_help' => 'Report transactions for the current period in monthly increments.',
+    'quickbooks_deposit_disabled_warning' => 'Deposits are turned off in your connected QuickBooks account, this documentwill not sync to QuickBooks if a deposit is present.',
 );
 
 return $lang;

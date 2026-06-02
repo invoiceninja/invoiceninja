@@ -73,7 +73,10 @@ class PaymentSchedule
 
         $amount = min($amount, $invoice->amount);
 
-        if ($amount > $invoice->balance) {
+        // A draft invoice has not had its balance populated yet (balance == 0), so only clamp
+        // to balance once it reflects a real outstanding amount - otherwise the partial is
+        // wrongly zeroed when seeding a schedule from a draft.
+        if ($invoice->balance > 0 && $amount > $invoice->balance) {
             $amount = $invoice->balance;
         }
 

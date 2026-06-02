@@ -16,7 +16,9 @@ use Carbon\Carbon;
 use Tests\TestCase;
 use App\Models\Task;
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\Invoice;
+use App\DataMapper\CompanySettings;
 use App\Models\Project;
 use App\Models\Scheduler;
 use Tests\MockAccountData;
@@ -974,6 +976,48 @@ class SchedulerTest extends TestCase
         $this->assertEquals(now()->addDays(15)->format('Y-m-d'), Carbon::parse($scheduler->next_run_client)->format('Y-m-d'));
     }
 
+    public function testPaymentScheduleSeedsPartialOnDraftInvoice()
+    {
+        // A draft invoice has a computed amount but its balance is not yet populated (0),
+        // which is the state on the invoice edit tab. The partial must still be seeded.
+        $invoice = Invoice::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'date' => now()->format('Y-m-d'),
+            'due_date' => now()->addDays(30)->format('Y-m-d'),
+            'partial' => 0,
+            'partial_due_date' => null,
+            'amount' => 300.00,
+            'balance' => 0,
+            'status_id' => Invoice::STATUS_DRAFT,
+        ]);
+
+        $data = [
+            'schedule' => [
+                ['id' => 1, 'date' => now()->format('Y-m-d'), 'amount' => 100, 'is_amount' => true],
+                ['id' => 2, 'date' => now()->addDays(15)->format('Y-m-d'), 'amount' => 100, 'is_amount' => true],
+                ['id' => 3, 'date' => now()->addDays(30)->format('Y-m-d'), 'amount' => 100, 'is_amount' => true],
+            ],
+            'auto_bill' => false,
+            'next_run' => now()->format('Y-m-d'),
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/invoices/'.$invoice->hashed_id.'/payment_schedule', $data);
+
+        $response->assertStatus(200);
+
+        $invoice = $invoice->fresh();
+
+        // The zero balance of a draft must NOT clamp the partial to 0.
+        $this->assertEquals(100, $invoice->partial);
+        $this->assertEquals(now()->format('Y-m-d'), Carbon::parse($invoice->partial_due_date)->format('Y-m-d'));
+        $this->assertEquals(now()->addDays(30)->format('Y-m-d'), Carbon::parse($invoice->due_date)->format('Y-m-d'));
+    }
+
     public function testPaymentScheduleSingleInstalmentSeedsAsLast()
     {
         $invoice = Invoice::factory()->create([
@@ -1085,6 +1129,302 @@ class SchedulerTest extends TestCase
             ->first();
 
         $this->assertNull($scheduler);
+    }
+
+    public function testUpdatingPaymentScheduleCannotChangeInvoiceId()
+    {
+        $invoice = Invoice::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'date' => now()->format('Y-m-d'),
+            'due_date' => now()->addDays(30)->format('Y-m-d'),
+            'partial' => 0,
+            'partial_due_date' => null,
+            'amount' => 300.00,
+            'balance' => 300.00,
+            'status_id' => Invoice::STATUS_SENT,
+        ]);
+
+        $invoice->service()->markSent()->save();
+
+        // A second invoice we will (unsuccessfully) attempt to re-point the schedule at.
+        $other_invoice = Invoice::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'date' => now()->format('Y-m-d'),
+            'due_date' => now()->addDays(30)->format('Y-m-d'),
+            'amount' => 500.00,
+            'balance' => 500.00,
+            'status_id' => Invoice::STATUS_SENT,
+        ]);
+
+        $other_invoice->service()->markSent()->save();
+
+        $create = [
+            'name' => 'Payment schedule',
+            'frequency_id' => 0,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'payment_schedule',
+            'parameters' => [
+                'invoice_id' => $invoice->hashed_id,
+                'auto_bill' => false,
+                'schedule' => [
+                    ['id' => 1, 'date' => now()->format('Y-m-d'), 'amount' => 100, 'is_amount' => true],
+                    ['id' => 2, 'date' => now()->addDays(15)->format('Y-m-d'), 'amount' => 100, 'is_amount' => true],
+                    ['id' => 3, 'date' => now()->addDays(30)->format('Y-m-d'), 'amount' => 100, 'is_amount' => true],
+                ],
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $create);
+
+        $response->assertStatus(200);
+
+        $scheduler = Scheduler::find($this->decodePrimaryKey($response->json()['data']['id']));
+
+        // The schedule is created bound to the original invoice.
+        $this->assertEquals($invoice->hashed_id, $scheduler->parameters['invoice_id']);
+
+        // Attempt to re-point the schedule at a different invoice while editing the schedule.
+        $update = [
+            'name' => 'Payment schedule updated',
+            'frequency_id' => 0,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'payment_schedule',
+            'parameters' => [
+                'invoice_id' => $other_invoice->hashed_id,
+                'auto_bill' => false,
+                'schedule' => [
+                    ['id' => 1, 'date' => now()->format('Y-m-d'), 'amount' => 150, 'is_amount' => true],
+                    ['id' => 2, 'date' => now()->addDays(30)->format('Y-m-d'), 'amount' => 150, 'is_amount' => true],
+                ],
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/task_schedulers/'.$scheduler->hashed_id, $update);
+
+        $response->assertStatus(200);
+
+        $scheduler = $scheduler->fresh();
+
+        // invoice_id is immutable after creation: the supplied other_invoice id is ignored
+        // and the original is re-asserted. The schedule is immutable too - the [150,150]
+        // payload is discarded and the original three instalments are retained.
+        $this->assertArrayHasKey('invoice_id', $scheduler->parameters);
+        $this->assertEquals($invoice->hashed_id, $scheduler->parameters['invoice_id']);
+        $this->assertNotEquals($other_invoice->hashed_id, $scheduler->parameters['invoice_id']);
+        $this->assertCount(3, $scheduler->parameters['schedule']);
+        $this->assertEquals([100, 100, 100], array_map(fn ($s) => $s['amount'], $scheduler->parameters['schedule']));
+    }
+
+    public function testUpdatingPaymentScheduleOnlyMutatesNameAndAutoBill()
+    {
+        $invoice = Invoice::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'date' => now()->format('Y-m-d'),
+            'due_date' => now()->addDays(30)->format('Y-m-d'),
+            'partial' => 0,
+            'partial_due_date' => null,
+            'amount' => 300.00,
+            'balance' => 300.00,
+            'status_id' => Invoice::STATUS_SENT,
+        ]);
+
+        $invoice->service()->markSent()->save();
+
+        $create = [
+            'name' => 'Original name',
+            'frequency_id' => 0,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'payment_schedule',
+            'parameters' => [
+                'invoice_id' => $invoice->hashed_id,
+                'auto_bill' => false,
+                'schedule' => [
+                    ['id' => 1, 'date' => now()->format('Y-m-d'), 'amount' => 100, 'is_amount' => true],
+                    ['id' => 2, 'date' => now()->addDays(15)->format('Y-m-d'), 'amount' => 100, 'is_amount' => true],
+                    ['id' => 3, 'date' => now()->addDays(30)->format('Y-m-d'), 'amount' => 100, 'is_amount' => true],
+                ],
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $create);
+
+        $response->assertStatus(200);
+
+        $scheduler = Scheduler::find($this->decodePrimaryKey($response->json()['data']['id']));
+
+        // Edit name + auto_bill, and (futilely) attempt to rewind next_run and rewrite the schedule.
+        $update = [
+            'name' => 'Renamed schedule',
+            'frequency_id' => 0,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'payment_schedule',
+            'parameters' => [
+                'invoice_id' => $invoice->hashed_id,
+                'auto_bill' => true,
+                'schedule' => [
+                    ['id' => 1, 'date' => now()->format('Y-m-d'), 'amount' => 300, 'is_amount' => true],
+                ],
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/task_schedulers/'.$scheduler->hashed_id, $update);
+
+        $response->assertStatus(200);
+
+        $scheduler = $scheduler->fresh();
+        $invoice = $invoice->fresh();
+
+        // Mutable: name + auto_bill changed.
+        $this->assertEquals('Renamed schedule', $scheduler->name);
+        $this->assertTrue((bool) $scheduler->parameters['auto_bill']);
+
+        // Immutable: schedule and run cursor are unchanged, invoice runtime state untouched.
+        $this->assertCount(3, $scheduler->parameters['schedule']);
+        $this->assertEquals(now()->addDays(15)->format('Y-m-d'), Carbon::parse($scheduler->next_run_client)->format('Y-m-d'));
+        $this->assertEquals(100, $invoice->partial);
+        $this->assertEquals(now()->addDays(30)->format('Y-m-d'), Carbon::parse($invoice->due_date)->format('Y-m-d'));
+    }
+
+    public function testUpdatingPaymentScheduleDoesNotResetAccumulatedPartial()
+    {
+        $invoice = Invoice::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'date' => now()->format('Y-m-d'),
+            'due_date' => now()->addDays(30)->format('Y-m-d'),
+            'partial' => 0,
+            'partial_due_date' => null,
+            'amount' => 300.00,
+            'balance' => 300.00,
+            'status_id' => Invoice::STATUS_SENT,
+        ]);
+
+        $invoice->service()->markSent()->save();
+
+        $create = [
+            'name' => 'Accumulating schedule',
+            'frequency_id' => 0,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'payment_schedule',
+            'parameters' => [
+                'invoice_id' => $invoice->hashed_id,
+                'auto_bill' => false,
+                'schedule' => [
+                    ['id' => 1, 'date' => now()->format('Y-m-d'), 'amount' => 100, 'is_amount' => true],
+                    ['id' => 2, 'date' => now()->addDays(15)->format('Y-m-d'), 'amount' => 100, 'is_amount' => true],
+                    ['id' => 3, 'date' => now()->addDays(30)->format('Y-m-d'), 'amount' => 100, 'is_amount' => true],
+                ],
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $create);
+
+        $response->assertStatus(200);
+
+        $scheduler = Scheduler::find($this->decodePrimaryKey($response->json()['data']['id']));
+
+        // First instalment seeded (100). Run the second interval with the first left unpaid,
+        // so the unpaid first accumulates: partial += second instalment => 200.
+        $this->travelTo(now()->addDays(15));
+        $scheduler->service()->runTask();
+
+        $invoice = $invoice->fresh();
+        $this->assertEquals(200, $invoice->partial);
+
+        // Toggle auto_bill - the accumulated partial must NOT be recomputed back to 100.
+        $update = [
+            'name' => 'Accumulating schedule',
+            'frequency_id' => 0,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'payment_schedule',
+            'parameters' => [
+                'invoice_id' => $invoice->hashed_id,
+                'auto_bill' => true,
+                'schedule' => $create['parameters']['schedule'],
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/task_schedulers/'.$scheduler->hashed_id, $update);
+
+        $response->assertStatus(200);
+
+        $invoice = $invoice->fresh();
+
+        // Accumulated runtime state is preserved across the update.
+        $this->assertEquals(200, $invoice->partial);
+
+        $this->travelBack();
+    }
+
+    public function testCannotCreatePaymentScheduleForAnotherCompanysInvoice()
+    {
+        // An invoice belonging to a different company within the same account.
+        $other_company = Company::factory()->create([
+            'account_id' => $this->company->account_id,
+            'settings' => CompanySettings::defaults(),
+        ]);
+
+        $other_client = Client::factory()->create([
+            'company_id' => $other_company->id,
+            'user_id' => $this->user->id,
+        ]);
+
+        $foreign_invoice = Invoice::factory()->create([
+            'company_id' => $other_company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $other_client->id,
+            'amount' => 300.00,
+            'balance' => 300.00,
+            'status_id' => Invoice::STATUS_SENT,
+        ]);
+
+        $data = [
+            'name' => 'Payment schedule',
+            'frequency_id' => 0,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'payment_schedule',
+            'parameters' => [
+                'invoice_id' => $foreign_invoice->hashed_id,
+                'auto_bill' => false,
+                'schedule' => [
+                    ['id' => 1, 'date' => now()->format('Y-m-d'), 'amount' => 150, 'is_amount' => true],
+                    ['id' => 2, 'date' => now()->addDays(30)->format('Y-m-d'), 'amount' => 150, 'is_amount' => true],
+                ],
+            ],
+        ];
+
+        // Posting with this company's token must not be able to schedule another company's invoice.
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $data);
+
+        $response->assertStatus(422);
     }
 
     public function testPaymentSchedule()

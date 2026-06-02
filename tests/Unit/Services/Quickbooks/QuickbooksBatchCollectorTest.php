@@ -255,4 +255,53 @@ class QuickbooksBatchCollectorTest extends TestCase
                && $job->company_id === 999;
         });
     }
+
+    public function test_pending_batch_survives_queue_backlog_far_beyond_collection_window()
+    {
+        // A normal-priority invoice is collected (under MAX_BATCH_SIZE, so it
+        // waits in cache for the delayed flush job).
+        QuickbooksBatchCollector::collect('invoice', 42, 'db1', 100);
+
+        $this->assertEquals(1, QuickbooksBatchCollector::getBatchSize('invoice', 'db1', 100));
+
+        // Simulate a heavily backlogged queue: the flush job does not run until
+        // long after the old (window + 30s = 40s) TTL would have expired.
+        // The collected invoice must still be present so the flush can push it.
+        $this->travel(10)->minutes();
+
+        $this->assertEquals(
+            1,
+            QuickbooksBatchCollector::getBatchSize('invoice', 'db1', 100),
+            'Collected invoice must not silently expire before the flush runs.'
+        );
+
+        // And when the flush finally runs, it dispatches the push with the ID intact.
+        QuickbooksBatchCollector::dispatchBatch('invoice', 'db1', 100, QuickbooksBatchCollector::PRIORITY_NORMAL);
+
+        Queue::assertPushed(BatchPushToQuickbooks::class, function ($job) {
+            return $job->entity_type === 'invoice'
+                && $job->entity_ids === [42]
+                && $job->db === 'db1'
+                && $job->company_id === 100;
+        });
+
+        $this->travelBack();
+    }
+
+    public function test_dispatch_batch_deduplicates_entity_ids()
+    {
+        // Seed a batch whose cached payload contains a duplicate id (mirrors the
+        // rate-limit re-dispatch path that can re-add an already-queued id).
+        QuickbooksBatchCollector::collect('invoice', 7, 'db1', 100);
+        QuickbooksBatchCollector::collect('invoice', 7, 'db1', 100);
+        QuickbooksBatchCollector::collect('invoice', 8, 'db1', 100);
+
+        QuickbooksBatchCollector::dispatchBatch('invoice', 'db1', 100, QuickbooksBatchCollector::PRIORITY_NORMAL);
+
+        Queue::assertPushed(BatchPushToQuickbooks::class, function ($job) {
+            return count($job->entity_ids) === count(array_unique($job->entity_ids))
+                && in_array(7, $job->entity_ids, true)
+                && in_array(8, $job->entity_ids, true);
+        });
+    }
 }
