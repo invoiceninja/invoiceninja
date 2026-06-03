@@ -19,6 +19,9 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
+/**
+ * @deprecated This job is no longer used and will be removed in a future version.
+ */
 class MergeEDocument implements ShouldQueue
 {
     use Dispatchable;

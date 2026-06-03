@@ -135,7 +135,12 @@ class PdfService
             }
 
             if ($this->shouldMergeEInvoiceToPdf()) {
-                $pdf = $this->mergeEInvoiceToPdf($pdf);
+
+                try{
+                    $pdf = $this->mergeEInvoiceToPdf($pdf);
+                } catch (\Throwable $e) {
+                    nlog("ERROR MERGING E-INVOICE TO PDF: " . $e->getMessage());
+                }
             }
 
         } catch (\Throwable $e) {
