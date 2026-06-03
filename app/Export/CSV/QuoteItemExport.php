@@ -104,7 +104,7 @@ class QuoteItemExport extends BaseExport
             return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
 
-        $query->cursor()
+        $this->streamQuery($query)
             ->each(function ($resource) {
 
                 /** @var \App\Models\Quote $resource */
@@ -136,7 +136,7 @@ class QuoteItemExport extends BaseExport
         $this->csv->insertOne($this->buildHeader());
 
 
-        $query->cursor()
+        $this->streamQuery($query)
             ->each(function ($quote) {
 
                 /** @var \App\Models\Quote $quote */

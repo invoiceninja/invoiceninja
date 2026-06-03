@@ -105,7 +105,7 @@ class ClientExport extends BaseExport
             return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
 
-        $report = $query->cursor()
+        $report = $this->streamQuery($query)
                 ->map(function ($client) {
 
                     /** @var \App\Models\Client $client */
@@ -161,7 +161,7 @@ class ClientExport extends BaseExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        $query->cursor()
+        $this->streamQuery($query)
               ->each(function ($client) {
 
                   /** @var \App\Models\Client $client */

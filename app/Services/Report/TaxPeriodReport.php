@@ -160,7 +160,7 @@ class TaxPeriodReport extends BaseExport
                 $query->where('period', $this->end_date);
             });
 
-        $q->cursor()
+        $this->streamQuery($q)
         ->each(function ($invoice) {
 
             (new InvoiceTransactionEventEntry())->run($invoice, $this->end_date);
@@ -199,7 +199,7 @@ class TaxPeriodReport extends BaseExport
                         ->whereIn('metadata->tax_report->tax_summary->status', ['cancelled', 'deleted']);
                 });
 
-        $ii->cursor()
+        $this->streamQuery($ii)
         ->each(function ($invoice) {
 
             // Iterate through each month between start_date and end_date
@@ -234,11 +234,10 @@ class TaxPeriodReport extends BaseExport
      */
     private function backfillClassificationBreakdown(): void
     {
-        TransactionEvent::query()
+        $this->streamQuery(TransactionEvent::query()
             ->whereBetween('period', [$this->start_date, $this->end_date])
             ->whereNull('metadata->tax_report->tax_details_by_classification')
-            ->with('invoice')
-            ->cursor()
+            ->with('invoice'))
             ->each(function (TransactionEvent $event) {
                 $invoice = $event->invoice;
                 if (!$invoice) {
@@ -547,7 +546,7 @@ class TaxPeriodReport extends BaseExport
         $this->data['invoices'] = [InvoiceReportRow::getHeaders($this->regional_calculator)];
         $this->data['invoice_items'] = [InvoiceItemReportRow::getHeaders($this->regional_calculator, $this->cash_accounting)];
 
-        $query->cursor()->each(function ($invoice) {
+        $this->streamQuery($query)->each(function ($invoice) {
 
             $invoice->transaction_events()
             ->when(!$this->cash_accounting, function ($query) {
@@ -561,7 +560,7 @@ class TaxPeriodReport extends BaseExport
             })
             ->whereBetween('period', [$this->start_date, $this->end_date])
             ->orderBy('timestamp', 'desc')
-            ->cursor()
+            ->lazy(500)
             ->each(function ($event) use ($invoice) {
                 /** @var Invoice $invoice */
                 $this->processTransactionEvent($event, $invoice);

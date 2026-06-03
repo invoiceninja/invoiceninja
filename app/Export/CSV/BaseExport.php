@@ -72,6 +72,8 @@ class BaseExport
         'uses_inclusive_taxes',
     ];
 
+    protected const EXPORT_CHUNK_SIZE = 500;
+
     public string $client_description = 'All Clients';
 
     protected array $vendor_report_keys = [
@@ -1706,7 +1708,7 @@ class BaseExport
         if ($query->getModel() instanceof Document) {
             $documents = $query->pluck('id')->toArray();
         } else {
-            $documents = $query->cursor()
+            $documents = $this->streamQuery($query)
                                ->map(function ($entity) {
                                    return $entity->documents()->pluck('id')->toArray();
                                })->flatten()
@@ -1846,6 +1848,11 @@ class BaseExport
     public function isGroupByActive(): bool
     {
         return ! empty($this->input['group_by']);
+    }
+
+    protected function streamQuery(Builder $query): \Illuminate\Support\LazyCollection
+    {
+        return (clone $query)->lazy(self::EXPORT_CHUNK_SIZE);
     }
 
     /**
