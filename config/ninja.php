@@ -38,6 +38,7 @@ return [
     'phantomjs_secret' => env('PHANTOMJS_SECRET', false),
     'phantomjs_pdf_generation' => env('PHANTOMJS_PDF_GENERATION', false),
     'pdf_generator' => env('PDF_GENERATOR', false),
+    'gotenberg_url' => env('GOTENBERG_API_URL', 'http://localhost:3000'),
     'trusted_proxies' => env('TRUSTED_PROXIES', false),
     'is_docker' => env('IS_DOCKER', false),
     'local_download' => env('LOCAL_DOWNLOAD', false),
