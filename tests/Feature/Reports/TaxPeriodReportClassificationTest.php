@@ -28,6 +28,7 @@ use App\Services\Report\TaxPeriod\LineClassifier;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use App\Services\Report\TaxPeriod\TaxClassificationCalculator;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\App;
 use App\Listeners\Invoice\InvoiceTransactionEventEntry;
 use App\Listeners\Invoice\InvoiceTransactionEventEntryCash;
 
@@ -427,6 +428,28 @@ class TaxPeriodReportClassificationTest extends TestCase
         $this->assertEqualsWithDelta(15.0, $aggregate_tax, 0.02, 'Half-paid invoice should report half tax');
 
         $this->travelBack();
+    }
+
+    public function testBootResetsLocaleBeforeBuildingHeaders(): void
+    {
+        $this->assertSame('en', $this->company->locale());
+
+        App::forgetInstance('translator');
+        App::setLocale('de');
+        $this->assertSame('Rechnungsnummer', ctrans('texts.invoice_number'));
+
+        $report = new TaxPeriodReport($this->company, [
+            'date_range' => 'custom',
+            'start_date' => '2025-10-01',
+            'end_date' => '2025-10-31',
+            'is_income_billed' => true,
+        ], skip_initialization: true);
+
+        $data = $report->boot()->getData();
+
+        $this->assertSame('en', App::getLocale());
+        $this->assertSame('Invoice Number', $data['invoice_items'][0][0]);
+        $this->assertContains('Filing Period', $data['summary'][0]);
     }
 
     public function testReportRendersTypeColumn(): void

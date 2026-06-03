@@ -54,6 +54,8 @@ class TaxPeriodReport extends BaseExport
 
     private ?RegionalTaxCalculator $regional_calculator = null;
 
+    private bool $report_context_initialized = false;
+
     /**
         @param array $input
         [
@@ -73,12 +75,7 @@ class TaxPeriodReport extends BaseExport
     public function run()
     {
         // nlog($this->input);
-        MultiDB::setDb($this->company->db);
-        App::forgetInstance('translator');
-        App::setLocale($this->company->locale());
-        $t = app('translator');
-        $t->replace(Ninja::transformTranslations($this->company->settings));
-
+        $this->prepareReportContext();
         $this->spreadsheet = new Spreadsheet();
 
         return
@@ -86,6 +83,22 @@ class TaxPeriodReport extends BaseExport
                     ->writeToSpreadsheet()
                     ->getXlsFile();
 
+    }
+
+    private function prepareReportContext(): void
+    {
+        if ($this->report_context_initialized) {
+            return;
+        }
+
+        MultiDB::setDb($this->company->db);
+        App::forgetInstance('translator');
+        App::setLocale($this->company->locale());
+
+        $translator = app('translator');
+        $translator->replace(Ninja::transformTranslations($this->company->settings));
+
+        $this->report_context_initialized = true;
     }
 
     /**
@@ -96,6 +109,8 @@ class TaxPeriodReport extends BaseExport
      */
     public function boot(): self
     {
+        $this->prepareReportContext();
+
         $this->setAccountingType()
             ->setCurrencyFormat()
             ->calculateDateRange();
