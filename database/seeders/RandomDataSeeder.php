@@ -72,6 +72,12 @@ class RandomDataSeeder extends Seeder
 
     private function seedAccount(\Faker\Generator $faker, int $x): void
     {
+        if (User::where('email', "user{$x}@example.com")->exists()) {
+            $this->command->info("Skipping account {$x}: user{$x}@example.com already exists");
+
+            return;
+        }
+
         $settings = CompanySettings::defaults();
 
         $settings->name = "Random Test Company {$x}";
