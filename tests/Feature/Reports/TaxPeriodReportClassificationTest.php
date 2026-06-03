@@ -661,6 +661,106 @@ class TaxPeriodReportClassificationTest extends TestCase
         $this->travelBack();
     }
 
+    public function testSamePeriodDeletedInvoiceAdjustmentStaysInCurrentSummary(): void
+    {
+        $this->forceUnitedStatesCompany();
+        $this->client->state = 'CA';
+        $this->client->city = 'San Diego';
+        $this->client->postal_code = '92101';
+        $this->client->save();
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2026, 1, 5)->startOfDay());
+
+        $invoice = $this->makeInvoice([
+            $this->makeItem(['cost' => 100, 'line_total' => 100, 'type_id' => '1', 'tax_id' => (string) Product::PRODUCT_TYPE_PHYSICAL]),
+        ], ['tax_data' => null]);
+
+        (new InvoiceTransactionEventEntry())->run($invoice, '2026-01-31');
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2026, 1, 20)->startOfDay());
+
+        $invoice = $invoice->fresh();
+        $invoice->is_deleted = true;
+        $invoice->save();
+
+        (new InvoiceTransactionEventEntry())->run($invoice->fresh(), '2026-01-31');
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2026, 2, 1)->startOfDay());
+
+        $report = new TaxPeriodReport($this->company, [
+            'date_range' => 'custom',
+            'start_date' => '2026-01-01',
+            'end_date' => '2026-01-31',
+            'is_income_billed' => true,
+        ], skip_initialization: true);
+
+        $data = $report->boot()->getData();
+        $summary = $data['summary'];
+        $corrections = $data['corrections'];
+
+        $this->assertEquals(0.0, $this->sumSummaryColumn($summary, ctrans('texts.gross_sales')));
+        $this->assertEquals(0.0, $this->sumSummaryColumn($summary, ctrans('texts.taxable_amount')));
+        $this->assertEquals(0.0, $this->sumSummaryColumn($summary, ctrans('texts.tax_amount')));
+        $this->assertContains('updated', $this->summaryColumnValues($summary, ctrans('texts.activity')));
+        $this->assertContains('deleted', $this->summaryColumnValues($summary, ctrans('texts.activity')));
+        $this->assertCount(1, $corrections);
+
+        $this->travelBack();
+    }
+
+    public function testPriorPeriodDeletedInvoiceAdjustmentIsReportedForCorrectionReviewOnly(): void
+    {
+        $this->forceUnitedStatesCompany();
+        $this->client->state = 'CA';
+        $this->client->city = 'San Diego';
+        $this->client->postal_code = '92101';
+        $this->client->save();
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 12, 15)->startOfDay());
+
+        $invoice = $this->makeInvoice([
+            $this->makeItem(['cost' => 100, 'line_total' => 100, 'type_id' => '1', 'tax_id' => (string) Product::PRODUCT_TYPE_PHYSICAL]),
+        ], ['tax_data' => null]);
+
+        (new InvoiceTransactionEventEntry())->run($invoice, '2025-12-31');
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2026, 1, 15)->startOfDay());
+
+        $invoice = $invoice->fresh();
+        $invoice->is_deleted = true;
+        $invoice->save();
+
+        (new InvoiceTransactionEventEntry())->run($invoice->fresh(), '2026-01-31');
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2026, 2, 1)->startOfDay());
+
+        $report = new TaxPeriodReport($this->company, [
+            'date_range' => 'custom',
+            'start_date' => '2026-01-01',
+            'end_date' => '2026-01-31',
+            'is_income_billed' => true,
+        ], skip_initialization: true);
+
+        $data = $report->boot()->getData();
+        $summary = $data['summary'];
+        $corrections = $data['corrections'];
+
+        $this->assertEquals(0.0, $this->sumSummaryColumn($summary, ctrans('texts.gross_sales')));
+        $this->assertEquals(0.0, $this->sumSummaryColumn($summary, ctrans('texts.taxable_amount')));
+        $this->assertEquals(0.0, $this->sumSummaryColumn($summary, ctrans('texts.tax_amount')));
+
+        $this->assertEquals(-100.0, $this->sumSummaryColumn($corrections, ctrans('texts.gross_sales')));
+        $this->assertEquals(-100.0, $this->sumSummaryColumn($corrections, ctrans('texts.taxable_amount')));
+        $this->assertEquals(-10.0, $this->sumSummaryColumn($corrections, ctrans('texts.tax_amount')));
+        $this->assertContains('deleted', $this->summaryColumnValues($corrections, ctrans('texts.activity')));
+        $this->assertContains(ctrans('texts.status_correction'), $this->summaryColumnValues($corrections, ctrans('texts.correction_type')));
+        $this->assertContains(ctrans('texts.yes'), $this->summaryColumnValues($corrections, ctrans('texts.requires_review')));
+        $this->assertContains('2025-12-31', $this->summaryColumnValues($corrections, ctrans('texts.original_tax_period')));
+        $this->assertContains('2026-01-31', $this->summaryColumnValues($corrections, ctrans('texts.correction_recorded_period')));
+
+        $this->travelBack();
+    }
+
     public function testPriorPeriodCashRefundIsReportedForCorrectionReviewOnly(): void
     {
         $this->forceUnitedStatesCompany();
