@@ -344,18 +344,18 @@ class ExpenseApiTest extends TestCase
 
     public function testExpensePostWithFilePayloadDoesNotCollideWithGlobalRules()
     {
-         = [
-            'public_notes' => ->faker->firstName(),
-            'file' => UploadedFile::fake()->create('receipt.pdf', 10, 'application/pdf'),
+        $data = [
+            'public_notes' => $this->faker->firstName(),
+            'file' => [UploadedFile::fake()->create('receipt.pdf', 10, 'application/pdf')],
         ];
 
-         = ->withHeaders([
+        $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => ->token,
-        ])->post('/api/v1/expenses', );
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/expenses', $data);
 
-        ->assertStatus(200);
-        ->assertNotEmpty(->json('data.number'));
+        $response->assertStatus(200);
+        $this->assertNotEmpty($response->json('data.number'));
     }
 
     public function testDuplicateNumberCatch()
