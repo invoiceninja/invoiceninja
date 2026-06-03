@@ -206,7 +206,7 @@ class Email implements ShouldQueue
     {
         $_variables = $this->email_object->variables;
 
-        match (class_basename($this->email_object->entity)) {
+        match (class_basename($this->email_object->entity ?? '')) {
             "Invoice" => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->makeValues(),
             "Quote" => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->makeValues(),
             "Credit" => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->makeValues(),
@@ -576,6 +576,7 @@ class Email implements ShouldQueue
         if (Ninja::isHosted() && (!$this->company->account->isPaid() || ($this->company->account->isNewHostedAccount() && $this->email_object->settings->email_sending_method == 'default'))) {
 
         // if (Ninja::isHosted() && $this->email_object->settings->email_sending_method == 'default' && (!$this->company->account->isPaid() || $this->company->account->isNewHostedAccount())) {
+            $this->email_object->settings->email_sending_method = 'default';
             $this->mailer = 'mailgun';
             $this->setHostedMailgunMailer();
             return $this;

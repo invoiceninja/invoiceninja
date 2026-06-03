@@ -14,6 +14,7 @@ namespace App\Http\Requests\Task;
 
 use App\Http\Requests\Request;
 use App\Models\Project;
+use App\Models\Task;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -23,6 +24,9 @@ class UpdateTaskRequest extends Request
 {
     use MakesHash;
     use ChecksEntityStatus;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = Task::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -58,8 +62,6 @@ class UpdateTaskRequest extends Request
         }
 
         $rules['hash'] = 'bail|sometimes|string|nullable';
-        $rules['tags'] = 'sometimes|array';
-        $rules['tags.*'] = 'required|string';
 
         $rules['time_log'] = ['bail', function ($attribute, $values, $fail) {
 

@@ -17,6 +17,7 @@ use App\Models\TransactionEvent;
 use Illuminate\Support\Collection;
 use App\DataMapper\TransactionEventMetadata;
 use App\Services\Report\TaxPeriod\TaxClassificationCalculator;
+use App\Services\Report\TaxPeriod\SalesBreakdownCalculator;
 
 /**
  * Handles entries for vanilla payments on an invoice.
@@ -129,6 +130,7 @@ class InvoiceTransactionEventEntryCash
             'tax_report' => [
                 'tax_details' => $details,
                 'tax_details_by_classification' => TaxClassificationCalculator::calculate($invoice, $this->paid_ratio, $details),
+                'sales_breakdown' => SalesBreakdownCalculator::calculate($invoice, $this->paid_ratio),
                 'payment_history' => $this->payments->toArray(),
                 'tax_summary' => [
                     'tax_amount' => $invoice->total_taxes * $this->paid_ratio,

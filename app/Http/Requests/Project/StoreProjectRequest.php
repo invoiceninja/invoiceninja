@@ -22,6 +22,9 @@ class StoreProjectRequest extends Request
 {
     use MakesHash;
 
+    /** @var class-string */
+    protected ?string $tag_entity_type = Project::class;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -47,8 +50,6 @@ class StoreProjectRequest extends Request
         $rules['client_id'] = 'required|integer|exists:clients,id,company_id,' . $user->company()->id;
         $rules['budgeted_hours'] = 'sometimes|numeric';
         $rules['task_rate'] = 'required|bail|numeric';
-        $rules['tags'] = 'sometimes|array';
-        $rules['tags.*'] = 'required|string';
 
         if (isset($this->number)) {
             $rules['number'] = Rule::unique('projects')->where('company_id', $user->company()->id);

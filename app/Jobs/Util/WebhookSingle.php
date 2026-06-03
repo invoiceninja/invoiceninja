@@ -117,7 +117,10 @@ class WebhookSingle implements ShouldQueue
         ];
 
         $client = new Client([
-            'headers' => array_merge($base_headers, $headers),
+            'headers' => array_merge(
+                $this->normalizeHeaders($base_headers),
+                $this->normalizeHeaders($headers),
+            ),
         ]);
 
         try {
@@ -249,6 +252,58 @@ class WebhookSingle implements ShouldQueue
 
             $this->release($this->backoff()[$this->attempts() - 1]);
         }
+    }
+
+    /**
+     * @param  array<mixed, mixed>  $headers
+     * @return array<string, string|array<int, string>>
+     */
+    private function normalizeHeaders(array $headers): array
+    {
+        $normalized = [];
+
+        foreach ($headers as $name => $value) {
+            if (! is_string($name) || trim($name) === '') {
+                continue;
+            }
+
+            if (is_array($value)) {
+                $values = [];
+
+                foreach ($value as $item) {
+                    $normalized_value = $this->normalizeHeaderScalar($item);
+
+                    if ($normalized_value !== null) {
+                        $values[] = $normalized_value;
+                    }
+                }
+
+                if ($values !== []) {
+                    $normalized[$name] = $values;
+                }
+
+                continue;
+            }
+
+            $normalized_value = $this->normalizeHeaderScalar($value);
+
+            if ($normalized_value !== null) {
+                $normalized[$name] = $normalized_value;
+            }
+        }
+
+        return $normalized;
+    }
+
+    private function normalizeHeaderScalar(mixed $value): ?string
+    {
+        return match (true) {
+            is_null($value) => null,
+            is_bool($value) => $value ? 'true' : 'false',
+            is_scalar($value) => (string) $value,
+            $value instanceof \Stringable => (string) $value,
+            default => null,
+        };
     }
 
     private function resolveClient()

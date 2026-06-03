@@ -12,6 +12,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Company;
 use App\Models\Project;
 use App\Models\Tag;
 use App\Models\Task;
@@ -95,6 +96,19 @@ class TagAttachTest extends TestCase
         $task->syncTags(['not-a-tag-id']);
     }
 
+    public function testSyncTagsRejectsDeletedTag(): void
+    {
+        $task = $this->task;
+        $tag = $this->makeTag(Task::class, 'deleted-task');
+        $tag->is_deleted = true;
+        $tag->save();
+        $tag->delete();
+
+        $this->expectException(ValidationException::class);
+
+        $task->syncTags([$this->encodePrimaryKey($tag->id)]);
+    }
+
     public function testTaskUpdateRejectsRawNumericTagIdString(): void
     {
         $tag = $this->makeTag(Task::class, 'urgent');
@@ -154,7 +168,13 @@ class TagAttachTest extends TestCase
         $response = $this->withHeaders($this->headers())
             ->postJson('/api/v1/tasks', [
                 'description' => 'Tagged task',
-                'tags' => [$this->encodePrimaryKey($tag->id)],
+                'tags' => [
+                    [
+                        'id' => $this->encodePrimaryKey($tag->id),
+                        'name' => $tag->name,
+                        'color' => $tag->color,
+                    ],
+                ],
             ]);
 
         $response->assertStatus(200);
@@ -170,7 +190,13 @@ class TagAttachTest extends TestCase
 
         $response = $this->withHeaders($this->headers())
             ->putJson('/api/v1/tasks/'.$this->encodePrimaryKey($this->task->id), [
-                'tags' => [$this->encodePrimaryKey($tag->id)],
+                'tags' => [
+                    [
+                        'id' => $this->encodePrimaryKey($tag->id),
+                        'name' => $tag->name,
+                        'color' => $tag->color,
+                    ],
+                ],
             ]);
 
         $response->assertStatus(200);
@@ -178,6 +204,41 @@ class TagAttachTest extends TestCase
         $this->assertCount(1, $tags);
         $this->assertSame($this->encodePrimaryKey($tag->id), $tags[0]['id']);
         $this->assertSame('urgent', $tags[0]['name']);
+    }
+
+    public function testTaskUpdateRejectsMalformedTagObject(): void
+    {
+        $response = $this->withHeaders($this->headers())
+            ->putJson('/api/v1/tasks/'.$this->encodePrimaryKey($this->task->id), [
+                'tags' => [
+                    ['name' => 'missing-id'],
+                ],
+            ]);
+
+        $response->assertStatus(422);
+        $this->assertSame(0, $this->task->fresh()->tags()->count());
+    }
+
+    public function testTaskUpdateRejectsCrossCompanyTag(): void
+    {
+        $other_company = Company::factory()->create([
+            'account_id' => $this->account->id,
+        ]);
+
+        $tag = Tag::factory()->create([
+            'company_id' => $other_company->id,
+            'user_id' => $this->user->id,
+            'entity_type' => Task::class,
+            'name' => 'other-company',
+        ]);
+
+        $response = $this->withHeaders($this->headers())
+            ->putJson('/api/v1/tasks/'.$this->encodePrimaryKey($this->task->id), [
+                'tags' => [$this->encodePrimaryKey($tag->id)],
+            ]);
+
+        $response->assertStatus(422);
+        $this->assertSame(0, $this->task->fresh()->tags()->count());
     }
 
     public function testTaskUpdateWithEmptyTagsDetachesAll(): void
@@ -246,7 +307,13 @@ class TagAttachTest extends TestCase
 
         $response = $this->withHeaders($this->headers())
             ->putJson('/api/v1/projects/'.$this->encodePrimaryKey($this->project->id), [
-                'tags' => [$this->encodePrimaryKey($tag->id)],
+                'tags' => [
+                    [
+                        'id' => $this->encodePrimaryKey($tag->id),
+                        'name' => $tag->name,
+                        'color' => $tag->color,
+                    ],
+                ],
             ]);
 
         $response->assertStatus(200);

@@ -45,6 +45,7 @@ use App\DataMapper\TransactionEventMetadata;
  * @property float $credit_amount
  * @property int|null $credit_status
  * @property \Carbon\Carbon|null $period
+ * @property-read \App\Models\Invoice|null $invoice
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel exclude($columns)
  * @mixin \Eloquent
@@ -117,5 +118,10 @@ class TransactionEvent extends StaticModel
         self::FR_REPORT_SUBMISSION_VAT_EXCLUDED,
         self::FR_REPORT_SUBMISSION_CORRECTIVE,
     ];
+
+    public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Invoice::class)->withTrashed();
+    }
 
 }

@@ -125,7 +125,7 @@ class TaskExport extends BaseExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        $query->cursor()
+        $this->streamQuery($query)
               ->each(function ($entity) {
 
                   /** @var \App\Models\Task $entity*/
@@ -148,7 +148,7 @@ class TaskExport extends BaseExport
             return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
 
-        $query->cursor()
+        $this->streamQuery($query)
                 ->each(function ($resource) {
 
                     /** @var \App\Models\Task $resource*/

@@ -53,7 +53,7 @@ class DocumentExport extends BaseExport
             return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
 
-        $report = $query->cursor()
+        $report = $this->streamQuery($query)
                 ->map(function ($document) {
 
                     /** @var \App\Models\Document $document */
@@ -102,7 +102,7 @@ class DocumentExport extends BaseExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        $query->cursor()
+        $this->streamQuery($query)
               ->each(function ($entity) {
                   /** @var mixed $entity */
                   $this->csv->insertOne($this->buildRow($entity));
