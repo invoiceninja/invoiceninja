@@ -14,6 +14,7 @@ namespace App\Jobs\Report;
 
 use App\Models\User;
 use App\Models\Company;
+use App\Export\CSV\BaseExport;
 use App\Libraries\MultiDB;
 use App\Mail\DownloadReport;
 use Illuminate\Bus\Queueable;
@@ -25,6 +26,7 @@ use App\Services\Report\ARSummaryReport;
 use App\Services\Report\ClientBalanceReport;
 use App\Services\Report\ClientSalesReport;
 use App\Services\Report\CsvToXlsxConverter;
+use App\Services\Report\RawRowsXlsxWriter;
 use App\Services\Report\TaxSummaryReport;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -47,6 +49,27 @@ class SendToAdmin implements ShouldQueue
 
     private const MAX_ATTACHMENT_SIZE_MB = 5;
 
+    private const TYPED_XLSX_REPORTS = [
+        \App\Export\CSV\ClientExport::class,
+        \App\Export\CSV\ContactExport::class,
+        \App\Export\CSV\CreditExport::class,
+        \App\Export\CSV\DocumentExport::class,
+        \App\Export\CSV\ExpenseExport::class,
+        \App\Export\CSV\InvoiceExport::class,
+        \App\Export\CSV\InvoiceItemExport::class,
+        \App\Export\CSV\LocationExport::class,
+        \App\Export\CSV\PaymentExport::class,
+        \App\Export\CSV\ProductExport::class,
+        \App\Export\CSV\PurchaseOrderExport::class,
+        \App\Export\CSV\PurchaseOrderItemExport::class,
+        \App\Export\CSV\QuoteExport::class,
+        \App\Export\CSV\QuoteItemExport::class,
+        \App\Export\CSV\RecurringInvoiceExport::class,
+        \App\Export\CSV\RecurringInvoiceItemExport::class,
+        \App\Export\CSV\TaskExport::class,
+        \App\Export\CSV\VendorExport::class,
+    ];
+
     public $tries = 1;
 
     /**
@@ -58,9 +81,14 @@ class SendToAdmin implements ShouldQueue
     {
         MultiDB::setDb($this->company->db);
         $export = new $this->report_class($this->company, $this->request);
-        $report_file = ($export instanceof \App\Export\CSV\BaseExport && $export->isGroupByActive()) ? $export->groupedRun() : $export->run();
 
-        $files = $this->buildReportAttachments($report_file);
+        if ($this->isCsvFileName($this->file_name) && $this->supportsTypedXlsx($export)) {
+            $export->captureRawRows();
+        }
+
+        $report_file = ($export instanceof BaseExport && $export->isGroupByActive()) ? $export->groupedRun() : $export->run();
+
+        $files = $this->buildReportAttachments($report_file, $export instanceof BaseExport ? $export : null);
 
         if (in_array(get_class($export), [ARDetailReport::class, ARSummaryReport::class, ClientBalanceReport::class, ClientSalesReport::class, TaxSummaryReport::class])) {
             $pdf = base64_encode($export->getPdf());
@@ -90,18 +118,31 @@ class SendToAdmin implements ShouldQueue
     /**
      * @return array<int, array{file: string, file_name: string, mime: string}>
      */
-    private function buildReportAttachments(string $report_file): array
+    private function buildReportAttachments(string $report_file, ?BaseExport $export = null): array
     {
         $files = [
             $this->buildAttachment($report_file, $this->file_name, $this->resolveMimeType($this->file_name)),
         ];
 
         if ($this->isCsvFileName($this->file_name)) {
-            $xlsx_file = app(CsvToXlsxConverter::class)->convert($report_file);
+            $xlsx_file = $this->buildXlsxFile($report_file, $export);
             $files[] = $this->buildAttachment($xlsx_file, $this->xlsxFileName($this->file_name), self::XLSX_MIME);
         }
 
         return $files;
+    }
+
+    private function buildXlsxFile(string $report_file, ?BaseExport $export): string
+    {
+        if ($export && $this->supportsTypedXlsx($export) && $export->hasRawRows()) {
+            $xlsx_file = app(RawRowsXlsxWriter::class)->convert($export);
+
+            if (is_string($xlsx_file)) {
+                return $xlsx_file;
+            }
+        }
+
+        return app(CsvToXlsxConverter::class)->convert($report_file);
     }
 
     /**
@@ -129,6 +170,12 @@ class SendToAdmin implements ShouldQueue
             'file_name' => basename($file_name) . '.zip',
             'mime' => self::ZIP_MIME,
         ];
+    }
+
+    private function supportsTypedXlsx(object $export): bool
+    {
+        return $export instanceof BaseExport
+            && in_array(get_class($export), self::TYPED_XLSX_REPORTS, true);
     }
 
     private function resolveMimeType(string $file_name): string

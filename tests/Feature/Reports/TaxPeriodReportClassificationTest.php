@@ -424,6 +424,91 @@ class TaxPeriodReportClassificationTest extends TestCase
         $this->travelBack();
     }
 
+    public function testTransactionEventInvoiceRelationResolves(): void
+    {
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());
+
+        $invoice = $this->makeInvoice([
+            $this->makeItem(['cost' => 100, 'line_total' => 100, 'type_id' => '1', 'tax_id' => '1']),
+        ]);
+
+        (new InvoiceTransactionEventEntry())->run($invoice);
+
+        $event = \App\Models\TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->first();
+
+        $this->assertNotNull($event);
+        $this->assertNotNull($event->invoice, 'invoice() relation must resolve');
+        $this->assertSame($invoice->id, $event->invoice->id);
+
+        $this->travelBack();
+    }
+
+    public function testTransactionEventInvoiceRelationResolvesForArchivedInvoice(): void
+    {
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());
+
+        $invoice = $this->makeInvoice([
+            $this->makeItem(['cost' => 100, 'line_total' => 100, 'type_id' => '1', 'tax_id' => '1']),
+        ]);
+
+        (new InvoiceTransactionEventEntry())->run($invoice);
+
+        $invoice->delete(); // soft delete == archived
+
+        $event = \App\Models\TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->with('invoice')
+            ->first();
+
+        $this->assertNotNull($event->invoice, 'invoice() must withTrashed() so archived invoices still resolve');
+        $this->assertSame($invoice->id, $event->invoice->id);
+
+        $this->travelBack();
+    }
+
+    public function testBackfillRepopulatesMissingClassificationBreakdown(): void
+    {
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());
+
+        $invoice = $this->makeInvoice([
+            $this->makeItem(['cost' => 100, 'line_total' => 100, 'type_id' => '1', 'tax_id' => '1']),
+            $this->makeItem(['cost' => 200, 'line_total' => 200, 'type_id' => '2', 'tax_id' => '2']),
+        ]);
+
+        (new InvoiceTransactionEventEntry())->run($invoice);
+
+        // Simulate a legacy event that predates the by-classification breakdown.
+        $event = $invoice->fresh()->transaction_events()->first();
+        $metadata = $event->metadata;
+        $metadata->tax_report->tax_details_by_classification = null;
+        $event->metadata = $metadata;
+        $event->saveQuietly();
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 11, 1)->startOfDay());
+
+        // skip_initialization:false runs backfillClassificationBreakdown(), which
+        // walks each event via the TransactionEvent::invoice() relation.
+        $report = new TaxPeriodReport($this->company, [
+            'date_range' => 'custom',
+            'start_date' => '2025-10-01',
+            'end_date' => '2025-10-31',
+            'is_income_billed' => true,
+        ], skip_initialization: false);
+
+        $report->boot();
+
+        $refreshed = \App\Models\TransactionEvent::query()->find($event->id);
+        $breakdown = $refreshed->metadata->tax_report->tax_details_by_classification ?? null;
+
+        $this->assertNotNull($breakdown, 'backfill must repopulate tax_details_by_classification');
+        $this->assertNotEmpty((array) $breakdown);
+        $this->assertEqualsWithDelta(30.0, $this->sumRows((array) $breakdown, 'tax_amount'), 0.02);
+
+        $this->travelBack();
+    }
+
     public function testCalculatorReconciliationTiesBackToAggregate(): void
     {
         $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());
