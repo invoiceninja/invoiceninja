@@ -22,6 +22,13 @@ class Request extends FormRequest
     use MakesHash;
     use RuntimeFormRequest;
 
+    private const GLOBAL_RULE_METHODS = [
+        'assigned_user_id' => true,
+        'invoice_id' => true,
+        'vendor_id' => true,
+        'tags' => true,
+    ];
+
     /** @var class-string|null */
     protected ?string $tag_entity_type = null;
 
@@ -56,7 +63,7 @@ class Request extends FormRequest
                 continue;
             }
 
-            if (method_exists($this, $key)) {
+            if (isset(self::GLOBAL_RULE_METHODS[$key])) {
                 $merge_rules = $this->{$key}($merge_rules);
             }
         }

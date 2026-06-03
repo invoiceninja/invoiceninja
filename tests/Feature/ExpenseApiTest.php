@@ -19,6 +19,7 @@ use App\Models\ExpenseCategory;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Session;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -339,6 +340,22 @@ class ExpenseApiTest extends TestCase
         $response->assertStatus(200);
 
         $this->assertNotEmpty($arr['data']['number']);
+    }
+
+    public function testExpensePostWithFilePayloadDoesNotCollideWithGlobalRules()
+    {
+         = [
+            'public_notes' => ->faker->firstName(),
+            'file' => UploadedFile::fake()->create('receipt.pdf', 10, 'application/pdf'),
+        ];
+
+         = ->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => ->token,
+        ])->post('/api/v1/expenses', );
+
+        ->assertStatus(200);
+        ->assertNotEmpty(->json('data.number'));
     }
 
     public function testDuplicateNumberCatch()
