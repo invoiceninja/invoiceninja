@@ -39,6 +39,23 @@ class GenericTaxCalculator implements RegionalTaxCalculator
         ], fn (string $part): bool => $part !== ''));
     }
 
+    public function jurisdictionSource(Invoice $invoice, TaxDetail $tax_detail): string
+    {
+        if (trim($tax_detail->postal_code) !== '') {
+            return ctrans('texts.tax_detail_source');
+        }
+
+        if (trim((string) ($invoice->client->shipping_postal_code ?? '')) !== '') {
+            return ctrans('texts.client_shipping_source');
+        }
+
+        if (trim((string) ($invoice->client->postal_code ?? '')) !== '') {
+            return ctrans('texts.client_billing_source');
+        }
+
+        return ctrans('texts.unknown_source');
+    }
+
     public static function supports(string $country_iso): bool
     {
         // Generic calculator supports all countries not handled by specific calculators

@@ -554,7 +554,11 @@ class TaxPeriodReport extends BaseExport
 
     private function writeToSpreadsheet()
     {
-        $this->createSummarySheet()
+        $this->createFilingOverviewSheet()
+            ->createSummarySheet()
+            ->createMonthlyFilingSummarySheet()
+            ->createStateBreakdownSheet()
+            ->createJurisdictionBreakdownSheet()
             ->createCorrectionsReviewSheet()
             ->createInvoiceSummarySheet()
             ->createInvoiceItemSummarySheet();
@@ -562,10 +566,22 @@ class TaxPeriodReport extends BaseExport
         return $this;
     }
 
+    public function createFilingOverviewSheet()
+    {
+        $worksheet = $this->spreadsheet->getActiveSheet();
+        $worksheet->setTitle(substr(ctrans('texts.filing_overview'), 0, 31));
+
+        $overview_data = $this->data['filing_overview'] ?? $this->buildFilingOverviewRows();
+        $worksheet->fromArray($overview_data, null, 'A1');
+        $this->autoSizeColumns($worksheet, $overview_data[0] ?? []);
+
+        return $this;
+    }
+
     public function createSummarySheet()
     {
 
-        $worksheet = $this->spreadsheet->getActiveSheet();
+        $worksheet = $this->spreadsheet->createSheet();
         $worksheet->setTitle(ctrans('texts.tax_summary'));
 
         $summary_data = $this->data['summary'] ?? $this->buildSummaryRows();
@@ -574,7 +590,7 @@ class TaxPeriodReport extends BaseExport
         $this->formatColumnsByHeaders(
             $worksheet,
             $summary_data[0] ?? [],
-            array_merge([
+            array_merge($this->filingPeriodColumnFormats(), [
                 ctrans('texts.tax_rate') => '0.00',
                 ctrans('texts.gross_sales') => $this->currency_format,
                 ctrans('texts.taxable_amount') => $this->currency_format,
@@ -590,6 +606,92 @@ class TaxPeriodReport extends BaseExport
         return $this;
     }
 
+    public function createMonthlyFilingSummarySheet()
+    {
+        $worksheet = $this->spreadsheet->createSheet();
+        $worksheet->setTitle(substr(ctrans('texts.monthly_filing_summary'), 0, 31));
+
+        $monthly_data = $this->data['monthly_filing_summary'] ?? $this->buildMonthlyFilingSummaryRows();
+        $worksheet->fromArray($monthly_data, null, 'A1');
+
+        $this->formatColumnsByHeaders(
+            $worksheet,
+            $monthly_data[0] ?? [],
+            array_merge($this->filingPeriodColumnFormats(), [
+                ctrans('texts.gross_sales') => $this->currency_format,
+                ctrans('texts.taxable_amount') => $this->currency_format,
+                ctrans('texts.exempt_sales') => $this->currency_format,
+                ctrans('texts.non_taxable_sales') => $this->currency_format,
+                ctrans('texts.zero_rated_sales') => $this->currency_format,
+                ctrans('texts.tax_amount') => $this->currency_format,
+                ctrans('texts.invoice_count') => '0',
+            ])
+        );
+        $this->autoSizeColumns($worksheet, $monthly_data[0] ?? []);
+
+        return $this;
+    }
+
+    public function createStateBreakdownSheet()
+    {
+        $worksheet = $this->spreadsheet->createSheet();
+        $worksheet->setTitle(substr(ctrans('texts.state_breakdown'), 0, 31));
+
+        $state_data = $this->data['state_breakdown'] ?? $this->buildStateBreakdownRows();
+        $worksheet->fromArray($state_data, null, 'A1');
+
+        $this->formatColumnsByHeaders(
+            $worksheet,
+            $state_data[0] ?? [],
+            array_merge($this->filingPeriodColumnFormats(), [
+                ctrans('texts.gross_sales') => $this->currency_format,
+                ctrans('texts.taxable_amount') => $this->currency_format,
+                ctrans('texts.exempt_sales') => $this->currency_format,
+                ctrans('texts.non_taxable_sales') => $this->currency_format,
+                ctrans('texts.zero_rated_sales') => $this->currency_format,
+                ctrans('texts.tax_amount') => $this->currency_format,
+                'State Tax Amount' => $this->currency_format,
+                'County Tax Amount' => $this->currency_format,
+                'City Tax Amount' => $this->currency_format,
+                'District Tax Amount' => $this->currency_format,
+                ctrans('texts.invoice_count') => '0',
+            ])
+        );
+        $this->autoSizeColumns($worksheet, $state_data[0] ?? []);
+
+        return $this;
+    }
+
+    public function createJurisdictionBreakdownSheet()
+    {
+        $worksheet = $this->spreadsheet->createSheet();
+        $worksheet->setTitle(substr(ctrans('texts.jurisdiction_breakdown'), 0, 31));
+
+        $jurisdiction_data = $this->data['jurisdiction_breakdown'] ?? $this->buildJurisdictionBreakdownRows();
+        $worksheet->fromArray($jurisdiction_data, null, 'A1');
+
+        $this->formatColumnsByHeaders(
+            $worksheet,
+            $jurisdiction_data[0] ?? [],
+            array_merge($this->filingPeriodColumnFormats(), [
+                ctrans('texts.gross_sales') => $this->currency_format,
+                ctrans('texts.taxable_amount') => $this->currency_format,
+                ctrans('texts.exempt_sales') => $this->currency_format,
+                ctrans('texts.non_taxable_sales') => $this->currency_format,
+                ctrans('texts.zero_rated_sales') => $this->currency_format,
+                ctrans('texts.tax_amount') => $this->currency_format,
+                'State Tax Amount' => $this->currency_format,
+                'County Tax Amount' => $this->currency_format,
+                'City Tax Amount' => $this->currency_format,
+                'District Tax Amount' => $this->currency_format,
+                ctrans('texts.invoice_count') => '0',
+            ])
+        );
+        $this->autoSizeColumns($worksheet, $jurisdiction_data[0] ?? []);
+
+        return $this;
+    }
+
     public function createCorrectionsReviewSheet()
     {
         $worksheet = $this->spreadsheet->createSheet();
@@ -601,7 +703,7 @@ class TaxPeriodReport extends BaseExport
         $this->formatColumnsByHeaders(
             $worksheet,
             $correction_data[0] ?? [],
-            array_merge([
+            array_merge($this->filingPeriodColumnFormats(), [
                 ctrans('texts.original_tax_period') => $this->date_format,
                 ctrans('texts.correction_recorded_period') => $this->date_format,
                 ctrans('texts.tax_rate') => '0.00',
@@ -715,7 +817,11 @@ class TaxPeriodReport extends BaseExport
         });
 
         $this->data['summary'] = $this->buildSummaryRows();
+        $this->data['monthly_filing_summary'] = $this->buildMonthlyFilingSummaryRows();
+        $this->data['state_breakdown'] = $this->buildStateBreakdownRows();
+        $this->data['jurisdiction_breakdown'] = $this->buildJurisdictionBreakdownRows();
         $this->data['corrections'] = $this->buildCorrectionRows();
+        $this->data['filing_overview'] = $this->buildFilingOverviewRows();
 
         return $this;
     }
@@ -790,6 +896,7 @@ class TaxPeriodReport extends BaseExport
 
             $summary_row = array_fill_keys($this->summaryHeaders(), '');
             $summary_row[ctrans('texts.reporting_bucket')] = $this->regional_calculator?->reportingBucket($invoice, $tax_detail) ?? '';
+            $summary_row[ctrans('texts.jurisdiction_source')] = $this->regional_calculator?->jurisdictionSource($invoice, $tax_detail) ?? ctrans('texts.unknown_source');
             $summary_row[ctrans('texts.summary_source')] = ctrans('texts.sales_breakdown_source');
             $summary_row[ctrans('texts.accounting_basis')] = $this->accountingBasisLabel();
             $summary_row[ctrans('texts.activity')] = $tax_summary->status->value;
@@ -898,6 +1005,8 @@ class TaxPeriodReport extends BaseExport
 
     private function appendSummarySourceRow(array $summary_row, array $correction_context): void
     {
+        $summary_row = $this->withFilingPeriodContext($summary_row, $correction_context);
+
         if ($this->requiresCorrectionReview($correction_context)) {
             $this->data['correction_review'][] = $this->correctionReviewRow($summary_row, $correction_context);
             return;
@@ -908,20 +1017,31 @@ class TaxPeriodReport extends BaseExport
 
     private function appendLegacySummarySourceRow(array $row, array $correction_context): void
     {
+        $summary_row = $this->withFilingPeriodContext(
+            $this->legacySummaryRowForItemRow($row),
+            $correction_context,
+        );
+
         if ($this->requiresCorrectionReview($correction_context)) {
-            $this->data['correction_review'][] = $this->correctionReviewRow(
-                $this->legacySummaryRowForItemRow($row),
-                $correction_context,
-            );
+            $this->data['correction_review'][] = $this->correctionReviewRow($summary_row, $correction_context);
             return;
         }
 
-        $this->data['legacy_summary_items'][] = $row;
+        $this->data['sales_breakdown'][] = $summary_row;
     }
 
     private function requiresCorrectionReview(array $correction_context): bool
     {
         return (bool) ($correction_context['requires_review'] ?? false);
+    }
+
+    private function withFilingPeriodContext(array $summary_row, array $correction_context): array
+    {
+        $summary_row[ctrans('texts.filing_period')] = $correction_context['filing_period'] ?? '';
+        $summary_row[ctrans('texts.period_start')] = $correction_context['period_start'] ?? '';
+        $summary_row[ctrans('texts.period_end')] = $correction_context['period_end'] ?? '';
+
+        return $summary_row;
     }
 
     private function correctionReviewRow(array $summary_row, array $correction_context): array
@@ -954,6 +1074,7 @@ class TaxPeriodReport extends BaseExport
     {
         $summary_row = array_fill_keys($this->summaryHeaders(), '');
         $summary_row[ctrans('texts.reporting_bucket')] = (string) ($this->valueForHeader($row, $indexes, ctrans('texts.reporting_bucket')) ?? '');
+        $summary_row[ctrans('texts.jurisdiction_source')] = (string) ($this->valueForHeader($row, $indexes, ctrans('texts.jurisdiction_source')) ?? ctrans('texts.unknown_source'));
         $summary_row[ctrans('texts.summary_source')] = ctrans('texts.legacy_tax_detail_source');
         $summary_row[ctrans('texts.accounting_basis')] = $this->accountingBasisLabel();
         $summary_row[ctrans('texts.activity')] = (string) ($this->valueForHeader($row, $indexes, ctrans('texts.status')) ?? '');
@@ -990,11 +1111,33 @@ class TaxPeriodReport extends BaseExport
         $target_is_prior = $target_period !== '' && Carbon::parse($target_period)->lt(Carbon::parse($this->start_date));
         $requires_review = $is_correction && ($target_period === '' || $target_is_prior);
 
-        return [
+        return array_merge($this->filingPeriodContext($recorded_period), [
             'target_period' => $target_period,
             'recorded_period' => $recorded_period,
             'correction_type' => $requires_review ? $this->correctionType($event) : ctrans('texts.current_period_activity'),
             'requires_review' => $requires_review,
+        ]);
+    }
+
+    /**
+     * @return array{filing_period:string, period_start:string, period_end:string}
+     */
+    private function filingPeriodContext(string $period): array
+    {
+        if ($period === '') {
+            return [
+                'filing_period' => '',
+                'period_start' => '',
+                'period_end' => '',
+            ];
+        }
+
+        $date = Carbon::parse($period);
+
+        return [
+            'filing_period' => $date->format('Y-m'),
+            'period_start' => $date->copy()->startOfMonth()->format('Y-m-d'),
+            'period_end' => $date->copy()->endOfMonth()->format('Y-m-d'),
         ];
     }
 
@@ -1196,6 +1339,286 @@ class TaxPeriodReport extends BaseExport
     }
 
     /**
+     * @return array<int, array<int, mixed>>
+     */
+    private function buildFilingOverviewRows(): array
+    {
+        $source_rows = $this->summarySourceRows();
+        $correction_rows = $this->data['correction_review'] ?? [];
+        $amounts = $this->amountTotals($source_rows, $this->summaryAmountHeaders());
+        $states = $this->uniqueNonEmptyValues($source_rows, 'State');
+        $jurisdictions = [];
+        $missing_state_rows = 0;
+        $fallback_rows = 0;
+
+        foreach ($source_rows as $row) {
+            $state = trim((string) ($row['State'] ?? ''));
+            $source = trim((string) ($row[ctrans('texts.jurisdiction_source')] ?? ''));
+
+            if ($state === '' || $state === ctrans('texts.unknown')) {
+                $missing_state_rows++;
+            }
+
+            if (in_array($source, [ctrans('texts.client_shipping_source'), ctrans('texts.client_billing_source')], true)) {
+                $fallback_rows++;
+            }
+
+            $jurisdiction_key = $this->jurisdictionKey($row);
+
+            if ($jurisdiction_key !== '') {
+                $jurisdictions[$jurisdiction_key] = true;
+            }
+        }
+
+        return [
+            [ctrans('texts.metric'), ctrans('texts.value')],
+            [ctrans('texts.report_period'), $this->start_date . ' - ' . $this->end_date],
+            [ctrans('texts.accounting_basis'), $this->accountingBasisLabel()],
+            [ctrans('texts.gross_sales'), $amounts[ctrans('texts.gross_sales')] ?? 0.0],
+            [ctrans('texts.taxable_amount'), $amounts[ctrans('texts.taxable_amount')] ?? 0.0],
+            [ctrans('texts.exempt_sales'), $amounts[ctrans('texts.exempt_sales')] ?? 0.0],
+            [ctrans('texts.non_taxable_sales'), $amounts[ctrans('texts.non_taxable_sales')] ?? 0.0],
+            [ctrans('texts.zero_rated_sales'), $amounts[ctrans('texts.zero_rated_sales')] ?? 0.0],
+            [ctrans('texts.tax_amount'), $amounts[ctrans('texts.tax_amount')] ?? 0.0],
+            [ctrans('texts.current_filing_rows'), count($source_rows)],
+            [ctrans('texts.correction_rows'), count($correction_rows)],
+            [ctrans('texts.states_reported'), count($states)],
+            [ctrans('texts.jurisdictions_reported'), count($jurisdictions)],
+            [ctrans('texts.rows_missing_state'), $missing_state_rows],
+            [ctrans('texts.rows_using_client_fallback'), $fallback_rows],
+            [ctrans('texts.prior_period_corrections'), count($correction_rows)],
+        ];
+    }
+
+    /**
+     * @return array<int, array<int, mixed>>
+     */
+    private function buildMonthlyFilingSummaryRows(): array
+    {
+        return $this->buildGroupedFilingRows(
+            $this->monthlyFilingSummaryHeaders(),
+            [
+                ctrans('texts.filing_period'),
+                ctrans('texts.period_start'),
+                ctrans('texts.period_end'),
+                ctrans('texts.accounting_basis'),
+                ctrans('texts.tax_treatment'),
+            ],
+            $this->summaryAmountHeaders(),
+        );
+    }
+
+    /**
+     * @return array<int, array<int, mixed>>
+     */
+    private function buildJurisdictionBreakdownRows(): array
+    {
+        return $this->buildGroupedFilingRows(
+            $this->jurisdictionBreakdownHeaders(),
+            [
+                ctrans('texts.filing_period'),
+                ctrans('texts.period_start'),
+                ctrans('texts.period_end'),
+                'State',
+                'County',
+                'City',
+                ctrans('texts.district'),
+                ctrans('texts.postal_code'),
+                ctrans('texts.jurisdiction_source'),
+                ctrans('texts.accounting_basis'),
+                ctrans('texts.tax_treatment'),
+            ],
+            $this->stateBreakdownAmountHeaders(),
+        );
+    }
+
+    /**
+     * @return array<int, array<int, mixed>>
+     */
+    private function buildStateBreakdownRows(): array
+    {
+        return $this->buildGroupedFilingRows(
+            $this->stateBreakdownHeaders(),
+            [
+                ctrans('texts.filing_period'),
+                ctrans('texts.period_start'),
+                ctrans('texts.period_end'),
+                'State',
+                ctrans('texts.jurisdiction_source'),
+                ctrans('texts.accounting_basis'),
+                ctrans('texts.tax_treatment'),
+            ],
+            $this->stateBreakdownAmountHeaders(),
+        );
+    }
+
+    /**
+     * @param array<int, string> $headers
+     * @param array<int, string> $group_headers
+     * @param array<int, string> $amount_headers
+     * @return array<int, array<int, mixed>>
+     */
+    private function buildGroupedFilingRows(array $headers, array $group_headers, array $amount_headers): array
+    {
+        $source_rows = $this->summarySourceRows();
+
+        if ($source_rows === []) {
+            return [$headers];
+        }
+
+        $summary = [];
+        $invoice_numbers = [];
+        $row_counts = [];
+        $currency_precision = $this->company->currency()->precision ?? 2;
+
+        foreach ($source_rows as $row) {
+            $group_key = implode('|', array_map(
+                fn (string $header): string => (string) $this->groupedFilingValue($row, $header),
+                $group_headers,
+            ));
+
+            if (!isset($summary[$group_key])) {
+                $summary[$group_key] = array_fill_keys($headers, '');
+                $summary[$group_key][ctrans('texts.invoice_count')] = 0;
+
+                foreach ($group_headers as $header) {
+                    $summary[$group_key][$header] = $this->groupedFilingValue($row, $header);
+                }
+
+                foreach ($amount_headers as $header) {
+                    if (array_key_exists($header, $summary[$group_key])) {
+                        $summary[$group_key][$header] = 0.0;
+                    }
+                }
+
+                $invoice_numbers[$group_key] = [];
+                $row_counts[$group_key] = 0;
+            }
+
+            $row_counts[$group_key]++;
+
+            foreach ($amount_headers as $header) {
+                if (!array_key_exists($header, $summary[$group_key])) {
+                    continue;
+                }
+
+                $summary[$group_key][$header] = round(
+                    (float) $summary[$group_key][$header] + (float) (($row[$header] ?? 0) ?: 0),
+                    $currency_precision,
+                );
+            }
+
+            $invoice_number = trim((string) ($row['_invoice_number'] ?? ''));
+
+            if ($invoice_number !== '') {
+                $invoice_numbers[$group_key][$invoice_number] = true;
+            }
+        }
+
+        foreach ($summary as $group_key => $row) {
+            $summary[$group_key][ctrans('texts.invoice_count')] = count($invoice_numbers[$group_key]) ?: $row_counts[$group_key];
+        }
+
+        return array_merge([$headers], array_map(
+            fn (array $row): array => array_map(fn (string $header): mixed => $row[$header] ?? '', $headers),
+            array_values($summary),
+        ));
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    private function groupedFilingValue(array $row, string $header): mixed
+    {
+        $value = $row[$header] ?? '';
+
+        if ($header === 'State' && trim((string) $value) === '') {
+            return ctrans('texts.unknown');
+        }
+
+        if ($header === ctrans('texts.jurisdiction_source') && trim((string) $value) === '') {
+            return ctrans('texts.unknown_source');
+        }
+
+        if ($header === ctrans('texts.district')) {
+            return $this->districtFromReportingBucket($row);
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    private function districtFromReportingBucket(array $row): string
+    {
+        foreach (explode(' | ', (string) ($row[ctrans('texts.reporting_bucket')] ?? '')) as $part) {
+            if (str_starts_with($part, 'Districts ')) {
+                return $part;
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $rows
+     * @param array<int, string> $amount_headers
+     * @return array<string, float>
+     */
+    private function amountTotals(array $rows, array $amount_headers): array
+    {
+        $totals = array_fill_keys($amount_headers, 0.0);
+        $currency_precision = $this->company->currency()->precision ?? 2;
+
+        foreach ($rows as $row) {
+            foreach ($amount_headers as $header) {
+                $totals[$header] = round(
+                    (float) $totals[$header] + (float) (($row[$header] ?? 0) ?: 0),
+                    $currency_precision,
+                );
+            }
+        }
+
+        return $totals;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $rows
+     * @return array<int, string>
+     */
+    private function uniqueNonEmptyValues(array $rows, string $header): array
+    {
+        $values = [];
+
+        foreach ($rows as $row) {
+            $value = trim((string) ($row[$header] ?? ''));
+
+            if ($value !== '' && $value !== ctrans('texts.unknown')) {
+                $values[$value] = true;
+            }
+        }
+
+        return array_keys($values);
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    private function jurisdictionKey(array $row): string
+    {
+        $parts = array_filter([
+            $row['State'] ?? '',
+            $row['County'] ?? '',
+            $row['City'] ?? '',
+            $this->districtFromReportingBucket($row),
+            $row[ctrans('texts.postal_code')] ?? '',
+        ], fn (mixed $value): bool => trim((string) $value) !== '');
+
+        return implode('|', $parts);
+    }
+
+    /**
      * @return array<int, array<string, mixed>>
      */
     private function summarySourceRows(): array
@@ -1228,7 +1651,6 @@ class TaxPeriodReport extends BaseExport
         return $rows;
     }
 
-
     /**
      * @return array<int, array<int, mixed>>
      */
@@ -1254,7 +1676,11 @@ class TaxPeriodReport extends BaseExport
     {
         return array_merge(
             [
+                ctrans('texts.filing_period'),
+                ctrans('texts.period_start'),
+                ctrans('texts.period_end'),
                 ctrans('texts.reporting_bucket'),
+                ctrans('texts.jurisdiction_source'),
                 ctrans('texts.summary_source'),
                 ctrans('texts.original_tax_period'),
                 ctrans('texts.correction_recorded_period'),
@@ -1284,11 +1710,94 @@ class TaxPeriodReport extends BaseExport
     /**
      * @return array<int, string>
      */
+    private function monthlyFilingSummaryHeaders(): array
+    {
+        return [
+            ctrans('texts.filing_period'),
+            ctrans('texts.period_start'),
+            ctrans('texts.period_end'),
+            ctrans('texts.accounting_basis'),
+            ctrans('texts.tax_treatment'),
+            ctrans('texts.gross_sales'),
+            ctrans('texts.taxable_amount'),
+            ctrans('texts.exempt_sales'),
+            ctrans('texts.non_taxable_sales'),
+            ctrans('texts.zero_rated_sales'),
+            ctrans('texts.tax_amount'),
+            ctrans('texts.invoice_count'),
+        ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function jurisdictionBreakdownHeaders(): array
+    {
+        return [
+            ctrans('texts.filing_period'),
+            ctrans('texts.period_start'),
+            ctrans('texts.period_end'),
+            'State',
+            'County',
+            'City',
+            ctrans('texts.district'),
+            ctrans('texts.postal_code'),
+            ctrans('texts.jurisdiction_source'),
+            ctrans('texts.accounting_basis'),
+            ctrans('texts.tax_treatment'),
+            ctrans('texts.gross_sales'),
+            ctrans('texts.taxable_amount'),
+            ctrans('texts.exempt_sales'),
+            ctrans('texts.non_taxable_sales'),
+            ctrans('texts.zero_rated_sales'),
+            ctrans('texts.tax_amount'),
+            'State Tax Amount',
+            'County Tax Amount',
+            'City Tax Amount',
+            'District Tax Amount',
+            ctrans('texts.invoice_count'),
+        ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function stateBreakdownHeaders(): array
+    {
+        return [
+            ctrans('texts.filing_period'),
+            ctrans('texts.period_start'),
+            ctrans('texts.period_end'),
+            'State',
+            ctrans('texts.jurisdiction_source'),
+            ctrans('texts.accounting_basis'),
+            ctrans('texts.tax_treatment'),
+            ctrans('texts.gross_sales'),
+            ctrans('texts.taxable_amount'),
+            ctrans('texts.exempt_sales'),
+            ctrans('texts.non_taxable_sales'),
+            ctrans('texts.zero_rated_sales'),
+            ctrans('texts.tax_amount'),
+            'State Tax Amount',
+            'County Tax Amount',
+            'City Tax Amount',
+            'District Tax Amount',
+            ctrans('texts.invoice_count'),
+        ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
     private function summaryHeaders(): array
     {
         return array_merge(
             [
+                ctrans('texts.filing_period'),
+                ctrans('texts.period_start'),
+                ctrans('texts.period_end'),
                 ctrans('texts.reporting_bucket'),
+                ctrans('texts.jurisdiction_source'),
                 ctrans('texts.summary_source'),
                 ctrans('texts.accounting_basis'),
                 ctrans('texts.activity'),
@@ -1317,6 +1826,10 @@ class TaxPeriodReport extends BaseExport
     private function summaryDescriptorHeaders(): array
     {
         return [
+            ctrans('texts.filing_period'),
+            ctrans('texts.period_start'),
+            ctrans('texts.period_end'),
+            ctrans('texts.jurisdiction_source'),
             ctrans('texts.summary_source'),
             ctrans('texts.accounting_basis'),
             ctrans('texts.activity'),
@@ -1326,6 +1839,22 @@ class TaxPeriodReport extends BaseExport
             ctrans('texts.type'),
             ctrans('texts.postal_code'),
         ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function stateBreakdownAmountHeaders(): array
+    {
+        return array_values(array_unique(array_merge(
+            $this->summaryAmountHeaders(),
+            [
+                'State Tax Amount',
+                'County Tax Amount',
+                'City Tax Amount',
+                'District Tax Amount',
+            ],
+        )));
     }
 
     /**
@@ -1428,6 +1957,17 @@ class TaxPeriodReport extends BaseExport
             $letter = $this->columnLetter($index);
             $worksheet->getStyle("{$letter}:{$letter}")->getNumberFormat()->setFormatCode($format);
         }
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function filingPeriodColumnFormats(): array
+    {
+        return [
+            ctrans('texts.period_start') => $this->date_format,
+            ctrans('texts.period_end') => $this->date_format,
+        ];
     }
 
     /**

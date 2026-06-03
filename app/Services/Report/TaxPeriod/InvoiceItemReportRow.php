@@ -44,6 +44,7 @@ class InvoiceItemReportRow
             ctrans('texts.postal_code'),
             ctrans('texts.type'),
             ctrans('texts.reporting_bucket'),
+            ctrans('texts.jurisdiction_source'),
         ];
 
         if ($regional_calculator) {
@@ -78,6 +79,7 @@ class InvoiceItemReportRow
             $this->tax_detail->postal_code,
             $this->tax_detail->classification ?: ctrans('texts.unknown'),
             $this->reportingBucket(),
+            $this->jurisdictionSource(),
         ];
 
         $row = $this->appendRegionalColumns($row, $this->tax_detail->tax_amount);
@@ -101,6 +103,7 @@ class InvoiceItemReportRow
             $this->tax_detail->postal_code,
             $this->tax_detail->classification ?: ctrans('texts.unknown'),
             $this->reportingBucket(),
+            $this->jurisdictionSource(),
         ];
 
         $row = $this->appendRegionalColumns($row, $this->tax_detail->tax_amount);
@@ -126,6 +129,15 @@ class InvoiceItemReportRow
         }
 
         return '';
+    }
+
+    private function jurisdictionSource(): string
+    {
+        if ($this->regional_calculator) {
+            return $this->regional_calculator->jurisdictionSource($this->invoice, $this->tax_detail);
+        }
+
+        return ctrans('texts.unknown_source');
     }
 
     /**

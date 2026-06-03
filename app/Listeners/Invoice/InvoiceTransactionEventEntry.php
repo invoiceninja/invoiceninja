@@ -88,9 +88,9 @@ class InvoiceTransactionEventEntry
             }
             /** If the invoice hasn't changed its state... return early!! */ 
             elseif (BcMath::comp($invoice->amount, $event->invoice_amount) == 0 || $event->period->format('Y-m-d') == $period) {
-                nlog("event period => {$period} => " . $event->period->format('Y-m-d'));
-                nlog("invoice amount => {$invoice->amount} => " . $event->invoice_amount);
-                nlog("apparently no change in amount or period");
+                // nlog("event period => {$period} => " . $event->period->format('Y-m-d'));
+                // nlog("invoice amount => {$invoice->amount} => " . $event->invoice_amount);
+                // nlog("apparently no change in amount or period");
                 return;
             }
 
@@ -101,7 +101,7 @@ class InvoiceTransactionEventEntry
 
         }
 
-        nlog("invoice amount => {$invoice->amount}");
+        // nlog("invoice amount => {$invoice->amount}");
         $this->payments = $invoice->payments->map(function ($payment) use ($invoice) {
 
             /** @var \App\Models\Paymentable $pivot */

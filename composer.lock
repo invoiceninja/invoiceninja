@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1e63ea6efe3b29b1443e73348331918f",
+    "content-hash": "c0b2a52f040994238a49b5c3f0deff85",
     "packages": [
         {
             "name": "apimatic/core",
@@ -16773,28 +16773,27 @@
         },
         {
             "name": "turbo124/beacon",
-            "version": "v3.0.2",
+            "version": "v3.1.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/turbo124/beacon.git",
-                "reference": "716635654034dc019d5527c1b914eaea1e75b69c"
+                "reference": "4b393fdf4a1a4063e0f922f2913d697492c010bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/turbo124/beacon/zipball/716635654034dc019d5527c1b914eaea1e75b69c",
-                "reference": "716635654034dc019d5527c1b914eaea1e75b69c",
+                "url": "https://api.github.com/repos/turbo124/beacon/zipball/4b393fdf4a1a4063e0f922f2913d697492c010bc",
+                "reference": "4b393fdf4a1a4063e0f922f2913d697492c010bc",
                 "shasum": ""
             },
             "require": {
-                "guzzlehttp/guzzle": "^7",
-                "illuminate/support": "^11|^12",
-                "php": "^8.2|^8.3|^8.4",
-                "turbo124/waffy": "^1.0"
+                "guzzlehttp/guzzle": "^7|^8",
+                "illuminate/support": "^11|^12|^13",
+                "php": "^8.2|^8.3|^8.4|^8.5"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.94",
                 "larastan/larastan": "^3.6",
-                "orchestra/testbench": "^10.6",
+                "orchestra/testbench": "^10.6|^11.0",
                 "phpstan/phpstan": "^2.1",
                 "phpunit/phpunit": "^11"
             },
@@ -16834,57 +16833,9 @@
                 "turbo124"
             ],
             "support": {
-                "source": "https://github.com/turbo124/beacon/tree/v3.0.2"
+                "source": "https://github.com/turbo124/beacon/tree/v3.1.5"
             },
-            "time": "2026-03-02T18:15:33+00:00"
-        },
-        {
-            "name": "turbo124/waffy",
-            "version": "v1.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/turbo124/waffy.git",
-                "reference": "9b8a10bc4f49b49615cddd322f62f28fd7a95089"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/turbo124/waffy/zipball/9b8a10bc4f49b49615cddd322f62f28fd7a95089",
-                "reference": "9b8a10bc4f49b49615cddd322f62f28fd7a95089",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=8.2",
-                "symfony/console": "^7.2",
-                "symfony/process": "^7.2"
-            },
-            "require-dev": {
-                "monolog/monolog": "^3.0@dev",
-                "phpstan/phpstan": "1.11.x-dev",
-                "phpunit/phpunit": "^10.1",
-                "vlucas/phpdotenv": "^5.6@dev"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Turbo124\\Waffy\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "David Bomba",
-                    "email": "turbo124@gmail.com"
-                }
-            ],
-            "description": "Nginx denylist package",
-            "support": {
-                "issues": "https://github.com/turbo124/waffy/issues",
-                "source": "https://github.com/turbo124/waffy/tree/v1.0.1"
-            },
-            "time": "2025-04-16T08:03:22+00:00"
+            "time": "2026-06-03T05:22:26+00:00"
         },
         {
             "name": "twig/extra-bundle",

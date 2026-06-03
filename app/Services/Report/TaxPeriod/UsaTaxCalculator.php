@@ -99,6 +99,27 @@ class UsaTaxCalculator implements RegionalTaxCalculator
         ], fn (string $part): bool => $part !== ''));
     }
 
+    public function jurisdictionSource(Invoice $invoice, TaxDetail $tax_detail): string
+    {
+        if ($this->hasTaxDataJurisdiction($invoice)) {
+            return ctrans('texts.tax_data_source');
+        }
+
+        if ($this->hasShippingJurisdiction($invoice)) {
+            return ctrans('texts.client_shipping_source');
+        }
+
+        if ($this->hasBillingJurisdiction($invoice)) {
+            return ctrans('texts.client_billing_source');
+        }
+
+        if (trim($tax_detail->postal_code) !== '') {
+            return ctrans('texts.tax_detail_source');
+        }
+
+        return ctrans('texts.unknown_source');
+    }
+
     public static function supports(string $country_iso): bool
     {
         return $country_iso === 'US';
@@ -186,6 +207,28 @@ class UsaTaxCalculator implements RegionalTaxCalculator
     private function taxDataFloat(Invoice $invoice, string $key): float
     {
         return (float) data_get($invoice->tax_data, $key, 0);
+    }
+
+    private function hasTaxDataJurisdiction(Invoice $invoice): bool
+    {
+        return $this->taxDataString($invoice, 'geoState') !== ''
+            || $this->taxDataString($invoice, 'geoCounty') !== ''
+            || $this->taxDataString($invoice, 'geoCity') !== ''
+            || $this->taxDataString($invoice, 'geoPostalCode') !== '';
+    }
+
+    private function hasShippingJurisdiction(Invoice $invoice): bool
+    {
+        return trim((string) ($invoice->client->shipping_state ?? '')) !== ''
+            || trim((string) ($invoice->client->shipping_city ?? '')) !== ''
+            || trim((string) ($invoice->client->shipping_postal_code ?? '')) !== '';
+    }
+
+    private function hasBillingJurisdiction(Invoice $invoice): bool
+    {
+        return trim((string) ($invoice->client->state ?? '')) !== ''
+            || trim((string) ($invoice->client->city ?? '')) !== ''
+            || trim((string) ($invoice->client->postal_code ?? '')) !== '';
     }
 
     private function normalize(?string $value): string

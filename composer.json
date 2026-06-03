@@ -110,7 +110,7 @@
         "symfony/mailer": "^7.2",
         "symfony/mailgun-mailer": "^7.2",
         "symfony/postmark-mailer": "^7.2",
-        "turbo124/beacon": "^3",
+        "turbo124/beacon": "^3.1",
         "twig/extra-bundle": "^3.18",
         "twig/intl-extra": "^3.7",
         "twig/markdown-extra": "^3.18",

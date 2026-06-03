@@ -25,6 +25,7 @@ use App\DataMapper\CompanySettings;
 use App\Factory\InvoiceItemFactory;
 use App\Services\Report\TaxPeriodReport;
 use App\Services\Report\TaxPeriod\LineClassifier;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use App\Services\Report\TaxPeriod\TaxClassificationCalculator;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use App\Listeners\Invoice\InvoiceTransactionEventEntry;
@@ -178,6 +179,40 @@ class TaxPeriodReportClassificationTest extends TestCase
             fn (array $row): mixed => $row[$index] ?? null,
             array_slice($summary_rows, 1),
         );
+    }
+
+    /**
+     * @param array<string, mixed> $criteria
+     * @return array<int, mixed>
+     */
+    private function rowMatchingColumns(array $rows, array $criteria): array
+    {
+        $headers = $rows[0] ?? [];
+
+        foreach (array_slice($rows, 1) as $row) {
+            foreach ($criteria as $header => $expected) {
+                $index = $this->indexFor($headers, (string) $header);
+
+                if ((string) ($row[$index] ?? '') !== (string) $expected) {
+                    continue 2;
+                }
+            }
+
+            return $row;
+        }
+
+        $this->fail('Expected row matching criteria: ' . json_encode($criteria) . ' in rows: ' . json_encode($rows));
+    }
+
+    private function overviewValue(array $overview_rows, string $metric): mixed
+    {
+        foreach (array_slice($overview_rows, 1) as $row) {
+            if ((string) ($row[0] ?? '') === $metric) {
+                return $row[1] ?? null;
+            }
+        }
+
+        $this->fail('Expected filing overview metric: ' . $metric);
     }
 
     private function forceUnitedStatesCompany(): void
@@ -474,12 +509,189 @@ class TaxPeriodReportClassificationTest extends TestCase
         $summary_headers = $data['summary'][0];
         $summary_row = $data['summary'][1];
 
+        $this->assertSame('2025-10', $summary_row[$this->indexFor($summary_headers, ctrans('texts.filing_period'))]);
+        $this->assertSame('2025-10-01', $summary_row[$this->indexFor($summary_headers, ctrans('texts.period_start'))]);
+        $this->assertSame('2025-10-31', $summary_row[$this->indexFor($summary_headers, ctrans('texts.period_end'))]);
         $this->assertSame($bucket, $summary_row[$this->indexFor($summary_headers, ctrans('texts.reporting_bucket'))]);
         $this->assertSame('CA', $summary_row[$this->indexFor($summary_headers, 'State')]);
         $this->assertSame('San Diego', $summary_row[$this->indexFor($summary_headers, 'City')]);
         $this->assertEquals(100.0, $summary_row[$this->indexFor($summary_headers, ctrans('texts.taxable_amount'))]);
         $this->assertEquals(10.0, $summary_row[$this->indexFor($summary_headers, ctrans('texts.tax_amount'))]);
         $this->assertEquals(1, $summary_row[$this->indexFor($summary_headers, ctrans('texts.invoice_count'))]);
+
+        $monthly_row = $data['monthly_filing_summary'][1];
+        $monthly_headers = $data['monthly_filing_summary'][0];
+        $this->assertSame('2025-10', $monthly_row[$this->indexFor($monthly_headers, ctrans('texts.filing_period'))]);
+        $this->assertEquals(100.0, $monthly_row[$this->indexFor($monthly_headers, ctrans('texts.gross_sales'))]);
+        $this->assertEquals(100.0, $monthly_row[$this->indexFor($monthly_headers, ctrans('texts.taxable_amount'))]);
+        $this->assertEquals(10.0, $monthly_row[$this->indexFor($monthly_headers, ctrans('texts.tax_amount'))]);
+
+        $state_row = $data['state_breakdown'][1];
+        $state_headers = $data['state_breakdown'][0];
+        $this->assertSame('2025-10', $state_row[$this->indexFor($state_headers, ctrans('texts.filing_period'))]);
+        $this->assertSame('CA', $state_row[$this->indexFor($state_headers, 'State')]);
+        $this->assertEquals(100.0, $state_row[$this->indexFor($state_headers, ctrans('texts.gross_sales'))]);
+        $this->assertEquals(10.0, $state_row[$this->indexFor($state_headers, ctrans('texts.tax_amount'))]);
+
+        $this->travelBack();
+    }
+
+    public function testMonthlyFilingAndStateBreakdownAggregateAcrossPeriodsAndStates(): void
+    {
+        $this->forceUnitedStatesCompany();
+        $this->client->state = 'CA';
+        $this->client->city = 'San Diego';
+        $this->client->postal_code = '92101';
+        $this->client->shipping_state = null;
+        $this->client->shipping_city = null;
+        $this->client->shipping_postal_code = null;
+        $this->client->save();
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());
+
+        $california_invoice = $this->makeInvoice([
+            $this->makeItem(['cost' => 100, 'line_total' => 100, 'type_id' => '1', 'tax_id' => (string) Product::PRODUCT_TYPE_PHYSICAL]),
+        ], ['tax_data' => null]);
+
+        (new InvoiceTransactionEventEntry())->run($california_invoice, '2025-10-31');
+
+        $this->client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'is_deleted' => 0,
+            'state' => 'NY',
+            'city' => 'New York',
+            'postal_code' => '10001',
+            'shipping_state' => null,
+            'shipping_city' => null,
+            'shipping_postal_code' => null,
+        ]);
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 11, 1)->startOfDay());
+
+        $new_york_invoice = $this->makeInvoice([
+            $this->makeItem(['cost' => 200, 'line_total' => 200, 'type_id' => '1', 'tax_id' => (string) Product::PRODUCT_TYPE_PHYSICAL]),
+        ], ['tax_data' => null]);
+
+        (new InvoiceTransactionEventEntry())->run($new_york_invoice, '2025-11-30');
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 12, 1)->startOfDay());
+
+        $report = new TaxPeriodReport($this->company, [
+            'date_range' => 'custom',
+            'start_date' => '2025-10-01',
+            'end_date' => '2025-11-30',
+            'is_income_billed' => true,
+        ], skip_initialization: true);
+
+        $data = $report->boot()->getData();
+        $monthly_headers = $data['monthly_filing_summary'][0];
+        $state_headers = $data['state_breakdown'][0];
+
+        $october_row = $this->rowMatchingColumns($data['monthly_filing_summary'], [
+            ctrans('texts.filing_period') => '2025-10',
+            ctrans('texts.tax_treatment') => ctrans('texts.taxable_sales'),
+        ]);
+        $november_row = $this->rowMatchingColumns($data['monthly_filing_summary'], [
+            ctrans('texts.filing_period') => '2025-11',
+            ctrans('texts.tax_treatment') => ctrans('texts.taxable_sales'),
+        ]);
+
+        $this->assertSame('2025-10-01', $october_row[$this->indexFor($monthly_headers, ctrans('texts.period_start'))]);
+        $this->assertSame('2025-10-31', $october_row[$this->indexFor($monthly_headers, ctrans('texts.period_end'))]);
+        $this->assertEquals(100.0, $october_row[$this->indexFor($monthly_headers, ctrans('texts.gross_sales'))]);
+        $this->assertEquals(10.0, $october_row[$this->indexFor($monthly_headers, ctrans('texts.tax_amount'))]);
+        $this->assertEquals(200.0, $november_row[$this->indexFor($monthly_headers, ctrans('texts.gross_sales'))]);
+        $this->assertEquals(20.0, $november_row[$this->indexFor($monthly_headers, ctrans('texts.tax_amount'))]);
+
+        $california_row = $this->rowMatchingColumns($data['state_breakdown'], [
+            ctrans('texts.filing_period') => '2025-10',
+            'State' => 'CA',
+        ]);
+        $new_york_row = $this->rowMatchingColumns($data['state_breakdown'], [
+            ctrans('texts.filing_period') => '2025-11',
+            'State' => 'NY',
+        ]);
+
+        $this->assertSame(ctrans('texts.client_billing_source'), $california_row[$this->indexFor($state_headers, ctrans('texts.jurisdiction_source'))]);
+        $this->assertEquals(100.0, $california_row[$this->indexFor($state_headers, ctrans('texts.gross_sales'))]);
+        $this->assertEquals(10.0, $california_row[$this->indexFor($state_headers, ctrans('texts.tax_amount'))]);
+        $this->assertSame(ctrans('texts.client_billing_source'), $new_york_row[$this->indexFor($state_headers, ctrans('texts.jurisdiction_source'))]);
+        $this->assertEquals(200.0, $new_york_row[$this->indexFor($state_headers, ctrans('texts.gross_sales'))]);
+        $this->assertEquals(20.0, $new_york_row[$this->indexFor($state_headers, ctrans('texts.tax_amount'))]);
+
+        $jurisdiction_headers = $data['jurisdiction_breakdown'][0];
+        $california_jurisdiction_row = $this->rowMatchingColumns($data['jurisdiction_breakdown'], [
+            ctrans('texts.filing_period') => '2025-10',
+            'State' => 'CA',
+            'City' => 'San Diego',
+            ctrans('texts.postal_code') => '92101',
+            ctrans('texts.jurisdiction_source') => ctrans('texts.client_billing_source'),
+        ]);
+        $new_york_jurisdiction_row = $this->rowMatchingColumns($data['jurisdiction_breakdown'], [
+            ctrans('texts.filing_period') => '2025-11',
+            'State' => 'NY',
+            'City' => 'New York',
+            ctrans('texts.postal_code') => '10001',
+            ctrans('texts.jurisdiction_source') => ctrans('texts.client_billing_source'),
+        ]);
+
+        $this->assertEquals(100.0, $california_jurisdiction_row[$this->indexFor($jurisdiction_headers, ctrans('texts.gross_sales'))]);
+        $this->assertEquals(10.0, $california_jurisdiction_row[$this->indexFor($jurisdiction_headers, ctrans('texts.tax_amount'))]);
+        $this->assertEquals(200.0, $new_york_jurisdiction_row[$this->indexFor($jurisdiction_headers, ctrans('texts.gross_sales'))]);
+        $this->assertEquals(20.0, $new_york_jurisdiction_row[$this->indexFor($jurisdiction_headers, ctrans('texts.tax_amount'))]);
+
+        $overview = $data['filing_overview'];
+        $this->assertSame('2025-10-01 - 2025-11-30', $this->overviewValue($overview, ctrans('texts.report_period')));
+        $this->assertEquals(300.0, $this->overviewValue($overview, ctrans('texts.gross_sales')));
+        $this->assertEquals(300.0, $this->overviewValue($overview, ctrans('texts.taxable_amount')));
+        $this->assertEquals(30.0, $this->overviewValue($overview, ctrans('texts.tax_amount')));
+        $this->assertSame(2, $this->overviewValue($overview, ctrans('texts.current_filing_rows')));
+        $this->assertSame(2, $this->overviewValue($overview, ctrans('texts.states_reported')));
+        $this->assertSame(2, $this->overviewValue($overview, ctrans('texts.jurisdictions_reported')));
+        $this->assertSame(2, $this->overviewValue($overview, ctrans('texts.rows_using_client_fallback')));
+
+        $workbook_company = $this->company->fresh();
+        $workbook_company->db = config('database.default');
+        $xlsx_report = new TaxPeriodReport($workbook_company, [
+            'date_range' => 'custom',
+            'start_date' => '2025-10-01',
+            'end_date' => '2025-11-30',
+            'is_income_billed' => true,
+        ], skip_initialization: true);
+
+        $temp_path = tempnam(sys_get_temp_dir(), 'tax_period_report_');
+        $spreadsheet = null;
+
+        try {
+            file_put_contents($temp_path, $xlsx_report->run());
+            $spreadsheet = IOFactory::load($temp_path);
+            $sheet_names = $spreadsheet->getSheetNames();
+
+            $this->assertSame(ctrans('texts.filing_overview'), $sheet_names[0]);
+            $this->assertContains(ctrans('texts.tax_summary'), $sheet_names);
+            $this->assertContains(ctrans('texts.monthly_filing_summary'), $sheet_names);
+            $this->assertContains(ctrans('texts.state_breakdown'), $sheet_names);
+            $this->assertContains(ctrans('texts.jurisdiction_breakdown'), $sheet_names);
+            $this->assertContains(ctrans('texts.corrections_review'), $sheet_names);
+
+            $overview_sheet = $spreadsheet->getSheetByName(ctrans('texts.filing_overview'));
+            $jurisdiction_sheet = $spreadsheet->getSheetByName(ctrans('texts.jurisdiction_breakdown'));
+
+            $this->assertNotNull($overview_sheet);
+            $this->assertNotNull($jurisdiction_sheet);
+            $this->assertSame(ctrans('texts.report_period'), $overview_sheet->getCell('A2')->getValue());
+            $this->assertSame('2025-10-01 - 2025-11-30', $overview_sheet->getCell('B2')->getValue());
+            $this->assertSame(ctrans('texts.jurisdiction_source'), $jurisdiction_sheet->getCell('I1')->getValue());
+        } finally {
+            if ($spreadsheet !== null) {
+                $spreadsheet->disconnectWorksheets();
+            }
+
+            if (is_string($temp_path) && file_exists($temp_path)) {
+                unlink($temp_path);
+            }
+        }
 
         $this->travelBack();
     }
@@ -490,6 +702,9 @@ class TaxPeriodReportClassificationTest extends TestCase
         $this->client->state = 'CA';
         $this->client->city = 'San Diego';
         $this->client->postal_code = '92101';
+        $this->client->shipping_state = null;
+        $this->client->shipping_city = null;
+        $this->client->shipping_postal_code = null;
         $this->client->save();
 
         $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());
@@ -538,6 +753,9 @@ class TaxPeriodReportClassificationTest extends TestCase
         $this->client->state = 'CA';
         $this->client->city = 'San Diego';
         $this->client->postal_code = '92101';
+        $this->client->shipping_state = null;
+        $this->client->shipping_city = null;
+        $this->client->shipping_postal_code = null;
         $this->client->save();
 
         $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());
@@ -596,6 +814,9 @@ class TaxPeriodReportClassificationTest extends TestCase
         $this->client->state = 'CA';
         $this->client->city = 'San Diego';
         $this->client->postal_code = '92101';
+        $this->client->shipping_state = null;
+        $this->client->shipping_city = null;
+        $this->client->shipping_postal_code = null;
         $this->client->save();
 
         $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());
@@ -866,6 +1087,9 @@ class TaxPeriodReportClassificationTest extends TestCase
         $this->client->state = 'CA';
         $this->client->city = 'San Diego';
         $this->client->postal_code = '92101';
+        $this->client->shipping_state = null;
+        $this->client->shipping_city = null;
+        $this->client->shipping_postal_code = null;
         $this->client->save();
 
         $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());
@@ -955,6 +1179,9 @@ class TaxPeriodReportClassificationTest extends TestCase
         $this->client->state = 'CA';
         $this->client->city = 'San Diego';
         $this->client->postal_code = '92101';
+        $this->client->shipping_state = null;
+        $this->client->shipping_city = null;
+        $this->client->shipping_postal_code = null;
         $this->client->save();
 
         $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());
