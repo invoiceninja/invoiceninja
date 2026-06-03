@@ -195,9 +195,9 @@
                 </tr>
 
                 <tr>
-                    <td cellpadding="20" bgcolor="#f9f9f9">
-                        <div class="dark-bg dark-text-white"
-                             style="text-align: center; padding-top: 10px; padding-bottom: 25px; background-color: #f9f9f9;">
+                    <td bgcolor="#f9f9f9" height="40" valign="middle" align="center"
+                        style="min-height: 40px; padding: 7px 20px 14px 20px; mso-padding-alt: 7px 20px 14px 20px; text-align: center; background-color: #f9f9f9; vertical-align: middle;">
+                        <div class="dark-bg dark-text-white">
                             @isset($signature)
                                 <p style="font-size: 15px; color: #2e2e2e; font-family: 'roboto', Arial, Helvetica, sans-serif; font-weight: 400; margin-bottom: 30px;">
                                     {!! nl2br($signature) !!}
@@ -217,9 +217,9 @@
                 </tr>
 
                 <tr>
-                    <td bgcolor="#242424"  cellpadding="20">
-                        <div class="dark-bg-base"
-                             style="padding-top: 10px;padding-bottom: 10px; background-color: #242424;">
+                    <td bgcolor="#242424" height="22" valign="middle" align="center"
+                        style="min-height: 22px; padding: 6px 20px; mso-padding-alt: 6px 20px; background-color: #242424; vertical-align: middle;">
+                        <div class="dark-bg-base">
                             @if(isset($company))
                                 @if($company->account->isPaid())
                                     <p style="text-align: center; color: #ffffff; font-size: 10px;
@@ -240,9 +240,9 @@
 
                 @if(isset($email_preferences) && $email_preferences)
                 <tr>
-                    <td bgcolor="#242424"  cellpadding="20">
-                        <div class="dark-bg-base"
-                             style="padding-top: 10px;padding-bottom: 10px; background-color: #242424;">
+                    <td bgcolor="#242424" height="22" valign="middle" align="center"
+                        style="min-height: 22px; padding: 6px 20px; mso-padding-alt: 6px 20px; background-color: #242424; vertical-align: middle;">
+                        <div class="dark-bg-base">
                                 <a href="{{ $email_preferences }}">
                                     <p style="text-align: center; color: #ffffff; font-size: 10px; font-family: Verdana, Geneva, Tahoma, sans-serif;">
                                         {{ ctrans('texts.email_preferences') }}
