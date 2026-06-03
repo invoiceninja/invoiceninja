@@ -37,8 +37,8 @@ class PreviewReport implements ShouldQueue
 
     public function handle()
     {
-        nlog("PreviewReport:: handle()");
-        $start = microtime(true);
+        // nlog("PreviewReport:: handle()");
+        // $start = microtime(true);
         MultiDB::setDb($this->company->db);
 
         $request = $this->preparePreviewRequest();
@@ -67,7 +67,7 @@ class PreviewReport implements ShouldQueue
         }
 
         Cache::put($this->hash, $report, 60 * 60);
-        nlog("PreviewReport:: handle() completed in " . (microtime(true) - $start) . " seconds");
+        // nlog("PreviewReport:: handle() completed in " . (microtime(true) - $start) . " seconds");
     }
 
     private function preparePreviewRequest(): array
