@@ -24,6 +24,8 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\DataMapper\TransactionEventMetadata;
+use App\Services\Report\TaxPeriod\TaxClassificationCalculator;
+use App\Services\Report\TaxPeriod\SalesBreakdownCalculator;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 
 class PaymentTransactionEventEntry implements ShouldQueue
@@ -192,6 +194,8 @@ class PaymentTransactionEventEntry implements ShouldQueue
         return new TransactionEventMetadata([
             'tax_report' => [
                 'tax_details' => $details,
+                'tax_details_by_classification' => TaxClassificationCalculator::calculate($invoice, $refund_ratio * -1, $details),
+                'sales_breakdown' => SalesBreakdownCalculator::calculate($invoice, $refund_ratio * -1),
                 'payment_history' => $this->payments->toArray(),
                 'tax_summary' => [
                     'tax_amount' => round($invoice->total_taxes * $refund_ratio, 2) * -1,
@@ -238,6 +242,8 @@ class PaymentTransactionEventEntry implements ShouldQueue
         return new TransactionEventMetadata([
             'tax_report' => [
                 'tax_details' => $details,
+                'tax_details_by_classification' => TaxClassificationCalculator::calculate($invoice, -1, $details),
+                'sales_breakdown' => SalesBreakdownCalculator::calculate($invoice, -1),
                 'payment_history' => $this->payments->toArray(),
                 'tax_summary' => [
                     'tax_amount' => round($invoice->total_taxes - $this->getTotalTaxPaid($invoice), 2) * -1,

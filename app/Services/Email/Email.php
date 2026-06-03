@@ -206,7 +206,7 @@ class Email implements ShouldQueue
     {
         $_variables = $this->email_object->variables;
 
-        match (class_basename($this->email_object->entity)) {
+        match (class_basename($this->email_object->entity ?? '')) {
             "Invoice" => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->makeValues(),
             "Quote" => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->makeValues(),
             "Credit" => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->makeValues(),

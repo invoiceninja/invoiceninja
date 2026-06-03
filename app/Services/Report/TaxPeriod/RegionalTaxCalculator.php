@@ -34,6 +34,11 @@ interface RegionalTaxCalculator
     public function calculateColumns(Invoice $invoice, float $amount): array;
 
     /**
+     * Build a stable, human-readable tax reporting bucket for grouping report rows.
+     */
+    public function reportingBucket(Invoice $invoice, TaxDetail $tax_detail): string;
+
+    /**
      * Check if this calculator should be used for the given company
      */
     public static function supports(string $country_iso): bool;

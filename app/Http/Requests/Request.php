@@ -15,11 +15,15 @@ namespace App\Http\Requests;
 use App\Http\ValidationRules\User\RelatedUserRule;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class Request extends FormRequest
 {
     use MakesHash;
     use RuntimeFormRequest;
+
+    /** @var class-string|null */
+    protected ?string $tag_entity_type = null;
 
     protected $file_validation = 'sometimes|file|max:100000|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx,webp,xml,zip,csv,ods,odt,odp,txt';
     /**
@@ -42,9 +46,9 @@ class Request extends FormRequest
 
     }
 
-    public function globalRules($rules)
+    public function globalRules(array $rules): array
     {
-        $merge_rules = [];
+        $merge_rules = $rules;
 
         foreach ($this->all() as $key => $value) {
 
@@ -53,16 +57,11 @@ class Request extends FormRequest
             }
 
             if (method_exists($this, $key)) {
-                $merge_rules = $this->{$key}($rules);
+                $merge_rules = $this->{$key}($merge_rules);
             }
         }
 
-        //01-02-2022 needed for CSV Imports
-        if (! $merge_rules) {
-            return $rules;
-        }
-
-        return array_merge($merge_rules, $rules);
+        return $merge_rules;
     }
 
     private function assigned_user_id($rules)
@@ -95,6 +94,18 @@ class Request extends FormRequest
         $rules['vendor_id'] = 'bail|nullable|sometimes|exists:vendors,id,company_id,' . $user->company()->id;
 
         return $rules;
+    }
+
+    private function tags(array $rules): array
+    {
+        if (! $this->tag_entity_type) {
+            return $rules;
+        }
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return array_merge($rules, $this->tagRules($user->company()->id, $this->tag_entity_type));
     }
 
     public function decodePrimaryKeys($input)
@@ -185,7 +196,87 @@ class Request extends FormRequest
             }
         }
 
+        $input = $this->normalizeTagPayload($input);
+
         return $input;
+    }
+
+    /**
+     * @param  array<string, mixed> $input
+     * @return array<string, mixed>
+     */
+    private function normalizeTagPayload(array $input): array
+    {
+        if (! array_key_exists('tags', $input) || ! is_array($input['tags'])) {
+            return $input;
+        }
+
+        if (! array_is_list($input['tags'])) {
+            $input['tags'] = [null];
+
+            return $input;
+        }
+
+        $tag_ids = [];
+
+        foreach ($input['tags'] as $tag) {
+            $tag_ids[] = $this->normalizeTagId($tag);
+        }
+
+        $input['tags'] = array_values(array_unique($tag_ids));
+
+        return $input;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function tagRules(int $company_id, string $entity_type): array
+    {
+        return [
+            'tags' => ['sometimes', 'array', 'list'],
+            'tags.*' => [
+                'bail',
+                'required',
+                'integer',
+                Rule::exists('tags', 'id')
+                    ->where('company_id', $company_id)
+                    ->where('entity_type', $entity_type)
+                    ->where('is_deleted', false),
+            ],
+        ];
+    }
+
+    private function normalizeTagId(mixed $tag): ?int
+    {
+        if (is_array($tag) && array_key_exists('id', $tag)) {
+            return $this->decodeTagId($tag['id']);
+        }
+
+        if (is_string($tag)) {
+            return $this->decodeTagId($tag);
+        }
+
+        return null;
+    }
+
+    private function decodeTagId(mixed $tag_id): ?int
+    {
+        if (! is_string($tag_id) || $tag_id === '') {
+            return null;
+        }
+
+        $decoded = $this->decodePrimaryKey($tag_id);
+
+        if (is_int($decoded) && $decoded > 0) {
+            return $decoded;
+        }
+
+        if (is_string($decoded) && ctype_digit($decoded) && (int) $decoded > 0) {
+            return (int) $decoded;
+        }
+
+        return null;
     }
 
     public function prepareForValidation() {}

@@ -23,8 +23,9 @@ use Illuminate\Validation\ValidationException;
  * to (company_id, entity_type) so a Task tag is distinct from a Project tag of
  * the same name.
  *
- * Public API writes are id-based: callers pass hashed tag ids, and the trait
- * validates them against the entity catalog before syncing.
+ * Model-level writes are id-based: callers pass numeric or hashed tag ids,
+ * while API requests normalize tag object payloads before syncing. The trait
+ * validates resolved ids against the entity catalog before syncing.
  *
  * @property int $company_id
  */
@@ -78,7 +79,7 @@ trait HasTags
             ->whereIn('id', $tag_ids)
             ->where('company_id', $company_id)
             ->where('entity_type', static::class)
-            // ->where('is_deleted', false)
+            ->where('is_deleted', false)
             ->pluck('id');
 
         if ($found->count() !== count($tag_ids)) {

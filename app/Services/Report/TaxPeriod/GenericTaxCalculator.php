@@ -29,9 +29,50 @@ class GenericTaxCalculator implements RegionalTaxCalculator
         return [];
     }
 
+    public function reportingBucket(Invoice $invoice, TaxDetail $tax_detail): string
+    {
+        return implode(' | ', array_filter([
+            'Generic',
+            $this->postalCode($invoice, $tax_detail),
+            $this->taxLabel($tax_detail),
+            $tax_detail->classification ?: ctrans('texts.unknown'),
+        ], fn (string $part): bool => $part !== ''));
+    }
+
     public static function supports(string $country_iso): bool
     {
         // Generic calculator supports all countries not handled by specific calculators
         return true;
+    }
+
+    private function postalCode(Invoice $invoice, TaxDetail $tax_detail): string
+    {
+        return trim((string) ($tax_detail->postal_code
+            ?: $invoice->client->shipping_postal_code
+            ?: $invoice->client->postal_code
+            ?: ''));
+    }
+
+    private function taxLabel(TaxDetail $tax_detail): string
+    {
+        $tax_name = trim($tax_detail->tax_name);
+        $tax_rate = $this->formatPercent($tax_detail->tax_rate);
+
+        if ($tax_name === '') {
+            return $tax_rate;
+        }
+
+        if ($tax_rate !== '' && !str_contains($tax_name, $tax_rate)) {
+            return trim("{$tax_name} {$tax_rate}");
+        }
+
+        return $tax_name;
+    }
+
+    private function formatPercent(float $rate): string
+    {
+        $formatted = rtrim(rtrim(number_format($rate, 4, '.', ''), '0'), '.');
+
+        return $formatted === '' ? '' : $formatted . '%';
     }
 }

@@ -43,6 +43,7 @@ class InvoiceItemReportRow
             ctrans('texts.status'),
             ctrans('texts.postal_code'),
             ctrans('texts.type'),
+            ctrans('texts.reporting_bucket'),
         ];
 
         if ($regional_calculator) {
@@ -76,6 +77,7 @@ class InvoiceItemReportRow
             $this->status->label(),
             $this->tax_detail->postal_code,
             $this->tax_detail->classification ?: ctrans('texts.unknown'),
+            $this->reportingBucket(),
         ];
 
         $row = $this->appendRegionalColumns($row, $this->tax_detail->tax_amount);
@@ -98,6 +100,7 @@ class InvoiceItemReportRow
             $this->status->label(),
             $this->tax_detail->postal_code,
             $this->tax_detail->classification ?: ctrans('texts.unknown'),
+            $this->reportingBucket(),
         ];
 
         $row = $this->appendRegionalColumns($row, $this->tax_detail->tax_amount);
@@ -114,6 +117,15 @@ class InvoiceItemReportRow
             TaxReportStatus::DELTA, TaxReportStatus::ADJUSTMENT => $this->buildAdjustmentRow(),
             default => $this->build(),
         };
+    }
+
+    private function reportingBucket(): string
+    {
+        if ($this->regional_calculator) {
+            return $this->regional_calculator->reportingBucket($this->invoice, $this->tax_detail);
+        }
+
+        return '';
     }
 
     /**

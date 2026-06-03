@@ -17,7 +17,9 @@ use App\Models\User;
 use App\Models\Client;
 use App\Models\Account;
 use App\Models\Company;
+use App\Models\Country;
 use App\Models\Invoice;
+use App\Models\Product;
 use App\Utils\Traits\MakesHash;
 use App\DataMapper\CompanySettings;
 use App\Factory\InvoiceItemFactory;
@@ -154,6 +156,44 @@ class TaxPeriodReportClassificationTest extends TestCase
     private function sumRows(array $rows, string $field): float
     {
         return round(array_sum(array_map(fn($r) => (float) ($r[$field] ?? 0), $rows)), 2);
+    }
+
+    private function sumSummaryColumn(array $summary_rows, string $header): float
+    {
+        $headers = $summary_rows[0] ?? [];
+        $index = $this->indexFor($headers, $header);
+
+        return round(array_sum(array_map(
+            fn (array $row): float => (float) ($row[$index] ?? 0),
+            array_slice($summary_rows, 1),
+        )), 2);
+    }
+
+    private function summaryColumnValues(array $summary_rows, string $header): array
+    {
+        $headers = $summary_rows[0] ?? [];
+        $index = $this->indexFor($headers, $header);
+
+        return array_map(
+            fn (array $row): mixed => $row[$index] ?? null,
+            array_slice($summary_rows, 1),
+        );
+    }
+
+    private function forceUnitedStatesCompany(): void
+    {
+        $settings = $this->company->settings;
+        $settings->country_id = (string) Country::query()->where('iso_3166_2', 'US')->firstOrFail()->id;
+        $this->company->settings = $settings;
+        $this->company->save();
+    }
+
+    private function indexFor(array $headers, string $header): int
+    {
+        $index = array_search($header, $headers, true);
+        $this->assertNotFalse($index, "Expected {$header} header to exist");
+
+        return (int) $index;
     }
 
     /* -------------------- Tests -------------------- */
@@ -391,6 +431,473 @@ class TaxPeriodReportClassificationTest extends TestCase
         $this->travelBack();
     }
 
+    public function testReportAddsReportingBucketAndSummaryFromClientFallback(): void
+    {
+        $this->forceUnitedStatesCompany();
+        $this->client->state = 'CA';
+        $this->client->city = 'San Diego';
+        $this->client->postal_code = '92101';
+        $this->client->shipping_state = null;
+        $this->client->shipping_city = null;
+        $this->client->shipping_postal_code = null;
+        $this->client->save();
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());
+
+        $invoice = $this->makeInvoice([
+            $this->makeItem(['cost' => 100, 'line_total' => 100, 'type_id' => '1', 'tax_id' => '1']),
+        ], ['tax_data' => null]);
+
+        (new InvoiceTransactionEventEntry())->run($invoice);
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 11, 1)->startOfDay());
+
+        $report = new TaxPeriodReport($this->company, [
+            'date_range' => 'custom',
+            'start_date' => '2025-10-01',
+            'end_date' => '2025-10-31',
+            'is_income_billed' => true,
+        ], skip_initialization: true);
+
+        $data = $report->boot()->getData();
+        $item_headers = $data['invoice_items'][0];
+        $item_row = $data['invoice_items'][1];
+        $bucket = $item_row[$this->indexFor($item_headers, ctrans('texts.reporting_bucket'))];
+
+        $this->assertStringContainsString('US', $bucket);
+        $this->assertStringContainsString('CA', $bucket);
+        $this->assertStringContainsString('San Diego', $bucket);
+        $this->assertStringContainsString('92101', $bucket);
+        $this->assertStringContainsString(LineClassifier::PRODUCT, $bucket);
+
+        $this->assertCount(2, $data['summary']);
+        $summary_headers = $data['summary'][0];
+        $summary_row = $data['summary'][1];
+
+        $this->assertSame($bucket, $summary_row[$this->indexFor($summary_headers, ctrans('texts.reporting_bucket'))]);
+        $this->assertSame('CA', $summary_row[$this->indexFor($summary_headers, 'State')]);
+        $this->assertSame('San Diego', $summary_row[$this->indexFor($summary_headers, 'City')]);
+        $this->assertEquals(100.0, $summary_row[$this->indexFor($summary_headers, ctrans('texts.taxable_amount'))]);
+        $this->assertEquals(10.0, $summary_row[$this->indexFor($summary_headers, ctrans('texts.tax_amount'))]);
+        $this->assertEquals(1, $summary_row[$this->indexFor($summary_headers, ctrans('texts.invoice_count'))]);
+
+        $this->travelBack();
+    }
+
+    public function testCashReportingBucketPreservesClassificationAfterPaymentUnwrap(): void
+    {
+        $this->forceUnitedStatesCompany();
+        $this->client->state = 'CA';
+        $this->client->city = 'San Diego';
+        $this->client->postal_code = '92101';
+        $this->client->save();
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());
+
+        $invoice = $this->makeInvoice([
+            $this->makeItem(['cost' => 100, 'line_total' => 100, 'type_id' => '1', 'tax_id' => '1']),
+        ], ['tax_data' => null]);
+
+        $invoice = $invoice->fresh();
+        $invoice->service()->applyPaymentAmount(110, 'p1')->save();
+        $invoice = $invoice->fresh();
+
+        (new InvoiceTransactionEventEntryCash())->run($invoice, '2025-10-01', '2025-10-31');
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 11, 1)->startOfDay());
+
+        $report = new TaxPeriodReport($this->company, [
+            'date_range' => 'custom',
+            'start_date' => '2025-10-01',
+            'end_date' => '2025-10-31',
+            'is_income_billed' => false,
+        ], skip_initialization: true);
+
+        $data = $report->boot()->getData();
+        $item_headers = $data['invoice_items'][0];
+        $item_row = $data['invoice_items'][1];
+
+        $this->assertSame(LineClassifier::PRODUCT, $item_row[$this->indexFor($item_headers, ctrans('texts.type'))]);
+
+        $bucket = $item_row[$this->indexFor($item_headers, ctrans('texts.reporting_bucket'))];
+        $this->assertStringContainsString(LineClassifier::PRODUCT, $bucket);
+        $this->assertStringNotContainsString(ctrans('texts.unknown'), $bucket);
+
+        $summary_headers = $data['summary'][0];
+        $summary_row = $data['summary'][1];
+        $this->assertSame($bucket, $summary_row[$this->indexFor($summary_headers, ctrans('texts.reporting_bucket'))]);
+        $this->assertEquals(100.0, $summary_row[$this->indexFor($summary_headers, ctrans('texts.taxable_amount'))]);
+        $this->assertEquals(10.0, $summary_row[$this->indexFor($summary_headers, ctrans('texts.tax_amount'))]);
+
+        $this->travelBack();
+    }
+
+    public function testSummaryUsesSalesBreakdownForExemptAndNonTaxableSales(): void
+    {
+        $this->forceUnitedStatesCompany();
+        $this->client->state = 'CA';
+        $this->client->city = 'San Diego';
+        $this->client->postal_code = '92101';
+        $this->client->save();
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());
+
+        $invoice = $this->makeInvoice([
+            $this->makeItem(['cost' => 100, 'line_total' => 100, 'type_id' => '1', 'tax_id' => (string) Product::PRODUCT_TYPE_PHYSICAL]),
+            $this->makeItem([
+                'cost' => 50,
+                'line_total' => 50,
+                'type_id' => '1',
+                'tax_id' => (string) Product::PRODUCT_TYPE_EXEMPT,
+                'tax_name1' => '',
+                'tax_rate1' => 0,
+            ]),
+            $this->makeItem([
+                'cost' => 30,
+                'line_total' => 30,
+                'type_id' => '2',
+                'tax_id' => (string) Product::PRODUCT_TYPE_SERVICE,
+                'tax_name1' => '',
+                'tax_rate1' => 0,
+            ]),
+        ], ['tax_data' => null]);
+
+        (new InvoiceTransactionEventEntry())->run($invoice);
+
+        $event = $invoice->fresh()->transaction_events()->first();
+        $this->assertNotEmpty($event->metadata->tax_report->sales_breakdown ?? []);
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 11, 1)->startOfDay());
+
+        $report = new TaxPeriodReport($this->company, [
+            'date_range' => 'custom',
+            'start_date' => '2025-10-01',
+            'end_date' => '2025-10-31',
+            'is_income_billed' => true,
+        ], skip_initialization: true);
+
+        $summary = $report->boot()->getData()['summary'];
+
+        $this->assertEquals(180.0, $this->sumSummaryColumn($summary, ctrans('texts.gross_sales')));
+        $this->assertEquals(100.0, $this->sumSummaryColumn($summary, ctrans('texts.taxable_amount')));
+        $this->assertEquals(50.0, $this->sumSummaryColumn($summary, ctrans('texts.exempt_sales')));
+        $this->assertEquals(30.0, $this->sumSummaryColumn($summary, ctrans('texts.non_taxable_sales')));
+        $this->assertEquals(0.0, $this->sumSummaryColumn($summary, ctrans('texts.zero_rated_sales')));
+        $this->assertEquals(10.0, $this->sumSummaryColumn($summary, ctrans('texts.tax_amount')));
+        $this->assertContains(ctrans('texts.exempt_sales'), $this->summaryColumnValues($summary, ctrans('texts.tax_treatment')));
+        $this->assertContains(ctrans('texts.non_taxable_sales'), $this->summaryColumnValues($summary, ctrans('texts.tax_treatment')));
+
+        $this->travelBack();
+    }
+
+    public function testSummaryUsesSalesBreakdownDeltaForInvoiceCorrections(): void
+    {
+        $this->forceUnitedStatesCompany();
+        $this->client->state = 'CA';
+        $this->client->city = 'San Diego';
+        $this->client->postal_code = '92101';
+        $this->client->save();
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());
+
+        $invoice = $this->makeInvoice([
+            $this->makeItem(['cost' => 100, 'line_total' => 100, 'type_id' => '1', 'tax_id' => (string) Product::PRODUCT_TYPE_PHYSICAL]),
+            $this->makeItem([
+                'cost' => 50,
+                'line_total' => 50,
+                'type_id' => '1',
+                'tax_id' => (string) Product::PRODUCT_TYPE_EXEMPT,
+                'tax_name1' => '',
+                'tax_rate1' => 0,
+            ]),
+        ], ['tax_data' => null]);
+
+        (new InvoiceTransactionEventEntry())->run($invoice, '2025-10-31');
+
+        $invoice = $invoice->fresh();
+        $invoice->line_items = [
+            $this->makeItem(['cost' => 100, 'line_total' => 100, 'type_id' => '1', 'tax_id' => (string) Product::PRODUCT_TYPE_PHYSICAL]),
+            $this->makeItem([
+                'cost' => 70,
+                'line_total' => 70,
+                'type_id' => '1',
+                'tax_id' => (string) Product::PRODUCT_TYPE_EXEMPT,
+                'tax_name1' => '',
+                'tax_rate1' => 0,
+            ]),
+        ];
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->save();
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 11, 1)->startOfDay());
+        (new InvoiceTransactionEventEntry())->run($invoice->fresh(), '2025-11-30');
+
+        $report = new TaxPeriodReport($this->company, [
+            'date_range' => 'custom',
+            'start_date' => '2025-11-01',
+            'end_date' => '2025-11-30',
+            'is_income_billed' => true,
+        ], skip_initialization: true);
+
+        $data = $report->boot()->getData();
+        $summary = $data['summary'];
+        $corrections = $data['corrections'];
+
+        $this->assertEquals(0.0, $this->sumSummaryColumn($summary, ctrans('texts.gross_sales')));
+        $this->assertEquals(0.0, $this->sumSummaryColumn($summary, ctrans('texts.taxable_amount')));
+        $this->assertEquals(0.0, $this->sumSummaryColumn($summary, ctrans('texts.exempt_sales')));
+        $this->assertEquals(0.0, $this->sumSummaryColumn($summary, ctrans('texts.tax_amount')));
+
+        $this->assertEquals(20.0, $this->sumSummaryColumn($corrections, ctrans('texts.gross_sales')));
+        $this->assertEquals(0.0, $this->sumSummaryColumn($corrections, ctrans('texts.taxable_amount')));
+        $this->assertEquals(20.0, $this->sumSummaryColumn($corrections, ctrans('texts.exempt_sales')));
+        $this->assertEquals(0.0, $this->sumSummaryColumn($corrections, ctrans('texts.tax_amount')));
+        $this->assertContains('delta', $this->summaryColumnValues($corrections, ctrans('texts.activity')));
+        $this->assertContains(ctrans('texts.invoice_correction'), $this->summaryColumnValues($corrections, ctrans('texts.correction_type')));
+        $this->assertContains(ctrans('texts.yes'), $this->summaryColumnValues($corrections, ctrans('texts.requires_review')));
+        $this->assertContains('2025-10-31', $this->summaryColumnValues($corrections, ctrans('texts.original_tax_period')));
+        $this->assertContains('2025-11-30', $this->summaryColumnValues($corrections, ctrans('texts.correction_recorded_period')));
+
+        $this->travelBack();
+    }
+
+    public function testPriorPeriodCashRefundIsReportedForCorrectionReviewOnly(): void
+    {
+        $this->forceUnitedStatesCompany();
+        $this->client->state = 'CA';
+        $this->client->city = 'San Diego';
+        $this->client->postal_code = '92101';
+        $this->client->save();
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 12, 15)->startOfDay());
+
+        $invoice = $this->makeInvoice([
+            $this->makeItem(['cost' => 100, 'line_total' => 100, 'type_id' => '1', 'tax_id' => (string) Product::PRODUCT_TYPE_PHYSICAL]),
+        ], ['tax_data' => null]);
+
+        $invoice->paid_to_date = $invoice->amount;
+        $invoice->balance = 0;
+        $invoice->status_id = Invoice::STATUS_PAID;
+        $invoice->save();
+
+        \App\Models\TransactionEvent::create([
+            'company_id' => $invoice->company_id,
+            'invoice_id' => $invoice->id,
+            'client_id' => $invoice->client_id,
+            'payment_id' => 0,
+            'credit_id' => 0,
+            'client_balance' => $invoice->client->balance,
+            'client_paid_to_date' => $invoice->client->paid_to_date,
+            'client_credit_balance' => $invoice->client->credit_balance,
+            'invoice_balance' => $invoice->balance,
+            'invoice_amount' => $invoice->amount,
+            'invoice_partial' => $invoice->partial ?? 0,
+            'invoice_paid_to_date' => $invoice->paid_to_date,
+            'invoice_status' => $invoice->status_id,
+            'payment_amount' => $invoice->amount,
+            'payment_applied' => $invoice->amount,
+            'payment_refunded' => $invoice->amount,
+            'payment_status' => null,
+            'event_id' => \App\Models\TransactionEvent::PAYMENT_REFUNDED,
+            'timestamp' => \Carbon\Carbon::createFromDate(2026, 1, 15)->startOfDay()->timestamp,
+            'metadata' => new \App\DataMapper\TransactionEventMetadata([
+                'tax_report' => [
+                    'tax_details' => [
+                        [
+                            'tax_name' => 'GST',
+                            'tax_rate' => 10,
+                            'taxable_amount' => -100,
+                            'tax_amount' => -10,
+                            'line_total' => 100,
+                            'total_tax' => 10,
+                            'postal_code' => '92101',
+                        ],
+                    ],
+                    'sales_breakdown' => \App\Services\Report\TaxPeriod\SalesBreakdownCalculator::calculate($invoice->fresh(), -1),
+                    'payment_history' => [
+                        [
+                            'number' => 'PAY-1',
+                            'amount' => $invoice->amount,
+                            'refunded' => $invoice->amount,
+                            'date' => '2025-12-15',
+                        ],
+                    ],
+                    'tax_summary' => [
+                        'tax_amount' => -10,
+                        'taxable_amount' => -100,
+                        'status' => 'adjustment',
+                    ],
+                ],
+            ]),
+            'period' => '2026-01-31',
+        ]);
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2026, 2, 1)->startOfDay());
+
+        $report = new TaxPeriodReport($this->company, [
+            'date_range' => 'custom',
+            'start_date' => '2026-01-01',
+            'end_date' => '2026-01-31',
+            'is_income_billed' => false,
+        ], skip_initialization: true);
+
+        $data = $report->boot()->getData();
+        $summary = $data['summary'];
+        $corrections = $data['corrections'];
+
+        $this->assertEquals(0.0, $this->sumSummaryColumn($summary, ctrans('texts.gross_sales')));
+        $this->assertEquals(0.0, $this->sumSummaryColumn($summary, ctrans('texts.taxable_amount')));
+        $this->assertEquals(0.0, $this->sumSummaryColumn($summary, ctrans('texts.tax_amount')));
+
+        $this->assertEquals(-100.0, $this->sumSummaryColumn($corrections, ctrans('texts.gross_sales')));
+        $this->assertEquals(-100.0, $this->sumSummaryColumn($corrections, ctrans('texts.taxable_amount')));
+        $this->assertEquals(-10.0, $this->sumSummaryColumn($corrections, ctrans('texts.tax_amount')));
+        $this->assertContains(ctrans('texts.payment_correction'), $this->summaryColumnValues($corrections, ctrans('texts.correction_type')));
+        $this->assertContains(ctrans('texts.yes'), $this->summaryColumnValues($corrections, ctrans('texts.requires_review')));
+        $this->assertContains('2025-12-31', $this->summaryColumnValues($corrections, ctrans('texts.original_tax_period')));
+        $this->assertContains('2026-01-31', $this->summaryColumnValues($corrections, ctrans('texts.correction_recorded_period')));
+
+        $this->travelBack();
+    }
+
+    public function testSummaryMarksLegacyRowsWhenSalesBreakdownIsMissing(): void
+    {
+        $this->forceUnitedStatesCompany();
+        $this->client->state = 'CA';
+        $this->client->city = 'San Diego';
+        $this->client->postal_code = '92101';
+        $this->client->save();
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());
+
+        $invoice = $this->makeInvoice([
+            $this->makeItem(['cost' => 100, 'line_total' => 100, 'type_id' => '1', 'tax_id' => (string) Product::PRODUCT_TYPE_PHYSICAL]),
+        ], ['tax_data' => null]);
+
+        (new InvoiceTransactionEventEntry())->run($invoice, '2025-10-31');
+
+        $event = $invoice->fresh()->transaction_events()->first();
+        $metadata = $event->metadata;
+        $metadata->tax_report->sales_breakdown = null;
+        $event->metadata = $metadata;
+        $event->saveQuietly();
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 11, 1)->startOfDay());
+
+        $report = new TaxPeriodReport($this->company, [
+            'date_range' => 'custom',
+            'start_date' => '2025-10-01',
+            'end_date' => '2025-10-31',
+            'is_income_billed' => true,
+        ], skip_initialization: true);
+
+        $summary = $report->boot()->getData()['summary'];
+
+        $this->assertContains(
+            ctrans('texts.legacy_tax_detail_source'),
+            $this->summaryColumnValues($summary, ctrans('texts.summary_source')),
+        );
+    }
+
+    public function testInitializationBackfillsSalesBreakdownForSafeLegacyEvent(): void
+    {
+        $this->forceUnitedStatesCompany();
+        $this->client->state = 'CA';
+        $this->client->city = 'San Diego';
+        $this->client->postal_code = '92101';
+        $this->client->save();
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 31)->setTime(12, 0));
+
+        $invoice = $this->makeInvoice([
+            $this->makeItem(['cost' => 100, 'line_total' => 100, 'type_id' => '1', 'tax_id' => (string) Product::PRODUCT_TYPE_PHYSICAL]),
+            $this->makeItem([
+                'cost' => 50,
+                'line_total' => 50,
+                'type_id' => '1',
+                'tax_id' => (string) Product::PRODUCT_TYPE_EXEMPT,
+                'tax_name1' => '',
+                'tax_rate1' => 0,
+            ]),
+        ], ['tax_data' => null]);
+
+        (new InvoiceTransactionEventEntry())->run($invoice, '2025-10-31');
+
+        $event = $invoice->fresh()->transaction_events()->first();
+        $metadata = $event->metadata;
+        $metadata->tax_report->sales_breakdown = null;
+        $event->metadata = $metadata;
+        $event->saveQuietly();
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 11, 1)->startOfDay());
+
+        $report = new TaxPeriodReport($this->company, [
+            'date_range' => 'custom',
+            'start_date' => '2025-10-01',
+            'end_date' => '2025-10-31',
+            'is_income_billed' => true,
+        ], skip_initialization: false);
+
+        $summary = $report->boot()->getData()['summary'];
+        $refreshed = \App\Models\TransactionEvent::query()->find($event->id);
+
+        $this->assertNotEmpty($refreshed->metadata->tax_report->sales_breakdown ?? []);
+        $this->assertContains(
+            ctrans('texts.sales_breakdown_source'),
+            $this->summaryColumnValues($summary, ctrans('texts.summary_source')),
+        );
+        $this->assertEquals(50.0, $this->sumSummaryColumn($summary, ctrans('texts.exempt_sales')));
+    }
+
+    public function testInitializationSkipsSalesBreakdownBackfillWhenInvoiceChangedAfterEvent(): void
+    {
+        $this->forceUnitedStatesCompany();
+        $this->client->state = 'CA';
+        $this->client->city = 'San Diego';
+        $this->client->postal_code = '92101';
+        $this->client->save();
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());
+
+        $invoice = $this->makeInvoice([
+            $this->makeItem(['cost' => 100, 'line_total' => 100, 'type_id' => '1', 'tax_id' => (string) Product::PRODUCT_TYPE_PHYSICAL]),
+        ], ['tax_data' => null]);
+
+        (new InvoiceTransactionEventEntry())->run($invoice, '2025-10-31');
+
+        $event = $invoice->fresh()->transaction_events()->first();
+        $metadata = $event->metadata;
+        $metadata->tax_report->sales_breakdown = null;
+        $event->metadata = $metadata;
+        $event->saveQuietly();
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 2)->startOfDay());
+
+        $invoice = $invoice->fresh();
+        $invoice->line_items = [
+            $this->makeItem(['cost' => 150, 'line_total' => 150, 'type_id' => '1', 'tax_id' => (string) Product::PRODUCT_TYPE_PHYSICAL]),
+        ];
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->save();
+
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 11, 1)->startOfDay());
+
+        $report = new TaxPeriodReport($this->company, [
+            'date_range' => 'custom',
+            'start_date' => '2025-10-01',
+            'end_date' => '2025-10-31',
+            'is_income_billed' => true,
+        ], skip_initialization: false);
+
+        $summary = $report->boot()->getData()['summary'];
+        $refreshed = \App\Models\TransactionEvent::query()->find($event->id);
+
+        $this->assertEmpty($refreshed->metadata->tax_report->sales_breakdown ?? []);
+        $this->assertContains(
+            ctrans('texts.legacy_tax_detail_source'),
+            $this->summaryColumnValues($summary, ctrans('texts.summary_source')),
+        );
+    }
     public function testFallbackForLegacyEventsWithoutClassification(): void
     {
         $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());

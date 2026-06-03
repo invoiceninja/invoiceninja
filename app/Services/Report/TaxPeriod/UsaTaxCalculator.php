@@ -48,50 +48,148 @@ class UsaTaxCalculator implements RegionalTaxCalculator
      */
     public function calculateColumns(Invoice $invoice, float $amount): array
     {
-        $tax_data = $invoice->tax_data;
+        $tax_sales = $this->taxDataFloat($invoice, 'taxSales');
+        $state_rate = $this->taxDataFloat($invoice, 'stateSalesTax');
+        $county_rate = $this->taxDataFloat($invoice, 'countySalesTax');
+        $city_rate = $this->taxDataFloat($invoice, 'citySalesTax');
+        $district_rate = $this->taxDataFloat($invoice, 'districtSalesTax');
 
-        // If no tax sales data, return empty columns
-        if (!isset($tax_data->taxSales) || $tax_data->taxSales == 0) {
+        if ($tax_sales == 0.0) {
             return [
-                $tax_data->geoState ?? '',
-                $tax_data->stateSalesTax ?? '',
+                $this->state($invoice),
+                $state_rate ?: '',
                 '',
-                $tax_data->geoCounty ?? '',
-                $tax_data->countySalesTax ?? '',
+                $this->county($invoice),
+                $county_rate ?: '',
                 '',
-                $tax_data->geoCity ?? '',
-                $tax_data->citySalesTax ?? '',
+                $this->city($invoice),
+                $city_rate ?: '',
                 '',
-                $tax_data->districtSalesTax ?? '',
+                $district_rate ?: '',
                 '',
             ];
         }
 
-        // Calculate proportional allocation
-        $total_tax_sales = $tax_data->taxSales;
-
-        $state_tax_amount = round(($tax_data->stateSalesTax / $total_tax_sales) * $amount, 2);
-        $county_tax_amount = round(($tax_data->countySalesTax / $total_tax_sales) * $amount, 2);
-        $city_tax_amount = round(($tax_data->citySalesTax / $total_tax_sales) * $amount, 2);
-        $district_tax_amount = round(($tax_data->districtSalesTax / $total_tax_sales) * $amount, 2);
-
         return [
-            $tax_data->geoState ?? '',
-            $tax_data->stateSalesTax ?? '',
-            $state_tax_amount,
-            $tax_data->geoCounty ?? '',
-            $tax_data->countySalesTax ?? '',
-            $county_tax_amount,
-            $tax_data->geoCity ?? '',
-            $tax_data->citySalesTax ?? '',
-            $city_tax_amount,
-            $tax_data->districtSalesTax ?? '',
-            $district_tax_amount,
+            $this->state($invoice),
+            $state_rate ?: '',
+            round(($state_rate / $tax_sales) * $amount, 2),
+            $this->county($invoice),
+            $county_rate ?: '',
+            round(($county_rate / $tax_sales) * $amount, 2),
+            $this->city($invoice),
+            $city_rate ?: '',
+            round(($city_rate / $tax_sales) * $amount, 2),
+            $district_rate ?: '',
+            round(($district_rate / $tax_sales) * $amount, 2),
         ];
+    }
+
+    public function reportingBucket(Invoice $invoice, TaxDetail $tax_detail): string
+    {
+        return implode(' | ', array_filter([
+            'US',
+            $this->state($invoice),
+            $this->county($invoice),
+            $this->city($invoice),
+            $this->districtCodeSummary($invoice),
+            $this->postalCode($invoice, $tax_detail),
+            $this->taxLabel($tax_detail),
+            $tax_detail->classification ?: ctrans('texts.unknown'),
+        ], fn (string $part): bool => $part !== ''));
     }
 
     public static function supports(string $country_iso): bool
     {
         return $country_iso === 'US';
+    }
+
+    private function state(Invoice $invoice): string
+    {
+        return $this->normalize($this->taxDataString($invoice, 'geoState')
+            ?: $invoice->client->shipping_state
+            ?: $invoice->client->state
+            ?: '');
+    }
+
+    private function county(Invoice $invoice): string
+    {
+        return $this->normalize($this->taxDataString($invoice, 'geoCounty'));
+    }
+
+    private function city(Invoice $invoice): string
+    {
+        return $this->normalize($this->taxDataString($invoice, 'geoCity')
+            ?: $invoice->client->shipping_city
+            ?: $invoice->client->city
+            ?: '');
+    }
+
+    private function postalCode(Invoice $invoice, TaxDetail $tax_detail): string
+    {
+        return trim((string) ($this->taxDataString($invoice, 'geoPostalCode')
+            ?: $tax_detail->postal_code
+            ?: $invoice->client->shipping_postal_code
+            ?: $invoice->client->postal_code
+            ?: ''));
+    }
+
+    private function districtCodeSummary(Invoice $invoice): string
+    {
+        $codes = [];
+
+        for ($i = 1; $i <= 5; $i++) {
+            $code = $this->taxDataString($invoice, "district{$i}Code");
+
+            if ($code !== '') {
+                $codes[] = $code;
+            }
+        }
+
+        $codes = array_values(array_unique($codes));
+
+        if (empty($codes)) {
+            return '';
+        }
+
+        return 'Districts ' . implode('/', $codes);
+    }
+
+    private function taxLabel(TaxDetail $tax_detail): string
+    {
+        $tax_name = trim($tax_detail->tax_name);
+        $tax_rate = $this->formatPercent($tax_detail->tax_rate);
+
+        if ($tax_name === '') {
+            return $tax_rate;
+        }
+
+        if ($tax_rate !== '' && !str_contains($tax_name, $tax_rate)) {
+            return trim("{$tax_name} {$tax_rate}");
+        }
+
+        return $tax_name;
+    }
+
+    private function formatPercent(float $rate): string
+    {
+        $formatted = rtrim(rtrim(number_format($rate, 4, '.', ''), '0'), '.');
+
+        return $formatted === '' ? '' : $formatted . '%';
+    }
+
+    private function taxDataString(Invoice $invoice, string $key): string
+    {
+        return trim((string) data_get($invoice->tax_data, $key, ''));
+    }
+
+    private function taxDataFloat(Invoice $invoice, string $key): float
+    {
+        return (float) data_get($invoice->tax_data, $key, 0);
+    }
+
+    private function normalize(?string $value): string
+    {
+        return trim((string) $value);
     }
 }

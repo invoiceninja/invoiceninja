@@ -18,6 +18,7 @@ use App\Models\TransactionEvent;
 use Illuminate\Support\Collection;
 use App\DataMapper\TransactionEventMetadata;
 use App\Services\Report\TaxPeriod\TaxClassificationCalculator;
+use App\Services\Report\TaxPeriod\SalesBreakdownCalculator;
 
 /**
  * Handles entries for invoices.
@@ -173,6 +174,10 @@ class InvoiceTransactionEventEntry
 
 
         $previous_tax_details = $previous_transaction_event->metadata->tax_report->tax_details;
+        $previous_sales_breakdown = $previous_transaction_event->metadata->tax_report->sales_breakdown ?? [];
+        $sales_breakdown = !empty($previous_sales_breakdown)
+            ? SalesBreakdownCalculator::calculateDelta($invoice, $previous_sales_breakdown)
+            : null;
 
         $postal_code = $invoice->client->postal_code;
 
@@ -211,6 +216,7 @@ class InvoiceTransactionEventEntry
             'tax_report' => [
                 'tax_details' => $details,
                 'tax_details_by_classification' => $this->buildDeltaByClassification($invoice),
+                'sales_breakdown' => $sales_breakdown,
                 'payment_history' => $this->payments->toArray() ?? [], //@phpstan-ignore-line
                 'tax_summary' => [
                     'taxable_amount' => $calc->getNetSubtotal() - $cumulative_taxable,
@@ -256,6 +262,7 @@ class InvoiceTransactionEventEntry
             'tax_report' => [
                 'tax_details' => $details,
                 'tax_details_by_classification' => TaxClassificationCalculator::calculate($invoice, $this->paid_ratio * -1, $details),
+                'sales_breakdown' => SalesBreakdownCalculator::calculate($invoice, $this->paid_ratio * -1),
                 'payment_history' => $this->payments->toArray() ?? [], //@phpstan-ignore-line
                 'tax_summary' => [
                     'taxable_amount' => $calc->getNetSubtotal() * $this->paid_ratio * -1,
@@ -301,6 +308,7 @@ class InvoiceTransactionEventEntry
             'tax_report' => [
                 'tax_details' => $details,
                 'tax_details_by_classification' => TaxClassificationCalculator::calculate($invoice, $this->paid_ratio, $details),
+                'sales_breakdown' => SalesBreakdownCalculator::calculate($invoice, $this->paid_ratio),
                 'payment_history' => $this->payments->toArray() ?? [], //@phpstan-ignore-line
                 'tax_summary' => [
                     'taxable_amount' => $calc->getNetSubtotal() * $this->paid_ratio,
@@ -344,6 +352,7 @@ class InvoiceTransactionEventEntry
             'tax_report' => [
                 'tax_details' => $details,
                 'tax_details_by_classification' => TaxClassificationCalculator::calculate($invoice, -1, $details),
+                'sales_breakdown' => SalesBreakdownCalculator::calculate($invoice, -1),
                 'payment_history' => $this->payments->toArray(),
                 'tax_summary' => [
                     'taxable_amount' => $calc->getNetSubtotal() * -1,
@@ -398,6 +407,7 @@ class InvoiceTransactionEventEntry
             'tax_report' => [
                 'tax_details' => $details,
                 'tax_details_by_classification' => TaxClassificationCalculator::calculate($invoice, 1.0, $details),
+                'sales_breakdown' => SalesBreakdownCalculator::calculate($invoice, 1.0),
                 'payment_history' => $this->payments->toArray(),
                 'tax_summary' => [
                     'taxable_amount' => $calc->getNetSubtotal(),
