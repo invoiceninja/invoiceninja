@@ -64,12 +64,20 @@ class RandomDataSeeder extends Seeder
         Model::unguard();
 
         $faker = \Faker\Factory::create();
-        $settings= CompanySettings::defaults();
-        
-        $settings->name = "Random Test Company";
+
+        for ($x = 1; $x <= 8; $x++) {
+            $this->seedAccount($faker, $x);
+        }
+    }
+
+    private function seedAccount(\Faker\Generator $faker, int $x): void
+    {
+        $settings = CompanySettings::defaults();
+
+        $settings->name = "Random Test Company {$x}";
         $settings->currency_id = '1';
         $settings->language_id = '1';
-        
+
         $account = Account::factory()->create();
         $company = Company::factory()->create([
             'account_id' => $account->id,
@@ -123,7 +131,7 @@ class RandomDataSeeder extends Seeder
         foreach ($permission_users as $p_user) {
 
             $user = User::firstOrNew([
-                'email' => "{$p_user}@example.com",
+                'email' => "{$p_user}{$x}@example.com",
             ]);
 
             $user->first_name = ucfirst($p_user);
@@ -157,7 +165,7 @@ class RandomDataSeeder extends Seeder
 
 
         $user = User::firstOrNew([
-            'email' => 'user@example.com',
+            'email' => "user{$x}@example.com",
         ]);
 
         $user->first_name = 'U';
@@ -202,7 +210,7 @@ class RandomDataSeeder extends Seeder
                     'client_id' => $client->id,
                     'company_id' => $company->id,
                     'is_primary' => 1,
-                    'email' => 'cypress@example.com',
+                    'email' => "cypress{$x}@example.com",
                     'password' => Hash::make('password'),
                 ]);
 
@@ -222,7 +230,7 @@ class RandomDataSeeder extends Seeder
                     'vendor_id' => $vendor->id,
                     'company_id' => $company->id,
                     'is_primary' => 1,
-                    'email' => 'cypress_vendor@example.com',
+                    'email' => "cypress_vendor{$x}@example.com",
                     'password' => Hash::make('password'),
                 ]);
 
@@ -234,7 +242,7 @@ class RandomDataSeeder extends Seeder
         /* Invoice Factory */
         Invoice::factory()->count(2)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
-        $invoices = Invoice::all();
+        $invoices = Invoice::where('company_id', $company->id)->get();
         $invoice_repo = new InvoiceRepository();
 
         $invoices->each(function ($invoice) use ($invoice_repo, $user, $company, $client) {
@@ -283,7 +291,7 @@ class RandomDataSeeder extends Seeder
         /*Credits*/
         Credit::factory()->count(2)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
-        $credits = Credit::cursor();
+        $credits = Credit::where('company_id', $company->id)->cursor();
         $credit_repo = new CreditRepository();
 
         $credits->each(function ($credit) use ($credit_repo, $user, $company, $client) {
@@ -308,7 +316,7 @@ class RandomDataSeeder extends Seeder
         /*Credits*/
         Quote::factory()->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
-        $quotes = Quote::cursor();
+        $quotes = Quote::where('company_id', $company->id)->cursor();
         $quote_repo = new QuoteRepository();
 
         $quotes->each(function ($quote) use ($quote_repo, $user, $company, $client) {
