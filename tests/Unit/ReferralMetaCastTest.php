@@ -42,7 +42,7 @@ class ReferralMetaCastTest extends TestCase
         $this->assertSame(3, $referralMeta->pro);
         $this->assertSame(4, $referralMeta->enterprise);
         $this->assertSame(CalendarConnection::STATUS_DISCONNECTED, $referralMeta->calendar_connection->status);
-        $this->assertSame(['status'], array_keys(get_object_vars($referralMeta->calendar_connection)));
+        $this->assertSame(['status','email'], array_keys(get_object_vars($referralMeta->calendar_connection)));
     }
 
     public function testItDefaultsMissingReferralMetaToTheLegacyResponseShape(): void
@@ -56,7 +56,7 @@ class ReferralMetaCastTest extends TestCase
         $this->assertSame(0, $referralMeta->pro);
         $this->assertSame(0, $referralMeta->enterprise);
         $this->assertSame(CalendarConnection::STATUS_DISCONNECTED, $referralMeta->calendar_connection->status);
-        $this->assertSame(['status'], array_keys(get_object_vars($referralMeta->calendar_connection)));
+        $this->assertSame(['status','email'], array_keys(get_object_vars($referralMeta->calendar_connection)));
     }
 
     public function testItStoresASingleCalendarConnectionWithMultipleCalendarsAndRedactsTokens(): void
@@ -124,7 +124,7 @@ class ReferralMetaCastTest extends TestCase
         $this->assertSame(3, $response->enterprise);
         $this->assertObjectHasProperty('calendar_connection', $response);
         $this->assertSame(CalendarConnection::STATUS_CONNECTED, $response->calendar_connection->status);
-        $this->assertSame(['status'], array_keys(get_object_vars($response->calendar_connection)));
+        $this->assertSame(['status','email'], array_keys(get_object_vars($response->calendar_connection)));
     }
 
     public function testReferralCountUpdatesDoNotClearCalendarConnection(): void
