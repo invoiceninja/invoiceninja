@@ -6249,6 +6249,7 @@ $lang = array(
     'zip_format_invalid' => 'ZIP format is invalid',
     'zip_validation_help' => 'ZIP validation: Must be 5 digits or 5+4 format (XXXXX-XXXX)',
     'zoom' => 'Zoom',
+    'report_too_large_to_preview' => 'Report too large to preview. Please download the report to view it.',
 );
 
 return $lang;
