@@ -117,6 +117,7 @@ class ReferralMeta implements Arrayable, JsonSerializable
 
         $payload->calendar_connection = (object) [
             'status' => $this->calendar_connection?->status() ?? CalendarConnection::STATUS_DISCONNECTED,
+            'email' => $this->calendar_connection->email ?? '',
         ];
 
         return $payload;
