@@ -2,6 +2,60 @@ version: 2
 updates:
   - package-ecosystem: "npm"
     directory: "/"
+    target-branch: "v5-develop"
     schedule:
       interval: "monthly"
-    versioning-strategy: increase
+    versioning-strategy: "increase"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "npm"
+    groups:
+      production-dependencies:
+        dependency-type: "production"
+        update-types:
+          - "minor"
+          - "patch"
+      development-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+      critical-npm:
+        dependency-type: "production"
+        update-types:
+          - "major"
+        labels:
+          - "dependencies"
+          - "npm"
+          - "major"
+
+  - package-ecosystem: "composer"
+    directory: "/"
+    target-branch: "v5-develop"
+    schedule:
+      interval: "monthly"
+    versioning-strategy: "widen"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "composer"
+    groups:
+      production-dependencies:
+        dependency-type: "production"
+        update-types:
+          - "minor"
+          - "patch"
+      development-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+      critical-composer:
+        dependency-type: "production"
+        update-types:
+          - "major"
+        labels:
+          - "dependencies"
+          - "composer"
+          - "major"
