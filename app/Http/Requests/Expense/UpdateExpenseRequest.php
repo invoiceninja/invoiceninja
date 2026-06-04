@@ -88,7 +88,7 @@ class UpdateExpenseRequest extends Request
         }
 
         if (isset($input['exchange_rate']) && $input['exchange_rate'] == 0) {
-            $input['exchnage_rate'] = 1;
+            $input['exchange_rate'] = 1;
         }
 
         /* Ensure the project is related */

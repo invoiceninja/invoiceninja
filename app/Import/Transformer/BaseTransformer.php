@@ -457,7 +457,7 @@ class BaseTransformer
     }
 
     /**
-     * @param $name
+     * @param $key
      *
      * @return string
      */
@@ -499,18 +499,33 @@ class BaseTransformer
      *
      * @return int|null
      */
-    public function getCountryId($name)
+    public function getCountryId($name): ?int
     {
+        $name = trim((string) $name);
 
-        if (strlen(trim($name)) == 2) {
+        if ($name === '') {
+            return null;
+        }
+
+        if (is_numeric($name)) {
+            $country_id = Country::query()->where('id', (int) $name)->value('id');
+
+            return $country_id ? (int) $country_id : null;
+        }
+
+        if (strlen($name) == 2) {
             return $this->getCountryIdBy2($name);
         }
 
-        $country = Country::query()->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
-            strtolower(str_replace(' ', '', $name)),
-        ])->first();
+        $normalized_name = strtolower(str_replace(' ', '', $name));
 
-        return $country ? $country->id : null;
+        $country = Country::query()
+            ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [$normalized_name])
+            ->orWhereRaw("LOWER(REPLACE(`full_name`, ' ' ,''))  = ?", [$normalized_name])
+            ->orWhere('iso_3166_3', strtoupper($name))
+            ->first();
+
+        return $country ? (int) $country->id : null;
     }
 
     /**
@@ -518,11 +533,13 @@ class BaseTransformer
      *
      * @return int|null
      */
-    public function getCountryIdBy2($name)
+    public function getCountryIdBy2($name): ?int
     {
-        return Country::query()->where('iso_3166_2', $name)->exists()
-            ? Country::query()->where('iso_3166_2', $name)->first()->id
-            : null;
+        $country_id = Country::query()
+            ->where('iso_3166_2', strtoupper(trim((string) $name)))
+            ->value('id');
+
+        return $country_id ? (int) $country_id : null;
     }
 
     /**

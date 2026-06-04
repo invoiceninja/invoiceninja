@@ -51,7 +51,7 @@ class CreditExport extends BaseExport
             return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
 
-        $report = $query->cursor()
+        $report = $this->streamQuery($query)
                 ->map(function ($credit) {
 
                     /** @var \App\Models\Credit $credit */
@@ -146,7 +146,7 @@ class CreditExport extends BaseExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        $query->cursor()
+        $this->streamQuery($query)
             ->each(function ($credit) {
                 /** @var \App\Models\Credit $credit */
                 $this->csv->insertOne($this->buildRow($credit));

@@ -44,7 +44,7 @@ class UpdateFranceEReportSubmissionStatus implements ShouldQueue
             return;
         }
 
-        if (! MultiDB::findAndSetDbByCompanyKey($tenantId)) {
+        if (config('ninja.db.multi_db_enabled') && ! MultiDB::findAndSetDbByCompanyKey($tenantId)) {
             return;
         }
 
@@ -56,7 +56,7 @@ class UpdateFranceEReportSubmissionStatus implements ShouldQueue
 
         $submission = TransactionEvent::query()
             ->where('company_id', $company->id)
-            ->whereIn('event_id', TransactionEvent::FR_REPORT_SUBMISSION_EVENTS)
+            ->whereIn('event_id', array_merge(TransactionEvent::FR_REPORT_SUBMISSION_EVENTS, TransactionEvent::FR_PAYMENT_NOTIFICATION_EVENTS))
             ->get()
             ->first(fn (TransactionEvent $event): bool => data_get($event->payment_request, 'guid') === $guid);
 
@@ -72,7 +72,10 @@ class UpdateFranceEReportSubmissionStatus implements ShouldQueue
             'received_at' => now()->toIso8601String(),
         ];
 
-        $submission->payment_status = $status;
+        if (! is_null($status)) {
+            $submission->payment_status = $status;
+        }
+
         $submission->payment_request = [
             ...($submission->payment_request ?? []),
             'last_event' => $this->input['event'] ?? null,
@@ -80,6 +83,10 @@ class UpdateFranceEReportSubmissionStatus implements ShouldQueue
             'events' => $history,
         ];
         $submission->save();
+
+        if (is_null($status)) {
+            return;
+        }
 
         $sourceEventIds = $submission->payment_request['source_event_ids'] ?? [];
 
@@ -90,12 +97,12 @@ class UpdateFranceEReportSubmissionStatus implements ShouldQueue
         }
     }
 
-    private function statusForEvent(string $event): int
+    private function statusForEvent(string $event): ?int
     {
         return match ($event) {
             'succeeded', 'cleared', 'accepted' => TransactionEvent::FR_REPORTING_STATUS_SUBMITTED,
             'failed', 'rejected', 'no_action_taken' => TransactionEvent::FR_REPORTING_STATUS_FAILED,
-            default => TransactionEvent::FR_REPORTING_STATUS_COMPILED,
+            default => null,
         };
     }
 }

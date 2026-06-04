@@ -163,7 +163,7 @@ class PaymentRepository extends BaseRepository
                     try {
                         $invoice->loadMissing(['client.country', 'client.company']);
 
-                        if ($invoice->client?->reportableFrTransaction()) {
+                        if ($invoice->client->reportableFrTransaction()) {
                             app(FrancePaymentApplicationRecorder::class)->recordMovement(
                                 payment: $payment,
                                 invoice: $invoice,

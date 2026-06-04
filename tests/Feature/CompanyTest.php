@@ -19,6 +19,7 @@ use App\Models\TaxRate;
 use Tests\MockAccountData;
 use App\Enum\SyncDirection;
 use App\Models\CompanyToken;
+use App\DataMapper\QuickbooksSettings;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\UploadedFile;
 use App\DataMapper\CompanySettings;
@@ -86,6 +87,39 @@ class CompanyTest extends TestCase
         $this->company->save();
     
         $this->assertEquals('push', $this->company->quickbooks->settings->client->direction->value);
+    }
+
+    public function testQuickbooksTokensAreStrippedFromApiResponse()
+    {
+        $this->company->quickbooks = new QuickbooksSettings([
+            'accessTokenKey' => 'secret_access_token',
+            'refresh_token' => 'secret_refresh_token',
+            'realmID' => 'realm_123',
+            'companyName' => 'Acme QB',
+            'settings' => [
+                'allow_deposit' => false,
+            ],
+        ]);
+        $this->company->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->getJson('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id));
+
+        $response->assertStatus(200);
+
+        $quickbooks = $response->json('data.quickbooks');
+
+        $this->assertIsArray($quickbooks);
+        $this->assertArrayNotHasKey('accessTokenKey', $quickbooks);
+        $this->assertArrayNotHasKey('refresh_token', $quickbooks);
+        $this->assertStringNotContainsString('secret_access_token', $response->getContent());
+        $this->assertStringNotContainsString('secret_refresh_token', $response->getContent());
+
+        $this->assertEquals('realm_123', $quickbooks['realmID']);
+        $this->assertArrayHasKey('allow_deposit', $quickbooks['settings']);
+        $this->assertFalse($quickbooks['settings']['allow_deposit']);
     }
 
     public function testCompanyWebsite()

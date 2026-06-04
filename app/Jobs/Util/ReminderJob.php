@@ -78,8 +78,8 @@ class ReminderJob implements ShouldQueue
                  });
         } else {
 
-            //multiDB environment, need to
-//Hosted specific, do not fold the queries together!
+            //MultiDB environment, need to
+            //Hosted specific, do not fold the queries together!
             foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
 

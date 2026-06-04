@@ -1,8 +1,18 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Services\EDocument\Standards\France\Models;
 
 use Symfony\Component\Serializer\Attribute\SerializedPath;
+use App\DataMapper\FranceEReporting\ReportDataValidator;
+use App\Services\EDocument\Standards\France\FranceEReportTaxCategory;
 
 class B2BITaxSubtotal
 {
@@ -42,21 +52,15 @@ class B2BITaxSubtotal
     {
         return array_filter([
             'taxCategory' => self::normalizeTaxCategory($this->category),
-            'percentage' => $this->percentage,
-            'taxableAmount' => $this->taxable_amount,
-            'taxAmount' => $this->tax_amount,
+            'percentage' => is_null($this->percentage) ? null : ReportDataValidator::numericValue($this->percentage, 'b2biInvoices.taxSubtotals.percentage'),
+            'taxableAmount' => is_null($this->taxable_amount) ? null : ReportDataValidator::numericValue($this->taxable_amount, 'b2biInvoices.taxSubtotals.taxableAmount'),
+            'taxAmount' => is_null($this->tax_amount) ? null : ReportDataValidator::numericValue($this->tax_amount, 'b2biInvoices.taxSubtotals.taxAmount'),
             'country' => $country,
-        ], static fn (mixed $value): bool => ! is_null($value) && $value !== []);
+        ], static fn (mixed $value): bool => ! is_null($value));
     }
 
     public static function normalizeTaxCategory(?string $category): ?string
     {
-        return match ($category) {
-            'S' => 'standard',
-            'K' => 'reverse_charge',
-            'E' => 'exempt',
-            'Z' => 'zero_rated',
-            default => $category,
-        };
+        return FranceEReportTaxCategory::normalize($category);
     }
 }

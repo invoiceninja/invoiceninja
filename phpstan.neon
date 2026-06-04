@@ -23,6 +23,7 @@ parameters:
             - 'Modules/Accounting/*'
             - 'tests/*'
             - '~/.cursor/*'
+            - '_ide_helper_models.php'
     universalObjectCratesClasses:
         - App\DataMapper\Tax\RuleInterface
         - App\DataMapper\FeesAndLimits

@@ -22,6 +22,9 @@ class StoreTaskRequest extends Request
 {
     use MakesHash;
 
+    /** @var class-string */
+    protected ?string $tag_entity_type = Task::class;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -179,7 +182,7 @@ class StoreTaskRequest extends Request
             } else {
                 unset($input['project_id']);
             }
-        } elseif (array_key_exists('email', $input) && isset($input['email']) && strlen($input['email']) > 3) { // if creating a task via the chrome extension, we can associate the task to the client email.
+        } elseif (array_key_exists('email', $input) && strlen($input['email'] ?? '') > 3) { // if creating a task via the chrome extension, we can associate the task to the client email.
             $contact = \App\Models\ClientContact::where('email', $input['email'])->company()->first();
             if ($contact) {
                 $input['client_id'] = $contact->client_id;

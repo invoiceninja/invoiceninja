@@ -78,7 +78,7 @@ final readonly class B2BIPaymentData implements Arrayable, JsonSerializable
             'issueDate' => $this->issueDate,
             'paymentDate' => $this->paymentDate,
             'paymentMeansCode' => $this->paymentMeansCode,
-            'amount' => $this->amount,
+            'amount' => is_null($this->amount) ? null : ReportDataValidator::numericValue($this->amount, 'b2biPayments.amount'),
             'currency' => $this->currency,
             'taxSubtotals' => array_values(array_map(
                 static fn (TaxSubtotalData $taxSubtotal): array => $taxSubtotal->toArray(),

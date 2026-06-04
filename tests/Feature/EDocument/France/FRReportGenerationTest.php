@@ -84,13 +84,13 @@ class FRReportGenerationTest extends TestCase
         $this->assertSame($artifact, json_decode(file_get_contents($artifactPath), true, 512, JSON_THROW_ON_ERROR));
         $this->assertSame('fr_e_report', $artifact['document']['documentType']);
         $this->assertSame($normalized, $artifact['document']['frEReport']['transactionReport']['b2biInvoices'][0]);
-        $this->assertSame('1200', $normalized['amountIncludingVat']);
+        $this->assertSame(1200, $normalized['amountIncludingVat']);
         $this->assertSame([
             [
                 'taxCategory' => 'standard',
-                'percentage' => '20',
-                'taxableAmount' => '1000',
-                'taxAmount' => '200.00',
+                'percentage' => 20,
+                'taxableAmount' => 1000,
+                'taxAmount' => 200,
                 'country' => 'FR',
             ],
         ], $normalized['taxSubtotals']);

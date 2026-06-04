@@ -12,6 +12,7 @@
 
 namespace App\Transformers;
 
+use App\DataMapper\Referral\ReferralMeta;
 use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
@@ -41,10 +42,9 @@ class UserTransformer extends EntityTransformer
 
     public function transform(User $user)
     {
-        $ref = new \stdClass();
-        $ref->free = 0;
-        $ref->pro = 0;
-        $ref->enterprise = 0;
+        $referralMeta = $user->referral_meta instanceof ReferralMeta
+            ? $user->referral_meta
+            : new ReferralMeta($user->referral_meta);
 
         return [
             'id' => $this->encodePrimaryKey($user->id),
@@ -74,7 +74,7 @@ class UserTransformer extends EntityTransformer
             'language_id' => (string) $user->language_id ?: '',
             'user_logged_in_notification' => (bool) $user->user_logged_in_notification,
             'referral_code' => (string) $user->referral_code,
-            'referral_meta' => $user->referral_meta ? (object) $user->referral_meta : $ref,
+            'referral_meta' => $referralMeta->toResponseObject(),
         ];
     }
 

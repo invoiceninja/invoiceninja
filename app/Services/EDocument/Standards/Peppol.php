@@ -803,6 +803,10 @@ class Peppol extends AbstractService implements MutatorInterface
      */
     private function standardPeppolRules(): self
     {
+        if (!isset($this->p_invoice->PaymentMeans)) {
+            return $this;
+        }
+
         foreach ($this->p_invoice->PaymentMeans as &$pm) {
             unset($pm->PayeeFinancialAccount->FinancialInstitutionBranch);
         }

@@ -45,6 +45,8 @@ class UpdateUserRequest extends Request
             $rules['phone'] = ['sometimes', 'bail', 'string', new HasValidPhoneNumber()];
         }
 
+        $rules['language_id'] = 'bail|nullable|sometimes|exists:languages,id';
+
         return $rules;
     }
 

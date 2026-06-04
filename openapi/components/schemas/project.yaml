@@ -78,6 +78,11 @@
         color:
           type: string
           description: The color associated with the project
+        tags:
+          description: 'Tags assigned to the project'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
       required:
         - id
         - user_id

@@ -1,6 +1,15 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Services\EDocument\Standards\France\Models;
+use App\DataMapper\FranceEReporting\ReportDataValidator;
 
 use Symfony\Component\Serializer\Attribute\SerializedPath;
 
@@ -118,7 +127,7 @@ class B2BIInvoice
             'issueDate' => $this->issue_date,
             'dueDate' => $this->due_date,
             'documentCurrency' => $this->document_currency_code,
-            'amountIncludingVat' => $this->amount_including_vat,
+            'amountIncludingVat' => is_null($this->amount_including_vat) ? null : ReportDataValidator::numericValue($this->amount_including_vat, 'b2biInvoices.amountIncludingVat'),
             'taxSubtotals' => $this->taxSubtotalsToArray($this->tax_subtotals
                 ?? data_get($this->tax_total, '0.cac:TaxSubtotal')
                 ?? data_get($this->tax_total_direct, '0.TaxSubtotal')

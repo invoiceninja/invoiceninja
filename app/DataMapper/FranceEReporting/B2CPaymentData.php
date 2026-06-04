@@ -52,7 +52,7 @@ final readonly class B2CPaymentData implements Arrayable, JsonSerializable
                 static fn (TaxSubtotalData $taxSubtotal): array => $taxSubtotal->toArray(),
                 $this->taxSubtotal,
             )),
-        ], static fn (mixed $value): bool => ! is_null($value) && $value !== []);
+        ], static fn (mixed $value): bool => $value !== []);
     }
 
     /**

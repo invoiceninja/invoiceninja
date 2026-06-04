@@ -47,6 +47,8 @@ class CrossCompanyAccessTest extends TestCase
 
     private string $other_token;
 
+    private Account $test_account;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -57,25 +59,25 @@ class CrossCompanyAccessTest extends TestCase
         Model::reguard();
 
         // Create a completely separate account/company/user/token
-        $account = Account::factory()->create([
+        $this->test_account = Account::factory()->create([
             'hosted_client_count' => 1000,
             'hosted_company_count' => 1000,
         ]);
 
-        $account->num_users = 3;
-        $account->save();
+        $this->test_account->num_users = 3;
+        $this->test_account->save();
 
         $company = Company::factory()->create([
-            'account_id' => $account->id,
+            'account_id' => $this->test_account->id,
         ]);
 
         $user = User::factory()->create([
-            'account_id' => $account->id,
+            'account_id' => $this->test_account->id,
             'confirmation_code' => '123',
             'email' => $this->faker->safeEmail(),
         ]);
 
-        $cu = CompanyUserFactory::create($user->id, $company->id, $account->id);
+        $cu = CompanyUserFactory::create($user->id, $company->id, $this->test_account->id);
         $cu->is_owner = true;
         $cu->is_admin = true;
         $cu->save();
@@ -85,7 +87,7 @@ class CrossCompanyAccessTest extends TestCase
         $company_token = new CompanyToken();
         $company_token->user_id = $user->id;
         $company_token->company_id = $company->id;
-        $company_token->account_id = $account->id;
+        $company_token->account_id = $this->test_account->id;
         $company_token->name = 'test token';
         $company_token->token = $this->other_token;
         $company_token->is_system = true;
@@ -108,6 +110,8 @@ class CrossCompanyAccessTest extends TestCase
         ])->get('/api/v1/designs/' . $this->encodePrimaryKey($design->id));
 
         $response->assertStatus(403);
+
+        $this->test_account->delete();
     }
 
     public function testCrossCompanyShowTaxRateDenied(): void
@@ -118,6 +122,7 @@ class CrossCompanyAccessTest extends TestCase
         ])->get('/api/v1/tax_rates/' . $this->encodePrimaryKey($this->tax_rate->id));
 
         $response->assertStatus(403);
+        $this->test_account->delete();
     }
 
     public function testCrossCompanyShowTaskStatusDenied(): void
@@ -128,6 +133,8 @@ class CrossCompanyAccessTest extends TestCase
         ])->get('/api/v1/task_statuses/' . $this->encodePrimaryKey($this->task_status->id));
 
         $response->assertStatus(403);
+        $this->test_account->delete();
+
     }
 
     public function testCrossCompanyShowCompanyGatewayDenied(): void
@@ -142,6 +149,8 @@ class CrossCompanyAccessTest extends TestCase
         ])->get('/api/v1/company_gateways/' . $this->encodePrimaryKey($cg->id));
 
         $response->assertStatus(403);
+        $this->test_account->delete();
+
     }
 
     public function testCrossCompanyEditCompanyGatewayDenied(): void
@@ -156,6 +165,8 @@ class CrossCompanyAccessTest extends TestCase
         ])->get('/api/v1/company_gateways/' . $this->encodePrimaryKey($cg->id) . '/edit');
 
         $response->assertStatus(403);
+        $this->test_account->delete();
+
     }
 
     public function testCrossCompanyShowWebhookDenied(): void
@@ -174,6 +185,8 @@ class CrossCompanyAccessTest extends TestCase
         ])->get('/api/v1/webhooks/' . $this->encodePrimaryKey($webhook->id));
 
         $response->assertStatus(403);
+        $this->test_account->delete();
+
     }
 
     public function testCrossCompanyShowPaymentTermDenied(): void
@@ -191,6 +204,8 @@ class CrossCompanyAccessTest extends TestCase
         ])->get('/api/v1/payment_terms/' . $this->encodePrimaryKey($payment_term->id));
 
         $response->assertStatus(403);
+        $this->test_account->delete();
+
     }
 
     public function testCrossCompanyShowTokenDenied(): void
@@ -206,6 +221,8 @@ class CrossCompanyAccessTest extends TestCase
         ])->get('/api/v1/tokens/' . $this->encodePrimaryKey($token->id));
 
         $response->assertStatus(403);
+        $this->test_account->delete();
+
     }
 
     public function testCrossCompanyUpdateTaxRateDenied(): void
@@ -219,6 +236,8 @@ class CrossCompanyAccessTest extends TestCase
         ]);
 
         $response->assertStatus(403);
+        $this->test_account->delete();
+
     }
 
     public function testCrossCompanyDestroyTaskStatusDenied(): void
@@ -229,6 +248,8 @@ class CrossCompanyAccessTest extends TestCase
         ])->delete('/api/v1/task_statuses/' . $this->encodePrimaryKey($this->task_status->id));
 
         $response->assertStatus(403);
+        $this->test_account->delete();
+
     }
 
     public function testCrossCompanyUpdatePaymentTermDenied(): void
@@ -248,6 +269,8 @@ class CrossCompanyAccessTest extends TestCase
         ]);
 
         $response->assertStatus(403);
+        $this->test_account->delete();
+
     }
 
     public function testCrossCompanyDestroyWebhookDenied(): void
@@ -266,6 +289,8 @@ class CrossCompanyAccessTest extends TestCase
         ])->delete('/api/v1/webhooks/' . $this->encodePrimaryKey($webhook->id));
 
         $response->assertStatus(403);
+        $this->test_account->delete();
+
     }
 
     /**
@@ -279,6 +304,8 @@ class CrossCompanyAccessTest extends TestCase
         ])->get('/api/v1/tax_rates/' . $this->encodePrimaryKey($this->tax_rate->id));
 
         $response->assertStatus(200);
+        $this->test_account->delete();
+
     }
 
     public function testSameCompanyShowTaskStatusAllowed(): void
@@ -289,6 +316,8 @@ class CrossCompanyAccessTest extends TestCase
         ])->get('/api/v1/task_statuses/' . $this->encodePrimaryKey($this->task_status->id));
 
         $response->assertStatus(200);
+        $this->test_account->delete();
+
     }
 
     public function testSameCompanyShowDesignAllowed(): void
@@ -307,6 +336,8 @@ class CrossCompanyAccessTest extends TestCase
         ])->get('/api/v1/designs/' . $this->encodePrimaryKey($design->id));
 
         $response->assertStatus(200);
+        $this->test_account->delete();
+
     }
 
     public function testSameCompanyShowWebhookAllowed(): void
@@ -325,6 +356,8 @@ class CrossCompanyAccessTest extends TestCase
         ])->get('/api/v1/webhooks/' . $this->encodePrimaryKey($webhook->id));
 
         $response->assertStatus(200);
+        $this->test_account->delete();
+
     }
 
     public function testSameCompanyShowPaymentTermAllowed(): void
@@ -342,6 +375,8 @@ class CrossCompanyAccessTest extends TestCase
         ])->get('/api/v1/payment_terms/' . $this->encodePrimaryKey($payment_term->id));
 
         $response->assertStatus(200);
+        $this->test_account->delete();
+
     }
 
     public function testSameCompanyShowTokenAllowed(): void
@@ -356,6 +391,8 @@ class CrossCompanyAccessTest extends TestCase
         ])->get('/api/v1/tokens/' . $this->encodePrimaryKey($token->id));
 
         $response->assertStatus(200);
+        $this->test_account->delete();
+
     }
 
     /**
@@ -384,6 +421,8 @@ class CrossCompanyAccessTest extends TestCase
 
         // The response should return empty data (entity filtered out by company scope)
         $this->assertCount(0, $arr['data']);
+        $this->test_account->delete();
+
     }
 
     public function testCrossCompanyBulkTaxRateDenied(): void
@@ -400,6 +439,8 @@ class CrossCompanyAccessTest extends TestCase
 
         $arr = $response->json();
         $this->assertCount(0, $arr['data']);
+        $this->test_account->delete();
+
     }
 
     public function testCrossCompanyBulkTaskStatusDenied(): void
@@ -416,6 +457,8 @@ class CrossCompanyAccessTest extends TestCase
 
         $arr = $response->json();
         $this->assertCount(0, $arr['data']);
+        $this->test_account->delete();
+
     }
 
     public function testCrossCompanyBulkWebhookDenied(): void
@@ -440,6 +483,8 @@ class CrossCompanyAccessTest extends TestCase
 
         $arr = $response->json();
         $this->assertCount(0, $arr['data']);
+        $this->test_account->delete();
+
     }
 
     public function testCrossCompanyBulkPaymentTermDenied(): void
@@ -463,6 +508,8 @@ class CrossCompanyAccessTest extends TestCase
 
         $arr = $response->json();
         $this->assertCount(0, $arr['data']);
+        $this->test_account->delete();
+
     }
 
     public function testCrossCompanyBulkVendorDenied(): void
@@ -479,6 +526,8 @@ class CrossCompanyAccessTest extends TestCase
 
         $arr = $response->json();
         $this->assertCount(0, $arr['data']);
+        $this->test_account->delete();
+
     }
 
     public function testCrossCompanyBulkExpenseDenied(): void
@@ -495,6 +544,8 @@ class CrossCompanyAccessTest extends TestCase
 
         // BulkExpenseRequest validates ids belong to user's company via Rule::exists
         $response->assertStatus(422);
+        $this->test_account->delete();
+
     }
 
     public function testCrossCompanyBulkTaskDenied(): void
@@ -511,6 +562,8 @@ class CrossCompanyAccessTest extends TestCase
 
         $arr = $response->json();
         $this->assertCount(0, $arr['data']);
+        $this->test_account->delete();
+
     }
 
     public function testCrossCompanyBulkProjectDenied(): void
@@ -527,6 +580,8 @@ class CrossCompanyAccessTest extends TestCase
 
         $arr = $response->json();
         $this->assertCount(0, $arr['data']);
+        $this->test_account->delete();
+
     }
 
     public function testCrossCompanyBulkProductDenied(): void
@@ -543,6 +598,8 @@ class CrossCompanyAccessTest extends TestCase
 
         // BulkProductRequest validates ids belong to user's company via Rule::exists
         $response->assertStatus(422);
+        $this->test_account->delete();
+
     }
 
     public function testCrossCompanyBulkSchedulerDenied(): void
@@ -559,6 +616,8 @@ class CrossCompanyAccessTest extends TestCase
 
         $arr = $response->json();
         $this->assertCount(0, $arr['data']);
+        $this->test_account->delete();
+
     }
 
     public function testCrossCompanyBulkRecurringExpenseDenied(): void
@@ -575,6 +634,8 @@ class CrossCompanyAccessTest extends TestCase
 
         $arr = $response->json();
         $this->assertCount(0, $arr['data']);
+        $this->test_account->delete();
+
     }
 
     public function testCrossCompanyBulkPaymentDenied(): void
@@ -591,6 +652,8 @@ class CrossCompanyAccessTest extends TestCase
 
         $arr = $response->json();
         $this->assertCount(0, $arr['data']);
+        $this->test_account->delete();
+
     }
 
     /**
@@ -616,6 +679,8 @@ class CrossCompanyAccessTest extends TestCase
         $arr = $response->json();
         $this->assertCount(1, $arr['data']);
         $this->assertNotNull($arr['data'][0]['archived_at']);
+        $this->test_account->delete();
+
     }
 
     public function testSameCompanyBulkTaxRateAllowed(): void
@@ -633,6 +698,8 @@ class CrossCompanyAccessTest extends TestCase
         $arr = $response->json();
         $this->assertCount(1, $arr['data']);
         $this->assertNotNull($arr['data'][0]['archived_at']);
+        $this->test_account->delete();
+
     }
 
     public function testSameCompanyBulkWebhookAllowed(): void
@@ -658,6 +725,8 @@ class CrossCompanyAccessTest extends TestCase
         $arr = $response->json();
         $this->assertCount(1, $arr['data']);
         $this->assertNotNull($arr['data'][0]['archived_at']);
+        $this->test_account->delete();
+
     }
 
     public function testSameCompanyBulkVendorAllowed(): void
@@ -675,6 +744,8 @@ class CrossCompanyAccessTest extends TestCase
         $arr = $response->json();
         $this->assertCount(1, $arr['data']);
         $this->assertNotNull($arr['data'][0]['archived_at']);
+        $this->test_account->delete();
+
     }
 
     public function testCrossCompanyBulkRecurringQuoteDenied(): void
@@ -691,6 +762,8 @@ class CrossCompanyAccessTest extends TestCase
 
         $arr = $response->json();
         $this->assertCount(0, $arr['data']);
+        $this->test_account->delete();
+
     }
 
     public function testSameCompanyBulkRecurringQuoteAllowed(): void
@@ -708,6 +781,8 @@ class CrossCompanyAccessTest extends TestCase
         $arr = $response->json();
         $this->assertCount(1, $arr['data']);
         $this->assertNotNull($arr['data'][0]['archived_at']);
+        $this->test_account->delete();
+
     }
 
     public function testCrossCompanyBulkRecurringInvoiceDenied(): void
@@ -724,6 +799,8 @@ class CrossCompanyAccessTest extends TestCase
 
         // BulkRecurringInvoiceRequest validates ids belong to user's company via Rule::exists
         $response->assertStatus(422);
+        $this->test_account->delete();
+
     }
 
     public function testSameCompanyBulkRecurringInvoiceAllowed(): void
@@ -741,6 +818,8 @@ class CrossCompanyAccessTest extends TestCase
         $arr = $response->json();
         $this->assertCount(1, $arr['data']);
         $this->assertNotNull($arr['data'][0]['archived_at']);
+        $this->test_account->delete();
+
     }
 
     public function testCrossCompanyBulkDesignDenied(): void
@@ -765,6 +844,8 @@ class CrossCompanyAccessTest extends TestCase
 
         $arr = $response->json();
         $this->assertCount(0, $arr['data']);
+        $this->test_account->delete();
+
     }
 
     public function testSameCompanyBulkDesignAllowed(): void
@@ -790,6 +871,8 @@ class CrossCompanyAccessTest extends TestCase
         $arr = $response->json();
         $this->assertCount(1, $arr['data']);
         $this->assertNotNull($arr['data'][0]['archived_at']);
+        $this->test_account->delete();
+
     }
 
     public function testCrossCompanyBulkSubscriptionDenied(): void
@@ -812,6 +895,8 @@ class CrossCompanyAccessTest extends TestCase
 
         // BulkSubscriptionRequest validates ids belong to user's company via Rule::exists
         $response->assertStatus(422);
+        $this->test_account->delete();
+
     }
 
     public function testSameCompanyBulkSubscriptionAllowed(): void
@@ -835,6 +920,8 @@ class CrossCompanyAccessTest extends TestCase
         $arr = $response->json();
         $this->assertCount(1, $arr['data']);
         $this->assertNotNull($arr['data'][0]['archived_at']);
+        $this->test_account->delete();
+
     }
 
     public function testCrossCompanyBulkCompanyGatewayDenied(): void
@@ -855,6 +942,8 @@ class CrossCompanyAccessTest extends TestCase
 
         // BulkCompanyGatewayRequest validates ids belong to user's company via Rule::exists
         $response->assertStatus(422);
+        $this->test_account->delete();
+
     }
 
     public function testSameCompanyBulkCompanyGatewayAllowed(): void
@@ -876,5 +965,7 @@ class CrossCompanyAccessTest extends TestCase
         $arr = $response->json();
         $this->assertCount(1, $arr['data']);
         $this->assertNotNull($arr['data'][0]['archived_at']);
+        $this->test_account->delete();
+
     }
 }

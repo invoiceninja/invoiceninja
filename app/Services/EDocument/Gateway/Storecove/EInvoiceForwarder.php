@@ -83,7 +83,7 @@ class EInvoiceForwarder
         $mo->text_body = "Peppol e-invoice document ({$direction}): {$filename}";
         $mo->company_key = $this->company->company_key;
         $mo->html_template = 'email.template.admin';
-        $mo->to = [new Address($this->forward_email, 'E-Invoice Forwarding')];
+        $mo->to = [new Address($this->forward_email, "EInvoice Forwarding")];
         $mo->override = true;
         $mo->attachments = [
             ['file' => base64_encode($xml), 'name' => $filename],

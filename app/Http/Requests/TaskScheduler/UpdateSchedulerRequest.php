@@ -13,8 +13,10 @@
 namespace App\Http\Requests\TaskScheduler;
 
 use App\Models\Design;
+use App\Models\Invoice;
 use App\Http\Requests\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Carbon;
 use App\Http\ValidationRules\Scheduler\ValidClientIds;
 
 class UpdateSchedulerRequest extends Request
@@ -77,7 +79,11 @@ class UpdateSchedulerRequest extends Request
             'name' => 'bail|sometimes|nullable|string',
             'is_paused' => 'bail|sometimes|boolean',
             'frequency_id' => 'bail|sometimes|integer|between:0,12',
-            'next_run' => 'bail|required|date:Y-m-d|after_or_equal:today',
+            // next_run is pinned to the existing run cursor for payment schedules (which may be
+            // today or overdue), so after_or_equal:today only applies to other templates.
+            'next_run' => $this->input('template') === 'payment_schedule'
+                ? 'bail|required|date:Y-m-d'
+                : 'bail|required|date:Y-m-d|after_or_equal:today',
             'next_run_client' => 'bail|sometimes|date:Y-m-d',
             'template' => 'bail|required|string',
             'parameters' => 'bail|array',
@@ -93,7 +99,7 @@ class UpdateSchedulerRequest extends Request
             'parameters.status' => ['bail','sometimes', 'nullable', 'string'],
             'parameters.include_project_tasks' => ['bail','sometimes', 'boolean', 'required_if:template,invoice_outstanding_tasks'],
             'parameters.auto_send' => ['bail','sometimes', 'boolean', 'required_if:template,invoice_outstanding_tasks'],
-            // 'parameters.invoice_id' => ['bail','sometimes', 'string', 'required_if:template,payment_schedule'],
+            // 'parameters.invoice_id' => ['bail','sometimes', 'string'],
             'parameters.auto_bill' => ['bail','sometimes', 'boolean', 'required_if:template,payment_schedule'],
             'parameters.template' => ['bail', 'sometimes', 'nullable', 'string', Rule::in($this->templates)],
 
@@ -103,6 +109,7 @@ class UpdateSchedulerRequest extends Request
             'parameters.schedule.*.amount' => ['bail','sometimes', 'numeric'],
             'parameters.schedule.*.is_amount' => ['bail','sometimes', 'boolean'],
             'parameters.template_id' => ['bail','sometimes', 'string', 'nullable'],
+            'parameters.tag_ids' => ['bail', 'sometimes', 'nullable'],
         ];
 
         return $rules;
@@ -115,6 +122,7 @@ class UpdateSchedulerRequest extends Request
             if (!empty($this->parameters['template_id']) && Design::where('id', $this->decodePrimaryKey($this->parameters['template_id']))->where('is_template', true)->company()->doesntExist()) {
                 $validator->errors()->add('template_id', 'Invalid Template ID Selected');
             }
+
         });
     }
 
@@ -126,7 +134,7 @@ class UpdateSchedulerRequest extends Request
             $input['next_run_client'] = $input['next_run'];
         }
 
-        if ($input['template'] == 'email_record') {
+        if (($input['template'] ?? '') == 'email_record') {
             $input['frequency_id'] = 0;
         }
 
@@ -134,8 +142,17 @@ class UpdateSchedulerRequest extends Request
             $input['parameters']['clients'] = [];
         }
 
-        if (isset($input['parameters']['invoice_id'])) {
-            unset($input['parameters']['invoice_id']);
+        // For a payment schedule only the name and auto_bill are mutable. Everything that
+        // defines the plan or the run cursor is immutable - re-assert it from the existing
+        // scheduler and silently ignore whatever the client sent (the UI only offers name +
+        // auto_bill). To change a schedule, delete and recreate it.
+        if (($input['template'] ?? '') === 'payment_schedule') {
+            $input['parameters']['invoice_id'] = $this->task_scheduler->parameters['invoice_id'] ?? null;
+            $input['parameters']['schedule'] = $this->task_scheduler->parameters['schedule'] ?? [];
+            $input['frequency_id'] = $this->task_scheduler->frequency_id;
+            $input['remaining_cycles'] = $this->task_scheduler->remaining_cycles;
+            $input['next_run'] = $this->task_scheduler->next_run_client ? Carbon::parse($this->task_scheduler->next_run_client)->format('Y-m-d') : null;
+            $input['next_run_client'] = $input['next_run'];
         }
 
         if (isset($input['parameters']['status'])) {

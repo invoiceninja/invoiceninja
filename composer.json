@@ -100,7 +100,7 @@
         "sentry/sentry-laravel": "^4",
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.6",
-        "socialiteproviders/apple": "5.9",
+        "socialiteproviders/apple": "^5",
         "socialiteproviders/microsoft": "^4.1",
         "sprain/swiss-qr-bill": "^5.2",
         "square/square": "30.0.0.*",
@@ -110,7 +110,7 @@
         "symfony/mailer": "^7.2",
         "symfony/mailgun-mailer": "^7.2",
         "symfony/postmark-mailer": "^7.2",
-        "turbo124/beacon": "^3",
+        "turbo124/beacon": "^3.1",
         "twig/extra-bundle": "^3.18",
         "twig/intl-extra": "^3.7",
         "twig/markdown-extra": "^3.18",
@@ -205,6 +205,9 @@
         "pcf": "vendor/bin/php-cs-fixer fix --verbose"
     },
     "config": {
+        "platform": {
+            "php": "8.2.0"
+        },
         "preferred-install": "dist",
         "sort-packages": true,
         "optimize-autoloader": true,
@@ -221,10 +224,6 @@
         {
             "type": "vcs",
             "url": "https://github.com/turbo124/snappdf"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/invoiceninja/admin-api"
         }
     ],
     "minimum-stability": "dev",

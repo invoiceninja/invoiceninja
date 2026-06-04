@@ -13,7 +13,9 @@
 namespace App\Models;
 
 use App\Casts\AsReferralEarningCollection;
+use App\Casts\ReferralMetaCast;
 use App\DataMapper\Referral\ReferralEarning;
+use App\DataMapper\Referral\ReferralMeta;
 use App\Jobs\Mail\NinjaMailer;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
@@ -70,7 +72,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $custom_value2
  * @property string|null $custom_value3
  * @property string|null $custom_value4
- * @property object|null $referral_meta
+ * @property ReferralMeta|null $referral_meta
  * @property int|null $created_at
  * @property int|null $updated_at
  * @property int|null|Carbon $deleted_at
@@ -187,7 +189,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'created_at'       => 'timestamp',
         'deleted_at'       => 'timestamp',
         'oauth_user_token_expiry' => 'datetime',
-        'referral_meta' => 'object',
+        'referral_meta' => ReferralMetaCast::class,
         'referral_earnings' => AsReferralEarningCollection::class,
     ];
 

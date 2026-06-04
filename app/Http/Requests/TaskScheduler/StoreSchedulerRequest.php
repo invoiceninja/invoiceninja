@@ -12,6 +12,7 @@
 
 namespace App\Http\Requests\TaskScheduler;
 
+use App\Utils\BcMath;
 use App\Models\Design;
 use App\Models\Invoice;
 use App\Http\Requests\Request;
@@ -105,6 +106,7 @@ class StoreSchedulerRequest extends Request
             'parameters.schedule.*.amount' => ['bail','sometimes', 'numeric'],
             'parameters.schedule.*.is_amount' => ['bail','sometimes', 'boolean'],
             'parameters.template_id' => ['bail','sometimes', 'string', 'nullable'],
+            'parameters.tag_ids' => ['bail', 'sometimes', 'nullable'],
         ];
 
         return $rules;
@@ -116,7 +118,35 @@ class StoreSchedulerRequest extends Request
             if (!empty($this->parameters['template_id']) && Design::where('id', $this->decodePrimaryKey($this->parameters['template_id']))->where('is_template', true)->company()->doesntExist()) {
                 $validator->errors()->add('template_id', 'Invalid Template ID Selected');
             }
+
+            $this->validatePaymentScheduleTotal($validator);
         });
+    }
+
+    private function validatePaymentScheduleTotal(\Illuminate\Validation\Validator $validator): void
+    {
+        if (($this->template ?? '') !== 'payment_schedule') {
+            return;
+        }
+
+        if (!isset($this->parameters['schedule']) || !is_array($this->parameters['schedule']) || count($this->parameters['schedule']) === 0) {
+            return;
+        }
+
+        $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($this->parameters['invoice_id'] ?? ''));
+
+        if (!$invoice) {
+            return;
+        }
+
+        $schedule = collect($this->parameters['schedule']);
+        $is_amount = (bool) ($schedule->first()['is_amount'] ?? false);
+
+        if ($is_amount && !BcMath::equal($schedule->sum('amount'), $invoice->amount)) {
+            $validator->errors()->add('schedule', 'The total amount of the schedule does not match the invoice amount.');
+        } elseif (!$is_amount && !BcMath::equal($schedule->sum('amount'), 100)) {
+            $validator->errors()->add('schedule', 'The total percentage amount of the schedule does not match 100%.');
+        }
     }
 
     public function prepareForValidation()
@@ -127,7 +157,7 @@ class StoreSchedulerRequest extends Request
             $input['next_run_client'] = $input['next_run'];
         }
 
-        if ($input['template'] == 'email_record') {
+        if (($input['template'] ?? '') == 'email_record') {
             $input['frequency_id'] = 0;
         }
 

@@ -16,7 +16,6 @@ use App\Export\Decorators\Decorator;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\Invoice;
-use App\Models\Paymentable;
 use App\Transformers\InvoiceTransformer;
 use App\Utils\Ninja;
 use Illuminate\Database\Eloquent\Builder;
@@ -79,7 +78,7 @@ class InvoiceExport extends BaseExport
 
         $query = Invoice::query()
                         ->withTrashed()
-                        ->with('client', 'location')
+                        ->with($this->invoiceReportRelations())
                         ->whereHas('client', function ($q) {
                             $q->where('is_deleted', false);
                         })
@@ -129,7 +128,7 @@ class InvoiceExport extends BaseExport
 
         $report = [];
 
-        $query->cursor()->each(function ($invoice) use (&$report) {
+        $this->streamQuery($query)->each(function ($invoice) use (&$report) {
             /** @var \App\Models\Invoice $invoice */
             $this->emitRows($invoice, function (array $row) use (&$report, $invoice) {
                 $report[] = $this->processMetaData($row, $invoice);
@@ -152,7 +151,7 @@ class InvoiceExport extends BaseExport
             $second_part = array_slice($this->input['report_keys'], $tax_amount_position + 1);
             $labels = [];
 
-            $this->tax_names = $query->get()
+            $this->tax_names = $this->streamQuery($query)
                 ->flatMap(function ($invoice) {
                     $taxes = [];
 
@@ -199,7 +198,7 @@ class InvoiceExport extends BaseExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        $query->cursor()
+        $this->streamQuery($query)
             ->each(function ($invoice) {
                 /** @var \App\Models\Invoice $invoice */
                 $this->emitRows($invoice, function (array $row) {
@@ -208,6 +207,84 @@ class InvoiceExport extends BaseExport
             });
 
         return $this->csv->toString();
+    }
+
+    private function invoiceReportRelations(): array
+    {
+        $relations = ['client', 'location'];
+        $keys = $this->input['report_keys'];
+
+        $invoice_relations = [
+            'invoice.project' => 'project',
+            'invoice.recurring_id' => 'recurring_invoice',
+            'invoice.assigned_user_id' => 'assigned_user',
+            'invoice.user_id' => 'user',
+        ];
+
+        foreach ($invoice_relations as $key => $relation) {
+            if (in_array($key, $keys, true)) {
+                $relations[] = $relation;
+            }
+        }
+
+        $client_relations = [
+            'client.user' => 'client.user',
+            'client.assigned_user' => 'client.assigned_user',
+            'client.industry_id' => 'client.industry',
+            'client.size_id' => 'client.size',
+            'client.country_id' => 'client.country',
+            'client.shipping_country_id' => 'client.shipping_country',
+            'client.payment_terms' => 'client.company',
+        ];
+
+        foreach ($client_relations as $key => $relation) {
+            if (in_array($key, $keys, true)) {
+                $relations[] = $relation;
+            }
+        }
+
+        $payment_keys = array_filter($keys, fn ($key): bool => is_string($key) && str_starts_with($key, 'payment.'));
+
+        if ($payment_keys !== []) {
+            if ($this->fan_out) {
+                $relations['paymentables'] = function ($query): void {
+                    if (! ($this->input['include_deleted_applications'] ?? false)) {
+                        $query->whereNull('deleted_at');
+                    } else {
+                        $query->withTrashed();
+                    }
+
+                    $query->orderBy('created_at')->orderBy('id');
+                };
+
+                $relations['paymentables.payment'] = function ($query): void {
+                    $query->withTrashed();
+                };
+                $relations[] = 'paymentables.payment.company';
+
+                if (in_array('payment.user_id', $keys, true)) {
+                    $relations[] = 'paymentables.payment.user';
+                }
+
+                if (in_array('payment.assigned_user_id', $keys, true)) {
+                    $relations[] = 'paymentables.payment.assigned_user';
+                }
+            } else {
+                $relations['payments'] = function ($query): void {
+                    $query->withTrashed();
+                };
+
+                if (in_array('payment.user_id', $keys, true)) {
+                    $relations[] = 'payments.user';
+                }
+
+                if (in_array('payment.assigned_user_id', $keys, true)) {
+                    $relations[] = 'payments.assigned_user';
+                }
+            }
+        }
+
+        return $relations;
     }
 
     private function emitRows(Invoice $invoice, \Closure $emit): void
@@ -235,10 +312,12 @@ class InvoiceExport extends BaseExport
 
     private function loadPaymentables(Invoice $invoice): \Illuminate\Support\Collection
     {
-        $query = Paymentable::query()
-            ->where('paymentable_type', 'invoices')
-            ->where('paymentable_id', $invoice->id)
-            ->with('payment');
+        if ($invoice->relationLoaded('paymentables')) {
+            return $invoice->paymentables;
+        }
+
+        $query = $invoice->paymentables()
+            ->with(['payment' => fn ($q) => $q->withTrashed()]);
 
         if (! ($this->input['include_deleted_applications'] ?? false)) {
             $query->whereNull('deleted_at');
