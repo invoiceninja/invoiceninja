@@ -6247,6 +6247,7 @@ $lang = array(
     'zip_validation_help' => 'ZIP validation: Must be 5 digits or 5+4 format (XXXXX-XXXX)',
     'zoom' => 'Zoom',
     'report_too_large_to_preview' => 'Report too large to preview. Please download the report to view it.',
+    'log_time' => 'Log Time',
 );
 
 return $lang;
