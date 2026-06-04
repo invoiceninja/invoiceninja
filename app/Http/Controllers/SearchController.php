@@ -12,17 +12,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Utils\Ninja;
+use App\DataProviders\SettingsSearchMap;
+use App\Http\Requests\Search\GenericSearchRequest;
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Project;
+use App\Models\User;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
 use Elastic\Elasticsearch\ClientBuilder;
-use App\Http\Requests\Search\GenericSearchRequest;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class SearchController extends Controller
 {
+    use MakesHash;
+    
     private array $clients = [];
 
     private array $client_contacts = [];
@@ -49,6 +55,7 @@ class SearchController extends Controller
 
     public function __invoke(GenericSearchRequest $request)
     {
+
         if (config('scout.driver') == 'elastic') {
             try {
                 return $this->search($request->input('search', '*'));
@@ -71,7 +78,7 @@ class SearchController extends Controller
             'client_contacts' => $this->client_contacts,
             'invoices' => $this->invoices,
             'projects' => $this->projects,
-            'settings' => $this->settingsMap(),
+            'settings' => $this->settingsMap($user),
         ], 200);
 
     }
@@ -81,6 +88,8 @@ class SearchController extends Controller
         $user = auth()->user();
         $company = $user->company();
 
+        $search_index = 'clients,invoices,client_contacts,quotes,expenses,credits,recurring_invoices,vendors,vendor_contacts,purchase_orders,projects,tasks';
+
         $search = trim($search);
 
         \Illuminate\Support\Facades\App::setLocale($company->locale());
@@ -88,7 +97,7 @@ class SearchController extends Controller
         $elastic = ClientBuilder::fromConfig(config('elastic.client.connections.default'));
 
         $params = [
-            'index' => 'clients,invoices,client_contacts,quotes,expenses,credits,recurring_invoices,vendors,vendor_contacts,purchase_orders,projects,tasks',
+            'index' => $search_index,
             'body' => [
                 'query' => [
                     'bool' => [
@@ -123,11 +132,7 @@ class SearchController extends Controller
                             ],
                         ],
                         'minimum_should_match' => 1,
-                        'filter' => [
-                            'match' => [
-                                'company_key' => $company->company_key,
-                            ],
-                        ],
+                        'filter' => $this->permissionFilter($user, $company),
                     ],
                 ],
                 'size' => 100,
@@ -152,9 +157,96 @@ class SearchController extends Controller
             'purchase_orders' => $this->purchase_orders,
             'projects' => $this->projects,
             'tasks' => $this->tasks,
-            'settings' => $this->settingsMap(),
+            'settings' => $this->settingsMap($user),
         ], 200);
 
+    }
+
+    /**
+     * Builds the Elasticsearch filter clause that scopes results to the
+     * current company and, for non-admin users, to the entities they are
+     * permitted to view.
+     *
+     * The company_key term is ALWAYS enforced as a top-level `must` to prevent
+     * cross-tenant bleed, since user_id/assigned_user_id are raw integer ids
+     * that collide across databases.
+     *
+     * For each index the user lacks the relevant `view_{entity}` permission on,
+     * results are restricted to records they created (user_id) OR were assigned
+     * (assigned_user_id).
+     *
+     * @param  User    $user
+     * @param  Company $company
+     * @return array<int|string, mixed>
+     */
+    private function permissionFilter(User $user, Company $company): array
+    {
+        $company_filter = [
+            'match' => [
+                'company_key' => $company->company_key,
+            ],
+        ];
+
+        if ($user->isSuperUser()) {
+            return [$company_filter];
+        }
+
+        $index_permissions = [
+            'clients' => 'view_client',
+            'client_contacts' => 'view_client',
+            'invoices' => 'view_invoice',
+            'quotes' => 'view_quote',
+            'expenses' => 'view_expense',
+            'credits' => 'view_credit',
+            'recurring_invoices' => 'view_recurring_invoice',
+            'vendors' => 'view_vendor',
+            'vendor_contacts' => 'view_vendor',
+            'purchase_orders' => 'view_purchase_order',
+            'projects' => 'view_project',
+            'tasks' => 'view_task',
+        ];
+
+        $unrestricted = [];
+        $restricted = [];
+
+        foreach ($index_permissions as $index => $permission) {
+            if ($user->hasPermission($permission)) {
+                $unrestricted[] = $index;
+            } else {
+                $restricted[] = $index;
+            }
+        }
+
+        $should = [];
+
+        if (count($unrestricted) > 0) {
+            $should[] = ['terms' => ['_index' => $unrestricted]];
+        }
+
+        if (count($restricted) > 0) {
+            $should[] = [
+                'bool' => [
+                    'must' => [
+                        ['terms' => ['_index' => $restricted]],
+                        ['bool' => [
+                            'minimum_should_match' => 1,
+                            'should' => [
+                                ['term' => ['user_id' => (string) $user->id]],
+                                ['term' => ['assigned_user_id' => (string) $user->id]],
+                            ],
+                        ]],
+                    ],
+                ],
+            ];
+        }
+
+        return [
+            'bool' => [
+                'must' => [$company_filter],
+                'minimum_should_match' => 1,
+                'should' => $should,
+            ],
+        ];
     }
 
     private function mapResults(array $results)
@@ -433,99 +525,64 @@ class SearchController extends Controller
 
     }
 
-    private function settingsMap()
+    /**
+     * Builds the searchable settings catalogue for the given user.
+     *
+     * The translated catalogue is cached per locale; per-user permission and
+     * per-deployment scope gating is then applied so we never surface a
+     * destination the user cannot reach. Each entry carries a `keywords` field
+     * (parent heading + curated synonyms) to widen client-side matching beyond
+     * the literal label.
+     *
+     * @param  User $user
+     * @return array<int, array{name: string, heading: string, type: string, id: string, path: string, keywords: string}>
+     */
+    private function settingsMap(User $user): array
     {
+        $locale = app()->getLocale();
 
-        $paths = [
-            'user_details' => '/settings/user_details',
-            'password' => '/settings/user_details/password',
-            'connect' => '/settings/user_details/connect',
-            'accent_color' => '/settings/user_details/accent_color',
-            'notifications' => '/settings/user_details/notifications',
-            'enable_two_factor' => '/settings/user_details/enable_two_factor',
-            'custom_fields' => '/settings/user_details/custom_fields',
-            'preferences' => '/settings/user_details/preferences',
-            'company_details' => '/settings/company_details',
-            'company_details,details' => '/settings/company_details/details',
-            'company_details,address' => '/settings/company_details/address',
-            'company_details,logo' => '/settings/company_details/logo',
-            'company_details,defaults' => '/settings/company_details/defaults',
-            'company_details,documents' => '/settings/company_details/documents',
-            'company_details,custom_fields' => '/settings/company_details/custom_fields',
-            'localization' => '/settings/localization',
-            'localization,custom_labels' => '/settings/localization/custom_labels',
-            'online_payments' => '/settings/online_payments',
-            'tax_settings' => '/settings/tax_settings',
-            'product_settings' => '/settings/product_settings',
-            'task_settings' => '/settings/task_settings',
-            'expense_settings' => '/settings/expense_settings',
-            'workflow_settings' => '/settings/workflow_settings',
-            'import_export' => '/settings/import_export',
-            'account_management' => '/settings/account_management',
-            'account_management,overview' => '/settings/account_management/overview',
-            'account_management,enabled_modules' => '/settings/account_management/enabled_modules',
-            'account_management,integrations' => '/settings/account_management/integrations',
-            'account_management,security_settings' => '/settings/account_management/security_settings',
-            'account_management,danger_zone' => '/settings/account_management/danger_zone',
-            'backup_restore' => '/settings/backup_restore',
-            'backup_restore,restore' => '/settings/backup_restore/restore',
-            'backup_restore,backup' => '/settings/backup_restore/backup',
-            'custom_fields' => '/settings/custom_fields',
-            'custom_fields,company' => '/settings/custom_fields/company',
-            'custom_fields,clients' => '/settings/custom_fields/clients',
-            'custom_fields,products' => '/settings/custom_fields/products',
-            'custom_fields,invoices' => '/settings/custom_fields/invoices',
-            'custom_fields,payments' => '/settings/custom_fields/payments',
-            'custom_fields,projects' => '/settings/custom_fields/projects',
-            'custom_fields,tasks' => '/settings/custom_fields/tasks',
-            'custom_fields,vendors' => '/settings/custom_fields/vendors',
-            'custom_fields,expenses' => '/settings/custom_fields/expenses',
-            'custom_fields,users' => '/settings/custom_fields/users',
-            'generated_numbers' => '/settings/generated_numbers',
-            'client_portal' => '/settings/client_portal',
-            'email_settings' => '/settings/email_settings',
-            'templates_and_reminders' => '/settings/templates_and_reminders',
-            'bank_accounts' => '/settings/bank_accounts',
-            'group_settings' => '/settings/group_settings',
-            'subscriptions' => '/settings/subscriptions',
-            'schedules' => '/settings/schedules',
-            'users' => '/settings/users',
-            'system_logs' => '/settings/system_logs',
-            'payment_terms' => '/settings/payment_terms',
-            'tax_rates' => '/settings/tax_rates',
-            'task_statuses' => '/settings/task_statuses',
-            'expense_categories' => '/settings/expense_categories',
-            'integrations' => '/settings/integrations',
-            'integrations,api_tokens' => '/settings/integrations/api_tokens',
-            'integrations,api_webhooks' => '/settings/integrations/api_webhooks',
-            'integrations,analytics' => '/settings/integrations/analytics',
-            'gateways' => '/settings/online_payments',
-            'gateways,create' => '/settings/gateways/create',
-            'bank_accounts,transaction_rules' => '/settings/bank_accounts/transaction_rules',
-            'bank_accounts,transaction_rules,create' => '/settings/bank_accounts/transaction_rules/create',
-        ];
+        $catalogue = Cache::remember("settings_search_map_{$locale}", 3600, function () {
+            return array_map(function (array $entry): array {
+                $heading = $entry['section'] ? ctrans("texts.{$entry['section']}") : ctrans('texts.settings');
+                $name = ctrans("texts.{$entry['label']}");
+
+                return [
+                    'name' => $name,
+                    'heading' => $heading,
+                    'type' => '/settings',
+                    'id' => $entry['path'],
+                    'path' => $entry['path'],
+                    'keywords' => trim($heading . ' ' . $entry['keywords']),
+                    'permission' => $entry['permission'],
+                    'scope' => $entry['scope'],
+                ];
+            }, SettingsSearchMap::all());
+        });
+
+        $is_hosted = Ninja::isHosted();
 
         $data = [];
 
-        foreach ($paths as $key => $value) {
+        foreach ($catalogue as $entry) {
 
-            $translation = '';
-
-            foreach (explode(",", $key) as $transkey) {
-                $translation .= ctrans("texts.{$transkey}") . " ";
+            if ($entry['scope'] === SettingsSearchMap::SCOPE_HOSTED && !$is_hosted) {
+                continue;
             }
 
-            $translation = rtrim($translation, " ");
+            if ($entry['scope'] === SettingsSearchMap::SCOPE_SELFHOST && $is_hosted) {
+                continue;
+            }
 
-            $data[] = [
-                'id' => $translation,
-                'path' => $value,
-                'type' => $transkey,
-                'name' => $translation,
-            ];
+            if ($entry['permission'] === SettingsSearchMap::ADMIN && !$user->isSuperUser()) {
+                continue;
+            }
+
+            unset($entry['permission'], $entry['scope']);
+
+            $data[] = $entry;
         }
 
-        ksort($data);
+        usort($data, fn (array $a, array $b): int => strcasecmp($a['name'], $b['name']));
 
         return $data;
     }

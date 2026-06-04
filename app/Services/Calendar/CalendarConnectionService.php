@@ -3,7 +3,7 @@
 namespace App\Services\Calendar;
 
 use App\DataMapper\Referral\CalendarConnection;
-use App\DataMapper\Referral\ReferralMeta;
+use App\DataMapper\UserSettings;
 use App\Models\Task;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -20,7 +20,7 @@ use Throwable;
  * Manages a user's calendar connection lifecycle for Google and Microsoft.
  *
  * Handles the OAuth handshake via Socialite, persists provider tokens and
- * selected calendars on the user's referral meta, refreshes expired access
+ * selected calendars on the user's settings, refreshes expired access
  * tokens, and fetches calendar lists and events from the underlying provider
  * APIs.
  */
@@ -58,7 +58,7 @@ class CalendarConnectionService
      */
     public function show(User $user): array
     {
-        $connection = $this->referralMeta($user)->calendar_connection;
+        $connection = $this->userSettings($user)->calendar_connection;
 
         return [
             'calendar_connection' => $connection?->toArray(),
@@ -154,8 +154,8 @@ class CalendarConnectionService
      * Pulls the cached state, asserts the completing user matches the one
      * that initiated the flow (closes cross-account OAuth injection),
      * exchanges the authorization code for tokens via Socialite, and
-     * persists the resulting CalendarConnection on the user's referral
-     * meta. A default writable calendar is auto-selected when none is
+     * persists the resulting CalendarConnection on the user's settings. A
+     * default writable calendar is auto-selected when none is
      * configured yet.
      *
      * @throws ValidationException when the state is missing/invalid, when
@@ -214,7 +214,7 @@ class CalendarConnectionService
     }
 
     /**
-     * Writes the provider tokens and profile onto the user's referral meta,
+     * Writes the provider tokens and profile onto the user's settings,
      * preserving an existing refresh token and prior calendar selection when
      * the same provider account is being re-connected.
      *
@@ -223,8 +223,8 @@ class CalendarConnectionService
      */
     private function persistConnection(User $user, string $provider, SocialiteUser $socialiteUser, string $providerUserId): void
     {
-        $meta = $this->referralMeta($user);
-        $existingConnection = $meta->calendar_connection;
+        $settings = $this->userSettings($user);
+        $existingConnection = $settings->calendar_connection;
 
         $accessToken = $this->accessToken($socialiteUser);
         $refreshToken = $this->refreshToken($socialiteUser);
@@ -240,7 +240,7 @@ class CalendarConnectionService
             throw ValidationException::withMessages(['refresh_token' => 'The calendar provider did not return a refresh token.']);
         }
 
-        $meta->setCalendarConnection(new CalendarConnection([
+        $settings->setCalendarConnection(new CalendarConnection([
             'provider' => $provider,
             'provider_user_id' => $providerUserId,
             'email' => $socialiteUser->getEmail(),
@@ -250,7 +250,7 @@ class CalendarConnectionService
             'calendars' => $sameConnection ? $existingConnection->calendars : [],
         ]));
 
-        $user->referral_meta = $meta;
+        $user->settings = $settings;
         $user->save();
     }
 
@@ -419,10 +419,10 @@ class CalendarConnectionService
             ->values()
             ->all();
 
-        $meta = $this->referralMeta($user);
-        $meta->setCalendarConnection($connection);
+        $settings = $this->userSettings($user);
+        $settings->setCalendarConnection($connection);
 
-        $user->referral_meta = $meta;
+        $user->settings = $settings;
         $user->save();
 
         return $connection;
@@ -430,14 +430,14 @@ class CalendarConnectionService
 
     /**
      * Removes the calendar connection (tokens and selected calendars) from
-     * the user's referral meta. Does not revoke tokens at the provider.
+     * the user's settings. Does not revoke tokens at the provider.
      */
     public function disconnect(User $user): void
     {
-        $meta = $this->referralMeta($user);
-        $meta->clearCalendarConnection();
+        $settings = $this->userSettings($user);
+        $settings->clearCalendarConnection();
 
-        $user->referral_meta = $meta;
+        $user->settings = $settings;
         $user->save();
     }
 
@@ -473,10 +473,10 @@ class CalendarConnectionService
                 ]),
             ];
 
-            $meta = $this->referralMeta($user);
-            $meta->setCalendarConnection($connection);
+            $settings = $this->userSettings($user);
+            $settings->setCalendarConnection($connection);
 
-            $user->referral_meta = $meta;
+            $user->settings = $settings;
             $user->save();
         } catch (Throwable $exception) {
             report($exception);
@@ -565,15 +565,14 @@ class CalendarConnectionService
     }
 
     /**
-     * Returns the user's referral meta as a typed value object, hydrating
-     * one from the raw cast payload when the attribute is not already an
-     * instance.
+     * Returns the user's settings as a typed value object, hydrating one
+     * from the raw cast payload when the attribute is not already an instance.
      */
-    private function referralMeta(User $user): ReferralMeta
+    private function userSettings(User $user): UserSettings
     {
-        return $user->referral_meta instanceof ReferralMeta
-            ? $user->referral_meta
-            : new ReferralMeta($user->referral_meta);
+        return $user->settings instanceof UserSettings
+            ? $user->settings
+            : new UserSettings($user->settings);
     }
 
     /**
@@ -585,7 +584,7 @@ class CalendarConnectionService
      */
     private function connectionOrFail(User $user): CalendarConnection
     {
-        $connection = $this->referralMeta($user)->calendar_connection;
+        $connection = $this->userSettings($user)->calendar_connection;
 
         if (!$connection || !$connection->isConnected()) {
             throw ValidationException::withMessages(['calendar_connection' => 'No calendar connection is configured.']);
@@ -597,7 +596,7 @@ class CalendarConnectionService
     /**
      * Ensures the connection's access token is still valid, refreshing it
      * via the provider's token endpoint when it has expired (or is about
-     * to). The refreshed tokens are persisted back to the user's referral
+     * to). The refreshed tokens are persisted back to the user's settings
      * meta so subsequent calls reuse them.
      *
      * @throws ValidationException when no refresh token is available or
@@ -624,10 +623,10 @@ class CalendarConnectionService
             ? now()->addSeconds((int) $data['expires_in'])->timestamp
             : $connection->expires_at;
 
-        $meta = $this->referralMeta($user);
-        $meta->setCalendarConnection($connection);
+        $settings = $this->userSettings($user);
+        $settings->setCalendarConnection($connection);
 
-        $user->referral_meta = $meta;
+        $user->settings = $settings;
         $user->save();
 
         return $connection;

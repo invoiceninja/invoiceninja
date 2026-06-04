@@ -14,6 +14,7 @@ namespace Tests\Feature;
 
 use App\DataMapper\Referral\CalendarConnection;
 use App\DataMapper\Referral\ReferralMeta;
+use App\DataMapper\UserSettings;
 use App\DataMapper\TaskMeta;
 use App\Factory\TaskFactory;
 use App\Services\Calendar\CalendarConnectionService;
@@ -219,7 +220,7 @@ class CalendarConnectionTest extends TestCase
 
         $this->user->refresh();
 
-        $connection = $this->user->referral_meta->calendar_connection;
+        $connection = $this->user->settings->calendar_connection;
 
         $this->assertInstanceOf(CalendarConnection::class, $connection);
         $this->assertSame(CalendarConnection::PROVIDER_GOOGLE, $connection->provider);
@@ -265,7 +266,7 @@ class CalendarConnectionTest extends TestCase
 
         $this->user->refresh();
 
-        $connection = $this->user->referral_meta->calendar_connection;
+        $connection = $this->user->settings->calendar_connection;
 
         $this->assertInstanceOf(CalendarConnection::class, $connection);
         $this->assertSame(CalendarConnection::PROVIDER_GOOGLE, $connection->provider);
@@ -322,6 +323,8 @@ class CalendarConnectionTest extends TestCase
             'free' => 1,
             'pro' => 2,
             'enterprise' => 3,
+        ]);
+        $this->user->settings = new UserSettings([
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_GOOGLE,
                 'provider_user_id' => 'google-sub-1',
@@ -355,7 +358,7 @@ class CalendarConnectionTest extends TestCase
 
         $this->user->refresh();
 
-        $connection = $this->user->referral_meta->calendar_connection;
+        $connection = $this->user->settings->calendar_connection;
 
         $this->assertSame('new-access-token', $connection->access_token);
         $this->assertSame('existing-refresh-token', $connection->refresh_token);
@@ -395,7 +398,7 @@ class CalendarConnectionTest extends TestCase
 
         $this->user->refresh();
 
-        $connection = $this->user->referral_meta->calendar_connection;
+        $connection = $this->user->settings->calendar_connection;
 
         $this->assertSame(CalendarConnection::PROVIDER_MICROSOFT, $connection->provider);
         $this->assertSame('default-calendar', $connection->calendars[0]['calendar_id']);
@@ -428,7 +431,7 @@ class CalendarConnectionTest extends TestCase
 
         $this->user->refresh();
 
-        $connection = $this->user->referral_meta->calendar_connection;
+        $connection = $this->user->settings->calendar_connection;
 
         $this->assertSame(CalendarConnection::PROVIDER_GOOGLE, $connection->provider);
         $this->assertSame('google-sub-1', $connection->provider_user_id);
@@ -464,7 +467,7 @@ class CalendarConnectionTest extends TestCase
 
         $this->user->refresh();
 
-        $this->assertSame([], $this->user->referral_meta->calendar_connection->calendars);
+        $this->assertSame([], $this->user->settings->calendar_connection->calendars);
     }
 
     public function testCompleteFailsWhenStateIsMissingFromCache(): void
@@ -478,7 +481,7 @@ class CalendarConnectionTest extends TestCase
             ])->assertStatus(422);
 
         $this->user->refresh();
-        $this->assertNull($this->user->referral_meta?->calendar_connection);
+        $this->assertNull($this->user->settings->calendar_connection);
     }
 
     public function testCompleteRejectsCrossAccountStateInjection(): void
@@ -508,7 +511,7 @@ class CalendarConnectionTest extends TestCase
         $this->assertFalse(Cache::has(CalendarConnectionService::STATE_CACHE_PREFIX . $state));
 
         $this->user->refresh();
-        $this->assertNull($this->user->referral_meta?->calendar_connection);
+        $this->assertNull($this->user->settings->calendar_connection);
     }
 
     public function testCompleteRejectsReplayedState(): void
@@ -586,6 +589,8 @@ class CalendarConnectionTest extends TestCase
             'free' => 4,
             'pro' => 5,
             'enterprise' => 6,
+        ]);
+        $this->user->settings = new UserSettings([
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_GOOGLE,
                 'provider_user_id' => 'google-sub-1',
@@ -630,7 +635,7 @@ class CalendarConnectionTest extends TestCase
         $this->assertArrayNotHasKey('refresh_token', $updateResponse->json('data.calendar_connection'));
 
         $this->user->refresh();
-        $this->assertSame('work', $this->user->referral_meta->calendar_connection->calendars[0]['calendar_id']);
+        $this->assertSame('work', $this->user->settings->calendar_connection->calendars[0]['calendar_id']);
 
         $deleteResponse = $this->withHeaders($this->apiHeaders())
             ->deleteJson(route('api.calendar_connection.destroy'));
@@ -639,7 +644,7 @@ class CalendarConnectionTest extends TestCase
         $deleteResponse->assertJsonPath('data.calendar_connection', null);
 
         $this->user->refresh();
-        $this->assertNull($this->user->referral_meta->calendar_connection);
+        $this->assertNull($this->user->settings->calendar_connection);
         $this->assertSame(4, $this->user->referral_meta->free);
         $this->assertSame(5, $this->user->referral_meta->pro);
         $this->assertSame(6, $this->user->referral_meta->enterprise);
@@ -685,7 +690,7 @@ class CalendarConnectionTest extends TestCase
             return Http::response([], 404);
         });
 
-        $this->user->referral_meta = new ReferralMeta([
+        $this->user->settings = new UserSettings([
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_MICROSOFT,
                 'provider_user_id' => 'microsoft-user-1',
@@ -701,7 +706,7 @@ class CalendarConnectionTest extends TestCase
             ->getJson(route('api.calendar_connection.calendars'))
             ->assertOk();
 
-        $this->user->referral_meta = new ReferralMeta([
+        $this->user->settings = new UserSettings([
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_GOOGLE,
                 'provider_user_id' => 'google-sub-1',
@@ -723,7 +728,7 @@ class CalendarConnectionTest extends TestCase
             ]))
             ->assertOk();
 
-        $this->user->referral_meta = new ReferralMeta([
+        $this->user->settings = new UserSettings([
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_MICROSOFT,
                 'provider_user_id' => 'microsoft-user-1',
@@ -756,7 +761,7 @@ class CalendarConnectionTest extends TestCase
 
     public function testGoogleEventsEndpointReturnsSelectedCalendarEventsInRange(): void
     {
-        $this->user->referral_meta = new ReferralMeta([
+        $this->user->settings = new UserSettings([
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_GOOGLE,
                 'provider_user_id' => 'google-sub-1',
@@ -832,7 +837,7 @@ class CalendarConnectionTest extends TestCase
 
     public function testMicrosoftEventsEndpointReturnsSelectedCalendarViewEventsInRange(): void
     {
-        $this->user->referral_meta = new ReferralMeta([
+        $this->user->settings = new UserSettings([
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_MICROSOFT,
                 'provider_user_id' => 'microsoft-user-1',
@@ -902,7 +907,7 @@ class CalendarConnectionTest extends TestCase
 
     public function testEventsEndpointSkipsEventsAlreadyConvertedToTasksForTheCurrentUser(): void
     {
-        $this->user->referral_meta = new ReferralMeta([
+        $this->user->settings = new UserSettings([
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_GOOGLE,
                 'provider_user_id' => 'google-sub-1',
@@ -956,7 +961,7 @@ class CalendarConnectionTest extends TestCase
 
     public function testEventsEndpointReturnsEmptyWhenNoCalendarsAreSelected(): void
     {
-        $this->user->referral_meta = new ReferralMeta([
+        $this->user->settings = new UserSettings([
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_GOOGLE,
                 'provider_user_id' => 'google-sub-1',
@@ -996,7 +1001,7 @@ class CalendarConnectionTest extends TestCase
 
     public function testEventsEndpointCapsOversizedRangesToAMonthViewWindow(): void
     {
-        $this->user->referral_meta = new ReferralMeta([
+        $this->user->settings = new UserSettings([
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_GOOGLE,
                 'provider_user_id' => 'google-sub-1',
@@ -1032,7 +1037,7 @@ class CalendarConnectionTest extends TestCase
 
     public function testMicrosoftCalendarsRefreshExpiredTokensAndNormalizeGraphShape(): void
     {
-        $this->user->referral_meta = new ReferralMeta([
+        $this->user->settings = new UserSettings([
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_MICROSOFT,
                 'provider_user_id' => 'microsoft-user-1',
@@ -1068,8 +1073,8 @@ class CalendarConnectionTest extends TestCase
 
         $this->user->refresh();
 
-        $this->assertSame('microsoft-access-token', $this->user->referral_meta->calendar_connection->access_token);
-        $this->assertSame('new-microsoft-refresh-token', $this->user->referral_meta->calendar_connection->refresh_token);
+        $this->assertSame('microsoft-access-token', $this->user->settings->calendar_connection->access_token);
+        $this->assertSame('new-microsoft-refresh-token', $this->user->settings->calendar_connection->refresh_token);
     }
 
     /**

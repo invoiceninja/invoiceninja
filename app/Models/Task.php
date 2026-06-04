@@ -160,6 +160,8 @@ class Task extends BaseModel
             'id' => $this->company->db . ":" . $this->id,
             'name' => ctrans('texts.task') . " " . ($this->number ?? '') . $project . $client,
             'hashed_id' => $this->hashed_id,
+            'user_id' => (string) $this->user_id,
+            'assigned_user_id' => (string) $this->assigned_user_id,
             'number' => (string) $this->number,
             'description' => (string) $this->description,
             'task_rate' => (float) $this->rate,

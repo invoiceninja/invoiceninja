@@ -12,25 +12,25 @@
 
 namespace App\Casts;
 
-use App\DataMapper\Referral\ReferralMeta;
+use App\DataMapper\UserSettings;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Model;
 use JsonException;
 
-class ReferralMetaCast implements CastsAttributes
+class UserSettingsCast implements CastsAttributes
 {
     /**
      * Cast the given value.
      *
      * @param  array<string, mixed>  $attributes
      */
-    public function get(Model $model, string $key, mixed $value, array $attributes): ReferralMeta
+    public function get(Model $model, string $key, mixed $value, array $attributes): UserSettings
     {
         if (!$value || (is_string($value) && $value === 'null')) {
-            return new ReferralMeta();
+            return new UserSettings();
         }
 
-        if ($value instanceof ReferralMeta) {
+        if ($value instanceof UserSettings) {
             return $value;
         }
 
@@ -40,7 +40,7 @@ class ReferralMetaCast implements CastsAttributes
             $payload = [];
         }
 
-        return new ReferralMeta($payload);
+        return new UserSettings($payload);
     }
 
     /**
@@ -54,8 +54,13 @@ class ReferralMetaCast implements CastsAttributes
             return null;
         }
 
-        $meta = $value instanceof ReferralMeta ? $value : new ReferralMeta($value);
+        $settings = $value instanceof UserSettings ? $value : new UserSettings($value);
+        $payload = $settings->toStorageArray();
 
-        return json_encode($meta->toArray(), JSON_THROW_ON_ERROR);
+        if ($payload === []) {
+            return null;
+        }
+
+        return json_encode($payload, JSON_THROW_ON_ERROR);
     }
 }

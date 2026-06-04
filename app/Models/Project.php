@@ -133,6 +133,8 @@ class Project extends BaseModel
             'id' => (string) $this->company->db . ":" . $this->id,
             'name' => ctrans('texts.project') . " " . $this->number . ' | ' . $this->name . " | " . $clientName,
             'hashed_id' => $this->hashed_id,
+            'user_id' => (string) $this->user_id,
+            'assigned_user_id' => (string) $this->assigned_user_id,
             'number' => (string) $this->number,
             'is_deleted' => (bool) $this->is_deleted,
             'task_rate' => (float) $this->task_rate,
