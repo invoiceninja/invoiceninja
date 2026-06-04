@@ -4869,7 +4869,6 @@ $lang = array(
     'non_taxable_sales' => 'Non-taxable Sales',
     'zero_rated_sales' => 'Zero-rated Sales',
     'accounting_basis' => 'Accounting Basis',
-    'activity' => 'Activity',
     'tax_treatment' => 'Tax Treatment',
     'summary_source' => 'Summary Source',
     'sales_breakdown_source' => 'Sales Breakdown',
@@ -4889,7 +4888,6 @@ $lang = array(
     'unknown_source' => 'Unknown Source',
     'district' => 'District',
     'metric' => 'Metric',
-    'value' => 'Value',
     'report_period' => 'Report Period',
     'current_filing_rows' => 'Current Filing Rows',
     'correction_rows' => 'Correction Rows',
@@ -5017,7 +5015,6 @@ $lang = array(
     'gateway_temporarily_unavailable' => 'This payment method is temporarily unavailable. Please try again later or choose another payment method.',
     'mybank' => 'MyBank',
     'paypal_paylater' => 'Pay in 4',
-    'district' => 'District',
     'region' => 'Region',
     'county' => 'County',
     'tax_details' => 'Tax Details',
@@ -6249,6 +6246,7 @@ $lang = array(
     'zip_format_invalid' => 'ZIP format is invalid',
     'zip_validation_help' => 'ZIP validation: Must be 5 digits or 5+4 format (XXXXX-XXXX)',
     'zoom' => 'Zoom',
+    'report_too_large_to_preview' => 'Report too large to preview. Please download the report to view it.',
 );
 
 return $lang;
