@@ -145,6 +145,7 @@ class InvoiceTransformer extends BaseTransformer
                         $this->getString($invoice_data, 'invoice.status')
                     ))
                 ] ?? Invoice::STATUS_SENT,
+            'auto_bill_enabled' => $this->company->getSetting('auto_bill_standard_invoices'),
             // 'archived' => $status === 'archived',
         ];
 
