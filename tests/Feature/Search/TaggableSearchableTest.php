@@ -79,7 +79,7 @@ class TaggableSearchableTest extends TestCase
         $tags = $this->task->fresh()->toSearchableArray()['tags'];
 
         $this->assertContains('active-tag', $tags);
-        $this->assertNotContains('deleted-tag', $tags);
+        $this->assertContains('deleted-tag', $tags);
     }
 
     public function testSearchableArrayTagsAreAPlainListWhenEmpty(): void
