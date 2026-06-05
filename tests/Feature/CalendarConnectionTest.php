@@ -216,6 +216,15 @@ class CalendarConnectionTest extends TestCase
             ]);
 
         $response->assertOk();
+        $response->assertJsonPath('data.calendar_connection.connected', true);
+        $response->assertJsonPath('data.calendar_connection.provider', CalendarConnection::PROVIDER_GOOGLE);
+        $response->assertJsonPath('data.calendar_connection.provider_user_id', 'google-sub-1');
+        $response->assertJsonPath('data.calendar_connection.email', 'calendar@example.com');
+        $response->assertJsonPath('data.calendar_connection.calendars.0.calendar_id', 'primary');
+        $response->assertJsonPath('data.calendar_connection.calendars.0.name', 'Primary');
+        $this->assertArrayNotHasKey('status', $response->json('data.calendar_connection'));
+        $this->assertArrayNotHasKey('access_token', $response->json('data.calendar_connection'));
+        $this->assertArrayNotHasKey('refresh_token', $response->json('data.calendar_connection'));
         $this->assertFalse(Cache::has(CalendarConnectionService::STATE_CACHE_PREFIX . $state));
 
         $this->user->refresh();
@@ -232,6 +241,157 @@ class CalendarConnectionTest extends TestCase
         $this->assertSame('Primary', $connection->calendars[0]['name']);
         $this->assertTrue($connection->calendars[0]['primary']);
         $this->assertTrue($connection->calendars[0]['writable']);
+    }
+
+    public function testShowReturnsDisconnectedCalendarConnectionShape(): void
+    {
+        $response = $this->withHeaders($this->apiHeaders())
+            ->getJson(route('api.calendar_connection.show'));
+
+        $response->assertOk();
+        $response->assertJsonPath('data.calendar_connection', null);
+    }
+
+    public function testShowReturnsConnectedCalendarConnectionShape(): void
+    {
+        $this->user->settings = new UserSettings([
+            'calendar_connection' => [
+                'provider' => CalendarConnection::PROVIDER_GOOGLE,
+                'provider_user_id' => 'google-sub-1',
+                'email' => 'calendar@example.com',
+                'access_token' => 'google-access-token',
+                'refresh_token' => 'google-refresh-token',
+                'expires_at' => now()->addHour()->timestamp,
+                'calendars' => [
+                    ['calendar_id' => 'primary', 'name' => 'Primary', 'primary' => true, 'writable' => true],
+                ],
+            ],
+        ]);
+        $this->user->save();
+
+        $response = $this->withHeaders($this->apiHeaders())
+            ->getJson(route('api.calendar_connection.show'));
+
+        $response->assertOk();
+        $response->assertJsonPath('data.calendar_connection.connected', true);
+        $response->assertJsonPath('data.calendar_connection.provider', CalendarConnection::PROVIDER_GOOGLE);
+        $response->assertJsonPath('data.calendar_connection.provider_user_id', 'google-sub-1');
+        $response->assertJsonPath('data.calendar_connection.email', 'calendar@example.com');
+        $response->assertJsonPath('data.calendar_connection.calendars.0.calendar_id', 'primary');
+        $this->assertArrayNotHasKey('status', $response->json('data.calendar_connection'));
+        $this->assertArrayNotHasKey('access_token', $response->json('data.calendar_connection'));
+        $this->assertArrayNotHasKey('refresh_token', $response->json('data.calendar_connection'));
+    }
+
+    public function testCompleteThenEventsReturnsAutoSelectedGoogleCalendarEvents(): void
+    {
+        $state = $this->cacheCalendarState(CalendarConnection::PROVIDER_GOOGLE);
+
+        Socialite::fake(CalendarConnection::PROVIDER_GOOGLE, (new SocialiteUser())->map([
+            'id' => 'google-sub-1',
+            'name' => 'Calendar User',
+            'email' => 'calendar@example.com',
+        ])->setToken('google-access-token')
+            ->setRefreshToken('google-refresh-token')
+            ->setExpiresIn(3600));
+
+        Http::fake([
+            'https://www.googleapis.com/calendar/v3/users/me/calendarList' => Http::response([
+                'items' => [
+                    ['id' => 'primary', 'summary' => 'Primary', 'primary' => true, 'accessRole' => 'owner'],
+                ],
+            ]),
+            'https://www.googleapis.com/calendar/v3/calendars/primary/events*' => Http::response([
+                'items' => [
+                    [
+                        'id' => 'event-after-auth',
+                        'summary' => 'Post Auth Sync',
+                        'start' => ['dateTime' => '2026-04-01T09:00:00.000Z'],
+                        'end' => ['dateTime' => '2026-04-01T09:30:00.000Z'],
+                    ],
+                ],
+            ]),
+        ]);
+
+        $this->withHeaders($this->apiHeaders())
+            ->postJson(route('api.calendar_connection.complete', ['provider' => CalendarConnection::PROVIDER_GOOGLE]), [
+                'state' => $state,
+                'code' => 'oauth-code',
+            ])->assertOk();
+
+        $this->user->refresh();
+        $this->assertSame('primary', $this->user->settings->calendar_connection->calendars[0]['calendar_id']);
+
+        $response = $this->withHeaders($this->apiHeaders())
+            ->getJson(route('api.calendar_connection.events', [
+                'from' => '2026-04-01T00:00:00.000Z',
+                'to' => '2026-04-02T00:00:00.000Z',
+            ]));
+
+        $response->assertOk();
+        $response->assertJsonPath('data.events.0.title', 'Post Auth Sync');
+        $response->assertJsonPath('data.events.0.calendar_id', 'primary');
+        $response->assertJsonPath('data.events.0.calendar_name', 'Primary');
+
+        Http::assertSent(fn ($request): bool => str_starts_with($request->url(), 'https://www.googleapis.com/calendar/v3/calendars/primary/events'));
+    }
+
+    public function testMicrosoftCompleteThenEventsReturnsAutoSelectedCalendarEvents(): void
+    {
+        $state = $this->cacheCalendarState(CalendarConnection::PROVIDER_MICROSOFT);
+
+        Socialite::fake(CalendarConnection::PROVIDER_MICROSOFT, (new SocialiteUser())->map([
+            'id' => 'microsoft-user-1',
+            'name' => 'Calendar User',
+            'email' => 'calendar@example.com',
+        ])->setToken('microsoft-access-token')
+            ->setRefreshToken('microsoft-refresh-token')
+            ->setExpiresIn(3600));
+
+        Http::fake([
+            'https://graph.microsoft.com/v1.0/me/calendars' => Http::response([
+                'value' => [
+                    ['id' => 'default-calendar', 'name' => 'Calendar', 'isDefaultCalendar' => true, 'canEdit' => true],
+                ],
+            ]),
+            'https://graph.microsoft.com/v1.0/me/calendars/default-calendar/calendarView*' => Http::response([
+                'value' => [
+                    [
+                        'id' => 'graph-event-after-auth',
+                        'subject' => 'Post Auth Planning',
+                        'showAs' => 'busy',
+                        'isAllDay' => false,
+                        'isCancelled' => false,
+                        'body' => ['content' => 'Plan the work'],
+                        'location' => ['displayName' => 'Teams'],
+                        'start' => ['dateTime' => '2026-04-01T10:00:00.0000000', 'timeZone' => 'UTC'],
+                        'end' => ['dateTime' => '2026-04-01T10:30:00.0000000', 'timeZone' => 'UTC'],
+                    ],
+                ],
+            ]),
+        ]);
+
+        $this->withHeaders($this->apiHeaders())
+            ->postJson(route('api.calendar_connection.complete', ['provider' => CalendarConnection::PROVIDER_MICROSOFT]), [
+                'state' => $state,
+                'code' => 'oauth-code',
+            ])->assertOk();
+
+        $this->user->refresh();
+        $this->assertSame('default-calendar', $this->user->settings->calendar_connection->calendars[0]['calendar_id']);
+
+        $response = $this->withHeaders($this->apiHeaders())
+            ->getJson(route('api.calendar_connection.events', [
+                'from' => '2026-04-01T00:00:00.000Z',
+                'to' => '2026-04-02T00:00:00.000Z',
+            ]));
+
+        $response->assertOk();
+        $response->assertJsonPath('data.events.0.title', 'Post Auth Planning');
+        $response->assertJsonPath('data.events.0.calendar_id', 'default-calendar');
+        $response->assertJsonPath('data.events.0.calendar_name', 'Calendar');
+
+        Http::assertSent(fn ($request): bool => str_starts_with($request->url(), 'https://graph.microsoft.com/v1.0/me/calendars/default-calendar/calendarView'));
     }
 
     public function testCompleteConsumesCallbackHandoffAndConnects(): void
@@ -261,6 +421,14 @@ class CalendarConnectionTest extends TestCase
             ]);
 
         $response->assertOk();
+        $response->assertJsonPath('data.calendar_connection.connected', true);
+        $response->assertJsonPath('data.calendar_connection.provider', CalendarConnection::PROVIDER_GOOGLE);
+        $response->assertJsonPath('data.calendar_connection.provider_user_id', 'google-sub-1');
+        $response->assertJsonPath('data.calendar_connection.email', 'calendar@example.com');
+        $response->assertJsonPath('data.calendar_connection.calendars.0.calendar_id', 'primary');
+        $this->assertArrayNotHasKey('status', $response->json('data.calendar_connection'));
+        $this->assertArrayNotHasKey('access_token', $response->json('data.calendar_connection'));
+        $this->assertArrayNotHasKey('refresh_token', $response->json('data.calendar_connection'));
         $this->assertFalse(Cache::has(CalendarConnectionService::HANDOFF_CACHE_PREFIX . $handoff));
         $this->assertFalse(Cache::has(CalendarConnectionService::STATE_CACHE_PREFIX . $state));
 
@@ -438,7 +606,7 @@ class CalendarConnectionTest extends TestCase
         $this->assertSame([], $connection->calendars);
     }
 
-    public function testCompleteLeavesCalendarsEmptyWhenProviderOnlyReturnsReadOnlyCalendars(): void
+    public function testCompleteAutoSelectsReadOnlyCalendarForEventHydration(): void
     {
         $state = $this->cacheCalendarState(CalendarConnection::PROVIDER_GOOGLE);
 
@@ -467,7 +635,108 @@ class CalendarConnectionTest extends TestCase
 
         $this->user->refresh();
 
-        $this->assertSame([], $this->user->settings->calendar_connection->calendars);
+        $connection = $this->user->settings->calendar_connection;
+
+        $this->assertSame('primary', $connection->calendars[0]['calendar_id']);
+        $this->assertSame('Primary', $connection->calendars[0]['name']);
+        $this->assertTrue($connection->calendars[0]['primary']);
+        $this->assertFalse($connection->calendars[0]['writable']);
+    }
+
+    public function testCompleteAutoSelectsCalendarFromPaginatedProviderList(): void
+    {
+        $state = $this->cacheCalendarState(CalendarConnection::PROVIDER_GOOGLE);
+
+        Socialite::fake(CalendarConnection::PROVIDER_GOOGLE, (new SocialiteUser())->map([
+            'id' => 'google-sub-1',
+            'name' => 'Calendar User',
+            'email' => 'calendar@example.com',
+        ])->setToken('google-access-token')
+            ->setRefreshToken('google-refresh-token')
+            ->setExpiresIn(3600));
+
+        Http::fake(function ($request) {
+            if (str_starts_with($request->url(), 'https://www.googleapis.com/calendar/v3/users/me/calendarList')) {
+                parse_str((string) parse_url($request->url(), PHP_URL_QUERY), $query);
+
+                if (($query['pageToken'] ?? null) === 'page-2') {
+                    return Http::response([
+                        'items' => [
+                            ['id' => 'work', 'summary' => 'Work', 'primary' => false, 'accessRole' => 'writer'],
+                        ],
+                    ]);
+                }
+
+                return Http::response([
+                    'items' => [
+                        ['id' => 'readonly', 'summary' => 'Read Only', 'primary' => false, 'accessRole' => 'reader'],
+                    ],
+                    'nextPageToken' => 'page-2',
+                ]);
+            }
+
+            return Http::response([], 404);
+        });
+
+        $this->withHeaders($this->apiHeaders())
+            ->postJson(route('api.calendar_connection.complete', ['provider' => CalendarConnection::PROVIDER_GOOGLE]), [
+                'state' => $state,
+                'code' => 'oauth-code',
+            ])->assertOk();
+
+        $this->user->refresh();
+
+        $this->assertSame('work', $this->user->settings->calendar_connection->calendars[0]['calendar_id']);
+        $this->assertSame('Work', $this->user->settings->calendar_connection->calendars[0]['name']);
+
+        Http::assertSent(fn ($request): bool => str_contains($request->url(), 'pageToken=page-2'));
+    }
+
+    public function testMicrosoftCompleteAutoSelectsCalendarFromPaginatedProviderList(): void
+    {
+        $state = $this->cacheCalendarState(CalendarConnection::PROVIDER_MICROSOFT);
+
+        Socialite::fake(CalendarConnection::PROVIDER_MICROSOFT, (new SocialiteUser())->map([
+            'id' => 'microsoft-user-1',
+            'name' => 'Calendar User',
+            'email' => 'calendar@example.com',
+        ])->setToken('microsoft-access-token')
+            ->setRefreshToken('microsoft-refresh-token')
+            ->setExpiresIn(3600));
+
+        Http::fake(function ($request) {
+            if ($request->url() === 'https://graph.microsoft.com/v1.0/me/calendars') {
+                return Http::response([
+                    'value' => [
+                        ['id' => 'readonly', 'name' => 'Read Only', 'isDefaultCalendar' => false, 'canEdit' => false],
+                    ],
+                    '@odata.nextLink' => 'https://graph.microsoft.com/v1.0/me/calendars/page-2',
+                ]);
+            }
+
+            if ($request->url() === 'https://graph.microsoft.com/v1.0/me/calendars/page-2') {
+                return Http::response([
+                    'value' => [
+                        ['id' => 'work', 'name' => 'Work', 'isDefaultCalendar' => false, 'canEdit' => true],
+                    ],
+                ]);
+            }
+
+            return Http::response([], 404);
+        });
+
+        $this->withHeaders($this->apiHeaders())
+            ->postJson(route('api.calendar_connection.complete', ['provider' => CalendarConnection::PROVIDER_MICROSOFT]), [
+                'state' => $state,
+                'code' => 'oauth-code',
+            ])->assertOk();
+
+        $this->user->refresh();
+
+        $this->assertSame('work', $this->user->settings->calendar_connection->calendars[0]['calendar_id']);
+        $this->assertSame('Work', $this->user->settings->calendar_connection->calendars[0]['name']);
+
+        Http::assertSent(fn ($request): bool => $request->url() === 'https://graph.microsoft.com/v1.0/me/calendars/page-2');
     }
 
     public function testCompleteFailsWhenStateIsMissingFromCache(): void
@@ -583,6 +852,41 @@ class CalendarConnectionTest extends TestCase
             ->assertJsonValidationErrors(['state']);
     }
 
+    public function testCalendarListKeepsLegacyShapeWhenProviderOmitsName(): void
+    {
+        $this->user->settings = new UserSettings([
+            'calendar_connection' => [
+                'provider' => CalendarConnection::PROVIDER_GOOGLE,
+                'provider_user_id' => 'google-sub-1',
+                'email' => 'calendar@example.com',
+                'access_token' => 'google-access-token',
+                'refresh_token' => 'google-refresh-token',
+                'expires_at' => now()->addHour()->timestamp,
+                'calendars' => [],
+            ],
+        ]);
+        $this->user->save();
+
+        Http::fake([
+            'https://www.googleapis.com/calendar/v3/users/me/calendarList' => Http::response([
+                'items' => [
+                    ['id' => 'nameless', 'primary' => false, 'accessRole' => 'reader'],
+                ],
+            ]),
+        ]);
+
+        $response = $this->withHeaders($this->apiHeaders())
+            ->getJson(route('api.calendar_connection.calendars'));
+
+        $response->assertOk();
+        $response->assertJsonPath('data.calendars.0.calendar_id', 'nameless');
+        $response->assertJsonPath('data.calendars.0.selected', false);
+        $response->assertJsonPath('data.calendars.0.writable', false);
+        $this->assertArrayNotHasKey('id', $response->json('data.calendars.0'));
+        $this->assertArrayNotHasKey('provider', $response->json('data.calendars.0'));
+        $this->assertArrayNotHasKey('name', $response->json('data.calendars.0'));
+    }
+
     public function testCalendarListUpdateAndDisconnectFlow(): void
     {
         $this->user->referral_meta = new ReferralMeta([
@@ -619,9 +923,13 @@ class CalendarConnectionTest extends TestCase
 
         $listResponse->assertOk();
         $listResponse->assertJsonPath('data.calendars.0.calendar_id', 'primary');
+        $listResponse->assertJsonPath('data.calendars.0.writable', true);
         $listResponse->assertJsonPath('data.calendars.0.selected', true);
         $listResponse->assertJsonPath('data.calendars.1.calendar_id', 'work');
+        $listResponse->assertJsonPath('data.calendars.1.writable', true);
         $listResponse->assertJsonPath('data.calendars.1.selected', false);
+        $this->assertArrayNotHasKey('id', $listResponse->json('data.calendars.0'));
+        $this->assertArrayNotHasKey('provider', $listResponse->json('data.calendars.0'));
 
         $updateResponse = $this->withHeaders($this->apiHeaders())
             ->putJson(route('api.calendar_connection.calendars.update'), [
@@ -629,8 +937,12 @@ class CalendarConnectionTest extends TestCase
             ]);
 
         $updateResponse->assertOk();
+        $updateResponse->assertJsonPath('data.calendar_connection.connected', true);
         $updateResponse->assertJsonPath('data.calendar_connection.provider', CalendarConnection::PROVIDER_GOOGLE);
+        $updateResponse->assertJsonPath('data.calendar_connection.provider_user_id', 'google-sub-1');
+        $updateResponse->assertJsonPath('data.calendar_connection.email', 'calendar@example.com');
         $updateResponse->assertJsonPath('data.calendar_connection.calendars.0.calendar_id', 'work');
+        $this->assertArrayNotHasKey('status', $updateResponse->json('data.calendar_connection'));
         $this->assertArrayNotHasKey('access_token', $updateResponse->json('data.calendar_connection'));
         $this->assertArrayNotHasKey('refresh_token', $updateResponse->json('data.calendar_connection'));
 
@@ -835,6 +1147,70 @@ class CalendarConnectionTest extends TestCase
         });
     }
 
+    public function testGoogleEventsEndpointFollowsPaginatedEventResults(): void
+    {
+        $this->user->settings = new UserSettings([
+            'calendar_connection' => [
+                'provider' => CalendarConnection::PROVIDER_GOOGLE,
+                'provider_user_id' => 'google-sub-1',
+                'email' => 'calendar@example.com',
+                'access_token' => 'google-access-token',
+                'refresh_token' => 'google-refresh-token',
+                'expires_at' => now()->addHour()->timestamp,
+                'calendars' => [
+                    ['calendar_id' => 'primary', 'name' => 'Primary', 'primary' => true, 'writable' => true],
+                ],
+            ],
+        ]);
+        $this->user->save();
+
+        Http::fake(function ($request) {
+            if (str_starts_with($request->url(), 'https://www.googleapis.com/calendar/v3/calendars/primary/events')) {
+                parse_str((string) parse_url($request->url(), PHP_URL_QUERY), $query);
+
+                if (($query['pageToken'] ?? null) === 'page-2') {
+                    return Http::response([
+                        'items' => [
+                            [
+                                'id' => 'event-2',
+                                'summary' => 'Follow Up',
+                                'start' => ['dateTime' => '2026-04-01T10:00:00.000Z'],
+                                'end' => ['dateTime' => '2026-04-01T10:30:00.000Z'],
+                            ],
+                        ],
+                    ]);
+                }
+
+                return Http::response([
+                    'items' => [
+                        [
+                            'id' => 'event-1',
+                            'summary' => 'Planning',
+                            'start' => ['dateTime' => '2026-04-01T09:00:00.000Z'],
+                            'end' => ['dateTime' => '2026-04-01T09:30:00.000Z'],
+                        ],
+                    ],
+                    'nextPageToken' => 'page-2',
+                ]);
+            }
+
+            return Http::response([], 404);
+        });
+
+        $response = $this->withHeaders($this->apiHeaders())
+            ->getJson(route('api.calendar_connection.events', [
+                'from' => '2026-04-01T00:00:00.000Z',
+                'to' => '2026-04-02T00:00:00.000Z',
+            ]));
+
+        $response->assertOk();
+        $response->assertJsonCount(2, 'data.events');
+        $response->assertJsonPath('data.events.0.title', 'Planning');
+        $response->assertJsonPath('data.events.1.title', 'Follow Up');
+
+        Http::assertSent(fn ($request): bool => str_contains($request->url(), 'pageToken=page-2'));
+    }
+
     public function testMicrosoftEventsEndpointReturnsSelectedCalendarViewEventsInRange(): void
     {
         $this->user->settings = new UserSettings([
@@ -903,6 +1279,74 @@ class CalendarConnectionTest extends TestCase
                 && $query['startDateTime'] === '2026-03-28T13:00:00.000000Z'
                 && $query['endDateTime'] === '2026-05-02T13:59:59.999000Z';
         });
+    }
+
+    public function testMicrosoftEventsEndpointFollowsPaginatedCalendarViewResults(): void
+    {
+        $this->user->settings = new UserSettings([
+            'calendar_connection' => [
+                'provider' => CalendarConnection::PROVIDER_MICROSOFT,
+                'provider_user_id' => 'microsoft-user-1',
+                'email' => 'calendar@example.com',
+                'access_token' => 'microsoft-access-token',
+                'refresh_token' => 'microsoft-refresh-token',
+                'expires_at' => now()->addHour()->timestamp,
+                'calendars' => [
+                    ['calendar_id' => 'default-calendar', 'name' => 'Calendar', 'primary' => true, 'writable' => true],
+                ],
+            ],
+        ]);
+        $this->user->save();
+
+        Http::fake(function ($request) {
+            if ($request->url() === 'https://graph.microsoft.com/v1.0/me/calendars/default-calendar/calendarView/page-2') {
+                return Http::response([
+                    'value' => [
+                        [
+                            'id' => 'graph-event-2',
+                            'subject' => 'Follow Up',
+                            'showAs' => 'busy',
+                            'isAllDay' => false,
+                            'isCancelled' => false,
+                            'start' => ['dateTime' => '2026-04-01T11:00:00.0000000', 'timeZone' => 'UTC'],
+                            'end' => ['dateTime' => '2026-04-01T11:30:00.0000000', 'timeZone' => 'UTC'],
+                        ],
+                    ],
+                ]);
+            }
+
+            if (str_starts_with($request->url(), 'https://graph.microsoft.com/v1.0/me/calendars/default-calendar/calendarView')) {
+                return Http::response([
+                    'value' => [
+                        [
+                            'id' => 'graph-event-1',
+                            'subject' => 'Planning',
+                            'showAs' => 'busy',
+                            'isAllDay' => false,
+                            'isCancelled' => false,
+                            'start' => ['dateTime' => '2026-04-01T10:00:00.0000000', 'timeZone' => 'UTC'],
+                            'end' => ['dateTime' => '2026-04-01T10:30:00.0000000', 'timeZone' => 'UTC'],
+                        ],
+                    ],
+                    '@odata.nextLink' => 'https://graph.microsoft.com/v1.0/me/calendars/default-calendar/calendarView/page-2',
+                ]);
+            }
+
+            return Http::response([], 404);
+        });
+
+        $response = $this->withHeaders($this->apiHeaders())
+            ->getJson(route('api.calendar_connection.events', [
+                'from' => '2026-04-01T00:00:00.000Z',
+                'to' => '2026-04-02T00:00:00.000Z',
+            ]));
+
+        $response->assertOk();
+        $response->assertJsonCount(2, 'data.events');
+        $response->assertJsonPath('data.events.0.title', 'Planning');
+        $response->assertJsonPath('data.events.1.title', 'Follow Up');
+
+        Http::assertSent(fn ($request): bool => $request->url() === 'https://graph.microsoft.com/v1.0/me/calendars/default-calendar/calendarView/page-2');
     }
 
     public function testEventsEndpointSkipsEventsAlreadyConvertedToTasksForTheCurrentUser(): void
@@ -999,6 +1443,109 @@ class CalendarConnectionTest extends TestCase
         $response->assertJsonValidationErrors(['to']);
     }
 
+    public function testEventsEndpointRefreshesExpiredTokenBeforeHydratingEvents(): void
+    {
+        $this->user->settings = new UserSettings([
+            'calendar_connection' => [
+                'provider' => CalendarConnection::PROVIDER_GOOGLE,
+                'provider_user_id' => 'google-sub-1',
+                'email' => 'calendar@example.com',
+                'access_token' => 'expired-google-access-token',
+                'refresh_token' => 'google-refresh-token',
+                'expires_at' => now()->subMinute()->timestamp,
+                'calendars' => [
+                    ['calendar_id' => 'primary', 'name' => 'Primary', 'primary' => true, 'writable' => true],
+                ],
+            ],
+        ]);
+        $this->user->save();
+
+        Http::fake([
+            'https://oauth2.googleapis.com/token' => Http::response([
+                'access_token' => 'new-google-access-token',
+                'refresh_token' => 'new-google-refresh-token',
+                'expires_in' => 3600,
+            ]),
+            'https://www.googleapis.com/calendar/v3/calendars/primary/events*' => Http::response([
+                'items' => [
+                    [
+                        'id' => 'event-after-refresh',
+                        'summary' => 'Fresh Token Event',
+                        'start' => ['dateTime' => '2026-04-01T09:00:00.000Z'],
+                        'end' => ['dateTime' => '2026-04-01T09:30:00.000Z'],
+                    ],
+                ],
+            ]),
+        ]);
+
+        $response = $this->withHeaders($this->apiHeaders())
+            ->getJson(route('api.calendar_connection.events', [
+                'from' => '2026-04-01T00:00:00.000Z',
+                'to' => '2026-04-02T00:00:00.000Z',
+            ]));
+
+        $response->assertOk();
+        $response->assertJsonPath('data.events.0.title', 'Fresh Token Event');
+
+        $this->user->refresh();
+
+        $this->assertSame('new-google-access-token', $this->user->settings->calendar_connection->access_token);
+        $this->assertSame('new-google-refresh-token', $this->user->settings->calendar_connection->refresh_token);
+    }
+
+    public function testMicrosoftEventsEndpointRefreshesExpiredTokenBeforeHydratingEvents(): void
+    {
+        $this->user->settings = new UserSettings([
+            'calendar_connection' => [
+                'provider' => CalendarConnection::PROVIDER_MICROSOFT,
+                'provider_user_id' => 'microsoft-user-1',
+                'email' => 'calendar@example.com',
+                'access_token' => 'expired-microsoft-access-token',
+                'refresh_token' => 'microsoft-refresh-token',
+                'expires_at' => now()->subMinute()->timestamp,
+                'calendars' => [
+                    ['calendar_id' => 'default-calendar', 'name' => 'Calendar', 'primary' => true, 'writable' => true],
+                ],
+            ],
+        ]);
+        $this->user->save();
+
+        Http::fake([
+            'https://login.microsoftonline.com/common/oauth2/v2.0/token' => Http::response([
+                'access_token' => 'new-microsoft-access-token',
+                'refresh_token' => 'new-microsoft-refresh-token',
+                'expires_in' => 3600,
+            ]),
+            'https://graph.microsoft.com/v1.0/me/calendars/default-calendar/calendarView*' => Http::response([
+                'value' => [
+                    [
+                        'id' => 'graph-event-after-refresh',
+                        'subject' => 'Fresh Token Planning',
+                        'showAs' => 'busy',
+                        'isAllDay' => false,
+                        'isCancelled' => false,
+                        'start' => ['dateTime' => '2026-04-01T10:00:00.0000000', 'timeZone' => 'UTC'],
+                        'end' => ['dateTime' => '2026-04-01T10:30:00.0000000', 'timeZone' => 'UTC'],
+                    ],
+                ],
+            ]),
+        ]);
+
+        $response = $this->withHeaders($this->apiHeaders())
+            ->getJson(route('api.calendar_connection.events', [
+                'from' => '2026-04-01T00:00:00.000Z',
+                'to' => '2026-04-02T00:00:00.000Z',
+            ]));
+
+        $response->assertOk();
+        $response->assertJsonPath('data.events.0.title', 'Fresh Token Planning');
+
+        $this->user->refresh();
+
+        $this->assertSame('new-microsoft-access-token', $this->user->settings->calendar_connection->access_token);
+        $this->assertSame('new-microsoft-refresh-token', $this->user->settings->calendar_connection->refresh_token);
+    }
+
     public function testEventsEndpointCapsOversizedRangesToAMonthViewWindow(): void
     {
         $this->user->settings = new UserSettings([
@@ -1070,6 +1617,8 @@ class CalendarConnectionTest extends TestCase
         $response->assertJsonPath('data.calendars.0.name', 'Calendar');
         $response->assertJsonPath('data.calendars.0.primary', true);
         $response->assertJsonPath('data.calendars.0.writable', true);
+        $this->assertArrayNotHasKey('id', $response->json('data.calendars.0'));
+        $this->assertArrayNotHasKey('provider', $response->json('data.calendars.0'));
 
         $this->user->refresh();
 

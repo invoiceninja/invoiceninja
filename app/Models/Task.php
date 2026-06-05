@@ -171,6 +171,7 @@ class Task extends BaseModel
             'custom_value3' => (string) $this->custom_value3,
             'custom_value4' => (string) $this->custom_value4,
             'company_key' => $this->company->company_key,
+            'tags' => $this->tags->pluck('name')->values()->all(),
             'time_log' => $this->normalizeTimeLog($this->time_log),
             'calculated_start_date' => $this->calculated_start_date,
         ];

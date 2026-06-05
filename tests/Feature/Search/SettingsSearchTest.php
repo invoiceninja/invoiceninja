@@ -106,11 +106,40 @@ class SettingsSearchTest extends TestCase
         }
     }
 
-    public function testCataloguePathsAreUnique(): void
+    public function testCatalogueEntriesAreUnique(): void
     {
+        // Paths may be intentionally aliased (e.g. "Tax Settings" and "Tax Rates"
+        // both resolve to /settings/tax_settings), but no path+label row may repeat.
+        $keys = array_map(
+            fn (array $entry): string => $entry['path'] . '|' . $entry['label'],
+            SettingsSearchMap::all()
+        );
+
+        $this->assertSame(array_unique($keys), $keys);
+    }
+
+    public function testListSettingsDoNotPointAtIndexlessRoutes(): void
+    {
+        // These route groups only define create/:id/edit children in the UI; their
+        // lists render inside the parent settings page, so the catalogue must never
+        // navigate to the bare (index-less) path.
         $paths = array_column(SettingsSearchMap::all(), 'path');
 
-        $this->assertSame(array_unique($paths), $paths);
+        $this->assertNotContains('/settings/tax_rates', $paths);
+        $this->assertNotContains('/settings/task_statuses', $paths);
+        $this->assertNotContains('/settings/expense_categories', $paths);
+        $this->assertNotContains('/settings/integrations', $paths);
+        $this->assertNotContains('/settings/company_details/details', $paths);
+        $this->assertNotContains('/settings/backup_restore/backup', $paths);
+    }
+
+    public function testQuickbooksIsDiscoverableViaIntegrations(): void
+    {
+        $entry = collect(SettingsSearchMap::all())
+            ->first(fn (array $e): bool => str_contains($e['keywords'], 'quickbooks'));
+
+        $this->assertNotNull($entry);
+        $this->assertSame('/settings/account_management/integrations', $entry['path']);
     }
 
     public function testAdminReceivesAdminOnlyDestinations(): void

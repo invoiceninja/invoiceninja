@@ -88,6 +88,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property array|null $referral_earnings
  * @property-read \App\Models\Account $account
  * @property-read \App\Models\Company $company
+ * @property-read \App\Models\Language|null $language
  * @property-read mixed $hashed_id
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read int|null $notifications_count

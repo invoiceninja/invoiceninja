@@ -268,28 +268,7 @@ class CalendarConnectionService
     public function availableCalendars(User $user): array
     {
         $connection = $this->connectionOrFail($user);
-        $connection = $this->freshConnection($user, $connection);
-
-        $response = Http::withToken((string) $connection->access_token)
-            ->timeout(self::PROVIDER_HTTP_TIMEOUT_SECONDS)
-            ->acceptJson()
-            ->get($this->calendarEndpoint((string) $connection->provider));
-
-        if ($response->failed()) {
-            throw ValidationException::withMessages(['calendar_connection' => 'Unable to load calendars from the provider.']);
-        }
-
-        $calendars = match ($connection->provider) {
-            CalendarConnection::PROVIDER_GOOGLE => $response->json('items') ?? [],
-            CalendarConnection::PROVIDER_MICROSOFT => $response->json('value') ?? [],
-            default => [],
-        };
-
-        $normalizedConnection = new CalendarConnection([
-            'provider' => $connection->provider,
-            'provider_user_id' => $connection->provider_user_id,
-            'calendars' => $calendars,
-        ]);
+        $availableCalendars = $this->availableProviderCalendars($user, $connection);
 
         $selectedIds = collect($connection->calendars)
             ->pluck('calendar_id')
@@ -301,8 +280,68 @@ class CalendarConnectionService
             fn (array $calendar): array => $calendar + [
                 'selected' => in_array($calendar['calendar_id'], $selectedIds, true),
             ],
-            $normalizedConnection->calendars
+            $availableCalendars
         );
+    }
+
+    /**
+     * @return array<int, array{calendar_id: string, name?: string, primary?: bool, writable?: bool}>
+     */
+    private function availableProviderCalendars(User $user, CalendarConnection $connection): array
+    {
+        $connection = $this->freshConnection($user, $connection);
+        $provider = (string) $connection->provider;
+        $url = $this->calendarEndpoint($provider);
+        $query = [];
+        $calendars = [];
+
+        do {
+            $response = Http::withToken((string) $connection->access_token)
+                ->timeout(self::PROVIDER_HTTP_TIMEOUT_SECONDS)
+                ->acceptJson()
+                ->get($url, $query);
+
+            if ($response->failed()) {
+                throw ValidationException::withMessages(['calendar_connection' => 'Unable to load calendars from the provider.']);
+            }
+
+            $body = $response->json();
+
+            $calendars = [
+                ...$calendars,
+                ...match ($provider) {
+                    CalendarConnection::PROVIDER_GOOGLE => $body['items'] ?? [],
+                    CalendarConnection::PROVIDER_MICROSOFT => $body['value'] ?? [],
+                    default => [],
+                },
+            ];
+
+            $nextPageToken = $provider === CalendarConnection::PROVIDER_GOOGLE
+                ? $body['nextPageToken'] ?? null
+                : null;
+            $nextLink = $provider === CalendarConnection::PROVIDER_MICROSOFT
+                ? $body['@odata.nextLink'] ?? null
+                : null;
+
+            if ($nextPageToken) {
+                $url = $this->calendarEndpoint($provider);
+                $query = ['pageToken' => (string) $nextPageToken];
+            } elseif ($nextLink) {
+                $url = (string) $nextLink;
+                $query = [];
+            } else {
+                $url = null;
+                $query = [];
+            }
+        } while ($url !== null);
+
+        $normalizedConnection = new CalendarConnection([
+            'provider' => $connection->provider,
+            'provider_user_id' => $connection->provider_user_id,
+            'calendars' => $calendars,
+        ]);
+
+        return $normalizedConnection->calendars;
     }
 
     /**
@@ -399,7 +438,8 @@ class CalendarConnectionService
     public function updateCalendars(User $user, array $calendarIds): CalendarConnection
     {
         $calendarIds = array_values(array_unique(array_map('strval', $calendarIds)));
-        $availableCalendars = collect($this->availableCalendars($user))->keyBy('calendar_id');
+        $connection = $this->connectionOrFail($user);
+        $availableCalendars = collect($this->availableProviderCalendars($user, $connection))->keyBy('calendar_id');
         $missingCalendarIds = array_values(array_diff($calendarIds, $availableCalendars->keys()->all()));
 
         if ($missingCalendarIds) {
@@ -408,7 +448,6 @@ class CalendarConnectionService
             ]);
         }
 
-        $connection = $this->connectionOrFail($user);
         $connection->calendars = collect($calendarIds)
             ->map(fn (string $calendarId): array => Arr::only((array) $availableCalendars->get($calendarId), [
                 'calendar_id',
@@ -457,7 +496,7 @@ class CalendarConnectionService
                 return;
             }
 
-            $defaultCalendar = $this->defaultWritableCalendar($this->availableCalendars($user));
+            $defaultCalendar = $this->defaultCalendar($this->availableProviderCalendars($user, $connection));
 
             if (!$defaultCalendar) {
                 return;
@@ -486,13 +525,13 @@ class CalendarConnectionService
     /**
      * Picks a default calendar from a provider listing.
      *
-     * Prefers the primary writable calendar; falls back to the first
-     * writable calendar; returns null when none are writable.
+     * Prefers writable calendars, but falls back to readable calendars so
+     * event hydration works for shared/read-only calendar access.
      *
      * @param array<int, array<string, mixed>> $calendars
      * @return array<string, mixed>|null
      */
-    private function defaultWritableCalendar(array $calendars): ?array
+    private function defaultCalendar(array $calendars): ?array
     {
         foreach ($calendars as $calendar) {
             if (($calendar['primary'] ?? false) === true && ($calendar['writable'] ?? false) === true) {
@@ -506,7 +545,13 @@ class CalendarConnectionService
             }
         }
 
-        return null;
+        foreach ($calendars as $calendar) {
+            if (($calendar['primary'] ?? false) === true) {
+                return $calendar;
+            }
+        }
+
+        return $calendars[0] ?? null;
     }
 
     /**
@@ -790,13 +835,15 @@ class CalendarConnectionService
                 throw ValidationException::withMessages(['calendar_connection' => 'Unable to load calendar events from Microsoft.']);
             }
 
-            foreach ($response->json('value') ?? [] as $event) {
+            $body = $response->json();
+
+            foreach ($body['value'] ?? [] as $event) {
                 if (is_array($event)) {
                     $events[] = $this->normalizeMicrosoftEvent($user, $event, $calendar);
                 }
             }
 
-            $url = $response->json('@odata.nextLink');
+            $url = $body['@odata.nextLink'] ?? null;
             $query = [];
         } while ($url);
 

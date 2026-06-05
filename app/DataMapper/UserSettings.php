@@ -78,6 +78,16 @@ class UserSettings implements Arrayable, JsonSerializable
         return $payload;
     }
 
+    public function toResponseObject(): \stdClass
+    {
+        return (object) [
+            'calendar_connection' => $this->calendar_connection?->toResponseObject() ?? (object) [
+                'status' => CalendarConnection::STATUS_DISCONNECTED,
+                'email' => '',
+            ],
+        ];
+    }
+
     /**
      * @return array<string, mixed>
      */

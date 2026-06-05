@@ -56,6 +56,13 @@ class SearchController extends Controller
     public function __invoke(GenericSearchRequest $request)
     {
 
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $locale = $user->language ? $user->language->locale : $user->company()->locale();
+
+        \Illuminate\Support\Facades\App::setLocale($locale);
+
         if (config('scout.driver') == 'elastic') {
             try {
                 return $this->search($request->input('search', '*'));
@@ -63,9 +70,6 @@ class SearchController extends Controller
                 nlog("elk down?" . $e->getMessage());
             }
         }
-
-        /** @var \App\Models\User $user */
-        $user = auth()->user();
 
         $this->clientMap($user);
 
@@ -92,7 +96,6 @@ class SearchController extends Controller
 
         $search = trim($search);
 
-        \Illuminate\Support\Facades\App::setLocale($company->locale());
 
         $elastic = ClientBuilder::fromConfig(config('elastic.client.connections.default'));
 

@@ -115,10 +115,19 @@ class CalendarConnection implements Arrayable, JsonSerializable
         ]);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    public function toResponseArray(): array
+    {
+        return $this->toArray();
+    }
+
     public function toResponseObject(): \stdClass
     {
         return (object) [
             'status' => $this->status(),
+            'email' => (string) $this->email,
         ];
     }
 

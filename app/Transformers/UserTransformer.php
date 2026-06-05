@@ -13,6 +13,7 @@
 namespace App\Transformers;
 
 use App\DataMapper\Referral\ReferralMeta;
+use App\DataMapper\UserSettings;
 use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
@@ -45,6 +46,9 @@ class UserTransformer extends EntityTransformer
         $referralMeta = $user->referral_meta instanceof ReferralMeta
             ? $user->referral_meta
             : new ReferralMeta($user->referral_meta);
+        $settings = $user->settings instanceof UserSettings
+            ? $user->settings
+            : new UserSettings($user->settings);
 
         return [
             'id' => $this->encodePrimaryKey($user->id),
@@ -75,6 +79,7 @@ class UserTransformer extends EntityTransformer
             'user_logged_in_notification' => (bool) $user->user_logged_in_notification,
             'referral_code' => (string) $user->referral_code,
             'referral_meta' => (object) $referralMeta->toArray(),
+            'settings' => $settings->toResponseObject(),
         ];
     }
 
