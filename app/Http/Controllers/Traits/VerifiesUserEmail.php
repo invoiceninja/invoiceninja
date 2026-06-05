@@ -77,12 +77,17 @@ trait VerifiesUserEmail
 
     public function confirmWithPassword()
     {
-        $user = User::where('id', $this->decodePrimaryKey(request()->user_id))->firstOrFail();
+        $user = User::where('id', $this->decodePrimaryKey(request()->user_id))
+                    ->where('confirmation_code', request()->confirmation_code)
+                    ->whereNull('confirmation_code')
+                    ->firstOrFail();
+
         $react = request()->has('react') ? true : false;
 
         $validator = Validator::make(request()->all(), [
             'password' => 'min:6|required_with:password_confirmation|same:password_confirmation',
             'password_confirmation' => 'min:6',
+            'confirmation_code' => 'required|exists:users,confirmation_code',
         ]);
 
         if ($validator->fails()) {
