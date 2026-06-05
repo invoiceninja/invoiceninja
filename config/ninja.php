@@ -270,4 +270,5 @@ return [
     'zugferd_version_two' => env('ZUGFERD_VERSION_TWO', true),
     'chart_service_url' => env('CHART_SERVICE_URL', false),
     'docuninja_api_url' => env('DOCUNINJA_API_URL', false),
+    'auto_bill_time' => env('NINJA_AUTO_BILL_TIME', '06:20'),
 ];
