@@ -364,8 +364,9 @@ class NinjaMailerJob implements ShouldQueue
 
         if (Ninja::isHosted() && $this->company->account->isPaid() && $this->nmo->settings->email_sending_method == 'default') {
             //check if outlook.
+            $email = $this->nmo->to_user->email ?? '';
+
             try {
-                $email = $this->nmo->to_user->email;
                 $domain = explode("@", $email)[1] ?? "";
                 $dns = dns_get_record($domain, DNS_MX);
 
@@ -390,7 +391,6 @@ class NinjaMailerJob implements ShouldQueue
             } catch (\Throwable $e) {
 
                 nlog("problem switching outlook driver - hosted {$email}");
-
                 nlog($e->getMessage());
             }
         }
