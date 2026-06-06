@@ -20,9 +20,9 @@ use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\Common\LivewireMethodInterface;
-use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\HelcimPaymentDriver;
+use App\PaymentDrivers\Common\MethodInterface;
+use App\PaymentDrivers\Common\LivewireMethodInterface;
 use Illuminate\Http\Request;
 
 class ACH implements MethodInterface, LivewireMethodInterface
@@ -35,22 +35,22 @@ class ACH implements MethodInterface, LivewireMethodInterface
     }
 
     /**
-     * Authorization view for adding a bank account via HelcimPay.js
+     * Authorization view for adding a bank account
      */
     public function authorizeView(array $data)
     {
         $data['gateway'] = $this->helcim_driver;
 
+        // Initialize HelcimPay.js session for bank account verification (PCI compliant)
         try {
             $session = $this->helcim_driver->initializeHelcimPaySession([
                 'paymentType' => 'verify',
-                'currency' => $this->helcim_driver->client->currency()->code,
-                'amount' => 0,
-                'paymentMethod' => 'ach',
+                'currency'    => $this->helcim_driver->client->currency()->code,
+                'amount'      => 0,
             ]);
 
             $data['checkout_token'] = $session['checkoutToken'];
-            $data['secret_token'] = $session['secretToken'];
+            $data['secret_token']   = $session['secretToken'];
         } catch (\Exception $e) {
             SystemLogger::dispatch(
                 ['error' => $e->getMessage()],
@@ -61,97 +61,73 @@ class ACH implements MethodInterface, LivewireMethodInterface
                 $this->helcim_driver->client->company
             );
 
-            throw new PaymentFailed('Failed to initialize bank account form: ' . $e->getMessage(), 400);
+            throw new PaymentFailed('Failed to initialize ACH form: ' . $e->getMessage(), 400);
         }
 
         return render('gateways.helcim.ach.authorize', $data);
     }
 
     /**
-     * Handle authorization response — save the bank account token from HelcimPay.js
+     * Handle authorization response (saving a bank account)
+     *
+     * PCI COMPLIANCE: Processes tokenized data from HelcimPay.js and performs a
+     * server-side verification of the transactionId against the Helcim API to ensure
+     * the response has not been tampered with.
      */
     public function authorizeResponse(Request $request)
     {
         $transactionData = $request->input('transaction_data');
-        $transactionHash = $request->input('transaction_hash') ?? '';
-        $secretToken = $request->input('secret_token');
+        $secretToken     = $request->input('secret_token');
 
         if (empty($transactionData) || empty($secretToken)) {
-            throw new PaymentFailed('Invalid bank account response', 400);
+            throw new PaymentFailed('Invalid bank account authorization response', 400);
         }
 
         try {
-            $rawData = json_decode($transactionData, true);
+            $data = json_decode($transactionData, true);
 
-            if (!$rawData) {
+            if (! $data) {
                 throw new PaymentFailed('Invalid transaction data format', 400);
             }
 
-            $data = $this->normalizeHelcimPayPayload($rawData);
-
-            if (!$this->helcim_driver->validateHelcimPayResponse($transactionData, $transactionHash, $secretToken)) {
-                throw new PaymentFailed('Transaction validation failed - data may have been tampered with', 400);
+            // Check client-side status first (fast-fail)
+            if (! isset($data['status']) || $data['status'] !== 'APPROVED') {
+                throw new PaymentFailed('Bank account verification failed: ' . ($data['warning'] ?? 'Unknown error'), 400);
             }
 
-            if (!$this->isApprovedAchResponse($data)) {
-                throw new PaymentFailed('Bank account verification failed: ' . $this->extractFailureReason($data), 400);
+            // A transactionId is required for ACH authorization — use it to confirm
+            // the verify transaction server-side (tamper-proof check).
+            $transactionId = $data['transactionId'] ?? null;
+            if (empty($transactionId)) {
+                throw new PaymentFailed('No transactionId returned by HelcimPay.js — cannot verify bank account authorization.', 400);
             }
 
-            $transactionId = $this->extractValue($data, ['transactionId', 'transaction.id', 'id', 'transactionId.id', 'verification.transactionId']);
-            $bankAccountId = $this->extractValue($data, ['bankAccountId', 'bankAccount.id', 'bank.id', 'paymentMethod.id', 'bankAccountId.id', 'account.id']);
-            $customerId = $this->extractValue($data, ['customerId', 'customer.id', 'customer.customerId', 'account.customerId']);
-            $bankToken = $this->extractValue($data, ['bankToken', 'token', 'paymentMethod.token', 'bank.token', 'account.token', 'achToken']);
-            $customerCode = $this->extractValue($data, ['customerCode', 'customer.code', 'customer.customerCode']);
+            // SERVER-SIDE TAMPER-PROOF VERIFICATION:
+            // Re-fetch the transaction from Helcim using our secret API token.
+            $this->helcim_driver->verifyHelcimTransaction(
+                $transactionId,
+                0.00,
+                $this->helcim_driver->client->currency()->code,
+                'ach'
+            );
 
-            // Resolve bankAccountId/customerId via API if absent (typical for ACH verify payloads).
-            // These are required for recurring/token billing via PUT /ach/withdraw.
-            if (!$bankAccountId || !$customerId) {
-                [$resolvedBankAccountId, $resolvedCustomerId] = $this->resolveAchBankAccountDetails($customerCode, $bankToken);
-                $bankAccountId = $bankAccountId ?: $resolvedBankAccountId;
-                $customerId = $customerId ?: $resolvedCustomerId;
+            // Extract bank account token
+            if (! isset($data['bankToken'])) {
+                throw new PaymentFailed('No bank account token received', 400);
             }
 
-            $tokenReference = (string) ($bankToken ?: $bankAccountId ?: $transactionId ?: '');
-
-            if ($tokenReference === '') {
-                SystemLogger::dispatch(
-                    [
-                        'error' => 'No bank account reference received from Helcim verification',
-                        'diagnostics' => $this->buildAchDiagnostics($rawData, $data),
-                    ],
-                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                    SystemLog::EVENT_GATEWAY_FAILURE,
-                    SystemLog::TYPE_HELCIM,
-                    $this->helcim_driver->client,
-                    $this->helcim_driver->client->company
-                );
-
-                throw new PaymentFailed('No bank account reference received from Helcim verification', 400);
-            }
-
-            $payment_meta = new \stdClass();
-            $payment_meta->exp_month = null;
-            $payment_meta->exp_year = null;
-            $payment_meta->brand = 'ACH';
-            $accountNumber = (string) ($this->extractValue($data, ['bankAccountNumber', 'bankAccount.number', 'maskedAccountNumber', 'cardNumber']) ?? '');
-            $payment_meta->last4 = $accountNumber !== '' ? substr($accountNumber, -4) : '';
-            $payment_meta->type = GatewayType::BANK_TRANSFER;
-            $payment_meta->customerCode = $customerCode;
-            // Store bankAccountId and customerId if provided for future token billing
-            $payment_meta->bankAccountId = $bankAccountId;
-            $payment_meta->customerId = $customerId;
-            $payment_meta->bankToken = $bankToken;
-            $payment_meta->transactionId = $transactionId;
+            $payment_meta        = new \stdClass();
+            $payment_meta->brand = $data['bankAccountType'] ?? 'Bank Account';
+            $payment_meta->last4 = $data['bankAccountNumber'] ?? '';
+            $payment_meta->type  = GatewayType::BANK_TRANSFER;
 
             $tokenData = [
-                'payment_meta' => $payment_meta,
-                'token' => $tokenReference,
+                'payment_meta'      => $payment_meta,
+                'token'             => $data['bankToken'],
                 'payment_method_id' => GatewayType::BANK_TRANSFER,
             ];
 
-            $this->helcim_driver->storeGatewayToken($tokenData, [
-                'gateway_customer_reference' => (string) ($customerCode ?: $customerId ?: $transactionId ?: $tokenReference),
-            ]);
+            $this->helcim_driver->storeGatewayToken($tokenData, ['gateway_customer_reference' => $data['bankToken']]);
 
             SystemLogger::dispatch(
                 ['response' => $data, 'data' => $tokenData],
@@ -165,12 +141,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
             return redirect()->route('client.payment_methods.index');
         } catch (\Exception $e) {
             SystemLogger::dispatch(
-                [
-                    'error' => $e->getMessage(),
-                    'diagnostics' => isset($rawData) && is_array($rawData)
-                        ? $this->buildAchDiagnostics($rawData, $data ?? [])
-                        : ['has_transaction_data' => !empty($transactionData)],
-                ],
+                ['error' => $e->getMessage()],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_FAILURE,
                 SystemLog::TYPE_HELCIM,
@@ -183,30 +154,31 @@ class ACH implements MethodInterface, LivewireMethodInterface
     }
 
     /**
-     * Payment view for ACH — uses HelcimPay.js with paymentMethod: 'ach'
+     * Payment view for processing an ACH payment
      */
     public function paymentView(array $data)
     {
-        $data['gateway'] = $this->helcim_driver;
-        $data['amount'] = $this->helcim_driver->payment_hash->data->amount_with_fee;
-        $data['currency'] = $this->helcim_driver->client->currency()->code;
-        $data['payment_hash'] = $this->helcim_driver->payment_hash->hash;
+        $data['gateway']           = $this->helcim_driver;
+        $data['amount']            = $this->helcim_driver->payment_hash->data->amount_with_fee;
+        $data['currency']          = $this->helcim_driver->client->currency()->code;
+        $data['payment_hash']      = $this->helcim_driver->payment_hash->hash;
         $data['payment_method_id'] = GatewayType::BANK_TRANSFER;
-        $data['tokens'] = $this->helcim_driver->client->gateway_tokens()
+        $data['tokens']            = $this->helcim_driver->client->gateway_tokens()
             ->where('company_gateway_id', $this->helcim_driver->company_gateway->id)
             ->where('gateway_type_id', GatewayType::BANK_TRANSFER)
             ->get();
 
+        // Initialize HelcimPay.js session for new ACH payments (PCI compliant)
         try {
             $session = $this->helcim_driver->initializeHelcimPaySession([
                 'paymentType' => 'purchase',
-                'amount' => $data['amount'],
-                'currency' => $data['currency'],
+                'amount'      => $data['amount'],
+                'currency'    => $data['currency'],
                 'paymentMethod' => 'ach',
             ]);
 
             $data['checkout_token'] = $session['checkoutToken'];
-            $data['secret_token'] = $session['secretToken'];
+            $data['secret_token']   = $session['secretToken'];
         } catch (\Exception $e) {
             SystemLogger::dispatch(
                 ['error' => $e->getMessage()],
@@ -224,7 +196,18 @@ class ACH implements MethodInterface, LivewireMethodInterface
     }
 
     /**
-     * Process ACH payment response from HelcimPay.js or saved token
+     * Process ACH payment response
+     *
+     * ACH payments via HelcimPay.js are often asynchronous: the HelcimPay.js
+     * widget fires a SUCCESS event immediately but the actual bank transfer is
+     * processed later. We therefore:
+     *  1. Create a PENDING payment record with a temporary placeholder reference.
+     *  2. When the Helcim webhook arrives confirming the bank transfer has
+     *     cleared, HelcimPaymentDriver::processWebhookRequest() updates the
+     *     payment to COMPLETED and sets the real transactionId.
+     *
+     * For synchronous ACH transactions (where a transactionId is returned
+     * immediately), we verify server-side before recording the payment.
      */
     public function paymentResponse(Request $request)
     {
@@ -233,7 +216,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
         $this->helcim_driver->init();
 
         $useToken = $request->input('use_token', false);
-        $tokenId = $request->input('token');
+        $tokenId  = $request->input('token');
 
         try {
             if ($useToken && $tokenId) {
@@ -245,7 +228,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
                 return $this->processTokenPayment($token, $paymentHash);
             }
 
-            return $this->processHelcimPayAchPayment($request, $paymentHash);
+            return $this->processHelcimPayACHPayment($request, $paymentHash);
         } catch (\Exception $e) {
             SystemLogger::dispatch(
                 ['error' => $e->getMessage()],
@@ -262,15 +245,16 @@ class ACH implements MethodInterface, LivewireMethodInterface
     }
 
     /**
-     * Process ACH payment via HelcimPay.js response
-     * ACH payments start as PENDING — settlement is asynchronous
+     * Process ACH payment with HelcimPay.js tokenized data.
+     *
+     * Handles two cases:
+     *  a) transactionId is present   → synchronous; verify server-side, record COMPLETED.
+     *  b) No transactionId (bankToken only) → async mandate; record PENDING with placeholder.
      */
-    private function processHelcimPayAchPayment(Request $request, PaymentHash $paymentHash)
+    private function processHelcimPayACHPayment(Request $request, PaymentHash $paymentHash)
     {
         $transactionData = $request->input('transaction_data');
-        $transactionHash = $request->input('transaction_hash') ?? '';
-        $secretToken = $request->input('secret_token');
-        $storeAccount = $request->input('store_card', false);
+        $secretToken     = $request->input('secret_token');
 
         if (empty($transactionData) || empty($secretToken)) {
             throw new PaymentFailed('Invalid ACH payment response', 400);
@@ -278,103 +262,93 @@ class ACH implements MethodInterface, LivewireMethodInterface
 
         $rawData = json_decode($transactionData, true);
 
-        if (!$rawData) {
+        if (! $rawData) {
             throw new PaymentFailed('Invalid transaction data format', 400);
         }
 
+        $amount   = $paymentHash->data->amount_with_fee;
+        $currency = $this->helcim_driver->client->currency()->code;
+
+        // Normalize payload keys that differ across HelcimPay.js versions
         $data = $this->normalizeHelcimPayPayload($rawData);
 
-        if (!$this->helcim_driver->validateHelcimPayResponse($transactionData, $transactionHash, $secretToken)) {
-            throw new PaymentFailed('Transaction validation failed - data may have been tampered with', 400);
-        }
+        // ── Case (a): synchronous ACH — transactionId present ────────────────
+        if (! empty($data['transactionId'])) {
+            // CLIENT-SIDE FAST-FAIL
+            if (! isset($data['status']) || ! in_array(strtoupper($data['status']), ['APPROVED', 'PENDING', 'QUEUED', 'SUBMITTED', 'OPENED'], true)) {
+                throw new PaymentFailed('ACH payment not approved: ' . ($data['warning'] ?? $data['status'] ?? 'Unknown error'), 400);
+            }
 
-        if (!$this->isApprovedAchResponse($data)) {
-            throw new PaymentFailed('ACH payment failed: ' . $this->extractFailureReason($data), 400);
-        }
+            // SERVER-SIDE TAMPER-PROOF VERIFICATION:
+            // Re-fetch the transaction from Helcim using our secret API token and assert
+            // that the amount, currency and status match what we expect.
+            $this->helcim_driver->verifyHelcimTransaction(
+                $data['transactionId'],
+                (float) $amount,
+                $currency,
+                'ach'
+            );
 
-        $amount = $paymentHash->data->amount_with_fee;
+            $paymentData = [
+                'payment_type'          => PaymentType::ACH,
+                'amount'                => $amount,
+                'transaction_reference' => (string) $data['transactionId'],
+                'gateway_type_id'       => GatewayType::BANK_TRANSFER,
+            ];
 
-        $transactionRef = (string) ($data['transactionId'] ?? '');
+            // ACH payments may remain in a pending state until the bank clears them
+            $achStatus = strtoupper($data['status'] ?? '');
+            $paymentStatus = in_array($achStatus, ['APPROVED', 'CLEARED', 'SETTLED', 'COMPLETED', 'SUCCESS'], true)
+                ? Payment::STATUS_COMPLETED
+                : Payment::STATUS_PENDING;
 
-        // ACH mandates may be processed asynchronously — HelcimPay.js may fire SUCCESS
-        // before Helcim assigns a transactionId. Generate a placeholder reference so the
-        // payment is recorded as PENDING immediately; the webhook will update the status
-        // once Helcim settles (mirrors how Stripe handles pending ACH payments).
-        if ($transactionRef === '') {
-            $transactionRef = 'ach_pending_' . \Illuminate\Support\Str::uuid();
+            $payment = $this->helcim_driver->createPayment($paymentData, $paymentStatus);
+
+            // Store bank token if present
+            if (! empty($data['bankToken'])) {
+                $this->storeBankToken($data);
+            }
 
             SystemLogger::dispatch(
-                [
-                    'warning' => 'ACH payment approved but no transactionId returned by HelcimPay.js — mandate is being processed asynchronously. Created PENDING payment with placeholder reference.',
-                    'placeholder_reference' => $transactionRef,
-                    'response_keys' => array_keys($data),
-                ],
+                ['response' => $data, 'data' => $paymentData],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_SUCCESS,
                 SystemLog::TYPE_HELCIM,
                 $this->helcim_driver->client,
                 $this->helcim_driver->client->company
             );
+
+            return redirect()->route('client.payments.show', ['payment' => $this->helcim_driver->encodePrimaryKey($payment->id)]);
         }
 
+        // ── Case (b): asynchronous ACH — no transactionId yet ────────────────
+        // HelcimPay.js has confirmed the mandate was initiated but Helcim has not
+        // yet assigned a transactionId. Create a PENDING payment with a UUID
+        // placeholder reference; the webhook handler will update it once the
+        // bank transfer clears.
+
+        $transactionRef = 'ach_pending_' . \Illuminate\Support\Str::uuid();
+
         $paymentData = [
-            'payment_type' => PaymentType::ACH,
-            'amount' => $amount,
+            'payment_type'          => PaymentType::ACH,
+            'amount'                => $amount,
             'transaction_reference' => $transactionRef,
-            'gateway_type_id' => GatewayType::BANK_TRANSFER,
+            'gateway_type_id'       => GatewayType::BANK_TRANSFER,
         ];
 
-        // ACH payments are asynchronous — mark as pending until settlement confirmed
         $payment = $this->helcim_driver->createPayment($paymentData, Payment::STATUS_PENDING);
 
-        // Store bank account for future use if requested
-        if ($storeAccount) {
-            $transactionId = $this->extractValue($data, ['transactionId', 'transaction.id', 'id', 'transactionId.id', 'verification.transactionId']);
-            $bankAccountId = $this->extractValue($data, ['bankAccountId', 'bankAccount.id', 'bank.id', 'paymentMethod.id', 'bankAccountId.id', 'account.id']);
-            $customerId = $this->extractValue($data, ['customerId', 'customer.id', 'customer.customerId', 'account.customerId']);
-            $bankToken = $this->extractValue($data, ['bankToken', 'token', 'paymentMethod.token', 'bank.token', 'account.token', 'achToken']);
-            $customerCode = $this->extractValue($data, ['customerCode', 'customer.code', 'customer.customerCode']);
-            $tokenReference = (string) ($bankToken ?: $bankAccountId ?: $transactionId ?: '');
-
-            if ($tokenReference === '') {
-                SystemLogger::dispatch(
-                    ['warning' => 'Unable to save ACH token, missing token reference', 'response' => $data],
-                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                    SystemLog::EVENT_GATEWAY_FAILURE,
-                    SystemLog::TYPE_HELCIM,
-                    $this->helcim_driver->client,
-                    $this->helcim_driver->client->company
-                );
-
-                return redirect()->route('client.payments.show', ['payment' => $this->helcim_driver->encodePrimaryKey($payment->id)]);
-            }
-
-            $payment_meta = new \stdClass();
-            $payment_meta->exp_month = null;
-            $payment_meta->exp_year = null;
-            $payment_meta->brand = 'ACH';
-            $accountNumber = (string) ($this->extractValue($data, ['bankAccountNumber', 'bankAccount.number', 'maskedAccountNumber', 'cardNumber']) ?? '');
-            $payment_meta->last4 = $accountNumber !== '' ? substr($accountNumber, -4) : '';
-            $payment_meta->type = GatewayType::BANK_TRANSFER;
-            $payment_meta->customerCode = $customerCode;
-            $payment_meta->bankAccountId = $bankAccountId;
-            $payment_meta->customerId = $customerId;
-            $payment_meta->bankToken = $bankToken;
-            $payment_meta->transactionId = $transactionId;
-
-            $tokenData = [
-                'payment_meta' => $payment_meta,
-                'token' => $tokenReference,
-                'payment_method_id' => GatewayType::BANK_TRANSFER,
-            ];
-
-            $this->helcim_driver->storeGatewayToken($tokenData, [
-                'gateway_customer_reference' => (string) ($customerCode ?: $customerId ?: $transactionId ?: $tokenReference),
-            ]);
+        // Store bank token if present
+        if (! empty($data['bankToken'])) {
+            $this->storeBankToken($data);
         }
 
         SystemLogger::dispatch(
-            ['response' => $data, 'data' => $paymentData],
+            [
+                'info'      => 'ACH payment initiated asynchronously — awaiting webhook confirmation',
+                'response'  => $data,
+                'data'      => $paymentData,
+            ],
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_SUCCESS,
             SystemLog::TYPE_HELCIM,
@@ -382,23 +356,96 @@ class ACH implements MethodInterface, LivewireMethodInterface
             $this->helcim_driver->client->company
         );
 
-        return redirect()->route('client.payments.show', ['payment' => $this->helcim_driver->encodePrimaryKey($payment->id)]);
+        // Inform the client that the payment is being processed
+        return redirect()->route('client.payments.show', ['payment' => $this->helcim_driver->encodePrimaryKey($payment->id)])
+            ->with('message', ctrans('texts.payment_pending_ach'));
     }
 
     /**
-     * Process ACH payment using a saved bank account token
-     * Uses PUT /ach/withdraw — requires bankAccountId and customerId stored in token meta
+     * Process ACH payment with a saved bank token
      */
     private function processTokenPayment(ClientGatewayToken $token, PaymentHash $paymentHash)
     {
-        $payment = $this->tokenBilling($token, $paymentHash);
+        $amount = $paymentHash->data->amount_with_fee;
 
-        return redirect()->route('client.payments.show', ['payment' => $this->helcim_driver->encodePrimaryKey($payment->id)]);
+        $response = $this->helcim_driver->gatewayRequest('/ach/transaction', [
+            'bankData'  => ['bankToken' => $token->token],
+            'amount'    => $amount,
+            'currency'  => $this->helcim_driver->client->currency()->code,
+            'ipAddress' => request()->ip(),
+            'ecommerce' => true,
+        ]);
+
+        $achStatus = strtoupper((string) ($response['status'] ?? ''));
+
+        $successStatuses = ['APPROVED', 'PENDING', 'QUEUED', 'SUBMITTED', 'OPENED', 'CLEARED', 'SETTLED', 'COMPLETED', 'SUCCESS'];
+
+        if (in_array($achStatus, $successStatuses, true)) {
+            $data = [
+                'payment_type'          => PaymentType::ACH,
+                'amount'                => $amount,
+                'transaction_reference' => (string) ($response['transactionId'] ?? ''),
+                'gateway_type_id'       => GatewayType::BANK_TRANSFER,
+            ];
+
+            $paymentStatus = in_array($achStatus, ['APPROVED', 'CLEARED', 'SETTLED', 'COMPLETED', 'SUCCESS'], true)
+                ? Payment::STATUS_COMPLETED
+                : Payment::STATUS_PENDING;
+
+            $payment = $this->helcim_driver->createPayment($data, $paymentStatus);
+
+            SystemLogger::dispatch(
+                ['response' => $response, 'data' => $data],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_SUCCESS,
+                SystemLog::TYPE_HELCIM,
+                $this->helcim_driver->client,
+                $this->helcim_driver->client->company
+            );
+
+            return redirect()->route('client.payments.show', ['payment' => $this->helcim_driver->encodePrimaryKey($payment->id)]);
+        }
+
+        throw new PaymentFailed($response['message'] ?? 'ACH payment failed', 400);
+    }
+
+    /**
+     * Normalize HelcimPay.js ACH payload keys across different event versions
+     */
+    private function normalizeHelcimPayPayload(array $raw): array
+    {
+        return [
+            'transactionId'  => $raw['transactionId']  ?? $raw['transaction_id']  ?? null,
+            'status'         => $raw['status']         ?? $raw['transactionStatus'] ?? null,
+            'bankToken'      => $raw['bankToken']      ?? $raw['bank_token']       ?? null,
+            'bankAccountType'   => $raw['bankAccountType']   ?? $raw['account_type']    ?? null,
+            'bankAccountNumber' => $raw['bankAccountNumber'] ?? $raw['account_number']  ?? null,
+            'warning'        => $raw['warning']        ?? null,
+            // Pass everything else through
+        ] + $raw;
+    }
+
+    /**
+     * Store a bank account token from an ACH response
+     */
+    private function storeBankToken(array $data): void
+    {
+        $payment_meta        = new \stdClass();
+        $payment_meta->brand = $data['bankAccountType'] ?? 'Bank Account';
+        $payment_meta->last4 = $data['bankAccountNumber'] ?? '';
+        $payment_meta->type  = GatewayType::BANK_TRANSFER;
+
+        $tokenData = [
+            'payment_meta'      => $payment_meta,
+            'token'             => $data['bankToken'],
+            'payment_method_id' => GatewayType::BANK_TRANSFER,
+        ];
+
+        $this->helcim_driver->storeGatewayToken($tokenData, ['gateway_customer_reference' => $data['bankToken']]);
     }
 
     /**
      * Return the Livewire-compatible blade view path.
-     * Called by BaseDriver::livewirePaymentView().
      */
     public function livewirePaymentView(array $data): string
     {
@@ -407,363 +454,71 @@ class ACH implements MethodInterface, LivewireMethodInterface
 
     /**
      * Prepare payment data for the Livewire/view payment flow.
-     * Called by BaseDriver::processPaymentViewData().
-     * Must include ALL variables the pay_livewire.blade.php view needs.
      */
     public function paymentData(array $data): array
     {
         $this->helcim_driver->payment_hash->data = array_merge((array) $this->helcim_driver->payment_hash->data, $data);
         $this->helcim_driver->payment_hash->save();
 
-        $data['gateway'] = $this->helcim_driver;
-        $data['payment_hash'] = $this->helcim_driver->payment_hash->hash;
+        $data['gateway']           = $this->helcim_driver;
+        $data['payment_hash']      = $this->helcim_driver->payment_hash->hash;
         $data['payment_method_id'] = GatewayType::BANK_TRANSFER;
-        $data['amount'] = $this->helcim_driver->payment_hash->data->amount_with_fee;
-        $data['currency'] = $this->helcim_driver->client->currency()->code;
-        $data['tokens'] = $this->helcim_driver->client->gateway_tokens()
+        $data['amount']            = $this->helcim_driver->payment_hash->data->amount_with_fee;
+        $data['currency']          = $this->helcim_driver->client->currency()->code;
+        $data['tokens']            = $this->helcim_driver->client->gateway_tokens()
             ->where('company_gateway_id', $this->helcim_driver->company_gateway->id)
             ->where('gateway_type_id', GatewayType::BANK_TRANSFER)
             ->get();
 
         try {
             $session = $this->helcim_driver->initializeHelcimPaySession([
-                'paymentType' => 'purchase',
-                'amount' => $data['amount'],
-                'currency' => $data['currency'],
+                'paymentType'   => 'purchase',
+                'amount'        => $data['amount'],
+                'currency'      => $data['currency'],
                 'paymentMethod' => 'ach',
             ]);
             $data['checkout_token'] = $session['checkoutToken'];
-            $data['secret_token'] = $session['secretToken'];
+            $data['secret_token']   = $session['secretToken'];
         } catch (\Exception $e) {
             $data['checkout_token'] = '';
-            $data['secret_token'] = '';
+            $data['secret_token']   = '';
         }
 
         return $data;
     }
 
     /**
-     * HelcimPay.js ACH responses: treat any response that has a transactionId as success,
-     * since HelcimPay.js only fires eventStatus=SUCCESS for completed transactions.
-     * ACH uses statusAuth (PENDING/APPROVED) and statusClearing (OPENED/CLEARED) instead
-     * of the card-style status field.
-     */
-    private function isApprovedAchResponse(array $data): bool
-    {
-        $paymentType = strtoupper((string) ($this->extractValue($data, ['paymentType', 'data.paymentType']) ?? ''));
-        $hasBankToken = !empty($this->extractValue($data, [
-            'bankToken',
-            'token',
-            'paymentMethod.token',
-            'bank.token',
-            'account.token',
-            'achToken',
-        ]));
-        $hasMaskedAccount = !empty($this->extractValue($data, [
-            'bankAccountNumber',
-            'bankAccount.number',
-            'maskedAccountNumber',
-        ]));
-
-        $statusCandidates = [
-            $data['status'] ?? null,
-            $data['statusAuth'] ?? null,
-            $data['statusClearing'] ?? null,
-            $data['eventStatus'] ?? null,
-            data_get($data, 'transaction.status'),
-            data_get($data, 'transaction.statusAuth'),
-            data_get($data, 'transaction.statusClearing'),
-            data_get($data, 'data.status'),
-            data_get($data, 'data.statusAuth'),
-            data_get($data, 'data.statusClearing'),
-        ];
-
-        $normalizedStatuses = array_values(array_filter(array_map(static function ($status) {
-            if ($status === null || $status === '') {
-                return null;
-            }
-
-            return strtoupper((string) $status);
-        }, $statusCandidates)));
-
-        $explicitFailureStatuses = ['DECLINED', 'FAILED', 'ERROR', 'REJECTED', 'VOIDED', 'CANCELLED'];
-
-        foreach ($normalizedStatuses as $status) {
-            if (in_array($status, $explicitFailureStatuses, true)) {
-                return false;
-            }
-        }
-
-        // ACH verify/tokenization responses may not include transaction/status fields.
-        // Accept verify success when Helcim returns a token (or masked account) and
-        // no explicit failure status is present.
-        if ($paymentType === 'VERIFY' && ($hasBankToken || $hasMaskedAccount)) {
-            return true;
-        }
-
-        // Some ACH payload variants may omit paymentType but still include only tokenized
-        // account details (without transactionId/status). Accept if token exists unless
-        // explicitly failed above.
-        if ($hasBankToken) {
-            return true;
-        }
-
-        $transactionId = $this->extractValue($data, [
-            'transactionId',
-            'transaction.id',
-            'id',
-            'data.transactionId',
-            'data.transaction.id',
-            'data.id',
-        ]);
-
-        // If HelcimPay.js returned a transaction id, accept unless explicitly declined
-        if (!empty($transactionId)) {
-            return true;
-        }
-
-        if (in_array('SUCCESS', $normalizedStatuses, true)) {
-            return true;
-        }
-
-        $approvedStatuses = ['APPROVED', 'PENDING', 'QUEUED', 'SUBMITTED', 'OPENED', 'CLEARED'];
-
-        foreach ($normalizedStatuses as $status) {
-            if (in_array($status, $approvedStatuses, true)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private function extractFailureReason(array $data): string
-    {
-        $reason = $this->extractValue($data, [
-            'warning',
-            'message',
-            'error',
-            'responseMessage',
-            'statusMessage',
-            'errors.0.message',
-            'errors.0.error',
-            'data.warning',
-            'data.message',
-            'data.error',
-            'transaction.message',
-        ]);
-
-        $diagnostics = [
-            'status' => $this->extractValue($data, ['status', 'data.status', 'transaction.status']),
-            'statusAuth' => $this->extractValue($data, ['statusAuth', 'data.statusAuth', 'transaction.statusAuth']),
-            'statusClearing' => $this->extractValue($data, ['statusClearing', 'data.statusClearing', 'transaction.statusClearing']),
-            'transactionId' => $this->extractValue($data, ['transactionId', 'transaction.id', 'id', 'data.transactionId']),
-        ];
-
-        $diagnosticParts = [];
-        foreach ($diagnostics as $key => $value) {
-            if ($value !== null && $value !== '') {
-                $diagnosticParts[] = sprintf('%s=%s', $key, (string) $value);
-            }
-        }
-
-        if ($reason) {
-            return $diagnosticParts
-                ? sprintf('%s (%s)', $reason, implode(', ', $diagnosticParts))
-                : (string) $reason;
-        }
-
-        return $diagnosticParts
-            ? sprintf('Gateway response not approved (%s)', implode(', ', $diagnosticParts))
-            : 'Gateway response not approved';
-    }
-
-    private function extractValue(array $data, array $keys)
-    {
-        foreach ($keys as $key) {
-            $value = data_get($data, $key);
-
-            if ($value !== null && $value !== '') {
-                return $value;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Normalize HelcimPay.js payloads which may arrive as:
-     * - raw transaction object
-     * - {data: {...}}
-     * - {data: {data: {...}}}
-     * - event wrapper {eventStatus, eventMessage: {...|"json"}}
-     */
-    private function normalizeHelcimPayPayload(array $data): array
-    {
-        $payload = $data;
-
-        if (isset($payload['eventMessage'])) {
-            $eventMessage = $payload['eventMessage'];
-
-            if (is_string($eventMessage)) {
-                $decoded = json_decode($eventMessage, true);
-                if (is_array($decoded)) {
-                    $eventMessage = $decoded;
-                }
-            }
-
-            if (is_array($eventMessage)) {
-                $payload = $eventMessage;
-            }
-        }
-
-        if (isset($payload['data']) && is_array($payload['data'])) {
-            $payload = $payload['data'];
-        }
-
-        if (isset($payload['data']) && is_array($payload['data'])) {
-            $payload = $payload['data'];
-        }
-
-        return $payload;
-    }
-
-    /**
-     * Non-sensitive structured diagnostics to identify which branch fails in production.
-     */
-    private function buildAchDiagnostics(array $rawData, array $normalizedData): array
-    {
-        $rawKeys = array_keys($rawData);
-        $normalizedKeys = array_keys($normalizedData);
-
-        return [
-            'raw_keys' => array_values(array_slice($rawKeys, 0, 30)),
-            'normalized_keys' => array_values(array_slice($normalizedKeys, 0, 30)),
-            'raw_event_status' => data_get($rawData, 'eventStatus'),
-            'raw_event_name' => data_get($rawData, 'eventName'),
-            'normalized_status' => $this->extractValue($normalizedData, ['status', 'statusAuth', 'statusClearing', 'transaction.status']),
-            'transaction_id' => $this->extractValue($normalizedData, ['transactionId', 'transaction.id', 'id', 'verification.transactionId']),
-            'bank_account_id' => $this->extractValue($normalizedData, ['bankAccountId', 'bankAccount.id', 'bank.id', 'paymentMethod.id', 'account.id']),
-            'customer_id' => $this->extractValue($normalizedData, ['customerId', 'customer.id', 'customer.customerId', 'account.customerId']),
-            'has_bank_token' => !empty($this->extractValue($normalizedData, ['bankToken', 'token', 'paymentMethod.token', 'bank.token', 'account.token', 'achToken'])),
-        ];
-    }
-
-    /**
-     * Attempt to resolve bankAccountId and customerId from Helcim API using customerCode and bankToken.
-     * Helcim ACH verify payloads typically do not include these fields directly,
-     * so we fetch them server-side to enable future recurring billing.
-     *
-     * @return array{0: string|int|null, 1: string|int|null} [$bankAccountId, $customerId]
-     */
-    private function resolveAchBankAccountDetails(?string $customerCode, ?string $bankToken): array
-    {
-        if (!$customerCode) {
-            return [null, null];
-        }
-
-        try {
-            $response = $this->helcim_driver->gatewayRequest('/customers', ['search-value' => $customerCode], 'GET');
-
-            $customerList = $response['customers'] ?? (isset($response[0]) ? $response : []);
-            if (empty($customerList)) {
-                return [null, null];
-            }
-
-            $customer = null;
-            foreach ($customerList as $c) {
-                if (isset($c['customerCode']) && $c['customerCode'] === $customerCode) {
-                    $customer = $c;
-                    break;
-                }
-            }
-            $customer = $customer ?? $customerList[0];
-            $customerId = $customer['customerId'] ?? $customer['id'] ?? null;
-
-            if (!$customerId) {
-                return [null, null];
-            }
-
-            $accountResponse = $this->helcim_driver->gatewayRequest('/bank-accounts', ['customerId' => $customerId], 'GET');
-            $accountList = $accountResponse['bankAccounts'] ?? (isset($accountResponse[0]) ? $accountResponse : []);
-
-            $bankAccountId = null;
-
-            if (!empty($accountList)) {
-                foreach ($accountList as $acct) {
-                    $acctToken = $acct['bankToken'] ?? $acct['token'] ?? null;
-                    if ($bankToken && $acctToken === $bankToken) {
-                        $bankAccountId = $acct['bankAccountId'] ?? $acct['id'] ?? null;
-                        break;
-                    }
-                }
-
-                if (!$bankAccountId) {
-                    $last = end($accountList);
-                    $bankAccountId = $last['bankAccountId'] ?? $last['id'] ?? null;
-                }
-            }
-
-            return [$bankAccountId, $customerId];
-        } catch (\Exception $e) {
-            SystemLogger::dispatch(
-                [
-                    'warning' => 'Could not resolve ACH bankAccountId/customerId from Helcim API — recurring billing may not work',
-                    'error' => $e->getMessage(),
-                ],
-                SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                SystemLog::EVENT_GATEWAY_FAILURE,
-                SystemLog::TYPE_HELCIM,
-                $this->helcim_driver->client,
-                $this->helcim_driver->client->company
-            );
-
-            return [null, null];
-        }
-    }
-
-    /**
-     * Recurring ACH billing via PUT /ach/withdraw
-     * Requires bankAccountId and customerId stored in token meta from initial authorization
+     * Process token billing (recurring ACH payments)
      */
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
-        $meta = $cgt->meta;
-        $bankAccountId = $meta->bankAccountId ?? null;
-        $customerId = $meta->customerId ?? null;
-
-        if (!$bankAccountId || !$customerId) {
-            throw new PaymentFailed(
-                'ACH token is missing required bank account details (bankAccountId, customerId). Please re-authorize your bank account.',
-                400
-            );
-        }
-
         $amount = $payment_hash->data->amount_with_fee;
 
-        // Map currency code to Helcim currencyId (1=CAD, 2=USD)
-        $currencyCode = $this->helcim_driver->client->currency()->code;
-        $currencyId = $currencyCode === 'CAD' ? 1 : 2;
+        $response = $this->helcim_driver->gatewayRequest('/ach/transaction', [
+            'bankData'  => ['bankToken' => $cgt->token],
+            'amount'    => $amount,
+            'currency'  => $this->helcim_driver->client->currency()->code,
+            'ipAddress' => request()->ip(),
+            'ecommerce' => true,
+        ]);
 
-        $response = $this->helcim_driver->gatewayRequest('/ach/withdraw', [
-            'bankAccountId' => (int) $bankAccountId,
-            'customerId' => (int) $customerId,
-            'amount' => $amount,
-            'currencyId' => $currencyId,
-        ], 'PUT');
+        $achStatus = strtoupper((string) ($response['status'] ?? ''));
 
-        $transactionId = $response['transaction']['id'] ?? null;
+        $successStatuses = ['APPROVED', 'PENDING', 'QUEUED', 'SUBMITTED', 'OPENED', 'CLEARED', 'SETTLED', 'COMPLETED', 'SUCCESS'];
 
-        if ($transactionId) {
+        if (in_array($achStatus, $successStatuses, true)) {
             $data = [
-                'payment_type' => PaymentType::ACH,
-                'amount' => $amount,
-                'transaction_reference' => (string) $transactionId,
-                'gateway_type_id' => GatewayType::BANK_TRANSFER,
+                'payment_type'          => PaymentType::ACH,
+                'amount'                => $amount,
+                'transaction_reference' => (string) ($response['transactionId'] ?? ''),
+                'gateway_type_id'       => GatewayType::BANK_TRANSFER,
             ];
 
-            // ACH is asynchronous — pending until settled
-            $payment = $this->helcim_driver->createPayment($data, Payment::STATUS_PENDING);
+            $paymentStatus = in_array($achStatus, ['APPROVED', 'CLEARED', 'SETTLED', 'COMPLETED', 'SUCCESS'], true)
+                ? Payment::STATUS_COMPLETED
+                : Payment::STATUS_PENDING;
+
+            $payment = $this->helcim_driver->createPayment($data, $paymentStatus);
 
             SystemLogger::dispatch(
                 ['response' => $response, 'data' => $data],
@@ -778,7 +533,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
         }
 
         SystemLogger::dispatch(
-            ['error' => 'ACH withdrawal failed', 'response' => $response],
+            ['error' => $response['message'] ?? 'ACH token billing failed', 'response' => $response],
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_FAILURE,
             SystemLog::TYPE_HELCIM,
@@ -786,6 +541,6 @@ class ACH implements MethodInterface, LivewireMethodInterface
             $this->helcim_driver->client->company
         );
 
-        throw new PaymentFailed('ACH withdrawal failed', 400);
+        throw new PaymentFailed($response['message'] ?? 'ACH payment failed', 400);
     }
 }

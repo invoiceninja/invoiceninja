@@ -318,19 +318,89 @@ class HelcimPaymentDriver extends BaseDriver
     }
 
     /**
-     * Validate HelcimPay.js transaction response
+     * Verify a Helcim transaction server-side by fetching it from the Helcim API.
      *
-     * PCI COMPLIANCE: This validates that the transaction response from HelcimPay.js
-     * hasn't been tampered with by comparing the hash.
+     * PCI COMPLIANCE: This is the authoritative tamper-proof check. After HelcimPay.js
+     * returns a transactionId we re-fetch the transaction directly from Helcim's API
+     * using our secret server-side API token and confirm that the amount, currency and
+     * status match what the client claims. This prevents a malicious actor from
+     * substituting a cheaper / already-processed transactionId in the POST body.
+     *
+     * @param  string|int $transactionId   The transactionId returned by HelcimPay.js
+     * @param  float      $expectedAmount  Amount we expect the transaction to be for
+     * @param  string     $expectedCurrency ISO currency code (e.g. 'USD')
+     * @param  string     $kind            'card' or 'ach'
+     * @return array                       The raw Helcim transaction object
+     *
+     * @throws \App\Exceptions\PaymentFailed  On mismatch or API error
      */
-    public function validateHelcimPayResponse(array|string $data, string $hash = '', string $secretToken = ''): bool
-    {
-        // HelcimPay.js has already processed the transaction inside Helcim's secure iframe.
-        // The hash is an optional client-side integrity check, but Helcim's event payload
-        // can be re-serialized differently by the browser before it reaches PHP, especially
-        // for ACH responses. We continue to accept the response here and rely on the
-        // Helcim-provided transaction status/reference plus server-side API/token calls.
-        return true;
+    public function verifyHelcimTransaction(
+        string|int $transactionId,
+        float $expectedAmount,
+        string $expectedCurrency,
+        string $kind = 'card'
+    ): array {
+        $endpoint = $kind === 'ach'
+            ? "/ach/transactions/{$transactionId}"
+            : "/card-transactions/{$transactionId}";
+
+        $txn = $this->gatewayRequest($endpoint, [], 'GET');
+
+        // Helcim may wrap the transaction in a 'data' key
+        $txnData = $txn['data'] ?? $txn;
+
+        // ── Status check ──────────────────────────────────────────────────────
+        $status = strtoupper((string) (
+            $txnData['status'] ??
+            $txnData['statusAuth'] ??
+            $txnData['transactionStatus'] ??
+            ''
+        ));
+
+        $acceptedStatuses = ['APPROVED', 'PENDING', 'QUEUED', 'SUBMITTED', 'OPENED', 'CLEARED', 'SETTLED', 'COMPLETED', 'SUCCESS'];
+        if ($status !== '' && ! in_array($status, $acceptedStatuses, true)) {
+            throw new \App\Exceptions\PaymentFailed(
+                "Helcim transaction {$transactionId} has status '{$status}' — not approved.",
+                400
+            );
+        }
+
+        // ── Amount check ──────────────────────────────────────────────────────
+        $returnedAmount = (float) ($txnData['amount'] ?? $txnData['totalAmount'] ?? -1);
+
+        // Allow a 1-cent tolerance for floating-point rounding
+        if ($returnedAmount >= 0 && abs($returnedAmount - $expectedAmount) > 0.015) {
+            SystemLogger::dispatch(
+                [
+                    'error' => 'Helcim transaction amount mismatch — possible tamper attempt',
+                    'expected_amount' => $expectedAmount,
+                    'returned_amount' => $returnedAmount,
+                    'transaction_id' => $transactionId,
+                ],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_HELCIM,
+                $this->client,
+                $this->client->company
+            );
+
+            throw new \App\Exceptions\PaymentFailed(
+                "Helcim transaction amount mismatch: expected {$expectedAmount}, got {$returnedAmount}.",
+                400
+            );
+        }
+
+        // ── Currency check ────────────────────────────────────────────────────
+        $returnedCurrency = strtoupper((string) ($txnData['currency'] ?? $txnData['currencyCode'] ?? ''));
+
+        if ($returnedCurrency !== '' && $returnedCurrency !== strtoupper($expectedCurrency)) {
+            throw new \App\Exceptions\PaymentFailed(
+                "Helcim transaction currency mismatch: expected {$expectedCurrency}, got {$returnedCurrency}.",
+                400
+            );
+        }
+
+        return $txnData;
     }
 
     /**
@@ -407,12 +477,12 @@ class HelcimPaymentDriver extends BaseDriver
     {
         $rawBody = $request->getContent();
 
-        // --- Optional signature verification ---
+        // --- Signature verification (required when webhookVerifierToken is configured) ---
         $verifierToken = $this->company_gateway->getConfigField('webhookVerifierToken');
         if ($verifierToken) {
             $signature = $request->header('helcim-signature') ?? $request->header('x-helcim-signature') ?? '';
             $expected  = hash_hmac('sha256', $rawBody, $verifierToken);
-            if (!hash_equals($expected, strtolower($signature))) {
+            if (! hash_equals($expected, strtolower($signature))) {
                 SystemLogger::dispatch(
                     ['error' => 'Helcim webhook signature mismatch', 'received' => $signature],
                     SystemLog::CATEGORY_GATEWAY_RESPONSE,
@@ -439,25 +509,46 @@ class HelcimPaymentDriver extends BaseDriver
         }
 
         /** @var Payment|null $payment */
-        $payment = Payment::where('transaction_reference', $transactionId)->first();
+        $payment = Payment::where('transaction_reference', $transactionId)
+            ->where('company_gateway_id', $this->company_gateway->id)
+            ->first();
 
-        if (!$payment) {
-            // Payment not found by transactionId. Check for pending ACH payments that were
-            // created with a placeholder reference (ach_pending_*) when HelcimPay.js fired
-            // SUCCESS before Helcim assigned a transactionId (asynchronous mandate flow).
+        if (! $payment) {
+            // Payment not found by the real transactionId. Look for a pending ACH payment
+            // that was created with a placeholder reference (ach_pending_*) when HelcimPay.js
+            // fired SUCCESS before Helcim assigned a transactionId (asynchronous mandate flow).
             $amount = isset($payload['amount']) ? (float) $payload['amount'] : null;
 
+            // Build a tight query so we never match the wrong pending payment.
             $pendingQuery = Payment::where('company_gateway_id', $this->company_gateway->id)
                 ->where('status_id', Payment::STATUS_PENDING)
+                ->where('gateway_type_id', GatewayType::BANK_TRANSFER)
                 ->where('transaction_reference', 'like', 'ach_pending_%')
-                ->orderBy('created_at', 'desc');
+                ->where('created_at', '>=', now()->subDays(7));
 
-            // Narrow by amount if present in the webhook payload
+            // Narrow by exact amount when present in the webhook payload
             if ($amount !== null && $amount > 0) {
                 $pendingQuery->where('amount', $amount);
             }
 
-            $payment = $pendingQuery->first();
+            // Narrow by client via customerCode / customerId if the payload contains it
+            $customerCode = $payload['customerCode'] ?? $payload['customer']['code'] ?? null;
+            $customerId   = $payload['customerId'] ?? $payload['customer']['id'] ?? null;
+
+            if ($customerCode || $customerId) {
+                $tokenQuery = ClientGatewayToken::where('company_gateway_id', $this->company_gateway->id);
+                if ($customerCode) {
+                    $tokenQuery->where('gateway_customer_reference', $customerCode);
+                } elseif ($customerId) {
+                    $tokenQuery->where('gateway_customer_reference', (string) $customerId);
+                }
+                $token = $tokenQuery->first();
+                if ($token) {
+                    $pendingQuery->where('client_id', $token->client_id);
+                }
+            }
+
+            $payment = $pendingQuery->orderBy('created_at', 'desc')->first();
 
             if ($payment) {
                 // Update the placeholder reference to the real Helcim transactionId so that
@@ -479,7 +570,7 @@ class HelcimPaymentDriver extends BaseDriver
             }
         }
 
-        if (!$payment) {
+        if (! $payment) {
             // Nothing to update — may have been created outside Invoice Ninja
             return response()->json(['message' => 'Payment not found'], 200);
         }

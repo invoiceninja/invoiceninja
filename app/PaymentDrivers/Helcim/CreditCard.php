@@ -40,7 +40,7 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
     public function authorizeView(array $data)
     {
         $data['gateway'] = $this->helcim_driver;
-        
+
         // Initialize HelcimPay.js session for card verification (PCI compliant)
         try {
             $session = $this->helcim_driver->initializeHelcimPaySession([
@@ -48,7 +48,7 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
                 'currency' => $this->helcim_driver->client->currency()->code,
                 'amount' => 0, // Verify doesn't charge
             ]);
-            
+
             $data['checkout_token'] = $session['checkoutToken'];
             $data['secret_token'] = $session['secretToken'];
         } catch (\Exception $e) {
@@ -60,25 +60,25 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
                 $this->helcim_driver->client,
                 $this->helcim_driver->client->company
             );
-            
+
             throw new PaymentFailed('Failed to initialize payment form: ' . $e->getMessage(), 400);
         }
-        
+
         return render('gateways.helcim.credit_card.authorize', $data);
     }
 
     /**
      * Handle authorization response (saving a payment method)
-     * 
-     * PCI COMPLIANCE: This now processes tokenized data from HelcimPay.js
-     * instead of raw card data. Card information never touches our servers.
+     *
+     * PCI COMPLIANCE: Processes tokenized data from HelcimPay.js and performs a
+     * server-side verification of the transactionId against the Helcim API to ensure
+     * the response has not been tampered with.
      */
     public function authorizeResponse(Request $request)
     {
         $transactionData = $request->input('transaction_data');
-        $transactionHash = $request->input('transaction_hash') ?? '';
-        $secretToken = $request->input('secret_token');
-        $isDefault = $request->input('is_default', false);
+        $secretToken     = $request->input('secret_token');
+        $isDefault       = $request->input('is_default', false);
 
         // Validate required fields
         if (empty($transactionData) || empty($secretToken)) {
@@ -88,42 +88,51 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         try {
             // Decode transaction data
             $data = json_decode($transactionData, true);
-            
-            if (!$data) {
+
+            if (! $data) {
                 throw new PaymentFailed('Invalid transaction data format', 400);
             }
 
-            // Validate the response hash (PCI compliance check)
-            if (!$this->helcim_driver->validateHelcimPayResponse($transactionData, $transactionHash, $secretToken)) {
-                throw new PaymentFailed('Transaction validation failed - data may have been tampered with', 400);
-            }
-
-            // Check transaction status
-            if (!isset($data['status']) || $data['status'] !== 'APPROVED') {
+            // Check client-side transaction status first (fast-fail)
+            if (! isset($data['status']) || $data['status'] !== 'APPROVED') {
                 throw new PaymentFailed('Card verification failed: ' . ($data['warning'] ?? 'Unknown error'), 400);
             }
 
+            // A transactionId is required for card verification — use it to confirm
+            // the verify transaction server-side (tamper-proof check).
+            $transactionId = $data['transactionId'] ?? null;
+            if (empty($transactionId)) {
+                throw new PaymentFailed('No transactionId returned by HelcimPay.js — cannot verify card authorization.', 400);
+            }
+
+            // SERVER-SIDE TAMPER-PROOF VERIFICATION:
+            // Re-fetch the transaction from Helcim using our secret API token.
+            // Verify type is 'verify' (amount = 0) so we don't accidentally
+            // confirm a purchase transactionId here.
+            $this->helcim_driver->verifyHelcimTransaction(
+                $transactionId,
+                0.00,  // verify transactions have amount 0
+                $this->helcim_driver->client->currency()->code,
+                'card'
+            );
+
             // Extract card token from response
-            if (!isset($data['cardToken'])) {
+            if (! isset($data['cardToken'])) {
                 throw new PaymentFailed('No card token received', 400);
             }
 
-            // Parse expiry date from response
-            $expiryMonth = null;
-            $expiryYear = null;
-            
             // Store the payment method
             $payment_meta = new \stdClass();
-            $payment_meta->exp_month = $expiryMonth;
-            $payment_meta->exp_year = $expiryYear;
-            $payment_meta->brand = $data['cardType'] ?? 'Unknown';
-            $payment_meta->last4 = $data['cardNumber'] ?? ''; // Last 4 digits only
-            $payment_meta->type = GatewayType::CREDIT_CARD;
+            $payment_meta->exp_month = null;
+            $payment_meta->exp_year  = null;
+            $payment_meta->brand     = $data['cardType'] ?? 'Unknown';
+            $payment_meta->last4     = $data['cardNumber'] ?? ''; // Last 4 digits only
+            $payment_meta->type      = GatewayType::CREDIT_CARD;
 
             $tokenData = [
-                'payment_meta' => $payment_meta,
-                'token' => $data['cardToken'],
-                'payment_method_id' => GatewayType::CREDIT_CARD,
+                'payment_meta'       => $payment_meta,
+                'token'              => $data['cardToken'],
+                'payment_method_id'  => GatewayType::CREDIT_CARD,
             ];
 
             $this->helcim_driver->storeGatewayToken($tokenData, ['gateway_customer_reference' => $data['cardToken']]);
@@ -157,12 +166,12 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
      */
     public function paymentView(array $data)
     {
-        $data['gateway'] = $this->helcim_driver;
-        $data['amount'] = $this->helcim_driver->payment_hash->data->amount_with_fee;
-        $data['currency'] = $this->helcim_driver->client->currency()->code;
-        $data['payment_hash'] = $this->helcim_driver->payment_hash->hash;
+        $data['gateway']          = $this->helcim_driver;
+        $data['amount']           = $this->helcim_driver->payment_hash->data->amount_with_fee;
+        $data['currency']         = $this->helcim_driver->client->currency()->code;
+        $data['payment_hash']     = $this->helcim_driver->payment_hash->hash;
         $data['payment_method_id'] = GatewayType::CREDIT_CARD;
-        $data['tokens'] = $this->helcim_driver->client->gateway_tokens()
+        $data['tokens']           = $this->helcim_driver->client->gateway_tokens()
             ->where('company_gateway_id', $this->helcim_driver->company_gateway->id)
             ->where('gateway_type_id', GatewayType::CREDIT_CARD)
             ->get();
@@ -171,12 +180,12 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         try {
             $session = $this->helcim_driver->initializeHelcimPaySession([
                 'paymentType' => 'purchase',
-                'amount' => $data['amount'],
-                'currency' => $data['currency'],
+                'amount'      => $data['amount'],
+                'currency'    => $data['currency'],
             ]);
-            
+
             $data['checkout_token'] = $session['checkoutToken'];
-            $data['secret_token'] = $session['secretToken'];
+            $data['secret_token']   = $session['secretToken'];
         } catch (\Exception $e) {
             SystemLogger::dispatch(
                 ['error' => $e->getMessage()],
@@ -186,7 +195,7 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
                 $this->helcim_driver->client,
                 $this->helcim_driver->client->company
             );
-            
+
             throw new PaymentFailed('Failed to initialize payment form: ' . $e->getMessage(), 400);
         }
 
@@ -195,9 +204,8 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
 
     /**
      * Process payment response
-     * 
-     * PCI COMPLIANCE: This now processes tokenized data from HelcimPay.js
-     * instead of raw card data.
+     *
+     * PCI COMPLIANCE: Processes tokenized data from HelcimPay.js.
      */
     public function paymentResponse(Request $request)
     {
@@ -206,7 +214,7 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         $this->helcim_driver->init();
 
         $useToken = $request->input('use_token', false);
-        $tokenId = $request->input('token');
+        $tokenId  = $request->input('token');
 
         try {
             if ($useToken && $tokenId) {
@@ -244,19 +252,19 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         $amount = $paymentHash->data->amount_with_fee;
 
         $response = $this->helcim_driver->gatewayRequest('/payment/purchase', [
-            'cardData' => ['cardToken' => $token->token],
-            'amount' => $amount,
-            'currency' => $this->helcim_driver->client->currency()->code,
-            'ipAddress' => request()->ip(),
-            'ecommerce' => true,
+            'cardData'   => ['cardToken' => $token->token],
+            'amount'     => $amount,
+            'currency'   => $this->helcim_driver->client->currency()->code,
+            'ipAddress'  => request()->ip(),
+            'ecommerce'  => true,
         ]);
 
         if (isset($response['status']) && $response['status'] === 'APPROVED') {
             $data = [
-                'payment_type' => PaymentType::CREDIT_CARD_OTHER,
-                'amount' => $amount,
+                'payment_type'          => PaymentType::CREDIT_CARD_OTHER,
+                'amount'                => $amount,
                 'transaction_reference' => $response['transactionId'] ?? '',
-                'gateway_type_id' => GatewayType::CREDIT_CARD,
+                'gateway_type_id'       => GatewayType::CREDIT_CARD,
             ];
 
             $payment = $this->helcim_driver->createPayment($data, Payment::STATUS_COMPLETED);
@@ -278,15 +286,16 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
 
     /**
      * Process payment with HelcimPay.js tokenized data
-     * 
-     * PCI COMPLIANCE: Processes tokenized payment from HelcimPay.js
+     *
+     * PCI COMPLIANCE: After decoding the HelcimPay.js response we re-fetch the
+     * transaction from Helcim server-side to confirm it has not been tampered with
+     * before recording the payment.
      */
     private function processHelcimPayPayment(Request $request, PaymentHash $paymentHash)
     {
         $transactionData = $request->input('transaction_data');
-        $transactionHash = $request->input('transaction_hash') ?? '';
-        $secretToken = $request->input('secret_token');
-        $storeCard = $request->input('store_card', false);
+        $secretToken     = $request->input('secret_token');
+        $storeCard       = $request->input('store_card', false);
 
         // Validate required fields
         if (empty($transactionData) || empty($secretToken)) {
@@ -295,45 +304,52 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
 
         // Decode transaction data
         $data = json_decode($transactionData, true);
-        
-        if (!$data) {
+
+        if (! $data) {
             throw new PaymentFailed('Invalid transaction data format', 400);
         }
 
-        // Validate the response hash (PCI compliance check)
-        if (!$this->helcim_driver->validateHelcimPayResponse($transactionData, $transactionHash, $secretToken)) {
-            throw new PaymentFailed('Transaction validation failed - data may have been tampered with', 400);
-        }
-
-        // Check transaction status
-        if (!isset($data['status']) || $data['status'] !== 'APPROVED') {
+        // Check client-side transaction status (fast-fail before the API call)
+        if (! isset($data['status']) || $data['status'] !== 'APPROVED') {
             throw new PaymentFailed('Payment failed: ' . ($data['warning'] ?? 'Unknown error'), 400);
         }
 
-        $amount = $paymentHash->data->amount_with_fee;
+        // A transactionId is always present for card purchases — require it.
+        $transactionId = $data['transactionId'] ?? null;
+        if (empty($transactionId)) {
+            throw new PaymentFailed('No transactionId returned by HelcimPay.js — cannot verify payment.', 400);
+        }
+
+        $amount   = $paymentHash->data->amount_with_fee;
+        $currency = $this->helcim_driver->client->currency()->code;
+
+        // SERVER-SIDE TAMPER-PROOF VERIFICATION:
+        // Re-fetch the transaction from Helcim using our secret API token and assert
+        // that the amount, currency and status match what we expect.
+        $this->helcim_driver->verifyHelcimTransaction($transactionId, (float) $amount, $currency, 'card');
 
         // Create payment record
         $paymentData = [
-            'payment_type' => PaymentType::CREDIT_CARD_OTHER,
-            'amount' => $amount,
-            'transaction_reference' => $data['transactionId'] ?? '',
-            'gateway_type_id' => GatewayType::CREDIT_CARD,
+            'payment_type'          => PaymentType::CREDIT_CARD_OTHER,
+            'amount'                => $amount,
+            'transaction_reference' => (string) $transactionId,
+            'gateway_type_id'       => GatewayType::CREDIT_CARD,
         ];
 
         $payment = $this->helcim_driver->createPayment($paymentData, Payment::STATUS_COMPLETED);
 
         // Store card if requested and token is available
         if ($storeCard && isset($data['cardToken'])) {
-            $payment_meta = new \stdClass();
+            $payment_meta            = new \stdClass();
             $payment_meta->exp_month = null;
-            $payment_meta->exp_year = null;
-            $payment_meta->brand = $data['cardType'] ?? 'Unknown';
-            $payment_meta->last4 = $data['cardNumber'] ?? ''; // Last 4 digits only
-            $payment_meta->type = GatewayType::CREDIT_CARD;
+            $payment_meta->exp_year  = null;
+            $payment_meta->brand     = $data['cardType'] ?? 'Unknown';
+            $payment_meta->last4     = $data['cardNumber'] ?? ''; // Last 4 digits only
+            $payment_meta->type      = GatewayType::CREDIT_CARD;
 
             $tokenData = [
-                'payment_meta' => $payment_meta,
-                'token' => $data['cardToken'],
+                'payment_meta'      => $payment_meta,
+                'token'             => $data['cardToken'],
                 'payment_method_id' => GatewayType::CREDIT_CARD,
             ];
 
@@ -371,12 +387,12 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         $this->helcim_driver->payment_hash->data = array_merge((array) $this->helcim_driver->payment_hash->data, $data);
         $this->helcim_driver->payment_hash->save();
 
-        $data['gateway'] = $this->helcim_driver;
-        $data['payment_hash'] = $this->helcim_driver->payment_hash->hash;
+        $data['gateway']           = $this->helcim_driver;
+        $data['payment_hash']      = $this->helcim_driver->payment_hash->hash;
         $data['payment_method_id'] = GatewayType::CREDIT_CARD;
-        $data['amount'] = $this->helcim_driver->payment_hash->data->amount_with_fee;
-        $data['currency'] = $this->helcim_driver->client->currency()->code;
-        $data['tokens'] = $this->helcim_driver->client->gateway_tokens()
+        $data['amount']            = $this->helcim_driver->payment_hash->data->amount_with_fee;
+        $data['currency']          = $this->helcim_driver->client->currency()->code;
+        $data['tokens']            = $this->helcim_driver->client->gateway_tokens()
             ->where('company_gateway_id', $this->helcim_driver->company_gateway->id)
             ->where('gateway_type_id', GatewayType::CREDIT_CARD)
             ->get();
@@ -384,14 +400,14 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         try {
             $session = $this->helcim_driver->initializeHelcimPaySession([
                 'paymentType' => 'purchase',
-                'amount' => $data['amount'],
-                'currency' => $data['currency'],
+                'amount'      => $data['amount'],
+                'currency'    => $data['currency'],
             ]);
             $data['checkout_token'] = $session['checkoutToken'];
-            $data['secret_token'] = $session['secretToken'];
+            $data['secret_token']   = $session['secretToken'];
         } catch (\Exception $e) {
             $data['checkout_token'] = '';
-            $data['secret_token'] = '';
+            $data['secret_token']   = '';
         }
 
         return $data;
@@ -405,19 +421,19 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         $amount = $payment_hash->data->amount_with_fee;
 
         $response = $this->helcim_driver->gatewayRequest('/payment/purchase', [
-            'cardData' => ['cardToken' => $cgt->token],
-            'amount' => $amount,
-            'currency' => $this->helcim_driver->client->currency()->code,
-            'ipAddress' => request()->ip(),
-            'ecommerce' => true,
+            'cardData'   => ['cardToken' => $cgt->token],
+            'amount'     => $amount,
+            'currency'   => $this->helcim_driver->client->currency()->code,
+            'ipAddress'  => request()->ip(),
+            'ecommerce'  => true,
         ]);
 
         if (isset($response['status']) && $response['status'] === 'APPROVED') {
             $data = [
-                'payment_type' => PaymentType::CREDIT_CARD_OTHER,
-                'amount' => $amount,
+                'payment_type'          => PaymentType::CREDIT_CARD_OTHER,
+                'amount'                => $amount,
                 'transaction_reference' => $response['transactionId'] ?? '',
-                'gateway_type_id' => GatewayType::CREDIT_CARD,
+                'gateway_type_id'       => GatewayType::CREDIT_CARD,
             ];
 
             $payment = $this->helcim_driver->createPayment($data, Payment::STATUS_COMPLETED);
