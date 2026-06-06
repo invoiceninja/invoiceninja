@@ -294,6 +294,8 @@ class RecurringInvoice extends BaseModel
             'id' => $this->company->db . ":" . $this->id,
             'name' => ctrans('texts.recurring_invoice') . " " . $this->number . " | " . $this->client->present()->name() . ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
             'hashed_id' => $this->hashed_id,
+            'user_id' => (string) $this->user_id,
+            'assigned_user_id' => (string) $this->assigned_user_id,
             'number' => (string) $this->number,
             'is_deleted' => (bool)$this->is_deleted,
             'amount' => (float) $this->amount,

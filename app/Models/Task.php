@@ -160,6 +160,8 @@ class Task extends BaseModel
             'id' => $this->company->db . ":" . $this->id,
             'name' => ctrans('texts.task') . " " . ($this->number ?? '') . $project . $client,
             'hashed_id' => $this->hashed_id,
+            'user_id' => (string) $this->user_id,
+            'assigned_user_id' => (string) $this->assigned_user_id,
             'number' => (string) $this->number,
             'description' => (string) $this->description,
             'task_rate' => (float) $this->rate,
@@ -169,6 +171,7 @@ class Task extends BaseModel
             'custom_value3' => (string) $this->custom_value3,
             'custom_value4' => (string) $this->custom_value4,
             'company_key' => $this->company->company_key,
+            'tags' => $this->tags->pluck('name')->values()->all(),
             'time_log' => $this->normalizeTimeLog($this->time_log),
             'calculated_start_date' => $this->calculated_start_date,
         ];

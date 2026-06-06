@@ -56,6 +56,6 @@ class ReferralMetaCast implements CastsAttributes
 
         $meta = $value instanceof ReferralMeta ? $value : new ReferralMeta($value);
 
-        return json_encode($meta->toStorageArray(), JSON_THROW_ON_ERROR);
+        return json_encode($meta->toArray(), JSON_THROW_ON_ERROR);
     }
 }
