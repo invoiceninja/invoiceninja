@@ -12,15 +12,17 @@
 
 namespace App\Jobs\Cron;
 
+use App\Jobs\Entity\EmailEntity;
+use App\Libraries\MultiDB;
 use App\Models\Invoice;
 use App\Models\Webhook;
-use App\Libraries\MultiDB;
+use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
-use App\Jobs\Entity\EmailEntity;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 
 class AutoBill implements ShouldQueue
 {
@@ -60,6 +62,9 @@ class AutoBill implements ShouldQueue
             $invoice = Invoice::withTrashed()->find($this->invoice_id);
 
             if ($invoice) {
+                App::setLocale($invoice->client->locale());
+                $t = app('translator');
+                $t->replace(Ninja::transformTranslations($invoice->client->getMergedSettings()));
                 $invoice->service()->autoBill();
             }
 

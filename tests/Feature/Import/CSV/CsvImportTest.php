@@ -290,6 +290,70 @@ class CsvImportTest extends TestCase
         $this->assertEquals($client_id, $c->id);
     }
 
+    public function testClientImportAcceptsFullCountryNameAndShippingCountryId()
+    {
+        $csv = "Name,Country,Shipping Country\nFull Country Client,United States of America,Australia\n";
+        $hash = Str::random(32);
+        $column_map = [
+            0 => 'client.name',
+            1 => 'client.country_id',
+            2 => 'client.shipping_country_id',
+        ];
+
+        $data = [
+            'hash' => $hash,
+            'column_map' => ['client' => ['mapping' => $column_map]],
+            'skip_header' => true,
+            'import_type' => 'csv',
+        ];
+
+        Cache::put($hash.'-client', base64_encode($csv), 360);
+
+        $csv_importer = new Csv($data, $this->company);
+        $csv_importer->import('client');
+
+        $client = Client::query()
+            ->where('company_id', $this->company->id)
+            ->where('name', 'Full Country Client')
+            ->first();
+
+        $this->assertNotNull($client);
+        $this->assertEquals(840, $client->country_id);
+        $this->assertEquals(36, $client->shipping_country_id);
+        $this->assertEmpty($csv_importer->getErrors());
+    }
+
+    public function testClientImportDefaultsInvalidCountryIdToCompanyCountry()
+    {
+        $csv = "Name,Country\nInvalid Country Client,1\n";
+        $hash = Str::random(32);
+        $column_map = [
+            0 => 'client.name',
+            1 => 'client.country_id',
+        ];
+
+        $data = [
+            'hash' => $hash,
+            'column_map' => ['client' => ['mapping' => $column_map]],
+            'skip_header' => true,
+            'import_type' => 'csv',
+        ];
+
+        Cache::put($hash.'-client', base64_encode($csv), 360);
+
+        $csv_importer = new Csv($data, $this->company);
+        $csv_importer->import('client');
+
+        $client = Client::query()
+            ->where('company_id', $this->company->id)
+            ->where('name', 'Invalid Country Client')
+            ->first();
+
+        $this->assertNotNull($client);
+        $this->assertEquals($this->company->settings->country_id, $client->country_id);
+        $this->assertEmpty($csv_importer->getErrors());
+    }
+
     public function testInvoiceImport()
     {
         /*Need to import clients first*/

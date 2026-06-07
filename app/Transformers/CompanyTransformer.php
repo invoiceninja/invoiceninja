@@ -222,10 +222,29 @@ class CompanyTransformer extends EntityTransformer
             'smtp_verify_peer' => (bool) $company->smtp_verify_peer,
             'e_invoice' => $company->e_invoice ?: new \stdClass(),
             'legal_entity_id' =>  $company->legal_entity_id ? (int) $company->legal_entity_id : null,
-            'quickbooks' => $company->getRawOriginal('quickbooks') ? $company->quickbooks->toArray() : null,
+            'quickbooks' => $this->transformQuickbooks($company),
             'enable_modules' => (bool) $company->enable_modules,
         ];
 
+    }
+
+    /**
+     * Transforms the QuickBooks settings for API output, stripping the OAuth
+     * access/refresh tokens which must never leave the server.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function transformQuickbooks(Company $company): ?array
+    {
+        if (!$company->getRawOriginal('quickbooks')) {
+            return null;
+        }
+
+        $quickbooks = $company->quickbooks->toArray();
+
+        unset($quickbooks['accessTokenKey'], $quickbooks['refresh_token']);
+
+        return $quickbooks;
     }
 
     private function isLarge(Company $company): bool

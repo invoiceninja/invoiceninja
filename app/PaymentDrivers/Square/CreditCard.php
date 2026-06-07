@@ -197,9 +197,13 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
     {
         $body = \json_decode($response->getBody());
 
+        $error = isset($body->errors[0]->detail)
+            ? $body->errors[0]->detail
+            : ($response->getBody() ?: 'Unknown error from Square.');
+
         $data = [
             'response' => $response,
-            'error' => $body->errors[0]->detail,
+            'error' => $error,
             'error_code' => '',
         ];
 
@@ -245,7 +249,11 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
             }
 
         } else {
-            throw new PaymentFailed($body->errors[0]->detail, 500);
+            $message = isset($body->errors[0]->detail)
+                ? $body->errors[0]->detail
+                : ($api_response->getBody() ?: 'Unknown error from Square card creation.');
+
+            throw new PaymentFailed($message, 500);
         }
 
         return false;

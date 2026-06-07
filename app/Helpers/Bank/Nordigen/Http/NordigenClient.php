@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Helpers\Bank\Nordigen\Http;
 
 use Illuminate\Http\Client\PendingRequest;
@@ -7,6 +15,7 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Nordigen\NordigenPHP\Enums\RequisitionStatus;
 
 class NordigenClient
 {
@@ -22,6 +31,19 @@ class NordigenClient
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
         ])->timeout(30);
+    }
+
+    /**
+     * A requisition is only usable when its accounts are LINKED.
+     *
+     * Returns false when the requisition is missing/404 (getRequisition() returns null),
+     * mid-flow (CR/GC/UA/SA/GA), or in a terminal reconnect state (RJ/SU/EX).
+     */
+    public function isRequisitionValid(string $requisitionId): bool
+    {
+        $requisition = $this->getRequisition($requisitionId);
+
+        return ($requisition['status'] ?? null) === RequisitionStatus::LINKED;
     }
 
     // ==================== REQUISITIONS ====================

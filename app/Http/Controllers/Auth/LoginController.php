@@ -39,6 +39,7 @@ use Illuminate\Support\Facades\Response;
 use Laravel\Socialite\Facades\Socialite;
 use App\Http\Requests\Login\LoginRequest;
 use App\Services\Auth\Passkeys\PasskeyService;
+use App\Services\Company\CompanyTokenRotator;
 use App\Libraries\OAuth\Providers\Google;
 use Illuminate\Database\Eloquent\Builder;
 use App\DataMapper\Analytics\LoginFailure;
@@ -250,7 +251,7 @@ class LoginController extends BaseController
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        if (Ninja::isHosted() && !$cu->first()->is_owner && !$user->account->isEnterprisePaidClient()) {
+        if (Ninja::isHosted() && !$cu->first()->is_owner && !$user->account->isEnterprisePaidClient()) { //@phpstan-ignore-line
             return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 401);
         }
 
@@ -487,14 +488,13 @@ class LoginController extends BaseController
 
             Auth::login($existing_user, false);
 
-            /** @var \App\Models\CompanyUser $cu */
             $cu = $this->hydrateCompanyUser($existing_user);
 
             if ($cu->count() == 0) {
                 return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
             }
 
-            if (Ninja::isHosted() && !$cu->first()->is_owner && !$existing_user->account->isEnterprisePaidClient()) {
+            if (Ninja::isHosted() && !$cu->first()->is_owner && !$existing_user->account->isEnterprisePaidClient()) { //@phpstan-ignore-line
                 return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
             }
 
@@ -506,6 +506,12 @@ class LoginController extends BaseController
                 return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
             }
 
+            if ($existing_login_user->oauth_provider_id && $existing_login_user->oauth_provider_id !== $provider) {
+                return response()->json([
+                    'message' => 'This email is already linked to '.$existing_login_user->oauth_provider_id.' sign-in. Please sign in with '.$existing_login_user->oauth_provider_id.'.',
+                ], 400);
+            }
+
             Auth::login($existing_login_user, false);
             /** @var \App\Models\User $user */
 
@@ -514,14 +520,14 @@ class LoginController extends BaseController
                 'oauth_provider_id' => $provider,
             ]);
 
-            /** @var \App\Models\CompanyUser $cu */
+            
             $cu = $this->hydrateCompanyUser($existing_login_user);
 
             if ($cu->count() == 0) {
                 return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
             }
 
-            if (Ninja::isHosted() && !$cu->first()->is_owner && !$existing_login_user->account->isEnterprisePaidClient()) {
+            if (Ninja::isHosted() && !$cu->first()->is_owner && !$existing_login_user->account->isEnterprisePaidClient()) { //@phpstan-ignore-line
                 return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
             }
 
@@ -561,14 +567,14 @@ class LoginController extends BaseController
         // $account_user->email_verified_at = now();
         // $account_user->save();
 
-        /** @var \App\Models\CompanyUser $cu */
+        
         $cu = $this->hydrateCompanyUser($account_user);
 
         if ($cu->count() == 0) {
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        if (Ninja::isHosted() && !$cu->first()->is_owner && !$account_user->account->isEnterprisePaidClient()) {
+        if (Ninja::isHosted() && !$cu->first()->is_owner && !$account_user->account->isEnterprisePaidClient()) { //@phpstan-ignore-line
             return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
         }
 
@@ -605,11 +611,13 @@ class LoginController extends BaseController
 
         //21-03-2024
         $cu->each(function ($cu) {
-            /** @var \App\Models\CompanyUser $cu */
-            if (CompanyToken::query()->where('company_id', $cu->company_id)->where('user_id', $cu->user_id)->where('is_system', true)->doesntExist()) {
-                (new CreateCompanyToken($cu->company, $cu->user, request()->server('HTTP_USER_AGENT')))->handle();
+            
+            if (CompanyToken::query()->where('company_id', $cu->company_id)->where('user_id', $cu->user_id)->where('is_system', true)->doesntExist()) { //@phpstan-ignore-line
+                (new CreateCompanyToken($cu->company, $cu->user, request()->server('HTTP_USER_AGENT')))->handle(); //@phpstan-ignore-line
             }
         });
+
+        app(CompanyTokenRotator::class)->rotateDueTokensForUser($user);
 
         $truth->setCompanyToken(CompanyToken::where('user_id', $user->id)->where('company_id', $set_company->id)->where('is_system', true)->first());
 
@@ -700,14 +708,14 @@ class LoginController extends BaseController
     {
         Auth::login($existing_user, false);
 
-        /** @var \App\Models\CompanyUser $cu */
+        
         $cu = $this->hydrateCompanyUser($existing_user);
 
         if ($cu->count() == 0) {
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        if (Ninja::isHosted() && !$cu->first()->is_owner && !$existing_user->account->isEnterprisePaidClient()) {
+        if (Ninja::isHosted() && !$cu->first()->is_owner && !$existing_user->account->isEnterprisePaidClient()) { //@phpstan-ignore-line
             return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
         }
 
@@ -720,14 +728,14 @@ class LoginController extends BaseController
     {
 
 
-        /** @var \App\Models\CompanyUser $cu */
+        
         $cu = $this->hydrateCompanyUser($user);
 
         if ($cu->count() == 0) {
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        if (Ninja::isHosted() && !$cu->first()->is_owner && !auth()->user()->account->isEnterprisePaidClient()) {
+        if (Ninja::isHosted() && !$cu->first()->is_owner && !auth()->user()->account->isEnterprisePaidClient()) { //@phpstan-ignore-line
             return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
         }
 
@@ -767,7 +775,6 @@ class LoginController extends BaseController
             if (MultiDB::hasUser(['email' => $google->harvestEmail($user), 'oauth_provider_id' => null])) {
                 return response()->json(['message' => 'Please use your email and password to login.'], 400);
             }
-
 
         }
 
@@ -829,7 +836,7 @@ class LoginController extends BaseController
 
         Auth::login($user, false);
 
-        /** @var \App\Models\CompanyUser $cu */
+        
         $cu = $this->hydrateCompanyUser($user);
 
         if ($cu->count() == 0) {

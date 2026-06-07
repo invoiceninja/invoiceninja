@@ -300,11 +300,16 @@ class InvoiceSumInclusive
         if ($this->invoice->status_id == Invoice::STATUS_CANCELLED) {
             $this->invoice->balance = 0;
         } elseif ($this->invoice->status_id != Invoice::STATUS_DRAFT) {
-            if ($this->invoice->amount != $this->invoice->balance) {
-                $this->invoice->balance = $this->formatValue($this->getTotal(), $this->precision) - $this->invoice->paid_to_date;
-            } else {
-                $this->invoice->balance = $this->formatValue($this->getTotal(), $this->precision);
-            }
+            // if ($this->invoice->amount != $this->invoice->balance) {
+            //     $this->invoice->balance = $this->formatValue($this->getTotal(), $this->precision) - $this->invoice->paid_to_date;
+            // } else {
+            //     $this->invoice->balance = $this->formatValue($this->getTotal(), $this->precision);
+            // }
+
+            // 2026-05-19 - This is a regression fix balance not decrementing after payments.
+            $new_total     = Number::roundValue($this->getTotal(), $this->precision);
+            $amount_delta  = $new_total - $this->invoice->amount;   // amount = persisted pre-edit value
+            $this->invoice->balance = Number::roundValue($this->invoice->balance + $amount_delta, $this->precision);
         }
 
         /* Set new calculated total */

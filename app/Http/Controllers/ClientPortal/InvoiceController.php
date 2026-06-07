@@ -182,7 +182,7 @@ class InvoiceController extends Controller
     {
         $data['invoices'] = Invoice::query()
                             ->whereIn('id', $ids)
-                            ->whereClientId(auth()->guard('contact')->user()->client->id)
+                            ->whereClientId(auth()->guard('contact')->user()->client_id)
                             ->withTrashed()
                             ->get();
 
@@ -208,7 +208,7 @@ class InvoiceController extends Controller
     {
         $invoices = Invoice::query()
                             ->whereIn('id', $ids)
-                            ->whereClientId(auth()->guard('contact')->user()->client->id)
+                            ->whereClientId(auth()->guard('contact')->user()->client_id)
                             ->withTrashed()
                             ->get();
 

@@ -56,7 +56,7 @@ class MatchBankTransactionRequest extends Request
 
         $inputs = $this->all();
 
-        foreach ($inputs['transactions'] as $key => $input) {
+        foreach ($inputs['transactions'] ?? [] as $key => $input) {
             if (array_key_exists('id', $inputs['transactions'][$key])) {
                 $inputs['transactions'][$key]['id'] = $this->decodePrimaryKey($input['id']);
             }

@@ -320,6 +320,105 @@ class ReportPreviewTest extends TestCase
 
     }
 
+    public function testInvoiceJsonPreviewReturnsAllRows(): void
+    {
+        $invoice_count = 5;
+
+        \App\Models\Invoice::factory()->count($invoice_count)->create([
+            "company_id" => $this->company->id,
+            "user_id" => $this->user->id,
+            "client_id" => $this->client->id,
+            "date" => "2030-01-01",
+            "due_date" => "2030-01-31",
+        ]);
+
+        $data = [
+            "send_email" => false,
+            "date_range" => "custom",
+            "start_date" => "2030-01-01",
+            "end_date" => "2030-01-02",
+            "report_keys" => ["invoice.number"],
+            "include_deleted" => false,
+            "user_id" => $this->user->id,
+            "output" => "json",
+        ];
+
+        (new PreviewReport($this->company, $data, InvoiceExport::class, "invoice_preview_full"))->handle();
+
+        $report = Cache::pull("invoice_preview_full");
+
+        $this->assertIsArray($report);
+        $this->assertCount($invoice_count + 1, $report);
+    }
+
+    public function testInvoiceFanOutReportEagerLoadsPaymentables(): void
+    {
+        $invoice_count = 5;
+
+        for ($i = 0; $i < $invoice_count; $i++) {
+            $invoice = \App\Models\Invoice::factory()->create([
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+                'client_id' => $this->client->id,
+                'number' => "INV-FAN-{$i}",
+                'date' => '2030-02-01',
+                'due_date' => '2030-02-28',
+                'status_id' => \App\Models\Invoice::STATUS_SENT,
+            ]);
+
+            $payment = \App\Models\Payment::factory()->create([
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+                'client_id' => $this->client->id,
+                'number' => "PAY-FAN-{$i}",
+                'amount' => 25,
+                'applied' => 25,
+                'refunded' => 0,
+                'date' => '2030-02-01',
+                'is_deleted' => 0,
+            ]);
+
+            \App\Models\Paymentable::create([
+                'payment_id' => $payment->id,
+                'paymentable_type' => 'invoices',
+                'paymentable_id' => $invoice->id,
+                'amount' => 25,
+                'refunded' => 0,
+                'created_at' => now()->timestamp + $i,
+                'updated_at' => now()->timestamp + $i,
+            ]);
+        }
+
+        $data = [
+            'send_email' => false,
+            'date_range' => 'custom',
+            'start_date' => '2030-02-01',
+            'end_date' => '2030-02-02',
+            'report_keys' => ['invoice.number', 'payment.number', 'payment.amount', 'payment.applied_date'],
+            'include_deleted' => false,
+            'user_id' => $this->user->id,
+        ];
+
+        \Illuminate\Support\Facades\DB::flushQueryLog();
+        \Illuminate\Support\Facades\DB::enableQueryLog();
+
+        $csv = (new InvoiceExport($this->company, $data))->run();
+
+        $queries = \Illuminate\Support\Facades\DB::getQueryLog();
+        \Illuminate\Support\Facades\DB::disableQueryLog();
+
+        $reader = \League\Csv\Reader::fromString($csv);
+        $reader->setHeaderOffset(0);
+        $rows = iterator_to_array($reader->getRecords(), false);
+
+        $paymentable_queries = array_filter($queries, function (array $query): bool {
+            return str_contains($query['query'], 'from `paymentables`');
+        });
+
+        $this->assertCount($invoice_count, $rows);
+        $this->assertLessThanOrEqual(2, count($paymentable_queries));
+    }
+
     public function testExpenseJsonExport()
     {
         Expense::factory()->count(5)->create([

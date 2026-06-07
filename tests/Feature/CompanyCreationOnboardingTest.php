@@ -106,6 +106,8 @@ class CompanyCreationOnboardingTest extends TestCase
         $this->assertCount(1, $taxRates);
         $this->assertEquals('GST', $taxRates->first()->name);
         $this->assertEquals(10, $taxRates->first()->rate);
+
+        $company->account->delete();
     }
 
     // ── Germany (276) ──────────────────────────────────────────
@@ -123,6 +125,8 @@ class CompanyCreationOnboardingTest extends TestCase
         $this->assertCount(2, $taxRates);
         $this->assertEquals(19, $taxRates['MwSt']);
         $this->assertEquals(7, $taxRates['MwSt (ermäßigt)']);
+
+        $company->account->delete();
     }
 
     // ── Spain (724) ─────────────────────────────────────────────
@@ -150,6 +154,8 @@ class CompanyCreationOnboardingTest extends TestCase
         $this->assertEquals(21, $taxRates['IVA']);
         $this->assertEquals(10, $taxRates['IVA (reducido)']);
         $this->assertEquals(-15, $taxRates['IRPF']);
+
+        $company->account->delete();
     }
 
     // ── South Africa (710) ──────────────────────────────────────
@@ -168,6 +174,8 @@ class CompanyCreationOnboardingTest extends TestCase
         $this->assertCount(1, $taxRates);
         $this->assertEquals('VAT', $taxRates->first()->name);
         $this->assertEquals(15, $taxRates->first()->rate);
+
+        $company->account->delete();
     }
 
     // ── New Zealand (554) ───────────────────────────────────────
@@ -184,6 +192,8 @@ class CompanyCreationOnboardingTest extends TestCase
         $this->assertCount(1, $taxRates);
         $this->assertEquals('GST', $taxRates->first()->name);
         $this->assertEquals(15, $taxRates->first()->rate);
+
+        $company->account->delete();
     }
 
     // ── United Kingdom (826) ────────────────────────────────────
@@ -201,6 +211,8 @@ class CompanyCreationOnboardingTest extends TestCase
         $this->assertCount(2, $taxRates);
         $this->assertEquals(20, $taxRates['VAT']);
         $this->assertEquals(5, $taxRates['VAT (reduced)']);
+
+        $company->account->delete();
     }
 
     // ── France (250) ────────────────────────────────────────────
@@ -216,6 +228,8 @@ class CompanyCreationOnboardingTest extends TestCase
         $this->assertCount(2, $taxRates);
         $this->assertEquals(20, $taxRates['TVA']);
         $this->assertEquals(5.5, $taxRates['TVA (réduit)']);
+
+        $company->account->delete();
     }
 
     // ── United States (840) ─────────────────────────────────────
@@ -230,6 +244,7 @@ class CompanyCreationOnboardingTest extends TestCase
 
         $taxRates = TaxRate::where('company_id', $company->id)->get();
         $this->assertCount(0, $taxRates);
+        $company->account->delete();
     }
 
     // ── Unknown country ─────────────────────────────────────────
@@ -251,6 +266,8 @@ class CompanyCreationOnboardingTest extends TestCase
 
         $this->assertNotNull($company);
         $this->assertEquals('840', $company->settings->country_id);
+
+        $company->account->delete();
     }
 
     // ── Verify all configured countries have valid static IDs ────
@@ -269,6 +286,8 @@ class CompanyCreationOnboardingTest extends TestCase
         $this->assertEquals(5, $taxRates['GST']);
         $this->assertEquals(9.975, $taxRates['QST']);
         $this->assertEquals(13, $taxRates['HST']);
+
+        $company->account->delete();
     }
 
     // ── Italy (380) ─────────────────────────────────────────────
@@ -284,6 +303,8 @@ class CompanyCreationOnboardingTest extends TestCase
         $this->assertCount(2, $taxRates);
         $this->assertEquals(22, $taxRates['IVA']);
         $this->assertEquals(10, $taxRates['IVA (ridotta)']);
+
+        $company->account->delete();
     }
 
     // ── Full pipeline test for EVERY configured country ─────────

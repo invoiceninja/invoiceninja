@@ -30,6 +30,9 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Mail\Mailables\Address;
 use App\Helpers\Bank\Nordigen\Transformer\AccountTransformer;
 use App\Helpers\Bank\Nordigen\Transformer\TransactionTransformer;
+use Nordigen\NordigenPHP\Exceptions\InstitutionExceptions\RateLimitError;
+use Nordigen\NordigenPHP\Exceptions\InstitutionExceptions\AccessExpiredError;
+use Nordigen\NordigenPHP\Exceptions\InstitutionExceptions\AccountInactiveError;
 
 class Nordigen
 {
@@ -280,6 +283,20 @@ class Nordigen
 
             return $account;
 
+        } catch (RateLimitError $e) {
+
+            nlog("Nordigen:: AccountActiveStatus:: rate limited for account {$account_id}");
+
+            return ['status' => 'RATE_LIMITED', 'code' => 429];
+
+        } catch (AccessExpiredError $e) {
+
+            return ['status' => 'EXPIRED'];
+
+        } catch (AccountInactiveError $e) {
+
+            return ['status' => 'SUSPENDED', 'error' => $e->getMessage()];
+
         } catch (\Exception $e) {
 
             nlog("Nordigen:: AccountActiveStatus:: {$e->getMessage()} {$e->getCode()}");
@@ -288,8 +305,27 @@ class Nordigen
                 return ['status' => 'Invalid Account ID'];
             }
 
-            return ['status' => 'EXPIRED'];
+            // Do not collapse unknown/transient errors to EXPIRED — that disables healthy
+            // accounts on a rate-limit/timeout/5xx and emails the user a false reconnect notice.
+            // Leave the integration enabled; the requisition gate is the authority on permanent failure.
+            return ['status' => 'TRANSIENT_ERROR', 'error' => $e->getMessage()];
         }
+    }
+
+    /**
+     * Cached, deduped requisition status check.
+     *
+     * Keyed by requisition_id so multiple bank_integrations sharing a requisition trigger
+     * a single upstream call. The key is the requisition_id, so a reconnect (which mints a
+     * new requisition_id) is never served a stale cached result.
+     */
+    public function requisitionStatus(string $requisitionId): ?string
+    {
+        return Cache::remember("nordigen_req_status:{$requisitionId}", 60 * 60 * 3, function () use ($requisitionId) {
+            $nc = new \App\Helpers\Bank\Nordigen\Http\NordigenClient($this->client->getAccessToken());
+
+            return $nc->getRequisition($requisitionId)['status'] ?? null;
+        });
     }
 
 

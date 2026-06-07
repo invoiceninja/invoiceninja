@@ -63,7 +63,11 @@ class BaseExport
 
     protected bool $skip_float_conversion = false;
 
+    protected bool $capture_raw_rows = false;
+
     protected array $raw_rows = [];
+
+    protected array $spreadsheet_headers = [];
 
     protected array $non_summable_patterns = [
         'tax_rate',
@@ -71,6 +75,8 @@ class BaseExport
         'is_amount_discount',
         'uses_inclusive_taxes',
     ];
+
+    protected const EXPORT_CHUNK_SIZE = 500;
 
     public string $client_description = 'All Clients';
 
@@ -421,6 +427,9 @@ class BaseExport
         "amount" => "payment.amount",
         "refunded" => "payment.refunded",
         "applied" => "payment.applied",
+        "applied_date" => "payment.applied_date",
+        "applied_amount" => "payment.applied_amount",
+        "applied_refunded" => "payment.applied_refunded",
         "transaction_reference" => "payment.transaction_reference",
         "currency" => "payment.currency",
         "exchange_rate" => "payment.exchange_rate",
@@ -495,6 +504,7 @@ class BaseExport
         'log_duration_words' => 'task.time_log_duration_words',
         'user' => 'task.user_id',
         'assigned_user' => 'task.assigned_user_id',
+        'tags' => 'task.tags',
     ];
 
     protected array $forced_client_fields = [
@@ -1561,7 +1571,7 @@ class BaseExport
             }
         }
 
-        // nlog($header);
+        $this->spreadsheet_headers = $header;
 
         return $header;
     }
@@ -1702,7 +1712,7 @@ class BaseExport
         if ($query->getModel() instanceof Document) {
             $documents = $query->pluck('id')->toArray();
         } else {
-            $documents = $query->cursor()
+            $documents = $this->streamQuery($query)
                                ->map(function ($entity) {
                                    return $entity->documents()->pluck('id')->toArray();
                                })->flatten()
@@ -1739,13 +1749,44 @@ class BaseExport
         return \Illuminate\Support\Facades\Schema::hasColumn($table, $column);
     }
 
+    public function captureRawRows(): self
+    {
+        $this->capture_raw_rows = true;
+        $this->raw_rows = [];
+
+        return $this;
+    }
+
+    public function hasRawRows(): bool
+    {
+        return count($this->raw_rows) > 0;
+    }
+
+    public function rawRows(): array
+    {
+        return $this->raw_rows;
+    }
+
+    public function spreadsheetHeaders(): array
+    {
+        return $this->spreadsheet_headers;
+    }
+
     public function convertFloats(iterable $entity): iterable
     {
-        if ($this->skip_float_conversion) {
+        if ($this->capture_raw_rows || $this->skip_float_conversion) {
             $this->raw_rows[] = (array) $entity;
+        }
+
+        if ($this->skip_float_conversion) {
             return $entity;
         }
 
+        return $this->formatFloatsForCsv($entity);
+    }
+
+    protected function formatFloatsForCsv(iterable $entity): iterable
+    {
         $currency = $this->company->currency();
 
         foreach ($entity as $key => $value) {
@@ -1762,7 +1803,6 @@ class BaseExport
         }
 
         return $entity;
-
     }
 
     public function filterByUserPermissions(Builder $query): Builder
@@ -1835,7 +1875,6 @@ class BaseExport
             'App\Models\Expense' => 'expense',
             'App\Models\Document' => 'document',
             'App\Models\Activity' => 'activity',
-            'App\Models\Task' => 'task',
             'App\Models\Project' => 'project',
             default => null,
         };
@@ -1843,6 +1882,11 @@ class BaseExport
     public function isGroupByActive(): bool
     {
         return ! empty($this->input['group_by']);
+    }
+
+    protected function streamQuery(Builder $query): \Illuminate\Support\LazyCollection
+    {
+        return (clone $query)->lazy(self::EXPORT_CHUNK_SIZE);
     }
 
     /**
@@ -1866,10 +1910,15 @@ class BaseExport
 
         $header = $this->buildHeader();
         $header[] = ctrans('texts.count');
+        $this->spreadsheet_headers = $header;
         $csv->insertOne($header);
 
         foreach ($summary as $row) {
-            $csv->insertOne(array_values($this->convertFloats($row)));
+            $csv->insertOne(array_values($this->formatFloatsForCsv($row)));
+        }
+
+        if ($this->capture_raw_rows) {
+            $this->raw_rows = array_values($summary);
         }
 
         return $csv->toString();
@@ -1902,7 +1951,7 @@ class BaseExport
         $report = [];
 
         foreach ($summary as $row) {
-            $formatted = (array) $this->convertFloats($row);
+            $formatted = (array) $this->formatFloatsForCsv($row);
             $clean_row = [];
             $i = 0;
 
@@ -1954,54 +2003,61 @@ class BaseExport
             $grouped[$key][] = $row;
         }
 
-        $numeric_columns = $this->detectNumericColumns($rows);
-
         $summary = [];
 
         foreach ($grouped as $group_value => $group_rows) {
             $summary_row = [];
-
+        
             foreach (array_keys($rows[0]) as $column) {
                 if ($column === $group_by) {
                     $summary_row[$column] = $group_value;
-                } elseif (isset($numeric_columns[$column]) && $numeric_columns[$column] && ! $this->isNonSummable($column)) {
-                    $summary_row[$column] = array_sum(array_column($group_rows, $column));
-                } else {
+                    continue;
+                }
+        
+                if ($this->isNonSummable($column)) {
                     $summary_row[$column] = '';
+                    continue;
+                }
+        
+                $values = array_column($group_rows, $column);
+                $numeric = array_filter($values, 'is_numeric');
+        
+                if ($numeric !== [] && count($numeric) === count($values)) {
+                    // All values numeric → aggregate.
+                    $summary_row[$column] = array_sum($numeric);
+                } else {
+                    // Non-numeric column → preserve if every row agrees, else blank.
+                    $distinct = array_unique(array_map(static fn ($v) => (string) $v, $values));
+                    $summary_row[$column] = count($distinct) === 1 ? reset($values) : '';
                 }
             }
-
+        
             $summary_row['group.count'] = count($group_rows);
             $summary[] = $summary_row;
         }
+        
+        // foreach ($grouped as $group_value => $group_rows) {
+        //     $summary_row = [];
+
+        //     foreach (array_keys($rows[0]) as $column) {
+        //         if ($column === $group_by) {
+        //             $summary_row[$column] = $group_value;
+        //         } elseif ($this->isNonSummable($column)) {
+        //             $summary_row[$column] = '';
+        //         } else {
+        //             $numeric = array_filter(
+        //                 array_column($group_rows, $column),
+        //                 'is_numeric'
+        //             );
+        //             $summary_row[$column] = $numeric === [] ? '' : array_sum($numeric);
+        //         }
+        //     }
+
+        //     $summary_row['group.count'] = count($group_rows);
+        //     $summary[] = $summary_row;
+        // }
 
         return $summary;
-    }
-
-    /**
-     * Detect which columns contain numeric values.
-     *
-     * @param array<int, array<string, mixed>> $rows
-     * @return array<string, bool>
-     */
-    protected function detectNumericColumns(array $rows): array
-    {
-        $numeric = [];
-
-        foreach (array_keys($rows[0]) as $column) {
-            foreach ($rows as $row) {
-                $value = $row[$column] ?? '';
-
-                if (empty($value)) {
-                    continue;
-                }
-
-                $numeric[$column] = is_numeric($value);
-                break;
-            }
-        }
-
-        return $numeric;
     }
 
     /**

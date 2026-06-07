@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Http\Requests;
 
 use Illuminate\Http\Request;
@@ -11,7 +19,7 @@ trait RuntimeFormRequest
     {
         $value = self::getMockedRequestByParameters($value);
 
-        $validator = self::createFrom($value, new self());
+        $validator = self::createFrom($value, new static());
 
         $validator->setContainer(app());
 

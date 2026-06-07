@@ -202,6 +202,7 @@ class SubscriptionService
         $recurring_invoice = $recurring_invoice_repo->save([], $recurring_invoice);
         $recurring_invoice->auto_bill = $this->subscription->auto_bill;
         $recurring_invoice->auto_bill_enabled =  $this->setAutoBillFlag($recurring_invoice->auto_bill);
+        $recurring_invoice->footer = $invoice->footer;
 
         /* Start the recurring service */
         $recurring_invoice->service()

@@ -108,4 +108,59 @@ class InvoicesTest extends TestCase
         $account->delete();
 
     }
+
+    public function testSelectionResetsOnPagination()
+    {
+        $account = Account::factory()->create();
+
+        $user = User::factory()->create(
+            ['account_id' => $account->id, 'email' => $this->faker->safeEmail()]
+        );
+
+        $company = Company::factory()->create(['account_id' => $account->id]);
+        $company->settings->language_id = '1';
+        $company->save();
+
+        $client = Client::factory()->create(['company_id' => $company->id, 'user_id' => $user->id]);
+        $settings = $client->settings;
+        $settings->language_id = '1';
+        $client->settings = $settings;
+        $client->save();
+
+        ClientContact::factory()->count(2)->create([
+            'user_id' => $user->id,
+            'client_id' => $client->id,
+            'company_id' => $company->id,
+        ]);
+
+        Invoice::factory()->count(15)->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'client_id' => $client->id,
+            'status_id' => Invoice::STATUS_SENT,
+        ]);
+
+        $this->actingAs($client->contacts()->first(), 'contact');
+
+        Livewire::test(InvoicesTable::class, ['company_id' => $company->id, 'db' => $company->db])
+            ->set('select_all', true)
+            ->assertSet('select_all', true)
+            ->tap(fn ($c) => $this->assertCount(10, $c->get('selected')))
+            ->call('setPage', 2)
+            ->assertSet('selected', [])
+            ->assertSet('select_all', false);
+
+        Livewire::test(InvoicesTable::class, ['company_id' => $company->id, 'db' => $company->db])
+            ->set('selected', ['abc', 'def'])
+            ->set('per_page', 15)
+            ->assertSet('selected', []);
+
+        Livewire::test(InvoicesTable::class, ['company_id' => $company->id, 'db' => $company->db])
+            ->set('selected', ['abc'])
+            ->call('sortBy', 'number')
+            ->assertSet('selected', [])
+            ->assertSet('select_all', false);
+
+        $account->delete();
+    }
 }

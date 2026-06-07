@@ -31,6 +31,7 @@ use App\Models\Activity;
 use App\Models\Document;
 use App\Models\Location;
 use App\Models\Scheduler;
+use App\Models\Tag;
 use App\Models\TaskStatus;
 use App\Models\PaymentTerm;
 use App\Models\CompanyToken;
@@ -63,6 +64,7 @@ use App\Policies\ActivityPolicy;
 use App\Policies\DocumentPolicy;
 use App\Policies\LocationPolicy;
 use App\Policies\SchedulerPolicy;
+use App\Policies\TagPolicy;
 use App\Policies\TaskStatusPolicy;
 use App\Models\BankTransactionRule;
 use App\Policies\PaymentTermPolicy;
@@ -117,6 +119,7 @@ class AuthServiceProvider extends ServiceProvider
         RecurringQuote::class => RecurringQuotePolicy::class,
         Scheduler::class => SchedulerPolicy::class,
         Subscription::class => SubscriptionPolicy::class,
+        Tag::class => TagPolicy::class,
         Task::class => TaskPolicy::class,
         TaskStatus::class => TaskStatusPolicy::class,
         TaxRate::class => TaxRatePolicy::class,

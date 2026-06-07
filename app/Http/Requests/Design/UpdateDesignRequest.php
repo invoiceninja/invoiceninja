@@ -57,6 +57,8 @@ class UpdateDesignRequest extends Request
     {
         $input = $this->all();
 
+        $input['design'] = is_array($input['design'] ?? null) ? $input['design'] : [];
+
         if (! array_key_exists('product', $input['design']) || is_null($input['design']['product'])) {
             $input['design']['product'] = '';
         }

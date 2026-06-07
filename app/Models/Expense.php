@@ -183,21 +183,16 @@ class Expense extends BaseModel
 
     public function toSearchableArray(): array
     {
-        return config('scout.index_version', 'legacy') === 'v2'
-            ? $this->toSearchableArrayV2()
-            : $this->toSearchableArrayLegacy();
-    }
-
-    public function toSearchableArrayLegacy(): array
-    {
+        
         $locale = $this->company->locale();
-
         App::setLocale($locale);
 
         return [
             'id' => $this->company->db . ":" . $this->id,
             'name' => ctrans('texts.expense') . " " . ($this->number ?? '') . ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
             'hashed_id' => $this->hashed_id,
+            'user_id' => (string) $this->user_id,
+            'assigned_user_id' => (string) $this->assigned_user_id,
             'number' => (string) $this->number,
             'is_deleted' => (bool) $this->is_deleted,
             'amount' => (float) $this->amount,
@@ -209,12 +204,8 @@ class Expense extends BaseModel
             'company_key' => $this->company->company_key,
             'public_notes' => (string) $this->public_notes,
             'private_notes' => (string) $this->private_notes,
+            'transaction_reference' => (string) $this->transaction_reference,
         ];
-    }
-
-    public function toSearchableArrayV2(): array
-    {
-        return $this->toSearchableArrayLegacy();
     }
 
     public function getScoutKey()

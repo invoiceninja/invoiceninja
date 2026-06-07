@@ -157,7 +157,7 @@ class UpdateCompanyRequest extends Request
         }
 
         if (isset($input['smtp_verify_peer']) && is_string($input['smtp_verify_peer'])) {
-            $input['smtp_verify_peer'] == 'true' ? true : false;
+            $input['smtp_verify_peer'] = $input['smtp_verify_peer'] == 'true' ? true : false;
         }
 
         if (isset($input['e_invoice']) && is_array($input['e_invoice'])) {

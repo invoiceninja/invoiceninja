@@ -314,6 +314,8 @@ class Activity extends StaticModel
 
     public const PURGE_USER = 166;
 
+    public const EINVOICE_STATUS_UPDATED = 167;
+
     protected $casts = [
         'is_system' => 'boolean',
         'updated_at' => 'timestamp',

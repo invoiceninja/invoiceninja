@@ -115,7 +115,7 @@ class InvoiceItemExport extends BaseExport
             return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
 
-        $query->cursor()
+        $this->streamQuery($query)
             ->each(function ($resource) {
 
                 /** @var \App\Models\Invoice $resource */
@@ -145,7 +145,7 @@ class InvoiceItemExport extends BaseExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        $query->cursor()
+        $this->streamQuery($query)
             ->each(function ($invoice) {
 
                 /** @var \App\Models\Invoice $invoice */

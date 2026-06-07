@@ -172,7 +172,7 @@ class NexusResolver
     {
         $this->storecoveInvoice->setConsumerTaxMode(true);
         $id = $this->invoice->company->tax_data->regions->EU->subregions->{$client_country_code}->vat_number;
-        $scheme = $this->router->setInvoice($this->invoice)->resolveTaxScheme($client_country_code, $this->invoice->client->classification ?? 'individual');
+        $scheme = $this->router->resolveTaxScheme($client_country_code, $this->invoice->client->classification ?? 'individual');
 
         $pi = new \App\Services\EDocument\Gateway\Storecove\Models\PublicIdentifiers($scheme, $id);
         $asp = $this->storecoveInvoice->getAccountingSupplierParty();

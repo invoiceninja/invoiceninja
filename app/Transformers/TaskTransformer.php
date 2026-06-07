@@ -147,6 +147,20 @@ class TaskTransformer extends EntityTransformer
             'is_date_based' => (bool) $task->is_date_based,
             'status_order' => is_null($task->status_order) ? null : (int) $task->status_order,
             'date' => $task->calculated_start_date ?: '',
+            'meta' => $task->meta ?: '',
+            'tags' => $this->transformTags($task),
         ];
+    }
+
+    /**
+     * @return array<int, array{id: string, name: string, color: string|null}>
+     */
+    private function transformTags(Task $task): array
+    {
+        return $task->tags->map(fn ($tag) => [
+            'id' => (string) $this->encodePrimaryKey($tag->id),
+            'name' => (string) $tag->name,
+            'color' => $tag->color,
+        ])->values()->all();
     }
 }

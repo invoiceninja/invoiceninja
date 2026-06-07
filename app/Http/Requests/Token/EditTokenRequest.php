@@ -23,6 +23,6 @@ class EditTokenRequest extends Request
      */
     public function authorize(): bool
     {
-        return auth()->user()->can('edit', $this->token);
+        return auth()->user()->can('edit', $this->route('token'));
     }
 }

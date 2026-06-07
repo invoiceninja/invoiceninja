@@ -183,7 +183,7 @@ class PaytracePaymentDriver extends BaseDriver
         $this->processUnsuccessfulTransaction($data, false);
     }
 
-    public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null) {}
+    public function processWebhookRequest(PaymentWebhookRequest $request, ?Payment $payment = null) {}
 
     /*Helpers*/
     private function generateAuthHeaders()

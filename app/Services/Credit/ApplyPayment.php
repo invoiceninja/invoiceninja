@@ -18,6 +18,8 @@ use App\Events\Invoice\InvoiceWasUpdated;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Paymentable;
+use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
 use App\Utils\Ninja;
 
 class ApplyPayment
@@ -139,6 +141,32 @@ class ApplyPayment
                  ->updatePaidToDate($this->amount_applied)
                  ->updateStatus()
                  ->save();
+
+        $this->invoice = $this->invoice->fresh() ?? $this->invoice;
+
+        try {
+            $this->invoice->loadMissing(['client.country', 'client.company']);
+
+            if ($this->invoice->client->reportableFrTransaction()) {
+                $paymentable = Paymentable::withTrashed()
+                    ->where('payment_id', $this->payment->id)
+                    ->where('paymentable_id', $this->invoice->id)
+                    ->where('paymentable_type', 'invoices')
+                    ->latest('id')
+                    ->first();
+
+                app(FrancePaymentApplicationRecorder::class)->recordMovement(
+                    payment: $this->payment,
+                    invoice: $this->invoice,
+                    paymentable: $paymentable,
+                    movementAmount: $this->amount_applied,
+                    movementDate: $this->payment->date ?: now()->toDateString(),
+                    movementType: FrancePaymentApplicationRecorder::MOVEMENT_CREDIT_APPLIED,
+                );
+            }
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
 
         $this->credit
                  ->ledger()

@@ -1,0 +1,118 @@
+    TagAssignment:
+      type: object
+      description: 'A tag assigned to a task or project.'
+      properties:
+        id:
+          description: 'The hashed tag id'
+          type: string
+          example: Opnel5aKBz
+        name:
+          description: 'The tag name'
+          type: string
+          example: Urgent
+        color:
+          description: 'The tag color as a hex value, or null when unset'
+          type: string
+          nullable: true
+          example: '#FF0000'
+      required:
+        - id
+        - name
+    Tag:
+      type: object
+      properties:
+        id:
+          description: 'The hashed tag id'
+          type: string
+          example: Opnel5aKBz
+          readOnly: true
+        entity_type:
+          description: 'The fully qualified class name this tag may be assigned to'
+          type: string
+          enum:
+            - 'App\Models\Task'
+            - 'App\Models\Project'
+          example: 'App\Models\Task'
+        name:
+          description: 'The tag name. Unique per company and entity type, including archived tags.'
+          type: string
+          maxLength: 191
+          example: Urgent
+        color:
+          description: 'The tag color as a 3 or 6 digit hex value, or null when unset'
+          type: string
+          nullable: true
+          pattern: '^#(?:[0-9a-fA-F]{3}){1,2}$'
+          example: '#FF0000'
+        is_deleted:
+          description: 'A boolean flag determining if the tag has been deleted'
+          type: boolean
+          example: false
+          readOnly: true
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1710410400
+          readOnly: true
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1710410400
+          readOnly: true
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 0
+          readOnly: true
+      required:
+        - id
+        - entity_type
+        - name
+        - color
+        - is_deleted
+    TagRequest:
+      type: object
+      properties:
+        entity_type:
+          description: 'Required on create. Immutable after creation.'
+          type: string
+          enum:
+            - 'App\Models\Task'
+            - 'App\Models\Project'
+          example: 'App\Models\Task'
+        name:
+          description: 'The tag name. Unique per company and entity type, including archived tags.'
+          type: string
+          maxLength: 191
+          example: Urgent
+        color:
+          description: 'The tag color as a 3 or 6 digit hex value, or null to clear it.'
+          type: string
+          nullable: true
+          pattern: '^#(?:[0-9a-fA-F]{3}){1,2}$'
+          example: '#FF0000'
+      required:
+        - entity_type
+        - name
+    TagBulkAction:
+      type: object
+      properties:
+        ids:
+          description: 'Array of hashed tag IDs to action'
+          type: array
+          items:
+            type: string
+            example: Opnel5aKBz
+        action:
+          description: 'Bulk action to perform. May be supplied in the query string or request body.'
+          type: string
+          enum:
+            - archive
+            - restore
+            - delete
+          example: archive
+      required:
+        - ids

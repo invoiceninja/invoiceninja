@@ -79,7 +79,14 @@ class ZugferdXmlValidationTest extends TestCase
             nlog($validator->getErrors());
         }
 
-        $this->assertCount(0, $validator->getErrors(), "XML validation failed for: {$context}");
+        $flat_errors = [];
+        foreach ($validator->getErrors() as $errs) {
+            foreach ((array) $errs as $e) {
+                $flat_errors[] = $e;
+            }
+        }
+
+        $this->assertCount(0, $flat_errors, "XML validation failed for: {$context}\n".implode("\n", $flat_errors));
     }
 
     /**
@@ -952,6 +959,82 @@ class ZugferdXmlValidationTest extends TestCase
 
         $xml = $invoice->service()->getEInvoice();
         $this->assertXmlValid($xml, $this->zug_16931, 'service line items (HUR)');
+    }
+
+    /**
+     * Zero-VAT DE invoice: exempt line (explicit tax name) + late-fee line (type_id 5).
+     * Document-level ApplicableTradeTax must follow the same duty split as lines; Duty code O would
+     * violate BR-O-* alongside seller/buyer VAT identifiers emitted for B2B, so lines use exempt (E).
+     */
+    private function invoiceWithExemptLineAndLateFeeLine(): array
+    {
+        $data = $this->setupTestData([
+            'company_vat' => 'DE923356489',
+            'company_country' => 'DE',
+            'client_country' => 'DE',
+            'client_vat' => 'DE923356488',
+            'classification' => 'business',
+            'has_valid_vat' => true,
+        ]);
+
+        $invoice = $data['invoice'];
+
+        $line1 = new InvoiceItem();
+        $line1->product_key = 'Exempt service';
+        $line1->notes = 'Exempt';
+        $line1->quantity = 1;
+        $line1->cost = 100;
+        $line1->tax_name1 = 'VAT';
+        $line1->tax_rate1 = 0;
+        $line1->tax_id = (string) Product::PRODUCT_TYPE_EXEMPT;
+        $line1->type_id = '2';
+
+        $line2 = new InvoiceItem();
+        $line2->product_key = 'Late payment fee';
+        $line2->notes = 'Late fee';
+        $line2->quantity = 1;
+        $line2->cost = 25;
+        $line2->tax_name1 = '';
+        $line2->tax_rate1 = 0;
+        $line2->tax_id = (string) Product::PRODUCT_TYPE_EXEMPT;
+        $line2->type_id = '5';
+
+        $invoice->line_items = [$line1, $line2];
+
+        return [$invoice->calc()->getInvoice()];
+    }
+
+    public function testXsdValidationDeToDeExemptPlusLateFeeLine(): void
+    {
+        [$invoice] = $this->invoiceWithExemptLineAndLateFeeLine();
+
+        $this->assertEquals(0.0, (float) $invoice->total_taxes);
+
+        $xml = $invoice->service()->getEInvoice();
+        $this->assertNotEmpty($xml);
+
+        libxml_use_internal_errors(true);
+        $dom = new \DOMDocument();
+        $dom->loadXML($xml);
+        $valid = $dom->schemaValidate(app_path($this->zugferd_xsd));
+        libxml_clear_errors();
+        $this->assertTrue($valid, 'XSD validation failed for exempt + late fee line');
+
+        // Not subject to VAT (Duty O): would conflict with EN 16931 BR-O-* when VAT IDs exist.
+        $this->assertStringNotContainsString('<ram:CategoryCode>O</ram:CategoryCode>', $xml);
+
+        // Both positions use exempt (E) with this generator; header tax category matches.
+        $this->assertStringContainsString('<ram:CategoryCode>E</ram:CategoryCode>', $xml);
+    }
+
+    public function testValidationDeToDeExemptPlusLateFeeLine(): void
+    {
+        $this->requireSaxon();
+
+        [$invoice] = $this->invoiceWithExemptLineAndLateFeeLine();
+
+        $xml = $invoice->service()->getEInvoice();
+        $this->assertXmlValid($xml, $this->zug_16931, 'DE-to-DE exempt + late fee line (zero VAT)');
     }
 
     // =========================================================================

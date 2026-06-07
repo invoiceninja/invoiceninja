@@ -180,13 +180,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
 
     public function toSearchableArray(): array
     {
-        return config('scout.index_version', 'legacy') === 'v2'
-            ? $this->toSearchableArrayV2()
-            : $this->toSearchableArrayLegacy();
-    }
-
-    public function toSearchableArrayLegacy(): array
-    {
+        
         return [
             'id' => $this->company->db . ":" . $this->id,
             'name' => $this->present()->search_display(),
@@ -201,12 +195,9 @@ class ClientContact extends Authenticatable implements HasLocalePreference
             'custom_value4' => $this->custom_value4,
             'company_key' => $this->company->company_key,
             'client_id' => $this->client->hashed_id,
+            'user_id'          => (string) $this->client->user_id,
+            'assigned_user_id' => (string) $this->client->assigned_user_id,
         ];
-    }
-
-    public function toSearchableArrayV2(): array
-    {
-        return $this->toSearchableArrayLegacy();
     }
 
     public function getScoutKey()

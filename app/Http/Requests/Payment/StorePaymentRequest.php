@@ -174,7 +174,7 @@ class StorePaymentRequest extends Request
                     $input['invoices'][$key]['invoice_id'] = $this->decodePrimaryKey($value['invoice_id']);
                 }
 
-                if (array_key_exists('amount', $value) && is_numeric($value['amount'])) {
+                if (isset($value['amount']) && is_numeric($value['amount'])) {
                     $invoices_total += $value['amount'];
                 }
             }

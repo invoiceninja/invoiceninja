@@ -16,14 +16,6 @@ use App\Services\EDocument\Gateway\MutatorUtil;
 
 class DE extends BaseCountry
 {
-    public function getRoutingRules(): ?array
-    {
-        return [
-            ["G", "DE:LWID", false, "DE:LWID"],
-            ["B", "", "DE:VAT", "DE:VAT"],
-        ];
-    }
-
     public function getCandidates(object $client, string $classification, object $router): array
     {
         if ($classification === 'government') {
@@ -47,6 +39,11 @@ class DE extends BaseCountry
         // Business: default VAT
         $id = preg_replace("/[^a-zA-Z0-9]/", "", $client->vat_number ?? '');
         return strlen($id) >= 2 ? [['scheme' => 'DE:VAT', 'id' => $id]] : [];
+    }
+
+    public function consumesBareRoutingId(?string $classification): bool
+    {
+        return ($classification ?? 'business') === 'government';
     }
 
     public function senderMutations(

@@ -3077,6 +3077,7 @@ nlog($dec_delta_item_report);
 
         // Craft a PAYMENT_CASH event with empty payment_history (defensive scenario)
         \App\Models\TransactionEvent::create([
+            'company_id' => $invoice->company_id,
             'invoice_id' => $invoice->id,
             'client_id' => $invoice->client_id,
             'client_balance' => $invoice->client->balance,

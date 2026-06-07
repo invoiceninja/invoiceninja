@@ -59,7 +59,7 @@ trait Utilities
             $candidates[] = $nestedChargeId;
         }
 
-        $candidates = array_values(array_unique(array_filter($candidates, fn ($v) => is_string($v) && $v !== '')));
+        $candidates = array_values(array_unique(array_filter($candidates, fn ($v) => is_string($v) && $v !== ''))); // @phpstan-ignore-line
 
         if (empty($candidates)) {
             return null;

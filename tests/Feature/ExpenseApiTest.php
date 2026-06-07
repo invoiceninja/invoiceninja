@@ -19,6 +19,7 @@ use App\Models\ExpenseCategory;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Session;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -341,6 +342,22 @@ class ExpenseApiTest extends TestCase
         $this->assertNotEmpty($arr['data']['number']);
     }
 
+    public function testExpensePostWithFilePayloadDoesNotCollideWithGlobalRules()
+    {
+        $data = [
+            'public_notes' => $this->faker->firstName(),
+            'file' => [UploadedFile::fake()->create('receipt.pdf', 10, 'application/pdf')],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/expenses', $data);
+
+        $response->assertStatus(200);
+        $this->assertNotEmpty($response->json('data.number'));
+    }
+
     public function testDuplicateNumberCatch()
     {
         $data = [
@@ -630,5 +647,38 @@ class ExpenseApiTest extends TestCase
         $response->assertStatus(200);
         $arr = $response->json();
         $this->assertCount(3, $arr['data']);
+    }
+
+    public function testHasInvoicesFilter()
+    {
+        $invoice = \App\Models\Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'status_id' => \App\Models\Invoice::STATUS_SENT,
+            'is_deleted' => 0,
+        ]);
+
+        $withInvoice = Expense::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'invoice_id' => $invoice->id,
+        ]);
+
+        $withoutInvoice = Expense::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'invoice_id' => null,
+        ]);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/expenses?has_invoices=client,' . $this->client->hashed_id . '&per_page=200')
+            ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($withInvoice->hashed_id, $ids);
+        $this->assertNotContains($withoutInvoice->hashed_id, $ids);
     }
 }

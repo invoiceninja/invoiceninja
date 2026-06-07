@@ -43,9 +43,7 @@ class StoreWebhookRequest extends Request
     {
         $input = $this->all();
 
-        if (!isset($input['rest_method'])) {
-            $input['rest_method'] = 'post';
-        }
+        $input['rest_method'] = $input['rest_method'] ?? 'post';
 
         $this->replace($input);
     }

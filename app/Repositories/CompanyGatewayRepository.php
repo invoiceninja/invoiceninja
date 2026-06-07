@@ -59,6 +59,7 @@ class CompanyGatewayRepository extends BaseRepository
         if (strlen($company_gateway_ids ?? '') > 2) {
             $transformed_ids = collect(explode(',', $company_gateway_ids))
                                 ->push($company_gateway->hashed_id)
+                                ->unique()
                                 ->implode(",");
 
             $company = $company_gateway->company;
@@ -79,6 +80,7 @@ class CompanyGatewayRepository extends BaseRepository
                                 ->filter(function ($id) use ($company_gateway) {
                                     return $id !== $company_gateway->hashed_id;
                                 })
+                                ->unique()
                                 ->implode(",");
 
             $company = $company_gateway->company;

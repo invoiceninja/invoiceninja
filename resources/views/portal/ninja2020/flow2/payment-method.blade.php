@@ -16,9 +16,12 @@
         <div class="my-3 flex flex-col space-y-3">
             @foreach($methods as $index => $method)
                 <button wire:loading.remove
-                    class="flex px-4 py-3 border rounded-lg lg:-mb-1 hover:shadow-sm transition duration-300"
+                    class="flex items-center justify-between px-4 py-3 border rounded-lg lg:-mb-1 hover:shadow-sm transition duration-300"
                     wire:click="handleSelect('{{ $method['company_gateway_id'] }}', '{{ $method['gateway_type_id'] }}', '{{ $amount }}')">
                     <span>{{ $method['label'] }}</span>
+                    @if($method['gateway_type_id'] == \App\Models\GatewayType::MOBILE_PAYMENT)
+                        <img src="{{ asset('gateway-card-images/payware-certified-rc.svg') }}" alt="payware" class="h-6 ml-3">
+                    @endif
                 </button>
             @endforeach
         </div>

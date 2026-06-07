@@ -90,6 +90,10 @@ class AuthorizeTransaction
         $duplicateWindowSetting->setSettingName("duplicateWindow");
         $duplicateWindowSetting->setSettingValue("3");
 
+        $emailSetting = new SettingType();
+        $emailSetting->setSettingName('emailCustomer');
+        $emailSetting->setSettingValue('false');
+
         $contact = $this->authorize->client->primary_contact()->first() ?: $this->authorize->client->contacts()->first();
 
         if ($contact) {
@@ -110,7 +114,6 @@ class AuthorizeTransaction
         }
 
         //Assign to the transactionRequest field
-
         $transactionRequestType = new TransactionRequestType();
         $transactionRequestType->setTransactionType('authCaptureTransaction');
         $transactionRequestType->setAmount($amount);
@@ -118,6 +121,7 @@ class AuthorizeTransaction
         $transactionRequestType->setTaxExempt(empty($taxAmount));
         $transactionRequestType->setOrder($order);
         $transactionRequestType->addToTransactionSettings($duplicateWindowSetting);
+        $transactionRequestType->addToTransactionSettings($emailSetting);
 
         $solution = new \net\authorize\api\contract\v1\SolutionType();
         $solution->setId($this->authorize->company_gateway->getConfigField('testMode') ? 'AAA100303' : 'AAA172036');

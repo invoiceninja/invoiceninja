@@ -23,14 +23,6 @@ use App\Services\EDocument\Gateway\MutatorUtil;
  */
 class SG extends BaseCountry
 {
-    public function getRoutingRules(): ?array
-    {
-        return [
-            ["G", "SG:UEN", false, "0195:SGUENT08GA0028A"],
-            ["B", "SG:UEN", "SG:GST", "SG:UEN"],
-        ];
-    }
-
     /**
      * SG sender mutations.
      *

@@ -12,7 +12,6 @@
 
 namespace App\Filters;
 
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -231,34 +230,6 @@ class RecurringExpenseFilters extends QueryFilters
         }
 
         return $this->builder;
-    }
-
-    /**
-     * date_range
-     *
-     * only filters on date
-     * @param  string $date_range
-     * @return Builder
-     */
-    public function date_range(string $date_range = ''): Builder
-    {
-        $parts = explode(",", $date_range);
-
-        if (!isset($parts[1])) {
-            return $this->builder;
-        }
-
-        try {
-
-            $start_date = Carbon::parse($parts[0]);
-            $end_date = Carbon::parse($parts[1]);
-
-
-            return $this->builder->whereBetween('date', [$start_date, $end_date]);
-        } catch (\Exception $e) {
-            return $this->builder;
-        }
-
     }
 
     /**
