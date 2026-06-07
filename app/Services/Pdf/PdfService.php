@@ -12,7 +12,6 @@
 
 namespace App\Services\Pdf;
 
-use App\Jobs\EDocument\CreateEDocument;
 use App\Models\Company;
 use App\Models\CreditInvitation;
 use App\Utils\Gotenberg\GotenbergPdf;
@@ -21,13 +20,13 @@ use App\Models\InvoiceInvitation;
 use App\Models\PurchaseOrderInvitation;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
+use App\Services\EDocument\ZugferdPdfMerger;
 use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
 use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\Pdf\PageNumbering;
 use App\Utils\Traits\Pdf\PdfMaker;
 use App\Utils\VendorHtmlEngine;
-use horstoeko\zugferd\ZugferdDocumentPdfBuilder;
 
 class PdfService
 {
@@ -83,11 +82,42 @@ class PdfService
     }
 
     /**
+     * Initialize the PDF context for design preview rendering without building
+     * the currently-saved design first. The caller will render the request
+     * design after this method prepares config, settings, locale variables, and
+     * the designer/builder shells.
+     */
+    public function bootForPreviewDesign(array $previewDesign): self
+    {
+        $this->start_time = microtime(true);
+
+        $this->config = (new PdfConfiguration($this))->init();
+
+        $this->applyJsonDesignSettingsOverrides($previewDesign);
+
+        $htmlEngine = ($this->invitation instanceof \App\Models\PurchaseOrderInvitation)
+                                    ? new VendorHtmlEngine($this->invitation)
+                                    : new HtmlEngine($this->invitation);
+
+        $htmlEngine->setSettings($this->config->settings);
+
+        $this->html_variables = $htmlEngine->generateLabelsAndValues();
+
+        $this->designer = new PdfDesigner($this);
+        $this->designer->template = '';
+        $this->builder = new PdfBuilder($this);
+        $this->builder->document = new \DOMDocument();
+        $this->builder->document->loadHTML('<!DOCTYPE html><html><body></body></html>');
+
+        return $this;
+    }
+
+    /**
      * Resolves the PDF generation type and
      * attempts to generate a PDF from the HTML
      * string.
      *
-     * @return mixed | Exception
+     * @return mixed | \Exception
      *
      */
     public function getPdf()
@@ -104,11 +134,16 @@ class PdfService
                 $pdf = $numbered_pdf;
             }
 
-            if ($this->config->entity_string == "invoice" && $this->config->settings->enable_e_invoice) {
-                $pdf = $this->checkEInvoice($pdf);
+            if ($this->shouldMergeEInvoiceToPdf()) {
+
+                try{
+                    $pdf = $this->mergeEInvoiceToPdf($pdf);
+                } catch (\Throwable $e) {
+                    nlog("ERROR MERGING E-INVOICE TO PDF: " . $e->getMessage());
+                }
             }
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             nlog($e->getMessage());
             throw new \Exception($e->getMessage(), $e->getCode());
         }
@@ -199,13 +234,19 @@ class PdfService
      *
      * No-op for non-JSON designs and for JSON designs with no documentSettings.
      */
-    private function applyJsonDesignSettingsOverrides(): void
+    private function applyJsonDesignSettingsOverrides(?array $designData = null): void
     {
-        if (!$this->isJsonDesign()) {
-            return;
+        if ($designData === null) {
+            if (!$this->isJsonDesign()) {
+                return;
+            }
+
+            $designData = $this->config->decodedDesign();
         }
 
-        $designData = $this->config->decodedDesign();
+        if ($designData === null || !isset($designData['blocks'])) {
+            return;
+        }
 
         $resolver = new DocumentSettingsResolver($designData, $this->config->settings);
 
@@ -326,7 +367,8 @@ class PdfService
         } elseif (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
             $pdf = (new NinjaPdf())->build($html);
         } elseif (config('ninja.pdf_generator') == 'gotenberg') {
-            $pdf = (new GotenbergPdf())->convertHtmlToPdf($html);
+            $pdfa = $this->shouldCreatePdfA3VisualPdf() ? GotenbergPdf::PDF_A_3B : null;
+            $pdf = (new GotenbergPdf())->convertHtmlToPdf($html, $pdfa);
         } else {
             $pdf = $this->makePdf(null, null, $html);
         }
@@ -334,61 +376,27 @@ class PdfService
         return $pdf;
     }
 
-    /**
-     * Switch to determine if we need to embed the xml into the PDF itself
-     *
-     * @param  string $pdf
-     * @return string
-     */
-    private function checkEInvoice(string $pdf): string
+    private function shouldMergeEInvoiceToPdf(): bool
     {
-        if (!$this->config->entity instanceof Invoice) {
-            return $pdf;
-        }
-
-        $e_invoice_type = $this->config->settings->e_invoice_type;
-
-        switch ($e_invoice_type) {
-            case "EN16931":
-            case "XInvoice_2_2":
-            case "XInvoice_2_1":
-            case "XInvoice_2_0":
-            case "XInvoice_1_0":
-            case "XInvoice-Extended":
-            case "XInvoice-BasicWL":
-            case "XInvoice-Basic":
-                return $this->embedEInvoiceZuGFerD($pdf) ?? $pdf;
-                //case "Facturae_3.2":
-                //case "Facturae_3.2.1":
-                //case "Facturae_3.2.2":
-                //
-            default:
-                return $pdf;
-        }
+        return empty($this->options['skip_e_invoice_pdf_merge'])
+            && $this->shouldCreatePdfA3VisualPdf();
 
     }
 
-    /**
-     * Embed the .xml file into the PDF
-     *
-     * @param  string $pdf
-     * @return string
-     */
-    private function embedEInvoiceZuGFerD(string $pdf): string
+    private function shouldCreatePdfA3VisualPdf(): bool
     {
-        try {
+        return $this->config->entity instanceof Invoice
+            && ZugferdPdfMerger::shouldMerge($this->config->entity, $this->config->settings);
 
-            $e_rechnung = (new CreateEDocument($this->config->entity, true))->handle();
-            $pdfBuilder = new ZugferdDocumentPdfBuilder($e_rechnung, $pdf);
-            $pdfBuilder->generateDocument();
+    }
 
-            return $pdfBuilder->downloadString();
-
-        } catch (\Throwable $th) {
-            nlog("E_Invoice Merge failed - " . $th->getMessage());
-        }
-
-        return $pdf;
+    private function mergeEInvoiceToPdf(string $pdf): string
+    {
+        return (new ZugferdPdfMerger(
+            $this->config->entity,
+            $pdf,
+            $this->config->settings->e_invoice_type ?? null
+        ))->handle();
     }
 
 }

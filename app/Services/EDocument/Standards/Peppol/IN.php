@@ -61,11 +61,6 @@ class IN extends BaseCountry
         'WB' => 'West Bengal',
     ];
 
-    public function getRoutingRules(): ?array
-    {
-        return ["B", "", "IN:GSTIN", "Email"];
-    }
-
     public function senderMutations(
         mixed $p_invoice,
         mixed $invoice,

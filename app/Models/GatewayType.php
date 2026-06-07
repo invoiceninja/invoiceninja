@@ -94,6 +94,8 @@ class GatewayType extends StaticModel
 
     public const PAYPAL_ADVANCED_CARDS = 29;
 
+    public const MOBILE_PAYMENT = 30;
+
     public function gateway()
     {
         return $this->belongsTo(Gateway::class);
@@ -163,6 +165,8 @@ class GatewayType extends StaticModel
                 return ctrans('texts.paypal_paylater');
             case self::PAYPAL_ADVANCED_CARDS:
                 return ctrans('texts.credit_card');
+            case self::MOBILE_PAYMENT:
+                return ctrans('texts.mobile_payment');
 
             default:
                 return ' ';

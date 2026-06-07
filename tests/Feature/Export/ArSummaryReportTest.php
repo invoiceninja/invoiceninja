@@ -12,6 +12,7 @@
 
 namespace Tests\Feature\Export;
 
+use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Factory\InvoiceItemFactory;
 use App\Models\Account;
@@ -20,6 +21,7 @@ use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\User;
 use App\Services\Report\ARSummaryReport;
+use App\Services\Template\TemplateService;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Tests\TestCase;
@@ -197,6 +199,160 @@ class ArSummaryReportTest extends TestCase
         $this->assertIsString($response);
 
         $this->account->delete();
+    }
+
+    public function testReportGroupsMultipleClientCurrencies()
+    {
+        $this->buildData();
+
+        $company_settings = $this->company->settings;
+        $company_settings->currency_id = '1';
+        $company_settings->show_currency_code = true;
+        $this->company->settings = $company_settings;
+        $this->company->save();
+
+        $client_settings = ClientSettings::defaults();
+        $client_settings->currency_id = '2';
+        $client_settings->show_currency_code = true;
+        $this->client->settings = $client_settings;
+        $this->client->save();
+        $this->client->refresh();
+
+        $usd_client_settings = ClientSettings::defaults();
+        $usd_client_settings->currency_id = '1';
+        $usd_client_settings->show_currency_code = true;
+
+        $usd_client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'settings' => $usd_client_settings,
+            'is_deleted' => 0,
+        ]);
+
+        $zero_client_settings = ClientSettings::defaults();
+        $zero_client_settings->currency_id = '3';
+        $zero_client_settings->show_currency_code = true;
+
+        Client::factory()->create([
+            'name' => 'Zero Balance EUR Client',
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'settings' => $zero_client_settings,
+            'is_deleted' => 0,
+        ]);
+
+        Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 100,
+            'balance' => 100,
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => now()->format('Y-m-d'),
+            'due_date' => now()->subDays(10)->format('Y-m-d'),
+            'is_deleted' => false,
+        ]);
+
+        Invoice::factory()->create([
+            'client_id' => $usd_client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 75,
+            'balance' => 75,
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => now()->format('Y-m-d'),
+            'due_date' => now()->subDays(10)->format('Y-m-d'),
+            'is_deleted' => false,
+        ]);
+
+        $this->payload = [
+            'start_date' => '2000-01-01',
+            'end_date' => '2030-01-11',
+            'date_range' => 'custom',
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ];
+
+        $report = new ARSummaryReport($this->company->fresh(), $this->payload);
+        $response = $report->run();
+
+        $this->assertStringContainsString('Currency,GBP', $response);
+        $this->assertStringContainsString('Currency,USD', $response);
+        $this->assertStringNotContainsString('Currency,EUR', $response);
+        $this->assertStringNotContainsString('Zero Balance EUR Client', $response);
+        $this->assertStringContainsString('100.00 GBP', $response);
+        $this->assertStringContainsString('75.00 USD', $response);
+
+        $reflection = new \ReflectionClass($report);
+        $property = $reflection->getProperty('client_groups');
+        $property->setAccessible(true);
+        $this->assertArrayNotHasKey('EUR', $property->getValue($report));
+
+        $this->account->delete();
+    }
+
+    public function testSummaryReportSortsByClientName(): void
+    {
+        $report = new ARSummaryReport(new Company(), ['report_keys' => []]);
+        $query = Client::query()->orderBy('balance', 'DESC');
+        $method = new \ReflectionMethod($report, 'sortClientsByName');
+        $method->setAccessible(true);
+
+        $sortedQuery = $method->invoke($report, $query);
+        $sql = strtolower($sortedQuery->toSql());
+
+        $this->assertMatchesRegularExpression('/order by [`"]name[`"] asc, [`"]id[`"] asc/', $sql);
+        $this->assertStringNotContainsString('balance', $sql);
+    }
+
+    public function testPdfTemplateKeepsSummaryTableWithinPrintableWidth(): void
+    {
+        $template = file_get_contents(resource_path('/views/templates/reports/ar_summary_report.html'));
+        $clientName = str_repeat('Long Client Name ', 8);
+        $idNumber = str_repeat('ID-', 12);
+        $truncatedClientName = substr($clientName, 0, 25);
+        $truncatedIdNumber = substr($idNumber, 0, 14);
+
+        $this->assertIsString($template);
+
+        $html = (new TemplateService())
+            ->setData([
+                'client_groups' => [[
+                    'currency' => 'USD',
+                    'clients' => [[
+                        $clientName,
+                        str_repeat('CLIENT-', 8),
+                        $idNumber,
+                        '$1,000.00 USD',
+                        '$2,000.00 USD',
+                        '$3,000.00 USD',
+                        '$4,000.00 USD',
+                        '$5,000.00 USD',
+                        '$6,000.00 USD',
+                        '$21,000.00 USD',
+                    ]],
+                ]],
+                'company_logo' => '',
+                'created_on' => '2026-05-13',
+                'created_by' => 'Invoice Ninja',
+            ])
+            ->setRawTemplate($template)
+            ->parseNinjaBlocks()
+            ->save()
+            ->getHtml();
+
+        $this->assertStringContainsString($truncatedClientName, $html);
+        $this->assertStringContainsString($truncatedIdNumber, $html);
+        $this->assertStringNotContainsString($clientName, $html);
+        $this->assertStringNotContainsString($idNumber, $html);
+        $this->assertStringContainsString('table-layout: auto;', $html);
+        $this->assertStringContainsString('padding-top: 4px;', $html);
+        $this->assertStringContainsString('padding-bottom: 4px;', $html);
+        $this->assertStringContainsString('white-space: nowrap;', $html);
+        $this->assertStringContainsString('font-size: min(2vw, 18px);', $html);
+        $this->assertStringContainsString('class="align-left"', $html);
+        $this->assertStringNotContainsString('table-layout: fixed;', $html);
+        $this->assertStringNotContainsString('overflow-x: auto;', $html);
     }
 
 

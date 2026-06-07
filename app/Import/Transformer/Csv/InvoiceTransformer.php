@@ -119,7 +119,7 @@ class InvoiceTransformer extends BaseTransformer
             ),
             'footer' => $this->getString($invoice_data, 'invoice.footer'),
             'partial' => $this->getFloat($invoice_data, 'invoice.partial') > 0 ? $this->getFloat($invoice_data, 'invoice.partial') : null,
-            'partial_due_date' =>  isset($invoice_data['invoice.partial_due_date']) ? $this->parseDate($invoice_data['invoice.partial_due_date']) : null,
+            'partial_due_date' =>  !empty($invoice_data['invoice.partial_due_date']) ? $this->parseDate($invoice_data['invoice.partial_due_date']) : null,
             'custom_surcharge1' => $this->getFloat(
                 $invoice_data,
                 'invoice.custom_surcharge1'
@@ -145,6 +145,7 @@ class InvoiceTransformer extends BaseTransformer
                         $this->getString($invoice_data, 'invoice.status')
                     ))
                 ] ?? Invoice::STATUS_SENT,
+            'auto_bill_enabled' => $this->company->getSetting('auto_bill_standard_invoices'),
             // 'archived' => $status === 'archived',
         ];
 

@@ -53,6 +53,14 @@ class CheckoutWebhook implements ShouldQueue
             nlog("Checkout Webhook type not set");
         }
 
+        if(!$this->company_gateway) {
+            nlog("Checkout Webhook: company gateway not found");
+            nlog($this->company_gateway_id);
+            nlog($this->company_key);
+            nlog($this->webhook_array);
+            return;
+        }
+
         /** @phpstan-ignore-next-line */
         match ($this->webhook_array['type']) {
             'payment_approved' => $this->paymentApproved(),
@@ -95,6 +103,8 @@ class CheckoutWebhook implements ShouldQueue
 
             if (!$payment_hash) {
                 nlog("Checkout Webhook: payment hash not found for udf2={$metadata['udf2']}");
+                nlog("Current database = ". config('database.default'));
+                nlog($metadata);
                 return;
             }
 

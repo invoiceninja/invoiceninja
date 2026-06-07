@@ -66,7 +66,9 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
             throw new \Exception("Missing credentials for bank_integration service nordigen");
         }
 
-        $this->nordigen = new Nordigen();
+        if (!isset($this->nordigen)) {
+            $this->nordigen = new Nordigen();
+        }
 
         set_time_limit(0);
 
@@ -127,10 +129,40 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
     // const DELETED = 'DELETED';        // Account has been deleted
     private function updateAccount()
     {
+        // Requisition pre-flight gate (cheap, separate rate limit). The requisition is the
+        // authority on permanent failure (EX/SU/RJ). Running it before any rate-limited
+        // account-data call avoids wasting the ~4/day quota on a dead connection.
+        // Legacy rows (requisition_id == null) skip the gate and fall through to the status check.
+        if ($this->bank_integration->requisition_id) {
+            $requisition_status = $this->nordigen->requisitionStatus($this->bank_integration->requisition_id);
+
+            // Only act on a DEFINITIVE terminal status. requisitionStatus() returns null when the
+            // requisition endpoint could not be read (404/429/5xx/timeout all collapse to null), so we
+            // must NOT disable on null — that would false-disable healthy accounts on transient upstream
+            // failures. Anything non-terminal (null, LN, mid-flow) falls through to the account check.
+            if (in_array($requisition_status, ['EX', 'SU', 'RJ'], true)) {
+                $this->bank_integration->disabled_upstream = true;
+                $this->bank_integration->bank_account_status = $requisition_status;
+                $this->bank_integration->save();
+
+                nlog("Nordigen: requisition '{$this->bank_integration->requisition_id}' invalid (status={$requisition_status}) for account: " . $this->bank_integration->nordigen_account_id);
+
+                $this->nordigen->disabledAccountEmail($this->bank_integration);
+
+                return;
+            }
+        }
+
         $account_status = $this->nordigen->isAccountActive($this->bank_integration->nordigen_account_id);
 
-        //Return early if the account status is not in a good state
-        if (isset($account_status['status']) && in_array($account_status['status'], ['EXPIRED', 'DELETED', 'Invalid Account ID'])) {
+        //Rate limited — leave the integration enabled and retry next cycle. Do not mutate state.
+        if (($account_status['status'] ?? null) == 'RATE_LIMITED') {
+            nlog("Nordigen: rate limited, awaiting retry for account: " . $this->bank_integration->nordigen_account_id);
+            return;
+        }
+
+        //Permanent failure — disable and notify (EXPIRED/SUSPENDED require a reconnect).
+        if (isset($account_status['status']) && in_array($account_status['status'], ['EXPIRED', 'SUSPENDED', 'Invalid Account ID'])) {
 
             $this->bank_integration->disabled_upstream = true;
             $this->bank_integration->bank_account_status = $account_status['status'];
@@ -138,16 +170,16 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
 
             nlog("Nordigen: account inactive: " . $this->bank_integration->nordigen_account_id);
 
-            //Need requisition refresh!
-            if ($account_status['status'] == 'EXPIRED') {
+            if (in_array($account_status['status'], ['EXPIRED', 'SUSPENDED'])) {
                 $this->nordigen->disabledAccountEmail($this->bank_integration);
             }
 
             return;
 
-        } elseif (isset($account_status['status']) && $account_status['status'] != 'READY') {
-            //There may be other issues, return and await retry
-            nlog($account_status['id'] . " Nordigen account status == " . $account_status['status']);
+        } elseif (($account_status['status'] ?? null) != 'READY') {
+            //Transient state (ERROR / PROCESSING / DISCOVERED / TRANSIENT_ERROR): leave enabled and
+            //await retry. The requisition gate above disables it if the failure is actually permanent.
+            nlog(($account_status['id'] ?? $this->bank_integration->nordigen_account_id) . " Nordigen account status == " . ($account_status['status'] ?? 'unknown'));
             return;
 
         }

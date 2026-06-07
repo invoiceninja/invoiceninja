@@ -13,15 +13,16 @@
 namespace App\PaymentDrivers\Authorize;
 
 use App\Models\Invoice;
-use App\Utils\Traits\MakesHash;
 use App\PaymentDrivers\Authorize\FDSReview;
-use net\authorize\api\contract\v1\OrderType;
 use App\PaymentDrivers\AuthorizePaymentDriver;
-use net\authorize\api\contract\v1\ExtendedAmountType;
-use net\authorize\api\contract\v1\PaymentProfileType;
-use net\authorize\api\contract\v1\TransactionRequestType;
+use App\Utils\Traits\MakesHash;
 use net\authorize\api\contract\v1\CreateTransactionRequest;
 use net\authorize\api\contract\v1\CustomerProfilePaymentType;
+use net\authorize\api\contract\v1\ExtendedAmountType;
+use net\authorize\api\contract\v1\OrderType;
+use net\authorize\api\contract\v1\PaymentProfileType;
+use net\authorize\api\contract\v1\SettingType;
+use net\authorize\api\contract\v1\TransactionRequestType;
 use net\authorize\api\controller\CreateTransactionController;
 
 /**
@@ -87,6 +88,10 @@ class ChargePaymentProfile
         $duplicateWindowSetting->setSettingName("duplicateWindow");
         $duplicateWindowSetting->setSettingValue("3");
 
+        $emailSetting = new SettingType();
+        $emailSetting->setSettingName('emailCustomer');
+        $emailSetting->setSettingValue('false');
+
         $transactionRequestType = new TransactionRequestType();
         $transactionRequestType->setTransactionType('authCaptureTransaction');
         $transactionRequestType->setAmount($amount);
@@ -96,6 +101,7 @@ class ChargePaymentProfile
         $transactionRequestType->setProfile($profileToCharge);
         $transactionRequestType->setCurrencyCode($this->authorize->client->currency()->code);
         $transactionRequestType->addToTransactionSettings($duplicateWindowSetting);
+        $transactionRequestType->addToTransactionSettings($emailSetting);
 
         $solution = new \net\authorize\api\contract\v1\SolutionType();
         $solution->setId($this->authorize->company_gateway->getConfigField('testMode') ? 'AAA100303' : 'AAA172036');

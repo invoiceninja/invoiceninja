@@ -15,6 +15,7 @@ namespace App\Models;
 use App\Utils\Number;
 use Illuminate\Support\Facades\App;
 use Elastic\ScoutDriverPlus\Searchable;
+use App\Models\Traits\HasTags;
 use App\Services\Project\ProjectService;
 use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -48,6 +49,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read \App\Models\Client|null $client
  * @property-read \App\Models\Company $company
  * @property-read int|null $documents_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
+ * @property-read int|null $tags_count
  * @property-read mixed $hashed_id
  * @property-read Project|null $project
  * @property-read int|null $tasks_count
@@ -78,6 +81,7 @@ class Project extends BaseModel
     use PresentableTrait;
     use Filterable;
     use Searchable;
+    use HasTags;
 
     /**
      * Get the index name for the model.
@@ -119,20 +123,18 @@ class Project extends BaseModel
 
     public function toSearchableArray(): array
     {
-        return config('scout.index_version', 'legacy') === 'v2'
-            ? $this->toSearchableArrayV2()
-            : $this->toSearchableArrayLegacy();
-    }
-
-    public function toSearchableArrayLegacy(): array
-    {
+       
         $locale = $this->company->locale();
         App::setLocale($locale);
 
+        $clientName = $this->client ? $this->client->present()->name() : '';
+
         return [
             'id' => (string) $this->company->db . ":" . $this->id,
-            'name' => ctrans('texts.project') . " " . $this->number . ' | ' . $this->name . " | " . $this->client->present()->name(),
+            'name' => ctrans('texts.project') . " " . $this->number . ' | ' . $this->name . " | " . $clientName,
             'hashed_id' => $this->hashed_id,
+            'user_id' => (string) $this->user_id,
+            'assigned_user_id' => (string) $this->assigned_user_id,
             'number' => (string) $this->number,
             'is_deleted' => (bool) $this->is_deleted,
             'task_rate' => (float) $this->task_rate,
@@ -143,15 +145,11 @@ class Project extends BaseModel
             'custom_value3' => (string) $this->custom_value3,
             'custom_value4' => (string) $this->custom_value4,
             'company_key' => $this->company->company_key,
+            'tags' => $this->tags->pluck('name')->values()->all(),
             'private_notes' => (string) $this->private_notes ?: '',
             'public_notes' => (string) $this->public_notes ?: '',
             'current_hours' => (int) $this->current_hours ?: 0,
         ];
-    }
-
-    public function toSearchableArrayV2(): array
-    {
-        return $this->toSearchableArrayLegacy();
     }
 
     public function getScoutKey()

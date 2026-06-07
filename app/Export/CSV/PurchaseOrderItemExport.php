@@ -101,7 +101,7 @@ class PurchaseOrderItemExport extends BaseExport
             return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
 
-        $query->cursor()
+        $this->streamQuery($query)
               ->each(function ($resource) {
 
                   /** @var \App\Models\PurchaseOrder $resource */
@@ -129,7 +129,7 @@ class PurchaseOrderItemExport extends BaseExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        $query->cursor()
+        $this->streamQuery($query)
             ->each(function ($purchase_order) {
 
                 /** @var \App\Models\PurchaseOrder $purchase_order */

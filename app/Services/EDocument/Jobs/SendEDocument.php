@@ -127,6 +127,7 @@ class SendEDocument implements ShouldQueue
             return $result['errors'];
         }
 
+        // nlog($result['document']);
         
         // ── Step 4: Assemble payload ──
         $payload = [
@@ -142,6 +143,7 @@ class SendEDocument implements ShouldQueue
             'e_invoicing_token' => $model->company->account->e_invoicing_token,
         ];
 
+        // nlog($routing);
         // nlog("payload", $payload);
 
         //Self Hosted Sending Code Path

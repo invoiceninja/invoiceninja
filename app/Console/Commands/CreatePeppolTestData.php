@@ -59,7 +59,7 @@ class CreatePeppolTestData extends Command
         'EE' => 0, // Estonia
         'ES' => 0, // Spain
         'FI' => 0, // Finland
-        'FR' => 293338, // FR82345678911
+        'FR' => 1003223, // FR84345678911
         'GB' => 0, // United Kingdom
         'GR' => 0, // Greece
         'HR' => 0, // Croatia
@@ -82,7 +82,7 @@ class CreatePeppolTestData extends Command
         'NL' => 0, // Netherlands
         'NO' => 0, // Norway
         'NZ' => 0, // New Zealand
-        'PL' => 0, // Poland
+        'PL' => 999794, // Poland
         'PT' => 0, // Portugal
         'RO' => 294639, //RO010105019
         'RS' => 0, // Serbia

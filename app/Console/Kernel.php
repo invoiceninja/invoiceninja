@@ -18,6 +18,7 @@ use App\Jobs\Ninja\QueueSize;
 use App\Jobs\Util\DiskCleanup;
 use App\Jobs\Util\ReminderJob;
 use App\Jobs\Cron\AutoBillCron;
+use App\Jobs\Cron\FranceEReportingCron;
 use App\Jobs\Util\VersionCheck;
 use App\Jobs\Ninja\TaskScheduler;
 use App\Jobs\Util\SchedulerCheck;
@@ -79,6 +80,13 @@ class Kernel extends ConsoleKernel
             ->hourly()
             ->withoutOverlapping()
             ->name('invoice-tax-summary')
+            ->onOneServer();
+        /* Runs France e-reporting payment notifications and due report submissions */
+        $schedule->job(new FranceEReportingCron())
+            ->dailyAt('22:00')
+            ->timezone('Europe/Paris')
+            ->withoutOverlapping()
+            ->name('france-e-reporting-job')
             ->onOneServer();
 
         /* Checks Rotessa Transactions */

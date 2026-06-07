@@ -55,4 +55,10 @@
           description: 'Priority level of the task'
           type: integer
           example: 1
+        tags:
+          description: 'Full sync array of hashed tag IDs. Omit to leave existing tags unchanged; send [] to detach all tags.'
+          type: array
+          items:
+            type: string
+            example: Opnel5aKBz
       type: object

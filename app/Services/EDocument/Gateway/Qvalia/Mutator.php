@@ -28,6 +28,8 @@ class Mutator implements MutatorInterface
 
     private string $override_vat_number = '';
 
+    private string $override_country_code = '';
+
     private MutatorUtil $mutator_util;
 
     public function __construct(public Qvalia $qvalia)
@@ -138,11 +140,13 @@ class Mutator implements MutatorInterface
      * Sets an override VAT number for the supplier party.
      *
      * @param  string $vat_number
+     * @param  string $country_code
      * @return self
      */
-    public function setOverrideVatNumber(string $vat_number): self
+    public function setOverrideVatNumber(string $vat_number, string $country_code): self
     {
         $this->override_vat_number = $vat_number;
+        $this->override_country_code = $country_code;
         return $this;
     }
 

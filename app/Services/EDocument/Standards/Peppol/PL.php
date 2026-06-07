@@ -12,6 +12,7 @@
 
 namespace App\Services\EDocument\Standards\Peppol;
 
+use App\Models\Client;
 use App\Services\EDocument\Gateway\MutatorUtil;
 
 /**
@@ -41,13 +42,12 @@ class PL extends BaseCountry
         'PL-ZP' => 'Zachodniopomorskie',
     ];
 
-    public function getRoutingRules(): ?array
+    public function getNetworkOverrides(?Client $client = null): array
     {
-        return ["G+B", "", "PL:VAT", "PL:VAT"];
-    }
+        if ($client && $client->company->country()->iso_3166_2 !== 'PL') {
+            return [];
+        }
 
-    public function getNetworkOverrides(): array
-    {
         return [['application' => 'pl-ksef', 'settings' => ['enabled' => true]]];
     }
 

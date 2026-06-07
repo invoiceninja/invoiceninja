@@ -189,6 +189,7 @@ class TemplateService
              ->setGlobals()
              ->parseNinjaBlocks()
              ->processVariables($data)
+             ->processScalars()
              ->parseGlobalStacks()
              ->parseVariables();
 
@@ -509,6 +510,10 @@ class TemplateService
         $html .= $partials['design']['body'];
         $html .= $partials['design']['footer'];
 
+        if ($html === '') {
+            $html = '<p></p>';
+        }
+        
         @$this->document->loadHTML($this->convertHtmlToEntities($html));
         // @$this->document->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
 
@@ -1049,6 +1054,8 @@ class TemplateService
             'payment_balance' => $entity->client->payment_balance,
             'credit_balance' => $entity->client->credit_balance,
             'number' => $entity->client->number ?? '',
+            'invoice_term_days' => $entity->client->getSetting('payment_terms') ?? '',
+            'quote_term_days' => $entity->client->getSetting('valid_until') ?? '',
             'id_number' => $entity->client->id_number ?? '',
             'vat_number' => $entity->client->vat_number ?? '',
             'currency' => $entity->client->currency()->code ?? 'USD',
@@ -1326,6 +1333,46 @@ class TemplateService
 
         })->toArray();
 
+    }
+
+    
+    /**
+     * processScalars
+     *
+     * @return self
+     */
+    public function processScalars(): self
+    {
+
+        $settings = $this->getSettings();
+
+        $this->data['company'] = [
+            'city_state_postal' => $this->company->present()->cityStateZip($settings->city, $settings->state, $settings->postal_code, false) ?: ' ',
+            'postal_city_state' => $this->company->present()->cityStateZip($settings->city, $settings->state, $settings->postal_code, true) ?: ' ',
+            'postal_city' => $this->company->present()->cityStateZip($settings->city, null, $settings->postal_code, true) ?: ' ',
+            'name' => $this->company->present()->name(),
+            'classification' => $settings->classification ?: '',
+            'address1' => $settings->address1 ?: '',
+            'address2' => $settings->address2 ?: '',
+            'city' => $settings->city ?: '',
+            'state' => $settings->state ?: '',
+            'postal_code' => $settings->postal_code ?: '',
+            'country' => $this->company->country()->name ?: '',
+            'country_2' => $this->company->country()->iso_3166_2 ?: '',
+            'phone' => $settings->phone ?: '',
+            'email' => $settings->email ?: '',
+            'vat_number' => $settings->vat_number ?: '',
+            'id_number' => $settings->id_number ?: ''  ,
+            'website' => $settings->website ?: ''  ,
+            'payment_terms' => $settings->payment_terms ?: '',
+            'valid_until' => $settings->valid_until ?: '',
+            'custom1' => $this->company->custom_value1 ?: '',
+            'custom2' => $this->company->custom_value2 ?: '',
+            'custom3' => $this->company->custom_value3 ?: '',
+            'custom4' => $this->company->custom_value4 ?: '',
+        ];
+
+        return $this;
     }
 
     /**

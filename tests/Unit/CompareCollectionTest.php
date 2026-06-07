@@ -52,6 +52,17 @@ class CompareCollectionTest extends TestCase
         $this->is_not_admin = false;
     }
 
+    public function testCollectionDistinct()
+    {
+
+        $map = collect(['abba','abba','abba']);
+
+        $this->assertCount(3, $map);
+
+        $this->assertCount(1, $map->unique());
+
+    }
+
     public function testCollectionCreation()
     {
         $collection = collect();

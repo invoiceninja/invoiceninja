@@ -69,16 +69,7 @@ class UpdateInvoiceRequest extends Request
         $rules['tax_name1'] = 'bail|sometimes|string|nullable';
         $rules['tax_name2'] = 'bail|sometimes|string|nullable';
         $rules['tax_name3'] = 'bail|sometimes|string|nullable';
-        $rules['status_id'] = [
-            'bail',
-            'sometimes',
-            'not_in:5',
-            function ($attribute, $value, $fail) {
-                if (in_array($this->invoice->status_id, [5, 6])) {
-                    $fail(ctrans('texts.locked_invoice'));
-                }
-            },
-        ];
+        $rules['status_id'] = ['bail','sometimes','not_in:5,6'];
         $rules['exchange_rate'] = 'bail|sometimes|numeric';
         $rules['partial'] = 'bail|sometimes|nullable|numeric';
         $rules['amount'] = ['sometimes', 'bail', 'numeric', 'max:99999999999999'];
@@ -118,6 +109,8 @@ class UpdateInvoiceRequest extends Request
 
             if (request()->input('paid') == 'true') {
             } elseif ($this->invoice->company->verifactuEnabled() && $this->invoice->status_id !== \App\Models\Invoice::STATUS_DRAFT) {
+                $validator->errors()->add('status_id', ctrans('texts.locked_invoice'));
+            } elseif(in_array($this->invoice->status_id, [\App\Models\Invoice::STATUS_CANCELLED, \App\Models\Invoice::STATUS_REVERSED])) {
                 $validator->errors()->add('status_id', ctrans('texts.locked_invoice'));
             }
 
@@ -162,8 +155,8 @@ class UpdateInvoiceRequest extends Request
 
         //handles edge case where we need for force set the due date of the invoice.
         if ((isset($input['partial_due_date']) && strlen($input['partial_due_date']) > 1) && (!array_key_exists('due_date', $input) || (empty($input['due_date']) && empty($this->invoice->due_date)))) {
-            $client = \App\Models\Client::withTrashed()->find($input['client_id']);
-            $input['due_date'] = \Illuminate\Support\Carbon::parse($input['date'])->addDays((int) $client->getSetting('payment_terms'))->format('Y-m-d');
+            $client = \App\Models\Client::withTrashed()->find($this->invoice->client_id);
+            $input['due_date'] = \Illuminate\Support\Carbon::parse($input['date'] ?? $this->invoice->date)->addDays((int) $client->getSetting('payment_terms'))->format('Y-m-d');
         }
 
         if (isset($input['e_invoice']) && is_array($input['e_invoice'])) {

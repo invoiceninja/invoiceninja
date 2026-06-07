@@ -195,7 +195,7 @@ class CreditCard implements LivewireMethodInterface
      */
     public function paymentResponse(Request $request)
     {
-
+        
         $expected = (float) $this->payfast->payment_hash->data->amount_with_fee;
         $received = (float) $request->input('amount_gross');
 

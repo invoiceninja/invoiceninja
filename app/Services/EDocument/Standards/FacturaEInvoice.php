@@ -452,7 +452,6 @@ class FacturaEInvoice extends AbstractService
             'IDEC' => Facturae::TAX_IDEC,
             'ILTCAC' => Facturae::TAX_ILTCAC,
             'IGFEI' => Facturae::TAX_IGFEI,
-            'ISS' => Facturae::TAX_ISS,
             'IMGSN' => Facturae::TAX_IMGSN,
             'IMSN' => Facturae::TAX_IMSN,
             'IMPN' => Facturae::TAX_IMPN,

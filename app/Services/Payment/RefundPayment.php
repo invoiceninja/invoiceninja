@@ -17,10 +17,12 @@ use App\Utils\Ninja;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Paymentable;
 use App\Models\Activity;
 use App\Exceptions\PaymentRefundFailed;
 use App\Jobs\Payment\EmailRefundPayment;
 use App\Repositories\ActivityRepository;
+use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
 use App\Listeners\Payment\PaymentTransactionEventEntry;
 
 class RefundPayment
@@ -132,7 +134,10 @@ class RefundPayment
                     $this->refund_failed = true;
                     $this->refund_failed_message = $response['description'] ?? '';
                 }
+            } else {
+                $this->payment->refunded += $net_refund;
             }
+            
         } else {
             $this->payment->refunded += $net_refund;
         }
@@ -348,6 +353,30 @@ class RefundPayment
                                   ->service()
                                   ->updateBalanceAndPaidToDate($refunded_invoice['amount'], -1 * $refunded_invoice['amount'])
                                   ->save();
+
+                try {
+                    $invoice->loadMissing(['client.country', 'client.company']);
+
+                    if ($invoice->client->reportableFrTransaction()) {
+                        $paymentable = Paymentable::withTrashed()
+                            ->where('payment_id', $this->payment->id)
+                            ->where('paymentable_id', $invoice->id)
+                            ->where('paymentable_type', 'invoices')
+                            ->latest('id')
+                            ->first();
+
+                        app(FrancePaymentApplicationRecorder::class)->recordMovement(
+                            payment: $this->payment,
+                            invoice: $invoice,
+                            paymentable: $paymentable,
+                            movementAmount: -1 * $refunded_invoice['amount'],
+                            movementDate: $this->refund_data['date'] ?? now()->toDateString(),
+                            movementType: FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
+                        );
+                    }
+                } catch (\Throwable $exception) {
+                    report($exception);
+                }
 
                 if ($invoice->is_deleted) {
                     $invoice->delete();

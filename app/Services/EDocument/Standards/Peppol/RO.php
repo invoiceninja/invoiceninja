@@ -12,17 +12,17 @@
 
 namespace App\Services\EDocument\Standards\Peppol;
 
+use App\Models\Client;
 use App\Services\EDocument\Gateway\MutatorUtil;
 
 class RO extends BaseCountry
 {
-    public function getRoutingRules(): ?array
+    public function getNetworkOverrides(?Client $client = null): array
     {
-        return ["G+B", "", "RO:VAT", "RO:VAT"];
-    }
+        if ($client && $client->company->country()->iso_3166_2 !== 'RO') {
+            return [];
+        }
 
-    public function getNetworkOverrides(): array
-    {
         return [['application' => 'ro-anaf', 'settings' => ['enabled' => true]]];
     }
 
@@ -143,18 +143,21 @@ class RO extends BaseCountry
         $p_invoice->AccountingCustomerParty->Party->PostalAddress->CityName = $resolved_city;
 
         // Sort PartyIdentification by null values
-        $query = $p_invoice->AccountingSupplierParty->Party->PartyIdentification;
-        usort($query, function ($a, $b) {
-            if ($a->value === null && $b->value !== null) {
-                return -1;
-            } //@phpstan-ignore-line
-            if ($a->value !== null && $b->value === null) {
-                return 1;
-            } //@phpstan-ignore-line
-            return 0;
-        });
-        $p_invoice->AccountingSupplierParty->Party->PartyIdentification = $query;
 
+        if(isset($p_invoice->AccountingSupplierParty->Party->PartyIdentification)){
+            $query = $p_invoice->AccountingSupplierParty->Party->PartyIdentification;
+            usort($query, function ($a, $b) {
+                if ($a->value === null && $b->value !== null) {
+                    return -1;
+                } //@phpstan-ignore-line
+                if ($a->value !== null && $b->value === null) {
+                    return 1;
+                } //@phpstan-ignore-line
+                return 0;
+            });
+            $p_invoice->AccountingSupplierParty->Party->PartyIdentification = $query;
+        }
+        
         return $p_invoice;
     }
 

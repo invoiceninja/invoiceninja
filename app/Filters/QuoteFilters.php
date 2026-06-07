@@ -135,6 +135,22 @@ class QuoteFilters extends QueryFilters
         return $this->builder;
     }
 
+    /**
+     * Comparable `date` / `due_date` filters. Canonical prefix
+     * `op:value` (`gte:2026-01-01`); a bare date keeps `>=`. `date` is a
+     * DATE column (comparableDate); `due_date` is DATETIME
+     * (comparableDatetime — index-safe per-calendar-day range).
+     */
+    public function date(string $date = ''): Builder
+    {
+        return $this->comparableDate('date', $date, '>=');
+    }
+
+    public function due_date(string $date = ''): Builder
+    {
+        return $this->comparableDatetime('due_date', $date, '>=');
+    }
+
     public function number($number = ''): Builder
     {
         if (strlen($number) == 0) {

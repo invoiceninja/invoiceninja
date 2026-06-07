@@ -197,6 +197,7 @@ class NordigenController extends BaseController
                 $bank_integration->provider_name = $nordigen_account['provider_name'];
                 $bank_integration->nickname = $nordigen_account['nickname'];
                 $bank_integration->currency = $nordigen_account['account_currency'];
+
             } finally {
 
                 if ($bank_integration) {
@@ -206,6 +207,7 @@ class NordigenController extends BaseController
                     $bank_integration->balance = $nordigen_account['current_balance'];
                     $bank_integration->bank_account_status = $nordigen_account['account_status'];
                     $bank_integration->from_date = now()->subDays($nordigen_account['provider_history']);
+                    $bank_integration->requisition_id = $context['requisitionId'];
 
                     $bank_integration->save();
 

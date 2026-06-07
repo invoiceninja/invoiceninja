@@ -71,13 +71,25 @@ class LegalEntityService
             return $add_identifier_response;
         }
 
-        // Country-specific additional identifiers (e.g. BE:EN, DK:DIGST)
+        // Country-specific additional identifiers (e.g. FR:SIRENE, BE:EN, DK:DIGST).
+        // Best-effort (does not roll back the legal entity), but a rejection must
+        // not be swallowed silently - log it so a missing identifier is detectable.
         foreach ($handler->getAdditionalIdentifiers($data) as $extra) {
-            $this->addIdentifier(
+            $extra_response = $this->addIdentifier(
                 legal_entity_id: $legal_entity_id,
                 identifier: $extra['identifier'],
                 scheme: $extra['scheme'],
             );
+
+            if (! is_array($extra_response)) {
+                nlog([
+                    'message' => 'Storecove rejected additional Peppol identifier registration',
+                    'legal_entity_id' => $legal_entity_id,
+                    'scheme' => $extra['scheme'],
+                    'identifier' => $extra['identifier'],
+                    'response' => $extra_response->json(),
+                ]);
+            }
         }
 
         return [
@@ -219,17 +231,17 @@ class LegalEntityService
 
     /**
      * Add an additional tax identifier for cross-border VAT registration.
+     * @param int $legal_entity_id
+     * @param array $data [identifier => string, scheme => string, country => string]
      */
-    public function addAdditionalTaxIdentifier(int $legal_entity_id, string $identifier, string $scheme): array|\Illuminate\Http\Client\Response
+    public function addAdditionalTaxIdentifier(int $legal_entity_id, array $data): array|\Illuminate\Http\Client\Response
     {
         $uri = "legal_entities/{$legal_entity_id}/additional_tax_identifiers";
 
-        $data = [
-            "identifier" => $identifier,
-            "scheme" => $scheme,
+        $data = array_merge($data, [
             "superscheme" => "iso6523-actorid-upis",
-        ];
-
+        ]);
+        
         $r = $this->storecove->httpClient($uri, (HttpVerb::POST)->value, $data);
 
         if ($r->successful()) {

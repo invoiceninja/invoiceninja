@@ -94,7 +94,7 @@ class AddTaxIdentifierRequest extends FormRequest
                         $fail("Individuals cannot register additional VAT numbers, only business entities");
                     }
                 },
-            ],
+            ]
         ];
     }
 
@@ -108,7 +108,7 @@ class AddTaxIdentifierRequest extends FormRequest
             $input['country_id'] = $country->id;
         }
 
-        $this->replace($input);
+        $this->merge($input);
 
     }
 

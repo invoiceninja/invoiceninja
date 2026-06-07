@@ -24,6 +24,7 @@ use App\Models\TransactionEvent;
 use App\DataMapper\CompanySettings;
 use App\Factory\InvoiceItemFactory;
 use App\Jobs\Cron\InvoiceTaxSummary;
+use App\Listeners\Invoice\InvoiceTransactionEventEntryCash;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 
@@ -373,6 +374,50 @@ class InvoiceTaxSummaryCashTest extends TestCase
             ->where('event_id', TransactionEvent::PAYMENT_CASH)
             ->count();
         $this->assertEquals(1, $cashCount, 'Second run should not create a duplicate cash entry');
+
+        $this->account->delete();
+    }
+
+    public function testCashEventWriterDoesNotCreateDuplicateForExistingInvoicePeriod(): void
+    {
+        $this->buildData('105');
+
+        Carbon::setTestNow(Carbon::parse('2026-03-15 12:00:00', 'UTC'));
+
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 0,
+            'balance' => 0,
+            'status_id' => Invoice::STATUS_SENT,
+            'total_taxes' => 1,
+            'date' => '2026-03-15',
+            'terms' => '',
+            'discount' => 0,
+            'tax_rate1' => 10,
+            'tax_name1' => 'GST',
+            'uses_inclusive_taxes' => false,
+            'line_items' => $this->buildLineItems(),
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->service()->markSent()->save();
+        $invoice->service()->markPaid()->save();
+        $invoice = $invoice->fresh();
+
+        TransactionEvent::where('invoice_id', $invoice->id)->delete();
+
+        $writer = new InvoiceTransactionEventEntryCash();
+        $writer->run($invoice, '2026-03-01', '2026-03-31');
+        $writer->run($invoice->fresh(), '2026-03-01', '2026-03-31');
+
+        $cashEvents = TransactionEvent::where('invoice_id', $invoice->id)
+            ->where('event_id', TransactionEvent::PAYMENT_CASH)
+            ->get();
+
+        $this->assertCount(1, $cashEvents);
+        $this->assertEquals('2026-03-31', $cashEvents->first()->period->format('Y-m-d'));
 
         $this->account->delete();
     }

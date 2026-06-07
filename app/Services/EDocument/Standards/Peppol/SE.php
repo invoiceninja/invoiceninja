@@ -12,6 +12,8 @@
 
 namespace App\Services\EDocument\Standards\Peppol;
 
+use App\Models\Client;
+
 /**
  * Sweden - Svefaktura
  *
@@ -20,16 +22,15 @@ namespace App\Services\EDocument\Standards\Peppol;
  */
 class SE extends BaseCountry
 {
-    public function getRoutingRules(): ?array
-    {
-        return ["G+B", "SE:ORGNR", "SE:VAT", "SE:ORGNR"];
-    }
-
     /**
      * Enable Svefaktura network for Swedish receivers.
      */
-    public function getNetworkOverrides(): array
+    public function getNetworkOverrides(?Client $client = null): array
     {
+        if ($client && $client->country?->iso_3166_2 !== 'SE') {
+            return [];
+        }
+
         return [[
             'application' => 'svefaktura',
             'settings' => ['enabled' => true],

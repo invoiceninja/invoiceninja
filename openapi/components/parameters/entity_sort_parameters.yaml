@@ -1,0 +1,666 @@
+# Entity-specific `sort` query parameters (query name is always `sort`). Appended under components.parameters — 4-space indent for keys.
+    sort_clients:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — pass one argument, for example `sort=id|desc`.
+
+        **Multiple sorts** — chain ordering with repeated `sort[]` keys. The first is the main sort, the next breaks ties, and so on, for example  
+        `sort[]=id|desc&sort[]=number|asc`.
+
+        For clients, the API honors `clients` columns (such as `name`, `balance`, `number`), natural ordering for `number`, plus `contacts`, `contact_email`, and `name` / `display_name` (display name is normalized to `name`). Values that are not supported are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "name|desc"
+          - "balance|asc"
+    sort_invoices:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=balance|desc`.
+
+        **Multiple sorts** — use `sort[]` for each level in priority order, for example  
+        `sort[]=id|desc&sort[]=number|asc`.
+
+        Invoices accept columns on the `invoices` table, relationship-style keys such as `client.name`, `client_id`, `documents`, `project_id`, and prefixed `client.*` / `contact.*` sorts where the filter supports them. `number` and `status_id` have special handling. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "number|asc"
+          - "balance|desc"
+    sort_quotes:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=date|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=number|asc`.
+
+        Quotes follow the same style as invoices: base `quotes` columns plus `client.name`, `client_id`, `documents`, and `client.*` / `contact.*` where implemented. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "number|asc"
+          - "id|desc"
+    sort_payments:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=date|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=amount|asc`.
+
+        Payments accept `payments` columns plus client, contact, and document-related sorts defined in the payment filters. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "date|desc"
+          - "amount|asc"
+    sort_products:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=product_key|asc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=product_key|asc`.
+
+        Only real columns on the `products` table are recognized (for example `id`, `product_key`, `cost`, `price`). Relationship sorts are not available here. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "product_key|asc"
+          - "id|desc"
+    sort_recurring_invoices:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=next_send_date|asc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=number|asc`.
+
+        Recurring invoices use the recurring-invoice table columns plus the client/contact-style sorts exposed by `RecurringInvoiceFilters`. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "number|asc"
+          - "next_send_date|desc"
+    sort_locations:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=name|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=name|asc&sort[]=id|desc`.
+
+        Location ordering is limited by the filter: `name` is the primary supported case; other column names must exist on the locations schema to take effect.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "name|desc"
+    sort_projects:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=due_date|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=name|asc`.
+
+        Projects accept `projects` columns plus `client.name`, `client_id`, `contact.*`, `documents`, and dotted `client.*` / `contact.*` relationship sorts where supported. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "name|asc"
+          - "due_date|desc"
+    sort_credits:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=balance|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=number|asc&sort[]=date|desc`.
+
+        Credits accept credit table columns plus `client.name`, `client_id`, `documents`, and `client.*` / `contact.*` style keys per `CreditFilters`. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "number|asc"
+          - "balance|desc"
+    sort_vendors:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=name|asc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=name|asc`.
+
+        Vendors use vendor table columns and any relationship sorts implemented in `VendorFilters` (such as `client.name` or document counts where applicable). Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "name|asc"
+          - "id|desc"
+    sort_tasks:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=due_date|asc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=status_id|asc&sort[]=id|desc`.
+
+        Tasks accept `tasks` columns plus `client.name`, `client_id`, `contact.*`, and `documents` where the filter implements them. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "due_date|asc"
+          - "id|desc"
+    sort_purchase_orders:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=date|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=number|asc&sort[]=date|desc`.
+
+        Purchase orders use PO table columns and vendor- or client-related sorts as defined in `PurchaseOrderFilters`. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "number|asc"
+          - "date|desc"
+    sort_bank_integrations:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=id|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=created_at|asc`.
+
+        Only columns on `bank_integrations` are recognized. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "id|desc"
+    sort_bank_transactions:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=date|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=amount|asc&sort[]=date|desc`.
+
+        Bank transactions accept columns and relationship sorts exposed by `BankTransactionFilters`. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "date|desc"
+          - "amount|asc"
+    sort_bank_transaction_rules:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=id|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=name|asc`.
+
+        Only columns defined for the bank transaction rules model are honored. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "id|desc"
+    sort_company_gateways:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=label|asc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=label|asc`.
+
+        Sorting is limited to columns on the company gateways table (for example `label`, `id`). Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "label|asc"
+    sort_designs:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=name|asc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=name|asc`.
+
+        Only `designs` table columns apply. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "name|asc"
+    sort_documents:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=created_at|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=created_at|asc`.
+
+        Documents accept base table columns and any extra relationship sorts implemented in `DocumentFilters`. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "created_at|desc"
+    sort_expense_categories:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=name|asc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=name|asc`.
+
+        Only columns on `expense_categories` are recognized. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "name|asc"
+    sort_expenses:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=date|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=amount|asc&sort[]=date|desc`.
+
+        Expenses accept expense columns plus client, contact, and document-related sorts per `ExpenseFilters`. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "date|desc"
+          - "amount|asc"
+    sort_group_settings:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=id|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=updated_at|asc`.
+
+        Only `group_settings` columns are honored. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "id|desc"
+    sort_payment_terms:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=number_of_days|asc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=name|asc&sort[]=number_of_days|asc`.
+
+        Sorting follows the payment term table schema. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "number_of_days|asc"
+    sort_recurring_expenses:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=next_send_date|asc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=amount|desc`.
+
+        Recurring expenses combine table columns with client- or vendor-related sorts from `RecurringExpenseFilters`. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "next_send_date|asc"
+    sort_recurring_quotes:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=next_send_date|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=number|asc&sort[]=id|desc`.
+
+        Recurring quotes use their table columns and related sorts from `RecurringQuoteFilters`. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "number|asc"
+    sort_subscriptions:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=created_at|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=created_at|asc`.
+
+        Only `subscriptions` table columns are recognized. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "created_at|desc"
+    sort_system_logs:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=created_at|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=created_at|desc`.
+
+        Log rows sort by columns exposed through `SystemLogFilters`. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "created_at|desc"
+    sort_task_statuses:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=sort_order|asc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=sort_order|asc&sort[]=name|asc`.
+
+        Only `task_statuses` columns are recognized. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "sort_order|asc"
+    sort_tax_rates:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=name|asc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=rate|asc&sort[]=name|asc`.
+
+        Only `tax_rates` table columns apply. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "name|asc"
+    sort_tokens:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=name|asc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=name|asc`.
+
+        Company tokens sort by columns on `company_tokens`. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "name|asc"
+    sort_users:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=email|asc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=last_name|asc&sort[]=first_name|asc`.
+
+        Only `users` table columns are recognized. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "first_name|asc"
+          - "email|asc"
+    sort_webhooks:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=created_at|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=created_at|asc`.
+
+        Only `webhooks` table columns apply. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "created_at|desc"

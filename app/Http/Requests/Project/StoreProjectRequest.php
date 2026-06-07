@@ -22,6 +22,9 @@ class StoreProjectRequest extends Request
 {
     use MakesHash;
 
+    /** @var class-string */
+    protected ?string $tag_entity_type = Project::class;
+
     /**
      * Determine if the user is authorized to make this request.
      *

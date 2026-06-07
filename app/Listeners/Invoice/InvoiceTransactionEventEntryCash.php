@@ -17,6 +17,7 @@ use App\Models\TransactionEvent;
 use Illuminate\Support\Collection;
 use App\DataMapper\TransactionEventMetadata;
 use App\Services\Report\TaxPeriod\TaxClassificationCalculator;
+use App\Services\Report\TaxPeriod\SalesBreakdownCalculator;
 
 /**
  * Handles entries for vanilla payments on an invoice.
@@ -32,14 +33,19 @@ class InvoiceTransactionEventEntryCash
      * Handle the event.
      *
      */
-    public function run($invoice, $start_date, $end_date)
+    public function run(?Invoice $invoice, string $start_date, string $end_date): void
     {
 
-        if (!$invoice) {
+        if (!$invoice || $invoice->transaction_events()
+            ->where('event_id', TransactionEvent::PAYMENT_CASH)
+            ->where('period', $end_date)
+            ->exists()) {
             return;
         }
 
         $this->payments = $invoice->payments->map(function ($payment) use ($invoice, $start_date, $end_date) {
+            
+            /** @var mixed $pivot */
             $pivot = $payment->invoices()->where('paymentable_id', $invoice->id)->first()?->pivot;
 
             if (!$pivot) {
@@ -63,6 +69,7 @@ class InvoiceTransactionEventEntryCash
         $this->setPaidRatio($invoice);
 
         TransactionEvent::create([
+            'company_id' => $invoice->company_id,
             'invoice_id' => $invoice->id,
             'client_id' => $invoice->client_id,
             'client_balance' => $invoice->client->balance,
@@ -97,7 +104,7 @@ class InvoiceTransactionEventEntryCash
         return $this;
     }
 
-    private function getMetadata($invoice)
+    private function getMetadata(Invoice $invoice): TransactionEventMetadata
     {
 
         $calc = $invoice->calc();
@@ -123,6 +130,7 @@ class InvoiceTransactionEventEntryCash
             'tax_report' => [
                 'tax_details' => $details,
                 'tax_details_by_classification' => TaxClassificationCalculator::calculate($invoice, $this->paid_ratio, $details),
+                'sales_breakdown' => SalesBreakdownCalculator::calculate($invoice, $this->paid_ratio),
                 'payment_history' => $this->payments->toArray(),
                 'tax_summary' => [
                     'tax_amount' => $invoice->total_taxes * $this->paid_ratio,

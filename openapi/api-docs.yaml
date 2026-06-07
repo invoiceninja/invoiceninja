@@ -118,6 +118,102 @@ servers:
     description: |
       ## Production API endpoint
 paths:
+
+  /api/v1/login:
+    post:
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          
+      - lang: curl
+        label: curl
+        source: |
+          curl --request POST \
+            --url 'https://demo.invoiceninja.com/api/v1/login?include=company,token' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'X-Requested-With: XMLHttpRequest' \
+            --header 'Accept: application/json'
+      tags:
+        - auth
+      summary: "Login"
+      description: |
+
+      operationId: postLogin
+      parameters:
+        - $ref: "#/components/parameters/X-API-SECRET"
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/login_include"
+        - $ref: "#/components/parameters/include_static"
+        - $ref: "#/components/parameters/clear_cache"
+      requestBody:
+        description: |
+          User credentials
+
+          ```json
+          {
+            "email" : "fred@flintstonze.com",
+            "password" : "magicpassword123",
+            "one_time_password" : "12345",
+          }
+          ```
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  description: "The users email address."
+                  type: string
+                  example: "demo@invoiceninja.com"
+                password:
+                  description: "The user password. Optional when performing passkey passwordless login."
+                  type: string
+                  example: "Password0"
+                one_time_password:
+                  description: "The one time password if 2FA is enabled"
+                  type: string
+                  example: "123456"
+                passkey_challenge_token:
+                  description: "Challenge token returned by passkey login options or second-factor challenge."
+                  type: string
+                  example: "f8f0cf1f4f6c4de5b6d6c5d4a0f8e5b2b89e1f1a"
+                passkey_authentication:
+                  description: "WebAuthn assertion payload."
+                  type: object
+                  additionalProperties: true
+              required:
+                - email
+              type: object
+      responses:
+        200:
+          description: "Returns the company user object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompanyUser"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        429:
+          $ref: "#/components/responses/429"
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"
+
   /api/v1/activities:
     get:
       tags:
@@ -311,7 +407,7 @@ paths:
   /api/v1/settings/passkeys:
     get:
       tags:
-        - settings
+        - auth
       summary: "List passkeys"
       operationId: getSettingsPasskeys
       parameters:
@@ -325,7 +421,7 @@ paths:
           $ref: "#/components/responses/default"
     post:
       tags:
-        - settings
+        - auth
       summary: "Create passkey"
       operationId: postSettingsPasskeys
       parameters:
@@ -360,7 +456,7 @@ paths:
   /api/v1/settings/passkeys/options:
     post:
       tags:
-        - settings
+        - auth
       summary: "Passkey registration options"
       operationId: postSettingsPasskeysOptions
       parameters:
@@ -376,7 +472,7 @@ paths:
   /api/v1/settings/passkeys/{passkey}:
     delete:
       tags:
-        - settings
+        - auth
       summary: "Delete passkey"
       operationId: deleteSettingsPasskey
       parameters:
@@ -396,100 +492,6 @@ paths:
         default:
           $ref: "#/components/responses/default"
 
-  /api/v1/login:
-    post:
-      x-codeSamples:
-      - lang: php
-        label: php
-        source: |
-          $ninja = new InvoiceNinja("your_token");
-          
-      - lang: curl
-        label: curl
-        source: |
-          curl --request POST \
-            --url 'https://demo.invoiceninja.com/api/v1/login?include=company,token' \
-            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
-            --header 'X-Requested-With: XMLHttpRequest' \
-            --header 'Accept: application/json'
-      tags:
-        - auth
-      summary: "Login"
-      description: |
-
-      operationId: postLogin
-      parameters:
-        - $ref: "#/components/parameters/X-API-SECRET"
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/login_include"
-        - $ref: "#/components/parameters/include_static"
-        - $ref: "#/components/parameters/clear_cache"
-      requestBody:
-        description: |
-          User credentials
-
-          ```json
-          {
-            "email" : "fred@flintstonze.com",
-            "password" : "magicpassword123",
-            "one_time_password" : "12345",
-          }
-          ```
-        required: true
-        content:
-          application/json:
-            schema:
-              properties:
-                email:
-                  description: "The users email address."
-                  type: string
-                  example: "demo@invoiceninja.com"
-                password:
-                  description: "The user password. Optional when performing passkey passwordless login."
-                  type: string
-                  example: "Password0"
-                one_time_password:
-                  description: "The one time password if 2FA is enabled"
-                  type: string
-                  example: "123456"
-                passkey_challenge_token:
-                  description: "Challenge token returned by passkey login options or second-factor challenge."
-                  type: string
-                  example: "f8f0cf1f4f6c4de5b6d6c5d4a0f8e5b2b89e1f1a"
-                passkey_authentication:
-                  description: "WebAuthn assertion payload."
-                  type: object
-                  additionalProperties: true
-              required:
-                - email
-              type: object
-      responses:
-        200:
-          description: "Returns the company user object"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/CompanyUser"
-        401:
-          $ref: "#/components/responses/401"
-        403:
-          $ref: "#/components/responses/403"
-        422:
-          $ref: "#/components/responses/422"
-        429:
-          $ref: "#/components/responses/429"
-        5XX:
-          description: 'Server error'
-        default:
-          $ref: "#/components/responses/default"
   /api/v1/refresh:
     post:
       tags:
@@ -599,6 +601,7 @@ paths:
           example: 50
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_bank_integrations"
       responses:
         200:
           description: "A list of bank integrations"
@@ -1056,6 +1059,7 @@ paths:
           example: 50
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_bank_transactions"
       responses:
         200:
           description: "A list of bank integrations"
@@ -1464,6 +1468,7 @@ paths:
           example: 50
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_bank_transaction_rules"
       responses:
         200:
           description: "A list of bank integrations"
@@ -2668,6 +2673,7 @@ paths:
         - $ref: "#/components/parameters/include"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_company_gateways"
       responses:
         200:
           description: "A list of company_gateways"
@@ -3102,6 +3108,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_designs"
       responses:
         200:
           description: "A list of designs"
@@ -3419,6 +3426,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_documents"
       responses:
         200:
           description: "A list of documents"
@@ -3537,6 +3545,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_expense_categories"
       responses:
         200:
           description: "A list of expense_categories"
@@ -3842,6 +3851,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_expenses"
       responses:
         200:
           description: "A list of expenses"
@@ -4236,6 +4246,7 @@ paths:
         - $ref: "#/components/parameters/include"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_group_settings"
       responses:
         200:
           description: "A list of group_settings"
@@ -5468,6 +5479,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_payment_terms"
       responses:
         200:
           description: "A list of payment terms"
@@ -5941,6 +5953,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_recurring_expenses"
       responses:
         200:
           description: "A list of recurring_expenses"
@@ -6309,6 +6322,7 @@ paths:
         - $ref: "#/components/parameters/include"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_recurring_quotes"
       responses:
         200:
           description: "A list of recurring_quotes"
@@ -7676,6 +7690,7 @@ paths:
         - $ref: "#/components/parameters/include"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_subscriptions"
       responses:
         200:
           description: "A list of subscriptions"
@@ -8056,6 +8071,7 @@ paths:
         - $ref: "#/components/parameters/include"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_system_logs"
       responses:
         200:
           description: "A list of system logs"
@@ -8378,6 +8394,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_task_statuses"
       responses:
         200:
           description: "A list of task statuses"
@@ -8562,7 +8579,7 @@ paths:
           $ref: "#/components/responses/default"
     delete:
       tags:
-        - task_statuss
+        - task_status
       summary: "Deletes a TaskStatus Term"
       description: "Handles the deletion of an TaskStatus by id"
       operationId: deleteTaskStatus
@@ -8692,6 +8709,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_tax_rates"
       responses:
         200:
           description: "A list of tax_rates"
@@ -9086,6 +9104,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_tokens"
       responses:
         200:
           description: "A list of tokens"
@@ -9395,6 +9414,7 @@ paths:
         - $ref: "#/components/parameters/include"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_users"
       responses:
         200:
           description: "A list of users"
@@ -9852,6 +9872,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_webhooks"
       responses:
         200:
           description: "A list of Webhooks"
@@ -10178,6 +10199,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_credits"
       responses:
         200:
           description: "A list of credits"
@@ -10645,6 +10667,377 @@ paths:
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
+  /api/v1/tags:
+    get:
+      tags:
+        - tags
+      summary: 'List tags'
+      description: |
+        Lists company tags for a single taggable entity type.
+
+        `entity_type` is required so task tags and project tags never bleed into the same picker.
+      operationId: getTags
+      x-codeSamples:
+        - lang: curl
+          label: curl
+          source: |
+            curl -X GET 'https://demo.invoiceninja.com/api/v1/tags?entity_type=App%5CModels%5CTask' \
+              -H "X-API-TOKEN: YOUR-TOKEN" \
+              -H "X-Requested-With: XMLHttpRequest"
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - $ref: '#/components/parameters/index'
+        - $ref: '#/components/parameters/per_page_meta'
+        - $ref: '#/components/parameters/page_meta'
+        - name: entity_type
+          in: query
+          description: 'Supported values: App\Models\Task, App\Models\Project'
+          required: true
+          schema:
+            type: string
+            enum:
+              - 'task'
+              - 'project'
+          example: 'App\Models\Task'
+        - name: filter
+          in: query
+          description: 'Search by tag name'
+          required: false
+          schema:
+            type: string
+          example: urgent
+        - name: sort
+          in: query
+          description: 'Sort using column|direction, for example name|asc or created_at|desc'
+          required: false
+          schema:
+            type: string
+          example: name|asc
+      responses:
+        200:
+          description: 'A list of tags'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Tag'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+    post:
+      tags:
+        - tags
+      summary: 'Create tag'
+      description: 'Creates a tag catalog entry for a supported entity type.'
+      operationId: storeTag
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        description: 'Tag object that needs to be added to the company catalog'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagRequest'
+            example:
+              entity_type: 'task'
+              name: Urgent
+              color: '#FF0000'
+      responses:
+        200:
+          description: 'Returns the saved tag object'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Tag'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+  /api/v1/tags/create:
+    get:
+      tags:
+        - tags
+      summary: 'Blank tag'
+      description: 'Returns a blank tag object with default values.'
+      operationId: getTagsCreate
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+      responses:
+        200:
+          description: 'A blank tag object'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Tag'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        429:
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+  '/api/v1/tags/{id}':
+    get:
+      tags:
+        - tags
+      summary: 'Show tag'
+      description: 'Displays a tag by id.'
+      operationId: showTag
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - name: id
+          in: path
+          description: 'The tag hashed ID'
+          required: true
+          schema:
+            type: string
+          example: Opnel5aKBz
+      responses:
+        200:
+          description: 'Returns the tag object'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Tag'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          description: 'Tag not found'
+        429:
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+    put:
+      tags:
+        - tags
+      summary: 'Update tag'
+      description: 'Updates a tag name or color. `entity_type` is immutable and should not be sent.'
+      operationId: updateTag
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - name: id
+          in: path
+          description: 'The tag hashed ID'
+          required: true
+          schema:
+            type: string
+          example: Opnel5aKBz
+      requestBody:
+        description: 'Tag fields to update'
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 191
+                  example: High priority
+                color:
+                  type: string
+                  nullable: true
+                  pattern: '^#(?:[0-9a-fA-F]{3}){1,2}$'
+                  example: '#FF5500'
+      responses:
+        200:
+          description: 'Returns the updated tag object'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Tag'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          description: 'Tag not found'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+    delete:
+      tags:
+        - tags
+      summary: 'Delete tag'
+      description: 'Soft-deletes a tag catalog entry and cascades its pivot assignments.'
+      operationId: deleteTag
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - name: id
+          in: path
+          description: 'The tag hashed ID'
+          required: true
+          schema:
+            type: string
+          example: Opnel5aKBz
+      responses:
+        200:
+          description: 'Returns the deleted tag object'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Tag'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          description: 'Tag not found'
+        429:
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+  '/api/v1/tags/{id}/edit':
+    get:
+      tags:
+        - tags
+      summary: 'Edit tag'
+      description: 'Displays a tag by id for editing.'
+      operationId: editTag
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - name: id
+          in: path
+          description: 'The tag hashed ID'
+          required: true
+          schema:
+            type: string
+          example: Opnel5aKBz
+      responses:
+        200:
+          description: 'Returns the tag object'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Tag'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          description: 'Tag not found'
+        429:
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+  /api/v1/tags/bulk:
+    post:
+      tags:
+        - tags
+      summary: 'Bulk tag actions'
+      description: 'Archives, restores, or deletes multiple tags.'
+      operationId: bulkTags
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - name: action
+          in: query
+          description: 'Action to perform'
+          required: true
+          schema:
+            type: string
+            enum:
+              - archive
+              - restore
+              - delete
+          example: archive
+      requestBody:
+        description: 'Bulk tag action payload'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagBulkAction'
+            example:
+              ids:
+                - Opnel5aKBz
+      responses:
+        200:
+          description: 'Returns the affected tag objects'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Tag'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
   /api/v1/locations:
     get:
       tags:
@@ -10674,10 +11067,11 @@ paths:
         /api/v1/locations?name=warehouse*
         ```
         
-        You can also sort the results:
-        
+        Sorting uses `column|asc` or `column|desc`. Use a single `sort` parameter for one column, or repeated `sort[]` parameters for multi-level ordering (first is primary):
+
         ```html
-        /api/v1/locations?sort=name|desc
+        /api/v1/locations?sort=id|desc
+        /api/v1/locations?sort[]=id|desc&sort[]=name|asc
         ```
 
         For pagination, use per_page and page parameters:
@@ -10694,6 +11088,7 @@ paths:
         - $ref: '#/components/parameters/index'
         - $ref: '#/components/parameters/per_page_meta'
         - $ref: '#/components/parameters/page_meta'
+        - $ref: '#/components/parameters/sort_locations'
         - name: name
           in: query
           description: |
@@ -10706,18 +11101,6 @@ paths:
           schema:
             type: string
           example: warehouse
-        - name: sort
-          in: query
-          description: |
-            Returns the list sorted by column in ascending or descending order.
-            
-            ```html
-              ?sort=name|desc
-            ```
-          required: false
-          schema:
-            type: string
-          example: name|desc
       responses:
         200:
           description: 'A list of locations'
@@ -11189,6 +11572,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_recurring_invoices"
         - $ref: "#/components/parameters/client_id"
         - $ref: "#/components/parameters/created_at"
         - $ref: "#/components/parameters/updated_at"
@@ -11219,13 +11603,6 @@ paths:
           schema:
             type: string
           example: ?client_status=active,paused
-        - name: sort
-          in: query
-          description: Returns the list sorted by column in ascending or descending order.
-          required: false
-          schema:
-            type: string
-          example: id|desc number|desc balance|asc 
         - name: number
           in: query
           description: |
@@ -11899,6 +12276,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_tasks"
       responses:
         200:
           description: "A list of tasks"
@@ -12506,6 +12884,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_quotes"
         - $ref: "#/components/parameters/status"
         - $ref: "#/components/parameters/client_id"
         - $ref: "#/components/parameters/created_at"
@@ -12548,13 +12927,6 @@ paths:
           schema:
             type: string
           example: ?number=Q-001
-        - name: sort
-          in: query
-          description: Returns the list sorted by column in ascending or descending order.
-          required: false
-          schema:
-            type: string
-          example: id|desc number|desc balance|asc 
       responses:
         200:
           description: "A list of quotes"
@@ -13356,6 +13728,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_invoices"
         - $ref: "#/components/parameters/status"
         - $ref: "#/components/parameters/client_id"
         - $ref: "#/components/parameters/created_at"
@@ -13427,13 +13800,6 @@ paths:
           schema:
             type: string
           example: ?payable={client_id}
-        - name: sort
-          in: query
-          description: Returns the list sorted by column in ascending or descending order.
-          required: false
-          schema:
-            type: string
-          example: id|desc number|desc balance|asc 
         - name: private_notes
           in: query
           description: |
@@ -14399,6 +14765,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_projects"
       responses:
         200:
           description: "A list of projects"
@@ -14936,6 +15303,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_vendors"
       responses:
         200:
           description: "A list of vendors"
@@ -15499,6 +15867,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_payments"
         - $ref: "#/components/parameters/status"
         - $ref: "#/components/parameters/client_id"
         - $ref: "#/components/parameters/created_at"
@@ -15528,13 +15897,6 @@ paths:
           schema:
             type: string
           example: ?number=0001
-        - name: sort
-          in: query
-          description: Returns the list sorted by column in ascending or descending order.
-          required: false
-          schema:
-            type: string
-          example: id|desc number|desc balance|asc 
       responses:
         200:
           description: "A list of payments"
@@ -16124,7 +16486,7 @@ paths:
             You can also combine multiple filters together. The following example will return clients that have a balance greater than 1000 and are not deleted and have a name that starts with "Bob"
             
             ```
-            /api/v1/clients?balance=gt:1000&name=Bob*
+            /api/v1/clients?balance=gt:1000&name=Bob
             ```
 
             If you wish to retrieve child relations, you can also combine the query parameter `?include=` with a comma separated list of relationships
@@ -16149,6 +16511,7 @@ paths:
         - $ref: '#/components/parameters/index'
         - $ref: '#/components/parameters/per_page_meta'
         - $ref: '#/components/parameters/page_meta'
+        - $ref: "#/components/parameters/sort_clients"
         - $ref: "#/components/parameters/status"
         - $ref: "#/components/parameters/created_at"
         - $ref: "#/components/parameters/updated_at"
@@ -16165,7 +16528,7 @@ paths:
           required: false
           schema:
             type: string
-          example: bob
+          example: Acme Corporation
         - name: balance
           in: query
           description: |
@@ -16198,24 +16561,24 @@ paths:
             Filter by client email
 
             ```html
-            ?email=bob@gmail.com
+            ?email=jane.doe@acme.com
             ```
           required: false
           schema:
             type: string
-          example: bob@gmail.com
+          example: jane.doe@acme.com
         - name: id_number
           in: query
           description: |
             Filter by client id_number
 
             ```html
-            ?id_number=0001
+            ?id_number=ACME-0001
             ```
           required: false
           schema:
             type: string
-          example: a1039883
+          example: ACME-0001
         - name: number
           in: query
           description: |
@@ -16227,7 +16590,7 @@ paths:
           required: false
           schema:
             type: string
-          example: a1039883
+          example: "0002"
         - name: filter
           in: query
           description: |
@@ -16252,34 +16615,19 @@ paths:
           required: false
           schema:
             type: string
-          example: a1039883
-        - name: sort
-          in: query
-          description: |
-            Returns the list sorted by column in ascending or descending order.
-
-            Ensure you use column | direction, ie.
-
-            ```html
-              ?sort=id|desc
-            ```
-          required: false
-          schema:
-            type: string
-          example: id|desc name|desc balance|asc 
-
+          example: Bobby
         - name: group
           in: query
           description: |
             Returns the list of clients assigned to {group_id}
 
             ```html
-              ?group=X89sjd8
+              ?group=Wpmbk5ezJn
             ```
           required: false
           schema:
             type: string
-          example: X89sjd8
+          example: Wpmbk5ezJn
 
         - name: client_id
           in: query
@@ -16287,12 +16635,12 @@ paths:
             Returns the list of clients with {client_id} - proxy call to retrieve a client_id wrapped in an array
 
             ```html
-              ?client_id=X89sjd8
+              ?client_id=Opnel5aKBz
             ```
           required: false
           schema:
             type: string
-          example: X89sjd8
+          example: Opnel5aKBz
 
       responses:
         200:
@@ -17336,6 +17684,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_purchase_orders"
       responses:
         200:
           description: "A list of purchase orders"
@@ -17947,6 +18296,7 @@ paths:
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_products"
         - $ref: "#/components/parameters/status"
         - $ref: "#/components/parameters/client_id"
         - $ref: "#/components/parameters/created_at"
@@ -17968,13 +18318,6 @@ paths:
           schema:
             type: string
           example: bob
-        - name: sort
-          in: query
-          description: Returns the list sorted by column in ascending or descending order.
-          required: false
-          schema:
-            type: string
-          example: id|desc product_key|desc  
       responses:
         200:
           description: "A list of products"
@@ -18533,11 +18876,7 @@ components:
       description: 'The total number of requests in a given time window.'
       schema:
         type: integer
-  securitySchemes:
-    ApiKeyAuth:        
-      type: apiKey
-      in: header       
-      name: X-API-TOKEN 
+
   #examples:
    # Client:
    #   $ref: '#/components/schemas/Client'
@@ -18906,7 +19245,674 @@ components:
       schema:
         type: number
         example: 1
-   
+
+# Entity-specific `sort` query parameters (query name is always `sort`). Appended under components.parameters — 4-space indent for keys.
+    sort_clients:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — pass one argument, for example `sort=id|desc`.
+
+        **Multiple sorts** — chain ordering with repeated `sort[]` keys. The first is the main sort, the next breaks ties, and so on, for example  
+        `sort[]=id|desc&sort[]=number|asc`.
+
+        For clients, the API honors `clients` columns (such as `name`, `balance`, `number`), natural ordering for `number`, plus `contacts`, `contact_email`, and `name` / `display_name` (display name is normalized to `name`). Values that are not supported are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "name|desc"
+          - "balance|asc"
+    sort_invoices:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=balance|desc`.
+
+        **Multiple sorts** — use `sort[]` for each level in priority order, for example  
+        `sort[]=id|desc&sort[]=number|asc`.
+
+        Invoices accept columns on the `invoices` table, relationship-style keys such as `client.name`, `client_id`, `documents`, `project_id`, and prefixed `client.*` / `contact.*` sorts where the filter supports them. `number` and `status_id` have special handling. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "number|asc"
+          - "balance|desc"
+    sort_quotes:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=date|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=number|asc`.
+
+        Quotes follow the same style as invoices: base `quotes` columns plus `client.name`, `client_id`, `documents`, and `client.*` / `contact.*` where implemented. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "number|asc"
+          - "id|desc"
+    sort_payments:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=date|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=amount|asc`.
+
+        Payments accept `payments` columns plus client, contact, and document-related sorts defined in the payment filters. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "date|desc"
+          - "amount|asc"
+    sort_products:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=product_key|asc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=product_key|asc`.
+
+        Only real columns on the `products` table are recognized (for example `id`, `product_key`, `cost`, `price`). Relationship sorts are not available here. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "product_key|asc"
+          - "id|desc"
+    sort_recurring_invoices:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=next_send_date|asc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=number|asc`.
+
+        Recurring invoices use the recurring-invoice table columns plus the client/contact-style sorts exposed by `RecurringInvoiceFilters`. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "number|asc"
+          - "next_send_date|desc"
+    sort_locations:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=name|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=name|asc&sort[]=id|desc`.
+
+        Location ordering is limited by the filter: `name` is the primary supported case; other column names must exist on the locations schema to take effect.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "name|desc"
+    sort_projects:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=due_date|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=name|asc`.
+
+        Projects accept `projects` columns plus `client.name`, `client_id`, `contact.*`, `documents`, and dotted `client.*` / `contact.*` relationship sorts where supported. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "name|asc"
+          - "due_date|desc"
+    sort_credits:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=balance|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=number|asc&sort[]=date|desc`.
+
+        Credits accept credit table columns plus `client.name`, `client_id`, `documents`, and `client.*` / `contact.*` style keys per `CreditFilters`. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "number|asc"
+          - "balance|desc"
+    sort_vendors:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=name|asc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=name|asc`.
+
+        Vendors use vendor table columns and any relationship sorts implemented in `VendorFilters` (such as `client.name` or document counts where applicable). Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "name|asc"
+          - "id|desc"
+    sort_tasks:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=due_date|asc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=status_id|asc&sort[]=id|desc`.
+
+        Tasks accept `tasks` columns plus `client.name`, `client_id`, `contact.*`, and `documents` where the filter implements them. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "due_date|asc"
+          - "id|desc"
+    sort_purchase_orders:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=date|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=number|asc&sort[]=date|desc`.
+
+        Purchase orders use PO table columns and vendor- or client-related sorts as defined in `PurchaseOrderFilters`. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "number|asc"
+          - "date|desc"
+    sort_bank_integrations:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=id|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=created_at|asc`.
+
+        Only columns on `bank_integrations` are recognized. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "id|desc"
+    sort_bank_transactions:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=date|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=amount|asc&sort[]=date|desc`.
+
+        Bank transactions accept columns and relationship sorts exposed by `BankTransactionFilters`. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "date|desc"
+          - "amount|asc"
+    sort_bank_transaction_rules:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=id|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=name|asc`.
+
+        Only columns defined for the bank transaction rules model are honored. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "id|desc"
+    sort_company_gateways:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=label|asc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=label|asc`.
+
+        Sorting is limited to columns on the company gateways table (for example `label`, `id`). Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "label|asc"
+    sort_designs:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=name|asc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=name|asc`.
+
+        Only `designs` table columns apply. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "name|asc"
+    sort_documents:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=created_at|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=created_at|asc`.
+
+        Documents accept base table columns and any extra relationship sorts implemented in `DocumentFilters`. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "created_at|desc"
+    sort_expense_categories:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=name|asc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=name|asc`.
+
+        Only columns on `expense_categories` are recognized. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "name|asc"
+    sort_expenses:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=date|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=amount|asc&sort[]=date|desc`.
+
+        Expenses accept expense columns plus client, contact, and document-related sorts per `ExpenseFilters`. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "date|desc"
+          - "amount|asc"
+    sort_group_settings:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=id|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=updated_at|asc`.
+
+        Only `group_settings` columns are honored. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "id|desc"
+    sort_payment_terms:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=number_of_days|asc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=name|asc&sort[]=number_of_days|asc`.
+
+        Sorting follows the payment term table schema. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "number_of_days|asc"
+    sort_recurring_expenses:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=next_send_date|asc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=amount|desc`.
+
+        Recurring expenses combine table columns with client- or vendor-related sorts from `RecurringExpenseFilters`. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "next_send_date|asc"
+    sort_recurring_quotes:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=next_send_date|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=number|asc&sort[]=id|desc`.
+
+        Recurring quotes use their table columns and related sorts from `RecurringQuoteFilters`. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "number|asc"
+    sort_subscriptions:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=created_at|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=created_at|asc`.
+
+        Only `subscriptions` table columns are recognized. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "created_at|desc"
+    sort_system_logs:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=created_at|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=created_at|desc`.
+
+        Log rows sort by columns exposed through `SystemLogFilters`. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "created_at|desc"
+    sort_task_statuses:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=sort_order|asc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=sort_order|asc&sort[]=name|asc`.
+
+        Only `task_statuses` columns are recognized. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "sort_order|asc"
+    sort_tax_rates:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=name|asc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=rate|asc&sort[]=name|asc`.
+
+        Only `tax_rates` table columns apply. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "name|asc"
+    sort_tokens:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=name|asc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=name|asc`.
+
+        Company tokens sort by columns on `company_tokens`. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "name|asc"
+    sort_users:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=email|asc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=last_name|asc&sort[]=first_name|asc`.
+
+        Only `users` table columns are recognized. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "first_name|asc"
+          - "email|asc"
+    sort_webhooks:
+      name: sort
+      in: query
+      description: |
+        Order the list by choosing a column and direction. Each value uses the form `column|asc` or `column|desc`.
+
+        **Single sort** — for example `sort=created_at|desc`.
+
+        **Multiple sorts** — for example  
+        `sort[]=id|desc&sort[]=created_at|asc`.
+
+        Only `webhooks` table columns apply. Unsupported keys are ignored.
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+        example:
+          - "created_at|desc"
+
 ########################### Generic filters available across all filter ##################################
     status:
       name: status
@@ -20061,7 +21067,14 @@ components:
           description: 'Priority level of the task'
           type: integer
           example: 1
+        tags:
+          description: 'Full sync array of hashed tag IDs. Omit to leave existing tags unchanged; send [] to detach all tags.'
+          type: array
+          items:
+            type: string
+            example: Opnel5aKBz
       type: object
+
     LocationRequest:
       properties:
         name:
@@ -23288,6 +24301,11 @@ components:
         color:
           type: string
           description: The color associated with the project
+        tags:
+          description: 'Tags assigned to the project'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
       required:
         - id
         - user_id
@@ -25697,6 +26715,124 @@ components:
           type: string
           readOnly: true
 
+    TagAssignment:
+      type: object
+      description: 'A tag assigned to a task or project.'
+      properties:
+        id:
+          description: 'The hashed tag id'
+          type: string
+          example: Opnel5aKBz
+        name:
+          description: 'The tag name'
+          type: string
+          example: Urgent
+        color:
+          description: 'The tag color as a hex value, or null when unset'
+          type: string
+          nullable: true
+          example: '#FF0000'
+      required:
+        - id
+        - name
+    Tag:
+      type: object
+      properties:
+        id:
+          description: 'The hashed tag id'
+          type: string
+          example: Opnel5aKBz
+          readOnly: true
+        entity_type:
+          description: 'The fully qualified class name this tag may be assigned to'
+          type: string
+          enum:
+            - 'App\Models\Task'
+            - 'App\Models\Project'
+          example: 'App\Models\Task'
+        name:
+          description: 'The tag name. Unique per company and entity type, including archived tags.'
+          type: string
+          maxLength: 191
+          example: Urgent
+        color:
+          description: 'The tag color as a 3 or 6 digit hex value, or null when unset'
+          type: string
+          nullable: true
+          pattern: '^#(?:[0-9a-fA-F]{3}){1,2}$'
+          example: '#FF0000'
+        is_deleted:
+          description: 'A boolean flag determining if the tag has been deleted'
+          type: boolean
+          example: false
+          readOnly: true
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1710410400
+          readOnly: true
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1710410400
+          readOnly: true
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 0
+          readOnly: true
+      required:
+        - id
+        - entity_type
+        - name
+        - color
+        - is_deleted
+    TagRequest:
+      type: object
+      properties:
+        entity_type:
+          description: 'Required on create. Immutable after creation.'
+          type: string
+          enum:
+            - 'App\Models\Task'
+            - 'App\Models\Project'
+          example: 'App\Models\Task'
+        name:
+          description: 'The tag name. Unique per company and entity type, including archived tags.'
+          type: string
+          maxLength: 191
+          example: Urgent
+        color:
+          description: 'The tag color as a 3 or 6 digit hex value, or null to clear it.'
+          type: string
+          nullable: true
+          pattern: '^#(?:[0-9a-fA-F]{3}){1,2}$'
+          example: '#FF0000'
+      required:
+        - entity_type
+        - name
+    TagBulkAction:
+      type: object
+      properties:
+        ids:
+          description: 'Array of hashed tag IDs to action'
+          type: array
+          items:
+            type: string
+            example: Opnel5aKBz
+        action:
+          description: 'Bulk action to perform. May be supplied in the query string or request body.'
+          type: string
+          enum:
+            - archive
+            - restore
+            - delete
+          example: archive
+      required:
+        - ids
     RecurringInvoiceRequest:
       required:
         - client_id
@@ -26378,7 +27514,14 @@ components:
           description: 'Project color for UI display'
           type: string
           example: '#FF5733'
+        tags:
+          description: 'Full sync array of hashed tag IDs. Omit to leave existing tags unchanged; send [] to detach all tags.'
+          type: array
+          items:
+            type: string
+            example: Opnel5aKBz
       type: object
+
     CreditInvitation:
       properties:
         id:
@@ -28033,6 +29176,11 @@ components:
           description: 'Alternative sort order for status'
           type: integer
           example: 1
+        tags:
+          description: 'Tags assigned to the task'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
       type: object
 
 
@@ -28256,10 +29404,10 @@ tags:
     x-displayName: Authentication
     description: |
       Attempts to authenticate with the API using a email/password combination.
-    
-      After authenticating with the API, the returned object is a CompanyUser object which is a bridge linking the user to the company. 
 
-      The company user object contains the users permissions (admin/owner or fine grained permissions) You will most likely want to 
+      After authenticating with the API, the returned object is a CompanyUser object which is a bridge linking the user to the company.
+
+      The company user object contains the users permissions (admin/owner or fine grained permissions) You will most likely want to
         also include in the response of this object both the company and the user object, this can be done by using the include parameter.
 
       ```html
@@ -28269,7 +29417,7 @@ tags:
   - name: clients
     x-displayName: Clients
     description: |
-      The Clients API provides endpoints for managing client records within your company. A client represents a customer 
+      The Clients API provides endpoints for managing client records within your company. A client represents a customer
       or business entity that you provide services or products to.
 
       ### Key Features
@@ -28293,7 +29441,7 @@ tags:
   - name: locations
     x-displayName: Locations
     description: |
-      The Locations API provides endpoints for managing location records within your company. A location represents a physical 
+      The Locations API provides endpoints for managing location records within your company. A location represents a physical
       address where you provide services or products to a client OR vendor.
 
   - name: products
@@ -28302,11 +29450,11 @@ tags:
       Endpoint definitions for interacting with products.
   - name: invoices
     x-displayName: Invoices
-  
+
     description: |
 
       ## Invoice Statuses
-      
+
       - STATUS_DRAFT = 1
         - Draft invoices are not visible in the client portal, are not active and they do not impact the client balance
       - STATUS_SENT = 2
@@ -28323,7 +29471,7 @@ tags:
         - An invoice which is still payable past its due date
       - STATUS_UNPAID = -2
         - An invoice which is not yet due, but also, not paid
-        
+
   - name: Recurring Invoices
     x-displayName: Recurring Invoices
     description: |
@@ -28338,7 +29486,7 @@ tags:
     x-displayName: Payments
     description: |
       Endpoint definitions for interacting with payments.
-  
+
   - name: quotes
     x-displayName: Quotes
     description: |
@@ -28589,6 +29737,11 @@ tags:
     description: |
       Endpoint definitions for system logs.
 
+  - name: tags
+    x-displayName: Tags
+    description: |
+      Endpoint definitions for interacting with tags.
+
   - name: task_schedulers
     x-displayName: Task Schedulers
     description: |
@@ -28598,11 +29751,6 @@ tags:
     x-displayName: Task Status
     description: |
       Endpoint definitions for interacting with task statuses.
-
-  - name: task_statuss
-    x-displayName: Task Status
-    description: |
-      Endpoint definitions for task status operations.
 
   - name: tax_rates
     x-displayName: Tax Rates
@@ -28661,7 +29809,3 @@ externalDocs:
     - name: User Guide
       description: Official user guide
       url: https://invoiceninja.github.io
-
-security:
-  - ApiKeyAuth: []
-    

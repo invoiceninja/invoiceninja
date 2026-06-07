@@ -2804,6 +2804,8 @@ class PeppolTest extends TestCase
         $peppol->run();
         $xml = $peppol->toXml();
 
+        $this->assertEmpty($peppol->getErrors());
+
         $dom = new \DOMDocument();
         $dom->loadXML($xml);
         $xpath = new \DOMXPath($dom);

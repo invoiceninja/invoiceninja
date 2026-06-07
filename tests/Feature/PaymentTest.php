@@ -611,6 +611,76 @@ class PaymentTest extends TestCase
 
     }
 
+    public function testUpdatePaymentRejectsObjectStringInvoicesPayload()
+    {
+        $payment = Payment::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'status_id' => Payment::STATUS_COMPLETED,
+            'amount' => 13,
+            'applied' => 0,
+        ]);
+
+        $payload = [
+            'amount' => 13,
+            'created_at' => '',
+            'date' => '2026-05-13',
+            'email_receipt' => 0,
+            'is_manual' => 0,
+            'private_notes' => '',
+            'status_id' => 4,
+            'transaction_reference' => '',
+            'type_id' => '',
+            'updated_at' => '',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+            'Accept' => 'application/json',
+            'X-Requested-With' => 'XMLHttpRequest',
+        ])->put('/api/v1/payments/'.$payment->hashed_id, $payload + [
+            'invoices' => '[object Object]',
+        ]);
+
+        $response->assertStatus(422);
+    }
+
+    public function testUpdatePaymentRejectsSingleInvoiceObjectPayload()
+    {
+        $payment = Payment::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'status_id' => Payment::STATUS_COMPLETED,
+            'amount' => 13,
+            'applied' => 0,
+        ]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/payments/'.$payment->hashed_id, [
+            'amount' => 13,
+            'created_at' => null,
+            'date' => '2026-05-13',
+            'email_receipt' => 0,
+            'invoices' => [
+                'amount' => 13,
+                'invoice_id' => 'yb81wRG3dv',
+            ],
+            'is_manual' => 0,
+            'private_notes' => null,
+            'status_id' => 4,
+            'transaction_reference' => null,
+            'type_id' => null,
+            'updated_at' => null,
+        ]);
+
+        $response->assertStatus(422);
+    }
+
     public function testNegativeAppliedAmounts()
     {
         $p = Payment::factory()->create([
@@ -2264,6 +2334,8 @@ class PaymentTest extends TestCase
 
         ];
 
+        $response = false;
+        
         try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
