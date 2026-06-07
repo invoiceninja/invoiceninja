@@ -12,55 +12,56 @@
 
 namespace App\Console\Commands;
 
-use stdClass;
-use Carbon\Carbon;
-use Faker\Factory;
-use App\Models\Task;
-use App\Models\User;
-use App\Utils\Ninja;
-use App\Models\Quote;
-use App\Models\Client;
-use App\Models\Credit;
-use App\Models\Vendor;
+use App\DataMapper\ClientRegistrationFields;
+use App\DataMapper\ClientSettings;
+use App\DataMapper\CompanySettings;
+use App\DataMapper\FeesAndLimits;
+use App\Events\Invoice\InvoiceWasCreated;
+use App\Events\RecurringInvoice\RecurringInvoiceWasCreated;
+use App\Factory\GroupSettingFactory;
+use App\Factory\InvoiceFactory;
+use App\Factory\InvoiceItemFactory;
+use App\Factory\RecurringInvoiceFactory;
+use App\Factory\SubscriptionFactory;
+use App\Helpers\Invoice\InvoiceSum;
+use App\Jobs\Company\CreateCompanyTaskStatuses;
+use App\Libraries\MultiDB;
 use App\Models\Account;
+use App\Models\BankIntegration;
+use App\Models\BankTransaction;
+use App\Models\BankTransactionRule;
+use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\Company;
+use App\Models\CompanyGateway;
+use App\Models\CompanyToken;
 use App\Models\Country;
+use App\Models\Credit;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Product;
 use App\Models\Project;
-use App\Models\TaxRate;
-use App\Libraries\MultiDB;
-use App\Models\TaskStatus;
-use App\Models\CompanyToken;
-use App\Models\Subscription;
-use App\Models\ClientContact;
-use App\Models\VendorContact;
-use App\Models\CompanyGateway;
-use App\Factory\InvoiceFactory;
-use App\Models\BankIntegration;
-use App\Models\BankTransaction;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Console\Command;
+use App\Models\Quote;
 use App\Models\RecurringInvoice;
-use App\DataMapper\FeesAndLimits;
-use App\DataMapper\ClientSettings;
-use App\DataMapper\CompanySettings;
-use App\Factory\InvoiceItemFactory;
-use App\Helpers\Invoice\InvoiceSum;
-use App\Models\BankTransactionRule;
-use App\Factory\GroupSettingFactory;
-use App\Factory\SubscriptionFactory;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Cache;
-use App\Utils\Traits\GeneratesCounter;
-use Illuminate\Support\Facades\Schema;
+use App\Models\Subscription;
+use App\Models\Task;
+use App\Models\TaskStatus;
+use App\Models\TaxRate;
+use App\Models\User;
+use App\Models\Vendor;
+use App\Models\VendorContact;
 use App\Repositories\InvoiceRepository;
-use App\Factory\RecurringInvoiceFactory;
-use App\Events\Invoice\InvoiceWasCreated;
-use App\DataMapper\ClientRegistrationFields;
-use App\Jobs\Company\CreateCompanyTaskStatuses;
-use App\Events\RecurringInvoice\RecurringInvoiceWasCreated;
+use App\Repositories\SubscriptionRepository;
+use App\Utils\Ninja;
+use App\Utils\Traits\GeneratesCounter;
+use App\Utils\Traits\MakesHash;
+use Carbon\Carbon;
+use Faker\Factory;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
+use stdClass;
 
 class CreateSingleAccount extends Command
 {
@@ -141,7 +142,7 @@ class CreateSingleAccount extends Command
             'slack_webhook_url' => config('ninja.notification.slack'),
             'default_password_timeout' => 30 * 60000,
             'portal_mode' => 'domain',
-            'portal_domain' => 'http://ninja.test:8000',
+            'portal_domain' => config('ninja.app_url'),
             'track_inventory' => true,
         ]);
 
@@ -508,11 +509,13 @@ class CreateSingleAccount extends Command
         ]);
 
         $webhook_config = [
-            'post_purchase_url' => 'http://ninja.test:8000/api/admin/plan',
+            'post_purchase_url' => config('ninja.app_url').'/api/admin/plan',
             'post_purchase_rest_method' => 'post',
             'post_purchase_headers' => [config('ninja.ninja_hosted_header') => config('ninja.ninja_hosted_secret')],
         ];
 
+        $sr = new SubscriptionRepository();
+        
         $sub = SubscriptionFactory::create($company->id, $user->id);
         $sub->name = "Pro Plan";
         $sub->group_id = $gs->id;
@@ -521,6 +524,8 @@ class CreateSingleAccount extends Command
         $sub->allow_plan_changes = true;
         $sub->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
         $sub->save();
+
+        $sr->save($sub->toArray(), $sub);
 
         $sub = SubscriptionFactory::create($company->id, $user->id);
         $sub->name = "Enterprise Plan";
@@ -531,6 +536,8 @@ class CreateSingleAccount extends Command
         $sub->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
         $sub->save();
 
+        $sr->save($sub->toArray(), $sub);
+        
         $sub = SubscriptionFactory::create($company->id, $user->id);
         $sub->name = "Free Plan";
         $sub->group_id = $gs->id;
@@ -540,6 +547,8 @@ class CreateSingleAccount extends Command
         $sub->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
         $sub->save();
 
+        $sr->save($sub->toArray(), $sub);
+        
         if (!\App\Models\Subscription::find(6)) {
 
             $sub = SubscriptionFactory::create($company->id, $user->id);
@@ -551,7 +560,8 @@ class CreateSingleAccount extends Command
             $sub->allow_plan_changes = true;
             $sub->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
             $sub->save();
-
+            $sr->save($sub->toArray(), $sub);
+        
         }
 
         if (!\App\Models\Subscription::find(11)) {
@@ -567,7 +577,8 @@ class CreateSingleAccount extends Command
             $sub->max_seats_limit = 2;
             $sub->per_seat_enabled = true;
             $sub->save();
-
+            $sr->save($sub->toArray(), $sub);
+        
         }
 
 
@@ -580,7 +591,8 @@ class CreateSingleAccount extends Command
         $sub->allow_plan_changes = true;
         $sub->frequency_id = RecurringInvoice::FREQUENCY_ANNUALLY;
         $sub->save();
-
+        $sr->save($sub->toArray(), $sub);
+        
 
         $_sub = $sub->replicate();
         $_sub->id = 41;
@@ -589,7 +601,8 @@ class CreateSingleAccount extends Command
         $_sub->max_seats_limit = 5;
         $_sub->per_seat_enabled = true;
         $_sub->save();
-
+        $sr->save($sub->toArray(), $sub);
+        
         $_sub = $sub->replicate();
         $_sub->id = 46;
         $_sub->name = "Enterprise Plan 6-10 Users";
@@ -597,7 +610,8 @@ class CreateSingleAccount extends Command
         $_sub->max_seats_limit = 10;
         $_sub->per_seat_enabled = true;
         $_sub->save();
-
+        $sr->save($_sub->toArray(), $_sub);
+        
         $_sub = $sub->replicate();
         $_sub->id = 51;
         $_sub->name = "Enterprise Plan 11-20 Users";
@@ -605,6 +619,7 @@ class CreateSingleAccount extends Command
         $_sub->max_seats_limit = 20;
         $_sub->per_seat_enabled = true;
         $_sub->save();
+        $sr->save($_sub->toArray(), $_sub);
 
 
         $sub = SubscriptionFactory::create($company->id, $user->id);
@@ -616,6 +631,8 @@ class CreateSingleAccount extends Command
         $sub->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
         $sub->save();
 
+        $sr->save($sub->toArray(), $sub);
+
         $sub = SubscriptionFactory::create($company->id, $user->id);
         $sub->name = "DocuNinja Annual Plan";
         $sub->group_id = $gs->id;
@@ -625,10 +642,14 @@ class CreateSingleAccount extends Command
         $sub->frequency_id = RecurringInvoice::FREQUENCY_ANNUALLY;
         $sub->save();
 
+        $sr->save($sub->toArray(), $sub);
 
         if ($config = config('admin-api.products')) {
 
             foreach ($config as $key => $product) {
+
+                if($key =='docuninja_beta_code')
+                    continue;
 
                 if (!$p = Product::where('product_key', $key)->first()) {
 
@@ -652,7 +673,7 @@ class CreateSingleAccount extends Command
                         $sub->max_seats_limit = $product['users'] ?? 1;
                         $sub->per_seat_enabled = true;
                         $sub->save();
-
+                        $sr->save($sub->toArray(), $sub);
                     }
                 }
 
