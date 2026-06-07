@@ -1,4 +1,4 @@
-import{w as f}from"./index.module-d6acd7fe.js";/**
+import{C as f}from"./index.module-07726c42.js";/**
  * Invoice Ninja (https://invoiceninja.com)
  * Checkout.com Flow SDK — authorize (save card) form.
  *
