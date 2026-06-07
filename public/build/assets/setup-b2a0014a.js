@@ -1,4 +1,4 @@
-import{A as a}from"./index-08e160a7.js";import"./_commonjsHelpers-725317a4.js";/**
+import{A as a}from"./index-f5f1a7da.js";import"./_commonjsHelpers-725317a4.js";/**
  * Invoice Ninja (https://invoiceninja.com)
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository

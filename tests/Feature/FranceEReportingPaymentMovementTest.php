@@ -50,6 +50,10 @@ class FranceEReportingPaymentMovementTest extends TestCase
     {
         parent::setUp();
 
+        if (! config('ninja.storecove_api_key')) {
+            $this->markTestSkipped('Storecove API key not set');
+        }
+
         $this->faker = Factory::create();
         $this->makeTestData();
         $this->enableFranceReporting();

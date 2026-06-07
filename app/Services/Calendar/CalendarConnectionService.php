@@ -3,7 +3,7 @@
 namespace App\Services\Calendar;
 
 use App\DataMapper\Referral\CalendarConnection;
-use App\DataMapper\Referral\ReferralMeta;
+use App\DataMapper\UserSettings;
 use App\Models\Task;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -20,7 +20,7 @@ use Throwable;
  * Manages a user's calendar connection lifecycle for Google and Microsoft.
  *
  * Handles the OAuth handshake via Socialite, persists provider tokens and
- * selected calendars on the user's referral meta, refreshes expired access
+ * selected calendars on the user's settings, refreshes expired access
  * tokens, and fetches calendar lists and events from the underlying provider
  * APIs.
  */
@@ -58,7 +58,7 @@ class CalendarConnectionService
      */
     public function show(User $user): array
     {
-        $connection = $this->referralMeta($user)->calendar_connection;
+        $connection = $this->userSettings($user)->calendar_connection;
 
         return [
             'calendar_connection' => $connection?->toArray(),
@@ -154,8 +154,8 @@ class CalendarConnectionService
      * Pulls the cached state, asserts the completing user matches the one
      * that initiated the flow (closes cross-account OAuth injection),
      * exchanges the authorization code for tokens via Socialite, and
-     * persists the resulting CalendarConnection on the user's referral
-     * meta. A default writable calendar is auto-selected when none is
+     * persists the resulting CalendarConnection on the user's settings. A
+     * default writable calendar is auto-selected when none is
      * configured yet.
      *
      * @throws ValidationException when the state is missing/invalid, when
@@ -214,7 +214,7 @@ class CalendarConnectionService
     }
 
     /**
-     * Writes the provider tokens and profile onto the user's referral meta,
+     * Writes the provider tokens and profile onto the user's settings,
      * preserving an existing refresh token and prior calendar selection when
      * the same provider account is being re-connected.
      *
@@ -223,8 +223,8 @@ class CalendarConnectionService
      */
     private function persistConnection(User $user, string $provider, SocialiteUser $socialiteUser, string $providerUserId): void
     {
-        $meta = $this->referralMeta($user);
-        $existingConnection = $meta->calendar_connection;
+        $settings = $this->userSettings($user);
+        $existingConnection = $settings->calendar_connection;
 
         $accessToken = $this->accessToken($socialiteUser);
         $refreshToken = $this->refreshToken($socialiteUser);
@@ -240,7 +240,7 @@ class CalendarConnectionService
             throw ValidationException::withMessages(['refresh_token' => 'The calendar provider did not return a refresh token.']);
         }
 
-        $meta->setCalendarConnection(new CalendarConnection([
+        $settings->setCalendarConnection(new CalendarConnection([
             'provider' => $provider,
             'provider_user_id' => $providerUserId,
             'email' => $socialiteUser->getEmail(),
@@ -250,7 +250,7 @@ class CalendarConnectionService
             'calendars' => $sameConnection ? $existingConnection->calendars : [],
         ]));
 
-        $user->referral_meta = $meta;
+        $user->settings = $settings;
         $user->save();
     }
 
@@ -268,28 +268,7 @@ class CalendarConnectionService
     public function availableCalendars(User $user): array
     {
         $connection = $this->connectionOrFail($user);
-        $connection = $this->freshConnection($user, $connection);
-
-        $response = Http::withToken((string) $connection->access_token)
-            ->timeout(self::PROVIDER_HTTP_TIMEOUT_SECONDS)
-            ->acceptJson()
-            ->get($this->calendarEndpoint((string) $connection->provider));
-
-        if ($response->failed()) {
-            throw ValidationException::withMessages(['calendar_connection' => 'Unable to load calendars from the provider.']);
-        }
-
-        $calendars = match ($connection->provider) {
-            CalendarConnection::PROVIDER_GOOGLE => $response->json('items') ?? [],
-            CalendarConnection::PROVIDER_MICROSOFT => $response->json('value') ?? [],
-            default => [],
-        };
-
-        $normalizedConnection = new CalendarConnection([
-            'provider' => $connection->provider,
-            'provider_user_id' => $connection->provider_user_id,
-            'calendars' => $calendars,
-        ]);
+        $availableCalendars = $this->availableProviderCalendars($user, $connection);
 
         $selectedIds = collect($connection->calendars)
             ->pluck('calendar_id')
@@ -301,8 +280,68 @@ class CalendarConnectionService
             fn (array $calendar): array => $calendar + [
                 'selected' => in_array($calendar['calendar_id'], $selectedIds, true),
             ],
-            $normalizedConnection->calendars
+            $availableCalendars
         );
+    }
+
+    /**
+     * @return array<int, array{calendar_id: string, name?: string, primary?: bool, writable?: bool}>
+     */
+    private function availableProviderCalendars(User $user, CalendarConnection $connection): array
+    {
+        $connection = $this->freshConnection($user, $connection);
+        $provider = (string) $connection->provider;
+        $url = $this->calendarEndpoint($provider);
+        $query = [];
+        $calendars = [];
+
+        do {
+            $response = Http::withToken((string) $connection->access_token)
+                ->timeout(self::PROVIDER_HTTP_TIMEOUT_SECONDS)
+                ->acceptJson()
+                ->get($url, $query);
+
+            if ($response->failed()) {
+                throw ValidationException::withMessages(['calendar_connection' => 'Unable to load calendars from the provider.']);
+            }
+
+            $body = $response->json();
+
+            $calendars = [
+                ...$calendars,
+                ...match ($provider) {
+                    CalendarConnection::PROVIDER_GOOGLE => $body['items'] ?? [],
+                    CalendarConnection::PROVIDER_MICROSOFT => $body['value'] ?? [],
+                    default => [],
+                },
+            ];
+
+            $nextPageToken = $provider === CalendarConnection::PROVIDER_GOOGLE
+                ? $body['nextPageToken'] ?? null
+                : null;
+            $nextLink = $provider === CalendarConnection::PROVIDER_MICROSOFT
+                ? $body['@odata.nextLink'] ?? null
+                : null;
+
+            if ($nextPageToken) {
+                $url = $this->calendarEndpoint($provider);
+                $query = ['pageToken' => (string) $nextPageToken];
+            } elseif ($nextLink) {
+                $url = (string) $nextLink;
+                $query = [];
+            } else {
+                $url = null;
+                $query = [];
+            }
+        } while ($url !== null);
+
+        $normalizedConnection = new CalendarConnection([
+            'provider' => $connection->provider,
+            'provider_user_id' => $connection->provider_user_id,
+            'calendars' => $calendars,
+        ]);
+
+        return $normalizedConnection->calendars;
     }
 
     /**
@@ -399,7 +438,8 @@ class CalendarConnectionService
     public function updateCalendars(User $user, array $calendarIds): CalendarConnection
     {
         $calendarIds = array_values(array_unique(array_map('strval', $calendarIds)));
-        $availableCalendars = collect($this->availableCalendars($user))->keyBy('calendar_id');
+        $connection = $this->connectionOrFail($user);
+        $availableCalendars = collect($this->availableProviderCalendars($user, $connection))->keyBy('calendar_id');
         $missingCalendarIds = array_values(array_diff($calendarIds, $availableCalendars->keys()->all()));
 
         if ($missingCalendarIds) {
@@ -408,7 +448,6 @@ class CalendarConnectionService
             ]);
         }
 
-        $connection = $this->connectionOrFail($user);
         $connection->calendars = collect($calendarIds)
             ->map(fn (string $calendarId): array => Arr::only((array) $availableCalendars->get($calendarId), [
                 'calendar_id',
@@ -419,10 +458,10 @@ class CalendarConnectionService
             ->values()
             ->all();
 
-        $meta = $this->referralMeta($user);
-        $meta->setCalendarConnection($connection);
+        $settings = $this->userSettings($user);
+        $settings->setCalendarConnection($connection);
 
-        $user->referral_meta = $meta;
+        $user->settings = $settings;
         $user->save();
 
         return $connection;
@@ -430,14 +469,14 @@ class CalendarConnectionService
 
     /**
      * Removes the calendar connection (tokens and selected calendars) from
-     * the user's referral meta. Does not revoke tokens at the provider.
+     * the user's settings. Does not revoke tokens at the provider.
      */
     public function disconnect(User $user): void
     {
-        $meta = $this->referralMeta($user);
-        $meta->clearCalendarConnection();
+        $settings = $this->userSettings($user);
+        $settings->clearCalendarConnection();
 
-        $user->referral_meta = $meta;
+        $user->settings = $settings;
         $user->save();
     }
 
@@ -457,7 +496,7 @@ class CalendarConnectionService
                 return;
             }
 
-            $defaultCalendar = $this->defaultWritableCalendar($this->availableCalendars($user));
+            $defaultCalendar = $this->defaultCalendar($this->availableProviderCalendars($user, $connection));
 
             if (!$defaultCalendar) {
                 return;
@@ -473,10 +512,10 @@ class CalendarConnectionService
                 ]),
             ];
 
-            $meta = $this->referralMeta($user);
-            $meta->setCalendarConnection($connection);
+            $settings = $this->userSettings($user);
+            $settings->setCalendarConnection($connection);
 
-            $user->referral_meta = $meta;
+            $user->settings = $settings;
             $user->save();
         } catch (Throwable $exception) {
             report($exception);
@@ -486,13 +525,13 @@ class CalendarConnectionService
     /**
      * Picks a default calendar from a provider listing.
      *
-     * Prefers the primary writable calendar; falls back to the first
-     * writable calendar; returns null when none are writable.
+     * Prefers writable calendars, but falls back to readable calendars so
+     * event hydration works for shared/read-only calendar access.
      *
      * @param array<int, array<string, mixed>> $calendars
      * @return array<string, mixed>|null
      */
-    private function defaultWritableCalendar(array $calendars): ?array
+    private function defaultCalendar(array $calendars): ?array
     {
         foreach ($calendars as $calendar) {
             if (($calendar['primary'] ?? false) === true && ($calendar['writable'] ?? false) === true) {
@@ -506,7 +545,13 @@ class CalendarConnectionService
             }
         }
 
-        return null;
+        foreach ($calendars as $calendar) {
+            if (($calendar['primary'] ?? false) === true) {
+                return $calendar;
+            }
+        }
+
+        return $calendars[0] ?? null;
     }
 
     /**
@@ -565,15 +610,14 @@ class CalendarConnectionService
     }
 
     /**
-     * Returns the user's referral meta as a typed value object, hydrating
-     * one from the raw cast payload when the attribute is not already an
-     * instance.
+     * Returns the user's settings as a typed value object, hydrating one
+     * from the raw cast payload when the attribute is not already an instance.
      */
-    private function referralMeta(User $user): ReferralMeta
+    private function userSettings(User $user): UserSettings
     {
-        return $user->referral_meta instanceof ReferralMeta
-            ? $user->referral_meta
-            : new ReferralMeta($user->referral_meta);
+        return $user->settings instanceof UserSettings
+            ? $user->settings
+            : new UserSettings($user->settings);
     }
 
     /**
@@ -585,7 +629,7 @@ class CalendarConnectionService
      */
     private function connectionOrFail(User $user): CalendarConnection
     {
-        $connection = $this->referralMeta($user)->calendar_connection;
+        $connection = $this->userSettings($user)->calendar_connection;
 
         if (!$connection || !$connection->isConnected()) {
             throw ValidationException::withMessages(['calendar_connection' => 'No calendar connection is configured.']);
@@ -597,7 +641,7 @@ class CalendarConnectionService
     /**
      * Ensures the connection's access token is still valid, refreshing it
      * via the provider's token endpoint when it has expired (or is about
-     * to). The refreshed tokens are persisted back to the user's referral
+     * to). The refreshed tokens are persisted back to the user's settings
      * meta so subsequent calls reuse them.
      *
      * @throws ValidationException when no refresh token is available or
@@ -624,10 +668,10 @@ class CalendarConnectionService
             ? now()->addSeconds((int) $data['expires_in'])->timestamp
             : $connection->expires_at;
 
-        $meta = $this->referralMeta($user);
-        $meta->setCalendarConnection($connection);
+        $settings = $this->userSettings($user);
+        $settings->setCalendarConnection($connection);
 
-        $user->referral_meta = $meta;
+        $user->settings = $settings;
         $user->save();
 
         return $connection;
@@ -791,13 +835,15 @@ class CalendarConnectionService
                 throw ValidationException::withMessages(['calendar_connection' => 'Unable to load calendar events from Microsoft.']);
             }
 
-            foreach ($response->json('value') ?? [] as $event) {
+            $body = $response->json();
+
+            foreach ($body['value'] ?? [] as $event) {
                 if (is_array($event)) {
                     $events[] = $this->normalizeMicrosoftEvent($user, $event, $calendar);
                 }
             }
 
-            $url = $response->json('@odata.nextLink');
+            $url = $body['@odata.nextLink'] ?? null;
             $query = [];
         } while ($url);
 
