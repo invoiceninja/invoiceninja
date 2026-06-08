@@ -226,6 +226,33 @@ class InvoicesTest extends TestCase
             ->assertSet('select_all', false)
             ->assertSet('selected', []);
 
+        /* a partial manual selection followed by select-all then clear-all resets selection */
+        Livewire::test(InvoicesTable::class, ['company_id' => $company->id, 'db' => $company->db])
+            ->call('toggleSelected', $first)
+            ->assertSet('select_all', false)
+            ->tap(fn ($c) => $this->assertContains($first, $c->get('selected')))
+            ->call('toggleSelectAll')
+            ->assertSet('select_all', true)
+            ->tap(fn ($c) => $this->assertCount(3, $c->get('selected')))
+            ->call('toggleSelectAll')
+            ->assertSet('select_all', false)
+            ->assertSet('selected', []);
+
+        $invoice_ids = $invoices->pluck('hashed_id')->toArray();
+
+        $component = Livewire::test(InvoicesTable::class, ['company_id' => $company->id, 'db' => $company->db]);
+
+        foreach ($invoice_ids as $invoice_id) {
+            $component->call('toggleSelected', $invoice_id);
+        }
+
+        $component
+            ->assertSet('select_all', true)
+            ->tap(fn ($c) => $this->assertCount(3, $c->get('selected')))
+            ->call('toggleSelectAll')
+            ->assertSet('select_all', false)
+            ->assertSet('selected', []);
+
         /* toggleStatus toggles the value and resets the current selection */
         Livewire::test(InvoicesTable::class, ['company_id' => $company->id, 'db' => $company->db])
             ->set('selected', [$first])

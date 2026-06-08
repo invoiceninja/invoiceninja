@@ -59,6 +59,45 @@ class LivewireCheckboxBindingTest extends TestCase
         }
     }
 
+    public function testPortalBulkSelectionCheckboxesHaveStateKeys(): void
+    {
+        foreach ([
+            'resources/views/portal/ninja2020/components/livewire/invoices-table.blade.php' => [
+                'wire:key="invoice-status-paid-',
+                'wire:key="invoice-status-unpaid-',
+                'wire:key="invoice-status-overdue-',
+                'wire:key="invoice-select-all-',
+                'wire:key="invoice-checkbox-{{ $invoice->hashed_id }}-',
+            ],
+            'resources/views/portal/ninja2020/components/livewire/quotes-table.blade.php' => [
+                'wire:key="quote-status-sent-',
+                'wire:key="quote-status-approved-',
+                'wire:key="quote-status-expired-',
+                'wire:key="quote-status-rejected-',
+                'wire:key="quote-select-all-',
+                'wire:key="quote-checkbox-{{ $quote->hashed_id }}-',
+            ],
+            'resources/views/portal/ninja2020/components/livewire/purchase-orders-table.blade.php' => [
+                'wire:key="purchase-order-status-sent-',
+                'wire:key="purchase-order-status-accepted-',
+                'wire:key="purchase-order-select-all-',
+                'wire:key="purchase-order-checkbox-{{ $purchase_order->hashed_id }}-',
+            ],
+        ] as $path => $expected_keys) {
+            $contents = file_get_contents(dirname(__DIR__, 2) . '/' . $path);
+
+            $this->assertIsString($contents);
+
+            foreach ($expected_keys as $expected_key) {
+                $this->assertStringContainsString(
+                    $expected_key,
+                    $contents,
+                    "{$path} is missing state key {$expected_key}."
+                );
+            }
+        }
+    }
+
     /**
      * @return iterable<SplFileInfo>
      */

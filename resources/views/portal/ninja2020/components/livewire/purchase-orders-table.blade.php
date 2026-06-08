@@ -20,11 +20,11 @@
         </div>
         <div class="flex items-center">
             <div class="mr-3">
-                <input wire:change="toggleStatus('sent')" @checked(in_array('sent', $status, true)) value="sent" type="checkbox" class="cursor-pointer form-checkbox" id="paid-checkbox">
+                <input wire:key="purchase-order-status-sent-{{ in_array('sent', $status, true) ? 'selected' : 'unselected' }}" wire:change="toggleStatus('sent')" @checked(in_array('sent', $status, true)) value="sent" type="checkbox" class="cursor-pointer form-checkbox" id="paid-checkbox">
                 <label for="paid-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.status_sent') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:change="toggleStatus('accepted')" @checked(in_array('accepted', $status, true)) value="accepted" type="checkbox" class="cursor-pointer form-checkbox" id="unpaid-checkbox">
+                <input wire:key="purchase-order-status-accepted-{{ in_array('accepted', $status, true) ? 'selected' : 'unselected' }}" wire:change="toggleStatus('accepted')" @checked(in_array('accepted', $status, true)) value="accepted" type="checkbox" class="cursor-pointer form-checkbox" id="unpaid-checkbox">
                 <label for="unpaid-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.accepted') }}</label>
             </div>
         </div>
@@ -36,7 +36,7 @@
                     <tr>
                         <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
                             <label>
-                                <input type="checkbox" class="form-check" wire:change="toggleSelectAll" @checked($select_all) aria-label="{{ ctrans('texts.select_all') }}">
+                                <input type="checkbox" wire:key="purchase-order-select-all-{{ $select_all ? 'selected' : 'unselected' }}" class="form-check" wire:change="toggleSelectAll" @checked($select_all) aria-label="{{ ctrans('texts.select_all') }}">
                             </label>
                         </th>
                         <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
@@ -77,7 +77,7 @@
                         <tr class="bg-white group hover:bg-gray-100" wire:key="purchase-order-{{ $purchase_order->hashed_id }}">
                             <td class="px-6 py-4 text-sm font-medium leading-5 text-gray-900 whitespace-nowrap">
                                 <label>
-                                    <input type="checkbox" class="form-check" wire:change="toggleSelected('{{ $purchase_order->hashed_id }}')" @checked(in_array($purchase_order->hashed_id, $selected, true)) value="{{ $purchase_order->hashed_id }}">
+                                    <input type="checkbox" wire:key="purchase-order-checkbox-{{ $purchase_order->hashed_id }}-{{ in_array($purchase_order->hashed_id, $selected, true) ? 'selected' : 'unselected' }}" class="form-check" wire:change="toggleSelected('{{ $purchase_order->hashed_id }}')" @checked(in_array($purchase_order->hashed_id, $selected, true)) value="{{ $purchase_order->hashed_id }}">
                                 </label>
                             </td>
                             <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">

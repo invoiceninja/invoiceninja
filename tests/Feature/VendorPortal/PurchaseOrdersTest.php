@@ -217,6 +217,17 @@ class PurchaseOrdersTest extends TestCase
             ->assertSet('selected', []);
 
         Livewire::test(PurchaseOrdersTable::class, ['company_id' => $company->id, 'db' => $company->db])
+            ->call('toggleSelected', $first)
+            ->assertSet('select_all', false)
+            ->tap(fn ($c) => $this->assertContains($first, $c->get('selected')))
+            ->call('toggleSelectAll')
+            ->assertSet('select_all', true)
+            ->tap(fn ($c) => $this->assertCount(3, $c->get('selected')))
+            ->call('toggleSelectAll')
+            ->assertSet('select_all', false)
+            ->assertSet('selected', []);
+
+        Livewire::test(PurchaseOrdersTable::class, ['company_id' => $company->id, 'db' => $company->db])
             ->set('selected', [$first])
             ->call('toggleStatus', 'accepted')
             ->assertSet('status', ['accepted'])

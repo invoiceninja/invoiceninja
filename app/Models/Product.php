@@ -217,7 +217,8 @@ class Product extends BaseModel
             ],
         ]);
 
-        return $converter->convert($this->notes ?? '');
+        return \App\Services\Pdf\Purify::clean($converter->convert($this->notes ?? ''), true);
+        // return $converter->convert($this->notes ?? '');
     }
 
     public static function markdownHelp(?string $notes = '')
