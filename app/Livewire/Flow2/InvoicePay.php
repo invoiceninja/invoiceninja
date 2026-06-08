@@ -341,25 +341,6 @@ class InvoicePay extends Component
                         ->filter()
                         ->values();
                         
-        // $invoices = Invoice::withTrashed()
-        //                             ->whereIn('id', $this->transformKeys($this->invoices))
-        //                             ->where('is_deleted', 0)
-        //                             ->get()
-        //                             ->filter(function ($i) {
-        //                                 $i = $i->service()
-        //                                     ->markSent()
-        //                                     ->removeUnpaidGatewayFees()
-        //                                     ->save();
-
-        //                                 return $i->isPayable();
-        //                             });
-
-        // $invoices = Invoice::withTrashed()
-        //                     ->whereIn('id', $invoices->pluck('id')->all())
-        //                     ->where('is_deleted', 0)
-        //                     ->get();
-        //under-over / payment
-
         //required fields
         $this->terms_accepted = !$settings->show_accept_invoice_terms;
         $this->signature_accepted = !$settings->require_invoice_signature;

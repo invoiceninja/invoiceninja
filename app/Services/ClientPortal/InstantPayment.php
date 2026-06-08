@@ -71,19 +71,26 @@ class InstantPayment
          */
         $payable_invoices = collect($this->request->payable_invoices);
 
-        $invoices = Invoice::query()->whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))->withTrashed()->get();
+        $invoices = Invoice::withTrashed()
+                            ->whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))
+                            ->where('is_deleted', 0)
+                            ->where('client_id', $cc->client_id)
+                            ->get()
+                            ->map(function (Invoice $invoice): ?Invoice {
+                                $invoice = $invoice->service()
+                                    ->markSent()
+                                    ->removeUnpaidGatewayFees()
+                                    ->save();
 
-        $invoices->each(function ($invoice) {
-            $invoice->service()
-                    ->markSent()
-                    ->removeUnpaidGatewayFees()
-                    ->save();
-        });
+                                return $invoice?->isPayable() ? $invoice : null;
+                            })
+                            ->filter()
+                            ->values();
 
         /* pop non payable invoice from the $payable_invoices array */
 
         $payable_invoices = $payable_invoices->filter(function ($payable_invoice) use ($invoices) {
-            return $invoices->where('hashed_id', $payable_invoice['invoice_id'])->first()->isPayable();
+            return $invoices->where('hashed_id', $payable_invoice['invoice_id'])->first();
         });
 
         /*return early if no invoices*/
@@ -94,13 +101,10 @@ class InstantPayment
                 ->with(['message' => 'No payable invoices selected.']);
         }
 
-        $invoices = Invoice::query()->whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))->withTrashed()->get();
-
         $client = $invoices->first()->client;
         $settings = $client->getMergedSettings();
 
         /* This loop checks for under / over payments and returns the user if a check fails */
-
         foreach ($payable_invoices as $payable_invoice) {
             /*Match the payable invoice to the Model Invoice*/
 

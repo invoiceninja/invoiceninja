@@ -5,9 +5,9 @@
             @foreach($selected as $hashed_id)
                 <input type="hidden" name="invoices[]" value="{{ $hashed_id }}">
             @endforeach
-            <button type="submit" @disabled(count($selected) === 0) onclick="setTimeout(() => this.disabled = true, 0); setTimeout(() => this.disabled = false, 5000); return true;" class="button button-primary bg-primary disabled:opacity-50" name="action" value="download">{{ ctrans('texts.download') }}</button>
+            <button type="submit" @disabled(count($selected) === 0) wire:loading.attr="disabled" wire:target="toggleSelected, toggleSelectAll, toggleStatus, per_page, sortBy" onclick="setTimeout(() => this.disabled = true, 0); setTimeout(() => this.disabled = false, 5000); return true;" class="button button-primary bg-primary disabled:opacity-50" name="action" value="download">{{ ctrans('texts.download') }}</button>
             @if($gateway_available)
-                <button type="submit" @disabled(count($selected) === 0) onclick="setTimeout(() => this.disabled = true, 0); return true;" class="button button-primary bg-primary disabled:opacity-50" name="action" value="payment">{{ ctrans('texts.pay_now') }}</button>
+                <button type="submit" @disabled(count($selected) === 0) wire:loading.attr="disabled" wire:target="toggleSelected, toggleSelectAll, toggleStatus, per_page, sortBy" onclick="setTimeout(() => this.disabled = true, 0); return true;" class="button button-primary bg-primary disabled:opacity-50" name="action" value="payment">{{ ctrans('texts.pay_now') }}</button>
             @endif
         </form>
     </div>

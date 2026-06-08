@@ -94,18 +94,6 @@ class LivewireInstantPayment
         $payable_invoices = collect($this->data['payable_invoices']);
         $tokens = [];
 
-        // $invoices = Invoice::query()
-        //     ->whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))
-        //     ->withTrashed()
-        //     ->get();
-
-        // $invoices->each(fn ($i) => $i->service()->markSent()->removeUnpaidGatewayFees()->save());
-
-        // $invoices = Invoice::query()
-        //                 ->whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))
-        //                 ->withTrashed()
-        //                 ->get();
-
         $invoices = Invoice::withTrashed()
                             ->whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))
                             ->where('is_deleted', 0)
