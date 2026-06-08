@@ -195,9 +195,9 @@
                 </tr>
 
                 <tr>
-                    <td height="40" valign="middle" align="center"
-                        style="min-height: 40px; padding: 7px 20px 14px 20px; mso-padding-alt: 7px 20px 14px 20px; text-align: center; vertical-align: middle;">
-                        <div class="dark-bg dark-text-white">
+                    <td class="dark-bg dark-text-white" bgcolor="#f9f9f9" height="40" valign="middle" align="center"
+                        style="min-height: 40px; padding: 7px 20px 14px 20px; mso-padding-alt: 7px 20px 14px 20px; text-align: center; background-color: #f9f9f9; vertical-align: middle;">
+                        <div>
                             @isset($signature)
                                 <p style="font-size: 15px; color: #2e2e2e; font-family: 'roboto', Arial, Helvetica, sans-serif; font-weight: 400; margin-bottom: 30px;">
                                     {!! nl2br($signature) !!}
