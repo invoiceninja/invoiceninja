@@ -23,15 +23,15 @@
         </div>
         <div class="flex items-center">
             <div class="mr-3">
-                <input wire:model.live="status" value="paid" type="checkbox" class="cursor-pointer form-checkbox" id="paid-checkbox">
+                <input wire:change="toggleStatus('paid')" @checked(in_array('paid', $status, true)) value="paid" type="checkbox" class="cursor-pointer form-checkbox" id="paid-checkbox">
                 <label for="paid-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.status_paid') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:model.live="status" value="unpaid" type="checkbox" class="cursor-pointer form-checkbox" id="unpaid-checkbox">
+                <input wire:change="toggleStatus('unpaid')" @checked(in_array('unpaid', $status, true)) value="unpaid" type="checkbox" class="cursor-pointer form-checkbox" id="unpaid-checkbox">
                 <label for="unpaid-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.status_unpaid') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:model.live="status" value="overdue" type="checkbox" class="cursor-pointer form-checkbox" id="overdue-checkbox">
+                <input wire:change="toggleStatus('overdue')" @checked(in_array('overdue', $status, true)) value="overdue" type="checkbox" class="cursor-pointer form-checkbox" id="overdue-checkbox">
                 <label for="overdue-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.past_due') }}</label>
             </div>
         </div>
@@ -43,7 +43,7 @@
                     <tr>
                         <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
                             <label>
-                                <input type="checkbox" class="form-check" wire:model.live="select_all" aria-label="{{ ctrans('texts.select_all') }}">
+                                <input type="checkbox" class="form-check" wire:change="toggleSelectAll" @checked($select_all) aria-label="{{ ctrans('texts.select_all') }}">
                             </label>
                         </th>
                         <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
@@ -89,7 +89,7 @@
                         <tr class="bg-white group hover:bg-gray-100" wire:key="invoice-{{ $invoice->hashed_id }}">
                             <td class="px-6 py-4 text-sm font-medium leading-5 text-gray-900 whitespace-nowrap">
                                 <label>
-                                    <input type="checkbox" class="form-check" wire:model.live="selected" value="{{ $invoice->hashed_id }}">
+                                    <input type="checkbox" class="form-check" wire:change="toggleSelected('{{ $invoice->hashed_id }}')" @checked(in_array($invoice->hashed_id, $selected, true)) value="{{ $invoice->hashed_id }}">
                                 </label>
                             </td>
                             <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">

@@ -163,4 +163,77 @@ class InvoicesTest extends TestCase
 
         $account->delete();
     }
+
+    public function testToggleSelectionAndStatusMethods()
+    {
+        $account = Account::factory()->create();
+
+        $user = User::factory()->create(
+            ['account_id' => $account->id, 'email' => $this->faker->safeEmail()]
+        );
+
+        $company = Company::factory()->create(['account_id' => $account->id]);
+        $company->settings->language_id = '1';
+        $company->save();
+
+        $client = Client::factory()->create(['company_id' => $company->id, 'user_id' => $user->id]);
+        $settings = $client->settings;
+        $settings->language_id = '1';
+        $client->settings = $settings;
+        $client->save();
+
+        ClientContact::factory()->count(2)->create([
+            'user_id' => $user->id,
+            'client_id' => $client->id,
+            'company_id' => $company->id,
+        ]);
+
+        $invoices = Invoice::factory()->count(3)->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'client_id' => $client->id,
+            'status_id' => Invoice::STATUS_SENT,
+        ]);
+
+        $first = $invoices->first()->hashed_id;
+
+        $this->actingAs($client->contacts()->first(), 'contact');
+
+        /* toggleSelected adds an id, then a second call removes it */
+        Livewire::test(InvoicesTable::class, ['company_id' => $company->id, 'db' => $company->db])
+            ->call('toggleSelected', $first)
+            ->assertSet('select_all', false)
+            ->tap(fn ($c) => $this->assertContains($first, $c->get('selected')))
+            ->call('toggleSelected', $first)
+            ->tap(fn ($c) => $this->assertNotContains($first, $c->get('selected')));
+
+        /* toggling a single row clears an active "select all" */
+        Livewire::test(InvoicesTable::class, ['company_id' => $company->id, 'db' => $company->db])
+            ->call('toggleSelectAll')
+            ->assertSet('select_all', true)
+            ->call('toggleSelected', $first)
+            ->assertSet('select_all', false)
+            ->tap(fn ($c) => $this->assertCount(2, $c->get('selected')))
+            ->tap(fn ($c) => $this->assertNotContains($first, $c->get('selected')));
+
+        /* toggleSelectAll selects the visible page, then clears it */
+        Livewire::test(InvoicesTable::class, ['company_id' => $company->id, 'db' => $company->db])
+            ->call('toggleSelectAll')
+            ->assertSet('select_all', true)
+            ->tap(fn ($c) => $this->assertCount(3, $c->get('selected')))
+            ->call('toggleSelectAll')
+            ->assertSet('select_all', false)
+            ->assertSet('selected', []);
+
+        /* toggleStatus toggles the value and resets the current selection */
+        Livewire::test(InvoicesTable::class, ['company_id' => $company->id, 'db' => $company->db])
+            ->set('selected', [$first])
+            ->call('toggleStatus', 'paid')
+            ->assertSet('status', ['paid'])
+            ->assertSet('selected', [])
+            ->call('toggleStatus', 'paid')
+            ->assertSet('status', []);
+
+        $account->delete();
+    }
 }
