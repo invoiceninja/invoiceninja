@@ -57,24 +57,6 @@ class InvoicesTable extends Component
         $this->resetSelection();
     }
 
-    public function toggleSelected(string $id): void
-    {
-        if (in_array($id, $this->selected, true)) {
-            $this->selected = array_values(array_diff($this->selected, [$id]));
-        } else {
-            $this->selected[] = $id;
-        }
-
-        $this->select_all = false;
-    }
-
-    public function toggleSelectAll(): void
-    {
-        $this->select_all = ! $this->select_all;
-
-        $this->selected = $this->select_all ? $this->selectablePageIds() : [];
-    }
-
     public function sortBy($field): void
     {
         $this->sort_field === $field

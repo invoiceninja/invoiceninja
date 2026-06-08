@@ -101,8 +101,9 @@ class InvoicesTest extends TestCase
             ->assertSee($unpaid->number);
 
         Livewire::test(InvoicesTable::class, ['company_id' => $company->id, 'db' => $company->db])
-            ->set('status', ['paid'])
+            ->call('toggleStatus', 'paid')
             ->assertSee($paid->number)
+            ->assertDontSee($sent->number)
             ->assertDontSee($unpaid->number);
 
         $account->delete();

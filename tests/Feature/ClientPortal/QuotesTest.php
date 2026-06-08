@@ -100,8 +100,9 @@ class QuotesTest extends TestCase
             ->assertSee($rejected->number);
 
         Livewire::test(QuotesTable::class, ['company_id' => $company->id, 'db' => $company->db])
-            ->set('status', ['5'])
+            ->call('toggleStatus', (string) Quote::STATUS_REJECTED)
             ->assertSee($rejected->number)
+            ->assertDontSee($sent->number)
             ->assertDontSee($approved->number);
 
         $account->delete();
@@ -158,6 +159,76 @@ class QuotesTest extends TestCase
             ->call('sortBy', 'number')
             ->assertSet('selected', [])
             ->assertSet('select_all', false);
+
+        $account->delete();
+    }
+
+    public function testToggleSelectionAndStatusMethods()
+    {
+        $account = Account::factory()->create();
+
+        $user = User::factory()->create(
+            ['account_id' => $account->id, 'email' => $this->faker->safeEmail()]
+        );
+
+        $company = Company::factory()->create(['account_id' => $account->id]);
+        $company->settings->language_id = '1';
+        $company->save();
+
+        $client = Client::factory()->create(['company_id' => $company->id, 'user_id' => $user->id]);
+        $settings = $client->settings;
+        $settings->language_id = '1';
+        $client->settings = $settings;
+        $client->save();
+
+        ClientContact::factory()->count(2)->create([
+            'user_id' => $user->id,
+            'client_id' => $client->id,
+            'company_id' => $company->id,
+        ]);
+
+        $quotes = Quote::factory()->count(3)->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'client_id' => $client->id,
+            'status_id' => Quote::STATUS_SENT,
+        ]);
+
+        $first = $quotes->first()->hashed_id;
+
+        $this->actingAs($client->contacts()->first(), 'contact');
+
+        Livewire::test(QuotesTable::class, ['company_id' => $company->id, 'db' => $company->db])
+            ->call('toggleSelected', $first)
+            ->assertSet('select_all', false)
+            ->tap(fn ($c) => $this->assertContains($first, $c->get('selected')))
+            ->call('toggleSelected', $first)
+            ->tap(fn ($c) => $this->assertNotContains($first, $c->get('selected')));
+
+        Livewire::test(QuotesTable::class, ['company_id' => $company->id, 'db' => $company->db])
+            ->call('toggleSelectAll')
+            ->assertSet('select_all', true)
+            ->tap(fn ($c) => $this->assertCount(3, $c->get('selected')))
+            ->call('toggleSelected', $first)
+            ->assertSet('select_all', false)
+            ->tap(fn ($c) => $this->assertCount(2, $c->get('selected')))
+            ->tap(fn ($c) => $this->assertNotContains($first, $c->get('selected')));
+
+        Livewire::test(QuotesTable::class, ['company_id' => $company->id, 'db' => $company->db])
+            ->call('toggleSelectAll')
+            ->assertSet('select_all', true)
+            ->tap(fn ($c) => $this->assertCount(3, $c->get('selected')))
+            ->call('toggleSelectAll')
+            ->assertSet('select_all', false)
+            ->assertSet('selected', []);
+
+        Livewire::test(QuotesTable::class, ['company_id' => $company->id, 'db' => $company->db])
+            ->set('selected', [$first])
+            ->call('toggleStatus', (string) Quote::STATUS_REJECTED)
+            ->assertSet('status', [(string) Quote::STATUS_REJECTED])
+            ->assertSet('selected', [])
+            ->call('toggleStatus', (string) Quote::STATUS_REJECTED)
+            ->assertSet('status', []);
 
         $account->delete();
     }
