@@ -425,12 +425,12 @@ class Email implements ShouldQueue
             }
 
             //only report once, not on all tries
-            if ($this->attempts() == $this->tries) {
+            if ($this->attempts() >= $this->tries) {
                 /* If the is an entity attached to the message send a failure mailer */
                 $this->entityEmailFailed($message);
-
                 app('sentry')->captureException($e);
-
+                $this->cleanUpMailers();
+                return;
             }
 
             $this->tearDown();
@@ -584,6 +584,8 @@ class Email implements ShouldQueue
 
         if (Ninja::isHosted() && $this->company->account->isPaid() && $this->email_object->settings->email_sending_method == 'default') {
 
+            $email = '';
+            
             try {
 
                 $address_object = reset($this->email_object->to);

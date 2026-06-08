@@ -327,18 +327,37 @@ class InvoicePay extends Component
         ]);
 
         $invoices = Invoice::withTrashed()
-                                    ->whereIn('id', $this->transformKeys($this->invoices))
-                                    ->where('is_deleted', 0)
-                                    ->get()
-                                    ->filter(function ($i) {
-                                        $i = $i->service()
-                                            ->markSent()
-                                            ->removeUnpaidGatewayFees()
-                                            ->save();
+                        ->whereIn('id', $this->transformKeys($this->invoices))
+                        ->where('is_deleted', 0)
+                        ->get()
+                        ->map(function (Invoice $invoice): ?Invoice {
+                            $invoice = $invoice->service()
+                                ->markSent()
+                                ->removeUnpaidGatewayFees()
+                                ->save();
 
-                                        return $i->isPayable();
-                                    });
+                            return $invoice?->isPayable() ? $invoice : null;
+                        })
+                        ->filter()
+                        ->values();
+                        
+        // $invoices = Invoice::withTrashed()
+        //                             ->whereIn('id', $this->transformKeys($this->invoices))
+        //                             ->where('is_deleted', 0)
+        //                             ->get()
+        //                             ->filter(function ($i) {
+        //                                 $i = $i->service()
+        //                                     ->markSent()
+        //                                     ->removeUnpaidGatewayFees()
+        //                                     ->save();
 
+        //                                 return $i->isPayable();
+        //                             });
+
+        // $invoices = Invoice::withTrashed()
+        //                     ->whereIn('id', $invoices->pluck('id')->all())
+        //                     ->where('is_deleted', 0)
+        //                     ->get();
         //under-over / payment
 
         //required fields
@@ -388,6 +407,7 @@ class InvoicePay extends Component
             'settings' => $settings,
             'amount' => array_sum(array_column($payable_invoices, 'amount')),
             'payable_invoices' => $payable_invoices,
+            'gateway_fee' => false,
         ]);
 
         $this->dispatch(self::CONTEXT_READY);

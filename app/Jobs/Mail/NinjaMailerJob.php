@@ -179,7 +179,6 @@ class NinjaMailerJob implements ShouldQueue
 
                 $message = "Recipient {$email} has been suppressed and cannot receive emails from you.";
 
-                
                 $this->cleanUpMailers();
                 $this->logMailError($message, $this->company->clients()->first());
 
@@ -285,14 +284,15 @@ class NinjaMailerJob implements ShouldQueue
             }
 
             //only report once, not on all tries
-            if ($this->attempts() == $this->tries) {
+            if ($this->attempts() >= $this->tries) {
                 /* If there is an entity attached to the message send a failure mailer */
                 if ($this->nmo->entity) {
                     $this->entityEmailFailed($message);
                 }
 
+                $this->cleanUpMailers();
                 app('sentry')->captureException($e);
-
+                return;
             }
 
             /* Releasing immediately does not add in the backoff */
@@ -355,7 +355,6 @@ class NinjaMailerJob implements ShouldQueue
 
         if (Ninja::isHosted() && $this->nmo?->transport !== 'force' && (!$this->company->account->isPaid() || ($this->company->account->isNewHostedAccount() && $this->nmo->settings->email_sending_method == 'default'))) {
 
-        // if (Ninja::isHosted() && $this->nmo?->transport !== 'force' && ($this->company->account->isNewHostedAccount() || !$this->company->account->isPaid())) {
             $this->nmo->settings->email_sending_method = 'default';
             $this->mailer = 'mailgun';
             $this->setHostedMailgunMailer();

@@ -94,11 +94,37 @@ class LivewireInstantPayment
         $payable_invoices = collect($this->data['payable_invoices']);
         $tokens = [];
 
-        $invoices = Invoice::query()
-            ->whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))
-            ->withTrashed()
-            ->get();
+        // $invoices = Invoice::query()
+        //     ->whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))
+        //     ->withTrashed()
+        //     ->get();
 
+        // $invoices->each(fn ($i) => $i->service()->markSent()->removeUnpaidGatewayFees()->save());
+
+        // $invoices = Invoice::query()
+        //                 ->whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))
+        //                 ->withTrashed()
+        //                 ->get();
+
+        $invoices = Invoice::withTrashed()
+                            ->whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))
+                            ->where('is_deleted', 0)
+                            ->get()
+                            ->map(function (Invoice $invoice): ?Invoice {
+                                $invoice = $invoice->service()
+                                    ->markSent()
+                                    ->removeUnpaidGatewayFees()
+                                    ->save();
+
+                                return $invoice?->isPayable() ? $invoice : null;
+                            })
+                            ->filter()
+                            ->values();
+
+        if ($invoices->isEmpty()) {
+            return ['success' => false, 'error' => ctrans('texts.no_payable_invoices_selected')];
+        }
+        
         $client = $invoices->first()->client;
 
         /* pop non payable invoice from the $payable_invoices array */
