@@ -40,26 +40,19 @@ class BillingContextCast implements CastsAttributes
             return [$key => null];
         }
 
+        $pricing = [
+            'plan_price' => round((float) ($value->pricing['plan_price'] ?? 0), 2),
+            'docuninja_price' => round((float) ($value->pricing['docuninja_price'] ?? 0), 2),
+        ];
+
         $data = array_filter([
             'version' => $value->version,
             'client_id' => $value->client_id,
             'recurring_invoice_id' => $value->recurring_invoice_id,
-            'pricing' => $this->pricingIsEmpty($value->pricing) ? null : [
-                'plan_price' => round((float) ($value->pricing['plan_price'] ?? 0), 2),
-                'docuninja_price' => round((float) ($value->pricing['docuninja_price'] ?? 0), 2),
-            ],
+            'pricing' => $pricing === ['plan_price' => 0.0, 'docuninja_price' => 0.0] ? null : $pricing,
             'docuninja_pending_prune' => $value->docuninja_pending_prune ?: null,
         ], static fn ($value): bool => $value !== null);
 
         return [$key => json_encode($data)];
-    }
-
-    /**
-     * @param array<string, mixed> $pricing
-     */
-    private function pricingIsEmpty(array $pricing): bool
-    {
-        return round((float) ($pricing['plan_price'] ?? 0), 2) === 0.0
-            && round((float) ($pricing['docuninja_price'] ?? 0), 2) === 0.0;
     }
 }
