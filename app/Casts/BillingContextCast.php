@@ -14,84 +14,52 @@ namespace App\Casts;
 
 use App\DataMapper\Billing\BillingContext;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
-use Illuminate\Database\Eloquent\Model;
-use InvalidArgumentException;
-use JsonException;
 
 class BillingContextCast implements CastsAttributes
 {
-    /**
-     * Cast the given value.
-     *
-     * @param array<string, mixed> $attributes
-     */
-    public function get(Model $model, string $key, mixed $value, array $attributes): ?BillingContext
+    public function get($model, string $key, $value, array $attributes)
     {
-        if ($value === null || $value === '' || $value === 'null' || $value === '[]' || $value === '{}') {
+        if (is_null($value)) {
             return null;
         }
 
-        if ($value instanceof BillingContext) {
-            return $value;
+        $data = json_decode($value, true);
+
+        if (! is_array($data) || empty($data)) {
+            return null;
         }
 
-        return BillingContext::fromArray($this->toArray($value, $key));
+        $context = BillingContext::fromArray($data);
+
+        return $context->client_id > 0 ? $context : null;
     }
 
-    /**
-     * Prepare the given value for storage.
-     *
-     * @param array<string, mixed> $attributes
-     * @return array<string, string|null>
-     */
-    public function set(Model $model, string $key, mixed $value, array $attributes): array
+    public function set($model, string $key, $value, array $attributes)
     {
-        if ($value === null || $value === '') {
+        if (is_null($value) || ! $value instanceof BillingContext || $value->client_id <= 0) {
             return [$key => null];
         }
 
-        if (! $value instanceof BillingContext) {
-            $value = BillingContext::fromArray($this->toArray($value, $key));
-        }
+        $data = array_filter([
+            'version' => $value->version,
+            'client_id' => $value->client_id,
+            'recurring_invoice_id' => $value->recurring_invoice_id,
+            'pricing' => $this->pricingIsEmpty($value->pricing) ? null : [
+                'plan_price' => round((float) ($value->pricing['plan_price'] ?? 0), 2),
+                'docuninja_price' => round((float) ($value->pricing['docuninja_price'] ?? 0), 2),
+            ],
+            'docuninja_pending_prune' => $value->docuninja_pending_prune ?: null,
+        ], static fn ($value): bool => $value !== null);
 
-        if ($value->isEmpty()) {
-            return [$key => null];
-        }
-
-        return [
-            $key => json_encode($value->toArray(), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE),
-        ];
+        return [$key => json_encode($data)];
     }
 
     /**
-     * @return array<string, mixed>
+     * @param array<string, mixed> $pricing
      */
-    private function toArray(mixed $value, string $key): array
+    private function pricingIsEmpty(array $pricing): bool
     {
-        if ($value instanceof BillingContext) {
-            return $value->toArray();
-        }
-
-        if (is_array($value)) {
-            return $value;
-        }
-
-        if (is_object($value)) {
-            $value = json_encode($value, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
-        }
-
-        if (is_string($value)) {
-            try {
-                $decoded = json_decode($value, true, 512, JSON_THROW_ON_ERROR);
-            } catch (JsonException $exception) {
-                throw new InvalidArgumentException("Invalid {$key} JSON: {$exception->getMessage()}", 0, $exception);
-            }
-
-            if (is_array($decoded)) {
-                return $decoded;
-            }
-        }
-
-        throw new InvalidArgumentException("{$key} must be a BillingContext instance, array, object, JSON string, or null.");
+        return round((float) ($pricing['plan_price'] ?? 0), 2) === 0.0
+            && round((float) ($pricing['docuninja_price'] ?? 0), 2) === 0.0;
     }
 }
