@@ -1,7 +1,7 @@
 includes:
     - ./vendor/larastan/larastan/extension.neon
     - ./vendor/spaze/phpstan-stripe/extension.neon
-    - phpstan-baseline.neon
+    #- phpstan-baseline.neon
 parameters:
     level: 4
     paths:
@@ -19,11 +19,11 @@ parameters:
             - 'app/PaymentDrivers/Authorize/*'
             - 'app/PaymentDrivers/AuthorizePaymentDriver.php'
             - 'app/Http/Middleware/ThrottleRequestsWithPredis.php'
-            - 'app/Utils/Traits/*'
-            - 'Modules/Accounting/*'
-            - 'tests/*'
-            - '~/.cursor/*'
-            - '_ide_helper_models.php'
+            - 'app/Utils/Traits/*' (?)
+            - 'Modules/Accounting/*' (?)
+            - 'tests/*' (?)
+            - '~/.cursor/*' (?)
+            - '_ide_helper_models.php' (?)
     universalObjectCratesClasses:
         - App\DataMapper\Tax\RuleInterface
         - App\DataMapper\FeesAndLimits

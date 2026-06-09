@@ -877,7 +877,7 @@ class BaseExport
         }
 
         if ($column == 'currency') {
-            return $payment?->currency?->code ?? '';
+            return $payment->currency->code ?? '';
         }
 
         $payment_transformer = new PaymentTransformer();

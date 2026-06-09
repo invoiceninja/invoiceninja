@@ -86,7 +86,7 @@ class Location extends BaseModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'is_deleted' => 'bool',
-        'is_shipping_locaiton',
+        'is_shipping_location' => 'bool',
     ];
 
     protected $touches = [];
