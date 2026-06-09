@@ -21,7 +21,7 @@
     {{-- Two column layout for other components --}}
     <div class="grid grid-cols-1 md:grid-cols-2">
         <div class="p-2">
-            @livewire('flow2.invoice-summary', ['_key' => $_key])
+            @livewire('flow2.invoice-summary', ['_key' => $_key], key($this->componentUniqueId()))
         </div>
 
         <div class="p-2">

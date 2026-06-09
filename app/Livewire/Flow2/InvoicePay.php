@@ -327,20 +327,20 @@ class InvoicePay extends Component
         ]);
 
         $invoices = Invoice::withTrashed()
-                                    ->whereIn('id', $this->transformKeys($this->invoices))
-                                    ->where('is_deleted', 0)
-                                    ->get()
-                                    ->filter(function ($i) {
-                                        $i = $i->service()
-                                            ->markSent()
-                                            ->removeUnpaidGatewayFees()
-                                            ->save();
+                        ->whereIn('id', $this->transformKeys($this->invoices))
+                        ->where('is_deleted', 0)
+                        ->get()
+                        ->map(function (Invoice $invoice): ?Invoice {
+                            $invoice = $invoice->service()
+                                ->markSent()
+                                ->removeUnpaidGatewayFees()
+                                ->save();
 
-                                        return $i->isPayable();
-                                    });
-
-        //under-over / payment
-
+                            return $invoice?->isPayable() ? $invoice : null;
+                        })
+                        ->filter()
+                        ->values();
+                        
         //required fields
         $this->terms_accepted = !$settings->show_accept_invoice_terms;
         $this->signature_accepted = !$settings->require_invoice_signature;
@@ -388,6 +388,7 @@ class InvoicePay extends Component
             'settings' => $settings,
             'amount' => array_sum(array_column($payable_invoices, 'amount')),
             'payable_invoices' => $payable_invoices,
+            'gateway_fee' => false,
         ]);
 
         $this->dispatch(self::CONTEXT_READY);
