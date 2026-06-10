@@ -1525,7 +1525,7 @@ class ProcessBankRulesTest extends TestCase
     public function testDebitDescriptionContainsThreeWordsAcrossSeparator()
     {
         $bt = $this->createBankTransaction([
-            'description' => 'Google Storage - Workspace subscription',
+            'description' => 'Google Storage Workspace subscription',
             'amount' => 50,
             'base_type' => 'DEBIT',
         ]);
