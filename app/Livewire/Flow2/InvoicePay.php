@@ -76,6 +76,9 @@ class InvoicePay extends Component
     ];
 
     #[Locked]
+    public string $payment_attempt_key = '';
+
+    #[Locked]
     public $invitation_id;
 
     public $invoices;
@@ -197,6 +200,13 @@ class InvoicePay extends Component
     #[On('payment-method-selected')]
     public function paymentMethodSelected($company_gateway_id, $gateway_type_id, $amount)
     {
+        $this->payment_attempt_key = implode(':', [
+            $company_gateway_id,
+            $gateway_type_id,
+            Number::parseFloat($amount),
+            md5(json_encode($this->invoices)),
+        ]);
+
         $invite = \App\Models\InvoiceInvitation::withTrashed()->find($this->invitation_id);
 
         $this->bulkSetContext($invite->key, [
@@ -300,9 +310,19 @@ class InvoicePay extends Component
     }
 
     #[Computed()]
-    public function componentUniqueId(): string
+    public function componentUniqueId(string $slot = 'main'): string
     {
-        return "purchase-" . md5(microtime());
+        // return "purchase-" . md5(microtime());
+        $component = $this->component();
+        
+        return 'purchase-' . md5(implode('|', [
+            $slot,
+            $component ,
+            $this->signing_invitation_id ?? $this->invitation_id,
+            $this->signing_key ?? '',
+            $component === ProcessPayment::class ? $this->payment_attempt_key : '',
+        ]));
+
     }
 
     public function mount()
