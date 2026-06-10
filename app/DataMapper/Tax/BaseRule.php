@@ -312,7 +312,7 @@ class BaseRule implements RuleInterface
 
             return $this;
 
-        } elseif ($this->client_region == 'US' && isset($this->tax_data?->taxSales)) {
+        } elseif ($this->client_region == 'US' && isset($this->tax_data->taxSales)) {
 
             $this->tax_rate1 = $this->tax_data->taxSales * 100;
             $this->tax_name1 = "{$this->tax_data->geoState} Sales Tax";

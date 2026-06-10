@@ -338,7 +338,7 @@ class InvoiceExport extends BaseExport
 
             $parts = explode('.', $key);
 
-            if (is_array($parts) && $parts[0] == 'invoice' && array_key_exists($parts[1], $transformed_invoice)) {
+            if ($parts[0] === 'invoice' && isset($parts[1], $transformed_invoice[$parts[1]])) {
                 $entity[$key] = $transformed_invoice[$parts[1]];
             } elseif ($decorated_value = $this->decorator->transform($key, $invoice)) {
                 $entity[$key] = $decorated_value;

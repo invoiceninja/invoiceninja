@@ -207,11 +207,11 @@ class PurchaseOrderItemExport extends BaseExport
         foreach (array_values($this->input['report_keys']) as $key) {
             $parts = explode('.', $key);
 
-            if (is_array($parts) && $parts[0] == 'item') {
+            if ($parts[0] === 'item') {
                 continue;
             }
 
-            if (is_array($parts) && $parts[0] == 'purchase_order' && array_key_exists($parts[1], $transformed_purchase_order)) {
+            if ($parts[0] === 'purchase_order' && isset($parts[1], $transformed_purchase_order[$parts[1]])) {
                 $entity[$key] = $transformed_purchase_order[$parts[1]];
             } elseif (array_key_exists($key, $transformed_purchase_order)) {
                 $entity[$key] = $transformed_purchase_order[$key];

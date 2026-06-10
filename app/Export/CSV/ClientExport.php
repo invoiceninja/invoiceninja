@@ -266,22 +266,10 @@ class ClientExport extends BaseExport
 
             /** @var \App\Models\Location $location */
             $location = $client->locations()->first();
-            $entity['location.country_id'] = $location && $location->country ? $location->country->full_name : '';
+            $entity['location.country_id'] = $location->country->full_name ?? '';
         }
 
         return $entity;
     }
 
-    // private function calculateStatus($client)
-    // {
-    //     if ($client->is_deleted) {
-    //         return ctrans('texts.deleted');
-    //     }
-
-    //     if ($client->deleted_at) {
-    //         return ctrans('texts.archived');
-    //     }
-
-    //     return ctrans('texts.active');
-    // }
 }

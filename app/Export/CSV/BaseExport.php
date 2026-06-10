@@ -577,8 +577,7 @@ class BaseExport
 
         $primary_contact = $entity->client->primary_contact()->first() ?? $entity->client->contacts()->first();
 
-        return $primary_contact ? $primary_contact?->{$column} ?? '' : '';
-
+        return $primary_contact->{$column} ?? '';
     }
 
     private function resolveVendorContactKey($column, $entity, $transformer)
@@ -589,7 +588,7 @@ class BaseExport
 
         $primary_contact = $entity->vendor->primary_contact()->first() ?? $entity->vendor->contacts()->first();
 
-        return $primary_contact ? $primary_contact?->{$column} ?? '' : '';
+        return $primary_contact->{$column} ?? '';
 
     }
 
@@ -606,7 +605,7 @@ class BaseExport
         }
 
         if ($column == 'category' && $entity->expense) {
-            return $entity->expense->category?->name ?? ' ';
+            return $entity->expense->category->name ?? ' ';
         }
 
         if ($entity instanceof Expense) {
@@ -623,13 +622,7 @@ class BaseExport
             return $transformed_entity[$column];
         }
 
-        if (property_exists($entity, $column)) {
-            return $entity?->{$column} ?? '';
-        }
-
-        nlog("export: Could not resolve expense key: {$column}");
-
-        return '';
+        return $entity->{$column} ?? '';
 
     }
 
@@ -727,11 +720,11 @@ class BaseExport
         }
 
         if (in_array($column, ['client.size_id', 'size_id'])) {
-            return $entity->client->size?->name ?? '';
+            return $entity->client->size->name ?? '';
         }
 
         if (in_array($column, ['client.industry_id', 'industry_id'])) {
-            return $entity->client->industry?->name ?? '';
+            return $entity->client->industry->name ?? '';
         }
 
         if (in_array($column, ['client.currency_id', 'currency_id'])) {
