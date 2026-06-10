@@ -65,7 +65,7 @@ class VendorExport extends BaseExport
                         ->withTrashed()
                         ->where('company_id', $this->company->id);
 
-        if (!$this->input['include_deleted'] ?? false) {
+        if (!($this->input['include_deleted'] ?? false)) {
             $query->where('is_deleted', 0);
         }
 
