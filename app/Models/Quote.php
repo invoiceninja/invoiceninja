@@ -56,7 +56,7 @@ use App\Models\Traits\IndexableItems;
  * @property string|null|Carbon $due_date
  * @property string|null $next_send_date
  * @property bool $is_deleted
- * @property array|null $line_items
+ * @property object|array|string $line_items
  * @property object|null $backup
  * @property QuoteSync|null $sync
  * @property string|null $footer

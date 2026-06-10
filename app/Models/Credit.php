@@ -55,7 +55,7 @@ use App\Models\Traits\IndexableItems;
  * @property string|null $last_sent_date
  * @property string|null $due_date
  * @property bool $is_deleted
- * @property array|null $line_items
+ * @property object|array|string $line_items
  * @property InvoiceBackup $backup
  * @property string|null $footer
  * @property string|null $public_notes

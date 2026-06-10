@@ -20,8 +20,8 @@ class PurchaseOrderInvitationFactory
         $ci = new PurchaseOrderInvitation();
         $ci->company_id = $company_id;
         $ci->user_id = $user_id;
-        $ci->vendor_contact_id = null;
-        $ci->purchase_order_id = null;
+        $ci->vendor_contact_id = null; //@phpstan-ignore-line
+        $ci->purchase_order_id = null; //@phpstan-ignore-line
         $ci->key = Str::random(config('ninja.key_length'));
         $ci->transaction_reference = null;
         $ci->message_id = null;

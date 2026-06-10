@@ -211,9 +211,12 @@ class RandomDataSeeder extends Seeder
         $client->number = $client->getNextClientNumber($client);
         $client->save();
         
-        $account->billing_context->client_id = $client->id;
-        $account->billing_context->save();
+        $billing_context = new \App\DataMapper\Billing\BillingContext();
+        $billing_context->client_id = $client->id;
         
+        $account->billing_context = $billing_context;
+        $account->save();
+
         ClientContact::factory()->create([
                     'user_id' => $user->id,
                     'client_id' => $client->id,
