@@ -226,6 +226,24 @@ class TagApiTest extends TestCase
         }
     }
 
+    public function testIndexIgnoresInvalidIncludeWhenTransformerHasNoIncludes(): void
+    {
+        Tag::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'entity_type' => Project::class,
+            'name' => 'no-include-project-tag',
+        ]);
+
+        foreach (['foo', 'clients'] as $include) {
+            $response = $this->withHeaders($this->headers())
+                ->getJson('/api/v1/tags?entity_type=project&include='.$include);
+
+            $response->assertStatus(200);
+            $this->assertNotEmpty($response->json('data'));
+        }
+    }
+
     public function testIndexFilterAcceptsCanonicalEntityType(): void
     {
         Tag::factory()->create([

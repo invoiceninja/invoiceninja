@@ -688,6 +688,49 @@ class TagAttachTest extends TestCase
         $this->assertSame('client-include', $tags[0]['name']);
     }
 
+    public function testVendorContactsDotIncludeStillWorks(): void
+    {
+        $response = $this->withHeaders($this->headers())
+            ->getJson('/api/v1/purchase_orders/'.$this->encodePrimaryKey($this->purchase_order->id).'?include=vendor.contacts');
+
+        $response->assertStatus(200);
+        $this->assertSame($this->encodePrimaryKey($this->vendor->id), $response->json('data.vendor.id'));
+        $this->assertNotEmpty($response->json('data.vendor.contacts'));
+    }
+
+    public function testMalformedTagsIncludeParameterIsIgnored(): void
+    {
+        foreach (['tags.client', 'client.tags.contacts', 'vendor.contacts.tags'] as $include) {
+            $response = $this->withHeaders($this->headers())
+                ->getJson('/api/v1/purchase_orders/'.$this->encodePrimaryKey($this->purchase_order->id).'?include='.$include);
+
+            $response->assertStatus(200);
+            $this->assertArrayNotHasKey('vendor', $response->json('data'));
+        }
+    }
+
+    public function testBankIntegrationIncludeUsesTransactionRelationForTagEagerLoads(): void
+    {
+        $tag = $this->makeTag(get_class($this->bank_transaction), 'bank-transaction-include');
+        $this->bank_transaction->syncTags([$this->encodePrimaryKey($tag->id)]);
+
+        $response = $this->withHeaders($this->headers())
+            ->getJson('/api/v1/bank_integrations?include=bank_transactions');
+
+        $response->assertStatus(200);
+
+        $bank_integration = collect($response->json('data'))
+            ->firstWhere('id', $this->encodePrimaryKey($this->bank_integration->id));
+
+        $this->assertNotNull($bank_integration);
+
+        $bank_transaction = collect($bank_integration['bank_transactions'] ?? [])
+            ->firstWhere('id', $this->encodePrimaryKey($this->bank_transaction->id));
+
+        $this->assertNotNull($bank_transaction);
+        $this->assertSame($this->encodePrimaryKey($tag->id), $bank_transaction['tags'][0]['id']);
+    }
+
     public function testArchivedTagIsHiddenFromTagIndexButReturnedOnTaskPayload(): void
     {
         $tag = $this->makeTag(Task::class, 'archived-task', '#00ff00');

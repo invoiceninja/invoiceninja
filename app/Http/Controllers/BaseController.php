@@ -1083,10 +1083,17 @@ class BaseController extends Controller
      */
     private function tagAwareIncludes(array $includes): array
     {
-        $eager_loads = $includes;
+        $eager_loads = [];
 
         foreach ($includes as $include) {
-            array_push($eager_loads, ...$this->tagIncludePaths((string) $include));
+            $include = trim((string) $include);
+
+            if ($include === '') {
+                continue;
+            }
+
+            $eager_loads[] = $this->eagerLoadIncludePath($include);
+            array_push($eager_loads, ...$this->tagIncludePaths($include));
         }
 
         return array_values(array_unique($eager_loads));
@@ -1095,15 +1102,30 @@ class BaseController extends Controller
     private function normalizeFractalInclude(string $include): ?string
     {
         $segments = array_map('trim', explode('.', trim($include)));
-        $segments = array_filter($segments, static function ($segment) {
-            return $segment !== '' && $segment !== 'tags';
-        });
 
-        if (empty($segments)) {
+        if (in_array('', $segments, true)) {
             return null;
         }
 
-        return implode('.', $segments);
+        if (! in_array('tags', $segments, true)) {
+            return implode('.', $segments);
+        }
+
+        if ($segments === ['tags']) {
+            return null;
+        }
+
+        if (
+            end($segments) === 'tags'
+            && count(array_keys($segments, 'tags', true)) === 1
+            && isset(self::TAGGABLE_INCLUDE_SEGMENTS[$segments[count($segments) - 2] ?? ''])
+        ) {
+            array_pop($segments);
+
+            return implode('.', $segments);
+        }
+
+        return null;
     }
 
     /**
@@ -1124,11 +1146,29 @@ class BaseController extends Controller
             $prefix[] = $segment;
 
             if (isset(self::TAGGABLE_INCLUDE_SEGMENTS[$segment])) {
-                $paths[] = implode('.', $prefix).'.tags';
+                $paths[] = implode('.', $this->eagerLoadIncludeSegments($prefix)).'.tags';
             }
         }
 
         return $paths;
+    }
+
+    private function eagerLoadIncludePath(string $include): string
+    {
+        return implode('.', $this->eagerLoadIncludeSegments(explode('.', $include)));
+    }
+
+    /**
+     * @param array<int, string> $segments
+     * @return array<int, string>
+     */
+    private function eagerLoadIncludeSegments(array $segments): array
+    {
+        if ($this->entity_type === BankIntegration::class && ($segments[0] ?? null) === 'bank_transactions') {
+            $segments[0] = 'transactions';
+        }
+
+        return $segments;
     }
 
     /**
@@ -1279,6 +1319,7 @@ class BaseController extends Controller
 
             // Only validate if we have a transformer instance
             $validIncludes = [];
+            $hasTransformer = $transformer !== null;
             if ($transformer !== null) {
                 $validIncludes = array_merge(
                     $transformer->getDefaultIncludes() ?? [],
@@ -1295,22 +1336,25 @@ class BaseController extends Controller
 
                 // Special case: clients -> clients.contacts (legacy support)
                 if ($include == 'clients') {
-                    $data[] = 'clients.contacts';
+                    if (! $hasTransformer || in_array('clients', $validIncludes, true)) {
+                        $data[] = 'clients.contacts';
+                    }
+
                     continue;
                 }
 
                 // If we have a transformer, validate the include
-                if (!empty($validIncludes)) {
+                if ($hasTransformer) {
                     // For nested includes (e.g., "client.group_settings"), extract the base relationship
                     $baseInclude = explode('.', $include)[0];
 
                     // Validate that the base relationship is in the transformer's available includes
-                    if (in_array($baseInclude, $validIncludes)) {
+                    if (in_array($baseInclude, $validIncludes, true)) {
                         $data[] = $include;
                     }
                     // Invalid includes like 'deleted' are silently ignored
                 } else {
-                    // No transformer available (e.g., in buildManager context), allow all includes
+                    // No transformer available, allow all includes
                     // This maintains backward compatibility
                     $data[] = $include;
                 }
