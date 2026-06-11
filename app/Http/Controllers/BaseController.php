@@ -238,7 +238,6 @@ class BaseController extends Controller
             $include = implode(',', array_merge($this->forced_includes, $this->getRequestIncludes([])));
         } elseif (request()->input('include') !== null) {
             // Validate includes using getRequestIncludes to filter out invalid ones
-            $requestedIncludes = explode(',', request()->input('include'));
             $validatedIncludes = $this->getRequestIncludes([]);
             $include = array_merge($this->forced_includes, $validatedIncludes);
             $include = implode(',', $include);
@@ -1093,6 +1092,20 @@ class BaseController extends Controller
         return array_values(array_unique($eager_loads));
     }
 
+    private function normalizeFractalInclude(string $include): ?string
+    {
+        $segments = array_map('trim', explode('.', trim($include)));
+        $segments = array_filter($segments, static function ($segment) {
+            return $segment !== '' && $segment !== 'tags';
+        });
+
+        if (empty($segments)) {
+            return null;
+        }
+
+        return implode('.', $segments);
+    }
+
     /**
      * @return array<int, string>
      */
@@ -1274,9 +1287,9 @@ class BaseController extends Controller
             }
 
             foreach ($included as $include) {
-                $include = trim($include);
+                $include = $this->normalizeFractalInclude($include);
 
-                if (empty($include)) {
+                if ($include === null) {
                     continue;
                 }
 

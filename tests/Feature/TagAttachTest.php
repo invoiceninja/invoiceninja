@@ -655,6 +655,39 @@ class TagAttachTest extends TestCase
         $this->assertSame('client-api', $tags[0]['name']);
     }
 
+    public function testTagsIncludeParameterIsIgnoredBecauseTagsAreSerializedAsFields(): void
+    {
+        $tag = $this->makeTag(Invoice::class, 'invoice-include');
+        $this->invoice->syncTags([$this->encodePrimaryKey($tag->id)]);
+
+        $response = $this->withHeaders($this->headers())
+            ->getJson('/api/v1/invoices/'.$this->encodePrimaryKey($this->invoice->id).'?include=tags');
+
+        $response->assertStatus(200);
+
+        $tags = $response->json('data.tags');
+        $this->assertCount(1, $tags);
+        $this->assertSame($this->encodePrimaryKey($tag->id), $tags[0]['id']);
+        $this->assertSame('invoice-include', $tags[0]['name']);
+    }
+
+    public function testNestedTagsIncludeParameterPreservesParentInclude(): void
+    {
+        $tag = $this->makeTag(get_class($this->client), 'client-include');
+        $this->client->syncTags([$this->encodePrimaryKey($tag->id)]);
+
+        $response = $this->withHeaders($this->headers())
+            ->getJson('/api/v1/invoices/'.$this->encodePrimaryKey($this->invoice->id).'?include=client.tags');
+
+        $response->assertStatus(200);
+        $this->assertSame($this->encodePrimaryKey($this->client->id), $response->json('data.client.id'));
+
+        $tags = $response->json('data.client.tags');
+        $this->assertCount(1, $tags);
+        $this->assertSame($this->encodePrimaryKey($tag->id), $tags[0]['id']);
+        $this->assertSame('client-include', $tags[0]['name']);
+    }
+
     public function testArchivedTagIsHiddenFromTagIndexButReturnedOnTaskPayload(): void
     {
         $tag = $this->makeTag(Task::class, 'archived-task', '#00ff00');
