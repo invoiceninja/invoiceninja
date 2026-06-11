@@ -52,26 +52,27 @@ class AutoBill implements ShouldQueue
         if ($this->db) {
             MultiDB::setDb($this->db);
         }
-        $invoice = false;
+
+
+        nlog("autobill {$this->invoice_id}");
+
+        $invoice = Invoice::withTrashed()->find($this->invoice_id);
+
+        if(!$invoice)
+        return;
 
 
         try {
 
-            nlog("autobill {$this->invoice_id}");
-
-            $invoice = Invoice::withTrashed()->find($this->invoice_id);
-
-            if ($invoice) {
-                App::setLocale($invoice->client->locale());
-                $t = app('translator');
-                $t->replace(Ninja::transformTranslations($invoice->client->getMergedSettings()));
-                $invoice->service()->autoBill();
-            }
+            App::setLocale($invoice->client->locale());
+            $t = app('translator');
+            $t->replace(Ninja::transformTranslations($invoice->client->getMergedSettings()));
+            $invoice->service()->autoBill();
 
         } catch (\Exception $e) {
             nlog("Failed to capture payment for {$this->invoice_id} ->" . $e->getMessage());
 
-            if ($this->send_email_on_failure && $invoice) {
+            if ($this->send_email_on_failure) {
 
                 $invoice->invitations->each(function ($invitation) use ($invoice) {
 

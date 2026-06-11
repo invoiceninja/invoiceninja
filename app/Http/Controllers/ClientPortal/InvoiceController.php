@@ -61,10 +61,10 @@ class InvoiceController extends Controller
     {
         set_time_limit(0);
 
+        /** @var \App\Models\InvoiceInvitation|null $invitation */
         $invitation = $invoice->invitations()->where('client_contact_id', auth()->guard('contact')->user()->id)->first();
 
-        // @phpstan-ignore-next-line
-        if ($invitation && auth()->guard('contact') && ! session()->get('is_silent') && ! $invitation->viewed_date) {
+        if ($invitation && auth()->guard('contact')->check() && ! session()->get('is_silent') && ! $invitation->viewed_date) {
             $invitation->markViewed();
 
             event(new InvitationWasViewed($invoice, $invitation, $invoice->company, Ninja::eventVars()));
