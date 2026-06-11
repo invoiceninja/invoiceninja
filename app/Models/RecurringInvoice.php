@@ -24,6 +24,7 @@ use App\Services\Recurring\RecurringService;
 use App\Utils\Traits\Recurring\HasRecurrence;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Presenters\RecurringInvoicePresenter;
+use App\Models\Traits\HasTags;
 use App\Models\Traits\IndexableItems;
 /**
  * Class for Recurring Invoices.
@@ -139,6 +140,7 @@ class RecurringInvoice extends BaseModel
     use HasRecurrence;
     use PresentableTrait;
     use Searchable;
+    use HasTags;
     use IndexableItems;
 
     protected $presenter = RecurringInvoicePresenter::class;
@@ -308,6 +310,7 @@ class RecurringInvoice extends BaseModel
             'custom_value4' => (string) $this->custom_value4,
             'company_key' => $this->company->company_key,
             'po_number' => (string) $this->po_number,
+            'tags' => $this->tags->pluck('name')->values()->all(),
             'line_items' => $this->indexLineItems(),
         ];
     }

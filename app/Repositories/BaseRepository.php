@@ -26,6 +26,7 @@ use App\Utils\Helpers;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
+use Illuminate\Validation\ValidationException;
 
 class BaseRepository
 {
@@ -154,6 +155,8 @@ class BaseRepository
             $model->client_id = $data['client_id'];
         }
 
+        $tag_ids = $this->resolveTagIdsForSync($data, $model);
+
         $client = Client::query()->with('group_settings')->where('id', $model->client_id)->withTrashed()->firstOrFail();
 
         $state = [];
@@ -181,6 +184,10 @@ class BaseRepository
 
         if (isset($tmp_data['client_contacts'])) {
             unset($tmp_data['client_contacts']);
+        }
+
+        if (isset($tmp_data['tags'])) {
+            unset($tmp_data['tags']);
         }
 
         $model->fill($tmp_data);
@@ -440,7 +447,58 @@ class BaseRepository
 
         $model->saveQuietly();
 
+        $this->syncResolvedTags($model, $tag_ids);
+
         return $model->fresh();
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @return array<int>|null
+     */
+    protected function resolveTagIdsForSync(array &$data, object $model): ?array
+    {
+        if (! array_key_exists('tags', $data)) {
+            return null;
+        }
+
+        if (! method_exists($model, 'tags') || ! method_exists($model, 'resolveTagIds')) {
+            unset($data['tags']);
+
+            return null;
+        }
+
+        if (! is_array($data['tags'])) {
+            throw ValidationException::withMessages([
+                'tags' => ['One or more tags are invalid for this entity.'],
+            ]);
+        }
+
+        $tag_ids = $model::resolveTagIds($data['tags'], (int) $model->company_id);
+
+        unset($data['tags']);
+
+        return $tag_ids;
+    }
+
+    /**
+     * @param array<int>|null $tag_ids
+     */
+    protected function syncResolvedTags(object $model, ?array $tag_ids): void
+    {
+        if ($tag_ids === null || ! method_exists($model, 'tags')) {
+            return;
+        }
+
+        $model->tags()->sync($tag_ids);
+
+        if (method_exists($model, 'touchQuietly')) {
+            $model->touchQuietly();
+        }
+
+        if (method_exists($model, 'searchable')) {
+            $model->searchable();
+        }
     }
 
     public function bulkUpdate(\Illuminate\Database\Eloquent\Builder $model, string $column, mixed $new_value): void

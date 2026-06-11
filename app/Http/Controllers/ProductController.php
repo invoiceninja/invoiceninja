@@ -88,7 +88,7 @@ class ProductController extends BaseController
      */
     public function index(ProductFilters $filters)
     {
-        $products = Product::filter($filters);
+        $products = Product::filter($filters)->with('tags');
 
         return $this->listResponse($products);
     }

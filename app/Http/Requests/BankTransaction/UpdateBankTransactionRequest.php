@@ -13,11 +13,15 @@
 namespace App\Http\Requests\BankTransaction;
 
 use App\Http\Requests\Request;
+use App\Models\BankTransaction;
 use App\Utils\Traits\MakesHash;
 
 class UpdateBankTransactionRequest extends Request
 {
     use MakesHash;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = BankTransaction::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -50,7 +54,7 @@ class UpdateBankTransactionRequest extends Request
         $rules['bank_integration_id'] = 'bail|required|exists:bank_integrations,id,company_id,' . auth()->user()->company()->id . ',is_deleted,0';
 
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function prepareForValidation()
@@ -76,6 +80,6 @@ class UpdateBankTransactionRequest extends Request
             $input['bank_integration_id'] = $this->decodePrimaryKey($input['bank_integration_id']);
         }
 
-        $this->replace($input);
+        $this->replace($this->normalizeTagPayloadForValidation($input));
     }
 }

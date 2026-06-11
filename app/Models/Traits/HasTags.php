@@ -33,6 +33,17 @@ trait HasTags
 {
     use MakesHash;
 
+    public static function bootHasTags(): void
+    {
+        if (! method_exists(static::class, 'forceDeleted')) {
+            return;
+        }
+
+        static::forceDeleted(function (object $model): void {
+            $model->tags()->detach();
+        });
+    }
+
     public function tags(): MorphToMany
     {
         return $this->morphToMany(Tag::class, 'taggable')

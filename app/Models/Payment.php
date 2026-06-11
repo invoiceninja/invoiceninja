@@ -22,6 +22,7 @@ use App\Events\Payment\PaymentWasVoided;
 use App\Services\Payment\PaymentService;
 use App\Utils\Traits\Payment\Refundable;
 use App\Events\Payment\PaymentWasRefunded;
+use App\Models\Traits\HasTags;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -103,6 +104,7 @@ class Payment extends BaseModel
     use SoftDeletes;
     use Refundable;
     use Inviteable;
+    use HasTags;
 
     public const STATUS_PENDING = 1;
 

@@ -120,7 +120,7 @@ class QuoteController extends BaseController
      */
     public function index(QuoteFilters $filters)
     {
-        $quotes = Quote::filter($filters);
+        $quotes = Quote::filter($filters)->with('tags');
 
         return $this->listResponse($quotes);
     }

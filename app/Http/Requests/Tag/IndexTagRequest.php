@@ -26,7 +26,18 @@ class IndexTagRequest extends Request
     public function rules(): array
     {
         return [
-            'entity_type' => ['required', 'string', Rule::in(array_keys(Tag::TAGGABLE_TYPES))],
+            'entity_type' => ['required', 'string', Rule::in(array_values(Tag::TAGGABLE_TYPES))],
         ];
+    }
+
+    public function prepareForValidation(): void
+    {
+        $input = $this->all();
+
+        if (array_key_exists('entity_type', $input) && is_string($input['entity_type'])) {
+            $input['entity_type'] = Tag::normalizeEntityType($input['entity_type']) ?? $input['entity_type'];
+        }
+
+        $this->replace($input);
     }
 }

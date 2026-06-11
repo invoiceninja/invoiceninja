@@ -203,7 +203,7 @@ class Request extends FormRequest
             }
         }
 
-        $input = $this->normalizeTagPayload($input);
+        $input = $this->normalizeTagPayloadForValidation($input);
 
         return $input;
     }
@@ -212,7 +212,7 @@ class Request extends FormRequest
      * @param  array<string, mixed> $input
      * @return array<string, mixed>
      */
-    private function normalizeTagPayload(array $input): array
+    protected function normalizeTagPayloadForValidation(array $input): array
     {
         if (! array_key_exists('tags', $input) || ! is_array($input['tags'])) {
             return $input;

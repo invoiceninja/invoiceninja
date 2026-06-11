@@ -180,6 +180,7 @@ class ClientTransformer extends EntityTransformer
             'tax_info' => $client->tax_data ?: new \stdClass(),
             'classification' => $client->classification ?: '',
             'e_invoice' => $client->e_invoice ?: new \stdClass(),
+            'tags' => $this->transformTags($client),
         ];
     }
 }

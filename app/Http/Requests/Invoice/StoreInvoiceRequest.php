@@ -26,6 +26,9 @@ class StoreInvoiceRequest extends Request
     use MakesHash;
     use CleanLineItems;
 
+    /** @var class-string */
+    protected ?string $tag_entity_type = Invoice::class;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -85,7 +88,7 @@ class StoreInvoiceRequest extends Request
 
         // $rules['modified_invoice_id'] = ['bail', 'sometimes', 'nullable', new CanGenerateModificationInvoice()];
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function prepareForValidation()

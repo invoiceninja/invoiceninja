@@ -45,8 +45,21 @@ class Tag extends BaseModel
      * @var array<class-string>
      */
     public const TAGGABLE_TYPES = [
-        'task' =>Task::class,
+        'bank_transaction' => BankTransaction::class,
+        'client' => Client::class,
+        'credit' => Credit::class,
+        'expense' => Expense::class,
+        'invoice' => Invoice::class,
+        'payment' => Payment::class,
+        'product' => Product::class,
         'project' => Project::class,
+        'purchase_order' => PurchaseOrder::class,
+        'quote' => Quote::class,
+        'recurring_expense' => RecurringExpense::class,
+        'recurring_invoice' => RecurringInvoice::class,
+        'task' => Task::class,
+        'transaction' => BankTransaction::class,
+        'vendor' => Vendor::class,
     ];
 
     /**

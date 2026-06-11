@@ -52,7 +52,14 @@ class PaymentRepository extends BaseRepository
      */
     public function save(array $data, Payment $payment): ?Payment
     {
-        return $this->applyPayment($data, $payment);
+        $tag_ids = $this->resolveTagIdsForSync($data, $payment);
+        $payment = $this->applyPayment($data, $payment);
+
+        if ($payment) {
+            $this->syncResolvedTags($payment, $tag_ids);
+        }
+
+        return $payment;
     }
 
     /**

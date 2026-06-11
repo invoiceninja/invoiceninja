@@ -15,6 +15,7 @@ namespace App\Models;
 use Elastic\ScoutDriverPlus\Searchable;
 use App\Utils\Traits\AppSetup;
 use App\DataMapper\CompanySettings;
+use App\Models\Traits\HasTags;
 use Illuminate\Support\Facades\App;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Support\Facades\Cache;
@@ -104,6 +105,7 @@ class Vendor extends BaseModel
     use PresentableTrait;
     use AppSetup;
     use Searchable;
+    use HasTags;
 
     /**
      * Get the index name for the model.
@@ -197,6 +199,7 @@ class Vendor extends BaseModel
             'custom_value3' => $this->custom_value3,
             'custom_value4' => $this->custom_value4,
             'company_key' => $this->company->company_key,
+            'tags' => $this->tags->pluck('name')->values()->all(),
         ];
     }
 

@@ -29,6 +29,9 @@ class StorePaymentRequest extends Request
 {
     use MakesHash;
 
+    /** @var class-string */
+    protected ?string $tag_entity_type = Payment::class;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -65,7 +68,7 @@ class StorePaymentRequest extends Request
         $rules['documents'] = 'bail|sometimes|array';
         $rules['documents.*'] = $this->fileValidation();
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
 
@@ -218,7 +221,7 @@ class StorePaymentRequest extends Request
 
         $input['lock_key'] = $hash;
 
-        $this->replace($input);
+        $this->replace($this->normalizeTagPayloadForValidation($input));
     }
 
 
