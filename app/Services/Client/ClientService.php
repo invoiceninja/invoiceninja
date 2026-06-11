@@ -73,7 +73,8 @@ class ClientService
 
             $paid_to_date = Invoice::withTrashed()
                         ->where('client_id', $this->client->id)
-                        ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                        ->whereIn('status_id', [Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
+                        ->where('is_proforma', false)
                         ->where('is_deleted', false)
                         ->sum('paid_to_date');
 
