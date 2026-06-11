@@ -2198,6 +2198,7 @@ class CompanyImport implements ShouldQueue
         // }
 
         // return $obj_array;
+
     }
 
     private function recordProductIds($ids)
