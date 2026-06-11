@@ -522,11 +522,9 @@ class CompanyExport implements ShouldQueue
 
 
         $this->export_data['task_statuses'] = $this->company->task_statuses->map(function ($status) {
-            $status->id = $this->encodePrimaryKey($status->id); /** @phpstan-ignore-line */
-            $status->user_id = $this->encodePrimaryKey($status->user_id);/** @phpstan-ignore-line */
-            $status->company_id = $this->encodePrimaryKey($status->company_id); /** @phpstan-ignore-line */
+            $status = $this->transformArrayOfKeys($status, ['user_id', 'company_id']);
 
-            return $this->withoutRelations($status);
+            return $this->withoutRelations($status->makeVisible(['id']));
         })->all();
 
 
