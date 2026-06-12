@@ -58,6 +58,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $vendor_hash
  * @property string|null $public_notes
  * @property string|null $classification
+ * @property \App\DataMapper\VendorSync|null $sync
  * @property string|null $id_number
  * @property int|null $language_id
  * @property int|null $last_login
@@ -408,6 +409,11 @@ class Vendor extends BaseModel
     public function expenses(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Expense::class)->withTrashed();
+    }
+
+    public function recurring_expenses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(RecurringExpense::class)->withTrashed();
     }
 
     public function invoices(): \Illuminate\Database\Eloquent\Relations\HasMany

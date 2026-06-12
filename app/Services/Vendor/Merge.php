@@ -46,6 +46,7 @@ class Merge extends AbstractService
         $this->mergable_vendor->quotes()->update(['vendor_id' => $this->vendor->id]);
         $this->mergable_vendor->purchase_orders()->update(['vendor_id' => $this->vendor->id]);
         $this->mergable_vendor->documents()->update(['documentable_id' => $this->vendor->id]);
+        $this->mergable_vendor->recurring_expenses()->update(['vendor_id' => $this->vendor->id]);
 
         /* Loop through contacts an only merge distinct contacts by email */
         $this->mergable_vendor->contacts->each(function ($contact) {

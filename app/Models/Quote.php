@@ -70,7 +70,7 @@ use App\Models\Traits\IndexableItems;
  * @property float $tax_rate2
  * @property string|null $tax_name3
  * @property float $tax_rate3
- * @property string $total_taxes
+ * @property float $total_taxes
  * @property bool $uses_inclusive_taxes
  * @property string|null $custom_value1
  * @property string|null $custom_value2

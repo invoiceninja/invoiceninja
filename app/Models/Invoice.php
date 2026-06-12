@@ -92,6 +92,7 @@ use App\Models\Traits\IndexableItems;
  * @property float $exchange_rate
  * @property float $amount
  * @property float $balance
+ * @property float $gateway_fee
  * @property float|null $partial
  * @property string|null|\Carbon\Carbon $partial_due_date
  * @property string|null $last_viewed

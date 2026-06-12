@@ -46,7 +46,7 @@ use App\Models\Traits\IndexableItems;
  * @property string|null $due_date
  * @property bool $is_deleted
  * @property bool $can_sign
- * @property array $line_items
+ * @property array|string|null $line_items
  * @property object|string|null $backup
  * @property string|null $footer
  * @property string|null $public_notes
@@ -63,6 +63,7 @@ use App\Models\Traits\IndexableItems;
  * @property string|null $custom_value2
  * @property string|null $custom_value3
  * @property string|null $custom_value4
+ * @property object|null $e_invoice
  * @property float $amount
  * @property float $balance
  * @property float|null $partial
