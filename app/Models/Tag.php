@@ -39,12 +39,15 @@ class Tag extends BaseModel
     use SoftDeletes;
     use Filterable;
 
+    public const GLOBAL_ENTITY_TYPE = Company::class;
+
     /**
      * List of FQCNs that may be referenced by `entity_type`.
      *
      * @var array<class-string>
      */
     public const TAGGABLE_TYPES = [
+        'global' => self::GLOBAL_ENTITY_TYPE,
         'bank_transaction' => BankTransaction::class,
         'client' => Client::class,
         'credit' => Credit::class,
