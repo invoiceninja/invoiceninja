@@ -637,6 +637,10 @@ class QbInvoice implements SyncInterface
             try {
                 $invoice = $this->findInvoice($id);
 
+                /** returns immediately if invoice is found */
+                if($invoice->id)
+                    return;
+
                 nlog("Comparing QB last updated: " . $last_updated);
                 nlog("Comparing Ninja last updated: " . $invoice->updated_at);
 
