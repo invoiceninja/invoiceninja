@@ -48,6 +48,8 @@ class QuickbooksImport implements ShouldQueue
 
     private Company $company;
 
+    public $timeout = 10800;
+
     public function __construct(public int $company_id, public string $db, private ?array $syncable = []) {}
 
     /**

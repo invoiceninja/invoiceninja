@@ -364,7 +364,7 @@ class BaseController extends Controller
 
         $resource = new Collection($query, $transformer, $this->entity_type);
 
-        $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
+        $resource->setPaginator(new IlluminatePaginatorAdapter($paginator->appends(request()->query())));
 
         return $this->response($this->manager->createData($resource)->toArray());
     }
@@ -617,7 +617,7 @@ class BaseController extends Controller
 
         $resource = new Collection($query, $transformer, $this->entity_type);
 
-        $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
+        $resource->setPaginator(new IlluminatePaginatorAdapter($paginator->appends(request()->query())));
     
 
         return $this->response($this->manager->createData($resource)->toArray());
@@ -722,7 +722,7 @@ class BaseController extends Controller
         $query = $paginator->getCollection();// @phpstan-ignore-line
 
         $resource = new Collection($query, $transformer, $this->entity_type);
-        $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
+        $resource->setPaginator(new IlluminatePaginatorAdapter($paginator->appends(request()->query())));
     
         return $this->response($this->manager->createData($resource)->toArray());
     }
@@ -988,7 +988,7 @@ class BaseController extends Controller
         $query = $paginator->getCollection();// @phpstan-ignore-line
 
         $resource = new Collection($query, $transformer, $this->entity_type);
-        $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
+        $resource->setPaginator(new IlluminatePaginatorAdapter($paginator->appends(request()->query())));
     
 
         return $this->response($this->manager->createData($resource)->toArray()); //@phpstan-ignore-line
@@ -1055,8 +1055,8 @@ class BaseController extends Controller
         $query = $paginator->getCollection();// @phpstan-ignore-line
 
         $resource = new Collection($query, $transformer, $this->entity_type);
-        $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
-    
+        $resource->setPaginator(new IlluminatePaginatorAdapter($paginator->appends(request()->query())));
+        
         return $this->response($this->manager->createData($resource)->toArray());
     }
 
