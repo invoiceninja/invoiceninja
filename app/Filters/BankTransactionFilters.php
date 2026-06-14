@@ -160,7 +160,7 @@ class BankTransactionFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
-        if (!in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))) {
+        if (!isset($sort_col[1]) ||!in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))) {
             return $this->builder;
         }
 

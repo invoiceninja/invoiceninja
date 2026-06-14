@@ -89,7 +89,8 @@ trait HasTags
         $found = Tag::withTrashed()
             ->whereIn('id', $tag_ids)
             ->where('company_id', $company_id)
-            ->where('entity_type', static::class)
+            ->whereIn('entity_type', [static::class, Tag::GLOBAL_ENTITY_TYPE])
+            // ->where('entity_type', static::class)
             ->where('is_deleted', false)
             ->pluck('id');
 
