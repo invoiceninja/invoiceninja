@@ -77,7 +77,8 @@ class QuickbooksImport implements ShouldQueue
         try {
 
             if (count($this->syncable ?? []) > 0) {
-                /** @var mixed $this- */
+                
+                
                 return $this->performInitialSync();
             }
 
