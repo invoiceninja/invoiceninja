@@ -22,7 +22,7 @@ use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Factory\RecurringInvoiceFactory;
 use App\Helpers\Invoice\InvoiceSum;
-use App\Services\Hosted\HostedPlanCatalogSeeder;
+use App\Console\Stubs\HostedPlanCatalogStub;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Libraries\MultiDB;
 use App\Models\Account;
@@ -407,7 +407,7 @@ class CreateSingleAccount extends Command
 
     private function createSubsData($company, $user)
     {
-        (new HostedPlanCatalogSeeder())->seed(
+        (new HostedPlanCatalogStub())->seed(
             $company,
             $user,
             fn (string $message) => $this->info($message),
