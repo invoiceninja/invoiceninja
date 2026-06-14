@@ -124,6 +124,24 @@ class SdkWrapperTokenRefreshTest extends TestCase
         $this->assertSame('retry-access-token', $this->company->fresh()->quickbooks->accessTokenKey);
     }
 
+    public function test_fetch_records_page_uses_start_position_and_page_size(): void
+    {
+        $this->configureQuickbooks(accessTokenExpiresAt: time() + 3600);
+
+        $sdk = Mockery::mock(DataService::class)->makePartial();
+        $sdk->shouldReceive('Query')
+            ->once()
+            ->with('select * from Customer', 1001, 1000)
+            ->andReturn((object) ['Id' => '42']);
+
+        $wrapper = new SdkWrapper($sdk, $this->company);
+
+        $records = $wrapper->fetchRecordsPage('Customer', 1001, 5000);
+
+        $this->assertCount(1, $records);
+        $this->assertSame('42', $records[0]->Id);
+    }
+
     private function configureQuickbooks(int $accessTokenExpiresAt): void
     {
         $this->company->quickbooks = new QuickbooksSettings([

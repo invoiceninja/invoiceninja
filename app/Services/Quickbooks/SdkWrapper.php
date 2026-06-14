@@ -284,6 +284,21 @@ class SdkWrapper
         return $this->execute(fn () => $this->sdk->Void($entity));
     }
 
+    public function fetchRecordsPage(string $entity, int $startPosition = 1, int $limit = self::MAXRESULTS): array
+    {
+        if (!in_array($entity, $this->entities)) {
+            return [];
+        }
+
+        $startPosition = max(1, $startPosition);
+        $limit = max(1, min($limit, self::MAXRESULTS));
+
+        $whereClause = $this->buildEntityWhereClause($entity);
+        $baseQuery = "select * from $entity" . ($whereClause ? " WHERE $whereClause" : "");
+
+        return $this->normalizeRecords($this->query($baseQuery, $startPosition, $limit));
+    }
+
     public function fetchRecords(string $entity, int $max = 100000): array
     {
 
@@ -325,6 +340,19 @@ class SdkWrapper
         }
 
         return $records;
+    }
+
+    private function normalizeRecords(mixed $records): array
+    {
+        if (empty($records)) {
+            return [];
+        }
+
+        if (is_array($records)) {
+            return array_is_list($records) ? $records : [$records];
+        }
+
+        return [$records];
     }
 
     /**
