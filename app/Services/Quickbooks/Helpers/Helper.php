@@ -366,7 +366,11 @@ class Helper
                 $item->product_key = data_get($qb_item, 'SalesItemLineDetail.ItemRef.name', '');
                 $item->notes = data_get($qb_item, 'Description', '');
                 $item->quantity = (float) (data_get($qb_item, 'SalesItemLineDetail.Qty') ?? 1);
-                $item->cost = (float) (data_get($qb_item, 'SalesItemLineDetail.UnitPrice') ?? data_get($qb_item, 'SalesItemLineDetail.MarkupInfo.Value', 0));
+                $item->cost = (float) (
+                    data_get($qb_item, 'SalesItemLineDetail.UnitPrice')
+                    ?? data_get($qb_item, 'SalesItemLineDetail.MarkupInfo.Value')
+                    ?? ((float) data_get($qb_item, 'Amount', 0) / $item->quantity));
+                
                 $item->discount = (float) data_get($item, 'DiscountRate', data_get($qb_item, 'DiscountAmount', 0));
                 $item->is_amount_discount = data_get($qb_item, 'DiscountAmount', 0) > 0 ? true : false;
                 $item->type_id = stripos(data_get($qb_item, 'ItemAccountRef.name') ?? '', 'Service') !== false ? '2' : '1';

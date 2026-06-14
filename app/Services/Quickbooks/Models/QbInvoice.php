@@ -476,7 +476,7 @@ class QbInvoice implements SyncInterface
     private function formatTaxName(float $rate, ?Invoice $invoice = null): string
     {
         $state = '';
-        if ($invoice && $invoice->client) {
+        if ($invoice) {
             $state = trim($invoice->client->state ?? '');
         }
 
@@ -719,6 +719,16 @@ class QbInvoice implements SyncInterface
 
                 $ninja_payment = $payment_transformer->buildPayment($payment);
                 $ninja_payment->service()->applyNumber()->save();
+
+                $exists = \App\Models\Paymentable::withTrashed()
+                    ->where('payment_id', $ninja_payment->id)
+                    ->where('paymentable_id', $invoice->id)
+                    ->where('paymentable_type', 'invoices')
+                    ->exists();
+
+                if ($exists) {
+                    continue;
+                }
 
                 $paymentable = new \App\Models\Paymentable();
                 $paymentable->payment_id = $ninja_payment->id;

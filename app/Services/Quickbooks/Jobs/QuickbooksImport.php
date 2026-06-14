@@ -77,8 +77,7 @@ class QuickbooksImport implements ShouldQueue
         try {
 
             if (count($this->syncable ?? []) > 0) {
-                
-                
+                            
                 return $this->performInitialSync();
             }
 
@@ -125,9 +124,8 @@ class QuickbooksImport implements ShouldQueue
      *
      * Performs the initial sync of the entities specified in the syncable array.
      *
-     * @return void
      */
-    private function performInitialSync(): void
+    private function performInitialSync()
     {
         $entities = array_values($this->syncable ?? []);
 

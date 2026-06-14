@@ -18,12 +18,11 @@ use App\DataMapper\CompanySettings;
 use App\DataMapper\FeesAndLimits;
 use App\Events\Invoice\InvoiceWasCreated;
 use App\Events\RecurringInvoice\RecurringInvoiceWasCreated;
-use App\Factory\GroupSettingFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Factory\RecurringInvoiceFactory;
-use App\Factory\SubscriptionFactory;
 use App\Helpers\Invoice\InvoiceSum;
+use App\Services\Hosted\HostedPlanCatalogSeeder;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Libraries\MultiDB;
 use App\Models\Account;
@@ -43,7 +42,6 @@ use App\Models\Product;
 use App\Models\Project;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
-use App\Models\Subscription;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Models\TaxRate;
@@ -51,7 +49,6 @@ use App\Models\User;
 use App\Models\Vendor;
 use App\Models\VendorContact;
 use App\Repositories\InvoiceRepository;
-use App\Repositories\SubscriptionRepository;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
@@ -410,278 +407,11 @@ class CreateSingleAccount extends Command
 
     private function createSubsData($company, $user)
     {
-        $gs = GroupSettingFactory::create($company->id, $user->id);
-        $gs->name = "plans";
-        $gs->save();
-
-        $p1 = Product::factory()->create([
-            'user_id' => $user->id,
-            'company_id' => $company->id,
-            'product_key' => 'pro_plan',
-            'notes' => 'The Pro Plan',
-            'cost' => 12,
-            'price' => 12,
-            'quantity' => 1,
-        ]);
-
-
-        $p1a = Product::factory()->create([
-            'user_id' => $user->id,
-            'company_id' => $company->id,
-            'product_key' => 'pro_plan_annual',
-            'notes' => 'The Pro Plan Annual',
-            'cost' => 120,
-            'price' => 120,
-            'quantity' => 1,
-        ]);
-
-
-        $p2 = Product::factory()->create([
-            'user_id' => $user->id,
-            'company_id' => $company->id,
-            'product_key' => 'enterprise_plan',
-            'notes' => 'The Enterprise Plan',
-            'cost' => 16,
-            'price' => 16,
-            'quantity' => 1,
-        ]);
-
-        $pe5 = Product::factory()->create([
-            'user_id' => $user->id,
-            'company_id' => $company->id,
-            'product_key' => 'enterprise_plan_5',
-            'notes' => 'The Enterprise Plan 5',
-            'cost' => 28,
-            'price' => 28,
-            'quantity' => 1,
-        ]);
-
-        $pe10 = Product::factory()->create([
-            'user_id' => $user->id,
-            'company_id' => $company->id,
-            'product_key' => 'enterprise_plan_10',
-            'notes' => 'The Enterprise Plan 10',
-            'cost' => 56,
-            'price' => 56,
-            'quantity' => 1,
-        ]);
-
-        $pe20 = Product::factory()->create([
-            'user_id' => $user->id,
-            'company_id' => $company->id,
-            'product_key' => 'enterprise_plan_20',
-            'notes' => 'The Enterprise Plan 20',
-            'cost' => 112,
-            'price' => 112,
-            'quantity' => 1,
-        ]);
-
-        $p3 = Product::factory()->create([
-            'user_id' => $user->id,
-            'company_id' => $company->id,
-            'product_key' => 'free_plan',
-            'notes' => 'The Free Plan',
-            'cost' => 0,
-            'price' => 0,
-            'quantity' => 1,
-        ]);
-
-
-        $p4 = Product::factory()->create([
-            'user_id' => $user->id,
-            'company_id' => $company->id,
-            'product_key' => 'docuninja_user',
-            'notes' => 'The DocuNinja Monthly User Plan',
-            'cost' => 6,
-            'price' => 6,
-            'quantity' => 1,
-        ]);
-
-
-        $p5 = Product::factory()->create([
-            'user_id' => $user->id,
-            'company_id' => $company->id,
-            'product_key' => 'docuninja_user_annual',
-            'notes' => 'The DocuNinja Annual User Plan',
-            'cost' => 60,
-            'price' => 60,
-            'quantity' => 1,
-        ]);
-
-        $webhook_config = [
-            'post_purchase_url' => config('ninja.app_url').'/api/admin/plan',
-            'post_purchase_rest_method' => 'post',
-            'post_purchase_headers' => [config('ninja.ninja_hosted_header') => config('ninja.ninja_hosted_secret')],
-        ];
-
-        $sr = new SubscriptionRepository();
-        
-        $sub = SubscriptionFactory::create($company->id, $user->id);
-        $sub->name = "Pro Plan";
-        $sub->group_id = $gs->id;
-        $sub->recurring_product_ids = "{$p1->hashed_id}";
-        $sub->webhook_configuration = $webhook_config;
-        $sub->allow_plan_changes = true;
-        $sub->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
-        $sub->save();
-
-        $sr->save($sub->toArray(), $sub);
-
-        $sub = SubscriptionFactory::create($company->id, $user->id);
-        $sub->name = "Enterprise Plan";
-        $sub->group_id = $gs->id;
-        $sub->recurring_product_ids = "{$p2->hashed_id}";
-        $sub->webhook_configuration = $webhook_config;
-        $sub->allow_plan_changes = true;
-        $sub->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
-        $sub->save();
-
-        $sr->save($sub->toArray(), $sub);
-        
-        $sub = SubscriptionFactory::create($company->id, $user->id);
-        $sub->name = "Free Plan";
-        $sub->group_id = $gs->id;
-        $sub->recurring_product_ids = "{$p3->hashed_id}";
-        $sub->webhook_configuration = $webhook_config;
-        $sub->allow_plan_changes = true;
-        $sub->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
-        $sub->save();
-
-        $sr->save($sub->toArray(), $sub);
-        
-        if (!\App\Models\Subscription::find(6)) {
-
-            $sub = SubscriptionFactory::create($company->id, $user->id);
-            $sub->id = 6;
-            $sub->name = " PRO Pro Plan";
-            $sub->group_id = $gs->id;
-            $sub->recurring_product_ids = "{$p1->hashed_id}";
-            $sub->webhook_configuration = $webhook_config;
-            $sub->allow_plan_changes = true;
-            $sub->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
-            $sub->save();
-            $sr->save($sub->toArray(), $sub);
-        
-        }
-
-        if (!\App\Models\Subscription::find(11)) {
-
-            $sub = SubscriptionFactory::create($company->id, $user->id);
-            $sub->id = 11;
-            $sub->name = " EEE Enterprise Plan";
-            $sub->group_id = $gs->id;
-            $sub->recurring_product_ids = "{$p2->hashed_id}";
-            $sub->webhook_configuration = $webhook_config;
-            $sub->allow_plan_changes = true;
-            $sub->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
-            $sub->max_seats_limit = 2;
-            $sub->per_seat_enabled = true;
-            $sub->save();
-            $sr->save($sub->toArray(), $sub);
-        
-        }
-
-
-        $sub = SubscriptionFactory::create($company->id, $user->id);
-        $sub->id = 66;
-        $sub->name = " PRO Pro Plan Annual";
-        $sub->group_id = $gs->id;
-        $sub->recurring_product_ids = "{$p1a->hashed_id}";
-        $sub->webhook_configuration = $webhook_config;
-        $sub->allow_plan_changes = true;
-        $sub->frequency_id = RecurringInvoice::FREQUENCY_ANNUALLY;
-        $sub->save();
-        $sr->save($sub->toArray(), $sub);
-        
-
-        $_sub = $sub->replicate();
-        $_sub->id = 41;
-        $_sub->name = "Enterprise Plan 3-5 Users";
-        $_sub->recurring_product_ids = "{$pe5->hashed_id}";
-        $_sub->max_seats_limit = 5;
-        $_sub->per_seat_enabled = true;
-        $_sub->save();
-        $sr->save($sub->toArray(), $sub);
-        
-        $_sub = $sub->replicate();
-        $_sub->id = 46;
-        $_sub->name = "Enterprise Plan 6-10 Users";
-        $_sub->recurring_product_ids = "{$pe10->hashed_id}";
-        $_sub->max_seats_limit = 10;
-        $_sub->per_seat_enabled = true;
-        $_sub->save();
-        $sr->save($_sub->toArray(), $_sub);
-        
-        $_sub = $sub->replicate();
-        $_sub->id = 51;
-        $_sub->name = "Enterprise Plan 11-20 Users";
-        $_sub->recurring_product_ids = "{$pe20->hashed_id}";
-        $_sub->max_seats_limit = 20;
-        $_sub->per_seat_enabled = true;
-        $_sub->save();
-        $sr->save($_sub->toArray(), $_sub);
-
-
-        $sub = SubscriptionFactory::create($company->id, $user->id);
-        $sub->name = "DocuNinja Monthly Plan";
-        $sub->group_id = $gs->id;
-        $sub->recurring_product_ids = "{$p4->hashed_id}";
-        $sub->webhook_configuration = $webhook_config;
-        $sub->allow_plan_changes = true;
-        $sub->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
-        $sub->save();
-
-        $sr->save($sub->toArray(), $sub);
-
-        $sub = SubscriptionFactory::create($company->id, $user->id);
-        $sub->name = "DocuNinja Annual Plan";
-        $sub->group_id = $gs->id;
-        $sub->recurring_product_ids = "{$p5->hashed_id}";
-        $sub->webhook_configuration = $webhook_config;
-        $sub->allow_plan_changes = true;
-        $sub->frequency_id = RecurringInvoice::FREQUENCY_ANNUALLY;
-        $sub->save();
-
-        $sr->save($sub->toArray(), $sub);
-
-        if ($config = config('admin-api.products')) {
-
-            foreach ($config as $key => $product) {
-
-                if($key =='docuninja_beta_code')
-                    continue;
-
-                if (!$p = Product::where('product_key', $key)->first()) {
-
-                    $p = Product::factory()->create([
-                        'user_id' => $user->id,
-                        'company_id' => $company->id,
-                        'product_key' => $key,
-                        'notes' => $product['description'],
-                        'price' => $product['price'],
-                    ]);
-
-                    if (!Subscription::find($product['subscription_id'])) {
-
-                        $sub = SubscriptionFactory::create($company->id, $user->id);
-                        $sub->id = $product['subscription_id'];
-                        $sub->name = $product['description'];
-                        $sub->recurring_product_ids = "{$p->hashed_id}";
-                        $sub->webhook_configuration = $webhook_config;
-                        $sub->allow_plan_changes = true;
-                        $sub->frequency_id = $product['term'] == 'month' ? RecurringInvoice::FREQUENCY_MONTHLY : RecurringInvoice::FREQUENCY_ANNUALLY;
-                        $sub->max_seats_limit = $product['users'] ?? 1;
-                        $sub->per_seat_enabled = true;
-                        $sub->save();
-                        $sr->save($sub->toArray(), $sub);
-                    }
-                }
-
-            }
-
-        }
-
-
+        (new HostedPlanCatalogSeeder())->seed(
+            $company,
+            $user,
+            fn (string $message) => $this->info($message),
+        );
     }
 
 

@@ -220,6 +220,16 @@ class PaymentTransformer extends BaseTransformer
 
             if ($tx_type == 'Invoice' && $id == $invoice->sync->qb_id && $amount > 0) {
 
+                $exists = \App\Models\Paymentable::withTrashed()
+                    ->where('payment_id', $payment->id)
+                    ->where('paymentable_id', $invoice->id)
+                    ->where('paymentable_type', 'invoices')
+                    ->exists();
+
+                if ($exists) {
+                    continue;
+                }
+
                 $paymentable = new \App\Models\Paymentable();
                 $paymentable->payment_id = $payment->id;
                 $paymentable->paymentable_id = $invoice->id;
