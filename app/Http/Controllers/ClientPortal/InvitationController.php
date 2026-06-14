@@ -276,6 +276,10 @@ class InvitationController extends Controller
                                     ->with('contact.client')
                                     ->firstOrFail();
 
+        if (!empty($invitation->contact->password)) {
+            abort(404);
+        }
+
         $contact = $invitation->contact;
         $contact->password = Hash::make($request->password);
         $contact->save();
