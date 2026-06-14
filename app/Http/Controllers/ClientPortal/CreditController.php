@@ -40,7 +40,7 @@ class CreditController extends Controller
             'invitation' => $invitation,
         ];
 
-        if ($invitation && auth()->guard('contact') && ! request()->has('silent') && ! $invitation->viewed_date) {
+        if ($invitation && auth()->guard('contact')->check() && ! request()->has('silent') && ! $invitation->viewed_date) {
             $invitation->markViewed();
 
             event(new InvitationWasViewed($credit, $invitation, $credit->company, Ninja::eventVars()));
