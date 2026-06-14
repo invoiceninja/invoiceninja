@@ -591,7 +591,7 @@ class QuickbooksService
             if (! isset($this->sdk) || ! $this->sdk) {
                 return false;
             }
-            $this->sdk->Query('SELECT Id FROM CompanyInfo MAXRESULTS 1');
+            $this->sdk()->query('SELECT Id FROM CompanyInfo MAXRESULTS 1');
             return true;
         } catch (\Exception $e) {
             nlog('Quickbooks token validation failed: ' . $e->getMessage());
@@ -710,6 +710,12 @@ class QuickbooksService
         $income_accounts = $this->fetchIncomeAccounts();
         $tax_rates = $this->fetchTaxRates();
         $company_preferences = $this->sdk()->getPreferences();
+        $tax_codes = $this->fetchTaxCodes();
+        $payment_methods = $this->fetchPaymentMethods();
+
+        $this->company = $this->company->fresh() ?? $this->company;
+        $this->settings = $this->company->quickbooks->settings;
+
         $automatic_taxes = data_get($company_preferences, 'TaxPrefs.PartnerTaxEnabled', false);
         $allow_deposit = filter_var(data_get($company_preferences, 'SalesFormsPrefs.AllowDeposit', false), FILTER_VALIDATE_BOOLEAN);
 
@@ -727,7 +733,6 @@ class QuickbooksService
 
         // Resolve TaxCode IDs for multi-region support (US uses 'TAX'/'NON', CA/AU/UK use numeric IDs)
         // Build TaxRate→TaxCode map so each line item can resolve the correct TaxCodeRef
-        $tax_codes = $this->fetchTaxCodes();
         $default_taxable_code = null;
         $default_exempt_code = null;
         $tax_rate_to_tax_code = []; // TaxRate ID → TaxCode ID (sales only)
@@ -883,8 +888,6 @@ class QuickbooksService
         $this->company->quickbooks->settings->default_taxable_code = $default_taxable_code;
         $this->company->quickbooks->settings->default_exempt_code = $default_exempt_code;
 
-        // Fetch and cache payment methods for payment type mapping
-        $payment_methods = $this->fetchPaymentMethods();
         $this->company->quickbooks->settings->payment_method_map = $payment_methods;
 
         $this->company->save();
