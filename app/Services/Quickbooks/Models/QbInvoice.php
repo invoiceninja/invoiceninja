@@ -48,7 +48,7 @@ class QbInvoice implements SyncInterface
      */
     public function find(string $id): mixed
     {
-        return $this->service->sdk->FindById('Invoice', $id);
+        return $this->service->sdk()->findById('Invoice', $id);
     }
 
     /**
@@ -170,12 +170,12 @@ class QbInvoice implements SyncInterface
                 nlog("QuickBooks: Pushing invoice {$invoice->id} payload", ['data' => $qb_invoice_data]);
 
                 if (isset($invoice->sync->qb_id) && !empty($invoice->sync->qb_id)) {
-                    $result = $this->service->sdk->Update($qb_invoice);
+                    $result = $this->service->sdk()->update($qb_invoice);
                     nlog("QuickBooks: Updated invoice {$invoice->id} (QB ID: {$invoice->sync->qb_id})", [
                         'result_id' => data_get($result, 'Id'),
                     ]);
                 } else {
-                    $result = $this->service->sdk->Add($qb_invoice);
+                    $result = $this->service->sdk()->add($qb_invoice);
 
                     $sync = $invoice->sync ?? new InvoiceSync();
                     $sync->qb_id = data_get($result, 'Id') ?? data_get($result, 'Id.value');
@@ -712,7 +712,7 @@ class QbInvoice implements SyncInterface
                     continue;
                 }
 
-                $payment = $this->service->sdk->FindById('Payment', $payment_id);
+                $payment = $this->service->sdk()->findById('Payment', $payment_id);
 
                 $payment_transformer = new PaymentTransformer($this->service->company);
 

@@ -143,7 +143,7 @@ class ClientTransformer extends EntityTransformer
             'paid_to_date' => (float) $client->paid_to_date,
             'payment_balance' => (float) $client->payment_balance,
             'credit_balance' => (float) $client->credit_balance,
-            'last_login' => (int) $client->last_login,
+            'last_login' => (int) max(0, (int)$client->last_login),
             'size_id' => (string) $client->size_id,
             'public_notes' => $client->public_notes ?: '',
             'client_hash' => (string) $client->client_hash,

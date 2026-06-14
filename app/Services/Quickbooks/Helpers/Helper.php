@@ -62,7 +62,7 @@ class Helper
         try {
             // Query for discount accounts (typically named "Discounts Given" or similar)
             $query = "SELECT * FROM Account WHERE AccountType = 'Income' AND Active = true";
-            $accounts = $this->qb_service->sdk->Query($query);
+            $accounts = $this->qb_service->sdk()->query($query);
 
             if (!empty($accounts)) {
                 // Look for account with "Discount" in the name
@@ -117,7 +117,7 @@ class Helper
         // Fallback: Query QuickBooks API if no stored settings available
         try {
             $query = "SELECT * FROM Account WHERE AccountType = 'Income' AND Active = true MAXRESULTS 1";
-            $accounts = $this->qb_service->sdk->Query($query);
+            $accounts = $this->qb_service->sdk()->query($query);
 
             // QB SDK can return a single object or an array; normalize to array
             if (!empty($accounts) && !is_array($accounts)) { // @phpstan-ignore-line
