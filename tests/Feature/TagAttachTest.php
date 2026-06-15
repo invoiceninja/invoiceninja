@@ -456,6 +456,57 @@ class TagAttachTest extends TestCase
         $this->assertSame('payment-api', $tags[0]['name']);
     }
 
+    public function testPaymentStoreDecodesGlobalKeysWhenSyncingTags(): void
+    {
+        $tag = $this->makeTag(get_class($this->payment), 'payment-store-api');
+
+        $response = $this->withHeaders($this->headers())
+            ->postJson('/api/v1/payments', [
+                'client_id' => $this->encodePrimaryKey($this->client->id),
+                'assigned_user_id' => $this->encodePrimaryKey($this->user->id),
+                'amount' => 17.13,
+                'date' => now()->format('Y-m-d'),
+                'tags' => [$this->encodePrimaryKey($tag->id)],
+            ]);
+
+        $response->assertStatus(200);
+        $this->assertResponseHasOnlyTag($response, $tag);
+    }
+
+    public function testBankTransactionStoreDecodesGlobalKeysWhenSyncingTags(): void
+    {
+        $tag = $this->makeTag(get_class($this->bank_transaction), 'bank-transaction-store-api');
+
+        $response = $this->withHeaders($this->headers())
+            ->postJson('/api/v1/bank_transactions', [
+                'bank_integration_id' => $this->encodePrimaryKey($this->bank_integration->id),
+                'assigned_user_id' => $this->encodePrimaryKey($this->user->id),
+                'base_type' => 'debit',
+                'amount' => 12.34,
+                'tags' => [$this->encodePrimaryKey($tag->id)],
+            ]);
+
+        $response->assertStatus(200);
+        $this->assertResponseHasOnlyTag($response, $tag);
+    }
+
+    public function testBankTransactionUpdateDecodesGlobalKeysWhenSyncingTags(): void
+    {
+        $tag = $this->makeTag(get_class($this->bank_transaction), 'bank-transaction-update-api');
+
+        $response = $this->withHeaders($this->headers())
+            ->putJson('/api/v1/bank_transactions/'.$this->encodePrimaryKey($this->bank_transaction->id), [
+                'date' => now()->format('Y-m-d'),
+                'amount' => $this->bank_transaction->amount,
+                'bank_integration_id' => $this->encodePrimaryKey($this->bank_integration->id),
+                'assigned_user_id' => $this->encodePrimaryKey($this->user->id),
+                'tags' => [$this->encodePrimaryKey($tag->id)],
+            ]);
+
+        $response->assertStatus(200);
+        $this->assertResponseHasOnlyTag($response, $tag);
+    }
+
     public function testExpandedEntityApiUpdatesWithTagsSync(): void
     {
         $cases = [
@@ -626,6 +677,24 @@ class TagAttachTest extends TestCase
         $this->assertCount(1, $tags);
         $this->assertSame($this->encodePrimaryKey($tag->id), $tags[0]['id']);
         $this->assertSame('product-api', $tags[0]['name']);
+    }
+
+    public function testProductUpdateWithTagsSyncs(): void
+    {
+        $tag = $this->makeTag(Product::class, 'product-update-api');
+
+        $response = $this->withHeaders($this->headers())
+            ->putJson('/api/v1/products/'.$this->encodePrimaryKey($this->product->id), [
+                'product_key' => 'tagged-product-update',
+                'tags' => [$this->encodePrimaryKey($tag->id)],
+            ]);
+
+        $response->assertStatus(200);
+
+        $tags = $response->json('data.tags');
+        $this->assertCount(1, $tags);
+        $this->assertSame($this->encodePrimaryKey($tag->id), $tags[0]['id']);
+        $this->assertSame('product-update-api', $tags[0]['name']);
     }
 
     public function testClientUpdateWithTagsSyncs(): void

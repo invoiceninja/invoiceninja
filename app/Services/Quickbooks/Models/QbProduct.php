@@ -156,7 +156,9 @@ class QbProduct implements SyncInterface
     {
         $qb_record = $this->find($id);
 
-        if ($this->service->syncable('product', \App\Enum\SyncDirection::PULL) && $ninja_record = $this->findProduct($id)) {
+        if ($this->service->syncable('product', \App\Enum\SyncDirection::PULL)) {
+
+            $ninja_record = $this->findProduct($id);
 
             if (Carbon::parse($last_updated) > Carbon::parse($ninja_record->updated_at)) {
                 $ninja_data = $this->product_transformer->qbToNinja($qb_record, $this->service);
@@ -219,13 +221,12 @@ class QbProduct implements SyncInterface
      *
      * Creates a product in quickbooks
      *
-     * @param  object|Product $line_item
+     * @param  mixed $line_item
      * @return string
      */
-    private function createQbProduct(object $line_item): ?string
+    private function createQbProduct(mixed $line_item): ?string
     {
 
-        /** @var ?Product $product */
         $product = null;
 
         if ($line_item instanceof Product) {

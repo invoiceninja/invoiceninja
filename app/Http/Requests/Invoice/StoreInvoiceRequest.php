@@ -86,8 +86,6 @@ class StoreInvoiceRequest extends Request
         $rules['custom_surcharge4'] = ['sometimes', 'nullable', 'bail', 'numeric', 'max:99999999999999'];
         $rules['location_id'] = ['nullable', 'sometimes','bail', Rule::exists('locations', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)];
 
-        // $rules['modified_invoice_id'] = ['bail', 'sometimes', 'nullable', new CanGenerateModificationInvoice()];
-
         return $this->globalRules($rules);
     }
 

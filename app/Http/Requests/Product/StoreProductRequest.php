@@ -84,6 +84,6 @@ class StoreProductRequest extends Request
             }
         }
 
-        $this->replace($this->normalizeTagPayloadForValidation($input));
+        $this->replace($input);
     }
 }

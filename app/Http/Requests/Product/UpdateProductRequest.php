@@ -72,9 +72,7 @@ class UpdateProductRequest extends Request
             unset($input['documents']);
         }
 
-        if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
-            $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
-        }
+        $input = $this->decodePrimaryKeys($input);
 
         if (array_key_exists('in_stock_quantity', $input) && request()->has('update_in_stock_quantity') && request()->input('update_in_stock_quantity') == 'true') {
         } elseif (array_key_exists('in_stock_quantity', $input)) {
@@ -87,6 +85,6 @@ class UpdateProductRequest extends Request
             }
         }
 
-        $this->replace($this->normalizeTagPayloadForValidation($input));
+        $this->replace($input);
     }
 }

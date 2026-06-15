@@ -45,16 +45,18 @@ class UpdateBankTransactionRequest extends Request
             $rules['currency_id'] = 'sometimes|exists:currencies,id';
         }
 
-        if (isset($this->vendor_id)) {
-            $rules['vendor_id'] = 'bail|required|exists:vendors,id,company_id,' . auth()->user()->company()->id . ',is_deleted,0';
-        }
-
         $rules['amount'] = ['sometimes', 'bail', 'nullable', 'numeric', 'max:99999999999999'];
 
         $rules['bank_integration_id'] = 'bail|required|exists:bank_integrations,id,company_id,' . auth()->user()->company()->id . ',is_deleted,0';
 
+        $rules = $this->globalRules($rules);
 
-        return $this->globalRules($rules);
+        if (isset($this->vendor_id)) {
+            $rules['vendor_id'] = 'bail|required|exists:vendors,id,company_id,' . auth()->user()->company()->id . ',is_deleted,0';
+        }
+
+        return $rules;
+
     }
 
     public function prepareForValidation()
@@ -80,6 +82,8 @@ class UpdateBankTransactionRequest extends Request
             $input['bank_integration_id'] = $this->decodePrimaryKey($input['bank_integration_id']);
         }
 
-        $this->replace($this->normalizeTagPayloadForValidation($input));
+        $input = $this->decodePrimaryKeys($input);
+
+        $this->replace($input);
     }
 }

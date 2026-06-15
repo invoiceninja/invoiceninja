@@ -29,7 +29,7 @@ class SubscriptionFactory
 
         $billing_subscription->webhook_configuration = [
             'post_purchase_url' => '',
-            'post_purchase_method' => 'post',
+            'post_purchase_rest_method' => 'post',
             'post_purchase_headers' => [],
             'return_url' => '',
         ];

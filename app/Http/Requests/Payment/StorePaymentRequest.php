@@ -160,6 +160,8 @@ class StorePaymentRequest extends Request
             $this->files->set('file', [$this->file('file')]);
         }
 
+        $input = $this->decodePrimaryKeys($input);
+
         $invoices_total = 0;
         $credits_total = 0;
 
@@ -221,7 +223,7 @@ class StorePaymentRequest extends Request
 
         $input['lock_key'] = $hash;
 
-        $this->replace($this->normalizeTagPayloadForValidation($input));
+        $this->replace($input);
     }
 
 

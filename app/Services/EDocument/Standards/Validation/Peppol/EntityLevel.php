@@ -195,7 +195,7 @@ class EntityLevel implements EntityLevelInterface
             $errors[] = ['field' => 'email', 'label' => ctrans("texts.email")];
         }
 
-        if ($client->country_id && $client->country) {
+        if ($client->country_id && $client->country) { //@phpstan-ignore-line
             $non_routable = $client->checkDeliveryNetwork();
 
             if (is_string($non_routable)) {

@@ -348,6 +348,7 @@ class InvoicePay extends Component
 
         $invoices = Invoice::withTrashed()
                         ->whereIn('id', $this->transformKeys($this->invoices))
+                        ->where('client_id', $invite->contact->client_id)
                         ->where('is_deleted', 0)
                         ->get()
                         ->map(function (Invoice $invoice): ?Invoice {

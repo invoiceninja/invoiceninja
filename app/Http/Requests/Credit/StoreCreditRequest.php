@@ -81,15 +81,17 @@ class StoreCreditRequest extends Request
 
         $rules['date'] = 'bail|sometimes|date:Y-m-d';
 
-        if ($this->invoice_id) {
-            $rules['invoice_id'] = new ValidInvoiceCreditRule();
-        }
-
         $rules['line_items'] = 'array';
 
         $rules['location_id'] = ['nullable', 'sometimes','bail',Rule::exists('locations', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)];
 
-        return $this->globalRules($rules);
+        $rules =$this->globalRules($rules);
+
+        if ($this->invoice_id) {
+            $rules['invoice_id'] = new ValidInvoiceCreditRule();
+        }
+
+        return $rules;
     }
 
     public function prepareForValidation()

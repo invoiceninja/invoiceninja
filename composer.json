@@ -117,8 +117,7 @@
         "twig/twig": "^3.14",
         "twilio/sdk": "^6.40",
         "wikimedia/composer-merge-plugin": "^2.1",
-        "wildbit/postmark-php": "^4.0",
-        "invoiceninja/admin-api": "dev-main"
+        "wildbit/postmark-php": "^4.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^4.0",
@@ -134,7 +133,8 @@
         "phpstan/phpstan": "^2.0",
         "phpunit/phpunit": "^11|^12",
         "spatie/laravel-ignition": "^2.0",
-        "spaze/phpstan-stripe": "^3.0|^4.0"
+        "spaze/phpstan-stripe": "^3.0|^4.0",
+        "invoiceninja/admin-api": "dev-main"
     },
     "autoload": {
         "psr-4": {
