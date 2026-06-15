@@ -195,7 +195,7 @@ class TagApiTest extends TestCase
     {
         $response = $this->withHeaders($this->headers())->getJson('/api/v1/tags');
 
-        $response->assertStatus(422);
+        $response->assertStatus(200);
     }
 
     public function testIndexFilterByEntityType(): void
@@ -254,7 +254,7 @@ class TagApiTest extends TestCase
         ]);
 
         $response = $this->withHeaders($this->headers())
-            ->getJson('/api/v1/tags?entity_type='.urlencode(Project::class));
+            ->getJson('/api/v1/tags?entity_type=project');
 
         $response->assertStatus(200);
 
