@@ -730,11 +730,22 @@ class QbInvoice implements SyncInterface
                     continue;
                 }
 
+
+                $amount = $payment_transformer->appliedAmountForInvoice(
+                    $payment,
+                    (string) $invoice->sync->qb_id
+                );
+
+                if ($amount <= 0) {
+                    continue;
+                }
+
                 $paymentable = new \App\Models\Paymentable();
                 $paymentable->payment_id = $ninja_payment->id;
                 $paymentable->paymentable_id = $invoice->id;
                 $paymentable->paymentable_type = 'invoices';
-                $paymentable->amount = $transformed['applied'] + $ninja_payment->credits->sum('amount');
+                // $paymentable->amount = $transformed['applied'] + $ninja_payment->credits->sum('amount');
+                $paymentable->amount = $amount;
                 $paymentable->created_at = $ninja_payment->date; //@phpstan-ignore-line
                 $paymentable->save();
 

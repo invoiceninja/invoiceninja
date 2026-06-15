@@ -365,4 +365,35 @@ class PaymentTransformer extends BaseTransformer
         ]];
     }
 
+    public function appliedAmountForInvoice(mixed $qbPayment, string $invoiceQbId): float
+    {
+        $amount = 0.0;
+
+        foreach ($this->normalizeQuickBooksArray(data_get($qbPayment, 'Line', [])) as $line) {
+            foreach ($this->normalizeQuickBooksArray(data_get($line, 'LinkedTxn', [])) as $linkedTxn) {
+                if (
+                    data_get($linkedTxn, 'TxnType') === 'Invoice'
+                    && (string) data_get($linkedTxn, 'TxnId') === $invoiceQbId
+                ) {
+                    $amount += (float) data_get($line, 'Amount', 0);
+                }
+            }
+        }
+
+        return round($amount, 4);
+    }
+
+    private function normalizeQuickBooksArray(mixed $value): array
+    {
+        if ($value === null || $value === false || $value === '') {
+            return [];
+        }
+
+        if (is_array($value) && array_is_list($value)) {
+            return $value;
+        }
+
+        return [$value];
+    }
+
 }
