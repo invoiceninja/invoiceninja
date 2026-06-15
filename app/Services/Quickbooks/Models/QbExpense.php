@@ -35,7 +35,7 @@ class QbExpense implements SyncInterface
 
     public function find(string $id): mixed
     {
-        return $this->service->sdk->FindById('Expense', $id);
+        return $this->service->sdk()->findById('Expense', $id);
     }
 
     public function syncToNinja(array $records): void
@@ -110,11 +110,11 @@ class QbExpense implements SyncInterface
 
                 if (isset($expense->sync->qb_id) && !empty($expense->sync->qb_id)) {
                     // Update existing expense
-                    $result = $this->service->sdk->Update($qb_expense);
+                    $result = $this->service->sdk()->update($qb_expense);
                     nlog("QuickBooks: Updated expense {$expense->id} (QB ID: {$expense->sync->qb_id})");
                 } else {
                     // Create new expense
-                    $result = $this->service->sdk->Add($qb_expense);
+                    $result = $this->service->sdk()->add($qb_expense);
 
                     // Store QB ID in expense sync
                     $sync = new ExpenseSync();

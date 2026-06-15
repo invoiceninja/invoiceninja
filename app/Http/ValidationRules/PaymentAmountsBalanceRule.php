@@ -49,7 +49,7 @@ class PaymentAmountsBalanceRule implements Rule
             return true;
         }
 
-        if (request()->has('amount') && request()->input('amount') == 0) {
+        if (request()->input('amount') == 0) {
             return true;
         }
 

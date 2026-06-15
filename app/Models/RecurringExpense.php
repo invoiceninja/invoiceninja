@@ -13,6 +13,7 @@
 namespace App\Models;
 
 use App\Services\Recurring\RecurringService;
+use App\Models\Traits\HasTags;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
@@ -147,6 +148,7 @@ class RecurringExpense extends BaseModel
 {
     use SoftDeletes;
     use Filterable;
+    use HasTags;
 
     protected $fillable = [
         'client_id',

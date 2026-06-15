@@ -18,6 +18,7 @@ use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\MakesHash;
 use App\DataMapper\FeesAndLimits;
 use App\Models\Traits\Excludable;
+use App\Models\Traits\HasTags;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use Illuminate\Support\Facades\App;
@@ -136,6 +137,7 @@ class Client extends BaseModel implements HasLocalePreference
     use ClientGroupSettingsSaver;
     use Excludable;
     use Searchable;
+    use HasTags;
 
     /**
      * Get the index name for the model.
@@ -299,6 +301,7 @@ class Client extends BaseModel implements HasLocalePreference
             'custom_value3' => $this->custom_value3,
             'custom_value4' => $this->custom_value4,
             'company_key' => $this->company->company_key,
+            'tags' => $this->tags->pluck('name')->values()->all(),
         ];
     }
 

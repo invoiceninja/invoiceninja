@@ -23,6 +23,8 @@ class BankTransactionRepository extends BaseRepository
 {
     public function save($data, BankTransaction $bank_transaction)
     {
+        $tag_ids = $this->resolveTagIdsForSync($data, $bank_transaction);
+
         if (array_key_exists('bank_integration_id', $data)) {
             $bank_transaction->bank_integration_id = $data['bank_integration_id'];
         }
@@ -31,6 +33,8 @@ class BankTransactionRepository extends BaseRepository
         $bank_transaction->save();
 
         $bank_transaction->service()->processRules();
+
+        $this->syncResolvedTags($bank_transaction, $tag_ids);
 
         return $bank_transaction->fresh();
     }

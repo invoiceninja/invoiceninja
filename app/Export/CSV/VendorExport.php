@@ -65,7 +65,7 @@ class VendorExport extends BaseExport
                         ->withTrashed()
                         ->where('company_id', $this->company->id);
 
-        if (!$this->input['include_deleted'] ?? false) {
+        if (!($this->input['include_deleted'] ?? false)) {
             $query->where('is_deleted', 0);
         }
 
@@ -134,9 +134,9 @@ class VendorExport extends BaseExport
         foreach (array_values($this->input['report_keys']) as $key) {
             $parts = explode('.', $key);
 
-            if (is_array($parts) && $parts[0] == 'vendor' && array_key_exists($parts[1], $transformed_vendor)) {
+            if ($parts[0] === 'vendor' && isset($parts[1], $transformed_vendor[$parts[1]])) {
                 $entity[$key] = $transformed_vendor[$parts[1]];
-            } elseif (is_array($parts) && $parts[0] == 'vendor_contact' && isset($transformed_contact[$parts[1]])) {
+            } elseif ($parts[0] === 'vendor_contact' && isset($parts[1], $transformed_contact[$parts[1]])) {
                 $entity[$key] = $transformed_contact[$parts[1]];
             } else {
 
@@ -160,7 +160,8 @@ class VendorExport extends BaseExport
         }
 
         if (in_array('vendor.classification', $this->input['report_keys']) && isset($vendor->classification)) {
-            $entity['vendor.classification'] = ctrans("texts.{$vendor->classification}") ?? '';
+            $classification = $vendor->classification ?? 'business';
+            $entity['vendor.classification'] = ctrans("texts.{$classification}");
         }
 
         if (in_array('vendor.user_id', $this->input['report_keys'])) {

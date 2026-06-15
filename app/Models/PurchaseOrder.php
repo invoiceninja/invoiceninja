@@ -23,6 +23,7 @@ use App\Helpers\Invoice\InvoiceSumInclusive;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Services\PurchaseOrder\PurchaseOrderService;
 use App\Events\PurchaseOrder\PurchaseOrderWasEmailed;
+use App\Models\Traits\HasTags;
 use App\Models\Traits\IndexableItems;
 /**
  * App\Models\PurchaseOrder
@@ -136,6 +137,7 @@ class PurchaseOrder extends BaseModel
     use Filterable;
     use SoftDeletes;
     use Searchable;
+    use HasTags;
     use IndexableItems;
     /**
      * Get the index name for the model.
@@ -253,6 +255,7 @@ class PurchaseOrder extends BaseModel
             'custom_value4' => (string) $this->custom_value4,
             'company_key' => $this->company->company_key,
             'po_number' => (string) $this->po_number,
+            'tags' => $this->tags->pluck('name')->values()->all(),
             'line_items' => $this->indexLineItems(),
         ];
 

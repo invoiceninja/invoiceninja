@@ -89,7 +89,7 @@ class PurchaseOrderController extends Controller
     {
         set_time_limit(0);
 
-        /** @var PurchaseOrderInvitation|null $invitation */
+        /** @var ?PurchaseOrderInvitation $invitation */
         $invitation = $purchase_order->invitations()->where('vendor_contact_id', auth()->guard('vendor')->user()->id)->first();
 
         if ($invitation && auth()->guard('vendor')->check() && ! session()->get('is_silent') && ! $invitation->viewed_date) {

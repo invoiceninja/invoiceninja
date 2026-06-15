@@ -117,7 +117,8 @@
         "twig/twig": "^3.14",
         "twilio/sdk": "^6.40",
         "wikimedia/composer-merge-plugin": "^2.1",
-        "wildbit/postmark-php": "^4.0"
+        "wildbit/postmark-php": "^4.0",
+        "invoiceninja/admin-api": "dev-main"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^4.0",
@@ -226,8 +227,8 @@
             "url": "https://github.com/turbo124/snappdf"
         },
         {
-            "type": "vcs",
-            "url": "https://github.com/invoiceninja/admin-api"
+            "type": "path",
+            "url": "../admin-api"
         }
     ],
     "minimum-stability": "dev",

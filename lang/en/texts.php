@@ -6272,6 +6272,7 @@ $lang = array(
     'show_events' => 'Show events',
     'merge_client' => 'Merge Client',
     'merge_vendor' => 'Merge Vendor',
+    'global' => 'Global',
 );
 
 return $lang;

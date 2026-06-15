@@ -13,6 +13,7 @@
 namespace App\Http\Requests;
 
 use App\Http\ValidationRules\User\RelatedUserRule;
+use App\Models\Tag;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -203,7 +204,7 @@ class Request extends FormRequest
             }
         }
 
-        $input = $this->normalizeTagPayload($input);
+        $input = $this->normalizeTagPayloadForValidation($input);
 
         return $input;
     }
@@ -212,7 +213,7 @@ class Request extends FormRequest
      * @param  array<string, mixed> $input
      * @return array<string, mixed>
      */
-    private function normalizeTagPayload(array $input): array
+    protected function normalizeTagPayloadForValidation(array $input): array
     {
         if (! array_key_exists('tags', $input) || ! is_array($input['tags'])) {
             return $input;
@@ -248,7 +249,7 @@ class Request extends FormRequest
                 'integer',
                 Rule::exists('tags', 'id')
                     ->where('company_id', $company_id)
-                    ->where('entity_type', $entity_type)
+                    ->whereIn('entity_type', [$entity_type, Tag::GLOBAL_ENTITY_TYPE])
                     ->where('is_deleted', false),
             ],
         ];

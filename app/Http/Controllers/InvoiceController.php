@@ -123,7 +123,7 @@ class InvoiceController extends BaseController
     {
         set_time_limit(45);
 
-        $invoices = Invoice::filter($filters);
+        $invoices = Invoice::filter($filters)->with('tags');
 
         return $this->listResponse($invoices);
     }

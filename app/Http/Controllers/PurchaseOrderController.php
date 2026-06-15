@@ -96,7 +96,7 @@ class PurchaseOrderController extends BaseController
      */
     public function index(PurchaseOrderFilters $filters)
     {
-        $purchase_orders = PurchaseOrder::filter($filters);
+        $purchase_orders = PurchaseOrder::filter($filters)->with('tags');
 
         return $this->listResponse($purchase_orders);
     }

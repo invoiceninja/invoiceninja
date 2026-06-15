@@ -16,6 +16,7 @@ use App\Utils\Number;
 use App\DataMapper\ExpenseSync;
 use Illuminate\Support\Facades\App;
 use Elastic\ScoutDriverPlus\Searchable;
+use App\Models\Traits\HasTags;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -104,6 +105,7 @@ class Expense extends BaseModel
     use SoftDeletes;
     use Filterable;
     use Searchable;
+    use HasTags;
 
     /**
      * Get the index name for the model.
@@ -204,6 +206,7 @@ class Expense extends BaseModel
             'company_key' => $this->company->company_key,
             'public_notes' => (string) $this->public_notes,
             'private_notes' => (string) $this->private_notes,
+            'tags' => $this->tags->pluck('name')->values()->all(),
             'transaction_reference' => (string) $this->transaction_reference,
         ];
     }

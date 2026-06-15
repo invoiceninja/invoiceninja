@@ -170,10 +170,7 @@ class TaskRepository extends BaseRepository
             $data['rate'] = 0;
         }
 
-        $tag_ids = null;
-        if (array_key_exists('tags', $data) && is_array($data['tags'])) {
-            $tag_ids = Task::resolveTagIds($data['tags'], (int) $task->company_id);
-        }
+        $tag_ids = $this->resolveTagIdsForSync($data, $task);
 
         $lockKey = $this->new_task ? $this->calendarEventLockKey($data, $task) : null;
 
@@ -311,9 +308,7 @@ class TaskRepository extends BaseRepository
             $this->saveDocuments($data['documents'], $task);
         }
 
-        if ($tag_ids !== null) {
-            $task->tags()->sync($tag_ids);
-        }
+        $this->syncResolvedTags($task, $tag_ids);
 
         $this->calculateProjectDuration($task);
 

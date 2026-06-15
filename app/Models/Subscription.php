@@ -33,14 +33,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $promo_code
  * @property float $promo_discount
  * @property bool $is_amount_discount
- * @property int $allow_cancellation
- * @property int $per_seat_enabled
+ * @property bool $allow_cancellation
+ * @property bool $per_seat_enabled
  * @property int $min_seats_limit
  * @property int $max_seats_limit
- * @property int $trial_enabled
+ * @property bool $trial_enabled
  * @property int $trial_duration
- * @property int $allow_query_overrides
- * @property int $allow_plan_changes
+ * @property bool $allow_query_overrides
+ * @property bool $allow_plan_changes
  * @property string|null $plan_map
  * @property int|null $refund_period
  * @property array $webhook_configuration
@@ -54,8 +54,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $group_id
  * @property float $price
  * @property float $promo_price
- * @property int $registration_required
- * @property int $use_inventory_management
+ * @property bool $registration_required
+ * @property bool $use_inventory_management
  * @property string|null $steps
  * @property string|null $optional_product_ids
  * @property string|null $optional_recurring_product_ids

@@ -30,6 +30,7 @@ use Laracasts\Presenter\PresentableTrait;
 use App\Models\Presenters\CreditPresenter;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Traits\HasTags;
 use App\Models\Traits\IndexableItems;
 /**
  * App\Models\Credit
@@ -55,7 +56,7 @@ use App\Models\Traits\IndexableItems;
  * @property string|null $last_sent_date
  * @property string|null $due_date
  * @property bool $is_deleted
- * @property array|null $line_items
+ * @property object|array|string $line_items
  * @property InvoiceBackup $backup
  * @property string|null $footer
  * @property string|null $public_notes
@@ -152,6 +153,7 @@ class Credit extends BaseModel
     use MakesInvoiceValues;
     use MakesReminders;
     use Searchable;
+    use HasTags;
     Use IndexableItems;
     /**
      * Get the index name for the model.
@@ -250,6 +252,7 @@ class Credit extends BaseModel
             'custom_value4' => (string) $this->custom_value4,
             'company_key' => $this->company->company_key,
             'po_number' => (string) $this->po_number,
+            'tags' => $this->tags->pluck('name')->values()->all(),
             'line_items' => $this->indexLineItems(),
         ];
     }

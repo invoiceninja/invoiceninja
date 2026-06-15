@@ -13,6 +13,7 @@
 namespace App\Models;
 
 use App\Services\Bank\BankService;
+use App\Models\Traits\HasTags;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -72,6 +73,7 @@ class BankTransaction extends BaseModel
     use SoftDeletes;
     use MakesHash;
     use Filterable;
+    use HasTags;
 
     public const STATUS_UNMATCHED = 1;
 

@@ -57,6 +57,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $oauth_user_id
  * @property object|array|null $oauth_user_token
  * @property string|null $oauth_provider_id
+ * @property int|null $shopify_user_id
  * @property string|null $google_2fa_secret
  * @property string|null $accepted_terms_version
  * @property string|null $avatar

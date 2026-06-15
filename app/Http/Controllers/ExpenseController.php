@@ -105,7 +105,7 @@ class ExpenseController extends BaseController
      */
     public function index(ExpenseFilters $filters)
     {
-        $expenses = Expense::filter($filters);
+        $expenses = Expense::filter($filters)->with('tags');
 
         return $this->listResponse($expenses);
     }

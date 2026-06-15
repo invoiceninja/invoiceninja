@@ -17,6 +17,9 @@ use App\Models\Product;
 
 class StoreProductRequest extends Request
 {
+    /** @var class-string */
+    protected ?string $tag_entity_type = Product::class;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -50,7 +53,7 @@ class StoreProductRequest extends Request
         $rules['tax_rate3'] = 'bail|sometimes|numeric';
         $rules['income_account_id'] = 'bail|sometimes|nullable|string|max:64';
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function prepareForValidation()
@@ -83,6 +86,6 @@ class StoreProductRequest extends Request
             }
         }
 
-        $this->replace($input);
+        $this->replace($this->normalizeTagPayloadForValidation($input));
     }
 }

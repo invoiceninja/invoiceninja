@@ -31,6 +31,7 @@ use Illuminate\Support\Str;
  * @property string|null $message_id
  * @property string|null $email_error
  * @property string|null $signature_base64
+ * @property string|null $signature_ip
  * @property string|null $signature_date
  * @property string|null $sent_date
  * @property string|null $viewed_date
