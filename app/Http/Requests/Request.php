@@ -12,7 +12,6 @@
 
 namespace App\Http\Requests;
 
-use App\Http\ValidationRules\User\RelatedUserRule;
 use App\Models\Tag;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Http\FormRequest;
@@ -64,12 +63,21 @@ class Request extends FormRequest
                 continue;
             }
 
-            if (isset(self::GLOBAL_RULE_METHODS[$key])) {
+            if (isset(self::GLOBAL_RULE_METHODS[$key]) && ! $this->hasExistingGlobalRule($key, $merge_rules)) {
                 $merge_rules = $this->{$key}($merge_rules);
             }
         }
 
         return $merge_rules;
+    }
+
+    private function hasExistingGlobalRule(string $key, array $rules): bool
+    {
+        if ($key === 'tags') {
+            return array_key_exists('tags', $rules) || array_key_exists('tags.*', $rules);
+        }
+
+        return array_key_exists($key, $rules);
     }
 
     private function assigned_user_id($rules)
@@ -78,7 +86,7 @@ class Request extends FormRequest
             'bail',
             'sometimes',
             'nullable',
-            new RelatedUserRule($this->all()),
+            Rule::exists('users', 'id')->where('account_id', auth()->user()->account_id),
         ];
 
         return $rules;

@@ -105,16 +105,18 @@ class InvoicePay extends Component
     public $docu_ninja_ready = false;
 
     public ?int $signing_invitation_id = null;
+
     public ?string $signing_key = null;
+    
     public array $unsigned_invitation_queue = [];
 
-    #[On('update.context')]
-    public function handleContext(string $key, string $property, $value): self
-    {
-        $this->setContext($key, $property, $value);
+    // #[On('update.context')]
+    // public function handleContext(string $key, string $property, $value): self
+    // {
+    //     $this->setContext($key, $property, $value);
 
-        return $this;
-    }
+    //     return $this;
+    // }
 
     #[On('terms-accepted')]
     public function termsAccepted()
@@ -141,7 +143,7 @@ class InvoicePay extends Component
         $signed_id = $this->signing_invitation_id ?? $this->invitation_id;
         $invite = \App\Models\InvoiceInvitation::withTrashed()->find($signed_id);
 
-        if ($invite && $invite->invoice && !$invite->invoice->sync?->dn_completed) {
+        if (!$invite->invoice->sync?->dn_completed) {
             $invite->invoice->sync->dn_completed = true;
             $invite->invoice->saveQuietly();
         }

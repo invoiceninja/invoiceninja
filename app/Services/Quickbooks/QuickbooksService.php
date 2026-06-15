@@ -220,7 +220,14 @@ class QuickbooksService
         throw new \Exception('Quickbooks token expired and could not be refreshed');
 
     }
-
+    
+    /**
+     * markRequiresReconnect
+     *
+     * Marks the company as requiring reconnection to Quickbooks.
+     *
+     * @return void
+     */
     private function markRequiresReconnect(): void
     {
         if ($this->company->quickbooks) {

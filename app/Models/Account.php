@@ -456,7 +456,7 @@ class Account extends BaseModel
         // Should we show plan details or trial details?
         if (($plan && !$trial_plan) || !$include_trial) {
             $use_plan = true;
-        } elseif (!$plan && $trial_plan) {
+        } elseif (!$plan && $trial_plan) { //@phpstan-ignore-line
             $use_plan = false;
         } else {
             // There is both a plan and a trial
