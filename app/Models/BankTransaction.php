@@ -66,6 +66,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
  * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction withoutTrashed()
  * @property-read \App\Models\Payment|null $payment
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
  * @mixin \Eloquent
  */
 class BankTransaction extends BaseModel

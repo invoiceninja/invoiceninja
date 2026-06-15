@@ -141,6 +141,7 @@ use App\Models\Traits\IndexableItems;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CreditInvitation> $invitations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
  *
  * @mixin \Eloquent
  */

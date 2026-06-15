@@ -62,6 +62,7 @@ use League\CommonMark\CommonMarkConverter;
  * @property-read \App\Models\Vendor|null $vendor
  * @property int|null $tax_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
  * @method static \Illuminate\Database\Eloquent\Builder|Product whereTaxId($value)
  * @mixin \Eloquent
  */
