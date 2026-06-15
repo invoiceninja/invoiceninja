@@ -155,9 +155,6 @@ class NinjaPlanController extends Controller
             }
 
             $account_created_at = (int) $account->created_at;
-
-            // $account->trial_started = now();
-            // $account->trial_plan = 'pro';
             $account->plan = 'pro';
             $account->plan_term = 'month';
             $account->plan_started = now();

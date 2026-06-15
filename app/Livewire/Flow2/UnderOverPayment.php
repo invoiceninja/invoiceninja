@@ -46,6 +46,7 @@ class UnderOverPayment extends Component
 
     public function checkValue(array $payable_invoices): void
     {
+        /** Ensure the checkValue is comparing against the same list of invoices as the context */
         $this->errors = '';
         $_context = $this->getContext($this->_key);
         $settings = $_context['settings'];
@@ -66,6 +67,7 @@ class UnderOverPayment extends Component
 
             return;
         }
+        /** Ensure the checkValue is comparing against the same list of invoices as the context */
 
         $submitted_payable_invoices = $submitted_payable_invoices->keyBy('invoice_id');
         $payable_invoices = [];
