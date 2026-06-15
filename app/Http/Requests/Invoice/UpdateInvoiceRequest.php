@@ -13,6 +13,7 @@
 namespace App\Http\Requests\Invoice;
 
 use App\Http\Requests\Request;
+use App\Models\Invoice;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 use App\Utils\Traits\CleanLineItems;
@@ -26,6 +27,9 @@ class UpdateInvoiceRequest extends Request
     use MakesHash;
     use CleanLineItems;
     use ChecksEntityStatus;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = Invoice::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -100,7 +104,7 @@ class UpdateInvoiceRequest extends Request
             },
         ];
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function withValidator($validator)

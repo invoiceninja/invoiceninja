@@ -37,7 +37,7 @@ class QbQuote implements SyncInterface
 
     public function find(string $id): mixed
     {
-        return $this->service->sdk->FindById('Quote', $id);
+        return $this->service->sdk()->findById('Quote', $id);
     }
 
     public function syncToNinja(array $records): void
@@ -198,7 +198,7 @@ class QbQuote implements SyncInterface
 
             foreach ($payment_ids as $payment_id) {
 
-                $payment = $this->service->sdk->FindById('Payment', $payment_id);
+                $payment = $this->service->sdk()->findById('Payment', $payment_id);
 
                 $payment_transformer = new PaymentTransformer($this->service->company);
 

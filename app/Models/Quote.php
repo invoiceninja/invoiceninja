@@ -29,6 +29,7 @@ use Laracasts\Presenter\PresentableTrait;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Events\Quote\QuoteReminderWasEmailed;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Traits\HasTags;
 use App\Models\Traits\IndexableItems;
 /**
  * App\Models\Quote
@@ -56,7 +57,7 @@ use App\Models\Traits\IndexableItems;
  * @property string|null|Carbon $due_date
  * @property string|null $next_send_date
  * @property bool $is_deleted
- * @property array|null $line_items
+ * @property object|array|string $line_items
  * @property object|null $backup
  * @property QuoteSync|null $sync
  * @property string|null $footer
@@ -69,7 +70,7 @@ use App\Models\Traits\IndexableItems;
  * @property float $tax_rate2
  * @property string|null $tax_name3
  * @property float $tax_rate3
- * @property string $total_taxes
+ * @property float $total_taxes
  * @property bool $uses_inclusive_taxes
  * @property string|null $custom_value1
  * @property string|null $custom_value2
@@ -136,6 +137,7 @@ class Quote extends BaseModel
     use PresentableTrait;
     use MakesInvoiceValues;
     use Searchable;
+    use HasTags;
     Use IndexableItems;
     /**
      * Get the index name for the model.
@@ -243,6 +245,7 @@ class Quote extends BaseModel
             'custom_value4' => (string) $this->custom_value4,
             'company_key' => $this->company->company_key,
             'po_number' => (string) $this->po_number,
+            'tags' => $this->tags->pluck('name')->values()->all(),
             'line_items' => $this->indexLineItems(),
         ];
     }

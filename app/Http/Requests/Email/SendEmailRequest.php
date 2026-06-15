@@ -107,7 +107,7 @@ class SendEmailRequest extends Request
         }
 
         if (isset($input['cc_email'])) {
-            //** accept comma or space separated list of emails and deduplicate */
+            //** Accept comma or space separated list of emails and deduplicate */
             $input['cc_email'] = collect(array_merge(explode(",", $input['cc_email']), explode(" ", $input['cc_email'])))
                                 ->map(function ($email) {
                                     return strtolower(trim($email));

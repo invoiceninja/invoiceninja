@@ -13,11 +13,15 @@
 namespace App\Http\Requests\Product;
 
 use App\Http\Requests\Request;
+use App\Models\Product;
 use App\Utils\Traits\ChecksEntityStatus;
 
 class UpdateProductRequest extends Request
 {
     use ChecksEntityStatus;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = Product::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -49,7 +53,7 @@ class UpdateProductRequest extends Request
         $rules['stock_notification'] = 'sometimes|bool';
         $rules['income_account_id'] = 'bail|sometimes|nullable|string|max:64';
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function prepareForValidation()
@@ -83,6 +87,6 @@ class UpdateProductRequest extends Request
             }
         }
 
-        $this->replace($input);
+        $this->replace($this->normalizeTagPayloadForValidation($input));
     }
 }

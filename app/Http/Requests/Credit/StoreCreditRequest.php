@@ -25,6 +25,9 @@ class StoreCreditRequest extends Request
     use MakesHash;
     use CleanLineItems;
 
+    /** @var class-string */
+    protected ?string $tag_entity_type = Credit::class;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -86,7 +89,7 @@ class StoreCreditRequest extends Request
 
         $rules['location_id'] = ['nullable', 'sometimes','bail',Rule::exists('locations', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)];
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function prepareForValidation()

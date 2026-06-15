@@ -69,7 +69,7 @@ class QuoteController extends Controller
             'docuninja_active' => $docuninja_active && !$signature_accepted && $quote->client->getSetting('require_quote_signature'),
         ];
 
-        if ($invitation && auth()->guard('contact') && ! request()->has('silent') && ! $invitation->viewed_date) {
+        if ($invitation && auth()->guard('contact')->check() && ! request()->has('silent') && ! $invitation->viewed_date) {
             $invitation->markViewed();
 
             event(new InvitationWasViewed($quote, $invitation, $quote->company, Ninja::eventVars()));

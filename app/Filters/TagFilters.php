@@ -48,7 +48,21 @@ class TagFilters extends QueryFilters
             return $this->builder;
         }
 
-        return $this->builder->where('entity_type', $entity_type);
+        return $this->builder->whereIn('entity_type', [$entity_type, Tag::GLOBAL_ENTITY_TYPE]);
+    }
+
+    public function entity_types(string $entity_types = ''): Builder
+    {
+        $entity_types = explode(',', $entity_types);
+
+        $entity_types = collect($entity_types)->map(function ($type){
+                            return Tag::normalizeEntityType($type);
+                        })
+                        ->filter()
+                        ->values()
+                        ->toArray();
+
+        return $this->builder->whereIn('entity_type', $entity_types);
     }
 
     public function sort(string $sort = ''): Builder

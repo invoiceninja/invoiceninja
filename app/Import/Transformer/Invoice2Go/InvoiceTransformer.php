@@ -310,7 +310,7 @@ class InvoiceTransformer extends BaseTransformer
             if ($key == 0) {
                 continue;
             }
-            /** @var array $row */
+            
             if (isset($row[5]) && is_array($row[5])) {
                 $row[5] = $this->parseNestedTaxField($row[5]);
             }

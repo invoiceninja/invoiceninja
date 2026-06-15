@@ -64,7 +64,7 @@ class QuoteExport extends BaseExport
                         })
                         ->where('company_id', $this->company->id);
 
-        if (!$this->input['include_deleted'] ?? false) {
+        if (!($this->input['include_deleted'] ?? false)) {
             $query->where('is_deleted', 0);
         }
 
@@ -146,7 +146,7 @@ class QuoteExport extends BaseExport
 
             $parts = explode('.', $key);
 
-            if (is_array($parts) && $parts[0] == 'quote' && array_key_exists($parts[1], $transformed_invoice)) {
+            if ($parts[0] === 'quote' && isset($parts[1], $transformed_invoice[$parts[1]])) {
                 $entity[$key] = $transformed_invoice[$parts[1]];
             } else {
                 $entity[$key] = $this->decorator->transform($key, $quote);

@@ -152,15 +152,4 @@ class TaskTransformer extends EntityTransformer
         ];
     }
 
-    /**
-     * @return array<int, array{id: string, name: string, color: string|null}>
-     */
-    private function transformTags(Task $task): array
-    {
-        return $task->tags->map(fn ($tag) => [
-            'id' => (string) $this->encodePrimaryKey($tag->id),
-            'name' => (string) $tag->name,
-            'color' => $tag->color,
-        ])->values()->all();
-    }
 }

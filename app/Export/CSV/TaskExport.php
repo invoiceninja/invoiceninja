@@ -71,7 +71,7 @@ class TaskExport extends BaseExport
                         ->withTrashed()
                         ->where('company_id', $this->company->id);
 
-        if (!$this->input['include_deleted'] ?? false) {
+        if (!($this->input['include_deleted'] ?? false)) {
             $query->where('is_deleted', 0);
         }
 
@@ -178,7 +178,7 @@ class TaskExport extends BaseExport
                 continue;
             }
 
-            if (is_array($parts) && $parts[0] == 'task' && array_key_exists($parts[1], $transformed_entity)) {
+            if ($parts[0] === 'task' && isset($parts[1], $transformed_entity[$parts[1]])) {
                 $entity[$key] = $transformed_entity[$parts[1]];
             } elseif (array_key_exists($key, $transformed_entity)) {
                 $entity[$key] = $transformed_entity[$key];

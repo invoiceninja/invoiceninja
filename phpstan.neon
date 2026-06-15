@@ -19,11 +19,11 @@ parameters:
             - 'app/PaymentDrivers/Authorize/*'
             - 'app/PaymentDrivers/AuthorizePaymentDriver.php'
             - 'app/Http/Middleware/ThrottleRequestsWithPredis.php'
-            - 'app/Utils/Traits/*'
-            - 'Modules/Accounting/*'
-            - 'tests/*'
-            - '~/.cursor/*'
-            - '_ide_helper_models.php'
+            - 'app/Utils/Traits/*' (?)
+            - 'Modules/Accounting/*' (?)
+            - 'tests/*' (?)
+            - '~/.cursor/*' (?)
+            - '_ide_helper_models.php' (?)
     universalObjectCratesClasses:
         - App\DataMapper\Tax\RuleInterface
         - App\DataMapper\FeesAndLimits
@@ -44,7 +44,6 @@ parameters:
         - '#Ternary operator condition#'
         - '#Expression on left side of ?? is not nullable.#'
         - '#Left side of && is always true.#'
-        - '#Right side of && is always true.#'
         - '#is never read, only written.#'
         - '#is never written#'
         - "#Called 'env' outside#"

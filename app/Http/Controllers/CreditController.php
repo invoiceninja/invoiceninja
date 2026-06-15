@@ -107,7 +107,7 @@ class CreditController extends BaseController
      */
     public function index(CreditFilters $filters)
     {
-        $credits = Credit::filter($filters);
+        $credits = Credit::filter($filters)->with('tags');
 
         return $this->listResponse($credits);
     }

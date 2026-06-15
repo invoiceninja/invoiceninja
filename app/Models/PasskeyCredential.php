@@ -14,6 +14,25 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
+/**
+ * App\Models\PasskeyCredential
+ *
+ * @property int $id
+ * @property int $account_id
+ * @property int $user_id
+ * @property string|null $name
+ * @property string $credential_id
+ * @property string $credential_public_key
+ * @property int $signature_counter
+ * @property array|null $transports
+ * @property \Illuminate\Support\Carbon|null $last_used_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\User $user
+ * @property-read \App\Models\Account $account
+ *
+ * @mixin \Eloquent
+ */
 class PasskeyCredential extends BaseModel
 {
     protected $fillable = [

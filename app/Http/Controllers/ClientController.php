@@ -96,7 +96,7 @@ class ClientController extends BaseController
     {
         set_time_limit(45);
 
-        $clients = Client::filter($filters);
+        $clients = Client::filter($filters)->with('tags');
 
         return $this->listResponse($clients);
     }
@@ -418,7 +418,7 @@ class ClientController extends BaseController
 
             $resolved_bounce_id = false;
 
-            if ($log && ($log?->log['ID'] ?? false)) {
+            if (($log?->log['ID'] ?? false)) {
                 $resolved_bounce_id = $log->log['ID'] ?? false;
             }
 

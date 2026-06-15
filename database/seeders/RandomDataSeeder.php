@@ -84,7 +84,9 @@ class RandomDataSeeder extends Seeder
         $settings->currency_id = '1';
         $settings->language_id = '1';
 
+        /** @var \App\Models\Account $account */
         $account = Account::factory()->create();
+        /** @var \App\Models\Company $company */
         $company = Company::factory()->create([
             'account_id' => $account->id,
             'settings' => $settings,
@@ -93,12 +95,14 @@ class RandomDataSeeder extends Seeder
         $account->default_company_id = $company->id;
         $account->save();
 
+        /** @var \App\Models\User $user */
         $user = User::factory()->create([
             'email'             => $faker->freeEmail(),
             'account_id' => $account->id,
             'confirmation_code' => $this->createDbHash(config('database.default')),
         ]);
 
+        /** @var \App\Models\CompanyToken $company_token */
         $company_token = CompanyToken::create([
             'user_id' => $user->id,
             'company_id' => $company->id,
@@ -200,8 +204,7 @@ class RandomDataSeeder extends Seeder
             'is_system' => 1,
         ]);
 
-
-
+        /** @var \App\Models\Client $client */
         $client = Client::factory()->create([
                 'user_id' => $user->id,
                 'company_id' => $company->id,
@@ -211,6 +214,12 @@ class RandomDataSeeder extends Seeder
         $client->number = $client->getNextClientNumber($client);
         $client->save();
         
+        $billing_context = new \App\DataMapper\Billing\BillingContext();
+        $billing_context->client_id = $client->id;
+        
+        $account->billing_context = $billing_context;
+        $account->save();
+
         ClientContact::factory()->create([
                     'user_id' => $user->id,
                     'client_id' => $client->id,
@@ -220,8 +229,7 @@ class RandomDataSeeder extends Seeder
                     'password' => Hash::make('password'),
                 ]);
 
-
-
+        /** @var \App\Models\Vendor $vendor */
         $vendor = Vendor::factory()->create([
                 'user_id' => $user->id,
                 'company_id' => $company->id,
@@ -231,7 +239,8 @@ class RandomDataSeeder extends Seeder
         $vendor->number = $vendor->getNextVendorNumber($vendor);
         $vendor->save();
         
-        VendorContact::factory()->create([
+        /** @var \App\Models\VendorContact $vendor_contact */
+        $vendor_contact = VendorContact::factory()->create([
                     'user_id' => $user->id,
                     'vendor_id' => $vendor->id,
                     'company_id' => $company->id,
@@ -248,10 +257,9 @@ class RandomDataSeeder extends Seeder
         /* Invoice Factory */
         Invoice::factory()->count(2)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
-        $invoices = Invoice::where('company_id', $company->id)->get();
-        $invoice_repo = new InvoiceRepository();
+        $invoices = Invoice::query()->where('company_id', $company->id)->get();
 
-        $invoices->each(function ($invoice) use ($invoice_repo, $user, $company, $client) {
+        $invoices->each(function ($invoice) use ($user, $company, $client) {
             $invoice_calc = null;
 
             if ($invoice->uses_inclusive_taxes) {
@@ -280,16 +288,7 @@ class RandomDataSeeder extends Seeder
 
                 $payment->invoices()->save($invoice);
 
-                // $payment_hash = new PaymentHash;
-                // $payment_hash->hash = Str::random(128);
-                // $payment_hash->data = [['invoice_id' => $invoice->hashed_id, 'amount' => $invoice->balance]];
-                // $payment_hash->fee_total = 0;
-                // $payment_hash->fee_invoice_id = $invoice->id;
-                // $payment_hash->save();
-
                 event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
-
-                // $payment->service()->update_invoicePayment($payment_hash);
 
             }
         });
@@ -297,24 +296,23 @@ class RandomDataSeeder extends Seeder
         /*Credits*/
         Credit::factory()->count(2)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
-        $credits = Credit::where('company_id', $company->id)->cursor();
-        $credit_repo = new CreditRepository();
+        $credits = Credit::query()->where('company_id', $company->id)
+                        ->cursor()
+                        ->each(function ($credit){
+                            $credit_calc = null;
 
-        $credits->each(function ($credit) use ($credit_repo, $user, $company, $client) {
-            $credit_calc = null;
+                            if ($credit->uses_inclusive_taxes) {
+                                $credit_calc = new InvoiceSumInclusive($credit);
+                            } else {
+                                $credit_calc = new InvoiceSum($credit);
+                            }
 
-            if ($credit->uses_inclusive_taxes) {
-                $credit_calc = new InvoiceSumInclusive($credit);
-            } else {
-                $credit_calc = new InvoiceSum($credit);
-            }
+                            $credit = $credit_calc->build()->getCredit();
 
-            $credit = $credit_calc->build()->getCredit();
+                            $credit->save();
 
-            $credit->save();
-
-            $credit->service()->createInvitations()->markSent()->save();
-        });
+                            $credit->service()->createInvitations()->markSent()->save();
+                        });
 
         /* Recurring Invoice Factory */
         RecurringInvoice::factory()->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
@@ -322,26 +320,22 @@ class RandomDataSeeder extends Seeder
         /*Credits*/
         Quote::factory()->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
-        $quotes = Quote::where('company_id', $company->id)->cursor();
-        $quote_repo = new QuoteRepository();
+        $quotes = Quote::query()->where('company_id', $company->id)
+                        ->cursor()
+                        ->each(function ($quote) {
+                            $quote_calc = null;
 
-        $quotes->each(function ($quote) use ($quote_repo, $user, $company, $client) {
-            $quote_calc = null;
+                            if ($quote->uses_inclusive_taxes) {
+                                $quote_calc = new InvoiceSumInclusive($quote);
+                            } else {
+                                $quote_calc = new InvoiceSum($quote);
+                            }
 
-            if ($quote->uses_inclusive_taxes) {
-                $quote_calc = new InvoiceSumInclusive($quote);
-            } else {
-                $quote_calc = new InvoiceSum($quote);
-            }
+                            $quote = $quote_calc->build()->getQuote();
+                            
+                            $quote->service()->createInvitations()->markSent()->save();
 
-            $quote = $quote_calc->build()->getQuote();
-
-            $quote->save();
-
-            //event(new CreateQuoteInvitation($quote));
-            $quote->service()->createInvitations()->markSent()->save();
-            //$invoice->markSent()->save();
-        });
+                        });
 
         GroupSetting::create([
             'company_id' => $company->id,
@@ -350,6 +344,7 @@ class RandomDataSeeder extends Seeder
             'name' => 'Default Client Settings',
         ]);
 
+        /** @var \App\Models\BankIntegration $bi */
         $bi = BankIntegration::factory()->create([
             'account_id' => $account->id,
             'user_id' => $user->id,

@@ -276,12 +276,12 @@ class QbClientDuplicateNameTest extends TestCase
 
         $mockSdk->shouldReceive('Add')
             ->once()
-            ->andThrow(new \Exception('Response Code:[401] Unauthorized'));
+            ->andThrow(new \Exception('Response Code:[500] Server Error'));
 
         $client = $this->makeClient('Test Client');
 
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Unauthorized');
+        $this->expectExceptionMessage('Server Error');
 
         $qbClient = new QbClient($service);
         $qbClient->createQbClient($client);

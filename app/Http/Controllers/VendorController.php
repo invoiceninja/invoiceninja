@@ -102,7 +102,7 @@ class VendorController extends BaseController
      */
     public function index(VendorFilters $filters)
     {
-        $vendors = Vendor::filter($filters);
+        $vendors = Vendor::filter($filters)->with('tags');
 
         return $this->listResponse($vendors);
     }

@@ -13,6 +13,7 @@
 namespace App\Http\Requests\Expense;
 
 use App\Http\Requests\Request;
+use App\Models\Expense;
 use App\Models\Project;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
@@ -22,6 +23,9 @@ class UpdateExpenseRequest extends Request
 {
     use MakesHash;
     use ChecksEntityStatus;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = Expense::class;
 
     /**
      * Determine if the user is authorized to make this request.

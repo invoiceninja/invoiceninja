@@ -35,8 +35,7 @@ class VerifyUserObject
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
         //@phpstan-ignore-next-line
-        $this->user->confirmation_code = $this->createDbHash($this->user->companies()->first()->db);
-        // $this->user->confirmation_code = $this->createDbHash($this->company->db);
+        $this->user->confirmation_code = $this->user->confirmation_code ?: $this->createDbHash($this->user->companies()->first()->db);
         $this->user->save();
 
         $react_redirect = '';

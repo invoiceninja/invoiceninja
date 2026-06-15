@@ -149,15 +149,4 @@ class ProjectTransformer extends EntityTransformer
         ];
     }
 
-    /**
-     * @return array<int, array{id: string, name: string, color: string|null}>
-     */
-    private function transformTags(Project $project): array
-    {
-        return $project->tags->map(fn ($tag) => [
-            'id' => (string) $this->encodePrimaryKey($tag->id),
-            'name' => (string) $tag->name,
-            'color' => $tag->color,
-        ])->values()->all();
-    }
 }

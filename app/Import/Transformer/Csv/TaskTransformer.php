@@ -91,8 +91,8 @@ class TaskTransformer extends BaseTransformer
 
         if (isset($item['task.billable']) && is_string($item['task.billable']) && in_array($item['task.billable'], ['yes', 'true', '1', 'TRUE', 'YES'])) {
             $is_billable = true;
-        } elseif (isset($item['task.billable']) && is_bool($item['task.billable'])) {
-            $is_billable = $item['task.billable'];
+        } elseif (isset($item['task.billable']) && filter_var($item['task.billable'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)) {
+            $is_billable = true;
         } else {
             $is_billable = true;
         }
@@ -106,7 +106,6 @@ class TaskTransformer extends BaseTransformer
             $duration =  $starttime - strtotime('TODAY');
             $start_date = $this->stubbed_timestamp;
             $end_date = $this->stubbed_timestamp + $duration;
-            $this->stubbed_timestamp;
         } else {
             return false;
         }

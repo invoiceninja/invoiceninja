@@ -13,6 +13,7 @@
 namespace App\Http\Requests\PurchaseOrder;
 
 use App\Http\Requests\Request;
+use App\Models\PurchaseOrder;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
@@ -23,6 +24,9 @@ class UpdatePurchaseOrderRequest extends Request
     use ChecksEntityStatus;
     use MakesHash;
     use CleanLineItems;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = PurchaseOrder::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -77,7 +81,7 @@ class UpdatePurchaseOrderRequest extends Request
 
         $rules['location_id'] = ['nullable', 'sometimes','bail', Rule::exists('locations', 'id')->where('company_id', $user->company()->id)->where('vendor_id', $this->purchase_order->vendor_id)];
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function prepareForValidation()

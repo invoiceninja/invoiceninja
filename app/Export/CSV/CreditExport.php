@@ -165,7 +165,12 @@ class CreditExport extends BaseExport
 
             $keyval = $key;
             $credit_key = str_replace("credit.", "", $key);
-            $searched_credit_key = array_search(str_replace("credit.", "", $key), $this->credit_report_keys) ?? $key;
+
+            $searched_credit_key = array_search(str_replace("credit.", "", $key), $this->credit_report_keys);
+
+            if($searched_credit_key === false){
+                 $searched_credit_key = $key;
+            }
 
             if (isset($transformed_credit[$credit_key])) {
                 $entity[$keyval] = $transformed_credit[$credit_key];

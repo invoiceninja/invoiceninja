@@ -1967,7 +1967,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
     }
 
 
-    private function enableFranceReporting(string $schedule = 'ten_days'): void
+    private function enableFranceReporting(string $schedule = 'ten_day'): void
     {
         $france = Country::query()->where('iso_3166_2', 'FR')->firstOrFail();
         $settings = $this->company->settings ?: CompanySettings::defaults();

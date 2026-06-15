@@ -59,6 +59,10 @@ class RecurringExpensesCron
                                                         ->whereHas('company', function ($query) {
                                                             $query->where('is_disabled', 0);
                                                         })
+                                                        ->where(function ($query) {
+                                                            $query->whereNotNull('client_id')
+                                                                  ->orWhereNotNull('vendor_id');
+                                                        })
                                                         ->with('company')
                                                         ->cursor();
 

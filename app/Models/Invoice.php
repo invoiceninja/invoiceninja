@@ -33,6 +33,7 @@ use App\Events\Invoice\InvoiceReminderWasEmailed;
 use App\DataMapper\InvoiceBackup;
 use App\Jobs\Ninja\TaskScheduler;
 use App\Utils\Number;
+use App\Models\Traits\HasTags;
 use App\Models\Traits\IndexableItems;
 
 /**
@@ -91,6 +92,7 @@ use App\Models\Traits\IndexableItems;
  * @property float $exchange_rate
  * @property float $amount
  * @property float $balance
+ * @property float $gateway_fee
  * @property float|null $partial
  * @property string|null|\Carbon\Carbon $partial_due_date
  * @property string|null $last_viewed
@@ -161,6 +163,7 @@ class Invoice extends BaseModel
     use MakesReminders;
     use ActionsInvoice;
     use Searchable;
+    use HasTags;
     Use IndexableItems;
 
     protected $presenter = EntityPresenter::class;
@@ -287,6 +290,7 @@ class Invoice extends BaseModel
             'custom_value4' => (string) $this->custom_value4,
             'company_key' => $this->company->company_key,
             'po_number' => (string) $this->po_number,
+            'tags' => $this->tags->pluck('name')->values()->all(),
             'line_items' => $this->indexLineItems(),
         ];
 

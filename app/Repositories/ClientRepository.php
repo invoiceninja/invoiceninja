@@ -61,9 +61,13 @@ class ClientRepository extends BaseRepository
         $contact_data = $data;
         unset($data['contacts']);
 
+        $tag_ids = $this->resolveTagIdsForSync($data, $client);
+        unset($contact_data['tags']);
+
         /* When uploading documents, only the document array is sent, so we must return early*/
         if (array_key_exists('documents', $data) && count($data['documents']) >= 1) {
             $this->saveDocuments($data['documents'], $client);
+            $this->syncResolvedTags($client, $tag_ids);
 
             return $client;
         }
@@ -111,6 +115,7 @@ class ClientRepository extends BaseRepository
             $this->contact_repo->save($contact_data, $client);
         }
 
+        $this->syncResolvedTags($client, $tag_ids);
 
         return $client;
     }

@@ -20,6 +20,9 @@ class StoreBankTransactionRequest extends Request
 {
     use MakesHash;
 
+    /** @var class-string */
+    protected ?string $tag_entity_type = BankTransaction::class;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -45,7 +48,7 @@ class StoreBankTransactionRequest extends Request
         $rules['amount'] = ['sometimes', 'bail', 'numeric', 'nullable', 'max:99999999999999'];
         $rules['base_type'] = ['required','in:debit,credit,DEBIT,CREDIT', 'bail'];
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function prepareForValidation()
@@ -59,6 +62,6 @@ class StoreBankTransactionRequest extends Request
         }
 
 
-        $this->replace($input);
+        $this->replace($this->normalizeTagPayloadForValidation($input));
     }
 }

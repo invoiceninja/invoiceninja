@@ -16,10 +16,13 @@ namespace App\Models;
  * App\Models\EInvoicingToken
  *
  * @package App\Models
- * @property string|null $license_key The license key string
- * @property string|null $token
- * @property string|null $account_key
- * @property \App\Models\License $license_relation
+ * @property int $id
+ * @property string $license
+ * @property string $token
+ * @property string $account_key
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\License $license_relation
  * @mixin \Eloquent
  *
  */

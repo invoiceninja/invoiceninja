@@ -31,12 +31,43 @@ trait WithBulkSelection
 
     public function updatedSelectAll(bool $value): void
     {
-        $this->selected = $value ? $this->selectablePageIds() : [];
+        $page_ids = $this->selectablePageIds();
+
+        $this->selected = $value ? $page_ids : [];
+        $this->select_all = $value && $page_ids !== [];
     }
 
     public function updatedSelected(): void
     {
-        $this->select_all = false;
+        $this->syncSelectAllState();
+    }
+
+    public function toggleSelected(string $id): void
+    {
+        if (in_array($id, $this->selected, true)) {
+            $this->selected = array_values(array_diff($this->selected, [$id]));
+        } else {
+            $this->selected[] = $id;
+        }
+
+        $this->selected = array_values(array_unique($this->selected));
+
+        $this->syncSelectAllState();
+    }
+
+    public function toggleSelectAll(): void
+    {
+        $page_ids = $this->selectablePageIds();
+
+        if ($this->select_all || $this->allPageIdsSelected($page_ids)) {
+            $this->selected = [];
+            $this->select_all = false;
+
+            return;
+        }
+
+        $this->selected = $page_ids;
+        $this->select_all = $page_ids !== [];
     }
 
     /**
@@ -49,6 +80,19 @@ trait WithBulkSelection
     {
         $this->selected = [];
         $this->select_all = false;
+    }
+
+    /**
+     * @param  array<int, string>  $page_ids
+     */
+    private function allPageIdsSelected(array $page_ids): bool
+    {
+        return $page_ids !== [] && array_diff($page_ids, $this->selected) === [];
+    }
+
+    private function syncSelectAllState(): void
+    {
+        $this->select_all = $this->allPageIdsSelected($this->selectablePageIds());
     }
 
     /**

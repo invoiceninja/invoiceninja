@@ -125,6 +125,8 @@ class CompanyImport implements ShouldQueue
 
     private string $old_company_key = '';
 
+    private bool $rehash_imported_portal_identifiers = false;
+
     private bool $import_notifications_enabled = true;
 
     private $importables = [
@@ -718,6 +720,7 @@ class CompanyImport implements ShouldQueue
 
         $tmp_company = (object) $this->getObject("company", true);
         $this->old_company_key = $tmp_company->company_key;
+        $this->rehash_imported_portal_identifiers = $this->shouldRehashImportedPortalIdentifiers($this->old_company_key);
         $tmp_company->company_key = $this->createHash();
         $tmp_company->db = config('database.default');
         $tmp_company->account_id = $this->account->id;
@@ -1439,6 +1442,8 @@ class CompanyImport implements ShouldQueue
 
     private function import_documents()
     {
+        $storage_url = data_get($this->getObject('storage_url', true), 'storage_url');
+
         foreach ((object) $this->getObject("documents") as $document) {
 
             if (!$this->transformDocumentId($document->documentable_id, $document->documentable_type)) {
@@ -1454,9 +1459,6 @@ class CompanyImport implements ShouldQueue
                 nlog("Skipping document with disallowed extension: {$document->url}");
                 continue;
             }
-
-            /** @var string $storage_url */
-            $storage_url = (object) $this->getObject('storage_url', true);
 
             nlog("{$this->root_file_path}documents/{$document->url}");
 
@@ -2014,6 +2016,8 @@ class CompanyImport implements ShouldQueue
                 $obj_array['deleted_at'] = now();
             }
 
+            $obj_array = $this->rehashImportedPortalIdentifiers($class, $obj_array);
+
             /* New to convert product ids from old hashes to new hashes*/
             if ($class == 'App\Models\Subscription') {
                 if (array_key_exists('company', $obj_array)) {
@@ -2153,6 +2157,48 @@ class CompanyImport implements ShouldQueue
         }
 
         $class::reguard();
+    }
+
+    private function shouldRehashImportedPortalIdentifiers(?string $imported_company_key): bool
+    {
+        return (string) $imported_company_key !== (string) $this->company->company_key;
+    }
+
+    /**
+     * Warning - unintended consequences if enabled - will create new hashes for contact_key/client_hash/invitation keys which may not be desirable.
+     *
+     * @param string $class
+     * @param array $obj_array
+     * @return array
+     */
+    private function rehashImportedPortalIdentifiers(string $class, array $obj_array): array
+    {
+        return $obj_array;
+
+        // if (! $this->rehash_imported_portal_identifiers) {
+        //     return $obj_array;
+        // }
+
+        // if ($class === Client::class) {
+        //     $obj_array['client_hash'] = Str::random(40);
+        // }
+
+        // if ($class === ClientContact::class || $class === VendorContact::class) {
+        //     $obj_array['contact_key'] = Str::random(32);
+        // }
+
+        // if (in_array($class, [
+        //     CreditInvitation::class,
+        //     InvoiceInvitation::class,
+        //     PurchaseOrderInvitation::class,
+        //     QuoteInvitation::class,
+        //     RecurringInvoiceInvitation::class,
+        // ], true)) {
+        //     $obj_array['key'] = $this->createDbHash($this->company->db);
+        // }
+
+        // return $obj_array;
+
     }
 
     private function recordProductIds($ids)

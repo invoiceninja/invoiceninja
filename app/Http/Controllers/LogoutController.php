@@ -57,6 +57,7 @@ class LogoutController extends BaseController
      */
     public function index(Request $request)
     {
+        /** @var \App\Models\CompanyToken $ct */
         $ct = CompanyToken::with('company.tokens')
                     ->where('token', $request->header('X-API-TOKEN'))
                     ->first();
@@ -65,7 +66,7 @@ class LogoutController extends BaseController
                     ->tokens()
                     ->where('is_system', true)
                     ->cursor()
-                    ->each(function ($ct) {
+                    ->each(function (CompanyToken $ct) {
                         $ct->token = \Illuminate\Support\Str::random(64);
                         $ct->save();
                     });
