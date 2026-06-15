@@ -133,8 +133,7 @@
         "phpstan/phpstan": "^2.0",
         "phpunit/phpunit": "^11|^12",
         "spatie/laravel-ignition": "^2.0",
-        "spaze/phpstan-stripe": "^3.0|^4.0",
-        "invoiceninja/admin-api": "dev-main"
+        "spaze/phpstan-stripe": "^3.0|^4.0"
     },
     "autoload": {
         "psr-4": {
