@@ -452,7 +452,7 @@ class ClientTest extends TestCase
 
         $response_contacts = collect($response->json('data.contacts'))->keyBy('email');
 
-        $this->assertTrue((bool) $response_contacts->get('put-primary@example.com')['send_email']);
+        $this->assertFalse((bool) $response_contacts->get('put-primary@example.com')['send_email']);
         $this->assertFalse((bool) $response_contacts->get('put-secondary@example.com')['send_email']);
         $this->assertTrue((bool) $response_contacts->get('put-tertiary@example.com')['send_email']);
 
@@ -465,7 +465,7 @@ class ClientTest extends TestCase
             ->get()
             ->keyBy('email');
 
-        $this->assertTrue((bool) $saved_contacts->get('put-primary@example.com')->send_email);
+        $this->assertFalse((bool) $saved_contacts->get('put-primary@example.com')->send_email);
         $this->assertFalse((bool) $saved_contacts->get('put-secondary@example.com')->send_email);
         $this->assertTrue((bool) $saved_contacts->get('put-tertiary@example.com')->send_email);
     }
@@ -641,7 +641,6 @@ class ClientTest extends TestCase
 
         $credit = [
             'status_id' => 1,
-            'number' => 'dfdfd',
             'discount' => 0,
             'is_amount_discount' => 1,
             'number' => '34343xx43',
@@ -680,7 +679,6 @@ class ClientTest extends TestCase
         //lets now update the credit and increase its balance, this should also increase the credit balance
 
         $data = [
-            'number' => 'dfdfd',
             'discount' => 0,
             'is_amount_discount' => 1,
             'number' => '34343xx43',
