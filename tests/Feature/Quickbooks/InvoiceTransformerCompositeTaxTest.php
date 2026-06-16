@@ -8,11 +8,11 @@ use App\Models\Company;
 use App\Models\Invoice;
 use App\Services\Quickbooks\Models\QbTaxRate;
 use App\Services\Quickbooks\QuickbooksService;
+use App\Services\Quickbooks\SdkWrapper;
 use App\Services\Quickbooks\TaxCodeComponentKey;
 use App\Services\Quickbooks\Transformers\InvoiceTransformer;
 use Mockery;
 use QuickBooksOnline\API\Data\IPPTaxService;
-use QuickBooksOnline\API\DataService\DataService;
 use ReflectionMethod;
 use Tests\TestCase;
 
@@ -242,11 +242,11 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
         $service = Mockery::mock(QuickbooksService::class);
         $service->company = $company;
 
-        $sdk = Mockery::mock(DataService::class);
-        $service->sdk = $sdk;
+        $sdk = Mockery::mock(SdkWrapper::class);
+        $service->shouldReceive('sdk')->andReturn($sdk);
         $tax_service_payload = null;
 
-        $sdk->shouldReceive('Query')
+        $sdk->shouldReceive('query')
             ->once()
             ->with('SELECT * FROM TaxAgency')
             ->andReturn([
@@ -254,7 +254,7 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
                 (object) ['Id' => '20', 'DisplayName' => 'Revenu Quebec'],
             ]);
 
-        $sdk->shouldReceive('Add')
+        $sdk->shouldReceive('add')
             ->once()
             ->with(Mockery::on(function (mixed $payload) use (&$tax_service_payload): bool {
                 $tax_service_payload = $payload;
@@ -293,24 +293,24 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
         $service = Mockery::mock(QuickbooksService::class);
         $service->company = $company;
 
-        $sdk = Mockery::mock(DataService::class);
-        $service->sdk = $sdk;
+        $sdk = Mockery::mock(SdkWrapper::class);
+        $service->shouldReceive('sdk')->andReturn($sdk);
         $tax_service_payload = null;
 
-        $sdk->shouldReceive('Query')
+        $sdk->shouldReceive('query')
             ->once()
             ->with('SELECT * FROM TaxAgency')
             ->andReturn([
                 (object) ['Id' => '10', 'DisplayName' => 'Receiver General'],
             ]);
 
-        $sdk->shouldReceive('Add')
+        $sdk->shouldReceive('add')
             ->once()
             ->with(Mockery::on(fn (mixed $payload): bool => data_get($payload, 'DisplayName') === 'Revenu Quebec'))
             ->andReturn((object) ['Id' => '20'])
             ->ordered();
 
-        $sdk->shouldReceive('Add')
+        $sdk->shouldReceive('add')
             ->once()
             ->with(Mockery::on(function (mixed $payload) use (&$tax_service_payload): bool {
                 $tax_service_payload = $payload;
@@ -357,11 +357,11 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
         $service = Mockery::mock(QuickbooksService::class);
         $service->company = $company;
 
-        $sdk = Mockery::mock(DataService::class);
-        $service->sdk = $sdk;
+        $sdk = Mockery::mock(SdkWrapper::class);
+        $service->shouldReceive('sdk')->andReturn($sdk);
         $first_payload = null;
 
-        $sdk->shouldReceive('Query')
+        $sdk->shouldReceive('query')
             ->once()
             ->with('SELECT * FROM TaxAgency')
             ->andReturn([
@@ -369,7 +369,7 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
                 (object) ['Id' => '20', 'DisplayName' => 'Revenu Quebec'],
             ]);
 
-        $sdk->shouldReceive('Add')
+        $sdk->shouldReceive('add')
             ->once()
             ->with(Mockery::on(function (mixed $payload) use (&$first_payload): bool {
                 $first_payload = $payload;
@@ -429,12 +429,12 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
         $service = Mockery::mock(QuickbooksService::class);
         $service->company = $company;
 
-        $sdk = Mockery::mock(DataService::class);
-        $service->sdk = $sdk;
+        $sdk = Mockery::mock(SdkWrapper::class);
+        $service->shouldReceive('sdk')->andReturn($sdk);
         $first_payload = null;
         $retry_payload = null;
 
-        $sdk->shouldReceive('Query')
+        $sdk->shouldReceive('query')
             ->twice()
             ->with('SELECT * FROM TaxAgency')
             ->andReturn([
@@ -442,7 +442,7 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
                 (object) ['Id' => '20', 'DisplayName' => 'Revenu Quebec'],
             ]);
 
-        $sdk->shouldReceive('Add')
+        $sdk->shouldReceive('add')
             ->once()
             ->with(Mockery::on(function (mixed $payload) use (&$first_payload): bool {
                 $first_payload = $payload;
@@ -463,7 +463,7 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
             ->once()
             ->andReturn([]);
 
-        $sdk->shouldReceive('Add')
+        $sdk->shouldReceive('add')
             ->once()
             ->with(Mockery::on(function (mixed $payload) use (&$retry_payload): bool {
                 $retry_payload = $payload;
