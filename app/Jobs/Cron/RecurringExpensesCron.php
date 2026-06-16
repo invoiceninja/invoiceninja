@@ -29,7 +29,7 @@ class RecurringExpensesCron
     use Dispatchable;
     use GeneratesCounter;
 
-    public $tries = 1;
+    public int $tries = 1;
 
     /**
      * Create a new job instance.
@@ -114,7 +114,7 @@ class RecurringExpensesCron
         }
     }
 
-    private function generateExpense(RecurringExpense $recurring_expense)
+    private function generateExpense(RecurringExpense $recurring_expense): void
     {
         $expense = RecurringExpenseToExpenseFactory::create($recurring_expense);
         $expense->saveQuietly();
