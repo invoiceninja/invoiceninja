@@ -49,7 +49,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
      * Authorization page for ACH.
      *
      * @param array $data
-     * @return \Illuminate\Http\RedirectResponseor|RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse|RedirectResponse
      */
     public function authorizeView(array $data)
     {
@@ -79,8 +79,10 @@ class ACH implements MethodInterface, LivewireMethodInterface
                 $redirect->redirect_url
             );
         } catch (\Exception $exception) {
-            return $this->processUnsuccessfulAuthorization($exception);
+            $this->processUnsuccessfulAuthorization($exception);
         }
+
+        return redirect()->back()->with('error', 'There was an error authorizing this payment method.');
     }
 
     /**

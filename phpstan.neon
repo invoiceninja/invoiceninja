@@ -34,5 +34,5 @@ parameters:
         - '#\Saxon\SaxonProcessor#'
         - '#Array has 2 duplicate keys with value#'
         - '#Call to an undefined method#'
-        - '#makeHidden#'
-        - '#Socialite#'
+        - '#Argument of an invalid type stdClass supplied for foreach, only iterables are supported.#'
+        - "#Called 'env' outside#"

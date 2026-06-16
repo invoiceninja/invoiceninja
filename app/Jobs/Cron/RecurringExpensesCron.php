@@ -60,8 +60,18 @@ class RecurringExpensesCron
                                                             $query->where('is_disabled', 0);
                                                         })
                                                         ->where(function ($query) {
-                                                            $query->whereNotNull('client_id')
-                                                                  ->orWhereNotNull('vendor_id');
+                                                            $query->whereNull('client_id')
+                                                                ->orWhereHas('client', function ($query) {
+                                                                    $query->withTrashed()
+                                                                        ->where('is_deleted', false);
+                                                                });
+                                                        })
+                                                        ->where(function ($query) {
+                                                            $query->whereNull('vendor_id')
+                                                                ->orWhereHas('vendor', function ($query) {
+                                                                    $query->withTrashed()
+                                                                        ->where('is_deleted', false);
+                                                                });
                                                         })
                                                         ->with('company')
                                                         ->cursor();
