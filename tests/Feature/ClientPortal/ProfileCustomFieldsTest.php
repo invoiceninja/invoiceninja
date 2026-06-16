@@ -129,6 +129,7 @@ class ProfileCustomFieldsTest extends TestCase
             'custom_value2' => null,
         ]);
 
+        /** @var ClientContact $emptyContact */
         $emptyContact = ClientContact::factory()->create([
             'user_id' => $this->user->id,
             'client_id' => $emptyClient->id,
