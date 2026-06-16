@@ -177,6 +177,8 @@ class SystemLog extends Model
 
     public const TYPE_PAYWARE = 329;
 
+    public const TYPE_CHIPINASIA = 330;
+
     public const TYPE_QUOTA_EXCEEDED = 400;
 
     public const TYPE_UPSTREAM_FAILURE = 401;
@@ -343,6 +345,8 @@ class SystemLog extends Model
                 return 'WePay';
             case self::TYPE_PAYFAST:
                 return "Payfast";
+            case self::TYPE_CHIPINASIA:
+                return "CHIP";
             case self::TYPE_FORTE:
                 return "Forte";
             default:
