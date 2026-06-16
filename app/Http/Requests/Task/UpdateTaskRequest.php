@@ -129,6 +129,10 @@ class UpdateTaskRequest extends Request
     public function withValidator($validator)
     {
 
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
+        
         $validator->after(function ($validator) {
 
             //prevent locked tasks from updating

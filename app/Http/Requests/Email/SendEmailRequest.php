@@ -130,6 +130,10 @@ class SendEmailRequest extends Request
 
     public function withValidator(\Illuminate\Validation\Validator $validator): void
     {
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
+        
         $validator->after(function (\Illuminate\Validation\Validator $validator) {
             /** @var \App\Models\User $user */
             $user = auth()->user();

@@ -184,8 +184,8 @@ class PaymentTransformer extends BaseTransformer
             'applied' => data_get($qb_data, 'TotalAmt', 0) - data_get($qb_data, 'UnappliedAmt', 0),
             'number' => data_get($qb_data, 'DocNumber', null),
             'private_notes' => data_get($qb_data, 'PrivateNote', null),
-            'currency_id' => (string) $this->resolveCurrency(data_get($qb_data, 'CurrencyRef')),
-            'client_id' => $this->getClientId(data_get($qb_data, 'CustomerRef', null)),
+            'currency_id' => (string) $this->resolveCurrency(data_get($qb_data, 'CurrencyRef.value') ?? data_get($qb_data, 'CurrencyRef')),
+            'client_id' => $this->getClientId(data_get($qb_data, 'CustomerRef.value') ??data_get($qb_data, 'CustomerRef', null)),
         ];
     }
 
@@ -273,6 +273,11 @@ class PaymentTransformer extends BaseTransformer
 
             $payment->fill($ninja_payment_data);
             $payment->save();
+
+            if(!$payment->currency_id) {
+                $payment->currency_id = $payment->client->settings->currency_id ?? $payment->company->settings->currency_id;
+                $payment->saveQuietly();
+            }
 
             $payment->client->service()->updatePaidToDate($payment->amount);
 

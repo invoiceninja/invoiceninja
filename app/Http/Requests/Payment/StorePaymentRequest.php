@@ -51,7 +51,7 @@ class StorePaymentRequest extends Request
         $user = auth()->user();
 
         $rules = [
-            'client_id' => ['bail','required',Rule::exists('clients', 'id')->where('company_id', $user->company()->id)->where('is_deleted', 0)],
+            'client_id' => ['bail','required', Rule::exists('clients', 'id')->where('company_id', $user->company()->id)->where('is_deleted', 0)],
             'invoices' => ['bail', 'sometimes', 'nullable', 'array', new ValidPayableInvoicesRule()],
             'invoices.*.amount' => ['bail','required'],
             'invoices.*.invoice_id' => ['bail','required','distinct', Rule::exists('invoices', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)->where('is_deleted', 0)],
@@ -74,6 +74,10 @@ class StorePaymentRequest extends Request
 
     public function withValidator($validator)
     {
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
+        
         $validator->after(function ($validator) {
             $invoices = $this->input('invoices') ?? [];
             $clientId = $this->input('client_id');
@@ -100,7 +104,8 @@ class StorePaymentRequest extends Request
                     $validator->errors()->add("invoices.{$index}.invoice_id", ctrans('texts.invoice_not_found'));
                     continue;
                 }
-
+nlog($clientId);
+                nlog($inv);
                 // Check client match
                 if ($inv->client_id != $clientId) {
                     $validator->errors()->add("invoices.{$index}", ctrans('texts.invoices_dont_match_client'));

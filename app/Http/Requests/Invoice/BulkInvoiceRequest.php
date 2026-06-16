@@ -47,6 +47,10 @@ class BulkInvoiceRequest extends Request
 
     public function withValidator($validator)
     {
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
+        
         /** @var \App\Models\User $user */
         $user = auth()->user();
         $action = $this->input('action');
