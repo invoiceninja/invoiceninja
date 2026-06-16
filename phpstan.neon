@@ -42,8 +42,6 @@ parameters:
         - '#Comparison operation ">=" between int<1, max> and 1 is always true#'
         - '#Negated boolean expression is always#'
         - '#Ternary operator condition#'
-        - '#Expression on left side of ?? is not nullable.#'
-        - '#Left side of && is always true.#'
         - '#is never read, only written.#'
         - '#is never written#'
         - "#Called 'env' outside#"

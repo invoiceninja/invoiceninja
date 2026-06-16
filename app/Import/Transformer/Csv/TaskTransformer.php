@@ -22,7 +22,7 @@ class TaskTransformer extends BaseTransformer
 {
     private int $stubbed_timestamp = 0;
     /**
-     * @param $data
+     * @param $task_items_data
      *
      * @return bool|array
      */
@@ -89,12 +89,14 @@ class TaskTransformer extends BaseTransformer
 
         $notes = $item['task.notes'] ?? '';
 
-        if (isset($item['task.billable']) && is_string($item['task.billable']) && in_array($item['task.billable'], ['yes', 'true', '1', 'TRUE', 'YES'])) {
-            $is_billable = true;
-        } elseif (isset($item['task.billable']) && filter_var($item['task.billable'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)) {
-            $is_billable = true;
-        } else {
-            $is_billable = true;
+        $is_billable = true;
+
+        if (isset($item['task.billable']) && $item['task.billable'] !== '') {
+            $billable = filter_var($item['task.billable'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+
+            if (is_bool($billable)) {
+                $is_billable = $billable;
+            }
         }
 
         if (isset($item['task.start_date'])) {

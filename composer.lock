@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b4c7d51d8b2dba5c5660dc640744f7e7",
+    "content-hash": "d0d070e03a1dcf495e95b6c1bfc20038",
     "packages": [
         {
             "name": "apimatic/core",
@@ -384,16 +384,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.384.9",
+            "version": "3.384.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "71513f9c05ed1fde0fb95e8c7e7d3c88409d7de9"
+                "reference": "a43566ffe0176f55441b1b9a39dc5951c5b68675"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/71513f9c05ed1fde0fb95e8c7e7d3c88409d7de9",
-                "reference": "71513f9c05ed1fde0fb95e8c7e7d3c88409d7de9",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/a43566ffe0176f55441b1b9a39dc5951c5b68675",
+                "reference": "a43566ffe0176f55441b1b9a39dc5951c5b68675",
                 "shasum": ""
             },
             "require": {
@@ -475,9 +475,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.384.9"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.384.10"
             },
-            "time": "2026-06-12T18:10:49+00:00"
+            "time": "2026-06-15T19:06:48+00:00"
         },
         {
             "name": "babenkoivan/elastic-adapter",
@@ -958,16 +958,16 @@
         },
         {
             "name": "braintree/braintree_php",
-            "version": "6.35.0",
+            "version": "6.36.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/braintree/braintree_php.git",
-                "reference": "5a217cd832c0f6cd1e7b2af99686421598f93224"
+                "reference": "8f816a138ca700217249b933cca77ec3695744bd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/braintree/braintree_php/zipball/5a217cd832c0f6cd1e7b2af99686421598f93224",
-                "reference": "5a217cd832c0f6cd1e7b2af99686421598f93224",
+                "url": "https://api.github.com/repos/braintree/braintree_php/zipball/8f816a138ca700217249b933cca77ec3695744bd",
+                "reference": "8f816a138ca700217249b933cca77ec3695744bd",
                 "shasum": ""
             },
             "require": {
@@ -1001,9 +1001,9 @@
             "description": "Braintree PHP Client Library",
             "support": {
                 "issues": "https://github.com/braintree/braintree_php/issues",
-                "source": "https://github.com/braintree/braintree_php/tree/6.35.0"
+                "source": "https://github.com/braintree/braintree_php/tree/6.36.0"
             },
-            "time": "2026-05-27T19:15:31+00:00"
+            "time": "2026-06-15T20:42:41+00:00"
         },
         {
             "name": "brick/math",
@@ -18550,63 +18550,6 @@
             "time": "2026-01-28T22:20:33+00:00"
         },
         {
-            "name": "invoiceninja/admin-api",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "../admin-api",
-                "reference": "3184dee5bc89b5233079d567e250a078caacd41f"
-            },
-            "require": {
-                "ext-curl": "*",
-                "ext-dom": "*",
-                "ext-json": "*",
-                "ext-libxml": "*",
-                "ext-simplexml": "*",
-                "illuminate/database": "^11|^12",
-                "illuminate/support": "^11|^12",
-                "imdhemy/laravel-purchases": "^1.7",
-                "php": "^8.2|^8.3|^8.4"
-            },
-            "require-dev": {
-                "larastan/larastan": "^3.0",
-                "orchestra/testbench": "^9.0",
-                "phpstan/phpstan": "^2.0",
-                "phpunit/phpunit": "^11.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "InvoiceNinja\\AdminApi\\Providers\\AdminApiServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "InvoiceNinja\\AdminApi\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "Tests\\": "tests/"
-                }
-            },
-            "license": [
-                "Elastic"
-            ],
-            "authors": [
-                {
-                    "name": "David Bomba",
-                    "email": "turbo124@gmail.com"
-                }
-            ],
-            "description": "API endpoints for the admin interface",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
             "name": "laracasts/cypress",
             "version": "3.03",
             "source": {
@@ -22154,7 +22097,6 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "beganovich/snappdf": 20,
-        "invoiceninja/admin-api": 20,
         "invoiceninja/einvoice": 20
     },
     "prefer-stable": true,

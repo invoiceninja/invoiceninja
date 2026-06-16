@@ -159,7 +159,7 @@ class SdkWrapper
         }
 
         Cache::lock(
-            "quickbooks-token-refresh:{$this->company->id}",
+            "quickbooks-token-refresh:{$this->company->id}:{$this->company->db}",
             self::TOKEN_REFRESH_LOCK_SECONDS
         )->block(self::TOKEN_REFRESH_LOCK_WAIT_SECONDS, function () use ($force): void {
             $fresh_company = $this->company->fresh();

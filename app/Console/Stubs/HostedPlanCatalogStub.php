@@ -117,7 +117,7 @@ class HostedPlanCatalogStub
             $subscription = SubscriptionFactory::create($company->id, $user->id);
             $subscription->id = $subscription_id;
             $subscription->name = (string) ($product_config['description'] ?? $product_key);
-            $subscription->group_id = $this->resolveGroupId($product_config['term'] ?? null);
+            $subscription->group_id = $this->resolveGroupId($company, $user, $product_config['term'] ?? null, $log);
             $subscription->recurring_product_ids = (string) $product->hashed_id;
             $subscription->webhook_configuration = $webhook_config;
             $subscription->allow_plan_changes = true;
@@ -214,7 +214,7 @@ class HostedPlanCatalogStub
     /**
      * @param  Closure(string): void|null  $log
      */
-    private function ensurePlanGroup(Company $company, User $user, int $group_id, string $name, ?Closure $log): void
+    private function ensurePlanGroup(Company $company, User $user, int $group_id, string $name, ?Closure $log): int
     {
         $existing = GroupSetting::query()->withTrashed()->find($group_id);
 
@@ -224,9 +224,13 @@ class HostedPlanCatalogStub
                 $this->log($log, "Restored plan group {$group_id}");
             } elseif ((int) $existing->company_id === (int) $company->id) {
                 $this->log($log, "Using existing plan group {$group_id}");
+            } else {
+                $this->log($log, "Plan group {$group_id} belongs to another company");
+
+                return $this->ensureCompanyPlanGroup($company, $user, $name, $log);
             }
 
-            return;
+            return $existing->id;
         }
 
         $group = GroupSettingFactory::create($company->id, $user->id);
@@ -235,13 +239,43 @@ class HostedPlanCatalogStub
         $group->save();
 
         $this->log($log, "Created plan group {$group_id} ({$name})");
+
+        return $group->id;
     }
 
-    private function resolveGroupId(?string $term): ?int
+    private function ensureCompanyPlanGroup(Company $company, User $user, string $name, ?Closure $log): int
+    {
+        $existing = GroupSetting::query()
+            ->withTrashed()
+            ->where('company_id', $company->id)
+            ->where('name', $name)
+            ->first();
+
+        if ($existing) {
+            if ($existing->trashed()) {
+                $existing->restore();
+                $this->log($log, "Restored company plan group {$existing->id} ({$name})");
+            } else {
+                $this->log($log, "Using company plan group {$existing->id} ({$name})");
+            }
+
+            return $existing->id;
+        }
+
+        $group = GroupSettingFactory::create($company->id, $user->id);
+        $group->name = $name;
+        $group->save();
+
+        $this->log($log, "Created company plan group {$group->id} ({$name})");
+
+        return $group->id;
+    }
+
+    private function resolveGroupId(Company $company, User $user, ?string $term, ?Closure $log): ?int
     {
         return match ($term) {
-            'month' => self::MONTHLY_PLAN_GROUP_ID,
-            'year' => self::ANNUAL_PLAN_GROUP_ID,
+            'month' => $this->ensurePlanGroup($company, $user, self::MONTHLY_PLAN_GROUP_ID, 'Monthly Plans', $log),
+            'year' => $this->ensurePlanGroup($company, $user, self::ANNUAL_PLAN_GROUP_ID, 'Annual Plans', $log),
             default => null,
         };
     }
