@@ -62,12 +62,12 @@ class QuickbooksImportResumeTest extends TestCase
             $key
         );
 
-        $this->invokePrivate($job, 'storeInitialSyncCursor', ['Customer', 1001, 1000]);
+        $this->invokePrivate($job, 'storeInitialSyncCursor', ['Customer', 1001, 500]);
 
         $cursor = Cache::get($key);
 
         $this->assertSame(1001, $cursor['start_position']);
-        $this->assertSame(1000, $cursor['page_size']);
+        $this->assertSame(500, $cursor['page_size']);
         $this->assertSame('running', $cursor['status']);
     }
 
@@ -130,7 +130,7 @@ class QuickbooksImportResumeTest extends TestCase
             ->andReturn($sdk);
         $sdk->shouldReceive('fetchRecordsPage')
             ->once()
-            ->with('Customer', 1, 1000)
+            ->with('Customer', 1, 500)
             ->andReturn($records);
         $qb_client->shouldReceive('syncToNinja')
             ->once()
@@ -159,7 +159,7 @@ class QuickbooksImportResumeTest extends TestCase
             ->andReturn($sdk);
         $sdk->shouldReceive('fetchRecordsPage')
             ->once()
-            ->with('Customer', 1, 1000)
+            ->with('Customer', 1, 500)
             ->andReturn([(object) ['Id' => '50']]);
         $qb_client->shouldReceive('syncToNinja')
             ->once()
