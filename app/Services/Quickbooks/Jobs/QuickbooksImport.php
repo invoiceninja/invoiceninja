@@ -38,7 +38,7 @@ class QuickbooksImport implements ShouldQueue
 
     private const CACHE_PREFIX = 'quickbooks:initial-sync:v1';
 
-    private const INITIAL_SYNC_PAGE_SIZE = SdkWrapper::MAXRESULTS;
+    private const INITIAL_SYNC_PAGE_SIZE = 500;
 
     private array $entities = [
         'product' => 'Item',
@@ -479,7 +479,7 @@ class QuickbooksImport implements ShouldQueue
 
     public function middleware()
     {
-        return [(new WithoutOverlapping("qbs-{$this->company_id}-{$this->db}"))->expireAfter($this->timeout + 300)];
+        return [(new WithoutOverlapping("qbs-{$this->company_id}-{$this->db}"))->expireAfter(30)];
     }
 
     /**
@@ -511,10 +511,10 @@ class QuickbooksImport implements ShouldQueue
         return true;
     }
 
-    public function failed($exception)
+    public function failed($exception): void
     {
         nlog("QuickbooksSync failed => " . $exception->getMessage());
-        config(['queue.failed.driver' => null]);
 
+        Cache::lock("laravel-queue-overlap:" . static::class . ":qbs-{$this->company_id}-{$this->db}")->forceRelease();
     }
 }
