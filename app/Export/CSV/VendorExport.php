@@ -165,7 +165,7 @@ class VendorExport extends BaseExport
         }
 
         if (in_array('vendor.user_id', $this->input['report_keys'])) {
-            $entity['vendor.user_id'] = $vendor->user ? $vendor->user->present()->name() : '';
+            $entity['vendor.user_id'] = $vendor->user->present()->name() ?? '';
         }
 
         if (in_array('vendor.assigned_user_id', $this->input['report_keys'])) {

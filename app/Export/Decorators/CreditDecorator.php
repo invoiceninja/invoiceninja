@@ -138,7 +138,7 @@ class CreditDecorator implements DecoratorInterface
     }
     public function user_id(Credit $credit)
     {
-        return $credit->user ? $credit->user->present()->name() : '';
+        return $credit->user->present()->name() ?? '';
     }
 
 }

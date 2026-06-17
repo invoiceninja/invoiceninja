@@ -245,7 +245,7 @@ class QuoteItemExport extends BaseExport
         }
 
         if (in_array('quote.user_id', $this->input['report_keys'])) {
-            $entity['quote.user_id'] = $quote->user ? $quote->user->present()->name() : '';
+            $entity['quote.user_id'] = $quote->user->present()->name() ?? '';
         }
 
 

@@ -95,7 +95,7 @@ class InvoiceDecorator extends Decorator implements DecoratorInterface
     }
     public function user_id(Invoice $invoice)
     {
-        return $invoice->user ? $invoice->user->present()->name() : '';
+        return $invoice->user->present()->name() ?? '';
     }
 
     public function recurring_id(Invoice $invoice)
