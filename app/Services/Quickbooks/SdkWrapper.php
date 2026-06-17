@@ -30,6 +30,8 @@ class SdkWrapper
 
     private const TOKEN_REFRESH_LOCK_WAIT_SECONDS = 10;
 
+    private const RATE_LIMIT_MAX_WAIT_SECONDS = 90;
+
     private $entities = ['Customer','Invoice', 'Item', 'SalesReceipt', 'Vendor', 'Purchase', 'Payment'];
 
     private ?OAuth2AccessToken $token = null;
@@ -398,7 +400,10 @@ class SdkWrapper
         $request_token = null;
 
         if ($limiter) {
-            $limiter->waitForCapacity(30);
+            if (! $limiter->waitForCapacity(self::RATE_LIMIT_MAX_WAIT_SECONDS)) {
+                throw new \RuntimeException('QuickBooks rate limit: capacity unavailable after wait');
+            }
+
             $request_token = $limiter->acquireRequest();
             $limiter->trackRequest();
         }
@@ -409,6 +414,10 @@ class SdkWrapper
 
             if ($limiter && QuickbooksRateLimiter::isRateLimitException($e)) {
                 $limiter->enterBackoff(60);
+
+                if ($limiter->waitForCapacity(self::RATE_LIMIT_MAX_WAIT_SECONDS)) {
+                    return $callback();
+                }
 
                 throw $e;
             }

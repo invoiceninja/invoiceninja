@@ -934,34 +934,39 @@ class LoginController extends BaseController
 
     public function handleMicrosoftProviderCallback($provider = 'microsoft')
     {
-        $socialite_user = Socialite::driver($provider)->user();
+        try{
+            $socialite_user = Socialite::driver($provider)->user();
 
-        $oauth_user_token = $socialite_user->accessTokenResponseBody['access_token'];
+            $oauth_user_token = $socialite_user->accessTokenResponseBody['access_token'];
 
-        $oauth_expiry = now()->addSeconds($socialite_user->accessTokenResponseBody['expires_in']) ?: now()->addSeconds(300);
+            $oauth_expiry = now()->addSeconds($socialite_user->accessTokenResponseBody['expires_in']) ?: now()->addSeconds(300);
 
-        if ($user = OAuth::handleAuth($socialite_user, $provider)) {
-            nlog('found user and updating their user record');
-            $name = OAuth::splitName($socialite_user->getName());
+            if ($user = OAuth::handleAuth($socialite_user, $provider)) {
+                nlog('found user and updating their user record');
+                $name = OAuth::splitName($socialite_user->getName());
 
-            $update_user = [
-                'first_name' => $name[0],
-                'last_name' => $name[1],
-                'email' => $socialite_user->getEmail(),
-                'oauth_user_id' => $socialite_user->getId(),
-                'oauth_provider_id' => $provider,
-                'oauth_user_token_expiry' => $oauth_expiry,
-            ];
+                $update_user = [
+                    'first_name' => $name[0],
+                    'last_name' => $name[1],
+                    'email' => $socialite_user->getEmail(),
+                    'oauth_user_id' => $socialite_user->getId(),
+                    'oauth_provider_id' => $provider,
+                    'oauth_user_token_expiry' => $oauth_expiry,
+                ];
 
-            $user->update($update_user);
-            $user->oauth_user_refresh_token = $socialite_user->accessTokenResponseBody['refresh_token'];
-            $user->oauth_user_token = $oauth_user_token;
-            $user->save();
+                $user->update($update_user);
+                $user->oauth_user_refresh_token = $socialite_user->accessTokenResponseBody['refresh_token'];
+                $user->oauth_user_token = $oauth_user_token;
+                $user->save();
 
-        } else {
-            nlog('user not found for oauth');
+            } else {
+                nlog('user not found for oauth');
+            }
         }
-
+        catch(\Throwable $e){
+            nlog("Error in handleMicrosoftProviderCallback: " . $e->getMessage());
+        }
+        
         $redirect_url = config('ninja.react_url') . "/#/settings/user_details/connect";
 
         return redirect($redirect_url);

@@ -86,16 +86,23 @@ class QuickbooksRateLimiter
      * @param int $maxWaitSeconds Maximum seconds to wait
      * @return bool True if can proceed, false if timed out
      */
-    public function waitForCapacity(int $maxWaitSeconds = 60): bool
+    public function waitForCapacity(int $maxWaitSeconds = 90): bool
     {
         $waited = 0;
 
-        while (!$this->canMakeRequest() && $waited < $maxWaitSeconds) {
-            sleep(1);
-            $waited++;
+        while (! $this->canMakeRequest()) {
+            if ($waited >= $maxWaitSeconds) {
+                return false;
+            }
+
+            // Honour the recommended/backoff delay, but cap each sleep so we
+            // re-check often and never overshoot the ceiling.
+            $delay = (int) max(1, min($this->getRecommendedDelay() ?: 1, 5, $maxWaitSeconds - $waited));
+            sleep($delay);
+            $waited += $delay;
         }
 
-        return $this->canMakeRequest();
+        return true;
     }
 
     /**
@@ -137,9 +144,11 @@ class QuickbooksRateLimiter
     {
         $key = $this->getRequestCountKey();
 
-        // Increment counter with 60-second expiry
+        // Establish the fixed 60s window only when the key is first created.
+        // Never refresh the TTL afterwards — otherwise sustained traffic keeps
+        // pushing expiry forward and the counter accumulates without bound.
+        Cache::add($key, 0, self::WINDOW_SECONDS);
         Cache::increment($key, 1);
-        Cache::put($key, Cache::get($key, 0), self::WINDOW_SECONDS);
     }
 
     /**
