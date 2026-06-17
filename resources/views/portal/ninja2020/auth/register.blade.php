@@ -88,6 +88,10 @@
                                             </option>
                                         @endforeach
                                     </select>
+                                @elseif(in_array($field['key'], ['custom_value1','custom_value2','custom_value3','custom_value4']) && isset($custom_field_definitions[$field['key']]))
+                                    @include('portal.ninja2020.auth.partials.custom-field-input', [
+                                        'field' => $custom_field_definitions[$field['key']],
+                                    ])
                                 @else
                                     <input
                                         id="{{ $field['key'] }}"
