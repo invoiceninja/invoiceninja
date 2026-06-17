@@ -24,7 +24,7 @@ class CustomFieldService
      * Each entry contains: key, label, required, type, options.
      * Only fields that are required or visible in client_registration_fields are included.
      */
-    public function buildFields(Company $company): array
+    public function buildFields(?Company $company): array
     {
         if ($company === null) {
             return [];
