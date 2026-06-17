@@ -26,6 +26,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Services\Quickbooks\SdkWrapper;
 use App\Services\Quickbooks\QuickbooksService;
+use App\Services\Quickbooks\QuickbooksRateLimiter;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 
 class QuickbooksImport implements ShouldQueue
@@ -59,6 +60,12 @@ class QuickbooksImport implements ShouldQueue
 
     public $timeout = 10800;
 
+    public $tries = 10;
+
+    public $maxExceptions = 3;
+
+    public $backoff = [30, 60, 120];
+
     public function __construct(public int $company_id, public string $db, private ?array $syncable = []) {}
 
     /**
@@ -71,6 +78,10 @@ class QuickbooksImport implements ShouldQueue
         $this->company = Company::query()->find($this->company_id);
         $this->qbs = new QuickbooksService($this->company);
         $this->settings =  $this->company->quickbooks->settings;
+
+        if ($this->releaseIfRateLimited()) {
+            return;
+        }
 
         QuickbooksService::$importing[$this->company_id] = true;
 
@@ -469,6 +480,35 @@ class QuickbooksImport implements ShouldQueue
     public function middleware()
     {
         return [(new WithoutOverlapping("qbs-{$this->company_id}-{$this->db}"))->expireAfter($this->timeout + 300)];
+    }
+
+    /**
+     * Reuses the QuickbooksRateLimiter gate (as in BatchPushToQuickbooks): if the
+     * realm is in backoff / at capacity, release the job back to the queue instead
+     * of blocking a worker. The initial-sync cursor is persisted, so the retry
+     * resumes exactly where it left off.
+     */
+    private function releaseIfRateLimited(): bool
+    {
+        $realm = $this->company->quickbooks->realmID ?? null;
+
+        if (! $realm) {
+            return false;
+        }
+
+        $rate_limiter = new QuickbooksRateLimiter($realm);
+
+        if ($rate_limiter->canMakeRequest()) {
+            return false;
+        }
+
+        $delay = max($rate_limiter->getRecommendedDelay(), 30);
+
+        nlog("QuickbooksImport: no rate-limit capacity for realm {$realm}, releasing for {$delay}s");
+
+        $this->release($delay);
+
+        return true;
     }
 
     public function failed($exception)

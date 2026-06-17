@@ -302,6 +302,29 @@ class QuickbooksRateLimiter
     }
 
     /**
+     * Determine whether a thrown exception represents a QuickBooks rate-limit
+     * (HTTP 429 / throttle) response.
+     *
+     * Centralised here so the SDK wrapper and batch push jobs share a single
+     * definition. Accepts any Throwable so non-ServiceException SDK errors are
+     * still matched via their message.
+     *
+     * @param \Throwable $e
+     * @return bool
+     */
+    public static function isRateLimitException(\Throwable $e): bool
+    {
+        if ((int) $e->getCode() === 429) {
+            return true;
+        }
+
+        $message = strtolower($e->getMessage());
+
+        return str_contains($message, 'throttle')
+            || str_contains($message, 'rate limit');
+    }
+
+    /**
      * Get current rate limit status
      *
      * @return array{requests: int, concurrent: int, in_backoff: bool, backoff_seconds: int}

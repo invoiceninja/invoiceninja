@@ -34,6 +34,8 @@ class SdkWrapper
 
     private ?OAuth2AccessToken $token = null;
 
+    private ?QuickbooksRateLimiter $rate_limiter = null;
+
     public function __construct(public DataService $sdk, private Company $company)
     {
         $this->init();
@@ -377,13 +379,40 @@ class SdkWrapper
         return '';
     }
 
+    private function rateLimiter(): ?QuickbooksRateLimiter
+    {
+        $realm = $this->company->quickbooks->realmID ?? null;
+
+        if (! $realm) {
+            return null;
+        }
+
+        return $this->rate_limiter ??= new QuickbooksRateLimiter($realm);
+    }
+
     private function execute(callable $callback): mixed
     {
         $this->ensureTokenFresh();
 
+        $limiter = $this->rateLimiter();
+        $request_token = null;
+
+        if ($limiter) {
+            $limiter->waitForCapacity(30);
+            $request_token = $limiter->acquireRequest();
+            $limiter->trackRequest();
+        }
+
         try {
             return $callback();
         } catch (\Throwable $e) {
+
+            if ($limiter && QuickbooksRateLimiter::isRateLimitException($e)) {
+                $limiter->enterBackoff(60);
+
+                throw $e;
+            }
+
             if (! $this->isAuthenticationFailure($e)) {
                 throw $e;
             }
@@ -391,6 +420,10 @@ class SdkWrapper
             $this->refreshTokenLocked(true);
 
             return $callback();
+        } finally {
+            if ($limiter && $request_token) {
+                $limiter->releaseRequest($request_token);
+            }
         }
     }
 
