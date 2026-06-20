@@ -25,7 +25,7 @@ class QuoteTransformer extends BaseTransformer
     use CleanLineItems;
 
     /**
-     * @param $data
+     * @param $line_items_data
      *
      * @return bool|array
      */
@@ -85,22 +85,22 @@ class QuoteTransformer extends BaseTransformer
             'tax_rate2' => $this->getFloat($quote_data, 'quote.tax_rate2'),
             'tax_name3' => $this->getString($quote_data, 'quote.tax_name3'),
             'tax_rate3' => $this->getFloat($quote_data, 'quote.tax_rate3'),
-            'custom_value1' => $this->getString(
+            'custom_value1' => $this->getCustomFieldValue('invoice1', $this->getString(
                 $quote_data,
                 'quote.custom_value1'
-            ),
-            'custom_value2' => $this->getString(
+            )),
+            'custom_value2' => $this->getCustomFieldValue('invoice2', $this->getString(
                 $quote_data,
                 'quote.custom_value2'
-            ),
-            'custom_value3' => $this->getString(
+            )),
+            'custom_value3' => $this->getCustomFieldValue('invoice3', $this->getString(
                 $quote_data,
                 'quote.custom_value3'
-            ),
-            'custom_value4' => $this->getString(
+            )),
+            'custom_value4' => $this->getCustomFieldValue('invoice4', $this->getString(
                 $quote_data,
                 'quote.custom_value4'
-            ),
+            )),
             'footer' => $this->getString($quote_data, 'quote.footer'),
             'partial' => $this->getFloat($quote_data, 'quote.partial'),
             'partial_due_date' =>  isset($quote_data['quote.partial_due_date']) ? $this->parseDate($quote_data['quote.partial_due_date']) : null,
@@ -210,22 +210,22 @@ class QuoteTransformer extends BaseTransformer
                 'tax_rate2' => $this->getFloat($record, 'item.tax_rate2'),
                 'tax_name3' => $this->getString($record, 'item.tax_name3'),
                 'tax_rate3' => $this->getFloat($record, 'item.tax_rate3'),
-                'custom_value1' => $this->getString(
+                'custom_value1' => $this->getCustomFieldValue('product1', $this->getString(
                     $record,
                     'item.custom_value1'
-                ),
-                'custom_value2' => $this->getString(
+                )),
+                'custom_value2' => $this->getCustomFieldValue('product2', $this->getString(
                     $record,
                     'item.custom_value2'
-                ),
-                'custom_value3' => $this->getString(
+                )),
+                'custom_value3' => $this->getCustomFieldValue('product3', $this->getString(
                     $record,
                     'item.custom_value3'
-                ),
-                'custom_value4' => $this->getString(
+                )),
+                'custom_value4' => $this->getCustomFieldValue('product4', $this->getString(
                     $record,
                     'item.custom_value4'
-                ),
+                )),
                 'type_id' => '1', //$this->getQuoteTypeId( $record, 'item.type_id' ),
             ];
         }

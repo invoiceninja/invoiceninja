@@ -60,10 +60,10 @@ class TaskTransformer extends BaseTransformer
             'project_id' => $this->getProjectId($projectId, $clientId),
             'description' => $this->getString($task_data, 'task.description'),
             'status_id' => $this->getTaskStatusId($task_data),
-            'custom_value1' => $this->getString($task_data, 'task.custom_value1'),
-            'custom_value2' => $this->getString($task_data, 'task.custom_value2'),
-            'custom_value3' => $this->getString($task_data, 'task.custom_value3'),
-            'custom_value4' => $this->getString($task_data, 'task.custom_value4'),
+            'custom_value1' => $this->getCustomFieldValue('task1', $this->getString($task_data, 'task.custom_value1')),
+            'custom_value2' => $this->getCustomFieldValue('task2', $this->getString($task_data, 'task.custom_value2')),
+            'custom_value3' => $this->getCustomFieldValue('task3', $this->getString($task_data, 'task.custom_value3')),
+            'custom_value4' => $this->getCustomFieldValue('task4', $this->getString($task_data, 'task.custom_value4')),
         ];
 
         if (count($task_items_data) == count($task_items_data, COUNT_RECURSIVE)) {

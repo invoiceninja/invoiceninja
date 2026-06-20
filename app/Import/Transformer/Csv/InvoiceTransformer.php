@@ -24,7 +24,7 @@ class InvoiceTransformer extends BaseTransformer
 {
     use CleanLineItems;
     /**
-     * @param $data
+     * @param $line_items_data
      *
      * @return bool|array
      */
@@ -101,22 +101,22 @@ class InvoiceTransformer extends BaseTransformer
                 $this->getString($invoice_data, 'invoice.is_amount_discount'),
                 FILTER_VALIDATE_BOOLEAN
             ),
-            'custom_value1' => $this->getString(
+            'custom_value1' => $this->getCustomFieldValue('invoice1', $this->getString(
                 $invoice_data,
                 'invoice.custom_value1'
-            ),
-            'custom_value2' => $this->getString(
+            )),
+            'custom_value2' => $this->getCustomFieldValue('invoice2', $this->getString(
                 $invoice_data,
                 'invoice.custom_value2'
-            ),
-            'custom_value3' => $this->getString(
+            )),
+            'custom_value3' => $this->getCustomFieldValue('invoice3', $this->getString(
                 $invoice_data,
                 'invoice.custom_value3'
-            ),
-            'custom_value4' => $this->getString(
+            )),
+            'custom_value4' => $this->getCustomFieldValue('invoice4', $this->getString(
                 $invoice_data,
                 'invoice.custom_value4'
-            ),
+            )),
             'footer' => $this->getString($invoice_data, 'invoice.footer'),
             'partial' => $this->getFloat($invoice_data, 'invoice.partial') > 0 ? $this->getFloat($invoice_data, 'invoice.partial') : null,
             'partial_due_date' =>  !empty($invoice_data['invoice.partial_due_date']) ? $this->parseDate($invoice_data['invoice.partial_due_date']) : null,
@@ -244,22 +244,22 @@ class InvoiceTransformer extends BaseTransformer
                 'tax_rate2' => $this->getFloat($record, 'item.tax_rate2'),
                 'tax_name3' => $this->getString($record, 'item.tax_name3'),
                 'tax_rate3' => $this->getFloat($record, 'item.tax_rate3'),
-                'custom_value1' => $this->getString(
+                'custom_value1' => $this->getCustomFieldValue('product1', $this->getString(
                     $record,
                     'item.custom_value1'
-                ),
-                'custom_value2' => $this->getString(
+                )),
+                'custom_value2' => $this->getCustomFieldValue('product2', $this->getString(
                     $record,
                     'item.custom_value2'
-                ),
-                'custom_value3' => $this->getString(
+                )),
+                'custom_value3' => $this->getCustomFieldValue('product3', $this->getString(
                     $record,
                     'item.custom_value3'
-                ),
-                'custom_value4' => $this->getString(
+                )),
+                'custom_value4' => $this->getCustomFieldValue('product4', $this->getString(
                     $record,
                     'item.custom_value4'
-                ),
+                )),
                 'type_id' => $this->getInvoiceTypeId($record, 'item.type_id'),
             ];
         }
