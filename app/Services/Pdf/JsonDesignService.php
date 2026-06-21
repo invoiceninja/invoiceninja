@@ -12,6 +12,8 @@
 
 namespace App\Services\Pdf;
 
+use App\Utils\Helpers;
+
 /**
  * Service for handling JSON-based visual designer templates
  *
@@ -178,7 +180,7 @@ class JsonDesignService
         $pageSettings = $this->jsonDesign['pageSettings'] ?? [];
 
         // Build page CSS from settings
-        $pageCSS = $this->buildPageCSS($pageSettings);
+        $pageCSS = $this->buildPageCSS($pageSettings, $this->pdfService->config->settings);
 
         // Get blocks grouped by row for layout
         $rows = $this->adapter->getRowGroupedBlocks();
@@ -265,23 +267,26 @@ class JsonDesignService
      * @param array $pageSettings
      * @return string
      */
-    private function buildPageCSS(array $pageSettings): string
+    private function buildPageCSS(array $pageSettings, object $settings): string
     {
-        $pageSize = $this->getPageSizeCSS($pageSettings);
-        $fontFamily = $this->fontFamilyWithFallback($pageSettings['fontFamily'] ?? 'Inter, sans-serif');
-        $fontSize = $pageSettings['fontSize'] ?? '12px';
+        $documentSettings = $this->documentSettings();
+        $pageSize = $this->resolvePageSizeCSS($pageSettings, $documentSettings, $settings);
+        $fontFamily = $this->resolveFontFamily($pageSettings, $documentSettings, $settings);
+        $fontSize = $this->resolveFontSize($pageSettings, $documentSettings, $settings);
         $textColor = $pageSettings['textColor'] ?? '#374151';
         $lineHeight = $pageSettings['lineHeight'] ?? '1.5';
         $backgroundColor = $pageSettings['backgroundColor'] ?? '#ffffff';
 
-        // @page is the single source of truth for page-level inset. CSS
-        // @page only supports `margin` (no padding), so when the design
-        // ships both pageMargin* and pagePadding* keys we sum them per side
-        // and emit the combined value as @page margin. Legacy designs with
-        // neither key fall back to getPageMarginsCSS (10mm default).
+        // Modern visual-designer payloads store pageMargin* + pagePadding* in
+        // documentSettings and the saved body stacks both into the visible page
+        // container padding while keeping @page margin at zero. Legacy
+        // pageSettings payloads keep their original @page margin behavior.
         $pageMargins = $this->hasLayoutOverrides()
-            ? $this->combinedPageInset()
+            ? '0'
             : $this->getPageMarginsCSS($pageSettings);
+        $containerPadding = $this->hasLayoutOverrides()
+            ? $this->combinedPageInset()
+            : '0';
 
         return <<<CSS
                     @page {
@@ -299,6 +304,11 @@ class JsonDesignService
                         -webkit-print-color-adjust: exact;
                         print-color-adjust: exact;
                         zoom: 80%;
+                    }
+                    .invoice-container {
+                        width: 100%;
+                        box-sizing: border-box;
+                        padding: {$containerPadding};
                     }
                     .flex-row {
                         display: flex;
@@ -327,6 +337,102 @@ class JsonDesignService
                         page-break-inside: avoid;
                     }
             CSS;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function documentSettings(): array
+    {
+        $documentSettings = $this->jsonDesign['documentSettings'] ?? [];
+
+        return is_array($documentSettings) ? $documentSettings : [];
+    }
+
+    /**
+     * Modern payloads use documentSettings.pageSize/pageLayout. Legacy JSON
+     * payloads may still carry pageSettings.pageSize/orientation.
+     */
+    private function resolvePageSizeCSS(array $pageSettings, array $documentSettings, object $settings): string
+    {
+        if (array_key_exists('pageSize', $documentSettings)) {
+            $size = $this->cssSizeFor(
+                (string) $documentSettings['pageSize'],
+                (string) ($documentSettings['pageLayout'] ?? $settings->page_layout ?? 'portrait'),
+            );
+
+            if ($size !== null) {
+                return $size;
+            }
+        }
+
+        if ($pageSettings !== []) {
+            return $this->getPageSizeCSS($pageSettings);
+        }
+
+        return $this->cssSizeFor(
+            (string) ($settings->page_size ?? 'A4'),
+            (string) ($settings->page_layout ?? 'portrait'),
+        ) ?? 'A4 portrait';
+    }
+
+    /**
+     * documentSettings.primaryFont is the current visual-designer contract.
+     * pageSettings.fontFamily remains as a legacy fallback.
+     */
+    private function resolveFontFamily(array $pageSettings, array $documentSettings, object $settings): string
+    {
+        if (($documentSettings['primaryFont'] ?? null) !== null && $documentSettings['primaryFont'] !== '') {
+            return $this->fontFamilyWithFallback(Helpers::resolveFont((string) $documentSettings['primaryFont'])['name']);
+        }
+
+        if (($pageSettings['fontFamily'] ?? null) !== null && $pageSettings['fontFamily'] !== '') {
+            return $this->fontFamilyWithFallback((string) $pageSettings['fontFamily']);
+        }
+
+        if (($settings->primary_font ?? null) !== null && $settings->primary_font !== '') {
+            return $this->fontFamilyWithFallback(Helpers::resolveFont((string) $settings->primary_font)['name']);
+        }
+
+        return $this->fontFamilyWithFallback('Inter, sans-serif');
+    }
+
+    /**
+     * documentSettings.globalFontSize is stored as a number by the visual
+     * designer; pageSettings.fontSize is a legacy CSS length string.
+     */
+    private function resolveFontSize(array $pageSettings, array $documentSettings, object $settings): string
+    {
+        return $this->cssLength($documentSettings['globalFontSize'] ?? null)
+            ?? $this->cssLength($pageSettings['fontSize'] ?? null)
+            ?? $this->cssLength($settings->font_size ?? null)
+            ?? '12px';
+    }
+
+    private function cssLength(mixed $value, string $defaultUnit = 'px'): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if (is_int($value) || is_float($value)) {
+            return $this->formatCssNumber((float) $value) . $defaultUnit;
+        }
+
+        $value = trim((string) $value);
+
+        if ($value === '') {
+            return null;
+        }
+
+        return is_numeric($value)
+            ? $this->formatCssNumber((float) $value) . $defaultUnit
+            : $value;
+    }
+
+    private function formatCssNumber(float $value): string
+    {
+        return rtrim(rtrim(sprintf('%.4F', $value), '0'), '.');
     }
 
     /**
@@ -369,11 +475,11 @@ class JsonDesignService
      */
     private function hasLayoutOverrides(): bool
     {
-        $docSettings = $this->jsonDesign['documentSettings'] ?? [];
+        $docSettings = $this->documentSettings();
 
         foreach (['pageMarginTop', 'pageMarginRight', 'pageMarginBottom', 'pageMarginLeft',
                   'pagePaddingTop', 'pagePaddingRight', 'pagePaddingBottom', 'pagePaddingLeft'] as $key) {
-            if (isset($docSettings[$key])) {
+            if (array_key_exists($key, $docSettings)) {
                 return true;
             }
         }
@@ -394,14 +500,14 @@ class JsonDesignService
      */
     private function combinedPageInset(): string
     {
-        $docSettings = $this->jsonDesign['documentSettings'] ?? [];
+        $docSettings = $this->documentSettings();
         $edges = ['Top', 'Right', 'Bottom', 'Left'];
         $values = [];
 
         foreach ($edges as $edge) {
-            $margin  = (int) ($docSettings['pageMargin' . $edge]  ?? 0);
-            $padding = (int) ($docSettings['pagePadding' . $edge] ?? 0);
-            $values[] = ($margin + $padding) . 'px';
+            $margin  = (float) ($docSettings['pageMargin' . $edge]  ?? 0);
+            $padding = (float) ($docSettings['pagePadding' . $edge] ?? 0);
+            $values[] = $this->formatCssNumber($margin + $padding) . 'px';
         }
 
         return implode(' ', $values);

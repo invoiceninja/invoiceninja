@@ -162,6 +162,20 @@ class EInvoicePullDocs implements ShouldQueue
                         }
 
                         if(!$model){
+                            /**
+                             * France e-reporting submission GUIDs live on
+                             * TransactionEvent.payment_request->guid, not on an invoice/credit
+                             * backup->guid. Hand the status to the FR reconciler, which matches
+                             * by that key. On self-hosted multi_db is disabled, so the reconciler
+                             * resolves the local company and TransactionEvent directly.
+                             */
+                            UpdateFranceEReportSubmissionStatus::dispatch([
+                                'tenant_id' => $company->company_key,
+                                'guid' => $status['guid'],
+                                'event' => $status['event'] ?? null,
+                                'event_group' => $status['event_group'] ?? null,
+                            ]);
+
                             continue;
                         }
 

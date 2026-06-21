@@ -419,6 +419,9 @@ class StorecoveProxy
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
             'X-EInvoice-Token' => $this->company->account->e_invoicing_token,
+            // Required by the SelfHostEInvoice gate on /api/einvoice/submission; without it
+            // proxied submissions (e.g. France e-reports) fail authentication.
+            'X-API-SELF-HOST-TOKEN' => config('ninja.license_key'),
             "X-Requested-With" => "XMLHttpRequest",
         ];
 

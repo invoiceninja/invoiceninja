@@ -125,7 +125,7 @@ class PdfService
         try {
 
             $html = $this->getHtml();
-            // nlog($html);
+            nlog($html);
             $pdf = $this->resolvePdfEngine($html);
 
             $numbered_pdf = $this->pageNumbering($pdf, $this->company, $this->config->settings);
@@ -282,24 +282,6 @@ class PdfService
     private function buildWithJsonDesign(): void
     {
         $designData = $this->config->decodedDesign();
-
-        // Ensure pageSettings exists (use defaults if missing)
-        if (!isset($designData['pageSettings'])) {
-            $designData['pageSettings'] = [
-                'pageSize' => 'a4',
-                'orientation' => 'portrait',
-                'marginTop' => '10mm',
-                'marginRight' => '10mm',
-                'marginBottom' => '10mm',
-                'marginLeft' => '10mm',
-                'fontFamily' => 'Inter, sans-serif',
-                'fontSize' => '12px',
-                'textColor' => '#374151',
-                'lineHeight' => '1.5',
-                'backgroundColor' => '#ffffff',
-            ];
-            nlog("No pageSettings found, using defaults");
-        }
 
         nlog("Attempting to build PDF with JSON Design Service");
         nlog("Design data keys: " . json_encode(array_keys($designData)));
