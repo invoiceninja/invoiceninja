@@ -185,6 +185,14 @@ class JsonDesignService
         // Get blocks grouped by row for layout
         $rows = $this->adapter->getRowGroupedBlocks();
 
+        // The paid/cancelled stamp is injected directly (no $-variable in the
+        // template) as an absolutely-positioned overlay inside its anchor block
+        // — preferably the totals block, otherwise the line-items table. When
+        // the entity is not paid/cancelled or the setting is off, $stampHtml is
+        // '' and nothing is emitted.
+        $stampHtml = $this->paidStampOverlay();
+        $stampTargetId = $stampHtml === '' ? null : $this->stampTargetBlockId($blocks);
+
         // Build container divs with flex row wrapping for multi-block rows.
         // Every block container — single-block placeholder OR a multi-block
         // flex-row — carries `class="json-block"` so the single
@@ -200,7 +208,9 @@ class JsonDesignService
                 // block-level element with a non-100% width within its parent.
                 $block = $rowBlocks[0];
                 $alignStyle = $this->rowAlignStyle($block);
-                $blockContainers .= "<div id=\"{$block['id']}\" class=\"json-block\" style=\"{$alignStyle}\"></div>\n";
+                $overlay = ($block['id'] === $stampTargetId) ? $stampHtml : '';
+                $relative = $overlay !== '' ? 'position: relative; ' : '';
+                $blockContainers .= "<div id=\"{$block['id']}\" class=\"json-block\" style=\"{$relative}{$alignStyle}\">{$overlay}</div>\n";
             } else {
                 // Multiple blocks on same row - wrap in flex container.
                 // rowAlign maps to margin-auto on the flex-col, which in a
@@ -210,8 +220,10 @@ class JsonDesignService
                 foreach ($rowBlocks as $block) {
                     $widthPercent = ($block['gridPosition']['w'] / 12) * 100;
                     $alignStyle = $this->rowAlignStyle($block);
+                    $overlay = ($block['id'] === $stampTargetId) ? $stampHtml : '';
+                    $relative = $overlay !== '' ? 'position: relative;' : '';
                     $blockContainers .= "  <div class=\"flex-col\" style=\"width: {$widthPercent}%; {$alignStyle}\">\n";
-                    $blockContainers .= "    <div id=\"{$block['id']}\"></div>\n";
+                    $blockContainers .= "    <div id=\"{$block['id']}\" style=\"{$relative}\">{$overlay}</div>\n";
                     $blockContainers .= "  </div>\n";
                 }
                 $blockContainers .= "</div>\n";
@@ -259,6 +271,55 @@ class JsonDesignService
             'center' => 'margin-left: auto; margin-right: auto;',
             default  => 'margin-right: auto;',
         };
+    }
+
+    /**
+     * The paid/cancelled stamp overlay, or '' when it should not show.
+     *
+     * Reuses HtmlEngine's already-resolved gating: $show_paid_stamp is 'flex'
+     * only when the entity is paid/cancelled AND the show_paid_stamp setting
+     * (mapped from documentSettings.showPaidStamp) is on, and $status_logo
+     * carries the translated PAID/CANCELLED markup. We read those computed
+     * values rather than re-deriving the status logic here.
+     */
+    private function paidStampOverlay(): string
+    {
+        $values = $this->pdfService->html_variables['values'] ?? [];
+
+        if (($values['$show_paid_stamp'] ?? 'none') !== 'flex') {
+            return '';
+        }
+
+        $statusLogo = (string) ($values['$status_logo'] ?? '');
+
+        if ($statusLogo === '') {
+            return '';
+        }
+
+        return '<div class="stamp-overlay">' . $statusLogo . '</div>';
+    }
+
+    /**
+     * The block the stamp anchors over: the totals block when present,
+     * otherwise the line-items table block. Null when neither exists.
+     */
+    private function stampTargetBlockId(array $blocks): ?string
+    {
+        $tableId = null;
+
+        foreach ($blocks as $block) {
+            $type = $block['type'] ?? '';
+
+            if ($type === 'total') {
+                return $block['id'] ?? null;
+            }
+
+            if ($tableId === null && $type === 'table') {
+                $tableId = $block['id'] ?? null;
+            }
+        }
+
+        return $tableId;
     }
 
     /**
@@ -336,6 +397,56 @@ class JsonDesignService
                         break-inside: avoid;
                         page-break-inside: avoid;
                     }
+                    .stamp {
+                        transform: rotate(12deg);
+                        color: #555;
+                        font-size: 3rem;
+                        font-weight: 700;
+                        border: 0.25rem solid #555;
+                        display: inline-block;
+                        padding: 0.25rem 1rem;
+                        text-transform: uppercase;
+                        border-radius: 1rem;
+                        font-family: 'Courier';
+                        mix-blend-mode: multiply;
+                        z-index: 200 !important;
+                        position: fixed;
+                        text-align: center;
+                        float: right;
+
+                    }
+                    .is-paid {
+                        color: #D23;
+                        border: 1rem double #D23;
+                        transform: rotate(-5deg);
+                        font-size: 6rem;
+                        font-family: "Open sans", Helvetica, Arial, sans-serif;
+                        border-radius: 0;
+                        padding: 0.5rem;
+                        opacity: 0.2;
+                        z-index: 200 !important;
+                        position: fixed;
+                    }
+                    /* Anchors the stamp over its block (totals / line-items)
+                       instead of the page. Neutralises the .stamp/.is-paid
+                       position: fixed so the overlay's flex centering applies. */
+                    .stamp-overlay {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        pointer-events: none;
+                        z-index: 100;
+                    }
+                    .stamp-overlay .stamp {
+                        position: static;
+                        float: none;
+                    }
+
             CSS;
     }
 
