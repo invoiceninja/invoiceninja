@@ -278,15 +278,13 @@ class JsonDesignService
         $backgroundColor = $pageSettings['backgroundColor'] ?? '#ffffff';
 
         // Modern visual-designer payloads store pageMargin* + pagePadding* in
-        // documentSettings and the saved body stacks both into the visible page
-        // container padding while keeping @page margin at zero. Legacy
-        // pageSettings payloads keep their original @page margin behavior.
+        // documentSettings; both families collapse into the @page margin so the
+        // inset repeats on EVERY page — container padding only spaces the first
+        // page, leaving page 2+ with no top margin. Legacy pageSettings payloads
+        // keep their original @page margin behavior.
         $pageMargins = $this->hasLayoutOverrides()
-            ? '0'
-            : $this->getPageMarginsCSS($pageSettings);
-        $containerPadding = $this->hasLayoutOverrides()
             ? $this->combinedPageInset()
-            : '0';
+            : $this->getPageMarginsCSS($pageSettings);
 
         return <<<CSS
                     @page {
@@ -295,7 +293,7 @@ class JsonDesignService
                     }
                     body {
                         font-family: {$fontFamily};
-                        font-size: {$fontSize} !important;
+                        font-size: {$fontSize};
                         color: {$textColor};
                         line-height: {$lineHeight};
                         background-color: {$backgroundColor};
@@ -308,7 +306,7 @@ class JsonDesignService
                     .invoice-container {
                         width: 100%;
                         box-sizing: border-box;
-                        padding: {$containerPadding};
+                        padding: 0;
                     }
                     .flex-row {
                         display: flex;
@@ -326,6 +324,8 @@ class JsonDesignService
                     table {
                         width: 100%;
                         border-collapse: collapse;
+                        table-layout: fixed;
+                        overflow-wrap: break-word;
                     }
                     /* Tables flow across pages: rows never split, headers
                        and footers repeat at the top/bottom of each page

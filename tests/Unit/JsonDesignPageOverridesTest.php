@@ -153,12 +153,15 @@ class JsonDesignPageOverridesTest extends TestCase
         ]);
 
         $this->assertStringContainsString('size: A4 portrait;', $css);
-        $this->assertStringContainsString('margin: 0;', $css);
+        // pageMargin* + pagePadding* collapse into the @page margin so the inset
+        // repeats on every page; the container itself carries no padding.
+        $this->assertStringContainsString('margin: 30px 30px 30px 30px;', $css);
+        $this->assertStringContainsString('padding: 0;', $css);
         $this->assertStringContainsString('font-family: Roboto, Helvetica, sans-serif;', $css);
-        $this->assertStringContainsString('font-size: 18px !important;', $css);
-        $this->assertStringContainsString('padding: 30px 30px 30px 30px;', $css);
+        $this->assertStringContainsString('font-size: 18px;', $css);
         $this->assertStringNotContainsString('Inter, sans-serif', $css);
-        $this->assertStringNotContainsString('font-size: 12px !important;', $css);
+        $this->assertStringNotContainsString('font-size: 12px;', $css);
+        $this->assertStringNotContainsString('!important', $css);
     }
 
     public function testLegacyPageSettingsStillDriveGlobalCssWhenDocumentSettingsAreAbsent(): void
@@ -180,7 +183,7 @@ class JsonDesignPageOverridesTest extends TestCase
         $this->assertStringContainsString('size: 279mm 216mm;', $css);
         $this->assertStringContainsString('margin: 4mm 5mm 6mm 7mm;', $css);
         $this->assertStringContainsString('font-family: Legacy Font, Helvetica, sans-serif;', $css);
-        $this->assertStringContainsString('font-size: 11px !important;', $css);
+        $this->assertStringContainsString('font-size: 11px;', $css);
         $this->assertStringContainsString('padding: 0;', $css);
     }
 }
