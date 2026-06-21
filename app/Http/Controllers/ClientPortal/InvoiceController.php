@@ -355,7 +355,7 @@ class InvoiceController extends Controller
             }
 
 
-            $filename = date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoices')) . '.zip';
+            $filename = date('Y-m-d-h-i-s') . '_' . str_replace(' ', '_', trans('texts.invoices')) . '.zip';
             $filepath = sys_get_temp_dir() . '/' . $filename;
 
             $zipFile->saveAsFile($filepath) // save the archive to a file

@@ -83,7 +83,7 @@ class ZipDocuments implements ShouldQueue
 
         // create new zip object
         $zipFile = new \PhpZip\ZipFile();
-        $file_name = date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.documents')) . '.zip';
+        $file_name = date('Y-m-d-h-i-s') . '_' . str_replace(' ', '_', trans('texts.documents')) . '.zip';
         $path = $this->company->file_path();
 
         try {

@@ -6273,6 +6273,9 @@ $lang = array(
     'merge_client' => 'Merge Client',
     'merge_vendor' => 'Merge Vendor',
     'global' => 'Global',
+    'disable_all' => 'Disable All',
+    'press_keys' => 'Press Keys',
+
 );
 
 return $lang;

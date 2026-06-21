@@ -251,7 +251,7 @@ class PurchaseOrderController extends Controller
                 $zipFile->addFromString($invitation->purchase_order->numberFormatter() . ".pdf", $file);
             }
 
-            $filename = date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.purchase_orders')) . '.zip';
+            $filename = date('Y-m-d-h-i-s') . '_' . str_replace(' ', '_', trans('texts.purchase_orders')) . '.zip';
             $filepath = sys_get_temp_dir() . '/' . $filename;
 
             $zipFile->saveAsFile($filepath) // save the archive to a file
