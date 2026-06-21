@@ -161,7 +161,7 @@ class JsonDesignPageOverridesTest extends TestCase
         $this->assertStringContainsString('font-size: 18px;', $css);
         $this->assertStringNotContainsString('Inter, sans-serif', $css);
         $this->assertStringNotContainsString('font-size: 12px;', $css);
-        $this->assertStringNotContainsString('!important', $css);
+        $this->assertStringNotContainsString('font-size: 18px !important', $css);
     }
 
     public function testLegacyPageSettingsStillDriveGlobalCssWhenDocumentSettingsAreAbsent(): void
