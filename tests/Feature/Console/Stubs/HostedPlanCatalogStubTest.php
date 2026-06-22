@@ -15,6 +15,7 @@ namespace Tests\Feature\Console\Stubs;
 use App\Console\Stubs\HostedPlanCatalogStub;
 use App\DataMapper\CompanySettings;
 use App\Factory\CompanyUserFactory;
+use App\Factory\GroupSettingFactory;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\GroupSetting;
@@ -92,11 +93,13 @@ class HostedPlanCatalogStubTest extends TestCase
         (new HostedPlanCatalogStub())->seed($this->company, $this->user);
 
         $subscription = Subscription::query()->find(self::TEST_SUBSCRIPTION_ID);
+        $group = GroupSetting::query()->withTrashed()->find($subscription->group_id);
 
         $this->assertNotNull($subscription);
+        $this->assertNotNull($group);
         $this->assertSame($this->company->id, $subscription->company_id);
+        $this->assertSame($this->company->id, $group->company_id);
         $this->assertSame(RecurringInvoice::FREQUENCY_MONTHLY, $subscription->frequency_id);
-        $this->assertSame(HostedPlanCatalogStub::MONTHLY_PLAN_GROUP_ID, $subscription->group_id);
         $this->assertDatabaseHas('products', [
             'company_id' => $this->company->id,
             'product_key' => 'test_plan',
@@ -181,6 +184,55 @@ class HostedPlanCatalogStubTest extends TestCase
 
         $this->assertNotNull($monthly_group);
         $this->assertSame($existing_monthly->company_id, $monthly_group->company_id);
+    }
+
+    public function test_it_assigns_company_owned_plan_group_when_reserved_id_belongs_to_another_company(): void
+    {
+        config([
+            'admin-api.products' => [
+                'test_plan' => [
+                    'price' => 99,
+                    'description' => 'Test Plan - Monthly',
+                    'subscription_id' => self::TEST_SUBSCRIPTION_ID,
+                    'users' => 1,
+                    'plan' => 'pro',
+                    'term' => 'month',
+                ],
+            ],
+        ]);
+
+        $reserved_group_id = HostedPlanCatalogStub::MONTHLY_PLAN_GROUP_ID;
+        $reserved_group = GroupSetting::query()->withTrashed()->find($reserved_group_id);
+
+        if (! $reserved_group) {
+            $foreign_account = Account::factory()->create();
+            $foreign_user = User::factory()->create([
+                'account_id' => $foreign_account->id,
+                'email' => Str::random(32).'@example.com',
+            ]);
+            $foreign_company = Company::factory()->create([
+                'account_id' => $foreign_account->id,
+                'settings' => CompanySettings::defaults(),
+            ]);
+
+            $reserved_group = GroupSettingFactory::create($foreign_company->id, $foreign_user->id);
+            $reserved_group->id = $reserved_group_id;
+            $reserved_group->name = 'Monthly Plans';
+            $reserved_group->save();
+        }
+
+        $this->assertNotSame($this->company->id, $reserved_group->company_id);
+
+        (new HostedPlanCatalogStub())->seed($this->company, $this->user);
+
+        $subscription = Subscription::query()->find(self::TEST_SUBSCRIPTION_ID);
+        $group = GroupSetting::query()->withTrashed()->find($subscription->group_id);
+
+        $this->assertNotNull($subscription);
+        $this->assertNotNull($group);
+        $this->assertSame($this->company->id, $subscription->company_id);
+        $this->assertSame($this->company->id, $group->company_id);
+        $this->assertNotSame($reserved_group_id, $subscription->group_id);
     }
 
     /**

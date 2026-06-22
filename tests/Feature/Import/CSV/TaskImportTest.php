@@ -16,6 +16,7 @@ use App\Factory\TaskFactory;
 use App\Http\Requests\Task\StoreTaskRequest;
 use App\Import\Providers\Csv;
 use App\Import\Transformer\BaseTransformer;
+use App\Import\Transformer\Csv\TaskTransformer;
 use App\Models\Task;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
@@ -46,6 +47,26 @@ class TaskImportTest extends TestCase
         $this->withoutExceptionHandling();
 
         auth()->login($this->user);
+    }
+
+    public function testTaskTransformerPreservesFalseBillableValues(): void
+    {
+        $transformer = new TaskTransformer($this->company);
+
+        foreach ([false, 'false', 'no', '0'] as $billable) {
+            $transformed = $transformer->transform([
+                'task.number' => 'billable-false',
+                'task.billable' => $billable,
+                'task.start_date' => '2026-01-01',
+                'task.start_time' => '09:00',
+                'task.end_date' => '2026-01-01',
+                'task.end_time' => '10:00',
+            ]);
+
+            $time_log = json_decode($transformed['time_log'], true);
+
+            $this->assertFalse($time_log[0][3], 'Expected billable false for '.var_export($billable, true));
+        }
     }
 
     public function testTaskImportWithGroupedTaskNumbers()
@@ -99,7 +120,7 @@ class TaskImportTest extends TestCase
         $time_log = json_decode($task->time_log);
 
         foreach ($time_log as $log) {
-            $this->assertTrue($log[3]);
+            $this->assertFalse($log[3]);
         }
 
         // x1233 spans two CSV rows (Bob 13:57:17→14:39:11 and James 14:29:25→16:31:24)

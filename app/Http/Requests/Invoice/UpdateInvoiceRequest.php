@@ -109,6 +109,10 @@ class UpdateInvoiceRequest extends Request
 
     public function withValidator($validator)
     {
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
+        
         $validator->after(function ($validator) {
 
             if (request()->input('paid') == 'true') {

@@ -298,12 +298,7 @@ class BatchPushToQuickbooks implements ShouldQueue
      */
     private function isRateLimitException(ServiceException $e): bool
     {
-        $statusCode = $e->getCode();
-        $errorMessage = $e->getMessage();
-
-        return $statusCode === 429
-            || str_contains(strtolower($errorMessage), 'throttle')
-            || str_contains(strtolower($errorMessage), 'rate limit');
+        return QuickbooksRateLimiter::isRateLimitException($e);
     }
 
     /**

@@ -18,14 +18,6 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Apply to any entity that should support tagging. The entity is identified by
- * its FQCN via the polymorphic taggables pivot, and tags themselves are scoped
- * to (company_id, entity_type) so a Task tag is distinct from a Project tag of
- * the same name.
- *
- * Model-level writes are id-based: callers pass numeric or hashed tag ids,
- * while API requests normalize tag object payloads before syncing. The trait
- * validates resolved ids against the entity catalog before syncing.
  *
  * @property int $company_id
  */

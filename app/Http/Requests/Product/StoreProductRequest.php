@@ -72,9 +72,7 @@ class StoreProductRequest extends Request
             $input['quantity'] = 1;
         }
 
-        if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
-            $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
-        }
+        $input = $this->decodePrimaryKeys($input);
 
         $input['tax_name1'] ??= '';
         $input['tax_name2'] ??= '';
@@ -86,6 +84,6 @@ class StoreProductRequest extends Request
             }
         }
 
-        $this->replace($this->normalizeTagPayloadForValidation($input));
+        $this->replace($input);
     }
 }

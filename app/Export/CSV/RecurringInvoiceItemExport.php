@@ -278,7 +278,7 @@ class RecurringInvoiceItemExport extends BaseExport
         }
 
         if (in_array('recurring_invoice.user_id', $this->input['report_keys'])) {
-            $entity['recurring_invoice.user_id'] = $invoice->user ? $invoice->user->present()->name() : '';
+            $entity['recurring_invoice.user_id'] = $invoice->user->present()->name() ?? '';
         }
 
 

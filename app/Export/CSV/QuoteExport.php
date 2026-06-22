@@ -183,7 +183,7 @@ class QuoteExport extends BaseExport
         }
 
         if (in_array('quote.user_id', $this->input['report_keys'])) {
-            $entity['quote.user_id'] = $quote->user ? $quote->user->present()->name() : '';
+            $entity['quote.user_id'] = $quote->user->present()->name() ?? '';
         }
 
         if (in_array('quote.subtotal', $this->input['report_keys'])) {

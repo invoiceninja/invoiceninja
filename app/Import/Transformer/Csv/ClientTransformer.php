@@ -23,7 +23,7 @@ use Illuminate\Support\Str;
 class ClientTransformer extends BaseTransformer
 {
     /**
-     * @param $data
+     * @param $client_data
      *
      * @return array|bool
      */
@@ -73,10 +73,10 @@ class ClientTransformer extends BaseTransformer
             'website' => $this->getString($data, 'client.website'),
             'vat_number' => $this->getString($data, 'client.vat_number'),
             'id_number' => $this->getString($data, 'client.id_number'),
-            'custom_value1' => $this->getString($data, 'client.custom_value1'),
-            'custom_value2' => $this->getString($data, 'client.custom_value2'),
-            'custom_value3' => $this->getString($data, 'client.custom_value3'),
-            'custom_value4' => $this->getString($data, 'client.custom_value4'),
+            'custom_value1' => $this->getCustomFieldValue('client1',$this->getString($data, 'client.custom_value1')),
+            'custom_value2' => $this->getCustomFieldValue('client2',$this->getString($data, 'client.custom_value2')),
+            'custom_value3' => $this->getCustomFieldValue('client3',$this->getString($data, 'client.custom_value3')),
+            'custom_value4' => $this->getCustomFieldValue('client4',$this->getString($data, 'client.custom_value4')),
             'paid_to_date' => 0,
             'balance' => 0,
             'credit_balance' => 0,
@@ -103,22 +103,22 @@ class ClientTransformer extends BaseTransformer
                 'last_name' => $this->getString($data, 'contact.last_name'),
                 'email' => $this->getString($data, 'contact.email'),
                 'phone' => $this->getString($data, 'contact.phone'),
-                'custom_value1' => $this->getString(
+                'custom_value1' => $this->getCustomFieldValue('contact1',$this->getString(
                     $data,
                     'contact.custom_value1'
-                ),
-                'custom_value2' => $this->getString(
+                )),
+                'custom_value2' => $this->getCustomFieldValue('contact2',$this->getString(
                     $data,
                     'contact.custom_value2'
-                ),
-                'custom_value3' => $this->getString(
+                )),
+                'custom_value3' => $this->getCustomFieldValue('contact3',$this->getString(
                     $data,
                     'contact.custom_value3'
-                ),
-                'custom_value4' => $this->getString(
+                )),
+                'custom_value4' => $this->getCustomFieldValue('contact4',$this->getString(
                     $data,
                     'contact.custom_value4'
-                ),
+                )),
             ];
         }
 

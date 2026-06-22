@@ -241,7 +241,7 @@ class ExpenseExport extends BaseExport
         }
 
         if (in_array('expense.user', $this->input['report_keys'])) {
-            $entity['expense.user'] = $expense->user ? $expense->user->present()->name() : '';
+            $entity['expense.user'] = $expense->user->present()->name() ?? '';
         }
 
         if (in_array('expense.assigned_user', $this->input['report_keys'])) {

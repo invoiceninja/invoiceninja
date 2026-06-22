@@ -55,7 +55,7 @@ class ZipQuotes implements ShouldQueue
 
         // create new zip object
         $zipFile = new \PhpZip\ZipFile();
-        $file_name = now()->addSeconds($this->company->timezone_offset())->format('Y-m-d-h-m-s') . '_' . str_replace(' ', '_', trans('texts.quotes')) . '.zip';
+        $file_name = now()->addSeconds($this->company->timezone_offset())->format('Y-m-d-h-i-s') . '_' . str_replace(' ', '_', trans('texts.quotes')) . '.zip';
 
         $invitations = QuoteInvitation::query()->with('quote')->whereIn('quote_id', $this->quote_ids)->get();
 

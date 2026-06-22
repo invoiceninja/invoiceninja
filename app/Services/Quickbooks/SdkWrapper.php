@@ -30,9 +30,13 @@ class SdkWrapper
 
     private const TOKEN_REFRESH_LOCK_WAIT_SECONDS = 10;
 
+    private const RATE_LIMIT_MAX_WAIT_SECONDS = 90;
+
     private $entities = ['Customer','Invoice', 'Item', 'SalesReceipt', 'Vendor', 'Purchase', 'Payment'];
 
     private ?OAuth2AccessToken $token = null;
+
+    private ?QuickbooksRateLimiter $rate_limiter = null;
 
     public function __construct(public DataService $sdk, private Company $company)
     {
@@ -159,7 +163,7 @@ class SdkWrapper
         }
 
         Cache::lock(
-            "quickbooks-token-refresh:{$this->company->id}",
+            "quickbooks-token-refresh:{$this->company->id}:{$this->company->db}",
             self::TOKEN_REFRESH_LOCK_SECONDS
         )->block(self::TOKEN_REFRESH_LOCK_WAIT_SECONDS, function () use ($force): void {
             $fresh_company = $this->company->fresh();
@@ -377,13 +381,47 @@ class SdkWrapper
         return '';
     }
 
+    private function rateLimiter(): ?QuickbooksRateLimiter
+    {
+        $realm = $this->company->quickbooks->realmID ?? null;
+
+        if (! $realm) {
+            return null;
+        }
+
+        return $this->rate_limiter ??= new QuickbooksRateLimiter($realm);
+    }
+
     private function execute(callable $callback): mixed
     {
         $this->ensureTokenFresh();
 
+        $limiter = $this->rateLimiter();
+        $request_token = null;
+
+        if ($limiter) {
+            if (! $limiter->waitForCapacity(self::RATE_LIMIT_MAX_WAIT_SECONDS)) {
+                throw new \RuntimeException('QuickBooks rate limit: capacity unavailable after wait');
+            }
+
+            $request_token = $limiter->acquireRequest();
+            $limiter->trackRequest();
+        }
+
         try {
             return $callback();
         } catch (\Throwable $e) {
+
+            if ($limiter && QuickbooksRateLimiter::isRateLimitException($e)) {
+                $limiter->enterBackoff(60);
+
+                if ($limiter->waitForCapacity(self::RATE_LIMIT_MAX_WAIT_SECONDS)) {
+                    return $callback();
+                }
+
+                throw $e;
+            }
+
             if (! $this->isAuthenticationFailure($e)) {
                 throw $e;
             }
@@ -391,6 +429,10 @@ class SdkWrapper
             $this->refreshTokenLocked(true);
 
             return $callback();
+        } finally {
+            if ($limiter && $request_token) {
+                $limiter->releaseRequest($request_token);
+            }
         }
     }
 

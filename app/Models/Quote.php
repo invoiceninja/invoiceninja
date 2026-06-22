@@ -125,6 +125,7 @@ use App\Models\Traits\IndexableItems;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
  * @mixin \Eloquent
  * @mixin \Illuminate\Database\Eloquent\Builder
  */

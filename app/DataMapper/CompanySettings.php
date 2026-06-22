@@ -545,7 +545,10 @@ class CompanySettings extends BaseSettings
     public bool $france_reporting_enabled = false;
     public string $france_reporting_schedule = 'ten_day'; //ten_day, monthly
 
+    public bool $global_tag_inheritance = false;
+
     public static $casts = [
+        'global_tag_inheritance' => 'bool',
         'france_reporting_enabled' => 'bool',
         'france_reporting_schedule' => 'string',
         'e_expense_forward_email' => 'string',

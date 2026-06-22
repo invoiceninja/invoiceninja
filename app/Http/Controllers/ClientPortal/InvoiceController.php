@@ -71,6 +71,8 @@ class InvoiceController extends Controller
             event(new InvoiceWasViewed($invitation, $invoice->company, Ninja::eventVars()));
         }
 
+        $invoice = $invoice->service()->removeUnpaidGatewayFees()->save();
+
         $variables = ($invitation && auth()->guard('contact')->user()->client->getSetting('show_accept_invoice_terms')) ? (new HtmlEngine($invitation))->generateLabelsAndValues() : false;
 
         $data = [
@@ -353,7 +355,7 @@ class InvoiceController extends Controller
             }
 
 
-            $filename = date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoices')) . '.zip';
+            $filename = date('Y-m-d-h-i-s') . '_' . str_replace(' ', '_', trans('texts.invoices')) . '.zip';
             $filepath = sys_get_temp_dir() . '/' . $filename;
 
             $zipFile->saveAsFile($filepath) // save the archive to a file

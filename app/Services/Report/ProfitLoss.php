@@ -287,6 +287,7 @@ class ProfitLoss
                             $tax_amount_credit_converted = $tax_amount_credit_converted = 0;
 
                             $invoice = false;
+                            $pivot_diff = 0;
 
                             foreach ($payment->paymentables as $pivot) {
                                 if ($pivot->paymentable_type == 'invoices') {
@@ -356,9 +357,7 @@ class ProfitLoss
      */
     public function getCsv()
     {
-        nlog($this->income);
-        nlog($this->income_taxes);
-        nlog(array_sum(array_column($this->expense_break_down, 'total')));
+        // nlog($this->income); column($this->expense_break_down, 'total')));
 
         $csv = Writer::fromString();
 

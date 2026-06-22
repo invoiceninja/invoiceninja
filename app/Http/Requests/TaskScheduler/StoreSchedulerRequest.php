@@ -114,6 +114,10 @@ class StoreSchedulerRequest extends Request
 
     public function withValidator(\Illuminate\Validation\Validator $validator)
     {
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
+        
         $validator->after(function ($validator) {
             if (!empty($this->parameters['template_id']) && Design::where('id', $this->decodePrimaryKey($this->parameters['template_id']))->where('is_template', true)->company()->doesntExist()) {
                 $validator->errors()->add('template_id', 'Invalid Template ID Selected');

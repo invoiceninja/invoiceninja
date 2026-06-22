@@ -17,6 +17,7 @@ use Tests\TestCase;
 use Tests\MockAccountData;
 use App\DataMapper\QuickbooksSettings;
 use App\Services\Quickbooks\SdkWrapper;
+use Illuminate\Contracts\Cache\Lock;
 use Illuminate\Support\Facades\Cache;
 use QuickBooksOnline\API\DataService\DataService;
 use QuickBooksOnline\API\Exception\ServiceException;
@@ -47,6 +48,32 @@ class SdkWrapperTokenRefreshTest extends TestCase
         Mockery::close();
 
         parent::tearDown();
+    }
+
+    public function test_refresh_token_lock_key_is_scoped_by_company_id_and_database(): void
+    {
+        $this->company->db = 'db-ninja-02';
+        $this->company->save();
+
+        $this->configureQuickbooks(accessTokenExpiresAt: time() + 3600);
+
+        $lock = Mockery::mock(Lock::class);
+        $lock->shouldReceive('block')
+            ->once()
+            ->with(10, Mockery::type(\Closure::class))
+            ->andReturnNull();
+
+        Cache::shouldReceive('lock')
+            ->once()
+            ->with("quickbooks-token-refresh:{$this->company->id}:db-ninja-02", 30)
+            ->andReturn($lock);
+
+        $sdk = Mockery::mock(DataService::class)->makePartial();
+        $wrapper = new SdkWrapper($sdk, $this->company);
+
+        $wrapper->refreshTokenLocked();
+
+        $this->addToAssertionCount(1);
     }
 
     public function test_query_refreshes_nearly_expired_token_before_calling_quickbooks(): void

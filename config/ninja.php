@@ -7,11 +7,6 @@ return [
     'license_url' => 'https://app.invoiceninja.com',
     'react_url' => env('REACT_URL', env('APP_URL', '')),
     'calendar' => [
-        // OAuth-callback return target for native (Flutter) apps, which can't
-        // ride a full-page browser redirect. The client sends platform=flutter_native
-        // on /one_time_token; it's bound to the OAuth state, and the callback
-        // redirects the handoff to this allow-listed custom scheme (never a
-        // client-supplied URL). Web clients (React or Flutter web) use react_url.
         'native_redirect' => env('CALENDAR_NATIVE_REDIRECT', 'invoiceninja://calendar_connection/complete'),
     ],
     'production' => env('NINJA_PROD', false),
@@ -25,8 +20,8 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
-    'app_version' => env('APP_VERSION', '5.13.24'),
-    'app_tag' => env('APP_TAG', '5.13.24'),
+    'app_version' => env('APP_VERSION', '5.13.25'),
+    'app_tag' => env('APP_TAG', '5.13.25'),
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', ''),

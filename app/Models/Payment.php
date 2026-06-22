@@ -95,6 +95,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
  * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment>|\Illuminate\Support\Collection $paymentables
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
  * @mixin \Eloquent
  */
 class Payment extends BaseModel

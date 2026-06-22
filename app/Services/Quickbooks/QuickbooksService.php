@@ -172,7 +172,7 @@ class QuickbooksService
         }
 
         // Access token is expired, check if we can refresh it
-        if ($this->company->quickbooks->accessTokenExpiresAt && $this->company->quickbooks->accessTokenExpiresAt < time() && $this->try_refresh) {
+        if ($this->company->quickbooks->accessTokenExpiresAt < time() && $this->try_refresh) {
 
             // Check if refresh token is also expired - if so, don't attempt refresh
             $refresh_token_expired = $this->company->quickbooks->refreshTokenExpiresAt > 0
@@ -220,7 +220,14 @@ class QuickbooksService
         throw new \Exception('Quickbooks token expired and could not be refreshed');
 
     }
-
+    
+    /**
+     * markRequiresReconnect
+     *
+     * Marks the company as requiring reconnection to Quickbooks.
+     *
+     * @return void
+     */
     private function markRequiresReconnect(): void
     {
         if ($this->company->quickbooks) {

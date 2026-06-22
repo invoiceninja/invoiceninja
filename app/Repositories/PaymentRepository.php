@@ -55,10 +55,8 @@ class PaymentRepository extends BaseRepository
         $tag_ids = $this->resolveTagIdsForSync($data, $payment);
         $payment = $this->applyPayment($data, $payment);
 
-        if ($payment) {
-            $this->syncResolvedTags($payment, $tag_ids);
-        }
-
+        $this->syncResolvedTags($payment, $tag_ids);
+        
         return $payment;
     }
 

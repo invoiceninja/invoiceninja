@@ -45,10 +45,6 @@ class TagController extends BaseController
         $this->tag_repo = $tag_repo;
     }
 
-    /**
-     * Index. Always requires `entity_type` filter (FQCN) because tags are
-     * scoped per taggable entity type.
-     */
     public function index(IndexTagRequest $request, TagFilters $filters)
     {
         $tags = Tag::filter($filters);

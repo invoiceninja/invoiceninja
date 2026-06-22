@@ -47,7 +47,7 @@ class ActivityRepository extends BaseRepository
     {
         $activity = new Activity();
 
-        foreach ($fields as $key => $value) {
+        foreach (get_object_vars($fields) as $key => $value) {
             $activity->{$key} = $value;
         }
 

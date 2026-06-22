@@ -57,10 +57,10 @@ class ExpenseTransformer extends BaseTransformer
             'payment_date' => isset($data['expense.payment_date'])
                 ? $this->parseDate($data['expense.payment_date'])
                 : null,
-            'custom_value1' => $this->getString($data, 'expense.custom_value1'),
-            'custom_value2' => $this->getString($data, 'expense.custom_value2'),
-            'custom_value3' => $this->getString($data, 'expense.custom_value3'),
-            'custom_value4' => $this->getString($data, 'expense.custom_value4'),
+            'custom_value1' => $this->getCustomFieldValue('expense1', $this->getString($data, 'expense.custom_value1')),
+            'custom_value2' => $this->getCustomFieldValue('expense2', $this->getString($data, 'expense.custom_value2')),
+            'custom_value3' => $this->getCustomFieldValue('expense3', $this->getString($data, 'expense.custom_value3')),
+            'custom_value4' => $this->getCustomFieldValue('expense4', $this->getString($data, 'expense.custom_value4')),
             'transaction_reference' => $this->getString(
                 $data,
                 'expense.transaction_reference'

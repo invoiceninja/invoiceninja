@@ -61,7 +61,8 @@ class StoreBankTransactionRequest extends Request
             $input['bank_integration_id'] = $this->decodePrimaryKey($input['bank_integration_id']);
         }
 
+        $input = $this->decodePrimaryKeys($input);
 
-        $this->replace($this->normalizeTagPayloadForValidation($input));
+        $this->replace($input);
     }
 }

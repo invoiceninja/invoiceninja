@@ -456,7 +456,7 @@ class Account extends BaseModel
         // Should we show plan details or trial details?
         if (($plan && !$trial_plan) || !$include_trial) {
             $use_plan = true;
-        } elseif (!$plan && $trial_plan) {
+        } elseif (!$plan && $trial_plan) { //@phpstan-ignore-line
             $use_plan = false;
         } else {
             // There is both a plan and a trial
@@ -654,6 +654,6 @@ class Account extends BaseModel
 
     public function canTrial(): bool
     {
-        return !$this->is_trial && empty($this->plan) && $this->created_at > time() - (60 * 60 * 24 * 14); //@phpstan-ignore-line
+        return !$this->is_trial && empty($this->plan) && $this->created_at > time() - (60 * 60 * 24 * 14) && !$this->plan_started && !$this->trial_started; //@phpstan-ignore-line
     }
 }

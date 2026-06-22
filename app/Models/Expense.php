@@ -98,6 +98,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \App\Models\Invoice|null $invoice
  * @property-read \App\Models\BankTransaction|null $transaction
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
  * @mixin \Eloquent
  */
 class Expense extends BaseModel

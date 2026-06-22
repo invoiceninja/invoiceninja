@@ -336,7 +336,7 @@ class TaskExport extends BaseExport
         }
 
         if (in_array('task.user_id', $this->input['report_keys'])) {
-            $entity['task.user_id'] = $task->user ? $task->user->present()->name() : '';
+            $entity['task.user_id'] = $task->user->present()->name() ?? '';
         }
 
         if (in_array('task.assigned_user_id', $this->input['report_keys'])) {
