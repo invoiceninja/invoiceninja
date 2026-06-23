@@ -200,7 +200,7 @@ class Nordigen
             }
         });
 
-        return $requisition->first()->toArray() ??  null;
+        return $requisition->first() ??  null;
 
     }
 

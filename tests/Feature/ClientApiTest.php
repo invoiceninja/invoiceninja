@@ -404,6 +404,64 @@ class ClientApiTest extends TestCase
         $this->assertNotContains($this->client->hashed_id, $ids);
     }
 
+    public function testFilterIgnoresDecorativeSymbolsInSearchText()
+    {
+        $storedText = '微信：homei_living Richmond Showroom XXX-XXX-XXXX';
+        $searchText = '📱 微信：homei_living 📍 Richmond Showroom 📞 XXX-XXX-XXXX';
+
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'custom_value1' => $storedText,
+        ]);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/clients?filter=' . urlencode($searchText) . '&per_page=100')
+            ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($client->hashed_id, $ids);
+    }
+
+    public function testFilterTreatsSqlLikeWildcardsAsLiteralText()
+    {
+        $matching = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'custom_value1' => 'homei_living',
+        ]);
+
+        $wildcardMatch = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'custom_value1' => 'homeiXliving',
+        ]);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/clients?filter=' . urlencode('homei_living') . '&per_page=100')
+            ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($matching->hashed_id, $ids);
+        $this->assertNotContains($wildcardMatch->hashed_id, $ids);
+    }
+
+    public function testFilterDoesNotReturnAllRowsForSymbolOnlySearchText()
+    {
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'name' => 'Symbol Guard ' . uniqid(),
+        ]);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/clients?filter=' . urlencode('📱📍📞') . '&per_page=100')
+            ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertNotContains($client->hashed_id, $ids);
+    }
+
     public function testSortFilter()
     {
         Client::where('company_id', $this->company->id)->delete();

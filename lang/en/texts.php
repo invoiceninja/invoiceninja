@@ -6275,7 +6275,7 @@ $lang = array(
     'global' => 'Global',
     'disable_all' => 'Disable All',
     'press_keys' => 'Press Keys',
-
+    'no_payment_required' => 'This plan change does not require a payment. Please go back and confirm the plan change.'
 );
 
 return $lang;

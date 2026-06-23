@@ -147,6 +147,54 @@ class QueryFiltersMultiSortTest extends TestCase
             ],
         ], $this->ordersFrom($builder));
     }
+
+    public function testItCleansDecorativeFilterTerms(): void
+    {
+        $filters = new CleanFilterTermsQueryFilters(Request::create('/', 'GET'));
+
+        $this->assertSame([
+            '微信',
+            'homei_living',
+            'Richmond',
+            'Showroom',
+            'XXX-XXX-XXXX',
+        ], $filters->terms('📱 微信：homei_living 📍 Richmond Showroom 📞 XXX-XXX-XXXX'));
+
+        $this->assertSame([], $filters->terms('📱📍📞'));
+    }
+
+    public function testEveryConcreteFilterMethodUsesCleanFilterTerms(): void
+    {
+        foreach (glob(app_path('Filters/*Filters.php')) as $file) {
+            $contents = file_get_contents($file);
+
+            if (! str_contains($contents, 'public function filter(string $filter = \'\'): Builder')) {
+                continue;
+            }
+
+            $this->assertStringContainsString(
+                'cleanFilterTerms',
+                $contents,
+                basename($file) . '::filter() must call cleanFilterTerms().'
+            );
+        }
+    }
+
+    public function testItDoesNotDispatchNonPublicHelperMethodsFromRequestKeys(): void
+    {
+        $filters = new MultiSortQueryFilters(Request::create('/', 'GET', [
+            'cleanFilterTerms' => ['x'],
+        ]));
+
+        $builder = $filters->apply(PaymentTerm::query());
+
+        $this->assertSame([
+            [
+                'column' => 'payment_terms.id',
+                'direction' => 'desc',
+            ],
+        ], $this->ordersFrom($builder));
+    }
 }
 
 class MultiSortQueryFilters extends QueryFilters
@@ -181,5 +229,16 @@ class MultiSortQueryFilters extends QueryFilters
         $direction = ($sortColumn[1] ?? 'asc') === 'desc' ? 'desc' : 'asc';
 
         return $this->builder->orderBy($sortColumn[0], $direction);
+    }
+}
+
+class CleanFilterTermsQueryFilters extends QueryFilters
+{
+    /**
+     * @return string[]
+     */
+    public function terms(string $filter): array
+    {
+        return $this->cleanFilterTerms($filter);
     }
 }

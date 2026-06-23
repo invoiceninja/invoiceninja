@@ -56,6 +56,34 @@ class PaymentTermsApiTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function testPaymentTermsFilterUsesCleanFilterTerms()
+    {
+        $payment_term = PaymentTermFactory::create($this->company->id, $this->user->id);
+        $payment_term->name = '微信：homei_living Richmond Showroom';
+        $payment_term->num_days = 1234;
+        $payment_term->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/payment_terms?filter=' . urlencode('📱 微信：homei_living 📍 Richmond Showroom'));
+
+        $response->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($payment_term->hashed_id, $ids);
+    }
+
+    public function testPaymentTermsSortNormalizesInvalidDirection()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/payment_terms?sort=name|invalid');
+
+        $response->assertStatus(200);
+    }
+
 
     public function testPaymentTermsGet()
     {

@@ -101,6 +101,12 @@ abstract class QueryFilters
                 continue;
             }
 
+            $method = new \ReflectionMethod($this, $name);
+
+            if (! $method->isPublic()) {
+                continue;
+            }
+
             // potential multi column sort
             if ($name === 'sort' && is_array($value)) {
                 foreach ($value as $sort) {
@@ -167,6 +173,22 @@ abstract class QueryFilters
         $table = $this->builder->getModel()->getTable();
 
         return $this->column_cache[$table] ??= Schema::getColumnListing($table);
+    }
+
+    /**
+     * Extract meaningful search terms from user-provided filter text.
+     *
+     * @return string[]
+     */
+    protected function cleanFilterTerms(string $filter): array
+    {
+        if (preg_match_all('/[\p{L}\p{N}][\p{L}\p{N}\p{M}@._+\-\']*/u', $filter, $matches) === false) {
+            return [];
+        }
+
+        return array_values(array_filter(array_unique($matches[0]), static function (string $term): bool {
+            return $term !== '';
+        }));
     }
 
     /**
