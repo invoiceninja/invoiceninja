@@ -107,6 +107,15 @@ abstract class QueryFilters
                 continue;
             }
 
+            if ($name === 'filter' && is_string($value) && strlen($value)) {
+                $value = $this->cleanFilterString($value);
+
+                if (strlen($value) == 0) {
+                    $this->emptyFilterResults();
+                    continue;
+                }
+            }
+
             // potential multi column sort
             if ($name === 'sort' && is_array($value)) {
                 foreach ($value as $sort) {
@@ -176,19 +185,28 @@ abstract class QueryFilters
     }
 
     /**
-     * Extract meaningful search terms from user-provided filter text.
-     *
-     * @return string[]
+     * Normalize user-provided filter text into a query-safe string.
      */
-    protected function cleanFilterTerms(string $filter): array
+    protected function cleanFilterString(string $filter): string
     {
-        if (preg_match_all('/[\p{L}\p{N}][\p{L}\p{N}\p{M}@._+\-\']*/u', $filter, $matches) === false) {
-            return [];
+        if (! mb_check_encoding($filter, 'UTF-8')) {
+            $filter = mb_scrub($filter, 'UTF-8');
         }
 
-        return array_values(array_filter(array_unique($matches[0]), static function (string $term): bool {
-            return $term !== '';
-        }));
+        $filter = preg_replace('/[\x{0000}-\x{0008}\x{000B}\x{000C}\x{000E}-\x{001F}\x{007F}-\x{009F}\x{10000}-\x{10FFFF}]/u', ' ', $filter);
+
+        if ($filter === null) {
+            return '';
+        }
+
+        $filter = preg_replace('/\s+/u', ' ', trim($filter));
+
+        return $filter ?? '';
+    }
+
+    protected function emptyFilterResults(): Builder
+    {
+        return $this->builder->whereIn($this->builder->getModel()->getQualifiedKeyName(), []);
     }
 
     /**

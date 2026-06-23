@@ -56,22 +56,28 @@ class PaymentTermsApiTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function testPaymentTermsFilterUsesCleanFilterTerms()
+    public function testPaymentTermsFilterBindsSqlLookingText()
     {
         $payment_term = PaymentTermFactory::create($this->company->id, $this->user->id);
-        $payment_term->name = '微信：homei_living Richmond Showroom';
-        $payment_term->num_days = 1234;
+        $payment_term->name = "ACME: unit_42/West + needle' OR 1=1 --";
+        $payment_term->num_days = 1237;
         $payment_term->save();
+
+        $other_payment_term = PaymentTermFactory::create($this->company->id, $this->user->id);
+        $other_payment_term->name = 'This row should not be returned by injected SQL';
+        $other_payment_term->num_days = 1238;
+        $other_payment_term->save();
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->get('/api/v1/payment_terms?filter=' . urlencode('📱 微信：homei_living 📍 Richmond Showroom'));
+        ])->get('/api/v1/payment_terms?filter=' . urlencode($payment_term->name));
 
         $response->assertStatus(200);
 
         $ids = array_column($response->json('data'), 'id');
         $this->assertContains($payment_term->hashed_id, $ids);
+        $this->assertNotContains($other_payment_term->hashed_id, $ids);
     }
 
     public function testPaymentTermsSortNormalizesInvalidDirection()

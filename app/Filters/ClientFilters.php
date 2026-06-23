@@ -194,15 +194,11 @@ class ClientFilters extends QueryFilters
             return $this->builder;
         }
 
-        $searchTerms = $this->cleanFilterTerms($filter);
-
-        if (count($searchTerms) == 0) {
-            return $this->builder->whereIn('clients.id', []);
-        }
+        $searchTerms = array_filter(explode(' ', $filter));
 
         return $this->builder->where(function ($query) use ($searchTerms) {
             foreach ($searchTerms as $term) {
-                $like_term = '%' . addcslashes($term, '\\%_') . '%';
+                $like_term = '%' . $term . '%';
 
                 $query->where(function ($subQuery) use ($like_term) {
                     $subQuery->where('name', 'like', $like_term)

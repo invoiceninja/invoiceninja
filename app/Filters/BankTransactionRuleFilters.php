@@ -47,14 +47,6 @@ class BankTransactionRuleFilters extends QueryFilters
             return $this->builder;
         }
 
-        $search_terms = $this->cleanFilterTerms($filter);
-
-        if (count($search_terms) == 0) {
-            return $this->builder->whereIn($this->builder->getModel()->getQualifiedKeyName(), []);
-        }
-
-        $filter = implode('%', $search_terms);
-
         return  $this->builder->where(function ($query) use ($filter) {
             $query->where('bank_transaction_rules.name', 'like', '%' . $filter . '%');
         });
