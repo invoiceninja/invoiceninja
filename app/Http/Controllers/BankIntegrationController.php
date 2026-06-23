@@ -278,6 +278,16 @@ class BankIntegrationController extends BaseController
         $nordigen = new Nordigen();
 
         BankIntegration::where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->where('account_id', $user->account_id)->whereNotNull('nordigen_account_id')->each(function (BankIntegration $bank_integration) use ($nordigen) {
+            if (
+                $bank_integration->bank_account_status == 'ERROR'
+                && (
+                    Cache::has("nordigen:wake:last:{$bank_integration->nordigen_account_id}")
+                    || Cache::has("nordigen:wake:paused:{$bank_integration->nordigen_account_id}")
+                )
+            ) {
+                return;
+            }
+
             $account_meta = $nordigen->isAccountActive($bank_integration->nordigen_account_id);
 
             //Rate limited — leave enabled and retry later. Do not mutate state.
@@ -298,8 +308,16 @@ class BankIntegrationController extends BaseController
                 return;
             }
 
+            if (($account_meta['status'] ?? '') == 'ERROR') {
+                $bank_integration->disabled_upstream = false;
+                $bank_integration->bank_account_status = 'ERROR';
+                $bank_integration->save();
+
+                return;
+            }
+
             if (($account_meta['status'] ?? '') != 'READY') {
-                return; // ERROR, PROCESSING, DISCOVERED, TRANSIENT_ERROR — transient states, retry later
+                return; // PROCESSING, DISCOVERED, TRANSIENT_ERROR — transient states, retry later
             }
 
             $account = $nordigen->getAccount($bank_integration->nordigen_account_id);
@@ -312,6 +330,10 @@ class BankIntegrationController extends BaseController
             $bank_integration->bank_account_status = $account['account_status'];
             $bank_integration->balance = $account['current_balance'];
             $bank_integration->currency = $account['account_currency'];
+
+            Cache::forget("nordigen:wake:last:{$bank_integration->nordigen_account_id}");
+            Cache::forget("nordigen:wake:attempts:{$bank_integration->nordigen_account_id}");
+            Cache::forget("nordigen:wake:paused:{$bank_integration->nordigen_account_id}");
 
             $bank_integration->save();
         });
