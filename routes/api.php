@@ -143,7 +143,7 @@ Route::group(['middleware' => ['throttle:api', 'api_secret_check']], function ()
     Route::post('api/v1/oauth_login', [LoginController::class, 'oauthApiLogin']);
 });
 
-Route::group(['middleware' => ['throttle:precheck', 'api_secret_check']], function () {
+Route::group(['middleware' => ['throttle:precheck']], function () {
     Route::post('api/v1/login/precheck', [LoginController::class, 'precheck'])->name('login.precheck');
 });
 

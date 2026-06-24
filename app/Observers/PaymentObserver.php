@@ -33,6 +33,8 @@ class PaymentObserver
     public function created(Payment $payment)
     {
         $subscriptions = Webhook::where('company_id', $payment->company_id)
+                            ->where('is_deleted', false)
+                            ->whereNull('deleted_at')
                             ->where('event_id', Webhook::EVENT_CREATE_PAYMENT)
                             ->exists();
 
@@ -75,6 +77,8 @@ class PaymentObserver
 
 
         $subscriptions = Webhook::where('company_id', $payment->company_id)
+                                    ->where('is_deleted', false)
+                                    ->whereNull('deleted_at')
                                     ->where('event_id', $event)
                                     ->exists();
 
@@ -161,6 +165,8 @@ class PaymentObserver
         }
 
         $subscriptions = Webhook::where('company_id', $payment->company_id)
+                        ->where('is_deleted', false)
+                        ->whereNull('deleted_at')
                         ->where('event_id', Webhook::EVENT_ARCHIVE_PAYMENT)
                         ->exists();
 

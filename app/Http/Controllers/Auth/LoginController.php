@@ -128,7 +128,10 @@ class LoginController extends BaseController
             return $this->loginErrorResponse('Too many login attempts, you are being throttled', 401);
         }
 
-        $authenticated = $this->attemptPasskeyLogin($request) ?? $this->attemptLogin($request);
+        /** Granular control - if we use passkeys and 2fa is also enabled - need to bypass 2fa */
+        $passkeyResult = $this->attemptPasskeyLogin($request);
+        $viaPasskey    = $passkeyResult === true;
+        $authenticated = $passkeyResult ?? $this->attemptLogin($request);
 
         if (!$authenticated) {
             return $this->handleFailedLogin($request);
@@ -139,7 +142,7 @@ class LoginController extends BaseController
         /** @var \App\Models\User $user */
         $user = $this->guard()->user();
 
-        if ($errorResponse = $this->verifyTwoFactor($user, $request)) {
+        if (!$viaPasskey && $errorResponse = $this->verifyTwoFactor($user, $request)) {
             return $errorResponse;
         }
 
@@ -185,7 +188,10 @@ class LoginController extends BaseController
 
         $this->equalizePrecheckResponseTime($started_at);
 
-        return response()->json(['methods' => $methods], 200);
+        return response()->json([
+            'methods' => $methods,
+            'secret_required' => (bool) config('ninja.api_secret'),
+        ], 200);
     }
 
     /**

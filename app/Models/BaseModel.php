@@ -246,6 +246,8 @@ class BaseModel extends Model
     {
         $subscriptions = Webhook::where('company_id', $this->company_id)
                                  ->where('event_id', $event_id)
+                                 ->where('is_deleted', false)
+                                 ->whereNull('deleted_at')
                                  ->exists();
 
         if ($subscriptions) {
