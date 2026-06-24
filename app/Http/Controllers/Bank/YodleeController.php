@@ -77,43 +77,76 @@ class YodleeController extends BaseController
         $accounts = $yodlee->getAccounts();
 
         foreach ($accounts as $account) {
-            if ($bi = BankIntegration::where('bank_account_id', $account['id'])->where('company_id', $company->id)->first()) {
-
-                if ($bi->deleted_at) {
-                    continue;
-                }
-
-                $bi->disabled_upstream = false;
-                $bi->balance = $account['current_balance'];
-                $bi->currency = $account['account_currency'];
-                $bi->integration_type = BankIntegration::INTEGRATION_TYPE_YODLEE;
-                $bi->save();
-            } else {
-                $bank_integration = new BankIntegration();
-                $bank_integration->company_id = $company->id;
-                $bank_integration->account_id = $company->account_id;
-                $bank_integration->user_id = $company->owner()->id;
-                $bank_integration->bank_account_id = $account['id'];
-                $bank_integration->bank_account_type = $account['account_type'];
-                $bank_integration->bank_account_name = $account['account_name'];
-                $bank_integration->bank_account_status = $account['account_status'];
-                $bank_integration->bank_account_number = $account['account_number'];
-                $bank_integration->provider_id = $account['provider_account_id'] ?? $account['provider_id'];
-                $bank_integration->provider_name = $account['provider_name'];
-                $bank_integration->nickname = $account['nickname'];
-                $bank_integration->balance = $account['current_balance'];
-                $bank_integration->currency = $account['account_currency'];
-                $bank_integration->from_date = now()->subYear();
-                $bank_integration->integration_type = BankIntegration::INTEGRATION_TYPE_YODLEE;
-                $bank_integration->auto_sync = true;
-
-                $bank_integration->save();
-            }
+            $this->upsertBankIntegration($company, $account);
         }
 
         $company->account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_YODLEE)->where('auto_sync', true)->each(function ($bank_integration) use ($company) { // TODO: filter to yodlee only
             ProcessBankTransactionsYodlee::dispatch($company->account->bank_integration_account_id, $bank_integration);
         });
+    }
+
+    /**
+     * Creates, updates or revives the BankIntegration for a single Yodlee account.
+     *
+     * Reconnecting the same bank account must reuse the existing integration rather
+     * than spawning a duplicate (which would re-import the entire history under a
+     * fresh, empty dedup scope). Matching is always scoped to (company_id,
+     * bank_account_id): the same upstream account may legitimately back a separate
+     * integration per company sharing the account-level Yodlee login.
+     *
+     *  - A recoverable row (is_deleted = 0), live or archived, is updated in place;
+     *    an archived one is revived (deleted_at = null). Live rows are preferred
+     *    over archived when both exist.
+     *  - A row the user explicitly deleted (is_deleted = 1) is left untouched and not
+     *    recreated, so deliberately-removed connections are never reanimated.
+     *  - Otherwise a new integration is created.
+     *
+     * @param array<string, mixed> $account
+     */
+    private function upsertBankIntegration($company, array $account): void
+    {
+        $bank_integration = BankIntegration::withTrashed()
+            ->where('company_id', $company->id)
+            ->where('bank_account_id', $account['id'])
+            ->orderBy('is_deleted') //recoverable (0) before deleted (1)
+            ->orderByRaw('deleted_at IS NULL DESC') //live before archived
+            ->orderBy('deleted_at', 'desc') //newest first
+            ->first();
+
+        if ($bank_integration && $bank_integration->is_deleted) {
+            return;
+        }
+
+        if ($bank_integration) {
+            $bank_integration->deleted_at = null;
+            $bank_integration->disabled_upstream = false;
+            $bank_integration->balance = $account['current_balance'];
+            $bank_integration->currency = $account['account_currency'];
+            $bank_integration->integration_type = BankIntegration::INTEGRATION_TYPE_YODLEE;
+            $bank_integration->save();
+
+            return;
+        }
+
+        $bank_integration = new BankIntegration();
+        $bank_integration->company_id = $company->id;
+        $bank_integration->account_id = $company->account_id;
+        $bank_integration->user_id = $company->owner()->id;
+        $bank_integration->bank_account_id = $account['id'];
+        $bank_integration->bank_account_type = $account['account_type'];
+        $bank_integration->bank_account_name = $account['account_name'];
+        $bank_integration->bank_account_status = $account['account_status'];
+        $bank_integration->bank_account_number = $account['account_number'];
+        $bank_integration->provider_id = $account['provider_account_id'] ?? $account['provider_id'];
+        $bank_integration->provider_name = $account['provider_name'];
+        $bank_integration->nickname = $account['nickname'];
+        $bank_integration->balance = $account['current_balance'];
+        $bank_integration->currency = $account['account_currency'];
+        $bank_integration->from_date = now()->subYear();
+        $bank_integration->integration_type = BankIntegration::INTEGRATION_TYPE_YODLEE;
+        $bank_integration->auto_sync = true;
+
+        $bank_integration->save();
     }
 
     /**

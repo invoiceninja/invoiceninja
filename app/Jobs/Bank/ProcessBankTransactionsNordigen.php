@@ -274,7 +274,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
             nlog("Nordigen: wake probe started for account: {$account_id}");
 
             $wake_status = $this->nordigen->wakeAccount($account_id, 'ERROR');
-            $status = $wake_status['status'] ?? 'WAKE_TRANSIENT_ERROR';
+            $status = $wake_status['status'];
 
             if ($status == 'READY') {
                 $this->clearAccountWakeState($account_id);

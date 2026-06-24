@@ -188,7 +188,7 @@ class AutoBillInvoice extends AbstractService
         }
 
         if ($payment) {
-            info('Auto Bill payment captured for ' . $this->invoice->number);
+            nlog('Auto Bill payment captured for ' . $this->invoice->number);
             event(new InvoiceAutoBillSuccess($this->invoice, $this->invoice->company, Ninja::eventVars()));
         }
     }
@@ -252,7 +252,7 @@ class AutoBillInvoice extends AbstractService
             $payment->credits()
                     ->attach($current_credit->id, ['amount' => $credit['amount']]);
 
-            info("adjusting credit balance {$current_credit->balance} by this amount " . $credit['amount']);
+            nlog("adjusting credit balance {$current_credit->balance} by this amount " . $credit['amount']);
 
 
             $item_date = Carbon::parse($payment->date)->format($payment->client->date_format());
@@ -398,7 +398,7 @@ class AutoBillInvoice extends AbstractService
      * Applies credits to a payment prior to push
      * to the payment gateway
      *
-     * @return $this
+     * @return self
      */
     public function applyCreditPayment(): self
     {

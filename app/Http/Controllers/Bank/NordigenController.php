@@ -133,8 +133,9 @@ class NordigenController extends BaseController
         $company = $request->getCompany();
         $lang = substr($company->locale(), 0, 2);
 
-        /** @var array $context */
+        /** @var array|null $context */
         $context = $request->getTokenContent();
+        
         if (!array_key_exists('lang', $data) && $context['lang'] != 'en') {
             return redirect()->route('nordigen.confirm', array_merge(['lang' => $context['lang']], $request->query()));
         }

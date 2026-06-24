@@ -243,6 +243,23 @@ class CompanyImport implements ShouldQueue
         'portal_custom_head',
     ];
 
+    private array $counter_setting_keys = [
+        'invoice_number_counter',
+        'recurring_invoice_number_counter',
+        'quote_number_counter',
+        'credit_number_counter',
+        'task_number_counter',
+        'expense_number_counter',
+        'recurring_expense_number_counter',
+        'recurring_quote_number_counter',
+        'vendor_number_counter',
+        'ticket_number_counter',
+        'payment_number_counter',
+        'project_number_counter',
+        'purchase_order_number_counter',
+        'client_number_counter',
+    ];
+
     private array $version_keys = [
         'baseline' => [],
         '5.7.35' => [
@@ -371,6 +388,7 @@ class CompanyImport implements ShouldQueue
                      ->importCompany()
                      ->importLogo()
                      ->importData()
+                     ->restoreCountersFromBackup()
                      ->miscTransformations()
                      ->postImportCleanup();
 
@@ -387,8 +405,8 @@ class CompanyImport implements ShouldQueue
                 $nmo->to_user = $_company->owner();
                 NinjaMailerJob::dispatch($nmo);
             } catch (\Exception $e) {
-                info($e->getMessage());
-                info($e->getTraceAsString());
+                nlog($e->getMessage());
+                nlog($e->getTraceAsString());
             }
         }
 
@@ -662,20 +680,7 @@ class CompanyImport implements ShouldQueue
     {
         $co = $this->getObjectRecord('company');
 
-        $settings = $co->settings;
-        $settings->invoice_number_counter = 1;
-        $settings->recurring_invoice_number_counter = 1;
-        $settings->quote_number_counter = 1;
-        $settings->credit_number_counter = 1;
-        $settings->task_number_counter = 1;
-        $settings->expense_number_counter = 1;
-        $settings->recurring_expense_number_counter = 1;
-        $settings->recurring_quote_number_counter = 1;
-        $settings->vendor_number_counter = 1;
-        $settings->ticket_number_counter = 1;
-        $settings->payment_number_counter = 1;
-        $settings->project_number_counter = 1;
-        $settings->purchase_order_number_counter = 1;
+        $settings = $this->preserveCurrentCounterSettings($co->settings);
 
         $settings->email_style_custom = str_replace(['{!!','!!}','{{','}}','@dd', '@dump', '@if', '@if(','@endif','@isset','@unless','@auth','@empty','@guest','@env','@section','@switch', '@foreach', '@while', '@include', '@each', '@once', '@push', '@use', '@forelse', '@verbatim', '<?php', '@php', '@for','@class','</s','<s','html;base64'], '', $settings->email_style_custom);
 
@@ -697,6 +702,43 @@ class CompanyImport implements ShouldQueue
         $this->company->save();
 
         return $this;
+    }
+
+    /**
+     * Restore company number counters from the backup after a data import.
+     * Counters are applied only once imported entities are in place.
+     */
+    private function restoreCountersFromBackup(): self
+    {
+        $backup_settings = $this->getObjectRecord('company')->settings;
+        $settings = $this->company->settings;
+
+        foreach ($this->counter_setting_keys as $counter_key) {
+            if (property_exists($backup_settings, $counter_key)) {
+                $settings->{$counter_key} = $backup_settings->{$counter_key};
+            }
+        }
+
+        $this->company->settings = $settings;
+        $this->company->save();
+
+        return $this;
+    }
+
+    /**
+     * Settings import must not overwrite counters; those are restored after data import.
+     */
+    private function preserveCurrentCounterSettings(object $settings): object
+    {
+        foreach ($this->counter_setting_keys as $counter_key) {
+            if (property_exists($this->company->settings, $counter_key)) {
+                $settings->{$counter_key} = $this->company->settings->{$counter_key};
+            } elseif (property_exists($settings, $counter_key)) {
+                unset($settings->{$counter_key});
+            }
+        }
+
+        return $settings;
     }
 
     private function purgeCompanyData()
