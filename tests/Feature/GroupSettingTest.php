@@ -45,7 +45,7 @@ class GroupSettingTest extends TestCase
 
         $arr = $response->json();
 
-        $this->assertSame('', $arr['data']['id']);
+        $this->assertSame($this->encodePrimaryKey(0), $arr['data']['id']);
     }
 
     public function testPdfVariablesUnset()
