@@ -52,14 +52,14 @@ class CustomFields extends Component
     public function render()
     {
         return render('profile.settings.custom-fields', [
-            'custom_field_definitions' => $this->customFieldDefinitions,
+            'custom_field_definitions' => $this->customFieldDefinitions(),
         ]);
     }
 
     public function submit(): void
     {
         $client = $this->client();
-        $fields = $this->customFieldDefinitions;
+        $fields = $this->customFieldDefinitions();
         $rules = app(CustomFieldService::class)->buildRules($fields);
 
         if (empty($rules)) {

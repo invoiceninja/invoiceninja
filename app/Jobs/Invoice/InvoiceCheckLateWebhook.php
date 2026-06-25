@@ -46,6 +46,7 @@ class InvoiceCheckLateWebhook implements ShouldQueue
         if (! config('ninja.db.multi_db_enabled')) {
             $company_ids = Webhook::where('event_id', Webhook::EVENT_LATE_INVOICE)
                                   ->where('is_deleted', 0)
+                                  ->whereNull('deleted_at')
                                   ->pluck('company_id');
 
             Invoice::query()
@@ -73,6 +74,7 @@ class InvoiceCheckLateWebhook implements ShouldQueue
 
                 $company_ids = Webhook::where('event_id', Webhook::EVENT_LATE_INVOICE)
                                       ->where('is_deleted', 0)
+                                      ->whereNull('deleted_at')
                                       ->pluck('company_id');
 
                 Invoice::query()

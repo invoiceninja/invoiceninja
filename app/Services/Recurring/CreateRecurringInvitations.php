@@ -62,7 +62,7 @@ class CreateRecurringInvitations extends AbstractService
                 }
             });
         } catch (Exception $e) {
-            info($e->getMessage());
+            nlog($e->getMessage());
         }
 
         if ($this->entity->invitations()->count() == 0) {

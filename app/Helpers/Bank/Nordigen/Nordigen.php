@@ -33,6 +33,9 @@ use App\Helpers\Bank\Nordigen\Transformer\TransactionTransformer;
 use Nordigen\NordigenPHP\Exceptions\InstitutionExceptions\RateLimitError;
 use Nordigen\NordigenPHP\Exceptions\InstitutionExceptions\AccessExpiredError;
 use Nordigen\NordigenPHP\Exceptions\InstitutionExceptions\AccountInactiveError;
+use Nordigen\NordigenPHP\Exceptions\InstitutionExceptions\UnknownRequestError;
+use Nordigen\NordigenPHP\Exceptions\InstitutionExceptions\InstitutionServiceError;
+use Nordigen\NordigenPHP\Exceptions\InstitutionExceptions\InstitutionConnectionError;
 
 class Nordigen
 {
@@ -200,7 +203,7 @@ class Nordigen
             }
         });
 
-        return $requisition->first()->toArray() ??  null;
+        return $requisition->first() ??  null;
 
     }
 
@@ -313,6 +316,75 @@ class Nordigen
     }
 
     /**
+     * Touch a scarce account-resource endpoint to nudge sticky ERROR accounts
+     * without spending the transactions scope.
+     *
+     * @return array{status: string, code?: int, error?: string}
+     */
+    public function wakeAccount(string $accountId, ?string $knownStatus = null): array
+    {
+        try {
+            $status = $knownStatus;
+
+            if ($status === null) {
+                $account = $this->client->account($accountId)->getAccountMetaData();
+                $status = $account['status'] ?? 'UNKNOWN';
+            }
+
+            if ($status !== 'ERROR') {
+                return ['status' => $status];
+            }
+
+            $this->client->account($accountId)->getAccountBalances();
+
+            return ['status' => 'WAKE_PROBED'];
+
+        } catch (RateLimitError $e) {
+
+            return ['status' => 'WAKE_RATE_LIMITED', 'code' => 429, 'error' => $e->getMessage()];
+
+        } catch (AccessExpiredError $e) {
+
+            return ['status' => 'EXPIRED', 'error' => $e->getMessage()];
+
+        } catch (AccountInactiveError $e) {
+
+            return ['status' => 'SUSPENDED', 'error' => $e->getMessage()];
+
+        } catch (InstitutionServiceError | InstitutionConnectionError | UnknownRequestError $e) {
+
+            return $this->normalizeWakeException($e);
+
+        } catch (\Exception $e) {
+
+            return $this->normalizeWakeException($e);
+        }
+    }
+
+    /**
+     * @return array{status: string, error: string}
+     */
+    private function normalizeWakeException(\Exception $e): array
+    {
+        $message = $e->getMessage();
+        $normalized_message = strtolower($message);
+
+        if (strpos($message, 'Invalid Account ID') !== false) {
+            return ['status' => 'Invalid Account ID', 'error' => $message];
+        }
+
+        if (strpos($normalized_message, 'suspended') !== false) {
+            return ['status' => 'SUSPENDED', 'error' => $message];
+        }
+
+        if (strpos($normalized_message, 'expired') !== false || strpos($normalized_message, 'revoked') !== false) {
+            return ['status' => 'EXPIRED', 'error' => $message];
+        }
+
+        return ['status' => 'WAKE_TRANSIENT_ERROR', 'error' => $message];
+    }
+
+    /**
      * Cached, deduped requisition status check.
      *
      * Keyed by requisition_id so multiple bank_integrations sharing a requisition trigger
@@ -321,11 +393,21 @@ class Nordigen
      */
     public function requisitionStatus(string $requisitionId): ?string
     {
-        return Cache::remember("nordigen_req_status:{$requisitionId}", 60 * 60 * 3, function () use ($requisitionId) {
-            $nc = new \App\Helpers\Bank\Nordigen\Http\NordigenClient($this->client->getAccessToken());
+        $cache_key = "nordigen_req_status:{$requisitionId}";
 
-            return $nc->getRequisition($requisitionId)['status'] ?? null;
-        });
+        if (Cache::has($cache_key)) {
+            return Cache::get($cache_key);
+        }
+
+        $nc = new \App\Helpers\Bank\Nordigen\Http\NordigenClient($this->client->getAccessToken());
+
+        $status = $nc->getRequisition($requisitionId)['status'] ?? null;
+
+        if ($status !== null) {
+            Cache::put($cache_key, $status, in_array($status, ['EX', 'SU', 'RJ'], true) ? 60 * 60 * 3 : 60 * 15);
+        }
+
+        return $status;
     }
 
 

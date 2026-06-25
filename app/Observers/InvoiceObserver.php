@@ -37,6 +37,8 @@ class InvoiceObserver
     public function created(Invoice $invoice)
     {
         $subscriptions = Webhook::where('company_id', $invoice->company_id)
+                            ->where('is_deleted', false)
+                            ->whereNull('deleted_at')
                             ->where('event_id', Webhook::EVENT_CREATE_INVOICE)
                             ->exists();
 
@@ -57,19 +59,26 @@ class InvoiceObserver
         $event = Webhook::EVENT_UPDATE_INVOICE;
 
         if ($invoice->getOriginal('deleted_at') && !$invoice->deleted_at) {
+
+            nlog("restoring invoice");
             $event = Webhook::EVENT_RESTORE_INVOICE;
         }
 
         if ($invoice->is_deleted) {
+            nlog("deleting invoice");
             $event = Webhook::EVENT_DELETE_INVOICE;
         }
 
-
         $subscriptions = Webhook::where('company_id', $invoice->company->id)
+                                    ->where('is_deleted', false)
+                                    ->whereNull('deleted_at')
                                     ->where('event_id', $event)
                                     ->exists();
 
+            nlog("subscriptions: " . $subscriptions);
+
         if ($subscriptions) {
+            nlog("dispatching webhook");
             WebhookHandler::dispatch($event, $invoice, $invoice->company, 'client')->delay(0);
         }
 
@@ -88,6 +97,8 @@ class InvoiceObserver
         }
 
         $subscriptions = Webhook::where('company_id', $invoice->company_id)
+                            ->where('is_deleted', false)
+                            ->whereNull('deleted_at')
                             ->where('event_id', Webhook::EVENT_ARCHIVE_INVOICE)
                             ->exists();
 

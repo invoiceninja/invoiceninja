@@ -86,7 +86,7 @@ class CustomFieldService
      */
     public function rulesForField(array $field): array
     {
-        $base = ($field['required'] ?? false)
+        $base = ($field['required'])
             ? ['bail', 'required']
             : ['sometimes', 'nullable'];
 
@@ -109,7 +109,7 @@ class CustomFieldService
     public function parseCustomFieldDefinition(string $definition): array
     {
         $parts = explode('|', $definition, 2);
-        $label = $parts[0] ?? '';
+        $label = $parts[0];
 
         if (count($parts) === 1) {
             return ['label' => $label, 'type' => 'textarea', 'options' => []];

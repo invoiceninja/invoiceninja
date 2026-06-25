@@ -43,7 +43,7 @@ class AutoBillCron
         set_time_limit(0);
 
         /* Get all invoices where the send date is less than NOW + 30 minutes() */
-        info('Performing Autobilling ' . Carbon::now()->format('Y-m-d h:i:s'));
+        nlog('Performing Autobilling ' . Carbon::now()->format('Y-m-d h:i:s'));
 
         Auth::logout();
 

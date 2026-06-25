@@ -71,9 +71,10 @@ class BankTransactionRepository extends BaseRepository
             $bt->payment_id = null;
         }
 
-        $e = Expense::query()->whereIn('id', $this->transformKeys(explode(",", $bt->expense_id ?? '')))
-        ->cursor()
-        ->each(function ($expense) {
+        $e = Expense::query()
+                    ->whereIn('id', $this->transformKeys(explode(",", $bt->expense_id ?? '')))
+                    ->cursor()
+                    ->each(function ($expense) {
 
             $expense->transaction_id = null;
             $expense->saveQuietly();

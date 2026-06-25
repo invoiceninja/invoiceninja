@@ -49,6 +49,8 @@ class ClientObserver
         }
 
         $subscriptions = Webhook::where('company_id', $client->company_id)
+                                    ->where('is_deleted', false)
+                                    ->whereNull('deleted_at')
                                     ->where('event_id', Webhook::EVENT_CREATE_CLIENT)
                                     ->exists();
 
@@ -100,6 +102,8 @@ class ClientObserver
         }
 
         $subscriptions = Webhook::where('company_id', $client->company_id)
+                                    ->where('is_deleted', false)
+                                    ->whereNull('deleted_at')
                                     ->where('event_id', $event)
                                     ->exists();
 
@@ -136,6 +140,8 @@ class ClientObserver
         }
 
         $subscriptions = Webhook::where('company_id', $client->company_id)
+                                    ->where('is_deleted', false)
+                                    ->whereNull('deleted_at')
                                     ->where('event_id', Webhook::EVENT_ARCHIVE_CLIENT)
                                     ->exists();
 

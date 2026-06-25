@@ -172,12 +172,10 @@ class SwissQrGenerator
             $output = new QrBill\PaymentPart\Output\HtmlOutput\HtmlOutput($qrBill, $this->resolveLanguage());
 
             $html = $output
-                // ->setPrintable(false)
                 ->getPaymentPart();
 
-            // return $html;
             return htmlspecialchars($html);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
 
             // if (is_iterable($qrBill->getViolations())) {
 

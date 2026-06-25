@@ -21,7 +21,7 @@ class PaymentWebhookController extends Controller
         //return early if we cannot resolve the company gateway
         $company_gateway = $request->getCompanyGateway();
 
-        if (!$company_gateway) {
+        if (!$company_gateway || $company_gateway->trashed()) {
             return response()->json([], 200);
         }
 

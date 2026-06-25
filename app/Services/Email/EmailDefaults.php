@@ -182,7 +182,7 @@ class EmailDefaults
         $this->email->email_object->text_body = str_replace(['$view_button','$viewButton'], "\r\n\r\n" . '$view_url' . "\r\n", $this->email->email_object->text_body);
 
         if ($this->template == 'email.template.custom') {
-            $this->email->email_object->body = (str_replace('$body', $this->email->email_object->body, str_replace(["\r","\n"], "", $this->email->email_object->settings->email_style_custom)));
+            $this->email->email_object->body = (str_replace('$body', $this->email->email_object->body, str_replace(["\r","\n"], "", $this->email->email_object->settings->email_style_custom ?? '')));
         }
 
         return $this;

@@ -62,6 +62,14 @@ class RouteServiceProvider extends ServiceProvider
             }
         });
 
+        RateLimiter::for('precheck', function (Request $request) {
+            if (Ninja::isSelfHost()) {
+                return Limit::none();
+            } else {
+                return Limit::perMinute(4)->by($request->ip());
+            }
+        });
+
         RateLimiter::for('api', function (Request $request) {
             if (Ninja::isSelfHost()) {
                 return Limit::none();

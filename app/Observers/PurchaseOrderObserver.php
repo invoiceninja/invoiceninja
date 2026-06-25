@@ -29,6 +29,8 @@ class PurchaseOrderObserver
     public function created(PurchaseOrder $purchase_order)
     {
         $subscriptions = Webhook::where('company_id', $purchase_order->company_id)
+                                    ->where('is_deleted', false)
+                                    ->whereNull('deleted_at')
                                     ->where('event_id', Webhook::EVENT_CREATE_PURCHASE_ORDER)
                                     ->exists();
 
@@ -57,6 +59,8 @@ class PurchaseOrderObserver
 
 
         $subscriptions = Webhook::where('company_id', $purchase_order->company_id)
+                                    ->where('is_deleted', false)
+                                    ->whereNull('deleted_at')
                                     ->where('event_id', $event)
                                     ->exists();
 
@@ -78,6 +82,8 @@ class PurchaseOrderObserver
         }
 
         $subscriptions = Webhook::where('company_id', $purchase_order->company_id)
+                                    ->where('is_deleted', false)
+                                    ->whereNull('deleted_at')
                                     ->where('event_id', Webhook::EVENT_ARCHIVE_PURCHASE_ORDER)
                                     ->exists();
 

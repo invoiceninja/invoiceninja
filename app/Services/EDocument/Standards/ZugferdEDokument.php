@@ -107,10 +107,10 @@ class ZugferdEDokument extends AbstractService
                 break;
             case Credit::class:
                 if (empty($this->document->number)) {
-                    $this->xdocument->setDocumentInformation("DRAFT", "389", date_create($this->document->date ?? now()->format('Y-m-d')), $client->getCurrencyCode());
+                    $this->xdocument->setDocumentInformation("DRAFT", "381", date_create($this->document->date ?? now()->format('Y-m-d')), $client->getCurrencyCode());
                     $this->xdocument->setIsTestDocument();
                 } else {
-                    $this->xdocument->setDocumentInformation($this->document->number, "389", date_create($this->document->date ?? now()->format('Y-m-d')), $client->getCurrencyCode());
+                    $this->xdocument->setDocumentInformation($this->document->number, "381", date_create($this->document->date ?? now()->format('Y-m-d')), $client->getCurrencyCode());
                 }
         }
         if (isset($this->document->po_number)) {
