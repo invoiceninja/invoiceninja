@@ -75,7 +75,7 @@ class WebhookActionTest extends TestCase
         ]);
 
         Bus::fake();
-        (new \App\Services\Quote\MarkSent($quote->client, $quote))->run(true);
+        $quote->service()->markSent(true)->save();
 
         $this->assertContains(Webhook::EVENT_SENT_QUOTE, $this->dispatchedWebhookEvents(), 'SENT_QUOTE webhook did not fire');
     }
