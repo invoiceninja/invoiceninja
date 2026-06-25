@@ -86,19 +86,18 @@ class YodleeController extends BaseController
     }
 
     /**
-     * Creates, updates or revives the BankIntegration for a single Yodlee account.
+     * Creates or updates the BankIntegration for a single Yodlee account.
      *
-     * Reconnecting the same bank account must reuse the existing integration rather
-     * than spawning a duplicate (which would re-import the entire history under a
-     * fresh, empty dedup scope). Matching is always scoped to (company_id,
-     * bank_account_id): the same upstream account may legitimately back a separate
-     * integration per company sharing the account-level Yodlee login.
+     * Matching is always scoped to (company_id, bank_account_id): the same upstream
+     * account may legitimately back a separate integration per company sharing the
+     * account-level Yodlee login.
      *
-     *  - A recoverable row (is_deleted = 0), live or archived, is updated in place;
-     *    an archived one is revived (deleted_at = null). Live rows are preferred
-     *    over archived when both exist.
-     *  - A row the user explicitly deleted (is_deleted = 1) is left untouched and not
-     *    recreated, so deliberately-removed connections are never reanimated.
+     *  - A matching integration is reused — whether live, archived or deleted. Yodlee
+     *    returning the account is authoritative that it is connected, and reusing the
+     *    row preserves its transaction_id dedup scope (a new row would re-import the
+     *    entire history under a fresh, empty scope). A trashed row is revived
+     *    (is_deleted = 0, deleted_at = null). A properly-deleted account is removed at
+     *    Yodlee on delete, so it is not returned here in the first place.
      *  - Otherwise a new integration is created.
      *
      * @param array<string, mixed> $account
@@ -108,16 +107,11 @@ class YodleeController extends BaseController
         $bank_integration = BankIntegration::withTrashed()
             ->where('company_id', $company->id)
             ->where('bank_account_id', $account['id'])
-            ->orderBy('is_deleted') //recoverable (0) before deleted (1)
-            ->orderByRaw('deleted_at IS NULL DESC') //live before archived
-            ->orderBy('deleted_at', 'desc') //newest first
+            ->orderByRaw('deleted_at IS NULL DESC') //prefer a live row when duplicates exist
             ->first();
 
-        if ($bank_integration && $bank_integration->is_deleted) {
-            return;
-        }
-
         if ($bank_integration) {
+            $bank_integration->is_deleted = false;
             $bank_integration->deleted_at = null;
             $bank_integration->disabled_upstream = false;
             $bank_integration->balance = $account['current_balance'];

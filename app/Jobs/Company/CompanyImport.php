@@ -719,7 +719,7 @@ class CompanyImport implements ShouldQueue
             }
         }
 
-        $this->company->settings = $settings;
+        $this->company->saveSettings($settings, $this->company);
         $this->company->save();
 
         return $this;
