@@ -6272,6 +6272,10 @@ $lang = array(
     'show_events' => 'Sự kiện trình diễn',
     'merge_client' => 'Hợp nhất Khách hàng',
     'merge_vendor' => 'Hợp nhất Người bán',
+    'global' => 'Toàn cầu',
+    'disable_all' => 'Vô hiệu hóa tất cả',
+    'press_keys' => 'Nhấn phím',
+
 );
 
 return $lang;

@@ -6271,6 +6271,10 @@ Développe automatiquement la section des notes dans le tableau de produits pour
     'show_events' => 'Événements du spectacle',
     'merge_client' => 'Fusionner le client',
     'merge_vendor' => 'Fusionner le fournisseur',
+    'global' => 'Global',
+    'disable_all' => 'Tout désactiver',
+    'press_keys' => 'Appuyez sur les touches',
+
 );
 
 return $lang;
