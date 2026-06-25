@@ -48,7 +48,7 @@ class StaticModel extends Model
 
     public function getIdAttribute()
     {
-        return (string) $this->attributes['id'];
+        return (string) ($this->attributes['id'] ?? '');
     }
 
     /*
