@@ -128,6 +128,8 @@ class SystemLog extends Model
 
     public const EVENT_PEPPOL_SUCCESS = 73;
 
+    public const EVENT_ACCOUNTING = 74;
+
     /*Type IDs*/
     public const TYPE_PAYPAL = 300;
 
