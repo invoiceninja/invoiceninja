@@ -442,6 +442,7 @@ class SearchController extends Controller
                      ->withTrashed()
                      ->company()
                      ->where('is_deleted', 0)
+                     ->with(['contacts'])
                      ->when(!$user->hasPermission('view_all') || !$user->hasPermission('view_client'), function ($query) use ($user) {
                          $query->where('user_id', $user->id);
                      })
@@ -457,12 +458,12 @@ class SearchController extends Controller
                 'path' => "/clients/{$client->hashed_id}",
             ];
 
-            $client->contacts->each(function ($contact) {
+            $client->contacts->each(function ($contact) use ($client) {
                 $this->client_contacts[] = [
                     'name' => $contact->present()->search_display(),
                     'type' => '/client',
-                    'id' => $contact->client->hashed_id,
-                    'path' => "/clients/{$contact->client->hashed_id}",
+                    'id' => $client->hashed_id,
+                    'path' => "/clients/{$client->hashed_id}",
                 ];
             });
         }
