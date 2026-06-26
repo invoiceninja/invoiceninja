@@ -16,6 +16,7 @@ use App\Utils\Ninja;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Invoice;
+use App\Models\Credit;
 use App\Http\Requests\Request;
 use Illuminate\Validation\Rule;
 use App\Models\RecurringInvoice;
@@ -92,7 +93,17 @@ class ValidateEInvoiceRequest extends Request
             return auth()->user()->company();
         }
 
-        return $class::withTrashed()->find(is_string($this->entity_id) ? $this->decodePrimaryKey($this->entity_id) : $this->entity_id);
+        $id = is_string($this->entity_id) ? $this->decodePrimaryKey($this->entity_id) : $this->entity_id;
+        $entity = $class::withTrashed()->find($id);
+
+        if ($this->entity === 'invoices') {
+            $credit = Credit::withTrashed()->find($id);
+            if ($credit) {
+                return $credit;
+            }
+        }
+
+        return $entity;
 
     }
 
