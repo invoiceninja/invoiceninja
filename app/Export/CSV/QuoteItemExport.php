@@ -69,7 +69,7 @@ class QuoteItemExport extends BaseExport
                             ->whereHas('client', function ($q) {
                                 $q->where('is_deleted', false);
                             })
-                            ->with('client', 'location')->where('company_id', $this->company->id);
+                            ->with('client', 'location', 'tags')->where('company_id', $this->company->id);
 
         if (!($this->input['include_deleted'] ?? false)) {
             $query->where('is_deleted', 0);
@@ -82,6 +82,9 @@ class QuoteItemExport extends BaseExport
         if ($clients) {
             $query = $this->addClientFilter($query, $clients);
         }
+
+        $query = $this->addTagFilter($query);
+
         $query = $this->filterByUserPermissions($query);
 
         $query = $this->addQuoteStatusFilter($query, $this->input['status'] ?? '');

@@ -83,7 +83,7 @@ class ExpenseExport extends BaseExport
         $this->input['report_keys'] = array_unique(array_merge($this->input['report_keys'], $tax_keys));
 
         $query = Expense::query()
-                        ->with('client')
+                        ->with('client', 'tags')
                         ->withTrashed()
                         ->where('company_id', $this->company->id);
 
@@ -113,6 +113,8 @@ class ExpenseExport extends BaseExport
         if (isset($this->input['categories'])) {
             $query = $this->addCategoryFilter($query, $this->input['categories']);
         }
+
+        $query = $this->addTagFilter($query);
 
         $query = $this->filterByUserPermissions($query);
 

@@ -101,6 +101,8 @@ class InvoiceExport extends BaseExport
             $query = $this->addInvoiceStatusFilter($query, $this->input['status']);
         }
 
+        $query = $this->addTagFilter($query);
+
         $query = $this->filterByUserPermissions($query);
 
 
@@ -211,7 +213,7 @@ class InvoiceExport extends BaseExport
 
     private function invoiceReportRelations(): array
     {
-        $relations = ['client', 'location'];
+        $relations = ['client', 'location', 'tags'];
         $keys = $this->input['report_keys'];
 
         $invoice_relations = [

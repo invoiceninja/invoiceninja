@@ -58,7 +58,7 @@ class PurchaseOrderExport extends BaseExport
 
         $query = PurchaseOrder::query()
                         ->withTrashed()
-                        ->with('vendor', 'location')
+                        ->with('vendor', 'location', 'tags')
                         ->whereHas('vendor', function ($q) {
                             $q->where('is_deleted', false);
                         })
@@ -76,6 +76,9 @@ class PurchaseOrderExport extends BaseExport
         if ($clients) {
             $query = $this->addClientFilter($query, $clients);
         }
+
+        $query = $this->addTagFilter($query);
+
         $query = $this->filterByUserPermissions($query);
 
         $query = $this->addPurchaseOrderStatusFilter($query, $this->input['status'] ?? '');

@@ -104,7 +104,7 @@ class CreditExport extends BaseExport
 
         $query = Credit::query()
                         ->withTrashed()
-                        ->with('client', 'location')
+                        ->with('client', 'location', 'tags')
                         ->whereHas('client', function ($q) {
                             $q->where('is_deleted', false);
                         })
@@ -122,6 +122,8 @@ class CreditExport extends BaseExport
         if ($this->input['status'] ?? false) {
             $query = $this->addCreditStatusFilter($query, $this->input['status']);
         }
+
+        $query = $this->addTagFilter($query);
 
         $query = $this->filterByUserPermissions($query);
 

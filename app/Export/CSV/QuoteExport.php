@@ -58,7 +58,7 @@ class QuoteExport extends BaseExport
 
         $query = Quote::query()
                         ->withTrashed()
-                        ->with('client', 'location')
+                        ->with('client', 'location', 'tags')
                         ->whereHas('client', function ($q) {
                             $q->where('is_deleted', false);
                         })
@@ -77,6 +77,8 @@ class QuoteExport extends BaseExport
         }
 
         $query = $this->addQuoteStatusFilter($query, $this->input['status'] ?? '');
+
+        $query = $this->addTagFilter($query);
 
         $query = $this->filterByUserPermissions($query);
 

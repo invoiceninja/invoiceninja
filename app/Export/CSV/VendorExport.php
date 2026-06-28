@@ -61,7 +61,7 @@ class VendorExport extends BaseExport
             $this->input['report_keys'] = array_values($this->vendor_report_keys);
         }
 
-        $query = Vendor::query()->with('contacts')
+        $query = Vendor::query()->with('contacts', 'tags')
                         ->withTrashed()
                         ->where('company_id', $this->company->id);
 
@@ -70,6 +70,7 @@ class VendorExport extends BaseExport
         }
 
         $query = $this->addDateRange($query, 'vendors');
+        $query = $this->addTagFilter($query);
         $query = $this->filterByUserPermissions($query);
 
         if ($this->input['document_email_attachment'] ?? false) {

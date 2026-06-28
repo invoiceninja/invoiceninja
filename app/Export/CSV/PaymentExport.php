@@ -94,6 +94,7 @@ class PaymentExport extends BaseExport
         }
 
         $query = $this->addPaymentStatusFilters($query, $this->input['status'] ?? '');
+        $query = $this->addTagFilter($query);
         $query = $this->filterByUserPermissions($query);
 
         if ($this->input['document_email_attachment'] ?? false) {
@@ -150,7 +151,7 @@ class PaymentExport extends BaseExport
 
     private function paymentReportRelations(): array
     {
-        $relations = ['client'];
+        $relations = ['client', 'tags'];
         $keys = $this->input['report_keys'];
 
         if (in_array('payment.user_id', $keys, true)) {

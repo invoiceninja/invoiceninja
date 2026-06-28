@@ -56,7 +56,7 @@ class RecurringInvoiceExport extends BaseExport
 
         $query = RecurringInvoice::query()
                         ->withTrashed()
-                        ->with('client')
+                        ->with('client', 'tags')
                         ->whereHas('client', function ($q) {
                             $q->where('is_deleted', false);
                         })
@@ -73,6 +73,9 @@ class RecurringInvoiceExport extends BaseExport
         if ($clients) {
             $query = $this->addClientFilter($query, $clients);
         }
+
+        $query = $this->addTagFilter($query);
+
         $query = $this->filterByUserPermissions($query);
 
         $query = $this->addRecurringInvoiceStatusFilter($query, $this->input['status'] ?? '');
