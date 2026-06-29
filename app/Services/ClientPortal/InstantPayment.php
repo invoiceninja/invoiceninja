@@ -271,7 +271,7 @@ class InstantPayment
             'credit_totals' => $credit_totals,
             'invoice_totals' => $invoice_totals,
             'fee_total' => $fee_totals,
-            'amount_with_fee' => $amount_with_fee,
+            'amount_with_fee' => round($amount_with_fee, $client->currency()->precision),
         ];
 
         $data = [
@@ -280,7 +280,7 @@ class InstantPayment
             'invoices' => $payable_invoices,
             'tokens' => $tokens,
             'payment_method_id' => $payment_method_id,
-            'amount_with_fee' => $invoice_totals + $fee_totals,
+            'amount_with_fee' => round($invoice_totals + $fee_totals, $client->currency()->precision),
             'client' => $client,
             'pre_payment' => $this->request->pre_payment,
             'is_recurring' => $this->request->is_recurring,
