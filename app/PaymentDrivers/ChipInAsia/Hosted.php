@@ -73,7 +73,7 @@ class Hosted implements MethodInterface, LivewireMethodInterface
         return redirect()->away($checkout_url);
     }
 
-    public function paymentResponse(PaymentResponseRequest $request): RedirectResponse
+    public function paymentResponse(PaymentResponseRequest $request)
     {
         // CHIP *_redirect URLs do not include purchase id; only success_callback (webhook) sends JSON with "id".
         // We store chip_purchase_id when creating the purchase and use it here for the redirect return.
