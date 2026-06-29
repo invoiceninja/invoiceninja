@@ -165,6 +165,11 @@ class CreditExport extends BaseExport
 
         foreach (array_values($this->input['report_keys']) as $key) {
 
+            if (str_ends_with($key, '.tags')) {
+                $entity[$key] = $this->decorator->transform($key, $credit);
+                continue;
+            }
+
             $keyval = $key;
             $credit_key = str_replace("credit.", "", $key);
 

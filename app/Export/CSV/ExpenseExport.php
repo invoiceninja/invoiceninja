@@ -157,6 +157,11 @@ class ExpenseExport extends BaseExport
         foreach (array_values($this->input['report_keys']) as $key) {
             $parts = explode('.', $key);
 
+            if (str_ends_with($key, '.tags')) {
+                $entity[$key] = $this->decorator->transform($key, $expense);
+                continue;
+            }
+
             if ($parts[0] == 'expense' && isset($parts[1]) && array_key_exists($parts[1], $transformed_expense)) {
                 $entity[$key] = $transformed_expense[$parts[1]];
             } elseif (array_key_exists($key, $transformed_expense)) {

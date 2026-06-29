@@ -1300,10 +1300,8 @@ class PdfBuilder
     public function processTaxColumns(string $type): void
     {
         $column_type = 'product';
-
-        if ($type == 'product') {
-            $type_id = 1;
-        }
+        $type_id = 1;
+        
 
         if ($type == 'task') {
             $column_type = 'task';

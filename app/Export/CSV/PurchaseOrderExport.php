@@ -148,6 +148,11 @@ class PurchaseOrderExport extends BaseExport
 
             $parts = explode('.', $key);
 
+            if (str_ends_with($key, '.tags')) {
+                $entity[$key] = $this->decorator->transform($key, $purchase_order);
+                continue;
+            }
+
             if ($parts[0] === 'purchase_order' && isset($parts[1], $transformed_purchase_order[$parts[1]])) {
                 $entity[$key] = $transformed_purchase_order[$parts[1]];
             } else {

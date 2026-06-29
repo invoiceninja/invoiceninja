@@ -141,7 +141,7 @@ class TaskDecorator extends Decorator implements DecoratorInterface
         return $task->user->present()->name() ?? '';
     }
 
-    public function tags(Task $task): string
+    public function tags(mixed $task): string
     {
         return $task->tags->pluck('name')->implode(', ');
     }

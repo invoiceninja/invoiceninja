@@ -148,6 +148,11 @@ class QuoteExport extends BaseExport
 
             $parts = explode('.', $key);
 
+            if (str_ends_with($key, '.tags')) {
+                $entity[$key] = $this->decorator->transform($key, $quote);
+                continue;
+            }
+
             if ($parts[0] === 'quote' && isset($parts[1], $transformed_invoice[$parts[1]])) {
                 $entity[$key] = $transformed_invoice[$parts[1]];
             } else {
