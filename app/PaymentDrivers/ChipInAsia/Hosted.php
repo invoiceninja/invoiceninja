@@ -589,9 +589,16 @@ class Hosted implements MethodInterface, LivewireMethodInterface
             return false;
         }
 
-        $payment->status_id = $newStatus;
-        $payment->save();
-
+        if($newStatus === Payment::STATUS_FAILED) {
+            $payment->service()->deletePayment();   // restores invoice balance / paymentables
+            $payment->status_id = Payment::STATUS_FAILED;
+            $payment->save();
+        }
+        else {
+            $payment->status_id = $newStatus;
+            $payment->save();
+        }
+        
         SystemLogger::dispatch(
             [
                 'message' => "CHIP payment transitioned: {$chipStatus}",
