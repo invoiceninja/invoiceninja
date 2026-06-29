@@ -114,6 +114,10 @@ class ReminderJob implements ShouldQueue
 
     private function sendReminderForInvoice(Invoice $invoice)
     {
+        if (! $invoice->client->getSetting('send_reminders')) {
+            return;
+        }
+        
         App::forgetInstance('translator');
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($invoice->client->getMergedSettings()));

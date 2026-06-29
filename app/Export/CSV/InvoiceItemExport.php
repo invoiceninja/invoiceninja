@@ -71,7 +71,7 @@ class InvoiceItemExport extends BaseExport
 
         $query = Invoice::query()
                         ->withTrashed()
-                        ->with('client', 'location')
+                        ->with('client', 'location', 'tags')
                         ->whereHas('client', function ($q) {
                             $q->where('is_deleted', false);
                         })
@@ -92,6 +92,8 @@ class InvoiceItemExport extends BaseExport
         if ($this->input['status'] ?? false) {
             $query = $this->addInvoiceStatusFilter($query, $this->input['status']);
         }
+
+        $query = $this->addTagFilter($query);
 
         $query = $this->filterByUserPermissions($query);
 

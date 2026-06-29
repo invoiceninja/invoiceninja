@@ -87,19 +87,7 @@ class TaskExport extends BaseExport
             $query = $this->addTaskStatusFilter($query, $this->input['status']);
         }
 
-        $tag_ids = $this->input['tag_ids'] ?? null;
-
-        if ($tag_ids) {
-            $transformed_tag_ids = is_string($tag_ids)
-                ? $this->transformKeys(explode(',', $tag_ids))
-                : $this->transformKeys($tag_ids);
-
-            if (count($transformed_tag_ids) > 0) {
-                $query->whereHas('tags', function ($q) use ($transformed_tag_ids) {
-                    $q->whereIn('tags.id', $transformed_tag_ids);
-                });
-            }
-        }
+        $query = $this->addTagFilter($query);
 
         $query = $this->filterByUserPermissions($query);
 

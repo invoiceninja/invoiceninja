@@ -540,6 +540,27 @@ class BaseExport
         return $query;
     }
 
+    protected function addTagFilter(Builder $query): Builder
+    {
+        $tag_ids = $this->input['tag_ids'] ?? null;
+
+        if (! $tag_ids || ! method_exists($query->getModel(), 'tags')) {
+            return $query;
+        }
+
+        $transformed_tag_ids = is_string($tag_ids)
+            ? $this->transformKeys(explode(',', $tag_ids))
+            : $this->transformKeys((array) $tag_ids);
+
+        if (count($transformed_tag_ids) === 0) {
+            return $query;
+        }
+
+        return $query->whereHas('tags', function (Builder $q) use ($transformed_tag_ids) {
+            $q->whereIn('tags.id', $transformed_tag_ids);
+        });
+    }
+
     protected function resolveKey($key, $entity, $transformer): string
     {
         $parts = explode(".", $key ?? '');

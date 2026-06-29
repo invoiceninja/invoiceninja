@@ -130,7 +130,7 @@ class ClientExport extends BaseExport
             $this->input['report_keys'] = array_values($this->client_report_keys);
         }
 
-        $query = Client::query()->with('contacts', 'locations')
+        $query = Client::query()->with('contacts', 'locations', 'tags')
                                 ->withTrashed()
                                 ->where('company_id', $this->company->id);
 
@@ -139,6 +139,8 @@ class ClientExport extends BaseExport
         }
 
         $query = $this->addDateRange($query, ' clients');
+
+        $query = $this->addTagFilter($query);
 
         $query = $this->filterByUserPermissions($query);
 
