@@ -36,6 +36,27 @@ final class CAProvinces
     ];
 
     /**
+     * The French names of the provinces and territories of Canada, keyed by code.
+     *
+     * @var array
+     */
+    protected static $frenchProvinces = [
+        'AB' => 'Alberta',
+        'BC' => 'Colombie-Britannique',
+        'MB' => 'Manitoba',
+        'NB' => 'Nouveau-Brunswick',
+        'NL' => 'Terre-Neuve-et-Labrador',
+        'NS' => 'Nouvelle-Écosse',
+        'ON' => 'Ontario',
+        'PE' => 'Île-du-Prince-Édouard',
+        'QC' => 'Québec',
+        'SK' => 'Saskatchewan',
+        'NT' => 'Territoires du Nord-Ouest',
+        'NU' => 'Nunavut',
+        'YT' => 'Yukon',
+    ];
+
+    /**
      * Get the name of the province or territory for a given abbreviation.
      *
      * @param  string  $abbreviation
@@ -57,13 +78,41 @@ final class CAProvinces
     }
 
     /**
-     * Get the abbreviation for a given province or territory name.
+     * Resolve a province/territory to its two letter code.
      *
-     * @param  string  $name
-     * @return string
+     * Accepts an existing code (e.g. "NB", "nb"), an English name
+     * (e.g. "New Brunswick") or a French name (e.g. "Nouveau-Brunswick").
+     *
+     * @param  string|null  $name
+     * @return string  The two letter code, or an empty string when no match is found.
      */
     public static function getAbbreviation($name)
     {
-        return array_search(ucwords($name), self::$provinces);
+        $name = trim((string) $name);
+
+        if ($name === '') {
+            return '';
+        }
+
+        if (isset(self::$provinces[strtoupper($name)])) {
+            return strtoupper($name);
+        }
+
+        $needle = self::normalize($name);
+
+        foreach ([self::$provinces, self::$frenchProvinces] as $set) {
+            foreach ($set as $code => $province) {
+                if (self::normalize($province) === $needle) {
+                    return $code;
+                }
+            }
+        }
+
+        return '';
+    }
+
+    private static function normalize(string $value): string
+    {
+        return mb_strtolower(trim($value));
     }
 }

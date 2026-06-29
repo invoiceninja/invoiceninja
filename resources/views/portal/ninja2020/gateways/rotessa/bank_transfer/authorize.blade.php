@@ -7,6 +7,16 @@
         </div>
     @endif
 
+    @if($errors->any())
+        <div class="alert alert-failure mb-4">
+            <ul class="list-disc list-inside">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <form action="{{ route('client.payment_methods.store', ['method' => $gateway_type_id ]) }}"
           method="post" id="server_response">
         @csrf
