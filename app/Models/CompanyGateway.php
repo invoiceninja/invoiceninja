@@ -161,6 +161,7 @@ class CompanyGateway extends BaseModel
         'wbhf02us6owgo7p4nfjd0ymssdshks4d' => 326, //Blockonomics
         'b67581d804dbad1743b61c57285142ad' => 327, //Powerboard
         'f4lafbnygsmkflagbqp7zqnfpgeoekdn' => 328, //LawPay
+        'c7a8e2f1b4d90635a3f8e1c9b2d4a6e0' => 330, //CHIP
     ];
 
     protected $touches = [];

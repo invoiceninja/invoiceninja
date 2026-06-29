@@ -94,6 +94,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['id' => 65, 'name' => 'Blockonomics', 'is_offsite' => false, 'sort_order' => 27, 'provider' => 'Blockonomics', 'key' => 'wbhf02us6owgo7p4nfjd0ymssdshks4d', 'fields' => '{"apiKey":""}'],
             ['id' => 66, 'name' => 'LawPay', 'is_offsite' => false, 'sort_order' => 28, 'provider' => 'LawPay', 'key' => 'f4lafbnygsmkflagbqp7zqnfpgeoekdn', 'fields' => '{"publicKey":"","secretKey":"","testMode":false}'],
             ['id' => 67, 'name' => 'payware', 'is_offsite' => false, 'sort_order' => 29, 'provider' => 'Payware', 'key' => 'b0a6294fca4488c2bab58f3e11e3c623', 'fields' => '{"partnerId":"","vposId":"","paywarePublicKey":"","testMode":false,"timeToLive":"600"}', 'default_gateway_type_id' => 30],
+            ['id' => 68, 'name' => 'CHIP', 'provider' => 'ChipInAsia', 'is_offsite' => true, 'sort_order' => 30, 'key' => 'c7a8e2f1b4d90635a3f8e1c9b2d4a6e0', 'fields' => '{"apiKey":"","brandId":""}', 'default_gateway_type_id' => GatewayType::HOSTED_PAGE],
         ];
 
         foreach ($gateways as $gateway) {
