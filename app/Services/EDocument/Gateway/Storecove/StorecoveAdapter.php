@@ -241,7 +241,7 @@ class StorecoveAdapter
 
             if (isset($line->allowance_charges)) {
                 foreach ($line->allowance_charges as &$allowance) {
-                    if ($allowance->reason == ctrans('texts.discount')) {
+                    if ($allowance->reason == "Discount") {
                         $allowance->amount_excluding_tax = $allowance->amount_excluding_tax * -1;
                     }
 
@@ -302,7 +302,7 @@ class StorecoveAdapter
             unset($tax);
 
 
-            if ($allowance->reason == ctrans('texts.discount')) {
+            if ($allowance->reason == "Discount") {
                 $allowance->amount_excluding_tax = $allowance->amount_excluding_tax * -1;
             }
 
