@@ -273,8 +273,7 @@ class ProjectBurnUpTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/charts/project_burnup', [
-            'project_id' => $project->hashed_id,
+        ])->post("/api/v1/charts/project_burnup/{$project->hashed_id}", [
             'start_date' => '2026-01-01',
             'end_date' => '2026-01-03',
         ]);
@@ -284,6 +283,36 @@ class ProjectBurnUpTest extends TestCase
         $this->assertSame('daily', $response->json('bucket_type'));
         $this->assertEqualsWithDelta(125.0, $response->json('totals.invoiced_amount'), 0.01);
         $this->assertEqualsWithDelta(75.0, $response->json('totals.paid_to_date'), 0.01);
+    }
+
+    public function testProjectBurnUpEndpointRejectsRawProjectId(): void
+    {
+        $project = $this->createProject($this->company, $this->client);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post("/api/v1/charts/project_burnup/{$project->id}", [
+            'start_date' => '2026-01-01',
+            'end_date' => '2026-01-03',
+        ]);
+
+        $response->assertStatus(404);
+    }
+
+    public function testProjectBurnUpEndpointRejectsCrossCompanyProject(): void
+    {
+        $project = $this->createProject($this->test_company, $this->test_client);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post("/api/v1/charts/project_burnup/{$project->hashed_id}", [
+            'start_date' => '2026-01-01',
+            'end_date' => '2026-01-03',
+        ]);
+
+        $response->assertStatus(403);
     }
 
     private function createProject(?Company $company = null, ?Client $client = null): Project

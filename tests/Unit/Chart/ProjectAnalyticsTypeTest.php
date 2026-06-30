@@ -327,6 +327,17 @@ class ProjectAnalyticsTypeTest extends TestCase
             'is_deleted' => false,
         ]);
 
+        $otherProject = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'name' => 'Other Endpoint Project',
+            'budgeted_hours' => 5,
+            'current_hours' => 1,
+            'task_rate' => 100,
+            'is_deleted' => false,
+        ]);
+
         Invoice::factory()->create([
             'client_id' => $this->client->id,
             'user_id' => $this->user->id,
@@ -343,7 +354,7 @@ class ProjectAnalyticsTypeTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/charts/project_analytics', [
+        ])->post("/api/v1/charts/project_analytics/{$project->hashed_id}", [
             'include_drafts' => true,
         ]);
 
@@ -362,5 +373,50 @@ class ProjectAnalyticsTypeTest extends TestCase
 
         $invoiceProgress = collect($response->json('invoice_progress'))->firstWhere('project_id', $project->hashed_id);
         $this->assertEqualsWithDelta(99.0, $invoiceProgress['invoiced_amount'], 0.01);
+        $this->assertSame(1, $response->json('metadata.project_count'));
+        $this->assertNull(collect($response->json('budget_summary'))->firstWhere('project_id', $otherProject->hashed_id));
+    }
+
+    public function testProjectAnalyticsEndpointRejectsRawProjectId(): void
+    {
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'is_deleted' => false,
+        ]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post("/api/v1/charts/project_analytics/{$project->id}");
+
+        $response->assertStatus(404);
+    }
+
+    public function testProjectAnalyticsEndpointRejectsCrossCompanyProject(): void
+    {
+        $otherCompany = Company::factory()->create([
+            'account_id' => $this->account->id,
+        ]);
+
+        $otherClient = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $otherCompany->id,
+        ]);
+
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $otherCompany->id,
+            'client_id' => $otherClient->id,
+            'is_deleted' => false,
+        ]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post("/api/v1/charts/project_analytics/{$project->hashed_id}");
+
+        $response->assertStatus(403);
     }
 }

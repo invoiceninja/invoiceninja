@@ -191,8 +191,8 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::post('charts/analytics_totals', [ChartController::class, 'analytics_totals'])->name('chart.analytics_totals');
     Route::post('charts/cashflow_forecast', [ChartController::class, 'cashflow_forecast'])->name('chart.cashflow_forecast');
     Route::post('charts/client_payment_analytics', [ChartController::class, 'client_payment_analytics'])->name('chart.client_payment_analytics');
-    Route::post('charts/project_analytics', [ChartController::class, 'project_analytics'])->name('chart.project_analytics');
-    Route::post('charts/project_burnup', [ChartController::class, 'projectBurnup'])->name('chart.project_burnup');
+    Route::post('charts/project_analytics/{project}', [ChartController::class, 'project_analytics'])->name('chart.project_analytics');
+    Route::post('charts/project_burnup/{project}', [ChartController::class, 'projectBurnup'])->name('chart.project_burnup');
 
     Route::post('claim_license', [LicenseController::class, 'index'])->name('license.index');
     Route::post('check_license', [LicenseController::class, 'check'])->name('license.check');

@@ -37,9 +37,9 @@ class ProjectAnalyticsService
     /**
      * @return array<string, mixed>
      */
-    public function generate(): array
+    public function generate(?Project $project = null): array
     {
-        $projects = $this->projects();
+        $projects = $this->projects($project);
         $projectsById = $projects->keyBy('id');
         $projectIds = $projects->pluck('id')->map(fn ($id) => (int) $id);
         $tasks = $this->tasks($projectIds);
@@ -86,13 +86,16 @@ class ProjectAnalyticsService
     /**
      * @return Collection<int, Project>
      */
-    private function projects(): Collection
+    private function projects(?Project $project = null): Collection
     {
         return Project::withTrashed()
             ->without('documents')
             ->with('client')
             ->where('company_id', $this->company->id)
             ->where('is_deleted', 0)
+            ->when($project, function ($query) use ($project): void {
+                $query->whereKey($project->id);
+            })
             ->when(! $this->isAdmin, function ($query): void {
                 $query->where('user_id', $this->user->id);
             })

@@ -314,11 +314,11 @@ class ChartService
     /**
      * Project analytics — chart-ready project execution and financial datasets.
      */
-    public function project_analytics(): array
+    public function project_analytics(?Project $project = null): array
     {
         $analytics = new ProjectAnalyticsService($this->company, $this->user, $this->is_admin, $this->include_drafts);
 
-        return $analytics->generate();
+        return $analytics->generate($project);
     }
 
     /**
