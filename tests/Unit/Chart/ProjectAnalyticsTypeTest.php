@@ -258,7 +258,7 @@ class ProjectAnalyticsTypeTest extends TestCase
 
         $result = (new ChartService($this->test_company, $this->user, true))->project_analytics();
 
-        foreach ([
+        $this->assertSame([
             'budget_summary',
             'budget_vs_actual',
             'estimated_vs_logged_hours',
@@ -273,10 +273,8 @@ class ProjectAnalyticsTypeTest extends TestCase
             'expense_breakdown',
             'cumulative_spend',
             'profitability',
-            'recent_activity',
-        ] as $key) {
-            $this->assertArrayHasKey($key, $result);
-        }
+            'metadata',
+        ], array_keys($result));
 
         $budget = collect($result['budget_vs_actual'])->firstWhere('project_id', $project->hashed_id);
         $this->assertNotNull($budget);
@@ -291,13 +289,23 @@ class ProjectAnalyticsTypeTest extends TestCase
         $this->assertEqualsWithDelta(6.0, $effort->remaining_hours, 0.01);
 
         $invoiceProgress = collect($result['invoice_progress'])->firstWhere('project_id', $project->hashed_id);
+        $this->assertEqualsWithDelta(200.0, $invoiceProgress->work_value, 0.01);
         $this->assertEqualsWithDelta(150.0, $invoiceProgress->invoiced_amount, 0.01);
         $this->assertEqualsWithDelta(50.0, $invoiceProgress->paid_amount, 0.01);
         $this->assertEqualsWithDelta(100.0, $invoiceProgress->outstanding_amount, 0.01);
+        $this->assertEqualsWithDelta(50.0, $invoiceProgress->unbilled_amount, 0.01);
+        $this->assertEqualsWithDelta(0.75, $invoiceProgress->invoice_progress, 0.001);
+
+        $unbilledHours = collect($result['unbilled_hours'])->firstWhere('project_id', $project->hashed_id);
+        $this->assertEqualsWithDelta(50.0, $unbilledHours->unbilled_amount, 0.01);
 
         $forecast = collect($result['forecast_completion'])->firstWhere('project_id', $project->hashed_id);
         $this->assertEqualsWithDelta(2.0, $forecast->average_daily_velocity, 0.01);
         $this->assertSame('2026-01-13', $forecast->forecast_finish_date);
+        $this->assertSame(7, $forecast->schedule_variance_days);
+
+        $timelineVariance = collect($result['timeline_variance'])->firstWhere('project_id', $project->hashed_id);
+        $this->assertSame(7, $timelineVariance->schedule_variance_days);
 
         $teamContribution = collect($result['team_contribution'])->firstWhere('project_id', $project->hashed_id);
         $this->assertCount(1, $teamContribution->team_contribution);
@@ -312,6 +320,321 @@ class ProjectAnalyticsTypeTest extends TestCase
 
         $profitability = collect($result['profitability'])->firstWhere('project_id', $project->hashed_id);
         $this->assertEqualsWithDelta(100.0, $profitability->net_margin, 0.01);
+    }
+
+    public function testScheduleVarianceIsNegativeWhenProjectIsBehind(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-01-10 00:00:00'));
+
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'name' => 'Behind Schedule Project',
+            'budgeted_hours' => 10,
+            'current_hours' => 4,
+            'task_rate' => 100,
+            'due_date' => '2026-01-10',
+            'is_deleted' => false,
+            'created_at' => '2026-01-01 00:00:00',
+        ]);
+
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'project_id' => $project->id,
+            'rate' => 100,
+            'time_log' => json_encode([
+                [Carbon::parse('2026-01-02 09:00:00')->timestamp, Carbon::parse('2026-01-02 11:00:00')->timestamp, '', true],
+            ]),
+            'duration' => 7200,
+            'is_deleted' => false,
+            'is_running' => false,
+            'calculated_start_date' => '2026-01-02',
+        ]);
+
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'project_id' => $project->id,
+            'rate' => 100,
+            'time_log' => json_encode([
+                [Carbon::parse('2026-01-03 09:00:00')->timestamp, Carbon::parse('2026-01-03 11:00:00')->timestamp, '', true],
+            ]),
+            'duration' => 7200,
+            'is_deleted' => false,
+            'is_running' => false,
+            'calculated_start_date' => '2026-01-03',
+        ]);
+
+        $result = (new ChartService($this->test_company, $this->user, true))->project_analytics();
+
+        $forecast = collect($result['forecast_completion'])->firstWhere('project_id', $project->hashed_id);
+        $this->assertSame('2026-01-13', $forecast->forecast_finish_date);
+        $this->assertSame(-3, $forecast->schedule_variance_days);
+
+        $timelineVariance = collect($result['timeline_variance'])->firstWhere('project_id', $project->hashed_id);
+        $this->assertSame(-3, $timelineVariance->schedule_variance_days);
+
+        $projectHealth = collect($result['project_health'])->firstWhere('project_id', $project->hashed_id);
+        $this->assertSame(-3, $projectHealth->indicators['schedule_variance_days']);
+    }
+
+    public function testProjectAnalyticsPrefersBudgetedAmountColumn(): void
+    {
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'name' => 'Fixed Budget Project',
+            'budgeted_hours' => 10,
+            'budgeted_amount' => 1500,
+            'current_hours' => 1,
+            'task_rate' => 100,
+            'is_deleted' => false,
+        ]);
+
+        $result = (new ChartService($this->test_company, $this->user, true))->project_analytics();
+
+        $budget = collect($result['budget_vs_actual'])->firstWhere('project_id', $project->hashed_id);
+        $this->assertEqualsWithDelta(1500.0, $budget->budgeted_amount, 0.01);
+        $this->assertEqualsWithDelta(100.0, $budget->actual_amount, 0.01);
+        $this->assertEqualsWithDelta(1400.0, $budget->remaining_budget, 0.01);
+        $this->assertEqualsWithDelta(0.0667, $budget->budget_utilization, 0.0001);
+
+        $summary = collect($result['budget_summary'])->firstWhere('project_id', $project->hashed_id);
+        $this->assertEqualsWithDelta(1500.0, $summary->budgeted_amount, 0.01);
+    }
+
+    public function testTaskInvoicedProjectsUseTaskLinksForUnbilledAmount(): void
+    {
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'name' => 'Task Invoiced Project',
+            'budgeted_hours' => 10,
+            'current_hours' => 5,
+            'task_rate' => 100,
+            'is_deleted' => false,
+        ]);
+
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->test_client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'project_id' => null,
+            'amount' => 200,
+            'paid_to_date' => 50,
+            'balance' => 150,
+            'status_id' => Invoice::STATUS_PARTIAL,
+            'date' => '2026-01-04',
+            'is_deleted' => false,
+        ]);
+
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'project_id' => $project->id,
+            'invoice_id' => $invoice->id,
+            'rate' => 100,
+            'time_log' => json_encode([
+                [Carbon::parse('2026-01-02 09:00:00')->timestamp, Carbon::parse('2026-01-02 11:00:00')->timestamp, '', true],
+            ]),
+            'duration' => 7200,
+            'is_deleted' => false,
+            'is_running' => false,
+            'calculated_start_date' => '2026-01-02',
+        ]);
+
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'project_id' => $project->id,
+            'rate' => 100,
+            'time_log' => json_encode([
+                [Carbon::parse('2026-01-03 09:00:00')->timestamp, Carbon::parse('2026-01-03 12:00:00')->timestamp, '', true],
+            ]),
+            'duration' => 10800,
+            'is_deleted' => false,
+            'is_running' => false,
+            'calculated_start_date' => '2026-01-03',
+        ]);
+
+        $result = (new ChartService($this->test_company, $this->user, true))->project_analytics();
+
+        $invoiceProgress = collect($result['invoice_progress'])->firstWhere('project_id', $project->hashed_id);
+        $this->assertEqualsWithDelta(500.0, $invoiceProgress->work_value, 0.01);
+        $this->assertEqualsWithDelta(200.0, $invoiceProgress->invoiced_amount, 0.01);
+        $this->assertEqualsWithDelta(50.0, $invoiceProgress->paid_amount, 0.01);
+        $this->assertEqualsWithDelta(150.0, $invoiceProgress->outstanding_amount, 0.01);
+        $this->assertEqualsWithDelta(300.0, $invoiceProgress->unbilled_amount, 0.01);
+        $this->assertEqualsWithDelta(0.4, $invoiceProgress->invoice_progress, 0.001);
+
+        $unbilledHours = collect($result['unbilled_hours'])->firstWhere('project_id', $project->hashed_id);
+        $this->assertEqualsWithDelta(3.0, $unbilledHours->unbilled_hours, 0.01);
+        $this->assertEqualsWithDelta(300.0, $unbilledHours->unbilled_amount, 0.01);
+        $this->assertSame(1, $unbilledHours->uninvoiced_tasks);
+    }
+
+    public function testProjectInvoicesUseProjectTotalsEvenWhenTasksAreLinked(): void
+    {
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'name' => 'Project Invoice With Linked Tasks',
+            'budgeted_hours' => 10,
+            'current_hours' => 4,
+            'task_rate' => 100,
+            'is_deleted' => false,
+        ]);
+
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->test_client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'project_id' => $project->id,
+            'amount' => 150,
+            'paid_to_date' => 0,
+            'balance' => 150,
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => '2026-01-04',
+            'is_deleted' => false,
+        ]);
+
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'project_id' => $project->id,
+            'invoice_id' => $invoice->id,
+            'rate' => 100,
+            'time_log' => json_encode([
+                [Carbon::parse('2026-01-02 09:00:00')->timestamp, Carbon::parse('2026-01-02 11:00:00')->timestamp, '', true],
+            ]),
+            'duration' => 7200,
+            'is_deleted' => false,
+            'is_running' => false,
+            'calculated_start_date' => '2026-01-02',
+        ]);
+
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'project_id' => $project->id,
+            'invoice_id' => $invoice->id,
+            'rate' => 100,
+            'time_log' => json_encode([
+                [Carbon::parse('2026-01-03 09:00:00')->timestamp, Carbon::parse('2026-01-03 11:00:00')->timestamp, '', true],
+            ]),
+            'duration' => 7200,
+            'is_deleted' => false,
+            'is_running' => false,
+            'calculated_start_date' => '2026-01-03',
+        ]);
+
+        $result = (new ChartService($this->test_company, $this->user, true))->project_analytics();
+
+        $invoiceProgress = collect($result['invoice_progress'])->firstWhere('project_id', $project->hashed_id);
+        $this->assertEqualsWithDelta(400.0, $invoiceProgress->work_value, 0.01);
+        $this->assertEqualsWithDelta(150.0, $invoiceProgress->invoiced_amount, 0.01);
+        $this->assertEqualsWithDelta(250.0, $invoiceProgress->unbilled_amount, 0.01);
+
+        $unbilledHours = collect($result['unbilled_hours'])->firstWhere('project_id', $project->hashed_id);
+        $this->assertEqualsWithDelta(0.0, $unbilledHours->unbilled_hours, 0.01);
+        $this->assertEqualsWithDelta(250.0, $unbilledHours->unbilled_amount, 0.01);
+    }
+
+    public function testTaskInvoiceSharedAcrossProjectsIsAllocatedByLinkedTaskValue(): void
+    {
+        $firstProject = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'name' => 'Shared Task Invoice A',
+            'budgeted_hours' => 10,
+            'current_hours' => 2,
+            'task_rate' => 100,
+            'is_deleted' => false,
+        ]);
+
+        $secondProject = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'name' => 'Shared Task Invoice B',
+            'budgeted_hours' => 10,
+            'current_hours' => 3,
+            'task_rate' => 100,
+            'is_deleted' => false,
+        ]);
+
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->test_client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'project_id' => null,
+            'amount' => 500,
+            'paid_to_date' => 100,
+            'balance' => 400,
+            'status_id' => Invoice::STATUS_PARTIAL,
+            'date' => '2026-01-04',
+            'is_deleted' => false,
+        ]);
+
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'project_id' => $firstProject->id,
+            'invoice_id' => $invoice->id,
+            'rate' => 100,
+            'time_log' => json_encode([
+                [Carbon::parse('2026-01-02 09:00:00')->timestamp, Carbon::parse('2026-01-02 11:00:00')->timestamp, '', true],
+            ]),
+            'duration' => 7200,
+            'is_deleted' => false,
+            'is_running' => false,
+            'calculated_start_date' => '2026-01-02',
+        ]);
+
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'project_id' => $secondProject->id,
+            'invoice_id' => $invoice->id,
+            'rate' => 100,
+            'time_log' => json_encode([
+                [Carbon::parse('2026-01-03 09:00:00')->timestamp, Carbon::parse('2026-01-03 12:00:00')->timestamp, '', true],
+            ]),
+            'duration' => 10800,
+            'is_deleted' => false,
+            'is_running' => false,
+            'calculated_start_date' => '2026-01-03',
+        ]);
+
+        $result = (new ChartService($this->test_company, $this->user, true))->project_analytics();
+
+        $firstProgress = collect($result['invoice_progress'])->firstWhere('project_id', $firstProject->hashed_id);
+        $this->assertEqualsWithDelta(200.0, $firstProgress->work_value, 0.01);
+        $this->assertEqualsWithDelta(200.0, $firstProgress->invoiced_amount, 0.01);
+        $this->assertEqualsWithDelta(40.0, $firstProgress->paid_amount, 0.01);
+        $this->assertEqualsWithDelta(160.0, $firstProgress->outstanding_amount, 0.01);
+        $this->assertEqualsWithDelta(0.0, $firstProgress->unbilled_amount, 0.01);
+
+        $secondProgress = collect($result['invoice_progress'])->firstWhere('project_id', $secondProject->hashed_id);
+        $this->assertEqualsWithDelta(300.0, $secondProgress->work_value, 0.01);
+        $this->assertEqualsWithDelta(300.0, $secondProgress->invoiced_amount, 0.01);
+        $this->assertEqualsWithDelta(60.0, $secondProgress->paid_amount, 0.01);
+        $this->assertEqualsWithDelta(240.0, $secondProgress->outstanding_amount, 0.01);
+        $this->assertEqualsWithDelta(0.0, $secondProgress->unbilled_amount, 0.01);
     }
 
     public function testProjectAnalyticsEndpointReturnsVisualizationData(): void

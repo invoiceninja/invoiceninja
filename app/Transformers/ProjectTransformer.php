@@ -146,6 +146,7 @@ class ProjectTransformer extends EntityTransformer
             'color' => (string) $project->color ?: '',
             'current_hours' => (int) $project->current_hours ?: 0,
             'tags' => $this->transformTags($project),
+            'budgeted_amount' => (float) $project->budgeted_amount,
         ];
     }
 

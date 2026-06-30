@@ -146,6 +146,7 @@ class CreateAnalyticsTestData extends Command
         $this->createLargeProjectDataset($company, $user, $clients);
         $this->createRecurringInvoices($company, $user, $clients);
         $this->createRecurringExpenses($company, $user, $clients);
+        $this->linkProjectTasksAndExpenses($company);
 
         $this->newLine();
         $this->info('Analytics test data created successfully.');
@@ -650,6 +651,78 @@ class CreateAnalyticsTestData extends Command
         $this->info("  {$projectCount} projects created with {$taskCount} tasks ({$totalHoursLogged}h logged).");
 
         return $projectsByClient;
+    }
+
+    /**
+     * Stamp the backward relations that the application itself relies on when work is invoiced.
+     *
+     * Invoice Ninja invoices a project's tasks/expenses by setting `invoice_id` on each record
+     * (see InvoiceService::linkEntities() and ProjectRepository). The test data already links
+     * invoices and expenses to projects via `project_id`; here we complete the chain so that
+     * project analytics can distinguish invoiced vs. unbilled work:
+     *
+     *   - "Done" tasks (status_order 4) are linked to the project's earliest non-draft invoice,
+     *     mirroring the real-world flow where completed work is what gets billed. Tasks in other
+     *     statuses stay uninvoiced so unbilled_hours / unbilled_value remain non-zero.
+     *   - Every second invoiceable expense (should_be_invoiced = true) is linked to the same
+     *     invoice; the remainder stay pending to exercise the "pending" expense status.
+     *
+     * Amounts and line items are intentionally left untouched — only the FK is set, exactly as
+     * the application does via a bulk update.
+     */
+    private function linkProjectTasksAndExpenses(Company $company): void
+    {
+        $linkedTasks = 0;
+        $linkedExpenses = 0;
+
+        \App\Models\Project::query()
+            ->where('company_id', $company->id)
+            ->where('is_deleted', false)
+            ->cursor()
+            ->each(function (\App\Models\Project $project) use (&$linkedTasks, &$linkedExpenses): void {
+                $invoice = $project->invoices()
+                    ->where('is_deleted', false)
+                    ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
+                    ->orderBy('date')
+                    ->first();
+
+                if (! $invoice) {
+                    return;
+                }
+
+                $doneTaskIds = $project->tasks()
+                    ->where('is_deleted', false)
+                    ->whereHas('status', fn ($query) => $query->where('status_order', '>=', 4))
+                    ->pluck('id');
+
+                if ($doneTaskIds->isNotEmpty()) {
+                    \App\Models\Task::query()
+                        ->whereIn('id', $doneTaskIds)
+                        ->update(['invoice_id' => $invoice->id]);
+
+                    $linkedTasks += $doneTaskIds->count();
+                }
+
+                $invoiceableExpenseIds = $project->expenses()
+                    ->where('is_deleted', false)
+                    ->where('should_be_invoiced', true)
+                    ->whereNull('invoice_id')
+                    ->whereNull('payment_date')
+                    ->orderBy('id')
+                    ->pluck('id')
+                    ->filter(fn ($id, $index) => $index % 2 === 0)
+                    ->values();
+
+                if ($invoiceableExpenseIds->isNotEmpty()) {
+                    Expense::query()
+                        ->whereIn('id', $invoiceableExpenseIds)
+                        ->update(['invoice_id' => $invoice->id]);
+
+                    $linkedExpenses += $invoiceableExpenseIds->count();
+                }
+            });
+
+        $this->info("  Linked {$linkedTasks} done tasks and {$linkedExpenses} expenses to their project invoices.");
     }
 
     private function createLargeProjectDataset(Company $company, User $owner, array $clients): void

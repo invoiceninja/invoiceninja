@@ -315,6 +315,20 @@ class ProjectBurnUpTest extends TestCase
         $response->assertStatus(403);
     }
 
+    public function testProjectBurnUpPrefersBudgetedAmountColumn(): void
+    {
+        $project = $this->createProject();
+        $project->budgeted_amount = 2500;
+        $project->save();
+
+        $result = $this->burnUpService()->generate($project->fresh(), '2026-01-01', '2026-01-05', 'daily');
+
+        $this->assertEqualsWithDelta(2500.0, $result['project']['budgeted_amount'], 0.01);
+        $this->assertEqualsWithDelta(2500.0, $result['markers']['budgeted_amount'], 0.01);
+        $this->assertEqualsWithDelta(2500.0, $result['series'][0]['budgeted_amount'], 0.01);
+        $this->assertEqualsWithDelta(2000.0, $result['series'][4]['ideal_amount'], 0.01);
+    }
+
     private function createProject(?Company $company = null, ?Client $client = null): Project
     {
         $company ??= $this->test_company;

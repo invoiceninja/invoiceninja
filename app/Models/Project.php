@@ -31,6 +31,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null $client_id
  * @property string $name
  * @property float $task_rate
+ * @property float $budgeted_amount
  * @property string|null $due_date
  * @property string|null $private_notes
  * @property float $budgeted_hours
@@ -101,6 +102,7 @@ class Project extends BaseModel
         'public_notes',
         'due_date',
         'budgeted_hours',
+        'budgeted_amount',
         'custom_value1',
         'custom_value2',
         'custom_value3',
@@ -139,6 +141,7 @@ class Project extends BaseModel
             'is_deleted' => (bool) $this->is_deleted,
             'task_rate' => (float) $this->task_rate,
             'budgeted_hours' => (float) $this->budgeted_hours,
+            'budgeted_amount' => (float) $this->budgeted_amount,
             'due_date' => $this->due_date,
             'custom_value1' => (string) $this->custom_value1,
             'custom_value2' => (string) $this->custom_value2,

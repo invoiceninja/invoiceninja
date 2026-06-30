@@ -6275,7 +6275,20 @@ $lang = array(
     'global' => 'Global',
     'disable_all' => 'Disable All',
     'press_keys' => 'Press Keys',
-    'no_payment_required' => 'This plan change does not require a payment. Please go back and confirm the plan change.'
+    'no_payment_required' => 'This plan change does not require a payment. Please go back and confirm the plan change.',
+    'task_distribution' => 'Task Distribution',
+    'team_distribution' => 'Team Distribution',
+    'task_velocity' => 'Task Velocity',
+    'daily_velocity' => 'Daily Velocity',
+    'forecast_finish' => 'Forecast Finish',
+    'days_ahead' => 'Days Ahead',
+    'forecast' => 'Forecast',
+    'estimated_vs_actual' => 'Estimated vs Actual',
+    'budgeted_amount' => 'Budgeted Amount',
+    'burn_up' => 'Burn Up',
+    'actual_spend' => 'Actual Spend',
+    'margin' => 'Margin',
+    'target' => 'Target',
 );
 
 return $lang;

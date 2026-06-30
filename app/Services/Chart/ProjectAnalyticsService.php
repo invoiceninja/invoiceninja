@@ -43,11 +43,11 @@ class ProjectAnalyticsService
         $projectsById = $projects->keyBy('id');
         $projectIds = $projects->pluck('id')->map(fn ($id) => (int) $id);
         $tasks = $this->tasks($projectIds);
-        $invoices = $this->invoices($projectIds);
+        $invoices = $this->invoices($projectIds, $tasks);
         $expenses = $this->expenses($projectIds);
 
         $taskMetrics = $this->buildTaskMetrics($tasks, $projectsById);
-        $invoiceMetrics = $this->buildInvoiceMetrics($invoices);
+        $invoiceMetrics = $this->buildInvoiceMetrics($invoices, $tasks, $projectsById);
         $expenseMetrics = $this->buildExpenseMetrics($expenses);
 
         $snapshots = $projects
@@ -74,7 +74,6 @@ class ProjectAnalyticsService
             'expense_breakdown' => $this->expenseBreakdown($snapshots),
             'cumulative_spend' => $this->cumulativeSpend($snapshots),
             'profitability' => $this->profitability($snapshots),
-            'recent_activity' => $this->recentActivity($snapshots),
             'metadata' => [
                 'project_count' => $snapshots->count(),
                 'include_drafts' => $this->includeDrafts,
@@ -126,13 +125,21 @@ class ProjectAnalyticsService
 
     /**
      * @param Collection<int, int> $projectIds
+     * @param Collection<int, Task> $tasks
      * @return Collection<int, Invoice>
      */
-    private function invoices(Collection $projectIds): Collection
+    private function invoices(Collection $projectIds, Collection $tasks): Collection
     {
         if ($projectIds->isEmpty()) {
             return collect();
         }
+
+        $taskInvoiceIds = $tasks
+            ->pluck('invoice_id')
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values();
 
         $statuses = $this->includeDrafts
             ? [Invoice::STATUS_DRAFT, Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID]
@@ -140,7 +147,13 @@ class ProjectAnalyticsService
 
         return Invoice::withTrashed()
             ->where('company_id', $this->company->id)
-            ->whereIn('project_id', $projectIds)
+            ->where(function ($query) use ($projectIds, $taskInvoiceIds): void {
+                $query->whereIn('project_id', $projectIds);
+
+                if ($taskInvoiceIds->isNotEmpty()) {
+                    $query->orWhereIn('id', $taskInvoiceIds);
+                }
+            })
             ->where('is_deleted', 0)
             ->whereIn('status_id', $statuses)
             ->when(! $this->isAdmin, function ($query): void {
@@ -265,16 +278,6 @@ class ProjectAnalyticsService
                 'is_invoiced' => $isInvoiced,
             ];
 
-            $recentDate = $this->carbonDate($task->updated_at ?? $task->created_at);
-
-            if ($recentDate) {
-                $metrics[$projectId]['recent'][] = [
-                    'type' => 'task',
-                    'date' => $recentDate->format('Y-m-d'),
-                    'label' => trim((string) ($task->number ? "{$task->number} " : '') . (string) $task->description),
-                    'amount' => null,
-                ];
-            }
         }
 
         return $metrics;
@@ -282,43 +285,100 @@ class ProjectAnalyticsService
 
     /**
      * @param Collection<int, Invoice> $invoices
+     * @param Collection<int, Task> $tasks
+     * @param Collection<int, Project> $projectsById
      * @return array<int, array<string, mixed>>
      */
-    private function buildInvoiceMetrics(Collection $invoices): array
+    private function buildInvoiceMetrics(Collection $invoices, Collection $tasks, Collection $projectsById): array
     {
         $metrics = [];
+        $tasksByInvoiceId = $tasks
+            ->filter(fn (Task $task): bool => $task->invoice_id !== null)
+            ->groupBy(fn (Task $task): int => (int) $task->invoice_id);
 
         foreach ($invoices as $invoice) {
             $projectId = (int) $invoice->project_id;
 
-            if (! isset($metrics[$projectId])) {
-                $metrics[$projectId] = $this->emptyInvoiceMetrics();
+            if ($projectId && $projectsById->has($projectId)) {
+                $this->addInvoiceMetric($metrics, $projectId, $invoice, 1.0, true);
+                continue;
             }
 
-            $amount = (float) $invoice->amount;
-            $paid = (float) $invoice->paid_to_date;
-            $outstanding = max((float) $invoice->balance, $amount - $paid, 0);
+            $invoiceTasks = $tasksByInvoiceId->get((int) $invoice->id, collect());
 
-            $metrics[$projectId]['invoice_count']++;
-            $metrics[$projectId]['invoiced_amount'] += $amount;
-            $metrics[$projectId]['paid_amount'] += $paid;
-            $metrics[$projectId]['outstanding_amount'] += $outstanding;
-            $metrics[$projectId]['paid_invoice_count'] += $outstanding <= 0.0 ? 1 : 0;
-            $metrics[$projectId]['outstanding_invoice_count'] += $outstanding > 0.0 ? 1 : 0;
-
-            $recentDate = $this->carbonDate($invoice->date ?? $invoice->updated_at);
-
-            if ($recentDate) {
-                $metrics[$projectId]['recent'][] = [
-                    'type' => 'invoice',
-                    'date' => $recentDate->format('Y-m-d'),
-                    'label' => (string) $invoice->number,
-                    'amount' => round($amount, 2),
-                ];
+            foreach ($this->taskInvoiceAllocations($invoiceTasks, $projectsById) as $taskProjectId => $share) {
+                $this->addInvoiceMetric($metrics, $taskProjectId, $invoice, $share, false);
             }
+
         }
 
         return $metrics;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $metrics
+     */
+    private function addInvoiceMetric(array &$metrics, int $projectId, Invoice $invoice, float $share, bool $projectInvoice): void
+    {
+        if ($share <= 0) {
+            return;
+        }
+
+        if (! isset($metrics[$projectId])) {
+            $metrics[$projectId] = $this->emptyInvoiceMetrics();
+        }
+
+        $invoiceAmount = (float) $invoice->amount;
+        $invoicePaid = (float) $invoice->paid_to_date;
+        $invoiceOutstanding = max((float) $invoice->balance, $invoiceAmount - $invoicePaid, 0);
+
+        $metrics[$projectId]['invoice_count']++;
+        $metrics[$projectId]['invoiced_amount'] += $invoiceAmount * $share;
+        $metrics[$projectId]['paid_amount'] += $invoicePaid * $share;
+        $metrics[$projectId]['outstanding_amount'] += $invoiceOutstanding * $share;
+        $metrics[$projectId]['paid_invoice_count'] += $invoiceOutstanding <= 0.0 ? 1 : 0;
+        $metrics[$projectId]['outstanding_invoice_count'] += $invoiceOutstanding > 0.0 ? 1 : 0;
+        $metrics[$projectId][$projectInvoice ? 'project_invoice_count' : 'task_invoice_count']++;
+    }
+
+    /**
+     * @param Collection<int, Task> $invoiceTasks
+     * @param Collection<int, Project> $projectsById
+     * @return array<int, float>
+     */
+    private function taskInvoiceAllocations(Collection $invoiceTasks, Collection $projectsById): array
+    {
+        if ($invoiceTasks->isEmpty()) {
+            return [];
+        }
+
+        $projectValues = [];
+        $projectTaskCounts = [];
+
+        foreach ($invoiceTasks as $task) {
+            $projectId = (int) $task->project_id;
+            $project = $projectsById->get($projectId);
+
+            if (! $project) {
+                continue;
+            }
+
+            $logs = $this->taskLogEntries($task, $project);
+            $projectValues[$projectId] = ($projectValues[$projectId] ?? 0.0) + array_sum(array_column($logs, 'value'));
+            $projectTaskCounts[$projectId] = ($projectTaskCounts[$projectId] ?? 0) + 1;
+        }
+
+        $totalValue = array_sum($projectValues);
+        $totalTaskCount = array_sum($projectTaskCounts);
+        $allocations = [];
+
+        foreach ($projectTaskCounts as $projectId => $taskCount) {
+            $allocations[$projectId] = $totalValue > 0
+                ? ($projectValues[$projectId] ?? 0.0) / $totalValue
+                : $taskCount / max($totalTaskCount, 1);
+        }
+
+        return $allocations;
     }
 
     /**
@@ -369,12 +429,6 @@ class ProjectAnalyticsService
 
                 $metrics[$projectId]['daily'][$period]['expense_amount'] += $amount;
                 $metrics[$projectId]['daily'][$period]['expense_count']++;
-                $metrics[$projectId]['recent'][] = [
-                    'type' => 'expense',
-                    'date' => $period,
-                    'label' => (string) ($expense->number ?: $categoryName),
-                    'amount' => round($amount, 2),
-                ];
             }
         }
 
@@ -392,7 +446,7 @@ class ProjectAnalyticsService
         $budgetedHours = (float) $project->budgeted_hours;
         $loggedHours = (float) $project->current_hours;
         $taskRate = (float) $project->task_rate;
-        $budgetedAmount = $budgetedHours * $taskRate;
+        $budgetedAmount = $this->budgetedAmount($project, $budgetedHours, $taskRate);
         $laborValue = (float) $taskMetrics['billable_value'] > 0
             ? (float) $taskMetrics['billable_value']
             : $loggedHours * $taskRate;
@@ -413,7 +467,7 @@ class ProjectAnalyticsService
         $idealProgressRatio = $this->idealProgressRatio($projectStart, $dueDate);
         $profitAmount = $invoicedAmount - $expenseAmount;
         $marginRatio = $invoicedAmount > 0 ? $profitAmount / $invoicedAmount : 0.0;
-        $unbilledValue = max($laborValue - $invoicedAmount, (float) $taskMetrics['unbilled_value'], 0.0);
+        $unbilledValue = $this->unbilledValue($laborValue, $invoicedAmount, $taskMetrics, $invoiceMetrics);
         $health = $this->healthScore(
             $budgetUtilization,
             $scheduleVarianceDays,
@@ -476,7 +530,6 @@ class ProjectAnalyticsService
             'expense_categories' => $this->roundRows(array_values($expenseMetrics['categories'])),
             'expense_daily' => $this->seriesRows($expenseMetrics['daily']),
             'cumulative_spend' => $this->buildCumulativeSpend($taskMetrics, $expenseMetrics),
-            'recent' => $this->recentRows(array_merge($taskMetrics['recent'], $invoiceMetrics['recent'], $expenseMetrics['recent'])),
         ];
     }
 
@@ -688,15 +741,6 @@ class ProjectAnalyticsService
      * @param Collection<int, array<string, mixed>> $snapshots
      * @return array<int, \stdClass>
      */
-    private function recentActivity(Collection $snapshots): array
-    {
-        return $this->nestedSeries($snapshots, 'recent_activity', 'recent');
-    }
-
-    /**
-     * @param Collection<int, array<string, mixed>> $snapshots
-     * @return array<int, \stdClass>
-     */
     private function unbilledHours(Collection $snapshots): array
     {
         return $snapshots
@@ -767,7 +811,6 @@ class ProjectAnalyticsService
             'team' => [],
             'tasks' => [],
             'velocity' => [],
-            'recent' => [],
         ];
     }
 
@@ -783,7 +826,8 @@ class ProjectAnalyticsService
             'invoiced_amount' => 0.0,
             'paid_amount' => 0.0,
             'outstanding_amount' => 0.0,
-            'recent' => [],
+            'project_invoice_count' => 0,
+            'task_invoice_count' => 0,
         ];
     }
 
@@ -797,7 +841,6 @@ class ProjectAnalyticsService
             'expense_amount' => 0.0,
             'categories' => [],
             'daily' => [],
-            'recent' => [],
         ];
     }
 
@@ -868,6 +911,30 @@ class ProjectAnalyticsService
         }
 
         return (float) ($this->company->settings->default_task_rate ?? 0);
+    }
+
+    private function budgetedAmount(Project $project, float $budgetedHours, float $taskRate): float
+    {
+        $budgetedAmount = (float) $project->budgeted_amount;
+
+        return $budgetedAmount > 0 ? $budgetedAmount : $budgetedHours * $taskRate;
+    }
+
+    /**
+     * @param array<string, mixed> $taskMetrics
+     * @param array<string, mixed> $invoiceMetrics
+     */
+    private function unbilledValue(float $laborValue, float $invoicedAmount, array $taskMetrics, array $invoiceMetrics): float
+    {
+        if (
+            (int) $invoiceMetrics['project_invoice_count'] === 0
+            && (int) $invoiceMetrics['task_invoice_count'] > 0
+            && (float) $taskMetrics['billable_value'] > 0
+        ) {
+            return max((float) $taskMetrics['unbilled_value'], 0.0);
+        }
+
+        return max($laborValue - $invoicedAmount, 0.0);
     }
 
     private function expenseAmount(Expense $expense): float
@@ -968,7 +1035,7 @@ class ProjectAnalyticsService
         $forecast = Carbon::parse($forecastDate)->startOfDay();
         $due = $dueDate->copy()->startOfDay();
 
-        return (int) floor(($forecast->getTimestamp() - $due->getTimestamp()) / 86400);
+        return (int) floor(($due->getTimestamp() - $forecast->getTimestamp()) / 86400);
     }
 
     private function idealProgressRatio(Carbon $projectStart, ?Carbon $dueDate): ?float
@@ -1016,8 +1083,8 @@ class ProjectAnalyticsService
 
         $score -= min($budgetOverrunRatio, 1.0) * 25;
 
-        if ($scheduleVarianceDays !== null && $scheduleVarianceDays > 0) {
-            $score -= min($scheduleVarianceDays / 30, 1.0) * 25;
+        if ($scheduleVarianceDays !== null && $scheduleVarianceDays < 0) {
+            $score -= min(abs($scheduleVarianceDays) / 30, 1.0) * 25;
         } elseif ($dueDate && $dueDate->lt(now()->startOfDay()) && $completionRatio < 1.0) {
             $score -= 20;
         }
@@ -1129,17 +1196,6 @@ class ProjectAnalyticsService
         ksort($rows);
 
         return $this->roundRows(array_values($rows));
-    }
-
-    /**
-     * @param array<int, array<string, mixed>> $rows
-     * @return array<int, array<string, mixed>>
-     */
-    private function recentRows(array $rows): array
-    {
-        usort($rows, fn (array $a, array $b) => strcmp((string) $b['date'], (string) $a['date']));
-
-        return array_slice($rows, 0, 10);
     }
 
     private function userName(Task $task): string

@@ -158,14 +158,9 @@ class ChartController extends BaseController
         $admin_equivalent_permissions = $user->isAdmin() || $user->hasExactPermissionAndAll('view_all') || $user->hasExactPermissionAndAll('edit_all');
         $includeDrafts = $request->input('include_drafts', false);
 
-        $cacheKey = "project_analytics:{$user->company()->id}:{$user->id}:{$project->id}:" . (int) $includeDrafts;
+        $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions, $includeDrafts);
 
-        $data = Cache::remember($cacheKey, (int)0, function () use ($user, $admin_equivalent_permissions, $includeDrafts, $project) {
-            $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions, $includeDrafts);
-            return $cs->project_analytics($project);
-        });
-
-        return response()->json($data, 200);
+        return response()->json($cs->project_analytics($project), 200);
     }
 
     public function projectBurnup(ShowProjectBurnUpRequest $request, Project $project)
@@ -177,14 +172,10 @@ class ChartController extends BaseController
         $end = $request->input('end_date');
         $bucket = $request->input('bucket_type', 'daily');
         $include_drafts = $request->input('include_drafts', false);
-        $cache_key = "project_burnup:{$user->company()->id}:{$user->id}:{$project->id}:{$start}:{$end}:{$bucket}:" . (int) $include_drafts;
 
-        $data = Cache::remember($cache_key, (int) 0, function () use ($user, $admin_equivalent_permissions, $project, $start, $end, $bucket, $include_drafts) {
-            $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions, $include_drafts);
-            return $cs->projectBurnup($project, $start, $end, $bucket);
-        });
+        $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions, $include_drafts);
 
-        return response()->json($data, 200);
+        return response()->json($cs->projectBurnup($project, $start, $end, $bucket), 200);
     }
 
     public function calculatedFields(ShowCalculatedFieldRequest $request)

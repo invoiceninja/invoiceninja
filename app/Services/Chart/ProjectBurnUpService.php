@@ -312,7 +312,7 @@ class ProjectBurnUpService
     {
         $budgeted_hours = (float) $project->budgeted_hours;
         $task_rate = (float) $project->task_rate;
-        $budgeted_amount = $budgeted_hours * $task_rate;
+        $budgeted_amount = $this->budgetedAmount($project, $budgeted_hours, $task_rate);
         $project_start = $project->created_at ? Carbon::parse($project->created_at)->startOfDay() : $this->start_date->copy();
         $project_due = $project->due_date ? Carbon::parse($project->due_date)->endOfDay() : null;
         $currency_id = (string) ($project->client?->getSetting('currency_id') ?? $this->company->settings->currency_id);
@@ -342,7 +342,7 @@ class ProjectBurnUpService
             $bucket['budgeted_hours'] = $budgeted_hours;
             $bucket['budgeted_amount'] = $budgeted_amount;
             $bucket['ideal_hours'] = $this->idealHours($project_start, $project_due, Carbon::parse($bucket['period_end']), $budgeted_hours);
-            $bucket['ideal_amount'] = $bucket['ideal_hours'] * $task_rate;
+            $bucket['ideal_amount'] = $this->idealAmount($bucket['ideal_hours'], $budgeted_hours, $budgeted_amount);
 
             $series[] = $this->roundBucket($bucket);
         }
@@ -370,6 +370,22 @@ class ProjectBurnUpService
             'series' => $series,
             'totals' => $this->roundTotals($totals),
         ];
+    }
+
+    private function budgetedAmount(Project $project, float $budgeted_hours, float $task_rate): float
+    {
+        $budgeted_amount = (float) $project->budgeted_amount;
+
+        return $budgeted_amount > 0 ? $budgeted_amount : $budgeted_hours * $task_rate;
+    }
+
+    private function idealAmount(float $ideal_hours, float $budgeted_hours, float $budgeted_amount): float
+    {
+        if ($budgeted_hours <= 0 || $budgeted_amount <= 0) {
+            return 0.0;
+        }
+
+        return $budgeted_amount * min($ideal_hours / $budgeted_hours, 1);
     }
 
     private function idealHours(Carbon $project_start, ?Carbon $project_due, Carbon $period_end, float $budgeted_hours): float

@@ -898,4 +898,73 @@ class AnalyticsTestDataVerificationTest extends TestCase
 
         $this->assertGreaterThan(0, $linkedCount, 'Some expenses should be linked to projects');
     }
+
+    // =======================================================================
+    // TASKS & EXPENSES LINKED TO INVOICES (backward FK that analytics reads)
+    // =======================================================================
+
+    public function testDoneTasksAreLinkedToProjectInvoices(): void
+    {
+        $statuses = TaskStatus::where('company_id', $this->analyticsCompany->id)
+            ->orderBy('status_order')
+            ->get();
+        $doneId = $statuses->firstWhere('status_order', 4)->id;
+
+        $tasks = Task::where('company_id', $this->analyticsCompany->id)
+            ->where('is_deleted', false)
+            ->get();
+
+        $invoicedTasks = $tasks->whereNotNull('invoice_id');
+        $uninvoicedTasks = $tasks->whereNull('invoice_id');
+
+        $this->assertGreaterThan(0, $invoicedTasks->count(), 'Some tasks must be linked to an invoice');
+        $this->assertGreaterThan(0, $uninvoicedTasks->count(), 'Some tasks must remain unbilled');
+
+        // Every invoiced task must be a Done task whose invoice belongs to its own project.
+        foreach ($invoicedTasks as $task) {
+            $this->assertEquals($doneId, $task->status_id, "Only Done tasks should be invoiced (task {$task->number})");
+
+            $invoice = Invoice::find($task->invoice_id);
+            $this->assertNotNull($invoice, "Linked invoice must exist for task {$task->number}");
+            $this->assertEquals($task->project_id, $invoice->project_id, 'Task and its invoice must share the project');
+            $this->assertContains($invoice->status_id, [
+                Invoice::STATUS_SENT,
+                Invoice::STATUS_PARTIAL,
+                Invoice::STATUS_PAID,
+            ], 'Tasks are only billed against non-draft invoices');
+        }
+    }
+
+    public function testSomeExpensesAreLinkedToInvoices(): void
+    {
+        $expenses = Expense::where('company_id', $this->analyticsCompany->id)
+            ->where('is_deleted', false)
+            ->get();
+
+        $invoiced = $expenses->whereNotNull('invoice_id');
+        $pending = $expenses->where('should_be_invoiced', true)->whereNull('invoice_id');
+
+        $this->assertGreaterThan(0, $invoiced->count(), 'Some invoiceable expenses must be linked to an invoice');
+        $this->assertGreaterThan(0, $pending->count(), 'Some invoiceable expenses must stay pending');
+
+        foreach ($invoiced as $expense) {
+            $invoice = Invoice::find($expense->invoice_id);
+            $this->assertNotNull($invoice, "Linked invoice must exist for expense {$expense->number}");
+            $this->assertEquals($expense->project_id, $invoice->project_id, 'Expense and its invoice must share the project');
+        }
+    }
+
+    public function testProjectAnalyticsReflectsInvoicedAndUnbilledTasks(): void
+    {
+        $pa = $this->cs->project_analytics();
+
+        $invoicedTotal = array_sum(array_map(fn ($p) => (int) $p->invoiced_tasks, $pa['budget_summary']));
+        $uninvoicedTotal = array_sum(array_map(fn ($p) => (int) $p->uninvoiced_tasks, $pa['budget_summary']));
+
+        $this->assertGreaterThan(0, $invoicedTotal, 'Project analytics must report invoiced tasks');
+        $this->assertGreaterThan(0, $uninvoicedTotal, 'Project analytics must report unbilled tasks');
+
+        $withUnbilled = array_filter($pa['unbilled_hours'], fn ($p) => $p->unbilled_hours > 0);
+        $this->assertNotEmpty($withUnbilled, 'Some projects must have unbilled hours');
+    }
 }

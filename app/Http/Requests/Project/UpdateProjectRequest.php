@@ -51,6 +51,7 @@ class UpdateProjectRequest extends Request
         }
 
         $rules['budgeted_hours'] = 'sometimes|bail|numeric';
+        $rules['budgeted_amount'] = 'sometimes|bail|numeric';
         $rules['task_rate'] = 'sometimes|bail|numeric';
         $rules['file'] = 'bail|sometimes|array';
         $rules['file.*'] = $this->fileValidation();
@@ -77,6 +78,10 @@ class UpdateProjectRequest extends Request
 
         if (array_key_exists('budgeted_hours', $input) && empty($input['budgeted_hours'])) {
             $input['budgeted_hours'] = 0;
+        }
+
+        if (array_key_exists('budgeted_amount', $input) && empty($input['budgeted_amount'])) {
+            $input['budgeted_amount'] = 0;
         }
 
         if (isset($input['documents'])) {
