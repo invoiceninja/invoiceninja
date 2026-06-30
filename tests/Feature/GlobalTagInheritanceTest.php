@@ -117,6 +117,17 @@ class GlobalTagInheritanceTest extends TestCase
         return (int) $this->company->settings->currency_id;
     }
 
+    /**
+     * @return array<string, string>
+     */
+    private function apiHeaders(): array
+    {
+        return [
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ];
+    }
+
     /* -----------------------------------------------------------------
      |  Behaviour
      | ----------------------------------------------------------------- */
@@ -165,6 +176,45 @@ class GlobalTagInheritanceTest extends TestCase
         );
 
         $this->assertInheritedTags($task, [$global_tag->id], 'task/global-only');
+    }
+
+    public function testTaskInheritsGlobalTagFromNewlyCreatedProject(): void
+    {
+        $this->setInheritance(true);
+
+        $global_tag = $this->makeTag(Company::class, 'global-project-parent');
+
+        $project = (new ProjectRepository())->save(
+            [
+                'client_id' => $this->client->id,
+                'name' => 'Project with global tag',
+                'tags' => [$this->encodePrimaryKey($global_tag->id)],
+            ],
+            ProjectFactory::create($this->company->id, $this->user->id)
+        );
+
+        $this->assertInheritedTags($project, [$global_tag->id], 'project');
+
+        $blank = $this->withHeaders($this->apiHeaders())->getJson('/api/v1/tasks/create');
+        $blank->assertStatus(200);
+
+        $payload = $blank->json('data');
+        $payload['description'] = 'asdasd';
+        $payload['duration'] = 0;
+        $payload['rate'] = 128;
+        $payload['project_id'] = $this->encodePrimaryKey($project->id);
+        $payload['time_log'] = '[[1782788852,1782806852,"",true]]';
+        $payload['is_running'] = false;
+        $payload['tags'] = [];
+
+        $response = $this->withHeaders($this->apiHeaders())->postJson('/api/v1/tasks', $payload);
+
+        $response->assertStatus(200);
+
+        $task = Task::find($this->decodePrimaryKey($response->json('data.id')));
+
+        $this->assertNotNull($task);
+        $this->assertInheritedTags($task, [$global_tag->id], 'task/from-new-project-via-api');
     }
 
     public function testExplicitTagsAreMergedWithInheritedTags(): void

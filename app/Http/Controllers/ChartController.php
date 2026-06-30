@@ -15,6 +15,7 @@ namespace App\Http\Controllers;
 use App\Services\Chart\ChartService;
 use App\Http\Requests\Chart\ShowChartRequest;
 use App\Http\Requests\Chart\ShowForecastRequest;
+use App\Http\Requests\Chart\ShowProjectBurnUpRequest;
 use App\Http\Requests\Chart\ShowCalculatedFieldRequest;
 use Illuminate\Support\Facades\Cache;
 
@@ -153,12 +154,33 @@ class ChartController extends BaseController
         /** @var \App\Models\User auth()->user() */
         $user = auth()->user();
         $admin_equivalent_permissions = $user->isAdmin() || $user->hasExactPermissionAndAll('view_all') || $user->hasExactPermissionAndAll('edit_all');
+        $includeDrafts = $request->input('include_drafts', false);
 
-        $cacheKey = "project_analytics:{$user->company()->id}:{$user->id}";
+        $cacheKey = "project_analytics:{$user->company()->id}:{$user->id}:" . (int) $includeDrafts;
 
-        $data = Cache::remember($cacheKey, (int)0, function () use ($user, $admin_equivalent_permissions) {
-            $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
+        $data = Cache::remember($cacheKey, (int)0, function () use ($user, $admin_equivalent_permissions, $includeDrafts) {
+            $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions, $includeDrafts);
             return $cs->project_analytics();
+        });
+
+        return response()->json($data, 200);
+    }
+
+    public function projectBurnup(ShowProjectBurnUpRequest $request)
+    {
+        /** @var \App\Models\User auth()->user() */
+        $user = auth()->user();
+        $admin_equivalent_permissions = $user->isAdmin() || $user->hasExactPermissionAndAll('view_all') || $user->hasExactPermissionAndAll('edit_all');
+        $project = $request->project();
+        $start = $request->input('start_date');
+        $end = $request->input('end_date');
+        $bucket = $request->input('bucket_type', 'daily');
+        $include_drafts = $request->input('include_drafts', false);
+        $cache_key = "project_burnup:{$user->company()->id}:{$user->id}:{$project->id}:{$start}:{$end}:{$bucket}:" . (int) $include_drafts;
+
+        $data = Cache::remember($cache_key, (int) 0, function () use ($user, $admin_equivalent_permissions, $project, $start, $end, $bucket, $include_drafts) {
+            $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions, $include_drafts);
+            return $cs->projectBurnup($project, $start, $end, $bucket);
         });
 
         return response()->json($data, 200);

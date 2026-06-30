@@ -545,7 +545,7 @@ class TaskRepository extends BaseRepository
     }
 
     /**
-     * @param $entity
+     * @param $task
      */
     public function restore($task)
     {
@@ -560,7 +560,7 @@ class TaskRepository extends BaseRepository
     }
 
     /**
-     * @param $entity
+     * @param $task
      */
     public function delete($task)
     {
