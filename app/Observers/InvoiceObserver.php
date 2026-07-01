@@ -59,13 +59,10 @@ class InvoiceObserver
         $event = Webhook::EVENT_UPDATE_INVOICE;
 
         if ($invoice->getOriginal('deleted_at') && !$invoice->deleted_at) {
-
-            nlog("restoring invoice");
             $event = Webhook::EVENT_RESTORE_INVOICE;
         }
 
         if ($invoice->is_deleted) {
-            nlog("deleting invoice");
             $event = Webhook::EVENT_DELETE_INVOICE;
         }
 
@@ -75,10 +72,7 @@ class InvoiceObserver
                                     ->where('event_id', $event)
                                     ->exists();
 
-            nlog("subscriptions: " . $subscriptions);
-
         if ($subscriptions) {
-            nlog("dispatching webhook");
             WebhookHandler::dispatch($event, $invoice, $invoice->company, 'client')->delay(0);
         }
 
