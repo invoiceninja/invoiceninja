@@ -275,13 +275,9 @@ class TaskFilters extends QueryFilters
 
         $status_parameters = explode(',', $value);
 
-        if (count($status_parameters) >= 1) {
-
-            $this->builder->where(function ($query) use ($status_parameters) {
-                $query->whereIn('status_id', $this->transformKeys($status_parameters))->whereNull('invoice_id');
-            });
-
-        }
+        $this->builder->where(function ($query) use ($status_parameters) {
+            $query->whereIn('status_id', $this->transformKeys($status_parameters))->whereNull('invoice_id');
+        });
 
         return $this->builder;
     }
