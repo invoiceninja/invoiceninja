@@ -106,6 +106,7 @@ class YodleeController extends BaseController
     {
         $bank_integration = BankIntegration::withTrashed()
             ->where('company_id', $company->id)
+            ->where("integration_type", BankIntegration::INTEGRATION_TYPE_YODLEE)  
             ->where('bank_account_id', $account['id'])
             ->orderByRaw('deleted_at IS NULL DESC') //prefer a live row when duplicates exist
             ->first();
