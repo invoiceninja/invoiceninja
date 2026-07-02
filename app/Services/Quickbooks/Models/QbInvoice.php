@@ -705,53 +705,7 @@ class QbInvoice implements SyncInterface
 
             $invoice = $invoice->calc()->getInvoice()->service()->markSent()->applyNumber()->createInvitations()->save();
 
-            foreach ($payment_ids as $payment_id) {
-
-                if(!$payment_id) {  
-                    continue;
-                }
-
-                $payment = $this->service->sdk()->findById('Payment', $payment_id);
-
-                $payment_transformer = new PaymentTransformer($this->service->company);
-
-                $transformed = $payment_transformer->qbToNinja($payment);
-
-                $ninja_payment = $payment_transformer->buildPayment($payment);
-                $ninja_payment->service()->applyNumber()->save();
-
-                $exists = \App\Models\Paymentable::withTrashed()
-                    ->where('payment_id', $ninja_payment->id)
-                    ->where('paymentable_id', $invoice->id)
-                    ->where('paymentable_type', 'invoices')
-                    ->exists();
-
-                if ($exists) {
-                    continue;
-                }
-
-
-                $amount = $payment_transformer->appliedAmountForInvoice(
-                    $payment,
-                    (string) $invoice->sync->qb_id
-                );
-
-                if ($amount <= 0) {
-                    continue;
-                }
-
-                $paymentable = new \App\Models\Paymentable();
-                $paymentable->payment_id = $ninja_payment->id;
-                $paymentable->paymentable_id = $invoice->id;
-                $paymentable->paymentable_type = 'invoices';
-                // $paymentable->amount = $transformed['applied'] + $ninja_payment->credits->sum('amount');
-                $paymentable->amount = $amount;
-                $paymentable->created_at = $ninja_payment->date; //@phpstan-ignore-line
-                $paymentable->save();
-
-                $invoice->service()->applyPayment($ninja_payment, $paymentable->amount);
-
-            }
+            $this->attachPayments($invoice, $payment_ids);
 
             if ($record instanceof \QuickBooksOnline\API\Data\IPPSalesReceipt) {
                 $invoice->service()->markPaid()->save();
@@ -759,6 +713,68 @@ class QbInvoice implements SyncInterface
 
         }
 
+    }
+
+    /**
+     * attachPayments
+     *
+     * Reconciles the QuickBooks payments linked to an invoice into Ninja.
+     *
+     * For each QB payment id, ensures a Ninja payment exists — idempotent via
+     * PaymentTransformer::buildPayment(), which dedupes on sync->qb_id — and
+     * links it to the invoice, skipping any Paymentable that already exists.
+     * Safe to call repeatedly and on already-synced invoices: it only creates
+     * missing payment links and never modifies the invoice's own fields.
+     *
+     * @param  Invoice $invoice     The Ninja invoice (must carry sync->qb_id).
+     * @param  array   $payment_ids QuickBooks Payment ids linked to the invoice.
+     * @return void
+     */
+    public function attachPayments(Invoice $invoice, array $payment_ids): void
+    {
+        $payment_transformer = new PaymentTransformer($this->service->company);
+
+        foreach ($payment_ids as $payment_id) {
+
+            if (!$payment_id) {
+                continue;
+            }
+
+            $payment = $this->service->sdk()->findById('Payment', $payment_id);
+
+            $ninja_payment = $payment_transformer->buildPayment($payment);
+            $ninja_payment->service()->applyNumber()->save();
+
+            $exists = \App\Models\Paymentable::withTrashed()
+                ->where('payment_id', $ninja_payment->id)
+                ->where('paymentable_id', $invoice->id)
+                ->where('paymentable_type', 'invoices')
+                ->exists();
+
+            if ($exists) {
+                continue;
+            }
+
+            $amount = $payment_transformer->appliedAmountForInvoice(
+                $payment,
+                (string) $invoice->sync->qb_id
+            );
+
+            if ($amount <= 0) {
+                continue;
+            }
+
+            $paymentable = new \App\Models\Paymentable();
+            $paymentable->payment_id = $ninja_payment->id;
+            $paymentable->paymentable_id = $invoice->id;
+            $paymentable->paymentable_type = 'invoices';
+            $paymentable->amount = $amount;
+            $paymentable->created_at = $ninja_payment->date; //@phpstan-ignore-line
+            $paymentable->save();
+
+            $invoice->service()->applyPayment($ninja_payment, $paymentable->amount);
+
+        }
     }
 
     /**
