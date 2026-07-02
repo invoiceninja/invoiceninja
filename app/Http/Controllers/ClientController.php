@@ -488,12 +488,12 @@ class ClientController extends BaseController
             ->orWhereHasMorph('documentable', [Client::class], function ($query) use ($client) {
                 $query->where('id', $client->id);
             })
-            ->when(strlen($request->input('filter', '')) > 1, function ($query) use ($request) {
+            ->when(strlen($request->input('filter') ?? '') > 1, function ($query) use ($request) {
                 $query->where('name', 'like', '%' . $request->input('filter', '') . '%');
             })
-            ->when(strlen($request->input('sort', '')) > 1, function ($query) use ($request) {
+            ->when(strlen($request->input('sort') ?? '') > 1, function ($query) use ($request) {
 
-                $sort_col = explode('|', $request->input('sort', ''));
+                $sort_col = explode('|', $request->input('sort'));
 
                 if (!is_array($sort_col) || count($sort_col) != 2 || !in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing($query->getModel()->getTable()))) {
                     return $query;
