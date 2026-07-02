@@ -54,8 +54,29 @@ class CreateAccount
         return $this->create();
     }
 
+    private function guardAgainstAnonymousMailProvider(): void
+    {
+        $email = $this->request['email'] ?? null;
+
+        if (! is_string($email) || $email === '') {
+            return;
+        }
+
+        if (! class_exists(\Modules\Admin\Services\Spam\AnonymousMailProviderDetector::class)) {
+            return;
+        }
+
+        if ((new \Modules\Admin\Services\Spam\AnonymousMailProviderDetector())->inspectEmail($email)->matched) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'email' => ['This email domain is not permitted, if you think this is in error, please email contact@invoiceninja.com'],
+            ]);
+        }
+    }
+
     private function create()
     {
+        $this->guardAgainstAnonymousMailProvider();
+
         Account::reguard();
         $sp794f3f = new Account();
         $sp794f3f->fill($this->request);

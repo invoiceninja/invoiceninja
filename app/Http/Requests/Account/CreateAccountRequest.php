@@ -197,12 +197,17 @@ class CreateAccountRequest extends Request
      */
     public function rules()
     {
-        
+        $email_rules = ['bail', 'required', 'max:255', 'email:rfc,dns', new NewUniqueUserRule(), new BlackListRule(), new EmailBlackListRule()];
+
+        if (class_exists(\Modules\Admin\Http\ValidationRules\AnonymousMailProviderRule::class)) {
+            $email_rules[] = new \Modules\Admin\Http\ValidationRules\AnonymousMailProviderRule();
+        }
+
         return [
             'first_name'        => 'string|max:100',
             'last_name'         =>  'string:max:100',
             'password'          => 'required|string|min:6|max:100',
-            'email'             =>  ['bail', 'required', 'max:255', 'email:rfc,dns', new NewUniqueUserRule(), new BlackListRule(), new EmailBlackListRule()],
+            'email'             =>  $email_rules,
             'privacy_policy'    => 'required|boolean',
             'terms_of_service'  => 'required|boolean',
             'utm_source'        => 'sometimes|nullable|string',

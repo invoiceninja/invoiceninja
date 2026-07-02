@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d645060d3fd5834f8d7d475e2d155b54",
+    "content-hash": "d0d070e03a1dcf495e95b6c1bfc20038",
     "packages": [
         {
             "name": "apimatic/core",
@@ -384,16 +384,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.387.0",
+            "version": "3.387.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "38422b3eaed583a6056cef6d40e5594cd90cc895"
+                "reference": "2e1a16e9c87f2a069aa8a0a14a314dd148de21e1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/38422b3eaed583a6056cef6d40e5594cd90cc895",
-                "reference": "38422b3eaed583a6056cef6d40e5594cd90cc895",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/2e1a16e9c87f2a069aa8a0a14a314dd148de21e1",
+                "reference": "2e1a16e9c87f2a069aa8a0a14a314dd148de21e1",
                 "shasum": ""
             },
             "require": {
@@ -475,9 +475,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.387.0"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.387.1"
             },
-            "time": "2026-06-30T18:31:55+00:00"
+            "time": "2026-07-01T18:10:42+00:00"
         },
         {
             "name": "babenkoivan/elastic-adapter",
@@ -4373,63 +4373,6 @@
                 }
             ],
             "time": "2022-05-21T17:30:32+00:00"
-        },
-        {
-            "name": "invoiceninja/admin-api",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "../admin-api",
-                "reference": "da2977586113f2dd8aca63c0508ef22184a88cb5"
-            },
-            "require": {
-                "ext-curl": "*",
-                "ext-dom": "*",
-                "ext-json": "*",
-                "ext-libxml": "*",
-                "ext-simplexml": "*",
-                "illuminate/database": "^11|^12",
-                "illuminate/support": "^11|^12",
-                "imdhemy/laravel-purchases": "^1.7",
-                "php": "^8.2|^8.3|^8.4"
-            },
-            "require-dev": {
-                "larastan/larastan": "^3.0",
-                "orchestra/testbench": "^9.0",
-                "phpstan/phpstan": "^2.0",
-                "phpunit/phpunit": "^11.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "InvoiceNinja\\AdminApi\\Providers\\AdminApiServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "InvoiceNinja\\AdminApi\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "Tests\\": "tests/"
-                }
-            },
-            "license": [
-                "Elastic"
-            ],
-            "authors": [
-                {
-                    "name": "David Bomba",
-                    "email": "turbo124@gmail.com"
-                }
-            ],
-            "description": "API endpoints for the admin interface",
-            "transport-options": {
-                "relative": true
-            }
         },
         {
             "name": "invoiceninja/einvoice",
@@ -22156,7 +22099,6 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "beganovich/snappdf": 20,
-        "invoiceninja/admin-api": 20,
         "invoiceninja/einvoice": 20
     },
     "prefer-stable": true,
