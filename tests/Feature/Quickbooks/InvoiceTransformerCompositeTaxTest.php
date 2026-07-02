@@ -5,7 +5,9 @@ namespace Tests\Feature\Quickbooks;
 use App\DataMapper\QuickbooksSettings;
 use App\Exceptions\QuickbooksMissingTaxCode;
 use App\Models\Company;
+use App\Models\Country;
 use App\Models\Invoice;
+use App\Models\Location;
 use App\Services\Quickbooks\Models\QbTaxRate;
 use App\Services\Quickbooks\QuickbooksService;
 use App\Services\Quickbooks\SdkWrapper;
@@ -227,6 +229,38 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
         $method->setAccessible(true);
 
         $this->assertSame('TAX', $method->invoke($this->transformer, $line_item, 'TAX', 'NON'));
+    }
+
+    public function test_location_ship_address_is_formatted_for_qb_invoice_payload(): void
+    {
+        $country = new Country();
+        $country->iso_3166_3 = 'USA';
+
+        $location = new Location();
+        $location->address1 = '123456789012345678901234567890123456789012345';
+        $location->address2 = 'Suite 9876543210987654321098765432109876543210';
+        $location->city = 'Very Long Customer Location City Name';
+        $location->state = 'STATE-CODE-THAT-IS-LONG';
+        $location->postal_code = '12345678901234567890';
+        $location->setRelation('country', $country);
+
+        $invoice = new Invoice();
+        $invoice->location_id = 10;
+        $invoice->setRelation('location', $location);
+
+        $this->assertSame([
+            'Line1' => '12345678901234567890123456789012345678901',
+            'Line2' => 'Suite 98765432109876543210987654321098765',
+            'City' => 'Very Long Customer Location Cit',
+            'CountrySubDivisionCode' => 'STATE-CODE-THAT-IS-LO',
+            'PostalCode' => '1234567890123',
+            'Country' => 'USA',
+        ], $this->formatLocationShipAddress($invoice));
+    }
+
+    public function test_location_ship_address_is_null_without_invoice_location(): void
+    {
+        $this->assertNull($this->formatLocationShipAddress(new Invoice()));
     }
 
     public function test_qb_tax_rate_creates_tax_service_for_missing_components(): void
@@ -589,6 +623,14 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
         $method->setAccessible(true);
 
         return $method->invoke($this->transformer, $invoice, $invoice_level_taxes, $this->taxRateMap(), $composite_tax_code_map);
+    }
+
+    private function formatLocationShipAddress(Invoice $invoice): ?array
+    {
+        $method = new ReflectionMethod(InvoiceTransformer::class, 'formatLocationShipAddress');
+        $method->setAccessible(true);
+
+        return $method->invoke($this->transformer, $invoice);
     }
 
     private function taxRateMap(): array
