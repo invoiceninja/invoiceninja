@@ -277,7 +277,7 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
         $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
 
         if (!isset($r->json()['id'])) {
-            $this->handleProcessingFailure($r->json());
+            $this->handleProcessingFailure($r->json() ?? ['name' => '']);
         }
 
         $this->payment_hash->withData("orderID", $r->json()['id']);

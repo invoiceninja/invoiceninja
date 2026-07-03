@@ -386,6 +386,7 @@ class ACH implements LivewireMethodInterface
                 'customer' => $cgt->gateway_customer_reference,
                 'confirm' => true,
                 'description' => $description,
+                'off_session' => true,
                 'metadata' => [
                     'payment_hash' => $this->stripe->payment_hash->hash,
                     'gateway_type_id' => $cgt->gateway_type_id,
@@ -444,7 +445,11 @@ class ACH implements LivewireMethodInterface
                     break;
                 case $e instanceof InvalidRequestException:
 
-                    return redirect()->route('client.payment_methods.verification', ['payment_method' => $cgt->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
+                    if($client_present)
+                        return redirect()->route('client.payment_methods.verification', ['payment_method' => $cgt->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
+
+                    $data['message'] = $e->getMessage();
+                    break;
 
                 case $e instanceof AuthenticationException:
                     $data['message'] = 'Authentication with Stripe\'s API failed';

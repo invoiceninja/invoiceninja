@@ -415,9 +415,7 @@ class PayPalBasePaymentDriver extends BaseDriver
             return $r;
         }
 
-        nlog($r->body());
         nlog($r->json());
-        nlog($r);
 
         SystemLogger::dispatch(
             ['response' => $r->body()],
@@ -429,7 +427,7 @@ class PayPalBasePaymentDriver extends BaseDriver
         );
 
 
-        return response()->json(['message' => "Gateway failure - {$r->body()}"], 401);
+        return $r;
 
         // throw new PaymentFailed("Gateway failure - {$r->body()}", 401);
 
