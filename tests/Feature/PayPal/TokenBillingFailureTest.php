@@ -59,6 +59,8 @@ class TokenBillingFailureTest extends TestCase
         $config = new stdClass();
         $config->merchantId = 'KDCGGYWFNWTAN';
         $config->status = 'activated';
+        $config->clientId = config('ninja.paypal.client_id') ?: 'test-client-id';
+        $config->secret = config('ninja.paypal.secret') ?: 'test-secret';
 
         $cg = new CompanyGateway();
         $cg->company_id = $this->company->id;
