@@ -13,9 +13,9 @@
 namespace App\Http\Controllers\VendorPortal;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\VendorPortal\UpdateVendorContactRequest;
 use App\Models\VendorContact;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Request;
 
 class VendorContactController extends Controller
 {
@@ -68,7 +68,7 @@ class VendorContactController extends Controller
         ]);
     }
 
-    public function update(Request $request, VendorContact $vendor_contact)
+    public function update(UpdateVendorContactRequest $request, VendorContact $vendor_contact)
     {
         $vendor_contact->fill($request->all());
         $vendor_contact->vendor->fill($request->all());
