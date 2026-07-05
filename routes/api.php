@@ -141,6 +141,7 @@ use Illuminate\Support\Facades\Route;
 Route::group(['middleware' => ['throttle:api', 'api_secret_check']], function () {
     Route::post('api/v1/signup', [AccountController::class, 'store'])->name('signup.submit')->middleware('throttle:1,1');
     Route::post('api/v1/oauth_login', [LoginController::class, 'oauthApiLogin']);
+    Route::get('api/v1/oidc/config', [LoginController::class, 'oidcConfig'])->name('oidc.config');
 });
 
 Route::group(['middleware' => ['throttle:precheck']], function () {

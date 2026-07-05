@@ -943,6 +943,15 @@ class LoginController extends BaseController
             $parameters = ['response_type' => 'code', 'redirect_uri' => config('ninja.app_url') . "/auth/microsoft"];
         }
 
+        if ($provider == 'oidc') {
+            if (!config('services.oidc.well_known')) {
+                return abort(404, 'OIDC provider is not configured');
+            }
+
+            $scopes = array_values(array_filter(explode(' ', (string) config('services.oidc.scopes', 'openid profile email'))));
+            $parameters = ['response_type' => 'code', 'redirect_uri' => config('services.oidc.redirect')];
+        }
+
         if (request()->hasHeader('X-REACT') || request()->query('react')) {
             /**@var \App\Models\User $user */
             $user = auth()->user();
@@ -952,7 +961,7 @@ class LoginController extends BaseController
         if (request()->has('code')) {
             return $this->handleProviderCallback($provider);
         } else {
-            if (!in_array($provider, ['google', 'microsoft'])) {
+            if (!in_array($provider, ['google', 'microsoft', 'oidc'])) {
                 return abort(400, 'Invalid provider');
             }
 
@@ -964,6 +973,10 @@ class LoginController extends BaseController
     {
         if ($provider == 'microsoft') {
             return $this->handleMicrosoftProviderCallback();
+        }
+
+        if ($provider == 'oidc') {
+            return $this->handleOidcProviderCallback();
         }
 
         $socialite_user = Socialite::driver($provider)->user();
@@ -1005,6 +1018,100 @@ class LoginController extends BaseController
 
         // if($request_from_react)
         $redirect_url = config('ninja.react_url') . "/#/settings/user_details/connect";
+
+        return redirect($redirect_url);
+    }
+
+    /**
+     * Publicly report whether generic OIDC SSO is configured on this
+     * self-hosted instance so the React login page can conditionally
+     * show a "Sign in with <label>" button.
+     *
+     * Returns { oidc_enabled: bool, oidc_provider_label: string }.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function oidcConfig()
+    {
+        return response()->json([
+            'oidc_enabled' => !empty(config('services.oidc.client_id')) && !empty(config('services.oidc.well_known')),
+            'oidc_provider_label' => config('services.oidc.provider_label', 'OIDC'),
+        ]);
+    }
+
+    /**
+     * Handle the browser callback from a generic OIDC identity provider.
+     *
+     * Resolves the Socialite user, then either signs an existing user in
+     * (matching by oauth_user_id/provider or by email), or provisions a
+     * fresh account when no match is found. Finally redirects to the
+     * React SPA `/auth/oauth?token=…` route with a freshly issued
+     * CompanyToken so the SPA can hydrate its Redux auth state and land
+     * the user on the dashboard.
+     *
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
+     */
+    public function handleOidcProviderCallback()
+    {
+        try {
+            /** @var \Laravel\Socialite\Two\User $socialite_user */
+            $socialite_user = Socialite::driver('oidc')->stateless()->user();
+        } catch (\Throwable $e) {
+            nlog('OIDC callback failed: ' . $e->getMessage());
+            return redirect(config('ninja.react_url') . '/login?error=' . urlencode('OIDC sign-in failed: ' . $e->getMessage()));
+        }
+
+        if (!$socialite_user || !$socialite_user->getId()) {
+            return redirect(config('ninja.react_url') . '/login?error=' . urlencode('OIDC sign-in failed: missing subject identifier.'));
+        }
+
+        // Reuse the shared social-login pathway (existing OAuth user,
+        // email-linked user, or fresh signup). It returns a JsonResponse
+        // for the SPA flow, but we only use it here to trigger the
+        // Auth::login()/CompanyToken provisioning as a side effect.
+        $response = $this->loginOrCreateFromSocialite($socialite_user, 'oidc');
+
+        if (!Auth::check()) {
+            // loginOrCreateFromSocialite returned a JSON error – surface it
+            // to the SPA as a query-string error rather than a raw 4xx body.
+            $message = 'OIDC sign-in failed.';
+
+            if ($response instanceof JsonResponse) {
+                $payload = $response->getData(true);
+                $message = $payload['message'] ?? $message;
+            }
+
+            return redirect(config('ninja.react_url') . '/login?error=' . urlencode($message));
+        }
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        // Persist the oauth linkage for future logins.
+        $name = OAuth::splitName($socialite_user->getName() ?? '');
+        $user->update([
+            'first_name' => $user->first_name ?: $name[0],
+            'last_name' => $user->last_name ?: $name[1],
+            'oauth_user_id' => $socialite_user->getId(),
+            'oauth_provider_id' => 'oidc',
+        ]);
+
+        // hydrateCompanyUser() already created a system CompanyToken (see
+        // CreateCompanyToken above); grab it so the SPA can pick up its JWT.
+        $company_token = CompanyToken::where('user_id', $user->id)
+            ->where('company_id', $user->account->default_company_id)
+            ->where('is_system', true)
+            ->first();
+
+        if (!$company_token) {
+            (new CreateCompanyToken($user->account->default_company, $user, request()->server('HTTP_USER_AGENT')))->handle();
+            $company_token = CompanyToken::where('user_id', $user->id)
+                ->where('company_id', $user->account->default_company_id)
+                ->where('is_system', true)
+                ->first();
+        }
+
+        $redirect_url = config('ninja.react_url') . '/oauth-callback?token=' . $company_token->token;
 
         return redirect($redirect_url);
     }
