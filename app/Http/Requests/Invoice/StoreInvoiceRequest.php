@@ -26,6 +26,9 @@ class StoreInvoiceRequest extends Request
     use MakesHash;
     use CleanLineItems;
 
+    /** @var class-string */
+    protected ?string $tag_entity_type = Invoice::class;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -83,9 +86,7 @@ class StoreInvoiceRequest extends Request
         $rules['custom_surcharge4'] = ['sometimes', 'nullable', 'bail', 'numeric', 'max:99999999999999'];
         $rules['location_id'] = ['nullable', 'sometimes','bail', Rule::exists('locations', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)];
 
-        // $rules['modified_invoice_id'] = ['bail', 'sometimes', 'nullable', new CanGenerateModificationInvoice()];
-
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function prepareForValidation()
@@ -142,7 +143,12 @@ class StoreInvoiceRequest extends Request
             $input['date'] = now()->addSeconds($user->company()->utc_offset())->format('Y-m-d');
         }
         //handles edge case where we need for force set the due date of the invoice.
-        if (isset($input['client_id']) && (isset($input['partial_due_date']) && strlen($input['partial_due_date']) > 1) && (!array_key_exists('due_date', $input) || (empty($input['due_date']) && empty($this->invoice->due_date)))) {
+        if (isset($input['client_id']) && 
+        (isset($input['partial_due_date']) && 
+        strlen($input['partial_due_date']) > 1) && 
+        (!array_key_exists('due_date', $input) || 
+        (empty($input['due_date']) && 
+        empty($this->invoice->due_date ?? '')))) {
             $client = \App\Models\Client::withTrashed()->find($input['client_id']);
 
             if ($client) {

@@ -12,23 +12,26 @@
 
 namespace App\Jobs\EDocument;
 
-use App\Utils\Ninja;
 use App\Models\Account;
+use App\Models\Activity;
 use App\Models\Company;
-use App\Utils\TempFile;
+use App\Models\Credit;
+use App\Models\Invoice;
+use App\Services\EDocument\Gateway\Storecove\EInvoiceForwarder;
+use App\Services\EDocument\Gateway\Storecove\Storecove;
 use App\Services\Email\Email;
-use Illuminate\Bus\Queueable;
 use App\Services\Email\EmailObject;
-use Illuminate\Support\Facades\App;
+use App\Utils\Ninja;
+use App\Utils\TempFile;
+use App\Utils\Traits\Notifications\UserNotifies;
 use App\Utils\Traits\SavesDocuments;
-use Illuminate\Mail\Mailables\Address;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\Services\EDocument\Gateway\Storecove\Storecove;
-use App\Services\EDocument\Gateway\Storecove\EInvoiceForwarder;
-use App\Utils\Traits\Notifications\UserNotifies;
+use Illuminate\Mail\Mailables\Address;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 
 class EInvoicePullDocs implements ShouldQueue
 {
@@ -65,69 +68,176 @@ class EInvoicePullDocs implements ShouldQueue
                 ->each(function ($account) {
 
                     $account->companies->filter(function ($company) {
+                        return $company->settings->e_invoice_type == 'PEPPOL';
+                        })
+                        ->each(function ($company) {
 
-                        return $company->settings->e_invoice_type == 'PEPPOL' && ($company->tax_data->acts_as_receiver ?? false);
+                            $this->einvoice_received_count = 0;
+                            $this->getStatuses($company);
+                            $this->getSentDocs($company);
 
-                    })
-                    ->each(function ($company) {
+                        });
+                });
+    }
 
-                        $this->einvoice_received_count = 0;
+    private function getSentDocs(Company $company)
+    {
+        
+        $response = \Illuminate\Support\Facades\Http::baseUrl(config('ninja.hosted_ninja_url'))
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                    'X-EInvoice-Token' => $company->account->e_invoicing_token,
+                ])
+                ->post('/api/einvoice/peppol/documents', data: [
+                    'license_key' => config('ninja.license_key'),
+                    'account_key' => $company->account->key,
+                    'company_key' => $company->company_key,
+                    'legal_entity_id' => $company->legal_entity_id,
+                ]);
 
-                        $response = \Illuminate\Support\Facades\Http::baseUrl(config('ninja.hosted_ninja_url'))
-                            ->withHeaders([
-                                'Content-Type' => 'application/json',
-                                'Accept' => 'application/json',
-                                'X-EInvoice-Token' => $company->account->e_invoicing_token,
-                            ])
-                            ->post('/api/einvoice/peppol/documents', data: [
-                                'license_key' => config('ninja.license_key'),
-                                'account_key' => $company->account->key,
-                                'company_key' => $company->company_key,
-                                'legal_entity_id' => $company->legal_entity_id,
+            if ($response->successful()) {
+
+                $hash = $response->header('X-CONFIRMATION-HASH');
+
+                $this->handleSuccess($response->json(), $company, $hash);
+            } else {
+                nlog($response->body());
+            }
+
+            if ($this->einvoice_received_count > 0) {
+
+                foreach ($company->company_users as $company_user) {
+
+                    $user = $company_user->user;
+
+                    $notifications = $this->findCompanyUserNotificationType($company_user, ['enable_e_invoice_received_notification']);
+
+                    if (!in_array('mail', $notifications)) {
+                        continue;
+                    }
+
+                    App::setLocale($company->getLocale());
+
+                    $mo = new EmailObject();
+                    $mo->subject = ctrans('texts.einvoice_received_subject');
+                    $mo->body = ctrans('texts.einvoice_received_body', ['count' => $this->einvoice_received_count]);
+                    $mo->text_body = ctrans('texts.einvoice_received_body', ['count' => $this->einvoice_received_count]);
+                    $mo->company_key = $company->company_key;
+                    $mo->html_template = 'email.template.admin';
+                    $mo->to = [new Address($user->email, $user->present()->name())];
+
+                    Email::dispatch($mo, $company);
+                }
+            }
+
+            $this->pullSentDocuments($company);
+    }
+
+    private function getStatuses(Company $company)
+    {
+        
+        $response = \Illuminate\Support\Facades\Http::baseUrl(config('ninja.hosted_ninja_url'))
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                    'X-EInvoice-Token' => $company->account->e_invoicing_token,
+                ])
+                ->post('/api/einvoice/peppol/documents/statuses', data: [
+                    'license_key' => config('ninja.license_key'),
+                    'account_key' => $company->account->key,
+                    'company_key' => $company->company_key,
+                    'legal_entity_id' => $company->legal_entity_id,
+                ]);
+
+                if ($response->successful()) {
+                    $statuses = $response->json();
+                
+                    foreach ($statuses as $status) {
+                
+                        $model = Invoice::withTrashed()->where('backup->guid', $status['guid'])->first();
+
+                        if(!$model){
+                            $model = Credit::withTrashed()->where('backup->guid', $status['guid'])->first();
+                        }
+
+                        if(!$model){
+                            /**
+                             * France e-reporting submission GUIDs live on
+                             * TransactionEvent.payment_request->guid, not on an invoice/credit
+                             * backup->guid. Hand the status to the FR reconciler, which matches
+                             * by that key. On self-hosted multi_db is disabled, so the reconciler
+                             * resolves the local company and TransactionEvent directly.
+                             */
+                            UpdateFranceEReportSubmissionStatus::dispatch([
+                                'tenant_id' => $company->company_key,
+                                'guid' => $status['guid'],
+                                'event' => $status['event'] ?? null,
+                                'event_group' => $status['event_group'] ?? null,
                             ]);
 
-                        if ($response->successful()) {
-
-                            $hash = $response->header('X-CONFIRMATION-HASH');
-
-                            $this->handleSuccess($response->json(), $company, $hash);
-                        } else {
-                            nlog($response->body());
+                            continue;
                         }
 
+                        $statusEvent = (string) ($status['event'] ?? '');
+                        $this->recordDocumentStatus($model, $statusEvent);
+
+                        match($statusEvent){
+                            'cleared' => $this->writeActivity($model, Activity::EINVOICE_STATUS_UPDATED, ctrans('texts.peppol_cleared_for_sending')),
+                            'accepted' => $this->writeActivity($model, Activity::EINVOICE_STATUS_UPDATED, ctrans('texts.peppol_accepted')),
+                            'rejected' => $this->writeActivity($model, Activity::EINVOICE_STATUS_UPDATED, ctrans('texts.peppol_rejected')),
+                            'partially_paid' => $this->writeActivity($model, Activity::EINVOICE_STATUS_UPDATED, ctrans('texts.peppol_partially_paid')),
+                            'paid' => $this->writeActivity($model, Activity::EINVOICE_STATUS_UPDATED, ctrans('texts.peppol_paid')),                            
+                            default => null,
+                        };
+
+                    }
+                
+                }
+
+    }
 
 
-                        if ($this->einvoice_received_count > 0) {
+    private function recordDocumentStatus(Invoice|Credit $model, string $status): void
+    {
+        if ($status === '') {
+            return;
+        }
 
-                            foreach ($company->company_users as $company_user) {
+        $model->backup->e_invoice_status = $status;
 
-                                $user = $company_user->user;
+        if ($status === 'cleared' && is_null($model->backup->e_invoice_cleared_at)) {
+            $model->backup->e_invoice_cleared_at = now()->toIso8601String();
+        }
 
-                                $notifications = $this->findCompanyUserNotificationType($company_user, ['enable_e_invoice_received_notification']);
+        $model->saveQuietly();
+    }
 
-                                if (!in_array('mail', $notifications)) {
-                                    continue;
-                                }
+    private function writeActivity($model, int $activity_id, ?string $notes = '')
+    {
+        $model_key = 'invoice_id';
+        
+        if($model instanceof Credit) {
+            $model_key = 'credit_id';
+        }
 
-                                App::setLocale($company->getLocale());
+        if(Activity::where($model_key, $model->id)
+        ->where('activity_type_id', $activity_id)
+        ->where('notes', $notes)
+        ->where('created_at', '>', now()->subDays(1))
+        ->exists()){
+            return;
+        }
 
-                                $mo = new EmailObject();
-                                $mo->subject = ctrans('texts.einvoice_received_subject');
-                                $mo->body = ctrans('texts.einvoice_received_body', ['count' => $this->einvoice_received_count]);
-                                $mo->text_body = ctrans('texts.einvoice_received_body', ['count' => $this->einvoice_received_count]);
-                                $mo->company_key = $company->company_key;
-                                $mo->html_template = 'email.template.admin';
-                                $mo->to = [new Address($user->email, $user->present()->name())];
-
-                                Email::dispatch($mo, $company);
-                            }
-                        }
-
-                        $this->pullSentDocuments($company);
-
-                    });
-
-                });
+        $activity = new Activity();
+        $activity->user_id = $model->user_id;
+        $activity->client_id = $model->client_id ?? $model->vendor_id;
+        $activity->company_id = $model->company_id;
+        $activity->account_id = $model->company->account_id;
+        $activity->activity_type_id = $activity_id;
+        $activity->{$model_key} = $model->id;
+        $activity->notes = $notes;
+        $activity->save();
     }
 
     /**

@@ -5,9 +5,9 @@
             @foreach($selected as $hashed_id)
                 <input type="hidden" name="quotes[]" value="{{ $hashed_id }}">
             @endforeach
-            <button type="submit" @disabled(count($selected) === 0) onclick="setTimeout(() => this.disabled = true, 0); setTimeout(() => this.disabled = false, 5000); return true;" class="button button-primary bg-primary disabled:opacity-50" name="action" value="download">{{ ctrans('texts.download') }}</button>
-            <button type="submit" @disabled(count($selected) === 0) onclick="setTimeout(() => this.disabled = true, 0); return true;" class="button button-primary bg-primary disabled:opacity-50" name="action" value="approve">{{ ctrans('texts.approve') }}</button>
-            <button type="submit" @disabled(count($selected) === 0) onclick="setTimeout(() => this.disabled = true, 0); return true;" class="button button-secondary bg-red-500 text-white hover:bg-red-600 disabled:opacity-50" name="action" value="reject">{{ ctrans('texts.reject') }}</button>
+            <button type="submit" @disabled(count($selected) === 0) wire:loading.attr="disabled" wire:target="toggleSelected, toggleSelectAll, toggleStatus, per_page, sortBy, previousPage, gotoPage, nextPage" onclick="setTimeout(() => this.disabled = true, 0); setTimeout(() => this.disabled = false, 5000); return true;" class="button button-primary bg-primary disabled:opacity-50" name="action" value="download">{{ ctrans('texts.download') }}</button>
+            <button type="submit" @disabled(count($selected) === 0) wire:loading.attr="disabled" wire:target="toggleSelected, toggleSelectAll, toggleStatus, per_page, sortBy, previousPage, gotoPage, nextPage" onclick="setTimeout(() => this.disabled = true, 0); return true;" class="button button-primary bg-primary disabled:opacity-50" name="action" value="approve">{{ ctrans('texts.approve') }}</button>
+            <button type="submit" @disabled(count($selected) === 0) wire:loading.attr="disabled" wire:target="toggleSelected, toggleSelectAll, toggleStatus, per_page, sortBy, previousPage, gotoPage, nextPage" onclick="setTimeout(() => this.disabled = true, 0); return true;" class="button button-secondary bg-red-500 text-white hover:bg-red-600 disabled:opacity-50" name="action" value="reject">{{ ctrans('texts.reject') }}</button>
         </form>
     </div>
     <div class="flex items-center justify-between">
@@ -22,19 +22,19 @@
         </div>
         <div class="flex items-center">
             <div class="mr-3">
-                <input wire:model.live="status" value="{{ App\Models\Quote::STATUS_SENT }}" value="sent" type="checkbox" class="cursor-pointer form-checkbox" id="sent-checkbox">
+                <input wire:key="quote-status-sent-{{ in_array(App\Models\Quote::STATUS_SENT, $status) ? 'selected' : 'unselected' }}" wire:change="toggleStatus('{{ App\Models\Quote::STATUS_SENT }}')" @checked(in_array(App\Models\Quote::STATUS_SENT, $status)) value="{{ App\Models\Quote::STATUS_SENT }}" type="checkbox" class="cursor-pointer form-checkbox" id="sent-checkbox">
                 <label for="sent-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.status_pending') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:model.live="status" value="{{ App\Models\Quote::STATUS_APPROVED }}" value="approved" type="checkbox" class="cursor-pointer form-checkbox" id="approved-checkbox">
+                <input wire:key="quote-status-approved-{{ in_array(App\Models\Quote::STATUS_APPROVED, $status) ? 'selected' : 'unselected' }}" wire:change="toggleStatus('{{ App\Models\Quote::STATUS_APPROVED }}')" @checked(in_array(App\Models\Quote::STATUS_APPROVED, $status)) value="{{ App\Models\Quote::STATUS_APPROVED }}" type="checkbox" class="cursor-pointer form-checkbox" id="approved-checkbox">
                 <label for="approved-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.approved') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:model.live="status" value="{{ App\Models\Quote::STATUS_EXPIRED }}" value="expired" type="checkbox" class="cursor-pointer form-checkbox" id="expired-checkbox">
+                <input wire:key="quote-status-expired-{{ in_array(App\Models\Quote::STATUS_EXPIRED, $status) ? 'selected' : 'unselected' }}" wire:change="toggleStatus('{{ App\Models\Quote::STATUS_EXPIRED }}')" @checked(in_array(App\Models\Quote::STATUS_EXPIRED, $status)) value="{{ App\Models\Quote::STATUS_EXPIRED }}" type="checkbox" class="cursor-pointer form-checkbox" id="expired-checkbox">
                 <label for="expired-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.expired') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:model.live="status" value="{{ App\Models\Quote::STATUS_REJECTED }}" value="rejected" type="checkbox" class="cursor-pointer form-checkbox" id="rejected-checkbox">
+                <input wire:key="quote-status-rejected-{{ in_array(App\Models\Quote::STATUS_REJECTED, $status) ? 'selected' : 'unselected' }}" wire:change="toggleStatus('{{ App\Models\Quote::STATUS_REJECTED }}')" @checked(in_array(App\Models\Quote::STATUS_REJECTED, $status)) value="{{ App\Models\Quote::STATUS_REJECTED }}" type="checkbox" class="cursor-pointer form-checkbox" id="rejected-checkbox">
                 <label for="rejected-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.rejected') }}</label>
             </div>
         </div>
@@ -46,7 +46,7 @@
                     <tr>
                         <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
                             <label>
-                                <input type="checkbox" class="form-check" wire:model.live="select_all" aria-label="{{ ctrans('texts.select_all') }}">
+                                <input type="checkbox" wire:key="quote-select-all-{{ $select_all ? 'selected' : 'unselected' }}" class="form-check" wire:change="toggleSelectAll" @checked($select_all) aria-label="{{ ctrans('texts.select_all') }}">
                             </label>
                         </th>
                         <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
@@ -82,7 +82,7 @@
                         <tr class="bg-white group hover:bg-gray-100" wire:key="quote-{{ $quote->hashed_id }}">
                             <td class="px-6 py-4 text-sm font-medium leading-5 text-gray-900 whitespace-nowrap">
                                 <label>
-                                    <input type="checkbox" class="form-check" wire:model.live="selected" value="{{ $quote->hashed_id }}">
+                                    <input type="checkbox" wire:key="quote-checkbox-{{ $quote->hashed_id }}-{{ in_array($quote->hashed_id, $selected, true) ? 'selected' : 'unselected' }}" class="form-check" wire:change="toggleSelected('{{ $quote->hashed_id }}')" @checked(in_array($quote->hashed_id, $selected, true)) value="{{ $quote->hashed_id }}">
                                 </label>
                             </td>
                             <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
@@ -126,4 +126,3 @@
         {{ $quotes->links('portal/ninja2020/vendor/pagination') }}
     </div>
 </div>
-

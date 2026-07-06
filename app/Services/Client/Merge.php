@@ -32,21 +32,11 @@ class Merge extends AbstractService
 
     public function run()
     {
-        nlog("merging {$this->mergable_client->id} into {$this->client->id}");
-        nlog("balance pre {$this->client->balance}");
-        nlog("paid_to_date pre {$this->client->paid_to_date}");
 
         $mergeable_client = $this->mergable_client->present()->name();
 
-        $this->client->service()->updateBalanceAndPaidToDate($this->mergable_client->balance, $this->mergable_client->paid_to_date);
-        
-        nlog("balance post {$this->client->balance}");
-        nlog("paid_to_date post {$this->client->paid_to_date}");
-
         $event_vars = \App\Utils\Ninja::eventVars(auth()->user() ? auth()->user()->id : null);
         $event_vars['client_hash'] = $this->mergable_client->client_hash;
-
-        $this->updateLedger($this->mergable_client->balance);
 
         $this->mergable_client->activities()->update(['client_id' => $this->client->id]);
         $this->mergable_client->contacts()->update(['client_id' => $this->client->id]);
@@ -76,9 +66,14 @@ class Merge extends AbstractService
 
 
         $this->mergable_client->forceDelete();
+        
+        $old_balance = $this->client->balance;
 
+        $this->client = $this->client->service()->calculateBalance()->calculatePaidToDate()->updatePaymentBalance()->save();
         $this->client->credit_balance = $this->client->service()->getCreditBalance();
         $this->client->saveQuietly();
+
+        $this->updateLedger($this->client->balance - $old_balance);
 
         event(new \App\Events\Client\ClientWasMerged($mergeable_client, $this->client, $this->client->company, $event_vars));
 

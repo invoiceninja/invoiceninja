@@ -25,6 +25,9 @@ class StoreClientRequest extends Request
 {
     use MakesHash;
 
+    /** @var class-string */
+    protected ?string $tag_entity_type = Client::class;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -99,11 +102,15 @@ class StoreClientRequest extends Request
 
         $rules['settings.currency_id'] = 'required|exists:currencies,id';
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function withValidator($validator)
     {
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
+        
         $validator->after(function ($validator) {
 
             $user = auth()->user();

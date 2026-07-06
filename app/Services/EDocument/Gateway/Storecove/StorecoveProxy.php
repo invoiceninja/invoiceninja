@@ -270,6 +270,38 @@ class StorecoveProxy
     }
 
     /**
+     * Submit a Storecove document payload through the hosted or self-hosted path.
+     *
+     * @param  array<string, mixed> $payload
+     * @return array<string, mixed>
+     */
+    public function submitDocument(array $payload): array
+    {
+        $payload = [
+            ...$payload,
+            'tenant_id' => $payload['tenant_id'] ?? $this->company->company_key,
+            'account_key' => $payload['account_key'] ?? $this->company->account->key,
+            'e_invoicing_token' => $payload['e_invoicing_token'] ?? $this->company->account->e_invoicing_token,
+        ];
+
+        if (! array_key_exists('forDocumentSubmissionGuid', $payload)) {
+            $payload['legal_entity_id'] = $payload['legal_entity_id'] ?? $payload['legalEntityId'] ?? $this->company->legal_entity_id;
+        }
+
+        if (Ninja::isHosted()) {
+            $response = $this->storecove->sendJsonDocument($payload);
+
+            if (is_string($response)) {
+                return ['guid' => str_replace('"', '', $response)];
+            }
+
+            return $this->handleResponseError($response);
+        }
+
+        return $this->remoteRequest('/api/einvoice/submission', $payload);
+    }
+
+    /**
      * handleResponseError
      *
      * Generic error handler that can return an array response
@@ -387,6 +419,9 @@ class StorecoveProxy
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
             'X-EInvoice-Token' => $this->company->account->e_invoicing_token,
+            // Required by the SelfHostEInvoice gate on /api/einvoice/submission; without it
+            // proxied submissions (e.g. France e-reports) fail authentication.
+            'X-API-SELF-HOST-TOKEN' => config('ninja.license_key'),
             "X-Requested-With" => "XMLHttpRequest",
         ];
 

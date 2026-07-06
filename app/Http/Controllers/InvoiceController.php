@@ -123,7 +123,7 @@ class InvoiceController extends BaseController
     {
         set_time_limit(45);
 
-        $invoices = Invoice::filter($filters);
+        $invoices = Invoice::filter($filters)->with('tags');
 
         return $this->listResponse($invoices);
     }
@@ -1130,6 +1130,10 @@ class InvoiceController extends BaseController
         if ($scheduler) {
             $scheduler->forceDelete();
         }
+
+        $invoice->partial = 0;
+        $invoice->partial_due_date = null;
+        $invoice->save();
 
         return $this->itemResponse($invoice->fresh());
     }

@@ -107,7 +107,7 @@ class PaymentController extends BaseController
      */
     public function index(PaymentFilters $filters)
     {
-        $payments = Payment::filter($filters);
+        $payments = Payment::filter($filters)->with('tags');
 
         return $this->listResponse($payments);
     }

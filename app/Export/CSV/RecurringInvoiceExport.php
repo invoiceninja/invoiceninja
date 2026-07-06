@@ -56,13 +56,13 @@ class RecurringInvoiceExport extends BaseExport
 
         $query = RecurringInvoice::query()
                         ->withTrashed()
-                        ->with('client')
+                        ->with('client', 'tags')
                         ->whereHas('client', function ($q) {
                             $q->where('is_deleted', false);
                         })
                         ->where('company_id', $this->company->id);
 
-        if (!$this->input['include_deleted'] ?? false) {
+        if (!($this->input['include_deleted'] ?? false)) {
             $query->where('is_deleted', 0);
         }
 
@@ -73,6 +73,9 @@ class RecurringInvoiceExport extends BaseExport
         if ($clients) {
             $query = $this->addClientFilter($query, $clients);
         }
+
+        $query = $this->addTagFilter($query);
+
         $query = $this->filterByUserPermissions($query);
 
         $query = $this->addRecurringInvoiceStatusFilter($query, $this->input['status'] ?? '');
@@ -93,7 +96,7 @@ class RecurringInvoiceExport extends BaseExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        $query->cursor()
+        $this->streamQuery($query)
             ->each(function ($invoice) {
 
                 /** @var \App\Models\RecurringInvoice $invoice */
@@ -114,7 +117,7 @@ class RecurringInvoiceExport extends BaseExport
             return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
 
-        $report = $query->cursor()
+        $report = $this->streamQuery($query)
                 ->map(function ($resource) {
 
                     /** @var \App\Models\RecurringInvoice $resource */
@@ -136,7 +139,7 @@ class RecurringInvoiceExport extends BaseExport
 
             $parts = explode('.', $key);
 
-            if (is_array($parts) && $parts[0] == 'recurring_invoice' && array_key_exists($parts[1], $transformed_invoice)) {
+            if ($parts[0] === 'recurring_invoice' && isset($parts[1], $transformed_invoice[$parts[1]])) {
                 $entity[$key] = $transformed_invoice[$parts[1]];
             } elseif ($parts[0] == 'item') {
                 $entity[$key] = '';
@@ -167,7 +170,7 @@ class RecurringInvoiceExport extends BaseExport
         }
 
         if (in_array('recurring_invoice.user_id', $this->input['report_keys'])) {
-            $entity['recurring_invoice.user_id'] = $invoice->user ? $invoice->user->present()->name() : '';
+            $entity['recurring_invoice.user_id'] = $invoice->user->present()->name() ?? '';
         }
 
 

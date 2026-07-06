@@ -18,7 +18,7 @@ class PeppolValidationException extends Exception
 {
     protected string $field = '';
 
-    public function __construct($message, $field, $code = 0, Exception $previous = null)
+    public function __construct($message, $field, $code = 0, ?Exception $previous = null)
     {
         // Store the custom data
         $this->field = $field;

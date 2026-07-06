@@ -13,6 +13,7 @@
 namespace App\Export\Decorators;
 
 use App\Models\Invoice;
+use App\Models\Payment;
 
 class InvoiceDecorator extends Decorator implements DecoratorInterface
 {
@@ -21,7 +22,14 @@ class InvoiceDecorator extends Decorator implements DecoratorInterface
 
         $invoice = false;
 
-        if ($entity instanceof Invoice) {
+        if ($entity instanceof Payment && $entity->relationLoaded('current_paymentable')) {
+            $paymentable = $entity->getRelation('current_paymentable');
+            if ($paymentable && $paymentable->paymentable_type === 'invoices') {
+                $invoice = $paymentable->paymentable;
+            } else {
+                return '';
+            }
+        } elseif ($entity instanceof Invoice) {
             $invoice = $entity;
         } elseif ($entity->invoice) {
             $invoice = $entity->invoice;
@@ -87,7 +95,7 @@ class InvoiceDecorator extends Decorator implements DecoratorInterface
     }
     public function user_id(Invoice $invoice)
     {
-        return $invoice->user ? $invoice->user->present()->name() : '';
+        return $invoice->user->present()->name() ?? '';
     }
 
     public function recurring_id(Invoice $invoice)

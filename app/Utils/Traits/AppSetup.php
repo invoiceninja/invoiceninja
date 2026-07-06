@@ -77,7 +77,7 @@ trait AppSetup
             }
         }
 
-        $words_count = count(explode(' ', trim($value)));
+        $words_count = count(explode(' ', trim($value ?? '')));
 
         if (is_null($position)) {
             $words_count > 1 ? $env[] = "{$property}=" . '"' . $value . '"' . "\n" : $env[] = "{$property}=" . $value . "\n";

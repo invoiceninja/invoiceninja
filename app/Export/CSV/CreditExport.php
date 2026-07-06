@@ -51,7 +51,7 @@ class CreditExport extends BaseExport
             return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
 
-        $report = $query->cursor()
+        $report = $this->streamQuery($query)
                 ->map(function ($credit) {
 
                     /** @var \App\Models\Credit $credit */
@@ -104,7 +104,7 @@ class CreditExport extends BaseExport
 
         $query = Credit::query()
                         ->withTrashed()
-                        ->with('client', 'location')
+                        ->with('client', 'location', 'tags')
                         ->whereHas('client', function ($q) {
                             $q->where('is_deleted', false);
                         })
@@ -122,6 +122,8 @@ class CreditExport extends BaseExport
         if ($this->input['status'] ?? false) {
             $query = $this->addCreditStatusFilter($query, $this->input['status']);
         }
+
+        $query = $this->addTagFilter($query);
 
         $query = $this->filterByUserPermissions($query);
 
@@ -146,7 +148,7 @@ class CreditExport extends BaseExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        $query->cursor()
+        $this->streamQuery($query)
             ->each(function ($credit) {
                 /** @var \App\Models\Credit $credit */
                 $this->csv->insertOne($this->buildRow($credit));
@@ -165,7 +167,12 @@ class CreditExport extends BaseExport
 
             $keyval = $key;
             $credit_key = str_replace("credit.", "", $key);
-            $searched_credit_key = array_search(str_replace("credit.", "", $key), $this->credit_report_keys) ?? $key;
+
+            $searched_credit_key = array_search(str_replace("credit.", "", $key), $this->credit_report_keys);
+
+            if($searched_credit_key === false){
+                 $searched_credit_key = $key;
+            }
 
             if (isset($transformed_credit[$credit_key])) {
                 $entity[$keyval] = $transformed_credit[$credit_key];

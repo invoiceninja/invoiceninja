@@ -20,7 +20,6 @@ use App\Factory\ProjectFactory;
 use App\Filters\ProjectFilters;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
-use App\Utils\Traits\GeneratesCounter;
 use App\Repositories\ProjectRepository;
 use App\Transformers\ProjectTransformer;
 use App\Services\Template\TemplateAction;
@@ -42,7 +41,6 @@ class ProjectController extends BaseController
 {
     use MakesHash;
     use SavesDocuments;
-    use GeneratesCounter;
 
     protected $entity_type = Project::class;
 
@@ -96,9 +94,26 @@ class ProjectController extends BaseController
      */
     public function index(ProjectFilters $filters)
     {
-        $projects = Project::filter($filters);
+        $projects = Project::filter($filters)->with('tags');
+
+        if ($this->includesTasks()) {
+            $projects->with(['tasks.tags', 'tasks.project.tags']);
+        }
 
         return $this->listResponse($projects);
+    }
+
+    private function includesTasks(): bool
+    {
+        foreach (explode(',', (string) request()->input('include', '')) as $include) {
+            $include = trim($include);
+
+            if ($include === 'tasks' || str_starts_with($include, 'tasks.')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -265,18 +280,13 @@ class ProjectController extends BaseController
             return $request->disallowUpdate();
         }
 
-        $project->fill($request->all());
-        $project->number = empty($project->number) ? $this->getNextProjectNumber($project) : $project->number;
-        $project->saveQuietly();
-
-        if ($request->has('documents')) {
-            $this->saveDocuments($request->input('documents'), $project, $request->input('is_public', true));
-        }
+        $project = $this->project_repo->save($request->all(), $project);
 
         event('eloquent.updated: App\Models\Project', $project);
 
         return $this->itemResponse($project->fresh());
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -369,18 +379,10 @@ class ProjectController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $project = ProjectFactory::create($user->company()->id, $user->id);
-        $project->fill($request->all());
-        $project->saveQuietly();
-
-        if (empty($project->number)) {
-            $project->number = $this->getNextProjectNumber($project);
-            $project->saveQuietly();
-        }
-
-        if ($request->has('documents')) {
-            $this->saveDocuments($request->input('documents'), $project, $request->input('is_public', true));
-        }
+        $project = $this->project_repo->save(
+            $request->all(),
+            ProjectFactory::create($user->company()->id, $user->id)
+        );
 
         event('eloquent.created: App\Models\Project', $project);
 

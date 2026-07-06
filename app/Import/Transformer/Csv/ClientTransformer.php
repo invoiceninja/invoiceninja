@@ -23,7 +23,7 @@ use Illuminate\Support\Str;
 class ClientTransformer extends BaseTransformer
 {
     /**
-     * @param $data
+     * @param $client_data
      *
      * @return array|bool
      */
@@ -73,21 +73,23 @@ class ClientTransformer extends BaseTransformer
             'website' => $this->getString($data, 'client.website'),
             'vat_number' => $this->getString($data, 'client.vat_number'),
             'id_number' => $this->getString($data, 'client.id_number'),
-            'custom_value1' => $this->getString($data, 'client.custom_value1'),
-            'custom_value2' => $this->getString($data, 'client.custom_value2'),
-            'custom_value3' => $this->getString($data, 'client.custom_value3'),
-            'custom_value4' => $this->getString($data, 'client.custom_value4'),
+            'custom_value1' => $this->getCustomFieldValue('client1',$this->getString($data, 'client.custom_value1')),
+            'custom_value2' => $this->getCustomFieldValue('client2',$this->getString($data, 'client.custom_value2')),
+            'custom_value3' => $this->getCustomFieldValue('client3',$this->getString($data, 'client.custom_value3')),
+            'custom_value4' => $this->getCustomFieldValue('client4',$this->getString($data, 'client.custom_value4')),
             'paid_to_date' => 0,
             'balance' => 0,
             'credit_balance' => 0,
             'settings' => $settings,
             'client_hash' => Str::random(40),
-            'country_id' => isset($data['client.country_id'])
-                ? $this->getCountryId($data['client.country_id'])
-                : $this->company->settings->country_id,
-            'shipping_country_id' => isset($data['client.shipping_country'])
-                ? $this->getCountryId($data['client.shipping_country'])
-                : $this->company->settings->country_id,
+            'country_id' => $this->resolveCountryIdOrCompanyDefault(
+                $data,
+                'client.country_id'
+            ),
+            'shipping_country_id' => $this->resolveCountryIdOrCompanyDefault(
+                $data,
+                ['client.shipping_country_id', 'client.shipping_country']
+            ),
         ];
 
         $contacts = [];
@@ -101,22 +103,22 @@ class ClientTransformer extends BaseTransformer
                 'last_name' => $this->getString($data, 'contact.last_name'),
                 'email' => $this->getString($data, 'contact.email'),
                 'phone' => $this->getString($data, 'contact.phone'),
-                'custom_value1' => $this->getString(
+                'custom_value1' => $this->getCustomFieldValue('contact1',$this->getString(
                     $data,
                     'contact.custom_value1'
-                ),
-                'custom_value2' => $this->getString(
+                )),
+                'custom_value2' => $this->getCustomFieldValue('contact2',$this->getString(
                     $data,
                     'contact.custom_value2'
-                ),
-                'custom_value3' => $this->getString(
+                )),
+                'custom_value3' => $this->getCustomFieldValue('contact3',$this->getString(
                     $data,
                     'contact.custom_value3'
-                ),
-                'custom_value4' => $this->getString(
+                )),
+                'custom_value4' => $this->getCustomFieldValue('contact4',$this->getString(
                     $data,
                     'contact.custom_value4'
-                ),
+                )),
             ];
         }
 
@@ -124,5 +126,34 @@ class ClientTransformer extends BaseTransformer
 
         return $client;
 
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @param array<int, string>|string $keys
+     */
+    private function resolveCountryIdOrCompanyDefault(array $data, array|string $keys): int|string|null
+    {
+        foreach ((array) $keys as $key) {
+            if (! array_key_exists($key, $data)) {
+                continue;
+            }
+
+            $country = trim((string) $data[$key]);
+
+            if ($country === '') {
+                return $this->company->settings->country_id;
+            }
+
+            $country_id = $this->getCountryId($country);
+
+            if ($country_id === null) {
+                return $this->company->settings->country_id;
+            }
+
+            return $country_id;
+        }
+
+        return $this->company->settings->country_id;
     }
 }

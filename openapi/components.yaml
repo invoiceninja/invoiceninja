@@ -12,8 +12,3 @@ components:
       description: 'The total number of requests in a given time window.'
       schema:
         type: integer
-  securitySchemes:
-    ApiKeyAuth:        
-      type: apiKey
-      in: header       
-      name: X-API-TOKEN 

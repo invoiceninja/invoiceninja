@@ -598,12 +598,22 @@ class BillingPortalPurchasev2 extends Component
         $this->payable_amount = $invoice->partial > 0 ? \App\Utils\Number::formatValue($invoice->partial, $invoice->client->currency()) : \App\Utils\Number::formatValue($invoice->balance, $invoice->client->currency());
         $this->invoice_hashed_id = $invoice->hashed_id;
 
+        $context = 'purchase';
+
+        if (config('ninja.ninja_default_company_id') == $this->subscription()->company_id && $this->subscription()->service()->recurring_products()->first()?->product_key == 'whitelabel') {
+            $context = 'whitelabel';
+        }
+
+        if (config('ninja.ninja_default_company_id') == $this->subscription()->company_id && in_array($this->subscription()->service()->products()->first()?->product_key, ['peppol_500','peppol_1000','selfhost_peppol_500','selfhost_peppol_1000'])) {
+            $context = $this->subscription()->service()->products()->first()?->product_key;
+        }
+
         Cache::put($this->hash, [
             'subscription_id' => $this->subscription()->hashed_id,
             'email' => $this->email ?? $contact->email,
             'client_id' => $contact->client->hashed_id,
             'invoice_id' => $invoice->hashed_id,
-            'context' => 'purchase',
+            'context' => $context,
             'campaign' => $this->campaign,
             'bundle' => $this->bundle,
         ], now()->addMinutes(60));

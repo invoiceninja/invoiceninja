@@ -54,6 +54,106 @@ class ClientApiTest extends TestCase
         Model::reguard();
     }
 
+
+    public function testClientSendEmailMutation()
+    {
+        $data= [
+            'name' => 'Test Client',
+                'client_hash' => 'a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6',
+                'contacts' => [
+                    [
+                        'archived_at' => 0,
+                        'can_sign' => false,
+                        'cc_only' => false,
+                        'contact_key' => 'contact_key_primary_001',
+                        'created_at' => 1658857976,
+                        'custom_value1' => 'main',
+                        'custom_value2' => '',
+                        'custom_value3' => '',
+                        'custom_value4' => '',
+                        'email' => 'contact1@example.com',
+                        'first_name' => 'Jane',
+                        'id' => 'contact_id_primary_001',
+                        'is_locked' => false,
+                        'is_primary' => true,
+                        'last_login' => 1776969312,
+                        'last_name' => 'Doe',
+                        'link' => 'https://example.invoicing.co/client/key_login/contact_key_primary_001',
+                        'password' => '**********',
+                        'phone' => '(555) 000-0001',
+                        'send_email' => true,
+                        'updated_at' => 1781082568,
+                    ],
+                    [
+                        'archived_at' => 0,
+                        'can_sign' => false,
+                        'cc_only' => false,
+                        'contact_key' => 'contact_key_secondary_002',
+                        'created_at' => 1715104045,
+                        'custom_value1' => 'billing',
+                        'custom_value2' => '',
+                        'custom_value3' => '',
+                        'custom_value4' => '',
+                        'email' => 'contact2@example.com',
+                        'first_name' => 'John',
+                        'id' => 'contact_id_secondary_002',
+                        'is_locked' => false,
+                        'is_primary' => false,
+                        'last_login' => 1775759681,
+                        'last_name' => 'Smith',
+                        'link' => 'https://example.invoicing.co/client/key_login/contact_key_secondary_002',
+                        'password' => '**********',
+                        'phone' => '(555) 000-0002',
+                        'send_email' => true,
+                        'updated_at' => 1781082568,
+                    ],
+                ],
+                'country_id' => '840',
+                'created_at' => 1658857976,
+                'number' => '0144',
+                'private_notes' => '',
+                'public_notes' => '',
+                'routing_id' => '',
+                'settings' => [
+                    'currency_id' => '1',
+                    'language_id' => '1',
+                    'payment_terms' => '30',
+                    'send_reminders' => true,
+                    'task_rate' => 169,
+                    'valid_until' => '90',
+                ],
+                'state' => 'CA',
+                'tax_info' => [],
+                'updated_at' => 1781082568,
+                'vat_number' => '',
+            
+        ];
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/clients', $data)
+          ->assertStatus(200);
+
+
+          $arr = $response->json();
+          $client_id = $arr['data']['id'];
+
+          $this->assertTrue($arr['data']['contacts'][0]['send_email']);
+          $this->assertTrue($arr['data']['contacts'][1]['send_email']);
+
+          $data['contacts'][1]['send_email'] = false;
+
+          $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+          ])->putJson('/api/v1/clients/'.$client_id, $data)
+            ->assertStatus(200);
+
+          $arr = $response->json();
+          $this->assertTrue($arr['data']['contacts'][0]['send_email']);
+          $this->assertFalse($arr['data']['contacts'][1]['send_email']);
+        //   nlog($arr);
+
+    }
+
     public function testBalanceFilter()
     {
         Client::where('company_id', $this->company->id)->update(['balance' => 0]);
@@ -302,6 +402,41 @@ class ClientApiTest extends TestCase
         $this->assertContains($byCustom->hashed_id, $ids);
         $this->assertContains($byContact->hashed_id, $ids);
         $this->assertNotContains($this->client->hashed_id, $ids);
+    }
+
+    public function testFilterIgnoresDecorativeSymbolsInSearchText()
+    {
+        $storedText = '微信：homei_living Richmond Showroom XXX-XXX-XXXX';
+        $searchText = '📱 微信：homei_living 📍 Richmond Showroom 📞 XXX-XXX-XXXX';
+
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'custom_value1' => $storedText,
+        ]);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/clients?filter=' . urlencode($searchText) . '&per_page=100')
+            ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($client->hashed_id, $ids);
+    }
+
+    public function testFilterDoesNotReturnAllRowsForSymbolOnlySearchText()
+    {
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'name' => 'Symbol Guard ' . uniqid(),
+        ]);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/clients?filter=' . urlencode('📱📍📞') . '&per_page=100')
+            ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertNotContains($client->hashed_id, $ids);
     }
 
     public function testSortFilter()

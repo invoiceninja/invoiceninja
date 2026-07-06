@@ -58,7 +58,7 @@ class PurchaseOrderExport extends BaseExport
 
         $query = PurchaseOrder::query()
                         ->withTrashed()
-                        ->with('vendor', 'location')
+                        ->with('vendor', 'location', 'tags')
                         ->whereHas('vendor', function ($q) {
                             $q->where('is_deleted', false);
                         })
@@ -76,6 +76,9 @@ class PurchaseOrderExport extends BaseExport
         if ($clients) {
             $query = $this->addClientFilter($query, $clients);
         }
+
+        $query = $this->addTagFilter($query);
+
         $query = $this->filterByUserPermissions($query);
 
         $query = $this->addPurchaseOrderStatusFilter($query, $this->input['status'] ?? '');
@@ -102,7 +105,7 @@ class PurchaseOrderExport extends BaseExport
             return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
 
-        $report = $query->cursor()
+        $report = $this->streamQuery($query)
                 ->map(function ($resource) {
 
                     /** @var \App\Models\PurchaseOrder $resource */
@@ -125,7 +128,7 @@ class PurchaseOrderExport extends BaseExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        $query->cursor()
+        $this->streamQuery($query)
             ->each(function ($purchase_order) {
 
                 /** @var \App\Models\PurchaseOrder $purchase_order */
@@ -145,7 +148,7 @@ class PurchaseOrderExport extends BaseExport
 
             $parts = explode('.', $key);
 
-            if (is_array($parts) && $parts[0] == 'purchase_order' && array_key_exists($parts[1], $transformed_purchase_order)) {
+            if ($parts[0] === 'purchase_order' && isset($parts[1], $transformed_purchase_order[$parts[1]])) {
                 $entity[$key] = $transformed_purchase_order[$parts[1]];
             } else {
                 $entity[$key] = $this->decorator->transform($key, $purchase_order);

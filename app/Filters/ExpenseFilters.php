@@ -195,6 +195,28 @@ class ExpenseFilters extends QueryFilters
         return $this->builder->whereIn('category_id', $categories_keys);
     }
 
+    public function project_ids(string $project_ids = ''): Builder
+    {
+        $projects_exploded = explode(",", $project_ids);
+
+        if (empty($project_ids) || count(array_filter($projects_exploded)) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->whereIn('project_id', $this->transformKeys($projects_exploded));
+    }
+
+    public function vendor_ids(string $vendor_ids = ''): Builder
+    {
+        $vendors_exploded = explode(",", $vendor_ids);
+
+        if (empty($vendor_ids) || count(array_filter($vendors_exploded)) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->whereIn('vendor_id', $this->transformKeys($vendors_exploded));
+    }
+
     public function payment_type(string $payment_type = ''): Builder
     {
         $payment_types_exploded = explode(",", $payment_type);

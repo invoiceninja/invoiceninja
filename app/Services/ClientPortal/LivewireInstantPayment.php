@@ -94,11 +94,25 @@ class LivewireInstantPayment
         $payable_invoices = collect($this->data['payable_invoices']);
         $tokens = [];
 
-        $invoices = Invoice::query()
-            ->whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))
-            ->withTrashed()
-            ->get();
+        $invoices = Invoice::withTrashed()
+                            ->whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))
+                            ->where('is_deleted', 0)
+                            ->get()
+                            ->map(function (Invoice $invoice): ?Invoice {
+                                $invoice = $invoice->service()
+                                    ->markSent()
+                                    ->removeUnpaidGatewayFees()
+                                    ->save();
 
+                                return $invoice?->isPayable() ? $invoice : null;
+                            })
+                            ->filter()
+                            ->values();
+
+        if ($invoices->isEmpty()) {
+            return ['success' => false, 'error' => ctrans('texts.no_payable_invoices_selected')];
+        }
+        
         $client = $invoices->first()->client;
 
         /* pop non payable invoice from the $payable_invoices array */
@@ -152,9 +166,43 @@ class LivewireInstantPayment
         $starting_invoice_amount = $first_invoice->balance;
 
         $payment_hash_string = Str::random(32);
+        
+        $raced_payment_hash = null;
 
         if ($company_gateway) {
-            $first_invoice->service()->addGatewayFee($company_gateway, $payment_method_id, $invoice_totals, $payment_hash_string)->save();
+
+            $lock = Cache::lock("gateway-fee:{$first_invoice->company_id}:{$first_invoice->id}", 2);
+
+            if ($lock->get()) {
+
+                try{
+                    $first_invoice = $first_invoice->service()->addGatewayFee($company_gateway, $payment_method_id, $invoice_totals, $payment_hash_string)->save();
+                } finally {
+                    $lock->release();
+                }
+            }
+            else {
+                $lock->block(0.75);
+
+                try {
+                    $raced_payment_hash = PaymentHash::query()
+                        ->where('fee_invoice_id', $first_invoice->id)
+                        ->whereNull('payment_id')
+                        ->where('created_at', '>=', now()->subSeconds(2))
+                        ->orderBy('id', 'desc')
+                        ->first();
+            
+                    if (! $raced_payment_hash) {
+                        throw new PaymentFailed(ctrans('texts.processing_request'), 409);
+                    }
+            
+                    $payment_hash_string = $raced_payment_hash->hash;
+                    $first_invoice->refresh();
+
+                } finally {
+                    $lock->release();
+                }
+            }
         }
 
         /**
@@ -196,13 +244,18 @@ class LivewireInstantPayment
             }
         }
 
-        $payment_hash = new PaymentHash();
-        $payment_hash->hash = $payment_hash_string;
-        $payment_hash->data = $hash_data;
-        $payment_hash->fee_total = $fee_totals;
-        $payment_hash->fee_invoice_id = $first_invoice->id;
+        /** Helper for race condition protection, early assignment! */
+        if (isset($raced_payment_hash)) {
+            $payment_hash = $raced_payment_hash;
+        } else {
+            $payment_hash = new PaymentHash();
+            $payment_hash->hash = $payment_hash_string;
+            $payment_hash->data = $hash_data;
+            $payment_hash->fee_total = $fee_totals;
+            $payment_hash->fee_invoice_id = $first_invoice->id;
 
-        $payment_hash->save();
+            $payment_hash->save();
+        }
 
         if ($this->is_credit_payment) {
             $amount_with_fee = max(0, (($invoice_totals + $fee_totals) - $credit_totals));

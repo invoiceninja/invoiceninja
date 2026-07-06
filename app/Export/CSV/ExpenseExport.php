@@ -51,7 +51,7 @@ class ExpenseExport extends BaseExport
             return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
 
-        $report = $query->cursor()
+        $report = $this->streamQuery($query)
                 ->map(function ($resource) {
 
                     /** @var \App\Models\Expense $resource */
@@ -83,7 +83,7 @@ class ExpenseExport extends BaseExport
         $this->input['report_keys'] = array_unique(array_merge($this->input['report_keys'], $tax_keys));
 
         $query = Expense::query()
-                        ->with('client')
+                        ->with('client', 'tags')
                         ->withTrashed()
                         ->where('company_id', $this->company->id);
 
@@ -114,6 +114,8 @@ class ExpenseExport extends BaseExport
             $query = $this->addCategoryFilter($query, $this->input['categories']);
         }
 
+        $query = $this->addTagFilter($query);
+
         $query = $this->filterByUserPermissions($query);
 
         if ($this->input['document_email_attachment'] ?? false) {
@@ -135,7 +137,7 @@ class ExpenseExport extends BaseExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        $query->cursor()
+        $this->streamQuery($query)
                 ->each(function ($expense) {
 
                     /** @var \App\Models\Expense $expense */
@@ -155,7 +157,7 @@ class ExpenseExport extends BaseExport
         foreach (array_values($this->input['report_keys']) as $key) {
             $parts = explode('.', $key);
 
-            if (is_array($parts) && $parts[0] == 'expense' && array_key_exists($parts[1], $transformed_expense)) {
+            if ($parts[0] == 'expense' && isset($parts[1]) && array_key_exists($parts[1], $transformed_expense)) {
                 $entity[$key] = $transformed_expense[$parts[1]];
             } elseif (array_key_exists($key, $transformed_expense)) {
                 $entity[$key] = $transformed_expense[$key];
@@ -241,7 +243,7 @@ class ExpenseExport extends BaseExport
         }
 
         if (in_array('expense.user', $this->input['report_keys'])) {
-            $entity['expense.user'] = $expense->user ? $expense->user->present()->name() : '';
+            $entity['expense.user'] = $expense->user->present()->name() ?? '';
         }
 
         if (in_array('expense.assigned_user', $this->input['report_keys'])) {

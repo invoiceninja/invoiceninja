@@ -16,6 +16,7 @@ use App\Utils\Number;
 use App\DataMapper\ExpenseSync;
 use Illuminate\Support\Facades\App;
 use Elastic\ScoutDriverPlus\Searchable;
+use App\Models\Traits\HasTags;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -97,6 +98,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \App\Models\Invoice|null $invoice
  * @property-read \App\Models\BankTransaction|null $transaction
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
  * @mixin \Eloquent
  */
 class Expense extends BaseModel
@@ -104,6 +106,7 @@ class Expense extends BaseModel
     use SoftDeletes;
     use Filterable;
     use Searchable;
+    use HasTags;
 
     /**
      * Get the index name for the model.
@@ -191,6 +194,8 @@ class Expense extends BaseModel
             'id' => $this->company->db . ":" . $this->id,
             'name' => ctrans('texts.expense') . " " . ($this->number ?? '') . ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
             'hashed_id' => $this->hashed_id,
+            'user_id' => (string) $this->user_id,
+            'assigned_user_id' => (string) $this->assigned_user_id,
             'number' => (string) $this->number,
             'is_deleted' => (bool) $this->is_deleted,
             'amount' => (float) $this->amount,
@@ -202,6 +207,7 @@ class Expense extends BaseModel
             'company_key' => $this->company->company_key,
             'public_notes' => (string) $this->public_notes,
             'private_notes' => (string) $this->private_notes,
+            'tags' => $this->tags->pluck('name')->values()->all(),
             'transaction_reference' => (string) $this->transaction_reference,
         ];
     }

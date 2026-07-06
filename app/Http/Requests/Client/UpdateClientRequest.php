@@ -13,6 +13,7 @@
 namespace App\Http\Requests\Client;
 
 use App\Http\Requests\Request;
+use App\Models\Client;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 use App\DataMapper\CompanySettings;
@@ -25,6 +26,9 @@ class UpdateClientRequest extends Request
 {
     use MakesHash;
     use ChecksEntityStatus;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = Client::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -100,11 +104,15 @@ class UpdateClientRequest extends Request
 
         $rules['settings.currency_id'] = 'required|exists:currencies,id';
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function withValidator($validator)
     {
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
+        
         $validator->after(function ($validator) {
 
             $user = auth()->user();

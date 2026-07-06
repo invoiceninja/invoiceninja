@@ -13,7 +13,10 @@
 namespace App\Models;
 
 use App\Casts\AsReferralEarningCollection;
+use App\Casts\ReferralMetaCast;
+use App\Casts\UserSettingsCast;
 use App\DataMapper\Referral\ReferralEarning;
+use App\DataMapper\Referral\ReferralMeta;
 use App\Jobs\Mail\NinjaMailer;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
@@ -54,6 +57,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $oauth_user_id
  * @property object|array|null $oauth_user_token
  * @property string|null $oauth_provider_id
+ * @property int|null $shopify_user_id
  * @property string|null $google_2fa_secret
  * @property string|null $accepted_terms_version
  * @property string|null $avatar
@@ -70,7 +74,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $custom_value2
  * @property string|null $custom_value3
  * @property string|null $custom_value4
- * @property object|null $referral_meta
+ * @property ReferralMeta|null $referral_meta
  * @property int|null $created_at
  * @property int|null $updated_at
  * @property int|null|Carbon $deleted_at
@@ -81,9 +85,11 @@ use Laracasts\Presenter\PresentableTrait;
  * @property Carbon|null $oauth_user_token_expiry
  * @property string|null $sms_verification_code
  * @property bool $verified_phone_number
+ * @property \App\DataMapper\UserSettings|null $settings
  * @property array|null $referral_earnings
  * @property-read \App\Models\Account $account
  * @property-read \App\Models\Company $company
+ * @property-read \App\Models\Language|null $language
  * @property-read mixed $hashed_id
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
@@ -182,12 +188,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $casts = [
         'oauth_user_token' => 'object',
-        'settings'         => 'object',
+        'settings'         => UserSettingsCast::class,
         'updated_at'       => 'timestamp',
         'created_at'       => 'timestamp',
         'deleted_at'       => 'timestamp',
         'oauth_user_token_expiry' => 'datetime',
-        'referral_meta' => 'object',
+        'referral_meta' => ReferralMetaCast::class,
         'referral_earnings' => AsReferralEarningCollection::class,
     ];
 

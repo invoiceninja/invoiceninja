@@ -308,15 +308,18 @@ class RoutingResolver
      */
     private function resolveNetworkOverrides(): array
     {
-        $networks = $this->handler->getNetworkOverrides();
+        $client = $this->invoice->client;
+        $client->setRelation('company', $this->invoice->company);
+
+        $networks = $this->handler->getNetworkOverrides($client);
 
         $senderCode = $this->invoice->company->country()->iso_3166_2;
         if ($senderCode !== $this->countryCode) {
             $senderHandler = CountryFactory::make($senderCode);
-            $networks = array_merge($networks, $senderHandler->getNetworkOverrides());
+            $networks = array_merge($networks, $senderHandler->getNetworkOverrides($client));
         }
 
-        return $networks;
+        return array_values(array_unique($networks, SORT_REGULAR));
     }
 
     private function proxyDiscovery(string $identifier, string $scheme): bool

@@ -76,7 +76,7 @@ class StoreRecurringQuoteRequest extends Request
         if (isset($input['auto_bill'])) {
             $input['auto_bill_enabled'] = $this->setAutoBillFlag($input['auto_bill']);
         } else {
-            if ($client = Client::find($input['client_id'])) {
+            if ($client = Client::find($input['client_id'] ?? '')) {
                 /** @var \App\Models\Client $client */
                 $input['auto_bill'] = $client->getSetting('auto_bill');
                 $input['auto_bill_enabled'] = $this->setAutoBillFlag($input['auto_bill']);

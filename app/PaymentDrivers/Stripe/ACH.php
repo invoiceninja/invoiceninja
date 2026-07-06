@@ -399,7 +399,7 @@ class ACH implements LivewireMethodInterface
             }
             
             /** Update the mandate on existing ba_ tokens */
-            if (str_starts_with($cgt->token, 'ba_') && $cgt->meta?->state == 'inactive') {
+            if (str_starts_with($cgt->token, 'ba_') && isset($cgt->meta->state) && $cgt->meta->state == 'inactive') {
 
                 $data["mandate_data"] = [
                     "customer_acceptance" => [
@@ -413,7 +413,7 @@ class ACH implements LivewireMethodInterface
             $response = $this->stripe->createPaymentIntent($data);
 
             /** Set as mandate updated. */
-            if(str_starts_with($cgt->token, 'ba_') && $cgt->meta?->state == 'inactive') {
+            if (str_starts_with($cgt->token, 'ba_') && isset($cgt->meta->state) && $cgt->meta->state == 'inactive') {
                 $meta = $cgt->meta;
                 $meta->state = 'authorized';
                 $cgt->meta = $meta;

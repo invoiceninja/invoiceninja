@@ -48,6 +48,8 @@ class MarkInvoiceDeleted extends AbstractService
 
         $this->invoice->delete();
 
+        event('eloquent.updated: App\Models\Invoice', $this->invoice);
+
         event(new \App\Events\Invoice\InvoiceWasDeleted($this->invoice, $this->invoice->company, \App\Utils\Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->invoice;

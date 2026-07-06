@@ -96,7 +96,8 @@ class InvitationController extends Controller
                                     ->with('contact.client')
                                     ->firstOrFail();
 
-        if ($invitation->trashed() || $invitation->{$entity}->is_deleted) {
+                                    // Ensure the contact/client record is in a good state
+        if ($invitation->trashed() || $invitation->{$entity}->is_deleted || $invitation->{$entity}->client->is_deleted) {
             return $this->render('generic.not_available', ['passed_account' => $invitation->company->account, 'passed_company' => $invitation->company]);
         }
 
@@ -269,8 +270,15 @@ class InvitationController extends Controller
                                     ->whereHas($request->entity_type, function ($query) {
                                         $query->where('is_deleted', 0);
                                     })
+                                    ->whereHas('contact.client', function ($query) {
+                                        $query->where('is_deleted', 0);
+                                    })
                                     ->with('contact.client')
                                     ->firstOrFail();
+
+        if (!empty($invitation->contact->password)) {
+            abort(404);
+        }
 
         $contact = $invitation->contact;
         $contact->password = Hash::make($request->password);
@@ -303,12 +311,16 @@ class InvitationController extends Controller
         /** @var \App\Models\ClientContact $contact **/
         $contact = ClientContact::withTrashed()->where('contact_key', $contact_key)->firstOrFail();
 
-        /** @var \App\Models\Payment $payment **/
-        $payment = Payment::find($this->decodePrimaryKey($payment_id));
-
-        if ($payment->client_id != $contact->client_id) {
-            abort(403, 'You are not authorized to view this resource');
+        if ($contact->client->is_deleted) {
+            return $this->render('generic.not_available', ['passed_account' => $contact->company->account, 'passed_company' => $contact->company]);
         }
+
+        /** @var \App\Models\Payment $payment **/
+        $payment = Payment::withTrashed()
+                            ->where('id', $this->decodePrimaryKey($payment_id))
+                            ->where('client_id', $contact->client_id)
+                            ->where('is_deleted', 0)
+                            ->firstOrFail();
 
         request()->session()->invalidate();
         request()->session()->regenerate(true);
@@ -325,6 +337,9 @@ class InvitationController extends Controller
                                     ->with('contact.client')
                                     ->firstOrFail();
 
+        if ($invitation->contact->client->is_deleted) {
+            return $this->render('generic.not_available', ['passed_account' => $invitation->company->account, 'passed_company' => $invitation->company]);
+        }
 
         if ($invitation->contact->trashed()) {
             $invitation->contact->restore();

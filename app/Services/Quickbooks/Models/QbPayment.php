@@ -25,7 +25,7 @@ class QbPayment implements SyncInterface
 
     public function find(string $id): mixed
     {
-        return $this->service->sdk->FindById('Payment', $id);
+        return $this->service->sdk()->findById('Payment', $id);
     }
 
     public function importToNinja(array $records): void
@@ -111,7 +111,7 @@ class QbPayment implements SyncInterface
                     }
 
                     $qb_payment = \QuickBooksOnline\API\Facades\Payment::create($qb_payment_data);
-                    $result = $this->service->sdk->Update($qb_payment);
+                    $result = $this->service->sdk()->update($qb_payment);
 
                     // Update sync metadata
                     $sync = $payment->sync ?? new PaymentSync();
@@ -124,7 +124,7 @@ class QbPayment implements SyncInterface
                 } else {
                     // CREATE path
                     $qb_payment = \QuickBooksOnline\API\Facades\Payment::create($qb_payment_data);
-                    $result = $this->service->sdk->Add($qb_payment);
+                    $result = $this->service->sdk()->add($qb_payment);
 
                     $sync = $payment->sync ?? new PaymentSync();
                     $sync->qb_id = data_get($result, 'Id') ?? data_get($result, 'Id.value') ?? '';
@@ -200,7 +200,7 @@ class QbPayment implements SyncInterface
             }
 
             // Attempt void
-            $this->service->sdk->Void($qb_payment);
+            $this->service->sdk()->voidEntity($qb_payment);
 
             // Success: clear QB tracking
             $sync = $payment->sync;

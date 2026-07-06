@@ -48,7 +48,7 @@ class QbInvoice implements SyncInterface
      */
     public function find(string $id): mixed
     {
-        return $this->service->sdk->FindById('Invoice', $id);
+        return $this->service->sdk()->findById('Invoice', $id);
     }
 
     /**
@@ -170,12 +170,12 @@ class QbInvoice implements SyncInterface
                 nlog("QuickBooks: Pushing invoice {$invoice->id} payload", ['data' => $qb_invoice_data]);
 
                 if (isset($invoice->sync->qb_id) && !empty($invoice->sync->qb_id)) {
-                    $result = $this->service->sdk->Update($qb_invoice);
+                    $result = $this->service->sdk()->update($qb_invoice);
                     nlog("QuickBooks: Updated invoice {$invoice->id} (QB ID: {$invoice->sync->qb_id})", [
                         'result_id' => data_get($result, 'Id'),
                     ]);
                 } else {
-                    $result = $this->service->sdk->Add($qb_invoice);
+                    $result = $this->service->sdk()->add($qb_invoice);
 
                     $sync = $invoice->sync ?? new InvoiceSync();
                     $sync->qb_id = data_get($result, 'Id') ?? data_get($result, 'Id.value');
@@ -476,7 +476,7 @@ class QbInvoice implements SyncInterface
     private function formatTaxName(float $rate, ?Invoice $invoice = null): string
     {
         $state = '';
-        if ($invoice && $invoice->client) {
+        if ($invoice) {
             $state = trim($invoice->client->state ?? '');
         }
 
@@ -617,11 +617,10 @@ class QbInvoice implements SyncInterface
             $invoice->sync = $sync;
 
             return $invoice;
-        } elseif ($search->count() >= 1) {
-            return $search->first();
         }
+        
+        return $search->first();
 
-        return null;
 
     }
 
@@ -636,6 +635,10 @@ class QbInvoice implements SyncInterface
             QuickbooksService::$importing[$this->service->company->id] = true;
             try {
                 $invoice = $this->findInvoice($id);
+
+                // /** returns immediately if invoice is found */
+                // if($invoice->id)
+                //     return;
 
                 nlog("Comparing QB last updated: " . $last_updated);
                 nlog("Comparing Ninja last updated: " . $invoice->updated_at);
@@ -708,7 +711,7 @@ class QbInvoice implements SyncInterface
                     continue;
                 }
 
-                $payment = $this->service->sdk->FindById('Payment', $payment_id);
+                $payment = $this->service->sdk()->findById('Payment', $payment_id);
 
                 $payment_transformer = new PaymentTransformer($this->service->company);
 
@@ -717,11 +720,32 @@ class QbInvoice implements SyncInterface
                 $ninja_payment = $payment_transformer->buildPayment($payment);
                 $ninja_payment->service()->applyNumber()->save();
 
+                $exists = \App\Models\Paymentable::withTrashed()
+                    ->where('payment_id', $ninja_payment->id)
+                    ->where('paymentable_id', $invoice->id)
+                    ->where('paymentable_type', 'invoices')
+                    ->exists();
+
+                if ($exists) {
+                    continue;
+                }
+
+
+                $amount = $payment_transformer->appliedAmountForInvoice(
+                    $payment,
+                    (string) $invoice->sync->qb_id
+                );
+
+                if ($amount <= 0) {
+                    continue;
+                }
+
                 $paymentable = new \App\Models\Paymentable();
                 $paymentable->payment_id = $ninja_payment->id;
                 $paymentable->paymentable_id = $invoice->id;
                 $paymentable->paymentable_type = 'invoices';
-                $paymentable->amount = $transformed['applied'] + $ninja_payment->credits->sum('amount');
+                // $paymentable->amount = $transformed['applied'] + $ninja_payment->credits->sum('amount');
+                $paymentable->amount = $amount;
                 $paymentable->created_at = $ninja_payment->date; //@phpstan-ignore-line
                 $paymentable->save();
 

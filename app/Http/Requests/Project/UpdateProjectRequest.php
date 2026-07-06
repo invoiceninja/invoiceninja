@@ -13,12 +13,16 @@
 namespace App\Http\Requests\Project;
 
 use App\Http\Requests\Request;
+use App\Models\Project;
 use App\Utils\Traits\ChecksEntityStatus;
 use Illuminate\Validation\Rule;
 
 class UpdateProjectRequest extends Request
 {
     use ChecksEntityStatus;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = Project::class;
 
     /**
      * Determine if the user is authorized to make this request.

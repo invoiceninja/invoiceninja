@@ -13,6 +13,7 @@
 namespace App\Models;
 
 use App\Services\Bank\BankService;
+use App\Models\Traits\HasTags;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -65,6 +66,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
  * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction withoutTrashed()
  * @property-read \App\Models\Payment|null $payment
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
  * @mixin \Eloquent
  */
 class BankTransaction extends BaseModel
@@ -72,6 +74,7 @@ class BankTransaction extends BaseModel
     use SoftDeletes;
     use MakesHash;
     use Filterable;
+    use HasTags;
 
     public const STATUS_UNMATCHED = 1;
 

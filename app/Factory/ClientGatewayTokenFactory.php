@@ -21,7 +21,7 @@ class ClientGatewayTokenFactory
         $client_gateway_token = new ClientGatewayToken();
         $client_gateway_token->company_id = $company_id;
         $client_gateway_token->is_default = false;
-        $client_gateway_token->meta = '';
+        $client_gateway_token->meta = ''; //@phpstan-ignore-line
         $client_gateway_token->is_deleted = false;
         $client_gateway_token->token = '';
         $client_gateway_token->routing_number = '';

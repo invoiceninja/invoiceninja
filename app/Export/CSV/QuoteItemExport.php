@@ -69,9 +69,9 @@ class QuoteItemExport extends BaseExport
                             ->whereHas('client', function ($q) {
                                 $q->where('is_deleted', false);
                             })
-                            ->with('client', 'location')->where('company_id', $this->company->id);
+                            ->with('client', 'location', 'tags')->where('company_id', $this->company->id);
 
-        if (!$this->input['include_deleted'] ?? false) {
+        if (!($this->input['include_deleted'] ?? false)) {
             $query->where('is_deleted', 0);
         }
 
@@ -82,6 +82,9 @@ class QuoteItemExport extends BaseExport
         if ($clients) {
             $query = $this->addClientFilter($query, $clients);
         }
+
+        $query = $this->addTagFilter($query);
+
         $query = $this->filterByUserPermissions($query);
 
         $query = $this->addQuoteStatusFilter($query, $this->input['status'] ?? '');
@@ -104,7 +107,7 @@ class QuoteItemExport extends BaseExport
             return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
 
-        $query->cursor()
+        $this->streamQuery($query)
             ->each(function ($resource) {
 
                 /** @var \App\Models\Quote $resource */
@@ -136,7 +139,7 @@ class QuoteItemExport extends BaseExport
         $this->csv->insertOne($this->buildHeader());
 
 
-        $query->cursor()
+        $this->streamQuery($query)
             ->each(function ($quote) {
 
                 /** @var \App\Models\Quote $quote */
@@ -220,11 +223,11 @@ class QuoteItemExport extends BaseExport
 
             $parts = explode('.', $key);
 
-            if (is_array($parts) && $parts[0] == 'item') {
+            if ($parts[0] === 'item') {
                 continue;
             }
 
-            if (is_array($parts) && $parts[0] == 'quote' && array_key_exists($parts[1], $transformed_quote)) {
+            if ($parts[0] === 'quote' && isset($parts[1], $transformed_quote[$parts[1]])) {
                 $entity[$key] = $transformed_quote[$parts[1]];
             } elseif (array_key_exists($key, $transformed_quote)) {
                 $entity[$key] = $transformed_quote[$key];
@@ -245,7 +248,7 @@ class QuoteItemExport extends BaseExport
         }
 
         if (in_array('quote.user_id', $this->input['report_keys'])) {
-            $entity['quote.user_id'] = $quote->user ? $quote->user->present()->name() : '';
+            $entity['quote.user_id'] = $quote->user->present()->name() ?? '';
         }
 
 

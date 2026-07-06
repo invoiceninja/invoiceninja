@@ -40,7 +40,7 @@ class QuoteWorkflowSettings implements ShouldQueue
      * @param Quote $quote
      * @param Client|null $client
      */
-    public function __construct(Quote $quote, Client $client = null)
+    public function __construct(Quote $quote, ?Client $client = null)
     {
         $this->quote = $quote;
         $this->client = $client ?? $quote->client;

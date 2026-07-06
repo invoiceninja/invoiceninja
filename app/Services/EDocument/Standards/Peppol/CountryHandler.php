@@ -73,7 +73,7 @@ interface CountryHandler
      *
      * Example: SE enables Svefaktura network.
      */
-    public function getNetworkOverrides(): array;
+    public function getNetworkOverrides(?Client $client = null): array;
 
     /**
      * Return additional Peppol identifiers to register during legal entity setup.

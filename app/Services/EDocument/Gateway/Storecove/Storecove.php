@@ -145,6 +145,16 @@ class Storecove
      */
     public function exists(string $identifier, string $scheme, string $network = 'peppol'): bool
     {
+        if (stripos($scheme, ' or ') !== false) {
+            foreach (array_map('trim', explode(' or ', $scheme)) as $atomicScheme) {
+                if ($this->exists($identifier, $atomicScheme, $network)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         $network_data = [];
 
         match ($network) {
@@ -259,7 +269,11 @@ class Storecove
     public function checkNetworkStatus(array $data): mixed
     {
 
-        $scheme = $this->router->resolveRouting($data['country'], $data['classification']);
+        $scheme = $this->router->resolveTaxScheme($data['country'], $data['classification']);
+
+        if (empty($scheme)) {
+            return false;
+        }
 
         return (strlen($data['vat_number'] ?? '') > 3 && $this->exists($data['vat_number'], $scheme)) ? [
             'status' => 'error',

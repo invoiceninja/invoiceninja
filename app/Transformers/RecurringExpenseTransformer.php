@@ -130,6 +130,7 @@ class RecurringExpenseTransformer extends EntityTransformer
             // 'next_send_date' => $recurring_expense->next_send_date ?: '',
             'next_send_date' => $recurring_expense->next_send_date_client ?: '',
             'recurring_dates' => (array) [],
+            'tags' => $this->transformTags($recurring_expense),
         ];
 
         if (request()->has('show_dates') && request()->query('show_dates') == 'true') {

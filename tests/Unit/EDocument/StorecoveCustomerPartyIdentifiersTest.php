@@ -20,6 +20,7 @@ use App\Models\Invoice;
 use Tests\MockAccountData;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
+use App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveIdentifierValidator;
 use App\Services\EDocument\Standards\Peppol\CountryFactory;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -215,6 +216,27 @@ class StorecoveCustomerPartyIdentifiersTest extends TestCase
 
         if ($routingScheme === 'GLN' || str_contains($routingScheme, ':CUUO')) {
             return ['scheme' => $routingScheme, 'id' => self::expectedIdentifierFor($routingScheme)];
+        }
+
+        // Compound routing scheme (e.g. "FR:SIRENE or FR:SIRET") is resolved to
+        // the concrete atomic scheme whose format matches the identifier - the
+        // compound literal must never be emitted as a publicIdentifier scheme.
+        if (str_contains($routingScheme, ' or ')) {
+            $id = self::expectedIdentifierFor($routingScheme);
+            $atomicSchemes = array_map('trim', explode(' or ', $routingScheme));
+
+            // Data providers run before the Laravel app boots, so the
+            // config()-backed regex is unavailable - pass it explicitly.
+            $config = require dirname(__DIR__, 3) . '/config/einvoice.php';
+            $validator = new StorecoveIdentifierValidator($config['identifier_regex']);
+
+            foreach ($atomicSchemes as $atomicScheme) {
+                if ($validator->matchesSchemeFormat($atomicScheme, $id)) {
+                    return ['scheme' => $atomicScheme, 'id' => $id];
+                }
+            }
+
+            return ['scheme' => $atomicSchemes[0], 'id' => $id];
         }
 
         return [

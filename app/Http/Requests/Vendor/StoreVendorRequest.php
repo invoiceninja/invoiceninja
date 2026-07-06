@@ -21,6 +21,9 @@ class StoreVendorRequest extends Request
 {
     use MakesHash;
 
+    /** @var class-string */
+    protected ?string $tag_entity_type = Vendor::class;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -63,7 +66,7 @@ class StoreVendorRequest extends Request
         $rules['language_id'] = 'bail|nullable|sometimes|exists:languages,id';
         $rules['classification'] = 'bail|sometimes|nullable|in:individual,business,company,partnership,trust,charity,government,other';
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function prepareForValidation()

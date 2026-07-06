@@ -13,6 +13,7 @@
 namespace App\Services\Project;
 
 use App\Models\Project;
+use App\Models\Task;
 use Illuminate\Support\Carbon;
 
 class ProjectService
@@ -36,7 +37,7 @@ class ProjectService
 
         $average_data = $task_query
                             ->get()
-                            ->map(function ($task) {
+                            ->map(function (Task $task) {
 
                                 return [
                                     'date' => $task->calculated_start_date ?? \Carbon\Carbon::parse($task->created_at)->format('Y-m-d'),

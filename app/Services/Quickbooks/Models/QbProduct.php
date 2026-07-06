@@ -41,7 +41,7 @@ class QbProduct implements SyncInterface
      */
     public function find(string $id): mixed
     {
-        return $this->service->sdk->FindById('Item', $id);
+        return $this->service->sdk()->findById('Item', $id);
     }
 
     /**
@@ -156,7 +156,9 @@ class QbProduct implements SyncInterface
     {
         $qb_record = $this->find($id);
 
-        if ($this->service->syncable('product', \App\Enum\SyncDirection::PULL) && $ninja_record = $this->findProduct($id)) {
+        if ($this->service->syncable('product', \App\Enum\SyncDirection::PULL)) {
+
+            $ninja_record = $this->findProduct($id);
 
             if (Carbon::parse($last_updated) > Carbon::parse($ninja_record->updated_at)) {
                 $ninja_data = $this->product_transformer->qbToNinja($qb_record, $this->service);
@@ -196,7 +198,7 @@ class QbProduct implements SyncInterface
         $query = "SELECT * FROM Item WHERE Name = '{$escaped_name}' AND Active = true AND Type IN ('Service', 'NonInventory', 'Inventory') MAXRESULTS 1";
 
         /** @var object|array|null $existing_items */
-        $existing_items = $this->service->sdk->Query($query);
+        $existing_items = $this->service->sdk()->query($query);
 
         // QB SDK can return a single object or an array; normalize to array
         if (!empty($existing_items) && !is_array($existing_items)) {
@@ -219,13 +221,12 @@ class QbProduct implements SyncInterface
      *
      * Creates a product in quickbooks
      *
-     * @param  object|Product $line_item
+     * @param  mixed $line_item
      * @return string
      */
-    private function createQbProduct(object $line_item): ?string
+    private function createQbProduct(mixed $line_item): ?string
     {
 
-        /** @var ?Product $product */
         $product = null;
 
         if ($line_item instanceof Product) {
@@ -265,7 +266,7 @@ class QbProduct implements SyncInterface
 
                     $qb_item = \QuickBooksOnline\API\Facades\Item::create($product_data);
                     try {
-                        $this->service->sdk->Update($qb_item);
+                        $this->service->sdk()->update($qb_item);
                     } catch (\Throwable $e) {
                         nlog('QuickBooks: Item Update failed', [
                             'company_id' => $this->service->company->id,
@@ -286,7 +287,7 @@ class QbProduct implements SyncInterface
         $qb_item = \QuickBooksOnline\API\Facades\Item::create($product_data);
 
         try {
-            $result = $this->service->sdk->Add($qb_item);
+            $result = $this->service->sdk()->add($qb_item);
         } catch (\Throwable $e) {
             nlog('QuickBooks: Item Add failed', [
                 'company_id' => $this->service->company->id,

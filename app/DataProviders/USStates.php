@@ -33866,6 +33866,38 @@ class USStates
         return self::$states;
     }
 
+    /**
+     * Resolve a state to its two letter code.
+     *
+     * Accepts an existing code (e.g. "CA", "ca") or a full state name
+     * (e.g. "California").
+     *
+     * @param  string|null  $name
+     * @return string  The two letter code, or an empty string when no match is found.
+     */
+    public static function getAbbreviation(?string $name): string
+    {
+        $name = trim((string) $name);
+
+        if ($name === '') {
+            return '';
+        }
+
+        if (isset(self::$states[strtoupper($name)])) {
+            return strtoupper($name);
+        }
+
+        $needle = mb_strtolower($name);
+
+        foreach (self::$states as $code => $state) {
+            if (mb_strtolower($state) === $needle) {
+                return $code;
+            }
+        }
+
+        return '';
+    }
+
     public static function getState(?string $zip = '90210'): string
     {
         if (isset(self::$zip_code_map[$zip])) {

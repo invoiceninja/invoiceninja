@@ -156,7 +156,7 @@ class Handler extends ExceptionHandler
         parent::report($exception);
 
         if (Ninja::isSelfHost() && $exception instanceof MissingAppKeyException) {
-            info('To setup the app run: cp .env.example .env');
+            nlog('To setup the app run: cp .env.example .env');
         }
     }
 

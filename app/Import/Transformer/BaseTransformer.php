@@ -18,17 +18,21 @@ use App\Factory\ProjectFactory;
 use App\Factory\VendorFactory;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\Company;
 use App\Models\Country;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
+use App\Models\Task;
 use App\Models\TaxRate;
+use App\Models\User;
 use App\Models\Vendor;
 use App\Repositories\ClientRepository;
 use App\Utils\Number;
@@ -58,6 +62,21 @@ class BaseTransformer
             } catch (\Exception $e) {
                 // Fall through to general parsing
             }
+        }
+
+        /** Attempt to use the configured company date format.
+         *  hasFormat() enforces an exact match so that a loose createFromFormat()
+         *  cannot silently mis-parse non-conforming input (e.g. a two-digit year
+         *  becoming year 0024); anything that does not conform falls through to
+         *  the general parser below, preserving the prior behaviour. */
+        try {
+            $company_format = $this->company->date_format();
+
+            if (is_string($date) && strlen($date) > 0 && Carbon::hasFormat($date, $company_format)) {
+                return Carbon::createFromFormat($company_format, $date)->format('Y-m-d');
+            }
+        } catch (\Exception $e) {
+            // Fall through to general parsing
         }
 
         try {
@@ -457,7 +476,7 @@ class BaseTransformer
     }
 
     /**
-     * @param $name
+     * @param $key
      *
      * @return string
      */
@@ -499,18 +518,33 @@ class BaseTransformer
      *
      * @return int|null
      */
-    public function getCountryId($name)
+    public function getCountryId($name): ?int
     {
+        $name = trim((string) $name);
 
-        if (strlen(trim($name)) == 2) {
+        if ($name === '') {
+            return null;
+        }
+
+        if (is_numeric($name)) {
+            $country_id = Country::query()->where('id', (int) $name)->value('id');
+
+            return $country_id ? (int) $country_id : null;
+        }
+
+        if (strlen($name) == 2) {
             return $this->getCountryIdBy2($name);
         }
 
-        $country = Country::query()->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
-            strtolower(str_replace(' ', '', $name)),
-        ])->first();
+        $normalized_name = strtolower(str_replace(' ', '', $name));
 
-        return $country ? $country->id : null;
+        $country = Country::query()
+            ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [$normalized_name])
+            ->orWhereRaw("LOWER(REPLACE(`full_name`, ' ' ,''))  = ?", [$normalized_name])
+            ->orWhere('iso_3166_3', strtoupper($name))
+            ->first();
+
+        return $country ? (int) $country->id : null;
     }
 
     /**
@@ -518,11 +552,13 @@ class BaseTransformer
      *
      * @return int|null
      */
-    public function getCountryIdBy2($name)
+    public function getCountryIdBy2($name): ?int
     {
-        return Country::query()->where('iso_3166_2', $name)->exists()
-            ? Country::query()->where('iso_3166_2', $name)->first()->id
-            : null;
+        $country_id = Country::query()
+            ->where('iso_3166_2', strtoupper(trim((string) $name)))
+            ->value('id');
+
+        return $country_id ? (int) $country_id : null;
     }
 
     /**
@@ -836,4 +872,64 @@ class BaseTransformer
 
         return $pt ? $pt->id : null;
     }
+    
+    /**
+     * getCustomFieldValue
+     *
+     * @param  string $custom_field_key
+     * @param  mixed $value
+     * @return mixed
+     */
+    public function getCustomFieldValue(string $custom_field_key, mixed $value): mixed
+    {
+        $company = $this->company;
+        $custom_fields = $company->custom_fields;
+
+        if(isset($custom_fields->{$custom_field_key})) {
+        
+            $custom_field = $custom_fields->{$custom_field_key};
+
+            $custom_field_parts = explode('|', $custom_field);
+
+            if(count($custom_field_parts) >= 2) {
+            
+                $field_type = $custom_field_parts[1];
+
+                switch($field_type) {
+                
+                    case 'date':
+                        return $this->parseDate($value);
+                    case 'switch':
+                        return $this->toBoolean($value);
+                    default:
+                        return $value;
+                }
+            }
+        }
+
+        return $value;
+
+    }
+
+    public function toBoolean($value)
+    {
+ 
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_int($value) || is_float($value)) {
+            return (bool) $value;
+        }
+
+        $value = strtolower(trim((string) $value));
+
+        return match ($value) {
+            '1', 'true', 'yes', 'y', 'on' => true,
+            '0', 'false', 'no', 'n', 'off', '' => false,
+            default => true,
+        };
+
+    }
+
 }

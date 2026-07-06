@@ -18,7 +18,9 @@ use App\Factory\PaymentFactory;
 use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Paymentable;
 use App\Services\AbstractService;
+use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Support\Carbon;
@@ -67,7 +69,8 @@ class MarkPaid extends AbstractService
 
                 $draft_balance_adjustment = $this->invoice->amount;
                 /* Perform additional actions on invoice */
-                $this->invoice
+
+                $this->invoice = $this->invoice
                     ->service()
                     ->applyNumber()
                     ->setDueDate()
@@ -83,15 +86,15 @@ class MarkPaid extends AbstractService
             if ($this->invoice) {
                 $this->payable_balance = $this->invoice->balance;
 
-                $this->invoice
-                    ->service()
-                    ->setExchangeRate()
-                    ->clearPartial()
-                    ->updateBalance($this->payable_balance * -1)
-                    ->updatePaidToDate($this->payable_balance)
-                    ->setStatus(Invoice::STATUS_PAID)
-                    ->unlockDocuments()
-                    ->save();
+                $this->invoice = $this->invoice
+                                        ->service()
+                                        ->setExchangeRate()
+                                        ->clearPartial()
+                                        ->updateBalance($this->payable_balance * -1)
+                                        ->updatePaidToDate($this->payable_balance)
+                                        ->setStatus(Invoice::STATUS_PAID)
+                                        ->unlockDocuments()
+                                        ->save();
             }
         }, 2);
 
@@ -134,6 +137,29 @@ class MarkPaid extends AbstractService
             'amount' => $this->payable_balance,
         ]);
 
+        try {
+            $this->invoice->loadMissing(['client.country', 'client.company']);
+
+            if ($this->invoice->client->reportableFrTransaction()) {
+                $paymentable = Paymentable::withTrashed()
+                    ->where('payment_id', $payment->id)
+                    ->where('paymentable_id', $this->invoice->id)
+                    ->where('paymentable_type', 'invoices')
+                    ->latest('id')
+                    ->first();
+
+                app(FrancePaymentApplicationRecorder::class)->recordMovement(
+                    payment: $payment,
+                    invoice: $this->invoice,
+                    paymentable: $paymentable,
+                    movementAmount: $this->payable_balance,
+                    movementDate: $payment->date ?: now()->toDateString(),
+                );
+            }
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
+
         if ($payment->client->getSetting('send_email_on_mark_paid')) {
             $payment->service()->sendEmail();
         }
@@ -144,7 +170,7 @@ class MarkPaid extends AbstractService
 
         $this->invoice->next_send_date = null;
 
-        $this->invoice
+        $this->invoice = $this->invoice
                 ->service()
                 ->applyNumber()
                 ->save();

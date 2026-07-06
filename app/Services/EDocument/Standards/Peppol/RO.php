@@ -12,12 +12,17 @@
 
 namespace App\Services\EDocument\Standards\Peppol;
 
+use App\Models\Client;
 use App\Services\EDocument\Gateway\MutatorUtil;
 
 class RO extends BaseCountry
 {
-    public function getNetworkOverrides(): array
+    public function getNetworkOverrides(?Client $client = null): array
     {
+        if ($client && $client->company->country()->iso_3166_2 !== 'RO') {
+            return [];
+        }
+
         return [['application' => 'ro-anaf', 'settings' => ['enabled' => true]]];
     }
 

@@ -220,7 +220,16 @@ class Peppol extends AbstractService implements MutatorInterface
     public function normalizeAmount(float|int|string $amount): float
     {
         $value = (float) $amount;
-        return $this->isCreditNote ? abs($value) : $value;
+
+        if (!$this->isCreditNote) {
+            return $value;
+        }
+
+        $sign = ((float) $this->invoice->amount) < 0 ? -1 : 1;
+
+        return $value * $sign;
+        // $value = (float) $amount;
+        // return $this->isCreditNote ? abs($value) : $value;
     }
 
     /**
@@ -794,6 +803,10 @@ class Peppol extends AbstractService implements MutatorInterface
      */
     private function standardPeppolRules(): self
     {
+        if (!isset($this->p_invoice->PaymentMeans)) {
+            return $this;
+        }
+
         foreach ($this->p_invoice->PaymentMeans as &$pm) {
             unset($pm->PayeeFinancialAccount->FinancialInstitutionBranch);
         }

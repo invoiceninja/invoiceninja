@@ -101,7 +101,7 @@ class QuoteService
 
     /**
      * Applies the invoice number.
-     * @return $this InvoiceService object
+     * @return self QuoteService object
      */
     public function applyNumber(): self
     {
@@ -112,9 +112,9 @@ class QuoteService
         return $this;
     }
 
-    public function markSent(): self
+    public function markSent($fire_event = false): self
     {
-        $this->quote = (new MarkSent($this->quote->client, $this->quote))->run();
+        $this->quote = (new MarkSent($this->quote->client, $this->quote))->run($fire_event);
 
         return $this;
     }

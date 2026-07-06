@@ -12,6 +12,7 @@
 
 namespace App\Models;
 
+use App\DataMapper\Billing\BillingContext;
 use App\Helpers\Cache\Atomic;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
@@ -75,6 +76,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property bool $account_sms_verified
  * @property string|null $bank_integration_account_id
  * @property string|null $e_invoicing_token
+ * @property BillingContext|null $billing_context
  * @property bool $is_trial
  * @property int $e_invoice_quota
  * @property int $docuninja_num_users
@@ -141,6 +143,7 @@ class Account extends BaseModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'onboarding' => 'object',
+        'billing_context' => BillingContext::class,
         'set_react_as_default_ap' => 'bool',
         'promo_expires' => 'date',
         'discount_expires' => 'date',
@@ -310,7 +313,7 @@ class Account extends BaseModel
     public function isPremium(): bool
     {
         // return true;
-        return Ninja::isHosted() && $this->isPaidHostedClient() && !$this->isTrial() && (int) Carbon::createFromTimestamp($this->created_at)->diffInMonths() > 2;
+        return Ninja::isHosted() && $this->isPaidHostedClient() && !$this->isTrial() && (int) Carbon::createFromTimestamp($this->created_at)->diffInMonths() > 1;
     }
 
     public function isPaidHostedClient(): bool
@@ -453,7 +456,7 @@ class Account extends BaseModel
         // Should we show plan details or trial details?
         if (($plan && !$trial_plan) || !$include_trial) {
             $use_plan = true;
-        } elseif (!$plan && $trial_plan) {
+        } elseif (!$plan && $trial_plan) { //@phpstan-ignore-line
             $use_plan = false;
         } else {
             // There is both a plan and a trial
@@ -651,6 +654,6 @@ class Account extends BaseModel
 
     public function canTrial(): bool
     {
-        return !$this->is_trial && empty($this->plan) && $this->created_at > time() - (60 * 60 * 24 * 14); //@phpstan-ignore-line
+        return !$this->is_trial && empty($this->plan) && $this->created_at > time() - (60 * 60 * 24 * 14) && !$this->plan_started && !$this->trial_started; //@phpstan-ignore-line
     }
 }

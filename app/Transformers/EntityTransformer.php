@@ -12,10 +12,13 @@
 
 namespace App\Transformers;
 
+use App\Utils\Traits\MakesHash;
 use League\Fractal\TransformerAbstract;
 
 class EntityTransformer extends TransformerAbstract
 {
+    use MakesHash;
+
     protected $serializer;
 
     public const API_SERIALIZER_ARRAY = 'array';
@@ -56,4 +59,22 @@ class EntityTransformer extends TransformerAbstract
     }
 
     protected function getDefaults($entity) {}
+
+    /**
+     * @return array<int, array{id: string, name: string, color: string|null}>
+     */
+    protected function transformTags(object $entity): array
+    {
+        if (! method_exists($entity, 'tags') || ! ($entity->exists ?? false)) {
+            return [];
+        }
+
+        $tags = $entity->relationLoaded('tags') ? $entity->tags : $entity->tags()->get();
+
+        return $tags->map(fn ($tag) => [
+            'id' => (string) $this->encodePrimaryKey($tag->id),
+            'name' => (string) $tag->name,
+            'color' => $tag->color,
+        ])->values()->all();
+    }
 }

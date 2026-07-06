@@ -86,7 +86,7 @@ class BaseDriver extends AbstractPaymentDriver
     public $payment_hash;
 
     /**
-     * @var Helpers`
+     * @var Helpers
      */
     public $helpers;
 
@@ -546,7 +546,7 @@ class BaseDriver extends AbstractPaymentDriver
             $this->client->gateway_tokens()->update(['is_default' => 0]);
         }
 
-        $cgt->is_default = 1;
+        $cgt->is_default = true;
         $cgt->save();
 
         return $cgt;

@@ -145,6 +145,8 @@ class ProjectTransformer extends EntityTransformer
             'custom_value4' => (string) $project->custom_value4 ?: '',
             'color' => (string) $project->color ?: '',
             'current_hours' => (int) $project->current_hours ?: 0,
+            'tags' => $this->transformTags($project),
         ];
     }
+
 }

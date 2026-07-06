@@ -63,7 +63,11 @@ class BaseExport
 
     protected bool $skip_float_conversion = false;
 
+    protected bool $capture_raw_rows = false;
+
     protected array $raw_rows = [];
+
+    protected array $spreadsheet_headers = [];
 
     protected array $non_summable_patterns = [
         'tax_rate',
@@ -71,6 +75,8 @@ class BaseExport
         'is_amount_discount',
         'uses_inclusive_taxes',
     ];
+
+    protected const EXPORT_CHUNK_SIZE = 500;
 
     public string $client_description = 'All Clients';
 
@@ -421,6 +427,9 @@ class BaseExport
         "amount" => "payment.amount",
         "refunded" => "payment.refunded",
         "applied" => "payment.applied",
+        "applied_date" => "payment.applied_date",
+        "applied_amount" => "payment.applied_amount",
+        "applied_refunded" => "payment.applied_refunded",
         "transaction_reference" => "payment.transaction_reference",
         "currency" => "payment.currency",
         "exchange_rate" => "payment.exchange_rate",
@@ -495,6 +504,7 @@ class BaseExport
         'log_duration_words' => 'task.time_log_duration_words',
         'user' => 'task.user_id',
         'assigned_user' => 'task.assigned_user_id',
+        'tags' => 'task.tags',
     ];
 
     protected array $forced_client_fields = [
@@ -528,6 +538,27 @@ class BaseExport
             return $query->whereIn('client_id', $this->input['clients']);
         }
         return $query;
+    }
+
+    protected function addTagFilter(Builder $query): Builder
+    {
+        $tag_ids = $this->input['tag_ids'] ?? null;
+
+        if (! $tag_ids || ! method_exists($query->getModel(), 'tags')) {
+            return $query;
+        }
+
+        $transformed_tag_ids = is_string($tag_ids)
+            ? $this->transformKeys(explode(',', $tag_ids))
+            : $this->transformKeys((array) $tag_ids);
+
+        if (count($transformed_tag_ids) === 0) {
+            return $query;
+        }
+
+        return $query->whereHas('tags', function (Builder $q) use ($transformed_tag_ids) {
+            $q->whereIn('tags.id', $transformed_tag_ids);
+        });
     }
 
     protected function resolveKey($key, $entity, $transformer): string
@@ -567,8 +598,7 @@ class BaseExport
 
         $primary_contact = $entity->client->primary_contact()->first() ?? $entity->client->contacts()->first();
 
-        return $primary_contact ? $primary_contact?->{$column} ?? '' : '';
-
+        return $primary_contact->{$column} ?? '';
     }
 
     private function resolveVendorContactKey($column, $entity, $transformer)
@@ -579,7 +609,7 @@ class BaseExport
 
         $primary_contact = $entity->vendor->primary_contact()->first() ?? $entity->vendor->contacts()->first();
 
-        return $primary_contact ? $primary_contact?->{$column} ?? '' : '';
+        return $primary_contact->{$column} ?? '';
 
     }
 
@@ -596,7 +626,7 @@ class BaseExport
         }
 
         if ($column == 'category' && $entity->expense) {
-            return $entity->expense->category?->name ?? ' ';
+            return $entity->expense->category->name ?? ' ';
         }
 
         if ($entity instanceof Expense) {
@@ -613,13 +643,7 @@ class BaseExport
             return $transformed_entity[$column];
         }
 
-        if (property_exists($entity, $column)) {
-            return $entity?->{$column} ?? '';
-        }
-
-        nlog("export: Could not resolve expense key: {$column}");
-
-        return '';
+        return $entity->{$column} ?? '';
 
     }
 
@@ -717,11 +741,11 @@ class BaseExport
         }
 
         if (in_array($column, ['client.size_id', 'size_id'])) {
-            return $entity->client->size?->name ?? '';
+            return $entity->client->size->name ?? '';
         }
 
         if (in_array($column, ['client.industry_id', 'industry_id'])) {
-            return $entity->client->industry?->name ?? '';
+            return $entity->client->industry->name ?? '';
         }
 
         if (in_array($column, ['client.currency_id', 'currency_id'])) {
@@ -867,7 +891,7 @@ class BaseExport
         }
 
         if ($column == 'currency') {
-            return $payment?->currency?->code ?? '';
+            return $payment->currency->code ?? '';
         }
 
         $payment_transformer = new PaymentTransformer();
@@ -1561,7 +1585,7 @@ class BaseExport
             }
         }
 
-        // nlog($header);
+        $this->spreadsheet_headers = $header;
 
         return $header;
     }
@@ -1702,7 +1726,7 @@ class BaseExport
         if ($query->getModel() instanceof Document) {
             $documents = $query->pluck('id')->toArray();
         } else {
-            $documents = $query->cursor()
+            $documents = $this->streamQuery($query)
                                ->map(function ($entity) {
                                    return $entity->documents()->pluck('id')->toArray();
                                })->flatten()
@@ -1739,13 +1763,44 @@ class BaseExport
         return \Illuminate\Support\Facades\Schema::hasColumn($table, $column);
     }
 
+    public function captureRawRows(): self
+    {
+        $this->capture_raw_rows = true;
+        $this->raw_rows = [];
+
+        return $this;
+    }
+
+    public function hasRawRows(): bool
+    {
+        return count($this->raw_rows) > 0;
+    }
+
+    public function rawRows(): array
+    {
+        return $this->raw_rows;
+    }
+
+    public function spreadsheetHeaders(): array
+    {
+        return $this->spreadsheet_headers;
+    }
+
     public function convertFloats(iterable $entity): iterable
     {
-        if ($this->skip_float_conversion) {
+        if ($this->capture_raw_rows || $this->skip_float_conversion) {
             $this->raw_rows[] = (array) $entity;
+        }
+
+        if ($this->skip_float_conversion) {
             return $entity;
         }
 
+        return $this->formatFloatsForCsv($entity);
+    }
+
+    protected function formatFloatsForCsv(iterable $entity): iterable
+    {
         $currency = $this->company->currency();
 
         foreach ($entity as $key => $value) {
@@ -1762,7 +1817,6 @@ class BaseExport
         }
 
         return $entity;
-
     }
 
     public function filterByUserPermissions(Builder $query): Builder
@@ -1835,7 +1889,6 @@ class BaseExport
             'App\Models\Expense' => 'expense',
             'App\Models\Document' => 'document',
             'App\Models\Activity' => 'activity',
-            'App\Models\Task' => 'task',
             'App\Models\Project' => 'project',
             default => null,
         };
@@ -1843,6 +1896,11 @@ class BaseExport
     public function isGroupByActive(): bool
     {
         return ! empty($this->input['group_by']);
+    }
+
+    protected function streamQuery(Builder $query): \Illuminate\Support\LazyCollection
+    {
+        return (clone $query)->lazy(self::EXPORT_CHUNK_SIZE);
     }
 
     /**
@@ -1866,10 +1924,15 @@ class BaseExport
 
         $header = $this->buildHeader();
         $header[] = ctrans('texts.count');
+        $this->spreadsheet_headers = $header;
         $csv->insertOne($header);
 
         foreach ($summary as $row) {
-            $csv->insertOne(array_values($this->convertFloats($row)));
+            $csv->insertOne(array_values($this->formatFloatsForCsv($row)));
+        }
+
+        if ($this->capture_raw_rows) {
+            $this->raw_rows = array_values($summary);
         }
 
         return $csv->toString();
@@ -1902,7 +1965,7 @@ class BaseExport
         $report = [];
 
         foreach ($summary as $row) {
-            $formatted = (array) $this->convertFloats($row);
+            $formatted = (array) $this->formatFloatsForCsv($row);
             $clean_row = [];
             $i = 0;
 

@@ -87,8 +87,8 @@ class PaymentMigrationRepository extends BaseRepository
         //$payment->status_id = Payment::STATUS_COMPLETED;
 
         if (! array_key_exists('status_id', $data)) {
-            info('payment with no status id?');
-            info(print_r($data, true));
+            nlog('payment with no status id?');
+            nlog(print_r($data, true));
         }
 
         $payment->status_id = $data['status_id'];
@@ -198,7 +198,7 @@ class PaymentMigrationRepository extends BaseRepository
      * If the client is paying in a currency other than
      * the company currency, we need to set a record.
      *
-     * @param array$data
+     * @param array $data
      * @param \App\Models\Payment $payment
      * @return \App\Models\Payment
      */

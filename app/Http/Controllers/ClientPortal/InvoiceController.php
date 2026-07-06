@@ -61,20 +61,22 @@ class InvoiceController extends Controller
     {
         set_time_limit(0);
 
+        /** @var \App\Models\InvoiceInvitation|null $invitation */
         $invitation = $invoice->invitations()->where('client_contact_id', auth()->guard('contact')->user()->id)->first();
 
-        // @phpstan-ignore-next-line
-        if ($invitation && auth()->guard('contact') && ! session()->get('is_silent') && ! $invitation->viewed_date) {
+        if ($invitation && auth()->guard('contact')->check() && ! session()->get('is_silent') && ! $invitation->viewed_date) {
             $invitation->markViewed();
 
             event(new InvitationWasViewed($invoice, $invitation, $invoice->company, Ninja::eventVars()));
             event(new InvoiceWasViewed($invitation, $invoice->company, Ninja::eventVars()));
         }
 
+        $invoice = $invoice->service()->removeUnpaidGatewayFees()->save();
+
         $variables = ($invitation && auth()->guard('contact')->user()->client->getSetting('show_accept_invoice_terms')) ? (new HtmlEngine($invitation))->generateLabelsAndValues() : false;
 
         $data = [
-            'invoice' => $invoice->service()->removeUnpaidGatewayFees()->save(),
+            'invoice' => $invoice,
             'invitation' => $invitation ?: $invoice->invitations->first(),
             '_key' => $invitation ? $invitation->key : false,
             'hash' => $hash,
@@ -117,7 +119,7 @@ class InvoiceController extends Controller
     {
         $data = Cache::get($hash);
 
-        for ($x = 0; $x < 18; $x++) {
+        for ($x = 0; $x < 25; $x++) {
 
             $data = Cache::get($hash);
 
@@ -353,7 +355,7 @@ class InvoiceController extends Controller
             }
 
 
-            $filename = date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoices')) . '.zip';
+            $filename = date('Y-m-d-h-i-s') . '_' . str_replace(' ', '_', trans('texts.invoices')) . '.zip';
             $filepath = sys_get_temp_dir() . '/' . $filename;
 
             $zipFile->saveAsFile($filepath) // save the archive to a file

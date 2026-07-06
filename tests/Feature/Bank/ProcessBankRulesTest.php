@@ -1500,6 +1500,50 @@ class ProcessBankRulesTest extends TestCase
         $this->assertEquals($this->vendor->id, $bt->vendor_id);
     }
 
+    public function testDebitDescriptionContainsThreeWordsWithSingleSpaces()
+    {
+        $bt = $this->createBankTransaction([
+            'description' => 'Google Storage Workspace subscription',
+            'amount' => 50,
+            'base_type' => 'DEBIT',
+        ]);
+
+        $this->createRule([
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => 'Google Storage Workspace'],
+        ], [
+            'applies_to' => 'DEBIT',
+            'vendor_id' => $this->vendor->id,
+        ]);
+
+        (new ProcessBankRules($bt))->run();
+        $bt = $bt->fresh();
+
+        $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
+        $this->assertEquals($this->vendor->id, $bt->vendor_id);
+    }
+
+    public function testDebitDescriptionContainsThreeWordsAcrossSeparator()
+    {
+        $bt = $this->createBankTransaction([
+            'description' => 'Google Storage Workspace subscription',
+            'amount' => 50,
+            'base_type' => 'DEBIT',
+        ]);
+
+        $this->createRule([
+            ['search_key' => 'description', 'operator' => 'contains', 'value' => 'Google Storage Workspace'],
+        ], [
+            'applies_to' => 'DEBIT',
+            'vendor_id' => $this->vendor->id,
+        ]);
+
+        (new ProcessBankRules($bt))->run();
+        $bt = $bt->fresh();
+
+        $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
+        $this->assertEquals($this->vendor->id, $bt->vendor_id);
+    }
+
     public function testDebitDescriptionIs()
     {
         $desc = 'NetflixSubscription';

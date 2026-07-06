@@ -116,6 +116,70 @@ class ClientFilters extends QueryFilters
 
     }
 
+    public function group_settings_id(string $group_settings_id = ''): Builder
+    {
+        $groups = explode(',', $group_settings_id);
+
+        if (strlen($group_settings_id) == 0 || count(array_filter($groups)) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->whereIn('group_settings_id', $this->transformKeys($groups));
+    }
+
+    public function country_id(string $country_id = ''): Builder
+    {
+        $countries = explode(',', $country_id);
+
+        if (strlen($country_id) == 0 || count(array_filter($countries)) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->whereIn('country_id', $countries);
+    }
+
+    public function industry_id(string $industry_id = ''): Builder
+    {
+        $industries = explode(',', $industry_id);
+
+        if (strlen($industry_id) == 0 || count(array_filter($industries)) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->whereIn('industry_id', $industries);
+    }
+
+    public function size_id(string $size_id = ''): Builder
+    {
+        $sizes = explode(',', $size_id);
+
+        if (strlen($size_id) == 0 || count(array_filter($sizes)) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->whereIn('size_id', $sizes);
+    }
+
+    public function classification(string $classification = ''): Builder
+    {
+        $classifications = explode(',', $classification);
+
+        if (strlen($classification) == 0 || count(array_filter($classifications)) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->whereIn('classification', $classifications);
+    }
+
+    public function vat_number(string $vat_number = ''): Builder
+    {
+        if (strlen($vat_number) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->where('vat_number', 'like', '%' . $vat_number . '%');
+    }
+
     /**
      * Filter based on search text.
      *
@@ -134,20 +198,22 @@ class ClientFilters extends QueryFilters
 
         return $this->builder->where(function ($query) use ($searchTerms) {
             foreach ($searchTerms as $term) {
-                $query->where(function ($subQuery) use ($term) {
-                    $subQuery->where('name', 'like', '%' . $term . '%')
-                        ->orWhere('id_number', 'like', '%' . $term . '%')
-                        ->orWhere('number', 'like', '%' . $term . '%')
-                        ->orWhereHas('contacts', function ($contactQuery) use ($term) {
-                            $contactQuery->where('first_name', 'like', '%' . $term . '%')
-                                ->orWhere('last_name', 'like', '%' . $term . '%')
-                                ->orWhere('email', 'like', '%' . $term . '%')
-                                ->orWhere('phone', 'like', '%' . $term . '%');
+                $like_term = '%' . $term . '%';
+
+                $query->where(function ($subQuery) use ($like_term) {
+                    $subQuery->where('name', 'like', $like_term)
+                        ->orWhere('id_number', 'like', $like_term)
+                        ->orWhere('number', 'like', $like_term)
+                        ->orWhereHas('contacts', function ($contactQuery) use ($like_term) {
+                            $contactQuery->where('first_name', 'like', $like_term)
+                                ->orWhere('last_name', 'like', $like_term)
+                                ->orWhere('email', 'like', $like_term)
+                                ->orWhere('phone', 'like', $like_term);
                         })
-                        ->orWhere('custom_value1', 'like', '%' . $term . '%')
-                        ->orWhere('custom_value2', 'like', '%' . $term . '%')
-                        ->orWhere('custom_value3', 'like', '%' . $term . '%')
-                        ->orWhere('custom_value4', 'like', '%' . $term . '%');
+                        ->orWhere('custom_value1', 'like', $like_term)
+                        ->orWhere('custom_value2', 'like', $like_term)
+                        ->orWhere('custom_value3', 'like', $like_term)
+                        ->orWhere('custom_value4', 'like', $like_term);
                 });
             }
         });

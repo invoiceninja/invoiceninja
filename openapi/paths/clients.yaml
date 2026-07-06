@@ -81,7 +81,7 @@
           required: false
           schema:
             type: string
-          example: bob
+          example: Acme Corporation
         - name: balance
           in: query
           description: |
@@ -114,24 +114,24 @@
             Filter by client email
 
             ```html
-            ?email=bob@gmail.com
+            ?email=jane.doe@acme.com
             ```
           required: false
           schema:
             type: string
-          example: bob@gmail.com
+          example: jane.doe@acme.com
         - name: id_number
           in: query
           description: |
             Filter by client id_number
 
             ```html
-            ?id_number=0001
+            ?id_number=ACME-0001
             ```
           required: false
           schema:
             type: string
-          example: a1039883
+          example: ACME-0001
         - name: number
           in: query
           description: |
@@ -143,7 +143,7 @@
           required: false
           schema:
             type: string
-          example: a1039883
+          example: "0002"
         - name: filter
           in: query
           description: |
@@ -168,19 +168,19 @@
           required: false
           schema:
             type: string
-          example: a1039883
+          example: Bobby
         - name: group
           in: query
           description: |
             Returns the list of clients assigned to {group_id}
 
             ```html
-              ?group=X89sjd8
+              ?group=Wpmbk5ezJn
             ```
           required: false
           schema:
             type: string
-          example: X89sjd8
+          example: Wpmbk5ezJn
 
         - name: client_id
           in: query
@@ -188,12 +188,12 @@
             Returns the list of clients with {client_id} - proxy call to retrieve a client_id wrapped in an array
 
             ```html
-              ?client_id=X89sjd8
+              ?client_id=Opnel5aKBz
             ```
           required: false
           schema:
             type: string
-          example: X89sjd8
+          example: Opnel5aKBz
 
       responses:
         200:

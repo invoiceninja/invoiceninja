@@ -29,6 +29,8 @@ class ExpenseObserver
     public function created(Expense $expense)
     {
         $subscriptions = Webhook::where('company_id', $expense->company_id)
+                            ->where('is_deleted', false)
+                            ->whereNull('deleted_at')
                             ->where('event_id', Webhook::EVENT_CREATE_EXPENSE)
                             ->exists();
 
@@ -57,6 +59,8 @@ class ExpenseObserver
 
 
         $subscriptions = Webhook::where('company_id', $expense->company_id)
+                                    ->where('is_deleted', false)
+                                    ->whereNull('deleted_at')
                                     ->where('event_id', $event)
                                     ->exists();
 
@@ -78,6 +82,8 @@ class ExpenseObserver
         }
 
         $subscriptions = Webhook::where('company_id', $expense->company_id)
+                            ->where('is_deleted', false)
+                            ->whereNull('deleted_at')
                             ->where('event_id', Webhook::EVENT_ARCHIVE_EXPENSE)
                             ->exists();
 

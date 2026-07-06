@@ -113,6 +113,8 @@ class Gateway extends StaticModel
         } elseif ($this->id == 67) {
             $link = 'https://payware.eu';
         } elseif ($this->id == 68) {
+            $link = 'https://notes.chip-in.asia/s/faq/p/Qwsatm6PeN';
+        } elseif ($this->id == 69) {
             $link = 'https://www.helcim.com/';
         }
 
@@ -271,8 +273,12 @@ class Gateway extends StaticModel
             case 67:
                 return [
                     GatewayType::MOBILE_PAYMENT => ['refund' => false, 'token_billing' => false, 'webhooks' => ['CONFIRMED', 'DECLINED', 'FAILED', 'CANCELLED', 'EXPIRED']],
-                ]; //Payware
+                ]; //payware
             case 68:
+                return [
+                    GatewayType::HOSTED_PAGE => ['refund' => true, 'token_billing' => true, 'webhooks' => []],
+                ]; //CHIP
+            case 69:
                 return [
                     GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true, 'webhooks' => ['all']],
                     GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['all']],

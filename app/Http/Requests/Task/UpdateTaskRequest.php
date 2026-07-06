@@ -14,6 +14,7 @@ namespace App\Http\Requests\Task;
 
 use App\Http\Requests\Request;
 use App\Models\Project;
+use App\Models\Task;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -24,6 +25,9 @@ class UpdateTaskRequest extends Request
     use MakesHash;
     use ChecksEntityStatus;
 
+    /** @var class-string */
+    protected ?string $tag_entity_type = Task::class;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -31,10 +35,6 @@ class UpdateTaskRequest extends Request
      */
     public function authorize(): bool
     {
-        //prevent locked tasks from updating
-        if ($this->task->invoice_id && $this->task->company->invoice_task_lock) {
-            return false;
-        }
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -123,6 +123,24 @@ class UpdateTaskRequest extends Request
         $rules['documents.*'] = $this->fileValidation();
 
         return $this->globalRules($rules);
+    }
+
+
+    public function withValidator($validator)
+    {
+
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
+        
+        $validator->after(function ($validator) {
+
+            //prevent locked tasks from updating
+            if ($this->task->invoice_id && $this->task->company->invoice_task_lock) {
+                $validator->errors()->add('id', ctrans('texts.task_update_authorization_error'));
+            }
+
+        });
     }
 
     public function prepareForValidation()

@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\PaymentDrivers\Braintree;
 
 use App\Exceptions\PaymentFailed;
@@ -75,7 +83,7 @@ class PayPal implements LivewireMethodInterface
         $po_number = $invoice->po_number ?? $invoice->number ?? '';
 
         $data = [
-            'amount' => $this->braintree->payment_hash->data->amount_with_fee,
+            'amount' => $this->braintree->payment_hash->data->amount_with_fee, //@phpstan-ignore-line
             'paymentMethodToken' => $token,
             'deviceData' => $state['client-data'],
             'channel' => 'invoiceninja_BT',

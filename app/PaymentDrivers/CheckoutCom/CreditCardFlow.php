@@ -400,7 +400,7 @@ class CreditCardFlow implements MethodInterface, LivewireMethodInterface
         $billing->address->state = $this->checkout->client->state ?? '';
         $billing->address->zip = $this->checkout->client->postal_code ?? '';
         $countryCode = $this->checkout->client->country?->iso_3166_2 ?? null;
-        if (!$countryCode && $this->checkout->client->company->settings && isset($this->checkout->client->company->settings->country_id)) {
+        if (!$countryCode && $this->checkout->client->company->settings && isset($this->checkout->client->company->settings->country_id)) { //@phpstan-ignore-line
             $countryCode = \App\Models\Country::find($this->checkout->client->company->settings->country_id)?->iso_3166_2;
         }
         $billing->address->country = $countryCode ?? 'US';

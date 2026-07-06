@@ -44,7 +44,7 @@ class QbClient implements SyncInterface
      */
     public function find(string $id): mixed
     {
-        return $this->service->sdk->FindById('Customer', $id);
+        return $this->service->sdk()->findById('Customer', $id);
     }
 
     /**
@@ -122,7 +122,7 @@ class QbClient implements SyncInterface
     private function findClientIdByName(?string $name): mixed
     {
         $escaped_name = str_replace("'", "\\'", $name ?? '');
-        return $this->service->sdk->Query("SELECT Id FROM Customer WHERE DisplayName = '{$escaped_name}'", 1, 1);
+        return $this->service->sdk()->query("SELECT Id FROM Customer WHERE DisplayName = '{$escaped_name}'", 1, 1);
     }
 
     /**
@@ -148,7 +148,7 @@ class QbClient implements SyncInterface
 
                     nlog("updating client {$client->id} in QuickBooks");
                     $customer = \QuickBooksOnline\API\Facades\Customer::create($qb_client_data);
-                    $result = $this->service->sdk->Update($customer);
+                    $result = $this->service->sdk()->update($customer);
 
                     return $client->sync->qb_id;
                 }
@@ -175,7 +175,7 @@ class QbClient implements SyncInterface
             }
 
             $customer = \QuickBooksOnline\API\Facades\Customer::create($qb_client_data);
-            $resulting_customer = $this->service->sdk->Add($customer);
+            $resulting_customer = $this->service->sdk()->add($customer);
 
             $qb_id = data_get($resulting_customer, 'Id') ?? data_get($resulting_customer, 'Id.value');
 
@@ -220,7 +220,7 @@ class QbClient implements SyncInterface
                 nlog("QuickBooks: Name collision with Vendor/Employee for client {$client->id}, retrying as '{$unique_name}'");
 
                 $customer = \QuickBooksOnline\API\Facades\Customer::create($qb_client_data);
-                $resulting_customer = $this->service->sdk->Add($customer);
+                $resulting_customer = $this->service->sdk()->add($customer);
 
                 $qb_id = data_get($resulting_customer, 'Id') ?? data_get($resulting_customer, 'Id.value');
 

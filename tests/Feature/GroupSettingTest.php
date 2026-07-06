@@ -34,6 +34,20 @@ class GroupSettingTest extends TestCase
     }
 
 
+    public function testCreateBlankGroupSetting()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->getJson('/api/v1/group_settings/create');
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertSame($this->encodePrimaryKey(0), $arr['data']['id']);
+    }
+
     public function testPdfVariablesUnset()
     {
         $settings = new \stdClass();

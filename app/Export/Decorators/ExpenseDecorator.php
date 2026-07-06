@@ -103,7 +103,7 @@ class ExpenseDecorator implements DecoratorInterface
     }
     public function user(Expense $expense)
     {
-        return $expense->user ? $expense->user->present()->name() : '';
+        return $expense->user->present()->name() ?? '';
     }
     public function assigned_user(Expense $expense)
     {

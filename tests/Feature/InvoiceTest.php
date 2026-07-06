@@ -48,6 +48,36 @@ class InvoiceTest extends TestCase
     }
 
 
+    public function testExplicitAutoBillDisabledOverridesCompanyDefault()
+    {
+        $settings = $this->company->settings;
+        $settings->auto_bill_standard_invoices = true;
+        $this->company->settings = $settings;
+        $this->company->save();
+
+        $this->client->group_settings_id = null;
+        $this->client->save();
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 100;
+        $item->type_id = '1';
+
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'line_items' => [$item],
+            'auto_bill_enabled' => false,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/invoices', $data)
+            ->assertStatus(200);
+
+        $this->assertTrue($response->json('data.auto_bill_enabled'));
+    }
+
     public function testClientIdMustBeInteger()
     {
         $line_items = [];

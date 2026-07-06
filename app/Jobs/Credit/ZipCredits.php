@@ -51,7 +51,7 @@ class ZipCredits implements ShouldQueue
 
         $settings = $this->company->settings;
         $zipFile = new \PhpZip\ZipFile();
-        $file_name = now()->addSeconds($this->company->timezone_offset())->format('Y-m-d-h-m-s') . '_' . str_replace(' ', '_', trans('texts.credits')) . '.zip';
+        $file_name = now()->addSeconds($this->company->timezone_offset())->format('Y-m-d-h-i-s') . '_' . str_replace(' ', '_', trans('texts.credits')) . '.zip';
 
         nlog($this->credit_ids);
 

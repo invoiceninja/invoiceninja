@@ -13,6 +13,7 @@
 namespace App\Models;
 
 use App\DataMapper\ProductSync;
+use App\Models\Traits\HasTags;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use League\CommonMark\CommonMarkConverter;
@@ -61,6 +62,7 @@ use League\CommonMark\CommonMarkConverter;
  * @property-read \App\Models\Vendor|null $vendor
  * @property int|null $tax_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
  * @method static \Illuminate\Database\Eloquent\Builder|Product whereTaxId($value)
  * @mixin \Eloquent
  */
@@ -69,6 +71,7 @@ class Product extends BaseModel
     use MakesHash;
     use SoftDeletes;
     use Filterable;
+    use HasTags;
 
     public const PRODUCT_TYPE_PHYSICAL = 1;
     public const PRODUCT_TYPE_SERVICE = 2;
@@ -217,7 +220,8 @@ class Product extends BaseModel
             ],
         ]);
 
-        return $converter->convert($this->notes ?? '');
+        return \App\Services\Pdf\Purify::clean($converter->convert($this->notes ?? ''), true);
+        // return $converter->convert($this->notes ?? '');
     }
 
     public static function markdownHelp(?string $notes = '')

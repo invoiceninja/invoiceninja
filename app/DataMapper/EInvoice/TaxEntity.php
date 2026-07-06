@@ -34,6 +34,10 @@ class TaxEntity
 
     /** @var bool $acts_as_receiver */
     public bool $acts_as_receiver = true;
+
+    /** @var array<string> */
+    public array $e_invoice_statuses = [];
+    
     /**
      * __construct
      *

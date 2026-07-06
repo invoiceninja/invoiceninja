@@ -13,6 +13,7 @@
 namespace App\Export\Decorators;
 
 use App\Models\Credit;
+use App\Models\Payment;
 
 class CreditDecorator implements DecoratorInterface
 {
@@ -20,7 +21,14 @@ class CreditDecorator implements DecoratorInterface
     {
         $credit = false;
 
-        if ($entity instanceof Credit) {
+        if ($entity instanceof Payment && $entity->relationLoaded('current_paymentable')) {
+            $paymentable = $entity->getRelation('current_paymentable');
+            if ($paymentable && $paymentable->paymentable_type === Credit::class) {
+                $credit = $paymentable->paymentable;
+            } else {
+                return '';
+            }
+        } elseif ($entity instanceof Credit) {
             $credit = $entity;
         } elseif ($entity->credit) {
             $credit = $entity->credit;
@@ -130,7 +138,7 @@ class CreditDecorator implements DecoratorInterface
     }
     public function user_id(Credit $credit)
     {
-        return $credit->user ? $credit->user->present()->name() : '';
+        return $credit->user->present()->name() ?? '';
     }
 
 }

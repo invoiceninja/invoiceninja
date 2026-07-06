@@ -222,6 +222,37 @@ class QuickbooksSettingsSerializationTest extends TestCase
     }
 
     /**
+     * Test that the allow_deposit preference round-trips through serialization.
+     */
+    public function testAllowDepositPreferenceRoundTrips()
+    {
+        $settings = new QuickbooksSettings([
+            'settings' => [
+                'allow_deposit' => true,
+            ],
+        ]);
+
+        $array = $settings->toArray();
+
+        $this->assertArrayHasKey('allow_deposit', $array['settings']);
+        $this->assertTrue($array['settings']['allow_deposit']);
+
+        $reconstructed = QuickbooksSettings::fromArray(json_decode(json_encode($array), true));
+        $this->assertTrue($reconstructed->settings->allow_deposit);
+    }
+
+    /**
+     * Test that allow_deposit defaults to null when never fetched.
+     */
+    public function testAllowDepositDefaultsToNull()
+    {
+        $settings = new QuickbooksSettings();
+
+        $this->assertNull($settings->settings->allow_deposit);
+        $this->assertArrayHasKey('allow_deposit', $settings->toArray()['settings']);
+    }
+
+    /**
      * Test that empty/default settings serialize correctly.
      */
     public function testEmptySettingsSerializeCorrectly()

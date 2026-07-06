@@ -149,8 +149,12 @@ class NinjaPlanController extends Controller
 
             /** @var \App\Models\Account $account **/
             $account = Account::where('key', auth()->guard('contact')->user()->client->custom_value2)->first();
-            // $account->trial_started = now();
-            // $account->trial_plan = 'pro';
+
+            if (! $account) {
+                return redirect()->route('client.plan');
+            }
+
+            $account_created_at = (int) $account->created_at;
             $account->plan = 'pro';
             $account->plan_term = 'month';
             $account->plan_started = now();
@@ -161,6 +165,13 @@ class NinjaPlanController extends Controller
             $account->trial_plan = 'pro';
             $account->created_at = now();
             $account->save();
+
+            if (class_exists(\Modules\Admin\Jobs\Account\AccountStatus::class)) {
+                \Modules\Admin\Jobs\Account\AccountStatus::dispatch(
+                    (string) $account->key,
+                    $account_created_at
+                )->afterCommit();
+            }
         }
 
         MultiDB::setDB('db-ninja-01');

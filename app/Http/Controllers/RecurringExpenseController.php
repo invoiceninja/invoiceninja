@@ -101,7 +101,7 @@ class RecurringExpenseController extends BaseController
      */
     public function index(RecurringExpenseFilters $filters)
     {
-        $recurring_expenses = RecurringExpense::filter($filters);
+        $recurring_expenses = RecurringExpense::filter($filters)->with('tags');
 
         return $this->listResponse($recurring_expenses);
     }

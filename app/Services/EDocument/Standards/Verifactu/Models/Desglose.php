@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Services\EDocument\Standards\Verifactu\Models;
 
 class Desglose extends BaseXmlModel
@@ -17,7 +25,7 @@ class Desglose extends BaseXmlModel
         $root = $this->createElement($doc, 'Desglose');
 
         // If we have DetalleDesglose objects in the desgloseIVA array, use them
-        if ($this->desgloseIVA !== null && is_array($this->desgloseIVA) && count($this->desgloseIVA) > 0) {
+        if (is_array($this->desgloseIVA) && count($this->desgloseIVA) > 0) {
             foreach ($this->desgloseIVA as $detalleDesglose) {
                 if ($detalleDesglose instanceof DetalleDesglose) {
                     $root->appendChild($detalleDesglose->toXml($doc));

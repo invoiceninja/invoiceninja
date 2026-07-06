@@ -44,6 +44,8 @@ class VendorRepository extends BaseRepository
      */
     public function save(array $data, Vendor $vendor): ?Vendor
     {
+        $tag_ids = $this->resolveTagIdsForSync($data, $vendor);
+
         $saveable_vendor = $data;
 
         if (array_key_exists('contacts', $data)) {
@@ -67,6 +69,8 @@ class VendorRepository extends BaseRepository
         if (array_key_exists('documents', $data) && count($data['documents']) >= 1) {
             $this->saveDocuments($data['documents'], $vendor);
         }
+
+        $this->syncResolvedTags($vendor, $tag_ids);
 
         return $vendor;
     }

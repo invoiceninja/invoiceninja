@@ -195,7 +195,7 @@ class EntityLevel implements EntityLevelInterface
             $errors[] = ['field' => 'email', 'label' => ctrans("texts.email")];
         }
 
-        if ($client->country_id && $client->country) {
+        if ($client->country_id && $client->country) { //@phpstan-ignore-line
             $non_routable = $client->checkDeliveryNetwork();
 
             if (is_string($non_routable)) {
@@ -333,7 +333,7 @@ class EntityLevel implements EntityLevelInterface
                 ];
         }
 
-        if (!$this->identifierValidator()->validFormat($scheme, $id)) {
+        if (!$this->identifierValidator()->validFormat($scheme, $id, checkDigit: false)) {
             return [
                 'field' => 'routing_id',
                 'label' => ctrans('texts.routing_id') . " {$scheme}:{$id} does not match the expected format for {$scheme}.",

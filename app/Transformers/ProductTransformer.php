@@ -97,6 +97,7 @@ class ProductTransformer extends EntityTransformer
             'product_image' => (string) $product->product_image ?: '',
             'tax_id' => (string) $product->tax_id ?: '1',
             'income_account_id' => (string) $product->income_account_id ?: '',
+            'tags' => $this->transformTags($product),
         ];
     }
 }

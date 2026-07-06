@@ -29,6 +29,8 @@ class JsonDesignPageOverridesTest extends TestCase
         $s = new \stdClass();
         $s->page_size = $pageSize;
         $s->page_layout = $pageLayout;
+        $s->font_size = 12;
+        $s->primary_font = 'Inter';
 
         return $s;
     }
@@ -39,6 +41,21 @@ class JsonDesignPageOverridesTest extends TestCase
         // so we can build the service without a working constructor by going
         // through reflection.
         return (new \ReflectionClass(JsonDesignService::class))->newInstanceWithoutConstructor();
+    }
+
+    private function pageCss(array $design, ?object $settings = null): string
+    {
+        $service = $this->service();
+        $reflection = new \ReflectionClass(JsonDesignService::class);
+
+        $property = $reflection->getProperty('jsonDesign');
+        $property->setAccessible(true);
+        $property->setValue($service, $design);
+
+        $method = $reflection->getMethod('buildPageCSS');
+        $method->setAccessible(true);
+
+        return $method->invoke($service, $design['pageSettings'] ?? [], $settings ?? $this->settings('A4'));
     }
 
     public function testRewritesA4ToLegal(): void
@@ -113,5 +130,60 @@ class JsonDesignPageOverridesTest extends TestCase
         $result = $this->service()->applyPageOverrides($html, $this->settings('letter'));
 
         $this->assertStringContainsString('size: Letter portrait', $result);
+    }
+
+    public function testDocumentSettingsDriveGlobalCssWithoutPageSettings(): void
+    {
+        $css = $this->pageCss([
+            'blocks' => [],
+            'documentSettings' => [
+                'pageLayout' => 'portrait',
+                'pageSize' => 'A4',
+                'globalFontSize' => 18,
+                'primaryFont' => 'Roboto',
+                'pageMarginTop' => 0,
+                'pageMarginRight' => 0,
+                'pageMarginBottom' => 0,
+                'pageMarginLeft' => 0,
+                'pagePaddingTop' => 30,
+                'pagePaddingRight' => 30,
+                'pagePaddingBottom' => 30,
+                'pagePaddingLeft' => 30,
+            ],
+        ]);
+
+        $this->assertStringContainsString('size: A4 portrait;', $css);
+        // pageMargin* + pagePadding* collapse into the @page margin so the inset
+        // repeats on every page; the container itself carries no padding.
+        $this->assertStringContainsString('margin: 30px 30px 30px 30px;', $css);
+        $this->assertStringContainsString('padding: 0;', $css);
+        $this->assertStringContainsString('font-family: Roboto, Helvetica, sans-serif;', $css);
+        $this->assertStringContainsString('font-size: 18px;', $css);
+        $this->assertStringNotContainsString('Inter, sans-serif', $css);
+        $this->assertStringNotContainsString('font-size: 12px;', $css);
+        $this->assertStringNotContainsString('font-size: 18px !important', $css);
+    }
+
+    public function testLegacyPageSettingsStillDriveGlobalCssWhenDocumentSettingsAreAbsent(): void
+    {
+        $css = $this->pageCss([
+            'blocks' => [],
+            'pageSettings' => [
+                'pageSize' => 'letter',
+                'orientation' => 'landscape',
+                'fontFamily' => 'Legacy Font',
+                'fontSize' => '11px',
+                'marginTop' => '4mm',
+                'marginRight' => '5mm',
+                'marginBottom' => '6mm',
+                'marginLeft' => '7mm',
+            ],
+        ], $this->settings('A4'));
+
+        $this->assertStringContainsString('size: 279mm 216mm;', $css);
+        $this->assertStringContainsString('margin: 4mm 5mm 6mm 7mm;', $css);
+        $this->assertStringContainsString('font-family: Legacy Font, Helvetica, sans-serif;', $css);
+        $this->assertStringContainsString('font-size: 11px;', $css);
+        $this->assertStringContainsString('padding: 0;', $css);
     }
 }

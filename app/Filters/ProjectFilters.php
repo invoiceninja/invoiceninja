@@ -56,6 +56,21 @@ class ProjectFilters extends QueryFilters
     }
 
     /**
+     * Singular alias for the inherited assigned_user_ids filter.
+     *
+     * projects.assigned_user_id exists, so the column-guarded base
+     * assigned_user_ids() already filters projects; this only adds the
+     * singular param name for cross-client parity.
+     *
+     * @param string $assigned_user
+     * @return Builder
+     */
+    public function assigned_user(string $assigned_user = ''): Builder
+    {
+        return $this->assigned_user_ids($assigned_user);
+    }
+
+    /**
      * Sorts the list based on $sort.
      *
      * @param string $sort formatted as column|asc
@@ -65,11 +80,32 @@ class ProjectFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
-        if (!is_array($sort_col) || count($sort_col) != 2 || (!in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing('projects')) && !str_starts_with($sort_col[0], 'client.') && !str_starts_with($sort_col[0], 'contact.') && !str_starts_with($sort_col[0], 'documents'))) {
+        if (!is_array($sort_col) || 
+        count($sort_col) != 2 || 
+        (!in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing('projects')) && 
+        !str_starts_with($sort_col[0], 'client.') && 
+        !str_starts_with($sort_col[0], 'contact.') && 
+        !str_starts_with($sort_col[0], 'project_tag_ids') && 
+        !str_starts_with($sort_col[0], 'documents'))) {
             return $this->builder;
         }
 
         $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
+
+        if ($sort_col[0] == 'project_tag_ids') {
+
+            return $this->builder
+            ->leftJoin('taggables', function ($j) {
+                $j->on('taggables.taggable_id', '=', 'projects.id')
+                    ->where('taggables.taggable_type', '=', \App\Models\Project::class);
+            })
+            ->leftJoin('tags', 'tags.id', '=', 'taggables.tag_id')
+            ->select('projects.*')
+            ->groupBy('projects.id')
+            ->orderByRaw('CASE WHEN GROUP_CONCAT(tags.name) IS NULL THEN 1 ELSE 0 END')
+            ->orderByRaw('GROUP_CONCAT(tags.name ORDER BY tags.name SEPARATOR ",") '.$dir);
+        
+        }
 
         if ($sort_col[0] == 'documents') {
             return $this->builder->withCount('documents')->orderBy('documents_count', $dir);
@@ -142,33 +178,6 @@ class ProjectFilters extends QueryFilters
 
     }
 
-    /**
-     * date_range
-     *
-     * only filters on date
-     * @param  string $date_range in format column,start_date,end_date
-     * @return Builder
-     */
-    public function date_range(string $date_range = ''): Builder
-    {
-        $parts = explode(",", $date_range);
-
-        if (count($parts) != 3 || !in_array($parts[0], \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))) {
-            return $this->builder;
-        }
-
-        try {
-
-            $start_date = \Carbon\Carbon::parse($parts[1]);
-            $end_date = \Carbon\Carbon::parse($parts[2]);
-
-
-            return $this->builder->whereBetween($parts[0], [$start_date, $end_date]);
-        } catch (\Exception $e) {
-            return $this->builder;
-        }
-
-    }
     /**
      * Filters the query by the users company ID.
      *
