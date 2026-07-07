@@ -12,6 +12,7 @@
 
 namespace App\Http\ValidationRules\Credit;
 
+use App\Utils\BcMath;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Validation\Rule;
 
@@ -36,11 +37,13 @@ class CreditsSumRule implements Rule
 
     private function checkCreditTotals()
     {
-        if (array_sum(array_map('floatval', array_column($this->input['credits'], 'amount'))) > array_sum(array_map('floatval', array_column($this->input['invoices'], 'amount')))) {
-            return false;
-        }
+        // Compare the raw decimal amounts with bcmath rather than casting to
+        // float first. floatval() + '>' accumulates binary rounding error, which
+        // caused credits that exactly equalled the invoice total to be rejected.
+        $credits = BcMath::sum(array_column($this->input['credits'], 'amount'));
+        $invoices = BcMath::sum(array_column($this->input['invoices'], 'amount'));
 
-        return true;
+        return BcMath::lessThanOrEqual($credits, $invoices);
     }
 
     /**
