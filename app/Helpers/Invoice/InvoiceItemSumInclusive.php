@@ -253,45 +253,42 @@ class InvoiceItemSumInclusive
             $this->item->tax_name3 = '';
         }
 
-        $item_tax = 0;
-
         $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / 100));
 
-        /** @var float $item_tax_rate1_total */
-        $item_tax_rate1_total = $this->calcInclusiveLineTax($this->item->tax_rate1, $amount);
+        $rates = [$this->item->tax_rate1, $this->item->tax_rate2, $this->item->tax_rate3];
+        $combined_rate = array_sum($rates);
 
-        /** @var float $item_tax */
-        $item_tax += $this->formatValue($item_tax_rate1_total, $this->currency->precision);
+        // Additive back-out: factor the combined rate out once so multiple
+        // inclusive taxes never overlap. net is the shared taxable base.
+        $net = $combined_rate > 0 ? $this->formatValue($amount / (1 + ($combined_rate / 100)), $this->currency->precision) : $amount;
+
+        // Authoritative total: guarantees net + tax == amount to the cent.
+        $item_tax = $this->formatValue($amount - $net, $this->currency->precision);
+
+        // Attribute the total across each named rate so the breakdown reconciles exactly.
+        [$item_tax_rate1_total, $item_tax_rate2_total, $item_tax_rate3_total] = $this->allocateInclusiveTax($amount, $rates, $item_tax, $this->currency->precision);
 
         if (strlen($this->item->tax_name1) > 1) {
-            $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total, $amount, $this->item->tax_id ?? '1');
+            $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total, $amount, $this->item->tax_id ?? '1', $net);
         }
-
-        $item_tax_rate2_total = $this->calcInclusiveLineTax($this->item->tax_rate2, $amount);
-
-        $item_tax += $this->formatValue($item_tax_rate2_total, $this->currency->precision);
 
         if (strlen($this->item->tax_name2) > 1) {
-            $this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total, $amount, $this->item->tax_id ?? '1');
+            $this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total, $amount, $this->item->tax_id ?? '1', $net);
         }
-
-        $item_tax_rate3_total = $this->calcInclusiveLineTax($this->item->tax_rate3, $amount);
-
-        $item_tax += $this->formatValue($item_tax_rate3_total, $this->currency->precision);
 
         if (strlen($this->item->tax_name3) > 1) {
-            $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total, $amount, $this->item->tax_id ?? '1');
+            $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total, $amount, $this->item->tax_id ?? '1', $net);
         }
 
-        $this->item->tax_amount = $this->formatValue($item_tax, $this->currency->precision);
+        $this->item->tax_amount = $item_tax;
 
         try {
-            $this->item->net_cost = round(($amount - $this->item->tax_amount) / $this->item->quantity, $this->currency->precision);
+            $this->item->net_cost = round($net / $this->item->quantity, $this->currency->precision);
         } catch (\DivisionByZeroError $e) {
             $this->item->net_cost = $this->item->cost;
         }
 
-        $this->setTotalTaxes($this->formatValue($item_tax, $this->currency->precision));
+        $this->setTotalTaxes($item_tax);
 
         return $this;
     }
@@ -369,7 +366,7 @@ class InvoiceItemSumInclusive
 
 
 
-    private function groupTax($tax_name, $tax_rate, $tax_total, $amount, $tax_id = '')
+    private function groupTax($tax_name, $tax_rate, $tax_total, $amount, $tax_id = '', $base_amount = null)
     {
         $group_tax = [];
 
@@ -380,7 +377,11 @@ class InvoiceItemSumInclusive
             return;
         }
 
-        $group_tax = ['key' => $key, 'total' => $tax_total, 'tax_name' => $tax_name . ' ' . Number::formatValueNoTrailingZeroes(floatval($tax_rate), $this->client) . '%', 'tax_id' => $tax_id, 'tax_rate' => $tax_rate, 'base_amount' => $tax_rate > 0 ? round($amount / (1 + ($tax_rate / 100)), 2) : $amount];
+        // With additive inclusive tax the taxable base is the shared net (same
+        // for every rate on the line); fall back to the single-rate back-out.
+        $base_amount = $base_amount ?? ($tax_rate > 0 ? round($amount / (1 + ($tax_rate / 100)), 2) : $amount);
+
+        $group_tax = ['key' => $key, 'total' => $tax_total, 'tax_name' => $tax_name . ' ' . Number::formatValueNoTrailingZeroes(floatval($tax_rate), $this->client) . '%', 'tax_id' => $tax_id, 'tax_rate' => $tax_rate, 'base_amount' => $base_amount];
 
         $this->tax_collection->push(collect($group_tax));
     }
@@ -476,30 +477,25 @@ class InvoiceItemSumInclusive
                 $amount = $this->item->line_total - ($this->invoice->discount * ($this->item->line_total / $this->sub_total));
             }
 
-            $item_tax = 0;
+            $rates = [$this->item->tax_rate1, $this->item->tax_rate2, $this->item->tax_rate3];
+            $combined_rate = array_sum($rates);
 
-            $item_tax_rate1_total = $this->calcInclusiveLineTax($this->item->tax_rate1, $amount);
+            $net = $combined_rate > 0 ? $this->formatValue($amount / (1 + ($combined_rate / 100)), $this->currency->precision) : $amount;
 
-            $item_tax += $item_tax_rate1_total;
+            $item_tax = $this->formatValue($amount - $net, $this->currency->precision);
+
+            [$item_tax_rate1_total, $item_tax_rate2_total, $item_tax_rate3_total] = $this->allocateInclusiveTax($amount, $rates, $item_tax, $this->currency->precision);
 
             if ($item_tax_rate1_total != 0) {
-                $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total, $amount, $this->item->tax_id ?? '1');
+                $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total, $amount, $this->item->tax_id ?? '1', $net);
             }
-
-            $item_tax_rate2_total = $this->calcInclusiveLineTax($this->item->tax_rate2, $amount);
-
-            $item_tax += $item_tax_rate2_total;
 
             if ($item_tax_rate2_total != 0) {
-                $this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total, $amount, $this->item->tax_id) ?? '1';
+                $this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total, $amount, $this->item->tax_id ?? '1', $net);
             }
 
-            $item_tax_rate3_total = $this->calcInclusiveLineTax($this->item->tax_rate3, $amount);
-
-            $item_tax += $item_tax_rate3_total;
-
             if ($item_tax_rate3_total != 0) {
-                $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total, $amount, $this->item->tax_id) ?? '1';
+                $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total, $amount, $this->item->tax_id ?? '1', $net);
             }
 
             $this->setTotalTaxes($this->getTotalTaxes() + $item_tax);
@@ -508,8 +504,7 @@ class InvoiceItemSumInclusive
             $this->item->tax_amount = $item_tax;
 
             try {
-                $this->item->net_cost = round($amount * (100 / (100 + ($this->item->tax_rate1 + $this->item->tax_rate2 + $this->item->tax_rate3))) / $this->item->quantity, $this->currency->precision + 1);
-                $this->item->net_cost = round($this->item->net_cost, $this->currency->precision);
+                $this->item->net_cost = round($net / $this->item->quantity, $this->currency->precision);
             } catch (\DivisionByZeroError $e) {
                 $this->item->net_cost = $this->item->cost;
             }

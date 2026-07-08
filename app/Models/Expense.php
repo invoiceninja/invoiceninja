@@ -348,8 +348,7 @@ class Expense extends BaseModel
         } else {
 
             if ($this->uses_inclusive_taxes) {
-                $total_tax_amount = ($this->calcInclusiveLineTax($this->tax_rate1 ?? 0, $this->amount, $precision)) + ($this->calcInclusiveLineTax($this->tax_rate2 ?? 0, $this->amount, $precision)) + ($this->calcInclusiveLineTax($this->tax_rate3 ?? 0, $this->amount, $precision));
-                return round(($this->amount - round($total_tax_amount, $precision)), $precision);
+                return round($this->amount - $this->inclusiveTaxTotal($precision), $precision);
             } else {
                 $total_tax_amount = ($this->amount * (($this->tax_rate1 ?? 0) / 100)) + ($this->amount * (($this->tax_rate2 ?? 0) / 100)) + ($this->amount * (($this->tax_rate3 ?? 0) / 100));
                 return round(($this->amount + round($total_tax_amount, $precision)), $precision);
@@ -376,7 +375,7 @@ class Expense extends BaseModel
         } else {
 
             if ($this->uses_inclusive_taxes) {
-                return ($this->calcInclusiveLineTax($this->tax_rate1 ?? 0, $this->amount, $precision)) + ($this->calcInclusiveLineTax($this->tax_rate2 ?? 0, $this->amount, $precision)) + ($this->calcInclusiveLineTax($this->tax_rate3 ?? 0, $this->amount, $precision));
+                return $this->inclusiveTaxTotal($precision);
             } else {
                 return ($this->amount * (($this->tax_rate1 ?? 0) / 100)) + ($this->amount * (($this->tax_rate2 ?? 0) / 100)) + ($this->amount * (($this->tax_rate3 ?? 0) / 100));
             }
@@ -384,15 +383,23 @@ class Expense extends BaseModel
     }
 
     /**
-     * calcInclusiveLineTax
+     * Additive inclusive tax back-out. The combined rate is factored out once
+     * so multiple inclusive taxes never overlap, and net + tax == amount to the
+     * cent (net is rounded, tax is the exact remainder).
      *
-     * @param  mixed $tax_rate
-     * @param  mixed $amount
-     * @param  mixed $precision
+     * @param  int $precision
      * @return float
      */
-    private function calcInclusiveLineTax($tax_rate, $amount, $precision): float
+    private function inclusiveTaxTotal($precision): float
     {
-        return round($amount - ($amount / (1 + ($tax_rate / 100))), $precision);
+        $combined_rate = ($this->tax_rate1 ?? 0) + ($this->tax_rate2 ?? 0) + ($this->tax_rate3 ?? 0);
+
+        if ($combined_rate <= 0) {
+            return 0;
+        }
+
+        $net = round($this->amount / (1 + ($combined_rate / 100)), $precision);
+
+        return round($this->amount - $net, $precision);
     }
 }

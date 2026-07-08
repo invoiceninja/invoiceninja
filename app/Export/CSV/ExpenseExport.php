@@ -280,8 +280,12 @@ class ExpenseExport extends BaseExport
         } else {
 
             if ($expense->uses_inclusive_taxes) {
-                $total_tax_amount = ($this->calcInclusiveLineTax($expense->tax_rate1 ?? 0, $expense->amount, $precision)) + ($this->calcInclusiveLineTax($expense->tax_rate2 ?? 0, $expense->amount, $precision)) + ($this->calcInclusiveLineTax($expense->tax_rate3 ?? 0, $expense->amount, $precision));
-                $entity['expense.net_amount'] = round(($expense->amount - round($total_tax_amount, $precision)), $precision);
+                // Additive back-out: factor the combined rate out once so
+                // multiple inclusive taxes never overlap (mirrors Expense model).
+                $combined_rate = ($expense->tax_rate1 ?? 0) + ($expense->tax_rate2 ?? 0) + ($expense->tax_rate3 ?? 0);
+                $net = $combined_rate > 0 ? round($expense->amount / (1 + ($combined_rate / 100)), $precision) : round($expense->amount, $precision);
+                $total_tax_amount = round($expense->amount - $net, $precision);
+                $entity['expense.net_amount'] = $net;
             } else {
                 $tax_amount1 = $expense->amount * (($expense->tax_rate1 ?? 0) / 100);
                 $tax_amount2 = $expense->amount * (($expense->tax_rate2 ?? 0) / 100);
@@ -297,10 +301,5 @@ class ExpenseExport extends BaseExport
 
         return $entity;
 
-    }
-
-    private function calcInclusiveLineTax($tax_rate, $amount, $precision): float
-    {
-        return round($amount - ($amount / (1 + ($tax_rate / 100))), $precision);
     }
 }
