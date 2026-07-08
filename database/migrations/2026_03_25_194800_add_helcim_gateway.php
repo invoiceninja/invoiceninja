@@ -13,17 +13,6 @@ return new class extends Migration
     public function up(): void
     {
         if (Schema::hasTable('gateways')) {
-            // If Helcim was previously installed at id=67 or id=68 (before LawPay/Payware/CHIP
-            // were added upstream), remove the stale record so it can be recreated at id=69.
-            foreach ([67, 68] as $stale_id) {
-                $existing = Gateway::find($stale_id);
-                if ($existing && $existing->key === 'ca3b3f7e4be811c96a8a1f4cafe2a97f') {
-                    // This is an old Helcim record at the wrong id — remove it so we can
-                    // recreate it at id=69 below.
-                    $existing->delete();
-                }
-            }
-
             $gateway = Gateway::find(69);
 
             if (!$gateway) {
