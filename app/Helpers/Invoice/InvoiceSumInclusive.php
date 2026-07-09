@@ -230,7 +230,7 @@ class InvoiceSumInclusive
     public function getRecurringInvoice()
     {
         $this->invoice->amount = $this->formatValue($this->getTotal(), $this->precision);
-        $this->invoice->total_taxes = $this->getTotalTaxes();
+        $this->invoice->total_taxes = $this->formatValue($this->getTotalTaxes(), $this->precision);
         $this->invoice->balance = $this->formatValue($this->getTotal(), $this->precision);
 
         $this->invoice->saveQuietly();
@@ -318,7 +318,7 @@ class InvoiceSumInclusive
         /* Set new calculated total */
         $this->invoice->amount = $this->formatValue($this->getTotal(), $this->precision);
 
-        $this->invoice->total_taxes = $this->getTotalTaxes();
+        $this->invoice->total_taxes = $this->formatValue($this->getTotalTaxes(), $this->precision);
 
         if ($this->rappen_rounding) {
             $this->invoice->amount = $this->roundRappen($this->invoice->amount);
