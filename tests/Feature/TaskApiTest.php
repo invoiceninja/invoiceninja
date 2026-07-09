@@ -725,6 +725,48 @@ class TaskApiTest extends TestCase
         $this->assertEquals(101, $arr['data']['rate']);
     }
 
+    public function testTaskRateBaseValueFromProject()
+    {
+        // #6380 - the request layer seeds the task rate from project.task_rate ?? 0
+        // when no rate is explicitly provided, and honors an explicit rate otherwise.
+
+        $p = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'name' => 'proggy base value',
+            'task_rate' => 77,
+        ]);
+
+        // No rate supplied -> seeded from the project's task_rate.
+        $data = [
+            'project_id' => $p->hashed_id,
+            'client_id' => $this->client->id,
+            'description' => 'Seeded from project',
+            'time_log' => '[[1681165417,1681165432,"sumtin",true],[1681165446,0]]',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/tasks", $data);
+
+        $response->assertStatus(200);
+        $this->assertEquals(77, $response->json()['data']['rate']);
+
+        // Explicit rate supplied -> honored, not overwritten by the project rate.
+        $data['rate'] = 250;
+        $data['description'] = 'Explicit rate wins';
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/tasks", $data);
+
+        $response->assertStatus(200);
+        $this->assertEquals(250, $response->json()['data']['rate']);
+    }
+
     public function testStatusSet()
     {
 

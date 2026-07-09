@@ -179,6 +179,11 @@ class StoreTaskRequest extends Request
 
             if ($project) {
                 $input['client_id'] = $project->client_id;
+
+                /* If no rate was explicitly provided, seed it from the project's task_rate (see #6380) */
+                if (!isset($input['rate']) || $input['rate'] === '') {
+                    $input['rate'] = $project->task_rate ?? 0;
+                }
             } else {
                 unset($input['project_id']);
             }
