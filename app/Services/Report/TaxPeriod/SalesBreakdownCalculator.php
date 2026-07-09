@@ -137,6 +137,14 @@ final class SalesBreakdownCalculator
     {
         $components = [];
 
+        $inclusive_split = $uses_inclusive
+            ? \App\Helpers\Invoice\InclusiveTax::backout($line_amount, [
+                (float) ($item->tax_rate1 ?? 0),
+                (float) ($item->tax_rate2 ?? 0),
+                (float) ($item->tax_rate3 ?? 0),
+            ], 2)
+            : null;
+
         for ($i = 1; $i <= 3; $i++) {
             $raw_tax_name = trim((string) ($item->{"tax_name{$i}"} ?? ''));
             $tax_rate = (float) ($item->{"tax_rate{$i}"} ?? 0);
@@ -145,8 +153,9 @@ final class SalesBreakdownCalculator
                 continue;
             }
 
+            // Tax-anchored additive split via the single source of truth.
             $tax_amount = $uses_inclusive
-                ? round($line_amount - ($line_amount / (1 + ($tax_rate / 100))), 2)
+                ? $inclusive_split['components'][$i - 1]
                 : round($line_amount * ($tax_rate / 100), 2);
 
             $components[] = [

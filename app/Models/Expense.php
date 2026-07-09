@@ -383,23 +383,17 @@ class Expense extends BaseModel
     }
 
     /**
-     * Additive inclusive tax back-out. The combined rate is factored out once
-     * so multiple inclusive taxes never overlap, and net + tax == amount to the
-     * cent (net is rounded, tax is the exact remainder).
+     * Total inclusive tax via the shared tax-anchored additive back-out
+     * (see App\Helpers\Invoice\InclusiveTax): each tax is round(base x rate) and
+     * the net absorbs the sub-cent residual, so net + tax == amount to the cent.
      *
      * @param  int $precision
      * @return float
      */
     private function inclusiveTaxTotal($precision): float
     {
-        $combined_rate = ($this->tax_rate1 ?? 0) + ($this->tax_rate2 ?? 0) + ($this->tax_rate3 ?? 0);
+        $rates = [$this->tax_rate1 ?? 0, $this->tax_rate2 ?? 0, $this->tax_rate3 ?? 0];
 
-        if ($combined_rate <= 0) {
-            return 0;
-        }
-
-        $net = round($this->amount / (1 + ($combined_rate / 100)), $precision);
-
-        return round($this->amount - $net, $precision);
+        return \App\Helpers\Invoice\InclusiveTax::backout((float) $this->amount, $rates, $precision)['tax'];
     }
 }

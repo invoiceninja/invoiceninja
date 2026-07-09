@@ -518,13 +518,9 @@ class ProfitLoss
         }
 
         if ($expense->uses_inclusive_taxes) {
-            $inclusive = 0;
+            $rates = [(float) $expense->tax_rate1, (float) $expense->tax_rate2, (float) $expense->tax_rate3];
 
-            $inclusive += ($amount - ($amount / (1 + ($expense->tax_rate1 / 100))));
-            $inclusive += ($amount - ($amount / (1 + ($expense->tax_rate2 / 100))));
-            $inclusive += ($amount - ($amount / (1 + ($expense->tax_rate3 / 100))));
-
-            return round($inclusive, 2);
+            return \App\Helpers\Invoice\InclusiveTax::backout((float) $amount, $rates, 2)['tax'];
         }
 
         $exclusive = 0;

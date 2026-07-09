@@ -177,9 +177,9 @@ class InvoiceInclusiveTest extends TestCase
 
     /**
      * Proves groupTax() splits the total inclusive tax across two DISTINCT
-     * named taxes correctly: 1000 @ GST 10% + PST 10% -> net 833.33, tax 166.67,
-     * two map entries (83.34 + 83.33) that reconcile exactly, each reporting the
-     * shared net (833.33) as its taxable base.
+     * named taxes correctly. Tax-anchored: 1000 @ GST 10% + PST 10% -> each tax
+     * round(1000*10/120)=83.33, total 166.66, net 833.34; two map entries that
+     * reconcile exactly, each reporting the shared net (833.34) as its base.
      */
     public function testInclusiveTaxMapSplitsTwoDistinctTaxes()
     {
@@ -206,7 +206,7 @@ class InvoiceInclusiveTest extends TestCase
         $this->invoice_calc->build();
 
         $this->assertEquals(1000, $this->invoice_calc->getSubTotal());
-        $this->assertEquals(166.67, round($this->invoice_calc->getTotalTaxes(), 2));
+        $this->assertEquals(166.66, round($this->invoice_calc->getTotalTaxes(), 2));
         $this->assertEquals(1000, $this->invoice_calc->getTotal());
 
         $map = collect($this->invoice_calc->getTaxMap());
@@ -214,14 +214,16 @@ class InvoiceInclusiveTest extends TestCase
         // two distinct taxes -> two map entries
         $this->assertEquals(2, $map->count());
 
-        // per-tax totals sum EXACTLY to the total tax (proper split, no 1c drift)
-        $this->assertEquals(166.67, round($map->sum('total'), 2));
+        // per-tax totals sum EXACTLY to the total tax
+        $this->assertEquals(166.66, round($map->sum('total'), 2));
 
-        // the two components are the reconciled split (83.34 + 83.33)
-        $this->assertEqualsCanonicalizing([83.33, 83.34], $map->pluck('total')->map(fn ($t) => round($t, 2))->all());
+        // tax-anchored: each tax is independently round(base x rate) = 83.33
+        $this->assertEqualsCanonicalizing([83.33, 83.33], $map->pluck('total')->map(fn ($t) => round($t, 2))->all());
 
         // every tax applies to the same shared net base
-        $map->each(fn ($entry) => $this->assertEquals(833.33, round($entry['base_amount'], 2)));
+        $map->each(fn ($entry) => $this->assertEquals(833.34, round($entry['base_amount'], 2)));
+        // each tax is exactly reproducible from the gross: round(1000 * rate / (100 + 20))
+        $map->each(fn ($entry) => $this->assertEquals(round($entry['total'], 2), round(1000 * $entry['tax_rate'] / 120, 2)));
     }
 
     public function testLineItemTaxRatesInclusiveTaxes()
@@ -303,9 +305,9 @@ class InvoiceInclusiveTest extends TestCase
         $this->invoice_calc->build();
 
         $this->assertEquals(20, round($this->invoice_calc->getSubTotal(), 0));
-        // Additive: line items 2x0.91 = 1.82 + invoice-level 20/1.20 (tax 3.33) = 5.15
+        // Tax-anchored: line items 2x0.91 = 1.82 + invoice-level 2x round(20*10/120)=2x1.67 = 3.34 => 5.16
         // (old overlapping formula returned 5.46)
-        $this->assertEquals(5.15, $this->invoice_calc->getTotalTaxes());
+        $this->assertEquals(5.16, $this->invoice_calc->getTotalTaxes());
         $this->assertEquals(count($this->invoice_calc->getTaxMap()), 1);
         $this->assertEquals($this->invoice_calc->getTotal(), 20);
         $this->assertEquals($this->invoice_calc->getBalance(), 20);
@@ -354,9 +356,9 @@ class InvoiceInclusiveTest extends TestCase
 
         $this->assertEquals(19, $this->invoice_calc->getSubTotal());
         $this->assertEquals(0.95, $this->invoice_calc->getTotalDiscount());
-        // Additive: line items 2x0.83 = 1.66 + invoice-level 18.05/1.20 (tax 3.01) = 4.67
+        // Tax-anchored: line items 2x0.82 = 1.64 + invoice-level 2x round(18.05*10/120)=2x1.50 = 3.00 => 4.64
         // (old overlapping formula returned 4.92)
-        $this->assertEquals(4.67, $this->invoice_calc->getTotalTaxes());
+        $this->assertEquals(4.64, $this->invoice_calc->getTotalTaxes());
 
 
         $this->assertEquals(count($this->invoice_calc->getTaxMap()), 1);
@@ -406,9 +408,9 @@ class InvoiceInclusiveTest extends TestCase
 
         $this->assertEquals($this->invoice_calc->getSubTotal(), 10);
         $this->assertEquals($this->invoice_calc->getTotalDiscount(), 5);
-        // Additive: line items 2x0.23 = 0.46 + invoice-level 5/1.20 (tax 0.83) = 1.29
+        // Tax-anchored: line items 2x0.23 = 0.46 + invoice-level 2x round(5*10/120)=2x0.42 = 0.84 => 1.30
         // (old overlapping formula returned 1.36)
-        $this->assertEquals($this->invoice_calc->getTotalTaxes(), 1.29);
+        $this->assertEquals($this->invoice_calc->getTotalTaxes(), 1.30);
         $this->assertEquals(count($this->invoice_calc->getTaxMap()), 1);
         $this->assertEquals($this->invoice_calc->getTotal(), 5);
         $this->assertEquals($this->invoice_calc->getBalance(), 5);
@@ -456,8 +458,8 @@ class InvoiceInclusiveTest extends TestCase
 
         $this->assertEquals($this->invoice_calc->getSubTotal(), 190);
         $this->assertEquals($this->invoice_calc->getTotalDiscount(), 5);
-        // Additive back-out of the double invoice-level tax (old overlap gave 50.46)
-        $this->assertEquals($this->invoice_calc->getTotalTaxes(), 47.65);
+        // Tax-anchored back-out of the double invoice-level tax (old overlap gave 50.46)
+        $this->assertEquals($this->invoice_calc->getTotalTaxes(), 47.66);
         $this->assertEquals(count($this->invoice_calc->getTaxMap()), 1);
         $this->assertEquals($this->invoice_calc->getTotal(), 185);
         $this->assertEquals($this->invoice_calc->getBalance(), 185);

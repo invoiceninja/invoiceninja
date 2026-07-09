@@ -256,17 +256,13 @@ class InvoiceItemSumInclusive
         $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / 100));
 
         $rates = [$this->item->tax_rate1, $this->item->tax_rate2, $this->item->tax_rate3];
-        $combined_rate = array_sum($rates);
 
-        // Additive back-out: factor the combined rate out once so multiple
-        // inclusive taxes never overlap. net is the shared taxable base.
-        $net = $combined_rate > 0 ? $this->formatValue($amount / (1 + ($combined_rate / 100)), $this->currency->precision) : $amount;
-
-        // Authoritative total: guarantees net + tax == amount to the cent.
-        $item_tax = $this->formatValue($amount - $net, $this->currency->precision);
-
-        // Attribute the total across each named rate so the breakdown reconciles exactly.
-        [$item_tax_rate1_total, $item_tax_rate2_total, $item_tax_rate3_total] = $this->allocateInclusiveTax($amount, $rates, $item_tax, $this->currency->precision);
+        // Tax-anchored additive inclusive back-out (see InclusiveTax): each tax is
+        // round(base x rate); net is the shared taxable base and absorbs the residual.
+        $inclusive = InclusiveTax::backout($amount, $rates, $this->currency->precision);
+        $net = $inclusive['net'];
+        $item_tax = $inclusive['tax'];
+        [$item_tax_rate1_total, $item_tax_rate2_total, $item_tax_rate3_total] = $inclusive['components'];
 
         if (strlen($this->item->tax_name1) > 1) {
             $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total, $amount, $this->item->tax_id ?? '1', $net);
@@ -293,6 +289,13 @@ class InvoiceItemSumInclusive
         return $this;
     }
 
+    /**
+     * NOTE: This is the single documented exception to routing inclusive tax
+     * through App\Helpers\Invoice\InclusiveTax. It runs only for e-invoice
+     * clients, and inclusive taxes are NOT a supported combination with
+     * e-invoicing, so this legacy per-distinct-tax surcharge allocation is left
+     * as-is. It must not be treated as reference logic for inclusive scenarios.
+     */
     private function getPeppolSurchargeTaxes(): self
     {
 
@@ -478,13 +481,11 @@ class InvoiceItemSumInclusive
             }
 
             $rates = [$this->item->tax_rate1, $this->item->tax_rate2, $this->item->tax_rate3];
-            $combined_rate = array_sum($rates);
 
-            $net = $combined_rate > 0 ? $this->formatValue($amount / (1 + ($combined_rate / 100)), $this->currency->precision) : $amount;
-
-            $item_tax = $this->formatValue($amount - $net, $this->currency->precision);
-
-            [$item_tax_rate1_total, $item_tax_rate2_total, $item_tax_rate3_total] = $this->allocateInclusiveTax($amount, $rates, $item_tax, $this->currency->precision);
+            $inclusive = InclusiveTax::backout($amount, $rates, $this->currency->precision);
+            $net = $inclusive['net'];
+            $item_tax = $inclusive['tax'];
+            [$item_tax_rate1_total, $item_tax_rate2_total, $item_tax_rate3_total] = $inclusive['components'];
 
             if ($item_tax_rate1_total != 0) {
                 $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total, $amount, $this->item->tax_id ?? '1', $net);

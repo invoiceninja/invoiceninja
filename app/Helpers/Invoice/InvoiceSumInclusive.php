@@ -164,16 +164,11 @@ class InvoiceSumInclusive
             $amount += $this->invoice->custom_surcharge4;
         }
 
-        // Additive back-out for invoice-level taxes: factor the combined rate
-        // out once, then attribute the total across each named rate so the
-        // breakdown reconciles exactly (net + tax == amount).
+        // Tax-anchored additive inclusive back-out for invoice-level taxes
+        // (see InclusiveTax): each tax is round(base x rate); net absorbs the residual.
         $rates = [$this->invoice->tax_rate1, $this->invoice->tax_rate2, $this->invoice->tax_rate3];
-        $combined_rate = array_sum($rates);
 
-        $net = $combined_rate > 0 ? $this->formatValue($amount / (1 + ($combined_rate / 100)), 2) : $amount;
-        $total_invoice_tax = $this->formatValue($amount - $net, 2);
-
-        [$tax1, $tax2, $tax3] = $this->allocateInclusiveTax($amount, $rates, $total_invoice_tax, 2);
+        [$tax1, $tax2, $tax3] = InclusiveTax::backout($amount, $rates, 2)['components'];
 
         if (is_string($this->invoice->tax_name1) && strlen($this->invoice->tax_name1) > 1) {
             $this->total_taxes += $tax1;

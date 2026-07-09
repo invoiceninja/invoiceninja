@@ -155,8 +155,8 @@ class InvoiceItemInclusiveTest extends TestCase
         $item_calc = new InvoiceItemSumInclusive($this->invoice);
         $item_calc->process();
 
-        // Additive back-out: net = 10 / (1 + 0.275) = 7.84, total tax = 10 - 7.84 = 2.16
-        $this->assertEquals($item_calc->getTotalTaxes(), 2.16);
+        // Tax-anchored: tax1=round(10*10/127.5)=0.78, tax2=round(10*17.5/127.5)=1.37 => 2.15
+        $this->assertEquals($item_calc->getTotalTaxes(), 2.15);
         $this->assertEquals($item_calc->getSubTotal(), 10);
     }
 
@@ -179,9 +179,9 @@ class InvoiceItemInclusiveTest extends TestCase
         $item_calc = new InvoiceItemSumInclusive($this->invoice);
         $item_calc->process();
 
-        // Additive back-out on 9: net = 9 / 1.275 = 7.06, total tax = 9 - 7.06 = 1.94
+        // Tax-anchored on 9: tax1=round(9*10/127.5)=0.71, tax2=round(9*17.5/127.5)=1.24 => 1.95
         $this->assertEquals($item_calc->getSubTotal(), 9);
-        $this->assertEquals($item_calc->getTotalTaxes(), 1.94);
+        $this->assertEquals($item_calc->getTotalTaxes(), 1.95);
     }
 
     public function testInvoiceItemTotalSimpleWithDiscountWithDoubleInclusiveTaxMultiQuantity()
@@ -203,7 +203,7 @@ class InvoiceItemInclusiveTest extends TestCase
         $item_calc = new InvoiceItemSumInclusive($this->invoice);
         $item_calc->process();
 
-        // Additive back-out on 19: net = 19 / 1.275 = 14.90, total tax = 19 - 14.90 = 4.10
+        // Tax-anchored on 19: tax1=round(19*10/127.5)=1.49, tax2=round(19*17.5/127.5)=2.61 => 4.10
         $this->assertEquals($item_calc->getSubTotal(), 19);
         $this->assertEquals($item_calc->getTotalTaxes(), 4.10);
     }
@@ -228,14 +228,15 @@ class InvoiceItemInclusiveTest extends TestCase
         $item_calc = new InvoiceItemSumInclusive($this->invoice);
         $item_calc->process();
 
-        // Additive back-out on 19.8: net = 19.8 / 1.275 = 15.53, total tax = 19.8 - 15.53 = 4.27
+        // Tax-anchored on 19.8: tax1=round(19.8*10/127.5)=1.55, tax2=round(19.8*17.5/127.5)=2.72 => 4.27
         $this->assertEquals($item_calc->getSubTotal(), 19.8);
         $this->assertEquals($item_calc->getTotalTaxes(), 4.27);
     }
 
     /**
      * Canonical case: 1000 inclusive with 2 x 10%.
-     * Additive: net = 1000 / 1.20 = 833.33, total tax = 166.67.
+     * Tax-anchored additive: each tax = round(1000*10/120) = 83.33, total 166.66,
+     * net = 1000 - 166.66 = 833.34 (net absorbs the residual).
      * The old overlapping formula returned 181.82 (net 818.18).
      */
     public function testInclusiveDoubleTaxCanonicalReconciles()
@@ -258,16 +259,16 @@ class InvoiceItemInclusiveTest extends TestCase
         $item_calc->process();
 
         $this->assertEquals(1000, $item_calc->getSubTotal());
-        $this->assertEquals(166.67, $item_calc->getTotalTaxes());
+        $this->assertEquals(166.66, $item_calc->getTotalTaxes());
 
-        // net + tax MUST equal the gross exactly (no 1c drift)
+        // net + tax MUST equal the gross exactly (net absorbs the residual)
         $net = round($item_calc->getSubTotal() - $item_calc->getTotalTaxes(), 2);
-        $this->assertEquals(833.33, $net);
+        $this->assertEquals(833.34, $net);
         $this->assertEquals(1000, round($net + $item_calc->getTotalTaxes(), 2));
 
         // per-tax breakdown must sum EXACTLY to the total tax
         $grouped_sum = $item_calc->getGroupedTaxes()->sum(fn ($t) => $t['total']);
-        $this->assertEquals(166.67, round($grouped_sum, 2));
+        $this->assertEquals(166.66, round($grouped_sum, 2));
     }
 
     /**

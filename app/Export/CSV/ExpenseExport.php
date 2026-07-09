@@ -280,12 +280,11 @@ class ExpenseExport extends BaseExport
         } else {
 
             if ($expense->uses_inclusive_taxes) {
-                // Additive back-out: factor the combined rate out once so
-                // multiple inclusive taxes never overlap (mirrors Expense model).
-                $combined_rate = ($expense->tax_rate1 ?? 0) + ($expense->tax_rate2 ?? 0) + ($expense->tax_rate3 ?? 0);
-                $net = $combined_rate > 0 ? round($expense->amount / (1 + ($combined_rate / 100)), $precision) : round($expense->amount, $precision);
-                $total_tax_amount = round($expense->amount - $net, $precision);
-                $entity['expense.net_amount'] = $net;
+                // Shared tax-anchored additive back-out (mirrors Expense model).
+                $rates = [$expense->tax_rate1 ?? 0, $expense->tax_rate2 ?? 0, $expense->tax_rate3 ?? 0];
+                $inclusive = \App\Helpers\Invoice\InclusiveTax::backout((float) $expense->amount, $rates, $precision);
+                $total_tax_amount = $inclusive['tax'];
+                $entity['expense.net_amount'] = $inclusive['net'];
             } else {
                 $tax_amount1 = $expense->amount * (($expense->tax_rate1 ?? 0) / 100);
                 $tax_amount2 = $expense->amount * (($expense->tax_rate2 ?? 0) / 100);
