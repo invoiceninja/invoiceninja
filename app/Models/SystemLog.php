@@ -181,6 +181,8 @@ class SystemLog extends Model
 
     public const TYPE_CHIPINASIA = 330;
 
+    public const TYPE_HELCIM = 331;
+
     public const TYPE_QUOTA_EXCEEDED = 400;
 
     public const TYPE_UPSTREAM_FAILURE = 401;
@@ -351,6 +353,8 @@ class SystemLog extends Model
                 return "CHIP";
             case self::TYPE_FORTE:
                 return "Forte";
+            case self::TYPE_HELCIM:
+                return "Helcim";
             default:
                 return 'undefined';
         }

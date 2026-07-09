@@ -40,6 +40,8 @@ _ide_helper.php
 /composer.phar
 .tx/
 .phpunit.cache
+
+# AI tool files
 CLAUDE.md
 boost.json
 AGENTS.md

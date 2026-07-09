@@ -114,6 +114,8 @@ class Gateway extends StaticModel
             $link = 'https://payware.eu';
         } elseif ($this->id == 68) {
             $link = 'https://notes.chip-in.asia/s/faq/p/Qwsatm6PeN';
+        } elseif ($this->id == 69) {
+            $link = 'https://www.helcim.com/';
         }
 
         return $link;
@@ -276,6 +278,11 @@ class Gateway extends StaticModel
                 return [
                     GatewayType::HOSTED_PAGE => ['refund' => true, 'token_billing' => true, 'webhooks' => []],
                 ]; //CHIP
+            case 69:
+                return [
+                    GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true, 'webhooks' => ['all']],
+                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['all']],
+                ]; //Helcim
             default:
                 return [];
         }
