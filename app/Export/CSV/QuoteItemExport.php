@@ -227,6 +227,11 @@ class QuoteItemExport extends BaseExport
                 continue;
             }
 
+            if (str_ends_with($key, '.tags')) {
+                $entity[$key] = $this->decorator->transform($key, $quote);
+                continue;
+            }
+
             if ($parts[0] === 'quote' && isset($parts[1], $transformed_quote[$parts[1]])) {
                 $entity[$key] = $transformed_quote[$parts[1]];
             } elseif (array_key_exists($key, $transformed_quote)) {

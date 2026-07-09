@@ -250,6 +250,11 @@ class InvoiceItemExport extends BaseExport
                 continue;
             }
 
+            if (str_ends_with($key, '.tags')) {
+                $entity[$key] = $this->decorator->transform($key, $invoice);
+                continue;
+            }
+
             if ($parts[0] == 'invoice' && array_key_exists($parts[1], $transformed_invoice)) {
                 $entity[$key] = $transformed_invoice[$parts[1]];
             } elseif (array_key_exists($key, $transformed_invoice)) {

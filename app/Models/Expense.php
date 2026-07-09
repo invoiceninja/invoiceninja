@@ -348,8 +348,7 @@ class Expense extends BaseModel
         } else {
 
             if ($this->uses_inclusive_taxes) {
-                $total_tax_amount = ($this->calcInclusiveLineTax($this->tax_rate1 ?? 0, $this->amount, $precision)) + ($this->calcInclusiveLineTax($this->tax_rate2 ?? 0, $this->amount, $precision)) + ($this->calcInclusiveLineTax($this->tax_rate3 ?? 0, $this->amount, $precision));
-                return round(($this->amount - round($total_tax_amount, $precision)), $precision);
+                return round($this->amount - $this->inclusiveTaxTotal($precision), $precision);
             } else {
                 $total_tax_amount = ($this->amount * (($this->tax_rate1 ?? 0) / 100)) + ($this->amount * (($this->tax_rate2 ?? 0) / 100)) + ($this->amount * (($this->tax_rate3 ?? 0) / 100));
                 return round(($this->amount + round($total_tax_amount, $precision)), $precision);
@@ -376,7 +375,7 @@ class Expense extends BaseModel
         } else {
 
             if ($this->uses_inclusive_taxes) {
-                return ($this->calcInclusiveLineTax($this->tax_rate1 ?? 0, $this->amount, $precision)) + ($this->calcInclusiveLineTax($this->tax_rate2 ?? 0, $this->amount, $precision)) + ($this->calcInclusiveLineTax($this->tax_rate3 ?? 0, $this->amount, $precision));
+                return $this->inclusiveTaxTotal($precision);
             } else {
                 return ($this->amount * (($this->tax_rate1 ?? 0) / 100)) + ($this->amount * (($this->tax_rate2 ?? 0) / 100)) + ($this->amount * (($this->tax_rate3 ?? 0) / 100));
             }
@@ -384,15 +383,17 @@ class Expense extends BaseModel
     }
 
     /**
-     * calcInclusiveLineTax
+     * Total inclusive tax via the shared tax-anchored additive back-out
+     * (see App\Helpers\Invoice\InclusiveTax): each tax is round(base x rate) and
+     * the net absorbs the sub-cent residual, so net + tax == amount to the cent.
      *
-     * @param  mixed $tax_rate
-     * @param  mixed $amount
-     * @param  mixed $precision
+     * @param  int $precision
      * @return float
      */
-    private function calcInclusiveLineTax($tax_rate, $amount, $precision): float
+    private function inclusiveTaxTotal($precision): float
     {
-        return round($amount - ($amount / (1 + ($tax_rate / 100))), $precision);
+        $rates = [$this->tax_rate1 ?? 0, $this->tax_rate2 ?? 0, $this->tax_rate3 ?? 0];
+
+        return \App\Helpers\Invoice\InclusiveTax::backout((float) $this->amount, $rates, $precision)['tax'];
     }
 }

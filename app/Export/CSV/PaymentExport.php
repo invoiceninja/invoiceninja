@@ -233,6 +233,11 @@ class PaymentExport extends BaseExport
 
             $parts = explode('.', $key);
 
+            if (str_ends_with($key, '.tags')) {
+                $entity[$key] = $this->decorator->transform($key, $payment);
+                continue;
+            }
+
             if ($parts[0] === 'payment' && isset($parts[1], $transformed_entity[$parts[1]])) {
                 $entity[$key] = $transformed_entity[$parts[1]];
             } elseif (array_key_exists($key, $transformed_entity)) {

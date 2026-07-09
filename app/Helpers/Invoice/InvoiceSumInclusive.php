@@ -164,23 +164,26 @@ class InvoiceSumInclusive
             $amount += $this->invoice->custom_surcharge4;
         }
 
-        if (is_string($this->invoice->tax_name1) && strlen($this->invoice->tax_name1) > 1) {
-            $tax = $this->calcInclusiveLineTax($this->invoice->tax_rate1, $amount);
-            $this->total_taxes += $tax;
+        // Tax-anchored additive inclusive back-out for invoice-level taxes
+        // (see InclusiveTax): each tax is round(base x rate); net absorbs the residual.
+        $rates = [$this->invoice->tax_rate1, $this->invoice->tax_rate2, $this->invoice->tax_rate3];
 
-            $this->total_tax_map[] = ['name' => $this->invoice->tax_name1 . ' ' . Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate1), $this->client) . '%', 'total' => $tax, 'tax_rate' => $this->invoice->tax_rate1];
+        [$tax1, $tax2, $tax3] = InclusiveTax::backout($amount, $rates, 2)['components'];
+
+        if (is_string($this->invoice->tax_name1) && strlen($this->invoice->tax_name1) > 1) {
+            $this->total_taxes += $tax1;
+
+            $this->total_tax_map[] = ['name' => $this->invoice->tax_name1 . ' ' . Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate1), $this->client) . '%', 'total' => $tax1, 'tax_rate' => $this->invoice->tax_rate1];
         }
 
         if (is_string($this->invoice->tax_name2) && strlen($this->invoice->tax_name2) > 1) {
-            $tax = $this->calcInclusiveLineTax($this->invoice->tax_rate2, $amount);
-            $this->total_taxes += $tax;
-            $this->total_tax_map[] = ['name' => $this->invoice->tax_name2 . ' ' . Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate2), $this->client) . '%', 'total' => $tax, 'tax_rate' => $this->invoice->tax_rate2];
+            $this->total_taxes += $tax2;
+            $this->total_tax_map[] = ['name' => $this->invoice->tax_name2 . ' ' . Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate2), $this->client) . '%', 'total' => $tax2, 'tax_rate' => $this->invoice->tax_rate2];
         }
 
         if (is_string($this->invoice->tax_name3) && strlen($this->invoice->tax_name3) > 1) {
-            $tax = $this->calcInclusiveLineTax($this->invoice->tax_rate3, $amount);
-            $this->total_taxes += $tax;
-            $this->total_tax_map[] = ['name' => $this->invoice->tax_name3 . ' ' . Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate3), $this->client) . '%', 'total' => $tax, 'tax_rate' => $this->invoice->tax_rate3];
+            $this->total_taxes += $tax3;
+            $this->total_tax_map[] = ['name' => $this->invoice->tax_name3 . ' ' . Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate3), $this->client) . '%', 'total' => $tax3, 'tax_rate' => $this->invoice->tax_rate3];
         }
 
         return $this;

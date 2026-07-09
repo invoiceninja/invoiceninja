@@ -110,4 +110,13 @@ class Decorator implements DecoratorInterface
 
         return $parts[$index] ?? null;
     }
+
+    public function tags(mixed $entity): string
+    {
+        if (! is_object($entity) || ! method_exists($entity, 'tags')) {
+            return '';
+        }
+
+        return $entity->tags->pluck('name')->implode(', ');
+    }
 }

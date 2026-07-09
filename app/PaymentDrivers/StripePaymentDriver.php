@@ -778,6 +778,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                     $payment->save();
                 }
             }
+
         } elseif ($request->type === 'source.chargeable') {
             $this->init();
 

@@ -198,11 +198,11 @@ class ChipInAsiaPaymentDriver extends BaseDriver
      *
      * @see https://docs.chip-in.asia/chip-collect/api-reference/purchases/delete-recurring-token
      */
-    public function detach(ClientGatewayToken $token): void
+    public function detach(ClientGatewayToken $token): bool
     {
         $purchaseId = $token->token ?? '';
         if ($purchaseId === '') {
-            return;
+            return true;
         }
 
         if (! $this->payment_method) {
@@ -210,6 +210,8 @@ class ChipInAsiaPaymentDriver extends BaseDriver
         }
 
         $this->payment_method->deleteRecurringToken($purchaseId);
+
+        return true;
     }
 
     public function setPaymentMethod($payment_method_id)

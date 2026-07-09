@@ -15,6 +15,7 @@ namespace App\Services\Chart;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Expense;
+use App\Models\Project;
 use App\Models\User;
 use App\Services\Chart\CashFlowForecastService;
 use App\Services\Chart\ClientPaymentAnalyticsService;
@@ -311,14 +312,23 @@ class ChartService
     }
 
     /**
-     * Project analytics — budget utilization and profitability.
+     * Project analytics — chart-ready project execution and financial datasets.
      */
-    public function project_analytics(): array
+    public function project_analytics(?Project $project = null): array
     {
-        return [
-            'budget_summary' => $this->getProjectBudgetSummary(),
-            'profitability' => $this->getProjectProfitability(),
-        ];
+        $analytics = new ProjectAnalyticsService($this->company, $this->user, $this->is_admin, $this->include_drafts);
+
+        return $analytics->generate($project);
+    }
+
+    /**
+     * Project burn-up — cumulative time, invoiced, paid, and expense series.
+     */
+    public function projectBurnup(Project $project, string $start_date, string $end_date, string $bucket_type = 'daily'): array
+    {
+        $burnup = new ProjectBurnUpService($this->company, $this->user, $this->is_admin, $this->include_drafts);
+
+        return $burnup->generate($project, $start_date, $end_date, $bucket_type);
     }
 
     /* Analytics */

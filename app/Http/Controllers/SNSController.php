@@ -540,6 +540,24 @@ class SNSController extends BaseController
     }
 
     /**
+     * Validate SubscribeURL format and domain
+     *
+     * @param string $url
+     * @return bool
+     */
+    private function isValidSubscribeUrl(string $url): bool
+    {
+        $parsedUrl = parse_url($url);
+
+        if (!$parsedUrl || !isset($parsedUrl['host']) || ($parsedUrl['scheme'] ?? '') !== 'https') {
+            return false;
+        }
+
+        // Must be an sns.<region>.amazonaws.com host
+        return preg_match('/^sns\.[a-z0-9-]+\.amazonaws\.com$/', $parsedUrl['host']) === 1;
+    }
+
+    /**
      * Validate subscription token format
      *
      * @param string $token

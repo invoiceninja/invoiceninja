@@ -253,49 +253,49 @@ class InvoiceItemSumInclusive
             $this->item->tax_name3 = '';
         }
 
-        $item_tax = 0;
-
         $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / 100));
 
-        /** @var float $item_tax_rate1_total */
-        $item_tax_rate1_total = $this->calcInclusiveLineTax($this->item->tax_rate1, $amount);
+        $rates = [$this->item->tax_rate1, $this->item->tax_rate2, $this->item->tax_rate3];
 
-        /** @var float $item_tax */
-        $item_tax += $this->formatValue($item_tax_rate1_total, $this->currency->precision);
+        // Tax-anchored additive inclusive back-out (see InclusiveTax): each tax is
+        // round(base x rate); net is the shared taxable base and absorbs the residual.
+        $inclusive = InclusiveTax::backout($amount, $rates, $this->currency->precision);
+        $net = $inclusive['net'];
+        $item_tax = $inclusive['tax'];
+        [$item_tax_rate1_total, $item_tax_rate2_total, $item_tax_rate3_total] = $inclusive['components'];
 
         if (strlen($this->item->tax_name1) > 1) {
-            $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total, $amount, $this->item->tax_id ?? '1');
+            $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total, $amount, $this->item->tax_id ?? '1', $net);
         }
-
-        $item_tax_rate2_total = $this->calcInclusiveLineTax($this->item->tax_rate2, $amount);
-
-        $item_tax += $this->formatValue($item_tax_rate2_total, $this->currency->precision);
 
         if (strlen($this->item->tax_name2) > 1) {
-            $this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total, $amount, $this->item->tax_id ?? '1');
+            $this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total, $amount, $this->item->tax_id ?? '1', $net);
         }
-
-        $item_tax_rate3_total = $this->calcInclusiveLineTax($this->item->tax_rate3, $amount);
-
-        $item_tax += $this->formatValue($item_tax_rate3_total, $this->currency->precision);
 
         if (strlen($this->item->tax_name3) > 1) {
-            $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total, $amount, $this->item->tax_id ?? '1');
+            $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total, $amount, $this->item->tax_id ?? '1', $net);
         }
 
-        $this->item->tax_amount = $this->formatValue($item_tax, $this->currency->precision);
+        $this->item->tax_amount = $item_tax;
 
         try {
-            $this->item->net_cost = round(($amount - $this->item->tax_amount) / $this->item->quantity, $this->currency->precision);
+            $this->item->net_cost = round($net / $this->item->quantity, $this->currency->precision);
         } catch (\DivisionByZeroError $e) {
             $this->item->net_cost = $this->item->cost;
         }
 
-        $this->setTotalTaxes($this->formatValue($item_tax, $this->currency->precision));
+        $this->setTotalTaxes($item_tax);
 
         return $this;
     }
 
+    /**
+     * NOTE: This is the single documented exception to routing inclusive tax
+     * through App\Helpers\Invoice\InclusiveTax. It runs only for e-invoice
+     * clients, and inclusive taxes are NOT a supported combination with
+     * e-invoicing, so this legacy per-distinct-tax surcharge allocation is left
+     * as-is. It must not be treated as reference logic for inclusive scenarios.
+     */
     private function getPeppolSurchargeTaxes(): self
     {
 
@@ -369,7 +369,7 @@ class InvoiceItemSumInclusive
 
 
 
-    private function groupTax($tax_name, $tax_rate, $tax_total, $amount, $tax_id = '')
+    private function groupTax($tax_name, $tax_rate, $tax_total, $amount, $tax_id = '', $base_amount = null)
     {
         $group_tax = [];
 
@@ -380,7 +380,11 @@ class InvoiceItemSumInclusive
             return;
         }
 
-        $group_tax = ['key' => $key, 'total' => $tax_total, 'tax_name' => $tax_name . ' ' . Number::formatValueNoTrailingZeroes(floatval($tax_rate), $this->client) . '%', 'tax_id' => $tax_id, 'tax_rate' => $tax_rate, 'base_amount' => $tax_rate > 0 ? round($amount / (1 + ($tax_rate / 100)), 2) : $amount];
+        // With additive inclusive tax the taxable base is the shared net (same
+        // for every rate on the line); fall back to the single-rate back-out.
+        $base_amount = $base_amount ?? ($tax_rate > 0 ? round($amount / (1 + ($tax_rate / 100)), 2) : $amount);
+
+        $group_tax = ['key' => $key, 'total' => $tax_total, 'tax_name' => $tax_name . ' ' . Number::formatValueNoTrailingZeroes(floatval($tax_rate), $this->client) . '%', 'tax_id' => $tax_id, 'tax_rate' => $tax_rate, 'base_amount' => $base_amount];
 
         $this->tax_collection->push(collect($group_tax));
     }
@@ -476,30 +480,23 @@ class InvoiceItemSumInclusive
                 $amount = $this->item->line_total - ($this->invoice->discount * ($this->item->line_total / $this->sub_total));
             }
 
-            $item_tax = 0;
+            $rates = [$this->item->tax_rate1, $this->item->tax_rate2, $this->item->tax_rate3];
 
-            $item_tax_rate1_total = $this->calcInclusiveLineTax($this->item->tax_rate1, $amount);
-
-            $item_tax += $item_tax_rate1_total;
+            $inclusive = InclusiveTax::backout($amount, $rates, $this->currency->precision);
+            $net = $inclusive['net'];
+            $item_tax = $inclusive['tax'];
+            [$item_tax_rate1_total, $item_tax_rate2_total, $item_tax_rate3_total] = $inclusive['components'];
 
             if ($item_tax_rate1_total != 0) {
-                $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total, $amount, $this->item->tax_id ?? '1');
+                $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total, $amount, $this->item->tax_id ?? '1', $net);
             }
-
-            $item_tax_rate2_total = $this->calcInclusiveLineTax($this->item->tax_rate2, $amount);
-
-            $item_tax += $item_tax_rate2_total;
 
             if ($item_tax_rate2_total != 0) {
-                $this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total, $amount, $this->item->tax_id) ?? '1';
+                $this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total, $amount, $this->item->tax_id ?? '1', $net);
             }
 
-            $item_tax_rate3_total = $this->calcInclusiveLineTax($this->item->tax_rate3, $amount);
-
-            $item_tax += $item_tax_rate3_total;
-
             if ($item_tax_rate3_total != 0) {
-                $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total, $amount, $this->item->tax_id) ?? '1';
+                $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total, $amount, $this->item->tax_id ?? '1', $net);
             }
 
             $this->setTotalTaxes($this->getTotalTaxes() + $item_tax);
@@ -508,8 +505,7 @@ class InvoiceItemSumInclusive
             $this->item->tax_amount = $item_tax;
 
             try {
-                $this->item->net_cost = round($amount * (100 / (100 + ($this->item->tax_rate1 + $this->item->tax_rate2 + $this->item->tax_rate3))) / $this->item->quantity, $this->currency->precision + 1);
-                $this->item->net_cost = round($this->item->net_cost, $this->currency->precision);
+                $this->item->net_cost = round($net / $this->item->quantity, $this->currency->precision);
             } catch (\DivisionByZeroError $e) {
                 $this->item->net_cost = $this->item->cost;
             }

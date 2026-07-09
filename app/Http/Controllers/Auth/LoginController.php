@@ -754,6 +754,10 @@ class LoginController extends BaseController
                 return response()->json(['message' => 'User exists, but never authenticated with OAuth, please use your email and password to login.'], 400);
             }
 
+            if (($linked_user = MultiDB::hasUser(['email' => $email])) && $linked_user->oauth_provider_id && $linked_user->oauth_provider_id !== 'microsoft') {
+                return response()->json(['message' => 'This email is already linked to '.$linked_user->oauth_provider_id.' sign-in. Please sign in with '.$linked_user->oauth_provider_id.'.'], 400);
+            }
+
             // Signup!
             if (request()->has('create') && request()->input('create') == 'true') {
                 $new_account = [
@@ -851,6 +855,10 @@ class LoginController extends BaseController
 
             if (MultiDB::hasUser(['email' => $google->harvestEmail($user), 'oauth_provider_id' => null])) {
                 return response()->json(['message' => 'Please use your email and password to login.'], 400);
+            }
+
+            if (($linked_user = MultiDB::hasUser(['email' => $google->harvestEmail($user)])) && $linked_user->oauth_provider_id && $linked_user->oauth_provider_id !== 'google') {
+                return response()->json(['message' => 'This email is already linked to '.$linked_user->oauth_provider_id.' sign-in. Please sign in with '.$linked_user->oauth_provider_id.'.'], 400);
             }
 
         }

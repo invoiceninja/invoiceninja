@@ -350,6 +350,44 @@ class TaxPeriodReportClassificationTest extends TestCase
         $this->travelBack();
     }
 
+    /**
+     * Document-vs-report parity for a MULTI-TAX inclusive line. Both the invoice
+     * document (InvoiceSumInclusive) and the tax report (TaxClassificationCalculator)
+     * now flow through App\Helpers\Invoice\InclusiveTax, so the classification rows
+     * must tie to the document tax EXACTLY (no tolerance). Before the single source
+     * of truth, the report over-taxed multi-tax inclusive lines.
+     */
+    public function testInclusiveMultiTaxReportTiesExactlyToDocument(): void
+    {
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());
+
+        $invoice = $this->makeInvoice(
+            [
+                $this->makeItem([
+                    'cost' => 1000, 'line_total' => 1000, 'type_id' => '1', 'tax_id' => '1',
+                    'tax_name1' => 'GST', 'tax_rate1' => 10,
+                    'tax_name2' => 'PST', 'tax_rate2' => 10,
+                ]),
+            ],
+            ['uses_inclusive_taxes' => true],
+        );
+
+        // document tax via the single source of truth: 1000 @ 2x10% -> 166.66
+        $this->assertEquals(166.66, round($invoice->total_taxes, 2));
+
+        (new InvoiceTransactionEventEntry())->run($invoice);
+        $event = $invoice->fresh()->transaction_events()->first();
+
+        $rows = $this->classificationRows($invoice->fresh());
+        $aggregate_tax = (float) $event->metadata->tax_report->tax_summary->tax_amount;
+
+        // report aggregate AND classification rows tie exactly to the document
+        $this->assertEquals(166.66, round($aggregate_tax, 2));
+        $this->assertEquals(round($invoice->total_taxes, 2), $this->sumRows($rows, 'tax_amount'));
+
+        $this->travelBack();
+    }
+
     public function testMultipleTaxRatesProduceCartesianBuckets(): void
     {
         $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());

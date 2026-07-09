@@ -29,6 +29,7 @@ use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\Expense;
+use App\Models\ExpenseCategory;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Models\RecurringExpense;
@@ -80,9 +81,12 @@ use Illuminate\Support\Str;
  *   First 8 months: APPROVED, last 4: SENT.
  *
  * ----------------------------------------------------------------------------------
- * PROJECTS (5 total — 1 per client) & TASKS (15 total — 3 per project)
+ * PROJECTS (17 total) & TASKS (116 total)
  * ----------------------------------------------------------------------------------
- *   Each project has budgeted hours and tasks with time logs.
+ *   Five baseline client projects plus a larger 12-project portfolio dataset.
+ *   The portfolio dataset includes multiple users, tasks, invoices, expenses,
+ *   expense categories, varied due dates, and status distribution for dashboard
+ *   visualizations.
  *
  * ----------------------------------------------------------------------------------
  * RECURRING INVOICES (3) & RECURRING EXPENSES (3)
@@ -139,8 +143,10 @@ class CreateAnalyticsTestData extends Command
         $this->createInvoices($company, $user, $clients, $projects);
         $this->createQuotes($company, $user, $clients);
         $this->createExpenses($company, $user, $clients, $projects);
+        $this->createLargeProjectDataset($company, $user, $clients);
         $this->createRecurringInvoices($company, $user, $clients);
         $this->createRecurringExpenses($company, $user, $clients);
+        $this->linkProjectTasksAndExpenses($company);
 
         $this->newLine();
         $this->info('Analytics test data created successfully.');
@@ -526,6 +532,7 @@ class CreateAnalyticsTestData extends Command
      */
     private function createProjects(Company $company, User $user, array $clients): array
     {
+        $projectsByClient = [];
         $year = now()->year;
 
         // Fetch the task statuses created by CreateCompanyTaskStatuses
@@ -537,7 +544,6 @@ class CreateAnalyticsTestData extends Command
         // status_order: 1=Backlog, 2=Ready to do, 3=In progress, 4=Done
         $doneStatusId = $statuses[4] ?? null;
         $inProgressStatusId = $statuses[3] ?? null;
-        $readyStatusId = $statuses[2] ?? null;
         $backlogStatusId = $statuses[1] ?? null;
 
         $projectData = [
@@ -645,6 +651,387 @@ class CreateAnalyticsTestData extends Command
         $this->info("  {$projectCount} projects created with {$taskCount} tasks ({$totalHoursLogged}h logged).");
 
         return $projectsByClient;
+    }
+
+    /**
+     * Stamp the backward relations that the application itself relies on when work is invoiced.
+     *
+     * Invoice Ninja invoices a project's tasks/expenses by setting `invoice_id` on each record
+     * (see InvoiceService::linkEntities() and ProjectRepository). The test data already links
+     * invoices and expenses to projects via `project_id`; here we complete the chain so that
+     * project analytics can distinguish invoiced vs. unbilled work:
+     *
+     *   - "Done" tasks (status_order 4) are linked to the project's earliest non-draft invoice,
+     *     mirroring the real-world flow where completed work is what gets billed. Tasks in other
+     *     statuses stay uninvoiced so unbilled_hours / unbilled_value remain non-zero.
+     *   - Every second invoiceable expense (should_be_invoiced = true) is linked to the same
+     *     invoice; the remainder stay pending to exercise the "pending" expense status.
+     *
+     * Amounts and line items are intentionally left untouched — only the FK is set, exactly as
+     * the application does via a bulk update.
+     */
+    private function linkProjectTasksAndExpenses(Company $company): void
+    {
+        $linkedTasks = 0;
+        $linkedExpenses = 0;
+
+        \App\Models\Project::query()
+            ->where('company_id', $company->id)
+            ->where('is_deleted', false)
+            ->cursor()
+            ->each(function (\App\Models\Project $project) use (&$linkedTasks, &$linkedExpenses): void {
+                $invoice = $project->invoices()
+                    ->where('is_deleted', false)
+                    ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
+                    ->orderBy('date')
+                    ->first();
+
+                if (! $invoice) {
+                    return;
+                }
+
+                $doneTaskIds = $project->tasks()
+                    ->where('is_deleted', false)
+                    ->whereHas('status', fn ($query) => $query->where('status_order', '>=', 4))
+                    ->pluck('id');
+
+                if ($doneTaskIds->isNotEmpty()) {
+                    \App\Models\Task::query()
+                        ->whereIn('id', $doneTaskIds)
+                        ->update(['invoice_id' => $invoice->id]);
+
+                    $linkedTasks += $doneTaskIds->count();
+                }
+
+                $invoiceableExpenseIds = $project->expenses()
+                    ->where('is_deleted', false)
+                    ->where('should_be_invoiced', true)
+                    ->whereNull('invoice_id')
+                    ->whereNull('payment_date')
+                    ->orderBy('id')
+                    ->pluck('id')
+                    ->filter(fn ($id, $index) => $index % 2 === 0)
+                    ->values();
+
+                if ($invoiceableExpenseIds->isNotEmpty()) {
+                    Expense::query()
+                        ->whereIn('id', $invoiceableExpenseIds)
+                        ->update(['invoice_id' => $invoice->id]);
+
+                    $linkedExpenses += $invoiceableExpenseIds->count();
+                }
+            });
+
+        $this->info("  Linked {$linkedTasks} done tasks and {$linkedExpenses} expenses to their project invoices.");
+    }
+
+    private function createLargeProjectDataset(Company $company, User $owner, array $clients): void
+    {
+        $year = now()->year;
+        $teamUsers = $this->createAnalyticsTeamUsers($company, $owner);
+        $categories = $this->createProjectExpenseCategories($company, $owner);
+
+        $statuses = TaskStatus::where('company_id', $company->id)
+            ->orderBy('status_order')
+            ->pluck('id', 'status_order')
+            ->toArray();
+
+        $projectTemplates = [
+            ['alpha', 'Portfolio Analytics — CRM Migration', 145.00, 260.0, "{$year}-07-31", '#2F80ED'],
+            ['beta', 'Portfolio Analytics — Data Warehouse', 165.00, 420.0, "{$year}-10-15", '#27AE60'],
+            ['gamma', 'Portfolio Analytics — Billing Automation', 135.00, 180.0, "{$year}-05-30", '#9B51E0'],
+            ['delta', 'Portfolio Analytics — Mobile Portal', 155.00, 320.0, "{$year}-11-20", '#F2994A'],
+            ['epsilon', 'Portfolio Analytics — Security Program', 175.00, 210.0, "{$year}-06-20", '#EB5757'],
+            ['alpha', 'Portfolio Analytics — Client Reporting', 125.00, 150.0, "{$year}-04-30", '#56CCF2'],
+            ['beta', 'Portfolio Analytics — Platform Upgrade', 150.00, 280.0, "{$year}-08-31", '#6FCF97'],
+            ['gamma', 'Portfolio Analytics — Integration Hub', 140.00, 240.0, "{$year}-09-15", '#BB6BD9'],
+            ['delta', 'Portfolio Analytics — Vendor Onboarding', 120.00, 130.0, "{$year}-03-31", '#F2C94C'],
+            ['epsilon', 'Portfolio Analytics — Compliance Review', 180.00, 170.0, "{$year}-12-15", '#219653'],
+            ['alpha', 'Portfolio Analytics — AI Search Pilot', 190.00, 220.0, "{$year}-11-30", '#2D9CDB'],
+            ['beta', 'Portfolio Analytics — Support Operations', 115.00, 160.0, "{$year}-06-05", '#828282'],
+        ];
+
+        $taskTemplates = [
+            ['Discovery', 1],
+            ['Architecture', 2],
+            ['Implementation A', 4],
+            ['Implementation B', 4],
+            ['Client Review', 3],
+            ['Quality Assurance', 2],
+            ['Deployment', 1],
+            ['Stabilization', 3],
+        ];
+
+        $projectCount = 0;
+        $taskCount = 0;
+        $invoiceCount = 0;
+        $expenseCount = 0;
+        $totalHoursLogged = 0.0;
+
+        foreach ($projectTemplates as $projectIndex => $template) {
+            [$clientKey, $name, $taskRate, $budgetedHours, $dueDate, $color] = $template;
+            $client = $clients[$clientKey];
+            $projectOwner = $teamUsers[$projectIndex % count($teamUsers)];
+
+            $project = ProjectFactory::create($company->id, $projectOwner->id);
+            $project->client_id = $client->id;
+            $project->assigned_user_id = $teamUsers[($projectIndex + 1) % count($teamUsers)]->id;
+            $project->name = $name;
+            $project->task_rate = $taskRate;
+            $project->budgeted_hours = $budgetedHours;
+            $project->due_date = $dueDate;
+            $project->public_notes = "Large analytics visualization project for {$client->name}";
+            $project->color = $color;
+            $project->save();
+
+            $project->number = $this->getNextProjectNumber($project);
+            $project->save();
+
+            $projectCount++;
+
+            foreach ($taskTemplates as $taskIndex => $taskTemplate) {
+                [$taskSuffix, $statusOrder] = $taskTemplate;
+                $taskUser = $teamUsers[($projectIndex + $taskIndex) % count($teamUsers)];
+                $hoursPerEntry = 2 + (($projectIndex + $taskIndex) % 5);
+                $entriesCount = 2 + (($projectIndex + ($taskIndex * 2)) % 3);
+                $startMonth = (($projectIndex + $taskIndex) % 10) + 1;
+                $timeLog = [];
+
+                for ($entry = 0; $entry < $entriesCount; $entry++) {
+                    $logMonth = min($startMonth + $entry, 12);
+                    $logDay = min(4 + ($taskIndex * 2) + ($entry * 6), 28);
+                    $startTime = Carbon::createFromDate($year, $logMonth, $logDay)
+                        ->setHour(8 + (($taskIndex + $entry) % 3))
+                        ->setMinute(0)
+                        ->setSecond(0)
+                        ->timestamp;
+                    $endTime = $startTime + ($hoursPerEntry * 3600);
+                    $timeLog[] = [$startTime, $endTime];
+                }
+
+                $task = TaskFactory::create($company->id, $taskUser->id);
+                $task->assigned_user_id = $teamUsers[($projectIndex + $taskIndex + 1) % count($teamUsers)]->id;
+                $task->client_id = $client->id;
+                $task->project_id = $project->id;
+                $task->description = "{$taskSuffix} — {$name}";
+                $task->rate = $taskRate + (($taskIndex % 3) * 10);
+                $task->status_id = $statuses[$statusOrder] ?? null;
+                $task->time_log = json_encode($timeLog);
+                $task->duration = collect($timeLog)->sum(fn ($entry) => $entry[1] - $entry[0]);
+                $task->calculated_start_date = Carbon::createFromTimestamp($timeLog[0][0])->format('Y-m-d');
+                $task->is_running = false;
+                $task->is_deleted = false;
+                $task->save();
+
+                $task->number = $this->getNextTaskNumber($task);
+                $task->save();
+
+                $taskCount++;
+                $totalHoursLogged += $task->duration / 3600;
+            }
+
+            $project->current_hours = (int) round(
+                \App\Models\Task::where('project_id', $project->id)->sum('duration') / 3600
+            );
+            $project->save();
+
+            for ($invoiceIndex = 0; $invoiceIndex < 3; $invoiceIndex++) {
+                $invoiceCount++;
+                $this->createLargeProjectInvoice(
+                    $company,
+                    $projectOwner,
+                    $client,
+                    $project,
+                    $projectIndex,
+                    $invoiceIndex,
+                    $year
+                );
+            }
+
+            for ($expenseIndex = 0; $expenseIndex < 5; $expenseIndex++) {
+                $expenseCount++;
+                $this->createLargeProjectExpense(
+                    $company,
+                    $teamUsers[($projectIndex + $expenseIndex) % count($teamUsers)],
+                    $client,
+                    $project,
+                    $categories[$expenseIndex % count($categories)],
+                    $projectIndex,
+                    $expenseIndex,
+                    $year
+                );
+            }
+        }
+
+        $this->info("  Large project dataset: {$projectCount} projects, {$taskCount} tasks, {$invoiceCount} invoices, {$expenseCount} expenses ({$totalHoursLogged}h logged).");
+    }
+
+    /**
+     * @return array<int, User>
+     */
+    private function createAnalyticsTeamUsers(Company $company, User $owner): array
+    {
+        $team = [$owner];
+        $users = [
+            ['analytics.pm@example.com', 'Priya', 'Morgan'],
+            ['analytics.dev@example.com', 'Devon', 'Stone'],
+            ['analytics.qa@example.com', 'Quinn', 'Taylor'],
+            ['analytics.ops@example.com', 'Owen', 'Reed'],
+        ];
+
+        foreach ($users as $userData) {
+            [$email, $firstName, $lastName] = $userData;
+
+            $user = User::factory()->create([
+                'account_id' => $company->account_id,
+                'email' => $email,
+                'first_name' => $firstName,
+                'last_name' => $lastName,
+                'confirmation_code' => $this->createDbHash(config('database.default')),
+            ]);
+
+            $user->companies()->attach($company->id, [
+                'account_id' => $company->account_id,
+                'is_owner' => 0,
+                'is_admin' => 0,
+                'is_locked' => 0,
+                'notifications' => CompanySettings::notificationDefaults(),
+                'settings' => null,
+            ]);
+
+            $team[] = $user;
+        }
+
+        $this->info('  4 additional analytics project users created.');
+
+        return $team;
+    }
+
+    /**
+     * @return array<int, ExpenseCategory>
+     */
+    private function createProjectExpenseCategories(Company $company, User $user): array
+    {
+        $categories = [];
+        $data = [
+            ['Cloud Infrastructure', '#2F80ED'],
+            ['Subcontractors', '#27AE60'],
+            ['Travel & Workshops', '#F2994A'],
+            ['Software Tooling', '#9B51E0'],
+            ['Hardware & Devices', '#EB5757'],
+        ];
+
+        foreach ($data as $row) {
+            [$name, $color] = $row;
+
+            $category = new ExpenseCategory();
+            $category->company_id = $company->id;
+            $category->user_id = $user->id;
+            $category->name = $name;
+            $category->color = $color;
+            $category->is_deleted = false;
+            $category->save();
+
+            $categories[] = $category;
+        }
+
+        return $categories;
+    }
+
+    private function createLargeProjectInvoice(
+        Company $company,
+        User $user,
+        Client $client,
+        \App\Models\Project $project,
+        int $projectIndex,
+        int $invoiceIndex,
+        int $year
+    ): void {
+        $month = (($projectIndex + $invoiceIndex) % 12) + 1;
+        $date = Carbon::createFromDate($year, $month, min(6 + ($invoiceIndex * 9), 28))->format('Y-m-d');
+        $number = str_pad(($projectIndex * 3) + $invoiceIndex + 1, 4, '0', STR_PAD_LEFT);
+        $amount = 1200 + ($projectIndex * 175) + ($invoiceIndex * 450);
+
+        $invoice = InvoiceFactory::create($company->id, $user->id);
+        $invoice->client_id = $client->id;
+        $invoice->project_id = $project->id;
+        $invoice->date = $date;
+        $invoice->due_date = Carbon::parse($date)->addDays(30)->format('Y-m-d');
+        $invoice->number = "ANA-BIG-INV-{$number}";
+        $invoice->uses_inclusive_taxes = false;
+        $invoice->tax_name1 = '';
+        $invoice->tax_rate1 = 0;
+        $invoice->line_items = $this->buildLineItem(1, (float) $amount, 'Project Milestone');
+        $invoice->save();
+
+        $invoiceCalc = new InvoiceSum($invoice);
+        $invoiceCalc->build();
+        $invoice = $invoiceCalc->getInvoice();
+
+        if ($invoiceIndex === 0) {
+            $invoice->status_id = Invoice::STATUS_SENT;
+            $invoice->paid_to_date = 0;
+            $invoice->balance = $invoice->amount;
+        } elseif ($invoiceIndex === 1) {
+            $invoice->status_id = Invoice::STATUS_PARTIAL;
+            $invoice->paid_to_date = round($invoice->amount * 0.35, 2);
+            $invoice->balance = max($invoice->amount - $invoice->paid_to_date, 0);
+        } else {
+            $invoice->status_id = Invoice::STATUS_DRAFT;
+            $invoice->paid_to_date = 0;
+            $invoice->balance = $invoice->amount;
+        }
+
+        $invoice->save();
+    }
+
+    private function createLargeProjectExpense(
+        Company $company,
+        User $user,
+        Client $client,
+        \App\Models\Project $project,
+        ExpenseCategory $category,
+        int $projectIndex,
+        int $expenseIndex,
+        int $year
+    ): void {
+        $month = (($projectIndex * 2) + $expenseIndex) % 12 + 1;
+        $date = Carbon::createFromDate($year, $month, min(4 + ($expenseIndex * 5), 28))->format('Y-m-d');
+        $number = str_pad(($projectIndex * 5) + $expenseIndex + 1, 4, '0', STR_PAD_LEFT);
+        $amount = 180 + ($projectIndex * 35) + ($expenseIndex * 90);
+
+        $expense = new Expense();
+        $expense->user_id = $user->id;
+        $expense->company_id = $company->id;
+        $expense->client_id = $client->id;
+        $expense->project_id = $project->id;
+        $expense->category_id = $category->id;
+        $expense->date = $date;
+        $expense->amount = $amount;
+        $expense->foreign_amount = 0;
+        $expense->exchange_rate = 1;
+        $expense->currency_id = 1;
+        $expense->public_notes = $category->name;
+        $expense->private_notes = "Large analytics project expense #{$number}";
+        $expense->number = "ANA-BIG-EXP-{$number}";
+        $expense->is_deleted = false;
+        $expense->should_be_invoiced = $expenseIndex % 2 === 0;
+        $expense->uses_inclusive_taxes = false;
+        $expense->tax_name1 = '';
+        $expense->tax_rate1 = 0;
+        $expense->tax_name2 = '';
+        $expense->tax_rate2 = 0;
+        $expense->tax_name3 = '';
+        $expense->tax_rate3 = 0;
+        $expense->tax_amount1 = 0;
+        $expense->tax_amount2 = 0;
+        $expense->tax_amount3 = 0;
+        $expense->transaction_reference = '';
+        $expense->custom_value1 = '';
+        $expense->custom_value2 = '';
+        $expense->custom_value3 = '';
+        $expense->custom_value4 = '';
+        $expense->save();
     }
 
     private function createRecurringInvoices(Company $company, User $user, array $clients): void

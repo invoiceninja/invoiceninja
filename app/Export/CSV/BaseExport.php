@@ -110,6 +110,7 @@ class BaseExport
         'email' => 'vendor_contact.email',
         'status' => 'vendor.status',
         'classification' => 'vendor.classification',
+        'tags' => 'vendor.tags',
     ];
 
     protected array $client_report_keys = [
@@ -156,6 +157,7 @@ class BaseExport
         'payment_balance' => 'client.payment_balance',
         'credit_balance' => 'client.credit_balance',
         'classification' => 'client.classification',
+        'tags' => 'client.tags',
     ];
 
     protected array $location_report_keys = [
@@ -215,6 +217,7 @@ class BaseExport
         'recurring_invoice' => 'invoice.recurring_id',
         'auto_bill' => 'invoice.auto_bill_enabled',
         'project' => 'invoice.project',
+        'tags' => 'invoice.tags',
     ];
 
     protected array $recurring_invoice_report_keys = [
@@ -260,7 +263,7 @@ class BaseExport
         'tax_rate3' => 'recurring_invoice.tax_rate3',
         'auto_bill' => 'recurring_invoice.auto_bill',
         'auto_bill_enabled' => 'recurring_invoice.auto_bill_enabled',
-
+        'tags' => 'recurring_invoice.tags',
     ];
 
     protected array $purchase_order_report_keys = [
@@ -294,6 +297,7 @@ class BaseExport
         'total_taxes' => 'purchase_order.total_taxes',
         'currency_id' => 'purchase_order.currency_id',
         'subtotal' => 'purchase_order.subtotal',
+        'tags' => 'purchase_order.tags',
     ];
 
     protected array $product_report_keys  = [
@@ -318,6 +322,7 @@ class BaseExport
         'tax_category' => 'tax_id',
         'max_quantity' => 'max_quantity',
         'in_stock_quantity' => 'in_stock_quantity',
+        'tags' => 'product.tags',
     ];
 
     protected array $item_report_keys = [
@@ -384,6 +389,7 @@ class BaseExport
         'tax_rate2' => 'quote.tax_rate2',
         'tax_rate3' => 'quote.tax_rate3',
         'subtotal' => 'quote.subtotal',
+        'tags' => 'quote.tags',
     ];
 
     protected array $credit_report_keys = [
@@ -419,6 +425,7 @@ class BaseExport
         "assigned_user" => "credit.assigned_user_id",
         "user" => "credit.user_id",
         'subtotal' => 'credit.subtotal',
+        'tags' => 'credit.tags',
     ];
 
     protected array $payment_report_keys = [
@@ -443,6 +450,7 @@ class BaseExport
         "custom_value4" => "payment.custom_value4",
         "user" => "payment.user_id",
         "assigned_user" => "payment.assigned_user_id",
+        'tags' => 'payment.tags',
     ];
 
     protected array $expense_report_keys = [
@@ -480,6 +488,7 @@ class BaseExport
         'invoice' => 'expense.invoice_id',
         'user' => 'expense.user',
         'assigned_user' => 'expense.assigned_user',
+        'tags' => 'expense.tags',
     ];
 
     protected array $task_report_keys = [
@@ -1851,7 +1860,7 @@ class BaseExport
         $model_string = $this->getModelString($query);
 
         $data = [
-            "{$model_string}s" => $query->get(),
+            "{$model_string}s" => $query->with('tags')->get(),
             // "start_date" => $this->start_date,
             // "end_date" => $this->end_date,
         ];

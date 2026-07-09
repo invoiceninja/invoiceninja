@@ -234,7 +234,9 @@ class PeppolLineBuilder
                 $allowanceCharge->MultiplierFactorNumeric = $mfn;
             }
 
-            $allowanceCharge->AllowanceChargeReason = ctrans('texts.discount');
+            $allowanceCharge->AllowanceChargeReason = 'Discount';
+
+// $allowanceCharge->AllowanceChargeReason = ctrans('texts.discount');
 
             $line->Price = $basePrice;
             $line->AllowanceCharge[] = $allowanceCharge;

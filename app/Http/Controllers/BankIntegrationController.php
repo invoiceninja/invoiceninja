@@ -262,6 +262,7 @@ class BankIntegrationController extends BaseController
                 $bank_integration->currency = $account['account_currency'];
                 $bank_integration->auto_sync = true;
                 $bank_integration->disabled_upstream = $account['disabled_upstream'];
+                $bank_integration->integration_type = BankIntegration::INTEGRATION_TYPE_YODLEE;
                 // $bank_integration->disabled_upstream = $account['account_status'] == 'READY' ? false : true;
 
                 $bank_integration->save();

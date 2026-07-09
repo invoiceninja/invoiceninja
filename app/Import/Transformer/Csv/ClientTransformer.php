@@ -80,6 +80,8 @@ class ClientTransformer extends BaseTransformer
             'paid_to_date' => 0,
             'balance' => 0,
             'credit_balance' => 0,
+            'is_tax_exempt' => $this->toBoolean($this->getString($data, 'client.is_tax_exempt')),
+            'classification' => $this->getString($data, 'client.classification'),
             'settings' => $settings,
             'client_hash' => Str::random(40),
             'country_id' => $this->resolveCountryIdOrCompanyDefault(

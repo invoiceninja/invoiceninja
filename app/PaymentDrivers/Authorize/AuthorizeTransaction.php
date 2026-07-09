@@ -49,7 +49,7 @@ class AuthorizeTransaction
         $op->setDataValue($data['dataValue']);
         $paymentOne = new PaymentType();
         $paymentOne->setOpaqueData($op);
-        $amount = $data['amount_with_fee'];
+        $amount = round($data['amount_with_fee'], 2);
 
         $invoice_numbers = '';
         $po_numbers = '';

@@ -13,9 +13,10 @@
 namespace App\Http\Controllers\VendorPortal;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\VendorPortal\EditVendorContactRequest;
+use App\Http\Requests\VendorPortal\UpdateVendorContactRequest;
 use App\Models\VendorContact;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Request;
 
 class VendorContactController extends Controller
 {
@@ -51,7 +52,7 @@ class VendorContactController extends Controller
 
     public const MODULE_PURCHASE_ORDERS = 16384;
 
-    public function edit(VendorContact $vendor_contact)
+    public function edit(EditVendorContactRequest $request, VendorContact $vendor_contact)
     {
 
         if (!$vendor_contact->vendor->country_id) {
@@ -68,10 +69,10 @@ class VendorContactController extends Controller
         ]);
     }
 
-    public function update(Request $request, VendorContact $vendor_contact)
+    public function update(UpdateVendorContactRequest $request, VendorContact $vendor_contact)
     {
-        $vendor_contact->fill($request->all());
-        $vendor_contact->vendor->fill($request->all());
+        $vendor_contact->fill($request->only(['first_name', 'last_name', 'email', 'phone']));
+        $vendor_contact->vendor->fill($request->only(['address1', 'address2', 'city', 'state', 'postal_code', 'country_id', 'public_notes']));
         $vendor_contact->push();
 
         return back()->withSuccess(ctrans('texts.profile_updated_successfully'));

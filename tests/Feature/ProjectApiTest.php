@@ -490,6 +490,37 @@ class ProjectApiTest extends TestCase
         }
     }
 
+    public function testProjectBudgetedAmountCanBeStoredAndUpdated(): void
+    {
+        $data = [
+            'name' => $this->faker->firstName(),
+            'client_id' => $this->client->hashed_id,
+            'task_rate' => 100,
+            'budgeted_hours' => 10,
+            'budgeted_amount' => 1234.56,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/projects', $data);
+
+        $response->assertStatus(200);
+        $this->assertEqualsWithDelta(1234.56, $response->json('data.budgeted_amount'), 0.01);
+
+        $projectId = $response->json('data.id');
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/projects/{$projectId}", [
+            'budgeted_amount' => 2000.50,
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertEqualsWithDelta(2000.50, $response->json('data.budgeted_amount'), 0.01);
+    }
+
     public function testProjectPostFilters()
     {
         $data = [

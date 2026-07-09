@@ -353,6 +353,35 @@ class TemplateTest extends TestCase
         $this->assertSame($this->translateDate($e->payment_date, $this->client->date_format(), $this->client->locale()), $result[0]['payment_date']);
     }
 
+    public function testInvoiceTagsAreExposed()
+    {
+        $tag = \App\Models\Tag::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'entity_type' => Invoice::class,
+            'name' => 'priority',
+        ]);
+
+        $this->invoice->tags()->attach($tag->id);
+
+        $ts = new TemplateService();
+        $ts->setCompany($this->company);
+        $result = $ts->processInvoices([$this->invoice->fresh()]);
+
+        $this->assertIsArray($result[0]['tags']);
+        $this->assertSame(['priority'], $result[0]['tags']);
+    }
+
+    public function testInvoiceWithoutTagsReturnsEmptyArray()
+    {
+        $ts = new TemplateService();
+        $ts->setCompany($this->company);
+        $result = $ts->processInvoices([$this->invoice->fresh()]);
+
+        $this->assertIsArray($result[0]['tags']);
+        $this->assertSame([], $result[0]['tags']);
+    }
+
 
 
     public function testQuoteDataParse()

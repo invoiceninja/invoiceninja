@@ -135,6 +135,11 @@ class VendorExport extends BaseExport
         foreach (array_values($this->input['report_keys']) as $key) {
             $parts = explode('.', $key);
 
+            if (str_ends_with($key, '.tags')) {
+                $entity[$key] = $this->decorator->transform($key, $vendor);
+                continue;
+            }
+
             if ($parts[0] === 'vendor' && isset($parts[1], $transformed_vendor[$parts[1]])) {
                 $entity[$key] = $transformed_vendor[$parts[1]];
             } elseif ($parts[0] === 'vendor_contact' && isset($parts[1], $transformed_contact[$parts[1]])) {

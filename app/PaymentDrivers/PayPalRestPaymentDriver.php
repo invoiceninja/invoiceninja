@@ -54,7 +54,7 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
         $request['gateway_response'] = str_replace("Error: ", "", $request['gateway_response']);
         $response = json_decode($request['gateway_response'], true);
 
-        if ($request->has('token') && strlen($request->input('token')) > 2) {
+        if (strlen($request->input('token') ?? '') > 2) {
             return $this->processTokenPayment($request, $response);
         }
 
@@ -217,7 +217,7 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
         }
 
         if (!isset($response['id'])) {
-            $this->handleProcessingFailure($response);
+            $this->handleProcessingFailure($response ?? ['name' => '']);
         }
 
         $this->payment_hash->withData("orderID", $response['id']);

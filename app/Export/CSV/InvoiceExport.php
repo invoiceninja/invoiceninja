@@ -340,6 +340,11 @@ class InvoiceExport extends BaseExport
 
             $parts = explode('.', $key);
 
+            if (str_ends_with($key, '.tags')) {
+                $entity[$key] = $this->decorator->transform($key, $invoice);
+                continue;
+            }
+
             if ($parts[0] === 'invoice' && isset($parts[1], $transformed_invoice[$parts[1]])) {
                 $entity[$key] = $transformed_invoice[$parts[1]];
             } elseif ($decorated_value = $this->decorator->transform($key, $invoice)) {

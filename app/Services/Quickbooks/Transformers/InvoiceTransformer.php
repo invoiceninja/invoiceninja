@@ -303,6 +303,10 @@ class InvoiceTransformer extends BaseTransformer
             'GlobalTaxCalculation' => ($ast || !$is_us) ? 'TaxExcluded' : 'NotApplicable',
         ];
 
+        if ($ship_addr = $this->formatLocationShipAddress($invoice)) {
+            $invoice_data['ShipAddr'] = $ship_addr;
+        }
+
         // Only send TxnTaxDetail for US companies without AST.
         // Non-US companies use resolved TaxCodeRef per line item — QB calculates taxes from those.
         if (!$ast && $is_us) {
@@ -353,6 +357,36 @@ class InvoiceTransformer extends BaseTransformer
         }
 
         return $invoice_data;
+    }
+
+    /**
+     * Map an Invoice Ninja client location to the transaction ShipAddr QuickBooks
+     * uses as the AST destination address.
+     *
+     * @return array<string, string>|null
+     */
+    private function formatLocationShipAddress(Invoice $invoice): ?array
+    {
+        if (!$invoice->location_id) {
+            return null;
+        }
+
+        $invoice->loadMissing('location.country');
+
+        $location = $invoice->location;
+
+        if (!$location) {
+            return null;
+        }
+
+        return [
+            'Line1' => mb_substr($location->address1 ?? '', 0, 41),
+            'Line2' => mb_substr($location->address2 ?? '', 0, 41),
+            'City' => mb_substr($location->city ?? '', 0, 31),
+            'CountrySubDivisionCode' => mb_substr($location->state ?? '', 0, 21),
+            'PostalCode' => mb_substr($location->postal_code ?? '', 0, 13),
+            'Country' => $location->country->iso_3166_3 ?? '',
+        ];
     }
 
 
