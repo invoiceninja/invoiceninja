@@ -6289,6 +6289,8 @@ $lang = array(
     'actual_spend' => 'Actual Spend',
     'margin' => 'Margin',
     'target' => 'Target',
+    'persist_table_filters' => 'Persist Table Filters',
+    'persist_table_filters_help' => 'If enabled, the table filters will be persisted across page reloads.',
 );
 
 return $lang;
