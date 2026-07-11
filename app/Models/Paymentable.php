@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $payment_id
  * @property int $paymentable_id
  * @property float $amount
+ * @property float $cash_discount
  * @property float $refunded
  * @property string $paymentable_type
  * @property int|null $created_at
@@ -35,6 +36,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|Paymentable onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Paymentable query()
  * @method static \Illuminate\Database\Eloquent\Builder|Paymentable whereAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Paymentable whereCashDiscount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Paymentable whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Paymentable whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Paymentable whereId($value)
@@ -58,6 +60,7 @@ class Paymentable extends Pivot
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'settings' => 'object',
+        'cash_discount' => 'float',
     ];
 
     public function paymentable()

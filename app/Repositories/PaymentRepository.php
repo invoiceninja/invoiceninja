@@ -56,7 +56,7 @@ class PaymentRepository extends BaseRepository
         $payment = $this->applyPayment($data, $payment);
 
         $this->syncResolvedTags($payment, $tag_ids);
-        
+
         return $payment;
     }
 
@@ -157,12 +157,13 @@ class PaymentRepository extends BaseRepository
                     $paymentable->paymentable_id = $invoice->id;
                     $paymentable->paymentable_type = 'invoices';
                     $paymentable->amount = $paid_invoice['amount'];
+                    $paymentable->cash_discount = $paid_invoice['cash_discount'] ?? 0;
                     $paymentable->created_at = $is_existing_payment ? now()->setTimezone($payment->company->timezone()->name) : $payment->date ?? now()->setTimezone($payment->company->timezone()->name) ; //@phpstan-ignore-line
                     $paymentable->save();
 
                     $invoice = $invoice->service()
                                        ->markSent()
-                                       ->applyPayment($payment, $paid_invoice['amount'])
+                                       ->applyPayment($payment, $paid_invoice['amount'], $paid_invoice['cash_discount'] ?? 0)
                                        ->save();
 
                     try {

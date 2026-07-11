@@ -44,6 +44,7 @@ class PaymentableTransformer extends EntityTransformer
             $entity_key => $this->encodePrimaryKey($paymentable->paymentable_id),
             'payment_id' => $this->encodePrimaryKey($paymentable->payment_id),
             'amount' => (float) $paymentable->amount,
+            'cash_discount' => (float) $paymentable->cash_discount,
             'refunded' => (float) $paymentable->refunded,
             'created_at' => (int) $paymentable->created_at,
             'updated_at' => (int) $paymentable->updated_at,

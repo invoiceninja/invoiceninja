@@ -19,7 +19,7 @@ use App\Utils\BcMath;
 
 class ApplyPayment extends AbstractService
 {
-    public function __construct(private Invoice $invoice, private Payment $payment, private float $payment_amount) {}
+    public function __construct(private Invoice $invoice, private Payment $payment, private float $payment_amount, private float $cash_discount = 0) {}
 
     /**
      * Apply a payment to a single invoice.
@@ -30,12 +30,15 @@ class ApplyPayment extends AbstractService
         $this->invoice = $this->invoice->fresh('client');
 
         $amount_paid = 0;
+        $payment_balance_adjustment = 0;
+        $settlement_amount = (float) BcMath::add($this->payment_amount, $this->cash_discount);
 
         $had_partial = $this->invoice->hasPartial();
 
-        if ($had_partial && BcMath::lessThan($this->payment_amount, $this->invoice->partial)) {
+        if ($had_partial && BcMath::lessThan($settlement_amount, $this->invoice->partial)) {
             // --- Stage 1: underpaying the requested deposit ---------------
-            $amount_paid = $this->payment_amount * -1;
+            $amount_paid = $settlement_amount * -1;
+            $payment_balance_adjustment = $this->payment_amount * -1;
 
             $this->invoice
                  ->service()
@@ -45,17 +48,20 @@ class ApplyPayment extends AbstractService
                  ->save();
         } else {
             // --- Stage 2: Paying the exact invoice balance ------------
-            if (BcMath::equal($this->payment_amount, $this->invoice->balance)) {
-                $amount_paid = $this->payment_amount * -1;
+            if (BcMath::equal($settlement_amount, $this->invoice->balance)) {
+                $amount_paid = $settlement_amount * -1;
+                $payment_balance_adjustment = $this->payment_amount * -1;
                 $status = Invoice::STATUS_PAID;
             } 
             // --- Stage 3: Paying less than the invoice balance -------------
-            elseif (BcMath::lessThan($this->payment_amount, $this->invoice->balance)) {
-                $amount_paid = $this->payment_amount * -1;
+            elseif (BcMath::lessThan($settlement_amount, $this->invoice->balance)) {
+                $amount_paid = $settlement_amount * -1;
+                $payment_balance_adjustment = $this->payment_amount * -1;
                 $status = Invoice::STATUS_PARTIAL;
             } else {
                 // --- Stage 4: Overpayment — cap at invoice balance. The excess stays on
                 $amount_paid = $this->invoice->balance * -1;
+                $payment_balance_adjustment = min($this->payment_amount, $this->invoice->balance) * -1;
                 $status = Invoice::STATUS_PAID;
             }
 
@@ -86,7 +92,7 @@ class ApplyPayment extends AbstractService
 
         $this->payment
              ->ledger()
-             ->updatePaymentBalance($amount_paid, "ApplyPaymentInvoice");
+             ->updatePaymentBalance($payment_balance_adjustment, "ApplyPaymentInvoice");
 
         $this->invoice
              ->client

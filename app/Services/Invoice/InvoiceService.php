@@ -114,13 +114,14 @@ class InvoiceService
      * *** does not create a paymentable ****
      * @param  Payment $payment        The Payment
      * @param  float   $payment_amount The Payment amount
+     * @param  float   $cash_discount  The cash discount amount
      * @return InvoiceService          Parent class object
      */
-    public function applyPayment(Payment $payment, float $payment_amount)
+    public function applyPayment(Payment $payment, float $payment_amount, float $cash_discount = 0)
     {
         $this->invoice = $this->markSent()->save();
 
-        $this->invoice = (new ApplyPayment($this->invoice, $payment, $payment_amount))->run();
+        $this->invoice = (new ApplyPayment($this->invoice, $payment, $payment_amount, $cash_discount))->run();
 
         return $this;
     }

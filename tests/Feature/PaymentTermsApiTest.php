@@ -145,6 +145,23 @@ class PaymentTermsApiTest extends TestCase
         $this->hashed_id = $data['data']['id'];
     }
 
+    public function testPostPaymentTermWithCashDiscount()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/payment_terms', [
+            'num_days' => 30,
+            'cash_discount_days' => 10,
+            'cash_discount_percent' => 2,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('data.num_days', 30);
+        $response->assertJsonPath('data.cash_discount_days', 10);
+        $response->assertJsonPath('data.cash_discount_percent', 2);
+    }
+
     public function testPutPaymentTerms()
     {
         $payment_term = PaymentTermFactory::create($this->company->id, $this->user->id);
@@ -154,9 +171,15 @@ class PaymentTermsApiTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/payment_terms/'.$this->encodePrimaryKey($payment_term->id), ['num_days' => 5000]);
+        ])->put('/api/v1/payment_terms/'.$this->encodePrimaryKey($payment_term->id), [
+            'num_days' => 5000,
+            'cash_discount_days' => 14,
+            'cash_discount_percent' => 3.5,
+        ]);
 
         $response->assertStatus(200);
+        $response->assertJsonPath('data.cash_discount_days', 14);
+        $response->assertJsonPath('data.cash_discount_percent', 3.5);
     }
 
     public function testDeletePaymentTerm()

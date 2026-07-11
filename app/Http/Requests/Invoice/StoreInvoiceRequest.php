@@ -66,6 +66,16 @@ class StoreInvoiceRequest extends Request
 
         $rules['date'] = 'bail|sometimes|date:Y-m-d';
         $rules['due_date'] = ['bail', 'sometimes', 'nullable', 'after:partial_due_date', Rule::requiredIf(fn() => strlen($this->partial_due_date ?? '') > 1), 'date'];
+        $rules['cash_discount_percent'] = ['bail', 'sometimes', 'nullable', 'numeric', 'min:0', 'max:100', 'required_with:cash_discount_expiry_date'];
+        $rules['cash_discount_expiry_date'] = [
+            'bail',
+            'sometimes',
+            'nullable',
+            'date',
+            'required_with:cash_discount_percent',
+            'after_or_equal:date',
+            Rule::when(fn() => strlen($this->due_date ?? '') > 1, ['before:due_date']),
+        ];
 
         $rules['line_items'] = ['bail', 'array'];
 
@@ -143,11 +153,11 @@ class StoreInvoiceRequest extends Request
             $input['date'] = now()->addSeconds($user->company()->utc_offset())->format('Y-m-d');
         }
         //handles edge case where we need for force set the due date of the invoice.
-        if (isset($input['client_id']) && 
-        (isset($input['partial_due_date']) && 
-        strlen($input['partial_due_date']) > 1) && 
-        (!array_key_exists('due_date', $input) || 
-        (empty($input['due_date']) && 
+        if (isset($input['client_id']) &&
+        (isset($input['partial_due_date']) &&
+        strlen($input['partial_due_date']) > 1) &&
+        (!array_key_exists('due_date', $input) ||
+        (empty($input['due_date']) &&
         empty($this->invoice->due_date ?? '')))) {
             $client = \App\Models\Client::withTrashed()->find($input['client_id']);
 
