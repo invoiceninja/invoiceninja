@@ -87,16 +87,8 @@ class UpdateInvoiceRequest extends Request
 
         $rules['partial_due_date'] = ['bail', 'sometimes', 'nullable', 'exclude_if:partial,0', 'date', 'before:due_date', 'after_or_equal:date'];
         $rules['due_date'] = ['bail', 'sometimes', 'nullable', 'after:partial_due_date', 'after_or_equal:date', Rule::requiredIf(fn() => strlen($this->partial_due_date ?? '') > 1), 'date'];
-        $rules['cash_discount_percent'] = ['bail', 'sometimes', 'nullable', 'numeric', 'min:0', 'max:100', 'required_with:cash_discount_expiry_date'];
-        $rules['cash_discount_expiry_date'] = [
-           'bail',
-           'sometimes',
-           'nullable',
-           'date',
-           'required_with:cash_discount_percent',
-           'after_or_equal:date',
-           Rule::when(fn() => strlen($this->due_date ?? '') > 1, ['before:due_date']),
-       ];
+        $rules['cash_discount_percent'] = ['bail', 'sometimes', 'nullable', 'numeric', 'min:0', 'max:100', Rule::requiredIf(fn() => strlen($this->cash_discount_expiry_date ?? '') > 1)];
+        $rules['cash_discount_expiry_date'] = ['bail', 'sometimes', 'nullable', 'exclude_if:cash_discount_percent,0', Rule::requiredIf(fn() => (float) ($this->cash_discount_percent ?? 0) > 0), 'date', Rule::when(fn() => strlen($this->due_date ?? '') > 1, ['before:due_date']), 'after_or_equal:date'];
 
         $rules['e_invoice'] = ['sometimes', 'nullable', new ValidInvoiceScheme()];
 
@@ -156,6 +148,10 @@ class UpdateInvoiceRequest extends Request
 
         if (isset($input['partial']) && $input['partial'] == 0) {
             $input['partial_due_date'] = null;
+        }
+
+        if (isset($input['cash_discount_percent']) && $input['cash_discount_percent'] == 0) {
+            $input['cash_discount_expiry_date'] = null;
         }
 
         if (isset($input['line_items']) && is_array($input['line_items'])) {
