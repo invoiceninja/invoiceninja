@@ -33,6 +33,7 @@ use App\Events\Invoice\InvoiceReminderWasEmailed;
 use App\DataMapper\InvoiceBackup;
 use App\Jobs\Ninja\TaskScheduler;
 use App\Utils\Number;
+use App\Utils\BcMath;
 use App\Models\Traits\HasTags;
 use App\Models\Traits\IndexableItems;
 
@@ -61,6 +62,7 @@ use App\Models\Traits\IndexableItems;
  * @property string|null $last_sent_date
  * @property string|null $due_date
  * @property float|null $cash_discount_percent
+ * @property-read float $cash_discount
  * @property string|null|\Carbon\Carbon $cash_discount_expiry_date
  * @property bool $is_deleted
  * @property object|array|string $line_items
@@ -716,6 +718,18 @@ class Invoice extends BaseModel
         }
 
         return 0;
+    }
+
+    public function getCashDiscountAttribute(): float
+    {
+        if (! $this->cash_discount_percent) {
+            return 0;
+        }
+
+        $precision = $this->client->currency()->precision;
+        $discount = BcMath::div(BcMath::mul($this->amount, $this->cash_discount_percent), 100);
+
+        return (float) BcMath::round($discount, $precision);
     }
 
     public function entityEmailEvent($invitation, $reminder_template, $template = '')
