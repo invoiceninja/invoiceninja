@@ -66,15 +66,26 @@ class StoreInvoiceRequest extends Request
 
         $rules['date'] = 'bail|sometimes|date:Y-m-d';
         $rules['due_date'] = ['bail', 'sometimes', 'nullable', 'after:partial_due_date', Rule::requiredIf(fn() => strlen($this->partial_due_date ?? '') > 1), 'date'];
-        $rules['cash_discount_percent'] = ['bail', 'sometimes', 'nullable', 'numeric', 'min:0', 'max:100', 'required_with:cash_discount_expiry_date'];
+        $rules['cash_discount_percent'] = [
+            'bail',
+            'sometimes',
+            'nullable',
+            'numeric',
+            Rule::when(
+                fn() => strlen($this->cash_discount_expiry_date ?? '') > 1,
+                ['required', 'gt:0'],
+                ['min:0']
+            ),
+            'max:100',
+        ];
         $rules['cash_discount_expiry_date'] = [
             'bail',
             'sometimes',
             'nullable',
+            Rule::requiredIf(fn() => (float) ($this->cash_discount_percent ?? 0) > 0),
             'date',
-            'required_with:cash_discount_percent',
-            'after_or_equal:date',
             Rule::when(fn() => strlen($this->due_date ?? '') > 1, ['before:due_date']),
+            'after_or_equal:date'
         ];
 
         $rules['line_items'] = ['bail', 'array'];
@@ -95,8 +106,6 @@ class StoreInvoiceRequest extends Request
         $rules['custom_surcharge3'] = ['sometimes', 'nullable', 'bail', 'numeric', 'max:99999999999999'];
         $rules['custom_surcharge4'] = ['sometimes', 'nullable', 'bail', 'numeric', 'max:99999999999999'];
         $rules['location_id'] = ['nullable', 'sometimes','bail', Rule::exists('locations', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)];
-        $rules['cash_discount_percent'] = ['bail', 'sometimes', 'nullable', 'numeric', 'min:0', 'max:100', Rule::requiredIf(fn() => strlen($this->cash_discount_expiry_date ?? '') > 1)];
-        $rules['cash_discount_expiry_date'] = ['bail', 'sometimes', 'nullable', 'exclude_if:cash_discount_percent,0', Rule::requiredIf(fn() => (float) ($this->cash_discount_percent ?? 0) > 0), 'date', Rule::when(fn() => strlen($this->due_date ?? '') > 1, ['before:due_date']), 'after_or_equal:date'];
 
         return $this->globalRules($rules);
     }
@@ -137,10 +146,6 @@ class StoreInvoiceRequest extends Request
 
         if (isset($input['partial']) && $input['partial'] == 0) {
             $input['partial_due_date'] = null;
-        }
-
-        if (isset($input['cash_discount_percent']) && $input['cash_discount_percent'] == 0) {
-            $input['cash_discount_expiry_date'] = null;
         }
 
         if (!isset($input['tax_rate1'])) {
