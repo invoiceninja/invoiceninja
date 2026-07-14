@@ -646,12 +646,18 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
 
         /** Response from Stripe SDK/API. */
         $response = null;
+        $refund_data = [];
+        
+        if (str_starts_with($payment->transaction_reference ?? '', 'pi_')) {
+            $refund_data['payment_intent'] = $payment->transaction_reference;
+        } else {
+            $refund_data['charge'] = $payment->transaction_reference;
+        }
+
+        $refund_data['amount'] = $this->convertToStripeAmount($amount, $this->client->currency()->precision, $this->client->currency());
 
         try {
-            $response = \Stripe\Refund::create([
-                'charge' => $payment->transaction_reference,
-                'amount' => $this->convertToStripeAmount($amount, $this->client->currency()->precision, $this->client->currency()),
-            ], $meta);
+            $response = \Stripe\Refund::create($refund_data, $meta);
 
             if (in_array($response->status, ['succeeded', 'pending'])) {
                 SystemLogger::dispatch(['server_response' => $response, 'data' => request()->all()], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->client, $this->client->company);
