@@ -5444,6 +5444,7 @@ $lang = array(
     'activity_147' => 'E-Invoice :invoice for :client failed delivery. :notes',
     'peppol_routing_problem' => 'Routing problem. No recipient/destination found.',
     'peppol_cleared_for_sending' => 'Cleared by tax authority, sending to receiver',
+    'peppol_negative_line_price' => 'Line item prices cannot be negative for e-invoicing. Please enter a positive price and apply any reduction as a discount or a negative quantity.',
     'account_holder' => 'Account Name',
     'account_holder_help' => 'The name of the account',
     'activity_148' => 'E-Expense :expense received from :vendor',

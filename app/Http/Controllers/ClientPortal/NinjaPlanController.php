@@ -90,9 +90,12 @@ class NinjaPlanController extends Controller
     {
         $trial_started = "Trial Started @ " . now()->format('Y-m-d H:i:s');
 
-        auth()->guard('contact')->user()->fill($request->only(['first_name','last_name']))->save();
+        /** @var \App\Models\ClientContact $contact **/
+        $contact = auth()->guard('contact')->user();
 
-        $client = auth()->guard('contact')->user()->client;
+        $contact->fill($request->only(['first_name','last_name']))->save();
+
+        $client = $contact->client;
         $client->private_notes = $trial_started;
         $client->fill($request->all());
         $client->save();
