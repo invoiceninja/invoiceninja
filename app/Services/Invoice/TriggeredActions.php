@@ -45,7 +45,9 @@ class TriggeredActions extends AbstractService
         }
 
         if ($this->request->has('paid') && $this->request->input('paid') == 'true') {
-            $this->invoice = $this->invoice->service()->markPaid($this->request->input('reference'))->save(); //update notification sends automatically for this.
+            $this->invoice = $this->invoice->service()
+                                           ->markPaid($this->request->input('reference'), $this->request->boolean('apply_cash_discount'))
+                                           ->save(); //update notification sends automatically for this.
         }
 
         if ($this->request->has('amount_paid') && is_numeric($this->request->input('amount_paid'))) {
