@@ -723,7 +723,7 @@ class QuickbooksService
         $this->company = $this->company->fresh() ?? $this->company;
         $this->settings = $this->company->quickbooks->settings;
 
-        $automatic_taxes = data_get($company_preferences, 'TaxPrefs.PartnerTaxEnabled', false);
+        $automatic_taxes = filter_var(data_get($company_preferences, 'TaxPrefs.PartnerTaxEnabled', false), FILTER_VALIDATE_BOOLEAN);
         $allow_deposit = filter_var(data_get($company_preferences, 'SalesFormsPrefs.AllowDeposit', false), FILTER_VALIDATE_BOOLEAN);
 
         $default_income_account = strlen($this->company->quickbooks->settings->qb_income_account_id ?? '') >= 1 ? $this->company->quickbooks->settings->qb_income_account_id : ($income_accounts[0]['id'] ?? null);
