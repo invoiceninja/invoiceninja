@@ -365,7 +365,7 @@ class PaymentTermController extends BaseController
      * @OA\Delete(
      *      path="/api/v1/payment_terms/{id}",
      *      operationId="deletePaymentTerm",
-     *      tags={"payment_termss"},
+     *      tags={"payment_terms"},
      *      summary="Deletes a Payment Term",
      *      description="Handles the deletion of an PaymentTerm by id",
      *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
