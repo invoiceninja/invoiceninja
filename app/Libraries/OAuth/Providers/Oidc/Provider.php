@@ -12,6 +12,8 @@
 
 namespace App\Libraries\OAuth\Providers\Oidc;
 
+use Firebase\JWT\JWK;
+use Firebase\JWT\JWT;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
@@ -118,6 +120,120 @@ class Provider extends AbstractProvider implements ProviderInterface
     protected function getTokenUrl(): string
     {
         return $this->discovery()['token_endpoint'];
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * Overridden to verify the `id_token` returned alongside the access
+     * token — signature via the IdP's JWKS, plus the OIDC-mandated
+     * `iss` / `aud` / `exp` claims — before we trust anything the
+     * userinfo endpoint tells us. The `sub` from the id_token is also
+     * cross-checked against the userinfo response to defend against
+     * token-substitution attacks.
+     */
+    public function user()
+    {
+        if ($this->hasInvalidState()) {
+            throw new \Laravel\Socialite\Two\InvalidStateException();
+        }
+
+        $response = $this->getAccessTokenResponse($this->getCode());
+
+        $idToken = Arr::get($response, 'id_token');
+
+        if (!$idToken) {
+            throw new \RuntimeException('OIDC token response did not include an id_token.');
+        }
+
+        $claims = $this->verifyIdToken($idToken);
+
+        $accessToken = Arr::get($response, 'access_token');
+        $userinfo = $this->getUserByToken($accessToken);
+
+        // Prefer verified claims from the id_token when the userinfo
+        // response is missing the subject, and refuse the login when the
+        // two disagree.
+        $userinfo['sub'] = $userinfo['sub'] ?? $claims['sub'] ?? null;
+
+        if (!$userinfo['sub'] || $userinfo['sub'] !== ($claims['sub'] ?? null)) {
+            throw new \RuntimeException('OIDC userinfo subject does not match id_token subject.');
+        }
+
+        $user = $this->mapUserToObject($userinfo);
+
+        return $user->setToken($accessToken)
+            ->setRefreshToken(Arr::get($response, 'refresh_token'))
+            ->setExpiresIn(Arr::get($response, 'expires_in'))
+            ->setApprovedScopes(explode($this->scopeSeparator, (string) Arr::get($response, 'scope', '')));
+    }
+
+    /**
+     * Verify the id_token signature and required OIDC claims.
+     *
+     * @return array<string,mixed> the decoded claim set
+     */
+    protected function verifyIdToken(string $idToken): array
+    {
+        $discovery = $this->discovery();
+        $issuer = $discovery['issuer'] ?? null;
+        $jwksUri = $discovery['jwks_uri'] ?? null;
+
+        if (!$issuer || !$jwksUri) {
+            throw new \RuntimeException('OIDC discovery document is missing issuer or jwks_uri.');
+        }
+
+        $keys = JWK::parseKeySet($this->jwks($jwksUri));
+
+        try {
+            $claims = (array) JWT::decode($idToken, $keys);
+        } catch (\Throwable $e) {
+            throw new \RuntimeException('OIDC id_token signature verification failed: ' . $e->getMessage(), 0, $e);
+        }
+
+        if (($claims['iss'] ?? null) !== $issuer) {
+            throw new \RuntimeException('OIDC id_token issuer mismatch.');
+        }
+
+        $aud = $claims['aud'] ?? null;
+        $audiences = is_array($aud) ? $aud : [$aud];
+
+        if (!in_array((string) config('services.oidc.client_id'), $audiences, true)) {
+            throw new \RuntimeException('OIDC id_token audience does not include this client.');
+        }
+
+        if (isset($claims['azp']) && $claims['azp'] !== (string) config('services.oidc.client_id')) {
+            throw new \RuntimeException('OIDC id_token authorized-party (azp) mismatch.');
+        }
+
+        return $claims;
+    }
+
+    /**
+     * Fetch and cache the IdP's JWKS document.
+     *
+     * @return array<string,mixed>
+     */
+    protected function jwks(string $jwksUri): array
+    {
+        return Cache::remember(
+            'oidc.jwks.' . sha1($jwksUri),
+            now()->addHour(),
+            function () use ($jwksUri): array {
+                $response = $this->getHttpClient()->get($jwksUri, [
+                    RequestOptions::HEADERS => ['Accept' => 'application/json'],
+                    RequestOptions::TIMEOUT => 10,
+                ]);
+
+                $payload = json_decode((string) $response->getBody(), true);
+
+                if (!is_array($payload) || !isset($payload['keys'])) {
+                    throw new \RuntimeException('OIDC JWKS document is malformed at ' . $jwksUri);
+                }
+
+                return $payload;
+            }
+        );
     }
 
     /**

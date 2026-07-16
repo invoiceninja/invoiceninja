@@ -1042,62 +1042,76 @@ class LoginController extends BaseController
     /**
      * Handle the browser callback from a generic OIDC identity provider.
      *
-     * Resolves the Socialite user, then either signs an existing user in
-     * (matching by oauth_user_id/provider or by email), or provisions a
-     * fresh account when no match is found. Finally redirects to the
-     * React SPA `/auth/oauth?token=…` route with a freshly issued
-     * CompanyToken so the SPA can hydrate its Redux auth state and land
-     * the user on the dashboard.
+     * Signs in an existing user matched by (sub, provider) or by a
+     * one-time email link. Never provisions a new account — OIDC on
+     * self-hosted is treated as a sign-in path for accounts that already
+     * exist, not a self-service signup path.
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function handleOidcProviderCallback()
     {
+        $error_redirect = fn (string $msg) => redirect(config('ninja.react_url') . '/login?error=' . urlencode($msg));
+
         try {
             /** @var \Laravel\Socialite\Two\User $socialite_user */
-            $socialite_user = Socialite::driver('oidc')->stateless()->user();
+            $socialite_user = Socialite::driver('oidc')->user();
         } catch (\Throwable $e) {
             nlog('OIDC callback failed: ' . $e->getMessage());
-            return redirect(config('ninja.react_url') . '/login?error=' . urlencode('OIDC sign-in failed: ' . $e->getMessage()));
+            return $error_redirect('OIDC sign-in failed: ' . $e->getMessage());
         }
 
         if (!$socialite_user || !$socialite_user->getId()) {
-            return redirect(config('ninja.react_url') . '/login?error=' . urlencode('OIDC sign-in failed: missing subject identifier.'));
+            return $error_redirect('OIDC sign-in failed: missing subject identifier.');
         }
 
-        // Reuse the shared social-login pathway (existing OAuth user,
-        // email-linked user, or fresh signup). It returns a JsonResponse
-        // for the SPA flow, but we only use it here to trigger the
-        // Auth::login()/CompanyToken provisioning as a side effect.
-        $response = $this->loginOrCreateFromSocialite($socialite_user, 'oidc');
-
-        if (!Auth::check()) {
-            // loginOrCreateFromSocialite returned a JSON error – surface it
-            // to the SPA as a query-string error rather than a raw 4xx body.
-            $message = 'OIDC sign-in failed.';
-
-            if ($response instanceof JsonResponse) {
-                $payload = $response->getData(true);
-                $message = $payload['message'] ?? $message;
-            }
-
-            return redirect(config('ninja.react_url') . '/login?error=' . urlencode($message));
-        }
-
-        /** @var \App\Models\User $user */
-        $user = auth()->user();
-
-        // Persist the oauth linkage for future logins.
-        $name = OAuth::splitName($socialite_user->getName() ?? '');
-        $user->update([
-            'first_name' => $user->first_name ?: $name[0],
-            'last_name' => $user->last_name ?: $name[1],
+        $user = MultiDB::hasUser([
             'oauth_user_id' => $socialite_user->getId(),
             'oauth_provider_id' => 'oidc',
         ]);
 
-        // hydrateCompanyUser() already created a system CompanyToken (see
-        // CreateCompanyToken above); grab it so the SPA can pick up its JWT.
+        // Fall back to a one-time email link for accounts provisioned
+        // outside of OIDC. Only link when the account has no other
+        // OAuth provider attached, to avoid hijacking a google/microsoft
+        // linkage silently.
+        if (!$user && $socialite_user->getEmail()) {
+            $email_user = MultiDB::hasUser(['email' => $socialite_user->getEmail()]);
+
+            if ($email_user && (!$email_user->oauth_provider_id || $email_user->oauth_provider_id === 'oidc')) {
+                $email_user->update([
+                    'oauth_user_id' => $socialite_user->getId(),
+                    'oauth_provider_id' => 'oidc',
+                ]);
+                $user = $email_user;
+            }
+        }
+
+        if (!$user) {
+            return $error_redirect('No Invoice Ninja account is linked to this OIDC identity. Ask an administrator to invite you first.');
+        }
+
+        if (!$user->account) {
+            return $error_redirect('User exists but is not attached to any company.');
+        }
+
+        Auth::login($user, false);
+
+        $cu = $this->hydrateCompanyUser($user);
+
+        if ($cu->count() == 0) {
+            return $error_redirect('User found but not attached to any company. Please contact your administrator.');
+        }
+
+        if (Ninja::isHosted() && !$cu->first()->is_owner && !$user->account->isEnterprisePaidClient()) { //@phpstan-ignore-line
+            return $error_redirect('Pro / Free accounts only the owner can log in. Please upgrade.');
+        }
+
+        $name = OAuth::splitName($socialite_user->getName() ?? '');
+        $user->update([
+            'first_name' => $user->first_name ?: $name[0],
+            'last_name' => $user->last_name ?: $name[1],
+        ]);
+
         $company_token = CompanyToken::where('user_id', $user->id)
             ->where('company_id', $user->account->default_company_id)
             ->where('is_system', true)
@@ -1111,9 +1125,7 @@ class LoginController extends BaseController
                 ->first();
         }
 
-        $redirect_url = config('ninja.react_url') . '/oauth-callback?token=' . $company_token->token;
-
-        return redirect($redirect_url);
+        return redirect(config('ninja.react_url') . '/oauth-callback?token=' . $company_token->token);
     }
 
     public function handleMicrosoftProviderCallback($provider = 'microsoft')
