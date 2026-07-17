@@ -14,8 +14,6 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::table('bank_transactions', function (Blueprint $table) {
-            $table->dropColumn('provider_transaction_id');
-        });
+        //
     }
 };
