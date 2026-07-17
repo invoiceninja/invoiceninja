@@ -84,7 +84,7 @@
                 @endif
                 <div class="pl-1.5">
                     <p class="text-xs font-semibold leading-normal text-black">
-                        {{ $client->company->present()->name() }}
+                        {{ $client->getSetting('name') }}
                     </p>
                 </div>
             </div>
