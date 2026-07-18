@@ -25,8 +25,14 @@
                             @foreach($multiple_contacts as $contact)
                                 <a data-turbolinks="false"
                                    href="{{ route('client.switch_company', $contact->hashed_id) }}"
-                                   class="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">{{ $contact->client->present()->name()}} - ({{$contact->client->getSetting('name') }})
-                                    </a>
+                                   class="flex items-center justify-between gap-3 px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">
+                                    <span>{{ $contact->client->present()->name()}} - ({{$contact->client->getSetting('name') }})</span>
+                                    @if(auth()->guard('contact')->user()->company_id == $contact->company_id)
+                                        <svg class="h-4 w-4 flex-shrink-0 text-green-500" viewBox="0 0 20 20" fill="currentColor" aria-label="{{ ctrans('texts.current') }}">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                        </svg>
+                                    @endif
+                                </a>
                             @endforeach
                         </div>
                     </div>
