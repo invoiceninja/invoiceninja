@@ -247,14 +247,14 @@ class BaseImport
         $grouped = [];
 
         foreach ($csvData as $line_item) {
-            if (empty($line_item[$key])) {
-                $this->error_array['invoice'][] = [
-                    'invoice' => $line_item,
-                    'error' => 'No invoice number',
-                ];
-            } else {
+            // if (empty($line_item[$key])) {
+            //     $this->error_array['invoice'][] = [
+            //         'invoice' => $line_item,
+            //         'error' => 'No invoice number',
+            //     ];
+            // } else {
                 $grouped[$line_item[$key]][] = $line_item;
-            }
+            // }
         }
 
         return $grouped;
