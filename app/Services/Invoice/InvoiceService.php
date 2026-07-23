@@ -309,6 +309,23 @@ class InvoiceService
         return $this;
     }
 
+    public function setCashDiscount()
+    {
+        if (
+            $this->invoice->cash_discount_days != null ||
+            $this->invoice->cash_discount_percent != 0 ||
+            $this->invoice->client->getSetting('cash_discount_days') == '' ||
+            $this->invoice->client->getSetting('cash_discount_percent') == ''
+        ) {
+            return $this;
+        }
+
+        $this->invoice->cash_discount_expiry_date = Carbon::parse($this->invoice->date)->addDays((int) $this->invoice->client->getSetting('cash_discount_days'));
+        $this->invoice->cash_discount_percent = (float) $this->invoice->client->getSetting('cash_discount_percent');
+
+        return $this;
+    }
+
     /**
      * Reset the reminders if only the
      * partial has been paid.

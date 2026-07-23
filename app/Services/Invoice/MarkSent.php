@@ -57,6 +57,7 @@ class MarkSent extends AbstractService
              ->service()
              ->applyNumber()
              ->setDueDate()
+             ->setCashDiscount()
              ->setReminder()
              ->save();
 

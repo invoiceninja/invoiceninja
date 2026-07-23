@@ -47,7 +47,7 @@ class MarkPaid extends AbstractService
         $draft_balance_adjustment = 0;
 
         \DB::connection(config('database.default'))->transaction(function () use (&$already_paid, &$draft_balance_adjustment) {
-            
+
             //reset these vars before each transaction
             $already_paid = false;
             $draft_balance_adjustment = 0;
@@ -77,6 +77,7 @@ class MarkPaid extends AbstractService
                     ->service()
                     ->applyNumber()
                     ->setDueDate()
+                    ->setCashDiscount()
                     ->setReminder()
                     ->save();
 
