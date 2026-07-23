@@ -6290,6 +6290,8 @@ $lang = array(
     'actual_spend' => 'Actual Spend',
     'margin' => 'Margin',
     'target' => 'Target',
+    'cash_discount_days' => 'Cash Discount Days',
+    'cash_discount_percent' => 'Cash Discount Percent',
 );
 
 return $lang;
