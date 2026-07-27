@@ -674,7 +674,7 @@ class ReportCsvGenerationTest extends TestCase
             'balance' => 1000,
             'number' => '123456',
             'status_id' => 2,
-            'discount' => 10,
+            // 'discount' => 10,
             'po_number' => '12345',
             'public_notes' => 'Public5',
             'private_notes' => 'Private5',
@@ -682,7 +682,7 @@ class ReportCsvGenerationTest extends TestCase
             'tax_rate1' => 0,
             'tax_rate2' => 0,
             'tax_rate3' => 0,
-            // 'discount' => 0,
+            'discount' => 0,
             'line_items' => [
                 [
                     'quantity' => 1,
