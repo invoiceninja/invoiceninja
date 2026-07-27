@@ -183,6 +183,7 @@ class BaseExport
         "amount" => "invoice.amount",
         "balance" => "invoice.balance",
         "paid_to_date" => "invoice.paid_to_date",
+        "applied_cash_discount" => "invoice.applied_cash_discount",
         "po_number" => "invoice.po_number",
         "date" => "invoice.date",
         "due_date" => "invoice.due_date",

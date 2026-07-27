@@ -31,6 +31,7 @@
  *       @OA\Property(property="amount", type="number", format="float", example="10.00", description="The invoice amount"),
  *       @OA\Property(property="balance", type="number", format="float", example="10.00", description="The invoice balance"),
  *       @OA\Property(property="paid_to_date", type="number", format="float", example="10.00", description="The amount paid on the invoice to date"),
+ *       @OA\Property(property="applied_cash_discount", type="number", format="float", example="2.00", description="The cash discount applied to the invoice"),
  *       @OA\Property(property="discount", type="number", format="float", example="10.00", description="The invoice discount, can be an amount or a percentage"),
  *       @OA\Property(property="partial", type="number", format="float", example="10.00", description="The deposit/partial amount"),
  *       @OA\Property(property="is_amount_discount", type="boolean", example=true, description="Flag determining if the discount is an amount or a percentage"),

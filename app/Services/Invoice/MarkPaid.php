@@ -97,7 +97,8 @@ class MarkPaid extends AbstractService
                                         ->setExchangeRate()
                                         ->clearPartial()
                                         ->updateBalance($this->payable_balance * -1)
-                                        ->updatePaidToDate($this->payable_balance)
+                                        ->updatePaidToDate($this->payment_amount)
+                                        ->updateAppliedCashDiscount($this->cash_discount)
                                         ->setStatus(Invoice::STATUS_PAID)
                                         ->unlockDocuments()
                                         ->save();

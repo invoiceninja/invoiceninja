@@ -125,7 +125,7 @@ class TaxSummaryReport extends BaseExport
         // Accrual: iterate invoices filtered by invoice date (the existing query)
         foreach ($query->cursor() as $invoice) {
             $calc = $invoice->calc();
-            $taxes = array_merge($calc->getTaxMap()->merge($calc->getTotalTaxMap())->toArray());
+            $taxes = array_merge($calc->getEffectiveTaxMap()->toArray(), $calc->getEffectiveTotalTaxMap());
 
             if (empty($taxes)) {
                 $accrual_invoice_map[] = [
@@ -154,7 +154,7 @@ class TaxSummaryReport extends BaseExport
                     'tax' => Number::formatValue($tax['total'], $this->company->currency()),
                     'name' => $tax['name'],
                     'rate' => $tax['tax_rate'],
-                    'base_amount' => $tax['base_amount'] ?? $calc->getNetSubtotal(),
+                    'base_amount' => $tax['base_amount'] ?? $calc->getEffectiveNetSubtotal(),
                 ];
             }
         }
@@ -198,7 +198,7 @@ class TaxSummaryReport extends BaseExport
 
         foreach ($cash_query->cursor() as $invoice) {
             $calc = $invoice->calc();
-            $taxes = array_merge($calc->getTaxMap()->merge($calc->getTotalTaxMap())->toArray());
+            $taxes = array_merge($calc->getEffectiveTaxMap()->toArray(), $calc->getEffectiveTotalTaxMap());
 
             // Calculate the net amount paid within the selected period via paymentables
             // $period_paid_query = Paymentable::where('paymentable_type', 'invoices')
@@ -225,7 +225,8 @@ class TaxSummaryReport extends BaseExport
 
             $period_paid = $period_paid_query->selectRaw('COALESCE(SUM(amount - refunded), 0) as net_paid')->value('net_paid');
 
-            $payment_ratio = $invoice->amount > 0 ? $period_paid / $invoice->amount : 0;
+            $effective_amount = $invoice->amount - $invoice->applied_cash_discount;
+            $payment_ratio = $effective_amount > 0 ? min($period_paid / $effective_amount, 1) : 0;
 
             // Bug 3 fix: accumulate gross/taxable/exempt once per invoice, not per tax line
             $cash_gross_sales += $period_paid;
@@ -261,7 +262,10 @@ class TaxSummaryReport extends BaseExport
                     'tax' => Number::formatValue($tax_prorata, $this->company->currency()),
                     'name' => $tax['name'],
                     'rate' => $tax['tax_rate'],
-                    'base_amount' => $tax['base_amount'] ?? $calc->getNetSubtotal(),
+                    'base_amount' => round(
+                        ($tax['base_amount'] ?? $calc->getEffectiveNetSubtotal()) * $payment_ratio,
+                        $this->company->currency()->precision
+                    ),
                 ];
             }
         }

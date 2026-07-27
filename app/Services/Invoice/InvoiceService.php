@@ -172,6 +172,13 @@ class InvoiceService
         return $this;
     }
 
+    public function updateAppliedCashDiscount($adjustment)
+    {
+        $this->invoice->applied_cash_discount += $adjustment;
+
+        return $this;
+    }
+
     public function createInvitations()
     {
         $this->invoice = (new CreateInvitations($this->invoice))->run();

@@ -109,6 +109,7 @@ use App\Models\Traits\IndexableItems;
  * @property string|null $reminder_last_sent
  * @property bool $auto_bill_enabled
  * @property float $paid_to_date
+ * @property float $applied_cash_discount
  * @property int|null $subscription_id
  * @property int $auto_bill_tries
  * @property bool $is_proforma
@@ -242,6 +243,7 @@ class Invoice extends BaseModel
         'custom_surcharge_tax4' => 'bool',
         'e_invoice' => 'object',
         'cash_discount_percent' => 'float',
+        'applied_cash_discount' => 'float',
         'cash_discount_expiry_date' => 'date:Y-m-d',
         'sync' => InvoiceSync::class,
 

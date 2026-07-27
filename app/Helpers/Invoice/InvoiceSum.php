@@ -343,9 +343,25 @@ class InvoiceSum
         return $this->total_taxes;
     }
 
+    public function getEffectiveTotalTaxes(): float
+    {
+        return (float) $this->getEffectiveTaxMap()
+            ->merge(collect($this->getEffectiveTotalTaxMap()))
+            ->sum('total');
+    }
+
     public function getTotalTaxMap()
     {
         return $this->total_tax_map;
+    }
+
+    public function getEffectiveTotalTaxMap(): array
+    {
+        $ratio = $this->getCashDiscountRatio();
+
+        return collect($this->getTotalTaxMap())
+            ->map(fn (array $tax): array => $this->prorateTaxEntry($tax, $ratio, $this->precision))
+            ->all();
     }
 
     public function getTotal()
@@ -444,6 +460,14 @@ class InvoiceSum
         return $this->tax_map;
     }
 
+    public function getEffectiveTaxMap(): Collection
+    {
+        $ratio = $this->getCashDiscountRatio();
+
+        return $this->getTaxMap()
+            ->map(fn (array $tax): array => $this->prorateTaxEntry($tax, $ratio, $this->precision));
+    }
+
     public function getBalance()
     {
         return $this->invoice->balance;
@@ -481,6 +505,19 @@ class InvoiceSum
     public function getNetSubtotal()
     {
         return $this->getSubTotal() - $this->getTotalDiscount();
+    }
+
+    public function getEffectiveNetSubtotal(): float
+    {
+        return round($this->getNetSubtotal() * $this->getCashDiscountRatio(), $this->precision);
+    }
+
+    private function getCashDiscountRatio(): float
+    {
+        return $this->reductionRatio(
+            (float) $this->invoice->amount,
+            (float) $this->invoice->applied_cash_discount
+        );
     }
 
     public function getSubtotalWithSurcharges()

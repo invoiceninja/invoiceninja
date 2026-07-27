@@ -39,12 +39,15 @@ class ApplyPayment extends AbstractService
             // --- Stage 1: underpaying the requested deposit ---------------
             $amount_paid = $settlement_amount * -1;
             $payment_balance_adjustment = $this->payment_amount * -1;
+            $paid_to_date_adjustment = $payment_balance_adjustment * -1;
+            $cash_discount_adjustment = ($amount_paid * -1) - $paid_to_date_adjustment;
 
             $this->invoice
                  ->service()
                  ->updatePartial($amount_paid)
                  ->updateBalance($amount_paid)
-                 ->updatePaidToDate($amount_paid * -1)
+                 ->updatePaidToDate($paid_to_date_adjustment)
+                 ->updateAppliedCashDiscount($cash_discount_adjustment)
                  ->save();
         } else {
             // --- Stage 2: Paying the exact invoice balance ------------
@@ -61,7 +64,11 @@ class ApplyPayment extends AbstractService
             } else {
                 // --- Stage 4: Overpayment — cap at invoice balance. The excess stays on
                 $amount_paid = $this->invoice->balance * -1;
-                $payment_balance_adjustment = min($this->payment_amount, $this->invoice->balance) * -1;
+                $applicable_cash_discount = min($this->cash_discount, $this->invoice->balance);
+                $payment_balance_adjustment = min(
+                    $this->payment_amount,
+                    $this->invoice->balance - $applicable_cash_discount
+                ) * -1;
                 $status = Invoice::STATUS_PAID;
             }
 
@@ -75,9 +82,13 @@ class ApplyPayment extends AbstractService
                 $service = $service->clearPartial()->setDueDate();
             }
 
+            $paid_to_date_adjustment = $payment_balance_adjustment * -1;
+            $cash_discount_adjustment = ($amount_paid * -1) - $paid_to_date_adjustment;
+
             $service->setStatus($status)
                     ->updateBalance($amount_paid)
-                    ->updatePaidToDate($amount_paid * -1)
+                    ->updatePaidToDate($paid_to_date_adjustment)
+                    ->updateAppliedCashDiscount($cash_discount_adjustment)
                     ->save();
         }
 

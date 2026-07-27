@@ -191,6 +191,7 @@ class InvoiceMarkPaidTest extends TestCase
 
         $this->assertEquals(0, $i->balance);
         $this->assertEquals(10, $i->paid_to_date);
+        $this->assertEquals(0, $i->applied_cash_discount);
         $this->assertEquals(4, $i->status_id);
 
         $this->account->forceDelete();
@@ -261,6 +262,7 @@ class InvoiceMarkPaidTest extends TestCase
 
         $this->assertEquals(0, $i->balance);
         $this->assertEquals(10, $i->paid_to_date);
+        $this->assertEquals(0, $i->applied_cash_discount);
         $this->assertEquals(4, $i->status_id);
 
         $this->account->forceDelete();
@@ -322,13 +324,15 @@ class InvoiceMarkPaidTest extends TestCase
         $payment = $i->payments()->orderByDesc('payments.id')->first();
 
         $this->assertEquals(0, $i->balance);
-        $this->assertEquals(10, $i->paid_to_date);
+        $this->assertEquals(9, $i->paid_to_date);
         $this->assertEquals(4, $i->status_id);
         $this->assertNotNull($payment);
         $this->assertEquals(9, (float) $payment->amount);
         $this->assertEquals(9, (float) $payment->applied);
         $this->assertEquals(9, (float) $payment->pivot->amount);
         $this->assertEquals(1, (float) $payment->pivot->cash_discount);
+        $this->assertEquals(1, $i->applied_cash_discount);
+        $this->assertEquals($i->amount, $i->paid_to_date + $i->applied_cash_discount + $i->balance);
         $this->assertEquals(9, (float) $c->fresh()->paid_to_date);
         $this->assertEquals(0, (float) $c->fresh()->balance);
 
