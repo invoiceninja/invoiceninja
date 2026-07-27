@@ -609,7 +609,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
             'city' => (string) $client->city,
             'state' => (string) $client->state,
             'postal_code' => (string) $client->postal_code,
-            'country' => (string) ($client->country?->iso_3166_2 ?? ''),
+            'country' => (string) ($client->country->iso_3166_2 ?? ''),
         ];
     }
 

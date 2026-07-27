@@ -220,6 +220,8 @@ class ACH implements MethodInterface, LivewireMethodInterface
 
         try {
             if ($useToken && $tokenId) {
+
+                /** @var \App\Models\ClientGatewayToken $token */
                 $token = $this->helcim_driver->client->gateway_tokens()
                     ->where('id', $this->helcim_driver->decodePrimaryKey($tokenId))
                     ->where('company_gateway_id', $this->helcim_driver->company_gateway->id)
@@ -297,7 +299,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
             ];
 
             // ACH payments may remain in a pending state until the bank clears them
-            $achStatus = strtoupper($data['status'] ?? '');
+            $achStatus = strtoupper($data['status']);
             $paymentStatus = in_array($achStatus, ['APPROVED', 'CLEARED', 'SETTLED', 'COMPLETED', 'SUCCESS'], true)
                 ? Payment::STATUS_COMPLETED
                 : Payment::STATUS_PENDING;
@@ -463,7 +465,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
         $data['gateway']           = $this->helcim_driver;
         $data['payment_hash']      = $this->helcim_driver->payment_hash->hash;
         $data['payment_method_id'] = GatewayType::BANK_TRANSFER;
-        $data['amount']            = $this->helcim_driver->payment_hash->data->amount_with_fee;
+        $data['amount']            = $this->helcim_driver->payment_hash->data->amount_with_fee; // @phpstan-ignore-line
         $data['currency']          = $this->helcim_driver->client->currency()->code;
         $data['tokens']            = $this->helcim_driver->client->gateway_tokens()
             ->where('company_gateway_id', $this->helcim_driver->company_gateway->id)

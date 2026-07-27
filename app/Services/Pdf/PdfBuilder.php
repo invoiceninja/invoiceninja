@@ -2385,7 +2385,7 @@ class PdfBuilder
             return !isset($child['empty_check']) || $this->resolvesEmpty($child['empty_check']);
         }
 
-        if (isset($child['content']) && isset($child['show_empty']) && $child['show_empty'] === false) {
+        if (isset($child['content']) && isset($child['show_empty']) && $child['show_empty'] === false) { // @phpstan-ignore-line
             return $this->resolvesEmpty($child['empty_check'] ?? $child['content']);
         }
 

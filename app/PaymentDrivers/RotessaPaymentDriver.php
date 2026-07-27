@@ -261,7 +261,7 @@ class RotessaPaymentDriver extends BaseDriver
             SystemLogger::dispatch(['server_response' => $data, 'data' => []], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, 880, $this->client, $this->company_gateway->company);
 
             try {
-                $errors = ($th instanceof \Illuminate\Http\Client\RequestException && $th->response)
+                $errors = ($th instanceof \Illuminate\Http\Client\RequestException && $th->response) // @phpstan-ignore-line
                     ? $th->response->body()
                     : explode("422:", $th->getMessage())[1];
             } catch (\Throwable) {
