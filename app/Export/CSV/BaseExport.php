@@ -436,6 +436,7 @@ class BaseExport
         "applied" => "payment.applied",
         "applied_date" => "payment.applied_date",
         "applied_amount" => "payment.applied_amount",
+        "applied_cash_discount" => "payment.applied_cash_discount",
         "applied_refunded" => "payment.applied_refunded",
         "transaction_reference" => "payment.transaction_reference",
         "currency" => "payment.currency",
@@ -1010,7 +1011,7 @@ class BaseExport
         if (!is_string($projects)) {
             return $query;
         }
-        
+
         $projects =  explode(',', $projects);
         $transformed_projects = $this->transformKeys($projects);
 
@@ -1035,7 +1036,7 @@ class BaseExport
         if (!is_string($expense_categories)) {
             return $query;
         }
-        
+
         $expense_categories =  explode(',', $expense_categories);
 
         $transformed_expense_categories = $this->transformKeys($expense_categories);
@@ -2030,21 +2031,21 @@ class BaseExport
 
         foreach ($grouped as $group_value => $group_rows) {
             $summary_row = [];
-        
+
             foreach (array_keys($rows[0]) as $column) {
                 if ($column === $group_by) {
                     $summary_row[$column] = $group_value;
                     continue;
                 }
-        
+
                 if ($this->isNonSummable($column)) {
                     $summary_row[$column] = '';
                     continue;
                 }
-        
+
                 $values = array_column($group_rows, $column);
                 $numeric = array_filter($values, 'is_numeric');
-        
+
                 if ($numeric !== [] && count($numeric) === count($values)) {
                     // All values numeric → aggregate.
                     $summary_row[$column] = array_sum($numeric);
@@ -2054,11 +2055,11 @@ class BaseExport
                     $summary_row[$column] = count($distinct) === 1 ? reset($values) : '';
                 }
             }
-        
+
             $summary_row['group.count'] = count($group_rows);
             $summary[] = $summary_row;
         }
-        
+
         // foreach ($grouped as $group_value => $group_rows) {
         //     $summary_row = [];
 

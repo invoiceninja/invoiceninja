@@ -2606,6 +2606,7 @@ class ReportCsvGenerationTest extends TestCase
             'paymentable_type' => 'invoices',
             'paymentable_id' => $invoice_a->id,
             'amount' => 60,
+            'cash_discount' => 2,
             'refunded' => 0,
             'created_at' => $ts_a,
             'updated_at' => $ts_a,
@@ -2616,6 +2617,7 @@ class ReportCsvGenerationTest extends TestCase
             'paymentable_type' => 'invoices',
             'paymentable_id' => $invoice_b->id,
             'amount' => 40,
+            'cash_discount' => 1,
             'refunded' => 5,
             'created_at' => $ts_b,
             'updated_at' => $ts_b,
@@ -2643,6 +2645,7 @@ class ReportCsvGenerationTest extends TestCase
         $this->assertCount(1, $rows);
         $this->assertNotContains('Payment Applied Date', $reader->getHeader());
         $this->assertNotContains('Payment Applied Amount', $reader->getHeader());
+        $this->assertNotContains('Payment Applied Cash Discount', $reader->getHeader());
         $this->assertNotContains('Payment Applied Refunded', $reader->getHeader());
 
         // with invoice.number → fan out into one row per paymentable, applied_* auto-injected
@@ -2663,6 +2666,7 @@ class ReportCsvGenerationTest extends TestCase
         $this->assertCount(2, $rows);
         $this->assertContains('Payment Applied Date', $reader->getHeader());
         $this->assertContains('Payment Applied Amount', $reader->getHeader());
+        $this->assertContains('Payment Applied Cash Discount', $reader->getHeader());
         $this->assertContains('Payment Applied Refunded', $reader->getHeader());
 
         // both rows carry the same parent payment data
@@ -2672,11 +2676,13 @@ class ReportCsvGenerationTest extends TestCase
         // per-paymentable data differs and is ordered by paymentable created_at
         $this->assertEquals('INV-A', $rows[0]['Invoice Invoice Number']);
         $this->assertEquals(60, (float) $rows[0]['Payment Applied Amount']);
+        $this->assertEquals(2, (float) $rows[0]['Payment Applied Cash Discount']);
         $this->assertEquals(0, (float) $rows[0]['Payment Applied Refunded']);
         $this->assertEquals($expected_date_a, $rows[0]['Payment Applied Date']);
 
         $this->assertEquals('INV-B', $rows[1]['Invoice Invoice Number']);
         $this->assertEquals(40, (float) $rows[1]['Payment Applied Amount']);
+        $this->assertEquals(1, (float) $rows[1]['Payment Applied Cash Discount']);
         $this->assertEquals(5, (float) $rows[1]['Payment Applied Refunded']);
         $this->assertEquals($expected_date_b, $rows[1]['Payment Applied Date']);
 
