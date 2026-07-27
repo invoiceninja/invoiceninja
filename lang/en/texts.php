@@ -6292,6 +6292,8 @@ $lang = array(
     'target' => 'Target',
     'cash_discount_days' => 'Cash Discount Days',
     'cash_discount_percent' => 'Cash Discount Percent',
+    'available_cash_discount' => 'Available Cash Discount',
+    'cash_discount_expiry_date' => 'Cash Discount Expiry Date',
     'applied_cash_discount' => 'Applied Cash Discount',
 );
 

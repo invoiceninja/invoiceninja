@@ -2733,6 +2733,7 @@ class ReportCsvGenerationTest extends TestCase
             'paymentable_type' => 'invoices',
             'paymentable_id' => $invoice->id,
             'amount' => 70,
+            'cash_discount' => 0,
             'refunded' => 0,
             'created_at' => $ts_one,
             'updated_at' => $ts_one,
@@ -2743,6 +2744,7 @@ class ReportCsvGenerationTest extends TestCase
             'paymentable_type' => 'invoices',
             'paymentable_id' => $invoice->id,
             'amount' => 30,
+            'cash_discount' => 1,
             'refunded' => 3,
             'created_at' => $ts_two,
             'updated_at' => $ts_two,
@@ -2786,6 +2788,7 @@ class ReportCsvGenerationTest extends TestCase
         $this->assertCount(2, $rows);
         $this->assertContains('Payment Applied Date', $reader->getHeader());
         $this->assertContains('Payment Applied Amount', $reader->getHeader());
+        $this->assertContains('Payment Applied Cash Discount', $reader->getHeader());
         $this->assertContains('Payment Applied Refunded', $reader->getHeader());
 
         $tz = $this->company->timezone()->name;
@@ -2794,12 +2797,14 @@ class ReportCsvGenerationTest extends TestCase
         $this->assertEquals('INV-FAN', $rows[0]['Invoice Invoice Number']);
         $this->assertEquals('PAY-FAN-1', $rows[0]['Payment Number']);
         $this->assertEquals(70, (float) $rows[0]['Payment Applied Amount']);
+        $this->assertEquals(0, (float) $rows[0]['Payment Applied Cash Discount']);
         $this->assertEquals(0, (float) $rows[0]['Payment Applied Refunded']);
         $this->assertEquals(\Carbon\Carbon::createFromTimestamp($ts_one)->setTimezone($tz)->format('Y-m-d'), $rows[0]['Payment Applied Date']);
 
         $this->assertEquals('INV-FAN', $rows[1]['Invoice Invoice Number']);
         $this->assertEquals('PAY-FAN-2', $rows[1]['Payment Number']);
         $this->assertEquals(30, (float) $rows[1]['Payment Applied Amount']);
+        $this->assertEquals(1, (float) $rows[1]['Payment Applied Cash Discount']);
         $this->assertEquals(3, (float) $rows[1]['Payment Applied Refunded']);
         $this->assertEquals(\Carbon\Carbon::createFromTimestamp($ts_two)->setTimezone($tz)->format('Y-m-d'), $rows[1]['Payment Applied Date']);
 
