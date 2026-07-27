@@ -229,7 +229,7 @@ class InvoicePay extends Component
             return $this->required_fields = false;
         }
 
-        $this->checkRequiredFields($company_gateway);
+        $this->checkRequiredFields($company_gateway, $gateway_type_id);
     }
 
     #[On('required-fields')]
@@ -238,17 +238,26 @@ class InvoicePay extends Component
         $this->required_fields = false;
     }
 
-    private function checkRequiredFields(CompanyGateway $company_gateway)
+    private function checkRequiredFields(CompanyGateway $company_gateway, $gateway_type_id)
     {
         $invite = \App\Models\InvoiceInvitation::withTrashed()->find($this->invitation_id);
 
         /** @var \App\Models\ClientContact $contact */
         $contact = $this->getContext($invite->key)['contact'];
 
-        $fields = $company_gateway->driver($contact->client)->getClientRequiredFields();
+        $driver = $company_gateway->driver($contact->client);
+        $driver->setPaymentMethod($gateway_type_id);
 
-        $this->setContext($invite->key, 'fields', $fields); // $this->context['fields'] = $fields;
+        $fields = $driver->getClientRequiredFields();
 
+        $force_rff = $company_gateway->always_show_required_fields && !empty($fields);
+
+        $this->setContext($invite->key, 'fields', $fields);
+
+        if ($force_rff) {
+            return $this->required_fields = true;
+        }
+        
         foreach ($fields as $index => $field) {
             $_field = $this->mappings[$field['name']];
 
@@ -266,10 +275,6 @@ class InvoicePay extends Component
                     return $this->required_fields = true;
                 }
             }
-        }
-
-        if ($company_gateway->always_show_required_fields && !empty($fields)) {
-            return $this->required_fields = true;
         }
 
         return $this->required_fields = false;

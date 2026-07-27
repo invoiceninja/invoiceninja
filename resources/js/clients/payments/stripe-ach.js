@@ -41,7 +41,34 @@ class AuthorizeACH {
                 'input[name="account-holder-type"]:checked'
             ).value,
             email: document.querySelector('meta[name="contact-email"]')?.content || '',
+            address: this.getBillingAddress(),
         };
+    };
+
+    /**
+     * Nacha requires a complete billing address on the bank account payment method.
+     * A partial address is rejected outright, so send nothing unless we have a street.
+     */
+    getBillingAddress = () => {
+        const meta = (name) =>
+            document.querySelector(`meta[name="${name}"]`)?.content || '';
+
+        const address = {
+            line1: meta('address-1'),
+            line2: meta('address-2'),
+            city: meta('city'),
+            state: meta('state'),
+            postal_code: meta('postal_code'),
+            country: meta('country'),
+        };
+
+        if (address.line1.length === 0) {
+            return null;
+        }
+
+        return Object.fromEntries(
+            Object.entries(address).filter(([, value]) => value.length > 0)
+        );
     };
 
     handleError = (message) => {
@@ -87,6 +114,7 @@ class AuthorizeACH {
                         billing_details: {
                             name: formData.account_holder_name,
                             email: formData.email,
+                            ...(formData.address && { address: formData.address }),
                         },
                     },
                 },

@@ -72,17 +72,22 @@ class RFF extends Component
     {
         /** @var \App\Models\CompanyGateway $gateway */
         $gateway = CompanyGateway::find($this->context['form']['company_gateway_id']);
-        $countries = Cache::get('countries');
-
+        $countries = app('countries');
 
         if ($gateway === null) {
             return view('billing-portal.v3.rff-basic');
         }
 
+        $driver = $gateway->driver(
+            auth()->guard('contact')->user()->client
+        );
+
+        if(isset($this->context['form']['payment_method_id'])){
+            $driver->setPaymentMethod($this->context['form']['payment_method_id']);
+        }
+
         return view('billing-portal.v3.rff', [
-            'gateway' => $gateway->driver(
-                auth()->guard('contact')->user()->client
-            ),
+            'gateway' => $driver,
             'countries' => $countries,
             'company' => $gateway->company,
         ]);

@@ -33,13 +33,12 @@
             @if(count($tokens) > 0)
                 @foreach($tokens as $token)
                     <li class="py-2 cursor-pointer">
-                        <label class="flex items-center cursor-pointer px-2">
-                            <input
+                    <label class="flex items-center cursor-pointer px-2">
+                    <input
                                 type="radio"
                                 data-token="{{ $token->hashed_id }}"
                                 name="payment-type"
-                                @if($loop->first) checked @endif
-                                class="form-check-input text-indigo-600 rounded-full cursor-pointer toggle-payment-with-token"/>
+                                class="form-radio cursor-pointer toggle-payment-with-token"/>
                             <span class="ml-1 cursor-pointer">
                                 ACH **** {{ $token->meta?->last4 ?? '****' }}
                             </span>
@@ -49,13 +48,13 @@
             @endif
 
             <li class="py-2 cursor-pointer">
-                <label class="flex items-center cursor-pointer px-2">
+            <label class="flex items-center cursor-pointer px-2">
                     <input
                         type="radio"
                         id="toggle-payment-with-new-bank"
-                        class="form-check-input text-indigo-600 rounded-full cursor-pointer"
+                        class="form-radio cursor-pointer"
                         name="payment-type"
-                        @if(count($tokens) === 0) checked @endif/>
+                        checked/>
                     <span class="ml-1 cursor-pointer">{{ ctrans('texts.new_bank_account') }}</span>
                 </label>
             </li>

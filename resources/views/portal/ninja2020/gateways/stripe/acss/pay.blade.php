@@ -39,8 +39,8 @@
             @foreach($tokens as $token)
                 <li class="py-2 hover:bg-blue-600">
 
-                <label class="mr-4">
-                    <input
+                <label class="flex items-center cursor-pointer px-2">
+                <input
                         type="radio"
                         data-token="{{ $token->hashed_id }}"
                         name="payment-type"

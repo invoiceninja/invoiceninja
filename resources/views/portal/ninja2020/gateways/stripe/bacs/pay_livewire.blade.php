@@ -29,7 +29,7 @@
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
         @if (count($tokens) > 0)
             @foreach ($tokens as $token)
-                <label class="mr-4">
+            <label class="flex items-center cursor-pointer px-2">
                     <input type="radio" data-token="{{ $token->token }}" name="payment-type"
                            class="form-radio cursor-pointer toggle-payment-with-token" />
                     <span class="ml-1 cursor-pointer">**** {{ $token->meta?->last4 }}</span>

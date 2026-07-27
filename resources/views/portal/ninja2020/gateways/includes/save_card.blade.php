@@ -33,14 +33,14 @@
             {{ ctrans('texts.save_payment_method_details') }}
         </dt>
         <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-            <label class="mr-4">
-                <input type="radio" class="form-radio cursor-pointer" name="token-billing-checkbox"
+        <label class="flex items-center cursor-pointer px-2">
+        <input type="radio" class="form-radio cursor-pointer" name="token-billing-checkbox"
                        id="proxy_is_default"
                        value="true" {{ $checked_on }}/>
                 <span class="ml-1 cursor-pointer">{{ ctrans('texts.yes') }}</span>
             </label>
-            <label>
-                <input type="radio" class="form-radio cursor-pointer" name="token-billing-checkbox"
+            <label class="flex items-center cursor-pointer px-2">
+            <input type="radio" class="form-radio cursor-pointer" name="token-billing-checkbox"
                        id="proxy_is_default"
                        value="false" {{ $checked_off }} />
                 <span class="ml-1 cursor-pointer">{{ ctrans('texts.no') }}</span>

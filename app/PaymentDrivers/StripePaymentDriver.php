@@ -329,6 +329,9 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
     {
         $fields = [];
 
+         /** Nacha requires a complete billing address on the us_bank_account payment method. */
+         $requires_billing_address = $this->payment_method instanceof ACH;
+
         if ($this->company_gateway->require_client_name) {
             $fields[] = ['name' => 'client_name', 'label' => ctrans('texts.client_name'), 'type' => 'text', 'validation' => 'required'];
         }
@@ -346,15 +349,15 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
             $fields[] = ['name' => 'client_phone', 'label' => ctrans('texts.client_phone'), 'type' => 'tel', 'validation' => 'required'];
         }
 
-        if ($this->company_gateway->require_billing_address) {
+        if ($requires_billing_address || $this->company_gateway->require_billing_address) {
             $fields[] = ['name' => 'client_address_line_1', 'label' => ctrans('texts.address1'), 'type' => 'text', 'validation' => 'required'];
-            //            $fields[] = ['name' => 'client_address_line_2', 'label' => ctrans('texts.address2'), 'type' => 'text', 'validation' => 'nullable'];
+            // $fields[] = ['name' => 'client_address_line_2', 'label' => ctrans('texts.address2'), 'type' => 'text', 'validation' => 'nullable'];
             $fields[] = ['name' => 'client_city', 'label' => ctrans('texts.city'), 'type' => 'text', 'validation' => 'required'];
             $fields[] = ['name' => 'client_state', 'label' => ctrans('texts.state'), 'type' => 'text', 'validation' => 'required'];
             $fields[] = ['name' => 'client_country_id', 'label' => ctrans('texts.country'), 'type' => 'text', 'validation' => 'required'];
         }
 
-        if ($this->company_gateway->require_postal_code) {
+        if ($requires_billing_address || $this->company_gateway->require_postal_code) {
             $fields[] = ['name' => 'client_postal_code', 'label' => ctrans('texts.postal_code'), 'type' => 'text', 'validation' => 'required'];
         }
 
@@ -585,6 +588,49 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
         }
 
         return $customer;
+    }
+
+    /**
+     * Maps a client record onto a Stripe address object.
+     *
+     * Nacha requires a complete billing address on the us_bank_account payment
+     * method, so this is shared by the ACH views, the token backfill and the
+     * customer sync to guarantee they all send an identical address.
+     *
+     * @return array{line1: string, line2: string, city: string, state: string, postal_code: string, country: string}
+     */
+    public function stripeBillingAddress(?Client $client = null): array
+    {
+        $client = $client ?: $this->client;
+
+        return [
+            'line1' => (string) $client->address1,
+            'line2' => (string) $client->address2,
+            'city' => (string) $client->city,
+            'state' => (string) $client->state,
+            'postal_code' => (string) $client->postal_code,
+            'country' => (string) ($client->country?->iso_3166_2 ?? ''),
+        ];
+    }
+
+    /**
+     * Determines whether a client carries every address component Nacha requires.
+     *
+     * Line 2 is intentionally excluded, it is optional at Stripe.
+     */
+    public function hasCompleteBillingAddress(?Client $client = null): bool
+    {
+        $address = $this->stripeBillingAddress($client);
+
+        unset($address['line2']);
+
+        foreach ($address as $value) {
+            if (strlen(trim($value)) === 0) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public function updateStripeCustomer($customer)

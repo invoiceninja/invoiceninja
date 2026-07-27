@@ -9,6 +9,12 @@
 
     <meta name="client_secret" content="{{ $client_secret }}">
     <meta name="viewport" content="width=device-width, minimum-scale=1" />
+    <meta name="address-1" content="{{ $gateway->client->address1 }}">
+    <meta name="address-2" content="{{ $gateway->client->address2 }}">
+    <meta name="city" content="{{ $gateway->client->city }}">
+    <meta name="state" content="{{ $gateway->client->state }}">
+    <meta name="postal_code" content="{{ $gateway->client->postal_code }}">
+    <meta name="country" content="{{ $gateway->client->country?->iso_3166_2 }}">
 
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
@@ -33,10 +39,10 @@
         @if(count($tokens) > 0)
             <ul class="list-none">
                 @foreach($tokens as $token)
-                    <li class="py-1 hover:text-blue hover:bg-blue-600">
-                        <label class="mr-4">
-                            <input type="radio" data-token="{{ $token->hashed_id }}" name="payment-type"
-                                class="form-check-input text-indigo-600 rounded-full cursor-pointer toggle-payment-with-token" />
+                <li class="py-2 cursor-pointer">
+                <label class="flex items-center cursor-pointer px-2">
+                <input type="radio" data-token="{{ $token->hashed_id }}" name="payment-type"
+                                class="form-radio cursor-pointer toggle-payment-with-token" />
                             <span class="ml-1 cursor-pointer">{{ ctrans('texts.bank_transfer') }}
                                 (*{{ $token->meta->last4 }})</span>
                         </label>

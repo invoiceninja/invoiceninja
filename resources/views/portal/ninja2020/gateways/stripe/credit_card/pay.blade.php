@@ -56,13 +56,13 @@
     <ul class="list-none">
         @if(count($tokens) > 0)
             @foreach($tokens as $token)
-            <li>
-                <label class="block py-2 mr-4 cursor-pointer">
+            <li class="py-2 cursor-pointer">
+            <label class="flex items-center cursor-pointer px-2">
                     <input
                         type="radio"
                         data-token="{{ $token->token }}"
                         name="payment-type"
-                        class="form-check-input text-indigo-600 rounded-full cursor-pointer toggle-payment-with-token"/>
+                        class="form-radio cursor-pointer toggle-payment-with-token"/>
                     <span class="ml-1">**** {{ $token->meta?->last4 }}</span>
                 </label>
             </li>
@@ -70,11 +70,11 @@
         @endisset
 
             <li>
-                <label class="block py-2 cursor-pointer">
+            <label class="flex items-center cursor-pointer px-2">
                     <input
                         type="radio"
                         id="toggle-payment-with-credit-card"
-                        class="form-check-input text-indigo-600 rounded-full cursor-pointer"
+                        class="form-radio cursor-pointer"
                         name="payment-type"
                         checked/>
                     <span class="ml-1">{{ __('texts.new_card') }}</span>

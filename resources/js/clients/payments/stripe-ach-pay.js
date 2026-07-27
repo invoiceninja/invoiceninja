@@ -78,6 +78,7 @@ function ach() {
         const clientSecret = document.querySelector(
             'meta[name="client_secret"]'
         )?.content;
+        const address = billingAddress();
         // Calling this method will open the instant verification dialog.
         stripe
             .collectBankAccountForPayment({
@@ -88,6 +89,7 @@ function ach() {
                         billing_details: {
                             name: accountHolderNameField.value,
                             email: emailField.value,
+                            ...(address && { address }),
                         },
                     },
                 },
@@ -163,6 +165,32 @@ function ach() {
                     document.getElementById('server-response').submit();
                 }
             });
+    }
+
+    /**
+     * Nacha requires a complete billing address on the bank account payment method.
+     * A partial address is rejected outright, so send nothing unless we have a street.
+     */
+    function billingAddress() {
+        const meta = (name) =>
+            document.querySelector(`meta[name="${name}"]`)?.content || '';
+
+        const address = {
+            line1: meta('address-1'),
+            line2: meta('address-2'),
+            city: meta('city'),
+            state: meta('state'),
+            postal_code: meta('postal_code'),
+            country: meta('country'),
+        };
+
+        if (address.line1.length === 0) {
+            return null;
+        }
+
+        return Object.fromEntries(
+            Object.entries(address).filter(([, value]) => value.length > 0)
+        );
     }
 
     function resetButtons() {

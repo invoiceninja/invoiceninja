@@ -33,7 +33,7 @@
         @if(count($tokens) > 0)
             @foreach($tokens as $token)
                 <li class="py-2 cursor-pointer">
-                    <label class="mr-4">
+                <label class="flex items-center cursor-pointer px-2">
                         <input
                             type="radio"
                             data-token="{{ $token->hashed_id }}"
@@ -46,7 +46,7 @@
         @endisset
 
         <li class="py-2 cursor-pointer">
-            <label>
+            <label class="flex items-center cursor-pointer px-2">
                 <input
                     type="radio"
                     id="toggle-payment-with-ach"
