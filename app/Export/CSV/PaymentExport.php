@@ -21,6 +21,8 @@ use App\Models\Payment;
 use App\Transformers\PaymentTransformer;
 use App\Utils\Ninja;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
@@ -175,7 +177,16 @@ class PaymentExport extends BaseExport
                 $query->orderBy('created_at')->orderBy('id');
             };
 
-            $relations[] = 'paymentables.paymentable';
+            $relations['paymentables.paymentable'] = function (Relation $relation): void {
+                if (! $relation instanceof MorphTo) {
+                    return;
+                }
+
+                $relation->constrain([
+                    Invoice::class => fn($query) => $query->withTrashed(),
+                    Credit::class => fn($query) => $query->withTrashed(),
+                ]);
+            };
         }
 
         return $relations;
@@ -212,7 +223,18 @@ class PaymentExport extends BaseExport
 
         $query = $payment->paymentables()
             ->whereIn('paymentable_type', ['invoices', Credit::class])
-            ->with('paymentable');
+            ->with([
+                'paymentable' => function (Relation $relation): void {
+                    if (! $relation instanceof MorphTo) {
+                        return;
+                    }
+
+                    $relation->constrain([
+                        Invoice::class => fn($query) => $query->withTrashed(),
+                        Credit::class => fn($query) => $query->withTrashed(),
+                    ]);
+                },
+            ]);
 
         if (! ($this->input['include_deleted_applications'] ?? false)) {
             $query->whereNull('deleted_at');
