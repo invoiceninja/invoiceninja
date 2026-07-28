@@ -303,14 +303,37 @@ class ZugferdEDocument extends AbstractService
 
     private function setPaymentTerms(): self
     {
-        $this->xdocument->addDocumentPaymentTerm(
-            ctrans("texts.xinvoice_payable", [
-                'payeddue' => date_create($this->document->date ?? now()->format('Y-m-d'))
-                    ->diff(date_create($this->document->due_date ?? now()->format('Y-m-d')))
-                    ->format("%d"),
-                'paydate' => $this->document->due_date,
-            ])
-        );
+        $documentDate = date_create($this->document->date ?? now()->format('Y-m-d'));
+        $dueDate = date_create($this->document->due_date ?? now()->format('Y-m-d'));
+        $dueDatePaymentTerms = ctrans("texts.xinvoice_payable", [
+            'payeddue' => $documentDate->diff($dueDate)->format("%a"),
+            'paydate' => $this->document->due_date,
+        ]);
+
+        if ($this->document instanceof Invoice && $this->document->cash_discount_percent > 0 && $this->document->cash_discount_expiry_date) {
+            $cashDiscountExpiryDate = date_create($this->document->cash_discount_expiry_date->format('Y-m-d'));
+            $cashDiscountDays = (int) $documentDate->diff($cashDiscountExpiryDate)->format("%r%a");
+
+            if ($cashDiscountDays >= 0) {
+                $cashDiscountNote = ctrans('texts.cash_discount_invoice_note', [
+                    'percent' => (float) $this->document->cash_discount_percent,
+                    'discount' => round($this->document->cash_discount, 2),
+                    'date' => $this->document->cash_discount_expiry_date->format('Y-m-d'),
+                    'amount_due' => round($this->calc->getBalanceWithCashDiscount(), 2),
+                ]);
+
+                $this->xdocument->addDocumentPaymentTermXRechnung(
+                    $cashDiscountNote . "\n" . $dueDatePaymentTerms,
+                    [$cashDiscountDays],
+                    [$this->document->cash_discount_percent],
+                    dueDate: $dueDate
+                );
+
+                return $this;
+            }
+        }
+
+        $this->xdocument->addDocumentPaymentTerm($dueDatePaymentTerms, $dueDate);
 
         return $this;
     }

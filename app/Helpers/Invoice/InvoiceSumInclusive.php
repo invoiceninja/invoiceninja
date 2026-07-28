@@ -453,6 +453,26 @@ class InvoiceSumInclusive
         return $this->invoice->balance;
     }
 
+    public function getBalanceWithCashDiscount(): float
+    {
+        $balance = (float) $this->getBalance();
+
+        if (! $this->invoice instanceof Invoice || $balance == 0.0) {
+            return $balance;
+        }
+
+        $applicable_discount = min(
+            abs((float) $this->invoice->cash_discount),
+            abs($balance)
+        );
+
+        $signed_discount = $balance < 0
+            ? -$applicable_discount
+            : $applicable_discount;
+
+        return round($balance - $signed_discount, $this->precision);
+    }
+
     public function getItemTotalTaxes()
     {
         return $this->getTotalTaxes();

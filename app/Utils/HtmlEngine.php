@@ -520,7 +520,7 @@ class HtmlEngine
 
             $data['$balance_with_cash_discount'] = [
                 'value' => Number::formatMoney(
-                    BcMath::sub($this->getBalance(),$this->entity->cash_discount),
+                    $this->entity_calc->getBalanceWithCashDiscount(),
                     $this->client
                 ) ?: ' ',
                 'label' => ctrans('texts.balance_with_cash_discount') . ' ' . (float) $this->entity->cash_discount_percent . '%',
@@ -542,7 +542,7 @@ class HtmlEngine
                     $this->client->locale()
                 ),
                 'amount_due' => Number::formatMoney(
-                    BcMath::sub($this->entity->amount, $this->entity->cash_discount),
+                    $this->entity_calc->getBalanceWithCashDiscount(),
                     $this->client
                 ),
             ]);
