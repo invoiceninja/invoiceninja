@@ -85,7 +85,7 @@ class PeppolAttachmentBuilder
         }
 
         // Recurring invoice documents
-        if ($invoice->recurring_invoice()->exists()) {
+        if (method_exists($invoice, 'recurring_invoice') && $invoice->recurring_invoice()->exists()) {
             $this->attachDocumentsFrom($invoice->recurring_invoice->documents()->where('is_public', true)->cursor(), $maxSize);
         }
 

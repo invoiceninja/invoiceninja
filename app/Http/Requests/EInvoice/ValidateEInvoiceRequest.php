@@ -53,11 +53,37 @@ class ValidateEInvoiceRequest extends Request
 
         return [
             'entity' => 'required|bail|in:invoices,recurring_invoices,clients,companies',
-            'entity_id' => ['required','bail', Rule::exists($this->entity, 'id')
-                                                                ->when($this->entity != 'companies', function ($q) use ($user) {
-                                                                    $q->where('company_id', $user->company()->id);
-                                                                }),
-            ],
+            'entity_id' => ['required','bail', function ($attribute, $value, $fail) use ($user) {
+                $id = is_string($value) && !is_numeric($value) ? $this->decodePrimaryKey($value) : (int) $value;
+
+                if ($this->entity === 'invoices') {
+                    $invoiceExists = \App\Models\Invoice::withTrashed()
+                        ->where('id', $id)
+                        ->where('company_id', $user->company()->id)
+                        ->exists();
+                    $creditExists = \App\Models\Credit::withTrashed()
+                        ->where('id', $id)
+                        ->where('company_id', $user->company()->id)
+                        ->exists();
+
+                    if ($invoiceExists || $creditExists) {
+                        return;
+                    }
+                } else {
+                    $exists = \Illuminate\Support\Facades\DB::table($this->entity)
+                        ->where('id', $id)
+                        ->when($this->entity != 'companies', function ($q) use ($user) {
+                            $q->where('company_id', $user->company()->id);
+                        })
+                        ->exists();
+
+                    if ($exists) {
+                        return;
+                    }
+                }
+
+                $fail(ctrans('validation.exists', ['attribute' => 'entity id']));
+            }],
         ];
     }
 
@@ -93,7 +119,7 @@ class ValidateEInvoiceRequest extends Request
             return auth()->user()->company();
         }
 
-        $id = is_string($this->entity_id) ? $this->decodePrimaryKey($this->entity_id) : $this->entity_id;
+        $id = is_string($this->entity_id) && !is_numeric($this->entity_id) ? $this->decodePrimaryKey($this->entity_id) : (int) $this->entity_id;
         $entity = $class::withTrashed()->find($id);
 
         if ($this->entity === 'invoices') {
