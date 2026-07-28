@@ -259,6 +259,7 @@ class InvitationController extends Controller
         return $this->render('view_entity.set_password', [
             'root' => 'themes',
             'entity_type' => $request->entity_type,
+            'entity_translation' => ctrans('texts.' . $request->entity_type),
             'invitation_key' => $request->invitation_key,
         ]);
     }
