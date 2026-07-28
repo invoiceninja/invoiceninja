@@ -96,7 +96,7 @@ $lang = array(
     'powered_by' => 'Unterstützt durch',
     'no_items' => 'Keine Elemente',
     'recurring_invoices' => 'Wiederkehrende Rechnungen',
-    'recurring_help' => '<p>Senden Sie Ihren Kunden automatisch die gleichen Rechnungen wöchentlich, zweimonatlich, monatlich, vierteljährlich oder jährlich zu.</p> 
+    'recurring_help' => '<p>Senden Sie Ihren Kunden automatisch die gleichen Rechnungen wöchentlich, zweimonatlich, monatlich, vierteljährlich oder jährlich zu.</p>
  <p>Verwenden Sie :MONTH, :QUARTER oder :YEAR für dynamische Daten. Grundlegende Mathematik funktioniert auch, zum Beispiel :MONTH-1.</p>
  <p>Beispiele für dynamische Rechnungsvariablen:</p>
  <ul>
@@ -6002,6 +6002,8 @@ Leistungsempfängers',
     'peppol_rejected' => 'Die elektronische Rechnung wurde vom Empfänger abgelehnt.',
     'peppol_partially_paid' => 'E-Rechnung teilweise bezahlt.',
     'peppol_paid' => 'E-Rechnung bezahlt.',
+    'cash_discount_invoice_note' => 'Wir gewähren :percent % Skonto bei Zahlungseingang von :amount_due bis zum :date.',
+    'balance_with_cash_discount' => 'Offener Betrag mit Skonto',
 
 );
 
