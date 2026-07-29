@@ -96,8 +96,6 @@
         @livewire('pdf-slot', ['class' => get_class($quote), 'entity_id' => $quote->id, 'invitation_id' => $invitation->id ?? false, 'db' => $quote->company->db])
     </div>
 
-
-</div>
 @endsection
 
 @section('footer')
