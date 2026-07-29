@@ -63,7 +63,7 @@ use App\Models\Traits\IndexableItems;
  * @property string|null $due_date
  * @property float|null $cash_discount_percent
  * @property-read float $cash_discount
- * @property string|null|\Carbon\Carbon $cash_discount_expiry_date
+ * @property string|null|\Carbon\Carbon $cash_discount_due_date
  * @property bool $is_deleted
  * @property object|array|string $line_items
  * @property InvoiceBackup $backup
@@ -224,7 +224,7 @@ class Invoice extends BaseModel
         'e_invoice',
         'location_id',
         'cash_discount_percent',
-        'cash_discount_expiry_date',
+        'cash_discount_due_date',
     ];
 
     protected $casts = [
@@ -244,7 +244,7 @@ class Invoice extends BaseModel
         'e_invoice' => 'object',
         'cash_discount_percent' => 'float',
         'applied_cash_discount' => 'float',
-        'cash_discount_expiry_date' => 'date:Y-m-d',
+        'cash_discount_due_date' => 'date:Y-m-d',
         'sync' => InvoiceSync::class,
 
     ];

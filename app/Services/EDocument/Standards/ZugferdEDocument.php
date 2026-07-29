@@ -310,15 +310,15 @@ class ZugferdEDocument extends AbstractService
             'paydate' => $this->document->due_date,
         ]);
 
-        if ($this->document instanceof Invoice && $this->document->cash_discount_percent > 0 && $this->document->cash_discount_expiry_date) {
-            $cashDiscountExpiryDate = date_create($this->document->cash_discount_expiry_date->format('Y-m-d'));
-            $cashDiscountDays = (int) $documentDate->diff($cashDiscountExpiryDate)->format("%r%a");
+        if ($this->document instanceof Invoice && $this->document->cash_discount_percent > 0 && $this->document->cash_discount_due_date) {
+            $cashDiscountDueDate = date_create($this->document->cash_discount_due_date->format('Y-m-d'));
+            $cashDiscountDays = (int) $documentDate->diff($cashDiscountDueDate)->format("%r%a");
 
             if ($cashDiscountDays >= 0) {
                 $cashDiscountNote = ctrans('texts.cash_discount_invoice_note', [
                     'percent' => (float) $this->document->cash_discount_percent,
                     'discount' => round($this->document->cash_discount, 2),
-                    'date' => $this->document->cash_discount_expiry_date->format('Y-m-d'),
+                    'date' => $this->document->cash_discount_due_date->format('Y-m-d'),
                     'amount_due' => round($this->calc->getBalanceWithCashDiscount(), 2),
                 ]);
 

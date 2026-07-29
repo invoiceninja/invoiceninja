@@ -72,13 +72,13 @@ class StoreInvoiceRequest extends Request
             'nullable',
             'numeric',
             Rule::when(
-                fn() => strlen($this->cash_discount_expiry_date ?? '') > 1,
+                fn() => strlen($this->cash_discount_due_date ?? '') > 1,
                 ['required', 'gt:0'],
                 ['min:0']
             ),
             'max:100',
         ];
-        $rules['cash_discount_expiry_date'] = [
+        $rules['cash_discount_due_date'] = [
             'bail',
             'sometimes',
             'nullable',

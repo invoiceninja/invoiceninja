@@ -172,7 +172,7 @@ class InvoiceTransformer extends EntityTransformer
             'cash_discount_percent' => (float) ($invoice->cash_discount_percent ?: 0.0),
             'cash_discount' => (float) $invoice->cash_discount,
             'applied_cash_discount' => (float) $invoice->applied_cash_discount,
-            'cash_discount_expiry_date' => $invoice->cash_discount_expiry_date ? $invoice->cash_discount_expiry_date->format('Y-m-d') : '',
+            'cash_discount_due_date' => $invoice->cash_discount_due_date ? $invoice->cash_discount_due_date->format('Y-m-d') : '',
             'custom_value1' => (string) $invoice->custom_value1 ?: '',
             'custom_value2' => (string) $invoice->custom_value2 ?: '',
             'custom_value3' => (string) $invoice->custom_value3 ?: '',

@@ -305,7 +305,7 @@ class InvoiceMarkPaidTest extends TestCase
             'uses_inclusive_taxes' => false,
             'is_amount_discount' => false,
             'cash_discount_percent' => 10,
-            'cash_discount_expiry_date' => null,
+            'cash_discount_due_date' => null,
         ]);
 
         $i->calc()->getInvoice();

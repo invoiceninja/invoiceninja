@@ -327,7 +327,7 @@ class InvoiceService
             return $this;
         }
 
-        $this->invoice->cash_discount_expiry_date = Carbon::parse($this->invoice->date)->addDays((int) $this->invoice->client->getSetting('cash_discount_days'));
+        $this->invoice->cash_discount_due_date = Carbon::parse($this->invoice->date)->addDays((int) $this->invoice->client->getSetting('cash_discount_days'));
         $this->invoice->cash_discount_percent = (float) $this->invoice->client->getSetting('cash_discount_percent');
 
         return $this;

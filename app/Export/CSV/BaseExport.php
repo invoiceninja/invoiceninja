@@ -197,7 +197,7 @@ class BaseExport
         "discount" => "invoice.discount",
         "cash_discount_percent" => "invoice.cash_discount_percent",
         "available_cash_discount" => "invoice.cash_discount",
-        "cash_discount_expiry_date" => "invoice.cash_discount_expiry_date",
+        "cash_discount_due_date" => "invoice.cash_discount_due_date",
         "partial" => "invoice.partial",
         "partial_due_date" => "invoice.partial_due_date",
         "surcharge1" => "invoice.custom_surcharge1",

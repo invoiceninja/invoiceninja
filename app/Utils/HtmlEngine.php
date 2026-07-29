@@ -537,7 +537,7 @@ class HtmlEngine
                 'percent' => (float) $this->entity->cash_discount_percent,
                 'discount' => Number::formatMoney($this->entity->cash_discount, $this->client),
                 'date' => $this->translateDate(
-                    $this->entity->cash_discount_expiry_date,
+                    $this->entity->cash_discount_due_date,
                     $this->client->date_format(),
                     $this->client->locale()
                 ),
