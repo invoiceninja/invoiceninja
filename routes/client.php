@@ -46,7 +46,10 @@ Route::get('client/ninja/{contact_key}/{company_key}', [App\Http\Controllers\Cli
 Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db','check_client_existence'], 'prefix' => 'client', 'as' => 'client.'], function () {
     Route::get('dashboard', [App\Http\Controllers\ClientPortal\DashboardController::class, 'index'])->name('dashboard'); // name = (dashboard. index / create / show / update / destroy / edit
 
-    Route::post('ninja/trial_confirmation', [App\Http\Controllers\ClientPortal\NinjaPlanController::class, 'trial_confirmation'])->name('trial.response')->middleware(['domain_db']);
+    Route::post('ninja/trial_confirmation', [App\Http\Controllers\ClientPortal\NinjaPlanController::class, 'trial_confirmation'])->name('trial.response')->middleware(['domain_db', 'throttle:10,1']);
+    Route::post('ninja/trial/setup', [App\Http\Controllers\ClientPortal\NinjaPlanController::class, 'trialSetup'])->name('trial.setup')->middleware(['domain_db', 'throttle:10,1']);
+    Route::post('ninja/trial/authorization', [App\Http\Controllers\ClientPortal\NinjaPlanController::class, 'trialAuthorization'])->name('trial.authorization')->middleware(['domain_db', 'throttle:10,1']);
+    Route::get('ninja/trial/confirmed', [App\Http\Controllers\ClientPortal\NinjaPlanController::class, 'trialConfirmed'])->name('trial.confirmed')->middleware(['domain_db']);
 
     Route::get('plan', [App\Http\Controllers\ClientPortal\NinjaPlanController::class, 'plan'])->name('plan'); // name = (dashboard. index / create / show / update / destroy / edit
 

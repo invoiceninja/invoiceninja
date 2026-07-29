@@ -7,6 +7,20 @@ use PHPUnit\Framework\TestCase;
 
 class EmailDomainWebpageDetectorTest extends TestCase
 {
+
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        if (
+            ! class_exists(\Modules\Admin\Services\Spam\EmailDomainWebpageDetector::class)
+        ) {
+            $this->markTestSkipped('Admin module email domain webpage detector is not installed.');
+        }
+    }
+
+
     public function testItMatchesAnARecord(): void
     {
         $detector = new EmailDomainWebpageDetector(static fn (string $domain): array => [

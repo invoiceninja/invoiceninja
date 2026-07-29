@@ -25,6 +25,7 @@ use App\Jobs\Util\SchedulerCheck;
 use App\Jobs\Ninja\CheckACHStatus;
 use App\Jobs\Cron\SubscriptionCron;
 use App\Jobs\Ninja\MailWebhookSync;
+use App\Jobs\Ninja\ReconcileNinjaPlanTrialCards;
 use App\Jobs\Util\QuoteReminderJob;
 use App\Jobs\Ninja\AdjustEmailQuota;
 use App\Jobs\Ninja\CompanySizeCheck;
@@ -70,6 +71,12 @@ class Kernel extends ConsoleKernel
 
         /* Sends recurring invoices*/
         $schedule->job(new RecurringInvoicesCron())->hourly()->withoutOverlapping()->name('recurring-invoice-job')->onOneServer();
+
+        $schedule->job(new ReconcileNinjaPlanTrialCards())
+            ->everyFiveMinutes()
+            ->withoutOverlapping()
+            ->name('ninja-plan-trial-card-reconciliation')
+            ->onOneServer();
 
         /* Checks for scheduled tasks */
         $schedule->job(new TaskScheduler())->hourlyAt(10)->withoutOverlapping()->name('task-scheduler-job')->onOneServer();

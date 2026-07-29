@@ -132,6 +132,7 @@ use App\Models\Traits\IndexableItems;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
  * @property bool $is_proforma
+ * @property string|null $trial_attempt_id
  * @mixin \Eloquent
  */
 class RecurringInvoice extends BaseModel

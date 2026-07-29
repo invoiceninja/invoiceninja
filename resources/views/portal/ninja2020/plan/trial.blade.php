@@ -1449,7 +1449,7 @@ Ensure the default browser behavior of the `hidden` attribute.
                         method="post"
                 >
                 @csrf
-                    <input type="hidden" name="gateway_response"/>
+                    <input type="hidden" name="attempt_id"/>
                     <div class="alert alert-failure mb-4" hidden="" id="errors"></div>
                     <div class="form-group mb-[10px] flex">
 
@@ -1554,7 +1554,7 @@ Ensure the default browser behavior of the `hidden` attribute.
                         </div>
                     </div>
                     <div class="flex justify-start mb-[25px]">
-                        <span class="text-[12px]">* At the end of your 14 day trial your card will be charged $12/month. Cancel anytime.</span>
+                        <span class="text-[12px]">{{ ctrans('texts.trial_card_authorization_notice') }}</span>
                     </div>
                     <div class="flex justify-end">
                         <button
@@ -1818,12 +1818,9 @@ Ensure the default browser behavior of the `hidden` attribute.
 
 <script type="text/javascript">
 
-var stripe = Stripe('{{ $gateway->getPublishableKey()}}');
-var client_secret = '{{ $intent->client_secret }}';
-
-var elements = stripe.elements({
-  clientSecret: client_secret,
-});
+const stripe = Stripe('{{ $gateway->getPublishableKey() }}');
+const elements = stripe.elements();
+let requestInFlight = false;
 
 var cardElement = elements.create('card', {
     value: {
@@ -1835,95 +1832,125 @@ var cardElement = elements.create('card', {
 cardElement.mount('#card-element');
 
 const form = document.getElementById('card-form');
+const errors = document.getElementById('errors');
+const payNowButton = document.getElementById('pay-now');
 
 form.addEventListener('submit', (event) => {
     event.preventDefault(); // Prevent default form submission
 });
 
-var e = document.getElementById("country");
-var country_value = e.options[e.selectedIndex].value;
+function setLoading(loading) {
+    payNowButton.disabled = loading;
+    payNowButton.querySelector('svg').classList.toggle('hidden', !loading);
+    payNowButton.querySelector('span').classList.toggle('hidden', loading);
+}
 
-  document
-      .getElementById('pay-now')
-      .addEventListener('click', () => {
+function showError(message) {
+    errors.textContent = message;
+    errors.hidden = false;
+}
 
-        //make sure the user has entered their name
+async function postForm(url, body) {
+    const response = await fetch(url, {
+        method: 'POST',
+        body,
+        credentials: 'same-origin',
+        headers: {
+            Accept: 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    });
+    const contentType = response.headers.get('content-type') ?? '';
 
-        if (document.querySelector('input[name=first_name]').value == '') {
-          let errors = document.getElementById('errors');
-          let payNowButton = document.getElementById('pay-now');
+    if (!contentType.includes('application/json')) {
+        throw new Error(response.status === 419
+            ? "{{ ctrans('texts.token_expired') }}"
+            : "{{ ctrans('texts.trial_card_gateway_error') }}");
+    }
 
-          errors.textContent = '';
-          errors.textContent = "{{ ctrans('texts.please_enter_a_first_name') }}";
-          errors.hidden = false;
+    const payload = await response.json();
 
-          payNowButton.disabled = false;
-          payNowButton.querySelector('svg').classList.add('hidden');
-          payNowButton.querySelector('span').classList.remove('hidden');
-          return;
+    if (!response.ok) {
+        throw new Error(payload.message ?? "{{ ctrans('texts.trial_card_gateway_error') }}");
+    }
+
+    return payload;
+}
+
+payNowButton.addEventListener('click', async () => {
+    if (requestInFlight) {
+        return;
+    }
+
+    requestInFlight = true;
+    errors.hidden = true;
+    setLoading(true);
+
+    try {
+        const setup = await postForm(
+            "{{ route('client.trial.setup') }}",
+            new FormData(form)
+        );
+        document.querySelector('input[name=attempt_id]').value = setup.attempt_id;
+
+        const setupResult = await stripe.confirmCardSetup(setup.client_secret, {
+            payment_method: {
+                card: cardElement,
+                billing_details: {
+                    name: `${document.querySelector('input[name=first_name]').value} ${document.querySelector('input[name=last_name]').value}`,
+                    email: '{{ $client->present()->email() }}',
+                    address: {
+                        line1: document.querySelector('input[name=address1]').value,
+                        line2: document.querySelector('input[name=address2]').value,
+                        city: document.querySelector('input[name=city]').value,
+                        postal_code: document.querySelector('input[name=postal_code]').value,
+                        state: document.querySelector('input[name=state]').value,
+                    },
+                },
+            },
+        });
+
+        if (setupResult.error) {
+            throw new Error("{{ ctrans('texts.trial_card_verification_failed') }}");
         }
 
-        if (document.querySelector('input[name=last_name]').value == '') {
-          let errors = document.getElementById('errors');
-          let payNowButton = document.getElementById('pay-now');
+        const authorizationBody = new FormData();
+        authorizationBody.append('_token', document.querySelector('input[name=_token]').value);
+        authorizationBody.append('attempt_id', setup.attempt_id);
+        authorizationBody.append('setup_intent_id', setupResult.setupIntent.id);
 
-          errors.textContent = '';
-          errors.textContent = "{{ ctrans('texts.please_enter_a_last_name') }}";
-          errors.hidden = false;
+        const authorization = await postForm(
+            "{{ route('client.trial.authorization') }}",
+            authorizationBody
+        );
+        const authorizationResult = await stripe.confirmCardPayment(
+            authorization.client_secret
+        );
 
-          payNowButton.disabled = false;
-          payNowButton.querySelector('svg').classList.add('hidden');
-          payNowButton.querySelector('span').classList.remove('hidden');
-          return;
+        if (
+            authorizationResult.error
+            || authorizationResult.paymentIntent.status !== 'requires_capture'
+        ) {
+            throw new Error("{{ ctrans('texts.trial_card_verification_failed') }}");
         }
 
-        let payNowButton = document.getElementById('pay-now');
-        payNowButton = payNowButton;
-        payNowButton.disabled = true;
-        payNowButton.querySelector('svg').classList.remove('hidden');
-        payNowButton.querySelector('span').classList.add('hidden');
+        const confirmationBody = new FormData();
+        confirmationBody.append('_token', document.querySelector('input[name=_token]').value);
+        confirmationBody.append('attempt_id', setup.attempt_id);
+        confirmationBody.append('payment_intent_id', authorizationResult.paymentIntent.id);
 
-        stripe.handleCardSetup(this.client_secret, cardElement, {
-                payment_method_data: {
-                      billing_details: {
-                        name: document.querySelector('input[name=first_name]').value + ' ' + document.querySelector('input[name=last_name]').value,
-                        email: '{{ $client->present()->email() }}',
-                        address: {
-                          line1: document.querySelector('input[name=address1]').value,
-                          line2: document.querySelector('input[name=address2]').value,
-                          city: document.querySelector('input[name=city]').value,
-                          postal_code: document.querySelector('input[name=postal_code]').value,
-                          state: document.querySelector('input[name=state]').value,
-                        }        
-                }, 
-              }
-            })
-            .then((result) => {
-                if (result.error) {
+        const confirmation = await postForm(
+            "{{ route('client.trial.response') }}",
+            confirmationBody
+        );
 
-                  let errors = document.getElementById('errors');
-                  let payNowButton = document.getElementById('pay-now');
-
-                  errors.textContent = '';
-                  errors.textContent = result.error.message;
-                  errors.hidden = false;
-
-                  payNowButton.disabled = false;
-                  payNowButton.querySelector('svg').classList.add('hidden');
-                  payNowButton.querySelector('span').classList.remove('hidden');
-                  return;
-
-                }
-
-              document.querySelector(
-                  'input[name="gateway_response"]'
-              ).value = JSON.stringify(result.setupIntent);
-
-                form.submit();
-                
-              });
-
-      });
+        window.location.assign(confirmation.redirect_url);
+    } catch (error) {
+        showError(error.message ?? "{{ ctrans('texts.trial_card_gateway_error') }}");
+        requestInFlight = false;
+        setLoading(false);
+    }
+});
 
 </script>
 

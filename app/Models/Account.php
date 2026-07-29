@@ -61,6 +61,8 @@ use Laracasts\Presenter\PresentableTrait;
  * @property Carbon|int|null $updated_at
  * @property bool $is_scheduler_running
  * @property int|null $trial_duration
+ * @property int $billing_version
+ * @property string|null $trial_reservation_id
  * @property bool $is_onboarding
  * @property object|array|null $onboarding
  * @property bool $is_migrated

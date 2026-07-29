@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $company_id
  * @property int|null $client_id
  * @property string|null $token
+ * @property string|null $token_hash
  * @property string|null $routing_number
  * @property int $company_gateway_id
  * @property string|null $gateway_customer_reference
