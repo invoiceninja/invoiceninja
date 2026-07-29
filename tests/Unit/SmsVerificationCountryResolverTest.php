@@ -7,6 +7,18 @@ use PHPUnit\Framework\TestCase;
 
 class SmsVerificationCountryResolverTest extends TestCase
 {
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        if (
+            ! class_exists(\Modules\Admin\Services\Spam\SmsVerificationCountryResolver::class)
+        ) {
+            $this->markTestSkipped('Admin module SMS verification country resolver is not installed.');
+        }
+    }
+
     public function testItUsesTheLongestMatchingPrefix(): void
     {
         $countries = (new SmsVerificationCountryResolver())->resolve('+1 242 555 1234', [
