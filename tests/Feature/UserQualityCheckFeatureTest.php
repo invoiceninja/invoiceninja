@@ -9,14 +9,28 @@ use App\Notifications\Ninja\GenericNinjaAdminNotification;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
-use Modules\Admin\Jobs\Account\UserQualityCheck;
-use Modules\Admin\Services\Spam\EmailDomainWebpageDetector;
 use ReflectionProperty;
 use Tests\TestCase;
 
 class UserQualityCheckFeatureTest extends TestCase
 {
     use DatabaseTransactions;
+
+    private const USER_QUALITY_CHECK = '\\Modules\\Admin\\Jobs\\Account\\UserQualityCheck';
+
+    private const EMAIL_DOMAIN_WEBPAGE_DETECTOR = '\\Modules\\Admin\\Services\\Spam\\EmailDomainWebpageDetector';
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        if (
+            ! class_exists(self::USER_QUALITY_CHECK)
+            || ! class_exists(self::EMAIL_DOMAIN_WEBPAGE_DETECTOR)
+        ) {
+            $this->markTestSkipped('Admin module user quality checks are not installed.');
+        }
+    }
 
     public function testItAggregatesAllTriggeredChecksIntoOneNotification(): void
     {
@@ -29,10 +43,9 @@ class UserQualityCheckFeatureTest extends TestCase
             ])),
         ]);
 
-        $this->app->instance(
-            EmailDomainWebpageDetector::class,
-            new EmailDomainWebpageDetector(static fn (string $domain): array => []),
-        );
+        $detectorClass = self::EMAIL_DOMAIN_WEBPAGE_DETECTOR;
+
+        $this->app->instance($detectorClass, new $detectorClass(static fn (string $domain): array => []));
 
         $user = $this->makeUser(
             email: 'quality-check@domain-without-address-record.test',
@@ -40,7 +53,9 @@ class UserQualityCheckFeatureTest extends TestCase
             ip: '203.0.113.10',
         );
 
-        (new UserQualityCheck($user, config('database.default')))->handle();
+        $jobClass = self::USER_QUALITY_CHECK;
+
+        (new $jobClass($user, config('database.default')))->handle();
 
         Notification::assertSentOnDemand(
             GenericNinjaAdminNotification::class,
@@ -72,9 +87,11 @@ class UserQualityCheckFeatureTest extends TestCase
             ])),
         ]);
 
+        $detectorClass = self::EMAIL_DOMAIN_WEBPAGE_DETECTOR;
+
         $this->app->instance(
-            EmailDomainWebpageDetector::class,
-            new EmailDomainWebpageDetector(static fn (string $domain): array => [
+            $detectorClass,
+            new $detectorClass(static fn (string $domain): array => [
                 ['host' => $domain, 'type' => 'A', 'ip' => '93.184.216.34'],
             ]),
         );
@@ -85,7 +102,9 @@ class UserQualityCheckFeatureTest extends TestCase
             ip: '203.0.113.10',
         );
 
-        (new UserQualityCheck($user, config('database.default')))->handle();
+        $jobClass = self::USER_QUALITY_CHECK;
+
+        (new $jobClass($user, config('database.default')))->handle();
 
         Notification::assertNothingSent();
     }
