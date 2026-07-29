@@ -84,17 +84,6 @@
                                         </button>
                                     </div>
                                 </div>
-
-                                @if(config('services.oidc.well_known'))
-                                    <div class="row mt-3">
-                                        <div class="col-12 text-center">
-                                            <a class="btn btn-lg btn-secondary btn-block" href="/auth/oidc">
-                                                <i class="icon-login"></i>
-                                                Sign in with {{ config('services.oidc.provider_label', 'OIDC') }}
-                                            </a>
-                                        </div>
-                                    </div>
-                                @endif
                             </form>
                         </div>
                     </div>

@@ -1047,22 +1047,20 @@ class LoginController extends BaseController
      * self-hosted is treated as a sign-in path for accounts that already
      * exist, not a self-service signup path.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function handleOidcProviderCallback()
     {
-        $error_redirect = fn (string $msg) => redirect(config('ninja.react_url') . '/login?error=' . urlencode($msg));
-
         try {
             /** @var \Laravel\Socialite\Two\User $socialite_user */
             $socialite_user = Socialite::driver('oidc')->user();
         } catch (\Throwable $e) {
             nlog('OIDC callback failed: ' . $e->getMessage());
-            return $error_redirect('OIDC sign-in failed: ' . $e->getMessage());
+            return response()->json(['message' => 'OIDC sign-in failed: ' . $e->getMessage()], 400);
         }
 
         if (!$socialite_user || !$socialite_user->getId()) {
-            return $error_redirect('OIDC sign-in failed: missing subject identifier.');
+            return response()->json(['message' => 'OIDC sign-in failed: missing subject identifier.'], 400);
         }
 
         $user = MultiDB::hasUser([
@@ -1087,11 +1085,11 @@ class LoginController extends BaseController
         }
 
         if (!$user) {
-            return $error_redirect('No Invoice Ninja account is linked to this OIDC identity. Ask an administrator to invite you first.');
+            return response()->json(['message' => 'No Invoice Ninja account is linked to this OIDC identity. Ask an administrator to invite you first.'], 400);
         }
 
         if (!$user->account) {
-            return $error_redirect('User exists but is not attached to any company.');
+            return response()->json(['message' => 'User exists but is not attached to any company.'], 400);
         }
 
         Auth::login($user, false);
@@ -1099,11 +1097,11 @@ class LoginController extends BaseController
         $cu = $this->hydrateCompanyUser($user);
 
         if ($cu->count() == 0) {
-            return $error_redirect('User found but not attached to any company. Please contact your administrator.');
+            return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
         if (Ninja::isHosted() && !$cu->first()->is_owner && !$user->account->isEnterprisePaidClient()) { //@phpstan-ignore-line
-            return $error_redirect('Pro / Free accounts only the owner can log in. Please upgrade.');
+            return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
         }
 
         $name = OAuth::splitName($socialite_user->getName() ?? '');
@@ -1112,17 +1110,10 @@ class LoginController extends BaseController
             'last_name' => $user->last_name ?: $name[1],
         ]);
 
-        $company_token = CompanyToken::where('user_id', $user->id)
-            ->where('company_id', $user->account->default_company_id)
-            ->where('is_system', true)
-            ->first();
+        $company_token = app(TruthSource::class)->getCompanyToken();
 
         if (!$company_token) {
-            (new CreateCompanyToken($user->account->default_company, $user, request()->server('HTTP_USER_AGENT')))->handle();
-            $company_token = CompanyToken::where('user_id', $user->id)
-                ->where('company_id', $user->account->default_company_id)
-                ->where('is_system', true)
-                ->first();
+            return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
         return redirect(config('ninja.react_url') . '/oauth-callback?token=' . $company_token->token);
