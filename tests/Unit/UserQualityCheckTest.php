@@ -10,6 +10,20 @@ use ReflectionMethod;
 
 class UserQualityCheckTest extends TestCase
 {
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        if (
+            ! class_exists(\Modules\Admin\Jobs\Account\UserQualityCheck::class)
+            || ! class_exists(\Modules\Admin\Services\Spam\EmailDomainWebpageDetector::class)
+        ) {
+            $this->markTestSkipped('Admin module user quality checks are not installed.');
+        }
+    }
+
+    
     public function testAggregatedNotificationIncludesAllAvailableData(): void
     {
         $job = new UserQualityCheck($this->user(), 'db-ninja-01');
