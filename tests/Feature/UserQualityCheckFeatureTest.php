@@ -25,8 +25,8 @@ class UserQualityCheckFeatureTest extends TestCase
         parent::setUp();
 
         if (
-            ! class_exists(self::USER_QUALITY_CHECK)
-            || ! class_exists(self::EMAIL_DOMAIN_WEBPAGE_DETECTOR)
+            ! class_exists(\Modules\Admin\Jobs\Account\UserQualityCheck::class)
+            || ! class_exists(\Modules\Admin\Services\Spam\EmailDomainWebpageDetector::class)
         ) {
             $this->markTestSkipped('Admin module user quality checks are not installed.');
         }
