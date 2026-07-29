@@ -274,4 +274,6 @@ return [
     'chart_service_url' => env('CHART_SERVICE_URL', false),
     'docuninja_api_url' => env('DOCUNINJA_API_URL', false),
     'auto_bill_time' => env('NINJA_AUTO_BILL_TIME', '06:20'),
+    'run_trial_mysql_integration_tests' => env('RUN_NINJA_TRIAL_MYSQL_TESTS', false),
+    'trial_test_account_connection' => env('NINJA_TRIAL_TEST_ACCOUNT_CONNECTION'),
 ];

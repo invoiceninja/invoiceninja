@@ -362,6 +362,7 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::get('quote/{invitation_key}/download_e_quote', [QuoteController::class, 'downloadEQuote'])->name('quotes.downloadEQuote');
 
     Route::post('quickbooks/sync', [QuickbooksController::class, 'sync'])->name('quickbooks.sync');
+    Route::post('quickbooks/action', [QuickbooksController::class, 'action'])->name('quickbooks.action');
     Route::post('quickbooks/settings', [QuickbooksController::class, 'settings'])->name('quickbooks.settings');
     Route::post('quickbooks/disconnect', [QuickbooksController::class, 'disconnect'])->name('quickbooks.disconnect');
     Route::post('quickbooks/reconnect_url', [QuickbooksController::class, 'reconnectUrl'])->name('quickbooks.reconnect_url');

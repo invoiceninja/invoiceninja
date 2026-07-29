@@ -1449,7 +1449,7 @@ Ensure the default browser behavior of the `hidden` attribute.
                         method="post"
                 >
                 @csrf
-                    <input type="hidden" name="attempt_id"/>
+                    <input type="hidden" name="payment_intent_id"/>
                     <div class="alert alert-failure mb-4" hidden="" id="errors"></div>
                     <div class="form-group mb-[10px] flex">
 
@@ -1819,6 +1819,7 @@ Ensure the default browser behavior of the `hidden` attribute.
 <script type="text/javascript">
 
 const stripe = Stripe('{{ $gateway->getPublishableKey() }}');
+const clientSecret = '{{ $intent->client_secret }}';
 const elements = stripe.elements();
 let requestInFlight = false;
 
@@ -1836,7 +1837,7 @@ const errors = document.getElementById('errors');
 const payNowButton = document.getElementById('pay-now');
 
 form.addEventListener('submit', (event) => {
-    event.preventDefault(); // Prevent default form submission
+    event.preventDefault();
 });
 
 function setLoading(loading) {
@@ -1850,35 +1851,12 @@ function showError(message) {
     errors.hidden = false;
 }
 
-async function postForm(url, body) {
-    const response = await fetch(url, {
-        method: 'POST',
-        body,
-        credentials: 'same-origin',
-        headers: {
-            Accept: 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
-        },
-    });
-    const contentType = response.headers.get('content-type') ?? '';
-
-    if (!contentType.includes('application/json')) {
-        throw new Error(response.status === 419
-            ? "{{ ctrans('texts.token_expired') }}"
-            : "{{ ctrans('texts.trial_card_gateway_error') }}");
-    }
-
-    const payload = await response.json();
-
-    if (!response.ok) {
-        throw new Error(payload.message ?? "{{ ctrans('texts.trial_card_gateway_error') }}");
-    }
-
-    return payload;
-}
-
 payNowButton.addEventListener('click', async () => {
     if (requestInFlight) {
+        return;
+    }
+
+    if (!form.reportValidity()) {
         return;
     }
 
@@ -1887,13 +1865,7 @@ payNowButton.addEventListener('click', async () => {
     setLoading(true);
 
     try {
-        const setup = await postForm(
-            "{{ route('client.trial.setup') }}",
-            new FormData(form)
-        );
-        document.querySelector('input[name=attempt_id]').value = setup.attempt_id;
-
-        const setupResult = await stripe.confirmCardSetup(setup.client_secret, {
+        const result = await stripe.confirmCardPayment(clientSecret, {
             payment_method: {
                 card: cardElement,
                 billing_details: {
@@ -1910,41 +1882,42 @@ payNowButton.addEventListener('click', async () => {
             },
         });
 
-        if (setupResult.error) {
-            throw new Error("{{ ctrans('texts.trial_card_verification_failed') }}");
+        if (result.error || result.paymentIntent.status !== 'requires_capture') {
+            const detail = result.error?.message ? ` ${result.error.message}` : '';
+
+            throw new Error("{{ ctrans('texts.trial_card_verification_failed') }}" + detail);
         }
 
-        const authorizationBody = new FormData();
-        authorizationBody.append('_token', document.querySelector('input[name=_token]').value);
-        authorizationBody.append('attempt_id', setup.attempt_id);
-        authorizationBody.append('setup_intent_id', setupResult.setupIntent.id);
+        document.querySelector('input[name=payment_intent_id]').value = result.paymentIntent.id;
 
-        const authorization = await postForm(
-            "{{ route('client.trial.authorization') }}",
-            authorizationBody
-        );
-        const authorizationResult = await stripe.confirmCardPayment(
-            authorization.client_secret
-        );
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            credentials: 'same-origin',
+            headers: {
+                Accept: 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        });
+        const contentType = response.headers.get('content-type') ?? '';
 
-        if (
-            authorizationResult.error
-            || authorizationResult.paymentIntent.status !== 'requires_capture'
-        ) {
-            throw new Error("{{ ctrans('texts.trial_card_verification_failed') }}");
+        if (!contentType.includes('application/json')) {
+            throw new Error(response.status === 419
+                ? "{{ ctrans('texts.token_expired') }}"
+                : "{{ ctrans('texts.trial_card_gateway_error') }}");
         }
 
-        const confirmationBody = new FormData();
-        confirmationBody.append('_token', document.querySelector('input[name=_token]').value);
-        confirmationBody.append('attempt_id', setup.attempt_id);
-        confirmationBody.append('payment_intent_id', authorizationResult.paymentIntent.id);
+        const payload = await response.json();
 
-        const confirmation = await postForm(
-            "{{ route('client.trial.response') }}",
-            confirmationBody
-        );
+        if (!response.ok) {
+            throw new Error(payload.message ?? "{{ ctrans('texts.trial_card_gateway_error') }}");
+        }
 
-        window.location.assign(confirmation.redirect_url);
+        if (typeof payload.redirect_url !== 'string' || !payload.redirect_url.startsWith(window.location.origin)) {
+            throw new Error("{{ ctrans('texts.trial_card_gateway_error') }}");
+        }
+
+        window.location.assign(payload.redirect_url);
     } catch (error) {
         showError(error.message ?? "{{ ctrans('texts.trial_card_gateway_error') }}");
         requestInFlight = false;

@@ -94,6 +94,7 @@ return [
         'model' => App\Models\User::class,
         'key' => env('STRIPE_KEY'),
         'secret' => env('STRIPE_SECRET'),
+        'run_trial_integration_tests' => env('RUN_STRIPE_TRIAL_INTEGRATION_TESTS', false),
     ],
 
     'github' => [
