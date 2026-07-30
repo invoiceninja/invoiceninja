@@ -369,6 +369,9 @@ class ProjectBurnUpService
             ],
             'series' => $series,
             'totals' => $this->roundTotals($totals),
+            'metadata' => [
+                'can_view_financials' => $this->is_admin
+            ],
         ];
     }
 

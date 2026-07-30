@@ -78,6 +78,7 @@ class ProjectAnalyticsService
                 'project_count' => $snapshots->count(),
                 'include_drafts' => $this->includeDrafts,
                 'generated_at' => now()->toDateTimeString(),
+                'can_view_financials' => $this->isAdmin
             ],
         ];
     }
