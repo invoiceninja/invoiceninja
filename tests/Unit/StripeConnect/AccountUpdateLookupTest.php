@@ -21,8 +21,8 @@ class AccountUpdateLookupTest extends TestCase
     {
         parent::setUp();
 
-        if(!class_exists(Modules\Admin\Jobs\Stripe\AccountUpdate::class)){
-$this->markTestSkipped('AccountUpdate job does not exist');
+        if(!class_exists(AccountUpdate::class)){
+            $this->markTestSkipped('AccountUpdate job does not exist');
         }
 
         $this->makeTestData();
