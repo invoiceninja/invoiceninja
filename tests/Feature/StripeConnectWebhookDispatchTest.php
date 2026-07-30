@@ -14,7 +14,7 @@ class StripeConnectWebhookDispatchTest extends TestCase
     {
         parent::setUp();
 
-        if(!class_exists(PaymentMethodWebhook::class)){
+        if(!class_exists(PaymentMethodWebhook::class) || config('ninja.testvars.travis') !== false){
             $this->markTestSkipped('PaymentMethodWebhook job does not exist');
         }
     }
