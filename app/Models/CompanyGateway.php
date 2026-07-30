@@ -40,6 +40,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $deleted_at
  * @property string $token_billing
  * @property string|null $label
+ * @property string|null $gateway_account_id
  * @property bool $require_client_name
  * @property bool $require_postal_code
  * @property bool $require_client_phone

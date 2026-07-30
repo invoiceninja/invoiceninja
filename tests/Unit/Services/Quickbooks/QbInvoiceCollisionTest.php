@@ -274,6 +274,7 @@ class QbInvoiceCollisionTest extends TestCase
         ]);
 
         $qb_invoice = $this->makeQbInvoice();
+        $qb_invoice->service->settings->invoice->direction = SyncDirection::PULL;
         $sdk = Mockery::mock(SdkWrapper::class);
         $sdk->shouldReceive('findById')
             ->once()
@@ -291,6 +292,14 @@ class QbInvoiceCollisionTest extends TestCase
         $this->assertSame(InvoiceQbStatus::Synced->value, $checked_invoice->sync->qb_status);
         $this->assertSame('4', $checked_invoice->sync->qb_sync_token);
         $this->assertSame('QuickBooks rejected DisplayName.', $checked_invoice->sync->qb_status_message);
+
+        $context = $qb_invoice->checkContext();
+        $this->assertSame('synced', $context['outcome']);
+        $this->assertTrue($context['linked']);
+        $this->assertSame('QB-CHECK-1', $context['quickbooks']['id']);
+        $this->assertTrue($context['comparison']['number']['matches']);
+        $this->assertTrue($context['comparison']['total']['matches']);
+        $this->assertSame([], $context['recommended_actions']);
     }
 
     public function testWebhookSyncUpdatesExistingInvoiceSyncToken(): void
@@ -462,6 +471,7 @@ ERROR;
         ]);
 
         $qb_invoice = $this->makeQbInvoice();
+        $qb_invoice->service->settings->invoice->direction = SyncDirection::PULL;
         $sdk = Mockery::mock(SdkWrapper::class);
         $sdk->shouldReceive('findById')
             ->once()
@@ -476,13 +486,23 @@ ERROR;
 
         $checked_invoice = $qb_invoice->check($invoice);
 
-        $this->assertSame(InvoiceQbStatus::Synced->value, $checked_invoice->sync->qb_status);
+        $this->assertSame(InvoiceQbStatus::DataMismatch->value, $checked_invoice->sync->qb_status);
         $this->assertSame(
             'The linked QuickBooks invoice differs: its number is #QB-NUMBER instead of #INV-CHECK-2, and its total is 150.00 instead of 125.00.',
             $checked_invoice->sync->qb_status_message
         );
         $this->assertSame('INV-CHECK-2', $checked_invoice->number);
         $this->assertSame(125.00, (float) $checked_invoice->amount);
+
+        $context = $qb_invoice->checkContext();
+        $this->assertSame('data_mismatch', $context['outcome']);
+        $this->assertFalse($context['comparison']['number']['matches']);
+        $this->assertFalse($context['comparison']['total']['matches']);
+        $this->assertSame(150.00, $context['quickbooks']['total']);
+        $this->assertSame(
+            ['verify_quickbooks_invoice', 'force_pull'],
+            $context['recommended_actions']
+        );
     }
 
     public function testUnlinkedCheckPreservesPushFailureWhenNumberIsAvailable(): void
@@ -496,6 +516,7 @@ ERROR;
         ]);
 
         $qb_invoice = $this->makeQbInvoice();
+        $qb_invoice->service->settings->invoice->direction = SyncDirection::PUSH;
         $sdk = Mockery::mock(SdkWrapper::class);
         $sdk->shouldReceive('query')
             ->once()
@@ -507,6 +528,118 @@ ERROR;
 
         $this->assertSame(InvoiceQbStatus::Syncable->value, $checked_invoice->sync->qb_status);
         $this->assertSame('Previous push failure.', $checked_invoice->sync->qb_status_message);
+
+        $context = $qb_invoice->checkContext();
+        $this->assertSame('syncable', $context['outcome']);
+        $this->assertFalse($context['linked']);
+        $this->assertNull($context['quickbooks']);
+        $this->assertNull($context['comparison']);
+        $this->assertSame(['force_push'], $context['recommended_actions']);
+    }
+
+    public function testUnlinkedCheckReturnsCandidateComparisonContext(): void
+    {
+        $invoice = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'number' => 'INV-CANDIDATE',
+            'amount' => 100.00,
+            'balance' => 100.00,
+        ]);
+
+        $qb_invoice = $this->makeQbInvoice();
+        $sdk = Mockery::mock(SdkWrapper::class);
+        $sdk->shouldReceive('query')
+            ->once()
+            ->with("select * from Invoice where DocNumber = 'INV-CANDIDATE'")
+            ->andReturn((object) [
+                'Id' => 'QB-CANDIDATE',
+                'DocNumber' => 'INV-CANDIDATE',
+                'TotalAmt' => 125.00,
+                'Balance' => 25.00,
+                'TxnStatus' => 'Open',
+                'SyncToken' => '4',
+            ]);
+        $this->setSdkWrapper($qb_invoice, $sdk);
+
+        $checked_invoice = $qb_invoice->check($invoice);
+        $context = $qb_invoice->checkContext();
+
+        $this->assertSame(InvoiceQbStatus::DataMismatch->value, $checked_invoice->sync->qb_status);
+        $this->assertSame('data_mismatch', $context['outcome']);
+        $this->assertFalse($context['linked']);
+        $this->assertSame('QB-CANDIDATE', $context['quickbooks']['id']);
+        $this->assertTrue($context['comparison']['number']['matches']);
+        $this->assertFalse($context['comparison']['total']['matches']);
+        $this->assertSame(
+            ['verify_quickbooks_invoice', 'change_invoice_number'],
+            $context['recommended_actions']
+        );
+    }
+
+    public function testLinkedCheckClearsResolvedDataMismatch(): void
+    {
+        $invoice = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'number' => 'INV-RESOLVED',
+            'amount' => 175.00,
+            'balance' => 175.00,
+            'sync' => new InvoiceSync(
+                qb_id: 'QB-RESOLVED',
+                qb_status: InvoiceQbStatus::DataMismatch->value,
+                qb_status_message: 'The linked QuickBooks invoice total differs.',
+            ),
+        ]);
+
+        $qb_invoice = $this->makeQbInvoice();
+        $sdk = Mockery::mock(SdkWrapper::class);
+        $sdk->shouldReceive('findById')
+            ->once()
+            ->with('Invoice', 'QB-RESOLVED')
+            ->andReturn((object) [
+                'Id' => 'QB-RESOLVED',
+                'DocNumber' => 'INV-RESOLVED',
+                'TotalAmt' => 175.00,
+                'SyncToken' => '7',
+            ]);
+        $this->setSdkWrapper($qb_invoice, $sdk);
+
+        $checked_invoice = $qb_invoice->check($invoice);
+
+        $this->assertSame(InvoiceQbStatus::Synced->value, $checked_invoice->sync->qb_status);
+        $this->assertSame('7', $checked_invoice->sync->qb_sync_token);
+        $this->assertSame('', $checked_invoice->sync->qb_status_message);
+    }
+
+    public function testUnlinkedCheckClearsResolvedDataMismatchWhenNumberIsAvailable(): void
+    {
+        $invoice = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'number' => 'INV-RESOLVED-AVAILABLE',
+            'sync' => new InvoiceSync(
+                qb_status: InvoiceQbStatus::DataMismatch->value,
+                qb_status_message: 'A QuickBooks invoice previously used this number.',
+            ),
+        ]);
+
+        $qb_invoice = $this->makeQbInvoice();
+        $sdk = Mockery::mock(SdkWrapper::class);
+        $sdk->shouldReceive('query')
+            ->once()
+            ->with("select * from Invoice where DocNumber = 'INV-RESOLVED-AVAILABLE'")
+            ->andReturn([]);
+        $this->setSdkWrapper($qb_invoice, $sdk);
+
+        $checked_invoice = $qb_invoice->check($invoice);
+
+        $this->assertSame(InvoiceQbStatus::Syncable->value, $checked_invoice->sync->qb_status);
+        $this->assertSame('', $checked_invoice->sync->qb_status_message);
+        $this->assertSame([], $qb_invoice->checkContext()['recommended_actions']);
     }
 
     public function testDocNumberPreflightFailureAllowsCreateToProceed(): void

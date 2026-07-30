@@ -35,6 +35,8 @@ class QbInvoice implements SyncInterface
 
     protected InvoiceRepository $invoice_repository;
 
+    protected array $check_context = [];
+
     public function __construct(public QuickbooksService $service)
     {
         $this->invoice_transformer = new InvoiceTransformer($this->service->company);
@@ -872,6 +874,7 @@ class QbInvoice implements SyncInterface
      */
     public function check(Invoice $invoice): Invoice
     {
+        $this->check_context = [];
         $qb_id = (string) data_get($invoice->sync, 'qb_id', '');
 
         if ($qb_id === '') {
@@ -880,6 +883,7 @@ class QbInvoice implements SyncInterface
 
         $qb_record = $this->find($qb_id);
         $sync = $invoice->sync ?? new InvoiceSync();
+        $previous_status = $sync->status();
 
         if (!$qb_record) {
             $sync->markSynced($qb_id, $sync->qb_sync_token, false);
@@ -887,19 +891,41 @@ class QbInvoice implements SyncInterface
             $invoice->sync = $sync;
             $invoice->saveQuietly();
 
-            return $invoice->fresh();
+            $invoice = $invoice->fresh();
+            $this->check_context = $this->buildCheckContext($invoice, null, true, 'not_found');
+
+            return $invoice;
         }
 
         $sync->markSynced($qb_id, (string) data_get($qb_record, 'SyncToken', ''), false);
 
         if ($message = $this->linkedInvoiceCheckMessage($invoice, $qb_record)) {
-            $sync->markPushFailure($message);
+            if (data_get($qb_record, 'TxnStatus') === 'Voided') {
+                $sync->markPushFailure($message);
+            } else {
+                $sync->markDataMismatch($message);
+            }
+        } elseif (in_array($previous_status, [InvoiceQbStatus::DataMismatch, InvoiceQbStatus::AmountMismatch], true)) {
+            $sync->clearStatusMessage();
         }
 
         $invoice->sync = $sync;
         $invoice->saveQuietly();
 
-        return $invoice->fresh();
+        $invoice = $invoice->fresh();
+        $outcome = match (true) {
+            data_get($qb_record, 'TxnStatus') === 'Voided' => 'voided',
+            $invoice->sync->status() === InvoiceQbStatus::DataMismatch => InvoiceQbStatus::DataMismatch->value,
+            default => InvoiceQbStatus::Synced->value,
+        };
+        $this->check_context = $this->buildCheckContext($invoice, $qb_record, true, $outcome);
+
+        return $invoice;
+    }
+
+    public function checkContext(): array
+    {
+        return $this->check_context;
     }
 
     private function checkUnlinkedInvoice(Invoice $invoice): Invoice
@@ -912,7 +938,10 @@ class QbInvoice implements SyncInterface
             $invoice->sync = $sync;
             $invoice->saveQuietly();
 
-            return $invoice->fresh();
+            $invoice = $invoice->fresh();
+            $this->check_context = $this->buildCheckContext($invoice, null, false, InvoiceQbStatus::Syncable->value);
+
+            return $invoice;
         }
 
         $qb_record = $this->findQbInvoiceByDocNumber((string) $invoice->number, false);
@@ -920,12 +949,93 @@ class QbInvoice implements SyncInterface
         if ($qb_record) {
             $this->flagNumberCollision($invoice, $qb_record);
         } else {
-            $sync->markSyncable(false);
+            $clear_status_message = in_array(
+                $sync->status(),
+                [InvoiceQbStatus::Linkable, InvoiceQbStatus::DataMismatch, InvoiceQbStatus::AmountMismatch],
+                true
+            );
+
+            $sync->markSyncable($clear_status_message);
             $invoice->sync = $sync;
             $invoice->saveQuietly();
         }
 
-        return $invoice->fresh();
+        $invoice = $invoice->fresh();
+        $outcome = $invoice->sync->status()->value;
+        $this->check_context = $this->buildCheckContext($invoice, $qb_record, false, $outcome);
+
+        return $invoice;
+    }
+
+    private function buildCheckContext(Invoice $invoice, mixed $qb_record, bool $linked, string $outcome): array
+    {
+        $quickbooks = null;
+        $comparison = null;
+
+        if ($qb_record) {
+            $qb_number = (string) data_get($qb_record, 'DocNumber', '');
+            $qb_total = (float) data_get($qb_record, 'TotalAmt', 0);
+
+            $quickbooks = [
+                'id' => (string) data_get($qb_record, 'Id', ''),
+                'number' => $qb_number,
+                'total' => $qb_total,
+                'balance' => (float) data_get($qb_record, 'Balance', 0),
+                'status' => (string) data_get($qb_record, 'TxnStatus', ''),
+                'sync_token' => (string) data_get($qb_record, 'SyncToken', ''),
+                'last_updated_at' => (string) data_get($qb_record, 'MetaData.LastUpdatedTime', ''),
+            ];
+            $comparison = [
+                'number' => [
+                    'matches' => $qb_number === (string) $invoice->number,
+                    'invoice_ninja' => (string) $invoice->number,
+                    'quickbooks' => $qb_number,
+                ],
+                'total' => [
+                    'matches' => $this->amountsMatch($qb_record, $invoice),
+                    'invoice_ninja' => (float) $invoice->amount,
+                    'quickbooks' => $qb_total,
+                ],
+            ];
+        }
+
+        return [
+            'outcome' => $outcome,
+            'linked' => $linked,
+            'message' => (string) data_get($invoice->sync, 'qb_status_message', ''),
+            'checked_at' => now()->toIso8601String(),
+            'quickbooks' => $quickbooks,
+            'comparison' => $comparison,
+            'recommended_actions' => $this->recommendedCheckActions($invoice, $outcome, $linked),
+        ];
+    }
+
+    private function recommendedCheckActions(Invoice $invoice, string $outcome, bool $linked): array
+    {
+        if ($outcome === InvoiceQbStatus::Syncable->value) {
+            return !empty($invoice->number)
+                && !empty($invoice->sync->qb_status_message)
+                && $this->service->syncable('invoice', \App\Enum\SyncDirection::PUSH)
+                    ? ['force_push']
+                    : [];
+        }
+
+        if ($outcome === InvoiceQbStatus::DataMismatch->value && $linked) {
+            $actions = ['verify_quickbooks_invoice'];
+
+            if ($this->service->syncable('invoice', \App\Enum\SyncDirection::PULL)) {
+                $actions[] = 'force_pull';
+            }
+
+            return $actions;
+        }
+
+        return match ($outcome) {
+            InvoiceQbStatus::Linkable->value => ['verify_quickbooks_invoice', 'force_link'],
+            InvoiceQbStatus::DataMismatch->value => ['verify_quickbooks_invoice', 'change_invoice_number'],
+            'not_found', 'voided' => ['verify_quickbooks_invoice'],
+            default => [],
+        };
     }
 
     /**

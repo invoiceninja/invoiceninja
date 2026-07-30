@@ -76,8 +76,15 @@ class QuickbooksController extends BaseController
             MultiDB::setDb($company->db);
 
             $quickbooks = new QuickbooksService($company);
+            $invoice = $quickbooks->invoice->check($invoice);
+            $transformer = new InvoiceTransformer($request->input('serializer'));
 
-            return $this->itemResponse($quickbooks->invoice->check($invoice));
+            return $this->response([
+                ...$transformer->transform($invoice),
+                'meta' => [
+                    'quickbooks_check' => $quickbooks->invoice->checkContext(),
+                ],
+            ]);
         }
 
         dispatch(function () use ($company, $invoice, $action, $user) {
