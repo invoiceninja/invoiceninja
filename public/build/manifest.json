@@ -411,7 +411,7 @@
     "src": "resources/js/setup/setup.js"
   },
   "resources/sass/app.scss": {
-    "file": "assets/app-d705893c.css",
+    "file": "assets/app-f1089b0d.css",
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }

@@ -72,6 +72,14 @@ class QuickbooksController extends BaseController
         $invoice = $request->getInvoice();
         $action = $request->validated('action');
 
+        if ($action === 'check_record') {
+            MultiDB::setDb($company->db);
+
+            $quickbooks = new QuickbooksService($company);
+
+            return $this->itemResponse($quickbooks->invoice->check($invoice));
+        }
+
         dispatch(function () use ($company, $invoice, $action, $user) {
             MultiDB::setDb($company->db);
 

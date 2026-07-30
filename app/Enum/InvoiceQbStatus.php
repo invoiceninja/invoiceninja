@@ -16,6 +16,7 @@ enum InvoiceQbStatus: string
 {
     case Syncable = 'syncable';
     case Linkable = 'linkable';
+    case DataMismatch = 'data_mismatch';
     case AmountMismatch = 'amount_mismatch';
     case Synced = 'synced';
 }

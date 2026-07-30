@@ -15,10 +15,13 @@ namespace Tests\Unit\Services\Quickbooks;
 use App\DataMapper\InvoiceSync;
 use App\DataMapper\QuickbooksSettings;
 use App\Enum\InvoiceQbStatus;
+use App\Enum\SyncDirection;
 use App\Models\Invoice;
+use App\Repositories\InvoiceRepository;
 use App\Services\Quickbooks\Models\QbInvoice;
 use App\Services\Quickbooks\QuickbooksService;
 use App\Services\Quickbooks\SdkWrapper;
+use App\Services\Quickbooks\Transformers\InvoiceTransformer;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Mockery;
 use ReflectionClass;
@@ -71,6 +74,22 @@ class QbInvoiceCollisionTest extends TestCase
         return $m->invokeArgs($qb_invoice, $args);
     }
 
+    private function setSdkWrapper(QbInvoice $qb_invoice, SdkWrapper $sdk): void
+    {
+        $service_reflection = new ReflectionClass($qb_invoice->service);
+        $sdk_wrapper = $service_reflection->getProperty('sdk_wrapper');
+        $sdk_wrapper->setAccessible(true);
+        $sdk_wrapper->setValue($qb_invoice->service, $sdk);
+    }
+
+    private function setQbInvoiceProperty(QbInvoice $qb_invoice, string $property, mixed $value): void
+    {
+        $reflection = new ReflectionClass($qb_invoice);
+        $reflected_property = $reflection->getProperty($property);
+        $reflected_property->setAccessible(true);
+        $reflected_property->setValue($qb_invoice, $value);
+    }
+
     public function testFlagNumberCollisionSetsLinkableWhenAmountsMatch(): void
     {
         $invoice = Invoice::factory()->create([
@@ -95,8 +114,10 @@ class QbInvoiceCollisionTest extends TestCase
         $invoice = $invoice->fresh();
         $this->assertSame('', $invoice->sync->qb_id);
         $this->assertSame(InvoiceQbStatus::Linkable->value, $invoice->sync->qb_status);
-        $this->assertStringContainsString('INV-COLLIDE-1', $invoice->sync->qb_status_message);
-        $this->assertStringContainsString('999', $invoice->sync->qb_status_message);
+        $this->assertSame(
+            'QuickBooks invoice #INV-COLLIDE-1 (Id 999) has the same number and total (250.00). Verify it is the same invoice before linking.',
+            $invoice->sync->qb_status_message
+        );
     }
 
     public function testFlagNumberCollisionSetsAmountMismatchWhenTotalsDiffer(): void
@@ -121,7 +142,8 @@ class QbInvoiceCollisionTest extends TestCase
         $this->invoke($qb_invoice, 'flagNumberCollision', [$invoice, $qb_record]);
 
         $invoice = $invoice->fresh();
-        $this->assertSame(InvoiceQbStatus::AmountMismatch->value, $invoice->sync->qb_status);
+        $this->assertSame(InvoiceQbStatus::DataMismatch->value, $invoice->sync->qb_status);
+        $this->assertStringStartsWith('Invoice number #INV-COLLIDE-2 is already used', $invoice->sync->qb_status_message);
         $this->assertStringContainsString('250', $invoice->sync->qb_status_message);
         $this->assertStringContainsString('200', $invoice->sync->qb_status_message);
     }
@@ -236,6 +258,257 @@ class QbInvoiceCollisionTest extends TestCase
         $this->assertSame(InvoiceQbStatus::Synced->value, $existing->sync->qb_status);
     }
 
+    public function testCheckBackfillsLinkedInvoiceStatusFromQuickbooksPayload(): void
+    {
+        $invoice = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'number' => 'INV-CHECK-1',
+            'amount' => 125.00,
+            'balance' => 125.00,
+            'sync' => new InvoiceSync(
+                qb_id: 'QB-CHECK-1',
+                qb_status_message: 'QuickBooks rejected DisplayName.',
+            ),
+        ]);
+
+        $qb_invoice = $this->makeQbInvoice();
+        $sdk = Mockery::mock(SdkWrapper::class);
+        $sdk->shouldReceive('findById')
+            ->once()
+            ->with('Invoice', 'QB-CHECK-1')
+            ->andReturn((object) [
+                'Id' => 'QB-CHECK-1',
+                'DocNumber' => 'INV-CHECK-1',
+                'TotalAmt' => 125.00,
+                'SyncToken' => '4',
+            ]);
+        $this->setSdkWrapper($qb_invoice, $sdk);
+
+        $checked_invoice = $qb_invoice->check($invoice);
+
+        $this->assertSame(InvoiceQbStatus::Synced->value, $checked_invoice->sync->qb_status);
+        $this->assertSame('4', $checked_invoice->sync->qb_sync_token);
+        $this->assertSame('QuickBooks rejected DisplayName.', $checked_invoice->sync->qb_status_message);
+    }
+
+    public function testWebhookSyncUpdatesExistingInvoiceSyncToken(): void
+    {
+        $invoice = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'number' => 'INV-WEBHOOK-1',
+            'sync' => new InvoiceSync(
+                qb_id: 'QB-WEBHOOK-1',
+                qb_sync_token: '2',
+                qb_status: InvoiceQbStatus::Synced->value,
+                qb_status_message: 'Previous failure',
+            ),
+        ]);
+
+        $qb_invoice = $this->makeQbInvoice();
+        $qb_invoice->service->settings->invoice->direction = SyncDirection::PULL;
+        $qb_record = (object) [
+            'Id' => 'QB-WEBHOOK-1',
+            'SyncToken' => '3',
+        ];
+
+        $sdk = Mockery::mock(SdkWrapper::class);
+        $sdk->shouldReceive('findById')
+            ->once()
+            ->with('Invoice', 'QB-WEBHOOK-1')
+            ->andReturn($qb_record);
+        $this->setSdkWrapper($qb_invoice, $sdk);
+
+        $transformer = Mockery::mock(InvoiceTransformer::class);
+        $transformer->shouldReceive('qbToNinja')
+            ->once()
+            ->with($qb_record, $qb_invoice->service)
+            ->andReturn(['number' => 'INV-WEBHOOK-1']);
+        $this->setQbInvoiceProperty($qb_invoice, 'invoice_transformer', $transformer);
+
+        $repository = Mockery::mock(InvoiceRepository::class);
+        $repository->shouldReceive('save')
+            ->once()
+            ->with(['number' => 'INV-WEBHOOK-1'], Mockery::on(fn (Invoice $model): bool => $model->is($invoice)))
+            ->andReturn($invoice);
+        $this->setQbInvoiceProperty($qb_invoice, 'invoice_repository', $repository);
+
+        $qb_invoice->sync('QB-WEBHOOK-1', now()->addMinute()->toIso8601String());
+
+        $invoice = $invoice->fresh();
+        $this->assertSame('QB-WEBHOOK-1', $invoice->sync->qb_id);
+        $this->assertSame('3', $invoice->sync->qb_sync_token);
+        $this->assertSame(InvoiceQbStatus::Synced->value, $invoice->sync->qb_status);
+        $this->assertSame('Previous failure', $invoice->sync->qb_status_message);
+    }
+
+    public function testWebhookSyncPersistsZeroSyncToken(): void
+    {
+        $invoice = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'number' => 'INV-WEBHOOK-ZERO',
+            'sync' => new InvoiceSync(
+                qb_id: 'QB-WEBHOOK-ZERO',
+                qb_sync_token: '9',
+                qb_status: InvoiceQbStatus::Synced->value,
+            ),
+        ]);
+
+        $qb_invoice = $this->makeQbInvoice();
+        $qb_invoice->service->settings->invoice->direction = SyncDirection::PULL;
+        $qb_record = (object) [
+            'Id' => 'QB-WEBHOOK-ZERO',
+            'SyncToken' => '0',
+        ];
+
+        $sdk = Mockery::mock(SdkWrapper::class);
+        $sdk->shouldReceive('findById')
+            ->once()
+            ->with('Invoice', 'QB-WEBHOOK-ZERO')
+            ->andReturn($qb_record);
+        $this->setSdkWrapper($qb_invoice, $sdk);
+
+        $transformer = Mockery::mock(InvoiceTransformer::class);
+        $transformer->shouldReceive('qbToNinja')
+            ->once()
+            ->with($qb_record, $qb_invoice->service)
+            ->andReturn(['number' => 'INV-WEBHOOK-ZERO']);
+        $this->setQbInvoiceProperty($qb_invoice, 'invoice_transformer', $transformer);
+
+        $repository = Mockery::mock(InvoiceRepository::class);
+        $repository->shouldReceive('save')
+            ->once()
+            ->andReturn($invoice);
+        $this->setQbInvoiceProperty($qb_invoice, 'invoice_repository', $repository);
+
+        $qb_invoice->sync('QB-WEBHOOK-ZERO', now()->subMinute()->toIso8601String());
+
+        $invoice = $invoice->fresh();
+        $this->assertSame('0', $invoice->sync->qb_sync_token);
+    }
+
+    public function testPushFailurePersistsParsedQuickbooksFaultImmediately(): void
+    {
+        $invoice = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'number' => 'INV-PUSH-FAULT',
+            'sync' => new InvoiceSync(
+                qb_id: '1234',
+                qb_sync_token: '1',
+                qb_status: InvoiceQbStatus::Synced->value,
+            ),
+        ]);
+
+        $client_sync = $this->client->sync ?? new \App\DataMapper\ClientSync();
+        $client_sync->qb_id = 'QB-CUSTOMER';
+        $this->client->sync = $client_sync;
+        $this->client->saveQuietly();
+
+        $qb_invoice = $this->makeQbInvoice();
+        $existing_qb_invoice = (object) [
+            'Id' => '1234',
+            'SyncToken' => '2',
+        ];
+        $failure = <<<'ERROR'
+Request is not made successful. Response Code:[400] with body: [<?xml version="1.0" encoding="UTF-8" standalone="yes"?><IntuitResponse xmlns="http://schema.intuit.com/finance/v3"><Fault type="ValidationFault"><Error code="2040" element="DisplayName"><Message>Invalid String. The String may contain unsupported or illegal chars</Message><Detail>Element contains invalid characters. Regencium: Physical Therapy and Performance - West Greater Houston (C)</Detail></Error></Fault></IntuitResponse>].
+ERROR;
+
+        $sdk = Mockery::mock(SdkWrapper::class);
+        $sdk->shouldReceive('findById')
+            ->once()
+            ->with('Invoice', '1234')
+            ->andReturn($existing_qb_invoice);
+        $sdk->shouldReceive('update')
+            ->once()
+            ->andThrow(new \RuntimeException($failure));
+        $this->setSdkWrapper($qb_invoice, $sdk);
+
+        $transformer = Mockery::mock(InvoiceTransformer::class);
+        $transformer->shouldReceive('ninjaToQb')
+            ->once()
+            ->with(Mockery::on(fn (Invoice $model): bool => $model->is($invoice)), $qb_invoice->service)
+            ->andReturn(['Id' => '1234']);
+        $this->setQbInvoiceProperty($qb_invoice, 'invoice_transformer', $transformer);
+
+        try {
+            $qb_invoice->syncToForeign([$invoice]);
+            $this->fail('Expected the QuickBooks push to fail.');
+        } catch (\RuntimeException) {
+            $invoice = $invoice->fresh();
+            $this->assertSame(
+                'DisplayName contains characters QuickBooks does not support (QB 2040). Edit the name and retry.',
+                $invoice->sync->qb_status_message
+            );
+        }
+    }
+
+    public function testCheckRecordsDifferencesWithoutChangingInvoiceData(): void
+    {
+        $invoice = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'number' => 'INV-CHECK-2',
+            'amount' => 125.00,
+            'balance' => 125.00,
+            'sync' => new InvoiceSync(qb_id: 'QB-CHECK-2'),
+        ]);
+
+        $qb_invoice = $this->makeQbInvoice();
+        $sdk = Mockery::mock(SdkWrapper::class);
+        $sdk->shouldReceive('findById')
+            ->once()
+            ->with('Invoice', 'QB-CHECK-2')
+            ->andReturn((object) [
+                'Id' => 'QB-CHECK-2',
+                'DocNumber' => 'QB-NUMBER',
+                'TotalAmt' => 150.00,
+                'SyncToken' => '5',
+            ]);
+        $this->setSdkWrapper($qb_invoice, $sdk);
+
+        $checked_invoice = $qb_invoice->check($invoice);
+
+        $this->assertSame(InvoiceQbStatus::Synced->value, $checked_invoice->sync->qb_status);
+        $this->assertSame(
+            'The linked QuickBooks invoice differs: its number is #QB-NUMBER instead of #INV-CHECK-2, and its total is 150.00 instead of 125.00.',
+            $checked_invoice->sync->qb_status_message
+        );
+        $this->assertSame('INV-CHECK-2', $checked_invoice->number);
+        $this->assertSame(125.00, (float) $checked_invoice->amount);
+    }
+
+    public function testUnlinkedCheckPreservesPushFailureWhenNumberIsAvailable(): void
+    {
+        $invoice = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'number' => 'INV-AVAILABLE',
+            'sync' => new InvoiceSync(qb_status_message: 'Previous push failure.'),
+        ]);
+
+        $qb_invoice = $this->makeQbInvoice();
+        $sdk = Mockery::mock(SdkWrapper::class);
+        $sdk->shouldReceive('query')
+            ->once()
+            ->with("select * from Invoice where DocNumber = 'INV-AVAILABLE'")
+            ->andReturn([]);
+        $this->setSdkWrapper($qb_invoice, $sdk);
+
+        $checked_invoice = $qb_invoice->check($invoice);
+
+        $this->assertSame(InvoiceQbStatus::Syncable->value, $checked_invoice->sync->qb_status);
+        $this->assertSame('Previous push failure.', $checked_invoice->sync->qb_status_message);
+    }
+
     public function testDocNumberPreflightFailureAllowsCreateToProceed(): void
     {
         $qb_invoice = $this->makeQbInvoice();
@@ -245,10 +518,7 @@ class QbInvoiceCollisionTest extends TestCase
             ->with("select * from Invoice where DocNumber = 'INV-RETRY'")
             ->andThrow(new \RuntimeException('QuickBooks rate limit: capacity unavailable after wait'));
 
-        $service_reflection = new ReflectionClass($qb_invoice->service);
-        $sdk_wrapper = $service_reflection->getProperty('sdk_wrapper');
-        $sdk_wrapper->setAccessible(true);
-        $sdk_wrapper->setValue($qb_invoice->service, $sdk);
+        $this->setSdkWrapper($qb_invoice, $sdk);
 
         $result = $this->invoke($qb_invoice, 'findQbInvoiceByDocNumber', ['INV-RETRY']);
 

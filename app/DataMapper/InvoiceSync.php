@@ -64,18 +64,24 @@ class InvoiceSync implements Castable
         return $this->qb_id !== '';
     }
 
-    public function markSynced(string $qb_id, string $sync_token = ''): void
+    public function markSynced(string $qb_id, string $sync_token = '', bool $clear_status_message = true): void
     {
         $this->qb_id = $qb_id;
         $this->qb_status = InvoiceQbStatus::Synced->value;
         $this->qb_sync_token = $sync_token;
-        $this->qb_status_message = '';
+
+        if ($clear_status_message) {
+            $this->qb_status_message = '';
+        }
     }
 
-    public function markSyncable(): void
+    public function markSyncable(bool $clear_status_message = true): void
     {
         $this->qb_status = InvoiceQbStatus::Syncable->value;
-        $this->qb_status_message = '';
+
+        if ($clear_status_message) {
+            $this->qb_status_message = '';
+        }
     }
 
     public function markLinkable(string $message): void
@@ -87,6 +93,12 @@ class InvoiceSync implements Castable
     public function markAmountMismatch(string $message): void
     {
         $this->qb_status = InvoiceQbStatus::AmountMismatch->value;
+        $this->qb_status_message = $message;
+    }
+
+    public function markDataMismatch(string $message): void
+    {
+        $this->qb_status = InvoiceQbStatus::DataMismatch->value;
         $this->qb_status_message = $message;
     }
 

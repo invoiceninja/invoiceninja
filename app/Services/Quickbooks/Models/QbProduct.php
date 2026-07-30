@@ -17,6 +17,7 @@ use App\Models\Product;
 use App\DataMapper\ProductSync;
 use App\Factory\ProductFactory;
 use App\Interfaces\SyncInterface;
+use App\Services\Quickbooks\QuickbooksFaultParser;
 use App\Services\Quickbooks\QuickbooksService;
 use App\Services\Quickbooks\Transformers\ProductTransformer;
 
@@ -267,7 +268,9 @@ class QbProduct implements SyncInterface
                     $qb_item = \QuickBooksOnline\API\Facades\Item::create($product_data);
                     try {
                         $this->service->sdk()->update($qb_item);
+                        $this->clearPushFailure($product);
                     } catch (\Throwable $e) {
+                        $this->markPushFailure($product, $e, 'updating the product');
                         nlog('QuickBooks: Item Update failed', [
                             'company_id' => $this->service->company->id,
                             'product_key' => $line_item->product_key ?? null,
@@ -289,6 +292,10 @@ class QbProduct implements SyncInterface
         try {
             $result = $this->service->sdk()->add($qb_item);
         } catch (\Throwable $e) {
+            if ($product) {
+                $this->markPushFailure($product, $e, 'creating the product');
+            }
+
             nlog('QuickBooks: Item Add failed', [
                 'company_id' => $this->service->company->id,
                 'product_key' => $line_item->product_key ?? null,
@@ -323,5 +330,21 @@ class QbProduct implements SyncInterface
         }
 
         return $qb_id;
+    }
+
+    private function markPushFailure(Product $product, \Throwable $e, string $operation): void
+    {
+        $sync = $product->sync ?? new ProductSync();
+        $sync->qb_status_message = (new QuickbooksFaultParser())->statusMessage($e, $operation);
+        $product->sync = $sync;
+        $product->saveQuietly();
+    }
+
+    private function clearPushFailure(Product $product): void
+    {
+        $sync = $product->sync ?? new ProductSync();
+        $sync->qb_status_message = '';
+        $product->sync = $sync;
+        $product->saveQuietly();
     }
 }

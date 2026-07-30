@@ -31,7 +31,7 @@ class ActionQuickbooksRequest extends Request
         return [
             'entity' => ['bail', 'required', 'string', Rule::in(['invoice'])],
             'id' => ['bail', 'required', Rule::exists('invoices', 'id')->where('company_id', $user->company()->id)],
-            'action' => ['bail', 'required', 'string', Rule::in(['force_link', 'force_pull', 'force_push'])],
+            'action' => ['bail', 'required', 'string', Rule::in(['check', 'force_link', 'force_pull', 'force_push','check_record'])],
         ];
     }
 

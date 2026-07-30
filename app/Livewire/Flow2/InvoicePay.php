@@ -18,6 +18,7 @@ use Livewire\Component;
 use App\Libraries\MultiDB;
 use Livewire\Attributes\On;
 use App\Models\CompanyGateway;
+use App\Services\Client\RFFService;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesDates;
 use Livewire\Attributes\Computed;
@@ -29,36 +30,6 @@ class InvoicePay extends Component
     use MakesDates;
     use MakesHash;
     use WithSecureContext;
-
-    private $mappings = [
-        'client_name' => 'name',
-        'client_website' => 'website',
-        'client_phone' => 'phone',
-
-        'client_address_line_1' => 'address1',
-        'client_address_line_2' => 'address2',
-        'client_city' => 'city',
-        'client_state' => 'state',
-        'client_postal_code' => 'postal_code',
-        'client_country_id' => 'country_id',
-
-        'client_shipping_address_line_1' => 'shipping_address1',
-        'client_shipping_address_line_2' => 'shipping_address2',
-        'client_shipping_city' => 'shipping_city',
-        'client_shipping_state' => 'shipping_state',
-        'client_shipping_postal_code' => 'shipping_postal_code',
-        'client_shipping_country_id' => 'shipping_country_id',
-
-        'client_custom_value1' => 'custom_value1',
-        'client_custom_value2' => 'custom_value2',
-        'client_custom_value3' => 'custom_value3',
-        'client_custom_value4' => 'custom_value4',
-
-        'contact_first_name' => 'first_name',
-        'contact_last_name' => 'last_name',
-        'contact_email' => 'email',
-        // 'contact_phone' => 'phone',
-    ];
 
     public $client_address_array = [
         'address1',
@@ -257,28 +228,8 @@ class InvoicePay extends Component
         if ($force_rff) {
             return $this->required_fields = true;
         }
-        
-        foreach ($fields as $index => $field) {
-            $_field = $this->mappings[$field['name']];
 
-            if (\Illuminate\Support\Str::startsWith($field['name'], 'client_')) {
-                if (
-                    empty($contact->client->{$_field})
-                    || is_null($contact->client->{$_field}) //@phpstan-ignore-line
-                ) {
-                    return $this->required_fields = true;
-                }
-            }
-
-            if (\Illuminate\Support\Str::startsWith($field['name'], 'contact_')) {
-                if (empty($contact->{$_field}) || is_null($contact->{$_field}) || str_contains($contact->{$_field}, '@example.com')) { //@phpstan-ignore-line
-                    return $this->required_fields = true;
-                }
-            }
-        }
-
-        return $this->required_fields = false;
-
+        return $this->required_fields = !RFFService::passesExistingValues($contact, $fields);
     }
 
     #[Computed()]

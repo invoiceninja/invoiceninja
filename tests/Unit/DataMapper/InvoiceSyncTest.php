@@ -42,6 +42,28 @@ class InvoiceSyncTest extends TestCase
         $this->assertSame('', $sync->qb_status_message);
     }
 
+    public function testMarkSyncedCanPreserveStatusMessage(): void
+    {
+        $sync = new InvoiceSync(qb_status_message: 'QuickBooks rejected DisplayName.');
+
+        $sync->markSynced('QB-123', '6', false);
+
+        $this->assertSame('QB-123', $sync->qb_id);
+        $this->assertSame('6', $sync->qb_sync_token);
+        $this->assertSame(InvoiceQbStatus::Synced, $sync->status());
+        $this->assertSame('QuickBooks rejected DisplayName.', $sync->qb_status_message);
+    }
+
+    public function testMarkSyncableCanPreserveStatusMessage(): void
+    {
+        $sync = new InvoiceSync(qb_status_message: 'Previous push failure.');
+
+        $sync->markSyncable(false);
+
+        $this->assertSame(InvoiceQbStatus::Syncable, $sync->status());
+        $this->assertSame('Previous push failure.', $sync->qb_status_message);
+    }
+
     public function testHydrateDoesNotInferStatusFromQbId(): void
     {
         $sync = InvoiceSync::fromArray([
@@ -92,5 +114,15 @@ class InvoiceSyncTest extends TestCase
         $this->assertSame('', $sync->qb_id);
         $this->assertSame(InvoiceQbStatus::Linkable->value, $sync->qb_status);
         $this->assertSame('QuickBooks request failed', $sync->qb_status_message);
+    }
+
+    public function testMarkDataMismatchSetsStatusAndMessage(): void
+    {
+        $sync = new InvoiceSync();
+
+        $sync->markDataMismatch('QuickBooks data differs.');
+
+        $this->assertSame(InvoiceQbStatus::DataMismatch, $sync->status());
+        $this->assertSame('QuickBooks data differs.', $sync->qb_status_message);
     }
 }

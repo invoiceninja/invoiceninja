@@ -18,6 +18,7 @@ use App\DataMapper\ExpenseSync;
 use App\Factory\ExpenseFactory;
 use App\Interfaces\SyncInterface;
 use App\Repositories\ExpenseRepository;
+use App\Services\Quickbooks\QuickbooksFaultParser;
 use App\Services\Quickbooks\QuickbooksService;
 use App\Services\Quickbooks\Transformers\ExpenseTransformer;
 
@@ -111,6 +112,7 @@ class QbExpense implements SyncInterface
                 if (isset($expense->sync->qb_id) && !empty($expense->sync->qb_id)) {
                     // Update existing expense
                     $result = $this->service->sdk()->update($qb_expense);
+                    $this->clearPushFailure($expense);
                     nlog("QuickBooks: Updated expense {$expense->id} (QB ID: {$expense->sync->qb_id})");
                 } else {
                     // Create new expense
@@ -125,11 +127,28 @@ class QbExpense implements SyncInterface
                     nlog("QuickBooks: Created expense {$expense->id} (QB ID: {$sync->qb_id})");
                 }
             } catch (\Exception $e) {
+                $this->markPushFailure($expense, $e);
                 nlog("QuickBooks: Error pushing expense {$expense->id} to QuickBooks: {$e->getMessage()}");
                 // Continue with next invoice instead of failing completely
                 continue;
             }
         }
+    }
+
+    private function markPushFailure(Expense $expense, \Throwable $e): void
+    {
+        $sync = $expense->sync ?? new ExpenseSync();
+        $sync->qb_status_message = (new QuickbooksFaultParser())->statusMessage($e, 'creating or updating the expense');
+        $expense->sync = $sync;
+        $expense->saveQuietly();
+    }
+
+    private function clearPushFailure(Expense $expense): void
+    {
+        $sync = $expense->sync ?? new ExpenseSync();
+        $sync->qb_status_message = '';
+        $expense->sync = $sync;
+        $expense->saveQuietly();
     }
 
     private function findExpense(string $id): ?Expense
