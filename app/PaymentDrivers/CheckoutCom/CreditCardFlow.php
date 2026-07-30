@@ -454,7 +454,7 @@ class CreditCardFlow implements MethodInterface, LivewireMethodInterface
                 throw $e;
             }
 
-            $customer->id = null;
+            unset($customer->id);
             $request->customer = $customer;
             $response = $this->checkout->gateway->getPaymentSessionsClient()->createPaymentSessions($request);
         }
@@ -475,6 +475,6 @@ class CreditCardFlow implements MethodInterface, LivewireMethodInterface
             }
         }
 
-        return $e->http_metadata?->getStatusCode() === 404;
+        return $e->http_metadata->getStatusCode() === 404;
     }
 }

@@ -225,7 +225,7 @@ class QbProduct implements SyncInterface
      * @param  mixed $line_item
      * @return string
      */
-    private function createQbProduct(mixed $line_item): ?string
+    private function createQbProduct(mixed $line_item): string
     {
 
         $product = null;
