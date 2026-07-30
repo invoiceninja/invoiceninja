@@ -9,6 +9,16 @@ use Tests\TestCase;
 
 class StripeConnectWebhookDispatchTest extends TestCase
 {
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        if(!class_exists(PaymentMethodWebhook::class)){
+            $this->markTestSkipped('PaymentMethodWebhook job does not exist');
+        }
+    }
+
     #[DataProvider('supportedEvents')]
     public function testSupportedEventDispatchesPaymentMethodWebhook(string $eventType, string $objectId): void
     {

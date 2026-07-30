@@ -31,7 +31,7 @@ class PaymentMethodSyncService
         Collection $companyGateways,
         string $paymentMethodId
     ): void {
-        nlog("removePaymentMethod: {$paymentMethodId}");
+        // nlog("removePaymentMethod: {$paymentMethodId}");
         DB::transaction(function () use ($companyGateways, $paymentMethodId): void {
             $tokens = $this->activeTokens($companyGateways)
                 ->where('token', $paymentMethodId)
@@ -49,7 +49,7 @@ class PaymentMethodSyncService
         Collection $companyGateways,
         string $customerId
     ): void {
-        nlog("removeCustomerPaymentMethods: {$customerId}");
+        // nlog("removeCustomerPaymentMethods: {$customerId}");
         DB::transaction(function () use ($companyGateways, $customerId): void {
             $tokens = $this->activeTokens($companyGateways)
                 ->where('gateway_customer_reference', $customerId)
@@ -122,7 +122,7 @@ class PaymentMethodSyncService
 
     private function removeTokens(Collection $tokens, bool $customerDeleted): void
     {
-        nlog("removeTokens: {$tokens->count()} tokens");
+        // nlog("removeTokens: {$tokens->count()} tokens");
 
         $affectedDefaults = $tokens
             ->where('is_default', true)
@@ -189,7 +189,7 @@ class PaymentMethodSyncService
 
     private function updatedMeta(ClientGatewayToken $token, object $paymentMethod): object
     {
-        nlog("updatedMeta: {$token->id}");
+        // nlog("updatedMeta: {$token->id}");
 
         $meta = clone ($token->meta ?? new \stdClass());
         $type = data_get($paymentMethod, 'type');
@@ -229,7 +229,7 @@ class PaymentMethodSyncService
         array $replacementDescriptions,
         bool $removedDefault
     ): string {
-        nlog("paymentMethodDetachedNotes: {$tokens->first()->id}");
+        // nlog("paymentMethodDetachedNotes: {$tokens->first()->id}");
         $description = $descriptions->get($tokens->first()->id, 'a saved payment method');
 
         if (!$removedDefault) {
@@ -254,7 +254,7 @@ class PaymentMethodSyncService
         array $replacementDescriptions,
         bool $removedDefault
     ): string {
-        nlog("customerDeletedNotes: {$tokens->first()->id}");
+        // nlog("customerDeletedNotes: {$tokens->first()->id}");
         $count = $tokens->pluck('token')->unique()->count();
         $label = $count === 1 ? 'payment method was' : 'payment methods were';
         $notes = "The Stripe customer was deleted. {$count} saved {$label} removed from Invoice Ninja.";
