@@ -59,6 +59,26 @@ class ProjectAnalyticsService
             ))
             ->values();
 
+        if (! $this->isAdmin) {
+            return [
+                'budget_summary' => [],
+                'budget_vs_actual' => [],
+                'estimated_vs_logged_hours' => [],
+                'invoice_progress' => [],
+                'forecast_completion' => $this->forecastCompletion($snapshots),
+                'project_health' => [],
+                'team_contribution' => [],
+                'time_distribution' => [],
+                'unbilled_hours' => [],
+                'velocity_trend' => [],
+                'timeline_variance' => [],
+                'expense_breakdown' => [],
+                'cumulative_spend' => [],
+                'profitability' => [],
+                'metadata' => $this->metadata($snapshots),
+            ];
+        }
+
         return [
             'budget_summary' => $this->budgetSummary($snapshots),
             'budget_vs_actual' => $this->budgetVsActual($snapshots),
@@ -67,19 +87,28 @@ class ProjectAnalyticsService
             'forecast_completion' => $this->forecastCompletion($snapshots),
             'project_health' => $this->projectHealth($snapshots),
             'team_contribution' => $this->teamContribution($snapshots),
-            'time_distribution' => $this->timeDistribution($snapshots),
+            'time_distribution' => $this->isAdmin ? $this->timeDistribution($snapshots) : [],
             'unbilled_hours' => $this->unbilledHours($snapshots),
             'velocity_trend' => $this->velocityTrend($snapshots),
             'timeline_variance' => $this->timelineVariance($snapshots),
             'expense_breakdown' => $this->expenseBreakdown($snapshots),
             'cumulative_spend' => $this->cumulativeSpend($snapshots),
             'profitability' => $this->profitability($snapshots),
-            'metadata' => [
-                'project_count' => $snapshots->count(),
-                'include_drafts' => $this->includeDrafts,
-                'generated_at' => now()->toDateTimeString(),
-                'can_view_financials' => $this->isAdmin
-            ],
+            'metadata' => $this->metadata($snapshots),
+        ];
+    }
+
+    /**
+     * @param Collection<int, array<string, mixed>> $snapshots
+     * @return array<string, mixed>
+     */
+    private function metadata(Collection $snapshots): array
+    {
+        return [
+            'project_count' => $snapshots->count(),
+            'include_drafts' => $this->includeDrafts,
+            'generated_at' => now()->toDateTimeString(),
+            'can_view_financials' => $this->isAdmin,
         ];
     }
 
@@ -96,7 +125,7 @@ class ProjectAnalyticsService
             ->when($project, function ($query) use ($project): void {
                 $query->whereKey($project->id);
             })
-            ->when(! $this->isAdmin, function ($query): void {
+            ->when(! $project && ! $this->isAdmin, function ($query): void {
                 $query->where('user_id', $this->user->id);
             })
             ->orderBy('name')

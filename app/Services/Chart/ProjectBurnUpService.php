@@ -22,6 +22,19 @@ use Carbon\Carbon;
 
 class ProjectBurnUpService
 {
+    /** @var array<int, string> */
+    private const FINANCIAL_FIELDS = [
+        'task_value',
+        'invoiced_amount',
+        'paid_to_date',
+        'outstanding_amount',
+        'expense_amount',
+        'net_invoiced_amount',
+        'net_paid_amount',
+        'budgeted_amount',
+        'ideal_amount',
+    ];
+
     /** @var array<string, array<string, mixed>> */
     private array $buckets = [];
 
@@ -344,35 +357,70 @@ class ProjectBurnUpService
             $bucket['ideal_hours'] = $this->idealHours($project_start, $project_due, Carbon::parse($bucket['period_end']), $budgeted_hours);
             $bucket['ideal_amount'] = $this->idealAmount($bucket['ideal_hours'], $budgeted_hours, $budgeted_amount);
 
-            $series[] = $this->roundBucket($bucket);
+            $rounded_bucket = $this->roundBucket($bucket);
+
+            if (! $this->is_admin) {
+                $rounded_bucket = $this->removeFinancialFields($rounded_bucket);
+            }
+
+            $series[] = $rounded_bucket;
+        }
+
+        $project_data = [
+            'id' => $project->hashed_id,
+            'name' => $project->name,
+            'client_id' => $project->client?->hashed_id,
+            'start_date' => $project_start->format('Y-m-d'),
+            'due_date' => $project_due?->format('Y-m-d'),
+            'budgeted_hours' => round($budgeted_hours, 2),
+        ];
+
+        $markers = [
+            'due_date' => $project_due?->format('Y-m-d'),
+            'budgeted_hours' => round($budgeted_hours, 2),
+        ];
+
+        if ($this->is_admin) {
+            $project_data = array_merge($project_data, [
+                'task_rate' => round($task_rate, 2),
+                'budgeted_amount' => round($budgeted_amount, 2),
+                'currency_id' => $currency_id,
+            ]);
+
+            $markers['budgeted_amount'] = round($budgeted_amount, 2);
+        }
+
+        $rounded_totals = $this->roundTotals($totals);
+
+        if (! $this->is_admin) {
+            $rounded_totals = $this->removeFinancialFields($rounded_totals);
         }
 
         return [
             'start_date' => $this->start_date->format('Y-m-d'),
             'end_date' => $this->end_date->format('Y-m-d'),
             'bucket_type' => $bucket_type,
-            'project' => [
-                'id' => $project->hashed_id,
-                'name' => $project->name,
-                'client_id' => $project->client?->hashed_id,
-                'start_date' => $project_start->format('Y-m-d'),
-                'due_date' => $project_due?->format('Y-m-d'),
-                'budgeted_hours' => round($budgeted_hours, 2),
-                'task_rate' => round($task_rate, 2),
-                'budgeted_amount' => round($budgeted_amount, 2),
-                'currency_id' => $currency_id,
-            ],
-            'markers' => [
-                'due_date' => $project_due?->format('Y-m-d'),
-                'budgeted_hours' => round($budgeted_hours, 2),
-                'budgeted_amount' => round($budgeted_amount, 2),
-            ],
+            'project' => $project_data,
+            'markers' => $markers,
             'series' => $series,
-            'totals' => $this->roundTotals($totals),
+            'totals' => $rounded_totals,
             'metadata' => [
-                'can_view_financials' => $this->is_admin
+                'can_view_financials' => $this->is_admin,
             ],
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    private function removeFinancialFields(array $data): array
+    {
+        foreach (self::FINANCIAL_FIELDS as $field) {
+            unset($data[$field], $data["cumulative_{$field}"]);
+        }
+
+        return $data;
     }
 
     private function budgetedAmount(Project $project, float $budgeted_hours, float $task_rate): float
