@@ -55,6 +55,7 @@ use App\PaymentDrivers\Stripe\PRZELEWY24;
 use App\PaymentDrivers\Stripe\BankTransfer;
 use App\PaymentDrivers\Stripe\Connect\Verify;
 use App\PaymentDrivers\Stripe\ImportCustomers;
+use App\PaymentDrivers\Stripe\PaymentMethodSyncService;
 use App\PaymentDrivers\Stripe\Jobs\ChargeRefunded;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use Laracasts\Presenter\Exceptions\PresenterException;
@@ -755,6 +756,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
     {
         // nlog($request->all());
         $webhook_secret = $this->company_gateway->getConfigField('webhookSecret');
+        $event = null;
 
         if ($webhook_secret) {
             $sig_header = $_SERVER["HTTP_STRIPE_SIGNATURE"] ?? $request->header('Stripe-Signature');
@@ -763,7 +765,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                 return response()->json(['error' => 'No signature header'], 403);
             }
             try {
-                \Stripe\Webhook::constructEvent(
+                $event = \Stripe\Webhook::constructEvent(
                     $request->getContent(),
                     $sig_header,
                     $webhook_secret
@@ -772,6 +774,34 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                 nlog("Stripe webhook signature verification failed: " . $e->getMessage());
                 return response()->json(['error' => 'Invalid signature'], 403);
             }
+        }
+
+        $event ??= \Stripe\Event::constructFrom($request->all());
+
+        if (in_array($event->type, [
+            'payment_method.detached',
+            'payment_method.updated',
+            'payment_method.automatically_updated',
+            'customer.deleted',
+        ], true)) {
+            $paymentMethod = $event->data->object;
+            $objectId = data_get($paymentMethod, 'id');
+
+            if (!is_string($objectId) || $objectId === '') {
+                return response()->json([], 200);
+            }
+
+            $paymentMethodSyncService = app(PaymentMethodSyncService::class);
+            $companyGateways = $this->company_gateway->newCollection([$this->company_gateway]);
+
+            match ($event->type) {
+                'payment_method.detached' => $paymentMethodSyncService->removePaymentMethod($companyGateways, $objectId),
+                'customer.deleted' => $paymentMethodSyncService->removeCustomerPaymentMethods($companyGateways, $objectId),
+                'payment_method.updated' => $paymentMethodSyncService->updatePaymentMethod($companyGateways, $paymentMethod),
+                'payment_method.automatically_updated' => $paymentMethodSyncService->updatePaymentMethod($companyGateways, $paymentMethod, true),
+            };
+
+            return response()->json([], 200);
         }
 
         if ($request->type === 'customer.source.updated') {

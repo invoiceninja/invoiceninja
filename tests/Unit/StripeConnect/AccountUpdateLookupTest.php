@@ -15,24 +15,35 @@ class AccountUpdateLookupTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    private array $databases;
+    private array $databases = [];
+
+    private ?string $originalDatabase = null;
 
     protected function setUp(): void
     {
+        $this->databases = MultiDB::$dbs;
+
         parent::setUp();
 
-        if(!class_exists(AccountUpdate::class)){
+        $this->originalDatabase = config('database.default');
+
+        if (!class_exists(AccountUpdate::class)) {
             $this->markTestSkipped('AccountUpdate job does not exist');
         }
 
         $this->makeTestData();
-        $this->databases = MultiDB::$dbs;
-        MultiDB::$dbs = [config('database.default')];
+        MultiDB::$dbs = [$this->originalDatabase];
     }
 
     protected function tearDown(): void
     {
-        MultiDB::$dbs = $this->databases;
+        if ($this->databases !== []) {
+            MultiDB::$dbs = $this->databases;
+        }
+
+        if ($this->originalDatabase !== null) {
+            MultiDB::setDb($this->originalDatabase);
+        }
 
         parent::tearDown();
     }

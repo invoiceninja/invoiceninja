@@ -8,7 +8,10 @@ use App\Libraries\MultiDB;
 use App\Models\Activity;
 use App\Models\ClientGatewayToken;
 use App\Models\CompanyGateway;
+use App\PaymentDrivers\Stripe\PaymentMethodSyncService;
+use App\Repositories\ClientGatewayTokenRepository;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Mockery;
 use Modules\Admin\Jobs\Stripe\PaymentMethodWebhook;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -56,6 +59,26 @@ class PaymentMethodWebhookTest extends TestCase
         $this->assertNotNull($activity);
         $this->assertStringContainsString('Mastercard', $activity->notes);
         $this->assertStringContainsString('is now the default', $activity->notes);
+    }
+
+    public function testPaymentMethodServiceDeletesTokensThroughRepository(): void
+    {
+        $gateway = $this->makeStripeGateway();
+        $removed = $this->makeToken($gateway, 'pm_repository');
+        $repository = Mockery::mock(ClientGatewayTokenRepository::class)->makePartial();
+        $repository->shouldReceive('delete')
+            ->once()
+            ->with(Mockery::on(
+                fn (ClientGatewayToken $token): bool => $token->is($removed)
+            ))
+            ->passthru();
+
+        (new PaymentMethodSyncService($repository))->removePaymentMethod(
+            $gateway->newCollection([$gateway]),
+            'pm_repository'
+        );
+
+        $this->assertSoftDeleted('client_gateway_tokens', ['id' => $removed->id]);
     }
 
     public function testDetachedPaymentMethodAcrossClonedGatewaysCreatesOneActivity(): void
@@ -242,7 +265,9 @@ class PaymentMethodWebhookTest extends TestCase
 
     private function handle(\stdClass $event): void
     {
-        (new PaymentMethodWebhook($event))->handle();
+        (new PaymentMethodWebhook($event))->handle(
+            app(PaymentMethodSyncService::class)
+        );
     }
 
     private function makeStripeGateway(): CompanyGateway
