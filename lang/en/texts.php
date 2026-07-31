@@ -6305,6 +6305,7 @@ $lang = array(
     'billing_progress' => 'Billing Progress',
     'budget_vs_actual' => 'Budget vs Actual',
     'unbilled_work' => 'Unbilled Work',
+    'save_for_later' => 'Save for Later',
 );
 
 return $lang;
