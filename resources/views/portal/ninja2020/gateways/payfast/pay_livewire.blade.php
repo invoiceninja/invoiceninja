@@ -14,8 +14,12 @@
         <input type="hidden" name="amount" value="{{ $amount }}">
         <input type="hidden" name="item_name" value="{{ $item_name }}">
         <input type="hidden" name="item_description" value="{{ $item_description}}">
-        <input type="hidden" name="passphrase" value="{{ $passphrase }}"> 
-        <input type="hidden" name="signature" value="{{ $signature }}">    
+        <input type="hidden" name="custom_int1" value="1" @disabled(!$tokenize)>
+        <input type="hidden" name="payment_method" value="cc" @disabled(!$tokenize)>
+        <input type="hidden" name="subscription_type" value="2" @disabled(!$tokenize)>
+        <input type="hidden" name="signature" value="{{ $signature }}">
+        <input type="hidden" data-signature="standard" value="{{ $standard_signature }}">
+        <input type="hidden" data-signature="tokenized" value="{{ $tokenized_signature }}">
         
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->company_gateway->id }}">
@@ -99,6 +103,16 @@
                 form.action = "{{ route('client.payments.response') }}";
                 document.querySelector('input[name=token]').value = selectedToken.value;
             } else {
+                const storeCard = form.querySelector('input[name="token-billing-checkbox"]:checked')?.value === 'true';
+
+                ['custom_int1', 'payment_method', 'subscription_type'].forEach((name) => {
+                    form.querySelector(`input[name="${name}"]`).disabled = !storeCard;
+                });
+
+                form.querySelector('input[name="signature"]').value = form.querySelector(
+                    `[data-signature="${storeCard ? 'tokenized' : 'standard'}"]`
+                ).value;
+
                 const endpointUrl = document.getElementById('payment_endpoint_url');
                 if (endpointUrl) {
                     form.action = endpointUrl.value;

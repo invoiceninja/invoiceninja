@@ -16,6 +16,7 @@ use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\CompanyGateway;
+use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentHash;
@@ -132,15 +133,27 @@ class PaymentCompletedWebhook implements ShouldQueue
     }
 
     /**
-     * Persist the PayFast token as a ClientGatewayToken when the client
-     * opted into "save card" on the checkout form.
+     * Persist the PayFast token when the signed ITN confirms it was requested.
      */
     private function maybeStoreToken($driver, PaymentHash $payment_hash): void
     {
-        $store_card = $payment_hash->data->store_card ?? false;
+        if ($payment_hash->data->payfast_token_payment ?? false) {
+            return;
+        }
+
+        $store_card = ($this->data['custom_int1'] ?? null) === '1';
         $token = $this->data['token'] ?? null;
 
         if (! $store_card || ! $token) {
+            return;
+        }
+
+        if (ClientGatewayToken::query()
+            ->where('client_id', $driver->client->id)
+            ->where('company_gateway_id', $driver->company_gateway->id)
+            ->where('gateway_type_id', GatewayType::CREDIT_CARD)
+            ->where('token', $token)
+            ->exists()) {
             return;
         }
 

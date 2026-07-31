@@ -87,7 +87,7 @@ class ProjectAnalyticsService
             'forecast_completion' => $this->forecastCompletion($snapshots),
             'project_health' => $this->projectHealth($snapshots),
             'team_contribution' => $this->teamContribution($snapshots),
-            'time_distribution' => $this->isAdmin ? $this->timeDistribution($snapshots) : [],
+            'time_distribution' => $this->timeDistribution($snapshots),
             'unbilled_hours' => $this->unbilledHours($snapshots),
             'velocity_trend' => $this->velocityTrend($snapshots),
             'timeline_variance' => $this->timelineVariance($snapshots),
