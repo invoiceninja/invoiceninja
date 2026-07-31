@@ -6292,6 +6292,7 @@ $lang = array(
     'daily_velocity' => 'Daily Velocity',
     'forecast_finish' => 'Forecast Finish',
     'days_ahead' => 'Days Ahead',
+    'days_behind' => 'Days Behind',
     'forecast' => 'Forecast',
     'estimated_vs_actual' => 'Estimated vs Actual',
     'budgeted_amount' => 'Budgeted Amount',
@@ -6301,6 +6302,9 @@ $lang = array(
     'target' => 'Target',
     'persist_table_filters' => 'Persist Table Filters',
     'persist_table_filters_help' => 'If enabled, the table filters will be persisted across page reloads.',
+    'billing_progress' => 'Billing Progress',
+    'budget_vs_actual' => 'Budget vs Actual',
+    'unbilled_work' => 'Unbilled Work',
 );
 
 return $lang;
