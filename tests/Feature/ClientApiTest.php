@@ -788,6 +788,136 @@ class ClientApiTest extends TestCase
 
     }
 
+    public function testSizeIdStoreWithValidId()
+    {
+        $data = [
+            'name' => 'name of client',
+            'size_id' => '1',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/clients/', $data)
+            ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals('1', $arr['data']['size_id']);
+    }
+
+    public function testSizeIdStoreWithNull()
+    {
+        $data = [
+            'name' => 'name of client',
+            'size_id' => null,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/clients/', $data)
+            ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEmpty($arr['data']['size_id']);
+    }
+
+    public function testSizeIdStoreOmittingField()
+    {
+        $data = [
+            'name' => 'name of client',
+        ];
+
+        $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/clients/', $data)
+            ->assertStatus(200);
+    }
+
+    public function testSizeIdStoreWithInvalidId()
+    {
+        $data = [
+            'name' => 'name of client',
+            'size_id' => '999999',
+        ];
+
+        $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/clients/', $data)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['size_id']);
+    }
+
+    public function testSizeIdUpdateWithValidId()
+    {
+        $data = [
+            'name' => 'name of client',
+            'size_id' => '2',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/clients/'.$this->client->hashed_id, $data)
+            ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals('2', $arr['data']['size_id']);
+    }
+
+    public function testSizeIdUpdateWithNull()
+    {
+        $this->client->size_id = 1;
+        $this->client->save();
+
+        $data = [
+            'name' => 'name of client',
+            'size_id' => null,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/clients/'.$this->client->hashed_id, $data)
+            ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEmpty($arr['data']['size_id']);
+    }
+
+    public function testSizeIdUpdateOmittingField()
+    {
+        $this->client->size_id = 3;
+        $this->client->save();
+
+        $data = [
+            'name' => 'name of client',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/clients/'.$this->client->hashed_id, $data)
+            ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals('3', $arr['data']['size_id']);
+    }
+
+    public function testSizeIdUpdateWithInvalidId()
+    {
+        $data = [
+            'name' => 'name of client',
+            'size_id' => '999999',
+        ];
+
+        $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/clients/'.$this->client->hashed_id, $data)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['size_id']);
+    }
+
     public function testCountryStore4()
     {
         $data = [

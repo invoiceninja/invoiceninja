@@ -74,6 +74,7 @@ class StoreClientRequest extends Request
         }
 
         $rules['number'] = ['bail', 'nullable', Rule::unique('clients')->where('company_id', $user->company()->id)];
+        $rules['size_id'] = ['bail', 'nullable', 'sometimes', 'exists:sizes,id'];
         $rules['id_number'] = ['bail', 'nullable', Rule::unique('clients')->where('company_id', $user->company()->id)];
         $rules['classification'] = 'bail|sometimes|nullable|in:individual,business,company,partnership,trust,charity,government,other';
         $rules['shipping_country_id'] = 'integer|nullable|exists:countries,id';
