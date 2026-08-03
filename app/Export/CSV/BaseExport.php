@@ -69,6 +69,8 @@ class BaseExport
 
     protected array $spreadsheet_headers = [];
 
+    protected const GROUPING_IDENTITIES = '__grouping_identities';
+
     protected array $non_summable_patterns = [
         'tax_rate',
         'exchange_rate',
@@ -1795,10 +1797,19 @@ class BaseExport
         return $this->spreadsheet_headers;
     }
 
-    public function convertFloats(iterable $entity): iterable
+    /**
+     * @param array<string, int|string> $grouping_identities
+     */
+    public function convertFloats(iterable $entity, array $grouping_identities = []): iterable
     {
+        $raw_entity = (array) $entity;
+
+        if ($this->skip_float_conversion && $grouping_identities !== []) {
+            $raw_entity[self::GROUPING_IDENTITIES] = $grouping_identities;
+        }
+
         if ($this->capture_raw_rows || $this->skip_float_conversion) {
-            $this->raw_rows[] = (array) $entity;
+            $this->raw_rows[] = $raw_entity;
         }
 
         if ($this->skip_float_conversion) {
@@ -2030,21 +2041,34 @@ class BaseExport
 
         foreach ($grouped as $group_value => $group_rows) {
             $summary_row = [];
-        
+            $identity_rows = [];
+
             foreach (array_keys($rows[0]) as $column) {
+                if ($column === self::GROUPING_IDENTITIES) {
+                    continue;
+                }
+
                 if ($column === $group_by) {
                     $summary_row[$column] = $group_value;
                     continue;
                 }
-        
+
                 if ($this->isNonSummable($column)) {
                     $summary_row[$column] = '';
                     continue;
                 }
-        
-                $values = array_column($group_rows, $column);
+
+                $aggregation_rows = $group_rows;
+                $grouping_identity = $this->groupingIdentityForColumn($column);
+
+                if ($grouping_identity !== null) {
+                    $identity_rows[$grouping_identity] ??= $this->uniqueGroupingIdentityRows($group_rows, $grouping_identity);
+                    $aggregation_rows = $identity_rows[$grouping_identity];
+                }
+
+                $values = array_column($aggregation_rows, $column);
                 $numeric = array_filter($values, 'is_numeric');
-        
+
                 if ($numeric !== [] && count($numeric) === count($values)) {
                     // All values numeric → aggregate.
                     $summary_row[$column] = array_sum($numeric);
@@ -2054,11 +2078,11 @@ class BaseExport
                     $summary_row[$column] = count($distinct) === 1 ? reset($values) : '';
                 }
             }
-        
+
             $summary_row['group.count'] = count($group_rows);
             $summary[] = $summary_row;
         }
-        
+
         // foreach ($grouped as $group_value => $group_rows) {
         //     $summary_row = [];
 
@@ -2081,6 +2105,41 @@ class BaseExport
         // }
 
         return $summary;
+    }
+
+    protected function groupingIdentityForColumn(string $column): ?string
+    {
+        return null;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $rows
+     * @return array<int, array<string, mixed>>
+     */
+    protected function uniqueGroupingIdentityRows(array $rows, string $grouping_identity): array
+    {
+        $unique_rows = [];
+        $seen_identity_values = [];
+
+        foreach ($rows as $row) {
+            $grouping_identities = $row[self::GROUPING_IDENTITIES] ?? null;
+
+            if (! is_array($grouping_identities) || ! array_key_exists($grouping_identity, $grouping_identities)) {
+                $unique_rows[] = $row;
+                continue;
+            }
+
+            $identity_value = (string) $grouping_identities[$grouping_identity];
+
+            if (isset($seen_identity_values[$identity_value])) {
+                continue;
+            }
+
+            $seen_identity_values[$identity_value] = true;
+            $unique_rows[] = $row;
+        }
+
+        return $unique_rows;
     }
 
     /**

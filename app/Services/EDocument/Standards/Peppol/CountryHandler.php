@@ -85,6 +85,13 @@ interface CountryHandler
     public function getAdditionalIdentifiers(array $data): array;
 
     /**
+     * Return Storecove network registration settings for an identifier scheme.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function getIdentifierNetworkSpecifications(string $scheme): array;
+
+    /**
      * Return a custom registration flow if this country requires one.
      * Return null to use the standard identifier registration.
      *

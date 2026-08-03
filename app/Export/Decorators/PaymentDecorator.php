@@ -45,6 +45,14 @@ class PaymentDecorator extends Decorator implements DecoratorInterface
             $payment = $entity->payments()->first();
         }
 
+        if ($payment && $entity instanceof Invoice && $entity->relationLoaded('current_paymentable')) {
+            if (method_exists($this, $key)) {
+                return $this->{$key}($payment);
+            }
+
+            return $payment->{$key} ?? '';
+        }
+
         if ($key == 'amount' && (!$entity instanceof Payment)) {
             if ($loaded_payments instanceof \Illuminate\Support\Collection) {
                 $active_payments = $this->activePayments($loaded_payments);

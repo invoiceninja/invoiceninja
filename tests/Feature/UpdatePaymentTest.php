@@ -12,15 +12,20 @@
 
 namespace Tests\Feature;
 
+use App\Events\EDocument\FranceInvoicePaymentStateChanged;
 use App\Factory\InvoiceFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Models\Client;
+use App\Models\Credit;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\Paymentable;
 use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -46,35 +51,258 @@ class UpdatePaymentTest extends TestCase
         );
     }
 
-    public function testUpdatingPaymentableDates()
+    public function testUpdatingPaymentDateMovesDerivedApplicationDateAndSignalsFranceReporting(): void
     {
-        $this->invoice = $this->invoice->service()->markPaid()->save();
+        $this->enableFranceReporting();
+        [$payment, $paymentable] = $this->createPaymentApplication('2026-07-01', '2026-07-01');
+        Event::fake([FranceInvoicePaymentStateChanged::class]);
 
-        $payment = $this->invoice->payments->first();
+        $this->updatePaymentDate($payment, '2026-07-05')->assertStatus(200);
 
-        $this->assertNotNull($payment);
+        $this->assertSame('2026-07-05', $payment->fresh()->date);
+        $this->assertSame('2026-07-05', $this->applicationDate($paymentable));
+        Event::assertDispatched(
+            FranceInvoicePaymentStateChanged::class,
+            fn (FranceInvoicePaymentStateChanged $event): bool => $event->invoiceId === $this->invoice->id
+                && $event->db === $this->company->db,
+        );
+    }
 
-        $payment->paymentables()->each(function ($pivot) {
+    public function testUpdatingPaymentDatePreservesAnIndependentApplicationDate(): void
+    {
+        $this->enableFranceReporting();
+        [$payment, $paymentable] = $this->createPaymentApplication('2026-07-01', '2026-07-03');
+        Event::fake([FranceInvoicePaymentStateChanged::class]);
 
-            $this->assertTrue(Carbon::createFromTimestamp($pivot->created_at)->isToday());
-        });
+        $this->updatePaymentDate($payment, '2026-07-02')->assertStatus(200);
 
-        $payment->paymentables()->each(function ($pivot) {
+        $this->assertSame('2026-07-02', $payment->fresh()->date);
+        $this->assertSame('2026-07-03', $this->applicationDate($paymentable));
+        Event::assertNotDispatched(FranceInvoicePaymentStateChanged::class);
+    }
 
-            $pivot->created_at = now()->startOfDay()->subMonth();
-            $pivot->save();
+    public function testUpdatingPaymentRejectsAnInvalidDate(): void
+    {
+        [$payment, $paymentable] = $this->createPaymentApplication('2026-07-01', '2026-07-01');
+        $this->withExceptionHandling();
 
-        });
+        $this->updatePaymentDate($payment, 'not-a-date')
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('date');
 
-        $payment->paymentables()->each(function ($pivot) {
+        $this->assertSame('2026-07-01', $payment->fresh()->date);
+        $this->assertSame('2026-07-01', $this->applicationDate($paymentable));
+    }
 
-            $this->assertTrue(Carbon::createFromTimestamp($pivot->created_at)->eq(now()->startOfDay()->subMonth()));
+    public function testNoOpPaymentDateUpdateDoesNotTouchApplicationOrDispatchSignal(): void
+    {
+        $this->enableFranceReporting();
+        [$payment, $paymentable] = $this->createPaymentApplication('2026-07-01', '2026-07-01');
+        $original_paymentable = $this->findPaymentable($paymentable->id);
+        Event::fake([FranceInvoicePaymentStateChanged::class]);
 
-        });
+        $this->updatePaymentDate($payment, '2026-07-01')->assertStatus(200);
 
+        $current_paymentable = $this->findPaymentable($paymentable->id);
+        $this->assertSame($original_paymentable->created_at, $current_paymentable->created_at);
+        $this->assertSame($original_paymentable->updated_at, $current_paymentable->updated_at);
+        Event::assertNotDispatched(FranceInvoicePaymentStateChanged::class);
+    }
 
+    public function testPaymentDateUpdateMovesMultipleInvoiceAndCreditApplications(): void
+    {
+        $payment = $this->createPayment('2026-07-01', 30, 30);
+        $second_invoice = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+        ]);
+        $credit = Credit::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+        ]);
 
+        $paymentables = [
+            $this->createPaymentable($payment, $this->invoice->id, 'invoices', '2026-07-01'),
+            $this->createPaymentable($payment, $second_invoice->id, 'invoices', '2026-07-01'),
+            $this->createPaymentable($payment, $credit->id, Credit::class, '2026-07-01'),
+        ];
 
+        $this->updatePaymentDate($payment, '2026-07-05')->assertStatus(200);
+
+        $this->assertSame('2026-07-05', $payment->fresh()->date);
+        foreach ($paymentables as $paymentable) {
+            $this->assertSame('2026-07-05', $this->applicationDate($paymentable));
+        }
+    }
+
+    public function testPaymentDateUpdateMovesSoftDeletedApplication(): void
+    {
+        [$payment, $paymentable] = $this->createPaymentApplication('2026-07-01', '2026-07-01');
+        $paymentable->delete();
+
+        $this->updatePaymentDate($payment, '2026-07-05')->assertStatus(200);
+
+        $paymentable = $this->findPaymentable($paymentable->id);
+        $this->assertNotNull($paymentable->deleted_at);
+        $this->assertSame('2026-07-05', $this->applicationDate($paymentable));
+    }
+
+    public function testApplicationAddedDuringDateUpdateKeepsItsOwnApplicationDate(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-07-10 12:00:00', 'UTC'));
+
+        try {
+            $payment = $this->createPayment('2026-07-01', 20, 10);
+            $existing_paymentable = $this->createPaymentable($payment, $this->invoice->id, 'invoices', '2026-07-01', 10);
+            $new_invoice = $this->createSentInvoice();
+
+            $this->updatePaymentDate($payment, '2026-07-05', [
+                'invoices' => [
+                    [
+                        'invoice_id' => $new_invoice->hashed_id,
+                        'amount' => 5,
+                    ],
+                ],
+            ])->assertStatus(200);
+
+            $new_paymentable = Paymentable::withTrashed()
+                ->where('payment_id', $payment->id)
+                ->where('paymentable_id', $new_invoice->id)
+                ->where('paymentable_type', 'invoices')
+                ->firstOrFail();
+
+            $this->assertSame('2026-07-05', $this->applicationDate($existing_paymentable));
+            $this->assertSame('2026-07-10', $this->applicationDate($new_paymentable));
+            $this->assertSame(2, Paymentable::withTrashed()->where('payment_id', $payment->id)->count());
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
+    public function testPaymentDateUpdateHandlesCompanyTimezoneAtDstBoundary(): void
+    {
+        $timezone = app('timezones')->firstWhere('name', 'America/New_York');
+        $this->assertNotNull($timezone);
+
+        $settings = $this->company->settings;
+        $settings->timezone_id = $timezone->id;
+        $this->company->settings = $settings;
+        $this->company->save();
+        $this->company = $this->company->fresh();
+
+        [$payment, $paymentable] = $this->createPaymentApplication('2026-03-08', '2026-03-08');
+
+        $this->updatePaymentDate($payment, '2026-03-09')->assertStatus(200);
+
+        $this->assertSame('2026-03-09', $payment->fresh()->date);
+        $this->assertSame('2026-03-09', $this->applicationDate($paymentable));
+    }
+
+    /**
+     * @return array{0: Payment, 1: Paymentable}
+     */
+    private function createPaymentApplication(string $payment_date, string $application_date): array
+    {
+        $payment = $this->createPayment($payment_date);
+        $paymentable = $this->createPaymentable(
+            $payment,
+            $this->invoice->id,
+            'invoices',
+            $application_date,
+        );
+
+        return [$payment, $paymentable];
+    }
+
+    private function createPayment(string $date, float $amount = 10, float $applied = 10): Payment
+    {
+        return Payment::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'status_id' => Payment::STATUS_COMPLETED,
+            'amount' => $amount,
+            'applied' => $applied,
+            'date' => $date,
+        ]);
+    }
+
+    private function createPaymentable(
+        Payment $payment,
+        int $paymentable_id,
+        string $paymentable_type,
+        string $application_date,
+        float $amount = 10,
+    ): Paymentable
+    {
+        $paymentable = new Paymentable();
+        $paymentable->payment_id = $payment->id;
+        $paymentable->paymentable_id = $paymentable_id;
+        $paymentable->paymentable_type = $paymentable_type;
+        $paymentable->amount = $amount;
+        $paymentable->refunded = 0;
+        $paymentable->created_at = $application_date;
+        $paymentable->updated_at = $application_date;
+        $paymentable->save();
+
+        $paymentable = Paymentable::withTrashed()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_id', $paymentable_id)
+            ->where('paymentable_type', $paymentable_type)
+            ->latest('id')
+            ->firstOrFail();
+
+        return $paymentable;
+    }
+
+    private function createSentInvoice(): Invoice
+    {
+        $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+        $invoice->client_id = $this->client->id;
+        $invoice->line_items = $this->buildLineItems();
+        $invoice->uses_inclusive_taxes = false;
+        $invoice->save();
+        $invoice = (new InvoiceSum($invoice))->build()->getInvoice();
+        $invoice->save();
+
+        return $invoice->service()->markSent()->save();
+    }
+
+    private function updatePaymentDate(Payment $payment, string $date, array $data = []): \Illuminate\Testing\TestResponse
+    {
+        return $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/payments/'.$payment->hashed_id, array_merge($data, ['date' => $date]));
+    }
+
+    private function applicationDate(Paymentable $paymentable): string
+    {
+        $paymentable = $this->findPaymentable($paymentable->id);
+
+        return Carbon::createFromTimestamp((int) $paymentable->created_at)->toDateString();
+    }
+
+    private function findPaymentable(int $paymentable_id): Paymentable
+    {
+        return Paymentable::withTrashed()
+            ->where('id', $paymentable_id)
+            ->firstOrFail();
+    }
+
+    private function enableFranceReporting(): void
+    {
+        $settings = $this->company->settings;
+        $settings->france_reporting_enabled = true;
+        $this->company->settings = $settings;
+        $this->company->save();
+        $this->company = $this->company->fresh();
+
+        $this->client->group_settings_id = null;
+        $this->client->save();
+        $this->client = $this->client->fresh();
     }
 
     public function testUpdatePaymentClientPaidToDate()

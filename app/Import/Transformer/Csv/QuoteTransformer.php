@@ -197,6 +197,7 @@ class QuoteTransformer extends BaseTransformer
             $line_items[] = [
                 'quantity' => $this->getFloat($record, 'item.quantity'),
                 'cost' => $this->getFloat($record, 'item.cost'),
+                'product_cost' => $this->getFloat($record, 'item.product_cost'),
                 'product_key' => $this->getString($record, 'item.product_key'),
                 'notes' => $this->getString($record, 'item.notes'),
                 'discount' => $this->getFloat($record, 'item.discount'),
@@ -227,6 +228,7 @@ class QuoteTransformer extends BaseTransformer
                     'item.custom_value4'
                 )),
                 'type_id' => '1', //$this->getQuoteTypeId( $record, 'item.type_id' ),
+                'tax_id' => $this->getString($record, 'item.tax_id'),
             ];
         }
         $transformed['line_items'] = $this->cleanItems($line_items);

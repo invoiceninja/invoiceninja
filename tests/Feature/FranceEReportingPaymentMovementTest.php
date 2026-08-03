@@ -38,6 +38,7 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
 use Ramsey\Uuid\Uuid;
 use ReflectionMethod;
+use Modules\Admin\Jobs\Storecove\DocumentSubmission;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -104,8 +105,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->assertCount(2, data_get($report->payment_request, 'source_event_ids'));
         $this->assertSame([(int) $report->id, (int) $report->id], $movements->map(fn (TransactionEvent $movement): int => (int) data_get($movement->payment_request, 'report_event_id'))->all());
         $this->assertSame('2026-10-02', $report->reporting_data->frReportEntry->b2cPayment->date);
-        $this->assertSame(1000, $report->reporting_data->frReportEntry->b2cPayment->taxSubtotal[0]->taxableAmount);
-        $this->assertSame(200, $report->reporting_data->frReportEntry->b2cPayment->taxSubtotal[0]->taxAmount);
+        $this->assertSame(1200, $report->reporting_data->frReportEntry->b2cPayment->taxSubtotal[0]->amount);
     }
 
     public function testRefundAfterSubmittedPaymentCreatesCorrectivePaymentEvent(): void
@@ -158,7 +158,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->assertSame(-200.0, (float) $correctiveReport->payment_applied);
         $this->assertSame((int) $initialReport->id, (int) data_get($correctiveReport->payment_request, 'previous_event_id'));
         $this->assertSame('2026-10-12', $correctiveReport->reporting_data->frReportEntry->b2cPayment->date);
-        $this->assertStringStartsWith('-', (string) $correctiveReport->reporting_data->frReportEntry->b2cPayment->taxSubtotal[0]->taxableAmount);
+        $this->assertSame(-200, $correctiveReport->reporting_data->frReportEntry->b2cPayment->taxSubtotal[0]->amount);
 
         $correctiveSources = $compiler->sourceEvents($this->company, TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE, '2026-10-20');
         $initialSourcesForCorrectionPeriod = $compiler->sourceEvents($this->company, TransactionEvent::FR_REPORT_SUBMISSION_B2C, '2026-10-20');
@@ -229,7 +229,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->assertFalse($b2cSources->contains("id", $report->id));
     }
 
-    public function testB2BIPaymentReportRepeatsTheFullPaymentAmountForEachTaxSubtotal(): void
+    public function testB2BIPaymentReportAllocatesThePaymentAcrossTaxSubtotals(): void
     {
         $invoice = $this->makeInvoice(
             clientCountry: "DE",
@@ -267,9 +267,9 @@ class FranceEReportingPaymentMovementTest extends TestCase
             ->sum(fn (object $taxSubtotal): float => (float) $taxSubtotal->amountIncludingTax);
 
         $this->assertCount(2, $taxSubtotals);
-        $this->assertSame(["230", "230"], $amountsIncludingTax);
-        $this->assertSame(460.0, $amountIncludingTaxTotal);
-        $this->assertGreaterThan((float) $payment->amount, $amountIncludingTaxTotal);
+        $this->assertSame(["120", "110"], $amountsIncludingTax);
+        $this->assertSame(230.0, $amountIncludingTaxTotal);
+        $this->assertSame((float) $payment->amount, $amountIncludingTaxTotal);
     }
 
     public function testRefundBeforeSubmissionUpdatesThePendingPaymentReport(): void
@@ -316,7 +316,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->assertSame("initial", data_get($report->payment_request, "fr_report_kind"));
         $this->assertCount(2, data_get($report->payment_request, "source_event_ids"));
         $this->assertSame("2026-09-18", $report->reporting_data->frReportEntry->b2cPayment->date);
-        $this->assertSame(833.33, $report->reporting_data->frReportEntry->b2cPayment->taxSubtotal[0]->taxableAmount);
+        $this->assertSame(1000, $report->reporting_data->frReportEntry->b2cPayment->taxSubtotal[0]->amount);
     }
 
     public function testRefundBeforeSubmissionThatNetsToZeroRemovesThePendingReport(): void
@@ -1330,6 +1330,30 @@ class FranceEReportingPaymentMovementTest extends TestCase
 
         $this->assertSame("cleared", $invoice->backup->e_invoice_status);
         $this->assertNotNull($invoice->backup->e_invoice_cleared_at);
+    }
+
+    public function testHostedStorecoveStatusPersistenceMatchesTheSelfHostedPullPath(): void
+    {
+        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
+        $invoice->backup->guid = "hosted-original-storecove-guid";
+        $invoice->save();
+
+        $method = new ReflectionMethod(DocumentSubmission::class, "recordDocumentStatus");
+        $method->setAccessible(true);
+        $job = new DocumentSubmission([]);
+        $method->invoke($job, $invoice, "cleared");
+
+        $invoice = $invoice->fresh();
+        $clearedAt = $invoice->backup->e_invoice_cleared_at;
+
+        $this->assertSame("cleared", $invoice->backup->e_invoice_status);
+        $this->assertNotNull($clearedAt);
+
+        $method->invoke($job, $invoice, "accepted");
+
+        $invoice = $invoice->fresh();
+        $this->assertSame("accepted", $invoice->backup->e_invoice_status);
+        $this->assertSame($clearedAt, $invoice->backup->e_invoice_cleared_at);
     }
 
     public function testPaymentReceivedNotificationRemainsEligibleAfterStorecoveStatusAdvancesBeyondCleared(): void

@@ -13,6 +13,7 @@
 namespace App\Services\EDocument\Standards\Peppol;
 
 use App\Models\Client;
+use Carbon\CarbonImmutable;
 use App\Services\EDocument\Gateway\MutatorUtil;
 use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
 use App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveIdentifierValidator;
@@ -27,6 +28,8 @@ use App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveIdentifierVali
  */
 class FR extends BaseCountry
 {
+    private const CTC_MANDATE_START_DATE = '2026-09-01';
+
     public function getCandidates(object $client, string $classification, object $router): array
     {
         if ($classification === 'government') {
@@ -116,7 +119,7 @@ class FR extends BaseCountry
      * 14-digit FR:SIRET.
      *
      * @param  array{classification?: string, vat_number?: string, id_number?: string}  $data
-     * @return array<int, array{identifier: string, scheme: string}>
+     * @return array<int, array{identifier: string, scheme: string, required: bool}>
      */
     public function getAdditionalIdentifiers(array $data): array
     {
@@ -132,16 +135,54 @@ class FR extends BaseCountry
             $siren = substr($vat, -9);
 
             if ($validator->validFormat('FR:SIRENE', $siren)) {
-                $identifiers[] = ['identifier' => $siren, 'scheme' => 'FR:SIRENE'];
+                $identifiers[] = ['identifier' => $siren, 'scheme' => 'FR:SIRENE', 'required' => true];
+                $identifiers[] = ['identifier' => $siren, 'scheme' => 'FR:CTC', 'required' => true];
             }
         }
 
         $siret = preg_replace("/[^0-9]/", "", $data['id_number'] ?? '');
         if ($siret !== '' && $validator->validFormat('FR:SIRET', $siret)) {
-            $identifiers[] = ['identifier' => $siret, 'scheme' => 'FR:SIRET'];
+            $identifiers[] = ['identifier' => $siret, 'scheme' => 'FR:SIRET', 'required' => false];
         }
 
         return $identifiers;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function getIdentifierNetworkSpecifications(string $scheme): array
+    {
+        if (! in_array($scheme, ['FR:VAT', 'FR:SIRENE', 'FR:SIRET', 'FR:CTC'], true)) {
+            return [];
+        }
+
+        $networks = [
+            [
+                'name' => 'peppol',
+                'sub_networks' => ['main', 'france'],
+            ],
+        ];
+
+        if ($scheme === 'FR:CTC') {
+            $networks[] = [
+                'name' => 'dgfip',
+                'sub_networks' => ['main'],
+                'annuaire' => [
+                    'start_date' => $this->ctcStartDate(),
+                ],
+            ];
+        }
+
+        return $networks;
+    }
+
+    private function ctcStartDate(): string
+    {
+        $earliestStorecoveDate = CarbonImmutable::today('Europe/Paris')->addDays(2);
+        $mandateStartDate = CarbonImmutable::parse(self::CTC_MANDATE_START_DATE, 'Europe/Paris');
+
+        return $earliestStorecoveDate->max($mandateStartDate)->toDateString();
     }
 
     public function senderMutations(

@@ -45,6 +45,9 @@ class ProductTransformer extends BaseTransformer
             'custom_value4' => $this->getCustomFieldValue('product4', $this->getString($data, 'product.custom_value4')),
             'product_image' => $this->getString($data, 'product.image_url'),
             'in_stock_quantity' => $this->getFloat($data, 'product.in_stock_quantity'),
+            'max_quantity' => (int) $this->getFloat($data, 'product.max_quantity'),
+            'stock_notification' => $this->toBoolean($this->getString($data, 'product.stock_notification')),
+            'stock_notification_threshold' => (int) $this->getFloat($data, 'product.stock_notification_threshold'),
             'tax_id' => $this->getNumber($data, 'product.tax_category', 1),
         ];
     }

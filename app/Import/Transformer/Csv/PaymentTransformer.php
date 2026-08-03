@@ -46,7 +46,7 @@ class PaymentTransformer extends BaseTransformer
             'applied' => $this->getFloat($data, 'payment.applied'),
             'transaction_reference' => $this->getString(
                 $data,
-                'payment.transaction_reference '
+                'payment.transaction_reference'
             ),
             'date' => isset($data['payment.date']) ? $this->parseDate($data['payment.date']) : date('y-m-d'),
             'private_notes' => $this->getString($data, 'payment.private_notes'),

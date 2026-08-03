@@ -271,7 +271,16 @@ class PaymentExport extends BaseExport
         }
 
         $entity = $this->decorateAdvancedFields($payment, $entity);
-        return $this->convertFloats($entity);
+        return $this->convertFloats($entity, $this->fan_out ? ['payment' => $payment->id] : []);
+    }
+
+    protected function groupingIdentityForColumn(string $column): ?string
+    {
+        $is_payment_column = $this->fan_out
+            && str_starts_with($column, 'payment.')
+            && ! in_array($column, self::APPLIED_INJECTED_KEYS, true);
+
+        return $is_payment_column ? 'payment' : null;
     }
 
     private function decorateAdvancedFields(Payment $payment, array $entity): array

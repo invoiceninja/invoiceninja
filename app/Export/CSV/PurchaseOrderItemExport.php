@@ -196,9 +196,14 @@ class PurchaseOrderItemExport extends BaseExport
             $entity = $this->decorateAdvancedFields($purchase_order, $transformed_items);
             $entity = array_merge(array_flip(array_values($this->input['report_keys'])), $entity);
 
-            $this->storage_array[] = $this->convertFloats($entity);
+            $this->storage_array[] = $this->convertFloats($entity, ['purchase_order' => $purchase_order->id]);
         }
 
+    }
+
+    protected function groupingIdentityForColumn(string $column): ?string
+    {
+        return str_starts_with($column, 'purchase_order.') ? 'purchase_order' : null;
     }
 
     protected function buildRow(PurchaseOrder $purchase_order): array

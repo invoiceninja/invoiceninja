@@ -207,10 +207,15 @@ class QuoteItemExport extends BaseExport
             $transformed_items = array_merge($transformed_quote, $item_array);
             $entity = $this->decorateAdvancedFields($quote, $transformed_items);
             $entity = array_merge(array_flip(array_values($this->input['report_keys'])), $entity);
-            $entity = $this->convertFloats($entity);
+            $entity = $this->convertFloats($entity, ['quote' => $quote->id]);
 
             $this->storage_array[] = $entity;
         }
+    }
+
+    protected function groupingIdentityForColumn(string $column): ?string
+    {
+        return str_starts_with($column, 'quote.') ? 'quote' : null;
     }
 
     protected function buildRow(Quote $quote): array

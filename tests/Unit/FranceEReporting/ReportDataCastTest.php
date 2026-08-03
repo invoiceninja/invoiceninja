@@ -226,9 +226,9 @@ class ReportDataCastTest extends TestCase
                             new TaxSubtotalData(
                                 percentage: '20.0',
                                 category: 'standard',
-                                taxableAmount: '1000.00',
-                                taxAmount: '200.00',
                                 currency: 'EUR',
+                                country: 'FR',
+                                amount: '1200.00',
                             ),
                         ],
                     ),
@@ -403,9 +403,9 @@ class ReportDataCastTest extends TestCase
                             [
                                 'category' => 'standard',
                                 'percentage' => '20.0',
-                                'taxableAmount' => '1000.00',
-                                'taxAmount' => '200.00',
+                                'amount' => '1200.00',
                                 'currency' => 'EUR',
+                                'country' => 'FR',
                             ],
                         ],
                     ],

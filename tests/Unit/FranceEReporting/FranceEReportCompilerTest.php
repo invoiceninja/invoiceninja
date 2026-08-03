@@ -4,6 +4,7 @@ namespace Tests\Unit\FranceEReporting;
 
 use App\DataMapper\CompanySettings;
 use App\Models\Company;
+use App\Models\Country;
 use App\Models\TransactionEvent;
 use App\Services\EDocument\Standards\France\FranceEReportCompiler;
 use App\Services\EDocument\Standards\France\FranceEReportPayloadBuilder;
@@ -12,6 +13,18 @@ use Tests\TestCase;
 
 class FranceEReportCompilerTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $france = new Country();
+        $france->setRawAttributes([
+            'id' => 73,
+            'iso_3166_2' => 'FR',
+            'name' => 'France',
+        ], true);
+        app()->instance('countries', collect([$france]));
+    }
+
     public function testItCompilesB2CTransactionAndPaymentFragmentsIntoAStorecoveReportPayload(): void
     {
         $company = $this->company();
@@ -248,9 +261,9 @@ class FranceEReportCompilerTest extends TestCase
                 [
                     'category' => 'standard',
                     'percentage' => 20,
-                    'taxableAmount' => 10000,
-                    'taxAmount' => 2000,
+                    'amount' => 12000,
                     'currency' => 'EUR',
+                    'country' => 'FR',
                 ],
             ],
         ];

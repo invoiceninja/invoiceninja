@@ -91,6 +91,11 @@ class BaseCountry implements CountryHandler
         return [];
     }
 
+    public function getIdentifierNetworkSpecifications(string $scheme): array
+    {
+        return [];
+    }
+
     public function getRegistrationFlow(object $storecove, int $legal_entity_id, array $data): array|\Illuminate\Http\Client\Response|null
     {
         return null;

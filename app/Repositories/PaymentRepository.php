@@ -12,6 +12,7 @@
 
 namespace App\Repositories;
 
+use App\Events\EDocument\FranceInvoicePaymentStateChanged;
 use App\Events\Payment\PaymentWasCreated;
 use App\Events\Payment\PaymentWasDeleted;
 use App\Jobs\Credit\ApplyCreditPayment;
@@ -27,6 +28,7 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 /**
  * PaymentRepository.
@@ -53,11 +55,103 @@ class PaymentRepository extends BaseRepository
     public function save(array $data, Payment $payment): ?Payment
     {
         $tag_ids = $this->resolveTagIdsForSync($data, $payment);
+        $original_date = $payment->date;
+        $paymentables_to_move = $this->paymentablesDerivedFromDate($data, $payment, $original_date);
         $payment = $this->applyPayment($data, $payment);
 
+        $this->movePaymentableDates($payment, $original_date, $paymentables_to_move);
         $this->syncResolvedTags($payment, $tag_ids);
-        
+
         return $payment;
+    }
+
+    /**
+     * Select existing application rows whose legacy business date was inherited
+     * from the payment date. Rows created by this save are intentionally excluded.
+     *
+     * @return Collection<int, Paymentable>
+     */
+    private function paymentablesDerivedFromDate(array $data, Payment $payment, ?string $original_date): Collection
+    {
+        if (! $payment->exists
+            || ! $original_date
+            || empty($data['date'])
+            || (string) $data['date'] === $original_date) {
+            return collect();
+        }
+
+        $timezone = $payment->company->timezone()?->name ?: config('app.timezone');
+
+        return Paymentable::withTrashed()
+            ->where('payment_id', $payment->id)
+            ->get()
+            ->filter(function (Paymentable $paymentable) use ($original_date, $timezone): bool {
+                if (! $paymentable->created_at) {
+                    return false;
+                }
+
+                $created_at = is_numeric($paymentable->created_at)
+                    ? Carbon::createFromTimestamp((int) $paymentable->created_at)
+                    : Carbon::parse($paymentable->created_at);
+
+                return $created_at->toDateString() === $original_date
+                    || $created_at->copy()->setTimezone($timezone)->toDateString() === $original_date;
+            })
+            ->values();
+    }
+
+    /**
+     * @param Collection<int, Paymentable> $paymentables
+     */
+    private function movePaymentableDates(Payment $payment, ?string $original_date, Collection $paymentables): void
+    {
+        if (! $original_date
+            || ! $payment->date
+            || $payment->date === $original_date
+            || $paymentables->isEmpty()) {
+            return;
+        }
+
+        $moved_paymentables = collect();
+
+        foreach ($paymentables as $paymentable) {
+            $paymentable->created_at = $payment->date;
+            $paymentable->saveQuietly();
+            $moved_paymentables->push($paymentable);
+        }
+
+        $this->signalFranceInvoicePaymentStateChanges($payment, $moved_paymentables);
+    }
+
+    /**
+     * @param Collection<int, Paymentable> $paymentables
+     */
+    private function signalFranceInvoicePaymentStateChanges(Payment $payment, Collection $paymentables): void
+    {
+        $invoice_ids = $paymentables
+            ->where('paymentable_type', 'invoices')
+            ->pluck('paymentable_id')
+            ->unique()
+            ->values();
+
+        if ($invoice_ids->isEmpty()) {
+            return;
+        }
+
+        $invoices = Invoice::withTrashed()
+            ->with(['client.company'])
+            ->whereIn('id', $invoice_ids)
+            ->get();
+
+        foreach ($invoices as $invoice) {
+            try {
+                if ($invoice->client->reportableFrTransaction()) {
+                    FranceInvoicePaymentStateChanged::dispatch($invoice->id, $payment->company->db);
+                }
+            } catch (\Throwable $exception) {
+                report($exception);
+            }
+        }
     }
 
     /**
