@@ -30,7 +30,7 @@ class PaymentTermTransformer extends EntityTransformer
                 'num_days' => $payment_term->getNumDays(),
                 'cash_discount_percent' => $payment_term->cash_discount_percent,
                 'cash_discount_days' => $payment_term->cash_discount_days,
-            ]) : ctrans('texts.payment_terms_net', ['num_days' => $payment_term->getNumDays()])),
+            ]) : ctrans('texts.payment_terms_net') . ' ' . $payment_term->getNumDays()),
             'is_deleted' => (bool) $payment_term->is_deleted,
             'created_at' => (int) $payment_term->created_at,
             'updated_at' => (int) $payment_term->updated_at,
