@@ -158,6 +158,10 @@ class InvoiceTransformer extends BaseTransformer
             );
         }
 
+        if(empty($transformed['number'])){
+unset($transformed['number']);
+        }
+
         $currency = $this->company->currency();
 
         $payment_amount =round($this->getFloat(
