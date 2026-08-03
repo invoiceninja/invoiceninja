@@ -55,6 +55,10 @@ class FranceEReportingPaymentMovementTest extends TestCase
     {
         parent::setUp();
 
+        if(!class_exists(Modules\Admin\Jobs\Storecove\DocumentSubmission::class)){
+            $this->markTestSkipped('Storecove Document Submission is not configured.');
+        }
+        
         CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-09-18 12:00:00', 'Europe/Paris'));
 
         $this->faker = Factory::create();
