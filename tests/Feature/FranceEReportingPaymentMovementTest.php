@@ -1829,7 +1829,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
                     (string) $this->company->company_key,
                     (string) $this->company->id,
                     (string) TransactionEvent::FR_REPORT_SUBMISSION_B2C,
-                    "2026-09-10",
+                    "2026-09-30",
                     (string) $sourceEvent->id,
                 ]),
             )->toString();
@@ -1851,14 +1851,14 @@ class FranceEReportingPaymentMovementTest extends TestCase
             (new SubmitFranceEReport(
                 $this->company->id,
                 TransactionEvent::FR_REPORT_SUBMISSION_B2C,
-                "2026-09-10",
+                "2026-09-30",
                 $this->company->db,
             ))->handle($storecove, new FranceEReportCompiler(), new FranceEReportPayloadBuilder());
 
             $submissions = TransactionEvent::query()
                 ->where("company_id", $this->company->id)
                 ->where("event_id", TransactionEvent::FR_REPORT_SUBMISSION_B2C)
-                ->whereDate("period", "2026-09-10")
+                ->whereDate("period", "2026-09-30")
                 ->get();
 
             $this->assertSame(1, $submissions->count());
@@ -1913,14 +1913,14 @@ class FranceEReportingPaymentMovementTest extends TestCase
             (new SubmitFranceEReport(
                 $this->company->id,
                 TransactionEvent::FR_REPORT_SUBMISSION_B2C,
-                "2026-09-10",
+                "2026-09-30",
                 $this->company->db,
             ))->handle($storecove, new FranceEReportCompiler(), new FranceEReportPayloadBuilder());
 
             $this->assertFalse(TransactionEvent::query()
                 ->where("company_id", $this->company->id)
                 ->where("event_id", TransactionEvent::FR_REPORT_SUBMISSION_B2C)
-                ->whereDate("period", "2026-09-10")
+                ->whereDate("period", "2026-09-30")
                 ->exists());
             $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_PENDING, $sourceEvent->fresh()->payment_status);
         } finally {
@@ -1962,7 +1962,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
 
     public function testFranceEReportStorecoveExceptionCreatesFailedAuditAndRemainsRetryable(): void
     {
-        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-18 22:00:00", "Europe/Paris"));
+        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-10-08 22:00:00", "Europe/Paris"));
 
         try {
             config(["ninja.db.multi_db_enabled" => false]);
@@ -1991,14 +1991,14 @@ class FranceEReportingPaymentMovementTest extends TestCase
             (new SubmitFranceEReport(
                 $this->company->id,
                 TransactionEvent::FR_REPORT_SUBMISSION_B2C,
-                "2026-09-10",
+                "2026-09-30",
                 $this->company->db,
             ))->handle($storecove, new FranceEReportCompiler(), new FranceEReportPayloadBuilder());
 
             $submission = TransactionEvent::query()
                 ->where("company_id", $this->company->id)
                 ->where("event_id", TransactionEvent::FR_REPORT_SUBMISSION_B2C)
-                ->whereDate("period", "2026-09-10")
+                ->whereDate("period", "2026-09-30")
                 ->firstOrFail();
 
             $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_FAILED, $submission->payment_status);
@@ -2018,7 +2018,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
             Bus::assertDispatched(SubmitFranceEReport::class, function (SubmitFranceEReport $job): bool {
                 return (int) $this->jobProperty($job, "companyId") === (int) $this->company->id
                     && (int) $this->jobProperty($job, "submissionEventId") === TransactionEvent::FR_REPORT_SUBMISSION_B2C
-                    && $this->jobProperty($job, "periodEnd") === "2026-09-10";
+                    && $this->jobProperty($job, "periodEnd") === "2026-09-30";
             });
         } finally {
             CarbonImmutable::setTestNow();
@@ -2130,7 +2130,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         (new SubmitFranceEReport(
             $this->company->id,
             TransactionEvent::FR_REPORT_SUBMISSION_B2C,
-            '2026-09-10',
+            '2026-09-30',
             $this->company->db,
         ))->handle($storecove, new FranceEReportCompiler(), new FranceEReportPayloadBuilder());
 
@@ -2213,7 +2213,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
 
     public function testFranceEReportingCronRetriesFailedAndLegacyAttemptsAndSkipsOnlySubmittedAttempts(): void
     {
-        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-18 22:00:00", "Europe/Paris"));
+        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-10-08 22:00:00", "Europe/Paris"));
 
         try {
             config(["ninja.db.multi_db_enabled" => false]);
@@ -2245,7 +2245,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
                     "credit_id" => $sourceEvent->credit_id,
                     "event_id" => TransactionEvent::FR_REPORT_SUBMISSION_B2C,
                     "timestamp" => now()->timestamp,
-                    "period" => "2026-09-10",
+                    "period" => "2026-09-30",
                     "payment_status" => $submissionStatus,
                     "payment_request" => ["source_event_ids" => [$sourceEvent->id]],
                 ]);
@@ -2304,7 +2304,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
             (new SubmitFranceEReport(
                 $this->company->id,
                 TransactionEvent::FR_REPORT_SUBMISSION_B2C,
-                "2026-09-10",
+                "2026-09-30",
                 $this->company->db,
             ))->handle($storecove, new FranceEReportCompiler(), $payloadBuilder);
 
@@ -2316,7 +2316,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->assertFalse(TransactionEvent::query()
             ->where("company_id", $this->company->id)
             ->where("event_id", TransactionEvent::FR_REPORT_SUBMISSION_B2C)
-            ->where("period", "2026-09-10")
+            ->where("period", "2026-09-30")
             ->exists());
         $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_PENDING, $sourceReport->fresh()->payment_status);
     }
