@@ -35,7 +35,7 @@
         styles: {
             // Primary
             // Link to google font
-            fontFamily: new URL("assets/fonts/Roboto-Regular.ttf", window.location.origin).href,
+            fontFamily: new URL("fonts/Roboto-Regular.ttf", window.location.origin).href,
             fontSize: '15',
             backgroundColor: '#F2F2F2',
             textColor: '#222',

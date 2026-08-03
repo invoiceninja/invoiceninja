@@ -20,7 +20,7 @@ use App\Http\Controllers\StripeConnectController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [BaseController::class, 'flutterRoute'])->middleware('guest');
+Route::get('/', [BaseController::class, 'reactRoute'])->middleware('guest');
 
 Route::get('setup', [SetupController::class, 'index'])->middleware('guest');
 Route::post('setup', [SetupController::class, 'doSetup'])->middleware('throttle:10,1')->middleware('guest');

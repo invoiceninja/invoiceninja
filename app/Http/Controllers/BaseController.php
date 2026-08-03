@@ -1365,11 +1365,11 @@ class BaseController extends Controller
     }
 
     /**
-     * Main entrypoint for the default /  route.
+     * Redirects the admin entrypoint to the standalone React application.
      *
      * @return mixed
      */
-    public function flutterRoute()
+    public function reactRoute()
     {
 
         if ((bool) $this->checkAppSetup() !== false && DbSchema::hasTable('accounts') && $account = Account::first()) {
@@ -1385,86 +1385,16 @@ class BaseController extends Controller
                 return redirect()->secure(request()->getRequestUri());
             }
 
-            /* Clean up URLs and remove query parameters from the URL*/
-            if (request()->has('login') && request()->input('login') == 'true') {
-                return redirect('/')->with(['login' => 'true']);
+            $reactUrl = rtrim((string) config('ninja.react_url'), '/');
+
+            if ($reactUrl === '') {
+                abort(503, 'REACT_URL is not configured.');
             }
 
-            if (request()->has('signup') && request()->input('signup') == 'true') {
-                return redirect('/')->with(['signup' => 'true']);
-            }
-
-            // 06-09-2022 - parse the path if loaded in a subdirectory for canvaskit resolution
-            $canvas_path_array = parse_url(config('ninja.app_url'));
-            $canvas_path = (array_key_exists('path', $canvas_path_array)) ? $canvas_path_array['path'] : '';
-            $canvas_path = rtrim(str_replace("index.php", "", $canvas_path), '/');
-
-            $data = [];
-
-            //pass report errors bool to front end
-            $data['report_errors'] = Ninja::isSelfHost() ? $account->report_errors : true;
-
-            //pass whitelabel bool to front end
-            $data['white_label'] = Ninja::isSelfHost() ? $account->isPaid() : false;
-
-            //pass referral code to front end
-            $data['rc'] = request()->has('rc') && is_string(request()->input('rc')) ? request()->input('rc') : '';
-            $data['build'] = request()->has('build') && is_string(request()->input('build')) ? request()->input('build') : '';
-            $data['login'] = request()->has('login') && is_string(request()->input('input')) ? request()->input('login') : 'false';
-            $data['signup'] = request()->has('signup') && is_string(request()->input('signup')) ? request()->input('signup') : 'false';
-            $data['canvas_path'] = $canvas_path;
-
-            if (request()->session()->has('login')) {
-                $data['login'] = 'true';
-            }
-
-            if (request()->session()->has('signup')) {
-                $data['signup'] = 'true';
-            }
-
-            $data['user_agent'] = request()->server('HTTP_USER_AGENT');
-
-            $data['path'] = $this->setBuild();
-
-            if (Ninja::isSelfHost() && $account->set_react_as_default_ap && ! config('ninja.force_flutter')) {
-                return response()->view('react.index', $data)->header('X-Frame-Options', 'SAMEORIGIN', false);
-            } else {
-                return response()->view('index.index', $data)->header('X-Frame-Options', 'SAMEORIGIN', false);
-            }
+            return redirect()->away($reactUrl.request()->getRequestUri());
         }
 
         return redirect('/setup');
-    }
-
-    /**
-     * Sets the Flutter build to serve
-     *
-     * @return string
-     */
-    private function setBuild(): string
-    {
-        $build = '';
-
-        if (request()->has('build')) {
-            $build = request()->input('build');
-        } elseif (Ninja::isHosted()) {
-            return 'main.dart.js';
-        }
-
-        switch ($build) {
-            case 'wasm':
-                return 'main.wasm.dart.js';
-            case 'foss':
-                return 'main.foss.dart.js';
-            case 'last':
-                return 'main.last.dart.js';
-            case 'next':
-                return 'main.next.dart.js';
-            case 'profile':
-                return 'main.profile.dart.js';
-            default:
-                return 'main.foss.dart.js';
-        }
     }
 
     /**

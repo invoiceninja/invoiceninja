@@ -3892,7 +3892,7 @@
   "generated::dwrWewfQhhKCzk0E": {
     "name": "generated::dwrWewfQhhKCzk0E",
     "domain": null,
-    "action": "App\\Http\\Controllers\\BaseController@flutterRoute",
+    "action": "App\\Http\\Controllers\\BaseController@reactRoute",
     "uri": "/",
     "method": [
       "GET",

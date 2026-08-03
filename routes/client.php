@@ -13,7 +13,6 @@ use App\Http\Controllers\CreditController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\RecurringInvoiceController;
-use App\Models\Account;
 use App\Utils\Ninja;
 use Illuminate\Support\Facades\Route;
 
@@ -166,15 +165,11 @@ Route::fallback(function () {
             return redirect('/setup');
         }
 
-        $account = Account::first();
+        $reactUrl = rtrim((string) config('ninja.react_url'), '/');
 
-        return $account->set_react_as_default_ap && ! config('ninja.force_flutter') ? response()->view('react.index', [
-            'rc' => request()->input('rc', ''),
-            'login' => request()->input('login', ''),
-            'signup' => request()->input('signup', ''),
-            'report_errors' => $account->report_errors,
-            'user_agent' => request()->server('HTTP_USER_AGENT'),
-        ])->header('X-Frame-Options', 'SAMEORIGIN', false) : abort(404);
+        return $reactUrl === ''
+            ? abort(404)
+            : redirect()->away($reactUrl.request()->getRequestUri());
     }
 
     abort(404);
