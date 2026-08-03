@@ -1,0 +1,9 @@
+FROM invoiceninja/invoiceninja-debian:latest
+
+WORKDIR /var/www/html
+
+COPY --chown=www-data:www-data . /var/www/html
+
+RUN rm -rf /tmp/public \
+    && cp -a /var/www/html/public /tmp/public \
+    && chown -R www-data:www-data /var/www/html /tmp/public

@@ -1426,7 +1426,7 @@ class BaseController extends Controller
 
             $data['path'] = $this->setBuild();
 
-            if (Ninja::isSelfHost() && $account->set_react_as_default_ap) {
+            if (Ninja::isSelfHost() && $account->set_react_as_default_ap && ! config('ninja.force_flutter')) {
                 return response()->view('react.index', $data)->header('X-Frame-Options', 'SAMEORIGIN', false);
             } else {
                 return response()->view('index.index', $data)->header('X-Frame-Options', 'SAMEORIGIN', false);

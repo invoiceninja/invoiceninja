@@ -168,7 +168,7 @@ Route::fallback(function () {
 
         $account = Account::first();
 
-        return $account->set_react_as_default_ap ? response()->view('react.index', [
+        return $account->set_react_as_default_ap && ! config('ninja.force_flutter') ? response()->view('react.index', [
             'rc' => request()->input('rc', ''),
             'login' => request()->input('login', ''),
             'signup' => request()->input('signup', ''),
