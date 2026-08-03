@@ -45,7 +45,7 @@ class ExpenseTransformer extends BaseTransformer
             'exchange_rate' => $this->getFloatOrOne($data, 'expense.exchange_rate'),
             'currency_id' => $this->getCurrencyByCode(
                 $data,
-                'expense.currency_id'
+                'expense.currency'
             ),
             'vendor_id' => isset($data['expense.vendor'])
                 ? $this->getVendorId($data['expense.vendor'])
@@ -77,7 +77,7 @@ class ExpenseTransformer extends BaseTransformer
             'should_be_invoiced' => array_key_exists('expense.should_be_invoiced', $data)
                 ? $this->toBoolean($data['expense.should_be_invoiced'])
                 : (bool) $clientId,
-            'uses_inclusive_taxes' => (bool) $this->getString($data, 'expense.uses_inclusive_taxes'),
+            'uses_inclusive_taxes' => $this->toBoolean($data['expense.uses_inclusive_taxes'] ?? false),
             'tax_name1' => $this->getString($data, 'expense.tax_name1'),
             'tax_rate1' => $this->getFloat($data, 'expense.tax_rate1'),
             'tax_name2' => $this->getString($data, 'expense.tax_name2'),

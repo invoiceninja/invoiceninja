@@ -34,13 +34,18 @@ class FrancePaymentApplicationRecorder
             $paymentable = $this->paymentable($payment, $invoice);
             $movementAmount = $paymentable->amount
                 ?? data_get($invoice, 'pivot.amount', $payment->applied ?: $payment->amount ?: 0);
+            $movementDate = $this->paymentableDate($paymentable, $payment);
+
+            if (! $movementDate) {
+                return;
+            }
 
             $this->recordMovement(
                 payment: $payment,
                 invoice: $invoice,
                 paymentable: $paymentable,
                 movementAmount: $movementAmount,
-                movementDate: $this->paymentableDate($paymentable) ?: ($payment->date ?: now()->toDateString()),
+                movementDate: $movementDate,
             );
         } catch (Throwable $exception) {
             report($exception);
@@ -62,6 +67,10 @@ class FrancePaymentApplicationRecorder
 
             $sourceDate = $this->resolveMovementDate($payment, $paymentable, $movementDate, $movementType);
 
+            if (! $sourceDate) {
+                return;
+            }
+
             RecordFranceEReportingPayment::dispatch(
                 $payment->id,
                 $payment->company->db,
@@ -70,6 +79,7 @@ class FrancePaymentApplicationRecorder
                 (string) $movementAmount,
                 $sourceDate,
                 $movementType,
+                $this->movementIdentity($payment, $paymentable, $movementType),
             )->afterCommit();
         } catch (Throwable $exception) {
             report($exception);
@@ -130,11 +140,11 @@ class FrancePaymentApplicationRecorder
             ->first();
     }
 
-    private function resolveMovementDate(Payment $payment, ?Paymentable $paymentable, ?string $movementDate, string $movementType): string
+    private function resolveMovementDate(Payment $payment, ?Paymentable $paymentable, ?string $movementDate, string $movementType): ?string
     {
-        $paymentableDate = $this->paymentableDate($paymentable);
+        $paymentableDate = $this->paymentableDate($paymentable, $payment);
 
-        if ($this->movementTypeUsesPaymentableDate($movementType) && $paymentableDate) {
+        if ($this->movementTypeUsesPaymentableDate($movementType)) {
             return $paymentableDate;
         }
 
@@ -142,7 +152,7 @@ class FrancePaymentApplicationRecorder
             return $movementDate;
         }
 
-        return $paymentableDate ?: ($payment->date ?: now()->toDateString());
+        return $paymentableDate;
     }
 
     private function movementTypeUsesPaymentableDate(string $movementType): bool
@@ -150,15 +160,20 @@ class FrancePaymentApplicationRecorder
         return in_array($movementType, [self::MOVEMENT_APPLIED, self::MOVEMENT_CREDIT_APPLIED], true);
     }
 
-    private function paymentableDate(?Paymentable $paymentable): ?string
+    private function movementIdentity(Payment $payment, ?Paymentable $paymentable, string $movementType): ?string
     {
-        if (! $paymentable?->created_at) {
+        if (! in_array($movementType, [self::MOVEMENT_REFUNDED, self::MOVEMENT_DELETED], true)) {
             return null;
         }
 
-        return is_numeric($paymentable->created_at)
-            ? now()->setTimestamp((int) $paymentable->created_at)->toDateString()
-            : (string) $paymentable->created_at;
+        return $movementType.':'.(string) ($paymentable?->refunded ?? $payment->refunded ?? 0);
+    }
+
+    private function paymentableDate(?Paymentable $paymentable, Payment $payment): ?string
+    {
+        $timezone = $payment->company->timezone()?->name ?: config('app.timezone');
+
+        return app(FrancePaymentApplicationDateResolver::class)->resolve($paymentable, $payment->date, $timezone);
     }
 
     private function isZero(int|float|string $amount): bool

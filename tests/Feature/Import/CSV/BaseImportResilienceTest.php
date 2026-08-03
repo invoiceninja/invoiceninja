@@ -149,6 +149,7 @@ class BaseImportResilienceTest extends TestCase
 
         $this->assertSame(0, $importer->ingest($expense_records, 'expense'));
         $this->assertSame(0, $importer->ingest($invoice_records, 'invoice'));
+        $this->assertSame([], $importer->error_array);
 
         $errors = $importer->getErrors();
 

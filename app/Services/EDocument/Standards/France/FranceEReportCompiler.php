@@ -24,7 +24,9 @@ use App\DataMapper\FranceEReporting\PublicIdentifierData;
 use App\DataMapper\FranceEReporting\TransactionReportData;
 use App\Jobs\EDocument\RecordFranceEReportingPayment;
 use App\Models\Company;
+use App\Models\Invoice;
 use App\Models\TransactionEvent;
+use App\Utils\BcMath;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
@@ -49,6 +51,7 @@ class FranceEReportCompiler
     public function sourceEvents(Company $company, int $submissionEventId, string $periodEnd): Collection
     {
         return TransactionEvent::query()
+            ->with('invoice')
             ->where('company_id', $company->id)
             ->where('period', $periodEnd)
             ->whereIn('event_id', $this->sourceEventIds($submissionEventId))
@@ -178,7 +181,29 @@ class FranceEReportCompiler
             return $reportKind === RecordFranceEReportingPayment::REPORT_KIND_CORRECTIVE;
         }
 
-        return $reportKind !== RecordFranceEReportingPayment::REPORT_KIND_CORRECTIVE;
+        if ($reportKind === RecordFranceEReportingPayment::REPORT_KIND_CORRECTIVE) {
+            return false;
+        }
+
+        if (in_array($event->event_id, [
+            TransactionEvent::FR_B2C_PAYMENT,
+            TransactionEvent::FR_VAT_EXCLUDED_PAYMENT,
+        ], true)) {
+            $invoice = $event->invoice;
+
+            if ($event->event_id === TransactionEvent::FR_B2C_PAYMENT
+                && $invoice
+                && app(FranceReportEntryBuilder::class)->b2cSupplyCategory($invoice) !== 'TPS1') {
+                return false;
+            }
+
+            return $invoice
+                && ! $invoice->is_deleted
+                && ((int) $invoice->status_id === Invoice::STATUS_PAID
+                    || BcMath::lessThanOrEqual($invoice->balance ?? 0, '0', 2));
+        }
+
+        return true;
     }
 
     /**

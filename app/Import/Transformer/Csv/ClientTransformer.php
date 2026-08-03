@@ -42,6 +42,10 @@ class ClientTransformer extends BaseTransformer
         $settings = ClientSettings::defaults();
         $settings->currency_id = (string) $this->getCurrencyByCode($data);
 
+        if (array_key_exists('client.payment_terms', $data)) {
+            $settings->payment_terms = $this->getString($data, 'client.payment_terms');
+        }
+
         $client = [
             'company_id' => $this->company->id,
             'name' => $this->getString($data, 'client.name'),
@@ -71,6 +75,8 @@ class ClientTransformer extends BaseTransformer
             'public_notes' => $this->getString($data, 'client.public_notes'),
             'private_notes' => $this->getString($data, 'client.private_notes'),
             'website' => $this->getString($data, 'client.website'),
+            'industry_id' => $this->getValueOrNull($data, 'client.industry_id'),
+            'size_id' => $this->getValueOrNull($data, 'client.size_id'),
             'vat_number' => $this->getString($data, 'client.vat_number'),
             'id_number' => $this->getString($data, 'client.id_number'),
             'custom_value1' => $this->getCustomFieldValue('client1',$this->getString($data, 'client.custom_value1')),

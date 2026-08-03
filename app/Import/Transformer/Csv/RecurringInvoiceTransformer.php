@@ -14,7 +14,6 @@ namespace App\Import\Transformer\Csv;
 
 use App\Import\ImportException;
 use App\Import\Transformer\BaseTransformer;
-use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\CleanLineItems;
 
@@ -44,9 +43,19 @@ class RecurringInvoiceTransformer extends BaseTransformer
         }
 
         $invoiceStatusMap = [
-            'sent' => Invoice::STATUS_SENT,
-            'draft' => Invoice::STATUS_DRAFT,
+            'sent' => RecurringInvoice::STATUS_ACTIVE,
+            'active' => RecurringInvoice::STATUS_ACTIVE,
+            'draft' => RecurringInvoice::STATUS_DRAFT,
         ];
+
+        $status = strtolower($this->getString($invoice_data, 'invoice.status'));
+        $statusId = $invoiceStatusMap[$status] ?? RecurringInvoice::STATUS_DRAFT;
+
+        if ($status === '' && array_key_exists('invoice.is_sent', $invoice_data)) {
+            $statusId = $this->toBoolean($invoice_data['invoice.is_sent'])
+                ? RecurringInvoice::STATUS_ACTIVE
+                : RecurringInvoice::STATUS_DRAFT;
+        }
 
         $transformed = [
             'company_id' => $this->company->id,
@@ -126,20 +135,11 @@ class RecurringInvoiceTransformer extends BaseTransformer
                 $invoice_data,
                 'invoice.custom_surcharge4'
             ),
-            'exchange_rate' => $this->getFloat(
-                $invoice_data,
-                'invoice.exchange_rate'
-            ),
             'is_amount_discount' => filter_var(
                 $this->getString($invoice_data, 'invoice.is_amount_discount'),
                 FILTER_VALIDATE_BOOLEAN
             ),
-            'status_id' => RecurringInvoice::STATUS_DRAFT,
-            // 'status_id' => $invoiceStatusMap[
-            //         ($status = strtolower(
-            //             $this->getString($invoice_data, 'invoice.status')
-            //         ))
-            //     ] ?? Invoice::STATUS_SENT,
+            'status_id' => $statusId,
             'auto_bill' => $this->getAutoBillFlag(
                 $this->getString($invoice_data, 'invoice.auto_bill')
             ),
@@ -151,6 +151,14 @@ class RecurringInvoiceTransformer extends BaseTransformer
             ),
             // 'archived' => $status === 'archived',
         ];
+
+        if (array_key_exists('invoice.exchange_rate', $invoice_data)) {
+            $transformed['exchange_rate'] = $this->getFloatOrOne($invoice_data, 'invoice.exchange_rate');
+        }
+
+        if (array_key_exists('invoice.uses_inclusive_taxes', $invoice_data)) {
+            $transformed['uses_inclusive_taxes'] = $this->toBoolean($invoice_data['invoice.uses_inclusive_taxes']);
+        }
 
         /* If we can't find the client, then lets try and create a client */
         if (! $transformed['client_id']) {

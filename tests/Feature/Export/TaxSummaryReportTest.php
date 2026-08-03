@@ -1026,6 +1026,57 @@ class TaxSummaryReportTest extends TestCase
         $this->account->delete();
     }
 
+    public function testCashReportUsesTheApplicationDateInsteadOfThePaymentDate(): void
+    {
+        $this->buildData();
+
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => '2025-12-10',
+            'discount' => 0,
+            'tax_rate1' => 10,
+            'tax_name1' => 'GST',
+            'uses_inclusive_taxes' => false,
+            'line_items' => $this->buildLineItems(),
+        ]);
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->service()->markPaid()->save();
+        $payment = $invoice->payments()->firstOrFail();
+        $payment->date = '2025-12-10';
+        $payment->save();
+
+        \DB::table('paymentables')
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_type', 'invoices')
+            ->where('paymentable_id', $invoice->id)
+            ->update([
+                'created_at' => '2026-01-15 12:00:00',
+                'updated_at' => '2026-01-15 12:00:00',
+            ]);
+
+        $report = new TaxSummaryReport($this->company, [
+            'start_date' => '2026-01-01',
+            'end_date' => '2026-01-31',
+            'date_range' => 'custom',
+            'client_id' => $this->client->id,
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ]);
+        $report->run();
+
+        $reflection = new \ReflectionClass($report);
+        $property = $reflection->getProperty('taxes');
+        $property->setAccessible(true);
+        $taxes = $property->getValue($report);
+
+        $this->assertSame((float) $invoice->amount, (float) preg_replace('/[^0-9.\-]/', '', $taxes['cash_gross_sales']));
+
+        $this->account->delete();
+    }
+
     private function buildLineItems()
     {
         $line_items = [];

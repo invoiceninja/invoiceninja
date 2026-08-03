@@ -50,6 +50,15 @@ class PurchaseOrderTransformer extends BaseTransformer
             'cancelled' => PurchaseOrder::STATUS_CANCELLED,
         ];
 
+        $status = strtolower($this->getString($purchase_order_data, 'purchase_order.status'));
+        $statusId = $purchaseOrderStatusMap[$status] ?? PurchaseOrder::STATUS_SENT;
+
+        if ($status === '' && array_key_exists('purchase_order.is_sent', $purchase_order_data)) {
+            $statusId = $this->toBoolean($purchase_order_data['purchase_order.is_sent'])
+                ? PurchaseOrder::STATUS_SENT
+                : PurchaseOrder::STATUS_DRAFT;
+        }
+
         $transformed = [
             'company_id' => $this->company->id,
             'number' => $this->getString($purchase_order_data, 'purchase_order.number'),
@@ -126,15 +135,20 @@ class PurchaseOrderTransformer extends BaseTransformer
                 $purchase_order_data,
                 'purchase_order.exchange_rate'
             ),
-            'status_id' => $purchaseOrderStatusMap[
-                    strtolower(
-                        $this->getString($purchase_order_data, 'purchase_order.status')
-                    )
-                ] ?? PurchaseOrder::STATUS_SENT,
+            'status_id' => $statusId,
         ];
 
+        if (array_key_exists('purchase_order.uses_inclusive_taxes', $purchase_order_data)) {
+            $transformed['uses_inclusive_taxes'] = $this->toBoolean(
+                $purchase_order_data['purchase_order.uses_inclusive_taxes']
+            );
+        }
+
         if (isset($purchase_order_data['purchase_order.currency_id'])) {
-            $currency_id = $this->getCurrencyByCode($purchase_order_data['purchase_order.currency_id']);
+            $currency_id = $this->getCurrencyByCode(
+                $purchase_order_data,
+                'purchase_order.currency_id'
+            );
             if ($currency_id) {
                 $transformed['currency_id'] = $currency_id;
             }

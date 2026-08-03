@@ -349,13 +349,6 @@ class BaseImport
         }
 
         $this->store_import_for_research = true;
-
-        nlog(sprintf(
-            'Import system error [%s] entity=%s exception=%s',
-            $this->system_error_reference,
-            $entity_type,
-            $exception_type
-        ));
     }
 
     protected function reportSystemImportErrors(): void
@@ -376,6 +369,13 @@ class BaseImport
             'entities' => $this->system_errors,
             'column_map' => $this->sanitizedColumnMap(),
         ];
+
+        nlog(sprintf(
+            'Import system error [%s] failures=%d entities=%s',
+            $this->system_error_reference,
+            $context['failures'],
+            implode(',', array_keys($this->system_errors))
+        ));
 
         try {
             $this->captureSystemImportException($this->first_system_exception, $context);

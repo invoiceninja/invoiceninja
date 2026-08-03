@@ -252,7 +252,7 @@ class DeletePaymentV2
                             invoice: $paymentable_invoice,
                             paymentable: $paymentable,
                             movementAmount: BcMath::mul($net_deletable, -1, 2),
-                            movementDate: now()->toDateString(),
+                            movementDate: now($this->payment->company->timezone()?->name ?: config('app.timezone'))->toDateString(),
                             movementType: FrancePaymentApplicationRecorder::MOVEMENT_DELETED,
                         );
                     }

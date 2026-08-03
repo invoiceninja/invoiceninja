@@ -182,7 +182,11 @@ class BaseRepository
 
         if (!$model->id) {
             $company_defaults = $client->setCompanyDefaults($data, lcfirst($resource));
-            $data['exchange_rate'] = $company_defaults['exchange_rate'];
+
+            if ($this->import_mode && isset($data['exchange_rate']) && (float) $data['exchange_rate'] !== 0.0) {
+                unset($company_defaults['exchange_rate']);
+            }
+
             $model->uses_inclusive_taxes = $client->getSetting('inclusive_taxes');
 
             $data = array_merge($data, $company_defaults);

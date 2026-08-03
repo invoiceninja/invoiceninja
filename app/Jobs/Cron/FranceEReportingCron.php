@@ -88,10 +88,13 @@ class FranceEReportingCron implements ShouldQueue
     private function processDatabase(string $db, CarbonImmutable $parisNow): void
     {
         /** First send out any pending payment notifications (FR => FR B2B Payment Received Notification) */
-        $this->dispatchPendingPaymentNotifications($db);
+        $this->dispatchPendingPaymentNotifications($db, $parisNow);
 
         /** Then submit any due report submissions (Submission) */
         $duePeriods = $this->dueReportPeriods($parisNow);
+
+        /** Corrective reports must remain deliverable after the original filing window. */
+        $this->dispatchPendingCorrectiveReportSubmissions($db, $parisNow);
 
         if ($duePeriods->isEmpty()) {
             return;
@@ -105,11 +108,11 @@ class FranceEReportingCron implements ShouldQueue
      *
      * The source of truth is transaction_events; companies are loaded in batches from the event company ids before event rows are dispatched.
      */
-    private function dispatchPendingPaymentNotifications(string $db): void
+    private function dispatchPendingPaymentNotifications(string $db, CarbonImmutable $parisNow): void
     {
         $this->pendingPaymentNotificationCompanyIds()
             ->chunk(500)
-            ->each(function (Collection $companyIds) use ($db): void {
+            ->each(function (Collection $companyIds) use ($db, $parisNow): void {
                 $companies = $this->reportableCompanies($companyIds->all());
 
                 if ($companies->isEmpty()) {
@@ -126,7 +129,7 @@ class FranceEReportingCron implements ShouldQueue
                     ->orderBy("company_id")
                     ->orderBy("id")
                     ->cursor()
-                    ->each(function (TransactionEvent $event) use ($companies, $db): void {
+                    ->each(function (TransactionEvent $event) use ($companies, $db, $parisNow): void {
                         if (data_get($event->payment_request, "skip_reason")) {
                             return;
                         }
@@ -134,6 +137,15 @@ class FranceEReportingCron implements ShouldQueue
                         $company = $companies->get((int) $event->company_id);
 
                         if (! $company) {
+                            return;
+                        }
+
+                        $sourceDate = (string) data_get($event->payment_request, 'source_date', '');
+                        $isFuture = $sourceDate !== ''
+                            && CarbonImmutable::parse($sourceDate, 'Europe/Paris')->startOfDay()
+                                ->greaterThan($parisNow->startOfDay());
+
+                        if ($isFuture) {
                             return;
                         }
 
@@ -152,13 +164,12 @@ class FranceEReportingCron implements ShouldQueue
     private function dispatchDueReportSubmissions(string $db, CarbonImmutable $parisNow, Collection $duePeriods): void
     {
         $this->dispatchDueInitialReportSubmissions($db, $parisNow, $duePeriods);
-        $this->dispatchDueCorrectiveReportSubmissions($db, $parisNow, $duePeriods);
     }
 
     /**
      * Find initial B2C and VAT-excluded report groups for the due period set.
      *
-     * Source rows are reduced at the database level, then deduplicated by company, submission type, and period so mixed transaction/payment buckets submit once.
+     * Source rows are streamed by primary key, then deduplicated by company, submission type, and period so mixed transaction/payment buckets submit once.
      *
      * @param Collection<string, ReportingPeriod> $duePeriods
      */
@@ -167,7 +178,7 @@ class FranceEReportingCron implements ShouldQueue
         $dispatched = [];
 
         TransactionEvent::query()
-            ->select(["company_id", "event_id", "period"])
+            ->select(["id", "company_id", "event_id", "period"])
             ->whereIn("event_id", [
                 TransactionEvent::FR_B2C_TRANSACTION,
                 TransactionEvent::FR_B2C_PAYMENT,
@@ -179,15 +190,12 @@ class FranceEReportingCron implements ShouldQueue
                 TransactionEvent::FR_REPORTING_STATUS_FAILED,
             ])
             ->whereIn("period", $duePeriods->keys()->all())
+            ->whereNotNull("reporting_data")
             ->where(function ($query): void {
                 $query->whereNull("payment_request->fr_report_kind")
                     ->orWhere("payment_request->fr_report_kind", RecordFranceEReportingPayment::REPORT_KIND_INITIAL);
             })
-            ->groupBy("company_id", "event_id", "period")
-            ->orderBy("company_id")
-            ->orderBy("event_id")
-            ->orderBy("period")
-            ->chunk(500, function (Collection $events) use ($db, $parisNow, &$dispatched): void {
+            ->chunkById(500, function (Collection $events) use ($db, $parisNow, &$dispatched): void {
                 $companies = $this->reportableCompanies($events->pluck("company_id")->all());
 
                 $events->each(function (TransactionEvent $event) use ($companies, $db, $parisNow, &$dispatched): void {
@@ -204,7 +212,7 @@ class FranceEReportingCron implements ShouldQueue
                         return;
                     }
 
-                    $key = $event->company_id."|".$submissionEventId."|".$periodEnd;
+                    $key = $event->company_id . "|" . $submissionEventId . "|" . $periodEnd;
 
                     if (isset($dispatched[$key])) {
                         return;
@@ -220,7 +228,7 @@ class FranceEReportingCron implements ShouldQueue
                         parisNow: $parisNow,
                     );
                 });
-            });
+            }, "id");
     }
 
     /**
@@ -228,14 +236,13 @@ class FranceEReportingCron implements ShouldQueue
      *
      * Corrective submissions can contain multiple payment source event types, so the cron deduplicates by company and period before dispatching.
      *
-     * @param Collection<string, ReportingPeriod> $duePeriods
      */
-    private function dispatchDueCorrectiveReportSubmissions(string $db, CarbonImmutable $parisNow, Collection $duePeriods): void
+    private function dispatchPendingCorrectiveReportSubmissions(string $db, CarbonImmutable $parisNow): void
     {
         $dispatched = [];
 
         TransactionEvent::query()
-            ->select(["company_id", "event_id", "period"])
+            ->select(["id", "company_id", "event_id", "period"])
             ->whereIn("event_id", [
                 TransactionEvent::FR_B2C_PAYMENT,
                 TransactionEvent::FR_VAT_EXCLUDED_PAYMENT,
@@ -244,16 +251,14 @@ class FranceEReportingCron implements ShouldQueue
                 TransactionEvent::FR_REPORTING_STATUS_PENDING,
                 TransactionEvent::FR_REPORTING_STATUS_FAILED,
             ])
-            ->whereIn("period", $duePeriods->keys()->all())
+            ->where("period", "<=", $parisNow->toDateString())
+            ->whereNotNull("reporting_data")
+            ->where("payment_request->fr_kind", RecordFranceEReportingPayment::KIND_REPORT)
             ->where("payment_request->fr_report_kind", RecordFranceEReportingPayment::REPORT_KIND_CORRECTIVE)
-            ->groupBy("company_id", "event_id", "period")
-            ->orderBy("company_id")
-            ->orderBy("event_id")
-            ->orderBy("period")
-            ->chunk(500, function (Collection $events) use ($db, $parisNow, &$dispatched): void {
+            ->chunkById(500, function (Collection $events) use ($db, &$dispatched): void {
                 $companies = $this->reportableCompanies($events->pluck("company_id")->all());
 
-                $events->each(function (TransactionEvent $event) use ($companies, $db, $parisNow, &$dispatched): void {
+                $events->each(function (TransactionEvent $event) use ($companies, $db, &$dispatched): void {
                     $company = $companies->get((int) $event->company_id);
                     $periodEnd = $this->periodEnd($event);
 
@@ -261,7 +266,7 @@ class FranceEReportingCron implements ShouldQueue
                         return;
                     }
 
-                    $key = $event->company_id."|".$periodEnd;
+                    $key = $event->company_id . "|" . $periodEnd;
 
                     if (isset($dispatched[$key])) {
                         return;
@@ -269,15 +274,14 @@ class FranceEReportingCron implements ShouldQueue
 
                     $dispatched[$key] = true;
 
-                    $this->dispatchDueSourceGroup(
-                        event: $event,
-                        company: $company,
-                        submissionEventId: TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE,
-                        db: $db,
-                        parisNow: $parisNow,
+                    SubmitFranceEReport::dispatch(
+                        $company->id,
+                        TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE,
+                        $periodEnd,
+                        $company->db ?: $db,
                     );
                 });
-            });
+            }, "id");
     }
 
     /**
@@ -470,4 +474,3 @@ class FranceEReportingCron implements ShouldQueue
             ->exists();
     }
 }
-

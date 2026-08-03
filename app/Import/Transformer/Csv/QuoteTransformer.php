@@ -47,6 +47,15 @@ class QuoteTransformer extends BaseTransformer
             'draft' => Quote::STATUS_DRAFT,
         ];
 
+        $status = strtolower($this->getString($quote_data, 'quote.status'));
+        $statusId = $quoteStatusMap[$status] ?? Quote::STATUS_SENT;
+
+        if ($status === '' && array_key_exists('quote.is_sent', $quote_data)) {
+            $statusId = $this->toBoolean($quote_data['quote.is_sent'])
+                ? Quote::STATUS_SENT
+                : Quote::STATUS_DRAFT;
+        }
+
         $transformed = [
             'company_id' => $this->company->id,
             'number' => $this->getString($quote_data, 'quote.number'),
@@ -120,17 +129,17 @@ class QuoteTransformer extends BaseTransformer
                 $quote_data,
                 'quote.custom_surcharge4'
             ),
-            'exchange_rate' => $this->getFloatOrOne(
-                $quote_data,
-                'quote.exchange_rate'
-            ),
-            'status_id' => $quoteStatusMap[
-                    ($status = strtolower(
-                        $this->getString($quote_data, 'quote.status')
-                    ))
-                ] ?? Quote::STATUS_SENT,
+            'status_id' => $statusId,
             // 'archived' => $status === 'archived',
         ];
+
+        if (array_key_exists('quote.exchange_rate', $quote_data)) {
+            $transformed['exchange_rate'] = $this->getFloatOrOne($quote_data, 'quote.exchange_rate');
+        }
+
+        if (array_key_exists('quote.uses_inclusive_taxes', $quote_data)) {
+            $transformed['uses_inclusive_taxes'] = $this->toBoolean($quote_data['quote.uses_inclusive_taxes']);
+        }
 
         /* If we can't find the client, then lets try and create a client */
         if (! $transformed['client_id']) {

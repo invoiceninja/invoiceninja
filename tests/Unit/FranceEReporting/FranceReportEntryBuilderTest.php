@@ -9,6 +9,7 @@ use App\Models\Company;
 use App\Models\Currency;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Product;
 use App\Services\EDocument\Standards\France\FranceReportEntryBuilder;
 use Tests\TestCase;
 
@@ -115,6 +116,36 @@ class FranceReportEntryBuilderTest extends TestCase
         $this->assertSame(40, $builder->b2biPayment($payment, $invoice, 40)->taxSubtotals[0]->amountIncludingTax);
     }
 
+    public function testB2CSupplyCategoryIsInferredAndUnsupportedLinesFailClosed(): void
+    {
+        $company = $this->company();
+        $client = $this->client($company);
+        $builder = new FranceReportEntryBuilder();
+        $goods = $this->invoice($company, $client, lineItems: [
+            $this->lineItem('GOODS', 100, 'VAT', 20, Product::PRODUCT_TYPE_PHYSICAL),
+        ]);
+        $services = $this->invoice($company, $client, lineItems: [
+            $this->lineItem('SERVICE', 100, 'VAT', 20, Product::PRODUCT_TYPE_SERVICE),
+        ]);
+        $mixed = $this->invoice($company, $client, lineItems: [
+            $this->lineItem('GOODS', 50, 'VAT', 20, Product::PRODUCT_TYPE_PHYSICAL),
+            $this->lineItem('SERVICE', 50, 'VAT', 20, Product::PRODUCT_TYPE_SERVICE),
+        ]);
+        $unknown = $this->invoice($company, $client, lineItems: [
+            $this->lineItem('FEE', 100, 'VAT', 20, 3),
+        ]);
+        $empty = $this->invoice($company, $client, lineItems: []);
+
+        $this->assertSame('TLB1', $builder->b2cSupplyCategory($goods));
+        $this->assertSame('TPS1', $builder->b2cSupplyCategory($services));
+        $this->assertSame('TLB1', $builder->b2cTransaction($goods)?->category);
+        $this->assertSame('TPS1', $builder->b2cTransaction($services)?->category);
+        $this->assertNull($builder->b2cSupplyCategory($mixed));
+        $this->assertNull($builder->b2cTransaction($mixed));
+        $this->assertNull($builder->b2cSupplyCategory($unknown));
+        $this->assertNull($builder->b2cSupplyCategory($empty));
+    }
+
     private function company(): Company
     {
         $company = new Company();
@@ -186,7 +217,13 @@ class FranceReportEntryBuilderTest extends TestCase
         return $invoice;
     }
 
-    private function lineItem(string $productKey, int|float $cost, string $taxName, int|float $taxRate): object
+    private function lineItem(
+        string $productKey,
+        int|float $cost,
+        string $taxName,
+        int|float $taxRate,
+        int $typeId = Product::PRODUCT_TYPE_SERVICE,
+    ): object
     {
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
@@ -195,6 +232,7 @@ class FranceReportEntryBuilderTest extends TestCase
         $item->tax_rate1 = $taxRate;
         $item->product_key = $productKey;
         $item->notes = "Consulting services";
+        $item->type_id = (string) $typeId;
 
         return $item;
     }

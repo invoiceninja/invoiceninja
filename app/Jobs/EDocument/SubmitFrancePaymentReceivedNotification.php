@@ -13,18 +13,21 @@
 namespace App\Jobs\EDocument;
 
 use App\Libraries\MultiDB;
+use App\Models\Account;
 use App\Models\Company;
 use App\Models\Invoice;
-use App\Models\Payment;
-use App\Models\Paymentable;
 use App\Models\TransactionEvent;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
+use App\Services\EDocument\Standards\France\FrancePaymentReceivedNotificationEligibility;
+use App\Services\EDocument\Standards\France\FranceSubmissionClaim;
+use Carbon\CarbonImmutable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -54,13 +57,21 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
             return;
         }
 
-        if ($event->payment_status === TransactionEvent::FR_REPORTING_STATUS_SUBMITTED) {
+        if (! in_array($event->payment_status, [
+            TransactionEvent::FR_REPORTING_STATUS_PENDING,
+            TransactionEvent::FR_REPORTING_STATUS_FAILED,
+        ], true) || data_get($event->payment_request, 'skip_reason')) {
             return;
         }
 
         $company = Company::query()->with("account")->find($event->company_id);
+        $account = $company?->getRelation('account');
 
-        if (! $company) {
+        if (! $company
+            || $company->is_disabled
+            || ! $account instanceof Account
+            || $account->is_flagged
+            || ! (bool) $company->getSetting('france_reporting_enabled')) {
             return;
         }
 
@@ -72,7 +83,15 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
             return;
         }
 
-        if (! $this->eventIsStillEligible($event)) {
+        $sourceDate = (string) data_get($request, 'source_date', '');
+
+        if ($sourceDate !== ''
+            && CarbonImmutable::parse($sourceDate, 'Europe/Paris')->startOfDay()
+                ->greaterThan(CarbonImmutable::now('Europe/Paris')->startOfDay())) {
+            return;
+        }
+
+        if (! app(FrancePaymentReceivedNotificationEligibility::class)->isEligible($event)) {
             $this->markSkipped($event, "Payment received notification is no longer eligible.");
             return;
         }
@@ -82,24 +101,65 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
             return;
         }
 
-        $idempotencyGuid = (string) (data_get($request, "idempotency_guid") ?: Str::uuid()->toString());
-        $event->payment_request = [
-            ...$request,
-            "idempotency_guid" => $idempotencyGuid,
-        ];
-        $event->save();
+        $claims = app(FranceSubmissionClaim::class);
+        $claimToken = $claims->claim([$event->id]);
 
-        try {
-            $response = $storecove->proxy
-                ->setCompany($company)
-                ->submitDocument($this->payload($company, $originalDocumentGuid, $idempotencyGuid));
-        } catch (Throwable $exception) {
-            report($exception);
-            $this->markFailed($event, ["message" => $exception->getMessage()]);
+        if (! $claimToken) {
             return;
         }
 
-        $this->recordSubmissionResponse($event, $response);
+        $claimCompleted = false;
+
+        try {
+            $event = TransactionEvent::query()->find($event->id);
+
+            if (! $event || ! $claims->isOwnedBy($event, $claimToken)) {
+                return;
+            }
+
+            $request = $event->payment_request ?? [];
+            $sourceDate = (string) data_get($request, 'source_date', '');
+
+            if ($sourceDate !== ''
+                && CarbonImmutable::parse($sourceDate, 'Europe/Paris')->startOfDay()
+                    ->greaterThan(CarbonImmutable::now('Europe/Paris')->startOfDay())) {
+                return;
+            }
+
+            if (! app(FrancePaymentReceivedNotificationEligibility::class)->isEligible($event)) {
+                $this->markSkipped($event, "Payment received notification is no longer eligible.");
+                return;
+            }
+
+            if (! $this->originalInvoiceIsCleared($event)) {
+                $this->markFailed($event, ["message" => "Original Storecove document has not cleared yet."]);
+                return;
+            }
+
+            $idempotencyGuid = (string) (data_get($request, "idempotency_guid") ?: Str::uuid()->toString());
+            $event->payment_request = [
+                ...$request,
+                "idempotency_guid" => $idempotencyGuid,
+            ];
+            $event->save();
+
+            try {
+                $response = $storecove->proxy
+                    ->setCompany($company)
+                    ->submitDocument($this->payload($company, $originalDocumentGuid, $idempotencyGuid));
+            } catch (Throwable $exception) {
+                report($exception);
+                $this->markFailed($event, ["message" => $exception->getMessage()]);
+                return;
+            }
+
+            $this->recordSubmissionResponse($event, $response, $claimToken);
+            $claimCompleted = true;
+        } finally {
+            if (! $claimCompleted) {
+                $claims->release([$event?->id ?? $this->transactionEventId], $claimToken);
+            }
+        }
     }
 
     /**
@@ -137,25 +197,36 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
     /**
      * @param array<string, mixed> $response
      */
-    private function recordSubmissionResponse(TransactionEvent $event, array $response): void
+    private function recordSubmissionResponse(TransactionEvent $event, array $response, string $claimToken): void
     {
         $guid = $response["guid"] ?? null;
         $successful = is_string($guid) && $guid !== "";
 
-        $event->payment_status = $successful
-            ? TransactionEvent::FR_REPORTING_STATUS_SUBMITTED
-            : TransactionEvent::FR_REPORTING_STATUS_FAILED;
+        DB::transaction(function () use ($event, $guid, $successful, $response, $claimToken): void {
+            $claimedEvent = TransactionEvent::query()->lockForUpdate()->find($event->id);
 
-        $event->payment_request = [
-            ...($event->payment_request ?? []),
-            "guid" => $guid,
-            "submitted_at" => $successful ? now()->toIso8601String() : null,
-            "error" => $successful ? null : $response,
-        ];
-        $event->save();
-        if ($successful) {
-            $this->deleteSupersededNotificationEvents($event);
-        }
+            if (! $claimedEvent || ! app(FranceSubmissionClaim::class)->isOwnedBy($claimedEvent, $claimToken)) {
+                throw new \RuntimeException('France payment notification claim was lost before persistence.');
+            }
+
+            $claimedEvent->payment_status = $successful
+                ? TransactionEvent::FR_REPORTING_STATUS_SUBMITTED
+                : TransactionEvent::FR_REPORTING_STATUS_FAILED;
+
+            $request = $claimedEvent->payment_request ?? [];
+            unset($request[FranceSubmissionClaim::TOKEN], $request[FranceSubmissionClaim::EXPIRES_AT]);
+            $claimedEvent->payment_request = [
+                ...$request,
+                "guid" => $guid,
+                "submitted_at" => $successful ? now()->toIso8601String() : null,
+                "error" => $successful ? null : $response,
+            ];
+            $claimedEvent->save();
+
+            if ($successful) {
+                $this->deleteSupersededNotificationEvents($claimedEvent);
+            }
+        }, attempts: 3);
     }
 
     /**
@@ -163,51 +234,16 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
      */
     private function deleteSupersededNotificationEvents(TransactionEvent $event): void
     {
+        $originalDocumentGuid = (string) data_get($event->payment_request, 'original_document_guid', '');
+
         TransactionEvent::query()
             ->where("company_id", $event->company_id)
             ->where("invoice_id", $event->invoice_id)
             ->where("event_id", TransactionEvent::FR_B2B_PAYMENT_RECEIVED_NOTIFICATION)
+            ->where("payment_request->original_document_guid", $originalDocumentGuid)
             ->where("id", "!=", $event->id)
             ->where("payment_status", "!=", TransactionEvent::FR_REPORTING_STATUS_SUBMITTED)
             ->delete();
-    }
-
-    private function eventIsStillEligible(TransactionEvent $event): bool
-    {
-        $paymentableId = (int) data_get($event->payment_request, "paymentable_id", 0);
-        if ($paymentableId <= 0) {
-            return false;
-        }
-        $payment = Payment::withTrashed()
-            ->with(["client.country", "client.company", "company"])
-            ->find($event->payment_id);
-        $invoice = Invoice::withTrashed()->find($event->invoice_id);
-        $paymentable = Paymentable::withTrashed()->find($paymentableId);
-        if (! $payment || ! $invoice || ! $paymentable) {
-            return false;
-        }
-        if ((int) $payment->status_id !== Payment::STATUS_COMPLETED || $payment->is_deleted) {
-            return false;
-        }
-        if ($invoice->is_deleted || ! $this->invoiceIsPaidInFull($invoice)) {
-            return false;
-        }
-        if ($paymentable->trashed()
-            || (int) $paymentable->payment_id !== (int) $payment->id
-            || (int) $paymentable->paymentable_id !== (int) $invoice->id
-            || $paymentable->paymentable_type !== "invoices") {
-            return false;
-        }
-        return $this->clientStillRequiresPaymentReceivedNotification($payment);
-    }
-    private function clientStillRequiresPaymentReceivedNotification(Payment $payment): bool
-    {
-        if (! $payment->client->relationLoaded("company")) {
-            $payment->client->setRelation("company", $payment->company);
-        }
-        return $payment->client->reportableFrTransaction()
-            && ($payment->client->classification ?? "business") !== "individual"
-            && $payment->client->country?->iso_3166_2 === "FR";
     }
 
     private function originalInvoiceIsCleared(TransactionEvent $event): bool
@@ -217,11 +253,6 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
         return $invoice && ($invoice->backup->e_invoice_status === "cleared" || ! is_null($invoice->backup->e_invoice_cleared_at));
     }
 
-    private function invoiceIsPaidInFull(Invoice $invoice): bool
-    {
-        return (int) $invoice->status_id === Invoice::STATUS_PAID
-            || (float) ($invoice->balance ?? 0) <= 0.0;
-    }
     private function markSkipped(TransactionEvent $event, string $reason): void
     {
         $event->payment_status = TransactionEvent::FR_REPORTING_STATUS_FAILED;
@@ -233,6 +264,7 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
         ];
         $event->save();
     }
+
     /**
      * @param array<string, mixed> $error
      */
@@ -246,4 +278,3 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
         $event->save();
     }
 }
-

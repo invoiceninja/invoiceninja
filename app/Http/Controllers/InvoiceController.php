@@ -26,6 +26,7 @@ use App\Utils\Traits\MakesHash;
 use App\Factory\SchedulerFactory;
 use App\Jobs\Invoice\ZipInvoices;
 use App\Services\PdfMaker\PdfMerge;
+use App\Services\EDocument\Standards\France\FrancePaymentReportingMutationGuard;
 use Illuminate\Support\Facades\App;
 use App\Factory\CloneInvoiceFactory;
 use App\Jobs\Invoice\BulkInvoiceJob;
@@ -492,6 +493,7 @@ class InvoiceController extends BaseController
     {
 
         if (!$invoice->is_deleted) {
+            app(FrancePaymentReportingMutationGuard::class)->assertInvoiceDeletionAllowed($invoice);
             $this->invoice_repo->delete($invoice);
         }
 
@@ -820,6 +822,7 @@ class InvoiceController extends BaseController
                 break;
             case 'delete':
 
+                app(FrancePaymentReportingMutationGuard::class)->assertInvoiceDeletionAllowed($invoice);
                 $this->invoice_repo->delete($invoice);
 
                 if (! $bulk) {

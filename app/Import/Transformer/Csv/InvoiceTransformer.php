@@ -59,6 +59,15 @@ class InvoiceTransformer extends BaseTransformer
             'no' => Invoice::STATUS_SENT,
         ];
 
+        $status = strtolower($this->getString($invoice_data, 'invoice.status'));
+        $statusId = $invoiceStatusMap[$status] ?? Invoice::STATUS_SENT;
+
+        if ($status === '' && array_key_exists('invoice.is_sent', $invoice_data)) {
+            $statusId = $this->toBoolean($invoice_data['invoice.is_sent'])
+                ? Invoice::STATUS_SENT
+                : Invoice::STATUS_DRAFT;
+        }
+
         $transformed = [
             'company_id' => $this->company->id,
             'number' => $this->getString($invoice_data, 'invoice.number'),
@@ -136,18 +145,18 @@ class InvoiceTransformer extends BaseTransformer
                 $invoice_data,
                 'invoice.custom_surcharge4'
             ),
-            'exchange_rate' => $this->getFloatOrOne(
-                $invoice_data,
-                'invoice.exchange_rate'
-            ),
-            'status_id' => $invoiceStatusMap[
-                    ($status = strtolower(
-                        $this->getString($invoice_data, 'invoice.status')
-                    ))
-                ] ?? Invoice::STATUS_SENT,
+            'status_id' => $statusId,
             'auto_bill_enabled' => $this->company->getSetting('auto_bill_standard_invoices'),
             // 'archived' => $status === 'archived',
         ];
+
+        if (array_key_exists('invoice.exchange_rate', $invoice_data)) {
+            $transformed['exchange_rate'] = $this->getFloatOrOne($invoice_data, 'invoice.exchange_rate');
+        }
+
+        if (array_key_exists('invoice.uses_inclusive_taxes', $invoice_data)) {
+            $transformed['uses_inclusive_taxes'] = $this->toBoolean($invoice_data['invoice.uses_inclusive_taxes']);
+        }
 
         /* If we can't find the client, then lets try and create a client */
         if (! $transformed['client_id']) {

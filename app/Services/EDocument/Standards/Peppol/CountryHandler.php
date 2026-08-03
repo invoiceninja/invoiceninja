@@ -14,7 +14,11 @@ namespace App\Services\EDocument\Standards\Peppol;
 
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\Credit as NinjaCredit;
+use App\Models\Invoice as NinjaInvoice;
 use App\Services\EDocument\Gateway\MutatorUtil;
+use App\Services\EDocument\Gateway\Storecove\Models\Credit as StorecoveCredit;
+use App\Services\EDocument\Gateway\Storecove\Models\Invoice as StorecoveInvoice;
 use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
 
 interface CountryHandler
@@ -52,6 +56,14 @@ interface CountryHandler
         mixed $invoice,
         MutatorUtil $mutator_util,
     ): mixed;
+
+    /**
+     * Apply receiver-country fields that exist only in Storecove's JSON model.
+     */
+    public function decorateStorecoveDocument(
+        StorecoveInvoice|StorecoveCredit $storecoveDocument,
+        NinjaInvoice|NinjaCredit $sourceDocument,
+    ): StorecoveInvoice|StorecoveCredit;
 
     /**
      * Return ordered routing candidates for a recipient.

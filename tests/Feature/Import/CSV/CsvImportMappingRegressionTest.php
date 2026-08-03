@@ -13,7 +13,9 @@
 namespace Tests\Feature\Import\CSV;
 
 use App\Import\Definitions\ProductMap;
+use App\Import\Definitions\PurchaseOrderMap;
 use App\Import\Providers\Csv;
+use App\Import\Transformer\Csv\ExpenseTransformer;
 use App\Models\Client;
 use App\Models\Expense;
 use App\Models\Industry;
@@ -86,7 +88,7 @@ class CsvImportMappingRegressionTest extends TestCase
         $importer = $this->runImport(
             'expense',
             ['Amount', 'Uses Inclusive Taxes', 'Public Notes'],
-            ['12.34', 'false', $publicNotes],
+            ['12.34', 'False', $publicNotes],
             [
                 0 => 'expense.amount',
                 1 => 'expense.uses_inclusive_taxes',
@@ -101,7 +103,28 @@ class CsvImportMappingRegressionTest extends TestCase
             ->where('public_notes', $publicNotes)
             ->firstOrFail();
 
-        $this->assertFalse($expense->uses_inclusive_taxes);
+        $this->assertFalse((bool) $expense->uses_inclusive_taxes);
+    }
+
+    #[DataProvider('falseBooleanProvider')]
+    public function testExpenseInclusiveTaxesDifferentiatesFalseValues(mixed $value): void
+    {
+        $transformed = (new ExpenseTransformer($this->company))->transform([
+            'expense.amount' => '12.34',
+            'expense.uses_inclusive_taxes' => $value,
+        ]);
+
+        $this->assertFalse($transformed['uses_inclusive_taxes']);
+    }
+
+    /** @return array<string, array{false|string}> */
+    public static function falseBooleanProvider(): array
+    {
+        return [
+            'boolean false' => [false],
+            'lowercase false string' => ['false'],
+            'title case false string' => ['False'],
+        ];
     }
 
     public function testProductMaxQuantityMappingIsPersisted(): void
@@ -191,6 +214,41 @@ class CsvImportMappingRegressionTest extends TestCase
                 'payment_terms' => (string) ($client->settings->payment_terms ?? ''),
             ]
         );
+    }
+
+    public function testPurchaseOrderCurrencyMappingIsPersisted(): void
+    {
+        $this->assertContains('purchase_order.currency_id', PurchaseOrderMap::importable());
+
+        $currency = app('currencies')->first(
+            fn ($currency) => (string) $currency->id !== (string) $this->company->settings->currency_id
+        );
+
+        $this->assertNotNull($currency);
+
+        $number = 'PO-currency-'.Str::random(12);
+
+        $importer = $this->runImport(
+            'purchase_order',
+            ['Number', 'Vendor', 'Currency', 'Item Cost', 'Item Quantity'],
+            [$number, $this->vendor->name, $currency->code, '10', '1'],
+            [
+                0 => 'purchase_order.number',
+                1 => 'vendor.name',
+                2 => 'purchase_order.currency_id',
+                3 => 'item.cost',
+                4 => 'item.quantity',
+            ]
+        );
+
+        $this->assertEmpty($importer->getErrors());
+
+        $purchaseOrder = PurchaseOrder::query()
+            ->where('company_id', $this->company->id)
+            ->where('number', $number)
+            ->firstOrFail();
+
+        $this->assertSame((string) $currency->id, (string) $purchaseOrder->currency_id);
     }
 
     #[DataProvider('documentMappingProvider')]

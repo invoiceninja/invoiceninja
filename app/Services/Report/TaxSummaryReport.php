@@ -25,6 +25,7 @@ use App\Models\Paymentable;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Support\Facades\App;
 use App\Services\Template\TemplateService;
+use Carbon\CarbonImmutable;
 
 class TaxSummaryReport extends BaseExport
 {
@@ -161,25 +162,14 @@ class TaxSummaryReport extends BaseExport
 
         // Bug 1 fix: Cash section uses a separate query based on paymentables.created_at
         $is_all = $this->input['date_range'] == 'all';
+        [$cashStartUtc, $cashEndUtc] = $this->cashApplicationBounds($is_all);
 
         $cash_query = Invoice::query()
             ->withTrashed()
             ->where('company_id', $this->company->id)
             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
             ->where('is_deleted', 0)
-            // ->whereHas('payments', function ($q) use ($is_all) {
-            //     $q->where('is_deleted', 0)
-            //       ->whereHas('paymentables', function ($pq) use ($is_all) {
-            //           $pq->where('paymentable_type', 'invoices')
-            //              ->whereNull('paymentables.deleted_at');
-
-            //           if (!$is_all) {
-            //               $pq->whereBetween('paymentables.created_at', [$this->start_date, $this->end_date . ' 23:59:59']);
-            //           }
-            //       });
-            // });
-
-            ->whereExists(function ($q) use ($is_all) {
+            ->whereExists(function ($q) use ($is_all, $cashStartUtc, $cashEndUtc) {
                 $q->select(\DB::raw(1))
                   ->from('paymentables')
                   ->join('payments', 'payments.id', '=', 'paymentables.payment_id')
@@ -189,7 +179,8 @@ class TaxSummaryReport extends BaseExport
                   ->whereNull('paymentables.deleted_at');
 
                 if (!$is_all) {
-                    $q->whereBetween('payments.date', [$this->start_date, $this->end_date]);
+                    $q->where('paymentables.created_at', '>=', $cashStartUtc)
+                        ->where('paymentables.created_at', '<', $cashEndUtc);
                 }
             });
 
@@ -200,28 +191,18 @@ class TaxSummaryReport extends BaseExport
             $calc = $invoice->calc();
             $taxes = array_merge($calc->getTaxMap()->merge($calc->getTotalTaxMap())->toArray());
 
-            // Calculate the net amount paid within the selected period via paymentables
-            // $period_paid_query = Paymentable::where('paymentable_type', 'invoices')
-            //     ->where('paymentable_id', $invoice->id)
-            //     ->whereNull('deleted_at')
-            //     ->whereHas('payment', function ($q) {
-            //         $q->where('is_deleted', 0);
-            //     });
-
-            // if (!$is_all) {
-            //     $period_paid_query->whereBetween('created_at', [$this->start_date, $this->end_date . ' 23:59:59']);
-            // }
-
             $period_paid_query = Paymentable::where('paymentable_type', 'invoices')
                                             ->where('paymentable_id', $invoice->id)
                                             ->whereNull('deleted_at')
-                                            ->whereHas('payment', function ($q) use ($is_all) {
+                                            ->whereHas('payment', function ($q) {
                                                 $q->withTrashed()->where('is_deleted', 0);
-
-                                                if (!$is_all) {
-                                                    $q->whereBetween('date', [$this->start_date, $this->end_date]);
-                                                }
                                             });
+
+            if (! $is_all) {
+                $period_paid_query
+                    ->where('created_at', '>=', $cashStartUtc)
+                    ->where('created_at', '<', $cashEndUtc);
+            }
 
             $period_paid = $period_paid_query->selectRaw('COALESCE(SUM(amount - refunded), 0) as net_paid')->value('net_paid');
 
@@ -368,6 +349,23 @@ class TaxSummaryReport extends BaseExport
                     ->save();
 
         return $ts_instance->getPdf();
+    }
+
+    /**
+     * @return array{0: CarbonImmutable|null, 1: CarbonImmutable|null}
+     */
+    private function cashApplicationBounds(bool $isAll): array
+    {
+        if ($isAll) {
+            return [null, null];
+        }
+
+        $timezone = $this->company->timezone()?->name ?: config('app.timezone');
+
+        return [
+            CarbonImmutable::parse($this->start_date, $timezone)->startOfDay()->utc(),
+            CarbonImmutable::parse($this->end_date, $timezone)->addDay()->startOfDay()->utc(),
+        ];
     }
 
     public function buildHeader(): array

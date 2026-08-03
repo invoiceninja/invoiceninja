@@ -12,14 +12,19 @@
 
 namespace Tests\Feature;
 
-use App\Events\EDocument\FranceInvoicePaymentStateChanged;
+use App\Events\Payment\PaymentApplicationDateChanged;
 use App\Factory\InvoiceFactory;
 use App\Helpers\Invoice\InvoiceSum;
+use App\Jobs\EDocument\RecordFranceEReportingPayment;
+use App\Listeners\Invoice\InvoiceTransactionEventEntryCash;
+use App\Listeners\Payment\ReconcilePaymentApplicationDateChange;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Paymentable;
+use App\Models\Product;
+use App\Models\TransactionEvent;
 use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -51,20 +56,30 @@ class UpdatePaymentTest extends TestCase
         );
     }
 
-    public function testUpdatingPaymentDateMovesDerivedApplicationDateAndSignalsFranceReporting(): void
+    public function testUpdatingPaymentDateMovesDerivedApplicationDateAndSignalsReportingReconciliation(): void
     {
         $this->enableFranceReporting();
         [$payment, $paymentable] = $this->createPaymentApplication('2026-07-01', '2026-07-01');
-        Event::fake([FranceInvoicePaymentStateChanged::class]);
+        Event::fake([PaymentApplicationDateChanged::class]);
 
         $this->updatePaymentDate($payment, '2026-07-05')->assertStatus(200);
 
         $this->assertSame('2026-07-05', $payment->fresh()->date);
         $this->assertSame('2026-07-05', $this->applicationDate($paymentable));
         Event::assertDispatched(
-            FranceInvoicePaymentStateChanged::class,
-            fn (FranceInvoicePaymentStateChanged $event): bool => $event->invoiceId === $this->invoice->id
-                && $event->db === $this->company->db,
+            PaymentApplicationDateChanged::class,
+            function (PaymentApplicationDateChanged $event) use ($payment, $paymentable): bool {
+                $this->assertSame(
+                    ['payment_id', 'db', 'old_date', 'new_date', 'paymentable_ids'],
+                    array_keys(get_object_vars($event)),
+                );
+
+                return $event->payment_id === $payment->id
+                    && $event->db === $this->company->db
+                    && $event->old_date === '2026-07-01'
+                    && $event->new_date === '2026-07-05'
+                    && $event->paymentable_ids === [$paymentable->id];
+            },
         );
     }
 
@@ -72,13 +87,13 @@ class UpdatePaymentTest extends TestCase
     {
         $this->enableFranceReporting();
         [$payment, $paymentable] = $this->createPaymentApplication('2026-07-01', '2026-07-03');
-        Event::fake([FranceInvoicePaymentStateChanged::class]);
+        Event::fake([PaymentApplicationDateChanged::class]);
 
         $this->updatePaymentDate($payment, '2026-07-02')->assertStatus(200);
 
         $this->assertSame('2026-07-02', $payment->fresh()->date);
         $this->assertSame('2026-07-03', $this->applicationDate($paymentable));
-        Event::assertNotDispatched(FranceInvoicePaymentStateChanged::class);
+        Event::assertNotDispatched(PaymentApplicationDateChanged::class);
     }
 
     public function testUpdatingPaymentRejectsAnInvalidDate(): void
@@ -99,14 +114,14 @@ class UpdatePaymentTest extends TestCase
         $this->enableFranceReporting();
         [$payment, $paymentable] = $this->createPaymentApplication('2026-07-01', '2026-07-01');
         $original_paymentable = $this->findPaymentable($paymentable->id);
-        Event::fake([FranceInvoicePaymentStateChanged::class]);
+        Event::fake([PaymentApplicationDateChanged::class]);
 
         $this->updatePaymentDate($payment, '2026-07-01')->assertStatus(200);
 
         $current_paymentable = $this->findPaymentable($paymentable->id);
         $this->assertSame($original_paymentable->created_at, $current_paymentable->created_at);
         $this->assertSame($original_paymentable->updated_at, $current_paymentable->updated_at);
-        Event::assertNotDispatched(FranceInvoicePaymentStateChanged::class);
+        Event::assertNotDispatched(PaymentApplicationDateChanged::class);
     }
 
     public function testPaymentDateUpdateMovesMultipleInvoiceAndCreditApplications(): void
@@ -198,6 +213,68 @@ class UpdatePaymentTest extends TestCase
 
         $this->assertSame('2026-03-09', $payment->fresh()->date);
         $this->assertSame('2026-03-09', $this->applicationDate($paymentable));
+    }
+
+    public function testNegativeOffsetCrossMonthApiUpdateMovesCashAndFranceReportingPeriods(): void
+    {
+        $timezone = app('timezones')->firstWhere('name', 'America/New_York');
+        $this->assertNotNull($timezone);
+        $settings = $this->company->settings;
+        $settings->timezone_id = $timezone->id;
+        $settings->france_reporting_enabled = true;
+        $this->company->settings = $settings;
+        $this->company->save();
+        $this->company = $this->company->fresh();
+        $this->client->classification = 'individual';
+        $this->client->group_settings_id = null;
+        $this->client->save();
+        $this->client = $this->client->fresh();
+        $this->invoice->status_id = Invoice::STATUS_PAID;
+        $this->invoice->paid_to_date = $this->invoice->amount;
+        $this->invoice->balance = 0;
+        $line_items = $this->invoice->line_items;
+
+        foreach ($line_items as $line_item) {
+            $line_item->type_id = (string) Product::PRODUCT_TYPE_SERVICE;
+        }
+
+        $this->invoice->line_items = $line_items;
+        $this->invoice->save();
+        [$payment, $paymentable] = $this->createPaymentApplication('2026-08-31', '2026-08-31');
+        TransactionEvent::query()->where('invoice_id', $this->invoice->id)->delete();
+
+        (new InvoiceTransactionEventEntryCash())->run($this->invoice, '2026-08-01', '2026-08-31');
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $this->invoice->id,
+            $paymentable->id,
+            (string) $paymentable->amount,
+            '2026-08-31',
+        ))->handle();
+
+        Event::fake([PaymentApplicationDateChanged::class]);
+        $this->updatePaymentDate($payment, '2026-09-01')->assertStatus(200);
+        $event = Event::dispatched(PaymentApplicationDateChanged::class)->first()[0];
+        app(ReconcilePaymentApplicationDateChange::class)->handle($event);
+
+        $cashEvents = TransactionEvent::query()
+            ->where('invoice_id', $this->invoice->id)
+            ->where('event_id', TransactionEvent::PAYMENT_CASH)
+            ->get();
+        $franceReport = TransactionEvent::query()
+            ->where('invoice_id', $this->invoice->id)
+            ->where('event_id', TransactionEvent::FR_B2C_PAYMENT)
+            ->get()
+            ->first(fn (TransactionEvent $transactionEvent): bool => data_get($transactionEvent->payment_request, 'fr_kind') === RecordFranceEReportingPayment::KIND_REPORT);
+
+        $this->assertCount(1, $cashEvents);
+        $this->assertSame('2026-09-30', $cashEvents->first()->period->toDateString());
+        $this->assertSame('2026-09-01', data_get($cashEvents->first()->metadata, 'tax_report.payment_history.0.date'));
+        $this->assertNotNull($franceReport);
+        $this->assertSame('2026-09-10', $franceReport->period->toDateString());
+        $this->assertSame('2026-09-01', data_get($franceReport->payment_request, 'source_date'));
+        $this->assertSame('2026-09-01', $franceReport->reporting_data->frReportEntry->b2cPayment->date);
     }
 
     /**

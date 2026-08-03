@@ -19,7 +19,7 @@ final class ReportingCalendar
         ReportingProfile $profile,
         ?CarbonImmutable $date = null,
     ): ReportingPeriod {
-        $date ??= CarbonImmutable::now();
+        $date ??= CarbonImmutable::now('Europe/Paris');
 
         return match ($profile) {
             ReportingProfile::TenDay => self::tenDayPeriod($date),
@@ -33,15 +33,16 @@ final class ReportingCalendar
         $year = $date->year;
         $month = $date->month;
         $day = $date->day;
+        $timezone = $date->getTimezone();
 
         if ($day <= 10) {
-            $start = CarbonImmutable::create($year, $month, 1, 0, 0, 0);
-            $end = CarbonImmutable::create($year, $month, 10, 23, 59, 59);
+            $start = CarbonImmutable::create($year, $month, 1, 0, 0, 0, $timezone);
+            $end = CarbonImmutable::create($year, $month, 10, 23, 59, 59, $timezone);
         } elseif ($day <= 20) {
-            $start = CarbonImmutable::create($year, $month, 11, 0, 0, 0);
-            $end = CarbonImmutable::create($year, $month, 20, 23, 59, 59);
+            $start = CarbonImmutable::create($year, $month, 11, 0, 0, 0, $timezone);
+            $end = CarbonImmutable::create($year, $month, 20, 23, 59, 59, $timezone);
         } else {
-            $start = CarbonImmutable::create($year, $month, 21, 0, 0, 0);
+            $start = CarbonImmutable::create($year, $month, 21, 0, 0, 0, $timezone);
             $end = $date->endOfMonth();
         }
 
@@ -59,7 +60,7 @@ final class ReportingCalendar
     ): CarbonImmutable {
         // Period 1: 1–10 => due 20th same month
         if ($start->day === 1 && $end->day === 10) {
-            return CarbonImmutable::create($start->year, $start->month, 20, 23, 59, 59);
+            return CarbonImmutable::create($start->year, $start->month, 20, 23, 59, 59, $start->getTimezone());
         }
 
         // Period 2: 11–20 => due 30th same month,
@@ -69,7 +70,7 @@ final class ReportingCalendar
                 return $start->endOfMonth();
             }
 
-            return CarbonImmutable::create($start->year, $start->month, 30, 23, 59, 59);
+            return CarbonImmutable::create($start->year, $start->month, 30, 23, 59, 59, $start->getTimezone());
         }
 
         // Period 3: 21–EOM => due 10th next month
@@ -99,7 +100,7 @@ final class ReportingCalendar
             ? $date->month - 1
             : $date->month;
 
-        $start = CarbonImmutable::create($date->year, $startMonth, 1, 0, 0, 0);
+        $start = CarbonImmutable::create($date->year, $startMonth, 1, 0, 0, 0, $date->getTimezone());
         $end = $start->addMonthNoOverflow()->endOfMonth();
 
         return new ReportingPeriod(

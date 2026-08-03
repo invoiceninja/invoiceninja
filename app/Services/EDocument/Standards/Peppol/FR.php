@@ -13,8 +13,13 @@
 namespace App\Services\EDocument\Standards\Peppol;
 
 use App\Models\Client;
+use App\Models\Company;
+use App\Models\Credit as NinjaCredit;
+use App\Models\Invoice as NinjaInvoice;
 use Carbon\CarbonImmutable;
 use App\Services\EDocument\Gateway\MutatorUtil;
+use App\Services\EDocument\Gateway\Storecove\Models\Credit as StorecoveCredit;
+use App\Services\EDocument\Gateway\Storecove\Models\Invoice as StorecoveInvoice;
 use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
 use App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveIdentifierValidator;
 
@@ -29,6 +34,8 @@ use App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveIdentifierVali
 class FR extends BaseCountry
 {
     private const CTC_MANDATE_START_DATE = '2026-09-01';
+    private const INVOICE_ITEM_TYPE_GOODS = 1;
+    private const INVOICE_ITEM_TYPE_SERVICE = 2;
 
     public function getCandidates(object $client, string $classification, object $router): array
     {
@@ -205,6 +212,19 @@ class FR extends BaseCountry
 
         return $p_invoice;
     }
+
+    public function decorateStorecoveDocument(
+        StorecoveInvoice|StorecoveCredit $storecoveDocument,
+        NinjaInvoice|NinjaCredit $sourceDocument,
+    ): StorecoveInvoice|StorecoveCredit {
+        if (! $this->isDgfipApplicable($sourceDocument->client, $sourceDocument->company)) {
+            return $storecoveDocument;
+        }
+
+        return $storecoveDocument->setFrCadreDeFacturation(
+            $this->inferCadreDeFacturation($sourceDocument),
+        );
+    }
     
     /**
      * getNetworkOverrides
@@ -217,23 +237,51 @@ class FR extends BaseCountry
             return [];
         }
 
-        /**
-         * Casers to handle:
-         * 
-         * 1. FR => FR (Business)
-         * 2. WORLD => FR WITH FR VAT Number configured.
-         * 
-         */
-        $sellerWithFRVAT = $client->company->country()->iso_3166_2 != "FR" && empty(data_get($client->company->tax_data, 'regions.EU.subregions.FR.vat_number', ''));
-        $receiverCountryIsFR = $client->country?->iso_3166_2 == "FR";
-        $classification = $client->classification ?? 'business';
-
-        /** French Tax Nexus + Not Government Or Individual */
-        if ($receiverCountryIsFR && !$sellerWithFRVAT && !in_array($classification, ['government', 'individual'])) {
+        if ($this->isDgfipApplicable($client, $client->company)) {
             return [['application' => 'fr-dgfip', 'settings' => ['enabled' => true]]];
         }
 
         return [];
+    }
+
+    private function isDgfipApplicable(Client $client, Company $company): bool
+    {
+        $sellerCountryIsFrance = $company->country()?->iso_3166_2 === 'FR';
+        $sellerHasFrenchVatNexus = ! empty(data_get($company->tax_data, 'regions.EU.subregions.FR.vat_number'));
+        $receiverCountryIsFrance = $client->country?->iso_3166_2 === 'FR';
+        $classification = $client->classification ?? 'business';
+
+        return $receiverCountryIsFrance
+            && ($sellerCountryIsFrance || $sellerHasFrenchVatNexus)
+            && ! in_array($classification, ['government', 'individual'], true);
+    }
+
+    /**
+     * Infer only the standard goods, services, or mixed AFNOR context.
+     * Fee and expense line origins are neutral; B1 is the fallback when the
+     * document has no recognised supply line. Product and service signals are
+     * treated as independent for M1 until Invoice Ninja captures ancillary supply.
+     */
+    private function inferCadreDeFacturation(NinjaInvoice|NinjaCredit $sourceDocument): string
+    {
+        $containsGoods = false;
+        $containsServices = false;
+
+        foreach ((array) $sourceDocument->line_items as $lineItem) {
+            $lineType = (int) data_get($lineItem, 'type_id');
+
+            if ($lineType === self::INVOICE_ITEM_TYPE_GOODS) {
+                $containsGoods = true;
+            } elseif ($lineType === self::INVOICE_ITEM_TYPE_SERVICE) {
+                $containsServices = true;
+            }
+
+            if ($containsGoods && $containsServices) {
+                return 'M1';
+            }
+        }
+
+        return $containsServices ? 'S1' : 'B1';
     }
 
 }

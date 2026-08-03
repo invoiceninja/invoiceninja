@@ -1158,6 +1158,10 @@ class TaxPeriodReport extends BaseExport
 
     private function correctionTargetPeriod(TransactionEvent $event): string
     {
+        if (data_get($event->payment_request, 'tax_correction_kind') === 'payment_application_date') {
+            return $this->periodString(data_get($event->payment_request, 'old_period'));
+        }
+
         if (in_array($event->event_id, [TransactionEvent::PAYMENT_REFUNDED, TransactionEvent::PAYMENT_DELETED], true)) {
             return $this->paymentHistoryTargetPeriod($event) ?? '';
         }
@@ -1207,6 +1211,10 @@ class TaxPeriodReport extends BaseExport
 
     private function isCorrectionEvent(TransactionEvent $event): bool
     {
+        if (data_get($event->payment_request, 'tax_correction_kind') === 'payment_application_date') {
+            return true;
+        }
+
         $status = $event->metadata->tax_report->tax_summary->status ?? 'updated';
 
         return in_array($event->event_id, [TransactionEvent::PAYMENT_REFUNDED, TransactionEvent::PAYMENT_DELETED], true)
@@ -1215,6 +1223,10 @@ class TaxPeriodReport extends BaseExport
 
     private function correctionType(TransactionEvent $event): string
     {
+        if (data_get($event->payment_request, 'tax_correction_kind') === 'payment_application_date') {
+            return ctrans('texts.payment_correction');
+        }
+
         $status = $event->metadata->tax_report->tax_summary->status ?? 'updated';
 
         if (in_array($event->event_id, [TransactionEvent::PAYMENT_REFUNDED, TransactionEvent::PAYMENT_DELETED], true)) {

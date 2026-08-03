@@ -12,7 +12,7 @@
 
 namespace App\Repositories;
 
-use App\Events\EDocument\FranceInvoicePaymentStateChanged;
+use App\Events\Payment\PaymentApplicationDateChanged;
 use App\Events\Payment\PaymentWasCreated;
 use App\Events\Payment\PaymentWasDeleted;
 use App\Jobs\Credit\ApplyCreditPayment;
@@ -59,8 +59,18 @@ class PaymentRepository extends BaseRepository
         $paymentables_to_move = $this->paymentablesDerivedFromDate($data, $payment, $original_date);
         $payment = $this->applyPayment($data, $payment);
 
-        $this->movePaymentableDates($payment, $original_date, $paymentables_to_move);
+        $moved_paymentables = $this->movePaymentableDates($payment, $original_date, $paymentables_to_move);
         $this->syncResolvedTags($payment, $tag_ids);
+
+        if ($original_date && $payment->date && $moved_paymentables->isNotEmpty()) {
+            PaymentApplicationDateChanged::dispatch(
+                $payment->id,
+                $payment->company->db,
+                $original_date,
+                $payment->date,
+                $moved_paymentables->pluck('id')->map(fn($id): int => (int) $id)->sort()->values()->all(),
+            );
+        }
 
         return $payment;
     }
@@ -90,7 +100,7 @@ class PaymentRepository extends BaseRepository
                     return false;
                 }
 
-                $created_at = is_numeric($paymentable->created_at)
+                $created_at = is_numeric($paymentable->created_at) // @php-ignore-line
                     ? Carbon::createFromTimestamp((int) $paymentable->created_at)
                     : Carbon::parse($paymentable->created_at);
 
@@ -103,55 +113,29 @@ class PaymentRepository extends BaseRepository
     /**
      * @param Collection<int, Paymentable> $paymentables
      */
-    private function movePaymentableDates(Payment $payment, ?string $original_date, Collection $paymentables): void
+    private function movePaymentableDates(Payment $payment, ?string $original_date, Collection $paymentables): Collection
     {
         if (! $original_date
             || ! $payment->date
             || $payment->date === $original_date
             || $paymentables->isEmpty()) {
-            return;
+            return collect();
         }
 
         $moved_paymentables = collect();
+        $timezone = $payment->company->timezone()?->name ?: config('app.timezone');
+        $application_timestamp = Carbon::parse($payment->date, $timezone)
+            ->startOfDay()
+            ->utc()
+            ->timestamp;
 
         foreach ($paymentables as $paymentable) {
-            $paymentable->created_at = $payment->date;
+            $paymentable->created_at = $application_timestamp;
             $paymentable->saveQuietly();
             $moved_paymentables->push($paymentable);
         }
 
-        $this->signalFranceInvoicePaymentStateChanges($payment, $moved_paymentables);
-    }
-
-    /**
-     * @param Collection<int, Paymentable> $paymentables
-     */
-    private function signalFranceInvoicePaymentStateChanges(Payment $payment, Collection $paymentables): void
-    {
-        $invoice_ids = $paymentables
-            ->where('paymentable_type', 'invoices')
-            ->pluck('paymentable_id')
-            ->unique()
-            ->values();
-
-        if ($invoice_ids->isEmpty()) {
-            return;
-        }
-
-        $invoices = Invoice::withTrashed()
-            ->with(['client.company'])
-            ->whereIn('id', $invoice_ids)
-            ->get();
-
-        foreach ($invoices as $invoice) {
-            try {
-                if ($invoice->client->reportableFrTransaction()) {
-                    FranceInvoicePaymentStateChanged::dispatch($invoice->id, $payment->company->db);
-                }
-            } catch (\Throwable $exception) {
-                report($exception);
-            }
-        }
+        return $moved_paymentables;
     }
 
     /**

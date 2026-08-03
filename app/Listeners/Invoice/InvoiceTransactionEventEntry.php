@@ -115,7 +115,7 @@ class InvoiceTransactionEventEntry
                 'number' => $payment->number,
                 'amount' => $pivot->amount,
                 'refunded' => $pivot->refunded,
-                'date' => $pivot->created_at->format('Y-m-d'),
+                'date' => $pivot->created_at->format('Y-m-d'), // @php-ignore-line - Carbon object when accessed via PIVOT
             ];
         })->filter();
 
