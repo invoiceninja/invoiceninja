@@ -40,8 +40,6 @@ class FranceEReportingCron implements ShouldQueue
     public $tries = 1;
     private const REPORT_SUBMISSION_LEAD_DAYS = 3;
 
-    private const REPORT_LATE_RECOVERY_DAYS = 7;
-
 
     /**
      * Execute the France e-reporting daily reconciliation for each configured database.
@@ -90,17 +88,10 @@ class FranceEReportingCron implements ShouldQueue
         /** First send out any pending payment notifications (FR => FR B2B Payment Received Notification) */
         $this->dispatchPendingPaymentNotifications($db, $parisNow);
 
-        /** Then submit any due report submissions (Submission) */
-        $duePeriods = $this->dueReportPeriods($parisNow);
-
         /** Corrective reports must remain deliverable after the original filing window. */
         $this->dispatchPendingCorrectiveReportSubmissions($db, $parisNow);
 
-        if ($duePeriods->isEmpty()) {
-            return;
-        }
-
-        $this->dispatchDueReportSubmissions($db, $parisNow, $duePeriods);
+        $this->dispatchDueReportSubmissions($db, $parisNow);
     }
 
     /**
@@ -159,11 +150,10 @@ class FranceEReportingCron implements ShouldQueue
      *
      * This method is only called after the standardized France calendar has produced at least one eligible period for the day.
      *
-     * @param Collection<string, ReportingPeriod> $duePeriods
      */
-    private function dispatchDueReportSubmissions(string $db, CarbonImmutable $parisNow, Collection $duePeriods): void
+    private function dispatchDueReportSubmissions(string $db, CarbonImmutable $parisNow): void
     {
-        $this->dispatchDueInitialReportSubmissions($db, $parisNow, $duePeriods);
+        $this->dispatchDueInitialReportSubmissions($db, $parisNow);
     }
 
     /**
@@ -171,9 +161,8 @@ class FranceEReportingCron implements ShouldQueue
      *
      * Source rows are streamed by primary key, then deduplicated by company, submission type, and period so mixed transaction/payment buckets submit once.
      *
-     * @param Collection<string, ReportingPeriod> $duePeriods
      */
-    private function dispatchDueInitialReportSubmissions(string $db, CarbonImmutable $parisNow, Collection $duePeriods): void
+    private function dispatchDueInitialReportSubmissions(string $db, CarbonImmutable $parisNow): void
     {
         $dispatched = [];
 
@@ -189,7 +178,7 @@ class FranceEReportingCron implements ShouldQueue
                 TransactionEvent::FR_REPORTING_STATUS_PENDING,
                 TransactionEvent::FR_REPORTING_STATUS_FAILED,
             ])
-            ->whereIn("period", $duePeriods->keys()->all())
+            ->where("period", "<=", $parisNow->toDateString())
             ->whereNotNull("reporting_data")
             ->where(function ($query): void {
                 $query->whereNull("payment_request->fr_report_kind")
@@ -305,37 +294,6 @@ class FranceEReportingCron implements ShouldQueue
     }
 
     /**
-     * Calculate the standardized France reporting periods eligible for submission today in Europe/Paris.
-     *
-     * A period is eligible from the configured lead window before its due date through the bounded late recovery window after its due date.
-     *
-     * @return Collection<string, ReportingPeriod>
-     */
-    private function dueReportPeriods(CarbonImmutable $parisNow): Collection
-    {
-        $today = $parisNow->startOfDay();
-
-        return collect(ReportingProfile::cases())
-            ->flatMap(fn (ReportingProfile $profile): Collection => $this->candidatePeriods($profile, $parisNow))
-            ->filter(fn (ReportingPeriod $period): bool => $this->periodIsEligibleForSubmission($period, $today))
-            ->keyBy(fn (ReportingPeriod $period): string => $period->end->toDateString());
-    }
-
-    /**
-     * Build candidate periods for a standardized France profile around the current day.
-     *
-     * The 75-day lookback covers bi-monthly reporting windows while remaining fixed and independent of transaction volume.
-     *
-     * @return Collection<string, ReportingPeriod>
-     */
-    private function candidatePeriods(ReportingProfile $profile, CarbonImmutable $parisNow): Collection
-    {
-        return collect(range(0, 75))
-            ->map(fn (int $daysBack): ReportingPeriod => ReportingCalendar::currentPeriod($profile, $parisNow->subDays($daysBack)))
-            ->keyBy(fn (ReportingPeriod $period): string => $period->end->toDateString());
-    }
-
-    /**
      * Return the company ids represented by pending payment-received notification events.
      *
      * This keeps notification dispatch company-scoped without querying every France-enabled company.
@@ -403,33 +361,28 @@ class FranceEReportingCron implements ShouldQueue
     }
 
     /**
-     * Check whether today falls inside the pre-due submission window or bounded late recovery window.
+     * Check whether the filing window has opened.
      */
     private function periodIsEligibleForSubmission(ReportingPeriod $period, CarbonImmutable $today): bool
     {
         $windowStart = $period->dueDate
             ->subDays(self::REPORT_SUBMISSION_LEAD_DAYS)
             ->startOfDay();
-        $windowEnd = $period->dueDate
-            ->addDays(self::REPORT_LATE_RECOVERY_DAYS)
-            ->endOfDay();
-
-        return $today->greaterThanOrEqualTo($windowStart)
-            && $today->lessThanOrEqualTo($windowEnd);
+        return $today->greaterThanOrEqualTo($windowStart);
     }
 
     /**
      * Resolve the reporting cadence that controls a source event type.
      *
-     * VAT-excluded transactions/payments are always bi-monthly; B2C transactions/payments follow the company France reporting schedule with ten-day as the fallback.
+     * Transactions follow the company France reporting schedule. Payment reports are monthly.
      */
     private function profileForSourceEvent(Company $company, int $sourceEventId): ReportingProfile
     {
         if (in_array($sourceEventId, [
-            TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION,
+            TransactionEvent::FR_B2C_PAYMENT,
             TransactionEvent::FR_VAT_EXCLUDED_PAYMENT,
         ], true)) {
-            return ReportingProfile::BiMonthly;
+            return ReportingProfile::Monthly;
         }
 
         return ReportingProfile::tryFrom((string) $company->getSetting("france_reporting_schedule"))

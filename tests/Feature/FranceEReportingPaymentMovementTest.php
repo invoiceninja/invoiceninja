@@ -108,7 +108,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->assertSame(2, $movements->count());
         $this->assertNotNull($report);
         $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_PENDING, $report->payment_status);
-        $this->assertSame('2026-10-10', $report->period->toDateString());
+        $this->assertSame('2026-10-31', $report->period->toDateString());
         $this->assertSame('initial', data_get($report->payment_request, 'fr_report_kind'));
         $this->assertSame(1200.0, (float) $report->payment_applied);
         $this->assertCount(2, data_get($report->payment_request, 'source_event_ids'));
@@ -258,7 +258,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
 
         $initialReport = $this->reportEvents($invoice)->firstOrFail();
         $compiler = new FranceEReportCompiler();
-        $initialSources = $compiler->sourceEvents($this->company, TransactionEvent::FR_REPORT_SUBMISSION_B2C, '2026-09-20');
+        $initialSources = $compiler->sourceEvents($this->company, TransactionEvent::FR_REPORT_SUBMISSION_B2C, '2026-09-30');
 
         $this->assertTrue($initialSources->contains('id', $initialReport->id));
         $this->assertFalse($initialSources->contains(fn (TransactionEvent $event): bool => data_get($event->payment_request, 'fr_kind') === RecordFranceEReportingPayment::KIND_MOVEMENT));
@@ -289,14 +289,14 @@ class FranceEReportingPaymentMovementTest extends TestCase
             ->first(fn (TransactionEvent $event): bool => data_get($event->payment_request, 'fr_report_kind') === RecordFranceEReportingPayment::REPORT_KIND_CORRECTIVE);
 
         $this->assertNotNull($correctiveReport);
-        $this->assertSame('2026-10-20', $correctiveReport->period->toDateString());
+        $this->assertSame('2026-10-31', $correctiveReport->period->toDateString());
         $this->assertSame(-200.0, (float) $correctiveReport->payment_applied);
         $this->assertSame((int) $initialReport->id, (int) data_get($correctiveReport->payment_request, 'previous_event_id'));
         $this->assertSame('2026-10-12', $correctiveReport->reporting_data->frReportEntry->b2cPayment->date);
         $this->assertSame(-200, $correctiveReport->reporting_data->frReportEntry->b2cPayment->taxSubtotal[0]->amount);
 
-        $correctiveSources = $compiler->sourceEvents($this->company, TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE, '2026-10-20');
-        $initialSourcesForCorrectionPeriod = $compiler->sourceEvents($this->company, TransactionEvent::FR_REPORT_SUBMISSION_B2C, '2026-10-20');
+        $correctiveSources = $compiler->sourceEvents($this->company, TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE, '2026-10-31');
+        $initialSourcesForCorrectionPeriod = $compiler->sourceEvents($this->company, TransactionEvent::FR_REPORT_SUBMISSION_B2C, '2026-10-31');
 
         $this->assertTrue($correctiveSources->contains('id', $correctiveReport->id));
         $this->assertFalse($initialSourcesForCorrectionPeriod->contains('id', $correctiveReport->id));
@@ -389,7 +389,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->assertSame(0, TransactionEvent::query()->where('invoice_id', $invoice->id)->count());
     }
 
-    public function testItRecordsForeignBusinessPaymentsAsVatExcludedBiMonthlyReports(): void
+    public function testItRecordsForeignBusinessPaymentsAsVatExcludedMonthlyReports(): void
     {
         $invoice = $this->makeInvoice(clientCountry: "DE", classification: "business", date: "2026-09-01");
         $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
@@ -418,15 +418,15 @@ class FranceEReportingPaymentMovementTest extends TestCase
             ->firstOrFail();
 
         $this->assertSame(RecordFranceEReportingPayment::KIND_MOVEMENT, data_get($movement->payment_request, "fr_kind"));
-        $this->assertSame("2026-10-31", $report->period->toDateString());
+        $this->assertSame("2026-09-30", $report->period->toDateString());
         $this->assertSame(1200.0, (float) $report->payment_applied);
         $this->assertSame("initial", data_get($report->payment_request, "fr_report_kind"));
         $this->assertSame("2026-09-15", $report->reporting_data->frReportEntry->b2biPayment->paymentDate);
         $this->assertSame(1200, $report->reporting_data->frReportEntry->b2biPayment->taxSubtotals[0]->amountIncludingTax);
 
         $compiler = new FranceEReportCompiler();
-        $vatExcludedSources = $compiler->sourceEvents($this->company, TransactionEvent::FR_REPORT_SUBMISSION_VAT_EXCLUDED, "2026-10-31");
-        $b2cSources = $compiler->sourceEvents($this->company, TransactionEvent::FR_REPORT_SUBMISSION_B2C, "2026-10-31");
+        $vatExcludedSources = $compiler->sourceEvents($this->company, TransactionEvent::FR_REPORT_SUBMISSION_VAT_EXCLUDED, "2026-09-30");
+        $b2cSources = $compiler->sourceEvents($this->company, TransactionEvent::FR_REPORT_SUBMISSION_B2C, "2026-09-30");
 
         $this->assertTrue($vatExcludedSources->contains("id", $report->id));
         $this->assertFalse($b2cSources->contains("id", $report->id));
@@ -642,7 +642,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $compiler = new FranceEReportCompiler();
 
         $this->assertFalse($compiler
-            ->sourceEvents($this->company, TransactionEvent::FR_REPORT_SUBMISSION_B2C, '2026-09-20')
+            ->sourceEvents($this->company, TransactionEvent::FR_REPORT_SUBMISSION_B2C, '2026-09-30')
             ->contains('id', $report->id));
 
         $request = $report->payment_request;
@@ -651,7 +651,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $report->save();
 
         $this->assertTrue($compiler
-            ->sourceEvents($this->company, TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE, '2026-09-20')
+            ->sourceEvents($this->company, TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE, '2026-09-30')
             ->contains('id', $report->id));
     }
 
@@ -693,7 +693,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
             ->first(fn (TransactionEvent $event): bool => data_get($event->payment_request, "fr_report_kind") === RecordFranceEReportingPayment::REPORT_KIND_CORRECTIVE);
 
         $this->assertNotNull($correctiveReport);
-        $this->assertSame("2026-10-20", $correctiveReport->period->toDateString());
+        $this->assertSame("2026-10-31", $correctiveReport->period->toDateString());
         $this->assertSame(-1200.0, (float) $correctiveReport->payment_applied);
         $this->assertSame((int) $initialReport->id, (int) data_get($correctiveReport->payment_request, "previous_event_id"));
         $this->assertSame(FrancePaymentApplicationRecorder::MOVEMENT_DELETED, data_get($this->movementEvents($invoice)->last()->payment_request, "movement_type"));
@@ -780,8 +780,8 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $movement = $this->movementEvents($invoice)->firstOrFail();
         $report = $this->reportEvents($invoice)->firstOrFail();
 
-        $this->assertSame("2026-10-10", $movement->period->toDateString());
-        $this->assertSame("2026-10-10", $report->period->toDateString());
+        $this->assertSame("2026-10-31", $movement->period->toDateString());
+        $this->assertSame("2026-10-31", $report->period->toDateString());
         $this->assertSame("2026-10-02", data_get($report->payment_request, "source_date"));
         $this->assertSame("2026-10-02", $report->reporting_data->frReportEntry->b2cPayment->date);
     }
@@ -1278,7 +1278,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
     }
     public function testFranceEReportingCronDispatchesEligiblePaymentReportsFromGroupedTransactionEvents(): void
     {
-        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-18 22:00:00", "Europe/Paris"));
+        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-10-08 22:00:00", "Europe/Paris"));
         try {
             Bus::fake();
             config(["ninja.db.multi_db_enabled" => false]);
@@ -1363,20 +1363,20 @@ class FranceEReportingPaymentMovementTest extends TestCase
 
     public function testFranceEReportingCronDispatchesOneCombinedB2CReportForTransactionAndPaymentSources(): void
     {
-        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-18 22:00:00", "Europe/Paris"));
+        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-10-08 22:00:00", "Europe/Paris"));
 
         try {
             config(["ninja.db.multi_db_enabled" => false]);
 
-            $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-05");
+            $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-25");
             $transactionEvent = $this->createFranceReportSourceEvent(
                 invoice: $invoice,
                 eventId: TransactionEvent::FR_B2C_TRANSACTION,
-                period: "2026-09-10",
-                reportingData: $this->b2cTransactionReportPayload("2026-09-05"),
+                period: "2026-09-30",
+                reportingData: $this->b2cTransactionReportPayload("2026-09-25"),
             );
-            $payment = $this->makePayment($invoice->client, "2026-09-05", "1200");
-            $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-05");
+            $payment = $this->makePayment($invoice->client, "2026-09-25", "1200");
+            $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-25");
             $invoice = $this->setInvoicePaymentState($invoice, "1200");
 
             (new RecordFranceEReportingPayment(
@@ -1385,7 +1385,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
                 $invoice->id,
                 $paymentable->id,
                 "1200",
-                "2026-09-05",
+                "2026-09-25",
             ))->handle();
 
             $paymentEvent = $this->reportEvents($invoice)->firstOrFail();
@@ -1396,7 +1396,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
             Bus::assertDispatchedTimes(SubmitFranceEReport::class, 1);
             Bus::assertDispatched(SubmitFranceEReport::class, function (SubmitFranceEReport $job): bool {
                 return (int) $this->jobProperty($job, "submissionEventId") === TransactionEvent::FR_REPORT_SUBMISSION_B2C
-                    && $this->jobProperty($job, "periodEnd") === "2026-09-10";
+                    && $this->jobProperty($job, "periodEnd") === "2026-09-30";
             });
 
             $submittedPayload = [];
@@ -1416,13 +1416,15 @@ class FranceEReportingPaymentMovementTest extends TestCase
             (new SubmitFranceEReport(
                 $this->company->id,
                 TransactionEvent::FR_REPORT_SUBMISSION_B2C,
-                "2026-09-10",
+                "2026-09-30",
                 $this->company->db,
             ))->handle($storecove, new FranceEReportCompiler(), new FranceEReportPayloadBuilder());
 
             $frEReport = $submittedPayload["document"]["frEReport"];
             $this->assertCount(1, $frEReport["transactionReport"]["b2cTransactions"]);
             $this->assertCount(1, $frEReport["paymentReport"]["b2cPayments"]);
+            $this->assertSame('2026-09-21 - 2026-09-30', $frEReport["transactionReport"]["period"]);
+            $this->assertSame('2026-09-01 - 2026-09-30', $frEReport["paymentReport"]["period"]);
             $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_SUBMITTED, $transactionEvent->fresh()->payment_status);
             $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_SUBMITTED, $paymentEvent->fresh()->payment_status);
         } finally {
@@ -1451,6 +1453,33 @@ class FranceEReportingPaymentMovementTest extends TestCase
             $this->assertSame(1, $this->reportEvents($invoice)->count());
             (new FranceEReportingCron())->handle();
             Bus::assertNotDispatched(SubmitFranceEReport::class);
+        } finally {
+            CarbonImmutable::setTestNow();
+        }
+    }
+
+    public function testFranceEReportingCronDispatchesAnOverdueInitialReportWithoutARecoveryCutoff(): void
+    {
+        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-12-15 22:00:00", "Europe/Paris"));
+
+        try {
+            Bus::fake();
+            config(["ninja.db.multi_db_enabled" => false]);
+
+            $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-05");
+            $this->createFranceReportSourceEvent(
+                invoice: $invoice,
+                eventId: TransactionEvent::FR_B2C_TRANSACTION,
+                period: "2026-09-10",
+                reportingData: $this->b2cTransactionReportPayload("2026-09-05"),
+            );
+
+            (new FranceEReportingCron())->handle();
+
+            Bus::assertDispatched(SubmitFranceEReport::class, function (SubmitFranceEReport $job): bool {
+                return (int) $this->jobProperty($job, "submissionEventId") === TransactionEvent::FR_REPORT_SUBMISSION_B2C
+                    && $this->jobProperty($job, "periodEnd") === "2026-09-10";
+            });
         } finally {
             CarbonImmutable::setTestNow();
         }
@@ -1743,9 +1772,9 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->assertTrue($event->onOneServer);
     }
 
-    public function testFranceEReportingCronDispatchesPaymentReportsOnTheLastRecoveryDay(): void
+    public function testFranceEReportingCronDispatchesMonthlyPaymentReportsAfterTheFormerRecoveryCutoff(): void
     {
-        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-27 22:00:00", "Europe/Paris"));
+        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-10-18 22:00:00", "Europe/Paris"));
 
         try {
             Bus::fake();

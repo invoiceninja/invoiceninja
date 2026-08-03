@@ -607,11 +607,7 @@ class FrancePaymentApplicationDateReconciler
 
     private function periodEnd(Payment $payment, int $eventId, string $date): string
     {
-        $profile = $eventId === TransactionEvent::FR_VAT_EXCLUDED_PAYMENT
-            ? ReportingProfile::BiMonthly
-            : (ReportingProfile::tryFrom((string) $payment->company->getSetting('france_reporting_schedule')) ?? ReportingProfile::TenDay);
-
-        return ReportingCalendar::currentPeriod($profile, CarbonImmutable::parse($date))->end->toDateString();
+        return ReportingCalendar::currentPeriod(ReportingProfile::Monthly, CarbonImmutable::parse($date))->end->toDateString();
     }
 
     private function paymentableDate(Paymentable $paymentable, Payment $payment): string

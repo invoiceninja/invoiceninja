@@ -440,14 +440,8 @@ class RecordFranceEReportingPayment implements ShouldQueue
 
     private function resolvePeriodEnd(Payment $payment, Invoice $invoice, int $eventId, string $date): string
     {
-        $profile = match ($eventId) {
-            TransactionEvent::FR_VAT_EXCLUDED_PAYMENT => ReportingProfile::BiMonthly,
-            default => ReportingProfile::tryFrom((string) $payment->company->getSetting('france_reporting_schedule'))
-                ?? ReportingProfile::TenDay,
-        };
-
         return ReportingCalendar::currentPeriod(
-            $profile,
+            ReportingProfile::Monthly,
             CarbonImmutable::parse($date ?: $payment->date ?: $invoice->date ?: now()->toDateString()),
         )->end->toDateString();
     }

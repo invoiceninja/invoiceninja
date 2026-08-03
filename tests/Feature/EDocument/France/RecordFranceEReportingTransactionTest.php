@@ -151,7 +151,7 @@ class RecordFranceEReportingTransactionTest extends TestCase
             ->first();
 
         $this->assertNotNull($event);
-        $this->assertSame('2026-10-31', $event->period->toDateString());
+        $this->assertSame('2026-09-20', $event->period->toDateString());
         $this->assertNotNull($event->reporting_data);
         $this->assertNull($event->reporting_data->frReport);
         $this->assertSame($invoice->number, $event->reporting_data->frReportEntry->b2biInvoice->invoiceNumber);
@@ -182,7 +182,7 @@ class RecordFranceEReportingTransactionTest extends TestCase
             ->first();
 
         $this->assertNotNull($event);
-        $this->assertSame('2026-10-31', $event->period->toDateString());
+        $this->assertSame('2026-09-20', $event->period->toDateString());
         $this->assertNotNull($event->reporting_data);
         $this->assertNull($event->reporting_data->frReport);
         $this->assertSame($credit->number, $event->reporting_data->frReportEntry->b2biInvoice->invoiceNumber);
@@ -221,7 +221,7 @@ class RecordFranceEReportingTransactionTest extends TestCase
         $this->assertFileExists($artifactPath);
         $this->assertSame($artifact, json_decode(file_get_contents($artifactPath), true, 512, JSON_THROW_ON_ERROR));
         $this->assertSame(TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION, $artifact['transactionEvent']['eventId']);
-        $this->assertSame('2026-10-31', $artifact['transactionEvent']['period']);
+        $this->assertSame('2026-09-20', $artifact['transactionEvent']['period']);
         $this->assertSame('FR-REPORT-DE-business', $artifact['reportingData']['invoiceNumber']);
         $this->assertSame(1200, $artifact['reportingData']['amountIncludingVat']);
         $this->assertArrayNotHasKey('frReportEntry', $artifact['reportingData']);
@@ -246,7 +246,7 @@ class RecordFranceEReportingTransactionTest extends TestCase
         $this->assertFileExists($artifactPath);
         $this->assertSame($artifact, json_decode(file_get_contents($artifactPath), true, 512, JSON_THROW_ON_ERROR));
         $this->assertSame(TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION, $artifact['transactionEvent']['eventId']);
-        $this->assertSame('2026-10-31', $artifact['transactionEvent']['period']);
+        $this->assertSame('2026-09-20', $artifact['transactionEvent']['period']);
         $this->assertSame('FR-CREDIT-REPORT-DE-business', $artifact['reportingData']['invoiceNumber']);
         $this->assertSame(-1200, $artifact['reportingData']['amountIncludingVat']);
         $this->assertArrayNotHasKey('frReportEntry', $artifact['reportingData']);

@@ -110,7 +110,7 @@ class FranceEReportCompiler
 
         $transactionReport = ($b2biInvoices !== [] || $b2cTransactions !== [])
             ? new TransactionReportData(
-                period: $this->periodLabel($company, $submissionEventId, $periodEnd, $events),
+                period: $this->periodLabel($this->transactionProfile($company), $periodEnd),
                 b2biInvoices: $b2biInvoices,
                 b2cTransactions: $b2cTransactions,
             )
@@ -118,7 +118,7 @@ class FranceEReportCompiler
 
         $paymentReport = ($b2biPayments !== [] || $b2cPayments !== [])
             ? new PaymentReportData(
-                period: $this->periodLabel($company, $submissionEventId, $periodEnd, $events),
+                period: $this->periodLabel(ReportingProfile::Monthly, $periodEnd),
                 b2biPayments: $b2biPayments,
                 b2cPayments: $b2cPayments,
             )
@@ -215,31 +215,15 @@ class FranceEReportCompiler
         return array_values(array_filter($entries, static fn (mixed $entry): bool => $entry instanceof $class));
     }
 
-    /**
-     * @param Collection<int, TransactionEvent> $events
-     */
-    private function periodLabel(Company $company, int $submissionEventId, string $periodEnd, Collection $events): string
+    private function periodLabel(ReportingProfile $profile, string $periodEnd): string
     {
-        $profile = $this->profile($company, $submissionEventId, $events);
         $period = ReportingCalendar::currentPeriod($profile, CarbonImmutable::parse($periodEnd));
 
         return $period->start->toDateString().' - '.$period->end->toDateString();
     }
 
-    /**
-     * @param Collection<int, TransactionEvent> $events
-     */
-    private function profile(Company $company, int $submissionEventId, Collection $events): ReportingProfile
+    private function transactionProfile(Company $company): ReportingProfile
     {
-        if ($submissionEventId === TransactionEvent::FR_REPORT_SUBMISSION_VAT_EXCLUDED) {
-            return ReportingProfile::BiMonthly;
-        }
-
-        if ($submissionEventId === TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE
-            && $events->contains(fn (TransactionEvent $event): bool => $event->event_id === TransactionEvent::FR_VAT_EXCLUDED_PAYMENT)) {
-            return ReportingProfile::BiMonthly;
-        }
-
         return ReportingProfile::tryFrom((string) $company->getSetting('france_reporting_schedule'))
             ?? ReportingProfile::TenDay;
     }

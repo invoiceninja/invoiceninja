@@ -73,7 +73,7 @@ class FrancePaymentApplicationDateReconciliationTest extends TestCase
         $this->assertSame($originalReportId, $reports->first()->id);
         $this->assertSame('2026-10-02', data_get($movements->first()->payment_request, 'source_date'));
         $this->assertSame('2026-10-02', data_get($reports->first()->payment_request, 'source_date'));
-        $this->assertSame('2026-10-10', $reports->first()->period->toDateString());
+        $this->assertSame('2026-10-31', $reports->first()->period->toDateString());
         $this->assertSame('2026-10-02', $reports->first()->reporting_data->frReportEntry->b2cPayment->date);
     }
 

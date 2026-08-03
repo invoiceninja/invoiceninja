@@ -80,7 +80,8 @@ class FranceEReportCompilerTest extends TestCase
             ),
         );
 
-        $this->assertSame('2025-09-01 - 2025-10-31', $payload['document']['frEReport']['transactionReport']['period']);
+        $this->assertSame('2025-10-01 - 2025-10-31', $payload['document']['frEReport']['transactionReport']['period']);
+        $this->assertSame('2025-10-01 - 2025-10-31', $payload['document']['frEReport']['paymentReport']['period']);
         $this->assertEquals([$this->b2biInvoicePayload()], $payload['document']['frEReport']['transactionReport']['b2biInvoices']);
         $this->assertEquals([$this->b2biPaymentPayload()], $payload['document']['frEReport']['paymentReport']['b2biPayments']);
         $this->assertSame([], $payload['document']['frEReport']['transactionReport']['b2cTransactions']);
