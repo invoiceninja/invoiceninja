@@ -25,7 +25,7 @@ class FrancePaymentReportingMutationGuard
     {
         if (app(FranceSubmissionClaim::class)->hasActiveClaimForInvoice($invoice->id)) {
             throw ValidationException::withMessages([
-                'invoice' => ['The invoice cannot be deleted while its France reporting is being submitted.'],
+                'id' => ['The invoice cannot be deleted while its France reporting is being submitted.'],
             ]);
         }
 
@@ -41,7 +41,7 @@ class FrancePaymentReportingMutationGuard
 
         if ($submitted) {
             throw ValidationException::withMessages([
-                'invoice' => ['The invoice cannot be deleted because its France reporting has already been submitted.'],
+                'id' => ['The invoice cannot be deleted because its France reporting has already been submitted.'],
             ]);
         }
     }
@@ -85,13 +85,13 @@ class FrancePaymentReportingMutationGuard
 
         if ($this->hasActiveSubmissionClaim($payment, $paymentableIds)) {
             throw ValidationException::withMessages([
-                'payment' => ['The payment cannot be deleted while its France payment reporting is being submitted.'],
+                'id' => ['The payment cannot be deleted while its France payment reporting is being submitted.'],
             ]);
         }
 
         if ($this->hasSubmittedReporting($payment, $paymentableIds)) {
             throw ValidationException::withMessages([
-                'payment' => ['The payment cannot be deleted because its France payment reporting has already been submitted.'],
+                'id' => ['The payment cannot be deleted because its France payment reporting has already been submitted.'],
             ]);
         }
     }
@@ -107,7 +107,7 @@ class FrancePaymentReportingMutationGuard
 
         if ($this->hasActiveSubmissionClaim($payment, $paymentableIds)) {
             throw ValidationException::withMessages([
-                'refund' => ['The payment cannot be refunded while its France payment reporting is being submitted.'],
+                'id' => ['The payment cannot be refunded while its France payment reporting is being submitted.'],
             ]);
         }
     }

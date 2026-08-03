@@ -140,7 +140,7 @@ class FrancePaymentApplicationDateReconciliationTest extends TestCase
             $guard->assertUserDeletionAllowed($payment);
             $this->fail('A submitted France payment report must block payment deletion.');
         } catch (ValidationException $exception) {
-            $this->assertArrayHasKey('payment', $exception->errors());
+            $this->assertArrayHasKey('id', $exception->errors());
         }
 
         $this->movePaymentableDate($paymentable, '2026-10-02');

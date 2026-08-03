@@ -2154,21 +2154,21 @@ class FranceEReportingPaymentMovementTest extends TestCase
             $guard->assertUserDeletionAllowed($payment);
             $this->fail('An active Storecove submission must block payment deletion.');
         } catch (\Illuminate\Validation\ValidationException $exception) {
-            $this->assertArrayHasKey('payment', $exception->errors());
+            $this->assertArrayHasKey('id', $exception->errors());
         }
 
         try {
             $guard->assertInvoiceDeletionAllowed($invoice);
             $this->fail('An active Storecove submission must block invoice deletion.');
         } catch (\Illuminate\Validation\ValidationException $exception) {
-            $this->assertArrayHasKey('invoice', $exception->errors());
+            $this->assertArrayHasKey('id', $exception->errors());
         }
 
         try {
             $guard->assertRefundAllowed($payment);
             $this->fail('An active Storecove submission must block payment refunds.');
         } catch (\Illuminate\Validation\ValidationException $exception) {
-            $this->assertArrayHasKey('refund', $exception->errors());
+            $this->assertArrayHasKey('id', $exception->errors());
         } finally {
             app(FranceSubmissionClaim::class)->release([$event->id], $token);
         }
