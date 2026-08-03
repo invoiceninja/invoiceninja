@@ -17,6 +17,7 @@ use App\Utils\Ninja;
 use League\Csv\Writer;
 use App\Models\Company;
 use App\Models\Invoice;
+use App\Models\Paymentable;
 use App\Libraries\MultiDB;
 use App\Export\CSV\BaseExport;
 use App\Models\TransactionEvent;
@@ -186,19 +187,16 @@ class TaxPeriodReport extends BaseExport
             if (in_array($invoice->status_id, [Invoice::STATUS_PAID, Invoice::STATUS_PARTIAL])) {
 
                 //Harvest point in time records for cash payments.
-                \App\Models\Paymentable::where('paymentable_type', 'invoices')
+                $paymentables = Paymentable::query()
+                    ->with(['payment' => fn ($query) => $query->withTrashed()])
+                    ->where('paymentable_type', 'invoices')
                     ->where('paymentable_id', $invoice->id)
                     ->whereIn('payment_id', $invoice->payments->pluck('id'))
-                    ->get()
-                    ->groupBy(function ($paymentable) {
-                        return $paymentable->paymentable_id . '-' . \Carbon\Carbon::parse($paymentable->created_at)->format('Y-m');
-                    })
-                    ->map(function ($group) {
-                        return $group->first();
-                    })->each(function (\App\Models\Paymentable $pp) use ($invoice) {
-                        // Pass $invoice directly to avoid morph lazy-load on $pp->paymentable.
-                        (new InvoiceTransactionEventEntryCash())->run($invoice, \Carbon\Carbon::parse($pp->created_at)->startOfMonth()->format('Y-m-d'), \Carbon\Carbon::parse($pp->created_at)->endOfMonth()->format('Y-m-d'));
-                    });
+                    ->whereNull('deleted_at')
+                    ->whereHas('payment', fn ($query) => $query->withTrashed()->where('is_deleted', false))
+                    ->get();
+
+                (new InvoiceTransactionEventEntryCash())->runForPaymentables($invoice, $paymentables);
 
             }
         });

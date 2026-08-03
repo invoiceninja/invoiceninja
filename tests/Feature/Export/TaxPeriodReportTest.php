@@ -80,7 +80,7 @@ class TaxPeriodReportTest extends TestCase
             expense_billed - true = Expensed || false = Expenses marked as paid
             include_tax - true tax_included || false - tax_excluded
      */
-    private function buildData()
+    private function buildData(string $timezone_id = '34')
     {
         $this->account = Account::factory()->create([
             'hosted_client_count' => 1000,
@@ -99,6 +99,7 @@ class TaxPeriodReportTest extends TestCase
         $settings = CompanySettings::defaults();
         $settings->client_online_payment_notification = false;
         $settings->client_manual_payment_notification = false;
+        $settings->timezone_id = $timezone_id;
 
         $this->company = Company::factory()->create([
             'account_id' => $this->account->id,
@@ -281,6 +282,7 @@ class TaxPeriodReportTest extends TestCase
         $this->assertIsNumeric($item_report[4]); // Item tax (payable status shows full tax)
         $this->assertIsNumeric($item_report[5]); // Item taxable amount (payable shows full taxable)
 
+        $this->travelTo(\Carbon\CarbonImmutable::parse('2025-10-31 12:00:00', 'UTC'));
         $invoice->service()->markPaid()->save();
         
         (new InvoiceTransactionEventEntryCash())->run($invoice, '2025-10-01', '2025-10-31');
@@ -572,7 +574,7 @@ class TaxPeriodReportTest extends TestCase
     public function testInvoiceReportingOverMultiplePeriodsWithCashAccountingCheckAdjustments()
     {
 
-        $this->buildData();
+        $this->buildData('34');
 
         $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());
 
@@ -661,10 +663,74 @@ class TaxPeriodReportTest extends TestCase
 
     }
 
+    public function testCashReportUsesCompanyApplicationMonthAtUtcBoundary(): void
+    {
+        $this->buildData('15');
+        $this->travelTo(\Carbon\CarbonImmutable::parse('2025-10-01 00:30:00', 'UTC'));
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 300;
+        $item->type_id = 1;
+        $item->tax_name1 = 'GST';
+        $item->tax_rate1 = 10;
+
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'line_items' => [$item],
+            'status_id' => Invoice::STATUS_DRAFT,
+            'discount' => 0,
+            'is_amount_discount' => false,
+            'uses_inclusive_taxes' => false,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+            'custom_surcharge1' => 0,
+            'custom_surcharge2' => 0,
+            'custom_surcharge3' => 0,
+            'custom_surcharge4' => 0,
+            'date' => '2025-09-30',
+            'due_date' => '2025-10-30',
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->service()->markSent()->markPaid()->save();
+
+        $data = $this->executeTaxPeriodReportAndSave(
+            'testCashReportUsesCompanyApplicationMonthAtUtcBoundary',
+            $this->company,
+            [
+                'start_date' => '2025-09-01',
+                'end_date' => '2025-09-30',
+                'date_range' => 'custom',
+                'is_income_billed' => false,
+            ],
+        );
+
+        $event = $invoice->transaction_events()
+            ->where('event_id', TransactionEvent::PAYMENT_CASH)
+            ->firstOrFail();
+
+        $this->assertSame('2025-09-30', $event->period->toDateString());
+        $this->assertEquals(330, $event->payment_applied);
+        $this->assertEquals(30, $event->metadata->tax_report->tax_summary->tax_amount);
+        $this->assertFalse($invoice->transaction_events()
+            ->where('event_id', TransactionEvent::PAYMENT_CASH)
+            ->whereDate('period', '2025-10-31')
+            ->exists());
+        $this->assertCount(2, $data['invoices']);
+        $this->assertCount(2, $data['invoice_items']);
+    }
+
     public function testInvoiceWithRefundAndCashReportsAreCorrect()
     {
 
-        $this->buildData();
+        $this->buildData('34');
 
         $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());
 
@@ -2324,7 +2390,7 @@ class TaxPeriodReportTest extends TestCase
     public function testInvoiceReversedWithCreditNoteNextPeriodCash()
     {
 
-        $this->buildData();
+        $this->buildData('34');
         $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());
 
         $line_items = [];

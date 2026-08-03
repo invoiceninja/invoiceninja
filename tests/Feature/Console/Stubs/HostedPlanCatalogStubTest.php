@@ -45,6 +45,10 @@ class HostedPlanCatalogStubTest extends TestCase
 
         config(['cache.default' => 'array']);
 
+        if(!config('admin-api.products')) {
+            $this->markTestSkipped('Admin API products are not configured.');
+        }
+
         $this->account = Account::factory()->create();
         $this->user = User::factory()->create([
             'account_id' => $this->account->id,

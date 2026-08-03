@@ -60,6 +60,33 @@ class InvoiceTransactionEventEntryCash
     }
 
     /**
+     * @param Collection<int, Paymentable> $paymentables
+     */
+    public function runForPaymentables(?Invoice $invoice, Collection $paymentables): void
+    {
+        if (! $invoice) {
+            return;
+        }
+
+        $invoice->loadMissing('company');
+        $timezone = $invoice->company->timezone()?->name ?: config('app.timezone');
+
+        $paymentables
+            ->filter(fn (Paymentable $paymentable): bool => (bool) $paymentable->payment)
+            ->map(fn (Paymentable $paymentable): string => $this->paymentableDate($paymentable, $timezone))
+            ->unique(fn (string $date): string => CarbonImmutable::parse($date)->format('Y-m'))
+            ->each(function (string $date) use ($invoice): void {
+                $period = CarbonImmutable::parse($date);
+
+                $this->run(
+                    $invoice,
+                    $period->startOfMonth()->toDateString(),
+                    $period->endOfMonth()->toDateString(),
+                );
+            });
+    }
+
+    /**
      * @param array<int, int> $paymentableIds
      */
     public function reconcileApplicationDateChange(
@@ -135,8 +162,10 @@ class InvoiceTransactionEventEntryCash
             ->lockForUpdate()
             ->get();
 
-        if ($deleteWhenEmpty && $this->payments->isEmpty()) {
-            $events->each->delete();
+        if ($this->payments->isEmpty()) {
+            if ($deleteWhenEmpty) {
+                $events->each->delete();
+            }
 
             return;
         }
