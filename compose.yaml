@@ -1,5 +1,6 @@
 services:
   app:
+    image: ghcr.io/filefor-net/invoice-ninja-app:main
     build:
       context: .
       dockerfile: Dockerfile.local
@@ -29,17 +30,18 @@ services:
         condition: service_healthy
 
   ui:
+    image: ghcr.io/filefor-net/invoice-ninja-ui:main
     build:
       context: ./docker/ui
       args:
         UI_REF: cd450e17831a5c770bdeef23084ce5faa0679f4d
-        VITE_API_URL: http://localhost:8000
+        VITE_API_URL: ${VITE_API_URL:-}
     restart: unless-stopped
     ports:
       - "3001:80"
     depends_on:
-      app:
-        condition: service_healthy
+      nginx:
+        condition: service_started
 
   mysql:
     image: mysql:8.4
