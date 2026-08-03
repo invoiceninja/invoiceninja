@@ -727,6 +727,146 @@ class TaxPeriodReportTest extends TestCase
         $this->assertCount(2, $data['invoice_items']);
     }
 
+    public function testTaxPeriodIgnoresFranceReportingEvents(): void
+    {
+        $this->buildData();
+        $this->travelTo(\Carbon\CarbonImmutable::parse('2025-10-15 12:00:00', 'UTC'));
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 300;
+        $item->type_id = 1;
+        $item->tax_name1 = 'GST';
+        $item->tax_rate1 = 10;
+
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'line_items' => [$item],
+            'status_id' => Invoice::STATUS_DRAFT,
+            'discount' => 0,
+            'is_amount_discount' => false,
+            'uses_inclusive_taxes' => false,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+            'custom_surcharge1' => 0,
+            'custom_surcharge2' => 0,
+            'custom_surcharge3' => 0,
+            'custom_surcharge4' => 0,
+            'date' => '2025-10-15',
+            'due_date' => '2025-11-14',
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->service()->markSent()->markPaid()->save();
+
+        $france_event = TransactionEvent::create([
+            'company_id' => $invoice->company_id,
+            'client_id' => $invoice->client_id,
+            'invoice_id' => $invoice->id,
+            'payment_id' => $invoice->payments()->firstOrFail()->id,
+            'credit_id' => 0,
+            'event_id' => TransactionEvent::FR_B2C_PAYMENT,
+            'timestamp' => now()->timestamp,
+            'period' => '2025-10-31',
+            'payment_status' => TransactionEvent::FR_REPORTING_STATUS_PENDING,
+        ]);
+
+        $data = $this->executeTaxPeriodReportAndSave(
+            'testTaxPeriodIgnoresFranceReportingEvents',
+            $this->company,
+            [
+                'start_date' => '2025-10-01',
+                'end_date' => '2025-10-31',
+                'date_range' => 'custom',
+                'is_income_billed' => false,
+            ],
+        );
+
+        $this->assertCount(2, $data['invoices']);
+        $this->assertCount(2, $data['invoice_items']);
+        $this->assertTrue($invoice->transaction_events()
+            ->where('event_id', TransactionEvent::PAYMENT_CASH)
+            ->whereDate('period', '2025-10-31')
+            ->exists());
+        $this->assertNull($france_event->fresh()->metadata);
+    }
+
+    public function testCashReportRepairsMissingSnapshotWhenAccrualSnapshotExists(): void
+    {
+        $this->buildData();
+        $this->travelTo(\Carbon\CarbonImmutable::parse('2025-10-15 12:00:00', 'UTC'));
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 300;
+        $item->type_id = 1;
+        $item->tax_name1 = 'GST';
+        $item->tax_rate1 = 10;
+
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'line_items' => [$item],
+            'status_id' => Invoice::STATUS_DRAFT,
+            'discount' => 0,
+            'is_amount_discount' => false,
+            'uses_inclusive_taxes' => false,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+            'custom_surcharge1' => 0,
+            'custom_surcharge2' => 0,
+            'custom_surcharge3' => 0,
+            'custom_surcharge4' => 0,
+            'date' => '2025-10-15',
+            'due_date' => '2025-11-14',
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->service()->markSent()->markPaid()->save();
+        $invoice->transaction_events()
+            ->where('event_id', TransactionEvent::PAYMENT_CASH)
+            ->delete();
+
+        (new InvoiceTransactionEventEntry())->run($invoice, '2025-10-31');
+
+        $this->assertTrue($invoice->transaction_events()
+            ->where('event_id', TransactionEvent::INVOICE_UPDATED)
+            ->whereDate('period', '2025-10-31')
+            ->exists());
+        $this->assertFalse($invoice->transaction_events()
+            ->where('event_id', TransactionEvent::PAYMENT_CASH)
+            ->exists());
+
+        $data = $this->executeTaxPeriodReportAndSave(
+            'testCashReportRepairsMissingSnapshotWhenAccrualSnapshotExists',
+            $this->company,
+            [
+                'start_date' => '2025-10-01',
+                'end_date' => '2025-10-31',
+                'date_range' => 'custom',
+                'is_income_billed' => false,
+            ],
+        );
+
+        $this->assertTrue($invoice->transaction_events()
+            ->where('event_id', TransactionEvent::PAYMENT_CASH)
+            ->whereDate('period', '2025-10-31')
+            ->exists());
+        $this->assertCount(2, $data['invoices']);
+        $this->assertCount(2, $data['invoice_items']);
+    }
+
     public function testInvoiceWithRefundAndCashReportsAreCorrect()
     {
 
@@ -2620,7 +2760,12 @@ class TaxPeriodReportTest extends TestCase
         (new PaymentTransactionEventEntry($payment->refresh(), [$invoice->id], $payment->company->db, 165, false))->handle();
 
         // Should have: PAYMENT_CASH (from December) + PAYMENT_REFUNDED (from January refund)
-        $this->assertEquals(2, $invoice->fresh()->transaction_events()->count());
+        $this->assertEquals(2, $invoice->fresh()->transaction_events()
+            ->whereIn('event_id', [TransactionEvent::PAYMENT_CASH, TransactionEvent::PAYMENT_REFUNDED])
+            ->count());
+        $this->assertTrue($invoice->fresh()->transaction_events()
+            ->where('event_id', TransactionEvent::INVOICE_UPDATED)
+            ->exists());
 
         $this->travelTo(\Carbon\Carbon::createFromDate(2026, 2, 1)->startOfDay());
 

@@ -170,23 +170,31 @@ class TaxPeriodReport extends BaseExport
                         $q->whereIn('status_id', [Invoice::STATUS_CANCELLED, Invoice::STATUS_REVERSED])
                           ->orWhere('is_deleted', true);
                     })->whereDoesntHave('transaction_events', function ($query) {
-                        $query->whereIn('metadata->tax_report->tax_summary->status', ['cancelled', 'reversed', 'deleted']);
+                        $query->where('event_id', TransactionEvent::INVOICE_UPDATED)
+                            ->whereIn('metadata->tax_report->tax_summary->status', ['cancelled', 'reversed', 'deleted']);
                     });
                 });
             })
             ->whereDoesntHave('transaction_events', function ($query) {
-                $query->where('period', $this->end_date);
+                $query->where('event_id', TransactionEvent::INVOICE_UPDATED)
+                    ->where('period', $this->end_date);
             });
 
         $this->streamQuery($q)
         ->each(function ($invoice) {
 
             (new InvoiceTransactionEventEntry())->run($invoice, $this->end_date);
+        });
 
+        $cash_invoices = Invoice::query()
+            ->with('payments')
+            ->where('company_id', $this->company->id)
+            ->whereBetween('date', ['1970-01-01', $this->end_date])
+            ->whereIn('status_id', [Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
+            ->where('is_deleted', false);
 
-            if (in_array($invoice->status_id, [Invoice::STATUS_PAID, Invoice::STATUS_PARTIAL])) {
-
-                //Harvest point in time records for cash payments.
+        $this->streamQuery($cash_invoices)
+            ->each(function (Invoice $invoice): void {
                 $paymentables = Paymentable::query()
                     ->with(['payment' => fn ($query) => $query->withTrashed()])
                     ->where('paymentable_type', 'invoices')
@@ -197,20 +205,20 @@ class TaxPeriodReport extends BaseExport
                     ->get();
 
                 (new InvoiceTransactionEventEntryCash())->runForPaymentables($invoice, $paymentables);
-
-            }
-        });
+            });
 
         $ii = Invoice::withTrashed()
                 ->whereHas('transaction_events', function ($query) {
-                    $query->where('period', '<=', $this->end_date);
+                    $query->where('event_id', TransactionEvent::INVOICE_UPDATED)
+                        ->where('period', '<=', $this->end_date);
                 })
                 ->where(function ($q) {
                     $q->whereIn('status_id', [Invoice::STATUS_CANCELLED, Invoice::STATUS_REVERSED])
                     ->orWhere('is_deleted', true);
                 })
                 ->whereDoesntHave('transaction_events', function ($query) {
-                    $query->where('period', $this->end_date)
+                    $query->where('event_id', TransactionEvent::INVOICE_UPDATED)
+                        ->where('period', $this->end_date)
                         ->whereIn('metadata->tax_report->tax_summary->status', ['cancelled', 'deleted']);
                 });
 
@@ -251,7 +259,9 @@ class TaxPeriodReport extends BaseExport
     private function backfillClassificationBreakdown(): void
     {
         $this->streamQuery(TransactionEvent::query()
+            ->where('company_id', $this->company->id)
             ->whereBetween('period', [$this->start_date, $this->end_date])
+            ->whereIn('event_id', TransactionEvent::TAX_REPORTING_EVENTS)
             ->whereNull('metadata->tax_report->tax_details_by_classification')
             ->with('invoice'))
             ->each(function (TransactionEvent $event) {
@@ -296,6 +306,7 @@ class TaxPeriodReport extends BaseExport
     private function backfillSalesBreakdown(): void
     {
         $this->streamQuery(TransactionEvent::query()
+            ->where('company_id', $this->company->id)
             ->whereBetween('period', [$this->start_date, $this->end_date])
             ->whereIn('event_id', [TransactionEvent::INVOICE_UPDATED, TransactionEvent::PAYMENT_CASH])
             ->whereNull('metadata->tax_report->sales_breakdown')
@@ -417,6 +428,20 @@ class TaxPeriodReport extends BaseExport
     /**
      * Build the query for fetching transaction events
      */
+    private function constrainCashTransactionEvents(Builder $query): void
+    {
+        $query->where(function (Builder $query): void {
+            $query->whereIn('event_id', [
+                TransactionEvent::PAYMENT_REFUNDED,
+                TransactionEvent::PAYMENT_DELETED,
+                TransactionEvent::PAYMENT_CASH,
+            ])->orWhere(function (Builder $query): void {
+                $query->where('event_id', TransactionEvent::INVOICE_UPDATED)
+                    ->where('metadata->tax_report->tax_summary->status', 'reversed');
+            });
+        });
+    }
+
     private function resolveQuery(): Builder
     {
 
@@ -425,20 +450,20 @@ class TaxPeriodReport extends BaseExport
             ->with('client')
             ->where('company_id', $this->company->id);
 
+        $query = $this->filterByUserPermissions($query);
+        $query = $this->filterByClients($query);
+
         if ($this->cash_accounting) { //cash
 
             $query->whereIn('status_id', [2,3,4,5,6])
                 ->whereHas('transaction_events', function ($query) {
-                    $query->where(function ($sub_q) {
-                        $sub_q->where('event_id', '!=', TransactionEvent::INVOICE_UPDATED)
-                            ->orWhere('metadata->tax_report->tax_summary->status', 'reversed');
-
-                    })->whereBetween('period', [$this->start_date, $this->end_date]);
+                    $this->constrainCashTransactionEvents($query);
+                    $query->whereBetween('period', [$this->start_date, $this->end_date]);
                 });
 
         } else { //accrual
 
-            $query->whereIn('status_id', [2,3,4,5])
+            $query->whereIn('status_id', [2,3,4,5,6])
                 ->whereHas('transaction_events', function ($query) {
                     $query->where('event_id', TransactionEvent::INVOICE_UPDATED)
                         ->whereBetween('period', [$this->start_date, $this->end_date]);
@@ -815,10 +840,7 @@ class TaxPeriodReport extends BaseExport
                 $query->where('event_id', TransactionEvent::INVOICE_UPDATED);
             })
             ->when($this->cash_accounting, function ($query) {
-                $query->where(function ($sub_q) {
-                    $sub_q->where('event_id', '!=', TransactionEvent::INVOICE_UPDATED)
-                        ->orWhere('metadata->tax_report->tax_summary->status', 'reversed');
-                });
+                $this->constrainCashTransactionEvents($query);
             })
             ->whereBetween('period', [$this->start_date, $this->end_date])
             ->orderBy('timestamp', 'desc')

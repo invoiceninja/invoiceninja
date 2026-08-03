@@ -272,7 +272,7 @@ class UpdatePaymentTest extends TestCase
         $this->assertSame('2026-09-30', $cashEvents->first()->period->toDateString());
         $this->assertSame('2026-09-01', data_get($cashEvents->first()->metadata, 'tax_report.payment_history.0.date'));
         $this->assertNotNull($franceReport);
-        $this->assertSame('2026-09-10', $franceReport->period->toDateString());
+        $this->assertSame('2026-09-30', $franceReport->period->toDateString());
         $this->assertSame('2026-09-01', data_get($franceReport->payment_request, 'source_date'));
         $this->assertSame('2026-09-01', $franceReport->reporting_data->frReportEntry->b2cPayment->date);
     }
