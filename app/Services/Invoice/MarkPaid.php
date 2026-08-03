@@ -215,11 +215,13 @@ class MarkPaid extends AbstractService
 
         $cash_discount = (float) $this->invoice->cash_discount;
 
-        if ($cash_discount <= 0 || $this->payable_balance <= 0) {
+        if ($cash_discount == 0 || $this->payable_balance == 0) {
             return 0;
         }
 
-        return (float) min($cash_discount, $this->payable_balance);
+        $discount = min(abs($cash_discount), abs($this->payable_balance));
+
+        return (float) ($this->payable_balance < 0 ? $discount * -1 : $discount);
     }
 
     private function setExchangeRate(Payment $payment)
