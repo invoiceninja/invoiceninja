@@ -5,7 +5,8 @@ ARG UI_REF
 RUN git init /src \
     && git -C /src remote add origin https://github.com/invoiceninja/ui.git \
     && git -C /src fetch --depth 1 origin "${UI_REF}" \
-    && git -C /src checkout --detach FETCH_HEAD
+    && git -C /src checkout --detach FETCH_HEAD \
+    && sed -i 's#<Router>#<Router basename="/control">#' /src/src/index.tsx
 
 FROM node:22-alpine AS build
 
@@ -50,4 +51,4 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /src/dist/ /usr/share/nginx/html/
 
 HEALTHCHECK --interval=10s --timeout=3s --retries=10 \
-    CMD wget -q --spider http://127.0.0.1/ || exit 1
+    CMD wget -q --spider http://127.0.0.1/control/ || exit 1
