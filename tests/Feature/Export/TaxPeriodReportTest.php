@@ -22,6 +22,7 @@ use App\Models\Payment;
 use App\Models\Paymentable;
 use App\Utils\Traits\MakesHash;
 use App\Models\TransactionEvent;
+use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Factory\InvoiceItemFactory;
 use App\Services\Report\TaxPeriodReport;
@@ -29,6 +30,7 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use App\Listeners\Invoice\InvoiceTransactionEventEntry;
 use App\Listeners\Invoice\InvoiceTransactionEventEntryCash;
 use App\Repositories\InvoiceRepository;
+use App\Services\Payment\PaymentApplicationDateResolver;
 use Illuminate\Queue\Middleware\Skip;
 
 /**
@@ -3520,5 +3522,467 @@ nlog($dec_delta_item_report);
         $this->assertEquals(100, $row[5], 'Fallback row carries the full taxable_amount');
 
         $this->travelBack();
+    }
+
+    public function testForeignCurrencyCashApplicationAndCrossPeriodRefundUseTheSourceExchangeRate(): void
+    {
+        $this->buildData('15');
+        $client_settings = ClientSettings::defaults();
+        $client_settings->currency_id = '2';
+        $this->client->settings = $client_settings;
+        $this->client->save();
+        $invoice = $this->makeTaxedCashInvoice('2026-01-05');
+        [$payment] = $this->applyCashPaymentApplications([
+            ['invoice' => $invoice, 'amount' => 120.0],
+        ], '2026-01-10', 1.5, 2);
+
+        $january = $this->executeTaxPeriodReportAndSave(
+            'testForeignCurrencyCashApplicationAndCrossPeriodRefundUseTheSourceExchangeRateJanuary',
+            $this->company,
+            $this->cashPayload('2026-01-01', '2026-01-31'),
+        );
+
+        $this->assertCount(2, $january['invoices']);
+        $this->assertSame(30.0, (float) $january['invoices'][1][4]);
+        $this->assertSame(150.0, (float) $january['invoices'][1][5]);
+
+        $payment->refund([
+            'id' => $payment->id,
+            'amount' => 30,
+            'invoices' => [['invoice_id' => $invoice->id, 'amount' => 30]],
+            'date' => '2026-02-05',
+            'gateway_refund' => false,
+            'email_receipt' => false,
+        ]);
+        $february = $this->executeTaxPeriodReportAndSave(
+            'testForeignCurrencyCashApplicationAndCrossPeriodRefundUseTheSourceExchangeRateFebruary',
+            $this->company,
+            $this->cashPayload('2026-02-01', '2026-02-28'),
+        );
+        $correction = TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->where('event_id', TransactionEvent::PAYMENT_REFUNDED)
+            ->firstOrFail();
+
+        $this->assertCount(2, $february['invoices']);
+        $this->assertSame(-7.5, (float) $february['invoices'][1][4]);
+        $this->assertSame(-37.5, (float) $february['invoices'][1][5]);
+        $this->assertSame(1.5, (float) data_get($correction->metadata, 'tax_report.payment_history.0.exchange_rate'));
+        $this->assertSame(2, (int) data_get($correction->metadata, 'tax_report.payment_history.0.currency_id'));
+    }
+
+    public function testOneTaxablePaymentAcrossTwoInvoicesReportsDistributedRefundTaxPerInvoice(): void
+    {
+        $this->buildData('15');
+        $invoice_one = $this->makeTaxedCashInvoice('2026-01-05');
+        $invoice_two = $this->makeTaxedCashInvoice('2026-01-06');
+        [$payment] = $this->applyCashPaymentApplications([
+            ['invoice' => $invoice_one, 'amount' => 120.0],
+            ['invoice' => $invoice_two, 'amount' => 120.0],
+        ], '2026-01-10');
+
+        $payment->refund([
+            'id' => $payment->id,
+            'amount' => 90,
+            'invoices' => [
+                ['invoice_id' => $invoice_one->id, 'amount' => 30],
+                ['invoice_id' => $invoice_two->id, 'amount' => 60],
+            ],
+            'date' => '2026-02-05',
+            'gateway_refund' => false,
+            'email_receipt' => false,
+        ]);
+        $february = $this->executeTaxPeriodReportAndSave(
+            'testOneTaxablePaymentAcrossTwoInvoicesReportsDistributedRefundTaxPerInvoice',
+            $this->company,
+            $this->cashPayload('2026-02-01', '2026-02-28'),
+        );
+        $rows = collect(array_slice($february['invoices'], 1));
+        $corrections = TransactionEvent::query()
+            ->where('payment_id', $payment->id)
+            ->where('event_id', TransactionEvent::PAYMENT_REFUNDED)
+            ->get();
+
+        $this->assertCount(2, $rows);
+        $this->assertSame(-90.0, (float) $rows->sum(fn (array $row): float => (float) $row[3]));
+        $this->assertSame(-15.0, (float) $rows->sum(fn (array $row): float => (float) $row[4]));
+        $this->assertSame(-75.0, (float) $rows->sum(fn (array $row): float => (float) $row[5]));
+        $this->assertCount(2, $corrections);
+        $this->assertCount(2, $corrections->pluck('payment_request.source_paymentable_id')->unique());
+    }
+
+    public function testCrossPeriodApplicationDateMoveFollowedByRefundReportsOnlyTheCurrentNetActivity(): void
+    {
+        $this->buildData('15');
+        $invoice = $this->makeTaxedCashInvoice('2026-01-05');
+        [$payment, $paymentables] = $this->applyCashPaymentApplications([
+            ['invoice' => $invoice, 'amount' => 120.0],
+        ], '2026-01-31');
+        $paymentable = $paymentables->first();
+        $timezone = $this->company->timezone()?->name ?: config('app.timezone');
+        $moved_timestamp = app(PaymentApplicationDateResolver::class)->encodeBusinessDate('2026-02-02', $timezone);
+        Paymentable::withTrashed()->where('id', $paymentable->id)->update([
+            'created_at' => $moved_timestamp,
+            'updated_at' => $moved_timestamp,
+        ]);
+        $writer = new InvoiceTransactionEventEntryCash();
+
+        for ($attempt = 0; $attempt < 2; $attempt++) {
+            $writer->reconcileApplicationDateChange(
+                $invoice->id,
+                $payment->id,
+                '2026-01-31',
+                '2026-02-02',
+                [$paymentable->id],
+            );
+        }
+
+        $payment->refund([
+            'id' => $payment->id,
+            'amount' => 30,
+            'invoices' => [['invoice_id' => $invoice->id, 'amount' => 30]],
+            'date' => '2026-02-10',
+            'gateway_refund' => false,
+            'email_receipt' => false,
+        ]);
+        $writer->reconcileApplicationDateChange(
+            $invoice->id,
+            $payment->id,
+            '2026-01-31',
+            '2026-02-02',
+            [$paymentable->id],
+        );
+        $january = $this->executeTaxPeriodReportAndSave(
+            'testCrossPeriodApplicationDateMoveFollowedByRefundReportsOnlyTheCurrentNetActivityJanuary',
+            $this->company,
+            $this->cashPayload('2026-01-01', '2026-01-31'),
+        );
+        $february = $this->executeTaxPeriodReportAndSave(
+            'testCrossPeriodApplicationDateMoveFollowedByRefundReportsOnlyTheCurrentNetActivityFebruary',
+            $this->company,
+            $this->cashPayload('2026-02-01', '2026-02-28'),
+        );
+        $february_rows = collect(array_slice($february['invoices'], 1));
+        $events = TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->whereIn('event_id', [TransactionEvent::PAYMENT_CASH, TransactionEvent::PAYMENT_REFUNDED])
+            ->get();
+
+        $this->assertCount(1, $january['invoices']);
+        $this->assertCount(2, $february_rows);
+        $this->assertSame(15.0, (float) $february_rows->sum(fn (array $row): float => (float) $row[4]));
+        $this->assertSame(75.0, (float) $february_rows->sum(fn (array $row): float => (float) $row[5]));
+        $this->assertCount(4, $events);
+        $this->assertCount(3, $events->filter(fn (TransactionEvent $event): bool => (bool) data_get($event->payment_request, 'tax_correction_kind')));
+    }
+
+    public function testTwoSameDayPartialRefundsThenPaymentDeletionNetTheCashPeriodToZero(): void
+    {
+        $this->buildData('15');
+        $invoice = $this->makeTaxedCashInvoice('2026-03-01');
+        [$payment] = $this->applyCashPaymentApplications([
+            ['invoice' => $invoice, 'amount' => 120.0],
+        ], '2026-03-02');
+        $this->travelTo(\Carbon\CarbonImmutable::parse('2026-03-05 12:00:00', 'UTC'));
+
+        foreach ([20, 30] as $amount) {
+            $payment = $payment->fresh();
+            $payment->refund([
+                'id' => $payment->id,
+                'amount' => $amount,
+                'invoices' => [['invoice_id' => $invoice->id, 'amount' => $amount]],
+                'date' => '2026-03-05',
+                'gateway_refund' => false,
+                'email_receipt' => false,
+            ]);
+        }
+
+        $payment->fresh()->service()->deletePayment();
+        $march = $this->executeTaxPeriodReportAndSave(
+            'testTwoSameDayPartialRefundsThenPaymentDeletionNetTheCashPeriodToZero',
+            $this->company,
+            $this->cashPayload('2026-03-01', '2026-03-31'),
+        );
+        $events = TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->whereIn('event_id', [
+                TransactionEvent::PAYMENT_CASH,
+                TransactionEvent::PAYMENT_REFUNDED,
+                TransactionEvent::PAYMENT_DELETED,
+            ])
+            ->get();
+        $corrections = $events->filter(fn (TransactionEvent $event): bool => (bool) data_get($event->payment_request, 'tax_correction_kind'));
+
+        $this->assertSame(0.0, (float) $events->sum('payment_applied'));
+        $this->assertCount(4, $events);
+        $this->assertCount(2, $events->where('event_id', TransactionEvent::PAYMENT_REFUNDED));
+        $this->assertCount(1, $events->where('event_id', TransactionEvent::PAYMENT_DELETED));
+        $this->assertCount(3, $corrections->pluck('payment_request.correction_key')->unique());
+        $this->assertCount(1, $march['invoices'], json_encode($march['invoices'], JSON_THROW_ON_ERROR));
+    }
+
+    public function testOnePaymentAcrossTwoInvoicesCreatesOneDeletionCorrectionPerApplication(): void
+    {
+        $this->buildData('15');
+        $invoice_one = $this->makeTaxedCashInvoice('2026-01-05');
+        $invoice_two = $this->makeTaxedCashInvoice('2026-01-06');
+        [$payment] = $this->applyCashPaymentApplications([
+            ['invoice' => $invoice_one, 'amount' => 120.0],
+            ['invoice' => $invoice_two, 'amount' => 120.0],
+        ], '2026-01-10');
+        $this->travelTo(\Carbon\CarbonImmutable::parse('2026-02-05 12:00:00', 'UTC'));
+
+        $payment->service()->deletePayment();
+        $february = $this->executeTaxPeriodReportAndSave(
+            'testOnePaymentAcrossTwoInvoicesCreatesOneDeletionCorrectionPerApplication',
+            $this->company,
+            $this->cashPayload('2026-02-01', '2026-02-28'),
+        );
+        $rows = collect(array_slice($february['invoices'], 1));
+        $deletions = TransactionEvent::query()
+            ->where('payment_id', $payment->id)
+            ->where('event_id', TransactionEvent::PAYMENT_DELETED)
+            ->get();
+
+        $this->assertCount(2, $rows);
+        $this->assertSame(-240.0, (float) $rows->sum(fn (array $row): float => (float) $row[3]));
+        $this->assertSame(-40.0, (float) $rows->sum(fn (array $row): float => (float) $row[4]));
+        $this->assertSame(-200.0, (float) $rows->sum(fn (array $row): float => (float) $row[5]));
+        $this->assertCount(2, $deletions);
+        $this->assertSame([-120.0, -120.0], $deletions->pluck('payment_applied')->map(fn (mixed $amount): float => (float) $amount)->sort()->values()->all());
+        $this->assertCount(2, $deletions->pluck('payment_request.source_paymentable_id')->unique());
+    }
+
+    public function testCrossPeriodDeletionAfterPartialRefundReversesOnlyTheRemainingApplication(): void
+    {
+        $this->buildData('15');
+        $invoice = $this->makeTaxedCashInvoice('2026-01-05');
+        [$payment] = $this->applyCashPaymentApplications([
+            ['invoice' => $invoice, 'amount' => 120.0],
+        ], '2026-01-10');
+
+        $payment->refund([
+            'id' => $payment->id,
+            'amount' => 30,
+            'invoices' => [['invoice_id' => $invoice->id, 'amount' => 30]],
+            'date' => '2026-02-05',
+            'gateway_refund' => false,
+            'email_receipt' => false,
+        ]);
+        $february = $this->executeTaxPeriodReportAndSave(
+            'testCrossPeriodDeletionAfterPartialRefundReversesOnlyTheRemainingApplicationFebruary',
+            $this->company,
+            $this->cashPayload('2026-02-01', '2026-02-28'),
+        );
+        $this->travelTo(\Carbon\CarbonImmutable::parse('2026-03-05 12:00:00', 'UTC'));
+        $payment->fresh()->service()->deletePayment();
+        $march = $this->executeTaxPeriodReportAndSave(
+            'testCrossPeriodDeletionAfterPartialRefundReversesOnlyTheRemainingApplicationMarch',
+            $this->company,
+            $this->cashPayload('2026-03-01', '2026-03-31'),
+        );
+        $events = TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->whereIn('event_id', [
+                TransactionEvent::PAYMENT_CASH,
+                TransactionEvent::PAYMENT_REFUNDED,
+                TransactionEvent::PAYMENT_DELETED,
+            ])
+            ->get();
+        $deletion = $events->firstWhere('event_id', TransactionEvent::PAYMENT_DELETED);
+
+        $this->assertCount(2, $february['invoices']);
+        $this->assertSame(-5.0, (float) $february['invoices'][1][4]);
+        $this->assertSame(-25.0, (float) $february['invoices'][1][5]);
+        $this->assertCount(2, $march['invoices']);
+        $this->assertSame(-90.0, (float) $march['invoices'][1][3]);
+        $this->assertSame(-15.0, (float) $march['invoices'][1][4]);
+        $this->assertSame(-75.0, (float) $march['invoices'][1][5]);
+        $this->assertNotNull($deletion);
+        $this->assertSame(-90.0, (float) $deletion->payment_applied);
+        $this->assertSame(0.0, (float) $events->sum('payment_applied'));
+    }
+
+    public function testForeignCurrencyPaymentDeletionUsesTheOriginalExchangeRate(): void
+    {
+        $this->buildData('15');
+        $client_settings = ClientSettings::defaults();
+        $client_settings->currency_id = '2';
+        $this->client->settings = $client_settings;
+        $this->client->save();
+        $invoice = $this->makeTaxedCashInvoice('2026-01-05');
+        [$payment] = $this->applyCashPaymentApplications([
+            ['invoice' => $invoice, 'amount' => 120.0],
+        ], '2026-01-10', 1.5, 2);
+        $this->travelTo(\Carbon\CarbonImmutable::parse('2026-02-05 12:00:00', 'UTC'));
+
+        $payment->service()->deletePayment();
+        $february = $this->executeTaxPeriodReportAndSave(
+            'testForeignCurrencyPaymentDeletionUsesTheOriginalExchangeRate',
+            $this->company,
+            $this->cashPayload('2026-02-01', '2026-02-28'),
+        );
+        $deletion = TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->where('event_id', TransactionEvent::PAYMENT_DELETED)
+            ->firstOrFail();
+
+        $this->assertCount(2, $february['invoices']);
+        $this->assertSame(-120.0, (float) $february['invoices'][1][3]);
+        $this->assertSame(-30.0, (float) $february['invoices'][1][4]);
+        $this->assertSame(-150.0, (float) $february['invoices'][1][5]);
+        $this->assertSame(1.5, (float) data_get($deletion->metadata, 'tax_report.payment_history.0.exchange_rate'));
+        $this->assertSame(2, (int) data_get($deletion->metadata, 'tax_report.payment_history.0.currency_id'));
+    }
+
+    public function testPartiallyPaidInvoiceDeletionAndRestorationReverseOnlyThePaidPortion(): void
+    {
+        $this->buildData('15');
+        $invoice = $this->makeTaxedCashInvoice('2026-01-05');
+        [, $paymentables] = $this->applyCashPaymentApplications([
+            ['invoice' => $invoice, 'amount' => 60.0],
+        ], '2026-01-10');
+        $paymentable = $paymentables->firstOrFail();
+        $this->travelTo(\Carbon\CarbonImmutable::parse('2026-02-05 12:00:00', 'UTC'));
+
+        $invoice = app(InvoiceRepository::class)->delete($invoice->fresh());
+        $february = $this->executeTaxPeriodReportAndSave(
+            'testPartiallyPaidInvoiceDeletionAndRestorationReverseOnlyThePaidPortionFebruary',
+            $this->company,
+            $this->cashPayload('2026-02-01', '2026-02-28'),
+        );
+        $deletion = TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->where('event_id', TransactionEvent::PAYMENT_DELETED)
+            ->where('payment_request->mutation_type', 'invoice_deleted')
+            ->firstOrFail();
+
+        $this->assertCount(2, $february['invoices']);
+        $this->assertSame(-60.0, (float) $february['invoices'][1][3]);
+        $this->assertSame(-10.0, (float) $february['invoices'][1][4]);
+        $this->assertSame(-50.0, (float) $february['invoices'][1][5]);
+        $this->assertSame(-60.0, (float) $deletion->payment_applied);
+        $this->assertSame($paymentable->id, (int) data_get($deletion->payment_request, 'source_paymentable_id'));
+
+        $this->travelTo(\Carbon\CarbonImmutable::parse('2026-03-05 12:00:00', 'UTC'));
+        $invoice = app(InvoiceRepository::class)->restore($invoice->fresh());
+        $march = $this->executeTaxPeriodReportAndSave(
+            'testPartiallyPaidInvoiceDeletionAndRestorationReverseOnlyThePaidPortionMarch',
+            $this->company,
+            $this->cashPayload('2026-03-01', '2026-03-31'),
+        );
+        $restoration = TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->where('event_id', TransactionEvent::PAYMENT_CASH)
+            ->get()
+            ->first(fn (TransactionEvent $event): bool => data_get($event->payment_request, 'mutation_type') === 'invoice_restored');
+
+        $this->assertFalse((bool) $invoice->is_deleted);
+        $this->assertCount(2, $march['invoices']);
+        $this->assertSame(60.0, (float) $march['invoices'][1][3]);
+        $this->assertSame(10.0, (float) $march['invoices'][1][4]);
+        $this->assertSame(50.0, (float) $march['invoices'][1][5]);
+        $this->assertNotNull($restoration);
+        $this->assertSame(60.0, (float) $restoration->payment_applied);
+        $this->assertSame($paymentable->id, (int) data_get($restoration->payment_request, 'source_paymentable_id'));
+    }
+
+    private function makeTaxedCashInvoice(string $invoice_date): Invoice
+    {
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 100;
+        $item->type_id = 1;
+        $item->tax_name1 = 'VAT';
+        $item->tax_rate1 = 20;
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'line_items' => [$item],
+            'status_id' => Invoice::STATUS_SENT,
+            'discount' => 0,
+            'is_amount_discount' => false,
+            'uses_inclusive_taxes' => false,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+            'date' => $invoice_date,
+            'due_date' => \Carbon\Carbon::parse($invoice_date)->addDays(30)->toDateString(),
+        ]);
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->save();
+
+        return $invoice->fresh();
+    }
+
+    /**
+     * @param array<int, array{invoice: Invoice, amount: float}> $allocations
+     * @return array{0: Payment, 1: \Illuminate\Support\Collection<int, Paymentable>}
+     */
+    private function applyCashPaymentApplications(
+        array $allocations,
+        string $application_date,
+        float $exchange_rate = 1.0,
+        ?int $currency_id = null,
+    ): array {
+        $total = array_sum(array_column($allocations, 'amount'));
+        $payment = Payment::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => $total,
+            'applied' => $total,
+            'refunded' => 0,
+            'status_id' => Payment::STATUS_COMPLETED,
+            'exchange_rate' => $exchange_rate,
+            'currency_id' => $currency_id ?? (int) $this->company->settings->currency_id,
+            'date' => $application_date,
+        ]);
+        $timezone = $this->company->timezone()?->name ?: config('app.timezone');
+        $timestamp = app(PaymentApplicationDateResolver::class)->encodeBusinessDate($application_date, $timezone);
+        $paymentables = collect();
+
+        foreach ($allocations as $allocation) {
+            $invoice = $allocation['invoice'];
+            $amount = $allocation['amount'];
+            $invoice->paid_to_date = $amount;
+            $invoice->balance = (float) $invoice->amount - $amount;
+            $invoice->status_id = $invoice->balance <= 0 ? Invoice::STATUS_PAID : Invoice::STATUS_PARTIAL;
+            $invoice->save();
+            $paymentable = new Paymentable();
+            $paymentable->payment_id = $payment->id;
+            $paymentable->paymentable_id = $invoice->id;
+            $paymentable->paymentable_type = 'invoices';
+            $paymentable->amount = $amount;
+            $paymentable->refunded = 0;
+            $paymentable->created_at = $timestamp;
+            $paymentable->updated_at = $timestamp;
+            $paymentable->save();
+            $paymentable = Paymentable::withTrashed()
+                ->where('payment_id', $payment->id)
+                ->where('paymentable_type', 'invoices')
+                ->where('paymentable_id', $invoice->id)
+                ->latest('id')
+                ->firstOrFail();
+            (new InvoiceTransactionEventEntryCash())->runForPaymentable($invoice->fresh(), $paymentable);
+            $paymentables->push($paymentable);
+        }
+
+        return [$payment->fresh(), $paymentables];
+    }
+
+    /** @return array<string, mixed> */
+    private function cashPayload(string $start_date, string $end_date): array
+    {
+        return [
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+            'date_range' => 'custom',
+            'is_income_billed' => false,
+        ];
     }
 }

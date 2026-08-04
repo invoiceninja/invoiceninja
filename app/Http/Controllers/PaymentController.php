@@ -460,7 +460,6 @@ class PaymentController extends BaseController
      */
     public function destroy(DestroyPaymentRequest $request, Payment $payment)
     {
-        $this->france_payment_reporting_mutation_guard->assertUserDeletionAllowed($payment);
         $this->payment_repo->delete($payment);
 
         return $this->itemResponse($payment);
@@ -649,7 +648,6 @@ class PaymentController extends BaseController
                 // code...
                 break;
             case 'delete':
-                $this->france_payment_reporting_mutation_guard->assertUserDeletionAllowed($payment);
                 $this->payment_repo->delete($payment);
 
                 if (! $bulk) {

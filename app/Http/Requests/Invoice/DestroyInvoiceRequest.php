@@ -13,6 +13,8 @@
 namespace App\Http\Requests\Invoice;
 
 use App\Http\Requests\Request;
+use App\Services\EDocument\Standards\France\FrancePaymentReportingMutationGuard;
+use Illuminate\Validation\Validator;
 
 class DestroyInvoiceRequest extends Request
 {
@@ -30,6 +32,22 @@ class DestroyInvoiceRequest extends Request
     public function rules()
     {
         return [];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            if ($validator->errors()->isNotEmpty() || $this->invoice->is_deleted) {
+                return;
+            }
+
+            $violation = app(FrancePaymentReportingMutationGuard::class)
+                ->invoiceDeletionViolation($this->invoice);
+
+            if ($violation) {
+                $validator->errors()->add('id', $violation);
+            }
+        });
     }
 
     public function prepareForValidation()

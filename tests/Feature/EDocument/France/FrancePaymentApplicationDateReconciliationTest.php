@@ -19,13 +19,16 @@ use App\Models\TransactionEvent;
 use App\Services\EDocument\Standards\France\FrancePaymentApplicationDateReconciler;
 use App\Services\EDocument\Standards\France\FrancePaymentApplicationDateResolver;
 use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
+use App\Services\EDocument\Standards\France\FranceEReportCompiler;
 use App\Services\EDocument\Standards\France\FrancePaymentReportingMutationGuard;
+use App\Services\EDocument\Standards\France\FranceSubmissionClaim;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Validation\ValidationException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -165,6 +168,358 @@ class FrancePaymentApplicationDateReconciliationTest extends TestCase
             ->filter(fn(TransactionEvent $event): bool => data_get($event->payment_request, 'fr_kind') === 'payment_date_correction_unsupported');
 
         $this->assertCount(1, $exceptions);
+    }
+
+    public function testSubmittedF10DirectDeleteEndpointsReturnIdValidationAndPreserveState(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->makePaidPaymentApplication('individual', '2026-09-15');
+        $this->recordAppliedMovement($invoice, $payment, $paymentable);
+        $report = $this->reportEvents($invoice)->firstOrFail();
+        $report->payment_status = TransactionEvent::FR_REPORTING_STATUS_SUBMITTED;
+        $report->save();
+        $headers = [
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ];
+
+        $this->withHeaders($headers)
+            ->deleteJson('/api/v1/payments/' . $payment->hashed_id)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('id');
+        $this->withHeaders($headers)
+            ->deleteJson('/api/v1/invoices/' . $invoice->hashed_id)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('id');
+
+        $this->assertFalse((bool) $payment->fresh()->is_deleted);
+        $this->assertFalse((bool) $invoice->fresh()->is_deleted);
+        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_SUBMITTED, $report->fresh()->payment_status);
+        $this->assertCount(1, $this->movementEvents($invoice));
+        $this->assertCount(1, $this->reportEvents($invoice));
+    }
+
+    public function testSubmittedF10BulkDeleteEndpointsReturnIdValidationAndPreserveState(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->makePaidPaymentApplication('individual', '2026-09-15');
+        $this->recordAppliedMovement($invoice, $payment, $paymentable);
+        $report = $this->reportEvents($invoice)->firstOrFail();
+        $report->payment_status = TransactionEvent::FR_REPORTING_STATUS_SUBMITTED;
+        $report->save();
+        $headers = [
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ];
+
+        $this->withHeaders($headers)
+            ->postJson('/api/v1/payments/bulk?action=delete', ['ids' => [$payment->hashed_id]])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('id');
+        $this->withHeaders($headers)
+            ->postJson('/api/v1/invoices/bulk?action=delete', ['ids' => [$invoice->hashed_id]])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('id');
+
+        $this->assertFalse((bool) $payment->fresh()->is_deleted);
+        $this->assertFalse((bool) $invoice->fresh()->is_deleted);
+        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_SUBMITTED, $report->fresh()->payment_status);
+        $this->assertCount(1, $this->movementEvents($invoice));
+        $this->assertCount(1, $this->reportEvents($invoice));
+    }
+
+    public function testBulkDeletionAccumulatesSubmittedAndActiveClaimViolations(): void
+    {
+        [$submitted_invoice, $submitted_payment, $submitted_paymentable] = $this->makePaidPaymentApplication('individual', '2026-09-15');
+        $this->recordAppliedMovement($submitted_invoice, $submitted_payment, $submitted_paymentable);
+        $submitted_report = $this->reportEvents($submitted_invoice)->firstOrFail();
+        $submitted_report->payment_status = TransactionEvent::FR_REPORTING_STATUS_SUBMITTED;
+        $submitted_report->save();
+        [$claimed_invoice, $claimed_payment, $claimed_paymentable] = $this->makePaidPaymentApplication('individual', '2026-09-16');
+        $this->recordAppliedMovement($claimed_invoice, $claimed_payment, $claimed_paymentable);
+        $claimed_report = $this->reportEvents($claimed_invoice)->firstOrFail();
+        $claim = app(FranceSubmissionClaim::class);
+        $token = $claim->claim([$claimed_report->id]);
+        $this->assertNotNull($token);
+        $headers = [
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ];
+
+        try {
+            $invoice_response = $this->withHeaders($headers)->postJson('/api/v1/invoices/bulk?action=delete', [
+                'ids' => [$submitted_invoice->hashed_id, $claimed_invoice->hashed_id],
+            ]);
+            $payment_response = $this->withHeaders($headers)->postJson('/api/v1/payments/bulk?action=delete', [
+                'ids' => [$submitted_payment->hashed_id, $claimed_payment->hashed_id],
+            ]);
+
+            $invoice_response->assertStatus(422)->assertJsonValidationErrors('id');
+            $payment_response->assertStatus(422)->assertJsonValidationErrors('id');
+            $this->assertSame([
+                ctrans('texts.deletion_violation_regulatory'),
+            ], $invoice_response->json('errors.id'));
+            $this->assertEqualsCanonicalizing([
+                'The payment cannot be deleted because its France payment reporting has already been submitted.',
+                'The payment cannot be deleted while its France payment reporting is being submitted.',
+            ], $payment_response->json('errors.id'));
+            $this->assertFalse((bool) $submitted_invoice->fresh()->is_deleted);
+            $this->assertFalse((bool) $claimed_invoice->fresh()->is_deleted);
+            $this->assertFalse((bool) $submitted_payment->fresh()->is_deleted);
+            $this->assertFalse((bool) $claimed_payment->fresh()->is_deleted);
+        } finally {
+            $claim->release([$claimed_report->id], (string) $token);
+        }
+    }
+
+    #[DataProvider('nonFrancePeppolConfigurations')]
+    public function testMutationGuardsReturnEarlyOutsideFrancePeppol(string $country_code, string $e_invoice_type): void
+    {
+        [$invoice, $payment, $paymentable] = $this->makePaidPaymentApplication('individual', '2026-09-15');
+        $this->recordAppliedMovement($invoice, $payment, $paymentable);
+        $report = $this->reportEvents($invoice)->firstOrFail();
+        $report->payment_status = TransactionEvent::FR_REPORTING_STATUS_SUBMITTED;
+        $report->save();
+        $claim = app(FranceSubmissionClaim::class);
+        $token = $claim->claim([$report->id]);
+        $this->assertNotNull($token);
+        $country = Country::query()->where('iso_3166_2', $country_code)->firstOrFail();
+        $settings = $this->company->settings;
+        $settings->country_id = (string) $country->id;
+        $settings->e_invoice_type = $e_invoice_type;
+        $this->company->settings = $settings;
+        $this->company->save();
+        $invoice->unsetRelation('company');
+        $payment->unsetRelation('company');
+        $guard = app(FrancePaymentReportingMutationGuard::class);
+
+        try {
+            $this->assertNull($guard->invoiceDeletionViolation($invoice));
+            $this->assertNull($guard->paymentDeletionViolation($payment));
+            $guard->assertPaymentDateChangeAllowed($payment, '2026-10-01');
+            $guard->assertRefundAllowed($payment);
+            $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_SUBMITTED, $report->fresh()->payment_status);
+        } finally {
+            $claim->release([$report->id], (string) $token);
+        }
+    }
+
+    public function testPendingB2CInvoiceDeletionRemainsAuditableButCannotBeSubmitted(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->makePaidPaymentApplication('individual', '2026-09-15');
+        $this->recordAppliedMovement($invoice, $payment, $paymentable);
+        $report = $this->reportEvents($invoice)->firstOrFail();
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->deleteJson('/api/v1/invoices/' . $invoice->hashed_id)->assertStatus(200);
+
+        $this->assertTrue((bool) $invoice->fresh()->is_deleted);
+        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_PENDING, $report->fresh()->payment_status);
+        $this->assertFalse(
+            app(FranceEReportCompiler::class)
+                ->sourceEvents($this->company, TransactionEvent::FR_REPORT_SUBMISSION_B2C, '2026-09-30')
+                ->contains('id', $report->id),
+        );
+    }
+
+    public function testSubmittedDomesticB2BRefundRecordsOneComplianceExceptionAndPreservesTheAudit(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->makePaidPaymentApplication('business', '2026-09-15');
+        $invoice->backup->guid = 'submitted-domestic-b2b-guid';
+        $invoice->save();
+        $this->recordAppliedMovement($invoice, $payment, $paymentable);
+
+        $notification = $this->notificationEvents($invoice)->firstOrFail();
+        $notification->payment_status = TransactionEvent::FR_REPORTING_STATUS_SUBMITTED;
+        $notification->save();
+        $guard = app(FrancePaymentReportingMutationGuard::class);
+
+        foreach (['payment', 'invoice'] as $mutation) {
+            try {
+                $mutation === 'payment'
+                    ? $guard->assertUserDeletionAllowed($payment)
+                    : $guard->assertInvoiceDeletionAllowed($invoice);
+                $this->fail("A submitted domestic B2B notification must block {$mutation} deletion.");
+            } catch (ValidationException $exception) {
+                $this->assertArrayHasKey('id', $exception->errors());
+            }
+        }
+
+        try {
+            $guard->assertPaymentDateChangeAllowed($payment, '2026-10-02');
+            $this->fail('A submitted domestic B2B notification must block payment date changes.');
+        } catch (ValidationException $exception) {
+            $this->assertArrayHasKey('date', $exception->errors());
+        }
+
+        $guard->assertRefundAllowed($payment);
+        $paymentable->refunded = 200;
+        $paymentable->save();
+        $payment->refunded = 200;
+        $payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
+        $payment->save();
+        $invoice->paid_to_date = 1000;
+        $invoice->balance = 200;
+        $invoice->status_id = Invoice::STATUS_PARTIAL;
+        $invoice->save();
+        $reconciler = app(FrancePaymentApplicationDateReconciler::class);
+        $payment = $payment->fresh()->load(['client.country', 'client.company', 'company']);
+        $invoice = $invoice->fresh()->load(['client.country', 'client.company', 'company']);
+
+        for ($attempt = 0; $attempt < 2; $attempt++) {
+            $reconciler->reconcilePaymentRemoval($payment, $invoice, $paymentable->id, '2026-10-12');
+        }
+
+        $submitted = TransactionEvent::query()->findOrFail($notification->id);
+        $exceptions = TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->where('payment_status', TransactionEvent::FR_REPORTING_STATUS_FAILED)
+            ->get()
+            ->filter(fn(TransactionEvent $event): bool => data_get($event->payment_request, 'fr_kind') === 'payment_date_correction_unsupported');
+        $notifications = $this->notificationEvents($invoice)
+            ->filter(fn(TransactionEvent $event): bool => data_get($event->payment_request, 'fr_kind') === RecordFranceEReportingPayment::KIND_PAYMENT_RECEIVED_NOTIFICATION);
+
+        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_SUBMITTED, $submitted->payment_status);
+        $this->assertSame('2026-09-15', data_get($submitted->payment_request, 'source_date'));
+        $this->assertCount(1, $notifications);
+        $this->assertCount(1, $exceptions);
+        $this->assertStringContainsString(
+            'Storecove does not expose a reversal or date-correction operation',
+            (string) data_get($exceptions->first()->payment_request, 'skip_reason'),
+        );
+    }
+
+    public function testSubmittedF10CorrectiveCanBeFollowedByAnotherIndependentCorrective(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->makePaidPaymentApplication('individual', '2026-09-15');
+        $this->recordAppliedMovement($invoice, $payment, $paymentable);
+        $initial_report = $this->reportEvents($invoice)->firstOrFail();
+        $initial_report->payment_status = TransactionEvent::FR_REPORTING_STATUS_SUBMITTED;
+        $initial_report->save();
+        $payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
+        $payment->refunded = 100;
+        $payment->save();
+        $invoice->paid_to_date = 1100;
+        $invoice->balance = 100;
+        $invoice->status_id = Invoice::STATUS_PARTIAL;
+        $invoice->save();
+
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '-100',
+            '2026-10-12',
+            FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
+            'first-refund',
+        ))->handle();
+
+        $first_corrective = $this->reportEvents($invoice)->last();
+        $first_corrective->payment_status = TransactionEvent::FR_REPORTING_STATUS_SUBMITTED;
+        $first_corrective->save();
+        $payment->refunded = 150;
+        $payment->save();
+        $invoice->paid_to_date = 1050;
+        $invoice->balance = 150;
+        $invoice->save();
+        $second_refund = new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '-50',
+            '2026-11-04',
+            FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
+            'second-refund',
+        );
+
+        $second_refund->handle();
+        $second_refund->handle();
+        $reports = $this->reportEvents($invoice);
+        $second_corrective = $reports->last();
+
+        $this->assertCount(3, $reports);
+        $this->assertSame(-50.0, (float) $second_corrective->payment_applied);
+        $this->assertSame('corrective', data_get($second_corrective->payment_request, 'fr_report_kind'));
+        $this->assertSame((int) $first_corrective->id, (int) data_get($second_corrective->payment_request, 'previous_event_id'));
+        $this->assertSame('2026-11-30', $second_corrective->period->toDateString());
+        $this->assertCount(1, data_get($second_corrective->payment_request, 'source_event_ids'));
+        $this->assertCount(3, $this->movementEvents($invoice));
+    }
+
+    public function testOnePaymentAcrossTwoB2CInvoicesKeepsRefundCorrectionsIsolatedPerInvoice(): void
+    {
+        [$invoice_one, $payment, $paymentable_one] = $this->makePaidPaymentApplication('individual', '2026-09-15');
+        $invoice_two = $invoice_one->replicate();
+        $invoice_two->number = 'FR-MULTI-INVOICE-SECOND';
+        $invoice_two->paid_to_date = $invoice_two->amount;
+        $invoice_two->balance = 0;
+        $invoice_two->status_id = Invoice::STATUS_PAID;
+        $invoice_two->save();
+        $payment->amount = 2400;
+        $payment->applied = 2400;
+        $payment->save();
+        $paymentable_two = new Paymentable();
+        $paymentable_two->payment_id = $payment->id;
+        $paymentable_two->paymentable_id = $invoice_two->id;
+        $paymentable_two->paymentable_type = 'invoices';
+        $paymentable_two->amount = 1200;
+        $paymentable_two->refunded = 0;
+        $paymentable_two->created_at = strtotime('2026-09-15 12:00:00');
+        $paymentable_two->updated_at = strtotime('2026-09-15 12:00:00');
+        $paymentable_two->save();
+        $paymentable_two = Paymentable::withTrashed()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_type', 'invoices')
+            ->where('paymentable_id', $invoice_two->id)
+            ->latest('id')
+            ->firstOrFail();
+
+        (new RecordFranceEReportingPayment($payment->id, $this->company->db))->handle();
+        $initial_one = $this->reportEvents($invoice_one)->firstOrFail();
+        $initial_two = $this->reportEvents($invoice_two)->firstOrFail();
+        $initial_one->payment_status = TransactionEvent::FR_REPORTING_STATUS_SUBMITTED;
+        $initial_one->save();
+        $initial_two->payment_status = TransactionEvent::FR_REPORTING_STATUS_SUBMITTED;
+        $initial_two->save();
+        $payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
+        $payment->refunded = 300;
+        $payment->save();
+        Paymentable::withTrashed()->where('id', $paymentable_one->id)->update(['refunded' => 100]);
+        Paymentable::withTrashed()->where('id', $paymentable_two->id)->update(['refunded' => 200]);
+
+        foreach ([
+            [$invoice_one, $paymentable_one, -100, 1100, 'first-invoice-refund'],
+            [$invoice_two, $paymentable_two, -200, 1000, 'second-invoice-refund'],
+        ] as [$invoice, $paymentable, $amount, $paid_to_date, $mutation_key]) {
+            $invoice->paid_to_date = $paid_to_date;
+            $invoice->balance = 1200 - $paid_to_date;
+            $invoice->status_id = Invoice::STATUS_PARTIAL;
+            $invoice->save();
+            (new RecordFranceEReportingPayment(
+                $payment->id,
+                $this->company->db,
+                $invoice->id,
+                $paymentable->id,
+                (string) $amount,
+                '2026-10-12',
+                FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
+                $mutation_key,
+            ))->handle();
+        }
+
+        $corrective_one = $this->reportEvents($invoice_one)->last();
+        $corrective_two = $this->reportEvents($invoice_two)->last();
+
+        $this->assertSame(-100.0, (float) $corrective_one->payment_applied);
+        $this->assertSame(-200.0, (float) $corrective_two->payment_applied);
+        $this->assertSame((int) $initial_one->id, (int) data_get($corrective_one->payment_request, 'previous_event_id'));
+        $this->assertSame((int) $initial_two->id, (int) data_get($corrective_two->payment_request, 'previous_event_id'));
+        $this->assertSame($paymentable_one->id, data_get($this->movementEvents($invoice_one)->last()->payment_request, 'paymentable_id'));
+        $this->assertSame($paymentable_two->id, data_get($this->movementEvents($invoice_two)->last()->payment_request, 'paymentable_id'));
+        $this->assertCount(2, $this->reportEvents($invoice_one));
+        $this->assertCount(2, $this->reportEvents($invoice_two));
     }
 
     public function testDeletedMovementRetainsItsPaymentableIdentityAfterThePivotIsForceDeleted(): void
@@ -519,6 +874,7 @@ class FrancePaymentApplicationDateReconciliationTest extends TestCase
         $settings->france_reporting_enabled = true;
         $settings->france_reporting_schedule = 'ten_day';
         $settings->currency_id = '3';
+        $settings->e_invoice_type = 'PEPPOL';
         $settings->vat_number = 'FR12345678901';
         $settings->id_number = '12345678900012';
 
@@ -531,5 +887,15 @@ class FrancePaymentApplicationDateReconciliationTest extends TestCase
         $this->company->calculate_taxes = true;
         $this->company->save();
         $this->company = $this->company->fresh();
+    }
+
+    /** @return array<string, array{0: string, 1: string}> */
+    public static function nonFrancePeppolConfigurations(): array
+    {
+        return [
+            'non-France PEPPOL' => ['US', 'PEPPOL'],
+            'France non-PEPPOL' => ['FR', 'EN16931'],
+            'non-France non-PEPPOL' => ['US', 'EN16931'],
+        ];
     }
 }

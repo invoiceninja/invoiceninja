@@ -13,6 +13,7 @@
 namespace App\Services\EDocument\Standards\France;
 
 use App\Jobs\EDocument\RecordFranceEReportingPayment;
+use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Paymentable;
@@ -23,10 +24,23 @@ class FrancePaymentReportingMutationGuard
 {
     public function assertInvoiceDeletionAllowed(Invoice $invoice): void
     {
-        if (app(FranceSubmissionClaim::class)->hasActiveClaimForInvoice($invoice->id)) {
+        $violation = $this->invoiceDeletionViolation($invoice);
+
+        if ($violation) {
             throw ValidationException::withMessages([
-                'id' => ['The invoice cannot be deleted while its France reporting is being submitted.'],
+                'id' => [$violation],
             ]);
+        }
+    }
+
+    public function invoiceDeletionViolation(Invoice $invoice): ?string
+    {
+        if (! $this->appliesToFrancePeppol($invoice->company)) {
+            return null;
+        }
+
+        if (app(FranceSubmissionClaim::class)->hasActiveClaimForInvoice($invoice->id)) {
+            return ctrans('texts.deletion_violation_regulatory');
         }
 
         $submitted = TransactionEvent::query()
@@ -40,15 +54,18 @@ class FrancePaymentReportingMutationGuard
             ->exists();
 
         if ($submitted) {
-            throw ValidationException::withMessages([
-                'id' => ['The invoice cannot be deleted because its France reporting has already been submitted.'],
-            ]);
+            return ctrans('texts.deletion_violation_regulatory');
         }
+
+        return null;
     }
 
     public function assertPaymentDateChangeAllowed(Payment $payment, string $newDate): void
     {
-        if (! $payment->exists || ! $payment->date || $payment->date === $newDate) {
+        if (! $this->appliesToFrancePeppol($payment->company)
+            || ! $payment->exists
+            || ! $payment->date
+            || $payment->date === $newDate) {
             return;
         }
 
@@ -76,6 +93,21 @@ class FrancePaymentReportingMutationGuard
 
     public function assertUserDeletionAllowed(Payment $payment): void
     {
+        $violation = $this->paymentDeletionViolation($payment);
+
+        if ($violation) {
+            throw ValidationException::withMessages([
+                'id' => [$violation],
+            ]);
+        }
+    }
+
+    public function paymentDeletionViolation(Payment $payment): ?string
+    {
+        if (! $this->appliesToFrancePeppol($payment->company)) {
+            return null;
+        }
+
         $paymentableIds = Paymentable::withTrashed()
             ->where('payment_id', $payment->id)
             ->where('paymentable_type', 'invoices')
@@ -84,25 +116,33 @@ class FrancePaymentReportingMutationGuard
             ->all();
 
         if ($this->hasActiveSubmissionClaim($payment, $paymentableIds)) {
-            throw ValidationException::withMessages([
-                'id' => ['The payment cannot be deleted while its France payment reporting is being submitted.'],
-            ]);
+            return 'The payment cannot be deleted while its France payment reporting is being submitted.';
         }
 
         if ($this->hasSubmittedReporting($payment, $paymentableIds)) {
-            throw ValidationException::withMessages([
-                'id' => ['The payment cannot be deleted because its France payment reporting has already been submitted.'],
-            ]);
+            return 'The payment cannot be deleted because its France payment reporting has already been submitted.';
         }
+
+        return null;
+    }
+
+    private function appliesToFrancePeppol(?Company $company): bool
+    {
+        return $company?->country()?->iso_3166_2 === 'FR'
+            && $company->getSetting('e_invoice_type') === 'PEPPOL';
     }
 
     public function assertRefundAllowed(Payment $payment): void
     {
+        if (! $this->appliesToFrancePeppol($payment->company)) {
+            return;
+        }
+
         $paymentableIds = Paymentable::withTrashed()
             ->where('payment_id', $payment->id)
             ->where('paymentable_type', 'invoices')
             ->pluck('id')
-            ->map(fn ($id): int => (int) $id)
+            ->map(fn($id): int => (int) $id)
             ->all();
 
         if ($this->hasActiveSubmissionClaim($payment, $paymentableIds)) {
@@ -124,12 +164,12 @@ class FrancePaymentReportingMutationGuard
         $invoiceIds = Paymentable::withTrashed()
             ->whereIn('id', $paymentableIds)
             ->pluck('paymentable_id')
-            ->map(fn ($id): int => (int) $id)
+            ->map(fn($id): int => (int) $id)
             ->unique()
             ->all();
 
         return collect($invoiceIds)
-            ->contains(fn (int $invoiceId): bool => app(FranceSubmissionClaim::class)->hasActiveClaimForInvoice($invoiceId));
+            ->contains(fn(int $invoiceId): bool => app(FranceSubmissionClaim::class)->hasActiveClaimForInvoice($invoiceId));
     }
 
     /**

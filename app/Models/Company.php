@@ -748,7 +748,8 @@ class Company extends BaseModel
 
     public function getSetting($setting)
     {
-        //todo $this->setting ?? false
+        $setting = $setting ?? '';
+        
         if (property_exists($this->settings, $setting) != false) {
             return $this->settings->{$setting};
         }

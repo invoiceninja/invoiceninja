@@ -3,6 +3,7 @@
 namespace Tests\Unit\FranceEReporting;
 
 use App\DataMapper\CompanySettings;
+use App\DataMapper\ClientSettings;
 use App\Factory\InvoiceItemFactory;
 use App\Models\Client;
 use App\Models\Company;
@@ -18,13 +19,10 @@ class FranceReportEntryBuilderTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $currency = new Currency();
-        $currency->setRawAttributes([
-            'id' => 3,
-            'code' => 'EUR',
-            'precision' => 2,
-        ], true);
-        app()->instance('currencies', collect([$currency]));
+        app()->instance('currencies', collect([
+            $this->currency(3, 'EUR'),
+            $this->currency(1, 'USD'),
+        ]));
     }
 
     public function testB2BIPaymentAllocatesTheFullPaymentAcrossGrossTaxBuckets(): void
@@ -116,6 +114,26 @@ class FranceReportEntryBuilderTest extends TestCase
         $this->assertSame(40, $builder->b2biPayment($payment, $invoice, 40)->taxSubtotals[0]->amountIncludingTax);
     }
 
+    public function testForeignCurrencyInitialAndCorrectivePaymentsRemainInTheInvoiceCurrency(): void
+    {
+        $company = $this->company();
+        $client = $this->client($company, '1');
+        $invoice = $this->invoice($company, $client);
+        $payment = $this->payment($company, $client);
+        $builder = new FranceReportEntryBuilder();
+
+        $initial = $builder->b2cPayment($payment, $invoice, '230', '2026-09-15')->toArray();
+        $corrective = $builder->b2cPayment($payment, $invoice, '-46', '2026-10-12')->toArray();
+        $b2bi = $builder->b2biPayment($payment, $invoice, '230', '2026-09-15')->toArray();
+
+        $this->assertSame(['USD', 'USD'], array_column($initial['taxSubtotal'], 'currency'));
+        $this->assertSame([120, 110], array_column($initial['taxSubtotal'], 'amount'));
+        $this->assertSame(['USD', 'USD'], array_column($corrective['taxSubtotal'], 'currency'));
+        $this->assertSame([-24, -22], array_column($corrective['taxSubtotal'], 'amount'));
+        $this->assertSame(['USD', 'USD'], array_column($b2bi['taxSubtotals'], 'currency'));
+        $this->assertSame(230.0, (float) collect($b2bi['taxSubtotals'])->sum('amountIncludingTax'));
+    }
+
     public function testB2CSupplyCategoryIsInferredAndUnsupportedLinesFailClosed(): void
     {
         $company = $this->company();
@@ -161,7 +179,7 @@ class FranceReportEntryBuilderTest extends TestCase
         return $company;
     }
 
-    private function client(Company $company): Client
+    private function client(Company $company, string $currency_id = '3'): Client
     {
         $client = new Client();
         $client->setRawAttributes([
@@ -169,9 +187,24 @@ class FranceReportEntryBuilderTest extends TestCase
             "company_id" => 1,
             "is_tax_exempt" => false,
         ], true);
+        $settings = ClientSettings::defaults();
+        $settings->currency_id = $currency_id;
+        $client->settings = $settings;
         $client->setRelation("company", $company);
 
         return $client;
+    }
+
+    private function currency(int $id, string $code): Currency
+    {
+        $currency = new Currency();
+        $currency->setRawAttributes([
+            'id' => $id,
+            'code' => $code,
+            'precision' => 2,
+        ], true);
+
+        return $currency;
     }
 
     /**

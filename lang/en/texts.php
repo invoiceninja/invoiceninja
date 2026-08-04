@@ -6306,6 +6306,7 @@ $lang = array(
     'budget_vs_actual' => 'Budget vs Actual',
     'unbilled_work' => 'Unbilled Work',
     'save_for_later' => 'Save for Later',
+    'deletion_violation_regulatory' => 'This document cannot be deleted because it is subject to regulatory reporting requirements.',
 );
 
 return $lang;

@@ -374,6 +374,132 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->assertCount(2, $this->reportEvents($invoice));
     }
 
+    public function testASecondRefundAfterACorrectiveSubmissionCreatesANewCorrectionChainLink(): void
+    {
+        $invoice = $this->makeInvoice(clientCountry: 'FR', classification: 'individual', date: '2026-09-01');
+        $payment = $this->makePayment($invoice->client, '2026-09-15', '1200');
+        $paymentable = $this->makePaymentable($payment, $invoice, '1200', '2026-09-15');
+        $invoice = $this->setInvoicePaymentState($invoice, '1200');
+
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '1200',
+            '2026-09-15',
+        ))->handle();
+
+        $initial_report = $this->reportEvents($invoice)->firstOrFail();
+        $initial_report->payment_status = TransactionEvent::FR_REPORTING_STATUS_SUBMITTED;
+        $initial_report->save();
+        $payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
+        $payment->refunded = 100;
+        $payment->save();
+        $invoice = $this->setInvoicePaymentState($invoice, '1100');
+
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '-100',
+            '2026-10-12',
+            FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
+            'refunded:100',
+        ))->handle();
+
+        $first_corrective = $this->reportEvents($invoice)
+            ->firstOrFail(fn (TransactionEvent $event): bool => data_get($event->payment_request, 'fr_report_kind') === RecordFranceEReportingPayment::REPORT_KIND_CORRECTIVE);
+        $first_corrective->payment_status = TransactionEvent::FR_REPORTING_STATUS_SUBMITTED;
+        $first_corrective->save();
+        $payment->refunded = 150;
+        $payment->save();
+        $invoice = $this->setInvoicePaymentState($invoice, '1050');
+        $second_refund = new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '-50',
+            '2026-11-04',
+            FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
+            'refunded:150',
+        );
+        $second_refund->handle();
+        $second_refund->handle();
+
+        $correctives = $this->reportEvents($invoice)
+            ->filter(fn (TransactionEvent $event): bool => data_get($event->payment_request, 'fr_report_kind') === RecordFranceEReportingPayment::REPORT_KIND_CORRECTIVE)
+            ->values();
+        $second_corrective = $correctives->last();
+
+        $this->assertCount(2, $correctives);
+        $this->assertSame(-50.0, (float) $second_corrective->payment_applied);
+        $this->assertSame('2026-11-30', $second_corrective->period->toDateString());
+        $this->assertSame((int) $first_corrective->id, (int) data_get($second_corrective->payment_request, 'previous_event_id'));
+        $this->assertCount(1, data_get($second_corrective->payment_request, 'source_event_ids'));
+        $this->assertCount(3, $this->reportEvents($invoice));
+        $this->assertCount(3, $this->movementEvents($invoice));
+    }
+
+    public function testOnePaymentAcrossTwoB2CInvoicesCreatesIndependentCorrectiveReports(): void
+    {
+        $invoice_one = $this->makeInvoice(clientCountry: 'FR', classification: 'individual', date: '2026-09-01');
+        $invoice_two = $this->makeInvoice(clientCountry: 'FR', classification: 'individual', date: '2026-09-01', client: $invoice_one->client);
+        $payment = $this->makePayment($invoice_one->client, '2026-09-15', '2400');
+        $paymentable_one = $this->makePaymentable($payment, $invoice_one, '1200', '2026-09-15');
+        $paymentable_two = $this->makePaymentable($payment, $invoice_two, '1200', '2026-09-15');
+        $invoice_one = $this->setInvoicePaymentState($invoice_one, '1200');
+        $invoice_two = $this->setInvoicePaymentState($invoice_two, '1200');
+
+        (new RecordFranceEReportingPayment($payment->id, $this->company->db))->handle();
+
+        $initial_one = $this->reportEvents($invoice_one)->firstOrFail();
+        $initial_two = $this->reportEvents($invoice_two)->firstOrFail();
+        $initial_one->payment_status = TransactionEvent::FR_REPORTING_STATUS_SUBMITTED;
+        $initial_one->save();
+        $initial_two->payment_status = TransactionEvent::FR_REPORTING_STATUS_SUBMITTED;
+        $initial_two->save();
+        $payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
+        $payment->refunded = 300;
+        $payment->save();
+        $paymentable_one->refunded = 100;
+        $paymentable_one->save();
+        $paymentable_two->refunded = 200;
+        $paymentable_two->save();
+        $invoice_one = $this->setInvoicePaymentState($invoice_one, '1100');
+        $invoice_two = $this->setInvoicePaymentState($invoice_two, '1000');
+
+        foreach ([
+            [$invoice_one, $paymentable_one, '-100', 'refund:invoice-one'],
+            [$invoice_two, $paymentable_two, '-200', 'refund:invoice-two'],
+        ] as [$invoice, $paymentable, $amount, $mutation_key]) {
+            (new RecordFranceEReportingPayment(
+                $payment->id,
+                $this->company->db,
+                $invoice->id,
+                $paymentable->id,
+                $amount,
+                '2026-10-12',
+                FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
+                $mutation_key,
+            ))->handle();
+        }
+
+        $corrective_one = $this->reportEvents($invoice_one)->last();
+        $corrective_two = $this->reportEvents($invoice_two)->last();
+
+        $this->assertSame(-100.0, (float) $corrective_one->payment_applied);
+        $this->assertSame(-200.0, (float) $corrective_two->payment_applied);
+        $this->assertSame((int) $initial_one->id, (int) data_get($corrective_one->payment_request, 'previous_event_id'));
+        $this->assertSame((int) $initial_two->id, (int) data_get($corrective_two->payment_request, 'previous_event_id'));
+        $this->assertSame($paymentable_one->id, data_get($this->movementEvents($invoice_one)->last()->payment_request, 'paymentable_id'));
+        $this->assertSame($paymentable_two->id, data_get($this->movementEvents($invoice_two)->last()->payment_request, 'paymentable_id'));
+        $this->assertCount(2, $this->reportEvents($invoice_one));
+        $this->assertCount(2, $this->reportEvents($invoice_two));
+    }
+
     public function testItDoesNotRecordDomesticFrenchBusinessPaymentMovements(): void
     {
         $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
