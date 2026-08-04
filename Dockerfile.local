@@ -3,7 +3,9 @@ FROM invoiceninja/invoiceninja-debian:latest
 WORKDIR /var/www/html
 
 COPY --chown=www-data:www-data . /var/www/html
+COPY --chmod=755 docker/app/link-public-storage.sh /usr/local/bin/link-public-storage.sh
 
 RUN rm -rf /tmp/public \
     && cp -a /var/www/html/public /tmp/public \
-    && chown -R www-data:www-data /var/www/html /tmp/public
+    && chown -R www-data:www-data /var/www/html /tmp/public \
+    && sed -i '/echo "Public Folder is up to date"/i\    /usr/local/bin/link-public-storage.sh' /usr/local/bin/init.sh
