@@ -6307,6 +6307,7 @@ $lang = array(
     'unbilled_work' => 'Unbilled Work',
     'save_for_later' => 'Save for Later',
     'deletion_violation_regulatory' => 'This document cannot be deleted because it is subject to regulatory reporting requirements.',
+    'currency_syrian_pound' => 'Syrian Pound',
 );
 
 return $lang;
