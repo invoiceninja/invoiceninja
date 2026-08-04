@@ -83,7 +83,7 @@ class Charge
                 $data['payment_method_types'] = ['bacs_debit'];
             }
             if ($cgt->gateway_type_id == GatewayType::CREDIT_CARD) {
-                $data['payment_method_types'] = ["card","link"];
+                $data['payment_method_types'] = ['card'];
             }
 
             /* Should improve token billing with client not present */
