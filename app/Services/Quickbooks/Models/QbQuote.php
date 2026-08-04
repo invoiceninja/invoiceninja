@@ -212,7 +212,9 @@ class QbQuote implements SyncInterface
                 $paymentable->paymentable_id = $quote->id;
                 $paymentable->paymentable_type = 'quotes';
                 $paymentable->amount = $transformed['applied'] + $ninja_payment->credits->sum('amount');
-                $paymentable->created_at = $ninja_payment->date; //@phpstan-ignore-line
+                $timezone = $this->service->company->timezone()?->name ?: config('app.timezone');
+                $paymentable->created_at = app(\App\Services\Payment\PaymentApplicationDateResolver::class)
+                    ->encodeBusinessDate($ninja_payment->date, $timezone);
                 $paymentable->save();
 
                 $quote->service()->applyPayment($ninja_payment, $paymentable->amount);

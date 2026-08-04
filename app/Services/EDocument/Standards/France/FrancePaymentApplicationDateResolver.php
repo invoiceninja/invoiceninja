@@ -4,9 +4,9 @@ namespace App\Services\EDocument\Standards\France;
 
 use App\Models\Payment;
 use App\Models\Paymentable;
-use Carbon\CarbonImmutable;
+use App\Services\Payment\PaymentApplicationDateResolver;
 
-class FrancePaymentApplicationDateResolver
+class FrancePaymentApplicationDateResolver extends PaymentApplicationDateResolver
 {
     public function latestCompletedInvoiceApplication(int $invoice_id): ?Paymentable
     {
@@ -26,20 +26,4 @@ class FrancePaymentApplicationDateResolver
         return $paymentable?->payment ? $paymentable : null;
     }
 
-    public function resolve(?Paymentable $paymentable, ?string $paymentDate, string $timezone): ?string
-    {
-        if (! $paymentable?->created_at) {
-            return null;
-        }
-
-        $applicationDate = is_numeric($paymentable->created_at)
-            ? CarbonImmutable::createFromTimestamp((int) $paymentable->created_at, 'UTC')
-            : CarbonImmutable::parse($paymentable->created_at, 'UTC');
-
-        if ($paymentDate && $applicationDate->toDateString() === $paymentDate) {
-            return $paymentDate;
-        }
-
-        return $applicationDate->setTimezone($timezone)->toDateString();
-    }
 }

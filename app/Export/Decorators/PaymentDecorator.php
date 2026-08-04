@@ -14,6 +14,7 @@ namespace App\Export\Decorators;
 
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Services\Payment\PaymentApplicationDateResolver;
 
 class PaymentDecorator extends Decorator implements DecoratorInterface
 {
@@ -108,9 +109,9 @@ class PaymentDecorator extends Decorator implements DecoratorInterface
             return '';
         }
 
-        $ts = $paymentable->created_at;
+        $timezone = $payment->company->timezone()?->name ?: config('app.timezone');
 
-        return $ts ? \Carbon\Carbon::createFromTimestamp($ts)->setTimezone($payment->company->timezone()->name)->format('Y-m-d') : '';
+        return app(PaymentApplicationDateResolver::class)->resolve($paymentable, $timezone) ?? '';
     }
 
     public function applied_amount(Payment $payment)

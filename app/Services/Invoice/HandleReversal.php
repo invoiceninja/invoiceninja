@@ -13,12 +13,15 @@
 namespace App\Services\Invoice;
 
 use App\Events\Invoice\InvoiceWasReversed;
+use App\Listeners\Invoice\InvoiceTransactionEventEntryCash;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Paymentable;
+use App\Models\TransactionEvent;
 use App\Services\AbstractService;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
+use Illuminate\Support\Str;
 
 class HandleReversal extends AbstractService
 {
@@ -45,14 +48,33 @@ class HandleReversal extends AbstractService
         /*Adjust payment applied and the paymentables to the correct amount */
         $paymentables = Paymentable::query()->wherePaymentableType('invoices')
                                     ->wherePaymentableId($this->invoice->id)
+                                    ->with(['payment' => fn ($query) => $query->withTrashed()])
                                     ->get();
+        $effective_date = now($this->invoice->company->timezone()?->name ?: config('app.timezone'))->toDateString();
+        $mutation_key = 'invoice_reversed:'.Str::uuid();
+        $tax_event_snapshots = [];
 
-        $paymentables->each(function ($paymentable) use ($total_paid) {
+        $paymentables->each(function (Paymentable $paymentable) use ($total_paid, $effective_date, $mutation_key, &$tax_event_snapshots): void {
             //new concept - when reversing, we unwind the payments
             $payment = Payment::withTrashed()->find($paymentable->payment_id);
 
             $reversable_amount = $paymentable->amount - $paymentable->refunded;
             $total_paid -= $reversable_amount;
+
+            if ($payment && abs((float) $reversable_amount) >= 0.0001) {
+                $source = app(InvoiceTransactionEventEntryCash::class)
+                    ->runForPaymentable($this->invoice, $paymentable);
+
+                if ($source) {
+                    $tax_event_snapshots[] = [
+                        'source_event_id' => $source->id,
+                        'paymentable_id' => $paymentable->id,
+                        'amount' => abs((float) $reversable_amount),
+                        'effective_date' => $effective_date,
+                        'correction_key' => sha1("{$mutation_key}|{$paymentable->id}"),
+                    ];
+                }
+            }
 
             $payment->applied -= $reversable_amount;
             $payment->save();
@@ -60,6 +82,28 @@ class HandleReversal extends AbstractService
             $paymentable->amount = $paymentable->refunded;
             $paymentable->save();
         });
+
+        foreach ($tax_event_snapshots as $snapshot) {
+            $source = TransactionEvent::query()->find($snapshot['source_event_id']);
+
+            if (! $source) {
+                throw new \RuntimeException('Invoice reversal tax source event is unavailable.');
+            }
+
+            app(InvoiceTransactionEventEntryCash::class)->writeCorrection(
+                source: $source,
+                effective_date: $snapshot['effective_date'],
+                sign: -1,
+                kind: 'payment_deleted',
+                correction_key: $snapshot['correction_key'],
+                context: [
+                    'mutation_key' => $mutation_key,
+                    'mutation_type' => 'invoice_reversed',
+                    'invoice_id' => $this->invoice->id,
+                ],
+                amount: $snapshot['amount'],
+            );
+        }
 
         /* Generate a credit for the $total_paid amount */
         $notes = 'Credit for reversal of ' . $this->invoice->number;

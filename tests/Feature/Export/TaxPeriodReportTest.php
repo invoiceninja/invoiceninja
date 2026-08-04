@@ -18,6 +18,8 @@ use App\Models\Client;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\Paymentable;
 use App\Utils\Traits\MakesHash;
 use App\Models\TransactionEvent;
 use App\DataMapper\CompanySettings;
@@ -25,7 +27,6 @@ use App\Factory\InvoiceItemFactory;
 use App\Services\Report\TaxPeriodReport;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use App\Listeners\Invoice\InvoiceTransactionEventEntry;
-use App\Listeners\Payment\PaymentTransactionEventEntry;
 use App\Listeners\Invoice\InvoiceTransactionEventEntryCash;
 use App\Repositories\InvoiceRepository;
 use Illuminate\Queue\Middleware\Skip;
@@ -970,15 +971,19 @@ class TaxPeriodReportTest extends TestCase
         $this->assertEquals(330, $payment->applied);
         $this->assertEquals(330, $payment->amount);
 
-        $this->assertEquals(110, $te->first()->payment_refunded);
-        $this->assertEquals(330, $te->first()->payment_applied);
-        $this->assertEquals(330, $te->first()->payment_amount);
-        $this->assertEquals(220, $te->first()->invoice_paid_to_date);
-        $this->assertEquals(110, $te->first()->invoice_balance);
+        $source_event = $te->firstWhere('event_id', TransactionEvent::PAYMENT_CASH);
+        $refund_event = $te->firstWhere('event_id', TransactionEvent::PAYMENT_REFUNDED);
+        $this->assertNotNull($source_event);
+        $this->assertNotNull($refund_event);
+        $this->assertEquals(0, $source_event->payment_refunded);
+        $this->assertEquals(330, $source_event->payment_applied);
+        $this->assertEquals(110, $refund_event->payment_refunded);
+        $this->assertEquals(-110, $refund_event->payment_applied);
+        $this->assertEquals(-110, $refund_event->invoice_paid_to_date);
 
         // Verify report data structure for cash accounting with refund
-        $this->assertCount(2, $data['invoices']); // Header + payment row + refund row
-        $this->assertCount(2, $data['invoice_items']); // Header + payment row + refund row
+        $this->assertCount(2, $data['invoices']); // Header + net same-period activity
+        $this->assertCount(2, $data['invoice_items']); // Header + net same-period activity
 
         // Verify payment row (index 1)
         $payment_report = $data['invoices'][1];
@@ -1105,8 +1110,6 @@ class TaxPeriodReportTest extends TestCase
         $invoice = $invoice->fresh();
         $payment = $invoice->payments()->first();
 
-        (new PaymentTransactionEventEntry($payment, [$invoice->id], $payment->company->db, 110, false))->handle();
-
         $this->travelTo(\Carbon\Carbon::createFromDate(2025, 12, 02)->startOfDay());
 
         $invoice = $invoice->fresh();
@@ -1131,7 +1134,7 @@ class TaxPeriodReportTest extends TestCase
         $invoice_report = $data['invoices'][1];
         $this->assertNotNull($invoice_report);
         $this->assertEquals(330, $invoice_report[2]); // Refund amount (negative)
-        $this->assertEquals(220, $invoice_report[3]); // Refunded amount (negative)
+        $this->assertEquals(-110, $invoice_report[3]); // Refund activity in this period
         $this->assertEquals(-10, $invoice_report[4]); // Tax refunded (negative)
         $this->assertEquals(-100, $invoice_report[5]); // Taxable refunded (negative)
         $this->assertIsString($invoice_report[6]); // Status should be a string
@@ -1175,6 +1178,105 @@ class TaxPeriodReportTest extends TestCase
         $this->assertIsString($combined_adjustment_report[6]); // Status should be a string
 
         nlog($data);
+    }
+
+    public function testRefundAcrossMultipleInvoicesCreatesOneCorrectionPerApplication(): void
+    {
+        $this->buildData();
+
+        $invoices = collect([100, 200])->map(function (int $cost): Invoice {
+            $item = InvoiceItemFactory::create();
+            $item->quantity = 1;
+            $item->cost = $cost;
+            $item->tax_name1 = '';
+            $item->tax_rate1 = 0;
+            $item->tax_name2 = '';
+            $item->tax_rate2 = 0;
+            $item->tax_name3 = '';
+            $item->tax_rate3 = 0;
+
+            $invoice = Invoice::factory()->create([
+                'client_id' => $this->client->id,
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+                'line_items' => [$item],
+                'status_id' => Invoice::STATUS_PAID,
+                'discount' => 0,
+                'uses_inclusive_taxes' => false,
+                'tax_name1' => '',
+                'tax_rate1' => 0,
+                'tax_name2' => '',
+                'tax_rate2' => 0,
+                'tax_name3' => '',
+                'tax_rate3' => 0,
+            ]);
+            $invoice = $invoice->calc()->getInvoice();
+            $invoice->balance = 0;
+            $invoice->paid_to_date = $invoice->amount;
+            $invoice->save();
+
+            return $invoice;
+        });
+        $payment = Payment::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 300,
+            'applied' => 300,
+            'refunded' => 0,
+            'status_id' => Payment::STATUS_COMPLETED,
+            'is_deleted' => false,
+            'exchange_rate' => 1,
+            'currency_id' => $this->company->settings->currency_id,
+            'date' => now()->toDateString(),
+        ]);
+
+        foreach ($invoices as $invoice) {
+            $payment->invoices()->attach($invoice->id, [
+                'amount' => $invoice->amount,
+                'refunded' => 0,
+            ]);
+            $paymentable = Paymentable::query()
+                ->where('payment_id', $payment->id)
+                ->where('paymentable_type', 'invoices')
+                ->where('paymentable_id', $invoice->id)
+                ->firstOrFail();
+            (new InvoiceTransactionEventEntryCash())->runForPaymentable($invoice, $paymentable);
+        }
+
+        $payment->refund([
+            'id' => $payment->id,
+            'amount' => 120,
+            'invoices' => [
+                ['invoice_id' => $invoices[0]->id, 'amount' => 50],
+                ['invoice_id' => $invoices[1]->id, 'amount' => 70],
+            ],
+            'date' => now()->toDateString(),
+            'gateway_refund' => false,
+            'email_receipt' => false,
+        ]);
+
+        $corrections = TransactionEvent::query()
+            ->where('payment_id', $payment->id)
+            ->where('event_id', TransactionEvent::PAYMENT_REFUNDED)
+            ->orderBy('id')
+            ->get();
+
+        $this->assertCount(2, $corrections);
+        $this->assertSame(-120.0, (float) $corrections->sum('payment_applied'));
+        $this->assertCount(2, $corrections->pluck('payment_request.source_paymentable_id')->unique());
+        $this->assertSame(
+            [50.0, 70.0],
+            Paymentable::query()
+                ->where('payment_id', $payment->id)
+                ->where('paymentable_type', 'invoices')
+                ->orderBy('paymentable_id')
+                ->pluck('refunded')
+                ->map(fn ($amount): float => (float) $amount)
+                ->sort()
+                ->values()
+                ->all(),
+        );
     }
 
     // ========================================
@@ -1835,6 +1937,101 @@ class TaxPeriodReportTest extends TestCase
     // PAYMENT DELETION TESTS
     // ========================================
 
+    public function testPaidInvoiceDeletionAndRestorationCreateCashCorrections(): void
+    {
+        $this->buildData();
+        $this->travelTo(\Carbon\Carbon::create(2025, 10, 10, 12));
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 300;
+        $item->tax_name1 = 'GST';
+        $item->tax_rate1 = 10;
+
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'line_items' => [$item],
+            'status_id' => Invoice::STATUS_DRAFT,
+            'discount' => 0,
+            'is_amount_discount' => false,
+            'uses_inclusive_taxes' => false,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+            'date' => '2025-10-10',
+            'due_date' => '2025-11-10',
+        ]);
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->service()->markSent()->markPaid()->save();
+
+        $october = $this->executeTaxPeriodReportAndSave(
+            'testPaidInvoiceDeletionAndRestorationCreateCashCorrectionsOctober',
+            $this->company,
+            [
+                'start_date' => '2025-10-01',
+                'end_date' => '2025-10-31',
+                'date_range' => 'custom',
+                'is_income_billed' => false,
+            ],
+            false,
+        );
+        $this->assertSame(30.0, (float) $october['invoices'][1][4]);
+
+        $this->travelTo(\Carbon\Carbon::create(2025, 11, 5, 12));
+        $invoice = app(\App\Repositories\InvoiceRepository::class)->delete($invoice->fresh());
+        $deletion = $invoice->transaction_events()
+            ->where('event_id', TransactionEvent::PAYMENT_DELETED)
+            ->latest('id')
+            ->first();
+
+        $this->assertNotNull($deletion);
+        $this->assertSame(-330.0, (float) $deletion->payment_applied);
+        $this->assertSame('2025-10-31', data_get($deletion->payment_request, 'source_period'));
+
+        $november = $this->executeTaxPeriodReportAndSave(
+            'testPaidInvoiceDeletionAndRestorationCreateCashCorrectionsNovember',
+            $this->company,
+            [
+                'start_date' => '2025-11-01',
+                'end_date' => '2025-11-30',
+                'date_range' => 'custom',
+                'is_income_billed' => false,
+            ],
+            false,
+        );
+        $this->assertSame(-30.0, (float) $november['invoices'][1][4]);
+
+        $this->travelTo(\Carbon\Carbon::create(2025, 12, 5, 12));
+        $invoice = app(\App\Repositories\InvoiceRepository::class)->restore($invoice->fresh());
+        $restoration = $invoice->transaction_events()
+            ->where('event_id', TransactionEvent::PAYMENT_CASH)
+            ->get()
+            ->first(fn (TransactionEvent $event): bool => data_get($event->payment_request, 'mutation_type') === 'invoice_restored');
+
+        $this->assertNotNull($restoration);
+        $this->assertSame(330.0, (float) $restoration->payment_applied);
+
+        $december = $this->executeTaxPeriodReportAndSave(
+            'testPaidInvoiceDeletionAndRestorationCreateCashCorrectionsDecember',
+            $this->company,
+            [
+                'start_date' => '2025-12-01',
+                'end_date' => '2025-12-31',
+                'date_range' => 'custom',
+                'is_income_billed' => false,
+            ],
+            false,
+        );
+        $this->assertSame(30.0, (float) $december['invoices'][1][4]);
+
+        $this->travelBack();
+    }
+
     /**
      * Test: Payment deleted in same period as payment (cash accounting)
      * Expected: No net effect on that period
@@ -1987,14 +2184,6 @@ class TaxPeriodReportTest extends TestCase
 
         $this->assertTrue($payment->is_deleted);
 
-        (new \App\Listeners\Payment\PaymentTransactionEventEntry(
-            $payment,
-            [$invoice->id],
-            $this->company->db,
-            0,
-            true
-        ))->handle();
-        
         $payment_deleted_event = $invoice->fresh()->transaction_events()->where('event_id', 3)->first();
 
         $this->assertNotNull($payment_deleted_event);
@@ -2022,7 +2211,7 @@ class TaxPeriodReportTest extends TestCase
 
         $this->assertNotNull($nov_deletion_report);
         $this->assertEquals(330, $nov_deletion_report[2]); //  amount (reversal)
-        $this->assertEquals(0, $nov_deletion_report[3]); //  paid (reversal)
+        $this->assertEquals(-330, $nov_deletion_report[3]); // Payment application reversed in this period
         $this->assertEquals(-30, $nov_deletion_report[4]); // Negative GST (reversal)
         $this->assertEquals(-300, $nov_deletion_report[5]); // Negative taxable (reversal)
         $this->assertIsString($nov_deletion_report[6]); // Status should be a string
@@ -2086,8 +2275,6 @@ class TaxPeriodReportTest extends TestCase
 
         $payment = $invoice->payments()->first();
         $payment->service()->deletePayment();
-
-        (new PaymentTransactionEventEntry($payment->refresh(), [$invoice->id], $payment->company->db, 0, true))->handle();
 
         $this->travelTo(\Carbon\Carbon::createFromDate(2025, 12, 1)->startOfDay());
 
@@ -2756,8 +2943,6 @@ class TaxPeriodReportTest extends TestCase
         ])->postJson('/api/v1/payments/refund', $refund_data);
 
         $response->assertStatus(200);
-
-        (new PaymentTransactionEventEntry($payment->refresh(), [$invoice->id], $payment->company->db, 165, false))->handle();
 
         // Should have: PAYMENT_CASH (from December) + PAYMENT_REFUNDED (from January refund)
         $this->assertEquals(2, $invoice->fresh()->transaction_events()

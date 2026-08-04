@@ -61,7 +61,7 @@ class PurchaseOrderTransformer extends BaseTransformer
 
         $transformed = [
             'company_id' => $this->company->id,
-            'number' => $this->getString($purchase_order_data, 'purchase_order.number'),
+            'number' => $this->getString($purchase_order_data, 'purchase_order.number', null),
             'user_id' => $this->getString($purchase_order_data, 'purchase_order.user_id'),
             'amount' => ($amount = $this->getFloat(
                 $purchase_order_data,

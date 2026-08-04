@@ -23,6 +23,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Paymentable;
 use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
+use App\Services\Payment\PaymentApplicationDateResolver;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
@@ -96,16 +97,7 @@ class PaymentRepository extends BaseRepository
             ->where('payment_id', $payment->id)
             ->get()
             ->filter(function (Paymentable $paymentable) use ($original_date, $timezone): bool {
-                if (! $paymentable->created_at) {
-                    return false;
-                }
-
-                $created_at = is_numeric($paymentable->created_at) // @php-ignore-line
-                    ? Carbon::createFromTimestamp((int) $paymentable->created_at)
-                    : Carbon::parse($paymentable->created_at);
-
-                return $created_at->toDateString() === $original_date
-                    || $created_at->copy()->setTimezone($timezone)->toDateString() === $original_date;
+                return app(PaymentApplicationDateResolver::class)->resolve($paymentable, $timezone) === $original_date;
             })
             ->values();
     }
@@ -124,10 +116,8 @@ class PaymentRepository extends BaseRepository
 
         $moved_paymentables = collect();
         $timezone = $payment->company->timezone()?->name ?: config('app.timezone');
-        $application_timestamp = Carbon::parse($payment->date, $timezone)
-            ->startOfDay()
-            ->utc()
-            ->timestamp;
+        $application_timestamp = app(PaymentApplicationDateResolver::class)
+            ->encodeBusinessDate($payment->date, $timezone);
 
         foreach ($paymentables as $paymentable) {
             $paymentable->created_at = $application_timestamp;
@@ -235,7 +225,10 @@ class PaymentRepository extends BaseRepository
                     $paymentable->paymentable_id = $invoice->id;
                     $paymentable->paymentable_type = 'invoices';
                     $paymentable->amount = $paid_invoice['amount'];
-                    $paymentable->created_at = $is_existing_payment ? now()->setTimezone($payment->company->timezone()->name) : $payment->date ?? now()->setTimezone($payment->company->timezone()->name) ; //@phpstan-ignore-line
+                    $timezone = $payment->company->timezone()?->name ?: config('app.timezone');
+                    $paymentable->created_at = $is_existing_payment
+                        ? now('UTC')->timestamp
+                        : app(PaymentApplicationDateResolver::class)->encodeBusinessDate($payment->date ?? now($timezone)->toDateString(), $timezone);
                     $paymentable->save();
 
                     $invoice = $invoice->service()
@@ -282,7 +275,10 @@ class PaymentRepository extends BaseRepository
                     $paymentable->paymentable_id = $credit->id;
                     $paymentable->paymentable_type = Credit::class;
                     $paymentable->amount = $paid_credit['amount'];
-                    $paymentable->created_at = $is_existing_payment ? now()->setTimezone($payment->company->timezone()->name) : $payment->date ?? now()->setTimezone($payment->company->timezone()->name) ; //@phpstan-ignore-line
+                    $timezone = $payment->company->timezone()?->name ?: config('app.timezone');
+                    $paymentable->created_at = $is_existing_payment
+                        ? now('UTC')->timestamp
+                        : app(PaymentApplicationDateResolver::class)->encodeBusinessDate($payment->date ?? now($timezone)->toDateString(), $timezone);
                     $paymentable->save();
 
                     $credit = $credit->service()->markSent()->save();

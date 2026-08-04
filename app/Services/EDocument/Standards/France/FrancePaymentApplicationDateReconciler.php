@@ -615,7 +615,7 @@ class FrancePaymentApplicationDateReconciler
         $timezone = $payment->company->timezone()?->name ?: config('app.timezone');
 
         return app(FrancePaymentApplicationDateResolver::class)
-            ->resolve($paymentable, $payment->date, $timezone)
+            ->resolve($paymentable, $timezone)
             ?? throw new InvalidArgumentException('Payment application date is unavailable.');
     }
 

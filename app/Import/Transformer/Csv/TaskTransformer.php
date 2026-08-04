@@ -53,7 +53,7 @@ class TaskTransformer extends BaseTransformer
 
         $transformed = [
             'company_id' => $this->company->id,
-            'number' => $this->getString($task_data, 'task.number'),
+            'number' => $this->getString($task_data, 'task.number', null),
             'user_id' => $this->getString($task_data, 'task.user_id'),
             'rate' => $this->getFloat($task_data, 'task.rate'),
             'client_id' => $clientId,

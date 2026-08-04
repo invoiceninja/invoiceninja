@@ -315,7 +315,7 @@ class RecordFranceEReportingPayment implements ShouldQueue
             $timezone = $payment->company->timezone()?->name ?: config('app.timezone');
 
             return app(FrancePaymentApplicationDateResolver::class)
-                ->resolve($paymentable, $payment->date, $timezone);
+                ->resolve($paymentable, $timezone);
         }
 
         if (! is_null($this->movementDate) && trim($this->movementDate) !== '') {
@@ -326,7 +326,7 @@ class RecordFranceEReportingPayment implements ShouldQueue
             $timezone = $payment->company->timezone()?->name ?: config('app.timezone');
 
             return app(FrancePaymentApplicationDateResolver::class)
-                ->resolve($paymentable, $payment->date, $timezone);
+                ->resolve($paymentable, $timezone);
         }
 
         return null;
@@ -374,7 +374,7 @@ class RecordFranceEReportingPayment implements ShouldQueue
         $payment = $paymentable->payment;
         $timezone = $invoice->company->timezone()?->name ?: config('app.timezone');
         $movementDate = app(FrancePaymentApplicationDateResolver::class)
-            ->resolve($paymentable, $payment->date, $timezone);
+            ->resolve($paymentable, $timezone);
 
         if (! $movementDate) {
             return null;

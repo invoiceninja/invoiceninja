@@ -173,7 +173,7 @@ class FrancePaymentApplicationRecorder
     {
         $timezone = $payment->company->timezone()?->name ?: config('app.timezone');
 
-        return app(FrancePaymentApplicationDateResolver::class)->resolve($paymentable, $payment->date, $timezone);
+        return app(FrancePaymentApplicationDateResolver::class)->resolve($paymentable, $timezone);
     }
 
     private function isZero(int|float|string $amount): bool

@@ -58,7 +58,7 @@ class QuoteTransformer extends BaseTransformer
 
         $transformed = [
             'company_id' => $this->company->id,
-            'number' => $this->getString($quote_data, 'quote.number'),
+            'number' => $this->getString($quote_data, 'quote.number', null),
             'user_id' => $this->getString($quote_data, 'quote.user_id'),
             'amount' => ($amount = $this->getFloat(
                 $quote_data,

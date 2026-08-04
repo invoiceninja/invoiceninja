@@ -59,7 +59,7 @@ class RecurringInvoiceTransformer extends BaseTransformer
 
         $transformed = [
             'company_id' => $this->company->id,
-            'number' => $this->getString($invoice_data, 'invoice.number'),
+            'number' => $this->getString($invoice_data, 'invoice.number', null),
             'user_id' => $this->getString($invoice_data, 'invoice.user_id'),
             'amount' => ($amount = $this->getFloat(
                 $invoice_data,

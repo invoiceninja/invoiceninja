@@ -268,9 +268,14 @@ class UpdatePaymentTest extends TestCase
             ->get()
             ->first(fn (TransactionEvent $transactionEvent): bool => data_get($transactionEvent->payment_request, 'fr_kind') === RecordFranceEReportingPayment::KIND_REPORT);
 
-        $this->assertCount(1, $cashEvents);
-        $this->assertSame('2026-09-30', $cashEvents->first()->period->toDateString());
-        $this->assertSame('2026-09-01', data_get($cashEvents->first()->metadata, 'tax_report.payment_history.0.date'));
+        $this->assertCount(3, $cashEvents);
+        $source_event = $cashEvents->first(fn (TransactionEvent $event): bool => ! data_get($event->payment_request, 'tax_correction_kind'));
+        $remove_event = $cashEvents->first(fn (TransactionEvent $event): bool => data_get($event->payment_request, 'direction') === 'remove');
+        $apply_event = $cashEvents->first(fn (TransactionEvent $event): bool => data_get($event->payment_request, 'direction') === 'apply');
+        $this->assertSame('2026-08-31', $source_event->period->toDateString());
+        $this->assertSame('2026-08-31', $remove_event->period->toDateString());
+        $this->assertSame('2026-09-30', $apply_event->period->toDateString());
+        $this->assertSame('2026-09-01', data_get($apply_event->metadata, 'tax_report.payment_history.0.date'));
         $this->assertNotNull($franceReport);
         $this->assertSame('2026-09-30', $franceReport->period->toDateString());
         $this->assertSame('2026-09-01', data_get($franceReport->payment_request, 'source_date'));

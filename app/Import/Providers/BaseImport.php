@@ -833,14 +833,6 @@ class BaseImport
                                         )
                                     );
 
-                                    $payment_date = Carbon::parse($payment->date);
-
-                                    if (!$payment_date->isToday()) {
-
-                                        $payment->paymentables()->update(['created_at' => $payment_date]);
-
-                                    }
-
                                 }
                             }
                         }

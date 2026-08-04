@@ -39,7 +39,7 @@ class PaymentTransformer extends BaseTransformer
 
         $transformed = [
             'company_id' => $this->company->id,
-            'number' => $this->getString($data, 'payment.number'),
+            'number' => $this->getString($data, 'payment.number', null),
             'user_id' => $this->getString($data, 'payment.user_id'),
             'amount' => $this->getFloat($data, 'payment.amount'),
             'refunded' => $this->getFloat($data, 'payment.refunded'),

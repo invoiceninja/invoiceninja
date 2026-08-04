@@ -1262,7 +1262,9 @@ class QbInvoice implements SyncInterface
             $paymentable->paymentable_id = $invoice->id;
             $paymentable->paymentable_type = 'invoices';
             $paymentable->amount = $amount;
-            $paymentable->created_at = $ninja_payment->date; //@phpstan-ignore-line
+            $timezone = $this->service->company->timezone()?->name ?: config('app.timezone');
+            $paymentable->created_at = app(\App\Services\Payment\PaymentApplicationDateResolver::class)
+                ->encodeBusinessDate($ninja_payment->date, $timezone);
             $paymentable->save();
 
             $invoice->service()->applyPayment($ninja_payment, $paymentable->amount);

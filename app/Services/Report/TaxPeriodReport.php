@@ -34,6 +34,7 @@ use App\Services\Report\TaxPeriod\InvoiceReportRow;
 use App\Services\Report\TaxPeriod\InvoiceItemReportRow;
 use App\Services\Report\TaxPeriod\RegionalTaxCalculator;
 use App\Services\Report\TaxPeriod\SalesBreakdownCalculator;
+use App\Services\Report\TaxPeriod\CashTaxEventProjector;
 use App\Services\Report\TaxPeriod\RegionalTaxCalculatorFactory;
 use App\DataMapper\TaxReport\PaymentHistory;
 
@@ -835,7 +836,7 @@ class TaxPeriodReport extends BaseExport
 
         $this->streamQuery($query)->each(function ($invoice) {
 
-            $invoice->transaction_events()
+            $events = $invoice->transaction_events()
             ->when(!$this->cash_accounting, function ($query) {
                 $query->where('event_id', TransactionEvent::INVOICE_UPDATED);
             })
@@ -844,8 +845,20 @@ class TaxPeriodReport extends BaseExport
             })
             ->whereBetween('period', [$this->start_date, $this->end_date])
             ->orderBy('timestamp', 'desc')
-            ->lazy(500)
-            ->each(function ($event) use ($invoice) {
+            ->get();
+
+            if ($this->cash_accounting) {
+                if ($events->contains(fn (TransactionEvent $event): bool => data_get($event->payment_request, 'mutation_type') === 'invoice_reversed')) {
+                    $events = $events->reject(
+                        fn (TransactionEvent $event): bool => $event->event_id === TransactionEvent::INVOICE_UPDATED
+                            && ($event->metadata->tax_report->tax_summary->status ?? null) === 'reversed',
+                    );
+                }
+
+                $events = app(CashTaxEventProjector::class)->aggregateForFilingPeriod($events);
+            }
+
+            $events->each(function ($event) use ($invoice) {
                 /** @var Invoice $invoice */
                 $this->processTransactionEvent($event, $invoice);
             });
@@ -866,6 +879,10 @@ class TaxPeriodReport extends BaseExport
      */
     private function processTransactionEvent(TransactionEvent $event, Invoice $invoice): void
     {
+        if ($this->cash_accounting) {
+            $event = app(CashTaxEventProjector::class)->reportingEvent($event);
+        }
+
         $tax_summary = TaxSummary::fromMetadata($event->metadata->tax_report->tax_summary);
         $correction_context = $this->correctionContext($event);
 
@@ -1182,6 +1199,11 @@ class TaxPeriodReport extends BaseExport
             return $this->periodString(data_get($event->payment_request, 'old_period'));
         }
 
+        if (data_get($event->payment_request, 'tax_correction_kind')) {
+            return $this->periodString(data_get($event->payment_request, 'source_period'))
+                ?: $this->periodString($event->period);
+        }
+
         if (in_array($event->event_id, [TransactionEvent::PAYMENT_REFUNDED, TransactionEvent::PAYMENT_DELETED], true)) {
             return $this->paymentHistoryTargetPeriod($event) ?? '';
         }
@@ -1248,6 +1270,10 @@ class TaxPeriodReport extends BaseExport
         }
 
         $status = $event->metadata->tax_report->tax_summary->status ?? 'updated';
+
+        if (in_array(data_get($event->payment_request, 'mutation_type'), ['invoice_deleted', 'invoice_reversed', 'invoice_restored'], true)) {
+            return ctrans('texts.status_correction');
+        }
 
         if (in_array($event->event_id, [TransactionEvent::PAYMENT_REFUNDED, TransactionEvent::PAYMENT_DELETED], true)) {
             return ctrans('texts.payment_correction');

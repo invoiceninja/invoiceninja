@@ -26,6 +26,7 @@ use App\Models\Task;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Services\Template\TemplateMock;
+use App\Services\Payment\PaymentApplicationDateResolver;
 use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
 use App\Utils\Number;
@@ -755,7 +756,14 @@ class TemplateService
                 'net' => Number::formatMoney($credit->pivot->amount - $credit->pivot->refunded, $payment->client),
                 'is_credit' => true,
                 'date' => $this->translateDate($credit->date, $payment->client->date_format(), $payment->client->locale()),
-                'created_at' => $this->translateDate($credit->pivot->created_at, $payment->client->date_format(), $payment->client->locale()),
+                'created_at' => $this->translateDate(
+                    app(PaymentApplicationDateResolver::class)->resolveTimestamp(
+                        $credit->pivot->created_at,
+                        $payment->company->timezone()?->name ?: config('app.timezone'),
+                    ),
+                    $payment->client->date_format(),
+                    $payment->client->locale(),
+                ),
                 'updated_at' => $this->translateDate($credit->pivot->updated_at, $payment->client->date_format(), $payment->client->locale()),
                 'timestamp' => $credit->pivot->created_at->timestamp,
             ];
@@ -776,7 +784,14 @@ class TemplateService
                 'net' => Number::formatMoney($invoice->pivot->amount - $invoice->pivot->refunded, $payment->client),
                 'is_credit' => false,
                 'date' => $this->translateDate($invoice->date, $payment->client->date_format(), $payment->client->locale()),
-                'created_at' => $this->translateDate($invoice->pivot->created_at, $payment->client->date_format(), $payment->client->locale()),
+                'created_at' => $this->translateDate(
+                    app(PaymentApplicationDateResolver::class)->resolveTimestamp(
+                        $invoice->pivot->created_at,
+                        $payment->company->timezone()?->name ?: config('app.timezone'),
+                    ),
+                    $payment->client->date_format(),
+                    $payment->client->locale(),
+                ),
                 'updated_at' => $this->translateDate($invoice->pivot->updated_at, $payment->client->date_format(), $payment->client->locale()),
                 'timestamp' => $invoice->pivot->created_at->timestamp,
             ];

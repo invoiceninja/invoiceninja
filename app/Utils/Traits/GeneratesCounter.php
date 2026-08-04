@@ -480,6 +480,12 @@ trait GeneratesCounter
 
         $number = $this->applyNumberPattern($entity, $number, $pattern);
 
+        $number = $this->replaceUserVars($entity, $number);
+
+        if ($number === '') {
+            $number = $this->padCounter($counter, $padding);
+        }
+        
         return $this->prefixCounter($number, $prefix);
     }
 
