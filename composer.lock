@@ -384,16 +384,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.390.2",
+            "version": "3.390.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "a09e95bf062e15b7343f9c1362fd45c7a0dec39b"
+                "reference": "8026ec372223fb3ffa010b96ca14a1df329085f5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/a09e95bf062e15b7343f9c1362fd45c7a0dec39b",
-                "reference": "a09e95bf062e15b7343f9c1362fd45c7a0dec39b",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/8026ec372223fb3ffa010b96ca14a1df329085f5",
+                "reference": "8026ec372223fb3ffa010b96ca14a1df329085f5",
                 "shasum": ""
             },
             "require": {
@@ -475,9 +475,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.390.2"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.390.3"
             },
-            "time": "2026-07-31T18:06:07+00:00"
+            "time": "2026-08-03T18:28:24+00:00"
         },
         {
             "name": "babenkoivan/elastic-adapter",
@@ -5937,16 +5937,16 @@
         },
         {
             "name": "league/commonmark",
-            "version": "2.8.3",
+            "version": "2.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/commonmark.git",
-                "reference": "1902f60f984235023acbe03db6ad614a37b3c3e7"
+                "reference": "5703d83ba3da3b2e356a5fedc848ed6d8ffb6529"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/1902f60f984235023acbe03db6ad614a37b3c3e7",
-                "reference": "1902f60f984235023acbe03db6ad614a37b3c3e7",
+                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/5703d83ba3da3b2e356a5fedc848ed6d8ffb6529",
+                "reference": "5703d83ba3da3b2e356a5fedc848ed6d8ffb6529",
                 "shasum": ""
             },
             "require": {
@@ -5983,7 +5983,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "2.9-dev"
+                    "dev-main": "2.10-dev"
                 }
             },
             "autoload": {
@@ -6040,7 +6040,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-07-12T15:29:16+00:00"
+            "time": "2026-08-03T13:42:31+00:00"
         },
         {
             "name": "league/config",
