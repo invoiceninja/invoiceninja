@@ -166,7 +166,7 @@ class FrancePaymentApplicationRecorder
             return null;
         }
 
-        return $movementType.':'.(string) ($paymentable?->refunded ?? $payment->refunded ?? 0);
+        return $movementType.':'.(string) ($paymentable->refunded ?? $payment->refunded);
     }
 
     private function paymentableDate(?Paymentable $paymentable, Payment $payment): ?string

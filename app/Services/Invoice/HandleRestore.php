@@ -210,7 +210,7 @@ class HandleRestore extends AbstractService
             $exists = Invoice::query()->where(['company_id' => $this->invoice->company_id, 'number' => $new_invoice_number])->exists();
 
             if ($exists) {
-                $this->invoice->number = $this->getNextInvoiceNumber($this->invoice->client, $this->invoice, $this->invoice->recurring_id);
+                $this->invoice->number = $this->getNextInvoiceNumber($this->invoice->client, $this->invoice, isset($this->invoice->recurring_id));
             } else {
                 $this->invoice->number = $new_invoice_number;
             }

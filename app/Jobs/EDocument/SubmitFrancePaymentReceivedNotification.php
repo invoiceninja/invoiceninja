@@ -157,7 +157,7 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
             $claimCompleted = true;
         } finally {
             if (! $claimCompleted) {
-                $claims->release([$event?->id ?? $this->transactionEventId], $claimToken);
+                $claims->release([$event->id ?? $this->transactionEventId], $claimToken);
             }
         }
     }

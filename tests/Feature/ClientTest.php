@@ -221,20 +221,22 @@ class ClientTest extends TestCase
 
     public function testClientExchangeRateCalculation()
     {
-        $settings = ClientSettings::defaults();
-        $settings->currency_id = 12;
+        $settings = $this->company->settings;
+        $settings->currency_id = '3';
+
+        $this->company->saveSettings($settings, $this->company);
+
+
+        $c_settings = ClientSettings::defaults();
+        $c_settings->currency_id = 12;
 
         $c = Client::factory()
                 ->create([
                     'company_id' => $this->company->id,
                     'user_id' => $this->user->id,
-                    'settings' => $settings
+                    'settings' => $c_settings
                 ]);
 
-        $settings = $this->company->settings;
-        $settings->currency_id = '3';
-
-        $this->company->saveSettings($settings, $this->company);
 
         $client_exchange_rate = round($c->setExchangeRate(), 2);
 
