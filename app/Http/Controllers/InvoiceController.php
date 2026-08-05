@@ -408,35 +408,43 @@ class InvoiceController extends BaseController
      */
     public function update(UpdateInvoiceRequest $request, Invoice $invoice)
     {
-        if ($request->entityIsDeleted($invoice)) {
-            return $request->disallowUpdate();
-        }
+        try {
+            if ($request->entityIsDeleted($invoice)) {
+                return $request->disallowUpdate();
+            }
 
-        if (($invoice->isLocked() || $invoice->company->verifactuEnabled()) && $request->input('paid') == 'true') {
+            if (($invoice->isLocked() || $invoice->company->verifactuEnabled()) && $request->input('paid') == 'true') {
+
+                $invoice->service()
+                        ->triggeredActions($request);
+
+                return $this->itemResponse($invoice->fresh());
+            } elseif ($invoice->isLocked()) {
+                return response()->json(['message' => '', 'errors' => ['number' => ctrans('texts.locked_invoice')]], 422);
+            }
+
+            $old_invoice = $invoice->line_items;
+
+            $invoice = $this->invoice_repo->save($request->all(), $invoice);
 
             $invoice->service()
-                    ->triggeredActions($request);
+                    ->triggeredActions($request)
+                    ->adjustInventory($old_invoice);
+
+            $skip_event = $request->has('mark_sent') || $request->has('send_email') || ($request->input('paid') == 'true');
+
+            if (!$skip_event) {
+                event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+            }
 
             return $this->itemResponse($invoice->fresh());
-        } elseif ($invoice->isLocked()) {
-            return response()->json(['message' => '', 'errors' => ['number' => ctrans('texts.locked_invoice')]], 422);
+        } finally {
+            $lock_key = $request->input('lock_key');
+
+            if ($request->input('paid') == 'true' && is_string($lock_key) && strlen($lock_key) > 0) {
+                Atomic::del($lock_key);
+            }
         }
-
-        $old_invoice = $invoice->line_items;
-
-        $invoice = $this->invoice_repo->save($request->all(), $invoice);
-
-        $invoice->service()
-                ->triggeredActions($request)
-                ->adjustInventory($old_invoice);
-
-        $skip_event = $request->has('mark_sent') || $request->has('send_email') || ($request->input('paid') == 'true');
-
-        if (!$skip_event) {
-            event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-        }
-
-        return $this->itemResponse($invoice->fresh());
     }
 
     /**

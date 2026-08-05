@@ -218,7 +218,19 @@ class InstantPayment
         $payment_hash_string = Str::random(32);
 
         if ($gateway) {
-            $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals, $payment_hash_string)->save();
+            /** Key must match LivewireInstantPayment exactly - both entry points have to contend on the same lock. */
+            $lock = Cache::lock("gateway-fee:{$first_invoice->company_id}:{$first_invoice->id}", 2);
+
+            /** Contention here means a duplicate submission for the same invoice - reject it, do not queue behind it. */
+            if (! $lock->get()) {
+                throw new PaymentFailed(ctrans('texts.processing_request'), 409);
+            }
+
+            try {
+                $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals, $payment_hash_string)->save();
+            } finally {
+                $lock->release();
+            }
         }
 
         /**

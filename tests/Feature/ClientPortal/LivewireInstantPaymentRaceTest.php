@@ -17,8 +17,12 @@ use App\Livewire\Flow2\InvoicePay;
 use App\Livewire\Flow2\ProcessPayment;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
+use App\Models\Invoice;
 use App\Models\PaymentHash;
+use App\Services\ClientPortal\InstantPayment;
 use App\Services\ClientPortal\LivewireInstantPayment;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use App\Utils\Number;
 use Livewire\Livewire;
 use Illuminate\Contracts\Cache\Lock;
@@ -119,6 +123,99 @@ class LivewireInstantPaymentRaceTest extends TestCase
         Cache::partialMock()
             ->shouldReceive('lock')
             ->andReturn($lock);
+    }
+
+    /**
+     * The production failure: the lock serialises the two requests, but the second one
+     * acts on a model it loaded BEFORE the first committed, so its balance delta is
+     * measured against a baseline that is no longer in the row.
+     *
+     * Reproduces without mocking Cache::lock - the two calls are strictly sequential.
+     */
+    public function testStaleInvoiceModelDoesNotDoubleIncrementClientBalance(): void
+    {
+        $cg = $this->makeCompanyGateway();
+
+        $invoice = $this->invoice->service()->markSent()->save();
+
+        $starting_invoice_balance = (float) $invoice->fresh()->balance;
+        $starting_client_balance = (float) $this->client->fresh()->balance;
+
+        /** Request A and request B both load the pre-fee state. */
+        $a = Invoice::find($invoice->id);
+        $b = Invoice::find($invoice->id);
+
+        $a->service()->addGatewayFee($cg, GatewayType::CREDIT_CARD, (float) $a->balance, Str::random(32))->save();
+
+        /** B now proceeds on its STALE copy, after A has fully committed. */
+        $b->service()->addGatewayFee($cg, GatewayType::CREDIT_CARD, (float) $b->balance, Str::random(32))->save();
+
+        $invoice = $invoice->fresh();
+
+        $this->assertCount(1, collect($invoice->line_items)->where('type_id', '3'), 'expected exactly one gateway-fee line item');
+
+        $this->assertEqualsWithDelta($starting_invoice_balance + 1.0, (float) $invoice->balance, 0.001, 'invoice must carry exactly one fee');
+
+        $this->assertEqualsWithDelta($starting_client_balance + 1.0, (float) $this->client->fresh()->balance, 0.001, 'client balance must be incremented exactly once');
+    }
+
+    /**
+     * The mirror image: two concurrent readers both strip the same fee and both
+     * subtract it from the client.
+     */
+    public function testStaleInvoiceModelDoesNotDoubleDecrementClientBalanceOnFeeRemoval(): void
+    {
+        $cg = $this->makeCompanyGateway();
+
+        $invoice = $this->invoice->service()->markSent()->save();
+        $invoice = $invoice->service()
+                            ->addGatewayFee($cg, GatewayType::CREDIT_CARD, (float) $invoice->balance, Str::random(32))
+                            ->save();
+
+        $invoice_balance_with_fee = (float) $invoice->fresh()->balance;
+        $client_balance_with_fee = (float) $this->client->fresh()->balance;
+
+        $a = Invoice::find($invoice->id);
+        $b = Invoice::find($invoice->id);
+
+        $a->service()->removeUnpaidGatewayFees()->save();
+        $b->service()->removeUnpaidGatewayFees()->save();
+
+        $this->assertEqualsWithDelta($invoice_balance_with_fee - 1.0, (float) $invoice->fresh()->balance, 0.001);
+
+        $this->assertEqualsWithDelta($client_balance_with_fee - 1.0, (float) $this->client->fresh()->balance, 0.001, 'client balance must be decremented exactly once');
+    }
+
+    /**
+     * The legacy non-Livewire path must reject a duplicate submission outright
+     * rather than queue behind the request already injecting a fee.
+     */
+    public function testInstantPaymentRejectsDuplicateSubmissionWhileLockHeld(): void
+    {
+        $cg = $this->makeCompanyGateway();
+
+        $this->actingAs($this->contact, 'contact');
+
+        $request = Request::create('/client/payments/process', 'POST', [
+            'company_gateway_id' => $cg->id,
+            'payment_method_id' => GatewayType::CREDIT_CARD,
+            'payable_invoices' => [
+                ['invoice_id' => $this->invoice->hashed_id, 'amount' => $this->invoice->balance],
+            ],
+        ]);
+
+        /** Stand in for a concurrent request already inside addGatewayFee for this invoice. */
+        $lock = Cache::lock("gateway-fee:{$this->invoice->company_id}:{$this->invoice->id}", 2);
+
+        $this->assertTrue($lock->get());
+
+        try {
+            $this->expectException(PaymentFailed::class);
+
+            (new InstantPayment($request))->run();
+        } finally {
+            $lock->release();
+        }
     }
 
     public function testWinnerPathCreatesSingleFeeAndSingleHash(): void
