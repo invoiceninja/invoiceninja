@@ -97,16 +97,6 @@ class InvoiceService
         return $this;
     }
 
-    /**
-     * Applies the recurring invoice number.
-     * @return $this InvoiceService object
-     */
-    public function applyRecurringNumber()
-    {
-        $this->invoice = (new ApplyRecurringNumber($this->invoice->client, $this->invoice))->run();
-
-        return $this;
-    }
 
     /**
      * Apply a payment amount to an invoice.
