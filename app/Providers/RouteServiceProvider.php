@@ -58,7 +58,10 @@ class RouteServiceProvider extends ServiceProvider
             if (Ninja::isSelfHost()) {
                 return Limit::none();
             } else {
-                return Limit::perMinute(4)->by($request->ip());
+                return [
+                    Limit::perMinute(4)->by($request->ip()),
+                    Limit::perMinute(10)->by($request->email ?? '')
+                ];
             }
         });
 
@@ -66,7 +69,10 @@ class RouteServiceProvider extends ServiceProvider
             if (Ninja::isSelfHost()) {
                 return Limit::none();
             } else {
-                return Limit::perMinute(4)->by($request->ip());
+                return [
+                    Limit::perMinute(4)->by($request->ip()),
+                    Limit::perMinute(10)->by($request->email ?? '')
+                ];
             }
         });
 
@@ -74,7 +80,17 @@ class RouteServiceProvider extends ServiceProvider
             if (Ninja::isSelfHost()) {
                 return Limit::none();
             } else {
-                return Limit::perMinute(1000)->by($request->ip());
+
+                $limits = [
+                    Limit::perMinute(1000)->by($request->ip()),
+                ];
+
+                if ($token = $request->header('X-API-TOKEN')) {
+                    $limits[] = Limit::perMinute(1000)->by(sha1($token));
+                }
+                
+                return $limits;
+
             }
         });
 
@@ -98,7 +114,10 @@ class RouteServiceProvider extends ServiceProvider
             if (Ninja::isSelfHost()) {
                 return Limit::none();
             } else {
-                return Limit::perDay(12)->by($request->user()?->email ?? $request->ip());
+                return [
+                    Limit::perDay(12)->by($request->ip()),
+                    Limit::perDay(12)->by($request->user()?->email ?? $request->ip())
+                ];
             }
         });
 
