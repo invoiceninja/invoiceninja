@@ -70,6 +70,25 @@ class FrancePaymentApplicationRecorderTest extends TestCase
         });
     }
 
+    public function testAppliedMovementWithoutPaymentableDoesNotUseTheExplicitPaymentDate(): void
+    {
+        Bus::fake();
+
+        $company = $this->company(franceReportingEnabled: true);
+        $payment = $this->payment($company, Payment::STATUS_COMPLETED);
+        $invoice = $this->invoice($company, $this->client($company, 'individual', 'FR'), Invoice::STATUS_PAID, 0);
+
+        (new FrancePaymentApplicationRecorder())->recordMovement(
+            payment: $payment,
+            invoice: $invoice,
+            paymentable: null,
+            movementAmount: '55',
+            movementDate: '2026-09-15',
+        );
+
+        Bus::assertNotDispatched(RecordFranceEReportingPayment::class);
+    }
+
 
     public function testItDispatchesRefundMovementsForRefundedPayments(): void
     {
@@ -78,11 +97,13 @@ class FrancePaymentApplicationRecorderTest extends TestCase
         $company = $this->company(franceReportingEnabled: true);
         $payment = $this->payment($company, Payment::STATUS_PARTIALLY_REFUNDED);
         $invoice = $this->invoice($company, $this->client($company, 'individual', 'FR'), Invoice::STATUS_PARTIAL, 25);
+        $paymentable = $this->paymentable();
+        $paymentable->refunded = 25;
 
         (new FrancePaymentApplicationRecorder())->recordMovement(
             payment: $payment,
             invoice: $invoice,
-            paymentable: $this->paymentable(),
+            paymentable: $paymentable,
             movementAmount: '-25',
             movementDate: '2026-09-18',
             movementType: FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
@@ -93,7 +114,8 @@ class FrancePaymentApplicationRecorderTest extends TestCase
 
             return $this->property($reflection, $job, 'movementAmount') === '-25'
                 && $this->property($reflection, $job, 'movementDate') === '2026-09-18'
-                && $this->property($reflection, $job, 'movementType') === FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED;
+                && $this->property($reflection, $job, 'movementType') === FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED
+                && $this->property($reflection, $job, 'movement_identity') === 'refunded:25';
         });
     }
 

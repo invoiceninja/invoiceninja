@@ -53,6 +53,9 @@ class VendorTransformer extends BaseTransformer
             'custom_value2' => $this->getCustomFieldValue('vendor2', $this->getString($data, 'vendor.custom_value2')),
             'custom_value3' => $this->getCustomFieldValue('vendor3', $this->getString($data, 'vendor.custom_value3')),
             'custom_value4' => $this->getCustomFieldValue('vendor4', $this->getString($data, 'vendor.custom_value4')),
+            'language_id' => $this->getString($data, 'vendor.language_id'),
+            'classification' => $this->getString($data, 'vendor.classification'),
+            'is_tax_exempt' => $this->toBoolean($this->getString($data, 'vendor.is_tax_exempt')),
             'contacts' => [
                 [
                     'first_name' => $this->getString(

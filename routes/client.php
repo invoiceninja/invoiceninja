@@ -40,14 +40,16 @@ Route::get('documents/{document_hash}', [App\Http\Controllers\ClientPortal\Docum
 Route::get('documents/{hash}/hashed', [App\Http\Controllers\ClientPortal\DocumentController::class, 'hashDownload'])->name('documents.hashed_download');
 Route::get('error', [App\Http\Controllers\ClientPortal\ContactHashLoginController::class, 'errorPage'])->name('client.error');
 Route::get('client/payment/{contact_key}/{payment_id}', [App\Http\Controllers\ClientPortal\InvitationController::class, 'paymentRouter'])->middleware(['domain_db','contact_key_login']);
+Route::get('client/ninja/trial/confirmed', [App\Http\Controllers\ClientPortal\NinjaPlanController::class, 'trialConfirmed'])
+    ->name('client.trial.confirmed')
+    ->middleware(['auth:contact', 'locale', 'domain_db', 'check_client_existence']);
 Route::get('client/ninja/{contact_key}/{company_key}', [App\Http\Controllers\ClientPortal\NinjaPlanController::class, 'index'])->name('client.ninja_contact_login')->middleware(['domain_db']);
 //Route::post('client/ninja/trial_confirmation', [App\Http\Controllers\ClientPortal\NinjaPlanController::class, 'trial_confirmation'])->name('client.trial.response')->middleware(['domain_db']);
 
 Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db','check_client_existence'], 'prefix' => 'client', 'as' => 'client.'], function () {
     Route::get('dashboard', [App\Http\Controllers\ClientPortal\DashboardController::class, 'index'])->name('dashboard'); // name = (dashboard. index / create / show / update / destroy / edit
 
-    Route::post('ninja/trial_confirmation', [App\Http\Controllers\ClientPortal\NinjaPlanController::class, 'trial_confirmation'])->name('trial.response')->middleware(['domain_db']);
-
+    Route::post('ninja/trial_confirmation', [App\Http\Controllers\ClientPortal\NinjaPlanController::class, 'trial_confirmation'])->name('trial.response')->middleware('throttle:10,1');
     Route::get('plan', [App\Http\Controllers\ClientPortal\NinjaPlanController::class, 'plan'])->name('plan'); // name = (dashboard. index / create / show / update / destroy / edit
 
     Route::get('showBlob/{hash}', [App\Http\Controllers\ClientPortal\InvoiceController::class, 'showBlob'])->name('invoices.showBlob');
@@ -153,6 +155,10 @@ Route::get('.env', function () {
 Route::fallback(function () {
 
     if (Ninja::isSelfHost()) {
+
+        if (request()->is('client') || request()->is('client/*')) {
+            abort(404);
+        }
 
         $result = false;
         try {

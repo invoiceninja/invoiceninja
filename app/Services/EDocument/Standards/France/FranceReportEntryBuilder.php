@@ -20,6 +20,7 @@ use App\DataMapper\FranceEReporting\TaxSubtotalData;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Product;
 use App\Services\EDocument\Standards\France\Models\B2BIInvoice;
 use App\Services\EDocument\Standards\Peppol;
 use InvoiceNinja\EInvoice\EInvoice;
@@ -57,13 +58,19 @@ class FranceReportEntryBuilder
         return B2BIInvoiceData::fromArray($payload);
     }
 
-    public function b2cTransaction(Invoice|Credit $document): B2CTransactionData
+    public function b2cTransaction(Invoice|Credit $document): ?B2CTransactionData
     {
+        $category = $this->b2cSupplyCategory($document);
+
+        if (! $category) {
+            return null;
+        }
+
         $calc = $document->calc();
 
         return new B2CTransactionData(
             date: (string) ($document->date ?: now()->toDateString()),
-            category: $this->b2cCategory($document),
+            category: $category,
             currency: $this->currencyCode($document),
             amountExcludingVat: $this->signedDocumentAmount($calc->getNetSubtotal(), $document),
             amountIncludingVat: $this->signedDocumentAmount($document->amount ?: $calc->getTotal(), $document),
@@ -82,7 +89,7 @@ class FranceReportEntryBuilder
             paymentDate: (string) ($paymentDate ?: $payment->date ?: now()->toDateString()),
             issueDate: (string) ($invoice->date ?: now()->toDateString()),
             paymentMeansCode: $this->paymentMeansCode($payment),
-            taxSubtotals: $this->paymentTaxSubtotals($invoice, $amount, true),
+            taxSubtotals: $this->paymentTaxSubtotals($invoice, $amount, false),
         );
     }
 
@@ -90,7 +97,7 @@ class FranceReportEntryBuilder
     {
         return new B2CPaymentData(
             date: (string) ($paymentDate ?: $payment->date ?: now()->toDateString()),
-            taxSubtotal: $this->paymentTaxSubtotals($invoice, $paymentAmount ?? $this->paymentAmountForInvoice($payment, $invoice), false),
+            taxSubtotal: $this->paymentTaxSubtotals($invoice, $paymentAmount ?? $this->paymentAmountForInvoice($payment, $invoice), true),
         );
     }
 
@@ -151,59 +158,76 @@ class FranceReportEntryBuilder
     /**
      * @return array<int, TaxSubtotalData>
      */
-    private function paymentTaxSubtotals(Invoice $invoice, int|float|string $paymentAmount, bool $amountIncludingTaxOnly): array
+    private function paymentTaxSubtotals(Invoice $invoice, int|float|string $paymentAmount, bool $b2c): array
     {
         $calc = $invoice->calc();
         $taxes = $calc->getTaxMap()->merge($calc->getTotalTaxMap())->values();
-        $ratio = $this->paymentRatio($invoice, $paymentAmount);
         $currency = $this->currencyCode($invoice);
-        $sign = (float) $paymentAmount < 0 ? -1 : 1;
 
         if ($taxes->isEmpty()) {
             return [
                 new TaxSubtotalData(
                     percentage: '0',
                     category: 'exempt',
-                    taxableAmount: $amountIncludingTaxOnly ? null : $this->normalizeAmount((float) $calc->getNetSubtotal() * $ratio * $sign),
-                    taxAmount: $amountIncludingTaxOnly ? null : '0',
                     currency: $currency,
                     country: 'FR',
-                    amountIncludingTax: $amountIncludingTaxOnly ? $this->normalizeAmount($paymentAmount) : null,
+                    amountIncludingTax: $b2c ? null : $this->normalizeAmount($paymentAmount),
+                    amount: $b2c ? $this->normalizeAmount($paymentAmount) : null,
                 ),
             ];
         }
 
-        return $taxes->map(function (array $tax) use ($calc, $ratio, $currency, $amountIncludingTaxOnly, $paymentAmount, $sign): TaxSubtotalData {
+        $allocations = $this->allocatePaymentAcrossTaxSubtotals($taxes->all(), $paymentAmount);
+
+        return $taxes->map(function (array $tax, int $index) use ($allocations, $currency, $b2c): TaxSubtotalData {
             $taxRate = $tax['tax_rate'] ?? 0;
-            $taxableAmount = (float) ($tax['base_amount'] ?? $calc->getNetSubtotal()) * $ratio * $sign;
-            $taxAmount = (float) ($tax['total'] ?? 0) * $ratio * $sign;
 
             return new TaxSubtotalData(
                 percentage: $this->normalizeAmount($taxRate),
                 category: $this->taxCategory($taxRate),
-                taxableAmount: $amountIncludingTaxOnly ? null : $this->normalizeAmount($taxableAmount),
-                taxAmount: $amountIncludingTaxOnly ? null : $this->normalizeAmount($taxAmount),
                 currency: $currency,
                 country: 'FR',
-                amountIncludingTax: $amountIncludingTaxOnly ? $this->normalizeAmount($paymentAmount) : null,
+                amountIncludingTax: $b2c ? null : $allocations[$index],
+                amount: $b2c ? $allocations[$index] : null,
             );
         })->all();
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $taxes
+     * @return array<int, int|float>
+     */
+    private function allocatePaymentAcrossTaxSubtotals(array $taxes, int|float|string $paymentAmount): array
+    {
+        $paymentAmount = $this->normalizeAmount($paymentAmount);
+        $weights = array_map(
+            static fn (array $tax): float => abs((float) ($tax['base_amount'] ?? 0) + (float) ($tax['total'] ?? 0)),
+            $taxes,
+        );
+        $totalWeight = array_sum($weights);
+        $remaining = $paymentAmount;
+        $lastIndex = array_key_last($taxes);
+        $allocations = [];
+
+        foreach (array_keys($taxes) as $index) {
+            if ($index === $lastIndex) {
+                $allocations[$index] = $this->normalizeAmount($remaining);
+                continue;
+            }
+
+            $allocation = $totalWeight > 0
+                ? $this->normalizeAmount((float) $paymentAmount * ($weights[$index] / $totalWeight))
+                : 0;
+            $allocations[$index] = $allocation;
+            $remaining = $this->normalizeAmount((float) $remaining - (float) $allocation);
+        }
+
+        return $allocations;
     }
 
     private function paymentAmountForInvoice(Payment $payment, Invoice $invoice): int|float
     {
         return $this->normalizeAmount($invoice->amount ?? $payment->amount ?? 0);
-    }
-
-    private function paymentRatio(Invoice $invoice, int|float|string $paymentAmount): float
-    {
-        $invoiceAmount = (float) ($invoice->amount ?: 0);
-
-        if ($invoiceAmount == 0.0) {
-            return 1.0;
-        }
-
-        return abs((float) $paymentAmount) / abs($invoiceAmount);
     }
 
     private function paymentMeansCode(Payment $payment): ?string
@@ -215,11 +239,22 @@ class FranceReportEntryBuilder
         };
     }
 
-    private function b2cCategory(Invoice|Credit $document): string
+    public function b2cSupplyCategory(Invoice|Credit $document): ?string
     {
-        $category = (string) ($document->company->getSetting('france_b2c_transaction_category') ?: 'TLB1');
+        $line_types = collect($document->line_items)
+            ->map(fn ($line_item): int => (int) data_get($line_item, 'type_id', 0))
+            ->unique()
+            ->values();
 
-        return trim($category) !== '' ? $category : 'TLB1';
+        if ($line_types->count() !== 1) {
+            return null;
+        }
+
+        return match ($line_types->first()) {
+            Product::PRODUCT_TYPE_PHYSICAL => 'TLB1',
+            Product::PRODUCT_TYPE_SERVICE => 'TPS1',
+            default => null,
+        };
     }
 
     private function currencyCode(Invoice|Credit $model): string

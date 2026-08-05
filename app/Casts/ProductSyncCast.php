@@ -31,7 +31,8 @@ class ProductSyncCast implements CastsAttributes
         }
 
         $ps = new ProductSync();
-        $ps->qb_id =  $data['qb_id'];
+        $ps->qb_id = $data['qb_id'] ?? '';
+        $ps->qb_status_message = $data['qb_status_message'] ?? '';
         return $ps;
     }
 
@@ -47,6 +48,7 @@ class ProductSyncCast implements CastsAttributes
         return [
             $key => json_encode([
                 'qb_id' => $value->qb_id,
+                'qb_status_message' => $value->qb_status_message ?? '',
             ]),
         ];
     }

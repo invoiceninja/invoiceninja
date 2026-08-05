@@ -10,6 +10,12 @@
 
         <meta name="client_secret" content="{{ $client_secret }}">
         <meta name="viewport" content="width=device-width, minimum-scale=1" />
+        <meta name="address-1" content="{{ $gateway->client->address1 }}">
+        <meta name="address-2" content="{{ $gateway->client->address2 }}">
+        <meta name="city" content="{{ $gateway->client->city }}">
+        <meta name="state" content="{{ $gateway->client->state }}">
+        <meta name="postal_code" content="{{ $gateway->client->postal_code }}">
+        <meta name="country" content="{{ $gateway->client->country?->iso_3166_2 }}">
 
 @endsection
 
@@ -36,16 +42,16 @@
 
         @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
             @if(count($tokens) > 0)
-            <ul class="list-none">
+            <ul class="payment-method-list">
                 @foreach($tokens as $token)
-                    <li class="py-1 hover:text-blue hover:bg-blue-600">
-                        <label class="mr-4">
-                            <input
+                    <li class="payment-method-item">
+                    <label class="payment-method-label">
+                    <input
                                 type="radio"
                                 data-token="{{ $token->hashed_id }}"
                                 name="payment-type"
-                                class="form-check-input text-indigo-600 rounded-full cursor-pointer toggle-payment-with-token"/>
-                            <span class="ml-1 cursor-pointer">{{ ctrans('texts.bank_transfer') }} (*{{ $token->meta->last4 }})</span>
+                                class="form-radio cursor-pointer toggle-payment-with-token"/>
+                            <span class="ml-1">{{ ctrans('texts.bank_transfer') }} (*{{ $token->meta->last4 }})</span>
                         </label>
                     </li>
                 @endforeach
@@ -143,6 +149,7 @@
         const accountHolderNameField = document.getElementById('account-holder-name-field');
         const emailField = document.getElementById('email-field');
         const clientSecret = document.querySelector('meta[name="client_secret"]')?.content;
+        const address = billingAddress();
         // Calling this method will open the instant verification dialog.
         stripe.collectBankAccountForPayment({
         clientSecret: clientSecret,
@@ -152,6 +159,7 @@
             billing_details: {
               name: accountHolderNameField.value,
               email: emailField.value,
+              ...(address && { address }),
             },
           },
         },
@@ -220,6 +228,30 @@
             }
           });
     
+    }
+
+    /**
+     * Nacha requires a complete billing address on the bank account payment method.
+     * A partial address is rejected outright, so send nothing unless we have a street.
+     */
+    function billingAddress()
+    {
+        const meta = (name) => document.querySelector(`meta[name="${name}"]`)?.content || '';
+
+        const address = {
+            line1: meta('address-1'),
+            line2: meta('address-2'),
+            city: meta('city'),
+            state: meta('state'),
+            postal_code: meta('postal_code'),
+            country: meta('country'),
+        };
+
+        if (address.line1.length === 0) {
+            return null;
+        }
+
+        return Object.fromEntries(Object.entries(address).filter(([, value]) => value.length > 0));
     }
 
     function resetButtons()

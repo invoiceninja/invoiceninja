@@ -36,7 +36,6 @@ class ShowProjectBurnUpRequest extends Request
 
         return $project
             && ! $project->is_deleted
-            && ($user->isAdmin() || $user->hasPermission('view_dashboard'))
             && $user->can('view', $project);
     }
 

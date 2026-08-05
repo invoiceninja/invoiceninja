@@ -254,9 +254,12 @@ class InvitationController extends Controller
             abort(404);
         }
 
+        \App::setLocale($invitation->contact->preferredLocale());
+
         return $this->render('view_entity.set_password', [
             'root' => 'themes',
             'entity_type' => $request->entity_type,
+            'entity_translation' => ctrans('texts.' . $request->entity_type),
             'invitation_key' => $request->invitation_key,
         ]);
     }

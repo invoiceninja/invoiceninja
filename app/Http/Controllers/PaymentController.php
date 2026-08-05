@@ -29,6 +29,7 @@ use App\Models\Account;
 use App\Models\Payment;
 use App\Repositories\PaymentRepository;
 use App\Services\Template\TemplateAction;
+use App\Services\EDocument\Standards\France\FrancePaymentReportingMutationGuard;
 use App\Transformers\PaymentTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
@@ -52,16 +53,21 @@ class PaymentController extends BaseController
      */
     protected $payment_repo;
 
+    private FrancePaymentReportingMutationGuard $france_payment_reporting_mutation_guard;
+
     /**
      * PaymentController constructor.
      *
      * @param PaymentRepository $payment_repo  The invoice repo
      */
-    public function __construct(PaymentRepository $payment_repo)
-    {
+    public function __construct(
+        PaymentRepository $payment_repo,
+        FrancePaymentReportingMutationGuard $france_payment_reporting_mutation_guard,
+    ) {
         parent::__construct();
 
         $this->payment_repo = $payment_repo;
+        $this->france_payment_reporting_mutation_guard = $france_payment_reporting_mutation_guard;
     }
 
     /**
@@ -389,6 +395,10 @@ class PaymentController extends BaseController
             return $request->disallowUpdate();
         }
 
+        if ($request->filled('date')) {
+            $this->france_payment_reporting_mutation_guard->assertPaymentDateChangeAllowed($payment, (string) $request->input('date'));
+        }
+
         $payment = $this->payment_repo->save($request->all(), $payment);
 
         event(new PaymentWasUpdated($payment, $payment->company, Ninja::eventVars($user->id)));
@@ -713,6 +723,7 @@ class PaymentController extends BaseController
     public function refund(RefundPaymentRequest $request)
     {
         $payment = $request->payment();
+        $this->france_payment_reporting_mutation_guard->assertRefundAllowed($payment);
 
         $payment = $payment->refund($request->all());
 

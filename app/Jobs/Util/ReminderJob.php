@@ -91,7 +91,8 @@ class ReminderJob implements ShouldQueue
                      ->where('is_deleted', 0)
                      ->whereNull('deleted_at')
                      ->where('balance', '>', 0)
-                     ->whereBetween('next_send_date', [now()->subMonth()->startOfDay(), now()->addDay()->startOfDay()])
+                     ->whereBetween('next_send_date', [now()->subMonth()->startOfDay(), now()])
+                    //  ->whereBetween('next_send_date', [now()->subMonth()->startOfDay(), now()->addDay()->startOfDay()])
                      ->whereHas('client', function ($query) {
                          $query->where('is_deleted', 0)
                                ->where('deleted_at', null);

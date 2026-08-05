@@ -75,6 +75,8 @@ class RecurringInvoiceMap
             55 => 'item.custom_value4',
             56 => 'item.type_id',
             57 => 'client.email',
+            58 => 'item.tax_id',
+            59 => 'item.product_cost',
         ];
     }
 
@@ -139,6 +141,8 @@ class RecurringInvoiceMap
             55 => 'texts.custom_value',
             56 => 'texts.type',
             57 => 'texts.email',
+            58 => 'texts.tax_category',
+            59 => 'texts.product_cost',
         ];
     }
 }

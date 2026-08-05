@@ -75,7 +75,8 @@ class PaymentController extends Controller
         if ($invoice) {
             $backup = $invoice->backup;
             $url = $backup->redirect;
-            unset($backup->redirect);
+            $backup->redirect = null;
+            $invoice->backup = $backup;
             $invoice->saveQuietly();
             return redirect($url);
         }

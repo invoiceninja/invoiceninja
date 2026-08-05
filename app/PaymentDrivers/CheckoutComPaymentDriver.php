@@ -271,12 +271,13 @@ class CheckoutComPaymentDriver extends BaseDriver
     /**
      * Store PaymentMethod
      *
-     * @param  array $data
+     * @param array $data
+     * @param array $additional
      * @return ?ClientGatewayToken $token
      */
-    public function storePaymentMethod(array $data)
+    public function storePaymentMethod(array $data, array $additional = []): ?ClientGatewayToken
     {
-        return $this->storeGatewayToken($data);
+        return $this->storeGatewayToken($data, $additional);
     }
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
@@ -359,10 +360,16 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     public function getCustomer()
     {
-        try {
-            $response = $this->gateway->getCustomersClient()->get($this->client->present()->email());
+        if ($reference = $this->resolveGatewayCustomerReference()) {
+            try {
+                return $this->gateway->getCustomersClient()->get($reference);
+            } catch (\Exception $e) {
+                // Fall through to email lookup.
+            }
+        }
 
-            return $response;
+        try {
+            return $this->gateway->getCustomersClient()->get($this->client->present()->email());
         } catch (\Exception $e) {
 
             $request = new CustomerRequest();
@@ -397,6 +404,23 @@ class CheckoutComPaymentDriver extends BaseDriver
 
             return $response;
         }
+    }
+
+    public function resolveGatewayCustomerReference(): ?string
+    {
+        if (! $this->client) {
+            return null;
+        }
+
+        return $this->client
+            ->gateway_tokens()
+            ->where('company_gateway_id', $this->company_gateway->id)
+            ->whereNotNull('gateway_customer_reference')
+            ->where('gateway_customer_reference', '!=', '')
+            ->reorder()
+            ->latest('created_at')
+            ->orderByDesc('id')
+            ->value('gateway_customer_reference');
     }
 
     public function updateCustomer($customer_id = null)

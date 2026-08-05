@@ -118,7 +118,11 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
                     'payment_method_id' => GatewayType::CREDIT_CARD,
                 ];
 
-                $payment_method = $this->checkout->storeGatewayToken($data, ['gateway_customer_reference' => $customerRequest['id']]);
+                $payment_method = $this->checkout->storeGatewayToken($data, [
+                    'gateway_customer_reference' => $response['customer']['id']
+                        ?? $customerRequest['id']
+                        ?? null,
+                ]);
 
                 return redirect()->route('client.payment_methods.show', $payment_method->hashed_id);
             }

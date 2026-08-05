@@ -280,7 +280,9 @@ trait Utilities
                 'payment_method_id' => $this->getParent()->payment_hash->data->payment_method_id ?? GatewayType::CREDIT_CARD,
             ];
 
-            return $this->getParent()->storePaymentMethod($data, ['gateway_customer_reference' => $response['customer']['id'] ?? '']);
+            return $this->getParent()->storePaymentMethod($data, [
+                'gateway_customer_reference' => $response['customer']['id'] ?? null,
+            ]);
         } catch (Exception $e) {
             session()->flash('message', ctrans('texts.payment_method_saving_failed'));
         }

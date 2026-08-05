@@ -57,7 +57,7 @@ class UpdateClientRequest extends Request
 
         $rules['company_logo'] = 'mimes:jpeg,jpg,png,gif|max:10000';
         $rules['industry_id'] = 'integer|nullable';
-        $rules['size_id'] = 'integer|nullable';
+        $rules['size_id'] = ['bail', 'nullable', 'sometimes', 'exists:sizes,id'];
         $rules['country_id'] = 'integer|nullable|exists:countries,id';
         $rules['shipping_country_id'] = 'integer|nullable|exists:countries,id';
         $rules['classification'] = 'bail|sometimes|nullable|in:individual,business,company,partnership,trust,charity,government,other';

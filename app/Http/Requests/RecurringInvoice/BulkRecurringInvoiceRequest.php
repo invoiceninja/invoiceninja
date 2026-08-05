@@ -37,7 +37,7 @@ class BulkRecurringInvoiceRequest extends Request
 
         $rules = [
             'ids' => ['required','bail','array', Rule::exists('recurring_invoices', 'id')->where('company_id', $user->company()->id)],
-            'action' => 'in:archive,restore,delete,increase_prices,update_prices,start,stop,send_now,set_payment_link,bulk_update',
+            'action' => 'in:archive,restore,delete,increase_prices,update_prices,start,stop,send_now,set_payment_link,bulk_update,auto_bill,auto_bill_enabled',
             'percentage_increase' => 'required_if:action,increase_prices|numeric|min:0|max:100',
             'subscription_id' => 'sometimes|string',
             'column' => ['required_if:action,bulk_update', 'string', Rule::in(\App\Models\RecurringInvoice::$bulk_update_columns)],
@@ -50,7 +50,9 @@ class BulkRecurringInvoiceRequest extends Request
             case 'uses_inclusive_taxes':
                 $rules['new_value'] = ['required_if:action,bulk_update', 'boolean'];
                 break;
-
+            case 'auto_bill':
+                $rules['new_value'] = ['required_if:action,bulk_update', 'in:off,always,optin,optout'];
+                break;
         }
 
         return $rules;

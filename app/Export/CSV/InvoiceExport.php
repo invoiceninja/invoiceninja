@@ -372,7 +372,37 @@ class InvoiceExport extends BaseExport
 
         $entity = $this->decorateAdvancedFields($invoice, $entity);
 
-        return  $this->convertFloats($entity);
+        $grouping_identities = [];
+
+        if ($this->fan_out) {
+            $grouping_identities['invoice'] = $invoice->id;
+            $paymentable = $invoice->relationLoaded('current_paymentable')
+                ? $invoice->getRelation('current_paymentable')
+                : null;
+
+            if ($paymentable) {
+                $grouping_identities['payment'] = $paymentable->payment_id;
+            }
+        }
+
+        return $this->convertFloats($entity, $grouping_identities);
+    }
+
+    protected function groupingIdentityForColumn(string $column): ?string
+    {
+        if (! $this->fan_out) {
+            return null;
+        }
+
+        if (str_starts_with($column, 'invoice.')) {
+            return 'invoice';
+        }
+
+        if (str_starts_with($column, 'payment.') && ! in_array($column, self::APPLIED_INJECTED_KEYS, true)) {
+            return 'payment';
+        }
+
+        return null;
     }
 
     private function decorateAdvancedFields(Invoice $invoice, array $entity): array

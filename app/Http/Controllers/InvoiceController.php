@@ -743,7 +743,7 @@ class InvoiceController extends BaseController
      * @param ActionInvoiceRequest $request
      * @param Invoice $invoice
      * @param $action
-     * @return \App\Http\Controllers\Response|\Illuminate\Http\JsonResponse|Response|mixed|\Symfony\Component\HttpFoundation\StreamedResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response|mixed|\Symfony\Component\HttpFoundation\StreamedResponse
      */
     public function action(ActionInvoiceRequest $request, Invoice $invoice, $action)
     {
@@ -819,7 +819,6 @@ class InvoiceController extends BaseController
                 }
                 break;
             case 'delete':
-
                 $this->invoice_repo->delete($invoice);
 
                 if (! $bulk) {
@@ -1097,7 +1096,12 @@ class InvoiceController extends BaseController
 
         return $this->itemResponse($invoice->fresh());
     }
-
+    
+    /**
+     * update_reminders
+     *
+     * @param  UpdateReminderRequest $request
+     */
     public function update_reminders(UpdateReminderRequest $request)
     {
         /** @var \App\Models\User $user */
@@ -1107,7 +1111,13 @@ class InvoiceController extends BaseController
 
         return response()->json(['message' => 'Updating reminders'], 200);
     }
-
+    
+    /**
+     * paymentSchedule
+     *
+     * @param  PaymentScheduleRequest $request
+     * @param  Invoice $invoice
+     */
     public function paymentSchedule(PaymentScheduleRequest $request, Invoice $invoice)
     {
         $repo = new SchedulerRepository();
@@ -1117,7 +1127,12 @@ class InvoiceController extends BaseController
         return $this->itemResponse($invoice->fresh());
 
     }
-
+    
+    /**
+     * deletePaymentSchedule
+     *
+     * @param  Invoice $invoice
+     */
     public function deletePaymentSchedule(Invoice $invoice)
     {
         $repo = new SchedulerRepository();

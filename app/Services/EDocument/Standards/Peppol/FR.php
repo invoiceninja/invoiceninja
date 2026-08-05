@@ -13,7 +13,13 @@
 namespace App\Services\EDocument\Standards\Peppol;
 
 use App\Models\Client;
+use App\Models\Company;
+use App\Models\Credit as NinjaCredit;
+use App\Models\Invoice as NinjaInvoice;
+use Carbon\CarbonImmutable;
 use App\Services\EDocument\Gateway\MutatorUtil;
+use App\Services\EDocument\Gateway\Storecove\Models\Credit as StorecoveCredit;
+use App\Services\EDocument\Gateway\Storecove\Models\Invoice as StorecoveInvoice;
 use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
 use App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveIdentifierValidator;
 
@@ -27,6 +33,10 @@ use App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveIdentifierVali
  */
 class FR extends BaseCountry
 {
+    private const CTC_MANDATE_START_DATE = '2026-09-01';
+    private const INVOICE_ITEM_TYPE_GOODS = 1;
+    private const INVOICE_ITEM_TYPE_SERVICE = 2;
+
     public function getCandidates(object $client, string $classification, object $router): array
     {
         if ($classification === 'government') {
@@ -116,7 +126,7 @@ class FR extends BaseCountry
      * 14-digit FR:SIRET.
      *
      * @param  array{classification?: string, vat_number?: string, id_number?: string}  $data
-     * @return array<int, array{identifier: string, scheme: string}>
+     * @return array<int, array{identifier: string, scheme: string, required: bool}>
      */
     public function getAdditionalIdentifiers(array $data): array
     {
@@ -132,16 +142,54 @@ class FR extends BaseCountry
             $siren = substr($vat, -9);
 
             if ($validator->validFormat('FR:SIRENE', $siren)) {
-                $identifiers[] = ['identifier' => $siren, 'scheme' => 'FR:SIRENE'];
+                $identifiers[] = ['identifier' => $siren, 'scheme' => 'FR:SIRENE', 'required' => true];
+                $identifiers[] = ['identifier' => $siren, 'scheme' => 'FR:CTC', 'required' => true];
             }
         }
 
         $siret = preg_replace("/[^0-9]/", "", $data['id_number'] ?? '');
         if ($siret !== '' && $validator->validFormat('FR:SIRET', $siret)) {
-            $identifiers[] = ['identifier' => $siret, 'scheme' => 'FR:SIRET'];
+            $identifiers[] = ['identifier' => $siret, 'scheme' => 'FR:SIRET', 'required' => false];
         }
 
         return $identifiers;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function getIdentifierNetworkSpecifications(string $scheme): array
+    {
+        if (! in_array($scheme, ['FR:VAT', 'FR:SIRENE', 'FR:SIRET', 'FR:CTC'], true)) {
+            return [];
+        }
+
+        $networks = [
+            [
+                'name' => 'peppol',
+                'sub_networks' => ['main', 'france'],
+            ],
+        ];
+
+        if ($scheme === 'FR:CTC') {
+            $networks[] = [
+                'name' => 'dgfip',
+                'sub_networks' => ['main'],
+                'annuaire' => [
+                    'start_date' => $this->ctcStartDate(),
+                ],
+            ];
+        }
+
+        return $networks;
+    }
+
+    private function ctcStartDate(): string
+    {
+        $earliestStorecoveDate = CarbonImmutable::today('Europe/Paris')->addDays(2);
+        $mandateStartDate = CarbonImmutable::parse(self::CTC_MANDATE_START_DATE, 'Europe/Paris');
+
+        return $earliestStorecoveDate->max($mandateStartDate)->toDateString();
     }
 
     public function senderMutations(
@@ -164,6 +212,19 @@ class FR extends BaseCountry
 
         return $p_invoice;
     }
+
+    public function decorateStorecoveDocument(
+        StorecoveInvoice|StorecoveCredit $storecoveDocument,
+        NinjaInvoice|NinjaCredit $sourceDocument,
+    ): StorecoveInvoice|StorecoveCredit {
+        if (! $this->isDgfipApplicable($sourceDocument->client, $sourceDocument->company)) {
+            return $storecoveDocument;
+        }
+
+        return $storecoveDocument->setFrCadreDeFacturation(
+            $this->inferCadreDeFacturation($sourceDocument),
+        );
+    }
     
     /**
      * getNetworkOverrides
@@ -176,23 +237,51 @@ class FR extends BaseCountry
             return [];
         }
 
-        /**
-         * Casers to handle:
-         * 
-         * 1. FR => FR (Business)
-         * 2. WORLD => FR WITH FR VAT Number configured.
-         * 
-         */
-        $sellerWithFRVAT = $client->company->country()->iso_3166_2 != "FR" && empty(data_get($client->company->tax_data, 'regions.EU.subregions.FR.vat_number', ''));
-        $receiverCountryIsFR = $client->country?->iso_3166_2 == "FR";
-        $classification = $client->classification ?? 'business';
-
-        /** French Tax Nexus + Not Government Or Individual */
-        if ($receiverCountryIsFR && !$sellerWithFRVAT && !in_array($classification, ['government', 'individual'])) {
+        if ($this->isDgfipApplicable($client, $client->company)) {
             return [['application' => 'fr-dgfip', 'settings' => ['enabled' => true]]];
         }
 
         return [];
+    }
+
+    private function isDgfipApplicable(Client $client, Company $company): bool
+    {
+        $sellerCountryIsFrance = $company->country()?->iso_3166_2 === 'FR';
+        $sellerHasFrenchVatNexus = ! empty(data_get($company->tax_data, 'regions.EU.subregions.FR.vat_number'));
+        $receiverCountryIsFrance = $client->country?->iso_3166_2 === 'FR';
+        $classification = $client->classification ?? 'business';
+
+        return $receiverCountryIsFrance
+            && ($sellerCountryIsFrance || $sellerHasFrenchVatNexus)
+            && ! in_array($classification, ['government', 'individual'], true);
+    }
+
+    /**
+     * Infer only the standard goods, services, or mixed AFNOR context.
+     * Fee and expense line origins are neutral; B1 is the fallback when the
+     * document has no recognised supply line. Product and service signals are
+     * treated as independent for M1 until Invoice Ninja captures ancillary supply.
+     */
+    private function inferCadreDeFacturation(NinjaInvoice|NinjaCredit $sourceDocument): string
+    {
+        $containsGoods = false;
+        $containsServices = false;
+
+        foreach ((array) $sourceDocument->line_items as $lineItem) {
+            $lineType = (int) data_get($lineItem, 'type_id');
+
+            if ($lineType === self::INVOICE_ITEM_TYPE_GOODS) {
+                $containsGoods = true;
+            } elseif ($lineType === self::INVOICE_ITEM_TYPE_SERVICE) {
+                $containsServices = true;
+            }
+
+            if ($containsGoods && $containsServices) {
+                return 'M1';
+            }
+        }
+
+        return $containsServices ? 'S1' : 'B1';
     }
 
 }

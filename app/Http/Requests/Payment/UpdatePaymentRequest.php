@@ -49,6 +49,7 @@ class UpdatePaymentRequest extends Request
         $rules = [
             'client_id' => ['sometimes', 'bail', Rule::in([$this->payment->client_id])],
             'number' => ['sometimes', 'bail', Rule::unique('payments')->where('company_id', $user->company()->id)->ignore($this->payment->id)],
+            'date' => ['sometimes', 'bail', 'nullable', 'date'],
             'invoices' => ['sometimes', 'bail', 'nullable', 'array', new PaymentAppliedValidAmount($this->all())],
             'invoices.*.invoice_id' => ['sometimes','distinct',Rule::exists('invoices', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->payment->client_id)],
             'invoices.*.amount' => ['sometimes','numeric','min:0'],

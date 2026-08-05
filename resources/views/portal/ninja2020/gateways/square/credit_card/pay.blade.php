@@ -65,32 +65,32 @@
             <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
         </div>
 
-        <ul class="list-none hover:list-disc " id="payment-list">
+        <ul class="payment-method-list" id="payment-list">
         @if (count($tokens) > 0)
             @foreach($tokens as $token)
-            <li class="py-2 hover:bg-blue-600">
-                <label class="mr-4">
+            <li class="payment-method-item">
+            <label class="payment-method-label">
                     <input
                         type="radio"
                         data-token="{{ $token->token }}"
                         name="payment-type"
-                        class="form-check-input text-indigo-600 rounded-full cursor-pointer toggle-payment-with-token toggle-payment-with-token"
+                        class="form-radio cursor-pointer toggle-payment-with-token"
                         />
-                    <span class="ml-1 cursor-pointer">**** {{ $token->meta?->last4 }} - {{ $token->meta?->exp_month ?? 'xx' }}/{{ $token->meta?->exp_year ?? 'xx' }}</span>
+                    <span class="ml-1">**** {{ $token->meta?->last4 }} - {{ $token->meta?->exp_month ?? 'xx' }}/{{ $token->meta?->exp_year ?? 'xx' }}</span>
                 </label>
             </li>
             @endforeach
         @endisset
 
-            <li class="py-2 hover:bg-blue-600">
-                <label>
+            <li class="payment-method-item">
+            <label class="payment-method-label">
                     <input
                         type="radio"
                         id="toggle-payment-with-credit-card"
-                        class="form-check-input text-indigo-600 rounded-full cursor-pointer"
+                        class="form-radio cursor-pointer"
                         name="payment-type"
                         checked/>
-                    <span class="ml-1 cursor-pointer">{{ __('texts.new_card') }}</span>
+                    <span class="ml-1">{{ __('texts.new_card') }}</span>
                 </label>
             </li>    
         </ul>

@@ -21,7 +21,7 @@ class Decorator implements DecoratorInterface
         $index = $this->getKeyPart(0, $key);
         $column = $this->getKeyPart(1, $key);
 
-        if (method_exists($this, $index)) {
+        if ($column !== null && $index !== null && method_exists($this, $index)) {
             return $this->{$index}()->transform($column, $entity);
         }
 

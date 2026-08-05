@@ -128,9 +128,9 @@ class BaseTransformer
         return isset($data[$field]) && $data[$field] ? (string) $data[$field] : $default;
     }
 
-    public function getNumber($data, $field, $default = 0)
+    public function getNumber(array $data, string $field, int $default = 0): int
     {
-        return (isset($data->$field) && $data->$field) ? (int) $data->$field : $default;
+        return (isset($data[$field]) && $data[$field]) ? (int) $data[$field] : $default;
     }
 
     public function getString($data, $field, $default = '')

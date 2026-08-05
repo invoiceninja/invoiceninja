@@ -15,11 +15,13 @@ namespace App\Jobs\EDocument;
 use App\DataMapper\FranceEReporting\FRReportData;
 use App\DataMapper\ReportData;
 use App\Libraries\MultiDB;
+use App\Models\Account;
 use App\Models\Company;
 use App\Models\TransactionEvent;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
 use App\Services\EDocument\Standards\France\FranceEReportCompiler;
 use App\Services\EDocument\Standards\France\FranceEReportPayloadBuilder;
+use App\Services\EDocument\Standards\France\FranceSubmissionClaim;
 use Carbon\CarbonImmutable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -27,6 +29,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use Ramsey\Uuid\Uuid;
 use Throwable;
 
@@ -57,8 +60,13 @@ class SubmitFranceEReport implements ShouldQueue
 
         /** @var Company|null $company */
         $company = Company::query()->with('account')->find($this->companyId);
+        $account = $company?->getRelation('account');
 
-        if (! $company || ! in_array($this->submissionEventId, TransactionEvent::FR_REPORT_SUBMISSION_EVENTS, true)) {
+        if (! $company
+            || $company->is_disabled
+            || ! $account instanceof Account
+            || $account->is_flagged
+            || ! in_array($this->submissionEventId, TransactionEvent::FR_REPORT_SUBMISSION_EVENTS, true)) {
             return;
         }
 
@@ -72,57 +80,83 @@ class SubmitFranceEReport implements ShouldQueue
             return;
         }
 
-        $issuedAt = CarbonImmutable::now($company->timezone()?->name ?: config('app.timezone'));
-        $report = $compiler->compileFromEvents($company, $this->submissionEventId, $this->periodEnd, $sourceEvents, $issuedAt);
-        $payload = $payloadBuilder->build($company, $report);
-        /** @var TransactionEvent $sourceEvent */
-        $sourceEvent = $sourceEvents->first();
         $sourceEventIds = $sourceEvents->pluck('id')->map(fn ($id): int => (int) $id)->all();
-        $idempotencyGuid = $this->idempotencyGuid($company, $sourceEventIds);
-        $attemptedAt = CarbonImmutable::now($company->timezone()?->name ?: config('app.timezone'));
+        $claims = app(FranceSubmissionClaim::class);
+        $claimToken = $claims->claim($sourceEventIds);
+
+        if (! $claimToken) {
+            return;
+        }
+
+        $claimCompleted = false;
 
         try {
-            $response = $storecove->proxy
-                ->setCompany($company)
-                ->submitDocument([
-                    ...$payload,
-                    'legal_entity_id' => $payload['legalEntityId'],
-                    'idempotencyGuid' => $idempotencyGuid,
-                    'tenant_id' => $company->company_key,
-                    'account_key' => $company->account->key,
-                    'e_invoicing_token' => $company->account->e_invoicing_token,
-                ]);
-        } catch (Throwable $exception) {
-            report($exception);
+            $sourceEvents = $compiler->sourceEvents($company, $this->submissionEventId, $this->periodEnd);
+            $claimedSourceEventIds = $sourceEvents->pluck('id')->map(fn ($id): int => (int) $id)->all();
+
+            if ($claimedSourceEventIds !== $sourceEventIds) {
+                return;
+            }
+
+            $issuedAt = CarbonImmutable::now($company->timezone()?->name ?: config('app.timezone'));
+            $report = $compiler->compileFromEvents($company, $this->submissionEventId, $this->periodEnd, $sourceEvents, $issuedAt);
+            $payload = $payloadBuilder->build($company, $report);
+            /** @var TransactionEvent $sourceEvent */
+            $sourceEvent = $sourceEvents->first();
+            $idempotencyGuid = $this->idempotencyGuid($company, $sourceEventIds);
+            $attemptedAt = CarbonImmutable::now($company->timezone()?->name ?: config('app.timezone'));
+
+            try {
+                $response = $storecove->proxy
+                    ->setCompany($company)
+                    ->submitDocument([
+                        ...$payload,
+                        'legal_entity_id' => $payload['legalEntityId'],
+                        'idempotencyGuid' => $idempotencyGuid,
+                        'tenant_id' => $company->company_key,
+                        'account_key' => $company->account->key,
+                        'e_invoicing_token' => $company->account->e_invoicing_token,
+                    ]);
+            } catch (Throwable $exception) {
+                report($exception);
+
+                $this->recordSubmissionAttempt(
+                    company: $company,
+                    report: $report,
+                    sourceEvent: $sourceEvent,
+                    sourceEventIds: $sourceEventIds,
+                    claimToken: $claimToken,
+                    idempotencyGuid: $idempotencyGuid,
+                    generatedAt: $issuedAt,
+                    attemptedAt: $attemptedAt,
+                    response: [],
+                    error: [
+                        'message' => $exception->getMessage(),
+                        'class' => $exception::class,
+                    ],
+                );
+                $claimCompleted = true;
+
+                return;
+            }
 
             $this->recordSubmissionAttempt(
                 company: $company,
                 report: $report,
                 sourceEvent: $sourceEvent,
                 sourceEventIds: $sourceEventIds,
+                claimToken: $claimToken,
                 idempotencyGuid: $idempotencyGuid,
                 generatedAt: $issuedAt,
                 attemptedAt: $attemptedAt,
-                response: [],
-                error: [
-                    'message' => $exception->getMessage(),
-                    'class' => $exception::class,
-                ],
+                response: $response,
             );
-
-            return;
+            $claimCompleted = true;
+        } finally {
+            if (! $claimCompleted) {
+                $claims->release($sourceEventIds, $claimToken);
+            }
         }
-
-        $this->recordSubmissionAttempt(
-            company: $company,
-            report: $report,
-            sourceEvent: $sourceEvent,
-            sourceEventIds: $sourceEventIds,
-            idempotencyGuid: $idempotencyGuid,
-            generatedAt: $issuedAt,
-            attemptedAt: $attemptedAt,
-            response: $response,
-        );
     }
 
     /**
@@ -168,6 +202,7 @@ class SubmitFranceEReport implements ShouldQueue
         FRReportData $report,
         TransactionEvent $sourceEvent,
         array $sourceEventIds,
+        string $claimToken,
         string $idempotencyGuid,
         CarbonImmutable $generatedAt,
         CarbonImmutable $attemptedAt,
@@ -180,31 +215,62 @@ class SubmitFranceEReport implements ShouldQueue
             ? TransactionEvent::FR_REPORTING_STATUS_SUBMITTED
             : TransactionEvent::FR_REPORTING_STATUS_FAILED;
 
-        TransactionEvent::create([
-            'company_id' => $company->id,
-            'client_id' => $sourceEvent->client_id,
-            'invoice_id' => $sourceEvent->invoice_id,
-            'payment_id' => $sourceEvent->payment_id,
-            'credit_id' => $sourceEvent->credit_id,
-            'event_id' => $this->submissionEventId,
-            'timestamp' => now()->timestamp,
-            'period' => $this->periodEnd,
-            'payment_status' => $status,
-            'reporting_data' => ReportData::fromFRReport($report),
-            'payment_request' => [
-                'source_event_ids' => $sourceEventIds,
-                'generated_at' => $generatedAt->toIso8601String(),
-                'attempted_at' => $attemptedAt->toIso8601String(),
-                'guid' => $guid,
-                'idempotency_guid' => $idempotencyGuid,
-                'submitted_at' => $successful ? now()->toIso8601String() : null,
-                'failed_at' => $successful ? null : now()->toIso8601String(),
-                'error' => $successful ? null : ($error ?? $response),
-            ],
-        ]);
+        DB::transaction(function () use (
+            $company,
+            $sourceEvent,
+            $sourceEventIds,
+            $claimToken,
+            $status,
+            $report,
+            $generatedAt,
+            $attemptedAt,
+            $guid,
+            $idempotencyGuid,
+            $successful,
+            $error,
+            $response,
+        ): void {
+            $sourceEvents = TransactionEvent::query()
+                ->whereIn('id', $sourceEventIds)
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get();
 
-        TransactionEvent::query()
-            ->whereIn('id', $sourceEventIds)
-            ->update(['payment_status' => $status]);
+            if ($sourceEvents->count() !== count($sourceEventIds)
+                || $sourceEvents->contains(fn (TransactionEvent $event): bool => ! app(FranceSubmissionClaim::class)->isOwnedBy($event, $claimToken))) {
+                throw new \RuntimeException('France report submission source claim was lost before persistence.');
+            }
+
+            TransactionEvent::create([
+                'company_id' => $company->id,
+                'client_id' => $sourceEvent->client_id,
+                'invoice_id' => $sourceEvent->invoice_id,
+                'payment_id' => $sourceEvent->payment_id,
+                'credit_id' => $sourceEvent->credit_id,
+                'event_id' => $this->submissionEventId,
+                'timestamp' => now()->timestamp,
+                'period' => $this->periodEnd,
+                'payment_status' => $status,
+                'reporting_data' => ReportData::fromFRReport($report),
+                'payment_request' => [
+                    'source_event_ids' => $sourceEventIds,
+                    'generated_at' => $generatedAt->toIso8601String(),
+                    'attempted_at' => $attemptedAt->toIso8601String(),
+                    'guid' => $guid,
+                    'idempotency_guid' => $idempotencyGuid,
+                    'submitted_at' => $successful ? now()->toIso8601String() : null,
+                    'failed_at' => $successful ? null : now()->toIso8601String(),
+                    'error' => $successful ? null : ($error ?? $response),
+                ],
+            ]);
+
+            foreach ($sourceEvents as $claimedSourceEvent) {
+                $request = $claimedSourceEvent->payment_request ?? [];
+                unset($request[FranceSubmissionClaim::TOKEN], $request[FranceSubmissionClaim::EXPIRES_AT]);
+                $claimedSourceEvent->payment_request = $request;
+                $claimedSourceEvent->payment_status = $status;
+                $claimedSourceEvent->save();
+            }
+        }, attempts: 3);
     }
 }

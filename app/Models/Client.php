@@ -76,7 +76,7 @@ use Illuminate\Contracts\Translation\HasLocalePreference;
  * @property int|null $shipping_country_id
  * @property object|null $settings
  * @property object|null $group_settings
- * @property object|null $sync
+ * @property ClientSync|null $sync
  * @property bool $is_deleted
  * @property int|null $group_settings_id
  * @property string|null $vat_number

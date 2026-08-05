@@ -469,7 +469,8 @@ class CompanyController extends BaseController
                     ->where('balance', '>', 0)
                     ->cursor()
                     ->each(function ($invoice) {
-                        $invoice->service()->setReminder();
+                        nlog("updating {$invoice->number}");
+                        $invoice->service()->setReminder()->save();
                     });
 
 

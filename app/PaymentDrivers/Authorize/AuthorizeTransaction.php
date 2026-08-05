@@ -96,6 +96,8 @@ class AuthorizeTransaction
 
         $contact = $this->authorize->client->primary_contact()->first() ?: $this->authorize->client->contacts()->first();
 
+        $billto = null;
+        
         if ($contact) {
             $billto = new \net\authorize\api\contract\v1\CustomerAddressType();
             $billto->setFirstName(substr($contact->present()->first_name(), 0, 50));

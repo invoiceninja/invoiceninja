@@ -20,6 +20,7 @@ use App\Models\Project;
 use App\Models\Invoice;
 use App\Models\Expense;
 use App\Models\TaskStatus;
+use App\Models\User;
 use Tests\MockAccountData;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
@@ -698,6 +699,41 @@ class ProjectAnalyticsTypeTest extends TestCase
         $this->assertEqualsWithDelta(99.0, $invoiceProgress['invoiced_amount'], 0.01);
         $this->assertSame(1, $response->json('metadata.project_count'));
         $this->assertNull(collect($response->json('budget_summary'))->firstWhere('project_id', $otherProject->hashed_id));
+    }
+
+    public function testNonAdminProjectAnalyticsIncludesExplicitlyAuthorizedProjectNotOwnedByUser(): void
+    {
+        $projectOwner = User::factory()->create([
+            'account_id' => $this->account->id,
+            'email' => 'project-owner@example.com',
+        ]);
+
+        $project = Project::factory()->create([
+            'user_id' => $projectOwner->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'name' => 'Assigned Project',
+            'budgeted_hours' => 5,
+            'current_hours' => 1,
+            'task_rate' => 100,
+            'is_deleted' => false,
+        ]);
+
+        $result = (new ChartService($this->test_company, $this->user, false))
+            ->project_analytics($project);
+
+        $this->assertFalse($result['metadata']['can_view_financials']);
+        $this->assertSame(1, $result['metadata']['project_count']);
+        $this->assertNotEmpty($result['forecast_completion']);
+        $this->assertSame($project->hashed_id, $result['forecast_completion'][0]->project_id);
+
+        foreach ($result as $dataset => $rows) {
+            if (in_array($dataset, ['forecast_completion', 'metadata'], true)) {
+                continue;
+            }
+
+            $this->assertSame([], $rows, "{$dataset} should not contain non-admin datapoints.");
+        }
     }
 
     public function testProjectAnalyticsEndpointRejectsRawProjectId(): void

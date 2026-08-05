@@ -45,9 +45,17 @@ class InstantPayment
     {
         /** @var \App\Models\ClientContact $cc */
         $cc = auth()->guard('contact')->user();
-        $cc->first_name = $this->request->contact_first_name;
-        $cc->last_name = $this->request->contact_last_name;
-        $cc->email = $this->request->contact_email;
+        if (strlen($this->request->contact_first_name ?? '') > 0) {
+            $cc->first_name = $this->request->contact_first_name;
+        }
+
+        if (strlen($this->request->contact_last_name ?? '') > 0) {
+            $cc->last_name = $this->request->contact_last_name;
+        }
+
+        if (filter_var($this->request->contact_email, FILTER_VALIDATE_EMAIL)) {
+            $cc->email = $this->request->contact_email;
+        }
         $cc->client->postal_code = strlen($cc->client->postal_code ?? '') > 1 ? $cc->client->postal_code : $this->request->client_postal_code;
         $cc->client->city = strlen($cc->client->city ?? '') > 1 ? $cc->client->city : $this->request->client_city;
         $cc->client->shipping_postal_code = strlen($cc->client->shipping_postal_code ?? '') > 1 ? $cc->client->shipping_postal_code : $cc->client->postal_code;

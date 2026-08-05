@@ -103,6 +103,9 @@ class Invoice
     // no mapping
     public ?string $preferred_invoice_type;
 
+    /** France AFNOR invoicing context. */
+    public ?string $fr_cadre_de_facturation = null;
+
     #[SerializedPath('[cac:LegalMonetaryTotal][cbc:PrepaidAmount]')]
     public ?string $prepaid_amount;
 
@@ -433,6 +436,11 @@ class Invoice
         return $this->preferred_invoice_type;
     }
 
+    public function getFrCadreDeFacturation(): ?string
+    {
+        return $this->fr_cadre_de_facturation;
+    }
+
     public function getPrepaidAmount(): ?string
     {
         return $this->prepaid_amount;
@@ -749,6 +757,12 @@ class Invoice
     public function setPreferredInvoiceType(?string $preferred_invoice_type): self
     {
         $this->preferred_invoice_type = $preferred_invoice_type;
+        return $this;
+    }
+
+    public function setFrCadreDeFacturation(?string $fr_cadre_de_facturation): self
+    {
+        $this->fr_cadre_de_facturation = $fr_cadre_de_facturation;
         return $this;
     }
 

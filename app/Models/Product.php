@@ -47,7 +47,7 @@ use League\CommonMark\CommonMarkConverter;
  * @property int|null $deleted_at
  * @property int|null $created_at
  * @property int|null $updated_at
- * @property object|null $sync
+ * @property ProductSync|null $sync
  * @property bool $is_deleted
  * @property float $in_stock_quantity
  * @property bool $stock_notification

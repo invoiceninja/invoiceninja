@@ -12,6 +12,7 @@
 
 namespace App\Repositories;
 
+use App\Events\Payment\PaymentApplicationDateChanged;
 use App\Events\Payment\PaymentWasCreated;
 use App\Events\Payment\PaymentWasDeleted;
 use App\Jobs\Credit\ApplyCreditPayment;
@@ -22,11 +23,13 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Paymentable;
 use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
+use App\Services\Payment\PaymentApplicationDateResolver;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 /**
  * PaymentRepository.
@@ -53,11 +56,76 @@ class PaymentRepository extends BaseRepository
     public function save(array $data, Payment $payment): ?Payment
     {
         $tag_ids = $this->resolveTagIdsForSync($data, $payment);
+        $original_date = $payment->date;
+        $paymentables_to_move = $this->paymentablesDerivedFromDate($data, $payment, $original_date);
         $payment = $this->applyPayment($data, $payment);
 
+        $moved_paymentables = $this->movePaymentableDates($payment, $original_date, $paymentables_to_move);
         $this->syncResolvedTags($payment, $tag_ids);
-        
+
+        if ($original_date && $payment->date && $moved_paymentables->isNotEmpty()) {
+            PaymentApplicationDateChanged::dispatch(
+                $payment->id,
+                $payment->company->db,
+                $original_date,
+                $payment->date,
+                $moved_paymentables->pluck('id')->map(fn($id): int => (int) $id)->sort()->values()->all(),
+            );
+        }
+
         return $payment;
+    }
+
+    /**
+     * Select existing application rows whose legacy business date was inherited
+     * from the payment date. Rows created by this save are intentionally excluded.
+     *
+     * @return Collection<int, Paymentable>
+     */
+    private function paymentablesDerivedFromDate(array $data, Payment $payment, ?string $original_date): Collection
+    {
+        if (! $payment->exists
+            || ! $original_date
+            || empty($data['date'])
+            || (string) $data['date'] === $original_date) {
+            return collect();
+        }
+
+        $timezone = $payment->company->timezone()?->name ?: config('app.timezone');
+
+        return Paymentable::withTrashed()
+            ->where('payment_id', $payment->id)
+            ->get()
+            ->filter(function (Paymentable $paymentable) use ($original_date, $timezone): bool {
+                return app(PaymentApplicationDateResolver::class)->resolve($paymentable, $timezone) === $original_date;
+            })
+            ->values();
+    }
+
+    /**
+     * @param Collection<int, Paymentable> $paymentables
+     */
+    private function movePaymentableDates(Payment $payment, ?string $original_date, Collection $paymentables): Collection
+    {
+        if (! $original_date
+            || ! $payment->date
+            || $payment->date === $original_date
+            || $paymentables->isEmpty()) {
+            return collect();
+        }
+
+        $moved_paymentables = collect();
+        $timezone = $payment->company->timezone()?->name ?: config('app.timezone');
+        $application_timestamp = app(PaymentApplicationDateResolver::class)
+            ->encodeBusinessDate($payment->date, $timezone);
+
+        foreach ($paymentables as $paymentable) {
+            $paymentable->created_at = $application_timestamp;
+            $paymentable->saveQuietly();
+            $moved_paymentables->push($paymentable);
+        }
+
+        return $moved_paymentables;
     }
 
     /**
@@ -157,7 +225,10 @@ class PaymentRepository extends BaseRepository
                     $paymentable->paymentable_id = $invoice->id;
                     $paymentable->paymentable_type = 'invoices';
                     $paymentable->amount = $paid_invoice['amount'];
-                    $paymentable->created_at = $is_existing_payment ? now()->setTimezone($payment->company->timezone()->name) : $payment->date ?? now()->setTimezone($payment->company->timezone()->name) ; //@phpstan-ignore-line
+                    $timezone = $payment->company->timezone()?->name ?: config('app.timezone');
+                    $paymentable->created_at = $is_existing_payment
+                        ? now('UTC')->timestamp
+                        : app(PaymentApplicationDateResolver::class)->encodeBusinessDate($payment->date ?? now($timezone)->toDateString(), $timezone);
                     $paymentable->save();
 
                     $invoice = $invoice->service()
@@ -204,7 +275,10 @@ class PaymentRepository extends BaseRepository
                     $paymentable->paymentable_id = $credit->id;
                     $paymentable->paymentable_type = Credit::class;
                     $paymentable->amount = $paid_credit['amount'];
-                    $paymentable->created_at = $is_existing_payment ? now()->setTimezone($payment->company->timezone()->name) : $payment->date ?? now()->setTimezone($payment->company->timezone()->name) ; //@phpstan-ignore-line
+                    $timezone = $payment->company->timezone()?->name ?: config('app.timezone');
+                    $paymentable->created_at = $is_existing_payment
+                        ? now('UTC')->timestamp
+                        : app(PaymentApplicationDateResolver::class)->encodeBusinessDate($payment->date ?? now($timezone)->toDateString(), $timezone);
                     $paymentable->save();
 
                     $credit = $credit->service()->markSent()->save();

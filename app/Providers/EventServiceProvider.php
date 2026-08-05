@@ -123,6 +123,7 @@ use App\Events\Payment\PaymentWasCreated;
 use App\Events\Payment\PaymentWasDeleted;
 use App\Events\Payment\PaymentWasEmailed;
 use App\Events\Payment\PaymentWasUpdated;
+use App\Events\Payment\PaymentApplicationDateChanged;
 use App\Observers\CompanyGatewayObserver;
 use App\Events\Credit\CreditWasMarkedSent;
 use App\Events\Expense\ExpenseWasArchived;
@@ -203,6 +204,7 @@ use App\Listeners\Activity\VendorUpdatedActivity;
 use App\Listeners\Contact\UpdateContactLastLogin;
 use App\Listeners\Invoice\InvoiceDeletedActivity;
 use App\Listeners\Payment\PaymentBalanceActivity;
+use App\Listeners\Payment\ReconcilePaymentApplicationDateChange;
 use App\Listeners\Payment\PaymentEmailedActivity;
 use App\Listeners\Quote\QuoteCreatedNotification;
 use App\Listeners\Quote\QuoteEmailedNotification;
@@ -367,6 +369,9 @@ class EventServiceProvider extends ServiceProvider
             PaymentCreatedActivity::class,
             PaymentNotification::class,
             PaymentBalanceActivity::class,
+        ],
+        PaymentApplicationDateChanged::class => [
+            ReconcilePaymentApplicationDateChange::class,
         ],
         PaymentWasDeleted::class => [
             PaymentDeletedActivity::class,

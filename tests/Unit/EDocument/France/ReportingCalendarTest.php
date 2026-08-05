@@ -478,9 +478,22 @@ class ReportingCalendarTest extends TestCase
     public function testDefaultsToNowWhenDateOmitted(): void
     {
         $period = ReportingCalendar::currentPeriod(ReportingProfile::Monthly);
-        $now = CarbonImmutable::now();
+        $now = CarbonImmutable::now('Europe/Paris');
 
         $this->assertSame($now->startOfMonth()->toDateString(), $period->start->toDateString());
         $this->assertSame($now->endOfMonth()->toDateString(), $period->end->toDateString());
+    }
+
+    public function testEveryPeriodBoundaryPreservesTheInputTimezone(): void
+    {
+        $reference = CarbonImmutable::parse('2026-09-10 22:00:00', 'Europe/Paris');
+
+        foreach (ReportingProfile::cases() as $profile) {
+            $period = ReportingCalendar::currentPeriod($profile, $reference);
+
+            $this->assertSame('Europe/Paris', $period->start->getTimezone()->getName());
+            $this->assertSame('Europe/Paris', $period->end->getTimezone()->getName());
+            $this->assertSame('Europe/Paris', $period->dueDate->getTimezone()->getName());
+        }
     }
 }
