@@ -5955,7 +5955,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'too_many_requests' => 'Trop de demandes',
     'cloned_client' => 'Client cloné avec succès',
     'update_tax_details' => 'Mise à jour des informations fiscales',
-    'cc_only' => 'Carte de crédit uniquement',
+    'cc_only' => 'Uniquement en copie (CC)',
     'e_invoice_forward_email' => 'Service de transfert de courriels PEPPOL',
     'e_invoice_forward_email_help' => 'Transfère les factures électroniques envoyées/reçues à un service de traitement tiers comme Yuki ou WinAuditor.',
     'skip_automatic_email_with_peppol' => 'Désactiver les e-mails envoyés via PEPPOL',

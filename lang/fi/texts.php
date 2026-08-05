@@ -5955,7 +5955,7 @@ Kun saat summat, palaa tälle maksutapasivulle ja klikkaa "Saata loppuun todenta
     'too_many_requests' => 'Liikaa pyyntöjä',
     'cloned_client' => 'Onnistuneesti kloonattu Asiakas',
     'update_tax_details' => 'Päivitä verotiedot',
-    'cc_only' => 'Vain luottokortti',
+    'cc_only' => 'Vain CC',
     'e_invoice_forward_email' => 'PEPPOL Edelleenlähetys sähköposti',
     'e_invoice_forward_email_help' => 'Lähettää lähetetyt/vastaanotetut Laskut edelleen kolmannen osapuolen käsittelypalveluun, kuten Yukiin tai WinAuditoriin',
     'skip_automatic_email_with_peppol' => 'Poista sähköposti käytöstä, kun se lähetetään PEPPOLin kautta',
