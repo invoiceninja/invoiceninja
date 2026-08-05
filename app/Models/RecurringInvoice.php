@@ -275,6 +275,8 @@ class RecurringInvoice extends BaseModel
         'terms',
         'footer',
         'remaining_cycles',
+        'auto_bill',
+        'auto_bill_enabled',
     ];
 
 
