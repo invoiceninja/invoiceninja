@@ -14,6 +14,7 @@ namespace App\PaymentDrivers\Stripe\Jobs;
 
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
+use App\Models\Client;
 use App\Models\ClientGatewayToken;
 use App\Models\Company;
 use App\Models\CompanyGateway;
@@ -30,6 +31,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Modules\Admin\Jobs\Stripe\CampaignCharge;
+use Stripe\PaymentIntent;
 
 class PaymentIntentWebhook implements ShouldQueue
 {
@@ -38,6 +40,15 @@ class PaymentIntentWebhook implements ShouldQueue
     use Queueable;
     use SerializesModels;
     use Utilities;
+
+    private const ASYNC_PAYMENT_TYPES = [
+        'us_bank_account' => PaymentType::ACH,
+        'bacs_debit' => PaymentType::BACS,
+        'au_becs_debit' => PaymentType::BECS,
+        'acss_debit' => PaymentType::ACSS,
+        'sepa_debit' => PaymentType::SEPA,
+        'customer_balance' => PaymentType::STRIPE_BANK_TRANSFER,
+    ];
 
     public $tries = 1; //number of retries
 
@@ -112,10 +123,9 @@ class PaymentIntentWebhook implements ShouldQueue
             return;
         }
 
-        try{
+        try {
             $pi = \Stripe\PaymentIntent::retrieve($this->stripe_request['object']['id'], $stripe_driver->stripe_connect_auth);
-        }
-        catch(\Throwable $e){
+        } catch (\Throwable $e) {
             nlog("error retrieving payment intent");
             nlog($e->getMessage());
             return;
@@ -147,7 +157,7 @@ class PaymentIntentWebhook implements ShouldQueue
             $payment->save();
         }
 
-        $hash = $charge['metadata']['payment_hash'] ?? false;
+        $hash = $pi['metadata']['payment_hash'] ?? $charge['metadata']['payment_hash'] ?? false;
 
         if (!$hash) {
             return;
@@ -196,7 +206,10 @@ class PaymentIntentWebhook implements ShouldQueue
             }
 
             $this->updateCreditCardPayment($payment_hash, $client, $meta);
-        } elseif (isset($pi['payment_method_types']) && in_array('us_bank_account', $pi['payment_method_types'])) {
+        } elseif (
+            isset($pi['payment_method_types'])
+            && array_intersect($pi['payment_method_types'], array_keys(self::ASYNC_PAYMENT_TYPES))
+        ) {
             $invoice = Invoice::with('client')->withTrashed()->find($payment_hash->fee_invoice_id);
             $client = $invoice->client;
 
@@ -204,14 +217,19 @@ class PaymentIntentWebhook implements ShouldQueue
                 return;
             }
 
-            $this->updateAchPayment($payment_hash, $client, $meta);
-        } elseif (isset($pi['payment_method_types']) && in_array('bacs_debit', $pi['payment_method_types'])) {
-            return;
+            $this->updateAsyncPayment($payment_hash, $client, $meta, $pi);
         }
     }
 
-    private function updateAchPayment($payment_hash, $client, $meta)
+    private function updateAsyncPayment(PaymentHash $payment_hash, Client $client, array $meta, PaymentIntent $pi): void
     {
+        $stripe_payment_type = collect($pi->payment_method_types)
+            ->first(fn(string $type): bool => isset(self::ASYNC_PAYMENT_TYPES[$type]));
+
+        if (! $stripe_payment_type) {
+            return;
+        }
+
         $company_gateway = CompanyGateway::query()->find($this->company_gateway_id);
         $payment_method_type = $meta['gateway_type_id'];
         $driver = $company_gateway->driver($client)->init()->setPaymentMethod($payment_method_type);
@@ -221,14 +239,14 @@ class PaymentIntentWebhook implements ShouldQueue
         $driver->setPaymentHash($payment_hash);
 
         $data = [
-            'payment_method' => $payment_hash->data->object->payment_method,
-            'payment_type' => PaymentType::ACH,
-            'amount' => $payment_hash->data->amount_with_fee,
-            'transaction_reference' => $meta['transaction_reference'],
-            'gateway_type_id' => GatewayType::BANK_TRANSFER,
+            'payment_method' => $pi->payment_method,
+            'payment_type' => self::ASYNC_PAYMENT_TYPES[$stripe_payment_type],
+            'amount' => $payment_hash->amount_with_fee(),
+            'transaction_reference' => $pi->id,
+            'gateway_type_id' => $payment_method_type,
         ];
 
-        $payment = $driver->createPayment($data, Payment::STATUS_COMPLETED);
+        $driver->createPayment($data, Payment::STATUS_COMPLETED);
 
         SystemLogger::dispatch(
             ['response' => $this->stripe_request, 'data' => $data],
@@ -238,6 +256,10 @@ class PaymentIntentWebhook implements ShouldQueue
             $client,
             $client->company,
         );
+
+        if ($stripe_payment_type !== 'us_bank_account') {
+            return;
+        }
 
         try {
             $customer = $driver->getCustomer($meta['customer']);
