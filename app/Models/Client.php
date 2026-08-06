@@ -30,7 +30,6 @@ use App\Models\Presenters\ClientPresenter;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Utils\Traits\ClientGroupSettingsSaver;
 use App\Libraries\Currency\Conversion\CurrencyApi;
-use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Contracts\Translation\HasLocalePreference;
@@ -1029,28 +1028,6 @@ class Client extends BaseModel implements HasLocalePreference
 
         return $offset;
 
-    }
-
-    /**
-     * Converts a local scheduled date to its UTC send datetime.
-     */
-    public function scheduledDateTimeUtc(string $date): Carbon
-    {
-        $sendTime = (int) $this->getSetting('entity_send_time');
-
-        if ($sendTime === 0) {
-            return Carbon::parse($date, 'UTC')->startOfDay();
-        }
-
-        $scheduledDate = Carbon::parse($date, $this->timezone()->name);
-
-        if ($sendTime === 24) {
-            $scheduledDate->setTime(23, 59, 50);
-        } else {
-            $scheduledDate->setTime($sendTime, 0, 0);
-        }
-
-        return $scheduledDate->utc();
     }
 
     public function timezone_offset(): int

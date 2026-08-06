@@ -127,9 +127,8 @@ class RecurringService
         }
 
         if (isset($this->recurring_entity->client)) {
-            // 2026-08-06 - change to centralized DST aware handler
-            // $this->recurring_entity->next_send_date = Carbon::parse($this->recurring_entity->next_send_date_client)->startOfDay()->addSeconds($offset);
-            $this->recurring_entity->next_send_date = $this->recurring_entity->client->scheduledDateTimeUtc($this->recurring_entity->next_send_date_client);
+            $offset = $this->recurring_entity->client->timezone_offset();
+            $this->recurring_entity->next_send_date = Carbon::parse($this->recurring_entity->next_send_date_client)->startOfDay()->addSeconds($offset);
         }
 
         return $this;

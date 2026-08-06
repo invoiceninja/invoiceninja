@@ -962,28 +962,6 @@ class Company extends BaseModel
         return $offset;
     }
 
-    /**
-     * Converts a local scheduled date to its UTC send datetime.
-     */
-    public function scheduledDateTimeUtc(string $date): \Carbon\Carbon
-    {
-        $sendTime = (int) $this->getSetting('entity_send_time');
-
-        if ($sendTime === 0) {
-            return \Carbon\Carbon::parse($date, 'UTC')->startOfDay();
-        }
-
-        $scheduledDate = \Carbon\Carbon::parse($date, $this->timezone()->name);
-
-        if ($sendTime === 24) {
-            $scheduledDate->setTime(23, 59, 50);
-        } else {
-            $scheduledDate->setTime($sendTime, 0, 0);
-        }
-
-        return $scheduledDate->utc();
-    }
-
     public function timezone_offset(): int
     {
         $offset = 0;

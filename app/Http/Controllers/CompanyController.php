@@ -481,9 +481,8 @@ class CompanyController extends BaseController
                             ->cursor()
                             ->each(function ($recurring_invoice) {
 
-                                // $offset = $recurring_invoice->client->timezone_offset();
-                                // $recurring_invoice->next_send_date = \Carbon\Carbon::parse($recurring_invoice->next_send_date_client)->startOfDay()->addSeconds($offset);
-                                $recurring_invoice->next_send_date = $recurring_invoice->client->scheduledDateTimeUtc($recurring_invoice->next_send_date_client);
+                                $offset = $recurring_invoice->client->timezone_offset();
+                                $recurring_invoice->next_send_date = \Carbon\Carbon::parse($recurring_invoice->next_send_date_client)->startOfDay()->addSeconds($offset);
                                 $recurring_invoice->save();
 
                             });

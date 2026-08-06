@@ -130,7 +130,6 @@ class RecurringQuote extends BaseModel
 
     protected $presenter = RecurringQuotePresenter::class;
 
-    /** important !!! the code here is old and if we intend to implement this, we must refactor and align with the RecurringInvoice model, additional props + calculations for next_send_dates */
     /**
      * Quote Statuses.
      */

@@ -453,11 +453,49 @@ class RecurringInvoice extends BaseModel
 
     public function nextSendDate(): ?Carbon
     {
-        $nextSendDateClient = $this->nextSendDateClient();
+        if (! $this->next_send_date_client) {
+            return null;
+        }
 
-        return $nextSendDateClient
-            ? $this->client->scheduledDateTimeUtc($nextSendDateClient->toDateString())
-            : null;
+        $offset = $this->client->timezone_offset();
+
+        /* If this setting is enabled, the recurring invoice may be set in the past */
+
+        if ($this->company->stop_on_unpaid_recurring) {
+            /* Lets set the next send date to now so we increment from today, rather than in the past*/
+            if (Carbon::parse($this->next_send_date)->lt(now()->subDays(3))) {
+                $this->next_send_date_client = now()->format('Y-m-d');
+            }
+        }
+
+        switch ($this->frequency_id) {
+            case self::FREQUENCY_DAILY:
+                return Carbon::parse($this->next_send_date_client)->startOfDay()->addDay()->addSeconds($offset);
+            case self::FREQUENCY_WEEKLY:
+                return Carbon::parse($this->next_send_date_client)->startOfDay()->addWeek()->addSeconds($offset);
+            case self::FREQUENCY_TWO_WEEKS:
+                return Carbon::parse($this->next_send_date_client)->startOfDay()->addWeeks(2)->addSeconds($offset);
+            case self::FREQUENCY_FOUR_WEEKS:
+                return Carbon::parse($this->next_send_date_client)->startOfDay()->addWeeks(4)->addSeconds($offset);
+            case self::FREQUENCY_MONTHLY:
+                return Carbon::parse($this->next_send_date_client)->startOfDay()->addMonthNoOverflow()->addSeconds($offset);
+            case self::FREQUENCY_TWO_MONTHS:
+                return Carbon::parse($this->next_send_date_client)->startOfDay()->addMonthsNoOverflow(2)->addSeconds($offset);
+            case self::FREQUENCY_THREE_MONTHS:
+                return Carbon::parse($this->next_send_date_client)->startOfDay()->addMonthsNoOverflow(3)->addSeconds($offset);
+            case self::FREQUENCY_FOUR_MONTHS:
+                return Carbon::parse($this->next_send_date_client)->startOfDay()->addMonthsNoOverflow(4)->addSeconds($offset);
+            case self::FREQUENCY_SIX_MONTHS:
+                return Carbon::parse($this->next_send_date_client)->startOfDay()->addMonthsNoOverflow(6)->addSeconds($offset);
+            case self::FREQUENCY_ANNUALLY:
+                return Carbon::parse($this->next_send_date_client)->startOfDay()->addYear()->addSeconds($offset);
+            case self::FREQUENCY_TWO_YEARS:
+                return Carbon::parse($this->next_send_date_client)->startOfDay()->addYears(2)->addSeconds($offset);
+            case self::FREQUENCY_THREE_YEARS:
+                return Carbon::parse($this->next_send_date_client)->startOfDay()->addYears(3)->addSeconds($offset);
+            default:
+                return null;
+        }
     }
 
     public function nextSendDateClient(): ?Carbon
@@ -504,6 +542,41 @@ class RecurringInvoice extends BaseModel
                 return null;
         }
     }
+
+    public function nextDateByFrequency($date)
+    {
+        $offset = $this->client->timezone_offset();
+
+        switch ($this->frequency_id) {
+            case self::FREQUENCY_DAILY:
+                return Carbon::parse($date)->startOfDay()->addDay()->addSeconds($offset);
+            case self::FREQUENCY_WEEKLY:
+                return Carbon::parse($date)->startOfDay()->addWeek()->addSeconds($offset);
+            case self::FREQUENCY_TWO_WEEKS:
+                return Carbon::parse($date)->startOfDay()->addWeeks(2)->addSeconds($offset);
+            case self::FREQUENCY_FOUR_WEEKS:
+                return Carbon::parse($date)->startOfDay()->addWeeks(4)->addSeconds($offset);
+            case self::FREQUENCY_MONTHLY:
+                return Carbon::parse($date)->startOfDay()->addMonthNoOverflow()->addSeconds($offset);
+            case self::FREQUENCY_TWO_MONTHS:
+                return Carbon::parse($date)->startOfDay()->addMonthsNoOverflow(2)->addSeconds($offset);
+            case self::FREQUENCY_THREE_MONTHS:
+                return Carbon::parse($date)->startOfDay()->addMonthsNoOverflow(3)->addSeconds($offset);
+            case self::FREQUENCY_FOUR_MONTHS:
+                return Carbon::parse($date)->startOfDay()->addMonthsNoOverflow(4)->addSeconds($offset);
+            case self::FREQUENCY_SIX_MONTHS:
+                return Carbon::parse($date)->addMonthsNoOverflow(6)->addSeconds($offset);
+            case self::FREQUENCY_ANNUALLY:
+                return Carbon::parse($date)->startOfDay()->addYear()->addSeconds($offset);
+            case self::FREQUENCY_TWO_YEARS:
+                return Carbon::parse($date)->startOfDay()->addYears(2)->addSeconds($offset);
+            case self::FREQUENCY_THREE_YEARS:
+                return Carbon::parse($date)->startOfDay()->addYears(3)->addSeconds($offset);
+            default:
+                return null;
+        }
+    }
+
 
     public function nextDateByFrequencyNoOffset(Carbon $carbon)
     {
@@ -679,13 +752,19 @@ class RecurringInvoice extends BaseModel
             $next_due_date = $this->calculateDueDate($next_send_date->copy()->format('Y-m-d'));
             $next_due_date_string = $next_due_date ? $next_due_date->format('Y-m-d') : '';
 
+            // $next_send_date = Carbon::parse($next_send_date);
+
             $data[] = [
                 'send_date' => $next_send_date->format('Y-m-d'),
                 'due_date' => $next_due_date_string,
             ];
 
+            // /* Fixes the timeshift in case the offset is negative which cause a infinite loop due to UTC +0*/
+            // if ($this->client->timezone_offset() < 0) {
+            //     $next_send_date = $this->nextSendDateClient($next_send_date->addDay()->format('Y-m-d'));
+            // } else {
             $next_send_date = $this->nextDateByFrequencyNoOffset($next_send_date);
-            
+            // }
         }
 
         return $data;
@@ -707,7 +786,8 @@ class RecurringInvoice extends BaseModel
                 // 2025-01-23 - Reverting this back, this is tightly linked to recurring invoice generation and
                 // the timezone offset of the client AND when it was generated.
                 $date = Carbon::parse($date);
-                
+                // $date = now()->addSeconds($this->client->timezone_offset());
+                //$date = Carbon::parse($date)->addSeconds($this->client->timezone_offset());
                 return $this->setDayOfMonth($date, $this->due_date_days);
         }
     }

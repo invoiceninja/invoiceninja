@@ -120,6 +120,8 @@ class Scheduler extends BaseModel
             return null;
         }
 
+        $offset = $this->company->timezone_offset();
+
         switch ($this->frequency_id) {
             case 0: //used only for email entities
                 $next_run = $this->next_run;
@@ -169,7 +171,7 @@ class Scheduler extends BaseModel
         }
 
         $this->next_run_client = $next_run ?: null;
-        $this->next_run = $next_run ? $this->company->scheduledDateTimeUtc($next_run->toDateString()) : null;
+        $this->next_run = $next_run ? $next_run->copy()->addSeconds($offset) : null;
         $this->save();
 
         if (is_numeric($this->remaining_cycles) && $this->remaining_cycles === 0) {
@@ -186,13 +188,15 @@ class Scheduler extends BaseModel
         $this->delete();
     }
 
-    public function syncNextRunUtc(): void
+    public function adjustOffset(): void
     {
-        if (! $this->next_run_client) {
+        if (! $this->next_run) {
             return;
         }
 
-        $this->next_run = $this->company->scheduledDateTimeUtc($this->next_run_client->toDateString());
+        $offset = $this->company->timezone_offset();
+
+        $this->next_run = $this->next_run->copy()->addSeconds($offset);
         $this->save();
 
     }

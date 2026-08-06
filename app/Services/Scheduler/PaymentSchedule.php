@@ -15,6 +15,7 @@ namespace App\Services\Scheduler;
 use App\Models\Invoice;
 use App\Models\Scheduler;
 use App\Utils\Traits\MakesHash;
+use Carbon\Carbon;
 
 class PaymentSchedule
 {
@@ -50,6 +51,7 @@ class PaymentSchedule
 
         $first = $schedule[0];
         $last = end($schedule);
+        $offset = $invoice->company->timezone_offset();
 
         // A single instalment behaves as the LAST instalment: the entire balance is
         // due on that date. The scheduler is kept (so it still blocks a duplicate
@@ -61,7 +63,7 @@ class PaymentSchedule
             $invoice->save();
 
             $this->scheduler->next_run_client = $first['date'];
-            $this->scheduler->next_run = $invoice->company->scheduledDateTimeUtc($first['date']);
+            $this->scheduler->next_run = Carbon::parse($first['date'])->addSeconds($offset);
             $this->scheduler->save();
 
             return;
@@ -87,7 +89,7 @@ class PaymentSchedule
         // The first instalment is assigned here, so advance the scheduler to the
         // second instalment - run() owns instalments 2..n and never re-applies the first.
         $this->scheduler->next_run_client = $schedule[1]['date'];
-        $this->scheduler->next_run = $invoice->company->scheduledDateTimeUtc($schedule[1]['date']);
+        $this->scheduler->next_run = Carbon::parse($schedule[1]['date'])->addSeconds($offset);
         $this->scheduler->save();
     }
 
@@ -109,17 +111,15 @@ class PaymentSchedule
 
         $invoice = $invoice->service()->markSent()->save();
 
+        $offset = $invoice->company->timezone_offset();
         $schedule = collect($this->scheduler->parameters['schedule'])->sortBy('date')->values()->all();
         $schedule_index = 0;
         $next_schedule = false;
 
-        $current_schedule_date_client = $this->scheduler->next_run_client?->toDateString();
-
         foreach ($schedule as $key => $item) {
-            if ($item['date'] === $current_schedule_date_client) {
+            if (now()->subSeconds($offset)->startOfDay()->eq(Carbon::parse($item['date'])->startOfDay())) {
                 $next_schedule = $item;
                 $schedule_index = $key;
-                break;
             }
         }
 
@@ -132,7 +132,7 @@ class PaymentSchedule
             // Last instalment: the entire remaining balance becomes due today (localized).
             $invoice->partial = null;
             $invoice->partial_due_date = null;
-            $invoice->due_date = $next_schedule['date'];
+            $invoice->due_date = now()->subSeconds($offset)->format('Y-m-d');
         } else {
             $amount = $next_schedule['is_amount'] ? $next_schedule['amount'] : round(($next_schedule['amount'] / 100) * $invoice->amount, 2);
 
@@ -165,7 +165,7 @@ class PaymentSchedule
         if (isset($schedule[$schedule_index + 1])) {
             $next_run = $schedule[$schedule_index + 1]['date'];
             $this->scheduler->next_run_client = $next_run;
-            $this->scheduler->next_run = $invoice->company->scheduledDateTimeUtc($next_run);
+            $this->scheduler->next_run = Carbon::parse($next_run)->addSeconds($offset);
             $this->scheduler->save();
         } else {
             $this->scheduler->forceDelete();

@@ -32,7 +32,7 @@ class SchedulerRepository extends BaseRepository
 
         $scheduler->save();
 
-        $scheduler->syncNextRunUtc();
+        $scheduler->adjustOffset();
 
         // Populate the invoice partial / due dates when a payment schedule is first created.
         // A single-instalment schedule force-deletes itself during seeding, so fall back to
