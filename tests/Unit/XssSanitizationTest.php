@@ -398,6 +398,20 @@ class XssSanitizationTest extends TestCase
         $this->assertStringContainsString('Link', $result);
     }
 
+    public function test_purify_preserves_view_url_template_href(): void
+    {
+        $result = Purify::clean('<a href="$view_url">View quote</a>', true);
+
+        $this->assertStringContainsString('href="$view_url"', $result);
+    }
+
+    public function test_purify_strips_non_url_template_href(): void
+    {
+        $result = Purify::clean('<a href="$view_link">View quote</a>', true);
+
+        $this->assertStringNotContainsString('href=', $result);
+    }
+
     public function test_purify_strips_javascript_hrefs()
     {
         $result = Purify::clean('<a href="javascript:alert(1)">Click</a>');

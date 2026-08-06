@@ -252,6 +252,8 @@ class QbInvoice implements SyncInterface
                 return;
             }
 
+            $balance_before = (float) $invoice->balance;
+
             // Extract TxnTaxDetail from response
             $txn_tax_detail = data_get($qb_response, 'TxnTaxDetail');
 
@@ -309,11 +311,46 @@ class QbInvoice implements SyncInterface
             // Validate and sync amounts with QuickBooks
             $this->validateAndSyncAmounts($qb_response, $invoice);
 
+            $this->applyAstClientBalanceAdjustment($invoice, $balance_before);
+
             $invoice->saveQuietly();
 
         } catch (\Exception $e) {
             nlog("QuickBooks: Error processing tax response for invoice {$invoice->id}: {$e->getMessage()}");
         }
+    }
+
+    /**
+     * Correct client balance and ledger when AST changes a sent invoice after mark-sent.
+     *
+     * Drafts are ignored — mark-sent will apply the post-AST balance when the invoice is sent.
+     */
+    private function applyAstClientBalanceAdjustment(Invoice $invoice, float $balance_before): void
+    {
+        if ($invoice->status_id === Invoice::STATUS_DRAFT) {
+            return;
+        }
+
+        if (! in_array($invoice->status_id, [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL], true)) {
+            return;
+        }
+
+        $invoice = $invoice->calc()->getInvoice();
+
+        $balance_delta = BcMath::sub((float) $invoice->balance, $balance_before, 2);
+
+        if (BcMath::isZero($balance_delta)) {
+            return;
+        }
+
+        $invoice->loadMissing('client');
+
+        $invoice->client->service()->updateBalance((float) $balance_delta);
+
+        $invoice->ledger()->updateInvoiceBalance(
+            (float) $balance_delta,
+            "QuickBooks AST adjustment for invoice {$invoice->number}"
+        );
     }
 
     /**

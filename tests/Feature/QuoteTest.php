@@ -18,6 +18,7 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Project;
 use App\Models\Quote;
+use App\Utils\HtmlEngine;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -402,5 +403,33 @@ class QuoteTest extends TestCase
         ])->post('/api/v1/quotes', $data);
 
         $response->assertStatus(200);
+    }
+
+    public function testQuoteTermsPreserveViewUrlTemplateHref(): void
+    {
+        $terms = '<p><a href="$view_url">View quote online</a></p>';
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/quotes/'.$this->encodePrimaryKey($this->quote->id), [
+            'client_id' => $this->encodePrimaryKey($this->quote->client_id),
+            'terms' => $terms,
+        ]);
+
+        $response
+            ->assertStatus(200)
+            ->assertJsonPath('data.terms', $terms);
+
+        $quote = $this->quote->fresh();
+
+        $this->assertSame($terms, $quote->terms);
+
+        $invitation = $quote->invitations()->firstOrFail();
+        $variables = (new HtmlEngine($invitation))->generateLabelsAndValues();
+        $renderedTerms = $quote->parseHtmlVariables('terms', $variables);
+
+        $this->assertStringContainsString('href="'.$invitation->getLink().'"', $renderedTerms);
+        $this->assertStringNotContainsString('$view_url', $renderedTerms);
     }
 }

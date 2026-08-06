@@ -104,8 +104,7 @@ class StorePaymentRequest extends Request
                     $validator->errors()->add("invoices.{$index}.invoice_id", ctrans('texts.invoice_not_found'));
                     continue;
                 }
-nlog($clientId);
-                nlog($inv);
+                
                 // Check client match
                 if ($inv->client_id != $clientId) {
                     $validator->errors()->add("invoices.{$index}", ctrans('texts.invoices_dont_match_client'));

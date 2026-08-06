@@ -249,6 +249,75 @@ class AstTaxResponseProcessorTest extends TestCase
         $this->assertEqualsWithDelta(6.0, (float) $invoice->line_items[0]->tax_rate1, 0.01);
     }
 
+    public function test_ast_adjusts_client_balance_for_sent_invoice_when_totals_change(): void
+    {
+        $invoice = $this->makeSentInvoiceForAstBalanceTest(initial_balance: 100.0, client_balance: 100.0);
+
+        $qb_invoice = $this->makeQbInvoice(automatic_taxes: true);
+        $this->invokeProcessTax($qb_invoice, $this->qbResponseWithTax(
+            total_tax: 8.25,
+            tax_lines: [$this->taxLine(8.25, 8.25, 100)],
+            lines: [$this->salesLine('TAX')],
+            total_amt: 108.25,
+        ), $invoice);
+
+        $invoice = $invoice->fresh();
+        $client = $this->client->fresh();
+
+        $this->assertEqualsWithDelta(108.25, (float) $invoice->amount, 0.01);
+        $this->assertEqualsWithDelta(108.25, (float) $invoice->balance, 0.01);
+        $this->assertEqualsWithDelta(108.25, (float) $client->balance, 0.01);
+    }
+
+    public function test_ast_does_not_adjust_client_balance_for_draft_invoice(): void
+    {
+        $invoice = $this->makeInvoiceWithLines([
+            $this->lineItem('Widget', 100, tax_rate: 0),
+        ]);
+        $invoice->status_id = Invoice::STATUS_DRAFT;
+        $invoice->amount = 100;
+        $invoice->balance = 100;
+        $invoice->saveQuietly();
+
+        $this->client->balance = 0;
+        $this->client->saveQuietly();
+
+        $qb_invoice = $this->makeQbInvoice(automatic_taxes: true);
+        $this->invokeProcessTax($qb_invoice, $this->qbResponseWithTax(
+            total_tax: 8.25,
+            tax_lines: [$this->taxLine(8.25, 8.25, 100)],
+            lines: [$this->salesLine('TAX')],
+            total_amt: 108.25,
+        ), $invoice);
+
+        $invoice = $invoice->fresh();
+        $client = $this->client->fresh();
+
+        $this->assertEqualsWithDelta(108.25, (float) $invoice->amount, 0.01);
+        $this->assertEquals(0.0, (float) $client->balance);
+    }
+
+    public function test_ast_does_not_adjust_client_balance_when_sent_invoice_totals_unchanged(): void
+    {
+        $invoice = $this->makeSentInvoiceForAstBalanceTest(initial_balance: 106.0, client_balance: 106.0);
+        $invoice->amount = 106.0;
+        $invoice->total_taxes = 6.0;
+        $invoice->balance = 106.0;
+        $invoice->saveQuietly();
+
+        $qb_invoice = $this->makeQbInvoice(automatic_taxes: true);
+        $this->invokeProcessTax($qb_invoice, $this->qbResponseWithTax(
+            total_tax: 6.0,
+            tax_lines: [$this->taxLine(6.0, 6.0, 100)],
+            lines: [$this->salesLine('TAX')],
+            total_amt: 106.0,
+        ), $invoice);
+
+        $client = $this->client->fresh();
+
+        $this->assertEqualsWithDelta(106.0, (float) $client->balance, 0.01);
+    }
+
     public function test_validate_and_sync_amounts_within_tolerance_does_not_change_invoice(): void
     {
         $invoice = $this->makeInvoiceWithLines([
@@ -295,9 +364,22 @@ class AstTaxResponseProcessorTest extends TestCase
         return new QbInvoice(new QuickbooksService($this->company->fresh()));
     }
 
-    /**
-     * @param  array<int, object>  $line_items
-     */
+    private function makeSentInvoiceForAstBalanceTest(float $initial_balance, float $client_balance): Invoice
+    {
+        $invoice = $this->makeInvoiceWithLines([
+            $this->lineItem('Widget', 100, tax_rate: 0),
+        ]);
+        $invoice->status_id = Invoice::STATUS_SENT;
+        $invoice->amount = $initial_balance;
+        $invoice->balance = $initial_balance;
+        $invoice->saveQuietly();
+
+        $this->client->balance = $client_balance;
+        $this->client->saveQuietly();
+
+        return $invoice->fresh(['client']);
+    }
+
     private function makeInvoiceWithLines(array $line_items): Invoice
     {
         $invoice = Invoice::factory()->create([
