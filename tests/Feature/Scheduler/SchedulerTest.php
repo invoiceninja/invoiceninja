@@ -1215,7 +1215,12 @@ class SchedulerTest extends TestCase
         // Seeded first instalment: 33.34% of 100.
         $this->assertEquals(33.34, $invoice->fresh()->partial);
 
-        $this->travelTo(now()->addDays(30));
+        $this->travelTo(now()->addDays(15));
+        $scheduler->service()->runTask();
+
+        $this->assertEquals(66.67, $invoice->fresh()->partial);
+
+        $this->travelTo(now()->addDays(15));
         $scheduler->service()->runTask();
         $this->travelBack();
 

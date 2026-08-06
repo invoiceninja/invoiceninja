@@ -68,6 +68,8 @@ class QuickbooksSync
 
     public ?bool $allow_deposit = null;
 
+    public ?bool $allow_discount = null;
+
     public function __construct(array $attributes = [])
     {
         $this->client = new QuickbooksSyncMap($attributes['client'] ?? []);
@@ -90,6 +92,7 @@ class QuickbooksSync
         $this->country = $attributes['country'] ?? null;
         $this->payment_method_map = $attributes['payment_method_map'] ?? [];
         $this->allow_deposit = $attributes['allow_deposit'] ?? null;
+        $this->allow_discount = $attributes['allow_discount'] ?? null;
     }
 
     public function toArray(): array
@@ -115,6 +118,7 @@ class QuickbooksSync
             'country' => $this->country,
             'payment_method_map' => $this->payment_method_map,
             'allow_deposit' => $this->allow_deposit,
+            'allow_discount' => $this->allow_discount,
         ];
     }
 }

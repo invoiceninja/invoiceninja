@@ -253,6 +253,39 @@ class QuickbooksSettingsSerializationTest extends TestCase
     }
 
     /**
+     * Test that the allow_discount preference round-trips through serialization.
+     */
+    public function testAllowDiscountPreferenceRoundTrips()
+    {
+        $settings = new QuickbooksSettings([
+            'settings' => [
+                'allow_discount' => false,
+            ],
+        ]);
+
+        $array = $settings->toArray();
+
+        $this->assertArrayHasKey('allow_discount', $array['settings']);
+        $this->assertFalse($array['settings']['allow_discount']);
+
+        $reconstructed = QuickbooksSettings::fromArray(json_decode(json_encode($array), true));
+        $this->assertFalse($reconstructed->settings->allow_discount);
+    }
+
+    /**
+     * Test that allow_discount defaults to null for legacy serialized settings.
+     */
+    public function testAllowDiscountDefaultsToNull()
+    {
+        $settings = QuickbooksSettings::fromArray([
+            'settings' => [],
+        ]);
+
+        $this->assertNull($settings->settings->allow_discount);
+        $this->assertArrayHasKey('allow_discount', $settings->toArray()['settings']);
+    }
+
+    /**
      * Test that empty/default settings serialize correctly.
      */
     public function testEmptySettingsSerializeCorrectly()

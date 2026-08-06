@@ -97,7 +97,6 @@ class PaymentScheduleRequest extends Request
         $input['remaining_cycles'] = count($input['parameters']['schedule']);
 
         $input['next_run_client'] = $input['next_run'];
-        $input['next_run'] = Carbon::parse($input['next_run'])->addSeconds($this->invoice->company->timezone_offset())->format('Y-m-d');
 
         $this->replace($input);
     }
