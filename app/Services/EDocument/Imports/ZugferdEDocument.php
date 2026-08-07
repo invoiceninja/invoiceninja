@@ -97,9 +97,9 @@ class ZugferdEDocument extends AbstractService
             if ($this->document->firstDocumentTax()) {
                 do {
                     $this->document->getDocumentTax($categoryCode, $typeCode, $basisAmount, $calculatedAmount, $rateApplicablePercent, $exemptionReason, $exemptionReasonCode, $lineTotalBasisAmount, $allowanceChargeBasisAmount, $taxPointDate, $dueDateTypeCode);
-                    $expense->{"tax_amount$counter"} = $calculatedAmount;
-                    $expense->{"tax_rate$counter"} = $rateApplicablePercent;
-                    $expense->{"tax_name$counter"} = $typeCode;
+                    $expense->{"tax_amount$counter"} = $calculatedAmount ?? 0;
+                    $expense->{"tax_rate$counter"} = $rateApplicablePercent ?? 0;
+                    $expense->{"tax_name$counter"} = $typeCode ?? '';
                     $counter++;
                 } while ($this->document->nextDocumentTax());
             }
