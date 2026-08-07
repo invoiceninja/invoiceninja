@@ -56,7 +56,7 @@ class ClientRegistrationCustomFieldsTest extends TestCase
 
         $this->user = User::factory()->create([
             'account_id' => $this->account->id,
-            'email' => $this->faker->unique()->safeEmail(),
+            'email' => uniqid('user.', true) . '@example.test',
         ]);
 
         $this->company = Company::factory()->create([
