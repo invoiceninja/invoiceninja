@@ -1030,7 +1030,15 @@ class Client extends BaseModel implements HasLocalePreference
         return $offset;
 
     }
-
+    
+    /**
+     * scheduledDateTimeUtc
+     *
+     * Returns the UTC date and time for the scheduled entity. Allows for DST awareness.
+     * 
+     * @param  string $date
+     * @return Carbon
+     */
     public function scheduledDateTimeUtc(string $date): Carbon
     {
         $sendTime = (int) $this->getSetting('entity_send_time');

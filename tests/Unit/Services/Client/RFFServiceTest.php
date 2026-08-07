@@ -87,8 +87,8 @@ class RFFServiceTest extends TestCase
         $rules = RFFService::rulesForFields($fields);
 
         $this->assertTrue(Validator::make(['contact_email' => 'bob@'], $rules)->fails());
-        $this->assertTrue(Validator::make(['contact_email' => 'YiXEiLzAqcAhfiq@gmail.com'], $rules)->fails());
-        $this->assertTrue(Validator::make(['contact_email' => 'user@gmail.com'], $rules)->fails());
+        $this->assertTrue(Validator::make(['contact_email' => 'YiXEiLzAqcAhfiq@example.com'], $rules)->fails());
+        $this->assertTrue(Validator::make(['contact_email' => 'user@example.com'], $rules)->fails());
         $this->assertTrue(Validator::make(['contact_email' => 'user@sub.example.com'], $rules)->passes());
         $this->assertTrue(Validator::make(['contact_email' => 'user@example.org'], $rules)->passes());
     }
@@ -132,7 +132,7 @@ class RFFServiceTest extends TestCase
         $contact = $this->client->contacts()->where('is_primary', true)->first();
         $contact->first_name = 'Jane';
         $contact->last_name = 'Doe';
-        $contact->email = 'user@gmail.com';
+        $contact->email = 'user@example.com';
         $contact->save();
 
         $fields = [
