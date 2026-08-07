@@ -18,7 +18,6 @@ use PHPUnit\Framework\TestCase;
 /**
  * Audit-grade invariants for the single inclusive-tax back-out routine.
  *
- * @covers App\Helpers\Invoice\InclusiveTax
  */
 class InclusiveTaxTest extends TestCase
 {

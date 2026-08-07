@@ -17,8 +17,6 @@ use App\Models\Payment;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Export\Decorators\Decorator
  */
 class DecoratorTest extends TestCase
 {
