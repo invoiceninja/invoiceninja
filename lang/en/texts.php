@@ -6308,6 +6308,18 @@ $lang = array(
     'save_for_later' => 'Save for Later',
     'deletion_violation_regulatory' => 'This document cannot be deleted because it is subject to regulatory reporting requirements.',
     'currency_syrian_pound' => 'Syrian Pound',
+    'reminder_schedules' => 'Reminder Schedules',
+    'add_reminder_schedule' => 'Add Reminder Schedule',
+    'edit_reminder_schedule' => 'Edit Reminder Schedule',
+    'updated_reminder_schedule' => 'Reminder schedule updated',
+    'created_reminder_schedule' => 'Reminder schedule created',
+    'deleted_reminder_schedule' => 'Reminder schedule deleted',
+    'no_reminder_schedules_found' => 'No reminder schedules found',
+    'no_template' => 'No template',
+    'after_send' => 'After send',
+    'trigger_event' => 'Trigger Event',
+    'after_event' => 'after event',
+    'before_event' => 'before event',
 );
 
 return $lang;
