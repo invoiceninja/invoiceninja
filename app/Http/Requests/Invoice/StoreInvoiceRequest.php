@@ -96,15 +96,14 @@ class StoreInvoiceRequest extends Request
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $fingerprint = hash('sha256', json_encode($this->all()));
+        $input = $this->all();
+        unset($input['lock_key']);
 
-        $key = "|INVOICE|" . $fingerprint . "|" . $user->company()->company_key;
+        $lock_key = "|INVOICE|" . hash('sha256', json_encode($input)) . "|" . $user->company()->company_key;
 
-        if (!Atomic::set($key, true, 1)) {
+        if (!Atomic::set($lock_key, true, 1)) {
             throw new DuplicatePaymentException('Duplicate request.', 429);
         }
-
-        $input = $this->all();
 
         $input = $this->decodePrimaryKeys($input);
 
@@ -174,7 +173,7 @@ class StoreInvoiceRequest extends Request
             $input['terms'] = str_replace("\n", "", $input['terms']);
         }
 
-        $input['lock_key'] = $key;
+        $input['lock_key'] = $lock_key;
 
         if (isset($input['sync'])) {
             unset($input['sync']);
