@@ -25,13 +25,13 @@ use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\ClientGroupSettingsSaver;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
-use Carbon\Carbon;
 use Elastic\ScoutDriverPlus\Searchable;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Mail\Mailables\Address;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
 use Laracasts\Presenter\PresentableTrait;
 

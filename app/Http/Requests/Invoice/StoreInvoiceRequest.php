@@ -12,14 +12,15 @@
 
 namespace App\Http\Requests\Invoice;
 
+use App\Exceptions\DuplicatePaymentException;
 use App\Helpers\Cache\Atomic;
-use App\Models\Invoice;
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\Invoice\VerifactuAmountCheck;
+use App\Http\ValidationRules\Project\ValidProjectForClient;
+use App\Models\Invoice;
+use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
-use App\Utils\Traits\CleanLineItems;
-use App\Http\ValidationRules\Project\ValidProjectForClient;
-use App\Http\ValidationRules\Invoice\VerifactuAmountCheck;
 
 class StoreInvoiceRequest extends Request
 {
@@ -95,11 +96,12 @@ class StoreInvoiceRequest extends Request
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $client_id = is_string($this->input('client_id', '')) ? $this->input('client_id') : '';
-        $key = $this->ip() . "|INVOICE|" . $client_id . "|" . $user->company()->company_key;
+        $fingerprint = hash('sha256', json_encode($this->all()));
 
-        if (!Atomic::set($key, 1, 2)) {
-            usleep(100000);
+        $key = "|INVOICE|" . $fingerprint . "|" . $user->company()->company_key;
+
+        if (!Atomic::set($key, true, 1)) {
+            throw new DuplicatePaymentException('Duplicate request.', 429);
         }
 
         $input = $this->all();
