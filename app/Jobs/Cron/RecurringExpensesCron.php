@@ -29,7 +29,7 @@ class RecurringExpensesCron
     use Dispatchable;
     use GeneratesCounter;
 
-    public $tries = 1;
+    public int $tries = 1;
 
     /**
      * Create a new job instance.
@@ -58,6 +58,20 @@ class RecurringExpensesCron
                                                         ->where('remaining_cycles', '!=', '0')
                                                         ->whereHas('company', function ($query) {
                                                             $query->where('is_disabled', 0);
+                                                        })
+                                                        ->where(function ($query) {
+                                                            $query->whereNull('client_id')
+                                                                ->orWhereHas('client', function ($query) {
+                                                                    $query->withTrashed()
+                                                                        ->where('is_deleted', false);
+                                                                });
+                                                        })
+                                                        ->where(function ($query) {
+                                                            $query->whereNull('vendor_id')
+                                                                ->orWhereHas('vendor', function ($query) {
+                                                                    $query->withTrashed()
+                                                                        ->where('is_deleted', false);
+                                                                });
                                                         })
                                                         ->with('company')
                                                         ->cursor();
@@ -100,7 +114,7 @@ class RecurringExpensesCron
         }
     }
 
-    private function generateExpense(RecurringExpense $recurring_expense)
+    private function generateExpense(RecurringExpense $recurring_expense): void
     {
         $expense = RecurringExpenseToExpenseFactory::create($recurring_expense);
         $expense->saveQuietly();

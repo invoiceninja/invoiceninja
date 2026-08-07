@@ -219,13 +219,13 @@ class Import implements ShouldQueue
 
         foreach ($this->available_imports as $import) {
             if (! array_key_exists($import, $data)) {
-                info("Resource {$import} is not available for migration.");
+                nlog("Resource {$import} is not available for migration.");
                 continue;
             }
 
             $method = sprintf('process%s', Str::ucfirst(Str::camel($import)));
 
-            info("Importing {$import}");
+            nlog("Importing {$import}");
 
             $this->{$method}($data[$import]);
         }
@@ -280,7 +280,7 @@ class Import implements ShouldQueue
             VersionCheck::dispatch();
         }
 
-        info('Completed🚀🚀🚀🚀🚀 at ' . now());
+        nlog('Completed🚀🚀🚀🚀🚀 at ' . now());
 
         try {
             unlink($this->file_path);
@@ -817,12 +817,12 @@ class Import implements ShouldQueue
             if (array_key_exists('contacts', $resource)) { // need to remove after importing new migration.json
                 $modified_contacts = $resource['contacts'];
 
-                foreach ($modified_contacts as $key => $client_contacts) {
-                    $modified_contacts[$key]['company_id'] = $this->company->id;
-                    $modified_contacts[$key]['user_id'] = $this->processUserId($resource);
-                    $modified_contacts[$key]['client_id'] = $client->id;
-                    $modified_contacts[$key]['password'] = Str::random(8);
-                    unset($modified_contacts[$key]['id']);
+                foreach ($modified_contacts as $keyX => $client_contacts) {
+                    $modified_contacts[$keyX]['company_id'] = $this->company->id;
+                    $modified_contacts[$keyX]['user_id'] = $this->processUserId($resource);
+                    $modified_contacts[$keyX]['client_id'] = $client->id;
+                    $modified_contacts[$keyX]['password'] = Str::random(8);
+                    unset($modified_contacts[$keyX]['id']);
                 }
 
                 $saveable_contacts['contacts'] = $modified_contacts;
@@ -831,7 +831,7 @@ class Import implements ShouldQueue
 
                 //link contact ids
 
-                foreach ($resource['contacts'] as $key => $old_contact) {
+                foreach ($resource['contacts'] as $keyY => $old_contact) {
                     $contact_match = ClientContact::where('contact_key', $old_contact['contact_key'])
                                                  ->where('company_id', $this->company->id)
                                                  ->where('client_id', $client->id)
@@ -917,12 +917,12 @@ class Import implements ShouldQueue
             if (array_key_exists('contacts', $resource)) { // need to remove after importing new migration.json
                 $modified_contacts = $resource['contacts'];
 
-                foreach ($modified_contacts as $key => $vendor_contacts) {
-                    $modified_contacts[$key]['company_id'] = $this->company->id;
-                    $modified_contacts[$key]['user_id'] = $this->processUserId($resource);
-                    $modified_contacts[$key]['vendor_id'] = $vendor->id;
-                    $modified_contacts[$key]['password'] = 'mysuperpassword'; 
-                    unset($modified_contacts[$key]['id']);
+                foreach ($modified_contacts as $keyZ => $vendor_contacts) {
+                    $modified_contacts[$keyZ]['company_id'] = $this->company->id;
+                    $modified_contacts[$keyZ]['user_id'] = $this->processUserId($resource);
+                    $modified_contacts[$keyZ]['vendor_id'] = $vendor->id;
+                    $modified_contacts[$keyZ]['password'] = 'mysuperpassword'; 
+                    unset($modified_contacts[$keyZ]['id']);
                 }
 
                 $saveable_contacts['contacts'] = $modified_contacts;
@@ -1104,14 +1104,14 @@ class Import implements ShouldQueue
             unset($modified['id']);
 
             if (array_key_exists('invitations', $resource)) {
-                foreach ($resource['invitations'] as $key => $invite) {
-                    $resource['invitations'][$key]['client_contact_id'] = $this->transformId('client_contacts', $invite['client_contact_id']);
-                    $resource['invitations'][$key]['user_id'] = $modified['user_id'];
-                    $resource['invitations'][$key]['company_id'] = $this->company->id;
-                    $resource['invitations'][$key]['email_status'] = '';
+                foreach ($resource['invitations'] as $keyA => $invite) {
+                    $resource['invitations'][$keyA]['client_contact_id'] = $this->transformId('client_contacts', $invite['client_contact_id']);
+                    $resource['invitations'][$keyA]['user_id'] = $modified['user_id'];
+                    $resource['invitations'][$keyA]['company_id'] = $this->company->id;
+                    $resource['invitations'][$keyA]['email_status'] = '';
 
-                    unset($resource['invitations'][$key]['recurring_invoice_id']);
-                    unset($resource['invitations'][$key]['id']);
+                    unset($resource['invitations'][$keyA]['recurring_invoice_id']);
+                    unset($resource['invitations'][$keyA]['id']);
                 }
 
                 $modified['invitations'] = $this->deDuplicateInvitations($resource['invitations']);
@@ -1181,13 +1181,13 @@ class Import implements ShouldQueue
             unset($modified['id']);
 
             if (array_key_exists('invitations', $resource)) {
-                foreach ($resource['invitations'] as $key => $invite) {
-                    $resource['invitations'][$key]['client_contact_id'] = $this->transformId('client_contacts', $invite['client_contact_id']);
-                    $resource['invitations'][$key]['user_id'] = $modified['user_id'];
-                    $resource['invitations'][$key]['company_id'] = $this->company->id;
-                    $resource['invitations'][$key]['email_status'] = '';
-                    unset($resource['invitations'][$key]['invoice_id']);
-                    unset($resource['invitations'][$key]['id']);
+                foreach ($resource['invitations'] as $keyB => $invite) {
+                    $resource['invitations'][$keyB]['client_contact_id'] = $this->transformId('client_contacts', $invite['client_contact_id']);
+                    $resource['invitations'][$keyB]['user_id'] = $modified['user_id'];
+                    $resource['invitations'][$keyB]['company_id'] = $this->company->id;
+                    $resource['invitations'][$keyB]['email_status'] = '';
+                    unset($resource['invitations'][$keyB]['invoice_id']);
+                    unset($resource['invitations'][$keyB]['id']);
                 }
 
                 $modified['invitations'] = $this->deDuplicateInvitations($resource['invitations']);
@@ -1747,7 +1747,7 @@ class Import implements ShouldQueue
 
     private function processTaskStatuses(array $data): void
     {
-        info('in task statuses');
+        nlog('in task statuses');
         TaskStatus::unguard();
 
         foreach ($data as $resource) {
@@ -1772,7 +1772,7 @@ class Import implements ShouldQueue
         TaskStatus::reguard();
 
         $data = null;
-        info('finished task statuses');
+        nlog('finished task statuses');
     }
 
     private function processExpenseCategories(array $data): void

@@ -58,13 +58,13 @@ class QuoteExport extends BaseExport
 
         $query = Quote::query()
                         ->withTrashed()
-                        ->with('client', 'location')
+                        ->with('client', 'location', 'tags')
                         ->whereHas('client', function ($q) {
                             $q->where('is_deleted', false);
                         })
                         ->where('company_id', $this->company->id);
 
-        if (!$this->input['include_deleted'] ?? false) {
+        if (!($this->input['include_deleted'] ?? false)) {
             $query->where('is_deleted', 0);
         }
 
@@ -77,6 +77,8 @@ class QuoteExport extends BaseExport
         }
 
         $query = $this->addQuoteStatusFilter($query, $this->input['status'] ?? '');
+
+        $query = $this->addTagFilter($query);
 
         $query = $this->filterByUserPermissions($query);
 
@@ -146,7 +148,12 @@ class QuoteExport extends BaseExport
 
             $parts = explode('.', $key);
 
-            if (is_array($parts) && $parts[0] == 'quote' && array_key_exists($parts[1], $transformed_invoice)) {
+            if (str_ends_with($key, '.tags')) {
+                $entity[$key] = $this->decorator->transform($key, $quote);
+                continue;
+            }
+
+            if ($parts[0] === 'quote' && isset($parts[1], $transformed_invoice[$parts[1]])) {
                 $entity[$key] = $transformed_invoice[$parts[1]];
             } else {
                 $entity[$key] = $this->decorator->transform($key, $quote);
@@ -183,7 +190,7 @@ class QuoteExport extends BaseExport
         }
 
         if (in_array('quote.user_id', $this->input['report_keys'])) {
-            $entity['quote.user_id'] = $quote->user ? $quote->user->present()->name() : '';
+            $entity['quote.user_id'] = $quote->user->present()->name() ?? '';
         }
 
         if (in_array('quote.subtotal', $this->input['report_keys'])) {

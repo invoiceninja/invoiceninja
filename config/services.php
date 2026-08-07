@@ -94,6 +94,7 @@ return [
         'model' => App\Models\User::class,
         'key' => env('STRIPE_KEY'),
         'secret' => env('STRIPE_SECRET'),
+        'run_trial_integration_tests' => env('RUN_STRIPE_TRIAL_INTEGRATION_TESTS', false),
     ],
 
     'github' => [
@@ -148,6 +149,7 @@ return [
         'debug' => env('APP_DEBUG',false),
         'redirect_uri' => env('GOCARDLESS_REDIRECT_URI', null),
         'environment' => env('GOCARDLESS_ENVIRONMENT', 'production'),
+        'webhook_secret' => env('GOCARDLESS_WEBHOOK_SECRET'),
     ],
     'quickbooks_webhook' => [
         'verifier_token' => env('QUICKBOOKS_VERIFIER_TOKEN', false),

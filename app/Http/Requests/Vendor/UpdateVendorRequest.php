@@ -13,6 +13,7 @@
 namespace App\Http\Requests\Vendor;
 
 use App\Http\Requests\Request;
+use App\Models\Vendor;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
@@ -21,6 +22,9 @@ class UpdateVendorRequest extends Request
 {
     use MakesHash;
     use ChecksEntityStatus;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = Vendor::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -69,7 +73,7 @@ class UpdateVendorRequest extends Request
         $rules['language_id'] = 'bail|nullable|sometimes|exists:languages,id';
         $rules['classification'] = 'bail|sometimes|nullable|in:individual,business,company,partnership,trust,charity,government,other';
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function messages()

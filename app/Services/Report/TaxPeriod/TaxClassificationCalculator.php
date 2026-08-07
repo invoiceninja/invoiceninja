@@ -72,6 +72,14 @@ final class TaxClassificationCalculator
             $line_share_by_classification[$classification] = ($line_share_by_classification[$classification] ?? 0.0) + $amount;
             $total_share += $amount;
 
+            $inclusive_split = $uses_inclusive
+                ? \App\Helpers\Invoice\InclusiveTax::backout($amount, [
+                    (float) ($item->tax_rate1 ?? 0),
+                    (float) ($item->tax_rate2 ?? 0),
+                    (float) ($item->tax_rate3 ?? 0),
+                ], 2)
+                : null;
+
             for ($i = 1; $i <= 3; $i++) {
                 $raw_tax_name = (string) ($item->{"tax_name{$i}"} ?? '');
                 $tax_rate = (float) ($item->{"tax_rate{$i}"} ?? 0);
@@ -81,8 +89,10 @@ final class TaxClassificationCalculator
                 }
 
                 if ($uses_inclusive) {
-                    $tax_amount = round($amount - $amount / (1 + ($tax_rate / 100)), 2);
-                    $taxable_amount = round($amount - $tax_amount, 2);
+                    // Tax-anchored additive split: each tax is round(base x rate);
+                    // taxable is the shared net (single source of truth).
+                    $tax_amount = $inclusive_split['components'][$i - 1];
+                    $taxable_amount = $inclusive_split['net'];
                 } else {
                     $tax_amount = round($amount * $tax_rate / 100, 2);
                     $taxable_amount = round($amount, 2);
@@ -175,6 +185,16 @@ final class TaxClassificationCalculator
         $rate_format_entity,
         array &$buckets,
     ): void {
+        $base = (float) $invoice->amount - (float) ($invoice->total_taxes ?? 0);
+
+        $inclusive_split = ($uses_inclusive && $base > 0)
+            ? \App\Helpers\Invoice\InclusiveTax::backout($base, [
+                (float) ($invoice->tax_rate1 ?? 0),
+                (float) ($invoice->tax_rate2 ?? 0),
+                (float) ($invoice->tax_rate3 ?? 0),
+            ], 2)
+            : null;
+
         for ($i = 1; $i <= 3; $i++) {
             $raw_tax_name = (string) ($invoice->{"tax_name{$i}"} ?? '');
             $tax_rate = (float) ($invoice->{"tax_rate{$i}"} ?? 0);
@@ -183,16 +203,16 @@ final class TaxClassificationCalculator
                 continue;
             }
 
-            $tax_name = self::formatTaxName($raw_tax_name, $tax_rate, $rate_format_entity);
-
-            $base = (float) $invoice->amount - (float) ($invoice->total_taxes ?? 0);
             if ($base <= 0) {
                 continue;
             }
 
+            $tax_name = self::formatTaxName($raw_tax_name, $tax_rate, $rate_format_entity);
+
             if ($uses_inclusive) {
-                $tax_amount = round($base - $base / (1 + ($tax_rate / 100)), 2);
-                $taxable = round($base - $tax_amount, 2);
+                // Tax-anchored additive split via single source of truth.
+                $tax_amount = $inclusive_split['components'][$i - 1];
+                $taxable = $inclusive_split['net'];
             } else {
                 $tax_amount = round($base * $tax_rate / 100, 2);
                 $taxable = round($base, 2);

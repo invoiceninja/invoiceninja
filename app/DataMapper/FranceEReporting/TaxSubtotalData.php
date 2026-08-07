@@ -30,6 +30,7 @@ final readonly class TaxSubtotalData implements Arrayable, JsonSerializable
         public ?string $currency = null,
         public ?string $country = null,
         public int|float|string|null $amountIncludingTax = null,
+        public int|float|string|null $amount = null,
         public ?string $exemptionReason = null,
         public ?string $exemptionReasonCode = null,
     ) {
@@ -47,6 +48,10 @@ final readonly class TaxSubtotalData implements Arrayable, JsonSerializable
             ReportDataValidator::assertNumeric($this->amountIncludingTax, 'taxSubtotals.amountIncludingTax');
         }
 
+        if (! is_null($this->amount)) {
+            ReportDataValidator::assertNumeric($this->amount, 'taxSubtotals.amount');
+        }
+
         if (! is_null($this->taxCategory)) {
             ReportDataValidator::assertNonEmptyString($this->taxCategory, 'taxSubtotals.taxCategory');
         }
@@ -59,8 +64,8 @@ final readonly class TaxSubtotalData implements Arrayable, JsonSerializable
             throw new \InvalidArgumentException('taxSubtotals.taxableAmount and taxSubtotals.taxAmount must be provided together.');
         }
 
-        if (is_null($this->taxableAmount) && is_null($this->amountIncludingTax)) {
-            throw new \InvalidArgumentException('taxSubtotals requires taxableAmount/taxAmount or amountIncludingTax.');
+        if (is_null($this->taxableAmount) && is_null($this->amountIncludingTax) && is_null($this->amount)) {
+            throw new \InvalidArgumentException('taxSubtotals requires taxableAmount/taxAmount, amountIncludingTax, or amount.');
         }
 
         if (! is_null($this->currency)) {
@@ -92,6 +97,9 @@ final readonly class TaxSubtotalData implements Arrayable, JsonSerializable
             amountIncludingTax: array_key_exists('amountIncludingTax', $data) && ! is_null($data['amountIncludingTax'])
                 ? ReportDataValidator::assertNumeric($data['amountIncludingTax'], 'taxSubtotals.amountIncludingTax')
                 : null,
+            amount: array_key_exists('amount', $data) && ! is_null($data['amount'])
+                ? ReportDataValidator::assertNumeric($data['amount'], 'taxSubtotals.amount')
+                : null,
             exemptionReason: ReportDataValidator::assertOptionalString($data['exemptionReason'] ?? null, 'taxSubtotals.exemptionReason'),
             exemptionReasonCode: ReportDataValidator::assertOptionalString($data['exemptionReasonCode'] ?? null, 'taxSubtotals.exemptionReasonCode'),
         );
@@ -111,6 +119,7 @@ final readonly class TaxSubtotalData implements Arrayable, JsonSerializable
             'currency' => $this->currency,
             'country' => $this->country,
             'amountIncludingTax' => is_null($this->amountIncludingTax) ? null : ReportDataValidator::numericValue($this->amountIncludingTax, 'taxSubtotals.amountIncludingTax'),
+            'amount' => is_null($this->amount) ? null : ReportDataValidator::numericValue($this->amount, 'taxSubtotals.amount'),
             'exemptionReason' => $this->exemptionReason,
             'exemptionReasonCode' => $this->exemptionReasonCode,
         ], static fn (mixed $value): bool => ! is_null($value));

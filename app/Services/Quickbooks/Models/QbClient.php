@@ -20,6 +20,7 @@ use App\Factory\ClientContactFactory;
 use App\Repositories\ClientRepository;
 use App\Repositories\ClientContactRepository;
 use App\Services\Quickbooks\QuickbooksService;
+use App\Services\Quickbooks\QuickbooksFaultParser;
 use App\Services\Quickbooks\Transformers\ClientTransformer;
 
 class QbClient implements SyncInterface
@@ -44,7 +45,7 @@ class QbClient implements SyncInterface
      */
     public function find(string $id): mixed
     {
-        return $this->service->sdk->FindById('Customer', $id);
+        return $this->service->sdk()->findById('Customer', $id);
     }
 
     /**
@@ -122,7 +123,7 @@ class QbClient implements SyncInterface
     private function findClientIdByName(?string $name): mixed
     {
         $escaped_name = str_replace("'", "\\'", $name ?? '');
-        return $this->service->sdk->Query("SELECT Id FROM Customer WHERE DisplayName = '{$escaped_name}'", 1, 1);
+        return $this->service->sdk()->query("SELECT Id FROM Customer WHERE DisplayName = '{$escaped_name}'", 1, 1);
     }
 
     /**
@@ -148,7 +149,8 @@ class QbClient implements SyncInterface
 
                     nlog("updating client {$client->id} in QuickBooks");
                     $customer = \QuickBooksOnline\API\Facades\Customer::create($qb_client_data);
-                    $result = $this->service->sdk->Update($customer);
+                    $result = $this->service->sdk()->update($customer);
+                    $this->clearPushFailure($client);
 
                     return $client->sync->qb_id;
                 }
@@ -175,7 +177,7 @@ class QbClient implements SyncInterface
             }
 
             $customer = \QuickBooksOnline\API\Facades\Customer::create($qb_client_data);
-            $resulting_customer = $this->service->sdk->Add($customer);
+            $resulting_customer = $this->service->sdk()->add($customer);
 
             $qb_id = data_get($resulting_customer, 'Id') ?? data_get($resulting_customer, 'Id.value');
 
@@ -219,8 +221,14 @@ class QbClient implements SyncInterface
 
                 nlog("QuickBooks: Name collision with Vendor/Employee for client {$client->id}, retrying as '{$unique_name}'");
 
-                $customer = \QuickBooksOnline\API\Facades\Customer::create($qb_client_data);
-                $resulting_customer = $this->service->sdk->Add($customer);
+                try {
+                    $customer = \QuickBooksOnline\API\Facades\Customer::create($qb_client_data);
+                    $resulting_customer = $this->service->sdk()->add($customer);
+                } catch (\Throwable $retry_exception) {
+                    $this->markPushFailure($client, $retry_exception, 'creating the customer');
+
+                    throw $retry_exception;
+                }
 
                 $qb_id = data_get($resulting_customer, 'Id') ?? data_get($resulting_customer, 'Id.value');
 
@@ -233,11 +241,28 @@ class QbClient implements SyncInterface
                 return $qb_id;
             }
 
+            $this->markPushFailure($client, $e, 'creating or updating the customer');
             app('sentry')->captureException($e);
 
 
             throw $e;
         }
+    }
+
+    private function markPushFailure(Client $client, \Throwable $e, string $operation): void
+    {
+        $sync = $client->sync ?? new \App\DataMapper\ClientSync();
+        $sync->qb_status_message = (new QuickbooksFaultParser())->statusMessage($e, $operation);
+        $client->sync = $sync;
+        $client->saveQuietly();
+    }
+
+    private function clearPushFailure(Client $client): void
+    {
+        $sync = $client->sync ?? new \App\DataMapper\ClientSync();
+        $sync->qb_status_message = '';
+        $client->sync = $sync;
+        $client->saveQuietly();
     }
 
     public function sync(string $id, string $last_updated): void {}

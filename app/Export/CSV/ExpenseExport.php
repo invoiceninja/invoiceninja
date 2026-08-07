@@ -83,7 +83,7 @@ class ExpenseExport extends BaseExport
         $this->input['report_keys'] = array_unique(array_merge($this->input['report_keys'], $tax_keys));
 
         $query = Expense::query()
-                        ->with('client')
+                        ->with('client', 'tags')
                         ->withTrashed()
                         ->where('company_id', $this->company->id);
 
@@ -113,6 +113,8 @@ class ExpenseExport extends BaseExport
         if (isset($this->input['categories'])) {
             $query = $this->addCategoryFilter($query, $this->input['categories']);
         }
+
+        $query = $this->addTagFilter($query);
 
         $query = $this->filterByUserPermissions($query);
 
@@ -155,7 +157,12 @@ class ExpenseExport extends BaseExport
         foreach (array_values($this->input['report_keys']) as $key) {
             $parts = explode('.', $key);
 
-            if (is_array($parts) && $parts[0] == 'expense' && array_key_exists($parts[1], $transformed_expense)) {
+            if (str_ends_with($key, '.tags')) {
+                $entity[$key] = $this->decorator->transform($key, $expense);
+                continue;
+            }
+
+            if ($parts[0] == 'expense' && isset($parts[1]) && array_key_exists($parts[1], $transformed_expense)) {
                 $entity[$key] = $transformed_expense[$parts[1]];
             } elseif (array_key_exists($key, $transformed_expense)) {
                 $entity[$key] = $transformed_expense[$key];
@@ -241,7 +248,7 @@ class ExpenseExport extends BaseExport
         }
 
         if (in_array('expense.user', $this->input['report_keys'])) {
-            $entity['expense.user'] = $expense->user ? $expense->user->present()->name() : '';
+            $entity['expense.user'] = $expense->user->present()->name() ?? '';
         }
 
         if (in_array('expense.assigned_user', $this->input['report_keys'])) {
@@ -273,8 +280,11 @@ class ExpenseExport extends BaseExport
         } else {
 
             if ($expense->uses_inclusive_taxes) {
-                $total_tax_amount = ($this->calcInclusiveLineTax($expense->tax_rate1 ?? 0, $expense->amount, $precision)) + ($this->calcInclusiveLineTax($expense->tax_rate2 ?? 0, $expense->amount, $precision)) + ($this->calcInclusiveLineTax($expense->tax_rate3 ?? 0, $expense->amount, $precision));
-                $entity['expense.net_amount'] = round(($expense->amount - round($total_tax_amount, $precision)), $precision);
+                // Shared tax-anchored additive back-out (mirrors Expense model).
+                $rates = [$expense->tax_rate1 ?? 0, $expense->tax_rate2 ?? 0, $expense->tax_rate3 ?? 0];
+                $inclusive = \App\Helpers\Invoice\InclusiveTax::backout((float) $expense->amount, $rates, $precision);
+                $total_tax_amount = $inclusive['tax'];
+                $entity['expense.net_amount'] = $inclusive['net'];
             } else {
                 $tax_amount1 = $expense->amount * (($expense->tax_rate1 ?? 0) / 100);
                 $tax_amount2 = $expense->amount * (($expense->tax_rate2 ?? 0) / 100);
@@ -290,10 +300,5 @@ class ExpenseExport extends BaseExport
 
         return $entity;
 
-    }
-
-    private function calcInclusiveLineTax($tax_rate, $amount, $precision): float
-    {
-        return round($amount - ($amount / (1 + ($tax_rate / 100))), $precision);
     }
 }

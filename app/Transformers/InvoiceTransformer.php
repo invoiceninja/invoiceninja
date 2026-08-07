@@ -197,6 +197,7 @@ class InvoiceTransformer extends EntityTransformer
             'e_invoice' => $invoice->e_invoice ?: new \stdClass(),
             'backup' => $invoice->backup,
             'location_id' => $this->encodePrimaryKey($invoice->location_id),
+            'tags' => $this->transformTags($invoice),
             'sync' => $invoice->sync,
         ];
 

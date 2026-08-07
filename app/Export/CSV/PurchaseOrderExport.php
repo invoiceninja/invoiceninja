@@ -58,7 +58,7 @@ class PurchaseOrderExport extends BaseExport
 
         $query = PurchaseOrder::query()
                         ->withTrashed()
-                        ->with('vendor', 'location')
+                        ->with('vendor', 'location', 'tags')
                         ->whereHas('vendor', function ($q) {
                             $q->where('is_deleted', false);
                         })
@@ -76,6 +76,9 @@ class PurchaseOrderExport extends BaseExport
         if ($clients) {
             $query = $this->addClientFilter($query, $clients);
         }
+
+        $query = $this->addTagFilter($query);
+
         $query = $this->filterByUserPermissions($query);
 
         $query = $this->addPurchaseOrderStatusFilter($query, $this->input['status'] ?? '');
@@ -145,7 +148,12 @@ class PurchaseOrderExport extends BaseExport
 
             $parts = explode('.', $key);
 
-            if (is_array($parts) && $parts[0] == 'purchase_order' && array_key_exists($parts[1], $transformed_purchase_order)) {
+            if (str_ends_with($key, '.tags')) {
+                $entity[$key] = $this->decorator->transform($key, $purchase_order);
+                continue;
+            }
+
+            if ($parts[0] === 'purchase_order' && isset($parts[1], $transformed_purchase_order[$parts[1]])) {
                 $entity[$key] = $transformed_purchase_order[$parts[1]];
             } else {
                 $entity[$key] = $this->decorator->transform($key, $purchase_order);
@@ -156,8 +164,13 @@ class PurchaseOrderExport extends BaseExport
 
         $entity = $this->decorateAdvancedFields($purchase_order, $entity);
 
-        return $this->convertFloats($entity);
+        return $this->convertFloats($entity, ['purchase_order' => $purchase_order->id]);
 
+    }
+
+    protected function groupingIdentityForColumn(string $column): ?string
+    {
+        return str_starts_with($column, 'purchase_order.') ? 'purchase_order' : null;
     }
 
     private function decorateAdvancedFields(PurchaseOrder $purchase_order, array $entity): array

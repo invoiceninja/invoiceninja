@@ -56,7 +56,7 @@ class ZipPurchaseOrders implements ShouldQueue
 
         // create new zip object
         $zipFile = new \PhpZip\ZipFile();
-        $file_name = now()->addSeconds($this->company->timezone_offset())->format('Y-m-d-h-m-s') . '_' . str_replace(' ', '_', trans('texts.purchase_orders')) . '.zip';
+        $file_name = now()->addSeconds($this->company->timezone_offset())->format('Y-m-d-h-i-s') . '_' . str_replace(' ', '_', trans('texts.purchase_orders')) . '.zip';
 
         $invitations = PurchaseOrderInvitation::query()
                                             ->with('purchase_order')

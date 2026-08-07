@@ -94,7 +94,7 @@ class UpdateSchedulerRequest extends Request
             'parameters.entity' => ['bail', 'sometimes', 'string', 'in:invoice,credit,quote,purchase_order'],
             'parameters.entity_id' => ['bail', 'sometimes', 'string'],
             'parameters.group_by' => ['bail', 'sometimes', 'nullable', 'string'],
-            'parameters.report_name' => ['bail','sometimes', 'string', 'required_if:template,email_report','in:vendor,purchase_order_item,purchase_order,ar_detailed,ar_summary,client_balance,tax_summary,profitloss,client_sales,user_sales,product_sales,activity,activities,client,clients,client_contact,client_contacts,credit,credits,document,documents,expense,expenses,invoice,invoices,invoice_item,invoice_items,quote,quotes,quote_item,quote_items,recurring_invoice,recurring_invoices,payment,payments,product,products,task,tasks'],
+            'parameters.report_name' => ['bail','sometimes', 'string', 'required_if:template,email_report','in:vendor,purchase_order_item,purchase_order,ar_detailed,ar_summary,client_balance,tax_summary,profitloss,client_sales,user_sales,product_sales,activity,activities,client,clients,client_contact,client_contacts,credit,credits,document,documents,expense,expenses,invoice,invoices,invoice_item,invoice_items,quote,quotes,quote_item,quote_items,recurring_invoice,recurring_invoices,payment,payments,product,products,task,tasks,recurring_invoice_item,project'],
             'parameters.date_key' => ['bail','sometimes', 'string'],
             'parameters.status' => ['bail','sometimes', 'nullable', 'string'],
             'parameters.include_project_tasks' => ['bail','sometimes', 'boolean', 'required_if:template,invoice_outstanding_tasks'],
@@ -118,6 +118,10 @@ class UpdateSchedulerRequest extends Request
 
     public function withValidator(\Illuminate\Validation\Validator $validator)
     {
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
+        
         $validator->after(function ($validator) {
             if (!empty($this->parameters['template_id']) && Design::where('id', $this->decodePrimaryKey($this->parameters['template_id']))->where('is_template', true)->company()->doesntExist()) {
                 $validator->errors()->add('template_id', 'Invalid Template ID Selected');

@@ -12,7 +12,10 @@
 
 namespace App\Http\Requests\Invoice;
 
+use App\Exceptions\DuplicatePaymentException;
+use App\Helpers\Cache\Atomic;
 use App\Http\Requests\Request;
+use App\Models\Invoice;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 use App\Utils\Traits\CleanLineItems;
@@ -26,6 +29,9 @@ class UpdateInvoiceRequest extends Request
     use MakesHash;
     use CleanLineItems;
     use ChecksEntityStatus;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = Invoice::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -100,11 +106,15 @@ class UpdateInvoiceRequest extends Request
             },
         ];
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function withValidator($validator)
     {
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
+        
         $validator->after(function ($validator) {
 
             if (request()->input('paid') == 'true') {
@@ -121,12 +131,26 @@ class UpdateInvoiceRequest extends Request
 
     public function prepareForValidation()
     {
-
-        if (request()->has('paid')) {
-            usleep(rand(100000, 150000));
-        }
-
         $input = $this->all();
+        unset($input['lock_key']);
+
+        if ($this->input('paid') == 'true') {
+            /** @var \App\Models\User $user */
+            $user = auth()->user();
+            $company = $user->company();
+            $lock_key = implode('|', [
+                'INVOICE_MARK_PAID',
+                $company->db,
+                $this->invoice->id,
+                $company->company_key,
+            ]);
+
+            if (!Atomic::set($lock_key, true, 1)) {
+                throw new DuplicatePaymentException('Duplicate request.', 429);
+            }
+
+            $input['lock_key'] = $lock_key;
+        }
 
         $input = $this->decodePrimaryKeys($input);
 

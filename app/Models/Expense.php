@@ -16,6 +16,7 @@ use App\Utils\Number;
 use App\DataMapper\ExpenseSync;
 use Illuminate\Support\Facades\App;
 use Elastic\ScoutDriverPlus\Searchable;
+use App\Models\Traits\HasTags;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -97,6 +98,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \App\Models\Invoice|null $invoice
  * @property-read \App\Models\BankTransaction|null $transaction
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
  * @mixin \Eloquent
  */
 class Expense extends BaseModel
@@ -104,6 +106,7 @@ class Expense extends BaseModel
     use SoftDeletes;
     use Filterable;
     use Searchable;
+    use HasTags;
 
     /**
      * Get the index name for the model.
@@ -204,6 +207,7 @@ class Expense extends BaseModel
             'company_key' => $this->company->company_key,
             'public_notes' => (string) $this->public_notes,
             'private_notes' => (string) $this->private_notes,
+            'tags' => $this->tags->pluck('name')->values()->all(),
             'transaction_reference' => (string) $this->transaction_reference,
         ];
     }
@@ -344,8 +348,7 @@ class Expense extends BaseModel
         } else {
 
             if ($this->uses_inclusive_taxes) {
-                $total_tax_amount = ($this->calcInclusiveLineTax($this->tax_rate1 ?? 0, $this->amount, $precision)) + ($this->calcInclusiveLineTax($this->tax_rate2 ?? 0, $this->amount, $precision)) + ($this->calcInclusiveLineTax($this->tax_rate3 ?? 0, $this->amount, $precision));
-                return round(($this->amount - round($total_tax_amount, $precision)), $precision);
+                return round($this->amount - $this->inclusiveTaxTotal($precision), $precision);
             } else {
                 $total_tax_amount = ($this->amount * (($this->tax_rate1 ?? 0) / 100)) + ($this->amount * (($this->tax_rate2 ?? 0) / 100)) + ($this->amount * (($this->tax_rate3 ?? 0) / 100));
                 return round(($this->amount + round($total_tax_amount, $precision)), $precision);
@@ -372,7 +375,7 @@ class Expense extends BaseModel
         } else {
 
             if ($this->uses_inclusive_taxes) {
-                return ($this->calcInclusiveLineTax($this->tax_rate1 ?? 0, $this->amount, $precision)) + ($this->calcInclusiveLineTax($this->tax_rate2 ?? 0, $this->amount, $precision)) + ($this->calcInclusiveLineTax($this->tax_rate3 ?? 0, $this->amount, $precision));
+                return $this->inclusiveTaxTotal($precision);
             } else {
                 return ($this->amount * (($this->tax_rate1 ?? 0) / 100)) + ($this->amount * (($this->tax_rate2 ?? 0) / 100)) + ($this->amount * (($this->tax_rate3 ?? 0) / 100));
             }
@@ -380,15 +383,17 @@ class Expense extends BaseModel
     }
 
     /**
-     * calcInclusiveLineTax
+     * Total inclusive tax via the shared tax-anchored additive back-out
+     * (see App\Helpers\Invoice\InclusiveTax): each tax is round(base x rate) and
+     * the net absorbs the sub-cent residual, so net + tax == amount to the cent.
      *
-     * @param  mixed $tax_rate
-     * @param  mixed $amount
-     * @param  mixed $precision
+     * @param  int $precision
      * @return float
      */
-    private function calcInclusiveLineTax($tax_rate, $amount, $precision): float
+    private function inclusiveTaxTotal($precision): float
     {
-        return round($amount - ($amount / (1 + ($tax_rate / 100))), $precision);
+        $rates = [$this->tax_rate1 ?? 0, $this->tax_rate2 ?? 0, $this->tax_rate3 ?? 0];
+
+        return \App\Helpers\Invoice\InclusiveTax::backout((float) $this->amount, $rates, $precision)['tax'];
     }
 }

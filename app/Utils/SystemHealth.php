@@ -362,7 +362,14 @@ class SystemHealth
 
     public static function lastError()
     {
-        $log_file = new SplFileObject(sprintf('%s/laravel.log', base_path('storage/logs')));
+        $log_path = sprintf('%s/laravel.log', base_path('storage/logs'));
+
+        $log_file = new SplFileObject($log_path);
+
+        if (! is_readable($log_path)) {
+            return '';
+        }
+
         $log_file->seek(PHP_INT_MAX);
         $last_line = $log_file->key();
 

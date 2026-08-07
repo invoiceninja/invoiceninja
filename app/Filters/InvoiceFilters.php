@@ -226,6 +226,15 @@ class InvoiceFilters extends QueryFilters
         if (strlen($client_id) == 0) {
             return $this->builder;
         }
+        
+        /** if true, return all payable invoices */
+        if($client_id == strtolower('true'))
+        {
+            return $this->builder
+                        ->whereIn('status_id', [Invoice::STATUS_DRAFT, Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                        ->where('is_deleted', 0)
+                        ->where('balance', '>', 0);
+        }
 
         return $this->builder
                     ->where('client_id', $this->decodePrimaryKey($client_id))
@@ -233,7 +242,6 @@ class InvoiceFilters extends QueryFilters
                     ->where('is_deleted', 0)
                     ->where('balance', '>', 0);
     }
-
 
     /**
      * @param string $date

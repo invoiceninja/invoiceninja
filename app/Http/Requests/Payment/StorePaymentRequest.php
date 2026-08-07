@@ -29,6 +29,9 @@ class StorePaymentRequest extends Request
 {
     use MakesHash;
 
+    /** @var class-string */
+    protected ?string $tag_entity_type = Payment::class;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -48,12 +51,12 @@ class StorePaymentRequest extends Request
         $user = auth()->user();
 
         $rules = [
-            'client_id' => ['bail','required',Rule::exists('clients', 'id')->where('company_id', $user->company()->id)->where('is_deleted', 0)],
+            'client_id' => ['bail','required', Rule::exists('clients', 'id')->where('company_id', $user->company()->id)->where('is_deleted', 0)],
             'invoices' => ['bail', 'sometimes', 'nullable', 'array', new ValidPayableInvoicesRule()],
-            'invoices.*.amount' => ['bail','required'],
+            'invoices.*.amount' => ['bail','required','numeric'],
             'invoices.*.invoice_id' => ['bail','required','distinct', Rule::exists('invoices', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)->where('is_deleted', 0)],
             'credits.*.credit_id' => ['bail','required','distinct', new ValidCreditsRules($this->all()),Rule::exists('credits', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)->where('is_deleted', 0)],
-            'credits.*.amount' => ['bail','required', new CreditsSumRule($this->all())],
+            'credits.*.amount' => ['bail','required','numeric', new CreditsSumRule($this->all())],
             'amount' => ['bail', 'numeric', new PaymentAmountsBalanceRule(), 'max:99999999999999'],
             'number' => ['bail', 'nullable',  Rule::unique('payments')->where('company_id', $user->company()->id)],
             'idempotency_key' => ['nullable', 'bail', 'string','max:64', Rule::unique('payments')->where('company_id', $user->company()->id)],
@@ -65,12 +68,16 @@ class StorePaymentRequest extends Request
         $rules['documents'] = 'bail|sometimes|array';
         $rules['documents.*'] = $this->fileValidation();
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
 
     public function withValidator($validator)
     {
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
+        
         $validator->after(function ($validator) {
             $invoices = $this->input('invoices') ?? [];
             $clientId = $this->input('client_id');
@@ -97,7 +104,7 @@ class StorePaymentRequest extends Request
                     $validator->errors()->add("invoices.{$index}.invoice_id", ctrans('texts.invoice_not_found'));
                     continue;
                 }
-
+                
                 // Check client match
                 if ($inv->client_id != $clientId) {
                     $validator->errors()->add("invoices.{$index}", ctrans('texts.invoices_dont_match_client'));
@@ -156,6 +163,8 @@ class StorePaymentRequest extends Request
         if ($this->file('file') instanceof \Illuminate\Http\UploadedFile) {
             $this->files->set('file', [$this->file('file')]);
         }
+
+        $input = $this->decodePrimaryKeys($input);
 
         $invoices_total = 0;
         $credits_total = 0;

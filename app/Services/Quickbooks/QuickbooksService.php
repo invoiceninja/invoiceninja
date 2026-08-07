@@ -56,6 +56,8 @@ class QuickbooksService
 
     public Helper $helper;
 
+    private ?SdkWrapper $sdk_wrapper = null;
+
     private bool $testMode = true;
 
     private bool $try_refresh = true;
@@ -85,6 +87,7 @@ class QuickbooksService
      */
     private function init(): self
     {
+        $this->sdk_wrapper = null;
 
         if (config('services.quickbooks.client_id')) {
             $config = [
@@ -169,7 +172,7 @@ class QuickbooksService
         }
 
         // Access token is expired, check if we can refresh it
-        if ($this->company->quickbooks->accessTokenExpiresAt && $this->company->quickbooks->accessTokenExpiresAt < time() && $this->try_refresh) {
+        if ($this->company->quickbooks->accessTokenExpiresAt < time() && $this->try_refresh) {
 
             // Check if refresh token is also expired - if so, don't attempt refresh
             $refresh_token_expired = $this->company->quickbooks->refreshTokenExpiresAt > 0
@@ -183,7 +186,7 @@ class QuickbooksService
 
             // Refresh token is still valid, attempt to refresh
             try {
-                $this->sdk()->refreshToken($this->company->quickbooks->refresh_token);
+                $this->sdk()->refreshTokenLocked(true);
             } catch (\Throwable $e) {
                 // Only log and disconnect if the error is not about expired refresh token
                 // If refresh token is expired, we've already checked above, so this is a different error
@@ -217,7 +220,14 @@ class QuickbooksService
         throw new \Exception('Quickbooks token expired and could not be refreshed');
 
     }
-
+    
+    /**
+     * markRequiresReconnect
+     *
+     * Marks the company as requiring reconnection to Quickbooks.
+     *
+     * @return void
+     */
     private function markRequiresReconnect(): void
     {
         if ($this->company->quickbooks) {
@@ -279,7 +289,7 @@ class QuickbooksService
      */
     public function sdk(): SdkWrapper
     {
-        return new SdkWrapper($this->sdk, $this->company);
+        return $this->sdk_wrapper ??= new SdkWrapper($this->sdk, $this->company);
     }
 
     /**
@@ -303,7 +313,7 @@ class QuickbooksService
      */
     public function findEntityById(string $entity, string $id): mixed
     {
-        return $this->sdk->FindById($entity, $id);
+        return $this->sdk()->findById($entity, $id);
     }
 
     /**
@@ -316,7 +326,7 @@ class QuickbooksService
      */
     public function query(string $query): mixed
     {
-        return $this->sdk->Query($query);
+        return $this->sdk()->query($query);
     }
 
     /**
@@ -390,7 +400,7 @@ class QuickbooksService
             }
 
             $query = "SELECT * FROM Account WHERE AccountType = 'Income' AND Active = true";
-            $accounts = $this->sdk->Query($query);
+            $accounts = $this->sdk()->query($query);
 
 
             $iat = new IncomeAccountTransformer();
@@ -462,7 +472,7 @@ class QuickbooksService
             }
 
             $query = "SELECT * FROM Account WHERE AccountType IN ('Expense', 'Cost of Goods Sold') AND Active = true";
-            $accounts = $this->sdk->Query($query);
+            $accounts = $this->sdk()->query($query);
 
             return is_array($accounts) ? $accounts : []; //@phpstan-ignore-line return type is @array - but they also spec NULL
         } catch (\Exception $e) {
@@ -486,7 +496,7 @@ class QuickbooksService
 
             // $query = "SELECT * FROM TaxCode WHERE Active = true";
             $query = "SELECT * FROM TaxRate WHERE Active = true";
-            $tax_rates = $this->sdk->Query($query);
+            $tax_rates = $this->sdk()->query($query);
 
             $tax_rate_transformer = new TaxRateTransformer();
             $tax_rates = $tax_rate_transformer->transformMany($tax_rates ?? []); //@phpstan-ignore-line return type is @array - but they also spec NULL as well
@@ -513,7 +523,7 @@ class QuickbooksService
             }
 
             $query = "SELECT * FROM TaxCode WHERE Active = true";
-            $tax_codes = $this->sdk->Query($query);
+            $tax_codes = $this->sdk()->query($query);
 
             return is_array($tax_codes) ? $tax_codes : []; //@phpstan-ignore-line return type is @array - but they also spec NULL
 
@@ -588,7 +598,7 @@ class QuickbooksService
             if (! isset($this->sdk) || ! $this->sdk) {
                 return false;
             }
-            $this->sdk->Query('SELECT Id FROM CompanyInfo MAXRESULTS 1');
+            $this->sdk()->query('SELECT Id FROM CompanyInfo MAXRESULTS 1');
             return true;
         } catch (\Exception $e) {
             nlog('Quickbooks token validation failed: ' . $e->getMessage());
@@ -707,7 +717,13 @@ class QuickbooksService
         $income_accounts = $this->fetchIncomeAccounts();
         $tax_rates = $this->fetchTaxRates();
         $company_preferences = $this->sdk()->getPreferences();
-        $automatic_taxes = data_get($company_preferences, 'TaxPrefs.PartnerTaxEnabled', false);
+        $tax_codes = $this->fetchTaxCodes();
+        $payment_methods = $this->fetchPaymentMethods();
+
+        $this->company = $this->company->fresh() ?? $this->company;
+        $this->settings = $this->company->quickbooks->settings;
+
+        $automatic_taxes = filter_var(data_get($company_preferences, 'TaxPrefs.PartnerTaxEnabled', false), FILTER_VALIDATE_BOOLEAN);
         $allow_deposit = filter_var(data_get($company_preferences, 'SalesFormsPrefs.AllowDeposit', false), FILTER_VALIDATE_BOOLEAN);
 
         $default_income_account = strlen($this->company->quickbooks->settings->qb_income_account_id ?? '') >= 1 ? $this->company->quickbooks->settings->qb_income_account_id : ($income_accounts[0]['id'] ?? null);
@@ -724,7 +740,6 @@ class QuickbooksService
 
         // Resolve TaxCode IDs for multi-region support (US uses 'TAX'/'NON', CA/AU/UK use numeric IDs)
         // Build TaxRate→TaxCode map so each line item can resolve the correct TaxCodeRef
-        $tax_codes = $this->fetchTaxCodes();
         $default_taxable_code = null;
         $default_exempt_code = null;
         $tax_rate_to_tax_code = []; // TaxRate ID → TaxCode ID (sales only)
@@ -880,8 +895,6 @@ class QuickbooksService
         $this->company->quickbooks->settings->default_taxable_code = $default_taxable_code;
         $this->company->quickbooks->settings->default_exempt_code = $default_exempt_code;
 
-        // Fetch and cache payment methods for payment type mapping
-        $payment_methods = $this->fetchPaymentMethods();
         $this->company->quickbooks->settings->payment_method_map = $payment_methods;
 
         $this->company->save();
@@ -917,7 +930,7 @@ class QuickbooksService
             }
 
             $query = "SELECT * FROM PaymentMethod WHERE Active = true";
-            $methods = $this->sdk->Query($query);
+            $methods = $this->sdk()->query($query);
 
             if (!is_array($methods)) {
                 return [];

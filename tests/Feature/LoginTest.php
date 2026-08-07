@@ -203,6 +203,69 @@ class LoginTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function testPrecheckReturnsPasswordOnlyForUserWithoutTwoFactor()
+    {
+        Account::all()->each(function ($account) {
+            $account->delete();
+        });
+
+        $account = Account::factory()->create();
+        $user = User::factory()->create([
+            'account_id' => $account->id,
+            'email' => 'precheck-nottfa@example.com',
+            'password' => \Hash::make('123456'),
+            'google_2fa_secret' => null,
+        ]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+        ])->postJson('/api/v1/login/precheck', [
+            'email' => 'precheck-nottfa@example.com',
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertEquals(['password'], $response->json('methods'));
+    }
+
+    public function testPrecheckReturnsTotpForUserWithTwoFactor()
+    {
+        Account::all()->each(function ($account) {
+            $account->delete();
+        });
+
+        $account = Account::factory()->create();
+        $user = User::factory()->create([
+            'account_id' => $account->id,
+            'email' => 'precheck-tfa@example.com',
+            'password' => \Hash::make('123456'),
+            'google_2fa_secret' => encrypt('PADTOTPDUMMYSECRET'),
+        ]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+        ])->postJson('/api/v1/login/precheck', [
+            'email' => 'precheck-tfa@example.com',
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertEquals(['password', 'totp'], $response->json('methods'));
+    }
+
+    public function testPrecheckIsEnumerationResistantForUnknownEmail()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+        ])->postJson('/api/v1/login/precheck', [
+            'email' => 'this-account-does-not-exist@example.com',
+        ]);
+
+        $response->assertStatus(200);
+
+        // An unknown email must return the identical payload to an existing
+        // account that has no 2FA, so account existence cannot be inferred.
+        $this->assertEquals(['password'], $response->json('methods'));
+    }
+
     public function testApiLoginSucceedsWithPasswordWhenPasskeyExists()
     {
         Account::all()->each(function ($account) {

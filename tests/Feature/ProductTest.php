@@ -69,6 +69,16 @@ class ProductTest extends TestCase
         $this->assertNull($p->vendor_id);
     }
 
+    public function testProductSortNormalizesInvalidDirection()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/products?sort=product_key|invalid');
+
+        $response->assertStatus(200);
+    }
+
     public function testProductCostMigration()
     {
         $items = [];

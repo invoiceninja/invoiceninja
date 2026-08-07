@@ -71,7 +71,7 @@ class TaskExport extends BaseExport
                         ->withTrashed()
                         ->where('company_id', $this->company->id);
 
-        if (!$this->input['include_deleted'] ?? false) {
+        if (!($this->input['include_deleted'] ?? false)) {
             $query->where('is_deleted', 0);
         }
 
@@ -87,19 +87,7 @@ class TaskExport extends BaseExport
             $query = $this->addTaskStatusFilter($query, $this->input['status']);
         }
 
-        $tag_ids = $this->input['tag_ids'] ?? null;
-
-        if ($tag_ids) {
-            $transformed_tag_ids = is_string($tag_ids)
-                ? $this->transformKeys(explode(',', $tag_ids))
-                : $this->transformKeys($tag_ids);
-
-            if (count($transformed_tag_ids) > 0) {
-                $query->whereHas('tags', function ($q) use ($transformed_tag_ids) {
-                    $q->whereIn('tags.id', $transformed_tag_ids);
-                });
-            }
-        }
+        $query = $this->addTagFilter($query);
 
         $query = $this->filterByUserPermissions($query);
 
@@ -178,7 +166,7 @@ class TaskExport extends BaseExport
                 continue;
             }
 
-            if (is_array($parts) && $parts[0] == 'task' && array_key_exists($parts[1], $transformed_entity)) {
+            if ($parts[0] === 'task' && isset($parts[1], $transformed_entity[$parts[1]])) {
                 $entity[$key] = $transformed_entity[$parts[1]];
             } elseif (array_key_exists($key, $transformed_entity)) {
                 $entity[$key] = $transformed_entity[$key];
@@ -336,7 +324,7 @@ class TaskExport extends BaseExport
         }
 
         if (in_array('task.user_id', $this->input['report_keys'])) {
-            $entity['task.user_id'] = $task->user ? $task->user->present()->name() : '';
+            $entity['task.user_id'] = $task->user->present()->name() ?? '';
         }
 
         if (in_array('task.assigned_user_id', $this->input['report_keys'])) {

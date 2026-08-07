@@ -12,25 +12,30 @@
 
 namespace App\Services\Quickbooks\Models;
 
-use Carbon\Carbon;
-use App\Models\Invoice;
 use App\DataMapper\InvoiceSync;
+use App\Enum\InvoiceQbStatus;
 use App\Factory\InvoiceFactory;
 use App\Interfaces\SyncInterface;
+use App\Models\Invoice;
 use App\Repositories\InvoiceRepository;
 use App\Services\Quickbooks\QuickbooksService;
+use App\Services\Quickbooks\QuickbooksFaultParser;
 use App\Services\Quickbooks\Transformers\InvoiceTransformer;
 use App\Services\Quickbooks\Transformers\PaymentTransformer;
 use App\Utils\BcMath;
 use App\Utils\Traits\MakesHash;
+use Carbon\Carbon;
+use RuntimeException;
 
 class QbInvoice implements SyncInterface
 {
     use MakesHash;
-    
+
     protected InvoiceTransformer $invoice_transformer;
 
     protected InvoiceRepository $invoice_repository;
+
+    protected array $check_context = [];
 
     public function __construct(public QuickbooksService $service)
     {
@@ -48,7 +53,7 @@ class QbInvoice implements SyncInterface
      */
     public function find(string $id): mixed
     {
-        return $this->service->sdk->FindById('Invoice', $id);
+        return $this->service->sdk()->findById('Invoice', $id);
     }
 
     /**
@@ -77,7 +82,9 @@ class QbInvoice implements SyncInterface
 
             $ninja_invoice_data = $this->invoice_transformer->qbToNinja($record, $this->service);
 
-            $payment_ids = $ninja_invoice_data['payment_ids'] ?? [];
+            if ($ninja_invoice_data === false) {
+                continue;
+            }
 
             $client_id = $ninja_invoice_data['client_id'] ?? null;
 
@@ -92,33 +99,26 @@ class QbInvoice implements SyncInterface
 
                 if ($invoice->id) {
                     $this->qbInvoiceUpdate($ninja_invoice_data, $invoice);
-                }
+                    $this->markInvoiceSynced($invoice->fresh(), (string) $ninja_invoice_data['id'], (string) data_get($record, 'SyncToken', ''));
+                } else {
+                    if ($this->handlePullNumberCollision($ninja_invoice_data, $record)) {
+                        continue;
+                    }
 
-                // QB allows duplicate invoice numbers, Ninja does not.
-                // Suffix with QB ID to guarantee uniqueness for duplicates.
-                if (Invoice::withTrashed()
-                    ->where('company_id', $this->service->company->id)
-                    ->where('number', $ninja_invoice_data['number'])
-                    ->exists()) {
-                    $ninja_invoice_data['number'] = $ninja_invoice_data['number'] . '_' . $ninja_invoice_data['id'];
-                }
+                    $invoice->fill($ninja_invoice_data);
+                    $invoice->saveQuietly();
 
-                $invoice->fill($ninja_invoice_data);
-                $invoice->saveQuietly();
-
-
-                // During QB import, use saveQuietly() to prevent circular sync back to QuickBooks
-                $invoice = $invoice->calc()->getInvoice()->service()->markSent()->applyNumber()->createInvitations()->save();
-
-                if ($record instanceof \QuickBooksOnline\API\Data\IPPSalesReceipt) {
                     // During QB import, use saveQuietly() to prevent circular sync back to QuickBooks
-                    $invoice->service()->markPaid()->save();
+                    $invoice = $invoice->calc()->getInvoice()->service()->markSent()->applyNumber()->createInvitations()->save();
+                    $this->markInvoiceSynced($invoice, (string) $ninja_invoice_data['id'], (string) data_get($record, 'SyncToken', ''));
+
+                    if ($record instanceof \QuickBooksOnline\API\Data\IPPSalesReceipt) {
+                        // During QB import, use saveQuietly() to prevent circular sync back to QuickBooks
+                        $invoice->service()->markPaid()->save();
+                    }
                 }
 
             }
-
-            $ninja_invoice_data = false;
-
 
         }
 
@@ -139,24 +139,43 @@ class QbInvoice implements SyncInterface
                 continue;
             }
 
+            $operation = 'preparing the invoice';
+
             try {
                 // Ensure client exists in QuickBooks before pushing the invoice
                 $client = $invoice->client;
-                if (empty($client->sync->qb_id ?? null)) {
+                if (empty($client->sync->qb_id)) {
+                    $operation = 'creating the related customer';
                     $qb_client_id = $this->service->client->createQbClient($client);
                     if (empty($qb_client_id)) {
                         nlog("QuickBooks: Skipping invoice {$invoice->id} — unable to create client {$client->id} in QuickBooks");
+                        $this->markInvoicePushFailure($invoice, "Unable to push to QuickBooks: client could not be created.");
                         continue;
                     }
                     $client->refresh();
                 }
 
+                $invoice_qb_id = (string) data_get($invoice->sync, 'qb_id', '');
+                $is_linked = $invoice_qb_id !== '';
+
+                // Create path: DocNumber collision becomes linkable/amount_mismatch — never add a second QB invoice.
+                if (!$is_linked && !empty($invoice->number)) {
+                    $remote = $this->findQbInvoiceByDocNumber((string) $invoice->number);
+                    if ($remote) {
+                        $this->flagNumberCollision($invoice, $remote);
+                        nlog("QuickBooks: Push create blocked for invoice {$invoice->id} — DocNumber collision with QB Id " . data_get($remote, 'Id'));
+                        continue;
+                    }
+                }
+
                 // Transform invoice to QuickBooks format
+                $operation = 'preparing the invoice';
                 $qb_invoice_data = $this->invoice_transformer->ninjaToQb($invoice, $this->service);
 
                 // If updating, fetch SyncToken using existing find() method
-                if (isset($invoice->sync->qb_id) && !empty($invoice->sync->qb_id)) {
-                    $existing_qb_invoice = $this->find($invoice->sync->qb_id);
+                if ($is_linked) {
+                    $operation = 'fetching the current invoice';
+                    $existing_qb_invoice = $this->find($invoice_qb_id);
                     if ($existing_qb_invoice) {
                         $qb_invoice_data['SyncToken'] = $existing_qb_invoice->SyncToken ?? '0';
                     }
@@ -169,33 +188,38 @@ class QbInvoice implements SyncInterface
 
                 nlog("QuickBooks: Pushing invoice {$invoice->id} payload", ['data' => $qb_invoice_data]);
 
-                if (isset($invoice->sync->qb_id) && !empty($invoice->sync->qb_id)) {
-                    $result = $this->service->sdk->Update($qb_invoice);
-                    nlog("QuickBooks: Updated invoice {$invoice->id} (QB ID: {$invoice->sync->qb_id})", [
+                if ($is_linked) {
+                    $operation = 'updating the invoice';
+                    $result = $this->service->sdk()->update($qb_invoice);
+                    nlog("QuickBooks: Updated invoice {$invoice->id} (QB ID: {$invoice_qb_id})", [
                         'result_id' => data_get($result, 'Id'),
                     ]);
                 } else {
-                    $result = $this->service->sdk->Add($qb_invoice);
+                    $operation = 'creating the invoice';
+                    $result = $this->service->sdk()->add($qb_invoice);
+                    nlog("QuickBooks: Created invoice {$invoice->id} (QB ID: " . (data_get($result, 'Id') ?? data_get($result, 'Id.value')) . ")");
+                }
 
-                    $sync = $invoice->sync ?? new InvoiceSync();
-                    $sync->qb_id = data_get($result, 'Id') ?? data_get($result, 'Id.value');
-                    $invoice->sync = $sync;
-                    $invoice->saveQuietly();
+                $qb_id = (string) (data_get($result, 'Id') ?? data_get($result, 'Id.value') ?? '');
+                $sync_token = (string) (data_get($result, 'SyncToken') ?? '');
 
-                    nlog("QuickBooks: Created invoice {$invoice->id} (QB ID: {$sync->qb_id})");
+                if ($qb_id !== '') {
+                    $this->markInvoiceSynced($invoice, $qb_id, $sync_token, true);
                 }
 
                 // Process QuickBooks AST response: extract tax details, create missing tax rates, and sync totals
                 // Only process if we have a valid result with an ID and automatic taxes are enabled
-                $qb_id = data_get($result, 'Id') ?? data_get($result, 'Id.value');
                 if ($qb_id && ($this->service->company->quickbooks->settings->automatic_taxes ?? false)) {
                     $this->processQuickbooksTaxResponse($result, $invoice);
                 }
 
             } catch (\Throwable $e) {
+                $message = (new QuickbooksFaultParser())->statusMessage($e, $operation);
+
                 nlog("QuickBooks: Error pushing invoice {$invoice->id} to QuickBooks: {$e->getMessage()}", [
                     'trace' => $e->getTraceAsString(),
                 ]);
+                $this->markInvoicePushFailure($invoice, $message);
                 throw $e;
             }
         }
@@ -227,6 +251,8 @@ class QbInvoice implements SyncInterface
                 // Manual taxes - taxes should already be set from invoice
                 return;
             }
+
+            $balance_before = (float) $invoice->balance;
 
             // Extract TxnTaxDetail from response
             $txn_tax_detail = data_get($qb_response, 'TxnTaxDetail');
@@ -285,11 +311,46 @@ class QbInvoice implements SyncInterface
             // Validate and sync amounts with QuickBooks
             $this->validateAndSyncAmounts($qb_response, $invoice);
 
+            $this->applyAstClientBalanceAdjustment($invoice, $balance_before);
+
             $invoice->saveQuietly();
 
         } catch (\Exception $e) {
             nlog("QuickBooks: Error processing tax response for invoice {$invoice->id}: {$e->getMessage()}");
         }
+    }
+
+    /**
+     * Correct client balance and ledger when AST changes a sent invoice after mark-sent.
+     *
+     * Drafts are ignored — mark-sent will apply the post-AST balance when the invoice is sent.
+     */
+    private function applyAstClientBalanceAdjustment(Invoice $invoice, float $balance_before): void
+    {
+        if ($invoice->status_id === Invoice::STATUS_DRAFT) {
+            return;
+        }
+
+        if (! in_array($invoice->status_id, [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL], true)) {
+            return;
+        }
+
+        $invoice = $invoice->calc()->getInvoice();
+
+        $balance_delta = BcMath::sub((float) $invoice->balance, $balance_before, 2);
+
+        if (BcMath::isZero($balance_delta)) {
+            return;
+        }
+
+        $invoice->loadMissing('client');
+
+        $invoice->client->service()->updateBalance((float) $balance_delta);
+
+        $invoice->ledger()->updateInvoiceBalance(
+            (float) $balance_delta,
+            "QuickBooks AST adjustment for invoice {$invoice->number}"
+        );
     }
 
     /**
@@ -476,7 +537,7 @@ class QbInvoice implements SyncInterface
     private function formatTaxName(float $rate, ?Invoice $invoice = null): string
     {
         $state = '';
-        if ($invoice && $invoice->client) {
+        if ($invoice) {
             $state = trim($invoice->client->state ?? '');
         }
 
@@ -613,16 +674,13 @@ class QbInvoice implements SyncInterface
             $invoice->design_id = $this->decodePrimaryKey($this->service->company->settings->invoice_design_id);
 
             $sync = new InvoiceSync();
-            $sync->qb_id = $id;
+            $sync->markSynced($id);
             $invoice->sync = $sync;
 
             return $invoice;
-        } elseif ($search->count() >= 1) {
-            return $search->first();
         }
 
-        return null;
-
+        return $search->first();
     }
 
     public function sync($id, string $last_updated): void
@@ -637,6 +695,10 @@ class QbInvoice implements SyncInterface
             try {
                 $invoice = $this->findInvoice($id);
 
+                // /** returns immediately if invoice is found */
+                // if($invoice->id)
+                //     return;
+
                 nlog("Comparing QB last updated: " . $last_updated);
                 nlog("Comparing Ninja last updated: " . $invoice->updated_at);
 
@@ -650,8 +712,11 @@ class QbInvoice implements SyncInterface
                 } elseif (Carbon::parse($last_updated)->gt(Carbon::parse($invoice->updated_at)) || $qb_record->SyncToken == '0') {
                     $ninja_invoice_data = $this->invoice_transformer->qbToNinja($qb_record, $this->service);
 
-                    $this->invoice_repository->save($ninja_invoice_data, $invoice);
+                    $invoice = $this->invoice_repository->save($ninja_invoice_data, $invoice);
 
+                    if ($invoice) {
+                        $this->markInvoiceSynced($invoice, (string) $id, (string) data_get($qb_record, 'SyncToken', ''));
+                    }
                 }
             } finally {
                 unset(QuickbooksService::$importing[$this->service->company->id]);
@@ -671,6 +736,10 @@ class QbInvoice implements SyncInterface
 
         $ninja_invoice_data = $this->invoice_transformer->qbToNinja($record, $this->service);
 
+        if ($ninja_invoice_data === false) {
+            return;
+        }
+
         $payment_ids = $ninja_invoice_data['payment_ids'] ?? [];
 
         $client_id = $ninja_invoice_data['client_id'] ?? null;
@@ -686,48 +755,23 @@ class QbInvoice implements SyncInterface
 
             if ($invoice->id) {
                 $this->qbInvoiceUpdate($ninja_invoice_data, $invoice);
-            } elseif (!empty($ninja_invoice_data['number'])) {
-                // QB allows duplicate invoice numbers, Ninja does not.
-                // Suffix with QB ID to guarantee uniqueness for duplicates.
-                if (Invoice::withTrashed()
-                    ->where('company_id', $this->service->company->id)
-                    ->where('number', $ninja_invoice_data['number'])
-                    ->exists()) {
-                    $ninja_invoice_data['number'] = $ninja_invoice_data['number'] . '_' . $ninja_invoice_data['id'];
-                }
+                $this->markInvoiceSynced($invoice, (string) $ninja_invoice_data['id'], (string) data_get($record, 'SyncToken', ''));
+                $this->attachPayments($invoice, $payment_ids);
+
+                return;
+            }
+
+            if ($this->handlePullNumberCollision($ninja_invoice_data, $record)) {
+                return;
             }
 
             $invoice->fill($ninja_invoice_data);
             $invoice->saveQuietly();
 
             $invoice = $invoice->calc()->getInvoice()->service()->markSent()->applyNumber()->createInvitations()->save();
+            $this->markInvoiceSynced($invoice, (string) $ninja_invoice_data['id'], (string) data_get($record, 'SyncToken', ''));
 
-            foreach ($payment_ids as $payment_id) {
-
-                if(!$payment_id) {  
-                    continue;
-                }
-
-                $payment = $this->service->sdk->FindById('Payment', $payment_id);
-
-                $payment_transformer = new PaymentTransformer($this->service->company);
-
-                $transformed = $payment_transformer->qbToNinja($payment);
-
-                $ninja_payment = $payment_transformer->buildPayment($payment);
-                $ninja_payment->service()->applyNumber()->save();
-
-                $paymentable = new \App\Models\Paymentable();
-                $paymentable->payment_id = $ninja_payment->id;
-                $paymentable->paymentable_id = $invoice->id;
-                $paymentable->paymentable_type = 'invoices';
-                $paymentable->amount = $transformed['applied'] + $ninja_payment->credits->sum('amount');
-                $paymentable->created_at = $ninja_payment->date; //@phpstan-ignore-line
-                $paymentable->save();
-
-                $invoice->service()->applyPayment($ninja_payment, $paymentable->amount);
-
-            }
+            $this->attachPayments($invoice, $payment_ids);
 
             if ($record instanceof \QuickBooksOnline\API\Data\IPPSalesReceipt) {
                 $invoice->service()->markPaid()->save();
@@ -735,6 +779,534 @@ class QbInvoice implements SyncInterface
 
         }
 
+    }
+
+    /**
+     * Force-link an unlinked Ninja invoice to a matching QuickBooks invoice by DocNumber.
+     * QB overwrites invoice fields; linked QB payments are imported without deleting Ninja payments.
+     */
+    public function forceLink(Invoice $invoice): Invoice
+    {
+        if (!empty($invoice->sync->qb_id ?? null)) {
+            throw new RuntimeException('Invoice is already linked to QuickBooks and cannot be relinked.');
+        }
+
+        if (empty($invoice->number)) {
+            throw new RuntimeException('Invoice number is required to force-link.');
+        }
+
+        $qb_record = $this->findQbInvoiceByDocNumber((string) $invoice->number);
+
+        if (!$qb_record) {
+            throw new RuntimeException('No QuickBooks invoice found with matching DocNumber.');
+        }
+
+        if (!$this->amountsMatch($qb_record, $invoice)) {
+            $this->flagNumberCollision($invoice, $qb_record);
+            throw new RuntimeException('QuickBooks invoice amount does not match; cannot force-link.');
+        }
+
+        $qb_id = (string) data_get($qb_record, 'Id');
+        $ninja_invoice_data = $this->invoice_transformer->qbToNinja($qb_record, $this->service);
+
+        if ($ninja_invoice_data === false) {
+            throw new RuntimeException('Unable to transform QuickBooks invoice for force-link.');
+        }
+
+        $payment_ids = $ninja_invoice_data['payment_ids'] ?? [];
+        unset($ninja_invoice_data['payment_ids'], $ninja_invoice_data['id']);
+
+        QuickbooksService::$importing[$this->service->company->id] = true;
+
+        try {
+            $invoice->fill($ninja_invoice_data);
+            $invoice->saveQuietly();
+            $invoice = $invoice->calc()->getInvoice()->service()->markSent()->save();
+
+            $this->markInvoiceSynced($invoice, $qb_id, (string) data_get($qb_record, 'SyncToken', ''), true);
+            $this->attachPayments($invoice->fresh(), $payment_ids);
+        } finally {
+            unset(QuickbooksService::$importing[$this->service->company->id]);
+        }
+
+        return $invoice->fresh();
+    }
+
+    /**
+     * Force-pull from the linked QuickBooks invoice onto Ninja (same qb_id).
+     */
+    public function forcePull(Invoice $invoice): Invoice
+    {
+        $qb_id = (string) data_get($invoice->sync, 'qb_id', '');
+
+        if ($qb_id === '') {
+            throw new RuntimeException('Invoice is not linked to QuickBooks.');
+        }
+
+        if (!$this->service->syncable('invoice', \App\Enum\SyncDirection::PULL)) {
+            throw new RuntimeException('Invoice pull is not enabled for this company.');
+        }
+
+        $qb_record = $this->find($qb_id);
+
+        if (!$qb_record) {
+            throw new RuntimeException("QuickBooks invoice {$qb_id} was not found.");
+        }
+
+        if (data_get($qb_record, 'TxnStatus') === 'Voided') {
+            $this->delete($qb_id);
+            return $invoice->fresh();
+        }
+
+        $ninja_invoice_data = $this->invoice_transformer->qbToNinja($qb_record, $this->service);
+
+        if ($ninja_invoice_data === false) {
+            throw new RuntimeException('Unable to transform QuickBooks invoice for force-pull.');
+        }
+
+        $payment_ids = $ninja_invoice_data['payment_ids'] ?? [];
+        unset($ninja_invoice_data['payment_ids'], $ninja_invoice_data['id']);
+
+        QuickbooksService::$importing[$this->service->company->id] = true;
+
+        try {
+            $invoice = $this->invoice_repository->save($ninja_invoice_data, $invoice);
+            $this->markInvoiceSynced($invoice, $qb_id, (string) data_get($qb_record, 'SyncToken', ''));
+            $this->attachPayments($invoice, $payment_ids);
+
+        } finally {
+            unset(QuickbooksService::$importing[$this->service->company->id]);
+        }
+
+        return $invoice->fresh();
+    }
+
+    /**
+     * Retry a previously failed IN→QB push. Requires a non-empty status message on syncable/synced.
+     */
+    public function forcePush(Invoice $invoice): Invoice
+    {
+        $sync = $invoice->sync ?? new InvoiceSync();
+        $status = $sync->status();
+
+        if (!in_array($status, [InvoiceQbStatus::Syncable, InvoiceQbStatus::Synced], true)) {
+            throw new RuntimeException('Force-push is only available for syncable or synced invoices with a prior push failure.');
+        }
+
+        if ($sync->qb_status_message === '') {
+            throw new RuntimeException('Force-push is only available after a recorded push failure.');
+        }
+
+        if (!$this->service->syncable('invoice', \App\Enum\SyncDirection::PUSH)) {
+            throw new RuntimeException('Invoice push is not enabled for this company.');
+        }
+
+        $this->syncToForeign([$invoice]);
+
+        return $invoice->fresh();
+    }
+
+    /**
+     * Check the current QuickBooks invoice without changing invoice or payment data.
+     */
+    public function check(Invoice $invoice): Invoice
+    {
+        $this->check_context = [];
+        $qb_id = (string) data_get($invoice->sync, 'qb_id', '');
+
+        if ($qb_id === '') {
+            return $this->checkUnlinkedInvoice($invoice);
+        }
+
+        $qb_record = $this->find($qb_id);
+        $sync = $invoice->sync ?? new InvoiceSync();
+        $previous_status = $sync->status();
+
+        if (!$qb_record) {
+            $sync->markSynced($qb_id, $sync->qb_sync_token, false);
+            $sync->markPushFailure("QuickBooks invoice {$qb_id} was not found.");
+            $invoice->sync = $sync;
+            $invoice->saveQuietly();
+
+            $invoice = $invoice->fresh();
+            $this->check_context = $this->buildCheckContext($invoice, null, true, 'not_found');
+
+            return $invoice;
+        }
+
+        $sync->markSynced($qb_id, (string) data_get($qb_record, 'SyncToken', ''), false);
+
+        if ($message = $this->linkedInvoiceCheckMessage($invoice, $qb_record)) {
+            if (data_get($qb_record, 'TxnStatus') === 'Voided') {
+                $sync->markPushFailure($message);
+            } else {
+                $sync->markDataMismatch($message);
+            }
+        } elseif (in_array($previous_status, [InvoiceQbStatus::DataMismatch, InvoiceQbStatus::AmountMismatch], true)) {
+            $sync->clearStatusMessage();
+        }
+
+        $invoice->sync = $sync;
+        $invoice->saveQuietly();
+
+        $invoice = $invoice->fresh();
+        $outcome = match (true) {
+            data_get($qb_record, 'TxnStatus') === 'Voided' => 'voided',
+            $invoice->sync->status() === InvoiceQbStatus::DataMismatch => InvoiceQbStatus::DataMismatch->value,
+            default => InvoiceQbStatus::Synced->value,
+        };
+        $this->check_context = $this->buildCheckContext($invoice, $qb_record, true, $outcome);
+
+        return $invoice;
+    }
+
+    public function checkContext(): array
+    {
+        return $this->check_context;
+    }
+
+    private function checkUnlinkedInvoice(Invoice $invoice): Invoice
+    {
+        $sync = $invoice->sync ?? new InvoiceSync();
+
+        if (empty($invoice->number)) {
+            $sync->markSyncable();
+            $sync->markPushFailure('Invoice number is required to check QuickBooks.');
+            $invoice->sync = $sync;
+            $invoice->saveQuietly();
+
+            $invoice = $invoice->fresh();
+            $this->check_context = $this->buildCheckContext($invoice, null, false, InvoiceQbStatus::Syncable->value);
+
+            return $invoice;
+        }
+
+        $qb_record = $this->findQbInvoiceByDocNumber((string) $invoice->number, false);
+
+        if ($qb_record) {
+            $this->flagNumberCollision($invoice, $qb_record);
+        } else {
+            $clear_status_message = in_array(
+                $sync->status(),
+                [InvoiceQbStatus::Linkable, InvoiceQbStatus::DataMismatch, InvoiceQbStatus::AmountMismatch],
+                true
+            );
+
+            $sync->markSyncable($clear_status_message);
+            $invoice->sync = $sync;
+            $invoice->saveQuietly();
+        }
+
+        $invoice = $invoice->fresh();
+        $outcome = $invoice->sync->status()->value;
+        $this->check_context = $this->buildCheckContext($invoice, $qb_record, false, $outcome);
+
+        return $invoice;
+    }
+
+    private function buildCheckContext(Invoice $invoice, mixed $qb_record, bool $linked, string $outcome): array
+    {
+        $quickbooks = null;
+        $comparison = null;
+
+        if ($qb_record) {
+            $qb_number = (string) data_get($qb_record, 'DocNumber', '');
+            $qb_total = (float) data_get($qb_record, 'TotalAmt', 0);
+
+            $quickbooks = [
+                'id' => (string) data_get($qb_record, 'Id', ''),
+                'number' => $qb_number,
+                'total' => $qb_total,
+                'balance' => (float) data_get($qb_record, 'Balance', 0),
+                'status' => (string) data_get($qb_record, 'TxnStatus', ''),
+                'sync_token' => (string) data_get($qb_record, 'SyncToken', ''),
+                'last_updated_at' => (string) data_get($qb_record, 'MetaData.LastUpdatedTime', ''),
+            ];
+            $comparison = [
+                'number' => [
+                    'matches' => $qb_number === (string) $invoice->number,
+                    'invoice_ninja' => (string) $invoice->number,
+                    'quickbooks' => $qb_number,
+                ],
+                'total' => [
+                    'matches' => $this->amountsMatch($qb_record, $invoice),
+                    'invoice_ninja' => (float) $invoice->amount,
+                    'quickbooks' => $qb_total,
+                ],
+            ];
+        }
+
+        return [
+            'outcome' => $outcome,
+            'linked' => $linked,
+            'message' => (string) data_get($invoice->sync, 'qb_status_message', ''),
+            'checked_at' => now()->toIso8601String(),
+            'quickbooks' => $quickbooks,
+            'comparison' => $comparison,
+            'recommended_actions' => $this->recommendedCheckActions($invoice, $outcome, $linked),
+        ];
+    }
+
+    private function recommendedCheckActions(Invoice $invoice, string $outcome, bool $linked): array
+    {
+        if ($outcome === InvoiceQbStatus::Syncable->value) {
+            return !empty($invoice->number)
+                && !empty($invoice->sync->qb_status_message)
+                && $this->service->syncable('invoice', \App\Enum\SyncDirection::PUSH)
+                    ? ['force_push']
+                    : [];
+        }
+
+        if ($outcome === InvoiceQbStatus::DataMismatch->value && $linked) {
+            $actions = ['verify_quickbooks_invoice'];
+
+            if ($this->service->syncable('invoice', \App\Enum\SyncDirection::PULL)) {
+                $actions[] = 'force_pull';
+            }
+
+            return $actions;
+        }
+
+        return match ($outcome) {
+            InvoiceQbStatus::Linkable->value => ['verify_quickbooks_invoice', 'force_link'],
+            InvoiceQbStatus::DataMismatch->value => ['verify_quickbooks_invoice', 'change_invoice_number'],
+            'not_found', 'voided' => ['verify_quickbooks_invoice'],
+            default => [],
+        };
+    }
+
+    /**
+     * @param  array<string, mixed>  $ninja_invoice_data
+     */
+    private function handlePullNumberCollision(array $ninja_invoice_data, mixed $qb_record): bool
+    {
+        $number = $ninja_invoice_data['number'] ?? null;
+
+        if (empty($number)) {
+            return false;
+        }
+
+        $existing = $this->findInvoiceByNumber((string) $number);
+
+        if (!$existing) {
+            return false;
+        }
+
+        // Locked link on another row — do not create a duplicate and do not rewrite that link.
+        if (!empty($existing->sync->qb_id ?? false)) {
+            nlog('QuickBooks: Skipping create — DocNumber owned by linked invoice', [
+                'number' => $number,
+                'existing_invoice_id' => $existing->id,
+                'existing_qb_id' => $existing->sync->qb_id ?? null,
+                'incoming_qb_id' => $ninja_invoice_data['id'] ?? null,
+            ]);
+
+            return true;
+        }
+
+        $this->flagNumberCollision($existing, $qb_record);
+
+        nlog('QuickBooks: Skipping create — DocNumber collision flagged on existing invoice', [
+            'number' => $number,
+            'existing_invoice_id' => $existing->id,
+            'qb_status' => data_get($existing->sync, 'qb_status'),
+            'incoming_qb_id' => $ninja_invoice_data['id'] ?? null,
+        ]);
+
+        return true;
+    }
+
+    private function findInvoiceByNumber(string $number): ?Invoice
+    {
+        if ($number === '') {
+            return null;
+        }
+
+        return Invoice::query()
+            ->withTrashed()
+            ->where('company_id', $this->service->company->id)
+            ->where('number', $number)
+            ->first();
+    }
+
+    private function findQbInvoiceByDocNumber(string $doc_number, bool $fail_open = true): mixed
+    {
+        if ($doc_number === '') {
+            return null;
+        }
+
+        try {
+            $escaped = str_replace("'", "\\'", $doc_number);
+            $result = $this->service->sdk()->query("select * from Invoice where DocNumber = '{$escaped}'");
+        } catch (\Throwable $e) {
+            if (!$fail_open) {
+                throw $e;
+            }
+
+            nlog("QuickBooks: DocNumber preflight failed for '{$doc_number}', proceeding with create: {$e->getMessage()}");
+
+            return null;
+        }
+
+        if (empty($result)) {
+            return null;
+        }
+
+        if (is_array($result)) {
+            return $result[0] ?? null;
+        }
+
+        return $result;
+    }
+
+    private function amountsMatch(mixed $qb_record, Invoice $invoice): bool
+    {
+        $qb_total = (float) data_get($qb_record, 'TotalAmt', 0);
+
+        return abs($qb_total - (float) $invoice->amount) <= 0.01;
+    }
+
+    private function linkedInvoiceCheckMessage(Invoice $invoice, mixed $qb_record): ?string
+    {
+        if (data_get($qb_record, 'TxnStatus') === 'Voided') {
+            return 'The linked QuickBooks invoice is voided.';
+        }
+
+        $qb_number = (string) data_get($qb_record, 'DocNumber', '');
+        $ninja_number = (string) $invoice->number;
+        $number_differs = $qb_number !== $ninja_number;
+        $amount_differs = !$this->amountsMatch($qb_record, $invoice);
+
+        if (!$number_differs && !$amount_differs) {
+            return null;
+        }
+
+        $qb_total = number_format((float) data_get($qb_record, 'TotalAmt', 0), 2, '.', '');
+        $ninja_total = number_format((float) $invoice->amount, 2, '.', '');
+
+        $message = match (true) {
+            $number_differs && $amount_differs
+                => "The linked QuickBooks invoice differs: its number is #{$qb_number} instead of #{$ninja_number}, and its total is {$qb_total} instead of {$ninja_total}.",
+            $number_differs
+                => "The linked QuickBooks invoice number is #{$qb_number}, while Invoice Ninja uses #{$ninja_number}.",
+            default
+                => "The linked QuickBooks invoice total is {$qb_total}, while Invoice Ninja uses {$ninja_total}.",
+        };
+
+        return mb_substr($message, 0, 255);
+    }
+
+    private function flagNumberCollision(Invoice $invoice, mixed $qb_record): void
+    {
+        // qb_id set => locked link; never re-flag as linkable.
+        if (!empty($invoice->sync->qb_id ?? null)) {
+            return;
+        }
+
+        $qb_id = (string) data_get($qb_record, 'Id', '');
+        $doc_number = (string) data_get($qb_record, 'DocNumber', $invoice->number ?? '');
+        $qb_total = number_format((float) data_get($qb_record, 'TotalAmt', 0), 2, '.', '');
+        $ninja_total = number_format((float) $invoice->amount, 2, '.', '');
+
+        $sync = $invoice->sync ?? new InvoiceSync();
+
+        if ($this->amountsMatch($qb_record, $invoice)) {
+            $sync->markLinkable(
+                "QuickBooks invoice #{$doc_number} (Id {$qb_id}) has the same number and total ({$qb_total}). Verify it is the same invoice before linking."
+            );
+        } else {
+            $sync->markDataMismatch(
+                "Invoice number #{$doc_number} is already used by a QuickBooks invoice with a different total. QuickBooks has {$qb_total}; Invoice Ninja has {$ninja_total}. Verify the records or change the Invoice Ninja invoice number and retry."
+            );
+        }
+
+        $invoice->sync = $sync;
+        $invoice->saveQuietly();
+    }
+
+    private function markInvoiceSynced(
+        Invoice $invoice,
+        string $qb_id,
+        string $sync_token = '',
+        bool $clear_status_message = false
+    ): void
+    {
+        $sync = $invoice->sync ?? new InvoiceSync();
+        $sync->markSynced($qb_id, $sync_token, $clear_status_message);
+        $invoice->sync = $sync;
+        $invoice->saveQuietly();
+    }
+
+    private function markInvoicePushFailure(Invoice $invoice, string $message): void
+    {
+        $sync = $invoice->sync ?? new InvoiceSync();
+        $sync->markPushFailure($message);
+        $invoice->sync = $sync;
+        $invoice->saveQuietly();
+    }
+
+    /**
+     * attachPayments
+     *
+     * Reconciles the QuickBooks payments linked to an invoice into Ninja.
+     *
+     * For each QB payment id, ensures a Ninja payment exists — idempotent via
+     * PaymentTransformer::buildPayment(), which dedupes on sync->qb_id — and
+     * links it to the invoice, skipping any Paymentable that already exists.
+     * Safe to call repeatedly and on already-synced invoices: it only creates
+     * missing payment links and never modifies the invoice's own fields.
+     *
+     * @param  Invoice $invoice     The Ninja invoice (must carry sync->qb_id).
+     * @param  array   $payment_ids QuickBooks Payment ids linked to the invoice.
+     * @return void
+     */
+    public function attachPayments(Invoice $invoice, array $payment_ids): void
+    {
+        $payment_transformer = new PaymentTransformer($this->service->company);
+
+        foreach ($payment_ids as $payment_id) {
+
+            if (!$payment_id) {
+                continue;
+            }
+
+            $payment = $this->service->sdk()->findById('Payment', $payment_id);
+
+            $ninja_payment = $payment_transformer->buildPayment($payment);
+            $ninja_payment->service()->applyNumber()->save();
+
+            $exists = \App\Models\Paymentable::withTrashed()
+                ->where('payment_id', $ninja_payment->id)
+                ->where('paymentable_id', $invoice->id)
+                ->where('paymentable_type', 'invoices')
+                ->exists();
+
+            if ($exists) {
+                continue;
+            }
+
+            $amount = $payment_transformer->appliedAmountForInvoice(
+                $payment,
+                (string) data_get($invoice->sync, 'qb_id', '')
+            );
+
+            if ($amount <= 0) {
+                continue;
+            }
+
+            $paymentable = new \App\Models\Paymentable();
+            $paymentable->payment_id = $ninja_payment->id;
+            $paymentable->paymentable_id = $invoice->id;
+            $paymentable->paymentable_type = 'invoices';
+            $paymentable->amount = $amount;
+            $timezone = $this->service->company->timezone()?->name ?: config('app.timezone');
+            $paymentable->created_at = app(\App\Services\Payment\PaymentApplicationDateResolver::class)
+                ->encodeBusinessDate($ninja_payment->date, $timezone);
+            $paymentable->save();
+
+            $invoice->service()->applyPayment($ninja_payment, $paymentable->amount);
+
+        }
     }
 
     /**

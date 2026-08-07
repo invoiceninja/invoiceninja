@@ -15,7 +15,10 @@ namespace App\Http\Controllers;
 use App\Services\Chart\ChartService;
 use App\Http\Requests\Chart\ShowChartRequest;
 use App\Http\Requests\Chart\ShowForecastRequest;
+use App\Http\Requests\Chart\ShowProjectAnalyticsRequest;
+use App\Http\Requests\Chart\ShowProjectBurnUpRequest;
 use App\Http\Requests\Chart\ShowCalculatedFieldRequest;
+use App\Models\Project;
 use Illuminate\Support\Facades\Cache;
 
 class ChartController extends BaseController
@@ -148,20 +151,31 @@ class ChartController extends BaseController
         return response()->json($data, 200);
     }
 
-    public function project_analytics(ShowChartRequest $request)
+    public function project_analytics(ShowProjectAnalyticsRequest $request, Project $project)
     {
         /** @var \App\Models\User auth()->user() */
         $user = auth()->user();
         $admin_equivalent_permissions = $user->isAdmin() || $user->hasExactPermissionAndAll('view_all') || $user->hasExactPermissionAndAll('edit_all');
+        $includeDrafts = $request->input('include_drafts', false);
 
-        $cacheKey = "project_analytics:{$user->company()->id}:{$user->id}";
+        $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions, $includeDrafts);
 
-        $data = Cache::remember($cacheKey, (int)0, function () use ($user, $admin_equivalent_permissions) {
-            $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
-            return $cs->project_analytics();
-        });
+        return response()->json($cs->project_analytics($project), 200);
+    }
 
-        return response()->json($data, 200);
+    public function projectBurnup(ShowProjectBurnUpRequest $request, Project $project)
+    {
+        /** @var \App\Models\User auth()->user() */
+        $user = auth()->user();
+        $admin_equivalent_permissions = $user->isAdmin() || $user->hasExactPermissionAndAll('view_all') || $user->hasExactPermissionAndAll('edit_all');
+        $start = $request->input('start_date');
+        $end = $request->input('end_date');
+        $bucket = $request->input('bucket_type', 'daily');
+        $include_drafts = $request->input('include_drafts', false);
+
+        $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions, $include_drafts);
+
+        return response()->json($cs->projectBurnup($project, $start, $end, $bucket), 200);
     }
 
     public function calculatedFields(ShowCalculatedFieldRequest $request)

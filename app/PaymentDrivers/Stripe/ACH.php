@@ -386,6 +386,7 @@ class ACH implements LivewireMethodInterface
                 'customer' => $cgt->gateway_customer_reference,
                 'confirm' => true,
                 'description' => $description,
+                'off_session' => true,
                 'metadata' => [
                     'payment_hash' => $this->stripe->payment_hash->hash,
                     'gateway_type_id' => $cgt->gateway_type_id,
@@ -399,7 +400,7 @@ class ACH implements LivewireMethodInterface
             }
             
             /** Update the mandate on existing ba_ tokens */
-            if (str_starts_with($cgt->token, 'ba_') && $cgt->meta?->state == 'inactive') {
+            if (str_starts_with($cgt->token, 'ba_') && isset($cgt->meta->state) && $cgt->meta->state == 'inactive') {
 
                 $data["mandate_data"] = [
                     "customer_acceptance" => [
@@ -413,7 +414,7 @@ class ACH implements LivewireMethodInterface
             $response = $this->stripe->createPaymentIntent($data);
 
             /** Set as mandate updated. */
-            if(str_starts_with($cgt->token, 'ba_') && $cgt->meta?->state == 'inactive') {
+            if (str_starts_with($cgt->token, 'ba_') && isset($cgt->meta->state) && $cgt->meta->state == 'inactive') {
                 $meta = $cgt->meta;
                 $meta->state = 'authorized';
                 $cgt->meta = $meta;
@@ -444,7 +445,11 @@ class ACH implements LivewireMethodInterface
                     break;
                 case $e instanceof InvalidRequestException:
 
-                    return redirect()->route('client.payment_methods.verification', ['payment_method' => $cgt->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
+                    if($client_present)
+                        return redirect()->route('client.payment_methods.verification', ['payment_method' => $cgt->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
+
+                    $data['message'] = $e->getMessage();
+                    break;
 
                 case $e instanceof AuthenticationException:
                     $data['message'] = 'Authentication with Stripe\'s API failed';

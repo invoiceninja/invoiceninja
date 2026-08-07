@@ -43,7 +43,7 @@ class ZipInvoices implements ShouldQueue
     /**
      * @param $invoices
      * @param Company $company
-     * @param $email
+     * @param $user
      * Create a new job instance.
      */
     public function __construct(public mixed $invoices, public Company $company, public User $user) {}
@@ -68,7 +68,7 @@ class ZipInvoices implements ShouldQueue
 
         // create new zip object
         $zipFile = new \PhpZip\ZipFile();
-        $file_name = date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoices')) . '.zip';
+        $file_name = date('Y-m-d-h-i-s') . '_' . str_replace(' ', '_', trans('texts.invoices')) . '.zip';
         $invitation = $this->invoices->first()->invitations->first();
 
         if (!$invitation) {

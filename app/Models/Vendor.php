@@ -15,6 +15,7 @@ namespace App\Models;
 use Elastic\ScoutDriverPlus\Searchable;
 use App\Utils\Traits\AppSetup;
 use App\DataMapper\CompanySettings;
+use App\Models\Traits\HasTags;
 use Illuminate\Support\Facades\App;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Support\Facades\Cache;
@@ -57,6 +58,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $vendor_hash
  * @property string|null $public_notes
  * @property string|null $classification
+ * @property \App\DataMapper\VendorSync|null $sync
  * @property string|null $id_number
  * @property int|null $language_id
  * @property int|null $last_login
@@ -94,6 +96,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendorContact> $primary_contact
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Location> $locations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
  * @mixin \Eloquent
  */
 class Vendor extends BaseModel
@@ -104,6 +107,7 @@ class Vendor extends BaseModel
     use PresentableTrait;
     use AppSetup;
     use Searchable;
+    use HasTags;
 
     /**
      * Get the index name for the model.
@@ -197,6 +201,7 @@ class Vendor extends BaseModel
             'custom_value3' => $this->custom_value3,
             'custom_value4' => $this->custom_value4,
             'company_key' => $this->company->company_key,
+            'tags' => $this->tags->pluck('name')->values()->all(),
         ];
     }
 
@@ -405,6 +410,11 @@ class Vendor extends BaseModel
     public function expenses(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Expense::class)->withTrashed();
+    }
+
+    public function recurring_expenses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(RecurringExpense::class)->withTrashed();
     }
 
     public function invoices(): \Illuminate\Database\Eloquent\Relations\HasMany

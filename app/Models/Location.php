@@ -42,11 +42,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $deleted_at
  * @property object|array|null $tax_data
  * @property-read mixed $hashed_id
- * @property-read \App\Models\User $user
- * @property-read \App\Models\Client|null $client
- * @property-read \App\Models\Vendor|null $vendor
- * @property-read \App\Models\Company $company
- * @property-read \App\Models\Country|null $country
+ * @property \App\Models\User $user
+ * @property \App\Models\Client|null $client
+ * @property \App\Models\Vendor|null $vendor
+ * @property \App\Models\Company $company
+ * @property \App\Models\Country|null $country
  *
  * @mixin \Eloquent
  */
@@ -86,12 +86,12 @@ class Location extends BaseModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'is_deleted' => 'bool',
-        'is_shipping_locaiton',
+        'is_shipping_location' => 'bool',
     ];
 
     protected $touches = [];
 
-    public function client()
+    public function client(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Client::class);
     }
@@ -100,7 +100,7 @@ class Location extends BaseModel
     {
         return $this->belongsTo(User::class);
     }
-    public function vendor()
+    public function vendor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Vendor::class);
     }

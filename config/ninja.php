@@ -6,6 +6,9 @@ return [
     'admin_token' => env('NINJA_ADMIN_TOKEN', ''),
     'license_url' => 'https://app.invoiceninja.com',
     'react_url' => env('REACT_URL', env('APP_URL', '')),
+    'calendar' => [
+        'native_redirect' => env('CALENDAR_NATIVE_REDIRECT', 'invoiceninja://calendar_connection/complete'),
+    ],
     'production' => env('NINJA_PROD', false),
     'license' => env('NINJA_LICENSE', ''),
     'version_url' => 'https://pdf.invoicing.co/api/version',
@@ -17,8 +20,8 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
-    'app_version' => env('APP_VERSION', '5.13.24'),
-    'app_tag' => env('APP_TAG', '5.13.24'),
+    'app_version' => env('APP_VERSION', '5.13.30'),
+    'app_tag' => env('APP_TAG', '5.13.30'),
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', ''),
@@ -270,4 +273,7 @@ return [
     'zugferd_version_two' => env('ZUGFERD_VERSION_TWO', true),
     'chart_service_url' => env('CHART_SERVICE_URL', false),
     'docuninja_api_url' => env('DOCUNINJA_API_URL', false),
+    'auto_bill_time' => env('NINJA_AUTO_BILL_TIME', '06:20'),
+    'run_trial_mysql_integration_tests' => env('RUN_NINJA_TRIAL_MYSQL_TESTS', false),
+    'trial_test_account_connection' => env('NINJA_TRIAL_TEST_ACCOUNT_CONNECTION'),
 ];

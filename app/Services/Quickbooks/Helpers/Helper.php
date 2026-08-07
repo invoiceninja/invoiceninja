@@ -62,7 +62,7 @@ class Helper
         try {
             // Query for discount accounts (typically named "Discounts Given" or similar)
             $query = "SELECT * FROM Account WHERE AccountType = 'Income' AND Active = true";
-            $accounts = $this->qb_service->sdk->Query($query);
+            $accounts = $this->qb_service->sdk()->query($query);
 
             if (!empty($accounts)) {
                 // Look for account with "Discount" in the name
@@ -117,7 +117,7 @@ class Helper
         // Fallback: Query QuickBooks API if no stored settings available
         try {
             $query = "SELECT * FROM Account WHERE AccountType = 'Income' AND Active = true MAXRESULTS 1";
-            $accounts = $this->qb_service->sdk->Query($query);
+            $accounts = $this->qb_service->sdk()->query($query);
 
             // QB SDK can return a single object or an array; normalize to array
             if (!empty($accounts) && !is_array($accounts)) { // @phpstan-ignore-line
@@ -362,11 +362,16 @@ class Helper
             $taxCodeRef = data_get($qb_item, 'TaxCodeRef', data_get($qb_item, 'SalesItemLineDetail.TaxCodeRef', 'TAX'));
 
             if (data_get($qb_item, 'DetailType') == 'SalesItemLineDetail') {
+
                 $item = new \App\DataMapper\InvoiceItem();
                 $item->product_key = data_get($qb_item, 'SalesItemLineDetail.ItemRef.name', '');
                 $item->notes = data_get($qb_item, 'Description', '');
-                $item->quantity = (float) (data_get($qb_item, 'SalesItemLineDetail.Qty') ?? 1);
-                $item->cost = (float) (data_get($qb_item, 'SalesItemLineDetail.UnitPrice') ?? data_get($qb_item, 'SalesItemLineDetail.MarkupInfo.Value', 0));
+                $item->quantity = (float) (data_get($qb_item, 'SalesItemLineDetail.Qty',1));
+                $item->cost = (float) (
+                    data_get($qb_item, 'SalesItemLineDetail.UnitPrice')
+                    ?? data_get($qb_item, 'SalesItemLineDetail.MarkupInfo.Value')
+                    ?? ((float) data_get($qb_item, 'Amount', 0)));
+                
                 $item->discount = (float) data_get($item, 'DiscountRate', data_get($qb_item, 'DiscountAmount', 0));
                 $item->is_amount_discount = data_get($qb_item, 'DiscountAmount', 0) > 0 ? true : false;
                 $item->type_id = stripos(data_get($qb_item, 'ItemAccountRef.name') ?? '', 'Service') !== false ? '2' : '1';

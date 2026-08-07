@@ -18,17 +18,21 @@ use App\Factory\ProjectFactory;
 use App\Factory\VendorFactory;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\Company;
 use App\Models\Country;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
+use App\Models\Task;
 use App\Models\TaxRate;
+use App\Models\User;
 use App\Models\Vendor;
 use App\Repositories\ClientRepository;
 use App\Utils\Number;
@@ -58,6 +62,21 @@ class BaseTransformer
             } catch (\Exception $e) {
                 // Fall through to general parsing
             }
+        }
+
+        /** Attempt to use the configured company date format.
+         *  hasFormat() enforces an exact match so that a loose createFromFormat()
+         *  cannot silently mis-parse non-conforming input (e.g. a two-digit year
+         *  becoming year 0024); anything that does not conform falls through to
+         *  the general parser below, preserving the prior behaviour. */
+        try {
+            $company_format = $this->company->date_format();
+
+            if (is_string($date) && strlen($date) > 0 && Carbon::hasFormat($date, $company_format)) {
+                return Carbon::createFromFormat($company_format, $date)->format('Y-m-d');
+            }
+        } catch (\Exception $e) {
+            // Fall through to general parsing
         }
 
         try {
@@ -109,9 +128,9 @@ class BaseTransformer
         return isset($data[$field]) && $data[$field] ? (string) $data[$field] : $default;
     }
 
-    public function getNumber($data, $field, $default = 0)
+    public function getNumber(array $data, string $field, int $default = 0): int
     {
-        return (isset($data->$field) && $data->$field) ? (int) $data->$field : $default;
+        return (isset($data[$field]) && $data[$field]) ? (int) $data[$field] : $default;
     }
 
     public function getString($data, $field, $default = '')
@@ -853,4 +872,64 @@ class BaseTransformer
 
         return $pt ? $pt->id : null;
     }
+    
+    /**
+     * getCustomFieldValue
+     *
+     * @param  string $custom_field_key
+     * @param  mixed $value
+     * @return mixed
+     */
+    public function getCustomFieldValue(string $custom_field_key, mixed $value): mixed
+    {
+        $company = $this->company;
+        $custom_fields = $company->custom_fields;
+
+        if(isset($custom_fields->{$custom_field_key})) {
+        
+            $custom_field = $custom_fields->{$custom_field_key};
+
+            $custom_field_parts = explode('|', $custom_field);
+
+            if(count($custom_field_parts) >= 2) {
+            
+                $field_type = $custom_field_parts[1];
+
+                switch($field_type) {
+                
+                    case 'date':
+                        return $this->parseDate($value);
+                    case 'switch':
+                        return $this->toBoolean($value);
+                    default:
+                        return $value;
+                }
+            }
+        }
+
+        return $value;
+
+    }
+
+    public function toBoolean($value)
+    {
+ 
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_int($value) || is_float($value)) {
+            return (bool) $value;
+        }
+
+        $value = strtolower(trim((string) $value));
+
+        return match ($value) {
+            '1', 'true', 'yes', 'y', 'on' => true,
+            '0', 'false', 'no', 'n', 'off', '' => false,
+            default => true,
+        };
+
+    }
+
 }

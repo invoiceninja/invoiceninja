@@ -82,6 +82,10 @@ class OneTimeTokenController extends BaseController
             $data['provider_id'] = $request->provider_id;
         }
 
+        if ($request->platform) {
+            $data['platform'] = $request->platform;
+        }
+
         Cache::put($hash, $data, 3600);
 
         return response()->json(['hash' => $hash], 200);

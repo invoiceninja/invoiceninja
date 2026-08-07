@@ -21,7 +21,7 @@ class Decorator implements DecoratorInterface
         $index = $this->getKeyPart(0, $key);
         $column = $this->getKeyPart(1, $key);
 
-        if (method_exists($this, $index)) {
+        if ($column !== null && $index !== null && method_exists($this, $index)) {
             return $this->{$index}()->transform($column, $entity);
         }
 
@@ -109,5 +109,14 @@ class Decorator implements DecoratorInterface
         $parts = explode('.', $key);
 
         return $parts[$index] ?? null;
+    }
+
+    public function tags(mixed $entity): string
+    {
+        if (! is_object($entity) || ! method_exists($entity, 'tags')) {
+            return '';
+        }
+
+        return $entity->tags->pluck('name')->implode(', ');
     }
 }

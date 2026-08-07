@@ -14,6 +14,7 @@ namespace App\Services\Invoice;
 
 use App\Models\Task;
 use App\Utils\Ninja;
+use App\Utils\BcMath;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -97,16 +98,6 @@ class InvoiceService
         return $this;
     }
 
-    /**
-     * Applies the recurring invoice number.
-     * @return $this InvoiceService object
-     */
-    public function applyRecurringNumber()
-    {
-        $this->invoice = (new ApplyRecurringNumber($this->invoice->client, $this->invoice))->run();
-
-        return $this;
-    }
 
     /**
      * Apply a payment amount to an invoice.
@@ -457,14 +448,13 @@ class InvoiceService
 
     public function removeUnpaidGatewayFees()
     {
-        $balance = $this->invoice->balance;
-
         //return early if type three does not exist.
         if ($this->invoice->status_id == Invoice::STATUS_PAID || ! collect($this->invoice->line_items)->contains('type_id', 3)) {
             return $this;
         }
 
-        $pre_count = count((array) $this->invoice->line_items);
+        /** Baseline must be the committed row, not a possibly stale in-memory model. */
+        $balance = (float) (Invoice::withTrashed()->where('id', $this->invoice->id)->value('balance') ?? $this->invoice->balance);
 
         $items = collect((array) $this->invoice->line_items)
                     ->filter(function ($item) {
@@ -478,10 +468,7 @@ class InvoiceService
         /* 24-03-2022 */
         $new_balance = $this->invoice->balance;
 
-        $post_count = count($this->invoice->line_items);
-        nlog("pre count = {$pre_count} post count = {$post_count}");
-
-        if ((int) $pre_count != (int) $post_count) {
+        if (! BcMath::equal($balance, $new_balance)) {
             $adjustment = $balance - $new_balance;
 
             $this->invoice

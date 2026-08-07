@@ -86,13 +86,13 @@
                         <div class="text-gray-700">
                             @if(strlen($project->public_notes) > 200)
                                 <span x-show="!notesExpanded">
-                                    {!! nl2br(e(\Illuminate\Support\Str::limit($project->public_notes, 200, ''))) !!}
+                                    {!! nl2br(e(\Illuminate\Support\Str::limit($project->public_notes ?? '', 200, ''))) !!}
                                     <button @click="notesExpanded = true" class="text-primary hover:text-primary-dark font-semibold ml-1">
                                         {{ ctrans('texts.more') }}...
                                     </button>
                                 </span>
                                 <span x-show="notesExpanded" x-cloak>
-                                    {!! nl2br(e($project->public_notes)) !!}
+                                    {!! nl2br(e($project->public_notes ?? '')) !!}
                                     <button @click="notesExpanded = false" class="text-primary hover:text-primary-dark font-semibold ml-1">
                                         {{ ctrans('texts.less') }}
                                     </button>
@@ -155,19 +155,19 @@
                                             <div class="text-sm font-medium text-gray-900">
                                                 @if(strlen($task->description) > 100)
                                                     <span x-show="!expanded">
-                                                        {{ \Illuminate\Support\Str::limit($task->description, 100, '') }}
+                                                        {{ \Illuminate\Support\Str::limit($task->description ?? '', 100, '') }}
                                                         <button @click="expanded = true" class="text-primary hover:text-primary-dark font-semibold ml-1">
                                                             {{ ctrans('texts.more') }}...
                                                         </button>
                                                     </span>
                                                     <span x-show="expanded" x-cloak>
-                                                        {{ $task->description }}
+                                                        {{ $task->description ?? '' }}
                                                         <button @click="expanded = false" class="text-primary hover:text-primary-dark font-semibold ml-1">
                                                             {{ ctrans('texts.less') }}
                                                         </button>
                                                     </span>
                                                 @else
-                                                    {{ $task->description }}
+                                                    {{ $task->description ?? '' }}
                                                 @endif
                                             </div>
                                         </td>
@@ -207,7 +207,7 @@
                                                             <div class="text-gray-700 flex-1">
                                                                 @if(strlen($log['description']) > 150)
                                                                     <span x-show="!expandedLogs['{{ $logId }}']">
-                                                                        {!! nl2br(e(\Illuminate\Support\Str::limit($log['description'], 150, ''))) !!}
+                                                                        {!! nl2br(e(\Illuminate\Support\Str::limit($log['description'] ?? '', 150, ''))) !!}
                                                                         <button @click="expandedLogs['{{ $logId }}'] = true" class="text-primary hover:text-primary-dark font-semibold ml-1">
                                                                             {{ ctrans('texts.more') }}...
                                                                         </button>

@@ -13,7 +13,8 @@
 namespace Tests\Unit;
 
 use App\Utils\Helpers;
-use PHPUnit\Framework\TestCase;
+use Carbon\Carbon;
+use Tests\TestCase;
 
 class HelpersTest extends TestCase
 {
@@ -37,5 +38,35 @@ class HelpersTest extends TestCase
         $font = Helpers::resolveFont();
 
         $this->assertEquals('Arial', $font['name']);
+    }
+
+    public function testReservedKeywordMathUsesMatchedOperation(): void
+    {
+        $entity = new class {
+            public function locale(): string
+            {
+                return 'en';
+            }
+
+            public function timezone(): object
+            {
+                return (object) ['name' => 'UTC'];
+            }
+
+            public function date_format(): string
+            {
+                return 'Y-m-d';
+            }
+        };
+
+        $date = Carbon::create(2024, 1, 15, 0, 0, 0, 'UTC');
+
+        $value = Helpers::processReservedKeywords(
+            ':MONTH+1 :YEAR-1 :QUARTER*2 :MONTHYEAR+2',
+            $entity,
+            $date,
+        );
+
+        $this->assertSame('February 2023 2 March 2024', $value);
     }
 }

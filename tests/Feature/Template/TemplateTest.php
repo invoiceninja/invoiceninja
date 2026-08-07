@@ -315,6 +315,73 @@ class TemplateTest extends TestCase
 
     }
 
+    public function testExpenseWithoutClientDateParse()
+    {
+        $e = \App\Models\Expense::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => null,
+            'date' => '2024-01-15',
+            'payment_date' => '2024-01-20',
+        ]);
+
+        $this->assertNull($e->client);
+
+        $ts = new TemplateService();
+        $result = $ts->processExpenses([$e]);
+
+        $this->assertNotEmpty($result[0]['date']);
+        $this->assertNotEmpty($result[0]['payment_date']);
+        $this->assertSame($this->translateDate($e->date, $this->company->date_format(), $this->company->locale()), $result[0]['date']);
+        $this->assertSame($this->translateDate($e->payment_date, $this->company->date_format(), $this->company->locale()), $result[0]['payment_date']);
+    }
+
+    public function testExpenseWithClientDateParse()
+    {
+        $e = \App\Models\Expense::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'date' => '2024-01-15',
+            'payment_date' => '2024-01-20',
+        ]);
+
+        $ts = new TemplateService();
+        $result = $ts->processExpenses([$e]);
+
+        $this->assertSame($this->translateDate($e->date, $this->client->date_format(), $this->client->locale()), $result[0]['date']);
+        $this->assertSame($this->translateDate($e->payment_date, $this->client->date_format(), $this->client->locale()), $result[0]['payment_date']);
+    }
+
+    public function testInvoiceTagsAreExposed()
+    {
+        $tag = \App\Models\Tag::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'entity_type' => Invoice::class,
+            'name' => 'priority',
+        ]);
+
+        $this->invoice->tags()->attach($tag->id);
+
+        $ts = new TemplateService();
+        $ts->setCompany($this->company);
+        $result = $ts->processInvoices([$this->invoice->fresh()]);
+
+        $this->assertIsArray($result[0]['tags']);
+        $this->assertSame(['priority'], $result[0]['tags']);
+    }
+
+    public function testInvoiceWithoutTagsReturnsEmptyArray()
+    {
+        $ts = new TemplateService();
+        $ts->setCompany($this->company);
+        $result = $ts->processInvoices([$this->invoice->fresh()]);
+
+        $this->assertIsArray($result[0]['tags']);
+        $this->assertSame([], $result[0]['tags']);
+    }
+
 
 
     public function testQuoteDataParse()

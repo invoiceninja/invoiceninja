@@ -123,7 +123,7 @@ class InvoiceController extends BaseController
     {
         set_time_limit(45);
 
-        $invoices = Invoice::filter($filters);
+        $invoices = Invoice::filter($filters)->with('tags');
 
         return $this->listResponse($invoices);
     }
@@ -408,35 +408,43 @@ class InvoiceController extends BaseController
      */
     public function update(UpdateInvoiceRequest $request, Invoice $invoice)
     {
-        if ($request->entityIsDeleted($invoice)) {
-            return $request->disallowUpdate();
-        }
+        try {
+            if ($request->entityIsDeleted($invoice)) {
+                return $request->disallowUpdate();
+            }
 
-        if (($invoice->isLocked() || $invoice->company->verifactuEnabled()) && $request->input('paid') == 'true') {
+            if (($invoice->isLocked() || $invoice->company->verifactuEnabled()) && $request->input('paid') == 'true') {
+
+                $invoice->service()
+                        ->triggeredActions($request);
+
+                return $this->itemResponse($invoice->fresh());
+            } elseif ($invoice->isLocked()) {
+                return response()->json(['message' => '', 'errors' => ['number' => ctrans('texts.locked_invoice')]], 422);
+            }
+
+            $old_invoice = $invoice->line_items;
+
+            $invoice = $this->invoice_repo->save($request->all(), $invoice);
 
             $invoice->service()
-                    ->triggeredActions($request);
+                    ->triggeredActions($request)
+                    ->adjustInventory($old_invoice);
+
+            $skip_event = $request->has('mark_sent') || $request->has('send_email') || ($request->input('paid') == 'true');
+
+            if (!$skip_event) {
+                event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+            }
 
             return $this->itemResponse($invoice->fresh());
-        } elseif ($invoice->isLocked()) {
-            return response()->json(['message' => '', 'errors' => ['number' => ctrans('texts.locked_invoice')]], 422);
+        } finally {
+            $lock_key = $request->input('lock_key');
+
+            if ($request->input('paid') == 'true' && is_string($lock_key) && strlen($lock_key) > 0) {
+                Atomic::del($lock_key);
+            }
         }
-
-        $old_invoice = $invoice->line_items;
-
-        $invoice = $this->invoice_repo->save($request->all(), $invoice);
-
-        $invoice->service()
-                ->triggeredActions($request)
-                ->adjustInventory($old_invoice);
-
-        $skip_event = $request->has('mark_sent') || $request->has('send_email') || ($request->input('paid') == 'true');
-
-        if (!$skip_event) {
-            event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-        }
-
-        return $this->itemResponse($invoice->fresh());
     }
 
     /**
@@ -743,7 +751,7 @@ class InvoiceController extends BaseController
      * @param ActionInvoiceRequest $request
      * @param Invoice $invoice
      * @param $action
-     * @return \App\Http\Controllers\Response|\Illuminate\Http\JsonResponse|Response|mixed|\Symfony\Component\HttpFoundation\StreamedResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response|mixed|\Symfony\Component\HttpFoundation\StreamedResponse
      */
     public function action(ActionInvoiceRequest $request, Invoice $invoice, $action)
     {
@@ -819,7 +827,6 @@ class InvoiceController extends BaseController
                 }
                 break;
             case 'delete':
-
                 $this->invoice_repo->delete($invoice);
 
                 if (! $bulk) {
@@ -1097,7 +1104,12 @@ class InvoiceController extends BaseController
 
         return $this->itemResponse($invoice->fresh());
     }
-
+    
+    /**
+     * update_reminders
+     *
+     * @param  UpdateReminderRequest $request
+     */
     public function update_reminders(UpdateReminderRequest $request)
     {
         /** @var \App\Models\User $user */
@@ -1107,7 +1119,13 @@ class InvoiceController extends BaseController
 
         return response()->json(['message' => 'Updating reminders'], 200);
     }
-
+    
+    /**
+     * paymentSchedule
+     *
+     * @param  PaymentScheduleRequest $request
+     * @param  Invoice $invoice
+     */
     public function paymentSchedule(PaymentScheduleRequest $request, Invoice $invoice)
     {
         $repo = new SchedulerRepository();
@@ -1117,7 +1135,12 @@ class InvoiceController extends BaseController
         return $this->itemResponse($invoice->fresh());
 
     }
-
+    
+    /**
+     * deletePaymentSchedule
+     *
+     * @param  Invoice $invoice
+     */
     public function deletePaymentSchedule(Invoice $invoice)
     {
         $repo = new SchedulerRepository();

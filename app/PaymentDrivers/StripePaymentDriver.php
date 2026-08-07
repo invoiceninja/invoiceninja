@@ -55,6 +55,7 @@ use App\PaymentDrivers\Stripe\PRZELEWY24;
 use App\PaymentDrivers\Stripe\BankTransfer;
 use App\PaymentDrivers\Stripe\Connect\Verify;
 use App\PaymentDrivers\Stripe\ImportCustomers;
+use App\PaymentDrivers\Stripe\PaymentMethodSyncService;
 use App\PaymentDrivers\Stripe\Jobs\ChargeRefunded;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use Laracasts\Presenter\Exceptions\PresenterException;
@@ -329,6 +330,9 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
     {
         $fields = [];
 
+         /** Nacha requires a complete billing address on the us_bank_account payment method. */
+         $requires_billing_address = $this->payment_method instanceof ACH;
+
         if ($this->company_gateway->require_client_name) {
             $fields[] = ['name' => 'client_name', 'label' => ctrans('texts.client_name'), 'type' => 'text', 'validation' => 'required'];
         }
@@ -346,15 +350,15 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
             $fields[] = ['name' => 'client_phone', 'label' => ctrans('texts.client_phone'), 'type' => 'tel', 'validation' => 'required'];
         }
 
-        if ($this->company_gateway->require_billing_address) {
+        if ($requires_billing_address || $this->company_gateway->require_billing_address) {
             $fields[] = ['name' => 'client_address_line_1', 'label' => ctrans('texts.address1'), 'type' => 'text', 'validation' => 'required'];
-            //            $fields[] = ['name' => 'client_address_line_2', 'label' => ctrans('texts.address2'), 'type' => 'text', 'validation' => 'nullable'];
+            // $fields[] = ['name' => 'client_address_line_2', 'label' => ctrans('texts.address2'), 'type' => 'text', 'validation' => 'nullable'];
             $fields[] = ['name' => 'client_city', 'label' => ctrans('texts.city'), 'type' => 'text', 'validation' => 'required'];
             $fields[] = ['name' => 'client_state', 'label' => ctrans('texts.state'), 'type' => 'text', 'validation' => 'required'];
             $fields[] = ['name' => 'client_country_id', 'label' => ctrans('texts.country'), 'type' => 'text', 'validation' => 'required'];
         }
 
-        if ($this->company_gateway->require_postal_code) {
+        if ($requires_billing_address || $this->company_gateway->require_postal_code) {
             $fields[] = ['name' => 'client_postal_code', 'label' => ctrans('texts.postal_code'), 'type' => 'text', 'validation' => 'required'];
         }
 
@@ -587,6 +591,49 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
         return $customer;
     }
 
+    /**
+     * Maps a client record onto a Stripe address object.
+     *
+     * Nacha requires a complete billing address on the us_bank_account payment
+     * method, so this is shared by the ACH views, the token backfill and the
+     * customer sync to guarantee they all send an identical address.
+     *
+     * @return array{line1: string, line2: string, city: string, state: string, postal_code: string, country: string}
+     */
+    public function stripeBillingAddress(?Client $client = null): array
+    {
+        $client = $client ?: $this->client;
+
+        return [
+            'line1' => (string) $client->address1,
+            'line2' => (string) $client->address2,
+            'city' => (string) $client->city,
+            'state' => (string) $client->state,
+            'postal_code' => (string) $client->postal_code,
+            'country' => (string) ($client->country->iso_3166_2 ?? ''),
+        ];
+    }
+
+    /**
+     * Determines whether a client carries every address component Nacha requires.
+     *
+     * Line 2 is intentionally excluded, it is optional at Stripe.
+     */
+    public function hasCompleteBillingAddress(?Client $client = null): bool
+    {
+        $address = $this->stripeBillingAddress($client);
+
+        unset($address['line2']);
+
+        foreach ($address as $value) {
+            if (strlen(trim($value)) === 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public function updateStripeCustomer($customer)
     {
         //Else create a new record
@@ -646,12 +693,18 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
 
         /** Response from Stripe SDK/API. */
         $response = null;
+        $refund_data = [];
+        
+        if (str_starts_with($payment->transaction_reference ?? '', 'pi_')) {
+            $refund_data['payment_intent'] = $payment->transaction_reference;
+        } else {
+            $refund_data['charge'] = $payment->transaction_reference;
+        }
+
+        $refund_data['amount'] = $this->convertToStripeAmount($amount, $this->client->currency()->precision, $this->client->currency());
 
         try {
-            $response = \Stripe\Refund::create([
-                'charge' => $payment->transaction_reference,
-                'amount' => $this->convertToStripeAmount($amount, $this->client->currency()->precision, $this->client->currency()),
-            ], $meta);
+            $response = \Stripe\Refund::create($refund_data, $meta);
 
             if (in_array($response->status, ['succeeded', 'pending'])) {
                 SystemLogger::dispatch(['server_response' => $response, 'data' => request()->all()], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->client, $this->client->company);
@@ -703,6 +756,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
     {
         // nlog($request->all());
         $webhook_secret = $this->company_gateway->getConfigField('webhookSecret');
+        $event = null;
 
         if ($webhook_secret) {
             $sig_header = $_SERVER["HTTP_STRIPE_SIGNATURE"] ?? $request->header('Stripe-Signature');
@@ -711,7 +765,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                 return response()->json(['error' => 'No signature header'], 403);
             }
             try {
-                \Stripe\Webhook::constructEvent(
+                $event = \Stripe\Webhook::constructEvent(
                     $request->getContent(),
                     $sig_header,
                     $webhook_secret
@@ -720,6 +774,34 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                 nlog("Stripe webhook signature verification failed: " . $e->getMessage());
                 return response()->json(['error' => 'Invalid signature'], 403);
             }
+        }
+
+        $event ??= \Stripe\Event::constructFrom($request->all());
+
+        if (in_array($event->type, [
+            'payment_method.detached',
+            'payment_method.updated',
+            'payment_method.automatically_updated',
+            'customer.deleted',
+        ], true)) {
+            $paymentMethod = $event->data->object;
+            $objectId = data_get($paymentMethod, 'id');
+
+            if (!is_string($objectId) || $objectId === '') {
+                return response()->json([], 200);
+            }
+
+            $paymentMethodSyncService = app(PaymentMethodSyncService::class);
+            $companyGateways = $this->company_gateway->newCollection([$this->company_gateway]);
+
+            match ($event->type) {
+                'payment_method.detached' => $paymentMethodSyncService->removePaymentMethod($companyGateways, $objectId),
+                'customer.deleted' => $paymentMethodSyncService->removeCustomerPaymentMethods($companyGateways, $objectId),
+                'payment_method.updated' => $paymentMethodSyncService->updatePaymentMethod($companyGateways, $paymentMethod),
+                'payment_method.automatically_updated' => $paymentMethodSyncService->updatePaymentMethod($companyGateways, $paymentMethod, true),
+            };
+
+            return response()->json([], 200);
         }
 
         if ($request->type === 'customer.source.updated') {
@@ -778,6 +860,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                     $payment->save();
                 }
             }
+
         } elseif ($request->type === 'source.chargeable') {
             $this->init();
 

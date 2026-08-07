@@ -69,6 +69,8 @@ class BaseExport
 
     protected array $spreadsheet_headers = [];
 
+    protected const GROUPING_IDENTITIES = '__grouping_identities';
+
     protected array $non_summable_patterns = [
         'tax_rate',
         'exchange_rate',
@@ -110,6 +112,7 @@ class BaseExport
         'email' => 'vendor_contact.email',
         'status' => 'vendor.status',
         'classification' => 'vendor.classification',
+        'tags' => 'vendor.tags',
     ];
 
     protected array $client_report_keys = [
@@ -156,6 +159,7 @@ class BaseExport
         'payment_balance' => 'client.payment_balance',
         'credit_balance' => 'client.credit_balance',
         'classification' => 'client.classification',
+        'tags' => 'client.tags',
     ];
 
     protected array $location_report_keys = [
@@ -215,6 +219,7 @@ class BaseExport
         'recurring_invoice' => 'invoice.recurring_id',
         'auto_bill' => 'invoice.auto_bill_enabled',
         'project' => 'invoice.project',
+        'tags' => 'invoice.tags',
     ];
 
     protected array $recurring_invoice_report_keys = [
@@ -260,7 +265,7 @@ class BaseExport
         'tax_rate3' => 'recurring_invoice.tax_rate3',
         'auto_bill' => 'recurring_invoice.auto_bill',
         'auto_bill_enabled' => 'recurring_invoice.auto_bill_enabled',
-
+        'tags' => 'recurring_invoice.tags',
     ];
 
     protected array $purchase_order_report_keys = [
@@ -294,6 +299,7 @@ class BaseExport
         'total_taxes' => 'purchase_order.total_taxes',
         'currency_id' => 'purchase_order.currency_id',
         'subtotal' => 'purchase_order.subtotal',
+        'tags' => 'purchase_order.tags',
     ];
 
     protected array $product_report_keys  = [
@@ -318,6 +324,7 @@ class BaseExport
         'tax_category' => 'tax_id',
         'max_quantity' => 'max_quantity',
         'in_stock_quantity' => 'in_stock_quantity',
+        'tags' => 'product.tags',
     ];
 
     protected array $item_report_keys = [
@@ -384,6 +391,7 @@ class BaseExport
         'tax_rate2' => 'quote.tax_rate2',
         'tax_rate3' => 'quote.tax_rate3',
         'subtotal' => 'quote.subtotal',
+        'tags' => 'quote.tags',
     ];
 
     protected array $credit_report_keys = [
@@ -419,6 +427,7 @@ class BaseExport
         "assigned_user" => "credit.assigned_user_id",
         "user" => "credit.user_id",
         'subtotal' => 'credit.subtotal',
+        'tags' => 'credit.tags',
     ];
 
     protected array $payment_report_keys = [
@@ -443,6 +452,7 @@ class BaseExport
         "custom_value4" => "payment.custom_value4",
         "user" => "payment.user_id",
         "assigned_user" => "payment.assigned_user_id",
+        'tags' => 'payment.tags',
     ];
 
     protected array $expense_report_keys = [
@@ -480,6 +490,7 @@ class BaseExport
         'invoice' => 'expense.invoice_id',
         'user' => 'expense.user',
         'assigned_user' => 'expense.assigned_user',
+        'tags' => 'expense.tags',
     ];
 
     protected array $task_report_keys = [
@@ -540,6 +551,27 @@ class BaseExport
         return $query;
     }
 
+    protected function addTagFilter(Builder $query): Builder
+    {
+        $tag_ids = $this->input['tag_ids'] ?? null;
+
+        if (! $tag_ids || ! method_exists($query->getModel(), 'tags')) {
+            return $query;
+        }
+
+        $transformed_tag_ids = is_string($tag_ids)
+            ? $this->transformKeys(explode(',', $tag_ids))
+            : $this->transformKeys((array) $tag_ids);
+
+        if (count($transformed_tag_ids) === 0) {
+            return $query;
+        }
+
+        return $query->whereHas('tags', function (Builder $q) use ($transformed_tag_ids) {
+            $q->whereIn('tags.id', $transformed_tag_ids);
+        });
+    }
+
     protected function resolveKey($key, $entity, $transformer): string
     {
         $parts = explode(".", $key ?? '');
@@ -577,8 +609,7 @@ class BaseExport
 
         $primary_contact = $entity->client->primary_contact()->first() ?? $entity->client->contacts()->first();
 
-        return $primary_contact ? $primary_contact?->{$column} ?? '' : '';
-
+        return $primary_contact->{$column} ?? '';
     }
 
     private function resolveVendorContactKey($column, $entity, $transformer)
@@ -589,7 +620,7 @@ class BaseExport
 
         $primary_contact = $entity->vendor->primary_contact()->first() ?? $entity->vendor->contacts()->first();
 
-        return $primary_contact ? $primary_contact?->{$column} ?? '' : '';
+        return $primary_contact->{$column} ?? '';
 
     }
 
@@ -606,7 +637,7 @@ class BaseExport
         }
 
         if ($column == 'category' && $entity->expense) {
-            return $entity->expense->category?->name ?? ' ';
+            return $entity->expense->category->name ?? ' ';
         }
 
         if ($entity instanceof Expense) {
@@ -623,13 +654,7 @@ class BaseExport
             return $transformed_entity[$column];
         }
 
-        if (property_exists($entity, $column)) {
-            return $entity?->{$column} ?? '';
-        }
-
-        nlog("export: Could not resolve expense key: {$column}");
-
-        return '';
+        return $entity->{$column} ?? '';
 
     }
 
@@ -727,11 +752,11 @@ class BaseExport
         }
 
         if (in_array($column, ['client.size_id', 'size_id'])) {
-            return $entity->client->size?->name ?? '';
+            return $entity->client->size->name ?? '';
         }
 
         if (in_array($column, ['client.industry_id', 'industry_id'])) {
-            return $entity->client->industry?->name ?? '';
+            return $entity->client->industry->name ?? '';
         }
 
         if (in_array($column, ['client.currency_id', 'currency_id'])) {
@@ -877,7 +902,7 @@ class BaseExport
         }
 
         if ($column == 'currency') {
-            return $payment?->currency?->code ?? '';
+            return $payment->currency->code ?? '';
         }
 
         $payment_transformer = new PaymentTransformer();
@@ -1772,10 +1797,19 @@ class BaseExport
         return $this->spreadsheet_headers;
     }
 
-    public function convertFloats(iterable $entity): iterable
+    /**
+     * @param array<string, int|string> $grouping_identities
+     */
+    public function convertFloats(iterable $entity, array $grouping_identities = []): iterable
     {
+        $raw_entity = (array) $entity;
+
+        if ($this->skip_float_conversion && $grouping_identities !== []) {
+            $raw_entity[self::GROUPING_IDENTITIES] = $grouping_identities;
+        }
+
         if ($this->capture_raw_rows || $this->skip_float_conversion) {
-            $this->raw_rows[] = (array) $entity;
+            $this->raw_rows[] = $raw_entity;
         }
 
         if ($this->skip_float_conversion) {
@@ -1837,7 +1871,7 @@ class BaseExport
         $model_string = $this->getModelString($query);
 
         $data = [
-            "{$model_string}s" => $query->get(),
+            "{$model_string}s" => $query->with('tags')->get(),
             // "start_date" => $this->start_date,
             // "end_date" => $this->end_date,
         ];
@@ -2007,21 +2041,34 @@ class BaseExport
 
         foreach ($grouped as $group_value => $group_rows) {
             $summary_row = [];
-        
+            $identity_rows = [];
+
             foreach (array_keys($rows[0]) as $column) {
+                if ($column === self::GROUPING_IDENTITIES) {
+                    continue;
+                }
+
                 if ($column === $group_by) {
                     $summary_row[$column] = $group_value;
                     continue;
                 }
-        
+
                 if ($this->isNonSummable($column)) {
                     $summary_row[$column] = '';
                     continue;
                 }
-        
-                $values = array_column($group_rows, $column);
+
+                $aggregation_rows = $group_rows;
+                $grouping_identity = $this->groupingIdentityForColumn($column);
+
+                if ($grouping_identity !== null) {
+                    $identity_rows[$grouping_identity] ??= $this->uniqueGroupingIdentityRows($group_rows, $grouping_identity);
+                    $aggregation_rows = $identity_rows[$grouping_identity];
+                }
+
+                $values = array_column($aggregation_rows, $column);
                 $numeric = array_filter($values, 'is_numeric');
-        
+
                 if ($numeric !== [] && count($numeric) === count($values)) {
                     // All values numeric → aggregate.
                     $summary_row[$column] = array_sum($numeric);
@@ -2031,11 +2078,11 @@ class BaseExport
                     $summary_row[$column] = count($distinct) === 1 ? reset($values) : '';
                 }
             }
-        
+
             $summary_row['group.count'] = count($group_rows);
             $summary[] = $summary_row;
         }
-        
+
         // foreach ($grouped as $group_value => $group_rows) {
         //     $summary_row = [];
 
@@ -2058,6 +2105,41 @@ class BaseExport
         // }
 
         return $summary;
+    }
+
+    protected function groupingIdentityForColumn(string $column): ?string
+    {
+        return null;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $rows
+     * @return array<int, array<string, mixed>>
+     */
+    protected function uniqueGroupingIdentityRows(array $rows, string $grouping_identity): array
+    {
+        $unique_rows = [];
+        $seen_identity_values = [];
+
+        foreach ($rows as $row) {
+            $grouping_identities = $row[self::GROUPING_IDENTITIES] ?? null;
+
+            if (! is_array($grouping_identities) || ! array_key_exists($grouping_identity, $grouping_identities)) {
+                $unique_rows[] = $row;
+                continue;
+            }
+
+            $identity_value = (string) $grouping_identities[$grouping_identity];
+
+            if (isset($seen_identity_values[$identity_value])) {
+                continue;
+            }
+
+            $seen_identity_values[$identity_value] = true;
+            $unique_rows[] = $row;
+        }
+
+        return $unique_rows;
     }
 
     /**

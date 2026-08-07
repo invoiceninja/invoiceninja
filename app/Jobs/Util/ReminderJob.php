@@ -91,7 +91,8 @@ class ReminderJob implements ShouldQueue
                      ->where('is_deleted', 0)
                      ->whereNull('deleted_at')
                      ->where('balance', '>', 0)
-                     ->whereBetween('next_send_date', [now()->subMonth()->startOfDay(), now()->addDay()->startOfDay()])
+                     ->whereBetween('next_send_date', [now()->subMonth()->startOfDay(), now()])
+                    //  ->whereBetween('next_send_date', [now()->subMonth()->startOfDay(), now()->addDay()->startOfDay()])
                      ->whereHas('client', function ($query) {
                          $query->where('is_deleted', 0)
                                ->where('deleted_at', null);
@@ -114,6 +115,10 @@ class ReminderJob implements ShouldQueue
 
     private function sendReminderForInvoice(Invoice $invoice)
     {
+        if (! $invoice->client->getSetting('send_reminders')) {
+            return;
+        }
+        
         App::forgetInstance('translator');
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($invoice->client->getMergedSettings()));

@@ -12,11 +12,15 @@
 
 namespace App\Services\Invoice;
 
+use App\Listeners\Invoice\InvoiceTransactionEventEntryCash;
 use App\Jobs\Inventory\AdjustProductInventory;
 use App\Models\Invoice;
+use App\Models\Paymentable;
 use App\Models\Quote;
+use App\Models\TransactionEvent;
 use App\Services\AbstractService;
 use App\Utils\Traits\GeneratesCounter;
+use Illuminate\Support\Str;
 
 class MarkInvoiceDeleted extends AbstractService
 {
@@ -28,10 +32,16 @@ class MarkInvoiceDeleted extends AbstractService
 
     private $balance_adjustment = 0;
 
+    /** @var array<int, array<string, mixed>> */
+    private array $tax_event_snapshots = [];
+
+    private string $tax_mutation_key;
+
     public function __construct(public Invoice $invoice) {}
 
     public function run()
     {
+        $this->tax_mutation_key = 'invoice_deleted:'.Str::uuid();
         $this->refreshInvoiceForDeletion();
 
         if ($this->invoice->company->track_inventory) {
@@ -40,6 +50,7 @@ class MarkInvoiceDeleted extends AbstractService
 
         $this->cleanup()
              ->setAdjustmentAmount()
+             ->captureTaxEventSnapshots()
              ->deletePaymentables()
              ->adjustPayments()
              ->adjustPaidToDateAndBalance()
@@ -47,10 +58,76 @@ class MarkInvoiceDeleted extends AbstractService
              ->triggeredActions();
 
         $this->invoice->delete();
+        $this->writeTaxEventCorrections();
+
+        event('eloquent.updated: App\Models\Invoice', $this->invoice);
 
         event(new \App\Events\Invoice\InvoiceWasDeleted($this->invoice, $this->invoice->company, \App\Utils\Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->invoice;
+    }
+
+    private function captureTaxEventSnapshots(): self
+    {
+        $effective_date = now($this->invoice->company->timezone()?->name ?: config('app.timezone'))->toDateString();
+
+        Paymentable::query()
+            ->with(['payment' => fn ($query) => $query->withTrashed()])
+            ->where('paymentable_type', 'invoices')
+            ->where('paymentable_id', $this->invoice->id)
+            ->whereNull('deleted_at')
+            ->orderBy('created_at')
+            ->orderBy('id')
+            ->get()
+            ->each(function (Paymentable $paymentable) use ($effective_date): void {
+                $amount = (float) $paymentable->amount - (float) $paymentable->refunded;
+
+                if (abs($amount) < 0.0001) {
+                    return;
+                }
+
+                $source = app(InvoiceTransactionEventEntryCash::class)
+                    ->runForPaymentable($this->invoice, $paymentable);
+
+                if (! $source) {
+                    return;
+                }
+
+                $this->tax_event_snapshots[] = [
+                    'source_event_id' => $source->id,
+                    'paymentable_id' => $paymentable->id,
+                    'amount' => abs($amount),
+                    'effective_date' => $effective_date,
+                    'correction_key' => sha1("{$this->tax_mutation_key}|{$paymentable->id}"),
+                ];
+            });
+
+        return $this;
+    }
+
+    private function writeTaxEventCorrections(): void
+    {
+        foreach ($this->tax_event_snapshots as $snapshot) {
+            $source = TransactionEvent::query()->find($snapshot['source_event_id']);
+
+            if (! $source) {
+                throw new \RuntimeException('Invoice deletion tax source event is unavailable.');
+            }
+
+            app(InvoiceTransactionEventEntryCash::class)->writeCorrection(
+                source: $source,
+                effective_date: $snapshot['effective_date'],
+                sign: -1,
+                kind: 'payment_deleted',
+                correction_key: $snapshot['correction_key'],
+                context: [
+                    'mutation_key' => $this->tax_mutation_key,
+                    'mutation_type' => 'invoice_deleted',
+                    'invoice_id' => $this->invoice->id,
+                ],
+                amount: $snapshot['amount'],
+            );
+        }
     }
 
     private function refreshInvoiceForDeletion(): self
@@ -148,6 +225,11 @@ class MarkInvoiceDeleted extends AbstractService
         $this->total_payments = $this->invoice->payments->sum('amount') - $this->invoice->payments->sum('refunded');
 
         $this->balance_adjustment = $this->invoice->status_id == Invoice::STATUS_CANCELLED ? 0 : $this->invoice->balance;
+
+        /** necessary guard for no invoice line items! */
+        if (! is_iterable($this->invoice->line_items)) {
+            return $this;
+        }
 
         $pre_count = count((array) $this->invoice->line_items);
 

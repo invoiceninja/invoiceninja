@@ -120,7 +120,7 @@ class QuoteController extends BaseController
      */
     public function index(QuoteFilters $filters)
     {
-        $quotes = Quote::filter($filters);
+        $quotes = Quote::filter($filters)->with('tags');
 
         return $this->listResponse($quotes);
     }
@@ -821,7 +821,7 @@ class QuoteController extends BaseController
                 return response()->json(['message' => ctrans('texts.sent_message')], 200);
 
             case 'mark_sent':
-                $quote->service()->markSent()->save();
+                $quote->service()->markSent(true)->save();
 
                 if (! $bulk) {
                     return $this->itemResponse($quote);

@@ -127,7 +127,11 @@ class CreditCardFlow implements MethodInterface, LivewireMethodInterface
                 'payment_method_id' => GatewayType::CREDIT_CARD,
             ];
 
-            $payment_method = $this->checkout->storeGatewayToken($data, ['gateway_customer_reference' => $customerRequest['id']]);
+            $payment_method = $this->checkout->storeGatewayToken($data, [
+                'gateway_customer_reference' => $payment['customer']['id']
+                    ?? $customerRequest['id']
+                    ?? null,
+            ]);
 
             return redirect()->route('client.payment_methods.show', $payment_method->hashed_id);
         } catch (CheckoutApiException $e) {
@@ -389,6 +393,10 @@ class CreditCardFlow implements MethodInterface, LivewireMethodInterface
         $customer->email = $this->checkout->client->present()->email();
         $customer->name = $this->checkout->client->present()->name();
 
+        if ($customerId = $this->checkout->resolveGatewayCustomerReference()) {
+            $customer->id = $customerId;
+        }
+
         $threeDs = new ThreeDsRequest();
         $threeDs->enabled = true;
 
@@ -400,7 +408,7 @@ class CreditCardFlow implements MethodInterface, LivewireMethodInterface
         $billing->address->state = $this->checkout->client->state ?? '';
         $billing->address->zip = $this->checkout->client->postal_code ?? '';
         $countryCode = $this->checkout->client->country?->iso_3166_2 ?? null;
-        if (!$countryCode && $this->checkout->client->company->settings && isset($this->checkout->client->company->settings->country_id)) {
+        if (!$countryCode && $this->checkout->client->company->settings && isset($this->checkout->client->company->settings->country_id)) { //@phpstan-ignore-line
             $countryCode = \App\Models\Country::find($this->checkout->client->company->settings->country_id)?->iso_3166_2;
         }
         $billing->address->country = $countryCode ?? 'US';
@@ -439,10 +447,34 @@ class CreditCardFlow implements MethodInterface, LivewireMethodInterface
             $request->payment_method_configuration = $methodConfig;
         }
 
-        $response = $this->checkout->gateway->getPaymentSessionsClient()->createPaymentSessions($request);
+        try {
+            $response = $this->checkout->gateway->getPaymentSessionsClient()->createPaymentSessions($request);
+        } catch (CheckoutApiException $e) {
+            if (empty($customer->id) || ! $this->isStaleCustomerIdError($e)) {
+                throw $e;
+            }
+
+            unset($customer->id);
+            $request->customer = $customer;
+            $response = $this->checkout->gateway->getPaymentSessionsClient()->createPaymentSessions($request);
+        }
 
         nlog(['checkout_payment_session_response' => $response]);
 
         return $response;
+    }
+
+    private function isStaleCustomerIdError(CheckoutApiException $e): bool
+    {
+        $codes = $e->error_details['error_codes'] ?? [];
+        $stale = ['customer_not_found', 'customer_id_invalid'];
+
+        foreach ((array) $codes as $code) {
+            if (in_array($code, $stale, true)) {
+                return true;
+            }
+        }
+
+        return $e->http_metadata->getStatusCode() === 404;
     }
 }

@@ -134,7 +134,10 @@ class Purify
         'content' => ['*'],
         'http-equiv' => ['cache-control'],
         'viewport' => ['*'],
-        'xmlns' => ['http://www.w3.org/2000/svg'],
+    ];
+
+    private static array $allowed_href_template_variables = [
+        '$view_url',
     ];
 
     private static array $dangerous_css_patterns = [
@@ -464,6 +467,11 @@ class Purify
 
                     // Special handling for URLs (src and href)
                     if (($attr_name === 'src' || $attr_name === 'href') && !empty($allowed_values)) {
+                        if ($attr_name === 'href' && in_array($value, self::$allowed_href_template_variables, true)) {
+                            $node->setAttribute($name, $value);
+                            continue;
+                        }
+
                         $is_allowed = false;
 
                         // Debug log

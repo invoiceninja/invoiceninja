@@ -70,9 +70,11 @@ class CalendarConnectionService
      *
      * The opaque, single-use state token is stored server-side and bound to
      * the initiating user/tenant so the authenticated `/complete` step can
-     * verify the same user is completing the flow they started.
+     * verify the same user is completing the flow they started. The optional
+     * client `platform` hint is bound to the state too, so the callback can
+     * return the handoff to the right client (e.g. a native app's custom scheme).
      */
-    public function buildAuthorizationUrl(User $user, string $provider): string
+    public function buildAuthorizationUrl(User $user, string $provider, ?string $platform = null): string
     {
         $provider = $this->validateProvider($provider);
         $state = Str::random(64);
@@ -81,9 +83,27 @@ class CalendarConnectionService
             'database' => config('database.default'),
             'provider' => $provider,
             'user_id' => $user->id,
+            'platform' => $platform,
         ], now()->addMinutes(self::STATE_TTL_MINUTES));
 
         return $this->providerAuthorizationUrl($provider, $state);
+    }
+
+    /**
+     * The platform hint bound to an OAuth state, read WITHOUT consuming the
+     * cache entry (completeConnection still pulls it). Used by the public
+     * callback to pick the redirect target (only `flutter_native` is acted on;
+     * anything else falls back to React). Returns null for unknown/expired state.
+     */
+    public function platformForState(string $state): ?string
+    {
+        if ($state === '') {
+            return null;
+        }
+
+        $context = Cache::get(self::STATE_CACHE_PREFIX . $state);
+
+        return is_array($context) ? ($context['platform'] ?? null) : null;
     }
 
     private function providerAuthorizationUrl(string $provider, string $state): string

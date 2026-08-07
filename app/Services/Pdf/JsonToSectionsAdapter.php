@@ -657,6 +657,10 @@ class JsonToSectionsAdapter
         $styles[] = 'border-collapse: collapse';
         $styles[] = 'width: fit-content';
         $styles[] = 'max-width: 100%';
+        // Explicit auto layout keeps the label/value columns sized to their
+        // content (nowrap labels), insulated from the product table's
+        // table-layout: fixed regime.
+        $styles[] = 'table-layout: auto';
 
         if (isset($props['padding']) && $props['padding'] !== '') {
             $styles[] = 'padding: ' . $props['padding'];
@@ -789,8 +793,12 @@ class JsonToSectionsAdapter
     private function visibleTableColumns(array $columns, array $props, string $tableType, array $columnVisibility, bool $hideEmptyColumns): array
     {
         $borders = $this->resolveTableBorderProps($props);
-        $visibleColumns = [];
 
+        // Collect the surviving columns first (index-aligned id + raw column),
+        // then redistribute width slack before emitting styles — the slack must
+        // be computed over the columns that actually render, not the full set.
+        $ids = [];
+        $rawColumns = [];
         foreach ($columns as $index => $column) {
             $columnId = $column['id'] ?? $index;
             $isEmpty = $columnVisibility[$columnId] ?? false;
@@ -799,6 +807,15 @@ class JsonToSectionsAdapter
                 continue;
             }
 
+            $ids[] = $columnId;
+            $rawColumns[] = $column;
+        }
+
+        $rawColumns = $this->redistributeColumnWidths($rawColumns);
+
+        $visibleColumns = [];
+        foreach ($rawColumns as $i => $column) {
+            $columnId = $ids[$i];
             $visibleColumns[] = [
                 'field' => $column['field'] ?? '',
                 'header' => $column['header'] ?? '',
@@ -813,6 +830,58 @@ class JsonToSectionsAdapter
         }
 
         return $visibleColumns;
+    }
+
+    /**
+     * Under table-layout: fixed the declared column widths are authoritative,
+     * so percentage widths that sum to less than 100% would leave the table
+     * short (or, for any width-less column, get even-split into it). Absorb the
+     * remaining slack into the notes/description column — the natural flexible
+     * text column — so the product columns keep their set widths.
+     *
+     * Only acts when every visible column carries a `%` width and a
+     * notes/description column is present; otherwise the columns are returned
+     * unchanged.
+     *
+     * @param array<int, array<string, mixed>> $columns Visible raw columns
+     * @return array<int, array<string, mixed>>
+     */
+    private function redistributeColumnWidths(array $columns): array
+    {
+        $total = 0.0;
+        $notesIndex = null;
+
+        foreach ($columns as $i => $column) {
+            $width = $column['width'] ?? null;
+
+            if (!is_string($width) || !str_ends_with(trim($width), '%')) {
+                return $columns;
+            }
+
+            $total += (float) rtrim(trim($width), '%');
+
+            $field = str_replace('item.', '', (string) ($column['field'] ?? ''));
+            if ($notesIndex === null && in_array($field, ['notes', 'description'], true)) {
+                $notesIndex = $i;
+            }
+        }
+
+        if ($notesIndex === null || $total >= 100.0) {
+            return $columns;
+        }
+
+        $notesWidth = (float) rtrim(trim((string) $columns[$notesIndex]['width']), '%');
+        $columns[$notesIndex]['width'] = $this->formatPercent($notesWidth + (100.0 - $total));
+
+        return $columns;
+    }
+
+    /**
+     * Format a percentage value without trailing zeroes (e.g. 35 -> "35%").
+     */
+    private function formatPercent(float $value): string
+    {
+        return rtrim(rtrim(sprintf('%.4F', $value), '0'), '.') . '%';
     }
 
     /**
@@ -1378,7 +1447,12 @@ class JsonToSectionsAdapter
     private function buildTitleStyle(array $props): string
     {
         $styles = [];
-        $styles[] = 'font-size: '   . ($props['titleFontSize']   ?? $props['fontSize'] ?? '12px');
+
+        $titleFontSize = $props['titleFontSize'] ?? $props['fontSize'] ?? null;
+        if ($titleFontSize !== null) {
+            $styles[] = 'font-size: ' . $titleFontSize;
+        }
+
         $styles[] = 'font-weight: ' . ($props['titleFontWeight'] ?? 'bold');
 
         // font-style is conditional — emitting `font-style: normal` by default
@@ -1403,6 +1477,10 @@ class JsonToSectionsAdapter
         if (isset($column['width'])) {
             $styles[] = 'width: ' . $column['width'];
         }
+        // Under table-layout: fixed an unbreakable token would overflow its
+        // column; force long runs (no-space product keys, URLs) to wrap.
+        $styles[] = 'overflow-wrap: break-word';
+        $styles[] = 'word-break: break-word';
 
         if (!$borders['showActive']) {
             $styles[] = 'border: none';
@@ -1438,7 +1516,13 @@ class JsonToSectionsAdapter
         $styles = [];
         $styles[] = 'width: 100%';
         $styles[] = 'border-collapse: collapse';
-        $styles[] = 'font-size: ' . ($props['fontSize'] ?? '12px');
+        // Fixed layout makes the per-column widths authoritative: an unbreakable
+        // token (e.g. a product_key with no spaces) can no longer stretch its
+        // column past the declared width. Pairs with the cell word-break rules.
+        $styles[] = 'table-layout: fixed';
+        if (isset($props['fontSize'])) {
+            $styles[] = 'font-size: ' . $props['fontSize'];
+        }
 
         return implode('; ', $styles) . ';';
     }
@@ -1452,6 +1536,10 @@ class JsonToSectionsAdapter
         if (isset($column['width'])) {
             $styles[] = 'width: ' . $column['width'];
         }
+        // Under table-layout: fixed an unbreakable token would overflow its
+        // column; force long runs (no-space product keys, URLs) to wrap.
+        $styles[] = 'overflow-wrap: break-word';
+        $styles[] = 'word-break: break-word';
 
         if (!$borders['showActive']) {
             $styles[] = 'border: none';
@@ -1624,6 +1712,9 @@ class JsonToSectionsAdapter
         $styles[] = 'border-collapse: collapse';
         $styles[] = 'width: fit-content';
         $styles[] = 'max-width: 100%';
+        // Explicit auto layout keeps the totals label/value columns content-sized,
+        // insulated from the product table's table-layout: fixed regime.
+        $styles[] = 'table-layout: auto';
 
         if (isset($props['align'])) {
             $align = $props['align'];
@@ -1677,7 +1768,9 @@ class JsonToSectionsAdapter
     private function buildSignatureLabelStyle(array $props): string
     {
         $styles = [];
-        $styles[] = 'font-size: ' . ($props['fontSize'] ?? '12px');
+        if (isset($props['fontSize'])) {
+            $styles[] = 'font-size: ' . $props['fontSize'];
+        }
         $styles[] = 'color: ' . ($props['color'] ?? '#374151');
 
         return implode('; ', $styles) . ';';

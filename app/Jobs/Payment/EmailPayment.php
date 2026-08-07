@@ -79,7 +79,7 @@ class EmailPayment implements ShouldQueue
 
         $this->contact->load('client');
 
-        if ($this->payment->client->getSetting('payment_email_all_contacts') && $this->payment->invoices && $this->payment->invoices->count() >= 1) {
+        if ($this->payment->client->getSetting('payment_email_all_contacts') && $this->payment->invoices->count() >= 1) {
             $this->emailAllContacts();
             return;
         }

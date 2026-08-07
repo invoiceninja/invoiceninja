@@ -59,7 +59,7 @@
                                 @forelse($client->group_settings->documents as $document)
                                     <a href="{{ route('client.documents.show', $document->hashed_id) }}" target="_blank"
                                        class="block inline-flex items-center text-sm button-link text-primary">
-                                        <span>{{ Illuminate\Support\Str::limit($document->name, 40) }}</span>
+                                        <span>{{ Illuminate\Support\Str::limit($document->name ?? '', 40) }}</span>
 
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                                              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -91,7 +91,7 @@
                             @forelse($client->company->documents as $document)
                                 <a href="{{ route('client.documents.show', $document->hashed_id) }}" target="_blank"
                                    class="block inline-flex items-center text-sm button-link text-primary">
-                                    <span>{{ Illuminate\Support\Str::limit($document->name, 40) }}</span>
+                                    <span>{{ Illuminate\Support\Str::limit($document->name ?? '', 40) }}</span>
 
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                                          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"

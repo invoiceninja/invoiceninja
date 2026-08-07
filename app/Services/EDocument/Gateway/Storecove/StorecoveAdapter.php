@@ -224,6 +224,13 @@ class StorecoveAdapter
             return $this;
         }
 
+        // A credit is emitted as a NEGATIVE INVOICE. Its line amounts are already
+        // negated (CreditLines), so a discount allowance must keep the OPPOSITE
+        // sign to a normal invoice for the line to reconcile with Storecove's
+        // check: itemPrice*quantity/baseQuantity + allowanceCharges - amount ≈ 0.
+        $isCredit = $this->ninja_invoice instanceof \App\Models\Credit
+            || ($this->ninja_invoice instanceof \App\Models\Invoice && $this->ninja_invoice->amount < 0);
+
         //set all taxmap countries - resolve the taxing country
         $lines = $this->storecove_invoice->getInvoiceLines();
 
@@ -241,8 +248,13 @@ class StorecoveAdapter
 
             if (isset($line->allowance_charges)) {
                 foreach ($line->allowance_charges as &$allowance) {
-                    if ($allowance->reason == ctrans('texts.discount')) {
-                        $allowance->amount_excluding_tax = $allowance->amount_excluding_tax * -1;
+                    if ($allowance->reason == "Discount" && !is_null($allowance->amount_excluding_tax)) {
+                        // Invoice discount reduces the (positive) line -> negative.
+                        // Credit line amounts are negative -> discount must be positive
+                        // so itemPrice*qty + allowanceCharges reconciles with amount.
+                        $allowance->amount_excluding_tax = $isCredit
+                            ? abs($allowance->amount_excluding_tax)
+                            : -abs($allowance->amount_excluding_tax);
                     }
 
 
@@ -302,8 +314,10 @@ class StorecoveAdapter
             unset($tax);
 
 
-            if ($allowance->reason == ctrans('texts.discount')) {
-                $allowance->amount_excluding_tax = $allowance->amount_excluding_tax * -1;
+            if ($allowance->reason == "Discount" && !is_null($allowance->amount_excluding_tax)) {
+                $allowance->amount_excluding_tax = $isCredit
+                    ? abs($allowance->amount_excluding_tax)
+                    : -abs($allowance->amount_excluding_tax);
             }
 
             $allowance->setTaxesDutiesFees($taxes);
@@ -350,6 +364,11 @@ class StorecoveAdapter
                 }
             }
         }
+
+        $this->storecove_invoice = $handler->decorateStorecoveDocument(
+            $this->storecove_invoice,
+            $this->ninja_invoice,
+        );
 
         return $this;
     }

@@ -38,6 +38,7 @@ use App\Jobs\Company\CreateCompanyToken;
 use Illuminate\Support\Facades\Response;
 use Laravel\Socialite\Facades\Socialite;
 use App\Http\Requests\Login\LoginRequest;
+use App\Http\Requests\Login\PrecheckLoginRequest;
 use App\Services\Auth\Passkeys\PasskeyService;
 use App\Services\Company\CompanyTokenRotator;
 use App\Libraries\OAuth\Providers\Google;
@@ -57,6 +58,12 @@ class LoginController extends BaseController
     protected $entity_type = CompanyUser::class;
 
     protected $entity_transformer = CompanyUserTransformer::class;
+
+    /**
+     * Constant response-time floor (milliseconds) for the precheck endpoint,
+     * used to prevent account existence leaking through lookup timing.
+     */
+    private const PRECHECK_TIME_FLOOR_MS = 250;
 
     /**
      * Where to redirect users after login.
@@ -121,7 +128,10 @@ class LoginController extends BaseController
             return $this->loginErrorResponse('Too many login attempts, you are being throttled', 401);
         }
 
-        $authenticated = $this->attemptPasskeyLogin($request) ?? $this->attemptLogin($request);
+        /** Granular control - if we use passkeys and 2fa is also enabled - need to bypass 2fa */
+        $passkeyResult = $this->attemptPasskeyLogin($request);
+        $viaPasskey    = $passkeyResult === true;
+        $authenticated = $passkeyResult ?? $this->attemptLogin($request);
 
         if (!$authenticated) {
             return $this->handleFailedLogin($request);
@@ -132,11 +142,78 @@ class LoginController extends BaseController
         /** @var \App\Models\User $user */
         $user = $this->guard()->user();
 
-        if ($errorResponse = $this->verifyTwoFactor($user, $request)) {
+        if (!$viaPasskey && $errorResponse = $this->verifyTwoFactor($user, $request)) {
             return $errorResponse;
         }
 
         return $this->finalizeLogin($user, $request);
+    }
+
+    /**
+     * Resolve the authentication methods available for a given email address.
+     *
+     * This unauthenticated endpoint lets the client render the correct login UI
+     * (e.g. reveal the one-time-password field) before the user submits a
+     * password, so credentials only need to be transmitted once.
+     *
+     * It is deliberately enumeration-resistant: a non-existent account and an
+     * existing account without two-factor authentication return a byte-for-byte
+     * identical payload ({"methods":["password"]}). The presence of "totp" is the
+     * only distinguishable signal, and disclosing that an account is protected by
+     * 2FA does not meaningfully help an attacker, since a 2FA-protected account
+     * cannot be breached by a password alone. Accounts that lack 2FA are therefore
+     * indistinguishable from unknown emails and cannot be harvested as a
+     * credential-stuffing target list.
+     *
+     * Passkeys and OAuth/SSO are intentionally omitted from this payload; passkeys
+     * are surfaced out-of-band through the WebAuthn conditional-UI ceremony so they
+     * do not widen the enumeration surface here.
+     *
+     * @param  PrecheckLoginRequest  $request
+     * @return JsonResponse
+     */
+    public function precheck(PrecheckLoginRequest $request): JsonResponse
+    {
+        $started_at = microtime(true);
+
+        $methods = ['password'];
+
+        $user = MultiDB::hasUser([
+            'email' => $request->input('email' ,'')
+        ]);
+
+        if ($user && $user->google_2fa_secret) {
+            $methods[] = 'totp';
+        }
+
+        $this->equalizePrecheckResponseTime($started_at);
+
+        return response()->json([
+            'methods' => $methods,
+            'secret_required' => (bool) config('ninja.api_secret'),
+        ], 200);
+    }
+
+    /**
+     * Pad the precheck response to a constant time floor.
+     *
+     * The multi-database lookup short-circuits as soon as the account is found,
+     * so a hit (early database) and a miss (every database scanned) would
+     * otherwise be distinguishable by response timing — re-leaking the account
+     * existence the uniform payload is designed to conceal. Sleeping out the
+     * remainder of the floor collapses that timing difference.
+     *
+     * @param  float  $started_at  The microtime(true) captured at handler entry.
+     * @return void
+     */
+    private function equalizePrecheckResponseTime(float $started_at): void
+    {
+        $elapsed_ms = (microtime(true) - $started_at) * 1000;
+        $remaining_ms = self::PRECHECK_TIME_FLOOR_MS - $elapsed_ms;
+
+        if ($remaining_ms > 0) {
+            usleep((int) ($remaining_ms * 1000));
+        }
     }
 
     /**
@@ -677,6 +754,10 @@ class LoginController extends BaseController
                 return response()->json(['message' => 'User exists, but never authenticated with OAuth, please use your email and password to login.'], 400);
             }
 
+            if (($linked_user = MultiDB::hasUser(['email' => $email])) && $linked_user->oauth_provider_id && $linked_user->oauth_provider_id !== 'microsoft') {
+                return response()->json(['message' => 'This email is already linked to '.$linked_user->oauth_provider_id.' sign-in. Please sign in with '.$linked_user->oauth_provider_id.'.'], 400);
+            }
+
             // Signup!
             if (request()->has('create') && request()->input('create') == 'true') {
                 $new_account = [
@@ -774,6 +855,10 @@ class LoginController extends BaseController
 
             if (MultiDB::hasUser(['email' => $google->harvestEmail($user), 'oauth_provider_id' => null])) {
                 return response()->json(['message' => 'Please use your email and password to login.'], 400);
+            }
+
+            if (($linked_user = MultiDB::hasUser(['email' => $google->harvestEmail($user)])) && $linked_user->oauth_provider_id && $linked_user->oauth_provider_id !== 'google') {
+                return response()->json(['message' => 'This email is already linked to '.$linked_user->oauth_provider_id.' sign-in. Please sign in with '.$linked_user->oauth_provider_id.'.'], 400);
             }
 
         }
@@ -934,34 +1019,39 @@ class LoginController extends BaseController
 
     public function handleMicrosoftProviderCallback($provider = 'microsoft')
     {
-        $socialite_user = Socialite::driver($provider)->user();
+        try{
+            $socialite_user = Socialite::driver($provider)->user();
 
-        $oauth_user_token = $socialite_user->accessTokenResponseBody['access_token'];
+            $oauth_user_token = $socialite_user->accessTokenResponseBody['access_token'];
 
-        $oauth_expiry = now()->addSeconds($socialite_user->accessTokenResponseBody['expires_in']) ?: now()->addSeconds(300);
+            $oauth_expiry = now()->addSeconds($socialite_user->accessTokenResponseBody['expires_in']) ?: now()->addSeconds(300);
 
-        if ($user = OAuth::handleAuth($socialite_user, $provider)) {
-            nlog('found user and updating their user record');
-            $name = OAuth::splitName($socialite_user->getName());
+            if ($user = OAuth::handleAuth($socialite_user, $provider)) {
+                nlog('found user and updating their user record');
+                $name = OAuth::splitName($socialite_user->getName());
 
-            $update_user = [
-                'first_name' => $name[0],
-                'last_name' => $name[1],
-                'email' => $socialite_user->getEmail(),
-                'oauth_user_id' => $socialite_user->getId(),
-                'oauth_provider_id' => $provider,
-                'oauth_user_token_expiry' => $oauth_expiry,
-            ];
+                $update_user = [
+                    'first_name' => $name[0],
+                    'last_name' => $name[1],
+                    'email' => $socialite_user->getEmail(),
+                    'oauth_user_id' => $socialite_user->getId(),
+                    'oauth_provider_id' => $provider,
+                    'oauth_user_token_expiry' => $oauth_expiry,
+                ];
 
-            $user->update($update_user);
-            $user->oauth_user_refresh_token = $socialite_user->accessTokenResponseBody['refresh_token'];
-            $user->oauth_user_token = $oauth_user_token;
-            $user->save();
+                $user->update($update_user);
+                $user->oauth_user_refresh_token = $socialite_user->accessTokenResponseBody['refresh_token'];
+                $user->oauth_user_token = $oauth_user_token;
+                $user->save();
 
-        } else {
-            nlog('user not found for oauth');
+            } else {
+                nlog('user not found for oauth');
+            }
         }
-
+        catch(\Throwable $e){
+            nlog("Error in handleMicrosoftProviderCallback: " . $e->getMessage());
+        }
+        
         $redirect_url = config('ninja.react_url') . "/#/settings/user_details/connect";
 
         return redirect($redirect_url);

@@ -12,6 +12,8 @@
 
 namespace App\Services\Pdf;
 
+use App\Utils\Helpers;
+
 /**
  * Service for handling JSON-based visual designer templates
  *
@@ -178,10 +180,18 @@ class JsonDesignService
         $pageSettings = $this->jsonDesign['pageSettings'] ?? [];
 
         // Build page CSS from settings
-        $pageCSS = $this->buildPageCSS($pageSettings);
+        $pageCSS = $this->buildPageCSS($pageSettings, $this->pdfService->config->settings);
 
         // Get blocks grouped by row for layout
         $rows = $this->adapter->getRowGroupedBlocks();
+
+        // The paid/cancelled stamp is injected directly (no $-variable in the
+        // template) as an absolutely-positioned overlay inside its anchor block
+        // — preferably the totals block, otherwise the line-items table. When
+        // the entity is not paid/cancelled or the setting is off, $stampHtml is
+        // '' and nothing is emitted.
+        $stampHtml = $this->paidStampOverlay();
+        $stampTargetId = $stampHtml === '' ? null : $this->stampTargetBlockId($blocks);
 
         // Build container divs with flex row wrapping for multi-block rows.
         // Every block container — single-block placeholder OR a multi-block
@@ -198,7 +208,9 @@ class JsonDesignService
                 // block-level element with a non-100% width within its parent.
                 $block = $rowBlocks[0];
                 $alignStyle = $this->rowAlignStyle($block);
-                $blockContainers .= "<div id=\"{$block['id']}\" class=\"json-block\" style=\"{$alignStyle}\"></div>\n";
+                $overlay = ($block['id'] === $stampTargetId) ? $stampHtml : '';
+                $relative = $overlay !== '' ? 'position: relative; ' : '';
+                $blockContainers .= "<div id=\"{$block['id']}\" class=\"json-block\" style=\"{$relative}{$alignStyle}\">{$overlay}</div>\n";
             } else {
                 // Multiple blocks on same row - wrap in flex container.
                 // rowAlign maps to margin-auto on the flex-col, which in a
@@ -208,8 +220,10 @@ class JsonDesignService
                 foreach ($rowBlocks as $block) {
                     $widthPercent = ($block['gridPosition']['w'] / 12) * 100;
                     $alignStyle = $this->rowAlignStyle($block);
+                    $overlay = ($block['id'] === $stampTargetId) ? $stampHtml : '';
+                    $relative = $overlay !== '' ? 'position: relative;' : '';
                     $blockContainers .= "  <div class=\"flex-col\" style=\"width: {$widthPercent}%; {$alignStyle}\">\n";
-                    $blockContainers .= "    <div id=\"{$block['id']}\"></div>\n";
+                    $blockContainers .= "    <div id=\"{$block['id']}\" style=\"{$relative}\">{$overlay}</div>\n";
                     $blockContainers .= "  </div>\n";
                 }
                 $blockContainers .= "</div>\n";
@@ -260,25 +274,75 @@ class JsonDesignService
     }
 
     /**
+     * The paid/cancelled stamp overlay, or '' when it should not show.
+     *
+     * Reuses HtmlEngine's already-resolved gating: $show_paid_stamp is 'flex'
+     * only when the entity is paid/cancelled AND the show_paid_stamp setting
+     * (mapped from documentSettings.showPaidStamp) is on, and $status_logo
+     * carries the translated PAID/CANCELLED markup. We read those computed
+     * values rather than re-deriving the status logic here.
+     */
+    private function paidStampOverlay(): string
+    {
+        $values = $this->pdfService->html_variables['values'] ?? [];
+
+        if (($values['$show_paid_stamp'] ?? 'none') !== 'flex') {
+            return '';
+        }
+
+        $statusLogo = (string) ($values['$status_logo'] ?? '');
+
+        if ($statusLogo === '') {
+            return '';
+        }
+
+        return '<div class="stamp-overlay">' . $statusLogo . '</div>';
+    }
+
+    /**
+     * The block the stamp anchors over: the totals block when present,
+     * otherwise the line-items table block. Null when neither exists.
+     */
+    private function stampTargetBlockId(array $blocks): ?string
+    {
+        $tableId = null;
+
+        foreach ($blocks as $block) {
+            $type = $block['type'] ?? '';
+
+            if ($type === 'total') {
+                return $block['id'] ?? null;
+            }
+
+            if ($tableId === null && $type === 'table') {
+                $tableId = $block['id'] ?? null;
+            }
+        }
+
+        return $tableId;
+    }
+
+    /**
      * Build CSS from page settings
      *
      * @param array $pageSettings
      * @return string
      */
-    private function buildPageCSS(array $pageSettings): string
+    private function buildPageCSS(array $pageSettings, object $settings): string
     {
-        $pageSize = $this->getPageSizeCSS($pageSettings);
-        $fontFamily = $this->fontFamilyWithFallback($pageSettings['fontFamily'] ?? 'Inter, sans-serif');
-        $fontSize = $pageSettings['fontSize'] ?? '12px';
+        $documentSettings = $this->documentSettings();
+        $pageSize = $this->resolvePageSizeCSS($pageSettings, $documentSettings, $settings);
+        $fontFamily = $this->resolveFontFamily($pageSettings, $documentSettings, $settings);
+        $fontSize = $this->resolveFontSize($pageSettings, $documentSettings, $settings);
         $textColor = $pageSettings['textColor'] ?? '#374151';
         $lineHeight = $pageSettings['lineHeight'] ?? '1.5';
         $backgroundColor = $pageSettings['backgroundColor'] ?? '#ffffff';
 
-        // @page is the single source of truth for page-level inset. CSS
-        // @page only supports `margin` (no padding), so when the design
-        // ships both pageMargin* and pagePadding* keys we sum them per side
-        // and emit the combined value as @page margin. Legacy designs with
-        // neither key fall back to getPageMarginsCSS (10mm default).
+        // Modern visual-designer payloads store pageMargin* + pagePadding* in
+        // documentSettings; both families collapse into the @page margin so the
+        // inset repeats on EVERY page — container padding only spaces the first
+        // page, leaving page 2+ with no top margin. Legacy pageSettings payloads
+        // keep their original @page margin behavior.
         $pageMargins = $this->hasLayoutOverrides()
             ? $this->combinedPageInset()
             : $this->getPageMarginsCSS($pageSettings);
@@ -290,7 +354,7 @@ class JsonDesignService
                     }
                     body {
                         font-family: {$fontFamily};
-                        font-size: {$fontSize} !important;
+                        font-size: {$fontSize};
                         color: {$textColor};
                         line-height: {$lineHeight};
                         background-color: {$backgroundColor};
@@ -299,6 +363,11 @@ class JsonDesignService
                         -webkit-print-color-adjust: exact;
                         print-color-adjust: exact;
                         zoom: 80%;
+                    }
+                    .invoice-container {
+                        width: 100%;
+                        box-sizing: border-box;
+                        padding: 0;
                     }
                     .flex-row {
                         display: flex;
@@ -316,6 +385,8 @@ class JsonDesignService
                     table {
                         width: 100%;
                         border-collapse: collapse;
+                        table-layout: fixed;
+                        overflow-wrap: break-word;
                     }
                     /* Tables flow across pages: rows never split, headers
                        and footers repeat at the top/bottom of each page
@@ -326,7 +397,153 @@ class JsonDesignService
                         break-inside: avoid;
                         page-break-inside: avoid;
                     }
+                    .stamp {
+                        transform: rotate(12deg);
+                        color: #555;
+                        font-size: 3rem;
+                        font-weight: 700;
+                        border: 0.25rem solid #555;
+                        display: inline-block;
+                        padding: 0.25rem 1rem;
+                        text-transform: uppercase;
+                        border-radius: 1rem;
+                        font-family: 'Courier';
+                        mix-blend-mode: multiply;
+                        z-index: 200 !important;
+                        position: fixed;
+                        text-align: center;
+                        float: right;
+
+                    }
+                    .is-paid {
+                        color: #D23;
+                        border: 1rem double #D23;
+                        transform: rotate(-5deg);
+                        font-size: 6rem;
+                        font-family: "Open sans", Helvetica, Arial, sans-serif;
+                        border-radius: 0;
+                        padding: 0.5rem;
+                        opacity: 0.2;
+                        z-index: 200 !important;
+                        position: fixed;
+                    }
+                    /* Anchors the stamp over its block (totals / line-items)
+                       instead of the page. Neutralises the .stamp/.is-paid
+                       position: fixed so the overlay's flex centering applies. */
+                    .stamp-overlay {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        pointer-events: none;
+                        z-index: 100;
+                    }
+                    .stamp-overlay .stamp {
+                        position: static;
+                        float: none;
+                    }
+
             CSS;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function documentSettings(): array
+    {
+        $documentSettings = $this->jsonDesign['documentSettings'] ?? [];
+
+        return is_array($documentSettings) ? $documentSettings : [];
+    }
+
+    /**
+     * Modern payloads use documentSettings.pageSize/pageLayout. Legacy JSON
+     * payloads may still carry pageSettings.pageSize/orientation.
+     */
+    private function resolvePageSizeCSS(array $pageSettings, array $documentSettings, object $settings): string
+    {
+        if (array_key_exists('pageSize', $documentSettings)) {
+            $size = $this->cssSizeFor(
+                (string) $documentSettings['pageSize'],
+                (string) ($documentSettings['pageLayout'] ?? $settings->page_layout ?? 'portrait'),
+            );
+
+            if ($size !== null) {
+                return $size;
+            }
+        }
+
+        if ($pageSettings !== []) {
+            return $this->getPageSizeCSS($pageSettings);
+        }
+
+        return $this->cssSizeFor(
+            (string) ($settings->page_size ?? 'A4'),
+            (string) ($settings->page_layout ?? 'portrait'),
+        ) ?? 'A4 portrait';
+    }
+
+    /**
+     * documentSettings.primaryFont is the current visual-designer contract.
+     * pageSettings.fontFamily remains as a legacy fallback.
+     */
+    private function resolveFontFamily(array $pageSettings, array $documentSettings, object $settings): string
+    {
+        if (($documentSettings['primaryFont'] ?? null) !== null && $documentSettings['primaryFont'] !== '') {
+            return $this->fontFamilyWithFallback(Helpers::resolveFont((string) $documentSettings['primaryFont'])['name']);
+        }
+
+        if (($pageSettings['fontFamily'] ?? null) !== null && $pageSettings['fontFamily'] !== '') {
+            return $this->fontFamilyWithFallback((string) $pageSettings['fontFamily']);
+        }
+
+        if (($settings->primary_font ?? null) !== null && $settings->primary_font !== '') {
+            return $this->fontFamilyWithFallback(Helpers::resolveFont((string) $settings->primary_font)['name']);
+        }
+
+        return $this->fontFamilyWithFallback('Inter, sans-serif');
+    }
+
+    /**
+     * documentSettings.globalFontSize is stored as a number by the visual
+     * designer; pageSettings.fontSize is a legacy CSS length string.
+     */
+    private function resolveFontSize(array $pageSettings, array $documentSettings, object $settings): string
+    {
+        return $this->cssLength($documentSettings['globalFontSize'] ?? null)
+            ?? $this->cssLength($pageSettings['fontSize'] ?? null)
+            ?? $this->cssLength($settings->font_size ?? null)
+            ?? '12px';
+    }
+
+    private function cssLength(mixed $value, string $defaultUnit = 'px'): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if (is_int($value) || is_float($value)) {
+            return $this->formatCssNumber((float) $value) . $defaultUnit;
+        }
+
+        $value = trim((string) $value);
+
+        if ($value === '') {
+            return null;
+        }
+
+        return is_numeric($value)
+            ? $this->formatCssNumber((float) $value) . $defaultUnit
+            : $value;
+    }
+
+    private function formatCssNumber(float $value): string
+    {
+        return rtrim(rtrim(sprintf('%.4F', $value), '0'), '.');
     }
 
     /**
@@ -369,11 +586,11 @@ class JsonDesignService
      */
     private function hasLayoutOverrides(): bool
     {
-        $docSettings = $this->jsonDesign['documentSettings'] ?? [];
+        $docSettings = $this->documentSettings();
 
         foreach (['pageMarginTop', 'pageMarginRight', 'pageMarginBottom', 'pageMarginLeft',
                   'pagePaddingTop', 'pagePaddingRight', 'pagePaddingBottom', 'pagePaddingLeft'] as $key) {
-            if (isset($docSettings[$key])) {
+            if (array_key_exists($key, $docSettings)) {
                 return true;
             }
         }
@@ -394,14 +611,14 @@ class JsonDesignService
      */
     private function combinedPageInset(): string
     {
-        $docSettings = $this->jsonDesign['documentSettings'] ?? [];
+        $docSettings = $this->documentSettings();
         $edges = ['Top', 'Right', 'Bottom', 'Left'];
         $values = [];
 
         foreach ($edges as $edge) {
-            $margin  = (int) ($docSettings['pageMargin' . $edge]  ?? 0);
-            $padding = (int) ($docSettings['pagePadding' . $edge] ?? 0);
-            $values[] = ($margin + $padding) . 'px';
+            $margin  = (float) ($docSettings['pageMargin' . $edge]  ?? 0);
+            $padding = (float) ($docSettings['pagePadding' . $edge] ?? 0);
+            $values[] = $this->formatCssNumber($margin + $padding) . 'px';
         }
 
         return implode(' ', $values);

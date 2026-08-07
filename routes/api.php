@@ -139,14 +139,21 @@ use App\PaymentDrivers\PayPalPPCPPaymentDriver;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => ['throttle:api', 'api_secret_check']], function () {
-    Route::post('api/v1/signup', [AccountController::class, 'store'])->name('signup.submit')->middleware('throttle:1,1');
+    Route::post('api/v1/signup', [AccountController::class, 'store'])->name('signup.submit')->middleware('throttle:signup');
     Route::post('api/v1/oauth_login', [LoginController::class, 'oauthApiLogin']);
+});
+
+Route::group(['middleware' => ['throttle:precheck']], function () {
+    Route::post('api/v1/login/precheck', [LoginController::class, 'precheck'])->name('login.precheck');
 });
 
 Route::group(['middleware' => ['throttle:login', 'api_secret_check', 'email_db']], function () {
     Route::post('api/v1/login', [LoginController::class, 'apiLogin'])->name('login.submit');
-    Route::post('api/v1/reset_password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->middleware('throttle:10,1');
     Route::post('api/v1/passkeys/login/options', [PasskeyController::class, 'loginOptions'])->name('passkeys.login.options');
+});
+
+Route::group(['middleware' => ['throttle:password-reset', 'api_secret_check', 'email_db']], function () {
+    Route::post('api/v1/reset_password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 });
 
 Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
@@ -187,7 +194,8 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::post('charts/analytics_totals', [ChartController::class, 'analytics_totals'])->name('chart.analytics_totals');
     Route::post('charts/cashflow_forecast', [ChartController::class, 'cashflow_forecast'])->name('chart.cashflow_forecast');
     Route::post('charts/client_payment_analytics', [ChartController::class, 'client_payment_analytics'])->name('chart.client_payment_analytics');
-    Route::post('charts/project_analytics', [ChartController::class, 'project_analytics'])->name('chart.project_analytics');
+    Route::post('charts/project_analytics/{project}', [ChartController::class, 'project_analytics'])->name('chart.project_analytics');
+    Route::post('charts/project_burnup/{project}', [ChartController::class, 'projectBurnup'])->name('chart.project_burnup');
 
     Route::post('claim_license', [LicenseController::class, 'index'])->name('license.index');
     Route::post('check_license', [LicenseController::class, 'check'])->name('license.check');
@@ -357,6 +365,7 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::get('quote/{invitation_key}/download_e_quote', [QuoteController::class, 'downloadEQuote'])->name('quotes.downloadEQuote');
 
     Route::post('quickbooks/sync', [QuickbooksController::class, 'sync'])->name('quickbooks.sync');
+    Route::post('quickbooks/action', [QuickbooksController::class, 'action'])->name('quickbooks.action');
     Route::post('quickbooks/settings', [QuickbooksController::class, 'settings'])->name('quickbooks.settings');
     Route::post('quickbooks/disconnect', [QuickbooksController::class, 'disconnect'])->name('quickbooks.disconnect');
     Route::post('quickbooks/reconnect_url', [QuickbooksController::class, 'reconnectUrl'])->name('quickbooks.reconnect_url');

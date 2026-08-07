@@ -163,7 +163,7 @@ class LicenseController extends BaseController
         return response()->json($error, 400);
     }
 
-    public function v5ClaimLicense(string $license_key)
+    public function v5ClaimLicense(string $license_key, int $product_id = 3)
     {
         $this->checkLicense();
 
@@ -179,7 +179,7 @@ class LicenseController extends BaseController
 
             $response = Http::get("https://invoicing.co/claim_license", [
                 'license_key' => $license_key,
-                'product_id' => 3,
+                'product_id' => $product_id,
             ]);
 
             $payload = $response->json();

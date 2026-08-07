@@ -24,6 +24,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 
 class ProcessBankTransactionsNordigen implements ShouldQueue
 {
@@ -31,6 +32,14 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
+
+    private const WAKE_COOLDOWN_SECONDS = 60 * 60 * 6;
+
+    private const WAKE_PAUSE_SECONDS = 60 * 60 * 24;
+
+    private const WAKE_LOCK_SECONDS = 30;
+
+    private const WAKE_MAX_ATTEMPTS = 3;
 
     private BankIntegration $bank_integration;
 
@@ -56,7 +65,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         if ($this->bank_integration->integration_type != BankIntegration::INTEGRATION_TYPE_NORDIGEN) {
             throw new \Exception("Invalid BankIntegration Type");
@@ -127,7 +136,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
     // const SUSPENDED = 'SUSPENDED';     // Account access temporarily suspended
     // const FAILED = 'FAILED';          // Connection failed
     // const DELETED = 'DELETED';        // Account has been deleted
-    private function updateAccount()
+    private function updateAccount(): void
     {
         // Requisition pre-flight gate (cheap, separate rate limit). The requisition is the
         // authority on permanent failure (EX/SU/RJ). Running it before any rate-limited
@@ -153,11 +162,27 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
             }
         }
 
+        if ($this->shouldSkipErrorAccountCheck()) {
+            return;
+        }
+
         $account_status = $this->nordigen->isAccountActive($this->bank_integration->nordigen_account_id);
 
         //Rate limited — leave the integration enabled and retry next cycle. Do not mutate state.
         if (($account_status['status'] ?? null) == 'RATE_LIMITED') {
             nlog("Nordigen: rate limited, awaiting retry for account: " . $this->bank_integration->nordigen_account_id);
+            return;
+        }
+
+        if (($account_status['status'] ?? null) == 'ERROR') {
+            $this->bank_integration->disabled_upstream = false;
+            $this->bank_integration->bank_account_status = 'ERROR';
+            $this->bank_integration->save();
+
+            nlog("Nordigen: account entered ERROR: " . $this->bank_integration->nordigen_account_id);
+
+            $this->attemptAccountWake();
+
             return;
         }
 
@@ -191,9 +216,133 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
         // $this->bank_integration->balance = $account['current_balance'];
         $this->bank_integration->save();
 
+        if ($this->bank_integration->nordigen_account_id) {
+            $this->clearAccountWakeState($this->bank_integration->nordigen_account_id);
+        }
+
     }
 
-    private function processTransactions()
+    private function shouldSkipErrorAccountCheck(): bool
+    {
+        $account_id = $this->bank_integration->nordigen_account_id;
+
+        if (!$account_id || $this->bank_integration->bank_account_status != 'ERROR') {
+            return false;
+        }
+
+        if (Cache::has($this->wakeCacheKey('paused', $account_id))) {
+            nlog("Nordigen: account status check skipped; wake paused for account: {$account_id}");
+            return true;
+        }
+
+        if (Cache::has($this->wakeCacheKey('last', $account_id))) {
+            nlog("Nordigen: account status check skipped; wake cooldown active for account: {$account_id}");
+            return true;
+        }
+
+        return false;
+    }
+
+    private function attemptAccountWake(): void
+    {
+        $account_id = $this->bank_integration->nordigen_account_id;
+
+        if (!$account_id) {
+            return;
+        }
+
+        if (Cache::has($this->wakeCacheKey('paused', $account_id))) {
+            nlog("Nordigen: wake skipped; paused after max attempts for account: {$account_id}");
+            return;
+        }
+
+        if (Cache::has($this->wakeCacheKey('last', $account_id))) {
+            nlog("Nordigen: wake skipped; cooldown active for account: {$account_id}");
+            return;
+        }
+
+        $lock = Cache::lock($this->wakeCacheKey('lock', $account_id), self::WAKE_LOCK_SECONDS);
+
+        if (!$lock->get()) {
+            nlog("Nordigen: wake skipped; lock held for account: {$account_id}");
+            return;
+        }
+
+        try {
+            Cache::put($this->wakeCacheKey('last', $account_id), true, self::WAKE_COOLDOWN_SECONDS);
+
+            nlog("Nordigen: wake probe started for account: {$account_id}");
+
+            $wake_status = $this->nordigen->wakeAccount($account_id, 'ERROR');
+            $status = $wake_status['status'];
+
+            if ($status == 'READY') {
+                $this->clearAccountWakeState($account_id);
+
+                $this->bank_integration->disabled_upstream = false;
+                $this->bank_integration->bank_account_status = 'READY';
+                $this->bank_integration->save();
+
+                nlog("Nordigen: wake probe found account READY: {$account_id}");
+                return;
+            }
+
+            if ($status == 'WAKE_PROBED') {
+                $this->recordWakeAttempt($account_id, "Nordigen: wake probe completed for account: {$account_id}; awaiting READY metadata");
+                return;
+            }
+
+            if ($status == 'WAKE_RATE_LIMITED') {
+                $this->recordWakeAttempt($account_id, "Nordigen: wake probe rate limited for account: {$account_id}");
+                return;
+            }
+
+            if (in_array($status, ['EXPIRED', 'SUSPENDED', 'Invalid Account ID'])) {
+                $this->bank_integration->disabled_upstream = true;
+                $this->bank_integration->bank_account_status = $status;
+                $this->bank_integration->save();
+
+                nlog("Nordigen: wake probe permanent failure ({$status}) for account: {$account_id}");
+
+                if (in_array($status, ['EXPIRED', 'SUSPENDED'])) {
+                    $this->nordigen->disabledAccountEmail($this->bank_integration);
+                }
+
+                return;
+            }
+
+            $this->recordWakeAttempt($account_id, "Nordigen: wake probe transient failure for account: {$account_id}");
+        } finally {
+            $lock->release();
+        }
+    }
+
+    private function recordWakeAttempt(string $account_id, string $message): void
+    {
+        $attempts = ((int) Cache::get($this->wakeCacheKey('attempts', $account_id), 0)) + 1;
+        Cache::put($this->wakeCacheKey('attempts', $account_id), $attempts, self::WAKE_PAUSE_SECONDS);
+
+        nlog("{$message} (attempt {$attempts})");
+
+        if ($attempts >= self::WAKE_MAX_ATTEMPTS) {
+            Cache::put($this->wakeCacheKey('paused', $account_id), true, self::WAKE_PAUSE_SECONDS);
+            nlog("Nordigen: wake probe paused after max attempts for account: {$account_id}");
+        }
+    }
+
+    private function clearAccountWakeState(string $account_id): void
+    {
+        Cache::forget($this->wakeCacheKey('last', $account_id));
+        Cache::forget($this->wakeCacheKey('attempts', $account_id));
+        Cache::forget($this->wakeCacheKey('paused', $account_id));
+    }
+
+    private function wakeCacheKey(string $scope, string $account_id): string
+    {
+        return "nordigen:wake:{$scope}:{$account_id}";
+    }
+
+    private function processTransactions(): void
     {
         //Get transaction count object
         $transactions = [];

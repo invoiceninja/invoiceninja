@@ -31,7 +31,7 @@ class CreditController extends Controller
     {
         set_time_limit(0);
 
-        // $invitation = $credit->invitations()->where('client_contact_id', auth()->user()->id)->first();
+        /** @var \App\Models\CreditInvitation|null $invitation */
         $invitation = $credit->invitations()->where('client_contact_id', auth()->guard('contact')->user()->id)->first();
 
         $data = [
@@ -40,7 +40,7 @@ class CreditController extends Controller
             'invitation' => $invitation,
         ];
 
-        if ($invitation && auth()->guard('contact') && ! request()->has('silent') && ! $invitation->viewed_date) {
+        if ($invitation && auth()->guard('contact')->check() && ! request()->has('silent') && ! $invitation->viewed_date) {
             $invitation->markViewed();
 
             event(new InvitationWasViewed($credit, $invitation, $credit->company, Ninja::eventVars()));

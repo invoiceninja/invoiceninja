@@ -72,7 +72,7 @@ class RecurringInvoiceItemExport extends BaseExport
 
         $query = RecurringInvoice::query()
                         ->withTrashed()
-                        ->with('client')
+                        ->with('client', 'tags')
                         ->whereHas('client', function ($q) {
                             $q->where('is_deleted', false);
                         })
@@ -93,6 +93,9 @@ class RecurringInvoiceItemExport extends BaseExport
         if ($this->input['status'] ?? false) {
             $query = $this->addRecurringInvoiceStatusFilter($query, $this->input['status']);
         }
+
+        $query = $this->addTagFilter($query);
+
         $query = $this->filterByUserPermissions($query);
 
         $query = $this->applyProductFilters($query);
@@ -212,9 +215,14 @@ class RecurringInvoiceItemExport extends BaseExport
 
             $entity = array_merge(array_flip(array_values($this->input['report_keys'])), $entity);
 
-            $this->storage_array[] = $this->convertFloats($entity);
+            $this->storage_array[] = $this->convertFloats($entity, ['recurring_invoice' => $invoice->id]);
 
         }
+    }
+
+    protected function groupingIdentityForColumn(string $column): ?string
+    {
+        return str_starts_with($column, 'recurring_invoice.') ? 'recurring_invoice' : null;
     }
 
     private function getTaxCategoryName($tax_id)
@@ -244,11 +252,11 @@ class RecurringInvoiceItemExport extends BaseExport
 
             $parts = explode('.', $key);
 
-            if (is_array($parts) && $parts[0] == 'item') {
+            if ($parts[0] === 'item') {
                 continue;
             }
 
-            if (is_array($parts) && $parts[0] == 'invoice' && array_key_exists($parts[1], $transformed_invoice)) {
+            if ($parts[0] === 'invoice' && isset($parts[1], $transformed_invoice[$parts[1]])) {
                 $entity[$key] = $transformed_invoice[$parts[1]];
             } elseif (array_key_exists($key, $transformed_invoice)) {
                 $entity[$key] = $transformed_invoice[$key];
@@ -278,7 +286,7 @@ class RecurringInvoiceItemExport extends BaseExport
         }
 
         if (in_array('recurring_invoice.user_id', $this->input['report_keys'])) {
-            $entity['recurring_invoice.user_id'] = $invoice->user ? $invoice->user->present()->name() : '';
+            $entity['recurring_invoice.user_id'] = $invoice->user->present()->name() ?? '';
         }
 
 

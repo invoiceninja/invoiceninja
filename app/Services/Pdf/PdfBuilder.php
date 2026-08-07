@@ -1300,10 +1300,8 @@ class PdfBuilder
     public function processTaxColumns(string $type): void
     {
         $column_type = 'product';
-
-        if ($type == 'product') {
-            $type_id = 1;
-        }
+        $type_id = 1;
+        
 
         if ($type == 'task') {
             $column_type = 'task';
@@ -2387,7 +2385,7 @@ class PdfBuilder
             return !isset($child['empty_check']) || $this->resolvesEmpty($child['empty_check']);
         }
 
-        if (isset($child['content']) && isset($child['show_empty']) && $child['show_empty'] === false) {
+        if (isset($child['content']) && isset($child['show_empty']) && $child['show_empty'] === false) { // @phpstan-ignore-line
             return $this->resolvesEmpty($child['empty_check'] ?? $child['content']);
         }
 

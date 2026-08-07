@@ -171,6 +171,17 @@ class PdfConfiguration
      */
     private function setCurrencyForPdf(): self
     {
+
+        // Fixes an issue where a PO has both a client and vendor associated.
+        if($this->entity_string == 'purchase_order'){
+
+
+            $this->currency = $this->vendor->currency();
+            $this->currency_entity = $this->vendor;
+
+            return $this;
+        }
+
         $this->currency = $this->client ? $this->client->currency() : $this->vendor->currency();
 
         $this->currency_entity = $this->client ? $this->client : $this->vendor;

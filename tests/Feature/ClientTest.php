@@ -221,20 +221,22 @@ class ClientTest extends TestCase
 
     public function testClientExchangeRateCalculation()
     {
-        $settings = ClientSettings::defaults();
-        $settings->currency_id = 12;
+        $settings = $this->company->settings;
+        $settings->currency_id = '3';
+
+        $this->company->saveSettings($settings, $this->company);
+
+
+        $c_settings = ClientSettings::defaults();
+        $c_settings->currency_id = 12;
 
         $c = Client::factory()
                 ->create([
                     'company_id' => $this->company->id,
                     'user_id' => $this->user->id,
-                    'settings' => $settings
+                    'settings' => $c_settings
                 ]);
 
-        $settings = $this->company->settings;
-        $settings->currency_id = '3';
-
-        $this->company->saveSettings($settings, $this->company);
 
         $client_exchange_rate = round($c->setExchangeRate(), 2);
 
@@ -409,6 +411,67 @@ class ClientTest extends TestCase
         $this->assertFalse((bool) $primary->cc_only);
     }
 
+    public function testPutClientRespectsNonPrimaryContactSendEmailValues()
+    {
+        $primary = $this->contact->fresh();
+        $secondary = ClientContact::where('client_id', $this->client->id)
+            ->where('id', '!=', $primary->id)
+            ->first();
+
+        $this->assertNotNull($secondary);
+
+        $data = [
+            'name' => 'PUT Contact Email Preferences',
+            'contacts' => [
+                [
+                    'id' => $primary->hashed_id,
+                    'email' => 'put-primary@example.com',
+                    'first_name' => 'Primary',
+                    'is_primary' => true,
+                    'send_email' => false,
+                ],
+                [
+                    'id' => $secondary->hashed_id,
+                    'email' => 'put-secondary@example.com',
+                    'first_name' => 'Secondary',
+                    'send_email' => false,
+                    'cc_only' => false,
+                ],
+                [
+                    'email' => 'put-tertiary@example.com',
+                    'first_name' => 'Tertiary',
+                    'send_email' => true,
+                    'cc_only' => false,
+                ],
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/clients/'.$this->client->hashed_id, $data)
+            ->assertStatus(200);
+
+        $response_contacts = collect($response->json('data.contacts'))->keyBy('email');
+
+        $this->assertFalse((bool) $response_contacts->get('put-primary@example.com')['send_email']);
+        $this->assertFalse((bool) $response_contacts->get('put-secondary@example.com')['send_email']);
+        $this->assertTrue((bool) $response_contacts->get('put-tertiary@example.com')['send_email']);
+
+        $saved_contacts = ClientContact::where('client_id', $this->client->id)
+            ->whereIn('email', [
+                'put-primary@example.com',
+                'put-secondary@example.com',
+                'put-tertiary@example.com',
+            ])
+            ->get()
+            ->keyBy('email');
+
+        $this->assertFalse((bool) $saved_contacts->get('put-primary@example.com')->send_email);
+        $this->assertFalse((bool) $saved_contacts->get('put-secondary@example.com')->send_email);
+        $this->assertTrue((bool) $saved_contacts->get('put-tertiary@example.com')->send_email);
+    }
+
     public function testNonPrimaryCcOnlyContactHasSendEmailDisabled()
     {
         $data = [
@@ -580,7 +643,6 @@ class ClientTest extends TestCase
 
         $credit = [
             'status_id' => 1,
-            'number' => 'dfdfd',
             'discount' => 0,
             'is_amount_discount' => 1,
             'number' => '34343xx43',
@@ -619,7 +681,6 @@ class ClientTest extends TestCase
         //lets now update the credit and increase its balance, this should also increase the credit balance
 
         $data = [
-            'number' => 'dfdfd',
             'discount' => 0,
             'is_amount_discount' => 1,
             'number' => '34343xx43',

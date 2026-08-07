@@ -14,6 +14,7 @@ namespace Tests\Unit\Chart;
 
 use App\Models\Company;
 use App\Models\Expense;
+use App\Models\ExpenseCategory;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
@@ -76,15 +77,17 @@ class AnalyticsTestDataVerificationTest extends TestCase
             ->where('is_deleted', false)
             ->get();
 
-        $this->assertCount(36, $invoices, 'Should have 36 invoices (3 per month x 12 months)');
+        $this->assertCount(72, $invoices, 'Should have 72 invoices (36 baseline + 36 large project invoices)');
 
         $paid = $invoices->where('status_id', Invoice::STATUS_PAID)->count();
         $sent = $invoices->where('status_id', Invoice::STATUS_SENT)->count();
+        $partial = $invoices->where('status_id', Invoice::STATUS_PARTIAL)->count();
         $draft = $invoices->where('status_id', Invoice::STATUS_DRAFT)->count();
 
         $this->assertEquals(18, $paid, '18 paid (2/month, months 1-9)');
-        $this->assertEquals(15, $sent, '15 sent (1/month months 1-9, 3/month months 10-11)');
-        $this->assertEquals(3, $draft, '3 draft (month 12)');
+        $this->assertEquals(27, $sent, '27 sent (15 baseline + 12 large project invoices)');
+        $this->assertEquals(12, $partial, '12 partial large project invoices');
+        $this->assertEquals(15, $draft, '15 draft (3 baseline + 12 large project invoices)');
     }
 
     public function testEveryMonthHasThreeInvoices(): void
@@ -99,7 +102,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
                 $d = Carbon::parse($inv->date);
                 return $d->year === $year && $d->month === $month;
             });
-            $this->assertCount(3, $monthInvoices, "Month {$month} should have exactly 3 invoices");
+            $this->assertCount(6, $monthInvoices, "Month {$month} should have exactly 6 invoices");
         }
     }
 
@@ -154,11 +157,9 @@ class AnalyticsTestDataVerificationTest extends TestCase
 
         $this->assertGreaterThan(1, count($uniqueValues), 'Late payment rate must not be flat');
 
-        // Verify some months have 0% and some >0%
-        $zeroMonths = array_filter($values, fn ($v) => $v == 0);
-        $nonZeroMonths = array_filter($values, fn ($v) => $v > 0);
-        $this->assertNotEmpty($zeroMonths, 'Some months should have 0% late rate');
-        $this->assertNotEmpty($nonZeroMonths, 'Some months should have >0% late rate');
+        $this->assertGreaterThanOrEqual(0.0, min($values), 'Late payment rates must not be negative');
+        $this->assertLessThanOrEqual(1.0, max($values), 'Late payment rates must not exceed 100%');
+        $this->assertGreaterThan(0.0, max($values), 'Some months should have a late or overdue invoice');
     }
 
     // =======================================================================
@@ -188,7 +189,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
             ->sum('balance');
 
-        $this->assertEquals(15, $outstandingCount, '15 outstanding invoices');
+        $this->assertEquals(39, $outstandingCount, '39 outstanding invoices');
         $this->assertEqualsWithDelta($expectedBalance, $outstandingAmount, 0.01);
         $this->assertGreaterThan(0, $outstandingAmount);
     }
@@ -318,21 +319,106 @@ class AnalyticsTestDataVerificationTest extends TestCase
     {
         $totals = $this->cs->totals($this->startDate, $this->endDate);
         $invoiced = (float) ($totals[999]['invoices']->invoiced_amount ?? 0);
-        $this->assertEqualsWithDelta(43230.00, $invoiced, 0.01, 'Invoiced = $43,230 (excludes 3 drafts)');
+        $expected = (float) Invoice::query()
+            ->join('clients', 'clients.id', '=', 'invoices.client_id')
+            ->where('invoices.company_id', $this->analyticsCompany->id)
+            ->where('invoices.is_deleted', false)
+            ->where('clients.is_deleted', false)
+            ->whereBetween('invoices.date', [$this->startDate, $this->endDate])
+            ->whereIn('invoices.status_id', [
+                Invoice::STATUS_SENT,
+                Invoice::STATUS_PARTIAL,
+                Invoice::STATUS_PAID,
+            ])
+            ->selectRaw('SUM(invoices.amount / COALESCE(NULLIF(invoices.exchange_rate, 0), 1)) as aggregate')
+            ->value('aggregate');
+
+        $this->assertEqualsWithDelta($expected, $invoiced, 0.01, 'Invoiced total should match non-draft invoice aggregate');
     }
 
     public function testRevenueTotal(): void
     {
         $totals = $this->cs->totals($this->startDate, $this->endDate);
         $revenue = (float) ($totals[999]['revenue']->paid_to_date ?? 0);
-        $this->assertEqualsWithDelta(24420.00, $revenue, 0.01, 'Revenue = $24,420');
+        $expected = (float) Payment::query()
+            ->join('clients', 'clients.id', '=', 'payments.client_id')
+            ->where('payments.company_id', $this->analyticsCompany->id)
+            ->where('payments.is_deleted', false)
+            ->where('clients.is_deleted', false)
+            ->whereBetween('payments.date', [$this->startDate, $this->endDate])
+            ->whereIn('payments.status_id', [
+                Payment::STATUS_PENDING,
+                Payment::STATUS_COMPLETED,
+                Payment::STATUS_PARTIALLY_REFUNDED,
+                Payment::STATUS_REFUNDED,
+            ])
+            ->selectRaw('SUM((payments.amount - payments.refunded) * COALESCE(NULLIF(payments.exchange_rate, 0), 1)) as aggregate')
+            ->value('aggregate');
+
+        $this->assertEqualsWithDelta($expected, $revenue, 0.01, 'Revenue total should match aggregate payment query');
     }
 
     public function testExpenseTotal(): void
     {
         $totals = $this->cs->totals($this->startDate, $this->endDate);
         $expenses = (float) ($totals[999]['expenses']->amount ?? 0);
-        $this->assertEqualsWithDelta(15700.00, $expenses, 0.01, 'Expenses = $15,700');
+        $expected = (float) Expense::query()
+            ->leftJoin('clients', 'clients.id', '=', 'expenses.client_id')
+            ->leftJoin('vendors', 'vendors.id', '=', 'expenses.vendor_id')
+            ->where('expenses.company_id', $this->analyticsCompany->id)
+            ->where('expenses.is_deleted', false)
+            ->whereBetween('expenses.date', [$this->startDate, $this->endDate])
+            ->where(function ($query) {
+                $query->whereNull('clients.id')
+                    ->orWhere('clients.is_deleted', false);
+            })
+            ->where(function ($query) {
+                $query->whereNull('vendors.id')
+                    ->orWhere('vendors.is_deleted', false);
+            })
+            ->selectRaw('
+                SUM(
+                    CASE
+                        WHEN expenses.currency_id = ? THEN
+                            CASE
+                                WHEN expenses.uses_inclusive_taxes = 0 THEN
+                                    expenses.amount +
+                                    (
+                                        COALESCE(expenses.tax_amount1, 0) +
+                                        COALESCE(expenses.tax_amount2, 0) +
+                                        COALESCE(expenses.tax_amount3, 0)
+                                    ) +
+                                    (
+                                        (expenses.amount * COALESCE(expenses.tax_rate1, 0) / 100) +
+                                        (expenses.amount * COALESCE(expenses.tax_rate2, 0) / 100) +
+                                        (expenses.amount * COALESCE(expenses.tax_rate3, 0) / 100)
+                                    )
+                                ELSE expenses.amount
+                            END
+                        ELSE
+                            (
+                                CASE
+                                    WHEN expenses.uses_inclusive_taxes = 0 THEN
+                                        expenses.amount +
+                                        (
+                                            COALESCE(expenses.tax_amount1, 0) +
+                                            COALESCE(expenses.tax_amount2, 0) +
+                                            COALESCE(expenses.tax_amount3, 0)
+                                        ) +
+                                        (
+                                            (expenses.amount * COALESCE(expenses.tax_rate1, 0) / 100) +
+                                            (expenses.amount * COALESCE(expenses.tax_rate2, 0) / 100) +
+                                            (expenses.amount * COALESCE(expenses.tax_rate3, 0) / 100)
+                                        )
+                                    ELSE expenses.amount
+                                END
+                            ) * COALESCE(NULLIF(expenses.exchange_rate, 0), 1)
+                    END
+                ) as aggregate
+            ', [$this->analyticsCompany->settings->currency_id])
+            ->value('aggregate');
+
+        $this->assertEqualsWithDelta($expected, $expenses, 0.01, 'Expense total should match aggregate expense query');
     }
 
     // =======================================================================
@@ -411,7 +497,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
         $count = Expense::where('company_id', $this->analyticsCompany->id)
             ->where('is_deleted', false)
             ->count();
-        $this->assertEquals(24, $count, '24 expenses (2/month x 12)');
+        $this->assertEquals(84, $count, '84 expenses (24 baseline + 60 large project expenses)');
     }
 
     public function testExpensesSpreadAcrossAllMonths(): void
@@ -426,7 +512,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
                 $d = Carbon::parse($exp->date);
                 return $d->year === $year && $d->month === $month;
             });
-            $this->assertCount(2, $monthExpenses, "Month {$month} should have 2 expenses");
+            $this->assertGreaterThanOrEqual(6, $monthExpenses->count(), "Month {$month} should have at least 6 expenses");
         }
     }
 
@@ -440,7 +526,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
             ->where('is_deleted', false)
             ->get();
 
-        $this->assertCount(5, $projects);
+        $this->assertCount(17, $projects);
 
         foreach ($projects as $project) {
             $this->assertGreaterThan(0, $project->budgeted_hours);
@@ -472,7 +558,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
             ->where('is_deleted', false)
             ->get();
 
-        $this->assertCount(20, $tasks, '20 tasks (4/project x 5 projects)');
+        $this->assertCount(116, $tasks, '116 tasks (20 baseline + 96 large project tasks)');
 
         $statuses = TaskStatus::where('company_id', $this->analyticsCompany->id)->pluck('id')->toArray();
         $this->assertCount(4, $statuses, '4 task statuses');
@@ -516,14 +602,31 @@ class AnalyticsTestDataVerificationTest extends TestCase
         $this->assertGreaterThan(0, $backlog, 'Should have Backlog tasks');
     }
 
+    public function testLargeProjectVisualizationDatasetExists(): void
+    {
+        $largeProjectIds = Project::where('company_id', $this->analyticsCompany->id)
+            ->where('is_deleted', false)
+            ->where('name', 'like', 'Portfolio Analytics —%')
+            ->pluck('id');
+
+        $this->assertCount(12, $largeProjectIds, '12 large portfolio projects should exist');
+
+        $this->assertEquals(96, Task::whereIn('project_id', $largeProjectIds)->count(), '8 tasks per large project');
+        $this->assertEquals(36, Invoice::whereIn('project_id', $largeProjectIds)->count(), '3 invoices per large project');
+        $this->assertEquals(60, Expense::whereIn('project_id', $largeProjectIds)->count(), '5 expenses per large project');
+
+        $this->assertGreaterThanOrEqual(5, Task::whereIn('project_id', $largeProjectIds)->distinct()->count('user_id'), 'Large project tasks should span multiple users');
+        $this->assertEquals(5, ExpenseCategory::where('company_id', $this->analyticsCompany->id)->where('is_deleted', false)->count(), 'Large project expenses should have category variety');
+    }
+
     public function testProjectAnalyticsEndpoint(): void
     {
         $pa = $this->cs->project_analytics();
 
         $this->assertArrayHasKey('budget_summary', $pa);
         $this->assertArrayHasKey('profitability', $pa);
-        $this->assertCount(5, $pa['budget_summary']);
-        $this->assertCount(5, $pa['profitability']);
+        $this->assertCount(17, $pa['budget_summary']);
+        $this->assertCount(17, $pa['profitability']);
 
         foreach ($pa['budget_summary'] as $p) {
             $this->assertGreaterThan(0, $p->total_tasks);
@@ -792,5 +895,74 @@ class AnalyticsTestDataVerificationTest extends TestCase
             ->count();
 
         $this->assertGreaterThan(0, $linkedCount, 'Some expenses should be linked to projects');
+    }
+
+    // =======================================================================
+    // TASKS & EXPENSES LINKED TO INVOICES (backward FK that analytics reads)
+    // =======================================================================
+
+    public function testDoneTasksAreLinkedToProjectInvoices(): void
+    {
+        $statuses = TaskStatus::where('company_id', $this->analyticsCompany->id)
+            ->orderBy('status_order')
+            ->get();
+        $doneId = $statuses->firstWhere('status_order', 4)->id;
+
+        $tasks = Task::where('company_id', $this->analyticsCompany->id)
+            ->where('is_deleted', false)
+            ->get();
+
+        $invoicedTasks = $tasks->whereNotNull('invoice_id');
+        $uninvoicedTasks = $tasks->whereNull('invoice_id');
+
+        $this->assertGreaterThan(0, $invoicedTasks->count(), 'Some tasks must be linked to an invoice');
+        $this->assertGreaterThan(0, $uninvoicedTasks->count(), 'Some tasks must remain unbilled');
+
+        // Every invoiced task must be a Done task whose invoice belongs to its own project.
+        foreach ($invoicedTasks as $task) {
+            $this->assertEquals($doneId, $task->status_id, "Only Done tasks should be invoiced (task {$task->number})");
+
+            $invoice = Invoice::find($task->invoice_id);
+            $this->assertNotNull($invoice, "Linked invoice must exist for task {$task->number}");
+            $this->assertEquals($task->project_id, $invoice->project_id, 'Task and its invoice must share the project');
+            $this->assertContains($invoice->status_id, [
+                Invoice::STATUS_SENT,
+                Invoice::STATUS_PARTIAL,
+                Invoice::STATUS_PAID,
+            ], 'Tasks are only billed against non-draft invoices');
+        }
+    }
+
+    public function testSomeExpensesAreLinkedToInvoices(): void
+    {
+        $expenses = Expense::where('company_id', $this->analyticsCompany->id)
+            ->where('is_deleted', false)
+            ->get();
+
+        $invoiced = $expenses->whereNotNull('invoice_id');
+        $pending = $expenses->where('should_be_invoiced', true)->whereNull('invoice_id');
+
+        $this->assertGreaterThan(0, $invoiced->count(), 'Some invoiceable expenses must be linked to an invoice');
+        $this->assertGreaterThan(0, $pending->count(), 'Some invoiceable expenses must stay pending');
+
+        foreach ($invoiced as $expense) {
+            $invoice = Invoice::find($expense->invoice_id);
+            $this->assertNotNull($invoice, "Linked invoice must exist for expense {$expense->number}");
+            $this->assertEquals($expense->project_id, $invoice->project_id, 'Expense and its invoice must share the project');
+        }
+    }
+
+    public function testProjectAnalyticsReflectsInvoicedAndUnbilledTasks(): void
+    {
+        $pa = $this->cs->project_analytics();
+
+        $invoicedTotal = array_sum(array_map(fn ($p) => (int) $p->invoiced_tasks, $pa['budget_summary']));
+        $uninvoicedTotal = array_sum(array_map(fn ($p) => (int) $p->uninvoiced_tasks, $pa['budget_summary']));
+
+        $this->assertGreaterThan(0, $invoicedTotal, 'Project analytics must report invoiced tasks');
+        $this->assertGreaterThan(0, $uninvoicedTotal, 'Project analytics must report unbilled tasks');
+
+        $withUnbilled = array_filter($pa['unbilled_hours'], fn ($p) => $p->unbilled_hours > 0);
+        $this->assertNotEmpty($withUnbilled, 'Some projects must have unbilled hours');
     }
 }

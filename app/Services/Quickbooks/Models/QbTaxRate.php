@@ -33,7 +33,7 @@ class QbTaxRate implements SyncInterface
 
     public function find(string $id): mixed
     {
-        return $this->service->sdk->FindById('TaxRate', $id);
+        return $this->service->sdk()->findById('TaxRate', $id);
     }
 
     public function syncToNinja(array $records): void
@@ -212,7 +212,7 @@ class QbTaxRate implements SyncInterface
             'TaxRateDetails' => $rate_details,
         ]);
 
-        return [$tax_code_name, $this->service->sdk->Add($tax_service)];
+        return [$tax_code_name, $this->service->sdk()->add($tax_service)];
     }
 
     /**
@@ -473,7 +473,7 @@ class QbTaxRate implements SyncInterface
     private function fetchTaxAgencies(): array
     {
         // @phpstan-ignore-next-line
-        $records = $this->service->sdk->Query('SELECT * FROM TaxAgency') ?? [];
+        $records = $this->service->sdk()->query('SELECT * FROM TaxAgency') ?? [];
 
         // @phpstan-ignore-next-line
         if (!is_array($records)) {
@@ -512,7 +512,7 @@ class QbTaxRate implements SyncInterface
         ]);
 
         try {
-            $result = $this->service->sdk->Add($tax_agency);
+            $result = $this->service->sdk()->add($tax_agency);
         } catch (\Throwable $e) {
             nlog('QB: failed to create TaxAgency for Ninja tax component', [
                 'agency_name' => $agency_name,

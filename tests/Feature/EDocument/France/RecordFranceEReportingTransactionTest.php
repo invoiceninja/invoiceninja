@@ -11,6 +11,7 @@ use App\Models\ClientContact;
 use App\Models\Credit;
 use App\Models\Country;
 use App\Models\Invoice;
+use App\Models\Product;
 use App\Models\TransactionEvent;
 use Faker\Factory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -54,6 +55,90 @@ class RecordFranceEReportingTransactionTest extends TestCase
         $this->assertSame(1200, $event->reporting_data->frReportEntry->b2cTransaction->amountIncludingVat);
     }
 
+    public function testItInfersAServiceB2CTransaction(): void
+    {
+        $invoice = $this->makeInvoice(
+            clientCountry: 'FR',
+            classification: 'individual',
+            date: '2026-09-15',
+            lineItems: [$this->makeLineItem(Product::PRODUCT_TYPE_SERVICE)],
+        );
+
+        (new RecordFranceEReportingTransaction(Invoice::class, $invoice->id, $this->company->db))->handle();
+
+        $event = TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->where('event_id', TransactionEvent::FR_B2C_TRANSACTION)
+            ->firstOrFail();
+
+        $this->assertSame('TPS1', $event->reporting_data->frReportEntry->b2cTransaction->category);
+    }
+
+    public function testItDoesNotRecordUnsupportedMixedOrUnknownB2CTransactions(): void
+    {
+        $mixed = $this->makeInvoice(
+            clientCountry: 'FR',
+            classification: 'individual',
+            date: '2026-09-15',
+            lineItems: [
+                $this->makeLineItem(Product::PRODUCT_TYPE_PHYSICAL),
+                $this->makeLineItem(Product::PRODUCT_TYPE_SERVICE),
+            ],
+        );
+        $unknown = $this->makeInvoice(
+            clientCountry: 'FR',
+            classification: 'individual',
+            date: '2026-09-15',
+            lineItems: [$this->makeLineItem(3)],
+            numberSuffix: '-UNKNOWN',
+        );
+
+        (new RecordFranceEReportingTransaction(Invoice::class, $mixed->id, $this->company->db))->handle();
+        (new RecordFranceEReportingTransaction(Invoice::class, $unknown->id, $this->company->db))->handle();
+
+        $this->assertFalse(TransactionEvent::query()->whereIn('invoice_id', [$mixed->id, $unknown->id])->exists());
+    }
+
+    public function testItDoesNotRecordAnUnsupportedMixedB2CCredit(): void
+    {
+        $credit = $this->makeCredit(
+            clientCountry: 'FR',
+            classification: 'individual',
+            date: '2026-09-15',
+            lineItems: [
+                $this->makeLineItem(Product::PRODUCT_TYPE_PHYSICAL),
+                $this->makeLineItem(Product::PRODUCT_TYPE_SERVICE),
+            ],
+        );
+
+        (new RecordFranceEReportingTransaction(Credit::class, $credit->id, $this->company->db))->handle();
+
+        $this->assertFalse(TransactionEvent::query()->where('credit_id', $credit->id)->exists());
+    }
+
+    public function testItRecordsAServiceB2CCreditWithNegativeAmounts(): void
+    {
+        $credit = $this->makeCredit(
+            clientCountry: 'FR',
+            classification: 'individual',
+            date: '2026-09-15',
+            lineItems: [$this->makeLineItem(Product::PRODUCT_TYPE_SERVICE)],
+        );
+
+        (new RecordFranceEReportingTransaction(Credit::class, $credit->id, $this->company->db))->handle();
+
+        $event = TransactionEvent::query()
+            ->where('credit_id', $credit->id)
+            ->where('event_id', TransactionEvent::FR_B2C_TRANSACTION)
+            ->firstOrFail();
+        $transaction = $event->reporting_data->frReportEntry->b2cTransaction;
+
+        $this->assertSame('TPS1', $transaction->category);
+        $this->assertSame(-1000, $transaction->amountExcludingVat);
+        $this->assertSame(-1200, $transaction->amountIncludingVat);
+        $this->assertSame(1, $transaction->transactionsCount);
+    }
+
     public function testItRecordsAForeignBusinessVatExcludedFranceReportingTransaction(): void
     {
         $invoice = $this->makeInvoice(clientCountry: 'DE', classification: 'business', date: '2026-09-15');
@@ -66,7 +151,7 @@ class RecordFranceEReportingTransactionTest extends TestCase
             ->first();
 
         $this->assertNotNull($event);
-        $this->assertSame('2026-10-31', $event->period->toDateString());
+        $this->assertSame('2026-09-20', $event->period->toDateString());
         $this->assertNotNull($event->reporting_data);
         $this->assertNull($event->reporting_data->frReport);
         $this->assertSame($invoice->number, $event->reporting_data->frReportEntry->b2biInvoice->invoiceNumber);
@@ -97,7 +182,7 @@ class RecordFranceEReportingTransactionTest extends TestCase
             ->first();
 
         $this->assertNotNull($event);
-        $this->assertSame('2026-10-31', $event->period->toDateString());
+        $this->assertSame('2026-09-20', $event->period->toDateString());
         $this->assertNotNull($event->reporting_data);
         $this->assertNull($event->reporting_data->frReport);
         $this->assertSame($credit->number, $event->reporting_data->frReportEntry->b2biInvoice->invoiceNumber);
@@ -136,7 +221,7 @@ class RecordFranceEReportingTransactionTest extends TestCase
         $this->assertFileExists($artifactPath);
         $this->assertSame($artifact, json_decode(file_get_contents($artifactPath), true, 512, JSON_THROW_ON_ERROR));
         $this->assertSame(TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION, $artifact['transactionEvent']['eventId']);
-        $this->assertSame('2026-10-31', $artifact['transactionEvent']['period']);
+        $this->assertSame('2026-09-20', $artifact['transactionEvent']['period']);
         $this->assertSame('FR-REPORT-DE-business', $artifact['reportingData']['invoiceNumber']);
         $this->assertSame(1200, $artifact['reportingData']['amountIncludingVat']);
         $this->assertArrayNotHasKey('frReportEntry', $artifact['reportingData']);
@@ -161,7 +246,7 @@ class RecordFranceEReportingTransactionTest extends TestCase
         $this->assertFileExists($artifactPath);
         $this->assertSame($artifact, json_decode(file_get_contents($artifactPath), true, 512, JSON_THROW_ON_ERROR));
         $this->assertSame(TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION, $artifact['transactionEvent']['eventId']);
-        $this->assertSame('2026-10-31', $artifact['transactionEvent']['period']);
+        $this->assertSame('2026-09-20', $artifact['transactionEvent']['period']);
         $this->assertSame('FR-CREDIT-REPORT-DE-business', $artifact['reportingData']['invoiceNumber']);
         $this->assertSame(-1200, $artifact['reportingData']['amountIncludingVat']);
         $this->assertArrayNotHasKey('frReportEntry', $artifact['reportingData']);
@@ -226,7 +311,7 @@ class RecordFranceEReportingTransactionTest extends TestCase
         );
     }
 
-    private function enableFranceReporting(string $schedule = 'ten_days'): void
+    private function enableFranceReporting(string $schedule = 'ten_day'): void
     {
         $france = Country::query()->where('iso_3166_2', 'FR')->firstOrFail();
         $settings = $this->company->settings ?: CompanySettings::defaults();
@@ -250,11 +335,11 @@ class RecordFranceEReportingTransactionTest extends TestCase
         $this->company = $this->company->fresh();
     }
 
-    private function makeCredit(string $clientCountry, string $classification, string $date): Credit
+    private function makeCredit(string $clientCountry, string $classification, string $date, ?array $lineItems = null): Credit
     {
         $country = Country::query()->where('iso_3166_2', $clientCountry)->firstOrFail();
         $client = $this->makeClient($country, $classification, $clientCountry);
-        $item = $this->makeLineItem();
+        $lineItems ??= [$this->makeLineItem()];
 
         $credit = Credit::factory()->create([
             'client_id' => $client->id,
@@ -273,7 +358,7 @@ class RecordFranceEReportingTransactionTest extends TestCase
             'tax_rate3' => 0,
             'tax_name3' => '',
             'status_id' => Credit::STATUS_SENT,
-            'line_items' => [$item],
+            'line_items' => $lineItems,
         ]);
 
         $credit = $credit->calc()->getCredit();
@@ -287,18 +372,24 @@ class RecordFranceEReportingTransactionTest extends TestCase
         return $credit;
     }
 
-    private function makeInvoice(string $clientCountry, string $classification, string $date): Invoice
+    private function makeInvoice(
+        string $clientCountry,
+        string $classification,
+        string $date,
+        ?array $lineItems = null,
+        string $numberSuffix = '',
+    ): Invoice
     {
         $country = Country::query()->where('iso_3166_2', $clientCountry)->firstOrFail();
 
         $client = $this->makeClient($country, $classification, $clientCountry);
-        $item = $this->makeLineItem();
+        $lineItems ??= [$this->makeLineItem()];
 
         $invoice = Invoice::factory()->create([
             'client_id' => $client->id,
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
-            'number' => 'FR-REPORT-'.$clientCountry.'-'.$classification,
+            'number' => 'FR-REPORT-'.$clientCountry.'-'.$classification.$numberSuffix,
             'date' => $date,
             'due_date' => '2026-10-15',
             'uses_inclusive_taxes' => false,
@@ -311,7 +402,7 @@ class RecordFranceEReportingTransactionTest extends TestCase
             'tax_rate3' => 0,
             'tax_name3' => '',
             'status_id' => Invoice::STATUS_SENT,
-            'line_items' => [$item],
+            'line_items' => $lineItems,
         ]);
 
         $invoice = $invoice->calc()->getInvoice();
@@ -357,7 +448,7 @@ class RecordFranceEReportingTransactionTest extends TestCase
         return $client;
     }
 
-    private function makeLineItem(): object
+    private function makeLineItem(int $typeId = Product::PRODUCT_TYPE_PHYSICAL): object
     {
         $item = InvoiceItemFactory::create();
         $item->quantity = 2;
@@ -366,6 +457,7 @@ class RecordFranceEReportingTransactionTest extends TestCase
         $item->tax_rate1 = 20;
         $item->product_key = 'CONSULTING';
         $item->notes = 'Consulting services';
+        $item->type_id = (string) $typeId;
 
         return $item;
     }

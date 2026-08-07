@@ -116,6 +116,21 @@ class EntityLevel implements EntityLevelInterface
 
         }
 
+        // Line item prices may never be negative for Peppol (schematron
+        // BR-27/BR-28), for invoices and credit notes alike. Reductions must be
+        // expressed with a negative quantity or a discount/allowance, so we
+        // reject negative prices up front with a clear, actionable message
+        // instead of letting them fail deep in the schematron.
+        $negative_price_errors = $this->testNegativeLinePrices($invoice);
+
+        if (count($negative_price_errors) > 0) {
+
+            $this->errors['invoice'] = $negative_price_errors;
+            $this->errors['passes'] = false;
+            return $this->errors;
+
+        }
+
         $p = new Peppol($invoice);
 
         $xml = false;
@@ -163,6 +178,49 @@ class EntityLevel implements EntityLevelInterface
 
     }
 
+    /**
+     * A Peppol item net/gross price may never be negative (schematron
+     * BR-27/BR-28), for both invoices and credit notes. When a line carries a
+     * negative price the document only fails deep in the schematron with an
+     * opaque message, so we surface a clear error here instead.
+     *
+     * Blank rows are skipped: they are dropped from the Peppol document by
+     * PeppolLineBuilder::isBlankItem() and never emit a price, so their sign is
+     * irrelevant and flagging them would be a false positive.
+     *
+     * @param  Invoice|Credit $invoice
+     * @return array
+     */
+    private function testNegativeLinePrices(Invoice|Credit $invoice): array
+    {
+        foreach ((array) $invoice->line_items as $item) {
+
+            if ($this->isBlankLineItem($item)) {
+                continue;
+            }
+
+            if ((float) ($item->cost ?? 0) < 0) {
+                return [['field' => 'negative_line_price', 'label' => ctrans('texts.peppol_negative_line_price')]];
+            }
+        }
+
+        return [];
+    }
+
+    /**
+     * Mirrors PeppolLineBuilder::isBlankItem() - a row with a near-zero cost and
+     * no usable tax name is dropped from the Peppol document, so it never emits
+     * a price to validate against.
+     *
+     * @param  object $item
+     * @return bool
+     */
+    private function isBlankLineItem(object $item): bool
+    {
+        return abs((float) ($item->cost ?? 0)) < 0.005
+            && strlen((string) ($item->tax_name1 ?? '')) <= 1;
+    }
+
     private function testClientState(Client $client): array
     {
 
@@ -195,7 +253,7 @@ class EntityLevel implements EntityLevelInterface
             $errors[] = ['field' => 'email', 'label' => ctrans("texts.email")];
         }
 
-        if ($client->country_id && $client->country) {
+        if ($client->country_id && $client->country) { //@phpstan-ignore-line
             $non_routable = $client->checkDeliveryNetwork();
 
             if (is_string($non_routable)) {

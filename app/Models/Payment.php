@@ -22,6 +22,7 @@ use App\Events\Payment\PaymentWasVoided;
 use App\Services\Payment\PaymentService;
 use App\Utils\Traits\Payment\Refundable;
 use App\Events\Payment\PaymentWasRefunded;
+use App\Models\Traits\HasTags;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -66,7 +67,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $custom_value4
  * @property int|null $transaction_id
  * @property string|null $idempotency_key
- * @property object|null $sync
+ * @property PaymentSync|null $sync
  * @property-read \App\Models\User|null $assigned_user
  * @property-read \App\Models\Client $client
  * @property-read \App\Models\Company $company
@@ -94,6 +95,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
  * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment>|\Illuminate\Support\Collection $paymentables
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
  * @mixin \Eloquent
  */
 class Payment extends BaseModel
@@ -103,6 +105,7 @@ class Payment extends BaseModel
     use SoftDeletes;
     use Refundable;
     use Inviteable;
+    use HasTags;
 
     public const STATUS_PENDING = 1;
 

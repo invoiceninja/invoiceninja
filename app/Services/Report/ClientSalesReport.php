@@ -20,11 +20,14 @@ use League\Csv\Writer;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Paymentable;
 use App\Libraries\MultiDB;
 use App\Export\CSV\BaseExport;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Support\Facades\App;
 use App\Services\Template\TemplateService;
+use App\Services\Payment\PaymentApplicationDateResolver;
+use Illuminate\Support\LazyCollection;
 
 class ClientSalesReport extends BaseExport
 {
@@ -196,9 +199,8 @@ class ClientSalesReport extends BaseExport
     /**
      * Fetch payment aggregates for every client in a single GROUP BY query.
      *
-     * Payments are scoped by their own `date` column so the figure reflects
-     * cash actually received in the reporting period, regardless of when the
-     * related invoice was issued. Refunded amounts are subtracted.
+     * Invoice allocations are scoped by the paymentable application date.
+     * Refunded amounts are subtracted from their allocation.
      *
      * @param  array $clientIds
      * @return array<int, array{amount_paid: float}>
@@ -209,35 +211,17 @@ class ClientSalesReport extends BaseExport
             return [];
         }
 
-        $query = Payment::query()
-            ->withTrashed()
-            ->select('client_id')
-            ->selectRaw('SUM(amount - refunded) as total_paid')
-            ->where('company_id', $this->company->id)
-            ->where('is_deleted', 0)
-            ->whereIn('client_id', $clientIds)
-            ->whereIn('status_id', [
-                Payment::STATUS_COMPLETED,
-                Payment::STATUS_PARTIALLY_REFUNDED,
-                Payment::STATUS_REFUNDED,
-            ])
-            ->groupBy('client_id');
-
-        $previous_date_key = $this->date_key;
-        $this->date_key = 'date';
-
-        try {
-            $query = $this->addDateRange($query, 'payments');
-        } finally {
-            $this->date_key = $previous_date_key;
-        }
-
         $data = [];
+        $is_all = ($this->input['date_range'] ?? null) === 'all';
 
-        foreach ($query->get() as $row) {
-            $data[$row->client_id] = [ // @phpstan-ignore-line
-                'amount_paid' => (float) ($row->total_paid ?? 0), // @phpstan-ignore-line
-            ];
+        foreach ($this->paymentApplications(
+            $clientIds,
+            $is_all ? null : $this->start_date,
+            $is_all ? null : $this->end_date,
+        ) as $application) {
+            $client_id = $application['client_id'];
+            $data[$client_id]['amount_paid'] = ($data[$client_id]['amount_paid'] ?? 0)
+                + $application['amount'];
         }
 
         return $data;
@@ -329,8 +313,7 @@ class ClientSalesReport extends BaseExport
             // data at all.
             $maxInvoice = Invoice::query()->withTrashed()
                 ->where('company_id', $this->company->id)->where('is_deleted', 0)->max('date');
-            $maxPayment = Payment::query()->withTrashed()
-                ->where('company_id', $this->company->id)->where('is_deleted', 0)->max('date');
+            $maxPayment = $this->latestPaymentApplicationDate();
 
             $max = max((string) $maxInvoice, (string) $maxPayment);
 
@@ -423,7 +406,7 @@ class ClientSalesReport extends BaseExport
     }
 
     /**
-     * Aggregate net payment amounts (amount - refunded) by (client_id, period).
+     * Aggregate net invoice allocations by (client_id, application period).
      *
      * @param  array<int, int> $clientIds
      * @return array<int, array<string, float>> [client_id => [Y-m => amount]]
@@ -434,35 +417,95 @@ class ClientSalesReport extends BaseExport
             return [];
         }
 
-        $period = "DATE_FORMAT(payments.date, '%Y-%m')";
-
-        $query = Payment::query()
-            ->withTrashed()
-            ->select('client_id')
-            ->selectRaw("{$period} as period")
-            ->selectRaw('SUM(amount - refunded) as total_paid')
-            ->where('company_id', $this->company->id)
-            ->where('is_deleted', 0)
-            ->whereIn('client_id', $clientIds)
-            ->whereIn('status_id', [
-                Payment::STATUS_COMPLETED,
-                Payment::STATUS_PARTIALLY_REFUNDED,
-                Payment::STATUS_REFUNDED,
-            ])
-            ->whereBetween('payments.date', [
-                $this->monthAxisStart->format('Y-m-d'),
-                $this->monthAxisEnd->format('Y-m-d'),
-            ])
-            ->groupBy('client_id')
-            ->groupByRaw($period);
-
         $matrix = [];
 
-        foreach ($query->get() as $row) {
-            $matrix[$row->client_id][$row->period] = (float) ($row->total_paid ?? 0); // @phpstan-ignore-line
+        foreach ($this->paymentApplications(
+            $clientIds,
+            $this->monthAxisStart->toDateString(),
+            $this->monthAxisEnd->toDateString(),
+        ) as $application) {
+            $client_id = $application['client_id'];
+            $period = substr($application['application_date'], 0, 7);
+            $matrix[$client_id][$period] = ($matrix[$client_id][$period] ?? 0)
+                + $application['amount'];
         }
 
         return $matrix;
+    }
+
+    /**
+     * @param array<int, int> $client_ids
+     * @return LazyCollection<int, array{client_id:int,application_date:string,amount:float}>
+     */
+    private function paymentApplications(
+        array $client_ids,
+        ?string $start_date,
+        ?string $end_date,
+    ): LazyCollection {
+        $timezone = $this->company->timezone()?->name ?: config('app.timezone');
+        $query = Paymentable::query()
+            ->with(['payment' => fn ($query) => $query->withTrashed()])
+            ->where('paymentable_type', 'invoices')
+            ->whereNull('deleted_at')
+            ->whereHas('payment', fn ($query) => $query
+                ->withTrashed()
+                ->where('company_id', $this->company->id)
+                ->where('is_deleted', false)
+                ->whereIn('client_id', $client_ids)
+                ->whereIn('status_id', [
+                    Payment::STATUS_COMPLETED,
+                    Payment::STATUS_PARTIALLY_REFUNDED,
+                    Payment::STATUS_REFUNDED,
+                ]));
+
+        if ($start_date && $end_date) {
+            [$query_start, $query_end] = app(PaymentApplicationDateResolver::class)
+                ->candidateBounds($start_date, $end_date, $timezone);
+            $query
+                ->where('created_at', '>=', $query_start)
+                ->where('created_at', '<', $query_end);
+        }
+
+        return $query
+            ->orderBy('id')
+            ->lazyById(500)
+            ->map(function (Paymentable $paymentable) use ($start_date, $end_date, $timezone): ?array {
+                $application_date = app(PaymentApplicationDateResolver::class)
+                    ->resolve($paymentable, $timezone);
+
+                if (! $application_date
+                    || ($start_date && $application_date < $start_date)
+                    || ($end_date && $application_date > $end_date)) {
+                    return null;
+                }
+
+                return [
+                    'client_id' => (int) $paymentable->payment->client_id,
+                    'application_date' => $application_date,
+                    'amount' => (float) $paymentable->amount - (float) $paymentable->refunded,
+                ];
+            })
+            ->filter()
+            ->values();
+    }
+
+    private function latestPaymentApplicationDate(): ?string
+    {
+        $paymentable = Paymentable::query()
+            ->where('paymentable_type', 'invoices')
+            ->whereNull('deleted_at')
+            ->whereHas('payment', fn ($query) => $query
+                ->withTrashed()
+                ->where('company_id', $this->company->id)
+                ->where('is_deleted', false))
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->first();
+
+        return app(PaymentApplicationDateResolver::class)->resolve(
+            $paymentable,
+            $this->company->timezone()?->name ?: config('app.timezone'),
+        );
     }
 
     /**

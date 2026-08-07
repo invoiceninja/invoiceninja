@@ -184,8 +184,8 @@ class PaymentTransformer extends BaseTransformer
             'applied' => data_get($qb_data, 'TotalAmt', 0) - data_get($qb_data, 'UnappliedAmt', 0),
             'number' => data_get($qb_data, 'DocNumber', null),
             'private_notes' => data_get($qb_data, 'PrivateNote', null),
-            'currency_id' => (string) $this->resolveCurrency(data_get($qb_data, 'CurrencyRef')),
-            'client_id' => $this->getClientId(data_get($qb_data, 'CustomerRef', null)),
+            'currency_id' => (string) $this->resolveCurrency(data_get($qb_data, 'CurrencyRef.value') ?? data_get($qb_data, 'CurrencyRef')),
+            'client_id' => $this->getClientId(data_get($qb_data, 'CustomerRef.value') ??data_get($qb_data, 'CustomerRef', null)),
         ];
     }
 
@@ -220,12 +220,24 @@ class PaymentTransformer extends BaseTransformer
 
             if ($tx_type == 'Invoice' && $id == $invoice->sync->qb_id && $amount > 0) {
 
+                $exists = \App\Models\Paymentable::withTrashed()
+                    ->where('payment_id', $payment->id)
+                    ->where('paymentable_id', $invoice->id)
+                    ->where('paymentable_type', 'invoices')
+                    ->exists();
+
+                if ($exists) {
+                    continue;
+                }
+
                 $paymentable = new \App\Models\Paymentable();
                 $paymentable->payment_id = $payment->id;
                 $paymentable->paymentable_id = $invoice->id;
                 $paymentable->paymentable_type = 'invoices';
                 $paymentable->amount = $amount;
-                $paymentable->created_at = $payment->date; //@phpstan-ignore-line
+                $timezone = $this->company->timezone()?->name ?: config('app.timezone');
+                $paymentable->created_at = app(\App\Services\Payment\PaymentApplicationDateResolver::class)
+                    ->encodeBusinessDate($payment->date, $timezone);
                 $paymentable->save();
 
                 $invoice->service()->applyPayment($payment, $paymentable->amount);
@@ -263,6 +275,11 @@ class PaymentTransformer extends BaseTransformer
 
             $payment->fill($ninja_payment_data);
             $payment->save();
+
+            if(!$payment->currency_id) {
+                $payment->currency_id = $payment->client->settings->currency_id ?? $payment->company->settings->currency_id;
+                $payment->saveQuietly();
+            }
 
             $payment->client->service()->updatePaidToDate($payment->amount);
 
@@ -332,7 +349,9 @@ class PaymentTransformer extends BaseTransformer
         $paymentable->paymentable_id = $credit->id;
         $paymentable->paymentable_type = \App\Models\Credit::class;
         $paymentable->amount = $credit->amount;
-        $paymentable->created_at = $payment->date;
+        $timezone = $this->company->timezone()?->name ?: config('app.timezone');
+        $paymentable->created_at = app(\App\Services\Payment\PaymentApplicationDateResolver::class)
+            ->encodeBusinessDate($payment->date, $timezone);
         $paymentable->save();
 
         return $payment;
@@ -353,6 +372,37 @@ class PaymentTransformer extends BaseTransformer
             'amount' => (float) $this->getString($data, 'Line.Amount'),
             'invoice_id' => $invoice_id,
         ]];
+    }
+
+    public function appliedAmountForInvoice(mixed $qbPayment, string $invoiceQbId): float
+    {
+        $amount = 0.0;
+
+        foreach ($this->normalizeQuickBooksArray(data_get($qbPayment, 'Line', [])) as $line) {
+            foreach ($this->normalizeQuickBooksArray(data_get($line, 'LinkedTxn', [])) as $linkedTxn) {
+                if (
+                    data_get($linkedTxn, 'TxnType') === 'Invoice'
+                    && (string) data_get($linkedTxn, 'TxnId') === $invoiceQbId
+                ) {
+                    $amount += (float) data_get($line, 'Amount', 0);
+                }
+            }
+        }
+
+        return round($amount, 4);
+    }
+
+    private function normalizeQuickBooksArray(mixed $value): array
+    {
+        if ($value === null || $value === false || $value === '') {
+            return [];
+        }
+
+        if (is_array($value) && array_is_list($value)) {
+            return $value;
+        }
+
+        return [$value];
     }
 
 }

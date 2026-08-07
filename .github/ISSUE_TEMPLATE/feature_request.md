@@ -1,24 +1,39 @@
 ---
 name: Feature request
-about: Suggest an idea for this project
-title: ''
-labels: feature request
-assignees: ''
+description: Suggest an idea for this project
+title: ""
+labels:
+  - feature request
+assignees: []
 
----
+body:
 
-**What version of Invoice Ninja are you running? ie v4.5 / v5**
+  - type: dropdown
+    id: environment
+    attributes:
+      label: What environment are you running?
+      options:
+        - Self Hosted
+        - "Hosted (https://app.invoicing.co)"
+    validations:
+      required: true
 
-**What environment are you running?**
-Docker
-Shared Hosting
-ZIP
-Other
+  - type: checkboxes
+    id: existing-requests
+    attributes:
+      label: Have you searched existing issues and requests?
+      options:
+        - label: I have searched existing issues and requests.
+          required: true
 
-**Have you searched existing issues/requests?**
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: If applicable, add screenshots to help explain your request or question.
 
-**Screenshots**
-If applicable, add screenshots to help explain your request/question.
-
-**Additional context**
-Add any other context about the request/question here.
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Add any other context about the request or question here.

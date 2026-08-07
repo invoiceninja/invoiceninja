@@ -22,9 +22,12 @@ class ProductSync implements Castable
 {
     public string $qb_id;
 
+    public string $qb_status_message;
+
     public function __construct(array $attributes = [])
     {
         $this->qb_id = $attributes['qb_id'] ?? '';
+        $this->qb_status_message = $attributes['qb_status_message'] ?? '';
     }
 
     /**

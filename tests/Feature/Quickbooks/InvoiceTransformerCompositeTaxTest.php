@@ -5,14 +5,17 @@ namespace Tests\Feature\Quickbooks;
 use App\DataMapper\QuickbooksSettings;
 use App\Exceptions\QuickbooksMissingTaxCode;
 use App\Models\Company;
+use App\Models\Country;
 use App\Models\Invoice;
+use App\Models\Location;
+use App\Helpers\Invoice\InvoiceSum;
 use App\Services\Quickbooks\Models\QbTaxRate;
 use App\Services\Quickbooks\QuickbooksService;
+use App\Services\Quickbooks\SdkWrapper;
 use App\Services\Quickbooks\TaxCodeComponentKey;
 use App\Services\Quickbooks\Transformers\InvoiceTransformer;
 use Mockery;
 use QuickBooksOnline\API\Data\IPPTaxService;
-use QuickBooksOnline\API\DataService\DataService;
 use ReflectionMethod;
 use Tests\TestCase;
 
@@ -229,6 +232,38 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
         $this->assertSame('TAX', $method->invoke($this->transformer, $line_item, 'TAX', 'NON'));
     }
 
+    public function test_location_ship_address_is_formatted_for_qb_invoice_payload(): void
+    {
+        $country = new Country();
+        $country->iso_3166_3 = 'USA';
+
+        $location = new Location();
+        $location->address1 = '123456789012345678901234567890123456789012345';
+        $location->address2 = 'Suite 9876543210987654321098765432109876543210';
+        $location->city = 'Very Long Customer Location City Name';
+        $location->state = 'STATE-CODE-THAT-IS-LONG';
+        $location->postal_code = '12345678901234567890';
+        $location->setRelation('country', $country);
+
+        $invoice = new Invoice();
+        $invoice->location_id = 10;
+        $invoice->setRelation('location', $location);
+
+        $this->assertSame([
+            'Line1' => '12345678901234567890123456789012345678901',
+            'Line2' => 'Suite 98765432109876543210987654321098765',
+            'City' => 'Very Long Customer Location Cit',
+            'CountrySubDivisionCode' => 'STATE-CODE-THAT-IS-LO',
+            'PostalCode' => '1234567890123',
+            'Country' => 'USA',
+        ], $this->formatLocationShipAddress($invoice));
+    }
+
+    public function test_location_ship_address_is_null_without_invoice_location(): void
+    {
+        $this->assertNull($this->formatLocationShipAddress(new Invoice()));
+    }
+
     public function test_qb_tax_rate_creates_tax_service_for_missing_components(): void
     {
         $company = new Company();
@@ -242,11 +277,11 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
         $service = Mockery::mock(QuickbooksService::class);
         $service->company = $company;
 
-        $sdk = Mockery::mock(DataService::class);
-        $service->sdk = $sdk;
+        $sdk = Mockery::mock(SdkWrapper::class);
+        $service->shouldReceive('sdk')->andReturn($sdk);
         $tax_service_payload = null;
 
-        $sdk->shouldReceive('Query')
+        $sdk->shouldReceive('query')
             ->once()
             ->with('SELECT * FROM TaxAgency')
             ->andReturn([
@@ -254,7 +289,7 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
                 (object) ['Id' => '20', 'DisplayName' => 'Revenu Quebec'],
             ]);
 
-        $sdk->shouldReceive('Add')
+        $sdk->shouldReceive('add')
             ->once()
             ->with(Mockery::on(function (mixed $payload) use (&$tax_service_payload): bool {
                 $tax_service_payload = $payload;
@@ -293,24 +328,24 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
         $service = Mockery::mock(QuickbooksService::class);
         $service->company = $company;
 
-        $sdk = Mockery::mock(DataService::class);
-        $service->sdk = $sdk;
+        $sdk = Mockery::mock(SdkWrapper::class);
+        $service->shouldReceive('sdk')->andReturn($sdk);
         $tax_service_payload = null;
 
-        $sdk->shouldReceive('Query')
+        $sdk->shouldReceive('query')
             ->once()
             ->with('SELECT * FROM TaxAgency')
             ->andReturn([
                 (object) ['Id' => '10', 'DisplayName' => 'Receiver General'],
             ]);
 
-        $sdk->shouldReceive('Add')
+        $sdk->shouldReceive('add')
             ->once()
             ->with(Mockery::on(fn (mixed $payload): bool => data_get($payload, 'DisplayName') === 'Revenu Quebec'))
             ->andReturn((object) ['Id' => '20'])
             ->ordered();
 
-        $sdk->shouldReceive('Add')
+        $sdk->shouldReceive('add')
             ->once()
             ->with(Mockery::on(function (mixed $payload) use (&$tax_service_payload): bool {
                 $tax_service_payload = $payload;
@@ -357,11 +392,11 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
         $service = Mockery::mock(QuickbooksService::class);
         $service->company = $company;
 
-        $sdk = Mockery::mock(DataService::class);
-        $service->sdk = $sdk;
+        $sdk = Mockery::mock(SdkWrapper::class);
+        $service->shouldReceive('sdk')->andReturn($sdk);
         $first_payload = null;
 
-        $sdk->shouldReceive('Query')
+        $sdk->shouldReceive('query')
             ->once()
             ->with('SELECT * FROM TaxAgency')
             ->andReturn([
@@ -369,7 +404,7 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
                 (object) ['Id' => '20', 'DisplayName' => 'Revenu Quebec'],
             ]);
 
-        $sdk->shouldReceive('Add')
+        $sdk->shouldReceive('add')
             ->once()
             ->with(Mockery::on(function (mixed $payload) use (&$first_payload): bool {
                 $first_payload = $payload;
@@ -429,12 +464,12 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
         $service = Mockery::mock(QuickbooksService::class);
         $service->company = $company;
 
-        $sdk = Mockery::mock(DataService::class);
-        $service->sdk = $sdk;
+        $sdk = Mockery::mock(SdkWrapper::class);
+        $service->shouldReceive('sdk')->andReturn($sdk);
         $first_payload = null;
         $retry_payload = null;
 
-        $sdk->shouldReceive('Query')
+        $sdk->shouldReceive('query')
             ->twice()
             ->with('SELECT * FROM TaxAgency')
             ->andReturn([
@@ -442,7 +477,7 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
                 (object) ['Id' => '20', 'DisplayName' => 'Revenu Quebec'],
             ]);
 
-        $sdk->shouldReceive('Add')
+        $sdk->shouldReceive('add')
             ->once()
             ->with(Mockery::on(function (mixed $payload) use (&$first_payload): bool {
                 $first_payload = $payload;
@@ -463,7 +498,7 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
             ->once()
             ->andReturn([]);
 
-        $sdk->shouldReceive('Add')
+        $sdk->shouldReceive('add')
             ->once()
             ->with(Mockery::on(function (mixed $payload) use (&$retry_payload): bool {
                 $retry_payload = $payload;
@@ -511,6 +546,44 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
 
         $this->assertSame($map, $array['settings']['composite_tax_code_map']);
         $this->assertSame($map, $round_trip->settings->composite_tax_code_map);
+    }
+
+    public function test_manual_tax_detail_uses_tax_map_rate_when_name_has_no_percentage(): void
+    {
+        $company = new Company();
+        $company->quickbooks = new QuickbooksSettings([
+            'settings' => [
+                'tax_rate_map' => [
+                    ['id' => 'qb-rate-6', 'name' => 'Arbitrary tax name', 'rate' => 6],
+                ],
+            ],
+        ]);
+
+        $service = Mockery::mock(QuickbooksService::class);
+        $service->company = $company;
+
+        $calculator = Mockery::mock(InvoiceSum::class);
+        $calculator->shouldReceive('getTaxMap')->once()->andReturn(collect([
+            [
+                'name' => 'Arbitrary tax name',
+                'tax_rate' => 6,
+                'total' => 0.06,
+                'base_amount' => 1.00,
+            ],
+        ]));
+
+        $invoice = Mockery::mock(Invoice::class)->makePartial();
+        $invoice->shouldReceive('calc')->once()->andReturn($calculator);
+
+        $method = new ReflectionMethod(InvoiceTransformer::class, 'buildTxnTaxDetail');
+        $method->setAccessible(true);
+
+        $result = $method->invoke($this->transformer, $invoice, 0.06, 1.00, $service);
+
+        $this->assertSame(0.06, $result['TotalTax']);
+        $this->assertSame('qb-rate-6', $result['TaxLine'][0]['TaxLineDetail']['TaxRateRef']['value']);
+        $this->assertSame(0.06, $result['TaxLine'][0]['Amount']);
+        $this->assertSame(1.0, $result['TaxLine'][0]['TaxLineDetail']['NetAmountTaxable']);
     }
 
     /**
@@ -589,6 +662,14 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
         $method->setAccessible(true);
 
         return $method->invoke($this->transformer, $invoice, $invoice_level_taxes, $this->taxRateMap(), $composite_tax_code_map);
+    }
+
+    private function formatLocationShipAddress(Invoice $invoice): ?array
+    {
+        $method = new ReflectionMethod(InvoiceTransformer::class, 'formatLocationShipAddress');
+        $method->setAccessible(true);
+
+        return $method->invoke($this->transformer, $invoice);
     }
 
     private function taxRateMap(): array

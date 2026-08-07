@@ -18,20 +18,23 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Apply to any entity that should support tagging. The entity is identified by
- * its FQCN via the polymorphic taggables pivot, and tags themselves are scoped
- * to (company_id, entity_type) so a Task tag is distinct from a Project tag of
- * the same name.
- *
- * Model-level writes are id-based: callers pass numeric or hashed tag ids,
- * while API requests normalize tag object payloads before syncing. The trait
- * validates resolved ids against the entity catalog before syncing.
  *
  * @property int $company_id
  */
 trait HasTags
 {
     use MakesHash;
+
+    public static function bootHasTags(): void
+    {
+        if (! method_exists(static::class, 'forceDeleted')) {
+            return;
+        }
+
+        static::forceDeleted(function (object $model): void {
+            $model->tags()->detach();
+        });
+    }
 
     public function tags(): MorphToMany
     {
@@ -78,7 +81,8 @@ trait HasTags
         $found = Tag::withTrashed()
             ->whereIn('id', $tag_ids)
             ->where('company_id', $company_id)
-            ->where('entity_type', static::class)
+            ->whereIn('entity_type', [static::class, Tag::GLOBAL_ENTITY_TYPE])
+            // ->where('entity_type', static::class)
             ->where('is_deleted', false)
             ->pluck('id');
 

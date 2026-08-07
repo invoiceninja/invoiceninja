@@ -46,8 +46,14 @@ class InvoicesTable extends Component
         $this->sort_field = 'date';
     }
 
-    public function updatedStatus(): void
+    public function toggleStatus(string $value): void
     {
+        if (in_array($value, $this->status, true)) {
+            $this->status = array_values(array_diff($this->status, [$value]));
+        } else {
+            $this->status[] = $value;
+        }
+
         $this->resetSelection();
     }
 

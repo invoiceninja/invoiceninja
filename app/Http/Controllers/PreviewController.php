@@ -172,11 +172,11 @@ class PreviewController extends BaseController
             }
 
             if ($entity_obj->client) {
-                $entity_obj->load('client');
+                $entity_obj->load('client', 'client.tags');
                 $locale = $entity_obj->client->preferredLocale();
                 $settings = $entity_obj->client->getMergedSettings();
             } else {
-                $entity_obj->load('vendor');
+                $entity_obj->load('vendor', 'vendor.tags');
                 $locale = $entity_obj->vendor->preferredLocale();
                 $settings = $entity_obj->vendor->getMergedSettings();
             }
@@ -339,8 +339,9 @@ class PreviewController extends BaseController
         }
 
         $ps = new PdfService($invitation, 'product', [
-            'client' => $invitation->client ?? false,
-            'vendor' => $invitation->vendor ?? false,
+            // @todo Remove after next release - invitations have no client/vendor relation, these always resolve to false and are never read by the PDF pipeline
+            // 'client' => $invitation->client ?? false,
+            // 'vendor' => $invitation->vendor ?? false,
             "{$entity_string}s" => [$invitation->{$entity_string}],
         ]);
 

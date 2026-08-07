@@ -4,6 +4,7 @@ namespace Tests\Unit\FranceEReporting;
 
 use App\DataMapper\CompanySettings;
 use App\Models\Company;
+use App\Models\Country;
 use App\Models\TransactionEvent;
 use App\Services\EDocument\Standards\France\FranceEReportCompiler;
 use App\Services\EDocument\Standards\France\FranceEReportPayloadBuilder;
@@ -12,6 +13,18 @@ use Tests\TestCase;
 
 class FranceEReportCompilerTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $france = new Country();
+        $france->setRawAttributes([
+            'id' => 73,
+            'iso_3166_2' => 'FR',
+            'name' => 'France',
+        ], true);
+        app()->instance('countries', collect([$france]));
+    }
+
     public function testItCompilesB2CTransactionAndPaymentFragmentsIntoAStorecoveReportPayload(): void
     {
         $company = $this->company();
@@ -67,7 +80,8 @@ class FranceEReportCompilerTest extends TestCase
             ),
         );
 
-        $this->assertSame('2025-09-01 - 2025-10-31', $payload['document']['frEReport']['transactionReport']['period']);
+        $this->assertSame('2025-10-01 - 2025-10-31', $payload['document']['frEReport']['transactionReport']['period']);
+        $this->assertSame('2025-10-01 - 2025-10-31', $payload['document']['frEReport']['paymentReport']['period']);
         $this->assertEquals([$this->b2biInvoicePayload()], $payload['document']['frEReport']['transactionReport']['b2biInvoices']);
         $this->assertEquals([$this->b2biPaymentPayload()], $payload['document']['frEReport']['paymentReport']['b2biPayments']);
         $this->assertSame([], $payload['document']['frEReport']['transactionReport']['b2cTransactions']);
@@ -248,9 +262,9 @@ class FranceEReportCompilerTest extends TestCase
                 [
                     'category' => 'standard',
                     'percentage' => 20,
-                    'taxableAmount' => 10000,
-                    'taxAmount' => 2000,
+                    'amount' => 12000,
                     'currency' => 'EUR',
+                    'country' => 'FR',
                 ],
             ],
         ];

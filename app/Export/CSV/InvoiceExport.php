@@ -101,6 +101,8 @@ class InvoiceExport extends BaseExport
             $query = $this->addInvoiceStatusFilter($query, $this->input['status']);
         }
 
+        $query = $this->addTagFilter($query);
+
         $query = $this->filterByUserPermissions($query);
 
 
@@ -211,7 +213,7 @@ class InvoiceExport extends BaseExport
 
     private function invoiceReportRelations(): array
     {
-        $relations = ['client', 'location'];
+        $relations = ['client', 'location', 'tags'];
         $keys = $this->input['report_keys'];
 
         $invoice_relations = [
@@ -338,7 +340,12 @@ class InvoiceExport extends BaseExport
 
             $parts = explode('.', $key);
 
-            if (is_array($parts) && $parts[0] == 'invoice' && array_key_exists($parts[1], $transformed_invoice)) {
+            if (str_ends_with($key, '.tags')) {
+                $entity[$key] = $this->decorator->transform($key, $invoice);
+                continue;
+            }
+
+            if ($parts[0] === 'invoice' && isset($parts[1], $transformed_invoice[$parts[1]])) {
                 $entity[$key] = $transformed_invoice[$parts[1]];
             } elseif ($decorated_value = $this->decorator->transform($key, $invoice)) {
                 $entity[$key] = $decorated_value;
@@ -365,7 +372,37 @@ class InvoiceExport extends BaseExport
 
         $entity = $this->decorateAdvancedFields($invoice, $entity);
 
-        return  $this->convertFloats($entity);
+        $grouping_identities = [];
+
+        if ($this->fan_out) {
+            $grouping_identities['invoice'] = $invoice->id;
+            $paymentable = $invoice->relationLoaded('current_paymentable')
+                ? $invoice->getRelation('current_paymentable')
+                : null;
+
+            if ($paymentable) {
+                $grouping_identities['payment'] = $paymentable->payment_id;
+            }
+        }
+
+        return $this->convertFloats($entity, $grouping_identities);
+    }
+
+    protected function groupingIdentityForColumn(string $column): ?string
+    {
+        if (! $this->fan_out) {
+            return null;
+        }
+
+        if (str_starts_with($column, 'invoice.')) {
+            return 'invoice';
+        }
+
+        if (str_starts_with($column, 'payment.') && ! in_array($column, self::APPLIED_INJECTED_KEYS, true)) {
+            return 'payment';
+        }
+
+        return null;
     }
 
     private function decorateAdvancedFields(Invoice $invoice, array $entity): array

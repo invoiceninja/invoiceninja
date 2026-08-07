@@ -300,8 +300,16 @@ class InvoiceTransformer extends BaseTransformer
             'ApplyTaxAfterDiscount' => true,
             'PrintStatus' => 'NeedToPrint',
             'EmailStatus' => 'NotSet',
-            'GlobalTaxCalculation' => ($ast || !$is_us) ? 'TaxExcluded' : 'NotApplicable',
+            // 'GlobalTaxCalculation' => ($ast || !$is_us) ? 'TaxExcluded' : 'NotApplicable',
         ];
+
+        if ($ast || !$is_us) {
+            $invoice_data['GlobalTaxCalculation'] = 'TaxExcluded';
+        } 
+
+        if ($ship_addr = $this->formatLocationShipAddress($invoice)) {
+            $invoice_data['ShipAddr'] = $ship_addr;
+        }
 
         // Only send TxnTaxDetail for US companies without AST.
         // Non-US companies use resolved TaxCodeRef per line item — QB calculates taxes from those.
@@ -353,6 +361,36 @@ class InvoiceTransformer extends BaseTransformer
         }
 
         return $invoice_data;
+    }
+
+    /**
+     * Map an Invoice Ninja client location to the transaction ShipAddr QuickBooks
+     * uses as the AST destination address.
+     *
+     * @return array<string, string>|null
+     */
+    private function formatLocationShipAddress(Invoice $invoice): ?array
+    {
+        if (!$invoice->location_id) {
+            return null;
+        }
+
+        $invoice->loadMissing('location.country');
+
+        $location = $invoice->location;
+
+        if (!$location) {
+            return null;
+        }
+
+        return [
+            'Line1' => mb_substr($location->address1 ?? '', 0, 41),
+            'Line2' => mb_substr($location->address2 ?? '', 0, 41),
+            'City' => mb_substr($location->city ?? '', 0, 31),
+            'CountrySubDivisionCode' => mb_substr($location->state ?? '', 0, 21),
+            'PostalCode' => mb_substr($location->postal_code ?? '', 0, 13),
+            'Country' => $location->country->iso_3166_3 ?? '',
+        ];
     }
 
 
@@ -592,11 +630,31 @@ class InvoiceTransformer extends BaseTransformer
         $tax_rate_map = $qb_service->company->quickbooks->settings->tax_rate_map ?? [];
 
         foreach ($invoice->calc()->getTaxMap() ?? [] as $tax) {
-            $tax_components = $qb_service->helper->splitTaxName($tax['name']);
-            $tax_rate_id = $this->findTaxRateIdByRateAndName($tax_rate_map, floatval($tax_components['percentage']), $tax_components['name']);
+            $tax_name = (string) $tax['name'];
+            $tax_rate = (float) $tax['tax_rate'];
+
+            $tax_rate_id = $this->findTaxRateIdByRateAndName(
+                $tax_rate_map,
+                $tax_rate,
+                $tax_name
+            );
 
             if (!$tax_rate_id) {
-                continue;
+                $qb_service->tax_rate->ensureTaxCodeForComponents([
+                    ['name' => $tax_name, 'rate' => $tax_rate],
+                ]);
+
+                $tax_rate_map = $qb_service->company->quickbooks->settings->tax_rate_map;
+
+                $tax_rate_id = $this->findTaxRateIdByRateAndName(
+                    $tax_rate_map,
+                    $tax_rate,
+                    $tax_name
+                );
+            }
+
+            if (!$tax_rate_id) {
+                throw new \RuntimeException("QuickBooks TaxRate unavailable: {$tax_name} ({$tax_rate}%)");
             }
 
             $tax_lines[] = [
@@ -606,9 +664,11 @@ class InvoiceTransformer extends BaseTransformer
                     'TaxRateRef' => [
                         'value' => $tax_rate_id,
                     ],
-                    'PercentBased' => false,
+                    // 'PercentBased' => false,
+                    'PercentBased' => true,
+                    'TaxPercent' => $tax_rate,
                     'NetAmountTaxable' => round($tax['base_amount'], 2),
-                    'TaxInclusiveAmount' => 0.00,
+                    // 'TaxInclusiveAmount' => 0.00,
                 ],
             ];
 

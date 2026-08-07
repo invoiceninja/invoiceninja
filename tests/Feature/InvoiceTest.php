@@ -565,6 +565,38 @@ class InvoiceTest extends TestCase
             ->assertStatus(200);
     }
 
+    public function testInvoiceRedirectUrlRedirectsAfterPaymentAndIsCleared(): void
+    {
+        $redirect_url = 'https://example.com/invoice-paid?status=success';
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/invoices/'.$this->invoice->hashed_id.'?redirect='.rawurlencode($redirect_url), [
+            'client_id' => $this->client->hashed_id,
+        ])->assertStatus(200);
+
+        $this->assertSame($redirect_url, Invoice::find($this->invoice->id)->backup->redirect);
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/invoices/'.$this->invoice->hashed_id.'?amount_paid='.$this->invoice->balance, [
+            'client_id' => $this->client->hashed_id,
+        ])->assertStatus(200);
+
+        $payment = Invoice::find($this->invoice->id)->payments()->first();
+
+        $this->assertNotNull($payment);
+
+        $this->actingAs($this->contact, 'contact');
+
+        $this->get(route('client.payments.show', ['payment' => $payment->hashed_id]))
+            ->assertRedirect($redirect_url);
+
+        $this->assertNull(Invoice::find($this->invoice->id)->backup->redirect);
+    }
+
     public function testPostNewInvoice()
     {
         $invoice = [

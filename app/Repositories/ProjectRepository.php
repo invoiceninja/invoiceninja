@@ -16,12 +16,75 @@ use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
 use App\Models\Product;
 use App\Models\Invoice;
+use App\Models\Project;
+use App\Utils\Traits\GeneratesCounter;
+use Illuminate\Database\QueryException;
 
 /**
  * Class for project repository.
  */
 class ProjectRepository extends BaseRepository
 {
+    use GeneratesCounter;
+
+    public function save(array $data, Project $project): ?Project
+    {
+        $tag_ids = $this->resolveTagIdsForSync($data, $project);
+        $is_new_project = ! $project->exists;
+
+        $project->fill($data);
+
+        if (! $is_new_project && empty($project->number)) {
+            $project = $this->saveProjectNumber($project);
+        } else {
+            $project->saveQuietly();
+        }
+
+        if ($is_new_project && empty($project->number)) {
+            $project = $this->saveProjectNumber($project);
+        }
+
+        if (array_key_exists('documents', $data)) {
+            $this->saveDocuments($data['documents'], $project, $data['is_public'] ?? true);
+        }
+
+        $this->syncResolvedTags($project, $tag_ids);
+
+        return $project;
+    }
+
+    private function saveProjectNumber(Project $project): Project
+    {
+        for ($attempt = 1; $attempt <= 50; $attempt++) {
+            try {
+                $project->number = $this->getNextProjectNumber($project);
+                $project->saveQuietly();
+
+                return $project;
+            } catch (QueryException $e) {
+                if (! $this->isDuplicateNumberException($e) || $attempt === 50) {
+                    throw $e;
+                }
+            }
+        }
+
+        return $project;
+    }
+
+    private function isDuplicateNumberException(QueryException $e): bool
+    {
+        $sql_state = (string) ($e->errorInfo[0] ?? $e->getCode());
+        $driver_code = (string) ($e->errorInfo[1] ?? '');
+        $message = strtolower($e->getMessage());
+
+        return $sql_state === '23505'
+            || $driver_code === '1062'
+            || $driver_code === '2067'
+            || str_contains($message, 'duplicate')
+            || str_contains($message, 'unique constraint')
+            || str_contains($message, 'unique violation');
+    }
+
     /**
      * Invoices a collection of projects into a single invoice.
      *

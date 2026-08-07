@@ -44,6 +44,11 @@ class CreditDecorator implements DecoratorInterface
 
     }
 
+    public function tags(Credit $credit): string
+    {
+        return $credit->tags->pluck('name')->implode(', ');
+    }
+
     public function date(Credit $credit)
     {
         return $credit->date ?? '';
@@ -138,7 +143,7 @@ class CreditDecorator implements DecoratorInterface
     }
     public function user_id(Credit $credit)
     {
-        return $credit->user ? $credit->user->present()->name() : '';
+        return $credit->user->present()->name() ?? '';
     }
 
 }

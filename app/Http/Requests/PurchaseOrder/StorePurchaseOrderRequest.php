@@ -23,6 +23,9 @@ class StorePurchaseOrderRequest extends Request
     use MakesHash;
     use CleanLineItems;
 
+    /** @var class-string */
+    protected ?string $tag_entity_type = PurchaseOrder::class;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -47,7 +50,6 @@ class StorePurchaseOrderRequest extends Request
 
         $rules = [];
 
-        $rules['vendor_id'] = 'bail|required|exists:vendors,id,company_id,' . $user->company()->id . ',is_deleted,0';
         $rules['client_id'] = ['nullable', 'bail', 'integer', Rule::exists('clients', 'id')->where('company_id', $user->company()->id)->where('is_deleted', 0)];
 
         $rules['number'] = ['nullable', Rule::unique('purchase_orders')->where('company_id', $user->company()->id)];
@@ -74,7 +76,10 @@ class StorePurchaseOrderRequest extends Request
         $rules['custom_surcharge4'] = ['sometimes', 'nullable', 'bail', 'numeric', 'max:99999999999999'];
         $rules['location_id'] = ['nullable', 'sometimes', 'bail', Rule::exists('locations', 'id')->where('company_id', $user->company()->id)->where('vendor_id', $this->vendor_id)];
 
+        $rules = $this->globalRules($rules);
+        $rules['vendor_id'] = 'bail|required|exists:vendors,id,company_id,' . $user->company()->id . ',is_deleted,0';
         return $rules;
+
     }
 
     public function prepareForValidation()

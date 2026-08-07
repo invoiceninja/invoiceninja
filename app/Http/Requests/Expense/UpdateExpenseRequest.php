@@ -13,6 +13,7 @@
 namespace App\Http\Requests\Expense;
 
 use App\Http\Requests\Request;
+use App\Models\Expense;
 use App\Models\Project;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
@@ -22,6 +23,9 @@ class UpdateExpenseRequest extends Request
 {
     use MakesHash;
     use ChecksEntityStatus;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = Expense::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -54,7 +58,6 @@ class UpdateExpenseRequest extends Request
 
         $rules['category_id'] = 'bail|sometimes|nullable|exists:expense_categories,id,company_id,' . $user->company()->id . ',is_deleted,0';
         $rules['transaction_id'] = 'bail|sometimes|nullable|exists:bank_transactions,id,company_id,' . $user->company()->id;
-        $rules['invoice_id'] = 'bail|sometimes|nullable|exists:invoices,id,company_id,' . $user->company()->id;
         $rules['documents'] = 'bail|sometimes|array';
         $rules['documents.*'] = $this->fileValidation();
         $rules['amount'] = ['sometimes', 'bail', 'nullable', 'numeric', 'max:99999999999999'];
@@ -62,7 +65,11 @@ class UpdateExpenseRequest extends Request
         $rules['file'] = 'bail|sometimes|array';
         $rules['file.*'] = $this->fileValidation();
 
-        return $this->globalRules($rules);
+        $rules = $this->globalRules($rules);
+
+        $rules['invoice_id'] = 'bail|sometimes|nullable|exists:invoices,id,company_id,' . $user->company()->id;
+
+        return $rules;
     }
 
     public function prepareForValidation()

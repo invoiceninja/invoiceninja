@@ -124,14 +124,19 @@ class CreditLines
         $this->name = $name;
         $this->order_line_reference_line_id = $order_line_reference_line_id;
         $this->invoice_period = $invoice_period;
-        $this->item_price = $item_price;
-        $this->quantity = $quantity * -1;
+        // Storecove represents a credit as a NEGATIVE INVOICE: quantity stays
+        // POSITIVE and every monetary/price field is NEGATIVE. Enforced with
+        // abs()/-abs() so both real Credits and negative Invoices — whose signs
+        // arrive differently from the Peppol layer (normalizeAmount flips a
+        // negative invoice's quantity) — serialise to an identical payload.
+        $this->item_price = is_null($item_price) ? null : -abs($item_price);
+        $this->quantity = is_null($quantity) ? null : abs($quantity);
         $this->base_quantity = $base_quantity;
         $this->quantity_unit_code = $quantity_unit_code;
         $this->allowance_charges = $allowance_charges;
-        $this->amount_excluding_vat = $amount_excluding_vat * -1;
-        $this->amount_excluding_tax = $amount_excluding_tax;
-        $this->amount_including_tax = $amount_including_tax;
+        $this->amount_excluding_vat = is_null($amount_excluding_vat) ? null : -abs($amount_excluding_vat);
+        $this->amount_excluding_tax = is_null($amount_excluding_tax) ? null : -abs($amount_excluding_tax);
+        $this->amount_including_tax = is_null($amount_including_tax) ? null : -abs($amount_including_tax);
         $this->taxes_duties_fees = $taxes_duties_fees;
         $this->accounting_cost = $accounting_cost;
         $this->references = $references;
@@ -176,7 +181,7 @@ class CreditLines
 
     public function getQuantity(): ?float
     {
-        return $this->quantity * -1;
+        return $this->quantity;
     }
 
     public function getBaseQuantity(): ?float

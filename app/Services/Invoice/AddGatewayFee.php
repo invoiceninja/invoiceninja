@@ -39,7 +39,8 @@ class AddGatewayFee extends AbstractService
 
     private function processGatewayFee($gateway_fee)
     {
-        $balance = $this->invoice->balance;
+        /** Baseline must be the committed row, not a possibly stale in-memory model. */
+        $balance = (float) (Invoice::withTrashed()->where('id', $this->invoice->id)->value('balance') ?? $this->invoice->balance);
 
         App::forgetInstance('translator');
         $t = app('translator');
@@ -90,7 +91,8 @@ class AddGatewayFee extends AbstractService
 
     private function processGatewayDiscount($gateway_fee)
     {
-        $balance = $this->invoice->balance;
+        /** Baseline must be the committed row, not a possibly stale in-memory model. */
+        $balance = (float) (Invoice::withTrashed()->where('id', $this->invoice->id)->value('balance') ?? $this->invoice->balance);
 
         App::forgetInstance('translator');
         $t = app('translator');
@@ -125,7 +127,7 @@ class AddGatewayFee extends AbstractService
             ->ledger()
             ->updateInvoiceBalance($adjustment * -1, 'Adjustment for adding gateway DISCOUNT');
 
-            $this->invoice->client->service()->updateBalance($adjustment * -1);
+            $this->invoice->client->service()->updateBalance($adjustment);
 
         }
 

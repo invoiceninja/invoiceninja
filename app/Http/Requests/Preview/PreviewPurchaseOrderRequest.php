@@ -96,7 +96,7 @@ class PreviewPurchaseOrderRequest extends Request
     public function getVendor(): ?Vendor
     {
         if (!$this->vendor) {
-            $this->vendor = Vendor::query()->with('contacts', 'company', 'user')->withTrashed()->find($this->vendor_id);
+            $this->vendor = Vendor::query()->with('contacts', 'company', 'user', 'tags')->withTrashed()->find($this->vendor_id);
         }
 
         return $this->vendor;
@@ -111,7 +111,7 @@ class PreviewPurchaseOrderRequest extends Request
 
     public function stubInvitation()
     {
-        $vendor = Vendor::query()->with('contacts', 'company', 'user')->withTrashed()->find($this->vendor_id);
+        $vendor = Vendor::query()->with('contacts', 'company', 'user', 'tags')->withTrashed()->find($this->vendor_id);
         $this->setVendor($vendor);
         $invitation = false;
 

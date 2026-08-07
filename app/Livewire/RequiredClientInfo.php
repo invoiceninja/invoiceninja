@@ -18,6 +18,7 @@ use App\Libraries\MultiDB;
 use Illuminate\Support\Str;
 use App\Models\ClientContact;
 use App\Models\CompanyGateway;
+use App\Services\Client\RFFService;
 use App\Utils\Traits\MakesHash;
 use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\Cache;
@@ -278,17 +279,7 @@ class RequiredClientInfo extends Component
             $query->without('gateway_tokens', 'documents', 'contacts.company', 'contacts'); // Exclude 'grandchildren' relation of 'client'
         }])->find($this->contact_id);
 
-        $rules = [];
-
-        collect($this->fields)->map(function ($field) use (&$rules) {
-            if (! array_key_exists('filled', $field)) {
-                $rules[$field['name']] = array_key_exists('validation_rules', $field)
-                    ? $field['validation_rules']
-                    : 'required';
-            }
-        });
-
-        $validator = Validator::make($data, $rules);
+        $validator = Validator::make($data, RFFService::rulesForFields($this->fields));
 
         if ($validator->fails()) {
             session()->flash('validation_errors', $validator->getMessageBag()->getMessages());
@@ -389,28 +380,9 @@ class RequiredClientInfo extends Component
         MultiDB::setDb($this->db);
         $_contact = ClientContact::withTrashed()->find($this->contact_id);
 
-        foreach ($this->fields as $index => $field) {
-            $_field = $this->mappings[$field['name']];
-
-            if (Str::startsWith($field['name'], 'client_')) {
-                if (empty($_contact->client->{$_field})
-                   || is_null($_contact->client->{$_field})
-                ) {
-                    // $this->show_form = true;
-                    $this->unfilled_fields++;
-                } else {
-                    // $this->fields[$index]['filled'] = true;
-                }
-            }
-
-            if (Str::startsWith($field['name'], 'contact_')) {
-                if (empty($_contact->{$_field}) || is_null($_contact->{$_field}) || str_contains($_contact->{$_field}, '@example.com')) {
-                    $this->unfilled_fields++;
-                } else {
-                    // $this->fields[$index]['filled'] = true;
-                }
-            }
-        }
+        $this->unfilled_fields = RFFService::passesExistingValues($_contact, $this->fields)
+            ? 0
+            : count($this->fields);
 
         if ($this->unfilled_fields === 0 && (!$this->company_gateway->always_show_required_fields || $this->is_subscription)) {
             $this->dispatch(
@@ -418,7 +390,6 @@ class RequiredClientInfo extends Component
                 client_postal_code: $_contact->client->postal_code
             );
         }
-
     }
 
     public function showCopyBillingCheckbox(): bool

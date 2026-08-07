@@ -14,8 +14,12 @@
         <input type="hidden" name="amount" value="{{ $amount }}">
         <input type="hidden" name="item_name" value="{{ $item_name }}">
         <input type="hidden" name="item_description" value="{{ $item_description}}">
-        <input type="hidden" name="passphrase" value="{{ $passphrase }}"> 
-        <input type="hidden" name="signature" value="{{ $signature }}">    
+        <input type="hidden" name="custom_int1" value="1" @disabled(!$tokenize)>
+        <input type="hidden" name="payment_method" value="cc" @disabled(!$tokenize)>
+        <input type="hidden" name="subscription_type" value="2" @disabled(!$tokenize)>
+        <input type="hidden" name="signature" value="{{ $signature }}">
+        <input type="hidden" data-signature="standard" value="{{ $standard_signature }}">
+        <input type="hidden" data-signature="tokenized" value="{{ $tokenized_signature }}">
         
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->company_gateway->id }}">
@@ -32,31 +36,31 @@
     @include('portal.ninja2020.gateways.includes.payment_details')
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
-     <ul class="list-none space-y-2">
+     <ul class="payment-method-list">
         @if(count($tokens) > 0)
             @foreach($tokens as $token)
-             <li class="py-2 hover:bg-gray-100 rounded transition-colors duration-150">
-                <label class="flex items-center cursor-pointer px-2">
+             <li class="payment-method-item">
+                <label class="payment-method-label">
                     <input
                         type="radio"
                         data-token="{{ $token->token }}"
                         name="payment-type"
-                        class="form-radio text-indigo-600 rounded-full cursor-pointer toggle-payment-with-token"/>
-                    <span class="ml-2 cursor-pointer">**** {{ $token->meta?->last4 }}</span>
+                        class="form-radio cursor-pointer toggle-payment-with-token"/>
+                    <span class="ml-1">**** {{ $token->meta?->last4 }}</span>
                 </label>
             </li>
             @endforeach
         @endisset
 
-        <li class="py-2 hover:bg-gray-100 rounded transition-colors duration-150">
-            <label class="flex items-center cursor-pointer px-2">
+        <li class="payment-method-item">
+            <label class="payment-method-label">
                 <input
                     type="radio"
                     id="toggle-payment-with-credit-card"
-                    class="form-radio text-indigo-600 rounded-full cursor-pointer"
+                    class="form-radio cursor-pointer"
                     name="payment-type"
                     checked/>
-                <span class="ml-2 cursor-pointer">{{ __('texts.new_card') }}</span>
+                <span class="ml-1">{{ __('texts.new_card') }}</span>
             </label>
         </li>
     </ul>
@@ -99,6 +103,16 @@
                 form.action = "{{ route('client.payments.response') }}";
                 document.querySelector('input[name=token]').value = selectedToken.value;
             } else {
+                const storeCard = form.querySelector('input[name="token-billing-checkbox"]:checked')?.value === 'true';
+
+                ['custom_int1', 'payment_method', 'subscription_type'].forEach((name) => {
+                    form.querySelector(`input[name="${name}"]`).disabled = !storeCard;
+                });
+
+                form.querySelector('input[name="signature"]').value = form.querySelector(
+                    `[data-signature="${storeCard ? 'tokenized' : 'standard'}"]`
+                ).value;
+
                 const endpointUrl = document.getElementById('payment_endpoint_url');
                 if (endpointUrl) {
                     form.action = endpointUrl.value;

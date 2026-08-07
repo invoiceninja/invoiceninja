@@ -19,6 +19,7 @@ use Illuminate\Support\Collection;
 use App\DataMapper\TransactionEventMetadata;
 use App\Services\Report\TaxPeriod\TaxClassificationCalculator;
 use App\Services\Report\TaxPeriod\SalesBreakdownCalculator;
+use App\Services\Payment\PaymentApplicationDateResolver;
 
 /**
  * Handles entries for invoices.
@@ -102,22 +103,21 @@ class InvoiceTransactionEventEntry
         }
 
         // nlog("invoice amount => {$invoice->amount}");
-        $this->payments = $invoice->payments->map(function ($payment) use ($invoice) {
-
-            /** @var \App\Models\Paymentable $pivot */
-            $pivot = $payment->invoices()->where('paymentable_id', $invoice->id)->first()?->pivot;
-
-            if (!$pivot) {
-                return null;
-            }
-
-            return [
-                'number' => $payment->number,
-                'amount' => $pivot->amount,
-                'refunded' => $pivot->refunded,
-                'date' => $pivot->created_at->format('Y-m-d'),
-            ];
-        })->filter();
+        $timezone = $invoice->company->timezone()?->name ?: config('app.timezone');
+        $this->payments = $invoice->paymentables()
+            ->withTrashed()
+            ->with(['payment' => fn ($query) => $query->withTrashed()])
+            ->get()
+            ->filter(fn ($paymentable): bool => (bool) $paymentable->payment)
+            ->map(fn ($paymentable): array => [
+                'paymentable_id' => (int) $paymentable->id,
+                'number' => (string) $paymentable->payment->number,
+                'amount' => (float) $paymentable->amount,
+                'refunded' => (float) $paymentable->refunded,
+                'date' => app(PaymentApplicationDateResolver::class)->resolve($paymentable, $timezone),
+                'exchange_rate' => (float) ($paymentable->payment->exchange_rate ?: 1),
+                'currency_id' => (int) $paymentable->payment->currency_id,
+            ]);
 
         TransactionEvent::create([
             'company_id' => $invoice->company_id,

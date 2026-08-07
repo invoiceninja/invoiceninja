@@ -31,7 +31,7 @@ class TaskDecorator extends Decorator implements DecoratorInterface
 
         if ($task && method_exists($this, $key)) {
             return $this->{$key}($task);
-        } elseif ($task && $task->{$key} ?? false) {
+        } elseif ($task && ($task->{$key} ?? false)) {
             return $task->{$key};
         }
 
@@ -138,10 +138,10 @@ class TaskDecorator extends Decorator implements DecoratorInterface
 
     public function user_id(Task $task)
     {
-        return $task->user ? $task->user->present()->name() : '';
+        return $task->user->present()->name() ?? '';
     }
 
-    public function tags(Task $task): string
+    public function tags(mixed $task): string
     {
         return $task->tags->pluck('name')->implode(', ');
     }

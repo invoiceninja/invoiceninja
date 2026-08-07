@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\EInvoice\Validation;
 
+use App\Models\Country;
 use Tests\TestCase;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\EInvoice\Peppol\StoreEntityRequest;
@@ -13,6 +14,13 @@ class CreateRequestTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $germany = new Country();
+        $germany->setRawAttributes([
+            'id' => 276,
+            'iso_3166_2' => 'DE',
+            'name' => 'Germany',
+        ], true);
+        app()->instance('countries', collect([$germany]));
         $this->request = new StoreEntityRequest();
     }
 
@@ -113,5 +121,47 @@ class CreateRequestTest extends TestCase
         $request->prepareForValidation();
 
         $this->assertEquals('DE', $request->input('country'));
+    }
+
+    public function testFrenchBusinessRequiresAVatNumberWithAValidSiren(): void
+    {
+        $data = $this->validFrenchBusinessData();
+        $data['vat_number'] = 'FR00123456789';
+
+        $this->request->initialize($data);
+        $validator = Validator::make($data, $this->request->rules());
+
+        $this->assertFalse($validator->passes());
+        $this->assertArrayHasKey('vat_number', $validator->errors()->toArray());
+    }
+
+    public function testFrenchBusinessAcceptsAValidSirenDerivedFromVat(): void
+    {
+        $data = $this->validFrenchBusinessData();
+
+        $this->request->initialize($data);
+        $validator = Validator::make($data, $this->request->rules());
+
+        $this->assertTrue($validator->passes());
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function validFrenchBusinessData(): array
+    {
+        return [
+            'party_name' => 'French Test Company',
+            'line1' => '1 Rue de Test',
+            'city' => 'Paris',
+            'country' => 'FR',
+            'zip' => '75001',
+            'county' => 'Paris',
+            'acts_as_sender' => true,
+            'acts_as_receiver' => true,
+            'tenant_id' => 'french-test-company',
+            'classification' => 'business',
+            'vat_number' => 'FR44732829320',
+        ];
     }
 }

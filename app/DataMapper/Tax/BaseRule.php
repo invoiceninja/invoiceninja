@@ -260,7 +260,7 @@ class BaseRule implements RuleInterface
         $this->client_region = $this->region_codes[$this->client->country->iso_3166_2 ?? $this->client->company->country()->iso_3166_2];
 
         match ($this->client_region) {
-            'US' => $this->client_subregion = isset($this->invoice?->client?->tax_data?->geoState) ? $this->invoice->client->tax_data->geoState : $this->getUSState(),
+            'US' => $this->client_subregion = $this->invoice->client->tax_data->geoState ?? $this->getUSState(),
             'EU' => $this->client_subregion = $this->client->country->iso_3166_2,
             'AU' => $this->client_subregion = 'AU',
             'UK' => $this->client_subregion = 'GB',
@@ -312,7 +312,7 @@ class BaseRule implements RuleInterface
 
             return $this;
 
-        } elseif ($this->client_region == 'US' && isset($this->tax_data?->taxSales)) {
+        } elseif ($this->client_region == 'US' && isset($this->tax_data->taxSales)) {
 
             $this->tax_rate1 = $this->tax_data->taxSales * 100;
             $this->tax_name1 = "{$this->tax_data->geoState} Sales Tax";

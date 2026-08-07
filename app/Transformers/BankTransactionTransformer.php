@@ -77,6 +77,7 @@ class BankTransactionTransformer extends EntityTransformer
             'created_at' => (int) $bank_transaction->created_at,
             'updated_at' => (int) $bank_transaction->updated_at,
             'archived_at' => (int) $bank_transaction->deleted_at,
+            'tags' => $this->transformTags($bank_transaction),
         ];
     }
 

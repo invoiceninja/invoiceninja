@@ -18,6 +18,7 @@ use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\MakesHash;
 use App\DataMapper\FeesAndLimits;
 use App\Models\Traits\Excludable;
+use App\Models\Traits\HasTags;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use Illuminate\Support\Facades\App;
@@ -75,7 +76,7 @@ use Illuminate\Contracts\Translation\HasLocalePreference;
  * @property int|null $shipping_country_id
  * @property object|null $settings
  * @property object|null $group_settings
- * @property object|null $sync
+ * @property ClientSync|null $sync
  * @property bool $is_deleted
  * @property int|null $group_settings_id
  * @property string|null $vat_number
@@ -113,6 +114,7 @@ use Illuminate\Contracts\Translation\HasLocalePreference;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoice> $recurring_invoices
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Location> $locations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
  * @method static \Illuminate\Database\Eloquent\Builder|Client exclude($columns)
  * @method static \Database\Factories\ClientFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Client filter(\App\Filters\QueryFilters $filters)
@@ -136,6 +138,7 @@ class Client extends BaseModel implements HasLocalePreference
     use ClientGroupSettingsSaver;
     use Excludable;
     use Searchable;
+    use HasTags;
 
     /**
      * Get the index name for the model.
@@ -299,6 +302,7 @@ class Client extends BaseModel implements HasLocalePreference
             'custom_value3' => $this->custom_value3,
             'custom_value4' => $this->custom_value4,
             'company_key' => $this->company->company_key,
+            'tags' => $this->tags->pluck('name')->values()->all(),
         ];
     }
 

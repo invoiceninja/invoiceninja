@@ -2907,4 +2907,82 @@ class PeppolTest extends TestCase
         );
     }
 
+    private function setupValidatedClient(): Client
+    {
+        $entity_data = $this->setupTestData($this->blankItemScenario());
+
+        $client = $entity_data['client'];
+        $client->address1 = 'Test Address';
+        $client->city = 'Test City';
+        $client->postal_code = '12345';
+        $client->save();
+
+        return $client;
+    }
+
+    /**
+     * A negative price on a negative invoice (emitted as a credit note) must
+     * surface a clear, actionable message rather than falling through to an
+     * opaque schematron failure.
+     */
+    public function testNegativeLinePriceOnNegativeInvoiceIsRejected(): void
+    {
+        $client = $this->setupValidatedClient();
+
+        $invoice = $this->buildAndSave([$this->makeRealItem('Widget A', -100, 1)]);
+        $invoice->setRelation('client', $client);
+
+        $this->assertLessThan(0, $invoice->amount, 'Fixture must produce a negative invoice total');
+
+        $result = (new EntityLevel())->checkInvoice($invoice);
+
+        $this->assertFalse($result['passes'], 'Negative line price must fail Peppol validation');
+
+        $fields = array_column($result['invoice'], 'field');
+        $this->assertContains('negative_line_price', $fields, 'Should surface the negative_line_price error');
+    }
+
+    /**
+     * Negative prices are invalid for Peppol regardless of document type - a
+     * negative line on an otherwise positive invoice must be rejected too, not
+     * just on credit-note-proxied negative invoices.
+     */
+    public function testNegativeLinePriceOnPositiveInvoiceIsRejected(): void
+    {
+        $client = $this->setupValidatedClient();
+
+        // Net positive total, but one line carries a negative price.
+        $invoice = $this->buildAndSave([
+            $this->makeRealItem('Widget A', 100, 1),
+            $this->makeRealItem('Widget B', -10, 1),
+        ]);
+        $invoice->setRelation('client', $client);
+
+        $this->assertGreaterThan(0, $invoice->amount, 'Fixture must produce a positive invoice total');
+
+        $result = (new EntityLevel())->checkInvoice($invoice);
+
+        $fields = array_column($result['invoice'], 'field');
+        $this->assertContains('negative_line_price', $fields, 'Negative price must be rejected even on a positive invoice');
+    }
+
+    /**
+     * A legitimately-built negative invoice — positive price, negative quantity —
+     * proxies cleanly to a credit note and must NOT trip the negative-price guard.
+     */
+    public function testNegativeInvoiceWithPositivePriceDoesNotTripGuard(): void
+    {
+        $client = $this->setupValidatedClient();
+
+        $invoice = $this->buildAndSave([$this->makeRealItem('Widget A', 100, -1)]);
+        $invoice->setRelation('client', $client);
+
+        $this->assertLessThan(0, $invoice->amount, 'Fixture must produce a negative invoice total');
+
+        $result = (new EntityLevel())->checkInvoice($invoice);
+
+        $fields = array_column($result['invoice'], 'field');
+        $this->assertNotContains('negative_line_price', $fields, 'Positive prices must not trip the negative-price guard');
+    }
+
 }

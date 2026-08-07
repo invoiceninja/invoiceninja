@@ -36,6 +36,11 @@ class ProductDecorator implements DecoratorInterface
 
     }
 
+    public function tags(Product $product): string
+    {
+        return $product->tags->pluck('name')->implode(', ');
+    }
+
     /*
         public const PRODUCT_TYPE_PHYSICAL = 1;
         public const PRODUCT_TYPE_SERVICE = 2;

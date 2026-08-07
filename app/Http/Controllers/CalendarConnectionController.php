@@ -43,7 +43,11 @@ class CalendarConnectionController extends BaseController
     {
         MultiDB::findAndSetDbByCompanyKey($request->getTokenContent()['company_key']);
 
-        $url = $service->buildAuthorizationUrl($request->resolveUser(), $provider);
+        $url = $service->buildAuthorizationUrl(
+            $request->resolveUser(),
+            $provider,
+            $request->getTokenContent()['platform'] ?? null,
+        );
 
         return redirect()->to($url);
     }
@@ -53,24 +57,27 @@ class CalendarConnectionController extends BaseController
      *
      * Pure bouncepoint: never calls Socialite, never persists tokens. Stores
      * the provider state and code in a short-lived handoff cache entry, then
-     * forwards only that handoff token to the React SPA hash route.
+     * forwards only that handoff token to the client that started the flow
+     * (React / Flutter-web SPA hash route, or a native app's custom scheme).
      */
     public function callback(string $provider, Request $request, CalendarConnectionService $service): RedirectResponse
     {
+        $state = (string) $request->query('state', '');
+        $platform = $service->platformForState($state);
+
         if ($request->query('error')) {
-            return $this->redirectToReact($provider, 'denied');
+            return $this->redirectToClient($provider, 'denied', null, $platform);
         }
 
-        $state = (string) $request->query('state', '');
-        $code  = (string) $request->query('code', '');
+        $code = (string) $request->query('code', '');
 
         if ($state === '' || $code === '') {
-            return $this->redirectToReact($provider, 'failed');
+            return $this->redirectToClient($provider, 'failed', null, $platform);
         }
 
         $handoff = $service->cacheCallbackHandoff($provider, $state, $code);
 
-        return $this->redirectToReact($provider, 'pending', $handoff);
+        return $this->redirectToClient($provider, 'pending', $handoff, $platform);
     }
 
     /**
@@ -147,17 +154,33 @@ class CalendarConnectionController extends BaseController
         ]);
     }
 
-    private function redirectToReact(string $provider, string $status, ?string $handoff = null): RedirectResponse
+    /**
+     * Sends the user back to the client that started the flow, carrying the
+     * one-time handoff. Web clients (React or Flutter web) land on the SPA hash
+     * route via react_url; native apps land on an allow-listed custom scheme.
+     * Targets come from config — never from client input.
+     */
+    private function redirectToClient(string $provider, string $status, ?string $handoff = null, ?string $platform = null): RedirectResponse
     {
-        $baseUrl = rtrim(config('ninja.react_url') ?: config('ninja.app_url'), '/#');
-
         $params = ['calendar_connection' => $status, 'provider' => $provider];
 
         if ($handoff !== null) {
             $params['handoff'] = $handoff;
         }
 
-        return redirect()->away($baseUrl . '/#/calendar_connection/complete?' . http_build_query($params));
+        $query = http_build_query($params);
+
+        // Native: registered custom scheme (e.g. invoiceninja://calendar_connection/complete).
+        if ($platform === 'flutter_native' && ($scheme = config('ninja.calendar.native_redirect'))) {
+            $separator = str_contains($scheme, '?') ? '&' : '?';
+
+            return redirect()->away($scheme . $separator . $query);
+        }
+
+        // Default: React / web clients (or unspecified) — existing behavior, untouched.
+        $baseUrl = rtrim(config('ninja.react_url') ?: config('ninja.app_url'), '/#');
+
+        return redirect()->away($baseUrl . '/#/calendar_connection/complete?' . $query);
     }
 
     private function user(): User

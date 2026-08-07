@@ -24,6 +24,7 @@ use App\Services\Recurring\RecurringService;
 use App\Utils\Traits\Recurring\HasRecurrence;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Presenters\RecurringInvoicePresenter;
+use App\Models\Traits\HasTags;
 use App\Models\Traits\IndexableItems;
 /**
  * Class for Recurring Invoices.
@@ -45,7 +46,7 @@ use App\Models\Traits\IndexableItems;
  * @property string|null $due_date
  * @property bool $is_deleted
  * @property bool $can_sign
- * @property array $line_items
+ * @property array|string|null $line_items
  * @property object|string|null $backup
  * @property string|null $footer
  * @property string|null $public_notes
@@ -62,6 +63,7 @@ use App\Models\Traits\IndexableItems;
  * @property string|null $custom_value2
  * @property string|null $custom_value3
  * @property string|null $custom_value4
+ * @property object|null $e_invoice
  * @property float $amount
  * @property float $balance
  * @property float|null $partial
@@ -128,6 +130,7 @@ use App\Models\Traits\IndexableItems;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $invitations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
  * @property bool $is_proforma
  * @mixin \Eloquent
  */
@@ -139,6 +142,7 @@ class RecurringInvoice extends BaseModel
     use HasRecurrence;
     use PresentableTrait;
     use Searchable;
+    use HasTags;
     use IndexableItems;
 
     protected $presenter = RecurringInvoicePresenter::class;
@@ -271,6 +275,8 @@ class RecurringInvoice extends BaseModel
         'terms',
         'footer',
         'remaining_cycles',
+        'auto_bill',
+        'auto_bill_enabled',
     ];
 
 
@@ -308,6 +314,7 @@ class RecurringInvoice extends BaseModel
             'custom_value4' => (string) $this->custom_value4,
             'company_key' => $this->company->company_key,
             'po_number' => (string) $this->po_number,
+            'tags' => $this->tags->pluck('name')->values()->all(),
             'line_items' => $this->indexLineItems(),
         ];
     }

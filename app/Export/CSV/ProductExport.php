@@ -75,6 +75,7 @@ class ProductExport extends BaseExport
         }
 
         $query = Product::query()
+                        ->with('tags')
                         ->withTrashed()
                         ->where('company_id', $this->company->id);
 
@@ -83,6 +84,7 @@ class ProductExport extends BaseExport
         }
 
         $query = $this->addDateRange($query, 'products');
+        $query = $this->addTagFilter($query);
         $query = $this->filterByUserPermissions($query);
 
         if ($this->input['document_email_attachment'] ?? false) {

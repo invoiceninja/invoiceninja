@@ -146,18 +146,8 @@ class ProjectTransformer extends EntityTransformer
             'color' => (string) $project->color ?: '',
             'current_hours' => (int) $project->current_hours ?: 0,
             'tags' => $this->transformTags($project),
+            'budgeted_amount' => (float) $project->budgeted_amount,
         ];
     }
 
-    /**
-     * @return array<int, array{id: string, name: string, color: string|null}>
-     */
-    private function transformTags(Project $project): array
-    {
-        return $project->tags->map(fn ($tag) => [
-            'id' => (string) $this->encodePrimaryKey($tag->id),
-            'name' => (string) $tag->name,
-            'color' => $tag->color,
-        ])->values()->all();
-    }
 }

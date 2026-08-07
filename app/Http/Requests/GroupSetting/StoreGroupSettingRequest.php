@@ -49,6 +49,11 @@ class StoreGroupSettingRequest extends Request
 
     public function withValidator($validator)
     {
+
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
+        
         $validator->after(function ($validator) {
 
             $user = auth()->user();
