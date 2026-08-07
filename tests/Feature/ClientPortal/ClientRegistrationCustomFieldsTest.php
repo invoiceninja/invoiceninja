@@ -32,7 +32,7 @@ class ClientRegistrationCustomFieldsTest extends TestCase
     use DatabaseTransactions;
     use AppSetup;
 
-    private $faker;
+    public $faker;
 
     private Account $account;
 
@@ -45,6 +45,7 @@ class ClientRegistrationCustomFieldsTest extends TestCase
         parent::setUp();
 
         $this->faker = Factory::create();
+
         $this->withoutMiddleware([
             VerifyCsrfToken::class,
             ThrottleRequests::class,
@@ -277,9 +278,9 @@ class ClientRegistrationCustomFieldsTest extends TestCase
         ], $overrides);
     }
 
-    public function tearDown(): void
-    {
-        $this->account->delete();
-        parent::tearDown();
-    }
+    // public function tearDown(): void
+    // {
+    //     // $this->account->delete();
+    //     // parent::tearDown();
+    // }
 }
