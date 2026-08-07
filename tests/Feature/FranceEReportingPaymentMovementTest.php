@@ -2857,7 +2857,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $settings->vat_number = "FR84345678911";
         $settings->id_number = "12345678900012";
         $settings->classification = "business";
-        $settings->email = $this->faker->safeEmail();
+        $settings->email = uniqid('testuser') . '@gmail.com';
         $settings->currency_id = "3";
         $settings->e_invoice_type = "PEPPOL";
 
@@ -2951,7 +2951,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $settings->vat_number = 'FR12345678901';
         $settings->id_number = '12345678900012';
         $settings->e_invoice_type = 'PEPPOL';
-        $settings->email = $this->faker->safeEmail();
+        $settings->email = uniqid('testuser') . '@gmail.com';
 
         $taxData = new TaxModel();
         $taxData->regions->EU->tax_all_subregions = true;
@@ -3019,7 +3019,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
             'user_id' => $client->user_id,
             'is_primary' => true,
             'send_email' => true,
-            'email' => $this->faker->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         $client->setRelation('company', $this->company);

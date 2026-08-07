@@ -265,7 +265,7 @@ class ClientRegistrationCustomFieldsTest extends TestCase
 
     private function validPayload(array $overrides = []): array
     {
-        $email = uniqid('testuser.') . '@gmail.com';
+        $email = uniqid('testuser') . '@gmail.com';
 
         return array_merge([
             'company_key' => $this->company->company_key,

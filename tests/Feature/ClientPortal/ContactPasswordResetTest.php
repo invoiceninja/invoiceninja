@@ -59,7 +59,7 @@ class ContactPasswordResetTest extends TestCase
 
         $this->user = User::factory()->create([
             'account_id' => $this->account->id,
-            'email' => $this->faker->unique()->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         $this->company = Company::factory()->create([
@@ -78,7 +78,7 @@ class ContactPasswordResetTest extends TestCase
             'user_id' => $this->user->id,
             'client_id' => $this->client->id,
             'company_id' => $this->company->id,
-            'email' => $this->faker->unique()->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
             'password' => Hash::make('original-password'),
             'token' => Str::random(10),
         ]);
@@ -238,7 +238,7 @@ class ContactPasswordResetTest extends TestCase
     {
         $originalToken = $this->contact->token;
 
-        $this->requestPasswordReset('nonexistent-user@example.com');
+        $this->requestPasswordReset('nonexistent-user@gmail.com');
 
         $this->contact->refresh();
         $this->assertEquals($originalToken, $this->contact->token);

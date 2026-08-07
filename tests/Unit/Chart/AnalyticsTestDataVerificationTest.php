@@ -58,7 +58,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
         $this->artisan('ninja:create-analytics-test-data', ['--refresh' => true]);
 
         $this->analyticsCompany = Company::where('settings->name', 'Analytics')->firstOrFail();
-        $this->analyticsUser = User::where('email', 'analytics@example.com')->firstOrFail();
+        $this->analyticsUser = User::where('email', 'analytics@gmail.com')->firstOrFail();
 
         $year = now()->year;
         $this->startDate = "{$year}-01-01";

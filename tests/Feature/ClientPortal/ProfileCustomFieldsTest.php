@@ -55,7 +55,7 @@ class ProfileCustomFieldsTest extends TestCase
 
         $this->user = User::factory()->create([
             'account_id' => $this->account->id,
-            'email' => $this->faker->unique()->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         $this->company = Company::factory()->create([
@@ -101,7 +101,7 @@ class ProfileCustomFieldsTest extends TestCase
             'user_id' => $this->user->id,
             'client_id' => $this->client->id,
             'company_id' => $this->company->id,
-            'email' => $this->faker->unique()->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
             'password' => Hash::make('password'),
             'is_primary' => true,
         ]);
@@ -134,7 +134,7 @@ class ProfileCustomFieldsTest extends TestCase
             'user_id' => $this->user->id,
             'client_id' => $emptyClient->id,
             'company_id' => $this->company->id,
-            'email' => $this->faker->unique()->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
             'password' => Hash::make('password'),
             'is_primary' => true,
         ]);

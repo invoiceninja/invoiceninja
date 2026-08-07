@@ -166,7 +166,7 @@ class UpdateCompanyUserTest extends TestCase
         $other_user = User::factory()->create([
             'account_id' => $this->account->id,
             'confirmation_code' => $this->createDbHash(config('database.default')),
-            'email' => $this->faker->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         CompanyUserFactory::create($other_user->id, $this->company->id, $this->account->id)->save();

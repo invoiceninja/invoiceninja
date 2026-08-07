@@ -322,7 +322,7 @@ class RecordFranceEReportingTransactionTest extends TestCase
         $settings->vat_number = 'FR12345678901';
         $settings->id_number = '12345678900012';
         $settings->e_invoice_type = 'PEPPOL';
-        $settings->email = $this->faker->safeEmail();
+        $settings->email = uniqid('testuser') . '@gmail.com';
 
         $taxData = new TaxModel();
         $taxData->regions->EU->tax_all_subregions = true;
@@ -438,7 +438,7 @@ class RecordFranceEReportingTransactionTest extends TestCase
             'user_id' => $client->user_id,
             'is_primary' => true,
             'send_email' => true,
-            'email' => $this->faker->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         $client->setRelation('company', $this->company);

@@ -118,7 +118,7 @@ class DocumentSubmissionExtractUblTest extends TestCase
          </cac:PartyLegalEntity>
          <cac:Contact>
             <cbc:Name>Test Contact</cbc:Name>
-            <cbc:ElectronicMail>supplier@example.com</cbc:ElectronicMail>
+            <cbc:ElectronicMail>supplier@gmail.com</cbc:ElectronicMail>
          </cac:Contact>
       </cac:Party>
    </cac:AccountingSupplierParty>
@@ -147,7 +147,7 @@ class DocumentSubmissionExtractUblTest extends TestCase
          </cac:PartyLegalEntity>
          <cac:Contact>
             <cbc:Telephone>123456789</cbc:Telephone>
-            <cbc:ElectronicMail>customer@example.com</cbc:ElectronicMail>
+            <cbc:ElectronicMail>customer@gmail.com</cbc:ElectronicMail>
          </cac:Contact>
       </cac:Party>
    </cac:AccountingCustomerParty>

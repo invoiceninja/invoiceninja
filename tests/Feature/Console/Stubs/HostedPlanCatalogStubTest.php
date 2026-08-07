@@ -52,7 +52,7 @@ class HostedPlanCatalogStubTest extends TestCase
         $this->account = Account::factory()->create();
         $this->user = User::factory()->create([
             'account_id' => $this->account->id,
-            'email' => Str::random(32).'@example.com',
+            'email' => Str::random(32).'@gmail.com',
         ]);
 
         $settings = CompanySettings::defaults();
@@ -212,7 +212,7 @@ class HostedPlanCatalogStubTest extends TestCase
             $foreign_account = Account::factory()->create();
             $foreign_user = User::factory()->create([
                 'account_id' => $foreign_account->id,
-                'email' => Str::random(32).'@example.com',
+                'email' => Str::random(32).'@gmail.com',
             ]);
             $foreign_company = Company::factory()->create([
                 'account_id' => $foreign_account->id,

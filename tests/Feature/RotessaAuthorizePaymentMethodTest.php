@@ -83,7 +83,7 @@ class RotessaAuthorizePaymentMethodTest extends TestCase
             'name' => 'John Doe',
             'address_1' => '123 Main St',
             'city' => 'Toronto',
-            'email' => 'john@example.com',
+            'email' => 'john@gmail.com',
             'province_code' => 'NB',
             'postal_code' => 'A1A1A1',
             'authorization_type' => 'Online',

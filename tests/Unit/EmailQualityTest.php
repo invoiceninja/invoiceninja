@@ -69,7 +69,7 @@ class EmailQualityTest extends TestCase
         $nmo = new NinjaMailerObject();
         $nmo->mailable = new NinjaMailer($mail_obj);
         $nmo->company = $company;
-        $nmo->to_user = (object) ['email' => 'client@example.com'];
+        $nmo->to_user = (object) ['email' => 'client@gmail.com'];
         $nmo->settings = $this->makeSettings();
 
         return $nmo;
@@ -86,13 +86,13 @@ class EmailQualityTest extends TestCase
         $email_object->whitelabel = false;
         $email_object->invitation = null;
         $email_object->html_template = 'email.template.client';
-        $email_object->to = [new \Illuminate\Mail\Mailables\Address('test@example.com')];
+        $email_object->to = [new \Illuminate\Mail\Mailables\Address('test@gmail.com')];
         $email_object->documents = [];
 
         $nmo = new NinjaMailerObject();
         $nmo->mailable = new EmailMailable($email_object);
         $nmo->company = $company;
-        $nmo->to_user = (object) ['email' => 'client@example.com'];
+        $nmo->to_user = (object) ['email' => 'client@gmail.com'];
         $nmo->settings = $this->makeSettings();
 
         return $nmo;
@@ -156,7 +156,7 @@ class EmailQualityTest extends TestCase
     {
         $company = $this->makeCompanyMock();
         $nmo = $this->buildNinjaMailerNmo('Your invoice', 'Body.', $company);
-        $nmo->to_user = (object) ['email' => 'user%exploit@example.com'];
+        $nmo->to_user = (object) ['email' => 'user%exploit@gmail.com'];
 
         $eq = new EmailQuality($nmo, $company);
         // Percent emails get flagged via notification but don't return true unless other checks hit
@@ -177,7 +177,7 @@ class EmailQualityTest extends TestCase
         $email_object->whitelabel = false;
         $email_object->invitation = null;
         $email_object->html_template = 'email.template.client';
-        $email_object->to = [new \Illuminate\Mail\Mailables\Address('test@example.com')];
+        $email_object->to = [new \Illuminate\Mail\Mailables\Address('test@gmail.com')];
         $email_object->documents = [];
 
         $mailable = new EmailMailable($email_object);
@@ -185,7 +185,7 @@ class EmailQualityTest extends TestCase
         $nmo = new NinjaMailerObject();
         $nmo->mailable = $mailable;
         $nmo->company = $company;
-        $nmo->to_user = (object) ['email' => 'client@example.com'];
+        $nmo->to_user = (object) ['email' => 'client@gmail.com'];
         $nmo->settings = $this->makeSettings();
 
         // This would throw "Serialization of 'Closure' is not allowed" with the old approach
@@ -209,7 +209,7 @@ class EmailQualityTest extends TestCase
         $nmo = new NinjaMailerObject();
         $nmo->mailable = $mailable;
         $nmo->company = $company;
-        $nmo->to_user = (object) ['email' => 'client@example.com'];
+        $nmo->to_user = (object) ['email' => 'client@gmail.com'];
         $nmo->settings = $this->makeSettings();
 
         $eq = new EmailQuality($nmo, $company);
@@ -225,7 +225,7 @@ class EmailQualityTest extends TestCase
     {
         $company = $this->makeCompanyMock();
         $nmo = $this->buildNinjaMailerNmo('Your invoice', 'Body.', $company);
-        $nmo->settings = $this->makeSettings('reply@example.com', 'Norton Support');
+        $nmo->settings = $this->makeSettings('reply@gmail.com', 'Norton Support');
 
         $eq = new EmailQuality($nmo, $company);
         $result = $eq->run();
@@ -253,7 +253,7 @@ class EmailQualityTest extends TestCase
         $nmo = new NinjaMailerObject();
         $nmo->mailable = $mailable;
         $nmo->company = $company;
-        $nmo->to_user = (object) ['email' => 'client@example.com'];
+        $nmo->to_user = (object) ['email' => 'client@gmail.com'];
         $nmo->settings = $this->makeSettings();
 
         $eq = new EmailQuality($nmo, $company);
@@ -276,14 +276,14 @@ class EmailQualityTest extends TestCase
         $email_object->whitelabel = false;
         $email_object->invitation = null;
         $email_object->html_template = 'email.admin.generic';
-        $email_object->to = [new \Illuminate\Mail\Mailables\Address('test@example.com')];
+        $email_object->to = [new \Illuminate\Mail\Mailables\Address('test@gmail.com')];
         $email_object->documents = [];
         $email_object->attachments = [];
 
         $nmo = new NinjaMailerObject();
         $nmo->mailable = new AdminEmailMailable($email_object);
         $nmo->company = $company;
-        $nmo->to_user = (object) ['email' => 'client@example.com'];
+        $nmo->to_user = (object) ['email' => 'client@gmail.com'];
         $nmo->settings = $this->makeSettings();
 
         $eq = new EmailQuality($nmo, $company);
@@ -303,14 +303,14 @@ class EmailQualityTest extends TestCase
         $email_object->whitelabel = false;
         $email_object->invitation = null;
         $email_object->html_template = 'email.admin.generic';
-        $email_object->to = [new \Illuminate\Mail\Mailables\Address('test@example.com')];
+        $email_object->to = [new \Illuminate\Mail\Mailables\Address('test@gmail.com')];
         $email_object->documents = [];
         $email_object->attachments = [];
 
         $nmo = new NinjaMailerObject();
         $nmo->mailable = new AdminEmailMailable($email_object);
         $nmo->company = $company;
-        $nmo->to_user = (object) ['email' => 'client@example.com'];
+        $nmo->to_user = (object) ['email' => 'client@gmail.com'];
         $nmo->settings = $this->makeSettings();
 
         $eq = new EmailQuality($nmo, $company);
@@ -326,7 +326,7 @@ class EmailQualityTest extends TestCase
         $nmo = new NinjaMailerObject();
         $nmo->mailable = $mailable;
         $nmo->company = $company;
-        $nmo->to_user = (object) ['email' => 'client@example.com'];
+        $nmo->to_user = (object) ['email' => 'client@gmail.com'];
         $nmo->settings = $this->makeSettings();
 
         $eq = new EmailQuality($nmo, $company);
@@ -343,7 +343,7 @@ class EmailQualityTest extends TestCase
         $nmo = new NinjaMailerObject();
         $nmo->mailable = null;
         $nmo->company = $company;
-        $nmo->to_user = (object) ['email' => 'client@example.com'];
+        $nmo->to_user = (object) ['email' => 'client@gmail.com'];
         $nmo->settings = $this->makeSettings();
 
         $eq = new EmailQuality($nmo, $company);

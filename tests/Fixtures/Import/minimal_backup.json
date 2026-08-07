@@ -273,11 +273,11 @@
     "users": [
         {
             "hashed_id": "VolejRejNm",
-            "email": "small@example.com"
+            "email": "small@gmail.com"
         },
         {
             "hashed_id": "Wpmbk5ezJn",
-            "email": "testy@example.com"
+            "email": "testy@gmail.com"
         }
     ],
     "expenses": [

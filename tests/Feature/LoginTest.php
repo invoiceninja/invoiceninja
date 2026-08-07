@@ -148,7 +148,7 @@ class LoginTest extends TestCase
         $account = Account::factory()->create();
         $user = User::factory()->create([
             'account_id' => $account->id,
-            'email' => 'test@example.com',
+            'email' => 'test@gmail.com',
             'password' => \Hash::make('123456'),
         ]);
 
@@ -182,11 +182,11 @@ class LoginTest extends TestCase
         $this->assertTrue($user->company_users->first() !== null);
         $this->assertTrue($user->account !== null);
 
-        $this->assertEquals($user->email, 'test@example.com');
+        $this->assertEquals($user->email, 'test@gmail.com');
         $this->assertTrue(\Hash::check('123456', $user->password));
 
         $data = [
-            'email' => 'test@example.com',
+            'email' => 'test@gmail.com',
             'password' => '123456',
         ];
 
@@ -212,7 +212,7 @@ class LoginTest extends TestCase
         $account = Account::factory()->create();
         $user = User::factory()->create([
             'account_id' => $account->id,
-            'email' => 'precheck-nottfa@example.com',
+            'email' => 'precheck-nottfa@gmail.com',
             'password' => \Hash::make('123456'),
             'google_2fa_secret' => null,
         ]);
@@ -220,7 +220,7 @@ class LoginTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
         ])->postJson('/api/v1/login/precheck', [
-            'email' => 'precheck-nottfa@example.com',
+            'email' => 'precheck-nottfa@gmail.com',
         ]);
 
         $response->assertStatus(200);
@@ -236,7 +236,7 @@ class LoginTest extends TestCase
         $account = Account::factory()->create();
         $user = User::factory()->create([
             'account_id' => $account->id,
-            'email' => 'precheck-tfa@example.com',
+            'email' => 'precheck-tfa@gmail.com',
             'password' => \Hash::make('123456'),
             'google_2fa_secret' => encrypt('PADTOTPDUMMYSECRET'),
         ]);
@@ -244,7 +244,7 @@ class LoginTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
         ])->postJson('/api/v1/login/precheck', [
-            'email' => 'precheck-tfa@example.com',
+            'email' => 'precheck-tfa@gmail.com',
         ]);
 
         $response->assertStatus(200);
@@ -256,7 +256,7 @@ class LoginTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
         ])->postJson('/api/v1/login/precheck', [
-            'email' => 'this-account-does-not-exist@example.com',
+            'email' => 'this-account-does-not-exist@gmail.com',
         ]);
 
         $response->assertStatus(200);
@@ -275,7 +275,7 @@ class LoginTest extends TestCase
         $account = Account::factory()->create();
         $user = User::factory()->create([
             'account_id' => $account->id,
-            'email' => 'passkey@example.com',
+            'email' => 'passkey@gmail.com',
             'password' => \Hash::make('123456'),
         ]);
 
@@ -314,7 +314,7 @@ class LoginTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
         ])->postJson('/api/v1/login', [
-            'email' => 'passkey@example.com',
+            'email' => 'passkey@gmail.com',
             'password' => '123456',
         ]);
 
@@ -330,7 +330,7 @@ class LoginTest extends TestCase
         $account = Account::factory()->create();
         $user = User::factory()->create([
             'account_id' => $account->id,
-            'email' => 'nopasskey@example.com',
+            'email' => 'nopasskey@gmail.com',
             'password' => \Hash::make('123456'),
         ]);
 
@@ -349,7 +349,7 @@ class LoginTest extends TestCase
         ]);
 
         $response = $this->postJson('/api/v1/passkeys/login/options', [
-            'email' => 'nopasskey@example.com',
+            'email' => 'nopasskey@gmail.com',
         ]);
 
         $response->assertStatus(400);

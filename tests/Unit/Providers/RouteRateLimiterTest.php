@@ -19,55 +19,55 @@ class RouteRateLimiterTest extends TestCase
     public function test_daily_verify_uses_submitted_email_for_unauthenticated_requests(): void
     {
         $limits = $this->resolveLimits('daily-verify', Request::create('/api/v1/sms_reset', 'POST', [
-            'email' => 'user@example.com',
+            'email' => 'user@gmail.com',
         ]));
 
         $this->assertCount(2, $limits);
-        $this->assertSame('user@example.com', $this->keyFor($limits[1]));
+        $this->assertSame('user@gmail.com', $this->keyFor($limits[1]));
     }
 
     public function test_portal_login_limits_by_ip_and_email(): void
     {
         $limits = $this->resolveLimits('portal-login', Request::create('/client/login', 'POST', [
-            'email' => 'contact@example.com',
+            'email' => 'contact@gmail.com',
         ], [], [], ['REMOTE_ADDR' => '203.0.113.10']));
 
         $this->assertCount(2, $limits);
         $this->assertSame('203.0.113.10', $this->keyFor($limits[0]));
-        $this->assertSame('contact@example.com', $this->keyFor($limits[1]));
+        $this->assertSame('contact@gmail.com', $this->keyFor($limits[1]));
     }
 
     public function test_contact_login_limits_by_ip_and_email(): void
     {
         $limits = $this->resolveLimits('contact-login', Request::create('/api/v1/contact/login', 'POST', [
-            'email' => 'contact@example.com',
+            'email' => 'contact@gmail.com',
         ], [], [], ['REMOTE_ADDR' => '203.0.113.11']));
 
         $this->assertCount(2, $limits);
         $this->assertSame('203.0.113.11', $this->keyFor($limits[0]));
-        $this->assertSame('contact@example.com', $this->keyFor($limits[1]));
+        $this->assertSame('contact@gmail.com', $this->keyFor($limits[1]));
     }
 
     public function test_password_reset_limits_by_ip_and_email(): void
     {
         $limits = $this->resolveLimits('password-reset', Request::create('/password/email', 'POST', [
-            'email' => 'user@example.com',
+            'email' => 'user@gmail.com',
         ], [], [], ['REMOTE_ADDR' => '203.0.113.12']));
 
         $this->assertCount(2, $limits);
         $this->assertSame('203.0.113.12', $this->keyFor($limits[0]));
-        $this->assertSame('user@example.com', $this->keyFor($limits[1]));
+        $this->assertSame('user@gmail.com', $this->keyFor($limits[1]));
     }
 
     public function test_portal_auth_adds_email_limit_when_email_is_present(): void
     {
         $limits = $this->resolveLimits('portal-auth', Request::create('/client/password/email', 'POST', [
-            'email' => 'contact@example.com',
+            'email' => 'contact@gmail.com',
         ], [], [], ['REMOTE_ADDR' => '203.0.113.13']));
 
         $this->assertCount(2, $limits);
         $this->assertSame('203.0.113.13', $this->keyFor($limits[0]));
-        $this->assertSame('contact@example.com', $this->keyFor($limits[1]));
+        $this->assertSame('contact@gmail.com', $this->keyFor($limits[1]));
     }
 
     public function test_portal_auth_limits_ip_only_when_email_is_missing(): void
@@ -83,7 +83,7 @@ class RouteRateLimiterTest extends TestCase
     public function test_signup_limits_by_ip_only(): void
     {
         $limits = $this->resolveLimits('signup', Request::create('/api/v1/signup', 'POST', [
-            'email' => 'new@example.com',
+            'email' => 'new@gmail.com',
         ], [], [], ['REMOTE_ADDR' => '203.0.113.15']));
 
         $this->assertCount(2, $limits);
@@ -96,12 +96,12 @@ class RouteRateLimiterTest extends TestCase
     public function test_contact_register_limits_by_ip_and_email(): void
     {
         $limits = $this->resolveLimits('contact-register', Request::create('/client/register', 'POST', [
-            'email' => 'contact@example.com',
+            'email' => 'contact@gmail.com',
         ], [], [], ['REMOTE_ADDR' => '203.0.113.16']));
 
         $this->assertCount(2, $limits);
         $this->assertSame('203.0.113.16', $this->keyFor($limits[0]));
-        $this->assertSame('contact@example.com', $this->keyFor($limits[1]));
+        $this->assertSame('contact@gmail.com', $this->keyFor($limits[1]));
     }
 
     /**
