@@ -6320,6 +6320,14 @@ $lang = array(
     'trigger_event' => 'Trigger Event',
     'after_event' => 'after event',
     'before_event' => 'before event',
+    'docuninja_join_tagline' => 'Create, send, and e-sign documents directly from Invoice Ninja.',
+    'docuninja_join_features_title' => 'Everything You Get',
+    'docuninja_join_esignatures' => 'E-Signatures',
+    'docuninja_join_esignatures_help' => 'Collect signatures with tracking',
+    'docuninja_join_templates_help' => 'Reusable document blueprints',
+    'docuninja_join_integration' => 'Deep Integration',
+    'docuninja_join_integration_help' => 'Works with invoices, quotes & orders',
+    'docuninja_creating_account' => 'Creating your account...',
 );
 
 return $lang;
