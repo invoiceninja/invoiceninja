@@ -74,7 +74,7 @@ class RecordFranceEReportingTransactionTest extends TestCase
         $this->assertSame('TPS1', $event->reporting_data->frReportEntry->b2cTransaction->category);
     }
 
-    public function testItDoesNotRecordUnsupportedMixedOrUnknownB2CTransactions(): void
+    public function testItRecordsMixedAndUnknownB2CTransactionsUsingFirstLineFallback(): void
     {
         $mixed = $this->makeInvoice(
             clientCountry: 'FR',
@@ -89,17 +89,26 @@ class RecordFranceEReportingTransactionTest extends TestCase
             clientCountry: 'FR',
             classification: 'individual',
             date: '2026-09-15',
-            lineItems: [$this->makeLineItem(3)],
+            lineItems: [$this->makeLineItem(999)],
             numberSuffix: '-UNKNOWN',
         );
 
         (new RecordFranceEReportingTransaction(Invoice::class, $mixed->id, $this->company->db))->handle();
         (new RecordFranceEReportingTransaction(Invoice::class, $unknown->id, $this->company->db))->handle();
 
-        $this->assertFalse(TransactionEvent::query()->whereIn('invoice_id', [$mixed->id, $unknown->id])->exists());
+        $events = TransactionEvent::query()
+            ->whereIn('invoice_id', [$mixed->id, $unknown->id])
+            ->where('event_id', TransactionEvent::FR_B2C_TRANSACTION)
+            ->get();
+
+        $this->assertCount(2, $events);
+        $this->assertSame(
+            ['TLB1', 'TLB1'],
+            $events->map(fn (TransactionEvent $event): string => $event->reporting_data->frReportEntry->b2cTransaction->category)->all()
+        );
     }
 
-    public function testItDoesNotRecordAnUnsupportedMixedB2CCredit(): void
+    public function testItRecordsAMixedB2CCreditUsingTheFirstLine(): void
     {
         $credit = $this->makeCredit(
             clientCountry: 'FR',
@@ -113,7 +122,12 @@ class RecordFranceEReportingTransactionTest extends TestCase
 
         (new RecordFranceEReportingTransaction(Credit::class, $credit->id, $this->company->db))->handle();
 
-        $this->assertFalse(TransactionEvent::query()->where('credit_id', $credit->id)->exists());
+        $event = TransactionEvent::query()
+            ->where('credit_id', $credit->id)
+            ->where('event_id', TransactionEvent::FR_B2C_TRANSACTION)
+            ->firstOrFail();
+
+        $this->assertSame('TLB1', $event->reporting_data->frReportEntry->b2cTransaction->category);
     }
 
     public function testItRecordsAServiceB2CCreditWithNegativeAmounts(): void
@@ -322,7 +336,7 @@ class RecordFranceEReportingTransactionTest extends TestCase
         $settings->vat_number = 'FR12345678901';
         $settings->id_number = '12345678900012';
         $settings->e_invoice_type = 'PEPPOL';
-        $settings->email = $this->faker->safeEmail();
+        $settings->email = uniqid('testuser') . '@gmail.com';
 
         $taxData = new TaxModel();
         $taxData->regions->EU->tax_all_subregions = true;
@@ -438,7 +452,7 @@ class RecordFranceEReportingTransactionTest extends TestCase
             'user_id' => $client->user_id,
             'is_primary' => true,
             'send_email' => true,
-            'email' => $this->faker->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         $client->setRelation('company', $this->company);

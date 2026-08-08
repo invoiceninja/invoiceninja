@@ -8,7 +8,7 @@
         <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}">
         <input type="hidden" name="transaction_data" id="transaction_data">
         <input type="hidden" name="transaction_hash" id="transaction_hash">
-        <input type="hidden" name="secret_token" id="secret_token" value="{{ $secret_token }}">
+        <input type="hidden" name="secret_token" id="secret_token" value="">
         <input type="hidden" name="use_token" id="use_token" value="0">
         <input type="hidden" name="token" id="token_id" value="">
         <input type="submit" style="display: none" id="form_btn">
@@ -30,7 +30,9 @@
                                 type="radio"
                                 data-token="{{ $token->hashed_id }}"
                                 name="payment-type"
-                                class="form-radio cursor-pointer toggle-payment-with-token"/>
+                                class="form-radio cursor-pointer toggle-payment-with-token"
+                                @checked(($payment_mode ?? null) === 'saved_token' && $claimed_token_id === (string) $token->id)
+                                @disabled(($payment_mode ?? null) === 'browser' || (($payment_mode ?? null) === 'saved_token' && $claimed_token_id !== (string) $token->id))/>
                             <span class="ml-1">
                                 ACH **** {{ $token->meta?->last4 ?? '****' }}
                             </span>
@@ -46,7 +48,8 @@
                         id="toggle-payment-with-new-bank"
                         class="form-radio cursor-pointer"
                         name="payment-type"
-                        checked/>
+                        @checked(($payment_mode ?? null) !== 'saved_token')
+                        @disabled(($payment_mode ?? null) === 'saved_token')/>
                     <span class="ml-1">{{ ctrans('texts.new_bank_account') }}</span>
                 </label>
             </li>
@@ -59,12 +62,13 @@
 @assets
     <script src="https://secure.helcim.app/helcim-pay/services/start.js"></script>
     <script>
-        var helcimAchCheckoutToken = '{{ $checkout_token }}';
-        var helcimAchSecretToken = '{{ $secret_token }}';
+        var helcimAchCheckoutToken = '';
+        var helcimAchSessionUrl = @json(route('client.payments.helcim_ach_session'));
+        var helcimAchCheckoutFingerprint = @json($checkout_fingerprint);
         if (!window.helcimAchPayButtonBound) {
             window.helcimAchPayButtonBound = true;
 
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', async function(e) {
             var payNowButton = e.target.closest('#pay-now');
 
             if (!payNowButton) {
@@ -80,20 +84,47 @@
                 document.getElementById('token_id').value = helcimAchSelectedToken;
                 document.getElementById('server_response').submit();
             } else {
-                if (!helcimAchCheckoutToken) {
-                    console.error('Helcim ACH checkout token is missing.');
-                    payNowButton.disabled = false;
-                    return;
-                }
-
                 payNowButton.disabled = true;
-                window.appendHelcimPayIframe(helcimAchCheckoutToken);
+
+                try {
+                    var form = document.getElementById('server_response');
+                    var response = await fetch(helcimAchSessionUrl, {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value,
+                        },
+                        body: JSON.stringify({
+                            payment_hash: form.querySelector('input[name="payment_hash"]').value,
+                            company_gateway_id: form.querySelector('input[name="company_gateway_id"]').value,
+                            checkout_fingerprint: helcimAchCheckoutFingerprint,
+                        }),
+                    });
+                    var session = await response.json();
+
+                    if (!response.ok || !session.checkout_token || !session.secret_token) {
+                        throw new Error(session.message || 'Unable to initialize Helcim ACH checkout.');
+                    }
+
+                    helcimAchCheckoutToken = session.checkout_token;
+                    document.getElementById('secret_token').value = session.secret_token;
+                    document.querySelectorAll('.toggle-payment-with-token').forEach(function(input) {
+                        input.disabled = true;
+                    });
+                    window.appendHelcimPayIframe(helcimAchCheckoutToken);
+                } catch (error) {
+                    console.error(error);
+                    window.alert(error.message || 'Unable to initialize Helcim ACH checkout.');
+                    payNowButton.disabled = false;
+                }
             }
             });
         }
 
         window.addEventListener('message', function(event) {
-            if (event.origin.indexOf('helcim') === -1) return;
+            if (event.origin !== 'https://secure.helcim.app') return;
 
             var eventData;
             try {

@@ -250,7 +250,7 @@ class SystemLog extends Model
 
     public function company()
     {
-        return $this->hasMany(\App\Models\Company::class);
+        return $this->belongsTo(\App\Models\Company::class);
     }
 
     public function getCategoryName()

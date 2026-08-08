@@ -56,7 +56,7 @@ class BaseImportResilienceTest extends TestCase
             ],
             2 => [
                 'client.name' => 'Complete row',
-                'contact.email' => 'complete@example.com',
+                'contact.email' => 'complete@gmail.com',
                 'client.currency_id' => 'AUD',
             ],
         ], $result);
@@ -74,7 +74,7 @@ class BaseImportResilienceTest extends TestCase
             ->firstOrFail();
 
         $this->assertSame('', $short_client->contacts->first()->email);
-        $this->assertSame('complete@example.com', $complete_client->contacts->first()->email);
+        $this->assertSame('complete@gmail.com', $complete_client->contacts->first()->email);
         $this->assertSame('AUD', app('currencies')->firstWhere('id', $complete_client->settings->currency_id)->code);
         $this->assertSame([], $importer->getErrors());
     }
@@ -92,7 +92,7 @@ class BaseImportResilienceTest extends TestCase
         $this->assertSame([
             1 => [
                 'client.name' => 'Valid row',
-                'contact.email' => 'valid@example.com',
+                'contact.email' => 'valid@gmail.com',
             ],
         ], $result);
 

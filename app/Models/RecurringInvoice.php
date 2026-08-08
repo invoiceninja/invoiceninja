@@ -457,8 +457,6 @@ class RecurringInvoice extends BaseModel
             return null;
         }
 
-        $offset = $this->client->timezone_offset();
-
         /* If this setting is enabled, the recurring invoice may be set in the past */
 
         if ($this->company->stop_on_unpaid_recurring) {
@@ -468,34 +466,25 @@ class RecurringInvoice extends BaseModel
             }
         }
 
-        switch ($this->frequency_id) {
-            case self::FREQUENCY_DAILY:
-                return Carbon::parse($this->next_send_date_client)->startOfDay()->addDay()->addSeconds($offset);
-            case self::FREQUENCY_WEEKLY:
-                return Carbon::parse($this->next_send_date_client)->startOfDay()->addWeek()->addSeconds($offset);
-            case self::FREQUENCY_TWO_WEEKS:
-                return Carbon::parse($this->next_send_date_client)->startOfDay()->addWeeks(2)->addSeconds($offset);
-            case self::FREQUENCY_FOUR_WEEKS:
-                return Carbon::parse($this->next_send_date_client)->startOfDay()->addWeeks(4)->addSeconds($offset);
-            case self::FREQUENCY_MONTHLY:
-                return Carbon::parse($this->next_send_date_client)->startOfDay()->addMonthNoOverflow()->addSeconds($offset);
-            case self::FREQUENCY_TWO_MONTHS:
-                return Carbon::parse($this->next_send_date_client)->startOfDay()->addMonthsNoOverflow(2)->addSeconds($offset);
-            case self::FREQUENCY_THREE_MONTHS:
-                return Carbon::parse($this->next_send_date_client)->startOfDay()->addMonthsNoOverflow(3)->addSeconds($offset);
-            case self::FREQUENCY_FOUR_MONTHS:
-                return Carbon::parse($this->next_send_date_client)->startOfDay()->addMonthsNoOverflow(4)->addSeconds($offset);
-            case self::FREQUENCY_SIX_MONTHS:
-                return Carbon::parse($this->next_send_date_client)->startOfDay()->addMonthsNoOverflow(6)->addSeconds($offset);
-            case self::FREQUENCY_ANNUALLY:
-                return Carbon::parse($this->next_send_date_client)->startOfDay()->addYear()->addSeconds($offset);
-            case self::FREQUENCY_TWO_YEARS:
-                return Carbon::parse($this->next_send_date_client)->startOfDay()->addYears(2)->addSeconds($offset);
-            case self::FREQUENCY_THREE_YEARS:
-                return Carbon::parse($this->next_send_date_client)->startOfDay()->addYears(3)->addSeconds($offset);
-            default:
-                return null;
-        }
+        $_next_send_date = match ((int) $this->frequency_id) {
+            self::FREQUENCY_DAILY => Carbon::parse($this->next_send_date_client)->startOfDay()->addDay(),
+            self::FREQUENCY_WEEKLY => Carbon::parse($this->next_send_date_client)->startOfDay()->addWeek(),
+            self::FREQUENCY_TWO_WEEKS => Carbon::parse($this->next_send_date_client)->startOfDay()->addWeeks(2),
+            self::FREQUENCY_FOUR_WEEKS => Carbon::parse($this->next_send_date_client)->startOfDay()->addWeeks(4),
+            self::FREQUENCY_MONTHLY => Carbon::parse($this->next_send_date_client)->startOfDay()->addMonthNoOverflow(),
+            self::FREQUENCY_TWO_MONTHS => Carbon::parse($this->next_send_date_client)->startOfDay()->addMonthsNoOverflow(2),
+            self::FREQUENCY_THREE_MONTHS => Carbon::parse($this->next_send_date_client)->startOfDay()->addMonthsNoOverflow(3),
+            self::FREQUENCY_FOUR_MONTHS => Carbon::parse($this->next_send_date_client)->startOfDay()->addMonthsNoOverflow(4),
+            self::FREQUENCY_SIX_MONTHS => Carbon::parse($this->next_send_date_client)->startOfDay()->addMonthsNoOverflow(6),
+            self::FREQUENCY_ANNUALLY => Carbon::parse($this->next_send_date_client)->startOfDay()->addYear(),
+            self::FREQUENCY_TWO_YEARS => Carbon::parse($this->next_send_date_client)->startOfDay()->addYears(2),
+            self::FREQUENCY_THREE_YEARS => Carbon::parse($this->next_send_date_client)->startOfDay()->addYears(3),
+            default => null,
+        };
+
+        return $_next_send_date
+            ? $this->client->scheduledDateTimeUtc($_next_send_date->toDateString())
+            : null;
     }
 
     public function nextSendDateClient(): ?Carbon

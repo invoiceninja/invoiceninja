@@ -6,13 +6,13 @@ describe('Test Login Page', () => {
         cy.visit('/client/password/reset');
         cy.contains('Password Recovery');
 
-        cy.get('input[name=email]').type('cypress@example.com{enter}');
+        cy.get('input[name=email]').type('cypress@gmail.com{enter}');
         cy.contains('We have e-mailed your password reset link!');
         
         cy.visit('/client/password/reset');
         cy.contains('Password Recovery');
 
-        cy.get('input[name=email]').type('nono@example.com{enter}');
+        cy.get('input[name=email]').type('nono@gmail.com{enter}');
         cy.contains("We can't find a user with that e-mail address.");
 
     });
@@ -22,7 +22,7 @@ describe('Test Login Page', () => {
         cy.visit('/client/login');
         cy.contains('Client Portal');
 
-        cy.get('input[name=email]').type('cypress@example.com');
+        cy.get('input[name=email]').type('cypress@gmail.com');
         cy.get('input[name=password]').type('password{enter}');
         cy.url().should('include', '/invoices');
 

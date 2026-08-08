@@ -705,7 +705,7 @@ class ProjectAnalyticsTypeTest extends TestCase
     {
         $projectOwner = User::factory()->create([
             'account_id' => $this->account->id,
-            'email' => 'project-owner@example.com',
+            'email' => 'project-owner@gmail.com',
         ]);
 
         $project = Project::factory()->create([

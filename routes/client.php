@@ -122,6 +122,9 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db','check_clie
 
 Route::post('payments/process/response', [App\Http\Controllers\ClientPortal\PaymentController::class, 'response'])->name('client.payments.response')->middleware(['locale', 'domain_db', 'verify_hash']);
 Route::get('payments/process/response', [App\Http\Controllers\ClientPortal\PaymentController::class, 'response'])->name('client.payments.response.get')->middleware(['locale', 'domain_db', 'verify_hash']);
+Route::post('payments/helcim/ach/session', App\Http\Controllers\ClientPortal\HelcimAchSessionController::class)
+    ->name('client.payments.helcim_ach_session')
+    ->middleware(['locale', 'domain_db', 'verify_hash', 'throttle:30,1']);
 
 Route::get('client/subscriptions/{subscription}/purchase', [App\Http\Controllers\ClientPortal\SubscriptionPurchaseController::class, 'index'])->name('client.subscription.purchase')->middleware('domain_db');
 Route::get('client/subscriptions/{subscription}/purchase/v2', [App\Http\Controllers\ClientPortal\SubscriptionPurchaseController::class, 'upgrade'])->name('client.subscription.upgrade')->middleware('domain_db');

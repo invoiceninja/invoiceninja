@@ -51,7 +51,7 @@ class InvoicesTest extends TestCase
 
         $user = User::factory()->create([
             'account_id' => $account->id,
-            'email' => $this->faker->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         $company = Company::factory()->create(['account_id' => $account->id]);
@@ -126,7 +126,7 @@ class InvoicesTest extends TestCase
         $account = Account::factory()->create();
 
         $user = User::factory()->create(
-            ['account_id' => $account->id, 'email' => $this->faker->safeEmail()]
+            ['account_id' => $account->id, 'email' => uniqid('testuser') . '@gmail.com']
         );
 
         $company = Company::factory()->create(['account_id' => $account->id]);
@@ -197,7 +197,7 @@ class InvoicesTest extends TestCase
         $account = Account::factory()->create();
 
         $user = User::factory()->create(
-            ['account_id' => $account->id, 'email' => $this->faker->safeEmail()]
+            ['account_id' => $account->id, 'email' => uniqid('testuser') . '@gmail.com']
         );
 
         $company = Company::factory()->create(['account_id' => $account->id]);
@@ -252,7 +252,7 @@ class InvoicesTest extends TestCase
         $account = Account::factory()->create();
 
         $user = User::factory()->create(
-            ['account_id' => $account->id, 'email' => $this->faker->safeEmail()]
+            ['account_id' => $account->id, 'email' => uniqid('testuser') . '@gmail.com']
         );
 
         $company = Company::factory()->create(['account_id' => $account->id]);

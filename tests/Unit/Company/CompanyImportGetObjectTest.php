@@ -201,7 +201,7 @@ class CompanyImportGetObjectTest extends TestCase
         $company = Company::factory()->create(['account_id' => $account->id]);
         $user = User::factory()->create([
             'account_id' => $account->id,
-            'email' => 'company-import-get-object-' . uniqid('', true) . '@example.com',
+            'email' => 'company-import-get-object-' . uniqid('', true) . '@gmail.com',
         ]);
 
         $import = new CompanyImport($company, $user, 'unused-location', []);

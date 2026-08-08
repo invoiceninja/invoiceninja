@@ -72,7 +72,7 @@ class PeppolTest extends TestCase
         $settings = CompanySettings::defaults();
         $settings->vat_number = $params['company_vat'] ?? 'DE123456789';
         $settings->country_id = Country::where('iso_3166_2', 'DE')->first()->id;
-        $settings->email = $this->faker->safeEmail();
+        $settings->email = uniqid('testuser') . '@gmail.com';
         $settings->currency_id = '3';
         $settings->e_invoice_type = 'PEPPOL'; // Required for validation endpoint to run EntityLevel validation
 
@@ -138,7 +138,7 @@ class PeppolTest extends TestCase
             'user_id' => $client->user_id,
             'first_name' => $this->faker->firstName(),
             'last_name' => $this->faker->lastName(),
-            'email' => $this->faker->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
             'is_primary' => true,
             'send_email' => true,
         ]);

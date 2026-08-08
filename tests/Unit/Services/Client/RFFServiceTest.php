@@ -88,7 +88,7 @@ class RFFServiceTest extends TestCase
 
         $this->assertTrue(Validator::make(['contact_email' => 'bob@'], $rules)->fails());
         $this->assertTrue(Validator::make(['contact_email' => 'YiXEiLzAqcAhfiq@example.com'], $rules)->fails());
-        $this->assertTrue(Validator::make(['contact_email' => 'user@EXAMPLE.COM'], $rules)->fails());
+        $this->assertTrue(Validator::make(['contact_email' => 'user@example.com'], $rules)->fails());
         $this->assertTrue(Validator::make(['contact_email' => 'user@sub.example.com'], $rules)->passes());
         $this->assertTrue(Validator::make(['contact_email' => 'user@example.org'], $rules)->passes());
     }

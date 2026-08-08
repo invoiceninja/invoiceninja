@@ -239,21 +239,13 @@ class FranceReportEntryBuilder
         };
     }
 
-    public function b2cSupplyCategory(Invoice|Credit $document): ?string
+    public function b2cSupplyCategory(Invoice|Credit $document): string
     {
-        $line_types = collect($document->line_items)
-            ->map(fn ($line_item): int => (int) data_get($line_item, 'type_id', 0))
-            ->unique()
-            ->values();
+        $firstLine = collect($document->line_items)->first();
 
-        if ($line_types->count() !== 1) {
-            return null;
-        }
-
-        return match ($line_types->first()) {
-            Product::PRODUCT_TYPE_PHYSICAL => 'TLB1',
+        return match ((int) data_get($firstLine, 'type_id', Product::PRODUCT_TYPE_PHYSICAL)) {
             Product::PRODUCT_TYPE_SERVICE => 'TPS1',
-            default => null,
+            default => 'TLB1',
         };
     }
 

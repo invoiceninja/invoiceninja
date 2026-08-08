@@ -464,4 +464,83 @@ class InvoiceInclusiveTest extends TestCase
         $this->assertEquals($this->invoice_calc->getTotal(), 185);
         $this->assertEquals($this->invoice_calc->getBalance(), 185);
     }
+
+    public function testInvoicePersistsNegativeInclusiveTaxTotals(): void
+    {
+        $this->invoice->line_items = [$this->negativeInclusiveLineItem()];
+        $this->invoice->uses_inclusive_taxes = true;
+        $this->invoice->discount = 0;
+        $this->invoice->tax_name1 = '';
+        $this->invoice->tax_name2 = '';
+        $this->invoice->tax_name3 = '';
+        $this->invoice->tax_rate1 = 0;
+        $this->invoice->tax_rate2 = 0;
+        $this->invoice->tax_rate3 = 0;
+
+        $invoice = $this->invoice->calc()->getInvoice();
+
+        $this->assertSame(90.0, (float) $invoice->amount);
+        $this->assertSame(-10.0, (float) $invoice->total_taxes);
+        $this->assertSame(-10.0, (float) $invoice->line_items[0]->tax_amount);
+        $this->assertSame(100.0, (float) $invoice->line_items[0]->net_cost);
+    }
+
+    public function testCreditPersistsNegativeInclusiveTaxTotals(): void
+    {
+        $this->credit->line_items = [$this->negativeInclusiveLineItem()];
+        $this->credit->uses_inclusive_taxes = true;
+        $this->credit->discount = 0;
+        $this->credit->tax_name1 = '';
+        $this->credit->tax_name2 = '';
+        $this->credit->tax_name3 = '';
+        $this->credit->tax_rate1 = 0;
+        $this->credit->tax_rate2 = 0;
+        $this->credit->tax_rate3 = 0;
+
+        $credit = $this->credit->calc()->getCredit();
+
+        $this->assertSame(90.0, (float) $credit->amount);
+        $this->assertSame(-10.0, (float) $credit->total_taxes);
+        $this->assertSame(-10.0, (float) $credit->line_items[0]->tax_amount);
+        $this->assertSame(100.0, (float) $credit->line_items[0]->net_cost);
+    }
+
+    public function testInvoiceGracefullyTreatsMalformedInclusiveTaxAsZero(): void
+    {
+        $item = $this->negativeInclusiveLineItem();
+        $item->tax_name1 = 'Malformed Tax';
+        $item->tax_rate1 = 'bad-rate';
+
+        $this->invoice->line_items = [$item];
+        $this->invoice->uses_inclusive_taxes = true;
+        $this->invoice->discount = 0;
+        $this->invoice->tax_name1 = '';
+        $this->invoice->tax_name2 = '';
+        $this->invoice->tax_name3 = '';
+        $this->invoice->tax_rate1 = 0;
+        $this->invoice->tax_rate2 = 0;
+        $this->invoice->tax_rate3 = 0;
+
+        $invoice = $this->invoice->calc()->getInvoice();
+
+        $this->assertSame(90.0, (float) $invoice->amount);
+        $this->assertSame(0.0, (float) $invoice->total_taxes);
+        $this->assertSame(0.0, (float) $invoice->line_items[0]->tax_amount);
+        $this->assertSame(90.0, (float) $invoice->line_items[0]->net_cost);
+    }
+
+    private function negativeInclusiveLineItem(): \stdClass
+    {
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 90;
+        $item->tax_name1 = 'Negative Tax';
+        $item->tax_rate1 = -10;
+        $item->tax_name2 = '';
+        $item->tax_rate2 = 0;
+        $item->tax_name3 = '';
+        $item->tax_rate3 = 0;
+
+        return $item;
+    }
 }

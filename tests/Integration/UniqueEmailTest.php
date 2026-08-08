@@ -70,25 +70,25 @@ class UniqueEmailTest extends TestCase
 
         $user = [
             'first_name' => 'user_db_1',
-            'email' => 'user@example.com',
+            'email' => 'user@gmail.com',
             'password' => Hash::make('password'),
             'account_id' => $account->id,
         ];
 
         $user2 = [
             'first_name' => 'user_db_2',
-            'email' => 'user@example.com',
+            'email' => 'user@gmail.com',
             'password' => Hash::make('password'),
             'account_id' => $account2->id,
         ];
 
-        $user_find = User::on('db-ninja-01')->where('email', 'user@example.com')->first();
+        $user_find = User::on('db-ninja-01')->where('email', 'user@gmail.com')->first();
 
         if (! $user_find) {
             User::on('db-ninja-01')->create($user);
         }
 
-        $user_find = User::on('db-ninja-02')->where('email', 'user@example.com')->first();
+        $user_find = User::on('db-ninja-02')->where('email', 'user@gmail.com')->first();
 
         if (! $user_find) {
             User::on('db-ninja-02')->create($user2);
@@ -97,12 +97,12 @@ class UniqueEmailTest extends TestCase
 
     public function test_unique_emails_detected_on_database()
     {
-        $this->assertFalse($this->rule->passes('email', 'user@example.com'));
+        $this->assertFalse($this->rule->passes('email', 'user@gmail.com'));
     }
 
     public function test_no_unique_emails_detected()
     {
-        $this->assertTrue($this->rule->passes('email', 'nohit@example.com'));
+        $this->assertTrue($this->rule->passes('email', 'nohit@gmail.com'));
     }
 
     protected function tearDown(): void

@@ -478,11 +478,11 @@ class CompanyController extends BaseController
             RecurringInvoice::where('company_id', $company->id)
                             ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
                             ->where('next_send_date', '>', now())
+                            ->whereNotNull('next_send_date_client')
                             ->cursor()
                             ->each(function ($recurring_invoice) {
 
-                                $offset = $recurring_invoice->client->timezone_offset();
-                                $recurring_invoice->next_send_date = \Carbon\Carbon::parse($recurring_invoice->next_send_date_client)->startOfDay()->addSeconds($offset);
+                                $recurring_invoice->next_send_date = $recurring_invoice->client->scheduledDateTimeUtc($recurring_invoice->next_send_date_client);
                                 $recurring_invoice->save();
 
                             });

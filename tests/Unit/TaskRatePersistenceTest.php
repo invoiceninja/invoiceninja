@@ -28,7 +28,6 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
  * Test that an explicit $0 task rate persists on new tasks, while an
  * omitted rate still inherits the project/client/company default.
  *
- * @covers \App\Repositories\TaskRepository::save
  */
 class TaskRatePersistenceTest extends TestCase
 {

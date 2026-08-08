@@ -97,7 +97,7 @@ class UserQualityCheckFeatureTest extends TestCase
         );
 
         $user = $this->makeUser(
-            email: 'quality-check@example.com',
+            email: 'quality-check@gmail.com',
             phoneNumber: '+61293744000',
             ip: '203.0.113.10',
         );

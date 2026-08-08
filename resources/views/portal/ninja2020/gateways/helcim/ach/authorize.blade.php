@@ -61,7 +61,7 @@
         // Listen for HelcimPay.js transaction response.
         // Current HelcimPay.js emits eventName/eventStatus, not eventType.
         window.addEventListener('message', function(event) {
-            if (event.origin.indexOf('helcim') === -1) return;
+            if (event.origin !== 'https://secure.helcim.app') return;
 
             var eventData;
             try {

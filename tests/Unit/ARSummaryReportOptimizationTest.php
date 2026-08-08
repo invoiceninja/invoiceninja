@@ -39,7 +39,7 @@ class ARSummaryReportOptimizationTest extends TestCase
         
         $this->user = User::factory()->create([
             'account_id' => $account->id,
-            'email' => "{md5(uniqid())}@example.com",
+            'email' => "{md5(uniqid())}@gmail.com",
         ]);
     }
 
