@@ -134,7 +134,7 @@ class FranceReportEntryBuilderTest extends TestCase
         $this->assertSame(230.0, (float) collect($b2bi['taxSubtotals'])->sum('amountIncludingTax'));
     }
 
-    public function testB2CSupplyCategoryIsInferredAndUnsupportedLinesFailClosed(): void
+    public function testB2CSupplyCategoryUsesTheFirstLineForTheEntireDocument(): void
     {
         $company = $this->company();
         $client = $this->client($company);
@@ -149,8 +149,15 @@ class FranceReportEntryBuilderTest extends TestCase
             $this->lineItem('GOODS', 50, 'VAT', 20, Product::PRODUCT_TYPE_PHYSICAL),
             $this->lineItem('SERVICE', 50, 'VAT', 20, Product::PRODUCT_TYPE_SERVICE),
         ]);
+        $serviceFirst = $this->invoice($company, $client, lineItems: [
+            $this->lineItem('SERVICE', 50, 'VAT', 20, Product::PRODUCT_TYPE_SERVICE),
+            $this->lineItem('GOODS', 50, 'VAT', 20, Product::PRODUCT_TYPE_PHYSICAL),
+        ]);
+        $digital = $this->invoice($company, $client, lineItems: [
+            $this->lineItem('DIGITAL', 100, 'VAT', 20, Product::PRODUCT_TYPE_DIGITAL),
+        ]);
         $unknown = $this->invoice($company, $client, lineItems: [
-            $this->lineItem('FEE', 100, 'VAT', 20, 3),
+            $this->lineItem('UNKNOWN', 100, 'VAT', 20, 999),
         ]);
         $empty = $this->invoice($company, $client, lineItems: []);
 
@@ -158,10 +165,12 @@ class FranceReportEntryBuilderTest extends TestCase
         $this->assertSame('TPS1', $builder->b2cSupplyCategory($services));
         $this->assertSame('TLB1', $builder->b2cTransaction($goods)?->category);
         $this->assertSame('TPS1', $builder->b2cTransaction($services)?->category);
-        $this->assertNull($builder->b2cSupplyCategory($mixed));
-        $this->assertNull($builder->b2cTransaction($mixed));
-        $this->assertNull($builder->b2cSupplyCategory($unknown));
-        $this->assertNull($builder->b2cSupplyCategory($empty));
+        $this->assertSame('TLB1', $builder->b2cSupplyCategory($mixed));
+        $this->assertSame('TLB1', $builder->b2cTransaction($mixed)?->category);
+        $this->assertSame('TPS1', $builder->b2cSupplyCategory($serviceFirst));
+        $this->assertSame('TLB1', $builder->b2cSupplyCategory($digital));
+        $this->assertSame('TLB1', $builder->b2cSupplyCategory($unknown));
+        $this->assertSame('TLB1', $builder->b2cSupplyCategory($empty));
     }
 
     private function company(): Company

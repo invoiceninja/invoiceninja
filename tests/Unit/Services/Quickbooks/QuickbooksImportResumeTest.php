@@ -27,6 +27,7 @@ use App\Services\Quickbooks\Models\QbInvoice;
 use App\Services\Quickbooks\QuickbooksService;
 use App\Services\Quickbooks\Jobs\QuickbooksImport;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 
 class QuickbooksImportResumeTest extends TestCase
 {
@@ -69,6 +70,17 @@ class QuickbooksImportResumeTest extends TestCase
         $this->assertSame(1001, $cursor['start_position']);
         $this->assertSame(500, $cursor['page_size']);
         $this->assertSame('running', $cursor['status']);
+    }
+
+    public function test_overlap_lock_outlives_the_job_timeout(): void
+    {
+        $job = $this->makeJob();
+        $middleware = $job->middleware();
+
+        $this->assertCount(1, $middleware);
+        $this->assertInstanceOf(WithoutOverlapping::class, $middleware[0]);
+        $this->assertSame("qbs-{$this->company->id}-{$this->company->db}", $middleware[0]->key);
+        $this->assertSame($job->timeout + 300, $middleware[0]->expiresAfter);
     }
 
     public function test_filter_already_imported_skips_existing_soft_deleted_qb_ids(): void
