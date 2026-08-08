@@ -6308,6 +6308,12 @@ $lang = array(
     'save_for_later' => 'Save for Later',
     'deletion_violation_regulatory' => 'This document cannot be deleted because it is subject to regulatory reporting requirements.',
     'currency_syrian_pound' => 'Syrian Pound',
+    'account_plan_expired' => 'Account Plan Expired',
+    'companies' => 'Companies',
+    'view_details' => 'View Details',
+    'validation_errors' => 'Validation Errors',
+    'global_tag_inheritance' => 'Global Tag Inheritance',
+    'global_tag_inheritance_help' => 'Determines whether child entities inherit tags from their parent entities.',
 );
 
 return $lang;
