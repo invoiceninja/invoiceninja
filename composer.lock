@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "93d413f68c788e7760ab8a09dcaabcbe",
+    "content-hash": "1377a5ca5266c2ab1f0aa3c247d6521b",
     "packages": [
         {
             "name": "apimatic/core",
@@ -4376,63 +4376,6 @@
             "time": "2022-05-21T17:30:32+00:00"
         },
         {
-            "name": "invoiceninja/admin-api",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "../admin-api",
-                "reference": "884941ec5e0dc5f1216aa3e14007311e0fc6bcf0"
-            },
-            "require": {
-                "ext-curl": "*",
-                "ext-dom": "*",
-                "ext-json": "*",
-                "ext-libxml": "*",
-                "ext-simplexml": "*",
-                "illuminate/database": "^11|^12",
-                "illuminate/support": "^11|^12",
-                "imdhemy/laravel-purchases": "^1.7",
-                "php": "^8.2|^8.3|^8.4"
-            },
-            "require-dev": {
-                "larastan/larastan": "^3.0",
-                "orchestra/testbench": "^9.0",
-                "phpstan/phpstan": "^2.0",
-                "phpunit/phpunit": "^11.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "InvoiceNinja\\AdminApi\\Providers\\AdminApiServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "InvoiceNinja\\AdminApi\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "Tests\\": "tests/"
-                }
-            },
-            "license": [
-                "Elastic"
-            ],
-            "authors": [
-                {
-                    "name": "David Bomba",
-                    "email": "turbo124@gmail.com"
-                }
-            ],
-            "description": "API endpoints for the admin interface",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
             "name": "invoiceninja/einvoice",
             "version": "dev-main",
             "source": {
@@ -5994,16 +5937,16 @@
         },
         {
             "name": "league/commonmark",
-            "version": "2.9.0",
+            "version": "2.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/commonmark.git",
-                "reference": "5703d83ba3da3b2e356a5fedc848ed6d8ffb6529"
+                "reference": "73cb188c785abfa7a7bec73487148202968274c6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/5703d83ba3da3b2e356a5fedc848ed6d8ffb6529",
-                "reference": "5703d83ba3da3b2e356a5fedc848ed6d8ffb6529",
+                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/73cb188c785abfa7a7bec73487148202968274c6",
+                "reference": "73cb188c785abfa7a7bec73487148202968274c6",
                 "shasum": ""
             },
             "require": {
@@ -6097,7 +6040,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-08-03T13:42:31+00:00"
+            "time": "2026-08-09T14:10:38+00:00"
         },
         {
             "name": "league/config",
@@ -7913,16 +7856,16 @@
         },
         {
             "name": "nesbot/carbon",
-            "version": "3.13.1",
+            "version": "3.13.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/CarbonPHP/carbon.git",
-                "reference": "2937ad3d1d2c506fd2bc97d571438a95641f44e2"
+                "reference": "a1c54919f5fff9800cd03c32bd01defd5a4061cb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CarbonPHP/carbon/zipball/2937ad3d1d2c506fd2bc97d571438a95641f44e2",
-                "reference": "2937ad3d1d2c506fd2bc97d571438a95641f44e2",
+                "url": "https://api.github.com/repos/CarbonPHP/carbon/zipball/a1c54919f5fff9800cd03c32bd01defd5a4061cb",
+                "reference": "a1c54919f5fff9800cd03c32bd01defd5a4061cb",
                 "shasum": ""
             },
             "require": {
@@ -8014,7 +7957,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-07-09T18:23:49+00:00"
+            "time": "2026-08-08T11:40:35+00:00"
         },
         {
             "name": "nette/schema",
@@ -22223,7 +22166,6 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "beganovich/snappdf": 20,
-        "invoiceninja/admin-api": 20,
         "invoiceninja/einvoice": 20
     },
     "prefer-stable": true,
