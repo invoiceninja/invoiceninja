@@ -222,6 +222,7 @@ class UpdatePaymentTest extends TestCase
         $settings = $this->company->settings;
         $settings->timezone_id = $timezone->id;
         $settings->france_reporting_enabled = true;
+        $settings->currency_id = '3';
         $this->company->settings = $settings;
         $this->company->save();
         $this->company = $this->company->fresh();
