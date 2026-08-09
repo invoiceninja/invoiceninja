@@ -2,7 +2,7 @@
     <div class="flex flex-col w-64">
         <div class="flex items-center h-16 flex-shrink-0 px-4 bg-white border-r justify-start z-10">
             <a href="{{ route('client.dashboard') }}">
-                <img class="h-10 w-auto sidebar_logo_override" src="{!! auth()->guard('contact')->user()->company->present()->logo($settings) !!}"
+                <img class="h-10 w-auto sidebar_logo_override" style="object-position: left center !important;" src="{!! auth()->guard('contact')->user()->company->present()->logo($settings) !!}"
                      alt="{{ auth()->guard('contact')->user()->company->present()->name() }} logo"/>
             </a>
         </div>
