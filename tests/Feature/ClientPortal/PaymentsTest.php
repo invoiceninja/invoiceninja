@@ -82,7 +82,7 @@ class PaymentsTest extends TestCase
         $account->delete();
     }
 
-    public function testCompletedPaymentShowsReturnToServiceButton(): void
+    public function testCompletedVpsPaymentShowsReturnToServiceButton(): void
     {
         $account = Account::factory()->create();
 
@@ -106,15 +106,16 @@ class PaymentsTest extends TestCase
             'company_id' => $company->id,
         ]);
 
-        $returnUrl = 'https://control.filefor.net/admin/vps/vm/35';
+        $vpsId = random_int(1, 100000);
+        $returnUrl = "https://control.filefor.net/admin/vps/vm/{$vpsId}";
         $invoice = Invoice::factory()->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
             'client_id' => $client->id,
         ]);
-        $backup = $invoice->backup;
-        $backup->redirect = $returnUrl;
-        $invoice->backup = $backup;
+        $lineItems = $invoice->line_items;
+        $lineItems[0]->product_key = "vps-vm-{$vpsId}";
+        $invoice->line_items = $lineItems;
         $invoice->saveQuietly();
 
         $payment = Payment::factory()->create([
@@ -139,8 +140,6 @@ class PaymentsTest extends TestCase
             ->assertSee('href="' . $returnUrl . '"', false)
             ->assertSee('target="_blank"', false)
             ->assertSee('rel="noopener noreferrer"', false);
-
-        $this->assertSame($returnUrl, $invoice->fresh()->backup->redirect);
 
         $account->delete();
     }

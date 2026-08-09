@@ -72,7 +72,8 @@ class PaymentController extends Controller
         })->first();
 
         if ($invoice) {
-            $return_url = $this->validReturnUrl($invoice->backup->redirect);
+            $return_url = $this->validReturnUrl($invoice->backup->redirect)
+                ?? $this->vpsReturnUrl($invoice);
         }
 
         if ($payment->gateway_type_id == GatewayType::DIRECT_DEBIT && $payment->type_id == PaymentType::DIRECT_DEBIT) {
@@ -112,6 +113,21 @@ class PaymentController extends Controller
         return in_array(strtolower((string) parse_url($url, PHP_URL_SCHEME)), ['http', 'https'], true)
             ? $url
             : null;
+    }
+
+    private function vpsReturnUrl(Invoice $invoice): ?string
+    {
+        foreach ($invoice->line_items as $line_item) {
+            $product_key = is_object($line_item)
+                ? ($line_item->product_key ?? null)
+                : ($line_item['product_key'] ?? null);
+
+            if (is_string($product_key) && preg_match('/^vps-vm-(\d+)$/', $product_key, $matches)) {
+                return "https://control.filefor.net/admin/vps/vm/{$matches[1]}";
+            }
+        }
+
+        return null;
     }
 
     public function catch_process(Request $request)
