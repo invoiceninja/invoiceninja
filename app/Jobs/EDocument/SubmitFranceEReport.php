@@ -21,6 +21,7 @@ use App\Models\TransactionEvent;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
 use App\Services\EDocument\Standards\France\FranceEReportCompiler;
 use App\Services\EDocument\Standards\France\FranceEReportPayloadBuilder;
+use App\Services\EDocument\Standards\France\FranceEReportVariant;
 use App\Services\EDocument\Standards\France\FranceSubmissionClaim;
 use Carbon\CarbonImmutable;
 use Illuminate\Bus\Queueable;
@@ -49,6 +50,7 @@ class SubmitFranceEReport implements ShouldQueue
         private int $submissionEventId,
         private string $periodEnd,
         private string $db,
+        private ?string $variant = null,
     ) {}
 
     public function handle(
@@ -74,7 +76,17 @@ class SubmitFranceEReport implements ShouldQueue
             return;
         }
 
-        $sourceEvents = $compiler->sourceEvents($company, $this->submissionEventId, $this->periodEnd);
+        $reportVariant = $this->reportVariant($company, $compiler);
+
+        if (is_null($reportVariant)) {
+            return;
+        }
+
+        if (! $reportVariant->isStorecoveQualified()) {
+            return;
+        }
+
+        $sourceEvents = $compiler->sourceEventsForVariant($company, $reportVariant, $this->periodEnd);
 
         if ($sourceEvents->isEmpty()) {
             return;
@@ -91,19 +103,25 @@ class SubmitFranceEReport implements ShouldQueue
         $claimCompleted = false;
 
         try {
-            $sourceEvents = $compiler->sourceEvents($company, $this->submissionEventId, $this->periodEnd);
+            $sourceEvents = $compiler->sourceEventsForVariant($company, $reportVariant, $this->periodEnd);
             $claimedSourceEventIds = $sourceEvents->pluck('id')->map(fn ($id): int => (int) $id)->all();
 
             if ($claimedSourceEventIds !== $sourceEventIds) {
                 return;
             }
 
-            $issuedAt = CarbonImmutable::now($company->timezone()?->name ?: config('app.timezone'));
-            $report = $compiler->compileFromEvents($company, $this->submissionEventId, $this->periodEnd, $sourceEvents, $issuedAt);
-            $payload = $payloadBuilder->build($company, $report);
+            $issuedAt = CarbonImmutable::now('Europe/Paris');
+            $context = $compiler->contextForVariant($company, $reportVariant, $this->periodEnd, $issuedAt);
+            $report = $compiler->compileVariantFromEvents($company, $reportVariant, $context, $sourceEvents);
             /** @var TransactionEvent $sourceEvent */
             $sourceEvent = $sourceEvents->first();
-            $idempotencyGuid = $this->idempotencyGuid($company, $sourceEventIds);
+            $idempotencyGuid = $this->idempotencyGuid($company, $reportVariant, $sourceEventIds);
+            $payload = $payloadBuilder->build(
+                $company,
+                $context,
+                $report,
+                $idempotencyGuid,
+            );
             $attemptedAt = CarbonImmutable::now($company->timezone()?->name ?: config('app.timezone'));
 
             try {
@@ -112,7 +130,6 @@ class SubmitFranceEReport implements ShouldQueue
                     ->submitDocument([
                         ...$payload,
                         'legal_entity_id' => $payload['legalEntityId'],
-                        'idempotencyGuid' => $idempotencyGuid,
                         'tenant_id' => $company->company_key,
                         'account_key' => $company->account->key,
                         'e_invoicing_token' => $company->account->e_invoicing_token,
@@ -125,6 +142,7 @@ class SubmitFranceEReport implements ShouldQueue
                     report: $report,
                     sourceEvent: $sourceEvent,
                     sourceEventIds: $sourceEventIds,
+                    variant: $reportVariant,
                     claimToken: $claimToken,
                     idempotencyGuid: $idempotencyGuid,
                     generatedAt: $issuedAt,
@@ -145,6 +163,7 @@ class SubmitFranceEReport implements ShouldQueue
                 report: $report,
                 sourceEvent: $sourceEvent,
                 sourceEventIds: $sourceEventIds,
+                variant: $reportVariant,
                 claimToken: $claimToken,
                 idempotencyGuid: $idempotencyGuid,
                 generatedAt: $issuedAt,
@@ -165,7 +184,7 @@ class SubmitFranceEReport implements ShouldQueue
     public function middleware(): array
     {
         return [
-            (new WithoutOverlapping($this->companyId.$this->submissionEventId.$this->periodEnd.$this->db.'.fr-e-report-submit'))
+            (new WithoutOverlapping($this->companyId.$this->submissionEventId.$this->periodEnd.$this->db.($this->variant ?? 'legacy').'.fr-e-report-submit'))
                 ->releaseAfter(60)
                 ->expireAfter(60),
         ];
@@ -174,7 +193,11 @@ class SubmitFranceEReport implements ShouldQueue
     /**
      * @param array<int, int> $sourceEventIds
      */
-    private function idempotencyGuid(Company $company, array $sourceEventIds): string
+    private function idempotencyGuid(
+        Company $company,
+        FranceEReportVariant $variant,
+        array $sourceEventIds,
+    ): string
     {
         $sourceEventIds = array_map('intval', $sourceEventIds);
         sort($sourceEventIds);
@@ -185,11 +208,28 @@ class SubmitFranceEReport implements ShouldQueue
                 'fr-e-report',
                 (string) $company->company_key,
                 (string) $company->id,
-                (string) $this->submissionEventId,
+                $variant->value,
                 $this->periodEnd,
                 implode(',', $sourceEventIds),
             ]),
         )->toString();
+    }
+
+    private function reportVariant(
+        Company $company,
+        FranceEReportCompiler $compiler,
+    ): ?FranceEReportVariant {
+        if (! is_null($this->variant)) {
+            return FranceEReportVariant::tryFrom($this->variant);
+        }
+
+        $legacyEvents = $compiler->sourceEvents($company, $this->submissionEventId, $this->periodEnd);
+
+        if ($legacyEvents->isEmpty()) {
+            return null;
+        }
+
+        return $compiler->variantFromEvents($this->submissionEventId, $legacyEvents);
     }
 
     /**
@@ -202,6 +242,7 @@ class SubmitFranceEReport implements ShouldQueue
         FRReportData $report,
         TransactionEvent $sourceEvent,
         array $sourceEventIds,
+        FranceEReportVariant $variant,
         string $claimToken,
         string $idempotencyGuid,
         CarbonImmutable $generatedAt,
@@ -219,6 +260,7 @@ class SubmitFranceEReport implements ShouldQueue
             $company,
             $sourceEvent,
             $sourceEventIds,
+            $variant,
             $claimToken,
             $status,
             $report,
@@ -254,6 +296,7 @@ class SubmitFranceEReport implements ShouldQueue
                 'reporting_data' => ReportData::fromFRReport($report),
                 'payment_request' => [
                     'source_event_ids' => $sourceEventIds,
+                    'variant' => $variant->value,
                     'generated_at' => $generatedAt->toIso8601String(),
                     'attempted_at' => $attemptedAt->toIso8601String(),
                     'guid' => $guid,

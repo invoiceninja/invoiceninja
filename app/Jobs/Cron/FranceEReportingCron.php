@@ -18,6 +18,7 @@ use App\Jobs\EDocument\SubmitFrancePaymentReceivedNotification;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\TransactionEvent;
+use App\Services\EDocument\Standards\France\FranceEReportVariant;
 use App\Services\EDocument\Standards\France\ReportingCalendar;
 use App\Services\EDocument\Standards\France\ReportingPeriod;
 use App\Services\EDocument\Standards\France\ReportingProfile;
@@ -159,7 +160,7 @@ class FranceEReportingCron implements ShouldQueue
     /**
      * Find initial B2C and VAT-excluded report groups for the due period set.
      *
-     * Source rows are streamed by primary key, then deduplicated by company, submission type, and period so mixed transaction/payment buckets submit once.
+     * Source rows are streamed by primary key, then deduplicated by company, report variant, and period.
      *
      */
     private function dispatchDueInitialReportSubmissions(string $db, CarbonImmutable $parisNow): void
@@ -196,12 +197,13 @@ class FranceEReportingCron implements ShouldQueue
 
                     $periodEnd = $this->periodEnd($event);
                     $submissionEventId = $this->submissionEventForSourceEvent((int) $event->event_id);
+                    $variant = $this->variantForSourceEvent((int) $event->event_id);
 
                     if (is_null($periodEnd)) {
                         return;
                     }
 
-                    $key = $event->company_id . "|" . $submissionEventId . "|" . $periodEnd;
+                    $key = $event->company_id . "|" . $variant->value . "|" . $periodEnd;
 
                     if (isset($dispatched[$key])) {
                         return;
@@ -213,6 +215,7 @@ class FranceEReportingCron implements ShouldQueue
                         event: $event,
                         company: $company,
                         submissionEventId: $submissionEventId,
+                        variant: $variant,
                         db: $db,
                         parisNow: $parisNow,
                     );
@@ -268,6 +271,7 @@ class FranceEReportingCron implements ShouldQueue
                         TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE,
                         $periodEnd,
                         $company->db ?: $db,
+                        FranceEReportVariant::PaymentRectificative->value,
                     );
                 });
             }, "id");
@@ -278,7 +282,14 @@ class FranceEReportingCron implements ShouldQueue
      *
      * The bucket is ignored when the company cadence does not match the source period or a submitted report already exists.
      */
-    private function dispatchDueSourceGroup(TransactionEvent $event, Company $company, int $submissionEventId, string $db, CarbonImmutable $parisNow): void
+    private function dispatchDueSourceGroup(
+        TransactionEvent $event,
+        Company $company,
+        int $submissionEventId,
+        FranceEReportVariant $variant,
+        string $db,
+        CarbonImmutable $parisNow,
+    ): void
     {
         $periodEnd = $this->periodEnd($event);
 
@@ -286,11 +297,17 @@ class FranceEReportingCron implements ShouldQueue
             return;
         }
 
-        if ($this->submissionAlreadyAccepted((int) $company->id, $submissionEventId, $periodEnd)) {
+        if ($this->submissionAlreadyAccepted((int) $company->id, $submissionEventId, $variant, $periodEnd)) {
             return;
         }
 
-        SubmitFranceEReport::dispatch($company->id, $submissionEventId, $periodEnd, $company->db ?: $db);
+        SubmitFranceEReport::dispatch(
+            $company->id,
+            $submissionEventId,
+            $periodEnd,
+            $company->db ?: $db,
+            $variant->value,
+        );
     }
 
     /**
@@ -404,6 +421,16 @@ class FranceEReportingCron implements ShouldQueue
             : TransactionEvent::FR_REPORT_SUBMISSION_B2C;
     }
 
+    private function variantForSourceEvent(int $sourceEventId): FranceEReportVariant
+    {
+        return in_array($sourceEventId, [
+            TransactionEvent::FR_B2C_TRANSACTION,
+            TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION,
+        ], true)
+            ? FranceEReportVariant::TransactionInitial
+            : FranceEReportVariant::PaymentInitial;
+    }
+
     /**
      * Normalize the transaction event period to the date string expected by the report compiler.
      */
@@ -417,12 +444,18 @@ class FranceEReportingCron implements ShouldQueue
      *
      * Failed submissions are intentionally not treated as complete, allowing a future cron run to retry the same grouped source rows.
      */
-    private function submissionAlreadyAccepted(int $companyId, int $submissionEventId, string $periodEnd): bool
+    private function submissionAlreadyAccepted(
+        int $companyId,
+        int $submissionEventId,
+        FranceEReportVariant $variant,
+        string $periodEnd,
+    ): bool
     {
         return TransactionEvent::query()
             ->where("company_id", $companyId)
             ->where("event_id", $submissionEventId)
             ->whereDate("period", $periodEnd)
+            ->where("payment_request->variant", $variant->value)
             ->where("payment_status", TransactionEvent::FR_REPORTING_STATUS_SUBMITTED)
             ->exists();
     }

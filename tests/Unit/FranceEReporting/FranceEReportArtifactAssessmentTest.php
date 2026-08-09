@@ -4,255 +4,243 @@ namespace Tests\Unit\FranceEReporting;
 
 use App\DataMapper\CompanySettings;
 use App\Models\Company;
-use App\Models\Country;
 use App\Models\TransactionEvent;
+use App\Services\EDocument\Gateway\Storecove\Storecove;
 use App\Services\EDocument\Standards\France\FranceEReportCompiler;
+use App\Services\EDocument\Standards\France\FranceEReportContext;
 use App\Services\EDocument\Standards\France\FranceEReportPayloadBuilder;
+use App\Services\EDocument\Standards\France\FranceEReportVariant;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 /**
- * Generates the final JSON request bodies passed to Storecove and assesses
- * them against Storecove's public France F10 JSON contract.
+ * Compares exact Storecove HTTP request bytes with reviewed format artifacts.
  *
- * Covered Storecove scenarios:
- * - 3.1: initial transaction reports;
- * - 3.2: initial payment reports;
- * - 3.3: rectificative payment reports.
- *
- * The two mixed-source artifacts intentionally exercise the current compiler
- * behaviour when transaction and payment rows share a submission bucket. They
- * are expected to expose rule G6.29 rather than silently treating that shape
- * as a valid Storecove request.
+ * Normal test runs are read-only. Set UPDATE_STORECOVE_ARTIFACTS=1 explicitly
+ * to regenerate the candidate corpus after a deliberate contract review.
  */
 class FranceEReportArtifactAssessmentTest extends TestCase
 {
-    private const ARTIFACT_DIRECTORY = 'tests/artifacts/france_e_reporting';
+    private const ARTIFACT_DIRECTORY = 'tests/artifacts/france_e_reporting/storecove_format';
 
-    private const STORECOVE_SPEC_URL = 'https://www.storecove.com/docs/#_openapi_frereport';
+    private const IDEMPOTENCY_GUIDS = [
+        'le_a_transaction_b2bi_in' => '083acb33-a86f-4f20-89ad-dc5ce1849ed4',
+        'le_a_transaction_b2c_in' => '8ad64127-8ca3-4d80-ad51-41d4f88e1d04',
+        'le_a_transaction_combined_in' => 'a2b13948-b991-453c-aa65-411753d6a0ba',
+        'le_b_transaction_combined_in' => 'c82fc1e0-6559-4c12-ab90-f6efed812be5',
+        'le_a_transaction_b2bi_tax_categories_in' => '9635c307-ec49-4a85-9149-6418780c86ab',
+        'le_a_transaction_b2c_categories_in' => 'd990f2db-21ab-4b0e-99a9-39da0e20e303',
+        'le_a_payment_b2bi_in' => '31ad725b-6890-46b1-a67f-189845c145d1',
+        'le_a_payment_b2c_in' => '63ecfbc1-adc8-4d34-b3da-fe210fb5c24a',
+        'le_a_payment_combined_in' => 'c87e5366-877a-4e8c-8714-bb4c65e9eacd',
+        'le_b_payment_combined_in' => '541405bd-62da-43f5-8eeb-e2d03993baf0',
+        'le_a_payment_b2bi_means_in' => '5612e4f0-a205-4419-8d20-95beedf22cd2',
+        'le_a_payment_b2bi_re' => 'c40b74bc-a8f0-4cc3-859b-2904a450191f',
+        'le_a_payment_b2c_re' => '0c2642af-b40f-4423-8069-57da569629a1',
+        'le_a_payment_combined_re' => '23ab3b38-c69a-4c37-9ad4-478c28aa0ac8',
+    ];
 
-    private const STORECOVE_FRANCE_URL = 'https://www.storecove.com/docs/#_f10_e_reporting_documenttype_and_frereport_e_report';
-
-    protected function setUp(): void
+    public function testExactHttpBodiesMatchReviewedPerLegalEntityArtifacts(): void
     {
-        parent::setUp();
-
-        $france = new Country();
-        $france->setRawAttributes([
-            'id' => 73,
-            'iso_3166_2' => 'FR',
-            'name' => 'France',
-        ], true);
-
-        app()->instance('countries', collect([$france]));
-    }
-
-    public function testItGeneratesAndAssessesEveryApplicableStorecoveF10ReportAcrossMultipleScenarios(): void
-    {
-        $company = $this->company();
-        $issuedAt = CarbonImmutable::parse('2025-10-01 12:12:12 +0100');
-        $compiler = new FranceEReportCompiler();
-        $builder = new FranceEReportPayloadBuilder();
+        $companyA = $this->company(42, 100042, '552100554', 'Seller A');
+        $companyB = $this->company(43, 100043, '732829320', 'Seller B');
+        $transactionContextA = $this->context($companyA, '2026-09-01', '2026-09-10', '2026-09-11 09:00:00 Europe/Paris');
+        $transactionContextB = $this->context($companyB, '2026-09-01', '2026-09-10', '2026-09-11 09:00:00 Europe/Paris');
+        $paymentContextA = $this->context($companyA, '2026-01-01', '2026-01-31', '2026-02-01 09:00:00 Europe/Paris');
+        $paymentContextB = $this->context($companyB, '2026-01-01', '2026-01-31', '2026-02-01 09:00:00 Europe/Paris');
 
         $scenarios = [
-            'f10_31_b2c_transactions' => [
-                'storecoveScenario' => '3.1 initial transaction report',
-                'scope' => 'B2C',
-                'expectedValid' => true,
-                'payload' => $this->compilePayload(
-                    compiler: $compiler,
-                    builder: $builder,
-                    company: $company,
-                    submissionEventId: TransactionEvent::FR_REPORT_SUBMISSION_B2C,
-                    issuedAt: $issuedAt,
-                    documentId: 'REPORT31-B2C-001',
-                    events: [
-                        $this->event(1, TransactionEvent::FR_B2C_TRANSACTION, $this->b2cGoodsTransaction()),
-                        $this->event(2, TransactionEvent::FR_B2C_TRANSACTION, $this->b2cServicesTransaction()),
-                    ],
-                ),
-            ],
-            'f10_31_vat_excluded_transactions' => [
-                'storecoveScenario' => '3.1 initial transaction report',
-                'scope' => 'VAT-excluded B2BI',
-                'expectedValid' => true,
-                'payload' => $this->compilePayload(
-                    compiler: $compiler,
-                    builder: $builder,
-                    company: $company,
-                    submissionEventId: TransactionEvent::FR_REPORT_SUBMISSION_VAT_EXCLUDED,
-                    issuedAt: $issuedAt,
-                    documentId: 'REPORT31-B2BI-01',
-                    events: [
-                        $this->event(3, TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION, $this->b2biInvoice()),
-                        $this->event(4, TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION, $this->b2biCredit()),
-                    ],
-                ),
-            ],
-            'f10_32_b2c_payments' => [
-                'storecoveScenario' => '3.2 initial payment report',
-                'scope' => 'B2C',
-                'expectedValid' => true,
-                'payload' => $this->compilePayload(
-                    compiler: $compiler,
-                    builder: $builder,
-                    company: $company,
-                    submissionEventId: TransactionEvent::FR_REPORT_SUBMISSION_B2C,
-                    issuedAt: $issuedAt,
-                    documentId: 'REPORT32-B2C-001',
-                    events: [
-                        $this->event(5, TransactionEvent::FR_B2C_PAYMENT, $this->b2cPayment('2025-09-16', 12000, 20)),
-                        $this->event(6, TransactionEvent::FR_B2C_PAYMENT, $this->b2cPayment('2025-09-22', 6050, 10)),
-                    ],
-                ),
-            ],
-            'f10_32_vat_excluded_payments' => [
-                'storecoveScenario' => '3.2 initial payment report',
-                'scope' => 'VAT-excluded B2BI',
-                'expectedValid' => true,
-                'payload' => $this->compilePayload(
-                    compiler: $compiler,
-                    builder: $builder,
-                    company: $company,
-                    submissionEventId: TransactionEvent::FR_REPORT_SUBMISSION_VAT_EXCLUDED,
-                    issuedAt: $issuedAt,
-                    documentId: 'REPORT32-B2BI-01',
-                    events: [
-                        $this->event(7, TransactionEvent::FR_VAT_EXCLUDED_PAYMENT, $this->b2biPayment('S1F1_REPORT2025_001', '2025-09-16', 12000, 20)),
-                        $this->event(8, TransactionEvent::FR_VAT_EXCLUDED_PAYMENT, $this->b2biPayment('S1F2_REPORT2025_001', '2025-09-22', 6050, 10)),
-                    ],
-                ),
-            ],
-            'f10_33_b2c_rectificative_payments' => [
-                'storecoveScenario' => '3.3 rectificative payment report',
-                'scope' => 'B2C',
-                'expectedValid' => true,
-                'payload' => $this->compilePayload(
-                    compiler: $compiler,
-                    builder: $builder,
-                    company: $company,
-                    submissionEventId: TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE,
-                    issuedAt: $issuedAt,
-                    documentId: 'REPORT33-B2C-001',
-                    events: [
-                        $this->event(9, TransactionEvent::FR_B2C_PAYMENT, $this->b2cPayment('2025-09-16', 11800, 20)),
-                        $this->event(10, TransactionEvent::FR_B2C_PAYMENT, $this->b2cPayment('2025-09-22', 6000, 10)),
-                    ],
-                ),
-            ],
-            'f10_33_vat_excluded_rectificative_payments' => [
-                'storecoveScenario' => '3.3 rectificative payment report',
-                'scope' => 'VAT-excluded B2BI',
-                'expectedValid' => true,
-                'payload' => $this->compilePayload(
-                    compiler: $compiler,
-                    builder: $builder,
-                    company: $company,
-                    submissionEventId: TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE,
-                    issuedAt: $issuedAt,
-                    documentId: 'REPORT33-B2BI-01',
-                    events: [
-                        $this->event(11, TransactionEvent::FR_VAT_EXCLUDED_PAYMENT, $this->b2biPayment('S1F1_REPORT2025_001', '2025-09-16', 11800, 20)),
-                        $this->event(12, TransactionEvent::FR_VAT_EXCLUDED_PAYMENT, $this->b2biPayment('S1F2_REPORT2025_001', '2025-09-22', 6000, 10)),
-                    ],
-                ),
-            ],
-            'current_mixed_b2c_submission' => [
-                'storecoveScenario' => 'current mixed transaction/payment bucket',
-                'scope' => 'B2C',
-                'expectedValid' => false,
-                'payload' => $this->compilePayload(
-                    compiler: $compiler,
-                    builder: $builder,
-                    company: $company,
-                    submissionEventId: TransactionEvent::FR_REPORT_SUBMISSION_B2C,
-                    issuedAt: $issuedAt,
-                    documentId: 'MIXED-B2C-001',
-                    events: [
-                        $this->event(13, TransactionEvent::FR_B2C_TRANSACTION, $this->b2cGoodsTransaction()),
-                        $this->event(14, TransactionEvent::FR_B2C_PAYMENT, $this->b2cPayment('2025-09-22', 12000, 20)),
-                    ],
-                ),
-            ],
-            'current_mixed_vat_excluded_submission' => [
-                'storecoveScenario' => 'current mixed transaction/payment bucket',
-                'scope' => 'VAT-excluded B2BI',
-                'expectedValid' => false,
-                'payload' => $this->compilePayload(
-                    compiler: $compiler,
-                    builder: $builder,
-                    company: $company,
-                    submissionEventId: TransactionEvent::FR_REPORT_SUBMISSION_VAT_EXCLUDED,
-                    issuedAt: $issuedAt,
-                    documentId: 'MIXED-B2BI-001',
-                    events: [
-                        $this->event(15, TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION, $this->b2biInvoice()),
-                        $this->event(16, TransactionEvent::FR_VAT_EXCLUDED_PAYMENT, $this->b2biPayment('S1F1_REPORT2025_001', '2025-09-22', 12000, 20)),
-                    ],
-                ),
-            ],
+            'le_a_transaction_b2bi_in' => $this->scenario(
+                $companyA,
+                $transactionContextA,
+                FranceEReportVariant::TransactionInitial,
+                'FR-F10-A-TXN-B2BI-IN',
+                $this->transactionEvents($companyA, 'A', 'b2bi'),
+            ),
+            'le_a_transaction_b2c_in' => $this->scenario(
+                $companyA,
+                $transactionContextA,
+                FranceEReportVariant::TransactionInitial,
+                'FR-F10-A-TXN-B2C-IN',
+                $this->transactionEvents($companyA, 'A', 'b2c'),
+            ),
+            'le_a_transaction_combined_in' => $this->scenario(
+                $companyA,
+                $transactionContextA,
+                FranceEReportVariant::TransactionInitial,
+                'FR-F10-A-TXN-COMBINED-IN',
+                $this->transactionEvents($companyA, 'A', 'combined'),
+            ),
+            'le_b_transaction_combined_in' => $this->scenario(
+                $companyB,
+                $transactionContextB,
+                FranceEReportVariant::TransactionInitial,
+                'FR-F10-B-TXN-COMBINED-IN',
+                $this->transactionEvents($companyB, 'B', 'combined'),
+            ),
+            'le_a_transaction_b2bi_tax_categories_in' => $this->scenario(
+                $companyA,
+                $transactionContextA,
+                FranceEReportVariant::TransactionInitial,
+                'FR-F10-A-TXN-TAX-CATEGORIES-IN',
+                [$this->event(
+                    $companyA,
+                    20,
+                    TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION,
+                    '2026-09-10',
+                    $this->b2biTaxCategoryInvoice('A', (string) $companyA->settings->id_number),
+                )],
+            ),
+            'le_a_transaction_b2c_categories_in' => $this->scenario(
+                $companyA,
+                $transactionContextA,
+                FranceEReportVariant::TransactionInitial,
+                'FR-F10-A-TXN-B2C-CATEGORIES-IN',
+                $this->b2cCategoryEvents($companyA),
+            ),
+            'le_a_payment_b2bi_in' => $this->scenario(
+                $companyA,
+                $paymentContextA,
+                FranceEReportVariant::PaymentInitial,
+                'FR-F10-A-PAY-B2BI-IN',
+                $this->paymentEvents($companyA, 'A', 'b2bi'),
+            ),
+            'le_a_payment_b2c_in' => $this->scenario(
+                $companyA,
+                $paymentContextA,
+                FranceEReportVariant::PaymentInitial,
+                'FR-F10-A-PAY-B2C-IN',
+                $this->paymentEvents($companyA, 'A', 'b2c'),
+            ),
+            'le_a_payment_combined_in' => $this->scenario(
+                $companyA,
+                $paymentContextA,
+                FranceEReportVariant::PaymentInitial,
+                'FR-F10-A-PAY-COMBINED-IN',
+                $this->paymentEvents($companyA, 'A', 'combined'),
+            ),
+            'le_b_payment_combined_in' => $this->scenario(
+                $companyB,
+                $paymentContextB,
+                FranceEReportVariant::PaymentInitial,
+                'FR-F10-B-PAY-COMBINED-IN',
+                $this->paymentEvents($companyB, 'B', 'combined'),
+            ),
+            'le_a_payment_b2bi_means_in' => $this->scenario(
+                $companyA,
+                $paymentContextA,
+                FranceEReportVariant::PaymentInitial,
+                'FR-F10-A-PAY-MEANS-IN',
+                [
+                    $this->event($companyA, 30, TransactionEvent::FR_VAT_EXCLUDED_PAYMENT, '2026-01-31', $this->b2biPayment('A', '30', 'MEANS-30')),
+                    $this->event($companyA, 31, TransactionEvent::FR_VAT_EXCLUDED_PAYMENT, '2026-01-31', $this->b2biPayment('A', '48', 'MEANS-48')),
+                ],
+            ),
+            'le_a_payment_b2bi_re' => $this->scenario(
+                $companyA,
+                $paymentContextA,
+                FranceEReportVariant::PaymentRectificative,
+                'FR-F10-A-PAY-B2BI-RE',
+                $this->paymentEvents($companyA, 'A', 'b2bi'),
+            ),
+            'le_a_payment_b2c_re' => $this->scenario(
+                $companyA,
+                $paymentContextA,
+                FranceEReportVariant::PaymentRectificative,
+                'FR-F10-A-PAY-B2C-RE',
+                $this->paymentEvents($companyA, 'A', 'b2c'),
+            ),
+            'le_a_payment_combined_re' => $this->scenario(
+                $companyA,
+                $paymentContextA,
+                FranceEReportVariant::PaymentRectificative,
+                'FR-F10-A-PAY-COMBINED-RE',
+                $this->paymentEvents($companyA, 'A', 'combined'),
+            ),
         ];
 
-        $assessment = [
-            'assessedAgainst' => [
-                'storecoveF10JsonContract' => self::STORECOVE_SPEC_URL,
-                'storecoveFranceF10Rules' => self::STORECOVE_FRANCE_URL,
-                'contractSnapshotDate' => '2026-08-08',
-            ],
-            'summary' => [
-                'artifacts' => count($scenarios),
-                'pass' => 0,
-                'passWithWarnings' => 0,
-                'fail' => 0,
-            ],
+        $manifest = [
+            'label' => 'STORECOVE HTTP FORMAT CANDIDATES - LOCAL ONLY, NOT SUBMITTED',
+            'generatedAt' => '2026-08-09T00:00:00Z',
+            'storecoveContract' => 'https://www.storecove.com/docs/',
+            'storecoveDocsLastUpdated' => '2026-08-07T15:11:31Z',
+            'storecoveOpenApi' => 'https://api.storecove.com/api/v2/openapi.json',
+            'storecoveOpenApiVersion' => '2.0.1',
+            'storecoveOpenApiSha256' => '7f72642d80e61a13fa09d5c8f427c3ce7e5914900d89f8f2f4c91102a0f7c4c9',
+            'storecoveFlux10Validator' => 'Schematron v1.0 (July 2026)',
+            'aifeRulesVersion' => '3.2',
+            'aifeRulesPackage' => 'https://www.impots.gouv.fr/sites/default/files/media/1_metier/2_professionnel/EV/2_gestion/290_facturation_electronique/specification_externes_b2b/specifications-externes-v3.2.zip',
+            'aifeRulesPackageSha256' => 'cd8f6e817e37f329e6f62a35aa131b78a51379bec953445b774fa8adbaaa3862',
+            'artifactUpdateCommand' => 'UPDATE_STORECOVE_ARTIFACTS=1 php vendor/bin/phpunit tests/Unit/FranceEReporting/FranceEReportArtifactAssessmentTest.php',
+            'qualificationEnvironment' => 'No Storecove sandbox is available for this integration.',
+            'releaseRule' => 'UNPROVED until Storecove supplies exact generated F10 XML for these payloads or an authorized real-data production canary produces it, followed by pinned AIFE and scenario-value validation.',
+            'runtimeQualificationGate' => 'FRANCE_REPORTING_STORECOVE_QUALIFIED_VARIANTS (empty by default)',
             'artifacts' => [],
         ];
 
         foreach ($scenarios as $name => $scenario) {
-            $payload = $scenario['payload'];
-            $result = $this->assessStorecoveF10Payload($payload);
-            $artifactFilename = $name.'.json';
+            $payload = $this->compilePayload(
+                $scenario['company'],
+                $scenario['context'],
+                $scenario['variant'],
+                $scenario['documentId'],
+                $scenario['events'],
+                self::IDEMPOTENCY_GUIDS[$name],
+            );
 
-            $this->writeJsonArtifact($artifactFilename, $payload);
+            $this->assertStorecoveShape($payload, $scenario['company'], $scenario['variant']);
+            $httpBody = $this->exactFinalHttpBody($scenario['company'], $payload);
+            $decodedBody = json_decode($httpBody, true, 512, JSON_THROW_ON_ERROR);
+            $this->assertSame($payload, $decodedBody);
 
-            $assessment['summary'][$this->summaryKey($result['status'])]++;
-            $assessment['artifacts'][] = [
-                'file' => $artifactFilename,
-                'storecoveScenario' => $scenario['storecoveScenario'],
-                'scope' => $scenario['scope'],
-                ...$result,
+            $otherSentinel = $scenario['company']->id === $companyA->id ? 'B-SENTINEL' : 'A-SENTINEL';
+            $otherSiren = $scenario['company']->id === $companyA->id ? '732829320' : '552100554';
+            $this->assertStringNotContainsString($otherSentinel, $httpBody);
+            $this->assertStringNotContainsString($otherSiren, $httpBody);
+            $this->assertMapperSpecificScenario($name, $decodedBody);
+
+            $filename = $name.'.request.json';
+            $this->assertOrUpdateArtifact($filename, $httpBody);
+            $report = $payload['document']['frEReport'];
+            $section = $report['transactionReport'] ?? $report['paymentReport'];
+            $manifest['artifacts'][] = [
+                'file' => $filename,
+                'sha256' => hash('sha256', $httpBody),
+                'legalEntityId' => $payload['legalEntityId'],
+                'siren' => $report['declarantParty']['publicIdentifiers'][0]['id'],
+                'variant' => $scenario['variant']->value,
+                'reportKind' => $scenario['variant']->isTransaction() ? 'transactionReport' : 'paymentReport',
+                'period' => $section['period'],
+                'b2biRows' => count($section[$scenario['variant']->isTransaction() ? 'b2biInvoices' : 'b2biPayments'] ?? []),
+                'b2cRows' => count($section[$scenario['variant']->isTransaction() ? 'b2cTransactions' : 'b2cPayments'] ?? []),
+                'exactStorecoveHttpBody' => 'PASS',
+                'storecoveQualification' => 'NOT_AVAILABLE_PRE_PRODUCTION',
+                'storecoveGeneratedF10Xml' => 'REQUIRED_FROM_VENDOR_OR_AUTHORIZED_REAL_DATA_CANARY',
+                'aifeValidation' => 'REQUIRED_BEFORE_BROAD_ENABLEMENT',
+                'releaseStatus' => 'UNPROVED',
             ];
-
-            $this->assertSame(
-                $scenario['expectedValid'],
-                $result['status'] !== 'fail',
-                $artifactFilename,
-            );
-            $this->assertFileExists(base_path(self::ARTIFACT_DIRECTORY.'/'.$artifactFilename));
-            $this->assertSame(
-                $payload,
-                json_decode(
-                    file_get_contents(base_path(self::ARTIFACT_DIRECTORY.'/'.$artifactFilename)),
-                    true,
-                    512,
-                    JSON_THROW_ON_ERROR,
-                ),
-            );
         }
 
-        $this->writeJsonArtifact('assessment.json', $assessment);
+        $manifestBytes = json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR).PHP_EOL;
+        $this->assertOrUpdateArtifact('manifest.json', $manifestBytes);
+        $this->assertContains(100042, array_column($manifest['artifacts'], 'legalEntityId'));
+        $this->assertContains(100043, array_column($manifest['artifacts'], 'legalEntityId'));
+        $this->assertSame(['UNPROVED'], array_values(array_unique(array_column($manifest['artifacts'], 'releaseStatus'))));
+    }
 
-        $this->assertSame(8, $assessment['summary']['artifacts']);
-        $this->assertSame(6, $assessment['summary']['pass'] + $assessment['summary']['passWithWarnings']);
-        $this->assertSame(2, $assessment['summary']['fail']);
-        $this->assertSame(
-            ['[G6.29] Exactly one of transactionReport or paymentReport must be present.'],
-            $assessment['artifacts'][6]['errors'],
-        );
-        $this->assertSame(
-            ['[G6.29] Exactly one of transactionReport or paymentReport must be present.'],
-            $assessment['artifacts'][7]['errors'],
-        );
+    /**
+     * @param array<int, TransactionEvent> $events
+     * @return array{company: Company, context: FranceEReportContext, variant: FranceEReportVariant, documentId: string, events: array<int, TransactionEvent>}
+     */
+    private function scenario(
+        Company $company,
+        FranceEReportContext $context,
+        FranceEReportVariant $variant,
+        string $documentId,
+        array $events,
+    ): array {
+        return compact('company', 'context', 'variant', 'documentId', 'events');
     }
 
     /**
@@ -260,661 +248,378 @@ class FranceEReportArtifactAssessmentTest extends TestCase
      * @return array<string, mixed>
      */
     private function compilePayload(
-        FranceEReportCompiler $compiler,
-        FranceEReportPayloadBuilder $builder,
         Company $company,
-        int $submissionEventId,
-        CarbonImmutable $issuedAt,
+        FranceEReportContext $context,
+        FranceEReportVariant $variant,
         string $documentId,
         array $events,
+        string $idempotencyGuid,
     ): array {
-        $report = $compiler->compileFromEvents(
-            company: $company,
-            submissionEventId: $submissionEventId,
-            periodEnd: '2025-09-30',
-            events: $events,
-            issuedAt: $issuedAt,
-            documentId: $documentId,
+        $report = (new FranceEReportCompiler())->compileVariantFromEvents(
+            $company,
+            $variant,
+            $context,
+            $events,
+            $documentId,
         );
 
-        return $builder->build($company, $report);
+        return (new FranceEReportPayloadBuilder())->build($company, $context, $report, $idempotencyGuid);
     }
 
-    private function company(): Company
+    /** @param array<string, mixed> $payload */
+    private function assertStorecoveShape(array $payload, Company $company, FranceEReportVariant $variant): void
+    {
+        $this->assertSame(['legalEntityId', 'idempotencyGuid', 'document'], array_keys($payload));
+        $this->assertSame((int) $company->legal_entity_id, $payload['legalEntityId']);
+        $this->assertSame('fr_e_report', $payload['document']['documentType']);
+        $this->assertSame(['documentType', 'frEReport'], array_keys($payload['document']));
+
+        $report = $payload['document']['frEReport'];
+        $this->assertArrayNotHasKey('schemaVersion', $report);
+        $this->assertArrayNotHasKey('routing', $payload);
+        $this->assertArrayNotHasKey('role', $report['declarantParty']);
+        $this->assertSame(['companyName' => (string) $company->settings->name], $report['declarantParty']['party']);
+        $this->assertSame(
+            $variant->isTransaction() ? ['transactionReport'] : ['paymentReport'],
+            array_values(array_intersect(['transactionReport', 'paymentReport'], array_keys($report))),
+        );
+
+        $section = $variant->isTransaction() ? $report['transactionReport'] : $report['paymentReport'];
+        $b2biKey = $variant->isTransaction() ? 'b2biInvoices' : 'b2biPayments';
+        $b2cKey = $variant->isTransaction() ? 'b2cTransactions' : 'b2cPayments';
+        $this->assertTrue(isset($section[$b2biKey]) || isset($section[$b2cKey]));
+        $this->assertNotSame([], $section[$b2biKey] ?? null);
+        $this->assertNotSame([], $section[$b2cKey] ?? null);
+
+        if (isset($section[$b2biKey])) {
+            $expectedKeys = $variant->isTransaction()
+                ? ['taxCategory', 'percentage', 'taxableAmount', 'taxAmount', 'country']
+                : ['percentage', 'category', 'currency', 'country', 'amountIncludingTax'];
+            $this->assertSame($expectedKeys, array_keys($section[$b2biKey][0]['taxSubtotals'][0]));
+        }
+
+        if (isset($section[$b2cKey])) {
+            $subtotalKey = $variant->isTransaction() ? 'taxSubtotals' : 'taxSubtotal';
+            $expectedKeys = $variant->isTransaction()
+                ? ['category', 'percentage', 'taxableAmount', 'taxAmount']
+                : ['category', 'percentage', 'country', 'currency', 'amount'];
+            $this->assertSame($expectedKeys, array_keys($section[$b2cKey][0][$subtotalKey][0]));
+        }
+    }
+
+    /** @param array<string, mixed> $payload */
+    private function exactFinalHttpBody(Company $company, array $payload): string
+    {
+        config([
+            'ninja.environment' => 'hosted',
+            'ninja.storecove_api_key' => 'format-test-key',
+            'ninja.france_reporting_storecove_qualified_variants' => array_column(FranceEReportVariant::cases(), 'value'),
+        ]);
+        $capturedRequest = null;
+        Http::fake(function ($request) use (&$capturedRequest) {
+            $capturedRequest = $request;
+
+            return Http::response(['guid' => 'storecove-guid'], 200);
+        });
+
+        $storecove = new Storecove();
+        $response = $storecove->proxy->setCompany($company)->submitDocument([
+            ...$payload,
+            'legal_entity_id' => $payload['legalEntityId'],
+            'tenant_id' => 'internal-tenant',
+            'account_key' => 'internal-account',
+            'e_invoicing_token' => 'internal-token',
+        ]);
+
+        $this->assertSame(['guid' => 'storecove-guid'], $response);
+        $this->assertNotNull($capturedRequest);
+        $this->assertSame('POST', $capturedRequest->method());
+        $this->assertSame('https://api.storecove.com/api/v2/document_submissions', $capturedRequest->url());
+
+        return $capturedRequest->body();
+    }
+
+    private function company(int $companyId, int $legalEntityId, string $siren, string $name): Company
     {
         $company = new Company();
         $company->setRawAttributes([
-            'id' => 42,
-            'company_key' => 'fr-report-artifact-company',
-            'legal_entity_id' => -1,
+            'id' => $companyId,
+            'company_key' => 'fr-report-company-'.$companyId,
+            'legal_entity_id' => $legalEntityId,
         ], true);
-
         $settings = CompanySettings::defaults();
-        $settings->name = 'LEVENDEURC3';
-        $settings->id_number = '35202215400000';
-        $settings->vat_number = 'FR99352022154';
-        $settings->france_reporting_schedule = 'monthly';
-        $settings->country_id = '73';
-
+        $settings->name = $name;
+        $settings->id_number = $siren;
+        $settings->vat_number = 'FR'.$siren;
         $company->settings = $settings;
 
         return $company;
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    private function event(int $id, int $eventId, array $payload): TransactionEvent
+    private function context(Company $company, string $start, string $end, string $issuedAt): FranceEReportContext
+    {
+        return new FranceEReportContext(
+            companyId: (int) $company->id,
+            legalEntityId: (int) $company->legal_entity_id,
+            periodStart: $start,
+            periodEnd: $end,
+            issuedAt: CarbonImmutable::parse($issuedAt),
+        );
+    }
+
+    /** @return array<int, TransactionEvent> */
+    private function transactionEvents(Company $company, string $sentinel, string $composition): array
+    {
+        $events = [];
+
+        if (in_array($composition, ['b2bi', 'combined'], true)) {
+            $events[] = $this->event($company, 1, TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION, '2026-09-10', $this->b2biInvoice($sentinel, (string) $company->settings->id_number));
+        }
+
+        if (in_array($composition, ['b2c', 'combined'], true)) {
+            $events[] = $this->event($company, 2, TransactionEvent::FR_B2C_TRANSACTION, '2026-09-10', $this->b2cTransaction($sentinel));
+        }
+
+        return $events;
+    }
+
+    /** @return array<int, TransactionEvent> */
+    private function paymentEvents(Company $company, string $sentinel, string $composition): array
+    {
+        $events = [];
+
+        if (in_array($composition, ['b2bi', 'combined'], true)) {
+            $events[] = $this->event($company, 3, TransactionEvent::FR_VAT_EXCLUDED_PAYMENT, '2026-01-31', $this->b2biPayment($sentinel));
+        }
+
+        if (in_array($composition, ['b2c', 'combined'], true)) {
+            $events[] = $this->event($company, 4, TransactionEvent::FR_B2C_PAYMENT, '2026-01-31', $this->b2cPayment());
+        }
+
+        return $events;
+    }
+
+    /** @return array<int, TransactionEvent> */
+    private function b2cCategoryEvents(Company $company): array
+    {
+        $specifications = [
+            ['2026-09-05', 'TLB1', 'customer', 'standard', 100, 20],
+            ['2026-09-06', 'TPS1', 'supplier', 'exempt', 80, 0],
+            ['2026-09-07', 'TNT1', 'customer', 'zero_rated', 60, 0],
+            ['2026-09-08', 'TMA1', 'supplier', 'outside_scope', 40, 0],
+        ];
+
+        return array_map(
+            fn (array $specification, int $index): TransactionEvent => $this->event(
+                $company,
+                40 + $index,
+                TransactionEvent::FR_B2C_TRANSACTION,
+                '2026-09-10',
+                $this->b2cCategoryTransaction(...$specification),
+            ),
+            $specifications,
+            array_keys($specifications),
+        );
+    }
+
+    /** @param array<string, mixed> $data */
+    private function event(Company $company, int $id, int $eventId, string $periodEnd, array $data): TransactionEvent
     {
         $event = new TransactionEvent();
         $event->setRawAttributes([
             'id' => $id,
+            'company_id' => $company->id,
             'event_id' => $eventId,
-            'period' => '2025-09-30',
-            'reporting_data' => json_encode($payload, JSON_THROW_ON_ERROR),
+            'period' => $periodEnd,
+            'reporting_data' => json_encode($data, JSON_THROW_ON_ERROR),
         ], true);
 
         return $event;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function b2biInvoice(): array
+    /** @return array<string, mixed> */
+    private function b2biInvoice(string $sentinel, string $siren): array
     {
         return [
-            'invoiceNumber' => 'S1F1_REPORT2025_001',
-            'issueDate' => '2025-09-01',
-            'dueDate' => '2025-09-30',
+            'invoiceNumber' => $sentinel.'-SENTINEL-INV',
+            'issueDate' => '2026-09-05',
             'documentCurrency' => 'EUR',
-            'amountIncludingVat' => 12000,
-            'taxSubtotals' => [
-                [
-                    'taxCategory' => 'standard',
-                    'percentage' => 20,
-                    'taxableAmount' => 10000,
-                    'taxAmount' => 2000,
-                    'country' => 'FR',
-                ],
+            'amountIncludingVat' => 120,
+            'accountingSupplierParty' => [
+                'party' => ['companyName' => $sentinel.'-SENTINEL', 'address' => ['country' => 'FR']],
+                'publicIdentifiers' => [['scheme' => 'FR:SIRENE', 'id' => $siren]],
             ],
-            'accountingSupplierParty' => $this->supplierParty(),
-            'accountingCustomerParty' => $this->customerParty(),
-            'invoiceLines' => [
-                [
-                    'description' => 'Cross-border consulting services',
-                    'amountExcludingVat' => 10000,
-                    'tax' => [
-                        'percentage' => 20,
-                        'category' => 'standard',
-                        'country' => 'FR',
-                    ],
-                ],
+            'accountingCustomerParty' => [
+                'party' => ['companyName' => $sentinel.'-CUSTOMER', 'address' => ['country' => 'IT']],
+                'publicIdentifiers' => [['scheme' => 'IT:VAT', 'id' => 'IT00987654321']],
             ],
+            'taxSubtotals' => [[
+                'taxCategory' => 'standard', 'percentage' => 20, 'taxableAmount' => 100, 'taxAmount' => 20, 'country' => 'FR',
+            ]],
+            'invoiceLines' => [[
+                'description' => $sentinel.'-SENTINEL-GOODS',
+                'amountExcludingVat' => 100,
+                'tax' => ['percentage' => 20, 'category' => 'standard', 'country' => 'FR'],
+            ]],
         ];
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function b2biCredit(): array
+    /** @return array<string, mixed> */
+    private function b2cTransaction(string $sentinel): array
     {
         return [
-            'invoiceNumber' => 'S1F2_CREDIT2025_01',
-            'issueDate' => '2025-09-18',
-            'documentCurrency' => 'EUR',
-            'amountIncludingVat' => -6050,
-            'taxSubtotals' => [
-                [
-                    'taxCategory' => 'standard',
-                    'percentage' => 10,
-                    'taxableAmount' => -5500,
-                    'taxAmount' => -550,
-                    'country' => 'FR',
-                ],
-            ],
-            'accountingSupplierParty' => $this->supplierParty(),
-            'accountingCustomerParty' => $this->customerParty(),
-            'invoiceLines' => [
-                [
-                    'description' => 'Cross-border service credit',
-                    'amountExcludingVat' => -5500,
-                    'tax' => [
-                        'percentage' => 10,
-                        'category' => 'standard',
-                        'country' => 'FR',
-                    ],
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function supplierParty(): array
-    {
-        return [
-            'party' => [
-                'companyName' => 'LEVENDEURC3',
-                'address' => [
-                    'country' => 'FR',
-                ],
-            ],
-            'publicIdentifiers' => [
-                [
-                    'scheme' => 'FR:SIRENE',
-                    'id' => '352022154',
-                ],
-                [
-                    'scheme' => 'FR:VAT',
-                    'id' => 'FR99352022154',
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function customerParty(): array
-    {
-        return [
-            'party' => [
-                'companyName' => 'METACORTEX',
-                'address' => [
-                    'street1' => '987654321',
-                    'street2' => 'METACORTEX',
-                    'zip' => '98152',
-                    'city' => 'Scala Ritiro',
-                    'country' => 'IT',
-                ],
-            ],
-            'publicIdentifiers' => [
-                [
-                    'scheme' => 'IT:VAT',
-                    'id' => 'IT00987654321',
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function b2cGoodsTransaction(): array
-    {
-        return [
-            'date' => '2025-09-16',
-            'currency' => 'EUR',
-            'vatPaymentOption' => 'customer',
+            'date' => '2026-09-05',
             'category' => 'TLB1',
-            'amountExcludingVat' => 10000,
-            'amountIncludingVat' => 12000,
-            'transactionsCount' => 100,
-            'taxSubtotals' => [
-                [
-                    'category' => 'standard',
-                    'percentage' => 20,
-                    'taxableAmount' => 10000,
-                    'taxAmount' => 2000,
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function b2cServicesTransaction(): array
-    {
-        return [
-            'date' => '2025-09-22',
             'currency' => 'EUR',
-            'vatPaymentOption' => 'supplier',
-            'category' => 'TPS1',
-            'amountExcludingVat' => 5500,
-            'amountIncludingVat' => 6050,
-            'transactionsCount' => 25,
-            'taxSubtotals' => [
-                [
-                    'category' => 'standard',
-                    'percentage' => 10,
-                    'taxableAmount' => 5500,
-                    'taxAmount' => 550,
-                ],
-            ],
+            'amountExcludingVat' => $sentinel === 'A' ? 100 : 200,
+            'amountIncludingVat' => $sentinel === 'A' ? 120 : 240,
+            'taxSubtotals' => [[
+                'category' => 'standard',
+                'percentage' => 20,
+                'taxableAmount' => $sentinel === 'A' ? 100 : 200,
+                'taxAmount' => $sentinel === 'A' ? 20 : 40,
+            ]],
         ];
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function b2biPayment(string $invoiceNumber, string $paymentDate, int $amount, int $percentage): array
+    /** @return array<string, mixed> */
+    private function b2biPayment(string $sentinel, ?string $paymentMeansCode = null, string $invoiceSuffix = 'SENTINEL-INV'): array
     {
+        return array_filter([
+            'invoiceNumber' => $sentinel.'-'.$invoiceSuffix,
+            'issueDate' => '2026-01-05',
+            'paymentDate' => '2026-01-20',
+            'paymentMeansCode' => $paymentMeansCode,
+            'taxSubtotals' => [[
+                'percentage' => 20,
+                'category' => 'standard',
+                'currency' => 'EUR',
+                'country' => 'FR',
+                'amountIncludingTax' => 120,
+            ]],
+        ], static fn (mixed $value): bool => ! is_null($value));
+    }
+
+    /** @return array<string, mixed> */
+    private function b2biTaxCategoryInvoice(string $sentinel, string $siren): array
+    {
+        $taxes = [
+            ['S', 20, 100, 20],
+            ['K', 0, 10, 0],
+            ['AE', 0, 10, 0],
+            ['E', 0, 10, 0],
+            ['Z', 0, 10, 0],
+            ['G', 0, 10, 0],
+            ['O', 0, 10, 0],
+        ];
+
         return [
-            'invoiceNumber' => $invoiceNumber,
-            'issueDate' => '2025-09-03',
-            'paymentDate' => $paymentDate,
-            'paymentMeansCode' => '30',
-            'taxSubtotals' => [
-                [
-                    'percentage' => $percentage,
-                    'category' => 'standard',
-                    'currency' => 'EUR',
-                    'country' => 'FR',
-                    'amountIncludingTax' => $amount,
-                ],
+            'invoiceNumber' => $sentinel.'-TAX-CATEGORIES',
+            'issueDate' => '2026-09-05',
+            'documentCurrency' => 'EUR',
+            'amountIncludingVat' => 180,
+            'accountingSupplierParty' => [
+                'party' => ['companyName' => $sentinel.'-SENTINEL', 'address' => ['country' => 'FR']],
+                'publicIdentifiers' => [['scheme' => 'FR:SIRENE', 'id' => $siren]],
             ],
+            'accountingCustomerParty' => [
+                'party' => ['companyName' => $sentinel.'-CUSTOMER', 'address' => ['country' => 'IT']],
+                'publicIdentifiers' => [['scheme' => 'IT:VAT', 'id' => 'IT00987654321']],
+            ],
+            'taxSubtotals' => array_map(static fn (array $tax): array => [
+                'taxCategory' => $tax[0],
+                'percentage' => $tax[1],
+                'taxableAmount' => $tax[2],
+                'taxAmount' => $tax[3],
+                'country' => 'FR',
+            ], $taxes),
+            'invoiceLines' => array_map(static fn (array $tax, int $index): array => [
+                'description' => $sentinel.'-TAX-LINE-'.($index + 1),
+                'amountExcludingVat' => $tax[2],
+                'tax' => ['percentage' => $tax[1], 'category' => $tax[0], 'country' => 'FR'],
+            ], $taxes, array_keys($taxes)),
         ];
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function b2cPayment(string $date, int $amount, int $percentage): array
-    {
+    /** @return array<string, mixed> */
+    private function b2cCategoryTransaction(
+        string $date,
+        string $category,
+        string $vatPaymentOption,
+        string $taxCategory,
+        int $net,
+        int $vat,
+    ): array {
         return [
             'date' => $date,
-            'taxSubtotal' => [
-                [
-                    'category' => 'standard',
-                    'percentage' => $percentage,
-                    'country' => 'FR',
-                    'currency' => 'EUR',
-                    'amount' => $amount,
-                ],
-            ],
+            'category' => $category,
+            'currency' => 'EUR',
+            'amountExcludingVat' => $net,
+            'amountIncludingVat' => $net + $vat,
+            'transactionsCount' => 1,
+            'vatPaymentOption' => $vatPaymentOption,
+            'taxSubtotals' => [[
+                'category' => $taxCategory,
+                'percentage' => $vat === 0 ? 0 : 20,
+                'taxableAmount' => $net,
+                'taxAmount' => $vat,
+            ]],
         ];
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     * @return array{status: string, errors: array<int, string>, warnings: array<int, string>}
-     */
-    private function assessStorecoveF10Payload(array $payload): array
+    /** @param array<string, mixed> $payload */
+    private function assertMapperSpecificScenario(string $name, array $payload): void
     {
-        $errors = [];
-        $warnings = [];
+        $report = $payload['document']['frEReport'];
 
-        if (! is_int($payload['legalEntityId'] ?? null)) {
-            $errors[] = 'legalEntityId must be an integer.';
+        if ($name === 'le_a_transaction_b2bi_tax_categories_in') {
+            $invoice = $report['transactionReport']['b2biInvoices'][0];
+            $expected = ['standard', 'intra_community', 'reverse_charge', 'exempt', 'zero_rated', 'export', 'outside_scope'];
+            $this->assertSame($expected, array_column($invoice['taxSubtotals'], 'taxCategory'));
+            $this->assertSame($expected, array_column(array_column($invoice['invoiceLines'], 'tax'), 'category'));
         }
 
-        if (data_get($payload, 'document.documentType') !== 'fr_e_report') {
-            $errors[] = 'document.documentType must be fr_e_report.';
+        if ($name === 'le_a_transaction_b2c_categories_in') {
+            $transactions = $report['transactionReport']['b2cTransactions'];
+            $this->assertSame(['TLB1', 'TPS1', 'TNT1', 'TMA1'], array_column($transactions, 'category'));
+            $this->assertSame(['customer', 'supplier', 'customer', 'supplier'], array_column($transactions, 'vatPaymentOption'));
         }
 
-        $report = data_get($payload, 'document.frEReport');
-
-        if (! is_array($report)) {
-            return [
-                'status' => 'fail',
-                'errors' => [...$errors, 'document.frEReport is required.'],
-                'warnings' => $warnings,
-            ];
+        if ($name === 'le_a_payment_b2bi_means_in') {
+            $this->assertSame(['30', '48'], array_column($report['paymentReport']['b2biPayments'], 'paymentMeansCode'));
         }
+    }
 
-        foreach (['typeCode', 'documentId', 'issueDate', 'issueTime', 'timeZone', 'declarantParty'] as $requiredKey) {
-            if (! array_key_exists($requiredKey, $report)) {
-                $errors[] = "frEReport.{$requiredKey} is required.";
-            }
-        }
-
-        if (! in_array($report['typeCode'] ?? null, ['IN', 'RE'], true)) {
-            $errors[] = 'frEReport.typeCode must be IN or RE.';
-        }
-
-        if (! is_string($report['documentId'] ?? null) || trim($report['documentId']) === '') {
-            $errors[] = 'frEReport.documentId must be a non-empty string.';
-        } elseif (mb_strlen($report['documentId']) > 20) {
-            $errors[] = 'frEReport.documentId exceeds the current PPF 20-character limit.';
-        }
-
-        $this->assessDate($report['issueDate'] ?? null, 'frEReport.issueDate', $errors);
-
-        if (! is_string($report['issueTime'] ?? null)
-            || ! preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d$/', $report['issueTime'])) {
-            $errors[] = 'frEReport.issueTime must use valid HH:MM:SS format.';
-        }
-
-        if (! is_string($report['timeZone'] ?? null)
-            || ! preg_match('/^[+-](?:0\d|1[0-4])[0-5]\d$/', $report['timeZone'])) {
-            $errors[] = 'frEReport.timeZone must use a valid +zzzz or -zzzz offset.';
-        }
-
-        $identifiers = data_get($report, 'declarantParty.publicIdentifiers');
-
-        if (! is_array($identifiers) || $identifiers === [] || ! array_is_list($identifiers)) {
-            $errors[] = 'frEReport.declarantParty.publicIdentifiers requires a non-empty list.';
-        } else {
-            foreach ($identifiers as $index => $identifier) {
-                if (! is_array($identifier)
-                    || ! is_string($identifier['scheme'] ?? null)
-                    || ! is_string($identifier['id'] ?? null)
-                    || trim($identifier['id']) === '') {
-                    $errors[] = "frEReport.declarantParty.publicIdentifiers.{$index} requires scheme and id.";
-                }
-            }
-        }
-
-        $sectionCount = (int) array_key_exists('transactionReport', $report)
-            + (int) array_key_exists('paymentReport', $report);
-
-        if ($sectionCount !== 1) {
-            $errors[] = '[G6.29] Exactly one of transactionReport or paymentReport must be present.';
-        }
-
-        if (isset($report['transactionReport']) && is_array($report['transactionReport'])) {
-            $this->assessTransactionReport($report['transactionReport'], $errors);
-        }
-
-        if (isset($report['paymentReport']) && is_array($report['paymentReport'])) {
-            $this->assessPaymentReport($report['paymentReport'], $errors);
-        }
-
-        if (($report['typeCode'] ?? null) === 'RE' && ! array_key_exists('paymentReport', $report)) {
-            $errors[] = 'Storecove F10 scenario 3.3 requires a rectificative paymentReport.';
-        }
-
-        if (array_key_exists('schemaVersion', $report)) {
-            $warnings[] = 'frEReport.schemaVersion is an Invoice Ninja storage field and is not part of Storecove\'s documented F10 JSON model.';
-        }
-
-        if (is_array(data_get($report, 'declarantParty.party.address'))) {
-            $warnings[] = 'frEReport.declarantParty.party.address is not part of Storecove\'s specialized frEReportParty model; only companyName is documented.';
-        }
-
+    /** @return array<string, mixed> */
+    private function b2cPayment(): array
+    {
         return [
-            'status' => $errors !== [] ? 'fail' : ($warnings !== [] ? 'pass_with_warnings' : 'pass'),
-            'errors' => array_values(array_unique($errors)),
-            'warnings' => array_values(array_unique($warnings)),
+            'date' => '2026-01-20',
+            'taxSubtotal' => [[
+                'category' => 'standard',
+                'percentage' => 20,
+                'country' => 'FR',
+                'currency' => 'EUR',
+                'amount' => 120,
+            ]],
         ];
     }
 
-    /**
-     * @param array<string, mixed> $report
-     * @param array<int, string> $errors
-     */
-    private function assessTransactionReport(array $report, array &$errors): void
+    private function assertOrUpdateArtifact(string $filename, string $bytes): void
     {
-        $this->assessPeriod($report['period'] ?? null, 'transactionReport.period', $errors);
+        $path = base_path(self::ARTIFACT_DIRECTORY.'/'.$filename);
 
-        $invoices = $this->listValue($report, 'b2biInvoices', 'transactionReport', $errors);
-        $transactions = $this->listValue($report, 'b2cTransactions', 'transactionReport', $errors);
+        if (getenv('UPDATE_STORECOVE_ARTIFACTS') === '1') {
+            $directory = dirname($path);
 
-        if ($invoices === [] && $transactions === []) {
-            $errors[] = 'transactionReport requires at least one b2biInvoices or b2cTransactions row.';
+            if (! is_dir($directory)) {
+                mkdir($directory, 0755, true);
+            }
+
+            file_put_contents($path, $bytes);
         }
 
-        foreach ($invoices as $index => $invoice) {
-            if (! is_array($invoice)) {
-                $errors[] = "transactionReport.b2biInvoices.{$index} must be an object.";
-                continue;
-            }
-
-            foreach (['invoiceNumber', 'issueDate', 'documentCurrency', 'amountIncludingVat'] as $key) {
-                if (! array_key_exists($key, $invoice)) {
-                    $errors[] = "transactionReport.b2biInvoices.{$index}.{$key} is required by the generated report contract.";
-                }
-            }
-
-            $this->assessDate($invoice['issueDate'] ?? null, "transactionReport.b2biInvoices.{$index}.issueDate", $errors);
-
-            if (isset($invoice['dueDate'])) {
-                $this->assessDate($invoice['dueDate'], "transactionReport.b2biInvoices.{$index}.dueDate", $errors);
-            }
-
-            if (! $this->isCurrency($invoice['documentCurrency'] ?? null)) {
-                $errors[] = "transactionReport.b2biInvoices.{$index}.documentCurrency must use a three-letter currency code.";
-            }
-
-            if (! is_numeric($invoice['amountIncludingVat'] ?? null)) {
-                $errors[] = "transactionReport.b2biInvoices.{$index}.amountIncludingVat must be numeric.";
-            }
-
-            foreach (['accountingSupplierParty', 'accountingCustomerParty'] as $partyKey) {
-                if (! is_array($invoice[$partyKey] ?? null)
-                    || ! is_array(data_get($invoice, "{$partyKey}.publicIdentifiers"))
-                    || data_get($invoice, "{$partyKey}.publicIdentifiers") === []) {
-                    $errors[] = "transactionReport.b2biInvoices.{$index}.{$partyKey}.publicIdentifiers requires a non-empty list.";
-                }
-            }
-
-            if (! is_array($invoice['invoiceLines'] ?? null) || $invoice['invoiceLines'] === []) {
-                $errors[] = "transactionReport.b2biInvoices.{$index}.invoiceLines requires at least one row.";
-            }
-
-            $this->assessTaxSubtotals(
-                $invoice['taxSubtotals'] ?? null,
-                "transactionReport.b2biInvoices.{$index}.taxSubtotals",
-                'invoice',
-                $errors,
-            );
-        }
-
-        foreach ($transactions as $index => $transaction) {
-            if (! is_array($transaction)) {
-                $errors[] = "transactionReport.b2cTransactions.{$index} must be an object.";
-                continue;
-            }
-
-            foreach (['date', 'currency', 'category', 'amountExcludingVat', 'amountIncludingVat', 'transactionsCount'] as $key) {
-                if (! array_key_exists($key, $transaction)) {
-                    $errors[] = "transactionReport.b2cTransactions.{$index}.{$key} is required by the generated report contract.";
-                }
-            }
-
-            $this->assessDate($transaction['date'] ?? null, "transactionReport.b2cTransactions.{$index}.date", $errors);
-
-            if (! $this->isCurrency($transaction['currency'] ?? null)) {
-                $errors[] = "transactionReport.b2cTransactions.{$index}.currency must use a three-letter currency code.";
-            }
-
-            if (! is_int($transaction['transactionsCount'] ?? null) || $transaction['transactionsCount'] < 0) {
-                $errors[] = "transactionReport.b2cTransactions.{$index}.transactionsCount must be an integer greater than or equal to zero.";
-            }
-
-            $this->assessTaxSubtotals(
-                $transaction['taxSubtotals'] ?? null,
-                "transactionReport.b2cTransactions.{$index}.taxSubtotals",
-                'transaction',
-                $errors,
-            );
-        }
-    }
-
-    /**
-     * @param array<string, mixed> $report
-     * @param array<int, string> $errors
-     */
-    private function assessPaymentReport(array $report, array &$errors): void
-    {
-        $this->assessPeriod($report['period'] ?? null, 'paymentReport.period', $errors);
-
-        $b2biPayments = $this->listValue($report, 'b2biPayments', 'paymentReport', $errors);
-        $b2cPayments = $this->listValue($report, 'b2cPayments', 'paymentReport', $errors);
-
-        if ($b2biPayments === [] && $b2cPayments === []) {
-            $errors[] = 'paymentReport requires at least one b2biPayments or b2cPayments row.';
-        }
-
-        foreach ($b2biPayments as $index => $payment) {
-            if (! is_array($payment)) {
-                $errors[] = "paymentReport.b2biPayments.{$index} must be an object.";
-                continue;
-            }
-
-            if (! is_string($payment['invoiceNumber'] ?? null) || trim($payment['invoiceNumber']) === '') {
-                $errors[] = "paymentReport.b2biPayments.{$index}.invoiceNumber is required.";
-            }
-
-            $this->assessDate($payment['paymentDate'] ?? null, "paymentReport.b2biPayments.{$index}.paymentDate", $errors);
-
-            if (isset($payment['issueDate'])) {
-                $this->assessDate($payment['issueDate'], "paymentReport.b2biPayments.{$index}.issueDate", $errors);
-            }
-
-            $hasAmount = is_numeric($payment['amount'] ?? null) && $this->isCurrency($payment['currency'] ?? null);
-            $hasTaxSubtotals = is_array($payment['taxSubtotals'] ?? null) && $payment['taxSubtotals'] !== [];
-
-            if (! $hasAmount && ! $hasTaxSubtotals) {
-                $errors[] = "paymentReport.b2biPayments.{$index} requires amount/currency or taxSubtotals.";
-            }
-
-            if ($hasTaxSubtotals) {
-                $this->assessTaxSubtotals(
-                    $payment['taxSubtotals'],
-                    "paymentReport.b2biPayments.{$index}.taxSubtotals",
-                    'b2bi_payment',
-                    $errors,
-                );
-            }
-        }
-
-        foreach ($b2cPayments as $index => $payment) {
-            if (! is_array($payment)) {
-                $errors[] = "paymentReport.b2cPayments.{$index} must be an object.";
-                continue;
-            }
-
-            $this->assessDate($payment['date'] ?? null, "paymentReport.b2cPayments.{$index}.date", $errors);
-            $this->assessTaxSubtotals(
-                $payment['taxSubtotal'] ?? null,
-                "paymentReport.b2cPayments.{$index}.taxSubtotal",
-                'b2c_payment',
-                $errors,
-            );
-
-            $unexpectedKeys = array_diff(array_keys($payment), ['date', 'taxSubtotal']);
-
-            if ($unexpectedKeys !== []) {
-                $errors[] = "paymentReport.b2cPayments.{$index} contains transaction-only or ignored fields: ".implode(', ', $unexpectedKeys).'.';
-            }
-        }
-    }
-
-    /**
-     * @param mixed $subtotals
-     * @param array<int, string> $errors
-     */
-    private function assessTaxSubtotals(mixed $subtotals, string $path, string $kind, array &$errors): void
-    {
-        if (! is_array($subtotals) || ! array_is_list($subtotals) || $subtotals === []) {
-            $errors[] = "{$path} requires a non-empty list.";
-            return;
-        }
-
-        foreach ($subtotals as $index => $subtotal) {
-            if (! is_array($subtotal) || ! is_numeric($subtotal['percentage'] ?? null)) {
-                $errors[] = "{$path}.{$index}.percentage must be numeric.";
-                continue;
-            }
-
-            if ($kind === 'invoice' && ! is_string($subtotal['taxCategory'] ?? null)) {
-                $errors[] = "{$path}.{$index}.taxCategory is required for B2BI invoices.";
-            }
-
-            if ($kind !== 'invoice' && ! is_string($subtotal['category'] ?? null)) {
-                $errors[] = "{$path}.{$index}.category is required.";
-            }
-
-            if (in_array($kind, ['invoice', 'transaction'], true)
-                && (! is_numeric($subtotal['taxableAmount'] ?? null) || ! is_numeric($subtotal['taxAmount'] ?? null))) {
-                $errors[] = "{$path}.{$index} requires numeric taxableAmount and taxAmount.";
-            }
-
-            if ($kind === 'b2bi_payment'
-                && ! is_numeric($subtotal['amountIncludingTax'] ?? null)) {
-                $errors[] = "{$path}.{$index}.amountIncludingTax must be numeric.";
-            }
-
-            if ($kind === 'b2c_payment') {
-                if (! is_numeric($subtotal['amount'] ?? null)) {
-                    $errors[] = "{$path}.{$index}.amount must be numeric.";
-                }
-
-                if (! $this->isCurrency($subtotal['currency'] ?? null)) {
-                    $errors[] = "{$path}.{$index}.currency must use a three-letter currency code.";
-                }
-            }
-        }
-    }
-
-    /**
-     * @param array<string, mixed> $report
-     * @param array<int, string> $errors
-     * @return array<int, mixed>
-     */
-    private function listValue(array $report, string $key, string $path, array &$errors): array
-    {
-        $value = $report[$key] ?? [];
-
-        if (! is_array($value) || ! array_is_list($value)) {
-            $errors[] = "{$path}.{$key} must be a list.";
-            return [];
-        }
-
-        return $value;
-    }
-
-    /**
-     * @param array<int, string> $errors
-     */
-    private function assessPeriod(mixed $value, string $path, array &$errors): void
-    {
-        if (! is_string($value)
-            || ! preg_match('/^(\d{4}-\d{2}-\d{2}) - (\d{4}-\d{2}-\d{2})$/', $value, $matches)) {
-            $errors[] = "{$path} must use YYYY-MM-DD - YYYY-MM-DD format.";
-            return;
-        }
-
-        $this->assessDate($matches[1], $path.'.start', $errors);
-        $this->assessDate($matches[2], $path.'.end', $errors);
-
-        if ($matches[1] >= $matches[2]) {
-            $errors[] = "[G6.25] {$path} end date must be strictly after its start date.";
-        }
-    }
-
-    /**
-     * @param array<int, string> $errors
-     */
-    private function assessDate(mixed $value, string $path, array &$errors): void
-    {
-        if (! is_string($value) || ! preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $value, $matches)
-            || ! checkdate((int) ($matches[2] ?? 0), (int) ($matches[3] ?? 0), (int) ($matches[1] ?? 0))) {
-            $errors[] = "{$path} must use valid YYYY-MM-DD format.";
-        }
-    }
-
-    private function isCurrency(mixed $value): bool
-    {
-        return is_string($value) && preg_match('/^[A-Z]{3}$/', $value) === 1;
-    }
-
-    private function summaryKey(string $status): string
-    {
-        return match ($status) {
-            'pass' => 'pass',
-            'pass_with_warnings' => 'passWithWarnings',
-            default => 'fail',
-        };
-    }
-
-    /**
-     * @param array<string, mixed> $artifact
-     */
-    private function writeJsonArtifact(string $filename, array $artifact): void
-    {
-        $directory = base_path(self::ARTIFACT_DIRECTORY);
-
-        if (! is_dir($directory)) {
-            mkdir($directory, 0755, true);
-        }
-
-        file_put_contents(
-            $directory.'/'.$filename,
-            json_encode($artifact, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR).PHP_EOL,
-        );
+        $this->assertFileExists($path, "Run the explicit artifact update command to create {$filename}.");
+        $this->assertSame($bytes, file_get_contents($path), "Storecove HTTP artifact {$filename} changed.");
     }
 }
