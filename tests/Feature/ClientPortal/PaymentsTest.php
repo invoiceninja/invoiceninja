@@ -118,11 +118,21 @@ class PaymentsTest extends TestCase
         $invoice->line_items = $lineItems;
         $invoice->saveQuietly();
 
+        $unrelatedInvoice = Invoice::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'client_id' => $client->id,
+        ]);
+
         $payment = Payment::factory()->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
             'client_id' => $client->id,
             'status_id' => Payment::STATUS_COMPLETED,
+        ]);
+        $payment->invoices()->attach($unrelatedInvoice->id, [
+            'amount' => 0,
+            'refunded' => 0,
         ]);
         $payment->invoices()->attach($invoice->id, [
             'amount' => $payment->amount,
@@ -140,6 +150,55 @@ class PaymentsTest extends TestCase
             ->assertSee('href="' . $returnUrl . '"', false)
             ->assertSee('target="_blank"', false)
             ->assertSee('rel="noopener noreferrer"', false);
+
+        $explicitReturnUrl = 'https://control.filefor.net/admin/vps/vm/999999';
+        $unrelatedInvoice->backup->redirect = $explicitReturnUrl;
+        $unrelatedInvoice->saveQuietly();
+
+        $this->get(route('client.payments.show', ['payment' => $payment->hashed_id]))
+            ->assertOk()
+            ->assertViewHas('return_url', $explicitReturnUrl)
+            ->assertSee('href="' . $explicitReturnUrl . '"', false);
+
+        $unrelatedInvoice->backup->redirect = 'file:///tmp/not-allowed';
+        $unrelatedInvoice->saveQuietly();
+
+        $this->get(route('client.payments.show', ['payment' => $payment->hashed_id]))
+            ->assertOk()
+            ->assertViewHas('return_url', $returnUrl)
+            ->assertSee('href="' . $returnUrl . '"', false);
+
+        $pendingPayment = Payment::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'client_id' => $client->id,
+            'status_id' => Payment::STATUS_PENDING,
+        ]);
+        $pendingPayment->invoices()->attach($invoice->id, [
+            'amount' => $pendingPayment->amount,
+            'refunded' => 0,
+        ]);
+
+        $this->get(route('client.payments.show', ['payment' => $pendingPayment->hashed_id]))
+            ->assertOk()
+            ->assertViewHas('return_url', $returnUrl)
+            ->assertDontSeeText('Return to control panel');
+
+        $unrelatedPayment = Payment::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'client_id' => $client->id,
+            'status_id' => Payment::STATUS_COMPLETED,
+        ]);
+        $unrelatedPayment->invoices()->attach($unrelatedInvoice->id, [
+            'amount' => $unrelatedPayment->amount,
+            'refunded' => 0,
+        ]);
+
+        $this->get(route('client.payments.show', ['payment' => $unrelatedPayment->hashed_id]))
+            ->assertOk()
+            ->assertViewHas('return_url', null)
+            ->assertDontSeeText('Return to control panel');
 
         $account->delete();
     }

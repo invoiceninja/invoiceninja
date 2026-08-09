@@ -65,16 +65,7 @@ class PaymentController extends Controller
         $payment_intent = false;
         $data = false;
         $gateway = false;
-        $return_url = null;
-
-        $invoice = $payment->invoices->filter(function ($invoice) {
-            return isset($invoice->backup->redirect);
-        })->first();
-
-        if ($invoice) {
-            $return_url = $this->validReturnUrl($invoice->backup->redirect)
-                ?? $this->vpsReturnUrl($invoice);
-        }
+        $return_url = $this->paymentReturnUrl($payment);
 
         if ($payment->gateway_type_id == GatewayType::DIRECT_DEBIT && $payment->type_id == PaymentType::DIRECT_DEBIT) {
             if (method_exists($payment->company_gateway->driver($payment->client), 'getPaymentIntent')) {
@@ -102,6 +93,23 @@ class PaymentController extends Controller
             'currency' => $payment->currency ? strtolower($payment->currency->code) : strtolower($payment->client->currency()->code),
             'return_url' => $return_url,
         ]);
+    }
+
+    private function paymentReturnUrl(Payment $payment): ?string
+    {
+        foreach ($payment->invoices as $invoice) {
+            if ($return_url = $this->validReturnUrl($invoice->backup->redirect ?? null)) {
+                return $return_url;
+            }
+        }
+
+        foreach ($payment->invoices as $invoice) {
+            if ($return_url = $this->vpsReturnUrl($invoice)) {
+                return $return_url;
+            }
+        }
+
+        return null;
     }
 
     private function validReturnUrl(?string $url): ?string
