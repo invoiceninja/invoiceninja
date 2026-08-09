@@ -90,7 +90,7 @@ class ClientContactRequestCancellation extends Notification
                 ->success()
                 ->to('#devv2')
                 ->from('System')
-                ->image('https://app.invoiceninja.com/favicon.png')
+                ->image(config('ninja.app_logo'))
                 ->content("Contact {$name} from client {$client_name} requested to cancel Recurring Invoice #{$recurring_invoice_number}");
     }
 

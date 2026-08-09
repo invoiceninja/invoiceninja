@@ -7,7 +7,7 @@
 
         @if($account && !$account->isPaid())
         <div>
-            <img src="{{ asset('images/invoiceninja-black-logo-2.png') }}" class="border-b border-gray-100 h-18 pb-4" alt="Invoice Ninja logo">
+            <img src="{{ asset('images/file4net.svg') }}" class="border-b border-gray-100 h-18 pb-4" alt="File4net logo">
         </div>
         @endif
 

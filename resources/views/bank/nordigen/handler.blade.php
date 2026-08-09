@@ -28,7 +28,7 @@
         // Text that will be displayed on the left side under the logo. Text is limited to 100 characters, and rest will be truncated. @turbo124 replace with a translated version like ctrans()
         text: "{{ ($account ?? false) && !$account->isPaid() ? 'Invoice Ninja' : (isset($company) && !is_null($company) ? $company->name : 'Invoice Ninja') }} {{ ctrans('texts.nordigen_handler_subtitle', [], $lang ?? 'en') }}",
         // Logo URL that will be shown below the modal form.
-        logoUrl: "{{ ($account ?? false) && !$account->isPaid() ? asset('images/invoiceninja-black-logo-2.png') : (isset($company) && !is_null($company) ? $company->present()->logo() : asset('images/invoiceninja-black-logo-2.png')) }}",
+        logoUrl: "{{ ($account ?? false) && !$account->isPaid() ? asset('images/file4net.svg') : (isset($company) && !is_null($company) ? $company->present()->logo() : asset('images/file4net.svg')) }}",
         // Will display country list with corresponding institutions. When `countryFilter` is set to `false`, only list of institutions will be shown.
         countryFilter: true,
         // style configs

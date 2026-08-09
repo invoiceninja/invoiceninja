@@ -44,8 +44,8 @@
     <div class="mb-4">
         @if($account && !$account->isPaid())
           <div class="max-h-28">
-              <img src="{{ asset('images/invoiceninja-black-logo-2.png') }}"
-                   class="border-b border-gray-100 h-18 pb-4" alt="Invoice Ninja logo">
+              <img src="{{ asset('images/file4net.svg') }}"
+                   class="border-b border-gray-100 h-18 pb-4" alt="File4net logo">
           </div>
         @elseif(isset($company) && !is_null($company))
           <div class="max-h-28">

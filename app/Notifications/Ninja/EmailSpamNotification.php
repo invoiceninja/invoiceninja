@@ -67,7 +67,7 @@ class EmailSpamNotification extends Notification
         return (new SlackMessage())
                 ->success()
                 ->from(ctrans('texts.notification_bot'))
-                ->image('https://app.invoiceninja.com/favicon.png')
+                ->image(config('ninja.app_logo'))
                 ->content($content);
     }
 }

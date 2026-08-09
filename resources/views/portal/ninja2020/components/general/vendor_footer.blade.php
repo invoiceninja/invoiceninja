@@ -28,7 +28,7 @@
 
     @if(auth()->guard('vendor')->user()->user && !auth()->guard('vendor')->user()->user->account->isPaid())
         <a href="https://invoiceninja.com" target="_blank">
-            <img class="h-8" src="{{ asset('images/invoiceninja-black-logo-2.png') }}" alt="Invoice Ninja Logo">
+            <img class="h-8" src="{{ asset('images/file4net.svg') }}" alt="File4net logo">
         </a>
     @endif
 
