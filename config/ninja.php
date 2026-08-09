@@ -70,7 +70,7 @@ return [
     ],
     'i18n' => [
         'timezone_id' => env('DEFAULT_TIMEZONE', 1),
-        'country_id' => env('DEFAULT_COUNTRY', 840), // United Stated
+        'country_id' => env('DEFAULT_COUNTRY', 196), // Cyprus
         'currency_id' => env('DEFAULT_CURRENCY', 1),
         'language_id' => env('DEFAULT_LANGUAGE', 1), //en
         'date_format_id' => env('DEFAULT_DATE_FORMAT_ID', '1'),
