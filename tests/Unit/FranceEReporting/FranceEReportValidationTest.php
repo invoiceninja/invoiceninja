@@ -24,6 +24,13 @@ class FranceEReportValidationTest extends TestCase
 {
     private const GUID = '31cc5691-d83a-4e49-a6b3-271f3c8d2cb7';
 
+    protected function tearDown(): void
+    {
+        CarbonImmutable::setTestNow();
+
+        parent::tearDown();
+    }
+
     public function testItRejectsInvalidReportIdentifiersAndSectionCardinality(): void
     {
         foreach ([str_repeat('A', 51), 'invalid:id', ' leading-space'] as $documentId) {
@@ -65,6 +72,7 @@ class FranceEReportValidationTest extends TestCase
 
     public function testItAppliesTheTransitionalInvoiceIdLimitWithoutTruncating(): void
     {
+        CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-08-10 12:00:00 Europe/Paris'));
         $invoiceId = '123456789012345678901';
         $report = $this->paymentReport($invoiceId, '2026-02-01', '+0100');
         $builder = new FranceEReportPayloadBuilder();
@@ -81,12 +89,18 @@ class FranceEReportValidationTest extends TestCase
             $this->assertStringContainsString('20-character', $exception->getMessage());
         }
 
-        $future = $builder->build(
-            $this->company(),
-            new FranceEReportContext(1, 100, '2027-01-01', '2027-01-31', CarbonImmutable::parse('2027-02-01 09:00:00 Europe/Paris')),
-            $this->paymentReport($invoiceId, '2027-02-01', '+0100', '2027-01-01 - 2027-01-31'),
-            self::GUID,
-        );
+        CarbonImmutable::setTestNow(CarbonImmutable::parse('2027-02-01 12:00:00 Europe/Paris'));
+
+        try {
+            $future = $builder->build(
+                $this->company(),
+                new FranceEReportContext(1, 100, '2026-01-01', '2026-01-31', CarbonImmutable::parse('2026-02-01 09:00:00 Europe/Paris')),
+                $report,
+                self::GUID,
+            );
+        } finally {
+            CarbonImmutable::setTestNow();
+        }
 
         $this->assertSame($invoiceId, $future['document']['frEReport']['paymentReport']['b2biPayments'][0]['invoiceNumber']);
     }

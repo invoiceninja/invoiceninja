@@ -13,6 +13,8 @@ use App\Models\Country;
 use App\Models\Invoice;
 use App\Models\Product;
 use App\Models\TransactionEvent;
+use App\Services\EDocument\Standards\France\FranceEReportCompiler;
+use App\Services\EDocument\Standards\France\FranceEReportVariant;
 use Faker\Factory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\MockAccountData;
@@ -53,6 +55,28 @@ class RecordFranceEReportingTransactionTest extends TestCase
         $this->assertSame('EUR', $event->reporting_data->frReportEntry->b2cTransaction->currency);
         $this->assertSame(1, $event->reporting_data->frReportEntry->b2cTransaction->transactionsCount);
         $this->assertSame(1200, $event->reporting_data->frReportEntry->b2cTransaction->amountIncludingVat);
+    }
+
+    public function testItDurablyQuarantinesAnUnsupportedNonEurTransaction(): void
+    {
+        $settings = $this->company->settings;
+        $settings->currency_id = '1';
+        $this->company->settings = $settings;
+        $this->company->save();
+        $this->company = $this->company->fresh();
+        $invoice = $this->makeInvoice(clientCountry: 'FR', classification: 'individual', date: '2026-09-15');
+
+        (new RecordFranceEReportingTransaction(Invoice::class, $invoice->id, $this->company->db))->handle();
+
+        $event = TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->where('event_id', TransactionEvent::FR_B2C_TRANSACTION)
+            ->firstOrFail();
+
+        $this->assertNull($event->reporting_data);
+        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_FAILED, $event->payment_status);
+        $this->assertSame('France e-report source mapping failed.', data_get($event->payment_request, 'skip_reason'));
+        $this->assertStringContainsString('Only EUR', data_get($event->payment_request, 'error.message'));
     }
 
     public function testItInfersAServiceB2CTransaction(): void
@@ -184,7 +208,7 @@ class RecordFranceEReportingTransactionTest extends TestCase
         $this->assertSame(1200, $event->reporting_data->frReportEntry->b2biInvoice->amountIncludingVat);
     }
 
-    public function testItRecordsAForeignBusinessCreditAsAVatExcludedTransactionWithSnapshotData(): void
+    public function testItQuarantinesAnUnsupportedForeignBusinessCreditWithoutPoisoningThePeriod(): void
     {
         $credit = $this->makeCredit(clientCountry: 'DE', classification: 'business', date: '2026-09-15');
 
@@ -197,73 +221,21 @@ class RecordFranceEReportingTransactionTest extends TestCase
 
         $this->assertNotNull($event);
         $this->assertSame('2026-09-20', $event->period->toDateString());
-        $this->assertNotNull($event->reporting_data);
-        $this->assertNull($event->reporting_data->frReport);
-        $this->assertSame($credit->number, $event->reporting_data->frReportEntry->b2biInvoice->invoiceNumber);
-        $this->assertSame('EUR', $event->reporting_data->frReportEntry->b2biInvoice->documentCurrency);
-        $this->assertSame(-1200, $event->reporting_data->frReportEntry->b2biInvoice->amountIncludingVat);
-        $this->assertNotEmpty($event->reporting_data->frReportEntry->b2biInvoice->invoiceLines);
-        $this->assertSame('standard', $event->reporting_data->frReportEntry->b2biInvoice->taxSubtotals[0]->taxCategory);
-        $this->assertSame(-1000, $event->reporting_data->frReportEntry->b2biInvoice->taxSubtotals[0]->taxableAmount);
-        $this->assertSame(-200, $event->reporting_data->frReportEntry->b2biInvoice->taxSubtotals[0]->taxAmount);
-        $this->assertSame(-1000, $event->reporting_data->frReportEntry->b2biInvoice->invoiceLines[0]['amountExcludingVat']);
+        $this->assertNull($event->reporting_data);
+        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_FAILED, $event->payment_status);
+        $this->assertSame('France e-report source mapping failed.', data_get($event->payment_request, 'skip_reason'));
+        $this->assertStringContainsString('Credit and rectificative', data_get($event->payment_request, 'error.message'));
 
-        $credit->number = 'MUTATED-CREDIT-AFTER-CAPTURE';
-        $credit->save();
-
-        $event = $event->fresh();
-
-        $this->assertSame('FR-CREDIT-REPORT-DE-business', $event->reporting_data->frReportEntry->b2biInvoice->invoiceNumber);
-    }
-
-    public function testItWritesAVatExcludedInvoiceReportDataArtifact(): void
-    {
         $invoice = $this->makeInvoice(clientCountry: 'DE', classification: 'business', date: '2026-09-15');
-
         (new RecordFranceEReportingTransaction(Invoice::class, $invoice->id, $this->company->db))->handle();
+        $sources = (new FranceEReportCompiler())->sourceEventsForVariant(
+            $this->company,
+            FranceEReportVariant::TransactionInitial,
+            '2026-09-20',
+        );
 
-        $event = TransactionEvent::query()
-            ->where('invoice_id', $invoice->id)
-            ->where('event_id', TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION)
-            ->firstOrFail();
-
-        $artifact = $this->reportingDataArtifact($event);
-        $artifactPath = base_path('tests/artifacts/fr_reportdata_vat_excluded_invoice_entry.json');
-
-        $this->writeJsonArtifact($artifactPath, $artifact);
-
-        $this->assertFileExists($artifactPath);
-        $this->assertSame($artifact, json_decode(file_get_contents($artifactPath), true, 512, JSON_THROW_ON_ERROR));
-        $this->assertSame(TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION, $artifact['transactionEvent']['eventId']);
-        $this->assertSame('2026-09-20', $artifact['transactionEvent']['period']);
-        $this->assertSame('FR-REPORT-DE-business', $artifact['reportingData']['invoiceNumber']);
-        $this->assertSame(1200, $artifact['reportingData']['amountIncludingVat']);
-        $this->assertArrayNotHasKey('frReportEntry', $artifact['reportingData']);
-    }
-
-    public function testItWritesAVatExcludedCreditReportDataArtifact(): void
-    {
-        $credit = $this->makeCredit(clientCountry: 'DE', classification: 'business', date: '2026-09-15');
-
-        (new RecordFranceEReportingTransaction(Credit::class, $credit->id, $this->company->db))->handle();
-
-        $event = TransactionEvent::query()
-            ->where('credit_id', $credit->id)
-            ->where('event_id', TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION)
-            ->firstOrFail();
-
-        $artifact = $this->reportingDataArtifact($event);
-        $artifactPath = base_path('tests/artifacts/fr_reportdata_vat_excluded_credit_entry.json');
-
-        $this->writeJsonArtifact($artifactPath, $artifact);
-
-        $this->assertFileExists($artifactPath);
-        $this->assertSame($artifact, json_decode(file_get_contents($artifactPath), true, 512, JSON_THROW_ON_ERROR));
-        $this->assertSame(TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION, $artifact['transactionEvent']['eventId']);
-        $this->assertSame('2026-09-20', $artifact['transactionEvent']['period']);
-        $this->assertSame('FR-CREDIT-REPORT-DE-business', $artifact['reportingData']['invoiceNumber']);
-        $this->assertSame(-1200, $artifact['reportingData']['amountIncludingVat']);
-        $this->assertArrayNotHasKey('frReportEntry', $artifact['reportingData']);
+        $this->assertCount(1, $sources);
+        $this->assertSame((int) $invoice->id, (int) $sources->first()->invoice_id);
     }
 
     public function testItDoesNotRecordDomesticFrenchBusinessTransactions(): void
@@ -289,39 +261,6 @@ class RecordFranceEReportingTransactionTest extends TestCase
                 ->where('invoice_id', $invoice->id)
                 ->where('event_id', TransactionEvent::FR_B2C_TRANSACTION)
                 ->count()
-        );
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function reportingDataArtifact(TransactionEvent $event): array
-    {
-        return [
-            'transactionEvent' => [
-                'eventId' => $event->event_id,
-                'period' => $event->period?->toDateString(),
-            ],
-            'reportingData' => is_null($event->getRawOriginal('reporting_data'))
-                ? null
-                : json_decode($event->getRawOriginal('reporting_data'), true, 512, JSON_THROW_ON_ERROR),
-        ];
-    }
-
-    /**
-     * @param array<string, mixed> $artifact
-     */
-    private function writeJsonArtifact(string $path, array $artifact): void
-    {
-        $directory = dirname($path);
-
-        if (! is_dir($directory)) {
-            mkdir($directory, 0755, true);
-        }
-
-        file_put_contents(
-            $path,
-            json_encode($artifact, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR).PHP_EOL,
         );
     }
 

@@ -142,6 +142,56 @@ class FranceEReportCompilerTest extends TestCase
         $this->assertArrayNotHasKey('currency', $row['taxSubtotals'][0]);
     }
 
+    public function testItAggregatesMultipleB2CPaymentRowsAndOrdersTheResult(): void
+    {
+        $company = $this->company(42, 100042, '552100554', 'Seller A');
+        $context = $this->context($company, '2026-01-01', '2026-01-31', '2026-02-01 00:00:00 Europe/Paris');
+        $sameDayOne = $this->b2cPaymentPayload('2026-01-20');
+        $sameDayTwo = $this->b2cPaymentPayload('2026-01-20');
+        $sameDayTwo['taxSubtotal'][0]['percentage'] = '20.00';
+
+        $report = (new FranceEReportCompiler())->compileVariantFromEvents(
+            $company,
+            FranceEReportVariant::PaymentInitial,
+            $context,
+            [
+                $this->event($company, 3, TransactionEvent::FR_B2C_PAYMENT, $this->b2cPaymentPayload('2026-01-21')),
+                $this->event($company, 2, TransactionEvent::FR_B2C_PAYMENT, $sameDayTwo),
+                $this->event($company, 1, TransactionEvent::FR_B2C_PAYMENT, $sameDayOne),
+            ],
+        )->toArray();
+
+        $payments = $report['paymentReport']['b2cPayments'];
+
+        $this->assertSame(['2026-01-20', '2026-01-21'], array_column($payments, 'date'));
+        $this->assertSame(240, $payments[0]['taxSubtotal'][0]['amount']);
+        $this->assertSame(20, $payments[0]['taxSubtotal'][0]['percentage']);
+        $this->assertCount(1, $payments[0]['taxSubtotal']);
+    }
+
+    public function testGeneratedDocumentIdIsStableForTheSameContentAndChangesWithContent(): void
+    {
+        $company = $this->company(42, 100042, '552100554', 'Seller A');
+        $context = $this->context($company, '2026-01-01', '2026-01-31', '2026-02-01 00:00:00 Europe/Paris');
+        $compiler = new FranceEReportCompiler();
+        $event = $this->event($company, 1, TransactionEvent::FR_B2C_PAYMENT, $this->b2cPaymentPayload('2026-01-20'));
+
+        $first = $compiler->compileVariantFromEvents($company, FranceEReportVariant::PaymentInitial, $context, [$event]);
+        $second = $compiler->compileVariantFromEvents($company, FranceEReportVariant::PaymentInitial, $context, [$event]);
+        $changedPayload = $this->b2cPaymentPayload('2026-01-20');
+        $changedPayload['taxSubtotal'][0]['amount'] = 121;
+        $changed = $compiler->compileVariantFromEvents(
+            $company,
+            FranceEReportVariant::PaymentInitial,
+            $context,
+            [$this->event($company, 1, TransactionEvent::FR_B2C_PAYMENT, $changedPayload)],
+        );
+
+        $this->assertSame($first->documentId, $second->documentId);
+        $this->assertNotSame($first->documentId, $changed->documentId);
+        $this->assertMatchesRegularExpression('/^FRF10-PI-20260131-[a-f0-9]{16}$/', $first->documentId);
+    }
+
     public function testItRejectsMalformedSourceComponentsAndSupplierDeclarantMismatch(): void
     {
         $company = $this->company(42, 100042, '552100554', 'Seller A');

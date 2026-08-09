@@ -189,6 +189,10 @@ class FranceEReportingCron implements ShouldQueue
                 $companies = $this->reportableCompanies($events->pluck("company_id")->all());
 
                 $events->each(function (TransactionEvent $event) use ($companies, $db, $parisNow, &$dispatched): void {
+                    if (data_get($event->payment_request, 'skip_reason')) {
+                        return;
+                    }
+
                     $company = $companies->get((int) $event->company_id);
 
                     if (! $company) {
@@ -243,7 +247,7 @@ class FranceEReportingCron implements ShouldQueue
                 TransactionEvent::FR_REPORTING_STATUS_PENDING,
                 TransactionEvent::FR_REPORTING_STATUS_FAILED,
             ])
-            ->where("period", "<=", $parisNow->toDateString())
+            ->where("period", "<", $parisNow->toDateString())
             ->whereNotNull("reporting_data")
             ->where("payment_request->fr_kind", RecordFranceEReportingPayment::KIND_REPORT)
             ->where("payment_request->fr_report_kind", RecordFranceEReportingPayment::REPORT_KIND_CORRECTIVE)
@@ -251,6 +255,10 @@ class FranceEReportingCron implements ShouldQueue
                 $companies = $this->reportableCompanies($events->pluck("company_id")->all());
 
                 $events->each(function (TransactionEvent $event) use ($companies, $db, &$dispatched): void {
+                    if (data_get($event->payment_request, 'skip_reason')) {
+                        return;
+                    }
+
                     $company = $companies->get((int) $event->company_id);
                     $periodEnd = $this->periodEnd($event);
 

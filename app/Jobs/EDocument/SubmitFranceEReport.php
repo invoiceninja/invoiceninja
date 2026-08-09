@@ -110,18 +110,47 @@ class SubmitFranceEReport implements ShouldQueue
                 return;
             }
 
-            $issuedAt = CarbonImmutable::now('Europe/Paris');
+            $issuedAt = CarbonImmutable::parse($this->periodEnd, 'Europe/Paris')->addDay()->startOfDay();
             $context = $compiler->contextForVariant($company, $reportVariant, $this->periodEnd, $issuedAt);
-            $report = $compiler->compileVariantFromEvents($company, $reportVariant, $context, $sourceEvents);
             /** @var TransactionEvent $sourceEvent */
             $sourceEvent = $sourceEvents->first();
-            $idempotencyGuid = $this->idempotencyGuid($company, $reportVariant, $sourceEventIds);
-            $payload = $payloadBuilder->build(
-                $company,
-                $context,
-                $report,
-                $idempotencyGuid,
-            );
+            $report = null;
+            $idempotencyGuid = null;
+
+            try {
+                $report = $compiler->compileVariantFromEvents($company, $reportVariant, $context, $sourceEvents);
+                $idempotencyGuid = $this->idempotencyGuid($company, $reportVariant, $report);
+                $payload = $payloadBuilder->build(
+                    $company,
+                    $context,
+                    $report,
+                    $idempotencyGuid,
+                );
+            } catch (Throwable $exception) {
+                report($exception);
+
+                $this->recordSubmissionAttempt(
+                    company: $company,
+                    report: $report,
+                    sourceEvent: $sourceEvent,
+                    sourceEventIds: $sourceEventIds,
+                    variant: $reportVariant,
+                    claimToken: $claimToken,
+                    idempotencyGuid: $idempotencyGuid,
+                    generatedAt: $issuedAt,
+                    attemptedAt: CarbonImmutable::now($company->timezone()?->name ?: config('app.timezone')),
+                    response: [],
+                    error: [
+                        'message' => $exception->getMessage(),
+                        'class' => $exception::class,
+                    ],
+                    terminal: true,
+                );
+                $claimCompleted = true;
+
+                return;
+            }
+
             $attemptedAt = CarbonImmutable::now($company->timezone()?->name ?: config('app.timezone'));
 
             try {
@@ -190,17 +219,16 @@ class SubmitFranceEReport implements ShouldQueue
         ];
     }
 
-    /**
-     * @param array<int, int> $sourceEventIds
-     */
     private function idempotencyGuid(
         Company $company,
         FranceEReportVariant $variant,
-        array $sourceEventIds,
+        FRReportData $report,
     ): string
     {
-        $sourceEventIds = array_map('intval', $sourceEventIds);
-        sort($sourceEventIds);
+        $reportFingerprint = hash('sha256', json_encode(
+            $report->toArray(),
+            JSON_PRESERVE_ZERO_FRACTION | JSON_THROW_ON_ERROR,
+        ));
 
         return Uuid::uuid5(
             Uuid::NAMESPACE_URL,
@@ -210,7 +238,7 @@ class SubmitFranceEReport implements ShouldQueue
                 (string) $company->id,
                 $variant->value,
                 $this->periodEnd,
-                implode(',', $sourceEventIds),
+                $reportFingerprint,
             ]),
         )->toString();
     }
@@ -239,16 +267,17 @@ class SubmitFranceEReport implements ShouldQueue
      */
     private function recordSubmissionAttempt(
         Company $company,
-        FRReportData $report,
+        ?FRReportData $report,
         TransactionEvent $sourceEvent,
         array $sourceEventIds,
         FranceEReportVariant $variant,
         string $claimToken,
-        string $idempotencyGuid,
+        ?string $idempotencyGuid,
         CarbonImmutable $generatedAt,
         CarbonImmutable $attemptedAt,
         array $response,
         ?array $error = null,
+        bool $terminal = false,
     ): void {
         $guid = $response['guid'] ?? null;
         $successful = is_null($error) && is_string($guid) && $guid !== '';
@@ -271,6 +300,7 @@ class SubmitFranceEReport implements ShouldQueue
             $successful,
             $error,
             $response,
+            $terminal,
         ): void {
             $sourceEvents = TransactionEvent::query()
                 ->whereIn('id', $sourceEventIds)
@@ -293,7 +323,7 @@ class SubmitFranceEReport implements ShouldQueue
                 'timestamp' => now()->timestamp,
                 'period' => $this->periodEnd,
                 'payment_status' => $status,
-                'reporting_data' => ReportData::fromFRReport($report),
+                'reporting_data' => $report ? ReportData::fromFRReport($report) : null,
                 'payment_request' => [
                     'source_event_ids' => $sourceEventIds,
                     'variant' => $variant->value,
@@ -304,12 +334,21 @@ class SubmitFranceEReport implements ShouldQueue
                     'submitted_at' => $successful ? now()->toIso8601String() : null,
                     'failed_at' => $successful ? null : now()->toIso8601String(),
                     'error' => $successful ? null : ($error ?? $response),
+                    'skip_reason' => $terminal ? 'France e-report could not be compiled for Storecove.' : null,
+                    'skipped_at' => $terminal ? now()->toIso8601String() : null,
                 ],
             ]);
 
             foreach ($sourceEvents as $claimedSourceEvent) {
                 $request = $claimedSourceEvent->payment_request ?? [];
                 unset($request[FranceSubmissionClaim::TOKEN], $request[FranceSubmissionClaim::EXPIRES_AT]);
+
+                if ($terminal) {
+                    $request['error'] = $error;
+                    $request['skip_reason'] = 'France e-report could not be compiled for Storecove.';
+                    $request['skipped_at'] = now()->toIso8601String();
+                }
+
                 $claimedSourceEvent->payment_request = $request;
                 $claimedSourceEvent->payment_status = $status;
                 $claimedSourceEvent->save();

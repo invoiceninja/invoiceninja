@@ -123,6 +123,40 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->assertSame(1200, $report->reporting_data->frReportEntry->b2cPayment->taxSubtotal[0]->amount);
     }
 
+    public function testItDurablyQuarantinesAnUnsupportedNonEurF10Payment(): void
+    {
+        $country = Country::query()->where('iso_3166_2', 'FR')->firstOrFail();
+        $client = $this->makeClient($country, 'individual', 'FR');
+        $settings = $client->settings;
+        $settings->currency_id = '1';
+        $client->settings = $settings;
+        $client->save();
+        $invoice = $this->makeInvoice('FR', 'individual', '2026-09-01', $client->fresh());
+        $payment = $this->makePayment($invoice->client, '2026-09-15', '1200');
+        $paymentable = $this->makePaymentable($payment, $invoice, '1200', '2026-09-15');
+        $invoice = $this->setInvoicePaymentState($invoice, '1200');
+
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '1200',
+            '2026-09-15',
+        ))->handle();
+
+        $event = TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->where('payment_id', $payment->id)
+            ->where('event_id', TransactionEvent::FR_B2C_PAYMENT)
+            ->firstOrFail();
+
+        $this->assertNull($event->reporting_data);
+        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_FAILED, $event->payment_status);
+        $this->assertSame('France e-report payment mapping failed.', data_get($event->payment_request, 'skip_reason'));
+        $this->assertStringContainsString('Only EUR', data_get($event->payment_request, 'error.message'));
+    }
+
     #[DataProvider('unsupportedB2CSupplyTypes')]
     public function testItDoesNotRecordB2CPaymentsForUnsupportedSupplyTypes(array $type_ids): void
     {
@@ -1435,6 +1469,44 @@ class FranceEReportingPaymentMovementTest extends TestCase
         }
     }
 
+    public function testFranceEReportingCronDoesNotDispatchACorrectiveReportBeforeItsPeriodHasEnded(): void
+    {
+        CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-10-31 22:00:00', 'Europe/Paris'));
+
+        try {
+            Bus::fake();
+            config(['ninja.db.multi_db_enabled' => false]);
+            $invoice = $this->makeInvoice(clientCountry: 'FR', classification: 'individual', date: '2026-10-01');
+            $event = $this->createFranceReportSourceEvent(
+                invoice: $invoice,
+                eventId: TransactionEvent::FR_B2C_PAYMENT,
+                period: '2026-10-31',
+                reportingData: $this->b2cPaymentReportPayload('2026-10-20'),
+            );
+            $event->payment_request = [
+                'fr_kind' => RecordFranceEReportingPayment::KIND_REPORT,
+                'fr_report_kind' => RecordFranceEReportingPayment::REPORT_KIND_CORRECTIVE,
+                'source_date' => '2026-10-20',
+            ];
+            $event->save();
+
+            (new FranceEReportingCron())->handle();
+            Bus::assertNotDispatched(SubmitFranceEReport::class, function (SubmitFranceEReport $job): bool {
+                return $this->jobProperty($job, 'variant') === FranceEReportVariant::PaymentRectificative->value
+                    && $this->jobProperty($job, 'periodEnd') === '2026-10-31';
+            });
+
+            CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-11-01 22:00:00', 'Europe/Paris'));
+            (new FranceEReportingCron())->handle();
+            Bus::assertDispatched(SubmitFranceEReport::class, function (SubmitFranceEReport $job): bool {
+                return $this->jobProperty($job, 'variant') === FranceEReportVariant::PaymentRectificative->value
+                    && $this->jobProperty($job, 'periodEnd') === '2026-10-31';
+            });
+        } finally {
+            CarbonImmutable::setTestNow();
+        }
+    }
+
     public function testFranceEReportingCronDispatchesB2CTransactionOnlyReportsInDueWindow(): void
     {
         CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-18 22:00:00", "Europe/Paris"));
@@ -1453,7 +1525,11 @@ class FranceEReportingPaymentMovementTest extends TestCase
 
             (new FranceEReportingCron())->handle();
 
-            Bus::assertDispatchedTimes(SubmitFranceEReport::class, 1);
+            $this->assertCount(
+                1,
+                Bus::dispatched(SubmitFranceEReport::class)
+                    ->filter(fn (SubmitFranceEReport $job): bool => (int) $this->jobProperty($job, 'companyId') === (int) $this->company->id),
+            );
             Bus::assertDispatched(SubmitFranceEReport::class, function (SubmitFranceEReport $job): bool {
                 return (int) $this->jobProperty($job, "companyId") === (int) $this->company->id
                     && (int) $this->jobProperty($job, "submissionEventId") === TransactionEvent::FR_REPORT_SUBMISSION_B2C
@@ -1482,7 +1558,11 @@ class FranceEReportingPaymentMovementTest extends TestCase
 
             (new FranceEReportingCron())->handle();
 
-            Bus::assertDispatchedTimes(SubmitFranceEReport::class, 1);
+            $this->assertCount(
+                1,
+                Bus::dispatched(SubmitFranceEReport::class)
+                    ->filter(fn (SubmitFranceEReport $job): bool => (int) $this->jobProperty($job, 'companyId') === (int) $this->company->id),
+            );
             Bus::assertDispatched(SubmitFranceEReport::class, function (SubmitFranceEReport $job): bool {
                 return (int) $this->jobProperty($job, "companyId") === (int) $this->company->id
                     && (int) $this->jobProperty($job, "submissionEventId") === TransactionEvent::FR_REPORT_SUBMISSION_VAT_EXCLUDED
@@ -1525,13 +1605,18 @@ class FranceEReportingPaymentMovementTest extends TestCase
             Bus::fake();
             (new FranceEReportingCron())->handle();
 
-            Bus::assertDispatchedTimes(SubmitFranceEReport::class, 2);
+            $this->assertCount(
+                2,
+                Bus::dispatched(SubmitFranceEReport::class)
+                    ->filter(fn (SubmitFranceEReport $job): bool => (int) $this->jobProperty($job, 'companyId') === (int) $this->company->id),
+            );
             foreach ([
                 FranceEReportVariant::TransactionInitial,
                 FranceEReportVariant::PaymentInitial,
             ] as $expectedVariant) {
                 Bus::assertDispatched(SubmitFranceEReport::class, function (SubmitFranceEReport $job) use ($expectedVariant): bool {
-                    return (int) $this->jobProperty($job, "submissionEventId") === TransactionEvent::FR_REPORT_SUBMISSION_B2C
+                    return (int) $this->jobProperty($job, 'companyId') === (int) $this->company->id
+                        && (int) $this->jobProperty($job, "submissionEventId") === TransactionEvent::FR_REPORT_SUBMISSION_B2C
                         && $this->jobProperty($job, "periodEnd") === "2026-09-30"
                         && $this->jobProperty($job, "variant") === $expectedVariant->value;
                 });
@@ -1603,7 +1688,9 @@ class FranceEReportingPaymentMovementTest extends TestCase
             ))->handle();
             $this->assertSame(1, $this->reportEvents($invoice)->count());
             (new FranceEReportingCron())->handle();
-            Bus::assertNotDispatched(SubmitFranceEReport::class);
+            Bus::assertNotDispatched(SubmitFranceEReport::class, function (SubmitFranceEReport $job): bool {
+                return (int) $this->jobProperty($job, 'companyId') === (int) $this->company->id;
+            });
         } finally {
             CarbonImmutable::setTestNow();
         }
@@ -1977,26 +2064,17 @@ class FranceEReportingPaymentMovementTest extends TestCase
             ))->handle();
 
             $sourceEvent = $this->reportEvents($invoice)->firstOrFail();
-            $expectedIdempotencyGuid = Uuid::uuid5(
-                Uuid::NAMESPACE_URL,
-                implode("|", [
-                    "fr-e-report",
-                    (string) $this->company->company_key,
-                    (string) $this->company->id,
-                    FranceEReportVariant::PaymentInitial->value,
-                    "2026-09-30",
-                    (string) $sourceEvent->id,
-                ]),
-            )->toString();
-
             $storecove = new Storecove();
             $proxy = \Mockery::mock(StorecoveProxy::class);
+            $sentPayload = null;
             $proxy->shouldReceive("setCompany")->once()->andReturnSelf();
             $proxy->shouldReceive("submitDocument")
                 ->once()
-                ->with(\Mockery::on(function (array $payload) use ($expectedIdempotencyGuid): bool {
+                ->with(\Mockery::on(function (array $payload) use (&$sentPayload): bool {
+                    $sentPayload = $payload;
+
                     return $payload["document"]["documentType"] === "fr_e_report"
-                        && $payload["idempotencyGuid"] === $expectedIdempotencyGuid
+                        && Uuid::isValid($payload["idempotencyGuid"])
                         && $payload["tenant_id"] === $this->company->company_key
                         && $payload["account_key"] === $this->company->account->key;
                 }))
@@ -2023,7 +2101,8 @@ class FranceEReportingPaymentMovementTest extends TestCase
 
             $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_SUBMITTED, $submission->payment_status);
             $this->assertSame("report-storecove-guid", data_get($submission->payment_request, "guid"));
-            $this->assertSame($expectedIdempotencyGuid, data_get($submission->payment_request, "idempotency_guid"));
+            $this->assertNotNull($sentPayload);
+            $this->assertSame($sentPayload['idempotencyGuid'], data_get($submission->payment_request, "idempotency_guid"));
             $this->assertSame([(int) $sourceEvent->id], data_get($submission->payment_request, "source_event_ids"));
             $this->assertNotNull(data_get($submission->payment_request, "generated_at"));
             $this->assertNotNull(data_get($submission->payment_request, "attempted_at"));
@@ -2273,8 +2352,16 @@ class FranceEReportingPaymentMovementTest extends TestCase
             $sourceEvent = $this->reportEvents($invoice)->firstOrFail();
             $storecove = new Storecove();
             $proxy = \Mockery::mock(StorecoveProxy::class);
+            $firstPayload = null;
             $proxy->shouldReceive("setCompany")->once()->andReturnSelf();
-            $proxy->shouldReceive("submitDocument")->once()->andThrow(new \RuntimeException("Storecove unavailable"));
+            $proxy->shouldReceive("submitDocument")
+                ->once()
+                ->with(\Mockery::on(function (array $payload) use (&$firstPayload): bool {
+                    $firstPayload = $payload;
+
+                    return true;
+                }))
+                ->andThrow(new \RuntimeException("Storecove unavailable"));
             $storecove->proxy = $proxy;
 
             (new SubmitFranceEReport(
@@ -2309,6 +2396,32 @@ class FranceEReportingPaymentMovementTest extends TestCase
                     && (int) $this->jobProperty($job, "submissionEventId") === TransactionEvent::FR_REPORT_SUBMISSION_B2C
                     && $this->jobProperty($job, "periodEnd") === "2026-09-30";
             });
+
+            CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-10-09 22:00:00', 'Europe/Paris'));
+            $retryStorecove = new Storecove();
+            $retryProxy = \Mockery::mock(StorecoveProxy::class);
+            $retryPayload = null;
+            $retryProxy->shouldReceive('setCompany')->once()->andReturnSelf();
+            $retryProxy->shouldReceive('submitDocument')
+                ->once()
+                ->with(\Mockery::on(function (array $payload) use (&$retryPayload): bool {
+                    $retryPayload = $payload;
+
+                    return true;
+                }))
+                ->andReturn(['guid' => 'retry-storecove-guid']);
+            $retryStorecove->proxy = $retryProxy;
+
+            (new SubmitFranceEReport(
+                $this->company->id,
+                TransactionEvent::FR_REPORT_SUBMISSION_B2C,
+                '2026-09-30',
+                $this->company->db,
+            ))->handle($retryStorecove, new FranceEReportCompiler(), new FranceEReportPayloadBuilder());
+
+            $this->assertNotNull($firstPayload);
+            $this->assertSame($firstPayload, $retryPayload);
+            $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_SUBMITTED, $sourceEvent->fresh()->payment_status);
         } finally {
             CarbonImmutable::setTestNow();
         }
@@ -2568,13 +2681,15 @@ class FranceEReportingPaymentMovementTest extends TestCase
 
             Bus::fake();
             (new FranceEReportingCron())->handle();
-            Bus::assertNotDispatched(SubmitFranceEReport::class);
+            Bus::assertNotDispatched(SubmitFranceEReport::class, function (SubmitFranceEReport $job): bool {
+                return (int) $this->jobProperty($job, 'companyId') === (int) $this->company->id;
+            });
         } finally {
             CarbonImmutable::setTestNow();
         }
     }
 
-    public function testSubmitFranceEReportPayloadBuildFailureDoesNotCreateSubmissionAttempt(): void
+    public function testSubmitFranceEReportPayloadBuildFailureIsAuditedAndQuarantined(): void
     {
         CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-10-01 22:00:00', 'Europe/Paris'));
 
@@ -2601,26 +2716,70 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $payloadBuilder = \Mockery::mock(FranceEReportPayloadBuilder::class);
         $payloadBuilder->shouldReceive("build")->once()->andThrow(new \RuntimeException("Payload unavailable"));
 
-        try {
-            (new SubmitFranceEReport(
-                $this->company->id,
-                TransactionEvent::FR_REPORT_SUBMISSION_B2C,
-                "2026-09-30",
-                $this->company->db,
-                FranceEReportVariant::PaymentInitial->value,
-            ))->handle($storecove, new FranceEReportCompiler(), $payloadBuilder);
+        (new SubmitFranceEReport(
+            $this->company->id,
+            TransactionEvent::FR_REPORT_SUBMISSION_B2C,
+            "2026-09-30",
+            $this->company->db,
+            FranceEReportVariant::PaymentInitial->value,
+        ))->handle($storecove, new FranceEReportCompiler(), $payloadBuilder);
 
-            $this->fail("Payload exception was not thrown.");
-        } catch (\RuntimeException $exception) {
-            $this->assertSame("Payload unavailable", $exception->getMessage());
-        }
-
-        $this->assertFalse(TransactionEvent::query()
+        $submission = TransactionEvent::query()
             ->where("company_id", $this->company->id)
             ->where("event_id", TransactionEvent::FR_REPORT_SUBMISSION_B2C)
             ->where("period", "2026-09-30")
-            ->exists());
-        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_PENDING, $sourceReport->fresh()->payment_status);
+            ->firstOrFail();
+
+        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_FAILED, $submission->payment_status);
+        $this->assertSame('Payload unavailable', data_get($submission->payment_request, 'error.message'));
+        $this->assertNotNull(data_get($submission->payment_request, 'skip_reason'));
+        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_FAILED, $sourceReport->fresh()->payment_status);
+        $this->assertNotNull(data_get($sourceReport->fresh()->payment_request, 'skip_reason'));
+
+        Bus::fake();
+        (new FranceEReportingCron())->handle();
+        Bus::assertNotDispatched(SubmitFranceEReport::class, function (SubmitFranceEReport $job): bool {
+            return (int) $this->jobProperty($job, 'companyId') === (int) $this->company->id;
+        });
+    }
+
+    public function testSubmitFranceEReportCompileFailureIsAuditedAndQuarantined(): void
+    {
+        CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-11-01 22:00:00', 'Europe/Paris'));
+        $invoice = $this->makeInvoice(clientCountry: 'DE', classification: 'business', date: '2026-10-25');
+        $reportingData = $this->b2biInvoiceReportPayload($invoice, '2026-10-25');
+        $reportingData['accountingSupplierParty']['publicIdentifiers'][0]['id'] = '552100554';
+        $sourceEvent = $this->createFranceReportSourceEvent(
+            invoice: $invoice,
+            eventId: TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION,
+            period: '2026-10-31',
+            reportingData: $reportingData,
+        );
+        $storecove = new Storecove();
+        $proxy = \Mockery::mock(StorecoveProxy::class);
+        $proxy->shouldNotReceive('setCompany');
+        $proxy->shouldNotReceive('submitDocument');
+        $storecove->proxy = $proxy;
+
+        (new SubmitFranceEReport(
+            $this->company->id,
+            TransactionEvent::FR_REPORT_SUBMISSION_VAT_EXCLUDED,
+            '2026-10-31',
+            $this->company->db,
+            FranceEReportVariant::TransactionInitial->value,
+        ))->handle($storecove, new FranceEReportCompiler(), new FranceEReportPayloadBuilder());
+
+        $submission = TransactionEvent::query()
+            ->where('company_id', $this->company->id)
+            ->where('event_id', TransactionEvent::FR_REPORT_SUBMISSION_VAT_EXCLUDED)
+            ->whereDate('period', '2026-10-31')
+            ->firstOrFail();
+
+        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_FAILED, $submission->payment_status);
+        $this->assertStringContainsString('supplier FR:SIRENE must match', data_get($submission->payment_request, 'error.message'));
+        $this->assertNotNull(data_get($submission->payment_request, 'skip_reason'));
+        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_FAILED, $sourceEvent->fresh()->payment_status);
+        $this->assertNotNull(data_get($sourceEvent->fresh()->payment_request, 'skip_reason'));
     }
 
     public function testFailedPaymentReceivedNotificationWithoutSkipReasonIsRetriedByCron(): void
@@ -3391,6 +3550,25 @@ class FranceEReportingPaymentMovementTest extends TestCase
                     "percentage" => "20",
                     "taxableAmount" => "1000",
                     "taxAmount" => "200",
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function b2cPaymentReportPayload(string $date): array
+    {
+        return [
+            'date' => $date,
+            'taxSubtotal' => [
+                [
+                    'category' => 'standard',
+                    'percentage' => '20',
+                    'country' => 'FR',
+                    'currency' => 'EUR',
+                    'amount' => '1200',
                 ],
             ],
         ];

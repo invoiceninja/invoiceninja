@@ -107,46 +107,55 @@ class RecordFranceEReportingPayment implements ShouldQueue
             : null;
 
         foreach ($this->invoices($payment) as $candidate) {
-            DB::transaction(function () use ($payment, $candidate, $reportingPath, $f10EventId): void {
-                $invoice = Invoice::withTrashed()
-                    ->with(['client.country', 'client.company', 'company'])
-                    ->lockForUpdate()
-                    ->find($candidate->id);
+            try {
+                DB::transaction(function () use ($payment, $candidate, $reportingPath, $f10EventId): void {
+                    $invoice = Invoice::withTrashed()
+                        ->with(['client.country', 'client.company', 'company'])
+                        ->lockForUpdate()
+                        ->find($candidate->id);
 
-                if (! $invoice || ! $this->invoiceAllowsMovement($invoice)) {
-                    return;
-                }
-
-                if (app(FranceSubmissionClaim::class)->hasActiveClaimForInvoice($invoice->id, lockForUpdate: true)) {
-                    throw new \RuntimeException('France payment reporting is currently being submitted.');
-                }
-
-                $paymentable = $this->paymentable($payment, $invoice);
-                $movementDate = $this->resolveMovementDate($payment, $paymentable);
-
-                if (! $movementDate) {
-                    return;
-                }
-
-                if ($reportingPath === self::REPORTING_PATH_PAYMENT_RECEIVED_NOTIFICATION) {
-                    if ($this->movementType === FrancePaymentApplicationRecorder::MOVEMENT_APPLIED) {
-                        $this->recordPaymentReceivedNotification($invoice, $paymentable);
-                    } else {
-                        app(FrancePaymentApplicationDateReconciler::class)->reconcilePaymentRemoval(
-                            $payment,
-                            $invoice,
-                            $paymentable->id ?? $this->paymentableId,
-                            $movementDate,
-                        );
+                    if (! $invoice || ! $this->invoiceAllowsMovement($invoice)) {
+                        return;
                     }
 
-                    return;
+                    if (app(FranceSubmissionClaim::class)->hasActiveClaimForInvoice($invoice->id, lockForUpdate: true)) {
+                        throw new \RuntimeException('France payment reporting is currently being submitted.');
+                    }
+
+                    $paymentable = $this->paymentable($payment, $invoice);
+                    $movementDate = $this->resolveMovementDate($payment, $paymentable);
+
+                    if (! $movementDate) {
+                        return;
+                    }
+
+                    if ($reportingPath === self::REPORTING_PATH_PAYMENT_RECEIVED_NOTIFICATION) {
+                        if ($this->movementType === FrancePaymentApplicationRecorder::MOVEMENT_APPLIED) {
+                            $this->recordPaymentReceivedNotification($invoice, $paymentable);
+                        } else {
+                            app(FrancePaymentApplicationDateReconciler::class)->reconcilePaymentRemoval(
+                                $payment,
+                                $invoice,
+                                $paymentable->id ?? $this->paymentableId,
+                                $movementDate,
+                            );
+                        }
+
+                        return;
+                    }
+
+                    if (! is_null($f10EventId)) {
+                        $this->recordF10PaymentMovement($payment, $invoice, $paymentable, $movementDate, $f10EventId);
+                    }
+                }, attempts: 3);
+            } catch (InvalidArgumentException $exception) {
+                if ($reportingPath !== self::REPORTING_PATH_F10 || is_null($f10EventId)) {
+                    throw $exception;
                 }
 
-                if (! is_null($f10EventId)) {
-                    $this->recordF10PaymentMovement($payment, $invoice, $paymentable, $movementDate, $f10EventId);
-                }
-            }, attempts: 3);
+                report($exception);
+                $this->recordF10MappingFailure($payment, $candidate, $f10EventId, $exception);
+            }
         }
     }
 
@@ -639,6 +648,10 @@ class RecordFranceEReportingPayment implements ShouldQueue
                     return false;
                 }
 
+                if (data_get($event->payment_request, 'skip_reason')) {
+                    return false;
+                }
+
                 if (! is_null($reportKind) && data_get($event->payment_request, 'fr_report_kind') !== $reportKind) {
                     return false;
                 }
@@ -854,6 +867,49 @@ class RecordFranceEReportingPayment implements ShouldQueue
             ),
             default => throw new InvalidArgumentException("Unsupported France payment event_id [{$eventId}]."),
         };
+    }
+
+    private function recordF10MappingFailure(Payment $payment, Invoice $invoice, int $eventId, InvalidArgumentException $exception): void
+    {
+        $paymentable = $this->paymentable($payment, $invoice);
+        $movementDate = $this->resolveMovementDate($payment, $paymentable)
+            ?? CarbonImmutable::parse($payment->date ?: now())->toDateString();
+        $amount = $this->resolveMovementAmount($payment, $invoice, $paymentable);
+        $period = $this->resolvePeriodEnd($payment, $invoice, $eventId, $movementDate);
+
+        $existing = TransactionEvent::query()
+            ->where('company_id', $payment->company_id)
+            ->where('invoice_id', $invoice->id)
+            ->where('payment_id', $payment->id)
+            ->where('event_id', $eventId)
+            ->whereNotNull('payment_request->skip_reason')
+            ->exists();
+
+        if ($existing) {
+            return;
+        }
+
+        TransactionEvent::create(array_merge(
+            $this->basePayload($payment, $invoice, $eventId, $amount, $period),
+            [
+                'payment_status' => TransactionEvent::FR_REPORTING_STATUS_FAILED,
+                'reporting_data' => null,
+                'payment_request' => [
+                    'fr_kind' => self::KIND_REPORT,
+                    'fr_report_kind' => BcMath::isNegative($amount, 2)
+                        ? self::REPORT_KIND_CORRECTIVE
+                        : self::REPORT_KIND_INITIAL,
+                    'source_date' => $movementDate,
+                    'source_event_ids' => [],
+                    'error' => [
+                        'message' => $exception->getMessage(),
+                        'class' => $exception::class,
+                    ],
+                    'skip_reason' => 'France e-report payment mapping failed.',
+                    'skipped_at' => now()->toIso8601String(),
+                ],
+            ],
+        ));
     }
 
     private function movementSnapshotHash(Payment $payment, Invoice $invoice, ?int $paymentableId, int $eventId, string $movementAmount, string $movementDate): string

@@ -88,8 +88,6 @@ class FranceEReportCompiler
         $b2cTransactions = [];
         $b2biPayments = [];
         $b2cPayments = [];
-        $sourceEventIds = [];
-
         foreach ($events as $event) {
             if ((int) $event->company_id !== $context->companyId) {
                 throw new InvalidArgumentException('France e-report source events must belong to the compilation company.');
@@ -102,8 +100,6 @@ class FranceEReportCompiler
             if ($event->period?->toDateString() !== $context->periodEnd) {
                 throw new InvalidArgumentException('France e-report source event period does not match the compilation period.');
             }
-
-            $sourceEventIds[] = (int) $event->id;
 
             $entry = $event->reporting_data?->frReportEntry;
 
@@ -173,7 +169,14 @@ class FranceEReportCompiler
 
         return new FRReportData(
             typeCode: $variant->typeCode(),
-            documentId: $documentId ?? $this->variantDocumentId($context, $variant, $sourceEventIds),
+            documentId: $documentId ?? $this->variantDocumentId(
+                $context,
+                $variant,
+                $b2biInvoices,
+                $b2cTransactions,
+                $b2biPayments,
+                $b2cPayments,
+            ),
             issueDate: $context->issuedAt->toDateString(),
             issueTime: $context->issuedAt->format('H:i:s'),
             timeZone: $context->issuedAt->format('O'),
@@ -201,7 +204,8 @@ class FranceEReportCompiler
             })
             ->orderBy('id')
             ->get()
-            ->filter(fn (TransactionEvent $event): bool => $this->isSourceEventForSubmission($event, $submissionEventId))
+            ->filter(fn (TransactionEvent $event): bool => ! data_get($event->payment_request, 'skip_reason')
+                && $this->isSourceEventForSubmission($event, $submissionEventId))
             ->values();
     }
 
@@ -228,7 +232,8 @@ class FranceEReportCompiler
             })
             ->orderBy('id')
             ->get()
-            ->filter(fn (TransactionEvent $event): bool => $this->isSourceEventForVariant($event, $variant))
+            ->filter(fn (TransactionEvent $event): bool => ! data_get($event->payment_request, 'skip_reason')
+                && $this->isSourceEventForVariant($event, $variant))
             ->values();
     }
 
@@ -582,8 +587,20 @@ class FranceEReportCompiler
             ?? ReportingProfile::TenDay;
     }
 
-    /** @param array<int, int> $sourceEventIds */
-    private function variantDocumentId(FranceEReportContext $context, FranceEReportVariant $variant, array $sourceEventIds): string
+    /**
+     * @param array<int, B2BIInvoiceData> $b2biInvoices
+     * @param array<int, B2CTransactionData> $b2cTransactions
+     * @param array<int, B2BIPaymentData> $b2biPayments
+     * @param array<int, B2CPaymentData> $b2cPayments
+     */
+    private function variantDocumentId(
+        FranceEReportContext $context,
+        FranceEReportVariant $variant,
+        array $b2biInvoices,
+        array $b2cTransactions,
+        array $b2biPayments,
+        array $b2cPayments,
+    ): string
     {
         $variantCode = match ($variant) {
             FranceEReportVariant::TransactionInitial => 'TI',
@@ -591,10 +608,22 @@ class FranceEReportCompiler
             FranceEReportVariant::PaymentRectificative => 'PR',
         };
 
-        sort($sourceEventIds);
-        $sourceHash = substr(hash('sha256', $context->legalEntityId.'|'.implode(',', $sourceEventIds)), 0, 8);
+        $content = $variant->isTransaction()
+            ? [
+                'b2biInvoices' => array_map(static fn (B2BIInvoiceData $invoice): array => $invoice->toArray(), $b2biInvoices),
+                'b2cTransactions' => array_map(static fn (B2CTransactionData $transaction): array => $transaction->toArray(), $b2cTransactions),
+            ]
+            : [
+                'b2biPayments' => array_map(static fn (B2BIPaymentData $payment): array => $payment->toArray(), $b2biPayments),
+                'b2cPayments' => array_map(static fn (B2CPaymentData $payment): array => $payment->toArray(), $b2cPayments),
+            ];
+        $contentHash = substr(hash('sha256', json_encode([
+            'legalEntityId' => $context->legalEntityId,
+            'period' => $context->period(),
+            'content' => $content,
+        ], JSON_PRESERVE_ZERO_FRACTION | JSON_THROW_ON_ERROR)), 0, 16);
 
-        return 'FRF10-'.$variantCode.'-'.str_replace('-', '', $context->periodEnd).'-'.$context->issuedAt->format('His').'-'.$sourceHash;
+        return 'FRF10-'.$variantCode.'-'.str_replace('-', '', $context->periodEnd).'-'.$contentHash;
     }
 
     private function declarantParty(Company $company): DeclarantPartyData

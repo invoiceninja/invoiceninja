@@ -263,7 +263,7 @@ final class FranceEReportStorecoveProjection
 
     private static function validateTransitionalInvoiceIds(FRReportData $report): void
     {
-        if ($report->issueDate > '2026-12-31') {
+        if (CarbonImmutable::now('Europe/Paris')->toDateString() > '2026-12-31') {
             return;
         }
 

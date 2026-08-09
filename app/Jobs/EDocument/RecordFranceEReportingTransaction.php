@@ -28,6 +28,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
+use InvalidArgumentException;
+use Throwable;
 
 class RecordFranceEReportingTransaction implements ShouldQueue
 {
@@ -78,7 +80,26 @@ class RecordFranceEReportingTransaction implements ShouldQueue
             return;
         }
 
-        $reporting_data = $this->reportingData($document, $eventId);
+        try {
+            $reporting_data = $this->reportingData($document, $eventId);
+        } catch (Throwable $exception) {
+            report($exception);
+
+            TransactionEvent::create([
+                ...$this->transactionEventPayload($document, $eventId, $period, null),
+                'payment_status' => TransactionEvent::FR_REPORTING_STATUS_FAILED,
+                'payment_request' => [
+                    'error' => [
+                        'message' => $exception->getMessage(),
+                        'class' => $exception::class,
+                    ],
+                    'skip_reason' => 'France e-report source mapping failed.',
+                    'skipped_at' => now()->toIso8601String(),
+                ],
+            ]);
+
+            return;
+        }
 
         if (! $reporting_data) {
             return;
@@ -144,7 +165,7 @@ class RecordFranceEReportingTransaction implements ShouldQueue
     /**
      * @return array<string, mixed>
      */
-    private function transactionEventPayload(Invoice|Credit $document, int $eventId, string $period, ReportData $reporting_data): array
+    private function transactionEventPayload(Invoice|Credit $document, int $eventId, string $period, ?ReportData $reporting_data): array
     {
         $isInvoice = $document instanceof Invoice;
 
@@ -175,6 +196,10 @@ class RecordFranceEReportingTransaction implements ShouldQueue
 
     private function reportingData(Invoice|Credit $document, int $eventId): ?ReportData
     {
+        if ($document instanceof Credit && $eventId === TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION) {
+            throw new InvalidArgumentException('Credit and rectificative B2Bi invoice mapping is not enabled for Storecove France reports.');
+        }
+
         /** @var FranceReportEntryBuilder $builder */
         $builder = app(FranceReportEntryBuilder::class);
 
