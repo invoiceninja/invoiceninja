@@ -111,6 +111,31 @@
                 </dl>
             </div>
         </div>
+
+        @if($payment->status_id === \App\Models\Payment::STATUS_COMPLETED && $return_url)
+            <div class="mt-4 overflow-hidden bg-white shadow sm:rounded-lg">
+                <div class="px-4 py-5 sm:p-6 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <h3 class="text-lg font-medium leading-6 text-gray-900">
+                            {{ ctrans('texts.payment_successful') }}
+                        </h3>
+                        <p class="mt-1 text-sm leading-5 text-gray-500">
+                            {{ ctrans('texts.return_to_control_panel_help') }}
+                        </p>
+                    </div>
+                    <div class="mt-4 sm:mt-0 sm:ml-6">
+                        <a href="{{ $return_url }}"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="button button-primary bg-primary whitespace-nowrap">
+                            {{ ctrans('texts.return_to_control_panel') }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        @endif
+
         <div class="mt-4 overflow-hidden bg-white shadow sm:rounded-lg">
             <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
                 <h3 class="text-lg font-medium leading-6 text-gray-900">

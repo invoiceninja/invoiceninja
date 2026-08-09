@@ -24,9 +24,7 @@ use App\Models\CompanyGateway;
 use App\Factory\PaymentFactory;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesDates;
-use Illuminate\Routing\Redirector;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Contracts\View\Factory;
 use App\PaymentDrivers\Stripe\BankTransfer;
@@ -58,7 +56,7 @@ class PaymentController extends Controller
      *
      * @param ShowPaymentRequest $request
      * @param Payment $payment
-     * @return Factory|View|RedirectResponse|Redirector
+     * @return Factory|View
      */
     public function show(ShowPaymentRequest $request, Payment $payment)
     {
@@ -67,17 +65,14 @@ class PaymentController extends Controller
         $payment_intent = false;
         $data = false;
         $gateway = false;
+        $return_url = null;
 
         $invoice = $payment->invoices->filter(function ($invoice) {
             return isset($invoice->backup->redirect);
         })->first();
 
         if ($invoice) {
-            $backup = $invoice->backup;
-            $url = $backup->redirect;
-            unset($backup->redirect);
-            $invoice->saveQuietly();
-            return redirect($url);
+            $return_url = $this->validReturnUrl($invoice->backup->redirect);
         }
 
         if ($payment->gateway_type_id == GatewayType::DIRECT_DEBIT && $payment->type_id == PaymentType::DIRECT_DEBIT) {
@@ -104,7 +99,19 @@ class PaymentController extends Controller
             'payment' => $payment,
             'bank_details' => $payment_intent ? $data : false,
             'currency' => $payment->currency ? strtolower($payment->currency->code) : strtolower($payment->client->currency()->code),
+            'return_url' => $return_url,
         ]);
+    }
+
+    private function validReturnUrl(?string $url): ?string
+    {
+        if (! $url || ! filter_var($url, FILTER_VALIDATE_URL)) {
+            return null;
+        }
+
+        return in_array(strtolower((string) parse_url($url, PHP_URL_SCHEME)), ['http', 'https'], true)
+            ? $url
+            : null;
     }
 
     public function catch_process(Request $request)

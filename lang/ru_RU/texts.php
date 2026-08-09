@@ -5783,7 +5783,7 @@ $lang = array(
     'pages' => 'Pages',
     'passed' => 'Passed',
     'payment_emailed' => 'Payment emailed',
-    'payment_successful' => 'Payment successful',
+    'payment_successful' => 'Оплата прошла успешно',
     'pdf_password_required' => 'PDF password required',
     'pending_approval' => 'Pending approval',
     'please_select_at_least_one_user' => 'Please select at least one user',
@@ -5960,6 +5960,8 @@ $lang = array(
     'restored_template' => 'Successfully Restored Template',
     'archived_template' => 'Successfully Archived Template',
     'deleted_template' => 'Successfully Deleted Template',
+    'return_to_control_panel' => 'Вернуться в личный кабинет',
+    'return_to_control_panel_help' => 'Оплата прошла успешно. Теперь можно вернуться к вашей услуге.',
 );
 
 return $lang;

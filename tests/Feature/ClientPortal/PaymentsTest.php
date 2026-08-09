@@ -16,6 +16,7 @@ use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\User;
 use App\Utils\Traits\AppSetup;
@@ -77,6 +78,69 @@ class PaymentsTest extends TestCase
         $response = $this->get(route('client.payments.show', ['payment' => $payment->hashed_id]));
 
         $response->assertStatus(200);
+
+        $account->delete();
+    }
+
+    public function testCompletedPaymentShowsReturnToServiceButton(): void
+    {
+        $account = Account::factory()->create();
+
+        $user = User::factory()->create([
+            'account_id' => $account->id,
+            'email' => $this->faker->safeEmail(),
+        ]);
+
+        $company = Company::factory()->create(['account_id' => $account->id]);
+        $company->settings->language_id = '1';
+        $company->save();
+
+        $client = Client::factory()->create([
+            'company_id' => $company->id,
+            'user_id' => $user->id,
+        ]);
+
+        $contact = ClientContact::factory()->create([
+            'user_id' => $user->id,
+            'client_id' => $client->id,
+            'company_id' => $company->id,
+        ]);
+
+        $returnUrl = 'https://control.filefor.net/admin/vps/vm/35';
+        $invoice = Invoice::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'client_id' => $client->id,
+        ]);
+        $backup = $invoice->backup;
+        $backup->redirect = $returnUrl;
+        $invoice->backup = $backup;
+        $invoice->saveQuietly();
+
+        $payment = Payment::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'client_id' => $client->id,
+            'status_id' => Payment::STATUS_COMPLETED,
+        ]);
+        $payment->invoices()->attach($invoice->id, [
+            'amount' => $payment->amount,
+            'refunded' => 0,
+        ]);
+
+        $this->actingAs($contact, 'contact');
+
+        $response = $this->get(route('client.payments.show', ['payment' => $payment->hashed_id]));
+
+        $response
+            ->assertOk()
+            ->assertViewHas('return_url', $returnUrl)
+            ->assertSeeText('Return to control panel')
+            ->assertSee('href="' . $returnUrl . '"', false)
+            ->assertSee('target="_blank"', false)
+            ->assertSee('rel="noopener noreferrer"', false);
+
+        $this->assertSame($returnUrl, $invoice->fresh()->backup->redirect);
 
         $account->delete();
     }

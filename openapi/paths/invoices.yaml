@@ -6,8 +6,8 @@
       description: |
         ##  GET /api/v1/invoices
 
-        Lists invoices with the option to chain multiple query parameters allowing fine grained filtering of the list.  
-      
+        Lists invoices with the option to chain multiple query parameters allowing fine grained filtering of the list.
+
       x-codeSamples:
       - lang: php
         label: php
@@ -44,11 +44,11 @@
         - name: client_status
           in: query
           description: |
-            A comma separated list of invoice status strings. Valid options include:  
+            A comma separated list of invoice status strings. Valid options include:
             - all
-            - paid  
-            - unpaid  
-            - overdue   
+            - paid
+            - unpaid
+            - overdue
           required: false
           schema:
             type: string
@@ -56,7 +56,7 @@
         - name: number
           in: query
           description: |
-            Search invoices by invoice number 
+            Search invoices by invoice number
           required: false
           schema:
             type: string
@@ -64,15 +64,15 @@
         - name: filter
           in: query
           description: |
-            Searches across a range of columns including:  
-            - number  
-            - po_number  
-            - date  
-            - amount  
-            - balance  
-            - custom_value1  
-            - custom_value2  
-            - custom_value3  
+            Searches across a range of columns including:
+            - number
+            - po_number
+            - date
+            - amount
+            - balance
+            - custom_value1
+            - custom_value2
+            - custom_value3
             - custom_value4
             - client.name
             - client.contacts.[first_name, last_name, email]
@@ -158,10 +158,10 @@
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Invoice'
@@ -184,7 +184,7 @@
       tags:
         - invoices
       summary: "Create invoice"
-      description: | 
+      description: |
         ## POST /api/v1/invoices
         Creates an invoice for a client.
 
@@ -201,7 +201,7 @@
           ?save_default_footer=true [Saves the current footer as the default footer]
           ?save_default_terms=true [Saves the current terms as the default terms]
           ?retry_e_send=true [Saves and retries the e-send for the invoice]
-          ?redirect=https://example.com [Saves and redirects to the given url]
+          ?redirect=https://example.com [Saves a return URL shown after successful payment]
           ```
       x-codeSamples:
       - lang: php
@@ -392,7 +392,7 @@
         ## PUT /api/v1/invoices/{id}
         Handles the updating of an invoice by id.
 
-        Triggered actions are available when updating or creating an invoice.  
+        Triggered actions are available when updating or creating an invoice.
         These are query parameters that can be chained in order to perform additional actions on the entity, these include:
 
           ```
@@ -404,7 +404,7 @@
           ?save_default_footer=true [Saves the current footer as the default footer]
           ?save_default_terms=true [Saves the current terms as the default terms]
           ?retry_e_send=true [Saves and retries the e-send for the invoice]
-          ?redirect=https://example.com [Saves and redirects to the given url]
+          ?redirect=https://example.com [Saves a return URL shown after successful payment]
           ```
 
       x-codeSamples:
@@ -482,7 +482,7 @@
         5XX:
           description: 'Server error'
         default:
-          $ref: "#/components/responses/default"  
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - invoices
@@ -662,7 +662,7 @@
       description: |
         ## POST /api/v1/invoices/bulk
 
-        There are multiple actions that are available including:  
+        There are multiple actions that are available including:
 
       operationId: bulkInvoices
       parameters:
@@ -720,35 +720,35 @@
                 action:
                   type: string
                   description: |
-                    The action to be performed, options include:  
-                    - `bulk_download`  
-                      Bulk download an array of invoice PDFs (These are sent to the admin via email.)  
-                    - `download`  
-                      Download a single PDF. (Returns a single PDF object)  
-                    - `bulk_print`  
-                      Merges an array of Invoice PDFs for easy one click printing.  
-                    - `auto_bill`  
-                      Attempts to automatically bill the invoices with the payment method on file.  
-                    - `clone_to_invoice`  
-                      Returns a clone of the invoice.  
-                    - `clone_to_quote`  
-                      Returns a quote cloned using the properties of the given invoice.  
-                    - `mark_paid`  
-                      Marks an array of invoices as paid.  
-                    - `mark_sent`  
-                      Marks an array of invoices as sent.  
-                    - `restore`  
-                      Restores an array of invoices  
-                    - `delete`  
-                      Deletes an array of invoices  
-                    - `archive`  
-                      Archives an array of invoices  
-                    - `cancel`  
-                      Cancels an array of invoices  
-                    - `email`  
-                      Emails an array of invoices  
-                    - `send_email`  
-                      Emails an array of invoices. Requires additional properties to be sent. `email_type`  
+                    The action to be performed, options include:
+                    - `bulk_download`
+                      Bulk download an array of invoice PDFs (These are sent to the admin via email.)
+                    - `download`
+                      Download a single PDF. (Returns a single PDF object)
+                    - `bulk_print`
+                      Merges an array of Invoice PDFs for easy one click printing.
+                    - `auto_bill`
+                      Attempts to automatically bill the invoices with the payment method on file.
+                    - `clone_to_invoice`
+                      Returns a clone of the invoice.
+                    - `clone_to_quote`
+                      Returns a quote cloned using the properties of the given invoice.
+                    - `mark_paid`
+                      Marks an array of invoices as paid.
+                    - `mark_sent`
+                      Marks an array of invoices as sent.
+                    - `restore`
+                      Restores an array of invoices
+                    - `delete`
+                      Deletes an array of invoices
+                    - `archive`
+                      Archives an array of invoices
+                    - `cancel`
+                      Cancels an array of invoices
+                    - `email`
+                      Emails an array of invoices
+                    - `send_email`
+                      Emails an array of invoices. Requires additional properties to be sent. `email_type`
                 ids:
                   type: array
                   items:
@@ -757,7 +757,7 @@
               example:
                 action: bulk_download
                 ids: ['D2J234DFA','D2J234DFA','D2J234DFA']
-              
+
       responses:
         200:
           description: "The Bulk Action response"
@@ -788,17 +788,17 @@
         - invoices
       summary: "Custom invoice action"
       description: |
-        Performs a custom action on an invoice.  
-        The current range of actions are as follows  
-        - clone_to_invoice  
-        - clone_to_quote  
-        - history  
-        - delivery_note  
-        - mark_paid  
-        - download  
-        - archive  
-        - delete  
-        - email  
+        Performs a custom action on an invoice.
+        The current range of actions are as follows
+        - clone_to_invoice
+        - clone_to_quote
+        - history
+        - delivery_note
+        - mark_paid
+        - download
+        - archive
+        - delete
+        - email
       operationId: actionInvoice
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"

@@ -13896,7 +13896,7 @@ paths:
           ?save_default_footer=true [Saves the current footer as the default footer]
           ?save_default_terms=true [Saves the current terms as the default terms]
           ?retry_e_send=true [Saves and retries the e-send for the invoice]
-          ?redirect=https://example.com [Saves and redirects to the given url]
+          ?redirect=https://example.com [Saves a return URL shown after successful payment]
           ```
       x-codeSamples:
       - lang: php
@@ -14099,7 +14099,7 @@ paths:
           ?save_default_footer=true [Saves the current footer as the default footer]
           ?save_default_terms=true [Saves the current terms as the default terms]
           ?retry_e_send=true [Saves and retries the e-send for the invoice]
-          ?redirect=https://example.com [Saves and redirects to the given url]
+          ?redirect=https://example.com [Saves a return URL shown after successful payment]
           ```
 
       x-codeSamples:
