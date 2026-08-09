@@ -59,6 +59,10 @@ class FranceEReportingPaymentMovementTest extends TestCase
     {
         parent::setUp();
 
+        if(!class_exists(Modules\Admin\Http\Requests\EInvoice\SendEInvoiceRequest::class)){
+            $this->markTestSkipped('Admin module not installed');
+        }
+        
         config(['ninja.france_reporting_storecove_qualified_variants' => array_column(FranceEReportVariant::cases(), 'value')]);
 
         CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-09-18 12:00:00', 'Europe/Paris'));
