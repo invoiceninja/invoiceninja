@@ -239,7 +239,7 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
 
         $idempotencyGuid = Uuid::uuid5(
             Uuid::NAMESPACE_URL,
-            "fr-payment-notification|{$movement->company_id}|{$invoice->id}|{$originalGuid}",
+            "fr-payment-notification|{$movement->company_id}|{$invoice->id}|{$originalGuid}|{$movement->id}",
         )->toString();
         $payload = [
             'forDocumentSubmissionGuid' => $originalGuid,
@@ -283,13 +283,28 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
                 ->whereIn('payment_status', [
                     ...FranceReportingStatus::openValues(),
                     FranceReportingStatus::Accepted->value,
-                    FranceReportingStatus::Rejected->value,
                 ])
                 ->latest('id')
                 ->first();
 
             if ($existing) {
                 $request = $existing->payment_request ?? [];
+
+                if ((int) $existing->payment_status === FranceReportingStatus::Accepted->value) {
+                    TransactionEvent::query()
+                        ->where('company_id', $movement->company_id)
+                        ->whereIn('id', $movementIds)
+                        ->update(['payment_status' => FranceReportingStatus::Accepted->value]);
+
+                    return null;
+                }
+
+                if ((int) $existing->payment_status === FranceReportingStatus::Sent->value
+                    || data_get($request, 'attempts', []) !== []
+                    || ! is_null(data_get($request, 'transport_claimed_at'))) {
+                    return null;
+                }
+
                 $movementIds = array_values(array_unique([
                     ...array_map('intval', $request['movement_event_ids'] ?? []),
                     ...$movementIds,
@@ -562,23 +577,32 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
             return false;
         }
 
-        foreach ($movements as $movement) {
-            $paymentableId = (int) data_get($movement->payment_request, 'paymentable_id');
-            $payment = Payment::withTrashed()->find($movement->payment_id);
-            $paymentable = Paymentable::withTrashed()->find($paymentableId);
+        $hasEligibleSourceMovement = false;
 
-            if (! $payment
-                || ! $paymentable
-                || $payment->is_deleted
-                || (int) $payment->status_id !== Payment::STATUS_COMPLETED
-                || $paymentable->trashed()
-                || (int) $paymentable->payment_id !== (int) $payment->id
-                || (int) $paymentable->paymentable_id !== (int) $invoice->id
-                || data_get($movement->payment_request, 'reporting_path') !== 'payment_received_notification') {
+        foreach ($movements as $movement) {
+            if (data_get($movement->payment_request, 'reporting_path') !== 'payment_received_notification') {
                 $this->supersedeSubmission($submission, 'source_no_longer_notification_eligible');
 
                 return false;
             }
+
+            $paymentableId = (int) data_get($movement->payment_request, 'paymentable_id');
+            $payment = Payment::withTrashed()->find($movement->payment_id);
+            $paymentable = Paymentable::withTrashed()->find($paymentableId);
+            $hasEligibleSourceMovement = $hasEligibleSourceMovement
+                || ($payment
+                    && $paymentable
+                    && ! $payment->is_deleted
+                    && (int) $payment->status_id === Payment::STATUS_COMPLETED
+                    && ! $paymentable->trashed()
+                    && (int) $paymentable->payment_id === (int) $payment->id
+                    && (int) $paymentable->paymentable_id === (int) $invoice->id);
+        }
+
+        if (! $hasEligibleSourceMovement) {
+            $this->supersedeSubmission($submission, 'source_no_longer_notification_eligible');
+
+            return false;
         }
 
         $currentGuid = trim((string) ($invoice->backup->guid ?? ''));
@@ -648,7 +672,13 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
             Company::query()->whereKey($movement->company_id)->lockForUpdate()->firstOrFail();
             $lockedMovement = TransactionEvent::query()->lockForUpdate()->findOrFail($movement->id);
             $request = $lockedMovement->payment_request ?? [];
-            $requiresReview = TransactionEvent::query()
+            $invoice = Invoice::withTrashed()->find($lockedMovement->invoice_id);
+            $invoiceRemainsPaid = $invoice
+                && ! $invoice->is_deleted
+                && ! in_array((int) $invoice->status_id, [Invoice::STATUS_CANCELLED, Invoice::STATUS_REVERSED], true)
+                && ((int) $invoice->status_id === Invoice::STATUS_PAID
+                    || BcMath::lessThanOrEqual($invoice->balance ?? 0, '0', 2));
+            $requiresReview = ! $invoiceRemainsPaid && TransactionEvent::query()
                 ->where('company_id', $lockedMovement->company_id)
                 ->where('invoice_id', $lockedMovement->invoice_id)
                 ->where('event_id', FranceReportingEventType::PaymentNotificationSnapshot->value)
@@ -668,6 +698,10 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
 
                 if (! $submission
                     || ! in_array((int) $submission->payment_status, FranceReportingStatus::openValues(), true)) {
+                    continue;
+                }
+
+                if ($invoiceRemainsPaid) {
                     continue;
                 }
 
@@ -701,7 +735,7 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
             }
 
             $request['local_disposition'] = $requiresReview
-                ? 'payment_notification_adjustment_requires_review'
+                ? 'notification_adjustment_unreported'
                 : 'notification_not_required_for_non_positive_movement';
             $lockedMovement->payment_request = $request;
             $lockedMovement->payment_status = FranceReportingStatus::Accepted->value;

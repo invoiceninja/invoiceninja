@@ -110,6 +110,9 @@ class RecordFranceEReportingPayment implements ShouldQueue
         }
 
         $path = $this->reportingPath ?? $this->reportingPath($payment);
+        $f10PaymentKind = $path === 'f10'
+            ? (($invoice->client->classification ?? 'business') === 'individual' ? 'b2c' : 'b2bi')
+            : null;
         $subjectKey = "payment:{$payment->id}:invoice:{$invoice->id}";
         $projectionGate = strtoupper((string) $invoice->client->currency()?->code) === 'EUR'
             ? null
@@ -131,6 +134,7 @@ class RecordFranceEReportingPayment implements ShouldQueue
             $operationKey,
             $amount,
             $path,
+            $f10PaymentKind,
             $subjectKey,
             $movementDate,
             $projectionGate,
@@ -143,6 +147,9 @@ class RecordFranceEReportingPayment implements ShouldQueue
                 ->oldest('id')
                 ->first(['payment_request']);
             $reportingPath = (string) data_get($firstMovement?->payment_request, 'reporting_path', $path);
+            $reportingKind = $reportingPath === 'f10'
+                ? (string) data_get($firstMovement?->payment_request, 'f10_payment_kind', $f10PaymentKind)
+                : null;
 
             if (is_null($this->sourceRevision)
                 && $paymentable
@@ -204,6 +211,7 @@ class RecordFranceEReportingPayment implements ShouldQueue
                         'role' => 'fact',
                         'fact_type' => 'payment_movement',
                         'reporting_path' => $reportingPath,
+                        'f10_payment_kind' => $reportingKind,
                         'reporting_profile' => ReportingProfile::Monthly->value,
                         'period_start' => $allocation['period_start'],
                         'subject_key' => $subjectKey,

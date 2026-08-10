@@ -14,11 +14,13 @@ namespace App\Jobs\EDocument;
 
 use App\Libraries\MultiDB;
 use App\Models\Company;
+use App\Models\Invoice;
 use App\Models\TransactionEvent;
 use App\Services\EDocument\Standards\France\FranceReportingEventType;
 use App\Services\EDocument\Standards\France\FranceReportMaterializer;
 use App\Services\EDocument\Standards\France\FranceReportingStatus;
 use App\Services\EDocument\Standards\France\FranceSubmissionCallbackStore;
+use App\Utils\BcMath;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -151,14 +153,65 @@ class UpdateFranceEReportSubmissionStatus implements ShouldQueue
             }
 
             if ((int) $locked->event_id === FranceReportingEventType::PaymentNotificationSubmission->value) {
+                $movementIds = array_values(array_filter(
+                    $request['movement_event_ids'] ?? [$request['movement_event_id'] ?? 0],
+                    static fn(mixed $id): bool => is_int($id) || ctype_digit((string) $id),
+                ));
                 TransactionEvent::query()
                     ->where('company_id', $locked->company_id)
-                    ->whereIn('id', array_values(array_filter(
-                        $request['movement_event_ids'] ?? [$request['movement_event_id'] ?? 0],
-                        static fn(mixed $id): bool => is_int($id) || ctype_digit((string) $id),
-                    )))
+                    ->whereIn('id', $movementIds)
                     ->where('event_id', FranceReportingEventType::PaymentMovement->value)
                     ->update(['payment_status' => $status->value]);
+
+                if ($status === FranceReportingStatus::Accepted) {
+                    $invoice = Invoice::withTrashed()->find($locked->invoice_id);
+
+                    if ($invoice
+                        && ! $invoice->is_deleted
+                        && ((int) $invoice->status_id === Invoice::STATUS_PAID
+                            || BcMath::lessThanOrEqual($invoice->balance ?? 0, '0', 2))) {
+                        TransactionEvent::query()
+                            ->where('company_id', $locked->company_id)
+                            ->where('invoice_id', $locked->invoice_id)
+                            ->where('event_id', FranceReportingEventType::PaymentMovement->value)
+                            ->whereNull('payment_status')
+                            ->where('payment_request->reporting_path', 'payment_received_notification')
+                            ->where(
+                                'payment_request->original_document_guid',
+                                data_get($request, 'original_document_guid'),
+                            )
+                            ->get(['id', 'payment_request'])
+                            ->filter(static fn(TransactionEvent $movement): bool => BcMath::greaterThan(
+                                data_get($movement->payment_request, 'movement_amount', 0),
+                                '0',
+                                2,
+                            ))
+                            ->each(function (TransactionEvent $movement): void {
+                                $movement->payment_status = FranceReportingStatus::Accepted->value;
+                                $movement->save();
+                            });
+                    }
+                }
+
+                if ($status === FranceReportingStatus::Rejected
+                    && ! TransactionEvent::query()
+                        ->where('company_id', $locked->company_id)
+                        ->where('invoice_id', $locked->invoice_id)
+                        ->where('event_id', FranceReportingEventType::PaymentNotificationSnapshot->value)
+                        ->where('payment_status', FranceReportingStatus::Accepted->value)
+                        ->exists()) {
+                    TransactionEvent::query()
+                        ->where('company_id', $locked->company_id)
+                        ->where('invoice_id', $locked->invoice_id)
+                        ->where('event_id', FranceReportingEventType::PaymentMovement->value)
+                        ->where('payment_request->local_disposition', 'notification_adjustment_unreported')
+                        ->eachById(function (TransactionEvent $movement): void {
+                            $movementRequest = $movement->payment_request ?? [];
+                            $movementRequest['local_disposition'] = 'notification_not_required_after_rejected_submission';
+                            $movement->payment_request = $movementRequest;
+                            $movement->save();
+                        });
+                }
             }
         }, attempts: 3);
     }

@@ -24,7 +24,7 @@ use Ramsey\Uuid\Uuid;
 
 final readonly class FranceReportMaterializer
 {
-    public const PROJECTION_SCHEMA_VERSION = 2;
+    public const PROJECTION_SCHEMA_VERSION = 3;
 
     public function __construct(
         private FranceRuntimeProjection $projection,
@@ -44,6 +44,7 @@ final readonly class FranceReportMaterializer
         }
 
         $factWatermark = $this->factWatermark($company, $family, $period);
+        $projectionDependencyWatermark = $this->projectionDependencyWatermark($company, $family, $period);
         $accepted = $this->acceptedBaseline($company, $family, $period);
         $current = $this->projection->current(
             $company,
@@ -59,7 +60,13 @@ final readonly class FranceReportMaterializer
                 : $this->deltaCalculator->calculate($current, $accepted);
 
         if ($delta->isEmpty()) {
-            $this->acknowledgeFacts($company, $family, $period, $factWatermark);
+            $this->acknowledgeFacts(
+                $company,
+                $family,
+                $period,
+                $factWatermark,
+                $projectionDependencyWatermark,
+            );
 
             return null;
         }
@@ -67,7 +74,13 @@ final readonly class FranceReportMaterializer
         $projectionHash = $this->projectionHash($delta, $reportingContextHash);
 
         if ($this->rejectedProjectionExists($company, $family, $period, $projectionHash)) {
-            $this->acknowledgeFacts($company, $family, $period, $factWatermark);
+            $this->acknowledgeFacts(
+                $company,
+                $family,
+                $period,
+                $factWatermark,
+                $projectionDependencyWatermark,
+            );
 
             return null;
         }
@@ -107,6 +120,7 @@ final readonly class FranceReportMaterializer
             $projectionHash,
             $reportingContextHash,
             $factWatermark,
+            $projectionDependencyWatermark,
         ): ?TransactionEvent {
             $lockedCompany = Company::query()->whereKey($company->id)->lockForUpdate()->firstOrFail();
             $lockedProfile = ReportingProfile::tryFrom(
@@ -123,6 +137,10 @@ final readonly class FranceReportMaterializer
             }
 
             if ($factWatermark !== $this->factWatermark($company, $family, $period)) {
+                return null;
+            }
+
+            if ($projectionDependencyWatermark !== $this->projectionDependencyWatermark($company, $family, $period)) {
                 return null;
             }
 
@@ -385,20 +403,61 @@ final readonly class FranceReportMaterializer
         return (int) $this->unhandledFactQuery($company, $family, $period)->max('id');
     }
 
+    private function projectionDependencyWatermark(
+        Company $company,
+        FranceEReportVariant $family,
+        ReportingPeriod $period,
+    ): int {
+        if ($family->isTransaction()) {
+            return 0;
+        }
+
+        $invoiceIds = TransactionEvent::query()
+            ->where('company_id', $company->id)
+            ->whereIn('client_id', Client::withTrashed()
+                ->select('id')
+                ->where('company_id', $company->id))
+            ->where('event_id', FranceReportingEventType::PaymentMovement->value)
+            ->where('payment_request->reporting_path', 'f10')
+            ->where('period', $period->end->toDateString())
+            ->select('invoice_id');
+
+        return (int) TransactionEvent::query()
+            ->where('company_id', $company->id)
+            ->whereIn('client_id', Client::withTrashed()
+                ->select('id')
+                ->where('company_id', $company->id))
+            ->where('event_id', FranceReportingEventType::PaymentMovement->value)
+            ->where('payment_request->reporting_path', 'f10')
+            ->whereIn('invoice_id', $invoiceIds)
+            ->max('id');
+    }
+
     private function acknowledgeFacts(
         Company $company,
         FranceEReportVariant $family,
         ReportingPeriod $period,
         int $factWatermark,
+        int $projectionDependencyWatermark,
     ): void {
         if ($factWatermark === 0) {
             return;
         }
 
-        DB::transaction(function () use ($company, $family, $period, $factWatermark): void {
+        DB::transaction(function () use (
+            $company,
+            $family,
+            $period,
+            $factWatermark,
+            $projectionDependencyWatermark,
+        ): void {
             Company::query()->whereKey($company->id)->lockForUpdate()->firstOrFail();
 
             if ($factWatermark !== $this->factWatermark($company, $family, $period)) {
+                return;
+            }
+
+            if ($projectionDependencyWatermark !== $this->projectionDependencyWatermark($company, $family, $period)) {
                 return;
             }
 

@@ -18,8 +18,11 @@ use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Paymentable;
 use App\Models\TransactionEvent;
 use App\Utils\BcMath;
+use Carbon\CarbonImmutable;
+use RuntimeException;
 
 final readonly class FranceRuntimeProjection
 {
@@ -122,6 +125,23 @@ final readonly class FranceRuntimeProjection
     /** @return array<int, FranceReportingSubject> */
     private function payments(Company $company, ReportingPeriod $period): array
     {
+        $invoiceIds = TransactionEvent::query()
+            ->where('company_id', $company->id)
+            ->whereIn('client_id', Client::withTrashed()
+                ->select('id')
+                ->where('company_id', $company->id))
+            ->where('event_id', FranceReportingEventType::PaymentMovement->value)
+            ->where('payment_request->reporting_path', 'f10')
+            ->where('period', $period->end->toDateString())
+            ->pluck('invoice_id')
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($invoiceIds->isEmpty()) {
+            return [];
+        }
+
         $events = TransactionEvent::query()
             ->select([
                 'id',
@@ -139,7 +159,7 @@ final readonly class FranceRuntimeProjection
                 ->where('company_id', $company->id))
             ->where('event_id', FranceReportingEventType::PaymentMovement->value)
             ->where('payment_request->reporting_path', 'f10')
-            ->where('period', $period->end->toDateString())
+            ->whereIn('invoice_id', $invoiceIds)
             ->orderBy('id')
             ->get();
 
@@ -155,7 +175,18 @@ final readonly class FranceRuntimeProjection
             ->whereIn('id', $events->pluck('invoice_id')->filter()->unique())
             ->get()
             ->keyBy('id');
+        $paymentables = Paymentable::withTrashed()
+            ->where('paymentable_type', 'invoices')
+            ->whereIn('paymentable_id', $invoiceIds)
+            ->get();
+        $sourcePayments = Payment::withTrashed()
+            ->where('company_id', $company->id)
+            ->whereIn('id', $paymentables->pluck('payment_id')->filter()->unique())
+            ->get()
+            ->keyBy('id');
         $groups = [];
+        $invoiceDateBalances = [];
+        $movementBalances = [];
 
         foreach ($events as $event) {
             $key = (string) data_get(
@@ -167,7 +198,7 @@ final readonly class FranceRuntimeProjection
                 'amount' => '0',
                 'payment_id' => (int) $event->payment_id,
                 'invoice_id' => (int) $event->invoice_id,
-                'date_balances' => [],
+                'payment_kind' => (string) data_get($event->payment_request, 'f10_payment_kind'),
             ];
             $movementAmount = (string) data_get($event->payment_request, 'movement_amount', 0);
             $reportDate = (string) data_get($event->payment_request, 'report_date');
@@ -176,18 +207,65 @@ final readonly class FranceRuntimeProjection
                 $movementAmount,
                 2,
             );
-            $group['date_balances'] = $this->applyMovementToDateBalances(
-                $group['date_balances'],
+            $groups[$key] = $group;
+            $movementBalances[$event->invoice_id] = BcMath::add(
+                $movementBalances[$event->invoice_id] ?? '0',
+                $movementAmount,
+                2,
+            );
+            $invoiceDateBalances[$event->invoice_id] = $this->applyMovementToDateBalances(
+                $invoiceDateBalances[$event->invoice_id] ?? [],
                 $reportDate,
                 $movementAmount,
             );
-            $reportDates = array_keys(array_filter(
-                $group['date_balances'],
+        }
+
+        $sourceBalances = [];
+
+        foreach ($paymentables as $paymentable) {
+            /** @var Payment|null $sourcePayment */
+            $sourcePayment = $sourcePayments->get($paymentable->payment_id);
+            $amount = ! $paymentable->trashed()
+                && $sourcePayment
+                && ! $sourcePayment->is_deleted
+                && in_array((int) $sourcePayment->status_id, [
+                    Payment::STATUS_COMPLETED,
+                    Payment::STATUS_PARTIALLY_REFUNDED,
+                    Payment::STATUS_REFUNDED,
+                ], true)
+                    ? BcMath::sub($paymentable->amount, $paymentable->refunded, 2)
+                    : '0';
+            $sourceBalances[$paymentable->paymentable_id] = BcMath::add(
+                $sourceBalances[$paymentable->paymentable_id] ?? '0',
+                $amount,
+                2,
+            );
+        }
+
+        foreach ($invoiceIds as $invoiceId) {
+            if (! BcMath::equal(
+                $movementBalances[$invoiceId] ?? '0',
+                $sourceBalances[$invoiceId] ?? '0',
+                2,
+            )) {
+                throw new RuntimeException(sprintf(
+                    'France payment facts are not current for invoice %s (facts %s, source %s).',
+                    $invoiceId,
+                    $movementBalances[$invoiceId] ?? '0',
+                    $sourceBalances[$invoiceId] ?? '0',
+                ));
+            }
+        }
+
+        $activationDates = [];
+
+        foreach ($invoiceDateBalances as $invoiceId => $dateBalances) {
+            $dates = array_keys(array_filter(
+                $dateBalances,
                 static fn(string $amount): bool => BcMath::greaterThan($amount, '0', 2),
             ));
-            sort($reportDates);
-            $group['report_date'] = $reportDates[0] ?? '';
-            $groups[$key] = $group;
+            rsort($dates);
+            $activationDates[$invoiceId] = $dates[0] ?? '';
         }
 
         $subjects = [];
@@ -201,9 +279,19 @@ final readonly class FranceRuntimeProjection
             $payment = $payments->get($group['payment_id']);
             /** @var Invoice|null $invoice */
             $invoice = $invoices->get($group['invoice_id']);
+            $activationDate = $activationDates[$group['invoice_id']] ?? '';
+            $activationPeriod = $activationDate !== ''
+                ? ReportingCalendar::currentPeriod(
+                    ReportingProfile::Monthly,
+                    CarbonImmutable::parse($activationDate),
+                )
+                : null;
 
             if (! $payment
                 || ! $invoice
+                || ! BcMath::greaterThan($group['amount'], '0', 2)
+                || ! $activationPeriod
+                || $activationPeriod->end->toDateString() !== $period->end->toDateString()
                 || ! in_array((int) $payment->status_id, [
                     Payment::STATUS_COMPLETED,
                     Payment::STATUS_PARTIALLY_REFUNDED,
@@ -213,11 +301,11 @@ final readonly class FranceRuntimeProjection
                 || ! $this->invoiceCanParticipate($invoice)
                 || ! $this->invoiceIsCurrentlyPaid($invoice)
                 || ! $this->documentLifecycleAllowsReporting($invoice)
-                || ! $this->documentIsF10Reportable($invoice->client)) {
+                || ! $invoice->client->reportableFrTransaction()) {
                 continue;
             }
 
-            if (($invoice->client->classification ?? 'business') === 'individual') {
+            if ($group['payment_kind'] === 'b2c') {
                 if ($this->entryBuilder->b2cSupplyCategory($invoice) !== 'TPS1') {
                     continue;
                 }
@@ -226,14 +314,14 @@ final readonly class FranceRuntimeProjection
                     $payment,
                     $invoice,
                     $group['amount'],
-                    $group['report_date'],
+                    $activationDate,
                 ));
             } else {
                 $entry = FRReportEntryData::fromB2BIPayment($this->entryBuilder->b2biPayment(
                     $payment,
                     $invoice,
                     $group['amount'],
-                    $group['report_date'],
+                    $activationDate,
                 ));
             }
 

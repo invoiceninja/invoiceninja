@@ -1118,6 +1118,10 @@ class FranceReportMaterializerTest extends TestCase
         $payment->status_id = Payment::STATUS_REFUNDED;
         $payment->refunded = 120;
         $payment->save();
+        Paymentable::query()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_id', $invoice->id)
+            ->update(['refunded' => 120]);
         (new RecordFranceEReportingPayment(
             $payment->id,
             $this->company->db,
@@ -1205,6 +1209,10 @@ class FranceReportMaterializerTest extends TestCase
         $payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
         $payment->refunded = 20;
         $payment->save();
+        Paymentable::query()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_id', $invoice->id)
+            ->update(['refunded' => 20]);
         (new RecordFranceEReportingPayment(
             $payment->id,
             $this->company->db,
