@@ -20,7 +20,6 @@ use App\Models\Payment;
 use App\Models\Paymentable;
 use App\Models\TransactionEvent;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
-use App\Services\EDocument\Standards\France\FranceReportMaterializer;
 use App\Services\EDocument\Standards\France\FranceReportingEventType;
 use App\Services\EDocument\Standards\France\FranceReportingStatus;
 use App\Services\EDocument\Standards\France\FranceSubmissionCallbackStore;
@@ -649,23 +648,12 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
             Company::query()->whereKey($movement->company_id)->lockForUpdate()->firstOrFail();
             $lockedMovement = TransactionEvent::query()->lockForUpdate()->findOrFail($movement->id);
             $request = $lockedMovement->payment_request ?? [];
-            $hasAcceptedNotification = TransactionEvent::query()
+            $requiresReview = TransactionEvent::query()
                 ->where('company_id', $lockedMovement->company_id)
                 ->where('invoice_id', $lockedMovement->invoice_id)
                 ->where('event_id', FranceReportingEventType::PaymentNotificationSnapshot->value)
                 ->where('payment_status', FranceReportingStatus::Accepted->value)
                 ->exists();
-
-            if ($hasAcceptedNotification) {
-                $request['local_disposition'] = 'accepted_notification_reversal_mapping_unconfirmed';
-                $request['projection_gate'] = 'accepted_notification_reversal_mapping_unconfirmed';
-                $request['projection_schema_version'] = FranceReportMaterializer::PROJECTION_SCHEMA_VERSION;
-                $lockedMovement->payment_request = $request;
-                $lockedMovement->payment_status = FranceReportingStatus::Accepted->value;
-                $lockedMovement->save();
-
-                return;
-            }
 
             $candidateIds = TransactionEvent::query()
                 ->where('company_id', $lockedMovement->company_id)
@@ -688,51 +676,33 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
                     || data_get($submissionRequest, 'attempts', []) !== []
                     || ! is_null(data_get($submissionRequest, 'transport_claimed_at'));
 
-                if (! $hasTransportCommitment) {
-                    $submissionRequest['local_disposition'] = 'payment_failed_before_transport';
-                    $submissionRequest['superseded_at'] = now()->toIso8601String();
-                    $submission->payment_request = $submissionRequest;
-                    $submission->payment_status = FranceReportingStatus::Rejected->value;
-                    $submission->save();
-                    TransactionEvent::query()
-                        ->where('company_id', $submission->company_id)
-                        ->whereIn('id', array_map('intval', $submissionRequest['snapshot_event_ids'] ?? []))
-                        ->update(['payment_status' => FranceReportingStatus::Rejected->value]);
-                    TransactionEvent::query()
-                        ->where('company_id', $submission->company_id)
-                        ->whereIn('id', array_map(
-                            'intval',
-                            $submissionRequest['movement_event_ids']
-                                ?? [$submissionRequest['movement_event_id'] ?? 0],
-                        ))
-                        ->update(['payment_status' => FranceReportingStatus::Accepted->value]);
-
+                if ($hasTransportCommitment) {
+                    $requiresReview = true;
                     continue;
                 }
 
-                $movementIds = array_values(array_unique([
-                    ...array_map(
+                $submissionRequest['local_disposition'] = 'payment_no_longer_eligible_before_transport';
+                $submissionRequest['superseded_at'] = now()->toIso8601String();
+                $submission->payment_request = $submissionRequest;
+                $submission->payment_status = FranceReportingStatus::Rejected->value;
+                $submission->save();
+                TransactionEvent::query()
+                    ->where('company_id', $submission->company_id)
+                    ->whereIn('id', array_map('intval', $submissionRequest['snapshot_event_ids'] ?? []))
+                    ->update(['payment_status' => FranceReportingStatus::Rejected->value]);
+                TransactionEvent::query()
+                    ->where('company_id', $submission->company_id)
+                    ->whereIn('id', array_map(
                         'intval',
                         $submissionRequest['movement_event_ids']
                             ?? [$submissionRequest['movement_event_id'] ?? 0],
-                    ),
-                    (int) $lockedMovement->id,
-                ]));
-                $submissionRequest['movement_event_ids'] = $movementIds;
-                $submission->payment_request = $submissionRequest;
-                $submission->save();
-                $request['route_transition'] = 'notification_reversal_pending_old_outcome';
-                $request['projection_gate'] = 'notification_reversal_pending_old_outcome';
-                $request['projection_schema_version'] = FranceReportMaterializer::PROJECTION_SCHEMA_VERSION;
-                $request['old_submission_event_id'] = $submission->id;
-                $lockedMovement->payment_request = $request;
-                $lockedMovement->payment_status = FranceReportingStatus::Pending->value;
-                $lockedMovement->save();
-
-                return;
+                    ))
+                    ->update(['payment_status' => FranceReportingStatus::Accepted->value]);
             }
 
-            $request['local_disposition'] = 'notification_not_required_for_non_positive_movement';
+            $request['local_disposition'] = $requiresReview
+                ? 'payment_notification_adjustment_requires_review'
+                : 'notification_not_required_for_non_positive_movement';
             $lockedMovement->payment_request = $request;
             $lockedMovement->payment_status = FranceReportingStatus::Accepted->value;
             $lockedMovement->save();

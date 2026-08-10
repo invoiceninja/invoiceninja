@@ -1153,7 +1153,32 @@ class FranceReportMaterializerTest extends TestCase
         $this->assertLessThan(0, $payments[0]['taxSubtotal'][0]['amount']);
     }
 
-    public function test_partial_refund_after_acceptance_reports_only_the_refunded_delta(): void
+    public function test_partial_payment_is_not_reported(): void
+    {
+        [$invoice] = $this->makePaidServicePayment('2026-09-15', '2026-09-25');
+        $invoice->status_id = Invoice::STATUS_PARTIAL;
+        $invoice->balance = 20;
+        $invoice->saveQuietly();
+        $period = ReportingCalendar::currentPeriod(
+            ReportingProfile::Monthly,
+            CarbonImmutable::parse('2026-09-25', 'Europe/Paris'),
+        );
+
+        $submission = app(FranceReportMaterializer::class)->materialize(
+            $this->company,
+            FranceEReportVariant::PaymentInitial,
+            $period,
+            CarbonImmutable::parse('2026-10-07 12:00:00', 'Europe/Paris'),
+        );
+
+        $this->assertNull($submission);
+        $this->assertFalse(TransactionEvent::query()
+            ->where('company_id', $this->company->id)
+            ->where('event_id', FranceReportingEventType::PaymentSnapshot->value)
+            ->exists());
+    }
+
+    public function test_partial_refund_reverses_the_full_accepted_payment(): void
     {
         [$invoice, $payment, $paymentable] = $this->makePaidServicePayment('2026-09-15', '2026-09-25');
         $period = ReportingCalendar::currentPeriod(
@@ -1204,7 +1229,7 @@ class FranceReportMaterializerTest extends TestCase
             $corrective->payment_request,
             'payload.document.frEReport.paymentReport.b2cPayments.0.taxSubtotal.0.amount',
         );
-        $this->assertEquals(-20.0, $amount);
+        $this->assertEquals(-120.0, $amount);
     }
 
     public function test_payment_for_invoice_rejected_in_the_same_period_is_not_reported(): void

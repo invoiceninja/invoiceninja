@@ -136,6 +136,13 @@ class RecordFranceEReportingPayment implements ShouldQueue
             $projectionGate,
         ): void {
             Company::query()->whereKey($payment->company_id)->lockForUpdate()->firstOrFail();
+            $firstMovement = TransactionEvent::query()
+                ->where('company_id', $payment->company_id)
+                ->where('invoice_id', $invoice->id)
+                ->where('event_id', FranceReportingEventType::PaymentMovement->value)
+                ->oldest('id')
+                ->first(['payment_request']);
+            $reportingPath = (string) data_get($firstMovement?->payment_request, 'reporting_path', $path);
 
             if (is_null($this->sourceRevision)
                 && $paymentable
@@ -196,7 +203,7 @@ class RecordFranceEReportingPayment implements ShouldQueue
                         'schema_version' => 1,
                         'role' => 'fact',
                         'fact_type' => 'payment_movement',
-                        'reporting_path' => $path,
+                        'reporting_path' => $reportingPath,
                         'reporting_profile' => ReportingProfile::Monthly->value,
                         'period_start' => $allocation['period_start'],
                         'subject_key' => $subjectKey,
@@ -208,7 +215,7 @@ class RecordFranceEReportingPayment implements ShouldQueue
                         'report_date' => $allocation['report_date'],
                         'paymentable_id' => $paymentable->id ?? $this->paymentableId,
                         'source_revision' => $this->sourceRevision,
-                        'original_document_guid' => $path === 'payment_received_notification'
+                        'original_document_guid' => $reportingPath === 'payment_received_notification'
                             ? ($this->originalDocumentGuid ?? trim((string) ($invoice->backup->guid ?? '')))
                             : null,
                         'projection_gate' => $projectionGate,
