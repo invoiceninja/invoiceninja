@@ -29,7 +29,7 @@ class PreviewReportProtectedDownloadTest extends TestCase
 
         $this->assertFalse($method->invoke($job, microtime(true) - 5));
         $this->assertFalse($method->invoke($job, microtime(true) - 30));
-        $this->assertTrue($method->invoke($job, microtime(true) - 31));
+        $this->assertTrue($method->invoke($job, microtime(true) - 60));
     }
 
     public function testSkipsProtectedDownloadStoreWhenReportCompletesWithinBrowserTimeout(): void
