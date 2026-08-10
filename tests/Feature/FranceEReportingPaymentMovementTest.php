@@ -946,7 +946,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         ))->sum('amount'));
     }
 
-    public function test_empty_projection_does_not_acknowledge_a_stale_cross_period_dependency(): void
+    public function test_empty_projection_does_not_acknowledge_stale_payment_dependencies(): void
     {
         [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'individual', '2026-09-25');
         $invoice->status_id = Invoice::STATUS_PARTIAL;
@@ -974,6 +974,32 @@ class FranceEReportingPaymentMovementTest extends TestCase
             FranceEReportVariant::PaymentInitial,
             $september,
         );
+        $sourceHashMethod = new \ReflectionMethod($materializer, 'projectionSourceHash');
+        $sourceHash = $sourceHashMethod->invoke(
+            $materializer,
+            $this->company,
+            FranceEReportVariant::PaymentInitial,
+            $september,
+        );
+        Paymentable::query()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_id', $invoice->id)
+            ->update(['amount' => 100]);
+        $acknowledgeMethod = new \ReflectionMethod($materializer, 'acknowledgeFacts');
+        $acknowledgeMethod->invoke(
+            $materializer,
+            $this->company,
+            FranceEReportVariant::PaymentInitial,
+            $september,
+            $firstMovement->id,
+            $dependencyWatermark,
+            $sourceHash,
+        );
+        $this->assertNull($firstMovement->fresh()->payment_status);
+        Paymentable::query()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_id', $invoice->id)
+            ->update(['amount' => 120]);
 
         (new RecordFranceEReportingPayment(
             $payment->id,
@@ -984,7 +1010,6 @@ class FranceEReportingPaymentMovementTest extends TestCase
             '2026-10-25',
             movementIdentity: 'dependency-second',
         ))->handle();
-        $acknowledgeMethod = new \ReflectionMethod($materializer, 'acknowledgeFacts');
         $acknowledgeMethod->invoke(
             $materializer,
             $this->company,
@@ -992,6 +1017,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
             $september,
             $firstMovement->id,
             $dependencyWatermark,
+            $sourceHash,
         );
 
         $this->assertNull($firstMovement->fresh()->payment_status);

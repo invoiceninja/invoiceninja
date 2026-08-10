@@ -16,6 +16,10 @@ use App\DataMapper\FranceEReporting\FRReportEntryData;
 use App\DataMapper\ReportData;
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\GroupSetting;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\Paymentable;
 use App\Models\TransactionEvent;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
@@ -45,6 +49,7 @@ final readonly class FranceReportMaterializer
 
         $factWatermark = $this->factWatermark($company, $family, $period);
         $projectionDependencyWatermark = $this->projectionDependencyWatermark($company, $family, $period);
+        $projectionSourceHash = $this->projectionSourceHash($company, $family, $period);
         $accepted = $this->acceptedBaseline($company, $family, $period);
         $current = $this->projection->current(
             $company,
@@ -66,6 +71,7 @@ final readonly class FranceReportMaterializer
                 $period,
                 $factWatermark,
                 $projectionDependencyWatermark,
+                $projectionSourceHash,
             );
 
             return null;
@@ -80,6 +86,7 @@ final readonly class FranceReportMaterializer
                 $period,
                 $factWatermark,
                 $projectionDependencyWatermark,
+                $projectionSourceHash,
             );
 
             return null;
@@ -121,6 +128,7 @@ final readonly class FranceReportMaterializer
             $reportingContextHash,
             $factWatermark,
             $projectionDependencyWatermark,
+            $projectionSourceHash,
         ): ?TransactionEvent {
             $lockedCompany = Company::query()->whereKey($company->id)->lockForUpdate()->firstOrFail();
             $lockedProfile = ReportingProfile::tryFrom(
@@ -141,6 +149,13 @@ final readonly class FranceReportMaterializer
             }
 
             if ($projectionDependencyWatermark !== $this->projectionDependencyWatermark($company, $family, $period)) {
+                return null;
+            }
+
+            if (! hash_equals(
+                $projectionSourceHash,
+                $this->projectionSourceHash($company, $family, $period),
+            )) {
                 return null;
             }
 
@@ -439,6 +454,7 @@ final readonly class FranceReportMaterializer
         ReportingPeriod $period,
         int $factWatermark,
         int $projectionDependencyWatermark,
+        string $projectionSourceHash,
     ): void {
         if ($factWatermark === 0) {
             return;
@@ -450,6 +466,7 @@ final readonly class FranceReportMaterializer
             $period,
             $factWatermark,
             $projectionDependencyWatermark,
+            $projectionSourceHash,
         ): void {
             Company::query()->whereKey($company->id)->lockForUpdate()->firstOrFail();
 
@@ -461,12 +478,120 @@ final readonly class FranceReportMaterializer
                 return;
             }
 
+            if (! hash_equals(
+                $projectionSourceHash,
+                $this->projectionSourceHash($company, $family, $period),
+            )) {
+                return;
+            }
+
             $this->resolveFactQuery(
                 $this->unhandledFactQuery($company, $family, $period)
                     ->where('id', '<=', $factWatermark),
                 FranceReportingStatus::Accepted,
             );
         }, attempts: 3);
+    }
+
+    private function projectionSourceHash(
+        Company $company,
+        FranceEReportVariant $family,
+        ReportingPeriod $period,
+    ): string {
+        if ($family->isTransaction()) {
+            return '';
+        }
+
+        $invoiceIds = TransactionEvent::query()
+            ->where('company_id', $company->id)
+            ->whereIn('client_id', Client::withTrashed()
+                ->select('id')
+                ->where('company_id', $company->id))
+            ->where('event_id', FranceReportingEventType::PaymentMovement->value)
+            ->where('payment_request->reporting_path', 'f10')
+            ->where('period', $period->end->toDateString())
+            ->pluck('invoice_id')
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($invoiceIds->isEmpty()) {
+            return hash('sha256', '[]');
+        }
+
+        $invoiceQuery = Invoice::withTrashed()
+            ->where('company_id', $company->id)
+            ->whereIn('id', $invoiceIds)
+            ->orderBy('id');
+        $paymentableQuery = Paymentable::withTrashed()
+            ->where('paymentable_type', 'invoices')
+            ->whereIn('paymentable_id', $invoiceIds)
+            ->orderBy('id');
+
+        $invoices = $invoiceQuery->get();
+        $paymentables = $paymentableQuery->get();
+        $paymentQuery = Payment::withTrashed()
+            ->where('company_id', $company->id)
+            ->whereIn('id', $paymentables->pluck('payment_id')->filter()->unique())
+            ->orderBy('id');
+        $payments = $paymentQuery->get();
+        $clients = Client::withTrashed()
+            ->where('company_id', $company->id)
+            ->whereIn('id', $invoices->pluck('client_id')->filter()->unique())
+            ->orderBy('id')
+            ->get();
+        $groupSettings = GroupSetting::query()
+            ->where('company_id', $company->id)
+            ->whereIn('id', $clients->pluck('group_settings_id')->filter()->unique())
+            ->orderBy('id')
+            ->get();
+
+        return hash('sha256', json_encode([
+            'invoices' => $invoices->map(static fn(Invoice $invoice): array => [
+                'id' => (int) $invoice->id,
+                'client_id' => (int) $invoice->client_id,
+                'status_id' => (int) $invoice->status_id,
+                'balance' => (string) $invoice->balance,
+                'is_deleted' => (bool) $invoice->is_deleted,
+                'deleted_at' => $invoice->getRawOriginal('deleted_at'),
+                'updated_at' => $invoice->getRawOriginal('updated_at'),
+                'e_invoice_status' => (string) ($invoice->backup->e_invoice_status ?? ''),
+            ])->all(),
+            'paymentables' => $paymentables->map(static fn(Paymentable $paymentable): array => [
+                'id' => (int) $paymentable->id,
+                'payment_id' => (int) $paymentable->payment_id,
+                'invoice_id' => (int) $paymentable->paymentable_id,
+                'amount' => (string) $paymentable->amount,
+                'refunded' => (string) $paymentable->refunded,
+                'deleted_at' => $paymentable->getRawOriginal('deleted_at'),
+                'updated_at' => $paymentable->getRawOriginal('updated_at'),
+            ])->all(),
+            'payments' => $payments->map(static fn(Payment $payment): array => [
+                'id' => (int) $payment->id,
+                'status_id' => (int) $payment->status_id,
+                'amount' => (string) $payment->amount,
+                'applied' => (string) $payment->applied,
+                'refunded' => (string) $payment->refunded,
+                'type_id' => (int) $payment->type_id,
+                'date' => (string) $payment->date,
+                'is_deleted' => (bool) $payment->is_deleted,
+                'deleted_at' => $payment->getRawOriginal('deleted_at'),
+                'updated_at' => $payment->getRawOriginal('updated_at'),
+            ])->all(),
+            'clients' => $clients->map(static fn(Client $client): array => [
+                'id' => (int) $client->id,
+                'country_id' => (int) $client->country_id,
+                'classification' => (string) $client->classification,
+                'group_settings_id' => (int) $client->group_settings_id,
+                'settings' => $client->settings,
+                'updated_at' => $client->getRawOriginal('updated_at'),
+            ])->all(),
+            'group_settings' => $groupSettings->map(static fn(GroupSetting $settings): array => [
+                'id' => (int) $settings->id,
+                'settings' => $settings->settings,
+                'updated_at' => $settings->getRawOriginal('updated_at'),
+            ])->all(),
+        ], JSON_PRESERVE_ZERO_FRACTION | JSON_THROW_ON_ERROR));
     }
 
     private function factQuery(

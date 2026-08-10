@@ -42,7 +42,7 @@ final readonly class FranceRuntimeProjection
     /** @return array<int, FranceReportingSubject> */
     private function transactions(Company $company, ReportingPeriod $period): array
     {
-        $relations = ['client.country', 'client.company', 'company'];
+        $relations = ['client.country', 'client.company', 'client.group_settings', 'company'];
         $dateRange = [$period->start->toDateString(), $period->end->toDateString()];
         $subjects = [];
 
@@ -164,13 +164,13 @@ final readonly class FranceRuntimeProjection
             ->get();
 
         $payments = Payment::withTrashed()
-            ->with(['client.country', 'client.company', 'company', 'currency'])
+            ->with(['client.country', 'client.company', 'client.group_settings', 'company', 'currency'])
             ->where('company_id', $company->id)
             ->whereIn('id', $events->pluck('payment_id')->filter()->unique())
             ->get()
             ->keyBy('id');
         $invoices = Invoice::withTrashed()
-            ->with(['client.country', 'client.company', 'company'])
+            ->with(['client.country', 'client.company', 'client.group_settings', 'company'])
             ->where('company_id', $company->id)
             ->whereIn('id', $events->pluck('invoice_id')->filter()->unique())
             ->get()
