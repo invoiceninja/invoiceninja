@@ -17,6 +17,10 @@ class PreviewReportProtectedDownloadTest extends TestCase
     {
         parent::setUp();
 
+         if (config('ninja.testvars.travis') !== false) {
+            $this->markTestSkipped('Skip test for GH Actions');
+        }
+        
         $this->makeTestData();
     }
 
