@@ -34,7 +34,7 @@ class FrancePaymentApplicationRecorderTest extends TestCase
             movementDate: '2026-09-15',
         );
 
-        Bus::assertDispatched(RecordFranceEReportingPayment::class, function (RecordFranceEReportingPayment $job): bool {
+        Bus::assertDispatchedSync(RecordFranceEReportingPayment::class, function (RecordFranceEReportingPayment $job): bool {
             $reflection = new ReflectionClass($job);
 
             return $this->property($reflection, $job, 'paymentId') === 10
@@ -45,6 +45,27 @@ class FrancePaymentApplicationRecorderTest extends TestCase
                 && $this->property($reflection, $job, 'movementDate') === '2026-09-15'
                 && $this->property($reflection, $job, 'movementType') === FrancePaymentApplicationRecorder::MOVEMENT_APPLIED;
         });
+    }
+
+    public function testEqualAppliedIncrementsReceiveDistinctCumulativeIdentities(): void
+    {
+        Bus::fake();
+        $company = $this->company(franceReportingEnabled: true);
+        $payment = $this->payment($company, Payment::STATUS_COMPLETED);
+        $invoice = $this->invoice($company, $this->client($company, 'individual', 'FR'), Invoice::STATUS_PARTIAL, 50);
+        $paymentable = $this->paymentable();
+        $recorder = new FrancePaymentApplicationRecorder();
+
+        $recorder->recordMovement($payment, $invoice, $paymentable, '55', '2026-09-15');
+        $payment->applied = 110;
+        $recorder->recordMovement($payment, $invoice, $paymentable, '55', '2026-09-15');
+
+        $identities = Bus::dispatchedSync(RecordFranceEReportingPayment::class)
+            ->map(function (RecordFranceEReportingPayment $job): mixed {
+                return $this->property(new ReflectionClass($job), $job, 'movementIdentity');
+            })
+            ->all();
+        $this->assertSame(['applied:40:110.00', 'applied:40:165.00'], $identities);
     }
 
     public function testItUsesPaymentableCreatedAtAsTheApplicationMovementDate(): void
@@ -63,7 +84,7 @@ class FrancePaymentApplicationRecorderTest extends TestCase
             movementDate: '2026-09-20',
         );
 
-        Bus::assertDispatched(RecordFranceEReportingPayment::class, function (RecordFranceEReportingPayment $job): bool {
+        Bus::assertDispatchedSync(RecordFranceEReportingPayment::class, function (RecordFranceEReportingPayment $job): bool {
             $reflection = new ReflectionClass($job);
 
             return $this->property($reflection, $job, 'movementDate') === '2026-09-15';
@@ -86,7 +107,7 @@ class FrancePaymentApplicationRecorderTest extends TestCase
             movementDate: '2026-09-15',
         );
 
-        Bus::assertNotDispatched(RecordFranceEReportingPayment::class);
+        Bus::assertNotDispatchedSync(RecordFranceEReportingPayment::class);
     }
 
 
@@ -109,13 +130,13 @@ class FrancePaymentApplicationRecorderTest extends TestCase
             movementType: FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
         );
 
-        Bus::assertDispatched(RecordFranceEReportingPayment::class, function (RecordFranceEReportingPayment $job): bool {
+        Bus::assertDispatchedSync(RecordFranceEReportingPayment::class, function (RecordFranceEReportingPayment $job): bool {
             $reflection = new ReflectionClass($job);
 
             return $this->property($reflection, $job, 'movementAmount') === '-25'
                 && $this->property($reflection, $job, 'movementDate') === '2026-09-18'
                 && $this->property($reflection, $job, 'movementType') === FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED
-                && $this->property($reflection, $job, 'movement_identity') === 'refunded:25';
+                && $this->property($reflection, $job, 'movementIdentity') === 'refunded:25';
         });
     }
 
@@ -129,7 +150,7 @@ class FrancePaymentApplicationRecorderTest extends TestCase
 
         (new FrancePaymentApplicationRecorder())->recordMovement($payment, $invoice, $this->paymentable(), '100', '2026-09-15');
 
-        Bus::assertDispatched(RecordFranceEReportingPayment::class);
+        Bus::assertDispatchedSync(RecordFranceEReportingPayment::class);
     }
 
     public function testItDoesNotDispatchWhenFranceReportingIsDisabled(): void
@@ -142,7 +163,7 @@ class FrancePaymentApplicationRecorderTest extends TestCase
 
         (new FrancePaymentApplicationRecorder())->recordMovement($payment, $invoice, $this->paymentable(), '100', '2026-09-15');
 
-        Bus::assertNotDispatched(RecordFranceEReportingPayment::class);
+        Bus::assertNotDispatchedSync(RecordFranceEReportingPayment::class);
     }
 
     public function testItDoesNotDispatchForPendingAppliedPayments(): void
@@ -155,7 +176,7 @@ class FrancePaymentApplicationRecorderTest extends TestCase
 
         (new FrancePaymentApplicationRecorder())->recordMovement($payment, $invoice, $this->paymentable(), '100', '2026-09-15');
 
-        Bus::assertNotDispatched(RecordFranceEReportingPayment::class);
+        Bus::assertNotDispatchedSync(RecordFranceEReportingPayment::class);
     }
 
     public function testItDoesNotDispatchZeroMovements(): void
@@ -168,7 +189,7 @@ class FrancePaymentApplicationRecorderTest extends TestCase
 
         (new FrancePaymentApplicationRecorder())->recordMovement($payment, $invoice, $this->paymentable(), '0', '2026-09-15');
 
-        Bus::assertNotDispatched(RecordFranceEReportingPayment::class);
+        Bus::assertNotDispatchedSync(RecordFranceEReportingPayment::class);
     }
 
     public function testItDoesNotDispatchWithoutACompanyRelation(): void
@@ -186,7 +207,7 @@ class FrancePaymentApplicationRecorderTest extends TestCase
 
         (new FrancePaymentApplicationRecorder())->recordMovement($payment, $invoice, null, '100', '2026-09-15');
 
-        Bus::assertNotDispatched(RecordFranceEReportingPayment::class);
+        Bus::assertNotDispatchedSync(RecordFranceEReportingPayment::class);
     }
 
     private function company(bool $franceReportingEnabled): Company

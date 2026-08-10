@@ -18,68 +18,51 @@ use App\DataMapper\FranceEReporting\B2CPaymentData;
 use App\DataMapper\FranceEReporting\B2CTransactionData;
 use App\DataMapper\FranceEReporting\DeclarantPartyData;
 use App\DataMapper\FranceEReporting\FRReportData;
+use App\DataMapper\FranceEReporting\FRReportEntryData;
 use App\DataMapper\FranceEReporting\PartyData;
 use App\DataMapper\FranceEReporting\PaymentReportData;
 use App\DataMapper\FranceEReporting\PublicIdentifierData;
 use App\DataMapper\FranceEReporting\ReportDataValidator;
 use App\DataMapper\FranceEReporting\TaxSubtotalData;
 use App\DataMapper\FranceEReporting\TransactionReportData;
-use App\Jobs\EDocument\RecordFranceEReportingPayment;
 use App\Models\Company;
-use App\Models\Invoice;
-use App\Models\TransactionEvent;
 use App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveIdentifierValidator;
 use App\Utils\BcMath;
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Collection;
 use InvalidArgumentException;
 
 class FranceEReportCompiler
 {
-    public function compile(
-        Company $company,
-        int $submissionEventId,
-        string $periodEnd,
-        ?CarbonImmutable $issuedAt = null,
-        ?string $documentId = null,
-    ): FRReportData {
-        $sourceEvents = $this->sourceEvents($company, $submissionEventId, $periodEnd);
-
-        return $this->compileFromEvents($company, $submissionEventId, $periodEnd, $sourceEvents, $issuedAt, $documentId);
-    }
-
-    /**
-     * @param iterable<int, TransactionEvent> $events
-     */
+    /** @param iterable<int, FRReportEntryData> $entries */
     public function compileVariant(
         Company $company,
         FranceEReportVariant $variant,
         string $periodEnd,
-        iterable $events,
+        iterable $entries,
         ?CarbonImmutable $issuedAt = null,
         ?string $documentId = null,
     ): FRReportData {
         $issuedAt ??= CarbonImmutable::now('Europe/Paris');
 
-        return $this->compileVariantFromEvents(
+        return $this->compileVariantFromEntries(
             $company,
             $variant,
             $this->contextForVariant($company, $variant, $periodEnd, $issuedAt),
-            $events,
+            $entries,
             $documentId,
         );
     }
 
     /**
-     * Compile exactly one Storecove F10 section for exactly one legal entity.
+     * Compile a runtime projection without coupling the compiler to persistence.
      *
-     * @param iterable<int, TransactionEvent> $events
+     * @param iterable<int, mixed> $entries
      */
-    public function compileVariantFromEvents(
+    public function compileVariantFromEntries(
         Company $company,
         FranceEReportVariant $variant,
         FranceEReportContext $context,
-        iterable $events,
+        iterable $entries,
         ?string $documentId = null,
     ): FRReportData {
         $this->validateContext($company, $context);
@@ -88,54 +71,68 @@ class FranceEReportCompiler
         $b2cTransactions = [];
         $b2biPayments = [];
         $b2cPayments = [];
-        foreach ($events as $event) {
-            if ((int) $event->company_id !== $context->companyId) {
-                throw new InvalidArgumentException('France e-report source events must belong to the compilation company.');
+
+        foreach ($entries as $entry) {
+            if (! $entry instanceof FRReportEntryData) {
+                throw new InvalidArgumentException('France e-report runtime projection requires FRReportEntryData values.');
             }
 
-            if (! in_array((int) $event->event_id, $variant->sourceEventIds(), true)) {
-                throw new InvalidArgumentException("Source event [{$event->event_id}] is incompatible with {$variant->value}.");
-            }
-
-            if ($event->period?->toDateString() !== $context->periodEnd) {
-                throw new InvalidArgumentException('France e-report source event period does not match the compilation period.');
-            }
-
-            $entry = $event->reporting_data?->frReportEntry;
-
-            if (is_null($entry)) {
-                throw new InvalidArgumentException("France e-report source event [{$event->id}] has no frReportEntry.");
-            }
-
-            switch ((int) $event->event_id) {
-                case TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION:
-                    if (! $entry->b2biInvoice instanceof B2BIInvoiceData) {
-                        throw new InvalidArgumentException("France e-report source event [{$event->id}] requires b2biInvoice.");
-                    }
+            if ($variant->isTransaction()) {
+                if ($entry->b2biInvoice) {
                     $b2biInvoices[] = $entry->b2biInvoice;
-                    break;
-                case TransactionEvent::FR_B2C_TRANSACTION:
-                    if (! $entry->b2cTransaction instanceof B2CTransactionData) {
-                        throw new InvalidArgumentException("France e-report source event [{$event->id}] requires b2cTransaction.");
-                    }
+                    continue;
+                }
+
+                if ($entry->b2cTransaction) {
                     $b2cTransactions[] = $entry->b2cTransaction;
-                    break;
-                case TransactionEvent::FR_VAT_EXCLUDED_PAYMENT:
-                    if (! $entry->b2biPayment instanceof B2BIPaymentData) {
-                        throw new InvalidArgumentException("France e-report source event [{$event->id}] requires b2biPayment.");
-                    }
-                    $b2biPayments[] = $entry->b2biPayment;
-                    break;
-                case TransactionEvent::FR_B2C_PAYMENT:
-                    if (! $entry->b2cPayment instanceof B2CPaymentData) {
-                        throw new InvalidArgumentException("France e-report source event [{$event->id}] requires b2cPayment.");
-                    }
-                    $b2cPayments[] = $entry->b2cPayment;
-                    break;
+                    continue;
+                }
+
+                throw new InvalidArgumentException("Runtime entry is incompatible with {$variant->value}.");
             }
+
+            if ($entry->b2biPayment) {
+                $b2biPayments[] = $entry->b2biPayment;
+                continue;
+            }
+
+            if ($entry->b2cPayment) {
+                $b2cPayments[] = $entry->b2cPayment;
+                continue;
+            }
+
+            throw new InvalidArgumentException("Runtime entry is incompatible with {$variant->value}.");
         }
 
-        if (collect($b2biInvoices)->contains(
+        return $this->compileTypedEntries(
+            company: $company,
+            variant: $variant,
+            context: $context,
+            b2biInvoices: $b2biInvoices,
+            b2cTransactions: $b2cTransactions,
+            b2biPayments: $b2biPayments,
+            b2cPayments: $b2cPayments,
+            documentId: $documentId,
+        );
+    }
+
+    /**
+     * @param array<int, B2BIInvoiceData> $b2biInvoices
+     * @param array<int, B2CTransactionData> $b2cTransactions
+     * @param array<int, B2BIPaymentData> $b2biPayments
+     * @param array<int, B2CPaymentData> $b2cPayments
+     */
+    private function compileTypedEntries(
+        Company $company,
+        FranceEReportVariant $variant,
+        FranceEReportContext $context,
+        array $b2biInvoices,
+        array $b2cTransactions,
+        array $b2biPayments,
+        array $b2cPayments,
+        ?string $documentId,
+    ): FRReportData {
+        if (! $variant->isRectificative() && collect($b2biInvoices)->contains(
             static fn (B2BIInvoiceData $invoice): bool => BcMath::isNegative($invoice->amountIncludingVat, 2),
         )) {
             throw new InvalidArgumentException('Credit and rectificative B2Bi invoice mapping is not enabled for Storecove France reports.');
@@ -186,123 +183,16 @@ class FranceEReportCompiler
         );
     }
 
-    /**
-     * @return Collection<int, TransactionEvent>
-     */
-    public function sourceEvents(Company $company, int $submissionEventId, string $periodEnd): Collection
-    {
-        return TransactionEvent::query()
-            ->with('invoice')
-            ->where('company_id', $company->id)
-            ->where('period', $periodEnd)
-            ->whereIn('event_id', $this->sourceEventIds($submissionEventId))
-            ->whereNotNull('reporting_data')
-            ->where(function ($query) {
-                $query->whereNull('payment_status')
-                    ->orWhere('payment_status', TransactionEvent::FR_REPORTING_STATUS_PENDING)
-                    ->orWhere('payment_status', TransactionEvent::FR_REPORTING_STATUS_FAILED);
-            })
-            ->orderBy('id')
-            ->get()
-            ->filter(fn (TransactionEvent $event): bool => ! data_get($event->payment_request, 'skip_reason')
-                && $this->isSourceEventForSubmission($event, $submissionEventId))
-            ->values();
-    }
-
-    /**
-     * Return all source rows for one Storecove F10 section and one legal entity.
-     *
-     * @return Collection<int, TransactionEvent>
-     */
-    public function sourceEventsForVariant(
-        Company $company,
-        FranceEReportVariant $variant,
-        string $periodEnd,
-    ): Collection {
-        return TransactionEvent::query()
-            ->with('invoice')
-            ->where('company_id', $company->id)
-            ->where('period', $periodEnd)
-            ->whereIn('event_id', $variant->sourceEventIds())
-            ->whereNotNull('reporting_data')
-            ->where(function ($query) {
-                $query->whereNull('payment_status')
-                    ->orWhere('payment_status', TransactionEvent::FR_REPORTING_STATUS_PENDING)
-                    ->orWhere('payment_status', TransactionEvent::FR_REPORTING_STATUS_FAILED);
-            })
-            ->orderBy('id')
-            ->get()
-            ->filter(fn (TransactionEvent $event): bool => ! data_get($event->payment_request, 'skip_reason')
-                && $this->isSourceEventForVariant($event, $variant))
-            ->values();
-    }
-
-    /**
-     * @param iterable<int, TransactionEvent> $events
-     */
-    public function compileFromEvents(
-        Company $company,
-        int $submissionEventId,
-        string $periodEnd,
-        iterable $events,
-        ?CarbonImmutable $issuedAt = null,
-        ?string $documentId = null,
-    ): FRReportData {
-        $events = collect($events);
-
-        return $this->compileVariant(
-            $company,
-            $this->variantFromEvents($submissionEventId, $events),
-            $periodEnd,
-            $events,
-            $issuedAt,
-            $documentId,
-        );
-    }
-
-    /**
-     * Infer a variant only for backwards-compatible queued jobs whose rows are unambiguous.
-     *
-     * @param iterable<int, TransactionEvent> $events
-     */
-    public function variantFromEvents(int $submissionEventId, iterable $events): FranceEReportVariant
-    {
-        $eventIds = collect($events)
-            ->pluck('event_id')
-            ->map(static fn ($id): int => (int) $id)
-            ->unique()
-            ->all();
-        $containsTransaction = collect($eventIds)->contains(
-            static fn (int $id): bool => in_array($id, FranceEReportVariant::TransactionInitial->sourceEventIds(), true),
-        );
-        $containsPayment = collect($eventIds)->contains(
-            static fn (int $id): bool => in_array($id, FranceEReportVariant::PaymentInitial->sourceEventIds(), true),
-        );
-
-        if ($containsTransaction === $containsPayment) {
-            throw new InvalidArgumentException('France e-report compilation requires exactly one transaction or payment source family.');
-        }
-
-        if ($containsTransaction) {
-            if ($submissionEventId === TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE) {
-                throw new InvalidArgumentException('Transaction RE is not enabled for the Storecove France mapper.');
-            }
-
-            return FranceEReportVariant::TransactionInitial;
-        }
-
-        return $submissionEventId === TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE
-            ? FranceEReportVariant::PaymentRectificative
-            : FranceEReportVariant::PaymentInitial;
-    }
-
     public function contextForVariant(
         Company $company,
         FranceEReportVariant $variant,
         string $periodEnd,
         CarbonImmutable $issuedAt,
+        ?ReportingProfile $reportingProfile = null,
     ): FranceEReportContext {
-        $profile = $variant->isTransaction() ? $this->transactionProfile($company) : ReportingProfile::Monthly;
+        $profile = $variant->isTransaction()
+            ? ($reportingProfile ?? $this->transactionProfile($company))
+            : ReportingProfile::Monthly;
         $period = ReportingCalendar::currentPeriod($profile, CarbonImmutable::parse($periodEnd));
 
         return new FranceEReportContext(
@@ -312,101 +202,6 @@ class FranceEReportCompiler
             periodEnd: $period->end->toDateString(),
             issuedAt: $issuedAt,
         );
-    }
-
-    /**
-     * @return array<int, int>
-     */
-    public function sourceEventIds(int $submissionEventId): array
-    {
-        return match ($submissionEventId) {
-            TransactionEvent::FR_REPORT_SUBMISSION_B2C => [
-                TransactionEvent::FR_B2C_TRANSACTION,
-                TransactionEvent::FR_B2C_PAYMENT,
-            ],
-            TransactionEvent::FR_REPORT_SUBMISSION_VAT_EXCLUDED => [
-                TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION,
-                TransactionEvent::FR_VAT_EXCLUDED_PAYMENT,
-            ],
-            TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE => [
-                TransactionEvent::FR_B2C_TRANSACTION,
-                TransactionEvent::FR_B2C_PAYMENT,
-                TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION,
-                TransactionEvent::FR_VAT_EXCLUDED_PAYMENT,
-            ],
-            default => throw new InvalidArgumentException("Unsupported France report submission event_id [{$submissionEventId}]."),
-        };
-    }
-
-    private function isSourceEventForSubmission(TransactionEvent $event, int $submissionEventId): bool
-    {
-        if (data_get($event->payment_request, 'fr_kind') === RecordFranceEReportingPayment::KIND_MOVEMENT) {
-            return false;
-        }
-
-        $reportKind = data_get($event->payment_request, 'fr_report_kind', RecordFranceEReportingPayment::REPORT_KIND_INITIAL);
-
-        if ($submissionEventId === TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE) {
-            return $reportKind === RecordFranceEReportingPayment::REPORT_KIND_CORRECTIVE;
-        }
-
-        if ($reportKind === RecordFranceEReportingPayment::REPORT_KIND_CORRECTIVE) {
-            return false;
-        }
-
-        if (in_array($event->event_id, [
-            TransactionEvent::FR_B2C_PAYMENT,
-            TransactionEvent::FR_VAT_EXCLUDED_PAYMENT,
-        ], true)) {
-            $invoice = $event->invoice;
-
-            if ($event->event_id === TransactionEvent::FR_B2C_PAYMENT
-                && $invoice
-                && app(FranceReportEntryBuilder::class)->b2cSupplyCategory($invoice) !== 'TPS1') {
-                return false;
-            }
-
-            return $invoice
-                && ! $invoice->is_deleted
-                && ((int) $invoice->status_id === Invoice::STATUS_PAID
-                    || BcMath::lessThanOrEqual($invoice->balance ?? 0, '0', 2));
-        }
-
-        return true;
-    }
-
-    private function isSourceEventForVariant(TransactionEvent $event, FranceEReportVariant $variant): bool
-    {
-        if (data_get($event->payment_request, 'fr_kind') === RecordFranceEReportingPayment::KIND_MOVEMENT) {
-            return false;
-        }
-
-        $reportKind = data_get($event->payment_request, 'fr_report_kind', RecordFranceEReportingPayment::REPORT_KIND_INITIAL);
-
-        if ($variant === FranceEReportVariant::PaymentRectificative) {
-            if ($reportKind !== RecordFranceEReportingPayment::REPORT_KIND_CORRECTIVE) {
-                return false;
-            }
-        } elseif ($reportKind === RecordFranceEReportingPayment::REPORT_KIND_CORRECTIVE) {
-            return false;
-        }
-
-        if (! $variant->isTransaction()) {
-            $invoice = $event->invoice;
-
-            if ($event->event_id === TransactionEvent::FR_B2C_PAYMENT
-                && $invoice
-                && app(FranceReportEntryBuilder::class)->b2cSupplyCategory($invoice) !== 'TPS1') {
-                return false;
-            }
-
-            return $invoice
-                && ! $invoice->is_deleted
-                && ((int) $invoice->status_id === Invoice::STATUS_PAID
-                    || BcMath::lessThanOrEqual($invoice->balance ?? 0, '0', 2));
-        }
-
-        return true;
     }
 
     /**
@@ -604,6 +399,7 @@ class FranceEReportCompiler
     {
         $variantCode = match ($variant) {
             FranceEReportVariant::TransactionInitial => 'TI',
+            FranceEReportVariant::TransactionRectificative => 'TR',
             FranceEReportVariant::PaymentInitial => 'PI',
             FranceEReportVariant::PaymentRectificative => 'PR',
         };

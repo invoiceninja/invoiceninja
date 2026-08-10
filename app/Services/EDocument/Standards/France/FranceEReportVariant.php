@@ -13,11 +13,11 @@
 namespace App\Services\EDocument\Standards\France;
 
 use App\DataMapper\FranceEReporting\FRReportData;
-use App\Models\TransactionEvent;
 
 enum FranceEReportVariant: string
 {
     case TransactionInitial = 'transaction_in';
+    case TransactionRectificative = 'transaction_re';
     case PaymentInitial = 'payment_in';
     case PaymentRectificative = 'payment_re';
 
@@ -25,38 +25,17 @@ enum FranceEReportVariant: string
     {
         return match ($this) {
             self::TransactionInitial, self::PaymentInitial => FRReportData::TYPE_INITIAL,
-            self::PaymentRectificative => FRReportData::TYPE_RECTIFICATIVE,
+            self::TransactionRectificative, self::PaymentRectificative => FRReportData::TYPE_RECTIFICATIVE,
         };
     }
 
     public function isTransaction(): bool
     {
-        return $this === self::TransactionInitial;
+        return in_array($this, [self::TransactionInitial, self::TransactionRectificative], true);
     }
 
-    public function isStorecoveQualified(): bool
+    public function isRectificative(): bool
     {
-        return in_array(
-            $this->value,
-            config('ninja.france_reporting_storecove_qualified_variants', []),
-            true,
-        );
-    }
-
-    /**
-     * @return array<int, int>
-     */
-    public function sourceEventIds(): array
-    {
-        return match ($this) {
-            self::TransactionInitial => [
-                TransactionEvent::FR_B2C_TRANSACTION,
-                TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION,
-            ],
-            self::PaymentInitial, self::PaymentRectificative => [
-                TransactionEvent::FR_B2C_PAYMENT,
-                TransactionEvent::FR_VAT_EXCLUDED_PAYMENT,
-            ],
-        };
+        return in_array($this, [self::TransactionRectificative, self::PaymentRectificative], true);
     }
 }

@@ -3,8 +3,12 @@
 namespace Tests\Unit\FranceEReporting;
 
 use App\DataMapper\CompanySettings;
+use App\DataMapper\FranceEReporting\B2BIInvoiceData;
+use App\DataMapper\FranceEReporting\B2BIPaymentData;
+use App\DataMapper\FranceEReporting\B2CPaymentData;
+use App\DataMapper\FranceEReporting\B2CTransactionData;
+use App\DataMapper\FranceEReporting\FRReportEntryData;
 use App\Models\Company;
-use App\Models\TransactionEvent;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
 use App\Services\EDocument\Standards\France\FranceEReportCompiler;
 use App\Services\EDocument\Standards\France\FranceEReportContext;
@@ -23,6 +27,14 @@ use Tests\TestCase;
 class FranceEReportArtifactAssessmentTest extends TestCase
 {
     private const ARTIFACT_DIRECTORY = 'tests/artifacts/france_e_reporting/storecove_format';
+
+    private const FR_B2C_TRANSACTION = 1;
+
+    private const FR_B2C_PAYMENT = 2;
+
+    private const FR_VAT_EXCLUDED_TRANSACTION = 3;
+
+    private const FR_VAT_EXCLUDED_PAYMENT = 4;
 
     private const IDEMPOTENCY_GUIDS = [
         'le_a_transaction_b2bi_in' => '083acb33-a86f-4f20-89ad-dc5ce1849ed4',
@@ -87,7 +99,7 @@ class FranceEReportArtifactAssessmentTest extends TestCase
                 [$this->event(
                     $companyA,
                     20,
-                    TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION,
+                    self::FR_VAT_EXCLUDED_TRANSACTION,
                     '2026-09-10',
                     $this->b2biTaxCategoryInvoice('A', (string) $companyA->settings->id_number),
                 )],
@@ -133,8 +145,8 @@ class FranceEReportArtifactAssessmentTest extends TestCase
                 FranceEReportVariant::PaymentInitial,
                 'FR-F10-A-PAY-MEANS-IN',
                 [
-                    $this->event($companyA, 30, TransactionEvent::FR_VAT_EXCLUDED_PAYMENT, '2026-01-31', $this->b2biPayment('A', '30', 'MEANS-30')),
-                    $this->event($companyA, 31, TransactionEvent::FR_VAT_EXCLUDED_PAYMENT, '2026-01-31', $this->b2biPayment('A', '48', 'MEANS-48')),
+                    $this->event($companyA, 30, self::FR_VAT_EXCLUDED_PAYMENT, '2026-01-31', $this->b2biPayment('A', '30', 'MEANS-30')),
+                    $this->event($companyA, 31, self::FR_VAT_EXCLUDED_PAYMENT, '2026-01-31', $this->b2biPayment('A', '48', 'MEANS-48')),
                 ],
             ),
             'le_a_payment_b2bi_re' => $this->scenario(
@@ -175,7 +187,6 @@ class FranceEReportArtifactAssessmentTest extends TestCase
             'artifactUpdateCommand' => 'UPDATE_STORECOVE_ARTIFACTS=1 php vendor/bin/phpunit tests/Unit/FranceEReporting/FranceEReportArtifactAssessmentTest.php',
             'qualificationEnvironment' => 'No Storecove sandbox is available for this integration.',
             'releaseRule' => 'UNPROVED until Storecove supplies exact generated F10 XML for these payloads or an authorized real-data production canary produces it, followed by pinned AIFE and scenario-value validation.',
-            'runtimeQualificationGate' => 'FRANCE_REPORTING_STORECOVE_QUALIFIED_VARIANTS (empty by default)',
             'artifacts' => [],
         ];
 
@@ -230,8 +241,8 @@ class FranceEReportArtifactAssessmentTest extends TestCase
     }
 
     /**
-     * @param array<int, TransactionEvent> $events
-     * @return array{company: Company, context: FranceEReportContext, variant: FranceEReportVariant, documentId: string, events: array<int, TransactionEvent>}
+     * @param array<int, FRReportEntryData> $events
+     * @return array{company: Company, context: FranceEReportContext, variant: FranceEReportVariant, documentId: string, events: array<int, FRReportEntryData>}
      */
     private function scenario(
         Company $company,
@@ -244,7 +255,7 @@ class FranceEReportArtifactAssessmentTest extends TestCase
     }
 
     /**
-     * @param array<int, TransactionEvent> $events
+     * @param array<int, FRReportEntryData> $events
      * @return array<string, mixed>
      */
     private function compilePayload(
@@ -255,7 +266,7 @@ class FranceEReportArtifactAssessmentTest extends TestCase
         array $events,
         string $idempotencyGuid,
     ): array {
-        $report = (new FranceEReportCompiler())->compileVariantFromEvents(
+        $report = (new FranceEReportCompiler())->compileVariantFromEntries(
             $company,
             $variant,
             $context,
@@ -313,7 +324,6 @@ class FranceEReportArtifactAssessmentTest extends TestCase
         config([
             'ninja.environment' => 'hosted',
             'ninja.storecove_api_key' => 'format-test-key',
-            'ninja.france_reporting_storecove_qualified_variants' => array_column(FranceEReportVariant::cases(), 'value'),
         ]);
         $capturedRequest = null;
         Http::fake(function ($request) use (&$capturedRequest) {
@@ -367,39 +377,39 @@ class FranceEReportArtifactAssessmentTest extends TestCase
         );
     }
 
-    /** @return array<int, TransactionEvent> */
+    /** @return array<int, FRReportEntryData> */
     private function transactionEvents(Company $company, string $sentinel, string $composition): array
     {
         $events = [];
 
         if (in_array($composition, ['b2bi', 'combined'], true)) {
-            $events[] = $this->event($company, 1, TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION, '2026-09-10', $this->b2biInvoice($sentinel, (string) $company->settings->id_number));
+            $events[] = $this->event($company, 1, self::FR_VAT_EXCLUDED_TRANSACTION, '2026-09-10', $this->b2biInvoice($sentinel, (string) $company->settings->id_number));
         }
 
         if (in_array($composition, ['b2c', 'combined'], true)) {
-            $events[] = $this->event($company, 2, TransactionEvent::FR_B2C_TRANSACTION, '2026-09-10', $this->b2cTransaction($sentinel));
+            $events[] = $this->event($company, 2, self::FR_B2C_TRANSACTION, '2026-09-10', $this->b2cTransaction($sentinel));
         }
 
         return $events;
     }
 
-    /** @return array<int, TransactionEvent> */
+    /** @return array<int, FRReportEntryData> */
     private function paymentEvents(Company $company, string $sentinel, string $composition): array
     {
         $events = [];
 
         if (in_array($composition, ['b2bi', 'combined'], true)) {
-            $events[] = $this->event($company, 3, TransactionEvent::FR_VAT_EXCLUDED_PAYMENT, '2026-01-31', $this->b2biPayment($sentinel));
+            $events[] = $this->event($company, 3, self::FR_VAT_EXCLUDED_PAYMENT, '2026-01-31', $this->b2biPayment($sentinel));
         }
 
         if (in_array($composition, ['b2c', 'combined'], true)) {
-            $events[] = $this->event($company, 4, TransactionEvent::FR_B2C_PAYMENT, '2026-01-31', $this->b2cPayment());
+            $events[] = $this->event($company, 4, self::FR_B2C_PAYMENT, '2026-01-31', $this->b2cPayment());
         }
 
         return $events;
     }
 
-    /** @return array<int, TransactionEvent> */
+    /** @return array<int, FRReportEntryData> */
     private function b2cCategoryEvents(Company $company): array
     {
         $specifications = [
@@ -410,10 +420,10 @@ class FranceEReportArtifactAssessmentTest extends TestCase
         ];
 
         return array_map(
-            fn (array $specification, int $index): TransactionEvent => $this->event(
+            fn (array $specification, int $index): FRReportEntryData => $this->event(
                 $company,
                 40 + $index,
-                TransactionEvent::FR_B2C_TRANSACTION,
+                self::FR_B2C_TRANSACTION,
                 '2026-09-10',
                 $this->b2cCategoryTransaction(...$specification),
             ),
@@ -423,18 +433,14 @@ class FranceEReportArtifactAssessmentTest extends TestCase
     }
 
     /** @param array<string, mixed> $data */
-    private function event(Company $company, int $id, int $eventId, string $periodEnd, array $data): TransactionEvent
+    private function event(Company $company, int $id, int $eventId, string $periodEnd, array $data): FRReportEntryData
     {
-        $event = new TransactionEvent();
-        $event->setRawAttributes([
-            'id' => $id,
-            'company_id' => $company->id,
-            'event_id' => $eventId,
-            'period' => $periodEnd,
-            'reporting_data' => json_encode($data, JSON_THROW_ON_ERROR),
-        ], true);
-
-        return $event;
+        return match ($eventId) {
+            self::FR_B2C_TRANSACTION => FRReportEntryData::fromB2CTransaction(B2CTransactionData::fromArray($data)),
+            self::FR_B2C_PAYMENT => FRReportEntryData::fromB2CPayment(B2CPaymentData::fromArray($data)),
+            self::FR_VAT_EXCLUDED_TRANSACTION => FRReportEntryData::fromB2BIInvoice(B2BIInvoiceData::fromArray($data)),
+            self::FR_VAT_EXCLUDED_PAYMENT => FRReportEntryData::fromB2BIPayment(B2BIPaymentData::fromArray($data)),
+        };
     }
 
     /** @return array<string, mixed> */

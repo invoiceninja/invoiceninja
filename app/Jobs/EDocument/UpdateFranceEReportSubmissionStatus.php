@@ -15,6 +15,10 @@ namespace App\Jobs\EDocument;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\TransactionEvent;
+use App\Services\EDocument\Standards\France\FranceReportingEventType;
+use App\Services\EDocument\Standards\France\FranceReportMaterializer;
+use App\Services\EDocument\Standards\France\FranceReportingStatus;
+use App\Services\EDocument\Standards\France\FranceSubmissionCallbackStore;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -31,15 +35,22 @@ class UpdateFranceEReportSubmissionStatus implements ShouldQueue
 
     public $tries = 1;
 
-    /**
-     * @param array<string, mixed> $input
-     */
+    private const ACCEPTED_EVENTS = ['accepted'];
+
+    private const REJECTED_EVENTS = ['failed', 'rejected', 'no_action_taken', 'not_transportable'];
+
+    private const RETRYABLE_EVENTS = ['retryable_failure', 'temporarily_unavailable'];
+
+    /** @param array<string, mixed> $input */
     public function __construct(private array $input) {}
 
-    public function handle(): void
+    public function handle(
+        FranceReportMaterializer $materializer,
+        FranceSubmissionCallbackStore $callbackStore,
+    ): void
     {
-        $tenantId = (string) ($this->input['tenant_id'] ?? '');
-        $guid = (string) ($this->input['guid'] ?? '');
+        $tenantId = trim((string) ($this->input['tenant_id'] ?? ''));
+        $guid = trim((string) ($this->input['guid'] ?? ''));
 
         if ($tenantId === '' || $guid === '') {
             return;
@@ -57,64 +68,191 @@ class UpdateFranceEReportSubmissionStatus implements ShouldQueue
 
         $submission = TransactionEvent::query()
             ->where('company_id', $company->id)
-            ->whereIn('event_id', array_merge(TransactionEvent::FR_REPORT_SUBMISSION_EVENTS, TransactionEvent::FR_PAYMENT_NOTIFICATION_EVENTS))
-            ->get()
-            ->first(fn (TransactionEvent $event): bool => data_get($event->payment_request, 'guid') === $guid);
+            ->whereIn('client_id', \App\Models\Client::withTrashed()
+                ->select('id')
+                ->where('company_id', $company->id))
+            ->whereIn('event_id', FranceReportingEventType::submissionValues())
+            ->where(function ($query) use ($guid): void {
+                $query->where('payment_request->guid', $guid)
+                    ->orWhereJsonContains('payment_request->guids', $guid);
+            })
+            ->orderByDesc('id')
+            ->first();
 
         if (! $submission) {
+            $callbackStore->record($company, $guid, $this->input);
+
             return;
         }
 
         $status = $this->statusForEvent((string) ($this->input['event'] ?? ''));
-        DB::transaction(function () use ($submission, $status): void {
-            $lockedSubmission = TransactionEvent::query()
-                ->lockForUpdate()
-                ->find($submission->id);
 
-            if (! $lockedSubmission) {
+        DB::transaction(function () use ($company, $submission, $status, $materializer): void {
+            Company::query()->whereKey($company->id)->lockForUpdate()->firstOrFail();
+            $locked = TransactionEvent::query()->lockForUpdate()->find($submission->id);
+
+            if (! $locked) {
                 return;
             }
 
-            $history = $lockedSubmission->payment_request['events'] ?? [];
-            $history[] = [
-                'event' => $this->input['event'] ?? null,
-                'event_group' => $this->input['event_group'] ?? null,
-                'received_at' => now()->toIso8601String(),
-            ];
+            $request = $locked->payment_request ?? [];
+            $events = is_array($request['events'] ?? null) ? $request['events'] : [];
+            $eventKey = hash('sha256', json_encode($this->input, JSON_THROW_ON_ERROR));
 
-            if (! is_null($status)) {
-                $lockedSubmission->payment_status = $status;
+            if (! collect($events)->contains(
+                static fn(mixed $event): bool => is_array($event) && ($event['event_key'] ?? null) === $eventKey,
+            )) {
+                $events[] = [
+                    'event_key' => $eventKey,
+                    'event' => $this->input['event'] ?? null,
+                    'event_group' => $this->input['event_group'] ?? null,
+                    'received_at' => now()->toIso8601String(),
+                    'payload' => $this->input,
+                ];
             }
+            $request['last_event'] = $this->input['event'] ?? null;
+            $request['last_event_group'] = $this->input['event_group'] ?? null;
+            $request['events'] = $events;
 
-            $lockedSubmission->payment_request = [
-                ...($lockedSubmission->payment_request ?? []),
-                'last_event' => $this->input['event'] ?? null,
-                'last_event_group' => $this->input['event_group'] ?? null,
-                'events' => $history,
-            ];
-            $lockedSubmission->save();
+            if ($this->isTerminal($locked) || is_null($status)) {
+                $locked->payment_request = $request;
+                $locked->save();
 
-            if (is_null($status)) {
                 return;
             }
 
-            $sourceEventIds = $lockedSubmission->payment_request['source_event_ids'] ?? [];
+            $locked->payment_status = $status->value;
+            $request[$status === FranceReportingStatus::Accepted ? 'accepted_at' : 'resolved_at'] = now()->toIso8601String();
+            $locked->payment_request = $request;
+            $locked->save();
 
-            if (is_array($sourceEventIds) && $sourceEventIds !== []) {
+            if (! in_array($status, [FranceReportingStatus::Accepted, FranceReportingStatus::Rejected], true)) {
+                return;
+            }
+
+            $snapshotIds = array_values(array_filter(
+                $request['snapshot_event_ids'] ?? [],
+                static fn(mixed $id): bool => is_int($id) || ctype_digit((string) $id),
+            ));
+
+            TransactionEvent::query()
+                ->where('company_id', $locked->company_id)
+                ->whereIn('id', $snapshotIds)
+                ->whereIn('event_id', [
+                    FranceReportingEventType::TransactionSnapshot->value,
+                    FranceReportingEventType::PaymentSnapshot->value,
+                    FranceReportingEventType::PaymentNotificationSnapshot->value,
+                ])
+                ->where('payment_request->submission_event_id', $locked->id)
+                ->update(['payment_status' => $status->value]);
+
+            if ((int) $locked->event_id === FranceReportingEventType::ReportSubmission->value) {
+                $materializer->resolveSubmissionFacts($locked, $status);
+            }
+
+            if ((int) $locked->event_id === FranceReportingEventType::PaymentNotificationSubmission->value) {
                 TransactionEvent::query()
-                    ->where('company_id', $lockedSubmission->company_id)
-                    ->whereIn('id', $sourceEventIds)
-                    ->update(['payment_status' => $status]);
+                    ->where('company_id', $locked->company_id)
+                    ->whereIn('id', array_values(array_filter(
+                        $request['movement_event_ids'] ?? [$request['movement_event_id'] ?? 0],
+                        static fn(mixed $id): bool => is_int($id) || ctype_digit((string) $id),
+                    )))
+                    ->where('event_id', FranceReportingEventType::PaymentMovement->value)
+                    ->eachById(function (TransactionEvent $movement) use ($status): void {
+                        $movementRequest = $movement->payment_request ?? [];
+
+                        if (data_get($movementRequest, 'route_transition')
+                            === 'notification_reversal_pending_old_outcome') {
+                            unset($movementRequest['route_transition']);
+
+                            if ($status === FranceReportingStatus::Accepted) {
+                                $movementRequest['local_disposition'] = 'accepted_notification_reversal_mapping_unconfirmed';
+                                $movementRequest['projection_gate'] = 'accepted_notification_reversal_mapping_unconfirmed';
+                                $movementRequest['projection_schema_version'] = FranceReportMaterializer::PROJECTION_SCHEMA_VERSION;
+                            } else {
+                                $movementRequest['local_disposition'] = 'notification_not_required_after_rejected_submission';
+                                unset($movementRequest['projection_gate']);
+                            }
+
+                            $movement->payment_request = $movementRequest;
+                            $movement->payment_status = FranceReportingStatus::Accepted->value;
+                            $movement->save();
+
+                            return;
+                        }
+
+                        if (data_get($movementRequest, 'route_transition')
+                            === 'notification_source_invalid_pending_old_outcome') {
+                            unset($movementRequest['route_transition']);
+
+                            if ($status === FranceReportingStatus::Accepted) {
+                                $movementRequest['local_disposition'] = 'accepted_notification_source_invalid_mapping_unconfirmed';
+                                $movementRequest['projection_gate'] = 'accepted_notification_source_invalid_mapping_unconfirmed';
+                                $movementRequest['projection_schema_version'] = FranceReportMaterializer::PROJECTION_SCHEMA_VERSION;
+                                unset($movementRequest['notification_deferred_at']);
+                                unset($movementRequest['notification_deferred_reason']);
+                                $movement->payment_status = FranceReportingStatus::Accepted->value;
+                            } else {
+                                $movementRequest['notification_deferred_at'] = now()->toIso8601String();
+                                $movementRequest['notification_deferred_reason'] = 'The previous notification was rejected while the source document was invalid.';
+                                unset($movementRequest['projection_gate']);
+                                $movement->payment_status = FranceReportingStatus::Pending->value;
+                            }
+
+                            $movement->payment_request = $movementRequest;
+                            $movement->save();
+
+                            return;
+                        }
+
+                        $movedToF10 = data_get(
+                            $movementRequest,
+                            'current_reporting_path',
+                            data_get($movementRequest, 'reporting_path'),
+                        ) === 'f10';
+
+                        if (! $movedToF10) {
+                            $movement->payment_status = $status->value;
+                            $movement->save();
+
+                            return;
+                        }
+
+                        if ($status === FranceReportingStatus::Accepted) {
+                            $movementRequest['route_transition'] = 'notification_to_f10_mapping_unconfirmed';
+                            $movementRequest['projection_gate'] = 'accepted_notification_to_f10_mapping_unconfirmed';
+                            $movementRequest['projection_schema_version'] = FranceReportMaterializer::PROJECTION_SCHEMA_VERSION;
+                            $movement->payment_status = FranceReportingStatus::Accepted->value;
+                        } else {
+                            unset($movementRequest['route_transition']);
+                            unset($movementRequest['projection_gate']);
+                            $movement->payment_status = null;
+                        }
+
+                        $movement->payment_request = $movementRequest;
+                        $movement->save();
+                    });
             }
         }, attempts: 3);
     }
 
-    private function statusForEvent(string $event): ?int
+    private function statusForEvent(string $event): ?FranceReportingStatus
     {
-        return match ($event) {
-            'succeeded', 'cleared', 'accepted' => TransactionEvent::FR_REPORTING_STATUS_SUBMITTED,
-            'failed', 'rejected', 'no_action_taken' => TransactionEvent::FR_REPORTING_STATUS_FAILED,
+        $event = strtolower(trim($event));
+
+        return match (true) {
+            in_array($event, self::ACCEPTED_EVENTS, true) => FranceReportingStatus::Accepted,
+            in_array($event, self::REJECTED_EVENTS, true) => FranceReportingStatus::Rejected,
+            in_array($event, self::RETRYABLE_EVENTS, true) => FranceReportingStatus::RetryableFailure,
             default => null,
         };
+    }
+
+    private function isTerminal(TransactionEvent $submission): bool
+    {
+        return in_array((int) $submission->payment_status, [
+            FranceReportingStatus::Accepted->value,
+            FranceReportingStatus::Rejected->value,
+        ], true);
     }
 }

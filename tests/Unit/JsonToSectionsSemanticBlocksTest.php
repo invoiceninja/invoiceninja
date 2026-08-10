@@ -71,6 +71,48 @@ class JsonToSectionsSemanticBlocksTest extends TestCase
         $this->assertSame('$footer', $sections['footer-uuid']['elements'][0]['content']);
     }
 
+    public function test_signature_block_uses_non_collapsing_height_and_all_configured_styles(): void
+    {
+        $design = [
+            'pageSettings' => [],
+            'blocks' => [[
+                'id' => 'signature-uuid',
+                'type' => 'signature',
+                'gridPosition' => ['x' => 0, 'y' => 0, 'w' => 6, 'h' => 3],
+                'properties' => [
+                    'label' => 'Approved by',
+                    'showLine' => true,
+                    'showDate' => true,
+                    'align' => 'right',
+                    'fontSize' => '18px',
+                    'fontWeight' => 'bold',
+                    'fontStyle' => 'italic',
+                    'color' => '#123456',
+                    'signatureHeight' => '72px',
+                    'lineWidth' => '240px',
+                    'lineThickness' => '2px',
+                    'lineStyle' => 'dashed',
+                    'lineColor' => '#654321',
+                    'padding' => '6px',
+                ],
+            ]],
+        ];
+
+        $section = (new JsonToSectionsAdapter($design, $this->minimalPdfService()))
+            ->toSections()['signature-uuid'];
+        $elements = $section['elements'];
+
+        $this->assertSame('height: 72px;', $elements[0]['properties']['style']);
+        $this->assertStringNotContainsString('margin-bottom: 40px', $elements[0]['properties']['style']);
+        $this->assertStringContainsString('border-top: 2px dashed #654321', $elements[1]['properties']['style']);
+        $this->assertStringContainsString('width: 240px', $elements[1]['properties']['style']);
+        $this->assertSame('Approved by', $elements[2]['content']);
+        $this->assertStringContainsString('font-weight: bold', $elements[2]['properties']['style']);
+        $this->assertSame('Date: ________________', $elements[3]['content']);
+        $this->assertStringContainsString('text-align: right', $section['properties']['style']);
+        $this->assertStringContainsString('padding: 6px', $section['properties']['style']);
+    }
+
     private function minimalPdfService(): PdfService
     {
         $service = (new \ReflectionClass(PdfService::class))->newInstanceWithoutConstructor();

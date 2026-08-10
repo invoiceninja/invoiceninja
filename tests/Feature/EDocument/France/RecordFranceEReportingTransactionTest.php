@@ -1,22 +1,47 @@
 <?php
 
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
+
 namespace Tests\Feature\EDocument\France;
 
 use App\DataMapper\CompanySettings;
 use App\DataMapper\Tax\TaxModel;
 use App\Factory\InvoiceItemFactory;
-use App\Jobs\EDocument\RecordFranceEReportingTransaction;
+use App\Jobs\EDocument\RecordFranceEReportingDocumentLifecycle;
+use App\Jobs\EDocument\RecordFranceEReportingScopeInvalidation;
+use App\Jobs\EDocument\EInvoicePullDocs;
+use App\Jobs\Cron\FranceEReportingCron;
+use App\Jobs\EDocument\SubmitFranceEReport;
+use App\Jobs\EDocument\SubmitFrancePaymentReceivedNotification;
 use App\Models\Client;
 use App\Models\ClientContact;
-use App\Models\Credit;
 use App\Models\Country;
+use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Product;
 use App\Models\TransactionEvent;
-use App\Services\EDocument\Standards\France\FranceEReportCompiler;
+use App\Models\Webhook;
+use App\Repositories\ClientRepository;
 use App\Services\EDocument\Standards\France\FranceEReportVariant;
-use Faker\Factory;
+use App\Services\EDocument\Standards\France\FranceReportingEventType;
+use App\Services\EDocument\Standards\France\FranceReportingStatus;
+use App\Services\EDocument\Standards\France\FranceRuntimeProjection;
+use App\Services\EDocument\Standards\France\FranceReportMaterializer;
+use App\Services\EDocument\Standards\France\FranceReportingScopePlanner;
+use App\Services\EDocument\Standards\France\ReportingCalendar;
+use App\Services\EDocument\Standards\France\ReportingProfile;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -29,253 +54,672 @@ class RecordFranceEReportingTransactionTest extends TestCase
     {
         parent::setUp();
 
-        $this->faker = Factory::create();
         $this->makeTestData();
         $this->enableFranceReporting();
     }
 
-    public function testItRecordsAB2CFranceReportingTransaction(): void
+    public function test_document_writes_append_deduplicated_facts_without_financial_snapshots(): void
     {
-        $invoice = $this->makeInvoice(clientCountry: 'FR', classification: 'individual', date: '2026-09-15');
-
-        (new RecordFranceEReportingTransaction(Invoice::class, $invoice->id, $this->company->db))->handle();
-
-        $event = TransactionEvent::query()
+        $invoice = $this->makeInvoice('FR', 'individual');
+        $existingCount = TransactionEvent::query()
+            ->where('company_id', $this->company->id)
             ->where('invoice_id', $invoice->id)
-            ->where('event_id', TransactionEvent::FR_B2C_TRANSACTION)
-            ->first();
-
-        $this->assertNotNull($event);
-        $this->assertSame($this->company->id, $event->company_id);
-        $this->assertSame($invoice->client_id, $event->client_id);
-        $this->assertSame('2026-09-20', $event->period->toDateString());
-        $this->assertNotNull($event->reporting_data);
-        $this->assertSame('2026-09-15', $event->reporting_data->frReportEntry->b2cTransaction->date);
-        $this->assertSame('TLB1', $event->reporting_data->frReportEntry->b2cTransaction->category);
-        $this->assertSame('EUR', $event->reporting_data->frReportEntry->b2cTransaction->currency);
-        $this->assertSame(1, $event->reporting_data->frReportEntry->b2cTransaction->transactionsCount);
-        $this->assertSame(1200, $event->reporting_data->frReportEntry->b2cTransaction->amountIncludingVat);
-    }
-
-    public function testItDurablyQuarantinesAnUnsupportedNonEurTransaction(): void
-    {
-        $settings = $this->company->settings;
-        $settings->currency_id = '1';
-        $this->company->settings = $settings;
-        $this->company->save();
-        $this->company = $this->company->fresh();
-        $invoice = $this->makeInvoice(clientCountry: 'FR', classification: 'individual', date: '2026-09-15');
-
-        (new RecordFranceEReportingTransaction(Invoice::class, $invoice->id, $this->company->db))->handle();
-
-        $event = TransactionEvent::query()
-            ->where('invoice_id', $invoice->id)
-            ->where('event_id', TransactionEvent::FR_B2C_TRANSACTION)
-            ->firstOrFail();
-
-        $this->assertNull($event->reporting_data);
-        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_FAILED, $event->payment_status);
-        $this->assertSame('France e-report source mapping failed.', data_get($event->payment_request, 'skip_reason'));
-        $this->assertStringContainsString('Only EUR', data_get($event->payment_request, 'error.message'));
-    }
-
-    public function testItInfersAServiceB2CTransaction(): void
-    {
-        $invoice = $this->makeInvoice(
-            clientCountry: 'FR',
-            classification: 'individual',
-            date: '2026-09-15',
-            lineItems: [$this->makeLineItem(Product::PRODUCT_TYPE_SERVICE)],
+            ->where('event_id', FranceReportingEventType::DocumentLifecycle->value)
+            ->count();
+        $job = new RecordFranceEReportingDocumentLifecycle(
+            Invoice::class,
+            $invoice->id,
+            Webhook::EVENT_SENT_INVOICE,
+            $this->company->db,
         );
 
-        (new RecordFranceEReportingTransaction(Invoice::class, $invoice->id, $this->company->db))->handle();
-
-        $event = TransactionEvent::query()
-            ->where('invoice_id', $invoice->id)
-            ->where('event_id', TransactionEvent::FR_B2C_TRANSACTION)
-            ->firstOrFail();
-
-        $this->assertSame('TPS1', $event->reporting_data->frReportEntry->b2cTransaction->category);
-    }
-
-    public function testItRecordsMixedAndUnknownB2CTransactionsUsingFirstLineFallback(): void
-    {
-        $mixed = $this->makeInvoice(
-            clientCountry: 'FR',
-            classification: 'individual',
-            date: '2026-09-15',
-            lineItems: [
-                $this->makeLineItem(Product::PRODUCT_TYPE_PHYSICAL),
-                $this->makeLineItem(Product::PRODUCT_TYPE_SERVICE),
-            ],
-        );
-        $unknown = $this->makeInvoice(
-            clientCountry: 'FR',
-            classification: 'individual',
-            date: '2026-09-15',
-            lineItems: [$this->makeLineItem(999)],
-            numberSuffix: '-UNKNOWN',
-        );
-
-        (new RecordFranceEReportingTransaction(Invoice::class, $mixed->id, $this->company->db))->handle();
-        (new RecordFranceEReportingTransaction(Invoice::class, $unknown->id, $this->company->db))->handle();
+        $job->handle();
+        $job->handle();
 
         $events = TransactionEvent::query()
-            ->whereIn('invoice_id', [$mixed->id, $unknown->id])
-            ->where('event_id', TransactionEvent::FR_B2C_TRANSACTION)
-            ->get();
-
-        $this->assertCount(2, $events);
-        $this->assertSame(
-            ['TLB1', 'TLB1'],
-            $events->map(fn (TransactionEvent $event): string => $event->reporting_data->frReportEntry->b2cTransaction->category)->all()
-        );
-    }
-
-    public function testItRecordsAMixedB2CCreditUsingTheFirstLine(): void
-    {
-        $credit = $this->makeCredit(
-            clientCountry: 'FR',
-            classification: 'individual',
-            date: '2026-09-15',
-            lineItems: [
-                $this->makeLineItem(Product::PRODUCT_TYPE_PHYSICAL),
-                $this->makeLineItem(Product::PRODUCT_TYPE_SERVICE),
-            ],
-        );
-
-        (new RecordFranceEReportingTransaction(Credit::class, $credit->id, $this->company->db))->handle();
-
-        $event = TransactionEvent::query()
-            ->where('credit_id', $credit->id)
-            ->where('event_id', TransactionEvent::FR_B2C_TRANSACTION)
-            ->firstOrFail();
-
-        $this->assertSame('TLB1', $event->reporting_data->frReportEntry->b2cTransaction->category);
-    }
-
-    public function testItRecordsAServiceB2CCreditWithNegativeAmounts(): void
-    {
-        $credit = $this->makeCredit(
-            clientCountry: 'FR',
-            classification: 'individual',
-            date: '2026-09-15',
-            lineItems: [$this->makeLineItem(Product::PRODUCT_TYPE_SERVICE)],
-        );
-
-        (new RecordFranceEReportingTransaction(Credit::class, $credit->id, $this->company->db))->handle();
-
-        $event = TransactionEvent::query()
-            ->where('credit_id', $credit->id)
-            ->where('event_id', TransactionEvent::FR_B2C_TRANSACTION)
-            ->firstOrFail();
-        $transaction = $event->reporting_data->frReportEntry->b2cTransaction;
-
-        $this->assertSame('TPS1', $transaction->category);
-        $this->assertSame(-1000, $transaction->amountExcludingVat);
-        $this->assertSame(-1200, $transaction->amountIncludingVat);
-        $this->assertSame(1, $transaction->transactionsCount);
-    }
-
-    public function testItRecordsAForeignBusinessVatExcludedFranceReportingTransaction(): void
-    {
-        $invoice = $this->makeInvoice(clientCountry: 'DE', classification: 'business', date: '2026-09-15');
-
-        (new RecordFranceEReportingTransaction(Invoice::class, $invoice->id, $this->company->db))->handle();
-
-        $event = TransactionEvent::query()
+            ->where('company_id', $this->company->id)
             ->where('invoice_id', $invoice->id)
-            ->where('event_id', TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION)
-            ->first();
-
-        $this->assertNotNull($event);
-        $this->assertSame('2026-09-20', $event->period->toDateString());
-        $this->assertNotNull($event->reporting_data);
-        $this->assertNull($event->reporting_data->frReport);
-        $this->assertSame($invoice->number, $event->reporting_data->frReportEntry->b2biInvoice->invoiceNumber);
-        $this->assertSame('EUR', $event->reporting_data->frReportEntry->b2biInvoice->documentCurrency);
-        $this->assertSame(1200, $event->reporting_data->frReportEntry->b2biInvoice->amountIncludingVat);
-        $this->assertSame('standard', $event->reporting_data->frReportEntry->b2biInvoice->taxSubtotals[0]->taxCategory);
-        $this->assertArrayHasKey('amountExcludingVat', $event->reporting_data->frReportEntry->b2biInvoice->invoiceLines[0]);
-
-        $invoice->number = 'MUTATED-AFTER-CAPTURE';
-        $invoice->amount = 9999;
-        $invoice->save();
-
-        $event = $event->fresh();
-
-        $this->assertSame('FR-REPORT-DE-business', $event->reporting_data->frReportEntry->b2biInvoice->invoiceNumber);
-        $this->assertSame(1200, $event->reporting_data->frReportEntry->b2biInvoice->amountIncludingVat);
+            ->where('event_id', FranceReportingEventType::DocumentLifecycle->value)
+            ->get();
+        $this->assertCount($existingCount + 1, $events);
+        $event = $events->last();
+        $this->assertNull($event->reporting_data);
+        $this->assertNull($event->payment_status);
+        $this->assertSame(0, $event->payment_id);
+        $this->assertSame(0, $event->credit_id);
+        $this->assertSame('fact', data_get($event->payment_request, 'role'));
+        $this->assertSame('document_changed', data_get($event->payment_request, 'status'));
     }
 
-    public function testItQuarantinesAnUnsupportedForeignBusinessCreditWithoutPoisoningThePeriod(): void
+    public function test_scope_invalidation_discovers_untouched_documents_when_reporting_is_enabled(): void
     {
-        $credit = $this->makeCredit(clientCountry: 'DE', classification: 'business', date: '2026-09-15');
+        $invoice = $this->makeInvoice('FR', 'individual');
+        Bus::fake();
 
-        (new RecordFranceEReportingTransaction(Credit::class, $credit->id, $this->company->db))->handle();
+        (new RecordFranceEReportingScopeInvalidation(
+            $this->company->id,
+            $this->company->db,
+        ))->handle();
 
-        $event = TransactionEvent::query()
-            ->where('credit_id', $credit->id)
-            ->where('event_id', TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION)
-            ->first();
+        Bus::assertDispatchedSync(
+            RecordFranceEReportingDocumentLifecycle::class,
+            function (RecordFranceEReportingDocumentLifecycle $job) use ($invoice): bool {
+                $id = new \ReflectionProperty($job, 'id');
 
-        $this->assertNotNull($event);
-        $this->assertSame('2026-09-20', $event->period->toDateString());
-        $this->assertNull($event->reporting_data);
-        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_FAILED, $event->payment_status);
-        $this->assertSame('France e-report source mapping failed.', data_get($event->payment_request, 'skip_reason'));
-        $this->assertStringContainsString('Credit and rectificative', data_get($event->payment_request, 'error.message'));
+                return $id->getValue($job) === $invoice->id;
+            },
+        );
+    }
 
-        $invoice = $this->makeInvoice(clientCountry: 'DE', classification: 'business', date: '2026-09-15');
-        (new RecordFranceEReportingTransaction(Invoice::class, $invoice->id, $this->company->db))->handle();
-        $sources = (new FranceEReportCompiler())->sourceEventsForVariant(
+    public function test_cron_reconciles_a_recent_document_when_its_fact_is_missing(): void
+    {
+        $this->travelTo(CarbonImmutable::parse('2026-09-27 12:00:00', 'Europe/Paris'));
+        $invoice = $this->makeInvoice('FR', 'individual');
+        TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->where('event_id', FranceReportingEventType::DocumentLifecycle->value)
+            ->delete();
+        Bus::fake([
+            SubmitFranceEReport::class,
+            SubmitFrancePaymentReceivedNotification::class,
+        ]);
+
+        (new FranceEReportingCron($this->company->id, $this->company->db))->handle(
+            app(FranceReportingScopePlanner::class),
+            app(FranceReportMaterializer::class),
+        );
+
+        $factQuery = TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->where('event_id', FranceReportingEventType::DocumentLifecycle->value);
+        $this->assertTrue($factQuery->exists());
+        $factCount = $factQuery->count();
+
+        (new FranceEReportingCron($this->company->id, $this->company->db))->handle(
+            app(FranceReportingScopePlanner::class),
+            app(FranceReportMaterializer::class),
+        );
+
+        $this->assertSame($factCount, $factQuery->count());
+    }
+
+    public function test_cron_dispatches_isolated_company_workers(): void
+    {
+        Bus::fake([FranceEReportingCron::class]);
+
+        (new FranceEReportingCron())->handle(
+            app(FranceReportingScopePlanner::class),
+            app(FranceReportMaterializer::class),
+        );
+
+        Bus::assertDispatched(FranceEReportingCron::class, function (FranceEReportingCron $job): bool {
+            return (new \ReflectionProperty($job, 'companyId'))->getValue($job) === $this->company->id
+                && (new \ReflectionProperty($job, 'db'))->getValue($job) === $this->company->db;
+        });
+    }
+
+    public function test_distinct_scope_invalidations_cannot_deduplicate_each_other(): void
+    {
+        $invoice = $this->makeInvoice('FR', 'individual');
+        $existingCount = TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->where('event_id', FranceReportingEventType::DocumentLifecycle->value)
+            ->count();
+
+        foreach (['client-revision-1', 'client-revision-2'] as $invalidationKey) {
+            (new RecordFranceEReportingDocumentLifecycle(
+                Invoice::class,
+                $invoice->id,
+                0,
+                $this->company->db,
+                null,
+                $invalidationKey,
+            ))->handle();
+        }
+
+        $this->assertSame($existingCount + 2, TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->where('event_id', FranceReportingEventType::DocumentLifecycle->value)
+            ->count());
+    }
+
+    public function test_disabling_reporting_for_an_existing_client_records_a_reversal_invalidation(): void
+    {
+        $invoice = $this->makeInvoice('FR', 'individual');
+        (new RecordFranceEReportingDocumentLifecycle(
+            Invoice::class,
+            $invoice->id,
+            Webhook::EVENT_SENT_INVOICE,
+            $this->company->db,
+        ))->handle();
+        $before = TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->where('event_id', FranceReportingEventType::DocumentLifecycle->value)
+            ->count();
+        $settings = $invoice->client->settings ?: CompanySettings::defaults();
+        $settings->france_reporting_enabled = false;
+        $invoice->client->settings = $settings;
+        $invoice->client->saveQuietly();
+        $invoice->unsetRelation('client');
+
+        (new RecordFranceEReportingDocumentLifecycle(
+            Invoice::class,
+            $invoice->id,
+            Webhook::EVENT_UPDATE_CLIENT,
+            $this->company->db,
+            null,
+            'client-reporting-disabled',
+        ))->handle();
+
+        $this->assertSame($before + 1, TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->where('event_id', FranceReportingEventType::DocumentLifecycle->value)
+            ->count());
+        $period = ReportingCalendar::currentPeriod(
+            ReportingProfile::TenDay,
+            CarbonImmutable::parse($invoice->date, 'Europe/Paris'),
+        );
+        $this->assertSame([], app(FranceRuntimeProjection::class)->current(
             $this->company,
             FranceEReportVariant::TransactionInitial,
-            '2026-09-20',
+            $period,
+        ));
+    }
+
+    public function test_bulk_client_country_update_records_one_batched_scope_invalidation(): void
+    {
+        $this->travelTo(CarbonImmutable::parse('2026-09-16 12:00:00', 'Europe/Paris'));
+        $invoice = $this->makeInvoice('FR', 'business');
+        $germany = Country::query()->where('iso_3166_2', 'DE')->firstOrFail();
+        Bus::fake([
+            RecordFranceEReportingScopeInvalidation::class,
+            SubmitFranceEReport::class,
+            SubmitFrancePaymentReceivedNotification::class,
+        ]);
+
+        app(ClientRepository::class)->bulkUpdate(
+            Client::query()->whereKey($invoice->client_id),
+            'country_id',
+            $germany->id,
         );
 
-        $this->assertCount(1, $sources);
-        $this->assertSame((int) $invoice->id, (int) $sources->first()->invoice_id);
+        $invalidation = TransactionEvent::query()
+            ->where('event_id', FranceReportingEventType::ScopeInvalidation->value)
+            ->latest('id')
+            ->firstOrFail();
+        $this->assertSame([$invoice->client_id], data_get(
+            $invalidation->payment_request,
+            'client_ids',
+        ));
+        $this->assertNull($invalidation->payment_status);
+        TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->where('event_id', FranceReportingEventType::DocumentLifecycle->value)
+            ->delete();
+
+        (new FranceEReportingCron($this->company->id, $this->company->db))->handle(
+            app(FranceReportingScopePlanner::class),
+            app(FranceReportMaterializer::class),
+        );
+
+        $this->assertNull($invalidation->fresh());
+        $this->assertTrue(TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->where('event_id', FranceReportingEventType::DocumentLifecycle->value)
+            ->exists());
+        $this->assertSame($germany->id, $invoice->client->fresh()->country_id);
     }
 
-    public function testItDoesNotRecordDomesticFrenchBusinessTransactions(): void
+    public function test_reporting_cannot_be_disabled_after_regulatory_history_exists(): void
     {
-        $invoice = $this->makeInvoice(clientCountry: 'FR', classification: 'business', date: '2026-09-15');
+        $invoice = $this->makeInvoice('FR', 'individual');
+        (new RecordFranceEReportingDocumentLifecycle(
+            Invoice::class,
+            $invoice->id,
+            Webhook::EVENT_SENT_INVOICE,
+            $this->company->db,
+        ))->handle();
+        $settings = $this->company->settings;
+        $settings->france_reporting_enabled = false;
+        $this->company->settings = $settings;
 
-        (new RecordFranceEReportingTransaction(Invoice::class, $invoice->id, $this->company->db))->handle();
+        $this->expectException(ValidationException::class);
 
-        $this->assertFalse(TransactionEvent::query()->where('invoice_id', $invoice->id)->exists());
+        $this->company->save();
     }
 
-    public function testItDoesNotRecordTheSameDocumentTwice(): void
+    public function test_reporting_schedule_cannot_change_after_a_report_is_accepted(): void
     {
-        $invoice = $this->makeInvoice(clientCountry: 'FR', classification: 'individual', date: '2026-09-15');
-        $job = new RecordFranceEReportingTransaction(Invoice::class, $invoice->id, $this->company->db);
+        $invoice = $this->makeInvoice('FR', 'individual');
+        $this->recordAcceptedReport($invoice);
+        $settings = $this->company->settings;
+        $settings->france_reporting_schedule = ReportingProfile::Monthly->value;
+        $this->company->settings = $settings;
 
-        $job->handle();
-        $job->handle();
+        $this->expectException(ValidationException::class);
+
+        $this->company->save();
+    }
+
+    public function test_reporting_legal_entity_cannot_change_after_a_report_is_accepted(): void
+    {
+        $invoice = $this->makeInvoice('FR', 'individual');
+        $this->recordAcceptedReport($invoice);
+        $this->company->legal_entity_id = ((int) $this->company->legal_entity_id) + 1;
+
+        $this->expectException(ValidationException::class);
+
+        $this->company->save();
+    }
+
+    public function test_reporting_schedule_cannot_change_while_a_report_is_open(): void
+    {
+        $invoice = $this->makeInvoice('FR', 'individual');
+        $this->recordReport($invoice, FranceReportingStatus::Pending);
+        $settings = $this->company->settings;
+        $settings->france_reporting_schedule = ReportingProfile::Monthly->value;
+        $this->company->settings = $settings;
+
+        $this->expectException(ValidationException::class);
+
+        $this->company->save();
+    }
+
+    public function test_reporting_legal_entity_cannot_change_while_a_report_is_open(): void
+    {
+        $invoice = $this->makeInvoice('FR', 'individual');
+        $this->recordReport($invoice, FranceReportingStatus::Sent);
+        $this->company->legal_entity_id = ((int) $this->company->legal_entity_id) + 1;
+
+        $this->expectException(ValidationException::class);
+
+        $this->company->save();
+    }
+
+    public function test_cron_retries_transport_failures_but_does_not_resubmit_sent_reports(): void
+    {
+        $invoice = $this->makeInvoice('FR', 'individual');
+        $this->recordReport($invoice, FranceReportingStatus::Sent);
+        $this->recordReport($invoice, FranceReportingStatus::RetryableFailure);
+        Bus::fake([SubmitFranceEReport::class]);
+        $method = new \ReflectionMethod(FranceEReportingCron::class, 'dispatchPersistedSubmissions');
+
+        $method->invoke(new FranceEReportingCron(), $this->company, $this->company->db);
+
+        Bus::assertDispatchedTimes(SubmitFranceEReport::class, 1);
+    }
+
+    public function test_schedule_change_before_reporting_history_records_scope_invalidation(): void
+    {
+        $before = TransactionEvent::query()
+            ->where('company_id', $this->company->id)
+            ->where('event_id', FranceReportingEventType::ScopeInvalidation->value)
+            ->count();
+        $settings = clone $this->company->settings;
+        $settings->france_reporting_schedule = ReportingProfile::Monthly->value;
+        $this->company->settings = $settings;
+        $this->company->save();
 
         $this->assertSame(
-            1,
+            ReportingProfile::Monthly->value,
+            $this->company->fresh()->getSetting('france_reporting_schedule'),
+        );
+        $this->assertSame($before + 1, TransactionEvent::query()
+            ->where('company_id', $this->company->id)
+            ->where('event_id', FranceReportingEventType::ScopeInvalidation->value)
+            ->count());
+        $this->assertTrue((bool) data_get(
+            TransactionEvent::query()
+                ->where('company_id', $this->company->id)
+                ->where('event_id', FranceReportingEventType::ScopeInvalidation->value)
+                ->latest('id')
+                ->value('payment_request'),
+            'supersede_unaccepted_transaction_scopes',
+        ));
+    }
+
+    public function test_schedule_changes_do_not_move_an_accepted_document_into_a_duplicate_scope(): void
+    {
+        $invoice = $this->makeInvoice('FR', 'individual');
+        TransactionEvent::create([
+            'company_id' => $this->company->id,
+            'client_id' => $invoice->client_id,
+            'invoice_id' => $invoice->id,
+            'payment_id' => 0,
+            'credit_id' => 0,
+            'event_id' => FranceReportingEventType::TransactionSnapshot->value,
+            'timestamp' => now()->timestamp,
+            'period' => '2026-09-20',
+            'payment_status' => FranceReportingStatus::Accepted->value,
+            'reporting_data' => null,
+            'payment_request' => [
+                'subject_key' => 'invoice:' . $invoice->id,
+                'reporting_profile' => ReportingProfile::TenDay->value,
+            ],
+        ]);
+        $settings = $this->company->settings;
+        $settings->france_reporting_schedule = ReportingProfile::Monthly->value;
+        $this->company->settings = $settings;
+        $this->company->saveQuietly();
+
+        (new RecordFranceEReportingDocumentLifecycle(
+            Invoice::class,
+            $invoice->id,
+            Webhook::EVENT_UPDATE_INVOICE,
+            $this->company->db,
+        ))->handle();
+
+        $this->assertSame(
+            ['2026-09-20'],
             TransactionEvent::query()
                 ->where('invoice_id', $invoice->id)
-                ->where('event_id', TransactionEvent::FR_B2C_TRANSACTION)
-                ->count()
+                ->where('event_id', FranceReportingEventType::DocumentLifecycle->value)
+                ->pluck('period')
+                ->map->toDateString()
+                ->unique()
+                ->values()
+                ->all(),
         );
     }
 
-    private function enableFranceReporting(string $schedule = 'ten_day'): void
+    public function test_schedule_change_rebuilds_an_older_unreported_document_before_superseding_its_fact(): void
+    {
+        $invoice = $this->makeInvoice('FR', 'individual');
+        $invoice->date = '2026-08-05';
+        $invoice->saveQuietly();
+        (new RecordFranceEReportingDocumentLifecycle(
+            Invoice::class,
+            $invoice->id,
+            Webhook::EVENT_SENT_INVOICE,
+            $this->company->db,
+        ))->handle();
+        $original = TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->where('event_id', FranceReportingEventType::DocumentLifecycle->value)
+            ->firstOrFail();
+        $this->assertSame('2026-08-10', $original->period->toDateString());
+
+        $settings = $this->company->settings;
+        $settings->france_reporting_schedule = ReportingProfile::Monthly->value;
+        $this->company->settings = $settings;
+        $this->company->saveQuietly();
+
+        (new RecordFranceEReportingScopeInvalidation(
+            $this->company->id,
+            $this->company->db,
+            supersedeUnacceptedTransactionScopes: true,
+        ))->handle();
+
+        $this->assertSame(FranceReportingStatus::Accepted->value, $original->fresh()->payment_status);
+        $replacement = TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->where('event_id', FranceReportingEventType::DocumentLifecycle->value)
+            ->whereNull('payment_status')
+            ->firstOrFail();
+        $this->assertSame('2026-08-31', $replacement->period->toDateString());
+        $this->assertSame(ReportingProfile::Monthly->value, data_get($replacement->payment_request, 'reporting_profile'));
+        $this->assertSame('2026-08-01', data_get($replacement->payment_request, 'period_start'));
+    }
+
+    public function test_period_move_invalidates_both_pending_old_scope_and_new_scope(): void
+    {
+        $invoice = $this->makeInvoice('FR', 'individual');
+        TransactionEvent::create([
+            'company_id' => $this->company->id,
+            'client_id' => $invoice->client_id,
+            'invoice_id' => $invoice->id,
+            'payment_id' => 0,
+            'credit_id' => 0,
+            'event_id' => FranceReportingEventType::TransactionSnapshot->value,
+            'timestamp' => now()->timestamp,
+            'period' => '2026-09-20',
+            'payment_status' => FranceReportingStatus::Pending->value,
+            'reporting_data' => null,
+            'payment_request' => [
+                'role' => 'projection_snapshot',
+                'subject_key' => 'invoice:' . $invoice->id,
+                'reporting_profile' => ReportingProfile::TenDay->value,
+            ],
+        ]);
+        $invoice->date = '2026-10-15';
+        $invoice->saveQuietly();
+
+        (new RecordFranceEReportingDocumentLifecycle(
+            Invoice::class,
+            $invoice->id,
+            Webhook::EVENT_UPDATE_INVOICE,
+            $this->company->db,
+        ))->handle();
+
+        $this->assertSame(
+            ['2026-09-20', '2026-10-20'],
+            TransactionEvent::query()
+                ->where('invoice_id', $invoice->id)
+                ->where('event_id', FranceReportingEventType::DocumentLifecycle->value)
+                ->orderBy('period')
+                ->pluck('period')
+                ->map->toDateString()
+                ->unique()
+                ->values()
+                ->all(),
+        );
+    }
+
+    public function test_runtime_projection_reads_current_document_state_and_excludes_deleted_documents(): void
+    {
+        $invoice = $this->makeInvoice('FR', 'individual');
+        $period = ReportingCalendar::currentPeriod(
+            ReportingProfile::TenDay,
+            CarbonImmutable::parse($invoice->date, 'Europe/Paris'),
+        );
+        $projection = app(FranceRuntimeProjection::class);
+
+        $current = $projection->current($this->company, FranceEReportVariant::TransactionInitial, $period);
+
+        $this->assertCount(1, $current);
+        $this->assertSame('invoice:' . $invoice->id, $current[0]->key);
+        $this->assertSame((float) $invoice->amount, (float) $current[0]->entry?->b2cTransaction?->amountIncludingVat);
+
+        $invoice->is_deleted = true;
+        $invoice->save();
+
+        $this->assertSame([], $projection->current(
+            $this->company,
+            FranceEReportVariant::TransactionInitial,
+            $period,
+        ));
+    }
+
+    public function test_archiving_a_document_does_not_reverse_its_economic_projection(): void
+    {
+        $invoice = $this->makeInvoice('FR', 'individual');
+        $period = ReportingCalendar::currentPeriod(
+            ReportingProfile::TenDay,
+            CarbonImmutable::parse($invoice->date, 'Europe/Paris'),
+        );
+
+        $invoice->delete();
+
+        $current = app(FranceRuntimeProjection::class)->current(
+            $this->company,
+            FranceEReportVariant::TransactionInitial,
+            $period,
+        );
+        $this->assertCount(1, $current);
+        $this->assertSame('invoice:' . $invoice->id, $current[0]->key);
+    }
+
+    public function test_storecove_document_status_is_recorded_through_the_same_idempotent_fact_path(): void
+    {
+        $invoice = $this->makeInvoice('FR', 'individual');
+        $job = new RecordFranceEReportingDocumentLifecycle(
+            Invoice::class,
+            $invoice->id,
+            0,
+            $this->company->db,
+            'rejected',
+        );
+
+        $job->handle();
+        $job->handle();
+
+        $events = TransactionEvent::query()
+            ->where('company_id', $this->company->id)
+            ->where('invoice_id', $invoice->id)
+            ->where('event_id', FranceReportingEventType::DocumentLifecycle->value)
+            ->where('payment_request->status', 'rejected')
+            ->get();
+        $this->assertCount(1, $events);
+        $this->assertSame('document_lifecycle', data_get($events->first()->payment_request, 'fact_type'));
+        $this->assertSame('rejected', data_get($events->first()->payment_request, 'status'));
+    }
+
+    public function test_out_of_order_lifecycle_jobs_cannot_override_current_storecove_state(): void
+    {
+        $invoice = $this->makeInvoice('FR', 'individual');
+        $backup = $invoice->backup;
+        $backup->e_invoice_status = 'rejected';
+        $invoice->backup = $backup;
+        $invoice->saveQuietly();
+        (new RecordFranceEReportingDocumentLifecycle(
+            Invoice::class,
+            $invoice->id,
+            0,
+            $this->company->db,
+            'accepted',
+        ))->handle();
+        $period = ReportingCalendar::currentPeriod(
+            ReportingProfile::TenDay,
+            CarbonImmutable::parse($invoice->date, 'Europe/Paris'),
+        );
+
+        $this->assertSame([], app(FranceRuntimeProjection::class)->current(
+            $this->company,
+            FranceEReportVariant::TransactionInitial,
+            $period,
+        ));
+    }
+
+    public function test_rejection_remains_latched_until_storecove_explicitly_recovers_the_document(): void
+    {
+        $invoice = $this->makeInvoice('FR', 'individual');
+        $backup = $invoice->backup;
+        $backup->e_invoice_status = 'rejected';
+        $invoice->backup = $backup;
+        $invoice->saveQuietly();
+        $method = new \ReflectionMethod(EInvoicePullDocs::class, 'recordDocumentStatus');
+        $job = new EInvoicePullDocs();
+
+        $method->invoke($job, $invoice, 'paid');
+        $this->assertSame('rejected', $invoice->fresh()->backup->e_invoice_status);
+
+        $method->invoke($job, $invoice->fresh(), 'accepted');
+        $this->assertSame('accepted', $invoice->fresh()->backup->e_invoice_status);
+    }
+
+    public function test_foreign_business_credit_is_gated_without_poisoning_valid_invoices(): void
+    {
+        $invoice = $this->makeInvoice('FR', 'individual');
+        $credit = $this->makeCredit('DE', 'business');
+        (new RecordFranceEReportingDocumentLifecycle(
+            Credit::class,
+            $credit->id,
+            Webhook::EVENT_SENT_CREDIT,
+            $this->company->db,
+        ))->handle();
+        $period = ReportingCalendar::currentPeriod(
+            ReportingProfile::TenDay,
+            CarbonImmutable::parse($invoice->date, 'Europe/Paris'),
+        );
+
+        $current = app(FranceRuntimeProjection::class)->current(
+            $this->company,
+            FranceEReportVariant::TransactionInitial,
+            $period,
+        );
+
+        $this->assertSame(['invoice:' . $invoice->id], array_column($current, 'key'));
+        $this->assertNotContains('credit:' . $credit->id, array_column($current, 'key'));
+        $this->assertSame(
+            'foreign_business_credit_mapping_unconfirmed',
+            data_get(TransactionEvent::query()
+                ->where('credit_id', $credit->id)
+                ->where('event_id', FranceReportingEventType::DocumentLifecycle->value)
+                ->firstOrFail()
+                ->payment_request, 'projection_gate'),
+        );
+    }
+
+    public function test_b2c_credit_remains_part_of_the_runtime_projection(): void
+    {
+        $credit = $this->makeCredit('FR', 'individual');
+        $period = ReportingCalendar::currentPeriod(
+            ReportingProfile::TenDay,
+            CarbonImmutable::parse($credit->date, 'Europe/Paris'),
+        );
+
+        $current = app(FranceRuntimeProjection::class)->current(
+            $this->company,
+            FranceEReportVariant::TransactionInitial,
+            $period,
+        );
+
+        $this->assertSame(['credit:' . $credit->id], array_column($current, 'key'));
+        $this->assertLessThan(0, $current[0]->entry?->b2cTransaction?->amountIncludingVat);
+    }
+
+    public function test_runtime_projection_excludes_domestic_business_documents_from_f10(): void
+    {
+        $this->makeInvoice('FR', 'business');
+        $period = ReportingCalendar::currentPeriod(
+            ReportingProfile::TenDay,
+            CarbonImmutable::parse('2026-09-15', 'Europe/Paris'),
+        );
+
+        $this->assertSame([], app(FranceRuntimeProjection::class)->current(
+            $this->company,
+            FranceEReportVariant::TransactionInitial,
+            $period,
+        ));
+    }
+
+    private function recordAcceptedReport(Invoice $invoice): void
+    {
+        $this->recordReport($invoice, FranceReportingStatus::Accepted);
+    }
+
+    private function recordReport(Invoice $invoice, FranceReportingStatus $status): TransactionEvent
+    {
+        return TransactionEvent::create([
+            'company_id' => $this->company->id,
+            'client_id' => $invoice->client_id,
+            'invoice_id' => $invoice->id,
+            'payment_id' => 0,
+            'credit_id' => 0,
+            'event_id' => FranceReportingEventType::ReportSubmission->value,
+            'timestamp' => now()->timestamp,
+            'period' => '2026-09-20',
+            'payment_status' => $status->value,
+            'reporting_data' => null,
+            'payment_request' => [
+                'role' => 'submission',
+                'family' => 'transaction',
+                'reporting_profile' => ReportingProfile::TenDay->value,
+                'period_start' => '2026-09-11',
+            ],
+        ]);
+    }
+
+    private function enableFranceReporting(): void
     {
         $france = Country::query()->where('iso_3166_2', 'FR')->firstOrFail();
         $settings = $this->company->settings ?: CompanySettings::defaults();
         $settings->country_id = (string) $france->id;
         $settings->france_reporting_enabled = true;
-        $settings->france_reporting_schedule = $schedule;
+        $settings->france_reporting_schedule = ReportingProfile::TenDay->value;
         $settings->currency_id = '3';
-        $settings->vat_number = 'FR12345678901';
-        $settings->id_number = '12345678900012';
-        $settings->e_invoice_type = 'PEPPOL';
-        $settings->email = uniqid('testuser') . '@gmail.com';
+        $settings->vat_number = 'FR52552100554';
+        $settings->id_number = '552100554';
 
         $taxData = new TaxModel();
         $taxData->regions->EU->tax_all_subregions = true;
@@ -288,130 +732,80 @@ class RecordFranceEReportingTransactionTest extends TestCase
         $this->company = $this->company->fresh();
     }
 
-    private function makeCredit(string $clientCountry, string $classification, string $date, ?array $lineItems = null): Credit
+    private function makeInvoice(string $countryCode, string $classification): Invoice
     {
-        $country = Country::query()->where('iso_3166_2', $clientCountry)->firstOrFail();
-        $client = $this->makeClient($country, $classification, $clientCountry);
-        $lineItems ??= [$this->makeLineItem()];
-
-        $credit = Credit::factory()->create([
-            'client_id' => $client->id,
-            'company_id' => $this->company->id,
-            'user_id' => $this->user->id,
-            'number' => 'FR-CREDIT-REPORT-'.$clientCountry.'-'.$classification,
-            'date' => $date,
-            'due_date' => '2026-10-15',
-            'uses_inclusive_taxes' => false,
-            'discount' => 0,
-            'is_amount_discount' => true,
-            'tax_rate1' => 0,
-            'tax_name1' => '',
-            'tax_rate2' => 0,
-            'tax_name2' => '',
-            'tax_rate3' => 0,
-            'tax_name3' => '',
-            'status_id' => Credit::STATUS_SENT,
-            'line_items' => $lineItems,
-        ]);
-
-        $credit = $credit->calc()->getCredit();
-        $credit->setRelation('client', $client);
-        $credit->setRelation('company', $this->company);
-        $credit->save();
-
-        $credit->service()->createInvitations();
-        $credit->load('invitations');
-
-        return $credit;
-    }
-
-    private function makeInvoice(
-        string $clientCountry,
-        string $classification,
-        string $date,
-        ?array $lineItems = null,
-        string $numberSuffix = '',
-    ): Invoice
-    {
-        $country = Country::query()->where('iso_3166_2', $clientCountry)->firstOrFail();
-
-        $client = $this->makeClient($country, $classification, $clientCountry);
-        $lineItems ??= [$this->makeLineItem()];
-
-        $invoice = Invoice::factory()->create([
-            'client_id' => $client->id,
-            'company_id' => $this->company->id,
-            'user_id' => $this->user->id,
-            'number' => 'FR-REPORT-'.$clientCountry.'-'.$classification.$numberSuffix,
-            'date' => $date,
-            'due_date' => '2026-10-15',
-            'uses_inclusive_taxes' => false,
-            'discount' => 0,
-            'is_amount_discount' => true,
-            'tax_rate1' => 0,
-            'tax_name1' => '',
-            'tax_rate2' => 0,
-            'tax_name2' => '',
-            'tax_rate3' => 0,
-            'tax_name3' => '',
-            'status_id' => Invoice::STATUS_SENT,
-            'line_items' => $lineItems,
-        ]);
-
-        $invoice = $invoice->calc()->getInvoice();
-        $invoice->setRelation('client', $client);
-        $invoice->setRelation('company', $this->company);
-        $invoice->save();
-
-        $invoice->service()->createInvitations();
-        $invoice->load('invitations');
-
-        return $invoice;
-    }
-
-    private function makeClient(Country $country, string $classification, string $clientCountry): Client
-    {
+        $country = Country::query()->where('iso_3166_2', $countryCode)->firstOrFail();
         $client = Client::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
             'country_id' => $country->id,
             'classification' => $classification,
-            'has_valid_vat_number' => false,
-            'vat_number' => $clientCountry === 'DE' ? 'DE173755434' : '',
-            'name' => 'France Reporting Client',
-            'address1' => '987654321',
-            'address2' => 'METACORTEX',
-            'city' => 'Scala Ritiro',
-            'postal_code' => '98152',
+            'name' => 'Runtime reporting client',
         ]);
-
-        $contact = ClientContact::factory()->create([
+        ClientContact::factory()->create([
             'client_id' => $client->id,
             'company_id' => $client->company_id,
             'user_id' => $client->user_id,
             'is_primary' => true,
             'send_email' => true,
-            'email' => uniqid('testuser') . '@gmail.com',
         ]);
-
-        $client->setRelation('company', $this->company);
-        $client->setRelation('contacts', collect([$contact]));
-        $client->setRelation('country', $country);
-
-        return $client;
-    }
-
-    private function makeLineItem(int $typeId = Product::PRODUCT_TYPE_PHYSICAL): object
-    {
         $item = InvoiceItemFactory::create();
-        $item->quantity = 2;
-        $item->cost = 500;
+        $item->quantity = 1;
+        $item->cost = 100;
         $item->tax_name1 = 'VAT';
         $item->tax_rate1 = 20;
-        $item->product_key = 'CONSULTING';
-        $item->notes = 'Consulting services';
-        $item->type_id = (string) $typeId;
+        $item->type_id = (string) Product::PRODUCT_TYPE_PHYSICAL;
+        $invoice = Invoice::factory()->create([
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'number' => 'FR-RUNTIME-' . $client->id,
+            'date' => '2026-09-15',
+            'due_date' => '2026-10-15',
+            'status_id' => Invoice::STATUS_SENT,
+            'line_items' => [$item],
+        ]);
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->save();
 
-        return $item;
+        return $invoice->fresh();
+    }
+
+    private function makeCredit(string $countryCode, string $classification): Credit
+    {
+        $country = Country::query()->where('iso_3166_2', $countryCode)->firstOrFail();
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'country_id' => $country->id,
+            'classification' => $classification,
+            'name' => 'Runtime reporting credit client',
+        ]);
+        ClientContact::factory()->create([
+            'client_id' => $client->id,
+            'company_id' => $client->company_id,
+            'user_id' => $client->user_id,
+            'is_primary' => true,
+            'send_email' => true,
+        ]);
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 100;
+        $item->tax_name1 = 'VAT';
+        $item->tax_rate1 = 20;
+        $item->type_id = (string) Product::PRODUCT_TYPE_PHYSICAL;
+        $credit = Credit::factory()->create([
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'number' => 'FR-RUNTIME-CREDIT-' . $client->id,
+            'date' => '2026-09-15',
+            'status_id' => Credit::STATUS_SENT,
+            'line_items' => [$item],
+        ]);
+        $credit = $credit->calc()->getCredit();
+        $credit->save();
+
+        return $credit->fresh();
     }
 }

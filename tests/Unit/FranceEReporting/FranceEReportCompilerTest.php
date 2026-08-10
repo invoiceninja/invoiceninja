@@ -3,8 +3,12 @@
 namespace Tests\Unit\FranceEReporting;
 
 use App\DataMapper\CompanySettings;
+use App\DataMapper\FranceEReporting\B2BIInvoiceData;
+use App\DataMapper\FranceEReporting\B2BIPaymentData;
+use App\DataMapper\FranceEReporting\B2CPaymentData;
+use App\DataMapper\FranceEReporting\B2CTransactionData;
+use App\DataMapper\FranceEReporting\FRReportEntryData;
 use App\Models\Company;
-use App\Models\TransactionEvent;
 use App\Services\EDocument\Standards\France\FranceEReportCompiler;
 use App\Services\EDocument\Standards\France\FranceEReportContext;
 use App\Services\EDocument\Standards\France\FranceEReportPayloadBuilder;
@@ -17,13 +21,21 @@ class FranceEReportCompilerTest extends TestCase
 {
     private const IDEMPOTENCY_GUID = '0e7c37f8-d4ce-4c2a-b98a-b290483c18cf';
 
+    private const FR_B2C_TRANSACTION = 1;
+
+    private const FR_B2C_PAYMENT = 2;
+
+    private const FR_VAT_EXCLUDED_TRANSACTION = 3;
+
+    private const FR_VAT_EXCLUDED_PAYMENT = 4;
+
     public function testItBuildsAnExactCombinedTransactionRequestForOneLegalEntity(): void
     {
         $company = $this->company(42, 100042, '552100554', 'Seller A');
         $context = $this->context($company, '2026-09-01', '2026-09-10', '2026-09-11 09:00:00 Europe/Paris');
         $payload = $this->compilePayload($company, FranceEReportVariant::TransactionInitial, $context, [
-            $this->event($company, 2, TransactionEvent::FR_B2C_TRANSACTION, $this->b2cTransactionPayload('2026-09-05')),
-            $this->event($company, 1, TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION, $this->b2biInvoicePayload('A-INV-001', 'Seller A')),
+            $this->event($company, 2, self::FR_B2C_TRANSACTION, $this->b2cTransactionPayload('2026-09-05')),
+            $this->event($company, 1, self::FR_VAT_EXCLUDED_TRANSACTION, $this->b2biInvoicePayload('A-INV-001', 'Seller A')),
         ], 'FR-F10-A-TRANSACTION-202609');
 
         $this->assertSame(['legalEntityId', 'idempotencyGuid', 'document'], array_keys($payload));
@@ -48,8 +60,8 @@ class FranceEReportCompilerTest extends TestCase
         $company = $this->company(42, 100042, '552100554', 'Seller A');
         $context = $this->context($company, '2026-01-01', '2026-01-31', '2026-02-01 09:00:00 Europe/Paris');
         $events = [
-            $this->event($company, 1, TransactionEvent::FR_VAT_EXCLUDED_PAYMENT, $this->b2biPaymentPayload('A-INV-001')),
-            $this->event($company, 2, TransactionEvent::FR_B2C_PAYMENT, $this->b2cPaymentPayload('2026-01-20')),
+            $this->event($company, 1, self::FR_VAT_EXCLUDED_PAYMENT, $this->b2biPaymentPayload('A-INV-001')),
+            $this->event($company, 2, self::FR_B2C_PAYMENT, $this->b2cPaymentPayload('2026-01-20')),
         ];
 
         foreach ([
@@ -75,10 +87,10 @@ class FranceEReportCompilerTest extends TestCase
         $contextB = $this->context($companyB, '2026-09-01', '2026-09-10', '2026-09-11 09:00:00 Europe/Paris');
 
         $payloadA = $this->compilePayload($companyA, FranceEReportVariant::TransactionInitial, $contextA, [
-            $this->event($companyA, 7, TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION, $this->b2biInvoicePayload('A-INV-001', 'Seller A')),
+            $this->event($companyA, 7, self::FR_VAT_EXCLUDED_TRANSACTION, $this->b2biInvoicePayload('A-INV-001', 'Seller A')),
         ], 'FR-F10-A-TRANSACTION-202609');
         $payloadB = $this->compilePayload($companyB, FranceEReportVariant::TransactionInitial, $contextB, [
-            $this->event($companyB, 7, TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION, $this->b2biInvoicePayload('B-INV-001', 'Seller B', '732829320')),
+            $this->event($companyB, 7, self::FR_VAT_EXCLUDED_TRANSACTION, $this->b2biInvoicePayload('B-INV-001', 'Seller B', '732829320')),
         ], 'FR-F10-B-TRANSACTION-202609');
 
         $encodedA = json_encode($payloadA, JSON_THROW_ON_ERROR);
@@ -101,19 +113,19 @@ class FranceEReportCompilerTest extends TestCase
         $context = $this->context($companyA, '2026-09-01', '2026-09-10', '2026-09-11 09:00:00 Europe/Paris');
 
         try {
-            $this->compilePayload($companyA, FranceEReportVariant::TransactionInitial, $context, [
-                $this->event($companyB, 1, TransactionEvent::FR_B2C_TRANSACTION, $this->b2cTransactionPayload('2026-09-05')),
+            $this->compilePayload($companyB, FranceEReportVariant::TransactionInitial, $context, [
+                $this->event($companyB, 1, self::FR_B2C_TRANSACTION, $this->b2cTransactionPayload('2026-09-05')),
             ], 'FR-F10-A-TRANSACTION-202609');
             $this->fail('Expected cross-company input to be rejected.');
         } catch (InvalidArgumentException $exception) {
-            $this->assertStringContainsString('compilation company', $exception->getMessage());
+            $this->assertStringContainsString('context companyId', $exception->getMessage());
         }
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('incompatible with transaction_in');
         $this->compilePayload($companyA, FranceEReportVariant::TransactionInitial, $context, [
-            $this->event($companyA, 1, TransactionEvent::FR_B2C_TRANSACTION, $this->b2cTransactionPayload('2026-09-05')),
-            $this->event($companyA, 2, TransactionEvent::FR_B2C_PAYMENT, $this->b2cPaymentPayload('2026-09-05')),
+            $this->event($companyA, 1, self::FR_B2C_TRANSACTION, $this->b2cTransactionPayload('2026-09-05')),
+            $this->event($companyA, 2, self::FR_B2C_PAYMENT, $this->b2cPaymentPayload('2026-09-05')),
         ], 'FR-F10-A-TRANSACTION-202609');
     }
 
@@ -127,8 +139,8 @@ class FranceEReportCompilerTest extends TestCase
         unset($second['transactionsCount']);
 
         $payload = $this->compilePayload($company, FranceEReportVariant::TransactionInitial, $context, [
-            $this->event($company, 2, TransactionEvent::FR_B2C_TRANSACTION, $second),
-            $this->event($company, 1, TransactionEvent::FR_B2C_TRANSACTION, $first),
+            $this->event($company, 2, self::FR_B2C_TRANSACTION, $second),
+            $this->event($company, 1, self::FR_B2C_TRANSACTION, $first),
         ], 'FR-F10-A-TRANSACTION-202609');
         $row = $payload['document']['frEReport']['transactionReport']['b2cTransactions'][0];
 
@@ -150,14 +162,14 @@ class FranceEReportCompilerTest extends TestCase
         $sameDayTwo = $this->b2cPaymentPayload('2026-01-20');
         $sameDayTwo['taxSubtotal'][0]['percentage'] = '20.00';
 
-        $report = (new FranceEReportCompiler())->compileVariantFromEvents(
+        $report = (new FranceEReportCompiler())->compileVariantFromEntries(
             $company,
             FranceEReportVariant::PaymentInitial,
             $context,
             [
-                $this->event($company, 3, TransactionEvent::FR_B2C_PAYMENT, $this->b2cPaymentPayload('2026-01-21')),
-                $this->event($company, 2, TransactionEvent::FR_B2C_PAYMENT, $sameDayTwo),
-                $this->event($company, 1, TransactionEvent::FR_B2C_PAYMENT, $sameDayOne),
+                $this->event($company, 3, self::FR_B2C_PAYMENT, $this->b2cPaymentPayload('2026-01-21')),
+                $this->event($company, 2, self::FR_B2C_PAYMENT, $sameDayTwo),
+                $this->event($company, 1, self::FR_B2C_PAYMENT, $sameDayOne),
             ],
         )->toArray();
 
@@ -174,17 +186,17 @@ class FranceEReportCompilerTest extends TestCase
         $company = $this->company(42, 100042, '552100554', 'Seller A');
         $context = $this->context($company, '2026-01-01', '2026-01-31', '2026-02-01 00:00:00 Europe/Paris');
         $compiler = new FranceEReportCompiler();
-        $event = $this->event($company, 1, TransactionEvent::FR_B2C_PAYMENT, $this->b2cPaymentPayload('2026-01-20'));
+        $event = $this->event($company, 1, self::FR_B2C_PAYMENT, $this->b2cPaymentPayload('2026-01-20'));
 
-        $first = $compiler->compileVariantFromEvents($company, FranceEReportVariant::PaymentInitial, $context, [$event]);
-        $second = $compiler->compileVariantFromEvents($company, FranceEReportVariant::PaymentInitial, $context, [$event]);
+        $first = $compiler->compileVariantFromEntries($company, FranceEReportVariant::PaymentInitial, $context, [$event]);
+        $second = $compiler->compileVariantFromEntries($company, FranceEReportVariant::PaymentInitial, $context, [$event]);
         $changedPayload = $this->b2cPaymentPayload('2026-01-20');
         $changedPayload['taxSubtotal'][0]['amount'] = 121;
-        $changed = $compiler->compileVariantFromEvents(
+        $changed = $compiler->compileVariantFromEntries(
             $company,
             FranceEReportVariant::PaymentInitial,
             $context,
-            [$this->event($company, 1, TransactionEvent::FR_B2C_PAYMENT, $changedPayload)],
+            [$this->event($company, 1, self::FR_B2C_PAYMENT, $changedPayload)],
         );
 
         $this->assertSame($first->documentId, $second->documentId);
@@ -199,7 +211,7 @@ class FranceEReportCompilerTest extends TestCase
 
         try {
             $this->compilePayload($company, FranceEReportVariant::TransactionInitial, $context, [
-                $this->event($company, 1, TransactionEvent::FR_B2C_TRANSACTION, []),
+                $this->event($company, 1, self::FR_B2C_TRANSACTION, []),
             ], 'FR-F10-A-TRANSACTION-202609');
             $this->fail('Expected a source row without its report component to be rejected.');
         } catch (InvalidArgumentException $exception) {
@@ -212,7 +224,7 @@ class FranceEReportCompilerTest extends TestCase
             $this->event(
                 $company,
                 2,
-                TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION,
+                self::FR_VAT_EXCLUDED_TRANSACTION,
                 $this->b2biInvoicePayload('A-INV-001', 'Different Supplier', '732829320'),
             ),
         ], 'FR-F10-A-TRANSACTION-202609');
@@ -223,7 +235,7 @@ class FranceEReportCompilerTest extends TestCase
         $valid = $this->company(42, 100042, '73282932000074', 'Seller A');
         $validContext = $this->context($valid, '2026-09-01', '2026-09-10', '2026-09-11 09:00:00 Europe/Paris');
         $payload = $this->compilePayload($valid, FranceEReportVariant::TransactionInitial, $validContext, [
-            $this->event($valid, 1, TransactionEvent::FR_B2C_TRANSACTION, $this->b2cTransactionPayload('2026-09-05')),
+            $this->event($valid, 1, self::FR_B2C_TRANSACTION, $this->b2cTransactionPayload('2026-09-05')),
         ], 'FR-F10-A-TRANSACTION-202609');
 
         $this->assertSame(
@@ -237,12 +249,12 @@ class FranceEReportCompilerTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('SIRET');
         $this->compilePayload($invalid, FranceEReportVariant::TransactionInitial, $invalidContext, [
-            $this->event($invalid, 1, TransactionEvent::FR_B2C_TRANSACTION, $this->b2cTransactionPayload('2026-09-05')),
+            $this->event($invalid, 1, self::FR_B2C_TRANSACTION, $this->b2cTransactionPayload('2026-09-05')),
         ], 'FR-F10-B-TRANSACTION-202609');
     }
 
     /**
-     * @param array<int, TransactionEvent> $events
+     * @param array<int, FRReportEntryData> $events
      * @return array<string, mixed>
      */
     private function compilePayload(
@@ -252,7 +264,7 @@ class FranceEReportCompilerTest extends TestCase
         array $events,
         string $documentId,
     ): array {
-        $report = (new FranceEReportCompiler())->compileVariantFromEvents(
+        $report = (new FranceEReportCompiler())->compileVariantFromEntries(
             $company,
             $variant,
             $context,
@@ -294,22 +306,14 @@ class FranceEReportCompilerTest extends TestCase
     }
 
     /** @param array<string, mixed> $payload */
-    private function event(Company $company, int $id, int $eventId, array $payload): TransactionEvent
+    private function event(Company $company, int $id, int $eventId, array $payload): FRReportEntryData
     {
-        $periodEnd = in_array($eventId, [
-            TransactionEvent::FR_B2C_PAYMENT,
-            TransactionEvent::FR_VAT_EXCLUDED_PAYMENT,
-        ], true) ? '2026-01-31' : '2026-09-10';
-        $event = new TransactionEvent();
-        $event->setRawAttributes([
-            'id' => $id,
-            'company_id' => $company->id,
-            'event_id' => $eventId,
-            'period' => $periodEnd,
-            'reporting_data' => json_encode($payload, JSON_THROW_ON_ERROR),
-        ], true);
-
-        return $event;
+        return match ($eventId) {
+            self::FR_B2C_TRANSACTION => FRReportEntryData::fromB2CTransaction(B2CTransactionData::fromArray($payload)),
+            self::FR_B2C_PAYMENT => FRReportEntryData::fromB2CPayment(B2CPaymentData::fromArray($payload)),
+            self::FR_VAT_EXCLUDED_TRANSACTION => FRReportEntryData::fromB2BIInvoice(B2BIInvoiceData::fromArray($payload)),
+            self::FR_VAT_EXCLUDED_PAYMENT => FRReportEntryData::fromB2BIPayment(B2BIPaymentData::fromArray($payload)),
+        };
     }
 
     /** @return array<string, mixed> */

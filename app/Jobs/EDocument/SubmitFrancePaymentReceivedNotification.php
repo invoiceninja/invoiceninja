@@ -16,10 +16,15 @@ use App\Libraries\MultiDB;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\Paymentable;
 use App\Models\TransactionEvent;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
-use App\Services\EDocument\Standards\France\FrancePaymentReceivedNotificationEligibility;
-use App\Services\EDocument\Standards\France\FranceSubmissionClaim;
+use App\Services\EDocument\Standards\France\FranceReportMaterializer;
+use App\Services\EDocument\Standards\France\FranceReportingEventType;
+use App\Services\EDocument\Standards\France\FranceReportingStatus;
+use App\Services\EDocument\Standards\France\FranceSubmissionCallbackStore;
+use App\Utils\BcMath;
 use Carbon\CarbonImmutable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -28,7 +33,8 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use Ramsey\Uuid\Uuid;
+use RuntimeException;
 use Throwable;
 
 class SubmitFrancePaymentReceivedNotification implements ShouldQueue
@@ -40,11 +46,17 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
 
     public $deleteWhenMissingModels = true;
 
-    public $tries = 1;
+    public $tries = 3;
+
+    /** @var array<int, int> */
+    public array $backoff = [60, 300, 900];
+
+    private const MAX_TRANSPORT_ATTEMPTS = 6;
 
     public function __construct(
         private int $transactionEventId,
         private string $db,
+        private bool $force = false,
     ) {}
 
     public function handle(Storecove $storecove): void
@@ -53,18 +65,35 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
 
         $event = TransactionEvent::query()->find($this->transactionEventId);
 
-        if (! $event || $event->event_id !== TransactionEvent::FR_B2B_PAYMENT_RECEIVED_NOTIFICATION) {
+        if (! $event) {
             return;
         }
 
-        if (! in_array($event->payment_status, [
-            TransactionEvent::FR_REPORTING_STATUS_PENDING,
-            TransactionEvent::FR_REPORTING_STATUS_FAILED,
-        ], true) || data_get($event->payment_request, 'skip_reason')) {
+        $submission = (int) $event->event_id === FranceReportingEventType::PaymentMovement->value
+            ? $this->materialize($event)
+            : $event;
+
+        if (! $submission
+            || (int) $submission->event_id !== FranceReportingEventType::PaymentNotificationSubmission->value
+            || ! in_array((int) $submission->payment_status, [
+                FranceReportingStatus::Pending->value,
+                FranceReportingStatus::RetryableFailure->value,
+            ], true)) {
             return;
         }
 
-        $company = Company::query()->with("account")->find($event->company_id);
+        if (! $this->force
+            && count((array) data_get($submission->payment_request, 'attempts', [])) >= self::MAX_TRANSPORT_ATTEMPTS) {
+            $this->recordRetryExhaustion(
+                $submission,
+                'France payment notification transport retry limit reached.',
+            );
+
+            return;
+        }
+
+        /** @var Company|null $company */
+        $company = Company::query()->with('account')->find($submission->company_id);
         $account = $company?->getRelation('account');
 
         if (! $company
@@ -75,206 +104,668 @@ class SubmitFrancePaymentReceivedNotification implements ShouldQueue
             return;
         }
 
-        $request = $event->payment_request ?? [];
-        $originalDocumentGuid = (string) data_get($request, "original_document_guid", "");
+        $payload = data_get($submission->payment_request, 'payload');
+        $payloadHash = (string) data_get($submission->payment_request, 'payload_hash');
 
-        if ($originalDocumentGuid === "") {
-            $this->markFailed($event, ["message" => "Missing original Storecove document submission GUID."]);
+        if (! is_array($payload)
+            || ! hash_equals($payloadHash, hash('sha256', json_encode($payload, JSON_THROW_ON_ERROR)))) {
+            $this->recordLocalTerminalFailure(
+                $submission,
+                'Stored France payment notification payload is missing or has changed.',
+            );
+
             return;
         }
 
-        $sourceDate = (string) data_get($request, 'source_date', '');
-
-        if ($sourceDate !== ''
-            && CarbonImmutable::parse($sourceDate, 'Europe/Paris')->startOfDay()
-                ->greaterThan(CarbonImmutable::now('Europe/Paris')->startOfDay())) {
+        if (data_get($submission->payment_request, 'attempts', []) === []
+            && is_null(data_get($submission->payment_request, 'transport_claimed_at'))
+            && ! $this->preflightSubmission($submission)) {
             return;
         }
 
-        if (! app(FrancePaymentReceivedNotificationEligibility::class)->isEligible($event)) {
-            $this->markSkipped($event, "Payment received notification is no longer eligible.");
+        if (! $this->claimTransport($submission)) {
             return;
         }
-
-        if (! $this->originalInvoiceIsCleared($event)) {
-            $this->markFailed($event, ["message" => "Original Storecove document has not cleared yet."]);
-            return;
-        }
-
-        $claims = app(FranceSubmissionClaim::class);
-        $claimToken = $claims->claim([$event->id]);
-
-        if (! $claimToken) {
-            return;
-        }
-
-        $claimCompleted = false;
 
         try {
-            $event = TransactionEvent::query()->find($event->id);
+            $response = $storecove->proxy
+                ->setCompany($company)
+                ->submitDocument([
+                    ...$payload,
+                    'tenant_id' => $company->company_key,
+                    'account_key' => $account->key,
+                    'e_invoicing_token' => $account->e_invoicing_token,
+                ]);
+            $guid = $response['guid'] ?? null;
 
-            if (! $event || ! $claims->isOwnedBy($event, $claimToken)) {
-                return;
+            if (! is_string($guid) || trim($guid) === '') {
+                throw new RuntimeException('Storecove payment notification response did not contain a GUID.');
             }
 
-            $request = $event->payment_request ?? [];
-            $sourceDate = (string) data_get($request, 'source_date', '');
+            $this->recordAttempt($submission, FranceReportingStatus::Sent, $response, null, $guid);
+            app(FranceSubmissionCallbackStore::class)->replay($company, $guid);
+        } catch (Throwable $exception) {
+            report($exception);
+            $this->recordAttempt($submission, FranceReportingStatus::RetryableFailure, [], [
+                'message' => $exception->getMessage(),
+                'class' => $exception::class,
+            ]);
 
-            if ($sourceDate !== ''
-                && CarbonImmutable::parse($sourceDate, 'Europe/Paris')->startOfDay()
-                    ->greaterThan(CarbonImmutable::now('Europe/Paris')->startOfDay())) {
-                return;
-            }
-
-            if (! app(FrancePaymentReceivedNotificationEligibility::class)->isEligible($event)) {
-                $this->markSkipped($event, "Payment received notification is no longer eligible.");
-                return;
-            }
-
-            if (! $this->originalInvoiceIsCleared($event)) {
-                $this->markFailed($event, ["message" => "Original Storecove document has not cleared yet."]);
-                return;
-            }
-
-            $idempotencyGuid = (string) (data_get($request, "idempotency_guid") ?: Str::uuid()->toString());
-            $event->payment_request = [
-                ...$request,
-                "idempotency_guid" => $idempotencyGuid,
-            ];
-            $event->save();
-
-            try {
-                $response = $storecove->proxy
-                    ->setCompany($company)
-                    ->submitDocument($this->payload($company, $originalDocumentGuid, $idempotencyGuid));
-            } catch (Throwable $exception) {
-                report($exception);
-                $this->markFailed($event, ["message" => $exception->getMessage()]);
-                return;
-            }
-
-            $this->recordSubmissionResponse($event, $response, $claimToken);
-            $claimCompleted = true;
-        } finally {
-            if (! $claimCompleted) {
-                $claims->release([$event->id ?? $this->transactionEventId], $claimToken);
-            }
+            throw $exception;
         }
     }
 
-    /**
-     * @return array<int, object>
-     */
+    /** @return array<int, object> */
     public function middleware(): array
     {
         return [
-            (new WithoutOverlapping($this->transactionEventId.$this->db.".fr-payment-received-notification"))
+            (new WithoutOverlapping($this->transactionEventId . $this->db . '.fr-payment-notification'))
                 ->releaseAfter(60)
-                ->expireAfter(60),
+                ->expireAfter(300),
         ];
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function payload(Company $company, string $originalDocumentGuid, string $idempotencyGuid): array
+    private function materialize(TransactionEvent $movement): ?TransactionEvent
     {
-        return [
-            "forDocumentSubmissionGuid" => $originalDocumentGuid,
-            "idempotencyGuid" => $idempotencyGuid,
-            "document" => [
-                "documentType" => "payment_received_notification",
-                "paymentReceivedNotification" => [
-                    "mode" => "auto",
-                ],
+        if (in_array((int) $movement->payment_status, [
+            FranceReportingStatus::Accepted->value,
+            FranceReportingStatus::Rejected->value,
+        ], true)) {
+            return null;
+        }
+
+        $paymentableId = (int) data_get($movement->payment_request, 'paymentable_id', 0);
+        $effectiveAt = trim((string) data_get($movement->payment_request, 'effective_at'));
+        $invoice = Invoice::withTrashed()
+            ->with(['client.country', 'client.company', 'company'])
+            ->find($movement->invoice_id);
+        $payment = Payment::withTrashed()->find($movement->payment_id);
+        $paymentable = $paymentableId > 0
+            ? Paymentable::withTrashed()->find($paymentableId)
+            : null;
+        $currentGuid = trim((string) ($invoice?->backup->guid ?? ''));
+        $currentStatus = strtolower(trim((string) ($invoice?->backup->e_invoice_status ?? '')));
+        $storedPath = (string) data_get($movement->payment_request, 'reporting_path');
+
+        if ($storedPath !== 'payment_received_notification') {
+            return null;
+        }
+
+        if (BcMath::lessThanOrEqual(data_get($movement->payment_request, 'movement_amount', 0), '0', 2)) {
+            $this->resolveNonPositiveMovement($movement);
+
+            return null;
+        }
+
+        if (! $invoice
+            || ! $payment
+            || ! $paymentable
+            || $payment->is_deleted
+            || (int) $payment->status_id !== Payment::STATUS_COMPLETED
+            || $invoice->is_deleted
+            || $paymentable->trashed()
+            || (int) $paymentable->payment_id !== (int) $payment->id
+            || (int) $paymentable->paymentable_id !== (int) $invoice->id
+            || $paymentable->paymentable_type !== 'invoices'
+            || (int) $movement->company_id !== (int) $payment->company_id
+            || (int) $movement->company_id !== (int) $invoice->company_id
+            || (int) $movement->client_id !== (int) $payment->client_id
+            || (int) $movement->client_id !== (int) $invoice->client_id
+            || ! $invoice->client->reportableFrTransaction()
+        ) {
+            $this->rejectMovement($movement);
+
+            return null;
+        }
+
+        if ($currentStatus === 'rejected') {
+            $this->deferMovement($movement, 'The source invoice is awaiting a cleared recovery state.');
+
+            return null;
+        }
+
+        if (((int) $invoice->status_id !== Invoice::STATUS_PAID
+                && ! BcMath::lessThanOrEqual($invoice->balance ?? 0, '0', 2))
+            || ($currentStatus !== 'cleared' && is_null($invoice->backup->e_invoice_cleared_at))
+            || $currentGuid === ''
+            || ($effectiveAt !== '' && CarbonImmutable::parse($effectiveAt)->isFuture())) {
+            if ($effectiveAt === '' || ! CarbonImmutable::parse($effectiveAt)->isFuture()) {
+                $this->deferMovement($movement, 'The source invoice is not yet eligible for notification.');
+            }
+
+            return null;
+        }
+
+        $originalGuid = $currentGuid;
+
+        $idempotencyGuid = Uuid::uuid5(
+            Uuid::NAMESPACE_URL,
+            "fr-payment-notification|{$movement->company_id}|{$invoice->id}|{$originalGuid}",
+        )->toString();
+        $payload = [
+            'forDocumentSubmissionGuid' => $originalGuid,
+            'idempotencyGuid' => $idempotencyGuid,
+            'document' => [
+                'documentType' => 'payment_received_notification',
+                'paymentReceivedNotification' => ['mode' => 'auto'],
             ],
-            "tenant_id" => $company->company_key,
-            "account_key" => $company->account->key,
-            "e_invoicing_token" => $company->account->e_invoicing_token,
         ];
-    }
+        $payloadHash = hash('sha256', json_encode($payload, JSON_THROW_ON_ERROR));
 
-    /**
-     * @param array<string, mixed> $response
-     */
-    private function recordSubmissionResponse(TransactionEvent $event, array $response, string $claimToken): void
-    {
-        $guid = $response["guid"] ?? null;
-        $successful = is_string($guid) && $guid !== "";
+        return DB::transaction(function () use ($movement, $invoice, $originalGuid, $idempotencyGuid, $payload, $payloadHash): ?TransactionEvent {
+            Company::query()->whereKey($movement->company_id)->lockForUpdate()->firstOrFail();
+            $movementIds = TransactionEvent::query()
+                ->where('company_id', $movement->company_id)
+                ->where('invoice_id', $invoice->id)
+                ->where('event_id', FranceReportingEventType::PaymentMovement->value)
+                ->where('payment_request->reporting_path', 'payment_received_notification')
+                ->where(function ($query): void {
+                    $query->whereNull('payment_status')
+                        ->orWhere('payment_status', FranceReportingStatus::Pending->value);
+                })
+                ->get(['id', 'payment_request'])
+                ->filter(static fn(TransactionEvent $event): bool => BcMath::greaterThan(
+                    data_get($event->payment_request, 'movement_amount', 0),
+                    '0',
+                    2,
+                ))
+                ->pluck('id')
+                ->map(static fn(mixed $id): int => (int) $id)
+                ->push((int) $movement->id)
+                ->unique()
+                ->values()
+                ->all();
+            $existing = TransactionEvent::query()
+                ->where('company_id', $movement->company_id)
+                ->where('invoice_id', $invoice->id)
+                ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
+                ->where('payment_request->original_document_guid', $originalGuid)
+                ->whereNull('payment_request->local_disposition')
+                ->whereIn('payment_status', [
+                    ...FranceReportingStatus::openValues(),
+                    FranceReportingStatus::Accepted->value,
+                    FranceReportingStatus::Rejected->value,
+                ])
+                ->latest('id')
+                ->first();
 
-        DB::transaction(function () use ($event, $guid, $successful, $response, $claimToken): void {
-            $claimedEvent = TransactionEvent::query()->lockForUpdate()->find($event->id);
+            if ($existing) {
+                $request = $existing->payment_request ?? [];
+                $movementIds = array_values(array_unique([
+                    ...array_map('intval', $request['movement_event_ids'] ?? []),
+                    ...$movementIds,
+                ]));
+                $request['movement_event_ids'] = $movementIds;
+                $request['movement_event_id'] = $movementIds[0];
+                $existing->payment_request = $request;
+                $existing->save();
+                TransactionEvent::query()
+                    ->where('company_id', $movement->company_id)
+                    ->whereIn('id', $movementIds)
+                    ->update(['payment_status' => (int) $existing->payment_status]);
 
-            if (! $claimedEvent || ! app(FranceSubmissionClaim::class)->isOwnedBy($claimedEvent, $claimToken)) {
-                throw new \RuntimeException('France payment notification claim was lost before persistence.');
+                return in_array((int) $existing->payment_status, [
+                    FranceReportingStatus::Pending->value,
+                    FranceReportingStatus::RetryableFailure->value,
+                ], true)
+                    ? $existing
+                    : null;
             }
 
-            $claimedEvent->payment_status = $successful
-                ? TransactionEvent::FR_REPORTING_STATUS_SUBMITTED
-                : TransactionEvent::FR_REPORTING_STATUS_FAILED;
+            $submission = TransactionEvent::create([
+                'company_id' => $movement->company_id,
+                'client_id' => $movement->client_id,
+                'invoice_id' => $movement->invoice_id,
+                'payment_id' => $movement->payment_id,
+                'credit_id' => 0,
+                'event_id' => FranceReportingEventType::PaymentNotificationSubmission->value,
+                'timestamp' => now()->timestamp,
+                'period' => $movement->period,
+                'payment_status' => FranceReportingStatus::Pending->value,
+                'reporting_data' => null,
+                'payment_request' => [
+                    'schema_version' => 1,
+                    'role' => 'submission',
+                    'movement_event_id' => $movementIds[0],
+                    'movement_event_ids' => $movementIds,
+                    'original_document_guid' => $originalGuid,
+                    'idempotency_guid' => $idempotencyGuid,
+                    'payload' => $payload,
+                    'payload_hash' => $payloadHash,
+                    'snapshot_event_ids' => [],
+                    'attempts' => [],
+                ],
+            ]);
+            $snapshot = TransactionEvent::create([
+                'company_id' => $movement->company_id,
+                'client_id' => $movement->client_id,
+                'invoice_id' => $movement->invoice_id,
+                'payment_id' => $movement->payment_id,
+                'credit_id' => 0,
+                'event_id' => FranceReportingEventType::PaymentNotificationSnapshot->value,
+                'timestamp' => now()->timestamp,
+                'period' => $movement->period,
+                'payment_status' => FranceReportingStatus::Pending->value,
+                'reporting_data' => null,
+                'payment_request' => [
+                    'schema_version' => 1,
+                    'role' => 'projection_snapshot',
+                    'subject_key' => "invoice:{$invoice->id}",
+                    'submission_event_id' => $submission->id,
+                ],
+            ]);
+            $request = $submission->payment_request;
+            $request['snapshot_event_ids'] = [$snapshot->id];
+            $submission->payment_request = $request;
+            $submission->save();
+            TransactionEvent::query()
+                ->where('company_id', $movement->company_id)
+                ->whereIn('id', $movementIds)
+                ->update(['payment_status' => FranceReportingStatus::Pending->value]);
 
-            $request = $claimedEvent->payment_request ?? [];
-            unset($request[FranceSubmissionClaim::TOKEN], $request[FranceSubmissionClaim::EXPIRES_AT]);
-            $claimedEvent->payment_request = [
-                ...$request,
-                "guid" => $guid,
-                "submitted_at" => $successful ? now()->toIso8601String() : null,
-                "error" => $successful ? null : $response,
-            ];
-            $claimedEvent->save();
-
-            if ($successful) {
-                $this->deleteSupersededNotificationEvents($claimedEvent);
-            }
+            return $submission;
         }, attempts: 3);
     }
 
     /**
-     * Remove superseded non-submitted notification rows once a later row has been accepted by Storecove.
+     * @param array<string, mixed> $response
+     * @param array<string, string>|null $error
      */
-    private function deleteSupersededNotificationEvents(TransactionEvent $event): void
-    {
-        $originalDocumentGuid = (string) data_get($event->payment_request, 'original_document_guid', '');
+    private function recordAttempt(
+        TransactionEvent $submission,
+        FranceReportingStatus $status,
+        array $response,
+        ?array $error,
+        ?string $guid = null,
+        ?string $localDisposition = null,
+    ): void {
+        DB::transaction(function () use ($submission, $status, $response, $error, $guid, $localDisposition): void {
+            $locked = TransactionEvent::query()->lockForUpdate()->find($submission->id);
 
-        TransactionEvent::query()
-            ->where("company_id", $event->company_id)
-            ->where("invoice_id", $event->invoice_id)
-            ->where("event_id", TransactionEvent::FR_B2B_PAYMENT_RECEIVED_NOTIFICATION)
-            ->where("payment_request->original_document_guid", $originalDocumentGuid)
-            ->where("id", "!=", $event->id)
-            ->where("payment_status", "!=", TransactionEvent::FR_REPORTING_STATUS_SUBMITTED)
-            ->delete();
+            if (! $locked
+                || (int) $locked->event_id !== FranceReportingEventType::PaymentNotificationSubmission->value
+                || in_array((int) $locked->payment_status, [
+                    FranceReportingStatus::Accepted->value,
+                    FranceReportingStatus::Rejected->value,
+                ], true)) {
+                return;
+            }
+
+            $request = $locked->payment_request ?? [];
+            $attempts = $request['attempts'] ?? [];
+            $hasTransportCommitment = $attempts !== []
+                || ! is_null(data_get($request, 'transport_claimed_at'));
+
+            if ($localDisposition === 'invalid_persisted_payload' && $hasTransportCommitment) {
+                $request['last_error'] = $error;
+                $request['local_disposition'] = 'invalid_persisted_payload_after_transport_commitment';
+                $request['retry_exhausted_at'] ??= now()->toIso8601String();
+                $locked->payment_request = $request;
+                $locked->payment_status = FranceReportingStatus::RetryableFailure->value;
+                $locked->save();
+
+                return;
+            }
+
+            $attempts[] = [
+                'attempted_at' => now()->toIso8601String(),
+                'response' => $response,
+                'error' => $error,
+            ];
+            $request['attempts'] = $attempts;
+            $knownGuids = array_values(array_unique(array_filter([
+                ...array_map('strval', (array) ($request['guids'] ?? [])),
+                trim((string) ($request['guid'] ?? '')),
+                trim((string) ($guid ?? '')),
+            ])));
+            $request['guid'] = trim((string) ($request['guid'] ?? '')) ?: ($guid ?? null);
+            $request['guids'] = $knownGuids;
+            $request['sent_at'] = $status === FranceReportingStatus::Sent
+                ? now()->toIso8601String()
+                : ($request['sent_at'] ?? null);
+            $request['last_error'] = $error;
+            $request['local_disposition'] = $localDisposition ?? ($request['local_disposition'] ?? null);
+            unset($request['retry_exhausted_at']);
+            unset($request['transport_claimed_at']);
+            $locked->payment_request = $request;
+            $locked->payment_status = $status->value;
+            $locked->save();
+
+            if ($status === FranceReportingStatus::Rejected) {
+                TransactionEvent::query()
+                    ->where('company_id', $locked->company_id)
+                    ->whereIn('id', array_values(array_filter(
+                        $request['snapshot_event_ids'] ?? [],
+                        static fn(mixed $id): bool => is_int($id) || ctype_digit((string) $id),
+                    )))
+                    ->where('event_id', FranceReportingEventType::PaymentNotificationSnapshot->value)
+                    ->where('payment_request->submission_event_id', $locked->id)
+                    ->update(['payment_status' => FranceReportingStatus::Rejected->value]);
+
+                TransactionEvent::query()
+                    ->where('company_id', $locked->company_id)
+                    ->whereIn('id', array_values(array_filter(
+                        $request['movement_event_ids'] ?? [$request['movement_event_id'] ?? 0],
+                        static fn(mixed $id): bool => is_int($id) || ctype_digit((string) $id),
+                    )))
+                    ->where('event_id', FranceReportingEventType::PaymentMovement->value)
+                    ->update(['payment_status' => FranceReportingStatus::Rejected->value]);
+
+                if ($localDisposition === 'invalid_persisted_payload') {
+                    TransactionEvent::query()
+                        ->where('company_id', $locked->company_id)
+                        ->whereIn('id', array_values(array_filter(
+                            $request['movement_event_ids'] ?? [$request['movement_event_id'] ?? 0],
+                            static fn(mixed $id): bool => is_int($id) || ctype_digit((string) $id),
+                        )))
+                        ->where('event_id', FranceReportingEventType::PaymentMovement->value)
+                        ->update(['payment_status' => null]);
+                }
+            }
+        }, attempts: 3);
     }
 
-    private function originalInvoiceIsCleared(TransactionEvent $event): bool
+    private function recordLocalTerminalFailure(TransactionEvent $submission, string $message): void
     {
-        $invoice = Invoice::withTrashed()->find($event->invoice_id);
+        $localDisposition = 'invalid_persisted_payload';
+        $this->recordAttempt(
+            $submission,
+            FranceReportingStatus::Rejected,
+            [],
+            ['message' => $message, 'class' => RuntimeException::class],
+            null,
+            $localDisposition,
+        );
 
-        return $invoice && ($invoice->backup->e_invoice_status === "cleared" || ! is_null($invoice->backup->e_invoice_cleared_at));
     }
 
-    private function markSkipped(TransactionEvent $event, string $reason): void
+    private function recordRetryExhaustion(TransactionEvent $submission, string $message): void
     {
-        $event->payment_status = TransactionEvent::FR_REPORTING_STATUS_FAILED;
-        $event->payment_request = [
-            ...($event->payment_request ?? []),
-            "error" => ["message" => $reason],
-            "skip_reason" => $reason,
-            "skipped_at" => now()->toIso8601String(),
-        ];
-        $event->save();
+        DB::transaction(function () use ($submission, $message): void {
+            $locked = TransactionEvent::query()->lockForUpdate()->find($submission->id);
+
+            if (! $locked
+                || (int) $locked->event_id !== FranceReportingEventType::PaymentNotificationSubmission->value
+                || in_array((int) $locked->payment_status, [
+                    FranceReportingStatus::Accepted->value,
+                    FranceReportingStatus::Rejected->value,
+                ], true)) {
+                return;
+            }
+
+            $request = $locked->payment_request ?? [];
+            $request['retry_exhausted_at'] ??= now()->toIso8601String();
+            $request['last_error'] = [
+                'message' => $message,
+                'class' => RuntimeException::class,
+            ];
+            unset($request['transport_claimed_at']);
+            $locked->payment_request = $request;
+            $locked->payment_status = FranceReportingStatus::RetryableFailure->value;
+            $locked->save();
+        }, attempts: 3);
     }
 
-    /**
-     * @param array<string, mixed> $error
-     */
-    private function markFailed(TransactionEvent $event, array $error): void
+    private function deferSubmission(TransactionEvent $submission, string $message): void
     {
-        $event->payment_status = TransactionEvent::FR_REPORTING_STATUS_FAILED;
-        $event->payment_request = [
-            ...($event->payment_request ?? []),
-            "error" => $error,
-        ];
-        $event->save();
+        DB::transaction(function () use ($submission, $message): void {
+            $locked = TransactionEvent::query()->lockForUpdate()->find($submission->id);
+
+            if (! $locked
+                || (int) $locked->event_id !== FranceReportingEventType::PaymentNotificationSubmission->value
+                || data_get($locked->payment_request, 'attempts', []) !== []) {
+                return;
+            }
+
+            $request = $locked->payment_request ?? [];
+            $request['deferred_reason'] = $message;
+            $request['deferred_at'] = now()->toIso8601String();
+            unset($request['transport_claimed_at']);
+            $locked->payment_request = $request;
+            $locked->payment_status = FranceReportingStatus::Pending->value;
+            $locked->save();
+        }, attempts: 3);
+    }
+
+    private function deferMovement(TransactionEvent $movement, string $message): void
+    {
+        $request = $movement->payment_request ?? [];
+        $request['notification_deferred_at'] = now()->toIso8601String();
+        $request['notification_deferred_reason'] = $message;
+        $movement->payment_request = $request;
+        $movement->payment_status = FranceReportingStatus::Pending->value;
+        $movement->save();
+    }
+
+    private function preflightSubmission(TransactionEvent $submission): bool
+    {
+        $request = $submission->payment_request ?? [];
+        $movementIds = array_values(array_filter(
+            array_map('intval', $request['movement_event_ids'] ?? [$request['movement_event_id'] ?? 0]),
+            static fn(int $id): bool => $id > 0,
+        ));
+        $movements = TransactionEvent::query()
+            ->where('company_id', $submission->company_id)
+            ->whereIn('id', $movementIds)
+            ->where('event_id', FranceReportingEventType::PaymentMovement->value)
+            ->get();
+        $invoice = Invoice::withTrashed()
+            ->with(['client.country', 'client.company', 'company'])
+            ->find($submission->invoice_id);
+
+        if (! $invoice
+            || $movements->count() !== count($movementIds)
+            || $invoice->is_deleted
+            || in_array((int) $invoice->status_id, [Invoice::STATUS_CANCELLED, Invoice::STATUS_REVERSED], true)
+            || ! $invoice->client->reportableFrTransaction()) {
+            $this->supersedeSubmission($submission, 'source_no_longer_notification_eligible');
+
+            return false;
+        }
+
+        foreach ($movements as $movement) {
+            $paymentableId = (int) data_get($movement->payment_request, 'paymentable_id');
+            $payment = Payment::withTrashed()->find($movement->payment_id);
+            $paymentable = Paymentable::withTrashed()->find($paymentableId);
+
+            if (! $payment
+                || ! $paymentable
+                || $payment->is_deleted
+                || (int) $payment->status_id !== Payment::STATUS_COMPLETED
+                || $paymentable->trashed()
+                || (int) $paymentable->payment_id !== (int) $payment->id
+                || (int) $paymentable->paymentable_id !== (int) $invoice->id
+                || data_get($movement->payment_request, 'reporting_path') !== 'payment_received_notification') {
+                $this->supersedeSubmission($submission, 'source_no_longer_notification_eligible');
+
+                return false;
+            }
+        }
+
+        $currentGuid = trim((string) ($invoice->backup->guid ?? ''));
+        $currentStatus = strtolower(trim((string) ($invoice->backup->e_invoice_status ?? '')));
+        $originalGuid = trim((string) data_get($request, 'original_document_guid'));
+
+        if ($currentGuid !== '' && $originalGuid !== '' && $originalGuid !== $currentGuid) {
+            $this->supersedeSubmission($submission, 'document_guid_changed_before_transport', true);
+
+            return false;
+        }
+
+        if ($currentStatus === 'rejected'
+            || ((int) $invoice->status_id !== Invoice::STATUS_PAID
+                && ! BcMath::lessThanOrEqual($invoice->balance ?? 0, '0', 2))
+            || ($currentStatus !== 'cleared' && is_null($invoice->backup->e_invoice_cleared_at))
+            || $currentGuid === '') {
+            $this->deferSubmission($submission, 'The source invoice is awaiting notification eligibility.');
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private function supersedeSubmission(
+        TransactionEvent $submission,
+        string $disposition,
+        bool $reopenMovements = false,
+    ): void {
+        DB::transaction(function () use ($submission, $disposition, $reopenMovements): void {
+            $locked = TransactionEvent::query()->lockForUpdate()->find($submission->id);
+
+            if (! $locked || data_get($locked->payment_request, 'attempts', []) !== []) {
+                return;
+            }
+
+            $request = $locked->payment_request ?? [];
+            $request['local_disposition'] = $disposition;
+            $request['superseded_at'] = now()->toIso8601String();
+            unset($request['transport_claimed_at']);
+            $locked->payment_request = $request;
+            $locked->payment_status = FranceReportingStatus::Rejected->value;
+            $locked->save();
+
+            TransactionEvent::query()
+                ->where('company_id', $locked->company_id)
+                ->whereIn('id', array_map('intval', $request['snapshot_event_ids'] ?? []))
+                ->update(['payment_status' => FranceReportingStatus::Rejected->value]);
+            TransactionEvent::query()
+                ->where('company_id', $locked->company_id)
+                ->whereIn('id', array_map(
+                    'intval',
+                    $request['movement_event_ids'] ?? [$request['movement_event_id'] ?? 0],
+                ))
+                ->update([
+                    'payment_status' => $reopenMovements
+                        ? null
+                        : FranceReportingStatus::Accepted->value,
+                ]);
+        }, attempts: 3);
+    }
+
+    private function resolveNonPositiveMovement(TransactionEvent $movement): void
+    {
+        DB::transaction(function () use ($movement): void {
+            Company::query()->whereKey($movement->company_id)->lockForUpdate()->firstOrFail();
+            $lockedMovement = TransactionEvent::query()->lockForUpdate()->findOrFail($movement->id);
+            $request = $lockedMovement->payment_request ?? [];
+            $hasAcceptedNotification = TransactionEvent::query()
+                ->where('company_id', $lockedMovement->company_id)
+                ->where('invoice_id', $lockedMovement->invoice_id)
+                ->where('event_id', FranceReportingEventType::PaymentNotificationSnapshot->value)
+                ->where('payment_status', FranceReportingStatus::Accepted->value)
+                ->exists();
+
+            if ($hasAcceptedNotification) {
+                $request['local_disposition'] = 'accepted_notification_reversal_mapping_unconfirmed';
+                $request['projection_gate'] = 'accepted_notification_reversal_mapping_unconfirmed';
+                $request['projection_schema_version'] = FranceReportMaterializer::PROJECTION_SCHEMA_VERSION;
+                $lockedMovement->payment_request = $request;
+                $lockedMovement->payment_status = FranceReportingStatus::Accepted->value;
+                $lockedMovement->save();
+
+                return;
+            }
+
+            $candidateIds = TransactionEvent::query()
+                ->where('company_id', $lockedMovement->company_id)
+                ->where('invoice_id', $lockedMovement->invoice_id)
+                ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
+                ->whereIn('payment_status', FranceReportingStatus::openValues())
+                ->orderBy('id')
+                ->pluck('id');
+
+            foreach ($candidateIds as $candidateId) {
+                $submission = TransactionEvent::query()->lockForUpdate()->find($candidateId);
+
+                if (! $submission
+                    || ! in_array((int) $submission->payment_status, FranceReportingStatus::openValues(), true)) {
+                    continue;
+                }
+
+                $submissionRequest = $submission->payment_request ?? [];
+                $hasTransportCommitment = (int) $submission->payment_status !== FranceReportingStatus::Pending->value
+                    || data_get($submissionRequest, 'attempts', []) !== []
+                    || ! is_null(data_get($submissionRequest, 'transport_claimed_at'));
+
+                if (! $hasTransportCommitment) {
+                    $submissionRequest['local_disposition'] = 'payment_failed_before_transport';
+                    $submissionRequest['superseded_at'] = now()->toIso8601String();
+                    $submission->payment_request = $submissionRequest;
+                    $submission->payment_status = FranceReportingStatus::Rejected->value;
+                    $submission->save();
+                    TransactionEvent::query()
+                        ->where('company_id', $submission->company_id)
+                        ->whereIn('id', array_map('intval', $submissionRequest['snapshot_event_ids'] ?? []))
+                        ->update(['payment_status' => FranceReportingStatus::Rejected->value]);
+                    TransactionEvent::query()
+                        ->where('company_id', $submission->company_id)
+                        ->whereIn('id', array_map(
+                            'intval',
+                            $submissionRequest['movement_event_ids']
+                                ?? [$submissionRequest['movement_event_id'] ?? 0],
+                        ))
+                        ->update(['payment_status' => FranceReportingStatus::Accepted->value]);
+
+                    continue;
+                }
+
+                $movementIds = array_values(array_unique([
+                    ...array_map(
+                        'intval',
+                        $submissionRequest['movement_event_ids']
+                            ?? [$submissionRequest['movement_event_id'] ?? 0],
+                    ),
+                    (int) $lockedMovement->id,
+                ]));
+                $submissionRequest['movement_event_ids'] = $movementIds;
+                $submission->payment_request = $submissionRequest;
+                $submission->save();
+                $request['route_transition'] = 'notification_reversal_pending_old_outcome';
+                $request['projection_gate'] = 'notification_reversal_pending_old_outcome';
+                $request['projection_schema_version'] = FranceReportMaterializer::PROJECTION_SCHEMA_VERSION;
+                $request['old_submission_event_id'] = $submission->id;
+                $lockedMovement->payment_request = $request;
+                $lockedMovement->payment_status = FranceReportingStatus::Pending->value;
+                $lockedMovement->save();
+
+                return;
+            }
+
+            $request['local_disposition'] = 'notification_not_required_for_non_positive_movement';
+            $lockedMovement->payment_request = $request;
+            $lockedMovement->payment_status = FranceReportingStatus::Accepted->value;
+            $lockedMovement->save();
+        }, attempts: 3);
+    }
+
+    private function rejectMovement(TransactionEvent $movement): void
+    {
+        $movement->payment_status = FranceReportingStatus::Rejected->value;
+        $movement->save();
+    }
+
+    private function claimTransport(TransactionEvent $submission): bool
+    {
+        return DB::transaction(function () use ($submission): bool {
+            $locked = TransactionEvent::query()->lockForUpdate()->find($submission->id);
+
+            if (! $locked || ! in_array((int) $locked->payment_status, FranceReportingStatus::openValues(), true)) {
+                return false;
+            }
+
+            $request = $locked->payment_request ?? [];
+            $claimedAt = data_get($request, 'transport_claimed_at');
+
+            if (is_string($claimedAt) && CarbonImmutable::parse($claimedAt)->greaterThan(now()->subMinutes(5))) {
+                return false;
+            }
+
+            $request['transport_claimed_at'] = now()->toIso8601String();
+            $locked->payment_request = $request;
+            $locked->save();
+
+            return true;
+        }, attempts: 3);
     }
 }

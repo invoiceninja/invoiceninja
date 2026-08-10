@@ -19,10 +19,7 @@ these payloads or an authorized real-data production canary produces it. That
 XML must then pass the pinned AIFE rules and scenario-value comparison. Never
 send synthetic or test data through the live PDP/PPF path.
 
-Production sending is fail-closed. A variant may be broadly enabled only after
-that evidence is complete by adding its value to the comma-separated
-`FRANCE_REPORTING_STORECOVE_QUALIFIED_VARIANTS` setting. If vendor-produced XML
-is unavailable and a real-data canary is required, operations must first ensure
+Production activation still requires that evidence. If vendor-produced XML is
+unavailable and a real-data canary is required, operations must first ensure
 that France reporting is enabled only for the specifically authorized canary
-company. Supported values are `transaction_in`, `payment_in`, and `payment_re`;
-the default is empty.
+company.

@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
+
 namespace Tests\Unit\FranceEReporting;
 
 use App\DataMapper\FranceEReporting\B2BIPaymentData;
@@ -138,7 +148,7 @@ class FranceEReportValidationTest extends TestCase
         $this->assertSame(0, $zero['transactionsCount']);
     }
 
-    public function testItRejectsTransactionReAndInvalidIdempotencyGuidAtTheProviderBoundary(): void
+    public function testItBuildsTransactionReButRejectsAnInvalidIdempotencyGuidAtTheProviderBoundary(): void
     {
         $context = new FranceEReportContext(
             1,
@@ -157,31 +167,13 @@ class FranceEReportValidationTest extends TestCase
             transactionReport: $this->transactionSection(),
         );
 
-        try {
-            (new FranceEReportPayloadBuilder())->build($this->company(), $context, $transactionRe, self::GUID);
-            $this->fail('Expected unproved transaction RE mapping to be rejected.');
-        } catch (InvalidArgumentException $exception) {
-            $this->assertStringContainsString('Transaction RE', $exception->getMessage());
-        }
+        $payload = (new FranceEReportPayloadBuilder())->build($this->company(), $context, $transactionRe, self::GUID);
+        $this->assertSame('RE', data_get($payload, 'document.frEReport.typeCode'));
+        $this->assertArrayHasKey('transactionReport', data_get($payload, 'document.frEReport'));
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('idempotencyGuid');
         (new FranceEReportPayloadBuilder())->build($this->company(), $context, $this->transactionReport(), 'not-a-guid');
-    }
-
-    public function testStorecoveVariantsRemainDisabledUntilExplicitlyQualified(): void
-    {
-        config(['ninja.france_reporting_storecove_qualified_variants' => []]);
-
-        foreach (FranceEReportVariant::cases() as $variant) {
-            $this->assertFalse($variant->isStorecoveQualified());
-        }
-
-        config(['ninja.france_reporting_storecove_qualified_variants' => [FranceEReportVariant::PaymentInitial->value]]);
-
-        $this->assertTrue(FranceEReportVariant::PaymentInitial->isStorecoveQualified());
-        $this->assertFalse(FranceEReportVariant::TransactionInitial->isStorecoveQualified());
-        $this->assertFalse(FranceEReportVariant::PaymentRectificative->isStorecoveQualified());
     }
 
     private function transactionReport(string $documentId = 'FR-F10-REPORT-ID-LONGER-THAN-20'): FRReportData

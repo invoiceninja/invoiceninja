@@ -55,31 +55,6 @@ final class FranceEReportStorecoveProjection
         ];
     }
 
-    /**
-     * Project and enforce the qualification gate immediately before Storecove transport.
-     *
-     * @param array<string, mixed> $payload
-     * @return array{legalEntityId: int, idempotencyGuid: string, document: array<string, mixed>}
-     */
-    public static function qualified(array $payload): array
-    {
-        $projected = self::from($payload);
-        $report = $projected['document']['frEReport'];
-        $variant = isset($report['transactionReport'])
-            ? FranceEReportVariant::TransactionInitial
-            : match ($report['typeCode']) {
-                FRReportData::TYPE_INITIAL => FranceEReportVariant::PaymentInitial,
-                FRReportData::TYPE_RECTIFICATIVE => FranceEReportVariant::PaymentRectificative,
-                default => throw new InvalidArgumentException('Unsupported Storecove France e-report typeCode.'),
-            };
-
-        if (! $variant->isStorecoveQualified()) {
-            throw new InvalidArgumentException("Storecove France e-report variant {$variant->value} is not qualified.");
-        }
-
-        return $projected;
-    }
-
     /** @param array<string, mixed> $document */
     private static function validateDocument(array $document): void
     {
@@ -102,10 +77,6 @@ final class FranceEReportStorecoveProjection
         }
 
         $typedReport = FRReportData::fromArray($report);
-
-        if ($typedReport->transactionReport && $typedReport->typeCode !== FRReportData::TYPE_INITIAL) {
-            throw new InvalidArgumentException('Transaction RE is not enabled for the Storecove France mapper.');
-        }
 
         self::validateReportTiming($typedReport);
         self::validateTransitionalInvoiceIds($typedReport);

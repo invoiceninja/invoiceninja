@@ -8,9 +8,7 @@ use App\DataMapper\FranceEReporting\B2CTransactionData;
 use App\DataMapper\FranceEReporting\TaxSubtotalData;
 use App\DataMapper\FranceEReporting\TransactionReportData;
 use App\Models\Company;
-use App\Models\TransactionEvent;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
-use App\Services\EDocument\Standards\France\FranceEReportCompiler;
 use App\Services\EDocument\Standards\France\FranceEReportContext;
 use App\Services\EDocument\Standards\France\FranceEReportStorecoveProjection;
 use App\Services\EDocument\Standards\France\FranceEReportVariant;
@@ -244,22 +242,14 @@ class FranceEReportAdversarialValidationTest extends TestCase
         $this->assertSame('reverse_charge', $reverseCharge->toB2BITransactionArray()['taxCategory']);
     }
 
-    public function testCorrectiveTransactionSourcesCannotBeRelabelledAsInitial(): void
+    public function test_transaction_and_payment_corrections_are_explicit_variants(): void
     {
-        $transaction = new TransactionEvent();
-        $transaction->event_id = TransactionEvent::FR_B2C_TRANSACTION;
-        $payment = new TransactionEvent();
-        $payment->event_id = TransactionEvent::FR_B2C_PAYMENT;
-        $compiler = new FranceEReportCompiler();
-
-        $this->assertSame(
-            FranceEReportVariant::PaymentRectificative,
-            $compiler->variantFromEvents(TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE, [$payment]),
-        );
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Transaction RE is not enabled');
-        $compiler->variantFromEvents(TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE, [$transaction]);
+        $this->assertTrue(FranceEReportVariant::TransactionRectificative->isTransaction());
+        $this->assertTrue(FranceEReportVariant::TransactionRectificative->isRectificative());
+        $this->assertFalse(FranceEReportVariant::PaymentRectificative->isTransaction());
+        $this->assertTrue(FranceEReportVariant::PaymentRectificative->isRectificative());
+        $this->assertSame('RE', FranceEReportVariant::TransactionRectificative->typeCode());
+        $this->assertSame('RE', FranceEReportVariant::PaymentRectificative->typeCode());
     }
 
     /** @return array<string, mixed> */

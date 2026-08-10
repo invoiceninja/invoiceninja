@@ -33,6 +33,27 @@ use App\Utils\Helpers;
  */
 class JsonDesignService
 {
+    /** Stable public selectors shared with the visual invoice designer. */
+    private const WIDGET_CLASS_BY_TYPE = [
+        'text' => 'invoice-widget--text',
+        'image' => 'invoice-widget--image',
+        'logo' => 'invoice-widget--logo',
+        'table' => 'invoice-widget--table',
+        'tasks-table' => 'invoice-widget--tasks-table',
+        'divider' => 'invoice-widget--divider',
+        'spacer' => 'invoice-widget--spacer',
+        'total' => 'invoice-widget--total',
+        'qrcode' => 'invoice-widget--qrcode',
+        'signature' => 'invoice-widget--signature',
+        'client-info' => 'invoice-widget--client-info',
+        'client-shipping-info' => 'invoice-widget--client-shipping-info',
+        'company-info' => 'invoice-widget--company-info',
+        'invoice-details' => 'invoice-widget--invoice-details',
+        'public-notes' => 'invoice-widget--public-notes',
+        'footer' => 'invoice-widget--footer',
+        'terms' => 'invoice-widget--terms',
+    ];
+
     private JsonToSectionsAdapter $adapter;
 
     /**
@@ -181,6 +202,7 @@ class JsonDesignService
 
         // Build page CSS from settings
         $pageCSS = $this->buildPageCSS($pageSettings, $this->pdfService->config->settings);
+        $customStyleElement = $this->customCssStyleElement();
 
         // Get blocks grouped by row for layout
         $rows = $this->adapter->getRowGroupedBlocks();
@@ -210,7 +232,9 @@ class JsonDesignService
                 $alignStyle = $this->rowAlignStyle($block);
                 $overlay = ($block['id'] === $stampTargetId) ? $stampHtml : '';
                 $relative = $overlay !== '' ? 'position: relative; ' : '';
-                $blockContainers .= "<div id=\"{$block['id']}\" class=\"json-block\" style=\"{$relative}{$alignStyle}\">{$overlay}</div>\n";
+                $widgetClasses = $this->widgetClasses($block);
+                $widgetType = $this->widgetType($block);
+                $blockContainers .= "<div id=\"{$block['id']}\" class=\"json-block {$widgetClasses}\" data-widget-type=\"{$widgetType}\" style=\"{$relative}{$alignStyle}\">{$overlay}</div>\n";
             } else {
                 // Multiple blocks on same row - wrap in flex container.
                 // rowAlign maps to margin-auto on the flex-col, which in a
@@ -222,8 +246,10 @@ class JsonDesignService
                     $alignStyle = $this->rowAlignStyle($block);
                     $overlay = ($block['id'] === $stampTargetId) ? $stampHtml : '';
                     $relative = $overlay !== '' ? 'position: relative;' : '';
+                    $widgetClasses = $this->widgetClasses($block);
+                    $widgetType = $this->widgetType($block);
                     $blockContainers .= "  <div class=\"flex-col\" style=\"width: {$widthPercent}%; {$alignStyle}\">\n";
-                    $blockContainers .= "    <div id=\"{$block['id']}\" style=\"{$relative}\">{$overlay}</div>\n";
+                    $blockContainers .= "    <div id=\"{$block['id']}\" class=\"{$widgetClasses}\" data-widget-type=\"{$widgetType}\" style=\"{$relative}\">{$overlay}</div>\n";
                     $blockContainers .= "  </div>\n";
                 }
                 $blockContainers .= "</div>\n";
@@ -240,6 +266,7 @@ class JsonDesignService
                 <style>
                     {$pageCSS}
                 </style>
+                {$customStyleElement}
             </head>
             <body>
                 <div class="invoice-container">
@@ -248,6 +275,80 @@ class JsonDesignService
             </body>
             </html>
             HTML;
+    }
+
+    /**
+     * Built-in classes are derived from the block type, keeping the selector
+     * contract deterministic; safe user classes are appended when configured.
+     */
+    private function widgetClasses(array $block): string
+    {
+        $typeClass = self::WIDGET_CLASS_BY_TYPE[$this->widgetType($block)] ?? 'invoice-widget--unknown';
+        $properties = is_array($block['properties'] ?? null) ? $block['properties'] : [];
+        $classes = ['invoice-widget', $typeClass];
+
+        foreach ($this->customWidgetClasses($properties['cssClasses'] ?? null) as $className) {
+            $classes[] = $className;
+        }
+
+        return implode(' ', array_values(array_unique($classes)));
+    }
+
+    /**
+     * Accept ordinary CSS identifiers only, matching the frontend renderer.
+     *
+     * @return list<string>
+     */
+    private function customWidgetClasses(mixed $value): array
+    {
+        if (!is_string($value)) {
+            return [];
+        }
+
+        $tokens = preg_split('/\s+/', trim($value)) ?: [];
+        $classes = [];
+
+        foreach ($tokens as $className) {
+            if (strlen($className) > 128 || !preg_match('/^-?[_a-zA-Z][-_a-zA-Z0-9]*$/D', $className)) {
+                continue;
+            }
+
+            $classes[$className] = true;
+            if (count($classes) >= 20) {
+                break;
+            }
+        }
+
+        return array_keys($classes);
+    }
+
+    /** Never interpolate an unrecognised block type into an HTML attribute. */
+    private function widgetType(array $block): string
+    {
+        $type = $block['type'] ?? '';
+
+        return is_string($type) && isset(self::WIDGET_CLASS_BY_TYPE[$type]) ? $type : 'unknown';
+    }
+
+    /** Append design.customCss as its own style element inside the document head. */
+    private function customCssStyleElement(): string
+    {
+        $customCss = $this->jsonDesign['customCss'] ?? '';
+
+        if (!is_string($customCss) || trim($customCss) === '') {
+            return '';
+        }
+
+        $trimmed = trim($customCss);
+        if (preg_match('/\A<style\b[^>]*>(.*)<\/style\s*>\z/is', $trimmed, $matches) === 1) {
+            $customCss = trim($matches[1]);
+        }
+
+        // Normalize the API fragment rather than trusting style attributes or
+        // allowing an embedded closing tag to create arbitrary head markup.
+        $customCss = str_ireplace('</style', '<\\/style', $customCss);
+
+        return "<style data-invoice-custom-css>\n{$customCss}\n</style>";
     }
 
     /**

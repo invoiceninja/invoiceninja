@@ -13,7 +13,6 @@
     "artifactUpdateCommand": "UPDATE_STORECOVE_ARTIFACTS=1 php vendor/bin/phpunit tests/Unit/FranceEReporting/FranceEReportArtifactAssessmentTest.php",
     "qualificationEnvironment": "No Storecove sandbox is available for this integration.",
     "releaseRule": "UNPROVED until Storecove supplies exact generated F10 XML for these payloads or an authorized real-data production canary produces it, followed by pinned AIFE and scenario-value validation.",
-    "runtimeQualificationGate": "FRANCE_REPORTING_STORECOVE_QUALIFIED_VARIANTS (empty by default)",
     "artifacts": [
         {
             "file": "le_a_transaction_b2bi_in.request.json",

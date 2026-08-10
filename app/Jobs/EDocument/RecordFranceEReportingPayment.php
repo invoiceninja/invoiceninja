@@ -12,53 +12,36 @@
 
 namespace App\Jobs\EDocument;
 
-use App\DataMapper\FranceEReporting\FRReportEntryData;
-use App\DataMapper\ReportData;
 use App\Libraries\MultiDB;
+use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Paymentable;
 use App\Models\TransactionEvent;
-use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
-use App\Services\EDocument\Standards\France\FrancePaymentApplicationDateReconciler;
+use App\Services\EDocument\Standards\France\FranceReportMaterializer;
 use App\Services\EDocument\Standards\France\FrancePaymentApplicationDateResolver;
-use App\Services\EDocument\Standards\France\FranceReportEntryBuilder;
-use App\Services\EDocument\Standards\France\FrancePaymentReceivedNotificationEligibility;
-use App\Services\EDocument\Standards\France\FranceSubmissionClaim;
+use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
+use App\Services\EDocument\Standards\France\FranceReportingEventType;
 use App\Services\EDocument\Standards\France\ReportingCalendar;
 use App\Services\EDocument\Standards\France\ReportingProfile;
 use App\Utils\BcMath;
 use Carbon\CarbonImmutable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-use InvalidArgumentException;
 
+/**
+ * Append one immutable payment fact. Projection and filing happen later.
+ */
 class RecordFranceEReportingPayment implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
-
-    public const KIND_MOVEMENT = 'payment_movement';
-
-    public const KIND_REPORT = 'payment_report';
-    public const KIND_PAYMENT_RECEIVED_NOTIFICATION = 'payment_received_notification';
-
-    public const REPORT_KIND_INITIAL = 'initial';
-
-    public const REPORT_KIND_CORRECTIVE = 'corrective';
-
-    private const REPORTING_PATH_F10 = 'f10';
-
-    private const REPORTING_PATH_PAYMENT_RECEIVED_NOTIFICATION = 'payment_received_notification';
 
     public $deleteWhenMissingModels = true;
 
@@ -70,12 +53,15 @@ class RecordFranceEReportingPayment implements ShouldQueue
     public function __construct(
         private int $paymentId,
         private string $db,
-        private ?int $invoiceId = null,
-        private ?int $paymentableId = null,
-        private ?string $movementAmount = null,
-        private ?string $movementDate = null,
+        private int $invoiceId,
+        private ?int $paymentableId,
+        private string $movementAmount,
+        private string $movementDate,
         private string $movementType = FrancePaymentApplicationRecorder::MOVEMENT_APPLIED,
-        private ?string $movement_identity = null,
+        private ?string $movementIdentity = null,
+        private ?string $reportingPath = null,
+        private ?string $originalDocumentGuid = null,
+        private ?string $sourceRevision = null,
     ) {}
 
     public function handle(): void
@@ -84,138 +70,11 @@ class RecordFranceEReportingPayment implements ShouldQueue
 
         /** @var Payment|null $payment */
         $payment = Payment::withTrashed()
-            ->with([
-                'client.country',
-                'client.company',
-                'company',
-                'currency',
-            ])
+            ->with(['client.country', 'client.company', 'company', 'currency'])
             ->find($this->paymentId);
 
-        if (! $payment || ! $payment->company || ! $this->paymentStatusIsRecordable($payment)) {
+        if (! $payment || ! $payment->company || ! $payment->client) {
             return;
-        }
-
-        $reportingPath = $this->resolveReportingPath($payment);
-
-        if (is_null($reportingPath)) {
-            return;
-        }
-
-        $f10EventId = $reportingPath === self::REPORTING_PATH_F10
-            ? $this->resolveF10EventId($payment)
-            : null;
-
-        foreach ($this->invoices($payment) as $candidate) {
-            try {
-                DB::transaction(function () use ($payment, $candidate, $reportingPath, $f10EventId): void {
-                    $invoice = Invoice::withTrashed()
-                        ->with(['client.country', 'client.company', 'company'])
-                        ->lockForUpdate()
-                        ->find($candidate->id);
-
-                    if (! $invoice || ! $this->invoiceAllowsMovement($invoice)) {
-                        return;
-                    }
-
-                    if (app(FranceSubmissionClaim::class)->hasActiveClaimForInvoice($invoice->id, lockForUpdate: true)) {
-                        throw new \RuntimeException('France payment reporting is currently being submitted.');
-                    }
-
-                    $paymentable = $this->paymentable($payment, $invoice);
-                    $movementDate = $this->resolveMovementDate($payment, $paymentable);
-
-                    if (! $movementDate) {
-                        return;
-                    }
-
-                    if ($reportingPath === self::REPORTING_PATH_PAYMENT_RECEIVED_NOTIFICATION) {
-                        if ($this->movementType === FrancePaymentApplicationRecorder::MOVEMENT_APPLIED) {
-                            $this->recordPaymentReceivedNotification($invoice, $paymentable);
-                        } else {
-                            app(FrancePaymentApplicationDateReconciler::class)->reconcilePaymentRemoval(
-                                $payment,
-                                $invoice,
-                                $paymentable->id ?? $this->paymentableId,
-                                $movementDate,
-                            );
-                        }
-
-                        return;
-                    }
-
-                    if (! is_null($f10EventId)) {
-                        $this->recordF10PaymentMovement($payment, $invoice, $paymentable, $movementDate, $f10EventId);
-                    }
-                }, attempts: 3);
-            } catch (InvalidArgumentException $exception) {
-                if ($reportingPath !== self::REPORTING_PATH_F10 || is_null($f10EventId)) {
-                    throw $exception;
-                }
-
-                report($exception);
-                $this->recordF10MappingFailure($payment, $candidate, $f10EventId, $exception);
-            }
-        }
-    }
-
-    /**
-     * @return array<int, object>
-     */
-    public function middleware(): array
-    {
-        return [
-            (new WithoutOverlapping($this->paymentId.($this->invoiceId ?? 'all').($this->paymentableId ?? 'all').$this->db.'.fr-e-reporting-payment'))
-                ->releaseAfter(60)
-                ->expireAfter(60),
-        ];
-    }
-
-    /**
-     * @return EloquentCollection<int, Invoice>
-     */
-    private function invoices(Payment $payment): EloquentCollection
-    {
-        if (! is_null($this->invoiceId)) {
-            /** @var EloquentCollection<int, Invoice> $invoices */
-            $invoices = Invoice::withTrashed()
-                ->with(['client.country', 'client.company', 'company'])
-                ->where('id', $this->invoiceId)
-                ->get();
-
-            return $invoices;
-        }
-
-        /** @var EloquentCollection<int, Invoice> $invoices */
-        $invoices = $payment->invoices()
-            ->with(['client.country', 'client.company', 'company'])
-            ->get();
-
-        return $invoices;
-    }
-
-    private function paymentStatusIsRecordable(Payment $payment): bool
-    {
-        return match ($this->movementType) {
-            FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED => in_array($payment->status_id, [
-                Payment::STATUS_COMPLETED,
-                Payment::STATUS_PARTIALLY_REFUNDED,
-                Payment::STATUS_REFUNDED,
-            ], true),
-            FrancePaymentApplicationRecorder::MOVEMENT_DELETED => in_array($payment->status_id, [
-                Payment::STATUS_COMPLETED,
-                Payment::STATUS_PARTIALLY_REFUNDED,
-                Payment::STATUS_REFUNDED,
-                Payment::STATUS_CANCELLED,
-            ], true),
-            default => (int) $payment->status_id === Payment::STATUS_COMPLETED && ! $payment->is_deleted,
-        };
-    }
-
-    private function resolveReportingPath(Payment $payment): ?string
-    {
-        if (! $payment->client) {
-            return null;
         }
 
         if (! $payment->client->relationLoaded('company')) {
@@ -223,66 +82,236 @@ class RecordFranceEReportingPayment implements ShouldQueue
         }
 
         if (! $payment->client->reportableFrTransaction()) {
-            return null;
-        }
-
-        if ($this->paymentRequiresPaymentReceivedNotification($payment)) {
-            return self::REPORTING_PATH_PAYMENT_RECEIVED_NOTIFICATION;
-        }
-
-        return self::REPORTING_PATH_F10;
-    }
-
-    private function paymentRequiresPaymentReceivedNotification(Payment $payment): bool
-    {
-        return ($payment->client->classification ?? 'business') !== 'individual'
-            && $payment->client->country?->iso_3166_2 === 'FR';
-    }
-
-    private function invoiceAllowsMovement(Invoice $invoice): bool
-    {
-        if ($invoice->is_deleted && ! in_array($this->movementType, [
-            FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
-            FrancePaymentApplicationRecorder::MOVEMENT_DELETED,
-        ], true)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private function recordF10PaymentMovement(Payment $payment, Invoice $invoice, ?Paymentable $paymentable, string $movementDate, int $eventId): void
-    {
-        if ($eventId === TransactionEvent::FR_B2C_PAYMENT
-            && app(FranceReportEntryBuilder::class)->b2cSupplyCategory($invoice) !== 'TPS1') {
             return;
         }
 
-        $movementAmount = $this->resolveMovementAmount($payment, $invoice, $paymentable);
+        $invoice = Invoice::withTrashed()
+            ->with(['client.country', 'client.company', 'company'])
+            ->find($this->invoiceId);
 
-        if (BcMath::isZero($movementAmount, 2)) {
+        if ($invoice) {
+            $this->recordFact($payment, $invoice);
+        }
+    }
+
+    private function recordFact(Payment $payment, Invoice $invoice): void
+    {
+        $paymentable = $this->paymentable($payment, $invoice);
+        $movementDate = $this->resolveMovementDate($payment, $paymentable);
+
+        if (! $movementDate) {
             return;
         }
 
-        $sourcePeriod = $this->resolvePeriodEnd($payment, $invoice, $eventId, $movementDate);
-        $movementEvent = $this->recordMovementEvent($payment, $invoice, $paymentable, $eventId, $movementAmount, $movementDate, $sourcePeriod);
-        $invoice_is_paid_in_full = $this->invoiceIsPaidInFull($invoice);
+        $amount = $this->normalizeAmount($this->movementAmount);
 
-        if (BcMath::isNegative($movementAmount, 2)) {
-            if (! is_null(data_get($movementEvent->payment_request, 'report_event_id'))) {
+        if (BcMath::isZero($amount, 2)) {
+            return;
+        }
+
+        $path = $this->reportingPath ?? $this->reportingPath($payment);
+        $subjectKey = "payment:{$payment->id}:invoice:{$invoice->id}";
+        $projectionGate = strtoupper((string) $invoice->client->currency()?->code) === 'EUR'
+            ? null
+            : 'non_eur_payment_mapping_unconfirmed';
+        $operationKey = hash('sha256', json_encode([
+            'payment_id' => $payment->id,
+            'invoice_id' => $invoice->id,
+            'paymentable_id' => $paymentable->id ?? $this->paymentableId,
+            'movement_type' => $this->movementType,
+            'movement_amount' => $amount,
+            'movement_date' => $movementDate,
+            'movement_identity' => $this->movementIdentity,
+        ], JSON_THROW_ON_ERROR));
+
+        DB::transaction(function () use (
+            $payment,
+            $invoice,
+            $paymentable,
+            $operationKey,
+            $amount,
+            $path,
+            $subjectKey,
+            $movementDate,
+            $projectionGate,
+        ): void {
+            Company::query()->whereKey($payment->company_id)->lockForUpdate()->firstOrFail();
+
+            if (is_null($this->sourceRevision)
+                && $paymentable
+                && TransactionEvent::query()
+                    ->where('company_id', $payment->company_id)
+                    ->where('client_id', $invoice->client_id)
+                    ->where('invoice_id', $invoice->id)
+                    ->where('payment_id', $payment->id)
+                    ->where('event_id', FranceReportingEventType::PaymentMovement->value)
+                    ->where(
+                        'payment_request->source_revision',
+                        $this->currentSourceRevision($payment, $paymentable),
+                    )
+                    ->exists()) {
                 return;
             }
 
-            if (! $invoice_is_paid_in_full) {
-                $this->discardPendingInitialReport($payment, $invoice, $eventId);
+            if (TransactionEvent::query()
+                ->where('company_id', $payment->company_id)
+                ->where('client_id', $invoice->client_id)
+                ->where('invoice_id', $invoice->id)
+                ->where('payment_id', $payment->id)
+                ->where('event_id', FranceReportingEventType::PaymentMovement->value)
+                ->where('payment_request->operation_key', $operationKey)
+                ->exists()) {
+                return;
             }
 
-            $this->applyNegativeReportMovement($payment, $invoice, $eventId, $movementAmount, $movementDate, $movementEvent);
+            foreach ($this->targetAllocations(
+                $payment,
+                $invoice,
+                $amount,
+                $movementDate,
+                $subjectKey,
+            ) as $index => $allocation) {
+                $movementKey = hash('sha256', json_encode([
+                    'operation_key' => $operationKey,
+                    'allocation_index' => $index,
+                    'period' => $allocation['period'],
+                    'amount' => $allocation['amount'],
+                ], JSON_THROW_ON_ERROR));
+
+                TransactionEvent::create([
+                    'company_id' => $payment->company_id,
+                    'client_id' => $invoice->client_id,
+                    'invoice_id' => $invoice->id,
+                    'payment_id' => $payment->id,
+                    'credit_id' => 0,
+                    'event_id' => FranceReportingEventType::PaymentMovement->value,
+                    'timestamp' => now()->timestamp,
+                    'period' => $allocation['period'],
+                    'payment_status' => null,
+                    'payment_amount' => $payment->amount ?? 0,
+                    'payment_applied' => (float) $allocation['amount'],
+                    'payment_refunded' => $payment->refunded ?? 0,
+                    'reporting_data' => null,
+                    'payment_request' => [
+                        'schema_version' => 1,
+                        'role' => 'fact',
+                        'fact_type' => 'payment_movement',
+                        'reporting_path' => $path,
+                        'reporting_profile' => ReportingProfile::Monthly->value,
+                        'period_start' => $allocation['period_start'],
+                        'subject_key' => $subjectKey,
+                        'operation_key' => $operationKey,
+                        'movement_key' => $movementKey,
+                        'movement_type' => $this->movementType,
+                        'movement_amount' => $allocation['amount'],
+                        'effective_at' => $movementDate,
+                        'report_date' => $allocation['report_date'],
+                        'paymentable_id' => $paymentable->id ?? $this->paymentableId,
+                        'source_revision' => $this->sourceRevision,
+                        'original_document_guid' => $path === 'payment_received_notification'
+                            ? ($this->originalDocumentGuid ?? trim((string) ($invoice->backup->guid ?? '')))
+                            : null,
+                        'projection_gate' => $projectionGate,
+                        'projection_schema_version' => FranceReportMaterializer::PROJECTION_SCHEMA_VERSION,
+                    ],
+                ]);
+            }
+        }, attempts: 3);
+    }
+
+    /** @return array<int, array{amount: string, period: string, period_start: string, report_date: string}> */
+    private function targetAllocations(
+        Payment $payment,
+        Invoice $invoice,
+        string $amount,
+        string $movementDate,
+        string $subjectKey,
+    ): array {
+        $currentPeriod = ReportingCalendar::currentPeriod(
+            ReportingProfile::Monthly,
+            CarbonImmutable::parse($movementDate),
+        );
+
+        if (! BcMath::isNegative($amount, 2)
+            || $this->movementType === FrancePaymentApplicationRecorder::MOVEMENT_DATE_REVERSED) {
+            return [[
+                'amount' => $amount,
+                'period' => $currentPeriod->end->toDateString(),
+                'period_start' => $currentPeriod->start->toDateString(),
+                'report_date' => $movementDate,
+            ]];
         }
 
-        if ($invoice_is_paid_in_full) {
-            $this->promoteFullPaymentReport($payment, $invoice, $eventId, $movementDate);
+        $periodBalances = [];
+        TransactionEvent::query()
+            ->where('company_id', $payment->company_id)
+            ->where('event_id', FranceReportingEventType::PaymentMovement->value)
+            ->where('invoice_id', $invoice->id)
+            ->where('payment_id', $payment->id)
+            ->where('payment_request->subject_key', $subjectKey)
+            ->whereNotNull('period')
+            ->orderBy('id')
+            ->get()
+            ->each(function (TransactionEvent $event) use (&$periodBalances, $movementDate): void {
+                $period = $event->period->toDateString();
+                $balance = $periodBalances[$period] ?? [
+                    'amount' => '0',
+                    'report_date' => (string) data_get($event->payment_request, 'report_date', $movementDate),
+                ];
+                $balance['amount'] = BcMath::add(
+                    $balance['amount'],
+                    data_get($event->payment_request, 'movement_amount', 0),
+                    2,
+                );
+                $periodBalances[$period] = $balance;
+            });
+
+        krsort($periodBalances);
+        $remaining = BcMath::abs($amount, 2);
+        $allocations = [];
+
+        foreach ($periodBalances as $period => $balance) {
+            if (! BcMath::greaterThan($balance['amount'], '0', 2)) {
+                continue;
+            }
+
+            $allocated = BcMath::lessThan($balance['amount'], $remaining, 2)
+                ? $balance['amount']
+                : $remaining;
+            $allocations[] = [
+                'amount' => BcMath::sub('0', $allocated, 2),
+                'period' => $period,
+                'period_start' => ReportingCalendar::currentPeriod(
+                    ReportingProfile::Monthly,
+                    CarbonImmutable::parse($period),
+                )->start->toDateString(),
+                'report_date' => $balance['report_date'],
+            ];
+            $remaining = BcMath::sub($remaining, $allocated, 2);
+
+            if (BcMath::isZero($remaining, 2)) {
+                break;
+            }
         }
+
+        if (! BcMath::isZero($remaining, 2)) {
+            $fallbackDate = $this->paymentable($payment, $invoice)?->created_at
+                ? $this->resolveMovementDate($payment, $this->paymentable($payment, $invoice))
+                : $movementDate;
+            $fallbackDate ??= $movementDate;
+            $fallbackPeriod = ReportingCalendar::currentPeriod(
+                ReportingProfile::Monthly,
+                CarbonImmutable::parse($fallbackDate),
+            );
+            $allocations[] = [
+                'amount' => BcMath::sub('0', $remaining, 2),
+                'period' => $fallbackPeriod->end->toDateString(),
+                'period_start' => $fallbackPeriod->start->toDateString(),
+                'report_date' => $fallbackDate,
+            ];
+        }
+
+        return $allocations;
     }
 
     private function paymentable(Payment $payment, Invoice $invoice): ?Paymentable
@@ -292,648 +321,61 @@ class RecordFranceEReportingPayment implements ShouldQueue
             ->where('paymentable_id', $invoice->id)
             ->where('paymentable_type', 'invoices');
 
-        if (! is_null($this->paymentableId)) {
-            $query->where('id', $this->paymentableId);
+        if ($this->paymentableId) {
+            $query->whereKey($this->paymentableId);
         }
 
         return $query->latest('id')->first();
     }
 
-    private function resolveMovementAmount(Payment $payment, Invoice $invoice, ?Paymentable $paymentable): string
-    {
-        if (! is_null($this->movementAmount)) {
-            return $this->normalizeAmount($this->movementAmount);
-        }
-
-        $amount = $paymentable->amount
-            ?? data_get($invoice, 'pivot.amount', $payment->applied ?: $payment->amount ?: 0);
-
-        return $this->normalizeAmount($amount);
-    }
-
     private function resolveMovementDate(Payment $payment, ?Paymentable $paymentable): ?string
     {
-        if (in_array($this->movementType, [
-            FrancePaymentApplicationRecorder::MOVEMENT_APPLIED,
-            FrancePaymentApplicationRecorder::MOVEMENT_CREDIT_APPLIED,
-        ], true)) {
-            if (! $paymentable?->created_at) {
-                return null;
-            }
-
-            $timezone = $payment->company->timezone()?->name ?: config('app.timezone');
-
-            return app(FrancePaymentApplicationDateResolver::class)
-                ->resolve($paymentable, $timezone);
-        }
-
-        if (! is_null($this->movementDate) && trim($this->movementDate) !== '') {
+        if (trim($this->movementDate) !== '') {
             return CarbonImmutable::parse($this->movementDate)->toDateString();
         }
 
-        if ($paymentable?->created_at) {
-            $timezone = $payment->company->timezone()?->name ?: config('app.timezone');
-
-            return app(FrancePaymentApplicationDateResolver::class)
-                ->resolve($paymentable, $timezone);
-        }
-
-        return null;
+        return $paymentable?->created_at
+            ? app(FrancePaymentApplicationDateResolver::class)->resolve(
+                $paymentable,
+                $payment->company->timezone()?->name ?: config('app.timezone'),
+            )
+            : null;
     }
 
-    private function invoiceIsPaidInFull(Invoice $invoice): bool
-    {
-        $invoice = $invoice->exists ? ($invoice->fresh() ?? $invoice) : $invoice;
-
-        return (int) $invoice->status_id === Invoice::STATUS_PAID
-            || BcMath::lessThanOrEqual($invoice->balance ?? 0, '0', 2);
-    }
-
-    private function recordPaymentReceivedNotification(Invoice $invoice, ?Paymentable $paymentable): void
-    {
-        if ($this->movementType !== FrancePaymentApplicationRecorder::MOVEMENT_APPLIED) {
-            return;
-        }
-
-        if (! $paymentable) {
-            return;
-        }
-
-        if (! $this->invoiceIsPaidInFull($invoice)) {
-            return;
-        }
-
-        if ($this->originalDocumentGuid($invoice) === "") {
-            return;
-        }
-
-        $this->paymentReceivedNotificationEvent($invoice);
-    }
-
-    private function paymentReceivedNotificationEvent(Invoice $invoice): ?TransactionEvent
-    {
-        $originalDocumentGuid = $this->originalDocumentGuid($invoice);
-        $paymentable = app(FrancePaymentApplicationDateResolver::class)
-            ->latestCompletedInvoiceApplication($invoice->id);
-
-        if (! $paymentable?->payment) {
-            return null;
-        }
-
-        $payment = $paymentable->payment;
-        $timezone = $invoice->company->timezone()?->name ?: config('app.timezone');
-        $movementDate = app(FrancePaymentApplicationDateResolver::class)
-            ->resolve($paymentable, $timezone);
-
-        if (! $movementDate) {
-            return null;
-        }
-        $matchingEvents = TransactionEvent::query()
-            ->where("company_id", $payment->company_id)
-            ->where("invoice_id", $invoice->id)
-            ->where("event_id", TransactionEvent::FR_B2B_PAYMENT_RECEIVED_NOTIFICATION)
-            ->where("payment_request->fr_kind", self::KIND_PAYMENT_RECEIVED_NOTIFICATION)
-            ->where("payment_request->original_document_guid", $originalDocumentGuid)
-            ->orderByDesc("id")
-            ->get();
-
-        $existing = $matchingEvents->first(
-            fn (TransactionEvent $event): bool => $event->payment_status === TransactionEvent::FR_REPORTING_STATUS_SUBMITTED,
-        );
-
-        $existing ??= $matchingEvents->first(
-            fn (TransactionEvent $event): bool => in_array($event->payment_status, [
-                    TransactionEvent::FR_REPORTING_STATUS_PENDING,
-                    TransactionEvent::FR_REPORTING_STATUS_FAILED,
-                ], true)
-                && ! data_get($event->payment_request, 'skip_reason')
-                && app(FrancePaymentReceivedNotificationEligibility::class)->isEligible($event),
-        );
-
-        if ($existing) {
-            return $existing;
-        }
-
-        $amount = $this->resolveMovementAmount($payment, $invoice, $paymentable);
-        return TransactionEvent::create(array_merge(
-            $this->basePayload($payment, $invoice, TransactionEvent::FR_B2B_PAYMENT_RECEIVED_NOTIFICATION, $amount, $movementDate),
-            [
-                "payment_status" => TransactionEvent::FR_REPORTING_STATUS_PENDING,
-                "reporting_data" => null,
-                "payment_request" => [
-                    "fr_kind" => self::KIND_PAYMENT_RECEIVED_NOTIFICATION,
-                    "source_date" => $movementDate,
-                    "paymentable_id" => $paymentable->id,
-                    "movement_type" => $this->movementType,
-                    "original_document_guid" => $originalDocumentGuid,
-                    "idempotency_guid" => Str::uuid()->toString(),
-                    "mode" => "auto",
-                ],
-            ]
-        ));
-    }
-
-    private function originalDocumentGuid(Invoice $invoice): string
-    {
-        return trim((string) ($invoice->backup->guid ?? ""));
-    }
-
-    private function resolveF10EventId(Payment $payment): int
+    private function reportingPath(Payment $payment): string
     {
         if (($payment->client->classification ?? 'business') === 'individual') {
-            return TransactionEvent::FR_B2C_PAYMENT;
+            return 'f10';
         }
 
-        return TransactionEvent::FR_VAT_EXCLUDED_PAYMENT;
+        return $payment->client->country?->iso_3166_2 === 'FR'
+            ? 'payment_received_notification'
+            : 'f10';
     }
 
-    private function resolvePeriodEnd(Payment $payment, Invoice $invoice, int $eventId, string $date): string
+    private function normalizeAmount(int|float|string $amount): string
     {
-        return ReportingCalendar::currentPeriod(
-            ReportingProfile::Monthly,
-            CarbonImmutable::parse($date ?: $payment->date ?: $invoice->date ?: now()->toDateString()),
-        )->end->toDateString();
+        return BcMath::round($amount, 2);
     }
 
-    private function recordMovementEvent(
-        Payment $payment,
-        Invoice $invoice,
-        ?Paymentable $paymentable,
-        int $eventId,
-        string $movementAmount,
-        string $movementDate,
-        string $sourcePeriod,
-    ): TransactionEvent {
-        $paymentableId = $paymentable->id ?? $this->paymentableId;
-        $snapshotHash = $this->movementSnapshotHash($payment, $invoice, $paymentableId, $eventId, $movementAmount, $movementDate);
-
-        if ($paymentableId && in_array($this->movementType, [
-            FrancePaymentApplicationRecorder::MOVEMENT_APPLIED,
-            FrancePaymentApplicationRecorder::MOVEMENT_CREDIT_APPLIED,
-        ], true)) {
-            $stable = TransactionEvent::query()
-                ->where('company_id', $payment->company_id)
-                ->where('payment_id', $payment->id)
-                ->where('invoice_id', $invoice->id)
-                ->where('event_id', $eventId)
-                ->orderByDesc('id')
-                ->get()
-                ->first(fn (TransactionEvent $event): bool => data_get($event->payment_request, 'fr_kind') === self::KIND_MOVEMENT
-                    && (int) data_get($event->payment_request, 'paymentable_id') === (int) $paymentableId
-                    && data_get($event->payment_request, 'movement_type') === $this->movementType);
-
-            if ($stable) {
-                return $stable;
-            }
-        }
-
-        $existing = TransactionEvent::query()
-            ->where('company_id', $payment->company_id)
-            ->where('payment_id', $payment->id)
-            ->where('invoice_id', $invoice->id)
-            ->where('event_id', $eventId)
-            ->where('payment_status', TransactionEvent::FR_REPORTING_STATUS_DEFERRED)
-            ->get()
-            ->first(fn (TransactionEvent $event): bool => data_get($event->payment_request, 'snapshot_hash') === $snapshotHash);
-
-        if ($existing) {
-            return $existing;
-        }
-
-        return TransactionEvent::create(array_merge(
-            $this->basePayload($payment, $invoice, $eventId, $movementAmount, $sourcePeriod),
-            [
-                'payment_status' => TransactionEvent::FR_REPORTING_STATUS_DEFERRED,
-                'reporting_data' => null,
-                'payment_request' => [
-                    'fr_kind' => self::KIND_MOVEMENT,
-                    'source_date' => $movementDate,
-                    'paymentable_id' => $paymentableId,
-                    'movement_type' => $this->movementType,
-                    'movement_amount' => $movementAmount,
-                    'snapshot_hash' => $snapshotHash,
-                    'report_event_id' => null,
-                ],
-            ]
-        ));
-    }
-
-    private function promoteFullPaymentReport(Payment $payment, Invoice $invoice, int $eventId, string $fallbackDate): void
+    private function currentSourceRevision(Payment $payment, Paymentable $paymentable): string
     {
-        $movements = $this->unreportedMovementEvents($payment, $invoice, $eventId);
+        $sourceAmount = $paymentable->trashed()
+            || $payment->is_deleted
+            || in_array((int) $payment->status_id, [
+                Payment::STATUS_CANCELLED,
+                Payment::STATUS_FAILED,
+            ], true)
+                ? '0'
+                : BcMath::sub($paymentable->amount, $paymentable->refunded ?? 0, 2);
 
-        if ($movements->isEmpty()) {
-            return;
-        }
-
-        $aggregateAmount = $this->normalizeAmount($this->sumMovementAmounts($movements));
-
-        if (BcMath::isZero($aggregateAmount, 2)) {
-            return;
-        }
-
-        $reportDate = $this->latestMovementDate($movements, $fallbackDate);
-        $submittedReport = $this->latestSubmittedReportEvent($payment, $invoice, $eventId);
-
-        if ($submittedReport) {
-            $this->createOrUpdateReportEvent(
-                payment: $payment,
-                invoice: $invoice,
-                eventId: $eventId,
-                amount: $aggregateAmount,
-                reportDate: $reportDate,
-                sourceEvents: $movements,
-                reportKind: self::REPORT_KIND_CORRECTIVE,
-                previousEventId: $submittedReport->id,
-            );
-
-            return;
-        }
-
-        $this->createOrUpdateReportEvent(
-            payment: $payment,
-            invoice: $invoice,
-            eventId: $eventId,
-            amount: $aggregateAmount,
-            reportDate: $reportDate,
-            sourceEvents: $movements,
-            reportKind: self::REPORT_KIND_INITIAL,
-        );
-    }
-
-    private function applyNegativeReportMovement(
-        Payment $payment,
-        Invoice $invoice,
-        int $eventId,
-        string $movementAmount,
-        string $movementDate,
-        TransactionEvent $movementEvent,
-    ): void {
-        $pendingReport = $this->pendingReportEvent($payment, $invoice, $eventId);
-
-        if ($pendingReport) {
-            $this->updatePendingReportEvent($pendingReport, $payment, $invoice, collect([$movementEvent]), $movementAmount, $movementDate);
-
-            return;
-        }
-
-        $submittedReport = $this->latestSubmittedReportEvent($payment, $invoice, $eventId);
-
-        if (! $submittedReport) {
-            return;
-        }
-
-        $this->createOrUpdateReportEvent(
-            payment: $payment,
-            invoice: $invoice,
-            eventId: $eventId,
-            amount: $movementAmount,
-            reportDate: $movementDate,
-            sourceEvents: collect([$movementEvent]),
-            reportKind: self::REPORT_KIND_CORRECTIVE,
-            previousEventId: $submittedReport->id,
-        );
-    }
-
-    private function discardPendingInitialReport(Payment $payment, Invoice $invoice, int $eventId): void
-    {
-        $pending_report = $this->pendingReportEvent(
-            $payment,
-            $invoice,
-            $eventId,
-            self::REPORT_KIND_INITIAL,
-        );
-
-        if (! $pending_report) {
-            return;
-        }
-
-        $this->unlinkMovementEvents(
-            data_get($pending_report->payment_request, 'source_event_ids', []),
-        );
-        $pending_report->delete();
-    }
-
-    /**
-     * @return EloquentCollection<int, TransactionEvent>
-     */
-    private function unreportedMovementEvents(Payment $payment, Invoice $invoice, int $eventId): EloquentCollection
-    {
-        /** @var EloquentCollection<int, TransactionEvent> $events */
-        $events = TransactionEvent::query()
-            ->where('company_id', $payment->company_id)
-            ->where('invoice_id', $invoice->id)
-            ->where('event_id', $eventId)
-            ->where('payment_status', TransactionEvent::FR_REPORTING_STATUS_DEFERRED)
-            ->orderBy('id')
-            ->get()
-            ->filter(fn (TransactionEvent $event): bool => data_get($event->payment_request, 'fr_kind') === self::KIND_MOVEMENT
-                && is_null(data_get($event->payment_request, 'report_event_id')))
-            ->values();
-
-        return $events;
-    }
-
-    private function pendingReportEvent(Payment $payment, Invoice $invoice, int $eventId, ?string $reportKind = null, ?int $previousEventId = null): ?TransactionEvent
-    {
-        return TransactionEvent::query()
-            ->where('company_id', $payment->company_id)
-            ->where('invoice_id', $invoice->id)
-            ->where('event_id', $eventId)
-            ->whereIn('payment_status', [TransactionEvent::FR_REPORTING_STATUS_PENDING, TransactionEvent::FR_REPORTING_STATUS_FAILED])
-            ->orderByDesc('id')
-            ->get()
-            ->first(function (TransactionEvent $event) use ($reportKind, $previousEventId): bool {
-                if (data_get($event->payment_request, 'fr_kind') !== self::KIND_REPORT) {
-                    return false;
-                }
-
-                if (data_get($event->payment_request, 'skip_reason')) {
-                    return false;
-                }
-
-                if (! is_null($reportKind) && data_get($event->payment_request, 'fr_report_kind') !== $reportKind) {
-                    return false;
-                }
-
-                if (! is_null($previousEventId) && (int) data_get($event->payment_request, 'previous_event_id') !== $previousEventId) {
-                    return false;
-                }
-
-                return true;
-            });
-    }
-
-    private function latestSubmittedReportEvent(Payment $payment, Invoice $invoice, int $eventId): ?TransactionEvent
-    {
-        return TransactionEvent::query()
-            ->where('company_id', $payment->company_id)
-            ->where('invoice_id', $invoice->id)
-            ->where('event_id', $eventId)
-            ->where('payment_status', TransactionEvent::FR_REPORTING_STATUS_SUBMITTED)
-            ->orderByDesc('id')
-            ->get()
-            ->first(fn (TransactionEvent $event): bool => data_get($event->payment_request, 'fr_kind') === self::KIND_REPORT);
-    }
-
-    /**
-     * @param iterable<int, TransactionEvent> $sourceEvents
-     */
-    private function createOrUpdateReportEvent(
-        Payment $payment,
-        Invoice $invoice,
-        int $eventId,
-        string $amount,
-        string $reportDate,
-        iterable $sourceEvents,
-        string $reportKind,
-        ?int $previousEventId = null,
-    ): void {
-        $amount = $this->normalizeAmount($amount);
-        $sourceEvents = collect($sourceEvents)->values();
-        $existing = $this->pendingReportEvent($payment, $invoice, $eventId, $reportKind, $previousEventId);
-
-        if ($existing) {
-            $this->updatePendingReportEvent($existing, $payment, $invoice, $sourceEvents, $amount, $reportDate);
-
-            return;
-        }
-
-        $period = $this->resolvePeriodEnd($payment, $invoice, $eventId, $reportDate);
-        $event = TransactionEvent::create(array_merge(
-            $this->basePayload($payment, $invoice, $eventId, $amount, $period),
-            [
-                'payment_status' => TransactionEvent::FR_REPORTING_STATUS_PENDING,
-                'reporting_data' => $this->reportingData($payment, $invoice, $eventId, $amount, $reportDate),
-                'payment_request' => $this->reportPaymentRequest($reportDate, $sourceEvents, $reportKind, $previousEventId),
-            ]
-        ));
-
-        $this->linkMovementEvents($sourceEvents, $event->id);
-    }
-
-    /**
-     * @param iterable<int, TransactionEvent> $sourceEvents
-     */
-    private function updatePendingReportEvent(TransactionEvent $event, Payment $payment, Invoice $invoice, iterable $sourceEvents, string $amount, string $reportDate): void
-    {
-        $sourceEvents = collect($sourceEvents)->values();
-        $request = $event->payment_request ?? [];
-        $aggregateAmount = $this->normalizeAmount(BcMath::add($event->payment_applied ?: 0, $amount, 2));
-        $sourceEventIds = collect(data_get($request, 'source_event_ids', []))
-            ->merge($sourceEvents->pluck('id'))
-            ->unique()
-            ->values()
-            ->all();
-
-        if (BcMath::isZero($aggregateAmount, 2)) {
-            $this->unlinkMovementEvents($sourceEventIds);
-            $event->delete();
-
-            return;
-        }
-
-        $reportDate = max((string) data_get($request, 'source_date', $reportDate), $reportDate);
-        $period = $this->resolvePeriodEnd($payment, $invoice, $event->event_id, $reportDate);
-
-        $request['source_date'] = $reportDate;
-        $request['source_event_ids'] = $sourceEventIds;
-
-        $event->period = \Carbon\Carbon::parse($period);
-        $event->payment_applied = (float) $aggregateAmount;
-        $event->payment_request = $request;
-        $event->reporting_data = $this->reportingData($payment, $invoice, $event->event_id, $aggregateAmount, $reportDate);
-        $event->save();
-
-        $this->linkMovementEvents($sourceEvents, $event->id);
-    }
-
-    /**
-     * @param iterable<int, TransactionEvent> $sourceEvents
-     * @return array<string, mixed>
-     */
-    private function reportPaymentRequest(
-        string $reportDate,
-        iterable $sourceEvents,
-        string $reportKind,
-        ?int $previousEventId,
-    ): array {
-        $sourceEvents = collect($sourceEvents)->values();
-        $sourceEventIds = $sourceEvents->pluck('id')->values()->all();
-
-        return [
-            'fr_kind' => self::KIND_REPORT,
-            'fr_report_kind' => $reportKind,
-            'source_date' => $reportDate,
-            'source_event_ids' => $sourceEventIds,
-            'previous_event_id' => $previousEventId,
-        ];
-    }
-
-    /**
-     * @param iterable<int, TransactionEvent> $events
-     */
-    private function linkMovementEvents(iterable $events, int $reportEventId): void
-    {
-        foreach ($events as $event) {
-            $request = $event->payment_request ?? [];
-            $request['report_event_id'] = $reportEventId;
-            $event->payment_request = $request;
-            $event->save();
-        }
-    }
-
-    /**
-     * @param array<int, int> $eventIds
-     */
-    private function unlinkMovementEvents(array $eventIds): void
-    {
-        TransactionEvent::query()
-            ->whereIn('id', $eventIds)
-            ->get()
-            ->each(function (TransactionEvent $event): void {
-                $request = $event->payment_request ?? [];
-                $request['report_event_id'] = null;
-                $event->payment_request = $request;
-                $event->save();
-            });
-    }
-
-    /**
-     * @param iterable<int, TransactionEvent> $events
-     */
-    private function sumMovementAmounts(iterable $events): string
-    {
-        return collect($events)->reduce(
-            fn (string $carry, TransactionEvent $event): string => BcMath::add($carry, data_get($event->payment_request, 'movement_amount', $event->payment_applied), 2),
-            '0',
-        );
-    }
-
-    /**
-     * @param iterable<int, TransactionEvent> $events
-     */
-    private function latestMovementDate(iterable $events, string $fallbackDate): string
-    {
-        return collect($events)
-            ->map(fn (TransactionEvent $event): ?string => data_get($event->payment_request, 'source_date'))
-            ->filter()
-            ->push($fallbackDate)
-            ->max();
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function basePayload(Payment $payment, Invoice $invoice, int $eventId, string $amount, string $period): array
-    {
-        return [
-            'company_id' => $payment->company_id,
-            'client_id' => $invoice->client_id,
-            'invoice_id' => $invoice->id,
-            'payment_id' => $payment->id,
-            'credit_id' => 0,
-            'client_balance' => $invoice->client->balance,
-            'client_paid_to_date' => $invoice->client->paid_to_date,
-            'client_credit_balance' => $invoice->client->credit_balance,
-            'invoice_balance' => $invoice->balance ?? 0,
-            'invoice_amount' => $invoice->amount ?? 0,
-            'invoice_partial' => $invoice->partial ?? 0,
-            'invoice_paid_to_date' => $invoice->paid_to_date ?? 0,
-            'invoice_status' => $invoice->status_id,
-            'payment_amount' => $payment->amount ?? 0,
-            'payment_applied' => (float) $amount,
-            'payment_refunded' => $payment->refunded ?? 0,
-            'event_id' => $eventId,
-            'timestamp' => now()->timestamp,
-            'period' => $period,
-            'credit_balance' => 0,
-            'credit_amount' => 0,
-            'credit_status' => null,
-        ];
-    }
-
-    private function reportingData(Payment $payment, Invoice $invoice, int $eventId, string $amount, string $paymentDate): ReportData
-    {
-        /** @var FranceReportEntryBuilder $builder */
-        $builder = app(FranceReportEntryBuilder::class);
-
-        return match ($eventId) {
-            TransactionEvent::FR_VAT_EXCLUDED_PAYMENT => ReportData::fromFRReportEntry(
-                FRReportEntryData::fromB2BIPayment($builder->b2biPayment($payment, $invoice, $amount, $paymentDate)),
-            ),
-            TransactionEvent::FR_B2C_PAYMENT => ReportData::fromFRReportEntry(
-                FRReportEntryData::fromB2CPayment($builder->b2cPayment($payment, $invoice, $amount, $paymentDate)),
-            ),
-            default => throw new InvalidArgumentException("Unsupported France payment event_id [{$eventId}]."),
-        };
-    }
-
-    private function recordF10MappingFailure(Payment $payment, Invoice $invoice, int $eventId, InvalidArgumentException $exception): void
-    {
-        $paymentable = $this->paymentable($payment, $invoice);
-        $movementDate = $this->resolveMovementDate($payment, $paymentable)
-            ?? CarbonImmutable::parse($payment->date ?: now())->toDateString();
-        $amount = $this->resolveMovementAmount($payment, $invoice, $paymentable);
-        $period = $this->resolvePeriodEnd($payment, $invoice, $eventId, $movementDate);
-
-        $existing = TransactionEvent::query()
-            ->where('company_id', $payment->company_id)
-            ->where('invoice_id', $invoice->id)
-            ->where('payment_id', $payment->id)
-            ->where('event_id', $eventId)
-            ->whereNotNull('payment_request->skip_reason')
-            ->exists();
-
-        if ($existing) {
-            return;
-        }
-
-        TransactionEvent::create(array_merge(
-            $this->basePayload($payment, $invoice, $eventId, $amount, $period),
-            [
-                'payment_status' => TransactionEvent::FR_REPORTING_STATUS_FAILED,
-                'reporting_data' => null,
-                'payment_request' => [
-                    'fr_kind' => self::KIND_REPORT,
-                    'fr_report_kind' => BcMath::isNegative($amount, 2)
-                        ? self::REPORT_KIND_CORRECTIVE
-                        : self::REPORT_KIND_INITIAL,
-                    'source_date' => $movementDate,
-                    'source_event_ids' => [],
-                    'error' => [
-                        'message' => $exception->getMessage(),
-                        'class' => $exception::class,
-                    ],
-                    'skip_reason' => 'France e-report payment mapping failed.',
-                    'skipped_at' => now()->toIso8601String(),
-                ],
-            ],
-        ));
-    }
-
-    private function movementSnapshotHash(Payment $payment, Invoice $invoice, ?int $paymentableId, int $eventId, string $movementAmount, string $movementDate): string
-    {
-        return sha1(json_encode([
-            'payment_id' => $payment->id,
-            'invoice_id' => $invoice->id,
-            'paymentable_id' => $paymentableId,
-            'event_id' => $eventId,
-            'movement_type' => $this->movementType,
-            'movement_amount' => $movementAmount,
-            'movement_date' => $movementDate,
-            'movement_identity' => $this->movement_identity,
-        ], JSON_THROW_ON_ERROR));
-    }
-
-    private function normalizeAmount(int|float|string|null $amount): string
-    {
-        $amount = BcMath::round($amount ?? 0, 2);
-
-        if (str_ends_with($amount, '.00')) {
-            return substr($amount, 0, -3);
-        }
-
-        return rtrim(rtrim($amount, '0'), '.');
+        return hash('sha256', implode('|', [
+            (string) $paymentable->updated_at,
+            (string) $paymentable->deleted_at,
+            (string) $payment->updated_at,
+            (string) $payment->status_id,
+            (string) (int) $payment->is_deleted,
+            $sourceAmount,
+        ]));
     }
 }

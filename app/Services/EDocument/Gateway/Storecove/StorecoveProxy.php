@@ -296,7 +296,7 @@ class StorecoveProxy
 
         if (Ninja::isHosted()) {
             $storecovePayload = data_get($payload, 'document.documentType') === 'fr_e_report'
-                ? FranceEReportStorecoveProjection::qualified($payload)
+                ? FranceEReportStorecoveProjection::from($payload)
                 : $payload;
             $response = $this->storecove->sendJsonDocument($storecovePayload);
 

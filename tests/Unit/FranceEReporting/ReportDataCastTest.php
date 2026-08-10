@@ -20,8 +20,9 @@ class ReportDataCastTest extends TestCase
     public function testItHydratesAndStoresOneDirectFranceReportSection(): void
     {
         $payload = $this->transactionReportPayload();
+        $storage = ['schemaVersion' => 1, 'frReport' => $payload];
         $event = new TransactionEvent();
-        $event->setRawAttributes(['reporting_data' => json_encode($payload, JSON_THROW_ON_ERROR)], true);
+        $event->setRawAttributes(['reporting_data' => json_encode($storage, JSON_THROW_ON_ERROR)], true);
 
         $reportData = $event->reporting_data;
 
@@ -32,7 +33,7 @@ class ReportDataCastTest extends TestCase
         $this->assertArrayNotHasKey('paymentReport', $reportData->frReport->toArray());
 
         $event->reporting_data = $reportData;
-        $this->assertEquals($payload, json_decode($event->getAttributes()['reporting_data'], true, 512, JSON_THROW_ON_ERROR));
+        $this->assertEquals($storage, json_decode($event->getAttributes()['reporting_data'], true, 512, JSON_THROW_ON_ERROR));
     }
 
     public function testItHydratesAllFourFranceReportEntryShapes(): void
@@ -40,33 +41,36 @@ class ReportDataCastTest extends TestCase
         $transaction = $this->transactionReportPayload()['transactionReport'];
         $payment = $this->paymentReportPayload()['paymentReport'];
 
-        $this->assertReportEntryHydratesFromEventId(
-            TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION,
+        $this->assertReportEntryHydrates(
             $transaction['b2biInvoices'][0],
             'b2biInvoice',
         );
-        $this->assertReportEntryHydratesFromEventId(
-            TransactionEvent::FR_B2C_TRANSACTION,
+        $this->assertReportEntryHydrates(
             $transaction['b2cTransactions'][0],
             'b2cTransaction',
         );
-        $this->assertReportEntryHydratesFromEventId(
-            TransactionEvent::FR_VAT_EXCLUDED_PAYMENT,
+        $this->assertReportEntryHydrates(
             $payment['b2biPayments'][0],
             'b2biPayment',
         );
-        $this->assertReportEntryHydratesFromEventId(
-            TransactionEvent::FR_B2C_PAYMENT,
+        $this->assertReportEntryHydrates(
             $payment['b2cPayments'][0],
             'b2cPayment',
         );
     }
 
-    public function testItHydratesAndStoresADirectFranceReportEntryForCompatibility(): void
+    public function testItHydratesAndStoresAFranceReportEntryEnvelope(): void
     {
         $payload = $this->transactionReportPayload()['transactionReport']['b2biInvoices'][0];
+        $storage = [
+            'schemaVersion' => 1,
+            'frReportEntry' => [
+                'schemaVersion' => 1,
+                'b2biInvoice' => $payload,
+            ],
+        ];
         $event = new TransactionEvent();
-        $event->setRawAttributes(['reporting_data' => json_encode($payload, JSON_THROW_ON_ERROR)], true);
+        $event->setRawAttributes(['reporting_data' => json_encode($storage, JSON_THROW_ON_ERROR)], true);
 
         $reportData = $event->reporting_data;
 
@@ -74,10 +78,10 @@ class ReportDataCastTest extends TestCase
         $this->assertNull($reportData->frReport);
         $this->assertInstanceOf(FRReportEntryData::class, $reportData->frReportEntry);
         $this->assertEquals($payload, $reportData->frReportEntry->b2biInvoice->toArray());
-        $this->assertEquals($payload, $reportData->toStorageArray());
+        $this->assertEquals($storage, $reportData->toStorageArray());
 
         $event->reporting_data = $reportData;
-        $this->assertEquals($payload, json_decode($event->getAttributes()['reporting_data'], true, 512, JSON_THROW_ON_ERROR));
+        $this->assertEquals($storage, json_decode($event->getAttributes()['reporting_data'], true, 512, JSON_THROW_ON_ERROR));
     }
 
     public function testItWrapsBareFranceReportsAndDefaultsSchemaVersions(): void
@@ -85,7 +89,7 @@ class ReportDataCastTest extends TestCase
         $payload = $this->paymentReportPayload();
         unset($payload['schemaVersion']);
 
-        $wrapped = ReportData::fromArray($payload);
+        $wrapped = ReportData::fromArray(['frReport' => $payload]);
 
         $this->assertSame(1, $wrapped->schemaVersion);
         $this->assertSame(1, $wrapped->frReport->schemaVersion);
@@ -168,12 +172,17 @@ class ReportDataCastTest extends TestCase
     }
 
     /** @param array<string, mixed> $payload */
-    private function assertReportEntryHydratesFromEventId(int $eventId, array $payload, string $property): void
+    private function assertReportEntryHydrates(array $payload, string $property): void
     {
         $event = new TransactionEvent();
         $event->setRawAttributes([
-            'event_id' => $eventId,
-            'reporting_data' => json_encode($payload, JSON_THROW_ON_ERROR),
+            'reporting_data' => json_encode([
+                'schemaVersion' => 1,
+                'frReportEntry' => [
+                    'schemaVersion' => 1,
+                    $property => $payload,
+                ],
+            ], JSON_THROW_ON_ERROR),
         ], true);
 
         $reportData = $event->reporting_data;
