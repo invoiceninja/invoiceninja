@@ -1070,7 +1070,7 @@ class Company extends BaseModel
         // FASTEST CHECK: Raw database column (no object instantiation, no JSON decode)
         // This is the cheapest possible check - just a null comparison
         // For companies without QuickBooks, this returns immediately with ~0.001ms overhead
-        if (is_null($this->getRawOriginal('quickbooks')) || !$this->account->isPaid()) {
+        if (is_null($this->getRawOriginal('quickbooks')) || ($this->account->isPaidHostedClient() || Ninja::isSelfHost())) {
             return false;
         }
 
