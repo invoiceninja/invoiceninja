@@ -126,3 +126,53 @@ export async function fillStripeTestCard(page: Page): Promise<void> {
         .locator('input[name="cvc"], input[placeholder="CVC"]')
         .fill('123');
 }
+
+/** Client portal settings that keep payment entry deterministic. */
+export const paymentTestSettings = {
+    client_portal_allow_under_payment: false,
+    client_portal_allow_over_payment: false,
+    require_invoice_signature: false,
+    show_accept_invoice_terms: false,
+    client_manual_payment_notification: false,
+} as const;
+
+export async function openInvoiceDetailPayNow(
+    page: Page,
+    invoiceId: string,
+): Promise<void> {
+    await page.goto(`/client/invoices/${invoiceId}`);
+    await expect(page.locator('[data-ref="meta-title"]')).toHaveText(
+        'View Invoice',
+    );
+
+    const payDropdown = page.locator('[dusk="pay-now-dropdown"]');
+
+    if ((await payDropdown.count()) === 0) {
+        throw new Error(
+            'Pay Now dropdown is missing; no payment gateway is available for this client.',
+        );
+    }
+
+    await payDropdown.click();
+}
+
+export async function selectFirstAvailableGateway(page: Page): Promise<void> {
+    const option = page
+        .locator('[dusk="payment-methods-dropdown"] [dusk="payment-method"]')
+        .first();
+
+    await expect(option).toBeVisible();
+    await option.click();
+}
+
+export async function submitPrePayment(
+    page: Page,
+    amount: number,
+    notes = 'Playwright pre-payment',
+): Promise<void> {
+    await page.goto('/client/pre_payments');
+    await expect(page.locator('#payment-form')).toBeVisible();
+    await page.locator('input[name="amount"]').fill(String(amount));
+    await page.locator('textarea[name="notes"]').fill(notes);
+    await page.locator('#payment-form').getByRole('button', { name: 'Pay Now' }).click();
+}

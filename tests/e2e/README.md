@@ -30,6 +30,24 @@ Run the suite with:
 npm run test:e2e
 ```
 
+## Spec files
+
+| Spec | Coverage |
+| --- | --- |
+| `client-portal.spec.ts` | Login, sidebar links, invitations, logout |
+| `client-portal-auth.spec.ts` | Password login / recovery / registration UI |
+| `client-portal-invoices.spec.ts` | List, filters, detail, invitation, bulk download, Pay Now (default + smooth), bulk pay |
+| `client-portal-payments.spec.ts` | Gateway checkout (Stripe, PayPal, Authorize, Checkout.com, Braintree, GoCardless) |
+| `client-portal-entities.spec.ts` | Dashboard, payments, credits, recurring, projects, statement, pre-payments, payment methods |
+| `client-portal-quotes.spec.ts` | Approve / reject, filters, bulk actions |
+| `client-portal-recurring.spec.ts` | Auto-bill opt-in / opt-out |
+| `client-portal-documents.spec.ts` | Upload, download, tabs; bulk zip may skip on single-worker PHP |
+| `client-portal-tasks.spec.ts` | Task list / detail |
+| `client-portal-profile.spec.ts` | Profile edit |
+| `client-portal-access.spec.ts` | Cross-client isolation |
+| `client-portal-modules.spec.ts` | Module / sidebar gating |
+| `client-portal-invitations.spec.ts` | Guest invitation links and preferences |
+
 ## Portal coverage
 
 `client-portal.spec.ts` exercises the portal in Chromium and Firefox. It covers:
@@ -50,10 +68,31 @@ must be changed for a scenario are restored after the test. Embedded PDF blob
 requests are blocked because this suite verifies page navigation and rendering,
 not binary PDF generation.
 
-Gateway authorization screens, subscription purchase variants, document binary
-downloads, and password-reset or magic-link destinations require provider,
-subscription, file, mail/cache, or token state. Add those as environment-specific
-projects when the corresponding integration is available.
+## Skip conditions
+
+Gateway-dependent tests skip unless both the env key and an enabled company
+gateway exist:
+
+| Env var | Gateway |
+| --- | --- |
+| `STRIPE_KEYS` | Stripe credit card |
+| `PAYPAL_KEYS` / PayPal env | PayPal |
+| `AUTHORIZE_KEYS` | Authorize.Net |
+| `CHECKOUT_KEYS` | Checkout.com |
+| `BRAINTREE_KEYS` | Braintree |
+| `GOCARDLESS_KEYS` | GoCardless |
+
+Examples that skip safely without keys: full Stripe checkout, bulk Pay Now
+completion, and Stripe payment-method tokenization. Invoice detail Pay Now and
+pre-payment submission still run when a company gateway is present, and skip
+only the gateway-selection step when none is configured.
+
+Document bulk zip download can deadlock on a single-worker PHP server that
+self-fetches over HTTP. Prefer multi-worker PHP in CI, or an app change to use
+`diskPath()` in `DocumentController::downloadMultiple`.
+
+Subscription purchase, magic-link / password-reset mail flows, and DocuNinja
+embeds need additional provider or mail state and remain environment-specific.
 
 ## Creating API resources
 

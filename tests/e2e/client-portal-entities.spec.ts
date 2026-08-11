@@ -1,10 +1,16 @@
+import { updateClient } from './api-helpers';
 import {
     createAndLogInClient,
     expectPortalPage,
-    patchPortalClient,
     selectEntityTableRow,
 } from './client-portal-helpers';
 import { expect, test, uniqueName } from './fixtures';
+import {
+    fillStripeTestCard,
+    paymentTestSettings,
+    submitPrePayment,
+} from './gateways/payment-flow-helpers';
+import { StripePaymentGateway } from './gateways/stripe-payment-gateway';
 import {
     createPortalPayment,
     createPortalProject,
@@ -208,10 +214,86 @@ test.describe('Client portal entity pages', () => {
         await expect(page.getByText(/minimum/i)).toBeVisible();
     });
 
+    test('submits a pre-payment and opens the payment page', async ({
+        api,
+        page,
+    }) => {
+        await createAndLogInClient(api, page, {
+            settings: {
+                client_initiated_payments: true,
+                client_initiated_payments_minimum: 25,
+                payment_flow: 'default',
+                ...paymentTestSettings,
+            },
+        });
+
+        await submitPrePayment(page, 40, 'Playwright pre-payment note');
+
+        await expect(page.locator('[data-ref="meta-title"]')).toHaveText('Pay Now');
+        await expect(page.locator('#payment-form')).toBeVisible();
+
+        const payDropdown = page.locator('[dusk="payment-methods-dropdown"]');
+        if ((await payDropdown.count()) === 0) {
+            test.skip(
+                true,
+                'No payment gateway configured after pre-payment submit',
+            );
+        }
+
+        await expect(payDropdown).toBeVisible();
+    });
+
     test('renders the payment methods page', async ({ api, page }) => {
         await createAndLogInClient(api, page);
         await expectPortalPage(page, '/client/payment_methods', 'Payment Methods');
         await expect(page.locator('.payment-methods-table')).toBeVisible();
+    });
+
+    test('opens Stripe credit card authorization to add a payment method', async ({
+        api,
+        page,
+    }) => {
+        const gateway = new StripePaymentGateway();
+        const availability = await gateway.checkAvailability(api.context);
+        gateway.skipUnlessAvailable(availability);
+
+        let client = await createAndLogInClient(api, page, {
+            settings: { ...paymentTestSettings },
+        });
+        client = await updateClient(api.context, client, {
+            address1: '5 Wallaby Way',
+            city: 'Perth',
+            state: 'WA',
+            postal_code: '6000',
+            country_id: '840',
+        });
+
+        await page.goto('/client/payment_methods');
+        const addButton = page.locator('[data-cy="add-payment-method"]');
+        if ((await addButton.count()) === 0) {
+            test.skip(
+                true,
+                'Add payment method is unavailable for this company gateway setup',
+            );
+        }
+
+        await addButton.click();
+        await page.locator('[data-cy="add-credit-card-link"]').click();
+
+        await expect(page).toHaveURL(/\/client\/payment_methods\/create/);
+        await expect(
+            page.locator('meta[name="stripe-publishable-key"]'),
+        ).toHaveAttribute('content', /.+/);
+        await expect(page.locator('#card-element')).toBeVisible();
+        await expect(page.locator('#authorize-card')).toBeVisible();
+
+        await fillStripeTestCard(page);
+        await page.locator('#authorize-card').click();
+
+        await expect(page).toHaveURL(/\/client\/payment_methods(?:\/)?$/, {
+            timeout: 60_000,
+        });
+        await expect(page.locator('[data-cy="pm-last4"]')).toContainText('4242');
     });
 
     test('renders the subscriptions page', async ({ api, page }) => {

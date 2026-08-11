@@ -1,25 +1,12 @@
-import { existsSync } from 'node:fs';
 import { defineConfig, devices } from '@playwright/test';
+import {
+    loadPlaywrightEnvironment,
+    resolvePlaywrightUrls,
+} from './tests/e2e/environment';
 
-// Match the UI project's environment conventions while allowing portal-only
-// overrides. Earlier files take precedence because loadEnvFile does not
-// overwrite variables that are already set.
-for (const envFile of [
-    '.env.playwright',
-    '.env.testing',
-    '.env.test',
-    '.env',
-]) {
-    if (existsSync(envFile)) {
-        process.loadEnvFile(envFile);
-    }
-}
+loadPlaywrightEnvironment();
 
-const apiURL =
-    process.env.VITE_API_URL ??
-    process.env.APP_URL ??
-    'http://localhost:8000';
-const baseURL = process.env.CLIENT_PORTAL_BASE_URL ?? apiURL;
+const { baseUrl: baseURL } = resolvePlaywrightUrls();
 const accountCount = positiveInt(
     process.env.PLAYWRIGHT_ACCOUNT_COUNT ?? process.env.E2E_ACCOUNT_COUNT,
     8,

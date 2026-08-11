@@ -1,3 +1,5 @@
+import { resolvePlaywrightUrls } from './environment';
+
 /**
  * Account lanes mirror ../ui so parallel tests use isolated seeded companies.
  */
@@ -45,7 +47,7 @@ export function createTestAccount(id: number): TestAccount {
             process.env[`PLAYWRIGHT_ACCOUNT_${id}_PASSWORD`] ??
             process.env.PLAYWRIGHT_ACCOUNT_PASSWORD ??
             DEFAULT_PASSWORD,
-        apiUrl: apiUrl(),
+        apiUrl: resolvePlaywrightUrls().apiUrl,
     };
 }
 
@@ -59,16 +61,6 @@ export function accountEmail(email: string, accountId: number): string {
     }
 
     return `${localPart}${accountId}@${domain}`;
-}
-
-function apiUrl(): string {
-    const value = process.env.VITE_API_URL ?? process.env.APP_URL;
-
-    if (!value) {
-        throw new Error('VITE_API_URL must be set for Playwright API fixtures.');
-    }
-
-    return value;
 }
 
 function positiveInt(value: string | undefined, fallback: number): number {
