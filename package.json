@@ -23,7 +23,7 @@
     "cypress": "^12.17.4",
     "laravel-mix-purgecss": "^6.0.0",
     "laravel-vite-plugin": "^0.8.1",
-    "postcss": "^8.5.15",
+    "postcss": "^8.5.26",
     "tailwindcss": "^3.4.19",
     "vite": "^4.5.14",
     "vite-plugin-static-copy": "^0.17.1",
@@ -45,7 +45,7 @@
     "laravel-mix": "^6.0.49",
     "linkify-urls": "^4.1.0",
     "lodash": "^4.18.1",
-    "resolve-url-loader": "^4.0.0",
+    "resolve-url-loader": "^5.0.0",
     "sass": "^1.100.0",
     "sass-loader": "^12.6.0",
     "signature_pad": "^5.1.3"
