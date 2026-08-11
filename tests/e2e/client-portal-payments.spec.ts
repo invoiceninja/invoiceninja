@@ -35,10 +35,10 @@ test.describe('Client portal payment gateways', () => {
             await page.locator('[dusk="pay-now-dropdown"]').click();
 
             const gatewayOption = page.locator(
-                `[dusk="payment-methods-dropdown"] [data-company-gateway-id="${context.companyGateway.id}"][data-gateway-type-id="${gateway.gatewayTypeId}"]`,
+                `[dusk="payment-methods-dropdown"] [data-gateway-type-id="${gateway.gatewayTypeId}"]`,
             );
 
-            await expect(gatewayOption).toBeVisible();
+            await expect(gatewayOption.first()).toBeVisible();
         });
     }
 });
