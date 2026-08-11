@@ -1,10 +1,8 @@
 ---
 name: Bug report
 description: Create a report to help us improve
-title: ""
 labels:
   - triage
-assignees: []
 
 body:
   - type: markdown
@@ -60,7 +58,7 @@ body:
         - Yes, on the Flutter demo
         - Yes, on the React demo
         - Yes, on both demos
-        - No
+        - "No"
         - Not applicable
     validations:
       required: true

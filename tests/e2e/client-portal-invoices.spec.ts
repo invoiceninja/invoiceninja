@@ -1,22 +1,37 @@
 import { updateClient } from './api-helpers';
 import {
     createAndLogInClient,
+    dismissCookieConsent,
     expectPortalPage,
     selectEntityTableRow,
 } from './client-portal-helpers';
 import { expect, test, uniqueName } from './fixtures';
 import { StripePaymentGateway } from './gateways/stripe-payment-gateway';
 import {
-    createSentInvoice,
-    invitationKey,
-    markInvoicePaid,
-} from './portal-entity-helpers';
-import {
+    clickBulkPayNow,
     fillRequiredPaymentInformationIfPresent,
     paymentTestSettings,
     selectFirstAvailableGateway,
     selectGatewayFromDropdown,
 } from './gateways/payment-flow-helpers';
+import {
+    createSentInvoice,
+    invitationKey,
+    markInvoicePaid,
+} from './portal-entity-helpers';
+
+const defaultClientAddress = {
+    address1: '5 Wallaby Way',
+    city: 'Los Angeles',
+    state: 'CA',
+    postal_code: '90210',
+    country_id: '840',
+    shipping_address1: '5 Wallaby Way',
+    shipping_city: 'Los Angeles',
+    shipping_state: 'CA',
+    shipping_postal_code: '90210',
+    shipping_country_id: '840',
+};
 
 test.describe('Client portal invoices', () => {
     test('lists a sent invoice and opens it from the table', async ({
@@ -263,11 +278,9 @@ test.describe('Client portal invoices', () => {
         });
 
         await page.goto('/client/invoices');
-        const payButton = page
-            .locator('form[action*="invoices"]')
-            .getByRole('button', { name: 'Pay Now', exact: true });
+        const bulkPay = page.locator('button[name="action"][value="payment"]');
 
-        if ((await payButton.count()) === 0) {
+        if ((await bulkPay.count()) === 0) {
             test.skip(true, 'No payment gateway configured for bulk pay test');
         }
 
@@ -276,10 +289,12 @@ test.describe('Client portal invoices', () => {
             '.invoices-table',
             invoice.number ?? '',
         );
-        await payButton.click();
+        await clickBulkPayNow(page);
 
         await expect(page).toHaveURL(/\/client\/invoices\/payment/);
-        await expect(page.getByText(invoice.number ?? '')).toBeVisible();
+        await expect(
+            page.getByText(invoice.number ?? '', { exact: true }).first(),
+        ).toBeVisible();
         await expect(page.locator('[dusk="payment-methods-dropdown"]')).toBeVisible();
     });
 
@@ -296,6 +311,8 @@ test.describe('Client portal invoices', () => {
         });
 
         await page.goto(`/client/invoices/${invoice.id}`);
+        await dismissCookieConsent(page);
+
         const payDropdown = page.locator('[dusk="pay-now-dropdown"]');
         if ((await payDropdown.count()) === 0) {
             test.skip(true, 'No payment gateway configured for detail Pay Now');
@@ -314,15 +331,17 @@ test.describe('Client portal invoices', () => {
         api,
         page,
     }) => {
-        const client = await createAndLogInClient(api, page, {
+        let client = await createAndLogInClient(api, page, {
             settings: { payment_flow: 'smooth', ...paymentTestSettings },
         });
+        client = await updateClient(api.context, client, defaultClientAddress);
         const invoice = await createSentInvoice(api, client, {
             label: uniqueName('detail-pay-smooth'),
             cost: 52,
         });
 
         await page.goto(`/client/invoices/${invoice.id}`);
+        await dismissCookieConsent(page);
 
         await expect(page.locator('[data-ref="meta-title"]')).toHaveText(
             'View Invoice',
@@ -335,19 +354,25 @@ test.describe('Client portal invoices', () => {
         await expect(
             page.getByRole('button', { name: 'View PDF', exact: true }),
         ).toBeVisible();
-        await expect(page.getByText('Balance Due')).toBeVisible();
+        await expect(
+            page.getByRole('button', { name: /Balance Due/i }),
+        ).toBeVisible();
 
-        const methodButton = page
+        // Smooth flow either shows method buttons, required-fields, or checkout
+        // (a single gateway auto-advances past the method picker).
+        const smoothStep = page
             .locator('main')
-            .getByRole('button', { name: /Credit Card|PayPal|Bank/i });
-        if ((await methodButton.count()) === 0) {
-            test.skip(
-                true,
-                'No payment gateway configured for smooth payment flow',
+            .getByText('Payment Methods', { exact: true })
+            .or(page.locator('main').getByText('Required Fields', { exact: true }))
+            .or(page.locator('main #card-element'))
+            .or(page.locator('main #pay-now'))
+            .or(
+                page
+                    .locator('main')
+                    .getByRole('button', { name: /Credit Card|PayPal|Bank/i }),
             );
-        }
 
-        await expect(methodButton.first()).toBeVisible();
+        await expect(smoothStep.first()).toBeVisible({ timeout: 30_000 });
     });
 
     test('completes bulk Pay Now when Stripe is available', async ({
@@ -355,6 +380,7 @@ test.describe('Client portal invoices', () => {
         page,
         notificationGuard,
     }) => {
+        test.setTimeout(90_000);
         const gateway = new StripePaymentGateway();
         const availability = await gateway.checkAvailability(api.context);
         gateway.skipUnlessAvailable(availability);
@@ -364,30 +390,23 @@ test.describe('Client portal invoices', () => {
         let client = await createAndLogInClient(api, page, {
             settings: { payment_flow: 'default', ...paymentTestSettings },
         });
-        client = await updateClient(api.context, client, {
-            address1: '5 Wallaby Way',
-            city: 'Perth',
-            state: 'WA',
-            postal_code: '6000',
-            country_id: '840',
-        });
+        client = await updateClient(api.context, client, defaultClientAddress);
         const invoice = await createSentInvoice(api, client, {
             label: uniqueName('bulk-pay-complete'),
             cost: 53,
         });
 
         await page.goto('/client/invoices');
+        await dismissCookieConsent(page);
         await selectEntityTableRow(
             page,
             '.invoices-table',
             invoice.number ?? '',
         );
-        await page
-            .locator('form[action*="invoices"]')
-            .getByRole('button', { name: 'Pay Now', exact: true })
-            .click();
+        await clickBulkPayNow(page);
 
         await expect(page).toHaveURL(/\/client\/invoices\/payment/);
+        await dismissCookieConsent(page);
         await selectGatewayFromDropdown(
             page,
             availability.companyGateway!,
