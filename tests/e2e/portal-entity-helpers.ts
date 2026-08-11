@@ -1,5 +1,6 @@
 import {
     bulkAction,
+    createMultipartApiContext,
     getEntity,
     type ApiContext,
     type ApiEntity,
@@ -15,6 +16,10 @@ export interface PortalEntity extends ApiEntity {
     amount?: number;
     balance?: number;
     terms?: string;
+    name?: string;
+    auto_bill?: string;
+    auto_bill_enabled?: boolean;
+    invoice_id?: string;
 }
 
 export interface PortalLineItemOptions {
@@ -149,9 +154,16 @@ export async function createPortalPayment(
     });
 }
 
+export interface RecurringInvoiceOptions {
+    autoBill?: 'optin' | 'optout' | 'always' | 'off';
+    autoBillEnabled?: boolean;
+    cost?: number;
+}
+
 export async function createRecurringInvoice(
     api: ApiFixture,
     client: PortalClient,
+    options: RecurringInvoiceOptions = {},
 ): Promise<PortalEntity> {
     const response = await api.context.request.post(
         '/api/v1/recurring_invoices?start=true',
@@ -165,7 +177,14 @@ export async function createRecurringInvoice(
                 frequency_id: '5',
                 next_send_date: isoDate(30),
                 remaining_cycles: -1,
-                line_items: [lineItem({ label: 'portal-recurring', cost: 11 })],
+                auto_bill: options.autoBill ?? 'off',
+                auto_bill_enabled: options.autoBillEnabled ?? false,
+                line_items: [
+                    lineItem({
+                        label: 'portal-recurring',
+                        cost: options.cost ?? 11,
+                    }),
+                ],
             },
         },
     );
@@ -198,13 +217,76 @@ export async function createPortalTask(
     api: ApiFixture,
     client: PortalClient,
     project?: PortalEntity,
+    options: {
+        description?: string;
+        timeLogDescription?: string;
+        invoiceId?: string;
+    } = {},
 ): Promise<PortalEntity> {
-    return api.createEntity<PortalEntity>('tasks', {
+    const now = Math.floor(Date.now() / 1000);
+    const timeLog = options.timeLogDescription
+        ? JSON.stringify([
+              [now - 3600, now, options.timeLogDescription, true],
+          ])
+        : JSON.stringify([]);
+
+    const task = await api.createEntity<PortalEntity>('tasks', {
         client_id: client.id,
         project_id: project?.id,
-        description: uniqueName('portal-task'),
-        time_log: [],
+        description: options.description ?? uniqueName('portal-task'),
+        time_log: timeLog,
+        invoice_id: options.invoiceId,
     });
+
+    if (options.invoiceId) {
+        return getEntity<PortalEntity>(api.context, 'tasks', task.id);
+    }
+
+    return task;
+}
+
+export async function createInvoicedPortalTask(
+    api: ApiFixture,
+    client: PortalClient,
+    options: {
+        taskDescription?: string;
+        timeLogDescription?: string;
+        invoiceLabel?: string;
+    } = {},
+): Promise<{ task: PortalEntity; invoice: PortalEntity }> {
+    const task = await createPortalTask(api, client, undefined, {
+        description: options.taskDescription ?? uniqueName('invoiced-task'),
+        timeLogDescription:
+            options.timeLogDescription ?? 'Billable work completed for the client portal test.',
+    });
+    const invoice = await createSentInvoice(api, client, {
+        label: options.invoiceLabel ?? uniqueName('task-invoice'),
+        cost: 50,
+    });
+
+    const updatedTask = await getEntity<PortalEntity>(api.context, 'tasks', task.id);
+    const response = await api.context.request.put(
+        `/api/v1/tasks/${task.id}`,
+        {
+            data: {
+                ...updatedTask,
+                invoice_id: invoice.id,
+            },
+        },
+    );
+
+    if (!response.ok()) {
+        throw new Error(
+            `Failed to link task to invoice (${response.status()}): ${(await response.text()).slice(0, 300)}`,
+        );
+    }
+
+    const body = await response.json();
+
+    return {
+        task: body.data as PortalEntity,
+        invoice,
+    };
 }
 
 export async function uploadClientDocument(
@@ -212,37 +294,49 @@ export async function uploadClientDocument(
     client: PortalClient,
     filename = 'portal-upload.txt',
 ): Promise<PortalEntity> {
-    const response = await api.context.request.post(
-        `/api/v1/clients/${client.id}/documents`,
-        {
-            headers: {
-                'X-Api-Token': api.context.headers['X-Api-Token'],
-                'X-Requested-With': 'XMLHttpRequest',
-            },
-            multipart: {
-                file: {
-                    name: filename,
-                    mimeType: 'text/plain',
-                    buffer: Buffer.from(`Playwright upload ${uniqueName('doc')}`),
+    const uploadContext = await createMultipartApiContext(api.context);
+
+    try {
+        const response = await uploadContext.post(
+            `/api/v1/clients/${client.id}/upload`,
+            {
+                multipart: {
+                    _method: 'PUT',
+                    is_public: 'true',
+                    'documents[0]': {
+                        name: filename,
+                        mimeType: 'text/plain',
+                        buffer: Buffer.from(
+                            `Playwright upload ${uniqueName('doc')}`,
+                        ),
+                    },
                 },
             },
-        },
-    );
-
-    if (!response.ok()) {
-        throw new Error(
-            `Failed to upload document (${response.status()}): ${(await response.text()).slice(0, 300)}`,
         );
-    }
 
-    const body = await response.json();
-    const document = body.data as PortalEntity;
+        if (!response.ok()) {
+            throw new Error(
+                `Failed to upload document (${response.status()}): ${(await response.text()).slice(0, 300)}`,
+            );
+        }
 
-    if (document.id) {
+        const body = await response.json();
+        const document = (body.data?.documents ?? []).find(
+            (entry: PortalEntity) => entry.name === filename,
+        ) as PortalEntity | undefined;
+
+        if (!document?.id) {
+            throw new Error(
+                `Uploaded document ${filename} was not returned by the upload response.`,
+            );
+        }
+
         api.trackEntity('documents', document.id);
-    }
 
-    return document;
+        return document;
+    } finally {
+        await uploadContext.dispose();
+    }
 }
 
 export async function markInvoicePaid(

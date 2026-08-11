@@ -321,4 +321,58 @@ test.describe('Client portal quotes', () => {
         );
         await expect(page.getByRole('heading', { name: /Approve \/ Reject/i })).toBeVisible();
     });
+
+    test('filters the quote list to expired quotes', async ({ api, page }) => {
+        const client = await createAndLogInClient(api, page);
+        const current = await createSentQuote(api, client, {
+            label: uniqueName('quote-filter-current'),
+            dueInDays: 30,
+        });
+        const expired = await createSentQuote(api, client, {
+            label: uniqueName('quote-filter-expired'),
+            dueInDays: -30,
+        });
+
+        await page.goto('/client/quotes');
+        await page.locator('#sent-checkbox').uncheck();
+        await page.locator('#approved-checkbox').uncheck();
+        await page.locator('#rejected-checkbox').uncheck();
+        await page.locator('#expired-checkbox').check();
+
+        await expect(
+            page.locator('.quotes-table').getByText(expired.number ?? ''),
+        ).toBeVisible();
+        await expect(
+            page.locator('.quotes-table').getByText(current.number ?? ''),
+        ).toHaveCount(0);
+    });
+
+    test('downloads selected quotes from the list bulk action', async ({
+        api,
+        page,
+    }) => {
+        const client = await createAndLogInClient(api, page);
+        const quote = await createSentQuote(api, client, {
+            label: uniqueName('quote-bulk-download'),
+            cost: 61,
+        });
+
+        await page.goto('/client/quotes');
+        await selectEntityTableRow(page, '.quotes-table', quote.number ?? '');
+        await page
+            .locator('form[action*="quotes"]')
+            .getByRole('button', { name: 'Download', exact: true })
+            .click();
+
+        await expect(page.locator('[data-ref="meta-title"]')).toHaveText(/Quote/);
+        await expect(page.getByText(quote.number ?? '')).toBeVisible();
+
+        const downloadPromise = page.waitForEvent('download');
+        await page
+            .locator('#bulkActions')
+            .getByRole('button', { name: 'Download', exact: true })
+            .click();
+        const download = await downloadPromise;
+        expect(download.suggestedFilename()).toMatch(/\.pdf$/i);
+    });
 });

@@ -1,6 +1,7 @@
 import {
     createAndLogInClient,
     expectPortalPage,
+    selectEntityTableRow,
 } from './client-portal-helpers';
 import { expect, test, uniqueName } from './fixtures';
 import {
@@ -208,5 +209,70 @@ test.describe('Client portal invoices', () => {
 
         await page.goto(`/client/invoices/${invoice.id}`);
         await expect(page.getByText(message)).toBeVisible();
+    });
+
+    test('downloads selected invoices from the list bulk action', async ({
+        api,
+        page,
+    }) => {
+        const client = await createAndLogInClient(api, page);
+        const invoice = await createSentInvoice(api, client, {
+            label: uniqueName('bulk-download-invoice'),
+            cost: 33,
+        });
+
+        await page.goto('/client/invoices');
+        await selectEntityTableRow(
+            page,
+            '.invoices-table',
+            invoice.number ?? '',
+        );
+        await page
+            .locator('form[action*="invoices"]')
+            .getByRole('button', { name: 'Download', exact: true })
+            .click();
+
+        await expect(page.locator('[data-ref="meta-title"]')).toHaveText(
+            /View Invoice|Invoices/,
+        );
+        await expect(page.getByText(invoice.number ?? '')).toBeVisible();
+
+        const downloadPromise = page.waitForEvent('download');
+        await page
+            .locator('#bulkActions')
+            .getByRole('button', { name: 'Download', exact: true })
+            .click();
+        const download = await downloadPromise;
+        expect(download.suggestedFilename()).toMatch(/\.pdf$/i);
+    });
+
+    test('starts bulk payment for selected invoices', async ({ api, page }) => {
+        const client = await createAndLogInClient(api, page, {
+            settings: { payment_flow: 'default' },
+        });
+        const invoice = await createSentInvoice(api, client, {
+            label: uniqueName('bulk-pay-invoice'),
+            cost: 44,
+        });
+
+        await page.goto('/client/invoices');
+        const payButton = page
+            .locator('form[action*="invoices"]')
+            .getByRole('button', { name: 'Pay Now', exact: true });
+
+        if ((await payButton.count()) === 0) {
+            test.skip(true, 'No payment gateway configured for bulk pay test');
+        }
+
+        await selectEntityTableRow(
+            page,
+            '.invoices-table',
+            invoice.number ?? '',
+        );
+        await payButton.click();
+
+        await expect(page).toHaveURL(/\/client\/invoices\/payment/);
+        await expect(page.getByText(invoice.number ?? '')).toBeVisible();
+        await expect(page.locator('[dusk="payment-methods-dropdown"]')).toBeVisible();
     });
 });

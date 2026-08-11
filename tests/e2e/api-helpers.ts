@@ -37,6 +37,18 @@ export interface ApiUser extends ApiEntity {
     };
 }
 
+export async function createMultipartApiContext(
+    api: ApiContext,
+): Promise<APIRequestContext> {
+    return playwrightRequest.newContext({
+        baseURL: api.baseUrl,
+        extraHTTPHeaders: {
+            'X-Api-Token': api.headers['X-Api-Token'],
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    });
+}
+
 export async function createApiContext(
     apiUrl: string,
     email = 'user@example.com',
