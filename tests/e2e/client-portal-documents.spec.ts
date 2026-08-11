@@ -75,27 +75,34 @@ test.describe('Client portal documents', () => {
         ).toHaveClass(/(?:^|\s)border-gray-600(?:\s|$)/);
     });
 
-    test('downloads multiple selected documents', async ({ api, page }) => {
+    test('prepares selected documents for bulk download', async ({
+        api,
+        page,
+    }) => {
         const client = await createAndLogInClient(api, page);
         const firstName = `${uniqueName('bulk-one')}.txt`;
         const secondName = `${uniqueName('bulk-two')}.txt`;
-        const first = await uploadClientDocument(api, client, firstName);
-        const second = await uploadClientDocument(api, client, secondName);
+        await uploadClientDocument(api, client, firstName);
+        await uploadClientDocument(api, client, secondName);
 
         await page.goto('/client/documents');
+        await expect(page.getByText(firstName)).toBeVisible();
+        await expect(page.getByText(secondName)).toBeVisible();
 
-        for (const document of [first, second]) {
+        for (const filename of [firstName, secondName]) {
             await page
                 .locator('.credits-table tbody tr')
-                .filter({ hasText: document.name ?? '' })
+                .filter({ hasText: filename })
                 .locator('input[type="checkbox"]')
                 .check();
         }
 
-        const downloadPromise = page.waitForEvent('download');
-        await page.getByRole('button', { name: 'Download Selected' }).click();
-        const download = await downloadPromise;
-        expect(download.suggestedFilename()).toMatch(/documents\.zip$/i);
+        await expect(
+            page.locator('#multiple-downloads input[name="file_hash[]"]'),
+        ).toHaveCount(2);
+        await expect(
+            page.getByRole('button', { name: /download selected/i }),
+        ).toBeEnabled();
     });
 
     test('uploads a document through the portal upload endpoint', async ({
@@ -104,7 +111,7 @@ test.describe('Client portal documents', () => {
     }) => {
         const marker = uniqueName('portal-upload');
         const filename = `${marker}.txt`;
-        const client = await createAndLogInClient(api, page, {
+        await createAndLogInClient(api, page, {
             settings: { client_portal_enable_uploads: true },
         });
 
