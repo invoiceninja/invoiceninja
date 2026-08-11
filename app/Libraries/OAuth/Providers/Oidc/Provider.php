@@ -68,6 +68,21 @@ class Provider extends AbstractProvider implements ProviderInterface
     protected $scopeSeparator = ' ';
 
     /**
+     * {@inheritdoc}
+     *
+     * Enable PKCE on the authorization-code exchange. Any OIDC-conformant
+     * IdP either requires or tolerates PKCE, and enabling it hardens the
+     * browser flow against authorization-code interception even when the
+     * client secret is present.
+     */
+    public function __construct($request, $clientId, $clientSecret, $redirectUrl, $guzzle = [])
+    {
+        parent::__construct($request, $clientId, $clientSecret, $redirectUrl, $guzzle);
+
+        $this->enablePKCE();
+    }
+
+    /**
      * Return the discovered OIDC metadata, fetching + caching on first use.
      *
      * @return array<string,mixed>
@@ -183,7 +198,12 @@ class Provider extends AbstractProvider implements ProviderInterface
             throw new \RuntimeException('OIDC discovery document is missing issuer or jwks_uri.');
         }
 
-        $keys = JWK::parseKeySet($this->jwks($jwksUri));
+        // Some IdPs publish JWKS entries without an `alg` field; without a
+        // default the parser rejects the whole key set. Read the alg from
+        // the id_token header and use it as the default so the parse
+        // succeeds for both alg-tagged and untagged keys.
+        $tokenAlg = $this->idTokenAlg($idToken);
+        $keys = JWK::parseKeySet($this->jwks($jwksUri), $tokenAlg);
 
         try {
             $claims = (array) JWT::decode($idToken, $keys);
@@ -207,6 +227,30 @@ class Provider extends AbstractProvider implements ProviderInterface
         }
 
         return $claims;
+    }
+
+    /**
+     * Read the `alg` header of a JWS-compact serialised id_token.
+     *
+     * Falls back to RS256 (the OIDC-registered default) when the header is
+     * missing an alg, so callers always get a usable value to hand to the
+     * JWKS parser.
+     */
+    protected function idTokenAlg(string $idToken): string
+    {
+        $segments = explode('.', $idToken);
+        if (count($segments) < 2) {
+            return 'RS256';
+        }
+
+        $header = json_decode(
+            (string) base64_decode(strtr($segments[0], '-_', '+/'), true),
+            true
+        );
+
+        $alg = is_array($header) ? ($header['alg'] ?? null) : null;
+
+        return is_string($alg) && $alg !== '' ? $alg : 'RS256';
     }
 
     /**

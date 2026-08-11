@@ -28,6 +28,7 @@ use Illuminate\Http\JsonResponse;
 use PragmaRX\Google2FA\Google2FA;
 use App\Jobs\Account\CreateAccount;
 use App\Events\User\UserLoginFailed;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use App\Utils\Traits\User\LoginCache;
 use Illuminate\Support\Facades\Cache;
@@ -958,6 +959,15 @@ class LoginController extends BaseController
             Cache::put("react_redir:" . $user?->account->key, 'true', 300);
         }
 
+        // The IdP redirects back with `?error=...` when the user cancels or
+        // consent fails. Short-circuit here so we never fall through to
+        // Socialite::redirect() again, which would bounce the browser
+        // straight back to the IdP and loop.
+        if (request()->has('error')) {
+            nlog('OAuth provider returned error: ' . request()->query('error'));
+            return response()->json(['message' => 'OAuth sign-in was cancelled or failed.'], 400);
+        }
+
         if (request()->has('code')) {
             return $this->handleProviderCallback($provider);
         } else {
@@ -1056,7 +1066,7 @@ class LoginController extends BaseController
             $socialite_user = Socialite::driver('oidc')->user();
         } catch (\Throwable $e) {
             nlog('OIDC callback failed: ' . $e->getMessage());
-            return response()->json(['message' => 'OIDC sign-in failed: ' . $e->getMessage()], 400);
+            return response()->json(['message' => 'OIDC sign-in failed.'], 400);
         }
 
         if (!$socialite_user || !$socialite_user->getId()) {
@@ -1116,7 +1126,47 @@ class LoginController extends BaseController
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        return redirect(config('ninja.react_url') . '/oauth-callback?token=' . $company_token->token);
+        // Never place the CompanyToken in the redirect URL — it would land
+        // in browser history, Referer headers, and any HTTP access log
+        // between the IdP and the SPA. Instead stash the token behind a
+        // one-shot random exchange code with a 60s TTL, and hand the SPA
+        // only the code; the SPA calls POST /api/v1/oidc/exchange to swap
+        // it for the real token exactly once.
+        $exchange_code = Str::random(64);
+        Cache::put('oidc.exchange.' . $exchange_code, $company_token->token, now()->addSeconds(60));
+
+        return redirect(config('ninja.react_url') . '/oauth-callback?code=' . $exchange_code);
+    }
+
+    /**
+     * One-shot exchange of a short-lived OIDC callback code for the real
+     * CompanyToken issued during `handleOidcProviderCallback`.
+     *
+     * The React SPA POSTs the `code` query-string value it received on the
+     * `/oauth-callback` landing page; we `Cache::pull` the value so the
+     * code cannot be replayed. Codes are 64-char random strings and expire
+     * in 60 seconds, so an attacker with a leaked code has a tiny window
+     * that closes on first legitimate use.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function oidcExchange(Request $request)
+    {
+        $code = (string) $request->input('code', '');
+
+        // Fixed-length guard rejects trivially short guesses without giving
+        // any information about which specific codes are live.
+        if (strlen($code) !== 64) {
+            return response()->json(['message' => 'Invalid OIDC exchange code.'], 400);
+        }
+
+        $token = Cache::pull('oidc.exchange.' . $code);
+
+        if (!$token) {
+            return response()->json(['message' => 'OIDC exchange code is expired or already used.'], 400);
+        }
+
+        return response()->json(['token' => $token]);
     }
 
     public function handleMicrosoftProviderCallback($provider = 'microsoft')
