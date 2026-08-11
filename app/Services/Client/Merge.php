@@ -15,8 +15,12 @@ namespace App\Services\Client;
 use App\Factory\CompanyLedgerFactory;
 use App\Models\Activity;
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\CompanyLedger;
+use App\Models\TransactionEvent;
 use App\Services\AbstractService;
+use App\Services\EDocument\Standards\France\FranceScopeInvalidationRecorder;
+use Illuminate\Support\Facades\DB;
 
 class Merge extends AbstractService
 {
@@ -32,12 +36,27 @@ class Merge extends AbstractService
 
     public function run()
     {
+        $mergeableClient = $this->mergable_client->present()->name();
+        $eventVars = \App\Utils\Ninja::eventVars(auth()->user() ? auth()->user()->id : null);
+        $eventVars['client_hash'] = $this->mergable_client->client_hash;
+        $client = DB::transaction(function () {
+            Company::query()->whereKey($this->client->company_id)->lockForUpdate()->firstOrFail();
 
-        $mergeable_client = $this->mergable_client->present()->name();
+            return $this->runLocked();
+        }, attempts: 3);
 
-        $event_vars = \App\Utils\Ninja::eventVars(auth()->user() ? auth()->user()->id : null);
-        $event_vars['client_hash'] = $this->mergable_client->client_hash;
+        event(new \App\Events\Client\ClientWasMerged(
+            $mergeableClient,
+            $client,
+            $client->company,
+            $eventVars,
+        ));
 
+        return $client;
+    }
+
+    private function runLocked()
+    {
         $this->mergable_client->activities()->update(['client_id' => $this->client->id]);
         $this->mergable_client->contacts()->update(['client_id' => $this->client->id]);
         $this->mergable_client->gateway_tokens()->update(['client_id' => $this->client->id]);
@@ -51,6 +70,9 @@ class Merge extends AbstractService
         $this->mergable_client->recurring_expenses()->update(['client_id' => $this->client->id]);
         $this->mergable_client->tasks()->update(['client_id' => $this->client->id]);
         $this->mergable_client->documents()->update(['documentable_id' => $this->client->id]);
+        TransactionEvent::query()
+            ->where('client_id', $this->mergable_client->id)
+            ->update(['client_id' => $this->client->id]);
 
         /* Loop through contacts an only merge distinct contacts by email */
         $this->mergable_client->contacts->each(function ($contact) {
@@ -66,7 +88,7 @@ class Merge extends AbstractService
 
 
         $this->mergable_client->forceDelete();
-        
+
         $old_balance = $this->client->balance;
 
         $this->client = $this->client->service()->calculateBalance()->calculatePaidToDate()->updatePaymentBalance()->save();
@@ -75,7 +97,12 @@ class Merge extends AbstractService
 
         $this->updateLedger($this->client->balance - $old_balance);
 
-        event(new \App\Events\Client\ClientWasMerged($mergeable_client, $this->client, $this->client->company, $event_vars));
+        if ((bool) $this->client->company->getSetting('france_reporting_enabled')) {
+            app(FranceScopeInvalidationRecorder::class)->recordAndDispatch(
+                company: $this->client->company,
+                clientId: $this->client->id,
+            );
+        }
 
         return $this->client;
     }

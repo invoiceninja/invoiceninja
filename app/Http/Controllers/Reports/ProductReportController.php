@@ -77,7 +77,7 @@ class ProductReportController extends BaseController
 
         $hash = \Illuminate\Support\Str::uuid();
 
-        PreviewReport::dispatch($user->company(), $request->all(), ProductExport::class, $hash);
+        PreviewReport::dispatch($user->company(), $request->all(), ProductExport::class, $hash, $this->filename, $user);
 
         return response()->json(['message' => $hash], 200);
 

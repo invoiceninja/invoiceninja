@@ -5,7 +5,7 @@ describe('Test Invoices', () => {
         cy.visit('/client/login');
         cy.contains('Client Portal');
 
-        cy.get('input[name=email]').type('cypress@example.com');
+        cy.get('input[name=email]').type('cypress@gmail.com');
         cy.get('input[name=password]').type('password{enter}');
         cy.url().should('include', '/invoices');
 

@@ -12,6 +12,7 @@
 
 namespace App\Jobs\PurchaseOrder;
 
+use App\Events\Socket\DownloadAvailable;
 use App\Jobs\Entity\CreateRawPdf;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
@@ -86,9 +87,10 @@ class ZipPurchaseOrders implements ShouldQueue
             }
 
             Storage::put($path . $file_name, $zipFile->outputAsString());
+            $storage_url = Storage::url($path . $file_name);
 
             $nmo = new NinjaMailerObject();
-            $nmo->mailable = new DownloadPurchaseOrders(Storage::url($path . $file_name), $this->company);
+            $nmo->mailable = new DownloadPurchaseOrders($storage_url, $this->company);
             $nmo->to_user = $this->user;
             $nmo->settings = $this->settings;
             $nmo->company = $this->company;
@@ -96,6 +98,12 @@ class ZipPurchaseOrders implements ShouldQueue
             NinjaMailerJob::dispatch($nmo);
 
             UnlinkFile::dispatch(config('filesystems.default'), $path . $file_name)->delay(now()->addHours(1));
+
+            DownloadAvailable::notify(
+                $this->user,
+                $storage_url,
+                count($this->purchase_order_ids).' '.ctrans('texts.purchase_orders'),
+            );
         } catch (\PhpZip\Exception\ZipException $e) {
             nlog('could not make zip => ' . $e->getMessage());
         } finally {

@@ -79,7 +79,7 @@ class CompanyCreationOnboardingTest extends TestCase
         // Create a user for localizeCompany
         $user = User::factory()->create([
             'account_id' => $account->id,
-            'email' => fake()->unique()->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         // Clear any existing tax rates for this company
@@ -421,7 +421,7 @@ class CompanyCreationOnboardingTest extends TestCase
             // ── 11. Run localizeCompany and verify tax rates ────
             $user = User::factory()->create([
                 'account_id' => $account->id,
-                'email' => fake()->unique()->safeEmail(),
+                'email' => uniqid('testuser') . '@gmail.com',
             ]);
 
             TaxRate::where('company_id', $company->id)->forceDelete();

@@ -1871,7 +1871,7 @@ class BaseExport
         $model_string = $this->getModelString($query);
 
         $data = [
-            "{$model_string}s" => $query->with('tags')->get(),
+            "{$model_string}s" => $this->templateEntities($query),
             // "start_date" => $this->start_date,
             // "end_date" => $this->end_date,
         ];
@@ -1885,6 +1885,15 @@ class BaseExport
 
         return $ts->getPdf();
 
+    }
+
+    protected function templateEntities(Builder $query): \Illuminate\Database\Eloquent\Collection
+    {
+        if (method_exists($query->getModel(), 'tags')) {
+            $query->with('tags');
+        }
+
+        return $query->get();
     }
 
     private function getModelString(Builder $query): ?string

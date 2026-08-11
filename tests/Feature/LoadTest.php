@@ -65,12 +65,12 @@ class LoadTest extends TestCase
         $account->default_company_id = $company->id;
         $account->save();
 
-        $user = User::whereEmail('small@example.com')->first();
+        $user = User::whereEmail('small@gmail.com')->first();
 
         if (! $user) {
             $user = User::factory()->create([
                 'account_id' => $account->id,
-                'email' => 'small@example.com',
+                'email' => 'small@gmail.com',
                 'confirmation_code' => $this->createDbHash(config('database.default')),
             ]);
         }

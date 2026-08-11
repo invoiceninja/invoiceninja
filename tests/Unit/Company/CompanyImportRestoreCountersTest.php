@@ -41,7 +41,7 @@ class CompanyImportRestoreCountersTest extends TestCase
         $company = Company::factory()->create(['account_id' => $account->id]);
         $user = User::factory()->create([
             'account_id' => $account->id,
-            'email' => 'company-import-restore-counters-' . uniqid('', true) . '@example.com',
+            'email' => 'company-import-restore-counters-' . uniqid('', true) . '@gmail.com',
         ]);
 
         $settings = $company->settings;
@@ -83,7 +83,7 @@ class CompanyImportRestoreCountersTest extends TestCase
         $company = Company::factory()->create(['account_id' => $account->id]);
         $user = User::factory()->create([
             'account_id' => $account->id,
-            'email' => 'company-import-preserve-counters-' . uniqid('', true) . '@example.com',
+            'email' => 'company-import-preserve-counters-' . uniqid('', true) . '@gmail.com',
         ]);
 
         $settings = $company->settings;

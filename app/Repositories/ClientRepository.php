@@ -14,12 +14,21 @@ namespace App\Repositories;
 
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\Credit;
+use App\Models\Invoice;
 use App\Models\Location;
 use App\Models\ClientContact;
+use App\Models\TransactionEvent;
+use App\Services\EDocument\Standards\France\FranceReportingEventType;
+use App\Services\EDocument\Standards\France\FranceReportingStatus;
+use App\Services\EDocument\Standards\France\FranceScopeInvalidationRecorder;
 use App\Factory\ClientFactory;
 use App\Utils\Traits\SavesDocuments;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Database\QueryException;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use App\Jobs\Client\PurgeClientDocuments;
 
 /**
@@ -101,11 +110,10 @@ class ClientRepository extends BaseRepository
                     if ($x > 10) {
                         $completed = false;
 
-                        try{
+                        try {
                             $client->number = $client->number . '_' . \Illuminate\Support\Str::random(5);
                             $client->saveQuietly();
-                        }
-                        catch (QueryException $e) {
+                        } catch (QueryException $e) {
                             $client->number = null;
                         }
                     }
@@ -154,50 +162,142 @@ class ClientRepository extends BaseRepository
      */
     public function assignGroup($clients, $group_settings_id): void
     {
-        Client::query()
-              ->company()
-              ->whereIn('id', $clients->pluck('id'))
-              ->update(['group_settings_id' => $group_settings_id]);
+        $clientIds = $clients->pluck('id')->map(fn($id): int => (int) $id)->all();
+        $company = Company::query()->find($clients->first()?->company_id);
+
+        DB::transaction(function () use ($clientIds, $company, $group_settings_id): void {
+            Client::query()
+                  ->company()
+                  ->whereIn('id', $clientIds)
+                  ->update(['group_settings_id' => $group_settings_id]);
+
+            $this->invalidateFranceReportingClients($company, $clientIds);
+        }, attempts: 3);
     }
 
-    public function purge($client)
+    public function bulkUpdate(Builder $model, string $column, mixed $new_value): void
     {
+        $clients = $column === 'country_id'
+            ? (clone $model)->get(['id', 'company_id'])
+            : collect();
+        $company = $clients->isNotEmpty()
+            ? Company::query()->find($clients->first()->company_id)
+            : null;
 
-        $purged_client = $client->present()->name();
-        $purged_client_hash = $client->client_hash;
+        DB::transaction(function () use ($model, $column, $new_value, $company, $clients): void {
+            parent::bulkUpdate($model, $column, $new_value);
 
-        $user = auth()->user() ?? $client->user;
-        $company = $client->company;
+            $this->invalidateFranceReportingClients(
+                $company,
+                $clients->pluck('id')->map(fn($id): int => (int) $id)->all(),
+            );
+        }, attempts: 3);
+    }
 
-        $event_vars = \App\Utils\Ninja::eventVars(auth()->user() ? auth()->user()->id : null);
-        $event_vars['client_hash'] = $purged_client_hash;
+    /** @param array<int, int> $clientIds */
+    private function invalidateFranceReportingClients(?Company $company, array $clientIds): void
+    {
+        if (! $company
+            || $clientIds === []
+            || ! (bool) $company->getSetting('france_reporting_enabled')) {
+            return;
+        }
 
-        event(new \App\Events\Client\ClientWasPurged($purged_client, $user, $company, $event_vars));
+        app(FranceScopeInvalidationRecorder::class)->recordAndDispatch(
+            company: $company,
+            clientIds: $clientIds,
+        );
+    }
 
-        nlog("Purging client id => {$client->id} => {$client->number}");
+    public function purge($client): void
+    {
+        DB::transaction(function () use ($client): void {
+            $company = Company::query()->whereKey($client->company_id)->lockForUpdate()->firstOrFail();
+            $client->setRelation('company', $company);
+            $hasRegulatoryHistory = TransactionEvent::query()
+                ->where('client_id', $client->id)
+                ->where(function ($query): void {
+                    $query->whereIn('event_id', FranceReportingEventType::retainedValues())
+                        ->orWhere(function ($pendingInvalidationQuery): void {
+                            $pendingInvalidationQuery
+                                ->where('event_id', FranceReportingEventType::ScopeInvalidation->value)
+                                ->whereNull('payment_status');
+                        })->orWhere(function ($pendingCallbackQuery): void {
+                            $pendingCallbackQuery
+                                ->where('event_id', FranceReportingEventType::SubmissionCallback->value)
+                                ->where('payment_status', FranceReportingStatus::Pending->value);
+                        });
+                })
+                ->exists();
 
-        // Delete documents associated with client's related entities before deleting the entities
-        $this->purgeClientDocuments($client);
+            if ($hasRegulatoryHistory) {
+                throw ValidationException::withMessages([
+                    'client' => 'This client has France reporting records that must be retained.',
+                ]);
+            }
 
-        $client->contacts()->forceDelete();
-        $client->tasks()->forceDelete();
-        $client->invoices()->forceDelete();
-        $client->ledger()->forceDelete();
-        $client->gateway_tokens()->forceDelete();
-        $client->projects()->forceDelete();
-        $client->credits()->forceDelete();
-        $client->quotes()->forceDelete();
-        $client->purgeable_activities()->forceDelete();
-        $client->recurring_invoices()->forceDelete();
-        $client->expenses()->forceDelete();
-        $client->recurring_expenses()->forceDelete();
-        $client->system_logs()->forceDelete();
-        // $client->documents()->forceDelete();
-        $client->payments()->forceDelete();
+            $hasReportableSources = (bool) $company->getSetting('france_reporting_enabled')
+                && $client->reportableFrTransaction()
+                && (Invoice::withTrashed()
+                    ->where('client_id', $client->id)
+                    ->where('is_deleted', false)
+                    ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
+                    ->exists()
+                    || Credit::withTrashed()
+                        ->where('client_id', $client->id)
+                        ->where('is_deleted', false)
+                        ->whereIn('status_id', [Credit::STATUS_SENT, Credit::STATUS_PARTIAL, Credit::STATUS_APPLIED])
+                        ->exists());
 
-        $client->unsearchable();
+            if ($hasReportableSources) {
+                throw ValidationException::withMessages([
+                    'client' => 'This client has documents awaiting France reporting reconciliation.',
+                ]);
+            }
 
-        $client->forceDelete();
+            $replacementClientId = Client::withTrashed()
+                ->where('company_id', $company->id)
+                ->where('id', '!=', $client->id)
+                ->orderBy('id')
+                ->value('id');
+
+            if ($replacementClientId) {
+                TransactionEvent::query()
+                    ->where('client_id', $client->id)
+                    ->where('event_id', FranceReportingEventType::ScopeInvalidation->value)
+                    ->where('payment_status', FranceReportingStatus::Accepted->value)
+                    ->where('payment_request->role', 'source_reconciliation_watermark')
+                    ->update(['client_id' => $replacementClientId]);
+            }
+
+            $purgedClient = $client->present()->name();
+            $purgedClientHash = $client->client_hash;
+            $user = auth()->user() ?? $client->user;
+            $eventVars = \App\Utils\Ninja::eventVars(auth()->user() ? auth()->user()->id : null);
+            $eventVars['client_hash'] = $purgedClientHash;
+
+            event(new \App\Events\Client\ClientWasPurged($purgedClient, $user, $company, $eventVars));
+
+            nlog("Purging client id => {$client->id} => {$client->number}");
+            $this->purgeClientDocuments($client);
+
+            $client->contacts()->forceDelete();
+            $client->tasks()->forceDelete();
+            $client->invoices()->forceDelete();
+            $client->ledger()->forceDelete();
+            $client->gateway_tokens()->forceDelete();
+            $client->projects()->forceDelete();
+            $client->credits()->forceDelete();
+            $client->quotes()->forceDelete();
+            $client->purgeable_activities()->forceDelete();
+            $client->recurring_invoices()->forceDelete();
+            $client->expenses()->forceDelete();
+            $client->recurring_expenses()->forceDelete();
+            $client->system_logs()->forceDelete();
+            $client->payments()->forceDelete();
+            $client->unsearchable();
+            $client->forceDelete();
+        }, attempts: 3);
     }
 
     /**

@@ -140,19 +140,11 @@ class StorePaymentRequest extends Request
         $user = auth()->user();
 
         $input = $this->all();
+        unset($input['lock_key']);
 
-        $client_id = is_string($this->input('client_id', '')) ? $this->input('client_id') : '';
+        $lock_key = "|PAYMENT|" . hash('sha256', json_encode($input)) . "|" . $user->company()->company_key;
 
-        if (isset($input['invoices'][0]['invoice_id'])) {
-            $hash_key = implode(',', array_column($input['invoices'], 'invoice_id'));
-        } else {
-            $hash_key = $this->input('amount', 0);
-        }
-
-        $hash = $this->ip() . "|" . $hash_key . "|" . $client_id . "|" . $user->company()->company_key;
-
-        // Atomic lock: returns false if key already exists (request in progress)
-        if (!Atomic::set($hash, true, 1)) {
+        if (!Atomic::set($lock_key, true, 1)) {
             throw new DuplicatePaymentException('Duplicate request.', 429);
         }
 
@@ -225,7 +217,7 @@ class StorePaymentRequest extends Request
             unset($input['exchange_rate']);
         }
 
-        $input['lock_key'] = $hash;
+        $input['lock_key'] = $lock_key;
 
         $this->replace($input);
     }

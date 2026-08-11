@@ -57,7 +57,7 @@ class ClientIdentifierValidationTest extends TestCase
             'client_id' => $client->id,
             'company_id' => $this->testCompany->id,
             'is_primary' => 1,
-            'email' => 'test@example.com',
+            'email' => 'test@gmail.com',
         ]);
 
         return $client->fresh();

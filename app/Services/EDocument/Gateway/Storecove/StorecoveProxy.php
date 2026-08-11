@@ -14,6 +14,7 @@ namespace App\Services\EDocument\Gateway\Storecove;
 
 use App\Utils\Ninja;
 use App\Models\Company;
+use App\Services\EDocument\Standards\France\FranceEReportStorecoveProjection;
 use Illuminate\Support\Facades\Http;
 
 class StorecoveProxy
@@ -277,6 +278,11 @@ class StorecoveProxy
      */
     public function submitDocument(array $payload): array
     {
+        if (data_get($payload, 'document.documentType') === 'fr_e_report'
+            && (int) ($payload['legalEntityId'] ?? 0) !== (int) $this->company->legal_entity_id) {
+            throw new \InvalidArgumentException('France e-report legalEntityId does not match the selected company.');
+        }
+
         $payload = [
             ...$payload,
             'tenant_id' => $payload['tenant_id'] ?? $this->company->company_key,
@@ -289,7 +295,10 @@ class StorecoveProxy
         }
 
         if (Ninja::isHosted()) {
-            $response = $this->storecove->sendJsonDocument($payload);
+            $storecovePayload = data_get($payload, 'document.documentType') === 'fr_e_report'
+                ? FranceEReportStorecoveProjection::from($payload)
+                : $payload;
+            $response = $this->storecove->sendJsonDocument($storecovePayload);
 
             if (is_string($response)) {
                 return ['guid' => str_replace('"', '', $response)];

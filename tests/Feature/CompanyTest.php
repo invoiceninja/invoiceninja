@@ -135,7 +135,7 @@ class CompanyTest extends TestCase
 
     public function testCompanyExpenseMailbox()
     {
-        $safeEmail = $this->faker->safeEmail();
+        $safeEmail = uniqid('testuser') . '@gmail.com';
 
         // Test valid email address
         $company_update = [

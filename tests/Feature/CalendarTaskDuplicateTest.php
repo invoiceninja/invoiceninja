@@ -73,7 +73,7 @@ class CalendarTaskDuplicateTest extends TestCase
         $providerEventId = 'google:' . sha1('primary') . ':event-1';
         $otherUser = User::factory()->create([
             'account_id' => $this->account->id,
-            'email' => 'other-calendar-user@example.com',
+            'email' => 'other-calendar-user@gmail.com',
         ]);
         $existingTask = TaskFactory::create($this->company->id, $otherUser->id);
         $existingTask->description = 'Other user calendar task';

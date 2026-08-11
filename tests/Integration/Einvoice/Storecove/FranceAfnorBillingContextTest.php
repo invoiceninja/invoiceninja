@@ -138,7 +138,7 @@ class FranceAfnorBillingContextTest extends TestCase
         $settings->id_number = $countryCode === 'FR' ? '73282932000074' : '01234567890';
         $settings->classification = 'business';
         $settings->country_id = Country::where('iso_3166_2', $countryCode)->firstOrFail()->id;
-        $settings->email = $this->faker->safeEmail();
+        $settings->email = uniqid('testuser') . '@gmail.com';
         $settings->currency_id = '3';
 
         $taxData = new TaxModel();
@@ -182,7 +182,7 @@ class FranceAfnorBillingContextTest extends TestCase
             'client_id' => $client->id,
             'company_id' => $client->company_id,
             'user_id' => $client->user_id,
-            'email' => $this->faker->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         return $client;

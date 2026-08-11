@@ -193,6 +193,17 @@ class PullPeppolDocs extends Command
                     $upload_document = null;
                 }
 
+                if (($document['original_document_mime_type'] ?? '') === 'application/pdf'
+                    && strlen($document['original_base64_document'] ?? '') > 5) {
+                    $upload_document = TempFile::UploadedFileFromBase64(
+                        $document['original_base64_document'],
+                        "{$file_name}.pdf",
+                        'application/pdf'
+                    );
+                    $this->saveDocument($upload_document, $expense, true);
+                    $upload_document = null;
+                }
+
                 if (strlen($document['original_base64_xml'] ?? '') > 5) {
 
                     $upload_document = TempFile::UploadedFileFromBase64($document['original_base64_xml'], "{$file_name}.xml", 'application/xml');

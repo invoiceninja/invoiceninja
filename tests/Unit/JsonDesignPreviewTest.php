@@ -165,6 +165,59 @@ class JsonDesignPreviewTest extends TestCase
         $this->assertStringContainsString('invoice-container', $html, 'HTML should contain invoice-container div');
     }
 
+    public function testJsonDesignServiceBuildInjectsCustomCssStyleIntoHead(): void
+    {
+        $design = $this->jsonDesign;
+        $css = '.invoice-widget--table { color: rebeccapurple; }';
+        $design['customCss'] = "<style>\n{$css}\n</style>";
+
+        $invitation = $this->invoice->invitations()->first();
+        $pdfService = new PdfService($invitation, 'product');
+        $pdfService->config = (new PdfConfiguration($pdfService))->init();
+        $pdfService->html_variables = (new \App\Utils\HtmlEngine($invitation))->generateLabelsAndValues();
+
+        $html = (new JsonDesignService($pdfService, $design))->build();
+        $customStyle = "<style data-invoice-custom-css>\n{$css}\n</style>";
+        $customStylePosition = strpos($html, $customStyle);
+        $headEnd = stripos($html, '</head>');
+
+        $this->assertIsInt($customStylePosition);
+        $this->assertIsInt($headEnd);
+        $this->assertLessThan($headEnd, $customStylePosition);
+    }
+
+    public function testJsonDesignServiceBuildPreservesHalfPixelTableBorders(): void
+    {
+        $design = $this->jsonDesign;
+        $tableFound = false;
+
+        foreach ($design['blocks'] as &$block) {
+            if (($block['type'] ?? null) !== 'table') {
+                continue;
+            }
+
+            $block['properties']['headerBorders'] = ['color' => '#111827', 'width' => 0.5];
+            $block['properties']['rowBorders'] = ['color' => '#9CA3AF', 'width' => '0.5px'];
+            $tableFound = true;
+            break;
+        }
+        unset($block);
+
+        $this->assertTrue($tableFound, 'Test design should contain a table block');
+
+        $invitation = $this->invoice->invitations()->first();
+        $ps = new PdfService($invitation, 'product');
+        $ps->config = (new PdfConfiguration($ps))->init();
+        $ps->html_variables = (new \App\Utils\HtmlEngine($invitation))->generateLabelsAndValues();
+
+        $html = (new JsonDesignService($ps, $design))->build();
+        $cleanedHtml = Purify::clean($html);
+
+        $this->assertStringContainsString('box-shadow: inset 0 0.5px 0 0 #111827', $cleanedHtml);
+        $this->assertStringContainsString('inset -0.5px 0 0 0 #9CA3AF', $cleanedHtml);
+        $this->assertStringNotContainsString('border-top: 0.5px', $cleanedHtml);
+    }
+
     // -----------------------------------------------------------------------
     // 8. JsonDesignService::build() HTML contains variable replacements
     // -----------------------------------------------------------------------

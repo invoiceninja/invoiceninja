@@ -1,66 +1,43 @@
 <?php
 
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
+
 namespace Tests\Unit;
 
 use App\Models\TransactionEvent;
-use Tests\TestCase;
+use App\Services\EDocument\Standards\France\FranceReportingEventType;
+use App\Services\EDocument\Standards\France\FranceReportingStatus;
+use PHPUnit\Framework\TestCase;
 
 class TransactionEventFranceConstantsTest extends TestCase
 {
-    public function testFranceReportingEventsAreIsolatedFromTaxReportingEvents(): void
+    public function test_france_event_types_are_typed_and_isolated_from_tax_events(): void
     {
-        $this->assertSame([
-            TransactionEvent::INVOICE_UPDATED,
-            TransactionEvent::PAYMENT_REFUNDED,
-            TransactionEvent::PAYMENT_DELETED,
-            TransactionEvent::PAYMENT_CASH,
-        ], TransactionEvent::TAX_REPORTING_EVENTS);
-
-        $this->assertSame([
-            TransactionEvent::FR_B2C_TRANSACTION,
-            TransactionEvent::FR_B2C_PAYMENT,
-            TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION,
-            TransactionEvent::FR_VAT_EXCLUDED_PAYMENT,
-        ], TransactionEvent::FR_REPORTING_EVENTS);
-
-        $this->assertSame([
-            TransactionEvent::FR_REPORT_SUBMISSION_B2C,
-            TransactionEvent::FR_REPORT_SUBMISSION_VAT_EXCLUDED,
-            TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE,
-        ], TransactionEvent::FR_REPORT_SUBMISSION_EVENTS);
-
-        $this->assertSame([
-            TransactionEvent::FR_B2B_PAYMENT_RECEIVED_NOTIFICATION,
-        ], TransactionEvent::FR_PAYMENT_NOTIFICATION_EVENTS);
-
+        $this->assertSame([1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009], FranceReportingEventType::values());
+        $this->assertSame([1001, 1002, 1003, 1004, 1005, 1006, 1007], FranceReportingEventType::retainedValues());
+        $this->assertSame([1008, 1009], FranceReportingEventType::transientValues());
+        $this->assertSame([1005, 1007], FranceReportingEventType::submissionValues());
         $this->assertEmpty(array_intersect(
             TransactionEvent::TAX_REPORTING_EVENTS,
-            TransactionEvent::FR_REPORTING_EVENTS
+            FranceReportingEventType::values(),
         ));
+    }
 
-        $this->assertEmpty(array_intersect(
-            TransactionEvent::FR_REPORTING_EVENTS,
-            TransactionEvent::FR_REPORT_SUBMISSION_EVENTS
-        ));
-
-        $this->assertEmpty(array_intersect(
-            TransactionEvent::FR_REPORTING_EVENTS,
-            TransactionEvent::FR_PAYMENT_NOTIFICATION_EVENTS
-        ));
-
-        $this->assertEmpty(array_intersect(
-            TransactionEvent::FR_REPORT_SUBMISSION_EVENTS,
-            TransactionEvent::FR_PAYMENT_NOTIFICATION_EVENTS
-        ));
-
-        $this->assertSame(1001, TransactionEvent::FR_B2C_TRANSACTION);
-        $this->assertSame(1002, TransactionEvent::FR_B2C_PAYMENT);
-        $this->assertSame(1003, TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION);
-        $this->assertSame(1004, TransactionEvent::FR_VAT_EXCLUDED_PAYMENT);
-        $this->assertSame(1005, TransactionEvent::FR_REPORT_SUBMISSION_B2C);
-        $this->assertSame(1006, TransactionEvent::FR_REPORT_SUBMISSION_VAT_EXCLUDED);
-        $this->assertSame(1007, TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE);
-        $this->assertSame(1008, TransactionEvent::FR_B2B_PAYMENT_RECEIVED_NOTIFICATION);
+    public function test_france_submission_statuses_distinguish_sent_from_accepted(): void
+    {
+        $this->assertSame(1, FranceReportingStatus::Pending->value);
+        $this->assertSame(2, FranceReportingStatus::Sent->value);
+        $this->assertSame(3, FranceReportingStatus::Accepted->value);
+        $this->assertSame(4, FranceReportingStatus::Rejected->value);
+        $this->assertSame(5, FranceReportingStatus::RetryableFailure->value);
+        $this->assertSame([1, 2, 5], FranceReportingStatus::openValues());
     }
 }
-

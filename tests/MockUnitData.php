@@ -57,7 +57,7 @@ trait MockUnitData
 
         $this->user = User::factory()->create([
             'account_id' => $this->account->id,
-            'email' => \Illuminate\Support\Str::random(32)."@example.com",
+            'email' => \Illuminate\Support\Str::random(32)."@gmail.com",
         ]);
 
         $this->company = Company::factory()->create([

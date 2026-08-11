@@ -28,6 +28,18 @@ final readonly class B2CPaymentData implements Arrayable, JsonSerializable
         public array $taxSubtotal = [],
     ) {
         ReportDataValidator::assertDate($this->date, 'b2cPayments.date');
+
+        if ($this->taxSubtotal === []) {
+            throw new \InvalidArgumentException('b2cPayments.taxSubtotal requires at least one item.');
+        }
+
+        foreach ($this->taxSubtotal as $subtotal) {
+            $subtotal->toB2CPaymentArray();
+
+            if ($subtotal->currency !== 'EUR') {
+                throw new \InvalidArgumentException('Only EUR B2C payment reports are currently supported.');
+            }
+        }
     }
 
     /**
@@ -46,13 +58,13 @@ final readonly class B2CPaymentData implements Arrayable, JsonSerializable
      */
     public function toArray(): array
     {
-        return array_filter([
+        return [
             'date' => $this->date,
             'taxSubtotal' => array_values(array_map(
-                static fn (TaxSubtotalData $taxSubtotal): array => $taxSubtotal->toArray(),
+                static fn (TaxSubtotalData $taxSubtotal): array => $taxSubtotal->toB2CPaymentArray(),
                 $this->taxSubtotal,
             )),
-        ], static fn (mixed $value): bool => $value !== []);
+        ];
     }
 
     /**

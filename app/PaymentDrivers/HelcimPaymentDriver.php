@@ -12,6 +12,8 @@
 
 namespace App\PaymentDrivers;
 
+use App\Exceptions\PaymentFailed;
+use App\Jobs\Mail\PaymentFailedMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -21,6 +23,9 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Helcim\ACH;
 use App\PaymentDrivers\Helcim\CreditCard;
+use App\PaymentDrivers\Helcim\HelcimAchTransaction;
+use App\PaymentDrivers\Helcim\HelcimApiException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 class HelcimPaymentDriver extends BaseDriver
@@ -113,6 +118,15 @@ class HelcimPaymentDriver extends BaseDriver
     public function processPaymentResponse($request)
     {
         return $this->payment_method->paymentResponse($request);
+    }
+
+    public function initializeAchPaymentCheckout(string $expectedFingerprint): array
+    {
+        if (! $this->payment_method instanceof ACH) {
+            throw new PaymentFailed('Helcim ACH is not the selected payment method.', 400);
+        }
+
+        return $this->payment_method->initializePaymentCheckout($expectedFingerprint);
     }
 
     /**
@@ -340,6 +354,14 @@ class HelcimPaymentDriver extends BaseDriver
         string $expectedCurrency,
         string $kind = 'card'
     ): array {
+        if ($kind === 'ach') {
+            return $this->verifyAchTransaction(
+                $transactionId,
+                $expectedAmount,
+                $expectedCurrency
+            )->raw;
+        }
+
         $endpoint = $kind === 'ach'
             ? "/ach/transactions/{$transactionId}"
             : "/card-transactions/{$transactionId}";
@@ -404,6 +426,163 @@ class HelcimPaymentDriver extends BaseDriver
     }
 
     /**
+     * Fetch and validate the authoritative state of an ACH transaction.
+     */
+    public function verifyAchTransaction(
+        string|int $transactionId,
+        float $expectedAmount,
+        string $expectedCurrency,
+        bool $requireAccepted = true
+    ): HelcimAchTransaction {
+        $response = $this->gatewayRequest("/ach/transactions/{$transactionId}", [], 'GET');
+        $transaction = HelcimAchTransaction::from($response);
+
+        return $this->validateAchTransaction(
+            $transaction,
+            (string) $transactionId,
+            $expectedAmount,
+            $expectedCurrency,
+            $requireAccepted
+        );
+    }
+
+    /**
+     * Validate a transaction returned directly by a server-to-server ACH request.
+     */
+    public function validateAchTransaction(
+        HelcimAchTransaction $transaction,
+        ?string $expectedTransactionId,
+        float $expectedAmount,
+        string $expectedCurrency,
+        bool $requireAccepted = true,
+        bool $requireFinancialFields = true
+    ): HelcimAchTransaction {
+        if (! $transaction->transactionId) {
+            throw new PaymentFailed('Helcim ACH response did not include a transactionId.', 400);
+        }
+
+        if ($expectedTransactionId !== null && $transaction->transactionId !== $expectedTransactionId) {
+            throw new PaymentFailed(
+                "Helcim ACH transaction mismatch: expected {$expectedTransactionId}, got {$transaction->transactionId}.",
+                400
+            );
+        }
+
+        if (($requireFinancialFields && $transaction->amount === null)
+            || ($transaction->amount !== null
+                && (int) round($transaction->amount * 100) !== (int) round($expectedAmount * 100))) {
+            throw new PaymentFailed(
+                'Helcim ACH transaction amount mismatch: expected '
+                    . $expectedAmount
+                    . ', got '
+                    . ($transaction->amount ?? 'no amount')
+                    . '.',
+                400
+            );
+        }
+
+        if (($requireFinancialFields && $transaction->currency === null)
+            || ($transaction->currency !== null && $transaction->currency !== strtoupper($expectedCurrency))) {
+            throw new PaymentFailed(
+                'Helcim ACH transaction currency mismatch: expected '
+                    . strtoupper($expectedCurrency)
+                    . ', got '
+                    . ($transaction->currency ?? 'no currency')
+                    . '.',
+                400
+            );
+        }
+
+        if ($requireAccepted && ! $transaction->isAccepted()) {
+            throw new PaymentFailed(
+                "Helcim ACH transaction {$transaction->transactionId} has status '{$transaction->statusDescription()}'.",
+                400
+            );
+        }
+
+        if (! $requireAccepted && ! ($transaction->isAccepted() || $transaction->isFailed())) {
+            throw new PaymentFailed(
+                "Helcim ACH transaction {$transaction->transactionId} has unknown status '{$transaction->statusDescription()}'.",
+                400
+            );
+        }
+
+        return $transaction;
+    }
+
+    /**
+     * Reconcile a local ACH payment with Helcim's authoritative clearing state.
+     */
+    public function reconcileAchPayment(Payment $payment): string
+    {
+        // Once clearing has been confirmed, claims and reversals are handled
+        // manually, consistently with the other payment gateways.
+        if ($payment->status_id !== Payment::STATUS_PENDING || $payment->is_deleted) {
+            return 'unchanged';
+        }
+
+        $this->client = $payment->client;
+        $currency = $payment->currency->code;
+
+        $transaction = $this->verifyAchTransaction(
+            $payment->transaction_reference,
+            (float) $payment->amount,
+            $currency,
+            false
+        );
+
+        return DB::transaction(function () use ($payment, $transaction): string {
+            /** @var Payment|null $lockedPayment */
+            $lockedPayment = Payment::withTrashed()
+                ->where('id', $payment->id)
+                ->where('company_gateway_id', $this->company_gateway->id)
+                ->where('transaction_reference', $transaction->transactionId)
+                ->lockForUpdate()
+                ->first();
+
+            if (! $lockedPayment) {
+                return 'not_found';
+            }
+
+            if ($transaction->isCompleted()) {
+                if ($lockedPayment->status_id === Payment::STATUS_PENDING && ! $lockedPayment->is_deleted) {
+                    $lockedPayment->status_id = Payment::STATUS_COMPLETED;
+                    $lockedPayment->saveQuietly();
+
+                    return 'completed';
+                }
+
+                return 'unchanged';
+            }
+
+            if ($transaction->isFailed()) {
+                if ($lockedPayment->status_id !== Payment::STATUS_PENDING || $lockedPayment->is_deleted) {
+                    return 'unchanged';
+                }
+
+                $lockedPayment->loadMissing('client.company', 'invoices');
+                $paymentHash = PaymentHash::where('payment_id', $lockedPayment->id)->first();
+                $client = $lockedPayment->client;
+
+                $lockedPayment->service()->deletePayment();
+                $lockedPayment->status_id = Payment::STATUS_FAILED;
+                $lockedPayment->save();
+
+                PaymentFailedMailer::dispatch(
+                    $paymentHash,
+                    $client->company,
+                    $client,
+                    "Helcim ACH payment {$transaction->transactionId} failed with status {$transaction->statusDescription()}."
+                );
+
+                return 'failed';
+            }
+
+            return 'pending';
+        });
+    }
+
+    /**
      * Make a request to the Helcim API
      *
      * SECURITY: This method handles all API communication server-side.
@@ -411,7 +590,12 @@ class HelcimPaymentDriver extends BaseDriver
      *
      * Supports GET, POST, and PUT methods.
      */
-    public function gatewayRequest(string $endpoint, array $data, string $method = 'POST')
+    public function gatewayRequest(
+        string $endpoint,
+        array $data,
+        string $method = 'POST',
+        ?string $idempotencyKey = null
+    )
     {
         $url = $this->getApiUrl() . $endpoint;
 
@@ -419,7 +603,7 @@ class HelcimPaymentDriver extends BaseDriver
             ->withHeaders(['api-token' => $this->getApiToken()]);
 
         if (in_array($method, ['POST', 'PUT'])) {
-            $idempotencyKey = \Illuminate\Support\Str::uuid()->toString();
+            $idempotencyKey ??= \Illuminate\Support\Str::uuid()->toString();
             $http = $http->withHeaders(['idempotency-key' => $idempotencyKey]);
 
             $response = $method === 'PUT'
@@ -434,7 +618,10 @@ class HelcimPaymentDriver extends BaseDriver
             if (is_array($errorMessage)) {
                 $errorMessage = json_encode($errorMessage);
             }
-            throw new \Exception('Helcim API returned error: ' . $errorMessage . ' (HTTP ' . $response->status() . ')');
+            throw new HelcimApiException(
+                'Helcim API returned error: ' . $errorMessage . ' (HTTP ' . $response->status() . ')',
+                $response->status()
+            );
         }
 
         return $response->json();
@@ -465,34 +652,30 @@ class HelcimPaymentDriver extends BaseDriver
     }
 
     /**
-     * Process webhook from Helcim.
-     *
-     * Helcim sends a JSON payload with at minimum:
-     *   { "transactionId": 123, "status": "APPROVED|RETURNED|FAILED|...", ... }
-     *
-     * If a `webhookVerifierToken` is configured in the gateway settings we validate
-     * the HMAC-SHA256 signature supplied in the `helcim-signature` request header.
+     * Process a signed Helcim webhook and reconcile the referenced ACH transaction.
+     * The webhook body is only a notification; payment state always comes from a
+     * fresh server-to-server transaction lookup.
      */
     public function processWebhookRequest($request)
     {
         $rawBody = $request->getContent();
 
-        // --- Signature verification (required when webhookVerifierToken is configured) ---
         $verifierToken = $this->company_gateway->getConfigField('webhookVerifierToken');
-        if ($verifierToken) {
-            $signature = $request->header('helcim-signature') ?? $request->header('x-helcim-signature') ?? '';
-            $expected  = hash_hmac('sha256', $rawBody, $verifierToken);
-            if (! hash_equals($expected, strtolower($signature))) {
-                SystemLogger::dispatch(
-                    ['error' => 'Helcim webhook signature mismatch', 'received' => $signature],
-                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                    SystemLog::EVENT_GATEWAY_FAILURE,
-                    SystemLog::TYPE_HELCIM,
-                    null,
-                    $this->company_gateway->company
-                );
-                return response()->json(['message' => 'Invalid signature'], 401);
-            }
+        if (! $verifierToken) {
+            return response()->json(['message' => 'Webhook verification is not configured'], 401);
+        }
+
+        if (! $this->hasValidWebhookSignature($request, $rawBody, $verifierToken)) {
+            SystemLogger::dispatch(
+                ['error' => 'Helcim webhook signature mismatch'],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_HELCIM,
+                null,
+                $this->company_gateway->company
+            );
+
+            return response()->json(['message' => 'Invalid signature'], 401);
         }
 
         $payload = $request->json()->all();
@@ -501,105 +684,85 @@ class HelcimPaymentDriver extends BaseDriver
             return response()->json(['message' => 'Empty payload'], 200);
         }
 
-        $transactionId = (string) ($payload['transactionId'] ?? $payload['transaction_id'] ?? '');
-        $status        = strtoupper((string) ($payload['status'] ?? $payload['transactionStatus'] ?? ''));
+        $transactionId = (string) ($payload['transactionId'] ?? $payload['transaction_id'] ?? $payload['id'] ?? '');
 
         if ($transactionId === '') {
             return response()->json(['message' => 'No transactionId in payload'], 200);
         }
 
         /** @var Payment|null $payment */
-        $payment = Payment::where('transaction_reference', $transactionId)
+        $payment = Payment::withTrashed()
+            ->where('transaction_reference', $transactionId)
             ->where('company_gateway_id', $this->company_gateway->id)
+            ->where('gateway_type_id', GatewayType::BANK_TRANSFER)
+            ->where('status_id', Payment::STATUS_PENDING)
+            ->where('is_deleted', false)
             ->first();
 
         if (! $payment) {
-            // Payment not found by the real transactionId. Look for a pending ACH payment
-            // that was created with a placeholder reference (ach_pending_*) when HelcimPay.js
-            // fired SUCCESS before Helcim assigned a transactionId (asynchronous mandate flow).
-            $amount = isset($payload['amount']) ? (float) $payload['amount'] : null;
-
-            // Build a tight query so we never match the wrong pending payment.
-            $pendingQuery = Payment::where('company_gateway_id', $this->company_gateway->id)
-                ->where('status_id', Payment::STATUS_PENDING)
-                ->where('gateway_type_id', GatewayType::BANK_TRANSFER)
-                ->where('transaction_reference', 'like', 'ach_pending_%')
-                ->where('created_at', '>=', now()->subDays(7));
-
-            // Narrow by exact amount when present in the webhook payload
-            if ($amount !== null && $amount > 0) {
-                $pendingQuery->where('amount', $amount);
-            }
-
-            // Narrow by client via customerCode / customerId if the payload contains it
-            $customerCode = $payload['customerCode'] ?? $payload['customer']['code'] ?? null;
-            $customerId   = $payload['customerId'] ?? $payload['customer']['id'] ?? null;
-
-            if ($customerCode || $customerId) {
-                $tokenQuery = ClientGatewayToken::where('company_gateway_id', $this->company_gateway->id);
-                if ($customerCode) {
-                    $tokenQuery->where('gateway_customer_reference', $customerCode);
-                } elseif ($customerId) {
-                    $tokenQuery->where('gateway_customer_reference', (string) $customerId);
-                }
-                $token = $tokenQuery->first();
-                if ($token) {
-                    $pendingQuery->where('client_id', $token->client_id);
-                }
-            }
-
-            $payment = $pendingQuery->orderBy('created_at', 'desc')->first();
-
-            if ($payment) {
-                // Update the placeholder reference to the real Helcim transactionId so that
-                // future lookups (refunds, etc.) work correctly.
-                $payment->transaction_reference = $transactionId;
-
-                SystemLogger::dispatch(
-                    [
-                        'info' => 'Matched webhook transactionId to pending ACH payment with placeholder reference',
-                        'transaction_id' => $transactionId,
-                        'payment_id' => $payment->id,
-                    ],
-                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                    SystemLog::EVENT_GATEWAY_SUCCESS,
-                    SystemLog::TYPE_HELCIM,
-                    $payment->client,
-                    $payment->client->company
-                );
-            }
-        }
-
-        if (! $payment) {
-            // Nothing to update — may have been created outside Invoice Ninja
             return response()->json(['message' => 'Payment not found'], 200);
         }
 
-        // Map Helcim status → Invoice Ninja payment status
-        $completedStatuses = ['APPROVED', 'CLEARED', 'SETTLED', 'COMPLETED', 'SUCCESS'];
-        $failedStatuses    = ['RETURNED', 'FAILED', 'DECLINED', 'ERROR', 'REJECTED', 'NSF', 'VOIDED', 'CANCELLED'];
-
-        $newStatus = null;
-        if (in_array($status, $completedStatuses, true)) {
-            $newStatus = Payment::STATUS_COMPLETED;
-        } elseif (in_array($status, $failedStatuses, true)) {
-            $newStatus = Payment::STATUS_FAILED;
-        }
-
-        if ($newStatus !== null && $payment->status_id !== $newStatus) {
-            $payment->status_id = $newStatus;
-            $payment->save();
-
+        try {
+            $result = $this->reconcileAchPayment($payment);
             SystemLogger::dispatch(
-                ['webhook_payload' => $payload, 'new_status' => $newStatus, 'transaction_id' => $transactionId],
+                ['webhook_payload' => $payload, 'result' => $result, 'transaction_id' => $transactionId],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_SUCCESS,
                 SystemLog::TYPE_HELCIM,
                 $payment->client,
                 $payment->client->company
             );
+        } catch (\Throwable $e) {
+            SystemLogger::dispatch(
+                ['webhook_payload' => $payload, 'error' => $e->getMessage(), 'transaction_id' => $transactionId],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_HELCIM,
+                $payment->client,
+                $payment->client->company
+            );
+
+            return response()->json(['message' => 'Webhook reconciliation failed'], 500);
         }
 
         return response()->json(['message' => 'Webhook processed'], 200);
+    }
+
+    private function hasValidWebhookSignature($request, string $rawBody, string $verifierToken): bool
+    {
+        $signatureHeader = (string) $request->header('webhook-signature', '');
+        $webhookId = (string) $request->header('webhook-id', '');
+        $timestamp = (string) $request->header('webhook-timestamp', '');
+
+        if ($signatureHeader === '' || $webhookId === '' || ! ctype_digit($timestamp)) {
+            return false;
+        }
+
+        if (abs(time() - (int) $timestamp) > 300) {
+            return false;
+        }
+
+        $secret = base64_decode($verifierToken, true);
+        if ($secret === false) {
+            return false;
+        }
+
+        $expected = base64_encode(hash_hmac(
+            'sha256',
+            "{$webhookId}.{$timestamp}.{$rawBody}",
+            $secret,
+            true
+        ));
+
+        preg_match_all('/(?:^|[\s,])v1,([^\s,]+)/', $signatureHeader, $matches);
+
+        foreach ($matches[1] as $signature) {
+            if (hash_equals($expected, $signature)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

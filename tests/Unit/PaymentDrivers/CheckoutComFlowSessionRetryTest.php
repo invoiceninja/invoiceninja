@@ -121,7 +121,7 @@ class CheckoutComFlowSessionRetryTest extends TestCase
     private function makeDriver(?string $customerId, ?CheckoutApiException $firstError = null): CheckoutComPaymentDriver
     {
         $presenter = $this->createMock(ClientPresenter::class);
-        $presenter->method('email')->willReturn('client@example.com');
+        $presenter->method('email')->willReturn('client@gmail.com');
         $presenter->method('name')->willReturn('Test Client');
 
         $company = new Company();

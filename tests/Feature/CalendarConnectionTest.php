@@ -270,7 +270,7 @@ class CalendarConnectionTest extends TestCase
         Socialite::fake(CalendarConnection::PROVIDER_GOOGLE, (new SocialiteUser())->map([
             'id' => 'google-sub-1',
             'name' => 'Calendar User',
-            'email' => 'calendar@example.com',
+            'email' => 'calendar@gmail.com',
         ])->setToken('google-access-token')
             ->setRefreshToken('google-refresh-token')
             ->setExpiresIn(3600));
@@ -295,7 +295,7 @@ class CalendarConnectionTest extends TestCase
         $response->assertJsonPath('data.calendar_connection.connected', true);
         $response->assertJsonPath('data.calendar_connection.provider', CalendarConnection::PROVIDER_GOOGLE);
         $response->assertJsonPath('data.calendar_connection.provider_user_id', 'google-sub-1');
-        $response->assertJsonPath('data.calendar_connection.email', 'calendar@example.com');
+        $response->assertJsonPath('data.calendar_connection.email', 'calendar@gmail.com');
         $response->assertJsonPath('data.calendar_connection.calendars.0.calendar_id', 'primary');
         $response->assertJsonPath('data.calendar_connection.calendars.0.name', 'Primary');
         $this->assertArrayNotHasKey('status', $response->json('data.calendar_connection'));
@@ -310,7 +310,7 @@ class CalendarConnectionTest extends TestCase
         $this->assertInstanceOf(CalendarConnection::class, $connection);
         $this->assertSame(CalendarConnection::PROVIDER_GOOGLE, $connection->provider);
         $this->assertSame('google-sub-1', $connection->provider_user_id);
-        $this->assertSame('calendar@example.com', $connection->email);
+        $this->assertSame('calendar@gmail.com', $connection->email);
         $this->assertSame('google-access-token', $connection->access_token);
         $this->assertSame('google-refresh-token', $connection->refresh_token);
         $this->assertSame('primary', $connection->calendars[0]['calendar_id']);
@@ -334,7 +334,7 @@ class CalendarConnectionTest extends TestCase
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_GOOGLE,
                 'provider_user_id' => 'google-sub-1',
-                'email' => 'calendar@example.com',
+                'email' => 'calendar@gmail.com',
                 'access_token' => 'google-access-token',
                 'refresh_token' => 'google-refresh-token',
                 'expires_at' => now()->addHour()->timestamp,
@@ -352,7 +352,7 @@ class CalendarConnectionTest extends TestCase
         $response->assertJsonPath('data.calendar_connection.connected', true);
         $response->assertJsonPath('data.calendar_connection.provider', CalendarConnection::PROVIDER_GOOGLE);
         $response->assertJsonPath('data.calendar_connection.provider_user_id', 'google-sub-1');
-        $response->assertJsonPath('data.calendar_connection.email', 'calendar@example.com');
+        $response->assertJsonPath('data.calendar_connection.email', 'calendar@gmail.com');
         $response->assertJsonPath('data.calendar_connection.calendars.0.calendar_id', 'primary');
         $this->assertArrayNotHasKey('status', $response->json('data.calendar_connection'));
         $this->assertArrayNotHasKey('access_token', $response->json('data.calendar_connection'));
@@ -366,7 +366,7 @@ class CalendarConnectionTest extends TestCase
         Socialite::fake(CalendarConnection::PROVIDER_GOOGLE, (new SocialiteUser())->map([
             'id' => 'google-sub-1',
             'name' => 'Calendar User',
-            'email' => 'calendar@example.com',
+            'email' => 'calendar@gmail.com',
         ])->setToken('google-access-token')
             ->setRefreshToken('google-refresh-token')
             ->setExpiresIn(3600));
@@ -419,7 +419,7 @@ class CalendarConnectionTest extends TestCase
         Socialite::fake(CalendarConnection::PROVIDER_MICROSOFT, (new SocialiteUser())->map([
             'id' => 'microsoft-user-1',
             'name' => 'Calendar User',
-            'email' => 'calendar@example.com',
+            'email' => 'calendar@gmail.com',
         ])->setToken('microsoft-access-token')
             ->setRefreshToken('microsoft-refresh-token')
             ->setExpiresIn(3600));
@@ -478,7 +478,7 @@ class CalendarConnectionTest extends TestCase
         Socialite::fake(CalendarConnection::PROVIDER_GOOGLE, (new SocialiteUser())->map([
             'id' => 'google-sub-1',
             'name' => 'Calendar User',
-            'email' => 'calendar@example.com',
+            'email' => 'calendar@gmail.com',
         ])->setToken('google-access-token')
             ->setRefreshToken('google-refresh-token')
             ->setExpiresIn(3600));
@@ -500,7 +500,7 @@ class CalendarConnectionTest extends TestCase
         $response->assertJsonPath('data.calendar_connection.connected', true);
         $response->assertJsonPath('data.calendar_connection.provider', CalendarConnection::PROVIDER_GOOGLE);
         $response->assertJsonPath('data.calendar_connection.provider_user_id', 'google-sub-1');
-        $response->assertJsonPath('data.calendar_connection.email', 'calendar@example.com');
+        $response->assertJsonPath('data.calendar_connection.email', 'calendar@gmail.com');
         $response->assertJsonPath('data.calendar_connection.calendars.0.calendar_id', 'primary');
         $this->assertArrayNotHasKey('status', $response->json('data.calendar_connection'));
         $this->assertArrayNotHasKey('access_token', $response->json('data.calendar_connection'));
@@ -525,7 +525,7 @@ class CalendarConnectionTest extends TestCase
 
         Socialite::fake(CalendarConnection::PROVIDER_GOOGLE, (new SocialiteUser())->map([
             'id' => 'google-sub-1',
-            'email' => 'calendar@example.com',
+            'email' => 'calendar@gmail.com',
         ])->setToken('google-access-token')
             ->setRefreshToken('google-refresh-token')
             ->setExpiresIn(3600));
@@ -572,7 +572,7 @@ class CalendarConnectionTest extends TestCase
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_GOOGLE,
                 'provider_user_id' => 'google-sub-1',
-                'email' => 'calendar@example.com',
+                'email' => 'calendar@gmail.com',
                 'access_token' => 'old-access-token',
                 'refresh_token' => 'existing-refresh-token',
                 'expires_at' => now()->addHour()->timestamp,
@@ -590,7 +590,7 @@ class CalendarConnectionTest extends TestCase
         Socialite::fake(CalendarConnection::PROVIDER_GOOGLE, (new SocialiteUser())->map([
             'id' => 'google-sub-1',
             'name' => 'Calendar User',
-            'email' => 'calendar@example.com',
+            'email' => 'calendar@gmail.com',
         ])->setToken('new-access-token')
             ->setExpiresIn(3600));
 
@@ -620,7 +620,7 @@ class CalendarConnectionTest extends TestCase
         Socialite::fake(CalendarConnection::PROVIDER_MICROSOFT, (new SocialiteUser())->map([
             'id' => 'microsoft-user-1',
             'name' => 'Calendar User',
-            'email' => 'calendar@example.com',
+            'email' => 'calendar@gmail.com',
         ])->setToken('microsoft-access-token')
             ->setRefreshToken('microsoft-refresh-token')
             ->setExpiresIn(3600));
@@ -658,7 +658,7 @@ class CalendarConnectionTest extends TestCase
         Socialite::fake(CalendarConnection::PROVIDER_GOOGLE, (new SocialiteUser())->map([
             'id' => 'google-sub-1',
             'name' => 'Calendar User',
-            'email' => 'calendar@example.com',
+            'email' => 'calendar@gmail.com',
         ])->setToken('google-access-token')
             ->setRefreshToken('google-refresh-token')
             ->setExpiresIn(3600));
@@ -689,7 +689,7 @@ class CalendarConnectionTest extends TestCase
         Socialite::fake(CalendarConnection::PROVIDER_GOOGLE, (new SocialiteUser())->map([
             'id' => 'google-sub-1',
             'name' => 'Calendar User',
-            'email' => 'calendar@example.com',
+            'email' => 'calendar@gmail.com',
         ])->setToken('google-access-token')
             ->setRefreshToken('google-refresh-token')
             ->setExpiresIn(3600));
@@ -726,7 +726,7 @@ class CalendarConnectionTest extends TestCase
         Socialite::fake(CalendarConnection::PROVIDER_GOOGLE, (new SocialiteUser())->map([
             'id' => 'google-sub-1',
             'name' => 'Calendar User',
-            'email' => 'calendar@example.com',
+            'email' => 'calendar@gmail.com',
         ])->setToken('google-access-token')
             ->setRefreshToken('google-refresh-token')
             ->setExpiresIn(3600));
@@ -775,7 +775,7 @@ class CalendarConnectionTest extends TestCase
         Socialite::fake(CalendarConnection::PROVIDER_MICROSOFT, (new SocialiteUser())->map([
             'id' => 'microsoft-user-1',
             'name' => 'Calendar User',
-            'email' => 'calendar@example.com',
+            'email' => 'calendar@gmail.com',
         ])->setToken('microsoft-access-token')
             ->setRefreshToken('microsoft-refresh-token')
             ->setExpiresIn(3600));
@@ -865,7 +865,7 @@ class CalendarConnectionTest extends TestCase
 
         Socialite::fake(CalendarConnection::PROVIDER_GOOGLE, (new SocialiteUser())->map([
             'id' => 'google-sub-1',
-            'email' => 'calendar@example.com',
+            'email' => 'calendar@gmail.com',
         ])->setToken('google-access-token')
             ->setRefreshToken('google-refresh-token')
             ->setExpiresIn(3600));
@@ -934,7 +934,7 @@ class CalendarConnectionTest extends TestCase
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_GOOGLE,
                 'provider_user_id' => 'google-sub-1',
-                'email' => 'calendar@example.com',
+                'email' => 'calendar@gmail.com',
                 'access_token' => 'google-access-token',
                 'refresh_token' => 'google-refresh-token',
                 'expires_at' => now()->addHour()->timestamp,
@@ -974,7 +974,7 @@ class CalendarConnectionTest extends TestCase
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_GOOGLE,
                 'provider_user_id' => 'google-sub-1',
-                'email' => 'calendar@example.com',
+                'email' => 'calendar@gmail.com',
                 'access_token' => 'google-access-token',
                 'refresh_token' => 'google-refresh-token',
                 'expires_at' => now()->addHour()->timestamp,
@@ -1016,7 +1016,7 @@ class CalendarConnectionTest extends TestCase
         $updateResponse->assertJsonPath('data.calendar_connection.connected', true);
         $updateResponse->assertJsonPath('data.calendar_connection.provider', CalendarConnection::PROVIDER_GOOGLE);
         $updateResponse->assertJsonPath('data.calendar_connection.provider_user_id', 'google-sub-1');
-        $updateResponse->assertJsonPath('data.calendar_connection.email', 'calendar@example.com');
+        $updateResponse->assertJsonPath('data.calendar_connection.email', 'calendar@gmail.com');
         $updateResponse->assertJsonPath('data.calendar_connection.calendars.0.calendar_id', 'work');
         $this->assertArrayNotHasKey('status', $updateResponse->json('data.calendar_connection'));
         $this->assertArrayNotHasKey('access_token', $updateResponse->json('data.calendar_connection'));
@@ -1082,7 +1082,7 @@ class CalendarConnectionTest extends TestCase
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_MICROSOFT,
                 'provider_user_id' => 'microsoft-user-1',
-                'email' => 'calendar@example.com',
+                'email' => 'calendar@gmail.com',
                 'refresh_token' => 'microsoft-refresh-token',
                 'expires_at' => now()->subMinute()->timestamp,
                 'calendars' => [],
@@ -1098,7 +1098,7 @@ class CalendarConnectionTest extends TestCase
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_GOOGLE,
                 'provider_user_id' => 'google-sub-1',
-                'email' => 'calendar@example.com',
+                'email' => 'calendar@gmail.com',
                 'access_token' => 'google-access-token',
                 'refresh_token' => 'google-refresh-token',
                 'expires_at' => now()->addHour()->timestamp,
@@ -1120,7 +1120,7 @@ class CalendarConnectionTest extends TestCase
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_MICROSOFT,
                 'provider_user_id' => 'microsoft-user-1',
-                'email' => 'calendar@example.com',
+                'email' => 'calendar@gmail.com',
                 'access_token' => 'microsoft-access-token',
                 'refresh_token' => 'microsoft-refresh-token',
                 'expires_at' => now()->addHour()->timestamp,
@@ -1153,7 +1153,7 @@ class CalendarConnectionTest extends TestCase
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_GOOGLE,
                 'provider_user_id' => 'google-sub-1',
-                'email' => 'calendar@example.com',
+                'email' => 'calendar@gmail.com',
                 'access_token' => 'google-access-token',
                 'refresh_token' => 'google-refresh-token',
                 'expires_at' => now()->addHour()->timestamp,
@@ -1229,7 +1229,7 @@ class CalendarConnectionTest extends TestCase
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_GOOGLE,
                 'provider_user_id' => 'google-sub-1',
-                'email' => 'calendar@example.com',
+                'email' => 'calendar@gmail.com',
                 'access_token' => 'google-access-token',
                 'refresh_token' => 'google-refresh-token',
                 'expires_at' => now()->addHour()->timestamp,
@@ -1293,7 +1293,7 @@ class CalendarConnectionTest extends TestCase
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_MICROSOFT,
                 'provider_user_id' => 'microsoft-user-1',
-                'email' => 'calendar@example.com',
+                'email' => 'calendar@gmail.com',
                 'access_token' => 'microsoft-access-token',
                 'refresh_token' => 'microsoft-refresh-token',
                 'expires_at' => now()->addHour()->timestamp,
@@ -1363,7 +1363,7 @@ class CalendarConnectionTest extends TestCase
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_MICROSOFT,
                 'provider_user_id' => 'microsoft-user-1',
-                'email' => 'calendar@example.com',
+                'email' => 'calendar@gmail.com',
                 'access_token' => 'microsoft-access-token',
                 'refresh_token' => 'microsoft-refresh-token',
                 'expires_at' => now()->addHour()->timestamp,
@@ -1431,7 +1431,7 @@ class CalendarConnectionTest extends TestCase
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_GOOGLE,
                 'provider_user_id' => 'google-sub-1',
-                'email' => 'calendar@example.com',
+                'email' => 'calendar@gmail.com',
                 'access_token' => 'google-access-token',
                 'refresh_token' => 'google-refresh-token',
                 'expires_at' => now()->addHour()->timestamp,
@@ -1485,7 +1485,7 @@ class CalendarConnectionTest extends TestCase
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_GOOGLE,
                 'provider_user_id' => 'google-sub-1',
-                'email' => 'calendar@example.com',
+                'email' => 'calendar@gmail.com',
                 'access_token' => 'google-access-token',
                 'refresh_token' => 'google-refresh-token',
                 'expires_at' => now()->addHour()->timestamp,
@@ -1525,7 +1525,7 @@ class CalendarConnectionTest extends TestCase
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_GOOGLE,
                 'provider_user_id' => 'google-sub-1',
-                'email' => 'calendar@example.com',
+                'email' => 'calendar@gmail.com',
                 'access_token' => 'expired-google-access-token',
                 'refresh_token' => 'google-refresh-token',
                 'expires_at' => now()->subMinute()->timestamp,
@@ -1575,7 +1575,7 @@ class CalendarConnectionTest extends TestCase
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_MICROSOFT,
                 'provider_user_id' => 'microsoft-user-1',
-                'email' => 'calendar@example.com',
+                'email' => 'calendar@gmail.com',
                 'access_token' => 'expired-microsoft-access-token',
                 'refresh_token' => 'microsoft-refresh-token',
                 'expires_at' => now()->subMinute()->timestamp,
@@ -1628,7 +1628,7 @@ class CalendarConnectionTest extends TestCase
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_GOOGLE,
                 'provider_user_id' => 'google-sub-1',
-                'email' => 'calendar@example.com',
+                'email' => 'calendar@gmail.com',
                 'access_token' => 'google-access-token',
                 'refresh_token' => 'google-refresh-token',
                 'expires_at' => now()->addHour()->timestamp,
@@ -1664,7 +1664,7 @@ class CalendarConnectionTest extends TestCase
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_MICROSOFT,
                 'provider_user_id' => 'microsoft-user-1',
-                'email' => 'calendar@example.com',
+                'email' => 'calendar@gmail.com',
                 'refresh_token' => 'microsoft-refresh-token',
                 'expires_at' => now()->subMinute()->timestamp,
                 'calendars' => [],

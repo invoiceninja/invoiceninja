@@ -32,7 +32,7 @@ class ClientRegistrationCustomFieldsTest extends TestCase
     use DatabaseTransactions;
     use AppSetup;
 
-    private $faker;
+    public $faker;
 
     private Account $account;
 
@@ -45,6 +45,7 @@ class ClientRegistrationCustomFieldsTest extends TestCase
         parent::setUp();
 
         $this->faker = Factory::create();
+
         $this->withoutMiddleware([
             VerifyCsrfToken::class,
             ThrottleRequests::class,
@@ -55,7 +56,7 @@ class ClientRegistrationCustomFieldsTest extends TestCase
 
         $this->user = User::factory()->create([
             'account_id' => $this->account->id,
-            'email' => $this->faker->unique()->safeEmail(),
+            'email' => uniqid('user.', true) . '@example.test',
         ]);
 
         $this->company = Company::factory()->create([
@@ -264,7 +265,7 @@ class ClientRegistrationCustomFieldsTest extends TestCase
 
     private function validPayload(array $overrides = []): array
     {
-        $email = uniqid('testuser.') . '@gmail.com';
+        $email = uniqid('testuser') . '@gmail.com';
 
         return array_merge([
             'company_key' => $this->company->company_key,
@@ -277,9 +278,9 @@ class ClientRegistrationCustomFieldsTest extends TestCase
         ], $overrides);
     }
 
-    public function tearDown(): void
-    {
-        $this->account->delete();
-        parent::tearDown();
-    }
+    // public function tearDown(): void
+    // {
+    //     // $this->account->delete();
+    //     // parent::tearDown();
+    // }
 }
