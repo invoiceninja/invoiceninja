@@ -20,7 +20,7 @@
     "@tailwindcss/typography": "^0.5.19",
     "@types/node": "^26.2.0",
     "autoprefixer": "^10.5.0",
-    "cypress": "^12.17.4",
+    "cypress": "^15.20.1",
     "laravel-mix-purgecss": "^6.0.0",
     "laravel-vite-plugin": "^0.8.1",
     "postcss": "^8.5.15",
