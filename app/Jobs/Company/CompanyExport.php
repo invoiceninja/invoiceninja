@@ -12,6 +12,7 @@
 
 namespace App\Jobs\Company;
 
+use App\Events\Socket\DownloadAvailable;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Util\UnlinkFile;
@@ -831,6 +832,12 @@ class CompanyExport implements ShouldQueue
         $nmo->settings = $this->company->settings;
 
         (new NinjaMailerJob($nmo, true))->handle();
+
+        DownloadAvailable::notify(
+            $this->user,
+            $url,
+            ctrans('texts.download_backup_subject', ['company' => $this->company->present()->name()]),
+        );
 
         UnlinkFile::dispatch(config('filesystems.default'), $storage_path)->delay(now()->addHours($this->total_activities > 10000 ? 5 : 1));
 

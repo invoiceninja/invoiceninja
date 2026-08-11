@@ -58,11 +58,15 @@ use App\Models\Subscription;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Models\TaxRate;
+use App\Models\TransactionEvent;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Models\VendorContact;
 use App\Models\Webhook;
 use App\Services\Pdf\Purify;
+use App\Services\EDocument\Standards\France\FranceReportingEventType;
+use App\Services\EDocument\Standards\France\FranceReportingStatus;
+use Illuminate\Support\Facades\DB;
 use App\Utils\Ninja;
 use App\Utils\TempFile;
 use App\Utils\Traits\GeneratesCounter;
@@ -743,23 +747,60 @@ class CompanyImport implements ShouldQueue
 
     private function purgeCompanyData()
     {
-        $this->company->clients()->forceDelete();
-        $this->company->all_activities()->forceDelete();
-        $this->company->products()->forceDelete();
-        $this->company->projects()->forceDelete();
-        $this->company->tasks()->forceDelete();
-        $this->company->vendors()->forceDelete();
-        $this->company->expenses()->forceDelete();
-        $this->company->subscriptions()->forceDelete();
-        $this->company->purchase_orders()->forceDelete();
-        $this->company->bank_integrations()->forceDelete();
-        $this->company->bank_transactions()->forceDelete();
-        $this->company->schedulers()->forceDelete();
-        $this->company->system_log_relation()->forceDelete();
+        return DB::transaction(function () {
+            $this->company = Company::query()->whereKey($this->company->id)->lockForUpdate()->firstOrFail();
 
-        $this->company->save();
+            if (TransactionEvent::query()
+                ->where('company_id', $this->company->id)
+                ->where(function ($query): void {
+                    $query->whereIn('event_id', FranceReportingEventType::retainedValues())
+                        ->orWhere(function ($pendingInvalidationQuery): void {
+                            $pendingInvalidationQuery
+                                ->where('event_id', FranceReportingEventType::ScopeInvalidation->value)
+                                ->whereNull('payment_status');
+                        })->orWhere(function ($pendingCallbackQuery): void {
+                            $pendingCallbackQuery
+                                ->where('event_id', FranceReportingEventType::SubmissionCallback->value)
+                                ->where('payment_status', FranceReportingStatus::Pending->value);
+                        });
+                })
+                ->exists()) {
+                throw new ImportCompanyFailed('Company data with France reporting history cannot be replaced.');
+            }
 
-        return $this;
+            $hasReportableSources = (bool) $this->company->getSetting('france_reporting_enabled')
+                && (Invoice::withTrashed()
+                    ->where('company_id', $this->company->id)
+                    ->where('is_deleted', false)
+                    ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
+                    ->exists()
+                    || Credit::withTrashed()
+                        ->where('company_id', $this->company->id)
+                        ->where('is_deleted', false)
+                        ->whereIn('status_id', [Credit::STATUS_SENT, Credit::STATUS_PARTIAL, Credit::STATUS_APPLIED])
+                        ->exists());
+
+            if ($hasReportableSources) {
+                throw new ImportCompanyFailed('Company data awaiting France reporting reconciliation cannot be replaced.');
+            }
+
+            $this->company->clients()->forceDelete();
+            $this->company->all_activities()->forceDelete();
+            $this->company->products()->forceDelete();
+            $this->company->projects()->forceDelete();
+            $this->company->tasks()->forceDelete();
+            $this->company->vendors()->forceDelete();
+            $this->company->expenses()->forceDelete();
+            $this->company->subscriptions()->forceDelete();
+            $this->company->purchase_orders()->forceDelete();
+            $this->company->bank_integrations()->forceDelete();
+            $this->company->bank_transactions()->forceDelete();
+            $this->company->schedulers()->forceDelete();
+            $this->company->system_log_relation()->forceDelete();
+            $this->company->save();
+
+            return $this;
+        }, attempts: 3);
     }
 
     private function importCompany()
@@ -1525,13 +1566,13 @@ class CompanyImport implements ShouldQueue
                 ])
                 ->timeout(5)
                 ->get($url);
-                
+
                 if ($response->successful()) {
                     $file = $response->body();
                 } else {
                     $file = false;
                 }
-                
+
                 if ($file) {
                     try {
                         Storage::disk(config('filesystems.default'))->put($new_document_url, $file);

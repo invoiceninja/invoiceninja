@@ -354,6 +354,27 @@ class Purify
             return str_replace('%24', '$', $html);
         }
 
+        return self::sanitizeHtml($html, $is_fragment);
+    }
+
+    /**
+     * Sanitize HTML originating from an untrusted external document.
+     *
+     * This trust boundary must not be bypassed by the configurable sanitizer
+     * opt-out used for application-authored templates.
+     */
+    public static function cleanUntrustedDocument(string $html, bool $is_fragment = false): string
+    {
+        if (strlen($html) <= 1) {
+            return str_replace('%24', '$', $html);
+        }
+
+        return self::sanitizeHtml($html, $is_fragment);
+    }
+
+    private static function sanitizeHtml(string $html, bool $is_fragment): string
+    {
+
         $html = str_replace('%24', '$', $html);
 
         // Strip null bytes — no legitimate use in text, and they can be used

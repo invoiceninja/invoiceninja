@@ -13,24 +13,32 @@
 namespace App\Events\Socket;
 
 use App\Models\User;
-use League\Fractal\Manager;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use App\Utils\Traits\Invoice\Broadcasting\DefaultResourceBroadcast;
+use Illuminate\Queue\SerializesModels;
 
 /**
  * Class DownloadAvailable.
  */
 class DownloadAvailable implements ShouldBroadcast
 {
-    use SerializesModels;
     use InteractsWithSockets;
+    use SerializesModels;
 
     public function __construct(public string $url, public string $message, public User $user) {}
 
-    public function broadcastOn()
+    public static function buildMessage(string $contentLabel): string
+    {
+        return ctrans('texts.download_ready', ['message' => $contentLabel]).' '.ctrans('texts.download_timeframe');
+    }
+
+    public static function notify(User $user, string $url, string $contentLabel): void
+    {
+        broadcast(new self($url, self::buildMessage($contentLabel), $user));
+    }
+
+    public function broadcastOn(): array
     {
         return [
             new PrivateChannel("user-{$this->user->account->key}-{$this->user->id}"),
@@ -39,13 +47,9 @@ class DownloadAvailable implements ShouldBroadcast
 
     public function broadcastWith(): array
     {
-
-        // ctrans('texts.document_download_subject');
-
         return [
             'message' => $this->message,
             'url' => $this->url,
         ];
     }
-
 }

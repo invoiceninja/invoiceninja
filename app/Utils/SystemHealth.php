@@ -379,7 +379,7 @@ class SystemHealth
 
         foreach ($lines as $line) {
             // Match the main error, ie. [2024-07-10 12:23:07] production.ERROR: ...
-            if (substr($line, 0, 2) === '[2') {
+            if (substr($line, 0, 2) === '.ERROR') {
                 $last_error = $line;
             }
         }

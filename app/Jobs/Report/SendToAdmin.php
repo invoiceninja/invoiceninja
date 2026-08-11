@@ -12,15 +12,14 @@
 
 namespace App\Jobs\Report;
 
-use App\Models\User;
-use App\Models\Company;
 use App\Export\CSV\BaseExport;
-use App\Libraries\MultiDB;
-use App\Mail\DownloadReport;
-use Illuminate\Bus\Queueable;
-use Illuminate\Support\Str;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
+use App\Libraries\MultiDB;
+use App\Mail\DownloadReport;
+use App\Models\Company;
+use App\Models\User;
+use App\Services\Download\ProtectedZipDownloadStore;
 use App\Services\Report\ARDetailReport;
 use App\Services\Report\ARSummaryReport;
 use App\Services\Report\ClientBalanceReport;
@@ -28,11 +27,13 @@ use App\Services\Report\ClientSalesReport;
 use App\Services\Report\CsvToXlsxConverter;
 use App\Services\Report\RawRowsXlsxWriter;
 use App\Services\Report\TaxSummaryReport;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Str;
 
 class SendToAdmin implements ShouldQueue
 {
@@ -111,6 +112,17 @@ class SendToAdmin implements ShouldQueue
             (new NinjaMailerJob($nmo))->handle();
         } catch (\Throwable $th) {
             nlog('EXCEPTION:: SendToAdmin:: could not email report for' . $th->getMessage());
+        }
+
+        try {
+            
+            $dateformat = str_replace("/", "-", $this->company->date_format());
+            $datetime = now()->setTimezone($this->company->timezone()->name)->format($dateformat.'-H:i:s');
+            $archive_name = str_replace(".csv", "", $this->file_name).'_'.$datetime.'.zip';
+
+            (new ProtectedZipDownloadStore())->store($files, $archive_name, $this->company, $user);
+        } catch (\Throwable $th) {
+            nlog('EXCEPTION:: SendToAdmin:: could not store protected download for '.$th->getMessage());
         }
 
     }

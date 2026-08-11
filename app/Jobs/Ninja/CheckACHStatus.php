@@ -15,6 +15,7 @@ namespace App\Jobs\Ninja;
 use App\Libraries\MultiDB;
 use App\Models\ClientGatewayToken;
 use App\Models\Payment;
+use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -135,8 +136,7 @@ class CheckACHStatus implements ShouldQueue
                             $p->save();
                             return;
                         } elseif ($charge && $charge->status == 'succeeded') {
-                            $p->status_id = Payment::STATUS_COMPLETED;
-                            $p->saveQuietly();
+                            $this->completePayment($p);
                             return;
                         }
 
@@ -148,8 +148,7 @@ class CheckACHStatus implements ShouldQueue
 
 
                 if ($pi && $pi->status == 'succeeded') {
-                    $p->status_id = Payment::STATUS_COMPLETED;
-                    $p->saveQuietly();
+                    $this->completePayment($p);
                     return;
                 }
 
@@ -163,8 +162,7 @@ class CheckACHStatus implements ShouldQueue
                         $p->save();
                         return;
                     } elseif ($charge && $charge->status == 'succeeded') {
-                        $p->status_id = \App\Models\Payment::STATUS_COMPLETED;
-                        $p->saveQuietly();
+                        $this->completePayment($p);
                         return;
                     }
                 }
@@ -240,8 +238,7 @@ class CheckACHStatus implements ShouldQueue
                            $transaction_status = $transaction->getTransactionStatus();
 
                            if (in_array($transaction_status, $this->authnet_success_statuses)) {
-                               $p->status_id = \App\Models\Payment::STATUS_COMPLETED;
-                               $p->saveQuietly();
+                               $this->completePayment($p);
                                return;
                            } elseif (in_array($transaction_status, $this->authnet_failure_statuses)) {
                                $p->service()->deletePayment();
@@ -254,5 +251,13 @@ class CheckACHStatus implements ShouldQueue
 
                    });
         }
+    }
+
+    private function completePayment(Payment $payment): void
+    {
+        $originalStatus = (int) $payment->status_id;
+        $payment->status_id = Payment::STATUS_COMPLETED;
+        $payment->saveQuietly();
+        app(FrancePaymentApplicationRecorder::class)->recordStatusTransition($payment, $originalStatus);
     }
 }

@@ -327,6 +327,17 @@ class XssSanitizationTest extends TestCase
         $this->assertStringContainsString('Also safe', $result);
     }
 
+    public function test_untrusted_document_sanitization_cannot_be_disabled(): void
+    {
+        config(['ninja.disable_purify_html' => true]);
+
+        $result = Purify::cleanUntrustedDocument('<p>Safe</p><script>alert(1)</script>');
+
+        $this->assertStringContainsString('Safe', $result);
+        $this->assertStringNotContainsString('<script>', $result);
+        $this->assertStringNotContainsString('alert(', $result);
+    }
+
     public function test_purify_strips_onerror_from_img()
     {
         $result = Purify::clean('<img src="https://example.com/img.jpg" onerror="alert(1)" style="width:100px">');

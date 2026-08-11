@@ -75,7 +75,7 @@ class ReportPreviewTest extends TestCase
         ])->postJson('/api/v1/reports/products?output=json', $data)
         ->assertStatus(200);
 
-        $p = (new PreviewReport($this->company, $data, ProductExport::class, '123'))->handle();
+        $p = (new PreviewReport($this->company, $data, ProductExport::class, '123', 'products.csv'))->handle();
 
         $this->assertNull($p);
 
@@ -108,7 +108,7 @@ class ReportPreviewTest extends TestCase
         ])->postJson('/api/v1/reports/payments?output=json', $data)
         ->assertStatus(200);
 
-        $p = (new PreviewReport($this->company, $data, PaymentExport::class, '123'))->handle();
+        $p = (new PreviewReport($this->company, $data, PaymentExport::class, '123', 'payments.csv'))->handle();
 
         $this->assertNull($p);
 
@@ -141,7 +141,7 @@ class ReportPreviewTest extends TestCase
         ])->postJson('/api/v1/reports/purchase_order_items?output=json', $data)
         ->assertStatus(200);
 
-        $p = (new PreviewReport($this->company, $data, \App\Export\CSV\PurchaseOrderItemExport::class, '123'))->handle();
+        $p = (new PreviewReport($this->company, $data, \App\Export\CSV\PurchaseOrderItemExport::class, '123', 'purchase_order_items.csv'))->handle();
 
         $this->assertNull($p);
 
@@ -175,7 +175,7 @@ class ReportPreviewTest extends TestCase
         ])->postJson('/api/v1/reports/quote_items?output=json', $data)
         ->assertStatus(200);
 
-        $p = (new PreviewReport($this->company, $data, \App\Export\CSV\QuoteItemExport::class, '123'))->handle();
+        $p = (new PreviewReport($this->company, $data, \App\Export\CSV\QuoteItemExport::class, '123', 'quote_items.csv'))->handle();
 
         $this->assertNull($p);
 
@@ -210,7 +210,7 @@ class ReportPreviewTest extends TestCase
         ])->postJson('/api/v1/reports/invoice_items?output=json', $data)
         ->assertStatus(200);
 
-        $p = (new PreviewReport($this->company, $data, \App\Export\CSV\InvoiceItemExport::class, '123'))->handle();
+        $p = (new PreviewReport($this->company, $data, \App\Export\CSV\InvoiceItemExport::class, '123', 'invoice_items.csv'))->handle();
 
         $this->assertNull($p);
 
@@ -246,7 +246,7 @@ class ReportPreviewTest extends TestCase
         ])->postJson('/api/v1/reports/purchase_orders?output=json', $data)
         ->assertStatus(200);
 
-        $p = (new PreviewReport($this->company, $data, PurchaseOrderExport::class, '123'))->handle();
+        $p = (new PreviewReport($this->company, $data, PurchaseOrderExport::class, '123', 'purchase_orders.csv'))->handle();
 
         $this->assertNull($p);
 
@@ -278,7 +278,7 @@ class ReportPreviewTest extends TestCase
         ])->postJson('/api/v1/reports/quotes?output=json', $data)
         ->assertStatus(200);
 
-        $p = (new PreviewReport($this->company, $data, QuoteExport::class, '123'))->handle();
+        $p = (new PreviewReport($this->company, $data, QuoteExport::class, '123', 'quotes.csv'))->handle();
 
         $this->assertNull($p);
 
@@ -310,7 +310,7 @@ class ReportPreviewTest extends TestCase
         ])->postJson('/api/v1/reports/invoices?output=json', $data)
         ->assertStatus(200);
 
-        $p = (new PreviewReport($this->company, $data, InvoiceExport::class, '123'))->handle();
+        $p = (new PreviewReport($this->company, $data, InvoiceExport::class, '123', 'invoices.csv'))->handle();
 
         $this->assertNull($p);
 
@@ -343,7 +343,7 @@ class ReportPreviewTest extends TestCase
             "output" => "json",
         ];
 
-        (new PreviewReport($this->company, $data, InvoiceExport::class, "invoice_preview_full"))->handle();
+        (new PreviewReport($this->company, $data, InvoiceExport::class, "invoice_preview_full", "invoices.csv"))->handle();
 
         $report = Cache::pull("invoice_preview_full");
 
@@ -440,7 +440,7 @@ class ReportPreviewTest extends TestCase
         ])->postJson('/api/v1/reports/expenses?output=json', $data)
         ->assertStatus(200);
 
-        $p = (new PreviewReport($this->company, $data, ExpenseExport::class, '123'))->handle();
+        $p = (new PreviewReport($this->company, $data, ExpenseExport::class, '123', 'expense.csv'))->handle();
 
         $this->assertNull($p);
 
@@ -473,7 +473,7 @@ class ReportPreviewTest extends TestCase
         ])->postJson('/api/v1/reports/documents?output=json', $data)
         ->assertStatus(200);
 
-        $p = (new PreviewReport($this->company, $data, DocumentExport::class, '123'))->handle();
+        $p = (new PreviewReport($this->company, $data, DocumentExport::class, '123', 'documents.csv'))->handle();
 
         $this->assertNull($p);
 
@@ -508,7 +508,7 @@ class ReportPreviewTest extends TestCase
         ];
 
 
-        $p = (new PreviewReport($this->company, $data, ClientExport::class, 'client_export1'))->handle();
+        $p = (new PreviewReport($this->company, $data, ClientExport::class, 'client_export1', 'clients.csv'))->handle();
 
         $this->assertNull($p);
 
@@ -544,7 +544,7 @@ class ReportPreviewTest extends TestCase
             'user_id' => $this->user->id,
         ];
 
-        $p = (new PreviewReport($this->company, $data, ContactExport::class, '123'))->handle();
+        $p = (new PreviewReport($this->company, $data, ContactExport::class, '123', 'contacts.csv'))->handle();
 
         $this->assertNull($p);
 
@@ -571,7 +571,7 @@ class ReportPreviewTest extends TestCase
         ->assertStatus(200);
 
 
-        $p = (new PreviewReport($this->company, $data, ActivityExport::class, '123'))->handle();
+        $p = (new PreviewReport($this->company, $data, ActivityExport::class, '123', 'activities.csv'))->handle();
 
         $this->assertNull($p);
 
@@ -593,7 +593,7 @@ class ReportPreviewTest extends TestCase
             'user_id' => $this->user->id,
         ];
 
-        $p = (new PreviewReport($this->company, $data, CreditExport::class, '123'))->handle();
+        $p = (new PreviewReport($this->company, $data, CreditExport::class, '123', 'credits.csv'))->handle();
 
         $this->assertNull($p);
 

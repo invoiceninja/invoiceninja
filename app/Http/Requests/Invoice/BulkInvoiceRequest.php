@@ -19,7 +19,6 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Invoice\ActionsInvoice;
 use App\Exceptions\DuplicatePaymentException;
 use App\Helpers\Cache\Atomic;
-use App\Services\EDocument\Standards\France\FrancePaymentReportingMutationGuard;
 use Illuminate\Validation\Validator;
 
 class BulkInvoiceRequest extends Request
@@ -62,17 +61,9 @@ class BulkInvoiceRequest extends Request
                 ->whereIn('id', $this->transformKeys($this->input('ids', [])))
                 ->where('company_id', $user->company()->id)
                 ->cursor()
-                ->each(function (Invoice $invoice) use ($validator, $action, $user): void {
-
+                ->each(function (Invoice $invoice) use ($validator, $action): void {
                     if ($action ==  'delete' && ! $this->invoiceDeletable($invoice)) {
                         $validator->errors()->add('action', 'This invoice cannot be deleted');
-                    } elseif ($action === 'delete' && $user->can('edit', $invoice)) {
-                        $violation = app(FrancePaymentReportingMutationGuard::class)
-                            ->invoiceDeletionViolation($invoice);
-
-                        if ($violation) {
-                            $validator->errors()->add('id', $violation);
-                        }
                     } elseif ($action == 'cancel' && ! $this->invoiceCancellable($invoice)) {
                         $validator->errors()->add('action', 'This invoice cannot be cancelled');
                     } elseif ($action == 'reverse' && ! $this->invoiceReversable($invoice)) {

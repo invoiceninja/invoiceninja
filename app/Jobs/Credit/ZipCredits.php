@@ -12,6 +12,7 @@
 
 namespace App\Jobs\Credit;
 
+use App\Events\Socket\DownloadAvailable;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Util\UnlinkFile;
@@ -73,9 +74,10 @@ class ZipCredits implements ShouldQueue
             }
 
             Storage::put($path . $file_name, $zipFile->outputAsString());
+            $storage_url = Storage::url($path . $file_name);
 
             $nmo = new NinjaMailerObject();
-            $nmo->mailable = new DownloadCredits(Storage::url($path . $file_name), $this->company);
+            $nmo->mailable = new DownloadCredits($storage_url, $this->company);
             $nmo->to_user = $this->user;
             $nmo->settings = $settings;
             $nmo->company = $this->company;
@@ -83,6 +85,12 @@ class ZipCredits implements ShouldQueue
             NinjaMailerJob::dispatch($nmo);
 
             UnlinkFile::dispatch(config('filesystems.default'), $path . $file_name)->delay(now()->addHours(1));
+
+            DownloadAvailable::notify(
+                $this->user,
+                $storage_url,
+                count($this->credit_ids).' '.ctrans('texts.credits'),
+            );
         } catch (\PhpZip\Exception\ZipException $e) {
             // handle exception
         } finally {

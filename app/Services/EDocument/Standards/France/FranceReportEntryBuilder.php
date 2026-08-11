@@ -23,6 +23,7 @@ use App\Models\Payment;
 use App\Models\Product;
 use App\Services\EDocument\Standards\France\Models\B2BIInvoice;
 use App\Services\EDocument\Standards\Peppol;
+use App\Utils\BcMath;
 use InvoiceNinja\EInvoice\EInvoice;
 use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
@@ -135,7 +136,6 @@ class FranceReportEntryBuilder
                     category: 'exempt',
                     taxableAmount: $this->signedDocumentAmount($calc->getNetSubtotal(), $document),
                     taxAmount: '0',
-                    currency: $this->currencyCode($document),
                 ),
             ];
         }
@@ -150,7 +150,6 @@ class FranceReportEntryBuilder
                 category: $this->taxCategory($taxRate),
                 taxableAmount: $this->signedDocumentAmount($taxableAmount, $document),
                 taxAmount: $this->signedDocumentAmount($taxAmount, $document),
-                currency: $this->currencyCode($document),
             );
         })->all();
     }
@@ -201,11 +200,18 @@ class FranceReportEntryBuilder
     {
         $paymentAmount = $this->normalizeAmount($paymentAmount);
         $weights = array_map(
-            static fn (array $tax): float => abs((float) ($tax['base_amount'] ?? 0) + (float) ($tax['total'] ?? 0)),
+            static fn (array $tax): string => BcMath::abs(
+                BcMath::add($tax['base_amount'] ?? 0, $tax['total'] ?? 0, 6),
+                6,
+            ),
             $taxes,
         );
-        $totalWeight = array_sum($weights);
-        $remaining = $paymentAmount;
+        $totalWeight = array_reduce(
+            $weights,
+            static fn (string $carry, string $weight): string => BcMath::add($carry, $weight, 6),
+            '0',
+        );
+        $remaining = (string) $paymentAmount;
         $lastIndex = array_key_last($taxes);
         $allocations = [];
 
@@ -215,11 +221,15 @@ class FranceReportEntryBuilder
                 continue;
             }
 
-            $allocation = $totalWeight > 0
-                ? $this->normalizeAmount((float) $paymentAmount * ($weights[$index] / $totalWeight))
+            $allocation = BcMath::greaterThan($totalWeight, '0', 6)
+                ? $this->normalizeAmount(BcMath::mul(
+                    $paymentAmount,
+                    BcMath::div($weights[$index], $totalWeight, 10),
+                    10,
+                ))
                 : 0;
             $allocations[$index] = $allocation;
-            $remaining = $this->normalizeAmount((float) $remaining - (float) $allocation);
+            $remaining = BcMath::sub($remaining, $allocation, 4);
         }
 
         return $allocations;
@@ -272,13 +282,13 @@ class FranceReportEntryBuilder
 
     private function normalizeAmount(int|float|string|null $amount): int|float
     {
-        $amount = round((float) ($amount ?? 0), 2);
+        $amount = BcMath::round($amount ?? 0, 2);
 
-        if (abs($amount - (int) $amount) < 0.00001) {
+        if (BcMath::equal($amount, (string) (int) $amount, 2)) {
             return (int) $amount;
         }
 
-        return $amount;
+        return (float) $amount;
     }
 
     /**

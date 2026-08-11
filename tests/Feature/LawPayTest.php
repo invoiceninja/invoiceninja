@@ -17,6 +17,7 @@ use App\Models\Gateway;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentHash;
+use App\Models\Paymentable;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\Models\ClientGatewayToken;
@@ -378,6 +379,91 @@ class LawPayTest extends TestCase
 
         $payment->refresh();
         $this->assertEquals(Payment::STATUS_FAILED, $payment->status_id);
+    }
+
+    public function testWebhookRefundUpdatesTheAppliedInvoiceAllocation(): void
+    {
+        $payment = Payment::factory()->create([
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'transaction_reference' => 'ch_webhook_refund',
+            'amount' => 75,
+            'applied' => 75,
+            'refunded' => 0,
+            'status_id' => Payment::STATUS_COMPLETED,
+            'company_gateway_id' => $this->company_gateway->id,
+        ]);
+        $paymentable = new Paymentable();
+        $paymentable->payment_id = $payment->id;
+        $paymentable->paymentable_id = $this->invoice->id;
+        $paymentable->paymentable_type = 'invoices';
+        $paymentable->amount = 75;
+        $paymentable->refunded = 0;
+        $paymentable->save();
+
+        (new \App\PaymentDrivers\LawPay\Jobs\LawPayWebhook(
+            [
+                'id' => 'ch_webhook_refund',
+                'status' => 'refunded',
+                'event' => 'charge.refund.completed',
+                'amount' => 2500,
+            ],
+            $this->company->company_key,
+            $this->company_gateway->id,
+        ))->handle();
+
+        $this->assertSame(25.0, (float) Paymentable::query()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_id', $this->invoice->id)
+            ->value('refunded'));
+        $this->assertSame(25.0, (float) $payment->fresh()->refunded);
+    }
+
+    public function testWebhookProcessesDistinctPartialRefundsOnce(): void
+    {
+        $payment = Payment::factory()->create([
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'transaction_reference' => 'ch_webhook_partial_refunds',
+            'amount' => 75,
+            'applied' => 75,
+            'refunded' => 0,
+            'status_id' => Payment::STATUS_COMPLETED,
+            'company_gateway_id' => $this->company_gateway->id,
+        ]);
+        $paymentable = new Paymentable();
+        $paymentable->payment_id = $payment->id;
+        $paymentable->paymentable_id = $this->invoice->id;
+        $paymentable->paymentable_type = 'invoices';
+        $paymentable->amount = 75;
+        $paymentable->refunded = 0;
+        $paymentable->save();
+
+        foreach ([
+            ['refund_id' => 'refund_1', 'amount' => 2500],
+            ['refund_id' => 'refund_2', 'amount' => 1000],
+            ['refund_id' => 'refund_2', 'amount' => 1000],
+        ] as $refund) {
+            (new \App\PaymentDrivers\LawPay\Jobs\LawPayWebhook(
+                [
+                    'id' => 'ch_webhook_partial_refunds',
+                    'status' => 'refunded',
+                    'event' => 'charge.refund.completed',
+                    ...$refund,
+                ],
+                $this->company->company_key,
+                $this->company_gateway->id,
+            ))->handle();
+        }
+
+        $this->assertSame(35.0, (float) Paymentable::query()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_id', $this->invoice->id)
+            ->value('refunded'));
+        $this->assertSame(35.0, (float) $payment->fresh()->refunded);
+        $this->assertCount(2, $payment->fresh()->refund_meta);
     }
 
     public function testBaseUrl(): void

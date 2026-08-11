@@ -98,10 +98,10 @@ class DocuNinjaLoader extends Component
 
                 $signable = $invitation->{$this->entity_type}->service()->getDocuNinjaSignable($invitation);
 
-                $sync = match ($this->entity_type) {
-                    'quote' => new QuoteSync(qb_id: '', dn_completed: false),
-                    'purchase_order' => new PurchaseOrderSync(qb_id: '', dn_completed: false),
-                    default => new InvoiceSync(qb_id: '', dn_completed: false),
+                $sync = $invitation->{$this->entity_type}->sync ?? match ($this->entity_type) {
+                    'quote' => new QuoteSync(),
+                    'purchase_order' => new PurchaseOrderSync(),
+                    default => new InvoiceSync(),
                 };
                 $sync->addInvitation(
                     $signable['invitation_key'],

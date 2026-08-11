@@ -76,7 +76,7 @@ class ProfitAndLossController extends BaseController
 
         $hash = \Illuminate\Support\Str::uuid();
 
-        PreviewReport::dispatch($user->company(), $request->all(), ProfitLoss::class, $hash);
+        PreviewReport::dispatch($user->company(), $request->all(), ProfitLoss::class, $hash, $this->filename, $user);
 
         return response()->json(['message' => $hash], 200);
 
