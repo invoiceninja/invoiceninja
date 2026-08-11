@@ -100,7 +100,42 @@ class FacturXXmlExtractorTest extends TestCase
         $this->assertXmlStringEqualsXmlString($xml, base64_decode($xmlProperty->getValue($job)));
         $this->assertSame($pdf, base64_decode($documentProperty->getValue($job)));
         $this->assertSame('application/pdf', $mimeTypeProperty->getValue($job));
-        $this->assertNotSame('', $htmlProperty->getValue($job));
+        $this->assertSame('', $htmlProperty->getValue($job));
+    }
+
+    public function test_received_document_renders_and_sanitizes_standalone_factur_x_xml(): void
+    {
+        $xml = str_replace(
+            'Acheteur SAS',
+            '&lt;img src=x onerror=alert(1)&gt;',
+            $this->makeCiiXml()
+        );
+        $storecove = $this->createMock(Storecove::class);
+        $storecove->expects($this->once())
+            ->method('getDocument')
+            ->with('received-document-guid', 'original')
+            ->willReturn([
+                'guid' => 'received-document-guid',
+                'original' => base64_encode($xml),
+            ]);
+
+        $job = new ReceiveDocument([
+            'event_group' => 'invoice',
+            'tenant_id' => 'company-key',
+            'document_guid' => 'received-document-guid',
+        ]);
+
+        $reflection = new ReflectionClass($job);
+        $reflection->getProperty('storecove')->setValue($job, $storecove);
+        $reflection->getMethod('parseOriginal')->invoke($job);
+
+        $html = $reflection->getProperty('html')->getValue($job);
+
+        $this->assertNotSame('', $html);
+        $this->assertStringNotContainsString('onerror', $html);
+        $this->assertStringNotContainsString('alert(', $html);
+        $this->assertSame('', $reflection->getProperty('original_base64_document')->getValue($job));
+        $this->assertSame('', $reflection->getProperty('original_document_mime_type')->getValue($job));
     }
 
     public function test_reads_french_extended_ctc_profile_without_changing_extracted_xml(): void
