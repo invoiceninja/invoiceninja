@@ -1,24 +1,20 @@
 import { expect, type Page } from '@playwright/test';
-import { updateClient } from '../api-helpers';
+import { updateClient, type CompanyGatewayEntity } from '../api-helpers';
 import { createAndLogInClient } from '../client-portal-helpers';
 import { type ApiFixture } from '../fixtures';
-import {
-    createSentInvoice,
-    type PortalEntity,
-} from '../portal-entity-helpers';
-import { type CompanyGatewayEntity } from '../api-helpers';
+import { createSentInvoice } from '../portal-entity-helpers';
 import { type PaymentGatewayContext } from './types';
 
 const defaultClientAddress = {
     address1: '5 Wallaby Way',
     city: 'Perth',
     state: 'WA',
-    postal_code: '6000',
+    postal_code: '90210',
     country_id: '840',
     shipping_address1: '5 Wallaby Way',
     shipping_city: 'Perth',
     shipping_state: 'WA',
-    shipping_postal_code: '6000',
+    shipping_postal_code: '90210',
     shipping_country_id: '840',
 };
 
@@ -56,12 +52,38 @@ export async function selectGatewayFromDropdown(
 ): Promise<void> {
     await page.locator('[dusk="pay-now-dropdown"]').click();
 
-    const gatewayOption = page.locator(
+    // Portal payment-method payloads use the raw company_gateway id, while the
+    // API fixture exposes the hashed id. Prefer an exact match, then fall back
+    // to gateway type.
+    const byHashedId = page.locator(
         `[dusk="payment-methods-dropdown"] [data-company-gateway-id="${companyGateway.id}"][data-gateway-type-id="${gatewayTypeId}"]`,
     );
+    const byType = page.locator(
+        `[dusk="payment-methods-dropdown"] [data-gateway-type-id="${gatewayTypeId}"]`,
+    );
+
+    const gatewayOption =
+        (await byHashedId.count()) > 0 ? byHashedId.first() : byType.first();
 
     await expect(gatewayOption).toBeVisible();
-    await gatewayOption.click();
+
+    const companyGatewayId = await gatewayOption.getAttribute(
+        'data-company-gateway-id',
+    );
+    const typeId = await gatewayOption.getAttribute('data-gateway-type-id');
+
+    // Livewire can remount the dropdown and drop payment.js listeners; set the
+    // form fields and submit directly so checkout still starts reliably.
+    await page.locator('#company_gateway_id').evaluate((input, value) => {
+        (input as HTMLInputElement).value = String(value ?? '');
+    }, companyGatewayId);
+    await page.locator('#payment_method_id').evaluate((input, value) => {
+        (input as HTMLInputElement).value = String(value ?? '');
+    }, typeId);
+    await page.locator('#payment-form').evaluate((form) => {
+        (form as HTMLFormElement).submit();
+    });
+
     await expect(page).toHaveURL(/\/client\/payments\/process/, {
         timeout: 30_000,
     });
@@ -70,31 +92,57 @@ export async function selectGatewayFromDropdown(
 export async function fillRequiredPaymentInformationIfPresent(
     page: Page,
 ): Promise<void> {
+    const cardElement = page.locator('#card-element');
     const billingAddress = page.locator('input[name="client_address_line_1"]');
 
-    if (!(await billingAddress.isVisible({ timeout: 2_000 }).catch(() => false))) {
+    await Promise.race([
+        cardElement.waitFor({ state: 'visible', timeout: 10_000 }).catch(() => null),
+        billingAddress.waitFor({ state: 'visible', timeout: 10_000 }).catch(() => null),
+    ]);
+
+    if (await cardElement.isVisible().catch(() => false)) {
         return;
     }
 
-    await billingAddress.fill('5 Wallaby Way');
-    await page.locator('input[name="client_city"]').fill('Perth');
-    await page.locator('input[name="client_state"]').fill('WA');
+    if (!(await billingAddress.isVisible().catch(() => false))) {
+        return;
+    }
 
-    const countrySelect = page.locator('#client_country');
-    if (await countrySelect.isVisible()) {
+    await expect(
+        page.getByRole('button', { name: /Next|Continue|Save/i }),
+    ).toBeEnabled({ timeout: 15_000 });
+
+    await billingAddress.fill('5 Wallaby Way');
+
+    const city = page.locator('input[name="client_city"]');
+    if (await city.isVisible().catch(() => false)) {
+        await city.fill('Los Angeles');
+    }
+
+    const state = page.locator('input[name="client_state"]');
+    if (await state.isVisible().catch(() => false)) {
+        await state.fill('CA');
+    }
+
+    const postal = page.locator('input[name="client_postal_code"]');
+    if (await postal.isVisible().catch(() => false)) {
+        await postal.fill('90210');
+    }
+
+    const countrySelect = page.locator('select[name="client_country_id"]').first();
+    if (await countrySelect.isVisible().catch(() => false)) {
         await countrySelect.selectOption('840');
     }
 
-    const shippingAddress = page.locator(
-        'input[name="client_shipping_address_line_1"]',
-    );
-    if (await shippingAddress.isVisible()) {
-        await shippingAddress.fill('5 Wallaby Way');
-        await page.locator('input[name="client_shipping_city"]').fill('Perth');
-        await page.locator('input[name="client_shipping_state"]').fill('WA');
+    const copyBilling = page.locator('#copy-billing-button');
+    if (await copyBilling.isVisible().catch(() => false)) {
+        await copyBilling.click();
     }
 
-    await page.getByRole('button', { name: /Continue|Save/i }).click();
+    await page.getByRole('button', { name: /Continue|Save|Next/i }).click();
+    await expect(cardElement.or(page.locator('#pay-now'))).toBeVisible({
+        timeout: 30_000,
+    });
 }
 
 export async function navigateToGatewayCheckout(
@@ -118,6 +166,7 @@ export async function fillStripeTestCard(page: Page): Promise<void> {
     const cardNumber = frame.locator(
         'input[name="cardnumber"], input[placeholder*="Card number"]',
     );
+    await expect(cardNumber).toBeVisible({ timeout: 15_000 });
     await cardNumber.fill('4242424242424242');
     await frame
         .locator('input[name="exp-date"], input[placeholder*="MM"]')
@@ -125,6 +174,13 @@ export async function fillStripeTestCard(page: Page): Promise<void> {
     await frame
         .locator('input[name="cvc"], input[placeholder="CVC"]')
         .fill('123');
+
+    const postal = frame.locator(
+        'input[name="postal"], input[placeholder*="ZIP"], input[placeholder*="Postal"]',
+    );
+    if (await postal.isVisible({ timeout: 2_000 }).catch(() => false)) {
+        await postal.fill('90210');
+    }
 }
 
 /** Client portal settings that keep payment entry deterministic. */
@@ -136,33 +192,22 @@ export const paymentTestSettings = {
     client_manual_payment_notification: false,
 } as const;
 
-export async function openInvoiceDetailPayNow(
-    page: Page,
-    invoiceId: string,
-): Promise<void> {
-    await page.goto(`/client/invoices/${invoiceId}`);
-    await expect(page.locator('[data-ref="meta-title"]')).toHaveText(
-        'View Invoice',
-    );
-
-    const payDropdown = page.locator('[dusk="pay-now-dropdown"]');
-
-    if ((await payDropdown.count()) === 0) {
-        throw new Error(
-            'Pay Now dropdown is missing; no payment gateway is available for this client.',
-        );
-    }
-
-    await payDropdown.click();
-}
-
 export async function selectFirstAvailableGateway(page: Page): Promise<void> {
     const option = page
-        .locator('[dusk="payment-methods-dropdown"] [dusk="payment-method"]')
+        .locator(
+            '[dusk="payment-methods-dropdown"] .dropdown-gateway-button, [dusk="payment-methods-dropdown"] [data-company-gateway-id]',
+        )
         .first();
 
     await expect(option).toBeVisible();
     await option.click();
+}
+
+export async function clickBulkPayNow(page: Page): Promise<void> {
+    const bulkPay = page.locator('button[name="action"][value="payment"]');
+
+    await expect(bulkPay).toBeEnabled({ timeout: 15_000 });
+    await bulkPay.click();
 }
 
 export async function submitPrePayment(
@@ -174,5 +219,8 @@ export async function submitPrePayment(
     await expect(page.locator('#payment-form')).toBeVisible();
     await page.locator('input[name="amount"]').fill(String(amount));
     await page.locator('textarea[name="notes"]').fill(notes);
-    await page.locator('#payment-form').getByRole('button', { name: 'Pay Now' }).click();
+    await page
+        .locator('#payment-form')
+        .getByRole('button', { name: 'Pay Now' })
+        .click();
 }

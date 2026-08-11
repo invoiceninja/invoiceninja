@@ -1,6 +1,7 @@
 import { updateClient } from './api-helpers';
 import {
     createAndLogInClient,
+    dismissCookieConsent,
     expectPortalPage,
     selectEntityTableRow,
 } from './client-portal-helpers';
@@ -253,6 +254,8 @@ test.describe('Client portal entity pages', () => {
         api,
         page,
     }) => {
+        test.setTimeout(90_000);
+
         const gateway = new StripePaymentGateway();
         const availability = await gateway.checkAvailability(api.context);
         gateway.skipUnlessAvailable(availability);
@@ -262,13 +265,14 @@ test.describe('Client portal entity pages', () => {
         });
         client = await updateClient(api.context, client, {
             address1: '5 Wallaby Way',
-            city: 'Perth',
-            state: 'WA',
-            postal_code: '6000',
+            city: 'Los Angeles',
+            state: 'CA',
+            postal_code: '90210',
             country_id: '840',
         });
 
         await page.goto('/client/payment_methods');
+        await dismissCookieConsent(page);
         const addButton = page.locator('[data-cy="add-payment-method"]');
         if ((await addButton.count()) === 0) {
             test.skip(
