@@ -70,7 +70,8 @@ Defaults matter for the `about:blank` / `setting up "context"` failures:
 | Condition | Specs affected |
 | --- | --- |
 | Missing `STRIPE_KEYS` / other gateway env + company gateway | Full gateway checkout, bulk Pay Now completion, Stripe payment-method add |
-| Stale gateway sandbox credentials | `client-portal-payments.spec.ts` fails rather than skips for PayPal Express, Authorize.Net, and Checkout.com because the availability probe only checks that the env var and company gateway exist, not that the credentials still authenticate |
+| Stale Authorize.Net Accept.js key | Authorize.Net e2e skips when the public client key meta is empty |
+| PayPal Express-only company gateway | PayPal tests skip — Express driver was removed; seed PayPal REST (`80af24a6…065`) to cover PayPal |
 | `PLAYWRIGHT_ALLOW_BULK_ZIP` unset | Document bulk zip download (single-worker PHP HTTP self-fetch deadlock) |
 | DocuNinja inactive / signature pad replaced | Quote canvas signature may skip |
 | Cloudflare Turnstile on registration | Self-registration may skip |

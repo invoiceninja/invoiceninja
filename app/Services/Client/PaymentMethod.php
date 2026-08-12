@@ -229,6 +229,7 @@ class PaymentMethod
             $this->payment_urls[] = [
                 'label' => $gateway->getConfigField('name') . $fee_label,
                 'company_gateway_id'  => $gateway->id,
+                'gateway_key' => $gateway->gateway_key,
                 'gateway_type_id' => GatewayType::CREDIT_CARD,
                 'is_paypal' => $gateway->isPayPal(),
                 'sort_order' => $priority,
@@ -237,6 +238,7 @@ class PaymentMethod
             $this->payment_urls[] = [
                 'label' => $gateway->getTypeAlias($type) . $fee_label,
                 'company_gateway_id'  => $gateway->id,
+                'gateway_key' => $gateway->gateway_key,
                 'gateway_type_id' => $type,
                 'is_paypal' => $gateway->isPayPal(),
                 'sort_order' => $priority,

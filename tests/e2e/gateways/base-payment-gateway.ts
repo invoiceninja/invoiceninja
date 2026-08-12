@@ -1,5 +1,6 @@
 import { test, type Page } from '@playwright/test';
 import {
+    ensureCompanyGatewayTypeEnabled,
     findCompanyGatewayByKey,
     listCompanyGateways,
     type ApiContext,
@@ -60,14 +61,21 @@ export abstract class BasePaymentGateway {
             return {
                 envConfigured: true,
                 companyGatewayConfigured: false,
-                skipReason: `${this.displayName}: no enabled company gateway for key ${this.gatewayKey}`,
+                skipReason: `${this.displayName}: no company gateway for key ${this.gatewayKey}`,
             };
         }
+
+        // Empty fees_and_limits means the portal omits the gateway entirely.
+        const enabledGateway = await ensureCompanyGatewayTypeEnabled(
+            api,
+            companyGateway,
+            this.gatewayTypeId,
+        );
 
         return {
             envConfigured: true,
             companyGatewayConfigured: true,
-            companyGateway,
+            companyGateway: enabledGateway,
         };
     }
 

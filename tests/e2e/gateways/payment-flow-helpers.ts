@@ -1,7 +1,11 @@
 import { expect, type Page } from '@playwright/test';
 import { updateClient, type CompanyGatewayEntity } from '../api-helpers';
-import { createAndLogInClient } from '../client-portal-helpers';
+import {
+    createAndLogInClient,
+    dismissCookieConsent,
+} from '../client-portal-helpers';
 import { type ApiFixture } from '../fixtures';
+import { decodePrimaryKey } from '../hash-helpers';
 import { createSentInvoice } from '../portal-entity-helpers';
 import { type PaymentGatewayContext } from './types';
 
@@ -40,8 +44,10 @@ export async function prepareDefaultPaymentContext(
 
 export async function openInvoicePaymentPage(page: Page): Promise<void> {
     await page.goto('/client/invoices');
+    await dismissCookieConsent(page);
     await page.locator('[dusk="pay-now"]').first().click();
     await expect(page).toHaveURL(/\/client\/invoices\/payment/);
+    await dismissCookieConsent(page);
     await expect(page.locator('[dusk="payment-methods-dropdown"]')).toBeVisible();
 }
 
@@ -52,20 +58,29 @@ export async function selectGatewayFromDropdown(
 ): Promise<void> {
     await page.locator('[dusk="pay-now-dropdown"]').click();
 
-    // Portal payment-method payloads use the raw company_gateway id, while the
-    // API fixture exposes the hashed id. Prefer an exact match, then fall back
-    // to gateway type.
+    // Portal dropdowns use the raw company_gateway id; the API returns a hashed
+    // id. Prefer `data-gateway-key` (after deploy), then decoded raw id, then
+    // hashed id. Never fall back to type alone — multiple credit-card gateways
+    // share gateway_type_id=1 and the wrong one was being selected.
+    const rawId = decodePrimaryKey(companyGateway.id);
+    const byKey = page.locator(
+        `[dusk="payment-methods-dropdown"] [data-gateway-key="${companyGateway.gateway_key}"][data-gateway-type-id="${gatewayTypeId}"]`,
+    );
+    const byRawId = page.locator(
+        `[dusk="payment-methods-dropdown"] [data-company-gateway-id="${rawId}"][data-gateway-type-id="${gatewayTypeId}"]`,
+    );
     const byHashedId = page.locator(
         `[dusk="payment-methods-dropdown"] [data-company-gateway-id="${companyGateway.id}"][data-gateway-type-id="${gatewayTypeId}"]`,
     );
-    const byType = page.locator(
-        `[dusk="payment-methods-dropdown"] [data-gateway-type-id="${gatewayTypeId}"]`,
-    );
 
     const gatewayOption =
-        (await byHashedId.count()) > 0 ? byHashedId.first() : byType.first();
+        (await byKey.count()) > 0
+            ? byKey.first()
+            : (await byRawId.count()) > 0
+              ? byRawId.first()
+              : byHashedId.first();
 
-    await expect(gatewayOption).toBeVisible();
+    await expect(gatewayOption).toBeVisible({ timeout: 15_000 });
 
     const companyGatewayId = await gatewayOption.getAttribute(
         'data-company-gateway-id',

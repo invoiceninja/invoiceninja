@@ -660,6 +660,10 @@ test.describe('Client portal task visibility settings', () => {
 });
 
 test.describe('Client portal registration settings', () => {
+    // Registration hits a public route (no portal login). Keep these serial so
+    // companyGuard mutations cannot race across workers.
+    test.describe.configure({ mode: 'serial' });
+
     test('renders only the visible registration fields and marks required ones', async ({
         companyGuard,
         page,

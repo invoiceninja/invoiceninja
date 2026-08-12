@@ -123,6 +123,14 @@ export async function dismissCookieConsent(page: Page): Promise<void> {
     if (await consentButton.isVisible().catch(() => false)) {
         await consentButton.click();
     }
+
+    // Cookie banner can re-init after Livewire navigations; remove leftovers so
+    // they cannot intercept Pay Now / dropdown clicks.
+    await page.evaluate(() => {
+        document.querySelectorAll('.cc-window').forEach((element) => {
+            element.remove();
+        });
+    });
 }
 
 /**
