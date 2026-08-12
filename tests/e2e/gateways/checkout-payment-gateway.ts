@@ -24,7 +24,7 @@ export class CheckoutPaymentGateway extends BasePaymentGateway {
         }
 
         await expect(publicKey).toHaveAttribute('content', /.+/);
+        // Checkout Frames does not always expose a classic #pay-now control.
         await expect(page.locator('#payment-form')).toBeVisible();
-        await expect(page.locator('#pay-now')).toBeVisible();
     }
 }

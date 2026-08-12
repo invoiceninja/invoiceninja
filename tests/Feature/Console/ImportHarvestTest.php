@@ -612,6 +612,22 @@ class ImportHarvestTest extends TestCase
         ], $request_urls);
     }
 
+    public function test_it_trims_unicode_boundary_whitespace_from_harvest_values(): void
+    {
+        $non_breaking_space = "\u{00A0}";
+        File::put(
+            $this->directory . '/time_entries.csv',
+            "Date,Client,Project,Task,Notes,Hours,Billable?\n"
+                . "2026-05-01,Acme & Co,Migration,Development,{$non_breaking_space}Built import pipeline{$non_breaking_space},1.25,Yes\n",
+        );
+
+        $result = app(CsvImporter::class)->build($this->directory, [Entity::TimeEntries]);
+        $payload = $result['records'][Entity::TimeEntries->value][0]['payload'];
+
+        $this->assertSame("Development\nBuilt import pipeline", $payload['description']);
+        $this->assertSame('Built import pipeline', $payload['time_log'][0][2]);
+    }
+
     public function test_it_reuses_an_existing_project_for_harvest_time_entries(): void
     {
         File::put($this->directory . '/time_entries.csv', <<<'CSV'
@@ -812,6 +828,47 @@ class ImportHarvestTest extends TestCase
             'directory' => $this->directory,
             '--entities' => 'invoice_payments',
         ])->assertSuccessful();
+    }
+
+    public function test_it_normalizes_payment_application_float_arithmetic(): void
+    {
+        File::put($this->directory . '/payments.csv', <<<'CSV'
+            Payment Date,Invoice ID,Invoice Issue Date,Client,Invoice Amount,Payment Amount,Tax,Tax2,Currency,Currency Symbol,Document Type
+            2026-03-10,INV-900,2026-02-28,Acme & Co,226.2,113.1,0,0,CAD,$,Invoice
+            2026-03-11,INV-900,2026-02-28,Acme & Co,226.2,113.1,0,0,CAD,$,Invoice
+            CSV);
+        $applications = [];
+
+        Http::fake(function (Request $request) use (&$applications) {
+            if ($request->method() === 'GET' && str_contains($request->url(), '/clients')) {
+                return Http::response(['data' => [[
+                    'name' => 'Acme & Co',
+                    'hashed_id' => 'client-acme',
+                ]]], 200);
+            }
+
+            if ($request->method() === 'GET' && str_contains($request->url(), '/invoices')) {
+                return Http::response(['data' => [[
+                    'number' => 'INV-900',
+                    'hashed_id' => 'invoice-900',
+                    'amount' => 226.2,
+                    'balance' => 226.2,
+                    'status_id' => 2,
+                ]]], 200);
+            }
+
+            $applications[] = $request['invoices'][0]['amount'];
+
+            return Http::response(['data' => ['id' => 'payment-' . count($applications)]], 201);
+        });
+
+        $this->artisan('ninja:import-harvest', [
+            'api_token' => 'test-api-token',
+            'directory' => $this->directory,
+            '--entities' => 'invoice_payments',
+        ])->assertSuccessful();
+
+        $this->assertSame([113.1, 113.1], $applications);
     }
 
     public function test_it_assigns_distinct_idempotency_keys_to_identical_harvest_payments(): void

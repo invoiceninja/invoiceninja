@@ -900,8 +900,14 @@ class CsvTransformer
     private function value(array $row, array $headers): string
     {
         foreach ($headers as $header) {
-            if (isset($row[$header]) && trim($row[$header]) !== '') {
-                return trim($row[$header]);
+            if (! isset($row[$header])) {
+                continue;
+            }
+
+            $value = preg_replace('/^\s+|\s+$/u', '', $row[$header]) ?? trim($row[$header]);
+
+            if ($value !== '') {
+                return $value;
             }
         }
 

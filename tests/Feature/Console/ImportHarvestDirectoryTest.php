@@ -23,6 +23,7 @@ use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
+use App\Models\Country;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Invoice;
@@ -134,6 +135,89 @@ class ImportHarvestDirectoryTest extends TestCase
             $this->assertSame(0, $payments[1]->paymentables()->count());
         } finally {
             File::deleteDirectory($directory);
+        }
+    }
+
+    public function test_it_persists_every_harvest_client_and_contact_through_the_real_api(): void
+    {
+        $directory = $this->harvestDirectory();
+        $expected = app(CsvImporter::class)->build($directory, [Entity::Clients]);
+
+        $this->makeTestData();
+        [$company, $api_token, $owner] = $this->scaffoldImportCompany();
+        $this->withoutMiddleware(ThrottleRequests::class);
+        $this->routeOutgoingHttpThroughApplication();
+
+        $exit_code = Artisan::call('ninja:import-harvest', [
+            'api_token' => $api_token,
+            'directory' => $directory,
+            '--entities' => Entity::Clients->value,
+        ]);
+
+        $this->assertSame(0, $exit_code, "Harvest import failed:\n" . $this->failureOutput(Artisan::output()));
+        $this->assertSame(
+            count($expected['records'][Entity::Clients->value]),
+            Client::query()->where('company_id', $company->id)->count(),
+        );
+        $this->assertPersistedClientContacts($company, $expected['records'][Entity::Clients->value]);
+        $api_records = $expected['records'];
+
+        foreach ($api_records[Entity::Clients->value] as &$client_record) {
+            $contacts = $client_record['payload']['contacts'] ?? [];
+
+            if (count($contacts) > 2) {
+                $client_record['payload']['contacts'] = [
+                    $contacts[0],
+                    ...array_reverse(array_slice($contacts, 1)),
+                ];
+            }
+        }
+        unset($client_record);
+
+        $this->assertPersistedApiPayloads(
+            $api_token,
+            $owner,
+            $api_records,
+            [Entity::Clients],
+        );
+    }
+
+    public function test_it_can_reconcile_an_opt_in_entity_subset_through_the_real_api(): void
+    {
+        $entity_option = getenv('HARVEST_IMPORT_TEST_ENTITY_SUBSET');
+
+        if (! is_string($entity_option) || trim($entity_option) === '') {
+            $this->markTestSkipped('Set HARVEST_IMPORT_TEST_ENTITY_SUBSET to run a focused real-API reconciliation.');
+        }
+
+        $directory = $this->harvestDirectory();
+        $entities = Entity::fromOption($entity_option);
+        $expected = app(CsvImporter::class)->build($directory, $entities);
+
+        $this->makeTestData();
+        [$company, $api_token, $owner] = $this->scaffoldImportCompany();
+        $this->withoutMiddleware(ThrottleRequests::class);
+        $this->routeOutgoingHttpThroughApplication();
+
+        $exit_code = Artisan::call('ninja:import-harvest', [
+            'api_token' => $api_token,
+            'directory' => $directory,
+            '--entities' => $entity_option,
+        ]);
+
+        $this->assertSame(0, $exit_code, "Harvest import failed:\n" . $this->failureOutput(Artisan::output()));
+        $ids = $this->assertPersistedApiPayloads($api_token, $owner, $expected['records'], $entities);
+
+        if (in_array(Entity::InvoicePayments, $entities, true)) {
+            $this->assertPaymentApplications($company, $expected['records'][Entity::InvoicePayments->value], $ids);
+        }
+
+        if (in_array(Entity::Invoices, $entities, true)) {
+            $this->assertInvoiceTaxRates($company, $expected['records'][Entity::Invoices->value]);
+        }
+
+        if (in_array(Entity::Estimates, $entities, true)) {
+            $this->assertDocumentActions($company, $expected['records'][Entity::Estimates->value]);
         }
     }
 
@@ -394,42 +478,13 @@ class ImportHarvestDirectoryTest extends TestCase
     private function assertPersistedModelCounts(Company $company, User $owner, array $records): void
     {
         $company_id = $company->id;
-        $expected_contacts = array_sum(array_map(
-            fn(array $record): int => count($record['payload']['contacts'] ?? []),
-            $records[Entity::Clients->value],
-        ));
-        $expected_placeholder_clients = collect($records[Entity::Clients->value])
-            ->filter(fn(array $record): bool => ($record['payload']['contacts'] ?? []) === [])
-            ->map(fn(array $record): string => (string) $record['payload']['name'])
-            ->sort()
-            ->values()
-            ->all();
-        $contacts = ClientContact::query()
-            ->where('company_id', $company_id)
-            ->with('client')
-            ->get();
-        $actual_placeholder_clients = $contacts
-            ->filter(fn(ClientContact $contact): bool => $this->isPlaceholderContact($contact->toArray()))
-            ->map(fn(ClientContact $contact): string => $contact->client->name)
-            ->sort()
-            ->values()
-            ->all();
         $expected_invoice_lines = array_sum(array_map(
             fn(array $record): int => count($record['payload']['line_items'] ?? []),
             $records[Entity::Invoices->value],
         ));
 
         $this->assertSame(count($records[Entity::Clients->value]), Client::query()->where('company_id', $company_id)->count());
-        $this->assertSame(
-            $expected_contacts + count($expected_placeholder_clients),
-            $contacts->count(),
-            'The API must persist every Harvest contact plus one required placeholder for each contactless client.',
-        );
-        $this->assertSame(
-            $expected_placeholder_clients,
-            $actual_placeholder_clients,
-            'Blank contacts must only be the placeholders Invoice Ninja requires for contactless clients.',
-        );
+        $this->assertPersistedClientContacts($company, $records[Entity::Clients->value]);
         $this->assertSame(count($records[Entity::Tasks->value]), Product::query()->where('company_id', $company_id)->count());
         $this->assertSame(count($records[Entity::ExpenseCategories->value]), ExpenseCategory::query()->where('company_id', $company_id)->count());
         $this->assertSame(count($records[Entity::Projects->value]), Project::query()->where('company_id', $company_id)->count());
@@ -450,16 +505,57 @@ class ImportHarvestDirectoryTest extends TestCase
         );
     }
 
+    /** @param array<int, array<string, mixed>> $client_records */
+    private function assertPersistedClientContacts(Company $company, array $client_records): void
+    {
+        $expected_contacts = array_sum(array_map(
+            fn(array $record): int => count($record['payload']['contacts'] ?? []),
+            $client_records,
+        ));
+        $expected_placeholder_clients = collect($client_records)
+            ->filter(fn(array $record): bool => ($record['payload']['contacts'] ?? []) === [])
+            ->map(fn(array $record): string => (string) $record['payload']['name'])
+            ->sort()
+            ->values()
+            ->all();
+        $contacts = ClientContact::query()
+            ->where('company_id', $company->id)
+            ->with('client')
+            ->get();
+        $actual_placeholder_clients = $contacts
+            ->filter(fn(ClientContact $contact): bool => $this->isPlaceholderContact($contact->toArray()))
+            ->map(fn(ClientContact $contact): string => $contact->client->name)
+            ->sort()
+            ->values()
+            ->all();
+
+        $this->assertSame(
+            $expected_contacts + count($expected_placeholder_clients),
+            $contacts->count(),
+            'The API must persist every Harvest contact plus one required placeholder for each contactless client.',
+        );
+        $this->assertSame(
+            $expected_placeholder_clients,
+            $actual_placeholder_clients,
+            'Blank contacts must only be the placeholders Invoice Ninja requires for contactless clients.',
+        );
+    }
+
     /**
      * @param array<string, array<int, array<string, mixed>>> $records
      * @return array<string, array<string, string>>
      */
-    private function assertPersistedApiPayloads(string $api_token, User $owner, array $records): array
-    {
+    private function assertPersistedApiPayloads(
+        string $api_token,
+        User $owner,
+        array $records,
+        ?array $entities = null,
+    ): array {
         $ids = [];
         $api_records = [];
+        $entities ??= Entity::importOrder();
 
-        foreach (Entity::importOrder() as $entity) {
+        foreach ($entities as $entity) {
             $api_records[$entity->value] = $this->apiRecords($entity->endpoint(), $api_token);
 
             if ($entity === Entity::Users) {
@@ -502,7 +598,7 @@ class ImportHarvestDirectoryTest extends TestCase
             }
         }
 
-        foreach (Entity::importOrder() as $entity) {
+        foreach ($entities as $entity) {
             $expected_groups = [];
             $actual_groups = [];
 
@@ -522,7 +618,17 @@ class ImportHarvestDirectoryTest extends TestCase
 
             ksort($expected_groups);
             ksort($actual_groups);
-            $this->assertSame(array_keys($expected_groups), array_keys($actual_groups), "Unexpected persisted {$entity->value} identities.");
+            $expected_identities = array_keys($expected_groups);
+            $actual_identities = array_keys($actual_groups);
+
+            if ($expected_identities !== $actual_identities) {
+                $this->fail(sprintf(
+                    "Unexpected persisted %s identities.\nMissing: %s\nUnexpected: %s",
+                    $entity->value,
+                    json_encode(array_slice(array_values(array_diff($expected_identities, $actual_identities)), 0, 10), JSON_UNESCAPED_SLASHES),
+                    json_encode(array_slice(array_values(array_diff($actual_identities, $expected_identities)), 0, 10), JSON_UNESCAPED_SLASHES),
+                ));
+            }
 
             foreach ($expected_groups as $identity => $expected_payloads) {
                 $actual_payloads = $actual_groups[$identity];
@@ -565,21 +671,42 @@ class ImportHarvestDirectoryTest extends TestCase
      */
     private function expectedApiPayload(Entity $entity, array $payload): array
     {
-        if ($entity !== Entity::Clients || ($payload['contacts'] ?? null) !== []) {
+        if ($entity === Entity::TimeEntries && is_array($payload['time_log'] ?? null)) {
+            $payload['time_log'] = json_encode($payload['time_log'], JSON_THROW_ON_ERROR);
+        }
+
+        if ($entity === Entity::Users
+            && is_array($payload['company_user'] ?? null)
+            && array_key_exists('settings', $payload['company_user'])
+            && $payload['company_user']['settings'] === null) {
+            $payload['company_user']['settings'] = [];
+        }
+
+        if ($entity !== Entity::Clients) {
             return $payload;
         }
 
-        $payload['contacts'] = [[
-            'first_name' => '',
-            'last_name' => '',
-            'email' => '',
-            'phone' => '',
-            'custom_value1' => '',
-            'custom_value2' => '',
-            'custom_value3' => '',
-            'custom_value4' => '',
-            'is_primary' => true,
-        ]];
+        if (is_string($payload['country_code'] ?? null)) {
+            $country_code = $payload['country_code'];
+            $country_id = Country::query()->where('iso_3166_2', $country_code)->value('id');
+            $this->assertNotNull($country_id, "Unable to resolve imported country code [{$country_code}].");
+            unset($payload['country_code']);
+            $payload['country_id'] = (string) $country_id;
+        }
+
+        if (($payload['contacts'] ?? null) === []) {
+            $payload['contacts'] = [[
+                'first_name' => '',
+                'last_name' => '',
+                'email' => '',
+                'phone' => '',
+                'custom_value1' => '',
+                'custom_value2' => '',
+                'custom_value3' => '',
+                'custom_value4' => '',
+                'is_primary' => true,
+            ]];
+        }
 
         return $payload;
     }
@@ -616,7 +743,12 @@ class ImportHarvestDirectoryTest extends TestCase
             $response = $this->withHeaders([
                 'Accept' => 'application/json',
                 'X-API-TOKEN' => $api_token,
-            ])->getJson("/api/v1/{$endpoint}?per_page=1000&page={$page}");
+            ])->getJson(sprintf(
+                '/api/v1/%s?per_page=1000&page=%d%s',
+                $endpoint,
+                $page,
+                $endpoint === Entity::Users->endpoint() ? '&include=company_user' : '',
+            ));
             $response->assertOk();
 
             $data = $response->json('data', []);
@@ -729,6 +861,30 @@ class ImportHarvestDirectoryTest extends TestCase
                 return false;
             }
 
+            if (array_is_list($expected) && $this->isContactList($expected)) {
+                $remaining = $actual;
+
+                foreach ($expected as $expected_contact) {
+                    $match = null;
+
+                    foreach ($remaining as $key => $actual_contact) {
+                        if ($this->payloadMatches($expected_contact, $actual_contact)) {
+                            $match = $key;
+
+                            break;
+                        }
+                    }
+
+                    if ($match === null) {
+                        return false;
+                    }
+
+                    unset($remaining[$match]);
+                }
+
+                return $remaining === [];
+            }
+
             foreach ($expected as $key => $value) {
                 if (! array_key_exists($key, $actual) || ! $this->payloadMatches($value, $actual[$key])) {
                     return false;
@@ -743,6 +899,25 @@ class ImportHarvestDirectoryTest extends TestCase
         }
 
         return $expected === $actual;
+    }
+
+    /** @param array<int, mixed> $payload */
+    private function isContactList(array $payload): bool
+    {
+        if ($payload === []) {
+            return false;
+        }
+
+        foreach ($payload as $item) {
+            if (! is_array($item)
+                || (! array_key_exists('email', $item)
+                    && ! array_key_exists('first_name', $item)
+                    && ! array_key_exists('last_name', $item))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -771,10 +946,10 @@ class ImportHarvestDirectoryTest extends TestCase
             }
 
             foreach ($payload['invoices'] as $invoice) {
-                $applied_amount = min(
+                $applied_amount = round(min(
                     max(0.0, (float) $invoice['amount']),
                     $remaining[$invoice_key] ?? 0.0,
-                );
+                ), 6);
 
                 if ($applied_amount <= 0) {
                     continue;
@@ -788,7 +963,10 @@ class ImportHarvestDirectoryTest extends TestCase
                     'date' => $payload['date'],
                     'transaction_reference' => $payload['transaction_reference'] ?? '',
                 ];
-                $remaining[$invoice_key] -= $applied_amount;
+                $remaining[$invoice_key] = round(
+                    $remaining[$invoice_key] - $applied_amount,
+                    6,
+                );
             }
         }
 

@@ -27,7 +27,7 @@ class FacturXXmlExtractorTest extends TestCase
         parent::setUp();
 
         if(!class_exists(Modules\Admin\Jobs\Storecove\ReceiveDocument::class)) {
-            $this->markTestSkipped('Storecove is not supported in this version of the software.');
+            $this->markTestSkipped('Test cannot run in CI/CD environment.');
         }
     }
 

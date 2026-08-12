@@ -537,7 +537,7 @@ class ImportHarvest extends Command
             $amount_path = substr($path, 0, -strlen('invoice_id')) . 'amount';
             $requested = data_get($payload, $amount_path);
             $applied = is_numeric($requested)
-                ? min(max(0.0, (float) $requested), $invoice['available'])
+                ? round(min(max(0.0, (float) $requested), $invoice['available']), 6)
                 : 0.0;
 
             if ($applied <= 0) {
@@ -548,7 +548,10 @@ class ImportHarvest extends Command
             }
 
             data_set($payload, $amount_path, $applied);
-            $applications[$reference['key']] = ($applications[$reference['key']] ?? 0.0) + $applied;
+            $applications[$reference['key']] = round(
+                ($applications[$reference['key']] ?? 0.0) + $applied,
+                6,
+            );
         }
 
         if (isset($payload['invoices']) && is_array($payload['invoices'])) {
@@ -566,9 +569,9 @@ class ImportHarvest extends Command
     {
         foreach ($applications as $invoice_key => $amount) {
             if (isset($invoice_map[$invoice_key])) {
-                $invoice_map[$invoice_key]['available'] = max(
-                    0.0,
-                    $invoice_map[$invoice_key]['available'] - $amount,
+                $invoice_map[$invoice_key]['available'] = round(
+                    max(0.0, $invoice_map[$invoice_key]['available'] - $amount),
+                    6,
                 );
             }
         }
