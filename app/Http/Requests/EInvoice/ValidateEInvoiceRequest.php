@@ -52,7 +52,7 @@ class ValidateEInvoiceRequest extends Request
         $user = auth()->user();
 
         return [
-            'entity' => 'required|bail|in:invoices,recurring_invoices,clients,companies',
+            'entity' => 'required|bail|in:invoices,recurring_invoices,clients,companies,credits',
             'entity_id' => ['required','bail', Rule::exists($this->entity, 'id')
                                                                 ->when($this->entity != 'companies', function ($q) use ($user) {
                                                                     $q->where('company_id', $user->company()->id);
