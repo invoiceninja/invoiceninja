@@ -12,14 +12,15 @@
 
 namespace App\Http\Requests\EInvoice;
 
-use App\Utils\Ninja;
+use App\Http\Requests\Request;
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\Credit;
 use App\Models\Invoice;
-use App\Http\Requests\Request;
-use Illuminate\Validation\Rule;
 use App\Models\RecurringInvoice;
 use App\Services\EDocument\Standards\Validation\Peppol\EntityLevel;
+use App\Utils\Ninja;
+use Illuminate\Validation\Rule;
 
 class ValidateEInvoiceRequest extends Request
 {
@@ -85,6 +86,7 @@ class ValidateEInvoiceRequest extends Request
             'recurring_invoices' => $class = RecurringInvoice::class,
             'clients' => $class = Client::class,
             'companies' => $class = Company::class,
+            'credits' => $class = Credit::class,
             default => $class = Invoice::class,
         };
 
