@@ -8,7 +8,8 @@
     "test:e2e": "playwright test --project=chromium --workers=1",
     "test:e2e:headed": "playwright test --project=chromium --workers=1 --headed",
     "test:e2e:ui": "playwright test --project=chromium --workers=1 --ui",
-    "test:e2e:report": "playwright show-report tests/e2e/report"
+    "test:e2e:report": "playwright show-report tests/e2e/report",
+    "test:e2e:kill": "pkill -f 'ms-playwright/chromium|@playwright/test/cli.js (test-server|run-server)' || true"
   },
   "devDependencies": {
     "@babel/compat-data": "7.29.7",

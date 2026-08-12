@@ -53,7 +53,12 @@ export default defineConfig({
                 ...devices['Desktop Chrome'],
                 bypassCSP: true,
                 launchOptions: {
-                    args: ['--disable-web-security'],
+                    args: [
+                        '--disable-web-security',
+                        // Headed runs otherwise keep spare renderer windows
+                        // around after a timed-out context close.
+                        '--disable-features=Translate,BackForwardCache',
+                    ],
                 },
             },
         },

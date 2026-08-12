@@ -1,5 +1,12 @@
-import { expect, type Browser, type BrowserContext, type Page } from '@playwright/test';
+import {
+    chromium,
+    expect,
+    type Browser,
+    type BrowserContext,
+    type Page,
+} from '@playwright/test';
 import { type ApiEntity, updateClient, type ClientEntity } from './api-helpers';
+import { resolvePlaywrightUrls } from './environment';
 import { type ApiFixture, uniqueName } from './fixtures';
 
 export interface PortalContact {
@@ -110,11 +117,59 @@ export async function createAndLogInClient(
 export async function openGuestPortalPage(
     browser: Browser,
 ): Promise<{ context: BrowserContext; page: Page }> {
-    const context = await browser.newContext();
+    const { baseUrl } = resolvePlaywrightUrls();
+    const context = await browser.newContext({
+        baseURL: baseUrl,
+        bypassCSP: true,
+    });
     const page = await context.newPage();
     await blockPdfBlobs(page);
 
     return { context, page };
+}
+
+/**
+ * Same as `openGuestPortalPage`, but always closes the guest context — including
+ * on assertion failure / timeout — so headed runs do not leave zombie windows.
+ */
+export async function withGuestPortalPage<T>(
+    browser: Browser,
+    run: (page: Page) => Promise<T>,
+): Promise<T> {
+    const { context, page } = await openGuestPortalPage(browser);
+
+    try {
+        return await run(page);
+    } finally {
+        await context.close().catch(() => undefined);
+    }
+}
+
+/**
+ * Launch a Chromium that is independent of the worker browser. Use this when
+ * earlier suite tests may have wedged the shared Playwright browser so
+ * `setting up "context"` hangs until the process is killed.
+ */
+export async function launchIsolatedBrowser(): Promise<Browser> {
+    return chromium.launch({
+        headless: !process.argv.includes('--headed'),
+        args: [
+            '--disable-web-security',
+            '--disable-features=Translate,BackForwardCache',
+        ],
+    });
+}
+
+export async function withIsolatedBrowser<T>(
+    run: (browser: Browser) => Promise<T>,
+): Promise<T> {
+    const browser = await launchIsolatedBrowser();
+
+    try {
+        return await run(browser);
+    } finally {
+        await browser.close().catch(() => undefined);
+    }
 }
 
 export async function dismissCookieConsent(page: Page): Promise<void> {

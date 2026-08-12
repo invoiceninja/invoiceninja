@@ -1,3 +1,4 @@
+import { withGuestPortalPage } from './client-portal-helpers';
 import { expect, test, uniqueName } from './fixtures';
 import {
     createSentCredit,
@@ -26,23 +27,20 @@ test.describe('Client portal invitations', () => {
         const quote = await createSentQuote(api, client as never, {
             label: uniqueName('guest-quote'),
         });
-        const context = await browser.newContext();
-        const page = await context.newPage();
-        await page.route('**/client/showBlob/**', async (route) => {
-            await route.abort();
+
+        await withGuestPortalPage(browser, async (page) => {
+            await page.goto(`/client/quote/${invitationKey(quote)}`);
+
+            await expect(page).toHaveURL(
+                expectInvitationUrl(
+                    `/client/quotes/${quote.id}`,
+                    `/client/quote/${invitationKey(quote)}`,
+                ),
+            );
+            await expect(page.locator('[data-ref="meta-title"]')).toHaveText(
+                /Quote/,
+            );
         });
-
-        await page.goto(`/client/quote/${invitationKey(quote)}`);
-
-        await expect(page).toHaveURL(
-            expectInvitationUrl(
-                `/client/quotes/${quote.id}`,
-                `/client/quote/${invitationKey(quote)}`,
-            ),
-        );
-        await expect(page.locator('[data-ref="meta-title"]')).toHaveText(/Quote/);
-
-        await context.close();
     });
 
     test('opens an invoice invitation for a logged-out visitor', async ({
@@ -63,25 +61,20 @@ test.describe('Client portal invitations', () => {
         const invoice = await createSentInvoice(api, client as never, {
             label: uniqueName('guest-invoice'),
         });
-        const context = await browser.newContext();
-        const page = await context.newPage();
-        await page.route('**/client/showBlob/**', async (route) => {
-            await route.abort();
+
+        await withGuestPortalPage(browser, async (page) => {
+            await page.goto(`/client/invoice/${invitationKey(invoice)}`);
+
+            await expect(page).toHaveURL(
+                expectInvitationUrl(
+                    `/client/invoices/${invoice.id}`,
+                    `/client/invoice/${invitationKey(invoice)}`,
+                ),
+            );
+            await expect(page.locator('[data-ref="meta-title"]')).toHaveText(
+                'View Invoice',
+            );
         });
-
-        await page.goto(`/client/invoice/${invitationKey(invoice)}`);
-
-        await expect(page).toHaveURL(
-            expectInvitationUrl(
-                `/client/invoices/${invoice.id}`,
-                `/client/invoice/${invitationKey(invoice)}`,
-            ),
-        );
-        await expect(page.locator('[data-ref="meta-title"]')).toHaveText(
-            'View Invoice',
-        );
-
-        await context.close();
     });
 
     test('opens email preferences and shows the unsubscribe confirmation', async ({
@@ -118,24 +111,27 @@ test.describe('Client portal invitations', () => {
         page,
     }) => {
         const client = await api.createEntity('clients', {
-            name: uniqueName('unsub-client'),
+            name: uniqueName('quote-unsub-client'),
             settings: { enable_client_portal: true },
             contacts: [
                 {
-                    first_name: 'Unsub',
-                    last_name: 'Contact',
-                    email: `${uniqueName('unsub')}@example.test`,
+                    first_name: 'Quote',
+                    last_name: 'Unsub',
+                    email: `${uniqueName('quote-unsub')}@example.test`,
                 },
             ],
         });
         const quote = await createSentQuote(api, client as never, {
-            label: uniqueName('unsub-quote'),
+            label: uniqueName('quote-unsub'),
         });
+        const key = invitationKey(quote);
 
-        await page.goto(`/client/unsubscribe/quote/${invitationKey(quote)}`);
+        await page.goto(`/client/email_preferences/quote/${key}`);
         await expect(
-            page.getByRole('heading', { name: 'Unsubscribed' }),
+            page.getByRole('heading', { name: 'Email Preferences' }),
         ).toBeVisible();
+        await page.getByRole('button', { name: 'Unsubscribe' }).first().click();
+        await expect(page.getByText(/are you sure/i)).toBeVisible();
     });
 
     test('opens a credit invitation link', async ({ api, browser }) => {
@@ -153,21 +149,16 @@ test.describe('Client portal invitations', () => {
         const credit = await createSentCredit(api, client as never, {
             label: uniqueName('guest-credit'),
         });
-        const context = await browser.newContext();
-        const page = await context.newPage();
-        await page.route('**/client/showBlob/**', async (route) => {
-            await route.abort();
+
+        await withGuestPortalPage(browser, async (page) => {
+            await page.goto(`/client/credit/${invitationKey(credit)}`);
+            await expect(page).toHaveURL(
+                expectInvitationUrl(
+                    `/client/credits/${credit.id}`,
+                    `/client/credit/${invitationKey(credit)}`,
+                ),
+            );
         });
-
-        await page.goto(`/client/credit/${invitationKey(credit)}`);
-        await expect(page).toHaveURL(
-            expectInvitationUrl(
-                `/client/credits/${credit.id}`,
-                `/client/credit/${invitationKey(credit)}`,
-            ),
-        );
-
-        await context.close();
     });
 
     test('prompts a contact without a password to set one from an invitation', async ({
@@ -195,36 +186,33 @@ test.describe('Client portal invitations', () => {
             label: uniqueName('set-password-quote'),
         });
         const key = invitationKey(quote);
-        const context = await browser.newContext();
-        const page = await context.newPage();
-        await page.route('**/client/showBlob/**', async (route) => {
-            await route.abort();
+
+        await withGuestPortalPage(browser, async (page) => {
+            await page.goto(`/client/quote/${key}`);
+
+            // Invitation router should send password-less contacts to set_password.
+            if (!page.url().includes('set_password')) {
+                const { invitationSetPasswordHash } = await import(
+                    './portal-auth-helpers'
+                );
+                await page.goto(
+                    `/set_password?entity_type=quote&invitation_key=${key}&hash=${invitationSetPasswordHash(key)}`,
+                );
+            }
+
+            await expect(page.locator('#password')).toBeVisible({
+                timeout: 15_000,
+            });
+            await page.locator('#password').fill('PortalSet123!');
+            await page.getByRole('button', { name: /Continue/i }).click();
+
+            await expect(page).toHaveURL(
+                expectInvitationUrl(
+                    `/client/quotes/${quote.id}`,
+                    `/client/quote/${key}`,
+                ),
+                { timeout: 30_000 },
+            );
         });
-
-        await page.goto(`/client/quote/${key}`);
-
-        // Invitation router should send password-less contacts to set_password.
-        if (!page.url().includes('set_password')) {
-            const { invitationSetPasswordHash } = await import(
-                './portal-auth-helpers'
-            );
-            await page.goto(
-                `/set_password?entity_type=quote&invitation_key=${key}&hash=${invitationSetPasswordHash(key)}`,
-            );
-        }
-
-        await expect(page.locator('#password')).toBeVisible({ timeout: 15_000 });
-        await page.locator('#password').fill('PortalSet123!');
-        await page.getByRole('button', { name: /Continue/i }).click();
-
-        await expect(page).toHaveURL(
-            expectInvitationUrl(
-                `/client/quotes/${quote.id}`,
-                `/client/quote/${key}`,
-            ),
-            { timeout: 30_000 },
-        );
-
-        await context.close();
     });
 });

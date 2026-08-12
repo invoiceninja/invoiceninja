@@ -1,10 +1,13 @@
+import type { Browser } from '@playwright/test';
 import { getCompany } from './api-helpers';
 import {
     clearPortalOverlays,
     createAndLogInClient,
     dismissCookieConsent,
     hasPayNowDropdown,
+    launchIsolatedBrowser,
     selectEntityTableRow,
+    withGuestPortalPage,
 } from './client-portal-helpers';
 import { expect, test, uniqueName } from './fixtures';
 import {
@@ -661,12 +664,23 @@ test.describe('Client portal task visibility settings', () => {
 
 test.describe('Client portal registration settings', () => {
     // Registration hits a public route (no portal login). Keep these serial so
-    // companyGuard mutations cannot race across workers.
+    // companyGuard mutations cannot race across workers. Use an isolated
+    // Chromium so a wedged worker browser (common late in the full suite)
+    // cannot hang fixture setup on `context`.
     test.describe.configure({ mode: 'serial' });
+
+    let registrationBrowser: Browser;
+
+    test.beforeAll(async () => {
+        registrationBrowser = await launchIsolatedBrowser();
+    });
+
+    test.afterAll(async () => {
+        await registrationBrowser?.close().catch(() => undefined);
+    });
 
     test('renders only the visible registration fields and marks required ones', async ({
         companyGuard,
-        page,
     }) => {
         const company = await companyGuard.update({
             client_can_register: true,
@@ -680,29 +694,30 @@ test.describe('Client portal registration settings', () => {
             ],
         });
 
-        await page.goto(`/client/register/${company.company_key}`);
-        await dismissCookieConsent(page);
+        await withGuestPortalPage(registrationBrowser, async (page) => {
+            await page.goto(`/client/register/${company.company_key}`);
+            await dismissCookieConsent(page);
 
-        await expect(page.locator('#register-form')).toBeVisible();
-        await expect(page.locator('#first_name')).toBeVisible();
-        await expect(page.locator('#last_name')).toBeVisible();
-        await expect(page.locator('#email')).toBeVisible();
-        await expect(page.locator('#password')).toBeVisible();
-        await expect(page.locator('#vat_number')).toBeVisible();
-        await expect(page.locator('#website')).toHaveCount(0);
+            await expect(page.locator('#register-form')).toBeVisible();
+            await expect(page.locator('#first_name')).toBeVisible();
+            await expect(page.locator('#last_name')).toBeVisible();
+            await expect(page.locator('#email')).toBeVisible();
+            await expect(page.locator('#password')).toBeVisible();
+            await expect(page.locator('#vat_number')).toBeVisible();
+            await expect(page.locator('#website')).toHaveCount(0);
 
-        await expect(
-            page.locator('section:has(> label[for="vat_number"])'),
-        ).toContainText('*');
-        await expect(
-            page.locator('section:has(> label[for="last_name"])'),
-        ).not.toContainText('*');
+            await expect(
+                page.locator('section:has(> label[for="vat_number"])'),
+            ).toContainText('*');
+            await expect(
+                page.locator('section:has(> label[for="last_name"])'),
+            ).not.toContainText('*');
+        });
     });
 
     test('shows the terms and privacy policy agreement on the register form', async ({
         api,
         companyGuard,
-        page,
     }) => {
         const terms = 'Playwright registration terms of service.';
         const privacy = 'Playwright registration privacy policy.';
@@ -716,62 +731,67 @@ test.describe('Client portal registration settings', () => {
             },
         });
 
-        await page.goto(`/client/register/${company.company_key}`);
-        await dismissCookieConsent(page);
+        await withGuestPortalPage(registrationBrowser, async (page) => {
+            await page.goto(`/client/register/${company.company_key}`);
+            await dismissCookieConsent(page);
 
-        await expect(page.locator('input[name="terms"]')).toBeChecked();
+            await expect(page.locator('input[name="terms"]')).toBeChecked();
 
-        const termsPopup = page.locator('[x-show="terms_of_service"]').first();
-        const privacyPopup = page.locator('[x-show="privacy_policy"]').first();
+            const termsPopup = page
+                .locator('[x-show="terms_of_service"]')
+                .first();
+            const privacyPopup = page
+                .locator('[x-show="privacy_policy"]')
+                .first();
 
-        await expect(termsPopup).toBeHidden();
-        await page
-            .getByRole('link', { name: 'Terms of Service', exact: true })
-            .click();
-        await expect(termsPopup).toBeVisible();
-        await expect(termsPopup).toContainText(terms);
+            await expect(termsPopup).toBeHidden();
+            await page
+                .getByRole('link', { name: 'Terms of Service', exact: true })
+                .click();
+            await expect(termsPopup).toBeVisible();
+            await expect(termsPopup).toContainText(terms);
 
-        await termsPopup.getByRole('button').first().click();
-        await expect(termsPopup).toBeHidden();
+            await termsPopup.getByRole('button').first().click();
+            await expect(termsPopup).toBeHidden();
 
-        await page
-            .getByRole('link', { name: 'Privacy Policy', exact: true })
-            .click();
-        await expect(privacyPopup).toBeVisible();
-        await expect(privacyPopup).toContainText(privacy);
+            await page
+                .getByRole('link', { name: 'Privacy Policy', exact: true })
+                .click();
+            await expect(privacyPopup).toBeVisible();
+            await expect(privacyPopup).toContainText(privacy);
+        });
     });
 
     // The register form always renders; `client_can_register` is enforced when
-    // the form is submitted.
+    // the form is submitted. This assertion is API-only so it never depends on
+    // the (possibly wedged) worker browser context fixture.
     test('rejects a registration submission when self-registration is disabled', async ({
         companyGuard,
-        page,
+        request,
     }) => {
         const company = await companyGuard.update({
             client_can_register: false,
         });
         const marker = uniqueName('blocked-register');
+        const registerPath = `/client/register/${company.company_key}`;
 
-        await page.goto(`/client/register/${company.company_key}`);
-        await dismissCookieConsent(page);
-        await expect(page.locator('#register-form')).toBeVisible();
+        const formPage = await request.get(registerPath);
+        expect(formPage.ok()).toBeTruthy();
 
-        const token = await page
-            .locator('#register-form input[name="_token"]')
-            .inputValue();
-        const response = await page.request.post(
-            `/client/register/${company.company_key}`,
-            {
-                form: {
-                    _token: token,
-                    company_key: company.company_key,
-                    first_name: 'Blocked',
-                    last_name: 'Register',
-                    email: `${marker}@example.test`,
-                    password: 'PortalRegister123!',
-                },
+        const html = await formPage.text();
+        const token = html.match(/name="_token"\s+value="([^"]+)"/)?.[1];
+        expect(token).toBeTruthy();
+
+        const response = await request.post(registerPath, {
+            form: {
+                _token: token as string,
+                company_key: company.company_key,
+                first_name: 'Blocked',
+                last_name: 'Register',
+                email: `${marker}@example.test`,
+                password: 'PortalRegister123!',
             },
-        );
+        });
 
         expect(response.status()).toBe(403);
     });
