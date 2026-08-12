@@ -78,9 +78,9 @@ class InvoiceEmailTest extends TestCase
 
     public function testInvalidEmailParsing()
     {
-        $email = 'illegal@example.com';
+        $email = 'illegal@gmail.com';
 
-        $this->assertTrue(strpos($email, '@example.com') !== false);
+        $this->assertTrue(strpos($email, '@gmail.com') !== false);
     }
 
 

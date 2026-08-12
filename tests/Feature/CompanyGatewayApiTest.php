@@ -586,7 +586,7 @@ class CompanyGatewayApiTest extends TestCase
         $user = User::factory()->create([
             'account_id' => $account->id,
             'confirmation_code' => '123',
-            'email' => $this->faker->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         $cu = CompanyUserFactory::create($user->id, $company->id, $account->id);

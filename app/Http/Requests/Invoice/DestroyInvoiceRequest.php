@@ -13,8 +13,6 @@
 namespace App\Http\Requests\Invoice;
 
 use App\Http\Requests\Request;
-use App\Services\EDocument\Standards\France\FrancePaymentReportingMutationGuard;
-use Illuminate\Validation\Validator;
 
 class DestroyInvoiceRequest extends Request
 {
@@ -28,31 +26,13 @@ class DestroyInvoiceRequest extends Request
         return auth()->user()->can('edit', $this->invoice);
     }
 
-
-    public function rules()
+    public function rules(): array
     {
         return [];
     }
 
-    public function withValidator(Validator $validator): void
+    public function prepareForValidation(): void
     {
-        $validator->after(function (Validator $validator): void {
-            if ($validator->errors()->isNotEmpty() || $this->invoice->is_deleted) {
-                return;
-            }
-
-            $violation = app(FrancePaymentReportingMutationGuard::class)
-                ->invoiceDeletionViolation($this->invoice);
-
-            if ($violation) {
-                $validator->errors()->add('id', $violation);
-            }
-        });
-    }
-
-    public function prepareForValidation()
-    {
-
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
@@ -61,6 +41,5 @@ class DestroyInvoiceRequest extends Request
         }
 
         \Illuminate\Support\Facades\Cache::put(($this->ip() . "|" . $this->invoice->id . "|" . $user->company()->company_key), true, 1);
-
     }
 }

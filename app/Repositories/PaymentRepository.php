@@ -30,6 +30,8 @@ use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 /**
  * PaymentRepository.
@@ -58,9 +60,24 @@ class PaymentRepository extends BaseRepository
         $tag_ids = $this->resolveTagIdsForSync($data, $payment);
         $original_date = $payment->date;
         $paymentables_to_move = $this->paymentablesDerivedFromDate($data, $payment, $original_date);
-        $payment = $this->applyPayment($data, $payment);
+        $new_date = isset($data['date']) ? (string) $data['date'] : null;
+        $defer_date_change = $original_date
+            && $new_date
+            && $new_date !== $original_date
+            && $paymentables_to_move->isNotEmpty();
+        $applied_data = $data;
 
-        $moved_paymentables = $this->movePaymentableDates($payment, $original_date, $paymentables_to_move);
+        if ($defer_date_change) {
+            $applied_data['date'] = $original_date;
+        }
+
+        $payment = $this->applyPayment($applied_data, $payment);
+        $moved_paymentables = $this->movePaymentableDates(
+            $payment,
+            $original_date,
+            $defer_date_change ? $new_date : null,
+            $paymentables_to_move,
+        );
         $this->syncResolvedTags($payment, $tag_ids);
 
         if ($original_date && $payment->date && $moved_paymentables->isNotEmpty()) {
@@ -105,11 +122,16 @@ class PaymentRepository extends BaseRepository
     /**
      * @param Collection<int, Paymentable> $paymentables
      */
-    private function movePaymentableDates(Payment $payment, ?string $original_date, Collection $paymentables): Collection
+    private function movePaymentableDates(
+        Payment $payment,
+        ?string $original_date,
+        ?string $new_date,
+        Collection $paymentables,
+    ): Collection
     {
         if (! $original_date
-            || ! $payment->date
-            || $payment->date === $original_date
+            || ! $new_date
+            || $new_date === $original_date
             || $paymentables->isEmpty()) {
             return collect();
         }
@@ -117,13 +139,37 @@ class PaymentRepository extends BaseRepository
         $moved_paymentables = collect();
         $timezone = $payment->company->timezone()?->name ?: config('app.timezone');
         $application_timestamp = app(PaymentApplicationDateResolver::class)
-            ->encodeBusinessDate($payment->date, $timezone);
+            ->encodeBusinessDate($new_date, $timezone);
+        $date_change_identity = Str::uuid()->toString();
 
-        foreach ($paymentables as $paymentable) {
-            $paymentable->created_at = $application_timestamp;
-            $paymentable->saveQuietly();
-            $moved_paymentables->push($paymentable);
-        }
+        DB::transaction(function () use (
+            $payment,
+            $paymentables,
+            $application_timestamp,
+            $original_date,
+            $moved_paymentables,
+            $date_change_identity,
+            $new_date,
+        ): void {
+            $payment->date = $new_date;
+            $payment->saveQuietly();
+
+            foreach ($paymentables as $paymentable) {
+                if ($paymentable->paymentable_type === 'invoices') {
+                    app(FrancePaymentApplicationRecorder::class)->recordApplicationDateChange(
+                        $payment,
+                        $paymentable,
+                        $original_date,
+                        $new_date,
+                        $date_change_identity,
+                    );
+                }
+
+                $paymentable->created_at = $application_timestamp;
+                $paymentable->saveQuietly();
+                $moved_paymentables->push($paymentable);
+            }
+        }, attempts: 3);
 
         return $moved_paymentables;
     }

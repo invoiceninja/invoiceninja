@@ -436,6 +436,7 @@ class RefundPayment
                             movementAmount: -1 * $refunded_invoice['amount'],
                             movementDate: $this->refund_data['date'] ?? now()->toDateString(),
                             movementType: FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
+                            movementIdentity: $this->mutation_key . ':paymentable:' . $paymentable->id,
                         );
                     }
                 } catch (\Throwable $exception) {

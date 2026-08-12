@@ -16,7 +16,6 @@ use App\Models\Expense;
 use Tests\TestCase;
 
 /**
- * @covers App\Models\Expense
  */
 class ExpenseInclusiveTaxTest extends TestCase
 {

@@ -83,7 +83,7 @@ class VerifactuFeatureTest extends TestCase
         $u = User::factory()->create([
             'account_id' => $this->account->id,
             'confirmation_code' => 'xyz123',
-            'email' => $this->faker->unique()->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         $this->user = $u;

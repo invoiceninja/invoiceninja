@@ -14,6 +14,7 @@ namespace App\Jobs\Cron;
 
 use App\Libraries\MultiDB;
 use App\Models\Invoice;
+use App\Services\Invoice\AutoBillInvoice;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -54,7 +55,7 @@ class AutoBillCron
                                                 ->where('balance', '>', 0)
                                                 ->whereDate('partial_due_date', '<=', now())
                                                 ->where('auto_bill_enabled', true)
-                                                ->where('auto_bill_tries', '<', 3)
+                                                ->where('auto_bill_tries', '<', AutoBillInvoice::MAX_TRIES)
                                                 ->whereHas('company', function ($query) {
                                                     $query->where('is_disabled', 0);
                                                 })
@@ -76,7 +77,7 @@ class AutoBillCron
                                         ->where('balance', '>', 0)
                                         ->whereDate('due_date', '<=', now())
                                         ->where('auto_bill_enabled', true)
-                                        ->where('auto_bill_tries', '<', 3)
+                                        ->where('auto_bill_tries', '<', AutoBillInvoice::MAX_TRIES)
                                         ->whereHas('company', function ($query) {
                                             $query->where('is_disabled', 0);
                                         })
@@ -104,7 +105,7 @@ class AutoBillCron
                                             ->whereDate('partial_due_date', '<=', now())
                                             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                             ->where('auto_bill_enabled', true)
-                                            ->where('auto_bill_tries', '<', 3)
+                                            ->where('auto_bill_tries', '<', AutoBillInvoice::MAX_TRIES)
                                             ->where('balance', '>', 0)
                                             ->where('is_deleted', false)
                                             ->whereHas('company', function ($query) {
@@ -128,7 +129,7 @@ class AutoBillCron
                                             ->whereDate('due_date', '<=', now())
                                             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                             ->where('auto_bill_enabled', true)
-                                            ->where('auto_bill_tries', '<', 3)
+                                            ->where('auto_bill_tries', '<', AutoBillInvoice::MAX_TRIES)
                                             ->where('balance', '>', 0)
                                             ->where('is_deleted', false)
                                             ->whereHas('company', function ($query) {

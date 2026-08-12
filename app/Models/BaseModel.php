@@ -12,7 +12,6 @@
 
 namespace App\Models;
 
-use App\Jobs\EDocument\RecordFranceEReportingTransaction;
 use App\Jobs\Entity\CreateRawPdf;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Traits\Excludable;
@@ -260,10 +259,6 @@ class BaseModel extends Model
                 \App\Services\EDocument\Jobs\SendEDocument::dispatch(get_class($this), $this->id, $this->company->db);
             }
 
-            if($this->client->reportableFrTransaction()){
-                RecordFranceEReportingTransaction::dispatch(get_class($this), $this->id, $this->company->db);
-            }
-            
         } //Special Catch Here For Verifactu.
         elseif (in_array($event_id, [Webhook::EVENT_SENT_INVOICE]) && $this->company->verifactuEnabled() && ($this instanceof Invoice) && $this->backup->guid == "") {
             $this->service()->sendVerifactu();

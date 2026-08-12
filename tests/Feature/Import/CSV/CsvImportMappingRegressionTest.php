@@ -177,6 +177,41 @@ class CsvImportMappingRegressionTest extends TestCase
         $this->assertSame(Product::PRODUCT_TYPE_ZERO_RATED, (int) $product->tax_id);
     }
 
+    public function testUnmappedInvoiceNumbersCreateSeparateAutoNumberedInvoices(): void
+    {
+        $marker = 'blank-number-' . Str::random(12);
+        $beforeId = (int) Invoice::query()->max('id');
+
+        $importer = $this->runRowsImport(
+            'invoice',
+            ['Number', 'Client', 'Public Notes', 'Product', 'Cost', 'Quantity'],
+            [
+                ['', $this->client->name, $marker . '-one', 'ITEM-ONE', '10', '1'],
+                ['', $this->client->name, $marker . '-two', 'ITEM-TWO', '20', '1'],
+            ],
+            [
+                1 => 'client.name',
+                2 => 'invoice.public_notes',
+                3 => 'item.product_key',
+                4 => 'item.cost',
+                5 => 'item.quantity',
+            ]
+        );
+
+        $this->assertEmpty($importer->getErrors());
+
+        $invoices = Invoice::query()
+            ->where('company_id', $this->company->id)
+            ->where('id', '>', $beforeId)
+            ->whereIn('public_notes', [$marker . '-one', $marker . '-two'])
+            ->orderBy('id')
+            ->get();
+
+        $this->assertCount(2, $invoices);
+        $this->assertNotSame($invoices[0]->number, $invoices[1]->number);
+        $this->assertSame([1, 1], $invoices->map(fn (Invoice $invoice): int => count($invoice->line_items))->all());
+    }
+
     public function testClientIndustrySizeAndPaymentTermsMappingsArePersisted(): void
     {
         $industry = Industry::query()->firstOrFail();
@@ -353,9 +388,19 @@ class CsvImportMappingRegressionTest extends TestCase
      */
     private function runImport(string $entity, array $headers, array $row, array $columnMap): Csv
     {
+        return $this->runRowsImport($entity, $headers, [$row], $columnMap);
+    }
+
+    /**
+     * @param array<int, string> $headers
+     * @param array<int, array<int, string>> $rows
+     * @param array<int, string> $columnMap
+     */
+    private function runRowsImport(string $entity, array $headers, array $rows, array $columnMap): Csv
+    {
         $writer = Writer::createFromString();
         $writer->insertOne($headers);
-        $writer->insertOne($row);
+        $writer->insertAll($rows);
 
         $hash = Str::random(32);
         $data = [

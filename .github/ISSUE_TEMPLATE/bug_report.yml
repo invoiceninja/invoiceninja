@@ -1,0 +1,146 @@
+---
+name: Bug report
+description: Create a report to help us improve
+labels:
+  - triage
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to report a bug.
+
+        Before submitting, review our [self-hosting troubleshooting guide](https://invoiceninja.github.io/en/self-host-troubleshooting/).
+
+  - type: input
+    id: version
+    attributes:
+      label: Invoice Ninja version
+      description: Enter the complete Invoice Ninja version where the issue occurs.
+      placeholder: v5.12.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      description: Select how Invoice Ninja is installed.
+      options:
+        - Docker
+        - Shared hosting
+        - ZIP installation
+        - Hosted (https://app.invoicing.co)
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: interface
+    attributes:
+      label: Interface
+      description: Select the interface affected by the issue.
+      options:
+        - Flutter (Android/iOS/Windows Desktop)
+        - React
+        - Both
+    validations:
+      required: true
+
+  - type: dropdown
+    id: demo-reproduction
+    attributes:
+      label: Can you reproduce the issue on one of our demo sites?
+      description: |
+        Test using the [Flutter demo](https://demo.invoiceninja.com)
+        or [React demo](https://react.invoicing.co/demo).
+      options:
+        - Yes, on the Flutter demo
+        - Yes, on the React demo
+        - Yes, on both demos
+        - "No"
+        - Not applicable
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Pre-flight checks
+      options:
+        - label: I have reviewed the troubleshooting documentation.
+          required: true
+        - label: I have searched existing issues for duplicates.
+          required: true
+
+  - type: dropdown
+    id: community-report
+    attributes:
+      label: Have you reported this issue on Slack or the forum?
+      options:
+        - "Yes"
+        - "No"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: log-inspection
+    attributes:
+      label: Have you inspected the application logs?
+      description: Check `storage/logs/laravel.log` for relevant errors.
+      options:
+        - Yes, and I found relevant errors
+        - Yes, but I found no relevant errors
+        - Unable to inspect the logs
+        - Not applicable
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: Clearly describe what is happening and its impact.
+      placeholder: Describe the problem you encountered.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Steps to reproduce
+      description: Provide the smallest sequence of steps that consistently reproduces the issue.
+      placeholder: |
+        1. Go to ...
+        2. Click on ...
+        3. Enter ...
+        4. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected behavior
+      description: Describe what you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Include any other details that may help diagnose the issue.
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots or screen recordings
+      description: Drag and drop any relevant screenshots or recordings here.
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Paste relevant, redacted log output. Remove credentials and other sensitive information.
+      render: shell

@@ -22,6 +22,7 @@ use App\Listeners\Invoice\InvoiceTransactionEventEntryCash;
 use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
 use App\Utils\BcMath;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Support\Str;
 
 class DeletePaymentV2
 {
@@ -31,6 +32,8 @@ class DeletePaymentV2
 
     /** @var array<int, array<string, mixed>> */
     private array $tax_event_snapshots = [];
+
+    private string $mutation_key = '';
     /**
      * @param Payment $payment
      * @return void
@@ -43,6 +46,8 @@ class DeletePaymentV2
      */
     public function run()
     {
+        $this->mutation_key = "payment_deleted:{$this->payment->id}:" . Str::uuid();
+
         \DB::connection(config('database.default'))->transaction(function () {
             $this->payment = Payment::withTrashed()->where('id', $this->payment->id)->lockForUpdate()->first();
 
@@ -242,28 +247,25 @@ class DeletePaymentV2
 
                 }
 
-                try {
-                    $paymentable_invoice->loadMissing(['client.country', 'client.company']);
+                $paymentable_invoice->loadMissing(['client.country', 'client.company']);
 
-                    if ($paymentable_invoice->client->reportableFrTransaction()) {
-                        $paymentable = Paymentable::withTrashed()
-                            ->where('payment_id', $this->payment->id)
-                            ->where('paymentable_id', $paymentable_invoice->id)
-                            ->where('paymentable_type', 'invoices')
-                            ->latest('id')
-                            ->first();
+                if ($paymentable_invoice->client->reportableFrTransaction()) {
+                    $paymentable = Paymentable::withTrashed()
+                        ->where('payment_id', $this->payment->id)
+                        ->where('paymentable_id', $paymentable_invoice->id)
+                        ->where('paymentable_type', 'invoices')
+                        ->latest('id')
+                        ->first();
 
-                        app(FrancePaymentApplicationRecorder::class)->recordMovement(
-                            payment: $this->payment,
-                            invoice: $paymentable_invoice,
-                            paymentable: $paymentable,
-                            movementAmount: BcMath::mul($net_deletable, -1, 2),
-                            movementDate: now($this->payment->company->timezone()?->name ?: config('app.timezone'))->toDateString(),
-                            movementType: FrancePaymentApplicationRecorder::MOVEMENT_DELETED,
-                        );
-                    }
-                } catch (\Throwable $exception) {
-                    report($exception);
+                    app(FrancePaymentApplicationRecorder::class)->recordMovement(
+                        payment: $this->payment,
+                        invoice: $paymentable_invoice,
+                        paymentable: $paymentable,
+                        movementAmount: BcMath::mul($net_deletable, -1, 2),
+                        movementDate: now($this->payment->company->timezone()?->name ?: config('app.timezone'))->toDateString(),
+                        movementType: FrancePaymentApplicationRecorder::MOVEMENT_DELETED,
+                        movementIdentity: $this->mutation_key . ':paymentable:' . $paymentable->id,
+                    );
                 }
 
             });
@@ -311,7 +313,7 @@ class DeletePaymentV2
     private function captureTaxEventSnapshots(): void
     {
         $effective_date = now($this->payment->company->timezone()?->name ?: config('app.timezone'))->toDateString();
-        $mutation_key = "payment_deleted:{$this->payment->id}";
+        $mutation_key = $this->mutation_key;
 
         Paymentable::query()
             ->with(['payment' => fn ($query) => $query->withTrashed()])

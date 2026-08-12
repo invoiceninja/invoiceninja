@@ -483,11 +483,11 @@ class StorecoveProxyTest extends TestCase
 
         $this->mockStorecove->c5
             ->shouldReceive('activate')
-            ->with(290868, '01234567890', 'John Doe', 'john@example.com')
+            ->with(290868, '01234567890', 'John Doe', 'john@gmail.com')
             ->once()
             ->andReturn(['status' => 'activated']);
 
-        $result = $this->proxy->c5Activate('John Doe', 'john@example.com');
+        $result = $this->proxy->c5Activate('John Doe', 'john@gmail.com');
 
         $this->assertEquals('activated', $result['status']);
     }
@@ -501,7 +501,7 @@ class StorecoveProxyTest extends TestCase
             ->once()
             ->andReturn($this->makeMockResponse(400, ['error' => 'Invalid UEN']));
 
-        $result = $this->proxy->c5Activate('John Doe', 'john@example.com');
+        $result = $this->proxy->c5Activate('John Doe', 'john@gmail.com');
 
         $this->assertEquals('error', $result['status']);
     }
@@ -514,7 +514,7 @@ class StorecoveProxyTest extends TestCase
             '*/api/einvoice/peppol/sg/c5/activate' => Http::response(['status' => 'activated'], 200),
         ]);
 
-        $result = $this->proxy->c5Activate('John Doe', 'john@example.com');
+        $result = $this->proxy->c5Activate('John Doe', 'john@gmail.com');
 
         $this->assertEquals('activated', $result['status']);
     }
@@ -525,11 +525,11 @@ class StorecoveProxyTest extends TestCase
 
         $this->mockStorecove->c5
             ->shouldReceive('deactivate')
-            ->with(290868, '01234567890', 'John Doe', 'john@example.com')
+            ->with(290868, '01234567890', 'John Doe', 'john@gmail.com')
             ->once()
             ->andReturn(['status' => 'deactivated']);
 
-        $result = $this->proxy->c5Deactivate('John Doe', 'john@example.com');
+        $result = $this->proxy->c5Deactivate('John Doe', 'john@gmail.com');
 
         $this->assertEquals('deactivated', $result['status']);
     }
@@ -570,7 +570,7 @@ class StorecoveProxyTest extends TestCase
             '*/api/einvoice/peppol/sg/c5/activate' => Http::response([], 404),
         ]);
 
-        $result = $this->proxy->c5Activate('John Doe', 'john@example.com');
+        $result = $this->proxy->c5Activate('John Doe', 'john@gmail.com');
 
         $this->assertEquals('error', $result['status']);
         $this->assertEquals(503, $result['code']);
@@ -585,7 +585,7 @@ class StorecoveProxyTest extends TestCase
             '*/api/einvoice/peppol/sg/c5/deactivate' => Http::response([], 404),
         ]);
 
-        $result = $this->proxy->c5Deactivate('John Doe', 'john@example.com');
+        $result = $this->proxy->c5Deactivate('John Doe', 'john@gmail.com');
 
         $this->assertEquals('error', $result['status']);
         $this->assertEquals(503, $result['code']);

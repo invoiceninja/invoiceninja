@@ -191,7 +191,7 @@ class PeppolCountryTest extends TestCase
         $settings->id_number = $params['company_id_number'] ?? $sd['id_number'];
         $settings->classification = $params['company_classification'] ?? 'business';
         $settings->country_id = (string) Country::where('iso_3166_2', $senderCode)->first()->id;
-        $settings->email = 'test@example.com';
+        $settings->email = 'test@gmail.com';
         $settings->currency_id = $sd['currency'];
         $settings->e_invoice_type = 'PEPPOL';
         $settings->address1 = $params['company_address1'] ?? $sd['address1'];
@@ -284,7 +284,7 @@ class PeppolCountryTest extends TestCase
             'user_id' => $this->user->id,
             'first_name' => 'Test',
             'last_name' => 'Contact',
-            'email' => 'testcontact@example.com',
+            'email' => 'testcontact@gmail.com',
         ]);
 
         // ── Invoice ──

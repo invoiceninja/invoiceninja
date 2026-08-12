@@ -13,8 +13,6 @@
 namespace App\Http\Requests\Payment;
 
 use App\Http\Requests\Request;
-use App\Services\EDocument\Standards\France\FrancePaymentReportingMutationGuard;
-use Illuminate\Validation\Validator;
 
 class DestroyPaymentRequest extends Request
 {
@@ -27,21 +25,4 @@ class DestroyPaymentRequest extends Request
     {
         return auth()->user()->can('edit', $this->payment) && $this->payment->is_deleted === false;
     }
-
-    public function withValidator(Validator $validator): void
-    {
-        $validator->after(function (Validator $validator): void {
-            if ($validator->errors()->isNotEmpty()) {
-                return;
-            }
-
-            $violation = app(FrancePaymentReportingMutationGuard::class)
-                ->paymentDeletionViolation($this->payment);
-
-            if ($violation) {
-                $validator->errors()->add('id', $violation);
-            }
-        });
-    }
-
 }

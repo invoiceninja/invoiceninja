@@ -106,15 +106,15 @@ class FranceReportEntryBuilderTest extends TestCase
         $this->assertSame([
             'category' => 'exempt',
             'percentage' => 0,
-            'currency' => 'EUR',
             'country' => 'FR',
+            'currency' => 'EUR',
             'amount' => 40,
         ], $builder->b2cPayment($payment, $invoice, 40)->toArray()['taxSubtotal'][0]);
 
         $this->assertSame(40, $builder->b2biPayment($payment, $invoice, 40)->taxSubtotals[0]->amountIncludingTax);
     }
 
-    public function testForeignCurrencyInitialAndCorrectivePaymentsRemainInTheInvoiceCurrency(): void
+    public function testForeignCurrencyPaymentRowsRemainDisabledUntilStorecoveEurMappingIsProven(): void
     {
         $company = $this->company();
         $client = $this->client($company, '1');
@@ -122,19 +122,21 @@ class FranceReportEntryBuilderTest extends TestCase
         $payment = $this->payment($company, $client);
         $builder = new FranceReportEntryBuilder();
 
-        $initial = $builder->b2cPayment($payment, $invoice, '230', '2026-09-15')->toArray();
-        $corrective = $builder->b2cPayment($payment, $invoice, '-46', '2026-10-12')->toArray();
-        $b2bi = $builder->b2biPayment($payment, $invoice, '230', '2026-09-15')->toArray();
-
-        $this->assertSame(['USD', 'USD'], array_column($initial['taxSubtotal'], 'currency'));
-        $this->assertSame([120, 110], array_column($initial['taxSubtotal'], 'amount'));
-        $this->assertSame(['USD', 'USD'], array_column($corrective['taxSubtotal'], 'currency'));
-        $this->assertSame([-24, -22], array_column($corrective['taxSubtotal'], 'amount'));
-        $this->assertSame(['USD', 'USD'], array_column($b2bi['taxSubtotals'], 'currency'));
-        $this->assertSame(230.0, (float) collect($b2bi['taxSubtotals'])->sum('amountIncludingTax'));
+        foreach ([
+            fn () => $builder->b2cPayment($payment, $invoice, '230', '2026-09-15'),
+            fn () => $builder->b2cPayment($payment, $invoice, '-46', '2026-10-12'),
+            fn () => $builder->b2biPayment($payment, $invoice, '230', '2026-09-15'),
+        ] as $build) {
+            try {
+                $build();
+                $this->fail('Expected non-EUR France e-report payment mapping to remain disabled.');
+            } catch (\InvalidArgumentException $exception) {
+                $this->assertStringContainsString('Only EUR', $exception->getMessage());
+            }
+        }
     }
 
-    public function testB2CSupplyCategoryIsInferredAndUnsupportedLinesFailClosed(): void
+    public function testB2CSupplyCategoryUsesTheFirstLineForTheEntireDocument(): void
     {
         $company = $this->company();
         $client = $this->client($company);
@@ -149,8 +151,15 @@ class FranceReportEntryBuilderTest extends TestCase
             $this->lineItem('GOODS', 50, 'VAT', 20, Product::PRODUCT_TYPE_PHYSICAL),
             $this->lineItem('SERVICE', 50, 'VAT', 20, Product::PRODUCT_TYPE_SERVICE),
         ]);
+        $serviceFirst = $this->invoice($company, $client, lineItems: [
+            $this->lineItem('SERVICE', 50, 'VAT', 20, Product::PRODUCT_TYPE_SERVICE),
+            $this->lineItem('GOODS', 50, 'VAT', 20, Product::PRODUCT_TYPE_PHYSICAL),
+        ]);
+        $digital = $this->invoice($company, $client, lineItems: [
+            $this->lineItem('DIGITAL', 100, 'VAT', 20, Product::PRODUCT_TYPE_DIGITAL),
+        ]);
         $unknown = $this->invoice($company, $client, lineItems: [
-            $this->lineItem('FEE', 100, 'VAT', 20, 3),
+            $this->lineItem('UNKNOWN', 100, 'VAT', 20, 999),
         ]);
         $empty = $this->invoice($company, $client, lineItems: []);
 
@@ -158,10 +167,12 @@ class FranceReportEntryBuilderTest extends TestCase
         $this->assertSame('TPS1', $builder->b2cSupplyCategory($services));
         $this->assertSame('TLB1', $builder->b2cTransaction($goods)?->category);
         $this->assertSame('TPS1', $builder->b2cTransaction($services)?->category);
-        $this->assertNull($builder->b2cSupplyCategory($mixed));
-        $this->assertNull($builder->b2cTransaction($mixed));
-        $this->assertNull($builder->b2cSupplyCategory($unknown));
-        $this->assertNull($builder->b2cSupplyCategory($empty));
+        $this->assertSame('TLB1', $builder->b2cSupplyCategory($mixed));
+        $this->assertSame('TLB1', $builder->b2cTransaction($mixed)?->category);
+        $this->assertSame('TPS1', $builder->b2cSupplyCategory($serviceFirst));
+        $this->assertSame('TLB1', $builder->b2cSupplyCategory($digital));
+        $this->assertSame('TLB1', $builder->b2cSupplyCategory($unknown));
+        $this->assertSame('TLB1', $builder->b2cSupplyCategory($empty));
     }
 
     private function company(): Company

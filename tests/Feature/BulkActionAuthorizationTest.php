@@ -51,8 +51,6 @@ class BulkActionAuthorizationTest extends TestCase
             \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
         }
 
-        $faker = \Faker\Factory::create();
-
         $this->account = Account::factory()->create([
             'hosted_client_count' => 1000,
             'hosted_company_count' => 1000,
@@ -68,7 +66,7 @@ class BulkActionAuthorizationTest extends TestCase
         $this->adminUser = User::factory()->create([
             'account_id' => $this->account->id,
             'confirmation_code' => '123',
-            'email' => $faker->unique()->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         $adminCu = CompanyUserFactory::create($this->adminUser->id, $this->company->id, $this->account->id);
@@ -90,7 +88,7 @@ class BulkActionAuthorizationTest extends TestCase
         $this->restrictedUser = User::factory()->create([
             'account_id' => $this->account->id,
             'confirmation_code' => '123',
-            'email' => $faker->unique()->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         $restrictedCu = CompanyUserFactory::create($this->restrictedUser->id, $this->company->id, $this->account->id);

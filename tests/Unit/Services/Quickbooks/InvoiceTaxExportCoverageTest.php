@@ -443,7 +443,7 @@ class InvoiceTaxExportCoverageTest extends TestCase
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
             'client_id' => $client->id,
-            'email' => 'tax-export@example.com',
+            'email' => 'tax-export@gmail.com',
             'is_primary' => true,
         ]);
 

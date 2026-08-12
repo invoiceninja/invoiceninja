@@ -42,7 +42,7 @@ class PasswordResetEncodingTest extends TestCase
 
     private User $user;
 
-    private string $email = 'jane+ninja@example.com';
+    private string $email = 'jane+ninja@gmail.com';
 
     protected function setUp(): void
     {
@@ -86,7 +86,7 @@ class PasswordResetEncodingTest extends TestCase
         $response->assertOk();
         $response->assertSee('name="token" value="'.$token.'"', false);
         $response->assertSee('value="'.$this->email.'"', false);
-        $response->assertDontSee('jane ninja@example.com', false);
+        $response->assertDontSee('jane ninja@gmail.com', false);
     }
 
     /**

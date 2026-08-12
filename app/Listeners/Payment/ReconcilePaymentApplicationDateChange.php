@@ -18,7 +18,6 @@ use App\Listeners\Invoice\InvoiceTransactionEventEntryCash;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Paymentable;
-use App\Services\EDocument\Standards\France\FrancePaymentApplicationDateReconciler;
 use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -33,10 +32,7 @@ class ReconcilePaymentApplicationDateChange implements ShouldQueueAfterCommit
     /** @var array<int, int> */
     public array $backoff = [10, 60, 180];
 
-    public function __construct(
-        private InvoiceTransactionEventEntryCash $cash_reconciler,
-        private FrancePaymentApplicationDateReconciler $france_reconciler,
-    ) {}
+    public function __construct(private InvoiceTransactionEventEntryCash $cash_reconciler) {}
 
     public function handle(PaymentApplicationDateChanged $event): void
     {
@@ -95,15 +91,6 @@ class ReconcilePaymentApplicationDateChange implements ShouldQueueAfterCommit
                     $ids,
                 );
 
-                if ($invoice->client->reportableFrTransaction()) {
-                    $this->france_reconciler->reconcile(
-                        $invoice->id,
-                        $payment->id,
-                        $event->old_date,
-                        $event->new_date,
-                        $ids,
-                    );
-                }
             } catch (Throwable $exception) {
                 report($exception);
 

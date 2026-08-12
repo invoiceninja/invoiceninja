@@ -68,6 +68,18 @@ class DocumentSubmissionExtractUblTest extends TestCase
         $this->assertSame($selfHostedInvoice->backup->e_invoice_status, $hostedInvoice->backup->e_invoice_status);
         $this->assertSame($clearedAt, $hostedInvoice->backup->e_invoice_cleared_at);
         $this->assertSame($selfHostedInvoice->backup->e_invoice_cleared_at, $hostedInvoice->backup->e_invoice_cleared_at);
+
+        $hostedMethod->invoke(new DocumentSubmission([]), $hostedInvoice, 'rejected');
+        $selfHostedMethod->invoke(new EInvoicePullDocs(), $selfHostedInvoice, 'rejected');
+        $hostedMethod->invoke(new DocumentSubmission([]), $hostedInvoice, 'paid');
+        $selfHostedMethod->invoke(new EInvoicePullDocs(), $selfHostedInvoice, 'paid');
+        $this->assertSame('rejected', $hostedInvoice->backup->e_invoice_status);
+        $this->assertSame($selfHostedInvoice->backup->e_invoice_status, $hostedInvoice->backup->e_invoice_status);
+
+        $hostedMethod->invoke(new DocumentSubmission([]), $hostedInvoice, 'cleared');
+        $selfHostedMethod->invoke(new EInvoicePullDocs(), $selfHostedInvoice, 'cleared');
+        $this->assertSame('cleared', $hostedInvoice->backup->e_invoice_status);
+        $this->assertSame($selfHostedInvoice->backup->e_invoice_status, $hostedInvoice->backup->e_invoice_status);
     }
     /**
      * Test extracting CreditNote from StandardBusinessDocument wrapper
@@ -118,7 +130,7 @@ class DocumentSubmissionExtractUblTest extends TestCase
          </cac:PartyLegalEntity>
          <cac:Contact>
             <cbc:Name>Test Contact</cbc:Name>
-            <cbc:ElectronicMail>supplier@example.com</cbc:ElectronicMail>
+            <cbc:ElectronicMail>supplier@gmail.com</cbc:ElectronicMail>
          </cac:Contact>
       </cac:Party>
    </cac:AccountingSupplierParty>
@@ -147,7 +159,7 @@ class DocumentSubmissionExtractUblTest extends TestCase
          </cac:PartyLegalEntity>
          <cac:Contact>
             <cbc:Telephone>123456789</cbc:Telephone>
-            <cbc:ElectronicMail>customer@example.com</cbc:ElectronicMail>
+            <cbc:ElectronicMail>customer@gmail.com</cbc:ElectronicMail>
          </cac:Contact>
       </cac:Party>
    </cac:AccountingCustomerParty>

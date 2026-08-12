@@ -22,7 +22,7 @@ class CheckoutComGetCustomerTest extends TestCase
 {
     public function testGetCustomerUsesStoredReferenceBeforeEmail(): void
     {
-        $driver = $this->makeDriver('cus_stored', 'client@example.com');
+        $driver = $this->makeDriver('cus_stored', 'client@gmail.com');
 
         $this->assertSame(['id' => 'cus_stored'], $driver->getCustomer());
         $this->assertSame(['cus_stored'], $driver->lookups);
@@ -31,37 +31,37 @@ class CheckoutComGetCustomerTest extends TestCase
 
     public function testGetCustomerFallsBackToEmailWhenNoReference(): void
     {
-        $driver = $this->makeDriver(null, 'client@example.com');
+        $driver = $this->makeDriver(null, 'client@gmail.com');
 
-        $this->assertSame(['id' => 'client@example.com'], $driver->getCustomer());
-        $this->assertSame(['client@example.com'], $driver->lookups);
+        $this->assertSame(['id' => 'client@gmail.com'], $driver->getCustomer());
+        $this->assertSame(['client@gmail.com'], $driver->lookups);
         $this->assertFalse($driver->created);
     }
 
     public function testGetCustomerFallsBackToEmailWhenStoredReferenceMisses(): void
     {
-        $driver = $this->makeDriver('cus_stale', 'client@example.com', miss: ['cus_stale']);
+        $driver = $this->makeDriver('cus_stale', 'client@gmail.com', miss: ['cus_stale']);
 
-        $this->assertSame(['id' => 'client@example.com'], $driver->getCustomer());
-        $this->assertSame(['cus_stale', 'client@example.com'], $driver->lookups);
+        $this->assertSame(['id' => 'client@gmail.com'], $driver->getCustomer());
+        $this->assertSame(['cus_stale', 'client@gmail.com'], $driver->lookups);
         $this->assertFalse($driver->created);
     }
 
     public function testGetCustomerCreatesWhenReferenceAndEmailMiss(): void
     {
-        $driver = $this->makeDriver('cus_stale', 'client@example.com', miss: ['cus_stale', 'client@example.com']);
+        $driver = $this->makeDriver('cus_stale', 'client@gmail.com', miss: ['cus_stale', 'client@gmail.com']);
 
         $this->assertSame(['id' => 'cus_created'], $driver->getCustomer());
-        $this->assertSame(['cus_stale', 'client@example.com'], $driver->lookups);
+        $this->assertSame(['cus_stale', 'client@gmail.com'], $driver->lookups);
         $this->assertTrue($driver->created);
     }
 
     public function testGetCustomerCreatesWhenNoReferenceAndEmailMisses(): void
     {
-        $driver = $this->makeDriver(null, 'client@example.com', miss: ['client@example.com']);
+        $driver = $this->makeDriver(null, 'client@gmail.com', miss: ['client@gmail.com']);
 
         $this->assertSame(['id' => 'cus_created'], $driver->getCustomer());
-        $this->assertSame(['client@example.com'], $driver->lookups);
+        $this->assertSame(['client@gmail.com'], $driver->lookups);
         $this->assertTrue($driver->created);
     }
 

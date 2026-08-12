@@ -31,6 +31,8 @@ use App\Listeners\Invoice\InvoiceTransactionEventEntry;
 use App\Listeners\Invoice\InvoiceTransactionEventEntryCash;
 use App\Repositories\InvoiceRepository;
 use App\Services\Payment\PaymentApplicationDateResolver;
+use App\Services\EDocument\Standards\France\FranceReportingEventType;
+use App\Services\EDocument\Standards\France\FranceReportingStatus;
 use Illuminate\Queue\Middleware\Skip;
 
 /**
@@ -96,7 +98,7 @@ class TaxPeriodReportTest extends TestCase
         $this->user = User::factory()->create([
             'account_id' => $this->account->id,
             'confirmation_code' => 'xyz123',
-            'email' => \Illuminate\Support\Str::random(32).'@example.com',
+            'email' => \Illuminate\Support\Str::random(32).'@gmail.com',
         ]);
 
         $settings = CompanySettings::defaults();
@@ -774,10 +776,10 @@ class TaxPeriodReportTest extends TestCase
             'invoice_id' => $invoice->id,
             'payment_id' => $invoice->payments()->firstOrFail()->id,
             'credit_id' => 0,
-            'event_id' => TransactionEvent::FR_B2C_PAYMENT,
+            'event_id' => FranceReportingEventType::PaymentMovement->value,
             'timestamp' => now()->timestamp,
             'period' => '2025-10-31',
-            'payment_status' => TransactionEvent::FR_REPORTING_STATUS_PENDING,
+            'payment_status' => FranceReportingStatus::Pending->value,
         ]);
 
         $data = $this->executeTaxPeriodReportAndSave(

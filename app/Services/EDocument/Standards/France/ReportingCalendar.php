@@ -47,6 +47,7 @@ final class ReportingCalendar
         }
 
         return new ReportingPeriod(
+            profile: ReportingProfile::TenDay,
             start: $start,
             end: $end,
             dueDate: self::tenDayDueDate($start, $end),
@@ -87,6 +88,7 @@ final class ReportingCalendar
         $end = $date->endOfMonth();
 
         return new ReportingPeriod(
+            profile: ReportingProfile::Monthly,
             start: $start,
             end: $end,
             dueDate: $end->addMonthNoOverflow()->startOfMonth()->setDay(10)->endOfDay(),
@@ -104,6 +106,7 @@ final class ReportingCalendar
         $end = $start->addMonthNoOverflow()->endOfMonth();
 
         return new ReportingPeriod(
+            profile: ReportingProfile::BiMonthly,
             start: $start,
             end: $end,
             dueDate: $end->addMonthNoOverflow()->startOfMonth()->setDay(10)->endOfDay(),

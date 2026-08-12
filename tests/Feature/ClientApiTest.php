@@ -71,7 +71,7 @@ class ClientApiTest extends TestCase
                         'custom_value2' => '',
                         'custom_value3' => '',
                         'custom_value4' => '',
-                        'email' => 'contact1@example.com',
+                        'email' => 'contact1@gmail.com',
                         'first_name' => 'Jane',
                         'id' => 'contact_id_primary_001',
                         'is_locked' => false,
@@ -94,7 +94,7 @@ class ClientApiTest extends TestCase
                         'custom_value2' => '',
                         'custom_value3' => '',
                         'custom_value4' => '',
-                        'email' => 'contact2@example.com',
+                        'email' => 'contact2@gmail.com',
                         'first_name' => 'John',
                         'id' => 'contact_id_secondary_002',
                         'is_locked' => false,
@@ -1365,7 +1365,7 @@ class ClientApiTest extends TestCase
         $user = User::factory()->create([
             'account_id' => $account->id,
             'confirmation_code' => '123',
-            'email' =>  $this->faker->safeEmail(),
+            'email' =>  uniqid('testuser') . '@gmail.com',
         ]);
 
         $cu = CompanyUserFactory::create($user->id, $company->id, $account->id);

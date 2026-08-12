@@ -99,7 +99,7 @@ class ZugferdXmlValidationTest extends TestCase
         $settings->id_number = $params['company_id_number'] ?? '';
         $settings->classification = $params['company_classification'] ?? 'business';
         $settings->country_id = Country::where('iso_3166_2', $params['company_country'] ?? 'DE')->first()->id;
-        $settings->email = $this->faker->safeEmail();
+        $settings->email = uniqid('testuser') . '@gmail.com';
         $settings->e_invoice_type = $params['e_invoice_type'] ?? 'XInvoice_3_0';
         $settings->currency_id = '3';
         $settings->name = 'Test Company';
@@ -175,7 +175,7 @@ class ZugferdXmlValidationTest extends TestCase
             'user_id' => $client->user_id,
             'first_name' => $this->faker->firstName(),
             'last_name' => $this->faker->lastName(),
-            'email' => $this->faker->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         $invoice = \App\Models\Invoice::factory()->create([

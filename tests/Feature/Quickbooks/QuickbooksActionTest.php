@@ -70,7 +70,7 @@ class QuickbooksActionTest extends TestCase
 
         $other_user = User::factory()->create([
             'account_id' => $this->account->id,
-            'email' => 'qb-action-editor-' . uniqid() . '@example.com',
+            'email' => 'qb-action-editor-' . uniqid() . '@gmail.com',
         ]);
         $invoice = Invoice::factory()->create([
             'user_id' => $other_user->id,
@@ -99,7 +99,7 @@ class QuickbooksActionTest extends TestCase
 
         $other_user = User::factory()->create([
             'account_id' => $this->account->id,
-            'email' => 'qb-action-denied-' . uniqid() . '@example.com',
+            'email' => 'qb-action-denied-' . uniqid() . '@gmail.com',
         ]);
         $invoice = Invoice::factory()->create([
             'user_id' => $other_user->id,
