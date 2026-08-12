@@ -101,40 +101,40 @@ class ImportHarvestTest extends TestCase
     {
         $parser = app(AddressParser::class);
         $addresses = [
-            "P.O. Box 913 Alamo,\nSan Francisco, CA 94507\nTel: 415 644-5795" => [
-                'address1' => 'P.O. Box 913 Alamo',
-                'city' => 'San Francisco',
+            "P.O. Box 777 Exampleville,\nExample City, CA 90210\nTel: 415 555-0100" => [
+                'address1' => 'P.O. Box 777 Exampleville',
+                'city' => 'Example City',
                 'state' => 'CA',
-                'postal_code' => '94507',
+                'postal_code' => '90210',
                 'country_code' => 'US',
-                'phone' => '415 644-5795',
+                'phone' => '415 555-0100',
             ],
-            "163 Vaughan Road\nToronto, ON M6C 2L9\nCanada" => [
-                'address1' => '163 Vaughan Road',
-                'city' => 'Toronto',
+            "100 Example Road\nSampleton, ON K1A 0B1\nCanada" => [
+                'address1' => '100 Example Road',
+                'city' => 'Sampleton',
                 'state' => 'ON',
-                'postal_code' => 'M6C 2L9',
+                'postal_code' => 'K1A 0B1',
                 'country_code' => 'CA',
             ],
-            "985 Adelaide St. S.\nLondon ON N6E 4A3" => [
-                'address1' => '985 Adelaide St. S.',
-                'city' => 'London',
+            "200 Sample Avenue\nExampleville ON A1A 1A1" => [
+                'address1' => '200 Sample Avenue',
+                'city' => 'Exampleville',
                 'state' => 'ON',
-                'postal_code' => 'N6E 4A3',
+                'postal_code' => 'A1A 1A1',
                 'country_code' => 'CA',
             ],
-            "RR 1 Ilderton Ontario,\nCanada N0M 2A0" => [
-                'address1' => 'RR 1',
-                'city' => 'Ilderton',
+            "RR 9 Placeholder Ontario,\nCanada B2B 2B2" => [
+                'address1' => 'RR 9',
+                'city' => 'Placeholder',
                 'state' => 'ON',
-                'postal_code' => 'N0M 2A0',
+                'postal_code' => 'B2B 2B2',
                 'country_code' => 'CA',
             ],
-            "4836 Egremont Dr\nStrathroy ON  N7G 3H3\nCanada" => [
-                'address1' => '4836 Egremont Dr',
-                'city' => 'Strathroy',
+            "300 Fictional Drive\nDemo City ON  C3C 3C3\nCanada" => [
+                'address1' => '300 Fictional Drive',
+                'city' => 'Demo City',
                 'state' => 'ON',
-                'postal_code' => 'N7G 3H3',
+                'postal_code' => 'C3C 3C3',
                 'country_code' => 'CA',
             ],
         ];
@@ -146,7 +146,7 @@ class ImportHarvestTest extends TestCase
 
     public function test_it_resolves_a_literal_shell_escaped_directory_path(): void
     {
-        $directory = $this->directory . '/Tenth Floor Studios Harvest';
+        $directory = $this->directory . '/Example Harvest Export';
         File::makeDirectory($directory, 0o755, true);
         $this->writeHarvestExports($directory);
 
@@ -173,8 +173,8 @@ class ImportHarvestTest extends TestCase
     {
         File::put($this->directory . '/clients.csv', <<<'CSV'
             Client Name,Address
-            Canadian Client,"163 Vaughan Road
-            Toronto, ON M6C 2L9
+            Canadian Client,"100 Example Road
+            Sampleton, ON K1A 0B1
             Canada"
             Unknown Country Client,10 Example Road
             CSV);

@@ -45,6 +45,19 @@ Defaults matter for the `about:blank` / `setting up "context"` failures:
 - Test timeout is 60s so worker-scoped API login does not steal the first
   test’s entire budget
 
+### Zombie Chromium windows
+
+Playwright reuses one browser per worker, but headed / UI mode can leave stuck
+windows when a test times out mid-context or when `npm run test:e2e:ui` keeps a
+`test-server` alive after you close the UI. Clear leftovers with:
+
+```sh
+npm run test:e2e:kill
+```
+
+Guest invitation tests must close their extra contexts in `finally` (use
+`withGuestPortalPage`) so a failed assertion cannot leak a headed window.
+
 ## Spec files
 
 | Spec | Coverage |

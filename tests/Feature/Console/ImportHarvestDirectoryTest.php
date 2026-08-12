@@ -80,7 +80,7 @@ class ImportHarvestDirectoryTest extends TestCase
             'api_token' => $api_token,
             'directory' => $directory,
         ]);
-        $this->assertSame(0, $exit_code, "Harvest import failed:\n" . $this->failureOutput(Artisan::output()));
+        $this->assertSame(0, $exit_code, $this->redactedImportFailureMessage());
 
         $this->assertPersistedModelCounts($company, $owner, $expected['records']);
         $ids = $this->assertPersistedApiPayloads($api_token, $owner, $expected['records']);
@@ -98,22 +98,22 @@ class ImportHarvestDirectoryTest extends TestCase
         try {
             File::put($directory . '/clients.csv', <<<'CSV'
                 Client Name,Address
-                Atlanta Music Project,"883 Dill Ave
-                SW Atlanta, GA 30310"
+                Example Arts Foundation,"100 Example Avenue
+                Example City, CA 90210"
                 CSV);
             File::put($directory . '/invoices.csv', <<<'CSV'
                 Issue Date,Last Payment Date,ID,PO Number,Client,Subject,Invoice Amount,Paid Amount,Balance,Subtotal,Discount,Tax,Tax2,Currency,Currency Symbol,Document Type,Client Address
-                2011-08-01,2011-08-01,AMP.11.105,,Atlanta Music Project,AMP Website Updates - August 2011,425,425,0,425,0,0,0,United States Dollar - USD,$,Standard Invoice,"883 Dill Ave
-                SW Atlanta, GA 30310"
+                2026-01-15,2026-01-16,EXAMPLE-INV-001,,Example Arts Foundation,Example monthly services,240,240,0,240,0,0,0,United States Dollar - USD,$,Standard Invoice,"100 Example Avenue
+                Example City, CA 90210"
                 CSV);
             File::put($directory . '/invoice_lines.csv', <<<'CSV'
                 Invoice ID,Client,Project,Item Type,Item Description,Item Quantity,Item Unit Price,Item Amount,Item Discount,Item Tax,Item Tax2,Currency,Invoice Type,Issue Date
-                AMP.11.105,Atlanta Music Project,,Service,Retainer Payment for website updates - August 2011,10,42.5,425,0,0,0,USD,Standard,2011-08-01
+                EXAMPLE-INV-001,Example Arts Foundation,,Service,Example service retainer,4,60,240,0,0,0,USD,Standard,2026-01-15
                 CSV);
             File::put($directory . '/payments.csv', <<<'CSV'
                 Payment Date,Invoice ID,Invoice Issue Date,Client,Invoice Amount,Payment Amount,Tax,Tax2,Currency,Currency Symbol,Document Type
-                2011-08-01,AMP.11.105,2011-08-01,Atlanta Music Project,425,425,0,0,United States Dollar - USD,$,Standard Invoice
-                2011-08-02,AMP.11.105,2011-08-01,Atlanta Music Project,425,-5,0,0,United States Dollar - USD,$,Standard Invoice
+                2026-01-16,EXAMPLE-INV-001,2026-01-15,Example Arts Foundation,240,240,0,0,United States Dollar - USD,$,Standard Invoice
+                2026-01-17,EXAMPLE-INV-001,2026-01-15,Example Arts Foundation,240,-5,0,0,United States Dollar - USD,$,Standard Invoice
                 CSV);
 
             $this->makeTestData();
@@ -126,11 +126,11 @@ class ImportHarvestDirectoryTest extends TestCase
                 'directory' => $directory,
             ]);
 
-            $this->assertSame(0, $exit_code, "Harvest import failed:\n" . Artisan::output());
+            $this->assertSame(0, $exit_code, $this->redactedImportFailureMessage());
             $invoice = Invoice::query()->where('company_id', $company->id)->sole();
             $payments = Payment::query()->where('company_id', $company->id)->orderBy('date')->get();
-            $this->assertSame(425.0, (float) $invoice->amount);
-            $this->assertSame([425.0, -5.0], $payments->map(fn(Payment $payment): float => (float) $payment->amount)->all());
+            $this->assertSame(240.0, (float) $invoice->amount);
+            $this->assertSame([240.0, -5.0], $payments->map(fn(Payment $payment): float => (float) $payment->amount)->all());
             $this->assertSame($invoice->id, $payments[0]->paymentables()->sole()->paymentable_id);
             $this->assertSame(0, $payments[1]->paymentables()->count());
         } finally {
@@ -154,7 +154,7 @@ class ImportHarvestDirectoryTest extends TestCase
             '--entities' => Entity::Clients->value,
         ]);
 
-        $this->assertSame(0, $exit_code, "Harvest import failed:\n" . $this->failureOutput(Artisan::output()));
+        $this->assertSame(0, $exit_code, $this->redactedImportFailureMessage());
         $this->assertSame(
             count($expected['records'][Entity::Clients->value]),
             Client::query()->where('company_id', $company->id)->count(),
@@ -205,7 +205,7 @@ class ImportHarvestDirectoryTest extends TestCase
             '--entities' => $entity_option,
         ]);
 
-        $this->assertSame(0, $exit_code, "Harvest import failed:\n" . $this->failureOutput(Artisan::output()));
+        $this->assertSame(0, $exit_code, $this->redactedImportFailureMessage());
         $ids = $this->assertPersistedApiPayloads($api_token, $owner, $expected['records'], $entities);
 
         if (in_array(Entity::InvoicePayments, $entities, true)) {
@@ -221,17 +221,9 @@ class ImportHarvestDirectoryTest extends TestCase
         }
     }
 
-    private function failureOutput(string $output): string
+    private function redactedImportFailureMessage(): string
     {
-        $lines = preg_split('/\R/', $output) ?: [];
-        $failures = array_values(array_filter(
-            $lines,
-            fn(string $line): bool => str_contains($line, 'ERROR')
-                || str_contains($line, 'Unable')
-                || str_contains($line, 'failed'),
-        ));
-
-        return implode("\n", $failures === [] ? array_slice($lines, -30) : $failures);
+        return 'Harvest import failed. Command output is withheld because it may contain source data.';
     }
 
     private function harvestDirectory(): string
@@ -247,7 +239,7 @@ class ImportHarvestDirectoryTest extends TestCase
         $resolved = realpath(str_replace('\ ', ' ', trim($directory)));
 
         if ($resolved === false || ! File::isDirectory($resolved)) {
-            $this->fail("Harvest import test directory does not exist: {$directory}");
+            $this->fail('Harvest import test directory does not exist. Path withheld.');
         }
 
         return $resolved;
@@ -363,8 +355,8 @@ class ImportHarvestDirectoryTest extends TestCase
             $recognized_file_count + count($expected['unsupported_files']),
             'Every CSV must be accounted for as recognized or unsupported.',
         );
-        $this->assertSame([], $expected['unsupported_files'], 'The full-import directory contains unsupported CSV files.');
-        $this->assertSame([], $expected['unmatched_contacts'], 'Every Harvest contact must resolve to a client.');
+        $this->assertCount(0, $expected['unsupported_files'], 'The full-import directory contains unsupported CSV files.');
+        $this->assertCount(0, $expected['unmatched_contacts'], 'Every Harvest contact must resolve to a client.');
 
         foreach ([
             Entity::Clients,
@@ -535,8 +527,8 @@ class ImportHarvestDirectoryTest extends TestCase
             'The API must persist every Harvest contact plus one required placeholder for each contactless client.',
         );
         $this->assertSame(
-            $expected_placeholder_clients,
-            $actual_placeholder_clients,
+            $this->fingerprints($expected_placeholder_clients),
+            $this->fingerprints($actual_placeholder_clients),
             'Blank contacts must only be the placeholders Invoice Ninja requires for contactless clients.',
         );
     }
@@ -590,9 +582,10 @@ class ImportHarvestDirectoryTest extends TestCase
                     $api_records[$entity->value],
                     fn(array $actual): bool => $this->identity($entity, $actual) === $identity,
                 ));
+                $fingerprint = $this->recordFingerprint($entity, $identity);
 
-                $this->assertCount(1, $matches, "Expected one persisted {$entity->value} API record for [{$identity}].");
-                $this->assertPayloadMatches($payload, $matches[0], "{$entity->value} [{$identity}]");
+                $this->assertCount(1, $matches, "Expected one persisted {$entity->value} API record [{$fingerprint}].");
+                $this->assertPayloadMatches($payload, $matches[0], "{$entity->value} record [{$fingerprint}]");
                 $this->assertIsString($matches[0]['id'] ?? null);
                 $ids[$entity->value][(string) $record['key']] = $matches[0]['id'];
             }
@@ -625,14 +618,15 @@ class ImportHarvestDirectoryTest extends TestCase
                 $this->fail(sprintf(
                     "Unexpected persisted %s identities.\nMissing: %s\nUnexpected: %s",
                     $entity->value,
-                    json_encode(array_slice(array_values(array_diff($expected_identities, $actual_identities)), 0, 10), JSON_UNESCAPED_SLASHES),
-                    json_encode(array_slice(array_values(array_diff($actual_identities, $expected_identities)), 0, 10), JSON_UNESCAPED_SLASHES),
+                    json_encode($this->recordFingerprints($entity, array_diff($expected_identities, $actual_identities)), JSON_UNESCAPED_SLASHES),
+                    json_encode($this->recordFingerprints($entity, array_diff($actual_identities, $expected_identities)), JSON_UNESCAPED_SLASHES),
                 ));
             }
 
             foreach ($expected_groups as $identity => $expected_payloads) {
                 $actual_payloads = $actual_groups[$identity];
-                $this->assertCount(count($expected_payloads), $actual_payloads, "Unexpected {$entity->value} count for [{$identity}].");
+                $fingerprint = $this->recordFingerprint($entity, $identity);
+                $this->assertCount(count($expected_payloads), $actual_payloads, "Unexpected {$entity->value} count for record [{$fingerprint}].");
 
                 foreach ($expected_payloads as $expected_payload) {
                     $match = null;
@@ -648,10 +642,9 @@ class ImportHarvestDirectoryTest extends TestCase
                     $this->assertNotNull(
                         $match,
                         sprintf(
-                            "No persisted %s API payload matched [%s].\nExpected subset: %s",
+                            'No persisted %s API payload matched record [%s]. Source payload withheld.',
                             $entity->value,
-                            $identity,
-                            json_encode($expected_payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+                            $fingerprint,
                         ),
                     );
                     unset($actual_payloads[$match]);
@@ -749,7 +742,11 @@ class ImportHarvestDirectoryTest extends TestCase
                 $page,
                 $endpoint === Entity::Users->endpoint() ? '&include=company_user' : '',
             ));
-            $response->assertOk();
+            $this->assertSame(
+                200,
+                $response->getStatusCode(),
+                "The {$endpoint} reconciliation request failed. Response body withheld.",
+            );
 
             $data = $response->json('data', []);
 
@@ -783,7 +780,12 @@ class ImportHarvestDirectoryTest extends TestCase
             $this->assertArrayHasKey(
                 $reference['key'],
                 $ids[$reference['entity']] ?? [],
-                "Reference [{$reference['entity']}:{$reference['key']}] was not imported before {$record['label']}.",
+                sprintf(
+                    'Reference [%s:%s] was not imported before record [%s].',
+                    $reference['entity'],
+                    $this->fingerprint((string) $reference['key']),
+                    $this->fingerprint((string) $record['key']),
+                ),
             );
             data_set($payload, $path, $ids[$reference['entity']][$reference['key']]);
         }
@@ -833,6 +835,43 @@ class ImportHarvestDirectoryTest extends TestCase
         return mb_strtolower(trim((string) $identity));
     }
 
+    private function recordFingerprint(Entity $entity, string $identity): string
+    {
+        return $this->fingerprint($entity->value . '|' . $identity);
+    }
+
+    /**
+     * @param array<int|string, string> $identities
+     * @return array<int, string>
+     */
+    private function recordFingerprints(Entity $entity, array $identities): array
+    {
+        return array_map(
+            fn(string $identity): string => $this->recordFingerprint($entity, $identity),
+            array_slice(array_values($identities), 0, 10),
+        );
+    }
+
+    private function fingerprint(string $value): string
+    {
+        return substr(hash('sha256', $value), 0, 12);
+    }
+
+    /**
+     * @param array<int, string> $values
+     * @return array<int, string>
+     */
+    private function fingerprints(array $values): array
+    {
+        $fingerprints = array_map(
+            fn(string $value): string => $this->fingerprint($value),
+            $values,
+        );
+        sort($fingerprints);
+
+        return $fingerprints;
+    }
+
     /**
      * @param array<string, mixed> $expected
      * @param array<string, mixed> $actual
@@ -841,12 +880,7 @@ class ImportHarvestDirectoryTest extends TestCase
     {
         $this->assertTrue(
             $this->payloadMatches($expected, $actual),
-            sprintf(
-                "Persisted API payload does not match %s.\nExpected subset: %s\nActual: %s",
-                $label,
-                json_encode($expected, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
-                json_encode($actual, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
-            ),
+            "Persisted API payload does not match {$label}. Payload values withheld.",
         );
     }
 
@@ -997,8 +1031,8 @@ class ImportHarvestDirectoryTest extends TestCase
         );
 
         $this->assertSame(
-            $this->canonicalPayloads($expected),
-            $this->canonicalPayloads($actual),
+            $this->canonicalFingerprints($expected),
+            $this->canonicalFingerprints($actual),
             'Persisted payments were not applied to the Harvest invoice IDs and amounts.',
         );
     }
@@ -1042,8 +1076,8 @@ class ImportHarvestDirectoryTest extends TestCase
             ->all();
 
         $this->assertSame(
-            $this->canonicalPayloads(array_values($expected_tax_rates)),
-            $this->canonicalPayloads($actual_tax_rates),
+            $this->canonicalFingerprints(array_values($expected_tax_rates)),
+            $this->canonicalFingerprints($actual_tax_rates),
             'Created tax rates are inconsistent with the imported invoice taxes.',
         );
     }
@@ -1068,25 +1102,31 @@ class ImportHarvestDirectoryTest extends TestCase
             ->all();
         sort($actual_approved_numbers);
 
-        $this->assertSame($approved_numbers, $actual_approved_numbers, 'Accepted Harvest estimates were not approved consistently.');
+        $this->assertSame(
+            $this->fingerprints($approved_numbers),
+            $this->fingerprints($actual_approved_numbers),
+            'Accepted Harvest estimates were not approved consistently.',
+        );
     }
 
     /**
      * @param array<int, array<string, mixed>> $payloads
      * @return array<int, string>
      */
-    private function canonicalPayloads(array $payloads): array
+    private function canonicalFingerprints(array $payloads): array
     {
-        $canonical = array_map(
-            fn(array $payload): string => json_encode(
-                $this->sortPayload($payload),
-                JSON_PRESERVE_ZERO_FRACTION | JSON_THROW_ON_ERROR,
+        $fingerprints = array_map(
+            fn(array $payload): string => $this->fingerprint(
+                json_encode(
+                    $this->sortPayload($payload),
+                    JSON_PRESERVE_ZERO_FRACTION | JSON_THROW_ON_ERROR,
+                ),
             ),
             $payloads,
         );
-        sort($canonical);
+        sort($fingerprints);
 
-        return $canonical;
+        return $fingerprints;
     }
 
     /**
