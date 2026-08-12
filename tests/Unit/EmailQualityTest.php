@@ -7,10 +7,14 @@ use App\Jobs\Mail\NinjaMailer;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Models\Company;
 use App\Models\User;
+use App\Notifications\Ninja\GenericNinjaAdminNotification;
 use App\Services\Email\AdminEmailMailable;
 use App\Services\Email\EmailMailable;
 use App\Services\Email\EmailObject;
+use Illuminate\Mail\Mailables\Address;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Notification;
+use Modules\Admin\Jobs\Account\EmailFilter;
 use Modules\Admin\Jobs\Account\EmailQuality;
 
 class EmailQualityTest extends TestCase
@@ -22,9 +26,25 @@ class EmailQualityTest extends TestCase
         if (! class_exists(\Modules\Admin\Jobs\Account\EmailQuality::class)) {
             $this->markTestSkipped('EmailQuality class is not available (Admin module not installed).');
         }
+
+        Cache::put('spam_domains', []);
+        Cache::put('outbound_recipient_domains', []);
     }
 
-    private function makeCompanyMock(string $companyName = 'Test Company'): Company
+    protected function tearDown(): void
+    {
+        Cache::forget('spam_domains');
+        Cache::forget('outbound_recipient_domains');
+
+        parent::tearDown();
+    }
+
+    private function makeCompanyMock(
+        string $companyName = 'Test Company',
+        ?int $expectedNotifications = null,
+        bool $throwOnNotification = false,
+        array $expectedNotificationLines = []
+    ): Company
     {
         $presenter = new class ($companyName) {
             private string $name;
@@ -42,11 +62,37 @@ class EmailQualityTest extends TestCase
         $company = $this->createMock(Company::class);
         $company->method('present')->willReturn($presenter);
         $company->method('owner')->willReturn($owner);
-        $company->method('notification')->willReturn(
-            new class {
-                public function ninja() { return null; }
+
+        $notification_builder = new class {
+            public function ninja(): null
+            {
+                return null;
             }
-        );
+        };
+
+        if ($throwOnNotification) {
+            $company->method('notification')->willThrowException(new \RuntimeException('Slack unavailable'));
+        } elseif ($expectedNotifications !== null) {
+            $company->expects($this->exactly($expectedNotifications))
+                ->method('notification')
+                ->with($this->callback(function ($notification) use ($expectedNotificationLines): bool {
+                    if (! $notification instanceof GenericNinjaAdminNotification) {
+                        return false;
+                    }
+
+                    $property = new \ReflectionProperty($notification, 'message_array');
+                    $message_array = $property->getValue($notification);
+
+                    foreach ($expectedNotificationLines as $expected_line) {
+                        $this->assertContains($expected_line, $message_array);
+                    }
+
+                    return true;
+                }))
+                ->willReturn($notification_builder);
+        } else {
+            $company->method('notification')->willReturn($notification_builder);
+        }
 
         return $company;
     }
@@ -350,5 +396,92 @@ class EmailQualityTest extends TestCase
         $result = $eq->run();
 
         $this->assertFalse($result);
+    }
+
+    public function testOnMicrosoftToRecipientRaisesNotificationWithoutBlocking(): void
+    {
+        $company = $this->makeCompanyMock(
+            expectedNotifications: 1,
+            expectedNotificationLines: [
+                'Trigger: [onmicrosoft.com]',
+                'Recipient type: [TO]',
+                'Recipient: [client@tenant.onmicrosoft.com]',
+                'Company: [Test Company]',
+                'Company key: [Unavailable]',
+                'Account: [Unavailable]',
+                'Owner: [Test Owner] [Unavailable]',
+            ]
+        );
+        $nmo = $this->buildNinjaMailerNmo('Your invoice', 'Body.', $company);
+        $nmo->to_user = (object) ['email' => 'client@tenant.onmicrosoft.com'];
+
+        $this->assertFalse((new EmailQuality($nmo, $company))->run());
+    }
+
+    public function testOnMicrosoftCcRecipientRaisesNotificationWithoutBlocking(): void
+    {
+        $company = $this->makeCompanyMock(
+            expectedNotifications: 1,
+            expectedNotificationLines: [
+                'Recipient type: [CC]',
+                'Recipient: [accounts@tenant.onmicrosoft.com]',
+            ]
+        );
+        $nmo = $this->buildNinjaMailerNmo('Your invoice', 'Body.', $company);
+        $nmo->cc = [new Address('accounts@tenant.onmicrosoft.com', 'Accounts')];
+
+        $this->assertFalse((new EmailQuality($nmo, $company))->run());
+    }
+
+    public function testSimilarRecipientDomainDoesNotRaiseNotification(): void
+    {
+        $company = $this->makeCompanyMock(expectedNotifications: 0);
+        $nmo = $this->buildNinjaMailerNmo('Your invoice', 'Body.', $company);
+        $nmo->to_user = (object) ['email' => 'client@notonmicrosoft.com'];
+
+        $this->assertFalse((new EmailQuality($nmo, $company))->run());
+    }
+
+    public function testEmailFilterChecksToAndCcRecipients(): void
+    {
+        $company = $this->makeCompanyMock(expectedNotifications: 1);
+        $email_object = new EmailObject();
+        $email_object->subject = 'Your invoice';
+        $email_object->settings = $this->makeSettings();
+        $email_object->to = [new Address('client@example.net', 'Client')];
+        $email_object->cc = [new Address('accounts@tenant.onmicrosoft.com', 'Accounts')];
+
+        $this->assertFalse((new EmailFilter($email_object, $company))->run());
+    }
+
+    public function testAdminManagedOutboundRecipientDomainIsFlagged(): void
+    {
+        Cache::put('outbound_recipient_domains', ['bad-actor.test']);
+
+        $company = $this->makeCompanyMock(expectedNotifications: 1);
+        $nmo = $this->buildNinjaMailerNmo('Your invoice', 'Body.', $company);
+        $nmo->to_user = (object) ['email' => 'client@mail.bad-actor.test'];
+
+        $this->assertFalse((new EmailQuality($nmo, $company))->run());
+    }
+
+    public function testSpamDomainsListIsNotUsedForOutboundRecipients(): void
+    {
+        Cache::put('spam_domains', ['blocked-signup.test']);
+
+        $company = $this->makeCompanyMock(expectedNotifications: 0);
+        $nmo = $this->buildNinjaMailerNmo('Your invoice', 'Body.', $company);
+        $nmo->to_user = (object) ['email' => 'client@blocked-signup.test'];
+
+        $this->assertFalse((new EmailQuality($nmo, $company))->run());
+    }
+
+    public function testRecipientDomainNotificationExceptionsDoNotInterruptMailChecks(): void
+    {
+        $company = $this->makeCompanyMock(throwOnNotification: true);
+        $nmo = $this->buildNinjaMailerNmo('Your invoice', 'Body.', $company);
+        $nmo->to_user = (object) ['email' => 'client@tenant.onmicrosoft.com'];
+
+        $this->assertFalse((new EmailQuality($nmo, $company))->run());
     }
 }

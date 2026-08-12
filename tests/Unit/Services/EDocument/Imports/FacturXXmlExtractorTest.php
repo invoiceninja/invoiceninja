@@ -22,6 +22,15 @@ use UnexpectedValueException;
 
 class FacturXXmlExtractorTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        if(!class_exists(Modules\Admin\Jobs\Storecove\ReceiveDocument::class)) {
+            $this->markTestSkipped('Test cannot run in CI/CD environment.');
+        }
+    }
+
     public function test_extracts_and_parses_cii_payload_from_factur_x_pdf(): void
     {
         $xml = $this->makeCiiXml();

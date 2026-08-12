@@ -20,6 +20,7 @@ export interface PortalEntity extends ApiEntity {
     auto_bill?: string;
     auto_bill_enabled?: boolean;
     invoice_id?: string;
+    subscription_id?: string | null;
 }
 
 export interface PortalLineItemOptions {
@@ -33,6 +34,8 @@ export interface SentDocumentOptions {
     cost?: number;
     dueInDays?: number;
     terms?: string;
+    productKey?: string;
+    notes?: string;
 }
 
 export function isoDate(daysFromToday = 0): string {
@@ -81,15 +84,24 @@ export async function createSentInvoice(
     options: SentDocumentOptions = {},
 ): Promise<PortalEntity> {
     const label = options.label ?? 'portal-invoice';
+    const item = lineItem({
+        label,
+        cost: options.cost ?? 10,
+    });
+
+    if (options.productKey) {
+        item.product_key = options.productKey;
+    }
+
+    if (options.notes) {
+        item.notes = options.notes;
+    }
+
     const invoice = await api.createEntityFromBlank<PortalEntity>('invoices', {
         ...documentDefaults(client),
         due_date: isoDate(options.dueInDays ?? 30),
-        line_items: [
-            lineItem({
-                label,
-                cost: options.cost ?? 10,
-            }),
-        ],
+        terms: options.terms,
+        line_items: [item],
     });
 
     await markEntitySent(api.context, 'invoices', invoice.id);
@@ -294,15 +306,26 @@ export async function uploadClientDocument(
     client: PortalClient,
     filename = 'portal-upload.txt',
 ): Promise<PortalEntity> {
+    return uploadEntityDocument(api, 'clients', client.id, filename);
+}
+
+export async function uploadEntityDocument(
+    api: ApiFixture,
+    entityType: string,
+    entityId: string,
+    filename = 'portal-upload.txt',
+    options: { isPublic?: boolean } = {},
+): Promise<PortalEntity> {
     const uploadContext = await createMultipartApiContext(api.context);
+    const isPublic = options.isPublic ?? true;
 
     try {
         const response = await uploadContext.post(
-            `/api/v1/clients/${client.id}/upload`,
+            `/api/v1/${entityType}/${entityId}/upload`,
             {
                 multipart: {
                     _method: 'PUT',
-                    is_public: 'true',
+                    is_public: isPublic ? 'true' : 'false',
                     'documents[0]': {
                         name: filename,
                         mimeType: 'text/plain',
@@ -339,6 +362,86 @@ export async function uploadClientDocument(
     }
 }
 
+export interface PortalSubscription extends PortalEntity {
+    name?: string;
+    allow_cancellation?: boolean;
+    allow_plan_changes?: boolean;
+}
+
+export async function createPortalGroupSetting(
+    api: ApiFixture,
+    name = uniqueName('portal-group'),
+): Promise<PortalEntity> {
+    return api.createEntity<PortalEntity>('group_settings', {
+        name,
+    });
+}
+
+export async function createPortalSubscription(
+    api: ApiFixture,
+    options: {
+        name?: string;
+        cost?: number;
+        allowCancellation?: boolean;
+        allowPlanChanges?: boolean;
+        /** Hashed group_settings id used to link switchable plans. */
+        groupId?: string;
+    } = {},
+): Promise<{ product: PortalEntity; subscription: PortalSubscription }> {
+    const product = await api.createEntity<PortalEntity>('products', {
+        product_key: uniqueName('portal-plan'),
+        notes: 'Playwright subscription product',
+        cost: options.cost ?? 25,
+        quantity: 1,
+    });
+
+    const subscription = await api.createEntity<PortalSubscription>(
+        'subscriptions',
+        {
+            name: options.name ?? uniqueName('portal-subscription'),
+            steps: 'cart,auth.login-or-register',
+            product_ids: product.id,
+            allow_cancellation: options.allowCancellation ?? true,
+            allow_plan_changes: options.allowPlanChanges ?? true,
+            ...(options.groupId ? { group_id: options.groupId } : {}),
+        },
+    );
+
+    return { product, subscription };
+}
+
+export async function createRecurringInvoiceWithSubscription(
+    api: ApiFixture,
+    client: PortalClient,
+    subscription: PortalSubscription,
+    options: RecurringInvoiceOptions = {},
+): Promise<PortalEntity> {
+    const recurring = await createRecurringInvoice(api, client, options);
+
+    // subscription_id is not fillable on RecurringInvoice; use the bulk payment-link action.
+    await bulkAction(
+        api.context,
+        'recurring_invoices',
+        [recurring.id],
+        'set_payment_link',
+        { subscription_id: subscription.id },
+    );
+
+    const linked = await getEntity<PortalEntity>(
+        api.context,
+        'recurring_invoices',
+        recurring.id,
+    );
+
+    if (!linked.subscription_id) {
+        throw new Error(
+            `Failed to attach subscription ${subscription.id} to recurring invoice ${recurring.id}.`,
+        );
+    }
+
+    return linked;
+}
+
 export async function markInvoicePaid(
     api: ApiFixture,
     client: PortalClient,
@@ -346,14 +449,18 @@ export async function markInvoicePaid(
 ): Promise<PortalEntity> {
     const invoice = await createSentInvoice(api, client, options);
 
-    await api.context.request.put(`/api/v1/invoices/${invoice.id}`, {
-        data: {
-            ...(await getEntity(api.context, 'invoices', invoice.id)),
-            paid: true,
-        },
-    });
+    await bulkAction(api.context, 'invoices', [invoice.id], 'mark_paid');
 
     return getEntity<PortalEntity>(api.context, 'invoices', invoice.id);
+}
+
+export async function markExistingInvoicePaid(
+    api: ApiFixture,
+    invoiceId: string,
+): Promise<PortalEntity> {
+    await bulkAction(api.context, 'invoices', [invoiceId], 'mark_paid');
+
+    return getEntity<PortalEntity>(api.context, 'invoices', invoiceId);
 }
 
 async function markEntitySent(

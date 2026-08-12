@@ -41,6 +41,9 @@ class AutoBillInvoice extends AbstractService
 {
     use MakesHash;
 
+    /** The number of failed attempts an invoice is allowed before auto billing is switched off. Shared with AutoBillCron so the selection filter and the cut off cannot drift apart. */
+    public const MAX_TRIES = 3;
+
     private Client $client;
 
     private array $used_credit = [];
@@ -105,6 +108,13 @@ class AutoBillInvoice extends AbstractService
         nlog($this->invoice->amount);
         nlog($this->invoice->balance);
 
+        /**
+         * The try is consumed here - before anything can fail - so that a gateway which
+         * returns falsely, an error thrown outside the catch below, or a worker that dies
+         * mid charge cannot leave the counter untouched and be retried indefinitely.
+         */
+        $this->invoice->increment('auto_bill_tries', 1);
+
         /* Retrieve the Client Gateway Token */
         /** @var \App\Models\ClientGatewayToken $gateway_token */
         $gateway_token = $this->getGateway($amount);
@@ -112,6 +122,8 @@ class AutoBillInvoice extends AbstractService
         /* Bail out if no payment methods available */
         if (! $gateway_token || ! $gateway_token->gateway || ! $gateway_token->gateway->driver($this->client)->token_billing) {
             nlog('Bailing out - no suitable gateway token found.');
+
+            $this->disableAutoBillIfExhausted();
 
             throw new \Exception(ctrans('texts.no_payment_method_specified'));
             // return $this->invoice;
@@ -171,17 +183,7 @@ class AutoBillInvoice extends AbstractService
             nlog('payment NOT captured for ' . $this->invoice->number . ' with error ' . $e->getMessage());
             event(new InvoiceAutoBillFailed($this->invoice, $this->invoice->company, Ninja::eventVars(), $e->getMessage()));
 
-            $this->invoice->increment('auto_bill_tries', 1);
-            $this->invoice->refresh();
-
-            if ($this->invoice->auto_bill_tries == 4) {
-
-                \App\Models\Invoice::where('id', $this->invoice->id)->update([
-                    'auto_bill_enabled' => false,
-                    'auto_bill_tries' => 0,
-                ]);
-
-            }
+            $this->disableAutoBillIfExhausted();
 
             throw $e;
 
@@ -189,8 +191,40 @@ class AutoBillInvoice extends AbstractService
 
         if ($payment) {
             nlog('Auto Bill payment captured for ' . $this->invoice->number);
+
+            /** The counter tracks consecutive failures, a capture resets the budget - relevant for partial / instalment invoices which are billed repeatedly. */
+            \App\Models\Invoice::where('id', $this->invoice->id)->update(['auto_bill_tries' => 0]);
+
             event(new InvoiceAutoBillSuccess($this->invoice, $this->invoice->company, Ninja::eventVars()));
+        } else {
+
+            /** A driver which reports a decline by returning falsely rather than throwing has still consumed a try. */
+            $this->disableAutoBillIfExhausted();
         }
+    }
+
+    /**
+     * Switches auto billing off once the invoice has exhausted its attempts.
+     *
+     * The try is consumed before the charge is attempted, so the counter is
+     * authoritative by the time a failure lands here. The counter is cleared
+     * alongside the flag so that re-enabling auto billing on the invoice grants
+     * a fresh budget rather than being silently ignored by AutoBillCron.
+     */
+    private function disableAutoBillIfExhausted(): void
+    {
+        $this->invoice->refresh();
+
+        if ($this->invoice->auto_bill_tries < self::MAX_TRIES) {
+            return;
+        }
+
+        nlog("Auto bill exhausted after {$this->invoice->auto_bill_tries} attempts - disabling auto bill for invoice {$this->invoice->number}");
+
+        \App\Models\Invoice::where('id', $this->invoice->id)->update([
+            'auto_bill_enabled' => false,
+            'auto_bill_tries' => 0,
+        ]);
     }
 
     /**

@@ -162,17 +162,27 @@ class PaymentMethod
             }
         }
 
-        //transform from Array to Collection
-        $payment_methods_collections = collect($this->payment_methods);
+        // Keep every enabled gateway/type pair. The previous intersectByKeys()
+        // against flatten(1)->unique() collapsed all CREDIT_CARD gateways to
+        // only the first entry, so Authorize/Checkout never appeared alongside
+        // Stripe in the portal Pay Now dropdown.
+        $this->payment_methods = collect($this->payment_methods)->unique(
+            function (array $method): string {
+                $gateway_id = (string) array_key_first($method);
+                $gateway_type_id = (string) reset($method);
 
-        //** Plucks the remaining keys into its own collection
-        $this->payment_methods = $payment_methods_collections->intersectByKeys($payment_methods_collections->flatten(1)->unique());
+                return $gateway_id.'-'.$gateway_type_id;
+            }
+        )->values();
 
         //@15-06-2024
-        foreach ($this->payment_methods as $key => $type) {
+        foreach ($this->payment_methods as $type) {
             foreach ($type as $gateway_id => $gateway_type_id) {
                 $gate = $this->gateways->where('id', $gateway_id)->first();
-                $this->buildUrl($gate, $gateway_type_id);
+
+                if ($gate) {
+                    $this->buildUrl($gate, $gateway_type_id);
+                }
             }
         }
 
@@ -229,6 +239,7 @@ class PaymentMethod
             $this->payment_urls[] = [
                 'label' => $gateway->getConfigField('name') . $fee_label,
                 'company_gateway_id'  => $gateway->id,
+                'gateway_key' => $gateway->gateway_key,
                 'gateway_type_id' => GatewayType::CREDIT_CARD,
                 'is_paypal' => $gateway->isPayPal(),
                 'sort_order' => $priority,
@@ -237,6 +248,7 @@ class PaymentMethod
             $this->payment_urls[] = [
                 'label' => $gateway->getTypeAlias($type) . $fee_label,
                 'company_gateway_id'  => $gateway->id,
+                'gateway_key' => $gateway->gateway_key,
                 'gateway_type_id' => $type,
                 'is_paypal' => $gateway->isPayPal(),
                 'sort_order' => $priority,

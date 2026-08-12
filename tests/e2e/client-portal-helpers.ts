@@ -1,4 +1,4 @@
-import { expect, type Page } from '@playwright/test';
+import { expect, type Browser, type BrowserContext, type Page } from '@playwright/test';
 import { type ApiEntity, updateClient, type ClientEntity } from './api-helpers';
 import { type ApiFixture, uniqueName } from './fixtures';
 
@@ -21,23 +21,31 @@ export interface PortalClientOptions {
         first_name?: string;
         last_name?: string;
         email?: string;
-        password?: string;
+        /** Pass `null` to create a contact with no portal password. */
+        password?: string | null;
     };
 }
 
-export async function createAndLogInClient(
-    api: ApiFixture,
-    page: Page,
-    options: PortalClientOptions = {},
-): Promise<PortalClient> {
-    // Entity pages embed generated PDFs. Their binary rendering is covered by
-    // backend tests and would otherwise dominate this page-navigation suite.
+/** Entity pages embed generated PDFs whose binary rendering is covered by backend tests. */
+export async function blockPdfBlobs(page: Page): Promise<void> {
     await page.route('**/client/showBlob/**', async (route) => {
         await route.abort();
     });
+}
 
+/**
+ * Creates a portal client through the API without establishing a portal
+ * session. Use this when the test needs to exercise the portal's own
+ * authentication gates (password protection, set-password, login).
+ */
+export async function createPortalClient(
+    api: ApiFixture,
+    options: PortalClientOptions = {},
+): Promise<PortalClient> {
     const marker = options.name ?? uniqueName('playwright-portal-client');
-    const client = await api.createEntity<PortalClient>('clients', {
+    const { password, ...contactOverrides } = options.contact ?? {};
+
+    return api.createEntity<PortalClient>('clients', {
         name: marker,
         settings: {
             enable_client_portal: true,
@@ -60,18 +68,34 @@ export async function createAndLogInClient(
                 first_name: 'Playwright',
                 last_name: 'Portal',
                 email: `${marker}@example.test`,
-                password: 'Portal123',
-                ...options.contact,
+                // A `null` password leaves the contact without one so the
+                // set-password gate can be exercised.
+                ...(password === null ? {} : { password: password ?? 'Portal123' }),
+                ...contactOverrides,
             },
         ],
     });
+}
 
-    const contact = client.contacts[0];
+export function portalContact(client: PortalClient): PortalContact {
+    const contact = client.contacts?.[0];
 
     if (!contact?.contact_key) {
         throw new Error('Created client did not return a portal contact key.');
     }
 
+    return contact;
+}
+
+export async function createAndLogInClient(
+    api: ApiFixture,
+    page: Page,
+    options: PortalClientOptions = {},
+): Promise<PortalClient> {
+    await blockPdfBlobs(page);
+
+    const client = await createPortalClient(api, options);
+    const contact = portalContact(client);
     const response = await page.goto(`/client/key_login/${contact.contact_key}`);
 
     expect(response).not.toBeNull();
@@ -82,18 +106,150 @@ export async function createAndLogInClient(
     return client;
 }
 
+/** Opens an isolated browser context so invitation links start without a session. */
+export async function openGuestPortalPage(
+    browser: Browser,
+): Promise<{ context: BrowserContext; page: Page }> {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await blockPdfBlobs(page);
+
+    return { context, page };
+}
+
 export async function dismissCookieConsent(page: Page): Promise<void> {
     const consentButton = page.getByRole('button', { name: 'Got it!' });
 
     if (await consentButton.isVisible().catch(() => false)) {
         await consentButton.click();
     }
+
+    // Cookie banner can re-init after Livewire navigations; remove leftovers so
+    // they cannot intercept Pay Now / dropdown clicks.
+    await page.evaluate(() => {
+        document.querySelectorAll('.cc-window').forEach((element) => {
+            element.remove();
+        });
+    });
+}
+
+/**
+ * Clears the fixed overlays that cover the bottom of portal pages: the cookie
+ * consent banner (which initialises on window load, so it can appear after an
+ * earlier dismissal attempt) and Laravel's debug bar.
+ */
+export async function clearPortalOverlays(page: Page): Promise<void> {
+    await page.waitForLoadState('load');
+    await dismissCookieConsent(page);
+    await page.evaluate(() => {
+        document
+            .querySelectorAll('.cc-window, .phpdebugbar')
+            .forEach((element) => element.remove());
+    });
+}
+
+/**
+ * Portal dropdowns and modals are driven by Alpine, which only binds its
+ * `@click` handlers once the bundle has executed. Clicking earlier is a silent
+ * no-op, so wait for Alpine before driving those controls.
+ */
+export async function waitForAlpine(page: Page): Promise<void> {
+    await page.waitForFunction(() => Boolean(window.Alpine));
+}
+
+export async function waitForLivewire(
+    page: Page,
+    action: () => Promise<void>,
+): Promise<void> {
+    const responsePromise = page.waitForResponse(
+        (response) =>
+            /\/livewire(\/|$)/.test(response.url()) &&
+            response.request().method() === 'POST',
+        { timeout: 30_000 },
+    );
+
+    await action();
+    await responsePromise;
+}
+
+export async function fillLivewireInput(
+    page: Page,
+    selector: string,
+    value: string,
+): Promise<void> {
+    const input = page.locator(selector);
+    await expect(input).toBeVisible();
+    await page.waitForFunction(() => Boolean(window.Livewire?.find));
+
+    await input.evaluate((el, nextValue) => {
+        const field = el as HTMLInputElement;
+        const root = field.closest('[wire\\:id]');
+        const id = root?.getAttribute('wire:id');
+        const property = field.getAttribute('wire:model') ?? field.name;
+        const livewire = (
+            window as unknown as {
+                Livewire: {
+                    find: (id: string) => {
+                        set: (property: string, value: string) => void;
+                    };
+                };
+            }
+        ).Livewire;
+
+        if (!id || !property) {
+            throw new Error(
+                `Unable to set Livewire property for #${field.id || field.name}`,
+            );
+        }
+
+        livewire.find(id).set(property, nextValue);
+    }, value);
+
+    await expect(input).toHaveValue(value);
+}
+
+export async function submitLivewireComponent(
+    page: Page,
+    formSelector: string,
+): Promise<void> {
+    await dismissCookieConsent(page);
+    await page.waitForFunction(() => Boolean(window.Livewire?.find));
+
+    const responsePromise = page.waitForResponse(
+        (response) =>
+            /\/livewire(\/|$)/.test(response.url()) &&
+            response.request().method() === 'POST',
+        { timeout: 30_000 },
+    );
+
+    await page.locator(formSelector).evaluate((form) => {
+        const root = form.closest('[wire\\:id]');
+        const id = root?.getAttribute('wire:id');
+        const livewire = (
+            window as unknown as {
+                Livewire: {
+                    find: (id: string) => { call: (method: string) => void };
+                };
+            }
+        ).Livewire;
+
+        if (!id) {
+            throw new Error(
+                `Livewire component not found for form #${form.id || 'unknown'}`,
+            );
+        }
+
+        livewire.find(id).call('submit');
+    });
+
+    await responsePromise;
 }
 
 export async function openProfilePage(
     page: Page,
     contactId: string,
 ): Promise<void> {
+    await dismissCookieConsent(page);
     await page.locator('[data-ref="client-profile-dropdown"]').click();
     await page.locator('[data-ref="client-profile-dropdown-settings"]').click();
     await expect(page).toHaveURL(
@@ -102,6 +258,7 @@ export async function openProfilePage(
     await expect(page.locator('[data-ref="meta-title"]')).toHaveText(
         'Client Information',
     );
+    await dismissCookieConsent(page);
 }
 
 export async function expectSidebarLinkIds(
@@ -206,6 +363,46 @@ export async function selectEntityTableRow(
         .filter({ hasText: entityNumber })
         .getByRole('checkbox')
         .check();
+}
+
+/**
+ * `true` when the portal rendered the Pay Now dropdown, which requires at least
+ * one enabled company gateway.
+ */
+export async function hasPayNowDropdown(page: Page): Promise<boolean> {
+    return (await page.locator('[dusk="pay-now-dropdown"]').count()) > 0;
+}
+
+/**
+ * Starts checkout from the Pay Now dropdown using the first non-PayPal method.
+ * PayPal methods are skipped because they add the required-fields step, which
+ * would obscure the terms and signature gates under test.
+ */
+export async function startPayNowCheckout(page: Page): Promise<void> {
+    const dropdown = page.locator('[dusk="pay-now-dropdown"]');
+    await expect(dropdown).toBeVisible();
+    await dropdown.click();
+
+    const method = page
+        .locator(
+            '[dusk="payment-methods-dropdown"] .dropdown-gateway-button:not([data-is-paypal="1"])',
+        )
+        .first();
+
+    await expect(method).toBeVisible();
+    await method.click();
+}
+
+export async function expectMetaFlag(
+    page: Page,
+    name: string,
+    enabled: boolean,
+): Promise<void> {
+    // Blade renders booleans as "1" and an empty string.
+    await expect(page.locator(`meta[name="${name}"]`)).toHaveAttribute(
+        'content',
+        enabled ? '1' : '',
+    );
 }
 
 export async function drawSignature(page: Page): Promise<void> {

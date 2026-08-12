@@ -146,14 +146,15 @@ export async function bulkAction(
     api: ApiContext,
     entityType: EntityType,
     ids: string[],
-    action: 'archive' | 'restore' | 'delete' | 'mark_sent',
+    action: string,
+    extra: Record<string, unknown> = {},
 ): Promise<void> {
     if (ids.length === 0) {
         return;
     }
 
     const response = await api.request.post(`/api/v1/${entityType}/bulk`, {
-        data: { action, ids },
+        data: { action, ids, ...extra },
     });
 
     if (!response.ok()) {
@@ -336,9 +337,67 @@ export function findCompanyGatewayByKey(
     gatewayKey: string,
     gatewayTypeId: number,
 ): CompanyGatewayEntity | undefined {
-    return gateways.find(
-        (gateway) =>
-            gateway.gateway_key === gatewayKey &&
-            isGatewayMethodEnabled(gateway, gatewayTypeId),
+    return gateways.find((gateway) => gateway.gateway_key === gatewayKey);
+}
+
+/**
+ * Portal `getPaymentMethods()` only offers a gateway type when
+ * `fees_and_limits.{type}` exists and `is_enabled` is true. Empty `{}` means
+ * the gateway never appears in the Pay Now dropdown.
+ */
+export async function ensureCompanyGatewayTypeEnabled(
+    api: ApiContext,
+    gateway: CompanyGatewayEntity,
+    gatewayTypeId: number,
+): Promise<CompanyGatewayEntity> {
+    const typeKey = String(gatewayTypeId);
+    const current = gateway.fees_and_limits?.[typeKey];
+
+    if (current?.is_enabled) {
+        return gateway;
+    }
+
+    const feesAndLimits = {
+        ...(gateway.fees_and_limits ?? {}),
+        [typeKey]: {
+            min_limit: -1,
+            max_limit: -1,
+            fee_amount: 0,
+            fee_percent: 0,
+            fee_tax_name1: '',
+            fee_tax_name2: '',
+            fee_tax_name3: '',
+            fee_tax_rate1: 0,
+            fee_tax_rate2: 0,
+            fee_tax_rate3: 0,
+            fee_cap: 0,
+            adjust_fee_percent: false,
+            is_enabled: true,
+            ...(current ?? {}),
+            is_enabled: true,
+        },
+    };
+
+    const response = await api.request.put(
+        `/api/v1/company_gateways/${gateway.id}`,
+        {
+            data: {
+                ...gateway,
+                fees_and_limits: feesAndLimits,
+            },
+        },
     );
+
+    if (!response.ok()) {
+        throw new Error(
+            `Failed to enable gateway type ${gatewayTypeId} on ${gateway.gateway_key} (${response.status()}): ${(await response.text()).slice(0, 300)}`,
+        );
+    }
+
+    const body = await response.json();
+
+    return (body.data ?? {
+        ...gateway,
+        fees_and_limits: feesAndLimits,
+    }) as CompanyGatewayEntity;
 }

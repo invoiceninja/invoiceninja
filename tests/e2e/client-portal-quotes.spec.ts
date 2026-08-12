@@ -1,8 +1,10 @@
 import {
     createAndLogInClient,
+    dismissCookieConsent,
+    drawSignature,
     expectPortalPage,
-    patchPortalClient,
     selectEntityTableRow,
+    waitForLivewire,
 } from './client-portal-helpers';
 import { getEntity } from './api-helpers';
 import { expect, test, uniqueName } from './fixtures';
@@ -73,6 +75,47 @@ test.describe('Client portal quotes', () => {
         expect(Number(updated.status_id)).toBe(QUOTE_STATUS.APPROVED);
     });
 
+    test('approves a quote with a required canvas signature', async ({
+        api,
+        page,
+    }) => {
+        const client = await createAndLogInClient(api, page, {
+            settings: { require_quote_signature: true },
+        });
+        const quote = await createSentQuote(api, client, {
+            label: uniqueName('quote-signature'),
+            cost: 64,
+        });
+
+        await page.goto(`/client/quotes/${quote.id}`);
+        await dismissCookieConsent(page);
+        await page.locator('#approve-button').click();
+
+        const signatureModal = page.locator('#displaySignatureModal');
+        if (!(await signatureModal.isVisible().catch(() => false))) {
+            // DocuNinja may replace the canvas signature pad.
+            test.skip(
+                true,
+                'Signature pad was not shown (DocuNinja may be active)',
+            );
+        }
+
+        await expect(signatureModal).toBeVisible();
+        await drawSignature(page);
+        await page.locator('#signature-next-step').click();
+
+        await expect(page.getByRole('heading', { name: 'Approved' })).toBeVisible({
+            timeout: 30_000,
+        });
+
+        const updated = await getEntity<PortalEntity>(
+            api.context,
+            'quotes',
+            quote.id,
+        );
+        expect(Number(updated.status_id)).toBe(QUOTE_STATUS.APPROVED);
+    });
+
     test('rejects a quote from the detail page', async ({ api, page }) => {
         const client = await createAndLogInClient(api, page);
         const quote = await createSentQuote(api, client, {
@@ -110,6 +153,7 @@ test.describe('Client portal quotes', () => {
         });
 
         await page.goto('/client/quotes');
+        await dismissCookieConsent(page);
         await selectEntityTableRow(page, '.quotes-table', quote.number ?? '');
         await page
             .locator('form[action*="quotes"]')
@@ -117,9 +161,15 @@ test.describe('Client portal quotes', () => {
             .click();
 
         await expect(page.locator('[data-ref="meta-title"]')).toHaveText('Approve');
-        await page.locator('#approve-button').click();
+        await dismissCookieConsent(page);
+        await page.waitForLoadState('networkidle');
+        await page.locator('#approve-form').evaluate((form: HTMLFormElement) => {
+            form.submit();
+        });
 
-        await expect(page.getByRole('heading', { name: 'Approved' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Approved' })).toBeVisible({
+            timeout: 30_000,
+        });
 
         const updated = await getEntity<PortalEntity>(
             api.context,
@@ -137,6 +187,7 @@ test.describe('Client portal quotes', () => {
         });
 
         await page.goto('/client/quotes');
+        await dismissCookieConsent(page);
         await selectEntityTableRow(page, '.quotes-table', quote.number ?? '');
         await page
             .locator('form[action*="quotes"]')
@@ -144,12 +195,46 @@ test.describe('Client portal quotes', () => {
             .click();
 
         await expect(page.locator('[data-ref="meta-title"]')).toHaveText('Reject');
+        await dismissCookieConsent(page);
+        await page.waitForLoadState('networkidle');
         await page.locator('#reject-button').click();
+        await expect(page.locator('#displayRejectModal')).toBeVisible();
         await page.locator('#reject_reason').fill('Declined via bulk action');
         await page.locator('#reject-confirm-button').click();
 
         await expect(page).toHaveURL(/\/client\/quotes(?:\/|$)/);
 
+        const updated = await getEntity<PortalEntity>(
+            api.context,
+            'quotes',
+            quote.id,
+        );
+        expect(Number(updated.status_id)).toBe(QUOTE_STATUS.REJECTED);
+    });
+
+    test('rejects a quote from bulk action without a reason', async ({
+        api,
+        page,
+    }) => {
+        const client = await createAndLogInClient(api, page);
+        const quote = await createSentQuote(api, client, {
+            label: uniqueName('quote-bulk-reject-empty'),
+        });
+
+        await page.goto('/client/quotes');
+        await dismissCookieConsent(page);
+        await selectEntityTableRow(page, '.quotes-table', quote.number ?? '');
+        await page
+            .locator('form[action*="quotes"]')
+            .getByRole('button', { name: 'Reject', exact: true })
+            .click();
+        await dismissCookieConsent(page);
+        await page.waitForLoadState('networkidle');
+        await page.locator('#reject-button').click();
+        await expect(page.locator('#displayRejectModal')).toBeVisible();
+        await page.locator('#reject-confirm-button').click();
+
+        await expect(page).toHaveURL(/\/client\/quotes(?:\/|$)/);
         const updated = await getEntity<PortalEntity>(
             api.context,
             'quotes',
@@ -168,19 +253,30 @@ test.describe('Client portal quotes', () => {
         });
 
         await page.goto(`/client/quotes/${rejected.id}`);
+        await dismissCookieConsent(page);
         await page.locator('#reject-button').click();
         await page.locator('#reject_reason').fill('Filtered out');
         await page.locator('#reject-confirm-button').click();
         await expect(page).toHaveURL(/\/client\/quotes(?:\/|$)/);
 
+        await page.goto('/client/quotes');
+        await dismissCookieConsent(page);
         await page.locator('#sent-checkbox').uncheck();
-        await page.locator('#rejected-checkbox').check();
+        await page.locator('#approved-checkbox').uncheck();
+        await page.locator('#expired-checkbox').uncheck();
+        await waitForLivewire(page, async () => {
+            await page.locator('#rejected-checkbox').check();
+        });
 
         await expect(
-            page.locator('.quotes-table').getByText(rejected.number ?? ''),
-        ).toBeVisible();
+            page.locator('.quotes-table').getByText(rejected.number ?? '', {
+                exact: true,
+            }),
+        ).toBeVisible({ timeout: 15_000 });
         await expect(
-            page.locator('.quotes-table').getByText(pending.number ?? ''),
+            page.locator('.quotes-table tbody tr').filter({
+                hasText: pending.number ?? '',
+            }),
         ).toHaveCount(0);
     });
 

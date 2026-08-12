@@ -50,7 +50,7 @@ export const test = base.extend<
         companyGuard: CompanyGuardFixture;
         notificationGuard: NotificationGuardFixture;
     },
-    { account: TestAccount }
+    { account: TestAccount; workerApi: ApiContext }
 >({
     account: [
         async ({}, use, workerInfo) => {
@@ -59,19 +59,31 @@ export const test = base.extend<
         { scope: 'worker' },
     ],
 
-    api: async ({ account }, use) => {
-        const context = await createApiContext(
-            account.apiUrl,
-            account.ownerEmail,
-            account.password,
-        );
+    // Login once per worker. Give this its own budget: Playwright charges
+    // worker-fixture time to the first test, which otherwise fails as
+    // "setting up context" when remote API login is slow.
+    workerApi: [
+        async ({ account }, use) => {
+            const context = await createApiContext(
+                account.apiUrl,
+                account.ownerEmail,
+                account.password,
+            );
+
+            await use(context);
+            await context.request.dispose();
+        },
+        { scope: 'worker', timeout: 60_000 },
+    ],
+
+    api: async ({ workerApi }, use) => {
         const tracked: TrackedEntity[] = [];
 
         await use({
-            context,
+            context: workerApi,
 
             async createEntity(type, data, options = {}) {
-                const entity = await createEntityViaApi(context, type, data);
+                const entity = await createEntityViaApi(workerApi, type, data);
 
                 if (options.cleanup !== false && entity.id) {
                     tracked.push({ type, id: String(entity.id) });
@@ -82,7 +94,7 @@ export const test = base.extend<
 
             async createEntityFromBlank(type, overrides, options = {}) {
                 const entity = await createEntityFromBlankViaApi(
-                    context,
+                    workerApi,
                     type,
                     overrides,
                 );
@@ -99,8 +111,7 @@ export const test = base.extend<
             },
         });
 
-        await cleanupTrackedEntities(context, tracked);
-        await context.request.dispose();
+        await cleanupTrackedEntities(workerApi, tracked);
     },
 
     companyGuard: async ({ api }, use) => {

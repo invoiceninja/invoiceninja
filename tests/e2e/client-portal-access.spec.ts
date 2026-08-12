@@ -5,14 +5,17 @@ import {
     patchPortalClient,
 } from './client-portal-helpers';
 import { expect, test, uniqueName } from './fixtures';
-import { createSentInvoice } from './portal-entity-helpers';
+import {
+    createSentInvoice,
+    uploadClientDocument,
+} from './portal-entity-helpers';
 
 test.describe('Client portal access control', () => {
     test('returns forbidden when viewing another client invoice', async ({
         api,
         page,
     }) => {
-        const owner = await createAndLogInClient(api, page);
+        await createAndLogInClient(api, page);
         const otherClient = await api.createEntity('clients', {
             name: uniqueName('other-portal-client'),
             contacts: [
@@ -30,6 +33,37 @@ test.describe('Client portal access control', () => {
         await expectPortalRouteForbidden(
             page,
             `/client/invoices/${foreignInvoice.id}`,
+        );
+    });
+
+    test('returns forbidden when viewing another client document', async ({
+        api,
+        page,
+    }) => {
+        await createAndLogInClient(api, page);
+        const otherClient = await api.createEntity('clients', {
+            name: uniqueName('other-access-doc-client'),
+            contacts: [
+                {
+                    first_name: 'Other',
+                    last_name: 'Docs',
+                    email: `${uniqueName('other-access-docs')}@example.test`,
+                },
+            ],
+        });
+        const foreignDoc = await uploadClientDocument(
+            api,
+            otherClient as never,
+            `${uniqueName('foreign-access-doc')}.txt`,
+        );
+
+        await expectPortalRouteForbidden(
+            page,
+            `/client/documents/${foreignDoc.id}`,
+        );
+        await expectPortalRouteForbidden(
+            page,
+            `/client/documents/${foreignDoc.id}/download`,
         );
     });
 

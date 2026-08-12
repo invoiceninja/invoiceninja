@@ -1,6 +1,15 @@
-import { createAndLogInClient } from './client-portal-helpers';
+import {
+    createAndLogInClient,
+    dismissCookieConsent,
+    expectPortalRouteForbidden,
+} from './client-portal-helpers';
 import { expect, test, uniqueName } from './fixtures';
-import { uploadClientDocument } from './portal-entity-helpers';
+import {
+    createSentInvoice,
+    createSentQuote,
+    uploadClientDocument,
+    uploadEntityDocument,
+} from './portal-entity-helpers';
 
 test.describe('Client portal documents', () => {
     test('views a document detail page and downloads it', async ({
@@ -73,6 +82,75 @@ test.describe('Client portal documents', () => {
         await expect(
             tabBar.getByRole('button', { name: 'Quotes', exact: true }),
         ).toHaveClass(/(?:^|\s)border-gray-600(?:\s|$)/);
+
+        await tabBar
+            .getByRole('button', { name: 'Recurring Invoices', exact: true })
+            .click();
+        await expect(
+            tabBar.getByRole('button', {
+                name: 'Recurring Invoices',
+                exact: true,
+            }),
+        ).toHaveClass(/(?:^|\s)border-gray-600(?:\s|$)/);
+    });
+
+    test('shows invoice-attached documents under the Invoices tab', async ({
+        api,
+        page,
+    }) => {
+        const client = await createAndLogInClient(api, page);
+        const invoice = await createSentInvoice(api, client, {
+            label: uniqueName('invoice-doc'),
+        });
+        const filename = `${uniqueName('invoice-tab-doc')}.txt`;
+        await uploadEntityDocument(api, 'invoices', invoice.id, filename);
+
+        await page.goto('/client/documents');
+        await page
+            .locator('.space-x-2.flex.flex-row')
+            .getByRole('button', { name: 'Invoices', exact: true })
+            .click();
+
+        await expect(page.getByText(filename)).toBeVisible({ timeout: 15_000 });
+    });
+
+    test('shows quote-attached documents under the Quotes tab', async ({
+        api,
+        page,
+    }) => {
+        const client = await createAndLogInClient(api, page);
+        const quote = await createSentQuote(api, client, {
+            label: uniqueName('quote-doc'),
+        });
+        const filename = `${uniqueName('quote-tab-doc')}.txt`;
+        await uploadEntityDocument(api, 'quotes', quote.id, filename);
+
+        await page.goto('/client/documents');
+        await page
+            .locator('.space-x-2.flex.flex-row')
+            .getByRole('button', { name: 'Quotes', exact: true })
+            .click();
+
+        await expect(page.getByText(filename)).toBeVisible({ timeout: 15_000 });
+    });
+
+    test('shows invoice attachments on the invoice detail page', async ({
+        api,
+        page,
+    }) => {
+        const client = await createAndLogInClient(api, page, {
+            settings: { payment_flow: 'default' },
+        });
+        const invoice = await createSentInvoice(api, client, {
+            label: uniqueName('invoice-attach'),
+        });
+        const filename = `inv-att-${uniqueName('d').slice(-8)}.txt`;
+        await uploadEntityDocument(api, 'invoices', invoice.id, filename);
+
+        await page.goto(`/client/invoices/${invoice.id}`);
+        await dismissCookieConsent(page);
+        await expect(page.getByText(/Attachments/i)).toBeVisible();
+        await expect(page.getByRole('link', { name: new RegExp(filename.slice(0, 20)) })).toBeVisible();
     });
 
     test('prepares selected documents for bulk download', async ({
@@ -103,6 +181,41 @@ test.describe('Client portal documents', () => {
         await expect(
             page.getByRole('button', { name: /download selected/i }),
         ).toBeEnabled();
+    });
+
+    test('completes a bulk zip download when enabled', async ({ api, page }) => {
+        test.setTimeout(90_000);
+
+        if (!process.env.PLAYWRIGHT_ALLOW_BULK_ZIP) {
+            test.skip(
+                true,
+                'Set PLAYWRIGHT_ALLOW_BULK_ZIP=1 when PHP can serve concurrent HTTP self-fetches',
+            );
+        }
+
+        const client = await createAndLogInClient(api, page);
+        const firstName = `${uniqueName('zip-one')}.txt`;
+        const secondName = `${uniqueName('zip-two')}.txt`;
+        await uploadClientDocument(api, client, firstName);
+        await uploadClientDocument(api, client, secondName);
+
+        await page.goto('/client/documents');
+        await dismissCookieConsent(page);
+
+        for (const filename of [firstName, secondName]) {
+            await page
+                .locator('.credits-table tbody tr')
+                .filter({ hasText: filename })
+                .locator('input[type="checkbox"]')
+                .check();
+        }
+
+        const downloadPromise = page.waitForEvent('download', {
+            timeout: 60_000,
+        });
+        await page.getByRole('button', { name: /download selected/i }).click();
+        const download = await downloadPromise;
+        expect(download.suggestedFilename()).toMatch(/\.zip$/i);
     });
 
     test('uploads a document through the portal upload endpoint', async ({
@@ -138,5 +251,29 @@ test.describe('Client portal documents', () => {
         await expect(page.getByText(filename)).toBeVisible({
             timeout: 15_000,
         });
+    });
+
+    test('blocks cross-client document access', async ({ api, page }) => {
+        await createAndLogInClient(api, page);
+        const otherClient = await api.createEntity('clients', {
+            name: uniqueName('other-doc-client'),
+            contacts: [
+                {
+                    first_name: 'Other',
+                    last_name: 'Docs',
+                    email: `${uniqueName('other-docs')}@example.test`,
+                },
+            ],
+        });
+        const foreignDoc = await uploadClientDocument(
+            api,
+            otherClient as never,
+            `${uniqueName('foreign-doc')}.txt`,
+        );
+
+        await expectPortalRouteForbidden(
+            page,
+            `/client/documents/${foreignDoc.id}`,
+        );
     });
 });

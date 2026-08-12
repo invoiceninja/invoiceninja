@@ -20,7 +20,12 @@ export class StripePaymentGateway extends BasePaymentGateway {
     }
 
     async completePayment(page: Page): Promise<void> {
+        const consent = page.getByRole('button', { name: 'Got it!' });
+        if (await consent.isVisible().catch(() => false)) {
+            await consent.click();
+        }
+
         await fillStripeTestCard(page);
-        await page.locator('#pay-now').click();
+        await page.locator('#pay-now').click({ force: true });
     }
 }
