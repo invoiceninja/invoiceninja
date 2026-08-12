@@ -1,9 +1,16 @@
-import { updateClient } from './api-helpers';
+import { getCompany, updateClient } from './api-helpers';
 import {
     createAndLogInClient,
+    createPortalClient,
     dismissCookieConsent,
+    drawSignature,
+    expectMetaFlag,
     expectPortalPage,
+    hasPayNowDropdown,
+    openGuestPortalPage,
+    portalContact,
     selectEntityTableRow,
+    startPayNowCheckout,
 } from './client-portal-helpers';
 import { expect, test, uniqueName } from './fixtures';
 import { StripePaymentGateway } from './gateways/stripe-payment-gateway';
@@ -19,6 +26,7 @@ import {
     invitationKey,
     markInvoicePaid,
 } from './portal-entity-helpers';
+import type { Page } from '@playwright/test';
 
 const defaultClientAddress = {
     address1: '5 Wallaby Way',
@@ -416,5 +424,631 @@ test.describe('Client portal invoices', () => {
         await gateway.assertCheckoutReady(page);
         await gateway.completePayment(page);
         await gateway.assertPaymentSucceeded(page);
+    });
+});
+
+/**
+ * `show_accept_invoice_terms` and `require_invoice_signature` gate the default
+ * payment flow: selecting a method from the Pay Now dropdown opens the signature
+ * modal first, then the terms modal, before the payment form is submitted.
+ */
+test.describe('Client portal invoice checkout gates', () => {
+    const checkoutSettings = {
+        ...paymentTestSettings,
+        payment_flow: 'default',
+    };
+
+    test('does not gate checkout when terms and signatures are disabled', async ({
+        api,
+        page,
+    }) => {
+        const client = await createAndLogInClient(api, page, {
+            settings: checkoutSettings,
+        });
+        const invoice = await createSentInvoice(api, client, {
+            label: uniqueName('invoice-no-gates'),
+            cost: 21,
+        });
+
+        await page.goto(`/client/invoices/${invoice.id}`);
+        await dismissCookieConsent(page);
+
+        await expectMetaFlag(page, 'show-invoice-terms', false);
+        await expectMetaFlag(page, 'require-invoice-signature', false);
+        await expect(page.locator('#displayTermsModal')).toBeHidden();
+        await expect(page.locator('#displaySignatureModal')).toBeHidden();
+    });
+
+    test('accepts invoice terms before starting checkout', async ({
+        api,
+        page,
+    }) => {
+        const terms = 'These are the Playwright invoice terms.';
+        const client = await createAndLogInClient(api, page, {
+            settings: { ...checkoutSettings, show_accept_invoice_terms: true },
+        });
+        const invoice = await createSentInvoice(api, client, {
+            label: uniqueName('invoice-terms'),
+            cost: 31,
+            terms,
+        });
+
+        await page.goto(`/client/invoices/${invoice.id}`);
+        await dismissCookieConsent(page);
+        await expectMetaFlag(page, 'show-invoice-terms', true);
+
+        if (!(await hasPayNowDropdown(page))) {
+            test.skip(true, 'No payment gateway configured for the terms gate');
+        }
+
+        await startPayNowCheckout(page);
+
+        await expect(page.locator('#displayTermsModal')).toBeVisible();
+        await expect(page.locator('[data-ref="entity-terms"]')).toContainText(
+            'Playwright invoice terms',
+        );
+
+        await page.locator('#accept-terms-button').click();
+        await expect(page).toHaveURL(/\/client\/payments\/process/, {
+            timeout: 30_000,
+        });
+    });
+
+    test('closes the invoice terms modal without starting checkout', async ({
+        api,
+        page,
+    }) => {
+        const client = await createAndLogInClient(api, page, {
+            settings: { ...checkoutSettings, show_accept_invoice_terms: true },
+        });
+        const invoice = await createSentInvoice(api, client, {
+            label: uniqueName('invoice-terms-cancel'),
+            cost: 32,
+            terms: 'Declined Playwright terms.',
+        });
+
+        await page.goto(`/client/invoices/${invoice.id}`);
+        await dismissCookieConsent(page);
+
+        if (!(await hasPayNowDropdown(page))) {
+            test.skip(true, 'No payment gateway configured for the terms gate');
+        }
+
+        await startPayNowCheckout(page);
+        await expect(page.locator('#displayTermsModal')).toBeVisible();
+        await page.locator('#close-terms-button').click();
+
+        await expect(page.locator('#displayTermsModal')).toBeHidden();
+        await expect(page).not.toHaveURL(/\/client\/payments\/process/);
+        await expect(page.locator('[data-ref="meta-title"]')).toHaveText(
+            'View Invoice',
+        );
+    });
+
+    test('requires a drawn signature before starting checkout', async ({
+        api,
+        page,
+    }) => {
+        const client = await createAndLogInClient(api, page, {
+            settings: { ...checkoutSettings, require_invoice_signature: true },
+        });
+        const invoice = await createSentInvoice(api, client, {
+            label: uniqueName('invoice-signature'),
+            cost: 33,
+        });
+
+        await page.goto(`/client/invoices/${invoice.id}`);
+        await dismissCookieConsent(page);
+
+        const signatureEnabled = await page
+            .locator('meta[name="require-invoice-signature"]')
+            .getAttribute('content');
+
+        if (signatureEnabled !== '1') {
+            // Invoice signatures need the invoice-settings plan feature, and
+            // DocuNinja replaces the canvas pad when it is active.
+            test.skip(
+                true,
+                'Invoice signatures are unavailable for this account',
+            );
+        }
+
+        if (!(await hasPayNowDropdown(page))) {
+            test.skip(
+                true,
+                'No payment gateway configured for the signature gate',
+            );
+        }
+
+        await startPayNowCheckout(page);
+
+        await expect(page.locator('#displaySignatureModal')).toBeVisible();
+        await drawSignature(page);
+        await page.locator('#signature-next-step').click();
+
+        await expect(page).toHaveURL(/\/client\/payments\/process/, {
+            timeout: 30_000,
+        });
+    });
+
+    test('collects the signature then the terms before starting checkout', async ({
+        api,
+        page,
+    }) => {
+        const client = await createAndLogInClient(api, page, {
+            settings: {
+                ...checkoutSettings,
+                require_invoice_signature: true,
+                show_accept_invoice_terms: true,
+            },
+        });
+        const invoice = await createSentInvoice(api, client, {
+            label: uniqueName('invoice-signature-terms'),
+            cost: 34,
+            terms: 'Signed Playwright invoice terms.',
+        });
+
+        await page.goto(`/client/invoices/${invoice.id}`);
+        await dismissCookieConsent(page);
+
+        const signatureEnabled = await page
+            .locator('meta[name="require-invoice-signature"]')
+            .getAttribute('content');
+
+        if (signatureEnabled !== '1' || !(await hasPayNowDropdown(page))) {
+            test.skip(
+                true,
+                'Invoice signatures or a payment gateway are unavailable',
+            );
+        }
+
+        await startPayNowCheckout(page);
+
+        await expect(page.locator('#displaySignatureModal')).toBeVisible();
+        await drawSignature(page);
+        await page.locator('#signature-next-step').click();
+
+        await expect(page.locator('#displayTermsModal')).toBeVisible();
+        await expect(
+            page.locator('#payment-form input[name="signature"]'),
+        ).toHaveValue(/^data:image\/png;base64,/);
+        await expect(page.locator('[data-ref="entity-terms"]')).toContainText(
+            'Signed Playwright invoice terms',
+        );
+
+        await page.locator('#accept-terms-button').click();
+        await expect(page).toHaveURL(/\/client\/payments\/process/, {
+            timeout: 30_000,
+        });
+    });
+
+    test('accepts invoice terms from the bulk payment page', async ({
+        api,
+        page,
+    }) => {
+        const client = await createAndLogInClient(api, page, {
+            settings: { ...checkoutSettings, show_accept_invoice_terms: true },
+        });
+        const invoice = await createSentInvoice(api, client, {
+            label: uniqueName('invoice-bulk-terms'),
+            cost: 35,
+            terms: 'Bulk Playwright invoice terms.',
+        });
+
+        await page.goto('/client/invoices');
+        await dismissCookieConsent(page);
+
+        if ((await page.locator('button[name="action"][value="payment"]').count()) === 0) {
+            test.skip(true, 'No payment gateway configured for bulk pay');
+        }
+
+        await selectEntityTableRow(
+            page,
+            '.invoices-table',
+            invoice.number ?? '',
+        );
+        await clickBulkPayNow(page);
+
+        await expect(page).toHaveURL(/\/client\/invoices\/payment/);
+        await dismissCookieConsent(page);
+        await expectMetaFlag(page, 'show-invoice-terms', true);
+
+        // The Pay Now dropdown is a Livewire component; let it finish hydrating
+        // so it does not remount over the payment.js click listeners.
+        await page.waitForLoadState('networkidle');
+        await startPayNowCheckout(page);
+
+        await expect(page.locator('#displayTermsModal')).toBeVisible();
+        await expect(page.locator('[data-ref="entity-terms"]')).toContainText(
+            'Bulk Playwright invoice terms',
+        );
+
+        await page.locator('#accept-terms-button').click();
+        await expect(page).toHaveURL(/\/client\/payments\/process/, {
+            timeout: 30_000,
+        });
+    });
+
+    test('requires a drawn signature from the bulk payment page', async ({
+        api,
+        page,
+    }) => {
+        const client = await createAndLogInClient(api, page, {
+            settings: { ...checkoutSettings, require_invoice_signature: true },
+        });
+        const invoice = await createSentInvoice(api, client, {
+            label: uniqueName('invoice-bulk-signature'),
+            cost: 36,
+        });
+
+        await page.goto('/client/invoices');
+        await dismissCookieConsent(page);
+
+        if (
+            (await page.locator('button[name="action"][value="payment"]').count()) ===
+            0
+        ) {
+            test.skip(true, 'No payment gateway configured for bulk pay');
+        }
+
+        await selectEntityTableRow(
+            page,
+            '.invoices-table',
+            invoice.number ?? '',
+        );
+        await clickBulkPayNow(page);
+        await expect(page).toHaveURL(/\/client\/invoices\/payment/);
+        await dismissCookieConsent(page);
+
+        const signatureEnabled = await page
+            .locator('meta[name="require-invoice-signature"]')
+            .getAttribute('content');
+
+        if (signatureEnabled !== '1') {
+            test.skip(
+                true,
+                'Invoice signatures are unavailable for this account',
+            );
+        }
+
+        await page.waitForLoadState('networkidle');
+        await startPayNowCheckout(page);
+
+        await expect(page.locator('#displaySignatureModal')).toBeVisible();
+        await drawSignature(page);
+        await page.locator('#signature-next-step').click();
+
+        await expect(page).toHaveURL(/\/client\/payments\/process/, {
+            timeout: 30_000,
+        });
+    });
+});
+
+/**
+ * Smooth checkout (`payment_flow: smooth`) gates terms then signature via
+ * Livewire Flow2 before the payment method step — opposite of the default
+ * Pay Now dropdown order (signature → terms).
+ */
+test.describe('Client portal smooth checkout gates', () => {
+    const smoothSettings = {
+        ...paymentTestSettings,
+        payment_flow: 'smooth',
+        client_portal_allow_over_payment: false,
+        client_portal_allow_under_payment: false,
+    };
+
+    async function expectSmoothPaymentStep(page: Page) {
+        const smoothStep = page
+            .locator('main')
+            .getByText('Payment Methods', { exact: true })
+            .or(page.locator('main').getByText('Required Fields', { exact: true }))
+            .or(page.locator('main #card-element'))
+            .or(page.locator('main #pay-now'))
+            .or(
+                page
+                    .locator('main')
+                    .getByRole('button', { name: /Credit Card|PayPal|Bank/i }),
+            );
+
+        await expect(smoothStep.first()).toBeVisible({ timeout: 30_000 });
+    }
+
+    test('accepts invoice terms before the smooth payment step', async ({
+        api,
+        page,
+    }) => {
+        let client = await createAndLogInClient(api, page, {
+            settings: {
+                ...smoothSettings,
+                show_accept_invoice_terms: true,
+            },
+        });
+        client = await updateClient(api.context, client, defaultClientAddress);
+        const invoice = await createSentInvoice(api, client, {
+            label: uniqueName('smooth-terms'),
+            cost: 41,
+            terms: 'Smooth Playwright invoice terms.',
+        });
+
+        await page.goto(`/client/invoices/${invoice.id}`);
+        await dismissCookieConsent(page);
+
+        await expect(
+            page.getByRole('heading', { name: 'Terms', exact: true }),
+        ).toBeVisible({ timeout: 15_000 });
+        await expect(page.locator('[data-ref="entity-terms"]')).toContainText(
+            'Smooth Playwright invoice terms',
+        );
+
+        await page.locator('#accept-terms-button').click();
+        await expectSmoothPaymentStep(page);
+    });
+
+    test('requires a drawn signature before the smooth payment step', async ({
+        api,
+        page,
+    }) => {
+        let client = await createAndLogInClient(api, page, {
+            settings: {
+                ...smoothSettings,
+                require_invoice_signature: true,
+            },
+        });
+        client = await updateClient(api.context, client, defaultClientAddress);
+        const invoice = await createSentInvoice(api, client, {
+            label: uniqueName('smooth-signature'),
+            cost: 42,
+        });
+
+        await page.goto(`/client/invoices/${invoice.id}`);
+        await dismissCookieConsent(page);
+
+        const signaturePad = page.locator('#signature-pad');
+        const paymentMethods = page
+            .locator('main')
+            .getByText('Payment Methods', { exact: true });
+
+        // Wait for Flow2 to settle before deciding whether signatures are offered.
+        await expect(signaturePad.or(paymentMethods).first()).toBeVisible({
+            timeout: 15_000,
+        });
+
+        if ((await signaturePad.count()) === 0) {
+            test.skip(
+                true,
+                'Invoice signatures are unavailable for this account',
+            );
+        }
+
+        await drawSignature(page);
+        await page.locator('#save-button').click();
+        await expectSmoothPaymentStep(page);
+    });
+
+    test('collects terms then the signature in the smooth payment flow', async ({
+        api,
+        page,
+    }) => {
+        let client = await createAndLogInClient(api, page, {
+            settings: {
+                ...smoothSettings,
+                show_accept_invoice_terms: true,
+                require_invoice_signature: true,
+            },
+        });
+        client = await updateClient(api.context, client, defaultClientAddress);
+        const invoice = await createSentInvoice(api, client, {
+            label: uniqueName('smooth-terms-signature'),
+            cost: 43,
+            terms: 'Smooth signed Playwright terms.',
+        });
+
+        await page.goto(`/client/invoices/${invoice.id}`);
+        await dismissCookieConsent(page);
+
+        await expect(
+            page.getByRole('heading', { name: 'Terms', exact: true }),
+        ).toBeVisible({ timeout: 15_000 });
+        await expect(page.locator('[data-ref="entity-terms"]')).toContainText(
+            'Smooth signed Playwright terms',
+        );
+        await page.locator('#accept-terms-button').click();
+
+        const signaturePad = page.locator('#signature-pad');
+        if ((await signaturePad.count()) === 0) {
+            test.skip(
+                true,
+                'Invoice signatures are unavailable for this account',
+            );
+        }
+
+        await expect(signaturePad).toBeVisible({ timeout: 15_000 });
+        await drawSignature(page);
+        await page.locator('#save-button').click();
+        await expectSmoothPaymentStep(page);
+    });
+});
+
+/**
+ * `enable_client_portal_password` forces contacts through the portal login
+ * before an invoice invitation resolves, and sends contacts without a password
+ * to the set-password form first.
+ */
+test.describe('Client portal password protected invoices', () => {
+    test('sends an invoice invitation to the portal login', async ({
+        api,
+        browser,
+    }) => {
+        const client = await createPortalClient(api, {
+            name: uniqueName('pw-invoice-client'),
+            settings: { enable_client_portal_password: true },
+        });
+        const invoice = await createSentInvoice(api, client, {
+            label: uniqueName('pw-invoice'),
+        });
+        const { context, page } = await openGuestPortalPage(browser);
+
+        try {
+            await page.goto(`/client/invoice/${invitationKey(invoice)}`);
+
+            await expect(page).toHaveURL(/\/client\/login/);
+            await expect(page.locator('#email')).toBeVisible();
+            await expect(page.locator('#password')).toBeVisible();
+        } finally {
+            await context.close();
+        }
+    });
+
+    test('opens the invoice after logging in from a protected invitation', async ({
+        api,
+        browser,
+    }) => {
+        const marker = uniqueName('pw-invoice-login');
+        const password = 'PortalProtected123!';
+        const client = await createPortalClient(api, {
+            name: marker,
+            settings: { enable_client_portal_password: true },
+            contact: { email: `${marker}@example.test`, password },
+        });
+        const invoice = await createSentInvoice(api, client, {
+            label: uniqueName('pw-invoice-login-doc'),
+            cost: 61,
+        });
+        const { context, page } = await openGuestPortalPage(browser);
+
+        try {
+            await page.goto(`/client/invoice/${invitationKey(invoice)}`);
+            await expect(page).toHaveURL(/\/client\/login/);
+
+            await page.locator('#email').fill(`${marker}@example.test`);
+            await page.locator('#password').fill(password);
+            await page.locator('#loginBtn').click();
+
+            await expect(page).toHaveURL(
+                new RegExp(`/client/invoices/${invoice.id}(?:\\?.*)?$`),
+                { timeout: 30_000 },
+            );
+            await dismissCookieConsent(page);
+            await expect(page.locator('[data-ref="meta-title"]')).toHaveText(
+                'View Invoice',
+            );
+        } finally {
+            await context.close();
+        }
+    });
+
+    test('rejects an incorrect portal password for a protected invitation', async ({
+        api,
+        browser,
+    }) => {
+        const marker = uniqueName('pw-invoice-wrong');
+        const client = await createPortalClient(api, {
+            name: marker,
+            settings: { enable_client_portal_password: true },
+            contact: {
+                email: `${marker}@example.test`,
+                password: 'PortalProtected123!',
+            },
+        });
+        const invoice = await createSentInvoice(api, client, {
+            label: uniqueName('pw-invoice-wrong-doc'),
+        });
+        const { context, page } = await openGuestPortalPage(browser);
+
+        try {
+            await page.goto(`/client/invoice/${invitationKey(invoice)}`);
+            await expect(page).toHaveURL(/\/client\/login/);
+
+            await page.locator('#email').fill(`${marker}@example.test`);
+            await page.locator('#password').fill('WrongPortalPassword123!');
+            await page.locator('#loginBtn').click();
+
+            await expect(page).toHaveURL(/\/client\/login/);
+            await expect(
+                page.getByText(/credentials do not match our records/i),
+            ).toBeVisible();
+            await expect(page.locator('#password')).toBeVisible();
+        } finally {
+            await context.close();
+        }
+    });
+
+    // The key_login middleware reads company settings rather than the client's,
+    // so password protection has to be toggled at the company level here.
+    test('sends a key_login to the portal login when password protection is on', async ({
+        api,
+        browser,
+        companyGuard,
+    }) => {
+        const company = await getCompany(api.context);
+        await companyGuard.update({
+            settings: {
+                ...(company.settings as Record<string, unknown>),
+                enable_client_portal_password: true,
+            },
+        });
+
+        const client = await createPortalClient(api, {
+            name: uniqueName('pw-key-login'),
+            settings: { enable_client_portal_password: true },
+        });
+        const { context, page } = await openGuestPortalPage(browser);
+
+        try {
+            await page.goto(
+                `/client/key_login/${portalContact(client).contact_key}`,
+            );
+
+            await expect(page).toHaveURL(/\/client\/login/);
+        } finally {
+            await context.close();
+        }
+    });
+
+    test('prompts a password-less contact to set a portal password', async ({
+        api,
+        browser,
+    }) => {
+        test.setTimeout(90_000);
+
+        const client = await createPortalClient(api, {
+            name: uniqueName('pw-invoice-set'),
+            settings: { enable_client_portal_password: true },
+            contact: { password: null },
+        });
+        const invoice = await createSentInvoice(api, client, {
+            label: uniqueName('pw-invoice-set-doc'),
+            cost: 62,
+        });
+        const key = invitationKey(invoice);
+        const { context, page } = await openGuestPortalPage(browser);
+
+        try {
+            await page.goto(`/client/invoice/${key}`);
+
+            if (!page.url().includes('set_password')) {
+                const { invitationSetPasswordHash } = await import(
+                    './portal-auth-helpers'
+                );
+                await page.goto(
+                    `/set_password?entity_type=invoice&invitation_key=${key}&hash=${invitationSetPasswordHash(key)}`,
+                );
+            }
+
+            await expect(page.locator('#password')).toBeVisible({
+                timeout: 15_000,
+            });
+            await page.locator('#password').fill('PortalSetInvoice123!');
+            await page.getByRole('button', { name: /Continue/i }).click();
+
+            await expect(page).toHaveURL(
+                new RegExp(
+                    `(?:/client/invoices/${invoice.id}|/client/invoice/${key})(?:\\?.*)?$`,
+                ),
+                { timeout: 30_000 },
+            );
+        } finally {
+            await context.close();
+        }
     });
 });

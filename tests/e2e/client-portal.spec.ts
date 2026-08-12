@@ -3,6 +3,7 @@ import {
     createAndLogInClient,
     expectPortalPage,
     type PortalClient,
+    waitForAlpine,
 } from './client-portal-helpers';
 import { expect, test, uniqueName, type ApiFixture } from './fixtures';
 
@@ -132,6 +133,7 @@ test.describe('Authenticated client portal pages', () => {
         const client = await createAndLogInClient(api, page);
         const contact = client.contacts[0];
 
+        await waitForAlpine(page);
         await page.locator('[data-ref="client-profile-dropdown"]').click();
         const profileLink = page.locator(
             '[data-ref="client-profile-dropdown-settings"]',
@@ -149,6 +151,7 @@ test.describe('Authenticated client portal pages', () => {
             'Client Information',
         );
 
+        await waitForAlpine(page);
         await page.locator('[data-ref="client-profile-dropdown"]').click();
         await page.getByRole('link', { name: 'Log Out', exact: true }).click();
 

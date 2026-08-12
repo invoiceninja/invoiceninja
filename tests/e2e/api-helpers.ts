@@ -146,14 +146,15 @@ export async function bulkAction(
     api: ApiContext,
     entityType: EntityType,
     ids: string[],
-    action: 'archive' | 'restore' | 'delete' | 'mark_sent',
+    action: string,
+    extra: Record<string, unknown> = {},
 ): Promise<void> {
     if (ids.length === 0) {
         return;
     }
 
     const response = await api.request.post(`/api/v1/${entityType}/bulk`, {
-        data: { action, ids },
+        data: { action, ids, ...extra },
     });
 
     if (!response.ok()) {

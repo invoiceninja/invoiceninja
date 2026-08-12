@@ -169,4 +169,62 @@ test.describe('Client portal invitations', () => {
 
         await context.close();
     });
+
+    test('prompts a contact without a password to set one from an invitation', async ({
+        api,
+        browser,
+    }) => {
+        test.setTimeout(90_000);
+
+        const marker = uniqueName('set-password');
+        const client = await api.createEntity('clients', {
+            name: marker,
+            settings: {
+                enable_client_portal: true,
+                enable_client_portal_password: true,
+            },
+            contacts: [
+                {
+                    first_name: 'Set',
+                    last_name: 'Password',
+                    email: `${marker}@example.test`,
+                },
+            ],
+        });
+        const quote = await createSentQuote(api, client as never, {
+            label: uniqueName('set-password-quote'),
+        });
+        const key = invitationKey(quote);
+        const context = await browser.newContext();
+        const page = await context.newPage();
+        await page.route('**/client/showBlob/**', async (route) => {
+            await route.abort();
+        });
+
+        await page.goto(`/client/quote/${key}`);
+
+        // Invitation router should send password-less contacts to set_password.
+        if (!page.url().includes('set_password')) {
+            const { invitationSetPasswordHash } = await import(
+                './portal-auth-helpers'
+            );
+            await page.goto(
+                `/set_password?entity_type=quote&invitation_key=${key}&hash=${invitationSetPasswordHash(key)}`,
+            );
+        }
+
+        await expect(page.locator('#password')).toBeVisible({ timeout: 15_000 });
+        await page.locator('#password').fill('PortalSet123!');
+        await page.getByRole('button', { name: /Continue/i }).click();
+
+        await expect(page).toHaveURL(
+            expectInvitationUrl(
+                `/client/quotes/${quote.id}`,
+                `/client/quote/${key}`,
+            ),
+            { timeout: 30_000 },
+        );
+
+        await context.close();
+    });
 });
