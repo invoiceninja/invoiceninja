@@ -262,6 +262,118 @@ class NPlusOneListTest extends TestCase
         });
     }
 
+    public function testPaymentListWithCreditsNPlusOne(): void
+    {
+        $contact = ClientContact::query()
+            ->where('client_id', $this->client->id)
+            ->firstOrFail();
+
+        $this->assertNoNPlusOne('payments', 'credits', function ($i) use ($contact) {
+            $credit = CreditFactory::create($this->company->id, $this->user->id);
+            $credit->client_id = $this->client->id;
+            $credit->line_items = InvoiceItemFactory::generate(1);
+            $credit->uses_inclusive_taxes = false;
+            $credit->save();
+
+            CreditInvitation::factory()->create([
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'client_contact_id' => $contact->id,
+                'credit_id' => $credit->id,
+            ]);
+
+            $payment = Payment::factory()->create([
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'client_id' => $this->client->id,
+                'amount' => 100,
+                'applied' => 100,
+            ]);
+
+            $payment->credits()->attach($credit->id, ['amount' => 100]);
+        });
+    }
+
+    public function testPaymentListWithInvoiceClientNPlusOne(): void
+    {
+        $this->assertNoNPlusOne('payments', 'invoices.client', function ($i) {
+            $client = Client::factory()->create([
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'name' => "N+1 Payment Client {$i}",
+            ]);
+
+            $contact = ClientContact::factory()->create([
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'client_id' => $client->id,
+                'is_primary' => true,
+            ]);
+
+            $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+            $invoice->client_id = $client->id;
+            $invoice->line_items = InvoiceItemFactory::generate(1);
+            $invoice->uses_inclusive_taxes = false;
+            $invoice->save();
+
+            InvoiceInvitation::factory()->create([
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'client_contact_id' => $contact->id,
+                'invoice_id' => $invoice->id,
+            ]);
+
+            $payment = Payment::factory()->create([
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'client_id' => $client->id,
+                'amount' => 100,
+                'applied' => 100,
+            ]);
+
+            $payment->invoices()->attach($invoice->id, ['amount' => 100]);
+        });
+    }
+
+    public function testPaymentListWithInvoiceCreditsNPlusOne(): void
+    {
+        $contact = ClientContact::query()
+            ->where('client_id', $this->client->id)
+            ->firstOrFail();
+
+        $this->assertNoNPlusOne('payments', 'invoices.credits', function ($i) use ($contact) {
+            $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+            $invoice->client_id = $this->client->id;
+            $invoice->line_items = InvoiceItemFactory::generate(1);
+            $invoice->uses_inclusive_taxes = false;
+            $invoice->save();
+
+            $credit = CreditFactory::create($this->company->id, $this->user->id);
+            $credit->client_id = $this->client->id;
+            $credit->invoice_id = $invoice->id;
+            $credit->line_items = InvoiceItemFactory::generate(1);
+            $credit->uses_inclusive_taxes = false;
+            $credit->save();
+
+            CreditInvitation::factory()->create([
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'client_contact_id' => $contact->id,
+                'credit_id' => $credit->id,
+            ]);
+
+            $payment = Payment::factory()->create([
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'client_id' => $this->client->id,
+                'amount' => 100,
+                'applied' => 100,
+            ]);
+
+            $payment->invoices()->attach($invoice->id, ['amount' => 100]);
+        });
+    }
+
     public function testProjectListNPlusOne(): void
     {
         $this->assertNoNPlusOne('projects', 'user,assigned_user,client', function ($i) {
