@@ -407,6 +407,37 @@ class InvoiceFilters extends QueryFilters
     }
 
     /**
+     * Ensure we pad out additional includes to prevent N+1 queries.
+     *
+     * @param  string $includes
+     * @return Builder
+     */
+    public function include(string $includes = ''): Builder
+    {
+        if (trim($includes) === '') {
+            return $this->builder;
+        }
+
+        $requested_includes = array_values(array_filter(
+            array_map('trim', explode(',', $includes)),
+            static fn (string $include): bool => $include !== ''
+        ));
+
+        $include_roots = array_map(
+            static fn (string $include): string => explode('.', trim($include), 2)[0],
+            $requested_includes
+        );
+
+        if (in_array('client', $include_roots, true)) {
+            $this->builder->with([
+                'client.locations',
+            ]);
+        }
+
+        return $this->builder;
+    }
+
+    /**
      * Filters the query by the users company ID.
      *
      * We need to ensure we are using the correct company ID

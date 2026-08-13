@@ -124,7 +124,9 @@ class UserTransformer extends EntityTransformer
 
         $transformer = new CompanyUserTransformer($this->serializer);
 
-        $cu = $user->company_users()->where('company_id', $user->company_id)->first();
+        $cu = $user->relationLoaded('company_users')
+            ? $user->company_users->firstWhere('company_id', $user->company_id)
+            : $user->company_users()->where('company_id', $user->company_id)->first();
 
         if (!$cu) {
             return null;
