@@ -274,6 +274,10 @@ class PaymentFilters extends QueryFilters
      */
     public function include(string $includes = ''): Builder
     {
+        if (trim($includes) === '') {
+            return $this->builder;
+        }
+        
         $requested_includes = array_values(array_filter(
             array_map('trim', explode(',', $includes)),
             static fn (string $include): bool => $include !== ''
