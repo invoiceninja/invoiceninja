@@ -115,16 +115,6 @@ class NPlusOneListTest extends TestCase
 
         [$secondCount, $secondEntities, $secondQueries] = $this->measureQueryCount($url);
 
-        if ($endpoint === 'payments') {
-            fwrite(STDERR, json_encode([
-                'baseline_count' => $baselineCount,
-                'baseline_entities' => $baselineEntities,
-                'second_count' => $secondCount,
-                'second_entities' => $secondEntities,
-                'queries' => array_column($secondQueries, 'query'),
-            ], JSON_PRETTY_PRINT).PHP_EOL);
-        }
-
         $this->assertGreaterThan(
             $baselineEntities,
             $secondEntities,
