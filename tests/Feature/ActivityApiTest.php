@@ -327,6 +327,8 @@ class ActivityApiTest extends TestCase
 
     public function testActivityGetWithReactV2()
     {
+        $this->createCompanyActivityNote();
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
@@ -344,6 +346,8 @@ class ActivityApiTest extends TestCase
 
     public function testActivityFeedDoesNotNPlusOneQueries()
     {
+        $this->createCompanyActivityNote();
+
         DB::enableQueryLog();
 
         $response = $this->withHeaders([
@@ -364,7 +368,7 @@ class ActivityApiTest extends TestCase
     {
         $invoice = $this->company->invoices()->first();
 
-        $invoice->service()->markSent()->save();
+        $this->createCompanyActivityNote();
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -386,5 +390,19 @@ class ActivityApiTest extends TestCase
             $this->assertArrayHasKey('hashed_id', $activity);
             $this->assertArrayHasKey('created_at', $activity);
         }
+    }
+
+    private function createCompanyActivityNote(): void
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/activities/notes', [
+            'entity' => 'invoices',
+            'entity_id' => $this->invoice->hashed_id,
+            'notes' => 'Seeded activity for feed tests',
+        ]);
+
+        $response->assertStatus(200);
     }
 }
