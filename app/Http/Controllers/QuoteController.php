@@ -1027,7 +1027,7 @@ class QuoteController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $quote, $request->input('is_public', true));
+            $this->saveDocuments($request->file('documents'), $quote, $request->has('is_public') ? $request->boolean('is_public') : null);
         }
 
         return $this->itemResponse($quote->fresh());

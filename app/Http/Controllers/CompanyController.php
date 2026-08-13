@@ -438,7 +438,7 @@ class CompanyController extends BaseController
         $company = $this->company_repo->save($request->all(), $company);
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->input('documents'), $company, $request->input('is_public', true));
+            $this->saveDocuments($request->input('documents'), $company, $request->has('is_public') ? $request->boolean('is_public') : null);
         }
 
         /** Explicitly handle the e-invoice certificate */
@@ -684,7 +684,7 @@ class CompanyController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $company, $request->input('is_public', true));
+            $this->saveDocuments($request->file('documents'), $company, $request->has('is_public') ? $request->boolean('is_public') : null);
         }
 
         return $this->itemResponse($company->fresh());

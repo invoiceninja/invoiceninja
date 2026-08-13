@@ -6334,6 +6334,8 @@ $lang = array(
     'docuninja_join_integration' => 'Deep Integration',
     'docuninja_join_integration_help' => 'Works with invoices, quotes & orders',
     'docuninja_creating_account' => 'Creating your account...',
+    'documents_public_by_default' => 'Set Documents Public by Default',
+    'documents_public_by_default_help' => 'If enabled, new documents will be public by default.',
 );
 
 return $lang;

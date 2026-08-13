@@ -35,6 +35,7 @@ class ImportHarvest extends Command
                             {directory : Directory containing Harvest CSV exports}
                             {--entities= : Comma-separated list: clients (includes contacts), users, projects, tasks, time_entries, expense_categories, expenses, invoices, invoice_payments, estimates. Omit to import all}
                             {--resolve-currency : Resolve each client currency from its parsed country}
+                            {--abort-on-failure : Stop importing after the first failed record, action, or tax-rate request}
                             {--dry-run : Resolve existing client IDs and print records without creating or updating anything}';
 
     /**
@@ -102,6 +103,7 @@ class ImportHarvest extends Command
                 $client_map,
                 $this->shouldBuildInvoiceMap($result['records']) ? $this->buildInvoiceMap($api_token) : [],
                 $this->shouldBuildProjectMap($result['records']) ? $this->buildProjectMap($api_token, $client_map) : [],
+                $this->shouldBuildExpenseCategoryMap($result['records']) ? $this->buildExpenseCategoryMap($api_token) : [],
                 $unmatched_clients,
                 $unmatched_invoices,
                 $unmatched_projects,
@@ -132,10 +134,17 @@ class ImportHarvest extends Command
             'tax_rates_created' => 0,
             'failed' => 0,
         ];
-        $created_ids = [];
+        /** @var array<int, array{entity: string, phase: string, record: string, http_status: string, fields: string, reason: string}> $failures */
+        $failures = [];
+        $abort_on_failure = (bool) $this->option('abort-on-failure');
+        $import_aborted = false;
         $client_map = $this->buildClientMap($api_token);
         $invoice_map = $this->shouldBuildInvoiceMap($records) ? $this->buildInvoiceMap($api_token) : [];
         $project_map = [];
+        $expense_category_map = $this->shouldBuildExpenseCategoryMap($records)
+            ? $this->buildExpenseCategoryMap($api_token)
+            : [];
+        $created_ids = [Entity::ExpenseCategories->value => $expense_category_map];
         $unmatched_clients = [];
         $unmatched_invoices = [];
         $unmatched_projects = [];
@@ -147,12 +156,22 @@ class ImportHarvest extends Command
                 $project_map = $this->buildProjectMap($api_token, $client_map);
             }
 
-            foreach ($records[$entity->value] ?? [] as $record) {
+            foreach ($records[$entity->value] ?? [] as $record_index => $record) {
                 $label = (string) $record['label'];
+                /** @var array<string, mixed> $payload */
+                $payload = is_array($record['payload'] ?? null) ? $record['payload'] : [];
+                $phase = 'create';
 
                 if ($entity === Entity::Projects && isset($project_map[(string) $record['key']])) {
                     $created_ids[$entity->value][(string) $record['key']] = $project_map[(string) $record['key']];
                     $this->components->info("Using existing project: {$label}");
+
+                    continue;
+                }
+
+                if ($entity === Entity::ExpenseCategories && isset($expense_category_map[(string) $record['key']])) {
+                    $created_ids[$entity->value][(string) $record['key']] = $expense_category_map[(string) $record['key']];
+                    $this->components->info("Using existing expense category: {$label}");
 
                     continue;
                 }
@@ -184,8 +203,38 @@ class ImportHarvest extends Command
                         ->post($this->apiEndpoint($entity), $payload);
 
                     if ($response->failed()) {
-                        $this->components->error($this->failureMessage($label, $response));
+                        if ($this->isDuplicateExpenseCategoryResponse($entity, $response)) {
+                            $existing_id = $this->refreshExpenseCategoryId(
+                                $api_token,
+                                (string) $record['key'],
+                                $expense_category_map,
+                            );
+
+                            if ($existing_id !== null) {
+                                $created_ids[$entity->value][(string) $record['key']] = $existing_id;
+                                $this->components->info("Using existing expense category: {$label}");
+
+                                continue;
+                            }
+                        }
+
+                        $failure = $this->responseFailure(
+                            $entity->value,
+                            $phase,
+                            (string) $record['key'],
+                            $record_index,
+                            $payload,
+                            $response,
+                        );
+                        $failures[] = $failure;
+                        $this->reportFailureInline($failure);
                         $counters['failed']++;
+
+                        if ($abort_on_failure) {
+                            $import_aborted = true;
+
+                            break;
+                        }
 
                         continue;
                     }
@@ -218,18 +267,64 @@ class ImportHarvest extends Command
                         $label,
                     ));
                     $counters['created']++;
-                    $this->performActions($entity, $record, $id, $api_token);
+                    $phase = 'action';
+                    $action_failures = $this->performActions(
+                        $entity,
+                        $record,
+                        $record_index,
+                        $id,
+                        $api_token,
+                        $abort_on_failure,
+                        $failures,
+                    );
+                    $counters['failed'] += $action_failures;
+
+                    if ($abort_on_failure && $action_failures > 0) {
+                        $import_aborted = true;
+
+                        break;
+                    }
                 } catch (Throwable $exception) {
                     report($exception);
-                    $this->components->error("Unable to import {$label}: {$exception->getMessage()}");
+                    $failure = $this->exceptionFailure(
+                        $entity->value,
+                        $phase,
+                        (string) $record['key'],
+                        $record_index,
+                        $payload,
+                        $exception,
+                    );
+                    $failures[] = $failure;
+                    $this->reportFailureInline($failure);
                     $counters['failed']++;
+
+                    if ($abort_on_failure) {
+                        $import_aborted = true;
+
+                        break;
+                    }
                 }
             }
 
+            if ($import_aborted) {
+                break;
+            }
+
             if ($entity === Entity::Invoices) {
-                $tax_rate_counters = $this->createTaxRates($records[$entity->value] ?? [], $api_token);
+                $tax_rate_counters = $this->createTaxRates(
+                    $records[$entity->value] ?? [],
+                    $api_token,
+                    $abort_on_failure,
+                    $failures,
+                );
                 $counters['tax_rates_created'] += $tax_rate_counters['created'];
                 $counters['failed'] += $tax_rate_counters['failed'];
+
+                if ($abort_on_failure && $tax_rate_counters['failed'] > 0) {
+                    $import_aborted = true;
+
+                    break;
+                }
             }
 
             if ($entity === Entity::Projects && $imports_time_entries) {
@@ -244,6 +339,12 @@ class ImportHarvest extends Command
         $this->reportUnmatchedClients($unmatched_clients);
         $this->reportUnmatchedInvoices($unmatched_invoices);
         $this->reportUnmatchedProjects($unmatched_projects);
+
+        if ($import_aborted) {
+            $this->components->warn('Import aborted after the first failure because --abort-on-failure was specified.');
+        }
+
+        $this->reportFailures($failures);
 
         return $counters['failed'] === 0 ? self::SUCCESS : self::FAILURE;
     }
@@ -357,6 +458,73 @@ class ImportHarvest extends Command
         return $invoice_map;
     }
 
+    /** @return array<string, string> */
+    private function buildExpenseCategoryMap(string $api_token): array
+    {
+        $expense_category_map = [];
+        $page = 1;
+        $total_pages = 1;
+
+        try {
+            do {
+                $response = Http::acceptJson()
+                    ->withHeaders(['X-API-TOKEN' => $api_token])
+                    ->get(rtrim(self::API_ENDPOINT, '/') . '/expense_categories', [
+                        'per_page' => 1000,
+                        'page' => $page,
+                    ]);
+
+                if ($response->failed()) {
+                    $this->components->warn($this->failureMessage('expense category map', $response));
+
+                    break;
+                }
+
+                $data = $response->json('data', []);
+                $categories = is_array($data) && ! array_is_list($data) ? [$data] : $data;
+
+                if (! is_array($categories)) {
+                    break;
+                }
+
+                foreach ($categories as $category) {
+                    if (! is_array($category)) {
+                        continue;
+                    }
+
+                    $name = $category['name'] ?? null;
+                    $hashed_id = $category['hashed_id'] ?? $category['id'] ?? null;
+
+                    if (is_string($name) && $name !== '' && (is_string($hashed_id) || is_int($hashed_id))) {
+                        $expense_category_map[$this->referenceKey($name)] = (string) $hashed_id;
+                    }
+                }
+
+                $total_pages = max(1, (int) $response->json('meta.pagination.total_pages', 1));
+                $page++;
+            } while ($page <= $total_pages);
+        } catch (Throwable $exception) {
+            report($exception);
+            $this->components->warn("Unable to build expense category map: {$exception->getMessage()}");
+        }
+
+        return $expense_category_map;
+    }
+
+    /** @param array<string, string> $expense_category_map */
+    private function refreshExpenseCategoryId(
+        string $api_token,
+        string $category_key,
+        array &$expense_category_map,
+    ): ?string {
+        $expense_category_map = array_replace(
+            $expense_category_map,
+            $this->buildExpenseCategoryMap($api_token),
+        );
+
+        return $expense_category_map[$category_key] ?? null;
+    }
+
     /**
      * @param array<string, string> $client_map
      * @return array<string, string>
@@ -434,6 +602,7 @@ class ImportHarvest extends Command
      * @param array<string, string> $client_map
      * @param array<string, array{id: string, available: float}> $invoice_map
      * @param array<string, string> $project_map
+     * @param array<string, string> $expense_category_map
      * @param array<string, string> $unmatched_clients
      * @param array<string, string> $unmatched_invoices
      * @param array<string, string> $unmatched_projects
@@ -444,6 +613,7 @@ class ImportHarvest extends Command
         array $client_map,
         array $invoice_map,
         array $project_map,
+        array $expense_category_map,
         array &$unmatched_clients,
         array &$unmatched_invoices,
         array &$unmatched_projects,
@@ -452,7 +622,7 @@ class ImportHarvest extends Command
             foreach ($entity_records as &$record) {
                 $record['payload'] = $this->resolveReferences(
                     $record,
-                    [],
+                    [Entity::ExpenseCategories->value => $expense_category_map],
                     $client_map,
                     $invoice_map,
                     $project_map,
@@ -605,42 +775,107 @@ class ImportHarvest extends Command
 
     /**
      * @param array<string, mixed> $record
+     * @param array<int, array{entity: string, phase: string, record: string, http_status: string, fields: string, reason: string}> $failures
      */
-    private function performActions(Entity $entity, array $record, mixed $id, string $api_token): void
-    {
+    private function performActions(
+        Entity $entity,
+        array $record,
+        int $record_index,
+        mixed $id,
+        string $api_token,
+        bool $abort_on_failure,
+        array &$failures,
+    ): int {
         /** @var array<int, string> $actions */
         $actions = $record['actions'] ?? [];
 
         if ($actions === []) {
-            return;
+            return 0;
         }
 
         if (! is_string($id) && ! is_int($id)) {
-            throw new RuntimeException('The API did not return an ID required to apply the record status.');
+            $exception = new RuntimeException('The API did not return an ID required to apply the record status.');
+            report($exception);
+            $failure = $this->exceptionFailure(
+                $entity->value,
+                'action:' . $actions[0],
+                (string) $record['key'],
+                $record_index,
+                (array) $record['payload'],
+                $exception,
+            );
+            $failures[] = $failure;
+            $this->reportFailureInline($failure);
+
+            return 1;
         }
+
+        $failed = 0;
 
         foreach ($actions as $action) {
-            $response = Http::acceptJson()
-                ->withHeaders(['X-API-TOKEN' => $api_token])
-                ->get($this->apiEndpoint($entity) . '/' . $id . '/' . $action);
+            try {
+                $response = Http::acceptJson()
+                    ->withHeaders(['X-API-TOKEN' => $api_token])
+                    ->get($this->apiEndpoint($entity) . '/' . $id . '/' . $action);
 
-            if ($response->failed()) {
-                throw new RuntimeException($this->failureMessage("{$record['label']} action [{$action}]", $response));
+                if ($response->failed()) {
+                    $failure = $this->responseFailure(
+                        $entity->value,
+                        "action:{$action}",
+                        (string) $record['key'],
+                        $record_index,
+                        (array) $record['payload'],
+                        $response,
+                    );
+                    $failures[] = $failure;
+                    $this->reportFailureInline($failure);
+                    $failed++;
+
+                    if ($abort_on_failure) {
+                        break;
+                    }
+
+                    continue;
+                }
+
+                $this->components->info("Applied {$action} status: {$record['label']}");
+            } catch (Throwable $exception) {
+                report($exception);
+                $failure = $this->exceptionFailure(
+                    $entity->value,
+                    "action:{$action}",
+                    (string) $record['key'],
+                    $record_index,
+                    (array) $record['payload'],
+                    $exception,
+                );
+                $failures[] = $failure;
+                $this->reportFailureInline($failure);
+                $failed++;
+
+                if ($abort_on_failure) {
+                    break;
+                }
             }
-
-            $this->components->info("Applied {$action} status: {$record['label']}");
         }
+
+        return $failed;
     }
 
     /**
      * @param array<int, array<string, mixed>> $invoice_records
+     * @param array<int, array{entity: string, phase: string, record: string, http_status: string, fields: string, reason: string}> $failures
      * @return array{created: int, failed: int}
      */
-    private function createTaxRates(array $invoice_records, string $api_token): array
-    {
+    private function createTaxRates(
+        array $invoice_records,
+        string $api_token,
+        bool $abort_on_failure,
+        array &$failures,
+    ): array {
         $counters = ['created' => 0, 'failed' => 0];
 
-        foreach ($this->invoiceTaxRates($invoice_records) as $tax_rate) {
+        foreach ($this->invoiceTaxRates($invoice_records) as $tax_rate_index => $tax_rate) {
             try {
                 $response = Http::acceptJson()
                     ->withHeaders(['X-API-TOKEN' => $api_token])
@@ -653,8 +888,21 @@ class ImportHarvest extends Command
                 }
 
                 if ($response->failed()) {
-                    $this->components->error($this->failureMessage("tax rate {$tax_rate['name']}", $response));
+                    $failure = $this->responseFailure(
+                        'tax_rates',
+                        'create',
+                        $tax_rate['name'] . '|' . $tax_rate['rate'],
+                        $tax_rate_index,
+                        $tax_rate,
+                        $response,
+                    );
+                    $failures[] = $failure;
+                    $this->reportFailureInline($failure);
                     $counters['failed']++;
+
+                    if ($abort_on_failure) {
+                        break;
+                    }
 
                     continue;
                 }
@@ -663,8 +911,21 @@ class ImportHarvest extends Command
                 $counters['created']++;
             } catch (Throwable $exception) {
                 report($exception);
-                $this->components->error("Unable to create tax rate {$tax_rate['name']}: {$exception->getMessage()}");
+                $failure = $this->exceptionFailure(
+                    'tax_rates',
+                    'create',
+                    $tax_rate['name'] . '|' . $tax_rate['rate'],
+                    $tax_rate_index,
+                    $tax_rate,
+                    $exception,
+                );
+                $failures[] = $failure;
+                $this->reportFailureInline($failure);
                 $counters['failed']++;
+
+                if ($abort_on_failure) {
+                    break;
+                }
             }
         }
 
@@ -823,6 +1084,35 @@ class ImportHarvest extends Command
         return ($records[Entity::TimeEntries->value] ?? []) !== [];
     }
 
+    /** @param array<string, array<int, array<string, mixed>>> $records */
+    private function shouldBuildExpenseCategoryMap(array $records): bool
+    {
+        return ($records[Entity::ExpenseCategories->value] ?? []) !== []
+            || ($records[Entity::Expenses->value] ?? []) !== [];
+    }
+
+    private function isDuplicateExpenseCategoryResponse(Entity $entity, Response $response): bool
+    {
+        if ($entity !== Entity::ExpenseCategories || $response->status() !== 422) {
+            return false;
+        }
+
+        $errors = $response->json('errors');
+
+        if (! is_array($errors) || ! array_key_exists('name', $errors)) {
+            return false;
+        }
+
+        $messages = collect($errors['name'])
+            ->flatten()
+            ->filter(fn(mixed $message): bool => is_string($message))
+            ->map(fn(string $message): string => mb_strtolower($message));
+
+        return $messages->contains(
+            fn(string $message): bool => str_contains($message, 'already been taken'),
+        );
+    }
+
     /** @param array<string, string> $unmatched_clients */
     private function reportUnmatchedClients(array $unmatched_clients): void
     {
@@ -888,7 +1178,79 @@ class ImportHarvest extends Command
         return is_string($value) ? $value : null;
     }
 
-    private function failureMessage(string $name, Response $response): string
+    /**
+     * @param array<string, mixed> $payload
+     * @return array{entity: string, phase: string, record: string, http_status: string, fields: string, reason: string}
+     */
+    private function responseFailure(
+        string $entity,
+        string $phase,
+        string $record_key,
+        int $record_index,
+        array $payload,
+        Response $response,
+    ): array {
+        return [
+            'entity' => $entity,
+            'phase' => $phase,
+            'record' => $this->recordReference($entity, $record_key, $record_index),
+            'http_status' => (string) $response->status(),
+            'fields' => $this->validationFields($response),
+            'reason' => $this->sanitiseFailureReason($this->responseFailureReason($response), $payload),
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     * @return array{entity: string, phase: string, record: string, http_status: string, fields: string, reason: string}
+     */
+    private function exceptionFailure(
+        string $entity,
+        string $phase,
+        string $record_key,
+        int $record_index,
+        array $payload,
+        Throwable $exception,
+    ): array {
+        $exception_class = basename(str_replace('\\', '/', $exception::class));
+
+        return [
+            'entity' => $entity,
+            'phase' => $phase,
+            'record' => $this->recordReference($entity, $record_key, $record_index),
+            'http_status' => '-',
+            'fields' => '-',
+            'reason' => $this->sanitiseFailureReason(
+                "{$exception_class}: {$exception->getMessage()}",
+                $payload,
+            ),
+        ];
+    }
+
+    private function recordReference(string $entity, string $record_key, int $record_index): string
+    {
+        $fingerprint = substr(hash('sha256', "harvest|{$entity}|{$record_key}"), 0, 12);
+
+        return sprintf('#%d / %s', $record_index + 1, $fingerprint);
+    }
+
+    private function validationFields(Response $response): string
+    {
+        $errors = $response->json('errors');
+
+        if (! is_array($errors)) {
+            return '-';
+        }
+
+        $fields = array_values(array_filter(
+            array_keys($errors),
+            fn(mixed $field): bool => is_string($field) && $field !== '',
+        ));
+
+        return $fields === [] ? '-' : implode(', ', $fields);
+    }
+
+    private function responseFailureReason(Response $response): string
     {
         $message = $response->json('message');
         $errors = $response->json('errors');
@@ -906,8 +1268,125 @@ class ImportHarvest extends Command
         }
 
         $details = array_values(array_unique(array_filter($details)));
-        $detail = $details === [] ? '' : ': ' . implode(' ', $details);
 
-        return "Unable to import {$name}: API returned HTTP {$response->status()}{$detail}";
+        return $details === []
+            ? 'The API did not provide a structured error message.'
+            : implode(' ', $details);
+    }
+
+    /** @param array<string, mixed> $payload */
+    private function sanitiseFailureReason(string $reason, array $payload): string
+    {
+        $sensitive_values = [];
+        $sensitive_numbers = [];
+
+        array_walk_recursive($payload, function (mixed $value) use (&$sensitive_numbers, &$sensitive_values): void {
+            if (is_int($value) || is_float($value)) {
+                $numeric_values = [(string) $value];
+
+                if (is_float($value)) {
+                    $numeric_values[] = number_format($value, 2, '.', '');
+                }
+
+                foreach ($numeric_values as $numeric_value) {
+                    if (strlen(str_replace(['-', '.'], '', $numeric_value)) >= 2) {
+                        $sensitive_numbers[] = $numeric_value;
+                    }
+                }
+
+                return;
+            }
+
+            if (! is_string($value)) {
+                return;
+            }
+
+            $value = trim($value);
+
+            if (mb_strlen($value) >= 3) {
+                $sensitive_values[] = $value;
+            }
+        });
+
+        $sensitive_values = array_values(array_unique($sensitive_values));
+        usort(
+            $sensitive_values,
+            fn(string $left, string $right): int => mb_strlen($right) <=> mb_strlen($left),
+        );
+
+        if ($sensitive_values !== []) {
+            $reason = str_ireplace($sensitive_values, '[redacted]', $reason);
+        }
+
+        foreach (array_unique($sensitive_numbers) as $sensitive_number) {
+            $reason = preg_replace(
+                '/(?<![\d.])' . preg_quote($sensitive_number, '/') . '(?![\d.])/',
+                '[redacted-number]',
+                $reason,
+            ) ?? $reason;
+        }
+
+        $reason = preg_replace(
+            '/[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}/iu',
+            '[redacted-email]',
+            $reason,
+        ) ?? $reason;
+        $reason = preg_replace('~https?://[^\s]+~iu', '[redacted-url]', $reason) ?? $reason;
+        $reason = preg_replace(
+            '~(?<![A-Za-z0-9])(?:[A-Za-z]:[\\\\/]|/)(?:[^\s:]+[\\\\/]?)+~u',
+            '[redacted-path]',
+            $reason,
+        ) ?? $reason;
+        $reason = preg_replace(
+            '/(?<!\w)(?:\+?\d[\d\s().\-]{6,}\d)(?!\w)/u',
+            '[redacted-phone]',
+            $reason,
+        ) ?? $reason;
+        $reason = preg_replace('/\s+/u', ' ', trim($reason)) ?? trim($reason);
+
+        return mb_strimwidth($reason, 0, 240, '…');
+    }
+
+    /**
+     * @param array{entity: string, phase: string, record: string, http_status: string, fields: string, reason: string} $failure
+     */
+    private function reportFailureInline(array $failure): void
+    {
+        $http_status = $failure['http_status'] === '-' ? '' : "; HTTP {$failure['http_status']}";
+        $fields = $failure['fields'] === '-' ? '' : "; fields: {$failure['fields']}";
+
+        $this->components->error(sprintf(
+            'Failed %s record [%s] during %s%s%s: %s',
+            $failure['entity'],
+            $failure['record'],
+            $failure['phase'],
+            $http_status,
+            $fields,
+            $failure['reason'],
+        ));
+    }
+
+    /**
+     * @param array<int, array{entity: string, phase: string, record: string, http_status: string, fields: string, reason: string}> $failures
+     */
+    private function reportFailures(array $failures): void
+    {
+        if ($failures === []) {
+            return;
+        }
+
+        $this->newLine();
+        $this->components->warn(sprintf('Failure report (%d)', count($failures)));
+        $this->table(
+            ['entity', 'phase', 'record', 'http_status', 'fields', 'reason'],
+            array_map('array_values', $failures),
+        );
+    }
+
+    private function failureMessage(string $name, Response $response): string
+    {
+        $detail = $this->sanitiseFailureReason($this->responseFailureReason($response), []);
+
+        return "Unable to import {$name}: API returned HTTP {$response->status()}: {$detail}";
     }
 }

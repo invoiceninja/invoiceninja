@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
+use RuntimeException;
 use Tests\TestCase;
 
 class ImportHarvestTest extends TestCase
@@ -392,13 +393,15 @@ class ImportHarvestTest extends TestCase
         $this->assertStringContainsString('"project_id": "existing-project-website"', $output);
         $this->assertStringContainsString('Dry run complete; no records were created.', $output);
 
-        Http::assertSentCount(3);
+        Http::assertSentCount(4);
         Http::assertSent(fn(Request $request): bool => $request->method() === 'GET'
             && str_contains($request->url(), '/api/v1/clients'));
         Http::assertSent(fn(Request $request): bool => $request->method() === 'GET'
             && str_contains($request->url(), '/api/v1/invoices'));
         Http::assertSent(fn(Request $request): bool => $request->method() === 'GET'
             && str_contains($request->url(), '/api/v1/projects'));
+        Http::assertSent(fn(Request $request): bool => $request->method() === 'GET'
+            && str_contains($request->url(), '/api/v1/expense_categories'));
         Http::assertNotSent(fn(Request $request): bool => $request->method() === 'POST');
     }
 
@@ -543,6 +546,120 @@ class ImportHarvestTest extends TestCase
             'https://grok.romulus.com.au/api/v1/projects?per_page=1000&page=1',
             'https://grok.romulus.com.au/api/v1/tasks',
         ], $request_urls);
+    }
+
+    public function test_it_reuses_existing_expense_categories_and_resolves_expense_category_ids(): void
+    {
+        $this->writeExpenseCategoryExports();
+
+        Http::fake(function (Request $request) {
+            if ($request->method() === 'GET' && str_contains($request->url(), '/clients')) {
+                return Http::response(['data' => []], 200);
+            }
+
+            if ($request->method() === 'GET' && str_contains($request->url(), '/expense_categories')) {
+                return Http::response(['data' => [[
+                    'name' => '  TRAVEL ',
+                    'hashed_id' => 'category-travel',
+                ]]], 200);
+            }
+
+            $this->assertSame('https://grok.romulus.com.au/api/v1/expenses', $request->url());
+            $this->assertSame('category-travel', $request['category_id']);
+
+            return Http::response(['data' => ['hashed_id' => 'expense-1']], 201);
+        });
+
+        $this->artisan('ninja:import-harvest', [
+            'api_token' => 'test-api-token',
+            'directory' => $this->directory,
+            '--entities' => 'expense_categories,expenses',
+        ])
+            ->expectsOutputToContain('Using existing expense category: Travel')
+            ->assertSuccessful();
+
+        Http::assertNotSent(fn(Request $request): bool => $request->method() === 'POST'
+            && str_ends_with($request->url(), '/expense_categories'));
+        Http::assertSentCount(3);
+    }
+
+    public function test_it_recovers_a_duplicate_expense_category_race_without_aborting(): void
+    {
+        $this->writeExpenseCategoryExports();
+        $category_map_requests = 0;
+
+        Http::fake(function (Request $request) use (&$category_map_requests) {
+            if ($request->method() === 'GET' && str_contains($request->url(), '/clients')) {
+                return Http::response(['data' => []], 200);
+            }
+
+            if ($request->method() === 'GET' && str_contains($request->url(), '/expense_categories')) {
+                $category_map_requests++;
+
+                return Http::response(['data' => $category_map_requests === 1 ? [] : [[
+                    'name' => 'Travel',
+                    'hashed_id' => 'category-travel',
+                ]]], 200);
+            }
+
+            if (str_ends_with($request->url(), '/expense_categories')) {
+                return Http::response([
+                    'message' => 'The given data was invalid.',
+                    'errors' => ['name' => ['The name has already been taken.']],
+                ], 422);
+            }
+
+            $this->assertSame('https://grok.romulus.com.au/api/v1/expenses', $request->url());
+            $this->assertSame('category-travel', $request['category_id']);
+
+            return Http::response(['data' => ['hashed_id' => 'expense-1']], 201);
+        });
+
+        $exit_code = Artisan::call('ninja:import-harvest', [
+            'api_token' => 'test-api-token',
+            'directory' => $this->directory,
+            '--entities' => 'expense_categories,expenses',
+            '--abort-on-failure' => true,
+        ]);
+        $output = Artisan::output();
+
+        $this->assertSame(0, $exit_code);
+        $this->assertSame(2, $category_map_requests);
+        $this->assertStringContainsString('Using existing expense category: Travel', $output);
+        $this->assertStringNotContainsString('Failure report', $output);
+        $this->assertStringNotContainsString('Import aborted', $output);
+        Http::assertSentCount(5);
+    }
+
+    public function test_importing_only_expenses_uses_the_existing_expense_category_map(): void
+    {
+        $this->writeExpenseCategoryExports();
+
+        Http::fake(function (Request $request) {
+            if ($request->method() === 'GET' && str_contains($request->url(), '/clients')) {
+                return Http::response(['data' => []], 200);
+            }
+
+            if ($request->method() === 'GET' && str_contains($request->url(), '/expense_categories')) {
+                return Http::response(['data' => [[
+                    'name' => 'Travel',
+                    'hashed_id' => 'category-travel',
+                ]]], 200);
+            }
+
+            $this->assertSame('https://grok.romulus.com.au/api/v1/expenses', $request->url());
+            $this->assertSame('category-travel', $request['category_id']);
+
+            return Http::response(['data' => ['hashed_id' => 'expense-1']], 201);
+        });
+
+        $this->artisan('ninja:import-harvest', [
+            'api_token' => 'test-api-token',
+            'directory' => $this->directory,
+            '--entities' => 'expenses',
+        ])->assertSuccessful();
+
+        Http::assertSentCount(3);
     }
 
     public function test_it_creates_projects_from_exact_harvest_time_entry_headers_before_tasks(): void
@@ -975,6 +1092,119 @@ class ImportHarvestTest extends TestCase
         Http::assertSentCount(5);
     }
 
+    public function test_it_includes_quote_action_failures_in_the_failure_report(): void
+    {
+        $this->writeAllHarvestExports();
+        File::put($this->directory . '/estimates.csv', <<<'CSV'
+            Issue Date,ID,Client,Subject,Estimate Amount,Subtotal,Accepted Date
+            2026-03-01,EST-100,Acme & Co,First proposal,500,500,2026-03-04
+            2026-03-02,EST-101,Acme & Co,Second proposal,600,600,2026-03-05
+            CSV);
+        $quote_requests = 0;
+
+        Http::fake(function (Request $request) use (&$quote_requests) {
+            if ($request->method() === 'GET' && str_contains($request->url(), '/clients')) {
+                return Http::response(['data' => []], 200);
+            }
+
+            if ($request->method() === 'POST' && str_ends_with($request->url(), '/clients')) {
+                return Http::response(['data' => [
+                    'hashed_id' => $request['name'] === 'Acme & Co' ? 'client-acme' : 'client-solo',
+                ]], 201);
+            }
+
+            if ($request->method() === 'POST' && str_ends_with($request->url(), '/quotes')) {
+                $quote_requests++;
+
+                return Http::response(['data' => ['hashed_id' => 'quote-100']], 201);
+            }
+
+            $this->assertSame(
+                'https://grok.romulus.com.au/api/v1/quotes/quote-100/approve',
+                $request->url(),
+            );
+
+            return Http::response([
+                'message' => 'The quote could not be approved.',
+                'errors' => ['status_id' => ['The status transition is not available.']],
+            ], 409);
+        });
+
+        $exit_code = Artisan::call('ninja:import-harvest', [
+            'api_token' => 'test-api-token',
+            'directory' => $this->directory,
+            '--entities' => 'clients,estimates',
+            '--abort-on-failure' => true,
+        ]);
+        $output = Artisan::output();
+
+        $this->assertSame(1, $exit_code);
+        $this->assertSame(1, $quote_requests);
+        $this->assertStringContainsString('Failed estimates record', $output);
+        $this->assertStringContainsString('during action:approve; HTTP 409; fields: status_id', $output);
+        $this->assertStringContainsString('The quote could not be approved.', $output);
+        $this->assertStringContainsString('Failure report (1)', $output);
+        $this->assertStringContainsString('Import aborted after the first failure', $output);
+    }
+
+    public function test_it_includes_tax_rate_failures_in_the_failure_report(): void
+    {
+        File::put($this->directory . '/invoices.csv', <<<'CSV'
+            Issue Date,ID,Client,Invoice Amount,Subtotal,Tax,Tax2
+            2026-02-28,INV-TAX-FAIL,Example Client,113,100,13,0
+            CSV);
+        File::put($this->directory . '/invoice_line_items.csv', <<<'CSV'
+            Invoice ID,Client,Item Type,Item Description,Item Quantity,Item Unit Price,Item Amount,Item Tax,Item Tax2,Issue Date
+            INV-TAX-FAIL,Example Client,Service,Taxed work,1,100,100,13,0,2026-02-28
+            CSV);
+        File::put($this->directory . '/invoice_payments.csv', <<<'CSV'
+            Payment Date,Invoice ID,Invoice Issue Date,Client,Invoice Amount,Payment Amount,Tax,Tax2,Currency,Currency Symbol,Document Type
+            2026-03-05,INV-TAX-FAIL,2026-02-28,Example Client,113,50,0,0,CAD,$,Invoice
+            CSV);
+
+        Http::fake(function (Request $request) {
+            if ($request->method() === 'GET' && str_contains($request->url(), '/clients')) {
+                return Http::response(['data' => [[
+                    'name' => 'Example Client',
+                    'hashed_id' => 'client-example',
+                ]]], 200);
+            }
+
+            if ($request->method() === 'GET' && str_contains($request->url(), '/invoices')) {
+                return Http::response(['data' => []], 200);
+            }
+
+            if ($request->method() === 'POST' && str_ends_with($request->url(), '/invoices')) {
+                return Http::response(['data' => ['hashed_id' => 'invoice-tax-fail']], 201);
+            }
+
+            $this->assertStringEndsWith('/tax_rates', $request->url());
+
+            return Http::response([
+                'message' => 'The tax configuration could not be created.',
+                'errors' => ['rate' => ['The rate 13 is unavailable.']],
+            ], 500);
+        });
+
+        $exit_code = Artisan::call('ninja:import-harvest', [
+            'api_token' => 'test-api-token',
+            'directory' => $this->directory,
+            '--entities' => 'invoices,invoice_payments',
+            '--abort-on-failure' => true,
+        ]);
+        $output = Artisan::output();
+
+        $this->assertSame(1, $exit_code);
+        $this->assertStringContainsString('Failed tax_rates record', $output);
+        $this->assertStringContainsString('during create; HTTP 500; fields: rate', $output);
+        $this->assertStringContainsString('The tax configuration could not be created.', $output);
+        $this->assertStringContainsString('The rate [redacted-number] is unavailable.', $output);
+        $this->assertStringNotContainsString('The rate 13 is unavailable.', $output);
+        $this->assertStringContainsString('Failure report (1)', $output);
+        $this->assertStringContainsString('Import aborted after the first failure', $output);
+        Http::assertNotSent(fn(Request $request): bool => str_ends_with($request->url(), '/payments'));
+    }
+
     public function test_it_preserves_a_harvest_declined_date_without_approving_the_quote(): void
     {
         File::put($this->directory . '/estimates.csv', <<<'CSV'
@@ -1003,16 +1233,89 @@ class ImportHarvestTest extends TestCase
             ], 422)
             ->push(['data' => []], 201);
 
-        $this->artisan('ninja:import-harvest', [
+        $exit_code = Artisan::call('ninja:import-harvest', [
             'api_token' => 'test-api-token',
             'directory' => $this->directory,
             '--entities' => 'clients',
-        ])
-            ->expectsOutputToContain(
-                'Unable to import Acme & Co: API returned HTTP 422: The payload was rejected. Amount cannot exceed the invoice balance.',
-            )
-            ->expectsOutputToContain('Created client: Solo Client')
-            ->assertFailed();
+        ]);
+        $output = Artisan::output();
+        $fingerprint = substr(hash('sha256', 'harvest|clients|acme & co'), 0, 12);
+
+        $this->assertSame(1, $exit_code);
+        $this->assertStringContainsString(
+            "Failed clients record [#1 / {$fingerprint}] during create; HTTP 422; fields: amount",
+            $output,
+        );
+        $this->assertStringContainsString('The payload was rejected.', $output);
+        $this->assertStringContainsString('Amount cannot exceed the invoice balance.', $output);
+        $this->assertStringContainsString('Created client: Solo Client', $output);
+        $this->assertStringContainsString('Failure report (1)', $output);
+        $this->assertStringContainsString('http_status', $output);
+        $this->assertStringNotContainsString('Unable to import Acme & Co', $output);
+    }
+
+    public function test_abort_on_failure_stops_before_the_next_record(): void
+    {
+        $this->writeHarvestExports();
+        Http::fakeSequence()
+            ->push(['data' => []], 200)
+            ->push([
+                'message' => 'The payload was rejected.',
+                'errors' => ['name' => ['The name is unavailable.']],
+            ], 422);
+
+        $exit_code = Artisan::call('ninja:import-harvest', [
+            'api_token' => 'test-api-token',
+            'directory' => $this->directory,
+            '--entities' => 'clients',
+            '--abort-on-failure' => true,
+        ]);
+        $output = Artisan::output();
+
+        $this->assertSame(1, $exit_code);
+        $this->assertStringContainsString('Failure report (1)', $output);
+        $this->assertStringContainsString('Import aborted after the first failure', $output);
+        $this->assertStringNotContainsString('Created client: Solo Client', $output);
+        Http::assertSentCount(2);
+    }
+
+    public function test_it_redacts_payload_and_incidental_personal_data_from_exception_failures(): void
+    {
+        File::put($this->directory . '/clients.csv', <<<'CSV'
+            Client Name,Address
+            Confidential Client,"10 Private Street
+            Toronto ON M5V 1A1"
+            CSV);
+
+        Http::fake(function (Request $request) {
+            if ($request->method() === 'GET') {
+                return Http::response(['data' => []], 200);
+            }
+
+            throw new RuntimeException(
+                'Could not send Confidential Client to private.person@example.test from /private/import/clients.csv or +1 416 555 0199.',
+            );
+        });
+
+        $exit_code = Artisan::call('ninja:import-harvest', [
+            'api_token' => 'test-api-token',
+            'directory' => $this->directory,
+            '--entities' => 'clients',
+        ]);
+        $output = Artisan::output();
+
+        $this->assertSame(1, $exit_code);
+        $this->assertStringContainsString('Failed clients record', $output);
+        $this->assertStringContainsString('during create: RuntimeException:', $output);
+        $this->assertStringContainsString('Failure report (1)', $output);
+        $this->assertStringContainsString('[redacted]', $output);
+        $this->assertStringContainsString('[redacted-email]', $output);
+        $this->assertStringContainsString('[redacted-path]', $output);
+        $this->assertStringContainsString('[redacted-phone]', $output);
+        $this->assertStringNotContainsString('Confidential Client', $output);
+        $this->assertStringNotContainsString('private.person@example.test', $output);
+        $this->assertStringNotContainsString('/private/import/clients.csv', $output);
+        $this->assertStringNotContainsString('+1 416 555 0199', $output);
     }
 
     public function test_it_fails_when_the_directory_does_not_exist(): void
@@ -1044,6 +1347,18 @@ class ImportHarvestTest extends TestCase
             Acme & Co,Grace,Hopper,,grace@example.com,,0400 000 002,,CC
             Acme & Co,Ada,Lovelace,Director,ada@example.com,02 5555 1111,0400 000 001,02 5555 2222,Recipient
             Missing Client,Linus,Torvalds,,linus@example.com,02 5555 3333,,,None
+            CSV);
+    }
+
+    private function writeExpenseCategoryExports(): void
+    {
+        File::put($this->directory . '/expense_categories.csv', <<<'CSV'
+            Name
+            Travel
+            CSV);
+        File::put($this->directory . '/expenses.csv', <<<'CSV'
+            Date,Client,Project,Category,Notes,Cost,Currency,Billable?
+            2026-02-02,,,Travel,Train,45.50,CAD,Yes
             CSV);
     }
 

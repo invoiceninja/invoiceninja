@@ -309,7 +309,7 @@ class ClientController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $client, $request->input('is_public', true));
+            $this->saveDocuments($request->file('documents'), $client, $request->has('is_public') ? $request->boolean('is_public') : null);
         }
 
         return $this->itemResponse($client->fresh());
