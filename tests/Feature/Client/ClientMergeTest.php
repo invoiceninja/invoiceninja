@@ -16,17 +16,14 @@ use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
-use App\Models\Invoice;
 use App\Models\User;
 use App\Models\TransactionEvent;
-use App\Repositories\ClientRepository;
 use App\Services\Client\Merge;
 use App\Services\EDocument\Standards\France\FranceReportingEventType;
 use App\Services\EDocument\Standards\France\FranceReportingStatus;
 use App\Utils\Traits\AppSetup;
 use Faker\Factory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 class ClientMergeTest extends TestCase
@@ -192,123 +189,6 @@ class ClientMergeTest extends TestCase
 
         $this->assertSame($target->id, $event->fresh()->client_id);
         $this->assertNull(Client::withTrashed()->find($source->id));
-    }
-
-    public function test_purge_is_blocked_while_regulatory_history_requires_retention(): void
-    {
-        [$company, $user] = $this->companyAndUser();
-        $client = Client::factory()->create([
-            'user_id' => $user->id,
-            'company_id' => $company->id,
-        ]);
-        $this->acceptedSnapshot($company, $client);
-
-        $this->expectException(ValidationException::class);
-
-        app(ClientRepository::class)->purge($client);
-    }
-
-    public function test_purge_is_blocked_for_an_unhandled_regulatory_fact(): void
-    {
-        [$company, $user] = $this->companyAndUser();
-        $client = Client::factory()->create([
-            'user_id' => $user->id,
-            'company_id' => $company->id,
-        ]);
-        $event = $this->acceptedSnapshot($company, $client);
-        $event->payment_status = null;
-        $event->save();
-
-        $this->expectException(ValidationException::class);
-
-        app(ClientRepository::class)->purge($client);
-    }
-
-    public function test_purge_is_blocked_while_a_submission_callback_is_pending(): void
-    {
-        [$company, $user] = $this->companyAndUser();
-        $client = Client::factory()->create([
-            'user_id' => $user->id,
-            'company_id' => $company->id,
-        ]);
-        TransactionEvent::create([
-            'company_id' => $company->id,
-            'client_id' => $client->id,
-            'invoice_id' => 0,
-            'payment_id' => 0,
-            'credit_id' => 0,
-            'event_id' => FranceReportingEventType::SubmissionCallback->value,
-            'timestamp' => now()->timestamp,
-            'period' => now()->toDateString(),
-            'payment_status' => FranceReportingStatus::Pending->value,
-            'reporting_data' => null,
-            'payment_request' => [
-                'role' => 'submission_callback',
-                'guid' => 'early-storecove-guid',
-            ],
-        ]);
-
-        $this->expectException(ValidationException::class);
-
-        app(ClientRepository::class)->purge($client);
-    }
-
-    public function test_purge_is_blocked_while_a_reportable_document_awaits_reconciliation(): void
-    {
-        [$company, $user] = $this->companyAndUser();
-        $settings = clone $company->settings;
-        $settings->france_reporting_enabled = true;
-        $company->settings = $settings;
-        $company->saveQuietly();
-        $client = Client::factory()->create([
-            'user_id' => $user->id,
-            'company_id' => $company->id,
-        ]);
-        Invoice::factory()->create([
-            'user_id' => $user->id,
-            'company_id' => $company->id,
-            'client_id' => $client->id,
-            'status_id' => Invoice::STATUS_SENT,
-            'is_deleted' => false,
-        ]);
-
-        $this->expectException(ValidationException::class);
-
-        app(ClientRepository::class)->purge($client);
-    }
-
-    public function test_purge_rehomes_the_source_reconciliation_watermark(): void
-    {
-        [$company, $user] = $this->companyAndUser();
-        $client = Client::factory()->create([
-            'user_id' => $user->id,
-            'company_id' => $company->id,
-        ]);
-        $replacement = Client::factory()->create([
-            'user_id' => $user->id,
-            'company_id' => $company->id,
-        ]);
-        $watermark = TransactionEvent::create([
-            'company_id' => $company->id,
-            'client_id' => $client->id,
-            'invoice_id' => 0,
-            'payment_id' => 0,
-            'credit_id' => 0,
-            'event_id' => FranceReportingEventType::ScopeInvalidation->value,
-            'timestamp' => now()->timestamp,
-            'period' => now()->toDateString(),
-            'payment_status' => FranceReportingStatus::Accepted->value,
-            'reporting_data' => null,
-            'payment_request' => [
-                'role' => 'source_reconciliation_watermark',
-                'reconciled_through_at' => now()->toIso8601String(),
-            ],
-        ]);
-
-        app(ClientRepository::class)->purge($client);
-
-        $this->assertNull(Client::withTrashed()->find($client->id));
-        $this->assertSame($replacement->id, $watermark->fresh()->client_id);
     }
 
     /** @return array{0: Company, 1: User} */

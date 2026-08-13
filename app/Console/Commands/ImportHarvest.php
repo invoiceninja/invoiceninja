@@ -23,8 +23,9 @@ use Throwable;
 
 class ImportHarvest extends Command
 {
-    private const API_ENDPOINT = 'https://grok.romulus.com.au/api/v1';
+    // private const API_ENDPOINT = 'https://grok.romulus.com.au/api/v1';
 
+    private const API_ENDPOINT = 'http://localhost:8013/api/v1';
     /**
      * The name and signature of the console command.
      *

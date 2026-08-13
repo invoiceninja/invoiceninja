@@ -13,9 +13,8 @@
 namespace App\Http\Requests\Client;
 
 use App\Http\Requests\Request;
-use App\Utils\Ninja;
 
-class PurgeClientRequest extends Request
+class MergeClientRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,14 +25,6 @@ class PurgeClientRequest extends Request
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
-
-        $company = $user->company();
-
-        if ($this->route()?->getActionMethod() === 'purge'
-            && Ninja::isHosted()
-            && $company->getSetting('france_reporting_enabled')) {
-            return false;
-        }
 
         return $user->isAdmin() && $user->can('edit', $this->client);
     }
