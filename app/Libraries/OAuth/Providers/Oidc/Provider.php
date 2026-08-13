@@ -41,6 +41,38 @@ class Provider extends AbstractProvider implements ProviderInterface
     public const IDENTIFIER = 'OIDC';
 
     /**
+     * Asymmetric-signature algorithms we are willing to verify an
+     * id_token with. HMAC (`HS*`) and `none` are deliberately absent —
+     * JWKS is public-key material, so any `HS*` alg against a JWKS key
+     * would be an alg-confusion attack (the public key bytes become
+     * the HMAC secret). Used only when the IdP's discovery document
+     * omits `id_token_signing_alg_values_supported`.
+     *
+     * @var string[]
+     */
+    protected const ID_TOKEN_ALG_ALLOWLIST = [
+        'RS256', 'RS384', 'RS512',
+        'PS256', 'PS384', 'PS512',
+        'ES256', 'ES384', 'ES512',
+        'EdDSA',
+    ];
+
+    /**
+     * Map from a signing alg to the JWK `kty` value we require on the
+     * matching public key. Enforced so a JWK of the wrong shape cannot
+     * be reinterpreted as material for a different algorithm family
+     * (again: alg-confusion defence).
+     *
+     * @var array<string,string>
+     */
+    protected const ALG_KTY_MAP = [
+        'RS256' => 'RSA', 'RS384' => 'RSA', 'RS512' => 'RSA',
+        'PS256' => 'RSA', 'PS384' => 'RSA', 'PS512' => 'RSA',
+        'ES256' => 'EC',  'ES384' => 'EC',  'ES512' => 'EC',
+        'EdDSA' => 'OKP',
+    ];
+
+    /**
      * Extra config keys the SocialiteProviders/Manager should hydrate onto
      * the driver instance. Required by the manager convention even when we
      * pull everything else from the .well-known discovery document.
@@ -198,15 +230,55 @@ class Provider extends AbstractProvider implements ProviderInterface
             throw new \RuntimeException('OIDC discovery document is missing issuer or jwks_uri.');
         }
 
-        // Some IdPs publish JWKS entries without an `alg` field; without a
-        // default the parser rejects the whole key set. Read the alg from
-        // the id_token header and use it as the default so the parse
-        // succeeds for both alg-tagged and untagged keys.
-        $tokenAlg = $this->idTokenAlg($idToken);
-        $keys = JWK::parseKeySet($this->jwks($jwksUri), $tokenAlg);
+        // The header is read *only* to choose which JWKS entry to try
+        // and which alg the caller claims — every field it reports has
+        // to be re-validated against server-trusted metadata before we
+        // decode, otherwise an attacker who controls the token can
+        // steer us into an alg-confusion attack (e.g. HS256 against an
+        // EC public key). See:
+        // https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
+        $header = $this->idTokenHeader($idToken);
+        $alg = $header['alg'] ?? null;
+        $kid = $header['kid'] ?? null;
+
+        if (!is_string($alg) || $alg === '') {
+            throw new \RuntimeException('OIDC id_token header is missing alg.');
+        }
+
+        // Hard allowlist. Rejects `HS*`, `none`, and anything else the
+        // IdP has no business signing an id_token with.
+        if (!array_key_exists($alg, self::ALG_KTY_MAP)) {
+            throw new \RuntimeException('OIDC id_token uses an unsupported or unsafe alg: ' . $alg);
+        }
+
+        // OIDC Discovery §3 requires id_token_signing_alg_values_supported.
+        // When the IdP publishes it we honour it exactly; otherwise fall
+        // back to our own asymmetric-only allowlist rather than trusting
+        // the token header.
+        $supportedAlgs = $discovery['id_token_signing_alg_values_supported'] ?? self::ID_TOKEN_ALG_ALLOWLIST;
+
+        if (!is_array($supportedAlgs) || !in_array($alg, $supportedAlgs, true)) {
+            throw new \RuntimeException('OIDC id_token alg ' . $alg . ' is not in the IdP advertised signing algorithms.');
+        }
+
+        $jwks = $this->jwks($jwksUri);
+        $jwk = $this->pickJwk(is_array($jwks['keys'] ?? null) ? $jwks['keys'] : [], is_string($kid) ? $kid : null, $alg);
+
+        // The JWK's kty must match the alg family (RSA/EC/OKP). Without
+        // this check a JWK of the wrong type could be coerced into
+        // material for an alg it was never issued for.
+        if (($jwk['kty'] ?? null) !== self::ALG_KTY_MAP[$alg]) {
+            throw new \RuntimeException('OIDC JWK kty does not match id_token alg family.');
+        }
+
+        // Overwrite the JWK's own `alg` (if any) with our validated
+        // value so JWK::parseKey cannot be nudged into a different
+        // algorithm by a hostile JWKS document.
+        $jwk['alg'] = $alg;
 
         try {
-            $claims = (array) JWT::decode($idToken, $keys);
+            $key = JWK::parseKey($jwk, $alg);
+            $claims = (array) JWT::decode($idToken, $key);
         } catch (\Throwable $e) {
             throw new \RuntimeException('OIDC id_token signature verification failed: ' . $e->getMessage(), 0, $e);
         }
@@ -230,17 +302,21 @@ class Provider extends AbstractProvider implements ProviderInterface
     }
 
     /**
-     * Read the `alg` header of a JWS-compact serialised id_token.
+     * Decode the JOSE header of a JWS-compact serialised id_token.
      *
-     * Falls back to RS256 (the OIDC-registered default) when the header is
-     * missing an alg, so callers always get a usable value to hand to the
-     * JWKS parser.
+     * Callers must treat every field returned here as attacker-controlled
+     * until it is cross-checked against server-trusted metadata (JWKS,
+     * discovery). This helper deliberately performs no validation of its
+     * own — it just parses base64url + JSON.
+     *
+     * @return array<string,mixed>
      */
-    protected function idTokenAlg(string $idToken): string
+    protected function idTokenHeader(string $idToken): array
     {
         $segments = explode('.', $idToken);
+
         if (count($segments) < 2) {
-            return 'RS256';
+            throw new \RuntimeException('OIDC id_token is not a JWS compact serialization.');
         }
 
         $header = json_decode(
@@ -248,9 +324,51 @@ class Provider extends AbstractProvider implements ProviderInterface
             true
         );
 
-        $alg = is_array($header) ? ($header['alg'] ?? null) : null;
+        if (!is_array($header)) {
+            throw new \RuntimeException('OIDC id_token header is not valid JSON.');
+        }
 
-        return is_string($alg) && $alg !== '' ? $alg : 'RS256';
+        return $header;
+    }
+
+    /**
+     * Pick the JWKS entry to verify against, preferring an exact `kid`
+     * match and otherwise the single key whose `kty` fits the alg.
+     *
+     * We fail loudly instead of returning "some key that might work" —
+     * ambiguity in key selection is another vector for alg-confusion.
+     *
+     * @param array<int,array<string,mixed>> $jwks
+     * @return array<string,mixed>
+     */
+    protected function pickJwk(array $jwks, ?string $kid, string $alg): array
+    {
+        $expectedKty = self::ALG_KTY_MAP[$alg] ?? null;
+
+        if ($kid !== null && $kid !== '') {
+            foreach ($jwks as $jwk) {
+                if (is_array($jwk) && ($jwk['kid'] ?? null) === $kid) {
+                    return $jwk;
+                }
+            }
+
+            throw new \RuntimeException('OIDC id_token kid does not match any JWKS entry.');
+        }
+
+        $candidates = array_values(array_filter(
+            $jwks,
+            fn ($jwk) => is_array($jwk) && ($jwk['kty'] ?? null) === $expectedKty
+        ));
+
+        if (count($candidates) === 0) {
+            throw new \RuntimeException('OIDC JWKS has no key compatible with id_token alg.');
+        }
+
+        if (count($candidates) > 1) {
+            throw new \RuntimeException('OIDC id_token has no kid and JWKS is ambiguous.');
+        }
+
+        return $candidates[0];
     }
 
     /**
