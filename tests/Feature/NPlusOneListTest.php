@@ -115,6 +115,16 @@ class NPlusOneListTest extends TestCase
 
         [$secondCount, $secondEntities, $secondQueries] = $this->measureQueryCount($url);
 
+        if ($endpoint === 'payments') {
+            fwrite(STDERR, json_encode([
+                'baseline_count' => $baselineCount,
+                'baseline_entities' => $baselineEntities,
+                'second_count' => $secondCount,
+                'second_entities' => $secondEntities,
+                'queries' => array_column($secondQueries, 'query'),
+            ], JSON_PRETTY_PRINT).PHP_EOL);
+        }
+
         $this->assertGreaterThan(
             $baselineEntities,
             $secondEntities,
@@ -232,14 +242,33 @@ class NPlusOneListTest extends TestCase
 
     public function testPaymentListNPlusOne(): void
     {
-        $this->assertNoNPlusOne('payments', 'client,invoices', function ($i) {
-            Payment::factory()->create([
+        $contact = ClientContact::query()
+            ->where('client_id', $this->client->id)
+            ->firstOrFail();
+
+        $this->assertNoNPlusOne('payments', 'client,invoices', function ($i) use ($contact) {
+            $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+            $invoice->client_id = $this->client->id;
+            $invoice->line_items = InvoiceItemFactory::generate(1);
+            $invoice->uses_inclusive_taxes = false;
+            $invoice->save();
+
+            InvoiceInvitation::factory()->create([
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'client_contact_id' => $contact->id,
+                'invoice_id' => $invoice->id,
+            ]);
+
+            $payment = Payment::factory()->create([
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,
                 'client_id' => $this->client->id,
                 'amount' => 100,
-                'applied' => 0,
+                'applied' => 100,
             ]);
+
+            $payment->invoices()->attach($invoice->id, ['amount' => 100]);
         });
     }
 

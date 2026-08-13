@@ -59,6 +59,13 @@ class ImportHarvestTest extends TestCase
         parent::tearDown();
     }
 
+    private function harvestApiUrl(string $path = ''): string
+    {
+        $path = $path === '' || str_starts_with($path, '/') ? $path : '/' . $path;
+
+        return rtrim((string) config('app.url'), '/') . '/api/v1' . $path;
+    }
+
     public function test_it_merges_harvest_clients_and_contacts_into_api_payloads(): void
     {
         $this->writeHarvestExports();
@@ -417,8 +424,8 @@ class ImportHarvestTest extends TestCase
         ])->assertSuccessful();
 
         Http::assertSentCount(4);
-        Http::assertSent(fn(Request $request): bool => $request->url() === 'https://grok.romulus.com.au/api/v1/products');
-        Http::assertNotSent(fn(Request $request): bool => $request->url() === 'https://grok.romulus.com.au/api/v1/projects');
+        Http::assertSent(fn(Request $request): bool => $request->url() === $this->harvestApiUrl() . '/products');
+        Http::assertNotSent(fn(Request $request): bool => $request->url() === $this->harvestApiUrl() . '/projects');
     }
 
     public function test_it_sends_selected_entities_without_enforcing_dependencies(): void
@@ -433,7 +440,7 @@ class ImportHarvestTest extends TestCase
                 ]]], 200);
             }
 
-            $this->assertSame('https://grok.romulus.com.au/api/v1/projects', $request->url());
+            $this->assertSame($this->harvestApiUrl() . '/projects', $request->url());
             $this->assertSame('existing-client-acme', $request['client_id']);
 
             return Http::response(['data' => ['id' => 'project-website']], 201);
@@ -457,7 +464,7 @@ class ImportHarvestTest extends TestCase
                 return Http::response(['data' => []], 200);
             }
 
-            $this->assertSame('https://grok.romulus.com.au/api/v1/projects', $request->url());
+            $this->assertSame($this->harvestApiUrl() . '/projects', $request->url());
             $this->assertFalse(isset($request['client_id']));
 
             return Http::response(['data' => ['id' => 'project-website']], 201);
@@ -522,7 +529,7 @@ class ImportHarvestTest extends TestCase
                 ]], 201);
             }
 
-            $this->assertSame('https://grok.romulus.com.au/api/v1/tasks', $request->url());
+            $this->assertSame($this->harvestApiUrl() . '/tasks', $request->url());
             $this->assertSame('client-acme', $request['client_id']);
             $this->assertSame('project-website', $request['project_id']);
 
@@ -537,14 +544,14 @@ class ImportHarvestTest extends TestCase
 
         Http::assertSentCount(8);
         $this->assertSame([
-            'https://grok.romulus.com.au/api/v1/clients?per_page=1000&page=1',
-            'https://grok.romulus.com.au/api/v1/clients',
-            'https://grok.romulus.com.au/api/v1/clients',
-            'https://grok.romulus.com.au/api/v1/clients?per_page=1000&page=1',
-            'https://grok.romulus.com.au/api/v1/projects?per_page=1000&page=1',
-            'https://grok.romulus.com.au/api/v1/projects',
-            'https://grok.romulus.com.au/api/v1/projects?per_page=1000&page=1',
-            'https://grok.romulus.com.au/api/v1/tasks',
+            $this->harvestApiUrl() . '/clients?per_page=1000&page=1',
+            $this->harvestApiUrl() . '/clients',
+            $this->harvestApiUrl() . '/clients',
+            $this->harvestApiUrl() . '/clients?per_page=1000&page=1',
+            $this->harvestApiUrl() . '/projects?per_page=1000&page=1',
+            $this->harvestApiUrl() . '/projects',
+            $this->harvestApiUrl() . '/projects?per_page=1000&page=1',
+            $this->harvestApiUrl() . '/tasks',
         ], $request_urls);
     }
 
@@ -564,7 +571,7 @@ class ImportHarvestTest extends TestCase
                 ]]], 200);
             }
 
-            $this->assertSame('https://grok.romulus.com.au/api/v1/expenses', $request->url());
+            $this->assertSame($this->harvestApiUrl() . '/expenses', $request->url());
             $this->assertSame('category-travel', $request['category_id']);
 
             return Http::response(['data' => ['hashed_id' => 'expense-1']], 201);
@@ -609,7 +616,7 @@ class ImportHarvestTest extends TestCase
                 ], 422);
             }
 
-            $this->assertSame('https://grok.romulus.com.au/api/v1/expenses', $request->url());
+            $this->assertSame($this->harvestApiUrl() . '/expenses', $request->url());
             $this->assertSame('category-travel', $request['category_id']);
 
             return Http::response(['data' => ['hashed_id' => 'expense-1']], 201);
@@ -647,7 +654,7 @@ class ImportHarvestTest extends TestCase
                 ]]], 200);
             }
 
-            $this->assertSame('https://grok.romulus.com.au/api/v1/expenses', $request->url());
+            $this->assertSame($this->harvestApiUrl() . '/expenses', $request->url());
             $this->assertSame('category-travel', $request['category_id']);
 
             return Http::response(['data' => ['hashed_id' => 'expense-1']], 201);
@@ -700,7 +707,7 @@ class ImportHarvestTest extends TestCase
                 return Http::response(['data' => ['id' => 'project-migration']], 201);
             }
 
-            $this->assertSame('https://grok.romulus.com.au/api/v1/tasks', $request->url());
+            $this->assertSame($this->harvestApiUrl() . '/tasks', $request->url());
             $this->assertSame('client-acme', $request['client_id']);
             $this->assertSame('project-migration', $request['project_id']);
             $this->assertSame("Development\nBuilt import pipeline", $request['description']);
@@ -720,12 +727,12 @@ class ImportHarvestTest extends TestCase
 
         Http::assertSentCount(6);
         $this->assertSame([
-            'https://grok.romulus.com.au/api/v1/clients?per_page=1000&page=1',
-            'https://grok.romulus.com.au/api/v1/clients?per_page=1000&page=1',
-            'https://grok.romulus.com.au/api/v1/projects?per_page=1000&page=1',
-            'https://grok.romulus.com.au/api/v1/projects',
-            'https://grok.romulus.com.au/api/v1/projects?per_page=1000&page=1',
-            'https://grok.romulus.com.au/api/v1/tasks',
+            $this->harvestApiUrl() . '/clients?per_page=1000&page=1',
+            $this->harvestApiUrl() . '/clients?per_page=1000&page=1',
+            $this->harvestApiUrl() . '/projects?per_page=1000&page=1',
+            $this->harvestApiUrl() . '/projects',
+            $this->harvestApiUrl() . '/projects?per_page=1000&page=1',
+            $this->harvestApiUrl() . '/tasks',
         ], $request_urls);
     }
 
@@ -768,7 +775,7 @@ class ImportHarvestTest extends TestCase
                 ]]], 200);
             }
 
-            $this->assertSame('https://grok.romulus.com.au/api/v1/tasks', $request->url());
+            $this->assertSame($this->harvestApiUrl() . '/tasks', $request->url());
             $this->assertSame('existing-project-migration', $request['project_id']);
 
             return Http::response(['data' => ['id' => 'task-migration']], 201);
@@ -833,7 +840,7 @@ class ImportHarvestTest extends TestCase
                     : Http::response(['data' => ['id' => 'tax-rate-1']], 201);
             }
 
-            $this->assertSame('https://grok.romulus.com.au/api/v1/payments', $request->url());
+            $this->assertSame($this->harvestApiUrl() . '/payments', $request->url());
             $this->assertSame('client-acme', $request['client_id']);
             $this->assertSame('invoice-100', $request['invoices'][0]['invoice_id']);
 
@@ -848,14 +855,14 @@ class ImportHarvestTest extends TestCase
 
         Http::assertSentCount(8);
         $this->assertSame([
-            'https://grok.romulus.com.au/api/v1/clients?per_page=1000&page=1',
-            'https://grok.romulus.com.au/api/v1/invoices?per_page=1000&page=1',
-            'https://grok.romulus.com.au/api/v1/clients',
-            'https://grok.romulus.com.au/api/v1/clients',
-            'https://grok.romulus.com.au/api/v1/invoices',
-            'https://grok.romulus.com.au/api/v1/tax_rates',
-            'https://grok.romulus.com.au/api/v1/tax_rates',
-            'https://grok.romulus.com.au/api/v1/payments',
+            $this->harvestApiUrl() . '/clients?per_page=1000&page=1',
+            $this->harvestApiUrl() . '/invoices?per_page=1000&page=1',
+            $this->harvestApiUrl() . '/clients',
+            $this->harvestApiUrl() . '/clients',
+            $this->harvestApiUrl() . '/invoices',
+            $this->harvestApiUrl() . '/tax_rates',
+            $this->harvestApiUrl() . '/tax_rates',
+            $this->harvestApiUrl() . '/payments',
         ], $request_urls);
     }
 
@@ -885,7 +892,7 @@ class ImportHarvestTest extends TestCase
             }
 
             $this->assertSame('POST', $request->method());
-            $this->assertSame('https://grok.romulus.com.au/api/v1/payments', $request->url());
+            $this->assertSame($this->harvestApiUrl() . '/payments', $request->url());
             $this->assertSame('client-acme', $request['client_id']);
             $this->assertSame(200.0, $request['amount']);
             $this->assertSame('2026-03-10', $request['date']);
@@ -1076,7 +1083,7 @@ class ImportHarvestTest extends TestCase
             }
 
             $this->assertSame('GET', $request->method());
-            $this->assertSame('https://grok.romulus.com.au/api/v1/quotes/quote-100/approve', $request->url());
+            $this->assertSame($this->harvestApiUrl() . '/quotes/quote-100/approve', $request->url());
 
             return Http::response(['data' => ['id' => 'quote-100', 'status_id' => 3]], 200);
         });
@@ -1120,7 +1127,7 @@ class ImportHarvestTest extends TestCase
             }
 
             $this->assertSame(
-                'https://grok.romulus.com.au/api/v1/quotes/quote-100/approve',
+                $this->harvestApiUrl() . '/quotes/quote-100/approve',
                 $request->url(),
             );
 

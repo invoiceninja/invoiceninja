@@ -263,6 +263,38 @@ class PaymentFilters extends QueryFilters
 
         return $this->builder->orderBy($sort_col[0], $dir);
     }
+    
+    /**
+     * include
+     *
+     * Ensure we pad out additional includes to prevent N+1 queries
+     * 
+     * @param  string $includes
+     * @return Builder
+     */
+    public function include(string $includes = ''): Builder
+    {
+        $include_roots = array_map(
+            static fn (string $include): string => explode('.', trim($include), 2)[0],
+            explode(',', $includes)
+        );
+
+        if (in_array('invoices', $include_roots, true)) {
+            $this->builder->with([
+                'invoices.invitations.company',
+                'invoices.invitations.contact',
+                'invoices.documents',
+            ]);
+        }
+
+        if (in_array('client', $include_roots, true)) {
+            $this->builder->with([
+                'client.locations',
+            ]);
+        }
+
+        return $this->builder;
+    }
 
     /**
      * Filters the query by the users company ID.

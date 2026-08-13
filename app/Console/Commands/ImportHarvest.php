@@ -23,9 +23,6 @@ use Throwable;
 
 class ImportHarvest extends Command
 {
-    // private const API_ENDPOINT = 'https://grok.romulus.com.au/api/v1';
-
-    private const API_ENDPOINT = 'http://localhost:8013/api/v1';
     /**
      * The name and signature of the console command.
      *
@@ -361,7 +358,7 @@ class ImportHarvest extends Command
             do {
                 $response = Http::acceptJson()
                     ->withHeaders(['X-API-TOKEN' => $api_token])
-                    ->get(rtrim(self::API_ENDPOINT, '/') . '/clients', [
+                    ->get($this->apiBaseUrl() . '/clients', [
                         'per_page' => 1000,
                         'page' => $page,
                     ]);
@@ -414,7 +411,7 @@ class ImportHarvest extends Command
             do {
                 $response = Http::acceptJson()
                     ->withHeaders(['X-API-TOKEN' => $api_token])
-                    ->get(rtrim(self::API_ENDPOINT, '/') . '/invoices', [
+                    ->get($this->apiBaseUrl() . '/invoices', [
                         'per_page' => 1000,
                         'page' => $page,
                     ]);
@@ -470,7 +467,7 @@ class ImportHarvest extends Command
             do {
                 $response = Http::acceptJson()
                     ->withHeaders(['X-API-TOKEN' => $api_token])
-                    ->get(rtrim(self::API_ENDPOINT, '/') . '/expense_categories', [
+                    ->get($this->apiBaseUrl() . '/expense_categories', [
                         'per_page' => 1000,
                         'page' => $page,
                     ]);
@@ -546,7 +543,7 @@ class ImportHarvest extends Command
             do {
                 $response = Http::acceptJson()
                     ->withHeaders(['X-API-TOKEN' => $api_token])
-                    ->get(rtrim(self::API_ENDPOINT, '/') . '/projects', [
+                    ->get($this->apiBaseUrl() . '/projects', [
                         'per_page' => 1000,
                         'page' => $page,
                     ]);
@@ -880,7 +877,7 @@ class ImportHarvest extends Command
             try {
                 $response = Http::acceptJson()
                     ->withHeaders(['X-API-TOKEN' => $api_token])
-                    ->post(rtrim(self::API_ENDPOINT, '/') . '/tax_rates', $tax_rate);
+                    ->post($this->apiBaseUrl() . '/tax_rates', $tax_rate);
 
                 if ($response->status() === 422) {
                     $this->components->info("Tax rate already exists: {$tax_rate['name']}");
@@ -1167,9 +1164,14 @@ class ImportHarvest extends Command
         ));
     }
 
+    private function apiBaseUrl(): string
+    {
+        return rtrim((string) config('app.url'), '/') . '/api/v1';
+    }
+
     private function apiEndpoint(Entity $entity): string
     {
-        return rtrim(self::API_ENDPOINT, '/') . '/' . $entity->endpoint();
+        return $this->apiBaseUrl() . '/' . $entity->endpoint();
     }
 
     private function optionString(string $name): ?string
