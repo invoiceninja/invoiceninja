@@ -263,20 +263,25 @@ class PaymentFilters extends QueryFilters
 
         return $this->builder->orderBy($sort_col[0], $dir);
     }
-    
+
     /**
      * include
      *
      * Ensure we pad out additional includes to prevent N+1 queries
-     * 
+     *
      * @param  string $includes
      * @return Builder
      */
     public function include(string $includes = ''): Builder
     {
+        $requested_includes = array_values(array_filter(
+            array_map('trim', explode(',', $includes)),
+            static fn (string $include): bool => $include !== ''
+        ));
+
         $include_roots = array_map(
             static fn (string $include): string => explode('.', trim($include), 2)[0],
-            explode(',', $includes)
+            $requested_includes
         );
 
         if (in_array('invoices', $include_roots, true)) {
@@ -287,13 +292,49 @@ class PaymentFilters extends QueryFilters
             ]);
         }
 
+        if (in_array('credits', $include_roots, true)) {
+            $this->builder->with([
+                'credits.invitations.company',
+                'credits.invitations.contact',
+                'credits.documents',
+            ]);
+        }
+
         if (in_array('client', $include_roots, true)) {
             $this->builder->with([
                 'client.locations',
             ]);
         }
 
+        if ($this->includesPath($requested_includes, 'invoices.client')) {
+            $this->builder->with([
+                'invoices.client.locations',
+            ]);
+        }
+
+        if ($this->includesPath($requested_includes, 'invoices.credits')) {
+            $this->builder->with([
+                'invoices.credits.invitations.company',
+                'invoices.credits.invitations.contact',
+                'invoices.credits.documents',
+            ]);
+        }
+
         return $this->builder;
+    }
+
+    /**
+     * @param array<int, string> $requested_includes
+     */
+    private function includesPath(array $requested_includes, string $path): bool
+    {
+        foreach ($requested_includes as $include) {
+            if ($include === $path || str_starts_with($include, "{$path}.")) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
