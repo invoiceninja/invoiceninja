@@ -81,6 +81,6 @@ class ValidateCreditEntityTest extends TestCase
             'entity_id' => $this->credit->hashed_id,
         ]);
 
-        $response->assertStatus(422);
+        $response->assertStatus(401);
     }
 }
