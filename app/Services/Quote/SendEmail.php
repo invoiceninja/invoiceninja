@@ -69,6 +69,7 @@ class SendEmail
         return match ($template) {
             'quote' => 'email_template_quote',
             'reminder1' => 'email_quote_template_reminder1',
+            'endless_reminder', 'reminder_endless', 'email_template_reminder_endless' => 'email_template_reminder_endless',
             'custom1' => 'email_template_custom1',
             'custom2' => 'email_template_custom2',
             'custom3' => 'email_template_custom3',
