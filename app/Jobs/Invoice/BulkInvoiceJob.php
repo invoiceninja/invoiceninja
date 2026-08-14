@@ -126,7 +126,7 @@ class BulkInvoiceJob implements ShouldQueue
             'reminder1' => 'email_template_reminder1',
             'reminder2' => 'email_template_reminder2',
             'reminder3' => 'email_template_reminder3',
-            'endless_reminder' => 'email_template_reminder_endless',
+            'endless_reminder', 'reminder_endless', 'email_template_reminder_endless' => 'email_template_reminder_endless',
             'custom1' => 'email_template_custom1',
             'custom2' => 'email_template_custom2',
             'custom3' => 'email_template_custom3',
