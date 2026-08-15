@@ -511,7 +511,7 @@ class TaskApiTest extends TestCase
 
         $response->assertStatus(200);
 
-        nlog($response->json());
+        // nlog($response->json());
 
     }
     public function testUserFilters()

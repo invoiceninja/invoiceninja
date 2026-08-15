@@ -13,6 +13,7 @@ export interface TestAccount {
 const DEFAULT_ACCOUNT_COUNT = 8;
 const DEFAULT_OWNER_EMAIL = 'user@example.com';
 const DEFAULT_PASSWORD = 'password';
+export const SMALL_ACCOUNT_EMAIL = 'small@example.com';
 
 const accountCount = positiveInt(
     process.env.PLAYWRIGHT_ACCOUNT_COUNT ?? process.env.E2E_ACCOUNT_COUNT,
@@ -33,6 +34,16 @@ export function accountForParallelIndex(parallelIndex: number): TestAccount {
     }
 
     return createTestAccount(accountId);
+}
+
+/** Hosted-plan / white-label purchase lane (matches NINJA_COMPANY_ID). */
+export function smallTestAccount(): TestAccount {
+    return {
+        id: 0,
+        ownerEmail: SMALL_ACCOUNT_EMAIL,
+        password: DEFAULT_PASSWORD,
+        apiUrl: resolvePlaywrightUrls().apiUrl,
+    };
 }
 
 export function createTestAccount(id: number): TestAccount {
