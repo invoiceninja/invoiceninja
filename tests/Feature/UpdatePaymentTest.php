@@ -35,7 +35,6 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Session;
-use RuntimeException;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -299,23 +298,17 @@ class UpdatePaymentTest extends TestCase
         );
     }
 
-    public function testPaymentDateAndApplicationRemainUnchangedWhenFranceFactCaptureFails(): void
+    public function testPaymentDateUpdateSkipsFranceFactCaptureWhenReportingIsDisabled(): void
     {
         [$payment, $paymentable] = $this->createPaymentApplication('2026-08-31', '2026-08-31');
         $this->mock(FrancePaymentApplicationRecorder::class)
             ->shouldReceive('recordApplicationDateChange')
-            ->once()
-            ->andThrow(new RuntimeException('France fact write failed.'));
+            ->never();
 
-        try {
-            $this->updatePaymentDate($payment, '2026-09-01');
-            $this->fail('The payment update should fail when its reporting fact cannot be written.');
-        } catch (RuntimeException $exception) {
-            $this->assertSame('France fact write failed.', $exception->getMessage());
-        }
+        $this->updatePaymentDate($payment, '2026-09-01')->assertStatus(200);
 
-        $this->assertSame('2026-08-31', $payment->fresh()->date);
-        $this->assertSame('2026-08-31', $this->applicationDate($this->findPaymentable($paymentable->id)));
+        $this->assertSame('2026-09-01', $payment->fresh()->date);
+        $this->assertSame('2026-09-01', $this->applicationDate($this->findPaymentable($paymentable->id)));
     }
 
     public function test_source_reconciliation_detects_an_api_payment_type_update(): void

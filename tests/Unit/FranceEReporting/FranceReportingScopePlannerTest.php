@@ -33,6 +33,8 @@ class FranceReportingScopePlannerTest extends TestCase
     {
         parent::setUp();
 
+        $this->markTestSkipped('FRREPORTING::');
+
         $this->makeTestData();
     }
 

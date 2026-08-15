@@ -45,7 +45,7 @@ class ProjectRepository extends BaseRepository
         }
 
         if (array_key_exists('documents', $data)) {
-            $this->saveDocuments($data['documents'], $project, $data['is_public'] ?? true);
+            $this->saveDocuments($data['documents'], $project, array_key_exists('is_public', $data) ? (bool) $data['is_public'] : null);
         }
 
         $this->syncResolvedTags($project, $tag_ids);

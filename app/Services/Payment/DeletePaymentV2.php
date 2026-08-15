@@ -247,26 +247,26 @@ class DeletePaymentV2
 
                 }
 
-                $paymentable_invoice->loadMissing(['client.country', 'client.company']);
+                // $paymentable_invoice->loadMissing(['client.country', 'client.company']);
 
-                if ($paymentable_invoice->client->reportableFrTransaction()) {
-                    $paymentable = Paymentable::withTrashed()
-                        ->where('payment_id', $this->payment->id)
-                        ->where('paymentable_id', $paymentable_invoice->id)
-                        ->where('paymentable_type', 'invoices')
-                        ->latest('id')
-                        ->first();
+                // if ($paymentable_invoice->client->reportableFrTransaction()) {
+                //     $paymentable = Paymentable::withTrashed()
+                //         ->where('payment_id', $this->payment->id)
+                //         ->where('paymentable_id', $paymentable_invoice->id)
+                //         ->where('paymentable_type', 'invoices')
+                //         ->latest('id')
+                //         ->first();
 
-                    app(FrancePaymentApplicationRecorder::class)->recordMovement(
-                        payment: $this->payment,
-                        invoice: $paymentable_invoice,
-                        paymentable: $paymentable,
-                        movementAmount: BcMath::mul($net_deletable, -1, 2),
-                        movementDate: now($this->payment->company->timezone()?->name ?: config('app.timezone'))->toDateString(),
-                        movementType: FrancePaymentApplicationRecorder::MOVEMENT_DELETED,
-                        movementIdentity: $this->mutation_key . ':paymentable:' . $paymentable->id,
-                    );
-                }
+                //     app(FrancePaymentApplicationRecorder::class)->recordMovement(
+                //         payment: $this->payment,
+                //         invoice: $paymentable_invoice,
+                //         paymentable: $paymentable,
+                //         movementAmount: BcMath::mul($net_deletable, -1, 2),
+                //         movementDate: now($this->payment->company->timezone()?->name ?: config('app.timezone'))->toDateString(),
+                //         movementType: FrancePaymentApplicationRecorder::MOVEMENT_DELETED,
+                //         movementIdentity: $this->mutation_key . ':paymentable:' . $paymentable->id,
+                //     );
+                // }
 
             });
 

@@ -70,19 +70,23 @@ class RecordFranceEReportingPayment implements ShouldQueue
 
         /** @var Payment|null $payment */
         $payment = Payment::withTrashed()
-            ->with(['client.country', 'client.company', 'company', 'currency'])
+            ->with('company')
             ->find($this->paymentId);
 
-        if (! $payment || ! $payment->company || ! $payment->client) {
+        if (! $payment
+            || ! $payment->company
+            || ! (bool) $payment->company->getSetting('france_reporting_enabled')) {
+            return;
+        }
+
+        $payment->loadMissing(['client.country', 'client.company', 'currency']);
+
+        if (! $payment->client) {
             return;
         }
 
         if (! $payment->client->relationLoaded('company')) {
             $payment->client->setRelation('company', $payment->company);
-        }
-
-        if (! $payment->client->reportableFrTransaction()) {
-            return;
         }
 
         $invoice = Invoice::withTrashed()
@@ -139,7 +143,6 @@ class RecordFranceEReportingPayment implements ShouldQueue
             $movementDate,
             $projectionGate,
         ): void {
-            Company::query()->whereKey($payment->company_id)->lockForUpdate()->firstOrFail();
             $firstMovement = TransactionEvent::query()
                 ->where('company_id', $payment->company_id)
                 ->where('invoice_id', $invoice->id)

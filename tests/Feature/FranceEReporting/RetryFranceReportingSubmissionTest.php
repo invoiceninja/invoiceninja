@@ -13,9 +13,12 @@
 namespace Tests\Feature\FranceEReporting;
 
 use App\Models\TransactionEvent;
+use App\Jobs\EDocument\SubmitFranceEReport;
+use App\Jobs\EDocument\SubmitFrancePaymentReceivedNotification;
 use App\Services\EDocument\Standards\France\FranceReportingEventType;
 use App\Services\EDocument\Standards\France\FranceReportingStatus;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Bus;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -29,6 +32,10 @@ class RetryFranceReportingSubmissionTest extends TestCase
         parent::setUp();
 
         $this->makeTestData();
+        $settings = $this->company->settings;
+        $settings->france_reporting_enabled = true;
+        $this->company->settings = $settings;
+        $this->company->saveQuietly();
     }
 
     public function test_command_dispatches_forced_retries_for_both_submission_types(): void
@@ -58,6 +65,27 @@ class RetryFranceReportingSubmissionTest extends TestCase
             'submission' => $submission->id,
             '--database' => $this->company->db,
         ])->assertFailed();
+    }
+
+    public function test_command_returns_without_dispatching_when_reporting_is_disabled(): void
+    {
+        $submission = $this->submission(FranceReportingEventType::ReportSubmission);
+        $settings = $this->company->settings;
+        $settings->france_reporting_enabled = false;
+        $this->company->settings = $settings;
+        $this->company->saveQuietly();
+        Bus::fake([
+            SubmitFranceEReport::class,
+            SubmitFrancePaymentReceivedNotification::class,
+        ]);
+
+        $this->artisan('france-reporting:retry-submission', [
+            'submission' => $submission->id,
+            '--database' => $this->company->db,
+        ])->assertSuccessful();
+
+        Bus::assertNotDispatched(SubmitFranceEReport::class);
+        Bus::assertNotDispatched(SubmitFrancePaymentReceivedNotification::class);
     }
 
     private function submission(FranceReportingEventType $eventType): TransactionEvent

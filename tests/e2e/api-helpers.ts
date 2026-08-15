@@ -374,7 +374,6 @@ export async function ensureCompanyGatewayTypeEnabled(
             adjust_fee_percent: false,
             is_enabled: true,
             ...(current ?? {}),
-            is_enabled: true,
         },
     };
 

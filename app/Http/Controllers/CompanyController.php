@@ -46,6 +46,7 @@ use App\Http\Requests\Company\UpdateCompanyRequest;
 use App\Http\Requests\Company\UploadCompanyRequest;
 use App\Http\Requests\Company\DefaultCompanyRequest;
 use App\Http\Requests\Company\DestroyCompanyRequest;
+use App\Services\EDocument\Standards\France\FranceScopeInvalidationRecorder;
 
 /**
  * Class CompanyController.
@@ -435,10 +436,17 @@ class CompanyController extends BaseController
             return $this->itemResponse($company->refresh());
         }
 
+        $originalSettings = clone $company->settings;
         $company = $this->company_repo->save($request->all(), $company);
 
+        // FRREPORTING::
+        // app(FranceScopeInvalidationRecorder::class)->recordCompanyConfigurationChange(
+        //     $company,
+        //     $originalSettings,
+        // );
+
         if ($request->has('documents')) {
-            $this->saveDocuments($request->input('documents'), $company, $request->input('is_public', true));
+            $this->saveDocuments($request->input('documents'), $company, $request->has('is_public') ? $request->boolean('is_public') : null);
         }
 
         /** Explicitly handle the e-invoice certificate */
@@ -684,7 +692,7 @@ class CompanyController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $company, $request->input('is_public', true));
+            $this->saveDocuments($request->file('documents'), $company, $request->has('is_public') ? $request->boolean('is_public') : null);
         }
 
         return $this->itemResponse($company->fresh());

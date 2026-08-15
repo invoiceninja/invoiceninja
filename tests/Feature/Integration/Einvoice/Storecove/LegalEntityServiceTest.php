@@ -10,12 +10,23 @@ use Tests\TestCase;
 use Mockery;
 use Illuminate\Http\Client\Response;
 use App\Services\EDocument\Gateway\Storecove\LegalEntityService;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Validator;
+use Modules\Admin\Http\Requests\EInvoice\Peppol\StoreEntityRequestSelf;
 
 class LegalEntityServiceTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        if(!class_exists(StoreEntityRequestSelf::class)) {
+            $this->markTestSkipped('StoreEntityRequestSelf class does not exist');
+        }
+    }
+
     protected function tearDown(): void
     {
+
         CarbonImmutable::setTestNow();
 
         parent::tearDown();
@@ -62,7 +73,7 @@ class LegalEntityServiceTest extends TestCase
 
         $storecove->shouldReceive('httpClient')
             ->never()
-            ->withArgs(fn (string $uri, string $verb = '', array $payload = []) => $uri === "legal_entities/{$legalEntityId}/peppol_identifiers");
+            ->withArgs(fn(string $uri, string $verb = '', array $payload = []) => $uri === "legal_entities/{$legalEntityId}/peppol_identifiers");
 
         $result = $service->setup([
             'country' => 'SG',
@@ -94,7 +105,7 @@ class LegalEntityServiceTest extends TestCase
         $storecove->shouldReceive('httpClient')
             ->once()
             ->ordered()
-            ->withArgs(fn (string $uri, string $verb, array $payload): bool => $uri === 'legal_entities'
+            ->withArgs(fn(string $uri, string $verb, array $payload): bool => $uri === 'legal_entities'
                 && $verb === 'post'
                 && $payload['country'] === 'FR')
             ->andReturn($this->makeResponse(200, [
@@ -158,7 +169,7 @@ class LegalEntityServiceTest extends TestCase
         $storecove->shouldReceive('httpClient')
             ->once()
             ->ordered()
-            ->withArgs(fn (string $uri, string $verb): bool => $uri === 'legal_entities' && $verb === 'post')
+            ->withArgs(fn(string $uri, string $verb): bool => $uri === 'legal_entities' && $verb === 'post')
             ->andReturn($this->makeResponse(200, [
                 'id' => $legalEntityId,
                 'tenant_id' => 'fr-company',
@@ -167,7 +178,7 @@ class LegalEntityServiceTest extends TestCase
         $storecove->shouldReceive('httpClient')
             ->once()
             ->ordered()
-            ->withArgs(fn (string $uri, string $verb, array $payload): bool => $uri === "legal_entities/{$legalEntityId}/peppol_identifiers"
+            ->withArgs(fn(string $uri, string $verb, array $payload): bool => $uri === "legal_entities/{$legalEntityId}/peppol_identifiers"
                 && $verb === 'post'
                 && $payload['scheme'] === 'FR:VAT')
             ->andReturn($this->makeResponse(200, ['id' => 1]));
@@ -175,7 +186,7 @@ class LegalEntityServiceTest extends TestCase
         $storecove->shouldReceive('httpClient')
             ->once()
             ->ordered()
-            ->withArgs(fn (string $uri, string $verb, array $payload): bool => $uri === "legal_entities/{$legalEntityId}/peppol_identifiers"
+            ->withArgs(fn(string $uri, string $verb, array $payload): bool => $uri === "legal_entities/{$legalEntityId}/peppol_identifiers"
                 && $verb === 'post'
                 && $payload['scheme'] === 'FR:SIRENE')
             ->andReturn($this->makeResponse(200, ['id' => 2]));
@@ -183,7 +194,7 @@ class LegalEntityServiceTest extends TestCase
         $storecove->shouldReceive('httpClient')
             ->once()
             ->ordered()
-            ->withArgs(fn (string $uri, string $verb, array $payload): bool => $uri === "legal_entities/{$legalEntityId}/peppol_identifiers"
+            ->withArgs(fn(string $uri, string $verb, array $payload): bool => $uri === "legal_entities/{$legalEntityId}/peppol_identifiers"
                 && $verb === 'post'
                 && $payload['scheme'] === 'FR:CTC')
             ->andReturn($ctcFailure);
@@ -197,19 +208,15 @@ class LegalEntityServiceTest extends TestCase
         $this->assertSame($ctcFailure, $service->setup($this->frenchSetupData()));
     }
 
-    public function testFrenchSetupRejectsAnInvalidDerivedSirenBeforeCreatingTheLegalEntity(): void
+    public function testSelfHostedRequestRejectsAnInvalidDerivedSiren(): void
     {
-        $storecove = $this->storecoveMock();
-        $storecove->shouldNotReceive('httpClient');
         $data = $this->frenchSetupData();
         $data['vat_number'] = 'FR00123456789';
+        $request = StoreEntityRequestSelf::create('/api/einvoice/peppol/setup', 'POST', $data);
+        $validator = Validator::make($data, $request->rules());
 
-        try {
-            (new LegalEntityService($storecove))->setup($data);
-            $this->fail('Expected invalid French SIREN validation to fail.');
-        } catch (ValidationException $exception) {
-            $this->assertArrayHasKey('vat_number', $exception->errors());
-        }
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('vat_number', $validator->errors()->toArray());
     }
 
     private function storecoveMock(): Storecove

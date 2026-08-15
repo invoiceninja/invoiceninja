@@ -101,6 +101,18 @@ class EntityLevel implements EntityLevelInterface
         return ['passes' => true];
     }
 
+    public function checkCredit(Credit $credit): array
+    {
+        $result = $this->checkInvoice($credit);
+
+        $result['credit'] = $result['invoice'] ?? [];
+        $result['invoice'] = [];
+        $result['client'] = $result['client'] ?? [];
+        $result['company'] = $result['company'] ?? [];
+
+        return $result;
+    }
+
     public function checkInvoice(Invoice|Credit $invoice): array
     {
         $this->init($invoice->client->locale());
@@ -146,7 +158,7 @@ class EntityLevel implements EntityLevelInterface
             }
 
         } catch (PeppolValidationException $e) {
-            $this->errors['invoice'] = ['field' => $e->getInvalidField(), 'label' => $e->getInvalidField()];
+            $this->errors['invoice'][] = $e->getInvalidField();
         } catch (\Throwable $th) {
 
         }
@@ -200,7 +212,7 @@ class EntityLevel implements EntityLevelInterface
             }
 
             if ((float) ($item->cost ?? 0) < 0) {
-                return [['field' => 'negative_line_price', 'label' => ctrans('texts.peppol_negative_line_price')]];
+                return [ctrans('texts.peppol_negative_line_price')];
             }
         }
 

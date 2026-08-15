@@ -79,7 +79,7 @@ class InvoiceTransformer extends EntityTransformer
     {
         $transformer = new ProjectTransformer($this->serializer);
 
-        if (!$invoice->project) {
+        if (!$invoice->project || $invoice->project->company_id !== $invoice->company_id) {
             return null;
         }
 

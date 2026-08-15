@@ -258,6 +258,11 @@ class CheckACHStatus implements ShouldQueue
         $originalStatus = (int) $payment->status_id;
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->saveQuietly();
-        app(FrancePaymentApplicationRecorder::class)->recordStatusTransition($payment, $originalStatus);
+
+        // if (! (bool) $payment->company->getSetting('france_reporting_enabled')) {
+        //     return;
+        // }
+
+        // app(FrancePaymentApplicationRecorder::class)->recordStatusTransition($payment, $originalStatus);
     }
 }

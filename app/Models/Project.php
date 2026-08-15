@@ -212,7 +212,7 @@ class Project extends BaseModel
 
     public function quotes(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(Quote::class);
+        return $this->hasMany(Quote::class)->withTrashed();
     }
 
     /**

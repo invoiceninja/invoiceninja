@@ -58,6 +58,7 @@ class StorecoveProxy
     {
         $data = [
             ...$data,
+            'tenant_id' => $this->company->company_key,
             'classification' => $data['classification'] ?? $this->company->settings->classification,
             'vat_number' => $data['vat_number'] ?? $this->company->settings->vat_number,
             'id_number' => $data['id_number'] ?? $this->company->settings->id_number,
@@ -132,7 +133,7 @@ class StorecoveProxy
     public function addAdditionalTaxIdentifier(array $data): array
     {
         $scheme = $this->storecove->router->resolveTaxScheme($data['country'], $this->company->settings->classification);
-        $data['identifier'] = $data['identifier'] ?? $data['vat_number'] ?? null;
+        $data['identifier'] ??= $data['vat_number'] ?? null;
 
         $data = [
             ...$data,
@@ -291,7 +292,7 @@ class StorecoveProxy
         ];
 
         if (! array_key_exists('forDocumentSubmissionGuid', $payload)) {
-            $payload['legal_entity_id'] = $payload['legal_entity_id'] ?? $payload['legalEntityId'] ?? $this->company->legal_entity_id;
+            $payload['legal_entity_id'] ??= $payload['legalEntityId'] ?? $this->company->legal_entity_id;
         }
 
         if (Ninja::isHosted()) {

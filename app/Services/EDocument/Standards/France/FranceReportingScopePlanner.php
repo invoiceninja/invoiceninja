@@ -40,6 +40,10 @@ final class FranceReportingScopePlanner
         FranceEReportVariant $family,
         CarbonImmutable $parisNow,
     ): array {
+        if (! (bool) $company->getSetting('france_reporting_enabled')) {
+            return [];
+        }
+
         if (! array_key_exists($company->id, $this->unhandledScopes)) {
             $this->unhandledScopes[$company->id] = $this->loadUnhandledScopes($company);
         }

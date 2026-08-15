@@ -257,9 +257,15 @@ class StorecoveProxyTest extends TestCase
             ),
         ]);
 
-        $result = $this->proxy->setup(['country' => 'DE', 'acts_as_sender' => true, 'acts_as_receiver' => true]);
+        $result = $this->proxy->setup([
+            'country' => 'DE',
+            'acts_as_sender' => true,
+            'acts_as_receiver' => true,
+            'tenant_id' => 'caller-controlled-company-key',
+        ]);
 
         $this->assertEquals(290868, $result['legal_entity_id']);
+        Http::assertSent(fn($request): bool => $request['tenant_id'] === $this->testCompany->company_key);
     }
 
     public function testSetupMergesCompanyDefaults(): void

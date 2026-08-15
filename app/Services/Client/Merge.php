@@ -15,7 +15,6 @@ namespace App\Services\Client;
 use App\Factory\CompanyLedgerFactory;
 use App\Models\Activity;
 use App\Models\Client;
-use App\Models\Company;
 use App\Models\CompanyLedger;
 use App\Models\TransactionEvent;
 use App\Services\AbstractService;
@@ -39,11 +38,7 @@ class Merge extends AbstractService
         $mergeableClient = $this->mergable_client->present()->name();
         $eventVars = \App\Utils\Ninja::eventVars(auth()->user() ? auth()->user()->id : null);
         $eventVars['client_hash'] = $this->mergable_client->client_hash;
-        $client = DB::transaction(function () {
-            Company::query()->whereKey($this->client->company_id)->lockForUpdate()->firstOrFail();
-
-            return $this->runLocked();
-        }, attempts: 3);
+        $client = $this->mergeRecords();
 
         event(new \App\Events\Client\ClientWasMerged(
             $mergeableClient,
@@ -55,24 +50,37 @@ class Merge extends AbstractService
         return $client;
     }
 
-    private function runLocked()
+    /**
+     * Deliberately takes no client-level lock up front. The codebase acquires
+     * entity rows before the client row (MarkPaid, DeletePaymentV2); locking the
+     * client first here would invert that order and deadlock against them. The
+     * mass updates below X-lock the moved rows, and ClientService takes the
+     * client row last, which keeps this consistent with every other caller.
+     */
+    private function mergeRecords()
+    {
+        return DB::transaction(fn() => $this->applyMerge(), attempts: 3);
+    }
+
+    private function applyMerge()
     {
         $this->mergable_client->activities()->update(['client_id' => $this->client->id]);
         $this->mergable_client->contacts()->update(['client_id' => $this->client->id]);
         $this->mergable_client->gateway_tokens()->update(['client_id' => $this->client->id]);
         $this->mergable_client->credits()->update(['client_id' => $this->client->id]);
         $this->mergable_client->expenses()->update(['client_id' => $this->client->id]);
-        $this->mergable_client->invoices()->update(['client_id' => $this->client->id]);
+        /** Payments are reassigned before invoices to match the payment -> invoice
+         * lock order used by DeletePaymentV2, so the two cannot deadlock. */
         $this->mergable_client->payments()->update(['client_id' => $this->client->id]);
+        $this->mergable_client->invoices()->update(['client_id' => $this->client->id]);
         $this->mergable_client->projects()->update(['client_id' => $this->client->id]);
         $this->mergable_client->quotes()->update(['client_id' => $this->client->id]);
         $this->mergable_client->recurring_invoices()->update(['client_id' => $this->client->id]);
         $this->mergable_client->recurring_expenses()->update(['client_id' => $this->client->id]);
         $this->mergable_client->tasks()->update(['client_id' => $this->client->id]);
         $this->mergable_client->documents()->update(['documentable_id' => $this->client->id]);
-        TransactionEvent::query()
-            ->where('client_id', $this->mergable_client->id)
-            ->update(['client_id' => $this->client->id]);
+        $this->mergable_client->transaction_events()->update(['client_id' => $this->client->id]);
+        
 
         /* Loop through contacts an only merge distinct contacts by email */
         $this->mergable_client->contacts->each(function ($contact) {

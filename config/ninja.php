@@ -20,8 +20,8 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
-    'app_version' => env('APP_VERSION', '5.13.31'),
-    'app_tag' => env('APP_TAG', '5.13.31'),
+    'app_version' => env('APP_VERSION', '5.13.32'),
+    'app_tag' => env('APP_TAG', '5.13.32'),
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', ''),
@@ -276,4 +276,5 @@ return [
     'auto_bill_time' => env('NINJA_AUTO_BILL_TIME', '06:20'),
     'run_trial_mysql_integration_tests' => env('RUN_NINJA_TRIAL_MYSQL_TESTS', false),
     'trial_test_account_connection' => env('NINJA_TRIAL_TEST_ACCOUNT_CONNECTION'),
+    'pdf_inline_images' => env('PDF_INLINE_IMAGES', false),
 ];

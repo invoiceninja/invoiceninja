@@ -220,6 +220,11 @@ class Document extends BaseModel
         return Storage::disk($this->disk)->get($this->url);
     }
 
+    public function fileExists()
+    {
+        return Storage::disk($this->disk)->exists($this->url);
+    }
+
     public function translate_entity()
     {
         return ctrans('texts.document');

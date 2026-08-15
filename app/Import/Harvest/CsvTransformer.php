@@ -813,7 +813,7 @@ class CsvTransformer
 
     private function taxName(string $prefix, float $rate): string
     {
-        $formatted_rate = rtrim(rtrim(number_format($rate, 6, '.', ''), '0'), '.');
+        $formatted_rate = rtrim(rtrim(number_format($rate, 2, '.', ''), '0'), '.');
 
         return "{$prefix} ({$formatted_rate}%)";
     }

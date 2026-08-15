@@ -931,7 +931,7 @@ class CreditController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $credit, $request->input('is_public', true));
+            $this->saveDocuments($request->file('documents'), $credit, $request->has('is_public') ? $request->boolean('is_public') : null);
         }
 
         return $this->itemResponse($credit->fresh());

@@ -12,14 +12,15 @@
 
 namespace App\Http\Requests\EInvoice;
 
-use App\Utils\Ninja;
+use App\Http\Requests\Request;
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\Credit;
 use App\Models\Invoice;
-use App\Http\Requests\Request;
-use Illuminate\Validation\Rule;
 use App\Models\RecurringInvoice;
 use App\Services\EDocument\Standards\Validation\Peppol\EntityLevel;
+use App\Utils\Ninja;
+use Illuminate\Validation\Rule;
 
 class ValidateEInvoiceRequest extends Request
 {
@@ -51,7 +52,7 @@ class ValidateEInvoiceRequest extends Request
         $user = auth()->user();
 
         return [
-            'entity' => 'required|bail|in:invoices,recurring_invoices,clients,companies',
+            'entity' => 'required|bail|in:invoices,recurring_invoices,clients,companies,credits',
             'entity_id' => ['required','bail', Rule::exists($this->entity, 'id')
                                                                 ->when($this->entity != 'companies', function ($q) use ($user) {
                                                                     $q->where('company_id', $user->company()->id);
@@ -85,6 +86,7 @@ class ValidateEInvoiceRequest extends Request
             'recurring_invoices' => $class = RecurringInvoice::class,
             'clients' => $class = Client::class,
             'companies' => $class = Company::class,
+            'credits' => $class = Credit::class,
             default => $class = Invoice::class,
         };
 

@@ -470,6 +470,11 @@ class Client extends BaseModel implements HasLocalePreference
         return $this->hasMany(SystemLog::class)->take(50)->orderBy('id', 'desc');
     }
 
+    public function transaction_events(): HasMany
+    {
+        return $this->hasMany(TransactionEvent::class);
+    }
+
     public function timezone(): Timezone
     {
         return Timezone::find($this->getSetting('timezone_id'));
@@ -1114,7 +1119,7 @@ class Client extends BaseModel implements HasLocalePreference
      */
     public function reportableFrTransaction(): bool
     {
-        return (bool) $this->getSetting('france_reporting_enabled');
+        return (bool) $this->company->getSetting('france_reporting_enabled');
     }
 
     /**

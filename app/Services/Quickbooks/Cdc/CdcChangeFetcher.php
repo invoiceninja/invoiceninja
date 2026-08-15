@@ -63,13 +63,14 @@ class CdcChangeFetcher
 
             // The SDK returns null and records the fault when it does not throw.
             $error = $this->service->sdk->getLastError();
-            if ($error) {
-                nlog('QB CDC: fault => ' . (method_exists($error, 'getResponseBody') ? $error->getResponseBody() : 'unknown'));
+
+            if ($error) { //@phpstan-ignore-line
+                nlog('QB CDC: fault => ' . (method_exists($error, 'getResponseBody') ? $error->getResponseBody() : 'unknown')); //@phpstan-ignore-line
 
                 return [];
             }
 
-            return $this->normalize($response->entities ?? []);
+            return $this->normalize($response->entities ?? []); //@phpstan-ignore-line
         } catch (\Throwable $e) {
             if ($limiter && QuickbooksRateLimiter::isRateLimitException($e)) {
                 $limiter->enterBackoff(60);
@@ -99,7 +100,7 @@ class CdcChangeFetcher
      * @param  array<string, mixed> $entities
      * @return array<string, array<int, mixed>>
      */
-    private function normalize(array $entities): array
+    private function normalize(array $entities): array //@phpstan-ignore-line
     {
         $out = [];
 

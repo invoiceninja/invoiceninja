@@ -20,7 +20,160 @@ const defaultClientAddress = {
     shipping_state: 'WA',
     shipping_postal_code: '90210',
     shipping_country_id: '840',
+    phone: '5555555555',
 };
+
+const requiredClientInfoDefaults: Record<string, string> = {
+    contact_first_name: 'Playwright',
+    contact_last_name: 'Portal',
+    contact_email: 'portal-rff@example.test',
+    client_phone: '5555555555',
+    client_address_line_1: '5 Wallaby Way',
+    client_city: 'Perth',
+    client_state: 'WA',
+    client_postal_code: '90210',
+    client_country_id: '840',
+    client_shipping_address_line_1: '5 Wallaby Way',
+    client_shipping_city: 'Perth',
+    client_shipping_state: 'WA',
+    client_shipping_postal_code: '90210',
+    client_shipping_country_id: '840',
+};
+
+export function requiredClientInfoForm(page: Page) {
+    return page.locator('#required-client-info-form');
+}
+
+export function gatewayCheckoutContainer(page: Page) {
+    return page.locator('[data-ref="gateway-container"]');
+}
+
+export async function isRequiredClientInfoBlockingCheckout(
+    page: Page,
+): Promise<boolean> {
+    const form = requiredClientInfoForm(page);
+
+    if (!(await form.isVisible().catch(() => false))) {
+        return false;
+    }
+
+    const gateway = gatewayCheckoutContainer(page);
+
+    if ((await gateway.count()) === 0) {
+        return false;
+    }
+
+    return gateway.evaluate((element) =>
+        element.classList.contains('pointer-events-none'),
+    );
+}
+
+async function fillInputIfEmpty(
+    input: ReturnType<Page['locator']>,
+    value: string,
+): Promise<void> {
+    if (!(await input.isVisible().catch(() => false))) {
+        return;
+    }
+
+    const currentValue = await input.inputValue().catch(() => '');
+
+    if (currentValue.trim().length > 0) {
+        return;
+    }
+
+    await input.fill(value);
+    await input.dispatchEvent('input');
+    await input.dispatchEvent('change');
+}
+
+/**
+ * Subscription checkout always renders the required-client-info step first.
+ * The Stripe form exists in the DOM but stays disabled until Continue succeeds.
+ */
+export async function completeRequiredClientInfoForm(
+    page: Page,
+    overrides: Record<string, string> = {},
+): Promise<void> {
+    const form = requiredClientInfoForm(page);
+
+    if (!(await form.isVisible().catch(() => false))) {
+        return;
+    }
+
+    if (!(await isRequiredClientInfoBlockingCheckout(page))) {
+        return;
+    }
+
+    await dismissCookieConsent(page);
+
+    const defaults = { ...requiredClientInfoDefaults, ...overrides };
+
+    for (const [name, value] of Object.entries(defaults)) {
+        const field = form.locator(`[name="${name}"]`);
+
+        if ((await field.count()) === 0) {
+            continue;
+        }
+
+        if (await field.evaluate((element) => element.tagName === 'SELECT').catch(() => false)) {
+            continue;
+        }
+
+        await fillInputIfEmpty(field, value);
+    }
+
+    const selects = form.locator('select');
+    const selectCount = await selects.count();
+
+    for (let index = 0; index < selectCount; index += 1) {
+        const select = selects.nth(index);
+        const selected = await select.inputValue().catch(() => '');
+
+        if (selected && selected !== 'none') {
+            continue;
+        }
+
+        await select
+            .selectOption({ label: /United States|US \(United States\)/i })
+            .catch(() => select.selectOption('840'))
+            .catch(() => null);
+        await select.dispatchEvent('change');
+    }
+
+    const copyBilling = form.locator('#copy-billing-button');
+    if (await copyBilling.isVisible().catch(() => false)) {
+        await copyBilling.click({ force: true });
+    }
+
+    const terms = form.locator('input[name="terms_accepted"]');
+    if (await terms.isVisible().catch(() => false)) {
+        if (!(await terms.isChecked().catch(() => false))) {
+            await terms.click({ force: true });
+        }
+    }
+
+    const continueButton = form.locator('button.button-primary:not([disabled])').last();
+    if ((await continueButton.count()) === 0) {
+        await form.locator('button.button-primary').last().click({ force: true });
+    } else {
+        await continueButton.click();
+    }
+
+    await expect
+        .poll(() => isRequiredClientInfoBlockingCheckout(page), {
+            timeout: 30_000,
+        })
+        .toBe(false);
+
+    await expect(gatewayCheckoutContainer(page)).not.toHaveClass(
+        /pointer-events-none/,
+        { timeout: 30_000 },
+    );
+    await expect(page.locator('#pay-now, #card-element').first()).toBeVisible({
+        timeout: 30_000,
+    });
+}
 
 export async function prepareDefaultPaymentContext(
     api: ApiFixture,
@@ -114,6 +267,8 @@ export async function selectGatewayFromDropdown(
 export async function fillRequiredPaymentInformationIfPresent(
     page: Page,
 ): Promise<void> {
+    await completeRequiredClientInfoForm(page);
+
     const checkoutReady = page
         .locator('#card-element')
         .or(page.locator('#pay-now'))
@@ -122,6 +277,10 @@ export async function fillRequiredPaymentInformationIfPresent(
         .or(page.locator('#paypal-payment'))
         .or(page.locator('#paypal-button-container'));
     const billingAddress = page.locator('input[name="client_address_line_1"]');
+
+    if (await isRequiredClientInfoBlockingCheckout(page)) {
+        return;
+    }
 
     await Promise.race([
         checkoutReady

@@ -598,7 +598,7 @@ class ProjectController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $project, $request->input('is_public', true));
+            $this->saveDocuments($request->file('documents'), $project, $request->has('is_public') ? $request->boolean('is_public') : null);
         }
 
         return $this->itemResponse($project->fresh());

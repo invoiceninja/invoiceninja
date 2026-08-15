@@ -16,7 +16,6 @@ use App\Jobs\EDocument\UpdateFranceEReportSubmissionStatus;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\TransactionEvent;
-use Illuminate\Support\Facades\DB;
 use Throwable;
 
 class FranceSubmissionCallbackStore
@@ -24,6 +23,10 @@ class FranceSubmissionCallbackStore
     /** @param array<string, mixed> $payload */
     public function record(Company $company, string $guid, array $payload): ?TransactionEvent
     {
+        if (! (bool) $company->getSetting('france_reporting_enabled')) {
+            return null;
+        }
+
         $clientId = Client::withTrashed()
             ->where('company_id', $company->id)
             ->orderBy('id')
@@ -39,43 +42,43 @@ class FranceSubmissionCallbackStore
             'payload' => $payload,
         ], JSON_THROW_ON_ERROR));
 
-        return DB::transaction(function () use ($company, $clientId, $guid, $payload, $eventKey): TransactionEvent {
-            Company::query()->whereKey($company->id)->lockForUpdate()->firstOrFail();
+        $existing = TransactionEvent::query()
+            ->where('company_id', $company->id)
+            ->whereIn('client_id', Client::withTrashed()
+                ->select('id')
+                ->where('company_id', $company->id))
+            ->where('event_id', FranceReportingEventType::SubmissionCallback->value)
+            ->where('payment_request->event_key', $eventKey)
+            ->first();
 
-            $existing = TransactionEvent::query()
-                ->where('company_id', $company->id)
-                ->whereIn('client_id', Client::withTrashed()
-                    ->select('id')
-                    ->where('company_id', $company->id))
-                ->where('event_id', FranceReportingEventType::SubmissionCallback->value)
-                ->where('payment_request->event_key', $eventKey)
-                ->first();
-
-            return $existing ?? TransactionEvent::create([
-                'company_id' => $company->id,
-                'client_id' => $clientId,
-                'invoice_id' => 0,
-                'payment_id' => 0,
-                'credit_id' => 0,
-                'event_id' => FranceReportingEventType::SubmissionCallback->value,
-                'timestamp' => now()->timestamp,
-                'period' => now('Europe/Paris')->toDateString(),
-                'payment_status' => FranceReportingStatus::Pending->value,
-                'reporting_data' => null,
-                'payment_request' => [
-                    'schema_version' => 1,
-                    'role' => 'inbound_callback',
-                    'event_key' => $eventKey,
-                    'guid' => $guid,
-                    'payload' => $payload,
-                    'received_at' => now()->toIso8601String(),
-                ],
-            ]);
-        }, attempts: 3);
+        return $existing ?? TransactionEvent::create([
+            'company_id' => $company->id,
+            'client_id' => $clientId,
+            'invoice_id' => 0,
+            'payment_id' => 0,
+            'credit_id' => 0,
+            'event_id' => FranceReportingEventType::SubmissionCallback->value,
+            'timestamp' => now()->timestamp,
+            'period' => now('Europe/Paris')->toDateString(),
+            'payment_status' => FranceReportingStatus::Pending->value,
+            'reporting_data' => null,
+            'payment_request' => [
+                'schema_version' => 1,
+                'role' => 'inbound_callback',
+                'event_key' => $eventKey,
+                'guid' => $guid,
+                'payload' => $payload,
+                'received_at' => now()->toIso8601String(),
+            ],
+        ]);
     }
 
     public function replay(Company $company, string $guid): void
     {
+        if (! (bool) $company->getSetting('france_reporting_enabled')) {
+            return;
+        }
+
         TransactionEvent::query()
             ->where('company_id', $company->id)
             ->whereIn('client_id', Client::withTrashed()

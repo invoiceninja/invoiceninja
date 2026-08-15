@@ -1035,6 +1035,11 @@ class Company extends BaseModel
      */
     public function peppolSendingEnabled(): bool
     {
+        /** FRREPORTING:: French senders are not permitted on the network - fail silently. */
+        if ($this->country()?->iso_3166_2 === 'FR') {
+            return false;
+        }
+
         return !$this->account->is_flagged && $this->account->e_invoice_quota > 0 && isset($this->legal_entity_id) && isset($this->tax_data->acts_as_sender) && $this->tax_data->acts_as_sender;
     }
 

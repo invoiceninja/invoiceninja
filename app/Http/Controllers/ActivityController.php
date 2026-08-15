@@ -36,6 +36,7 @@ use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Pdf\PageNumbering;
 use App\Utils\Traits\Pdf\PdfMaker;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use stdClass;
@@ -59,32 +60,25 @@ class ActivityController extends BaseController
     {
         $default_activities = $request->has('rows') ? $request->input('rows') : 75;
 
-        /* @var App\Models\Activity[] $activities */
-        $activities = Activity::with('user')
-                                ->orderBy('created_at', 'DESC')
-                                ->company()
-                                ->take($default_activities);
-
         if ($request->has('reactv2')) {
 
             /** @var \App\Models\User auth()->user() */
             $user = auth()->user();
 
+            $activities = $this->activityFeedQuery($default_activities);
+
             if (!$user->isAdmin()) {
                 $activities->where('user_id', auth()->user()->id);
             }
 
-            $system = ctrans('texts.system');
-
-            $data = $activities->cursor()->map(function ($activity) {
-
-                /** @var \App\Models\Activity $activity */
-                return $activity->activity_string();
-
-            });
-
-            return response()->json(['data' => $data->toArray()], 200);
+            return response()->json(['data' => $this->activityStringPayload($activities)], 200);
         }
+
+        /* @var App\Models\Activity[] $activities */
+        $activities = Activity::with('user')
+                                ->orderBy('created_at', 'DESC')
+                                ->company()
+                                ->take($default_activities);
 
         return $this->listResponse($activities);
     }
@@ -94,11 +88,8 @@ class ActivityController extends BaseController
 
         $default_activities = request()->has('rows') ? request()->input('rows') : 75;
 
-        $activities = Activity::with('user')
-                                ->orderBy('created_at', 'DESC')
-                                ->company()
-                                ->where("{$request->entity}_id", $request->entity_id)
-                                ->take($default_activities);
+        $activities = $this->activityFeedQuery($default_activities)
+                                ->where("{$request->entity}_id", $request->entity_id);
 
         /** @var \App\Models\User auth()->user() */
         $user = auth()->user();
@@ -109,17 +100,59 @@ class ActivityController extends BaseController
             $activities->where('user_id', auth()->user()->id);
         }
 
-        $system = ctrans('texts.system');
+        return response()->json(['data' => $this->activityStringPayload($activities)], 200);
 
-        $data = $activities->cursor()->map(function ($activity) {
+    }
 
-            /** @var \App\Models\Activity $activity */
-            return $activity->activity_string();
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function activityStringPayload(Builder $activities): array
+    {
+        return $activities->get()
+            ->map(function ($activity) {
 
-        });
+                /** @var \App\Models\Activity $activity */
+                return $activity->activity_string();
 
-        return response()->json(['data' => $data->toArray()], 200);
+            })
+            ->values()
+            ->all();
+    }
 
+    private function activityFeedQuery(int $limit): Builder
+    {
+        return Activity::query()
+            ->without('backup')
+            ->with($this->activityStringRelations())
+            ->orderBy('created_at', 'DESC')
+            ->company()
+            ->take($limit);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function activityStringRelations(): array
+    {
+        return [
+            'user',
+            'client',
+            'vendor',
+            'invoice',
+            'quote',
+            'credit',
+            'payment.client',
+            'task',
+            'expense',
+            'purchase_order',
+            'subscription',
+            'recurring_invoice',
+            'recurring_expense',
+            'contact',
+            'vendor_contact',
+            'company',
+        ];
     }
 
 

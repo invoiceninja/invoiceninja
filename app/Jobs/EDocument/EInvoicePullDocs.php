@@ -169,11 +169,11 @@ class EInvoicePullDocs implements ShouldQueue
                      * by that key. On self-hosted multi_db is disabled, so the reconciler
                      * resolves the local company and TransactionEvent directly.
                     */
-                    UpdateFranceEReportSubmissionStatus::dispatch([
-                        ...$status,
-                        'tenant_id' => $company->company_key,
-                        'guid' => $status['guid'],
-                    ]);
+                    // UpdateFranceEReportSubmissionStatus::dispatch([
+                    //     ...$status,
+                    //     'tenant_id' => $company->company_key,
+                    //     'guid' => $status['guid'],
+                    // ]);
 
                     continue;
                 }

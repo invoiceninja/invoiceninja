@@ -17,6 +17,7 @@ use Tests\TestCase;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Country;
+use App\Models\Credit;
 use App\Models\Invoice;
 use Tests\MockAccountData;
 use App\Models\ClientContact;
@@ -25,6 +26,7 @@ use App\DataMapper\Tax\TaxModel;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Factory\CompanyUserFactory;
+use App\Repositories\CreditRepository;
 use App\Repositories\InvoiceRepository;
 use InvoiceNinja\EInvoice\EInvoice;
 use App\Services\EDocument\Standards\Peppol;
@@ -143,7 +145,7 @@ class PeppolTest extends TestCase
             'send_email' => true,
         ]);
 
-        $client->setRelation('contacts', [$contact]);
+        $client->setRelation('contacts', collect([$contact]));
 
         /** @var Invoice $invoice */
         $invoice = \App\Models\Invoice::factory()->create([
@@ -180,7 +182,30 @@ class PeppolTest extends TestCase
         $invoice->setRelation('client', $client);
         $invoice->setRelation('company', $company);
 
-        return compact('company', 'client', 'invoice');
+        $credit = \App\Models\Credit::factory()->create([
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'date' => now()->addDay()->format('Y-m-d'),
+            'due_date' => now()->addDays(2)->format('Y-m-d'),
+            'uses_inclusive_taxes' => false,
+            'tax_rate1' => 0,
+            'tax_name1' => '',
+            'tax_rate2' => 0,
+            'tax_name2' => '',
+            'tax_rate3' => 0,
+            'tax_name3' => '',
+            'status_id' => Invoice::STATUS_DRAFT,
+        ]);
+
+
+        $credit->line_items = array_values($items);
+        $credit = $credit->calc()->getCredit();
+
+        $credit->setRelation('client', $client);
+        $credit->setRelation('company', $company);
+        
+        return compact('company', 'client', 'invoice', 'credit');
     }
 
 
@@ -512,6 +537,146 @@ class PeppolTest extends TestCase
 
         $response->assertStatus(200);
 
+    }
+
+    public function testEntityValidationPassesForCredit()
+    {
+        $scenario = [
+            'company_vat' => 'DE923356489',
+            'company_country' => 'DE',
+            'client_country' => 'DE',
+            'client_vat' => 'DE923256489',
+            'client_id_number' => '123456789',
+            'classification' => 'business',
+            'has_valid_vat' => true,
+            'over_threshold' => true,
+            'legal_entity_id' => 290868,
+            'is_tax_exempt' => false,
+        ];
+
+        $entity_data = $this->setupTestData($scenario);
+        $client = $entity_data['client'];
+        $company = $entity_data['company'];
+
+        $client->address1 = 'Test Address';
+        $client->city = 'Test City';
+        $client->postal_code = '12345';
+        $client->save();
+
+        $settings = $company->settings;
+        $settings->address1 = 'some address';
+        $settings->city = 'some city';
+        $settings->postal_code = '102394';
+        $company->settings = $settings;
+        $company->save();
+
+        $item = new InvoiceItem();
+        $item->quantity = 1;
+        $item->cost = 100;
+        $item->product_key = 'test';
+        $item->notes = 'Description';
+        $item->is_amount_discount = true;
+        $item->discount = 0;
+        $item->tax_id = '1';
+
+        $credit = Credit::factory()->create([
+            'client_id' => $client->id,
+            'company_id' => $company->id,
+            'user_id' => $this->user->id,
+            'date' => now()->addDay()->format('Y-m-d'),
+            'uses_inclusive_taxes' => false,
+            'discount' => 0,
+            'is_amount_discount' => true,
+            'tax_rate1' => 0,
+            'tax_name1' => '',
+            'tax_rate2' => 0,
+            'tax_name2' => '',
+            'tax_rate3' => 0,
+            'tax_name3' => '',
+            'line_items' => [$item],
+        ]);
+
+        $credit->setRelation('company', $company);
+        $credit->setRelation('client', $client);
+        $credit = $credit->calc()->getCredit();
+        $credit = (new CreditRepository())->save([], $credit);
+        $credit = $credit->service()->markSent()->save();
+
+        $data = [
+            'entity' => 'credits',
+            'entity_id' => $credit->hashed_id,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/einvoice/validateEntity', $data);
+
+        if ($response->getStatusCode() !== 200) {
+            $p = new Peppol($credit);
+            nlog($p->run()->toXml());
+            nlog($response->json());
+        }
+
+        $response->assertStatus(200);
+    }
+
+    public function testEntityValidationFailsForCreditViaClient()
+    {
+        $scenario = [
+            'company_vat' => 'DE923356489',
+            'company_country' => 'DE',
+            'client_country' => 'FR',
+            'client_vat' => 'FRAA123456789',
+            'client_id_number' => '123456789',
+            'classification' => 'business',
+            'has_valid_vat' => true,
+            'over_threshold' => true,
+            'legal_entity_id' => 290868,
+            'is_tax_exempt' => false,
+        ];
+
+        $entity_data = $this->setupTestData($scenario);
+        $client = $entity_data['client'];
+        $client->address1 = '';
+        $client->city = '';
+        $client->save();
+
+        $item = new InvoiceItem();
+        $item->quantity = 1;
+        $item->cost = 100;
+        $item->product_key = 'test';
+        $item->notes = 'Description';
+        $item->is_amount_discount = true;
+        $item->discount = 0;
+        $item->tax_id = '1';
+
+        $credit = Credit::factory()->create([
+            'client_id' => $client->id,
+            'company_id' => $entity_data['company']->id,
+            'user_id' => $this->user->id,
+            'date' => now()->addDay()->format('Y-m-d'),
+            'uses_inclusive_taxes' => false,
+            'discount' => 0,
+            'is_amount_discount' => true,
+            'line_items' => [$item],
+        ]);
+
+        $credit = (new CreditRepository())->save([], $credit);
+
+        $data = [
+            'entity' => 'credits',
+            'entity_id' => $credit->hashed_id,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/einvoice/validateEntity', $data);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('invoice', [])
+            ->assertJsonStructure(['passes', 'credit', 'invoice', 'client', 'company']);
     }
 
 
@@ -2937,9 +3102,7 @@ class PeppolTest extends TestCase
         $result = (new EntityLevel())->checkInvoice($invoice);
 
         $this->assertFalse($result['passes'], 'Negative line price must fail Peppol validation');
-
-        $fields = array_column($result['invoice'], 'field');
-        $this->assertContains('negative_line_price', $fields, 'Should surface the negative_line_price error');
+        $this->assertContains(ctrans('texts.peppol_negative_line_price'), $result['invoice']);
     }
 
     /**
@@ -2962,8 +3125,7 @@ class PeppolTest extends TestCase
 
         $result = (new EntityLevel())->checkInvoice($invoice);
 
-        $fields = array_column($result['invoice'], 'field');
-        $this->assertContains('negative_line_price', $fields, 'Negative price must be rejected even on a positive invoice');
+        $this->assertContains(ctrans('texts.peppol_negative_line_price'), $result['invoice'], 'Negative price must be rejected even on a positive invoice');
     }
 
     /**
@@ -2981,8 +3143,7 @@ class PeppolTest extends TestCase
 
         $result = (new EntityLevel())->checkInvoice($invoice);
 
-        $fields = array_column($result['invoice'], 'field');
-        $this->assertNotContains('negative_line_price', $fields, 'Positive prices must not trip the negative-price guard');
+        $this->assertNotContains(ctrans('texts.peppol_negative_line_price'), $result['invoice'], 'Positive prices must not trip the negative-price guard');
     }
 
 }

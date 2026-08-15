@@ -16,10 +16,35 @@ use App\Jobs\EDocument\RecordFranceEReportingScopeInvalidation;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\TransactionEvent;
+use App\Utils\Ninja;
 use Illuminate\Support\Str;
 
 class FranceScopeInvalidationRecorder
 {
+    public function recordCompanyConfigurationChange(
+        Company $company,
+        object $originalSettings,
+    ): ?TransactionEvent {
+        if (! Ninja::isHosted()) {
+            return null;
+        }
+
+        $wasEnabled = (bool) data_get($originalSettings, 'france_reporting_enabled');
+        $isEnabled = (bool) $company->getSetting('france_reporting_enabled');
+        $scheduleChanged = (string) data_get($originalSettings, 'france_reporting_schedule')
+            !== (string) $company->getSetting('france_reporting_schedule');
+
+        if (! $isEnabled || ($wasEnabled === $isEnabled && ! $scheduleChanged)) {
+            return null;
+        }
+
+        return $this->recordAndDispatch(
+            company: $company,
+            supersedeUnacceptedTransactionScopes: $scheduleChanged,
+            initializeCurrentPeriods: ! $wasEnabled,
+        );
+    }
+
     /**
      * @param array<int, int> $clientIds
      */
@@ -30,6 +55,10 @@ class FranceScopeInvalidationRecorder
         bool $initializeCurrentPeriods = false,
         array $clientIds = [],
     ): ?TransactionEvent {
+        if (! (bool) $company->getSetting('france_reporting_enabled')) {
+            return null;
+        }
+
         $representativeClientId = $clientId
             ?? collect($clientIds)->map(fn($id): int => (int) $id)->filter()->first()
             ?? Client::withTrashed()

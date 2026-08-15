@@ -14,12 +14,12 @@ namespace App\Jobs\Cron;
 
 use App\Jobs\EDocument\SubmitFranceEReport;
 use App\Jobs\EDocument\RecordFranceEReportingScopeInvalidation;
-use App\Jobs\EDocument\SubmitFrancePaymentReceivedNotification;
 use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\TransactionEvent;
 use App\Services\EDocument\Standards\France\FranceEReportVariant;
+use App\Services\EDocument\Standards\France\FrancePaymentNotificationProcessor;
 use App\Services\EDocument\Standards\France\FranceReportMaterializer;
 use App\Services\EDocument\Standards\France\FranceReportingEventType;
 use App\Services\EDocument\Standards\France\FranceReportingScopePlanner;
@@ -45,6 +45,8 @@ class FranceEReportingCron implements ShouldQueue
 
     public $tries = 1;
 
+    public $timeout = 3500;
+
     private const UNMATCHED_CALLBACK_RETENTION_DAYS = 30;
     private const SOURCE_RECONCILIATION_OVERLAP_MINUTES = 1;
 
@@ -56,20 +58,27 @@ class FranceEReportingCron implements ShouldQueue
     public function handle(
         FranceReportingScopePlanner $scopePlanner,
         FranceReportMaterializer $materializer,
+        FrancePaymentNotificationProcessor $notificationProcessor,
     ): void {
         $parisNow = CarbonImmutable::now('Europe/Paris');
 
         if ($this->companyId && $this->db) {
             MultiDB::setDb($this->db);
             $company = Company::query()
-                ->with('account')
                 ->whereKey($this->companyId)
                 ->where('is_disabled', false)
                 ->whereHas('account', fn($query) => $query->where('is_flagged', false))
                 ->first();
 
             if ($company && (bool) $company->getSetting('france_reporting_enabled')) {
-                $this->processCompany($company, $this->db, $parisNow, $scopePlanner, $materializer);
+                $this->processCompany(
+                    $company,
+                    $this->db,
+                    $parisNow,
+                    $scopePlanner,
+                    $materializer,
+                    $notificationProcessor,
+                );
             }
 
             return;
@@ -108,7 +117,6 @@ class FranceEReportingCron implements ShouldQueue
     private function dispatchCompanies(string $db): void
     {
         Company::query()
-            ->with('account')
             ->where('is_disabled', false)
             ->whereHas('account', fn($query) => $query->where('is_flagged', false))
             ->orderBy('id')
@@ -123,6 +131,7 @@ class FranceEReportingCron implements ShouldQueue
         CarbonImmutable $parisNow,
         FranceReportingScopePlanner $scopePlanner,
         FranceReportMaterializer $materializer,
+        FrancePaymentNotificationProcessor $notificationProcessor,
     ): void {
         $scopePlanner->reset();
 
@@ -130,8 +139,8 @@ class FranceEReportingCron implements ShouldQueue
             $this->processScopeInvalidations($company);
             $this->reconcileSourceState($company, $db, $materializer);
             $this->replayStoredCallbacks($company);
-            $this->dispatchPersistedSubmissions($company, $db);
-            $this->dispatchPaymentNotifications($company, $db, $parisNow);
+            $this->dispatchPersistedSubmissions($company, $db, $notificationProcessor);
+            $this->processPaymentNotifications($company, $db, $parisNow, $notificationProcessor);
 
             foreach ([FranceEReportVariant::TransactionInitial, FranceEReportVariant::PaymentInitial] as $family) {
                 foreach ($scopePlanner->duePeriods($company, $family, $parisNow) as $period) {
@@ -238,7 +247,6 @@ class FranceEReportingCron implements ShouldQueue
             $reportingContextHash,
             $reportingProfile,
         ): void {
-            Company::query()->whereKey($company->id)->lockForUpdate()->firstOrFail();
             TransactionEvent::query()
                 ->where('company_id', $company->id)
                 ->whereIn('client_id', $this->clientIds($company))
@@ -324,7 +332,11 @@ class FranceEReportingCron implements ShouldQueue
             ->delete();
     }
 
-    private function dispatchPersistedSubmissions(Company $company, string $db): void
+    private function dispatchPersistedSubmissions(
+        Company $company,
+        string $db,
+        FrancePaymentNotificationProcessor $notificationProcessor,
+    ): void
     {
         TransactionEvent::query()
             ->select(['id', 'event_id', 'payment_status', 'payment_request'])
@@ -340,23 +352,29 @@ class FranceEReportingCron implements ShouldQueue
             ])
             ->whereNull('payment_request->retry_exhausted_at')
             ->whereNull('payment_request->deferred_at')
-            ->orderBy('id')
-            ->each(function (TransactionEvent $event) use ($db): void {
+            ->eachById(function (TransactionEvent $event) use ($db, $notificationProcessor): void {
                 if ((int) $event->event_id === FranceReportingEventType::ReportSubmission->value) {
                     SubmitFranceEReport::dispatch($event->id, $db);
 
                     return;
                 }
 
-                SubmitFrancePaymentReceivedNotification::dispatch($event->id, $db);
+                try {
+                    $notificationProcessor->process($event->id, $db);
+                } catch (Throwable $exception) {
+                    report($exception);
+                }
             });
     }
 
-    private function dispatchPaymentNotifications(
+    private function processPaymentNotifications(
         Company $company,
         string $db,
         CarbonImmutable $parisNow,
+        FrancePaymentNotificationProcessor $notificationProcessor,
     ): void {
+        $processedGroups = [];
+
         TransactionEvent::query()
             ->select([
                 'id',
@@ -375,8 +393,12 @@ class FranceEReportingCron implements ShouldQueue
             ->where('event_id', FranceReportingEventType::PaymentMovement->value)
             ->whereNull('payment_status')
             ->where('payment_request->reporting_path', 'payment_received_notification')
-            ->orderBy('id')
-            ->each(function (TransactionEvent $event) use ($db, $parisNow): void {
+            ->eachById(function (TransactionEvent $event) use (
+                $db,
+                $parisNow,
+                $notificationProcessor,
+                &$processedGroups,
+            ): void {
                 $effectiveAt = (string) data_get($event->payment_request, 'effective_at');
 
                 if ($effectiveAt !== ''
@@ -384,7 +406,22 @@ class FranceEReportingCron implements ShouldQueue
                     return;
                 }
 
-                SubmitFrancePaymentReceivedNotification::dispatch($event->id, $db);
+                $groupKey = implode('|', [
+                    (string) $event->invoice_id,
+                    trim((string) data_get($event->payment_request, 'original_document_guid')),
+                ]);
+
+                if (isset($processedGroups[$groupKey])) {
+                    return;
+                }
+
+                $processedGroups[$groupKey] = true;
+
+                try {
+                    $notificationProcessor->process($event->id, $db);
+                } catch (Throwable $exception) {
+                    report($exception);
+                }
             });
     }
 

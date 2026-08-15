@@ -66,35 +66,24 @@ class RecordFranceEReportingDocumentLifecycle implements ShouldQueue
 
         /** @var Invoice|Credit|null $document */
         $document = $this->entity::withTrashed()
-            ->with(['client.country', 'client.company', 'company'])
+            ->with('company')
             ->find($this->id);
 
         if (is_null($document)) {
             return;
         }
 
-        $client = $document->getRelation('client');
         $company = $document->getRelation('company');
 
-        if (! $client instanceof Client || ! $company instanceof Company) {
+        if (! $company instanceof Company
+            || ! (bool) $company->getSetting('france_reporting_enabled')) {
             return;
         }
 
-        if (! $client->reportableFrTransaction()
-            && ! TransactionEvent::query()
-                ->where('company_id', $document->company_id)
-                ->where(function ($query) use ($document): void {
-                    $document instanceof Invoice
-                        ? $query->where('invoice_id', $document->id)
-                        : $query->where('credit_id', $document->id);
-                })
-                ->whereIn('event_id', [
-                    FranceReportingEventType::DocumentLifecycle->value,
-                    FranceReportingEventType::TransactionSnapshot->value,
-                    FranceReportingEventType::PaymentSnapshot->value,
-                    FranceReportingEventType::PaymentMovement->value,
-                ])
-                ->exists()) {
+        $document->loadMissing(['client.country', 'client.company']);
+        $client = $document->getRelation('client');
+
+        if (! $client instanceof Client) {
             return;
         }
 
@@ -234,7 +223,6 @@ class RecordFranceEReportingDocumentLifecycle implements ShouldQueue
             ? $document->location->only(['id', 'updated_at', 'deleted_at'])
             : null;
         $sourceStateHash = hash('sha256', json_encode([
-            'client_is_reportable' => $client->reportableFrTransaction(),
             'client_currency' => strtoupper((string) $client->currency()?->code),
             'client_name' => $client->present()->name(),
             'client_email' => $client->present()->email(),
@@ -246,75 +234,63 @@ class RecordFranceEReportingDocumentLifecycle implements ShouldQueue
             'company_context' => app(FranceReportMaterializer::class)->reportingContextHash($company),
         ], JSON_THROW_ON_ERROR));
 
-        DB::transaction(function () use (
-            $client,
-            $company,
-            $document,
-            $scopes,
-            $status,
-            $projectionGate,
-            $sourceStateHash,
-        ): void {
-            Company::query()->whereKey($company->id)->lockForUpdate()->firstOrFail();
+        foreach ($scopes as $scope) {
+            $eventKey = hash('sha256', json_encode([
+                'entity' => $this->entity,
+                'id' => $document->id,
+                'trigger_event_id' => $this->triggerEventId,
+                'updated_at' => (string) $document->updated_at,
+                'client_updated_at' => (string) $client->updated_at,
+                'company_updated_at' => (string) $company->updated_at,
+                'is_deleted' => (bool) $document->is_deleted,
+                'status_id' => (int) $document->status_id,
+                'status' => $status,
+                'family' => $scope['family'],
+                'period_start' => $scope['period_start'],
+                'period' => $scope['period'],
+                'invalidation_key' => $this->invalidationKey,
+                'source_state_hash' => $sourceStateHash,
+            ], JSON_THROW_ON_ERROR));
 
-            foreach ($scopes as $scope) {
-                $eventKey = hash('sha256', json_encode([
-                    'entity' => $this->entity,
-                    'id' => $document->id,
-                    'trigger_event_id' => $this->triggerEventId,
-                    'updated_at' => (string) $document->updated_at,
-                    'client_updated_at' => (string) $client->updated_at,
-                    'company_updated_at' => (string) $company->updated_at,
-                    'is_deleted' => (bool) $document->is_deleted,
-                    'status_id' => (int) $document->status_id,
-                    'status' => $status,
-                    'family' => $scope['family'],
-                    'period_start' => $scope['period_start'],
-                    'period' => $scope['period'],
-                    'invalidation_key' => $this->invalidationKey,
-                    'source_state_hash' => $sourceStateHash,
-                ], JSON_THROW_ON_ERROR));
-
-                if (TransactionEvent::query()
-                    ->where('company_id', $document->company_id)
-                    ->where('client_id', $document->client_id)
-                    ->where($document instanceof Invoice ? 'invoice_id' : 'credit_id', $document->id)
-                    ->where('event_id', FranceReportingEventType::DocumentLifecycle->value)
-                    ->where('period', $scope['period'])
-                    ->where('payment_request->event_key', $eventKey)
-                    ->exists()) {
-                    continue;
-                }
-
-                TransactionEvent::create([
-                    'company_id' => $document->company_id,
-                    'client_id' => $document->client_id,
-                    'invoice_id' => $document instanceof Invoice ? $document->id : 0,
-                    'payment_id' => 0,
-                    'credit_id' => $document instanceof Credit ? $document->id : 0,
-                    'event_id' => FranceReportingEventType::DocumentLifecycle->value,
-                    'timestamp' => now()->timestamp,
-                    'period' => $scope['period'],
-                    'payment_status' => null,
-                    'reporting_data' => null,
-                    'payment_request' => [
-                        'schema_version' => 1,
-                        'role' => 'fact',
-                        'fact_type' => 'document_lifecycle',
-                        'event_key' => $eventKey,
-                        'trigger_event_id' => $this->triggerEventId,
-                        'family' => $scope['family'],
-                        'reporting_profile' => $scope['profile'],
-                        'period_start' => $scope['period_start'],
-                        'status' => $status,
-                        'projection_gate' => $projectionGate,
-                        'projection_schema_version' => FranceReportMaterializer::PROJECTION_SCHEMA_VERSION,
-                        'invalidation_key' => $this->invalidationKey,
-                        'observed_at' => now()->toIso8601String(),
-                    ],
-                ]);
+            if (TransactionEvent::query()
+                ->where('company_id', $document->company_id)
+                ->where('client_id', $document->client_id)
+                ->where($document instanceof Invoice ? 'invoice_id' : 'credit_id', $document->id)
+                ->where('event_id', FranceReportingEventType::DocumentLifecycle->value)
+                ->where('period', $scope['period'])
+                ->where('payment_request->event_key', $eventKey)
+                ->exists()) {
+                continue;
             }
-        }, attempts: 3);
+
+            TransactionEvent::create([
+                'company_id' => $document->company_id,
+                'client_id' => $document->client_id,
+                'invoice_id' => $document instanceof Invoice ? $document->id : 0,
+                'payment_id' => 0,
+                'credit_id' => $document instanceof Credit ? $document->id : 0,
+                'event_id' => FranceReportingEventType::DocumentLifecycle->value,
+                'timestamp' => now()->timestamp,
+                'period' => $scope['period'],
+                'payment_status' => null,
+                'reporting_data' => null,
+                'payment_request' => [
+                    'schema_version' => 1,
+                    'role' => 'fact',
+                    'fact_type' => 'document_lifecycle',
+                    'event_key' => $eventKey,
+                    'trigger_event_id' => $this->triggerEventId,
+                    'family' => $scope['family'],
+                    'reporting_profile' => $scope['profile'],
+                    'period_start' => $scope['period_start'],
+                    'status' => $status,
+                    'projection_gate' => $projectionGate,
+                    'projection_schema_version' => FranceReportMaterializer::PROJECTION_SCHEMA_VERSION,
+                    'invalidation_key' => $this->invalidationKey,
+                    'observed_at' => now()->toIso8601String(),
+                ],
+            ]);
+        }
     }
 
     private function reopenDeferredPaymentNotifications(Invoice $invoice): void
@@ -331,8 +307,6 @@ class RecordFranceEReportingDocumentLifecycle implements ShouldQueue
         }
 
         DB::transaction(function () use ($invoice, $guid): void {
-            Company::query()->whereKey($invoice->company_id)->lockForUpdate()->firstOrFail();
-
             TransactionEvent::query()
                 ->where('company_id', $invoice->company_id)
                 ->where('invoice_id', $invoice->id)
@@ -392,4 +366,3 @@ class RecordFranceEReportingDocumentLifecycle implements ShouldQueue
     }
 
 }
-

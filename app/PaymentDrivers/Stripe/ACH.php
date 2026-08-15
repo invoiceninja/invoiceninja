@@ -407,6 +407,7 @@ class ACH implements LivewireMethodInterface
                         "type" => "offline",
                     ],
                 ];
+                
                 $data['setup_future_usage'] = 'off_session';
 
             }

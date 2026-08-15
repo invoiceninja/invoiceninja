@@ -503,6 +503,12 @@ class NinjaPlanController extends Controller
 
         $account = Account::query()->where('key', $client->custom_value2)->firstOrFail();
 
+        if(class_exists(\Modules\Admin\Services\Evaluator::class)){
+            app(\Modules\Admin\Services\Evaluator::class)->record($account, [
+                'trial_started' => time(),
+            ]);
+        }
+
         if ($account->billing_context?->recurring_invoice_id !== $recurringInvoice->id) {
             throw new \RuntimeException('Unable to persist the trial checkpoint.');
         }

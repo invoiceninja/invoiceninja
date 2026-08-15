@@ -34,6 +34,10 @@ final readonly class FranceRuntimeProjection
         FranceEReportVariant $variant,
         ReportingPeriod $period,
     ): array {
+        if (! (bool) $company->getSetting('france_reporting_enabled')) {
+            return [];
+        }
+
         return $variant->isTransaction()
             ? $this->transactions($company, $period)
             : $this->payments($company, $period);
@@ -300,8 +304,7 @@ final readonly class FranceRuntimeProjection
                 || strtoupper((string) $invoice->client->currency()?->code) !== 'EUR'
                 || ! $this->invoiceCanParticipate($invoice)
                 || ! $this->invoiceIsCurrentlyPaid($invoice)
-                || ! $this->documentLifecycleAllowsReporting($invoice)
-                || ! $invoice->client->reportableFrTransaction()) {
+                || ! $this->documentLifecycleAllowsReporting($invoice)) {
                 continue;
             }
 
@@ -380,10 +383,6 @@ final readonly class FranceRuntimeProjection
 
     private function documentIsF10Reportable(Client $client): bool
     {
-        if (! $client->reportableFrTransaction()) {
-            return false;
-        }
-
         return ($client->classification ?? 'business') === 'individual'
             || $client->country?->iso_3166_2 !== 'FR';
     }

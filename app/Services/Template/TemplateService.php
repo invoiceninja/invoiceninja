@@ -945,6 +945,7 @@ class TemplateService
                 'client' => $this->getClient($quote),
                 'total_tax_map' => $quote->calc()->getTotalTaxMap(),
                 'line_tax_map' => $quote->calc()->getTaxMap()->toArray(),
+                'project' => $quote->project ? $this->transformProject($quote->project, true) : [],
                 'tags' => $quote->tags->pluck('name')->values()->all(),
             ];
         })->toArray();
@@ -1275,6 +1276,7 @@ class TemplateService
             'user' => $this->userInfo($project->user),
             'assigned_user' => $project->assigned_user ? $this->userInfo($project->assigned_user) : [],
             'invoices' => !$nested ? $this->processInvoices($project->invoices) : [],
+            'quotes' => !$nested ? $this->processQuotes($project->quotes) : [],
             'expenses' => ($project->expenses && !$nested) ? $this->processExpenses($project->expenses, true) : [],
             'tags' => $project->tags->pluck('name')->values()->all(),
         ];

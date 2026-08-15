@@ -243,6 +243,24 @@ class InvoiceFilters extends QueryFilters
                     ->where('balance', '>', 0);
     }
 
+    public function project_id(string $project_id = ''): Builder
+    {
+        if (strlen($project_id) == 0) {
+            return $this->builder;
+        }
+
+        $decoded = $this->decodePrimaryKey($project_id);
+
+        return $this->builder
+            ->where('project_id', $decoded)
+            ->whereExists(function ($query) use ($decoded) {
+                $query->selectRaw('1')
+                    ->from('projects')
+                    ->where('projects.id', $decoded)
+                    ->where('projects.company_id', auth()->user()->companyId());
+            });
+    }
+
     /**
      * @param string $date
      * @return Builder
@@ -404,6 +422,37 @@ class InvoiceFilters extends QueryFilters
         }
 
         return $this->builder->orderBy("{$this->builder->getQuery()->from}." . $sort_col[0], $dir);
+    }
+
+    /**
+     * Ensure we pad out additional includes to prevent N+1 queries.
+     *
+     * @param  string $includes
+     * @return Builder
+     */
+    public function include(string $includes = ''): Builder
+    {
+        if (trim($includes) === '') {
+            return $this->builder;
+        }
+
+        $requested_includes = array_values(array_filter(
+            array_map('trim', explode(',', $includes)),
+            static fn (string $include): bool => $include !== ''
+        ));
+
+        $include_roots = array_map(
+            static fn (string $include): string => explode('.', trim($include), 2)[0],
+            $requested_includes
+        );
+
+        if (in_array('client', $include_roots, true)) {
+            $this->builder->with([
+                'client.locations',
+            ]);
+        }
+
+        return $this->builder;
     }
 
     /**
