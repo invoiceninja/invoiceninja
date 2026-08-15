@@ -109,7 +109,7 @@ export async function createWhiteLabelSubscription(
     const subscription = await api.createEntity<{ id: string; name?: string }>(
         'subscriptions',
         {
-            name: options.name ?? WHITE_LABEL_SUBSCRIPTION_NAME,
+            name: options.name ?? uniqueName(WHITE_LABEL_SUBSCRIPTION_NAME),
             steps: 'cart,auth.login-or-register',
             recurring_product_ids: product.id,
             frequency_id: WHITE_LABEL_ANNUAL_FREQUENCY_ID,
