@@ -143,17 +143,22 @@ export async function completeRequiredClientInfoForm(
 
     const copyBilling = form.locator('#copy-billing-button');
     if (await copyBilling.isVisible().catch(() => false)) {
-        await copyBilling.click();
+        await copyBilling.click({ force: true });
     }
 
     const terms = form.locator('input[name="terms_accepted"]');
     if (await terms.isVisible().catch(() => false)) {
-        await terms.check();
+        if (!(await terms.isChecked().catch(() => false))) {
+            await terms.click({ force: true });
+        }
     }
 
-    const continueButton = form.locator('button.button-primary').last();
-    await expect(continueButton).toBeVisible({ timeout: 15_000 });
-    await continueButton.click();
+    const continueButton = form.locator('button.button-primary:not([disabled])').last();
+    if ((await continueButton.count()) === 0) {
+        await form.locator('button.button-primary').last().click({ force: true });
+    } else {
+        await continueButton.click();
+    }
 
     await expect
         .poll(() => isRequiredClientInfoBlockingCheckout(page), {

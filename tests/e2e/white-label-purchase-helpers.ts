@@ -21,6 +21,13 @@ import {
     requiredClientInfoForm,
 } from './gateways/payment-flow-helpers';
 
+/** RecurringInvoice::FREQUENCY_ANNUALLY */
+export const WHITE_LABEL_ANNUAL_FREQUENCY_ID = '10';
+
+export const WHITE_LABEL_PRODUCT_KEY = 'whitelabel';
+
+export const WHITE_LABEL_SUBSCRIPTION_NAME = 'White Label License / year';
+
 export interface WhiteLabelSubscription {
     product: { id: string; product_key?: string };
     subscription: { id: string; name?: string };
@@ -41,9 +48,11 @@ const defaultPurchaseClientAddress = {
 };
 
 /**
- * White label fulfillment (`handleWhiteLabelPurchase`) only runs when the
- * subscription belongs to `NINJA_COMPANY_ID` and the recurring product key is
- * `whitelabel`.
+ * A white label subscription is a subscription whose recurring product has
+ * `product_key = whitelabel` and annual frequency.
+ *
+ * License fulfillment (`handleWhiteLabelPurchase`) additionally requires the
+ * subscription company to match `NINJA_COMPANY_ID`.
  */
 export async function isWhiteLabelFulfillmentConfigured(
     api: ApiContext,
@@ -86,7 +95,7 @@ export async function createWhiteLabelSubscription(
     const product = await api.createEntity<{ id: string; product_key?: string }>(
         'products',
         {
-            product_key: 'whitelabel',
+            product_key: WHITE_LABEL_PRODUCT_KEY,
             notes: 'White Label License (Playwright)',
             cost: options.cost ?? 750,
             price: options.cost ?? 750,
@@ -97,10 +106,10 @@ export async function createWhiteLabelSubscription(
     const subscription = await api.createEntity<{ id: string; name?: string }>(
         'subscriptions',
         {
-            name: options.name ?? uniqueName('white-label'),
+            name: options.name ?? WHITE_LABEL_SUBSCRIPTION_NAME,
             steps: 'cart,auth.login-or-register',
             recurring_product_ids: product.id,
-            frequency_id: '10',
+            frequency_id: WHITE_LABEL_ANNUAL_FREQUENCY_ID,
             allow_cancellation: true,
             allow_plan_changes: false,
         },

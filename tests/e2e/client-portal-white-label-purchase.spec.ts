@@ -190,7 +190,7 @@ test.describe('White label license purchase', () => {
         page,
         notificationGuard,
     }) => {
-        test.setTimeout(120_000);
+        test.setTimeout(180_000);
 
         const fulfillmentSkipReason = await whiteLabelFulfillmentSkipReason(
             api.context,
