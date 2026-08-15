@@ -361,11 +361,7 @@ class Purify
         if (config('ninja.disable_purify_html') || strlen($html) <= 1) {
             $html = str_replace('%24', '$', $html);
         } else {
-            $html = self::sanitizeHtml($html, $is_fragment);
-        }
-
-        if ($inline_pdf_images) {
-            $html = self::inlineRemoteImages($html, $is_fragment);
+            $html = self::sanitizeHtml($html, $is_fragment, $inline_pdf_images);
         }
 
         return $html;
@@ -386,7 +382,7 @@ class Purify
         return self::sanitizeHtml($html, $is_fragment);
     }
 
-    private static function sanitizeHtml(string $html, bool $is_fragment): string
+    private static function sanitizeHtml(string $html, bool $is_fragment, bool $inline_pdf_images = false): string
     {
 
         $html = str_replace('%24', '$', $html);
@@ -414,8 +410,10 @@ class Purify
 
         @$document->loadHTML(htmlspecialchars_decode(htmlspecialchars($html, ENT_QUOTES, 'UTF-8')), LIBXML_NONET);
 
+        $imageFetcher = $inline_pdf_images ? new ImageFetcher() : null;
+
         // Function to recursively check nodes
-        $cleanNodes = function ($node) use (&$cleanNodes) {
+        $cleanNodes = function ($node) use (&$cleanNodes, $imageFetcher) {
 
             $allowed_elements = self::$allowed_elements;
             $allowed_attributes = self::$allowed_attributes;
@@ -537,6 +535,10 @@ class Purify
                         if ($is_allowed) {
                             $is_http = str_starts_with($value, 'http://') || str_starts_with($value, 'https://');
                             if (!$is_http || self::isHostSafe($value)) {
+                                if ($attr_name === 'src' && $imageFetcher !== null && self::isRemoteImageUrl($value)) {
+                                    $value = $imageFetcher->inline($value) ?? self::TRANSPARENT_PNG_DATA_URI;
+                                }
+
                                 $node->setAttribute($name, $value);
                             }
                         }
@@ -599,87 +601,9 @@ class Purify
 
     }
 
-    /**
-     * Replace remote image URLs in the sanitized HTML with inlined data: URIs
-     * so the PDF renderer never fetches untrusted content at render time.
-     */
-    private static function inlineRemoteImages(string $html, bool $is_fragment): string
-    {
-        if (!preg_match('/<[a-zA-Z\/!]/', $html)) {
-            return $html;
-        }
-
-        libxml_use_internal_errors(true);
-
-        $document = new \DOMDocument();
-
-        $wrapped = $is_fragment
-            ? '<?xml encoding="UTF-8"><div>' . $html . '</div>'
-            : '<?xml encoding="UTF-8">' . $html;
-
-        @$document->loadHTML(
-            htmlspecialchars_decode(htmlspecialchars($wrapped, ENT_QUOTES, 'UTF-8')),
-            LIBXML_NONET
-        );
-
-        $fetcher = new ImageFetcher();
-
-        $images = [];
-        foreach ($document->getElementsByTagName('img') as $image) {
-            $images[] = $image;
-        }
-
-        foreach ($images as $image) {
-            $src = $image->getAttribute('src');
-
-            if (!self::isRemoteImageUrl($src)) {
-                continue;
-            }
-
-            $inlined = $fetcher->inline($src);
-            $image->setAttribute('src', $inlined ?? self::TRANSPARENT_PNG_DATA_URI);
-        }
-
-        try {
-            $html = self::saveDomHtml($document, $is_fragment);
-            $html = str_replace('%24', '$', $html);
-
-            return $html;
-        } finally {
-            libxml_clear_errors();
-        }
-    }
-
     private static function isRemoteImageUrl(string $url): bool
     {
-        nlog($url);
         return str_starts_with($url, 'http://') || str_starts_with($url, 'https://');
-    }
-
-    private static function saveDomHtml(\DOMDocument $document, bool $is_fragment): string
-    {
-        if ($is_fragment) {
-            $body = $document->getElementsByTagName('body')->item(0);
-            $html = '';
-
-            if ($body) {
-                $wrapper = $body->firstChild;
-
-                if ($wrapper && $wrapper->nodeName === 'div') {
-                    foreach ($wrapper->childNodes as $child) {
-                        $html .= $document->saveHTML($child);
-                    }
-                } else {
-                    foreach ($body->childNodes as $child) {
-                        $html .= $document->saveHTML($child);
-                    }
-                }
-            }
-
-            return $html;
-        }
-
-        return $document->saveHTML() ?: '';
     }
 
 }

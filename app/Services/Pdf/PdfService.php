@@ -170,7 +170,8 @@ class PdfService
 
         // If JSON design was used, return the pre-generated HTML
         if ($this->json_design_html !== null) {
-            $html = \App\Services\Pdf\Purify::clean($this->json_design_html, false, $inline_pdf_images);
+            // JsonToSectionsAdapter already inlines logo/image blocks via ImageFetcher.
+            $html = \App\Services\Pdf\Purify::clean($this->json_design_html);
 
             if (config('ninja.log_pdf_html')) {
                 nlog($html);
@@ -181,9 +182,9 @@ class PdfService
 
         $html = \App\Services\Pdf\Purify::clean($this->builder->document->saveHTML(), false, $inline_pdf_images);
 
-        // if (config('ninja.log_pdf_html')) {
+        if (config('ninja.log_pdf_html')) {
             nlog($html);
-        // }
+        }
 
         return $html;
     }
