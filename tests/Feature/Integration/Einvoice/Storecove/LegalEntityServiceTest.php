@@ -19,7 +19,7 @@ class LegalEntityServiceTest extends TestCase
     {
         parent::setUp();
 
-        if(!class_exists(Modules\Admin\Http\Requests\EInvoice\Peppol\StoreEntityRequestSelf::class)) {
+        if(!class_exists(StoreEntityRequestSelf::class)) {
             $this->markTestSkipped('StoreEntityRequestSelf class does not exist');
         }
     }
