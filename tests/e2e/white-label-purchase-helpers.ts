@@ -90,8 +90,10 @@ export async function whiteLabelFulfillmentSkipReason(
 
 export async function createWhiteLabelSubscription(
     api: ApiFixture,
-    options: { cost?: number; name?: string } = {},
+    options: { cost?: number; name?: string; cleanup?: boolean } = {},
 ): Promise<WhiteLabelSubscription> {
+    const cleanup = options.cleanup ?? true;
+
     const product = await api.createEntity<{ id: string; product_key?: string }>(
         'products',
         {
@@ -101,6 +103,7 @@ export async function createWhiteLabelSubscription(
             price: options.cost ?? 750,
             quantity: 1,
         },
+        { cleanup },
     );
 
     const subscription = await api.createEntity<{ id: string; name?: string }>(
@@ -113,6 +116,7 @@ export async function createWhiteLabelSubscription(
             allow_cancellation: true,
             allow_plan_changes: false,
         },
+        { cleanup },
     );
 
     return { product, subscription };

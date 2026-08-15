@@ -209,7 +209,9 @@ test.describe('White label license purchase', () => {
         const availability = await stripe.checkAvailability(api.context);
         stripe.skipUnlessAvailable(availability);
 
-        const { subscription } = await createWhiteLabelSubscription(api);
+        const { subscription } = await createWhiteLabelSubscription(api, {
+            cleanup: false,
+        });
         const client = await logInAndOpenWhiteLabelPurchase(
             api,
             page,
