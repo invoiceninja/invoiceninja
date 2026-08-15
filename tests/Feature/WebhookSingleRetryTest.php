@@ -55,6 +55,8 @@ class WebhookSingleRetryTest extends TestCase
 
     public function testHandlerDispatchesEachWebhookDeliveryAsAJob(): void
     {
+        config(['ninja.environment' => 'selfhost']);
+
         Queue::fake();
         $this->createWebhook();
 
