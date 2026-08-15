@@ -15,8 +15,18 @@ use Modules\Admin\Http\Requests\EInvoice\Peppol\StoreEntityRequestSelf;
 
 class LegalEntityServiceTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        if(!class_exists(Modules\Admin\Http\Requests\EInvoice\Peppol\StoreEntityRequestSelf::class)) {
+            $this->markTestSkipped('StoreEntityRequestSelf class does not exist');
+        }
+    }
+
     protected function tearDown(): void
     {
+
         CarbonImmutable::setTestNow();
 
         parent::tearDown();
