@@ -145,7 +145,7 @@ class PeppolTest extends TestCase
             'send_email' => true,
         ]);
 
-        $client->setRelation('contacts', [$contact]);
+        $client->setRelation('contacts', collect([$contact]));
 
         /** @var Invoice $invoice */
         $invoice = \App\Models\Invoice::factory()->create([
@@ -182,7 +182,30 @@ class PeppolTest extends TestCase
         $invoice->setRelation('client', $client);
         $invoice->setRelation('company', $company);
 
-        return compact('company', 'client', 'invoice');
+        $credit = \App\Models\Credit::factory()->create([
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'date' => now()->addDay()->format('Y-m-d'),
+            'due_date' => now()->addDays(2)->format('Y-m-d'),
+            'uses_inclusive_taxes' => false,
+            'tax_rate1' => 0,
+            'tax_name1' => '',
+            'tax_rate2' => 0,
+            'tax_name2' => '',
+            'tax_rate3' => 0,
+            'tax_name3' => '',
+            'status_id' => Invoice::STATUS_DRAFT,
+        ]);
+
+
+        $credit->line_items = array_values($items);
+        $credit = $credit->calc()->getCredit();
+
+        $credit->setRelation('client', $client);
+        $credit->setRelation('company', $company);
+        
+        return compact('company', 'client', 'invoice', 'credit');
     }
 
 

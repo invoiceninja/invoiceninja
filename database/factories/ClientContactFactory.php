@@ -29,6 +29,7 @@ class ClientContactFactory extends Factory
             'email_verified_at' => now(),
             'email' => $this->faker->unique()->safeEmail(),
             'send_email' => true,
+            'can_sign' => false,
             'password' => bcrypt('password'),
             'remember_token' => \Illuminate\Support\Str::random(10),
             'contact_key' => \Illuminate\Support\Str::random(40),
