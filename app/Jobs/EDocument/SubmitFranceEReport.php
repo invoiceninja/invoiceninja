@@ -83,16 +83,21 @@ class SubmitFranceEReport implements ShouldQueue
         }
 
         /** @var Company|null $company */
-        $company = Company::query()->with('account')->find($submission->company_id);
-        $account = $company?->getRelation('account');
+        $company = Company::query()->find($submission->company_id);
         $variant = FranceEReportVariant::tryFrom((string) data_get($submission->payment_request, 'variant'));
 
         if (! $company
-            || $company->is_disabled
-            || ! $account instanceof Account
-            || $account->is_flagged
             || ! (bool) $company->getSetting('france_reporting_enabled')
             || ! $variant) {
+            return;
+        }
+
+        $company->loadMissing('account');
+        $account = $company->getRelation('account');
+
+        if ($company->is_disabled
+            || ! $account instanceof Account
+            || $account->is_flagged) {
             return;
         }
 

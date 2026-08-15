@@ -243,6 +243,24 @@ class InvoiceFilters extends QueryFilters
                     ->where('balance', '>', 0);
     }
 
+    public function project_id(string $project_id = ''): Builder
+    {
+        if (strlen($project_id) == 0) {
+            return $this->builder;
+        }
+
+        $decoded = $this->decodePrimaryKey($project_id);
+
+        return $this->builder
+            ->where('project_id', $decoded)
+            ->whereExists(function ($query) use ($decoded) {
+                $query->selectRaw('1')
+                    ->from('projects')
+                    ->where('projects.id', $decoded)
+                    ->where('projects.company_id', auth()->user()->companyId());
+            });
+    }
+
     /**
      * @param string $date
      * @return Builder

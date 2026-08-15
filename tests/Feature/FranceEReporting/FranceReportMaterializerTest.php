@@ -39,6 +39,7 @@ use App\Services\EDocument\Standards\France\FranceReportMaterializer;
 use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
 use App\Services\EDocument\Standards\France\FranceReportingEventType;
 use App\Services\EDocument\Standards\France\FranceReportingStatus;
+use App\Services\EDocument\Standards\France\FranceSubmissionCallbackStore;
 use App\Services\EDocument\Standards\France\ReportingCalendar;
 use App\Services\EDocument\Standards\France\ReportingProfile;
 use Carbon\CarbonImmutable;
@@ -145,6 +146,57 @@ class FranceReportMaterializerTest extends TestCase
 
         $this->assertSame(FranceReportingStatus::Accepted->value, $submission->fresh()->payment_status);
         $this->assertSame(FranceReportingStatus::Accepted->value, $snapshot->fresh()->payment_status);
+    }
+
+    public function test_materializer_returns_before_querying_reporting_state_when_reporting_is_disabled(): void
+    {
+        $invoice = $this->makeInvoice('2026-09-15');
+        (new RecordFranceEReportingDocumentLifecycle(
+            Invoice::class,
+            $invoice->id,
+            Webhook::EVENT_SENT_INVOICE,
+            $this->company->db,
+        ))->handle();
+        $period = ReportingCalendar::currentPeriod(
+            ReportingProfile::TenDay,
+            CarbonImmutable::parse($invoice->date, 'Europe/Paris'),
+        );
+        $settings = $this->company->settings;
+        $settings->france_reporting_enabled = false;
+        $this->company->settings = $settings;
+        $this->company->saveQuietly();
+
+        $submission = app(FranceReportMaterializer::class)->materialize(
+            $this->company,
+            FranceEReportVariant::TransactionInitial,
+            $period,
+        );
+
+        $this->assertNull($submission);
+        $this->assertFalse(TransactionEvent::query()
+            ->where('company_id', $this->company->id)
+            ->where('event_id', FranceReportingEventType::ReportSubmission->value)
+            ->exists());
+    }
+
+    public function test_callback_store_returns_before_writing_when_reporting_is_disabled(): void
+    {
+        $settings = $this->company->settings;
+        $settings->france_reporting_enabled = false;
+        $this->company->settings = $settings;
+        $this->company->saveQuietly();
+
+        $callback = app(FranceSubmissionCallbackStore::class)->record(
+            $this->company,
+            'disabled-reporting-guid',
+            ['event' => 'accepted'],
+        );
+
+        $this->assertNull($callback);
+        $this->assertFalse(TransactionEvent::query()
+            ->where('company_id', $this->company->id)
+            ->where('event_id', FranceReportingEventType::SubmissionCallback->value)
+            ->exists());
     }
 
     public function test_transaction_materialization_rejects_a_period_from_the_previous_schedule(): void

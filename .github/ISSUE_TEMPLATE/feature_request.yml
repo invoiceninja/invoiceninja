@@ -16,6 +16,15 @@ body:
     validations:
       required: true
 
+  - type: input
+    id: version
+    attributes:
+      label: Invoice Ninja version
+      description: Enter the complete Invoice Ninja version you are currently using.
+      placeholder: v5.13.31
+    validations:
+      required: true
+
   - type: checkboxes
     id: existing-requests
     attributes:

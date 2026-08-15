@@ -42,8 +42,12 @@ class PurgeClientRequestTest extends TestCase
         $response = $this->withHeaders($this->apiHeaders())
             ->postJson("/api/v1/clients/{$client->hashed_id}/purge");
 
-        $response->assertStatus(401)
-            ->assertJson(['message' => 'This action is unauthorized.']);
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors('client')
+            ->assertJsonPath(
+                'errors.client.0',
+                'The client cannot be purged while France reporting is enabled.',
+            );
         $this->assertNotNull(Client::withTrashed()->find($client->id));
     }
 

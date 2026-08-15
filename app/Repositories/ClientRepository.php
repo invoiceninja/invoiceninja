@@ -156,17 +156,10 @@ class ClientRepository extends BaseRepository
      */
     public function assignGroup($clients, $group_settings_id): void
     {
-        $clientIds = $clients->pluck('id')->map(fn($id): int => (int) $id)->all();
-        $company = Company::query()->find($clients->first()?->company_id);
-
-        DB::transaction(function () use ($clientIds, $company, $group_settings_id): void {
-            Client::query()
-                  ->company()
-                  ->whereIn('id', $clientIds)
-                  ->update(['group_settings_id' => $group_settings_id]);
-
-            $this->invalidateFranceReportingClients($company, $clientIds);
-        }, attempts: 3);
+        Client::query()
+              ->company()
+              ->whereIn('id', $clients->pluck('id'))
+              ->update(['group_settings_id' => $group_settings_id]);
     }
 
     public function bulkUpdate(Builder $model, string $column, mixed $new_value): void
@@ -177,6 +170,12 @@ class ClientRepository extends BaseRepository
         $company = $clients->isNotEmpty()
             ? Company::query()->find($clients->first()->company_id)
             : null;
+
+        if (! $this->franceReportingEnabled($company) || $clients->isEmpty()) {
+            parent::bulkUpdate($model, $column, $new_value);
+
+            return;
+        }
 
         DB::transaction(function () use ($model, $column, $new_value, $company, $clients): void {
             parent::bulkUpdate($model, $column, $new_value);
@@ -191,9 +190,7 @@ class ClientRepository extends BaseRepository
     /** @param array<int, int> $clientIds */
     private function invalidateFranceReportingClients(?Company $company, array $clientIds): void
     {
-        if (! $company
-            || $clientIds === []
-            || ! (bool) $company->getSetting('france_reporting_enabled')) {
+        if (! $this->franceReportingEnabled($company) || $clientIds === []) {
             return;
         }
 
@@ -201,6 +198,12 @@ class ClientRepository extends BaseRepository
             company: $company,
             clientIds: $clientIds,
         );
+    }
+
+    private function franceReportingEnabled(?Company $company): bool
+    {
+        return $company instanceof Company
+            && (bool) $company->getSetting('france_reporting_enabled');
     }
 
     public function purge($client): void

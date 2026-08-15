@@ -64,7 +64,8 @@ class UpdateFranceEReportSubmissionStatus implements ShouldQueue
 
         $company = Company::query()->where('company_key', $tenantId)->first();
 
-        if (! $company) {
+        if (! $company
+            || ! (bool) $company->getSetting('france_reporting_enabled')) {
             return;
         }
 
@@ -89,8 +90,7 @@ class UpdateFranceEReportSubmissionStatus implements ShouldQueue
 
         $status = $this->statusForEvent((string) ($this->input['event'] ?? ''));
 
-        DB::transaction(function () use ($company, $submission, $status, $materializer): void {
-            Company::query()->whereKey($company->id)->lockForUpdate()->firstOrFail();
+        DB::transaction(function () use ($submission, $status, $materializer): void {
             $locked = TransactionEvent::query()->lockForUpdate()->find($submission->id);
 
             if (! $locked) {

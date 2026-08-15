@@ -21,6 +21,7 @@ use App\Models\TransactionEvent;
 use App\Services\Client\Merge;
 use App\Services\EDocument\Standards\France\FranceReportingEventType;
 use App\Services\EDocument\Standards\France\FranceReportingStatus;
+use App\Services\EDocument\Standards\France\FranceScopeInvalidationRecorder;
 use App\Utils\Traits\AppSetup;
 use Faker\Factory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -189,6 +190,48 @@ class ClientMergeTest extends TestCase
 
         $this->assertSame($target->id, $event->fresh()->client_id);
         $this->assertNull(Client::withTrashed()->find($source->id));
+    }
+
+    public function test_merge_rolls_back_entirely_when_a_downstream_failure_occurs(): void
+    {
+        [$company, $user] = $this->companyAndUser();
+
+        $settings = $company->settings;
+        $settings->france_reporting_enabled = true;
+        $company->settings = $settings;
+        $company->save();
+
+        $target = Client::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+        ]);
+        $source = Client::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+        ]);
+        $contact = ClientContact::factory()->create([
+            'user_id' => $user->id,
+            'client_id' => $source->id,
+            'company_id' => $company->id,
+            'is_primary' => 1,
+        ]);
+        $event = $this->acceptedSnapshot($company, $source);
+
+        $recorder = \Mockery::mock(FranceScopeInvalidationRecorder::class);
+        $recorder->shouldReceive('recordAndDispatch')
+            ->andThrow(new \RuntimeException('merge failure'));
+        $this->app->instance(FranceScopeInvalidationRecorder::class, $recorder);
+
+        try {
+            (new Merge($target, $source))->run();
+            $this->fail('Expected the merge to fail.');
+        } catch (\RuntimeException $e) {
+            $this->assertSame('merge failure', $e->getMessage());
+        }
+
+        $this->assertNotNull(Client::withTrashed()->find($source->id));
+        $this->assertSame($source->id, $event->fresh()->client_id);
+        $this->assertSame($source->id, $contact->fresh()->client_id);
     }
 
     /** @return array{0: Company, 1: User} */

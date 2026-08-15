@@ -198,7 +198,7 @@ class ImportHarvest extends Command
 
                     $response = Http::acceptJson()
                         ->withHeaders(['X-API-TOKEN' => $api_token])
-                        ->post($this->apiEndpoint($entity), $payload);
+                        ->post($this->apiCreateEndpoint($entity), $payload);
 
                     if ($response->failed()) {
                         if ($this->isDuplicateExpenseCategoryResponse($entity, $response)) {
@@ -960,9 +960,10 @@ class ImportHarvest extends Command
                         continue;
                     }
 
-                    $tax_rates[mb_strtolower($name) . '|' . (float) $rate] = [
+                    $rate = round((float) $rate, 2);
+                    $tax_rates[mb_strtolower($name) . '|' . $rate] = [
                         'name' => $name,
-                        'rate' => (float) $rate,
+                        'rate' => $rate,
                     ];
                 }
             }
@@ -1166,12 +1167,22 @@ class ImportHarvest extends Command
 
     private function apiBaseUrl(): string
     {
+        // return 'https://invoicing.co/api/v1';
         return rtrim((string) config('app.url'), '/') . '/api/v1';
     }
 
     private function apiEndpoint(Entity $entity): string
     {
         return $this->apiBaseUrl() . '/' . $entity->endpoint();
+    }
+
+    private function apiCreateEndpoint(Entity $entity): string
+    {
+        return $this->apiEndpoint($entity) . match ($entity) {
+            Entity::Invoices => '?mark_sent=true',
+            Entity::InvoicePayments => '?email_receipt=false',
+            default => '',
+        };
     }
 
     private function optionString(string $name): ?string

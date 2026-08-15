@@ -176,10 +176,12 @@ class Expense extends BaseModel
         'custom_value2',
         'custom_value3',
         'custom_value4',
-        'should_be_invoiced',
         'uses_inclusive_taxes',
         'private_notes',
         'public_notes',
+        'should_be_invoiced',
+        'project_id',
+        'client_id',
     ];
 
     protected $touches = [];

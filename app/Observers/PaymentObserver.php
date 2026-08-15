@@ -96,20 +96,24 @@ class PaymentObserver
             );
         }
 
-        $this->recordFrancePaymentStatusTransition($payment);
+        // $this->recordFrancePaymentStatusTransition($payment);
     }
 
-    private function recordFrancePaymentStatusTransition(Payment $payment): void
-    {
-        try {
-            app(FrancePaymentApplicationRecorder::class)->recordStatusTransition(
-                $payment,
-                (int) $payment->getOriginal('status_id'),
-            );
-        } catch (\Throwable $exception) {
-            report($exception);
-        }
-    }
+    // private function recordFrancePaymentStatusTransition(Payment $payment): void
+    // {
+    //     if (! (bool) $payment->company->getSetting('france_reporting_enabled')) {
+    //         return;
+    //     }
+
+    //     try {
+    //         app(FrancePaymentApplicationRecorder::class)->recordStatusTransition(
+    //             $payment,
+    //             (int) $payment->getOriginal('status_id'),
+    //         );
+    //     } catch (\Throwable $exception) {
+    //         report($exception);
+    //     }
+    // }
 
     /**
      * Handle the payment "deleted" event.

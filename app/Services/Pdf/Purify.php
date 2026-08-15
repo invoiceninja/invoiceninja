@@ -12,6 +12,11 @@ namespace App\Services\Pdf;
 
 class Purify
 {
+    /**
+     * 1×1 transparent PNG used when a remote image cannot be inlined.
+     */
+    private const TRANSPARENT_PNG_DATA_URI = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+
     private static array $allowed_elements = [
         // Document structure
         'html', 'head', 'body', 'meta', 'title', 'style',
@@ -345,16 +350,25 @@ class Purify
      *
      * @param  string $html
      * @param  bool $is_fragment
+     * @param  bool $inline_pdf_images When true, remote image URLs are fetched
+     *                                 server-side and replaced with data: URIs
+     *                                 before PDF render.
      * @return string
      */
-    public static function clean(string $html, bool $is_fragment = false): string
+    public static function clean(string $html, bool $is_fragment = false, bool $inline_pdf_images = false): string
     {
 
         if (config('ninja.disable_purify_html') || strlen($html) <= 1) {
-            return str_replace('%24', '$', $html);
+            $html = str_replace('%24', '$', $html);
+        } else {
+            $html = self::sanitizeHtml($html, $is_fragment);
         }
 
-        return self::sanitizeHtml($html, $is_fragment);
+        if ($inline_pdf_images) {
+            $html = self::inlineRemoteImages($html, $is_fragment);
+        }
+
+        return $html;
     }
 
     /**
@@ -583,6 +597,89 @@ class Purify
             libxml_clear_errors();
         }
 
+    }
+
+    /**
+     * Replace remote image URLs in the sanitized HTML with inlined data: URIs
+     * so the PDF renderer never fetches untrusted content at render time.
+     */
+    private static function inlineRemoteImages(string $html, bool $is_fragment): string
+    {
+        if (!preg_match('/<[a-zA-Z\/!]/', $html)) {
+            return $html;
+        }
+
+        libxml_use_internal_errors(true);
+
+        $document = new \DOMDocument();
+
+        $wrapped = $is_fragment
+            ? '<?xml encoding="UTF-8"><div>' . $html . '</div>'
+            : '<?xml encoding="UTF-8">' . $html;
+
+        @$document->loadHTML(
+            htmlspecialchars_decode(htmlspecialchars($wrapped, ENT_QUOTES, 'UTF-8')),
+            LIBXML_NONET
+        );
+
+        $fetcher = new ImageFetcher();
+
+        $images = [];
+        foreach ($document->getElementsByTagName('img') as $image) {
+            $images[] = $image;
+        }
+
+        foreach ($images as $image) {
+            $src = $image->getAttribute('src');
+
+            if (!self::isRemoteImageUrl($src)) {
+                continue;
+            }
+
+            $inlined = $fetcher->inline($src);
+            $image->setAttribute('src', $inlined ?? self::TRANSPARENT_PNG_DATA_URI);
+        }
+
+        try {
+            $html = self::saveDomHtml($document, $is_fragment);
+            $html = str_replace('%24', '$', $html);
+
+            return $html;
+        } finally {
+            libxml_clear_errors();
+        }
+    }
+
+    private static function isRemoteImageUrl(string $url): bool
+    {
+        nlog($url);
+        return str_starts_with($url, 'http://') || str_starts_with($url, 'https://');
+    }
+
+    private static function saveDomHtml(\DOMDocument $document, bool $is_fragment): string
+    {
+        if ($is_fragment) {
+            $body = $document->getElementsByTagName('body')->item(0);
+            $html = '';
+
+            if ($body) {
+                $wrapper = $body->firstChild;
+
+                if ($wrapper && $wrapper->nodeName === 'div') {
+                    foreach ($wrapper->childNodes as $child) {
+                        $html .= $document->saveHTML($child);
+                    }
+                } else {
+                    foreach ($body->childNodes as $child) {
+                        $html .= $document->saveHTML($child);
+                    }
+                }
+            }
+
+            return $html;
+        }
+
+        return $document->saveHTML() ?: '';
     }
 
 }

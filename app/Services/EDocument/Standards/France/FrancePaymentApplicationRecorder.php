@@ -36,6 +36,10 @@ class FrancePaymentApplicationRecorder
 
     public function recordStatusTransition(Payment $payment, int $originalStatus): void
     {
+        if (! $this->reportingEnabled($payment)) {
+            return;
+        }
+
         $movementType = match (true) {
             (int) $payment->status_id === Payment::STATUS_COMPLETED
                 && $originalStatus !== Payment::STATUS_COMPLETED
@@ -55,10 +59,6 @@ class FrancePaymentApplicationRecorder
         }
 
         $payment->loadMissing(['company', 'client.country', 'client.company']);
-
-        if (! $payment->client->reportableFrTransaction()) {
-            return;
-        }
 
         $paymentables = Paymentable::withTrashed()
             ->where('payment_id', $payment->id)
@@ -103,6 +103,10 @@ class FrancePaymentApplicationRecorder
         string $movementType = self::MOVEMENT_APPLIED,
         ?string $movementIdentity = null,
     ): void {
+        if (! $this->reportingEnabled($payment)) {
+            return;
+        }
+
         if (! $this->shouldRecord($payment, $invoice, $movementAmount, $movementType)) {
             return;
         }
@@ -134,6 +138,10 @@ class FrancePaymentApplicationRecorder
         string $newDate,
         string $mutationIdentity,
     ): void {
+        if (! $this->reportingEnabled($payment)) {
+            return;
+        }
+
         $invoice = Invoice::withTrashed()
             ->with(['client.country', 'client.company', 'company'])
             ->where('company_id', $payment->company_id)
@@ -189,10 +197,6 @@ class FrancePaymentApplicationRecorder
             $client->setRelation('company', $company);
         }
 
-        if (! $client->reportableFrTransaction()) {
-            return false;
-        }
-
         if ($this->isZero($movementAmount)) {
             return false;
         }
@@ -206,6 +210,14 @@ class FrancePaymentApplicationRecorder
         }
 
         return $this->paymentStatusIsRecordable($payment, $movementType);
+    }
+
+    private function reportingEnabled(Payment $payment): bool
+    {
+        $company = $payment->getRelationValue('company');
+
+        return $company instanceof Company
+            && (bool) $company->getSetting('france_reporting_enabled');
     }
 
     private function paymentStatusIsRecordable(Payment $payment, string $movementType): bool

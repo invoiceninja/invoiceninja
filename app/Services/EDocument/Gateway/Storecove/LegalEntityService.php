@@ -17,7 +17,6 @@ use Turbo124\Beacon\Facades\LightLogs;
 use App\DataMapper\Analytics\LegalEntityCreated;
 use App\Enum\HttpVerb;
 use App\Services\EDocument\Standards\Peppol\CountryFactory;
-use Illuminate\Validation\ValidationException;
 
 /**
  * Manages Storecove legal entity lifecycle:
@@ -38,18 +37,6 @@ class LegalEntityService
     {
         $handler = CountryFactory::make($data['country']);
         $additionalIdentifiers = $handler->getAdditionalIdentifiers($data);
-
-        if ($data['country'] === 'FR' && ($data['classification'] ?? 'business') !== 'individual') {
-            $requiredSchemes = collect($additionalIdentifiers)
-                ->where('required', true)
-                ->pluck('scheme');
-
-            if (! $requiredSchemes->contains('FR:SIRENE') || ! $requiredSchemes->contains('FR:CTC')) {
-                throw ValidationException::withMessages([
-                    'vat_number' => 'A valid 9-digit SIREN must be derivable from the French VAT number.',
-                ]);
-            }
-        }
 
         $response = $this->create($data);
 
@@ -267,7 +254,7 @@ class LegalEntityService
         $data = array_merge($data, [
             "superscheme" => "iso6523-actorid-upis",
         ]);
-        
+
         $r = $this->storecove->httpClient($uri, (HttpVerb::POST)->value, $data);
 
         if ($r->successful()) {

@@ -718,6 +718,50 @@ class BaseRepository
             return;
         }
 
+        if ($column == 'project_id') {
+            $project_id = $this->decodePrimaryKey($new_value);
+
+            $project = Project::withTrashed()
+                ->where('id', $project_id)
+                ->company()
+                ->first();
+
+            if (! $project) {
+                throw ValidationException::withMessages([
+                    'new_value' => ['The selected new value is invalid.'],
+                ]);
+            }
+
+            $model->update([
+                'project_id' => $project->id,
+                'client_id' => $project->client_id,
+            ]);
+
+            return;
+        }
+
+        if ($column == 'client_id') {
+            $client_id = $this->decodePrimaryKey($new_value);
+
+            $client = Client::withTrashed()
+                ->where('id', $client_id)
+                ->company()
+                ->first();
+
+            if (! $client) {
+                throw ValidationException::withMessages([
+                    'new_value' => ['The selected new value is invalid.'],
+                ]);
+            }
+
+            $model->update([
+                'client_id' => $client->id,
+                'project_id' => null,
+            ]);
+
+            return;
+        }
+
         $model->update([$column => $new_value]);
     }
 }

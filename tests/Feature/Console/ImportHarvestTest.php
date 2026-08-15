@@ -819,7 +819,7 @@ class ImportHarvestTest extends TestCase
                 ]], 201);
             }
 
-            if (str_ends_with($request->url(), '/invoices')) {
+            if ($request->url() === $this->harvestApiUrl() . '/invoices?mark_sent=true') {
                 $this->assertSame('client-acme', $request['client_id']);
 
                 return Http::response(['data' => [
@@ -840,7 +840,7 @@ class ImportHarvestTest extends TestCase
                     : Http::response(['data' => ['id' => 'tax-rate-1']], 201);
             }
 
-            $this->assertSame($this->harvestApiUrl() . '/payments', $request->url());
+            $this->assertSame($this->harvestApiUrl() . '/payments?email_receipt=false', $request->url());
             $this->assertSame('client-acme', $request['client_id']);
             $this->assertSame('invoice-100', $request['invoices'][0]['invoice_id']);
 
@@ -859,11 +859,49 @@ class ImportHarvestTest extends TestCase
             $this->harvestApiUrl() . '/invoices?per_page=1000&page=1',
             $this->harvestApiUrl() . '/clients',
             $this->harvestApiUrl() . '/clients',
-            $this->harvestApiUrl() . '/invoices',
+            $this->harvestApiUrl() . '/invoices?mark_sent=true',
             $this->harvestApiUrl() . '/tax_rates',
             $this->harvestApiUrl() . '/tax_rates',
-            $this->harvestApiUrl() . '/payments',
+            $this->harvestApiUrl() . '/payments?email_receipt=false',
         ], $request_urls);
+    }
+
+    public function test_it_rounds_created_tax_rates_to_two_decimal_places(): void
+    {
+        File::put($this->directory . '/invoices.csv', <<<'CSV'
+            Issue Date,ID,Client,Invoice Amount,Subtotal,Tax,Tax2
+            2026-02-28,INV-TAX-ROUND,Example Client,113.336,100,13.336,0
+            CSV);
+
+        Http::fake(function (Request $request) {
+            if ($request->method() === 'GET' && str_contains($request->url(), '/clients')) {
+                return Http::response(['data' => [[
+                    'name' => 'Example Client',
+                    'hashed_id' => 'client-example',
+                ]]], 200);
+            }
+
+            if ($request->url() === $this->harvestApiUrl() . '/invoices?mark_sent=true') {
+                $this->assertSame('TAX (13.34%)', $request['tax_name1']);
+                $this->assertSame(13.336, (float) $request['tax_rate1']);
+
+                return Http::response(['data' => ['hashed_id' => 'invoice-tax-round']], 201);
+            }
+
+            $this->assertStringEndsWith('/tax_rates', $request->url());
+            $this->assertSame('TAX (13.34%)', $request['name']);
+            $this->assertSame(13.34, (float) $request['rate']);
+
+            return Http::response(['data' => ['hashed_id' => 'tax-rate-round']], 201);
+        });
+
+        $this->artisan('ninja:import-harvest', [
+            'api_token' => 'test-api-token',
+            'directory' => $this->directory,
+            '--entities' => 'invoices',
+        ])->assertSuccessful();
+
+        Http::assertSentCount(3);
     }
 
     public function test_it_maps_exact_harvest_payment_headers_to_an_existing_invoice(): void
@@ -892,7 +930,7 @@ class ImportHarvestTest extends TestCase
             }
 
             $this->assertSame('POST', $request->method());
-            $this->assertSame($this->harvestApiUrl() . '/payments', $request->url());
+            $this->assertSame($this->harvestApiUrl() . '/payments?email_receipt=false', $request->url());
             $this->assertSame('client-acme', $request['client_id']);
             $this->assertSame(200.0, $request['amount']);
             $this->assertSame('2026-03-10', $request['date']);
@@ -1181,7 +1219,7 @@ class ImportHarvestTest extends TestCase
                 return Http::response(['data' => []], 200);
             }
 
-            if ($request->method() === 'POST' && str_ends_with($request->url(), '/invoices')) {
+            if ($request->url() === $this->harvestApiUrl() . '/invoices?mark_sent=true') {
                 return Http::response(['data' => ['hashed_id' => 'invoice-tax-fail']], 201);
             }
 
@@ -1209,7 +1247,7 @@ class ImportHarvestTest extends TestCase
         $this->assertStringNotContainsString('The rate 13 is unavailable.', $output);
         $this->assertStringContainsString('Failure report (1)', $output);
         $this->assertStringContainsString('Import aborted after the first failure', $output);
-        Http::assertNotSent(fn(Request $request): bool => str_ends_with($request->url(), '/payments'));
+        Http::assertNotSent(fn(Request $request): bool => $request->url() === $this->harvestApiUrl() . '/payments?email_receipt=false');
     }
 
     public function test_it_preserves_a_harvest_declined_date_without_approving_the_quote(): void

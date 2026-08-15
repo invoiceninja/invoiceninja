@@ -76,8 +76,6 @@ class RecordFranceEReportingScopeInvalidation implements ShouldQueue
         $company = Company::query()->find($this->companyId);
 
         if (! $company || ! (bool) $company->getSetting('france_reporting_enabled')) {
-            $this->completeInvalidationEvent();
-
             return;
         }
 
@@ -294,8 +292,6 @@ class RecordFranceEReportingScopeInvalidation implements ShouldQueue
     {
         /** @var array{0: Payment, 1: Invoice}|null $sourceModels */
         $sourceModels = DB::transaction(function () use ($paymentable): ?array {
-            Company::query()->whereKey($this->companyId)->lockForUpdate()->firstOrFail();
-
             $currentPaymentable = Paymentable::withTrashed()
                 ->where('id', $paymentable->id)
                 ->first();

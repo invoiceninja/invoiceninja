@@ -43,6 +43,10 @@ final readonly class FranceReportMaterializer
         ReportingPeriod $period,
         ?CarbonImmutable $issuedAt = null,
     ): ?TransactionEvent {
+        if (! (bool) $company->getSetting('france_reporting_enabled')) {
+            return null;
+        }
+
         if ($this->openSubmissionExists($company, $family, $period)) {
             return null;
         }
@@ -130,13 +134,13 @@ final readonly class FranceReportMaterializer
             $projectionDependencyWatermark,
             $projectionSourceHash,
         ): ?TransactionEvent {
-            $lockedCompany = Company::query()->whereKey($company->id)->lockForUpdate()->firstOrFail();
-            $lockedProfile = ReportingProfile::tryFrom(
-                (string) $lockedCompany->getSetting('france_reporting_schedule'),
+            $currentCompany = Company::query()->findOrFail($company->id);
+            $currentProfile = ReportingProfile::tryFrom(
+                (string) $currentCompany->getSetting('france_reporting_schedule'),
             ) ?? ReportingProfile::TenDay;
 
-            if (($family->isTransaction() && $lockedProfile !== $period->profile)
-                || ! hash_equals($reportingContextHash, $this->reportingContextHash($lockedCompany))) {
+            if (($family->isTransaction() && $currentProfile !== $period->profile)
+                || ! hash_equals($reportingContextHash, $this->reportingContextHash($currentCompany))) {
                 return null;
             }
 
@@ -468,8 +472,6 @@ final readonly class FranceReportMaterializer
             $projectionDependencyWatermark,
             $projectionSourceHash,
         ): void {
-            Company::query()->whereKey($company->id)->lockForUpdate()->firstOrFail();
-
             if ($factWatermark !== $this->factWatermark($company, $family, $period)) {
                 return;
             }

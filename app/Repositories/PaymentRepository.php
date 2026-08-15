@@ -141,6 +141,7 @@ class PaymentRepository extends BaseRepository
         $application_timestamp = app(PaymentApplicationDateResolver::class)
             ->encodeBusinessDate($new_date, $timezone);
         $date_change_identity = Str::uuid()->toString();
+        $france_reporting_enabled = (bool) $payment->company->getSetting('france_reporting_enabled');
 
         DB::transaction(function () use (
             $payment,
@@ -150,12 +151,13 @@ class PaymentRepository extends BaseRepository
             $moved_paymentables,
             $date_change_identity,
             $new_date,
+            $france_reporting_enabled,
         ): void {
             $payment->date = $new_date;
             $payment->saveQuietly();
 
             foreach ($paymentables as $paymentable) {
-                if ($paymentable->paymentable_type === 'invoices') {
+                if ($paymentable->paymentable_type === 'invoices' && $france_reporting_enabled) {
                     app(FrancePaymentApplicationRecorder::class)->recordApplicationDateChange(
                         $payment,
                         $paymentable,

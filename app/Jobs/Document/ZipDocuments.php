@@ -50,6 +50,8 @@ class ZipDocuments implements ShouldQueue
 
     public $tries = 1;
 
+    public $timeout = 3600;
+
     /**
      * @param array $document_ids
      * @param Company $company
@@ -114,6 +116,8 @@ class ZipDocuments implements ShouldQueue
             );
         } catch (\PhpZip\Exception\ZipException $e) {
             nlog('could not make zip => ' . $e->getMessage());
+        } catch (\Throwable $e){
+            nlog('ZIPDOCUMENTS:: => ' . $e->getMessage());
         } finally {
             $zipFile->close();
         }

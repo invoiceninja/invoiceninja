@@ -15,6 +15,7 @@ namespace App\Console\Commands;
 use App\Jobs\EDocument\SubmitFranceEReport;
 use App\Jobs\EDocument\SubmitFrancePaymentReceivedNotification;
 use App\Libraries\MultiDB;
+use App\Models\Company;
 use App\Models\TransactionEvent;
 use App\Services\EDocument\Standards\France\FranceReportingEventType;
 use App\Services\EDocument\Standards\France\FranceReportingStatus;
@@ -54,6 +55,13 @@ class RetryFranceReportingSubmission extends Command
             $this->error('The event is not a quarantined France reporting submission.');
 
             return self::FAILURE;
+        }
+
+        $company = Company::query()->find($submission->company_id);
+
+        if (! $company
+            || ! (bool) $company->getSetting('france_reporting_enabled')) {
+            return self::SUCCESS;
         }
 
         if ((int) $submission->event_id === FranceReportingEventType::ReportSubmission->value) {

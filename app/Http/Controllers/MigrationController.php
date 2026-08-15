@@ -13,16 +13,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
-use App\Models\Credit;
-use App\Models\Invoice;
-use App\Models\TransactionEvent;
-use App\Services\EDocument\Standards\France\FranceReportingEventType;
-use App\Services\EDocument\Standards\France\FranceReportingStatus;
 use App\Utils\Ninja;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 
 class MigrationController extends BaseController
 {
@@ -143,80 +137,41 @@ class MigrationController extends BaseController
      *     )
      * @param Request $request
      * @param Company $company
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
+     * @return JsonResponse
      */
-    public function purgeCompanySaveSettings(Request $request, Company $company)
-    {
-        DB::transaction(function () use ($company): void {
-            $company = Company::query()->whereKey($company->id)->lockForUpdate()->firstOrFail();
+    public function purgeCompanySaveSettings(
+        Request $request,
+        Company $company,
+    ): JsonResponse {
+        
+        $company->clients()->forceDelete();
+        $company->products()->forceDelete();
+        $company->projects()->forceDelete();
+        $company->tasks()->forceDelete();
+        $company->vendors()->forceDelete();
+        $company->expenses()->forceDelete();
+        $company->purchase_orders()->forceDelete();
+        $company->bank_transaction_rules()->forceDelete();
+        $company->bank_transactions()->forceDelete();
+        $company->all_activities()->forceDelete();
 
-            if (TransactionEvent::query()
-                ->where('company_id', $company->id)
-                ->where(function ($query): void {
-                    $query->whereIn('event_id', FranceReportingEventType::retainedValues())
-                        ->orWhere(function ($pendingInvalidationQuery): void {
-                            $pendingInvalidationQuery
-                                ->where('event_id', FranceReportingEventType::ScopeInvalidation->value)
-                                ->whereNull('payment_status');
-                        })->orWhere(function ($pendingCallbackQuery): void {
-                            $pendingCallbackQuery
-                                ->where('event_id', FranceReportingEventType::SubmissionCallback->value)
-                                ->where('payment_status', FranceReportingStatus::Pending->value);
-                        });
-                })
-                ->exists()) {
-                throw ValidationException::withMessages([
-                    'company' => 'This company has France reporting records that must be retained.',
-                ]);
-            }
-
-            $hasReportableSources = (bool) $company->getSetting('france_reporting_enabled')
-                && (Invoice::withTrashed()
-                    ->where('company_id', $company->id)
-                    ->where('is_deleted', false)
-                    ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
-                    ->exists()
-                    || Credit::withTrashed()
-                        ->where('company_id', $company->id)
-                        ->where('is_deleted', false)
-                        ->whereIn('status_id', [Credit::STATUS_SENT, Credit::STATUS_PARTIAL, Credit::STATUS_APPLIED])
-                        ->exists());
-
-            if ($hasReportableSources) {
-                throw ValidationException::withMessages([
-                    'company' => 'This company has documents awaiting France reporting reconciliation.',
-                ]);
-            }
-
-            $company->clients()->forceDelete();
-            $company->products()->forceDelete();
-            $company->projects()->forceDelete();
-            $company->tasks()->forceDelete();
-            $company->vendors()->forceDelete();
-            $company->expenses()->forceDelete();
-            $company->purchase_orders()->forceDelete();
-            $company->bank_transaction_rules()->forceDelete();
-            $company->bank_transactions()->forceDelete();
-            $company->all_activities()->forceDelete();
-
-            $settings = $company->settings;
-            $settings->recurring_invoice_number_counter = 1;
-            $settings->invoice_number_counter = 1;
-            $settings->quote_number_counter = 1;
-            $settings->client_number_counter = 1;
-            $settings->credit_number_counter = 1;
-            $settings->task_number_counter = 1;
-            $settings->expense_number_counter = 1;
-            $settings->recurring_expense_number_counter = 1;
-            $settings->recurring_quote_number_counter = 1;
-            $settings->vendor_number_counter = 1;
-            $settings->ticket_number_counter = 1;
-            $settings->payment_number_counter = 1;
-            $settings->project_number_counter = 1;
-            $settings->purchase_order_number_counter = 1;
-            $company->settings = $settings;
-            $company->save();
-        }, attempts: 3);
+        $settings = $company->settings;
+        $settings->recurring_invoice_number_counter = 1;
+        $settings->invoice_number_counter = 1;
+        $settings->quote_number_counter = 1;
+        $settings->client_number_counter = 1;
+        $settings->credit_number_counter = 1;
+        $settings->task_number_counter = 1;
+        $settings->expense_number_counter = 1;
+        $settings->recurring_expense_number_counter = 1;
+        $settings->recurring_quote_number_counter = 1;
+        $settings->vendor_number_counter = 1;
+        $settings->ticket_number_counter = 1;
+        $settings->payment_number_counter = 1;
+        $settings->project_number_counter = 1;
+        $settings->purchase_order_number_counter = 1;
+        $company->settings = $settings;
+        $company->save();
 
         return response()->json(['message' => 'Settings preserved'], 200);
     }

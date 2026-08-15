@@ -81,13 +81,14 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping()
             ->name('invoice-tax-summary')
             ->onOneServer();
+            
         /* Runs France e-reporting payment notifications and due report submissions */
-        $schedule->job(new FranceEReportingCron())
-            ->dailyAt('22:00')
-            ->timezone('Europe/Paris')
-            ->withoutOverlapping()
-            ->name('france-e-reporting-job')
-            ->onOneServer();
+        // $schedule->job(new FranceEReportingCron())
+        //     ->dailyAt('22:00')
+        //     ->timezone('Europe/Paris')
+        //     ->withoutOverlapping()
+        //     ->name('france-e-reporting-job')
+        //     ->onOneServer();
 
         /* Checks Rotessa Transactions */
         $schedule->job(new TransactionReport())->dailyAt('01:48')->withoutOverlapping()->name('rotessa-transaction-report')->onOneServer();

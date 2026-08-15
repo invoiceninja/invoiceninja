@@ -1057,9 +1057,10 @@ class ImportHarvestDirectoryTest extends TestCase
                     $rate = $source["tax_rate{$index}"] ?? null;
 
                     if (is_string($name) && $name !== '' && is_numeric($rate) && (float) $rate > 0) {
-                        $expected_tax_rates[mb_strtolower($name) . '|' . (float) $rate] = [
+                        $rate = round((float) $rate, 2);
+                        $expected_tax_rates[mb_strtolower($name) . '|' . $rate] = [
                             'name' => $name,
-                            'rate' => (float) $rate,
+                            'rate' => $rate,
                         ];
                     }
                 }

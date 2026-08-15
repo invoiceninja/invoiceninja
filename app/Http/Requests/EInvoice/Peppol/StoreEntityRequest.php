@@ -13,6 +13,7 @@
 namespace App\Http\Requests\EInvoice\Peppol;
 
 use App\Models\Country;
+use App\Rules\EInvoice\PeppolLegalEntityState;
 use App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveIdentifierValidator;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -41,6 +42,7 @@ class StoreEntityRequest extends FormRequest
      */
     public function rules(): array
     {
+        $company = auth()->user()->company();
         $isSG = $this->input('country') == '702' || $this->country_id == 702;
         $isFRBusiness = $this->input('country') === 'FR' && $this->input('classification') !== 'individual';
 
@@ -86,12 +88,16 @@ class StoreEntityRequest extends FormRequest
             'county' => ['required', 'string'],
             'acts_as_receiver' => ['required', 'bool'],
             'acts_as_sender' => ['required', 'bool'],
-            'tenant_id' => ['required'],
+            'tenant_id' => ['sometimes', 'nullable', 'string'],
             'classification' => ['required', 'in:business,individual'],
             'vat_number' => $vat_number_rules,
             'id_number' => $id_number_rules,
             'c5_signer_name' => [Rule::requiredIf($isSG), 'nullable', 'string', 'min:2', 'max:64'],
             'c5_signer_email' => [Rule::requiredIf($isSG), 'nullable', 'email'],
+            'legal_entity_id' => [
+                'prohibited',
+                PeppolLegalEntityState::absent($company),
+            ],
         ];
     }
 

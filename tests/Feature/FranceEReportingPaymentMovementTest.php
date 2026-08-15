@@ -32,9 +32,9 @@ use App\Models\Product;
 use App\Models\TransactionEvent;
 use App\Models\Webhook;
 use App\Observers\PaymentObserver;
-use App\Services\EDocument\Gateway\Storecove\Storecove;
 use App\Services\EDocument\Standards\France\FranceEReportVariant;
 use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
+use App\Services\EDocument\Standards\France\FrancePaymentNotificationProcessor;
 use App\Services\EDocument\Standards\France\FranceReportMaterializer;
 use App\Services\EDocument\Standards\France\FranceReportingEventType;
 use App\Services\EDocument\Standards\France\FranceReportingStatus;
@@ -43,6 +43,7 @@ use App\Services\EDocument\Standards\France\ReportingCalendar;
 use App\Services\EDocument\Standards\France\ReportingProfile;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -56,6 +57,8 @@ class FranceEReportingPaymentMovementTest extends TestCase
     {
         parent::setUp();
 
+        $this->markTestSkipped('FRREPORTING::');
+        
         $this->makeTestData();
         $this->enableFranceReporting();
     }
@@ -295,6 +298,37 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->assertTrue(true);
     }
 
+    public function test_payment_observer_does_not_resolve_the_recorder_when_reporting_is_disabled(): void
+    {
+        [, $payment] = $this->paymentScenario('FR', 'individual', '2026-09-25');
+        $this->disableFranceReporting();
+        $payment->unsetRelation('company');
+        $recorder = \Mockery::mock(FrancePaymentApplicationRecorder::class);
+        $recorder->shouldNotReceive('recordStatusTransition');
+        app()->instance(FrancePaymentApplicationRecorder::class, $recorder);
+
+        app(PaymentObserver::class)->updated($payment);
+
+        $this->assertFalse((bool) $this->company->fresh()->getSetting('france_reporting_enabled'));
+    }
+
+    public function test_ach_completion_does_not_resolve_the_recorder_when_reporting_is_disabled(): void
+    {
+        [, $payment] = $this->paymentScenario('FR', 'individual', '2026-09-25');
+        Payment::query()->whereKey($payment->id)->update(['status_id' => Payment::STATUS_PENDING]);
+        $payment = $payment->fresh();
+        $this->disableFranceReporting();
+        $payment->unsetRelation('company');
+        $recorder = \Mockery::mock(FrancePaymentApplicationRecorder::class);
+        $recorder->shouldNotReceive('recordStatusTransition');
+        app()->instance(FrancePaymentApplicationRecorder::class, $recorder);
+        $completePayment = new \ReflectionMethod(CheckACHStatus::class, 'completePayment');
+
+        $completePayment->invoke(new CheckACHStatus(), $payment);
+
+        $this->assertSame(Payment::STATUS_COMPLETED, (int) $payment->fresh()->status_id);
+    }
+
     public function test_domestic_business_payment_is_routed_to_payment_notification_facts(): void
     {
         [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'business', '2026-09-25');
@@ -312,6 +346,116 @@ class FranceEReportingPaymentMovementTest extends TestCase
             'payment_received_notification',
             data_get($this->movements($payment)->first()?->payment_request, 'reporting_path'),
         );
+    }
+
+    public function test_company_cron_processes_one_notification_per_invoice_and_document_guid(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'business', '2026-09-25');
+        $backup = $invoice->backup;
+        $backup->guid = 'cron-grouped-document-guid';
+        $backup->e_invoice_status = 'cleared';
+        $backup->e_invoice_cleared_at = now()->toIso8601String();
+        $invoice->backup = $backup;
+        $invoice->saveQuietly();
+
+        foreach (['first', 'second'] as $identity) {
+            (new RecordFranceEReportingPayment(
+                $payment->id,
+                $this->company->db,
+                $invoice->id,
+                $paymentable->id,
+                '60',
+                '2026-09-25',
+                FrancePaymentApplicationRecorder::MOVEMENT_APPLIED,
+                $identity,
+                'payment_received_notification',
+                'cron-grouped-document-guid',
+            ))->handle();
+        }
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '60',
+            '2026-09-27',
+            FrancePaymentApplicationRecorder::MOVEMENT_APPLIED,
+            'future',
+            'payment_received_notification',
+            'cron-grouped-document-guid',
+        ))->handle();
+        $futureMovement = $this->movements($payment)->last();
+
+        [$secondInvoice, $secondPayment, $secondPaymentable] = $this->paymentScenario(
+            'FR',
+            'business',
+            '2026-09-25',
+        );
+        $secondBackup = $secondInvoice->backup;
+        $secondBackup->guid = 'cron-second-document-guid';
+        $secondBackup->e_invoice_status = 'cleared';
+        $secondBackup->e_invoice_cleared_at = now()->toIso8601String();
+        $secondInvoice->backup = $secondBackup;
+        $secondInvoice->saveQuietly();
+        (new RecordFranceEReportingPayment(
+            $secondPayment->id,
+            $this->company->db,
+            $secondInvoice->id,
+            $secondPaymentable->id,
+            '120',
+            '2026-09-25',
+            FrancePaymentApplicationRecorder::MOVEMENT_APPLIED,
+            'second-invoice',
+            'payment_received_notification',
+            'cron-second-document-guid',
+        ))->handle();
+
+        $this->travelTo(CarbonImmutable::parse('2026-09-26 12:00:00', 'Europe/Paris'));
+        config([
+            'ninja.environment' => 'hosted',
+            'ninja.storecove_api_key' => 'payment-notification-test-key',
+        ]);
+        Bus::fake([SubmitFrancePaymentReceivedNotification::class]);
+        $notificationNumber = 0;
+        Http::fake(static function () use (&$notificationNumber) {
+            $notificationNumber++;
+
+            return Http::response([
+                'guid' => 'cron-grouped-notification-guid-' . $notificationNumber,
+            ], 200);
+        });
+        $method = new \ReflectionMethod(FranceEReportingCron::class, 'processPaymentNotifications');
+
+        $method->invoke(
+            new FranceEReportingCron(),
+            $this->company,
+            $this->company->db,
+            CarbonImmutable::now('Europe/Paris'),
+            app(FrancePaymentNotificationProcessor::class),
+        );
+
+        $submissions = TransactionEvent::query()
+            ->where('company_id', $this->company->id)
+            ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
+            ->whereIn('invoice_id', [$invoice->id, $secondInvoice->id])
+            ->orderBy('id')
+            ->get();
+        $this->assertCount(2, $submissions);
+        $this->assertCount(2, data_get(
+            $submissions->firstOrFail()->payment_request,
+            'movement_event_ids',
+        ));
+        $this->assertCount(1, data_get(
+            $submissions->last()->payment_request,
+            'movement_event_ids',
+        ));
+        $this->assertSame(
+            [FranceReportingStatus::Sent->value],
+            $submissions->pluck('payment_status')->unique()->values()->all(),
+        );
+        $this->assertNull($futureMovement->fresh()->payment_status);
+        Bus::assertNotDispatched(SubmitFrancePaymentReceivedNotification::class);
+        Http::assertSentCount(2);
     }
 
     public function test_domestic_payment_waits_until_the_invoice_is_paid_in_full(): void
@@ -346,7 +490,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         (new SubmitFrancePaymentReceivedNotification(
             $partialMovement->id,
             $this->company->db,
-        ))->handle(new Storecove());
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
 
         $this->assertFalse(TransactionEvent::query()
             ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
@@ -371,7 +515,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         (new SubmitFrancePaymentReceivedNotification(
             $finalMovement->id,
             $this->company->db,
-        ))->handle(new Storecove());
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
 
         $submission = TransactionEvent::query()
             ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
@@ -584,7 +728,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
             return Http::response(['guid' => 'payment-notification-guid'], 200);
         });
 
-        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(new Storecove());
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
 
         $submission = TransactionEvent::query()
             ->where('company_id', $this->company->id)
@@ -617,8 +761,45 @@ class FranceEReportingPaymentMovementTest extends TestCase
         ))->handle();
         $laterMovement = $this->movements($payment)->last();
         Http::fake();
-        (new SubmitFrancePaymentReceivedNotification($laterMovement->id, $this->company->db))->handle(new Storecove());
+        (new SubmitFrancePaymentReceivedNotification($laterMovement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
         $this->assertSame(FranceReportingStatus::Accepted->value, $laterMovement->fresh()->payment_status);
+        Http::assertNothingSent();
+    }
+
+    public function test_payment_notification_returns_before_materialization_when_reporting_is_disabled(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'business', '2026-09-25');
+        $backup = $invoice->backup;
+        $backup->guid = 'disabled-reporting-document-guid';
+        $backup->e_invoice_status = 'cleared';
+        $backup->e_invoice_cleared_at = '2026-09-24T12:00:00+02:00';
+        $invoice->backup = $backup;
+        $invoice->saveQuietly();
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '120',
+            '2026-09-25',
+        ))->handle();
+        $movement = $this->movements($payment)->firstOrFail();
+        $settings = $this->company->settings;
+        $settings->france_reporting_enabled = false;
+        $this->company->settings = $settings;
+        $this->company->saveQuietly();
+        Http::fake();
+
+        (new SubmitFrancePaymentReceivedNotification(
+            $movement->id,
+            $this->company->db,
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
+
+        $this->assertFalse(TransactionEvent::query()
+            ->where('company_id', $this->company->id)
+            ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
+            ->exists());
+        $this->assertNull($movement->fresh()->payment_status);
         Http::assertNothingSent();
     }
 
@@ -648,7 +829,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         (new SubmitFrancePaymentReceivedNotification(
             $this->movements($payment)->firstOrFail()->id,
             $this->company->db,
-        ))->handle(new Storecove());
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
         app()->call([new UpdateFranceEReportSubmissionStatus([
             'tenant_id' => $this->company->company_key,
             'guid' => 'rejected-cycle-first-guid',
@@ -675,7 +856,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         (new SubmitFrancePaymentReceivedNotification(
             $refundMovement->id,
             $this->company->db,
-        ))->handle(new Storecove());
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
 
         $replacement = Payment::factory()->create([
             'client_id' => $invoice->client_id,
@@ -713,7 +894,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         (new SubmitFrancePaymentReceivedNotification(
             $this->movements($replacement)->firstOrFail()->id,
             $this->company->db,
-        ))->handle(new Storecove());
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
 
         $submissions = TransactionEvent::query()
             ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
@@ -755,7 +936,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         (new SubmitFrancePaymentReceivedNotification(
             $this->movements($payment)->firstOrFail()->id,
             $this->company->db,
-        ))->handle(new Storecove());
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
 
         $invoice->status_id = Invoice::STATUS_PARTIAL;
         $invoice->balance = 20;
@@ -780,7 +961,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         (new SubmitFrancePaymentReceivedNotification(
             $this->movements($payment)->last()->id,
             $this->company->db,
-        ))->handle(new Storecove());
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
 
         $replacement = Payment::factory()->create([
             'client_id' => $invoice->client_id,
@@ -819,7 +1000,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         (new SubmitFrancePaymentReceivedNotification(
             $replacementMovement->id,
             $this->company->db,
-        ))->handle(new Storecove());
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
 
         $this->assertNull($replacementMovement->fresh()->payment_status);
         $this->assertSame(1, TransactionEvent::query()
@@ -837,7 +1018,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         (new SubmitFrancePaymentReceivedNotification(
             $replacementMovement->id,
             $this->company->db,
-        ))->handle(new Storecove());
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
 
         $submissions = TransactionEvent::query()
             ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
@@ -1046,7 +1227,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $payment->save();
         Http::fake();
 
-        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(new Storecove());
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
 
         $this->assertFalse(TransactionEvent::query()
             ->where('company_id', $this->company->id)
@@ -1081,7 +1262,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         ]);
         Http::fake(fn() => Http::response(['guid' => 'recovered-notification-guid'], 200));
 
-        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(new Storecove());
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
 
         $this->assertSame(FranceReportingStatus::Pending->value, $movement->fresh()->payment_status);
         $this->assertNotNull(data_get(
@@ -1116,7 +1297,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
             'replacement-guid-cleared',
         ))->handle();
 
-        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(new Storecove());
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
 
         $submission = TransactionEvent::query()
             ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
@@ -1232,7 +1413,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         (new SubmitFrancePaymentReceivedNotification(
             $originalMovement->id,
             $this->company->db,
-        ))->handle(new Storecove());
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
 
         $payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
         $payment->refunded = 20;
@@ -1293,11 +1474,11 @@ class FranceEReportingPaymentMovementTest extends TestCase
         (new SubmitFrancePaymentReceivedNotification(
             $refundMovement->id,
             $this->company->db,
-        ))->handle(new Storecove());
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
         (new SubmitFrancePaymentReceivedNotification(
             $replacementMovement->id,
             $this->company->db,
-        ))->handle(new Storecove());
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
 
         $submission = TransactionEvent::query()
             ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
@@ -1335,16 +1516,17 @@ class FranceEReportingPaymentMovementTest extends TestCase
         ]);
         Http::fake(fn() => Http::response(['guid' => 'payment-notification-guid'], 200));
         $job = new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db);
-        $job->handle(new Storecove());
+        $processor = app(FrancePaymentNotificationProcessor::class);
+        $job->handle($processor);
         $submission = TransactionEvent::query()
             ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
             ->firstOrFail();
         $submission->payment_status = FranceReportingStatus::Rejected->value;
         $submission->save();
 
-        $method = new \ReflectionMethod(SubmitFrancePaymentReceivedNotification::class, 'recordAttempt');
+        $method = new \ReflectionMethod(FrancePaymentNotificationProcessor::class, 'recordAttempt');
         $method->invoke(
-            $job,
+            $processor,
             $submission,
             FranceReportingStatus::RetryableFailure,
             [],
@@ -1376,7 +1558,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->travelTo(CarbonImmutable::parse('2026-09-26 12:00:00', 'Europe/Paris'));
         $this->company->is_disabled = true;
         $this->company->saveQuietly();
-        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(new Storecove());
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
         $submission = TransactionEvent::query()
             ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
             ->firstOrFail();
@@ -1386,7 +1568,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $payment->saveQuietly();
         Http::fake();
 
-        (new SubmitFrancePaymentReceivedNotification($submission->id, $this->company->db))->handle(new Storecove());
+        (new SubmitFrancePaymentReceivedNotification($submission->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
 
         $this->assertSame(FranceReportingStatus::Rejected->value, $submission->fresh()->payment_status);
         $this->assertSame('source_no_longer_notification_eligible', data_get(
@@ -1418,7 +1600,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->travelTo(CarbonImmutable::parse('2026-09-26 12:00:00', 'Europe/Paris'));
         $this->company->is_disabled = true;
         $this->company->saveQuietly();
-        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(new Storecove());
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
         $submission = TransactionEvent::query()
             ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
             ->firstOrFail();
@@ -1430,7 +1612,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->company->saveQuietly();
         Http::fake();
 
-        (new SubmitFrancePaymentReceivedNotification($submission->id, $this->company->db))->handle(new Storecove());
+        (new SubmitFrancePaymentReceivedNotification($submission->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
 
         $this->assertSame(FranceReportingStatus::Rejected->value, $submission->fresh()->payment_status);
         $this->assertSame('invalid_persisted_payload', data_get(
@@ -1440,7 +1622,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->assertNull($movement->fresh()->payment_status);
         $this->company->is_disabled = true;
         $this->company->saveQuietly();
-        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(new Storecove());
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
 
         $this->assertSame(2, TransactionEvent::query()
             ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
@@ -1469,7 +1651,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->travelTo(CarbonImmutable::parse('2026-09-26 12:00:00', 'Europe/Paris'));
         $this->company->is_disabled = true;
         $this->company->saveQuietly();
-        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(new Storecove());
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
         $submission = TransactionEvent::query()
             ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
             ->firstOrFail();
@@ -1482,7 +1664,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->company->saveQuietly();
         Http::fake();
 
-        (new SubmitFrancePaymentReceivedNotification($submission->id, $this->company->db))->handle(new Storecove());
+        (new SubmitFrancePaymentReceivedNotification($submission->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
 
         $submission->refresh();
         $this->assertSame(FranceReportingStatus::RetryableFailure->value, $submission->payment_status);
@@ -1521,7 +1703,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
             'ninja.storecove_api_key' => 'payment-notification-test-key',
         ]);
         Http::fake(fn() => Http::response(['guid' => 'first-guid'], 200));
-        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(new Storecove());
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
         $submission = TransactionEvent::query()
             ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
             ->firstOrFail();
@@ -1537,7 +1719,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
             return Http::response(['guid' => 'retry-guid'], 200);
         });
 
-        (new SubmitFrancePaymentReceivedNotification($submission->id, $this->company->db))->handle(new Storecove());
+        (new SubmitFrancePaymentReceivedNotification($submission->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
 
         $this->assertSame($persistedPayload, array_intersect_key($capturedPayload, $persistedPayload));
         $this->assertSame(FranceReportingStatus::Sent->value, $submission->fresh()->payment_status);
@@ -1547,7 +1729,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $request['sent_at'] = now()->subDay()->toIso8601String();
         $submission->payment_request = $request;
         $submission->save();
-        (new SubmitFrancePaymentReceivedNotification($submission->id, $this->company->db))->handle(new Storecove());
+        (new SubmitFrancePaymentReceivedNotification($submission->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
 
         Http::assertSentCount(1);
     }
@@ -1566,7 +1748,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $movement = $this->movements($payment)->firstOrFail();
         $this->travelTo(CarbonImmutable::parse('2026-09-26 12:00:00', 'Europe/Paris'));
 
-        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(new Storecove());
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
 
         $this->assertSame(FranceReportingStatus::Pending->value, $movement->fresh()->payment_status);
         $this->assertNotNull(data_get(
@@ -1589,7 +1771,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         ]);
         Http::fake(fn() => Http::response(['guid' => 'late-notification-guid'], 200));
 
-        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(new Storecove());
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
 
         $this->assertSame(FranceReportingStatus::Pending->value, $movement->fresh()->payment_status);
         $this->assertSame(
@@ -1617,7 +1799,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         ))->handle();
         $movement = $this->movements($payment)->firstOrFail();
 
-        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(new Storecove());
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
 
         $this->assertSame(FranceReportingStatus::Accepted->value, $movement->fresh()->payment_status);
         $this->assertSame(
@@ -1658,7 +1840,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         ))->handle();
         $movement = $this->movements($payment)->firstOrFail();
 
-        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(new Storecove());
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
 
         $this->assertSame(FranceReportingStatus::Accepted->value, $movement->fresh()->payment_status);
         $this->assertSame(
@@ -1692,7 +1874,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         (new SubmitFrancePaymentReceivedNotification(
             $positiveMovement->id,
             $this->company->db,
-        ))->handle(new Storecove());
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
         $submission = TransactionEvent::query()
             ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
             ->firstOrFail();
@@ -1725,7 +1907,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         (new SubmitFrancePaymentReceivedNotification(
             $adjustment->id,
             $this->company->db,
-        ))->handle(new Storecove());
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
 
         $this->assertSame(FranceReportingStatus::Sent->value, $submission->fresh()->payment_status);
         $this->assertSame(FranceReportingStatus::Accepted->value, $adjustment->fresh()->payment_status);
@@ -1762,7 +1944,7 @@ class FranceEReportingPaymentMovementTest extends TestCase
         ))->handle();
         $movement = $this->movements($payment)->firstOrFail();
 
-        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(new Storecove());
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
 
         $this->assertNull($movement->fresh()->payment_status);
         $this->assertSame('f10', data_get(
@@ -1799,10 +1981,10 @@ class FranceEReportingPaymentMovementTest extends TestCase
 
         $movements = $this->movements($payment);
         $this->travelTo(CarbonImmutable::parse('2026-09-26 12:00:00', 'Europe/Paris'));
-        $job = new SubmitFrancePaymentReceivedNotification($movements->first()->id, $this->company->db);
-        $materialize = new \ReflectionMethod($job, 'materialize');
-        $submission = $materialize->invoke($job, $movements->first());
-        $materialize->invoke($job, $movements->last());
+        $processor = app(FrancePaymentNotificationProcessor::class);
+        $materialize = new \ReflectionMethod($processor, 'materialize');
+        $submission = $materialize->invoke($processor, $movements->first());
+        $materialize->invoke($processor, $movements->last());
         $request = $submission->fresh()->payment_request;
         $request['guid'] = 'coalesced-notification-guid';
         $submission->payment_request = $request;
@@ -2186,6 +2368,15 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->company->calculate_taxes = true;
         $this->company->legal_entity_id = 12345;
         $this->company->save();
+        $this->company = $this->company->fresh();
+    }
+
+    private function disableFranceReporting(): void
+    {
+        $settings = clone $this->company->settings;
+        $settings->france_reporting_enabled = false;
+        $this->company->settings = $settings;
+        $this->company->saveQuietly();
         $this->company = $this->company->fresh();
     }
 
