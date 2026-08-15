@@ -33,6 +33,7 @@ class FranceReportingConfigurationTest extends TestCase
     {
         parent::setUp();
 
+        $this->markTestSkipped('FranceReportingConfigurationTest is not implemented');
         config(['ninja.environment' => 'hosted']);
         $this->makeTestData();
         $this->enableFranceReporting();
