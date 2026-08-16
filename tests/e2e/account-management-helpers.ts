@@ -81,6 +81,16 @@ export interface PaidAccountSetupResult extends AccountPlanState {
     recurring_invoice_id: number | null;
 }
 
+export interface BillingRecurringState {
+    recurring_invoice_id: number | null;
+    product_keys: string[];
+    docuninja_quantity: number;
+    line_items_total: number;
+    amount: number;
+    plan_price: number | null;
+    docuninja_price: number | null;
+}
+
 export interface PayableInvoiceSetupResult extends PaidAccountSetupResult {
     invoice_id: number;
     invoice_hashed_id: string;
@@ -184,6 +194,44 @@ export function stripeConfigured(): boolean {
     }
 
     return Boolean(parseStripeSecretKey());
+}
+
+export function readBillingRecurringState(email: string): BillingRecurringState {
+    return parseJsonLine(
+        runArtisanExecute(
+            `$user = \\App\\Models\\User::where('email', ${JSON.stringify(email)})->first();` +
+                'if (!$user) { echo json_encode(["error" => "user not found"]); return; }' +
+                '\\App\\Libraries\\MultiDB::findAndSetDbByAccountKey($user->account->key);' +
+                '$account = $user->account;' +
+                '$recurringId = (int) ($account->billing_context?->recurring_invoice_id ?? 0);' +
+                '$recurring = $recurringId > 0' +
+                ' ? \\App\\Models\\RecurringInvoice::on("db-ninja-01")->find($recurringId)' +
+                ' : null;' +
+                '$productKeys = [];' +
+                '$docuninjaQuantity = 0;' +
+                '$lineItemsTotal = 0.0;' +
+                'foreach (($recurring->line_items ?? []) as $item) {' +
+                '$productKey = (string) ($item->product_key ?? "");' +
+                '$productKeys[] = $productKey;' +
+                '$quantity = (float) ($item->quantity ?? 0);' +
+                '$unitCost = (float) (($item->product_cost ?? 0) > 0 ? $item->product_cost : ($item->cost ?? 0));' +
+                '$lineItemsTotal += round($quantity * $unitCost, 2);' +
+                'if (stripos($productKey, "docuninja") !== false) {' +
+                '$docuninjaQuantity += (int) $quantity;' +
+                '}' +
+                '}' +
+                'echo json_encode([' +
+                "'recurring_invoice_id' => \$recurring ? (int) \$recurring->id : null," +
+                "'product_keys' => \$productKeys," +
+                "'docuninja_quantity' => \$docuninjaQuantity," +
+                "'line_items_total' => round(\$lineItemsTotal, 2)," +
+                "'amount' => \$recurring ? round((float) \$recurring->amount, 2) : 0.0," +
+                "'plan_price' => isset($account->billing_context?->pricing['plan_price']) ? (float) $account->billing_context->pricing['plan_price'] : null," +
+                "'docuninja_price' => isset($account->billing_context?->pricing['docuninja_price']) ? (float) $account->billing_context->pricing['docuninja_price'] : null," +
+                ']);',
+        ),
+        'billing recurring state',
+    );
 }
 
 export function readAccountPlanState(email: string): AccountPlanState {

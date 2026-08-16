@@ -34,6 +34,7 @@ import {
     proRataRatio,
     type ProRataScenario,
     readAccountPlanState,
+    readBillingRecurringState,
     requestDocuNinjaBetaUpgrade,
     resetAccountPlanState,
     seedDocuNinjaBetaAllowlist,
@@ -1201,13 +1202,26 @@ test.describe('Account management additional downgrade paths', () => {
             test.skip(true, skipReason);
         }
 
-        preparePaidAccountForQuotes(ownerEmail, {
+        const seeded = preparePaidAccountForQuotes(ownerEmail, {
             plan: 'pro',
             term: 'month',
             users: 1,
             docuninja_users: 2,
             days_into_period: 10,
         });
+
+        const beforeDowngrade = readBillingRecurringState(ownerEmail);
+
+        expect(beforeDowngrade.recurring_invoice_id).toBe(seeded.recurring_invoice_id);
+        expect(beforeDowngrade.docuninja_quantity).toBe(2);
+        expect(
+            beforeDowngrade.product_keys.some((key) =>
+                key.toLowerCase().includes('docuninja'),
+            ),
+        ).toBe(true);
+        expect(beforeDowngrade.line_items_total).toBeGreaterThan(
+            beforeDowngrade.plan_price ?? 0,
+        );
 
         const response = await downgradeDocuNinjaSeats(api.context, 0);
 
@@ -1216,6 +1230,18 @@ test.describe('Account management additional downgrade paths', () => {
         const account = readAccountPlanState(ownerEmail);
 
         expect(account.docuninja_num_users).toBe(0);
+
+        const afterDowngrade = readBillingRecurringState(ownerEmail);
+
+        expect(afterDowngrade.recurring_invoice_id).toBe(seeded.recurring_invoice_id);
+        expect(afterDowngrade.docuninja_quantity).toBe(0);
+        expect(
+            afterDowngrade.product_keys.some((key) =>
+                key.toLowerCase().includes('docuninja'),
+            ),
+        ).toBe(false);
+        expect(afterDowngrade.product_keys).toContain('pro_plan');
+        expect(afterDowngrade.line_items_total).toBe(beforeDowngrade.plan_price ?? 0);
     });
 });
 
