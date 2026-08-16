@@ -594,17 +594,6 @@ class CreditController extends BaseController
                 return response()->json(['message' => ctrans('texts.access_denied')], 403);
             }
 
-            // $paths = $credits->map(function ($credit) {
-            //     return (new \App\Jobs\Entity\CreateRawPdf($credit->invitations->first()))->handle();
-            // });
-
-            // $merge = (new PdfMerge($paths->toArray()))->run();
-
-            // return response()->streamDownload(function () use ($merge) {
-            //     echo($merge);
-            // }, 'print.pdf', ['Content-Type' => 'application/pdf']);
-
-
             $start = microtime(true);
 
             $batch_id = (new \App\Jobs\Invoice\PrintEntityBatch(Credit::class, $credits->pluck('id')->toArray(), $user->company()->db))->handle();

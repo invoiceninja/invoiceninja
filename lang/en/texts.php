@@ -6328,7 +6328,6 @@ $lang = array(
     'created_reminder_schedule' => 'Reminder schedule created',
     'deleted_reminder_schedule' => 'Reminder schedule deleted',
     'document_sent_successfully' => 'Document sent successfully',
-    'docuninja_creating_account' => 'Creating your account...',
     'docuninja_join_esignatures' => 'E-Signatures',
     'docuninja_join_esignatures_help' => 'Collect signatures with tracking',
     'docuninja_join_features_title' => 'Everything You Get',
@@ -6355,6 +6354,7 @@ $lang = array(
     'view_details' => 'View Details',
     'who_to_send_to' => 'Who to send to?',
     'yyyy_mm_dd' => 'yyyy-mm-dd',
+    'docuninja_unavailable' => 'DocuNinja is currently unavailable. Please try again later.',
 );
 
 return $lang;

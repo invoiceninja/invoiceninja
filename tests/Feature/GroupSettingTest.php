@@ -48,10 +48,12 @@ class GroupSettingTest extends TestCase
         $this->assertSame($this->encodePrimaryKey(0), $arr['data']['id']);
     }
 
-    public function testPdfVariablesUnset()
+    public function testCompanyOnlySettingsAreUnset(): void
     {
         $settings = new \stdClass();
         $settings->pdf_variables = 'xx';
+        $settings->translations = (object) ['invoice' => 'Group Translation'];
+        $settings->currency_id = '2';
 
         $data = [
             'name' => 'testX',
@@ -68,6 +70,8 @@ class GroupSettingTest extends TestCase
         $arr = $response->json();
 
         $this->assertArrayNotHasKey('pdf_variables', $arr['data']['settings']);
+        $this->assertArrayNotHasKey('translations', $arr['data']['settings']);
+        $this->assertSame('2', $arr['data']['settings']['currency_id']);
 
         $data = [
             'name' => 'testX',
@@ -84,6 +88,8 @@ class GroupSettingTest extends TestCase
         $arr = $response->json();
 
         $this->assertArrayNotHasKey('pdf_variables', $arr['data']['settings']);
+        $this->assertArrayNotHasKey('translations', $arr['data']['settings']);
+        $this->assertSame('2', $arr['data']['settings']['currency_id']);
 
     }
 
