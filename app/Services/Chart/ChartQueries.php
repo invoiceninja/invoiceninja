@@ -204,6 +204,48 @@ trait ChartQueries
 
     }
 
+    public function getExpenseChartQueryForAllCurrencies(string $start_date, string $end_date): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND expenses.user_id = ' . $this->user->id;
+
+        return DB::select("
+            SELECT
+            IFNULL(expenses.currency_id, :company_currency) as currency_id,
+            SUM(
+                CASE
+                    WHEN expenses.uses_inclusive_taxes = 0 THEN
+                        expenses.amount +
+                        (COALESCE(expenses.tax_amount1, 0) + COALESCE(expenses.tax_amount2, 0) + COALESCE(expenses.tax_amount3, 0)) +
+                        (
+                            (expenses.amount * COALESCE(expenses.tax_rate1, 0)/100) +
+                            (expenses.amount * COALESCE(expenses.tax_rate2, 0)/100) +
+                            (expenses.amount * COALESCE(expenses.tax_rate3, 0)/100)
+                        )
+                    ELSE expenses.amount
+                END
+            ) as total,
+            expenses.date
+            FROM expenses
+            LEFT JOIN clients
+            ON clients.id = expenses.client_id
+            LEFT JOIN vendors
+            ON vendors.id = expenses.vendor_id
+            WHERE (expenses.date BETWEEN :start_date AND :end_date)
+            AND expenses.company_id = :company_id
+            AND expenses.is_deleted = 0
+            {$user_filter}
+            AND (clients.id IS NULL OR clients.is_deleted = 0)
+            AND (vendors.id IS NULL OR vendors.is_deleted = 0)
+            GROUP BY currency_id, expenses.date
+            ORDER BY currency_id, expenses.date
+        ", [
+            'company_currency' => $this->company->settings->currency_id,
+            'company_id' => $this->company->id,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+        ]);
+    }
+
     /**
      * Payments
      */
@@ -313,6 +355,34 @@ trait ChartQueries
             'end_date' => $end_date,
         ]);
 
+    }
+
+    public function getPaymentChartQueryForAllCurrencies(string $start_date, string $end_date): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND payments.user_id = ' . $this->user->id;
+
+        return DB::select("
+            SELECT
+            IFNULL(payments.currency_id, :company_currency) as currency_id,
+            sum(payments.amount - payments.refunded) as total,
+            payments.date
+            FROM payments
+            JOIN clients
+            ON payments.client_id = clients.id
+            WHERE payments.company_id = :company_id
+            AND payments.is_deleted = 0
+            AND clients.is_deleted = 0
+            {$user_filter}
+            AND payments.status_id IN (4,5,6)
+            AND (payments.date BETWEEN :start_date AND :end_date)
+            GROUP BY currency_id, payments.date
+            ORDER BY currency_id, payments.date
+        ", [
+            'company_currency' => $this->company->settings->currency_id,
+            'company_id' => $this->company->id,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+        ]);
     }
 
     /**
@@ -532,6 +602,46 @@ trait ChartQueries
         ]);
     }
 
+    public function getOutstandingChartQueryForAllCurrencies(string $start_date, string $end_date): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = ' . $this->user->id;
+
+        $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3)' : 'AND invoices.status_id IN (2,3)';
+
+        return DB::select("
+            SELECT
+                currency_id,
+                SUM(monthly_total) OVER (
+                    PARTITION BY currency_id
+                    ORDER BY date
+                    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+                ) as total,
+                date
+            FROM (
+                SELECT
+                    IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) as currency_id,
+                    sum(invoices.balance) as monthly_total,
+                    LAST_DAY(invoices.date) as date
+                FROM clients
+                JOIN invoices
+                ON invoices.client_id = clients.id
+                {$status_filter}
+                AND invoices.company_id = :company_id
+                AND clients.is_deleted = 0
+                AND invoices.is_deleted = 0
+                {$user_filter}
+                AND (invoices.date BETWEEN :start_date AND :end_date)
+                GROUP BY currency_id, LAST_DAY(invoices.date)
+            ) monthly_totals
+            ORDER BY currency_id, date
+        ", [
+            'company_currency' => (int) $this->company->settings->currency_id,
+            'company_id' => $this->company->id,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+        ]);
+    }
+
 
     public function getAggregateInvoiceChartQuery($start_date, $end_date)
     {
@@ -589,5 +699,35 @@ trait ChartQueries
             'end_date' => $end_date,
         ]);
 
+    }
+
+    public function getInvoiceChartQueryForAllCurrencies(string $start_date, string $end_date): array
+    {
+        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = ' . $this->user->id;
+
+        $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3,4)' : 'AND invoices.status_id IN (2,3,4)';
+
+        return DB::select("
+            SELECT
+            IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) as currency_id,
+            sum(invoices.amount) as total,
+            invoices.date
+            FROM clients
+            JOIN invoices
+            on invoices.client_id = clients.id
+            WHERE invoices.company_id = :company_id
+            AND clients.is_deleted = 0
+            AND invoices.is_deleted = 0
+            {$user_filter}
+            {$status_filter}
+            AND (invoices.date BETWEEN :start_date AND :end_date)
+            GROUP BY currency_id, invoices.date
+            ORDER BY currency_id, invoices.date
+        ", [
+            'company_currency' => (int) $this->company->settings->currency_id,
+            'company_id' => $this->company->id,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+        ]);
     }
 }
