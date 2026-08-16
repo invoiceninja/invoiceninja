@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "93d413f68c788e7760ab8a09dcaabcbe",
+    "content-hash": "d718164db0798916b7bf1635f2ac64be",
     "packages": [
         {
             "name": "apimatic/core",
@@ -4378,10 +4378,16 @@
         {
             "name": "invoiceninja/admin-api",
             "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:invoiceninja/admin-api.git",
+                "reference": "debb039a1c7f2f22f68a9cd24c1062074645486b"
+            },
             "dist": {
-                "type": "path",
-                "url": "../admin-api",
-                "reference": "884941ec5e0dc5f1216aa3e14007311e0fc6bcf0"
+                "type": "zip",
+                "url": "https://api.github.com/repos/invoiceninja/admin-api/zipball/debb039a1c7f2f22f68a9cd24c1062074645486b",
+                "reference": "debb039a1c7f2f22f68a9cd24c1062074645486b",
+                "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
@@ -4400,6 +4406,7 @@
                 "phpstan/phpstan": "^2.0",
                 "phpunit/phpunit": "^11.0"
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
@@ -4428,9 +4435,11 @@
                 }
             ],
             "description": "API endpoints for the admin interface",
-            "transport-options": {
-                "relative": true
-            }
+            "support": {
+                "source": "https://github.com/invoiceninja/admin-api/tree/main",
+                "issues": "https://github.com/invoiceninja/admin-api/issues"
+            },
+            "time": "2026-08-16T05:09:20+00:00"
         },
         {
             "name": "invoiceninja/einvoice",
