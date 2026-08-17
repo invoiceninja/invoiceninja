@@ -81,7 +81,13 @@ class ChartSummaryPayloadTest extends TestCase
         $payload = $this->assertBatchedSummaryMatchesLegacy($chartService, '2026-01-01', '2026-03-31');
 
         $chartServiceWithDrafts = new ChartService($this->chartCompany, $this->user, true, true);
-        $payloadWithDrafts = $this->assertBatchedSummaryMatchesLegacy($chartServiceWithDrafts, '2026-01-01', '2026-03-31');
+        $payloadWithDrafts = $this->assertBatchedSummaryMatchesLegacy(
+            $chartServiceWithDrafts,
+            '2026-01-01',
+            '2026-03-31',
+            true,
+            true
+        );
 
         $this->assertSame(
             ['2026-01-10', '2026-01-20', '2026-02-10', '2026-02-15'],
@@ -273,7 +279,9 @@ class ChartSummaryPayloadTest extends TestCase
         $withDrafts = $this->assertBatchedSummaryMatchesLegacy(
             new ChartService($this->chartCompany, $this->user, true, true),
             '2026-01-01',
-            '2026-02-28'
+            '2026-02-28',
+            true,
+            true
         );
 
         $this->assertSame(['2026-01-02', '2026-01-03', '2026-01-04'], array_column($withoutDrafts[1]['invoices'], 'date'));
@@ -318,7 +326,8 @@ class ChartSummaryPayloadTest extends TestCase
         $restrictedPayload = $this->assertBatchedSummaryMatchesLegacy(
             new ChartService($this->chartCompany, $this->user, false),
             '2026-01-01',
-            '2026-01-31'
+            '2026-01-31',
+            false
         );
         $adminPayload = $this->assertBatchedSummaryMatchesLegacy(
             new ChartService($this->chartCompany, $this->user, true),
@@ -404,6 +413,130 @@ class ChartSummaryPayloadTest extends TestCase
         $this->assertSame([['total' => '50.000000000000', 'date' => '2026-01-12']], $payload[999]['payments']);
     }
 
+    public function testMysqlAndPhpShimsPreserveSoftDeletedRowsWhenIsDeletedIsFalse(): void
+    {
+        $softDeletedClient = $this->createChartClient(3, $this->user);
+        $invoice = $this->createChartInvoice($softDeletedClient, [
+            'date' => '2026-01-10',
+            'amount' => 30,
+            'balance' => 12,
+        ]);
+        $payment = $this->createChartPayment($softDeletedClient, [
+            'date' => '2026-01-11',
+            'currency_id' => 3,
+            'amount' => 20,
+            'refunded' => 2,
+        ]);
+        $expense = $this->createChartExpense([
+            'client_id' => $softDeletedClient->id,
+            'date' => '2026-01-12',
+            'currency_id' => 3,
+            'amount' => 10,
+            'uses_inclusive_taxes' => true,
+        ]);
+
+        DB::table('clients')->where('id', $softDeletedClient->id)->update(['deleted_at' => now()]);
+        DB::table('invoices')->where('id', $invoice->id)->update(['deleted_at' => now()]);
+        DB::table('payments')->where('id', $payment->id)->update(['deleted_at' => now()]);
+        DB::table('expenses')->where('id', $expense->id)->update(['deleted_at' => now()]);
+
+        $payload = $this->assertBatchedSummaryMatchesLegacy(
+            new ChartService($this->chartCompany, $this->user, true),
+            '2026-01-01',
+            '2026-01-31'
+        );
+
+        $this->assertSame([['total' => '30.000000', 'date' => '2026-01-10']], $payload[3]['invoices']);
+        $this->assertSame([['total' => '12.000000', 'date' => '2026-01-31']], $payload[3]['outstanding']);
+        $this->assertSame([['total' => '18.000000', 'date' => '2026-01-11']], $payload[3]['payments']);
+        $this->assertSame([['total' => '10.0000000000000000', 'date' => '2026-01-12']], $payload[3]['expenses']);
+    }
+
+    public function testMysqlAndPhpShimsMatchDenseDecimalPermutations(): void
+    {
+        $clients = [
+            1 => $this->usdClient,
+            2 => $this->gbpClient,
+            3 => $this->createChartClient(3, $this->user),
+        ];
+        $invoiceAmounts = ['0.010001', '1.234567', '10.000001', '-99.999999', '4.500001', '250.123456'];
+        $balances = ['0.000001', '1.111111', '-2.222222', '0', '4.444444', '5.555555'];
+        $paymentAmounts = ['0.010001', '1.234567', '10.000001', '99.999999', '4.500001', '250.123456'];
+        $refunds = ['0', '0.000001', '1.111111', '100.000001', '0.500001', '250.123456'];
+        $exchangeRates = ['1', '2', '0', '0.25', '3', '1.333333'];
+        $invoiceStatuses = [
+            Invoice::STATUS_DRAFT,
+            Invoice::STATUS_SENT,
+            Invoice::STATUS_PARTIAL,
+            Invoice::STATUS_PAID,
+            Invoice::STATUS_CANCELLED,
+            Invoice::STATUS_REVERSED,
+        ];
+        $paymentStatuses = [
+            Payment::STATUS_PENDING,
+            Payment::STATUS_CANCELLED,
+            Payment::STATUS_FAILED,
+            Payment::STATUS_COMPLETED,
+            Payment::STATUS_PARTIALLY_REFUNDED,
+            Payment::STATUS_REFUNDED,
+        ];
+
+        foreach ($clients as $currencyId => $client) {
+            foreach (range(0, 5) as $case) {
+                $date = sprintf('2026-%02d-%02d', intdiv($case, 2) + 1, 10 + ($case % 2));
+
+                $this->createChartInvoice($client, [
+                    'date' => $date,
+                    'due_date' => $date,
+                    'amount' => $invoiceAmounts[$case],
+                    'balance' => $balances[$case],
+                    'paid_to_date' => 0,
+                    'exchange_rate' => $exchangeRates[$case],
+                    'status_id' => $invoiceStatuses[$case],
+                ]);
+
+                $this->createChartPayment($client, [
+                    'date' => $date,
+                    'currency_id' => $currencyId,
+                    'amount' => $paymentAmounts[$case],
+                    'refunded' => $refunds[$case],
+                    'exchange_rate' => $exchangeRates[$case],
+                    'status_id' => $paymentStatuses[$case],
+                ]);
+
+                $this->createChartExpense([
+                    'client_id' => $client->id,
+                    'date' => $date,
+                    'currency_id' => $case === 0 ? null : $currencyId,
+                    'amount' => $invoiceAmounts[$case],
+                    'exchange_rate' => $exchangeRates[$case],
+                    'uses_inclusive_taxes' => $case % 2 === 1,
+                    'tax_amount1' => $case === 2 ? null : '0.123456',
+                    'tax_amount2' => '0.000001',
+                    'tax_amount3' => $case === 4 ? null : '1.000001',
+                    'tax_rate1' => '5.555555',
+                    'tax_rate2' => $case === 2 ? null : '10.125000',
+                    'tax_rate3' => '0.000001',
+                ]);
+            }
+        }
+
+        foreach ([
+            [true, false],
+            [true, true],
+            [false, false],
+            [false, true],
+        ] as [$isAdmin, $includeDrafts]) {
+            $this->assertBatchedSummaryMatchesLegacy(
+                new ChartService($this->chartCompany, $this->user, $isAdmin, $includeDrafts),
+                '2026-01-01',
+                '2026-03-31',
+                $isAdmin,
+                $includeDrafts
+            );
+        }
+    }
+
     public function testBatchedChartSummaryUsesAConstantNumberOfQueriesAsCurrenciesGrow(): void
     {
         app('currencies');
@@ -446,14 +579,26 @@ class ChartSummaryPayloadTest extends TestCase
     private function assertBatchedSummaryMatchesLegacy(
         ChartService $chartService,
         string $startDate,
-        string $endDate
+        string $endDate,
+        bool $isAdmin = true,
+        bool $includeDrafts = false
     ): array {
         $legacyPayload = json_encode($chartService->chart_summary($startDate, $endDate), JSON_THROW_ON_ERROR);
         $batchedPayload = json_encode($chartService->chart_summary_batched($startDate, $endDate), JSON_THROW_ON_ERROR);
 
         $this->assertSame($legacyPayload, $batchedPayload);
 
-        return json_decode($legacyPayload, true, 512, JSON_THROW_ON_ERROR);
+        $decodedPayload = json_decode($legacyPayload, true, 512, JSON_THROW_ON_ERROR);
+        $phpShimPayload = (new ChartSummaryPhpShim(
+            $this->chartCompany,
+            $this->user,
+            $isAdmin,
+            $includeDrafts
+        ))->calculate($startDate, $endDate);
+
+        $this->assertSame($decodedPayload, $phpShimPayload);
+
+        return $decodedPayload;
     }
 
     /**

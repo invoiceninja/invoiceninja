@@ -379,13 +379,7 @@ $lang = array(
     'invoice_issued_to' => 'Invoice issued to',
     'invalid_counter' => 'To prevent a possible conflict please set either an invoice or quote number prefix',
     'mark_sent' => 'Mark Sent',
-    'more_designs' => 'More designs',
-    'more_designs_title' => 'Additional Invoice Designs',
-    'more_designs_cloud_header' => 'Go Pro for more invoice designs',
-    'more_designs_cloud_text' => '',
-    'more_designs_self_host_text' => '',
     'buy' => 'Buy',
-    'bought_designs' => 'Successfully added additional invoice designs',
     'sent' => 'Sent',
     'vat_number' => 'VAT Number',
     'payment_title' => 'Enter Your Billing Address and Credit Card information',
@@ -6355,6 +6349,9 @@ $lang = array(
     'who_to_send_to' => 'Who to send to?',
     'yyyy_mm_dd' => 'yyyy-mm-dd',
     'docuninja_unavailable' => 'DocuNinja is currently unavailable. Please try again later.',
+    'add_tax' => 'Add Tax',
+    'what_are_you_charging_for' => 'What are you charging for?',
+    'add_value_as_new_client' => 'Add `:value` As New Client',
 );
 
 return $lang;

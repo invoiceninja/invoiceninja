@@ -4,6 +4,8 @@ namespace Tests\Unit;
 
 use App\Services\Download\ProtectedZipDownloadStore;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Tests\MockAccountData;
@@ -18,8 +20,16 @@ class ProtectedZipDownloadStoreTest extends TestCase
     {
         parent::setUp();
 
-        Storage::fake(config('filesystems.default'));
+        config([
+            'filesystems.default' => 'public',
+            'filesystems.protected_download_disk' => 'protected-downloads',
+        ]);
+
+        Storage::fake('public');
+        Storage::fake('protected-downloads');
         Cache::flush();
+        Event::fake();
+        Queue::fake();
         URL::forceRootUrl('https://example.test');
 
         $this->makeTestData();
@@ -37,14 +47,20 @@ class ProtectedZipDownloadStoreTest extends TestCase
             $this->user,
         );
 
-        Storage::assertExists($result->storage_path);
-        $this->assertSame($this->company->file_path().'downloads/reports-2026-08-10.zip', $result->storage_path);
-        $this->assertSame($result->storage_path, Cache::get($result->hash));
+        Storage::disk('protected-downloads')->assertExists($result->storage_path);
+        Storage::disk('public')->assertMissing($result->storage_path);
+        $this->assertSame($this->company->file_path() . 'downloads/reports-2026-08-10.zip', $result->storage_path);
+        $this->assertSame([
+            'disk' => 'protected-downloads',
+            'path' => $result->storage_path,
+            'download_name' => 'reports-2026-08-10.zip',
+            'expires_at' => $result->expires_at->timestamp,
+        ], Cache::get($result->hash));
         $this->assertStringContainsString($result->hash, $result->url);
         $this->assertTrue(URL::hasValidSignature(request()->create($result->url)));
 
         $zip = new ZipArchive();
-        $zip->open(Storage::path($result->storage_path));
+        $zip->open(Storage::disk('protected-downloads')->path($result->storage_path));
 
         $this->assertSame(2, $zip->numFiles);
         $this->assertSame('report.csv', $zip->getNameIndex(0));

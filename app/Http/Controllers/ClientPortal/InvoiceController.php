@@ -152,6 +152,7 @@ class InvoiceController extends Controller
         $file = (new \App\Jobs\Entity\CreateRawPdf($invitation))->handle();
 
         $headers = ['Content-Type' => 'application/pdf', 'Content-Disposition' => 'inline'];
+        
         return response()->make($file, 200, $headers);
 
     }

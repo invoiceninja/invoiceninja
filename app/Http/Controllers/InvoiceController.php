@@ -12,45 +12,46 @@
 
 namespace App\Http\Controllers;
 
-use App\Utils\Ninja;
-use App\Models\Quote;
-use App\Models\Account;
-use App\Models\Invoice;
-use App\Models\Scheduler;
-use App\Jobs\Cron\AutoBill;
-use App\Helpers\Cache\Atomic;
-use Illuminate\Http\Response;
-use App\Factory\InvoiceFactory;
-use App\Filters\InvoiceFilters;
-use App\Utils\Traits\MakesHash;
-use App\Factory\SchedulerFactory;
-use App\Jobs\Invoice\ZipInvoices;
-use App\Services\PdfMaker\PdfMerge;
-use Illuminate\Support\Facades\App;
-use App\Factory\CloneInvoiceFactory;
-use App\Jobs\Invoice\BulkInvoiceJob;
-use App\Utils\Traits\SavesDocuments;
-use App\Jobs\Invoice\UpdateReminders;
-use App\Transformers\QuoteTransformer;
-use App\Repositories\InvoiceRepository;
-use Illuminate\Support\Facades\Storage;
-use App\Transformers\InvoiceTransformer;
 use App\Events\Invoice\InvoiceWasCreated;
 use App\Events\Invoice\InvoiceWasUpdated;
-use App\Repositories\SchedulerRepository;
-use App\Services\Template\TemplateAction;
+use App\Factory\CloneInvoiceFactory;
 use App\Factory\CloneInvoiceToQuoteFactory;
+use App\Factory\InvoiceFactory;
+use App\Factory\SchedulerFactory;
+use App\Filters\InvoiceFilters;
+use App\Helpers\Cache\Atomic;
+use App\Http\Requests\Invoice\ActionInvoiceRequest;
 use App\Http\Requests\Invoice\BulkInvoiceRequest;
+use App\Http\Requests\Invoice\CreateInvoiceRequest;
+use App\Http\Requests\Invoice\DestroyInvoiceRequest;
 use App\Http\Requests\Invoice\EditInvoiceRequest;
 use App\Http\Requests\Invoice\ShowInvoiceRequest;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
-use App\Http\Requests\Invoice\ActionInvoiceRequest;
-use App\Http\Requests\Invoice\CreateInvoiceRequest;
 use App\Http\Requests\Invoice\UpdateInvoiceRequest;
-use App\Http\Requests\Invoice\UploadInvoiceRequest;
-use App\Http\Requests\Invoice\DestroyInvoiceRequest;
 use App\Http\Requests\Invoice\UpdateReminderRequest;
+use App\Http\Requests\Invoice\UploadInvoiceRequest;
 use App\Http\Requests\TaskScheduler\PaymentScheduleRequest;
+use App\Jobs\Cron\AutoBill;
+use App\Jobs\Invoice\BulkInvoiceJob;
+use App\Jobs\Invoice\UpdateReminders;
+use App\Jobs\Invoice\ZipInvoices;
+use App\Models\Account;
+use App\Models\Invoice;
+use App\Models\Quote;
+use App\Models\Scheduler;
+use App\Repositories\InvoiceRepository;
+use App\Repositories\SchedulerRepository;
+use App\Services\PdfMaker\BatchPdfService;
+use App\Services\PdfMaker\PdfMerge;
+use App\Services\Template\TemplateAction;
+use App\Transformers\InvoiceTransformer;
+use App\Transformers\QuoteTransformer;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class InvoiceController.
@@ -585,29 +586,18 @@ class InvoiceController extends BaseController
 
             $start = microtime(true);
 
-            $batch_id = (new \App\Jobs\Invoice\PrintEntityBatch(Invoice::class, $invoices->pluck('id')->toArray(), $user->company()->db))->handle();
-            $batch = \Illuminate\Support\Facades\Bus::findBatch($batch_id);
-            $batch_key = $batch->name;
+            try {
+                $merged_pdf = app(BatchPdfService::class)->render(
+                    Invoice::class,
+                        $invoices->pluck('id')->all(),
+                        $user->company()->db,
+                    );
+            } finally {
+                Atomic::del($request->lock_key);
+            }
 
-            $finished = false;
-
-            do {
-                usleep(300000);
-                $batch = \Illuminate\Support\Facades\Bus::findBatch($batch_id);
-                $finished = $batch->finished();
-            } while (!$finished);
-
-            $paths = $invoices->map(function ($invoice) use ($batch_key) {
-                return \Illuminate\Support\Facades\Cache::pull("{$batch_key}-{$invoice->id}");
-            })->filter(function ($value) {
-                return !is_null($value);
-            })->toArray();
-
-            $mergedPdf = (new PdfMerge($paths))->run();
-            Atomic::del($request->lock_key);
-
-            return response()->streamDownload(function () use ($mergedPdf) {
-                echo $mergedPdf;
+            return response()->streamDownload(function () use ($merged_pdf) {
+                echo $merged_pdf;
             }, 'print.pdf', [
                 'Content-Type' => 'application/pdf',
                 'Cache-Control:' => 'no-cache',

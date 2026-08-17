@@ -13,54 +13,82 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\SystemError;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ProtectedDownloadController extends BaseController
 {
-    public function index(Request $request, string $hash)
+    public function index(string $hash): StreamedResponse
     {
-        /** @var string $hashed_path */
-        $hashed_path = Cache::get($hash);
+        $download = Cache::get($hash);
 
-        if (!$hashed_path) {
+        if (! $download) {
             throw new SystemError('File no longer available', 404);
         }
 
-        if (!Storage::exists($hashed_path)) {
+        if (is_string($download)) {
+            $disk = config('filesystems.default');
+            $storage_path = $download;
+            $download_name = basename($storage_path);
+        } elseif (
+            is_array($download)
+            && is_string($download['disk'] ?? null)
+            && is_string($download['path'] ?? null)
+            && is_string($download['download_name'] ?? null)
+            && is_int($download['expires_at'] ?? null)
+        ) {
+            $disk = $download['disk'];
+            $storage_path = $download['path'];
+            $download_name = $download['download_name'];
+
+            if ($download['expires_at'] <= now()->timestamp) {
+                throw new SystemError('File no longer available', 404);
+            }
+        } else {
+            throw new SystemError('File no longer available', 404);
+        }
+
+        if (! is_string($disk) || $disk === '') {
+            throw new SystemError('File no longer available', 404);
+        }
+
+        $storage = Storage::disk($disk);
+
+        if (! $storage->exists($storage_path)) {
             throw new SystemError('File not found', 404);
         }
 
-        $file_size = Storage::size($hashed_path);
-        $filename = basename($hashed_path);
-        $mime_type = Storage::mimeType($hashed_path) ?: 'application/octet-stream';
+        $file_size = $storage->size($storage_path);
+        $mime_type = $storage->mimeType($storage_path) ?: 'application/octet-stream';
 
-        return response()->streamDownload(function () use ($hashed_path) {
-            $stream = Storage::readStream($hashed_path);
+        return response()->streamDownload(function () use ($storage, $storage_path): void {
+            $stream = $storage->readStream($storage_path);
 
-            // if($stream ===false){
-            if ($stream === null) {
+            if (! is_resource($stream)) {
                 throw new SystemError('Unable to read file', 500);
             }
 
-            // Stream the file in chunks to avoid memory issues
-            while (!feof($stream)) {
-                $chunk = fread($stream, 8192); // 8KB chunks
-                if ($chunk === false) {
-                    break;
-                }
-                echo $chunk;
+            try {
+                while (! feof($stream)) {
+                    $chunk = fread($stream, 8192);
 
-                // Flush output buffer to ensure data is sent immediately
-                if (ob_get_level()) {
-                    ob_flush();
+                    if ($chunk === false) {
+                        throw new SystemError('Unable to read file', 500);
+                    }
+
+                    echo $chunk;
+
+                    if (ob_get_level()) {
+                        ob_flush();
+                    }
+
+                    flush();
                 }
-                flush();
+            } finally {
+                fclose($stream);
             }
-
-            fclose($stream);
-        }, $filename, [
+        }, $download_name, [
             'Content-Type' => $mime_type,
             'Content-Length' => $file_size,
         ]);

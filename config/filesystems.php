@@ -15,6 +15,8 @@ return [
 
     'default' => env('FILESYSTEM_DISK', 'public'),
 
+    'protected_download_disk' => env('PROTECTED_DOWNLOAD_DISK', 'local'),
+
     'cloud' => env('FILESYSTEM_CLOUD', 's3'),
 
     /*
