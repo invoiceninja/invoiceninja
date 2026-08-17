@@ -12,7 +12,6 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Application;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -22,39 +21,15 @@ use Tests\TestCase;
 
 class UnsignedProtectedDownloadControllerTest extends TestCase
 {
-    private string|false $previous_unsigned_setting;
-
-    public function createApplication(): Application
-    {
-        $this->previous_unsigned_setting = getenv('PROTECTED_DOWNLOAD_ALLOW_UNSIGNED');
-        putenv('PROTECTED_DOWNLOAD_ALLOW_UNSIGNED=true');
-        $_ENV['PROTECTED_DOWNLOAD_ALLOW_UNSIGNED'] = 'true';
-        $_SERVER['PROTECTED_DOWNLOAD_ALLOW_UNSIGNED'] = 'true';
-
-        return parent::createApplication();
-    }
-
     protected function setUp(): void
     {
         parent::setUp();
 
+        config(['filesystems.protected_download_allow_unsigned' => true]);
+
         $this->withoutMiddleware(ThrottleRequests::class);
         Storage::fake('protected-downloads');
         Cache::flush();
-    }
-
-    protected function tearDown(): void
-    {
-        if ($this->previous_unsigned_setting === false) {
-            putenv('PROTECTED_DOWNLOAD_ALLOW_UNSIGNED');
-            unset($_ENV['PROTECTED_DOWNLOAD_ALLOW_UNSIGNED'], $_SERVER['PROTECTED_DOWNLOAD_ALLOW_UNSIGNED']);
-        } else {
-            putenv("PROTECTED_DOWNLOAD_ALLOW_UNSIGNED={$this->previous_unsigned_setting}");
-            $_ENV['PROTECTED_DOWNLOAD_ALLOW_UNSIGNED'] = $this->previous_unsigned_setting;
-            $_SERVER['PROTECTED_DOWNLOAD_ALLOW_UNSIGNED'] = $this->previous_unsigned_setting;
-        }
-
-        parent::tearDown();
     }
 
     public function testUnsignedUrlDownloadsStructuredRecordWhenEnabled(): void

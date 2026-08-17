@@ -543,9 +543,7 @@ Route::post('api/v1/yodlee/balance', [YodleeController::class, 'balanceWebhook']
 
 Route::get('api/v1/protected_download/{hash}', [ProtectedDownloadController::class, 'index'])
     ->name('protected_download')
-    ->middleware(config('filesystems.protected_download_allow_unsigned')
-        ? ['throttle:300,1']
-        : ['signed:relative', 'throttle:300,1']);
+    ->middleware(['protected_download.signature', 'throttle:300,1']);
 Route::post('api/v1/ppcp/webhook', [PayPalPPCPPaymentDriver::class, 'processWebhookRequest'])->middleware('throttle:1000,1');
 
 Route::get('api/v1/calendar_connection/{provider}/authorize/{hash}', [CalendarConnectionController::class, 'redirectToProvider'])->name('calendar_connection.authorize')->middleware('throttle:10,1');

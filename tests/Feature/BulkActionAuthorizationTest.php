@@ -641,7 +641,7 @@ class BulkActionAuthorizationTest extends TestCase
         );
     }
 
-    public function testBulkDownloadDocumentsQueuesZipEntity(): void
+    public function testBulkDocumentsAcceptsAndTransformsSameCompanyDocumentIds(): void
     {
         Bus::fake([ZipEntity::class]);
 
@@ -668,6 +668,113 @@ class BulkActionAuthorizationTest extends TestCase
                 && $job->user->is($this->adminUser)
                 && $job->entity_class === Document::class,
         );
+    }
+
+    public function testBulkDocumentsRejectsUnsupportedAction(): void
+    {
+        Bus::fake([ZipEntity::class]);
+
+        $document = Document::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->adminUser->id,
+            'name' => 'supporting-document.pdf',
+            'type' => 'pdf',
+        ]);
+        $this->client->documents()->save($document);
+
+        $response = $this->withHeaders($this->apiHeaders($this->adminToken))
+            ->postJson('/api/v1/documents/bulk', [
+                'action' => 'unsupported_action',
+                'ids' => [$document->hashed_id],
+            ]);
+
+        $response
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('action');
+
+        Bus::assertNotDispatched(ZipEntity::class);
+    }
+
+    public function testBulkDocumentsRejectsDocumentFromAnotherCompany(): void
+    {
+        Bus::fake([ZipEntity::class]);
+
+        $other_company = Company::factory()->create([
+            'account_id' => $this->account->id,
+        ]);
+        $document = Document::factory()->create([
+            'company_id' => $other_company->id,
+            'user_id' => $this->adminUser->id,
+            'name' => 'other-company-document.pdf',
+            'type' => 'pdf',
+        ]);
+
+        $response = $this->withHeaders($this->apiHeaders($this->adminToken))
+            ->postJson('/api/v1/documents/bulk', [
+                'action' => 'download',
+                'ids' => [$document->hashed_id],
+            ]);
+
+        $response
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('ids');
+
+        Bus::assertNotDispatched(ZipEntity::class);
+    }
+
+    public function testBulkDocumentsRejectsNonexistentDocument(): void
+    {
+        Bus::fake([ZipEntity::class]);
+
+        $missing_document_id = ((int) Document::withTrashed()->max('id')) + 1;
+
+        $response = $this->withHeaders($this->apiHeaders($this->adminToken))
+            ->postJson('/api/v1/documents/bulk', [
+                'action' => 'download',
+                'ids' => [$this->encodePrimaryKey($missing_document_id)],
+            ]);
+
+        $response
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('ids');
+
+        Bus::assertNotDispatched(ZipEntity::class);
+    }
+
+    public function testBulkDocumentsRejectsEntireSelectionWhenOneDocumentBelongsToAnotherCompany(): void
+    {
+        Bus::fake([ZipEntity::class]);
+
+        $same_company_document = Document::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->adminUser->id,
+            'name' => 'same-company-document.pdf',
+            'type' => 'pdf',
+        ]);
+        $other_company = Company::factory()->create([
+            'account_id' => $this->account->id,
+        ]);
+        $other_company_document = Document::factory()->create([
+            'company_id' => $other_company->id,
+            'user_id' => $this->adminUser->id,
+            'name' => 'other-company-document.pdf',
+            'type' => 'pdf',
+        ]);
+
+        $response = $this->withHeaders($this->apiHeaders($this->adminToken))
+            ->postJson('/api/v1/documents/bulk', [
+                'action' => 'download',
+                'ids' => [
+                    $same_company_document->hashed_id,
+                    $other_company_document->hashed_id,
+                ],
+            ]);
+
+        $response
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('ids');
+
+        Bus::assertNotDispatched(ZipEntity::class);
     }
 
     public function testBulkPrintPurchaseOrdersUsesOnlyAuthorizedSelection(): void
