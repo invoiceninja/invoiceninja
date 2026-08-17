@@ -59,6 +59,42 @@ class ClientSettingsTest extends TestCase
 
     }
 
+    public function testCompanyOnlySettingsAreDiscardedFromClientSettings(): void
+    {
+        foreach (['array', 'object'] as $inputType) {
+            $client = \App\Models\Client::factory()->create([
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+                'settings' => ClientSettings::defaults(),
+            ]);
+
+            $contaminatedSettings = $client->settings;
+            $contaminatedSettings->translations = (object) ['invoice' => 'Existing Client Translation'];
+            $contaminatedSettings->pdf_variables = (object) ['invoice_details' => ['$client.name']];
+            $client->settings = $contaminatedSettings;
+            $client->save();
+
+            $settings = [
+                'currency_id' => '2',
+                'translations' => (object) ['invoice' => 'Incoming Client Translation'],
+                'pdf_variables' => (object) ['invoice_details' => ['$invoice.number']],
+            ];
+
+            if ($inputType === 'object') {
+                $settings = (object) $settings;
+            }
+
+            $client->settings = $client->saveSettings($settings, $client);
+            $client->save();
+
+            $savedSettings = $client->fresh()->settings;
+
+            $this->assertSame('2', $savedSettings->currency_id);
+            $this->assertFalse(property_exists($savedSettings, 'translations'), $inputType);
+            $this->assertFalse(property_exists($savedSettings, 'pdf_variables'), $inputType);
+        }
+    }
+
     public function testClientValidSettingsWithBadProps()
     {
         $data = [

@@ -26,11 +26,12 @@ use App\Http\Requests\PurchaseOrder\StorePurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\UpdatePurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\UploadPurchaseOrderRequest;
 use App\Jobs\Entity\CreateRawPdf;
-use App\Jobs\PurchaseOrder\ZipPurchaseOrders;
+use App\Jobs\Entity\ZipEntity;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\PurchaseOrder;
 use App\Repositories\PurchaseOrderRepository;
+use App\Services\PdfMaker\BatchPdfService;
 use App\Services\PdfMaker\PdfMerge;
 use App\Services\Template\TemplateAction;
 use App\Transformers\PurchaseOrderTransformer;
@@ -493,7 +494,7 @@ class PurchaseOrderController extends BaseController
             return response(['message' => 'Please verify your account to send emails.'], 400);
         }
 
-        if (Ninja::isHosted() && $user->account->emailQuotaExceeded()) {
+        if (Ninja::isHosted() && (stripos($action, 'email') !== false) && $user->account->emailQuotaExceeded()) {
             return response(['message' => ctrans('texts.email_quota_exceeded_subject')], 400);
         }
 
@@ -508,46 +509,51 @@ class PurchaseOrderController extends BaseController
         }
 
         /*
-         * Download Purchase Order/s
+         * Bulk Download Purchase Order/s
          */
-        if ($action == 'bulk_download' && $purchase_orders->count() >= 1) {
-            $purchase_orders->each(function ($purchase_order) use ($user) {
-                if ($user->cannot('view', $purchase_order)) {
-                    return response()->json(['message' => ctrans('text.access_denied')]);
-                }
+        if ($action == 'bulk_download') {
+
+            $authorized_purchase_orders = $purchase_orders->filter(function (PurchaseOrder $purchase_order) use ($user): bool {
+                return $user->can('view', $purchase_order);
             });
 
-            ZipPurchaseOrders::dispatch($purchase_orders->pluck("id")->toArray(), $purchase_orders->first()->company, auth()->user());
+            if ($authorized_purchase_orders->isEmpty()) {
+                return response()->json(['message' => ctrans('texts.access_denied')], 403);
+            }
+
+            ZipEntity::dispatch(
+                $authorized_purchase_orders->pluck('id'),
+                $authorized_purchase_orders->first()->company,
+                $user,
+                PurchaseOrder::class,
+            );
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
 
-        if ($action == 'bulk_print' && $user->can('view', $purchase_orders->first())) {
+        /*
+         * Bulk Print Purchase Order/s
+         */
+        if ($action == 'bulk_print') {
+
+            $purchase_orders = $purchase_orders->filter(function (PurchaseOrder $purchase_order) use ($user): bool {
+                return $user->can('view', $purchase_order);
+            });
+
+            if ($purchase_orders->isEmpty()) {
+                return response()->json(['message' => ctrans('texts.access_denied')], 403);
+            }
 
             $start = microtime(true);
 
-            $batch_id = (new \App\Jobs\Invoice\PrintEntityBatch(PurchaseOrder::class, $purchase_orders->pluck('id')->toArray(), $user->company()->db))->handle();
-            $batch = \Illuminate\Support\Facades\Bus::findBatch($batch_id);
-            $batch_key = $batch->name;
+            $merged_pdf = app(BatchPdfService::class)->render(
+                PurchaseOrder::class,
+                $purchase_orders->pluck('id')->all(),
+                $user->company()->db,
+            );
 
-            $finished = false;
-
-            do {
-                usleep(500000);
-                $batch = \Illuminate\Support\Facades\Bus::findBatch($batch_id);
-                $finished = $batch->finished();
-            } while (!$finished);
-
-            $paths = $purchase_orders->map(function ($purchase_order) use ($batch_key) {
-                return \Illuminate\Support\Facades\Cache::pull("{$batch_key}-{$purchase_order->id}");
-            })->filter(function ($value) {
-                return !is_null($value);
-            })->toArray();
-
-            $mergedPdf = (new PdfMerge($paths))->run();
-
-            return response()->streamDownload(function () use ($mergedPdf) {
-                echo $mergedPdf;
+            return response()->streamDownload(function () use ($merged_pdf) {
+                echo $merged_pdf;
             }, 'print.pdf', [
                 'Content-Type' => 'application/pdf',
                 'Cache-Control:' => 'no-cache',
@@ -651,7 +657,7 @@ class PurchaseOrderController extends BaseController
      * @param ActionPurchaseOrderRequest $request
      * @param PurchaseOrder $purchase_order
      * @param $action
-     * @return \App\Http\Controllers\Response|\Illuminate\Http\JsonResponse|Response|mixed|\Symfony\Component\HttpFoundation\StreamedResponse
+     * @return \Illuminate\Http\JsonResponse|Response|mixed|\Symfony\Component\HttpFoundation\StreamedResponse
      */
     public function action(ActionPurchaseOrderRequest $request, PurchaseOrder $purchase_order, $action)
     {

@@ -12,38 +12,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Utils\Ninja;
-use App\Models\Client;
-use App\Models\Credit;
-use App\Models\Account;
-use App\Models\Invoice;
-use App\Models\Webhook;
-use Illuminate\Http\Response;
-use App\Factory\CreditFactory;
-use App\Filters\CreditFilters;
-use App\Jobs\Credit\ZipCredits;
-use App\Utils\Traits\MakesHash;
-use App\Jobs\Entity\EmailEntity;
-use App\Factory\CloneCreditFactory;
-use App\Services\PdfMaker\PdfMerge;
-use Illuminate\Support\Facades\App;
-use App\Utils\Traits\SavesDocuments;
-use App\Repositories\CreditRepository;
 use App\Events\Credit\CreditWasCreated;
 use App\Events\Credit\CreditWasUpdated;
-use App\Transformers\CreditTransformer;
-use Illuminate\Support\Facades\Storage;
 use App\Events\General\EntityWasEmailed;
-use App\Services\Template\TemplateAction;
+use App\Factory\CloneCreditFactory;
+use App\Factory\CreditFactory;
+use App\Filters\CreditFilters;
+use App\Http\Requests\Credit\ActionCreditRequest;
 use App\Http\Requests\Credit\BulkCreditRequest;
+use App\Http\Requests\Credit\CreateCreditRequest;
+use App\Http\Requests\Credit\DestroyCreditRequest;
 use App\Http\Requests\Credit\EditCreditRequest;
 use App\Http\Requests\Credit\ShowCreditRequest;
 use App\Http\Requests\Credit\StoreCreditRequest;
-use App\Http\Requests\Credit\ActionCreditRequest;
-use App\Http\Requests\Credit\CreateCreditRequest;
 use App\Http\Requests\Credit\UpdateCreditRequest;
 use App\Http\Requests\Credit\UploadCreditRequest;
-use App\Http\Requests\Credit\DestroyCreditRequest;
+use App\Jobs\Entity\EmailEntity;
+use App\Jobs\Entity\ZipEntity;
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\Credit;
+use App\Models\Invoice;
+use App\Models\Webhook;
+use App\Repositories\CreditRepository;
+use App\Services\PdfMaker\BatchPdfService;
+use App\Services\PdfMaker\PdfMerge;
+use App\Services\Template\TemplateAction;
+use App\Transformers\CreditTransformer;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class CreditController.
@@ -580,7 +581,7 @@ class CreditController extends BaseController
                 return response()->json(['message' => ctrans('texts.access_denied')], 403);
             }
 
-            ZipCredits::dispatch($authorized->pluck('id')->toArray(), $user->company(), $user);
+            ZipEntity::dispatch($authorized->pluck('id'), $user->company(), $user, Credit::class);
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
@@ -594,41 +595,16 @@ class CreditController extends BaseController
                 return response()->json(['message' => ctrans('texts.access_denied')], 403);
             }
 
-            // $paths = $credits->map(function ($credit) {
-            //     return (new \App\Jobs\Entity\CreateRawPdf($credit->invitations->first()))->handle();
-            // });
-
-            // $merge = (new PdfMerge($paths->toArray()))->run();
-
-            // return response()->streamDownload(function () use ($merge) {
-            //     echo($merge);
-            // }, 'print.pdf', ['Content-Type' => 'application/pdf']);
-
-
             $start = microtime(true);
 
-            $batch_id = (new \App\Jobs\Invoice\PrintEntityBatch(Credit::class, $credits->pluck('id')->toArray(), $user->company()->db))->handle();
-            $batch = \Illuminate\Support\Facades\Bus::findBatch($batch_id);
-            $batch_key = $batch->name;
+            $merged_pdf = app(BatchPdfService::class)->render(
+                Credit::class,
+                $credits->pluck('id')->all(),
+                $user->company()->db,
+            );
 
-            $finished = false;
-
-            do {
-                usleep(500000);
-                $batch = \Illuminate\Support\Facades\Bus::findBatch($batch_id);
-                $finished = $batch->finished();
-            } while (!$finished);
-
-            $paths = $credits->map(function ($credit) use ($batch_key) {
-                return \Illuminate\Support\Facades\Cache::pull("{$batch_key}-{$credit->id}");
-            })->filter(function ($value) {
-                return !is_null($value);
-            })->toArray();
-
-            $mergedPdf = (new PdfMerge($paths))->run();
-
-            return response()->streamDownload(function () use ($mergedPdf) {
-                echo $mergedPdf;
+            return response()->streamDownload(function () use ($merged_pdf) {
+                echo $merged_pdf;
             }, 'print.pdf', [
                 'Content-Type' => 'application/pdf',
                 'Cache-Control:' => 'no-cache',

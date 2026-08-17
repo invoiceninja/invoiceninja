@@ -31,7 +31,6 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class InvoiceController extends Controller
@@ -115,44 +114,40 @@ class InvoiceController extends Controller
 
     }
 
-    public function showBlob($hash)
+    public function showBlob(string $entity_type, string $invitation_key)
     {
-        $data = Cache::get($hash);
+        $contact = auth()->guard('contact')->user();
 
-        for ($x = 0; $x < 25; $x++) {
-
-            $data = Cache::get($hash);
-
-            if ($data) {
-                break;
-            }
-
-            usleep(100000);
-
-        }
-
-        $invitation = false;
-
-        if (!isset($data['entity_type'])) {
-            nlog(array_merge(["showBlob"], $data ?? []));
-        }
-
-        match ($data['entity_type'] ?? 'invoice') {
-            'invoice' => $invitation = InvoiceInvitation::withTrashed()->find($data['invitation_id']), //@todo - sometimes this is false!!
-            'quote' => $invitation = QuoteInvitation::withTrashed()->find($data['invitation_id']),
-            'credit' => $invitation = CreditInvitation::withTrashed()->find($data['invitation_id']),
-            'recurring_invoice' => $invitation = RecurringInvoiceInvitation::withTrashed()->find($data['invitation_id']),
-            default => $invitation = false,
+        $query = match ($entity_type) {
+            'invoice' => InvoiceInvitation::withTrashed(),
+            'quote' => QuoteInvitation::withTrashed(),
+            'credit' => CreditInvitation::withTrashed(),
+            'recurring_invoice' => RecurringInvoiceInvitation::withTrashed(),
+            default => null,
         };
 
+        if (! $query) {
+            return response('', 404);
+        }
+
+        $invitation = $query
+            ->where('key', $invitation_key)
+            ->where('company_id', $contact->company_id)
+            ->whereHas('contact', function ($query) use ($contact) {
+                $query->where('client_id', $contact->client_id);
+            })
+            ->first();
+
         if (! $invitation) {
-            return redirect('/');
+            return response('', 404);
         }
 
         $file = (new \App\Jobs\Entity\CreateRawPdf($invitation))->handle();
 
-        $headers = ['Content-Type' => 'application/pdf', 'Content-Disposition' => 'inline'];
-        return response()->make($file, 200, $headers);
+        return response()->make($file, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline',
+        ]);
 
     }
 

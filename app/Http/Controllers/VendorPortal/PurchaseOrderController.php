@@ -22,7 +22,6 @@ use App\Jobs\Entity\CreateRawPdf;
 use App\Jobs\Util\WebhookHandler;
 use App\Http\Controllers\Controller;
 use App\Jobs\Invoice\InjectSignature;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Contracts\View\Factory;
 use App\Models\PurchaseOrderInvitation;
 use App\Events\Misc\InvitationWasViewed;
@@ -124,19 +123,32 @@ class PurchaseOrderController extends Controller
         return $this->render('purchase_orders.show', $data);
     }
 
-    public function showBlob($hash)
+    public function showBlob(string $entity_type, string $invitation_key)
     {
-        $data = Cache::pull($hash);
+        $vendorContact = auth()->guard('vendor')->user();
 
-        $invitation = PurchaseOrderInvitation::withTrashed()->find($data['invitation_id']);
+        if ($entity_type !== 'purchase_order') {
+            return response('', 404);
+        }
+
+        $invitation = PurchaseOrderInvitation::withTrashed()
+            ->where('key', $invitation_key)
+            ->where('company_id', $vendorContact->company_id)
+            ->whereHas('contact', function ($query) use ($vendorContact) {
+                $query->where('vendor_id', $vendorContact->vendor_id);
+            })
+            ->first();
+
+        if (! $invitation) {
+            return response('', 404);
+        }
 
         $file = $invitation->purchase_order->service()->getPurchaseOrderPdf();
 
-        // $headers = ['Content-Type' => 'application/pdf'];
-        $headers = ['Content-Type' => 'application/pdf', 'Content-Disposition' => 'inline'];
-
-        return response()->make($file, 200, $headers);
-
+        return response()->make($file, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline',
+        ]);
     }
 
 

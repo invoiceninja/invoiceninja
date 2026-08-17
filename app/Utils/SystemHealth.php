@@ -379,7 +379,7 @@ class SystemHealth
 
         foreach ($lines as $line) {
             // Match the main error, ie. [2024-07-10 12:23:07] production.ERROR: ...
-            if (substr($line, 0, 2) === '.ERROR') {
+            if (preg_match('/^\[[^\]]+\]\s+\S+\.(?:ERROR|CRITICAL|ALERT|EMERGENCY):/', $line) === 1) {
                 $last_error = $line;
             }
         }

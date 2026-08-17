@@ -65,6 +65,7 @@ Guest invitation tests must close their extra contexts in `finally` (use
 | `client-portal.spec.ts` | Login, sidebar links, invitations, logout |
 | `client-portal-auth.spec.ts` | Password login, forgot/reset, magic link, self-registration |
 | `client-portal-invoices.spec.ts` | List, filters, detail, downloads, bulk actions, Pay Now (default/smooth), bulk pay, terms/signature gates (default dropdown + bulk + smooth Flow2), password-protected invitations |
+| `client-portal-pdf-previews.spec.ts` | Real PDF preview resolution for invoices, quotes, credits, and recurring invoices |
 | `client-portal-payments.spec.ts` | Gateway checkout matrix |
 | `client-portal-entities.spec.ts` | Dashboard, payments, credits, projects, statement, pre-payments, payment methods |
 | `client-portal-quotes.spec.ts` | Approve/reject, signature, filters, bulk actions |
@@ -77,6 +78,7 @@ Guest invitation tests must close their extra contexts in `finally` (use
 | `client-portal-modules.spec.ts` | Module / sidebar gating |
 | `client-portal-invitations.spec.ts` | Guest invitation links, prefs, set-password |
 | `client-portal-settings.spec.ts` | `../ui` portal toggles: over/under payment, credit apply (`option`/`always`/`off`), uploads, branding, mobile HTML + product notes preference, unlock docs after payment, task visibility, registration fields |
+| `account-management.spec.ts` | Account management API on `small@example.com`: plan catalog, upgrade/downgrade quotes, pro rata pricing, quote validation, trials, all downgrade paths, billing portal data (users/invoices/methods), Stripe checkout including annual and month→year upgrades (requires `invoiceninja/admin-api` and owner access to `/api/client/account_management/*`; Stripe checkout tests also need `STRIPE_KEYS`) |
 
 ## Skip conditions
 
@@ -91,6 +93,10 @@ Guest invitation tests must close their extra contexts in `finally` (use
 | Cloudflare Turnstile on registration | Self-registration may skip |
 | Local artisan tinker cannot see remote API contacts | Password reset token + magic link may skip |
 | `APP_KEY` mismatch with remote | Invitation set-password hash may fail |
+| admin-api missing or owner blocked from account management routes | `account-management.spec.ts` skips |
+| Missing `STRIPE_KEYS` / gateway key | Account management upgrade checkout, trial conversion, annual/term upgrades, and PaymentIntent guardrails skip |
+| Account outside 14-day new-account window | Account management `start_trial` API test skips (`small@example.com` is usually ineligible) |
+| `QUEUE_CONNECTION=redis` without a worker | Account management invoice PDF download skips after export timeout |
 
 Still thin / env-heavy relative to `../ui` Client Portal + Online Payments panels:
 

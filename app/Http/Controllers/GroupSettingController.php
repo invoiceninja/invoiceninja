@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 
 use App\Factory\GroupSettingFactory;
 use App\Filters\GroupSettingFilters;
+use App\Http\Requests\GroupSetting\BulkGroupSettingRequest;
 use App\Http\Requests\GroupSetting\CreateGroupSettingRequest;
 use App\Http\Requests\GroupSetting\DestroyGroupSettingRequest;
 use App\Http\Requests\GroupSetting\EditGroupSettingRequest;
@@ -177,13 +178,12 @@ class GroupSettingController extends BaseController
      * @return Response| \Illuminate\Http\JsonResponse
      *
      */
-    public function bulk()
+    public function bulk(BulkGroupSettingRequest $request)
     {
-        $action = request()->input('action');
+        $action = $request->input('action');
+        $ids = $request->input('ids');
 
-        $ids = request()->input('ids');
-
-        $group_settings = GroupSetting::withTrashed()->whereIn('id', $this->transformKeys($ids))->company();
+        $group_settings = GroupSetting::withTrashed()->whereIn('id', $ids)->company();
 
         if ($group_settings->count() == 0) {
             return response()->json(['message' => ctrans('texts.no_group_settings_found')]);
@@ -203,7 +203,7 @@ class GroupSettingController extends BaseController
 
         /* Need to understand which permission are required for the given bulk action ie. view / edit */
 
-        return $this->listResponse(GroupSetting::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
+        return $this->listResponse(GroupSetting::withTrashed()->whereIn('id', $ids)->company());
     }
 
     /**

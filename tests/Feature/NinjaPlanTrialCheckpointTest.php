@@ -15,6 +15,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use InvoiceNinja\AdminApi\Services\Accounting\BillingContextService;
 use ReflectionMethod;
 use RuntimeException;
 use Stripe\PaymentMethod;
@@ -40,6 +41,7 @@ class NinjaPlanTrialCheckpointTest extends TestCase
         ]);
         DB::purge('sqlite');
         $this->createSchema();
+        $this->app->instance(BillingContextService::class, new CheckpointBillingContextService());
         $this->controller = new TestableNinjaPlanController();
         $this->account = Account::withoutEvents(function (): Account {
             $account = (new Account())->forceFill([
@@ -591,6 +593,20 @@ class NinjaPlanTrialCheckpointTest extends TestCase
     {
         return (new ReflectionMethod(NinjaPlanController::class, $method))
             ->invoke($this->controller, ...$arguments);
+    }
+}
+
+class CheckpointBillingContextService
+{
+    public function context(Account $account): BillingContext
+    {
+        return $account->billing_context ?? new BillingContext();
+    }
+
+    public function set(Account $account, BillingContext $context): void
+    {
+        $account->billing_context = $context;
+        $account->save();
     }
 }
 

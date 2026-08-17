@@ -541,7 +541,9 @@ Route::post('api/v1/yodlee/data_updates', [YodleeController::class, 'dataUpdates
 Route::post('api/v1/yodlee/refresh_updates', [YodleeController::class, 'refreshUpdatesWebhook'])->middleware('throttle:100,1');
 Route::post('api/v1/yodlee/balance', [YodleeController::class, 'balanceWebhook'])->middleware('throttle:100,1');
 
-Route::get('api/v1/protected_download/{hash}', [ProtectedDownloadController::class, 'index'])->name('protected_download')->middleware('throttle:300,1');
+Route::get('api/v1/protected_download/{hash}', [ProtectedDownloadController::class, 'index'])
+    ->name('protected_download')
+    ->middleware(['protected_download.signature', 'throttle:300,1']);
 Route::post('api/v1/ppcp/webhook', [PayPalPPCPPaymentDriver::class, 'processWebhookRequest'])->middleware('throttle:1000,1');
 
 Route::get('api/v1/calendar_connection/{provider}/authorize/{hash}', [CalendarConnectionController::class, 'redirectToProvider'])->name('calendar_connection.authorize')->middleware('throttle:10,1');

@@ -16,6 +16,7 @@ use App\Events\RecurringExpense\RecurringExpenseWasCreated;
 use App\Events\RecurringExpense\RecurringExpenseWasUpdated;
 use App\Factory\RecurringExpenseFactory;
 use App\Filters\RecurringExpenseFilters;
+use App\Http\Requests\RecurringExpense\BulkRecurringExpenseRequest;
 use App\Http\Requests\RecurringExpense\CreateRecurringExpenseRequest;
 use App\Http\Requests\RecurringExpense\DestroyRecurringExpenseRequest;
 use App\Http\Requests\RecurringExpense\EditRecurringExpenseRequest;
@@ -485,15 +486,15 @@ class RecurringExpenseController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkRecurringExpenseRequest $request)
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $action = request()->input('action');
+        $action = $request->input('action');
 
-        $ids = request()->input('ids');
-        $recurring_expenses = RecurringExpense::withTrashed()->company()->find($this->transformKeys($ids));
+        $ids = $request->input('ids');
+        $recurring_expenses = RecurringExpense::withTrashed()->company()->find($ids);
 
         $recurring_expenses->each(function ($recurring_expense, $key) use ($action, $user) {
             if ($user->can('edit', $recurring_expense)) {
@@ -501,7 +502,7 @@ class RecurringExpenseController extends BaseController
             }
         });
 
-        return $this->listResponse(RecurringExpense::withTrashed()->company()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(RecurringExpense::withTrashed()->company()->whereIn('id', $ids));
     }
 
     private function performAction(RecurringExpense $recurring_expense, string $action, $bulk = false)

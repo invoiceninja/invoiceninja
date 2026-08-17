@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 
 use App\Factory\CompanyTokenFactory;
 use App\Filters\TokenFilters;
+use App\Http\Requests\Token\BulkTokenRequest;
 use App\Http\Requests\Token\CreateTokenRequest;
 use App\Http\Requests\Token\DestroyTokenRequest;
 use App\Http\Requests\Token\EditTokenRequest;
@@ -481,17 +482,17 @@ class TokenController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkTokenRequest $request)
     {
         $this->entity_transformer = CompanyTokenHashedTransformer::class;
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $action = request()->input('action');
+        $action = $request->input('action');
 
-        $ids = request()->input('ids');
-        $tokens = CompanyToken::withTrashed()->company()->find($this->transformKeys($ids));
+        $ids = $request->input('ids');
+        $tokens = CompanyToken::withTrashed()->company()->find($ids);
 
         $tokens->each(function ($token, $key) use ($action, $user) {
             if ($user->can('edit', $token)) {
@@ -499,6 +500,6 @@ class TokenController extends BaseController
             }
         });
 
-        return $this->listResponse(CompanyToken::withTrashed()->company()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(CompanyToken::withTrashed()->company()->whereIn('id', $ids));
     }
 }

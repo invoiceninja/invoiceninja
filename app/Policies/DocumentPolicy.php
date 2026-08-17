@@ -12,12 +12,26 @@
 
 namespace App\Policies;
 
+use App\Models\Document;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class DocumentPolicy extends EntityPolicy
 {
     use HandlesAuthorization;
+
+    /**
+     * view checks if the user can view the documentable entity
+     *
+     * @param  User $user
+     * @param  Document $entity
+     * @return bool
+     */
+    public function view(User $user, $entity): bool
+    {
+        return $entity->documentable !== null
+            && $user->can('view', $entity->documentable);
+    }
 
     public function create(User $user): bool
     {

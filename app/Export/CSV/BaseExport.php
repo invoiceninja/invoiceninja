@@ -29,20 +29,16 @@ use App\Models\Product;
 use App\Models\Document;
 use League\Csv\Writer;
 use League\Fractal\Manager;
-use App\Jobs\Quote\ZipQuotes;
 use App\Models\ClientContact;
 use App\Models\PurchaseOrder;
 use Illuminate\Support\Carbon;
-use App\Jobs\Credit\ZipCredits;
+use App\Jobs\Entity\ZipEntity;
 use App\Utils\Traits\MakesHash;
 use App\Models\RecurringInvoice;
-use App\Jobs\Invoice\ZipInvoices;
-use App\Jobs\Document\ZipDocuments;
 use App\Transformers\TaskTransformer;
 use App\Transformers\PaymentTransformer;
 use Illuminate\Database\Eloquent\Builder;
 use App\Services\Template\TemplateService;
-use App\Jobs\PurchaseOrder\ZipPurchaseOrders;
 use League\Fractal\Serializer\ArraySerializer;
 
 class BaseExport
@@ -1702,7 +1698,9 @@ class BaseExport
     public function queuePdfs(Builder $query)
     {
 
-        if (in_array(get_class($query->getModel()), [Invoice::class, Quote::class, Credit::class, PurchaseOrder::class]) && $query->count() > 0) {
+        $entity_class = get_class($query->getModel());
+
+        if (in_array($entity_class, [Invoice::class, Quote::class, Credit::class, PurchaseOrder::class]) && $query->count() > 0) {
 
             $user = $this->company->owner();
 
@@ -1710,24 +1708,7 @@ class BaseExport
                 $user = User::where('id', $this->input['user_id'])->where('account_id', $this->company->account_id)->first();
             }
 
-            switch (get_class($query->getModel())) {
-                case Invoice::class:
-                    nlog("zipping invoices");
-                    ZipInvoices::dispatch($query->pluck('id'), $this->company, $user);
-                    break;
-                case Quote::class:
-                    ZipQuotes::dispatch($query->pluck('id'), $this->company, $user);
-                    break;
-                case Credit::class:
-                    ZipCredits::dispatch($query->pluck('id'), $this->company, $user);
-                    break;
-                case PurchaseOrder::class:
-                    ZipPurchaseOrders::dispatch($query->pluck('id'), $this->company, $user);
-                    break;
-                default:
-                    # code...
-                    break;
-            }
+            ZipEntity::dispatch($query->pluck('id'), $this->company, $user, $entity_class);
         }
     }
 
@@ -1756,7 +1737,7 @@ class BaseExport
                 $user = User::where('id', $this->input['user_id'])->where('account_id', $this->company->account_id)->first();
             }
 
-            ZipDocuments::dispatch($documents, $this->company, $user);
+            ZipEntity::dispatch($documents, $this->company, $user, Document::class);
         }
     }
 

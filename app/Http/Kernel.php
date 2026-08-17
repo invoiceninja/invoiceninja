@@ -41,6 +41,7 @@ use App\Http\Middleware\VerifyCsrfToken;
 use App\Http\Middleware\ContactTokenAuth;
 use Illuminate\Auth\Middleware\Authorize;
 use App\Http\Middleware\SetDbByCompanyKey;
+use App\Http\Middleware\ValidateProtectedDownloadSignature;
 use App\Http\Middleware\ValidateSignature;
 use App\Http\Middleware\PasswordProtection;
 use App\Http\Middleware\ClientPortalEnabled;
@@ -137,6 +138,7 @@ class Kernel extends HttpKernel
         'cors' => Cors::class,
         'guest' => RedirectIfAuthenticated::class,
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
+        'protected_download.signature' => ValidateProtectedDownloadSignature::class,
         'verified' => EnsureEmailIsVerified::class,
         'query_logging' => QueryLogging::class,
         'token_auth' => TokenAuth::class,

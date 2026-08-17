@@ -33,11 +33,16 @@ export interface PortalClientOptions {
     };
 }
 
-/** Entity pages embed generated PDFs whose binary rendering is covered by backend tests. */
+/** Most portal tests skip the relatively expensive PDF generation request. */
 export async function blockPdfBlobs(page: Page): Promise<void> {
     await page.route('**/client/showBlob/**', async (route) => {
         await route.abort();
     });
+}
+
+/** Re-enables real PDF responses for the focused preview-resolution tests. */
+export async function allowPdfBlobs(page: Page): Promise<void> {
+    await page.unroute('**/client/showBlob/**');
 }
 
 /**
