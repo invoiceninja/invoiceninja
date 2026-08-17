@@ -10,12 +10,12 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Http\Requests\Webhook;
+namespace App\Http\Requests\TaskScheduler;
 
 use App\Http\Requests\Request;
 use Illuminate\Validation\Rule;
 
-class BulkWebhookRequest extends Request
+class BulkTaskSchedulerRequest extends Request
 {
     public function authorize(): bool
     {
@@ -37,7 +37,7 @@ class BulkWebhookRequest extends Request
                 'bail',
                 'array',
                 'min:1',
-                Rule::exists('webhooks', 'id')->where('company_id', $user->company()->id),
+                Rule::exists('schedulers', 'id')->where('company_id', $user->company()->id),
             ],
             'ids.*' => ['bail', 'integer'],
         ];

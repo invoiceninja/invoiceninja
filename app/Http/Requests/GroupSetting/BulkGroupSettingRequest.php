@@ -10,13 +10,14 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Http\Requests\Webhook;
+namespace App\Http\Requests\GroupSetting;
 
 use App\Http\Requests\Request;
 use Illuminate\Validation\Rule;
 
-class BulkWebhookRequest extends Request
+class BulkGroupSettingRequest extends Request
 {
+
     public function authorize(): bool
     {
         return true;
@@ -37,7 +38,7 @@ class BulkWebhookRequest extends Request
                 'bail',
                 'array',
                 'min:1',
-                Rule::exists('webhooks', 'id')->where('company_id', $user->company()->id),
+                Rule::exists('group_settings', 'id')->where('company_id', $user->company()->id),
             ],
             'ids.*' => ['bail', 'integer'],
         ];
