@@ -27,7 +27,7 @@ use App\Http\Requests\Quote\ShowQuoteRequest;
 use App\Http\Requests\Quote\StoreQuoteRequest;
 use App\Http\Requests\Quote\UpdateQuoteRequest;
 use App\Http\Requests\Quote\UploadQuoteRequest;
-use App\Jobs\Quote\ZipQuotes;
+use App\Jobs\Entity\ZipEntity;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Invoice;
@@ -553,7 +553,7 @@ class QuoteController extends BaseController
                 return response()->json(['message' => ctrans('texts.access_denied')], 403);
             }
 
-            ZipQuotes::dispatch($authorized->pluck('id')->toArray(), $authorized->first()->company, auth()->user());
+            ZipEntity::dispatch($authorized->pluck('id'), $authorized->first()->company, auth()->user(), Quote::class);
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }

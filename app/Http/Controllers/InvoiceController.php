@@ -32,9 +32,9 @@ use App\Http\Requests\Invoice\UpdateReminderRequest;
 use App\Http\Requests\Invoice\UploadInvoiceRequest;
 use App\Http\Requests\TaskScheduler\PaymentScheduleRequest;
 use App\Jobs\Cron\AutoBill;
+use App\Jobs\Entity\ZipEntity;
 use App\Jobs\Invoice\BulkInvoiceJob;
 use App\Jobs\Invoice\UpdateReminders;
-use App\Jobs\Invoice\ZipInvoices;
 use App\Models\Account;
 use App\Models\Invoice;
 use App\Models\Quote;
@@ -557,7 +557,7 @@ class InvoiceController extends BaseController
                 return response()->json(['message' => ctrans('texts.access_denied')], 403);
             }
 
-            ZipInvoices::dispatch($authorized->pluck('id'), $authorized->first()->company, auth()->user());
+            ZipEntity::dispatch($authorized->pluck('id'), $authorized->first()->company, auth()->user(), Invoice::class);
             Atomic::del($request->lock_key);
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);

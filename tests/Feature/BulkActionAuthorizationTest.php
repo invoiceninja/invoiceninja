@@ -16,13 +16,14 @@ use Mockery;
 use App\Exceptions\BatchPdfException;
 use App\Factory\CompanyUserFactory;
 use App\Helpers\Cache\Atomic;
-use App\Jobs\PurchaseOrder\ZipPurchaseOrders;
+use App\Jobs\Entity\ZipEntity;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\Credit;
+use App\Models\Document;
 use App\Models\Invoice;
 use App\Models\PurchaseOrder;
 use App\Models\Quote;
@@ -170,6 +171,8 @@ class BulkActionAuthorizationTest extends TestCase
 
     public function testBulkDownloadInvoicesAllowedForAdmin(): void
     {
+        Bus::fake([ZipEntity::class]);
+
         $invoice1 = Invoice::factory()->create([
             'company_id' => $this->company->id,
             'client_id' => $this->client->id,
@@ -191,6 +194,14 @@ class BulkActionAuthorizationTest extends TestCase
             ]);
 
         $response->assertStatus(200);
+
+        Bus::assertDispatched(
+            ZipEntity::class,
+            fn (ZipEntity $job): bool => $job->entity_ids->all() === [$invoice1->id, $invoice2->id]
+                && $job->company->is($this->company)
+                && $job->user->is($this->adminUser)
+                && $job->entity_class === Invoice::class,
+        );
     }
 
     public function testBulkDownloadInvoicesAllowedForOwner(): void
@@ -354,6 +365,8 @@ class BulkActionAuthorizationTest extends TestCase
 
     public function testBulkDownloadCreditsAllowedForAdmin(): void
     {
+        Bus::fake([ZipEntity::class]);
+
         $credit1 = Credit::factory()->create([
             'company_id' => $this->company->id,
             'client_id' => $this->client->id,
@@ -375,6 +388,14 @@ class BulkActionAuthorizationTest extends TestCase
             ]);
 
         $response->assertStatus(200);
+
+        Bus::assertDispatched(
+            ZipEntity::class,
+            fn (ZipEntity $job): bool => $this->entityIdsFromJob($job) === [$credit1->id, $credit2->id]
+                && $job->company->is($this->company)
+                && $job->user->is($this->adminUser)
+                && $job->entity_class === Credit::class,
+        );
     }
 
     // ──────────────────────────────────────────────
@@ -457,6 +478,8 @@ class BulkActionAuthorizationTest extends TestCase
 
     public function testBulkDownloadQuotesAllowedForAdmin(): void
     {
+        Bus::fake([ZipEntity::class]);
+
         $quote1 = Quote::factory()->create([
             'company_id' => $this->company->id,
             'client_id' => $this->client->id,
@@ -478,6 +501,14 @@ class BulkActionAuthorizationTest extends TestCase
             ]);
 
         $response->assertStatus(200);
+
+        Bus::assertDispatched(
+            ZipEntity::class,
+            fn (ZipEntity $job): bool => $this->entityIdsFromJob($job) === [$quote1->id, $quote2->id]
+                && $job->company->is($this->company)
+                && $job->user->is($this->adminUser)
+                && $job->entity_class === Quote::class,
+        );
     }
 
     // ──────────────────────────────────────────────
@@ -535,7 +566,7 @@ class BulkActionAuthorizationTest extends TestCase
 
     public function testBulkDownloadPurchaseOrdersOnlyQueuesAuthorizedSelection(): void
     {
-        Bus::fake([ZipPurchaseOrders::class]);
+        Bus::fake([ZipEntity::class]);
 
         $authorized_purchase_order = $this->createPurchaseOrder($this->restrictedUser);
         $unauthorized_purchase_order = $this->createPurchaseOrder($this->adminUser);
@@ -551,16 +582,17 @@ class BulkActionAuthorizationTest extends TestCase
 
         $response->assertOk();
 
-        Bus::assertDispatched(ZipPurchaseOrders::class, 1);
+        Bus::assertDispatched(ZipEntity::class, 1);
         Bus::assertDispatched(
-            ZipPurchaseOrders::class,
-            fn (ZipPurchaseOrders $job): bool => $this->purchaseOrderIdsFromJob($job) === [$authorized_purchase_order->id],
+            ZipEntity::class,
+            fn (ZipEntity $job): bool => $this->entityIdsFromJob($job) === [$authorized_purchase_order->id]
+                && $job->entity_class === PurchaseOrder::class,
         );
     }
 
     public function testBulkDownloadPurchaseOrdersDoesNotDispatchWhenNoneAreAuthorized(): void
     {
-        Bus::fake([ZipPurchaseOrders::class]);
+        Bus::fake([ZipEntity::class]);
 
         $purchase_order_1 = $this->createPurchaseOrder($this->adminUser);
         $purchase_order_2 = $this->createPurchaseOrder($this->adminUser);
@@ -578,12 +610,12 @@ class BulkActionAuthorizationTest extends TestCase
             ->assertForbidden()
             ->assertJsonPath('message', ctrans('texts.access_denied'));
 
-        Bus::assertNotDispatched(ZipPurchaseOrders::class);
+        Bus::assertNotDispatched(ZipEntity::class);
     }
 
     public function testBulkDownloadPurchaseOrdersQueuesCompleteAuthorizedSelection(): void
     {
-        Bus::fake([ZipPurchaseOrders::class]);
+        Bus::fake([ZipEntity::class]);
 
         $purchase_order_1 = $this->createPurchaseOrder($this->adminUser);
         $purchase_order_2 = $this->createPurchaseOrder($this->restrictedUser);
@@ -601,10 +633,40 @@ class BulkActionAuthorizationTest extends TestCase
 
         $response->assertOk();
 
-        Bus::assertDispatched(ZipPurchaseOrders::class, 1);
+        Bus::assertDispatched(ZipEntity::class, 1);
         Bus::assertDispatched(
-            ZipPurchaseOrders::class,
-            fn (ZipPurchaseOrders $job): bool => $this->purchaseOrderIdsFromJob($job) === $expected_ids,
+            ZipEntity::class,
+            fn (ZipEntity $job): bool => $this->entityIdsFromJob($job) === $expected_ids
+                && $job->entity_class === PurchaseOrder::class,
+        );
+    }
+
+    public function testBulkDownloadDocumentsQueuesZipEntity(): void
+    {
+        Bus::fake([ZipEntity::class]);
+
+        $document = Document::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->adminUser->id,
+            'name' => 'supporting-document.pdf',
+            'type' => 'pdf',
+        ]);
+        $this->client->documents()->save($document);
+
+        $response = $this->withHeaders($this->apiHeaders($this->adminToken))
+            ->postJson('/api/v1/documents/bulk', [
+                'action' => 'download',
+                'ids' => [$document->hashed_id],
+            ]);
+
+        $response->assertOk();
+
+        Bus::assertDispatched(
+            ZipEntity::class,
+            fn (ZipEntity $job): bool => $this->entityIdsFromJob($job) === [$document->id]
+                && $job->company->is($this->company)
+                && $job->user->is($this->adminUser)
+                && $job->entity_class === Document::class,
         );
     }
 
@@ -691,12 +753,10 @@ class BulkActionAuthorizationTest extends TestCase
     /**
      * @return array<int, int>
      */
-    private function purchaseOrderIdsFromJob(ZipPurchaseOrders $job): array
+    private function entityIdsFromJob(ZipEntity $job): array
     {
-        $property = new \ReflectionProperty($job, 'purchase_order_ids');
-
         /** @var array<int, int> $ids */
-        $ids = $property->getValue($job);
+        $ids = collect($job->entity_ids)->all();
         sort($ids);
 
         return $ids;

@@ -180,4 +180,6 @@ return [
         public_path('storage') => storage_path('app/public'),
     ],
 
+    'protected_download_allow_unsigned' => env('PROTECTED_DOWNLOAD_ALLOW_UNSIGNED', false),
+
 ];

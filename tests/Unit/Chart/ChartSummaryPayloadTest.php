@@ -511,11 +511,11 @@ class ChartSummaryPayloadTest extends TestCase
                     'amount' => $invoiceAmounts[$case],
                     'exchange_rate' => $exchangeRates[$case],
                     'uses_inclusive_taxes' => $case % 2 === 1,
-                    'tax_amount1' => $case === 2 ? null : '0.123456',
+                    'tax_amount1' => $case === 2 ? 0 : '0.123456',
                     'tax_amount2' => '0.000001',
-                    'tax_amount3' => $case === 4 ? null : '1.000001',
+                    'tax_amount3' => $case === 4 ? 0 : '1.000001',
                     'tax_rate1' => '5.555555',
-                    'tax_rate2' => $case === 2 ? null : '10.125000',
+                    'tax_rate2' => $case === 2 ? 0 : '10.125000',
                     'tax_rate3' => '0.000001',
                 ]);
             }

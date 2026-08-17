@@ -16,7 +16,7 @@ use App\Http\Requests\Document\EditDocumentRequest;
 use App\Http\Requests\Document\ShowDocumentRequest;
 use App\Http\Requests\Document\StoreDocumentRequest;
 use App\Http\Requests\Document\UpdateDocumentRequest;
-use App\Jobs\Document\ZipDocuments;
+use App\Jobs\Entity\ZipEntity;
 use App\Models\Document;
 use App\Repositories\DocumentRepository;
 use App\Transformers\DocumentTransformer;
@@ -183,9 +183,7 @@ class DocumentController extends BaseController
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
-
         $action = request()->input('action');
-
         $ids = request()->input('ids');
 
         $documents = Document::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
@@ -195,7 +193,7 @@ class DocumentController extends BaseController
         }
 
         if ($action == 'download') {
-            ZipDocuments::dispatch($documents->pluck('id'), $user->company(), auth()->user()); //@phpstan-ignore-line
+            ZipEntity::dispatch($documents->pluck('id'), $user->company(), auth()->user(), Document::class); //@phpstan-ignore-line
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }

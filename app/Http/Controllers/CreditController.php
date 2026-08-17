@@ -27,8 +27,8 @@ use App\Http\Requests\Credit\ShowCreditRequest;
 use App\Http\Requests\Credit\StoreCreditRequest;
 use App\Http\Requests\Credit\UpdateCreditRequest;
 use App\Http\Requests\Credit\UploadCreditRequest;
-use App\Jobs\Credit\ZipCredits;
 use App\Jobs\Entity\EmailEntity;
+use App\Jobs\Entity\ZipEntity;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Credit;
@@ -581,7 +581,7 @@ class CreditController extends BaseController
                 return response()->json(['message' => ctrans('texts.access_denied')], 403);
             }
 
-            ZipCredits::dispatch($authorized->pluck('id')->toArray(), $user->company(), $user);
+            ZipEntity::dispatch($authorized->pluck('id'), $user->company(), $user, Credit::class);
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }

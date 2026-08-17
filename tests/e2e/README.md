@@ -65,6 +65,7 @@ Guest invitation tests must close their extra contexts in `finally` (use
 | `client-portal.spec.ts` | Login, sidebar links, invitations, logout |
 | `client-portal-auth.spec.ts` | Password login, forgot/reset, magic link, self-registration |
 | `client-portal-invoices.spec.ts` | List, filters, detail, downloads, bulk actions, Pay Now (default/smooth), bulk pay, terms/signature gates (default dropdown + bulk + smooth Flow2), password-protected invitations |
+| `client-portal-pdf-previews.spec.ts` | Real PDF preview resolution for invoices, quotes, credits, and recurring invoices |
 | `client-portal-payments.spec.ts` | Gateway checkout matrix |
 | `client-portal-entities.spec.ts` | Dashboard, payments, credits, projects, statement, pre-payments, payment methods |
 | `client-portal-quotes.spec.ts` | Approve/reject, signature, filters, bulk actions |

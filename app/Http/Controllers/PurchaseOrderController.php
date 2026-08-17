@@ -26,7 +26,7 @@ use App\Http\Requests\PurchaseOrder\StorePurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\UpdatePurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\UploadPurchaseOrderRequest;
 use App\Jobs\Entity\CreateRawPdf;
-use App\Jobs\PurchaseOrder\ZipPurchaseOrders;
+use App\Jobs\Entity\ZipEntity;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\PurchaseOrder;
@@ -521,10 +521,11 @@ class PurchaseOrderController extends BaseController
                 return response()->json(['message' => ctrans('texts.access_denied')], 403);
             }
 
-            ZipPurchaseOrders::dispatch(
-                $authorized_purchase_orders->pluck('id')->toArray(),
+            ZipEntity::dispatch(
+                $authorized_purchase_orders->pluck('id'),
                 $authorized_purchase_orders->first()->company,
                 $user,
+                PurchaseOrder::class,
             );
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);

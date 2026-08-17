@@ -19,11 +19,11 @@ use RuntimeException;
 
 class ArchiveWriterTest extends TestCase
 {
-    public function testWriteCreatesArchiveFromBase64Files(): void
+    public function testWriteCreatesArchiveFromRawContents(): void
     {
         $archive = (new ArchiveWriter())->write([
-            ['file' => base64_encode('name,value'), 'file_name' => 'report.csv', 'mime' => 'text/csv'],
-            ['file' => base64_encode('%PDF-1.4'), 'file_name' => 'report.pdf', 'mime' => 'application/pdf'],
+            ['contents' => 'name,value', 'file_name' => 'report.csv'],
+            ['contents' => '%PDF-1.4', 'file_name' => 'report.pdf'],
         ]);
 
         $zip = (new ZipFile())->openFromString($archive);
@@ -41,7 +41,7 @@ class ArchiveWriterTest extends TestCase
     {
         try {
             (new ArchiveWriter())->write([
-                ['file' => 'not-valid-base64!', 'file_name' => 'report.csv', 'mime' => 'text/csv'],
+                ['contents' => 'name,value', 'file_name' => ''],
             ]);
 
             $this->fail('Expected archive creation to fail.');

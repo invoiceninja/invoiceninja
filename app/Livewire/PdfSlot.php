@@ -12,21 +12,19 @@
 
 namespace App\Livewire;
 
-use App\Utils\Number;
-use Livewire\Component;
-use App\Utils\HtmlEngine;
+use App\Jobs\EDocument\CreateEDocument;
 use App\Libraries\MultiDB;
-use Illuminate\Support\Str;
-use App\Models\QuoteInvitation;
-use App\Utils\VendorHtmlEngine;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
-use Livewire\Attributes\Computed;
-use Illuminate\Support\Facades\Cache;
-use App\Jobs\EDocument\CreateEDocument;
 use App\Models\PurchaseOrderInvitation;
+use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
 use App\Services\Pdf\Markdown;
+use App\Utils\HtmlEngine;
+use App\Utils\Number;
+use App\Utils\VendorHtmlEngine;
+use Livewire\Attributes\Computed;
+use Livewire\Component;
 
 class PdfSlot extends Component
 {
@@ -88,22 +86,17 @@ class PdfSlot extends Component
         return $this->entity()->invitations()->first();
     }
 
-    public function getPdf()
+    public function getPdf(): void
     {
+        $entity_type = $this->resolveEntityType();
+        $route = $entity_type === 'purchase_order'
+            ? 'vendor.purchase_order.showBlob'
+            : 'client.invoices.showBlob';
 
-        $blob = [
-            'entity_type' => $this->resolveEntityType(),
-            'entity_id' => $this->entity()->id,
-            'invitation_id' => $this->invitation()->id,
-            'download' => false,
-        ];
-
-        $hash = Str::random(64);
-
-        Cache::put($hash, $blob, 1800);
-
-        $this->pdf = $hash;
-
+        $this->pdf = route($route, [
+            'entity_type' => $entity_type,
+            'invitation_key' => $this->invitation()->key,
+        ], false);
     }
 
     public function downloadPdf()

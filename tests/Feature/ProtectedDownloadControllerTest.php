@@ -49,7 +49,7 @@ class ProtectedDownloadControllerTest extends TestCase
             'expires_at' => $expires_at->timestamp,
         ], $expires_at);
 
-        $url = URL::temporarySignedRoute('protected_download', $expires_at, ['hash' => $hash]);
+        $url = URL::temporarySignedRoute('protected_download', $expires_at, ['hash' => $hash], absolute: false);
         $response = $this->get($url);
 
         $response->assertOk();
@@ -66,7 +66,7 @@ class ProtectedDownloadControllerTest extends TestCase
         Storage::disk('legacy-downloads')->put($storage_path, 'legacy contents');
         Cache::put($hash, $storage_path, $expires_at);
 
-        $url = URL::temporarySignedRoute('protected_download', $expires_at, ['hash' => $hash]);
+        $url = URL::temporarySignedRoute('protected_download', $expires_at, ['hash' => $hash], absolute: false);
         $response = $this->get($url);
 
         $response->assertOk();
@@ -87,10 +87,38 @@ class ProtectedDownloadControllerTest extends TestCase
             'protected_download',
             now()->subMinute(),
             ['hash' => Str::uuid()->toString()],
+            absolute: false,
         );
 
         $response = $this->get($url);
 
         $response->assertForbidden();
+    }
+
+    public function testRelativeSignedUrlSurvivesHostAndSchemeChanges(): void
+    {
+        $hash = Str::uuid()->toString();
+        $expires_at = now()->addHour();
+        $storage_path = 'downloads/proxied-report.zip';
+
+        Storage::disk('protected-downloads')->put($storage_path, 'archive contents');
+        Cache::put($hash, [
+            'disk' => 'protected-downloads',
+            'path' => $storage_path,
+            'download_name' => 'proxied-report.zip',
+            'expires_at' => $expires_at->timestamp,
+        ], $expires_at);
+
+        $signed_path = URL::temporarySignedRoute(
+            'protected_download',
+            $expires_at,
+            ['hash' => $hash],
+            absolute: false,
+        );
+
+        $response = $this->get('http://proxy.example.test' . $signed_path);
+
+        $response->assertOk();
+        $response->assertDownload('proxied-report.zip');
     }
 }

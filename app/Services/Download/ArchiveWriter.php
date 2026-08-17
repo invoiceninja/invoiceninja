@@ -19,7 +19,7 @@ use Throwable;
 class ArchiveWriter
 {
     /**
-     * @param array<int, array{file: string, file_name: string, mime: string}> $files
+     * @param array<int, array{contents: string, file_name: string}> $files
      */
     public function write(array $files): string
     {
@@ -27,13 +27,7 @@ class ArchiveWriter
 
         try {
             foreach ($files as $file) {
-                $contents = base64_decode($file['file'], true);
-
-                if ($contents === false) {
-                    throw new RuntimeException('Archive entry content is not valid base64.');
-                }
-
-                $zip->addFromString($file['file_name'], $contents);
+                $zip->addFromString($file['file_name'], $file['contents']);
             }
 
             return $zip->outputAsString();

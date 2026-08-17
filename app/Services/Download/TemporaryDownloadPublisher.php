@@ -40,7 +40,19 @@ class TemporaryDownloadPublisher
             }
 
             $hash = Str::uuid()->toString();
-            $url = URL::temporarySignedRoute('protected_download', $expires_at, ['hash' => $hash]);
+
+            if (config('filesystems.protected_download_allow_unsigned')) {
+                $url = URL::route('protected_download', ['hash' => $hash]);
+            } else {
+                $signed_path = URL::temporarySignedRoute(
+                    'protected_download',
+                    $expires_at,
+                    ['hash' => $hash],
+                    absolute: false,
+                );
+
+                $url = URL::to($signed_path);
+            }
 
             if (! Storage::disk($disk)->put($storage_path, $contents, 'private')) {
                 throw new RuntimeException('Unable to store protected download.');
