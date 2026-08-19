@@ -12,13 +12,17 @@
 
 namespace Tests\Feature\PaymentDrivers\Stripe;
 
+use App\Exceptions\PaymentFailed;
+use App\Livewire\RequiredClientInfo;
 use App\Models\ClientGatewayToken;
 use App\Models\CompanyGateway;
+use App\Models\Country;
 use App\Models\GatewayType;
 use App\PaymentDrivers\StripePaymentDriver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Livewire\Livewire;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -132,6 +136,27 @@ class StripeAchBillingAddressTest extends TestCase
         $this->assertFalse($this->driver()->hasCompleteBillingAddress());
     }
 
+    public function testIncompleteAddressCannotBeSynchronizedToAnAchPaymentMethod(): void
+    {
+        $this->client->postal_code = '';
+        $this->client->save();
+
+        $this->expectException(PaymentFailed::class);
+        $this->expectExceptionCode(400);
+
+        $this->driver()->syncAchPaymentMethodBillingAddress($this->achToken());
+    }
+
+    public function testLegacyBankSourceDoesNotUseThePaymentMethodUpdateApi(): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        $token = $this->achToken();
+        $token->token = 'ba_legacy_bank_source';
+
+        $this->driver()->syncAchPaymentMethodBillingAddress($token);
+    }
+
     public function testAchFieldsAreForcedRegardlessOfTheGatewayToggles(): void
     {
         $fields = collect($this->driver()->setPaymentMethod(GatewayType::BANK_TRANSFER)->getClientRequiredFields())
@@ -151,6 +176,52 @@ class StripeAchBillingAddressTest extends TestCase
 
         $this->assertFalse($fields->contains('client_address_line_1'));
         $this->assertFalse($fields->contains('client_postal_code'));
+    }
+
+    public function testRequiredFieldsDispatchTheFreshBillingAddress(): void
+    {
+        $this->client->address1 = '';
+        $this->client->address2 = 'Suite 4';
+        $this->client->city = '';
+        $this->client->state = '';
+        $this->client->postal_code = '';
+        $this->client->country_id = null;
+        $this->client->save();
+
+        $fields = $this->driver()
+            ->setPaymentMethod(GatewayType::BANK_TRANSFER)
+            ->getClientRequiredFields();
+
+        Livewire::test(RequiredClientInfo::class, [
+            'db' => $this->company->db,
+            'fields' => $fields,
+            'contact_id' => $this->contact->id,
+            'countries' => Country::all(),
+            'company_id' => $this->company->id,
+            'company_gateway_id' => $this->company_gateway->id,
+        ])
+            ->call('handleSubmit', [
+                'contact_first_name' => 'Jane',
+                'contact_last_name' => 'Doe',
+                'contact_email' => 'jane@example.net',
+                'client_address_line_1' => '200 Market St',
+                'client_city' => 'San Francisco',
+                'client_state' => 'CA',
+                'client_country_id' => 840,
+                'client_postal_code' => '94105',
+            ])
+            ->assertDispatched(
+                'passed-required-fields-check',
+                client_postal_code: '94105',
+                billingAddress: [
+                    'line1' => '200 Market St',
+                    'line2' => 'Suite 4',
+                    'city' => 'San Francisco',
+                    'state' => 'CA',
+                    'postal_code' => '94105',
+                    'country' => 'US',
+                ],
+            );
     }
 
     public function testTheDryRunLeavesTokensUntouched(): void

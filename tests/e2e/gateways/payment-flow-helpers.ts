@@ -3,6 +3,7 @@ import { updateClient, type CompanyGatewayEntity } from '../api-helpers';
 import {
     createAndLogInClient,
     dismissCookieConsent,
+    waitForAlpine,
 } from '../client-portal-helpers';
 import { type ApiFixture } from '../fixtures';
 import { decodePrimaryKey } from '../hash-helpers';
@@ -49,7 +50,7 @@ export function gatewayCheckoutContainer(page: Page) {
 }
 
 export async function isRequiredClientInfoBlockingCheckout(
-    page: Page,
+    page: Page
 ): Promise<boolean> {
     const form = requiredClientInfoForm(page);
 
@@ -64,13 +65,13 @@ export async function isRequiredClientInfoBlockingCheckout(
     }
 
     return gateway.evaluate((element) =>
-        element.classList.contains('pointer-events-none'),
+        element.classList.contains('pointer-events-none')
     );
 }
 
 async function fillInputIfEmpty(
     input: ReturnType<Page['locator']>,
-    value: string,
+    value: string
 ): Promise<void> {
     if (!(await input.isVisible().catch(() => false))) {
         return;
@@ -93,7 +94,7 @@ async function fillInputIfEmpty(
  */
 export async function completeRequiredClientInfoForm(
     page: Page,
-    overrides: Record<string, string> = {},
+    overrides: Record<string, string> = {}
 ): Promise<void> {
     const form = requiredClientInfoForm(page);
 
@@ -106,6 +107,7 @@ export async function completeRequiredClientInfoForm(
     }
 
     await dismissCookieConsent(page);
+    await waitForAlpine(page);
 
     const defaults = { ...requiredClientInfoDefaults, ...overrides };
 
@@ -116,7 +118,11 @@ export async function completeRequiredClientInfoForm(
             continue;
         }
 
-        if (await field.evaluate((element) => element.tagName === 'SELECT').catch(() => false)) {
+        if (
+            await field
+                .evaluate((element) => element.tagName === 'SELECT')
+                .catch(() => false)
+        ) {
             continue;
         }
 
@@ -153,9 +159,14 @@ export async function completeRequiredClientInfoForm(
         }
     }
 
-    const continueButton = form.locator('button.button-primary:not([disabled])').last();
+    const continueButton = form
+        .locator('button.button-primary:not([disabled])')
+        .last();
     if ((await continueButton.count()) === 0) {
-        await form.locator('button.button-primary').last().click({ force: true });
+        await form
+            .locator('button.button-primary')
+            .last()
+            .click({ force: true });
     } else {
         await continueButton.click();
     }
@@ -168,9 +179,15 @@ export async function completeRequiredClientInfoForm(
 
     await expect(gatewayCheckoutContainer(page)).not.toHaveClass(
         /pointer-events-none/,
-        { timeout: 30_000 },
+        { timeout: 30_000 }
     );
-    await expect(page.locator('#pay-now, #card-element').first()).toBeVisible({
+    await expect(
+        page
+            .locator(
+                '#pay-now, #card-element, #save-button, #new-bank, #authorize-button'
+            )
+            .first()
+    ).toBeVisible({
         timeout: 30_000,
     });
 }
@@ -178,7 +195,7 @@ export async function completeRequiredClientInfoForm(
 export async function prepareDefaultPaymentContext(
     api: ApiFixture,
     page: Page,
-    companyGateway: CompanyGatewayEntity,
+    companyGateway: CompanyGatewayEntity
 ): Promise<PaymentGatewayContext> {
     let client = await createAndLogInClient(api, page, {
         settings: {
@@ -201,13 +218,15 @@ export async function openInvoicePaymentPage(page: Page): Promise<void> {
     await page.locator('[dusk="pay-now"]').first().click();
     await expect(page).toHaveURL(/\/client\/invoices\/payment/);
     await dismissCookieConsent(page);
-    await expect(page.locator('[dusk="payment-methods-dropdown"]')).toBeVisible();
+    await expect(
+        page.locator('[dusk="payment-methods-dropdown"]')
+    ).toBeVisible();
 }
 
 export async function selectGatewayFromDropdown(
     page: Page,
     companyGateway: CompanyGatewayEntity,
-    gatewayTypeId: number,
+    gatewayTypeId: number
 ): Promise<void> {
     await page.locator('[dusk="pay-now-dropdown"]').click();
 
@@ -217,13 +236,13 @@ export async function selectGatewayFromDropdown(
     // share gateway_type_id=1 and the wrong one was being selected.
     const rawId = decodePrimaryKey(companyGateway.id);
     const byKey = page.locator(
-        `[dusk="payment-methods-dropdown"] [data-gateway-key="${companyGateway.gateway_key}"][data-gateway-type-id="${gatewayTypeId}"]`,
+        `[dusk="payment-methods-dropdown"] [data-gateway-key="${companyGateway.gateway_key}"][data-gateway-type-id="${gatewayTypeId}"]`
     );
     const byRawId = page.locator(
-        `[dusk="payment-methods-dropdown"] [data-company-gateway-id="${rawId}"][data-gateway-type-id="${gatewayTypeId}"]`,
+        `[dusk="payment-methods-dropdown"] [data-company-gateway-id="${rawId}"][data-gateway-type-id="${gatewayTypeId}"]`
     );
     const byHashedId = page.locator(
-        `[dusk="payment-methods-dropdown"] [data-company-gateway-id="${companyGateway.id}"][data-gateway-type-id="${gatewayTypeId}"]`,
+        `[dusk="payment-methods-dropdown"] [data-company-gateway-id="${companyGateway.id}"][data-gateway-type-id="${gatewayTypeId}"]`
     );
 
     const gatewayOption =
@@ -236,14 +255,14 @@ export async function selectGatewayFromDropdown(
     if ((await gatewayOption.count()) === 0) {
         test.skip(
             true,
-            `Gateway ${companyGateway.gateway_key} is not offered in Pay Now — deploy the PaymentMethod multi-gateway fix or enable fees_and_limits for type ${gatewayTypeId}`,
+            `Gateway ${companyGateway.gateway_key} is not offered in Pay Now — deploy the PaymentMethod multi-gateway fix or enable fees_and_limits for type ${gatewayTypeId}`
         );
     }
 
     await expect(gatewayOption).toBeVisible({ timeout: 15_000 });
 
     const companyGatewayId = await gatewayOption.getAttribute(
-        'data-company-gateway-id',
+        'data-company-gateway-id'
     );
     const typeId = await gatewayOption.getAttribute('data-gateway-type-id');
 
@@ -265,13 +284,14 @@ export async function selectGatewayFromDropdown(
 }
 
 export async function fillRequiredPaymentInformationIfPresent(
-    page: Page,
+    page: Page
 ): Promise<void> {
     await completeRequiredClientInfoForm(page);
 
     const checkoutReady = page
         .locator('#card-element')
         .or(page.locator('#pay-now'))
+        .or(page.locator('#new-bank'))
         .or(page.locator('#authorize--credit-card-container'))
         .or(page.locator('#payment-form'))
         .or(page.locator('#paypal-payment'))
@@ -287,10 +307,17 @@ export async function fillRequiredPaymentInformationIfPresent(
             .first()
             .waitFor({ state: 'visible', timeout: 10_000 })
             .catch(() => null),
-        billingAddress.waitFor({ state: 'visible', timeout: 10_000 }).catch(() => null),
+        billingAddress
+            .waitFor({ state: 'visible', timeout: 10_000 })
+            .catch(() => null),
     ]);
 
-    if (await checkoutReady.first().isVisible().catch(() => false)) {
+    if (
+        await checkoutReady
+            .first()
+            .isVisible()
+            .catch(() => false)
+    ) {
         return;
     }
 
@@ -301,7 +328,7 @@ export async function fillRequiredPaymentInformationIfPresent(
     await dismissCookieConsent(page);
 
     await expect(
-        page.getByRole('button', { name: /Next|Continue|Save/i }),
+        page.getByRole('button', { name: /Next|Continue|Save/i })
     ).toBeEnabled({ timeout: 15_000 });
 
     await billingAddress.fill('5 Wallaby Way');
@@ -321,7 +348,9 @@ export async function fillRequiredPaymentInformationIfPresent(
         await postal.fill('90210');
     }
 
-    const countrySelect = page.locator('select[name="client_country_id"]').first();
+    const countrySelect = page
+        .locator('select[name="client_country_id"]')
+        .first();
     if (await countrySelect.isVisible().catch(() => false)) {
         await countrySelect.selectOption('840');
     }
@@ -356,17 +385,22 @@ export async function fillRequiredPaymentInformationIfPresent(
             .catch(() => null);
     }
 
-    if (!(await checkoutReady.first().isVisible().catch(() => false))) {
+    if (
+        !(await checkoutReady
+            .first()
+            .isVisible()
+            .catch(() => false))
+    ) {
         test.skip(
             true,
-            'Required-fields step did not advance to a gateway checkout form',
+            'Required-fields step did not advance to a gateway checkout form'
         );
     }
 }
 export async function navigateToGatewayCheckout(
     page: Page,
     companyGateway: CompanyGatewayEntity,
-    gatewayTypeId: number,
+    gatewayTypeId: number
 ): Promise<void> {
     await openInvoicePaymentPage(page);
     await selectGatewayFromDropdown(page, companyGateway, gatewayTypeId);
@@ -382,7 +416,7 @@ export async function fillStripeTestCard(page: Page): Promise<void> {
 
     const frame = page.frameLocator('iframe').first();
     const cardNumber = frame.locator(
-        'input[name="cardnumber"], input[placeholder*="Card number"]',
+        'input[name="cardnumber"], input[placeholder*="Card number"]'
     );
     await expect(cardNumber).toBeVisible({ timeout: 15_000 });
     await cardNumber.fill('4242424242424242');
@@ -394,7 +428,7 @@ export async function fillStripeTestCard(page: Page): Promise<void> {
         .fill('123');
 
     const postal = frame.locator(
-        'input[name="postal"], input[placeholder*="ZIP"], input[placeholder*="Postal"]',
+        'input[name="postal"], input[placeholder*="ZIP"], input[placeholder*="Postal"]'
     );
     if (await postal.isVisible({ timeout: 2_000 }).catch(() => false)) {
         await postal.fill('90210');
@@ -413,7 +447,7 @@ export const paymentTestSettings = {
 export async function selectFirstAvailableGateway(page: Page): Promise<void> {
     const option = page
         .locator(
-            '[dusk="payment-methods-dropdown"] .dropdown-gateway-button, [dusk="payment-methods-dropdown"] [data-company-gateway-id]',
+            '[dusk="payment-methods-dropdown"] .dropdown-gateway-button, [dusk="payment-methods-dropdown"] [data-company-gateway-id]'
         )
         .first();
 
@@ -431,7 +465,7 @@ export async function clickBulkPayNow(page: Page): Promise<void> {
 export async function submitPrePayment(
     page: Page,
     amount: number,
-    notes = 'Playwright pre-payment',
+    notes = 'Playwright pre-payment'
 ): Promise<void> {
     await page.goto('/client/pre_payments');
     await expect(page.locator('#payment-form')).toBeVisible();

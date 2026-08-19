@@ -12,30 +12,32 @@
 
 namespace App\Services\Invoice;
 
-use Carbon\Carbon;
-use App\Utils\Ninja;
-use App\Utils\Number;
+use App\DataMapper\InvoiceItem;
+use App\Events\Invoice\InvoiceAutoBillFailed;
+use App\Events\Invoice\InvoiceAutoBillSuccess;
+use App\Events\Invoice\InvoiceWasPaid;
+use App\Events\Payment\PaymentWasCreated;
+use App\Factory\PaymentFactory;
+use App\Libraries\MultiDB;
 use App\Models\Client;
+use App\Models\ClientGatewayToken;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Paymentable;
-use App\Libraries\MultiDB;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use Illuminate\Support\Str;
-use App\DataMapper\InvoiceItem;
-use App\Events\Invoice\InvoiceAutoBillFailed;
-use App\Events\Invoice\InvoiceAutoBillSuccess;
-use App\Factory\PaymentFactory;
-use App\Services\AbstractService;
-use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
-use App\Models\ClientGatewayToken;
-use App\Events\Invoice\InvoiceWasPaid;
+use App\Models\GatewayType;
+use App\PaymentDrivers\StripePaymentDriver;
 use App\Repositories\CreditRepository;
 use App\Repositories\PaymentRepository;
-use App\Events\Payment\PaymentWasCreated;
+use App\Services\AbstractService;
+use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
+use App\Utils\Ninja;
+use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class AutoBillInvoice extends AbstractService
 {
@@ -533,17 +535,16 @@ class AutoBillInvoice extends AbstractService
                                 ->orderBy('is_default', 'DESC')
                                 ->get();
 
-        $filtered_gateways = $gateway_tokens->filter(function ($gateway_token) use ($amount) {
+        $filtered_gateways = $gateway_tokens->filter(function (ClientGatewayToken $gateway_token) use ($amount): bool {
             $company_gateway = $gateway_token->gateway;
+
+            if (! $this->canAutoBill($gateway_token)) {
+                return false;
+            }
 
             //check if fees and limits are set
             if (isset($company_gateway->fees_and_limits) && ! is_array($company_gateway->fees_and_limits) && property_exists($company_gateway->fees_and_limits, $gateway_token->gateway_type_id)) { //@phpstan-ignore-line
-                //if valid we keep this gateway_token
-                if ($this->invoice->client->validGatewayForAmount($company_gateway->fees_and_limits->{$gateway_token->gateway_type_id}, $amount)) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return $this->invoice->client->validGatewayForAmount($company_gateway->fees_and_limits->{$gateway_token->gateway_type_id}, $amount);
             }
 
             return true; //if no fees_and_limits set then we automatically must add this gateway
@@ -554,6 +555,21 @@ class AutoBillInvoice extends AbstractService
         }
 
         return false;
+    }
+
+    private function canAutoBill(ClientGatewayToken $gateway_token): bool
+    {
+        if ($gateway_token->gateway_type_id !== GatewayType::BANK_TRANSFER) {
+            return true;
+        }
+
+        $driver = $gateway_token->gateway?->driver($this->client);
+
+        if (! $driver instanceof StripePaymentDriver) {
+            return true;
+        }
+
+        return ($gateway_token->meta->state ?? null) === 'authorized';
     }
 
 }

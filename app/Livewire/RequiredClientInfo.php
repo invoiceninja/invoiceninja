@@ -236,10 +236,7 @@ class RequiredClientInfo extends Component
         }
 
         if (count($this->fields) === 0) {
-            $this->dispatch(
-                'passed-required-fields-check',
-                client_postal_code: $contact->client->postal_code
-            );
+            $this->dispatchPassedRequiredFieldsCheck($contact);
         }
 
         if ($this->unfilled_fields > 0 || ($this->company_gateway->always_show_required_fields || $this->is_subscription)) {
@@ -288,10 +285,7 @@ class RequiredClientInfo extends Component
         }
 
         if ($this->updateClientDetails($data)) {
-            $this->dispatch(
-                'passed-required-fields-check',
-                client_postal_code: $contact->client->postal_code
-            );
+            $this->dispatchPassedRequiredFieldsCheck($contact);
 
             //if stripe is enabled, we want to update the customer at this point.
 
@@ -385,11 +379,26 @@ class RequiredClientInfo extends Component
             : count($this->fields);
 
         if ($this->unfilled_fields === 0 && (!$this->company_gateway->always_show_required_fields || $this->is_subscription)) {
-            $this->dispatch(
-                'passed-required-fields-check',
-                client_postal_code: $_contact->client->postal_code
-            );
+            $this->dispatchPassedRequiredFieldsCheck($_contact);
         }
+    }
+
+    private function dispatchPassedRequiredFieldsCheck(ClientContact $contact): void
+    {
+        $contact->load('client.country');
+
+        $this->dispatch(
+            'passed-required-fields-check',
+            client_postal_code: (string) $contact->client->postal_code,
+            billingAddress: [
+                'line1' => (string) $contact->client->address1,
+                'line2' => (string) $contact->client->address2,
+                'city' => (string) $contact->client->city,
+                'state' => (string) $contact->client->state,
+                'postal_code' => (string) $contact->client->postal_code,
+                'country' => (string) ($contact->client->country->iso_3166_2 ?? $contact->company->country()->iso_3166_2),
+            ],
+        );
     }
 
     public function showCopyBillingCheckbox(): bool

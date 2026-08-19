@@ -8,6 +8,7 @@
     @endif
 
     <meta name="client_secret" content="{{ $client_secret }}">
+    <meta name="mandate_client_secret" content="{{ $mandate_client_secret }}">
     <meta name="viewport" content="width=device-width, minimum-scale=1" />
     <meta name="address-1" content="{{ $gateway->client->address1 }}">
     <meta name="address-2" content="{{ $gateway->client->address2 }}">
@@ -30,6 +31,7 @@
         <input type="hidden" name="client_secret" value="{{ $client_secret }}">
         <input type="hidden" name="gateway_response" id="gateway_response" value="">
         <input type="hidden" name="bank_account_response" id="bank_account_response" value="">
+        <input type="hidden" name="setup_intent_id" id="setup_intent_id" value="">
     </form>
 
     @if(count($tokens) > 0)
@@ -41,7 +43,7 @@
                 @foreach($tokens as $token)
                 <li class="payment-method-item">
                 <label class="payment-method-label">
-                <input type="radio" data-token="{{ $token->hashed_id }}" name="payment-type"
+                <input type="radio" data-token="{{ $token->hashed_id }}" data-payment-method="{{ $token->token }}" data-state="{{ $token->meta->state ?? '' }}" name="payment-type"
                                 class="form-radio cursor-pointer toggle-payment-with-token" />
                             <span class="ml-1">{{ ctrans('texts.bank_transfer') }}
                                 (*{{ $token->meta->last4 }})</span>
@@ -51,6 +53,15 @@
             </ul>
         @endif
         @endcomponent
+
+        @if($mandate_client_secret)
+            <div id="mandate-authorization" hidden>
+                @component('portal.ninja2020.components.general.card-element-single')
+                    <input type="checkbox" class="form-checkbox mr-1" id="accept-mandate" required>
+                    <label for="accept-mandate" class="cursor-pointer">{{ ctrans('texts.ach_authorization', ['company' => auth()->guard('contact')->user()->company->present()->name, 'email' => auth()->guard('contact')->user()->client->company->settings->email]) }}</label>
+                @endcomponent
+            </div>
+        @endif
 
         @include('portal.ninja2020.gateways.includes.pay_now')
 

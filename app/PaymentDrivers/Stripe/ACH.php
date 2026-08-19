@@ -28,6 +28,7 @@ use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\StripePaymentDriver;
 use App\Utils\Traits\MakesHash;
 use Exception;
+use Illuminate\Http\RedirectResponse;
 use Stripe\Customer;
 use Stripe\Exception\ApiErrorException;
 use Stripe\Exception\AuthenticationException;
@@ -35,6 +36,7 @@ use Stripe\Exception\CardException;
 use Stripe\Exception\InvalidRequestException;
 use Stripe\Exception\RateLimitException;
 use Stripe\PaymentIntent;
+use Stripe\SetupIntent;
 
 class ACH implements LivewireMethodInterface
 {
@@ -278,10 +280,31 @@ class ACH implements LivewireMethodInterface
 
             }
 
-            if (isset($token->meta->state) && in_array($token->meta->state, ['authorized','inactive'])) {
+            if (isset($token->meta->state) && $token->meta->state === 'authorized') {
                 return redirect()
                     ->route('client.payment_methods.show', $token->hashed_id)
                     ->with('message', __('texts.payment_method_verified'));
+            }
+
+            if (isset($token->meta->state) && $token->meta->state === 'inactive') {
+                if ($this->stripe->hasCompleteBillingAddress()) {
+                    $this->stripe->syncAchPaymentMethodBillingAddress($token);
+                }
+
+                $intent = $this->stripe->createSetupIntent([
+                    'customer' => $token->gateway_customer_reference,
+                    'payment_method' => $token->token,
+                    'payment_method_types' => ['us_bank_account'],
+                    'usage' => 'off_session',
+                ]);
+
+                $this->storeExpectedMandateSetupIntent($token, $intent);
+
+                return render('gateways.stripe.ach.reauthorize', [
+                    'client_secret' => $intent->client_secret,
+                    'gateway' => $this->stripe,
+                    'token' => $token,
+                ]);
             }
 
             if ($token->meta->next_action) {
@@ -314,14 +337,14 @@ class ACH implements LivewireMethodInterface
 
     public function processVerification(Request $request, ClientGatewayToken $token)
     {
-        $request->validate([
-            'transactions.*' => ['integer', 'min:1'],
-        ]);
-
         if (isset($token->meta->state) && $token->meta->state === 'authorized') {
             return redirect()
                 ->route('client.payment_methods.show', $token->hashed_id)
                 ->with('message', __('texts.payment_method_verified'));
+        }
+
+        if (isset($token->meta->state) && $token->meta->state === 'inactive') {
+            return $this->processMandateReauthorization($request, $token);
         }
 
         $this->stripe->init();
@@ -329,7 +352,7 @@ class ACH implements LivewireMethodInterface
         $bank_account = Customer::retrieveSource($request->customer, $request->source, [], $this->stripe->stripe_connect_auth);
 
         try {
-            $bank_account->verify(['amounts' => request()->transactions]);
+            $bank_account->verify(['amounts' => $request->input('transactions')]);
 
             $meta = $token->meta;
             $meta->state = 'authorized';
@@ -342,6 +365,21 @@ class ACH implements LivewireMethodInterface
         } catch (CardException $e) {
             return back()->with('error', $e->getMessage());
         }
+    }
+
+    private function processMandateReauthorization(Request $request, ClientGatewayToken $token): RedirectResponse
+    {
+        $this->validatedMandateSetupIntent($request, $token);
+        $this->stripe->syncAchPaymentMethodBillingAddress($token);
+
+        $meta = $token->meta;
+        $meta->state = 'authorized';
+        $token->meta = $meta;
+        $token->save();
+
+        return redirect()
+            ->route('client.payment_methods.show', $token->hashed_id)
+            ->with('message', __('texts.payment_method_verified'));
     }
 
     /**
@@ -373,7 +411,7 @@ class ACH implements LivewireMethodInterface
 
     }
 
-    public function paymentIntentTokenBilling($amount, $description, $cgt, $client_present = true)
+    public function paymentIntentTokenBilling($amount, $description, $cgt, $client_present = true, ?string $mandate_id = null)
     {
         $this->stripe->init();
 
@@ -398,29 +436,12 @@ class ACH implements LivewireMethodInterface
             if ($cgt->gateway_type_id == GatewayType::BANK_TRANSFER) {
                 $data['payment_method_types'] = ['us_bank_account'];
             }
-            
-            /** Update the mandate on existing ba_ tokens */
-            if (str_starts_with($cgt->token, 'ba_') && isset($cgt->meta->state) && $cgt->meta->state == 'inactive') {
 
-                $data["mandate_data"] = [
-                    "customer_acceptance" => [
-                        "type" => "offline",
-                    ],
-                ];
-                
-                $data['setup_future_usage'] = 'off_session';
-
+            if ($mandate_id) {
+                $data['mandate'] = $mandate_id;
             }
 
             $response = $this->stripe->createPaymentIntent($data);
-
-            /** Set as mandate updated. */
-            if (str_starts_with($cgt->token, 'ba_') && isset($cgt->meta->state) && $cgt->meta->state == 'inactive') {
-                $meta = $cgt->meta;
-                $meta->state = 'authorized';
-                $cgt->meta = $meta;
-                $cgt->save();
-            }
 
             SystemLogger::dispatch($response, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->stripe->client, $this->stripe->client->company);
         } catch (\Exception $e) {
@@ -446,8 +467,9 @@ class ACH implements LivewireMethodInterface
                     break;
                 case $e instanceof InvalidRequestException:
 
-                    if($client_present)
+                    if ($client_present) {
                         return redirect()->route('client.payment_methods.verification', ['payment_method' => $cgt->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
+                    }
 
                     $data['message'] = $e->getMessage();
                     break;
@@ -612,6 +634,31 @@ class ACH implements LivewireMethodInterface
 
         $description = $this->stripe->getDescription(false);
 
+        $this->stripe->syncAchPaymentMethodBillingAddress($source);
+
+        $state = $source->meta->state ?? null;
+
+        if ($state === 'inactive' && ! $request->filled('setup_intent_id')) {
+            throw new PaymentFailed('ACH authorization is required before making this payment.', 400);
+        }
+
+        if ($request->filled('setup_intent_id')) {
+            $setup_intent = $this->validatedMandateSetupIntent($request, $source);
+
+            $meta = $source->meta;
+            $meta->state = 'authorized';
+            $source->meta = $meta;
+            $source->save();
+
+            return $this->paymentIntentTokenBilling(
+                $amount,
+                $description,
+                $source,
+                true,
+                (string) $setup_intent->mandate,
+            );
+        }
+
         // if (substr($source->token, 0, 2) === 'pm') {
         return $this->paymentIntentTokenBilling($amount, $description, $source);
         // }
@@ -750,6 +797,7 @@ class ACH implements LivewireMethodInterface
         $data['customer'] = $this->stripe->findOrCreateCustomer();
         $data['amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
         $data['authorized'] = true;
+        $data['mandate_client_secret'] = false;
 
         $description = $this->stripe->getDescription(false);
 
@@ -786,8 +834,72 @@ class ACH implements LivewireMethodInterface
             );
         }
 
+        $inactive_tokens = collect($data['tokens'])
+            ->filter(fn(ClientGatewayToken $token): bool => ($token->meta->state ?? null) === 'inactive');
+
+        if ($inactive_tokens->isNotEmpty()) {
+            if ($this->stripe->hasCompleteBillingAddress()) {
+                $inactive_tokens->each(
+                    fn(ClientGatewayToken $token) => $this->stripe->syncAchPaymentMethodBillingAddress($token)
+                );
+            }
+
+            $setup_intent = $this->stripe->createSetupIntent([
+                'customer' => $data['customer']->id,
+                'payment_method_types' => ['us_bank_account'],
+                'usage' => 'off_session',
+            ]);
+
+            $inactive_tokens->each(
+                fn(ClientGatewayToken $token) => $this->storeExpectedMandateSetupIntent($token, $setup_intent)
+            );
+
+            $data['mandate_client_secret'] = $setup_intent->client_secret;
+        }
+
         $data['client_secret'] = $intent ? $intent->client_secret : false;
 
         return $data;
+    }
+
+    private function validatedMandateSetupIntent(Request $request, ClientGatewayToken $token): SetupIntent
+    {
+        $setup_intent_id = (string) $request->input('setup_intent_id');
+        $expected_setup_intent_id = $request->session()->get($this->mandateSetupIntentSessionKey($token));
+
+        if (! is_string($expected_setup_intent_id) || ! hash_equals($expected_setup_intent_id, $setup_intent_id)) {
+            throw new PaymentFailed('Unable to renew the ACH authorization.', 400);
+        }
+
+        $setup_intent = $this->stripe->getSetupIntentId($setup_intent_id);
+
+        if (
+            $setup_intent->status !== 'succeeded'
+            || $setup_intent->customer !== $token->gateway_customer_reference
+            || $setup_intent->payment_method !== $token->token
+            || ! is_string($setup_intent->mandate)
+        ) {
+            throw new PaymentFailed('Unable to renew the ACH authorization.', 400);
+        }
+
+        $mandate = $this->stripe->getMandate($setup_intent->mandate);
+
+        if ($mandate->status !== 'active' || $mandate->payment_method !== $token->token) {
+            throw new PaymentFailed('Unable to renew the ACH authorization.', 400);
+        }
+
+        $request->session()->forget($this->mandateSetupIntentSessionKey($token));
+
+        return $setup_intent;
+    }
+
+    private function storeExpectedMandateSetupIntent(ClientGatewayToken $token, SetupIntent $setup_intent): void
+    {
+        session()->put($this->mandateSetupIntentSessionKey($token), $setup_intent->id);
+    }
+
+    private function mandateSetupIntentSessionKey(ClientGatewayToken $token): string
+    {
+        return "stripe_ach.mandate_setup_intent.{$token->id}";
     }
 }

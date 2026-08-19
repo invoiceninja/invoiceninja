@@ -84,7 +84,7 @@
             </div>
         </div>
 
-        @if(($payment_method->gateway_type_id == \App\Models\GatewayType::BANK_TRANSFER && property_exists($payment_method->meta, 'state') && ($payment_method->meta?->state === 'unauthorized' || $payment_method->meta?->state === 'pending')))
+        @if(($payment_method->gateway_type_id == \App\Models\GatewayType::BANK_TRANSFER && property_exists($payment_method->meta, 'state') && in_array($payment_method->meta?->state, ['unauthorized', 'pending', 'inactive'], true)))
             <div class="mt-4 mb-4 bg-white shadow sm:rounded-lg">
                 <div class="px-4 py-5 sm:p-6">
                     <div class="sm:flex sm:items-start sm:justify-between">
@@ -94,13 +94,17 @@
                             </h3>
                             <div class="max-w-xl mt-2 text-sm leading-5 text-gray-500">
                                 <p>
-                                    {{ ctrans('texts.ach_verification_notification') }}
+                                    {{ $payment_method->meta?->state === 'inactive' ? ctrans('texts.ach_authorization_required') : ctrans('texts.ach_verification_notification') }}
                                 </p>
                             </div>
                         </div>
                         <div class="mt-5 sm:mt-0 sm:ml-6 sm:flex-shrink-0 sm:flex sm:items-center">
                             <div class="inline-flex rounded-md shadow-sm" x-data="{ open: false }">
-                            @if (substr($payment_method->token, 0, 2) == 'pm') 
+                            @if ($payment_method->meta?->state === 'inactive')
+                                <a href="{{ route('client.payment_methods.verification', ['payment_method' => $payment_method->hashed_id, 'method' => \App\Models\GatewayType::BANK_TRANSFER]) }}" class="button button-primary bg-primary">
+                                    {{ ctrans('texts.complete_verification') }}
+                                </a>
+                            @elseif (substr($payment_method->token, 0, 2) == 'pm')
                                 <a href="{{ $payment_method->meta?->next_action }}" class="button button-primary bg-primary">
                                     {{ ctrans('texts.complete_verification') }}
                                 </a>
