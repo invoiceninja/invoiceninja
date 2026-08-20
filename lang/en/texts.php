@@ -6346,7 +6346,8 @@ $lang = array(
     'add_tax' => 'Add Tax',
     'what_are_you_charging_for' => 'What are you charging for?',
     'add_value_as_new_client' => 'Add `:value` As New Client',
-    'stripe_ach_verifiation_pending' => 'This payment method is not ready for use yet. Verification is pending.'
+    'stripe_ach_verifiation_pending' => 'This payment method is not ready for use yet. Verification is pending.',
+    'deleted_invoices_exist' => 'This payment is linked to one or more deleted invoices and cannot be deleted, you must restore the invoices first, then delete the payments.'
 );
 
 return $lang;
