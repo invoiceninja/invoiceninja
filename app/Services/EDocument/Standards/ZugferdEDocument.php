@@ -189,10 +189,18 @@ class ZugferdEDocument extends AbstractService
             $tax_rate = 0;
 
             $category_bases = $this->sumDutyTaxCategoryBasesFromLineItems();
+            $total_base_for_discount = array_sum($category_bases);
+            $document_allowances = $this->allocateDocumentAllowanceAmounts($document_discount, $category_bases);
+
+            foreach ($document_allowances as $duty_category => $allowance_amount) {
+                $category_bases[$duty_category] = round(
+                    ($category_bases[$duty_category] ?? 0) - $allowance_amount,
+                    2
+                );
+            }
+
             $target_net = round((float) $this->document->amount - (float) $this->document->total_taxes, 2);
             $category_bases = $this->reconcileTaxCategoryBasesToTarget($category_bases, $target_net);
-
-            $total_base_for_discount = array_sum($category_bases);
 
             foreach ($category_bases as $duty_category => $base_amount) {
                 if (round($base_amount, 2) <= 0) {
@@ -217,10 +225,14 @@ class ZugferdEDocument extends AbstractService
                         continue;
                     }
 
-                    $ratio = $base_amount / $total_base_for_discount;
+                    $allowance_amount = $document_allowances[$duty_category] ?? 0.0;
+
+                    if ($allowance_amount <= 0) {
+                        continue;
+                    }
 
                     $this->xdocument->addDocumentAllowanceCharge(
-                        round($document_discount * $ratio, 2),
+                        $allowance_amount,
                         false,
                         $duty_category,
                         "VAT",
@@ -261,8 +273,13 @@ class ZugferdEDocument extends AbstractService
                         })
                         ->values();
 
+        $document_allowances = $this->allocateDocumentAllowanceAmounts(
+            $document_discount,
+            $tax_map->pluck('base_amount')->all()
+        );
+
         // Process each tax rate group
-        foreach ($tax_map as $item) {
+        foreach ($tax_map as $index => $item) {
             $tax_type = $this->getTaxType($item["tax_id"]);
             // Add tax information
             $isIntraCommunity = $tax_type == ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES;
@@ -279,22 +296,24 @@ class ZugferdEDocument extends AbstractService
 
             if ($document_discount > 0) {
 
-                $ratio = $item["base_amount"] / $net_subtotal;
+                $allowance_amount = $document_allowances[$index] ?? 0.0;
 
-                $this->xdocument->addDocumentAllowanceCharge(
-                    round($document_discount * $ratio, 2),
-                    false,
-                    $this->getTaxType($item["tax_id"] ?? '2'),
-                    "VAT",
-                    $item["tax_rate"],
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    ctrans('texts.discount')
-                );
+                if ($allowance_amount > 0) {
+                    $this->xdocument->addDocumentAllowanceCharge(
+                        $allowance_amount,
+                        false,
+                        $this->getTaxType($item["tax_id"] ?? '2'),
+                        "VAT",
+                        $item["tax_rate"],
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        ctrans('texts.discount')
+                    );
+                }
             }
 
             $adjustment = 0;
@@ -760,6 +779,67 @@ class ZugferdEDocument extends AbstractService
         $tax_basis_total = round((float) $this->document->amount - (float) $this->calc->getTotalTaxes(), 2);
 
         return max(0, round($line_total + $charge_total - $tax_basis_total, 2));
+    }
+
+    /**
+     * @param  array<array-key, float|int>  $weights
+     * @return array<array-key, float>
+     */
+    private function allocateDocumentAllowanceAmounts(float $allowance, array $weights): array
+    {
+        $total_cents = max(0, (int) round($allowance * 100));
+        $normalized_weights = [];
+        $allocations = [];
+
+        foreach ($weights as $key => $weight) {
+            $weight = (float) $weight;
+            $normalized_weights[$key] = is_finite($weight) ? max(0, $weight) : 0.0;
+            $allocations[$key] = 0;
+        }
+
+        $total_weight = array_sum($normalized_weights);
+
+        if ($total_cents === 0 || empty($allocations)) {
+            return array_map(static fn (): float => 0.0, $allocations);
+        }
+
+        if ($total_weight <= 0) {
+            foreach (array_keys($allocations) as $key) {
+                $allocations[$key] = $total_cents;
+                break;
+            }
+
+            return array_map(static fn (int $cents): float => $cents / 100, $allocations);
+        }
+
+        $remainders = [];
+        $positions = [];
+
+        foreach ($normalized_weights as $key => $weight) {
+            $raw_cents = $total_cents * ($weight / $total_weight);
+            $allocated_cents = (int) floor($raw_cents);
+
+            $allocations[$key] = $allocated_cents;
+            $remainders[$key] = $raw_cents - $allocated_cents;
+            $positions[$key] = count($positions);
+        }
+
+        $remaining_cents = $total_cents - array_sum($allocations);
+        $allocation_order = array_keys($allocations);
+
+        usort($allocation_order, static function (int|string $left, int|string $right) use ($remainders, $positions): int {
+            $remainder_comparison = $remainders[$right] <=> $remainders[$left];
+
+            return $remainder_comparison !== 0
+                ? $remainder_comparison
+                : $positions[$left] <=> $positions[$right];
+        });
+
+        for ($index = 0; $index < $remaining_cents; $index++) {
+            $allocations[$allocation_order[$index]]++;
+        }
+
+        return array_map(static fn (int $cents): float => $cents / 100, $allocations);
     }
 
     /**

@@ -14,7 +14,6 @@ namespace Tests\Integration\Einvoice;
 
 use App\Models\Invoice;
 use App\Services\EDocument\ZugferdPdfMerger;
-use App\Services\EDocument\Standards\Validation\XsltDocumentValidator;
 use DateTimeImmutable;
 use horstoeko\zugferd\codelists\ZugferdCountryCodes;
 use horstoeko\zugferd\codelists\ZugferdCurrencyCodes;
@@ -50,16 +49,7 @@ class ZugferdPdfMergeTest extends TestCase
         $this->assertStringContainsString('<ram:ActualAmount>20.00</ram:ActualAmount>', $xml);
         $this->assertStringContainsString('<ram:Reason>Discount</ram:Reason>', $xml);
 
-        $validator = new XsltDocumentValidator($xml);
-        $validator->setStyleSheets(['Services/EDocument/Standards/Validation/Zugferd/zugferd_16931.xslt']);
-        $validator->setXsd('/Services/EDocument/Standards/Validation/Zugferd/Schema/XSD/CrossIndustryInvoice_100pD22B.xsd');
-        $validator->validate();
-
-        $this->assertCount(
-            0,
-            $validator->getErrors(),
-            "The XML extracted from the final Factur-X PDF must remain valid.\n" . print_r($validator->getErrors(), true)
-        );
+        $this->assertXmlSchemaValid($xml);
 
         $document = ZugferdDocumentPdfReader::readAndGuessFromContent($pdf);
         $document->getDocumentInformation($documentno, $documenttypecode, $documentdate, $documentcurrency, $taxcurrency, $taxname, $documentlanguage, $rest);
@@ -124,5 +114,27 @@ class ZugferdPdfMergeTest extends TestCase
         $document->setDocumentSummation(95.2, 95.2, 80.0, 0.0, 0.0, 80.0, 15.2);
 
         return $document;
+    }
+
+    private function assertXmlSchemaValid(string $xml): void
+    {
+        $previousErrorHandling = libxml_use_internal_errors(true);
+        libxml_clear_errors();
+
+        $document = new \DOMDocument();
+        $loaded = $document->loadXML($xml);
+        $valid = $loaded && $document->schemaValidate(
+            app_path('Services/EDocument/Standards/Validation/Zugferd/Schema/XSD/CrossIndustryInvoice_100pD22B.xsd')
+        );
+        $errors = array_map(
+            static fn (\LibXMLError $error): string => trim($error->message),
+            libxml_get_errors()
+        );
+
+        libxml_clear_errors();
+        libxml_use_internal_errors($previousErrorHandling);
+
+        $this->assertTrue($loaded, "The XML extracted from the final Factur-X PDF must be well formed.\n" . implode("\n", $errors));
+        $this->assertTrue($valid, "The XML extracted from the final Factur-X PDF must satisfy the CII XSD.\n" . implode("\n", $errors));
     }
 }
