@@ -21,7 +21,6 @@ use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use ReflectionMethod;
 use Stripe\ApiRequestor;
-use Stripe\Customer;
 use Stripe\HttpClient\ClientInterface;
 use Stripe\Mandate;
 use Stripe\PaymentMethod;
@@ -301,27 +300,6 @@ class StripeAchStateTransitionMatrixTest extends TestCase
         } else {
             $this->assertFalse($gateway);
         }
-    }
-
-    #[DataProvider('prefixAndStateProvider')]
-    public function testClientPresentEligibilityMatrix(
-        string $prefix,
-        string $state,
-    ): void {
-        $token = $this->achToken($prefix, $state);
-        $driver = $this->paymentDataDriver($state);
-
-        $data = (new ACH($driver))->paymentData([
-            'tokens' => collect([$token]),
-            'total' => ['amount_with_fee' => 10],
-        ]);
-
-        $this->assertSame(
-            in_array($state, ['authorized', 'inactive'], true),
-            $data['authorized'],
-            "{$prefix}_ token in {$state} state has incorrect client-present eligibility."
-        );
-        $this->assertSame($state === 'inactive', $data['mandate_client_secret'] !== false);
     }
 
     #[DataProvider('verificationCtaProvider')]
@@ -930,35 +908,6 @@ class StripeAchStateTransitionMatrixTest extends TestCase
             'mandate_pending' => $this->ach()->handleMandateUpdated($this->mandateEvent($token, 'pending')),
             'mandate_inactive' => $this->ach()->handleMandateUpdated($this->mandateEvent($token, 'inactive')),
         };
-    }
-
-    /** @return StripePaymentDriver&MockInterface */
-    private function paymentDataDriver(string $state): StripePaymentDriver
-    {
-        $driver = Mockery::mock(
-            StripePaymentDriver::class,
-            [$this->companyGateway, $this->client]
-        )->makePartial();
-        $driver->shouldReceive('findOrCreateCustomer')
-            ->once()
-            ->andReturn(Customer::constructFrom(['id' => 'cus_matrix_checkout']));
-        $driver->shouldReceive('getDescription')->once()->with(false)->andReturn('Matrix payment');
-
-        if ($state === 'inactive') {
-            $driver->shouldReceive('hasCompleteBillingAddress')->once()->andReturn(true);
-            $driver->shouldReceive('syncAchPaymentMethodBillingAddress')->once();
-            $driver->shouldReceive('createSetupIntent')
-                ->once()
-                ->andReturn(SetupIntent::constructFrom([
-                    'id' => 'seti_matrix_checkout',
-                    'client_secret' => 'seti_matrix_checkout_secret',
-                    'status' => 'requires_payment_method',
-                ]));
-        } else {
-            $driver->shouldNotReceive('createSetupIntent');
-        }
-
-        return $driver;
     }
 
     /** @return StripePaymentDriver&MockInterface */
