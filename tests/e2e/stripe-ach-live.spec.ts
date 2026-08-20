@@ -28,6 +28,7 @@ import { createSentInvoice } from './portal-entity-helpers';
 
 const stripeGatewayKey = 'd14dd26a37cecc30fdd65700bfb55b23';
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
+let validatedStripeTestSecretPromise: Promise<string | null> | undefined;
 
 interface ClientGatewayToken extends ApiEntity {
     id: string;
@@ -95,10 +96,19 @@ test.describe('Stripe ACH live sandbox', () => {
     }) => {
         test.setTimeout(180_000);
 
+        const stripeSecret = await validatedStripeTestSecret();
+
+        if (!stripeSecret) {
+            test.skip(
+                true,
+                'Set STRIPE_KEYS to a valid Stripe test-mode secret key to run live ACH tests.'
+            );
+            return;
+        }
+
         await notificationGuard.suppressPaymentEmails();
 
         const companyGateway = await requireStripeAchGateway(api.context);
-        const stripeSecret = requireStripeTestSecret();
         let client = await createAndLogInClient(api, page, {
             settings: {
                 payment_flow: 'default',
@@ -202,10 +212,19 @@ test.describe('Stripe ACH live sandbox', () => {
     }) => {
         test.setTimeout(300_000);
 
+        const stripeSecret = await validatedStripeTestSecret();
+
+        if (!stripeSecret) {
+            test.skip(
+                true,
+                'Set STRIPE_KEYS to a valid Stripe test-mode secret key to run live ACH tests.'
+            );
+            return;
+        }
+
         await notificationGuard.suppressPaymentEmails();
 
         const companyGateway = await requireStripeAchGateway(api.context);
-        const stripeSecret = requireStripeTestSecret();
         let client = await createAndLogInClient(api, page, {
             settings: {
                 payment_flow: 'default',
@@ -647,8 +666,6 @@ async function submitPaymentFormWithSetupIntent(
 async function requireStripeAchGateway(
     api: ApiContext
 ): Promise<CompanyGatewayEntity> {
-    expect(process.env.STRIPE_KEYS?.trim()).toBeTruthy();
-
     const gateways = await listCompanyGateways(api);
     const gateway = findCompanyGatewayByKey(
         gateways,
@@ -830,7 +847,7 @@ async function clickVisible(frame: Frame, name: RegExp): Promise<boolean> {
     return false;
 }
 
-function requireStripeTestSecret(): string {
+function parseStripeTestSecret(): string | null {
     const raw = process.env.STRIPE_KEYS?.trim() ?? '';
     let secret = raw.startsWith('sk_') ? raw : '';
 
@@ -849,9 +866,32 @@ function requireStripeTestSecret(): string {
         }
     }
 
-    expect(secret).toMatch(/^sk_test_/);
+    return /^sk_test_/.test(secret) ? secret : null;
+}
 
-    return secret;
+function validatedStripeTestSecret(): Promise<string | null> {
+    validatedStripeTestSecretPromise ??= validateStripeTestSecret();
+
+    return validatedStripeTestSecretPromise;
+}
+
+async function validateStripeTestSecret(): Promise<string | null> {
+    const secret = parseStripeTestSecret();
+
+    if (!secret) {
+        return null;
+    }
+
+    try {
+        const response = await fetch('https://api.stripe.com/v1/account', {
+            headers: { Authorization: `Bearer ${secret}` },
+            signal: AbortSignal.timeout(10_000),
+        });
+
+        return response.ok ? secret : null;
+    } catch {
+        return null;
+    }
 }
 
 async function stripeGet<T>(
