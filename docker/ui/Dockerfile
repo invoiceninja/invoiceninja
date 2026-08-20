@@ -51,4 +51,4 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /src/dist/ /usr/share/nginx/html/
 
 HEALTHCHECK --interval=10s --timeout=3s --retries=10 \
-    CMD wget -q --spider http://127.0.0.1/control/ || exit 1
+    CMD wget -q --spider http://127.0.0.1/healthz || exit 1
