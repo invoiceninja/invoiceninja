@@ -36,8 +36,13 @@ function ach() {
         );
         payNow.addEventListener('click', function (event) {
             const selectedToken = document.querySelector(
-                'input[name="payment-type"]:checked'
+                'input[name="payment-type"]:checked:not(:disabled)'
             );
+
+            if (!selectedToken) {
+                event.preventDefault();
+                return;
+            }
 
             if (selectedToken?.dataset.state === 'inactive') {
                 event.preventDefault();
@@ -50,10 +55,14 @@ function ach() {
         });
     }
 
-    const first = document.querySelector('input[name="payment-type"]');
+    const first = document.querySelector(
+        'input[name="payment-type"]:not(:disabled)'
+    );
 
     if (first) {
         first.click();
+    } else if (payNow) {
+        payNow.disabled = true;
     }
 
     const newBank = document.getElementById('new-bank');

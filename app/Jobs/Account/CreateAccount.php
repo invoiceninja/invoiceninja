@@ -118,7 +118,7 @@ class CreateAccount
             $t = app('translator');
             $t->replace(Ninja::transformTranslations($sp035a66->settings));
 
-            (new \Modules\Admin\Jobs\Account\NinjaUser([], $sp035a66))->handle();
+            (new \Modules\Admin\Jobs\Account\NinjaUser($sp035a66))->handle();
 
             app(Evaluator::class)->create($sp794f3f, $this->client_ip);
 

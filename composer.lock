@@ -384,16 +384,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.392.3",
+            "version": "3.393.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "0ca19a44856b2497ae426f800d35ad97ee179d1a"
+                "reference": "0a46ff5138d21adbb312729f564a1c14f54909c9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/0ca19a44856b2497ae426f800d35ad97ee179d1a",
-                "reference": "0ca19a44856b2497ae426f800d35ad97ee179d1a",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/0a46ff5138d21adbb312729f564a1c14f54909c9",
+                "reference": "0a46ff5138d21adbb312729f564a1c14f54909c9",
                 "shasum": ""
             },
             "require": {
@@ -475,9 +475,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.392.3"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.393.2"
             },
-            "time": "2026-08-14T18:11:43+00:00"
+            "time": "2026-08-19T18:38:54+00:00"
         },
         {
             "name": "babenkoivan/elastic-adapter",
@@ -4978,16 +4978,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v12.66.0",
+            "version": "v12.67.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "82a53323c701a668f9054cbeb1d6b6cdbb6a5e10"
+                "reference": "fe2cdaba052cbb9f350761ccefc7ac221cbdf0b5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/82a53323c701a668f9054cbeb1d6b6cdbb6a5e10",
-                "reference": "82a53323c701a668f9054cbeb1d6b6cdbb6a5e10",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/fe2cdaba052cbb9f350761ccefc7ac221cbdf0b5",
+                "reference": "fe2cdaba052cbb9f350761ccefc7ac221cbdf0b5",
                 "shasum": ""
             },
             "require": {
@@ -5196,20 +5196,20 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2026-08-11T13:59:27+00:00"
+            "time": "2026-08-18T13:37:47+00:00"
         },
         {
             "name": "laravel/octane",
-            "version": "v2.19.0",
+            "version": "v2.19.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/octane.git",
-                "reference": "49b111b2390a645f7afc2cdea650229ba2209dec"
+                "reference": "68a2516a0318baba0de0e4648f61e335c5e69dca"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/octane/zipball/49b111b2390a645f7afc2cdea650229ba2209dec",
-                "reference": "49b111b2390a645f7afc2cdea650229ba2209dec",
+                "url": "https://api.github.com/repos/laravel/octane/zipball/68a2516a0318baba0de0e4648f61e335c5e69dca",
+                "reference": "68a2516a0318baba0de0e4648f61e335c5e69dca",
                 "shasum": ""
             },
             "require": {
@@ -5285,20 +5285,20 @@
                 "issues": "https://github.com/laravel/octane/issues",
                 "source": "https://github.com/laravel/octane"
             },
-            "time": "2026-08-05T02:06:18+00:00"
+            "time": "2026-08-13T13:58:52+00:00"
         },
         {
             "name": "laravel/prompts",
-            "version": "v0.3.22",
+            "version": "v0.3.23",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/prompts.git",
-                "reference": "02b89b39e8972a998db4d5d4ad4719239dd4aee4"
+                "reference": "b7b4c35e5bc47450f6b6238c6cc9c47ba19b2221"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/prompts/zipball/02b89b39e8972a998db4d5d4ad4719239dd4aee4",
-                "reference": "02b89b39e8972a998db4d5d4ad4719239dd4aee4",
+                "url": "https://api.github.com/repos/laravel/prompts/zipball/b7b4c35e5bc47450f6b6238c6cc9c47ba19b2221",
+                "reference": "b7b4c35e5bc47450f6b6238c6cc9c47ba19b2221",
                 "shasum": ""
             },
             "require": {
@@ -5342,9 +5342,9 @@
             "description": "Add beautiful and user-friendly forms to your command-line applications.",
             "support": {
                 "issues": "https://github.com/laravel/prompts/issues",
-                "source": "https://github.com/laravel/prompts/tree/v0.3.22"
+                "source": "https://github.com/laravel/prompts/tree/v0.3.23"
             },
-            "time": "2026-08-04T14:50:50+00:00"
+            "time": "2026-08-11T18:58:24+00:00"
         },
         {
             "name": "laravel/scout",
@@ -5554,16 +5554,16 @@
         },
         {
             "name": "laravel/socialite",
-            "version": "v5.29.0",
+            "version": "v5.30.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/socialite.git",
-                "reference": "cd343a5841f02292af119ee607edc71300c9ae4f"
+                "reference": "caf714f55d51ab0d914b40033d8b0f489d6219cc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/socialite/zipball/cd343a5841f02292af119ee607edc71300c9ae4f",
-                "reference": "cd343a5841f02292af119ee607edc71300c9ae4f",
+                "url": "https://api.github.com/repos/laravel/socialite/zipball/caf714f55d51ab0d914b40033d8b0f489d6219cc",
+                "reference": "caf714f55d51ab0d914b40033d8b0f489d6219cc",
                 "shasum": ""
             },
             "require": {
@@ -5622,7 +5622,7 @@
                 "issues": "https://github.com/laravel/socialite/issues",
                 "source": "https://github.com/laravel/socialite"
             },
-            "time": "2026-07-01T13:50:23+00:00"
+            "time": "2026-08-13T23:01:33+00:00"
         },
         {
             "name": "laravel/tinker",
@@ -6788,16 +6788,16 @@
         },
         {
             "name": "livewire/livewire",
-            "version": "v3.8.4",
+            "version": "v3.8.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/livewire/livewire.git",
-                "reference": "bc06b755058e2253cc4153d95c8720c585f6254c"
+                "reference": "038443795e69af79ba03064cbc19d76b60e2c638"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/livewire/livewire/zipball/bc06b755058e2253cc4153d95c8720c585f6254c",
-                "reference": "bc06b755058e2253cc4153d95c8720c585f6254c",
+                "url": "https://api.github.com/repos/livewire/livewire/zipball/038443795e69af79ba03064cbc19d76b60e2c638",
+                "reference": "038443795e69af79ba03064cbc19d76b60e2c638",
                 "shasum": ""
             },
             "require": {
@@ -6852,7 +6852,7 @@
             "description": "A front-end framework for Laravel.",
             "support": {
                 "issues": "https://github.com/livewire/livewire/issues",
-                "source": "https://github.com/livewire/livewire/tree/v3.8.4"
+                "source": "https://github.com/livewire/livewire/tree/v3.8.5"
             },
             "funding": [
                 {
@@ -6860,7 +6860,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-08-10T15:24:05+00:00"
+            "time": "2026-08-18T11:38:50+00:00"
         },
         {
             "name": "maennchen/zipstream-php",
@@ -7114,24 +7114,24 @@
         },
         {
             "name": "masterminds/html5",
-            "version": "2.10.1",
+            "version": "2.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Masterminds/html5-php.git",
-                "reference": "fd5018f6815fff903946d0564977b44ce8010e29"
+                "reference": "a1e7a2f88ee13635d86fc61cfbdf2306a76ddfc7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Masterminds/html5-php/zipball/fd5018f6815fff903946d0564977b44ce8010e29",
-                "reference": "fd5018f6815fff903946d0564977b44ce8010e29",
+                "url": "https://api.github.com/repos/Masterminds/html5-php/zipball/a1e7a2f88ee13635d86fc61cfbdf2306a76ddfc7",
+                "reference": "a1e7a2f88ee13635d86fc61cfbdf2306a76ddfc7",
                 "shasum": ""
             },
             "require": {
                 "ext-dom": "*",
-                "php": ">=5.3.0"
+                "php": ">=7.4"
             },
             "require-dev": {
-                "phpunit/phpunit": "^4.8.35 || ^5.7.21 || ^6 || ^7 || ^8 || ^9 || ^10"
+                "phpunit/phpunit": "^6 || ^7 || ^8 || ^9 || ^10"
             },
             "type": "library",
             "extra": {
@@ -7175,9 +7175,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Masterminds/html5-php/issues",
-                "source": "https://github.com/Masterminds/html5-php/tree/2.10.1"
+                "source": "https://github.com/Masterminds/html5-php/tree/2.11.0"
             },
-            "time": "2026-06-23T18:43:15+00:00"
+            "time": "2026-08-18T06:18:41+00:00"
         },
         {
             "name": "microsoft/microsoft-graph",
@@ -7961,16 +7961,16 @@
         },
         {
             "name": "nette/schema",
-            "version": "v1.3.5",
+            "version": "v1.3.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nette/schema.git",
-                "reference": "f0ab1a3cda782dbc5da270d28545236aa80c4002"
+                "reference": "c54350438cd6914616f790a49cb424605f421562"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nette/schema/zipball/f0ab1a3cda782dbc5da270d28545236aa80c4002",
-                "reference": "f0ab1a3cda782dbc5da270d28545236aa80c4002",
+                "url": "https://api.github.com/repos/nette/schema/zipball/c54350438cd6914616f790a49cb424605f421562",
+                "reference": "c54350438cd6914616f790a49cb424605f421562",
                 "shasum": ""
             },
             "require": {
@@ -8022,9 +8022,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nette/schema/issues",
-                "source": "https://github.com/nette/schema/tree/v1.3.5"
+                "source": "https://github.com/nette/schema/tree/v1.3.6"
             },
-            "time": "2026-02-23T03:47:12+00:00"
+            "time": "2026-08-16T21:58:41+00:00"
         },
         {
             "name": "nette/utils",
@@ -18438,16 +18438,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v3.95.18",
+            "version": "v3.95.20",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                "reference": "a8b4e4216faabf67f4e96110ee99a48c96e4e683"
+                "reference": "4d6c9886a77dbc1db3b9eaca6472cedf9eb1fab7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/a8b4e4216faabf67f4e96110ee99a48c96e4e683",
-                "reference": "a8b4e4216faabf67f4e96110ee99a48c96e4e683",
+                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/4d6c9886a77dbc1db3b9eaca6472cedf9eb1fab7",
+                "reference": "4d6c9886a77dbc1db3b9eaca6472cedf9eb1fab7",
                 "shasum": ""
             },
             "require": {
@@ -18483,7 +18483,6 @@
                 "infection/infection": "^0.32.7",
                 "justinrainbow/json-schema": "^6.10.0",
                 "keradus/cli-executor": "^2.3",
-                "mikey179/vfsstream": "^1.6.12",
                 "php-coveralls/php-coveralls": "^2.9.1",
                 "php-cs-fixer/phpunit-constraint-isidenticalstring": "^1.8",
                 "php-cs-fixer/phpunit-constraint-xmlmatchesxsd": "^1.8",
@@ -18531,7 +18530,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues",
-                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.95.18"
+                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.95.20"
             },
             "funding": [
                 {
@@ -18539,7 +18538,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-07-30T15:46:02+00:00"
+            "time": "2026-08-19T16:28:14+00:00"
         },
         {
             "name": "hamcrest/hamcrest-php",
@@ -18788,20 +18787,20 @@
         },
         {
             "name": "laravel/boost",
-            "version": "v2.5.3",
+            "version": "v2.5.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/boost.git",
-                "reference": "f5f9297225aba9857d014b3140f55a7c50cb1a92"
+                "reference": "a6c798975a893d3c0a609ebc6ed37a007ecbedec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/boost/zipball/f5f9297225aba9857d014b3140f55a7c50cb1a92",
-                "reference": "f5f9297225aba9857d014b3140f55a7c50cb1a92",
+                "url": "https://api.github.com/repos/laravel/boost/zipball/a6c798975a893d3c0a609ebc6ed37a007ecbedec",
+                "reference": "a6c798975a893d3c0a609ebc6ed37a007ecbedec",
                 "shasum": ""
             },
             "require": {
-                "guzzlehttp/guzzle": "^7.9",
+                "guzzlehttp/guzzle": "^7.9|^8.0",
                 "illuminate/console": "^11.45.3|^12.41.1|^13.0",
                 "illuminate/contracts": "^11.45.3|^12.41.1|^13.0",
                 "illuminate/routing": "^11.45.3|^12.41.1|^13.0",
@@ -18850,7 +18849,7 @@
                 "issues": "https://github.com/laravel/boost/issues",
                 "source": "https://github.com/laravel/boost"
             },
-            "time": "2026-08-07T05:46:02+00:00"
+            "time": "2026-08-19T02:26:00+00:00"
         },
         {
             "name": "laravel/mcp",
@@ -18990,16 +18989,16 @@
         },
         {
             "name": "mockery/mockery",
-            "version": "1.6.13",
+            "version": "1.6.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mockery/mockery.git",
-                "reference": "9cb54414cdcd2ec5ca292e7ba19dba3a3444885d"
+                "reference": "967a801bd188989a5669bd280f252d51c0fdc9ee"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mockery/mockery/zipball/9cb54414cdcd2ec5ca292e7ba19dba3a3444885d",
-                "reference": "9cb54414cdcd2ec5ca292e7ba19dba3a3444885d",
+                "url": "https://api.github.com/repos/mockery/mockery/zipball/967a801bd188989a5669bd280f252d51c0fdc9ee",
+                "reference": "967a801bd188989a5669bd280f252d51c0fdc9ee",
                 "shasum": ""
             },
             "require": {
@@ -19068,7 +19067,7 @@
                 "security": "https://github.com/mockery/mockery/security/advisories",
                 "source": "https://github.com/mockery/mockery"
             },
-            "time": "2026-08-15T03:07:32+00:00"
+            "time": "2026-08-19T19:37:52+00:00"
         },
         {
             "name": "nunomaduro/collision",

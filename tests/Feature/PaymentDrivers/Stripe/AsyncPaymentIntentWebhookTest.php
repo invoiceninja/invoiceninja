@@ -13,6 +13,7 @@
 namespace Tests\Feature\PaymentDrivers\Stripe;
 
 use App\Factory\CompanyGatewayFactory;
+use App\Models\ClientGatewayToken;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -27,6 +28,8 @@ use Illuminate\Support\Str;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
+use Stripe\ApiRequestor;
+use Stripe\HttpClient\ClientInterface;
 use Stripe\PaymentIntent;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -77,7 +80,7 @@ class AsyncPaymentIntentWebhookTest extends TestCase
         );
     }
 
-    public function testStripeWebhookSubscribesToProcessingAndSucceededEvents(): void
+    public function testStripeWebhookSubscribesToPaymentAndSetupIntentLifecycleEvents(): void
     {
         $job = new StripeWebhook($this->company->company_key, $this->company_gateway->id);
         $property = new ReflectionProperty($job, 'events');
@@ -85,6 +88,8 @@ class AsyncPaymentIntentWebhookTest extends TestCase
 
         $this->assertContains('payment_intent.processing', $events);
         $this->assertContains('payment_intent.succeeded', $events);
+        $this->assertContains('setup_intent.succeeded', $events);
+        $this->assertContains('setup_intent.setup_failed', $events);
     }
 
     public function testBacsProcessingCreatesPendingPaymentAndSucceededCompletesIt(): void
@@ -142,6 +147,70 @@ class AsyncPaymentIntentWebhookTest extends TestCase
         $this->assertSame($payment->id, $payment_hash->fresh()->payment_id);
     }
 
+    public function testAchProcessingAuthorizesTokenAndClearsPendingVerificationMetadata(): void
+    {
+        $token = new ClientGatewayToken();
+        $token->company_id = $this->company->id;
+        $token->client_id = $this->client->id;
+        $token->company_gateway_id = $this->company_gateway->id;
+        $token->gateway_type_id = GatewayType::BANK_TRANSFER;
+        $token->token = 'pm_ach_processing';
+        $token->gateway_customer_reference = 'cus_ach_processing';
+        $token->meta = (object) [
+            'state' => 'unauthorized',
+            'next_action' => 'https://verify.stripe.com/pending',
+        ];
+        $token->save();
+
+        (new PaymentIntentProcessingWebhook(
+            ['object' => [
+                'id' => 'pi_ach_processing',
+                'payment_method' => $token->token,
+            ]],
+            $this->company->company_key,
+            $this->company_gateway->id,
+        ))->handle();
+
+        $meta = $token->fresh()->meta;
+
+        $this->assertSame('authorized', $meta->state);
+        $this->assertObjectNotHasProperty('mandate_id', $meta);
+        $this->assertObjectNotHasProperty('next_action', $meta);
+    }
+
+    public function testAchSucceededCreatesAuthorizedTokenWhenProcessingWebhookWasMissed(): void
+    {
+        $payment_hash = $this->makePaymentHash();
+        $payment_intent = PaymentIntent::constructFrom([
+            'id' => 'pi_ach_succeeded',
+            'object' => 'payment_intent',
+            'customer' => 'cus_ach_succeeded',
+            'payment_method' => 'pm_ach_succeeded',
+            'payment_method_types' => ['us_bank_account'],
+            'metadata' => [
+                'payment_hash' => $payment_hash->hash,
+                'gateway_type_id' => (string) GatewayType::BANK_TRANSFER,
+            ],
+        ]);
+
+        $this->withStripeAchPaymentMethod(function () use ($payment_hash, $payment_intent): void {
+            $this->invokeUpdateAsyncPayment(
+                new PaymentIntentWebhook(
+                    ['object' => $payment_intent->toArray()],
+                    $this->company->company_key,
+                    $this->company_gateway->id,
+                ),
+                $payment_hash,
+                $payment_intent,
+            );
+        });
+
+        $token = ClientGatewayToken::query()->where('token', 'pm_ach_succeeded')->firstOrFail();
+
+        $this->assertSame('authorized', $token->meta->state);
+        $this->assertObjectNotHasProperty('mandate_id', $token->meta);
+    }
+
     private function makePaymentHash(): PaymentHash
     {
         return PaymentHash::query()->create([
@@ -194,5 +263,47 @@ class AsyncPaymentIntentWebhookTest extends TestCase
             ],
             $payment_intent,
         );
+    }
+
+    private function withStripeAchPaymentMethod(callable $callback): void
+    {
+        ApiRequestor::setHttpClient(new class () implements ClientInterface {
+            public function request(
+                $method,
+                $absUrl,
+                $headers,
+                $params,
+                $hasFile,
+                $apiMode = 'v1',
+                $maxNetworkRetries = null,
+            ): array {
+                if (str_contains($absUrl, '/v1/customers/')) {
+                    $response = [
+                        'id' => 'cus_ach_succeeded',
+                        'object' => 'customer',
+                        'default_source' => null,
+                    ];
+                } else {
+                    $response = [
+                        'id' => 'pm_ach_succeeded',
+                        'object' => 'payment_method',
+                        'customer' => 'cus_ach_succeeded',
+                        'type' => 'us_bank_account',
+                        'us_bank_account' => [
+                            'bank_name' => 'Succeeded Bank',
+                            'last4' => '6789',
+                        ],
+                    ];
+                }
+
+                return [json_encode($response, JSON_THROW_ON_ERROR), 200, []];
+            }
+        });
+
+        try {
+            $callback();
+        } finally {
+            ApiRequestor::setHttpClient(null);
+        }
     }
 }

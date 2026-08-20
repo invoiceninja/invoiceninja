@@ -50,6 +50,8 @@ let paymentSource: string;
 let waitSource: string;
 let paymentLayoutListener: string;
 let legacyPaymentSource: string;
+let legacyPaymentBlade: string;
+let livewirePaymentBlade: string;
 let reauthorizationSource: string;
 
 test.beforeAll(async () => {
@@ -67,7 +69,12 @@ test.beforeAll(async () => {
         readFile(path.join(root, 'resources/js/clients/wait.js'), 'utf8'),
     ]);
 
-    const [layout, legacyPaymentView, reauthorizationView] = await Promise.all([
+    const [
+        layout,
+        legacyPaymentView,
+        livewirePaymentView,
+        reauthorizationView,
+    ] = await Promise.all([
         readFile(
             path.join(
                 root,
@@ -85,11 +92,21 @@ test.beforeAll(async () => {
         readFile(
             path.join(
                 root,
+                'resources/views/portal/ninja2020/gateways/stripe/ach/pay_livewire.blade.php'
+            ),
+            'utf8'
+        ),
+        readFile(
+            path.join(
+                root,
                 'resources/views/portal/ninja2020/gateways/stripe/ach/reauthorize.blade.php'
             ),
             'utf8'
         ),
     ]);
+
+    legacyPaymentBlade = legacyPaymentView;
+    livewirePaymentBlade = livewirePaymentView;
     const scripts = [...layout.matchAll(/<script>([\s\S]*?)<\/script>/g)];
 
     paymentLayoutListener =
@@ -699,6 +716,96 @@ test.describe('Stripe ACH new-bank payment interactions', () => {
 });
 
 test.describe('Stripe ACH stored-token payment interactions', () => {
+    test('renders pending tokens as disabled and labelled in both payment templates', () => {
+        for (const template of [legacyPaymentBlade, livewirePaymentBlade]) {
+            expect(template).toContain("@disabled($tokenState === 'pending')");
+            expect(template).toContain(
+                "ctrans('texts.stripe_ach_verifiation_pending')"
+            );
+            expect(template).toContain('ach-token-status');
+            expect(template).toContain("['disabled' => ! $hasSelectableToken]");
+        }
+    });
+
+    for (const implementation of ['module', 'legacy'] as const) {
+        for (const tokenPrefix of ['pm', 'ba'] as const) {
+            test(`${implementation} blocks a pending ${tokenPrefix}_ token without submitting`, async ({
+                page,
+            }) => {
+                await openPaymentHarness(page, {
+                    implementation,
+                    tokenPrefix,
+                    tokenStates: ['pending'],
+                });
+
+                const pendingToken = page.locator('[data-state="pending"]');
+
+                await expect(pendingToken).toBeDisabled();
+                await expect(pendingToken).not.toBeChecked();
+                await expect(page.locator('.ach-token-status')).toHaveText(
+                    'This payment method is not ready for use yet. Verification is pending.'
+                );
+                await expect(page.locator('#pay-now')).toBeDisabled();
+                await expect(page.locator('input[name="source"]')).toHaveValue(
+                    ''
+                );
+
+                await page
+                    .locator('#pay-now')
+                    .evaluate((button) =>
+                        (button as HTMLButtonElement).click()
+                    );
+
+                await expect(
+                    page.locator('#server-response')
+                ).not.toHaveAttribute('data-submitted', 'true');
+                await expectStripeCallCount(page, 'confirmSetup', 0);
+            });
+        }
+
+        test(`${implementation} skips a pending token and selects the first payable token`, async ({
+            page,
+        }) => {
+            await openPaymentHarness(page, {
+                implementation,
+                tokenStates: ['pending', 'authorized'],
+            });
+
+            await expect(page.locator('[data-state="pending"]')).toBeDisabled();
+            await expect(
+                page.locator('[data-state="authorized"]')
+            ).toBeChecked();
+            await expect(page.locator('input[name="source"]')).toHaveValue(
+                'token-authorized'
+            );
+            await expect(page.locator('#pay-now')).toBeEnabled();
+
+            await page.locator('#pay-now').click();
+
+            await expectSubmitted(page, '#server-response');
+            await expectStripeCallCount(page, 'confirmSetup', 0);
+        });
+
+        test(`${implementation} skips a pending token and selects an inactive token for mandate renewal`, async ({
+            page,
+        }) => {
+            await openPaymentHarness(page, {
+                implementation,
+                tokenStates: ['pending', 'inactive'],
+            });
+
+            await expect(page.locator('[data-state="pending"]')).toBeDisabled();
+            await expect(page.locator('[data-state="inactive"]')).toBeChecked();
+            await expect(page.locator('input[name="source"]')).toHaveValue(
+                'token-inactive'
+            );
+            await expect(page.locator('#mandate-authorization')).toBeVisible();
+            await expect(page.locator('#pay-now')).toBeEnabled();
+
+            await expectStripeCallCount(page, 'confirmSetup', 0);
+        });
+    }
+
     test('submits an authorized token without invoking Stripe.js', async ({
         page,
     }) => {
@@ -1092,35 +1199,43 @@ async function openPaymentHarness(
     page: Page,
     options: {
         address?: BillingAddress;
-        tokenStates?: Array<'authorized' | 'inactive'>;
+        tokenStates?: Array<'authorized' | 'inactive' | 'pending'>;
+        tokenPrefix?: 'pm' | 'ba';
         mandateClientSecret?: string;
         implementation?: 'module' | 'legacy';
     } = {}
 ): Promise<void> {
     const address = options.address ?? validAddress;
     const tokenStates = options.tokenStates ?? [];
+    const tokenPrefix = options.tokenPrefix ?? 'pm';
     const mandateClientSecret =
         options.mandateClientSecret === undefined
             ? 'seti_secret_renew'
             : options.mandateClientSecret;
     const tokenInputs = tokenStates
         .map(
-            (state) => `<input
-                type="radio"
-                class="toggle-payment-with-token"
-                name="payment-type"
-                data-token="token-${state}"
-                data-payment-method="pm-${state}"
-                data-state="${state}"
-            >`
+            (state) => `<label>
+                <input
+                    type="radio"
+                    class="toggle-payment-with-token"
+                    name="payment-type"
+                    data-token="token-${state}"
+                    data-payment-method="${tokenPrefix}-${state}"
+                    data-state="${state}"
+                    ${state === 'pending' ? 'disabled' : ''}
+                >
+                <span>Bank account</span>
+                ${state === 'pending' ? '<span class="ach-token-status">This payment method is not ready for use yet. Verification is pending.</span>' : ''}
+            </label>`
         )
         .join('');
+    const hasSelectableToken = tokenStates.some((state) => state !== 'pending');
     const storedTokenControls = tokenStates.length
         ? `${tokenInputs}
             <div id="mandate-authorization" hidden>
                 <input type="checkbox" id="accept-mandate">
             </div>
-            <button id="pay-now"><svg class="hidden"></svg><span>Pay now</span></button>`
+            <button id="pay-now" ${hasSelectableToken ? '' : 'disabled'}><svg class="hidden"></svg><span>Pay now</span></button>`
         : `<input type="checkbox" id="accept-terms">
             <input id="account-holder-name-field" value="Jane Doe">
             <input id="email-field" value="jane@example.test">

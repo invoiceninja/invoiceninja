@@ -68,6 +68,9 @@ class StripeConnectWebhookDispatchTest extends TestCase
             'updated' => ['payment_method.updated', 'pm_updated'],
             'automatically updated' => ['payment_method.automatically_updated', 'pm_automatic'],
             'customer deleted' => ['customer.deleted', 'cus_deleted'],
+            'SetupIntent succeeded' => ['setup_intent.succeeded', 'seti_succeeded'],
+            'SetupIntent failed' => ['setup_intent.setup_failed', 'seti_failed'],
+            'mandate updated' => ['mandate.updated', 'mandate_updated'],
         ];
     }
 

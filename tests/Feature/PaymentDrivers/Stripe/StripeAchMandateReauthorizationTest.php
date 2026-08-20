@@ -84,6 +84,63 @@ class StripeAchMandateReauthorizationTest extends TestCase
         $this->assertSame('seti_reauthorize', session()->get($this->mandateSessionKey($token)));
     }
 
+    public function testInactiveLegacyBankSourceRendersTheSameMandateReauthorizationView(): void
+    {
+        $token = $this->achToken('inactive', 'ba_mandate_test');
+        $driver = $this->mockStripeDriver(true, $token->token);
+
+        $driver->shouldReceive('createSetupIntent')
+            ->once()
+            ->with([
+                'customer' => $token->gateway_customer_reference,
+                'payment_method' => $token->token,
+                'payment_method_types' => ['us_bank_account'],
+                'usage' => 'off_session',
+            ])
+            ->andReturn(SetupIntent::constructFrom([
+                'id' => 'seti_reauthorize_ba',
+                'client_secret' => 'seti_reauthorize_ba_secret_test',
+                'status' => 'requires_confirmation',
+            ]));
+
+        $view = (new ACH($driver))->verificationView($token);
+
+        $this->assertSame('portal.ninja2020.gateways.stripe.ach.reauthorize', $view->name());
+        $this->assertSame('seti_reauthorize_ba_secret_test', $view->getData()['client_secret']);
+        $this->assertSame('seti_reauthorize_ba', session()->get($this->mandateSessionKey($token)));
+    }
+
+    public function testPendingMicrodepositVerificationUsesHostedUrlBeforeAttachmentCheck(): void
+    {
+        $token = $this->achToken('unauthorized');
+        $meta = $token->meta;
+        $meta->next_action = 'https://verify.stripe.com/pending';
+        $token->meta = $meta;
+        $token->save();
+
+        $driver = $this->mockStripeDriver(false);
+        $driver->shouldReceive('init')->once()->andReturnSelf();
+        $driver->shouldNotReceive('getStripePaymentMethod');
+        $driver->shouldNotReceive('createSetupIntent');
+
+        $response = (new ACH($driver))->verificationView($token);
+
+        $this->assertSame('https://verify.stripe.com/pending', $response->getTargetUrl());
+        $this->assertSame('unauthorized', $token->fresh()->meta->state);
+    }
+
+    public function testDetachedInactivePaymentMethodCannotEnterMandateReauthorization(): void
+    {
+        $token = $this->achToken();
+        $driver = $this->mockStripeDriver(true, $token->token, null);
+        $driver->shouldNotReceive('createSetupIntent');
+
+        $response = (new ACH($driver))->verificationView($token);
+
+        $this->assertTrue($response->isRedirect(route('client.payment_methods.show', $token->hashed_id)));
+        $this->assertSame('unauthorized', $token->fresh()->meta->state);
+    }
+
     public function testSuccessfulSetupIntentReactivatesThePaymentMethod(): void
     {
         $token = $this->achToken();
@@ -108,6 +165,7 @@ class StripeAchMandateReauthorizationTest extends TestCase
         );
 
         $this->assertSame('authorized', $token->fresh()->meta->state);
+        $this->assertObjectNotHasProperty('mandate_id', $token->fresh()->meta);
         $this->assertTrue($response->isRedirect(route('client.payment_methods.show', $token->hashed_id)));
         $this->assertFalse(session()->has($this->mandateSessionKey($token)));
     }
@@ -200,6 +258,21 @@ class StripeAchMandateReauthorizationTest extends TestCase
             'payment_method' => $token->hashed_id,
             'method' => GatewayType::BANK_TRANSFER,
         ]), false);
+    }
+
+    public function testUnauthorizedPaymentMethodWithoutNextActionLinksToBankAccountReplacement(): void
+    {
+        $token = $this->achToken('unauthorized');
+
+        $response = $this->actingAs($this->contact, 'contact')
+            ->get(route('client.payment_methods.show', $token->hashed_id));
+
+        $response->assertOk();
+        $response->assertSee(ctrans('texts.unable_to_verify_payment_method'));
+        $response->assertSee(route('client.payment_methods.create', [
+            'method' => GatewayType::BANK_TRANSFER,
+        ]), false);
+        $this->assertNotNull($token->fresh());
     }
 
     public function testClientPresentPaymentCreatesMandateSetupIntentForInactiveToken(): void
@@ -395,14 +468,14 @@ class StripeAchMandateReauthorizationTest extends TestCase
         $this->assertSame('authorized', $token->fresh()->meta->state);
     }
 
-    private function achToken(string $state = 'inactive'): ClientGatewayToken
+    private function achToken(string $state = 'inactive', string $paymentMethodId = 'pm_mandate_test'): ClientGatewayToken
     {
         $token = new ClientGatewayToken();
         $token->company_id = $this->company->id;
         $token->client_id = $this->client->id;
         $token->company_gateway_id = $this->company_gateway->id;
         $token->gateway_type_id = GatewayType::BANK_TRANSFER;
-        $token->token = 'pm_mandate_test';
+        $token->token = $paymentMethodId;
         $token->gateway_customer_reference = 'cus_mandate_test';
         $token->meta = (object) [
             'brand' => 'Test Bank',
@@ -415,7 +488,11 @@ class StripeAchMandateReauthorizationTest extends TestCase
     }
 
     /** @return StripePaymentDriver&MockInterface */
-    private function mockStripeDriver(bool $includePaymentMethod = true): StripePaymentDriver
+    private function mockStripeDriver(
+        bool $includePaymentMethod = true,
+        string $paymentMethodId = 'pm_mandate_test',
+        ?string $customerId = 'cus_mandate_test',
+    ): StripePaymentDriver
     {
         $driver = Mockery::mock(
             StripePaymentDriver::class,
@@ -432,10 +509,10 @@ class StripeAchMandateReauthorizationTest extends TestCase
             $driver->shouldReceive('init')->once()->andReturnSelf();
             $driver->shouldReceive('getStripePaymentMethod')
                 ->once()
-                ->with('pm_mandate_test')
+                ->with($paymentMethodId)
                 ->andReturn(PaymentMethod::constructFrom([
-                    'id' => 'pm_mandate_test',
-                    'customer' => 'cus_mandate_test',
+                    'id' => $paymentMethodId,
+                    'customer' => $customerId,
                 ]));
         }
 
@@ -481,4 +558,5 @@ class StripeAchMandateReauthorizationTest extends TestCase
     {
         return "stripe_ach.mandate_setup_intent.{$token->id}";
     }
+
 }

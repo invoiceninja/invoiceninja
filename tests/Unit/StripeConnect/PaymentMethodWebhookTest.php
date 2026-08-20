@@ -8,6 +8,7 @@ use App\Libraries\MultiDB;
 use App\Models\Activity;
 use App\Models\ClientGatewayToken;
 use App\Models\CompanyGateway;
+use App\Models\GatewayType;
 use App\PaymentDrivers\Stripe\PaymentMethodSyncService;
 use App\Repositories\ClientGatewayTokenRepository;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -84,7 +85,7 @@ class PaymentMethodWebhookTest extends TestCase
         $repository->shouldReceive('delete')
             ->once()
             ->with(Mockery::on(
-                fn (ClientGatewayToken $token): bool => $token->is($removed)
+                fn(ClientGatewayToken $token): bool => $token->is($removed)
             ))
             ->passthru();
 
@@ -238,6 +239,89 @@ class PaymentMethodWebhookTest extends TestCase
         );
     }
 
+    public function testAchSetupIntentSuccessAuthorizesTokenAndClearsVerificationUrl(): void
+    {
+        $gateway = $this->makeStripeGateway();
+        $token = $this->makeToken($gateway, 'pm_ach_succeeded', customerId: 'cus_ach');
+        $token->gateway_type_id = GatewayType::BANK_TRANSFER;
+        $token->meta = (object) [
+            'state' => 'unauthorized',
+            'next_action' => 'https://verify.stripe.com/pending',
+        ];
+        $token->save();
+
+        $this->handle($this->event('setup_intent.succeeded', 'seti_ach_succeeded', [
+            'customer' => 'cus_ach',
+            'payment_method' => $token->token,
+            'payment_method_types' => ['us_bank_account'],
+            'status' => 'succeeded',
+        ]));
+
+        $meta = $token->fresh()->meta;
+
+        $this->assertSame('authorized', $meta->state);
+        $this->assertObjectNotHasProperty('next_action', $meta);
+    }
+
+    public function testAchSetupIntentFailureKeepsTokenUnauthorizedAndClearsVerificationUrl(): void
+    {
+        $gateway = $this->makeStripeGateway();
+        $token = $this->makeToken($gateway, 'pm_ach_failed', customerId: 'cus_ach');
+        $token->gateway_type_id = GatewayType::BANK_TRANSFER;
+        $token->meta = (object) [
+            'state' => 'unauthorized',
+            'next_action' => 'https://verify.stripe.com/expired',
+        ];
+        $token->save();
+
+        $this->handle($this->event('setup_intent.setup_failed', 'seti_ach_failed', [
+            'customer' => 'cus_ach',
+            'payment_method' => null,
+            'payment_method_types' => ['us_bank_account'],
+            'status' => 'requires_payment_method',
+            'last_setup_error' => (object) [
+                'payment_method' => (object) ['id' => $token->token],
+            ],
+        ]));
+
+        $meta = $token->fresh()->meta;
+
+        $this->assertSame('unauthorized', $meta->state);
+        $this->assertObjectNotHasProperty('next_action', $meta);
+    }
+
+    public function testInactiveAchMandateMakesConnectedAccountTokenInactive(): void
+    {
+        $gateway = $this->makeStripeGateway();
+        $token = $this->makeToken($gateway, 'pm_ach_inactive', customerId: 'cus_ach');
+        $token->gateway_type_id = GatewayType::BANK_TRANSFER;
+        $token->meta = (object) ['state' => 'authorized'];
+        $token->save();
+
+        $this->handle($this->event('mandate.updated', 'mandate_ach_inactive', [
+            'status' => 'inactive',
+            'payment_method' => $token->token,
+        ]));
+
+        $this->assertSame('inactive', $token->fresh()->meta->state);
+    }
+
+    public function testActiveAchMandateReauthorizesConnectedAccountToken(): void
+    {
+        $gateway = $this->makeStripeGateway();
+        $token = $this->makeToken($gateway, 'pm_ach_reauthorized', customerId: 'cus_ach');
+        $token->gateway_type_id = GatewayType::BANK_TRANSFER;
+        $token->meta = (object) ['state' => 'inactive'];
+        $token->save();
+
+        $this->handle($this->event('mandate.updated', 'mandate_ach_active', [
+            'status' => 'active',
+            'payment_method' => $token->token,
+        ]));
+
+        $this->assertSame('authorized', $token->fresh()->meta->state);
+    }
+
     public function testConfigFallbackBackfillsGatewayAccountId(): void
     {
         $gateway = $this->makeStripeGateway();
@@ -335,7 +419,7 @@ class PaymentMethodWebhookTest extends TestCase
     private function event(string $type, string $objectId, array $object = []): \stdClass
     {
         return (object) [
-            'id' => 'evt_'.str_replace('.', '_', $type),
+            'id' => 'evt_' . str_replace('.', '_', $type),
             'account' => 'acct_connected',
             'type' => $type,
             'data' => (object) [

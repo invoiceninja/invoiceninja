@@ -33,7 +33,7 @@ class QuickbooksEntityStatusChanged implements ShouldBroadcast
     public function broadcastOn()
     {
         return [
-            new PrivateChannel("user-{$this->user->account->key}-{$this->user->id}"),
+            new PrivateChannel("user-{$this->user->account->key}-{$this->user->hashed_id}"),
         ];
     }
 

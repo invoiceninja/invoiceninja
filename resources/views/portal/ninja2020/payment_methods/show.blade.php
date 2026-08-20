@@ -94,7 +94,13 @@
                             </h3>
                             <div class="max-w-xl mt-2 text-sm leading-5 text-gray-500">
                                 <p>
-                                    {{ $payment_method->meta?->state === 'inactive' ? ctrans('texts.ach_authorization_required') : ctrans('texts.ach_verification_notification') }}
+                                    @if ($payment_method->meta?->state === 'inactive')
+                                        {{ ctrans('texts.ach_authorization_required') }}
+                                    @elseif ($payment_method->meta?->state === 'unauthorized' && str_starts_with($payment_method->token, 'pm_') && blank($payment_method->meta->next_action ?? null))
+                                        {{ ctrans('texts.unable_to_verify_payment_method') }}
+                                    @else
+                                        {{ ctrans('texts.ach_verification_notification') }}
+                                    @endif
                                 </p>
                             </div>
                         </div>
@@ -104,9 +110,13 @@
                                 <a href="{{ route('client.payment_methods.verification', ['payment_method' => $payment_method->hashed_id, 'method' => \App\Models\GatewayType::BANK_TRANSFER]) }}" class="button button-primary bg-primary">
                                     {{ ctrans('texts.complete_verification') }}
                                 </a>
-                            @elseif (substr($payment_method->token, 0, 2) == 'pm')
-                                <a href="{{ $payment_method->meta?->next_action }}" class="button button-primary bg-primary">
+                            @elseif (str_starts_with($payment_method->token, 'pm_') && filled($payment_method->meta->next_action ?? null))
+                                <a href="{{ $payment_method->meta->next_action }}" class="button button-primary bg-primary">
                                     {{ ctrans('texts.complete_verification') }}
+                                </a>
+                            @elseif ($payment_method->meta?->state === 'unauthorized' && str_starts_with($payment_method->token, 'pm_'))
+                                <a href="{{ route('client.payment_methods.create', ['method' => \App\Models\GatewayType::BANK_TRANSFER]) }}" class="button button-primary bg-primary">
+                                    {{ ctrans('texts.add_bank_account') }}
                                 </a>
                             @elseif(substr($payment_method->gateway_customer_reference, 0, 3) == 'cus') 
                                 <a href="{{ route('client.payment_methods.verification', ['payment_method' => $payment_method->hashed_id, 'method' => \App\Models\GatewayType::BANK_TRANSFER]) }}" class="button button-primary bg-primary">

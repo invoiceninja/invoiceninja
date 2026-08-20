@@ -40,22 +40,31 @@
     
     @if(count($tokens) > 0)
 
+        @php($hasSelectableToken = collect($tokens)->contains(fn ($token) => ($token->meta->state ?? null) !== 'pending'))
+
         @include('portal.ninja2020.gateways.includes.payment_details')
 
         @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
             @if(count($tokens) > 0)
             <ul class="payment-method-list">
                 @foreach($tokens as $token)
+                    @php($tokenState = $token->meta->state ?? null)
                     <li class="payment-method-item">
-                    <label class="payment-method-label">
-                    <input
+                        <label class="payment-method-label {{ $tokenState === 'pending' ? 'cursor-not-allowed opacity-60' : '' }}">
+                            <input
                                 type="radio"
                                 data-token="{{ $token->hashed_id }}"
                                 data-payment-method="{{ $token->token }}"
-                                data-state="{{ $token->meta->state ?? '' }}"
+                                data-state="{{ $tokenState }}"
                                 name="payment-type"
-                                class="form-radio cursor-pointer toggle-payment-with-token"/>
+                                class="form-radio cursor-pointer disabled:cursor-not-allowed toggle-payment-with-token"
+                                @disabled($tokenState === 'pending') />
                             <span class="ml-1">{{ ctrans('texts.bank_transfer') }} (*{{ $token->meta->last4 }})</span>
+                            @if($tokenState === 'pending')
+                                <span class="ml-2 inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800 ach-token-status">
+                                    {{ ctrans('texts.stripe_ach_verifiation_pending') }}
+                                </span>
+                            @endif
                         </label>
                     </li>
                 @endforeach
@@ -72,7 +81,7 @@
             </div>
         @endif
 
-    @include('portal.ninja2020.gateways.includes.pay_now')
+        @include('portal.ninja2020.gateways.includes.pay_now', ['disabled' => ! $hasSelectableToken])
 
     @else
 
@@ -128,7 +137,12 @@
                 }
             }));
         payNow.addEventListener('click', function (event) {
-            const selectedToken = document.querySelector('input[name="payment-type"]:checked');
+            const selectedToken = document.querySelector('input[name="payment-type"]:checked:not(:disabled)');
+
+            if (!selectedToken) {
+                event.preventDefault();
+                return;
+            }
 
             if (selectedToken?.dataset.state === 'inactive') {
                 event.preventDefault();
@@ -142,10 +156,12 @@
         
     }
 
-    const first = document.querySelector('input[name="payment-type"]');
+    const first = document.querySelector('input[name="payment-type"]:not(:disabled)');
 
     if (first) {
         first.click();
+    } else if (payNow) {
+        payNow.disabled = true;
     }
 
     const newBank = document.getElementById('new-bank');

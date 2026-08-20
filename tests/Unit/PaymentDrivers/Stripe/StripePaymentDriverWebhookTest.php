@@ -107,6 +107,191 @@ class StripePaymentDriverWebhookTest extends TestCase
         ];
     }
 
+    #[DataProvider('achPaymentMethodTokens')]
+    public function testActiveMandateUpdateReauthorizesInactiveAchToken(string $paymentMethodId): void
+    {
+        $gateway = $this->makeStripeGateway();
+        $token = $this->makeAchToken($gateway, $paymentMethodId, (object) [
+            'state' => 'inactive',
+        ]);
+
+        $response = (new StripePaymentDriver($gateway))->processWebhookRequest(
+            $this->signedRequest('mandate.updated', 'mandate_active', [
+                'status' => 'active',
+                'payment_method' => $token->token,
+            ])
+        );
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('authorized', $token->fresh()->meta->state);
+    }
+
+    #[DataProvider('achPaymentMethodTokens')]
+    public function testMandateUpdateCannotChangeTokenBelongingToAnotherGateway(string $paymentMethodId): void
+    {
+        $receivingGateway = $this->makeStripeGateway();
+        $tokenGateway = $this->makeStripeGateway();
+        $token = $this->makeAchToken($tokenGateway, $paymentMethodId, (object) [
+            'state' => 'inactive',
+        ]);
+
+        $response = (new StripePaymentDriver($receivingGateway))->processWebhookRequest(
+            $this->signedRequest('mandate.updated', 'mandate_active', [
+                'status' => 'active',
+                'payment_method' => $token->token,
+            ])
+        );
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('inactive', $token->fresh()->meta->state);
+    }
+
+    public function testMandateUpdateCannotChangeNonAchToken(): void
+    {
+        $gateway = $this->makeStripeGateway();
+        $token = $this->makeAchToken($gateway, 'pm_non_ach_mandate', (object) [
+            'state' => 'inactive',
+        ]);
+        $token->gateway_type_id = GatewayType::CREDIT_CARD;
+        $token->save();
+
+        $response = (new StripePaymentDriver($gateway))->processWebhookRequest(
+            $this->signedRequest('mandate.updated', 'mandate_active', [
+                'status' => 'active',
+                'payment_method' => $token->token,
+            ])
+        );
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('inactive', $token->fresh()->meta->state);
+    }
+
+    public function testActiveMandateDoesNotAuthorizeUnverifiedPaymentMethod(): void
+    {
+        $gateway = $this->makeStripeGateway();
+        $token = $this->makeAchToken($gateway, 'pm_pending_verification', (object) [
+            'state' => 'unauthorized',
+            'next_action' => 'https://verify.stripe.com/test',
+        ]);
+
+        $response = (new StripePaymentDriver($gateway))->processWebhookRequest(
+            $this->signedRequest('mandate.updated', 'mandate_active', [
+                'status' => 'active',
+                'payment_method' => $token->token,
+            ])
+        );
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('unauthorized', $token->fresh()->meta->state);
+        $this->assertSame('https://verify.stripe.com/test', $token->fresh()->meta->next_action);
+        $this->assertObjectNotHasProperty('mandate_id', $token->fresh()->meta);
+    }
+
+    #[DataProvider('achPaymentMethodTokens')]
+    public function testInactiveMandateDoesNotAlterPendingVerification(string $paymentMethodId): void
+    {
+        $gateway = $this->makeStripeGateway();
+        $token = $this->makeAchToken($gateway, $paymentMethodId, (object) [
+            'state' => 'pending',
+            'next_action' => 'https://verify.stripe.com/pending',
+        ]);
+
+        $response = (new StripePaymentDriver($gateway))->processWebhookRequest(
+            $this->signedRequest('mandate.updated', 'mandate_inactive', [
+                'status' => 'inactive',
+                'payment_method' => $token->token,
+            ])
+        );
+
+        $meta = $token->fresh()->meta;
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('pending', $meta->state);
+        $this->assertSame('https://verify.stripe.com/pending', $meta->next_action);
+    }
+
+    #[DataProvider('ignoredMandateStatuses')]
+    public function testUnsupportedMandateStatusDoesNotAlterToken(string $status): void
+    {
+        $gateway = $this->makeStripeGateway();
+        $token = $this->makeAchToken($gateway, 'pm_unsupported_mandate_status', (object) [
+            'state' => 'authorized',
+        ]);
+
+        $response = (new StripePaymentDriver($gateway))->processWebhookRequest(
+            $this->signedRequest('mandate.updated', 'mandate_unsupported', [
+                'status' => $status,
+                'payment_method' => $token->token,
+            ])
+        );
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('authorized', $token->fresh()->meta->state);
+    }
+
+    public static function ignoredMandateStatuses(): array
+    {
+        return [
+            'pending' => ['pending'],
+            'semantic alias is not accepted' => ['revoked'],
+            'status matching is case-sensitive' => ['ACTIVE'],
+            'empty status' => [''],
+        ];
+    }
+
+    public function testSetupIntentSuccessIsTheAuthoritativeVerificationTransition(): void
+    {
+        $gateway = $this->makeStripeGateway();
+        $token = $this->makeAchToken($gateway, 'pm_setup_succeeded', (object) [
+            'state' => 'unauthorized',
+            'next_action' => 'https://verify.stripe.com/test',
+        ]);
+
+        $response = (new StripePaymentDriver($gateway))->processWebhookRequest(
+            $this->signedRequest('setup_intent.succeeded', 'seti_setup_succeeded', [
+                'customer' => $token->gateway_customer_reference,
+                'payment_method' => $token->token,
+                'payment_method_types' => ['us_bank_account'],
+                'status' => 'succeeded',
+                'mandate' => 'mandate_setup_succeeded',
+            ])
+        );
+
+        $meta = $token->fresh()->meta;
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('authorized', $meta->state);
+        $this->assertObjectNotHasProperty('mandate_id', $meta);
+        $this->assertObjectNotHasProperty('next_action', $meta);
+    }
+
+    public function testSetupIntentFailureUsesLastErrorPaymentMethodAndClearsExpiredUrl(): void
+    {
+        $gateway = $this->makeStripeGateway();
+        $token = $this->makeAchToken($gateway, 'pm_setup_failed', (object) [
+            'state' => 'unauthorized',
+            'next_action' => 'https://verify.stripe.com/expired',
+        ]);
+
+        $response = (new StripePaymentDriver($gateway))->processWebhookRequest(
+            $this->signedRequest('setup_intent.setup_failed', 'seti_setup_failed', [
+                'customer' => $token->gateway_customer_reference,
+                'payment_method' => null,
+                'payment_method_types' => ['us_bank_account'],
+                'status' => 'requires_payment_method',
+                'last_setup_error' => [
+                    'payment_method' => ['id' => $token->token],
+                ],
+            ])
+        );
+
+        $meta = $token->fresh()->meta;
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('unauthorized', $meta->state);
+        $this->assertObjectNotHasProperty('next_action', $meta);
+    }
+
     private function makeStripeGateway(): CompanyGateway
     {
         $gateway = CompanyGatewayFactory::create($this->company->id, $this->user->id);
@@ -119,6 +304,21 @@ class StripePaymentDriverWebhookTest extends TestCase
         $gateway->save();
 
         return $gateway;
+    }
+
+    private function makeAchToken(CompanyGateway $gateway, string $paymentMethodId, object $meta): ClientGatewayToken
+    {
+        $token = new ClientGatewayToken();
+        $token->company_id = $this->company->id;
+        $token->client_id = $this->client->id;
+        $token->company_gateway_id = $gateway->id;
+        $token->gateway_type_id = GatewayType::BANK_TRANSFER;
+        $token->token = $paymentMethodId;
+        $token->gateway_customer_reference = 'cus_mandate_webhook';
+        $token->meta = $meta;
+        $token->save();
+
+        return $token;
     }
 
     private function signedRequest(string $eventType, string $objectId, array $object = []): PaymentWebhookRequest

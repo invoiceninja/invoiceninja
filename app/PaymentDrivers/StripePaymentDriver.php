@@ -850,6 +850,11 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
             $ach->handleSetupIntentSucceeded($request->all());
         }
 
+        if ($request->type === 'setup_intent.setup_failed') {
+            $ach = new ACH($this);
+            $ach->handleSetupIntentFailed($request->all());
+        }
+
         if ($request->type === 'payment_intent.processing') {
             PaymentIntentProcessingWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(5));
             return response()->json([], 200);
@@ -924,40 +929,10 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
             // Will notify customer on updated information
             return response()->json([], 200);
         } elseif ($request->type === "mandate.updated") {
-            if ($request->data['object']['status'] == "active") {
-                // Check if payment method existsn
-                $payment_method = (string) $request->data['object']['payment_method'];
+            $ach = new ACH($this);
+            $ach->handleMandateUpdated($request->all());
 
-                $clientgateway = ClientGatewayToken::query()
-                    ->where('token', $payment_method)
-                    ->first();
-
-                if ($clientgateway) {
-                    $meta = $clientgateway->meta;
-                    $meta->state = 'authorized';
-                    $clientgateway->meta = $meta;
-                    $clientgateway->save();
-                }
-
-                return response()->json([], 200);
-            } elseif ($request->data['object']['status'] == "inactive" && $request->data['object']['payment_method']) {
-                $clientgateway = ClientGatewayToken::query()
-                    ->where('token', $request->data['object']['payment_method'])
-                    ->first();
-
-                if ($clientgateway) { //ba_ tokens should not be deleted
-
-                    $meta = $clientgateway->meta;
-                    $meta->state = 'inactive';
-                    $clientgateway->meta = $meta;
-                    $clientgateway->save();
-
-                }
-
-                return response()->json([], 200);
-            } elseif ($request->data['object']['status'] == "pending") {
-                return response()->json([], 200);
-            }
+            return response()->json([], 200);
         }
 
         return response()->json([], 200);
