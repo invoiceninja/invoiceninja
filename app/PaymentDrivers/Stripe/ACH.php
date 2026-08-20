@@ -334,6 +334,11 @@ class ACH implements LivewireMethodInterface
         }
 
         $meta->state = $next_state;
+
+        if ($next_state === 'authorized') {
+            unset($meta->next_action);
+        }
+
         $token->meta = $meta;
         $token->save();
     }
@@ -468,6 +473,7 @@ class ACH implements LivewireMethodInterface
 
         $meta = $token->meta;
         $meta->state = 'authorized';
+        unset($meta->next_action);
         $token->meta = $meta;
         $token->save();
 
@@ -741,6 +747,7 @@ class ACH implements LivewireMethodInterface
 
             $meta = $source->meta;
             $meta->state = 'authorized';
+            unset($meta->next_action);
             $source->meta = $meta;
             $source->save();
 

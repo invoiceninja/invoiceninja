@@ -746,7 +746,7 @@ class StripeAchStateTransitionMatrixTest extends TestCase
                         $initialState,
                         $mandateStatus,
                         $expectedState,
-                        false,
+                        $mandateStatus === 'active' && $initialState === 'inactive',
                     ];
                 }
             }

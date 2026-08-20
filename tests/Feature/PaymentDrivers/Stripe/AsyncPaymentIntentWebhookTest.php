@@ -88,6 +88,7 @@ class AsyncPaymentIntentWebhookTest extends TestCase
 
         $this->assertContains('payment_intent.processing', $events);
         $this->assertContains('payment_intent.succeeded', $events);
+        $this->assertContains('customer.source.updated', $events);
         $this->assertContains('setup_intent.succeeded', $events);
         $this->assertContains('setup_intent.setup_failed', $events);
     }

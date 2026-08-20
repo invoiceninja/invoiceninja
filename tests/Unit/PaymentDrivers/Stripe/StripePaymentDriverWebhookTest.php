@@ -113,6 +113,7 @@ class StripePaymentDriverWebhookTest extends TestCase
         $gateway = $this->makeStripeGateway();
         $token = $this->makeAchToken($gateway, $paymentMethodId, (object) [
             'state' => 'inactive',
+            'next_action' => 'https://verify.stripe.com/stale',
         ]);
 
         $response = (new StripePaymentDriver($gateway))->processWebhookRequest(
@@ -123,7 +124,9 @@ class StripePaymentDriverWebhookTest extends TestCase
         );
 
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame('authorized', $token->fresh()->meta->state);
+        $meta = $token->fresh()->meta;
+        $this->assertSame('authorized', $meta->state);
+        $this->assertObjectNotHasProperty('next_action', $meta);
     }
 
     #[DataProvider('achPaymentMethodTokens')]

@@ -418,6 +418,10 @@ class StripeAchMandateReauthorizationTest extends TestCase
     public function testClientPresentPaymentUsesMandateFromCompletedSetupIntent(): void
     {
         $token = $this->achToken();
+        $meta = $token->meta;
+        $meta->next_action = 'https://verify.stripe.com/stale';
+        $token->meta = $meta;
+        $token->save();
         $payment_hash = new PaymentHash();
         $payment_hash->hash = 'completed_mandate_payment_hash';
         $payment_hash->fee_invoice_id = $this->invoice->id;
@@ -465,7 +469,9 @@ class StripeAchMandateReauthorizationTest extends TestCase
         $response = (new ACH($driver))->paymentResponse($request);
 
         $this->assertFalse($response);
-        $this->assertSame('authorized', $token->fresh()->meta->state);
+        $meta = $token->fresh()->meta;
+        $this->assertSame('authorized', $meta->state);
+        $this->assertObjectNotHasProperty('next_action', $meta);
     }
 
     private function achToken(string $state = 'inactive', string $paymentMethodId = 'pm_mandate_test'): ClientGatewayToken

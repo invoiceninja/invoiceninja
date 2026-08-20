@@ -652,9 +652,9 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
 
     public function syncAchPaymentMethodBillingAddress(ClientGatewayToken $token): void
     {
-        if (! str_starts_with($token->token, 'pm_')) {
-            return;
-        }
+        // if (! str_starts_with($token->token, 'pm_')) {
+        //     return;
+        // }
 
         if (! $this->hasCompleteBillingAddress()) {
             throw new PaymentFailed('A complete billing address is required to use this bank account.', 400);

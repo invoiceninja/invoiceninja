@@ -9,11 +9,13 @@ use App\Models\Activity;
 use App\Models\ClientGatewayToken;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
+use App\Models\PaymentHash;
 use App\PaymentDrivers\Stripe\PaymentMethodSyncService;
 use App\Repositories\ClientGatewayTokenRepository;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Mockery;
 use Modules\Admin\Jobs\Stripe\PaymentMethodWebhook;
+use Modules\Admin\Jobs\Stripe\PaymentIntentWebhook;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -311,7 +313,10 @@ class PaymentMethodWebhookTest extends TestCase
         $gateway = $this->makeStripeGateway();
         $token = $this->makeToken($gateway, 'pm_ach_reauthorized', customerId: 'cus_ach');
         $token->gateway_type_id = GatewayType::BANK_TRANSFER;
-        $token->meta = (object) ['state' => 'inactive'];
+        $token->meta = (object) [
+            'state' => 'inactive',
+            'next_action' => 'https://verify.stripe.com/stale',
+        ];
         $token->save();
 
         $this->handle($this->event('mandate.updated', 'mandate_ach_active', [
@@ -319,7 +324,67 @@ class PaymentMethodWebhookTest extends TestCase
             'payment_method' => $token->token,
         ]));
 
-        $this->assertSame('authorized', $token->fresh()->meta->state);
+        $meta = $token->fresh()->meta;
+
+        $this->assertSame('authorized', $meta->state);
+        $this->assertObjectNotHasProperty('next_action', $meta);
+    }
+
+    public function testVerifiedLegacyAchSourceMakesConnectedAccountTokenInactive(): void
+    {
+        $gateway = $this->makeStripeGateway();
+        $token = $this->makeToken($gateway, 'ba_ach_verified', customerId: 'cus_ach');
+        $token->gateway_type_id = GatewayType::BANK_TRANSFER;
+        $token->meta = (object) [
+            'state' => 'pending',
+            'next_action' => 'https://verify.stripe.com/pending',
+        ];
+        $token->save();
+
+        $this->handle($this->event('customer.source.updated', $token->token, [
+            'object' => 'bank_account',
+            'customer' => 'cus_ach',
+            'status' => 'verified',
+        ]));
+
+        $meta = $token->fresh()->meta;
+
+        $this->assertSame('inactive', $meta->state);
+        $this->assertSame('https://verify.stripe.com/pending', $meta->next_action);
+    }
+
+    public function testConnectedPaymentIntentProcessingAuthorizesAchTokenAndClearsVerificationUrl(): void
+    {
+        $gateway = $this->makeStripeGateway();
+        $token = $this->makeToken($gateway, 'pm_ach_processing', customerId: 'cus_ach');
+        $token->gateway_type_id = GatewayType::BANK_TRANSFER;
+        $token->meta = (object) [
+            'state' => 'inactive',
+            'next_action' => 'https://verify.stripe.com/stale',
+        ];
+        $token->save();
+
+        $paymentHash = new PaymentHash();
+        $paymentHash->hash = 'connect_ach_processing_hash';
+        $paymentHash->fee_invoice_id = $this->invoice->id;
+        $paymentHash->payment_id = $this->payment->id;
+        $paymentHash->fee_total = 0;
+        $paymentHash->data = [];
+        $paymentHash->save();
+
+        (new PaymentIntentWebhook($this->event('payment_intent.processing', 'pi_ach_processing', [
+            'object' => 'payment_intent',
+            'status' => 'processing',
+            'latest_charge' => 'ch_ach_processing',
+            'payment_method' => $token->token,
+            'customer' => 'cus_ach',
+            'metadata' => (object) ['payment_hash' => $paymentHash->hash],
+        ])))->handle();
+
+        $meta = $token->fresh()->meta;
+
+        $this->assertSame('authorized', $meta->state);
+        $this->assertObjectNotHasProperty('next_action', $meta);
     }
 
     public function testConfigFallbackBackfillsGatewayAccountId(): void
