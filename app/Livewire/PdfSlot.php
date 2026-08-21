@@ -12,6 +12,7 @@
 
 namespace App\Livewire;
 
+use App\DataMapper\InvoiceItem;
 use App\Jobs\EDocument\CreateEDocument;
 use App\Libraries\MultiDB;
 use App\Models\CreditInvitation;
@@ -53,6 +54,8 @@ class PdfSlot extends Component
     public $show_quantity = true;
 
     public $show_line_total = true;
+
+    public $show_tags = false;
 
     public $route_entity = 'client';
 
@@ -142,11 +145,13 @@ class PdfSlot extends Component
         $this->show_cost = in_array('$product.unit_cost', $this->settings->pdf_variables->product_columns);
         $this->show_line_total = in_array('$product.line_total', $this->settings->pdf_variables->product_columns);
         $this->show_quantity = in_array('$product.quantity', $this->settings->pdf_variables->product_columns);
+        $this->show_tags = in_array('$product.tags', $this->settings->pdf_variables->product_columns);
 
         if ($this->entity_type == 'quote' && !$this->settings->sync_invoice_quote_columns) {
             $this->show_cost = in_array('$product.unit_cost', $this->settings->pdf_variables->product_quote_columns);
             $this->show_quantity = in_array('$product.quantity', $this->settings->pdf_variables->product_quote_columns);
             $this->show_line_total = in_array('$product.line_total', $this->settings->pdf_variables->product_quote_columns);
+            $this->show_tags = in_array('$product.tags', $this->settings->pdf_variables->product_quote_columns);
         }
 
         $this->html_variables = $this->entity_type == 'purchase_order'
@@ -287,6 +292,7 @@ class PdfSlot extends Component
                 'quantity' => $item->quantity,
                 'cost' => Number::formatMoney($item->cost, $this->entity()->client ?: $this->entity()->vendor),
                 'notes' => $this->invitation()->company->markdown_enabled ? Markdown::parse($notes) : $notes,
+                'tags' => InvoiceItem::tagNames($item->tags ?? ''),
                 'line_total' => Number::formatMoney($item->line_total, $this->entity()->client ?: $this->entity()->vendor),
             ];
         });

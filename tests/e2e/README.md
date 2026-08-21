@@ -36,6 +36,34 @@ Run the suite with:
 npm run test:e2e
 ```
 
+PayPal REST tests scaffold their own company gateway from `PAYPAL_REST_KEYS`
+(API setup in `beforeEach`: create or update gateway, verify auth, archive all
+other active gateways, restore in `afterEach`).
+
+Per-method tests:
+
+```sh
+npm run test:e2e -- tests/e2e/client-portal-paypal-payments.spec.ts
+```
+
+Shared gateway smoke tests:
+
+```sh
+npm run test:e2e -- tests/e2e/client-portal-payments.spec.ts -g "PayPal REST"
+```
+
+**VS Code:** use the Playwright extension with the repo's `playwright.config.ts`
+(see `.vscode/settings.json`). `.env` is loaded from `fixtures.ts` and
+`playwright.config.ts`. Escape double quotes inside JSON values (e.g.
+`"buyerPassword":"Y\"!^0!aR"`) or use flat vars:
+`PAYPAL_REST_CLIENT_ID`, `PAYPAL_REST_SECRET`, `PAYPAL_SANDBOX_BUYER_EMAIL`,
+`PAYPAL_SANDBOX_BUYER_PASSWORD`.
+
+Requires `PAYPAL_REST_KEYS` in `.env` — JSON with `clientId`, `secret`, and
+`testMode`. Optional `buyerEmail` and `buyerPassword` enable sandbox payment
+tests. The PayPal spec defaults to **headed** locally; set
+`PLAYWRIGHT_HEADLESS=1` to force headless.
+
 Defaults matter for the `about:blank` / `setting up "context"` failures:
 
 - Workers default to **1** (`PLAYWRIGHT_WORKERS` to raise; capped by account lanes)
@@ -67,6 +95,7 @@ Guest invitation tests must close their extra contexts in `finally` (use
 | `client-portal-invoices.spec.ts` | List, filters, detail, downloads, bulk actions, Pay Now (default/smooth), bulk pay, terms/signature gates (default dropdown + bulk + smooth Flow2), password-protected invitations |
 | `client-portal-pdf-previews.spec.ts` | Real PDF preview resolution for invoices, quotes, credits, and recurring invoices |
 | `client-portal-payments.spec.ts` | Gateway checkout matrix |
+| `client-portal-paypal-payments.spec.ts` | PayPal REST per-method: Pay Now, checkout UI, sandbox payment |
 | `client-portal-entities.spec.ts` | Dashboard, payments, credits, projects, statement, pre-payments, payment methods |
 | `client-portal-quotes.spec.ts` | Approve/reject, signature, filters, bulk actions |
 | `client-portal-recurring.spec.ts` | Auto-bill, cancellation, attachments |
@@ -85,6 +114,9 @@ Guest invitation tests must close their extra contexts in `finally` (use
 | Condition | Specs affected |
 | --- | --- |
 | Missing `STRIPE_KEYS` / other gateway env + company gateway | Full gateway checkout, bulk Pay Now completion, Stripe payment-method add |
+| Missing `PAYPAL_REST_KEYS` | PayPal REST Playwright tests skip |
+| Missing `buyerEmail` / `buyerPassword` in `PAYPAL_REST_KEYS` | PayPal wallet sandbox payment tests skip; checkout UI tests still run |
+| PayPal Venmo / Pay Later unavailable in sandbox region | Those method checkout tests skip when SDK buttons do not render |
 | Stale Authorize.Net Accept.js key | Authorize.Net e2e skips when the public client key meta is empty |
 | PayPal Express-only company gateway | PayPal tests skip — Express driver was removed; seed PayPal REST (`80af24a6…065`) to cover PayPal |
 | Remote app missing PaymentMethod multi-gateway fix | Authorize/Checkout Pay Now options skip until `PaymentMethod::getMethods()` fix is deployed |

@@ -223,23 +223,118 @@ class PayPalBasePaymentDriver extends BaseDriver
         return '';
     }
 
-    public function handleDuplicateInvoiceId(string $orderID)
+    protected function formatPayPalAmount(float|string $amount): string
     {
+        $precision = $this->client->currency()->precision;
 
+        return number_format((float) $amount, $precision, '.', '');
+    }
+
+    /**
+     * Build a PayPal-unique invoice_id for this checkout attempt.
+     */
+    protected function getPayPalInvoiceId(Invoice $invoice, ?string $suffix = null): string
+    {
+        $hash_prefix = substr($this->payment_hash->hash, 0, 8);
+        $invoice_id = $invoice->number . '-' . $hash_prefix;
+
+        if ($suffix) {
+            $invoice_id .= '-' . $suffix;
+        }
+
+        return $invoice_id;
+    }
+
+    protected function isDuplicateInvoiceError(\Illuminate\Http\Client\Response|array|null $response): bool
+    {
+        if ($response === null) {
+            return false;
+        }
+
+        $body = $response instanceof \Illuminate\Http\Client\Response ? ($response->json() ?? []) : $response;
+
+        if (! is_array($body)) {
+            return false;
+        }
+
+        foreach ($body['details'] ?? [] as $detail) {
+            if (($detail['issue'] ?? '') === 'DUPLICATE_INVOICE_ID') {
+                return true;
+            }
+        }
+
+        return stripos(json_encode($body), 'DUPLICATE_INVOICE_ID') !== false;
+    }
+
+    protected function extractPayPalErrorMessage(\Illuminate\Http\Client\Response|array $response): string
+    {
+        $body = $response instanceof \Illuminate\Http\Client\Response ? ($response->json() ?? []) : $response;
+
+        if (! is_array($body)) {
+            return 'Payment failed. Please try again.';
+        }
+
+        return $body['details'][0]['description']
+            ?? $body['message']
+            ?? $body['error_description']
+            ?? 'Payment failed. Please try again.';
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function responseToArray(mixed $response): array
+    {
+        if ($response instanceof \Illuminate\Http\Client\Response) {
+            return $response->json() ?? [];
+        }
+
+        if ($response instanceof \Illuminate\Http\JsonResponse) {
+            return $response->getData(true);
+        }
+
+        return is_array($response) ? $response : [];
+    }
+
+    protected function beforeCheckout(): void
+    {
+    }
+
+    protected function resolveSdkClientId(): string
+    {
+        return $this->company_gateway->getConfigField('clientId');
+    }
+
+    protected function getCheckoutIdentifier(): string
+    {
+        return 's:INN_ACDC_CHCK';
+    }
+
+    /**
+     * @param  array<string, mixed>  $unit
+     */
+    protected function enrichPurchaseUnit(array &$unit): void
+    {
+    }
+
+    public function handleDuplicateInvoiceId(string $orderID, int $attempt = 1): \Illuminate\Http\Client\Response
+    {
         $_invoice = collect($this->payment_hash->data->invoices)->first();
         $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
-        $new_invoice_number = $invoice->number . "_" . Str::random(5);
+        $new_invoice_number = $this->getPayPalInvoiceId($invoice, Str::random(5));
 
-        $update_data
-                = [[
-                    "op" => "replace",
-                    "path" => "/purchase_units/@reference_id=='default'/invoice_id",
-                    "value" => $new_invoice_number,
-                ]];
+        $update_data = [[
+            "op" => "replace",
+            "path" => "/purchase_units/@reference_id=='default'/invoice_id",
+            "value" => $new_invoice_number,
+        ]];
 
-        $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}", 'patch', $update_data);
-
+        $this->gatewayRequest("/v2/checkout/orders/{$orderID}", 'patch', $update_data);
         $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}/capture", 'post', ['body' => '']);
+
+        if ($r->status() == 422 && $this->isDuplicateInvoiceError($r) && $attempt < 3) {
+            return $this->handleDuplicateInvoiceId($orderID, $attempt + 1);
+        }
 
         return $r;
     }
@@ -421,7 +516,7 @@ class PayPalBasePaymentDriver extends BaseDriver
             ['response' => $r->body()],
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_FAILURE,
-            SystemLog::TYPE_PAYPAL,
+            static::SYSTEM_LOG_TYPE,
             $this->client,
             $this->client->company ?? $this->company_gateway->company,
         );
@@ -440,7 +535,7 @@ class PayPalBasePaymentDriver extends BaseDriver
             ['response' => $response],
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_FAILURE,
-            SystemLog::TYPE_PAYPAL,
+            static::SYSTEM_LOG_TYPE,
             $this->client,
             $this->client->company ?? $this->company_gateway->company,
         );
@@ -542,7 +637,8 @@ class PayPalBasePaymentDriver extends BaseDriver
             $payment = $this->createPayment($data, $payment_status);
 
             if ($request->has('store_card') && $request->input('store_card') === true) {
-                $payment_source = $response->json()['payment_source'] ?? false;
+                $response_array = $this->responseToArray($response);
+                $payment_source = $response_array['payment_source'] ?? false;
 
                 if (isset($payment_source['card']) && ($payment_source['card']['attributes']['vault']['status'] ?? false) && $payment_source['card']['attributes']['vault']['status'] == 'VAULTED') {
 
@@ -573,10 +669,10 @@ class PayPalBasePaymentDriver extends BaseDriver
             }
 
             SystemLogger::dispatch(
-                ['response' => $response->json(), 'data' => $data],
+                ['response' => $this->responseToArray($response), 'data' => $data],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_SUCCESS,
-                SystemLog::TYPE_PAYPAL,
+                static::SYSTEM_LOG_TYPE,
                 $this->client,
                 $this->client->company,
             );
@@ -584,12 +680,318 @@ class PayPalBasePaymentDriver extends BaseDriver
             return response()->json(['redirect' => route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)], false)]);
         }
 
-        SystemLogger::dispatch($response, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_PAYPAL, $this->client, $this->client->company);
+        SystemLogger::dispatch($response, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, static::SYSTEM_LOG_TYPE, $this->client, $this->client->company);
 
-        $error = $response['purchase_units'][0]['payments']['captures'][0]['status_details'][0] ?? $response['purchase_units'][0]['payments']['captures'][0]['status'];
+        $response_array = $this->responseToArray($response);
+        $error = $response_array['purchase_units'][0]['payments']['captures'][0]['status_details'][0]
+            ?? $response_array['purchase_units'][0]['payments']['captures'][0]['status']
+            ?? $this->extractPayPalErrorMessage($response_array);
 
         return response()->json(['message' => $error], 400);
 
+    }
+
+    public function getOrder(string $order_id): array
+    {
+        $this->init();
+
+        $r = $this->gatewayRequest("/v2/checkout/orders/{$order_id}", 'get', ['body' => '']);
+
+        return $r->json();
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function createOrder(array $data): string
+    {
+        $_invoice = collect($this->payment_hash->data->invoices)->first();
+        $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
+
+        $description = collect($invoice->line_items)->map(function ($item) {
+            return $item->notes;
+        })->implode("\n");
+
+        $amount = $this->formatPayPalAmount($data['amount_with_fee']);
+
+        $purchase_unit = [
+            "custom_id" => $this->payment_hash->hash,
+            "description" => ctrans('texts.invoice_number') . '# ' . $invoice->number,
+            "invoice_id" => $this->getPayPalInvoiceId($invoice),
+            "amount" => [
+                "value" => $amount,
+                "currency_code" => $this->client->currency()->code,
+                "breakdown" => [
+                    "item_total" => [
+                        "currency_code" => $this->client->currency()->code,
+                        "value" => $amount,
+                    ],
+                ],
+            ],
+            "items" => [
+                [
+                    "name" => ctrans('texts.invoice_number') . '# ' . $invoice->number,
+                    "description" => mb_substr($description, 0, 127),
+                    "quantity" => "1",
+                    "unit_amount" => [
+                        "currency_code" => $this->client->currency()->code,
+                        "value" => $amount,
+                    ],
+                ],
+            ],
+        ];
+
+        $this->enrichPurchaseUnit($purchase_unit);
+
+        $order = [
+            "intent" => "CAPTURE",
+            "payment_source" => $this->getPaymentSource(),
+            "purchase_units" => [$purchase_unit],
+        ];
+
+        if ($shipping = $this->getShippingAddress()) {
+            $order['purchase_units'][0]["shipping"] = $shipping;
+        }
+
+        if (isset($data['payment_source'])) {
+            $order['payment_source'] = $data['payment_source'];
+        }
+
+        if (isset($data['payer'])) {
+            $order['payer'] = $data['payer'];
+        }
+
+        $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
+        $response = $r->json();
+
+        if ($r->status() == 422 && $this->isDuplicateInvoiceError($r)) {
+            $order['purchase_units'][0]['invoice_id'] = $this->getPayPalInvoiceId($invoice, Str::random(5));
+            $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
+            $response = $r->json();
+        }
+
+        if (! isset($response['id'])) {
+            $this->handleProcessingFailure($response ?? ['name' => '']);
+        }
+
+        $this->payment_hash->withData("orderID", $response['id']);
+
+        return $response['id'];
+    }
+
+    /**
+     * @param  mixed  $request
+     */
+    public function processPaymentResponse($request)
+    {
+        $this->init();
+
+        $request['gateway_response'] = str_replace("Error: ", "", $request['gateway_response']);
+        $response = json_decode($request['gateway_response'], true);
+
+        if ($request->has('token') && strlen($request->input('token', '')) > 2) {
+            return $this->processTokenPayment($request, $response);
+        }
+
+        $orderID = $response['orderID'] ?? $this->payment_hash->data->orderID;
+
+        if ($this->company_gateway->require_shipping_address) {
+            $shipping_data = [[
+                "op" => "replace",
+                "path" => "/purchase_units/@reference_id=='default'/shipping/address",
+                "value" => [
+                    "address_line_1" => strlen($this->client->shipping_address1 ?? '') > 1 ? $this->client->shipping_address1 : $this->client->address1,
+                    "address_line_2" => $this->client->shipping_address2,
+                    "admin_area_2" => strlen($this->client->shipping_city ?? '') > 1 ? $this->client->shipping_city : $this->client->city,
+                    "admin_area_1" => strlen($this->client->shipping_state ?? '') > 1 ? $this->client->shipping_state : $this->client->state,
+                    "postal_code" => strlen($this->client->shipping_postal_code ?? '') > 1 ? $this->client->shipping_postal_code : $this->client->postal_code,
+                    "country_code" => $this->client->present()->shipping_country_code(),
+                ],
+            ]];
+
+            $this->gatewayRequest("/v2/checkout/orders/{$orderID}", 'patch', $shipping_data);
+        }
+
+        $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}/capture", 'post', ['body' => '']);
+
+        if ($r->status() == 422 && $this->isDuplicateInvoiceError($r)) {
+            $r = $this->handleDuplicateInvoiceId($orderID);
+        }
+
+        $response_array = $this->responseToArray($r);
+
+        if (isset($response_array['status']) && $response_array['status'] == 'COMPLETED' && isset($response_array['purchase_units'])) {
+            return $this->createNinjaPayment($request, $response_array);
+        }
+
+        SystemLogger::dispatch(
+            ['response' => $response_array],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            static::SYSTEM_LOG_TYPE,
+            $this->client,
+            $this->client->company,
+        );
+
+        return response()->json(['message' => $this->extractPayPalErrorMessage($response_array)], 400);
+    }
+
+    /**
+     * @param  mixed  $request
+     * @param  array<string, mixed>  $response
+     */
+    public function processTokenPayment($request, array $response)
+    {
+        $cgt = ClientGatewayToken::where('client_id', $this->client->id)
+                                 ->where('token', $request['token'])
+                                 ->firstOrFail();
+
+        $orderId = $response['orderID'];
+
+        $this->gatewayRequest("/v2/checkout/orders/{$orderId}", 'delete', ['body' => '']);
+
+        $data["payer"] = [
+            "name" => [
+                "given_name" => $this->client->present()->first_name(),
+                "surname" => $this->client->present()->last_name(),
+            ],
+            "email_address" => $this->client->present()->email(),
+        ];
+
+        $data['amount_with_fee'] = $this->payment_hash->data->amount_with_fee;
+        $data["payment_source"] = [
+            "card" => [
+                "vault_id" => $cgt->token,
+                "stored_credential" => [
+                    "payment_initiator" => "MERCHANT",
+                    "payment_type" => "UNSCHEDULED",
+                    "usage" => "SUBSEQUENT",
+                ],
+            ],
+        ];
+
+        $orderId = $this->createOrder($data);
+
+        $r = $this->gatewayRequest("/v2/checkout/orders/{$orderId}", 'get', ['body' => '']);
+
+        if ($r->status() == 422 && $this->isDuplicateInvoiceError($r)) {
+            $r = $this->handleDuplicateInvoiceId($orderId);
+        }
+
+        $response_array = $r->json();
+
+        if (isset($response_array['purchase_units'][0]['payments']['captures'][0]['status']) && $response_array['purchase_units'][0]['payments']['captures'][0]['status'] == 'COMPLETED') {
+            $data = [
+                'payment_type' => $this->getPaymentMethod($request->gateway_type_id),
+                'amount' => $response_array['purchase_units'][0]['payments']['captures'][0]['amount']['value'],
+                'transaction_reference' => $response_array['purchase_units'][0]['payments']['captures'][0]['id'],
+                'gateway_type_id' => $this->gateway_type_id,
+            ];
+
+            $payment = $this->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
+
+            SystemLogger::dispatch(
+                ['response' => $response_array, 'data' => $data],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_SUCCESS,
+                static::SYSTEM_LOG_TYPE,
+                $this->client,
+                $this->client->company,
+            );
+
+            return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
+        }
+
+        return response()->json(['message' => $this->extractPayPalErrorMessage($response_array)], 400);
+    }
+
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
+    {
+        $this->payment_hash = $payment_hash;
+
+        $data = [
+            "payer" => [
+                "name" => [
+                    "given_name" => $this->client->present()->first_name(),
+                    "surname" => $this->client->present()->last_name(),
+                ],
+                "email_address" => $this->client->present()->email(),
+            ],
+            'amount_with_fee' => $this->payment_hash->data->amount_with_fee,
+            "payment_source" => [
+                "card" => [
+                    "vault_id" => $cgt->token,
+                    "stored_credential" => [
+                        "payment_initiator" => "MERCHANT",
+                        "payment_type" => "UNSCHEDULED",
+                        "usage" => "SUBSEQUENT",
+                    ],
+                ],
+            ],
+        ];
+
+        $orderId = $this->createOrder($data);
+
+        $r = $this->gatewayRequest("/v2/checkout/orders/{$orderId}", 'get', ['body' => '']);
+
+        if ($r->status() == 422 && $this->isDuplicateInvoiceError($r)) {
+            $r = $this->handleDuplicateInvoiceId($orderId);
+        }
+
+        $response_array = $r->json();
+
+        if (isset($response_array['purchase_units'][0]['payments']['captures'][0]['status']) && $response_array['purchase_units'][0]['payments']['captures'][0]['status'] == 'COMPLETED') {
+            $data = [
+                'payment_type' => $this->getPaymentMethod((string) $cgt->gateway_type_id),
+                'amount' => $response_array['purchase_units'][0]['payments']['captures'][0]['amount']['value'],
+                'transaction_reference' => $response_array['purchase_units'][0]['payments']['captures'][0]['id'],
+                'gateway_type_id' => $this->gateway_type_id,
+            ];
+
+            $payment = $this->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
+
+            SystemLogger::dispatch(
+                ['response' => $response_array, 'data' => $data],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_SUCCESS,
+                static::SYSTEM_LOG_TYPE,
+                $this->client,
+                $this->client->company,
+            );
+
+            return $payment;
+        }
+
+        $this->processInternallyFailedPayment($this, new \Exception('Auto billing failed.', 400));
+
+        SystemLogger::dispatch($response_array, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, static::SYSTEM_LOG_TYPE, $this->client, $this->client->company);
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    public function processPaymentViewData(array $data): array
+    {
+        $this->init();
+        $this->beforeCheckout();
+
+        $data['gateway'] = $this;
+        $this->payment_hash->data = array_merge((array) $this->payment_hash->data, ['amount' => $data['total']['amount_with_fee']]);
+        $this->payment_hash->save();
+
+        $data['client_id'] = $this->resolveSdkClientId();
+        $data['token'] = $this->getClientToken();
+        $data['order_id'] = $this->createOrder($data);
+        $data['funding_source'] = $this->paypal_payment_method;
+        $data['gateway_type_id'] = $this->gateway_type_id;
+        $data['currency'] = $this->client->currency()->code;
+        $data['guid'] = $this->risk_guid;
+        $data['identifier'] = $this->getCheckoutIdentifier();
+        $data['pp_client_reference'] = $this->getClientHash();
+        $data['invoice_hash'] = $this->payment_hash->fee_invoice->hashed_id;
+
+        return $data;
     }
 
 }

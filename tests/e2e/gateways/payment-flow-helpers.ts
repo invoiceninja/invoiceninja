@@ -7,7 +7,10 @@ import {
 } from '../client-portal-helpers';
 import { type ApiFixture } from '../fixtures';
 import { decodePrimaryKey } from '../hash-helpers';
-import { createSentInvoice } from '../portal-entity-helpers';
+import {
+    createSentInvoice,
+    type PortalEntity,
+} from '../portal-entity-helpers';
 import { type PaymentGatewayContext } from './types';
 
 const defaultClientAddress = {
@@ -47,6 +50,37 @@ export function requiredClientInfoForm(page: Page) {
 
 export function gatewayCheckoutContainer(page: Page) {
     return page.locator('[data-ref="gateway-container"]');
+}
+
+const gatewayCheckoutReadySelectors = [
+    '#paypal-credit-card-payment',
+    '#checkout-form',
+    '#card-element',
+    '#pay-now',
+    '#new-bank',
+    '#authorize--credit-card-container',
+    '#payment-form',
+    '#paypal-payment',
+    '#paypal-ppcp-payment',
+    '#paypal-button-container',
+] as const;
+
+export async function isGatewayCheckoutReady(page: Page): Promise<boolean> {
+    for (const selector of gatewayCheckoutReadySelectors) {
+        const locator = page.locator(selector).first();
+
+        if (await locator.isVisible().catch(() => false)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+export async function expectGatewayCheckoutReady(page: Page): Promise<void> {
+    await expect
+        .poll(() => isGatewayCheckoutReady(page), { timeout: 30_000 })
+        .toBe(true);
 }
 
 export async function isRequiredClientInfoBlockingCheckout(
@@ -181,15 +215,6 @@ export async function completeRequiredClientInfoForm(
         /pointer-events-none/,
         { timeout: 30_000 }
     );
-    await expect(
-        page
-            .locator(
-                '#pay-now, #card-element, #save-button, #new-bank, #authorize-button'
-            )
-            .first()
-    ).toBeVisible({
-        timeout: 30_000,
-    });
 }
 
 export async function prepareDefaultPaymentContext(
@@ -202,17 +227,66 @@ export async function prepareDefaultPaymentContext(
             payment_flow: 'default',
             client_manual_payment_notification: false,
         },
+        contact: {
+            first_name: 'Playwright',
+            last_name: 'Portal',
+            email: `portal-pay-${Date.now()}@example.test`,
+        },
     });
-    client = await updateClient(api.context, client, defaultClientAddress);
+    client = await updateClient(api.context, client, {
+        ...defaultClientAddress,
+        phone: '5555555555',
+    });
     const invoice = await createSentInvoice(api, client, {
         label: `gateway-${companyGateway.gateway_key}`,
         cost: 42,
     });
 
+    if ((invoice.balance ?? 0) <= 0) {
+        throw new Error(
+            `Expected a payable invoice for ${companyGateway.gateway_key}, got balance ${invoice.balance ?? 0}`,
+        );
+    }
+
     return { client, invoice, companyGateway };
 }
 
-export async function openInvoicePaymentPage(page: Page): Promise<void> {
+export async function openInvoicePaymentPage(
+    page: Page,
+    invoice?: PortalEntity,
+): Promise<void> {
+    if (invoice) {
+        await page.goto(`/client/invoices/${invoice.id}`);
+        await dismissCookieConsent(page);
+
+        const dropdown = page.locator('[dusk="pay-now-dropdown"]');
+        const payNowButton = page.getByRole('button', { name: /pay now/i });
+
+        if (await dropdown.isVisible().catch(() => false)) {
+            await dropdown.click();
+            await expect(
+                page.locator('[dusk="payment-methods-dropdown"]'),
+            ).toBeVisible({ timeout: 15_000 });
+
+            return;
+        }
+
+        if (await payNowButton.isVisible().catch(() => false)) {
+            await payNowButton.click();
+            await expect(page).toHaveURL(
+                /\/client\/(?:invoices\/payment|payments\/process)/,
+                { timeout: 30_000 },
+            );
+            await dismissCookieConsent(page);
+
+            return;
+        }
+
+        throw new Error(
+            `Invoice ${invoice.id} did not expose a Pay Now entry point`,
+        );
+    }
+
     await page.goto('/client/invoices');
     await dismissCookieConsent(page);
     await page.locator('[dusk="pay-now"]').first().click();
@@ -228,7 +302,13 @@ export async function selectGatewayFromDropdown(
     companyGateway: CompanyGatewayEntity,
     gatewayTypeId: number
 ): Promise<void> {
-    await page.locator('[dusk="pay-now-dropdown"]').click();
+    const dropdown = page.locator('[dusk="pay-now-dropdown"]');
+    const methodsDropdown = page.locator('[dusk="payment-methods-dropdown"]');
+
+    if (!(await methodsDropdown.isVisible().catch(() => false))) {
+        await dropdown.click();
+        await expect(methodsDropdown).toBeVisible({ timeout: 15_000 });
+    }
 
     // Portal dropdowns use the raw company_gateway id; the API returns a hashed
     // id. Prefer `data-gateway-key` (after deploy), then decoded raw id, then
@@ -288,21 +368,28 @@ export async function fillRequiredPaymentInformationIfPresent(
 ): Promise<void> {
     await completeRequiredClientInfoForm(page);
 
+    if (await isRequiredClientInfoBlockingCheckout(page)) {
+        return;
+    }
+
     const checkoutReady = page
-        .locator('#card-element')
+        .locator('#paypal-credit-card-payment')
+        .or(page.locator('#checkout-form'))
+        .or(page.locator('#card-element'))
         .or(page.locator('#pay-now'))
         .or(page.locator('#new-bank'))
         .or(page.locator('#authorize--credit-card-container'))
         .or(page.locator('#payment-form'))
         .or(page.locator('#paypal-payment'))
-        .or(page.locator('#paypal-button-container'));
+        .or(page.locator('#paypal-button-container'))
+        .or(page.locator('#paypal-ppcp-payment'));
     const billingAddress = page.locator('input[name="client_address_line_1"]');
 
-    if (await isRequiredClientInfoBlockingCheckout(page)) {
-        return;
-    }
-
     await Promise.race([
+        expect
+            .poll(() => isGatewayCheckoutReady(page), { timeout: 45_000 })
+            .toBe(true)
+            .catch(() => null),
         checkoutReady
             .first()
             .waitFor({ state: 'visible', timeout: 10_000 })
@@ -311,6 +398,10 @@ export async function fillRequiredPaymentInformationIfPresent(
             .waitFor({ state: 'visible', timeout: 10_000 })
             .catch(() => null),
     ]);
+
+    if (await isGatewayCheckoutReady(page)) {
+        return;
+    }
 
     if (
         await checkoutReady
@@ -400,9 +491,10 @@ export async function fillRequiredPaymentInformationIfPresent(
 export async function navigateToGatewayCheckout(
     page: Page,
     companyGateway: CompanyGatewayEntity,
-    gatewayTypeId: number
+    gatewayTypeId: number,
+    invoice?: PortalEntity,
 ): Promise<void> {
-    await openInvoicePaymentPage(page);
+    await openInvoicePaymentPage(page, invoice);
     await selectGatewayFromDropdown(page, companyGateway, gatewayTypeId);
     await fillRequiredPaymentInformationIfPresent(page);
 }

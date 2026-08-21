@@ -708,6 +708,7 @@ class HtmlEngine
         $data['$product.date'] = ['value' => '', 'label' => ctrans('texts.date')];
         $data['$product.discount'] = ['value' => '', 'label' => ctrans('texts.discount')];
         $data['$product.product_key'] = ['value' => '', 'label' => ctrans('texts.product_key')];
+        $data['$product.tags'] = ['value' => '', 'label' => ctrans('texts.tags')];
         $data['$product.description'] = ['value' => '', 'label' => ctrans('texts.description')];
         $data['$product.unit_cost'] = ['value' => '', 'label' => ctrans('texts.unit_cost')];
         $data['$product.net_cost'] = ['value' => '', 'label' => ctrans('texts.unit_cost')];
@@ -729,6 +730,7 @@ class HtmlEngine
         $data['$task.date'] = ['value' => '', 'label' => ctrans('texts.date')];
         $data['$task.discount'] = ['value' => '', 'label' => ctrans('texts.discount')];
         $data['$task.service'] = ['value' => '', 'label' => ctrans('texts.service')];
+        $data['$task.tags'] = ['value' => '', 'label' => ctrans('texts.tags')];
         $data['$task.description'] = ['value' => '', 'label' => ctrans('texts.description')];
         $data['$task.rate'] = ['value' => '', 'label' => ctrans('texts.rate')];
         $data['$task.cost'] = ['value' => '', 'label' => ctrans('texts.rate')];

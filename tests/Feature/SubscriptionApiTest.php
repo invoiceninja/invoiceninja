@@ -18,6 +18,7 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Product;
+use App\Models\Tag;
 use Tests\MockAccountData;
 use Illuminate\Support\Str;
 use App\Models\CompanyToken;
@@ -26,6 +27,7 @@ use App\Utils\Traits\MakesHash;
 use App\Models\RecurringInvoice;
 use App\DataMapper\CompanySettings;
 use App\Factory\CompanyUserFactory;
+use App\Repositories\SubscriptionRepository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
@@ -403,6 +405,32 @@ class SubscriptionApiTest extends TestCase
         // nlog($response);
 
         $response->assertStatus(200);
+    }
+
+    public function testGeneratedSubscriptionLineItemsSnapshotProductTags(): void
+    {
+        $product = Product::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+        ]);
+        $tags = collect(['Retail', 'Priority Customer'])->map(fn (string $name): Tag => Tag::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'entity_type' => Product::class,
+            'name' => $name,
+        ]));
+        $product->syncTags($tags->pluck('id')->all());
+
+        $subscription = Subscription::factory()->create([
+            'product_ids' => (string) $product->hashed_id,
+            'recurring_product_ids' => '',
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+        ]);
+
+        $line_items = (new SubscriptionRepository())->generateLineItems($subscription);
+
+        $this->assertSame('Retail,Priority Customer', $line_items[0]['tags']);
     }
 
     public function testSubscriptionsPost()

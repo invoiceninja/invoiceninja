@@ -26,6 +26,10 @@ export abstract class BasePaymentGateway {
     abstract readonly gatewayTypeId: GatewayTypeId;
     abstract readonly supportsFullPayment: boolean;
 
+    readonly requiresGatewayIsolation: boolean = false;
+
+    private restoreGatewayIsolation?: () => Promise<void>;
+
     getEnvValue(): string {
         return process.env[this.envVar]?.trim() ?? '';
     }
@@ -88,6 +92,38 @@ export abstract class BasePaymentGateway {
         }
     }
 
+    async prepareExclusiveGateway(
+        api: ApiContext,
+        availability: GatewayAvailability,
+    ): Promise<void> {
+    }
+
+    /**
+     * API-driven setup run before each isolated-gateway test: resolve the target
+     * gateway, verify configuration, archive all others, and verify auth.
+     */
+    async setupExclusiveTestEnvironment(
+        api: ApiContext,
+    ): Promise<{
+        availability: GatewayAvailability;
+        skipReason?: string;
+    }> {
+        throw new Error(
+            `${this.displayName} requires setupExclusiveTestEnvironment() to be implemented`,
+        );
+    }
+
+    async restoreExclusiveGateway(): Promise<void> {
+        if (this.restoreGatewayIsolation) {
+            await this.restoreGatewayIsolation();
+            this.restoreGatewayIsolation = undefined;
+        }
+    }
+
+    protected setGatewayIsolationRestore(restore: () => Promise<void>): void {
+        this.restoreGatewayIsolation = restore;
+    }
+
     async preparePaymentContext(
         api: ApiFixture,
         page: Page,
@@ -112,6 +148,7 @@ export abstract class BasePaymentGateway {
             page,
             context.companyGateway,
             this.gatewayTypeId,
+            context.invoice,
         );
     }
 

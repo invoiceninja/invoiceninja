@@ -26,6 +26,7 @@ class InvoiceItemFactory
         $item->cost = 0;
         $item->net_cost = 0;
         $item->product_key = '';
+        $item->tags = '';
         $item->notes = '';
         $item->discount = 0;
         $item->is_amount_discount = true;

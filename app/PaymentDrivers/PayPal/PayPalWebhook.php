@@ -41,7 +41,7 @@ class PayPalWebhook implements ShouldQueue
 
     public $deleteWhenMissingModels = true;
 
-    private $gateway_key = '80af24a6a691230bbec33e930ab40666';
+    // private string $gateway_key = '80af24a6a691230bbec33e930ab40666';
 
     private string $test_endpoint = 'https://api-m.sandbox.paypal.com';
 
@@ -228,8 +228,7 @@ class PayPalWebhook implements ShouldQueue
             $payment = Payment::where('transaction_reference', $transaction_reference)->first();
 
             if (!$payment) {
-                nlog("make payment here!");
-                $payment = $this->createPayment($payment_hash, [
+                $this->createPayment($payment_hash, [
                     'amount' => $amount,
                     'transaction_reference' => $transaction_reference,
                     'merchant_id' => $merchant_id,
@@ -293,19 +292,18 @@ class PayPalWebhook implements ShouldQueue
 
     private function harvestGateway(Company $company, string $merchant_id): ?CompanyGateway
     {
-        $gateway = CompanyGateway::query()
+        return CompanyGateway::query()
             ->where('company_id', $company->id)
-            ->where('gateway_key', $this->gateway_key)
-            ->first(function ($cg) use ($merchant_id) { //@phpstan-ignore-line
+            ->whereIn('gateway_key', [
+                '80af24a6a691230bbec33e930ab40666',
+                '80af24a6a691230bbec33e930ab40665',
+            ])
+            ->get()
+            ->first(function ($cg) use ($merchant_id) {
                 $config = $cg->getConfig();
 
-                if ($config->merchantId == $merchant_id) {
-                    return $cg;
-                }
-
+                return ($config->merchantId ?? null) == $merchant_id;
             });
-
-        return $gateway ?? null;
     }
 
     //--------------------------------------------------------------------------------------//

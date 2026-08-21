@@ -293,13 +293,96 @@ export interface CompanyGatewayEntity extends ApiEntity {
     id: string;
     gateway_key: string;
     fees_and_limits?: Record<string, FeesAndLimitsEntry>;
+    is_deleted?: boolean;
+    archived_at?: number;
+    config?: string | Record<string, unknown>;
+    label?: string;
+}
+
+export function parseCompanyGatewayConfig(
+    gateway: CompanyGatewayEntity,
+): Record<string, unknown> {
+    if (!gateway.config) {
+        return {};
+    }
+
+    if (typeof gateway.config === 'object') {
+        return gateway.config;
+    }
+
+    try {
+        return JSON.parse(gateway.config) as Record<string, unknown>;
+    } catch {
+        return {};
+    }
+}
+
+export async function getCompanyGateway(
+    api: ApiContext,
+    gatewayId: string,
+): Promise<CompanyGatewayEntity> {
+    const response = await api.request.get(
+        `/api/v1/company_gateways/${gatewayId}`,
+    );
+
+    if (!response.ok()) {
+        throw new Error(
+            `Failed to fetch company gateway ${gatewayId} (${response.status()}): ${(await response.text()).slice(0, 300)}`,
+        );
+    }
+
+    const body = await response.json();
+
+    return body.data as CompanyGatewayEntity;
+}
+
+export async function testCompanyGateway(
+    api: ApiContext,
+    gatewayId: string,
+): Promise<{ ok: boolean; message: string }> {
+    const response = await api.request.post(
+        `/api/v1/company_gateways/${gatewayId}/test`,
+    );
+
+    const body = (await response.json().catch(() => ({}))) as {
+        message?: string;
+    };
+
+    const message = body.message ?? (await response.text()).slice(0, 300);
+
+    return {
+        ok: response.ok() && message === 'ok',
+        message,
+    };
+}
+
+export async function testCompanyGatewayWithRetry(
+    api: ApiContext,
+    gatewayId: string,
+    attempts: number = 3,
+): Promise<{ ok: boolean; message: string }> {
+    let lastResult = await testCompanyGateway(api, gatewayId);
+
+    for (let attempt = 1; attempt < attempts && !lastResult.ok; attempt += 1) {
+        await new Promise((resolve) => setTimeout(resolve, 2_000));
+        lastResult = await testCompanyGateway(api, gatewayId);
+    }
+
+    return lastResult;
 }
 
 export async function listCompanyGateways(
     api: ApiContext,
+    options: { isDeleted?: boolean } = {},
 ): Promise<CompanyGatewayEntity[]> {
+    const params = new URLSearchParams({ per_page: '100' });
+
+    if (options.isDeleted !== undefined) {
+        params.set('is_deleted', options.isDeleted ? 'true' : 'false');
+    }
+
     const response = await api.request.get(
-        '/api/v1/company_gateways?per_page=100',
+        `/api/v1/company_gateways?${params.toString()}`,
     );
 
     if (!response.ok()) {
@@ -354,7 +437,13 @@ export async function ensureCompanyGatewayTypeEnabled(
     const current = gateway.fees_and_limits?.[typeKey];
 
     if (current?.is_enabled) {
-        return gateway;
+        const config = parseCompanyGatewayConfig(gateway);
+
+        if (String(config.clientId ?? '').trim() && String(config.secret ?? '').trim()) {
+            return gateway;
+        }
+
+        return getCompanyGateway(api, gateway.id);
     }
 
     const feesAndLimits = {
@@ -381,7 +470,6 @@ export async function ensureCompanyGatewayTypeEnabled(
         `/api/v1/company_gateways/${gateway.id}`,
         {
             data: {
-                ...gateway,
                 fees_and_limits: feesAndLimits,
             },
         },
@@ -393,10 +481,5 @@ export async function ensureCompanyGatewayTypeEnabled(
         );
     }
 
-    const body = await response.json();
-
-    return (body.data ?? {
-        ...gateway,
-        fees_and_limits: feesAndLimits,
-    }) as CompanyGatewayEntity;
+    return getCompanyGateway(api, gateway.id);
 }

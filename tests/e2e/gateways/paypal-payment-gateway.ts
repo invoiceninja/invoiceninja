@@ -1,7 +1,30 @@
 import { expect, type Page } from '@playwright/test';
-import { listCompanyGateways, type ApiContext } from '../api-helpers';
+import { getEntity, type ApiContext } from '../api-helpers';
+import { type PortalEntity } from '../portal-entity-helpers';
 import { BasePaymentGateway } from './base-payment-gateway';
-import { GatewayType, type GatewayAvailability } from './types';
+import {
+    parsePayPalRestKeys,
+    PAYPAL_REST_GATEWAY_KEY,
+    resolvePayPalRestCompanyGateway,
+    setupExclusivePayPalRestGatewayEnvironment,
+} from './gateway-isolation-helpers';
+import {
+    assertPayPalMethodCheckoutReady,
+    completePayPalSandboxPayment,
+    payPalSandboxBuyerCredentials,
+    waitForPayPalMerchantPaymentComplete,
+} from './paypal-flow-helpers';
+import {
+    enabledPayPalRestPaymentMethods,
+    payPalRestPaymentMethodByTypeId,
+    type PayPalRestPaymentMethod,
+} from './paypal-payment-methods';
+import { navigateToGatewayCheckout } from './payment-flow-helpers';
+import {
+    GatewayType,
+    type GatewayAvailability,
+    type PaymentGatewayContext,
+} from './types';
 
 /**
  * PayPal Express (`PayPal_Express` / key 38f2…) no longer has a payment driver
@@ -11,52 +34,159 @@ import { GatewayType, type GatewayAvailability } from './types';
 export class PayPalPaymentGateway extends BasePaymentGateway {
     readonly slug = 'paypal';
     readonly displayName = 'PayPal REST';
-    readonly gatewayKey = '80af24a6a691230bbec33e930ab40665';
-    readonly envVar = 'PAYPAL_KEYS';
+    readonly gatewayKey = PAYPAL_REST_GATEWAY_KEY;
+    readonly envVar = 'PAYPAL_REST_KEYS';
     readonly gatewayTypeId = GatewayType.PAYPAL;
     readonly supportsFullPayment = false;
+    readonly requiresGatewayIsolation = true;
 
-    private readonly legacyExpressKey = '38f2c48af60c7dd69e04248cbb24c36e';
+    isEnvConfigured(): boolean {
+        return parsePayPalRestKeys() !== null;
+    }
 
-    async checkAvailability(api: ApiContext): Promise<GatewayAvailability> {
-        if (!this.isEnvConfigured()) {
-            return {
-                envConfigured: false,
-                companyGatewayConfigured: false,
-                skipReason: `${this.displayName}: set ${this.envVar} to run this test`,
-            };
+    async findCompanyGateway(api: ApiContext) {
+        return resolvePayPalRestCompanyGateway(api, this.gatewayKey);
+    }
+
+    async setupExclusiveTestEnvironment(api: ApiContext): Promise<{
+        availability: GatewayAvailability;
+        skipReason?: string;
+    }> {
+        const setup = await setupExclusivePayPalRestGatewayEnvironment(api, {
+            envConfigured: this.isEnvConfigured(),
+            gatewayTypeId: this.gatewayTypeId,
+        });
+
+        if (setup.restore) {
+            this.setGatewayIsolationRestore(setup.restore);
         }
-
-        const companyGateway = await this.findCompanyGateway(api);
-
-        if (companyGateway) {
-            return {
-                envConfigured: true,
-                companyGatewayConfigured: true,
-                companyGateway,
-            };
-        }
-
-        const gateways = await listCompanyGateways(api);
-        const hasLegacyExpress = gateways.some(
-            (gateway) => gateway.gateway_key === this.legacyExpressKey,
-        );
 
         return {
-            envConfigured: true,
-            companyGatewayConfigured: false,
-            skipReason: hasLegacyExpress
-                ? 'PayPal Express driver was removed; seed a PayPal REST company gateway to cover PayPal'
-                : `${this.displayName}: no enabled company gateway for key ${this.gatewayKey}`,
+            availability: setup.availability,
+            skipReason: setup.skipReason,
         };
     }
 
+    enabledPaymentMethods(
+        availability: GatewayAvailability,
+    ): PayPalRestPaymentMethod[] {
+        const gateway = availability.companyGateway;
+
+        if (!gateway) {
+            return [];
+        }
+
+        return enabledPayPalRestPaymentMethods(gateway);
+    }
+
+    async navigateToMethodCheckout(
+        page: Page,
+        context: PaymentGatewayContext,
+        method: PayPalRestPaymentMethod,
+    ): Promise<void> {
+        await navigateToGatewayCheckout(
+            page,
+            context.companyGateway,
+            method.gatewayTypeId,
+            context.invoice,
+        );
+    }
+
     async assertCheckoutReady(page: Page): Promise<void> {
-        await expect(
-            page
-                .locator('#paypal-payment')
-                .or(page.locator('#paypal-button-container'))
-                .first(),
-        ).toBeVisible({ timeout: 30_000 });
+        const method = payPalRestPaymentMethodByTypeId(this.gatewayTypeId);
+
+        if (!method) {
+            await expect(page.locator('#paypal-button-container')).toBeVisible({
+                timeout: 30_000,
+            });
+
+            return;
+        }
+
+        await assertPayPalMethodCheckoutReady(page, method);
+    }
+
+    async assertMethodCheckoutReady(
+        page: Page,
+        method: PayPalRestPaymentMethod,
+    ): Promise<void> {
+        await assertPayPalMethodCheckoutReady(page, method);
+    }
+
+    hasSandboxBuyerCredentials(): boolean {
+        const keys = parsePayPalRestKeys();
+
+        if (!keys) {
+            return false;
+        }
+
+        return payPalSandboxBuyerCredentials(keys) !== null;
+    }
+
+    methodSupportsSandboxPayment(method: PayPalRestPaymentMethod): boolean {
+        if (method.checkoutKind === 'advanced-cards') {
+            return true;
+        }
+
+        if (!method.fundingSource) {
+            return false;
+        }
+
+        return this.hasSandboxBuyerCredentials();
+    }
+
+    async assertPaymentSucceeded(page: Page): Promise<void> {
+        await waitForPayPalMerchantPaymentComplete(page);
+    }
+
+    async assertInvoicePaid(
+        api: ApiContext,
+        invoice: PortalEntity,
+    ): Promise<void> {
+        const refreshed = await getEntity<PortalEntity>(
+            api,
+            'invoices',
+            invoice.id,
+        );
+
+        expect(Number(refreshed.balance ?? 0)).toBe(0);
+        expect(Number(refreshed.status_id)).toBe(4);
+    }
+
+    async completePayment(page: Page): Promise<void> {
+        const method = payPalRestPaymentMethodByTypeId(this.gatewayTypeId);
+
+        if (!method) {
+            throw new Error('Unknown PayPal REST payment method');
+        }
+
+        await this.completeMethodPayment(page, method);
+    }
+
+    async completeMethodPayment(
+        page: Page,
+        method: PayPalRestPaymentMethod,
+    ): Promise<void> {
+        const keys = parsePayPalRestKeys();
+
+        if (method.checkoutKind === 'advanced-cards') {
+            await completePayPalSandboxPayment(
+                page,
+                method,
+                { email: '', password: '' },
+            );
+
+            return;
+        }
+
+        const buyer = keys ? payPalSandboxBuyerCredentials(keys) : null;
+
+        if (!buyer) {
+            throw new Error(
+                'PayPal sandbox buyer credentials missing from PAYPAL_REST_KEYS',
+            );
+        }
+
+        await completePayPalSandboxPayment(page, method, buyer);
     }
 }

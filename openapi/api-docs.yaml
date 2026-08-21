@@ -21285,6 +21285,10 @@ components:
           type: string
           example: 'Product key'
           description: 'The product key of the product offered for this line item (Referred to as Product in the product tab)'
+        tags:
+          type: string
+          example: 'Retail,Priority Customer'
+          description: 'A comma-separated snapshot of the product tag names for this line item'
         product_cost:
           type: number
           format: float
@@ -21379,6 +21383,7 @@ components:
           example: '1'
           default: '1'
           description: 'The tax ID of the product: 1 product, 2 service, 3 digital, 4 shipping, 5 exempt, 5 reduced tax, 7 override, 8 zero rate, 9 reverse tax'
+
     ExpenseCategory:
       properties:
         id:
@@ -26751,9 +26756,10 @@ components:
             - 'App\Models\Project'
           example: 'App\Models\Task'
         name:
-          description: 'The tag name. Unique per company and entity type, including archived tags.'
+          description: 'The tag name. Commas are not allowed. Unique per company and entity type, including archived tags.'
           type: string
           maxLength: 191
+          pattern: '^[^,]+$'
           example: Urgent
         color:
           description: 'The tag color as a 3 or 6 digit hex value, or null when unset'
@@ -26801,9 +26807,10 @@ components:
             - 'App\Models\Project'
           example: 'App\Models\Task'
         name:
-          description: 'The tag name. Unique per company and entity type, including archived tags.'
+          description: 'The tag name. Commas are not allowed. Unique per company and entity type, including archived tags.'
           type: string
           maxLength: 191
+          pattern: '^[^,]+$'
           example: Urgent
         color:
           description: 'The tag color as a 3 or 6 digit hex value, or null to clear it.'
@@ -26833,6 +26840,7 @@ components:
           example: archive
       required:
         - ids
+
     RecurringInvoiceRequest:
       required:
         - client_id

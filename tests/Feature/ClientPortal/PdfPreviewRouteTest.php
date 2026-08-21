@@ -13,10 +13,12 @@
 namespace Tests\Feature\ClientPortal;
 
 use App\Livewire\PdfSlot;
+use App\DataMapper\ClientSettings;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Vendor;
 use App\Models\VendorContact;
+use App\Factory\InvoiceItemFactory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Livewire\Livewire;
 use Mockery;
@@ -64,6 +66,44 @@ class PdfPreviewRouteTest extends TestCase
                 'entity_type' => 'purchase_order',
                 'invitation_key' => $purchase_order_invitation->key,
             ], false));
+    }
+
+    public function testPdfSlotShowsProductTagsAsSeparateLabels(): void
+    {
+        $settings = $this->company->settings;
+        $product_columns = $settings->pdf_variables->product_columns;
+        $product_columns[] = '$product.tags';
+        $settings->pdf_variables->product_columns = array_values(array_unique($product_columns));
+        $this->company->settings = $settings;
+        $this->company->save();
+        $this->company->refresh();
+
+        $this->assertContains('$product.tags', $this->company->settings->pdf_variables->product_columns);
+
+        $this->client->group_settings_id = null;
+        $this->client->settings = ClientSettings::defaults();
+        $this->client->save();
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 100;
+        $item->line_total = 100;
+        $item->notes = 'Tagged product';
+        $item->tags = 'Retail,Priority Customer';
+        $this->invoice->line_items = [$item];
+        $this->invoice->save();
+
+        $invitation = $this->invoice->invitations()->firstOrFail();
+
+        Livewire::test(PdfSlot::class, [
+            'class' => $this->invoice::class,
+            'entity_id' => $this->invoice->id,
+            'invitation_id' => $invitation->id,
+            'db' => $this->company->db,
+        ])
+            ->assertSet('show_tags', true)
+            ->assertSee('Retail')
+            ->assertSee('Priority Customer');
     }
 
     public function testPdfPreviewRoutesRejectAnotherClientOrVendor(): void

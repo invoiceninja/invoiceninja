@@ -1,4 +1,5 @@
 import { test as base } from '@playwright/test';
+import { loadPlaywrightEnvironment } from './environment';
 import {
     bulkAction,
     createApiContext,
@@ -15,6 +16,8 @@ import {
     type EntityType,
 } from './api-helpers';
 import { accountForParallelIndex, type TestAccount } from './accounts';
+
+loadPlaywrightEnvironment();
 
 interface TrackedEntity {
     type: EntityType;

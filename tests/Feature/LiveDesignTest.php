@@ -64,6 +64,9 @@ class LiveDesignTest extends TestCase
         $data = $engine->generateLabelsAndValues();
 
         $this->assertIsArray($data);
+        $this->assertArrayHasKey('$task.tags', $data['values']);
+        $this->assertSame('', $data['values']['$task.tags']);
+        $this->assertSame(ctrans('texts.tags'), $data['labels']['$task.tags_label']);
 
     }
 

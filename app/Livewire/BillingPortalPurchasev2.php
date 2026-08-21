@@ -13,6 +13,7 @@
 namespace App\Livewire;
 
 use App\Utils\Number;
+use App\DataMapper\InvoiceItem;
 use App\Models\Client;
 use App\Models\Invoice;
 use Livewire\Component;
@@ -335,6 +336,7 @@ class BillingPortalPurchasev2 extends Component
                 'description' => $p->notes,
                 'product_key' => $p->product_key,
                 'unit_cost' => $p->price,
+                'tags' => InvoiceItem::tagsFromNames($p->tags),
                 'product' => substr(strip_tags($p->markdownNotes()), 0, 50),
                 'price' => Number::formatMoney($total, $subscription->company) . ' / ' . RecurringInvoice::frequencyForKey($subscription->frequency_id),
                 'total' => $total,
@@ -353,6 +355,7 @@ class BillingPortalPurchasev2 extends Component
                 'description' => $p->notes,
                 'product_key' => $p->product_key,
                 'unit_cost' => $p->price,
+                'tags' => InvoiceItem::tagsFromNames($p->tags),
                 'product' => substr(strip_tags($p->markdownNotes()), 0, 50),
                 'price' => Number::formatMoney($total, $subscription->company),
                 'total' => $total,
@@ -376,6 +379,7 @@ class BillingPortalPurchasev2 extends Component
                         'description' => $p->notes,
                         'product_key' => $p->product_key,
                         'unit_cost' => $p->price,
+                        'tags' => InvoiceItem::tagsFromNames($p->tags),
                         'product' => substr(strip_tags($p->markdownNotes()), 0, 50),
                         'price' => Number::formatMoney($total, $subscription->company) . ' / ' . RecurringInvoice::frequencyForKey($subscription->frequency_id),
                         'total' => $total,
@@ -399,6 +403,7 @@ class BillingPortalPurchasev2 extends Component
                         'description' => $p->notes,
                         'product_key' => $p->product_key,
                         'unit_cost' => $p->price,
+                        'tags' => InvoiceItem::tagsFromNames($p->tags),
                         'product' => substr(strip_tags($p->markdownNotes()), 0, 50),
                         'price' => Number::formatMoney($total, $subscription->company),
                         'total' => $total,

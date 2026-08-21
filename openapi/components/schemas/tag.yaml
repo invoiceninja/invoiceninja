@@ -34,9 +34,10 @@
             - 'App\Models\Project'
           example: 'App\Models\Task'
         name:
-          description: 'The tag name. Unique per company and entity type, including archived tags.'
+          description: 'The tag name. Commas are not allowed. Unique per company and entity type, including archived tags.'
           type: string
           maxLength: 191
+          pattern: '^[^,]+$'
           example: Urgent
         color:
           description: 'The tag color as a 3 or 6 digit hex value, or null when unset'
@@ -84,9 +85,10 @@
             - 'App\Models\Project'
           example: 'App\Models\Task'
         name:
-          description: 'The tag name. Unique per company and entity type, including archived tags.'
+          description: 'The tag name. Commas are not allowed. Unique per company and entity type, including archived tags.'
           type: string
           maxLength: 191
+          pattern: '^[^,]+$'
           example: Urgent
         color:
           description: 'The tag color as a 3 or 6 digit hex value, or null to clear it.'
