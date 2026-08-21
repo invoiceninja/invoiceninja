@@ -1056,32 +1056,12 @@ class PayPalBasePaymentDriver extends BaseDriver
         $data['funding_source'] = $this->paypal_payment_method;
         $data['gateway_type_id'] = $this->gateway_type_id;
         $data['currency'] = $this->client->currency()->code;
-        $data['paypal_sdk_buyer_country_param'] = self::sandboxSdkBuyerCountryQueryParam(
-            (bool) $this->company_gateway->getConfigField('testMode'),
-        );
         $data['guid'] = $this->risk_guid;
         $data['identifier'] = $this->getCheckoutIdentifier();
         $data['pp_client_reference'] = $this->getClientHash();
         $data['invoice_hash'] = $this->payment_hash->fee_invoice->hashed_id;
 
         return $data;
-    }
-
-    /**
-     * PayPal sandbox uses buyer-country to simulate US-only funding sources such as Venmo.
-     *
-     * @see https://developer.paypal.com/docs/checkout/pay-with-venmo/test/
-     */
-    public static function sandboxSdkBuyerCountry(?bool $testMode): ?string
-    {
-        return $testMode ? 'US' : null;
-    }
-
-    public static function sandboxSdkBuyerCountryQueryParam(?bool $testMode): string
-    {
-        $buyer_country = self::sandboxSdkBuyerCountry($testMode);
-
-        return $buyer_country ? '&buyer-country='.$buyer_country : '';
     }
 
 }
