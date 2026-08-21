@@ -7,6 +7,9 @@ RUN git init /src \
     && git -C /src fetch --depth 1 origin "${UI_REF}" \
     && git -C /src checkout --detach FETCH_HEAD \
     && sed -i 's#<Router>#<Router basename="/control">#' /src/src/index.tsx \
+    && grep -Fqx "    window.location.href = '/';" /src/src/pages/authentication/Logout.tsx \
+    && sed -i "s#^    window\.location\.href = '/';\$#    window.location.href = '/control/';#" /src/src/pages/authentication/Logout.tsx \
+    && grep -Fqx "    window.location.href = '/control/';" /src/src/pages/authentication/Logout.tsx \
     && sed -i 's#<title>Invoice Ninja</title>#<title>File4net Billing</title>#' /src/index.html \
     && sed -i 's|content="#000000"|content="#061F4A"|' /src/index.html \
     && sed -i 's#Leading free invoice generator for freelancers and small businesses\. Invoice clients, accept payments, track expenses &amp; time billable-tasks online\.#File4net billing and account management portal.#' /src/index.html \
