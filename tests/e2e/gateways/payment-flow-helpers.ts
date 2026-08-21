@@ -10,6 +10,7 @@ import {
     createAndLogInClient,
     dismissCookieConsent,
     waitForAlpine,
+    waitForLivewire,
 } from '../client-portal-helpers';
 import { type ApiFixture } from '../fixtures';
 import { decodePrimaryKey } from '../hash-helpers';
@@ -18,6 +19,8 @@ import {
     type PortalEntity,
 } from '../portal-entity-helpers';
 import { type PaymentGatewayContext } from './types';
+
+export type PortalPaymentFlow = 'default' | 'smooth';
 
 /** Default billing/shipping address used for payable checkout e2e. */
 export const defaultClientAddress = {
@@ -89,7 +92,34 @@ const gatewayCheckoutReadySelectors = [
     '#paypal-button-container',
 ] as const;
 
+async function isPayPalCheckoutInteractive(page: Page): Promise<boolean> {
+    const interactiveSelectors = [
+        '#paypal-button-container iframe',
+        '#paypal-button-container [data-funding-source]',
+        '#card-number-field-container iframe',
+        '#card-number-field-container input',
+    ];
+
+    for (const selector of interactiveSelectors) {
+        const locator = page.locator(selector).first();
+
+        if (await locator.isVisible().catch(() => false)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 export async function isGatewayCheckoutReady(page: Page): Promise<boolean> {
+    const paypalShell = page
+        .locator('#paypal-payment, #paypal-ppcp-payment, #paypal-credit-card-payment')
+        .first();
+
+    if (await paypalShell.isVisible().catch(() => false)) {
+        return isPayPalCheckoutInteractive(page);
+    }
+
     for (const selector of gatewayCheckoutReadySelectors) {
         const locator = page.locator(selector).first();
 
@@ -107,6 +137,18 @@ export async function expectGatewayCheckoutReady(page: Page): Promise<void> {
         .toBe(true);
 }
 
+export function isDefaultPaymentProcessPage(page: Page): boolean {
+    return page.url().includes('/client/payments/process');
+}
+
+export function isSmoothInvoicePaymentPage(page: Page): boolean {
+    try {
+        return /\/client\/invoices\/[^/?#]+$/i.test(new URL(page.url()).pathname);
+    } catch {
+        return false;
+    }
+}
+
 export async function isRequiredClientInfoBlockingCheckout(
     page: Page
 ): Promise<boolean> {
@@ -119,7 +161,7 @@ export async function isRequiredClientInfoBlockingCheckout(
     const gateway = gatewayCheckoutContainer(page);
 
     if ((await gateway.count()) === 0) {
-        return false;
+        return !(await isGatewayCheckoutReady(page));
     }
 
     return gateway.evaluate((element) =>
@@ -133,17 +175,32 @@ export async function assertRequiredClientInfoBlocksCheckout(
     await expect(requiredClientInfoForm(page)).toBeVisible({
         timeout: 30_000,
     });
-    await expect(
-        page.getByRole('heading', { name: /Required payment details/i }),
-    ).toBeVisible();
+
+    if (isSmoothInvoicePaymentPage(page)) {
+        await expect(
+            page.locator('main').getByText('Required Fields', { exact: true }),
+        ).toBeVisible();
+    } else {
+        await expect(
+            page.getByRole('heading', { name: /Required payment details/i }),
+        ).toBeVisible();
+    }
+
     await expect
         .poll(() => isRequiredClientInfoBlockingCheckout(page), {
             timeout: 30_000,
         })
         .toBe(true);
-    await expect(gatewayCheckoutContainer(page)).toHaveClass(
-        /pointer-events-none/,
-    );
+
+    const gateway = gatewayCheckoutContainer(page);
+
+    if ((await gateway.count()) > 0) {
+        await expect(gateway).toHaveClass(/pointer-events-none/);
+    } else {
+        await expect
+            .poll(() => isGatewayCheckoutReady(page), { timeout: 30_000 })
+            .toBe(false);
+    }
 }
 
 export async function assertRequiredClientInfoUnblocksCheckout(
@@ -154,10 +211,16 @@ export async function assertRequiredClientInfoUnblocksCheckout(
             timeout: 30_000,
         })
         .toBe(false);
-    await expect(gatewayCheckoutContainer(page)).not.toHaveClass(
-        /pointer-events-none/,
-        { timeout: 30_000 },
-    );
+
+    const gateway = gatewayCheckoutContainer(page);
+
+    if ((await gateway.count()) > 0) {
+        await expect(gateway).not.toHaveClass(/pointer-events-none/, {
+            timeout: 30_000,
+        });
+    } else {
+        await expectGatewayCheckoutReady(page);
+    }
 }
 
 async function fillInputIfEmpty(
@@ -253,13 +316,22 @@ export async function completeRequiredClientInfoForm(
     const continueButton = form
         .locator('button.button-primary:not([disabled])')
         .last();
-    if ((await continueButton.count()) === 0) {
-        await form
-            .locator('button.button-primary')
-            .last()
-            .click({ force: true });
+
+    const submitRequiredClientInfo = async (): Promise<void> => {
+        if ((await continueButton.count()) === 0) {
+            await form
+                .locator('button.button-primary')
+                .last()
+                .click({ force: true });
+        } else {
+            await continueButton.click();
+        }
+    };
+
+    if (isSmoothInvoicePaymentPage(page)) {
+        await waitForLivewire(page, submitRequiredClientInfo);
     } else {
-        await continueButton.click();
+        await submitRequiredClientInfo();
     }
 
     await expect
@@ -268,21 +340,259 @@ export async function completeRequiredClientInfoForm(
         })
         .toBe(false);
 
-    await expect(gatewayCheckoutContainer(page)).not.toHaveClass(
-        /pointer-events-none/,
-        { timeout: 30_000 }
+    const gateway = gatewayCheckoutContainer(page);
+
+    if ((await gateway.count()) > 0) {
+        await expect(gateway).not.toHaveClass(/pointer-events-none/, {
+            timeout: 30_000,
+        });
+    } else {
+        await expectGatewayCheckoutReady(page);
+    }
+}
+
+export async function expectSmoothPaymentStep(page: Page): Promise<void> {
+    const smoothStep = page
+        .locator('main')
+        .getByText('Payment Methods', { exact: true })
+        .or(page.locator('main').getByText('Required Fields', { exact: true }))
+        .or(page.locator('main #card-element'))
+        .or(page.locator('main #pay-now'))
+        .or(page.locator('main #paypal-button-container'))
+        .or(page.locator('main #paypal-credit-card-payment'))
+        .or(
+            page
+                .locator('main')
+                .getByRole('button', { name: /Credit Card|PayPal|Bank/i }),
+        );
+
+    await expect(smoothStep.first()).toBeVisible({ timeout: 30_000 });
+}
+
+export async function openSmoothInvoicePaymentPage(
+    page: Page,
+    invoice?: PortalEntity,
+): Promise<void> {
+    if (!invoice) {
+        throw new Error('Smooth payment flow requires an invoice context');
+    }
+
+    await page.goto(`/client/invoices/${invoice.id}`);
+    await dismissCookieConsent(page);
+    await waitForAlpine(page);
+    await expectSmoothPaymentStep(page);
+}
+
+export async function selectSmoothPaymentMethod(
+    page: Page,
+    companyGateway: CompanyGatewayEntity,
+    gatewayTypeId: number,
+    methodLabel?: string,
+): Promise<void> {
+    if (await isGatewayCheckoutReady(page)) {
+        return;
+    }
+
+    if (await requiredClientInfoForm(page).isVisible().catch(() => false)) {
+        return;
+    }
+
+    const rawId = decodePrimaryKey(companyGateway.id);
+    const wireSelector = `button[wire\\:click*="handleSelect('${rawId}'"][wire\\:click*="'${gatewayTypeId}'"]`;
+    const wireButton = page.locator(wireSelector).first();
+
+    if ((await wireButton.count()) > 0) {
+        await expect(wireButton).toBeVisible({ timeout: 15_000 });
+        await wireButton.click();
+
+        await expect
+            .poll(async () => {
+                if (await isGatewayCheckoutReady(page)) {
+                    return true;
+                }
+
+                return requiredClientInfoForm(page)
+                    .isVisible()
+                    .catch(() => false);
+            }, { timeout: 45_000 })
+            .toBe(true);
+
+        return;
+    }
+
+    if (methodLabel) {
+        const labelButton = page
+            .locator('main')
+            .getByRole('button', { name: methodLabel, exact: true })
+            .first();
+
+        if ((await labelButton.count()) > 0) {
+            await expect(labelButton).toBeVisible({ timeout: 15_000 });
+            await labelButton.click();
+
+            await expect
+                .poll(async () => {
+                    if (await isGatewayCheckoutReady(page)) {
+                        return true;
+                    }
+
+                    return requiredClientInfoForm(page)
+                        .isVisible()
+                        .catch(() => false);
+                }, { timeout: 45_000 })
+                .toBe(true);
+
+            return;
+        }
+    }
+
+    await expect
+        .poll(async () => {
+            if (await isGatewayCheckoutReady(page)) {
+                return true;
+            }
+
+            return requiredClientInfoForm(page).isVisible().catch(() => false);
+        }, { timeout: 45_000 })
+        .toBe(true);
+}
+
+export async function assertSmoothPaymentMethodOffered(
+    page: Page,
+    companyGateway: CompanyGatewayEntity,
+    gatewayTypeId: number,
+    methodLabel: string,
+): Promise<void> {
+    const rawId = decodePrimaryKey(companyGateway.id);
+    const wireButton = page
+        .locator(
+            `button[wire\\:click*="handleSelect('${rawId}'"][wire\\:click*="'${gatewayTypeId}'"]`,
+        )
+        .first();
+    const labelButton = page
+        .locator('main')
+        .getByRole('button', { name: methodLabel, exact: true })
+        .first();
+
+    if ((await wireButton.count()) > 0 || (await labelButton.count()) > 0) {
+        await expect(wireButton.or(labelButton).first()).toBeVisible({
+            timeout: 15_000,
+        });
+
+        return;
+    }
+
+    await expect
+        .poll(async () => {
+            if (await isGatewayCheckoutReady(page)) {
+                return true;
+            }
+
+            return requiredClientInfoForm(page).isVisible().catch(() => false);
+        }, { timeout: 30_000 })
+        .toBe(true);
+}
+
+export async function navigateToSmoothGatewayCheckout(
+    page: Page,
+    companyGateway: CompanyGatewayEntity,
+    gatewayTypeId: number,
+    invoice?: PortalEntity,
+    methodLabel?: string,
+): Promise<void> {
+    await openSmoothInvoicePaymentPage(page, invoice);
+    await selectSmoothPaymentMethod(
+        page,
+        companyGateway,
+        gatewayTypeId,
+        methodLabel,
+    );
+    await fillRequiredPaymentInformationIfPresent(page);
+}
+
+export async function navigateToSmoothGatewayCheckoutWithoutRequiredClientInfo(
+    page: Page,
+    companyGateway: CompanyGatewayEntity,
+    gatewayTypeId: number,
+    invoice?: PortalEntity,
+    methodLabel?: string,
+): Promise<void> {
+    await openSmoothInvoicePaymentPage(page, invoice);
+    await selectSmoothPaymentMethod(
+        page,
+        companyGateway,
+        gatewayTypeId,
+        methodLabel,
+    );
+    await expect(page).toHaveURL(/\/client\/invoices\//, { timeout: 30_000 });
+}
+
+export async function navigateToPortalGatewayCheckout(
+    page: Page,
+    companyGateway: CompanyGatewayEntity,
+    gatewayTypeId: number,
+    paymentFlow: PortalPaymentFlow,
+    invoice?: PortalEntity,
+    methodLabel?: string,
+): Promise<void> {
+    if (paymentFlow === 'smooth') {
+        await navigateToSmoothGatewayCheckout(
+            page,
+            companyGateway,
+            gatewayTypeId,
+            invoice,
+            methodLabel,
+        );
+
+        return;
+    }
+
+    await navigateToGatewayCheckout(
+        page,
+        companyGateway,
+        gatewayTypeId,
+        invoice,
     );
 }
 
-export async function prepareDefaultPaymentContext(
+export async function navigateToPortalGatewayCheckoutWithoutRequiredClientInfo(
+    page: Page,
+    companyGateway: CompanyGatewayEntity,
+    gatewayTypeId: number,
+    paymentFlow: PortalPaymentFlow,
+    invoice?: PortalEntity,
+    methodLabel?: string,
+): Promise<void> {
+    if (paymentFlow === 'smooth') {
+        await navigateToSmoothGatewayCheckoutWithoutRequiredClientInfo(
+            page,
+            companyGateway,
+            gatewayTypeId,
+            invoice,
+            methodLabel,
+        );
+
+        return;
+    }
+
+    await navigateToGatewayCheckoutWithoutRequiredClientInfo(
+        page,
+        companyGateway,
+        gatewayTypeId,
+        invoice,
+    );
+}
+
+export async function preparePortalPaymentContext(
     api: ApiFixture,
     page: Page,
-    companyGateway: CompanyGatewayEntity
+    companyGateway: CompanyGatewayEntity,
+    paymentFlow: PortalPaymentFlow = 'default',
 ): Promise<PaymentGatewayContext> {
     let client = await createAndLogInClient(api, page, {
         settings: {
-            payment_flow: 'default',
-            client_manual_payment_notification: false,
+            ...paymentTestSettings,
+            payment_flow: paymentFlow,
         },
         contact: {
             first_name: 'Playwright',
@@ -295,7 +605,7 @@ export async function prepareDefaultPaymentContext(
         phone: '5555555555',
     });
     const invoice = await createSentInvoice(api, client, {
-        label: `gateway-${companyGateway.gateway_key}`,
+        label: `gateway-${companyGateway.gateway_key}-${paymentFlow}`,
         cost: 42,
     });
 
@@ -308,9 +618,26 @@ export async function prepareDefaultPaymentContext(
     return { client, invoice, companyGateway };
 }
 
+export async function prepareDefaultPaymentContext(
+    api: ApiFixture,
+    page: Page,
+    companyGateway: CompanyGatewayEntity
+): Promise<PaymentGatewayContext> {
+    return preparePortalPaymentContext(api, page, companyGateway, 'default');
+}
+
+export async function prepareSmoothPaymentContext(
+    api: ApiFixture,
+    page: Page,
+    companyGateway: CompanyGatewayEntity,
+): Promise<PaymentGatewayContext> {
+    return preparePortalPaymentContext(api, page, companyGateway, 'smooth');
+}
+
 export interface IncompleteClientPaymentContextOptions {
     requireBillingAddress?: boolean;
     alwaysShowRequiredFields?: boolean;
+    paymentFlow?: PortalPaymentFlow;
 }
 
 export interface IncompleteClientPaymentContext extends PaymentGatewayContext {
@@ -341,8 +668,8 @@ export async function prepareIncompleteClientPaymentContext(
 
     let client = await createAndLogInClient(api, page, {
         settings: {
-            payment_flow: 'default',
-            client_manual_payment_notification: false,
+            ...paymentTestSettings,
+            payment_flow: options.paymentFlow ?? 'default',
         },
         contact: {
             first_name: 'Playwright',
@@ -362,7 +689,7 @@ export async function prepareIncompleteClientPaymentContext(
     }
 
     const invoice = await createSentInvoice(api, client, {
-        label: `rff-${companyGateway.gateway_key}`,
+        label: `rff-${companyGateway.gateway_key}-${options.paymentFlow ?? 'default'}`,
         cost: 42,
     });
 

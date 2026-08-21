@@ -52,7 +52,8 @@ Individual specs:
 ```sh
 npm run test:e2e -- tests/e2e/client-portal-payments/paypal/invariants.spec.ts
 npm run test:e2e -- tests/e2e/client-portal-payments/paypal/payments.spec.ts
-npm run test:e2e -- tests/e2e/client-portal-payments/paypal/required-client-info.spec.ts
+npm run test:e2e -- tests/e2e/client-portal-payments/paypal/rff-payments.spec.ts
+npm run test:e2e -- tests/e2e/client-portal-payments/rff-payments.spec.ts
 ```
 
 Gateway checkout matrix (PayPal REST, Stripe, Authorize, etc.):
@@ -105,9 +106,11 @@ Guest invitation tests must close their extra contexts in `finally` (use
 | `client-portal-invoices.spec.ts` | List, filters, detail, downloads, bulk actions, Pay Now (default/smooth), bulk pay, terms/signature gates (default dropdown + bulk + smooth Flow2), password-protected invitations |
 | `client-portal-pdf-previews.spec.ts` | Real PDF preview resolution for invoices, quotes, credits, and recurring invoices |
 | `client-portal-payments/gateways.spec.ts` | Gateway checkout matrix (PayPal REST, Stripe, Authorize, etc.) |
-| `client-portal-payments/paypal/payments.spec.ts` | PayPal REST per-method: Pay Now, checkout UI, sandbox payment |
+| `client-portal-payments/paypal/payments.spec.ts` | PayPal REST per-method: Pay Now / smooth flow, checkout UI, sandbox payment, vault (default + smooth) |
 | `client-portal-payments/paypal/invariants.spec.ts` | PayPal REST method registry and helper invariants |
-| `client-portal-payments/paypal/required-client-info.spec.ts` | PayPal REST required client info gating |
+| `client-portal-payments/paypal/required-client-info.spec.ts` | PayPal REST required client info gating — default + smooth flow |
+| `client-portal-payments/paypal/rff-payments.spec.ts` | PayPal REST empty-client RFF then sandbox payment — default + smooth flow |
+| `client-portal-payments/rff-payments.spec.ts` | Non-PayPal gateways: empty-client RFF then checkout (Stripe payment when configured) |
 | `client-portal-entities.spec.ts` | Dashboard, payments, credits, projects, statement, pre-payments, payment methods |
 | `client-portal-quotes.spec.ts` | Approve/reject, signature, filters, bulk actions |
 | `client-portal-recurring.spec.ts` | Auto-bill, cancellation, attachments |

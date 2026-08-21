@@ -3,16 +3,15 @@ import { getCompanyGateway } from '../../api-helpers';
 import { type PortalPaymentFlow } from '../../gateways/payment-flow-helpers';
 import { type GatewayAvailability } from '../../gateways/types';
 import {
-    definePayPalRestMethodSuite,
-    type PayPalRestMethodSuiteState,
-} from './payments-method-suite';
+    definePayPalRffPaymentMethodSuite,
+    type PayPalRffPaymentMethodSuiteState,
+} from './rff-payments-method-suite';
 import { PayPalPaymentGateway } from './payment-gateway';
 import {
     PAYPAL_REST_LEGACY_CARD_METHOD,
     PAYPAL_REST_PAYMENT_METHODS,
     type PayPalRestPaymentMethod,
 } from './payment-methods';
-import { definePayPalAdvancedCardVaultSuite } from './vault-suite';
 
 const paypal = new PayPalPaymentGateway();
 
@@ -23,8 +22,8 @@ test.use({
 
 test.describe.configure({ mode: 'serial', timeout: 300_000 });
 
-function definePayPalPpcpPaymentFlowSuite(paymentFlow: PortalPaymentFlow): void {
-    test.describe(`PayPal REST payment methods (PPCP) — ${paymentFlow} flow`, () => {
+function definePayPalPpcpRffFlowSuite(paymentFlow: PortalPaymentFlow): void {
+    test.describe(`PayPal REST RFF payment methods (PPCP) — ${paymentFlow} flow`, () => {
         let availability: GatewayAvailability;
         let enabledMethods: PayPalRestPaymentMethod[];
         let setupSkipReason: string | undefined;
@@ -59,11 +58,11 @@ function definePayPalPpcpPaymentFlowSuite(paymentFlow: PortalPaymentFlow): void 
             await paypal.restoreExclusiveGateway();
         });
 
-        definePayPalRestMethodSuite({
+        definePayPalRffPaymentMethodSuite({
             paypal,
             methods: PAYPAL_REST_PAYMENT_METHODS,
             paymentFlow,
-            setupSuite: (): PayPalRestMethodSuiteState => ({
+            setupSuite: (): PayPalRffPaymentMethodSuiteState => ({
                 availability,
                 enabledMethods,
                 setupSkipReason,
@@ -72,10 +71,10 @@ function definePayPalPpcpPaymentFlowSuite(paymentFlow: PortalPaymentFlow): void 
     });
 }
 
-function definePayPalLegacyCardPaymentFlowSuite(
+function definePayPalLegacyCardRffFlowSuite(
     paymentFlow: PortalPaymentFlow,
 ): void {
-    test.describe(`PayPal REST legacy card funding — ${paymentFlow} flow`, () => {
+    test.describe(`PayPal REST legacy card RFF payment — ${paymentFlow} flow`, () => {
         let availability: GatewayAvailability;
         let enabledMethods: PayPalRestPaymentMethod[];
         let setupSkipReason: string | undefined;
@@ -111,11 +110,11 @@ function definePayPalLegacyCardPaymentFlowSuite(
             await paypal.restoreExclusiveGateway();
         });
 
-        definePayPalRestMethodSuite({
+        definePayPalRffPaymentMethodSuite({
             paypal,
             methods: [PAYPAL_REST_LEGACY_CARD_METHOD],
             paymentFlow,
-            setupSuite: (): PayPalRestMethodSuiteState => ({
+            setupSuite: (): PayPalRffPaymentMethodSuiteState => ({
                 availability,
                 enabledMethods,
                 setupSkipReason,
@@ -124,14 +123,7 @@ function definePayPalLegacyCardPaymentFlowSuite(
     });
 }
 
-function definePayPalVaultFlowSuite(paymentFlow: PortalPaymentFlow): void {
-    test.describe(`PayPal REST advanced card vaulting — ${paymentFlow} flow`, () => {
-        definePayPalAdvancedCardVaultSuite(paypal, paymentFlow);
-    });
-}
-
 for (const paymentFlow of ['default', 'smooth'] as const) {
-    definePayPalPpcpPaymentFlowSuite(paymentFlow);
-    definePayPalLegacyCardPaymentFlowSuite(paymentFlow);
-    definePayPalVaultFlowSuite(paymentFlow);
+    definePayPalPpcpRffFlowSuite(paymentFlow);
+    definePayPalLegacyCardRffFlowSuite(paymentFlow);
 }

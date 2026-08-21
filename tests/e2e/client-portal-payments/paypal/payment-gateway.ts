@@ -21,7 +21,11 @@ import {
     payPalRestPaymentMethodByTypeId,
     type PayPalRestPaymentMethod,
 } from './payment-methods';
-import { navigateToGatewayCheckout } from '../../gateways/payment-flow-helpers';
+import {
+    navigateToPortalGatewayCheckout,
+    preparePortalPaymentContext,
+    type PortalPaymentFlow,
+} from '../../gateways/payment-flow-helpers';
 import {
     GatewayType,
     type GatewayAvailability,
@@ -109,16 +113,41 @@ export class PayPalPaymentGateway extends BasePaymentGateway {
         return enabledPayPalRestPaymentMethods(gateway);
     }
 
+    async preparePaymentContext(
+        api: import('../../fixtures').ApiFixture,
+        page: Page,
+        availability: GatewayAvailability,
+        paymentFlow: PortalPaymentFlow = 'default',
+    ): Promise<PaymentGatewayContext> {
+        const companyGateway = availability.companyGateway;
+
+        if (!companyGateway) {
+            throw new Error(
+                `${this.displayName} checkout requires a configured company gateway`,
+            );
+        }
+
+        return preparePortalPaymentContext(
+            api,
+            page,
+            companyGateway,
+            paymentFlow,
+        );
+    }
+
     async navigateToMethodCheckout(
         page: Page,
         context: PaymentGatewayContext,
         method: PayPalRestPaymentMethod,
+        paymentFlow: PortalPaymentFlow = 'default',
     ): Promise<void> {
-        await navigateToGatewayCheckout(
+        await navigateToPortalGatewayCheckout(
             page,
             context.companyGateway,
             method.gatewayTypeId,
+            paymentFlow,
             context.invoice,
+            method.label,
         );
     }
 

@@ -106,6 +106,36 @@ const PAYPAL_GUEST_CARD_CHECKOUT_SELECTORS = {
 
 const PAYPAL_SANDBOX_GUEST_PHONE = '4155550132';
 
+const PAYPAL_GUEST_CARD_BILLING_ADDRESS = {
+    givenName: 'Playwright',
+    familyName: 'Portal',
+    line1: '510 Townsend Street',
+    city: 'San Francisco',
+    state: 'CA',
+    postcode: '94103',
+    country: 'US',
+} as const;
+
+const PAYPAL_GUEST_CARD_BILLING_SELECTORS = {
+    section: '.billingAddress',
+    country:
+        '[id="billingAddress.country"], select.country[name="billingAddress.country"]',
+    givenName:
+        '[id="billingAddress.givenName"], input[name="givenName"][autocomplete="given-name"]',
+    familyName:
+        '[id="billingAddress.familyName"], input[name="familyName"][autocomplete="family-name"]',
+    line1:
+        '[id="billingAddress.line1"], input[name="line1"][autocomplete="billing street-address"]',
+    line2:
+        '[id="billingAddress.line2"], input[name="line2"][autocomplete="billing street-address2"]',
+    city:
+        '[id="billingAddress.city"], input[name="city"][autocomplete="billing address-level2"]',
+    state:
+        '[id="billingAddress.state"], select[name="state"][autocomplete="billing address-level1"]',
+    postcode:
+        '[id="billingAddress.postcode"], input[name="postcode"][autocomplete="billing postal-code"]',
+} as const;
+
 function usesPayPalGuestCardCheckout(method: PayPalRestPaymentMethod): boolean {
     return method.checkoutKind === 'buttons' && method.fundingSource === 'card';
 }
@@ -864,6 +894,18 @@ async function resolvePayPalLoginPage(merchantPage: Page): Promise<Page> {
     throw new Error('PayPal sandbox login page with #email was not found');
 }
 
+async function dispatchPayPalHostedInputValue(
+    field: ReturnType<PayPalCheckoutTarget['locator']>,
+    value: string,
+): Promise<void> {
+    await field.evaluate((element, nextValue) => {
+        const input = element as HTMLInputElement;
+        input.value = nextValue;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+    }, value);
+}
+
 async function fillPayPalHostedFloatingLabelInput(
     target: PayPalCheckoutTarget,
     selector: string,
@@ -885,12 +927,28 @@ async function fillPayPalHostedFloatingLabelInput(
         })
         .toContain(normalizedValue.replace(/\D/g, '').slice(0, 4))
         .catch(async () => {
-            await field.evaluate((element, nextValue) => {
-                const input = element as HTMLInputElement;
-                input.value = nextValue;
-                input.dispatchEvent(new Event('input', { bubbles: true }));
-                input.dispatchEvent(new Event('change', { bubbles: true }));
-            }, value);
+            await dispatchPayPalHostedInputValue(field, value);
+        });
+}
+
+async function fillPayPalHostedTextInput(
+    field: ReturnType<PayPalCheckoutTarget['locator']>,
+    value: string,
+): Promise<void> {
+    await expect(field).toBeVisible({ timeout: 15_000 });
+    await field.click({ force: true });
+    await field.press('ControlOrMeta+a').catch(() => null);
+    await field.press('Backspace').catch(() => null);
+    await field.pressSequentially(value, { delay: 40 });
+    await field.press('Tab').catch(() => null);
+
+    await expect
+        .poll(async () => (await field.inputValue()).trim(), {
+            timeout: 10_000,
+        })
+        .toBe(value)
+        .catch(async () => {
+            await dispatchPayPalHostedInputValue(field, value);
         });
 }
 
@@ -916,6 +974,133 @@ async function resolvePayPalGuestCardCheckoutTarget(
         .catch(() => null);
 
     return target;
+}
+
+function payPalGuestCardBillingSection(
+    checkoutTarget: PayPalCheckoutTarget,
+): ReturnType<PayPalCheckoutTarget['locator']> {
+    return checkoutTarget.locator(PAYPAL_GUEST_CARD_BILLING_SELECTORS.section).first();
+}
+
+async function ensurePayPalGuestCardBillingTextField(
+    checkoutTarget: PayPalCheckoutTarget,
+    selector: string,
+    value: string,
+): Promise<void> {
+    const field = payPalGuestCardBillingSection(checkoutTarget)
+        .locator(selector)
+        .first();
+
+    if (!(await field.isVisible().catch(() => false))) {
+        return;
+    }
+
+    const currentValue = (await field.inputValue()).trim();
+    const isInvalid =
+        (await field.getAttribute('aria-invalid').catch(() => null)) === 'true';
+
+    if (!currentValue || isInvalid) {
+        await fillPayPalHostedTextInput(field, value);
+    }
+}
+
+async function ensurePayPalGuestCardBillingSelectField(
+    checkoutTarget: PayPalCheckoutTarget,
+    selector: string,
+    value: string,
+): Promise<void> {
+    const field = payPalGuestCardBillingSection(checkoutTarget)
+        .locator(selector)
+        .first();
+
+    if (!(await field.isVisible().catch(() => false))) {
+        return;
+    }
+
+    const currentValue = await field.inputValue().catch(() => '');
+    const isInvalid =
+        (await field.getAttribute('aria-invalid').catch(() => null)) === 'true';
+
+    if (currentValue !== value || isInvalid) {
+        await field.selectOption(value);
+        await field.dispatchEvent('change').catch(() => null);
+        await field.dispatchEvent('blur').catch(() => null);
+    }
+}
+
+async function fillPayPalGuestCardBillingAddressIfPresent(
+    checkoutTarget: PayPalCheckoutTarget,
+): Promise<void> {
+    const billingSection = payPalGuestCardBillingSection(checkoutTarget);
+
+    if (!(await billingSection.isVisible().catch(() => false))) {
+        return;
+    }
+
+    await ensurePayPalGuestCardBillingSelectField(
+        checkoutTarget,
+        PAYPAL_GUEST_CARD_BILLING_SELECTORS.country,
+        PAYPAL_GUEST_CARD_BILLING_ADDRESS.country,
+    );
+
+    await expect
+        .poll(async () => {
+            const stateField = payPalGuestCardBillingSection(checkoutTarget)
+                .locator(PAYPAL_GUEST_CARD_BILLING_SELECTORS.state)
+                .first();
+
+            return stateField.isVisible().catch(() => false);
+        }, { timeout: 10_000 })
+        .toBe(true)
+        .catch(() => null);
+
+    for (const [selector, value] of [
+        [
+            PAYPAL_GUEST_CARD_BILLING_SELECTORS.givenName,
+            PAYPAL_GUEST_CARD_BILLING_ADDRESS.givenName,
+        ],
+        [
+            PAYPAL_GUEST_CARD_BILLING_SELECTORS.familyName,
+            PAYPAL_GUEST_CARD_BILLING_ADDRESS.familyName,
+        ],
+        [
+            PAYPAL_GUEST_CARD_BILLING_SELECTORS.line1,
+            PAYPAL_GUEST_CARD_BILLING_ADDRESS.line1,
+        ],
+        [
+            PAYPAL_GUEST_CARD_BILLING_SELECTORS.city,
+            PAYPAL_GUEST_CARD_BILLING_ADDRESS.city,
+        ],
+        [
+            PAYPAL_GUEST_CARD_BILLING_SELECTORS.postcode,
+            PAYPAL_GUEST_CARD_BILLING_ADDRESS.postcode,
+        ],
+    ] as const) {
+        await ensurePayPalGuestCardBillingTextField(
+            checkoutTarget,
+            selector,
+            value,
+        );
+    }
+
+    await ensurePayPalGuestCardBillingSelectField(
+        checkoutTarget,
+        PAYPAL_GUEST_CARD_BILLING_SELECTORS.state,
+        PAYPAL_GUEST_CARD_BILLING_ADDRESS.state,
+    );
+}
+
+async function clickPayPalGuestCardPayButton(
+    checkoutTarget: PayPalCheckoutTarget,
+): Promise<void> {
+    const submitButton = checkoutTarget
+        .locator(PAYPAL_GUEST_CARD_CHECKOUT_SELECTORS.submit)
+        .or(checkoutTarget.getByRole('button', { name: /^pay\b/i }))
+        .first();
+
+    await expect(submitButton).toBeVisible({ timeout: 15_000 });
+    await submitButton.scrollIntoViewIfNeeded().catch(() => null);
+    await submitButton.click({ timeout: 15_000 });
 }
 
 async function fillPayPalGuestCardCheckout(
@@ -970,28 +1155,9 @@ async function fillPayPalGuestCardCheckout(
         }
     }
 
-    const submitButton = checkoutTarget
-        .locator(PAYPAL_GUEST_CARD_CHECKOUT_SELECTORS.submit)
-        .first();
+    await fillPayPalGuestCardBillingAddressIfPresent(checkoutTarget);
 
-    await expect(submitButton).toBeVisible({ timeout: 15_000 });
-
-    await expect
-        .poll(async () => {
-            const ariaDisabled = await submitButton
-                .getAttribute('aria-disabled')
-                .catch(() => null);
-
-            if (ariaDisabled === 'true') {
-                return false;
-            }
-
-            return !(await submitButton.isDisabled().catch(() => true));
-        }, { timeout: 30_000 })
-        .toBe(true)
-        .catch(() => null);
-
-    await submitButton.click({ timeout: 15_000, force: true });
+    await clickPayPalGuestCardPayButton(checkoutTarget);
 }
 
 async function waitForPayPalGuestCardCheckoutProcessing(

@@ -1,6 +1,11 @@
 import { dismissCookieConsent } from '../../client-portal-helpers';
 import { test, expect } from '../../fixtures';
 import { decodePrimaryKey } from '../../hash-helpers';
+import {
+    assertSmoothPaymentMethodOffered,
+    openSmoothInvoicePaymentPage,
+    type PortalPaymentFlow,
+} from '../../gateways/payment-flow-helpers';
 import { type GatewayAvailability } from '../../gateways/types';
 import {
     assertPayPalAdvancedCardValidationError,
@@ -26,9 +31,11 @@ export interface PayPalRestMethodSuiteState {
 export function definePayPalRestMethodSuite(options: {
     paypal: PayPalPaymentGateway;
     methods: PayPalRestPaymentMethod[];
+    paymentFlow: PortalPaymentFlow;
     setupSuite: () => PayPalRestMethodSuiteState;
 }): void {
-    const { paypal, methods, setupSuite } = options;
+    const { paypal, methods, paymentFlow, setupSuite } = options;
+    const flowLabel = paymentFlow === 'smooth' ? 'smooth payment flow' : 'Pay Now';
 
     function skipUnlessMethodEnabled(method: PayPalRestPaymentMethod): void {
         const { enabledMethods } = setupSuite();
@@ -77,7 +84,7 @@ export function definePayPalRestMethodSuite(options: {
                 }
             });
 
-            test('is offered in Pay Now', async ({ api, page }) => {
+            test(`is offered in ${flowLabel}`, async ({ api, page }) => {
                 skipUnlessMethodEnabled(method);
 
                 const { availability } = setupSuite();
@@ -85,9 +92,22 @@ export function definePayPalRestMethodSuite(options: {
                     api,
                     page,
                     availability,
+                    paymentFlow,
                 );
                 const companyGateway = availability.companyGateway!;
                 const rawId = decodePrimaryKey(companyGateway.id);
+
+                if (paymentFlow === 'smooth') {
+                    await openSmoothInvoicePaymentPage(page, context.invoice);
+                    await assertSmoothPaymentMethodOffered(
+                        page,
+                        companyGateway,
+                        method.gatewayTypeId,
+                        method.label,
+                    );
+
+                    return;
+                }
 
                 await page.goto(`/client/invoices/${context.invoice.id}`);
                 await dismissCookieConsent(page);
@@ -131,9 +151,15 @@ export function definePayPalRestMethodSuite(options: {
                     api,
                     page,
                     availability,
+                    paymentFlow,
                 );
 
-                await paypal.navigateToMethodCheckout(page, context, method);
+                await paypal.navigateToMethodCheckout(
+                    page,
+                    context,
+                    method,
+                    paymentFlow,
+                );
 
                 try {
                     await paypal.assertMethodCheckoutReady(page, method);
@@ -165,12 +191,14 @@ export function definePayPalRestMethodSuite(options: {
                         api,
                         page,
                         availability,
+                        paymentFlow,
                     );
 
                     await paypal.navigateToMethodCheckout(
                         page,
                         context,
                         method,
+                        paymentFlow,
                     );
                     await assertCheckoutReadyForSandboxPayment(page, method);
                     await submitPayPalAdvancedCardWithInvalidNumber(page);
@@ -217,12 +245,14 @@ export function definePayPalRestMethodSuite(options: {
                         api,
                         page,
                         availability,
+                        paymentFlow,
                     );
 
                     await paypal.navigateToMethodCheckout(
                         page,
                         context,
                         method,
+                        paymentFlow,
                     );
                     await assertCheckoutReadyForSandboxPayment(page, method);
                     await paypal.completeMethodPayment(page, method);

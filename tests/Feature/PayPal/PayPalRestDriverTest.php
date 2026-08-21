@@ -465,4 +465,11 @@ class PayPalRestDriverTest extends TestCase
         $this->assertNull(PayPalBasePaymentDriver::sandboxSdkBuyerCountry(false));
         $this->assertNull(PayPalBasePaymentDriver::sandboxSdkBuyerCountry(null));
     }
+
+    public function testSandboxSdkBuyerCountryQueryParamAvoidsBladeConditionalsInSdkUrl(): void
+    {
+        $this->assertSame('&buyer-country=US', PayPalBasePaymentDriver::sandboxSdkBuyerCountryQueryParam(true));
+        $this->assertSame('', PayPalBasePaymentDriver::sandboxSdkBuyerCountryQueryParam(false));
+        $this->assertSame('', PayPalBasePaymentDriver::sandboxSdkBuyerCountryQueryParam(null));
+    }
 }

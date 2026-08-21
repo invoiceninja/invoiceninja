@@ -12,7 +12,9 @@ import {
 import { type GatewayAvailability } from '../../gateways/types';
 import {
     defaultClientAddress,
-    navigateToGatewayCheckout,
+    navigateToPortalGatewayCheckout,
+    paymentTestSettings,
+    type PortalPaymentFlow,
 } from '../../gateways/payment-flow-helpers';
 import { createSentInvoice } from '../../portal-entity-helpers';
 import {
@@ -33,6 +35,7 @@ const vaultedCardLast4 = PAYPAL_SANDBOX_TEST_CARD.number.slice(-4);
 
 export function definePayPalAdvancedCardVaultSuite(
     paypal: PayPalPaymentGateway,
+    paymentFlow: PortalPaymentFlow,
 ): void {
     let availability: GatewayAvailability;
     let setupSkipReason: string | undefined;
@@ -68,7 +71,7 @@ export function definePayPalAdvancedCardVaultSuite(
         }
     });
 
-    test('shows save payment method option on advanced card checkout', async ({
+    test(`shows save payment method option on advanced card checkout (${paymentFlow} flow)`, async ({
         api,
         page,
     }) => {
@@ -76,7 +79,10 @@ export function definePayPalAdvancedCardVaultSuite(
 
         vaultClient = await createAndLogInClient(api, page, {
             name: uniqueName('paypal-vault'),
-            settings: { payment_flow: 'default' },
+            settings: {
+                ...paymentTestSettings,
+                payment_flow: paymentFlow,
+            },
         });
         vaultClient = await updateClient(api.context, vaultClient, {
             ...defaultClientAddress,
@@ -84,21 +90,23 @@ export function definePayPalAdvancedCardVaultSuite(
         });
 
         const invoice = await createSentInvoice(api, vaultClient, {
-            label: 'paypal-vault-ui',
+            label: `paypal-vault-ui-${paymentFlow}`,
             cost: 42,
         });
 
-        await navigateToGatewayCheckout(
+        await navigateToPortalGatewayCheckout(
             page,
             availability.companyGateway!,
             advancedCards.gatewayTypeId,
+            paymentFlow,
             invoice,
+            advancedCards.label,
         );
         await assertPayPalMethodCheckoutReady(page, advancedCards);
         await enablePayPalAdvancedCardVaultOption(page);
     });
 
-    test('vaults card on successful advanced card payment', async ({
+    test(`vaults card on successful advanced card payment (${paymentFlow} flow)`, async ({
         api,
         page,
         notificationGuard,
@@ -113,15 +121,17 @@ export function definePayPalAdvancedCardVaultSuite(
         await logInPortalClient(page, vaultClient!);
 
         const invoice = await createSentInvoice(api, vaultClient!, {
-            label: 'paypal-vault-store',
+            label: `paypal-vault-store-${paymentFlow}`,
             cost: 42,
         });
 
-        await navigateToGatewayCheckout(
+        await navigateToPortalGatewayCheckout(
             page,
             availability.companyGateway!,
             advancedCards.gatewayTypeId,
+            paymentFlow,
             invoice,
+            advancedCards.label,
         );
         await assertPayPalMethodCheckoutReady(page, advancedCards);
         await completePayPalAdvancedCardVaultPayment(page);
@@ -141,7 +151,7 @@ export function definePayPalAdvancedCardVaultSuite(
         expect(String(tokens[0]?.token ?? '').length).toBeGreaterThan(2);
     });
 
-    test('pays with vaulted token on a second invoice', async ({
+    test(`pays with vaulted token on a second invoice (${paymentFlow} flow)`, async ({
         api,
         page,
         notificationGuard,
@@ -172,15 +182,17 @@ export function definePayPalAdvancedCardVaultSuite(
         await logInPortalClient(page, vaultClient!);
 
         const invoice = await createSentInvoice(api, vaultClient!, {
-            label: 'paypal-vault-reuse',
+            label: `paypal-vault-reuse-${paymentFlow}`,
             cost: 42,
         });
 
-        await navigateToGatewayCheckout(
+        await navigateToPortalGatewayCheckout(
             page,
             availability.companyGateway!,
             advancedCards.gatewayTypeId,
+            paymentFlow,
             invoice,
+            advancedCards.label,
         );
         await assertPayPalVaultTokenCheckoutReady(page, vaultedCardLast4);
         await completePayPalVaultTokenPayment(page);

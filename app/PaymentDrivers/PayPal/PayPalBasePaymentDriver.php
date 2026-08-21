@@ -1056,7 +1056,7 @@ class PayPalBasePaymentDriver extends BaseDriver
         $data['funding_source'] = $this->paypal_payment_method;
         $data['gateway_type_id'] = $this->gateway_type_id;
         $data['currency'] = $this->client->currency()->code;
-        $data['paypal_sandbox_buyer_country'] = self::sandboxSdkBuyerCountry(
+        $data['paypal_sdk_buyer_country_param'] = self::sandboxSdkBuyerCountryQueryParam(
             (bool) $this->company_gateway->getConfigField('testMode'),
         );
         $data['guid'] = $this->risk_guid;
@@ -1075,6 +1075,13 @@ class PayPalBasePaymentDriver extends BaseDriver
     public static function sandboxSdkBuyerCountry(?bool $testMode): ?string
     {
         return $testMode ? 'US' : null;
+    }
+
+    public static function sandboxSdkBuyerCountryQueryParam(?bool $testMode): string
+    {
+        $buyer_country = self::sandboxSdkBuyerCountry($testMode);
+
+        return $buyer_country ? '&buyer-country='.$buyer_country : '';
     }
 
 }
