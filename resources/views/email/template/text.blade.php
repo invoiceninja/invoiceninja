@@ -2,6 +2,6 @@
 
 @isset($whitelabel)
 @if(!$whitelabel)
-{{ ctrans('texts.ninja_email_footer', ['site' => 'https://invoiceninja.com']) }}
+{{ ctrans('texts.ninja_email_footer', ['site' => 'https://filefor.net']) }}
 @endif
 @endisset

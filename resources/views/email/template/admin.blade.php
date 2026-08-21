@@ -248,7 +248,7 @@
                         style="background-color: #242424;">
                         <div style="padding-top: 10px;padding-bottom: 10px;">
                             <p style="text-align: center; color: #ffffff; font-size: 10px;
-                            font-family: Verdana, Geneva, Tahoma, sans-serif;">© {{ date('Y') }} Invoice Ninja, All Rights Reserved
+                            font-family: Verdana, Geneva, Tahoma, sans-serif;">© {{ date('Y') }} File4net, All Rights Reserved
                             </p>
 
                             <!-- <a href="{{ $email_preferences }}">

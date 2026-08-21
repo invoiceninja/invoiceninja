@@ -6,7 +6,34 @@ RUN git init /src \
     && git -C /src remote add origin https://github.com/invoiceninja/ui.git \
     && git -C /src fetch --depth 1 origin "${UI_REF}" \
     && git -C /src checkout --detach FETCH_HEAD \
-    && sed -i 's#<Router>#<Router basename="/control">#' /src/src/index.tsx
+    && sed -i 's#<Router>#<Router basename="/control">#' /src/src/index.tsx \
+    && sed -i 's#<title>Invoice Ninja</title>#<title>File4net Billing</title>#' /src/index.html \
+    && sed -i 's|content="#000000"|content="#061F4A"|' /src/index.html \
+    && sed -i 's#Leading free invoice generator for freelancers and small businesses\. Invoice clients, accept payments, track expenses &amp; time billable-tasks online\.#File4net billing and account management portal.#' /src/index.html \
+    && sed -i 's|<link rel="icon" href="/favicon.ico" />|<link rel="icon" href="/favicon.ico" sizes="any" />\n    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />\n    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#08A9C2" />\n    <meta name="msapplication-config" content="/browserconfig.xml" />|' /src/index.html \
+    && sed -i 's#Invoice Ninja Logo#File4net logo#g' \
+        /src/src/pages/authentication/components/Header.tsx \
+        /src/src/components/NotFound.tsx \
+    && sed -i "s#^import Logo from .*#import Logo from '../../../resources/images/file4net-logo.png';#" \
+        /src/src/pages/authentication/components/Header.tsx \
+    && sed -i "s#^import Logo from .*#import Logo from '../resources/images/file4net-logo.png';#" \
+        /src/src/components/NotFound.tsx \
+    && sed -i "s#^import DefaultLogo from .*#import DefaultLogo from '../../resources/images/file4net-logo-dark.png';#" \
+        /src/src/common/constants/company-settings.ts \
+    && find /src/src/resources/images -maxdepth 1 -type f -delete
+
+COPY brand/logo-primary-400w.png /src/src/resources/images/file4net-logo.png
+COPY brand/logo-primary-dark-400w.png /src/src/resources/images/file4net-logo-dark.png
+COPY brand/favicon.ico /src/public/favicon.ico
+COPY brand/favicon.svg /src/public/favicon.svg
+COPY brand/apple-touch-icon.png /src/public/logo180.png
+COPY brand/android-chrome-192x192.png /src/public/android-chrome-192x192.png
+COPY brand/android-chrome-512x512.png /src/public/android-chrome-512x512.png
+COPY brand/maskable-icon-512x512.png /src/public/maskable-icon-512x512.png
+COPY brand/mstile-150x150.png /src/public/mstile-150x150.png
+COPY brand/safari-pinned-tab.svg /src/public/safari-pinned-tab.svg
+COPY brand/browserconfig.xml /src/public/browserconfig.xml
+COPY brand/manifest.json /src/public/manifest.json
 
 FROM node:22-alpine AS build
 
@@ -14,7 +41,7 @@ ARG VITE_API_URL
 ARG TARGETARCH
 ENV VITE_API_URL=${VITE_API_URL} \
     VITE_IS_HOSTED=false \
-    VITE_APP_TITLE="Invoice Ninja" \
+    VITE_APP_TITLE="File4net Billing" \
     VITE_ROUTER=browser
 
 WORKDIR /src

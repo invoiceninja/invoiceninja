@@ -155,7 +155,7 @@ class CreateSingleAccount extends Command
         $settings->quote_terms = 'Default company quote terms';
         $settings->invoice_footer = 'Default invoice footer';
 
-        $settings->company_logo = 'https://pdf.invoicing.co/favicon-v2.png';
+        $settings->company_logo = config('ninja.app_logo');
         $settings->name = $faker->name();
         $settings->email = $faker->safeEmail();
         $settings->phone = $faker->phoneNumber();

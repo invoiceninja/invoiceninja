@@ -775,7 +775,7 @@ class CompanyController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
         $company = $user->company();
-        $logo = strlen($company->settings->company_logo) > 5 ? $company->settings->company_logo : 'https://pdf.invoicing.co/favicon-v2.png';
+        $logo = strlen($company->settings->company_logo) > 5 ? $company->settings->company_logo : config('ninja.app_logo');
         $headers = ['Content-Disposition' => 'inline'];
 
         try {

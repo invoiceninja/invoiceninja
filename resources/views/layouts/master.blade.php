@@ -23,11 +23,9 @@
     @endif
 
     <meta charset="utf-8">
-    <title>@yield('meta_title', 'Invoice Ninja') | {{ config('app.name') }}</title>
+    <title>@yield('meta_title', 'File4net Billing') | {{ config('app.name') }}</title>
     <meta name="description" content="@yield('meta_description')"/>
-    @if(auth()->guard('contact')->user() && !auth()->guard('contact')->user()->user->account->isPaid())
-        <link href="{{ asset('images/file4net.svg') }}" rel="shortcut icon" type="image/svg+xml">
-    @endif
+    @include('partials.file4net-head')
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">

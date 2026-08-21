@@ -8,7 +8,7 @@
 
         <div class="grid grid-cols-12 px-6">
             <div class="col-span-12 md:col-start-4 md:col-span-6 mt-4 md:mt-10">
-                <h1 class="text-center text-2xl font-semibold">Invoice Ninja Setup</h1>
+                <h1 class="text-center text-2xl font-semibold">File4net Billing Setup</h1>
                 <p class="text-sm text-center">{{ ctrans('texts.if_you_need_help') }}
                     <a 
                         target="_blank" 

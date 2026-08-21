@@ -46,7 +46,7 @@
 
         <!-- Title -->
         @if(isset($company->account) && !$company->account->isPaid())
-            <title>@yield('meta_title', '') — Invoice Ninja</title>
+            <title>@yield('meta_title', '') — File4net Billing</title>
         @elseif(isset($company) && !is_null($company))
             <title>@yield('meta_title', '') — {{ $company->present()->name() }}</title>
         @else
@@ -82,7 +82,7 @@
         @vite('resources/sass/app.scss')
 
         @if(auth()->guard('vendor')->user() && !auth()->guard('vendor')->user()->user->account->isPaid())
-            <link href="{{ asset('images/file4net.svg') }}" rel="shortcut icon" type="image/svg+xml">
+            @include('partials.file4net-head')
         @endif
 
         <link rel="canonical" href="{{ config('ninja.site_url') }}/{{ request()->path() }}"/>

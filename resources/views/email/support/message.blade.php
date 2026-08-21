@@ -1,4 +1,4 @@
-@component('email.template.admin', ['settings' => $settings, 'logo' => $logo ?? 'https://pdf.invoicing.co/favicon-v2.png'])
+@component('email.template.admin', ['settings' => $settings, 'logo' => $logo ?? config('ninja.app_logo')])
     {{-- Body --}}
     {!! $support_message !!}
 

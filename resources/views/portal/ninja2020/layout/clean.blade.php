@@ -55,7 +55,7 @@
 
         <!-- Title -->
         @if(isset($account) && !$account->isPaid())
-            <title>@yield('meta_title', '') — Invoice Ninja</title>
+            <title>@yield('meta_title', '') — File4net Billing</title>
         @elseif(isset($company) && !is_null($company))
             <title>@yield('meta_title', '') — {{ $company->present()->name() }}</title>
         @else

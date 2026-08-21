@@ -1,0 +1,32 @@
+{
+  "short_name": "File4net",
+  "name": "File4net Billing",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "16x16 32x32 48x48",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/maskable-icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "start_url": "/control/",
+  "scope": "/control/",
+  "display": "standalone",
+  "theme_color": "#061F4A",
+  "background_color": "#F7FAFC"
+}
