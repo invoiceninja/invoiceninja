@@ -93,7 +93,7 @@
     @endif
     
     <div id="pdf-slot-container" class="">
-        @livewire('pdf-slot', ['class' => get_class($quote), 'entity_id' => $quote->id, 'invitation_id' => $invitation->id ?? false, 'db' => $quote->company->db])
+        @livewire('pdf-slot', ['entity_type' => 'quote', 'entity_key' => $quote->hashed_id, 'invitation_key' => $invitation->key ?? null, 'db' => $quote->company->db])
     </div>
 
 @endsection

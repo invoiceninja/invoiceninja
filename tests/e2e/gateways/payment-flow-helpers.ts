@@ -1,5 +1,11 @@
 import { expect, test, type Page } from '@playwright/test';
-import { updateClient, type CompanyGatewayEntity } from '../api-helpers';
+import {
+    getCompanyGateway,
+    updateClient,
+    updateCompanyGatewayRequirements,
+    type CompanyGatewayEntity,
+    type CompanyGatewayRequirementSettings,
+} from '../api-helpers';
 import {
     createAndLogInClient,
     dismissCookieConsent,
@@ -13,7 +19,8 @@ import {
 } from '../portal-entity-helpers';
 import { type PaymentGatewayContext } from './types';
 
-const defaultClientAddress = {
+/** Default billing/shipping address used for payable checkout e2e. */
+export const defaultClientAddress = {
     address1: '5 Wallaby Way',
     city: 'Perth',
     state: 'WA',
@@ -25,6 +32,23 @@ const defaultClientAddress = {
     shipping_postal_code: '90210',
     shipping_country_id: '840',
     phone: '5555555555',
+};
+
+/** Clears billing/shipping fields so RFF gates checkout when required. */
+export const emptyClientAddress = {
+    address1: '',
+    address2: '',
+    city: '',
+    state: '',
+    postal_code: '',
+    country_id: '',
+    shipping_address1: '',
+    shipping_address2: '',
+    shipping_city: '',
+    shipping_state: '',
+    shipping_postal_code: '',
+    shipping_country_id: '',
+    phone: '',
 };
 
 const requiredClientInfoDefaults: Record<string, string> = {
@@ -100,6 +124,39 @@ export async function isRequiredClientInfoBlockingCheckout(
 
     return gateway.evaluate((element) =>
         element.classList.contains('pointer-events-none')
+    );
+}
+
+export async function assertRequiredClientInfoBlocksCheckout(
+    page: Page,
+): Promise<void> {
+    await expect(requiredClientInfoForm(page)).toBeVisible({
+        timeout: 30_000,
+    });
+    await expect(
+        page.getByRole('heading', { name: /Required payment details/i }),
+    ).toBeVisible();
+    await expect
+        .poll(() => isRequiredClientInfoBlockingCheckout(page), {
+            timeout: 30_000,
+        })
+        .toBe(true);
+    await expect(gatewayCheckoutContainer(page)).toHaveClass(
+        /pointer-events-none/,
+    );
+}
+
+export async function assertRequiredClientInfoUnblocksCheckout(
+    page: Page,
+): Promise<void> {
+    await expect
+        .poll(() => isRequiredClientInfoBlockingCheckout(page), {
+            timeout: 30_000,
+        })
+        .toBe(false);
+    await expect(gatewayCheckoutContainer(page)).not.toHaveClass(
+        /pointer-events-none/,
+        { timeout: 30_000 },
     );
 }
 
@@ -249,6 +306,113 @@ export async function prepareDefaultPaymentContext(
     }
 
     return { client, invoice, companyGateway };
+}
+
+export interface IncompleteClientPaymentContextOptions {
+    requireBillingAddress?: boolean;
+    alwaysShowRequiredFields?: boolean;
+}
+
+export interface IncompleteClientPaymentContext extends PaymentGatewayContext {
+    restoreGatewayRequirements: () => Promise<void>;
+}
+
+export async function prepareIncompleteClientPaymentContext(
+    api: ApiFixture,
+    page: Page,
+    companyGateway: CompanyGatewayEntity,
+    options: IncompleteClientPaymentContextOptions = {},
+): Promise<IncompleteClientPaymentContext> {
+    const originalGateway = await getCompanyGateway(
+        api.context,
+        companyGateway.id,
+    );
+    const requirementSettings: CompanyGatewayRequirementSettings = {
+        require_billing_address: options.requireBillingAddress ?? true,
+        always_show_required_fields:
+            options.alwaysShowRequiredFields ?? false,
+    };
+
+    const configuredGateway = await updateCompanyGatewayRequirements(
+        api.context,
+        companyGateway,
+        requirementSettings,
+    );
+
+    let client = await createAndLogInClient(api, page, {
+        settings: {
+            payment_flow: 'default',
+            client_manual_payment_notification: false,
+        },
+        contact: {
+            first_name: 'Playwright',
+            last_name: 'Portal',
+            email: `portal-rff-${Date.now()}@example.test`,
+        },
+    });
+
+    if (options.alwaysShowRequiredFields) {
+        client = await updateClient(api.context, client, {
+            ...defaultClientAddress,
+        });
+    } else {
+        client = await updateClient(api.context, client, {
+            ...emptyClientAddress,
+        });
+    }
+
+    const invoice = await createSentInvoice(api, client, {
+        label: `rff-${companyGateway.gateway_key}`,
+        cost: 42,
+    });
+
+    if ((invoice.balance ?? 0) <= 0) {
+        throw new Error(
+            `Expected a payable invoice for RFF tests on ${companyGateway.gateway_key}, got balance ${invoice.balance ?? 0}`,
+        );
+    }
+
+    const restoreGatewayRequirements = async (): Promise<void> => {
+        await updateCompanyGatewayRequirements(
+            api.context,
+            companyGateway,
+            {
+                require_billing_address: Boolean(
+                    originalGateway.require_billing_address,
+                ),
+                require_postal_code: Boolean(
+                    originalGateway.require_postal_code,
+                ),
+                require_shipping_address: Boolean(
+                    originalGateway.require_shipping_address,
+                ),
+                always_show_required_fields: Boolean(
+                    originalGateway.always_show_required_fields,
+                ),
+            },
+        );
+    };
+
+    return {
+        client,
+        invoice,
+        companyGateway: configuredGateway,
+        restoreGatewayRequirements,
+    };
+}
+
+export async function navigateToGatewayCheckoutWithoutRequiredClientInfo(
+    page: Page,
+    companyGateway: CompanyGatewayEntity,
+    gatewayTypeId: number,
+    invoice?: PortalEntity,
+): Promise<void> {
+    await openInvoicePaymentPage(page, invoice);
+    await selectGatewayFromDropdown(page, companyGateway, gatewayTypeId);
+    await dismissCookieConsent(page);
+    await expect(page).toHaveURL(/\/client\/payments\/process/, {
+        timeout: 30_000,
+    });
 }
 
 export async function openInvoicePaymentPage(

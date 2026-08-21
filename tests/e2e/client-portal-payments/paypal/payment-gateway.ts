@@ -1,30 +1,32 @@
 import { expect, type Page } from '@playwright/test';
-import { getEntity, type ApiContext } from '../api-helpers';
-import { type PortalEntity } from '../portal-entity-helpers';
-import { BasePaymentGateway } from './base-payment-gateway';
-import {
-    parsePayPalRestKeys,
-    PAYPAL_REST_GATEWAY_KEY,
-    resolvePayPalRestCompanyGateway,
-    setupExclusivePayPalRestGatewayEnvironment,
-} from './gateway-isolation-helpers';
+import { getEntity, type ApiContext } from '../../api-helpers';
+import { type PortalEntity } from '../../portal-entity-helpers';
+import { BasePaymentGateway } from '../../gateways/base-payment-gateway';
 import {
     assertPayPalMethodCheckoutReady,
     completePayPalSandboxPayment,
     payPalSandboxBuyerCredentials,
     waitForPayPalMerchantPaymentComplete,
-} from './paypal-flow-helpers';
+} from './flow-helpers';
+import {
+    ensurePayPalRestGatewayAvailability,
+    parsePayPalRestKeys,
+    PAYPAL_REST_GATEWAY_KEY,
+    resolvePayPalRestCompanyGateway,
+    setupExclusivePayPalRestGatewayEnvironment,
+    setupExclusivePayPalRestLegacyCardGatewayEnvironment,
+} from './isolation';
 import {
     enabledPayPalRestPaymentMethods,
     payPalRestPaymentMethodByTypeId,
     type PayPalRestPaymentMethod,
-} from './paypal-payment-methods';
-import { navigateToGatewayCheckout } from './payment-flow-helpers';
+} from './payment-methods';
+import { navigateToGatewayCheckout } from '../../gateways/payment-flow-helpers';
 import {
     GatewayType,
     type GatewayAvailability,
     type PaymentGatewayContext,
-} from './types';
+} from '../../gateways/types';
 
 /**
  * PayPal Express (`PayPal_Express` / key 38f2…) no longer has a payment driver
@@ -48,6 +50,10 @@ export class PayPalPaymentGateway extends BasePaymentGateway {
         return resolvePayPalRestCompanyGateway(api, this.gatewayKey);
     }
 
+    async checkAvailability(api: ApiContext): Promise<GatewayAvailability> {
+        return ensurePayPalRestGatewayAvailability(api, this.gatewayTypeId);
+    }
+
     async setupExclusiveTestEnvironment(api: ApiContext): Promise<{
         availability: GatewayAvailability;
         skipReason?: string;
@@ -55,7 +61,31 @@ export class PayPalPaymentGateway extends BasePaymentGateway {
         const setup = await setupExclusivePayPalRestGatewayEnvironment(api, {
             envConfigured: this.isEnvConfigured(),
             gatewayTypeId: this.gatewayTypeId,
+            feeProfile: 'ppcp',
         });
+
+        if (setup.restore) {
+            this.setGatewayIsolationRestore(setup.restore);
+        }
+
+        return {
+            availability: setup.availability,
+            skipReason: setup.skipReason,
+        };
+    }
+
+    async setupLegacyCardExclusiveTestEnvironment(
+        api: ApiContext,
+    ): Promise<{
+        availability: GatewayAvailability;
+        skipReason?: string;
+    }> {
+        const setup = await setupExclusivePayPalRestLegacyCardGatewayEnvironment(
+            api,
+            {
+                envConfigured: this.isEnvConfigured(),
+            },
+        );
 
         if (setup.restore) {
             this.setGatewayIsolationRestore(setup.restore);
@@ -128,6 +158,13 @@ export class PayPalPaymentGateway extends BasePaymentGateway {
             return true;
         }
 
+        if (
+            method.checkoutKind === 'buttons' &&
+            method.fundingSource === 'card'
+        ) {
+            return true;
+        }
+
         if (!method.fundingSource) {
             return false;
         }
@@ -143,14 +180,20 @@ export class PayPalPaymentGateway extends BasePaymentGateway {
         api: ApiContext,
         invoice: PortalEntity,
     ): Promise<void> {
-        const refreshed = await getEntity<PortalEntity>(
-            api,
-            'invoices',
-            invoice.id,
-        );
+        await expect
+            .poll(async () => {
+                const refreshed = await getEntity<PortalEntity>(
+                    api,
+                    'invoices',
+                    invoice.id,
+                );
 
-        expect(Number(refreshed.balance ?? 0)).toBe(0);
-        expect(Number(refreshed.status_id)).toBe(4);
+                return {
+                    balance: Number(refreshed.balance ?? 0),
+                    statusId: Number(refreshed.status_id),
+                };
+            }, { timeout: 60_000 })
+            .toEqual({ balance: 0, statusId: 4 });
     }
 
     async completePayment(page: Page): Promise<void> {
@@ -169,7 +212,11 @@ export class PayPalPaymentGateway extends BasePaymentGateway {
     ): Promise<void> {
         const keys = parsePayPalRestKeys();
 
-        if (method.checkoutKind === 'advanced-cards') {
+        if (
+            method.checkoutKind === 'advanced-cards' ||
+            (method.checkoutKind === 'buttons' &&
+                method.fundingSource === 'card')
+        ) {
             await completePayPalSandboxPayment(
                 page,
                 method,

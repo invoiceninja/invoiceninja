@@ -110,6 +110,67 @@ class PayPalBasePaymentDriver extends BaseDriver
         return $method;
     }
 
+    /**
+     * @param  mixed  $request
+     * @param  array<string, mixed>|null  $response
+     */
+    protected function resolveGatewayTypeId($request, ?array $response = null): int
+    {
+        $from_request = $request->input('gateway_type_id') ?? $request->input('payment_method_id');
+
+        if ($from_request) {
+            return (int) $from_request;
+        }
+
+        if ($this->gateway_type_id) {
+            return (int) $this->gateway_type_id;
+        }
+
+        if ($response !== null && isset($response['payment_source']) && is_array($response['payment_source'])) {
+            $source = array_key_first($response['payment_source']);
+
+            if (is_string($source)) {
+                return $this->mapPaymentSourceToGatewayType($source);
+            }
+        }
+
+        return GatewayType::PAYPAL;
+    }
+
+    protected function mapPaymentSourceToGatewayType(string $source): int
+    {
+        return match ($source) {
+            'venmo' => GatewayType::VENMO,
+            'paylater' => GatewayType::PAYLATER,
+            'card' => $this->resolveCardGatewayTypeId(),
+            default => GatewayType::PAYPAL,
+        };
+    }
+
+    protected function resolveCardGatewayTypeId(): int
+    {
+        if (in_array((int) $this->gateway_type_id, [GatewayType::CREDIT_CARD, GatewayType::PAYPAL_ADVANCED_CARDS], true)) {
+            return (int) $this->gateway_type_id;
+        }
+
+        $limits = $this->company_gateway->fees_and_limits ?? null;
+
+        if (
+            is_object($limits)
+            && property_exists($limits, (string) GatewayType::PAYPAL_ADVANCED_CARDS)
+            && $limits->{GatewayType::PAYPAL_ADVANCED_CARDS}->is_enabled
+        ) {
+            return GatewayType::PAYPAL_ADVANCED_CARDS;
+        }
+
+        return GatewayType::CREDIT_CARD;
+    }
+
+    public function gatewayTypeFromPaymentSource(string $source): int
+    {
+        return $this->mapPaymentSourceToGatewayType($source);
+    }
+
     public function init()
     {
         $this->risk_guid = Str::random(32);
@@ -231,18 +292,18 @@ class PayPalBasePaymentDriver extends BaseDriver
     }
 
     /**
-     * Build a PayPal-unique invoice_id for this checkout attempt.
+     * Build the PayPal invoice_id sent to buyers (transaction history / emails).
+     *
+     * Uses the clean Ninja invoice number by default. On duplicate collisions only,
+     * appends a numeric suffix (-2, -3, …). Internal uniqueness stays on custom_id.
      */
-    protected function getPayPalInvoiceId(Invoice $invoice, ?string $suffix = null): string
+    protected function getPayPalInvoiceId(Invoice $invoice, int $attempt = 1): string
     {
-        $hash_prefix = substr($this->payment_hash->hash, 0, 8);
-        $invoice_id = $invoice->number . '-' . $hash_prefix;
-
-        if ($suffix) {
-            $invoice_id .= '-' . $suffix;
+        if ($attempt <= 1) {
+            return $invoice->number;
         }
 
-        return $invoice_id;
+        return $invoice->number . '-' . $attempt;
     }
 
     protected function isDuplicateInvoiceError(\Illuminate\Http\Client\Response|array|null $response): bool
@@ -321,7 +382,8 @@ class PayPalBasePaymentDriver extends BaseDriver
     {
         $_invoice = collect($this->payment_hash->data->invoices)->first();
         $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
-        $new_invoice_number = $this->getPayPalInvoiceId($invoice, Str::random(5));
+        $next_attempt = $attempt + 1;
+        $new_invoice_number = $this->getPayPalInvoiceId($invoice, $next_attempt);
 
         $update_data = [[
             "op" => "replace",
@@ -332,8 +394,8 @@ class PayPalBasePaymentDriver extends BaseDriver
         $this->gatewayRequest("/v2/checkout/orders/{$orderID}", 'patch', $update_data);
         $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}/capture", 'post', ['body' => '']);
 
-        if ($r->status() == 422 && $this->isDuplicateInvoiceError($r) && $attempt < 3) {
-            return $this->handleDuplicateInvoiceId($orderID, $attempt + 1);
+        if ($r->status() == 422 && $this->isDuplicateInvoiceError($r) && $next_attempt < 3) {
+            return $this->handleDuplicateInvoiceId($orderID, $next_attempt);
         }
 
         return $r;
@@ -627,17 +689,19 @@ class PayPalBasePaymentDriver extends BaseDriver
 
             $payment_status = $response['purchase_units'][0]['payments']['captures'][0]['status'] == 'COMPLETED' ? \App\Models\Payment::STATUS_COMPLETED : \App\Models\Payment::STATUS_PENDING;
 
+            $response_array = $this->responseToArray($response);
+            $gateway_type_id = $this->resolveGatewayTypeId($request, $response_array);
+
             $data = [
-                'payment_type' => $this->getPaymentMethod($request->gateway_type_id),
+                'payment_type' => $this->getPaymentMethod((string) $gateway_type_id),
                 'amount' => $response['purchase_units'][0]['payments']['captures'][0]['amount']['value'],
                 'transaction_reference' => $response['purchase_units'][0]['payments']['captures'][0]['id'],
-                'gateway_type_id' => GatewayType::PAYPAL,
+                'gateway_type_id' => $gateway_type_id,
             ];
 
             $payment = $this->createPayment($data, $payment_status);
 
             if ($request->has('store_card') && $request->input('store_card') === true) {
-                $response_array = $this->responseToArray($response);
                 $payment_source = $response_array['payment_source'] ?? false;
 
                 if (isset($payment_source['card']) && ($payment_source['card']['attributes']['vault']['status'] ?? false) && $payment_source['card']['attributes']['vault']['status'] == 'VAULTED') {
@@ -658,7 +722,7 @@ class PayPalBasePaymentDriver extends BaseDriver
                     $gateway_customer_reference = $payment_source['card']['attributes']['vault']['customer']['id']; //rbTHnLsZqE;
 
                     $data['token'] = $token;
-                    $data['payment_method_id'] = GatewayType::PAYPAL_ADVANCED_CARDS;
+                    $data['payment_method_id'] = $gateway_type_id;
                     $data['payment_meta'] = $payment_meta;
 
                     $additional['gateway_customer_reference'] = $gateway_customer_reference;
@@ -762,13 +826,15 @@ class PayPalBasePaymentDriver extends BaseDriver
         }
 
         $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
-        $response = $r->json();
+        $attempt = 1;
 
-        if ($r->status() == 422 && $this->isDuplicateInvoiceError($r)) {
-            $order['purchase_units'][0]['invoice_id'] = $this->getPayPalInvoiceId($invoice, Str::random(5));
+        while ($r->status() == 422 && $this->isDuplicateInvoiceError($r) && $attempt < 3) {
+            $attempt++;
+            $order['purchase_units'][0]['invoice_id'] = $this->getPayPalInvoiceId($invoice, $attempt);
             $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
-            $response = $r->json();
         }
+
+        $response = $r->json();
 
         if (! isset($response['id'])) {
             $this->handleProcessingFailure($response ?? ['name' => '']);
@@ -881,11 +947,13 @@ class PayPalBasePaymentDriver extends BaseDriver
         $response_array = $r->json();
 
         if (isset($response_array['purchase_units'][0]['payments']['captures'][0]['status']) && $response_array['purchase_units'][0]['payments']['captures'][0]['status'] == 'COMPLETED') {
+            $gateway_type_id = (int) ($cgt->gateway_type_id ?: $this->resolveGatewayTypeId($request));
+
             $data = [
-                'payment_type' => $this->getPaymentMethod($request->gateway_type_id),
+                'payment_type' => $this->getPaymentMethod((string) $gateway_type_id),
                 'amount' => $response_array['purchase_units'][0]['payments']['captures'][0]['amount']['value'],
                 'transaction_reference' => $response_array['purchase_units'][0]['payments']['captures'][0]['id'],
-                'gateway_type_id' => $this->gateway_type_id,
+                'gateway_type_id' => $gateway_type_id,
             ];
 
             $payment = $this->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
@@ -941,11 +1009,13 @@ class PayPalBasePaymentDriver extends BaseDriver
         $response_array = $r->json();
 
         if (isset($response_array['purchase_units'][0]['payments']['captures'][0]['status']) && $response_array['purchase_units'][0]['payments']['captures'][0]['status'] == 'COMPLETED') {
+            $gateway_type_id = (int) $cgt->gateway_type_id;
+
             $data = [
-                'payment_type' => $this->getPaymentMethod((string) $cgt->gateway_type_id),
+                'payment_type' => $this->getPaymentMethod((string) $gateway_type_id),
                 'amount' => $response_array['purchase_units'][0]['payments']['captures'][0]['amount']['value'],
                 'transaction_reference' => $response_array['purchase_units'][0]['payments']['captures'][0]['id'],
-                'gateway_type_id' => $this->gateway_type_id,
+                'gateway_type_id' => $gateway_type_id,
             ];
 
             $payment = $this->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
@@ -986,12 +1056,25 @@ class PayPalBasePaymentDriver extends BaseDriver
         $data['funding_source'] = $this->paypal_payment_method;
         $data['gateway_type_id'] = $this->gateway_type_id;
         $data['currency'] = $this->client->currency()->code;
+        $data['paypal_sandbox_buyer_country'] = self::sandboxSdkBuyerCountry(
+            (bool) $this->company_gateway->getConfigField('testMode'),
+        );
         $data['guid'] = $this->risk_guid;
         $data['identifier'] = $this->getCheckoutIdentifier();
         $data['pp_client_reference'] = $this->getClientHash();
         $data['invoice_hash'] = $this->payment_hash->fee_invoice->hashed_id;
 
         return $data;
+    }
+
+    /**
+     * PayPal sandbox uses buyer-country to simulate US-only funding sources such as Venmo.
+     *
+     * @see https://developer.paypal.com/docs/checkout/pay-with-venmo/test/
+     */
+    public static function sandboxSdkBuyerCountry(?bool $testMode): ?string
+    {
+        return $testMode ? 'US' : null;
     }
 
 }

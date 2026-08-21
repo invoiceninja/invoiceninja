@@ -24,7 +24,7 @@
 
 @assets
 <script type="text/javascript" src="https://c.paypal.com/da/r/fb.js"></script>
-<script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&currency={!! $currency !!}&merchant-id={!! $merchantId !!}&components=buttons,funding-eligibility&intent=capture&enable-funding={!! $funding_source !!}"  data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
+<script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&currency={!! $currency !!}&merchant-id={!! $merchantId !!}&components=buttons,funding-eligibility&intent=capture&enable-funding={!! $funding_source !!}@include('portal.ninja2020.gateways.paypal.includes.sdk_buyer_country')"  data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
 @endassets
 
 @script

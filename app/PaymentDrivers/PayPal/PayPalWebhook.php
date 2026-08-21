@@ -270,11 +270,13 @@ class PayPalWebhook implements ShouldQueue
             $source = array_key_first($order['payment_source']);
         }
 
+        $gateway_type_id = $driver->gatewayTypeFromPaymentSource($source);
+
         $data = [
             'payment_type' => $this->getPaymentType($source),
             'amount' => $data['amount'],
             'transaction_reference' => $data['transaction_reference'],
-            'gateway_type_id' => GatewayType::PAYPAL,
+            'gateway_type_id' => $gateway_type_id,
         ];
 
         $payment = $driver->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);

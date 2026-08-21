@@ -1,7 +1,7 @@
 import {
     isGatewayMethodEnabled,
     type CompanyGatewayEntity,
-} from '../api-helpers';
+} from '../../api-helpers';
 
 /** Gateway type ids exposed by `PayPalRestPaymentDriver::gatewayTypes()`. */
 export const PAYPAL_REST_GATEWAY_TYPE_IDS = [3, 1, 25, 28, 29] as const;
@@ -16,7 +16,14 @@ export interface PayPalRestPaymentMethod {
     /** PayPal SDK `data-funding-source` for button-based checkout views. */
     fundingSource?: string;
     supportsSandboxPayment: boolean;
+    /**
+     * False when automated browser completion is blocked (e.g. Venmo bot challenge).
+     * Checkout UI tests may still run.
+     */
+    supportsE2ePaymentCompletion: boolean;
     checkoutKind: 'buttons' | 'advanced-cards';
+    /** Human-readable note when e2e payment completion is not supported. */
+    e2ePaymentCompletionSkipReason?: string;
 }
 
 export const PAYPAL_REST_PAYMENT_METHODS: PayPalRestPaymentMethod[] = [
@@ -26,6 +33,7 @@ export const PAYPAL_REST_PAYMENT_METHODS: PayPalRestPaymentMethod[] = [
         label: 'PayPal',
         fundingSource: 'paypal',
         supportsSandboxPayment: true,
+        supportsE2ePaymentCompletion: true,
         checkoutKind: 'buttons',
     },
     {
@@ -33,7 +41,10 @@ export const PAYPAL_REST_PAYMENT_METHODS: PayPalRestPaymentMethod[] = [
         slug: 'venmo',
         label: 'Venmo',
         fundingSource: 'venmo',
-        supportsSandboxPayment: true,
+        supportsSandboxPayment: false,
+        supportsE2ePaymentCompletion: false,
+        e2ePaymentCompletionSkipReason:
+            'Venmo checkout presents a PayPal bot challenge that cannot be completed in automated e2e',
         checkoutKind: 'buttons',
     },
     {
@@ -42,6 +53,7 @@ export const PAYPAL_REST_PAYMENT_METHODS: PayPalRestPaymentMethod[] = [
         label: 'Pay Later',
         fundingSource: 'paylater',
         supportsSandboxPayment: true,
+        supportsE2ePaymentCompletion: true,
         checkoutKind: 'buttons',
     },
     {
@@ -49,17 +61,21 @@ export const PAYPAL_REST_PAYMENT_METHODS: PayPalRestPaymentMethod[] = [
         slug: 'advanced-cards',
         label: 'PayPal Advanced Cards',
         supportsSandboxPayment: true,
+        supportsE2ePaymentCompletion: true,
         checkoutKind: 'advanced-cards',
     },
-    {
-        gatewayTypeId: 1,
-        slug: 'card',
-        label: 'Credit Card',
-        fundingSource: 'card',
-        supportsSandboxPayment: false,
-        checkoutKind: 'buttons',
-    },
 ];
+
+/** Legacy card-button funding (type 1). Tested in a separate e2e fixture without advanced cards. */
+export const PAYPAL_REST_LEGACY_CARD_METHOD: PayPalRestPaymentMethod = {
+    gatewayTypeId: 1,
+    slug: 'card',
+    label: 'Credit Card',
+    fundingSource: 'card',
+    supportsSandboxPayment: true,
+    supportsE2ePaymentCompletion: true,
+    checkoutKind: 'buttons',
+};
 
 /**
  * Mirrors `PayPalBasePaymentDriver::gatewayTypes()` — advanced cards (29)
@@ -83,35 +99,66 @@ export function enabledPayPalRestPaymentMethods(
     gateway: CompanyGatewayEntity,
 ): PayPalRestPaymentMethod[] {
     const enabledIds = new Set(listEnabledPayPalRestMethodIds(gateway));
-
-    return PAYPAL_REST_PAYMENT_METHODS.filter((method) =>
+    const methods = PAYPAL_REST_PAYMENT_METHODS.filter((method) =>
         enabledIds.has(method.gatewayTypeId),
+    );
+
+    if (enabledIds.has(PAYPAL_REST_LEGACY_CARD_METHOD.gatewayTypeId)) {
+        methods.push(PAYPAL_REST_LEGACY_CARD_METHOD);
+    }
+
+    return methods.sort(
+        (left, right) => left.gatewayTypeId - right.gatewayTypeId,
     );
 }
 
 export function payPalRestPaymentMethodByTypeId(
     gatewayTypeId: number,
 ): PayPalRestPaymentMethod | undefined {
-    return PAYPAL_REST_PAYMENT_METHODS.find(
-        (method) => method.gatewayTypeId === gatewayTypeId,
+    return (
+        PAYPAL_REST_PAYMENT_METHODS.find(
+            (method) => method.gatewayTypeId === gatewayTypeId,
+        ) ??
+        (gatewayTypeId === PAYPAL_REST_LEGACY_CARD_METHOD.gatewayTypeId
+            ? PAYPAL_REST_LEGACY_CARD_METHOD
+            : undefined)
     );
 }
 
 /** PayPal REST methods that must complete a sandbox payment in e2e. */
-export const PAYPAL_SANDBOX_PAYMENT_METHOD_IDS = [3, 25, 28, 29] as const;
+export const PAYPAL_SANDBOX_PAYMENT_METHOD_IDS = [1, 3, 25, 28, 29] as const;
+
+/** Methods that must run the full sandbox payment completion e2e. */
+export const PAYPAL_E2E_PAYMENT_COMPLETION_METHOD_IDS = [1, 3, 28, 29] as const;
 
 /**
- * Venmo and Pay Later are region/account dependent in PayPal sandbox — skip
- * completion gracefully when the funding button is unavailable.
+ * Pay Later can still be unavailable for specific transaction amounts in sandbox.
+ * Venmo and Pay Later both require buyer-country=US on the JS SDK in sandbox.
  */
-export const PAYPAL_OPTIONAL_SANDBOX_METHOD_IDS = [25, 28] as const;
+export const PAYPAL_OPTIONAL_SANDBOX_METHOD_IDS = [] as const;
+
+export function supportsPayPalE2ePaymentCompletion(
+    method: PayPalRestPaymentMethod,
+): boolean {
+    return method.supportsE2ePaymentCompletion;
+}
+
+export function payPalE2ePaymentCompletionSkipReason(
+    method: PayPalRestPaymentMethod,
+): string {
+    return (
+        method.e2ePaymentCompletionSkipReason ??
+        `${method.label} does not support automated e2e payment completion`
+    );
+}
 
 export const PAYPAL_FUNDING_BUTTON_LABELS: Partial<
     Record<string, readonly string[]>
 > = {
     paypal: ['PayPal', 'Pay with PayPal'],
+    card: ['Debit or Credit Card', 'Credit Card', 'Pay with Debit or Credit Card'],
     venmo: ['Venmo', 'Pay with Venmo'],
-    paylater: ['Pay Later', 'Pay Pal Pay Later'],
+    paylater: ['Pay Later', 'Pay Pal Pay Later', 'Pay in 4'],
 };
 
 export function isPayPalSandboxPaymentMethod(

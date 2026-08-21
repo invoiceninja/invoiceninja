@@ -1,10 +1,8 @@
-import { dismissCookieConsent } from './client-portal-helpers';
-import { test, expect } from './fixtures';
-import { ensurePayPalRestGatewayAvailability } from './gateways/gateway-isolation-helpers';
-import { paymentGateways } from './gateways/gateway-registry';
-import { openInvoicePaymentPage } from './gateways/payment-flow-helpers';
-import { type GatewayAvailability } from './gateways/types';
-import { decodePrimaryKey } from './hash-helpers';
+import { test, expect } from '../fixtures';
+import { paymentGateways } from './registry';
+import { openInvoicePaymentPage } from '../gateways/payment-flow-helpers';
+import { type GatewayAvailability } from '../gateways/types';
+import { decodePrimaryKey } from '../hash-helpers';
 
 test.describe('Client portal payment gateways', () => {
     for (const gateway of paymentGateways) {
@@ -27,19 +25,6 @@ test.describe('Client portal payment gateways', () => {
                     }
 
                     availability = setup.availability;
-
-                    return;
-                }
-
-                if (gateway.slug === 'paypal') {
-                    availability = await ensurePayPalRestGatewayAvailability(
-                        api.context,
-                        gateway.gatewayTypeId,
-                    );
-
-                    if (!availability.companyGatewayConfigured) {
-                        test.skip(true, availability.skipReason);
-                    }
 
                     return;
                 }

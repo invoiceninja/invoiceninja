@@ -16,11 +16,14 @@ use stdClass;
 use Tests\TestCase;
 use Tests\MockAccountData;
 use App\Models\GatewayType;
+use App\Models\Payment;
 use App\Models\PaymentHash;
+use App\Models\PaymentType;
 use Illuminate\Support\Str;
 use App\Models\CompanyGateway;
 use App\DataMapper\FeesAndLimits;
 use Illuminate\Support\Facades\Http;
+use App\PaymentDrivers\PayPal\PayPalBasePaymentDriver;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
@@ -104,18 +107,17 @@ class PayPalRestDriverTest extends TestCase
         $this->assertSame('ORDER123', $order_id);
     }
 
-    public function testCreateOrderUsesPaymentHashSuffixInInvoiceId(): void
+    public function testCreateOrderUsesCleanInvoiceNumberAndPaymentHashCustomId(): void
     {
         $cg = $this->buildGateway();
         $payment_hash = $this->buildPaymentHash();
-        $expected_invoice_id = $this->invoice->number . '-' . substr($payment_hash->hash, 0, 8);
 
         Http::fake([
             '*/v1/oauth2/token*' => Http::response(['access_token' => 'abc123', 'expires_in' => 3600], 200),
             '*/v1/identity/generate-token*' => Http::response(['client_token' => 'client-token'], 200),
-            '*/v2/checkout/orders*' => function ($request) use ($expected_invoice_id, $payment_hash) {
+            '*/v2/checkout/orders*' => function ($request) use ($payment_hash) {
                 $payload = json_decode($request->body(), true);
-                $this->assertSame($expected_invoice_id, $payload['purchase_units'][0]['invoice_id']);
+                $this->assertSame($this->invoice->number, $payload['purchase_units'][0]['invoice_id']);
                 $this->assertSame($payment_hash->hash, $payload['purchase_units'][0]['custom_id']);
 
                 return Http::response(['id' => 'ORDER123', 'status' => 'CREATED'], 201);
@@ -133,11 +135,14 @@ class PayPalRestDriverTest extends TestCase
         $cg = $this->buildGateway();
         $payment_hash = $this->buildPaymentHash();
         $attempt = 0;
+        $invoice_ids = [];
 
         Http::fake([
             '*/v1/oauth2/token*' => Http::response(['access_token' => 'abc123', 'expires_in' => 3600], 200),
-            '*/v2/checkout/orders*' => function () use (&$attempt) {
+            '*/v2/checkout/orders*' => function ($request) use (&$attempt, &$invoice_ids) {
                 $attempt++;
+                $payload = json_decode($request->body(), true);
+                $invoice_ids[] = $payload['purchase_units'][0]['invoice_id'];
 
                 if ($attempt === 1) {
                     return Http::response([
@@ -154,6 +159,7 @@ class PayPalRestDriverTest extends TestCase
         $order_id = $driver->createOrder(['amount_with_fee' => 100]);
 
         $this->assertSame(2, $attempt);
+        $this->assertSame([$this->invoice->number, $this->invoice->number . '-2'], $invoice_ids);
         $this->assertSame('ORDER456', $order_id);
     }
 
@@ -230,6 +236,210 @@ class PayPalRestDriverTest extends TestCase
         $this->assertArrayHasKey('redirect', $response->getData(true));
     }
 
+    public function testProcessPaymentResponseRescuesDuplicateInvoiceIdWithNumericSuffixOnCapture(): void
+    {
+        $cg = $this->buildGateway();
+        $payment_hash = $this->buildPaymentHash();
+        $payment_hash->data = array_merge((array) $payment_hash->data, ['orderID' => 'ORDER999']);
+        $payment_hash->save();
+
+        $patched_invoice_id = null;
+
+        Http::fake([
+            '*/v1/oauth2/token*' => Http::response(['access_token' => 'abc123', 'expires_in' => 3600], 200),
+            '*/v2/checkout/orders/ORDER999' => function ($request) use (&$patched_invoice_id) {
+                if ($request->method() === 'PATCH') {
+                    $payload = json_decode($request->body(), true);
+                    $patched_invoice_id = $payload[0]['value'] ?? null;
+
+                    return Http::response(['id' => 'ORDER999', 'status' => 'APPROVED'], 200);
+                }
+
+                return Http::response(['id' => 'ORDER999', 'status' => 'APPROVED'], 200);
+            },
+            '*/v2/checkout/orders/ORDER999/capture*' => Http::sequence()
+                ->push([
+                    'name' => 'UNPROCESSABLE_ENTITY',
+                    'details' => [['issue' => 'DUPLICATE_INVOICE_ID', 'description' => 'Duplicate invoice id']],
+                ], 422)
+                ->push([
+                    'id' => 'ORDER999',
+                    'status' => 'COMPLETED',
+                    'purchase_units' => [[
+                        'payments' => [
+                            'captures' => [[
+                                'id' => 'CAPTURE123',
+                                'status' => 'COMPLETED',
+                                'amount' => ['value' => '100.00'],
+                            ]],
+                        ],
+                    ]],
+                ], 200),
+        ]);
+
+        $driver = $cg->driver($this->client)->setPaymentHash($payment_hash)->setPaymentMethod(GatewayType::PAYPAL);
+
+        $request = request()->merge([
+            'gateway_response' => json_encode(['orderID' => 'ORDER999']),
+            'gateway_type_id' => GatewayType::PAYPAL,
+            'payment_hash' => $payment_hash->hash,
+        ]);
+
+        $response = $driver->processPaymentResponse($request);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame($this->invoice->number . '-2', $patched_invoice_id);
+    }
+
+    /**
+     * @return array<string, array{0: int, 1: int}>
+     */
+    public static function gatewayTypeProvider(): array
+    {
+        return [
+            'paypal' => [GatewayType::PAYPAL, PaymentType::PAYPAL],
+            'venmo' => [GatewayType::VENMO, PaymentType::VENMO],
+            'pay_later' => [GatewayType::PAYLATER, PaymentType::PAY_LATER],
+            'advanced_cards' => [GatewayType::PAYPAL_ADVANCED_CARDS, PaymentType::CREDIT_CARD_OTHER],
+        ];
+    }
+
+    /**
+     * @dataProvider gatewayTypeProvider
+     */
+    public function testProcessPaymentResponsePersistsGatewayTypeIdOnPayment(int $gateway_type_id, int $payment_type_id): void
+    {
+        $cg = $this->buildGateway();
+        $payment_hash = $this->buildPaymentHash();
+        $payment_hash->data = array_merge((array) $payment_hash->data, ['orderID' => 'ORDER-GT']);
+        $payment_hash->save();
+
+        $capture_id = 'CAPTURE-' . $gateway_type_id;
+
+        Http::fake([
+            '*/v1/oauth2/token*' => Http::response(['access_token' => 'abc123', 'expires_in' => 3600], 200),
+            '*/v2/checkout/orders/ORDER-GT/capture*' => Http::response([
+                'id' => 'ORDER-GT',
+                'status' => 'COMPLETED',
+                'purchase_units' => [[
+                    'payments' => [
+                        'captures' => [[
+                            'id' => $capture_id,
+                            'status' => 'COMPLETED',
+                            'amount' => ['value' => '100.00'],
+                        ]],
+                    ],
+                ]],
+            ], 200),
+        ]);
+
+        $driver = $cg->driver($this->client)->setPaymentHash($payment_hash);
+
+        $request = request()->merge([
+            'gateway_response' => json_encode(['orderID' => 'ORDER-GT']),
+            'gateway_type_id' => $gateway_type_id,
+            'payment_hash' => $payment_hash->hash,
+        ]);
+
+        $response = $driver->processPaymentResponse($request);
+
+        $this->assertSame(200, $response->getStatusCode());
+
+        $payment = Payment::where('transaction_reference', $capture_id)->firstOrFail();
+
+        $this->assertSame($gateway_type_id, $payment->gateway_type_id);
+        $this->assertSame($payment_type_id, $payment->type_id);
+    }
+
+    public function testProcessPaymentResponseResolvesGatewayTypeIdFromRequestWithoutDriverHydration(): void
+    {
+        $cg = $this->buildGateway();
+        $payment_hash = $this->buildPaymentHash();
+        $payment_hash->data = array_merge((array) $payment_hash->data, ['orderID' => 'ORDER-VENMO']);
+        $payment_hash->save();
+
+        Http::fake([
+            '*/v1/oauth2/token*' => Http::response(['access_token' => 'abc123', 'expires_in' => 3600], 200),
+            '*/v2/checkout/orders/ORDER-VENMO/capture*' => Http::response([
+                'id' => 'ORDER-VENMO',
+                'status' => 'COMPLETED',
+                'purchase_units' => [[
+                    'payments' => [
+                        'captures' => [[
+                            'id' => 'CAPTURE-VENMO',
+                            'status' => 'COMPLETED',
+                            'amount' => ['value' => '100.00'],
+                        ]],
+                    ],
+                ]],
+            ], 200),
+        ]);
+
+        $driver = $cg->driver($this->client)->setPaymentHash($payment_hash);
+
+        $request = request()->merge([
+            'gateway_response' => json_encode(['orderID' => 'ORDER-VENMO']),
+            'gateway_type_id' => GatewayType::VENMO,
+            'payment_hash' => $payment_hash->hash,
+        ]);
+
+        $response = $driver->processPaymentResponse($request);
+
+        $this->assertSame(200, $response->getStatusCode());
+
+        $payment = Payment::where('transaction_reference', 'CAPTURE-VENMO')->firstOrFail();
+
+        $this->assertSame(GatewayType::VENMO, $payment->gateway_type_id);
+        $this->assertSame(PaymentType::VENMO, $payment->type_id);
+    }
+
+    public function testProcessPaymentResponseInfersAdvancedCardsGatewayTypeFromCaptureResponse(): void
+    {
+        $cg = $this->buildGateway();
+        $payment_hash = $this->buildPaymentHash();
+        $payment_hash->data = array_merge((array) $payment_hash->data, ['orderID' => 'ORDER-CARD']);
+        $payment_hash->save();
+
+        Http::fake([
+            '*/v1/oauth2/token*' => Http::response(['access_token' => 'abc123', 'expires_in' => 3600], 200),
+            '*/v2/checkout/orders/ORDER-CARD/capture*' => Http::response([
+                'id' => 'ORDER-CARD',
+                'status' => 'COMPLETED',
+                'payment_source' => [
+                    'card' => [
+                        'last_digits' => '1111',
+                        'brand' => 'VISA',
+                    ],
+                ],
+                'purchase_units' => [[
+                    'payments' => [
+                        'captures' => [[
+                            'id' => 'CAPTURE-CARD',
+                            'status' => 'COMPLETED',
+                            'amount' => ['value' => '100.00'],
+                        ]],
+                    ],
+                ]],
+            ], 200),
+        ]);
+
+        $driver = $cg->driver($this->client)->setPaymentHash($payment_hash);
+
+        $request = request()->merge([
+            'gateway_response' => json_encode(['orderID' => 'ORDER-CARD']),
+            'payment_hash' => $payment_hash->hash,
+        ]);
+
+        $response = $driver->processPaymentResponse($request);
+
+        $this->assertSame(200, $response->getStatusCode());
+
+        $payment = Payment::where('transaction_reference', 'CAPTURE-CARD')->firstOrFail();
+
+        $this->assertSame(GatewayType::CREDIT_CARD, $payment->gateway_type_id);
+        $this->assertSame(PaymentType::CREDIT_CARD_OTHER, $payment->type_id);
+    }
+
     public function testGatewayTypesSuppressesLegacyCardWhenAdvancedCardsEnabled(): void
     {
         $cg = $this->buildGateway();
@@ -247,5 +457,12 @@ class PayPalRestDriverTest extends TestCase
         $this->assertContains(GatewayType::PAYPAL, $types);
         $this->assertContains(GatewayType::PAYPAL_ADVANCED_CARDS, $types);
         $this->assertNotContains(GatewayType::CREDIT_CARD, $types);
+    }
+
+    public function testSandboxSdkBuyerCountryIsUsOnlyInTestMode(): void
+    {
+        $this->assertSame('US', PayPalBasePaymentDriver::sandboxSdkBuyerCountry(true));
+        $this->assertNull(PayPalBasePaymentDriver::sandboxSdkBuyerCountry(false));
+        $this->assertNull(PayPalBasePaymentDriver::sandboxSdkBuyerCountry(null));
     }
 }

@@ -1,58 +1,38 @@
-import { dismissCookieConsent } from './client-portal-helpers';
-import { test, expect } from './fixtures';
-import { PayPalPaymentGateway } from './gateways/paypal-payment-gateway';
+import { dismissCookieConsent } from '../../client-portal-helpers';
+import { test, expect } from '../../fixtures';
+import { decodePrimaryKey } from '../../hash-helpers';
+import { type GatewayAvailability } from '../../gateways/types';
+import {
+    assertPayPalAdvancedCardValidationError,
+    configurePayPalUsFundingSandboxContext,
+    requiresPayPalUsFundingSandboxContext,
+    submitPayPalAdvancedCardWithInvalidNumber,
+} from './flow-helpers';
+import { PayPalPaymentGateway } from './payment-gateway';
 import {
     isOptionalPayPalSandboxMethod,
     isPayPalSandboxPaymentMethod,
-    PAYPAL_REST_PAYMENT_METHODS,
+    payPalE2ePaymentCompletionSkipReason,
+    supportsPayPalE2ePaymentCompletion,
     type PayPalRestPaymentMethod,
-} from './gateways/paypal-payment-methods';
-import { type GatewayAvailability } from './gateways/types';
-import { decodePrimaryKey } from './hash-helpers';
+} from './payment-methods';
 
-const paypal = new PayPalPaymentGateway();
+export interface PayPalRestMethodSuiteState {
+    availability: GatewayAvailability;
+    enabledMethods: PayPalRestPaymentMethod[];
+    setupSkipReason?: string;
+}
 
-// PayPal SDK blocks headless wallet checkout. Force headed for this file
-// (VS Code extension does not always inherit playwright.config use.headless).
-test.use({
-    headless:
-        process.env.PLAYWRIGHT_HEADLESS === '1' || process.env.CI === 'true',
-});
-
-test.describe('PayPal REST payment methods', () => {
-    test.describe.configure({ timeout: 300_000 });
-
-    let availability: GatewayAvailability;
-    let enabledMethods: PayPalRestPaymentMethod[];
-    let setupSkipReason: string | undefined;
-
-    test.beforeAll(async ({ workerApi }) => {
-        const setup = await paypal.setupExclusiveTestEnvironment(workerApi);
-
-        if (setup.skipReason) {
-            setupSkipReason = setup.skipReason;
-        }
-
-        availability = setup.availability;
-        enabledMethods = paypal.enabledPaymentMethods(availability);
-
-        if (!setupSkipReason && enabledMethods.length === 0) {
-            setupSkipReason =
-                'PayPal REST gateway has no enabled payment methods in fees_and_limits';
-        }
-    }, 120_000);
-
-    test.afterAll(async () => {
-        await paypal.restoreExclusiveGateway();
-    });
-
-    test.beforeEach(() => {
-        if (setupSkipReason) {
-            test.skip(true, setupSkipReason);
-        }
-    });
+export function definePayPalRestMethodSuite(options: {
+    paypal: PayPalPaymentGateway;
+    methods: PayPalRestPaymentMethod[];
+    setupSuite: () => PayPalRestMethodSuiteState;
+}): void {
+    const { paypal, methods, setupSuite } = options;
 
     function skipUnlessMethodEnabled(method: PayPalRestPaymentMethod): void {
+        const { enabledMethods } = setupSuite();
+
         if (
             !enabledMethods.some(
                 (entry) => entry.gatewayTypeId === method.gatewayTypeId,
@@ -83,11 +63,24 @@ test.describe('PayPal REST payment methods', () => {
         }
     }
 
-    for (const method of PAYPAL_REST_PAYMENT_METHODS) {
+    for (const method of methods) {
         test.describe(method.label, () => {
+            test.beforeEach(async ({ page }) => {
+                const { setupSkipReason } = setupSuite();
+
+                if (setupSkipReason) {
+                    test.skip(true, setupSkipReason);
+                }
+
+                if (requiresPayPalUsFundingSandboxContext(method)) {
+                    await configurePayPalUsFundingSandboxContext(page.context());
+                }
+            });
+
             test('is offered in Pay Now', async ({ api, page }) => {
                 skipUnlessMethodEnabled(method);
 
+                const { availability } = setupSuite();
                 const context = await paypal.preparePaymentContext(
                     api,
                     page,
@@ -133,6 +126,7 @@ test.describe('PayPal REST payment methods', () => {
                 skipUnlessMethodEnabled(method);
                 test.setTimeout(120_000);
 
+                const { availability } = setupSuite();
                 const context = await paypal.preparePaymentContext(
                     api,
                     page,
@@ -153,6 +147,43 @@ test.describe('PayPal REST payment methods', () => {
                 }
             });
 
+            if (method.checkoutKind === 'advanced-cards') {
+                test('surfaces invalid card number validation error', async ({
+                    api,
+                    page,
+                }) => {
+                    skipUnlessMethodEnabled(method);
+                    test.setTimeout(120_000);
+
+                    const pageErrors: string[] = [];
+                    page.on('pageerror', (error) => {
+                        pageErrors.push(error.message);
+                    });
+
+                    const { availability } = setupSuite();
+                    const context = await paypal.preparePaymentContext(
+                        api,
+                        page,
+                        availability,
+                    );
+
+                    await paypal.navigateToMethodCheckout(
+                        page,
+                        context,
+                        method,
+                    );
+                    await assertCheckoutReadyForSandboxPayment(page, method);
+                    await submitPayPalAdvancedCardWithInvalidNumber(page);
+                    await assertPayPalAdvancedCardValidationError(page);
+
+                    expect(
+                        pageErrors.some((message) =>
+                            message.includes('indexOf is not a function'),
+                        ),
+                    ).toBe(false);
+                });
+            }
+
             if (isPayPalSandboxPaymentMethod(method)) {
                 test('completes sandbox payment', async ({
                     api,
@@ -160,6 +191,13 @@ test.describe('PayPal REST payment methods', () => {
                     notificationGuard,
                 }) => {
                     skipUnlessMethodEnabled(method);
+
+                    if (!supportsPayPalE2ePaymentCompletion(method)) {
+                        test.skip(
+                            true,
+                            payPalE2ePaymentCompletionSkipReason(method),
+                        );
+                    }
 
                     if (!paypal.methodSupportsSandboxPayment(method)) {
                         test.skip(
@@ -174,6 +212,7 @@ test.describe('PayPal REST payment methods', () => {
 
                     await notificationGuard.suppressPaymentEmails();
 
+                    const { availability } = setupSuite();
                     const context = await paypal.preparePaymentContext(
                         api,
                         page,
@@ -196,4 +235,4 @@ test.describe('PayPal REST payment methods', () => {
             }
         });
     }
-});
+}

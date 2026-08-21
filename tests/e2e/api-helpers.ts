@@ -297,6 +297,11 @@ export interface CompanyGatewayEntity extends ApiEntity {
     archived_at?: number;
     config?: string | Record<string, unknown>;
     label?: string;
+    require_billing_address?: boolean;
+    require_postal_code?: boolean;
+    require_shipping_address?: boolean;
+    always_show_required_fields?: boolean;
+    token_billing?: string;
 }
 
 export function parseCompanyGatewayConfig(
@@ -478,6 +483,105 @@ export async function ensureCompanyGatewayTypeEnabled(
     if (!response.ok()) {
         throw new Error(
             `Failed to enable gateway type ${gatewayTypeId} on ${gateway.gateway_key} (${response.status()}): ${(await response.text()).slice(0, 300)}`,
+        );
+    }
+
+    return getCompanyGateway(api, gateway.id);
+}
+
+export interface CompanyGatewayRequirementSettings {
+    require_billing_address?: boolean;
+    require_postal_code?: boolean;
+    require_shipping_address?: boolean;
+    always_show_required_fields?: boolean;
+    token_billing?: string;
+}
+
+export interface ClientGatewayTokenEntity extends ApiEntity {
+    client_id: string;
+    company_gateway_id: string;
+    gateway_type_id: number | string;
+    token: string;
+    meta?: {
+        last4?: string;
+        brand?: string;
+        exp_month?: string;
+        exp_year?: string;
+        type?: number | string;
+    };
+}
+
+export async function listClientGatewayTokens(
+    api: ApiContext,
+): Promise<ClientGatewayTokenEntity[]> {
+    const response = await api.request.get(
+        '/api/v1/client_gateway_tokens?per_page=100',
+    );
+
+    if (!response.ok()) {
+        throw new Error(
+            `Failed to list client gateway tokens (${response.status()}): ${(await response.text()).slice(0, 300)}`,
+        );
+    }
+
+    const body = (await response.json()) as { data?: ClientGatewayTokenEntity[] };
+
+    return body.data ?? [];
+}
+
+export function filterClientGatewayTokens(
+    tokens: ClientGatewayTokenEntity[],
+    filters: {
+        clientId: string;
+        companyGatewayId?: string;
+        gatewayTypeId?: number;
+    },
+): ClientGatewayTokenEntity[] {
+    return tokens.filter((token) => {
+        if (token.client_id !== filters.clientId) {
+            return false;
+        }
+
+        if (
+            filters.companyGatewayId &&
+            token.company_gateway_id !== filters.companyGatewayId
+        ) {
+            return false;
+        }
+
+        if (
+            filters.gatewayTypeId !== undefined &&
+            Number(token.gateway_type_id) !== filters.gatewayTypeId
+        ) {
+            return false;
+        }
+
+        return true;
+    });
+}
+
+export async function updateCompanyGatewayRequirements(
+    api: ApiContext,
+    gateway: CompanyGatewayEntity,
+    settings: CompanyGatewayRequirementSettings,
+): Promise<CompanyGatewayEntity> {
+    const fresh = await getCompanyGateway(api, gateway.id);
+    const config = parseCompanyGatewayConfig(fresh);
+
+    const response = await api.request.put(
+        `/api/v1/company_gateways/${gateway.id}`,
+        {
+            data: {
+                gateway_key: fresh.gateway_key,
+                config: JSON.stringify(config),
+                ...settings,
+            },
+        },
+    );
+
+    if (!response.ok()) {
+        throw new Error(
+            `Failed to update company gateway requirements (${response.status()}): ${(await response.text()).slice(0, 300)}`,
         );
     }
 
