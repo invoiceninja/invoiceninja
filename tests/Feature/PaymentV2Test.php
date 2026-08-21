@@ -47,6 +47,7 @@ class PaymentV2Test extends TestCase
         Model::reguard();
 
         $this->makeTestData();
+        $this->withoutExceptionHandling();
 
         $this->withoutMiddleware(
             ThrottleRequests::class
@@ -272,6 +273,8 @@ class PaymentV2Test extends TestCase
         $deleted_invoice_state = $this->financialState($client, $invoice, $credit, $payment);
         $ledger_state = $this->ledgerState($client);
 
+        $this->withExceptionHandling();
+
         $response = $this->withHeaders($this->apiHeaders())
             ->postJson('/api/v1/payments/bulk', [
                 'action' => 'delete',
@@ -357,6 +360,8 @@ class PaymentV2Test extends TestCase
         $financial_state = $this->financialState($client, $invoice, $credit, $payment);
         $ledger_state = $this->ledgerState($client);
 
+        $this->withExceptionHandling();
+
         $response = $this->withHeaders($this->apiHeaders())
             ->deleteJson("/api/v1/payments/{$payment->hashed_id}");
 
@@ -395,6 +400,8 @@ class PaymentV2Test extends TestCase
             'deleted_at',
         ]);
         $ledger_state = $this->ledgerState($client);
+
+        $this->withExceptionHandling();
 
         $response = $this->withHeaders($this->apiHeaders())
             ->postJson('/api/v1/payments/bulk', [
@@ -551,7 +558,7 @@ class PaymentV2Test extends TestCase
                 ->where('payment_id', $payment->id)
                 ->orderBy('id')
                 ->get()
-                ->map(fn (Paymentable $paymentable): array => $this->rawState($paymentable, [
+                ->map(fn(Paymentable $paymentable): array => $this->rawState($paymentable, [
                     'id',
                     'paymentable_id',
                     'paymentable_type',
@@ -572,7 +579,7 @@ class PaymentV2Test extends TestCase
             ->where('client_id', $client->id)
             ->orderBy('id')
             ->get()
-            ->map(fn (CompanyLedger $ledger): array => $this->rawState($ledger, [
+            ->map(fn(CompanyLedger $ledger): array => $this->rawState($ledger, [
                 'id',
                 'adjustment',
                 'balance',
@@ -589,7 +596,7 @@ class PaymentV2Test extends TestCase
     private function rawState(Model $model, array $attributes): array
     {
         return collect($attributes)
-            ->mapWithKeys(fn (string $attribute): array => [$attribute => $model->getRawOriginal($attribute)])
+            ->mapWithKeys(fn(string $attribute): array => [$attribute => $model->getRawOriginal($attribute)])
             ->all();
     }
 

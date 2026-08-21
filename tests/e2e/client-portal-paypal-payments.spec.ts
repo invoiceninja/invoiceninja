@@ -2,20 +2,15 @@ import { dismissCookieConsent } from './client-portal-helpers';
 import { test, expect } from './fixtures';
 import { PayPalPaymentGateway } from './gateways/paypal-payment-gateway';
 import {
+    isOptionalPayPalSandboxMethod,
+    isPayPalSandboxPaymentMethod,
     PAYPAL_REST_PAYMENT_METHODS,
-    PAYPAL_SANDBOX_PAYMENT_METHOD_IDS,
     type PayPalRestPaymentMethod,
 } from './gateways/paypal-payment-methods';
 import { type GatewayAvailability } from './gateways/types';
 import { decodePrimaryKey } from './hash-helpers';
 
 const paypal = new PayPalPaymentGateway();
-
-function isPayPalSandboxPaymentMethod(method: PayPalRestPaymentMethod): boolean {
-    return PAYPAL_SANDBOX_PAYMENT_METHOD_IDS.includes(
-        method.gatewayTypeId as (typeof PAYPAL_SANDBOX_PAYMENT_METHOD_IDS)[number],
-    );
-}
 
 // PayPal SDK blocks headless wallet checkout. Force headed for this file
 // (VS Code extension does not always inherit playwright.config use.headless).
@@ -64,6 +59,27 @@ test.describe('PayPal REST payment methods', () => {
             )
         ) {
             test.skip(true, `${method.label} is not enabled on this gateway`);
+        }
+    }
+
+    async function assertCheckoutReadyForSandboxPayment(
+        page: import('@playwright/test').Page,
+        method: PayPalRestPaymentMethod,
+    ): Promise<void> {
+        try {
+            await paypal.assertMethodCheckoutReady(page, method);
+        } catch (error) {
+            const message =
+                error instanceof Error ? error.message : String(error);
+
+            if (isOptionalPayPalSandboxMethod(method)) {
+                test.skip(
+                    true,
+                    `${method.label} is unavailable in this PayPal sandbox — ${message}`,
+                );
+            }
+
+            throw error;
         }
     }
 
@@ -169,7 +185,7 @@ test.describe('PayPal REST payment methods', () => {
                         context,
                         method,
                     );
-                    await paypal.assertMethodCheckoutReady(page, method);
+                    await assertCheckoutReadyForSandboxPayment(page, method);
                     await paypal.completeMethodPayment(page, method);
                     await paypal.assertPaymentSucceeded(page);
                     await paypal.assertInvoicePaid(

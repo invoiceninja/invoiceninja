@@ -229,4 +229,23 @@ class PayPalRestDriverTest extends TestCase
         $this->assertSame(200, $response->getStatusCode());
         $this->assertArrayHasKey('redirect', $response->getData(true));
     }
+
+    public function testGatewayTypesSuppressesLegacyCardWhenAdvancedCardsEnabled(): void
+    {
+        $cg = $this->buildGateway();
+
+        $fees_and_limits = new stdClass();
+        $fees_and_limits->{1} = new FeesAndLimits();
+        $fees_and_limits->{3} = new FeesAndLimits();
+        $fees_and_limits->{29} = new FeesAndLimits();
+        $cg->fees_and_limits = $fees_and_limits;
+        $cg->save();
+
+        $driver = $cg->driver($this->client);
+        $types = $driver->gatewayTypes();
+
+        $this->assertContains(GatewayType::PAYPAL, $types);
+        $this->assertContains(GatewayType::PAYPAL_ADVANCED_CARDS, $types);
+        $this->assertNotContains(GatewayType::CREDIT_CARD, $types);
+    }
 }

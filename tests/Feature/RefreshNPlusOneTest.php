@@ -13,6 +13,8 @@
 namespace Tests\Feature;
 
 use App\Factory\CompanyUserFactory;
+use App\Models\Client;
+use App\Models\Location;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -50,7 +52,7 @@ class RefreshNPlusOneTest extends TestCase
 
         $perUserLookups = array_filter(
             $expandedQueries,
-            fn (array $query): bool => $this->isPerUserCompanyUserLookup($query['query'])
+            fn(array $query): bool => $this->isPerUserCompanyUserLookup($query['query'])
         );
 
         $this->assertLessThanOrEqual(
@@ -88,6 +90,60 @@ class RefreshNPlusOneTest extends TestCase
         }
     }
 
+    public function testRefreshEagerLoadsClientLocations(): void
+    {
+        $clients = Client::factory()->count(5)->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+        ]);
+
+        foreach ($clients as $client) {
+            Location::factory()->create([
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'client_id' => $client->id,
+            ]);
+        }
+
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/refresh?current_company=true&first_load=true&updated_at=0');
+
+        $response->assertOk();
+
+        $queries = DB::getQueryLog();
+        DB::disableQueryLog();
+        DB::flushQueryLog();
+
+        $perClientLookups = array_filter(
+            $queries,
+            fn(array $query): bool => $this->isPerClientLocationLookup($query['query'])
+        );
+
+        $this->assertSame(
+            [],
+            array_values($perClientLookups),
+            "Refresh queried locations once per client:\n" . implode("\n", array_column($perClientLookups, 'query'))
+        );
+
+        $batchedLookups = array_filter(
+            $queries,
+            fn(array $query): bool => $this->isBatchedClientLocationLookup($query['query'])
+        );
+
+        $this->assertCount(1, $batchedLookups, 'Refresh did not eager load client locations in one query.');
+
+        $responseClients = collect($response->json('data.0.company.clients'))->keyBy('id');
+
+        foreach ($clients as $client) {
+            $this->assertCount(1, data_get($responseClients->get($client->hashed_id), 'locations', []));
+        }
+    }
+
     /**
      * @return array{0: array<int, array<string, mixed>>, 1: int, 2: array<int, array<string, mixed>>}
      */
@@ -99,7 +155,7 @@ class RefreshNPlusOneTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->postJson('/api/v1/refresh?current_company=true&first_load=true&updated_at='.now()->addMinute()->timestamp);
+        ])->postJson('/api/v1/refresh?current_company=true&first_load=true&updated_at=' . now()->addMinute()->timestamp);
 
         $response->assertOk();
 
@@ -123,7 +179,7 @@ class RefreshNPlusOneTest extends TestCase
         for ($i = 0; $i < $count; $i++) {
             $user = User::factory()->create([
                 'account_id' => $this->account->id,
-                'email' => Str::uuid().'@example.test',
+                'email' => Str::uuid() . '@example.test',
             ]);
 
             $companyUser = CompanyUserFactory::create(
@@ -134,7 +190,7 @@ class RefreshNPlusOneTest extends TestCase
             $companyUser->is_admin = false;
             $companyUser->is_owner = false;
             $companyUser->is_locked = false;
-            $companyUser->ninja_portal_url = 'https://example.test/refresh-user/'.Str::uuid();
+            $companyUser->ninja_portal_url = 'https://example.test/refresh-user/' . Str::uuid();
             $companyUser->save();
 
             $portalUrls[$user->hashed_id] = $companyUser->ninja_portal_url;
@@ -151,5 +207,19 @@ class RefreshNPlusOneTest extends TestCase
             && str_contains($normalized, 'company_id = ?')
             && str_contains($normalized, 'limit 1')
             && ! str_contains($normalized, 'deleted_at');
+    }
+
+    private function isPerClientLocationLookup(string $query): bool
+    {
+        $normalized = strtolower(str_replace(['`', '"'], '', $query));
+
+        return str_contains($normalized, 'from locations where locations.client_id = ?');
+    }
+
+    private function isBatchedClientLocationLookup(string $query): bool
+    {
+        $normalized = strtolower(str_replace(['`', '"'], '', $query));
+
+        return str_contains($normalized, 'from locations where locations.client_id in (');
     }
 }

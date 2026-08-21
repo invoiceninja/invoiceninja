@@ -100,6 +100,36 @@ export function payPalRestPaymentMethodByTypeId(
 /** PayPal REST methods that must complete a sandbox payment in e2e. */
 export const PAYPAL_SANDBOX_PAYMENT_METHOD_IDS = [3, 25, 28, 29] as const;
 
+/**
+ * Venmo and Pay Later are region/account dependent in PayPal sandbox — skip
+ * completion gracefully when the funding button is unavailable.
+ */
+export const PAYPAL_OPTIONAL_SANDBOX_METHOD_IDS = [25, 28] as const;
+
+export const PAYPAL_FUNDING_BUTTON_LABELS: Partial<
+    Record<string, readonly string[]>
+> = {
+    paypal: ['PayPal', 'Pay with PayPal'],
+    venmo: ['Venmo', 'Pay with Venmo'],
+    paylater: ['Pay Later', 'Pay Pal Pay Later'],
+};
+
+export function isPayPalSandboxPaymentMethod(
+    method: PayPalRestPaymentMethod,
+): boolean {
+    return PAYPAL_SANDBOX_PAYMENT_METHOD_IDS.includes(
+        method.gatewayTypeId as (typeof PAYPAL_SANDBOX_PAYMENT_METHOD_IDS)[number],
+    );
+}
+
+export function isOptionalPayPalSandboxMethod(
+    method: PayPalRestPaymentMethod,
+): boolean {
+    return PAYPAL_OPTIONAL_SANDBOX_METHOD_IDS.includes(
+        method.gatewayTypeId as (typeof PAYPAL_OPTIONAL_SANDBOX_METHOD_IDS)[number],
+    );
+}
+
 export function payPalSandboxPaymentMethods(
     gateway: CompanyGatewayEntity,
 ): PayPalRestPaymentMethod[] {

@@ -5,7 +5,10 @@ import {
     isRequiredClientInfoBlockingCheckout,
 } from './payment-flow-helpers';
 import { type PayPalRestKeys } from './paypal-env';
-import { type PayPalRestPaymentMethod } from './paypal-payment-methods';
+import {
+    PAYPAL_FUNDING_BUTTON_LABELS,
+    type PayPalRestPaymentMethod,
+} from './paypal-payment-methods';
 
 export interface PayPalSandboxBuyerCredentials {
     email: string;
@@ -73,6 +76,25 @@ async function fillPayPalHostedCardInput(
     await expect(page.locator(target.container)).toBeVisible({
         timeout: 45_000,
     });
+
+    const containerIframe = page.frameLocator(`${target.container} iframe`).first();
+    const hasContainerIframe =
+        (await page.locator(`${target.container} iframe`).count()) > 0;
+
+    if (hasContainerIframe) {
+        for (const selector of target.selectors) {
+            const input = containerIframe.locator(selector).first();
+
+            if ((await input.count()) > 0) {
+                await input.click({ timeout: 5_000, force: true });
+                await input.fill(value, { force: true }).catch(async () => {
+                    await input.pressSequentially(value, { delay: 40 });
+                });
+
+                return;
+            }
+        }
+    }
 
     for (const selector of target.selectors) {
         const input = page.locator(`${target.container} ${selector}`).first();
@@ -163,42 +185,18 @@ async function fillPayPalHostedCardInput(
 async function waitForPayPalAdvancedCardFields(page: Page): Promise<void> {
     await expect
         .poll(async () => {
-            for (const selector of PAYPAL_ADVANCED_CARD_FIELD_TARGETS.number
-                .selectors) {
-                const input = page
-                    .locator(
-                        `${PAYPAL_ADVANCED_CARD_FIELD_TARGETS.number.container} ${selector}`,
-                    )
-                    .first();
+            for (const field of ['number', 'expiry', 'cvv'] as const) {
+                const target = PAYPAL_ADVANCED_CARD_FIELD_TARGETS[field];
+                const iframeCount = await page
+                    .locator(`${target.container} iframe`)
+                    .count();
 
-                if ((await input.count()) > 0) {
-                    return true;
+                if (iframeCount === 0) {
+                    return false;
                 }
             }
 
-            for (const frame of page.frames()) {
-                if (
-                    (await frame
-                        .locator(
-                            'input.card-field-number, input[name="number"][autocomplete="cc-number"]',
-                        )
-                        .count()) > 0
-                ) {
-                    return true;
-                }
-            }
-
-            for (const selector of [
-                '#card-number-field-container iframe',
-                '#card-expiry-field-container iframe',
-                '#card-cvv-field-container iframe',
-            ]) {
-                if ((await page.locator(selector).count()) > 0) {
-                    return true;
-                }
-            }
-
-            return false;
+            return true;
         }, { timeout: 90_000 })
         .toBe(true);
 }
@@ -219,6 +217,21 @@ async function ensurePayPalAdvancedCardFormReady(page: Page): Promise<void> {
     await waitForPayPalAdvancedCardFields(page);
 }
 
+function fundingSourceButtonSelectors(fundingSource: string): string[] {
+    const selectors = [
+        `[data-funding-source="${fundingSource}"]`,
+        `[data-funding-source="${fundingSource.replace(/_/g, '-')}"]`,
+    ];
+
+    for (const label of PAYPAL_FUNDING_BUTTON_LABELS[fundingSource] ?? []) {
+        selectors.push(`[aria-label="${label}"]`);
+    }
+
+    selectors.push('[role="button"]');
+
+    return selectors;
+}
+
 async function clickFundingSourceInFrameLocator(
     page: Page,
     fundingSource: string,
@@ -231,16 +244,11 @@ async function clickFundingSourceInFrameLocator(
         page.frameLocator('#paypal-button-container iframe').first(),
         page.frameLocator('iframe[name^="__zoid__paypal_buttons"]').first(),
         page.frameLocator('iframe[title*="PayPal"]').first(),
+        page.frameLocator('iframe[title*="Venmo"]').first(),
     ];
 
     for (const frame of frameLocators) {
-        for (const selector of [
-            `[data-funding-source="${fundingSource}"]`,
-            `[data-funding-source="${fundingSource.replace(/_/g, '-')}"]`,
-            '[aria-label="PayPal"]',
-            '[aria-label="Pay with PayPal"]',
-            '[role="button"]',
-        ]) {
+        for (const selector of fundingSourceButtonSelectors(fundingSource)) {
             const button = frame.locator(selector).first();
 
             if (await button.isVisible({ timeout: 500 }).catch(() => false)) {
@@ -321,13 +329,7 @@ async function findPayPalFundingButtonFrame(
     fundingSource: string,
 ): Promise<{ frame: Frame; selector: string } | null> {
     for (const frame of page.frames()) {
-        for (const selector of [
-            `[data-funding-source="${fundingSource}"]`,
-            `[data-funding-source="${fundingSource.replace(/_/g, '-')}"]`,
-            '[aria-label="PayPal"]',
-            '[aria-label="Pay with PayPal"]',
-            '[role="button"]',
-        ]) {
+        for (const selector of fundingSourceButtonSelectors(fundingSource)) {
             const locator = frame.locator(selector).first();
 
             if ((await locator.count()) === 0) {
@@ -427,9 +429,12 @@ function isPayPalHostedUrl(url: string): boolean {
 function isMerchantPaymentResponseUrl(url: string): boolean {
     return (
         url.includes('/client/payments/process/response') ||
-        url.includes('/client/payments/response') ||
         url.includes('/payment_response')
     );
+}
+
+export function merchantPaymentResponseUrlMatcher(url: string): boolean {
+    return isMerchantPaymentResponseUrl(url);
 }
 
 async function ensurePayPalCheckoutPopup(page: Page): Promise<void> {
@@ -951,6 +956,7 @@ async function completePayPalButtonsSandboxPayment(
 
 async function fillPayPalAdvancedCardFields(page: Page): Promise<void> {
     await ensurePayPalAdvancedCardFormReady(page);
+    await clearPortalOverlays(page);
 
     await fillPayPalHostedCardInput(
         page,
@@ -974,6 +980,15 @@ async function fillPayPalAdvancedCardFields(page: Page): Promise<void> {
 
     const payNow = page.locator('#pay-now');
     await payNow.scrollIntoViewIfNeeded();
+    await expect(payNow).toBeVisible({ timeout: 15_000 });
+
+    await expect
+        .poll(async () => !(await payNow.isDisabled().catch(() => true)), {
+            timeout: 30_000,
+        })
+        .toBe(true)
+        .catch(() => null);
+
     await payNow.click({ timeout: 15_000, force: true });
 
     await Promise.race([
