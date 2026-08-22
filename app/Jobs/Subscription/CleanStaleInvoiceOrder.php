@@ -82,51 +82,26 @@ class CleanStaleInvoiceOrder implements ShouldQueue
 
         Invoice::query()
             ->withTrashed()
-            ->where('status_id', Invoice::STATUS_SENT)
+            ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
             ->where('is_deleted', 0)
-            ->where('balance', '>', 0)
             ->whereBetween('updated_at', [now()->subHours(2), now()->subHour()])
             ->cursor()
             ->each(function ($invoice) {
 
-                if (! collect($invoice->line_items)->contains('type_id', 3)) {
+                if (! collect($invoice->line_items)->contains('type_id', '3')) {
                     return;
                 }
 
                 $invoice->refresh();
+
+                /**
+                 * Drains pending fees written by the previous design. Promotes a fee whose
+                 * payment landed, removes the rest. Retained for one release.
+                 *
+                 * @see \App\Services\Invoice\ConfirmGatewayFee
+                 */
                 $invoice->service()->removeUnpaidGatewayFees();
             });
-
-        Invoice::query()
-            ->withTrashed()
-            ->whereIn('status_id', [Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
-            ->where('is_deleted', 0)
-            ->whereBetween('updated_at', [now()->subHours(2), now()->subHour()])
-            ->cursor()
-            ->each(function ($invoice) {
-
-                if (! collect($invoice->line_items)->contains('type_id', 3)) {
-                    return;
-                }
-
-                $invoice->refresh();
-                $items = $invoice->line_items;
-
-                foreach ($items as $key => $value) {
-
-                    if ($value->type_id == "3" && isset($value->unit_code) && $ph = \App\Models\PaymentHash::where('hash', $value->unit_code)->first()) {
-
-                        if ($ph->payment_id && in_array($ph->payment?->status_id, [\App\Models\Payment::STATUS_COMPLETED, \App\Models\Payment::STATUS_PENDING])) {
-                            $items[$key]->type_id = "4";
-                        }
-                    }
-
-                }
-
-                $invoice->line_items = array_values($items);
-                $invoice = $invoice->calc()->getInvoice();
-                $invoice->service()->removeUnpaidGatewayFees();
-        });
 
     }
 

@@ -63,7 +63,6 @@ class AutoBillInvoice extends AbstractService
         MultiDB::setDb($this->db);
 
         /* @var \App\Modesl\Client $client */
-        $is_partial = false;
 
         /* Mark the invoice as sent */
         $this->invoice = $this->invoice->service()->markSent()->save();
@@ -93,12 +92,9 @@ class AutoBillInvoice extends AbstractService
         }
 
         $amount = 0;
-        $invoice_total = 0;
 
         /* Determine $amount */
         if ($this->invoice->partial > 0) {
-            $is_partial = true;
-            $invoice_total = $this->invoice->balance;
             $amount = $this->invoice->partial;
         } elseif ($this->invoice->balance > 0) {
             $amount = $this->invoice->balance;
@@ -131,24 +127,21 @@ class AutoBillInvoice extends AbstractService
             // return $this->invoice;
         }
 
-        nlog("Gateway present - adding gateway fee on {$amount}");
+        nlog("Gateway present - quoting gateway fee on {$amount}");
 
         $payment_hash_string = Str::random(32);
 
-        /* $gateway fee */
-        $this->invoice = $this->invoice->service()->addGatewayFee($gateway_token->gateway, $gateway_token->gateway_type_id, $amount, $payment_hash_string)->save();
+        /** The invoice is not touched - the fee reaches it when the payment is confirmed. */
+        $quote = $this->invoice->service()->quoteGatewayFee($gateway_token->gateway, $gateway_token->gateway_type_id, $amount);
 
-        //change from $this->invoice->amount to $this->invoice->balance
-        if ($is_partial) {
-            $fee = $this->invoice->balance - $invoice_total;
-        } else {
-            $fee = $this->invoice->balance - $amount;
-        }
+        $fee = $quote['gross'];
+        $fee_net = $quote['net'];
 
         nlog("fee is {$fee}");
 
         if ($fee > $amount) {
             $fee = 0;
+            $fee_net = 0;
         }
 
         $fee = round($fee, $this->client->currency()->precision);
@@ -159,6 +152,7 @@ class AutoBillInvoice extends AbstractService
             'hash' => $payment_hash_string,
             'data' => [
                 'amount_with_fee' => round($amount + $fee, $this->client->currency()->precision),
+                'fee_net' => $fee_net,
                 'invoices' => [
                     [
                         'invoice_id' => $this->invoice->hashed_id,

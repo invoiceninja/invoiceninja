@@ -323,8 +323,20 @@ export async function completeRequiredClientInfoForm(
                 .locator('button.button-primary')
                 .last()
                 .click({ force: true });
-        } else {
-            await continueButton.click();
+
+            return;
+        }
+
+        /**
+         * Prefer a real click - the PayPal flows depend on the actionability wait, and
+         * forcing past it breaks vaulting and the smooth flow. Some layouts never yield
+         * the pointer event though, so fall back to forcing rather than timing out the
+         * whole test. The window is generous so a slow-but-real click still wins.
+         */
+        try {
+            await continueButton.click({ timeout: 20_000 });
+        } catch {
+            await continueButton.click({ force: true });
         }
     };
 

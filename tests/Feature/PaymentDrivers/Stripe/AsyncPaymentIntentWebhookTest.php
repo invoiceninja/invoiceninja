@@ -212,6 +212,118 @@ class AsyncPaymentIntentWebhookTest extends TestCase
         $this->assertObjectNotHasProperty('mandate_id', $token->meta);
     }
 
+
+    /**
+     * The production incident path: the fee is quoted at initiation and written to the
+     * invoice only when the webhook confirms the payment.
+     */
+    public function testAsyncWebhookWritesTheGatewayFeeToTheInvoice(): void
+    {
+        $payment_hash = $this->makePaymentHashWithFee(5);
+        $payment_intent = $this->makePaymentIntent($payment_hash);
+
+        $starting_amount = (float) $this->invoice->fresh()->amount;
+
+        /** The fee is not on the invoice before the webhook lands. */
+        $this->assertFalse(collect($this->invoice->fresh()->line_items)->contains('unit_code', $payment_hash->hash));
+
+        $job = new PaymentIntentWebhook(
+            ['object' => $payment_intent->toArray()],
+            $this->company->company_key,
+            $this->company_gateway->id,
+        );
+
+        $this->invokeUpdateAsyncPayment($job, $payment_hash, $payment_intent);
+
+        $invoice = $this->invoice->fresh();
+        $fee_lines = collect($invoice->line_items)->where('unit_code', $payment_hash->hash);
+
+        $this->assertCount(1, $fee_lines, 'the webhook did not write the gateway fee to the invoice');
+        $this->assertSame('4', (string) $fee_lines->first()->type_id);
+        $this->assertEquals(round($starting_amount + 5, 2), round((float) $invoice->amount, 2));
+    }
+
+    /**
+     * processing then succeeded means two confirmations for one payment hash.
+     * Exactly one surcharge must result.
+     */
+    public function testProcessingThenSucceededWritesTheGatewayFeeOnce(): void
+    {
+        $payment_hash = $this->makePaymentHashWithFee(5);
+        $payment_intent = $this->makePaymentIntent($payment_hash);
+
+        $starting_amount = (float) $this->invoice->fresh()->amount;
+
+        $this->invokeUpdateAsyncPayment(
+            new PaymentIntentProcessingWebhook(
+                ['object' => $payment_intent->toArray()],
+                $this->company->company_key,
+                $this->company_gateway->id,
+            ),
+            $payment_hash,
+            $payment_intent,
+        );
+
+        (new PaymentIntentWebhook(
+            ['object' => $payment_intent->toArray()],
+            $this->company->company_key,
+            $this->company_gateway->id,
+        ))->handle();
+
+        $invoice = $this->invoice->fresh();
+        $fee_lines = collect($invoice->line_items)->where('unit_code', $payment_hash->hash);
+
+        $this->assertCount(1, $fee_lines, 'two confirmations produced two surcharges');
+        $this->assertEquals(round($starting_amount + 5, 2), round((float) $invoice->amount, 2));
+    }
+
+    /** Redelivery of the same succeeded event must not add a second surcharge. */
+    public function testRedeliveredSucceededWebhookDoesNotDuplicateTheGatewayFee(): void
+    {
+        $payment_hash = $this->makePaymentHashWithFee(5);
+        $payment_intent = $this->makePaymentIntent($payment_hash);
+
+        $starting_amount = (float) $this->invoice->fresh()->amount;
+
+        foreach (range(1, 3) as $ignored) {
+            $this->invokeUpdateAsyncPayment(
+                new PaymentIntentWebhook(
+                    ['object' => $payment_intent->toArray()],
+                    $this->company->company_key,
+                    $this->company_gateway->id,
+                ),
+                $payment_hash->fresh(),
+                $payment_intent,
+            );
+        }
+
+        $invoice = $this->invoice->fresh();
+
+        $this->assertCount(1, collect($invoice->line_items)->where('unit_code', $payment_hash->hash));
+        $this->assertEquals(round($starting_amount + 5, 2), round((float) $invoice->amount, 2));
+        $this->assertSame(1, Payment::query()->where('transaction_reference', $payment_intent->id)->count());
+    }
+
+    private function makePaymentHashWithFee(float $fee): PaymentHash
+    {
+        return PaymentHash::query()->create([
+            'company_id' => $this->company->id,
+            'hash' => Str::random(32),
+            'fee_invoice_id' => $this->invoice->id,
+            'fee_total' => $fee,
+            'data' => [
+                'amount_with_fee' => 1 + $fee,
+                'credits' => 0,
+                'fee_net' => $fee,
+                'invoices' => [[
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'invoice_number' => $this->invoice->number,
+                    'amount' => 1,
+                ]],
+            ],
+        ]);
+    }
+
     private function makePaymentHash(): PaymentHash
     {
         return PaymentHash::query()->create([

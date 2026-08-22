@@ -87,7 +87,6 @@ class InstantPayment
                             ->map(function (Invoice $invoice): ?Invoice {
                                 $invoice = $invoice->service()
                                     ->markSent()
-                                    ->removeUnpaidGatewayFees()
                                     ->save();
 
                                 return $invoice?->isPayable() ? $invoice : null;
@@ -213,32 +212,19 @@ class InstantPayment
         $invoice_totals = $payable_invoices->sum('amount');
         $first_invoice = $invoices->first();
         $credit_totals = in_array($first_invoice->client->getSetting('use_credits_payment'), ['always', 'option']) ? $first_invoice->client->service()->getCreditBalance() : 0;
-        $starting_invoice_amount = $first_invoice->balance;
 
         $payment_hash_string = Str::random(32);
 
+        $fee_totals = 0;
+        $fee_net = 0;
+
         if ($gateway) {
-            /** Key must match LivewireInstantPayment exactly - both entry points have to contend on the same lock. */
-            $lock = Cache::lock("gateway-fee:{$first_invoice->company_id}:{$first_invoice->id}", 2);
+            /** The invoice is not touched - the fee reaches it when the payment is confirmed. */
+            $fee = $first_invoice->service()->quoteGatewayFee($gateway, $payment_method_id, $invoice_totals);
 
-            /** Contention here means a duplicate submission for the same invoice - reject it, do not queue behind it. */
-            if (! $lock->get()) {
-                throw new PaymentFailed(ctrans('texts.processing_request'), 409);
-            }
-
-            try {
-                $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals, $payment_hash_string)->save();
-            } finally {
-                $lock->release();
-            }
+            $fee_totals = $fee['gross'];
+            $fee_net = $fee['net'];
         }
-
-        /**
-         * Gateway fee is calculated
-         * by adding it as a line item, and then subtract
-         * the starting and finishing amounts of the invoice.
-         */
-        $fee_totals = round(($first_invoice->balance - $starting_invoice_amount), $client->currency()->precision);
 
         if ($gateway) {
             $tokens = $client->gateway_tokens()
@@ -260,6 +246,7 @@ class InstantPayment
             'frequency_id' => $this->request->frequency_id,
             'remaining_cycles' => $this->request->remaining_cycles,
             'is_recurring' => $this->request->is_recurring,
+            'fee_net' => $fee_net,
         ];
 
         if ($this->request->query('hash')) {

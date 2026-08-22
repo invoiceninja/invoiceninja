@@ -70,7 +70,6 @@ class InvoiceController extends Controller
             event(new InvoiceWasViewed($invitation, $invoice->company, Ninja::eventVars()));
         }
 
-        $invoice = $invoice->service()->removeUnpaidGatewayFees()->save();
 
         $variables = ($invitation && auth()->guard('contact')->user()->client->getSetting('show_accept_invoice_terms')) ? (new HtmlEngine($invitation))->generateLabelsAndValues() : false;
 
@@ -224,7 +223,6 @@ class InvoiceController extends Controller
         $invoices->each(function ($invoice) {
             $invoice->service()
                     ->markSent()
-                    ->removeUnpaidGatewayFees()
                     ->save();
         });
 
