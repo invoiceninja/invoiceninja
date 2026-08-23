@@ -215,7 +215,6 @@ class GoCardlessPaymentDriver extends BaseDriver
 
             return false;
         } catch (\Exception $exception) {
-            $this->unWindGatewayFees($this->payment_hash);
 
             $data = [
                 'status' => '',

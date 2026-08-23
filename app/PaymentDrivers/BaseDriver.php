@@ -399,23 +399,6 @@ class BaseDriver extends AbstractPaymentDriver
         (new ConfirmGatewayFee($this->payment_hash, $this->company_gateway, $data))->run();
     }
 
-    /**
-     * In case of a payment failure we should always
-     * return the invoice to its original state
-     *
-     * @param  PaymentHash $payment_hash The payment hash containing the list of invoices
-     * @return void
-     */
-    public function unWindGatewayFees(PaymentHash $payment_hash)
-    {
-        /**
-         * No-op. Gateway fees are no longer written to the invoice before the payment is
-         * confirmed, so a failed attempt has nothing to unwind. Retained until the call
-         * sites are removed.
-         *
-         * @see \App\Services\Invoice\ConfirmGatewayFee
-         */
-    }
 
     /**
      * Return the contact if possible.
@@ -466,10 +449,6 @@ class BaseDriver extends AbstractPaymentDriver
 
     public function processInternallyFailedPayment($gateway, $e)
     {
-        if (! is_null($this->payment_hash)) {
-            $this->unWindGatewayFees($this->payment_hash);
-        }
-
         $error = $e->getMessage();
 
         if (! $this->payment_hash) {
@@ -497,7 +476,6 @@ class BaseDriver extends AbstractPaymentDriver
         }
 
         if (! is_null($this->payment_hash)) { //@phpstan-ignore-line
-            $this->unWindGatewayFees($this->payment_hash);
         }
 
         if (! $error) {
@@ -531,10 +509,6 @@ class BaseDriver extends AbstractPaymentDriver
     public function processUnsuccessfulTransaction($response, $client_present = true)
     {
         $error = array_key_exists('error', $response) ? $response['error'] : 'Undefined Error';
-
-        if ($this->payment_hash) {
-            $this->unWindGatewayFees($this->payment_hash);
-        }
 
         $this->sendFailureMail($error);
 

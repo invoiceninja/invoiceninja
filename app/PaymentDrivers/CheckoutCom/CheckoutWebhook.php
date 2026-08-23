@@ -186,7 +186,6 @@ class CheckoutWebhook implements ShouldQueue
             }
 
             $driver = $this->company_gateway->driver($payment_hash->fee_invoice->client)->init();
-            $driver->unWindGatewayFees($payment_hash);
 
             SystemLogger::dispatch(
                 ['response' => $this->webhook_array],

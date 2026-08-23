@@ -56,12 +56,25 @@ class ConfirmGatewayFee extends AbstractService
                 return null;
             }
 
+            $existing = collect($invoice->line_items)
+                            ->first(fn ($item) => ($item->unit_code ?? '') === $this->payment_hash->hash);
+
             /**
              * Idempotency. Mollie, Braintree, GoCardless and CheckoutCom all confirm
              * directly and again via createPayment(); Stripe redelivers webhooks.
              */
-            if (collect($invoice->line_items)->contains('unit_code', $this->payment_hash->hash)) {
+            if ($existing && $existing->type_id == '4') {
                 return $invoice;
+            }
+
+            /**
+             * Transitional: a payment initiated before gateway fees became a quote wrote a
+             * pending line at initiation. Promote it rather than adding a second one.
+             *
+             * @deprecated remove once no unconfirmed pre-quote attempts remain.
+             */
+            if ($existing) {
+                return $this->promoteLegacyPendingLine($invoice);
             }
 
             /**
@@ -138,6 +151,41 @@ class ConfirmGatewayFee extends AbstractService
         }
 
         $invoice->service()->deleteEInvoice();
+
+        return $invoice->fresh();
+    }
+
+    /**
+     * Converts a pre-quote pending (type 3) line to confirmed (type 4).
+     *
+     * The amount does not move - the line is already on the invoice - so no ledger
+     * adjustment is posted.
+     *
+     * @deprecated transitional; see the caller.
+     */
+    private function promoteLegacyPendingLine(Invoice $invoice): Invoice
+    {
+        $observed_updated_at = $invoice->getRawOriginal('updated_at');
+
+        $line_items = collect($invoice->line_items)->map(function ($item) {
+            if ($item->type_id == '3' && ($item->unit_code ?? '') === $this->payment_hash->hash) {
+                $item->type_id = '4';
+            }
+
+            return $item;
+        })->values()->all();
+
+        $claimed = Invoice::withTrashed()
+            ->where('id', $invoice->id)
+            ->where('updated_at', $observed_updated_at)
+            ->update([
+                'line_items' => json_encode($line_items),
+                'updated_at' => now()->format('Y-m-d H:i:s.u'),
+            ]);
+
+        if ($claimed === 1) {
+            $invoice->service()->deleteEInvoice();
+        }
 
         return $invoice->fresh();
     }
