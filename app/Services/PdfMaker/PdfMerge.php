@@ -12,6 +12,7 @@
 
 namespace App\Services\PdfMaker;
 
+use Illuminate\Support\Facades\Log;
 use setasign\Fpdi\Fpdi;
 use setasign\Fpdi\PdfParser\StreamReader;
 
@@ -44,6 +45,10 @@ class PdfMerge
                     $downgradedPdf = \Modules\Admin\Services\PdfParse::downgrade($file);
 
                     $pageCount = $pdf->setSourceFile(StreamReader::createByString($downgradedPdf));
+                } else {
+                    Log::error('PDF attachment merge skipped, unable to downgrade PDF for embedding', [
+                        'error' => $e->getMessage(),
+                    ]);
                 }
 
             }
