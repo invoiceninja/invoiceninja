@@ -369,38 +369,6 @@ class InvoiceService
         return $this;
     }
 
-    public function toggleFeesPaid(?string $payment_hash_string = null)
-    {
-        if ($payment_hash_string) {
-
-            $this->invoice->line_items = collect($this->invoice->line_items)
-                                                ->map(function ($item) use ($payment_hash_string) {
-                                                    if ($item->type_id == '3' && (($item->unit_code ?? '') == $payment_hash_string)) {
-                                                        $item->type_id = '4';
-                                                    }
-
-                                                    return $item;
-                                                })->toArray();
-
-            $this->deleteEInvoice();
-
-            return $this;
-
-        }
-
-        $this->invoice->line_items = collect($this->invoice->line_items)
-                                     ->map(function ($item) {
-                                         if ($item->type_id == '3') {
-                                             $item->type_id = '4';
-                                         }
-
-                                         return $item;
-                                     })->toArray();
-
-        $this->deleteEInvoice();
-
-        return $this;
-    }
 
     public function deletePdf()
     {

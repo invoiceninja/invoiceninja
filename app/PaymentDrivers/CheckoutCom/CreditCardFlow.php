@@ -319,17 +319,13 @@ class CreditCardFlow implements MethodInterface, LivewireMethodInterface
             }
 
             if ($response['status'] == 'Declined') {
-                $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
                 return $this->processUnsuccessfulPayment($response);
             }
 
-            $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
             return $this->processUnsuccessfulPayment($response);
         } catch (CheckoutApiException $e) {
-            $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
             return $this->checkout->processInternallyFailedPayment($this->checkout, $e);
         } catch (CheckoutArgumentException|CheckoutAuthorizationException $e) {
-            $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
             throw new PaymentFailed($e->getMessage(), $e->getCode());
         }
     }
@@ -366,10 +362,8 @@ class CreditCardFlow implements MethodInterface, LivewireMethodInterface
 
             return $this->processUnsuccessfulPayment($payment, true);
         } catch (CheckoutApiException $e) {
-            $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
             return $this->checkout->processInternallyFailedPayment($this->checkout, $e);
         } catch (CheckoutArgumentException|CheckoutAuthorizationException $e) {
-            $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
             throw new PaymentFailed($e->getMessage(), $e->getCode());
         }
     }

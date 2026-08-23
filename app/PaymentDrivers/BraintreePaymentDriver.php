@@ -271,7 +271,6 @@ class BraintreePaymentDriver extends BaseDriver
         }
 
         if (! $result->success) {
-            $this->unWindGatewayFees($payment_hash);
 
             $this->sendFailureMail($result->transaction->additionalProcessorResponse);
 
