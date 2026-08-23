@@ -534,7 +534,6 @@ class CheckoutComPaymentDriver extends BaseDriver
             }
 
             if ($response['status'] == 'Declined') {
-                $this->unWindGatewayFees($payment_hash);
 
                 $this->sendFailureMail($response['status'] . ' ' . $response['response_summary']);
 
@@ -556,7 +555,6 @@ class CheckoutComPaymentDriver extends BaseDriver
             }
         } catch (CheckoutApiException $e) {
 
-            $this->unWindGatewayFees($payment_hash);
 
             $error_details = $e->error_details;
 

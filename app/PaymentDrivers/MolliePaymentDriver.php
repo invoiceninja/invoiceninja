@@ -252,7 +252,6 @@ class MolliePaymentDriver extends BaseDriver
                 return $payment;
             }
 
-            $this->unWindGatewayFees($payment_hash);
 
             $this->sendFailureMail($payment->details);
 
@@ -272,7 +271,6 @@ class MolliePaymentDriver extends BaseDriver
 
             return false;
         } catch (ApiException $e) {
-            $this->unWindGatewayFees($payment_hash);
 
             $data = [
                 'status' => '',

@@ -519,68 +519,7 @@ class GatewayFeeConcurrencyTest extends TestCase
         $this->assertEquals(105, round((float) $payment->fresh()->amount, 2));
     }
 
-    /** Webhook redelivery must not create a second payment or a second fee. */
-    public function testWebhookRedeliveryCreatesNeitherASecondPaymentNorASecondFee(): void
-    {
-        $cg = $this->gateway(5);
-        $invoice = $this->sentInvoice(100);
-        $payment_hash = $this->initiate($invoice, $cg);
-
-        $reference = 'txn_' . Str::random(12);
-
-        $data = [
-            'amount' => $payment_hash->data->amount_with_fee,
-            'gateway_type_id' => GatewayType::CREDIT_CARD,
-            'payment_type' => PaymentType::VISA,
-            'transaction_reference' => $reference,
-        ];
-
-        $first = (new BaseDriver($cg, $this->client))->setPaymentHash($payment_hash)->createPayment($data);
-        $second = (new BaseDriver($cg, $this->client))->setPaymentHash($payment_hash->fresh())->createPayment($data);
-
-        $final = Invoice::withTrashed()->find($invoice->id);
-
-        $this->assertSame($first->id, $second->id, 'redelivery created a second payment');
-        $this->assertCount(1, $this->feeLines($final, $payment_hash->hash), 'redelivery created a second surcharge');
-        $this->assertEquals(105, round($final->amount, 2));
-        $this->assertEquals(1, Payment::query()->where('transaction_reference', $reference)->count());
-    }
-
-    /** The failure path has nothing to unwind, and must not disturb the invoice. */
-    public function testUnwindingAFailedAttemptDoesNotTouchTheInvoice(): void
-    {
-        $cg = $this->gateway(5);
-        $invoice = $this->sentInvoice(100);
-        $payment_hash = $this->initiate($invoice, $cg);
-
-        $before = Invoice::withTrashed()->find($invoice->id);
-
-        (new BaseDriver($cg, $this->client))->unWindGatewayFees($payment_hash);
-
-        $after = Invoice::withTrashed()->find($invoice->id);
-
-        $this->assertEquals(100, round($after->amount, 2));
-        $this->assertSame($before->getRawOriginal('updated_at'), $after->getRawOriginal('updated_at'));
-    }
-
-    /** A failure after confirmation must not remove the confirmed fee. */
-    public function testUnwindingAfterConfirmationDoesNotRemoveTheFee(): void
-    {
-        $cg = $this->gateway(5);
-        $invoice = $this->sentInvoice(100);
-        $payment_hash = $this->initiate($invoice, $cg);
-
-        $this->confirm($cg, $payment_hash);
-        (new BaseDriver($cg, $this->client))->unWindGatewayFees($payment_hash);
-
-        $final = Invoice::withTrashed()->find($invoice->id);
-
-        $this->assertCount(1, $this->feeLines($final, $payment_hash->hash));
-        $this->assertEquals(105, round($final->amount, 2));
-    }
-
-
-    /* ------------------------------------------------------------------ autobill */
+/* ------------------------------------------------------------------ autobill */
 
     /**
      * Auto billing quotes the fee the same way the portal does. The invoice must be
@@ -726,6 +665,44 @@ class GatewayFeeConcurrencyTest extends TestCase
         $this->assertCount(1, $this->feeLines($final, $payment_hash->hash));
         $this->assertEquals(105, round($final->amount, 2));
         $this->assertEquals(1, Payment::query()->where('transaction_reference', $reference)->count());
+    }
+
+    /**
+     * Transitional: a payment initiated before gateway fees became a quote left a pending
+     * line on the invoice. Confirming it must promote that line, not add a second fee.
+     */
+    public function testConfirmationPromotesAPreQuotePendingLine(): void
+    {
+        $cg = $this->gateway(5);
+        $invoice = $this->sentInvoice(100);
+        $hash = Str::random(32);
+
+        /** The invoice as the previous design would have left it. */
+        $invoice = $this->withLegacyPendingFee($invoice, $hash, 5);
+        $invoice->save();
+
+        $this->assertEquals(105, round((float) $invoice->fresh()->amount, 2));
+
+        $payment_hash = PaymentHash::create([
+            'hash' => $hash,
+            'fee_total' => 5,
+            'fee_invoice_id' => $invoice->id,
+            'data' => ['invoices' => [], 'credits' => 0, 'amount_with_fee' => 105],
+        ]);
+
+        $before_ledger = $this->ledgerTotal($invoice);
+
+        $this->confirm($cg, $payment_hash);
+
+        $final = Invoice::withTrashed()->find($invoice->id);
+        $lines = $this->feeLines($final, $hash);
+
+        $this->assertCount(1, $lines, 'promotion duplicated the fee');
+        $this->assertSame('4', (string) $lines[0]->type_id);
+
+        /** The amount does not move - the line was already there - so no ledger adjustment. */
+        $this->assertEquals(105, round((float) $final->amount, 2));
+        $this->assertEquals($before_ledger, $this->ledgerTotal($final));
     }
 
     /* -------------------------------------------------------------------- drain */

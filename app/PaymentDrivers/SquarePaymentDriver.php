@@ -304,7 +304,6 @@ class SquarePaymentDriver extends BaseDriver
             return $payment;
         }
 
-        $this->unWindGatewayFees($payment_hash);
 
         $this->sendFailureMail($body->errors[0]->detail);
 
