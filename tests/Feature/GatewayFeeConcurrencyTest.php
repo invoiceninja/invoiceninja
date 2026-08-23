@@ -705,6 +705,92 @@ class GatewayFeeConcurrencyTest extends TestCase
         $this->assertEquals($before_ledger, $this->ledgerTotal($final));
     }
 
+    /* ----------------------------------------------------------- async lifecycle */
+
+    /**
+     * ACH and other async methods create a PENDING payment first. createPayment() confirms
+     * the fee for PENDING as well as COMPLETED, so the fee lands at the pending step and
+     * the later completion must not add a second one.
+     */
+    public function testAnAsyncPaymentConfirmsTheFeeOnceAcrossPendingThenCompleted(): void
+    {
+        $cg = $this->gateway(5);
+        $invoice = $this->sentInvoice(100);
+        $payment_hash = $this->initiate($invoice, $cg);
+
+        $reference = 'txn_' . Str::random(12);
+
+        $data = [
+            'amount' => $payment_hash->data->amount_with_fee,
+            'gateway_type_id' => GatewayType::CREDIT_CARD,
+            'payment_type' => PaymentType::VISA,
+            'transaction_reference' => $reference,
+        ];
+
+        /** processing webhook */
+        (new BaseDriver($cg, $this->client))
+            ->setPaymentHash($payment_hash)
+            ->createPayment($data, Payment::STATUS_PENDING);
+
+        $pending = Invoice::withTrashed()->find($invoice->id);
+
+        $this->assertCount(1, $this->feeLines($pending, $payment_hash->hash), 'the fee did not land at the pending step');
+        $this->assertEquals(105, round((float) $pending->amount, 2));
+        $this->assertEquals(105, round($this->ledgerTotal($pending), 2));
+
+        /** succeeded webhook */
+        (new BaseDriver($cg, $this->client))
+            ->setPaymentHash($payment_hash->fresh())
+            ->createPayment($data, Payment::STATUS_COMPLETED);
+
+        $final = Invoice::withTrashed()->find($invoice->id);
+
+        $this->assertCount(1, $this->feeLines($final, $payment_hash->hash), 'completion added a second fee');
+        $this->assertEquals(105, round((float) $final->amount, 2));
+        $this->assertEquals(105, round($this->ledgerTotal($final), 2), 'completion posted a second ledger adjustment');
+    }
+
+    /**
+     * Characterises what happens when an async payment fails after going pending.
+     *
+     * The fee was already confirmed at the pending step, and the failure path deletes the
+     * payment without touching line items - so the surcharge stays on the invoice for a
+     * payment that never settled. This is unchanged from the previous design, where the
+     * unwind only ever removed type 3 lines and the fee was type 4 by then.
+     */
+    public function testAnAsyncPaymentFailingAfterPendingLeavesTheFeeOnTheInvoice(): void
+    {
+        $cg = $this->gateway(5);
+        $invoice = $this->sentInvoice(100);
+        $payment_hash = $this->initiate($invoice, $cg);
+
+        $payment = (new BaseDriver($cg, $this->client))
+            ->setPaymentHash($payment_hash)
+            ->createPayment([
+                'amount' => $payment_hash->data->amount_with_fee,
+                'gateway_type_id' => GatewayType::CREDIT_CARD,
+                'payment_type' => PaymentType::VISA,
+                'transaction_reference' => 'txn_' . Str::random(12),
+            ], Payment::STATUS_PENDING);
+
+        $this->assertEquals(105, round((float) Invoice::withTrashed()->find($invoice->id)->amount, 2));
+
+        /** the failure webhook: delete the pending payment, mark it failed */
+        $payment->service()->deletePayment();
+        $payment->status_id = Payment::STATUS_FAILED;
+        $payment->save();
+
+        $final = Invoice::withTrashed()->find($invoice->id);
+
+        $this->assertCount(
+            1,
+            $this->feeLines($final, $payment_hash->hash),
+            'behaviour change: the fee is no longer retained after a failed async payment'
+        );
+        $this->assertEquals(105, round((float) $final->amount, 2));
+        $this->assertEquals(105, round((float) $final->balance, 2), 'the balance should be restored to the fee inclusive total');
+    }
+
     /* -------------------------------------------------------------------- drain */
 
     /** The drain promotes a fee whose payment landed rather than deleting it. */
