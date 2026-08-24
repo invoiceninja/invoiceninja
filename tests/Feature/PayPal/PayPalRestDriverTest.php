@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Http;
 use App\PaymentDrivers\PayPal\PayPalBasePaymentDriver;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class PayPalRestDriverTest extends TestCase
 {
@@ -304,9 +305,7 @@ class PayPalRestDriverTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider gatewayTypeProvider
-     */
+    #[DataProvider('gatewayTypeProvider')]
     public function testProcessPaymentResponsePersistsGatewayTypeIdOnPayment(int $gateway_type_id, int $payment_type_id): void
     {
         $cg = $this->buildGateway();
