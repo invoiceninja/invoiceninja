@@ -419,8 +419,15 @@ class InvoiceService
      * collected. Only CleanStaleInvoiceOrder calls it. A line whose payment hash already
      * carries a completed or pending payment is promoted rather than removed.
      *
+     * TRANSITIONAL. Its caller only reaches invoices touched in the last one to two
+     * hours, so this drains attempts that straddle the deploy, not the standing backlog
+     * of older type 3 lines - those need a one off sweep before this is removed.
+     *
+     * Removal criterion: no invoice carries a type 3 line.
+     *
      * @deprecated Gateway fees are no longer written before confirmation.
      * @see \App\Services\Invoice\ConfirmGatewayFee
+     * @see \App\Jobs\Subscription\CleanStaleInvoiceOrder
      */
     public function removeUnpaidGatewayFees()
     {
@@ -449,7 +456,7 @@ class InvoiceService
             }
         }
 
-        $this->invoice->line_items = array_values($items);
+        $this->invoice->line_items = array_values($items); //@phpstan-ignore-line
 
         $this->invoice = $this->invoice->calc()->getInvoice();
 

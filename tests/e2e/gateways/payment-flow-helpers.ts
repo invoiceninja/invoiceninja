@@ -991,6 +991,78 @@ export async function fillRequiredPaymentInformationIfPresent(
         );
     }
 }
+/**
+ * Fills and submits the required client information form when the portal renders it
+ * alongside the gateway form.
+ *
+ * completeRequiredClientInfoForm() only acts while the form is blocking checkout. On
+ * this layout it is not blocking - the gateway form is already on the page - but the
+ * form still has to be filled and submitted, or Continue posts empty values and the
+ * page reloads without a gateway form at all.
+ */
+export async function submitRequiredClientInfoIfPresent(
+    page: Page,
+): Promise<void> {
+    const form = requiredClientInfoForm(page);
+
+    if (!(await form.isVisible().catch(() => false))) {
+        return;
+    }
+
+    await dismissCookieConsent(page);
+    await waitForAlpine(page);
+
+    for (const [name, value] of Object.entries(requiredClientInfoDefaults)) {
+        const field = form.locator(`[name="${name}"]`);
+
+        if ((await field.count()) === 0) {
+            continue;
+        }
+
+        const isSelect = await field
+            .first()
+            .evaluate((element) => element.tagName === 'SELECT')
+            .catch(() => false);
+
+        if (isSelect) {
+            const selected = await field.first().inputValue().catch(() => '');
+
+            if (!selected || selected === 'none') {
+                await field
+                    .first()
+                    .selectOption(value)
+                    .catch(() => null);
+            }
+
+            continue;
+        }
+
+        await fillInputIfEmpty(field.first(), value);
+    }
+
+    const submit = form
+        .getByRole('button', { name: /^(Continue|Next|Save)$/i })
+        .first();
+
+    if (!(await submit.isVisible().catch(() => false))) {
+        return;
+    }
+
+    await submit.click({ force: true });
+
+    /** Submitting re-renders the page, so the gateway form has to come back first. */
+    await page
+        .locator('#authorize--credit-card-container')
+        .or(page.locator('#dropin-container'))
+        .or(page.locator('#card-element'))
+        .or(page.locator('#payment-form'))
+        .first()
+        .waitFor({ state: 'visible', timeout: 30_000 })
+        .catch(() => null);
+
+    await dismissCookieConsent(page);
+}
+
 export async function navigateToGatewayCheckout(
     page: Page,
     companyGateway: CompanyGatewayEntity,

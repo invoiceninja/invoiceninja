@@ -50,7 +50,7 @@ class InstantBankPay implements MethodInterface, LivewireMethodInterface
     /**
      * Handle authorization for Instant Bank Pay.
      *
-     * @param array $data
+     * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      * @throws BindingResolutionException
      */
@@ -66,7 +66,10 @@ class InstantBankPay implements MethodInterface, LivewireMethodInterface
                 'params' => [
                     'payment_request' => [
                         'description' => ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number'),
-                        'amount' => (string) $data['amount_with_fee'] * 100,
+                        'amount' => $this->go_cardless->convertToGoCardlessAmount(
+                            $this->go_cardless->payment_hash->amount_with_fee(),
+                            $this->go_cardless->client->currency()->precision
+                        ),
                         'currency' => $this->go_cardless->client->getCurrencyCode(),
                     ],
                     'metadata' => [
@@ -209,7 +212,7 @@ class InstantBankPay implements MethodInterface, LivewireMethodInterface
     /**
      * Process unsuccessful payments for Direct Debit.
      *
-     * @param ResourcesPayment $payment
+     * @param \GoCardlessPro\Resources\Payment $payment
      */
     public function processUnsuccessfulPayment(\GoCardlessPro\Resources\Payment $payment): void
     {

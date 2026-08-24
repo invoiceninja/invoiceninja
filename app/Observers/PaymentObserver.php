@@ -14,8 +14,10 @@ namespace App\Observers;
 
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\Models\Webhook;
 use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
+use App\Services\Invoice\ReverseGatewayFee;
 use App\Services\Quickbooks\QuickbooksBatchCollector;
 use App\Services\Quickbooks\QuickbooksService;
 
@@ -64,6 +66,8 @@ class PaymentObserver
      */
     public function updated(Payment $payment)
     {
+        $this->reverseGatewayFeeOnFailure($payment);
+
         $event = Webhook::EVENT_UPDATE_PAYMENT;
 
         if ($payment->getOriginal('deleted_at') && !$payment->deleted_at) {
@@ -97,6 +101,32 @@ class PaymentObserver
         }
 
         // $this->recordFrancePaymentStatusTransition($payment);
+    }
+
+    /**
+     * Takes the gateway fee back off the invoice when a payment fails.
+     *
+     * Async methods confirm the fee when the debit starts processing, so a debit that
+     * later fails leaves a surcharge behind for a payment that never settled. The
+     * failure paths all unwind the payment before marking it failed, and
+     * ReverseGatewayFee only acts once the payment is off the invoice - so a failure
+     * that leaves the payment applied, and a redelivered failure webhook, are both no
+     * ops.
+     *
+     * @see \App\Services\Invoice\ReverseGatewayFee
+     */
+    private function reverseGatewayFeeOnFailure(Payment $payment): void
+    {
+        if (! $payment->wasChanged('status_id') || (int) $payment->status_id !== Payment::STATUS_FAILED) {
+            return;
+        }
+
+        PaymentHash::query()
+            ->where('payment_id', $payment->id)
+            ->cursor()
+            ->each(function (PaymentHash $payment_hash) {
+                (new ReverseGatewayFee($payment_hash))->run();
+            });
     }
 
     // private function recordFrancePaymentStatusTransition(Payment $payment): void

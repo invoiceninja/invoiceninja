@@ -26,6 +26,7 @@ use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\GoCardless\Jobs\GoCardlessWebhook;
+use App\Utils\BcMath;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\QueryException;
@@ -228,9 +229,9 @@ class GoCardlessPaymentDriver extends BaseDriver
         }
     }
 
-    public function convertToGoCardlessAmount($amount, $precision)
+    public function convertToGoCardlessAmount($amount, $precision): int
     {
-        return \round(($amount * pow(10, $precision)), 0);
+        return BcMath::toMinorUnits($amount, (int) $precision);
     }
 
     public function detach(ClientGatewayToken $token)

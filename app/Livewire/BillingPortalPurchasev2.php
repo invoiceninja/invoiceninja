@@ -324,6 +324,7 @@ class BillingPortalPurchasev2 extends Component
     {
         $this->bundle = collect();
         $subscription = $this->subscription();
+        $notes_entity = auth()->guard('contact')->user()->client ?? $subscription->company;
 
         $data = $this->data;
 
@@ -337,7 +338,7 @@ class BillingPortalPurchasev2 extends Component
                 'product_key' => $p->product_key,
                 'unit_cost' => $p->price,
                 'tags' => InvoiceItem::tagsFromNames($p->tags),
-                'product' => substr(strip_tags($p->markdownNotes()), 0, 50),
+                'product' => substr(strip_tags($p->markdownNotes($notes_entity)), 0, 50),
                 'price' => Number::formatMoney($total, $subscription->company) . ' / ' . RecurringInvoice::frequencyForKey($subscription->frequency_id),
                 'total' => $total,
                 'qty' => $qty,
@@ -356,7 +357,7 @@ class BillingPortalPurchasev2 extends Component
                 'product_key' => $p->product_key,
                 'unit_cost' => $p->price,
                 'tags' => InvoiceItem::tagsFromNames($p->tags),
-                'product' => substr(strip_tags($p->markdownNotes()), 0, 50),
+                'product' => substr(strip_tags($p->markdownNotes($notes_entity)), 0, 50),
                 'price' => Number::formatMoney($total, $subscription->company),
                 'total' => $total,
                 'qty' => $qty,
@@ -380,7 +381,7 @@ class BillingPortalPurchasev2 extends Component
                         'product_key' => $p->product_key,
                         'unit_cost' => $p->price,
                         'tags' => InvoiceItem::tagsFromNames($p->tags),
-                        'product' => substr(strip_tags($p->markdownNotes()), 0, 50),
+                        'product' => substr(strip_tags($p->markdownNotes($notes_entity)), 0, 50),
                         'price' => Number::formatMoney($total, $subscription->company) . ' / ' . RecurringInvoice::frequencyForKey($subscription->frequency_id),
                         'total' => $total,
                         'qty' => $qty,
@@ -404,7 +405,7 @@ class BillingPortalPurchasev2 extends Component
                         'product_key' => $p->product_key,
                         'unit_cost' => $p->price,
                         'tags' => InvoiceItem::tagsFromNames($p->tags),
-                        'product' => substr(strip_tags($p->markdownNotes()), 0, 50),
+                        'product' => substr(strip_tags($p->markdownNotes($notes_entity)), 0, 50),
                         'price' => Number::formatMoney($total, $subscription->company),
                         'total' => $total,
                         'qty' => $qty,
@@ -458,7 +459,7 @@ class BillingPortalPurchasev2 extends Component
     /**
      * Fetching payment methods from the client.
      *
-     * @return $this
+     * @return self
      */
     protected function getPaymentMethods(): self
     {
