@@ -14,6 +14,7 @@ namespace App\Livewire\BillingPortal;
 
 use App\Utils\Ninja;
 use App\Utils\Number;
+use App\Utils\Helpers;
 use Livewire\Component;
 use Livewire\Attributes\On;
 use App\Models\Subscription;
@@ -45,6 +46,8 @@ class Summary extends Component
         $t->replace(Ninja::transformTranslations($subscription->company->settings));
         App::setLocale($subscription->company->locale());
 
+        $notes_entity = auth()->guard('contact')->user()?->client ?? $subscription->company;
+
         $bundle = $this->context['bundle'] ?? [
             'recurring_products' => [],
             'optional_recurring_products' => [],
@@ -64,7 +67,7 @@ class Summary extends Component
             $bundle['recurring_products'][$product->hashed_id] = [
                 'product' => $product,
                 'quantity' => $default_quantity,
-                'notes' => $product->markdownNotes(),
+                'notes' => $product->markdownNotes($notes_entity),
             ];
             $bundle['recurring_products'][$product->hashed_id]['product']['is_recurring'] = true;
         }
@@ -80,7 +83,7 @@ class Summary extends Component
             $bundle['one_time_products'][$product->hashed_id] = [
                 'product' => $product,
                 'quantity' =>  $default_quantity,
-                'notes' => $product->markdownNotes(),
+                'notes' => $product->markdownNotes($notes_entity),
             ];
             $bundle['one_time_products'][$product->hashed_id]['product']['is_recurring'] = false;
         }
@@ -96,7 +99,7 @@ class Summary extends Component
             $bundle['optional_recurring_products'][$product->hashed_id] = [
                 'product' => $product,
                 'quantity' => $default_quantity,
-                'notes' => $product->markdownNotes(),
+                'notes' => $product->markdownNotes($notes_entity),
             ];
             $bundle['optional_recurring_products'][$product->hashed_id]['product']['is_recurring'] = true;
         }
@@ -112,7 +115,7 @@ class Summary extends Component
             $bundle['optional_one_time_products'][$product->hashed_id] = [
                 'product' => $product,
                 'quantity' => $default_quantity,
-                'notes' => $product->markdownNotes(),
+                'notes' => $product->markdownNotes($notes_entity),
             ];
 
 
@@ -225,10 +228,12 @@ class Summary extends Component
 
         $products = [];
 
+        $notes_entity = auth()->guard('contact')->user()?->client ?? $this->subscription()->company;
+
         foreach ($this->context['bundle']['recurring_products'] as $key => $item) {
             $products[] = [
                 'product_key' => $item['product']['product_key'],
-                'notes' => strip_tags(\Illuminate\Support\Str::markdown($item['product']['notes'] ?? '')),
+                'notes' => strip_tags(\Illuminate\Support\Str::markdown(Helpers::processReservedKeywords($item['product']['notes'] ?? '', $notes_entity) ?? '')),
                 'quantity' => $item['quantity'],
                 'total_raw' => $item['product']['price'] * $item['quantity'],
                 'total' => Number::formatMoney($item['product']['price'] * $item['quantity'], $this->subscription()->company) . ' / ' . RecurringInvoice::frequencyForKey($this->subscription()->frequency_id),
@@ -238,7 +243,7 @@ class Summary extends Component
         foreach ($this->context['bundle']['optional_recurring_products'] as $key => $item) {
             $products[] = [
                 'product_key' => $item['product']['product_key'],
-                'notes' => strip_tags(\Illuminate\Support\Str::markdown($item['product']['notes'] ?? '')),
+                'notes' => strip_tags(\Illuminate\Support\Str::markdown(Helpers::processReservedKeywords($item['product']['notes'] ?? '', $notes_entity) ?? '')),
                 'quantity' => $item['quantity'],
                 'total_raw' => $item['product']['price'] * $item['quantity'],
                 'total' => Number::formatMoney($item['product']['price'] * $item['quantity'], $this->subscription()->company) . ' / ' . RecurringInvoice::frequencyForKey($this->subscription()->frequency_id),
@@ -248,7 +253,7 @@ class Summary extends Component
         foreach ($this->context['bundle']['one_time_products'] as $key => $item) {
             $products[] = [
                 'product_key' => $item['product']['product_key'],
-                'notes' => strip_tags(\Illuminate\Support\Str::markdown($item['product']['notes'] ?? '')),
+                'notes' => strip_tags(\Illuminate\Support\Str::markdown(Helpers::processReservedKeywords($item['product']['notes'] ?? '', $notes_entity) ?? '')),
                 'quantity' => $item['quantity'],
                 'total_raw' => $item['product']['price'] * $item['quantity'],
                 'total' => Number::formatMoney($item['product']['price'] * $item['quantity'], $this->subscription()->company),
@@ -258,7 +263,7 @@ class Summary extends Component
         foreach ($this->context['bundle']['optional_one_time_products'] as $key => $item) {
             $products[] = [
                 'product_key' => $item['product']['product_key'],
-                'notes' => strip_tags(\Illuminate\Support\Str::markdown($item['product']['notes'] ?? '')),
+                'notes' => strip_tags(\Illuminate\Support\Str::markdown(Helpers::processReservedKeywords($item['product']['notes'] ?? '', $notes_entity) ?? '')),
                 'quantity' => $item['quantity'],
                 'total_raw' => $item['product']['price'] * $item['quantity'],
                 'total' => Number::formatMoney($item['product']['price'] * $item['quantity'], $this->subscription()->company),

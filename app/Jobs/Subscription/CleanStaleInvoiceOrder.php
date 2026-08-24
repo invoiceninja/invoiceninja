@@ -96,9 +96,25 @@ class CleanStaleInvoiceOrder implements ShouldQueue
 
                 /**
                  * Drains pending fees written by the previous design. Promotes a fee whose
-                 * payment landed, removes the rest. Retained for one release.
+                 * payment landed, removes the rest.
                  *
+                 * TRANSITIONAL - remove this loop (not the job; the proforma and
+                 * password_reset work above is unrelated) one release after the gateway
+                 * fee change ships, once the backlog below reads zero:
+                 *
+                 *   select count(*) from invoices
+                 *   where is_deleted = 0 and line_items like '%"type_id":"3"%';
+                 *
+                 * That count does not fall on its own. The query above only selects
+                 * invoices touched between one and two hours ago, so each invoice gets a
+                 * single pass shortly after it was last written to. A type 3 line on an
+                 * invoice nobody touches again is never collected here - clearing the
+                 * standing backlog needs a one off sweep over every invoice still
+                 * carrying one, with no updated_at window.
+                 *
+                 * @deprecated Gateway fees are no longer written before confirmation.
                  * @see \App\Services\Invoice\ConfirmGatewayFee
+                 * @see \App\Services\Invoice\InvoiceService::removeUnpaidGatewayFees()
                  */
                 $invoice->service()->removeUnpaidGatewayFees();
             });

@@ -124,16 +124,28 @@ class GatewayFeeParallelConfirmTest extends TestCase
      */
     private function confirmInParallel(int $company_gateway_id, array $hashes): void
     {
+        $this->runInParallel($company_gateway_id, array_map(fn ($hash) => [$hash, 'confirm'], $hashes));
+    }
+
+    /**
+     * Runs one confirmation or reversal per hash, each in its own PHP process, started
+     * together.
+     *
+     * @param array<int, array{0: string, 1: string}> $work hash and either confirm or reverse
+     */
+    private function runInParallel(int $company_gateway_id, array $work): void
+    {
         $script = base_path('tests/artifacts/parallel_confirm.php');
 
         $handles = [];
 
-        foreach ($hashes as $hash) {
+        foreach ($work as [$hash, $action]) {
             $cmd = sprintf(
-                'php %s %s %d 2>&1',
+                'php %s %s %d %s 2>&1',
                 escapeshellarg($script),
                 escapeshellarg($hash),
-                $company_gateway_id
+                $company_gateway_id,
+                escapeshellarg($action)
             );
 
             $handles[] = popen($cmd, 'r');
@@ -248,5 +260,58 @@ class GatewayFeeParallelConfirmTest extends TestCase
         }
 
         $this->assertEquals(125, round((float) $final->amount, 2), 'the invoice total does not reflect all five fees');
+    }
+
+    /**
+     * A reversal racing a confirmation. The failing attempt's fee must come off and the
+     * succeeding attempt's fee must stay on - neither writer may overwrite the other.
+     *
+     * @see \App\Services\Invoice\ReverseGatewayFee
+     */
+    public function testAReversalRacingAConfirmationLosesNeitherWrite(): void
+    {
+        $cg = $this->gateway(5);
+        $invoice = $this->committedInvoice();
+
+        $failing = $this->hashFor($invoice, 5);
+        $landing = $this->hashFor($invoice, 5);
+
+        /** The failing attempt already confirmed - it went pending before it failed. */
+        $this->confirmInParallel($cg->id, [$failing->hash]);
+
+        $this->assertEquals(105, round((float) Invoice::withTrashed()->find($invoice->id)->amount, 2));
+
+        $this->runInParallel($cg->id, [
+            [$failing->hash, 'reverse'],
+            [$landing->hash, 'confirm'],
+        ]);
+
+        $final = Invoice::withTrashed()->find($invoice->id);
+        $lines = collect($final->line_items);
+
+        $this->assertCount(0, $lines->where('unit_code', $failing->hash), 'the failed attempt kept its fee');
+        $this->assertCount(1, $lines->where('unit_code', $landing->hash), 'the landing attempt lost its fee to the reversal');
+        $this->assertEquals(105, round((float) $final->amount, 2), 'the invoice total does not reflect exactly one fee');
+    }
+
+    /**
+     * The same failure redelivered to several processes at once. The fee comes off once,
+     * and the second reversal has nothing left to do.
+     */
+    public function testParallelRedeliveryOfOneFailureReversesOnce(): void
+    {
+        $cg = $this->gateway(5);
+        $invoice = $this->committedInvoice();
+
+        $hash = $this->hashFor($invoice, 5);
+
+        $this->confirmInParallel($cg->id, [$hash->hash]);
+
+        $this->runInParallel($cg->id, array_fill(0, 4, [$hash->hash, 'reverse']));
+
+        $final = Invoice::withTrashed()->find($invoice->id);
+
+        $this->assertCount(0, collect($final->line_items)->where('unit_code', $hash->hash));
+        $this->assertEquals(100, round((float) $final->amount, 2), 'parallel reversal removed more than the fee');
     }
 }

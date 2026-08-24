@@ -12,10 +12,13 @@
 
 namespace App\Services\Invoice;
 
+use App\Jobs\Util\SystemLogger;
 use App\Models\CompanyGateway;
 use App\Models\Invoice;
 use App\Models\PaymentHash;
+use App\Models\SystemLog;
 use App\Services\AbstractService;
+use App\Utils\Ninja;
 
 /**
  * Writes the gateway fee onto the invoice once the payment is confirmed.
@@ -71,7 +74,12 @@ class ConfirmGatewayFee extends AbstractService
              * Transitional: a payment initiated before gateway fees became a quote wrote a
              * pending line at initiation. Promote it rather than adding a second one.
              *
-             * @deprecated remove once no unconfirmed pre-quote attempts remain.
+             * Without this the idempotency guard above matches the type 3 line and returns,
+             * leaving the fee permanently marked unconfirmed.
+             *
+             * @deprecated remove once no invoice carries a type 3 line - the same criterion
+             *             as the drain, and to be removed with it.
+             * @see \App\Services\Invoice\InvoiceService::removeUnpaidGatewayFees()
              */
             if ($existing) {
                 return $this->promoteLegacyPendingLine($invoice);
@@ -130,11 +138,49 @@ class ConfirmGatewayFee extends AbstractService
 
         /**
          * Never throw - confirmGatewayFee() runs before the payment record is created, so
-         * throwing would lose the payment rather than the fee. Alert on this log line.
+         * throwing would lose the payment rather than the fee.
          */
-        nlog("ALERT gateway fee confirmation contended out after " . self::MAX_ATTEMPTS . " attempts on invoice {$this->payment_hash->fee_invoice_id} hash {$this->payment_hash->hash} - the fee was charged but is not on the invoice");
+        $invoice = Invoice::withTrashed()->find($this->payment_hash->fee_invoice_id);
 
-        return Invoice::withTrashed()->find($this->payment_hash->fee_invoice_id);
+        $this->alertFeeIsMissing(
+            $invoice,
+            "gateway fee confirmation contended out after " . self::MAX_ATTEMPTS . " attempts on invoice {$this->payment_hash->fee_invoice_id} hash {$this->payment_hash->hash} - the fee was charged but is not on the invoice"
+        );
+
+        return $invoice;
+    }
+
+    /**
+     * Raises the alert for a fee that was charged but never reached the invoice.
+     *
+     * This is the only way a fee can be lost, so it is reported where it happens rather
+     * than left for log scraping: a system log the company can see, and Sentry on hosted.
+     */
+    private function alertFeeIsMissing(?Invoice $invoice, string $message): void
+    {
+        nlog("ALERT {$message}");
+
+        if (Ninja::isHosted()) {
+            \Sentry\captureMessage($message);
+        }
+
+        if (! $invoice) {
+            return;
+        }
+
+        SystemLogger::dispatch(
+            [
+                'message' => $message,
+                'payment_hash' => $this->payment_hash->hash,
+                'fee_total' => $this->payment_hash->fee_total,
+                'invoice_id' => $invoice->hashed_id,
+            ],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_PAYMENT_RECONCILIATION_FAILURE,
+            SystemLog::TYPE_FAILURE,
+            $invoice->client,
+            $invoice->company
+        );
     }
 
     /**
@@ -193,6 +239,15 @@ class ConfirmGatewayFee extends AbstractService
     /**
      * The line item cost. Hashes created before the fee became a quote carry only the
      * tax inclusive total, so it has to be reduced back to a cost.
+     *
+     * TRANSITIONAL. Dividing the invoice tax rates back out is exact unless the fee line
+     * carried its own rates, where it is lossy by the difference.
+     *
+     * Removal criterion: no unconfirmed payment hash without data.fee_net remains. In
+     * practice that is reached with the drain, since both describe attempts initiated
+     * before the change.
+     *
+     * @deprecated
      */
     private function netFee(Invoice $invoice): float
     {

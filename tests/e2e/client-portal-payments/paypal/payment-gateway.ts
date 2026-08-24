@@ -43,8 +43,17 @@ export class PayPalPaymentGateway extends BasePaymentGateway {
     readonly gatewayKey = PAYPAL_REST_GATEWAY_KEY;
     readonly envVar = 'PAYPAL_REST_KEYS';
     readonly gatewayTypeId = GatewayType.PAYPAL;
-    readonly supportsFullPayment = false;
+    /**
+     * The sandbox buyer login is what makes completion possible, and it is optional
+     * configuration - without it the wallet flow cannot be driven.
+     */
+    readonly supportsFullPayment = payPalSandboxBuyerCredentials(
+        parsePayPalRestKeys() ?? ({} as never),
+    ) !== null;
     readonly requiresGatewayIsolation = true;
+
+    /** Checkout is the PayPal SDK surface, not the portal's own payment summary. */
+    readonly rendersFeeSummary = false;
 
     isEnvConfigured(): boolean {
         return parsePayPalRestKeys() !== null;
@@ -265,4 +274,5 @@ export class PayPalPaymentGateway extends BasePaymentGateway {
 
         await completePayPalSandboxPayment(page, method, buyer);
     }
+
 }

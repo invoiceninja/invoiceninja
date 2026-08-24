@@ -68,6 +68,17 @@ class DesignPreviewRequest extends Request
         $input['balance'] = 0;
         $input['number'] = ctrans('texts.live_preview') . ' #' . rand(0, 1000);
 
+        if(isset($input['entity_type'], $input['settings'])){
+
+            match($input['entity_type']){
+                'statement' => $input['design_id'] = $this->decodePrimaryKey($input['settings']['statement_design_id']),
+                'payment_receipt' => $input['design_id'] = $this->decodePrimaryKey($input['settings']['payment_receipt_design_id']),
+                'payment_refund' => $input['design_id'] = $this->decodePrimaryKey($input['settings']['payment_refund_design_id']),
+                'delivery_note' => $input['design_id'] = $this->decodePrimaryKey($input['settings']['delivery_note_design_id']),
+                default => null
+            };
+        }
+
         $this->replace($input);
     }
 }
