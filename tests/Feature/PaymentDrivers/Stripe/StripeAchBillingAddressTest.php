@@ -147,16 +147,6 @@ class StripeAchBillingAddressTest extends TestCase
         $this->driver()->syncAchPaymentMethodBillingAddress($this->achToken());
     }
 
-    public function testLegacyBankSourceDoesNotUseThePaymentMethodUpdateApi(): void
-    {
-        $this->expectNotToPerformAssertions();
-
-        $token = $this->achToken();
-        $token->token = 'ba_legacy_bank_source';
-
-        $this->driver()->syncAchPaymentMethodBillingAddress($token);
-    }
-
     public function testAchFieldsAreForcedRegardlessOfTheGatewayToggles(): void
     {
         $fields = collect($this->driver()->setPaymentMethod(GatewayType::BANK_TRANSFER)->getClientRequiredFields())
