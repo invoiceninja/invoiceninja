@@ -15,16 +15,21 @@ namespace Tests\Feature;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Models\CompanyGateway;
+use App\Jobs\Util\SystemLogger;
 use App\Models\CompanyLedger;
+use App\Models\SystemLog;
+use Illuminate\Support\Facades\Bus;
 use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\PaymentDrivers\BaseDriver;
+use App\PaymentDrivers\Stripe\Jobs\PaymentIntentFailureWebhook;
 use App\Models\ClientGatewayToken;
 use App\Services\Invoice\AutoBillInvoice;
 use App\Services\Invoice\ConfirmGatewayFee;
+use App\Services\Invoice\ReverseGatewayFee;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Str;
@@ -141,12 +146,42 @@ class GatewayFeeConcurrencyTest extends TestCase
             ->confirmGatewayFee(['gateway_type_id' => GatewayType::CREDIT_CARD]);
     }
 
+    /** The processing webhook: a PENDING payment, which confirms the fee. */
+    private function pendingPayment(CompanyGateway $cg, PaymentHash $payment_hash): Payment
+    {
+        return (new BaseDriver($cg, $this->client))
+            ->setPaymentHash($payment_hash)
+            ->createPayment([
+                'amount' => $payment_hash->data->amount_with_fee,
+                'gateway_type_id' => GatewayType::CREDIT_CARD,
+                'payment_type' => PaymentType::VISA,
+                'transaction_reference' => 'txn_' . Str::random(12),
+            ], Payment::STATUS_PENDING);
+    }
+
+    /** What every driver failure path does: unwind the payment, then mark it failed. */
+    private function failPendingPayment(Payment $payment): void
+    {
+        $payment->service()->deletePayment();
+        $payment->status_id = Payment::STATUS_FAILED;
+        $payment->save();
+    }
+
     private function feeLines(Invoice $invoice, string $hash): array
     {
         return collect($invoice->line_items)
                 ->filter(fn ($item) => ($item->unit_code ?? '') === $hash)
                 ->values()
                 ->all();
+    }
+
+    /** @return \Illuminate\Support\Collection<int, CompanyLedger> */
+    private function gatewayFeeLedgerRows(): \Illuminate\Support\Collection
+    {
+        return CompanyLedger::query()
+                    ->where('client_id', $this->client->id)
+                    ->where('notes', 'like', '%gateway fee%')
+                    ->get();
     }
 
     private function ledgerTotal(Invoice $invoice): float
@@ -751,14 +786,129 @@ class GatewayFeeConcurrencyTest extends TestCase
     }
 
     /**
-     * Characterises what happens when an async payment fails after going pending.
+     * An async payment that fails after going pending must give the fee back.
      *
-     * The fee was already confirmed at the pending step, and the failure path deletes the
-     * payment without touching line items - so the surcharge stays on the invoice for a
-     * payment that never settled. This is unchanged from the previous design, where the
-     * unwind only ever removed type 3 lines and the fee was type 4 by then.
+     * The fee was confirmed at the pending step. The failure path unwinds the payment, and
+     * the surcharge has to come off with it - the client was never debited.
+     *
+     * @see \App\Services\Invoice\ReverseGatewayFee
      */
-    public function testAnAsyncPaymentFailingAfterPendingLeavesTheFeeOnTheInvoice(): void
+    public function testAnAsyncPaymentFailingAfterPendingReversesTheFee(): void
+    {
+        $cg = $this->gateway(5);
+        $invoice = $this->sentInvoice(100);
+        $before_ledger = $this->ledgerTotal($invoice);
+        $before_client_balance = (float) $this->client->fresh()->balance;
+
+        $payment_hash = $this->initiate($invoice, $cg);
+        $payment = $this->pendingPayment($cg, $payment_hash);
+
+        $this->assertEquals(105, round((float) Invoice::withTrashed()->find($invoice->id)->amount, 2));
+
+        $this->failPendingPayment($payment);
+
+        $final = Invoice::withTrashed()->find($invoice->id);
+
+        $this->assertCount(0, $this->feeLines($final, $payment_hash->hash), 'the fee survived a failed payment');
+        $this->assertEquals(100, round((float) $final->amount, 2));
+        $this->assertEquals(100, round((float) $final->balance, 2));
+        $this->assertEquals(0, round((float) $final->paid_to_date, 2));
+
+        /**
+         * Scoped to the fee rows: deleting a pending payment posts its own adjustment,
+         * which is a separate pre-existing question.
+         *
+         * @see docs/payment-delete-double-adjustment.md
+         */
+        $fee_rows = $this->gatewayFeeLedgerRows();
+
+        $this->assertCount(2, $fee_rows, 'the fee should have been added once and reversed once');
+        $this->assertEquals(
+            0,
+            round((float) $fee_rows->sum('adjustment'), 2),
+            'the confirmation and the reversal did not net to zero on the ledger'
+        );
+
+        $this->assertEquals(
+            round($before_client_balance, 2),
+            round((float) $this->client->fresh()->balance, 2),
+            'the client balance did not return to where it started'
+        );
+    }
+
+    /** A redelivered failure webhook must not reverse twice. */
+    public function testARedeliveredFailureReversesTheFeeOnlyOnce(): void
+    {
+        $cg = $this->gateway(5);
+        $invoice = $this->sentInvoice(100);
+
+        $payment_hash = $this->initiate($invoice, $cg);
+        $payment = $this->pendingPayment($cg, $payment_hash);
+
+        $this->failPendingPayment($payment);
+
+        /** The webhook arrives again: the payment is already failed and already unwound. */
+        (new ReverseGatewayFee($payment_hash->fresh()))->run();
+
+        $final = Invoice::withTrashed()->find($invoice->id);
+
+        $this->assertEquals(100, round((float) $final->amount, 2));
+        $this->assertCount(
+            2,
+            $this->gatewayFeeLedgerRows(),
+            'the redelivered failure posted a second ledger adjustment'
+        );
+    }
+
+    /**
+     * A success arriving after the reversal is not a hazard: the confirmation finds no
+     * line for the hash and rebuilds the fee from the hash.
+     */
+    public function testALateCompletionAfterAReversalRestoresTheFee(): void
+    {
+        $cg = $this->gateway(5);
+        $invoice = $this->sentInvoice(100);
+        $payment_hash = $this->initiate($invoice, $cg);
+        $payment = $this->pendingPayment($cg, $payment_hash);
+
+        $this->failPendingPayment($payment);
+
+        $this->assertEquals(100, round((float) Invoice::withTrashed()->find($invoice->id)->amount, 2));
+
+        $this->confirm($cg, $payment_hash->fresh());
+
+        $final = Invoice::withTrashed()->find($invoice->id);
+
+        $this->assertCount(1, $this->feeLines($final, $payment_hash->hash), 'the fee was not restored');
+        $this->assertEquals(105, round((float) $final->amount, 2));
+    }
+
+    /**
+     * The reversal is gated on the payment being off the invoice. A driver that marks a
+     * payment failed without unwinding it would otherwise leave the invoice short by the
+     * fee, since the payment still covers the fee inclusive amount.
+     */
+    public function testAFailedPaymentThatIsStillAppliedKeepsTheFee(): void
+    {
+        $cg = $this->gateway(5);
+        $invoice = $this->sentInvoice(100);
+        $payment_hash = $this->initiate($invoice, $cg);
+        $payment = $this->pendingPayment($cg, $payment_hash);
+
+        $payment->status_id = Payment::STATUS_FAILED;
+        $payment->save();
+
+        $final = Invoice::withTrashed()->find($invoice->id);
+
+        $this->assertCount(1, $this->feeLines($final, $payment_hash->hash), 'the fee was reversed while the payment was still applied');
+        $this->assertEquals(105, round((float) $final->amount, 2));
+    }
+
+    /**
+     * Failing a completed payment is a different event - the money moved, so the fee was
+     * charged and stays. Only an unwound payment gives its fee back.
+     */
+    public function testACompletedPaymentMarkedFailedDoesNotReverseTheFee(): void
     {
         $cg = $this->gateway(5);
         $invoice = $this->sentInvoice(100);
@@ -771,24 +921,193 @@ class GatewayFeeConcurrencyTest extends TestCase
                 'gateway_type_id' => GatewayType::CREDIT_CARD,
                 'payment_type' => PaymentType::VISA,
                 'transaction_reference' => 'txn_' . Str::random(12),
-            ], Payment::STATUS_PENDING);
+            ]);
 
-        $this->assertEquals(105, round((float) Invoice::withTrashed()->find($invoice->id)->amount, 2));
-
-        /** the failure webhook: delete the pending payment, mark it failed */
-        $payment->service()->deletePayment();
         $payment->status_id = Payment::STATUS_FAILED;
         $payment->save();
 
         $final = Invoice::withTrashed()->find($invoice->id);
 
-        $this->assertCount(
-            1,
-            $this->feeLines($final, $payment_hash->hash),
-            'behaviour change: the fee is no longer retained after a failed async payment'
-        );
+        $this->assertCount(1, $this->feeLines($final, $payment_hash->hash), 'a settled payment gave its fee back');
         $this->assertEquals(105, round((float) $final->amount, 2));
-        $this->assertEquals(105, round((float) $final->balance, 2), 'the balance should be restored to the fee inclusive total');
+    }
+
+    /**
+     * The Stripe failure webhook, end to end through the job that handles it.
+     *
+     * Proves the observer hook fires on the real failure path, where the payment is
+     * unwound before it is marked failed.
+     *
+     * @see \App\PaymentDrivers\Stripe\Jobs\PaymentIntentFailureWebhook
+     */
+    public function testTheStripeFailureWebhookReversesTheFee(): void
+    {
+        $cg = $this->gateway(5);
+        $invoice = $this->sentInvoice(100);
+        $payment_hash = $this->initiate($invoice, $cg);
+
+        /** The failure mailer reads the invoice invitation for its reference. */
+        $invoice->service()->createInvitations()->save();
+
+        $reference = 'pi_' . Str::random(24);
+
+        $payment = (new BaseDriver($cg, $this->client))
+            ->setPaymentHash($payment_hash)
+            ->createPayment([
+                'amount' => $payment_hash->data->amount_with_fee,
+                'gateway_type_id' => GatewayType::CREDIT_CARD,
+                'payment_type' => PaymentType::VISA,
+                'transaction_reference' => $reference,
+            ], Payment::STATUS_PENDING);
+
+        $this->assertEquals(105, round((float) Invoice::withTrashed()->find($invoice->id)->amount, 2));
+
+        (new PaymentIntentFailureWebhook(
+            ['object' => ['id' => $reference, 'failure_message' => 'account_closed']],
+            $this->company->company_key,
+            $cg->id
+        ))->handle();
+
+        $final = Invoice::withTrashed()->find($invoice->id);
+
+        $this->assertSame(Payment::STATUS_FAILED, $payment->fresh()->status_id);
+        $this->assertCount(0, $this->feeLines($final, $payment_hash->hash), 'the failure webhook left the fee on the invoice');
+        $this->assertEquals(100, round((float) $final->amount, 2));
+        $this->assertEquals(100, round((float) $final->balance, 2));
+    }
+
+    /**
+     * Deploy straddle: an attempt initiated before the change went pending under the old
+     * design, which wrote the fee onto the invoice at initiation and promoted the line
+     * when the payment landed. If that debit fails after the change, the reversal has to
+     * take the old line off.
+     */
+    public function testAFailedPaymentReversesAFeeWrittenByThePreviousDesign(): void
+    {
+        $cg = $this->gateway(5);
+        $invoice = $this->sentInvoice(100);
+        $hash = Str::random(32);
+
+        /** The invoice as the previous design left it once the payment went pending. */
+        $invoice = $this->withLegacyPendingFee($invoice, $hash, 5, '4');
+        $invoice->save();
+
+        $payment_hash = PaymentHash::create([
+            'hash' => $hash,
+            'fee_total' => 5,
+            'fee_invoice_id' => $invoice->id,
+            'data' => [
+                'invoices' => [[
+                    'invoice_id' => $invoice->hashed_id,
+                    'amount' => 100,
+                    'due_date' => '',
+                    'invoice_number' => $invoice->number,
+                    'additional_info' => '',
+                ]],
+                'credits' => 0,
+                'amount_with_fee' => 105,
+            ],
+        ]);
+
+        $payment = $this->pendingPayment($cg, $payment_hash);
+
+        /** Confirmation is a no-op here - the line is already on the invoice. */
+        $this->assertCount(1, $this->feeLines(Invoice::withTrashed()->find($invoice->id), $hash));
+
+        $this->failPendingPayment($payment);
+
+        $final = Invoice::withTrashed()->find($invoice->id);
+
+        $this->assertCount(0, $this->feeLines($final, $hash), 'the pre-change fee survived a failed payment');
+        $this->assertEquals(100, round((float) $final->amount, 2));
+        $this->assertEquals(100, round((float) $final->balance, 2));
+    }
+
+    /** The same straddle, for a line the previous design had not promoted yet. */
+    public function testAFailedPaymentReversesAnUnpromotedPreQuoteLine(): void
+    {
+        $cg = $this->gateway(5);
+        $invoice = $this->sentInvoice(100);
+        $hash = Str::random(32);
+
+        $invoice = $this->withLegacyPendingFee($invoice, $hash, 5);
+        $invoice->save();
+
+        $payment_hash = PaymentHash::create([
+            'hash' => $hash,
+            'fee_total' => 5,
+            'fee_invoice_id' => $invoice->id,
+            'data' => [
+                'invoices' => [[
+                    'invoice_id' => $invoice->hashed_id,
+                    'amount' => 100,
+                    'due_date' => '',
+                    'invoice_number' => $invoice->number,
+                    'additional_info' => '',
+                ]],
+                'credits' => 0,
+                'amount_with_fee' => 105,
+            ],
+        ]);
+
+        $payment = $this->pendingPayment($cg, $payment_hash);
+
+        $this->failPendingPayment($payment);
+
+        $final = Invoice::withTrashed()->find($invoice->id);
+
+        $this->assertCount(0, $this->feeLines($final, $hash), 'the pre-change pending fee survived a failed payment');
+        $this->assertEquals(100, round((float) $final->amount, 2));
+
+        /** The drain then finds nothing left to collect. */
+        $final->service()->removeUnpaidGatewayFees()->save();
+
+        $drained = Invoice::withTrashed()->find($invoice->id);
+
+        $this->assertEquals(100, round((float) $drained->amount, 2), 'the drain removed the fee a second time');
+    }
+
+    /**
+     * Contending out is the only way a confirmed fee can be lost, so it raises an alert
+     * where it happens rather than leaving it for log scraping.
+     */
+    public function testContendingOutRaisesAnAlert(): void
+    {
+        $cg = $this->gateway(5);
+        $invoice = $this->sentInvoice(100);
+        $payment_hash = $this->initiate($invoice, $cg);
+
+        Bus::fake([SystemLogger::class]);
+
+        /**
+         * Every claim loses: the row is touched immediately before each claim runs, so the
+         * updated_at the service observed never matches.
+         */
+        $bumping = false;
+
+        \DB::beforeExecuting(function ($query, $bindings, $connection) use ($invoice, &$bumping) {
+            if ($bumping || ! str_contains($query, 'update `invoices`') || ! str_contains($query, '`line_items`')) {
+                return;
+            }
+
+            $bumping = true;
+
+            $connection->table('invoices')
+                       ->where('id', $invoice->id)
+                       ->update(['updated_at' => now()->addSeconds(random_int(1, 1000))->format('Y-m-d H:i:s.u')]);
+
+            $bumping = false;
+        });
+
+        (new ConfirmGatewayFee($payment_hash, $cg, ['gateway_type_id' => GatewayType::CREDIT_CARD]))->run();
+
+        $final = Invoice::withTrashed()->find($invoice->id);
+
+        Bus::assertDispatched(SystemLogger::class, function (SystemLogger $job) {
+            return (new \ReflectionProperty($job, 'event_id'))->getValue($job) === SystemLog::EVENT_PAYMENT_RECONCILIATION_FAILURE;
+        });
+
+        $this->assertEquals(100, round((float) $final->amount, 2), 'the fee landed despite every claim being lost');
     }
 
     /* -------------------------------------------------------------------- drain */
@@ -868,12 +1187,12 @@ class GatewayFeeConcurrencyTest extends TestCase
     }
 
     /** Writes a type 3 line the way the previous design did, to exercise the drain. */
-    private function withLegacyPendingFee(Invoice $invoice, string $hash, float $cost): Invoice
+    private function withLegacyPendingFee(Invoice $invoice, string $hash, float $cost, string $type_id = '3'): Invoice
     {
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
         $item->cost = $cost;
-        $item->type_id = '3';
+        $item->type_id = $type_id;
         $item->unit_code = $hash;
 
         $line_items = (array) $invoice->line_items;

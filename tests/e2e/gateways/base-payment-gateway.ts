@@ -28,6 +28,20 @@ export abstract class BasePaymentGateway {
 
     readonly requiresGatewayIsolation: boolean = false;
 
+    /**
+     * Whether checkout renders the application's own payment summary, where the gateway
+     * fee and the fee inclusive total are visible in the page. Wallet gateways render
+     * their own SDK surface instead.
+     */
+    readonly rendersFeeSummary: boolean = true;
+
+    /**
+     * Whether the portal only offers this gateway once the client has an authorised
+     * mandate. Direct debit cannot be paid from a fresh client, so a checkout test has
+     * to set the mandate up first.
+     */
+    readonly requiresStoredMandate: boolean = false;
+
     private restoreGatewayIsolation?: () => Promise<void>;
 
     getEnvValue(): string {

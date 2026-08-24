@@ -90,6 +90,13 @@ function payPalRestGatewayHasE2eFees(
     return !isGatewayMethodEnabled(gateway, 1);
 }
 
+/**
+ * Leaves the gateway under test as the only one the portal offers.
+ *
+ * The gatewayGuard fixture puts back whatever this archives when the test ends.
+ *
+ * @see tests/e2e/fixtures.ts
+ */
 async function archiveNonCanonicalActiveGateways(
     api: ApiContext,
     canonicalGatewayId: string,

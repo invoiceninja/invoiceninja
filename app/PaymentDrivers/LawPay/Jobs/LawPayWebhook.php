@@ -124,6 +124,16 @@ class LawPayWebhook implements ShouldQueue
                 return;
             }
 
+            /**
+             * A debit reported as returned, declined or voided has to come off the invoice
+             * - it was applied when LawPay reported it pending or settled, and an ACH
+             * return routinely arrives days after settlement. The unwind is what releases
+             * the gateway fee.
+             *
+             * @see \App\Services\Invoice\ReverseGatewayFee
+             */
+            $payment->service()->deletePayment();
+
             $payment->status_id = Payment::STATUS_FAILED;
             $payment->save();
 
