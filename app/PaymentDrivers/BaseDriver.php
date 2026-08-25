@@ -392,7 +392,7 @@ class BaseDriver extends AbstractPaymentDriver
      */
     public function confirmGatewayFee($data = []): void
     {
-        if (! $this->payment_hash) {
+        if (! $this->payment_hash) { //@phpstan-ignore-line
             return;
         }
 

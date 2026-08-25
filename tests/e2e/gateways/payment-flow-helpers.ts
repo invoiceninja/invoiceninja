@@ -8,6 +8,7 @@ import {
 } from '../api-helpers';
 import {
     createAndLogInClient,
+    completeInvoiceDetailRffModalIfPresent,
     dismissCookieConsent,
     waitForAlpine,
     waitForLivewire,
@@ -1120,6 +1121,7 @@ export async function selectFirstAvailableGateway(page: Page): Promise<void> {
 
     await expect(option).toBeVisible();
     await option.click();
+    await completeInvoiceDetailRffModalIfPresent(page);
 }
 
 export async function clickBulkPayNow(page: Page): Promise<void> {

@@ -431,47 +431,94 @@ class InvoiceService
      */
     public function removeUnpaidGatewayFees()
     {
-        if ($this->invoice->status_id == Invoice::STATUS_PAID || ! collect($this->invoice->line_items)->contains('type_id', '3')) {
-            return $this;
-        }
+        for ($i = 1; $i <= 5; $i++) {
 
-        /** Baseline must be the committed row, not a possibly stale in-memory model. */
-        $balance = (float) (Invoice::withTrashed()->where('id', $this->invoice->id)->value('balance') ?? $this->invoice->balance);
+            /** Decide from the committed row - the model in hand may predate a confirmation. */
+            $invoice = Invoice::withTrashed()->find($this->invoice->id);
 
-        $items = [];
+            if (! $invoice) {
+                return $this;
+            }
 
-        foreach ((array) $this->invoice->line_items as $item) {
+            if ($invoice->status_id == Invoice::STATUS_PAID || ! collect($invoice->line_items)->contains('type_id', '3')) {
+                $this->invoice = $invoice;
 
-            if ($item->type_id != '3') {
-                $items[] = $item;
+                return $this;
+            }
+
+            /** Invoice::$casts casts updated_at to a unix timestamp, discarding microseconds. */
+            $observed_updated_at = $invoice->getRawOriginal('updated_at');
+            $balance = (float) $invoice->balance;
+
+            $items = [];
+
+            foreach ((array) $invoice->line_items as $item) {
+
+                if ($item->type_id != '3') {
+                    $items[] = $item;
+                    continue;
+                }
+
+                $hash = PaymentHash::query()->where('hash', $item->unit_code ?? '')->first();
+
+                /** The payment landed - promote rather than delete. */
+                if ($hash && $hash->payment_id && in_array($hash->payment?->status_id, [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING])) {
+                    $item->type_id = '4';
+                    $items[] = $item;
+                }
+            }
+
+            $invoice->line_items = array_values($items); //@phpstan-ignore-line
+
+            /** Pure calculation - getTempEntity() does not save. */
+            $projected = $invoice->calc()->getTempEntity();
+
+            /**
+             * The same claim confirmation uses. Without it this saves line_items decided
+             * before a concurrent confirmation, and a fee that was just written - or a
+             * pending line that was just promoted - is dropped again.
+             *
+             * @see \App\Services\Invoice\ConfirmGatewayFee
+             */
+            $claimed = Invoice::withTrashed()
+                ->where('id', $invoice->id)
+                ->where('updated_at', $observed_updated_at)
+                ->update([
+                    'line_items' => json_encode($projected->line_items),
+                    'amount' => $projected->amount,
+                    'balance' => $projected->balance,
+                    'total_taxes' => $projected->total_taxes,
+                    'updated_at' => now()->format('Y-m-d H:i:s.u'),
+                ]);
+
+            if ($claimed !== 1) {
+                nlog("gateway fee drain claim lost on invoice {$invoice->id} attempt {$i}");
+
+                usleep(random_int(1000, 5000) * $i);
+
                 continue;
             }
 
-            $hash = PaymentHash::query()->where('hash', $item->unit_code ?? '')->first();
+            $new_balance = (float) $projected->balance;
 
-            /** The payment landed - promote rather than delete. */
-            if ($hash && $hash->payment_id && in_array($hash->payment?->status_id, [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING])) {
-                $item->type_id = '4';
-                $items[] = $item;
+            if (! BcMath::equal($balance, $new_balance)) {
+                $adjustment = $balance - $new_balance;
+
+                $invoice
+                ->ledger()
+                ->updateInvoiceBalance($adjustment * -1, 'Adjustment for removing gateway fee');
+
+                $invoice->client->service()->updateBalance($adjustment * -1);
             }
+
+            $this->invoice = $invoice->fresh();
+
+            return $this;
         }
 
-        $this->invoice->line_items = array_values($items); //@phpstan-ignore-line
+        nlog("gateway fee drain contended out on invoice {$this->invoice->id} - a pending fee was left in place");
 
-        $this->invoice = $this->invoice->calc()->getInvoice();
-
-        $new_balance = $this->invoice->balance;
-
-        if (! BcMath::equal($balance, $new_balance)) {
-            $adjustment = $balance - $new_balance;
-
-            $this->invoice
-            ->ledger()
-            ->updateInvoiceBalance($adjustment * -1, 'Adjustment for removing gateway fee');
-
-            $this->invoice->client->service()->updateBalance($adjustment * -1);
-
-        }
+        $this->invoice = Invoice::withTrashed()->find($this->invoice->id) ?? $this->invoice;
 
         return $this;
     }

@@ -158,7 +158,13 @@ class BTCPayPaymentDriver extends BaseDriver
                     $payment->service()->deletePayment();
                     $this->failedPaymentNotification($payment);
 
-                    $StatusId = Payment::STATUS_CANCELLED;
+                    /**
+                     * An expired invoice is the same outcome as an invalid one - the money
+                     * never arrived - and failed is what releases the gateway fee.
+                     *
+                     * @see \App\Services\Invoice\ReverseGatewayFee
+                     */
+                    $StatusId = Payment::STATUS_FAILED;
 
                     $payment->status_id = $StatusId;
                     $payment->save();
