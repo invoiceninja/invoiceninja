@@ -860,13 +860,13 @@ class HtmlEngine
         $data['$payment_error'] = ['value' => '', 'label' => ctrans('texts.error')];
 
         if ($this->entity_string == 'invoice' && $this->entity->net_payments()->exists()) {
-            $payment_list = '<br><br>';
+            $payment_list = $this->entity->net_payments //@phpstan-ignore-line
+                ->map(function ($payment) {
+                    return ctrans('texts.payment_subject') . ': ' . $this->formatDate($payment->date, $this->client->date_format()) . ' :: ' . Number::formatMoney($payment->amount, $this->client) . ' :: ' . $payment->translatedType();
+                })
+                ->implode("\n");
 
-            foreach ($this->entity->net_payments as $payment) { //@phpstan-ignore-line
-                $payment_list .= ctrans('texts.payment_subject') . ": " . $this->formatDate($payment->date, $this->client->date_format()) . " :: " . Number::formatMoney($payment->amount, $this->client) . " :: " . $payment->translatedType() . "<br>";
-            }
-
-            $data['$payments'] = ['value' => $payment_list, 'label' => ctrans('texts.payments')];
+            $data['$payments'] = ['value' => '<div data-state="encoded-html">' . htmlspecialchars(\nl2br("\n\n{$payment_list}"), ENT_QUOTES, 'UTF-8') . '</div>', 'label' => ctrans('texts.payments')];
 
             /** @var ?\App\Models\Payment $payment */
             $payment = $this->entity->net_payments()->first();
@@ -1081,7 +1081,7 @@ Código seguro de verificación (CSV): {$verifactu_log->status}";
         return $data;
     }
 
-    public function generateLabelsAndValues()
+    public function generateLabelsAndValues(): array
     {
         $data = [];
 
