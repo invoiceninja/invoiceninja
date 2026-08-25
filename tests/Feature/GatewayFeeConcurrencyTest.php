@@ -1200,6 +1200,53 @@ class GatewayFeeConcurrencyTest extends TestCase
         $this->assertEquals(105, round((float) $final->amount, 2));
     }
 
+    /** Confirmation must retry if the legacy drain removes its pending line first. */
+    public function testConfirmationRecoversWhenTheDrainWinsBeforeLegacyPromotion(): void
+    {
+        $cg = $this->gateway(5);
+        $invoice = $this->sentInvoice(100);
+        $hash = Str::random(32);
+        $invoice = $this->withLegacyPendingFee($invoice, $hash, 5);
+
+        $payment_hash = PaymentHash::create([
+            'hash' => $hash,
+            'fee_total' => 5,
+            'fee_invoice_id' => $invoice->id,
+            'data' => ['invoices' => [], 'credits' => 0, 'amount_with_fee' => 105],
+        ]);
+
+        $drained = false;
+        $draining = false;
+
+        /** The drain wins the row immediately before confirmation claims its promotion. */
+        \DB::beforeExecuting(function ($query, $bindings, $connection) use ($invoice, &$drained, &$draining) {
+            if ($drained || $draining || ! str_contains($query, 'update `invoices`') || ! str_contains($query, '`line_items`')) {
+                return;
+            }
+
+            $draining = true;
+            Invoice::withTrashed()->find($invoice->id)->service()->removeUnpaidGatewayFees();
+            $drained = true;
+            $draining = false;
+        });
+
+        $this->confirm($cg, $payment_hash);
+
+        $final = Invoice::withTrashed()->find($invoice->id);
+        $lines = $this->feeLines($final, $hash);
+
+        $this->assertTrue($drained, 'the simulated drain did not run');
+        $this->assertSame(
+            ['fee_lines' => 1, 'type_id' => '4', 'invoice_amount' => 105.0],
+            [
+                'fee_lines' => count($lines),
+                'type_id' => isset($lines[0]) ? (string) $lines[0]->type_id : null,
+                'invoice_amount' => round((float) $final->amount, 2),
+            ],
+            'confirmation returned after losing its legacy promotion claim'
+        );
+    }
+
 
     /** The drain promotes a fee whose payment landed rather than deleting it. */
     public function testTheDrainPromotesAPendingFeeWhosePaymentLanded(): void

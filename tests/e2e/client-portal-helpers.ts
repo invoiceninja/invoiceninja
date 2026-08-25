@@ -441,23 +441,66 @@ export async function hasPayNowDropdown(page: Page): Promise<boolean> {
 }
 
 /**
- * Starts checkout from the Pay Now dropdown using the first non-PayPal method.
- * PayPal methods are skipped because they add the required-fields step, which
- * would obscure the terms and signature gates under test.
+ * The default invoice Pay Now flow can show a required-fields modal on the
+ * invoice detail page (notably for PayPal when city/postal code are missing).
+ */
+export async function completeInvoiceDetailRffModalIfPresent(
+    page: Page,
+): Promise<void> {
+    const modal = page.locator('#displayRequiredFieldsModal');
+
+    if (!(await modal.isVisible().catch(() => false))) {
+        return;
+    }
+
+    await dismissCookieConsent(page);
+
+    const fields: Array<[string, string]> = [
+        ['rff_first_name', 'Playwright'],
+        ['rff_last_name', 'Portal'],
+        ['rff_email', `portal-rff-${Date.now()}@example.test`],
+        ['rff_city', 'Los Angeles'],
+        ['rff_postal_code', '90210'],
+    ];
+
+    for (const [name, value] of fields) {
+        const input = modal.locator(`input[name="${name}"]`);
+
+        if (await input.isVisible().catch(() => false)) {
+            await input.fill(value);
+            await input.dispatchEvent('input');
+            await input.blur();
+        }
+    }
+
+    await modal.getByRole('button', { name: /Next/i }).click();
+}
+
+/**
+ * Starts checkout from the Pay Now dropdown. Prefers a non-PayPal method when
+ * one exists, but falls back to PayPal when that is all that is configured.
+ * PayPal REST exposes card and wallet methods with `data-is-paypal="1"`, so the
+ * non-PayPal filter alone is not enough on those accounts.
  */
 export async function startPayNowCheckout(page: Page): Promise<void> {
     const dropdown = page.locator('[dusk="pay-now-dropdown"]');
     await expect(dropdown).toBeVisible();
     await dropdown.click();
 
-    const method = page
+    const nonPayPalMethod = page
         .locator(
             '[dusk="payment-methods-dropdown"] .dropdown-gateway-button:not([data-is-paypal="1"])',
         )
         .first();
+    const anyMethod = page
+        .locator('[dusk="payment-methods-dropdown"] .dropdown-gateway-button')
+        .first();
+    const method =
+        (await nonPayPalMethod.count()) > 0 ? nonPayPalMethod : anyMethod;
 
     await expect(method).toBeVisible();
     await method.click();
+    await completeInvoiceDetailRffModalIfPresent(page);
 }
 
 export async function expectMetaFlag(

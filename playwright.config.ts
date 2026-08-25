@@ -38,9 +38,10 @@ export default defineConfig({
         baseURL,
         // PayPal's SDK blocks headless wallet checkout. Default to headed locally
         // (CLI and VS Code); set PLAYWRIGHT_HEADLESS=1 to force headless.
-        headless:
-            process.env.PLAYWRIGHT_HEADLESS === '1' ||
-            process.env.CI === 'true',
+        headless: true,
+        // headless:
+        //     process.env.PLAYWRIGHT_HEADLESS === '1' ||
+        //     process.env.CI === 'true',
         trace: process.env.CI ? 'on-first-retry' : 'off',
         screenshot: 'only-on-failure',
         // Video starts when the browser context is created and can push slow
