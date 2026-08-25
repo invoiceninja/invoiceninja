@@ -465,11 +465,16 @@ class BraintreePaymentDriver extends BaseDriver
         );
 
         nlog('braintree webhook');
-        nlog($webhookNotification);
+
+        if($webhookNotification){ //@phpstan-ignore-line
+            nlog($webhookNotification);
+        }
 
         $message = $webhookNotification->kind; // "subscription_went_past_due"
 
-        nlog($message);
+        if($message){
+            nlog($message);
+        }
 
         if ($message == 'transaction_settlement_declined') {
             $payment = Payment::withTrashed()->where('transaction_reference', $webhookNotification->transaction->id)->first();
