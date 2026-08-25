@@ -185,13 +185,16 @@ class SystemHealth
     {
         $connectionName = config('database.default');
 
-        $run_count = DB::connection($connectionName)->table('migrations')->count();
+        $ran = DB::connection($connectionName)->table('migrations')->pluck('migration');
 
         $directory = base_path('database/migrations');
-        $iterator = new \FilesystemIterator($directory);
-        $total_count = iterator_count($iterator) - 1;
 
-        return $run_count != $total_count;
+        $pending = collect(new \FilesystemIterator($directory))
+            ->filter(fn ($file) => $file->getExtension() === 'php')
+            ->map(fn ($file) => $file->getBasename('.php'))
+            ->diff($ran);
+
+        return $pending->isNotEmpty();
     }
 
     public static function getPdfEngine()
