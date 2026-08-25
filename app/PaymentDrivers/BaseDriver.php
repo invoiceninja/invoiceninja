@@ -12,7 +12,6 @@
 
 namespace App\PaymentDrivers;
 
-use App\DataMapper\InvoiceItem;
 use App\Events\Invoice\InvoiceWasPaid;
 use App\Events\Payment\PaymentWasCreated;
 use App\Exceptions\PaymentFailed;
@@ -28,6 +27,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\SystemLog;
+use App\Services\Invoice\ConfirmGatewayFee;
 use App\Services\Subscription\SubscriptionService;
 use App\Utils\Helpers;
 use App\Utils\Ninja;
@@ -37,7 +37,6 @@ use App\Utils\Traits\SystemLogTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
@@ -389,121 +388,17 @@ class BaseDriver extends AbstractPaymentDriver
      * When a successful payment is made, we need to append the gateway fee
      * to an invoice.
      *
-     * @return void                            Success/Failure
+     * @return void
      */
     public function confirmGatewayFee($data = []): void
     {
-        nlog("confirming gateway fee");
-
-        /*Fee charged at gateway*/
-        $fee_total = $this->payment_hash->fee_total;
-
-        if (!$fee_total || $fee_total == 0) {
+        if (! $this->payment_hash) {
             return;
         }
 
-        $invoice = $this->payment_hash->fee_invoice;
-
-        if (!$invoice) {
-            return;
-        }
-
-        DB::transaction(function () use ($data, $fee_total) {
-            
-            PaymentHash::where('id', $this->payment_hash->id)->lockForUpdate()->first();
-
-            $this->payment_hash->load('fee_invoice');
-            $invoice = $this->payment_hash->fee_invoice;
-
-            if (!$invoice) {
-                return;
-            }
-
-            if (collect($invoice->line_items)->contains('unit_code', $this->payment_hash->hash)) {
-                $invoice->service()->toggleFeesPaid($this->payment_hash->hash)->save();
-                return;
-            }
-
-            $unconfirmed_fee_count = collect($invoice->line_items)
-                            ->where('type_id', '3')
-                            ->count();
-
-            if ($unconfirmed_fee_count == 0) {
-
-                nlog("apparently no fee, so injecting here!");
-
-                if (!$invoice->uses_inclusive_taxes) { //must account for taxes! ? line item taxes also
-                    $fee_total = round($fee_total / (1 + (($invoice->tax_rate1 + $invoice->tax_rate2 + $invoice->tax_rate3) / 100)), 2);
-                }
-
-                $balance = $invoice->balance;
-
-                App::forgetInstance('translator');
-                $t = app('translator');
-                $t->replace(Ninja::transformTranslations($invoice->company->settings));
-                App::setLocale($invoice->client->locale());
-
-                $invoice_item = new InvoiceItem();
-                $invoice_item->type_id = '4';
-                $invoice_item->unit_code = $this->payment_hash->hash;   
-
-                $invoice_item->product_key = ctrans('texts.surcharge');
-                $invoice_item->notes = ctrans('texts.online_payment_surcharge');
-                $invoice_item->quantity = 1;
-                $invoice_item->cost = (float) $fee_total;
-
-                if ($invoice->discount > 0 && !$invoice->is_amount_discount) {
-                    $invoice_item->discount = -1 * $invoice->discount;
-                    $invoice_item->is_amount_discount = false;
-                }
-
-                $invoice_items = $invoice->line_items;
-                $invoice_items[] = $invoice_item;
-
-                if (isset($data['gateway_type_id']) && $fees_and_limits = $this->company_gateway->getFeesAndLimits($data['gateway_type_id'])) {
-                    $invoice_item->tax_rate1 = $fees_and_limits->fee_tax_rate1;
-                    $invoice_item->tax_name1 = $fees_and_limits->fee_tax_name1;
-                    $invoice_item->tax_rate2 = $fees_and_limits->fee_tax_rate2;
-                    $invoice_item->tax_name2 = $fees_and_limits->fee_tax_name2;
-                    $invoice_item->tax_rate3 = $fees_and_limits->fee_tax_rate3;
-                    $invoice_item->tax_name3 = $fees_and_limits->fee_tax_name3;
-                    $invoice_item->tax_id = (string) \App\Models\Product::PRODUCT_TYPE_OVERRIDE_TAX;
-                }
-
-                $invoice->line_items = array_values($invoice_items);
-
-                /**Refresh Invoice values*/
-                $invoice = $invoice->calc()->getInvoice();
-
-                $new_balance = $invoice->balance;
-
-                if (round($new_balance - $balance, 2) != 0) {
-                    $invoice->client->service()->calculateBalance();
-                }
-
-            } else {
-
-                $invoice->service()->toggleFeesPaid($this->payment_hash->hash)->save();
-
-            }
-
-        });
-
+        (new ConfirmGatewayFee($this->payment_hash, $this->company_gateway, $data))->run();
     }
 
-    /**
-     * In case of a payment failure we should always
-     * return the invoice to its original state
-     *
-     * @param  PaymentHash $payment_hash The payment hash containing the list of invoices
-     * @return void
-     */
-    public function unWindGatewayFees(PaymentHash $payment_hash)
-    {
-        if ($payment_hash->fee_invoice) {
-            $payment_hash->fee_invoice->service()->removeUnpaidGatewayFees();
-        }
-    }
 
     /**
      * Return the contact if possible.
@@ -554,10 +449,6 @@ class BaseDriver extends AbstractPaymentDriver
 
     public function processInternallyFailedPayment($gateway, $e)
     {
-        if (! is_null($this->payment_hash)) {
-            $this->unWindGatewayFees($this->payment_hash);
-        }
-
         $error = $e->getMessage();
 
         if (! $this->payment_hash) {
@@ -585,7 +476,6 @@ class BaseDriver extends AbstractPaymentDriver
         }
 
         if (! is_null($this->payment_hash)) { //@phpstan-ignore-line
-            $this->unWindGatewayFees($this->payment_hash);
         }
 
         if (! $error) {
@@ -619,10 +509,6 @@ class BaseDriver extends AbstractPaymentDriver
     public function processUnsuccessfulTransaction($response, $client_present = true)
     {
         $error = array_key_exists('error', $response) ? $response['error'] : 'Undefined Error';
-
-        if ($this->payment_hash) {
-            $this->unWindGatewayFees($this->payment_hash);
-        }
 
         $this->sendFailureMail($error);
 

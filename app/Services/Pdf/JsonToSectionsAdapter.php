@@ -12,6 +12,8 @@
 
 namespace App\Services\Pdf;
 
+use App\DataMapper\InvoiceItem;
+
 /**
  * Converts JSON-based visual designer output to PdfBuilder sections format
  *
@@ -1069,6 +1071,9 @@ class JsonToSectionsAdapter
 
         // Format based on field type
         switch ($fieldName) {
+            case 'tags':
+                return InvoiceItem::formatTagsForDisplay($value);
+
             case 'quantity':
                 return $this->service->config->formatValueNoTrailingZeroes($value);
 

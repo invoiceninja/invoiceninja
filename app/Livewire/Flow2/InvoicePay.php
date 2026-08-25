@@ -312,7 +312,6 @@ class InvoicePay extends Component
                         ->map(function (Invoice $invoice): ?Invoice {
                             $invoice = $invoice->service()
                                 ->markSent()
-                                ->removeUnpaidGatewayFees()
                                 ->save();
 
                             return $invoice?->isPayable() ? $invoice : null;

@@ -27,9 +27,8 @@ export default defineConfig({
     outputDir: './tests/e2e/test-results',
     fullyParallel: false,
     forbidOnly: Boolean(process.env.CI),
-    retries: process.env.CI ? 2 : 1,
+    retries: process.env.CI ? 2 : 0,
     workers: Math.min(workerCount, accountCount),
-    // Worker-scoped API login + browser boot count toward the first test.
     timeout: 60_000,
     reporter: [
         [process.env.CI ? 'line' : 'list'],
@@ -37,7 +36,12 @@ export default defineConfig({
     ],
     use: {
         baseURL,
-        trace: 'on-first-retry',
+        // PayPal's SDK blocks headless wallet checkout. Default to headed locally
+        // (CLI and VS Code); set PLAYWRIGHT_HEADLESS=1 to force headless.
+        headless:
+            process.env.PLAYWRIGHT_HEADLESS === '1' ||
+            process.env.CI === 'true',
+        trace: process.env.CI ? 'on-first-retry' : 'off',
         screenshot: 'only-on-failure',
         // Video starts when the browser context is created and can push slow
         // boots over the fixture budget. Keep it for CI / opt-in.

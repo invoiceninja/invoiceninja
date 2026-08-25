@@ -5,7 +5,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 class AuthorizeACH {
@@ -36,22 +36,26 @@ class AuthorizeACH {
 
     getFormData = () => {
         return {
-            account_holder_name: document.getElementById('account-holder-name').value,
+            account_holder_name: document.getElementById('account-holder-name')
+                .value,
             account_holder_type: document.querySelector(
                 'input[name="account-holder-type"]:checked'
             ).value,
-            email: document.querySelector('meta[name="contact-email"]')?.content || '',
+            email:
+                document.querySelector('meta[name="contact-email"]')?.content ||
+                '',
             address: this.getBillingAddress(),
         };
     };
 
     /**
      * Nacha requires a complete billing address on the bank account payment method.
-     * A partial address is rejected outright, so send nothing unless we have a street.
+     * Line 2 is optional; every other address field must be present.
      */
     getBillingAddress = () => {
         const meta = (name) =>
-            document.querySelector(`meta[name="${name}"]`)?.content || '';
+            document.querySelector(`meta[name="${name}"]`)?.content.trim() ||
+            '';
 
         const address = {
             line1: meta('address-1'),
@@ -59,10 +63,21 @@ class AuthorizeACH {
             city: meta('city'),
             state: meta('state'),
             postal_code: meta('postal_code'),
-            country: meta('country'),
+            country: meta('country').toUpperCase(),
         };
 
-        if (address.line1.length === 0) {
+        const requiredFields = [
+            'line1',
+            'city',
+            'state',
+            'postal_code',
+            'country',
+        ];
+
+        if (
+            requiredFields.some((field) => address[field].length === 0) ||
+            address.country.length !== 2
+        ) {
             return null;
         }
 
@@ -74,7 +89,9 @@ class AuthorizeACH {
     handleError = (message) => {
         document.getElementById('save-button').disabled = false;
         document.querySelector('#save-button > svg').classList.add('hidden');
-        document.querySelector('#save-button > span').classList.remove('hidden');
+        document
+            .querySelector('#save-button > span')
+            .classList.remove('hidden');
 
         this.errors.textContent = '';
         this.errors.textContent = message;
@@ -82,7 +99,8 @@ class AuthorizeACH {
     };
 
     handleSuccess = (setupIntent) => {
-        document.getElementById('gateway_response').value = JSON.stringify(setupIntent);
+        document.getElementById('gateway_response').value =
+            JSON.stringify(setupIntent);
         document.getElementById('server_response').submit();
     };
 
@@ -90,7 +108,8 @@ class AuthorizeACH {
         e.preventDefault();
 
         if (!document.getElementById('accept-terms').checked) {
-            this.errors.textContent = "You must accept the mandate terms prior to adding this payment method.";
+            this.errors.textContent =
+                'You must accept the mandate terms prior to adding this payment method.';
             this.errors.hidden = false;
             return;
         }
@@ -104,36 +123,53 @@ class AuthorizeACH {
 
         const formData = this.getFormData();
 
+        if (!formData.address) {
+            return this.handleError(
+                'A complete billing address is required to add a bank account.'
+            );
+        }
+
         try {
             // Step 1: Collect bank account using Financial Connections
-            const { setupIntent, error } = await this.stripe.collectBankAccountForSetup({
-                clientSecret: this.clientSecret,
-                params: {
-                    payment_method_type: 'us_bank_account',
-                    payment_method_data: {
-                        billing_details: {
-                            name: formData.account_holder_name,
-                            email: formData.email,
-                            ...(formData.address && { address: formData.address }),
+            const { setupIntent, error } =
+                await this.stripe.collectBankAccountForSetup({
+                    clientSecret: this.clientSecret,
+                    params: {
+                        payment_method_type: 'us_bank_account',
+                        payment_method_data: {
+                            billing_details: {
+                                name: formData.account_holder_name,
+                                email: formData.email,
+                                address: formData.address,
+                            },
                         },
                     },
-                },
-            });
+                });
 
             if (error) {
                 return this.handleError(error.message);
             }
 
+            if (!setupIntent) {
+                return this.handleError('An unexpected error occurred.');
+            }
+
             // Check the SetupIntent status
             if (setupIntent.status === 'requires_payment_method') {
                 // Customer closed the modal without completing - show error
-                return this.handleError('Please complete the bank account verification process.');
+                return this.handleError(
+                    'Please complete the bank account verification process.'
+                );
             }
 
             if (setupIntent.status === 'requires_confirmation') {
                 // User completed Financial Connections, now confirm the SetupIntent
-                const { setupIntent: confirmedSetupIntent, error: confirmError } = 
-                    await this.stripe.confirmUsBankAccountSetup(this.clientSecret);
+                const {
+                    setupIntent: confirmedSetupIntent,
+                    error: confirmError,
+                } = await this.stripe.confirmUsBankAccountSetup(
+                    this.clientSecret
+                );
 
                 if (confirmError) {
                     return this.handleError(confirmError.message);
@@ -154,9 +190,10 @@ class AuthorizeACH {
 
             // Handle any other status
             return this.handleSuccess(setupIntent);
-
         } catch (err) {
-            return this.handleError(err.message || 'An unexpected error occurred.');
+            return this.handleError(
+                err.message || 'An unexpected error occurred.'
+            );
         }
     };
 

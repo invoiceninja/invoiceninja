@@ -93,7 +93,7 @@
     @endif
 
     @include('portal.ninja2020.components.entity-documents', ['entity' => $invoice])
-    @livewire('pdf-slot', ['class' => get_class($invoice), 'entity_id' => $invoice->id, 'invitation_id' => $invitation->id ?? false, 'db' => $invoice->company->db])
+    @livewire('pdf-slot', ['entity_type' => 'invoice', 'entity_key' => $invoice->hashed_id, 'invitation_key' => $invitation->key ?? null, 'db' => $invoice->company->db])
 
 @endsection
 

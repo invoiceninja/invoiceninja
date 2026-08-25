@@ -99,14 +99,12 @@ export function portalContact(client: PortalClient): PortalContact {
     return contact;
 }
 
-export async function createAndLogInClient(
-    api: ApiFixture,
+export async function logInPortalClient(
     page: Page,
-    options: PortalClientOptions = {},
-): Promise<PortalClient> {
+    client: PortalClient,
+): Promise<void> {
     await blockPdfBlobs(page);
 
-    const client = await createPortalClient(api, options);
     const contact = portalContact(client);
     const response = await page.goto(`/client/key_login/${contact.contact_key}`);
 
@@ -114,6 +112,15 @@ export async function createAndLogInClient(
     expect(response?.ok()).toBe(true);
     await expect(page.locator('main')).toBeVisible();
     await dismissCookieConsent(page);
+}
+
+export async function createAndLogInClient(
+    api: ApiFixture,
+    page: Page,
+    options: PortalClientOptions = {},
+): Promise<PortalClient> {
+    const client = await createPortalClient(api, options);
+    await logInPortalClient(page, client);
 
     return client;
 }

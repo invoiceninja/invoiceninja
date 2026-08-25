@@ -252,7 +252,6 @@ class MolliePaymentDriver extends BaseDriver
                 return $payment;
             }
 
-            $this->unWindGatewayFees($payment_hash);
 
             $this->sendFailureMail($payment->details);
 
@@ -272,7 +271,6 @@ class MolliePaymentDriver extends BaseDriver
 
             return false;
         } catch (ApiException $e) {
-            $this->unWindGatewayFees($payment_hash);
 
             $data = [
                 'status' => '',
@@ -378,14 +376,20 @@ class MolliePaymentDriver extends BaseDriver
             $response = SystemLog::EVENT_GATEWAY_FAILURE;
 
             if ($record) {
+                $status_id = $codes[$payment->status];
+
                 if (in_array($payment->status, ['canceled', 'expired', 'failed'])) {
 
-                    if (property_exists($payment->metadata, 'hash') && $payment->metadata->hash) {
-                        $payment_hash = PaymentHash::where('hash', $payment->metadata->hash)->first();
-                        $this->handlePendingGatewayFeeRemoval($payment_hash);
-                    }
-
                     $record->service()->deletePayment(false);
+
+                    /**
+                     * Cancelled, expired and failed are the same outcome for the invoice -
+                     * the debit never happened - so they end in the same state. Failed is
+                     * what releases the gateway fee.
+                     *
+                     * @see \App\Services\Invoice\ReverseGatewayFee
+                     */
+                    $status_id = Payment::STATUS_FAILED;
 
                     if(in_array($payment->status, ['canceled', 'failed'])) {
                         $this->sendFailureMail($payment->details->failureMessage ?? "There was a problem processing your payment.");
@@ -395,7 +399,7 @@ class MolliePaymentDriver extends BaseDriver
                     $response = SystemLog::EVENT_GATEWAY_SUCCESS;
                 }
 
-                $record->status_id = $codes[$payment->status];
+                $record->status_id = $status_id;
                 $record->save();
 
             }
@@ -415,27 +419,6 @@ class MolliePaymentDriver extends BaseDriver
         } catch (\Throwable $e) {
             nlog("Mollie:: Failure - In payment Response? - {$e->getMessage()}");
             return response()->json(['message' => $e->getMessage(), 'gatewayStatusCode' => $e->getCode()], 500);
-        }
-    }
-
-    private function handlePendingGatewayFeeRemoval(PaymentHash $payment_hash)
-    {
-        $invoice = $payment_hash->fee_invoice;
-
-        if ($invoice) {
-            $line_items = $invoice->line_items;
-
-            $line_items = collect($line_items)->filter(function ($line_item, $key) use ($line_items) {
-                if ($key === array_key_last($line_items)) {
-                    return $line_item->type_id != '4';
-                }
-                return true;
-            })->toArray();
-
-            $invoice->line_items = array_values($line_items);
-
-            $invoice = $invoice->calc()->getInvoice();
-
         }
     }
 

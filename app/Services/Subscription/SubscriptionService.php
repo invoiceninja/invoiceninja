@@ -1015,6 +1015,7 @@ class SubscriptionService
             $line_item->quantity = (float) $item['qty'];
             $line_item->cost = (float) $item['unit_cost'];
             $line_item->notes = $item['description'];
+            $line_item->tags = InvoiceItem::serializeTags($item['tags'] ?? '');
 
             return $line_item;
         })->toArray();
@@ -1198,9 +1199,9 @@ class SubscriptionService
         $keys = $this->transformKeys(explode(",", $this->subscription->product_ids));
 
         if (is_array($keys)) {
-            return Product::query()->where('company_id', $this->subscription->company_id)->whereIn('id', $keys)->get();
+            return Product::query()->with('tags')->where('company_id', $this->subscription->company_id)->whereIn('id', $keys)->get();
         } else {
-            return Product::query()->where('company_id', $this->subscription->company_id)->where('id', $keys)->get();
+            return Product::query()->with('tags')->where('company_id', $this->subscription->company_id)->where('id', $keys)->get();
         }
     }
 
@@ -1218,9 +1219,9 @@ class SubscriptionService
         $keys = $this->transformKeys(explode(",", $this->subscription->recurring_product_ids));
 
         if (is_array($keys)) {
-            return Product::query()->where('company_id', $this->subscription->company_id)->whereIn('id', $keys)->get();
+            return Product::query()->with('tags')->where('company_id', $this->subscription->company_id)->whereIn('id', $keys)->get();
         } else {
-            return Product::query()->where('company_id', $this->subscription->company_id)->where('id', $keys)->get();
+            return Product::query()->with('tags')->where('company_id', $this->subscription->company_id)->where('id', $keys)->get();
         }
     }
 
@@ -1239,9 +1240,9 @@ class SubscriptionService
         $keys = $this->transformKeys(explode(",", $this->subscription->optional_product_ids));
 
         if (is_array($keys)) {
-            return Product::query()->where('company_id', $this->subscription->company_id)->whereIn('id', $keys)->get();
+            return Product::query()->with('tags')->where('company_id', $this->subscription->company_id)->whereIn('id', $keys)->get();
         } else {
-            return Product::query()->where('company_id', $this->subscription->company_id)->where('id', $keys)->get();
+            return Product::query()->with('tags')->where('company_id', $this->subscription->company_id)->where('id', $keys)->get();
         }
     }
 
@@ -1259,9 +1260,9 @@ class SubscriptionService
         $keys = $this->transformKeys(explode(",", $this->subscription->optional_recurring_product_ids));
 
         if (is_array($keys)) {
-            return Product::query()->where('company_id', $this->subscription->company_id)->whereIn('id', $keys)->get();
+            return Product::query()->with('tags')->where('company_id', $this->subscription->company_id)->whereIn('id', $keys)->get();
         } else {
-            return Product::query()->where('company_id', $this->subscription->company_id)->where('id', $keys)->get();
+            return Product::query()->with('tags')->where('company_id', $this->subscription->company_id)->where('id', $keys)->get();
         }
     }
 

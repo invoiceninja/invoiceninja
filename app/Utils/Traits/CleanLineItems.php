@@ -74,11 +74,13 @@ trait CleanLineItems
             $item['tax_id'] = ($item['type_id'] === '2') ? '2' : '1';
         }
 
-        foreach (['notes', 'product_key', 'custom_value1', 'custom_value2', 'custom_value3', 'custom_value4'] as $field) {
+        foreach (['notes', 'product_key', 'tags', 'custom_value1', 'custom_value2', 'custom_value3', 'custom_value4'] as $field) {
             if (isset($item[$field]) && is_string($item[$field])) {
                 $item[$field] = \App\Services\Pdf\Purify::clean($item[$field], true);
             }
         }
+
+        $item['tags'] = InvoiceItem::normalizeTags($item['tags']);
 
         unset($item['id'], $item['_id']);
 

@@ -49,7 +49,24 @@
 
         document.addEventListener('livewire:init', () => {
 
-            Livewire.on('passed-required-fields-check', () => {
+            Livewire.on('passed-required-fields-check', (event) => {
+
+                const billingAddressMeta = {
+                    'address-1': event.billingAddress?.line1,
+                    'address-2': event.billingAddress?.line2,
+                    city: event.billingAddress?.city,
+                    state: event.billingAddress?.state,
+                    postal_code: event.billingAddress?.postal_code,
+                    country: event.billingAddress?.country,
+                };
+
+                Object.entries(billingAddressMeta).forEach(([name, value]) => {
+                    const element = document.querySelector(`meta[name="${name}"]`);
+
+                    if (element && value !== undefined) {
+                        element.content = value ?? '';
+                    }
+                });
 
                 document.querySelector('div[data-ref="required-fields-container"]').classList.toggle('h-0');
                 document.querySelector('div[data-ref="required-fields-container"]').classList.add('opacity-25');

@@ -22,6 +22,7 @@ use App\Models\ClientContact;
 use App\Exceptions\PaymentFailed;
 use App\Factory\ClientFactory;
 use App\Jobs\Util\SystemLogger;
+use App\Utils\BcMath;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
@@ -225,8 +226,9 @@ class SquarePaymentDriver extends BaseDriver
 
         } else {
 
-            /** @var \Square\Models\Error $error */
-            $error = end($apiResponse->getErrors()); //@phpstan-ignore-line
+            /** @var \Square\Models\Error[] $errors */
+            $errors = $apiResponse->getErrors();
+            $error = end($errors);
 
             $data = [
                 'transaction_reference' => $payment->transaction_reference,
@@ -304,7 +306,6 @@ class SquarePaymentDriver extends BaseDriver
             return $payment;
         }
 
-        $this->unWindGatewayFees($payment_hash);
 
         $this->sendFailureMail($body->errors[0]->detail);
 
@@ -454,23 +455,9 @@ class SquarePaymentDriver extends BaseDriver
 
     }
 
-    public function convertAmount($amount)
+    public function convertAmount($amount): int
     {
-        $precision = $this->client->currency()->precision;
-
-        if ($precision == 0) {
-            return $amount;
-        }
-
-        if ($precision == 1) {
-            return $amount * 10;
-        }
-
-        if ($precision == 2) {
-            return $amount * 100;
-        }
-
-        return $amount;
+        return BcMath::toMinorUnits($amount, (int) $this->client->currency()->precision);
     }
 
     public function auth(): string

@@ -188,6 +188,7 @@ trait MakesTemplateData
         $data['$product.date'] = ['value' => '2010-02-03', 'label' => ctrans('texts.date')];
         $data['$product.discount'] = ['value' => '5%', 'label' => ctrans('texts.discount')];
         $data['$product.product_key'] = ['value' => 'key', 'label' => ctrans('texts.product_key')];
+        $data['$product.tags'] = ['value' => 'Retail Priority', 'label' => ctrans('texts.tags')];
         $data['$product.notes'] = ['value' => 'Product Stuff', 'label' => ctrans('texts.notes')];
         $data['$product.cost'] = ['value' => '$10.00', 'label' => ctrans('texts.cost')];
         $data['$product.quantity'] = ['value' => '1', 'label' => ctrans('texts.quantity')];
@@ -198,6 +199,7 @@ trait MakesTemplateData
         $data['$task.date'] = ['value' => '2010-02-03', 'label' => ctrans('texts.date')];
         $data['$task.discount'] = ['value' => '5%', 'label' => ctrans('texts.discount')];
         $data['$task.service'] = ['value' => 'key', 'label' => ctrans('texts.service')];
+        $data['$task.tags'] = ['value' => 'Retail Priority', 'label' => ctrans('texts.tags')];
         $data['$task.notes'] = ['value' => 'Note for Tasks', 'label' => ctrans('texts.notes')];
         $data['$task.rate'] = ['value' => '$100.00', 'label' => ctrans('texts.rate')];
         $data['$task.hours'] = ['value' => '1', 'label' => ctrans('texts.hours')];

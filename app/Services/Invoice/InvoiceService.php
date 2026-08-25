@@ -18,6 +18,7 @@ use App\Utils\BcMath;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\Models\Subscription;
 use App\Models\CompanyGateway;
 use Illuminate\Support\Carbon;
@@ -44,8 +45,6 @@ class InvoiceService
      */
     public function markPaid(?string $reference = null)
     {
-        $this->removeUnpaidGatewayFees();
-
         $this->invoice = (new MarkPaid($this->invoice, $reference))->run();
 
         return $this;
@@ -116,13 +115,16 @@ class InvoiceService
         return $this;
     }
 
-    public function addGatewayFee(CompanyGateway $company_gateway, $gateway_type_id, float $amount, string $payment_hash_string)
+    /**
+     * Quotes the gateway fee for a payment attempt.
+     *
+     * The invoice is not modified - the fee reaches it only when the payment is confirmed.
+     *
+     * @return array{net: float, gross: float}
+     */
+    public function quoteGatewayFee(CompanyGateway $company_gateway, $gateway_type_id, float $amount): array
     {
-        $this->removeUnpaidGatewayFees();
-
-        $this->invoice = (new AddGatewayFee($company_gateway, $gateway_type_id, $this->invoice, $amount, $payment_hash_string))->run();
-
-        return $this;
+        return (new CalculateGatewayFee($company_gateway, (int) $gateway_type_id, $this->invoice, $amount))->run();
     }
 
     /**
@@ -226,8 +228,6 @@ class InvoiceService
 
     public function handleCancellation(?string $reason = null)
     {
-        $this->removeUnpaidGatewayFees();
-
         $this->invoice = (new HandleCancellation($this->invoice, $reason))->run();
 
         return $this;
@@ -254,8 +254,6 @@ class InvoiceService
 
     public function reverseCancellation()
     {
-        $this->removeUnpaidGatewayFees();
-
         $this->invoice = (new HandleCancellation($this->invoice))->reverse();
 
         return $this;
@@ -371,38 +369,6 @@ class InvoiceService
         return $this;
     }
 
-    public function toggleFeesPaid(?string $payment_hash_string = null)
-    {
-        if ($payment_hash_string) {
-
-            $this->invoice->line_items = collect($this->invoice->line_items)
-                                                ->map(function ($item) use ($payment_hash_string) {
-                                                    if ($item->type_id == '3' && (($item->unit_code ?? '') == $payment_hash_string)) {
-                                                        $item->type_id = '4';
-                                                    }
-
-                                                    return $item;
-                                                })->toArray();
-
-            $this->deleteEInvoice();
-
-            return $this;
-
-        }
-
-        $this->invoice->line_items = collect($this->invoice->line_items)
-                                     ->map(function ($item) {
-                                         if ($item->type_id == '3') {
-                                             $item->type_id = '4';
-                                         }
-
-                                         return $item;
-                                     })->toArray();
-
-        $this->deleteEInvoice();
-
-        return $this;
-    }
 
     public function deletePdf()
     {
@@ -446,26 +412,54 @@ class InvoiceService
         return $this;
     }
 
+    /**
+     * Drains pending gateway fees written by the previous design.
+     *
+     * Retained for one release so invoices carrying a type 3 line at deploy time are
+     * collected. Only CleanStaleInvoiceOrder calls it. A line whose payment hash already
+     * carries a completed or pending payment is promoted rather than removed.
+     *
+     * TRANSITIONAL. Its caller only reaches invoices touched in the last one to two
+     * hours, so this drains attempts that straddle the deploy, not the standing backlog
+     * of older type 3 lines - those need a one off sweep before this is removed.
+     *
+     * Removal criterion: no invoice carries a type 3 line.
+     *
+     * @deprecated Gateway fees are no longer written before confirmation.
+     * @see \App\Services\Invoice\ConfirmGatewayFee
+     * @see \App\Jobs\Subscription\CleanStaleInvoiceOrder
+     */
     public function removeUnpaidGatewayFees()
     {
-        //return early if type three does not exist.
-        if ($this->invoice->status_id == Invoice::STATUS_PAID || ! collect($this->invoice->line_items)->contains('type_id', 3)) {
+        if ($this->invoice->status_id == Invoice::STATUS_PAID || ! collect($this->invoice->line_items)->contains('type_id', '3')) {
             return $this;
         }
 
         /** Baseline must be the committed row, not a possibly stale in-memory model. */
         $balance = (float) (Invoice::withTrashed()->where('id', $this->invoice->id)->value('balance') ?? $this->invoice->balance);
 
-        $items = collect((array) $this->invoice->line_items)
-                    ->filter(function ($item) {
-                        return $item->type_id != '3';
-                    })->toArray();
+        $items = [];
 
-        $this->invoice->line_items = array_values($items);
+        foreach ((array) $this->invoice->line_items as $item) {
+
+            if ($item->type_id != '3') {
+                $items[] = $item;
+                continue;
+            }
+
+            $hash = PaymentHash::query()->where('hash', $item->unit_code ?? '')->first();
+
+            /** The payment landed - promote rather than delete. */
+            if ($hash && $hash->payment_id && in_array($hash->payment?->status_id, [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING])) {
+                $item->type_id = '4';
+                $items[] = $item;
+            }
+        }
+
+        $this->invoice->line_items = array_values($items); //@phpstan-ignore-line
 
         $this->invoice = $this->invoice->calc()->getInvoice();
 
-        /* 24-03-2022 */
         $new_balance = $this->invoice->balance;
 
         if (! BcMath::equal($balance, $new_balance)) {

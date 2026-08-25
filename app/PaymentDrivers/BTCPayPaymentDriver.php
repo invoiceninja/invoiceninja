@@ -192,7 +192,7 @@ class BTCPayPaymentDriver extends BaseDriver
                     $dataPayment = [
                         'payment_method' => $this->payment_method,
                         'payment_type' => PaymentType::CRYPTO,
-                        'amount' => $_invoice->amount,
+                        'amount' => $this->payment_hash->amount_with_fee(),
                         'gateway_type_id' => GatewayType::CRYPTO,
                         'transaction_reference' => $btcpayRep->invoiceId,
                     ];

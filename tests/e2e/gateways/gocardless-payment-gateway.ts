@@ -10,6 +10,9 @@ export class GoCardlessPaymentGateway extends BasePaymentGateway {
     readonly gatewayTypeId = GatewayType.DIRECT_DEBIT;
     readonly supportsFullPayment = false;
 
+    /** Direct debit needs an authorised mandate before the portal offers it. */
+    readonly requiresStoredMandate = true;
+
     async assertCheckoutReady(page: Page): Promise<void> {
         await expect(page.locator('#pay-now')).toBeVisible();
         await expect(

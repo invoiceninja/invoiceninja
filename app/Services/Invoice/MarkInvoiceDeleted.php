@@ -233,6 +233,15 @@ class MarkInvoiceDeleted extends AbstractService
 
         $pre_count = count((array) $this->invoice->line_items);
 
+        /**
+         * Strips pending gateway fees written by the previous design.
+         *
+         * TRANSITIONAL, and a no-op once no type 3 line exists anywhere. Remove alongside
+         * the drain, on the same criterion.
+         *
+         * @deprecated Gateway fees are no longer written before confirmation.
+         * @see \App\Services\Invoice\InvoiceService::removeUnpaidGatewayFees()
+         */
         $items = collect((array) $this->invoice->line_items)
                     ->filter(function ($item) {
                         return $item->type_id != '3';

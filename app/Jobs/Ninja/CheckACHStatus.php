@@ -13,7 +13,6 @@
 namespace App\Jobs\Ninja;
 
 use App\Libraries\MultiDB;
-use App\Models\ClientGatewayToken;
 use App\Models\Payment;
 use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
 use Illuminate\Bus\Queueable;
@@ -69,35 +68,6 @@ class CheckACHStatus implements ShouldQueue
             MultiDB::setDB($db);
 
             nlog("Checking ACH status");
-
-            ClientGatewayToken::query()
-            ->where('created_at', '>', now()->subMonths(2))
-            ->where('gateway_type_id', 2)
-            ->where('is_deleted', false)
-            ->whereHas('gateway', function ($q) {
-                $q->whereIn('gateway_key', ['d14dd26a37cecc30fdd65700bfb55b23','d14dd26a47cecc30fdd65700bfb67b34']);
-            })
-            ->whereJsonContains('meta', ['state' => 'unauthorized'])
-            ->cursor()
-            ->each(function ($token) {
-
-                try {
-                    $stripe = $token->gateway->driver($token->client)->init();
-                    $pm =  $stripe->getStripePaymentMethod($token->token);
-
-                    if ($pm) {
-
-                        $meta = $token->meta;
-                        $meta->state = 'authorized';
-                        $token->meta = $meta;
-                        $token->save();
-
-                    }
-
-                } catch (\Exception $e) {
-                }
-
-            });
 
             /** Stripe ACH Paymnets that are pending */
             Payment::where('status_id', 1)
