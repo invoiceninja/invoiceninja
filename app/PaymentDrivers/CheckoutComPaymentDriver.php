@@ -160,6 +160,8 @@ class CheckoutComPaymentDriver extends BaseDriver
         }
 
         $publicKey = $this->company_gateway->getConfigField('publicApiKey');
+        $environment = $this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production();
+        $environmentSubdomain = $this->checkoutEnvironmentSubdomain();
 
         if (str_contains($secretKey, '-')) {
 
@@ -169,8 +171,13 @@ class CheckoutComPaymentDriver extends BaseDriver
             $builder = CheckoutSdk::builder()
                     ->previous()
                     ->staticKeys()
-                    ->environment($this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production()) /** phpstan-ignore-line **/
-                    ->publicKey($publicKey)
+                    ->environment($environment); /** phpstan-ignore-line **/
+
+            if ($environmentSubdomain !== null) {
+                $builder->environmentSubdomain($environmentSubdomain);
+            }
+
+            $builder->publicKey($publicKey)
                     ->secretKey($secretKey);
 
             try {
@@ -181,19 +188,27 @@ class CheckoutComPaymentDriver extends BaseDriver
                 $builder = CheckoutSdk::builder()
                     ->previous()
                     ->staticKeys()
-                    ->environment($this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production())
-                    ->secretKey($secretKey);
+                    ->environment($environment);
+
+                if ($environmentSubdomain !== null) {
+                    $builder->environmentSubdomain($environmentSubdomain);
+                }
+
+                $builder->secretKey($secretKey);
 
                 $this->gateway = $builder->build();
             }
-
         } else {
-
             /** @phpstan-ignore-next-line **/
             $builder = CheckoutSdk::builder()
                     ->staticKeys()
-                    ->environment($this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production()) /** phpstan-ignore-line **/
-                    ->publicKey($publicKey)
+                    ->environment($environment); /** phpstan-ignore-line **/
+
+            if ($environmentSubdomain !== null) {
+                $builder->environmentSubdomain($environmentSubdomain);
+            }
+
+            $builder->publicKey($publicKey)
                     ->secretKey($secretKey);
 
             try {
@@ -203,14 +218,48 @@ class CheckoutComPaymentDriver extends BaseDriver
                 // The public key is only needed client-side (Frames/Flow JS), not for server-side operations.
                 $builder = CheckoutSdk::builder()
                     ->staticKeys()
-                    ->environment($this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production())
-                    ->secretKey($secretKey);
+                    ->environment($environment);
+
+                if ($environmentSubdomain !== null) {
+                    $builder->environmentSubdomain($environmentSubdomain);
+                }
+
+                $builder->secretKey($secretKey);
 
                 $this->gateway = $builder->build();
             }
 
         }
         return $this;
+    }
+
+    private function checkoutEnvironmentSubdomain(): ?string
+    {
+        $clientId = trim((string) $this->company_gateway->getConfigField('clientId'));
+
+        if ($clientId === '') {
+            return null;
+        }
+
+        $subdomain = substr($clientId, strlen('cli_'), 8);
+
+        if (! str_starts_with($clientId, 'cli_') || ! preg_match('/^[a-z0-9]{8}$/', $subdomain)) {
+            throw new CheckoutArgumentException('Checkout.com client ID must start with cli_ and contain at least eight lowercase letters or numbers.');
+        }
+
+        return $subdomain;
+    }
+
+    private function checkoutApiBaseUrl(): string
+    {
+        $subdomain = $this->checkoutEnvironmentSubdomain();
+        $apiHost = $this->company_gateway->getConfigField('testMode')
+            ? 'api.sandbox.checkout.com'
+            : 'api.checkout.com';
+
+        return $subdomain === null
+            ? "https://{$apiHost}"
+            : "https://{$subdomain}.{$apiHost}";
     }
 
     /**
@@ -761,9 +810,7 @@ class CheckoutComPaymentDriver extends BaseDriver
 
         $secretKey = $this->company_gateway->getConfigField('secretApiKey');
         $processingChannelId = $this->company_gateway->getConfigField('processingChannelId');
-        $testMode = $this->company_gateway->getConfigField('testMode');
-
-        $baseUrl = $testMode ? 'https://api.sandbox.checkout.com' : 'https://api.checkout.com';
+        $baseUrl = $this->checkoutApiBaseUrl();
         $url = $baseUrl . '/payment-methods?' . http_build_query(['processing_channel_id' => $processingChannelId]);
 
         try {

@@ -29,6 +29,7 @@ class ProcessInvoicesInBulkRequest extends FormRequest
     {
         return [
             'invoices' => ['array'],
+            'action' => ['required', 'in:payment,download'],
         ];
     }
 

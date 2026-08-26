@@ -564,8 +564,9 @@ class CrossCompanyAccessTest extends TestCase
             'X-API-TOKEN' => $this->other_token,
         ])->postJson('/api/v1/payment_terms/bulk', $data);
 
-        $arr = $response->json();
-        $this->assertCount(0, $arr['data']);
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['ids']);
+        $this->assertNull($payment_term->fresh()->deleted_at);
         $this->test_account->delete();
 
     }
@@ -903,8 +904,9 @@ class CrossCompanyAccessTest extends TestCase
             'X-API-TOKEN' => $this->other_token,
         ])->postJson('/api/v1/designs/bulk', $data);
 
-        $arr = $response->json();
-        $this->assertCount(0, $arr['data']);
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['ids']);
+        $this->assertNull($design->fresh()->deleted_at);
         $this->test_account->delete();
 
     }

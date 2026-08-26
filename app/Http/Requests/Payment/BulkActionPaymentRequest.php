@@ -30,7 +30,7 @@ class BulkActionPaymentRequest extends Request
     public function rules(): array
     {
         return [
-            'action' => 'required|string',
+            'action' => 'required|string|in:archive,restore,delete,email,email_receipt,template',
             'ids' => 'required|array',
             'template' => 'sometimes|string',
             'template_id' => 'sometimes|string',
