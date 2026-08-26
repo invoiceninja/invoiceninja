@@ -492,16 +492,25 @@ class BraintreePaymentDriver extends BaseDriver
 
     public function auth(): string
     {
-
-        try {
-            $ct = $this->init()->gateway->clientToken()->generate();
-
-            return 'ok';
-        } catch (\Exception $e) {
-
+        foreach (['merchantId', 'publicKey', 'privateKey'] as $field) {
+            if (trim((string) $this->company_gateway->getConfigField($field)) === '') {
+                return 'error';
+            }
         }
 
-        return 'error';
+        try {
+            $gateway = $this->init()->gateway;
+            $gateway->clientToken()->generate();
+
+            $merchantAccountId = trim((string) $this->company_gateway->getConfigField('merchantAccountId'));
+            if ($merchantAccountId !== '') {
+                $gateway->merchantAccount()->find($merchantAccountId);
+            }
+
+            return 'ok';
+        } catch (\Throwable) {
+            return 'error';
+        }
     }
 
     private function find(string $customer_id = '')
