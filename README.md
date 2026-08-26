@@ -53,6 +53,7 @@ All Pro and Enterprise features from the hosted app are included in the source-a
 * [Softaculous](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja)
 * [Elestio](https://elest.io/open-source/invoiceninja)
 * [YunoHost](https://apps.yunohost.org/app/invoiceninja5)
+* [RepoCloud](https://repocloud.io/details/Invoice%20Ninja/)
 
 ### Recommended Providers
 * [Stripe](https://stripe.com/)
