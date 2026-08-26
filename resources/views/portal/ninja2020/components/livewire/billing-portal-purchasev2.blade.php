@@ -45,7 +45,7 @@
                           <div class="flex justify-between text-base font-medium text-gray-900">
                             <h3>
                                 <article class="prose">
-                                    {!! $product->markdownNotes() !!}
+                                    {!! $product->markdownNotes($this->contact?->client ?? $this->subscription->company) !!}
                                 </article>
                             </h3>
                             <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $this->subscription->company) }} / {{ App\Models\RecurringInvoice::frequencyForKey($this->subscription->frequency_id) }}</p>
@@ -107,7 +107,7 @@
                           <div class="flex justify-between text-base font-medium text-gray-900">
                             <h3>
                                 <article class="prose">
-                                    {!! $product->markdownNotes() !!}
+                                    {!! $product->markdownNotes($this->contact?->client ?? $this->subscription->company) !!}
                                 </article>
                             </h3>
                             <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $this->subscription->company) }}</p>
@@ -148,7 +148,7 @@
                               <div class="flex justify-between text-base font-medium text-gray-900">
                                 <h3>
                                     <article class="prose">
-                                        {!! $product->markdownNotes() !!}
+                                        {!! $product->markdownNotes($this->contact?->client ?? $this->subscription->company) !!}
                                     </article>
                                 </h3>
                                 <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $this->subscription->company) }} / {{ App\Models\RecurringInvoice::frequencyForKey($this->subscription->frequency_id) }}</p>
@@ -191,7 +191,7 @@
                               <div class="flex justify-between text-base font-medium text-gray-900">
                                 <h3>
                                     <article class="prose">
-                                        {!! $product->markdownNotes() !!}
+                                        {!! $product->markdownNotes($this->contact?->client ?? $this->subscription->company) !!}
                                     </article>
                                 </h3>
                                 <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $this->subscription->company) }}</p>

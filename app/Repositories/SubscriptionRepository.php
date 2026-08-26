@@ -143,19 +143,9 @@ class SubscriptionRepository extends BaseRepository
             $line_item->qty = (float) $value['quantity'];
             $line_item->unit_cost = (float) $value['product']['price'];
             $line_item->description = $value['product']['notes'];
+            $line_item->tags = InvoiceItem::serializeTags($value['product']['tags'] ?? []);
             $line_item->is_recurring = $value['product']['is_recurring'] ?? false;
             $items[] = $line_item;
-        }
-
-        foreach ($bundle['recurring_products'] as $key => $value) {
-
-            $line_item = new \stdClass();
-            $line_item->product_key = $value['product']['product_key'];
-            $line_item->qty = (float) $value['quantity'];
-            $line_item->unit_cost = (float) $value['product']['price'];
-            $line_item->description = $value['product']['notes'];
-            $line_item->is_recurring = $value['product']['is_recurring'] ?? false;
-
         }
 
         return $items;
@@ -181,6 +171,7 @@ class SubscriptionRepository extends BaseRepository
             $line_item->quantity = (float) $item->qty;
             $line_item->cost = (float) $item->unit_cost;
             $line_item->notes = $item->description;
+            $line_item->tags = InvoiceItem::serializeTags($item->tags ?? '');
 
             return $line_item;
         })->toArray();
@@ -198,6 +189,7 @@ class SubscriptionRepository extends BaseRepository
         $item->quantity = $this->quantity;
         $item->product_key = $product->product_key;
         $item->notes = $product->notes;
+        $item->tags = InvoiceItem::tagsFromNames($product->tags);
         $item->cost = $product->price * $multiplier;
         $item->tax_rate1 = $product->tax_rate1 ?: 0;
         $item->tax_name1 = $product->tax_name1 ?: '';

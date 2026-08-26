@@ -63,7 +63,8 @@ class UpdateClientRequest extends Request
         $rules['classification'] = 'bail|sometimes|nullable|in:individual,business,company,partnership,trust,charity,government,other';
         $rules['id_number'] = ['sometimes', 'bail', 'nullable', Rule::unique('clients')->where('company_id', $user->company()->id)->ignore($this->client->id)];
         $rules['number'] = ['sometimes', 'bail', Rule::unique('clients')->where('company_id', $user->company()->id)->ignore($this->client->id)];
-
+        $rules['group_settings_id'] = ['bail','nullable','sometimes', Rule::exists('group_settings', 'id')->where('company_id', $user->company()->id)];
+        
         $rules['e_invoice'] = ['sometimes','nullable', new ValidClientScheme()];
 
         $rules['settings'] = new ValidClientGroupSettingsRule();

@@ -55,6 +55,64 @@ class ClientApiTest extends TestCase
     }
 
 
+    public function testClientUpdatePersistsNullSettingsKeysAndFallsBackToCompany(): void
+    {
+        $company_settings = $this->company->settings;
+        $company_settings->invoice_terms = 'COMPANY_INVOICE_TERMS';
+        $company_settings->auto_archive_invoice = true;
+        $this->company->settings = $company_settings;
+        $this->company->save();
+
+        $create = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/clients/', [
+            'name' => 'Null Settings Client',
+            'settings' => [
+                'currency_id' => '1',
+                'invoice_terms' => 'CLIENT_INVOICE_TERMS',
+                'auto_archive_invoice' => false,
+            ],
+        ]);
+
+        $create->assertStatus(200);
+
+        $client_id = $create->json('data.id');
+        $this->assertSame('CLIENT_INVOICE_TERMS', $create->json('data.settings.invoice_terms'));
+        $this->assertFalse($create->json('data.settings.auto_archive_invoice'));
+
+        $update = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/clients/'.$client_id, [
+            'settings' => [
+                'currency_id' => '1',
+                'invoice_terms' => null,
+                'auto_archive_invoice' => null,
+            ],
+        ]);
+
+        $update->assertStatus(200);
+
+        $settings = $update->json('data.settings');
+        $client = Client::find($this->decodePrimaryKey($client_id));
+
+        $this->assertArrayHasKey('invoice_terms', $settings);
+        $this->assertArrayHasKey('auto_archive_invoice', $settings);
+        $this->assertNull($settings['invoice_terms']);
+        $this->assertNull($settings['auto_archive_invoice']);
+
+        $this->assertTrue(property_exists($client->settings, 'invoice_terms'));
+        $this->assertTrue(property_exists($client->settings, 'auto_archive_invoice'));
+        $this->assertFalse(isset($client->settings->invoice_terms));
+        $this->assertFalse(isset($client->settings->auto_archive_invoice));
+        $this->assertNull($client->settings->invoice_terms);
+        $this->assertNull($client->settings->auto_archive_invoice);
+
+        $this->assertSame('COMPANY_INVOICE_TERMS', $client->getSetting('invoice_terms'));
+        $this->assertTrue($client->getSetting('auto_archive_invoice'));
+    }
+
     public function testClientSendEmailMutation()
     {
         $data= [
@@ -916,6 +974,204 @@ class ClientApiTest extends TestCase
         ])->putJson('/api/v1/clients/'.$this->client->hashed_id, $data)
             ->assertStatus(422)
             ->assertJsonValidationErrors(['size_id']);
+    }
+
+    public function testGroupSettingsIdStoreWithValidId()
+    {
+        $gs = new GroupSetting();
+        $gs->name = 'ValidGroup_' . uniqid();
+        $gs->company_id = $this->company->id;
+        $gs->user_id = $this->user->id;
+        $gs->settings = ClientSettings::buildClientSettings($this->company->settings, $this->client->settings);
+        $gs->save();
+
+        $data = [
+            'name' => 'name of client',
+            'group_settings_id' => $gs->hashed_id,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/clients/', $data)
+            ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals($gs->hashed_id, $arr['data']['group_settings_id']);
+    }
+
+    public function testGroupSettingsIdStoreWithNull()
+    {
+        $data = [
+            'name' => 'name of client',
+            'group_settings_id' => null,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/clients/', $data)
+            ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEmpty($arr['data']['group_settings_id']);
+    }
+
+    public function testGroupSettingsIdStoreOmittingField()
+    {
+        $data = [
+            'name' => 'name of client',
+        ];
+
+        $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/clients/', $data)
+            ->assertStatus(200);
+    }
+
+    public function testGroupSettingsIdStoreWithInvalidId()
+    {
+        $missing_id = ((int) GroupSetting::query()->withTrashed()->max('id')) + 1;
+
+        $data = [
+            'name' => 'name of client',
+            'group_settings_id' => $this->encodePrimaryKey($missing_id),
+        ];
+
+        $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/clients/', $data)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['group_settings_id']);
+    }
+
+    public function testGroupSettingsIdStoreRejectsOtherCompany()
+    {
+        $other_company = Company::factory()->create([
+            'account_id' => $this->account->id,
+        ]);
+
+        $gs = new GroupSetting();
+        $gs->name = 'OtherCompanyGroup_' . uniqid();
+        $gs->company_id = $other_company->id;
+        $gs->user_id = $this->user->id;
+        $gs->settings = ClientSettings::buildClientSettings($this->company->settings, $this->client->settings);
+        $gs->save();
+
+        $data = [
+            'name' => 'name of client',
+            'group_settings_id' => $gs->hashed_id,
+        ];
+
+        $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/clients/', $data)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['group_settings_id']);
+    }
+
+    public function testGroupSettingsIdUpdateWithValidId()
+    {
+        $gs = new GroupSetting();
+        $gs->name = 'UpdateGroup_' . uniqid();
+        $gs->company_id = $this->company->id;
+        $gs->user_id = $this->user->id;
+        $gs->settings = ClientSettings::buildClientSettings($this->company->settings, $this->client->settings);
+        $gs->save();
+
+        $data = [
+            'name' => 'name of client',
+            'group_settings_id' => $gs->hashed_id,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/clients/'.$this->client->hashed_id, $data)
+            ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals($gs->hashed_id, $arr['data']['group_settings_id']);
+    }
+
+    public function testGroupSettingsIdUpdateWithNull()
+    {
+        $this->assertNotEmpty($this->client->group_settings_id);
+
+        $data = [
+            'name' => 'name of client',
+            'group_settings_id' => null,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/clients/'.$this->client->hashed_id, $data)
+            ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEmpty($arr['data']['group_settings_id']);
+    }
+
+    public function testGroupSettingsIdUpdateOmittingField()
+    {
+        $this->assertNotEmpty($this->client->group_settings_id);
+
+        $existing_hashed_id = $this->encodePrimaryKey($this->client->group_settings_id);
+
+        $data = [
+            'name' => 'name of client',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/clients/'.$this->client->hashed_id, $data)
+            ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals($existing_hashed_id, $arr['data']['group_settings_id']);
+    }
+
+    public function testGroupSettingsIdUpdateWithInvalidId()
+    {
+        $missing_id = ((int) GroupSetting::query()->withTrashed()->max('id')) + 1;
+
+        $data = [
+            'name' => 'name of client',
+            'group_settings_id' => $this->encodePrimaryKey($missing_id),
+        ];
+
+        $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/clients/'.$this->client->hashed_id, $data)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['group_settings_id']);
+    }
+
+    public function testGroupSettingsIdUpdateRejectsOtherCompany()
+    {
+        $other_company = Company::factory()->create([
+            'account_id' => $this->account->id,
+        ]);
+
+        $gs = new GroupSetting();
+        $gs->name = 'OtherCompanyUpdateGroup_' . uniqid();
+        $gs->company_id = $other_company->id;
+        $gs->user_id = $this->user->id;
+        $gs->settings = ClientSettings::buildClientSettings($this->company->settings, $this->client->settings);
+        $gs->save();
+
+        $data = [
+            'name' => 'name of client',
+            'group_settings_id' => $gs->hashed_id,
+        ];
+
+        $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/clients/'.$this->client->hashed_id, $data)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['group_settings_id']);
     }
 
     public function testCountryStore4()

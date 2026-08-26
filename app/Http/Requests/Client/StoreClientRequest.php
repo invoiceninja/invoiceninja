@@ -80,6 +80,8 @@ class StoreClientRequest extends Request
         $rules['shipping_country_id'] = 'integer|nullable|exists:countries,id';
         $rules['number'] = ['sometimes', 'nullable', 'bail', Rule::unique('clients')->where('company_id', $user->company()->id)];
         $rules['country_id'] = 'integer|nullable|exists:countries,id';
+        $rules['group_settings_id'] = ['bail','nullable','sometimes', Rule::exists('group_settings', 'id')->where('company_id', $user->company()->id)];
+        
         $rules['custom_value1'] = ['bail','nullable','sometimes',function ($attribute, $value, $fail) {
             if (is_array($value)) {
                 $fail("The $attribute must not be an array.");

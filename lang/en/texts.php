@@ -4000,10 +4000,6 @@ $lang = array(
     'notification_quote_created_subject' => 'Quote :invoice was created for :client',
     'notification_credit_created_body' => 'The following credit :invoice was created for client :client for :amount.',
     'notification_credit_created_subject' => 'Credit :invoice was created for :client',
-    'max_companies' => 'Maximum companies migrated',
-    'max_companies_desc' => 'You have reached your maximum number of companies. Delete existing companies to migrate new ones.',
-    'migration_already_completed' => 'Company already migrated',
-    'migration_already_completed_desc' => 'Looks like you already migrated <b> :company_name </b>to the V5 version of the Invoice Ninja. In case you want to start over, you can force migrate to wipe existing data.',
     'payment_method_cannot_be_authorized_first' => 'This payment method can be can saved for future use, once you complete your first transaction. Don\'t forget to check "Store details" during payment process.',
     'new_account' => 'New account',
     'activity_100' => ':user created recurring invoice :recurring_invoice',
@@ -4023,8 +4019,6 @@ $lang = array(
     'login_link_requested_label' => 'Login link requested',
     'login_link_requested' => 'There was a request to login using link. If you did not request this, it\'s safe to ignore it.',
     'invoices_backup_subject' => 'Your invoices are ready for download',
-    'migration_failed_label' => 'Migration failed',
-    'migration_failed' => 'Looks like something went wrong with the migration for the following company:',
     'client_email_company_contact_label' => 'If you have any questions please contact us, we\'re here to help!',
     'quote_was_approved_label' => 'Quote was approved',
     'quote_was_approved' => 'We would like to inform you that quote was approved.',
@@ -6352,6 +6346,8 @@ $lang = array(
     'add_tax' => 'Add Tax',
     'what_are_you_charging_for' => 'What are you charging for?',
     'add_value_as_new_client' => 'Add `:value` As New Client',
+    'stripe_ach_verifiation_pending' => 'This payment method is not ready for use yet. Verification is pending.',
+    'deleted_invoices_exist' => 'This payment is linked to one or more deleted invoices and cannot be deleted, you must restore the invoices first, then delete the payments.'
 );
 
 return $lang;

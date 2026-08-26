@@ -19,6 +19,7 @@ use App\Models\Product;
 use Tests\MockAccountData;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -180,6 +181,81 @@ class ProductTest extends TestCase
 
         $this->assertEquals(6, $p->tax_id);
 
+    }
+
+    public function testBulkDeleteEagerLoadsCompanyRelationsForLifecycleObservers(): void
+    {
+        $products = Product::factory()->count(100)->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+        ]);
+
+        $relation_states = [];
+
+        Product::updated(static function (Product $product) use (&$relation_states): void {
+            $company_was_loaded = $product->relationLoaded('company');
+            $company = $product->company;
+            $account_was_loaded = $company->relationLoaded('account');
+            $company->account;
+
+            $relation_states[] = [
+                'company' => $company_was_loaded,
+                'account' => $account_was_loaded,
+            ];
+        });
+
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/products/bulk', [
+            'ids' => $products->pluck('hashed_id')->all(),
+            'action' => 'delete',
+        ]);
+
+        $queries = DB::getQueryLog();
+
+        DB::disableQueryLog();
+        DB::flushQueryLog();
+
+        $response->assertOk();
+
+        $this->assertCount(100, $relation_states);
+        $this->assertSame(
+            [],
+            array_values(array_filter(
+                $relation_states,
+                static fn(array $state): bool => !$state['company'] || !$state['account'],
+            )),
+            'Bulk product lifecycle observers received products without the company and account relations eager loaded.',
+        );
+
+        $per_product_relation_queries = array_filter(
+            $queries,
+            static function (array $query): bool {
+                $sql = strtolower(str_replace(['`', '"'], '', $query['query']));
+
+                return str_contains($sql, 'from companies where companies.id = ? limit 1')
+                    || str_contains($sql, 'from accounts where accounts.id = ? limit 1');
+            },
+        );
+
+        $this->assertSame(
+            [],
+            array_values($per_product_relation_queries),
+            "Bulk product delete performed per-product company/account queries:\n" . implode("\n", array_column($per_product_relation_queries, 'query')),
+        );
+
+        $this->assertSame(
+            100,
+            Product::withTrashed()
+                ->whereIn('id', $products->modelKeys())
+                ->where('is_deleted', true)
+                ->whereNotNull('deleted_at')
+                ->count(),
+        );
     }
 
     public function testProductGetProductKeyFilter()

@@ -13,6 +13,7 @@
 namespace Tests\Feature;
 
 use App\DataMapper\Settings\SettingsData;
+use App\Models\GroupSetting;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Session;
@@ -33,6 +34,66 @@ class GroupSettingTest extends TestCase
         $this->makeTestData();
     }
 
+
+    public function testGroupUpdateCastsNullSettingsInsteadOfUnsetting(): void
+    {
+        $company_settings = $this->company->settings;
+        $company_settings->invoice_terms = 'COMPANY_INVOICE_TERMS';
+        $company_settings->auto_archive_invoice = true;
+        $this->company->settings = $company_settings;
+        $this->company->save();
+
+        $create = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/group_settings', [
+            'name' => 'Null Settings Group',
+            'settings' => [
+                'currency_id' => '1',
+                'invoice_terms' => 'GROUP_INVOICE_TERMS',
+                'auto_archive_invoice' => false,
+            ],
+        ]);
+
+        $create->assertStatus(200);
+
+        $group_id = $create->json('data.id');
+        $this->assertSame('GROUP_INVOICE_TERMS', $create->json('data.settings.invoice_terms'));
+        $this->assertFalse($create->json('data.settings.auto_archive_invoice'));
+
+        $update = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/group_settings/'.$group_id, [
+            'settings' => [
+                'currency_id' => '1',
+                'invoice_terms' => null,
+                'auto_archive_invoice' => null,
+            ],
+        ]);
+
+        $update->assertStatus(200);
+
+        $settings = $update->json('data.settings');
+        $group = GroupSetting::find($this->decodePrimaryKey($group_id));
+
+        $this->assertArrayHasKey('invoice_terms', $settings);
+        $this->assertArrayHasKey('auto_archive_invoice', $settings);
+        $this->assertSame('', $settings['invoice_terms']);
+        $this->assertFalse($settings['auto_archive_invoice']);
+
+        $this->assertTrue(property_exists($group->settings, 'invoice_terms'));
+        $this->assertTrue(property_exists($group->settings, 'auto_archive_invoice'));
+        $this->assertSame('', $group->settings->invoice_terms);
+        $this->assertFalse($group->settings->auto_archive_invoice);
+
+        $this->client->group_settings_id = $group->id;
+        $this->client->save();
+        $this->client->refresh();
+
+        $this->assertSame('', $this->client->getSetting('invoice_terms'));
+        $this->assertFalse($this->client->getSetting('auto_archive_invoice'));
+    }
 
     public function testCreateBlankGroupSetting()
     {

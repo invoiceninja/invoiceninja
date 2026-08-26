@@ -12,7 +12,6 @@
 
 namespace App\Services\ClientPortal;
 
-use App\Exceptions\PaymentFailed;
 use App\Jobs\Invoice\InjectSignature;
 use App\Jobs\Util\SystemLogger;
 use App\Models\CompanyGateway;
@@ -101,7 +100,6 @@ class LivewireInstantPayment
                             ->map(function (Invoice $invoice): ?Invoice {
                                 $invoice = $invoice->service()
                                     ->markSent()
-                                    ->removeUnpaidGatewayFees()
                                     ->save();
 
                                 return $invoice?->isPayable() ? $invoice : null;
@@ -163,56 +161,19 @@ class LivewireInstantPayment
         $invoice_totals = $payable_invoices->sum('amount');
         $first_invoice = $invoices->first();
         $credit_totals = in_array($first_invoice->client->getSetting('use_credits_payment'), ['always', 'option']) ? $first_invoice->client->service()->getCreditBalance() : 0;
-        $starting_invoice_amount = $first_invoice->balance;
 
         $payment_hash_string = Str::random(32);
         
-        $raced_payment_hash = null;
+        $fee_totals = 0;
+        $fee_net = 0;
 
         if ($company_gateway) {
+            /** The invoice is not touched - the fee reaches it when the payment is confirmed. */
+            $fee = $first_invoice->service()->quoteGatewayFee($company_gateway, $payment_method_id, $invoice_totals);
 
-            $lock = Cache::lock("gateway-fee:{$first_invoice->company_id}:{$first_invoice->id}", 2);
-
-            if ($lock->get()) {
-
-                try{
-                    $first_invoice = $first_invoice->service()->addGatewayFee($company_gateway, $payment_method_id, $invoice_totals, $payment_hash_string)->save();
-                } finally {
-                    $lock->release();
-                }
-            }
-            else {
-                $lock->block(0.75);
-
-                try {
-                    $raced_payment_hash = PaymentHash::query()
-                        ->where('fee_invoice_id', $first_invoice->id)
-                        ->whereNull('payment_id')
-                        ->where('created_at', '>=', now()->subSeconds(2))
-                        ->orderBy('id', 'desc')
-                        ->first();
-            
-                    if (! $raced_payment_hash) {
-                        throw new PaymentFailed(ctrans('texts.processing_request'), 409);
-                    }
-            
-                    $payment_hash_string = $raced_payment_hash->hash;
-                    $first_invoice->refresh();
-
-                } finally {
-                    $lock->release();
-                }
-            }
+            $fee_totals = $fee['gross'];
+            $fee_net = $fee['net'];
         }
-
-        /**
-        * Gateway fee is calculated
-        * by adding it as a line item, and then subtract
-        * the starting and finishing amounts of the invoice.
-        */
-        // $fee_totals = $first_invoice->balance - $starting_invoice_amount;
-
-        $fee_totals = round(($first_invoice->balance - $starting_invoice_amount), $client->currency()->precision);
 
         if ($company_gateway) {
             $tokens = $client->gateway_tokens()
@@ -234,6 +195,7 @@ class LivewireInstantPayment
             'frequency_id' => $this->data['frequency_id'],
             'remaining_cycles' => $this->data['remaining_cycles'],
             'is_recurring' => $this->data['is_recurring'],
+            'fee_net' => $fee_net,
         ];
 
         if (isset($this->data['hash'])) {
@@ -244,18 +206,13 @@ class LivewireInstantPayment
             }
         }
 
-        /** Helper for race condition protection, early assignment! */
-        if (isset($raced_payment_hash)) {
-            $payment_hash = $raced_payment_hash;
-        } else {
-            $payment_hash = new PaymentHash();
-            $payment_hash->hash = $payment_hash_string;
-            $payment_hash->data = $hash_data;
-            $payment_hash->fee_total = $fee_totals;
-            $payment_hash->fee_invoice_id = $first_invoice->id;
+        $payment_hash = new PaymentHash();
+        $payment_hash->hash = $payment_hash_string;
+        $payment_hash->data = $hash_data;
+        $payment_hash->fee_total = $fee_totals;
+        $payment_hash->fee_invoice_id = $first_invoice->id;
 
-            $payment_hash->save();
-        }
+        $payment_hash->save();
 
         if ($this->is_credit_payment) {
             $amount_with_fee = max(0, (($invoice_totals + $fee_totals) - $credit_totals));

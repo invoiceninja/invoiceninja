@@ -134,6 +134,25 @@ class CompanyGatewayTest extends TestCase
         return $passes;
     }
 
+    /**
+     * Quotes the fee and confirms it, the way a completed payment does.
+     */
+    private function quoteAndConfirmFee(CompanyGateway $cg, string $hash): void
+    {
+        $quote = $this->invoice->service()->quoteGatewayFee($cg, GatewayType::CREDIT_CARD, $this->invoice->balance);
+
+        $payment_hash = \App\Models\PaymentHash::create([
+            'hash' => $hash,
+            'fee_total' => $quote['gross'],
+            'fee_invoice_id' => $this->invoice->id,
+            'data' => ['invoices' => [], 'credits' => 0, 'fee_net' => $quote['net'], 'amount_with_fee' => 0],
+        ]);
+
+        (new \App\Services\Invoice\ConfirmGatewayFee($payment_hash, $cg, ['gateway_type_id' => GatewayType::CREDIT_CARD]))->run();
+
+        $this->invoice = $this->invoice->fresh();
+    }
+
     public function testFeesAreAppendedToInvoice() //after refactor this may be redundant
     {
         $data = [];
@@ -165,10 +184,7 @@ class CompanyGatewayTest extends TestCase
 
         $balance = $this->invoice->balance;
 
-        $this->invoice = $this->invoice->service()->addGatewayFee($cg, GatewayType::CREDIT_CARD, $this->invoice->balance, '12321')->save();
-        $this->invoice = $this->invoice->calc()->getInvoice();
-
-        $items = $this->invoice->line_items;
+        $this->quoteAndConfirmFee($cg, '12321');
 
         $this->assertEquals(($balance + 1), $this->invoice->balance);
     }
@@ -205,10 +221,7 @@ class CompanyGatewayTest extends TestCase
         $balance = $this->invoice->balance;
         $wiped_balance = $balance;
 
-        $this->invoice = $this->invoice->service()->addGatewayFee($cg, GatewayType::CREDIT_CARD, $this->invoice->balance, '123212')->save();
-        $this->invoice = $this->invoice->calc()->getInvoice();
-
-        $items = $this->invoice->line_items;
+        $this->quoteAndConfirmFee($cg, '123212');
 
         $this->assertEquals(($balance + 1), $this->invoice->balance);
 
@@ -246,10 +259,7 @@ class CompanyGatewayTest extends TestCase
         $balance = $this->invoice->balance;
         $wiped_balance = $balance;
 
-        $this->invoice = $this->invoice->service()->addGatewayFee($cg, GatewayType::CREDIT_CARD, $this->invoice->balance, '123213')->save();
-        $this->invoice = $this->invoice->calc()->getInvoice();
-
-        $items = $this->invoice->line_items;
+        $this->quoteAndConfirmFee($cg, '123213');
 
         $this->assertEquals(($balance + 1), $this->invoice->balance);
 
@@ -257,7 +267,9 @@ class CompanyGatewayTest extends TestCase
 
         $i = Invoice::withTrashed()->find($this->invoice->id);
 
-        $this->assertEquals($wiped_balance, $i->amount);
+        /** A confirmed fee is part of what was charged - marking paid must not strip it. */
+        $this->assertEquals($wiped_balance + 1, $i->amount);
+        $this->assertTrue(collect($i->line_items)->contains('unit_code', '123213'));
     }
 
 

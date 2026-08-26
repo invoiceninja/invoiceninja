@@ -25,4 +25,16 @@ class DestroyPaymentRequest extends Request
     {
         return auth()->user()->can('edit', $this->payment) && $this->payment->is_deleted === false;
     }
+
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            if ($this->payment->invoices()->where('is_deleted', true)->exists()) {
+                $validator->errors()->add(
+                    'id',
+                    ctrans('texts.deleted_invoices_exist')
+                );
+            }
+        });
+    }
 }

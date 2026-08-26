@@ -355,7 +355,7 @@ class InvitationController extends Controller
         request()->session()->regenerateToken();
         auth()->guard('contact')->loginUsingId($invitation->contact->id, true);
 
-        $invoice = $invitation->invoice->service()->removeUnpaidGatewayFees()->save();
+        $invoice = $invitation->invoice;
 
         if (! $invitation->viewed_date) {
             $invitation->markViewed();

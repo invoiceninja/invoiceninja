@@ -287,19 +287,117 @@ export interface FeesAndLimitsEntry {
     is_enabled?: boolean;
     min_limit?: number;
     max_limit?: number;
+    fee_amount?: number;
+    fee_percent?: number;
+    fee_tax_name1?: string;
+    fee_tax_rate1?: number;
+    fee_tax_name2?: string;
+    fee_tax_rate2?: number;
+    fee_tax_name3?: string;
+    fee_tax_rate3?: number;
+    fee_cap?: number;
+    adjust_fee_percent?: boolean;
 }
 
 export interface CompanyGatewayEntity extends ApiEntity {
     id: string;
     gateway_key: string;
     fees_and_limits?: Record<string, FeesAndLimitsEntry>;
+    is_deleted?: boolean;
+    archived_at?: number;
+    config?: string | Record<string, unknown>;
+    label?: string;
+    require_billing_address?: boolean;
+    require_postal_code?: boolean;
+    require_shipping_address?: boolean;
+    always_show_required_fields?: boolean;
+    token_billing?: string;
+}
+
+export function parseCompanyGatewayConfig(
+    gateway: CompanyGatewayEntity,
+): Record<string, unknown> {
+    if (!gateway.config) {
+        return {};
+    }
+
+    if (typeof gateway.config === 'object') {
+        return gateway.config;
+    }
+
+    try {
+        return JSON.parse(gateway.config) as Record<string, unknown>;
+    } catch {
+        return {};
+    }
+}
+
+export async function getCompanyGateway(
+    api: ApiContext,
+    gatewayId: string,
+): Promise<CompanyGatewayEntity> {
+    const response = await api.request.get(
+        `/api/v1/company_gateways/${gatewayId}`,
+    );
+
+    if (!response.ok()) {
+        throw new Error(
+            `Failed to fetch company gateway ${gatewayId} (${response.status()}): ${(await response.text()).slice(0, 300)}`,
+        );
+    }
+
+    const body = await response.json();
+
+    return body.data as CompanyGatewayEntity;
+}
+
+export async function testCompanyGateway(
+    api: ApiContext,
+    gatewayId: string,
+): Promise<{ ok: boolean; message: string }> {
+    const response = await api.request.post(
+        `/api/v1/company_gateways/${gatewayId}/test`,
+    );
+
+    const body = (await response.json().catch(() => ({}))) as {
+        message?: string;
+    };
+
+    const message = body.message ?? (await response.text()).slice(0, 300);
+
+    return {
+        ok: response.ok() && message === 'ok',
+        message,
+    };
+}
+
+export async function testCompanyGatewayWithRetry(
+    api: ApiContext,
+    gatewayId: string,
+    attempts: number = 3,
+): Promise<{ ok: boolean; message: string }> {
+    let lastResult = await testCompanyGateway(api, gatewayId);
+
+    for (let attempt = 1; attempt < attempts && !lastResult.ok; attempt += 1) {
+        await new Promise((resolve) => setTimeout(resolve, 2_000));
+        lastResult = await testCompanyGateway(api, gatewayId);
+    }
+
+    return lastResult;
 }
 
 export async function listCompanyGateways(
     api: ApiContext,
+    options: { isDeleted?: boolean } = {},
 ): Promise<CompanyGatewayEntity[]> {
+    const params = new URLSearchParams({ per_page: '100' });
+
+    if (options.isDeleted !== undefined) {
+        params.set('is_deleted', options.isDeleted ? 'true' : 'false');
+    }
+
     const response = await api.request.get(
-        '/api/v1/company_gateways?per_page=100',
+        `/api/v1/company_gateways?${params.toString()}`,
     );
 
     if (!response.ok()) {
@@ -354,7 +452,13 @@ export async function ensureCompanyGatewayTypeEnabled(
     const current = gateway.fees_and_limits?.[typeKey];
 
     if (current?.is_enabled) {
-        return gateway;
+        const config = parseCompanyGatewayConfig(gateway);
+
+        if (String(config.clientId ?? '').trim() && String(config.secret ?? '').trim()) {
+            return gateway;
+        }
+
+        return getCompanyGateway(api, gateway.id);
     }
 
     const feesAndLimits = {
@@ -377,11 +481,19 @@ export async function ensureCompanyGatewayTypeEnabled(
         },
     };
 
+    /**
+     * config has to be sent back: UpdateCompanyGatewayRequest re-encrypts whatever it is
+     * given, so a request that omits it replaces the gateway credentials with an empty
+     * string.
+     *
+     * @see app/Http/Requests/CompanyGateway/UpdateCompanyGatewayRequest.php
+     */
     const response = await api.request.put(
         `/api/v1/company_gateways/${gateway.id}`,
         {
             data: {
-                ...gateway,
+                gateway_key: gateway.gateway_key,
+                config: JSON.stringify(parseCompanyGatewayConfig(gateway)),
                 fees_and_limits: feesAndLimits,
             },
         },
@@ -393,10 +505,279 @@ export async function ensureCompanyGatewayTypeEnabled(
         );
     }
 
-    const body = await response.json();
+    return getCompanyGateway(api, gateway.id);
+}
 
-    return (body.data ?? {
-        ...gateway,
-        fees_and_limits: feesAndLimits,
-    }) as CompanyGatewayEntity;
+/**
+ * Applies a flat gateway fee to one payment method and hands back a restore function.
+ *
+ * Seeded gateways carry no fee, so gateway fee tests would otherwise skip. Updating a
+ * Stripe gateway makes the driver register a webhook with Stripe, which fails when
+ * APP_URL is not publicly reachable - the caller should skip on the thrown error rather
+ * than fail.
+ */
+export async function setCompanyGatewayFee(
+    api: ApiContext,
+    gateway: CompanyGatewayEntity,
+    gatewayTypeId: number,
+    feeAmount: number,
+): Promise<{
+    gateway: CompanyGatewayEntity;
+    restore: () => Promise<void>;
+}> {
+    const typeKey = String(gatewayTypeId);
+    const original = gateway.fees_and_limits ?? {};
+
+    const updated = await putCompanyGatewayFees(api, gateway.id, {
+        ...original,
+        [typeKey]: {
+            min_limit: -1,
+            max_limit: -1,
+            fee_percent: 0,
+            fee_tax_name1: '',
+            fee_tax_name2: '',
+            fee_tax_name3: '',
+            fee_tax_rate1: 0,
+            fee_tax_rate2: 0,
+            fee_tax_rate3: 0,
+            fee_cap: 0,
+            adjust_fee_percent: false,
+            ...(original[typeKey] ?? {}),
+            is_enabled: true,
+            fee_amount: feeAmount,
+        },
+    });
+
+    return {
+        gateway: updated,
+        restore: async () => {
+            await putCompanyGatewayFees(api, gateway.id, original);
+        },
+    };
+}
+
+/**
+ * Creates a company gateway for one key from its environment credentials when the
+ * account has none, so a gateway is not skipped merely because it was never seeded.
+ *
+ * The gateway is left in place for later runs - creating and deleting one per test
+ * leaves the portal offering a gateway that no longer exists.
+ */
+export async function ensureCompanyGatewayForKey(
+    api: ApiContext,
+    gatewayKey: string,
+    envVar: string,
+): Promise<CompanyGatewayEntity | undefined> {
+    const existing = (await listCompanyGateways(api)).find(
+        (gateway) => gateway.gateway_key === gatewayKey && !gateway.is_deleted,
+    );
+
+    if (existing) {
+        return existing;
+    }
+
+    const raw = process.env[envVar]?.trim() ?? '';
+
+    if (!raw) {
+        return undefined;
+    }
+
+    let config: Record<string, unknown>;
+
+    try {
+        config = JSON.parse(raw) as Record<string, unknown>;
+    } catch {
+        return undefined;
+    }
+
+    const response = await api.request.post('/api/v1/company_gateways', {
+        data: {
+            gateway_key: gatewayKey,
+            label: 'Playwright',
+            config: JSON.stringify(config),
+        },
+    });
+
+    if (!response.ok()) {
+        throw new Error(
+            `Failed to create company gateway ${gatewayKey} (${response.status()}): ${(await response.text()).slice(0, 300)}`,
+        );
+    }
+
+    return (await response.json()).data as CompanyGatewayEntity;
+}
+
+/**
+ * Applies a flat fee to every active gateway sharing one key, and hands back a single
+ * restore.
+ *
+ * A company can carry several gateways for the same key. The portal offers one of them
+ * per payment method, and which one it picks is a function of the client's gateway
+ * ordering - so the fee has to be on all of them for the checkout under test to quote it.
+ */
+export async function setCompanyGatewayFeeForKey(
+    api: ApiContext,
+    gatewayKey: string,
+    gatewayTypeId: number,
+    feeAmount: number,
+): Promise<{
+    gateways: CompanyGatewayEntity[];
+    restore: () => Promise<void>;
+}> {
+    const candidates = (await listCompanyGateways(api)).filter(
+        (gateway) =>
+            gateway.gateway_key === gatewayKey &&
+            !gateway.archived_at &&
+            !gateway.is_deleted,
+    );
+
+    const applied: CompanyGatewayEntity[] = [];
+    const restores: Array<() => Promise<void>> = [];
+
+    for (const candidate of candidates) {
+        const result = await setCompanyGatewayFee(
+            api,
+            candidate,
+            gatewayTypeId,
+            feeAmount,
+        );
+
+        applied.push(result.gateway);
+        restores.push(result.restore);
+    }
+
+    return {
+        gateways: applied,
+        restore: async () => {
+            for (const restore of restores) {
+                await restore();
+            }
+        },
+    };
+}
+
+async function putCompanyGatewayFees(
+    api: ApiContext,
+    gatewayId: string,
+    feesAndLimits: Record<string, FeesAndLimitsEntry>,
+): Promise<CompanyGatewayEntity> {
+    const fresh = await getCompanyGateway(api, gatewayId);
+
+    const response = await api.request.put(
+        `/api/v1/company_gateways/${gatewayId}`,
+        {
+            data: {
+                gateway_key: fresh.gateway_key,
+                config: JSON.stringify(parseCompanyGatewayConfig(fresh)),
+                fees_and_limits: feesAndLimits,
+            },
+        },
+    );
+
+    if (!response.ok()) {
+        throw new Error(
+            `Failed to write fees_and_limits on gateway ${gatewayId} (${response.status()}): ${(await response.text()).slice(0, 300)}`,
+        );
+    }
+
+    return getCompanyGateway(api, gatewayId);
+}
+
+export interface CompanyGatewayRequirementSettings {
+    require_billing_address?: boolean;
+    require_postal_code?: boolean;
+    require_shipping_address?: boolean;
+    always_show_required_fields?: boolean;
+    token_billing?: string;
+}
+
+export interface ClientGatewayTokenEntity extends ApiEntity {
+    client_id: string;
+    company_gateway_id: string;
+    gateway_type_id: number | string;
+    token: string;
+    meta?: {
+        last4?: string;
+        brand?: string;
+        exp_month?: string;
+        exp_year?: string;
+        type?: number | string;
+    };
+}
+
+export async function listClientGatewayTokens(
+    api: ApiContext,
+): Promise<ClientGatewayTokenEntity[]> {
+    const response = await api.request.get(
+        '/api/v1/client_gateway_tokens?per_page=100',
+    );
+
+    if (!response.ok()) {
+        throw new Error(
+            `Failed to list client gateway tokens (${response.status()}): ${(await response.text()).slice(0, 300)}`,
+        );
+    }
+
+    const body = (await response.json()) as { data?: ClientGatewayTokenEntity[] };
+
+    return body.data ?? [];
+}
+
+export function filterClientGatewayTokens(
+    tokens: ClientGatewayTokenEntity[],
+    filters: {
+        clientId: string;
+        companyGatewayId?: string;
+        gatewayTypeId?: number;
+    },
+): ClientGatewayTokenEntity[] {
+    return tokens.filter((token) => {
+        if (token.client_id !== filters.clientId) {
+            return false;
+        }
+
+        if (
+            filters.companyGatewayId &&
+            token.company_gateway_id !== filters.companyGatewayId
+        ) {
+            return false;
+        }
+
+        if (
+            filters.gatewayTypeId !== undefined &&
+            Number(token.gateway_type_id) !== filters.gatewayTypeId
+        ) {
+            return false;
+        }
+
+        return true;
+    });
+}
+
+export async function updateCompanyGatewayRequirements(
+    api: ApiContext,
+    gateway: CompanyGatewayEntity,
+    settings: CompanyGatewayRequirementSettings,
+): Promise<CompanyGatewayEntity> {
+    const fresh = await getCompanyGateway(api, gateway.id);
+    const config = parseCompanyGatewayConfig(fresh);
+
+    const response = await api.request.put(
+        `/api/v1/company_gateways/${gateway.id}`,
+        {
+            data: {
+                gateway_key: fresh.gateway_key,
+                config: JSON.stringify(config),
+                ...settings,
+            },
+        },
+    );
+
+    if (!response.ok()) {
+        throw new Error(
+            `Failed to update company gateway requirements (${response.status()}): ${(await response.text()).slice(0, 300)}`,
+        );
+    }
+
+    return getCompanyGateway(api, gateway.id);
 }
