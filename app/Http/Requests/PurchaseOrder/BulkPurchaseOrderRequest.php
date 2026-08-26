@@ -31,7 +31,7 @@ class BulkPurchaseOrderRequest extends Request
     {
         return [
             'ids' => 'required|bail|array|min:1',
-            'action' => 'in:template,archive,restore,delete,email,bulk_download,bulk_print,mark_sent,download,send_email,add_to_inventory,expense,cancel',
+            'action' => 'required|in:template,archive,restore,delete,email,bulk_download,bulk_print,mark_sent,download,send_email,add_to_inventory,expense,cancel',
             'template' => 'sometimes|string',
             'template_id' => 'sometimes|string',
             'send_email' => 'sometimes|bool',
