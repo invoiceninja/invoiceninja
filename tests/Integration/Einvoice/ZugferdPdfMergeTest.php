@@ -30,7 +30,9 @@ class ZugferdPdfMergeTest extends TestCase
 {
     public function testMergedFacturXPdfContainsRequiredXmpAndExtractableXml(): void
     {
-        $pdf = $this->makeMerger('EN16931')->handle();
+        $document = $this->makeDocument();
+        $sourceXml = $document->getContent();
+        $pdf = $this->makeMerger('EN16931', $document)->handle();
 
         $this->assertStringContainsString('<fx:DocumentType>INVOICE</fx:DocumentType>', $pdf);
         $this->assertStringContainsString('<fx:DocumentFileName>factur-x.xml</fx:DocumentFileName>', $pdf);
@@ -43,6 +45,11 @@ class ZugferdPdfMergeTest extends TestCase
         $xml = ZugferdDocumentPdfReader::getXmlFromContent($pdf);
 
         $this->assertStringContainsString('CrossIndustryInvoice', $xml);
+        $this->assertXmlStringEqualsXmlString($sourceXml, $xml);
+        $this->assertStringContainsString('<ram:ActualAmount>20.00</ram:ActualAmount>', $xml);
+        $this->assertStringContainsString('<ram:Reason>Discount</ram:Reason>', $xml);
+
+        $this->assertXmlSchemaValid($xml);
 
         $document = ZugferdDocumentPdfReader::readAndGuessFromContent($pdf);
         $document->getDocumentInformation($documentno, $documenttypecode, $documentdate, $documentcurrency, $taxcurrency, $taxname, $documentlanguage, $rest);
@@ -68,9 +75,9 @@ class ZugferdPdfMergeTest extends TestCase
         return $pdf->Output('S');
     }
 
-    private function makeMerger(string $profile): ZugferdPdfMerger
+    private function makeMerger(string $profile, ?ZugferdDocumentBuilder $document = null): ZugferdPdfMerger
     {
-        return new class (new Invoice(), $this->makeVisualPdf(), $profile, $this->makeDocument()) extends ZugferdPdfMerger {
+        return new class (new Invoice(), $this->makeVisualPdf(), $profile, $document ?? $this->makeDocument()) extends ZugferdPdfMerger {
             public function __construct(Invoice $invoice, string $pdf, ?string $profile, private ZugferdDocumentBuilder $document)
             {
                 parent::__construct($invoice, $pdf, $profile);
@@ -95,15 +102,39 @@ class ZugferdPdfMergeTest extends TestCase
         $document->setDocumentBuyer('Buyer AG', 'GE2020211');
         $document->setDocumentBuyerAddress('Buyer Street 15', '', '', '69876', 'Frankfurt', ZugferdCountryCodes::GERMANY);
         $document->setDocumentSupplyChainEvent($invoiceDate);
+        $document->addDocumentPaymentTerm('Payable within 14 days', new DateTimeImmutable('2026-05-19'));
         $document->addNewPosition('1');
         $document->setDocumentPositionProductDetails('Consulting', '', 'CONSULTING-1');
         $document->setDocumentPositionNetPrice(100.0);
         $document->setDocumentPositionQuantity(1, ZugferdUnitCodes::REC20_PIECE);
         $document->addDocumentPositionTax(ZugferdVatCategoryCodes::STAN_RATE, ZugferdVatTypeCodes::VALUE_ADDED_TAX, 19.0);
-        $document->setDocumentPositionLineSummation(100.0);
-        $document->addDocumentTax(ZugferdVatCategoryCodes::STAN_RATE, ZugferdVatTypeCodes::VALUE_ADDED_TAX, 100.0, 19.0, 19.0);
-        $document->setDocumentSummation(119.0, 119.0, 100.0, 0.0, 0.0, 100.0, 19.0);
+        $document->addDocumentPositionAllowanceCharge(20.0, false, null, null, null, 'Discount');
+        $document->setDocumentPositionLineSummation(80.0);
+        $document->addDocumentTax(ZugferdVatCategoryCodes::STAN_RATE, ZugferdVatTypeCodes::VALUE_ADDED_TAX, 80.0, 15.2, 19.0);
+        $document->setDocumentSummation(95.2, 95.2, 80.0, 0.0, 0.0, 80.0, 15.2);
 
         return $document;
+    }
+
+    private function assertXmlSchemaValid(string $xml): void
+    {
+        $previousErrorHandling = libxml_use_internal_errors(true);
+        libxml_clear_errors();
+
+        $document = new \DOMDocument();
+        $loaded = $document->loadXML($xml);
+        $valid = $loaded && $document->schemaValidate(
+            app_path('Services/EDocument/Standards/Validation/Zugferd/Schema/XSD/CrossIndustryInvoice_100pD22B.xsd')
+        );
+        $errors = array_map(
+            static fn (\LibXMLError $error): string => trim($error->message),
+            libxml_get_errors()
+        );
+
+        libxml_clear_errors();
+        libxml_use_internal_errors($previousErrorHandling);
+
+        $this->assertTrue($loaded, "The XML extracted from the final Factur-X PDF must be well formed.\n" . implode("\n", $errors));
+        $this->assertTrue($valid, "The XML extracted from the final Factur-X PDF must satisfy the CII XSD.\n" . implode("\n", $errors));
     }
 }
