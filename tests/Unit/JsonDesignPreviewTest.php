@@ -409,6 +409,33 @@ class JsonDesignPreviewTest extends TestCase
             'JSON design HTML should contain invoice-container class from JsonDesignService template');
     }
 
+    public function testPdfMockUsesJsonDesignFromSettingsWhenRequestOmitsDesign(): void
+    {
+        $design = new Design();
+        $design->company_id = $this->company->id;
+        $design->user_id = $this->user->id;
+        $design->is_custom = true;
+        $design->is_active = true;
+        $design->name = 'JSON Live Design Preview';
+        $design->design = $this->jsonDesign;
+        $design->save();
+
+        $settings = (array) $this->company->settings;
+        $settings['invoice_design_id'] = $this->encodePrimaryKey($design->id);
+
+        $request = [
+            'entity_type' => 'invoice',
+            'settings_type' => 'company',
+            'settings' => $settings,
+        ];
+
+        $html = (new PdfMock($request, $this->company))->build()->getHtml();
+
+        $this->assertStringContainsString('invoice-container', $html);
+        $this->assertStringContainsString($this->jsonDesign['blocks'][0]['id'], $html);
+        $this->assertStringNotContainsString('<p></p></body>', $html);
+    }
+
     // -----------------------------------------------------------------------
     // 17. PdfMock JSON design: json_design_html is set (not null)
     // -----------------------------------------------------------------------

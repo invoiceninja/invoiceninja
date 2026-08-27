@@ -137,7 +137,6 @@ Guest invitation tests must close their extra contexts in `finally` (use
 | PayPal Pay Later Pay in 4 autopay | Pay in 4 may show **Choose an autopay option** (`#autopay`); e2e keeps the default instrument or selects the first enabled `AutopaySelectionInput` radio, checks the autopay disclosure checkbox (`payLaterApplicationAutopayDisclosureContent`), then continues |
 | Stale Authorize.Net Accept.js key | Authorize.Net e2e skips when the public client key meta is empty |
 | PayPal Express-only company gateway | PayPal tests skip — Express driver was removed; seed PayPal REST (`80af24a6…065`) to cover PayPal |
-| Remote app missing PaymentMethod multi-gateway fix | Authorize/Checkout Pay Now options skip until `PaymentMethod::getMethods()` fix is deployed |
 | `PLAYWRIGHT_ALLOW_BULK_ZIP` unset | Document bulk zip download (single-worker PHP HTTP self-fetch deadlock) |
 | DocuNinja inactive / signature pad replaced | Quote canvas signature may skip |
 | Cloudflare Turnstile on registration | Self-registration may skip |

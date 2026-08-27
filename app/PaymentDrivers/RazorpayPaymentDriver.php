@@ -50,6 +50,24 @@ class RazorpayPaymentDriver extends BaseDriver
         return $this;
     }
 
+    public function auth(): string
+    {
+        $apiKey = trim((string) $this->company_gateway->getConfigField('apiKey'));
+        $apiSecret = trim((string) $this->company_gateway->getConfigField('apiSecret'));
+
+        if ($apiKey === '' || $apiSecret === '') {
+            return 'error';
+        }
+
+        try {
+            $this->init()->gateway->payment->all(['count' => 1]);
+
+            return 'ok';
+        } catch (\Throwable) {
+            return 'error';
+        }
+    }
+
     public function gatewayTypes(): array
     {
         return [

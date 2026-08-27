@@ -8,6 +8,7 @@ import {
 } from '../api-helpers';
 import {
     createAndLogInClient,
+    completeInvoiceDetailRffModalIfPresent,
     dismissCookieConsent,
     waitForAlpine,
     waitForLivewire,
@@ -605,6 +606,7 @@ export async function preparePortalPaymentContext(
         settings: {
             ...paymentTestSettings,
             payment_flow: paymentFlow,
+            company_gateway_ids: companyGateway.id,
         },
         contact: {
             first_name: 'Playwright',
@@ -682,6 +684,7 @@ export async function prepareIncompleteClientPaymentContext(
         settings: {
             ...paymentTestSettings,
             payment_flow: options.paymentFlow ?? 'default',
+            company_gateway_ids: companyGateway.id,
         },
         contact: {
             first_name: 'Playwright',
@@ -814,9 +817,8 @@ export async function selectGatewayFromDropdown(
     }
 
     // Portal dropdowns use the raw company_gateway id; the API returns a hashed
-    // id. Prefer `data-gateway-key` (after deploy), then decoded raw id, then
-    // hashed id. Never fall back to type alone — multiple credit-card gateways
-    // share gateway_type_id=1 and the wrong one was being selected.
+    // id. Prefer `data-gateway-key`, then decoded raw id, then hashed id. Never
+    // fall back to type alone because gateway type ids are not gateway-specific.
     const rawId = decodePrimaryKey(companyGateway.id);
     const byKey = page.locator(
         `[dusk="payment-methods-dropdown"] [data-gateway-key="${companyGateway.gateway_key}"][data-gateway-type-id="${gatewayTypeId}"]`
@@ -834,13 +836,6 @@ export async function selectGatewayFromDropdown(
             : (await byRawId.count()) > 0
               ? byRawId.first()
               : byHashedId.first();
-
-    if ((await gatewayOption.count()) === 0) {
-        test.skip(
-            true,
-            `Gateway ${companyGateway.gateway_key} is not offered in Pay Now — deploy the PaymentMethod multi-gateway fix or enable fees_and_limits for type ${gatewayTypeId}`
-        );
-    }
 
     await expect(gatewayOption).toBeVisible({ timeout: 15_000 });
 
@@ -1120,6 +1115,7 @@ export async function selectFirstAvailableGateway(page: Page): Promise<void> {
 
     await expect(option).toBeVisible();
     await option.click();
+    await completeInvoiceDetailRffModalIfPresent(page);
 }
 
 export async function clickBulkPayNow(page: Page): Promise<void> {

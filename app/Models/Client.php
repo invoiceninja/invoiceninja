@@ -648,6 +648,11 @@ class Client extends BaseModel implements HasLocalePreference
         return $this->belongsTo(GroupSetting::class);
     }
 
+    public function purchase_orders(): HasMany
+    {
+        return $this->hasMany(PurchaseOrder::class)->withTrashed();
+    }
+
     /**
      * Returns the first Credit Card Gateway.
      *

@@ -77,13 +77,6 @@ test.describe('Client portal payment gateways', () => {
                         ),
                     );
 
-                if ((await gatewayOption.count()) === 0) {
-                    test.skip(
-                        true,
-                        `${gateway.displayName} is not offered in Pay Now — enable fees_and_limits for type ${gateway.gatewayTypeId}`,
-                    );
-                }
-
                 await expect(gatewayOption.first()).toBeVisible({
                     timeout: 15_000,
                 });

@@ -2250,8 +2250,12 @@ class PdfBuilder
      */
     private function updateJsonDesignVariables(): self
     {
-        $this->replaceVariablesInTextNodes();
-        $this->replaceVariablesInAttributes();
+        // Two passes mirror updateVariables() label/value substitution so nested
+        // $variables inside substituted entity text are expanded.
+        for ($pass = 0; $pass < 2; $pass++) {
+            $this->replaceVariablesInTextNodes();
+            $this->replaceVariablesInAttributes();
+        }
 
         return $this;
     }

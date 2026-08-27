@@ -34,6 +34,9 @@
     <env name="DB_DATABASE" value=":memory:"/>
     <env name="DB_STRICT" value="false"/>
     <env name="SCOUT_DRIVER" value="null"/>
+    <env name="SENTRY_SAMPLE_RATE" value="0"/>
+    <env name="SENTRY_TRACES_SAMPLE_RATE" value="0"/>
+    <env name="SENTRY_PROFILES_SAMPLE_RATE" value="0"/>
   </php>
   <logging/>
 </phpunit>

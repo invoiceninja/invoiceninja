@@ -81,9 +81,21 @@ class PdfMock
 
         $this->pdf_service->html_variables = $document_type == 'purchase_order' ? $this->getVendorStubVariables() : $this->getStubVariables();
 
-        $designData = isset($this->request['design']) && is_array($this->request['design']) ? $this->request['design'] : null;
+        $requestDesign = isset($this->request['design']) && is_array($this->request['design'])
+            ? $this->request['design']
+            : null;
 
-        if ($designData && isset($designData['blocks'])) {
+        // live_design sends settings only (invoice_design_id). Resolve JSON layouts
+        // from the loaded Design record when the request omits inline design data.
+        if ($requestDesign !== null && isset($requestDesign['blocks'])) {
+            $designData = $requestDesign;
+        } elseif ($requestDesign === null) {
+            $designData = $pdf_config->decodedDesign();
+        } else {
+            $designData = $requestDesign;
+        }
+
+        if (is_array($designData) && isset($designData['blocks'])) {
             $this->pdf_service->designer = new PdfDesigner($this->pdf_service);
             $this->pdf_service->designer->template = '';
             $this->pdf_service->setJsonDesignHtml(

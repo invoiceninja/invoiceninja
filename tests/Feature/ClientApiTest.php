@@ -55,6 +55,64 @@ class ClientApiTest extends TestCase
     }
 
 
+    public function testClientUpdatePersistsNullSettingsKeysAndFallsBackToCompany(): void
+    {
+        $company_settings = $this->company->settings;
+        $company_settings->invoice_terms = 'COMPANY_INVOICE_TERMS';
+        $company_settings->auto_archive_invoice = true;
+        $this->company->settings = $company_settings;
+        $this->company->save();
+
+        $create = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/clients/', [
+            'name' => 'Null Settings Client',
+            'settings' => [
+                'currency_id' => '1',
+                'invoice_terms' => 'CLIENT_INVOICE_TERMS',
+                'auto_archive_invoice' => false,
+            ],
+        ]);
+
+        $create->assertStatus(200);
+
+        $client_id = $create->json('data.id');
+        $this->assertSame('CLIENT_INVOICE_TERMS', $create->json('data.settings.invoice_terms'));
+        $this->assertFalse($create->json('data.settings.auto_archive_invoice'));
+
+        $update = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/clients/'.$client_id, [
+            'settings' => [
+                'currency_id' => '1',
+                'invoice_terms' => null,
+                'auto_archive_invoice' => null,
+            ],
+        ]);
+
+        $update->assertStatus(200);
+
+        $settings = $update->json('data.settings');
+        $client = Client::find($this->decodePrimaryKey($client_id));
+
+        $this->assertArrayHasKey('invoice_terms', $settings);
+        $this->assertArrayHasKey('auto_archive_invoice', $settings);
+        $this->assertNull($settings['invoice_terms']);
+        $this->assertNull($settings['auto_archive_invoice']);
+
+        $this->assertTrue(property_exists($client->settings, 'invoice_terms'));
+        $this->assertTrue(property_exists($client->settings, 'auto_archive_invoice'));
+        $this->assertFalse(isset($client->settings->invoice_terms));
+        $this->assertFalse(isset($client->settings->auto_archive_invoice));
+        $this->assertNull($client->settings->invoice_terms);
+        $this->assertNull($client->settings->auto_archive_invoice);
+
+        $this->assertSame('COMPANY_INVOICE_TERMS', $client->getSetting('invoice_terms'));
+        $this->assertTrue($client->getSetting('auto_archive_invoice'));
+    }
+
     public function testClientSendEmailMutation()
     {
         $data= [

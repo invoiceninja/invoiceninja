@@ -159,6 +159,41 @@ class GatewayFailurePathTest extends TestCase
         $this->assertEquals(0, round((float) $final->paid_to_date, 2));
     }
 
+    /** A Mollie driver whose API client returns one canned payment. */
+    private function mollieDriverReturning(CompanyGateway $cg, object $mollie_payment): MolliePaymentDriver
+    {
+        $driver = new class ($cg, $this->client) extends MolliePaymentDriver {
+            public $stub_payment;
+
+            public function init(): self
+            {
+                $this->gateway = new class ($this->stub_payment) {
+                    public $payments;
+
+                    public function __construct($payment)
+                    {
+                        $this->payments = new class ($payment) {
+                            public function __construct(private $payment)
+                            {
+                            }
+
+                            public function get($id)
+                            {
+                                return $this->payment;
+                            }
+                        };
+                    }
+                };
+
+                return $this;
+            }
+        };
+
+        $driver->stub_payment = $mollie_payment;
+
+        return $driver;
+    }
+
     /** Checkout.com reported a pending payment as declined. */
     public function testCheckoutWebhookUnwindsAPendingPaymentAndReversesTheFee(): void
     {
@@ -363,34 +398,7 @@ class GatewayFailurePathTest extends TestCase
             ],
         ];
 
-        $driver = new class ($cg, $this->client) extends MolliePaymentDriver {
-            public $stub_payment;
-
-            public function init(): self
-            {
-                $this->gateway = new class ($this->stub_payment) {
-                    public $payments;
-
-                    public function __construct($payment)
-                    {
-                        $this->payments = new class ($payment) {
-                            public function __construct(private $payment)
-                            {
-                            }
-
-                            public function get($id)
-                            {
-                                return $this->payment;
-                            }
-                        };
-                    }
-                };
-
-                return $this;
-            }
-        };
-
-        $driver->stub_payment = $mollie_payment;
+        $driver = $this->mollieDriverReturning($cg, $mollie_payment);
 
         $request = PaymentWebhookRequest::create('/', 'POST', ['id' => $reference]);
         $request->setContainer(app());
@@ -398,5 +406,65 @@ class GatewayFailurePathTest extends TestCase
         $driver->processWebhookRequest($request);
 
         $this->assertPendingAttemptWasUnwound($invoice, $payment_hash, $payment);
+    }
+
+    /**
+     * Mollie rebuilds a payment from its own record when the client never returned to the
+     * site. For a status that will not produce a payment, the fee must not be confirmed -
+     * createPayment() links the hash to the payment only for completed and pending, so a
+     * fee confirmed here could never be reversed.
+     */
+    public function testMollieDoesNotConfirmAFeeForAPaymentItWillNotCreate(): void
+    {
+        $cg = $this->gateway('1bd651fb213ca0c9d66ae3c336dc77e8');
+        $invoice = $this->sentInvoice(100);
+        $reference = 'tr_' . Str::random(10);
+
+        $payment_hash = PaymentHash::create([
+            'hash' => Str::random(32),
+            'fee_total' => 5,
+            'fee_invoice_id' => $invoice->id,
+            'data' => [
+                'invoices' => [[
+                    'invoice_id' => $invoice->hashed_id,
+                    'amount' => 100,
+                    'due_date' => '',
+                    'invoice_number' => $invoice->number,
+                    'additional_info' => '',
+                ]],
+                'credits' => 0,
+                'fee_net' => 5,
+                'amount_with_fee' => 105,
+            ],
+        ]);
+
+        /** No payment record - the client abandoned the checkout at Mollie. */
+        $this->assertNull($payment_hash->payment_id);
+
+        $driver = $this->mollieDriverReturning($cg, (object) [
+            'id' => $reference,
+            'status' => 'expired',
+            'details' => (object) ['failureMessage' => 'The payment expired'],
+            'metadata' => (object) [
+                'hash' => $payment_hash->hash,
+                'client_id' => $this->client->hashed_id,
+                'gateway_type_id' => GatewayType::CREDIT_CARD,
+                'payment_type_id' => PaymentType::CREDIT_CARD_OTHER,
+            ],
+        ]);
+
+        $request = PaymentWebhookRequest::create('/', 'POST', ['id' => $reference]);
+        $request->setContainer(app());
+
+        $driver->processWebhookRequest($request);
+
+        $final = Invoice::withTrashed()->find($invoice->id);
+
+        $this->assertCount(
+            0,
+            $this->feeLines($final, $payment_hash->hash),
+            'a fee was confirmed onto the invoice for a payment that was never created, and nothing can reverse it'
+        );
+        $this->assertEquals(100, round((float) $final->amount, 2));
     }
 }

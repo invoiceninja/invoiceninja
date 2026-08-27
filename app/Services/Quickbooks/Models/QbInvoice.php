@@ -1231,6 +1231,7 @@ class QbInvoice implements SyncInterface
         bool $clear_status_message = false
     ): void
     {
+        $invoice->refresh();
         $sync = $invoice->sync ?? new InvoiceSync();
         $sync->markSynced($qb_id, $sync_token, $clear_status_message);
         $invoice->sync = $sync;
@@ -1239,6 +1240,7 @@ class QbInvoice implements SyncInterface
 
     private function markInvoicePushFailure(Invoice $invoice, string $message): void
     {
+        $invoice->refresh();
         $sync = $invoice->sync ?? new InvoiceSync();
         $sync->markPushFailure($message);
         $invoice->sync = $sync;

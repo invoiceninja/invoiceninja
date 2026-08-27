@@ -44,7 +44,6 @@ use App\PaymentDrivers\Stripe\Alipay;
 use App\PaymentDrivers\Stripe\Charge;
 use App\PaymentDrivers\Stripe\Klarna;
 use App\PaymentDrivers\Stripe\SOFORT;
-use Illuminate\Http\RedirectResponse;
 use App\PaymentDrivers\Stripe\GIROPAY;
 use Stripe\Exception\ApiErrorException;
 use App\Exceptions\StripeConnectFailure;
@@ -1156,7 +1155,6 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
             nlog("Stripe auth error: " . $th->getMessage());
             return 'error';
         }
-
 
     }
 

@@ -26,7 +26,16 @@ use App\Utils\Ninja;
  * This is the only writer of gateway fee line items. It is idempotent on the payment
  * hash: several drivers confirm twice for one payment, and webhooks are redelivered.
  *
+ * The claim on updated_at makes this safe against writers that commit before it does -
+ * it re-reads and retries. It cannot protect against a writer that read the invoice
+ * earlier and saves line_items afterwards without a version check of its own: that save
+ * carries a line_items array from before the fee existed and drops it. Every writer of
+ * line_items would have to participate in the same check for the invariant to hold
+ * outright. The reconciliation query in the deployment notes detects the outcome - a fee
+ * charged on a payment hash that is not present on the invoice.
+ *
  * @see CalculateGatewayFee
+ * @see \App\Services\Invoice\ReverseGatewayFee
  */
 class ConfirmGatewayFee extends AbstractService
 {

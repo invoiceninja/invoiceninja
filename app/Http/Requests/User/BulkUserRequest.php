@@ -35,7 +35,9 @@ class BulkUserRequest extends Request
 
     public function rules()
     {
-        $rules = [];
+        $rules = [
+            'action' => ['required', 'bail', 'in:archive,restore,delete'],
+        ];
 
         if (Ninja::isHosted() && $this->action && $this->action == 'restore') {
             $rules['ids'] = new CanRestoreUserRule();

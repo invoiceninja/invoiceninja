@@ -32,7 +32,7 @@ class BulkActionQuoteRequest extends Request
         $input = $this->all();
 
         $rules = [
-            'action' => 'sometimes|in:template,convert_to_invoice,convert_to_project,email,bulk_download,bulk_print,clone_to_invoice,approve,download,restore,archive,delete,send_email,mark_sent',
+            'action' => 'required|in:template,convert,convert_to_invoice,convert_to_project,email,bulk_download,bulk_print,clone_to_invoice,clone_to_quote,approve,download,restore,archive,delete,send_email,mark_sent',
             'ids' => 'required|array',
             'template' => 'sometimes|string',
             'template_id' => 'sometimes|string',
@@ -40,8 +40,8 @@ class BulkActionQuoteRequest extends Request
             'email_type' => 'sometimes|in:quote,reminder1,custom1,custom2,custom3',
         ];
 
-        if (in_array(($input['action'] ?? ''), ['convert','convert_to_invoice'])) {
-            $rules['action'] = [new ConvertableQuoteRule()];
+        if (in_array(($input['action'] ?? ''), ['convert', 'convert_to_invoice'])) {
+            $rules['action'] = ['required', 'in:convert,convert_to_invoice', new ConvertableQuoteRule()];
         }
 
         return $rules;

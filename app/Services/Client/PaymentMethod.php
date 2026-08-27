@@ -162,18 +162,10 @@ class PaymentMethod
             }
         }
 
-        // Keep every enabled gateway/type pair. The previous intersectByKeys()
-        // against flatten(1)->unique() collapsed all CREDIT_CARD gateways to
-        // only the first entry, so Authorize/Checkout never appeared alongside
-        // Stripe in the portal Pay Now dropdown.
-        $this->payment_methods = collect($this->payment_methods)->unique(
-            function (array $method): string {
-                $gateway_id = (string) array_key_first($method);
-                $gateway_type_id = (string) reset($method);
-
-                return $gateway_id.'-'.$gateway_type_id;
-            }
-        )->values();
+        $payment_methods_collections = collect($this->payment_methods);
+        $this->payment_methods = $payment_methods_collections->intersectByKeys(
+            $payment_methods_collections->flatten(1)->unique()
+        );
 
         //@15-06-2024
         foreach ($this->payment_methods as $type) {

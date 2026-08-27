@@ -324,6 +324,46 @@ class GatewayFeeConcurrencyTest extends TestCase
         $this->assertEquals(105, round($final->amount, 2));
     }
 
+    /** Confirmation must retry from fresh state when an invoice write wins first. */
+    public function testConfirmationPreservesAnInvoiceWriteThatWinsBeforeItsClaim(): void
+    {
+        $cg = $this->gateway(5);
+        $invoice = $this->sentInvoice(100);
+        $payment_hash = $this->initiate($invoice, $cg);
+        $intervened = false;
+        $mutating = false;
+
+        \DB::beforeExecuting(function ($query, $bindings, $connection) use ($invoice, &$intervened, &$mutating) {
+            if ($intervened || $mutating || ! str_contains($query, 'update `invoices`') || ! str_contains($query, '`line_items`')) {
+                return;
+            }
+
+            $mutating = true;
+            $line_items = json_decode($connection->table('invoices')->where('id', $invoice->id)->value('line_items'));
+            $line_items[0]->notes = 'Concurrent edit before confirmation claim';
+
+            $connection->table('invoices')
+                ->where('id', $invoice->id)
+                ->update([
+                    'line_items' => json_encode($line_items),
+                    'updated_at' => now()->addSecond()->format('Y-m-d H:i:s.u'),
+                ]);
+
+            $intervened = true;
+            $mutating = false;
+        });
+
+        $this->confirm($cg, $payment_hash);
+
+        $final = Invoice::withTrashed()->find($invoice->id);
+
+        $this->assertTrue($intervened, 'the simulated concurrent write did not run');
+        $this->assertSame('Concurrent edit before confirmation claim', $final->line_items[0]->notes);
+        $this->assertCount(1, $this->feeLines($final, $payment_hash->hash));
+        $this->assertEquals(105, round((float) $final->amount, 2));
+        $this->assertEquals(105, round($this->ledgerTotal($final), 2));
+    }
+
     /**
      * Invoice::$casts casts updated_at to a unix timestamp, discarding the microseconds the
      * guard relies on. Reading it any way other than getRawOriginal() silently degrades the
@@ -1113,6 +1153,54 @@ class GatewayFeeConcurrencyTest extends TestCase
 
     /* -------------------------------------------------------------------- drain */
 
+    /**
+     * The drain decides which pending lines to drop from what it read. A confirmation that
+     * lands in between promotes one of those lines, and the drain must not undo it.
+     */
+    public function testTheDrainCannotUndoAConfirmationThatLandsWhileItDecides(): void
+    {
+        $cg = $this->gateway(5);
+        $invoice = $this->sentInvoice(100);
+        $hash = Str::random(32);
+
+        /** The invoice as the previous design left it, with the attempt still pending. */
+        $invoice = $this->withLegacyPendingFee($invoice, $hash, 5);
+        $invoice->save();
+
+        $payment_hash = PaymentHash::create([
+            'hash' => $hash,
+            'fee_total' => 5,
+            'fee_invoice_id' => $invoice->id,
+            'data' => ['invoices' => [], 'credits' => 0, 'amount_with_fee' => 105],
+        ]);
+
+        $confirmed = false;
+        $confirming = false;
+
+        /** Confirmation wins the row immediately before the drain claims it. */
+        \DB::beforeExecuting(function ($query, $bindings, $connection) use ($cg, $payment_hash, &$confirmed, &$confirming) {
+            if ($confirmed || $confirming || ! str_contains($query, 'update `invoices`') || ! str_contains($query, '`line_items`')) {
+                return;
+            }
+
+            $confirming = true;
+            $this->confirm($cg, $payment_hash->fresh());
+            $confirmed = true;
+            $confirming = false;
+        });
+
+        Invoice::withTrashed()->find($invoice->id)->service()->removeUnpaidGatewayFees();
+
+        $final = Invoice::withTrashed()->find($invoice->id);
+        $lines = $this->feeLines($final, $hash);
+
+        $this->assertTrue($confirmed, 'the simulated confirmation did not run');
+        $this->assertCount(1, $lines, 'the drain undid a confirmation that landed while it was deciding');
+        $this->assertSame('4', (string) $lines[0]->type_id);
+        $this->assertEquals(105, round((float) $final->amount, 2));
+    }
+
+   
     /** The drain promotes a fee whose payment landed rather than deleting it. */
     public function testTheDrainPromotesAPendingFeeWhosePaymentLanded(): void
     {

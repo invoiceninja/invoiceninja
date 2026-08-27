@@ -117,7 +117,7 @@ class FortePaymentDriver extends BaseDriver
               }',
                 CURLOPT_HTTPHEADER => [
                     'Content-Type: application/json',
-                    'X-Forte-Auth-Organization-Id: ' . $forte_organization_id,
+                    'X-Forte-Auth-Organization-Id: ' . $forte_auth_organization_id,
                     'Authorization: Basic ' . base64_encode($forte_api_access_id . ':' . $forte_secure_key),
                 ],
             ]);
@@ -193,24 +193,22 @@ class FortePaymentDriver extends BaseDriver
     ///////////////////////////////////////////
     public function auth(): string
     {
-
-        $forte_base_uri = "https://sandbox.forte.net/api/v3/";
-        if ($this->company_gateway->getConfigField('testMode') == false) {
-            $forte_base_uri = "https://api.forte.net/v3/";
+        foreach (['apiAccessId', 'secureKey', 'authOrganizationId', 'organizationId', 'locationId'] as $field) {
+            if (trim((string) $this->company_gateway->getConfigField($field)) === '') {
+                return 'error';
+            }
         }
-        $forte_api_access_id = $this->company_gateway->getConfigField('apiAccessId');
-        $forte_secure_key = $this->company_gateway->getConfigField('secureKey');
-        $forte_auth_organization_id = $this->company_gateway->getConfigField('authOrganizationId');
-        $forte_organization_id = $this->company_gateway->getConfigField('organizationId');
-        $forte_location_id = $this->company_gateway->getConfigField('locationId');
 
-        $response = Http::withBasicAuth($forte_api_access_id, $forte_secure_key)
-                    ->withHeaders(['X-Forte-Auth-Organization-Id' => $forte_organization_id])
-                    ->get("{$forte_base_uri}/organizations/{$forte_organization_id}/locations/{$forte_location_id}/customers/");
+        try {
+            $response = $this->stubRequest()
+                ->get("{$this->baseUri()}organizations/{$this->getOrganisationId()}/locations/{$this->getLocationId()}");
 
-        $error = $response->json()['response']['response_desc'] ?? 'error';
+            $error = $response->json()['response']['response_desc'] ?? 'error';
 
-        return $response->successful() ? 'ok' : $error;
+            return $response->successful() ? 'ok' : $error;
+        } catch (\Throwable) {
+            return 'error';
+        }
 
     }
 
@@ -230,6 +228,11 @@ class FortePaymentDriver extends BaseDriver
         return $this->company_gateway->getConfigField('organizationId');
     }
 
+    public function getAuthOrganisationId(): string
+    {
+        return $this->company_gateway->getConfigField('authOrganizationId');
+    }
+
     public function getLocationId(): string
     {
         return $this->company_gateway->getConfigField('locationId');
@@ -240,10 +243,8 @@ class FortePaymentDriver extends BaseDriver
 
         $forte_api_access_id = $this->company_gateway->getConfigField('apiAccessId');
         $forte_secure_key = $this->company_gateway->getConfigField('secureKey');
-        $forte_auth_organization_id = $this->company_gateway->getConfigField('authOrganizationId');
-
         return Http::withBasicAuth($forte_api_access_id, $forte_secure_key)
-                    ->withHeaders(['X-Forte-Auth-Organization-Id' => $this->getOrganisationId()]);
+                    ->withHeaders(['X-Forte-Auth-Organization-Id' => $this->getAuthOrganisationId()]);
     }
 
     private function getClient(?string $email)

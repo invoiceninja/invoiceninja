@@ -359,7 +359,15 @@ class MolliePaymentDriver extends BaseDriver
                         'idempotency_key' => substr("{$payment->id}{$payment_hash->hash}", 0, 64),
                     ];
 
-                    $this->confirmGatewayFee($data);
+                    /**
+                     * Only confirm the fee for a status that produces a payment. For a
+                     * cancelled, expired or failed status createPayment() returns without
+                     * linking the hash to the payment, so nothing could ever reverse the
+                     * fee and it would stand on the invoice for a debit that never happened.
+                     */
+                    if (in_array($codes[$payment->status], [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING])) {
+                        $this->confirmGatewayFee($data);
+                    }
 
                     $record = $this->createPayment(
                         $data,
