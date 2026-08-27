@@ -88,9 +88,24 @@ class DatabaseTransformer
             $name .= " [{$currency_code}]";
         }
 
+        $tax_registration_notes = array_values(array_filter(array_map(function (object $client_tax) use ($taxes): ?string {
+            $registration = trim((string) $client_tax->tax_registration_id);
+
+            if ($registration === '') {
+                return null;
+            }
+
+            $tax = $taxes[(int) $client_tax->tax_id] ?? null;
+            $name = $tax ? (string) $tax->name : "Tax {$client_tax->tax_id}";
+
+            return trim("{$name}: {$registration}");
+        }, $client_taxes)));
         $private_notes = array_filter([
             trim((string) $client->profile),
             $this->metadataNotes($meta),
+            $tax_registration_notes !== []
+                ? "Pancake tax registrations:\n" . implode("\n", $tax_registration_notes)
+                : '',
             "Pancake source: clients:{$client->id}",
             $source_id !== null && (string) $source_id !== (string) $client->id
                 ? "Pancake currency-specific client: {$currency_code}"
@@ -117,16 +132,6 @@ class DatabaseTransformer
 
         if ($default_tax && trim((string) $default_tax->tax_registration_id) !== '') {
             $payload['vat_number'] = trim((string) $default_tax->tax_registration_id);
-        }
-
-        if ($client_taxes !== []) {
-            $payload['public_notes'] = implode("\n", array_map(function (object $client_tax) use ($taxes): string {
-                $tax = $taxes[(int) $client_tax->tax_id] ?? null;
-                $name = $tax ? (string) $tax->name : "Tax {$client_tax->tax_id}";
-                $registration = trim((string) $client_tax->tax_registration_id);
-
-                return trim("{$name}: {$registration}");
-            }, $client_taxes));
         }
 
         $contacts = [];
@@ -200,7 +205,7 @@ class DatabaseTransformer
         return $this->record(DatabaseEntity::TaskStatuses, $status->id, (string) $status->title, [
             'name' => (string) ($status->title ?: "Pancake Task Status {$status->id}"),
             'color' => (string) $status->background_color,
-            'status_sort_order' => (int) $status->id,
+            'status_order' => (int) $status->id,
         ]);
     }
 
@@ -1107,6 +1112,34 @@ class DatabaseTransformer
         array $query = [],
         array $upload = [],
     ): array {
+        $payload = $this->preservePseudoLinks($payload);
+
         return compact('entity', 'source_id', 'label', 'payload', 'references', 'query', 'upload');
+    }
+
+    /** @param array<string, mixed> $payload @return array<string, mixed> */
+    private function preservePseudoLinks(array $payload): array
+    {
+        foreach ($payload as $key => $value) {
+            if (is_array($value)) {
+                $payload[$key] = $this->preservePseudoLinks($value);
+
+                continue;
+            }
+
+            if (! is_string($value)) {
+                continue;
+            }
+
+            $payload[$key] = preg_replace_callback(
+                '/<((?:LINK\s*:\s*)?https?:\/\/[^<>\s]+)>/iu',
+                fn(array $matches): string => '&lt;'
+                    . htmlspecialchars($matches[1], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8')
+                    . '&gt;',
+                $value,
+            ) ?? $value;
+        }
+
+        return $payload;
     }
 }
