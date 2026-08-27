@@ -255,7 +255,7 @@ class SquarePaymentDriver extends BaseDriver
 
     }
 
-    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash): Payment|false
     {
         $this->init();
 
@@ -277,8 +277,15 @@ class SquarePaymentDriver extends BaseDriver
         $body = new \Square\Models\CreatePaymentRequest($cgt->token, \Illuminate\Support\Str::random(32));
         $body->setCustomerId($cgt->gateway_customer_reference);
         $body->setAmountMoney($amount_money);
+        $body->setAutocomplete(true);
+        $body->setLocationId($this->company_gateway->getConfigField('locationId'));
         $body->setReferenceId($payment_hash->hash);
         $body->setNote(substr($description, 0, 500));
+
+        $customer_details = new \Square\Models\CustomerDetails();
+        $customer_details->setCustomerInitiated(false);
+        $customer_details->setSellerKeyedIn(false);
+        $body->setCustomerDetails($customer_details);
 
         $response = $this->square->getPaymentsApi()->createPayment($body);
         $body = json_decode($response->getBody());
@@ -306,12 +313,14 @@ class SquarePaymentDriver extends BaseDriver
             return $payment;
         }
 
+        $error = $body->errors[0]->detail ?? ($response->getBody() ?: 'Unknown error from Square.');
 
-        $this->sendFailureMail($body->errors[0]->detail);
+        $this->sendFailureMail($error);
 
         $message = [
             'server_response' => $response,
             'data' => $payment_hash->data,
+            'error_code' => $body->errors[0]->code ?? '',
         ];
 
         SystemLogger::dispatch(
