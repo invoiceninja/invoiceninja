@@ -26,6 +26,7 @@ use App\PaymentDrivers\BTCPay\BTCPay;
 use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
 use BTCPayServer\Client\Webhook;
+use Illuminate\Support\Facades\Http;
 
 class BTCPayPaymentDriver extends BaseDriver
 {
@@ -61,6 +62,40 @@ class BTCPayPaymentDriver extends BaseDriver
         $this->store_id = $this->company_gateway->getConfigField('storeId');
         $this->webhook_secret = $this->company_gateway->getConfigField('webhookSecret');
         return $this; /* This is where you boot the gateway with your auth credentials*/
+    }
+
+    public function auth(): string
+    {
+        $this->init();
+        $baseUrl = rtrim(trim((string) $this->btcpay_url), '/');
+
+        if ($baseUrl === ''
+            || trim((string) $this->api_key) === ''
+            || trim((string) $this->store_id) === ''
+            || trim((string) $this->webhook_secret) === '') {
+            return 'error';
+        }
+
+        $scheme = parse_url($baseUrl, PHP_URL_SCHEME);
+        $host = parse_url($baseUrl, PHP_URL_HOST);
+        if (! in_array($scheme, ['http', 'https'], true) || ! is_string($host) || $host === '') {
+            return 'error';
+        }
+
+        try {
+            $response = Http::withOptions(['allow_redirects' => false])
+                ->withHeaders(['Authorization' => 'token ' . $this->api_key])
+                ->acceptJson()
+                ->timeout(15)
+                ->get($baseUrl . '/api/v1/stores/' . rawurlencode((string) $this->store_id));
+
+            return $response->successful()
+                && hash_equals((string) $this->store_id, (string) $response->json('id'))
+                    ? 'ok'
+                    : 'error';
+        } catch (\Throwable) {
+            return 'error';
+        }
     }
 
     /* Returns an array of gateway types for the payment gateway */

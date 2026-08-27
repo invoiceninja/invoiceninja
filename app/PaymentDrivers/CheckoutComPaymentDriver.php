@@ -43,6 +43,7 @@ use Checkout\Payments\Request\Source\RequestIdSource;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 class CheckoutComPaymentDriver extends BaseDriver
 {
@@ -689,13 +690,67 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     public function auth(): string
     {
-        try {
-            $this->init()->gateway->getCustomersClient('x');
-            return 'ok';
-        } catch (\Throwable $e) {
+        $secretKey = trim((string) $this->company_gateway->getConfigField('secretApiKey'));
+        $publicKey = trim((string) $this->company_gateway->getConfigField('publicApiKey'));
 
+        if ($secretKey === '' || $publicKey === '') {
+            return 'error';
         }
-        return 'error';
+
+        try {
+            if (! $this->init()->gateway) {
+                return 'error';
+            }
+
+            $baseUrl = $this->company_gateway->getConfigField('testMode')
+                ? 'https://api.sandbox.checkout.com'
+                : 'https://api.checkout.com';
+            $previousApi = $this->is_four_api;
+            $secretAuthorization = $previousApi ? $secretKey : 'Bearer ' . $secretKey;
+            $publicAuthorization = $previousApi ? $publicKey : 'Bearer ' . $publicKey;
+
+            // A syntactically valid, nonexistent payment ID makes a read-only
+            // request exercise the secret key and Payments API permission.
+            $paymentResponse = Http::withOptions(['allow_redirects' => false])
+                ->withHeaders(['Authorization' => $secretAuthorization])
+                ->acceptJson()
+                ->timeout(15)
+                ->get($baseUrl . '/payments/pay_' . str_repeat('a', 26));
+
+            if ($paymentResponse->status() !== 404) {
+                return 'error';
+            }
+
+            // Flow requires a processing channel. This endpoint checks the
+            // channel and secret together using the same request Flow relies on.
+            if ($this->useFlow()) {
+                $methodsResponse = Http::withOptions(['allow_redirects' => false])
+                    ->withHeaders(['Authorization' => $secretAuthorization])
+                    ->acceptJson()
+                    ->timeout(15)
+                    ->get($baseUrl . '/payment-methods', [
+                        'processing_channel_id' => $this->company_gateway->getConfigField('processingChannelId'),
+                    ]);
+
+                if (! $methodsResponse->successful()) {
+                    return 'error';
+                }
+            }
+
+            // Tokenization is public-key authenticated. An intentionally
+            // incomplete card payload must reach request validation (422/400),
+            // never authentication (401/403), and cannot create a token.
+            $tokenResponse = Http::withOptions(['allow_redirects' => false])
+                ->withHeaders(['Authorization' => $publicAuthorization])
+                ->acceptJson()
+                ->timeout(15)
+                ->post($baseUrl . '/tokens', ['type' => 'card']);
+
+            return in_array($tokenResponse->status(), [400, 422], true) ? 'ok' : 'error';
+        } catch (\Throwable) {
+            return 'error';
+        }
+
     }
 
     private function getToken(string $token, $gateway_customer_reference)
@@ -814,7 +869,7 @@ class CheckoutComPaymentDriver extends BaseDriver
         $url = $baseUrl . '/payment-methods?' . http_build_query(['processing_channel_id' => $processingChannelId]);
 
         try {
-            $response = \Illuminate\Support\Facades\Http::withHeaders([
+            $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $secretKey,
                 'Content-Type' => 'application/json',
             ])->get($url);

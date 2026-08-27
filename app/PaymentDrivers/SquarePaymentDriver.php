@@ -462,14 +462,34 @@ class SquarePaymentDriver extends BaseDriver
 
     public function auth(): string
     {
+        $accessToken = trim((string) $this->company_gateway->getConfigField('accessToken'));
+        $applicationId = trim((string) $this->company_gateway->getConfigField('applicationId'));
+        $locationId = trim((string) $this->company_gateway->getConfigField('locationId'));
 
-        $api_response = $this->init()
-                    ->square
-                    ->getCustomersApi()
-                    ->listCustomers();
+        if ($accessToken === '' || $applicationId === '' || $locationId === '') {
+            return 'error';
+        }
 
+        try {
+            $square = $this->init()->square;
 
-        return (bool) count($api_response->getErrors()) == 0 ? 'ok' : 'error';
+            $tokenResponse = $square->getOAuthApi()->retrieveTokenStatus('Bearer ' . $accessToken);
+            if (! $tokenResponse->isSuccess()
+                || $tokenResponse->getResult()->getClientId() !== $applicationId) {
+                return 'error';
+            }
+
+            $locationResponse = $square->getLocationsApi()->retrieveLocation($locationId);
+            if (! $locationResponse->isSuccess()) {
+                return 'error';
+            }
+
+            $customerResponse = $square->getCustomersApi()->listCustomers(null, 1);
+
+            return $customerResponse->isSuccess() ? 'ok' : 'error';
+        } catch (\Throwable) {
+            return 'error';
+        }
 
     }
 
