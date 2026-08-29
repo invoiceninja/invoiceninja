@@ -32,6 +32,28 @@ class DatabaseTransformer
     }
 
     /** @return array<string, mixed> */
+    public function user(object $user, ?object $group = null): array
+    {
+        $username = trim((string) $user->username);
+        $email = mb_strtolower(trim((string) $user->email));
+        $label = $email !== '' ? $email : ($username !== '' ? $username : "Pancake User {$user->id}");
+
+        return $this->record(DatabaseEntity::Users, $user->id, $label, [
+            'first_name' => $username !== '' ? $username : 'Pancake',
+            'last_name' => 'User',
+            'email' => $email,
+            'custom_value1' => "Pancake user ID: {$user->id}",
+            'custom_value2' => $username,
+            'company_user' => [
+                'is_admin' => mb_strtolower(trim((string) ($group->name ?? ''))) === 'admin',
+                'is_locked' => (int) $user->active !== 1,
+                'permissions' => '',
+                'settings' => null,
+            ],
+        ]);
+    }
+
+    /** @return array<string, mixed> */
     public function company(object $identity): array
     {
         $address = $this->address_parser->parse((string) $identity->mailing_address);
@@ -405,6 +427,7 @@ class DatabaseTransformer
         array $row_taxes,
         array $partials = [],
         string|int|null $client_source_id = null,
+        ?bool $project_client_matches = null,
     ): array {
         $entity = $this->documentEntity($invoice);
         $date = $this->date($invoice->date_entered);
@@ -429,6 +452,9 @@ class DatabaseTransformer
                 trim((string) $invoice->status) !== '' ? "Pancake status: {$invoice->status}" : '',
                 (int) $invoice->is_paid === 1 ? 'Pancake marked paid: Yes' : '',
                 (int) $invoice->is_archived === 1 ? 'Pancake archived: Yes' : '',
+                (int) $invoice->project_id > 0 && $project_client_matches === false
+                    ? "Pancake project link omitted: project {$invoice->project_id} belongs to a different client."
+                    : '',
                 $this->paymentScheduleNotes($partials),
             ]))),
             'uses_inclusive_taxes' => false,
@@ -465,7 +491,7 @@ class DatabaseTransformer
             $client_source_id ?? $invoice->client_id,
         )];
 
-        if ((int) $invoice->project_id > 0) {
+        if ((int) $invoice->project_id > 0 && $project_client_matches !== false) {
             $references[] = $this->reference('project_id', DatabaseEntity::Projects, $invoice->project_id, false);
         }
 
@@ -480,8 +506,12 @@ class DatabaseTransformer
     }
 
     /** @param array<int, object> $sections @return array<string, mixed> */
-    public function proposal(object $proposal, array $sections, string|int|null $client_source_id = null): array
-    {
+    public function proposal(
+        object $proposal,
+        array $sections,
+        string|int|null $client_source_id = null,
+        ?bool $project_client_matches = null,
+    ): array {
         $contents = array_map(function (object $section): string {
             return trim(implode("\n", array_filter([
                 (string) $section->title,
@@ -502,6 +532,9 @@ class DatabaseTransformer
                     : '',
                 "Pancake status: {$proposal->status}",
                 (int) $proposal->is_archived === 1 ? 'Pancake archived: Yes' : '',
+                (int) $proposal->project_id > 0 && $project_client_matches === false
+                    ? "Pancake project link omitted: project {$proposal->project_id} belongs to a different client."
+                    : '',
             ]))),
             'line_items' => [[
                 'product_key' => (string) ($proposal->title ?: 'Proposal'),
@@ -517,7 +550,7 @@ class DatabaseTransformer
             $client_source_id ?? $proposal->client_id,
         )];
 
-        if ((int) $proposal->project_id > 0) {
+        if ((int) $proposal->project_id > 0 && $project_client_matches !== false) {
             $references[] = $this->reference('project_id', DatabaseEntity::Projects, $proposal->project_id, false);
         }
 

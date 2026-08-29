@@ -91,6 +91,7 @@ const gatewayCheckoutReadySelectors = [
     '#paypal-payment',
     '#paypal-ppcp-payment',
     '#paypal-button-container',
+    '#forte--credit-card-container',
 ] as const;
 
 async function isPayPalCheckoutInteractive(page: Page): Promise<boolean> {
@@ -1051,6 +1052,7 @@ export async function submitRequiredClientInfoIfPresent(
         .or(page.locator('#dropin-container'))
         .or(page.locator('#card-element'))
         .or(page.locator('#payment-form'))
+        .or(page.locator('#forte--credit-card-container'))
         .first()
         .waitFor({ state: 'visible', timeout: 30_000 })
         .catch(() => null);

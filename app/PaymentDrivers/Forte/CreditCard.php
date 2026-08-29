@@ -32,9 +32,6 @@ class CreditCard implements LivewireMethodInterface
     public $forte;
 
     private $forte_base_uri = "";
-    private $forte_api_access_id = "";
-    private $forte_secure_key = "";
-    private $forte_auth_organization_id = "";
     private $forte_organization_id = "";
     private $forte_location_id = "";
 
@@ -46,9 +43,6 @@ class CreditCard implements LivewireMethodInterface
         if ($this->forte->company_gateway->getConfigField('testMode') == false) {
             $this->forte_base_uri = "https://api.forte.net/v3/";
         }
-        $this->forte_api_access_id = $this->forte->company_gateway->getConfigField('apiAccessId');
-        $this->forte_secure_key = $this->forte->company_gateway->getConfigField('secureKey');
-        $this->forte_auth_organization_id = $this->forte->company_gateway->getConfigField('authOrganizationId');
         $this->forte_organization_id = $this->forte->company_gateway->getConfigField('organizationId');
         $this->forte_location_id = $this->forte->company_gateway->getConfigField('locationId');
     }
@@ -203,42 +197,24 @@ class CreditCard implements LivewireMethodInterface
         }
 
         try {
-            $curl = curl_init();
+            $response = $this->forte->transactionRequest()->post(
+                "{$this->forte_base_uri}organizations/{$this->forte_organization_id}/locations/{$this->forte_location_id}/transactions",
+                [
+                    'action' => 'sale',
+                    'authorization_amount' => $amount_with_fee,
+                    'service_fee_amount' => $fee_total,
+                    'billing_address' => [
+                        'first_name' => $this->forte->client->present()->first_name(),
+                        'last_name' => $this->forte->client->present()->last_name(),
+                    ],
+                    'card' => [
+                        'one_time_token' => $request->payment_token,
+                    ],
+                ]
+            );
 
-            curl_setopt_array($curl, [
-                CURLOPT_URL => $this->forte_base_uri . 'organizations/' . $this->forte_organization_id . '/locations/' . $this->forte_location_id . '/transactions',
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_POSTFIELDS => '{
-                     "action":"sale", 
-                     "authorization_amount":' . $amount_with_fee . ',
-                     "service_fee_amount":' . $fee_total . ',
-                     "billing_address":{
-                        "first_name":"' . $this->forte->client->present()->first_name() . '",
-                        "last_name":"' . $this->forte->client->present()->last_name() . '"
-                     },
-                     "card":{
-                        "one_time_token":"' . $request->payment_token . '"
-                     }
-              }',
-                CURLOPT_HTTPHEADER => [
-                    'Content-Type: application/json',
-                    'X-Forte-Auth-Organization-Id: ' . $this->forte_organization_id,
-                    'Authorization: Basic ' . base64_encode($this->forte_api_access_id . ':' . $this->forte_secure_key),
-                ],
-            ]);
-
-            $response = curl_exec($curl);
-            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-            curl_close($curl);
-
-            $response = json_decode($response);
+            $httpcode = $response->status();
+            $response = $response->object();
 
         } catch (\Throwable $th) {
             throw $th;

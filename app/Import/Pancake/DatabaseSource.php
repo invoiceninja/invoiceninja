@@ -171,6 +171,7 @@ class DatabaseSource
     public function records(DatabaseEntity $entity): iterable
     {
         return match ($entity) {
+            DatabaseEntity::Users => $this->userRecords(),
             DatabaseEntity::Company => $this->companyRecords(),
             DatabaseEntity::TaxRates => $this->taxRateRecords(),
             DatabaseEntity::Clients => $this->clientRecords(),
@@ -228,6 +229,8 @@ class DatabaseSource
             'ticket_priorities',
             'ticket_statuses',
             'tickets',
+            'groups',
+            'users',
         ];
         $counts = [];
 
@@ -268,6 +271,19 @@ class DatabaseSource
             rtrim($api_url, '/'),
             hash('sha256', $api_token),
         ]));
+    }
+
+    /** @return iterable<int, array<string, mixed>> */
+    private function userRecords(): iterable
+    {
+        $groups = $this->keyed('groups');
+
+        return $this->query('users')->orderBy('id')->get()->map(
+            fn(object $user): array => $this->transformer->user(
+                $user,
+                $groups[(int) $user->group_id] ?? null,
+            ),
+        );
     }
 
     /** @return iterable<int, array<string, mixed>> */
@@ -450,6 +466,14 @@ class DatabaseSource
     {
         $invoices = $this->query('invoices')->whereIn('id', $this->invoiceIds())->orderBy('id')->get()
             ->filter(fn(object $invoice): bool => $this->transformer->documentEntity($invoice) === $entity);
+        $project_ids = $invoices->pluck('project_id')
+            ->map(fn(mixed $id): int => (int) $id)
+            ->filter(fn(int $id): bool => $id > 0)
+            ->values()
+            ->all();
+        $projects = $this->hasTable('projects')
+            ? $this->query('projects')->whereIn('id', $project_ids)->get()->keyBy('id')
+            : collect();
         $unique_ids = $invoices->pluck('unique_id')->filter()->values()->all();
         $rows = $this->query('invoice_rows')
             ->whereIn('unique_id', $unique_ids)
@@ -472,13 +496,25 @@ class DatabaseSource
             }
         }
 
-        $records = $invoices->map(fn(object $invoice): array => $this->transformer->document(
-            $invoice,
-            $rows->get((string) $invoice->unique_id, collect())->all(),
-            $row_taxes,
-            $partials->get((string) $invoice->unique_id, collect())->all(),
-            $this->clientSourceId((int) $invoice->client_id, (int) $invoice->currency_id),
-        ));
+        $records = $invoices->map(function (object $invoice) use ($partials, $projects, $row_taxes, $rows): array {
+            $client_source_id = $this->clientSourceId((int) $invoice->client_id, (int) $invoice->currency_id);
+            $project = $projects->get((int) $invoice->project_id);
+            $project_client_matches = is_object($project)
+                ? (string) $client_source_id === (string) $this->clientSourceId(
+                    (int) $project->client_id,
+                    (int) $project->currency_id,
+                )
+                : null;
+
+            return $this->transformer->document(
+                $invoice,
+                $rows->get((string) $invoice->unique_id, collect())->all(),
+                $row_taxes,
+                $partials->get((string) $invoice->unique_id, collect())->all(),
+                $client_source_id,
+                $project_client_matches,
+            );
+        });
 
         if ($entity === DatabaseEntity::Quotes && $this->hasTable('proposals')) {
             $proposals = $this->query('proposals')
@@ -496,7 +532,18 @@ class DatabaseSource
                 $client_source_id = is_object($project)
                     ? $this->clientSourceId((int) $proposal->client_id, (int) $project->currency_id)
                     : $proposal->client_id;
-                $records->push($this->transformer->proposal($proposal, $sections, $client_source_id));
+                $project_client_matches = is_object($project)
+                    ? (string) $client_source_id === (string) $this->clientSourceId(
+                        (int) $project->client_id,
+                        (int) $project->currency_id,
+                    )
+                    : null;
+                $records->push($this->transformer->proposal(
+                    $proposal,
+                    $sections,
+                    $client_source_id,
+                    $project_client_matches,
+                ));
             }
         }
 

@@ -67,6 +67,7 @@ class DatabaseImporter
                 }
 
                 try {
+                    $this->validateRecordEntity($entity, $record);
                     $payload = $this->resolveReferences($record, $state);
 
                     if ($dry_run) {
@@ -164,6 +165,32 @@ class DatabaseImporter
         }
 
         return [...$totals, 'entities' => $entity_totals];
+    }
+
+    /** @param array<string, mixed> $record */
+    private function validateRecordEntity(DatabaseEntity $entity, array $record): void
+    {
+        $record_entity = $record['entity'] ?? null;
+
+        if (! $record_entity instanceof DatabaseEntity || $record_entity !== $entity) {
+            $actual = $record_entity instanceof DatabaseEntity ? $record_entity->value : get_debug_type($record_entity);
+
+            throw new RuntimeException(sprintf(
+                'Pancake record entity mismatch: importing [%s], received [%s].',
+                $entity->value,
+                $actual,
+            ));
+        }
+
+        $payload = is_array($record['payload'] ?? null) ? $record['payload'] : [];
+
+        if ($entity === DatabaseEntity::Users && array_key_exists('contacts', $payload)) {
+            throw new RuntimeException('A Pancake client/contact payload cannot be imported as an Invoice Ninja user.');
+        }
+
+        if ($entity === DatabaseEntity::Clients && array_key_exists('company_user', $payload)) {
+            throw new RuntimeException('A Pancake user payload cannot be imported as an Invoice Ninja client.');
+        }
     }
 
     /** @param array<string, mixed> $record */
