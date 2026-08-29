@@ -26,6 +26,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * @property int $id
  * @property int $user_id
+ * @property string|null $hash
+ * @property object|null $meta
  * @property int|null $assigned_user_id
  * @property int $company_id
  * @property int|null $client_id
@@ -110,6 +112,7 @@ class Project extends BaseModel
         'assigned_user_id',
         'color',
         'number',
+        'hash',
     ];
 
     protected $with = [
