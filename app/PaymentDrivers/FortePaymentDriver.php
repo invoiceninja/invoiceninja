@@ -117,7 +117,7 @@ class FortePaymentDriver extends BaseDriver
               }',
                 CURLOPT_HTTPHEADER => [
                     'Content-Type: application/json',
-                    'X-Forte-Auth-Organization-Id: ' . $forte_auth_organization_id,
+                    'X-Forte-Auth-Organization-Id: ' . $forte_organization_id,
                     'Authorization: Basic ' . base64_encode($forte_api_access_id . ':' . $forte_secure_key),
                 ],
             ]);
@@ -244,7 +244,7 @@ class FortePaymentDriver extends BaseDriver
         $forte_api_access_id = $this->company_gateway->getConfigField('apiAccessId');
         $forte_secure_key = $this->company_gateway->getConfigField('secureKey');
         return Http::withBasicAuth($forte_api_access_id, $forte_secure_key)
-                    ->withHeaders(['X-Forte-Auth-Organization-Id' => $this->getAuthOrganisationId()]);
+                    ->withHeaders(['X-Forte-Auth-Organization-Id' => $this->getOrganisationId()]);
     }
 
     private function getClient(?string $email)

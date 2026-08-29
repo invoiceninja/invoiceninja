@@ -180,7 +180,7 @@ class GatewayAuthTest extends TestCase
         $this->assertSame('error', (new RazorpayPaymentDriver($gateway))->auth());
     }
 
-    public function testForteUsesTheAuthorizationOrganizationHeader(): void
+    public function testForteUsesTheTargetOrganizationForAuthorization(): void
     {
         $gateway = $this->companyGateway([
             'apiAccessId' => 'access',
@@ -195,7 +195,7 @@ class GatewayAuthTest extends TestCase
 
         $this->assertSame('ok', (new FortePaymentDriver($gateway))->auth());
         Http::assertSent(function (Request $request) {
-            return $request->hasHeader('X-Forte-Auth-Organization-Id', 'org_auth')
+            return $request->hasHeader('X-Forte-Auth-Organization-Id', 'org_target')
                 && $request->hasHeader('Authorization', 'Basic ' . base64_encode('access:secret'))
                 && str_contains($request->url(), '/organizations/org_target/locations/loc_target');
         });
