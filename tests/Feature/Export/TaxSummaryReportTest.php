@@ -158,6 +158,42 @@ class TaxSummaryReportTest extends TestCase
         $this->account->delete();
     }
 
+    public function testAllTimeIncludesTaxRecordsBeforeTheFallbackDate(): void
+    {
+        $this->buildData();
+
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'number' => 'ALL-TIME-TAX',
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => '1999-01-01',
+            'discount' => 0,
+            'tax_name1' => 'GST',
+            'tax_rate1' => 10,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+            'uses_inclusive_taxes' => false,
+            'line_items' => $this->buildLineItems(),
+            'is_deleted' => false,
+        ]);
+        $invoice->calc()->getInvoice()->save();
+
+        $output = (new TaxSummaryReport($this->company, [
+            'date_range' => 'all_time',
+            'client_id' => $this->client->id,
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ]))->run();
+
+        $this->assertStringContainsString('Invoice ALL-TIME-TAX', $output);
+
+        $this->account->delete();
+    }
+
     public function testCashTaxReport()
     {
         $this->buildData();

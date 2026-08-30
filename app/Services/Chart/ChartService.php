@@ -15,7 +15,12 @@ namespace App\Services\Chart;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Expense;
+use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\Project;
+use App\Models\Quote;
+use App\Models\RecurringExpense;
+use App\Models\RecurringInvoice;
 use App\Models\User;
 use App\Services\Chart\CashFlowForecastService;
 use App\Services\Chart\ClientPaymentAnalyticsService;
@@ -87,8 +92,12 @@ class ChartService
      * @param  string $end_date
      * @return array
      */
-    public function chart_summary($start_date, $end_date): array
+    public function chart_summary($start_date, $end_date, bool $all_time = false): array
     {
+        if ($all_time) {
+            $start_date = $this->firstChartDate($end_date);
+        }
+
         $currencies = $this->getCurrencyCodes();
 
         $data = [];
@@ -121,8 +130,12 @@ class ChartService
      * @param  string $end_date
      * @return array
      */
-    public function chart_summary_batched(string $start_date, string $end_date): array
+    public function chart_summary_batched(string $start_date, string $end_date, bool $all_time = false): array
     {
+        if ($all_time) {
+            $start_date = $this->firstChartDate($end_date);
+        }
+
         $currencies = $this->getCurrencyCodes();
 
         $data = [];
@@ -171,8 +184,12 @@ class ChartService
 
     /* Totals */
 
-    public function totals($start_date, $end_date): array
+    public function totals($start_date, $end_date, bool $all_time = false): array
     {
+        if ($all_time) {
+            $start_date = $this->firstChartDate($end_date);
+        }
+
         $data = [];
 
         $data['currencies'] = $this->getCurrencyCodes();
@@ -303,8 +320,12 @@ class ChartService
      * Analytics chart summary — time-series data for analytics charts.
      * Returns per-currency + aggregate (key 999) data matching chart_summary() format.
      */
-    public function analytics_summary($start_date, $end_date): array
+    public function analytics_summary($start_date, $end_date, bool $all_time = false): array
     {
+        if ($all_time) {
+            $start_date = $this->firstAnalyticsDate($end_date);
+        }
+
         $currencies = $this->getCurrencyCodes();
 
         $data = [];
@@ -330,8 +351,12 @@ class ChartService
      * Analytics totals — snapshot KPIs for analytics dashboard cards.
      * Returns per-currency + aggregate (key 999) data matching totals() format.
      */
-    public function analytics_totals($start_date, $end_date): array
+    public function analytics_totals($start_date, $end_date, bool $all_time = false): array
     {
+        if ($all_time) {
+            $start_date = $this->firstAnalyticsDate($end_date);
+        }
+
         $data = [];
 
         $data['currencies'] = $this->getCurrencyCodes();
@@ -371,8 +396,12 @@ class ChartService
     /**
      * Cash flow forecast — time-bucketed inflow/outflow projection.
      */
-    public function cashflow_forecast(string $start_date, string $end_date, string $bucket_type = 'monthly'): array
+    public function cashflow_forecast(string $start_date, string $end_date, string $bucket_type = 'monthly', bool $all_time = false): array
     {
+        if ($all_time) {
+            $start_date = $this->firstForecastDate($end_date);
+        }
+
         $forecast = new CashFlowForecastService($this->company, $start_date, $end_date, $bucket_type);
 
         return $forecast->generate(
@@ -459,6 +488,155 @@ class ChartService
         };
 
         return $results;
+    }
+
+    private function firstChartDate(string $end_date): string
+    {
+        $invoice_statuses = $this->include_drafts
+            ? [Invoice::STATUS_DRAFT, Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID]
+            : [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID];
+
+        return $this->firstDate([
+            Invoice::query()
+                ->withTrashed()
+                ->where('company_id', $this->company->id)
+                ->where('is_deleted', false)
+                ->whereIn('status_id', $invoice_statuses)
+                ->where('date', '!=', '0000-00-00')
+                ->where('date', '<=', $end_date)
+                ->whereHas('client', fn ($query) => $query->where('is_deleted', false))
+                ->when(! $this->is_admin, fn ($query) => $query->whereHas('client', fn ($client_query) => $client_query->where('user_id', $this->user->id)))
+                ->min('date'),
+            Payment::query()
+                ->withTrashed()
+                ->where('company_id', $this->company->id)
+                ->where('is_deleted', false)
+                ->whereIn('status_id', [
+                    Payment::STATUS_PENDING,
+                    Payment::STATUS_COMPLETED,
+                    Payment::STATUS_PARTIALLY_REFUNDED,
+                    Payment::STATUS_REFUNDED,
+                ])
+                ->where('date', '!=', '0000-00-00')
+                ->where('date', '<=', $end_date)
+                ->whereHas('client', fn ($query) => $query->where('is_deleted', false))
+                ->when(! $this->is_admin, fn ($query) => $query->where('user_id', $this->user->id))
+                ->min('date'),
+            Expense::query()
+                ->withTrashed()
+                ->where('company_id', $this->company->id)
+                ->where('is_deleted', false)
+                ->where('date', '!=', '0000-00-00')
+                ->where('date', '<=', $end_date)
+                ->where(fn ($query) => $query->whereNull('client_id')->orWhereHas('client', fn ($client_query) => $client_query->where('is_deleted', false)))
+                ->where(fn ($query) => $query->whereNull('vendor_id')->orWhereHas('vendor', fn ($vendor_query) => $vendor_query->where('is_deleted', false)))
+                ->when(! $this->is_admin, fn ($query) => $query->where('user_id', $this->user->id))
+                ->min('date'),
+        ]);
+    }
+
+    private function firstAnalyticsDate(string $end_date): string
+    {
+        return $this->firstDate([
+            Invoice::query()
+                ->withTrashed()
+                ->where('company_id', $this->company->id)
+                ->where('is_deleted', false)
+                ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
+                ->where('date', '!=', '0000-00-00')
+                ->where('date', '<=', $end_date)
+                ->whereHas('client', fn ($query) => $query->where('is_deleted', false))
+                ->when(! $this->is_admin, fn ($query) => $query->where('user_id', $this->user->id))
+                ->min('date'),
+            Quote::query()
+                ->withTrashed()
+                ->where('company_id', $this->company->id)
+                ->where('is_deleted', false)
+                ->whereIn('status_id', [Quote::STATUS_SENT, Quote::STATUS_APPROVED])
+                ->whereNull('invoice_id')
+                ->where(fn ($query) => $query->whereNull('due_date')->orWhere('due_date', '>=', now()->format('Y-m-d')))
+                ->where('date', '!=', '0000-00-00')
+                ->where('date', '<=', $end_date)
+                ->whereHas('client', fn ($query) => $query->where('is_deleted', false))
+                ->when(! $this->is_admin, fn ($query) => $query->where('user_id', $this->user->id))
+                ->min('date'),
+            RecurringInvoice::query()
+                ->withTrashed()
+                ->where('company_id', $this->company->id)
+                ->where('is_deleted', false)
+                ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
+                ->where('date', '!=', '0000-00-00')
+                ->where('date', '<=', $end_date)
+                ->whereHas('client', fn ($query) => $query->where('is_deleted', false))
+                ->when(! $this->is_admin, fn ($query) => $query->where('user_id', $this->user->id))
+                ->min('date'),
+        ]);
+    }
+
+    private function firstForecastDate(string $end_date): string
+    {
+        return $this->firstDate([
+            Invoice::query()
+                ->withTrashed()
+                ->where('company_id', $this->company->id)
+                ->where('is_deleted', false)
+                ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                ->where('date', '!=', '0000-00-00')
+                ->where('date', '<=', $end_date)
+                ->whereHas('client', fn ($query) => $query->where('is_deleted', false))
+                ->when(! $this->is_admin, fn ($query) => $query->where('user_id', $this->user->id))
+                ->min('date'),
+            Expense::query()
+                ->withTrashed()
+                ->where('company_id', $this->company->id)
+                ->where('is_deleted', false)
+                ->where('date', '!=', '0000-00-00')
+                ->where('date', '<=', $end_date)
+                ->where(fn ($query) => $query->whereNull('client_id')->orWhereHas('client', fn ($client_query) => $client_query->where('is_deleted', false)))
+                ->where(fn ($query) => $query->whereNull('vendor_id')->orWhereHas('vendor', fn ($vendor_query) => $vendor_query->where('is_deleted', false)))
+                ->when(! $this->is_admin, fn ($query) => $query->where('user_id', $this->user->id))
+                ->min('date'),
+            Quote::query()
+                ->withTrashed()
+                ->where('company_id', $this->company->id)
+                ->where('is_deleted', false)
+                ->whereIn('status_id', [Quote::STATUS_SENT, Quote::STATUS_APPROVED])
+                ->whereNull('invoice_id')
+                ->where('date', '!=', '0000-00-00')
+                ->where('date', '<=', $end_date)
+                ->whereHas('client', fn ($query) => $query->where('is_deleted', false))
+                ->when(! $this->is_admin, fn ($query) => $query->where('user_id', $this->user->id))
+                ->min('date'),
+            RecurringInvoice::query()
+                ->withTrashed()
+                ->where('company_id', $this->company->id)
+                ->where('is_deleted', false)
+                ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
+                ->where('date', '!=', '0000-00-00')
+                ->where('date', '<=', $end_date)
+                ->whereHas('client', fn ($query) => $query->where('is_deleted', false))
+                ->when(! $this->is_admin, fn ($query) => $query->where('user_id', $this->user->id))
+                ->min('date'),
+            RecurringExpense::query()
+                ->withTrashed()
+                ->where('company_id', $this->company->id)
+                ->where('is_deleted', false)
+                ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
+                ->where('next_send_date', '!=', '0000-00-00')
+                ->where('next_send_date', '<=', $end_date)
+                ->when(! $this->is_admin, fn ($query) => $query->where('user_id', $this->user->id))
+                ->min('next_send_date'),
+        ]);
+    }
+
+    /**
+     * @param array<int, mixed> $dates
+     */
+    private function firstDate(array $dates): string
+    {
+        $dates = array_values(array_filter($dates));
+
+        return $dates === [] ? '2000-01-01' : min($dates);
     }
 
 }

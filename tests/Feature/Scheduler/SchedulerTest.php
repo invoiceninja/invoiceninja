@@ -18,6 +18,7 @@ use App\Models\Task;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\DataMapper\CompanySettings;
 use App\Models\Project;
 use App\Models\Scheduler;
@@ -26,6 +27,7 @@ use App\Utils\Traits\MakesHash;
 use App\Models\RecurringInvoice;
 use App\Factory\SchedulerFactory;
 use App\Services\Scheduler\EmailReport;
+use App\Services\Scheduler\InvoiceOutstandingTasksService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Session;
 use App\DataMapper\Schedule\EmailStatement;
@@ -1874,6 +1876,23 @@ class SchedulerTest extends TestCase
         $this->assertTaskHashedIdNotInList($outTask->hashed_id, $ids);
     }
 
+    public function testAllTimeOutstandingTasksUsesFallbackWhenThereAreNoTasks(): void
+    {
+        Task::query()
+            ->where('company_id', $this->company->id)
+            ->update(['is_deleted' => true]);
+
+        $scheduler = $this->createInvoiceOutstandingTasksSchedulerViaApi([
+            'date_range' => EmailStatement::ALL_TIME,
+        ]);
+        $service = new InvoiceOutstandingTasksService($scheduler);
+        $method = new \ReflectionMethod(InvoiceOutstandingTasksService::class, 'calculateStartAndEndDates');
+        $dates = $method->invoke($service);
+
+        $this->assertSame('2000-01-01', $dates[0]);
+        $this->assertSame(now()->format('Y-m-d'), $dates[1]);
+    }
+
     public function testInvoiceOutstandingTasksIncludeProjectTasksWhenEnabled()
     {
         $this->travelTo(Carbon::parse('2026-06-15 12:00:00', 'UTC'));
@@ -2620,6 +2639,65 @@ class SchedulerTest extends TestCase
         $this->assertEquals(EmailStatement::LAST_MONTH, $scheduler->parameters['date_range']);
 
         $this->assertSameTwoDateStringsOrderIndependent(['2022-12-01', '2022-12-31'], $method);
+    }
+
+    public function testAllTimeStatementStartsAtTheFirstStatementRecord(): void
+    {
+        Payment::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'status_id' => Payment::STATUS_COMPLETED,
+            'is_deleted' => false,
+            'date' => '1900-01-01',
+        ]);
+
+        $scheduler = SchedulerFactory::create($this->company->id, $this->user->id);
+        $scheduler->fill([
+            'name' => 'An all time statement scheduler',
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'client_statement',
+            'parameters' => [
+                'date_range' => EmailStatement::ALL_TIME,
+                'clients' => [],
+            ],
+        ]);
+        $scheduler->save();
+
+        $service = new EmailStatementService($scheduler);
+        $method = new \ReflectionMethod(EmailStatementService::class, 'calculateStartAndEndDates');
+        $dates = $method->invoke($service, $this->client);
+
+        $this->assertSame('1900-01-01', $dates[0]);
+        $this->assertSame(now()->format('Y-m-d'), $dates[1]);
+    }
+
+    public function testAllTimeStatementUsesFallbackWhenTheClientHasNoRecords(): void
+    {
+        $client = Client::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+        ]);
+        $scheduler = SchedulerFactory::create($this->company->id, $this->user->id);
+        $scheduler->fill([
+            'name' => 'An empty all time statement scheduler',
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'client_statement',
+            'parameters' => [
+                'date_range' => EmailStatement::ALL_TIME,
+                'clients' => [],
+            ],
+        ]);
+        $scheduler->save();
+
+        $service = new EmailStatementService($scheduler);
+        $method = new \ReflectionMethod(EmailStatementService::class, 'calculateStartAndEndDates');
+        $dates = $method->invoke($service, $client);
+
+        $this->assertSame('2000-01-01', $dates[0]);
+        $this->assertSame(now()->format('Y-m-d'), $dates[1]);
     }
 
     public function testCalculateStatementProperties()

@@ -34,7 +34,7 @@ trait ChartCalculations
                     ->where('is_deleted', 0)
                     ->whereIn('status_id', [2,3,4]);
 
-        if (in_array($data['period'], ['current','previous'])) {
+        if (in_array($data['period'], ['current','previous']) && ($data['date_range'] ?? null) !== 'all_time') {
             $q->whereBetween('date', [$data['start_date'], $data['end_date']]);
         }
 
@@ -59,7 +59,7 @@ trait ChartCalculations
                     ->where('is_deleted', 0)
                     ->whereIn('status_id', [2,3]);
 
-        if (in_array($data['period'], ['current','previous'])) {
+        if (in_array($data['period'], ['current','previous']) && ($data['date_range'] ?? null) !== 'all_time') {
             $q->whereBetween('date', [$data['start_date'], $data['end_date']]);
         }
 
@@ -84,7 +84,7 @@ trait ChartCalculations
                     ->where('is_deleted', 0)
                     ->where('status_id', 4);
 
-        if (in_array($data['period'], ['current','previous'])) {
+        if (in_array($data['period'], ['current','previous']) && ($data['date_range'] ?? null) !== 'all_time') {
             $q->whereBetween('date', [$data['start_date'], $data['end_date']]);
         }
 
@@ -109,7 +109,7 @@ trait ChartCalculations
                     ->where('is_deleted', 0)
                     ->whereIn('status_id', [5,6]);
 
-        if (in_array($data['period'], ['current','previous'])) {
+        if (in_array($data['period'], ['current','previous']) && ($data['date_range'] ?? null) !== 'all_time') {
             $q->whereBetween('date', [$data['start_date'], $data['end_date']]);
         }
 
@@ -137,7 +137,7 @@ trait ChartCalculations
                         $qq->where('due_date', '>=', now()->toDateString())->orWhereNull('due_date');
                     });
 
-        if (in_array($data['period'], ['current','previous'])) {
+        if (in_array($data['period'], ['current','previous']) && ($data['date_range'] ?? null) !== 'all_time') {
             $q->whereBetween('date', [$data['start_date'], $data['end_date']]);
         }
 
@@ -165,7 +165,7 @@ trait ChartCalculations
                         $qq->where('due_date', '>=', now()->toDateString())->orWhereNull('due_date');
                     });
 
-        if (in_array($data['period'], ['current','previous'])) {
+        if (in_array($data['period'], ['current','previous']) && ($data['date_range'] ?? null) !== 'all_time') {
             $q->whereBetween('date', [$data['start_date'], $data['end_date']]);
         }
 
@@ -312,7 +312,7 @@ trait ChartCalculations
                         ->where('company_id', $this->company->id)
                         ->where('is_deleted', 0);
 
-        if (in_array($data['period'], ['current','previous'])) {
+        if (in_array($data['period'], ['current','previous']) && ($data['date_range'] ?? null) !== 'all_time') {
             $query->whereBetween('date', [$data['start_date'], $data['end_date']]);
         }
 
@@ -344,7 +344,7 @@ trait ChartCalculations
                     ->where('company_id', $this->company->id)
                     ->where('is_deleted', 0);
 
-        if (in_array($data['period'], ['current','previous'])) {
+        if (in_array($data['period'], ['current','previous']) && ($data['date_range'] ?? null) !== 'all_time') {
             $q->whereBetween('calculated_start_date', [$data['start_date'], $data['end_date']]);
         }
 

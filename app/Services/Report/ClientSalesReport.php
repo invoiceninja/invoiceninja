@@ -212,7 +212,7 @@ class ClientSalesReport extends BaseExport
         }
 
         $data = [];
-        $is_all = ($this->input['date_range'] ?? null) === 'all';
+        $is_all = in_array($this->input['date_range'] ?? null, ['all', 'all_time'], true);
 
         foreach ($this->paymentApplications(
             $clientIds,
@@ -304,7 +304,7 @@ class ClientSalesReport extends BaseExport
     private function resolveMonthAxis(): void
     {
         $dateRange = $this->input['date_range'] ?? '';
-        $unresolved = $dateRange === 'all' || $this->start_date === 'All available data' || empty($this->start_date) || empty($this->end_date);
+        $unresolved = in_array($dateRange, ['all', 'all_time'], true) || $this->start_date === 'All available data' || empty($this->start_date) || empty($this->end_date);
 
         if ($unresolved) {
             // No explicit range: derive an end date from the most recent

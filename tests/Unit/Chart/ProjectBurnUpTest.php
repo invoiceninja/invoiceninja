@@ -350,6 +350,37 @@ class ProjectBurnUpTest extends TestCase
         $this->assertEqualsWithDelta(75.0, $response->json('totals.paid_to_date'), 0.01);
     }
 
+    public function testAllTimeProjectBurnUpStartsAtProjectCreation(): void
+    {
+        $project = $this->createProject($this->company, $this->client);
+        $project->created_at = '2025-01-01 00:00:00';
+        $project->save();
+
+        Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'project_id' => $project->id,
+            'amount' => 125,
+            'paid_to_date' => 75,
+            'status_id' => Invoice::STATUS_PARTIAL,
+            'date' => '2025-01-02',
+            'is_deleted' => false,
+        ]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post("/api/v1/charts/project_burnup/{$project->hashed_id}", [
+            'date_range' => 'all_time',
+            'bucket_type' => 'monthly',
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertSame('2025-01-01', $response->json('start_date'));
+        $this->assertEqualsWithDelta(125.0, $response->json('totals.invoiced_amount'), 0.01);
+    }
+
     public function testProjectBurnUpEndpointRejectsRawProjectId(): void
     {
         $project = $this->createProject($this->company, $this->client);
