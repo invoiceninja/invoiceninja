@@ -405,7 +405,7 @@ class CompanyExport implements ShouldQueue
             $project = $this->transformBasicEntities($project);
             $project = $this->transformArrayOfKeys($project, ['client_id']);
 
-            return $this->withoutRelations($project->makeVisible(['id']));
+            return $this->withoutRelations($project->makeHidden(['hash', 'meta'])->makeVisible(['id']));
         })->all();
 
 
