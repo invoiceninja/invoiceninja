@@ -488,7 +488,7 @@ class InvoiceSumInclusive
         return round($this->getNetSubtotal() * $this->getCashDiscountRatio(), $this->precision);
     }
 
-    private function getCashDiscountRatio(): float
+    public function getCashDiscountRatio(): float
     {
         return $this->reductionRatio(
             (float) $this->invoice->amount,

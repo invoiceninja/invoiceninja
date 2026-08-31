@@ -1152,6 +1152,66 @@ class TaxSummaryReportTest extends TestCase
         $this->account->delete();
     }
 
+    public function testCashDiscountAdjustsTaxSummary(): void
+    {
+        $this->buildData();
+
+        $taxable_item = InvoiceItemFactory::create();
+        $taxable_item->quantity = 1;
+        $taxable_item->cost = 100;
+        $taxable_item->tax_name1 = 'GST';
+        $taxable_item->tax_rate1 = 10;
+        $taxable_item->tax_name2 = '';
+        $taxable_item->tax_rate2 = 0;
+        $taxable_item->tax_name3 = '';
+        $taxable_item->tax_rate3 = 0;
+
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => now()->toDateString(),
+            'discount' => 0,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+            'uses_inclusive_taxes' => false,
+            'line_items' => [$taxable_item],
+            'cash_discount_percent' => 10,
+            'cash_discount_due_date' => now()->addDays(14)->toDateString(),
+        ]);
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->service()->markPaid(apply_cash_discount: true)->save();
+
+        $report = new TaxSummaryReport($this->company, [
+            'start_date' => now()->startOfMonth()->toDateString(),
+            'end_date' => now()->endOfMonth()->toDateString(),
+            'date_range' => 'custom',
+            'client_id' => $this->client->id,
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ]);
+        $report->run();
+
+        $reflection = new \ReflectionClass($report);
+        $property = $reflection->getProperty('taxes');
+        $property->setAccessible(true);
+        $taxes = $property->getValue($report);
+        $amount = fn (string $value): float => (float) preg_replace('/[^0-9.\-]/', '', $value);
+
+        $this->assertSame(99.0, $amount($taxes['gross_sales']));
+        $this->assertSame(99.0, $amount($taxes['taxable_sales']));
+        $this->assertSame(0.0, $amount($taxes['exempt_sales']));
+        $this->assertSame(9.0, $amount($taxes['accrual_invoice_map'][0]['tax']));
+        $this->assertSame(90.0, (float) $taxes['accrual_invoice_map'][0]['base_amount']);
+
+        $this->account->delete();
+    }
+
     public function testInvoiceReversalIsReportedInCashSummaryAndProfitLoss(): void
     {
         $this->buildData();
