@@ -1079,10 +1079,16 @@ class LoginController extends BaseController
         ]);
 
         // Fall back to a one-time email link for accounts provisioned
-        // outside of OIDC. Only link when the account has no other
-        // OAuth provider attached, to avoid hijacking a google/microsoft
-        // linkage silently.
-        if (!$user && $socialite_user->getEmail()) {
+        // outside of OIDC. Only link when:
+        //  * the IdP asserts email_verified: true — otherwise an attacker
+        //    who can register an unverified account at the IdP under a
+        //    victim's address could take over the matching local account;
+        //  * the local account has no other OAuth provider attached, to
+        //    avoid silently hijacking a google/microsoft linkage.
+        $raw = $socialite_user->getRaw();
+        $email_verified = ($raw['email_verified'] ?? false) === true;
+
+        if (!$user && $email_verified && $socialite_user->getEmail()) {
             $email_user = MultiDB::hasUser(['email' => $socialite_user->getEmail()]);
 
             if ($email_user && (!$email_user->oauth_provider_id || $email_user->oauth_provider_id === 'oidc')) {

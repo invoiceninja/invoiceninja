@@ -48,12 +48,16 @@ class Provider extends AbstractProvider implements ProviderInterface
      * the HMAC secret). Used only when the IdP's discovery document
      * omits `id_token_signing_alg_values_supported`.
      *
+     * Scoped to what firebase/php-jwt v7.x actually implements: RS*, PS256,
+     * ES256/ES384, and EdDSA. PS384/PS512/ES512 are intentionally excluded
+     * because JWT::decode would throw "Algorithm not supported" at runtime.
+     *
      * @var string[]
      */
     protected const ID_TOKEN_ALG_ALLOWLIST = [
         'RS256', 'RS384', 'RS512',
-        'PS256', 'PS384', 'PS512',
-        'ES256', 'ES384', 'ES512',
+        'PS256',
+        'ES256', 'ES384',
         'EdDSA',
     ];
 
@@ -61,14 +65,15 @@ class Provider extends AbstractProvider implements ProviderInterface
      * Map from a signing alg to the JWK `kty` value we require on the
      * matching public key. Enforced so a JWK of the wrong shape cannot
      * be reinterpreted as material for a different algorithm family
-     * (again: alg-confusion defence).
+     * (again: alg-confusion defence). Kept in lock-step with the
+     * allowlist above.
      *
      * @var array<string,string>
      */
     protected const ALG_KTY_MAP = [
         'RS256' => 'RSA', 'RS384' => 'RSA', 'RS512' => 'RSA',
-        'PS256' => 'RSA', 'PS384' => 'RSA', 'PS512' => 'RSA',
-        'ES256' => 'EC',  'ES384' => 'EC',  'ES512' => 'EC',
+        'PS256' => 'RSA',
+        'ES256' => 'EC',  'ES384' => 'EC',
         'EdDSA' => 'OKP',
     ];
 
@@ -281,6 +286,18 @@ class Provider extends AbstractProvider implements ProviderInterface
             $claims = (array) JWT::decode($idToken, $key);
         } catch (\Throwable $e) {
             throw new \RuntimeException('OIDC id_token signature verification failed: ' . $e->getMessage(), 0, $e);
+        }
+
+        // OIDC Core §2 requires both iat and exp. JWT::decode enforces exp
+        // when present, but treats an absent claim as "no expiry" — which
+        // would let a token with no lifetime be replayed forever. Reject
+        // outright.
+        if (!isset($claims['exp']) || !is_numeric($claims['exp'])) {
+            throw new \RuntimeException('OIDC id_token is missing required exp claim.');
+        }
+
+        if (!isset($claims['iat']) || !is_numeric($claims['iat'])) {
+            throw new \RuntimeException('OIDC id_token is missing required iat claim.');
         }
 
         if (($claims['iss'] ?? null) !== $issuer) {
