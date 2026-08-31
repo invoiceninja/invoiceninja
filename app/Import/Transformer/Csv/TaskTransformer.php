@@ -14,6 +14,7 @@ namespace App\Import\Transformer\Csv;
 
 use App\Import\Transformer\BaseTransformer;
 use App\Models\TaskStatus;
+use Carbon\Carbon;
 
 /**
  * Class TaskTransformer.
@@ -59,6 +60,10 @@ class TaskTransformer extends BaseTransformer
             'client_id' => $clientId,
             'project_id' => $this->getProjectId($projectId, $clientId),
             'description' => $this->getString($task_data, 'task.description'),
+            'due_date' => $this->getImportDate($task_data, 'task.due_date'),
+            'estimated_duration' => isset($task_data['task.estimated_duration']) && $task_data['task.estimated_duration'] !== ''
+                ? $this->getNumber($task_data, 'task.estimated_duration')
+                : null,
             'status_id' => $this->getTaskStatusId($task_data),
             'custom_value1' => $this->getCustomFieldValue('task1', $this->getString($task_data, 'task.custom_value1')),
             'custom_value2' => $this->getCustomFieldValue('task2', $this->getString($task_data, 'task.custom_value2')),
@@ -237,6 +242,19 @@ class TaskTransformer extends BaseTransformer
             ->orderBy('status_order', 'asc')
             ->first()->id ?? null;
 
+    }
+
+    private function getImportDate(array $data, string $field): ?string
+    {
+        if (!isset($data[$field]) || $data[$field] === '') {
+            return null;
+        }
+
+        try {
+            return Carbon::parse($data[$field])->format('Y-m-d');
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
 }

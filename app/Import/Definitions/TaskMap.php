@@ -30,12 +30,14 @@ class TaskMap
             10 => 'task.start_time',
             11 => 'task.end_time',
             12 => 'task.duration',
-            13 => 'task.status',
-            14 => 'task.custom_value1',
-            15 => 'task.custom_value2',
-            16 => 'task.custom_value3',
-            17 => 'task.custom_value4',
-            18 => 'task.notes',
+            13 => 'task.due_date',
+            14 => 'task.estimated_duration',
+            15 => 'task.status',
+            16 => 'task.custom_value1',
+            17 => 'task.custom_value2',
+            18 => 'task.custom_value3',
+            19 => 'task.custom_value4',
+            20 => 'task.notes',
         ];
     }
 
@@ -55,12 +57,14 @@ class TaskMap
             10 => 'texts.start_time',
             11 => 'texts.end_time',
             12 => 'texts.duration',
-            13 => 'texts.status',
-            14 => 'texts.task1',
-            15 => 'texts.task2',
-            16 => 'texts.task3',
-            17 => 'texts.task4',
-            18 => 'texts.notes',
+            13 => 'texts.due_date',
+            14 => 'texts.estimated_duration',
+            15 => 'texts.status',
+            16 => 'texts.task1',
+            17 => 'texts.task2',
+            18 => 'texts.task3',
+            19 => 'texts.task4',
+            20 => 'texts.notes',
         ];
     }
 }

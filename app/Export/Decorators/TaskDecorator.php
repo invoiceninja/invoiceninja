@@ -121,6 +121,28 @@ class TaskDecorator extends Decorator implements DecoratorInterface
         return $task->calcDuration();
     }
 
+    public function due_date(Task $task)
+    {
+        if (!$task->due_date) {
+            return '';
+        }
+
+        $date_format_default = 'Y-m-d';
+
+        $date_format = DateFormat::find($task->company->settings->date_format_id);
+
+        if ($date_format) {
+            $date_format_default = $date_format->format;
+        }
+
+        return Carbon::parse($task->due_date)->format($date_format_default);
+    }
+
+    public function estimated_duration(Task $task)
+    {
+        return is_null($task->estimated_duration) ? '' : (int) $task->estimated_duration;
+    }
+
     public function status_id(Task $task)
     {
         return $task->status()->exists() ? $task->status->name : '';

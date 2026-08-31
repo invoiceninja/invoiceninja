@@ -69,6 +69,75 @@ class TaskImportTest extends TestCase
         }
     }
 
+    public function testTaskTransformerMapsDueDateAndEstimatedDuration(): void
+    {
+        $transformer = new TaskTransformer($this->company);
+
+        $transformed = $transformer->transform([
+            'task.number' => 'due-date-task',
+            'task.description' => 'Imported task',
+            'task.due_date' => '2026-09-15',
+            'task.estimated_duration' => '7200',
+            'task.start_date' => '2026-01-01',
+            'task.start_time' => '09:00',
+            'task.end_date' => '2026-01-01',
+            'task.end_time' => '10:00',
+        ]);
+
+        $this->assertSame('2026-09-15', $transformed['due_date']);
+        $this->assertSame(7200, $transformed['estimated_duration']);
+    }
+
+    public function testTaskImportMapsDueDateAndEstimatedDuration(): void
+    {
+        Task::query()
+            ->where('company_id', $this->company->id)
+            ->forceDelete();
+
+        $clientName = str_replace('"', '""', $this->client->name);
+
+        $csv = <<<CSV
+User,Client,Task,Description,Due Date,Estimated Duration,Billable,Start date,Start time,End date,End time
+Jimmy,"{$clientName}",T-IMPORT,Imported task,2026-09-15,7200,No,2026-01-01,09:00,2026-01-01,10:00
+CSV;
+
+        $hash = Str::random(32);
+        $column_map = [
+            0 => 'task.user_id',
+            1 => 'client.name',
+            2 => 'task.number',
+            3 => 'task.description',
+            4 => 'task.due_date',
+            5 => 'task.estimated_duration',
+            6 => 'task.billable',
+            7 => 'task.start_date',
+            8 => 'task.start_time',
+            9 => 'task.end_date',
+            10 => 'task.end_time',
+        ];
+
+        $data = [
+            'hash' => $hash,
+            'column_map' => ['task' => ['mapping' => $column_map]],
+            'skip_header' => true,
+            'import_type' => 'csv',
+        ];
+
+        Cache::put($hash.'-task', base64_encode($csv), 360);
+
+        $csv_importer = new Csv($data, $this->company);
+        $csv_importer->import('task');
+
+        $task = Task::query()
+            ->where('company_id', $this->company->id)
+            ->where('number', 'T-IMPORT')
+            ->first();
+
+        $this->assertNotNull($task);
+        $this->assertSame('2026-09-15', $task->due_date);
+        $this->assertSame(7200, $task->estimated_duration);
+    }
+
     public function testTaskImportWithGroupedTaskNumbers()
     {
         Task::query()

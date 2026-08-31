@@ -331,6 +331,10 @@ class TaskExport extends BaseExport
             $entity['task.assigned_user_id'] = $task->assigned_user ? $task->assigned_user->present()->name() : '';
         }
 
+        if (in_array('task.due_date', $this->input['report_keys']) || in_array('due_date', $this->input['report_keys'])) {
+            $entity['task.due_date'] = $this->decorator->task()->due_date($task);
+        }
+
 
         return $entity;
     }

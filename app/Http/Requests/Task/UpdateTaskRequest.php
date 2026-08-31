@@ -62,6 +62,8 @@ class UpdateTaskRequest extends Request
         }
 
         $rules['hash'] = 'bail|sometimes|string|nullable';
+        $rules['due_date'] = 'bail|sometimes|nullable|date:Y-m-d';
+        $rules['estimated_duration'] = 'bail|sometimes|nullable|integer|min:0';
 
         $rules['time_log'] = ['bail', function ($attribute, $values, $fail) {
 

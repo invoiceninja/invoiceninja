@@ -496,6 +496,8 @@ class BaseExport
         'end_time' => 'task.end_time',
         'duration' => 'task.duration',
         'duration_words' => 'task.duration_words',
+        'due_date' => 'task.due_date',
+        'estimated_duration' => 'task.estimated_duration',
         'rate' => 'task.rate',
         'number' => 'task.number',
         'description' => 'task.description',
