@@ -59,8 +59,13 @@ class DailyTaskDigestCronTest extends TestCase
     {
         $this->makeTestData();
 
+        $company_user = CompanyUser::query()
+            ->where('company_id', $this->company->id)
+            ->where('user_id', $this->user->id)
+            ->firstOrFail();
+
         CompanyUser::query()
-            ->whereKey($this->cu->id)
+            ->whereKey($company_user->id)
             ->update([
                 'notifications' => json_encode(
                     ['email' => ['all_notifications']],
@@ -69,11 +74,11 @@ class DailyTaskDigestCronTest extends TestCase
             ]);
 
         $this->assertFalse(
-            $this->recipientQuery(['1'])->whereKey($this->cu->id)->exists()
+            $this->recipientQuery(['1'])->whereKey($company_user->id)->exists()
         );
 
         CompanyUser::query()
-            ->whereKey($this->cu->id)
+            ->whereKey($company_user->id)
             ->update([
                 'notifications' => json_encode(
                     ['email' => ['task_daily_digest']],
@@ -82,7 +87,7 @@ class DailyTaskDigestCronTest extends TestCase
             ]);
 
         $this->assertTrue(
-            $this->recipientQuery(['1'])->whereKey($this->cu->id)->exists()
+            $this->recipientQuery(['1'])->whereKey($company_user->id)->exists()
         );
     }
 
@@ -113,26 +118,26 @@ class DailyTaskDigestCronTest extends TestCase
     /**
      * @return array<int, string>
      */
-    private function dueTimezoneIds(string $utcNow): array
+    private function dueTimezoneIds(string $utc_now): array
     {
         $method = new ReflectionMethod(DailyTaskDigestCron::class, 'getDueTimezoneIds');
         $method->setAccessible(true);
 
         return $method->invoke(
             new DailyTaskDigestCron(),
-            CarbonImmutable::parse($utcNow, 'UTC')
+            CarbonImmutable::parse($utc_now, 'UTC')
         );
     }
 
     /**
-     * @param array<int, string> $timezoneIds
+     * @param array<int, string> $timezone_ids
      * @return Builder<CompanyUser>
      */
-    private function recipientQuery(array $timezoneIds): Builder
+    private function recipientQuery(array $timezone_ids): Builder
     {
         $method = new ReflectionMethod(DailyTaskDigestCron::class, 'recipientQuery');
         $method->setAccessible(true);
 
-        return $method->invoke(new DailyTaskDigestCron(), $timezoneIds);
+        return $method->invoke(new DailyTaskDigestCron(), $timezone_ids);
     }
 }

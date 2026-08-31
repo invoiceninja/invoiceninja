@@ -38,56 +38,61 @@ class DailyTaskDigestCron implements ShouldQueue
 
     public function handle(): void
     {
-        $startedAt = microtime(true);
-        $windowEndUtc = CarbonImmutable::now('UTC')->startOfHour();
-        $dueTimezoneIds = $this->getDueTimezoneIds($windowEndUtc);
-        $originalDatabase = config('database.default');
+        $started_at = microtime(true);
+        $window_end_utc = CarbonImmutable::now('UTC')->startOfHour();
+        $due_timezone_ids = $this->getDueTimezoneIds($window_end_utc);
+        $original_database = config('database.default');
+
         $databases = config('ninja.db.multi_db_enabled')
             ? MultiDB::getDbs()
-            : [$originalDatabase];
-        $eligibleCompanyUsers = 0;
+            : [$original_database];
+
+        $eligible_company_users = 0;
 
         try {
             foreach ($databases as $database) {
                 MultiDB::setDB($database);
 
-                $eligibleCompanyUsers += $this->recipientQuery($dueTimezoneIds)->count();
+                $eligible_company_users += $this->recipientQuery($due_timezone_ids)->count();
             }
         } finally {
-            MultiDB::setDB($originalDatabase);
+            MultiDB::setDB($original_database);
         }
 
         nlog(sprintf(
             'DailyTaskDigestCron:: Found %d eligible company users in %.2f seconds',
-            $eligibleCompanyUsers,
-            microtime(true) - $startedAt
+            $eligible_company_users,
+            microtime(true) - $started_at
         ));
     }
 
     /**
      * @return array<int, string>
      */
-    private function getDueTimezoneIds(CarbonImmutable $windowEndUtc): array
+    private function getDueTimezoneIds(CarbonImmutable $window_end_utc): array
     {
-        $windowStartUtc = $windowEndUtc->subHours(self::WINDOW_HOURS);
+        $window_start_utc = $window_end_utc->subHours(self::WINDOW_HOURS);
 
-        return app('timezones')
-            ->filter(function (Timezone $timezone) use ($windowStartUtc, $windowEndUtc): bool {
+        /** @var \Illuminate\Support\Collection<int, Timezone> $timezones */
+        $timezones = app('timezones');
+
+        return $timezones
+            ->filter(function (Timezone $timezone) use ($window_start_utc, $window_end_utc): bool {
                 try {
-                    $localNow = $windowEndUtc->setTimezone($timezone->name);
-                    $localTarget = $localNow->setTime(self::DELIVERY_HOUR, 0);
+                    $local_now = $window_end_utc->setTimezone($timezone->name);
+                    $local_target = $local_now->setTime(self::DELIVERY_HOUR, 0);
                 } catch (\Exception) {
                     return false;
                 }
 
-                if ($localTarget->greaterThan($localNow)) {
-                    $localTarget = $localTarget->subDay();
+                if ($local_target->greaterThan($local_now)) {
+                    $local_target = $local_target->subDay();
                 }
 
-                $targetUtc = $localTarget->setTimezone('UTC');
+                $target_utc = $local_target->setTimezone('UTC');
 
-                return $targetUtc->greaterThan($windowStartUtc)
-                    && $targetUtc->lessThanOrEqualTo($windowEndUtc);
+                return $target_utc->greaterThan($window_start_utc)
+                    && $target_utc->lessThanOrEqualTo($window_end_utc);
             })
             ->pluck('id')
             ->map(static fn ($id): string => (string) $id)
@@ -96,16 +101,16 @@ class DailyTaskDigestCron implements ShouldQueue
     }
 
     /**
-     * @param array<int, string> $dueTimezoneIds
+     * @param array<int, string> $due_timezone_ids
      * @return Builder<CompanyUser>
      */
-    private function recipientQuery(array $dueTimezoneIds): Builder
+    private function recipientQuery(array $due_timezone_ids): Builder
     {
         return CompanyUser::query()
-            ->whereHas('company', function (Builder $query) use ($dueTimezoneIds): void {
+            ->whereHas('company', function (Builder $query) use ($due_timezone_ids): void {
                 $query
                     ->where('is_disabled', false)
-                    ->whereIn('settings->timezone_id', $dueTimezoneIds);
+                    ->whereIn('settings->timezone_id', $due_timezone_ids);
             })
             ->whereHas('user', function (Builder $query): void {
                 $query
@@ -113,6 +118,6 @@ class DailyTaskDigestCron implements ShouldQueue
                     ->whereNull('deleted_at');
             })
             ->where('is_locked', false)
-            ->where('notifications', 'like', '%"task\_daily\_digest"%');
+            ->where('notifications', 'like', '%task_daily_digest%');
     }
 }

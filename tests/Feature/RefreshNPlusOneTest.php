@@ -23,6 +23,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\MockUnitData;
 use Tests\TestCase;
 
@@ -146,7 +147,8 @@ class RefreshNPlusOneTest extends TestCase
         }
     }
 
-    public function testRefreshCreatesASystemTokenForEveryCompanyAndUserPair(): void
+    #[DataProvider('refreshEndpointProvider')]
+    public function testRefreshCreatesASystemTokenForEveryCompanyAndUserPair(string $endpoint): void
     {
         $secondCompany = Company::factory()->create([
             'account_id' => $this->account->id,
@@ -169,14 +171,14 @@ class RefreshNPlusOneTest extends TestCase
             $this->account->id,
         )->save();
 
-        CompanyToken::query()->create([
-            'user_id' => $otherUser->id,
-            'company_id' => $secondCompany->id,
-            'account_id' => $this->account->id,
-            'name' => 'Other user system token',
-            'token' => Str::random(64),
-            'is_system' => true,
-        ]);
+        $otherUserToken = new CompanyToken();
+        $otherUserToken->user_id = $otherUser->id;
+        $otherUserToken->company_id = $secondCompany->id;
+        $otherUserToken->account_id = $this->account->id;
+        $otherUserToken->name = 'Other user system token';
+        $otherUserToken->token = Str::random(64);
+        $otherUserToken->is_system = true;
+        $otherUserToken->save();
 
         $this->assertFalse(
             CompanyToken::query()
@@ -189,7 +191,7 @@ class RefreshNPlusOneTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->postJson('/api/v1/refresh?current_company=true&first_load=true&updated_at=0');
+        ])->postJson("/api/v1/{$endpoint}?current_company=true&first_load=true&updated_at=0");
 
         $response->assertOk();
 
@@ -201,6 +203,17 @@ class RefreshNPlusOneTest extends TestCase
                 ->exists(),
             'Refresh did not create the system token needed by this user for the second company.'
         );
+    }
+
+    /**
+     * @return array<string, array{0: string}>
+     */
+    public static function refreshEndpointProvider(): array
+    {
+        return [
+            'standard refresh' => ['refresh'],
+            'React refresh' => ['refresh_react'],
+        ];
     }
 
     /**

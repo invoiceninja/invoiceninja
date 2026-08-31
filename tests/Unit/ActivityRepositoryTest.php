@@ -140,7 +140,8 @@ class ActivityRepositoryTest extends TestCase
         string $listenerClass,
         int $activityType,
         string $verb,
-    ): void {
+    ): void
+    {
         $this->user->first_name = 'Acting';
         $this->user->last_name = 'Administrator';
         $this->user->save();
@@ -172,6 +173,11 @@ class ActivityRepositoryTest extends TestCase
         $this->assertNotNull($activity);
         $this->assertSame('Target Person', $activity->notes);
         $this->assertSame('Target Person', $activity->activity_string()['notes']);
+    }
+
+    #[DataProvider('userActivityTranslationProvider')]
+    public function testUserActivityTranslationsUseNotesForTheTargetUser(int $activityType, string $verb): void
+    {
         $this->assertSame(":user {$verb} user :notes", trans("texts.activity_{$activityType}"));
     }
 
@@ -186,6 +192,20 @@ class ActivityRepositoryTest extends TestCase
             'archived' => [UserWasArchived::class, ArchivedUserActivity::class, Activity::ARCHIVE_USER, 'archived'],
             'deleted' => [UserWasDeleted::class, DeletedUserActivity::class, Activity::DELETE_USER, 'deleted'],
             'restored' => [UserWasRestored::class, RestoredUserActivity::class, Activity::RESTORE_USER, 'restored'],
+        ];
+    }
+
+    /**
+     * @return array<string, array{0: int, 1: string}>
+     */
+    public static function userActivityTranslationProvider(): array
+    {
+        return [
+            'created' => [Activity::CREATE_USER, 'created'],
+            'updated' => [Activity::UPDATE_USER, 'updated'],
+            'archived' => [Activity::ARCHIVE_USER, 'archived'],
+            'deleted' => [Activity::DELETE_USER, 'deleted'],
+            'restored' => [Activity::RESTORE_USER, 'restored'],
         ];
     }
 }

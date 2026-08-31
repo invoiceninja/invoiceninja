@@ -110,15 +110,23 @@ class HelpersTest extends TestCase
         $this->assertSame('January 2026 to February 2026', $value);
     }
 
-    public function testReservedKeywordRangesUseARangeSeparatorInsteadOfTheRecipientLabel(): void
+    public function testLiteralReservedKeywordRangeUsesARangeSeparatorInsteadOfTheRecipientLabel(): void
     {
         app()->setLocale('de');
         $date = Carbon::create(2026, 7, 15, 0, 0, 0, 'UTC');
 
         $literalRange = Helpers::processReservedKeywords(':MONTH_AFTER', $this->entity('de'), $date);
-        $calculatedRange = Helpers::processReservedKeywords('[MONTHYEAR|MONTHYEAR+1]', $this->entity('de'), $date);
 
         $this->assertSame('2026-07-15 bis 2026-08-14', $literalRange);
+    }
+
+    public function testCalculatedReservedKeywordRangeUsesALocalizedRangeSeparator(): void
+    {
+        app()->setLocale('de');
+        $date = Carbon::create(2026, 7, 15, 0, 0, 0, 'UTC');
+
+        $calculatedRange = Helpers::processReservedKeywords('[MONTHYEAR|MONTHYEAR+1]', $this->entity('de'), $date);
+
         $this->assertSame('Juli 2026 bis August 2026', $calculatedRange);
     }
 

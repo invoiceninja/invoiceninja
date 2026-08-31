@@ -648,6 +648,59 @@ class RecurringInvoiceTest extends TestCase
         $this->assertEquals(RecurringInvoice::STATUS_DRAFT, $arr['data']['status_id']);
     }
 
+    public function testStoredRecurringInvoiceAmountIncludesDiscountsAndTaxes(): void
+    {
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'frequency_id' => 5,
+            'next_send_date' => now()->addMonth()->format('Y-m-d'),
+            'discount' => 20,
+            'is_amount_discount' => true,
+            'tax_name1' => 'GST',
+            'tax_rate1' => 10,
+            'line_items' => [[
+                'product_key' => 'service',
+                'notes' => 'Taxable service',
+                'cost' => 100,
+                'quantity' => 2,
+                'tax_name1' => '',
+                'tax_rate1' => 0,
+                'tax_name2' => '',
+                'tax_rate2' => 0,
+                'tax_name3' => '',
+                'tax_rate3' => 0,
+            ]],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/recurring_invoices', $data);
+
+        $response->assertOk();
+
+        $storedRecurringInvoice = RecurringInvoice::query()->findOrFail(
+            $this->decodePrimaryKey($response->json('data.id'))
+        );
+        $generatedInvoice = RecurringInvoiceToInvoiceFactory::create(
+            $storedRecurringInvoice,
+            $this->client,
+        )->calc()->getInvoice();
+
+        $this->assertNotEquals(200, (float) $response->json('data.amount'));
+        $this->assertGreaterThan(0, (float) $response->json('data.total_taxes'));
+        $this->assertEqualsWithDelta(
+            (float) $generatedInvoice->amount,
+            (float) $response->json('data.amount'),
+            0.000001,
+        );
+        $this->assertEqualsWithDelta(
+            (float) $storedRecurringInvoice->amount,
+            (float) $response->json('data.amount'),
+            0.000001,
+        );
+    }
+
     public function testPostRecurringInvoiceWithStartAndStop()
     {
         $data = [
