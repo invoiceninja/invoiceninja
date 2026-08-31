@@ -18,6 +18,15 @@ use Tests\TestCase;
 
 class HelpersTest extends TestCase
 {
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+        Carbon::setLocale('en');
+        app()->setLocale('en');
+
+        parent::tearDown();
+    }
+
     public function testFontsReturnFormat(): void
     {
         $font = Helpers::resolveFont();
@@ -42,10 +51,85 @@ class HelpersTest extends TestCase
 
     public function testReservedKeywordMathUsesMatchedOperation(): void
     {
-        $entity = new class {
+        $date = Carbon::create(2024, 1, 15, 0, 0, 0, 'UTC');
+
+        $value = Helpers::processReservedKeywords(
+            ':MONTH+1 :YEAR-1 :QUARTER*2 :MONTHYEAR+2',
+            $this->entity(),
+            $date,
+        );
+
+        $this->assertSame('February 2023 Q2 March 2024', $value);
+    }
+
+    public function testReservedKeywordQuarterAdditionMatchesTheDocumentedFormat(): void
+    {
+        $value = Helpers::processReservedKeywords(
+            'Retainer payment for :QUARTER+1',
+            $this->entity(),
+            Carbon::create(2024, 1, 15, 0, 0, 0, 'UTC'),
+        );
+
+        $this->assertSame('Retainer payment for Q2', $value);
+    }
+
+    public function testRangeContainingASlashNeverErasesTheSurroundingText(): void
+    {
+        $value = Helpers::processReservedKeywords(
+            'Period: [MONTHYEAR|MONTHYEAR/2]. Keep this description.',
+            $this->entity(),
+            Carbon::create(2026, 8, 15, 0, 0, 0, 'UTC'),
+        );
+
+        $this->assertNotNull($value);
+        $this->assertStringStartsWith('Period:', $value);
+        $this->assertStringEndsWith('Keep this description.', $value);
+    }
+
+    public function testMonthYearRangeSupportsSubtractingMonths(): void
+    {
+        $value = Helpers::processReservedKeywords(
+            '[MONTHYEAR|MONTHYEAR-2]',
+            $this->entity(),
+            Carbon::create(2026, 8, 15, 0, 0, 0, 'UTC'),
+        );
+
+        $this->assertSame('August 2026 to June 2026', $value);
+    }
+
+    public function testMonthYearRangeDoesNotOverflowAtTheEndOfAMonth(): void
+    {
+        Carbon::setTestNow(Carbon::create(2026, 1, 31, 0, 0, 0, 'UTC'));
+
+        $value = Helpers::processReservedKeywords(
+            '[MONTHYEAR|MONTHYEAR+1]',
+            $this->entity(),
+            Carbon::create(2026, 1, 15, 0, 0, 0, 'UTC'),
+        );
+
+        $this->assertSame('January 2026 to February 2026', $value);
+    }
+
+    public function testReservedKeywordRangesUseARangeSeparatorInsteadOfTheRecipientLabel(): void
+    {
+        app()->setLocale('de');
+        $date = Carbon::create(2026, 7, 15, 0, 0, 0, 'UTC');
+
+        $literalRange = Helpers::processReservedKeywords(':MONTH_AFTER', $this->entity('de'), $date);
+        $calculatedRange = Helpers::processReservedKeywords('[MONTHYEAR|MONTHYEAR+1]', $this->entity('de'), $date);
+
+        $this->assertSame('2026-07-15 bis 2026-08-14', $literalRange);
+        $this->assertSame('Juli 2026 bis August 2026', $calculatedRange);
+    }
+
+    private function entity(string $locale = 'en'): object
+    {
+        return new class ($locale) {
+            public function __construct(private readonly string $locale) {}
+
             public function locale(): string
             {
-                return 'en';
+                return $this->locale;
             }
 
             public function timezone(): object
@@ -58,15 +142,5 @@ class HelpersTest extends TestCase
                 return 'Y-m-d';
             }
         };
-
-        $date = Carbon::create(2024, 1, 15, 0, 0, 0, 'UTC');
-
-        $value = Helpers::processReservedKeywords(
-            ':MONTH+1 :YEAR-1 :QUARTER*2 :MONTHYEAR+2',
-            $entity,
-            $date,
-        );
-
-        $this->assertSame('February 2023 2 March 2024', $value);
     }
 }

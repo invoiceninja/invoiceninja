@@ -36,6 +36,7 @@ use App\Jobs\Cron\RecurringExpensesCron;
 use App\Jobs\Cron\RecurringInvoicesCron;
 use App\Jobs\EDocument\EInvoicePullDocs;
 use App\Jobs\Cron\InvoiceTaxSummary;
+use App\Jobs\Cron\DailyTaskDigestCron;
 use Illuminate\Console\Scheduling\Schedule;
 use App\Jobs\Invoice\InvoiceCheckLateWebhook;
 use App\Jobs\Invoice\InvoiceCheckOverdue;
@@ -73,6 +74,14 @@ class Kernel extends ConsoleKernel
 
         /* Checks for scheduled tasks */
         $schedule->job(new TaskScheduler())->hourlyAt(10)->withoutOverlapping()->name('task-scheduler-job')->onOneServer();
+
+        /* Finds company users eligible for the daily task digest */
+        $schedule->job(new DailyTaskDigestCron())
+            ->everyFourHours()
+            ->timezone('UTC')
+            ->withoutOverlapping()
+            ->name('daily-task-digest-job')
+            ->onOneServer();
 
         // Run hourly - timezone-aware processing ensures each company
         // is only processed once, at its local month-end midnight

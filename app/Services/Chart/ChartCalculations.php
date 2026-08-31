@@ -18,6 +18,7 @@ use App\Models\Payment;
 use App\Models\Quote;
 use App\Models\Task;
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 /**
  * Class ChartCalculations.
@@ -210,6 +211,61 @@ trait ChartCalculations
 
     }
 
+    public function getTaskEstimatedDuration(array $data): int|float
+    {
+        $query = $this->taskQuery($data)->whereNotNull('estimated_duration');
+
+        return match ($data['calculation']) {
+            'sum' => $query->sum('estimated_duration') ?? 0,
+            'avg' => $query->avg('estimated_duration') ?? 0,
+            default => 0,
+        };
+    }
+
+    public function getTaskRemainingEstimatedDuration(array $data): int|float
+    {
+        $durations = $this->activeTasks($this->taskQuery($data))
+            ->whereNotNull('estimated_duration')
+            ->map(fn (Task $task): int => max((int) $task->estimated_duration - (int) $task->calcDuration(), 0));
+
+        return match ($data['calculation']) {
+            'sum' => $durations->sum() ?? 0,
+            'avg' => $durations->avg() ?? 0,
+            default => 0,
+        };
+    }
+
+    public function getUnestimatedTasks(array $data): int
+    {
+        return $this->activeTasks($this->taskQuery($data))
+            ->whereNull('estimated_duration')
+            ->count();
+    }
+
+    public function getTasksOverEstimate(array $data): int
+    {
+        return $this->activeTasks($this->taskQuery($data))
+            ->whereNotNull('estimated_duration')
+            ->filter(fn (Task $task): bool => $task->calcDuration() > (int) $task->estimated_duration)
+            ->count();
+    }
+
+    public function getOverdueTasks(array $data): int
+    {
+        $timezone = $this->company->timezone()?->name ?: config('app.timezone');
+        $today = now($timezone)->toDateString();
+        $query = $this->taskQuery($data)
+            ->whereNotNull('due_date')
+            ->where('due_date', '<', $today);
+
+        return $this->activeTasks($query)->count();
+    }
+
+    public function getTasksDue(array $data): int
+    {
+        return $this->activeTasks($this->dueTaskQuery($data))->count();
+    }
+
     /**
      * All Expenses
      */
@@ -337,12 +393,17 @@ trait ChartCalculations
 
     }
 
-    private function taskQuery($data): Builder
+    private function baseTaskQuery(): Builder
     {
-        $q = Task::query()
+        return Task::query()
                     ->withTrashed()
                     ->where('company_id', $this->company->id)
                     ->where('is_deleted', 0);
+    }
+
+    private function taskQuery(array $data): Builder
+    {
+        $q = $this->baseTaskQuery();
 
         if (in_array($data['period'], ['current','previous']) && ($data['date_range'] ?? null) !== 'all_time') {
             $q->whereBetween('calculated_start_date', [$data['start_date'], $data['end_date']]);
@@ -350,6 +411,33 @@ trait ChartCalculations
 
         return $q;
 
+    }
+
+    private function dueTaskQuery(array $data): Builder
+    {
+        $query = $this->baseTaskQuery()->whereNotNull('due_date');
+
+        if (in_array($data['period'], ['current', 'previous'], true) && ($data['date_range'] ?? null) !== 'all_time') {
+            $query->whereBetween('due_date', [$data['start_date'], $data['end_date']]);
+        }
+
+        return $query;
+    }
+
+    /**
+     * @return Collection<int, Task>
+     */
+    private function activeTasks(Builder $query): Collection
+    {
+        return $query
+            ->with('status')
+            ->get()
+            ->filter(function (Task $task): bool {
+                $statusOrder = $task->status->status_order ?? $task->status_order ?? null;
+
+                return $statusOrder === null || (int) $statusOrder < 4;
+            })
+            ->values();
     }
 
     private function taskCalculations(Builder $q, array $data): int|float

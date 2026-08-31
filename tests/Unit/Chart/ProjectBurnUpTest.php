@@ -176,6 +176,106 @@ class ProjectBurnUpTest extends TestCase
         $this->assertEqualsWithDelta(1400.0, $with_drafts['totals']['invoiced_amount'], 0.01);
     }
 
+    public function testProjectBurnUpIncludesCurrentTaskEstimateTarget(): void
+    {
+        $project = $this->createProject();
+
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'project_id' => $project->id,
+            'estimated_duration' => 7200,
+            'time_log' => json_encode([]),
+            'is_deleted' => false,
+        ]);
+
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'project_id' => $project->id,
+            'estimated_duration' => 3600,
+            'time_log' => json_encode([]),
+            'is_deleted' => false,
+        ]);
+
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'project_id' => $project->id,
+            'estimated_duration' => null,
+            'time_log' => json_encode([]),
+            'is_deleted' => false,
+        ]);
+
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'project_id' => $project->id,
+            'estimated_duration' => 0,
+            'time_log' => json_encode([]),
+            'is_deleted' => false,
+        ]);
+
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'project_id' => $project->id,
+            'estimated_duration' => 36000,
+            'time_log' => json_encode([]),
+            'is_deleted' => true,
+        ]);
+
+        $result = $this->burnUpService()->generate($project, '2026-01-01', '2026-01-03', 'daily');
+
+        $this->assertEqualsWithDelta(3.0, $result['project']['task_estimated_hours'], 0.01);
+        $this->assertEqualsWithDelta(3.0, $result['markers']['task_estimated_hours'], 0.01);
+        $this->assertSame(1, $result['metadata']['unestimated_task_count']);
+
+        foreach ($result['series'] as $bucket) {
+            $this->assertEqualsWithDelta(3.0, $bucket['task_estimated_hours'], 0.01);
+        }
+    }
+
+    public function testProjectBurnUpEstimateStateDoesNotLeakBetweenGenerateCalls(): void
+    {
+        $estimatedProject = $this->createProject();
+        $emptyProject = $this->createProject();
+
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'project_id' => $estimatedProject->id,
+            'estimated_duration' => 7200,
+            'time_log' => json_encode([]),
+            'is_deleted' => false,
+        ]);
+
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'project_id' => $estimatedProject->id,
+            'estimated_duration' => null,
+            'time_log' => json_encode([]),
+            'is_deleted' => false,
+        ]);
+
+        $service = $this->burnUpService();
+        $firstResult = $service->generate($estimatedProject, '2026-01-01', '2026-01-03');
+        $secondResult = $service->generate($emptyProject, '2026-01-01', '2026-01-03');
+
+        $this->assertEqualsWithDelta(2.0, $firstResult['project']['task_estimated_hours'], 0.01);
+        $this->assertSame(1, $firstResult['metadata']['unestimated_task_count']);
+        $this->assertEqualsWithDelta(0.0, $secondResult['project']['task_estimated_hours'], 0.01);
+        $this->assertSame(0, $secondResult['metadata']['unestimated_task_count']);
+    }
+
     public function testNonAdminProjectBurnUpOmitsFinancialFields(): void
     {
         $project = $this->createProject();
@@ -323,6 +423,26 @@ class ProjectBurnUpTest extends TestCase
     {
         $project = $this->createProject($this->company, $this->client);
 
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'project_id' => $project->id,
+            'estimated_duration' => 5400,
+            'time_log' => json_encode([]),
+            'is_deleted' => false,
+        ]);
+
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'project_id' => $project->id,
+            'estimated_duration' => null,
+            'time_log' => json_encode([]),
+            'is_deleted' => false,
+        ]);
+
         Invoice::factory()->create([
             'client_id' => $this->client->id,
             'user_id' => $this->user->id,
@@ -346,6 +466,10 @@ class ProjectBurnUpTest extends TestCase
         $response->assertStatus(200);
         $this->assertSame($project->hashed_id, $response->json('project.id'));
         $this->assertSame('daily', $response->json('bucket_type'));
+        $this->assertEqualsWithDelta(1.5, $response->json('project.task_estimated_hours'), 0.01);
+        $this->assertEqualsWithDelta(1.5, $response->json('markers.task_estimated_hours'), 0.01);
+        $this->assertEqualsWithDelta(1.5, $response->json('series.0.task_estimated_hours'), 0.01);
+        $this->assertSame(1, $response->json('metadata.unestimated_task_count'));
         $this->assertEqualsWithDelta(125.0, $response->json('totals.invoiced_amount'), 0.01);
         $this->assertEqualsWithDelta(75.0, $response->json('totals.paid_to_date'), 0.01);
     }

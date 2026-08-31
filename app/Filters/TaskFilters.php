@@ -91,6 +91,10 @@ class TaskFilters extends QueryFilters
             $this->builder->where('is_running', true);
         }
 
+        if (in_array('overdue', $status_parameters)) {
+            $this->builder->where('due_date', '<', now()->setTimezone(auth()->user()->company()->timezone()->name ?? 'UTC')->toDateString());
+        }
+
         return $this->builder;
     }
 
@@ -120,6 +124,15 @@ class TaskFilters extends QueryFilters
         }
 
         return $this->builder->whereIn('project_id', $this->transformKeys(explode(',', $project_ids)));
+    }
+
+    public function overdue(?string $overdue = ''): Builder
+    {
+        if($overdue !== 'true') {
+            return $this->builder;
+        }
+
+        return $this->builder->where('due_date', '<', now()->setTimezone(auth()->user()->company()->timezone()->name ?? 'UTC')->toDateString());
     }
 
     public function number(string $number = ''): Builder

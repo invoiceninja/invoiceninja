@@ -230,6 +230,24 @@ class BulkActionAuthorizationTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function testBulkCloneInvoiceToQuoteReturnsAnInvoiceResponseWithoutATypeError(): void
+    {
+        $invoice = Invoice::factory()->create([
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'user_id' => $this->adminUser->id,
+            'status_id' => Invoice::STATUS_DRAFT,
+        ]);
+
+        $response = $this->withHeaders($this->apiHeaders($this->adminToken))
+            ->postJson('/api/v1/invoices/bulk', [
+                'action' => 'clone_to_quote',
+                'ids' => [$invoice->hashed_id],
+            ]);
+
+        $response->assertOk();
+    }
+
     // ──────────────────────────────────────────────
     // Invoice bulk_print
     // ──────────────────────────────────────────────
@@ -558,6 +576,24 @@ class BulkActionAuthorizationTest extends TestCase
             ]);
 
         $this->assertBatchPdfDownload($response, 'quote-pdf');
+    }
+
+    public function testBulkCloneQuoteToInvoiceReturnsAQuoteResponseWithoutATypeError(): void
+    {
+        $quote = Quote::factory()->create([
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'user_id' => $this->adminUser->id,
+            'status_id' => Quote::STATUS_DRAFT,
+        ]);
+
+        $response = $this->withHeaders($this->apiHeaders($this->adminToken))
+            ->postJson('/api/v1/quotes/bulk', [
+                'action' => 'clone_to_invoice',
+                'ids' => [$quote->hashed_id],
+            ]);
+
+        $response->assertOk();
     }
 
     // ──────────────────────────────────────────────

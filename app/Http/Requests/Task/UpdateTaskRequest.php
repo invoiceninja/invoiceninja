@@ -115,7 +115,7 @@ class UpdateTaskRequest extends Request
             }
 
             if (!$this->checkTimeLog($values)) {
-                return $fail('Please correct overlapping values');
+                return $fail($this->timeLogValidationError ?? 'Please correct overlapping values');
             }
         }];
 

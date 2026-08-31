@@ -12,9 +12,22 @@
 
 namespace Tests\Unit;
 
+use App\Events\User\UserWasArchived;
+use App\Events\User\UserWasCreated;
+use App\Events\User\UserWasDeleted;
+use App\Events\User\UserWasRestored;
+use App\Events\User\UserWasUpdated;
+use App\Listeners\User\ArchivedUserActivity;
+use App\Listeners\User\CreatedUserActivity;
+use App\Listeners\User\DeletedUserActivity;
+use App\Listeners\User\RestoredUserActivity;
+use App\Listeners\User\UpdatedUserActivity;
 use App\Models\Activity;
+use App\Models\User;
 use App\Repositories\ActivityRepository;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Str;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -119,5 +132,60 @@ class ActivityRepositoryTest extends TestCase
                 "Failed asserting property [{$key}] was assigned from stdClass fields."
             );
         }
+    }
+
+    #[DataProvider('userActivityProvider')]
+    public function testUserActivitiesPersistAndRenderTheTargetUser(
+        string $eventClass,
+        string $listenerClass,
+        int $activityType,
+        string $verb,
+    ): void {
+        $this->user->first_name = 'Acting';
+        $this->user->last_name = 'Administrator';
+        $this->user->save();
+
+        $targetUser = User::factory()->create([
+            'account_id' => $this->account->id,
+            'email' => Str::uuid() . '@example.test',
+            'first_name' => 'Target',
+            'last_name' => 'Person',
+        ]);
+        $targetUser->setCompany($this->company);
+
+        $eventVars = [
+            'ip' => '10.0.0.2',
+            'token' => null,
+            'is_system' => false,
+            'user_id' => $this->user->id,
+        ];
+
+        $event = new $eventClass($targetUser, $this->user, $this->company, $eventVars);
+        (new $listenerClass($this->activityRepository))->handle($event);
+
+        $activity = Activity::query()
+            ->where('company_id', $this->company->id)
+            ->where('activity_type_id', $activityType)
+            ->latest('id')
+            ->first();
+
+        $this->assertNotNull($activity);
+        $this->assertSame('Target Person', $activity->notes);
+        $this->assertSame('Target Person', $activity->activity_string()['notes']);
+        $this->assertSame(":user {$verb} user :notes", trans("texts.activity_{$activityType}"));
+    }
+
+    /**
+     * @return array<string, array{0: class-string, 1: class-string, 2: int, 3: string}>
+     */
+    public static function userActivityProvider(): array
+    {
+        return [
+            'created' => [UserWasCreated::class, CreatedUserActivity::class, Activity::CREATE_USER, 'created'],
+            'updated' => [UserWasUpdated::class, UpdatedUserActivity::class, Activity::UPDATE_USER, 'updated'],
+            'archived' => [UserWasArchived::class, ArchivedUserActivity::class, Activity::ARCHIVE_USER, 'archived'],
+            'deleted' => [UserWasDeleted::class, DeletedUserActivity::class, Activity::DELETE_USER, 'deleted'],
+            'restored' => [UserWasRestored::class, RestoredUserActivity::class, Activity::RESTORE_USER, 'restored'],
+        ];
     }
 }

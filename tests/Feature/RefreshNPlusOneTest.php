@@ -14,6 +14,8 @@ namespace Tests\Feature;
 
 use App\Factory\CompanyUserFactory;
 use App\Models\Client;
+use App\Models\Company;
+use App\Models\CompanyToken;
 use App\Models\Location;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
@@ -142,6 +144,63 @@ class RefreshNPlusOneTest extends TestCase
         foreach ($clients as $client) {
             $this->assertCount(1, data_get($responseClients->get($client->hashed_id), 'locations', []));
         }
+    }
+
+    public function testRefreshCreatesASystemTokenForEveryCompanyAndUserPair(): void
+    {
+        $secondCompany = Company::factory()->create([
+            'account_id' => $this->account->id,
+        ]);
+
+        CompanyUserFactory::create(
+            $this->user->id,
+            $secondCompany->id,
+            $this->account->id,
+        )->save();
+
+        $otherUser = User::factory()->create([
+            'account_id' => $this->account->id,
+            'email' => Str::uuid() . '@example.test',
+        ]);
+
+        CompanyUserFactory::create(
+            $otherUser->id,
+            $secondCompany->id,
+            $this->account->id,
+        )->save();
+
+        CompanyToken::query()->create([
+            'user_id' => $otherUser->id,
+            'company_id' => $secondCompany->id,
+            'account_id' => $this->account->id,
+            'name' => 'Other user system token',
+            'token' => Str::random(64),
+            'is_system' => true,
+        ]);
+
+        $this->assertFalse(
+            CompanyToken::query()
+                ->where('company_id', $secondCompany->id)
+                ->where('user_id', $this->user->id)
+                ->where('is_system', true)
+                ->exists()
+        );
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/refresh?current_company=true&first_load=true&updated_at=0');
+
+        $response->assertOk();
+
+        $this->assertTrue(
+            CompanyToken::query()
+                ->where('company_id', $secondCompany->id)
+                ->where('user_id', $this->user->id)
+                ->where('is_system', true)
+                ->exists(),
+            'Refresh did not create the system token needed by this user for the second company.'
+        );
     }
 
     /**
