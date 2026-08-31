@@ -479,7 +479,7 @@ class QuickbooksImport implements ShouldQueue
 
     public function middleware()
     {
-        return [(new WithoutOverlapping("qbs-{$this->company_id}-{$this->db}"))->expireAfter(30)];
+        return [(new WithoutOverlapping("qbs-{$this->company_id}-{$this->db}"))->expireAfter($this->timeout + 300)];
     }
 
     /**
@@ -514,7 +514,5 @@ class QuickbooksImport implements ShouldQueue
     public function failed($exception): void
     {
         nlog("QuickbooksSync failed => " . $exception->getMessage());
-
-        Cache::lock("laravel-queue-overlap:" . static::class . ":qbs-{$this->company_id}-{$this->db}")->forceRelease();
     }
 }

@@ -485,7 +485,7 @@ class ProductController extends BaseController
             return $this->listResponse(Product::withTrashed()->company()->whereIn('id', $ids));
         }
 
-        $products->cursor()->each(function ($product, $key) use ($action, $user) {
+        $products->with('company.account')->lazyById(100)->each(function ($product, $key) use ($action, $user) {
             if ($user->can('edit', $product)) {
                 $this->product_repo->{$action}($product);
             }
@@ -551,7 +551,7 @@ class ProductController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $product, $request->input('is_public', true));
+            $this->saveDocuments($request->file('documents'), $product, $request->has('is_public') ? $request->boolean('is_public') : null);
         }
 
         return $this->itemResponse($product->fresh());

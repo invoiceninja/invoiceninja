@@ -756,7 +756,6 @@ class CompanyImport implements ShouldQueue
         $this->company->bank_transactions()->forceDelete();
         $this->company->schedulers()->forceDelete();
         $this->company->system_log_relation()->forceDelete();
-
         $this->company->save();
 
         return $this;
@@ -1262,7 +1261,8 @@ class CompanyImport implements ShouldQueue
                 ['invoices' => 'invoice_id'],
             ],
             'quotes',
-            'number'
+            'number',
+            ['invoice_id']
         );
 
         return $this;
@@ -1524,13 +1524,13 @@ class CompanyImport implements ShouldQueue
                 ])
                 ->timeout(5)
                 ->get($url);
-                
+
                 if ($response->successful()) {
                     $file = $response->body();
                 } else {
                     $file = false;
                 }
-                
+
                 if ($file) {
                     try {
                         Storage::disk(config('filesystems.default'))->put($new_document_url, $file);
@@ -2037,7 +2037,7 @@ class CompanyImport implements ShouldQueue
     }
 
     /* Ensure if no number is set, we don't overwrite a record with an existing number */
-    private function genericImport($class, $unset, $transforms, $object_property, $match_key)
+    private function genericImport($class, $unset, $transforms, $object_property, $match_key, array $nullable_transforms = [])
     {
         $class::unguard();
         $x = 0;
@@ -2054,7 +2054,11 @@ class CompanyImport implements ShouldQueue
                 foreach ($transform as $key => $value) {
 
                     if (property_exists($obj, $value)) {
-                        $obj_array["{$value}"] = $this->transformId($key, $obj->{$value});
+                        $obj_array["{$value}"] = $this->transformId(
+                            $key,
+                            $obj->{$value},
+                            in_array($value, $nullable_transforms, true)
+                        );
                     }
                 }
             }
@@ -2276,7 +2280,7 @@ class CompanyImport implements ShouldQueue
      *
      * ie. > 50 clients or more than 1 user
     */
-    private function transformId(string $resource, ?string $old): ?int
+    private function transformId(string $resource, ?string $old, bool $allow_missing = false): ?int
     {
 
         if (empty($old) || in_array($old, ['WjnegYbwZ1'])) {
@@ -2298,6 +2302,10 @@ class CompanyImport implements ShouldQueue
 
         if (! array_key_exists("{$old}", $this->ids[$resource])) {
             nlog("Missing {$resource} key: {$old}");
+
+            if ($allow_missing) {
+                return null;
+            }
 
             if ($resource == 'users') {
                 return $this->company_owner->id;

@@ -18,7 +18,6 @@ use PHPUnit\Framework\TestCase;
 /**
  * Audit-grade invariants for the single inclusive-tax back-out routine.
  *
- * @covers App\Helpers\Invoice\InclusiveTax
  */
 class InclusiveTaxTest extends TestCase
 {
@@ -44,6 +43,53 @@ class InclusiveTaxTest extends TestCase
         $r = InclusiveTax::backout(50, [0, 0, 0]);
         $this->assertEquals(50.0, $r['net']);
         $this->assertEquals(0.0, $r['tax']);
+    }
+
+    public function testNegativeInclusiveTaxesAreBackedOut(): void
+    {
+        $negative = InclusiveTax::backout(90, [-10, 0, 0]);
+
+        $this->assertSame(100.0, $negative['net']);
+        $this->assertSame(-10.0, $negative['tax']);
+        $this->assertSame([-10.0, 0.0, 0.0], $negative['components']);
+
+        $offsetting = InclusiveTax::backout(90, [10, -10, 0]);
+
+        $this->assertSame(90.0, $offsetting['net']);
+        $this->assertSame(0.0, $offsetting['tax']);
+        $this->assertSame([9.0, -9.0, 0.0], $offsetting['components']);
+    }
+
+    public function testAggregateRatesAtOrBelowNegativeOneHundredRemainNonThrowing(): void
+    {
+        $rateSets = [
+            [-100, 0, 0],
+            [-0.01, -64.04, -35.95],
+            [-110, 0, 0],
+        ];
+
+        foreach ($rateSets as $rates) {
+            $result = InclusiveTax::backout(90, $rates);
+
+            $this->assertSame(90.0, $result['net']);
+            $this->assertSame(0.0, $result['tax']);
+            $this->assertSame([0.0, 0.0, 0.0], $result['components']);
+        }
+    }
+
+    public function testMalformedAndNonFiniteRatesGracefullyBecomeZero(): void
+    {
+        $invalid = InclusiveTax::backout(90, ['bad-rate', [], NAN]);
+
+        $this->assertSame(90.0, $invalid['net']);
+        $this->assertSame(0.0, $invalid['tax']);
+        $this->assertSame([0.0, 0.0, 0.0], $invalid['components']);
+
+        $partiallyValid = InclusiveTax::backout(110, [10, INF, null]);
+
+        $this->assertSame(100.0, $partiallyValid['net']);
+        $this->assertSame(10.0, $partiallyValid['tax']);
+        $this->assertSame([10.0, 0.0, 0.0], $partiallyValid['components']);
     }
 
     /**

@@ -26,7 +26,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property float $cash_discount
  * @property float $refunded
  * @property string $paymentable_type
- * @property int|null $created_at
+ * @property int|\Carbon\Carbon|string $created_at
  * @property int|null $updated_at
  * @property null $deleted_at
  * @property-read \App\Models\Payment $payment

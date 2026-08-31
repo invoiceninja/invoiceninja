@@ -8,6 +8,7 @@ use App\Models\Company;
 use App\Models\Country;
 use App\Models\Invoice;
 use App\Models\Location;
+use App\Helpers\Invoice\InvoiceSum;
 use App\Services\Quickbooks\Models\QbTaxRate;
 use App\Services\Quickbooks\QuickbooksService;
 use App\Services\Quickbooks\SdkWrapper;
@@ -545,6 +546,44 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
 
         $this->assertSame($map, $array['settings']['composite_tax_code_map']);
         $this->assertSame($map, $round_trip->settings->composite_tax_code_map);
+    }
+
+    public function test_manual_tax_detail_uses_tax_map_rate_when_name_has_no_percentage(): void
+    {
+        $company = new Company();
+        $company->quickbooks = new QuickbooksSettings([
+            'settings' => [
+                'tax_rate_map' => [
+                    ['id' => 'qb-rate-6', 'name' => 'Arbitrary tax name', 'rate' => 6],
+                ],
+            ],
+        ]);
+
+        $service = Mockery::mock(QuickbooksService::class);
+        $service->company = $company;
+
+        $calculator = Mockery::mock(InvoiceSum::class);
+        $calculator->shouldReceive('getTaxMap')->once()->andReturn(collect([
+            [
+                'name' => 'Arbitrary tax name',
+                'tax_rate' => 6,
+                'total' => 0.06,
+                'base_amount' => 1.00,
+            ],
+        ]));
+
+        $invoice = Mockery::mock(Invoice::class)->makePartial();
+        $invoice->shouldReceive('calc')->once()->andReturn($calculator);
+
+        $method = new ReflectionMethod(InvoiceTransformer::class, 'buildTxnTaxDetail');
+        $method->setAccessible(true);
+
+        $result = $method->invoke($this->transformer, $invoice, 0.06, 1.00, $service);
+
+        $this->assertSame(0.06, $result['TotalTax']);
+        $this->assertSame('qb-rate-6', $result['TaxLine'][0]['TaxLineDetail']['TaxRateRef']['value']);
+        $this->assertSame(0.06, $result['TaxLine'][0]['Amount']);
+        $this->assertSame(1.0, $result['TaxLine'][0]['TaxLineDetail']['NetAmountTaxable']);
     }
 
     /**

@@ -13,6 +13,8 @@
 namespace App\Http\Requests\User;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\Account\BlackListRule;
+use App\Http\ValidationRules\Account\EmailBlackListRule;
 use App\Http\ValidationRules\UniqueUserRule;
 use App\Http\ValidationRules\User\HasValidPhoneNumber;
 use App\Utils\Ninja;
@@ -20,6 +22,7 @@ use App\Utils\Ninja;
 class UpdateUserRequest extends Request
 {
     private bool $phone_has_changed = false;
+    private bool $email_is_changing = false;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -41,6 +44,19 @@ class UpdateUserRequest extends Request
 
         $rules['email'] = ['email:rfc', 'bail', 'sometimes', new UniqueUserRule($this->user, $input['email'])];
 
+        if (Ninja::isHosted() && $this->email_is_changing) {
+            $rules['email'] = [
+                'bail', 
+                'sometimes', 
+                'email:rfc,dns', 
+                'max:255',
+                'indisposable:mx', 
+                new UniqueUserRule($this->user, $input['email']),
+                new BlackListRule(),
+                new EmailBlackListRule(),
+            ];
+        }
+
         if (Ninja::isHosted() && $this->phone_has_changed && $this->phone && isset($this->phone)) {
             $rules['phone'] = ['sometimes', 'bail', 'string', new HasValidPhoneNumber()];
         }
@@ -61,6 +77,10 @@ class UpdateUserRequest extends Request
         } else {
             $input['email'] = $this->user->email;
         }
+
+        $this->email_is_changing = array_key_exists('email', $this->all())
+                                    && is_string($input['email'])
+                                    && trim($input['email']) !== $this->user->email;
 
         if (array_key_exists('first_name', $input)) {
             $input['first_name'] = strip_tags($input['first_name']);

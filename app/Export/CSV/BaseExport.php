@@ -29,20 +29,16 @@ use App\Models\Product;
 use App\Models\Document;
 use League\Csv\Writer;
 use League\Fractal\Manager;
-use App\Jobs\Quote\ZipQuotes;
 use App\Models\ClientContact;
 use App\Models\PurchaseOrder;
 use Illuminate\Support\Carbon;
-use App\Jobs\Credit\ZipCredits;
+use App\Jobs\Entity\ZipEntity;
 use App\Utils\Traits\MakesHash;
 use App\Models\RecurringInvoice;
-use App\Jobs\Invoice\ZipInvoices;
-use App\Jobs\Document\ZipDocuments;
 use App\Transformers\TaskTransformer;
 use App\Transformers\PaymentTransformer;
 use Illuminate\Database\Eloquent\Builder;
 use App\Services\Template\TemplateService;
-use App\Jobs\PurchaseOrder\ZipPurchaseOrders;
 use League\Fractal\Serializer\ArraySerializer;
 
 class BaseExport
@@ -68,6 +64,8 @@ class BaseExport
     protected array $raw_rows = [];
 
     protected array $spreadsheet_headers = [];
+
+    protected const GROUPING_IDENTITIES = '__grouping_identities';
 
     protected array $non_summable_patterns = [
         'tax_rate',
@@ -1705,7 +1703,9 @@ class BaseExport
     public function queuePdfs(Builder $query)
     {
 
-        if (in_array(get_class($query->getModel()), [Invoice::class, Quote::class, Credit::class, PurchaseOrder::class]) && $query->count() > 0) {
+        $entity_class = get_class($query->getModel());
+
+        if (in_array($entity_class, [Invoice::class, Quote::class, Credit::class, PurchaseOrder::class]) && $query->count() > 0) {
 
             $user = $this->company->owner();
 
@@ -1713,24 +1713,7 @@ class BaseExport
                 $user = User::where('id', $this->input['user_id'])->where('account_id', $this->company->account_id)->first();
             }
 
-            switch (get_class($query->getModel())) {
-                case Invoice::class:
-                    nlog("zipping invoices");
-                    ZipInvoices::dispatch($query->pluck('id'), $this->company, $user);
-                    break;
-                case Quote::class:
-                    ZipQuotes::dispatch($query->pluck('id'), $this->company, $user);
-                    break;
-                case Credit::class:
-                    ZipCredits::dispatch($query->pluck('id'), $this->company, $user);
-                    break;
-                case PurchaseOrder::class:
-                    ZipPurchaseOrders::dispatch($query->pluck('id'), $this->company, $user);
-                    break;
-                default:
-                    # code...
-                    break;
-            }
+            ZipEntity::dispatch($query->pluck('id'), $this->company, $user, $entity_class);
         }
     }
 
@@ -1759,7 +1742,7 @@ class BaseExport
                 $user = User::where('id', $this->input['user_id'])->where('account_id', $this->company->account_id)->first();
             }
 
-            ZipDocuments::dispatch($documents, $this->company, $user);
+            ZipEntity::dispatch($documents, $this->company, $user, Document::class);
         }
     }
 
@@ -1800,10 +1783,19 @@ class BaseExport
         return $this->spreadsheet_headers;
     }
 
-    public function convertFloats(iterable $entity): iterable
+    /**
+     * @param array<string, int|string> $grouping_identities
+     */
+    public function convertFloats(iterable $entity, array $grouping_identities = []): iterable
     {
+        $raw_entity = (array) $entity;
+
+        if ($this->skip_float_conversion && $grouping_identities !== []) {
+            $raw_entity[self::GROUPING_IDENTITIES] = $grouping_identities;
+        }
+
         if ($this->capture_raw_rows || $this->skip_float_conversion) {
-            $this->raw_rows[] = (array) $entity;
+            $this->raw_rows[] = $raw_entity;
         }
 
         if ($this->skip_float_conversion) {
@@ -1865,7 +1857,7 @@ class BaseExport
         $model_string = $this->getModelString($query);
 
         $data = [
-            "{$model_string}s" => $query->with('tags')->get(),
+            "{$model_string}s" => $this->templateEntities($query),
             // "start_date" => $this->start_date,
             // "end_date" => $this->end_date,
         ];
@@ -1879,6 +1871,15 @@ class BaseExport
 
         return $ts->getPdf();
 
+    }
+
+    protected function templateEntities(Builder $query): \Illuminate\Database\Eloquent\Collection
+    {
+        if (method_exists($query->getModel(), 'tags')) {
+            $query->with('tags');
+        }
+
+        return $query->get();
     }
 
     private function getModelString(Builder $query): ?string
@@ -2035,8 +2036,13 @@ class BaseExport
 
         foreach ($grouped as $group_value => $group_rows) {
             $summary_row = [];
+            $identity_rows = [];
 
             foreach (array_keys($rows[0]) as $column) {
+                if ($column === self::GROUPING_IDENTITIES) {
+                    continue;
+                }
+
                 if ($column === $group_by) {
                     $summary_row[$column] = $group_value;
                     continue;
@@ -2047,7 +2053,15 @@ class BaseExport
                     continue;
                 }
 
-                $values = array_column($group_rows, $column);
+                $aggregation_rows = $group_rows;
+                $grouping_identity = $this->groupingIdentityForColumn($column);
+
+                if ($grouping_identity !== null) {
+                    $identity_rows[$grouping_identity] ??= $this->uniqueGroupingIdentityRows($group_rows, $grouping_identity);
+                    $aggregation_rows = $identity_rows[$grouping_identity];
+                }
+
+                $values = array_column($aggregation_rows, $column);
                 $numeric = array_filter($values, 'is_numeric');
 
                 if ($numeric !== [] && count($numeric) === count($values)) {
@@ -2086,6 +2100,41 @@ class BaseExport
         // }
 
         return $summary;
+    }
+
+    protected function groupingIdentityForColumn(string $column): ?string
+    {
+        return null;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $rows
+     * @return array<int, array<string, mixed>>
+     */
+    protected function uniqueGroupingIdentityRows(array $rows, string $grouping_identity): array
+    {
+        $unique_rows = [];
+        $seen_identity_values = [];
+
+        foreach ($rows as $row) {
+            $grouping_identities = $row[self::GROUPING_IDENTITIES] ?? null;
+
+            if (! is_array($grouping_identities) || ! array_key_exists($grouping_identity, $grouping_identities)) {
+                $unique_rows[] = $row;
+                continue;
+            }
+
+            $identity_value = (string) $grouping_identities[$grouping_identity];
+
+            if (isset($seen_identity_values[$identity_value])) {
+                continue;
+            }
+
+            $seen_identity_values[$identity_value] = true;
+            $unique_rows[] = $row;
+        }
+
+        return $unique_rows;
     }
 
     /**

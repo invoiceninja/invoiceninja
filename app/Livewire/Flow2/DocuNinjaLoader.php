@@ -63,6 +63,21 @@ class DocuNinjaLoader extends Component
                 throw new \Exception('Invoice invitation not found');
             }
 
+            $entity = $invitation->{$this->entity_type};
+            $sync = $entity->sync ?? false;
+
+            // Heal: marked complete, but DocuNinja never returned a signed PDF and no
+            // document was ever resolved - a false completion from the old failure path.
+            if ($sync && $sync->dn_completed === true
+                && empty($sync->dn_document_hashed_id)
+                && !collect($sync->invitations)->contains(fn ($i) => filled(data_get($i, 'dn_id')))) {
+
+                nlog("docuninja: clearing false completion on {$this->entity_type} {$entity->hashed_id}");
+
+                $sync->dn_completed = false;
+                $entity->sync = $sync;
+                $entity->saveQuietly();
+            }
 
             // Check if DocuNinja is already completed
             if (isset($invitation->{$this->entity_type}->sync->dn_completed) && $invitation->{$this->entity_type}->sync->dn_completed === true) {
@@ -98,10 +113,34 @@ class DocuNinjaLoader extends Component
 
                 $signable = $invitation->{$this->entity_type}->service()->getDocuNinjaSignable($invitation);
 
-                $sync = match ($this->entity_type) {
-                    'quote' => new QuoteSync(qb_id: '', dn_completed: false),
-                    'purchase_order' => new PurchaseOrderSync(qb_id: '', dn_completed: false),
-                    default => new InvoiceSync(qb_id: '', dn_completed: false),
+                // A failed API call (404/500, or a business refusal such as an unsignable
+                // document) returns an empty payload; a self-hosted install without the
+                // admin-api package returns null. An empty payload is NOT a completed
+                // signature - bail out before anything is persisted or dispatched.
+                if (!is_array($signable)
+                    || empty($signable['document_id'])
+                    || empty($signable['document_invitation_id'])
+                    || empty($signable['sig'])) {
+
+                    nlog([
+                        'docuninja::signable_failed',
+                        'entity_type' => $this->entity_type,
+                        'invitation_key' => $invitation->key,
+                        'company_key' => $invitation->company->company_key,
+                        'error' => $signable['error'] ?? 'No response from DocuNinja',
+                    ]);
+
+                    $this->error = ctrans('texts.docuninja_unavailable');
+                    $this->isLoading = false;
+                    $this->isReady = false;
+
+                    return;
+                }
+
+                $sync = $invitation->{$this->entity_type}->sync ?? match ($this->entity_type) {
+                    'quote' => new QuoteSync(),
+                    'purchase_order' => new PurchaseOrderSync(),
+                    default => new InvoiceSync(),
                 };
                 $sync->addInvitation(
                     $signable['invitation_key'],
@@ -114,7 +153,8 @@ class DocuNinjaLoader extends Component
 
             }
 
-            // Check if signing is not successful (already completed or error)
+            // `success: false` here can ONLY mean "already completed" - failures are
+            // guarded above and return early. Do not widen this to cover errors.
             if (isset($signable['success']) && !$signable['success']) {
                 $this->dispatch('docuninja-signature-captured');
                 $this->isLoading = false;

@@ -22,6 +22,7 @@ use App\Models\ClientContact;
 use App\Exceptions\PaymentFailed;
 use App\Factory\ClientFactory;
 use App\Jobs\Util\SystemLogger;
+use App\Utils\BcMath;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
@@ -225,8 +226,9 @@ class SquarePaymentDriver extends BaseDriver
 
         } else {
 
-            /** @var \Square\Models\Error $error */
-            $error = end($apiResponse->getErrors()); //@phpstan-ignore-line
+            /** @var \Square\Models\Error[] $errors */
+            $errors = $apiResponse->getErrors();
+            $error = end($errors);
 
             $data = [
                 'transaction_reference' => $payment->transaction_reference,
@@ -253,7 +255,7 @@ class SquarePaymentDriver extends BaseDriver
 
     }
 
-    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash): Payment|false
     {
         $this->init();
 
@@ -275,8 +277,15 @@ class SquarePaymentDriver extends BaseDriver
         $body = new \Square\Models\CreatePaymentRequest($cgt->token, \Illuminate\Support\Str::random(32));
         $body->setCustomerId($cgt->gateway_customer_reference);
         $body->setAmountMoney($amount_money);
+        $body->setAutocomplete(true);
+        $body->setLocationId($this->company_gateway->getConfigField('locationId'));
         $body->setReferenceId($payment_hash->hash);
         $body->setNote(substr($description, 0, 500));
+
+        $customer_details = new \Square\Models\CustomerDetails();
+        $customer_details->setCustomerInitiated(false);
+        $customer_details->setSellerKeyedIn(false);
+        $body->setCustomerDetails($customer_details);
 
         $response = $this->square->getPaymentsApi()->createPayment($body);
         $body = json_decode($response->getBody());
@@ -304,13 +313,14 @@ class SquarePaymentDriver extends BaseDriver
             return $payment;
         }
 
-        $this->unWindGatewayFees($payment_hash);
+        $error = $body->errors[0]->detail ?? ($response->getBody() ?: 'Unknown error from Square.');
 
-        $this->sendFailureMail($body->errors[0]->detail);
+        $this->sendFailureMail($error);
 
         $message = [
             'server_response' => $response,
             'data' => $payment_hash->data,
+            'error_code' => $body->errors[0]->code ?? '',
         ];
 
         SystemLogger::dispatch(
@@ -454,35 +464,41 @@ class SquarePaymentDriver extends BaseDriver
 
     }
 
-    public function convertAmount($amount)
+    public function convertAmount($amount): int
     {
-        $precision = $this->client->currency()->precision;
-
-        if ($precision == 0) {
-            return $amount;
-        }
-
-        if ($precision == 1) {
-            return $amount * 10;
-        }
-
-        if ($precision == 2) {
-            return $amount * 100;
-        }
-
-        return $amount;
+        return BcMath::toMinorUnits($amount, (int) $this->client->currency()->precision);
     }
 
     public function auth(): string
     {
+        $accessToken = trim((string) $this->company_gateway->getConfigField('accessToken'));
+        $applicationId = trim((string) $this->company_gateway->getConfigField('applicationId'));
+        $locationId = trim((string) $this->company_gateway->getConfigField('locationId'));
 
-        $api_response = $this->init()
-                    ->square
-                    ->getCustomersApi()
-                    ->listCustomers();
+        if ($accessToken === '' || $applicationId === '' || $locationId === '') {
+            return 'error';
+        }
 
+        try {
+            $square = $this->init()->square;
 
-        return (bool) count($api_response->getErrors()) == 0 ? 'ok' : 'error';
+            $tokenResponse = $square->getOAuthApi()->retrieveTokenStatus('Bearer ' . $accessToken);
+            if (! $tokenResponse->isSuccess()
+                || $tokenResponse->getResult()->getClientId() !== $applicationId) {
+                return 'error';
+            }
+
+            $locationResponse = $square->getLocationsApi()->retrieveLocation($locationId);
+            if (! $locationResponse->isSuccess()) {
+                return 'error';
+            }
+
+            $customerResponse = $square->getCustomersApi()->listCustomers(null, 1);
+
+            return $customerResponse->isSuccess() ? 'ok' : 'error';
+        } catch (\Throwable) {
+            return 'error';
+        }
 
     }
 

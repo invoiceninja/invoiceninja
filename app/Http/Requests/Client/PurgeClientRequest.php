@@ -13,6 +13,8 @@
 namespace App\Http\Requests\Client;
 
 use App\Http\Requests\Request;
+use App\Utils\Ninja;
+use Illuminate\Validation\Validator;
 
 class PurgeClientRequest extends Request
 {
@@ -26,6 +28,31 @@ class PurgeClientRequest extends Request
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        return $user->isAdmin();
+        return $user->isAdmin() && $user->can('edit', $this->client);
+    }
+
+    /** @return array<string, mixed> */
+    public function rules(): array
+    {
+        return [];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            if (! Ninja::isHosted()) {
+                return;
+            }
+
+            /** @var \App\Models\User $user */
+            $user = auth()->user();
+
+            if ((bool) $user->company()->getSetting('france_reporting_enabled')) {
+                $validator->errors()->add(
+                    'client',
+                    'The client cannot be purged while France reporting is enabled.',
+                );
+            }
+        });
     }
 }

@@ -546,8 +546,10 @@ class CompanySettings extends BaseSettings
     public string $france_reporting_schedule = 'ten_day'; //ten_day, monthly
 
     public bool $global_tag_inheritance = false;
+    public bool $documents_public_by_default = true;
 
     public static $casts = [
+        'documents_public_by_default' => 'bool',
         'global_tag_inheritance' => 'bool',
         'france_reporting_enabled' => 'bool',
         'france_reporting_schedule' => 'string',

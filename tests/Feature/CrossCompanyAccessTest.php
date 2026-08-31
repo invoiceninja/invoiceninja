@@ -20,6 +20,8 @@ use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
 use App\Models\Design;
+use App\Models\GroupSetting;
+use App\Models\Location;
 use App\Models\PaymentTerm;
 use App\Models\TaskStatus;
 use App\Models\TaxRate;
@@ -74,7 +76,7 @@ class CrossCompanyAccessTest extends TestCase
         $user = User::factory()->create([
             'account_id' => $this->test_account->id,
             'confirmation_code' => '123',
-            'email' => $this->faker->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         $cu = CompanyUserFactory::create($user->id, $company->id, $this->test_account->id);
@@ -400,6 +402,61 @@ class CrossCompanyAccessTest extends TestCase
      * Verifies that Company B's admin cannot bulk-archive/delete entities from Company A.
      */
 
+    public function testCrossCompanyBulkExpenseCategoryDenied(): void
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->postJson('/api/v1/expense_categories/bulk', [
+            'ids' => [$this->expense_category->hashed_id],
+            'action' => 'archive',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['ids']);
+        $this->assertNull($this->expense_category->fresh()->deleted_at);
+        $this->test_account->delete();
+    }
+
+    public function testCrossCompanyBulkGroupSettingDenied(): void
+    {
+        $group_setting = GroupSetting::where('company_id', $this->company->id)->firstOrFail();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->postJson('/api/v1/group_settings/bulk', [
+            'ids' => [$group_setting->hashed_id],
+            'action' => 'archive',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['ids']);
+        $this->assertNull($group_setting->fresh()->deleted_at);
+        $this->test_account->delete();
+    }
+
+    public function testCrossCompanyBulkLocationDenied(): void
+    {
+        $location = Location::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+        ]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->postJson('/api/v1/locations/bulk', [
+            'ids' => [$location->hashed_id],
+            'action' => 'archive',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['ids']);
+        $this->assertNull($location->fresh()->deleted_at);
+        $this->test_account->delete();
+    }
+
     public function testCrossCompanyBulkTokenDenied(): void
     {
         $this->withoutMiddleware(PasswordProtection::class);
@@ -417,10 +474,9 @@ class CrossCompanyAccessTest extends TestCase
             'X-API-TOKEN' => $this->other_token,
         ])->postJson('/api/v1/tokens/bulk', $data);
 
-        $arr = $response->json();
-
-        // The response should return empty data (entity filtered out by company scope)
-        $this->assertCount(0, $arr['data']);
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['ids']);
+        $this->assertNull($token->fresh()->deleted_at);
         $this->test_account->delete();
 
     }
@@ -437,8 +493,9 @@ class CrossCompanyAccessTest extends TestCase
             'X-API-TOKEN' => $this->other_token,
         ])->postJson('/api/v1/tax_rates/bulk', $data);
 
-        $arr = $response->json();
-        $this->assertCount(0, $arr['data']);
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['ids']);
+        $this->assertNull($this->tax_rate->fresh()->deleted_at);
         $this->test_account->delete();
 
     }
@@ -481,8 +538,9 @@ class CrossCompanyAccessTest extends TestCase
             'X-API-TOKEN' => $this->other_token,
         ])->postJson('/api/v1/webhooks/bulk', $data);
 
-        $arr = $response->json();
-        $this->assertCount(0, $arr['data']);
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['ids']);
+        $this->assertNull($webhook->fresh()->deleted_at);
         $this->test_account->delete();
 
     }
@@ -506,8 +564,9 @@ class CrossCompanyAccessTest extends TestCase
             'X-API-TOKEN' => $this->other_token,
         ])->postJson('/api/v1/payment_terms/bulk', $data);
 
-        $arr = $response->json();
-        $this->assertCount(0, $arr['data']);
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['ids']);
+        $this->assertNull($payment_term->fresh()->deleted_at);
         $this->test_account->delete();
 
     }
@@ -524,8 +583,9 @@ class CrossCompanyAccessTest extends TestCase
             'X-API-TOKEN' => $this->other_token,
         ])->postJson('/api/v1/vendors/bulk', $data);
 
-        $arr = $response->json();
-        $this->assertCount(0, $arr['data']);
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['ids']);
+        $this->assertNull($this->vendor->fresh()->deleted_at);
         $this->test_account->delete();
 
     }
@@ -614,8 +674,9 @@ class CrossCompanyAccessTest extends TestCase
             'X-API-TOKEN' => $this->other_token,
         ])->postJson('/api/v1/task_schedulers/bulk', $data);
 
-        $arr = $response->json();
-        $this->assertCount(0, $arr['data']);
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['ids']);
+        $this->assertNull($this->scheduler->fresh()->deleted_at);
         $this->test_account->delete();
 
     }
@@ -632,8 +693,9 @@ class CrossCompanyAccessTest extends TestCase
             'X-API-TOKEN' => $this->other_token,
         ])->postJson('/api/v1/recurring_expenses/bulk', $data);
 
-        $arr = $response->json();
-        $this->assertCount(0, $arr['data']);
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['ids']);
+        $this->assertNull($this->recurring_expense->fresh()->deleted_at);
         $this->test_account->delete();
 
     }
@@ -842,8 +904,9 @@ class CrossCompanyAccessTest extends TestCase
             'X-API-TOKEN' => $this->other_token,
         ])->postJson('/api/v1/designs/bulk', $data);
 
-        $arr = $response->json();
-        $this->assertCount(0, $arr['data']);
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['ids']);
+        $this->assertNull($design->fresh()->deleted_at);
         $this->test_account->delete();
 
     }

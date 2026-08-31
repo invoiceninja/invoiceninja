@@ -61,6 +61,7 @@ class ActivityRepository extends BaseRepository
 
         $activity->ip = $event_vars['ip'] ?: ' ';
         $activity->is_system = $event_vars['is_system'];
+        $activity->notes = $activity->notes ?? '';
 
         $activity->save();
 

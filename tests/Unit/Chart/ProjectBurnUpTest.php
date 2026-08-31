@@ -176,6 +176,71 @@ class ProjectBurnUpTest extends TestCase
         $this->assertEqualsWithDelta(1400.0, $with_drafts['totals']['invoiced_amount'], 0.01);
     }
 
+    public function testNonAdminProjectBurnUpOmitsFinancialFields(): void
+    {
+        $project = $this->createProject();
+
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'project_id' => $project->id,
+            'rate' => 100,
+            'time_log' => json_encode([
+                [Carbon::parse('2026-01-01 09:00:00')->timestamp, Carbon::parse('2026-01-01 11:00:00')->timestamp, '', true],
+            ]),
+            'duration' => 7200,
+            'is_deleted' => false,
+            'is_running' => false,
+            'calculated_start_date' => '2026-01-01',
+        ]);
+
+        $result = $this->burnUpService(is_admin: false)
+            ->generate($project, '2026-01-01', '2026-01-03', 'daily');
+
+        $this->assertFalse($result['metadata']['can_view_financials']);
+        $this->assertSame($project->hashed_id, $result['project']['id']);
+        $this->assertEqualsWithDelta(10.0, $result['project']['budgeted_hours'], 0.01);
+        $this->assertEqualsWithDelta(10.0, $result['markers']['budgeted_hours'], 0.01);
+        $this->assertEqualsWithDelta(2.0, $result['totals']['logged_hours'], 0.01);
+        $this->assertEqualsWithDelta(2.0, $result['totals']['billable_hours'], 0.01);
+        $this->assertEqualsWithDelta(2.0, $result['series'][0]['cumulative_logged_hours'], 0.01);
+        $this->assertArrayHasKey('ideal_hours', $result['series'][0]);
+        $this->assertArrayHasKey('task_log_count', $result['series'][0]);
+        $this->assertArrayHasKey('invoice_count', $result['series'][0]);
+        $this->assertArrayHasKey('expense_count', $result['series'][0]);
+
+        foreach (['task_rate', 'budgeted_amount', 'currency_id'] as $field) {
+            $this->assertArrayNotHasKey($field, $result['project']);
+        }
+
+        $this->assertArrayNotHasKey('budgeted_amount', $result['markers']);
+
+        $financial_fields = [
+            'task_value',
+            'invoiced_amount',
+            'paid_to_date',
+            'outstanding_amount',
+            'expense_amount',
+            'net_invoiced_amount',
+            'net_paid_amount',
+            'budgeted_amount',
+            'ideal_amount',
+        ];
+
+        foreach ($result['series'] as $bucket) {
+            foreach ($financial_fields as $field) {
+                $this->assertArrayNotHasKey($field, $bucket);
+                $this->assertArrayNotHasKey("cumulative_{$field}", $bucket);
+            }
+        }
+
+        foreach ($financial_fields as $field) {
+            $this->assertArrayNotHasKey($field, $result['totals']);
+            $this->assertArrayNotHasKey("cumulative_{$field}", $result['totals']);
+        }
+    }
+
     public function testServiceSplitsTaskLogsAcrossDailyBuckets(): void
     {
         $project = $this->createProject();

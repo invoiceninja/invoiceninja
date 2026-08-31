@@ -23,6 +23,7 @@ use App\Models\TransactionEvent;
 use App\DataMapper\CompanySettings;
 use App\Factory\InvoiceItemFactory;
 use App\Services\Report\TaxSummaryReport;
+use App\Services\Report\ProfitLoss;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use App\Listeners\Invoice\InvoiceTransactionEventEntry;
 use App\Listeners\Invoice\InvoiceTransactionEventEntryCash;
@@ -89,7 +90,7 @@ class TaxSummaryReportTest extends TestCase
         $this->user = User::factory()->create([
             'account_id' => $this->account->id,
             'confirmation_code' => 'xyz123',
-            'email' => \Illuminate\Support\Str::random(32).'@example.com',
+            'email' => \Illuminate\Support\Str::random(32).'@gmail.com',
         ]);
 
         $settings = CompanySettings::defaults();
@@ -1023,6 +1024,199 @@ class TaxSummaryReportTest extends TestCase
             );
         }
 
+        $this->account->delete();
+    }
+
+    public function testCashReportUsesTheApplicationDateInsteadOfThePaymentDate(): void
+    {
+        $this->buildData();
+
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => '2025-12-10',
+            'discount' => 0,
+            'tax_rate1' => 10,
+            'tax_name1' => 'GST',
+            'uses_inclusive_taxes' => false,
+            'line_items' => $this->buildLineItems(),
+        ]);
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->service()->markPaid()->save();
+        $payment = $invoice->payments()->firstOrFail();
+        $payment->date = '2025-12-10';
+        $payment->save();
+
+        \DB::table('paymentables')
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_type', 'invoices')
+            ->where('paymentable_id', $invoice->id)
+            ->update([
+                'created_at' => '2026-01-15 12:00:00',
+                'updated_at' => '2026-01-15 12:00:00',
+            ]);
+
+        $report = new TaxSummaryReport($this->company, [
+            'start_date' => '2026-01-01',
+            'end_date' => '2026-01-31',
+            'date_range' => 'custom',
+            'client_id' => $this->client->id,
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ]);
+        $report->run();
+
+        $reflection = new \ReflectionClass($report);
+        $property = $reflection->getProperty('taxes');
+        $property->setAccessible(true);
+        $taxes = $property->getValue($report);
+
+        $this->assertSame((float) $invoice->amount, (float) preg_replace('/[^0-9.\-]/', '', $taxes['cash_gross_sales']));
+
+        $this->account->delete();
+    }
+
+    public function testMixedTaxableAndExemptLinesAreSplitWithoutInflatingGrossSales(): void
+    {
+        $this->buildData();
+
+        $taxable_item = InvoiceItemFactory::create();
+        $taxable_item->quantity = 1;
+        $taxable_item->cost = 100;
+        $taxable_item->tax_name1 = 'GST';
+        $taxable_item->tax_rate1 = 10;
+        $taxable_item->tax_name2 = '';
+        $taxable_item->tax_rate2 = 0;
+        $taxable_item->tax_name3 = '';
+        $taxable_item->tax_rate3 = 0;
+
+        $exempt_item = InvoiceItemFactory::create();
+        $exempt_item->quantity = 1;
+        $exempt_item->cost = 50;
+        $exempt_item->tax_id = \App\Models\Product::PRODUCT_TYPE_EXEMPT;
+        $exempt_item->tax_name1 = '';
+        $exempt_item->tax_rate1 = 0;
+        $exempt_item->tax_name2 = '';
+        $exempt_item->tax_rate2 = 0;
+        $exempt_item->tax_name3 = '';
+        $exempt_item->tax_rate3 = 0;
+
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => now()->toDateString(),
+            'discount' => 0,
+            'uses_inclusive_taxes' => false,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+            'custom_surcharge1' => 0,
+            'custom_surcharge2' => 0,
+            'custom_surcharge3' => 0,
+            'custom_surcharge4' => 0,
+            'line_items' => [$taxable_item, $exempt_item],
+        ]);
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->service()->markPaid()->save();
+
+        $report = new TaxSummaryReport($this->company, [
+            'start_date' => now()->startOfMonth()->toDateString(),
+            'end_date' => now()->endOfMonth()->toDateString(),
+            'date_range' => 'custom',
+            'client_id' => $this->client->id,
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ]);
+        $report->run();
+
+        $reflection = new \ReflectionClass($report);
+        $property = $reflection->getProperty('taxes');
+        $property->setAccessible(true);
+        $taxes = $property->getValue($report);
+        $amount = fn (string $key): float => (float) preg_replace('/[^0-9.\-]/', '', $taxes[$key]);
+
+        $this->assertSame(160.0, $amount('gross_sales'));
+        $this->assertSame(110.0, $amount('taxable_sales'));
+        $this->assertSame(50.0, $amount('exempt_sales'));
+        $this->assertSame(160.0, $amount('cash_gross_sales'));
+        $this->assertSame(110.0, $amount('cash_taxable_sales'));
+        $this->assertSame(50.0, $amount('cash_exempt_sales'));
+
+        $this->account->delete();
+    }
+
+    public function testInvoiceReversalIsReportedInCashSummaryAndProfitLoss(): void
+    {
+        $this->buildData();
+        $this->travelTo(\Carbon\Carbon::create(2026, 1, 10, 12));
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 100;
+        $item->tax_name1 = 'GST';
+        $item->tax_rate1 = 10;
+        $item->tax_name2 = '';
+        $item->tax_rate2 = 0;
+        $item->tax_name3 = '';
+        $item->tax_rate3 = 0;
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'status_id' => Invoice::STATUS_DRAFT,
+            'date' => '2026-01-10',
+            'discount' => 0,
+            'uses_inclusive_taxes' => false,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+            'line_items' => [$item],
+        ]);
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->service()->markSent()->markPaid()->save();
+
+        $this->travelTo(\Carbon\Carbon::create(2026, 2, 5, 12));
+        $invoice->fresh()->service()->handleReversal()->save();
+        $payload = [
+            'start_date' => '2026-02-01',
+            'end_date' => '2026-02-28',
+            'date_range' => 'custom',
+            'client_id' => $this->client->id,
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ];
+        $summary = new TaxSummaryReport($this->company, $payload);
+        $summary->run();
+        $reflection = new \ReflectionClass($summary);
+        $property = $reflection->getProperty('taxes');
+        $property->setAccessible(true);
+        $taxes = $property->getValue($summary);
+        $amount = fn (string $key): float => (float) preg_replace('/[^0-9.\-]/', '', $taxes[$key]);
+
+        $this->assertSame(-110.0, $amount('cash_gross_sales'));
+        $this->assertSame(-110.0, $amount('cash_taxable_sales'));
+
+        $profit_loss = new ProfitLoss($this->company, [
+            ...$payload,
+            'is_income_billed' => false,
+            'include_tax' => false,
+        ]);
+        $profit_loss->build();
+
+        $this->assertSame(-100.0, $profit_loss->getIncome());
+        $this->assertSame(-10.0, $profit_loss->getIncomeTaxes());
+
+        $this->travelBack();
         $this->account->delete();
     }
 

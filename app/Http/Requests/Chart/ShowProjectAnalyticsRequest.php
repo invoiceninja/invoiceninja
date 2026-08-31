@@ -32,7 +32,7 @@ class ShowProjectAnalyticsRequest extends Request
         return $user
             && $project
             && ! $project->is_deleted
-            && ($user->isAdmin() || $user->hasPermission('view_dashboard'))
+            // && ($user->isAdmin() || $user->hasPermission('view_dashboard'))
             && $user->can('view', $project);
     }
 

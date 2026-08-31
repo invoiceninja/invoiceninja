@@ -34,6 +34,7 @@ class ShowPreviewRequest extends Request
     {
         $rules = [
             'design.design.body' => ['sometimes', new TwigLint()],
+            'design.design.customCss' => 'sometimes|string',
         ];
 
         return $rules;

@@ -31,7 +31,7 @@ class WebhookHandler implements ShouldQueue
 
     public $tries = 1; //number of retries
 
-    public $timeout = 30;
+    public $timeout = 60;
 
     public $deleteWhenMissingModels = true;
 
@@ -61,7 +61,7 @@ class WebhookHandler implements ShouldQueue
                 ->where('event_id', $this->event_id)
                 ->cursor()
                 ->each(function ($subscription) {
-                    (new WebhookSingle($subscription->id, $this->entity, $this->company->db, $this->includes))->handle();
+                    WebhookSingle::dispatch($subscription->id, $this->entity, $this->company->db, $this->includes);
                 });
     }
 

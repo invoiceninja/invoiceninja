@@ -166,7 +166,9 @@ class TaskRepository extends BaseRepository
             $this->new_task = false;
         }
 
-        if (!is_numeric($task->rate) && !isset($data['rate'])) {
+        $rate_provided = isset($data['rate']) && is_numeric($data['rate']);
+
+        if (!is_numeric($task->rate) && !$rate_provided) {
             $data['rate'] = 0;
         }
 
@@ -207,7 +209,7 @@ class TaskRepository extends BaseRepository
             $task->status_id = $this->setDefaultStatus($task);
         }
 
-        if ($this->new_task && (!$task->rate || $task->rate <= 0)) {
+        if ($this->new_task && !$rate_provided && (!$task->rate || $task->rate <= 0)) {
             $task->rate = $task->getRate();
         }
 

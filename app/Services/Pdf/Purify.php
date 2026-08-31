@@ -12,6 +12,11 @@ namespace App\Services\Pdf;
 
 class Purify
 {
+    /**
+     * 1×1 transparent PNG used when a remote image cannot be inlined.
+     */
+    private const TRANSPARENT_PNG_DATA_URI = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+
     private static array $allowed_elements = [
         // Document structure
         'html', 'head', 'body', 'meta', 'title', 'style',
@@ -134,7 +139,10 @@ class Purify
         'content' => ['*'],
         'http-equiv' => ['cache-control'],
         'viewport' => ['*'],
-        'xmlns' => ['http://www.w3.org/2000/svg'],
+    ];
+
+    private static array $allowed_href_template_variables = [
+        '$view_url',
     ];
 
     private static array $dangerous_css_patterns = [
@@ -342,14 +350,40 @@ class Purify
      *
      * @param  string $html
      * @param  bool $is_fragment
+     * @param  bool $inline_pdf_images When true, remote image URLs are fetched
+     *                                 server-side and replaced with data: URIs
+     *                                 before PDF render.
      * @return string
      */
-    public static function clean(string $html, bool $is_fragment = false): string
+    public static function clean(string $html, bool $is_fragment = false, bool $inline_pdf_images = false): string
     {
 
         if (config('ninja.disable_purify_html') || strlen($html) <= 1) {
+            $html = str_replace('%24', '$', $html);
+        } else {
+            $html = self::sanitizeHtml($html, $is_fragment, $inline_pdf_images);
+        }
+
+        return $html;
+    }
+
+    /**
+     * Sanitize HTML originating from an untrusted external document.
+     *
+     * This trust boundary must not be bypassed by the configurable sanitizer
+     * opt-out used for application-authored templates.
+     */
+    public static function cleanUntrustedDocument(string $html, bool $is_fragment = false): string
+    {
+        if (strlen($html) <= 1) {
             return str_replace('%24', '$', $html);
         }
+
+        return self::sanitizeHtml($html, $is_fragment);
+    }
+
+    private static function sanitizeHtml(string $html, bool $is_fragment, bool $inline_pdf_images = false): string
+    {
 
         $html = str_replace('%24', '$', $html);
 
@@ -376,8 +410,10 @@ class Purify
 
         @$document->loadHTML(htmlspecialchars_decode(htmlspecialchars($html, ENT_QUOTES, 'UTF-8')), LIBXML_NONET);
 
+        $imageFetcher = $inline_pdf_images ? new ImageFetcher() : null;
+
         // Function to recursively check nodes
-        $cleanNodes = function ($node) use (&$cleanNodes) {
+        $cleanNodes = function ($node) use (&$cleanNodes, $imageFetcher) {
 
             $allowed_elements = self::$allowed_elements;
             $allowed_attributes = self::$allowed_attributes;
@@ -464,6 +500,11 @@ class Purify
 
                     // Special handling for URLs (src and href)
                     if (($attr_name === 'src' || $attr_name === 'href') && !empty($allowed_values)) {
+                        if ($attr_name === 'href' && in_array($value, self::$allowed_href_template_variables, true)) {
+                            $node->setAttribute($name, $value);
+                            continue;
+                        }
+
                         $is_allowed = false;
 
                         // Debug log
@@ -494,6 +535,10 @@ class Purify
                         if ($is_allowed) {
                             $is_http = str_starts_with($value, 'http://') || str_starts_with($value, 'https://');
                             if (!$is_http || self::isHostSafe($value)) {
+                                if ($attr_name === 'src' && $imageFetcher !== null && self::isRemoteImageUrl($value)) {
+                                    $value = $imageFetcher->inline($value) ?? self::TRANSPARENT_PNG_DATA_URI;
+                                }
+
                                 $node->setAttribute($name, $value);
                             }
                         }
@@ -554,6 +599,11 @@ class Purify
             libxml_clear_errors();
         }
 
+    }
+
+    private static function isRemoteImageUrl(string $url): bool
+    {
+        return str_starts_with($url, 'http://') || str_starts_with($url, 'https://');
     }
 
 }

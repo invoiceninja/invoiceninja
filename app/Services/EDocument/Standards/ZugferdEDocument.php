@@ -21,6 +21,7 @@ use App\Models\Invoice;
 use App\Models\Product;
 use App\DataMapper\InvoiceItem;
 use App\Services\AbstractService;
+use App\Helpers\Invoice\InclusiveTax;
 use App\Helpers\Invoice\InvoiceSum;
 use horstoeko\zugferd\ZugferdProfiles;
 use App\Helpers\Invoice\InvoiceSumInclusive;
@@ -180,6 +181,7 @@ class ZugferdEDocument extends AbstractService
      */
     private function setDocumentTaxes(): self
     {
+        $document_discount = $this->getDocumentAllowanceTotalForZugferd();
 
         if ((string) $this->document->total_taxes == '0') {
 
@@ -187,10 +189,18 @@ class ZugferdEDocument extends AbstractService
             $tax_rate = 0;
 
             $category_bases = $this->sumDutyTaxCategoryBasesFromLineItems();
+            $total_base_for_discount = array_sum($category_bases);
+            $document_allowances = $this->allocateDocumentAllowanceAmounts($document_discount, $category_bases);
+
+            foreach ($document_allowances as $duty_category => $allowance_amount) {
+                $category_bases[$duty_category] = round(
+                    ($category_bases[$duty_category] ?? 0) - $allowance_amount,
+                    2
+                );
+            }
+
             $target_net = round((float) $this->document->amount - (float) $this->document->total_taxes, 2);
             $category_bases = $this->reconcileTaxCategoryBasesToTarget($category_bases, $target_net);
-
-            $total_base_for_discount = array_sum($category_bases);
 
             foreach ($category_bases as $duty_category => $base_amount) {
                 if (round($base_amount, 2) <= 0) {
@@ -208,17 +218,21 @@ class ZugferdEDocument extends AbstractService
                 );
             }
 
-            if ($this->calc->getTotalDiscount() > 0 && $total_base_for_discount > 0) {
+            if ($document_discount > 0 && $total_base_for_discount > 0) {
 
                 foreach ($category_bases as $duty_category => $base_amount) {
                     if (round($base_amount, 2) <= 0) {
                         continue;
                     }
 
-                    $ratio = $base_amount / $total_base_for_discount;
+                    $allowance_amount = $document_allowances[$duty_category] ?? 0.0;
+
+                    if ($allowance_amount <= 0) {
+                        continue;
+                    }
 
                     $this->xdocument->addDocumentAllowanceCharge(
-                        round($this->calc->getTotalDiscount() * $ratio, 2),
+                        $allowance_amount,
                         false,
                         $duty_category,
                         "VAT",
@@ -259,8 +273,13 @@ class ZugferdEDocument extends AbstractService
                         })
                         ->values();
 
+        $document_allowances = $this->allocateDocumentAllowanceAmounts(
+            $document_discount,
+            $tax_map->pluck('base_amount')->all()
+        );
+
         // Process each tax rate group
-        foreach ($tax_map as $item) {
+        foreach ($tax_map as $index => $item) {
             $tax_type = $this->getTaxType($item["tax_id"]);
             // Add tax information
             $isIntraCommunity = $tax_type == ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES;
@@ -275,24 +294,26 @@ class ZugferdEDocument extends AbstractService
                 $isIntraCommunity ? "VATEX-EU-IC" : null
             );
 
-            if ($this->calc->getTotalDiscount() > 0) {
+            if ($document_discount > 0) {
 
-                $ratio = $item["base_amount"] / $net_subtotal;
+                $allowance_amount = $document_allowances[$index] ?? 0.0;
 
-                $this->xdocument->addDocumentAllowanceCharge(
-                    round($this->calc->getTotalDiscount() * $ratio, 2),
-                    false,
-                    $this->getTaxType($item["tax_id"] ?? '2'),
-                    "VAT",
-                    $item["tax_rate"],
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    ctrans('texts.discount')
-                );
+                if ($allowance_amount > 0) {
+                    $this->xdocument->addDocumentAllowanceCharge(
+                        $allowance_amount,
+                        false,
+                        $this->getTaxType($item["tax_id"] ?? '2'),
+                        "VAT",
+                        $item["tax_rate"],
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        ctrans('texts.discount')
+                    );
+                }
             }
 
             $adjustment = 0;
@@ -395,12 +416,12 @@ class ZugferdEDocument extends AbstractService
 
     private function setDocumentSummation(): self
     {
-        $document_discount = $this->calc->getTotalDiscount();
+        $document_discount = $this->getDocumentAllowanceTotalForZugferd();
         $total_tax = round($this->calc->getTotalTaxes(), 2);
         $taxable_amount = $this->document->amount - $total_tax;
         $base_taxable_amount = $this->calc->getTaxMap()->sum('base_amount');
 
-        $subtotal = $this->document->uses_inclusive_taxes ? ($this->calc->getTotal() - $total_tax - $this->calc->getTotalNetSurcharges() + $this->calc->getTotalDiscount()) : ($this->calc->getSubTotal());
+        $subtotal = $this->getLineNetTotalSumForZugferd();
 
         // nlog([
         //      $this->document->amount,                    // Total amount with VAT
@@ -437,6 +458,9 @@ class ZugferdEDocument extends AbstractService
             /** @var InvoiceItem $item **/
 
             $position_id = (string) ($index + 1);
+            $unit_code = $item->type_id == 2 ? "HUR" : "H87";
+            $pricing = $this->resolveLinePricing($item);
+
             // 1. Start new position and set basic details
             $this->xdocument->addNewPosition($position_id)
                 ->setDocumentPositionProductDetails(
@@ -445,10 +469,12 @@ class ZugferdEDocument extends AbstractService
                 )
                 ->setDocumentPositionQuantity(
                     $item->quantity,
-                    $item->type_id == 2 ? "HUR" : "H87"
+                    $unit_code
                 )
                 ->setDocumentPositionNetPrice(
-                    $this->document->uses_inclusive_taxes ? $item->net_cost : $item->cost
+                    $pricing['price_amount'],
+                    $pricing['price_base_quantity'],
+                    $pricing['price_base_quantity'] ? $unit_code : null
                 );
 
             // 2. ALWAYS add tax information (even if zero)
@@ -460,30 +486,72 @@ class ZugferdEDocument extends AbstractService
                 $rate_percent
             );
 
-            $line_discount = 0;
-
             // 3. Add allowances/charges (discounts) if any
-            if ($item->discount > 0) {
-                $line_discount = $this->calculateTotalItemDiscountAmount($item);
-                $this->xdocument->addDocumentPositionGrossPriceAllowanceCharge(
-                    abs($line_discount),
-                    false
+            if ($pricing['allowance_amount'] > 0) {
+                $this->xdocument->addDocumentPositionAllowanceCharge(
+                    actualAmount: $pricing['allowance_amount'],
+                    isCharge: false,
+                    calculationPercent: null,
+                    basisAmount: null,
+                    reasonCode: null,
+                    reason: 'Discount'
                 );
             }
+
             // 4. Finally add monetary summation
-            $this->xdocument->setDocumentPositionLineSummation($this->document->uses_inclusive_taxes ? ($item->line_total - $item->tax_amount) : $item->line_total);
+            $this->xdocument->setDocumentPositionLineSummation($pricing['line_total']);
         }
 
         return $this;
     }
 
-    private function calculateTotalItemDiscountAmount($item): float
+    /**
+     * @return array{
+     *     price_amount: float,
+     *     price_base_quantity: float|null,
+     *     allowance_amount: float,
+     *     line_total: float
+     * }
+     */
+    private function resolveLinePricing(object $item): array
     {
-        if ($item->is_amount_discount) {
-            return $item->discount;
+        $quantity = (float) $item->quantity;
+        $undiscounted_line_total = round((float) $item->cost * $quantity, 2);
+        $discounted_line_total = round((float) $item->line_total, 2);
+
+        if ($this->document->uses_inclusive_taxes) {
+            $rates = [
+                (float) $item->tax_rate1,
+                (float) $item->tax_rate2,
+                (float) $item->tax_rate3,
+            ];
+
+            $undiscounted_line_total = InclusiveTax::backout($undiscounted_line_total, $rates, 2)['net'];
+            $discounted_line_total = InclusiveTax::backout($discounted_line_total, $rates, 2)['net'];
         }
 
-        return ($item->cost * $item->quantity) * ($item->discount / 100);
+        $price_amount = $quantity != 0
+            ? round($undiscounted_line_total / $quantity, 2)
+            : $undiscounted_line_total;
+
+        $price_base_quantity = null;
+
+        if (
+            $quantity != 0
+            && abs(round($price_amount * $quantity, 2) - $undiscounted_line_total) > 0.001
+        ) {
+            $price_amount = $undiscounted_line_total;
+            $price_base_quantity = abs($quantity);
+        }
+
+        return [
+            'price_amount' => round($price_amount, 2),
+            'price_base_quantity' => $price_base_quantity,
+            'allowance_amount' => $item->discount > 0
+                ? max(0, round($undiscounted_line_total - $discounted_line_total, 2))
+                : 0.0,
+            'line_total' => round($discounted_line_total, 2),
+        ];
     }
 
 
@@ -707,12 +775,94 @@ class ZugferdEDocument extends AbstractService
 
     private function getLineNetTotalForZugferd(object $item): float
     {
-        return round(
-            $this->document->uses_inclusive_taxes
-                ? (float) $item->line_total - (float) $item->tax_amount
-                : (float) $item->line_total,
-            2
-        );
+        return $this->resolveLinePricing($item)['line_total'];
+    }
+
+    private function getLineNetTotalSumForZugferd(): float
+    {
+        $line_total = 0.0;
+
+        foreach ($this->document->line_items as $item) {
+            $line_total += $this->getLineNetTotalForZugferd($item);
+        }
+
+        return round($line_total, 2);
+    }
+
+    private function getDocumentAllowanceTotalForZugferd(): float
+    {
+        $document_discount = round((float) $this->calc->getTotalDiscount(), 2);
+
+        if (! $this->document->uses_inclusive_taxes || $document_discount <= 0) {
+            return $document_discount;
+        }
+
+        $line_total = $this->getLineNetTotalSumForZugferd();
+        $charge_total = round((float) $this->calc->getTotalNetSurcharges(), 2);
+        $tax_basis_total = round((float) $this->document->amount - (float) $this->calc->getTotalTaxes(), 2);
+
+        return max(0, round($line_total + $charge_total - $tax_basis_total, 2));
+    }
+
+    /**
+     * @param  array<array-key, float|int>  $weights
+     * @return array<array-key, float>
+     */
+    private function allocateDocumentAllowanceAmounts(float $allowance, array $weights): array
+    {
+        $total_cents = max(0, (int) round($allowance * 100));
+        $normalized_weights = [];
+        $allocations = [];
+
+        foreach ($weights as $key => $weight) {
+            $weight = (float) $weight;
+            $normalized_weights[$key] = is_finite($weight) ? max(0, $weight) : 0.0;
+            $allocations[$key] = 0;
+        }
+
+        $total_weight = array_sum($normalized_weights);
+
+        if ($total_cents === 0 || empty($allocations)) {
+            return array_map(static fn (): float => 0.0, $allocations);
+        }
+
+        if ($total_weight <= 0) {
+            foreach (array_keys($allocations) as $key) {
+                $allocations[$key] = $total_cents;
+                break;
+            }
+
+            return array_map(static fn (int $cents): float => $cents / 100, $allocations);
+        }
+
+        $remainders = [];
+        $positions = [];
+
+        foreach ($normalized_weights as $key => $weight) {
+            $raw_cents = $total_cents * ($weight / $total_weight);
+            $allocated_cents = (int) floor($raw_cents);
+
+            $allocations[$key] = $allocated_cents;
+            $remainders[$key] = $raw_cents - $allocated_cents;
+            $positions[$key] = count($positions);
+        }
+
+        $remaining_cents = $total_cents - array_sum($allocations);
+        $allocation_order = array_keys($allocations);
+
+        usort($allocation_order, static function (int|string $left, int|string $right) use ($remainders, $positions): int {
+            $remainder_comparison = $remainders[$right] <=> $remainders[$left];
+
+            return $remainder_comparison !== 0
+                ? $remainder_comparison
+                : $positions[$left] <=> $positions[$right];
+        });
+
+        for ($index = 0; $index < $remaining_cents; $index++) {
+            $allocations[$allocation_order[$index]]++;
+        }
+
+        return array_map(static fn (int $cents): float => $cents / 100, $allocations);
     }
 
     /**

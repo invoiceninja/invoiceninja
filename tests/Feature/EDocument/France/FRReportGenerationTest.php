@@ -59,10 +59,6 @@ class FRReportGenerationTest extends TestCase
         $peppolJson = $eInvoice->encode($peppolInvoice, 'json', $context);
         $b2biInvoice = $serializer->deserialize($peppolJson, B2BIInvoice::class, 'json', $context);
         $normalized = $this->removeEmptyValues($b2biInvoice->toArray());
-        $artifact = $this->storecoveF10Artifact($normalized);
-        $artifactPath = base_path('tests/artifacts/fr_f10_b2bi_invoice_storecove_shape.json');
-
-        $this->writeJsonArtifact($artifactPath, $artifact);
 
         $this->assertInstanceOf(B2BIInvoice::class, $b2biInvoice);
         $this->assertInstanceOf(B2BIParty::class, $b2biInvoice->accounting_supplier_party);
@@ -80,10 +76,6 @@ class FRReportGenerationTest extends TestCase
         $this->assertArrayHasKey('taxSubtotals', $normalized);
         $this->assertNotEmpty($normalized['invoiceLines']);
         $this->assertNotEmpty($normalized['taxSubtotals']);
-        $this->assertFileExists($artifactPath);
-        $this->assertSame($artifact, json_decode(file_get_contents($artifactPath), true, 512, JSON_THROW_ON_ERROR));
-        $this->assertSame('fr_e_report', $artifact['document']['documentType']);
-        $this->assertSame($normalized, $artifact['document']['frEReport']['transactionReport']['b2biInvoices'][0]);
         $this->assertSame(1200, $normalized['amountIncludingVat']);
         $this->assertSame([
             [
@@ -113,7 +105,7 @@ class FRReportGenerationTest extends TestCase
         $settings->vat_number = 'FR12345678901';
         $settings->id_number = '12345678900012';
         $settings->e_invoice_type = 'PEPPOL';
-        $settings->email = $this->faker->safeEmail();
+        $settings->email = uniqid('testuser') . '@gmail.com';
 
         $taxData = new TaxModel();
         $taxData->regions->EU->tax_all_subregions = true;
@@ -140,7 +132,7 @@ class FRReportGenerationTest extends TestCase
             'user_id' => $client->user_id,
             'is_primary' => true,
             'send_email' => true,
-            'email' => $this->faker->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         $client->setRelation('company', $this->company);
@@ -199,52 +191,6 @@ class FRReportGenerationTest extends TestCase
         return new Serializer(
             [new DateTimeNormalizer(), $normalizer, new ArrayDenormalizer()],
             [new XmlEncoder(['xml_format_output' => true, 'remove_empty_tags' => true]), new JsonEncoder()],
-        );
-    }
-
-    /**
-     * @param array<string, mixed> $b2biInvoice
-     * @return array<string, mixed>
-     */
-    private function storecoveF10Artifact(array $b2biInvoice): array
-    {
-        return [
-            'legalEntityId' => -1,
-            'document' => [
-                'documentType' => 'fr_e_report',
-                'frEReport' => [
-                    'schemaVersion' => 1,
-                    'typeCode' => 'IN',
-                    'documentId' => 'FR-F10-B2BI-PEPPOL-SERIALIZER',
-                    'issueDate' => '2026-10-10',
-                    'issueTime' => '09:00:00',
-                    'timeZone' => '+0200',
-                    'transactionReport' => [
-                        'period' => '2026-09-01 - 2026-09-30',
-                        'b2biInvoices' => [
-                            $b2biInvoice,
-                        ],
-                        'b2cTransactions' => [],
-                    ],
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * @param array<string, mixed> $artifact
-     */
-    private function writeJsonArtifact(string $path, array $artifact): void
-    {
-        $directory = dirname($path);
-
-        if (! is_dir($directory)) {
-            mkdir($directory, 0755, true);
-        }
-
-        file_put_contents(
-            $path,
-            json_encode($artifact, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR).PHP_EOL,
         );
     }
 

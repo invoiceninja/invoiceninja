@@ -16,7 +16,10 @@ use App\Factory\CompanyLedgerFactory;
 use App\Models\Activity;
 use App\Models\Client;
 use App\Models\CompanyLedger;
+use App\Models\TransactionEvent;
 use App\Services\AbstractService;
+use App\Services\EDocument\Standards\France\FranceScopeInvalidationRecorder;
+use Illuminate\Support\Facades\DB;
 
 class Merge extends AbstractService
 {
@@ -32,25 +35,54 @@ class Merge extends AbstractService
 
     public function run()
     {
+        $mergeableClient = $this->mergable_client->present()->name();
+        $eventVars = \App\Utils\Ninja::eventVars(auth()->user() ? auth()->user()->id : null);
+        $eventVars['client_hash'] = $this->mergable_client->client_hash;
+        $client = $this->mergeRecords();
 
-        $mergeable_client = $this->mergable_client->present()->name();
+        event(new \App\Events\Client\ClientWasMerged(
+            $mergeableClient,
+            $client,
+            $client->company,
+            $eventVars,
+        ));
 
-        $event_vars = \App\Utils\Ninja::eventVars(auth()->user() ? auth()->user()->id : null);
-        $event_vars['client_hash'] = $this->mergable_client->client_hash;
+        return $client;
+    }
 
-        $this->mergable_client->activities()->update(['client_id' => $this->client->id]);
-        $this->mergable_client->contacts()->update(['client_id' => $this->client->id]);
-        $this->mergable_client->gateway_tokens()->update(['client_id' => $this->client->id]);
+    /**
+     * Deliberately takes no client-level lock up front. The codebase acquires
+     * entity rows before the client row (MarkPaid, DeletePaymentV2); locking the
+     * client first here would invert that order and deadlock against them. The
+     * mass updates below X-lock the moved rows, and ClientService takes the
+     * client row last, which keeps this consistent with every other caller.
+     */
+    private function mergeRecords()
+    {
+        return DB::transaction(fn() => $this->applyMerge(), attempts: 3);
+    }
+
+    private function applyMerge()
+    {
+        $this->mergable_client->purgeable_activities()->update(['client_id' => $this->client->id]);
+        $this->mergable_client->contacts()->withTrashed()->update(['client_id' => $this->client->id]);
+        $this->mergable_client->locations()->withTrashed()->update(['client_id' => $this->client->id]);
+        $this->mergable_client->gateway_tokens()->withTrashed()->update(['client_id' => $this->client->id]);
         $this->mergable_client->credits()->update(['client_id' => $this->client->id]);
         $this->mergable_client->expenses()->update(['client_id' => $this->client->id]);
-        $this->mergable_client->invoices()->update(['client_id' => $this->client->id]);
+        /** Payments are reassigned before invoices to match the payment -> invoice
+         * lock order used by DeletePaymentV2, so the two cannot deadlock. */
         $this->mergable_client->payments()->update(['client_id' => $this->client->id]);
+        $this->mergable_client->invoices()->update(['client_id' => $this->client->id]);
         $this->mergable_client->projects()->update(['client_id' => $this->client->id]);
         $this->mergable_client->quotes()->update(['client_id' => $this->client->id]);
         $this->mergable_client->recurring_invoices()->update(['client_id' => $this->client->id]);
         $this->mergable_client->recurring_expenses()->update(['client_id' => $this->client->id]);
+        $this->mergable_client->purchase_orders()->update(['client_id' => $this->client->id]);
         $this->mergable_client->tasks()->update(['client_id' => $this->client->id]);
-        $this->mergable_client->documents()->update(['documentable_id' => $this->client->id]);
+        $this->mergable_client->documents()->withTrashed()->update(['documentable_id' => $this->client->id]);
+        $this->mergable_client->transaction_events()->update(['client_id' => $this->client->id]);
+        
 
         /* Loop through contacts an only merge distinct contacts by email */
         $this->mergable_client->contacts->each(function ($contact) {
@@ -66,7 +98,7 @@ class Merge extends AbstractService
 
 
         $this->mergable_client->forceDelete();
-        
+
         $old_balance = $this->client->balance;
 
         $this->client = $this->client->service()->calculateBalance()->calculatePaidToDate()->updatePaymentBalance()->save();
@@ -75,7 +107,12 @@ class Merge extends AbstractService
 
         $this->updateLedger($this->client->balance - $old_balance);
 
-        event(new \App\Events\Client\ClientWasMerged($mergeable_client, $this->client, $this->client->company, $event_vars));
+        if ((bool) $this->client->company->getSetting('france_reporting_enabled')) {
+            app(FranceScopeInvalidationRecorder::class)->recordAndDispatch(
+                company: $this->client->company,
+                clientId: $this->client->id,
+            );
+        }
 
         return $this->client;
     }

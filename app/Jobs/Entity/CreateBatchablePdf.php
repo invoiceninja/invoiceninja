@@ -12,13 +12,13 @@
 
 namespace App\Jobs\Entity;
 
-use Illuminate\Bus\Batchable;
 use App\Jobs\Entity\CreateRawPdf;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Services\PdfMaker\BatchPdfService;
+use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class CreateBatchablePdf implements ShouldQueue
 {
@@ -27,26 +27,18 @@ class CreateBatchablePdf implements ShouldQueue
     use InteractsWithQueue;
     use SerializesModels;
 
-    private $batch_key;
-
-    private $invitation;
-
     /**
      * @param $invitation
      */
-    public function __construct($invitation, $batch_key)
-    {
-        $this->invitation = $invitation;
-        $this->batch_key = $batch_key;
-    }
+    public function __construct(private mixed $invitation, private string $batch_key) {}
 
-    public function handle()
+    public function handle(BatchPdfService $batch_pdf_service)
     {
         \App\Libraries\MultiDB::setDb($this->invitation->company->db);
 
         $pdf = (new CreateRawPdf($this->invitation))->handle();
 
-        Cache::put($this->batch_key, $pdf);
+        $batch_pdf_service->cachePdf($this->batch_key, $pdf);
     }
 
     public function failed($e)

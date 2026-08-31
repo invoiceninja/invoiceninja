@@ -12,34 +12,39 @@
 
 namespace App\Services\Invoice;
 
-use Carbon\Carbon;
-use App\Utils\Ninja;
-use App\Utils\Number;
+use App\DataMapper\InvoiceItem;
+use App\Events\Invoice\InvoiceAutoBillFailed;
+use App\Events\Invoice\InvoiceAutoBillSuccess;
+use App\Events\Invoice\InvoiceWasPaid;
+use App\Events\Payment\PaymentWasCreated;
+use App\Factory\PaymentFactory;
+use App\Libraries\MultiDB;
 use App\Models\Client;
+use App\Models\ClientGatewayToken;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Paymentable;
-use App\Libraries\MultiDB;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use Illuminate\Support\Str;
-use App\DataMapper\InvoiceItem;
-use App\Events\Invoice\InvoiceAutoBillFailed;
-use App\Events\Invoice\InvoiceAutoBillSuccess;
-use App\Factory\PaymentFactory;
-use App\Services\AbstractService;
-use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
-use App\Models\ClientGatewayToken;
-use App\Events\Invoice\InvoiceWasPaid;
+use App\Models\GatewayType;
+use App\PaymentDrivers\StripePaymentDriver;
 use App\Repositories\CreditRepository;
 use App\Repositories\PaymentRepository;
-use App\Events\Payment\PaymentWasCreated;
+use App\Services\AbstractService;
+use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
+use App\Utils\Ninja;
+use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class AutoBillInvoice extends AbstractService
 {
     use MakesHash;
+
+    /** The number of failed attempts an invoice is allowed before auto billing is switched off. Shared with AutoBillCron so the selection filter and the cut off cannot drift apart. */
+    public const MAX_TRIES = 3;
 
     private Client $client;
 
@@ -58,7 +63,6 @@ class AutoBillInvoice extends AbstractService
         MultiDB::setDb($this->db);
 
         /* @var \App\Modesl\Client $client */
-        $is_partial = false;
 
         /* Mark the invoice as sent */
         $this->invoice = $this->invoice->service()->markSent()->save();
@@ -88,12 +92,9 @@ class AutoBillInvoice extends AbstractService
         }
 
         $amount = 0;
-        $invoice_total = 0;
 
         /* Determine $amount */
         if ($this->invoice->partial > 0) {
-            $is_partial = true;
-            $invoice_total = $this->invoice->balance;
             $amount = $this->invoice->partial;
         } elseif ($this->invoice->balance > 0) {
             $amount = $this->invoice->balance;
@@ -105,6 +106,13 @@ class AutoBillInvoice extends AbstractService
         nlog($this->invoice->amount);
         nlog($this->invoice->balance);
 
+        /**
+         * The try is consumed here - before anything can fail - so that a gateway which
+         * returns falsely, an error thrown outside the catch below, or a worker that dies
+         * mid charge cannot leave the counter untouched and be retried indefinitely.
+         */
+        $this->invoice->increment('auto_bill_tries', 1);
+
         /* Retrieve the Client Gateway Token */
         /** @var \App\Models\ClientGatewayToken $gateway_token */
         $gateway_token = $this->getGateway($amount);
@@ -113,28 +121,27 @@ class AutoBillInvoice extends AbstractService
         if (! $gateway_token || ! $gateway_token->gateway || ! $gateway_token->gateway->driver($this->client)->token_billing) {
             nlog('Bailing out - no suitable gateway token found.');
 
+            $this->disableAutoBillIfExhausted();
+
             throw new \Exception(ctrans('texts.no_payment_method_specified'));
             // return $this->invoice;
         }
 
-        nlog("Gateway present - adding gateway fee on {$amount}");
+        nlog("Gateway present - quoting gateway fee on {$amount}");
 
         $payment_hash_string = Str::random(32);
 
-        /* $gateway fee */
-        $this->invoice = $this->invoice->service()->addGatewayFee($gateway_token->gateway, $gateway_token->gateway_type_id, $amount, $payment_hash_string)->save();
+        /** The invoice is not touched - the fee reaches it when the payment is confirmed. */
+        $quote = $this->invoice->service()->quoteGatewayFee($gateway_token->gateway, $gateway_token->gateway_type_id, $amount);
 
-        //change from $this->invoice->amount to $this->invoice->balance
-        if ($is_partial) {
-            $fee = $this->invoice->balance - $invoice_total;
-        } else {
-            $fee = $this->invoice->balance - $amount;
-        }
+        $fee = $quote['gross'];
+        $fee_net = $quote['net'];
 
         nlog("fee is {$fee}");
 
         if ($fee > $amount) {
             $fee = 0;
+            $fee_net = 0;
         }
 
         $fee = round($fee, $this->client->currency()->precision);
@@ -145,6 +152,7 @@ class AutoBillInvoice extends AbstractService
             'hash' => $payment_hash_string,
             'data' => [
                 'amount_with_fee' => round($amount + $fee, $this->client->currency()->precision),
+                'fee_net' => $fee_net,
                 'invoices' => [
                     [
                         'invoice_id' => $this->invoice->hashed_id,
@@ -171,17 +179,7 @@ class AutoBillInvoice extends AbstractService
             nlog('payment NOT captured for ' . $this->invoice->number . ' with error ' . $e->getMessage());
             event(new InvoiceAutoBillFailed($this->invoice, $this->invoice->company, Ninja::eventVars(), $e->getMessage()));
 
-            $this->invoice->increment('auto_bill_tries', 1);
-            $this->invoice->refresh();
-
-            if ($this->invoice->auto_bill_tries == 4) {
-
-                \App\Models\Invoice::where('id', $this->invoice->id)->update([
-                    'auto_bill_enabled' => false,
-                    'auto_bill_tries' => 0,
-                ]);
-
-            }
+            $this->disableAutoBillIfExhausted();
 
             throw $e;
 
@@ -189,8 +187,40 @@ class AutoBillInvoice extends AbstractService
 
         if ($payment) {
             nlog('Auto Bill payment captured for ' . $this->invoice->number);
+
+            /** The counter tracks consecutive failures, a capture resets the budget - relevant for partial / instalment invoices which are billed repeatedly. */
+            \App\Models\Invoice::where('id', $this->invoice->id)->update(['auto_bill_tries' => 0]);
+
             event(new InvoiceAutoBillSuccess($this->invoice, $this->invoice->company, Ninja::eventVars()));
+        } else {
+
+            /** A driver which reports a decline by returning falsely rather than throwing has still consumed a try. */
+            $this->disableAutoBillIfExhausted();
         }
+    }
+
+    /**
+     * Switches auto billing off once the invoice has exhausted its attempts.
+     *
+     * The try is consumed before the charge is attempted, so the counter is
+     * authoritative by the time a failure lands here. The counter is cleared
+     * alongside the flag so that re-enabling auto billing on the invoice grants
+     * a fresh budget rather than being silently ignored by AutoBillCron.
+     */
+    private function disableAutoBillIfExhausted(): void
+    {
+        $this->invoice->refresh();
+
+        if ($this->invoice->auto_bill_tries < self::MAX_TRIES) {
+            return;
+        }
+
+        nlog("Auto bill exhausted after {$this->invoice->auto_bill_tries} attempts - disabling auto bill for invoice {$this->invoice->number}");
+
+        \App\Models\Invoice::where('id', $this->invoice->id)->update([
+            'auto_bill_enabled' => false,
+            'auto_bill_tries' => 0,
+        ]);
     }
 
     /**
@@ -499,17 +529,16 @@ class AutoBillInvoice extends AbstractService
                                 ->orderBy('is_default', 'DESC')
                                 ->get();
 
-        $filtered_gateways = $gateway_tokens->filter(function ($gateway_token) use ($amount) {
+        $filtered_gateways = $gateway_tokens->filter(function (ClientGatewayToken $gateway_token) use ($amount): bool {
             $company_gateway = $gateway_token->gateway;
+
+            if (! $this->canAutoBill($gateway_token)) {
+                return false;
+            }
 
             //check if fees and limits are set
             if (isset($company_gateway->fees_and_limits) && ! is_array($company_gateway->fees_and_limits) && property_exists($company_gateway->fees_and_limits, $gateway_token->gateway_type_id)) { //@phpstan-ignore-line
-                //if valid we keep this gateway_token
-                if ($this->invoice->client->validGatewayForAmount($company_gateway->fees_and_limits->{$gateway_token->gateway_type_id}, $amount)) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return $this->invoice->client->validGatewayForAmount($company_gateway->fees_and_limits->{$gateway_token->gateway_type_id}, $amount);
             }
 
             return true; //if no fees_and_limits set then we automatically must add this gateway
@@ -520,6 +549,21 @@ class AutoBillInvoice extends AbstractService
         }
 
         return false;
+    }
+
+    private function canAutoBill(ClientGatewayToken $gateway_token): bool
+    {
+        if ($gateway_token->gateway_type_id !== GatewayType::BANK_TRANSFER) {
+            return true;
+        }
+
+        $driver = $gateway_token->gateway?->driver($this->client);
+
+        if (! $driver instanceof StripePaymentDriver) {
+            return true;
+        }
+
+        return ($gateway_token->meta->state ?? null) === 'authorized';
     }
 
 }

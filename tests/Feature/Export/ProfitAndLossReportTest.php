@@ -16,13 +16,16 @@ use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Factory\ExpenseCategoryFactory;
 use App\Factory\ExpenseFactory;
+use App\Factory\InvoiceItemFactory;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Expense;
 use App\Models\Invoice;
+use App\Models\Paymentable;
 use App\Models\User;
+use App\Services\Payment\PaymentApplicationDateResolver;
 use App\Services\Report\ProfitLoss;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
@@ -89,7 +92,7 @@ class ProfitAndLossReportTest extends TestCase
         $this->user = User::factory()->create([
             'account_id' => $this->account->id,
             'confirmation_code' => 'xyz123',
-            'email' => \Illuminate\Support\Str::random(32)."@example.com",
+            'email' => \Illuminate\Support\Str::random(32)."@gmail.com",
         ]);
 
         $settings = CompanySettings::defaults();
@@ -373,12 +376,22 @@ class ProfitAndLossReportTest extends TestCase
             'client_id' => $client->id,
         ]);
 
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 10;
+        $item->tax_name1 = '';
+        $item->tax_rate1 = 0;
+        $item->tax_name2 = '';
+        $item->tax_rate2 = 0;
+        $item->tax_name3 = '';
+        $item->tax_rate3 = 0;
+
         $i = Invoice::factory()->create([
             'client_id' => $client->id,
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
-            'amount' => 10,
-            'balance' => 10,
+            'amount' => 0,
+            'balance' => 0,
             'status_id' => 2,
             'total_taxes' => 0,
             'date' => now()->format('Y-m-d'),
@@ -392,7 +405,10 @@ class ProfitAndLossReportTest extends TestCase
             'tax_name3' => '',
             'uses_inclusive_taxes' => true,
             'exchange_rate' => 1,
+            'line_items' => [$item],
         ]);
+
+        $i = $i->calc()->getInvoice();
 
         $i->service()->markPaid()->save();
 
@@ -400,6 +416,85 @@ class ProfitAndLossReportTest extends TestCase
         $pl->build();
 
         $this->assertEquals(10.0, $pl->getIncome());
+
+        $this->account->delete();
+    }
+
+    public function testPaymentIncomeUsesInvoiceApplicationDate(): void
+    {
+        $this->buildData();
+
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'is_deleted' => false,
+        ]);
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 100;
+        $item->tax_name1 = '';
+        $item->tax_rate1 = 0;
+        $item->tax_name2 = '';
+        $item->tax_rate2 = 0;
+        $item->tax_name3 = '';
+        $item->tax_rate3 = 0;
+        $invoice = Invoice::factory()->create([
+            'client_id' => $client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 0,
+            'balance' => 0,
+            'status_id' => Invoice::STATUS_SENT,
+            'total_taxes' => 0,
+            'date' => '2026-01-10',
+            'discount' => 0,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+            'uses_inclusive_taxes' => false,
+            'exchange_rate' => 1,
+            'line_items' => [$item],
+        ]);
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->service()->markPaid()->save();
+        $payment = $invoice->payments()->firstOrFail();
+        $payment->date = '2026-01-10';
+        $payment->exchange_rate = 1;
+        $payment->save();
+        $paymentable = Paymentable::query()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_type', 'invoices')
+            ->where('paymentable_id', $invoice->id)
+            ->firstOrFail();
+        $paymentable->created_at = app(PaymentApplicationDateResolver::class)
+            ->encodeBusinessDate('2026-02-05', $this->company->timezone()?->name ?: config('app.timezone'));
+        $paymentable->save();
+
+        $january = new ProfitLoss($this->company, [
+            'start_date' => '2026-01-01',
+            'end_date' => '2026-01-31',
+            'date_range' => 'custom',
+            'is_income_billed' => false,
+            'include_tax' => false,
+            'user_id' => $this->user->id,
+        ]);
+        $january->build();
+
+        $february = new ProfitLoss($this->company, [
+            'start_date' => '2026-02-01',
+            'end_date' => '2026-02-28',
+            'date_range' => 'custom',
+            'is_income_billed' => false,
+            'include_tax' => false,
+            'user_id' => $this->user->id,
+        ]);
+        $february->build();
+
+        $this->assertSame(0.0, $january->getIncome());
+        $this->assertSame(100.0, $february->getIncome());
 
         $this->account->delete();
     }

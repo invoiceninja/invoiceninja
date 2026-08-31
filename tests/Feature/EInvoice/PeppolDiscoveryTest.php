@@ -92,7 +92,7 @@ class PeppolDiscoveryTest extends TestCase
             'client_id' => $client->id,
             'company_id' => $this->company->id,
             'is_primary' => 1,
-            'email' => 'test@example.com',
+            'email' => 'test@gmail.com',
         ]);
 
         return $client->fresh();
@@ -711,7 +711,7 @@ class PeppolDiscoveryTest extends TestCase
             'client_id' => $client->id,
             'company_id' => $itCompany->id,
             'is_primary' => 1,
-            'email' => 'test@example.com',
+            'email' => 'test@gmail.com',
         ]);
 
         $client = $client->fresh(['country']);
@@ -749,7 +749,7 @@ class PeppolDiscoveryTest extends TestCase
         $this->assertEquals('IT:CF', $meta['routing']['eIdentifiers'][0]['scheme']);
         $this->assertEquals('RSSMRA85M01H501Z', $meta['routing']['eIdentifiers'][0]['id']);
         $this->assertArrayHasKey('emails', $meta['routing']);
-        $this->assertContains('test@example.com', $meta['routing']['emails']);
+        $this->assertContains('test@gmail.com', $meta['routing']['emails']);
     }
 
     // ──────────────────────────────────────────────────────

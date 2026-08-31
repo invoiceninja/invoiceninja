@@ -24,6 +24,8 @@ use App\Jobs\Payment\EmailRefundPayment;
 use App\Repositories\ActivityRepository;
 use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
 use App\Listeners\Payment\PaymentTransactionEventEntry;
+use App\Listeners\Invoice\InvoiceTransactionEventEntryCash;
+use Illuminate\Support\Str;
 
 class RefundPayment
 {
@@ -35,10 +37,18 @@ class RefundPayment
 
     private string $refund_failed_message = '';
 
+    private string $mutation_key = '';
+
+    /** @var array<int, array<string, mixed>> */
+    private array $tax_event_snapshots = [];
+
     public function __construct(public Payment $payment, public array $refund_data) {}
 
     public function run()
     {
+        $this->mutation_key = (string) ($this->refund_data['tax_mutation_key'] ?? Str::uuid());
+        $this->refund_data['tax_mutation_key'] = $this->mutation_key;
+
         $this->payment = $this
                             ->calculateTotalRefund() //sets amount for the refund (needed if we are refunding multiple invoices in one payment)
                             ->updateCreditables() //return the credits first
@@ -216,14 +226,68 @@ class RefundPayment
     private function updatePaymentables()
     {
         if (isset($this->refund_data['invoices']) && count($this->refund_data['invoices']) > 0) {
-            $this->payment->invoices->each(function ($paymentable_invoice) {
-                collect($this->refund_data['invoices'])->each(function ($refunded_invoice) use ($paymentable_invoice) {
-                    if ($refunded_invoice['invoice_id'] == $paymentable_invoice->id) {
-                        $paymentable_invoice->pivot->refunded += $refunded_invoice['amount'];
-                        $paymentable_invoice->pivot->save();
+            foreach ($this->refund_data['invoices'] as $refunded_invoice) {
+                $invoice = Invoice::withTrashed()->find($refunded_invoice['invoice_id']);
+
+                if (! $invoice) {
+                    continue;
+                }
+
+                $remaining = (float) $refunded_invoice['amount'];
+                $effective_date = (string) ($refunded_invoice['date']
+                    ?? $this->refund_data['date']
+                    ?? now($this->payment->company->timezone()?->name ?: config('app.timezone'))->toDateString());
+                $paymentables = Paymentable::query()
+                    ->with(['payment' => fn ($query) => $query->withTrashed()])
+                    ->where('payment_id', $this->payment->id)
+                    ->where('paymentable_type', 'invoices')
+                    ->where('paymentable_id', $invoice->id)
+                    ->whereNull('deleted_at')
+                    ->orderBy('created_at')
+                    ->orderBy('id')
+                    ->get();
+
+                foreach ($paymentables as $paymentable) {
+                    if ($remaining <= 0) {
+                        break;
                     }
-                });
-            });
+
+                    $available = max(0, (float) $paymentable->amount - (float) $paymentable->refunded);
+                    $amount = min($remaining, $available);
+
+                    if ($amount <= 0) {
+                        continue;
+                    }
+
+                    $source = app(InvoiceTransactionEventEntryCash::class)
+                        ->runForPaymentable($invoice, $paymentable);
+
+                    if ($source) {
+                        $this->tax_event_snapshots[] = [
+                            'source_event_id' => $source->id,
+                            'paymentable_id' => $paymentable->id,
+                            'invoice_id' => $invoice->id,
+                            'amount' => $amount,
+                            'effective_date' => $effective_date,
+                            'kind' => 'payment_refunded',
+                            'mutation_key' => $this->mutation_key,
+                            'correction_key' => sha1(implode('|', [
+                                $this->mutation_key,
+                                'payment_refunded',
+                                $paymentable->id,
+                            ])),
+                        ];
+                    }
+
+                    $paymentable->refunded = (float) $paymentable->refunded + $amount;
+                    $paymentable->save();
+                    $remaining -= $amount;
+                }
+
+                if ($remaining > 0.0001) {
+                    throw new \RuntimeException('Refund exceeds the remaining invoice payment applications.');
+                }
+            }
         }
 
         return $this;
@@ -372,6 +436,7 @@ class RefundPayment
                             movementAmount: -1 * $refunded_invoice['amount'],
                             movementDate: $this->refund_data['date'] ?? now()->toDateString(),
                             movementType: FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
+                            movementIdentity: $this->mutation_key . ':paymentable:' . $paymentable->id,
                         );
                     }
                 } catch (\Throwable $exception) {
@@ -384,7 +449,13 @@ class RefundPayment
 
             }
 
-            PaymentTransactionEventEntry::dispatch($this->payment, array_column($this->refund_data['invoices'], 'invoice_id'), $this->payment->company->db, $this->total_refund, false);
+            if ($this->tax_event_snapshots !== []) {
+                PaymentTransactionEventEntry::dispatchSync(
+                    $this->payment->id,
+                    $this->tax_event_snapshots,
+                    $this->payment->company->db,
+                );
+            }
 
         } else {
             //if we are refunding and no payments have been tagged, then we need to decrement the client->paid_to_date by the total refund amount.

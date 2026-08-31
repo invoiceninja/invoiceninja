@@ -13,6 +13,7 @@
 namespace App\Http\Requests\Payment;
 
 use App\Http\Requests\Request;
+use App\Models\Payment;
 
 class BulkActionPaymentRequest extends Request
 {
@@ -26,16 +27,39 @@ class BulkActionPaymentRequest extends Request
         return true;
     }
 
-    public function rules()
+    public function rules(): array
     {
-
         return [
-            'action' => 'required|string',
+            'action' => 'required|string|in:archive,restore,delete,email,email_receipt,template',
             'ids' => 'required|array',
             'template' => 'sometimes|string',
             'template_id' => 'sometimes|string',
             'send_email' => 'sometimes|bool',
         ];
+    }
 
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+
+            if($this->action === 'delete') {
+                $deleted_invoices_exist = Payment::with('invoices')
+                                                            ->whereIn('id', $this->transformKeys($this->ids))
+                                                            ->whereHas('invoices', function ($query) {
+                                                                $query->where('is_deleted', true);
+                                                            })
+                                                            ->company()
+                                                            ->withTrashed()
+                                                            ->exists();
+
+                if ($deleted_invoices_exist) {
+                    $validator->errors()->add(
+                        'ids',
+                        ctrans('texts.deleted_invoices_exist')
+                    );
+                }
+
+            }
+        });
     }
 }

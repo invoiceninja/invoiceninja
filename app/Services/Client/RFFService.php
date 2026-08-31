@@ -58,50 +58,69 @@ class RFFService
         public string $company_gateway_id,
     ) {}
 
-    public function check(ClientContact $contact): void
+    /**
+     * Build Laravel validation rules from gateway required-field definitions.
+     *
+     * Drivers emit key "validation" (historically also "validation_rules").
+     * Rule strings may be comma- or pipe-delimited.
+     *
+     * @param  array<int, array{name: string, validation?: string|array, validation_rules?: string|array, filled?: mixed}>  $fields
+     * @return array<string, array<int, string>>
+     */
+    public static function rulesForFields(array $fields): array
     {
-        $_contact = $contact;
+        $rules = [];
 
-        foreach ($this->fields as $index => $field) {
-            $_field = $this->mappings[$field['name']];
-
-            if (Str::startsWith($field['name'], 'client_')) {
-                if (
-                    empty($_contact->client->{$_field})
-                    || is_null($_contact->client->{$_field}) //@phpstan-ignore-line
-                ) {
-                    // $this->show_form = true;
-                    $this->unfilled_fields++;
-                } else {
-                    $this->fields[$index]['filled'] = true;
-                }
+        foreach ($fields as $field) {
+            if (array_key_exists('filled', $field)) {
+                continue;
             }
 
-            if (Str::startsWith($field['name'], 'contact_')) {
-                if (empty($_contact->{$_field}) || is_null($_contact->{$_field}) || str_contains($_contact->{$_field}, '@example.com')) { //@phpstan-ignore-line
-                    $this->unfilled_fields++;
-                } else {
-                    $this->fields[$index]['filled'] = true;
-                }
+            $raw = $field['validation'] ?? $field['validation_rules'] ?? 'required';
+
+            $rules[$field['name']] = is_array($raw)
+                ? $raw
+                : preg_split('/[|,]/', (string) $raw, -1, PREG_SPLIT_NO_EMPTY);
+
+            if ($field['name'] === 'contact_email') {
+                $rules[$field['name']][] = 'not_regex:/@example\.com$/i';
             }
         }
+
+        return $rules;
+    }
+
+    /**
+     * True when existing contact/client data already satisfies the gateway field rules.
+     *
+     * @param  array<int, array{name: string, validation?: string|array, validation_rules?: string|array}>  $fields
+     */
+    public static function passesExistingValues(ClientContact $contact, array $fields): bool
+    {
+        if ($fields === []) {
+            return true;
+        }
+
+        $rff = new self($fields, '', '0');
+
+        return Validator::make(
+            $rff->valuesFor($contact),
+            self::rulesForFields($fields)
+        )->passes();
+    }
+
+    public function check(ClientContact $contact): void
+    {
+        $this->unfilled_fields = self::passesExistingValues($contact, $this->fields)
+            ? 0
+            : count($this->fields);
     }
 
     public function handleSubmit(array $data, ClientContact $contact, callable $callback, bool $return_errors = false): bool|array
     {
         MultiDB::setDb($this->database);
 
-        $rules = [];
-
-        collect($this->fields)->map(function ($field) use (&$rules) {
-            if (!array_key_exists('filled', $field)) {
-                $rules[$field['name']] = array_key_exists('validation_rules', $field)
-                    ? $field['validation_rules']
-                    : 'required';
-            }
-        });
-
-        $validator = Validator::make($data, $rules);
+        $validator = Validator::make($data, self::rulesForFields($this->fields));
 
         if ($validator->fails()) {
             if ($return_errors) {
@@ -183,5 +202,32 @@ class RFFService
         }
 
         return true;
+    }
+
+    /**
+     * Hydrate current contact/client attributes into gateway field-name keys.
+     *
+     * @return array<string, mixed>
+     */
+    private function valuesFor(ClientContact $contact): array
+    {
+        $data = [];
+
+        foreach ($this->fields as $field) {
+            $name = $field['name'];
+            $column = $this->mappings[$name] ?? null;
+
+            if ($column === null) {
+                continue;
+            }
+
+            if (Str::startsWith($name, 'client_')) {
+                $data[$name] = $contact->client->{$column};
+            } elseif (Str::startsWith($name, 'contact_')) {
+                $data[$name] = $contact->{$column};
+            }
+        }
+
+        return $data;
     }
 }

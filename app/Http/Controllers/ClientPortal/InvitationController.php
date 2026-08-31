@@ -254,9 +254,12 @@ class InvitationController extends Controller
             abort(404);
         }
 
+        \App::setLocale($invitation->contact->preferredLocale());
+
         return $this->render('view_entity.set_password', [
             'root' => 'themes',
             'entity_type' => $request->entity_type,
+            'entity_translation' => ctrans('texts.' . $request->entity_type),
             'invitation_key' => $request->invitation_key,
         ]);
     }
@@ -352,7 +355,7 @@ class InvitationController extends Controller
         request()->session()->regenerateToken();
         auth()->guard('contact')->loginUsingId($invitation->contact->id, true);
 
-        $invoice = $invitation->invoice->service()->removeUnpaidGatewayFees()->save();
+        $invoice = $invitation->invoice;
 
         if (! $invitation->viewed_date) {
             $invitation->markViewed();

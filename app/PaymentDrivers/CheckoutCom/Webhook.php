@@ -51,28 +51,27 @@ class Webhook
     }
 
     /**
-     * Lists the workflows in Checkout
+     * Lists the workflows in Checkout.
+     *
+     * @return array<string, mixed>|null
      */
-    public function getWorkFlows()
+    public function getWorkFlows(): ?array
     {
         if ($this->checkout->gateway === null) {
             return ['data' => []];
         }
 
         try {
-
-            $response = $this->checkout->gateway->getWorkflowsClient()->getWorkflows();
-
-            return $response;
-
+            return $this->checkout->gateway->getWorkflowsClient()->getWorkflows();
         } catch (CheckoutApiException $e) {
-            // API error
-            $error_details = $e->error_details;
-            $http_status_code = isset($e->http_metadata) ? $e->http_metadata->getStatusCode() : null;
-        } catch (CheckoutAuthorizationException $e) {
-            // Bad Invalid authorization
-        }
+            nlog($e->error_details);
 
+            return null;
+        } catch (CheckoutAuthorizationException $e) {
+            nlog('Checkout getWorkFlows: authorization failed');
+
+            return null;
+        }
     }
 
 }

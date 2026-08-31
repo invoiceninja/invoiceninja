@@ -108,4 +108,9 @@ class InvoiceDecorator extends Decorator implements DecoratorInterface
         return $invoice->auto_bill_enabled ? ctrans('texts.yes') : ctrans('texts.no');
     }
 
+    public function po_number(Invoice $invoice)
+    {
+        return $invoice->po_number ?? '';
+    }
+
 }

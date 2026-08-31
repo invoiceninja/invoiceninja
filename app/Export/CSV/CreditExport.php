@@ -192,7 +192,12 @@ class CreditExport extends BaseExport
         }
 
         $entity = $this->decorateAdvancedFields($credit, $entity);
-        return $this->convertFloats($entity);
+        return $this->convertFloats($entity, ['credit' => $credit->id]);
+    }
+
+    protected function groupingIdentityForColumn(string $column): ?string
+    {
+        return str_starts_with($column, 'credit.') ? 'credit' : null;
     }
 
     public function addCreditStatusFilter($query, $status): Builder

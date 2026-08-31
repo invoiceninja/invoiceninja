@@ -235,7 +235,9 @@ class PaymentTransformer extends BaseTransformer
                 $paymentable->paymentable_id = $invoice->id;
                 $paymentable->paymentable_type = 'invoices';
                 $paymentable->amount = $amount;
-                $paymentable->created_at = $payment->date; //@phpstan-ignore-line
+                $timezone = $this->company->timezone()?->name ?: config('app.timezone');
+                $paymentable->created_at = app(\App\Services\Payment\PaymentApplicationDateResolver::class)
+                    ->encodeBusinessDate($payment->date, $timezone);
                 $paymentable->save();
 
                 $invoice->service()->applyPayment($payment, $paymentable->amount);
@@ -347,7 +349,9 @@ class PaymentTransformer extends BaseTransformer
         $paymentable->paymentable_id = $credit->id;
         $paymentable->paymentable_type = \App\Models\Credit::class;
         $paymentable->amount = $credit->amount;
-        $paymentable->created_at = $payment->date;
+        $timezone = $this->company->timezone()?->name ?: config('app.timezone');
+        $paymentable->created_at = app(\App\Services\Payment\PaymentApplicationDateResolver::class)
+            ->encodeBusinessDate($payment->date, $timezone);
         $paymentable->save();
 
         return $payment;

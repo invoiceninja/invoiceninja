@@ -43,21 +43,51 @@ final class InclusiveTax
 {
     /**
      * @param  float             $amount    gross, tax-inclusive amount
-     * @param  array<int,float>  $rates     applicable rates, e.g. [rate1, rate2, rate3]
+     * @param  array<int,mixed>  $rates     applicable rates, e.g. [rate1, rate2, rate3]
      * @param  int               $precision currency precision
      * @return array{net: float, tax: float, components: array<int,float>}
      */
     public static function backout(float $amount, array $rates, int $precision = 2): array
     {
-        $combined_rate = array_sum($rates);
+        // Imported and legacy documents can contain malformed tax data. Treat an
+        // invalid or non-finite rate as zero so tax calculation never turns bad
+        // document data into an exception.
+        $rates = array_map(static function ($rate): float {
+            if (! is_numeric($rate)) {
+                return 0.0;
+            }
 
-        $components = array_map(function ($rate) use ($amount, $combined_rate, $precision) {
-            if (!$rate || $combined_rate <= 0) {
+            $rate = (float) $rate;
+
+            return is_finite($rate) ? $rate : 0.0;
+        }, $rates);
+
+        // Tax rates are stored to six decimal places. Normalize at that scale so
+        // combinations that mathematically total -100 do not miss the guard due
+        // to floating-point residue.
+        $combined_rate = round(array_sum(array_map(
+            static fn ($rate): float => round((float) $rate, 6),
+            $rates
+        )), 6);
+        $denominator = 100.0 + $combined_rate;
+
+        // A tax-inclusive amount cannot be backed out when the aggregate rate is
+        // -100% or lower. Preserve the historical non-throwing/no-tax fallback.
+        if ($denominator <= 0.0) {
+            return [
+                'net' => round($amount, $precision),
+                'tax' => 0.0,
+                'components' => array_map(static fn ($rate): float => 0.0, $rates),
+            ];
+        }
+
+        $components = array_map(function ($rate) use ($amount, $denominator, $precision) {
+            if (! $rate) {
                 return 0.0;
             }
 
             // base x rate, algebraically equal to amount x rate / (100 + R)
-            return round($amount * $rate / (100 + $combined_rate), $precision);
+            return round($amount * $rate / $denominator, $precision);
         }, $rates);
 
         $tax = round(array_sum($components), $precision);

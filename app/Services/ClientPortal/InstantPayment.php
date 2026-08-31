@@ -45,9 +45,17 @@ class InstantPayment
     {
         /** @var \App\Models\ClientContact $cc */
         $cc = auth()->guard('contact')->user();
-        $cc->first_name = $this->request->contact_first_name;
-        $cc->last_name = $this->request->contact_last_name;
-        $cc->email = $this->request->contact_email;
+        if (strlen($this->request->contact_first_name ?? '') > 0) {
+            $cc->first_name = $this->request->contact_first_name;
+        }
+
+        if (strlen($this->request->contact_last_name ?? '') > 0) {
+            $cc->last_name = $this->request->contact_last_name;
+        }
+
+        if (filter_var($this->request->contact_email, FILTER_VALIDATE_EMAIL)) {
+            $cc->email = $this->request->contact_email;
+        }
         $cc->client->postal_code = strlen($cc->client->postal_code ?? '') > 1 ? $cc->client->postal_code : $this->request->client_postal_code;
         $cc->client->city = strlen($cc->client->city ?? '') > 1 ? $cc->client->city : $this->request->client_city;
         $cc->client->shipping_postal_code = strlen($cc->client->shipping_postal_code ?? '') > 1 ? $cc->client->shipping_postal_code : $cc->client->postal_code;
@@ -79,7 +87,6 @@ class InstantPayment
                             ->map(function (Invoice $invoice): ?Invoice {
                                 $invoice = $invoice->service()
                                     ->markSent()
-                                    ->removeUnpaidGatewayFees()
                                     ->save();
 
                                 return $invoice?->isPayable() ? $invoice : null;
@@ -205,20 +212,19 @@ class InstantPayment
         $invoice_totals = $payable_invoices->sum('amount');
         $first_invoice = $invoices->first();
         $credit_totals = in_array($first_invoice->client->getSetting('use_credits_payment'), ['always', 'option']) ? $first_invoice->client->service()->getCreditBalance() : 0;
-        $starting_invoice_amount = $first_invoice->balance;
 
         $payment_hash_string = Str::random(32);
 
-        if ($gateway) {
-            $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals, $payment_hash_string)->save();
-        }
+        $fee_totals = 0;
+        $fee_net = 0;
 
-        /**
-         * Gateway fee is calculated
-         * by adding it as a line item, and then subtract
-         * the starting and finishing amounts of the invoice.
-         */
-        $fee_totals = round(($first_invoice->balance - $starting_invoice_amount), $client->currency()->precision);
+        if ($gateway) {
+            /** The invoice is not touched - the fee reaches it when the payment is confirmed. */
+            $fee = $first_invoice->service()->quoteGatewayFee($gateway, $payment_method_id, $invoice_totals);
+
+            $fee_totals = $fee['gross'];
+            $fee_net = $fee['net'];
+        }
 
         if ($gateway) {
             $tokens = $client->gateway_tokens()
@@ -240,6 +246,7 @@ class InstantPayment
             'frequency_id' => $this->request->frequency_id,
             'remaining_cycles' => $this->request->remaining_cycles,
             'is_recurring' => $this->request->is_recurring,
+            'fee_net' => $fee_net,
         ];
 
         if ($this->request->query('hash')) {

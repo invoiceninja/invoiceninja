@@ -228,7 +228,7 @@ class CreditCard implements LivewireMethodInterface
               }',
                 CURLOPT_HTTPHEADER => [
                     'Content-Type: application/json',
-                    'X-Forte-Auth-Organization-Id: ' . $this->forte_organization_id,
+                    'X-Forte-Auth-Organization-Id: ' . $this->forte_auth_organization_id,
                     'Authorization: Basic ' . base64_encode($this->forte_api_access_id . ':' . $this->forte_secure_key),
                 ],
             ]);

@@ -72,7 +72,10 @@ class InvoiceItem
 
     public $income_account_id = '';
 
+    public $tags = '';
+
     public static $casts = [
+        'tags' => 'string',
         'net_cost' => 'float',
         'task_id' => 'string',
         'expense_id' => 'string',
@@ -103,4 +106,64 @@ class InvoiceItem
         'unit_code' => 'string',
         'income_account_id' => 'string',
     ];
+
+    public static function normalizeTags(mixed $tags): string
+    {
+        if (! is_string($tags)) {
+            return '';
+        }
+
+        return self::tagsFromNames(explode(',', $tags));
+    }
+
+    public static function serializeTags(mixed $tags): string
+    {
+        if (is_string($tags)) {
+            return self::normalizeTags($tags);
+        }
+
+        return is_iterable($tags) ? self::tagsFromNames($tags) : '';
+    }
+
+    public static function tagsFromNames(iterable $tags): string
+    {
+        $names = [];
+
+        foreach ($tags as $tag) {
+            $name = match (true) {
+                is_array($tag) => $tag['name'] ?? '',
+                is_object($tag) => $tag->name ?? '',
+                is_string($tag) => $tag,
+                default => '',
+            };
+
+            if (! is_string($name)) {
+                continue;
+            }
+
+            $name = trim(str_replace(',', ' ', $name));
+            $name = preg_replace('/\s+/u', ' ', $name) ?? $name;
+
+            if ($name !== '' && ! in_array($name, $names, true)) {
+                $names[] = $name;
+            }
+        }
+
+        return implode(',', $names);
+    }
+
+    public static function formatTagsForDisplay(mixed $tags): string
+    {
+        return str_replace(',', ' · ', self::normalizeTags($tags));
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public static function tagNames(mixed $tags): array
+    {
+        $normalized = self::normalizeTags($tags);
+
+        return $normalized === '' ? [] : explode(',', $normalized);
+    }
 }

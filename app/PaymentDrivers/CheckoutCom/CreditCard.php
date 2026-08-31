@@ -118,7 +118,11 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
                     'payment_method_id' => GatewayType::CREDIT_CARD,
                 ];
 
-                $payment_method = $this->checkout->storeGatewayToken($data, ['gateway_customer_reference' => $customerRequest['id']]);
+                $payment_method = $this->checkout->storeGatewayToken($data, [
+                    'gateway_customer_reference' => $response['customer']['id']
+                        ?? $customerRequest['id']
+                        ?? null,
+                ]);
 
                 return redirect()->route('client.payment_methods.show', $payment_method->hashed_id);
             }
@@ -279,7 +283,6 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
             }
 
             if ($response['status'] == 'Declined') {
-                $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
 
                 SystemLogger::dispatch(
                     $response,
@@ -297,7 +300,6 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
                 return $this->processSuccessfulPayment($response);
             }
 
-            $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
             return $this->processUnsuccessfulPayment($response);
 
         } catch (CheckoutApiException $e) {
@@ -318,7 +320,6 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
 
             }
 
-            $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
 
             $human_message = is_array($error_details) ? json_encode($error_details) : (string) $error_details;
             $human_exception = $human_message !== '' ? new \Exception($human_message, 400) : $e;
@@ -336,7 +337,6 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         } catch (CheckoutArgumentException $e) {
             // Bad arguments
 
-            $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
 
             SystemLogger::dispatch(
                 $e->getMessage(),
@@ -352,7 +352,6 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         } catch (CheckoutAuthorizationException $e) {
             // Bad Invalid authorization
 
-            $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
 
             SystemLogger::dispatch(
                 $e->getMessage(),

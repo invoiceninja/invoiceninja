@@ -13,6 +13,8 @@
 namespace App\Http\Requests\EInvoice\Peppol;
 
 use App\Models\Country;
+use App\Rules\EInvoice\PeppolLegalEntityState;
+use App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveIdentifierValidator;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -40,12 +42,17 @@ class StoreEntityRequest extends FormRequest
      */
     public function rules(): array
     {
+        $company = auth()->user()->company();
         $isSG = $this->input('country') == '702' || $this->country_id == 702;
         $isFRBusiness = $this->input('country') === 'FR' && $this->input('classification') !== 'individual';
 
         $id_number_rules = [
             Rule::requiredIf(fn() => $this->input('classification') === 'individual' || $isSG),
             'nullable',
+        ];
+        $vat_number_rules = [
+            'bail',
+            Rule::requiredIf(fn() => $this->input('classification') !== 'individual' && !$isSG),
         ];
 
         if ($isFRBusiness) {
@@ -56,8 +63,17 @@ class StoreEntityRequest extends FormRequest
 
                 $siret = preg_replace("/[^0-9]/", "", (string) $value);
 
-                if (! (new \App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveIdentifierValidator())->validFormat('FR:SIRET', $siret)) {
+                if (! (new StorecoveIdentifierValidator())->validFormat('FR:SIRET', $siret)) {
                     $fail('When supplied, id_number must be a valid 14-digit SIRET (FR:SIRET). The SIREN is derived from the VAT number.');
+                }
+            };
+
+            $vat_number_rules[] = function ($attribute, $value, $fail): void {
+                $vat = preg_replace('/[^0-9]/', '', (string) $value);
+                $siren = strlen($vat) >= 9 ? substr($vat, -9) : '';
+
+                if (! (new StorecoveIdentifierValidator())->validFormat('FR:SIRENE', $siren)) {
+                    $fail('vat_number must contain a valid 9-digit SIREN for French CTC registration.');
                 }
             };
         }
@@ -72,12 +88,16 @@ class StoreEntityRequest extends FormRequest
             'county' => ['required', 'string'],
             'acts_as_receiver' => ['required', 'bool'],
             'acts_as_sender' => ['required', 'bool'],
-            'tenant_id' => ['required'],
+            'tenant_id' => ['sometimes', 'nullable', 'string'],
             'classification' => ['required', 'in:business,individual'],
-            'vat_number' => [Rule::requiredIf(fn() => $this->input('classification') !== 'individual' && !$isSG)],
+            'vat_number' => $vat_number_rules,
             'id_number' => $id_number_rules,
             'c5_signer_name' => [Rule::requiredIf($isSG), 'nullable', 'string', 'min:2', 'max:64'],
             'c5_signer_email' => [Rule::requiredIf($isSG), 'nullable', 'email'],
+            'legal_entity_id' => [
+                'prohibited',
+                PeppolLegalEntityState::absent($company),
+            ],
         ];
     }
 
@@ -88,7 +108,7 @@ class StoreEntityRequest extends FormRequest
         );
     }
 
-    public function prepareForValidation()
+    public function prepareForValidation(): void
     {
         $input = $this->all();
 

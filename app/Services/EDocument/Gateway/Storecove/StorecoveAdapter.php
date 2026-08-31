@@ -365,6 +365,11 @@ class StorecoveAdapter
             }
         }
 
+        $this->storecove_invoice = $handler->decorateStorecoveDocument(
+            $this->storecove_invoice,
+            $this->ninja_invoice,
+        );
+
         return $this;
     }
 

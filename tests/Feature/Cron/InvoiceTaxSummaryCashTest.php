@@ -72,7 +72,7 @@ class InvoiceTaxSummaryCashTest extends TestCase
         $this->user = User::factory()->create([
             'account_id' => $this->account->id,
             'confirmation_code' => 'xyz123',
-            'email' => \Illuminate\Support\Str::random(32).'@example.com',
+            'email' => \Illuminate\Support\Str::random(32).'@gmail.com',
         ]);
 
         $settings = CompanySettings::defaults();
@@ -422,6 +422,159 @@ class InvoiceTaxSummaryCashTest extends TestCase
         $this->account->delete();
     }
 
+    public function testCashEventReconciliationRebuildsASamePeriodApplicationDate(): void
+    {
+        $this->buildData('15');
+        [$invoice, $payment, $paymentable] = $this->makePaidInvoiceForCash('2026-01-10');
+        $writer = new InvoiceTransactionEventEntryCash();
+
+        $writer->run($invoice, '2026-01-01', '2026-01-31');
+
+        \DB::table('paymentables')
+            ->where('id', $paymentable->id)
+            ->update([
+                'created_at' => '2026-01-20 12:00:00',
+                'updated_at' => '2026-01-20 12:00:00',
+            ]);
+
+        $writer->reconcileApplicationDateChange(
+            $invoice->id,
+            $payment->id,
+            '2026-01-10',
+            '2026-01-20',
+            [$paymentable->id],
+        );
+
+        $events = TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->where('event_id', TransactionEvent::PAYMENT_CASH)
+            ->get();
+
+        $this->assertCount(3, $events);
+        $apply_event = $events->first(fn (TransactionEvent $event): bool => data_get($event->payment_request, 'direction') === 'apply');
+        $this->assertSame('2026-01-31', $apply_event->period->toDateString());
+        $this->assertSame('2026-01-20', data_get($apply_event->metadata, 'tax_report.payment_history.0.date'));
+        $this->assertSame('payment_application_date', data_get($apply_event->payment_request, 'tax_correction_kind'));
+    }
+
+    public function testCashEventReconciliationMovesAnApplicationAcrossPeriodsIdempotently(): void
+    {
+        $this->buildData('15');
+        [$invoice, $payment, $paymentable] = $this->makePaidInvoiceForCash('2026-01-31');
+        $writer = new InvoiceTransactionEventEntryCash();
+
+        $writer->run($invoice, '2026-01-01', '2026-01-31');
+
+        \DB::table('paymentables')
+            ->where('id', $paymentable->id)
+            ->update([
+                'created_at' => '2026-02-01 12:00:00',
+                'updated_at' => '2026-02-01 12:00:00',
+            ]);
+
+        for ($attempt = 0; $attempt < 2; $attempt++) {
+            $writer->reconcileApplicationDateChange(
+                $invoice->id,
+                $payment->id,
+                '2026-01-31',
+                '2026-02-01',
+                [$paymentable->id],
+            );
+        }
+
+        $events = TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->where('event_id', TransactionEvent::PAYMENT_CASH)
+            ->get();
+
+        $this->assertCount(3, $events);
+        $source_event = $events->first(fn (TransactionEvent $event): bool => ! data_get($event->payment_request, 'tax_correction_kind'));
+        $remove_event = $events->first(fn (TransactionEvent $event): bool => data_get($event->payment_request, 'direction') === 'remove');
+        $apply_event = $events->first(fn (TransactionEvent $event): bool => data_get($event->payment_request, 'direction') === 'apply');
+        $this->assertSame('2026-01-31', $source_event->period->toDateString());
+        $this->assertSame('2026-01-31', $remove_event->period->toDateString());
+        $this->assertSame('2026-02-28', $apply_event->period->toDateString());
+        $this->assertSame('2026-02-01', data_get($apply_event->metadata, 'tax_report.payment_history.0.date'));
+        $this->assertSame('2026-01-31', data_get($apply_event->payment_request, 'old_date'));
+        $this->assertSame('2026-02-01', data_get($apply_event->payment_request, 'new_date'));
+        $this->assertSame($paymentable->id, data_get($apply_event->payment_request, 'source_paymentable_id'));
+    }
+
+    public function testCashEventSnapshotIncludesArchivedPaymentsThatAreNotDeleted(): void
+    {
+        $this->buildData('15');
+        [$invoice, $payment] = $this->makePaidInvoiceForCash('2026-01-10');
+        $payment->deleted_at = now();
+        $payment->is_deleted = false;
+        $payment->save();
+
+        (new InvoiceTransactionEventEntryCash())->run($invoice, '2026-01-01', '2026-01-31');
+
+        $event = TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->where('event_id', TransactionEvent::PAYMENT_CASH)
+            ->first();
+
+        $this->assertNotNull($event);
+        $this->assertSame((float) $payment->amount, (float) $event->payment_applied);
+    }
+
+    public function testMutationBeforeFutureApplicationDateNetsInTheApplicationPeriod(): void
+    {
+        $this->buildData('15');
+        [$invoice, $payment, $paymentable] = $this->makePaidInvoiceForCash('2026-02-10');
+        $paymentable->refresh();
+        $writer = new InvoiceTransactionEventEntryCash();
+        $source = $writer->runForPaymentable($invoice, $paymentable);
+        $correction = $writer->writeCorrection(
+            source: $source,
+            effective_date: '2026-01-15',
+            sign: -1,
+            kind: 'payment_deleted',
+            correction_key: 'future-application-deletion',
+        );
+
+        $this->assertSame('2026-02-10', data_get($correction->payment_request, 'effective_date'));
+        $this->assertSame('2026-02-28', $correction->period->toDateString());
+        $this->assertSame(
+            0.0,
+            (float) TransactionEvent::query()
+                ->where('invoice_id', $invoice->id)
+                ->whereDate('period', '2026-02-28')
+                ->sum('payment_applied'),
+        );
+
+        $this->account->delete();
+    }
+
+    public function testMutationUsesTheLatestReconciledApplicationDate(): void
+    {
+        $this->buildData('15');
+        [$invoice, $payment, $paymentable] = $this->makePaidInvoiceForCash('2026-02-10');
+        $paymentable->refresh();
+        $writer = new InvoiceTransactionEventEntryCash();
+        $source = $writer->runForPaymentable($invoice, $paymentable);
+        $writer->reconcileApplicationDateChange(
+            $invoice->id,
+            $payment->id,
+            '2026-02-10',
+            '2026-01-10',
+            [$paymentable->id],
+        );
+        $correction = $writer->writeCorrection(
+            source: $source,
+            effective_date: '2026-01-15',
+            sign: -1,
+            kind: 'payment_deleted',
+            correction_key: 'moved-application-deletion',
+        );
+
+        $this->assertSame('2026-01-15', data_get($correction->payment_request, 'effective_date'));
+        $this->assertSame('2026-01-31', $correction->period->toDateString());
+
+        $this->account->delete();
+    }
+
     /**
      * Use reflection to call the private processCompanyTaxSummary method.
      */
@@ -430,6 +583,48 @@ class InvoiceTaxSummaryCashTest extends TestCase
         $method = new \ReflectionMethod(InvoiceTaxSummary::class, 'processCompanyTaxSummary');
         $method->setAccessible(true);
         $method->invoke($job, $company);
+    }
+
+    /**
+     * @return array{0: Invoice, 1: \App\Models\Payment, 2: \App\Models\Paymentable}
+     */
+    private function makePaidInvoiceForCash(string $applicationDate): array
+    {
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => $applicationDate,
+            'terms' => '',
+            'discount' => 0,
+            'tax_rate1' => 10,
+            'tax_name1' => 'GST',
+            'uses_inclusive_taxes' => false,
+            'line_items' => $this->buildLineItems(),
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->service()->markSent()->save();
+        $invoice->service()->markPaid()->save();
+        $invoice = $invoice->fresh();
+        $payment = $invoice->payments()->firstOrFail();
+        $paymentable = \App\Models\Paymentable::query()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_type', 'invoices')
+            ->where('paymentable_id', $invoice->id)
+            ->firstOrFail();
+
+        \DB::table('paymentables')
+            ->where('id', $paymentable->id)
+            ->update([
+                'created_at' => $applicationDate . ' 12:00:00',
+                'updated_at' => $applicationDate . ' 12:00:00',
+            ]);
+
+        TransactionEvent::query()->where('invoice_id', $invoice->id)->delete();
+
+        return [$invoice, $payment, $paymentable];
     }
 
     private function buildLineItems(): array

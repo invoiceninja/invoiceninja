@@ -40,11 +40,16 @@ trait ClientGroupSettingsSaver
             return;
         }
 
-        $entity_settings = $this->settings;
+        $settings = (object) $settings;
+        $entity_settings = (object) $this->settings;
 
         //unset protected properties.
         foreach (CompanySettings::$protected_fields as $field) {
-            unset($settings[$field]);
+            unset($settings->{$field});
+        }
+
+        foreach (['translations', 'pdf_variables'] as $field) {
+            unset($settings->{$field}, $entity_settings->{$field});
         }
 
         $company_settings_stub = new CompanySettings();

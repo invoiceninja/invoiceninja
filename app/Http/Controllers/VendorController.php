@@ -26,6 +26,7 @@ use App\Repositories\VendorRepository;
 use App\Events\Vendor\VendorWasCreated;
 use App\Events\Vendor\VendorWasUpdated;
 use App\Transformers\VendorTransformer;
+use App\Http\Requests\Vendor\BulkVendorRequest;
 use App\Http\Requests\Vendor\EditVendorRequest;
 use App\Http\Requests\Vendor\ShowVendorRequest;
 use App\Http\Requests\Vendor\PurgeVendorRequest;
@@ -495,12 +496,12 @@ class VendorController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkVendorRequest $request)
     {
-        $action = request()->input('action');
+        $action = $request->input('action');
 
-        $ids = request()->input('ids');
-        $vendors = Vendor::withTrashed()->company()->find($this->transformKeys($ids));
+        $ids = $request->input('ids');
+        $vendors = Vendor::withTrashed()->company()->find($ids);
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -511,7 +512,7 @@ class VendorController extends BaseController
             }
         });
 
-        return $this->listResponse(Vendor::withTrashed()->company()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(Vendor::withTrashed()->company()->whereIn('id', $ids));
     }
 
     /**
@@ -581,7 +582,7 @@ class VendorController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $vendor, $request->input('is_public', true));
+            $this->saveDocuments($request->file('documents'), $vendor, $request->has('is_public') ? $request->boolean('is_public') : null);
         }
 
         return $this->itemResponse($vendor->fresh());

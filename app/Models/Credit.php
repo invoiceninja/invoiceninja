@@ -205,6 +205,7 @@ class Credit extends BaseModel
         'vendor_id',
         'location_id',
         'e_invoice',
+        'uses_inclusive_taxes',
     ];
 
     protected $casts = [

@@ -8,7 +8,14 @@
     @endif
 
     <meta name="client_secret" content="{{ $client_secret }}">
+    <meta name="mandate_client_secret" content="{{ $mandate_client_secret }}">
     <meta name="viewport" content="width=device-width, minimum-scale=1" />
+    <meta name="address-1" content="{{ $gateway->client->address1 }}">
+    <meta name="address-2" content="{{ $gateway->client->address2 }}">
+    <meta name="city" content="{{ $gateway->client->city }}">
+    <meta name="state" content="{{ $gateway->client->state }}">
+    <meta name="postal_code" content="{{ $gateway->client->postal_code }}">
+    <meta name="country" content="{{ $gateway->client->country?->iso_3166_2 }}">
 
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
@@ -24,21 +31,30 @@
         <input type="hidden" name="client_secret" value="{{ $client_secret }}">
         <input type="hidden" name="gateway_response" id="gateway_response" value="">
         <input type="hidden" name="bank_account_response" id="bank_account_response" value="">
+        <input type="hidden" name="setup_intent_id" id="setup_intent_id" value="">
     </form>
 
     @if(count($tokens) > 0)
+        @php($hasSelectableToken = collect($tokens)->contains(fn ($token) => ($token->meta->state ?? null) !== 'pending'))
+
         @include('portal.ninja2020.gateways.includes.payment_details')
 
         @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
         @if(count($tokens) > 0)
-            <ul class="list-none">
+            <ul class="payment-method-list">
                 @foreach($tokens as $token)
-                    <li class="py-1 hover:text-blue hover:bg-blue-600">
-                        <label class="mr-4">
-                            <input type="radio" data-token="{{ $token->hashed_id }}" name="payment-type"
-                                class="form-check-input text-indigo-600 rounded-full cursor-pointer toggle-payment-with-token" />
-                            <span class="ml-1 cursor-pointer">{{ ctrans('texts.bank_transfer') }}
+                    @php($tokenState = $token->meta->state ?? null)
+                    <li class="payment-method-item">
+                        <label class="payment-method-label {{ $tokenState === 'pending' ? 'cursor-not-allowed opacity-60' : '' }}">
+                            <input type="radio" data-token="{{ $token->hashed_id }}" data-payment-method="{{ $token->token }}" data-state="{{ $tokenState }}" name="payment-type"
+                                class="form-radio cursor-pointer disabled:cursor-not-allowed toggle-payment-with-token" @disabled($tokenState === 'pending') />
+                            <span class="ml-1">{{ ctrans('texts.bank_transfer') }}
                                 (*{{ $token->meta->last4 }})</span>
+                            @if($tokenState === 'pending')
+                                <span class="ml-2 inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800 ach-token-status">
+                                    {{ ctrans('texts.stripe_ach_verifiation_pending') }}
+                                </span>
+                            @endif
                         </label>
                     </li>
                 @endforeach
@@ -46,7 +62,16 @@
         @endif
         @endcomponent
 
-        @include('portal.ninja2020.gateways.includes.pay_now')
+        @if($mandate_client_secret)
+            <div id="mandate-authorization" hidden>
+                @component('portal.ninja2020.components.general.card-element-single')
+                    <input type="checkbox" class="form-checkbox mr-1" id="accept-mandate" required>
+                    <label for="accept-mandate" class="cursor-pointer">{{ ctrans('texts.ach_authorization', ['company' => auth()->guard('contact')->user()->company->present()->name, 'email' => auth()->guard('contact')->user()->client->company->settings->email]) }}</label>
+                @endcomponent
+            </div>
+        @endif
+
+        @include('portal.ninja2020.gateways.includes.pay_now', ['disabled' => ! $hasSelectableToken])
 
     @else
 

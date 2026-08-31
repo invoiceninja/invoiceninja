@@ -20,7 +20,9 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Paymentable;
 use App\Models\User;
+use App\Services\Payment\PaymentApplicationDateResolver;
 use App\Services\Report\ClientSalesReport;
 use App\Services\Template\TemplateService;
 use App\Utils\Traits\MakesHash;
@@ -89,7 +91,7 @@ class ClientSalesReportTest extends TestCase
         $this->user = User::factory()->create([
             'account_id' => $this->account->id,
             'confirmation_code' => 'xyz123',
-            'email' => \Illuminate\Support\Str::random(32)."@example.com",
+            'email' => \Illuminate\Support\Str::random(32)."@gmail.com",
         ]);
 
         $settings = CompanySettings::defaults();
@@ -295,7 +297,7 @@ class ClientSalesReportTest extends TestCase
             'is_deleted' => 0,
         ]);
 
-        Invoice::factory()->create([
+        $gbp_invoice = Invoice::factory()->create([
             'client_id' => $this->client->id,
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -315,7 +317,7 @@ class ClientSalesReportTest extends TestCase
             'line_items' => $this->buildLineItems(),
         ]);
 
-        Invoice::factory()->create([
+        $usd_invoice = Invoice::factory()->create([
             'client_id' => $usd_client->id,
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -335,7 +337,7 @@ class ClientSalesReportTest extends TestCase
             'line_items' => $this->buildLineItems(),
         ]);
 
-        Payment::factory()->create([
+        $gbp_payment = Payment::factory()->create([
             'client_id' => $this->client->id,
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -347,7 +349,7 @@ class ClientSalesReportTest extends TestCase
             'currency_id' => 2,
         ]);
 
-        Payment::factory()->create([
+        $usd_payment = Payment::factory()->create([
             'client_id' => $usd_client->id,
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -358,6 +360,9 @@ class ClientSalesReportTest extends TestCase
             'date' => '2025-01-26',
             'currency_id' => 1,
         ]);
+
+        $this->attachPaymentApplication($gbp_payment, $gbp_invoice, 40, '2025-01-25');
+        $this->attachPaymentApplication($usd_payment, $usd_invoice, 35, '2025-01-26');
 
         $report = new ClientSalesReport($this->company->fresh(), [
             'start_date' => '2025-01-01',
@@ -601,7 +606,7 @@ class ClientSalesReportTest extends TestCase
             'is_deleted' => false,
             'date' => $payment_date,
         ]);
-        $payment->invoices()->attach($invoice->id, ['amount' => 500]);
+        $this->attachPaymentApplication($payment, $invoice, 500, $payment_date);
 
         // Window covers invoice only.
         $invoice_window = new ClientSalesReport($this->company, [
@@ -641,7 +646,7 @@ class ClientSalesReportTest extends TestCase
 
         $payment_date = '2025-06-10';
 
-        Invoice::factory()->create([
+        $invoice = Invoice::factory()->create([
             'client_id' => $this->client->id,
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -661,7 +666,7 @@ class ClientSalesReportTest extends TestCase
             'line_items' => $this->buildLineItems(),
         ]);
 
-        Payment::factory()->create([
+        $payment = Payment::factory()->create([
             'client_id' => $this->client->id,
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -671,6 +676,8 @@ class ClientSalesReportTest extends TestCase
             'is_deleted' => false,
             'date' => $payment_date,
         ]);
+
+        $this->attachPaymentApplication($payment, $invoice, 300, $payment_date, 100);
 
         $report = new ClientSalesReport($this->company, [
             'start_date' => '2025-06-01',
@@ -777,7 +784,7 @@ class ClientSalesReportTest extends TestCase
             'line_items' => $this->buildLineItems(),
         ]);
 
-        Payment::factory()->create([
+        $archived_payment = Payment::factory()->create([
             'client_id' => $this->client->id,
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -787,6 +794,8 @@ class ClientSalesReportTest extends TestCase
             'deleted_at' => now(),
             'date' => $payment_date,
         ]);
+
+        $this->attachPaymentApplication($archived_payment, $archived, 400, $payment_date);
 
         Payment::factory()->create([
             'client_id' => $this->client->id,
@@ -983,7 +992,7 @@ class ClientSalesReportTest extends TestCase
         ]);
 
         // Active client: invoice in Jan, invoice in Mar, payment in Feb.
-        Invoice::factory()->create([
+        $january_invoice = Invoice::factory()->create([
             'client_id' => $active->id,
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -1011,7 +1020,7 @@ class ClientSalesReportTest extends TestCase
             'line_items' => $this->buildLineItems(),
         ]);
 
-        Payment::factory()->create([
+        $february_payment = Payment::factory()->create([
             'client_id' => $active->id,
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -1020,6 +1029,8 @@ class ClientSalesReportTest extends TestCase
             'is_deleted' => false,
             'date' => '2025-02-10',
         ]);
+
+        $this->attachPaymentApplication($february_payment, $january_invoice, 250, '2025-02-10');
 
         $report = new ClientSalesReport($this->company, [
             'start_date' => '2025-01-01',
@@ -1079,7 +1090,7 @@ class ClientSalesReportTest extends TestCase
         ]);
 
         foreach ([$zebra, $alpha] as $index => $client) {
-            Invoice::factory()->create([
+            $invoice = Invoice::factory()->create([
                 'client_id' => $client->id,
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,
@@ -1099,7 +1110,7 @@ class ClientSalesReportTest extends TestCase
                 'line_items' => $this->buildLineItems(),
             ]);
 
-            Payment::factory()->create([
+            $payment = Payment::factory()->create([
                 'client_id' => $client->id,
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,
@@ -1109,6 +1120,13 @@ class ClientSalesReportTest extends TestCase
                 'is_deleted' => false,
                 'date' => '2025-01-20',
             ]);
+
+            $this->attachPaymentApplication(
+                $payment,
+                $invoice,
+                $index === 0 ? 20 : 10,
+                '2025-01-20',
+            );
         }
 
         $report = new ClientSalesReport($this->company, [
@@ -1157,6 +1175,30 @@ class ClientSalesReportTest extends TestCase
         }
 
         return null;
+    }
+
+    private function attachPaymentApplication(
+        Payment $payment,
+        Invoice $invoice,
+        float $amount,
+        string $application_date,
+        float $refunded = 0,
+    ): void {
+        $payment->invoices()->attach($invoice->id, [
+            'amount' => $amount,
+            'refunded' => $refunded,
+        ]);
+        $paymentable = Paymentable::query()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_id', $invoice->id)
+            ->where('paymentable_type', 'invoices')
+            ->latest('id')
+            ->firstOrFail();
+        $paymentable->created_at = app(PaymentApplicationDateResolver::class)->encodeBusinessDate(
+            $application_date,
+            $this->company->timezone()?->name ?: config('app.timezone'),
+        );
+        $paymentable->save();
     }
 
     private function findPivotClientNames(string $output, string $sectionTitle): array

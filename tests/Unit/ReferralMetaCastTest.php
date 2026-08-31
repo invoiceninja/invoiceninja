@@ -92,7 +92,7 @@ class ReferralMetaCastTest extends TestCase
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_GOOGLE,
                 'provider_user_id' => 'google-sub-1',
-                'email' => 'calendar@example.com',
+                'email' => 'calendar@gmail.com',
                 'access_token' => 'google-access-secret',
                 'refresh_token' => 'google-refresh-secret',
                 'expires_at' => 1893456000,
@@ -147,7 +147,7 @@ class ReferralMetaCastTest extends TestCase
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_GOOGLE,
                 'provider_user_id' => 'google-sub-1',
-                'email' => 'calendar@example.com',
+                'email' => 'calendar@gmail.com',
                 'access_token' => 'google-access-secret',
                 'refresh_token' => 'google-refresh-secret',
                 'expires_at' => 1893456000,
@@ -167,7 +167,7 @@ class ReferralMetaCastTest extends TestCase
 
         $this->assertInstanceOf(\stdClass::class, $connection);
         $this->assertSame(CalendarConnection::STATUS_CONNECTED, $connection->status);
-        $this->assertSame('calendar@example.com', $connection->email);
+        $this->assertSame('calendar@gmail.com', $connection->email);
         $this->assertSame(['status', 'email'], array_keys(get_object_vars($connection)));
     }
 
@@ -199,7 +199,7 @@ class ReferralMetaCastTest extends TestCase
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_GOOGLE,
                 'provider_user_id' => 'google-sub-1',
-                'email' => 'calendar@example.com',
+                'email' => 'calendar@gmail.com',
                 'access_token' => 'google-access-secret',
                 'refresh_token' => 'google-refresh-secret',
                 'expires_at' => 1893456000,
@@ -231,7 +231,7 @@ class ReferralMetaCastTest extends TestCase
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_GOOGLE,
                 'provider_user_id' => 'google-sub-1',
-                'email' => 'calendar@example.com',
+                'email' => 'calendar@gmail.com',
                 'access_token' => 'google-access-secret',
                 'refresh_token' => 'google-refresh-secret',
                 'expires_at' => 1893456000,
@@ -265,7 +265,7 @@ class ReferralMetaCastTest extends TestCase
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_GOOGLE,
                 'provider_user_id' => 'google-sub-1',
-                'email' => 'calendar@example.com',
+                'email' => 'calendar@gmail.com',
                 'access_token' => 'google-access-secret',
                 'refresh_token' => 'google-refresh-secret',
                 'expires_at' => 1893456000,
@@ -299,7 +299,7 @@ class ReferralMetaCastTest extends TestCase
             'calendar_connection' => [
                 'provider' => CalendarConnection::PROVIDER_GOOGLE,
                 'provider_user_id' => 'google-sub-1',
-                'email' => 'calendar@example.com',
+                'email' => 'calendar@gmail.com',
                 'access_token' => 'google-access-secret',
                 'refresh_token' => 'google-refresh-secret',
                 'expires_at' => 1893456000,
@@ -333,14 +333,14 @@ class ReferralMetaCastTest extends TestCase
         $connection = new CalendarConnection([
             'provider' => CalendarConnection::PROVIDER_GOOGLE,
             'provider_user_id' => 'google-sub-1',
-            'email' => 'calendar@example.com',
+            'email' => 'calendar@gmail.com',
         ]);
 
         $this->assertSame([
             'connected' => false,
             'provider' => CalendarConnection::PROVIDER_GOOGLE,
             'provider_user_id' => 'google-sub-1',
-            'email' => 'calendar@example.com',
+            'email' => 'calendar@gmail.com',
         ], $connection->toResponseArray());
     }
 
@@ -390,7 +390,7 @@ class ReferralMetaCastTest extends TestCase
             'id' => 1,
             'first_name' => 'Test',
             'last_name' => 'User',
-            'email' => 'test@example.com',
+            'email' => 'test@gmail.com',
             'last_login' => '2026-01-01 00:00:00',
             'created_at' => '2026-01-01 00:00:00',
             'updated_at' => '2026-01-01 00:00:00',

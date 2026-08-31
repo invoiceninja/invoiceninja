@@ -261,7 +261,7 @@ class RotessaPaymentDriver extends BaseDriver
             SystemLogger::dispatch(['server_response' => $data, 'data' => []], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, 880, $this->client, $this->company_gateway->company);
 
             try {
-                $errors = ($th instanceof \Illuminate\Http\Client\RequestException && $th->response)
+                $errors = ($th instanceof \Illuminate\Http\Client\RequestException && $th->response) // @phpstan-ignore-line
                     ? $th->response->body()
                     : explode("422:", $th->getMessage())[1];
             } catch (\Throwable) {
@@ -274,12 +274,31 @@ class RotessaPaymentDriver extends BaseDriver
 
     public function gatewayRequest($verb, $uri, $payload = [])
     {
-        $r = Http::withToken($this->company_gateway->getConfigField('apiKey'))
+        $apiKey = $this->company_gateway->getConfigField('apiKey');
+
+        $r = Http::withHeaders([
+                    'Authorization' => 'Token token="' . $apiKey . '"',
+                ])
                 ->{$verb}($this->getUrl() . $uri, $payload);
 
         nlog($r->body());
 
         return $r;
+    }
+
+    public function auth(): string
+    {
+        if (trim((string) $this->company_gateway->getConfigField('apiKey')) === '') {
+            return 'error';
+        }
+
+        try {
+            $response = $this->gatewayRequest('get', 'customers/0');
+
+            return $response->successful() || $response->status() === 404 ? 'ok' : 'error';
+        } catch (\Throwable) {
+            return 'error';
+        }
     }
 
     public function tokenBilling(\App\Models\ClientGatewayToken $cgt, \App\Models\PaymentHash $payment_hash)

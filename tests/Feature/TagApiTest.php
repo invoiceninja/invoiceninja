@@ -126,6 +126,18 @@ class TagApiTest extends TestCase
         $response->assertStatus(422);
     }
 
+    public function testStoreRejectsCommaInTagName(): void
+    {
+        $response = $this->withHeaders($this->headers())->postJson('/api/v1/tags', [
+            'entity_type' => 'product',
+            'name' => 'Retail,Priority',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['name'])
+            ->assertJsonPath('errors.name.0', 'Tag names may not contain commas.');
+    }
+
     public function testNullColorAllowed(): void
     {
         $payload = [
@@ -280,6 +292,26 @@ class TagApiTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertSame('new', $response->json('data.name'));
+    }
+
+    public function testUpdateRejectsCommaInTagName(): void
+    {
+        $tag = Tag::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'entity_type' => Task::class,
+            'name' => 'original',
+        ]);
+
+        $response = $this->withHeaders($this->headers())
+            ->putJson('/api/v1/tags/'.$this->encodePrimaryKey($tag->id), [
+                'name' => 'Updated,Invalid',
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['name'])
+            ->assertJsonPath('errors.name.0', 'Tag names may not contain commas.');
+        $this->assertSame('original', $tag->fresh()->name);
     }
 
     public function testEntityTypeIsImmutableOnUpdate(): void

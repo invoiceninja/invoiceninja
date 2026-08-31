@@ -13,10 +13,11 @@
 namespace App\Observers;
 
 use App\Jobs\Util\WebhookHandler;
-use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\Models\Webhook;
 use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
+use App\Services\Invoice\ReverseGatewayFee;
 use App\Services\Quickbooks\QuickbooksBatchCollector;
 use App\Services\Quickbooks\QuickbooksService;
 
@@ -65,6 +66,8 @@ class PaymentObserver
      */
     public function updated(Payment $payment)
     {
+        $this->reverseGatewayFeeOnFailure($payment);
+
         $event = Webhook::EVENT_UPDATE_PAYMENT;
 
         if ($payment->getOriginal('deleted_at') && !$payment->deleted_at) {
@@ -97,60 +100,50 @@ class PaymentObserver
             );
         }
 
-        $this->recordFrancePaymentCompletion($payment);
+        // $this->recordFrancePaymentStatusTransition($payment);
     }
+
     /**
-     * Capture France payment movement rows when an async payment becomes completed after application.
+     * Takes the gateway fee back off the invoice when a payment fails.
+     *
+     * Async methods confirm the fee when the debit starts processing, so a debit that
+     * later fails leaves a surcharge behind for a payment that never settled. The
+     * failure paths all unwind the payment before marking it failed, and
+     * ReverseGatewayFee only acts once the payment is off the invoice - so a failure
+     * that leaves the payment applied, and a redelivered failure webhook, are both no
+     * ops.
+     *
+     * @see \App\Services\Invoice\ReverseGatewayFee
      */
-    private function recordFrancePaymentCompletion(Payment $payment): void
+    private function reverseGatewayFeeOnFailure(Payment $payment): void
     {
-        try {
-            if ((int) $payment->status_id !== Payment::STATUS_COMPLETED
-                || (int) $payment->getOriginal('status_id') === Payment::STATUS_COMPLETED
-                || $payment->is_deleted) {
-                return;
-            }
-
-            $payment->loadMissing([
-                'company',
-                'client.country',
-                'client.company',
-                'invoices.client.country',
-                'invoices.client.company',
-                'invoices.company',
-            ]);
-
-            if (! $payment->client) {
-                return;
-            }
-
-            if (! $payment->client->relationLoaded('company')) {
-                $payment->client->setRelation('company', $payment->company);
-            }
-
-            if (! $payment->client->reportableFrTransaction()) {
-                return;
-            }
-
-            $payment->invoices->each(function (Invoice $invoice) use ($payment): void {
-                $paymentable = $payment->paymentables()
-                    ->withTrashed()
-                    ->where('paymentable_type', 'invoices')
-                    ->where('paymentable_id', $invoice->id)
-                    ->latest('id')
-                    ->first();
-
-                app(FrancePaymentApplicationRecorder::class)->recordMovement(
-                    payment: $payment,
-                    invoice: $invoice,
-                    paymentable: $paymentable,
-                    movementAmount: $paymentable->amount ?? data_get($invoice, 'pivot.amount', 0),
-                );
-            });
-        } catch (\Throwable $exception) {
-            report($exception);
+        if (! $payment->wasChanged('status_id') || (int) $payment->status_id !== Payment::STATUS_FAILED) {
+            return;
         }
+
+        PaymentHash::query()
+            ->where('payment_id', $payment->id)
+            ->cursor()
+            ->each(function (PaymentHash $payment_hash) {
+                (new ReverseGatewayFee($payment_hash))->run();
+            });
     }
+
+    // private function recordFrancePaymentStatusTransition(Payment $payment): void
+    // {
+    //     if (! (bool) $payment->company->getSetting('france_reporting_enabled')) {
+    //         return;
+    //     }
+
+    //     try {
+    //         app(FrancePaymentApplicationRecorder::class)->recordStatusTransition(
+    //             $payment,
+    //             (int) $payment->getOriginal('status_id'),
+    //         );
+    //     } catch (\Throwable $exception) {
+    //         report($exception);
+    //     }
+    // }
 
     /**
      * Handle the payment "deleted" event.

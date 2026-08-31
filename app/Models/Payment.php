@@ -67,7 +67,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $custom_value4
  * @property int|null $transaction_id
  * @property string|null $idempotency_key
- * @property object|null $sync
+ * @property PaymentSync|null $sync
  * @property-read \App\Models\User|null $assigned_user
  * @property-read \App\Models\Client $client
  * @property-read \App\Models\Company $company

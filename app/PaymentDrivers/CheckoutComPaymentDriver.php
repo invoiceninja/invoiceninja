@@ -43,6 +43,7 @@ use Checkout\Payments\Request\Source\RequestIdSource;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 class CheckoutComPaymentDriver extends BaseDriver
 {
@@ -160,6 +161,8 @@ class CheckoutComPaymentDriver extends BaseDriver
         }
 
         $publicKey = $this->company_gateway->getConfigField('publicApiKey');
+        $environment = $this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production();
+        $environmentSubdomain = $this->checkoutEnvironmentSubdomain();
 
         if (str_contains($secretKey, '-')) {
 
@@ -169,8 +172,13 @@ class CheckoutComPaymentDriver extends BaseDriver
             $builder = CheckoutSdk::builder()
                     ->previous()
                     ->staticKeys()
-                    ->environment($this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production()) /** phpstan-ignore-line **/
-                    ->publicKey($publicKey)
+                    ->environment($environment); /** phpstan-ignore-line **/
+
+            if ($environmentSubdomain !== null) {
+                $builder->environmentSubdomain($environmentSubdomain);
+            }
+
+            $builder->publicKey($publicKey)
                     ->secretKey($secretKey);
 
             try {
@@ -181,19 +189,27 @@ class CheckoutComPaymentDriver extends BaseDriver
                 $builder = CheckoutSdk::builder()
                     ->previous()
                     ->staticKeys()
-                    ->environment($this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production())
-                    ->secretKey($secretKey);
+                    ->environment($environment);
+
+                if ($environmentSubdomain !== null) {
+                    $builder->environmentSubdomain($environmentSubdomain);
+                }
+
+                $builder->secretKey($secretKey);
 
                 $this->gateway = $builder->build();
             }
-
         } else {
-
             /** @phpstan-ignore-next-line **/
             $builder = CheckoutSdk::builder()
                     ->staticKeys()
-                    ->environment($this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production()) /** phpstan-ignore-line **/
-                    ->publicKey($publicKey)
+                    ->environment($environment); /** phpstan-ignore-line **/
+
+            if ($environmentSubdomain !== null) {
+                $builder->environmentSubdomain($environmentSubdomain);
+            }
+
+            $builder->publicKey($publicKey)
                     ->secretKey($secretKey);
 
             try {
@@ -203,14 +219,48 @@ class CheckoutComPaymentDriver extends BaseDriver
                 // The public key is only needed client-side (Frames/Flow JS), not for server-side operations.
                 $builder = CheckoutSdk::builder()
                     ->staticKeys()
-                    ->environment($this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production())
-                    ->secretKey($secretKey);
+                    ->environment($environment);
+
+                if ($environmentSubdomain !== null) {
+                    $builder->environmentSubdomain($environmentSubdomain);
+                }
+
+                $builder->secretKey($secretKey);
 
                 $this->gateway = $builder->build();
             }
 
         }
         return $this;
+    }
+
+    private function checkoutEnvironmentSubdomain(): ?string
+    {
+        $clientId = trim((string) $this->company_gateway->getConfigField('clientId'));
+
+        if ($clientId === '') {
+            return null;
+        }
+
+        $subdomain = substr($clientId, strlen('cli_'), 8);
+
+        if (! str_starts_with($clientId, 'cli_') || ! preg_match('/^[a-z0-9]{8}$/', $subdomain)) {
+            throw new CheckoutArgumentException('Checkout.com client ID must start with cli_ and contain at least eight lowercase letters or numbers.');
+        }
+
+        return $subdomain;
+    }
+
+    private function checkoutApiBaseUrl(): string
+    {
+        $subdomain = $this->checkoutEnvironmentSubdomain();
+        $apiHost = $this->company_gateway->getConfigField('testMode')
+            ? 'api.sandbox.checkout.com'
+            : 'api.checkout.com';
+
+        return $subdomain === null
+            ? "https://{$apiHost}"
+            : "https://{$subdomain}.{$apiHost}";
     }
 
     /**
@@ -271,12 +321,13 @@ class CheckoutComPaymentDriver extends BaseDriver
     /**
      * Store PaymentMethod
      *
-     * @param  array $data
+     * @param array $data
+     * @param array $additional
      * @return ?ClientGatewayToken $token
      */
-    public function storePaymentMethod(array $data)
+    public function storePaymentMethod(array $data, array $additional = []): ?ClientGatewayToken
     {
-        return $this->storeGatewayToken($data);
+        return $this->storeGatewayToken($data, $additional);
     }
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
@@ -359,10 +410,16 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     public function getCustomer()
     {
-        try {
-            $response = $this->gateway->getCustomersClient()->get($this->client->present()->email());
+        if ($reference = $this->resolveGatewayCustomerReference()) {
+            try {
+                return $this->gateway->getCustomersClient()->get($reference);
+            } catch (\Exception $e) {
+                // Fall through to email lookup.
+            }
+        }
 
-            return $response;
+        try {
+            return $this->gateway->getCustomersClient()->get($this->client->present()->email());
         } catch (\Exception $e) {
 
             $request = new CustomerRequest();
@@ -397,6 +454,23 @@ class CheckoutComPaymentDriver extends BaseDriver
 
             return $response;
         }
+    }
+
+    public function resolveGatewayCustomerReference(): ?string
+    {
+        if (! $this->client) {
+            return null;
+        }
+
+        return $this->client
+            ->gateway_tokens()
+            ->where('company_gateway_id', $this->company_gateway->id)
+            ->whereNotNull('gateway_customer_reference')
+            ->where('gateway_customer_reference', '!=', '')
+            ->reorder()
+            ->latest('created_at')
+            ->orderByDesc('id')
+            ->value('gateway_customer_reference');
     }
 
     public function updateCustomer($customer_id = null)
@@ -510,7 +584,6 @@ class CheckoutComPaymentDriver extends BaseDriver
             }
 
             if ($response['status'] == 'Declined') {
-                $this->unWindGatewayFees($payment_hash);
 
                 $this->sendFailureMail($response['status'] . ' ' . $response['response_summary']);
 
@@ -532,7 +605,6 @@ class CheckoutComPaymentDriver extends BaseDriver
             }
         } catch (CheckoutApiException $e) {
 
-            $this->unWindGatewayFees($payment_hash);
 
             $error_details = $e->error_details;
 
@@ -618,13 +690,67 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     public function auth(): string
     {
-        try {
-            $this->init()->gateway->getCustomersClient('x');
-            return 'ok';
-        } catch (\Throwable $e) {
+        $secretKey = trim((string) $this->company_gateway->getConfigField('secretApiKey'));
+        $publicKey = trim((string) $this->company_gateway->getConfigField('publicApiKey'));
 
+        if ($secretKey === '' || $publicKey === '') {
+            return 'error';
         }
-        return 'error';
+
+        try {
+            if (! $this->init()->gateway) {
+                return 'error';
+            }
+
+            $baseUrl = $this->company_gateway->getConfigField('testMode')
+                ? 'https://api.sandbox.checkout.com'
+                : 'https://api.checkout.com';
+            $previousApi = $this->is_four_api;
+            $secretAuthorization = $previousApi ? $secretKey : 'Bearer ' . $secretKey;
+            $publicAuthorization = $previousApi ? $publicKey : 'Bearer ' . $publicKey;
+
+            // A syntactically valid, nonexistent payment ID makes a read-only
+            // request exercise the secret key and Payments API permission.
+            $paymentResponse = Http::withOptions(['allow_redirects' => false])
+                ->withHeaders(['Authorization' => $secretAuthorization])
+                ->acceptJson()
+                ->timeout(15)
+                ->get($baseUrl . '/payments/pay_' . str_repeat('a', 26));
+
+            if ($paymentResponse->status() !== 404) {
+                return 'error';
+            }
+
+            // Flow requires a processing channel. This endpoint checks the
+            // channel and secret together using the same request Flow relies on.
+            if ($this->useFlow()) {
+                $methodsResponse = Http::withOptions(['allow_redirects' => false])
+                    ->withHeaders(['Authorization' => $secretAuthorization])
+                    ->acceptJson()
+                    ->timeout(15)
+                    ->get($baseUrl . '/payment-methods', [
+                        'processing_channel_id' => $this->company_gateway->getConfigField('processingChannelId'),
+                    ]);
+
+                if (! $methodsResponse->successful()) {
+                    return 'error';
+                }
+            }
+
+            // Tokenization is public-key authenticated. An intentionally
+            // incomplete card payload must reach request validation (422/400),
+            // never authentication (401/403), and cannot create a token.
+            $tokenResponse = Http::withOptions(['allow_redirects' => false])
+                ->withHeaders(['Authorization' => $publicAuthorization])
+                ->acceptJson()
+                ->timeout(15)
+                ->post($baseUrl . '/tokens', ['type' => 'card']);
+
+            return in_array($tokenResponse->status(), [400, 422], true) ? 'ok' : 'error';
+        } catch (\Throwable) {
+            return 'error';
+        }
+
     }
 
     private function getToken(string $token, $gateway_customer_reference)
@@ -739,13 +865,11 @@ class CheckoutComPaymentDriver extends BaseDriver
 
         $secretKey = $this->company_gateway->getConfigField('secretApiKey');
         $processingChannelId = $this->company_gateway->getConfigField('processingChannelId');
-        $testMode = $this->company_gateway->getConfigField('testMode');
-
-        $baseUrl = $testMode ? 'https://api.sandbox.checkout.com' : 'https://api.checkout.com';
+        $baseUrl = $this->checkoutApiBaseUrl();
         $url = $baseUrl . '/payment-methods?' . http_build_query(['processing_channel_id' => $processingChannelId]);
 
         try {
-            $response = \Illuminate\Support\Facades\Http::withHeaders([
+            $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $secretKey,
                 'Content-Type' => 'application/json',
             ])->get($url);

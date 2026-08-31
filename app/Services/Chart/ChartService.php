@@ -76,6 +76,17 @@ class ChartService
     }
 
     /* Chart Data */
+
+    /**
+     * chart_summary
+
+     * @superseded-by chart-summary-batched
+     * @deprecated Remove after chart-summary-batched is validated and wired in.
+     *
+     * @param  string $start_date
+     * @param  string $end_date
+     * @return array
+     */
     public function chart_summary($start_date, $end_date): array
     {
         $currencies = $this->getCurrencyCodes();
@@ -90,6 +101,63 @@ class ChartService
             $data[$key]['payments'] = $this->getPaymentChartQuery($start_date, $end_date, $key);
             $data[$key]['expenses'] = $this->getExpenseChartQuery($start_date, $end_date, $key);
         }
+
+        $data[999]['invoices'] = $this->getAggregateInvoiceChartQuery($start_date, $end_date);
+        $data[999]['outstanding'] = $this->getAggregateOutstandingChartQuery($start_date, $end_date);
+        $data[999]['payments'] = $this->getAggregatePaymentChartQuery($start_date, $end_date);
+        $data[999]['expenses'] = $this->getAggregateExpenseChartQuery($start_date, $end_date);
+
+        return $data;
+    }
+
+    /**
+     * chart_summary_batched
+     *
+     * Reduces N+1 queries @todo additional testing prior to replacing chart_summary
+     *
+     * @successor-for chart-summary-batched
+     * @see chart_summary()
+     * @param  string $start_date
+     * @param  string $end_date
+     * @return array
+     */
+    public function chart_summary_batched(string $start_date, string $end_date): array
+    {
+        $currencies = $this->getCurrencyCodes();
+
+        $data = [];
+        $data['start_date'] = $start_date;
+        $data['end_date'] = $end_date;
+
+        foreach (array_keys($currencies) as $currency_id) {
+            $data[$currency_id] = [
+                'invoices' => [],
+                'outstanding' => [],
+                'payments' => [],
+                'expenses' => [],
+            ];
+        }
+
+        $this->distributeChartRows(
+            $data,
+            'invoices',
+            $this->getInvoiceChartQueryForAllCurrencies($start_date, $end_date)
+        );
+        $this->distributeChartRows(
+            $data,
+            'outstanding',
+            $this->getOutstandingChartQueryForAllCurrencies($start_date, $end_date)
+        );
+        $this->distributeChartRows(
+            $data,
+            'payments',
+            $this->getPaymentChartQueryForAllCurrencies($start_date, $end_date)
+        );
+        $this->distributeChartRows(
+            $data,
+            'expenses',
+            $this->getExpenseChartQueryForAllCurrencies($start_date, $end_date)
+        );
 
         $data[999]['invoices'] = $this->getAggregateInvoiceChartQuery($start_date, $end_date);
         $data[999]['outstanding'] = $this->getAggregateOutstandingChartQuery($start_date, $end_date);
@@ -208,6 +276,25 @@ class ChartService
         }
 
         return '';
+    }
+
+    /**
+     * @param array<string|int, mixed> $data
+     * @param array<int, object> $rows
+     */
+    private function distributeChartRows(array &$data, string $metric, array $rows): void
+    {
+        foreach ($rows as $row) {
+            $currency_id = (int) $row->currency_id;
+
+            if (! array_key_exists($currency_id, $data)) {
+                continue;
+            }
+
+            unset($row->currency_id);
+
+            $data[$currency_id][$metric][] = $row;
+        }
     }
 
     /* Analytics */

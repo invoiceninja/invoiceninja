@@ -43,6 +43,36 @@ class PdfBuilderJsonVariableReplacementTest extends TestCase
         $this->assertSame('INV-001', $document->getElementById('image')->getAttribute('alt'));
     }
 
+    public function testJsonDesignExpandsNestedVariablesInsidePublicNotes(): void
+    {
+        $builder = new PdfBuilder($this->pdfServiceWithNestedPublicNotes());
+
+        $document = new DOMDocument();
+        @$document->loadHTML(
+            '<!DOCTYPE html><html><body>'
+            . '<div id="public-notes">$public_notes</div>'
+            . '</body></html>'
+        );
+
+        $builder->setDocument($document);
+        $builder->updateVariables();
+
+        $content = $document->getElementById('public-notes')->textContent;
+
+        $this->assertStringContainsString('Thanks', $content);
+        $this->assertStringContainsString('Payment list', $content);
+        $this->assertStringNotContainsString('$payments', $content);
+    }
+
+    private function pdfServiceWithNestedPublicNotes(): PdfService
+    {
+        $service = $this->pdfService();
+        $service->html_variables['values']['$public_notes'] = "Thanks\n\$payments";
+        $service->html_variables['values']['$payments'] = 'Payment list';
+
+        return $service;
+    }
+
     private function pdfService(): PdfService
     {
         $service = (new \ReflectionClass(PdfService::class))->newInstanceWithoutConstructor();

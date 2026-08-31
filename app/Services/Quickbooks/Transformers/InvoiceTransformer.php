@@ -300,8 +300,12 @@ class InvoiceTransformer extends BaseTransformer
             'ApplyTaxAfterDiscount' => true,
             'PrintStatus' => 'NeedToPrint',
             'EmailStatus' => 'NotSet',
-            'GlobalTaxCalculation' => ($ast || !$is_us) ? 'TaxExcluded' : 'NotApplicable',
+            // 'GlobalTaxCalculation' => ($ast || !$is_us) ? 'TaxExcluded' : 'NotApplicable',
         ];
+
+        if ($ast || !$is_us) {
+            $invoice_data['GlobalTaxCalculation'] = 'TaxExcluded';
+        } 
 
         if ($ship_addr = $this->formatLocationShipAddress($invoice)) {
             $invoice_data['ShipAddr'] = $ship_addr;
@@ -626,11 +630,31 @@ class InvoiceTransformer extends BaseTransformer
         $tax_rate_map = $qb_service->company->quickbooks->settings->tax_rate_map ?? [];
 
         foreach ($invoice->calc()->getTaxMap() ?? [] as $tax) {
-            $tax_components = $qb_service->helper->splitTaxName($tax['name']);
-            $tax_rate_id = $this->findTaxRateIdByRateAndName($tax_rate_map, floatval($tax_components['percentage']), $tax_components['name']);
+            $tax_name = (string) $tax['name'];
+            $tax_rate = (float) $tax['tax_rate'];
+
+            $tax_rate_id = $this->findTaxRateIdByRateAndName(
+                $tax_rate_map,
+                $tax_rate,
+                $tax_name
+            );
 
             if (!$tax_rate_id) {
-                continue;
+                $qb_service->tax_rate->ensureTaxCodeForComponents([
+                    ['name' => $tax_name, 'rate' => $tax_rate],
+                ]);
+
+                $tax_rate_map = $qb_service->company->quickbooks->settings->tax_rate_map;
+
+                $tax_rate_id = $this->findTaxRateIdByRateAndName(
+                    $tax_rate_map,
+                    $tax_rate,
+                    $tax_name
+                );
+            }
+
+            if (!$tax_rate_id) {
+                throw new \RuntimeException("QuickBooks TaxRate unavailable: {$tax_name} ({$tax_rate}%)");
             }
 
             $tax_lines[] = [
@@ -640,9 +664,11 @@ class InvoiceTransformer extends BaseTransformer
                     'TaxRateRef' => [
                         'value' => $tax_rate_id,
                     ],
-                    'PercentBased' => false,
+                    // 'PercentBased' => false,
+                    'PercentBased' => true,
+                    'TaxPercent' => $tax_rate,
                     'NetAmountTaxable' => round($tax['base_amount'], 2),
-                    'TaxInclusiveAmount' => 0.00,
+                    // 'TaxInclusiveAmount' => 0.00,
                 ],
             ];
 

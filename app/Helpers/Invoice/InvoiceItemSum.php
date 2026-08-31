@@ -67,7 +67,7 @@ class InvoiceItemSum
 
         'NO', //NORWAY - EEA
         'IS', //ICELAND - EEA
-        'LI', //Liechtenstein - EEA
+        // 'LI', //Liechtenstein - EEA
 
     ];
 

@@ -12,6 +12,8 @@
 
 namespace App\Services\Pdf;
 
+use App\DataMapper\InvoiceItem;
+
 /**
  * Converts JSON-based visual designer output to PdfBuilder sections format
  *
@@ -77,6 +79,14 @@ class JsonToSectionsAdapter
      * control chars). The 128-char cap prevents extreme attribute sizes.
      */
     private const BLOCK_ID_PATTERN = '/^[A-Za-z0-9._-]{1,128}$/';
+
+    private const TABLE_BORDER_WIDTH_MIN = 0.0;
+
+    private const TABLE_BORDER_WIDTH_MAX = 20.0;
+
+    private const TABLE_BORDER_WIDTH_STEP = 0.5;
+
+    private const TABLE_BORDER_WIDTH_DEFAULT = 1.0;
 
     public function __construct(array $jsonDesign, PdfService $service, ?ImageFetcher $imageFetcher = null)
     {
@@ -814,6 +824,7 @@ class JsonToSectionsAdapter
         $rawColumns = $this->redistributeColumnWidths($rawColumns);
 
         $visibleColumns = [];
+        $visibleColumnCount = count($rawColumns);
         foreach ($rawColumns as $i => $column) {
             $columnId = $ids[$i];
             $visibleColumns[] = [
@@ -821,11 +832,11 @@ class JsonToSectionsAdapter
                 'header' => $column['header'] ?? '',
                 'header_ref' => "{$tableType}_table-{$columnId}-th",
                 'cell_ref' => "{$tableType}_table-{$columnId}-td",
-                'header_style' => $this->buildTableHeaderStyle($props, $column, $borders),
+                'header_style' => $this->buildTableHeaderStyle($props, $column, $borders, $i, $visibleColumnCount),
                 // Two body cell variants: the first-row variant suppresses its
                 // top stroke when the header bottom is enabled (seam rule).
-                'cell_style_first_row' => $this->buildTableCellStyle($props, $column, $borders, true),
-                'cell_style' => $this->buildTableCellStyle($props, $column, $borders, false),
+                'cell_style_first_row' => $this->buildTableCellStyle($props, $column, $borders, true, $i, $visibleColumnCount),
+                'cell_style' => $this->buildTableCellStyle($props, $column, $borders, false, $i, $visibleColumnCount),
             ];
         }
 
@@ -1060,6 +1071,9 @@ class JsonToSectionsAdapter
 
         // Format based on field type
         switch ($fieldName) {
+            case 'tags':
+                return InvoiceItem::formatTagsForDisplay($value);
+
             case 'quantity':
                 return $this->service->config->formatValueNoTrailingZeroes($value);
 
@@ -1348,7 +1362,9 @@ class JsonToSectionsAdapter
             'content' => '',
             'properties' => [
                 'data-ref' => "{$block['id']}-space",
-                'style' => 'margin-bottom: 40px;',
+                // A real height participates in layout measurement; an empty
+                // element with only a bottom margin can collapse to zero.
+                'style' => 'height: ' . ($props['signatureHeight'] ?? '40px') . ';',
             ],
         ];
 
@@ -1367,7 +1383,7 @@ class JsonToSectionsAdapter
         // Label
         $elements[] = [
             'element' => 'div',
-            'content' => $props['label'] ?? '',
+            'content' => is_string($props['label'] ?? null) ? $props['label'] : '',
             'properties' => [
                 'data-ref' => "{$block['id']}-label",
                 'style' => $this->buildSignatureLabelStyle($props),
@@ -1381,7 +1397,7 @@ class JsonToSectionsAdapter
                 'content' => 'Date: ________________',
                 'properties' => [
                     'data-ref' => "{$block['id']}-date",
-                    'style' => $this->buildSignatureLabelStyle($props),
+                    'style' => $this->buildSignatureLabelStyle($props) . ' margin-top: 4px;',
                 ],
             ];
         }
@@ -1390,7 +1406,7 @@ class JsonToSectionsAdapter
             'id' => $block['id'],
             'elements' => $elements,
             'properties' => [
-                'style' => "text-align: " . ($props['align'] ?? 'left') . ";",
+                'style' => $this->buildSignatureContainerStyle($props),
             ],
         ];
     }
@@ -1469,7 +1485,7 @@ class JsonToSectionsAdapter
     }
 
 
-    private function buildTableHeaderStyle(array $props, array $column, array $borders): string
+    private function buildTableHeaderStyle(array $props, array $column, array $borders, int $columnIndex, int $columnCount): string
     {
         $styles = [];
         $styles[] = 'padding: ' . ($props['padding'] ?? '8px');
@@ -1482,14 +1498,21 @@ class JsonToSectionsAdapter
         $styles[] = 'overflow-wrap: break-word';
         $styles[] = 'word-break: break-word';
 
-        if (!$borders['showActive']) {
-            $styles[] = 'border: none';
+        $h = $borders['header'];
+        if ($h['widthPx'] < 1) {
+            $columnSides = $this->ownedHairlineColumnSides($h['sides'], $columnIndex, $columnCount);
+            $styles = array_merge($styles, $this->buildHairlineBorderStyles($h, [
+                'top' => $h['sides']['top'],
+                'right' => $columnSides['right'],
+                'bottom' => $h['sides']['bottom'],
+                'left' => $columnSides['left'],
+            ]));
         } else {
-            $h = $borders['header'];
             $styles[] = 'border-top: '    . $this->buildBorderStroke($h, $h['sides']['top']);
             $styles[] = 'border-right: '  . $this->buildBorderStroke($h, $h['sides']['right']);
             $styles[] = 'border-bottom: ' . $this->buildBorderStroke($h, $h['sides']['bottom']);
             $styles[] = 'border-left: '   . $this->buildBorderStroke($h, $h['sides']['left']);
+            $styles[] = 'box-shadow: none';
         }
 
         // Repeat headerBg on each <th> so PDF engines that drop <thead>/<tr>
@@ -1527,7 +1550,7 @@ class JsonToSectionsAdapter
         return implode('; ', $styles) . ';';
     }
 
-    private function buildTableCellStyle(array $props, array $column, array $borders, bool $isFirstRow): string
+    private function buildTableCellStyle(array $props, array $column, array $borders, bool $isFirstRow, int $columnIndex, int $columnCount): string
     {
         $styles = [];
         $styles[] = 'padding: ' . ($props['padding'] ?? '8px');
@@ -1541,15 +1564,24 @@ class JsonToSectionsAdapter
         $styles[] = 'overflow-wrap: break-word';
         $styles[] = 'word-break: break-word';
 
-        if (!$borders['showActive']) {
-            $styles[] = 'border: none';
-        } else {
-            $b = $borders['row'];
-            $headerBottom = $borders['header']['sides']['bottom'];
+        $b = $borders['row'];
+        $headerBottom = $borders['header']['sides']['bottom'];
 
-            // Seam rule: when the header already draws a bottom border, the
-            // first body row must not duplicate it as a top border. Otherwise
-            // the body's own top-side toggle decides.
+        // Seam rule: when the header already draws a bottom border, the
+        // first body row must not duplicate it as a top border. Otherwise
+        // the body's own top-side toggle decides.
+        if ($b['widthPx'] < 1) {
+            $topEnabled = $isFirstRow
+                ? ($b['sides']['top'] && !$headerBottom)
+                : ($b['sides']['top'] && !$b['sides']['bottom']);
+            $columnSides = $this->ownedHairlineColumnSides($b['sides'], $columnIndex, $columnCount);
+            $styles = array_merge($styles, $this->buildHairlineBorderStyles($b, [
+                'top' => $topEnabled,
+                'right' => $columnSides['right'],
+                'bottom' => $b['sides']['bottom'],
+                'left' => $columnSides['left'],
+            ]));
+        } else {
             $topEnabled = $isFirstRow
                 ? ($b['sides']['top'] && !$headerBottom)
                 : $b['sides']['top'];
@@ -1558,6 +1590,7 @@ class JsonToSectionsAdapter
             $styles[] = 'border-right: '  . $this->buildBorderStroke($b, $b['sides']['right']);
             $styles[] = 'border-bottom: ' . $this->buildBorderStroke($b, $b['sides']['bottom']);
             $styles[] = 'border-left: '   . $this->buildBorderStroke($b, $b['sides']['left']);
+            $styles[] = 'box-shadow: none';
         }
 
         if (isset($props['cellColor'])) {
@@ -1577,15 +1610,13 @@ class JsonToSectionsAdapter
      *
      * Output shape:
      *   [
-     *     'showActive' => bool,
-     *     'header' => ['color' => string, 'widthPx' => int, 'sides' => [top,right,bottom,left]],
-     *     'row'    => ['color' => string, 'widthPx' => int, 'sides' => [top,right,bottom,left]],
+     *     'header' => ['color' => string, 'widthPx' => float, 'sides' => [top,right,bottom,left]],
+     *     'row'    => ['color' => string, 'widthPx' => float, 'sides' => [top,right,bottom,left]],
      *   ]
      */
     private function resolveTableBorderProps(array $props): array
     {
         return [
-            'showActive' => ($props['showBorders'] ?? null) === true,
             'header' => $this->resolveTableRegionBorders($props['headerBorders'] ?? null),
             'row' => $this->resolveTableRegionBorders($props['rowBorders'] ?? null),
         ];
@@ -1596,7 +1627,7 @@ class JsonToSectionsAdapter
         if (!is_array($region) || $region === []) {
             return [
                 'color' => '#E5E7EB',
-                'widthPx' => 1,
+                'widthPx' => self::TABLE_BORDER_WIDTH_DEFAULT,
                 'sides' => ['top' => true, 'right' => true, 'bottom' => true, 'left' => true],
             ];
         }
@@ -1607,7 +1638,7 @@ class JsonToSectionsAdapter
 
         $widthPx = array_key_exists('width', $region)
             ? $this->coerceBorderWidthPx($region['width'])
-            : 1;
+            : self::TABLE_BORDER_WIDTH_DEFAULT;
 
         $sidesInput = is_array($region['sides'] ?? null) ? $region['sides'] : [];
 
@@ -1628,38 +1659,35 @@ class JsonToSectionsAdapter
     }
 
     /**
-     * Match the frontend's coerceBorderWidthPx: round to nearest int,
-     * clamp to [0, 20]. Strings may carry a trailing "px"; non-finite
-     * or unparseable inputs fall back to 1.
+     * Match the frontend's coerceBorderWidthPx: snap to half-pixel increments
+     * and clamp to [0, 20]. Strings may carry a trailing "px"; non-finite
+     * or unparseable inputs use the compatibility default.
      */
-    private function coerceBorderWidthPx($value): int
+    private function coerceBorderWidthPx(mixed $value): float
     {
-        if (is_int($value)) {
-            return max(0, min(20, $value));
-        }
-
-        if (is_float($value)) {
-            if (!is_finite($value)) {
-                return 1;
-            }
-            return max(0, min(20, (int) round($value)));
-        }
-
-        if (is_string($value)) {
+        if (is_int($value) || is_float($value)) {
+            $width = (float) $value;
+        } elseif (is_string($value)) {
             $trimmed = trim($value);
             $stripped = preg_replace('/px$/i', '', $trimmed);
+
             // JS parseFloat: pull a leading numeric token, else NaN.
             if (preg_match('/^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?/', $stripped, $m)) {
-                $f = (float) $m[0];
-                if (!is_finite($f)) {
-                    return 1;
-                }
-                return max(0, min(20, (int) round($f)));
+                $width = (float) $m[0];
+            } else {
+                return self::TABLE_BORDER_WIDTH_DEFAULT;
             }
-            return 1;
+        } else {
+            return self::TABLE_BORDER_WIDTH_DEFAULT;
         }
 
-        return 1;
+        if (!is_finite($width)) {
+            return self::TABLE_BORDER_WIDTH_DEFAULT;
+        }
+
+        $snapped = round($width / self::TABLE_BORDER_WIDTH_STEP) * self::TABLE_BORDER_WIDTH_STEP;
+
+        return max(self::TABLE_BORDER_WIDTH_MIN, min(self::TABLE_BORDER_WIDTH_MAX, $snapped));
     }
 
     private function buildBorderStroke(array $region, bool $sideEnabled): string
@@ -1669,6 +1697,61 @@ class JsonToSectionsAdapter
         }
 
         return $region['widthPx'] . 'px solid ' . $region['color'];
+    }
+
+    /**
+     * Assign each vertical seam to one cell so adjacent inset shadows do not
+     * turn a fractional hairline into a doubled-width line.
+     *
+     * @return array{left: bool, right: bool}
+     */
+    private function ownedHairlineColumnSides(array $sides, int $columnIndex, int $columnCount): array
+    {
+        $isFirstColumn = $columnIndex === 0;
+        $isLastColumn = $columnIndex === max(0, $columnCount - 1);
+
+        return [
+            'left' => $isFirstColumn && $sides['left'],
+            'right' => $isLastColumn ? $sides['right'] : ($sides['right'] || $sides['left']),
+        ];
+    }
+
+    /**
+     * Chromium snaps native border widths to whole CSS pixels in PDF output,
+     * while inset shadows preserve fractional geometry.
+     *
+     * @return list<string>
+     */
+    private function buildHairlineBorderStyles(array $region, array $sides): array
+    {
+        $styles = ['border: none'];
+
+        if ($region['widthPx'] <= 0) {
+            $styles[] = 'box-shadow: none';
+
+            return $styles;
+        }
+
+        $width = $region['widthPx'] . 'px';
+        $color = $region['color'];
+        $shadows = [];
+
+        if ($sides['top']) {
+            $shadows[] = "inset 0 {$width} 0 0 {$color}";
+        }
+        if ($sides['right']) {
+            $shadows[] = "inset -{$width} 0 0 0 {$color}";
+        }
+        if ($sides['bottom']) {
+            $shadows[] = "inset 0 -{$width} 0 0 {$color}";
+        }
+        if ($sides['left']) {
+            $shadows[] = "inset {$width} 0 0 0 {$color}";
+        }
+
+        $styles[] = 'box-shadow: ' . ($shadows === [] ? 'none' : implode(', ', $shadows));
+
+        return $styles;
     }
 
     /**
@@ -1754,13 +1837,25 @@ class JsonToSectionsAdapter
     private function buildSignatureLineStyle(array $props): string
     {
         $styles = [];
-        $styles[] = 'border-top: 1px solid #000';
-        $styles[] = 'width: 200px';
-        $styles[] = 'margin-bottom: 8px';
-        $align = $props['align'] ?? 'left';
-        if ($align === 'center') {
-            $styles[] = 'display: inline-block';
+        $lineStyle = $props['lineStyle'] ?? 'solid';
+        if (!in_array($lineStyle, ['solid', 'dashed', 'dotted'], true)) {
+            $lineStyle = 'solid';
         }
+        $styles[] = 'border-top: ' . ($props['lineThickness'] ?? '1px') . ' ' . $lineStyle . ' ' . ($props['lineColor'] ?? '#000000');
+        $styles[] = 'width: ' . ($props['lineWidth'] ?? '200px');
+        $styles[] = 'max-width: 100%';
+        $styles[] = 'margin-bottom: 8px';
+        $styles[] = 'display: inline-block';
+
+        return implode('; ', $styles) . ';';
+    }
+
+    private function buildSignatureContainerStyle(array $props): string
+    {
+        $styles = [];
+        $styles[] = 'text-align: ' . ($props['align'] ?? 'left');
+        $styles[] = 'padding: ' . ($props['padding'] ?? '0px');
+        $styles[] = 'box-sizing: border-box';
 
         return implode('; ', $styles) . ';';
     }
@@ -1771,7 +1866,13 @@ class JsonToSectionsAdapter
         if (isset($props['fontSize'])) {
             $styles[] = 'font-size: ' . $props['fontSize'];
         }
-        $styles[] = 'color: ' . ($props['color'] ?? '#374151');
+        if (isset($props['fontWeight'])) {
+            $styles[] = 'font-weight: ' . $props['fontWeight'];
+        }
+        if (isset($props['fontStyle'])) {
+            $styles[] = 'font-style: ' . $props['fontStyle'];
+        }
+        $styles[] = 'color: ' . ($props['color'] ?? '#6B7280');
 
         return implode('; ', $styles) . ';';
     }

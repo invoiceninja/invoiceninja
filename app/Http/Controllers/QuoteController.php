@@ -27,13 +27,14 @@ use App\Http\Requests\Quote\ShowQuoteRequest;
 use App\Http\Requests\Quote\StoreQuoteRequest;
 use App\Http\Requests\Quote\UpdateQuoteRequest;
 use App\Http\Requests\Quote\UploadQuoteRequest;
-use App\Jobs\Quote\ZipQuotes;
+use App\Jobs\Entity\ZipEntity;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Project;
 use App\Models\Quote;
 use App\Repositories\QuoteRepository;
+use App\Services\PdfMaker\BatchPdfService;
 use App\Services\PdfMaker\PdfMerge;
 use App\Services\Template\TemplateAction;
 use App\Transformers\InvoiceTransformer;
@@ -552,7 +553,7 @@ class QuoteController extends BaseController
                 return response()->json(['message' => ctrans('texts.access_denied')], 403);
             }
 
-            ZipQuotes::dispatch($authorized->pluck('id')->toArray(), $authorized->first()->company, auth()->user());
+            ZipEntity::dispatch($authorized->pluck('id'), $authorized->first()->company, auth()->user(), Quote::class);
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
@@ -583,28 +584,14 @@ class QuoteController extends BaseController
 
             $start = microtime(true);
 
-            $batch_id = (new \App\Jobs\Invoice\PrintEntityBatch(Quote::class, $quotes->pluck('id')->toArray(), $user->company()->db))->handle();
-            $batch = \Illuminate\Support\Facades\Bus::findBatch($batch_id);
-            $batch_key = $batch->name;
-
-            $finished = false;
-
-            do {
-                usleep(200000);
-                $batch = \Illuminate\Support\Facades\Bus::findBatch($batch_id);
-                $finished = $batch->finished();
-            } while (!$finished);
-
-            $paths = $quotes->map(function ($quote) use ($batch_key) {
-                return \Illuminate\Support\Facades\Cache::pull("{$batch_key}-{$quote->id}");
-            })->filter(function ($value) {
-                return !is_null($value);
-            })->toArray();
-
-            $mergedPdf = (new PdfMerge($paths))->run();
-
-            return response()->streamDownload(function () use ($mergedPdf) {
-                echo $mergedPdf;
+            $merged_pdf = app(BatchPdfService::class)->render(
+                Quote::class,
+                $quotes->pluck('id')->all(),
+                $user->company()->db,
+            );
+            
+            return response()->streamDownload(function () use ($merged_pdf) {
+                echo $merged_pdf;
             }, 'print.pdf', [
                 'Content-Type' => 'application/pdf',
                 'Cache-Control:' => 'no-cache',
@@ -1027,7 +1014,7 @@ class QuoteController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $quote, $request->input('is_public', true));
+            $this->saveDocuments($request->file('documents'), $quote, $request->has('is_public') ? $request->boolean('is_public') : null);
         }
 
         return $this->itemResponse($quote->fresh());

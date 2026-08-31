@@ -56,34 +56,8 @@ final readonly class ReportData implements Arrayable, Castable, JsonSerializable
     /**
      * @param array<string, mixed> $data
      */
-    public static function fromTransactionEventPayload(array $data, ?int $eventId): self
-    {
-        if (! is_null($eventId) && FRReportEntryData::supportsTransactionEventId($eventId)) {
-            return self::fromFRReportEntry(FRReportEntryData::fromTransactionEventPayload($data, $eventId));
-        }
-
-        return self::fromArray($data);
-    }
-
-    /**
-     * @param array<string, mixed> $data
-     */
     public static function fromArray(array $data): self
     {
-        if (self::isB2BIInvoicePayload($data)) {
-            $data = [
-                'schemaVersion' => self::CURRENT_SCHEMA_VERSION,
-                'frReportEntry' => $data,
-            ];
-        }
-
-        if (array_key_exists('typeCode', $data) && ! array_key_exists('frReport', $data)) {
-            $data = [
-                'schemaVersion' => self::CURRENT_SCHEMA_VERSION,
-                'frReport' => $data,
-            ];
-        }
-
         $schemaVersion = (int) ($data['schemaVersion'] ?? self::CURRENT_SCHEMA_VERSION);
 
         if ($schemaVersion > self::CURRENT_SCHEMA_VERSION) {
@@ -118,14 +92,6 @@ final readonly class ReportData implements Arrayable, Castable, JsonSerializable
      */
     public function toStorageArray(): array
     {
-        if (! is_null($this->frReport) && is_null($this->frReportEntry)) {
-            return $this->frReport->toArray();
-        }
-
-        if (! is_null($this->frReportEntry) && is_null($this->frReport)) {
-            return $this->frReportEntry->toStorageArray();
-        }
-
         return $this->toArray();
     }
 
@@ -146,17 +112,6 @@ final readonly class ReportData implements Arrayable, Castable, JsonSerializable
         if (is_null($this->frReport) && is_null($this->frReportEntry)) {
             throw new InvalidArgumentException('ReportData requires at least one regional report or report entry.');
         }
-    }
-
-    /**
-     * @param array<string, mixed> $data
-     */
-    private static function isB2BIInvoicePayload(array $data): bool
-    {
-        return array_key_exists('invoiceNumber', $data)
-            && array_key_exists('issueDate', $data)
-            && array_key_exists('documentCurrency', $data)
-            && array_key_exists('amountIncludingVat', $data);
     }
 
     /**

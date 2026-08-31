@@ -20,15 +20,15 @@ use Illuminate\Support\Facades\Route;
 Route::get('client', [ContactLoginController::class, 'showLoginForm'])->name('client.catchall')->middleware(['domain_db', 'contact_account','locale', 'throttle:portal']); //catch all
 
 Route::get('client/login/{company_key?}', [ContactLoginController::class, 'showLoginForm'])->name('client.login')->middleware(['domain_db', 'contact_account','locale', 'throttle:portal']);
-Route::post('client/login/{company_key?}', [ContactLoginController::class, 'login'])->name('client.login.submit');
+Route::post('client/login/{company_key?}', [ContactLoginController::class, 'login'])->name('client.login.submit')->middleware('throttle:portal-login');
 
-Route::get('client/register/{company_key?}', [ContactRegisterController::class, 'showRegisterForm'])->name('client.register')->middleware(['domain_db', 'contact_account', 'contact_register','locale'])->middleware('throttle:5,1');
-Route::post('client/register/{company_key?}', [ContactRegisterController::class, 'register'])->middleware(['domain_db', 'contact_account', 'contact_register', 'locale', ])->middleware('throttle:5,1');
+Route::get('client/register/{company_key?}', [ContactRegisterController::class, 'showRegisterForm'])->name('client.register')->middleware(['domain_db', 'contact_account', 'contact_register','locale', 'throttle:contact-register']);
+Route::post('client/register/{company_key?}', [ContactRegisterController::class, 'register'])->middleware(['domain_db', 'contact_account', 'contact_register', 'locale', 'throttle:contact-register']);
 
 Route::get('client/password/reset', [ContactForgotPasswordController::class, 'showLinkRequestForm'])->name('client.password.request')->middleware(['domain_db', 'contact_account','locale', 'throttle:portal']);
-Route::post('client/password/email', [ContactForgotPasswordController::class, 'sendResetLinkEmail'])->name('client.password.email')->middleware(['locale', 'throttle:portal']);
+Route::post('client/password/email', [ContactForgotPasswordController::class, 'sendResetLinkEmail'])->name('client.password.email')->middleware(['locale', 'throttle:portal-auth']);
 Route::get('client/password/reset/{token}', [ContactResetPasswordController::class, 'showResetForm'])->name('client.password.reset')->middleware(['domain_db', 'contact_account','locale', 'throttle:portal']);
-Route::post('client/password/reset', [ContactResetPasswordController::class, 'reset'])->name('client.password.update')->middleware(['domain_db', 'contact_account','locale', 'throttle:portal']);
+Route::post('client/password/reset', [ContactResetPasswordController::class, 'reset'])->name('client.password.update')->middleware(['domain_db', 'contact_account','locale', 'throttle:portal-auth']);
 
 Route::get('set_password', [App\Http\Controllers\ClientPortal\InvitationController::class, 'setPasswordForm'])->name('client.set_password_form')->middleware('domain_db');
 Route::post('set_password', [App\Http\Controllers\ClientPortal\InvitationController::class, 'handlePasswordSet'])->name('client.set_password')->middleware('domain_db');
@@ -40,17 +40,19 @@ Route::get('documents/{document_hash}', [App\Http\Controllers\ClientPortal\Docum
 Route::get('documents/{hash}/hashed', [App\Http\Controllers\ClientPortal\DocumentController::class, 'hashDownload'])->name('documents.hashed_download');
 Route::get('error', [App\Http\Controllers\ClientPortal\ContactHashLoginController::class, 'errorPage'])->name('client.error');
 Route::get('client/payment/{contact_key}/{payment_id}', [App\Http\Controllers\ClientPortal\InvitationController::class, 'paymentRouter'])->middleware(['domain_db','contact_key_login']);
+Route::get('client/ninja/trial/confirmed', [App\Http\Controllers\ClientPortal\NinjaPlanController::class, 'trialConfirmed'])
+    ->name('client.trial.confirmed')
+    ->middleware(['auth:contact', 'locale', 'domain_db', 'check_client_existence']);
 Route::get('client/ninja/{contact_key}/{company_key}', [App\Http\Controllers\ClientPortal\NinjaPlanController::class, 'index'])->name('client.ninja_contact_login')->middleware(['domain_db']);
 //Route::post('client/ninja/trial_confirmation', [App\Http\Controllers\ClientPortal\NinjaPlanController::class, 'trial_confirmation'])->name('client.trial.response')->middleware(['domain_db']);
 
 Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db','check_client_existence'], 'prefix' => 'client', 'as' => 'client.'], function () {
     Route::get('dashboard', [App\Http\Controllers\ClientPortal\DashboardController::class, 'index'])->name('dashboard'); // name = (dashboard. index / create / show / update / destroy / edit
 
-    Route::post('ninja/trial_confirmation', [App\Http\Controllers\ClientPortal\NinjaPlanController::class, 'trial_confirmation'])->name('trial.response')->middleware(['domain_db']);
-
+    Route::post('ninja/trial_confirmation', [App\Http\Controllers\ClientPortal\NinjaPlanController::class, 'trial_confirmation'])->name('trial.response')->middleware('throttle:10,1');
     Route::get('plan', [App\Http\Controllers\ClientPortal\NinjaPlanController::class, 'plan'])->name('plan'); // name = (dashboard. index / create / show / update / destroy / edit
 
-    Route::get('showBlob/{hash}', [App\Http\Controllers\ClientPortal\InvoiceController::class, 'showBlob'])->name('invoices.showBlob');
+    Route::get('showBlob/{entity_type}/{invitation_key}', [App\Http\Controllers\ClientPortal\InvoiceController::class,'showBlob'])->whereIn('entity_type', ['invoice', 'quote', 'credit', 'recurring_invoice'])->name('invoices.showBlob');
     Route::get('invoices', [App\Http\Controllers\ClientPortal\InvoiceController::class, 'index'])->name('invoices.index')->middleware('portal_enabled');
     Route::post('invoices/payment', [App\Http\Controllers\ClientPortal\InvoiceController::class, 'bulk'])->name('invoices.bulk');
     Route::get('invoices/payment', [App\Http\Controllers\ClientPortal\InvoiceController::class, 'catch_bulk'])->name('invoices.catch_bulk');
@@ -120,6 +122,9 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db','check_clie
 
 Route::post('payments/process/response', [App\Http\Controllers\ClientPortal\PaymentController::class, 'response'])->name('client.payments.response')->middleware(['locale', 'domain_db', 'verify_hash']);
 Route::get('payments/process/response', [App\Http\Controllers\ClientPortal\PaymentController::class, 'response'])->name('client.payments.response.get')->middleware(['locale', 'domain_db', 'verify_hash']);
+Route::post('payments/helcim/ach/session', App\Http\Controllers\ClientPortal\HelcimAchSessionController::class)
+    ->name('client.payments.helcim_ach_session')
+    ->middleware(['locale', 'domain_db', 'verify_hash', 'throttle:30,1']);
 
 Route::get('client/subscriptions/{subscription}/purchase', [App\Http\Controllers\ClientPortal\SubscriptionPurchaseController::class, 'index'])->name('client.subscription.purchase')->middleware('domain_db');
 Route::get('client/subscriptions/{subscription}/purchase/v2', [App\Http\Controllers\ClientPortal\SubscriptionPurchaseController::class, 'upgrade'])->name('client.subscription.upgrade')->middleware('domain_db');
@@ -153,6 +158,10 @@ Route::get('.env', function () {
 Route::fallback(function () {
 
     if (Ninja::isSelfHost()) {
+
+        if (request()->is('client') || request()->is('client/*')) {
+            abort(404);
+        }
 
         $result = false;
         try {

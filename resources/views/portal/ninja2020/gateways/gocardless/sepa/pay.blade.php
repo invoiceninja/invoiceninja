@@ -17,17 +17,21 @@
         </form>
 
         @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
+        <ul class="payment-method-list">
             @if (count($tokens) > 0)
                 @foreach ($tokens as $token)
-                    <label class="mr-4 block my-2">
-                        <input type="radio" data-token="{{ $token->token }}" name="payment-type"
+                <li class="payment-method-item">
+                <label class="payment-method-label">
+                <input type="radio" data-token="{{ $token->token }}" name="payment-type"
                             class="form-radio cursor-pointer toggle-payment-with-token" />
-                        <span class="ml-1 cursor-pointer">{{ ctrans('texts.payment_type_SEPA') }}
+                        <span class="ml-1">{{ ctrans('texts.payment_type_SEPA') }}
                             (#{{ $token->token }})</span>
                     </label>
+                </li>
                 @endforeach
             @endisset
-        @endcomponent
+                </ul>
+    @endcomponent
 
     @else
         @component('portal.ninja2020.components.general.card-element-single', ['title' => ctrans('texts.payment_type_SEPA'), 'show_title' => false])

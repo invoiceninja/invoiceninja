@@ -90,7 +90,7 @@ class ResolveContactTest extends TestCase
             'client_id' => $this->client->id,
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
-            'email' => 'fallback@example.com',
+            'email' => 'fallback@gmail.com',
             'first_name' => 'Fallback',
             'last_name' => 'Contact',
         ]);

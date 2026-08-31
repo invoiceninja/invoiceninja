@@ -43,11 +43,18 @@ return [
     */
 
     // 'queue' => env('SCOUT_QUEUE', true),
-    'queue' => [
-        'connection' => env('QUEUE_CONNECTION', 'sync'),
-        'queue' => 'scout'
-    ],
+    // 'queue' => [
+    //     'connection' => env('QUEUE_CONNECTION', 'sync'),
+    //     'queue' => 'scout'
+    // ],
 
+    'queue' => env('SCOUT_QUEUE', ! is_null(env('SCOUT_DRIVER')))
+    ? [
+        'connection' => env('QUEUE_CONNECTION', 'sync'),
+        'queue' => 'scout',
+    ]
+    : false,
+    
     /*
     |--------------------------------------------------------------------------
     | Database Transactions

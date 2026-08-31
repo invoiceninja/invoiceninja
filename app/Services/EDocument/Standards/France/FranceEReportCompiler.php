@@ -18,217 +18,408 @@ use App\DataMapper\FranceEReporting\B2CPaymentData;
 use App\DataMapper\FranceEReporting\B2CTransactionData;
 use App\DataMapper\FranceEReporting\DeclarantPartyData;
 use App\DataMapper\FranceEReporting\FRReportData;
+use App\DataMapper\FranceEReporting\FRReportEntryData;
 use App\DataMapper\FranceEReporting\PartyData;
 use App\DataMapper\FranceEReporting\PaymentReportData;
 use App\DataMapper\FranceEReporting\PublicIdentifierData;
+use App\DataMapper\FranceEReporting\ReportDataValidator;
+use App\DataMapper\FranceEReporting\TaxSubtotalData;
 use App\DataMapper\FranceEReporting\TransactionReportData;
-use App\Jobs\EDocument\RecordFranceEReportingPayment;
 use App\Models\Company;
-use App\Models\TransactionEvent;
+use App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveIdentifierValidator;
+use App\Utils\BcMath;
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Collection;
 use InvalidArgumentException;
 
 class FranceEReportCompiler
 {
-    public function compile(
+    /** @param iterable<int, FRReportEntryData> $entries */
+    public function compileVariant(
         Company $company,
-        int $submissionEventId,
+        FranceEReportVariant $variant,
         string $periodEnd,
+        iterable $entries,
         ?CarbonImmutable $issuedAt = null,
         ?string $documentId = null,
     ): FRReportData {
-        $sourceEvents = $this->sourceEvents($company, $submissionEventId, $periodEnd);
+        $issuedAt ??= CarbonImmutable::now('Europe/Paris');
 
-        return $this->compileFromEvents($company, $submissionEventId, $periodEnd, $sourceEvents, $issuedAt, $documentId);
+        return $this->compileVariantFromEntries(
+            $company,
+            $variant,
+            $this->contextForVariant($company, $variant, $periodEnd, $issuedAt),
+            $entries,
+            $documentId,
+        );
     }
 
     /**
-     * @return Collection<int, TransactionEvent>
+     * Compile a runtime projection without coupling the compiler to persistence.
+     *
+     * @param iterable<int, mixed> $entries
      */
-    public function sourceEvents(Company $company, int $submissionEventId, string $periodEnd): Collection
-    {
-        return TransactionEvent::query()
-            ->where('company_id', $company->id)
-            ->where('period', $periodEnd)
-            ->whereIn('event_id', $this->sourceEventIds($submissionEventId))
-            ->whereNotNull('reporting_data')
-            ->where(function ($query) {
-                $query->whereNull('payment_status')
-                    ->orWhere('payment_status', TransactionEvent::FR_REPORTING_STATUS_PENDING)
-                    ->orWhere('payment_status', TransactionEvent::FR_REPORTING_STATUS_FAILED);
-            })
-            ->orderBy('id')
-            ->get()
-            ->filter(fn (TransactionEvent $event): bool => $this->isSourceEventForSubmission($event, $submissionEventId))
-            ->values();
-    }
-
-    /**
-     * @param iterable<int, TransactionEvent> $events
-     */
-    public function compileFromEvents(
+    public function compileVariantFromEntries(
         Company $company,
-        int $submissionEventId,
-        string $periodEnd,
-        iterable $events,
-        ?CarbonImmutable $issuedAt = null,
+        FranceEReportVariant $variant,
+        FranceEReportContext $context,
+        iterable $entries,
         ?string $documentId = null,
     ): FRReportData {
-        $events = collect($events);
-        $issuedAt ??= CarbonImmutable::now($this->companyTimezone($company));
-        $documentId ??= $this->documentId($company, $submissionEventId, $periodEnd, $issuedAt);
+        $this->validateContext($company, $context);
 
         $b2biInvoices = [];
         $b2cTransactions = [];
         $b2biPayments = [];
         $b2cPayments = [];
 
-        foreach ($events as $event) {
-            $entry = $event->reporting_data?->frReportEntry;
+        foreach ($entries as $entry) {
+            if (! $entry instanceof FRReportEntryData) {
+                throw new InvalidArgumentException('France e-report runtime projection requires FRReportEntryData values.');
+            }
 
-            if (is_null($entry)) {
+            if ($variant->isTransaction()) {
+                if ($entry->b2biInvoice) {
+                    $b2biInvoices[] = $entry->b2biInvoice;
+                    continue;
+                }
+
+                if ($entry->b2cTransaction) {
+                    $b2cTransactions[] = $entry->b2cTransaction;
+                    continue;
+                }
+
+                throw new InvalidArgumentException("Runtime entry is incompatible with {$variant->value}.");
+            }
+
+            if ($entry->b2biPayment) {
+                $b2biPayments[] = $entry->b2biPayment;
                 continue;
             }
 
-            match ($event->event_id) {
-                TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION => $b2biInvoices[] = $entry->b2biInvoice,
-                TransactionEvent::FR_B2C_TRANSACTION => $b2cTransactions[] = $entry->b2cTransaction,
-                TransactionEvent::FR_VAT_EXCLUDED_PAYMENT => $b2biPayments[] = $entry->b2biPayment,
-                TransactionEvent::FR_B2C_PAYMENT => $b2cPayments[] = $entry->b2cPayment,
-                default => null,
-            };
+            if ($entry->b2cPayment) {
+                $b2cPayments[] = $entry->b2cPayment;
+                continue;
+            }
+
+            throw new InvalidArgumentException("Runtime entry is incompatible with {$variant->value}.");
         }
 
-        $b2biInvoices = $this->filterInstances($b2biInvoices, B2BIInvoiceData::class);
-        $b2cTransactions = $this->filterInstances($b2cTransactions, B2CTransactionData::class);
-        $b2biPayments = $this->filterInstances($b2biPayments, B2BIPaymentData::class);
-        $b2cPayments = $this->filterInstances($b2cPayments, B2CPaymentData::class);
+        return $this->compileTypedEntries(
+            company: $company,
+            variant: $variant,
+            context: $context,
+            b2biInvoices: $b2biInvoices,
+            b2cTransactions: $b2cTransactions,
+            b2biPayments: $b2biPayments,
+            b2cPayments: $b2cPayments,
+            documentId: $documentId,
+        );
+    }
 
-        $transactionReport = ($b2biInvoices !== [] || $b2cTransactions !== [])
-            ? new TransactionReportData(
-                period: $this->periodLabel($company, $submissionEventId, $periodEnd, $events),
+    /**
+     * @param array<int, B2BIInvoiceData> $b2biInvoices
+     * @param array<int, B2CTransactionData> $b2cTransactions
+     * @param array<int, B2BIPaymentData> $b2biPayments
+     * @param array<int, B2CPaymentData> $b2cPayments
+     */
+    private function compileTypedEntries(
+        Company $company,
+        FranceEReportVariant $variant,
+        FranceEReportContext $context,
+        array $b2biInvoices,
+        array $b2cTransactions,
+        array $b2biPayments,
+        array $b2cPayments,
+        ?string $documentId,
+    ): FRReportData {
+        if (! $variant->isRectificative() && collect($b2biInvoices)->contains(
+            static fn (B2BIInvoiceData $invoice): bool => BcMath::isNegative($invoice->amountIncludingVat, 2),
+        )) {
+            throw new InvalidArgumentException('Credit and rectificative B2Bi invoice mapping is not enabled for Storecove France reports.');
+        }
+
+        $b2cTransactions = $this->aggregateB2CTransactions($b2cTransactions);
+        $b2cPayments = $this->aggregateB2CPayments($b2cPayments);
+
+        usort($b2biInvoices, static fn (B2BIInvoiceData $left, B2BIInvoiceData $right): int => $left->invoiceNumber <=> $right->invoiceNumber);
+        usort($b2biPayments, static fn (B2BIPaymentData $left, B2BIPaymentData $right): int => $left->invoiceNumber <=> $right->invoiceNumber);
+        $declarantParty = $this->declarantParty($company);
+        $this->validateB2BISuppliers($b2biInvoices, $declarantParty->publicIdentifiers[0]->id);
+        $this->validateRowDates($context, $b2biInvoices, $b2cTransactions, $b2biPayments, $b2cPayments);
+
+        $transactionReport = null;
+        $paymentReport = null;
+
+        if ($variant->isTransaction()) {
+            $transactionReport = new TransactionReportData(
+                period: $context->period(),
                 b2biInvoices: $b2biInvoices,
                 b2cTransactions: $b2cTransactions,
-            )
-            : null;
-
-        $paymentReport = ($b2biPayments !== [] || $b2cPayments !== [])
-            ? new PaymentReportData(
-                period: $this->periodLabel($company, $submissionEventId, $periodEnd, $events),
+            );
+        } else {
+            $paymentReport = new PaymentReportData(
+                period: $context->period(),
                 b2biPayments: $b2biPayments,
                 b2cPayments: $b2cPayments,
-            )
-            : null;
-
-        if (is_null($transactionReport) && is_null($paymentReport)) {
-            throw new InvalidArgumentException('France e-report compilation requires at least one reportable source event.');
+            );
         }
 
-        $typeCode = $submissionEventId === TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE
-            ? FRReportData::TYPE_RECTIFICATIVE
-            : FRReportData::TYPE_INITIAL;
-
         return new FRReportData(
-            typeCode: $typeCode,
-            documentId: $documentId,
-            issueDate: $issuedAt->toDateString(),
-            issueTime: $issuedAt->format('H:i:s'),
-            timeZone: $issuedAt->format('O'),
-            declarantParty: $this->declarantParty($company),
+            typeCode: $variant->typeCode(),
+            documentId: $documentId ?? $this->variantDocumentId(
+                $context,
+                $variant,
+                $b2biInvoices,
+                $b2cTransactions,
+                $b2biPayments,
+                $b2cPayments,
+            ),
+            issueDate: $context->issuedAt->toDateString(),
+            issueTime: $context->issuedAt->format('H:i:s'),
+            timeZone: $context->issuedAt->format('O'),
+            declarantParty: $declarantParty,
             transactionReport: $transactionReport,
             paymentReport: $paymentReport,
         );
     }
 
-    /**
-     * @return array<int, int>
-     */
-    public function sourceEventIds(int $submissionEventId): array
-    {
-        return match ($submissionEventId) {
-            TransactionEvent::FR_REPORT_SUBMISSION_B2C => [
-                TransactionEvent::FR_B2C_TRANSACTION,
-                TransactionEvent::FR_B2C_PAYMENT,
-            ],
-            TransactionEvent::FR_REPORT_SUBMISSION_VAT_EXCLUDED => [
-                TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION,
-                TransactionEvent::FR_VAT_EXCLUDED_PAYMENT,
-            ],
-            TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE => [
-                TransactionEvent::FR_B2C_TRANSACTION,
-                TransactionEvent::FR_B2C_PAYMENT,
-                TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION,
-                TransactionEvent::FR_VAT_EXCLUDED_PAYMENT,
-            ],
-            default => throw new InvalidArgumentException("Unsupported France report submission event_id [{$submissionEventId}]."),
-        };
-    }
-
-
-    private function isSourceEventForSubmission(TransactionEvent $event, int $submissionEventId): bool
-    {
-        if (data_get($event->payment_request, 'fr_kind') === RecordFranceEReportingPayment::KIND_MOVEMENT) {
-            return false;
-        }
-
-        $reportKind = data_get($event->payment_request, 'fr_report_kind', RecordFranceEReportingPayment::REPORT_KIND_INITIAL);
-
-        if ($submissionEventId === TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE) {
-            return $reportKind === RecordFranceEReportingPayment::REPORT_KIND_CORRECTIVE;
-        }
-
-        return $reportKind !== RecordFranceEReportingPayment::REPORT_KIND_CORRECTIVE;
-    }
-
-    /**
-     * @param array<int, mixed> $entries
-     * @return array<int, mixed>
-     */
-    private function filterInstances(array $entries, string $class): array
-    {
-        return array_values(array_filter($entries, static fn (mixed $entry): bool => $entry instanceof $class));
-    }
-
-    /**
-     * @param Collection<int, TransactionEvent> $events
-     */
-    private function periodLabel(Company $company, int $submissionEventId, string $periodEnd, Collection $events): string
-    {
-        $profile = $this->profile($company, $submissionEventId, $events);
+    public function contextForVariant(
+        Company $company,
+        FranceEReportVariant $variant,
+        string $periodEnd,
+        CarbonImmutable $issuedAt,
+        ?ReportingProfile $reportingProfile = null,
+    ): FranceEReportContext {
+        $profile = $variant->isTransaction()
+            ? ($reportingProfile ?? $this->transactionProfile($company))
+            : ReportingProfile::Monthly;
         $period = ReportingCalendar::currentPeriod($profile, CarbonImmutable::parse($periodEnd));
 
-        return $period->start->toDateString().' - '.$period->end->toDateString();
+        return new FranceEReportContext(
+            companyId: (int) $company->id,
+            legalEntityId: (int) $company->legal_entity_id,
+            periodStart: $period->start->toDateString(),
+            periodEnd: $period->end->toDateString(),
+            issuedAt: $issuedAt,
+        );
     }
 
     /**
-     * @param Collection<int, TransactionEvent> $events
+     * @param array<int, B2CTransactionData> $transactions
+     * @return array<int, B2CTransactionData>
      */
-    private function profile(Company $company, int $submissionEventId, Collection $events): ReportingProfile
+    private function aggregateB2CTransactions(array $transactions): array
     {
-        if ($submissionEventId === TransactionEvent::FR_REPORT_SUBMISSION_VAT_EXCLUDED) {
-            return ReportingProfile::BiMonthly;
+        $groups = [];
+
+        foreach ($transactions as $transaction) {
+            $key = implode('|', [
+                $transaction->date,
+                $transaction->category,
+                $transaction->currency,
+                $transaction->vatPaymentOption ?? '',
+            ]);
+
+            $group = $groups[$key] ?? [
+                'transaction' => $transaction,
+                'amountExcludingVat' => '0',
+                'amountIncludingVat' => '0',
+                'transactionsCount' => 0,
+                'rowCount' => 0,
+                'countedRows' => 0,
+                'subtotals' => [],
+            ];
+            $group['amountExcludingVat'] = BcMath::add($group['amountExcludingVat'], $transaction->amountExcludingVat, 2);
+            $group['amountIncludingVat'] = BcMath::add($group['amountIncludingVat'], $transaction->amountIncludingVat, 2);
+            $group['rowCount']++;
+
+            if (! is_null($transaction->transactionsCount)) {
+                $group['transactionsCount'] += $transaction->transactionsCount;
+                $group['countedRows']++;
+            }
+
+            foreach ($transaction->taxSubtotals as $subtotal) {
+                $percentageKey = ReportDataValidator::canonicalNumericKey($subtotal->percentage, 'taxSubtotals.percentage');
+                $subtotalKey = implode('|', [
+                    (string) FranceEReportTaxCategory::normalize($subtotal->category),
+                    $percentageKey,
+                ]);
+                $current = $group['subtotals'][$subtotalKey] ?? [
+                    'subtotal' => $subtotal,
+                    'percentage' => $percentageKey,
+                    'taxableAmount' => '0',
+                    'taxAmount' => '0',
+                ];
+                $current['taxableAmount'] = BcMath::add($current['taxableAmount'], $subtotal->taxableAmount, 2);
+                $current['taxAmount'] = BcMath::add($current['taxAmount'], $subtotal->taxAmount, 2);
+                $group['subtotals'][$subtotalKey] = $current;
+            }
+
+            $groups[$key] = $group;
         }
 
-        if ($submissionEventId === TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE
-            && $events->contains(fn (TransactionEvent $event): bool => $event->event_id === TransactionEvent::FR_VAT_EXCLUDED_PAYMENT)) {
-            return ReportingProfile::BiMonthly;
+        ksort($groups);
+
+        return array_map(static function (array $group): B2CTransactionData {
+            ksort($group['subtotals']);
+            $transaction = $group['transaction'];
+            $subtotals = array_map(
+                static fn (array $item): TaxSubtotalData => new TaxSubtotalData(
+                    percentage: $item['percentage'],
+                    category: FranceEReportTaxCategory::normalize($item['subtotal']->category),
+                    taxableAmount: $item['taxableAmount'],
+                    taxAmount: $item['taxAmount'],
+                ),
+                array_values($group['subtotals']),
+            );
+
+            return new B2CTransactionData(
+                date: $transaction->date,
+                category: $transaction->category,
+                currency: $transaction->currency,
+                amountExcludingVat: $group['amountExcludingVat'],
+                amountIncludingVat: $group['amountIncludingVat'],
+                transactionsCount: $group['countedRows'] === $group['rowCount'] ? $group['transactionsCount'] : null,
+                vatPaymentOption: $transaction->vatPaymentOption,
+                taxSubtotals: $subtotals,
+            );
+        }, array_values($groups));
+    }
+
+    /**
+     * @param array<int, B2CPaymentData> $payments
+     * @return array<int, B2CPaymentData>
+     */
+    private function aggregateB2CPayments(array $payments): array
+    {
+        $groups = [];
+
+        foreach ($payments as $payment) {
+            foreach ($payment->taxSubtotal as $subtotal) {
+                $percentageKey = ReportDataValidator::canonicalNumericKey($subtotal->percentage, 'taxSubtotals.percentage');
+                $subtotalKey = implode('|', [
+                    (string) FranceEReportTaxCategory::normalize($subtotal->category),
+                    $percentageKey,
+                    (string) $subtotal->country,
+                    (string) $subtotal->currency,
+                ]);
+                $current = $groups[$payment->date][$subtotalKey] ?? [
+                    'subtotal' => $subtotal,
+                    'percentage' => $percentageKey,
+                    'amount' => '0',
+                ];
+                $current['amount'] = BcMath::add($current['amount'], $subtotal->amount, 2);
+                $groups[$payment->date][$subtotalKey] = $current;
+            }
         }
 
+        ksort($groups);
+
+        return array_map(static function (array $items, string $date): B2CPaymentData {
+            ksort($items);
+
+            return new B2CPaymentData(
+                date: $date,
+                taxSubtotal: array_map(
+                    static fn (array $item): TaxSubtotalData => new TaxSubtotalData(
+                        percentage: $item['percentage'],
+                        category: FranceEReportTaxCategory::normalize($item['subtotal']->category),
+                        currency: $item['subtotal']->currency,
+                        country: $item['subtotal']->country,
+                        amount: $item['amount'],
+                    ),
+                    array_values($items),
+                ),
+            );
+        }, array_values($groups), array_keys($groups));
+    }
+
+    /**
+     * @param array<int, B2BIInvoiceData> $b2biInvoices
+     * @param array<int, B2CTransactionData> $b2cTransactions
+     * @param array<int, B2BIPaymentData> $b2biPayments
+     * @param array<int, B2CPaymentData> $b2cPayments
+     */
+    private function validateRowDates(
+        FranceEReportContext $context,
+        array $b2biInvoices,
+        array $b2cTransactions,
+        array $b2biPayments,
+        array $b2cPayments,
+    ): void {
+        $dates = [
+            ...array_map(static fn (B2BIInvoiceData $invoice): string => $invoice->issueDate, $b2biInvoices),
+            ...array_map(static fn (B2CTransactionData $transaction): string => $transaction->date, $b2cTransactions),
+            ...array_map(static fn (B2BIPaymentData $payment): string => $payment->paymentDate, $b2biPayments),
+            ...array_map(static fn (B2CPaymentData $payment): string => $payment->date, $b2cPayments),
+        ];
+
+        if (collect($dates)->contains(
+            static fn (string $date): bool => $date < $context->periodStart || $date > $context->periodEnd,
+        )) {
+            throw new InvalidArgumentException('France e-report row dates must fall within the report period.');
+        }
+    }
+
+    /** @param array<int, B2BIInvoiceData> $invoices */
+    private function validateB2BISuppliers(array $invoices, string $declarantSiren): void
+    {
+        foreach ($invoices as $invoice) {
+            $supplierSirens = collect($invoice->accountingSupplierParty->publicIdentifiers)
+                ->filter(static fn (PublicIdentifierData $identifier): bool => $identifier->scheme === 'FR:SIRENE')
+                ->map(static fn (PublicIdentifierData $identifier): string => $identifier->id)
+                ->values();
+
+            if ($supplierSirens->count() !== 1 || $supplierSirens->first() !== $declarantSiren) {
+                throw new InvalidArgumentException('B2Bi supplier FR:SIRENE must match the report declarant.');
+            }
+        }
+    }
+
+    private function transactionProfile(Company $company): ReportingProfile
+    {
         return ReportingProfile::tryFrom((string) $company->getSetting('france_reporting_schedule'))
             ?? ReportingProfile::TenDay;
     }
 
-    private function documentId(Company $company, int $submissionEventId, string $periodEnd, CarbonImmutable $issuedAt): string
+    /**
+     * @param array<int, B2BIInvoiceData> $b2biInvoices
+     * @param array<int, B2CTransactionData> $b2cTransactions
+     * @param array<int, B2BIPaymentData> $b2biPayments
+     * @param array<int, B2CPaymentData> $b2cPayments
+     */
+    private function variantDocumentId(
+        FranceEReportContext $context,
+        FranceEReportVariant $variant,
+        array $b2biInvoices,
+        array $b2cTransactions,
+        array $b2biPayments,
+        array $b2cPayments,
+    ): string
     {
-        $kind = match ($submissionEventId) {
-            TransactionEvent::FR_REPORT_SUBMISSION_B2C => 'B2C',
-            TransactionEvent::FR_REPORT_SUBMISSION_VAT_EXCLUDED => 'VAT-EXCLUDED',
-            TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE => 'CORRECTIVE',
-            default => 'UNKNOWN',
+        $variantCode = match ($variant) {
+            FranceEReportVariant::TransactionInitial => 'TI',
+            FranceEReportVariant::TransactionRectificative => 'TR',
+            FranceEReportVariant::PaymentInitial => 'PI',
+            FranceEReportVariant::PaymentRectificative => 'PR',
         };
 
-        return 'FR-F10-'.$company->id.'-'.$kind.'-'.str_replace('-', '', $periodEnd).'-'.$issuedAt->format('His');
+        $content = $variant->isTransaction()
+            ? [
+                'b2biInvoices' => array_map(static fn (B2BIInvoiceData $invoice): array => $invoice->toArray(), $b2biInvoices),
+                'b2cTransactions' => array_map(static fn (B2CTransactionData $transaction): array => $transaction->toArray(), $b2cTransactions),
+            ]
+            : [
+                'b2biPayments' => array_map(static fn (B2BIPaymentData $payment): array => $payment->toArray(), $b2biPayments),
+                'b2cPayments' => array_map(static fn (B2CPaymentData $payment): array => $payment->toArray(), $b2cPayments),
+            ];
+        $contentHash = substr(hash('sha256', json_encode([
+            'legalEntityId' => $context->legalEntityId,
+            'period' => $context->period(),
+            'content' => $content,
+        ], JSON_PRESERVE_ZERO_FRACTION | JSON_THROW_ON_ERROR)), 0, 16);
+
+        return 'FRF10-'.$variantCode.'-'.str_replace('-', '', $context->periodEnd).'-'.$contentHash;
     }
 
     private function declarantParty(Company $company): DeclarantPartyData
@@ -238,9 +429,6 @@ class FranceEReportCompiler
         return new DeclarantPartyData(
             party: new PartyData(
                 companyName: $company->settings->name ?: $company->present()->name(),
-                address: [
-                    'country' => $company->country()?->iso_3166_2 ?: 'FR',
-                ],
             ),
             publicIdentifiers: [$identifier],
         );
@@ -249,22 +437,32 @@ class FranceEReportCompiler
     private function declarantIdentifier(Company $company): PublicIdentifierData
     {
         $idNumber = preg_replace('/\D+/', '', (string) $company->getSetting('id_number')) ?: '';
+        $validator = new StorecoveIdentifierValidator();
 
-        if (strlen($idNumber) >= 9) {
-            return new PublicIdentifierData('FR:SIRENE', substr($idNumber, 0, 9));
+        if (strlen($idNumber) === 14) {
+            if (! $validator->validFormat('FR:SIRET', $idNumber)) {
+                throw new InvalidArgumentException('France e-report declarant SIRET in company id_number is invalid.');
+            }
+
+            $idNumber = substr($idNumber, 0, 9);
         }
 
-        $vatNumber = preg_replace('/\s+/', '', (string) $company->getSetting('vat_number')) ?: '';
-
-        if ($vatNumber !== '') {
-            return new PublicIdentifierData('FR:VAT', $vatNumber);
+        if (strlen($idNumber) !== 9 || ! $validator->validFormat('FR:SIRENE', $idNumber)) {
+            throw new InvalidArgumentException('France e-report declarant requires a valid 9-digit SIREN in company id_number.');
         }
 
-        return new PublicIdentifierData('FR:SIRENE', (string) $company->id);
+        return new PublicIdentifierData('FR:SIRENE', $idNumber);
     }
 
-    private function companyTimezone(Company $company): string
+    private function validateContext(Company $company, FranceEReportContext $context): void
     {
-        return $company->timezone()?->name ?: config('app.timezone');
+        if ((int) $company->id !== $context->companyId) {
+            throw new InvalidArgumentException('France e-report context companyId does not match the company.');
+        }
+
+        if ((int) $company->legal_entity_id !== $context->legalEntityId) {
+            throw new InvalidArgumentException('France e-report context legalEntityId does not match the company.');
+        }
     }
+
 }

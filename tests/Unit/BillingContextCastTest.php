@@ -3,11 +3,20 @@
 namespace Tests\Unit;
 
 use App\DataMapper\Billing\BillingContext;
+use App\Enum\BillingState;
 use App\Models\Account;
 use Tests\TestCase;
 
 class BillingContextCastTest extends TestCase
 {
+    public function testBillingStateValuesAreStable(): void
+    {
+        $this->assertSame(
+            ['free', 'trial', 'paid', 'expired'],
+            array_column(BillingState::cases(), 'value'),
+        );
+    }
+
     public function testItReturnsNullForMissingBillingContext(): void
     {
         $account = new Account();
@@ -43,6 +52,7 @@ class BillingContextCastTest extends TestCase
                     'docuninja_price' => 6,
                 ],
                 'docuninja_pending_prune' => true,
+                'billing_state' => 'trial',
             ], JSON_THROW_ON_ERROR),
         ]);
 
@@ -54,6 +64,48 @@ class BillingContextCastTest extends TestCase
         $this->assertSame(14.0, $context->pricing['plan_price']);
         $this->assertSame(6.0, $context->pricing['docuninja_price']);
         $this->assertTrue($context->docuninja_pending_prune);
+        $this->assertSame(BillingState::Trial, $context->billing_state);
+    }
+
+    public function testItAddsBillingStateToLegacyBillingContext(): void
+    {
+        $account = new Account();
+        $account->setRawAttributes([
+            'plan' => 'pro',
+            'plan_expires' => now()->addMonth()->toDateString(),
+            'is_trial' => false,
+            'billing_context' => json_encode([
+                'version' => 1,
+                'client_id' => 123,
+            ], JSON_THROW_ON_ERROR),
+        ]);
+
+        $context = $account->billing_context;
+
+        $this->assertSame(BillingContext::VERSION, $context->version);
+        $this->assertSame(BillingState::Paid, $context->billing_state);
+
+        $account->billing_context = $context;
+        $stored = json_decode($account->getAttributes()['billing_context'], true, 512, JSON_THROW_ON_ERROR);
+
+        $this->assertSame(BillingContext::VERSION, $stored['version']);
+        $this->assertSame(BillingState::Paid->value, $stored['billing_state']);
+    }
+
+    public function testItRecognizesAnExpiredLegacyTrial(): void
+    {
+        $account = new Account();
+        $account->setRawAttributes([
+            'plan' => 'pro',
+            'plan_expires' => now()->subDays(2)->toDateString(),
+            'is_trial' => true,
+            'billing_context' => json_encode([
+                'version' => 1,
+                'client_id' => 123,
+            ], JSON_THROW_ON_ERROR),
+        ]);
+
+        $this->assertSame(BillingState::Expired, $account->billing_context->billing_state);
     }
 
     public function testItSerializesBillingContextForStorage(): void
@@ -67,16 +119,18 @@ class BillingContextCastTest extends TestCase
                 'docuninja_price' => 6,
             ],
             docuninja_pending_prune: true,
+            billing_state: BillingState::Paid,
         );
 
         $stored = json_decode($account->getAttributes()['billing_context'], true, 512, JSON_THROW_ON_ERROR);
 
-        $this->assertSame(1, $stored['version']);
+        $this->assertSame(2, $stored['version']);
         $this->assertSame(123, $stored['client_id']);
         $this->assertSame(456, $stored['recurring_invoice_id']);
         $this->assertSame(14.0, (float) $stored['pricing']['plan_price']);
         $this->assertSame(6.0, (float) $stored['pricing']['docuninja_price']);
         $this->assertTrue($stored['docuninja_pending_prune']);
+        $this->assertSame('paid', $stored['billing_state']);
     }
 
     public function testItStoresOnlyBillingPointerAndPricingState(): void

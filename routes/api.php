@@ -46,7 +46,6 @@ use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\FilterController;
 use App\Http\Controllers\GroupSettingController;
-use App\Http\Controllers\HostedMigrationController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ImportJsonController;
 use App\Http\Controllers\ImportQuickbooksController;
@@ -139,7 +138,7 @@ use App\PaymentDrivers\PayPalPPCPPaymentDriver;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => ['throttle:api', 'api_secret_check']], function () {
-    Route::post('api/v1/signup', [AccountController::class, 'store'])->name('signup.submit')->middleware('throttle:1,1');
+    Route::post('api/v1/signup', [AccountController::class, 'store'])->name('signup.submit')->middleware('throttle:signup');
     Route::post('api/v1/oauth_login', [LoginController::class, 'oauthApiLogin']);
 });
 
@@ -149,8 +148,11 @@ Route::group(['middleware' => ['throttle:precheck']], function () {
 
 Route::group(['middleware' => ['throttle:login', 'api_secret_check', 'email_db']], function () {
     Route::post('api/v1/login', [LoginController::class, 'apiLogin'])->name('login.submit');
-    Route::post('api/v1/reset_password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->middleware('throttle:10,1');
     Route::post('api/v1/passkeys/login/options', [PasskeyController::class, 'loginOptions'])->name('passkeys.login.options');
+});
+
+Route::group(['middleware' => ['throttle:password-reset', 'api_secret_check', 'email_db']], function () {
+    Route::post('api/v1/reset_password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 });
 
 Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
@@ -362,6 +364,7 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::get('quote/{invitation_key}/download_e_quote', [QuoteController::class, 'downloadEQuote'])->name('quotes.downloadEQuote');
 
     Route::post('quickbooks/sync', [QuickbooksController::class, 'sync'])->name('quickbooks.sync');
+    Route::post('quickbooks/action', [QuickbooksController::class, 'action'])->name('quickbooks.action');
     Route::post('quickbooks/settings', [QuickbooksController::class, 'settings'])->name('quickbooks.settings');
     Route::post('quickbooks/disconnect', [QuickbooksController::class, 'disconnect'])->name('quickbooks.disconnect');
     Route::post('quickbooks/reconnect_url', [QuickbooksController::class, 'reconnectUrl'])->name('quickbooks.reconnect_url');
@@ -537,7 +540,9 @@ Route::post('api/v1/yodlee/data_updates', [YodleeController::class, 'dataUpdates
 Route::post('api/v1/yodlee/refresh_updates', [YodleeController::class, 'refreshUpdatesWebhook'])->middleware('throttle:100,1');
 Route::post('api/v1/yodlee/balance', [YodleeController::class, 'balanceWebhook'])->middleware('throttle:100,1');
 
-Route::get('api/v1/protected_download/{hash}', [ProtectedDownloadController::class, 'index'])->name('protected_download')->middleware('throttle:300,1');
+Route::get('api/v1/protected_download/{hash}', [ProtectedDownloadController::class, 'index'])
+    ->name('protected_download')
+    ->middleware(['protected_download.signature', 'throttle:300,1']);
 Route::post('api/v1/ppcp/webhook', [PayPalPPCPPaymentDriver::class, 'processWebhookRequest'])->middleware('throttle:1000,1');
 
 Route::get('api/v1/calendar_connection/{provider}/authorize/{hash}', [CalendarConnectionController::class, 'redirectToProvider'])->name('calendar_connection.authorize')->middleware('throttle:10,1');

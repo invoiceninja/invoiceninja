@@ -13,7 +13,10 @@
 namespace App\Http\Requests\Expense;
 
 use App\Http\Requests\Request;
+use App\Models\Client;
+use App\Models\Project;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class BulkExpenseRequest extends Request
 {
@@ -48,6 +51,52 @@ class BulkExpenseRequest extends Request
             'send_email' => 'sometimes|bool',
         ];
 
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            if ($validator->errors()->isNotEmpty()) {
+                return;
+            }
+
+            if ($this->input('action') !== 'bulk_update') {
+                return;
+            }
+
+            $column = $this->input('column');
+
+            if (! in_array($column, ['project_id', 'client_id'], true)) {
+                return;
+            }
+
+            $entity_id = $this->decodePrimaryKey($this->input('new_value'), true);
+
+            if (! is_int($entity_id)) {
+                $validator->errors()->add('new_value', 'The selected new value is invalid.');
+
+                return;
+            }
+
+            /** @var \App\Models\User $user */
+            $user = auth()->user();
+
+            $entity_exists = $column === 'project_id'
+                ? Project::withTrashed()
+                    ->where('id', $entity_id)
+                    ->where('company_id', $user->company()->id)
+                    ->where('is_deleted', false)
+                    ->exists()
+                : Client::withTrashed()
+                    ->where('id', $entity_id)
+                    ->where('company_id', $user->company()->id)
+                    ->where('is_deleted', false)
+                    ->exists();
+
+            if (! $entity_exists) {
+                $validator->errors()->add('new_value', 'The selected new value is invalid.');
+            }
+        });
     }
 
     public function prepareForValidation()

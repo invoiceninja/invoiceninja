@@ -229,7 +229,8 @@ class Account extends BaseModel
      */
     public function owner()
     {
-        return $this->hasMany(CompanyUser::class)->where('is_owner', true)->first() ? $this->hasMany(CompanyUser::class)->where('is_owner', true)->first()->user : false;
+        $cu = $this->hasMany(CompanyUser::class)->where('is_owner', true)->first();
+        return  $cu ? $cu->user : false;
     }
 
     public function tokens(): \Illuminate\Database\Eloquent\Relations\HasMany

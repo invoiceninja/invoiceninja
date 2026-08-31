@@ -488,7 +488,12 @@ class LoginController extends BaseController
         });
 
         if ($request->has('current_company') && $request->input('current_company') == 'true') {
-            $cu->where('company_id', $company_token->company_id);
+            $cu->where('company_id', $company_token->company_id)
+                ->with([
+                    'company.users.company_users' => fn ($query) => $query
+                        ->where('company_id', $company_token->company_id)
+                        ->without(['user', 'account']),
+                ]);
         }
 
         if (Ninja::isHosted() && !$cu->first()->is_owner && !$cu->first()->user->account->isEnterprisePaidClient()) {

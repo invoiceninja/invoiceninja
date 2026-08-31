@@ -13,8 +13,8 @@
 namespace App\Jobs\Ninja;
 
 use App\Libraries\MultiDB;
-use App\Models\ClientGatewayToken;
 use App\Models\Payment;
+use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -69,41 +69,13 @@ class CheckACHStatus implements ShouldQueue
 
             nlog("Checking ACH status");
 
-            ClientGatewayToken::query()
-            ->where('created_at', '>', now()->subMonths(2))
-            ->where('gateway_type_id', 2)
-            ->where('is_deleted', false)
-            ->whereHas('gateway', function ($q) {
-                $q->whereIn('gateway_key', ['d14dd26a37cecc30fdd65700bfb55b23','d14dd26a47cecc30fdd65700bfb67b34']);
-            })
-            ->whereJsonContains('meta', ['state' => 'unauthorized'])
-            ->cursor()
-            ->each(function ($token) {
-
-                try {
-                    $stripe = $token->gateway->driver($token->client)->init();
-                    $pm =  $stripe->getStripePaymentMethod($token->token);
-
-                    if ($pm) {
-
-                        $meta = $token->meta;
-                        $meta->state = 'authorized';
-                        $token->meta = $meta;
-                        $token->save();
-
-                    }
-
-                } catch (\Exception $e) {
-                }
-
-            });
-
             /** Stripe ACH Paymnets that are pending */
             Payment::where('status_id', 1)
             ->where('is_deleted', false)
             ->whereHas('company_gateway', function ($q) {
                 $q->whereIn('gateway_key', ['d14dd26a47cecc30fdd65700bfb67b34', 'd14dd26a37cecc30fdd65700bfb55b23']);
             })
+            ->where('created_at', '>', now()->subDays(10))
             ->cursor()
             ->each(function ($p) {
 
@@ -134,8 +106,7 @@ class CheckACHStatus implements ShouldQueue
                             $p->save();
                             return;
                         } elseif ($charge && $charge->status == 'succeeded') {
-                            $p->status_id = Payment::STATUS_COMPLETED;
-                            $p->saveQuietly();
+                            $this->completePayment($p);
                             return;
                         }
 
@@ -147,8 +118,7 @@ class CheckACHStatus implements ShouldQueue
 
 
                 if ($pi && $pi->status == 'succeeded') {
-                    $p->status_id = Payment::STATUS_COMPLETED;
-                    $p->saveQuietly();
+                    $this->completePayment($p);
                     return;
                 }
 
@@ -162,8 +132,7 @@ class CheckACHStatus implements ShouldQueue
                         $p->save();
                         return;
                     } elseif ($charge && $charge->status == 'succeeded') {
-                        $p->status_id = \App\Models\Payment::STATUS_COMPLETED;
-                        $p->saveQuietly();
+                        $this->completePayment($p);
                         return;
                     }
                 }
@@ -177,6 +146,28 @@ class CheckACHStatus implements ShouldQueue
             });
 
             /**
+             * Helcim ACH transactions remain pending until clearing completes.
+             * Completed payments are terminal; later returns are handled manually.
+             */
+            Payment::with('client', 'company_gateway', 'currency')
+                ->where('is_deleted', false)
+                ->where('gateway_type_id', 2)
+                ->where('status_id', Payment::STATUS_PENDING)
+                ->where('created_at', '>', now()->subDays(10))
+                ->whereHas('company_gateway', function ($q) {
+                    $q->where('gateway_key', 'ca3b3f7e4be811c96a8a1f4cafe2a97f');
+                })
+                ->cursor()
+                ->each(function (Payment $payment) {
+                    try {
+                        $driver = $payment->company_gateway->driver($payment->client)->init();
+                        $driver->reconcileAchPayment($payment);
+                    } catch (\Throwable $e) {
+                        nlog("Error checking Helcim ACH payment {$payment->id}: {$e->getMessage()}");
+                    }
+                });
+
+            /**
              * Blockonomics payments that have been pending for over 3 days are deleted
              */
             Payment::where('status_id', 1)
@@ -185,6 +176,7 @@ class CheckACHStatus implements ShouldQueue
                 ->whereHas('company_gateway', function ($q) {
                     $q->where('gateway_key', 'wbhf02us6owgo7p4nfjd0ymssdshks4d');
                 })
+                ->where('created_at', '>', now()->subDays(10))
                 ->cursor()
                 ->each(function ($p) {
                     $p->service()->deletePayment();
@@ -203,6 +195,7 @@ class CheckACHStatus implements ShouldQueue
                    ->whereHas('company_gateway', function ($q) {
                        $q->where('gateway_key', '3b6621f970ab18887c4f6dca78d3f8bb');
                    })
+                   ->where('created_at', '>', now()->subDays(10))
                    ->cursor()
                    ->each(function ($p) {
 
@@ -215,8 +208,7 @@ class CheckACHStatus implements ShouldQueue
                            $transaction_status = $transaction->getTransactionStatus();
 
                            if (in_array($transaction_status, $this->authnet_success_statuses)) {
-                               $p->status_id = \App\Models\Payment::STATUS_COMPLETED;
-                               $p->saveQuietly();
+                               $this->completePayment($p);
                                return;
                            } elseif (in_array($transaction_status, $this->authnet_failure_statuses)) {
                                $p->service()->deletePayment();
@@ -229,5 +221,18 @@ class CheckACHStatus implements ShouldQueue
 
                    });
         }
+    }
+
+    private function completePayment(Payment $payment): void
+    {
+        $originalStatus = (int) $payment->status_id;
+        $payment->status_id = Payment::STATUS_COMPLETED;
+        $payment->saveQuietly();
+
+        // if (! (bool) $payment->company->getSetting('france_reporting_enabled')) {
+        //     return;
+        // }
+
+        // app(FrancePaymentApplicationRecorder::class)->recordStatusTransition($payment, $originalStatus);
     }
 }

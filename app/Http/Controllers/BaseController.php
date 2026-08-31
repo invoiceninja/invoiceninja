@@ -405,7 +405,7 @@ class BaseController extends Controller
                     $query->whereNotNull('updated_at')->with('documents', 'users');
                 },
                 'company.clients' => function ($query) use ($updated_at, $user) {
-                    $query->where('clients.updated_at', '>=', $updated_at)->with('contacts.company', 'gateway_tokens', 'documents', 'tags');
+                    $query->where('clients.updated_at', '>=', $updated_at)->with('locations', 'contacts.company', 'gateway_tokens', 'documents', 'tags');
 
                     if (! $user->hasPermission('view_client')) {
                         $query->whereNested(function ($query) use ($user) {

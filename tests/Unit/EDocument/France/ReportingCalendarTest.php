@@ -60,9 +60,6 @@ class ReportingCalendarTest extends TestCase
         $startDate = CarbonImmutable::today('Europe/Paris');
         $endDate = $startDate->addYears(10)->subDay();
         $artifactRows = $this->calendarArtifactRows($startDate, $endDate);
-        $artifactPath = $this->writeCalendarArtifact($artifactRows);
-
-        $this->assertFileExists($artifactPath);
 
         foreach ($artifactRows as $row) {
             $message = "{$row['profile']} on {$row['date']}";
@@ -124,47 +121,6 @@ class ReportingCalendarTest extends TestCase
     {
         return $date->toDateString() >= $period->start->toDateString()
             && $date->toDateString() <= $period->end->toDateString();
-    }
-
-    /**
-     * @param array<int, array<string, string>> $rows
-     */
-    private function writeCalendarArtifact(array $rows): string
-    {
-        $path = base_path('tests/artifacts/fr_reporting_calendar_10_years.csv');
-        $directory = dirname($path);
-
-        if (! is_dir($directory)) {
-            mkdir($directory, 0755, true);
-        }
-
-        $handle = fopen($path, 'w');
-
-        if ($handle === false) {
-            throw new \RuntimeException("Unable to write France reporting calendar artifact to [{$path}].");
-        }
-
-        fputcsv($handle, [
-            'date',
-            'profile',
-            'expected_start',
-            'actual_start',
-            'expected_end',
-            'actual_end',
-            'expected_due',
-            'actual_due',
-            'expected_label',
-            'actual_label',
-            'date_contained_by_actual_period',
-        ]);
-
-        foreach ($rows as $row) {
-            fputcsv($handle, $row);
-        }
-
-        fclose($handle);
-
-        return $path;
     }
 
     /**
@@ -478,9 +434,22 @@ class ReportingCalendarTest extends TestCase
     public function testDefaultsToNowWhenDateOmitted(): void
     {
         $period = ReportingCalendar::currentPeriod(ReportingProfile::Monthly);
-        $now = CarbonImmutable::now();
+        $now = CarbonImmutable::now('Europe/Paris');
 
         $this->assertSame($now->startOfMonth()->toDateString(), $period->start->toDateString());
         $this->assertSame($now->endOfMonth()->toDateString(), $period->end->toDateString());
+    }
+
+    public function testEveryPeriodBoundaryPreservesTheInputTimezone(): void
+    {
+        $reference = CarbonImmutable::parse('2026-09-10 22:00:00', 'Europe/Paris');
+
+        foreach (ReportingProfile::cases() as $profile) {
+            $period = ReportingCalendar::currentPeriod($profile, $reference);
+
+            $this->assertSame('Europe/Paris', $period->start->getTimezone()->getName());
+            $this->assertSame('Europe/Paris', $period->end->getTimezone()->getName());
+            $this->assertSame('Europe/Paris', $period->dueDate->getTimezone()->getName());
+        }
     }
 }

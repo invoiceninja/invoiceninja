@@ -47,7 +47,7 @@ class RecurringInvoiceCancellationTest extends TestCase
 
         $user = User::factory()->create([
             'account_id' => $account->id,
-            'email' => $this->faker->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         $company = Company::factory()->create([
@@ -121,7 +121,7 @@ class RecurringInvoiceCancellationTest extends TestCase
 
         $otherUser = User::factory()->create([
             'account_id' => $otherAccount->id,
-            'email' => $this->faker->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         $otherCompany = Company::factory()->create([

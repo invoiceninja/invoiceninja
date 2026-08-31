@@ -19,6 +19,7 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Invoice\ActionsInvoice;
 use App\Exceptions\DuplicatePaymentException;
 use App\Helpers\Cache\Atomic;
+use Illuminate\Validation\Validator;
 
 class BulkInvoiceRequest extends Request
 {
@@ -35,7 +36,7 @@ class BulkInvoiceRequest extends Request
         $user = auth()->user();
 
         return [
-            'action' => ['required', 'bail', 'string'],
+            'action' => ['required', 'bail', 'string', 'in:archive,restore,delete,email,send_email,mark_paid,mark_sent,download,bulk_download,bulk_print,template,cancel,auto_bill,clone_to_invoice,clone_to_quote,set_payment_link,history,delivery_note'],
             'ids' => ['required', 'bail', 'array'],
             'email_type' => 'sometimes|in:reminder1,reminder2,reminder3,reminder_endless,custom1,custom2,custom3,invoice,quote,credit,payment,payment_partial,statement,purchase_order',
             'template' => 'sometimes|string',
@@ -45,23 +46,22 @@ class BulkInvoiceRequest extends Request
         ];
     }
 
-    public function withValidator($validator)
+    public function withValidator(Validator $validator): void
     {
         if ($validator->errors()->isNotEmpty()) {
             return;
         }
-        
+
         /** @var \App\Models\User $user */
         $user = auth()->user();
         $action = $this->input('action');
 
-        $validator->after(function ($validator) use ($user, $action) {
+        $validator->after(function (Validator $validator) use ($user, $action): void {
             Invoice::withTrashed()
                 ->whereIn('id', $this->transformKeys($this->input('ids', [])))
                 ->where('company_id', $user->company()->id)
                 ->cursor()
-                ->each(function ($invoice) use ($validator, $action) {
-
+                ->each(function (Invoice $invoice) use ($validator, $action): void {
                     if ($action ==  'delete' && ! $this->invoiceDeletable($invoice)) {
                         $validator->errors()->add('action', 'This invoice cannot be deleted');
                     } elseif ($action == 'cancel' && ! $this->invoiceCancellable($invoice)) {

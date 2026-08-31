@@ -12,6 +12,8 @@
 
 namespace App\Http\Requests\Invoice;
 
+use App\Exceptions\DuplicatePaymentException;
+use App\Helpers\Cache\Atomic;
 use App\Http\Requests\Request;
 use App\Models\Invoice;
 use App\Utils\Traits\MakesHash;
@@ -150,12 +152,26 @@ class UpdateInvoiceRequest extends Request
 
     public function prepareForValidation()
     {
-
-        if (request()->has('paid')) {
-            usleep(rand(100000, 150000));
-        }
-
         $input = $this->all();
+        unset($input['lock_key']);
+
+        if ($this->input('paid') == 'true') {
+            /** @var \App\Models\User $user */
+            $user = auth()->user();
+            $company = $user->company();
+            $lock_key = implode('|', [
+                'INVOICE_MARK_PAID',
+                $company->db,
+                $this->invoice->id,
+                $company->company_key,
+            ]);
+
+            if (!Atomic::set($lock_key, true, 1)) {
+                throw new DuplicatePaymentException('Duplicate request.', 429);
+            }
+
+            $input['lock_key'] = $lock_key;
+        }
 
         $input = $this->decodePrimaryKeys($input);
 

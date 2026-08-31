@@ -182,7 +182,11 @@ class BaseRepository
 
         if (!$model->id) {
             $company_defaults = $client->setCompanyDefaults($data, lcfirst($resource));
-            $data['exchange_rate'] = $company_defaults['exchange_rate'];
+
+            if ($this->import_mode && isset($data['exchange_rate']) && (float) $data['exchange_rate'] !== 0.0) {
+                unset($company_defaults['exchange_rate']);
+            }
+
             $model->uses_inclusive_taxes = $client->getSetting('inclusive_taxes');
 
             $data = array_merge($data, $company_defaults);
@@ -709,6 +713,50 @@ class BaseRepository
             $model->update([
                 $tax_name_column => $tax_name,
                 $tax_rate_column => $rate,
+            ]);
+
+            return;
+        }
+
+        if ($column == 'project_id') {
+            $project_id = $this->decodePrimaryKey($new_value);
+
+            $project = Project::withTrashed()
+                ->where('id', $project_id)
+                ->company()
+                ->first();
+
+            if (! $project) {
+                throw ValidationException::withMessages([
+                    'new_value' => ['The selected new value is invalid.'],
+                ]);
+            }
+
+            $model->update([
+                'project_id' => $project->id,
+                'client_id' => $project->client_id,
+            ]);
+
+            return;
+        }
+
+        if ($column == 'client_id') {
+            $client_id = $this->decodePrimaryKey($new_value);
+
+            $client = Client::withTrashed()
+                ->where('id', $client_id)
+                ->company()
+                ->first();
+
+            if (! $client) {
+                throw ValidationException::withMessages([
+                    'new_value' => ['The selected new value is invalid.'],
+                ]);
+            }
+
+            $model->update([
+                'client_id' => $client->id,
+                'project_id' => null,
             ]);
 
             return;

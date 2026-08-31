@@ -185,13 +185,16 @@ class SystemHealth
     {
         $connectionName = config('database.default');
 
-        $run_count = DB::connection($connectionName)->table('migrations')->count();
+        $ran = DB::connection($connectionName)->table('migrations')->pluck('migration');
 
         $directory = base_path('database/migrations');
-        $iterator = new \FilesystemIterator($directory);
-        $total_count = iterator_count($iterator) - 1;
 
-        return $run_count != $total_count;
+        $pending = collect(new \FilesystemIterator($directory))
+            ->filter(fn ($file) => $file->getExtension() === 'php')
+            ->map(fn ($file) => $file->getBasename('.php'))
+            ->diff($ran);
+
+        return $pending->isNotEmpty();
     }
 
     public static function getPdfEngine()
@@ -362,7 +365,14 @@ class SystemHealth
 
     public static function lastError()
     {
-        $log_file = new SplFileObject(sprintf('%s/laravel.log', base_path('storage/logs')));
+        $log_path = sprintf('%s/laravel.log', base_path('storage/logs'));
+
+        $log_file = new SplFileObject($log_path);
+
+        if (! is_readable($log_path)) {
+            return '';
+        }
+
         $log_file->seek(PHP_INT_MAX);
         $last_line = $log_file->key();
 
@@ -372,7 +382,7 @@ class SystemHealth
 
         foreach ($lines as $line) {
             // Match the main error, ie. [2024-07-10 12:23:07] production.ERROR: ...
-            if (substr($line, 0, 2) === '[2') {
+            if (preg_match('/^\[[^\]]+\]\s+\S+\.(?:ERROR|CRITICAL|ALERT|EMERGENCY):/', $line) === 1) {
                 $last_error = $line;
             }
         }

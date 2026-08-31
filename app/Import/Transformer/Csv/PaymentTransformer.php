@@ -39,14 +39,14 @@ class PaymentTransformer extends BaseTransformer
 
         $transformed = [
             'company_id' => $this->company->id,
-            'number' => $this->getString($data, 'payment.number'),
+            'number' => $this->getString($data, 'payment.number', null),
             'user_id' => $this->getString($data, 'payment.user_id'),
             'amount' => $this->getFloat($data, 'payment.amount'),
             'refunded' => $this->getFloat($data, 'payment.refunded'),
             'applied' => $this->getFloat($data, 'payment.applied'),
             'transaction_reference' => $this->getString(
                 $data,
-                'payment.transaction_reference '
+                'payment.transaction_reference'
             ),
             'date' => isset($data['payment.date']) ? $this->parseDate($data['payment.date']) : date('y-m-d'),
             'private_notes' => $this->getString($data, 'payment.private_notes'),

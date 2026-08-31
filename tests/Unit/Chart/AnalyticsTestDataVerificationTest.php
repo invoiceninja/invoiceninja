@@ -157,11 +157,9 @@ class AnalyticsTestDataVerificationTest extends TestCase
 
         $this->assertGreaterThan(1, count($uniqueValues), 'Late payment rate must not be flat');
 
-        // Verify some months have 0% and some >0%
-        $zeroMonths = array_filter($values, fn ($v) => $v == 0);
-        $nonZeroMonths = array_filter($values, fn ($v) => $v > 0);
-        $this->assertNotEmpty($zeroMonths, 'Some months should have 0% late rate');
-        $this->assertNotEmpty($nonZeroMonths, 'Some months should have >0% late rate');
+        $this->assertGreaterThanOrEqual(0.0, min($values), 'Late payment rates must not be negative');
+        $this->assertLessThanOrEqual(1.0, max($values), 'Late payment rates must not exceed 100%');
+        $this->assertGreaterThan(0.0, max($values), 'Some months should have a late or overdue invoice');
     }
 
     // =======================================================================

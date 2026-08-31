@@ -748,7 +748,8 @@ class Company extends BaseModel
 
     public function getSetting($setting)
     {
-        //todo $this->setting ?? false
+        $setting = $setting ?? '';
+        
         if (property_exists($this->settings, $setting) != false) {
             return $this->settings->{$setting};
         }
@@ -1034,6 +1035,11 @@ class Company extends BaseModel
      */
     public function peppolSendingEnabled(): bool
     {
+        /** FRREPORTING:: French senders are not permitted on the network - fail silently. */
+        if ($this->country()?->iso_3166_2 === 'FR') {
+            return false;
+        }
+
         return !$this->account->is_flagged && $this->account->e_invoice_quota > 0 && isset($this->legal_entity_id) && isset($this->tax_data->acts_as_sender) && $this->tax_data->acts_as_sender;
     }
 
@@ -1066,10 +1072,8 @@ class Company extends BaseModel
      */
     public function shouldPushToQuickbooks(string $entity): bool
     {
-        // FASTEST CHECK: Raw database column (no object instantiation, no JSON decode)
-        // This is the cheapest possible check - just a null comparison
-        // For companies without QuickBooks, this returns immediately with ~0.001ms overhead
-        if (is_null($this->getRawOriginal('quickbooks')) || !$this->account->isPaid()) {
+        
+        if (is_null($this->getRawOriginal('quickbooks')) || $this->account->isFreeHostedClient()) {
             return false;
         }
 
