@@ -55,7 +55,7 @@ class UserTransformer extends EntityTransformer
             'first_name' => $user->first_name ?: '',
             'last_name' => $user->last_name ?: '',
             'email' => $user->email ?: '',
-            'last_login' => Carbon::parse($user->last_login)->timestamp,
+            'last_login' => $user->last_login ? Carbon::parse($user->last_login)->timestamp : 0,
             'created_at' => (int) $user->created_at,
             'updated_at' => (int) $user->updated_at,
             'archived_at' => (int) $user->deleted_at,

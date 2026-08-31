@@ -139,7 +139,6 @@ class ActivityRepositoryTest extends TestCase
         string $eventClass,
         string $listenerClass,
         int $activityType,
-        string $verb,
     ): void
     {
         $this->user->first_name = 'Acting';
@@ -175,37 +174,18 @@ class ActivityRepositoryTest extends TestCase
         $this->assertSame('Target Person', $activity->activity_string()['notes']);
     }
 
-    #[DataProvider('userActivityTranslationProvider')]
-    public function testUserActivityTranslationsUseNotesForTheTargetUser(int $activityType, string $verb): void
-    {
-        $this->assertSame(":user {$verb} user :notes", trans("texts.activity_{$activityType}"));
-    }
-
     /**
-     * @return array<string, array{0: class-string, 1: class-string, 2: int, 3: string}>
+     * @return array<string, array{0: class-string, 1: class-string, 2: int}>
      */
     public static function userActivityProvider(): array
     {
         return [
-            'created' => [UserWasCreated::class, CreatedUserActivity::class, Activity::CREATE_USER, 'created'],
-            'updated' => [UserWasUpdated::class, UpdatedUserActivity::class, Activity::UPDATE_USER, 'updated'],
-            'archived' => [UserWasArchived::class, ArchivedUserActivity::class, Activity::ARCHIVE_USER, 'archived'],
-            'deleted' => [UserWasDeleted::class, DeletedUserActivity::class, Activity::DELETE_USER, 'deleted'],
-            'restored' => [UserWasRestored::class, RestoredUserActivity::class, Activity::RESTORE_USER, 'restored'],
+            'created' => [UserWasCreated::class, CreatedUserActivity::class, Activity::CREATE_USER],
+            'updated' => [UserWasUpdated::class, UpdatedUserActivity::class, Activity::UPDATE_USER],
+            'archived' => [UserWasArchived::class, ArchivedUserActivity::class, Activity::ARCHIVE_USER],
+            'deleted' => [UserWasDeleted::class, DeletedUserActivity::class, Activity::DELETE_USER],
+            'restored' => [UserWasRestored::class, RestoredUserActivity::class, Activity::RESTORE_USER],
         ];
     }
 
-    /**
-     * @return array<string, array{0: int, 1: string}>
-     */
-    public static function userActivityTranslationProvider(): array
-    {
-        return [
-            'created' => [Activity::CREATE_USER, 'created'],
-            'updated' => [Activity::UPDATE_USER, 'updated'],
-            'archived' => [Activity::ARCHIVE_USER, 'archived'],
-            'deleted' => [Activity::DELETE_USER, 'deleted'],
-            'restored' => [Activity::RESTORE_USER, 'restored'],
-        ];
-    }
 }

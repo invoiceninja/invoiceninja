@@ -823,7 +823,7 @@ class Company extends BaseModel
 
     public function tokens_hashed(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(CompanyToken::class);
+        return $this->hasMany(CompanyToken::class)->where('is_system', false);
     }
 
     public function company_users(): \Illuminate\Database\Eloquent\Relations\HasMany

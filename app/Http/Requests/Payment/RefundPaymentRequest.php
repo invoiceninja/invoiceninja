@@ -17,6 +17,7 @@ use App\Http\ValidationRules\Payment\ValidRefundableRequest;
 use App\Http\ValidationRules\ValidRefundableInvoices;
 use App\Models\Payment;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Validation\Rule;
 
 class RefundPaymentRequest extends Request
 {
@@ -72,7 +73,7 @@ class RefundPaymentRequest extends Request
             'id' => ['bail','required', new ValidRefundableRequest($input)],
             'amount' => ['numeric', 'max:99999999999999'],
             'date' => 'required',
-            'invoices.*.invoice_id' => 'required|bail|distinct',
+            'invoices.*.invoice_id' => ['required','bail','distinct', Rule::exists('invoices', 'id')->where('company_id', auth()->user()->company()->id)],
             'invoices.*.amount' => 'required|bail|gt:0',
             'invoices' => new ValidRefundableInvoices($input),
         ];

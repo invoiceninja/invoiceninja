@@ -46,7 +46,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\DataMapper\Analytics\LoginFailure;
 use App\DataMapper\Analytics\LoginSuccess;
 use App\Utils\Traits\UserSessionAttributes;
-use App\Transformers\CompanyUserTransformer;
+use App\Transformers\AuthenticatedCompanyUserTransformer;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 class LoginController extends BaseController
@@ -57,7 +57,7 @@ class LoginController extends BaseController
 
     protected $entity_type = CompanyUser::class;
 
-    protected $entity_transformer = CompanyUserTransformer::class;
+    protected $entity_transformer = AuthenticatedCompanyUserTransformer::class;
 
     /**
      * Constant response-time floor (milliseconds) for the precheck endpoint,
@@ -441,12 +441,13 @@ class LoginController extends BaseController
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        $cu->first()->account->companies->each(function ($company) use ($cu, $request) {
-            if ($company->tokens()->where('is_system', true)->count() == 0) {
-                (new CreateCompanyToken($company, $cu->first()->user, $request->server('HTTP_USER_AGENT')))->handle();
+        $cu_user = $cu->first();
+        $cu_user->account->companies->each(function ($company) use ($cu_user, $request) {
+            if ($company->tokens()->where('user_id', $cu_user->user_id)->where('is_system', true)->doesntExist()) {
+                (new CreateCompanyToken($company, $cu_user->user, $request->server('HTTP_USER_AGENT')))->handle();
             }
         });
-
+        
         if ($request->has('current_company') && $request->input('current_company') == 'true') {
             $cu->where('company_id', $company_token->company_id);
         }
@@ -481,9 +482,10 @@ class LoginController extends BaseController
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        $cu->first()->account->companies->each(function ($company) use ($cu, $request) {
-            if ($company->tokens()->where('is_system', true)->count() == 0) {
-                (new CreateCompanyToken($company, $cu->first()->user, $request->server('HTTP_USER_AGENT')))->handle();
+        $cu_user = $cu->first();
+        $cu_user->account->companies->each(function ($company) use ($cu_user, $request) {
+            if ($company->tokens()->where('user_id', $cu_user->user_id)->where('is_system', true)->doesntExist()) {
+                (new CreateCompanyToken($company, $cu_user->user, $request->server('HTTP_USER_AGENT')))->handle();
             }
         });
 

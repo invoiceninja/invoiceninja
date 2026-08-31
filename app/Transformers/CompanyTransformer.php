@@ -290,9 +290,10 @@ class CompanyTransformer extends EntityTransformer
 
     public function includeTokens(Company $company)
     {
-        $transformer = new CompanyTokenTransformer($this->serializer);
+        // $transformer = new CompanyTokenTransformer($this->serializer);
+        $transformer = new CompanyTokenHashedTransformer($this->serializer);
 
-        return $this->includeCollection($company->tokens, $transformer, CompanyToken::class);
+        return $this->includeCollection($company->tokens_hashed, $transformer, CompanyToken::class);
     }
 
 

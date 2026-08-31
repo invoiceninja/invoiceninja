@@ -226,7 +226,12 @@ class UserController extends BaseController
 
         $ids = request()->input('ids');
 
-        $users = User::withTrashed()->find($this->transformKeys($ids));
+        $users = User::withTrashed()
+                    ->whereIn('id', $ids)
+                    ->where('account_id', auth()->user()
+                    ->company()->account_id)
+                    ->company()
+                    ->get();
 
         /*
          * In case a user maliciously sends keys which do not belong to them, we push
@@ -247,7 +252,7 @@ class UserController extends BaseController
             }
         });
 
-        return $this->listResponse(User::withTrashed()->whereIn('id', $return_user_collection));
+        return $this->listResponse(User::withTrashed()->whereIn('id', $return_user_collection)->company());
     }
 
     /**

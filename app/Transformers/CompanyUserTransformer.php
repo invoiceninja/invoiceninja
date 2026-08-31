@@ -87,7 +87,7 @@ class CompanyUserTransformer extends EntityTransformer
                               ->where('is_system', 1)
                               ->first();
 
-        $transformer = new CompanyTokenTransformer($this->serializer);
+        $transformer = new CompanyTokenHashedTransformer($this->serializer);
 
         return $this->includeItem($token, $transformer, CompanyToken::class);
     }

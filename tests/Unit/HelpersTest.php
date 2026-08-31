@@ -75,15 +75,15 @@ class HelpersTest extends TestCase
 
     public function testRangeContainingASlashNeverErasesTheSurroundingText(): void
     {
+        $description = 'Period: [MONTHYEAR|MONTHYEAR/2]. Keep this description.';
+
         $value = Helpers::processReservedKeywords(
-            'Period: [MONTHYEAR|MONTHYEAR/2]. Keep this description.',
+            $description,
             $this->entity(),
             Carbon::create(2026, 8, 15, 0, 0, 0, 'UTC'),
         );
 
-        $this->assertNotNull($value);
-        $this->assertStringStartsWith('Period:', $value);
-        $this->assertStringEndsWith('Keep this description.', $value);
+        $this->assertSame($description, $value);
     }
 
     public function testMonthYearRangeSupportsSubtractingMonths(): void
@@ -94,7 +94,7 @@ class HelpersTest extends TestCase
             Carbon::create(2026, 8, 15, 0, 0, 0, 'UTC'),
         );
 
-        $this->assertSame('August 2026 to June 2026', $value);
+        $this->assertSame('August 2026 - June 2026', $value);
     }
 
     public function testMonthYearRangeDoesNotOverflowAtTheEndOfAMonth(): void
@@ -107,27 +107,25 @@ class HelpersTest extends TestCase
             Carbon::create(2026, 1, 15, 0, 0, 0, 'UTC'),
         );
 
-        $this->assertSame('January 2026 to February 2026', $value);
+        $this->assertSame('January 2026 - February 2026', $value);
     }
 
-    public function testLiteralReservedKeywordRangeUsesARangeSeparatorInsteadOfTheRecipientLabel(): void
+    public function testLiteralReservedKeywordRangeUsesANeutralRangeSeparator(): void
     {
-        app()->setLocale('de');
         $date = Carbon::create(2026, 7, 15, 0, 0, 0, 'UTC');
 
         $literalRange = Helpers::processReservedKeywords(':MONTH_AFTER', $this->entity('de'), $date);
 
-        $this->assertSame('2026-07-15 bis 2026-08-14', $literalRange);
+        $this->assertSame('2026-07-15 - 2026-08-14', $literalRange);
     }
 
-    public function testCalculatedReservedKeywordRangeUsesALocalizedRangeSeparator(): void
+    public function testCalculatedReservedKeywordRangeUsesANeutralRangeSeparator(): void
     {
-        app()->setLocale('de');
         $date = Carbon::create(2026, 7, 15, 0, 0, 0, 'UTC');
 
         $calculatedRange = Helpers::processReservedKeywords('[MONTHYEAR|MONTHYEAR+1]', $this->entity('de'), $date);
 
-        $this->assertSame('Juli 2026 bis August 2026', $calculatedRange);
+        $this->assertSame('Juli 2026 - August 2026', $calculatedRange);
     }
 
     private function entity(string $locale = 'en'): object

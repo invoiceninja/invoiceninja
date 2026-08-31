@@ -37,7 +37,7 @@ class BulkTokenRequest extends Request
                 'bail',
                 'array',
                 'min:1',
-                Rule::exists('company_tokens', 'id')->where('company_id', $user->company()->id),
+                Rule::exists('company_tokens', 'id')->where('company_id', $user->company()->id)->where('is_system', false),
             ],
             'ids.*' => ['bail', 'integer'],
         ];

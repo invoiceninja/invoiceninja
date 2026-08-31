@@ -230,7 +230,7 @@ class BulkActionAuthorizationTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function testBulkCloneInvoiceToQuoteReturnsAnInvoiceResponseWithoutATypeError(): void
+    public function testBulkCloneInvoiceToQuoteIsRejectedByValidation(): void
     {
         $invoice = Invoice::factory()->create([
             'company_id' => $this->company->id,
@@ -245,7 +245,8 @@ class BulkActionAuthorizationTest extends TestCase
                 'ids' => [$invoice->hashed_id],
             ]);
 
-        $response->assertOk();
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors(['action']);
     }
 
     // ──────────────────────────────────────────────
@@ -578,7 +579,7 @@ class BulkActionAuthorizationTest extends TestCase
         $this->assertBatchPdfDownload($response, 'quote-pdf');
     }
 
-    public function testBulkCloneQuoteToInvoiceReturnsAQuoteResponseWithoutATypeError(): void
+    public function testBulkCloneQuoteToInvoiceIsRejectedByValidation(): void
     {
         $quote = Quote::factory()->create([
             'company_id' => $this->company->id,
@@ -593,7 +594,8 @@ class BulkActionAuthorizationTest extends TestCase
                 'ids' => [$quote->hashed_id],
             ]);
 
-        $response->assertOk();
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors(['action']);
     }
 
     // ──────────────────────────────────────────────

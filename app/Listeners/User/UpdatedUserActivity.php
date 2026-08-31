@@ -51,6 +51,7 @@ class UpdatedUserActivity implements ShouldQueue
         $fields->account_id = $event->company->account_id;
 
         $fields->activity_type_id = Activity::UPDATE_USER;
+        $fields->notes = $event->user->present()->name();
 
         $this->activityRepo->save($fields, $event->user, $event->event_vars);
     }

@@ -185,6 +185,19 @@ class BankTransactionRuleApiTest extends TestCase
             ->assertJsonPath('data.rules.0.operator', 'is_empty');
     }
 
+    public function testBankRuleStillRequiresAValueForOperatorsThatCompareValues(): void
+    {
+        $payload = $this->isEmptyRulePayload();
+        $payload['rules'][0]['operator'] = 'contains';
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/bank_transaction_rules/', $payload)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['rules.0.value']);
+    }
+
     public function testBankTransactionRuleGet()
     {
         $response = $this->withHeaders([
