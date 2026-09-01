@@ -30,6 +30,7 @@ use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Invoice\UpdateInvoiceRequest;
 use App\Http\Requests\Invoice\UpdateReminderRequest;
 use App\Http\Requests\Invoice\UploadInvoiceRequest;
+use App\Http\Requests\TaskScheduler\DeletePaymentScheduleRequest;
 use App\Http\Requests\TaskScheduler\PaymentScheduleRequest;
 use App\Jobs\Cron\AutoBill;
 use App\Jobs\Entity\ZipEntity;
@@ -1129,9 +1130,10 @@ class InvoiceController extends BaseController
     /**
      * deletePaymentSchedule
      *
+     * @param  DeletePaymentScheduleRequest $request
      * @param  Invoice $invoice
      */
-    public function deletePaymentSchedule(Invoice $invoice)
+    public function deletePaymentSchedule(DeletePaymentScheduleRequest $request,Invoice $invoice)
     {
         $repo = new SchedulerRepository();
 

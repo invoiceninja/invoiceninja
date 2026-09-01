@@ -52,6 +52,8 @@ class UpdateVendorRequest extends Request
 
         $rules['contacts'] = 'bail|array';
         $rules['contacts.*.email'] = 'bail|nullable|distinct|sometimes|email';
+        $rules['contacts.*.id'] = ['bail','nullable','sometimes', Rule::exists('vendor_contacts', 'id')->where('company_id', $user->company()->id)];
+
         $rules['contacts.*.password'] = [
             'bail',
             'nullable',

@@ -10,20 +10,27 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Http\Requests\Client;
+namespace App\Http\Requests\SelfUpdate;
 
 use App\Http\Requests\Request;
 
-class ReactivateClientEmailRequest extends Request
+class SelfUpdateRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
     public function authorize(): bool
     {
-        return true
+        return auth()->user()->isAdmin();
     }
 
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return [];
+    }
 }
