@@ -14,6 +14,7 @@ namespace App\Http\ValidationRules\Payment;
 
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Utils\BcMath;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Validation\Rule;
 
@@ -113,9 +114,9 @@ class ValidRefundableRequest implements Rule
                 if ($request_invoice['invoice_id'] == $paymentable->pivot->paymentable_id) {
                     $record_found = true;
 
-                    $refundable_amount = ($paymentable->pivot->amount - $paymentable->pivot->refunded);
+                    $refundable_amount = BcMath::sub($paymentable->pivot->amount, $paymentable->pivot->refunded, 2);
 
-                    if ($request_invoice['amount'] > $refundable_amount) {
+                    if (BcMath::greaterThan($request_invoice['amount'], $refundable_amount, 2)) {
                         $invoice = $paymentable;
 
                         $this->error_msg = ctrans('texts.max_refundable_invoice', ['invoice' => $invoice->hashed_id, 'amount' => $refundable_amount]);
@@ -146,32 +147,32 @@ class ValidRefundableRequest implements Rule
     private function checkTotalRefundableAmount(Payment $payment, array $request_invoices): bool
     {
         // Calculate total refund amount requested
-        $total_refund_requested = 0;
+        $total_refund_requested = '0';
 
         if (count($request_invoices) > 0) {
-            $total_refund_requested = collect($request_invoices)->sum('amount');
+            $total_refund_requested = BcMath::sum(collect($request_invoices)->pluck('amount')->all(), 2);
         } elseif (array_key_exists('amount', $this->input)) {
-            $total_refund_requested = $this->input['amount'];
+            $total_refund_requested = BcMath::round($this->input['amount'], 2);
         }
 
-        if ($total_refund_requested <= 0) {
+        if (BcMath::lessThanOrEqual($total_refund_requested, 0, 2)) {
             return true; // No refund requested
         }
 
         // Calculate maximum refundable from cash portion
-        $max_cash_refund = $payment->amount - $payment->refunded;
+        $max_cash_refund = BcMath::sub($payment->amount, $payment->refunded, 2);
 
         // Calculate maximum refundable from credits
-        $max_credit_refund = 0;
+        $max_credit_refund = '0';
         if ($payment->credits()->exists()) {
             foreach ($payment->credits as $credit) {
-                $max_credit_refund += ($credit->pivot->amount - $credit->pivot->refunded);
+                $max_credit_refund = BcMath::add($max_credit_refund, BcMath::sub($credit->pivot->amount, $credit->pivot->refunded, 2), 2);
             }
         }
 
-        $max_total_refundable = $max_cash_refund + $max_credit_refund;
+        $max_total_refundable = BcMath::add($max_cash_refund, $max_credit_refund, 2);
 
-        if ($total_refund_requested > $max_total_refundable) {
+        if (BcMath::greaterThan($total_refund_requested, $max_total_refundable, 2)) {
             $this->error_msg = ctrans('texts.max_refundable_payment', [
                 'max_refundable' => $max_total_refundable,
             ]);
