@@ -198,6 +198,7 @@ class ClientApiTest extends TestCase
           $this->assertTrue($arr['data']['contacts'][0]['send_email']);
           $this->assertTrue($arr['data']['contacts'][1]['send_email']);
 
+          $data['contacts'] = $arr['data']['contacts'];
           $data['contacts'][1]['send_email'] = false;
 
           $response = $this->withHeaders([
