@@ -1116,6 +1116,7 @@ class TaxSummaryReportTest extends TestCase
 
     public function testMixedTaxableAndExemptLinesAreSplitWithoutInflatingGrossSales(): void
     {
+        $this->travelTo(\Carbon\Carbon::create(2026, 8, 15, 12, 0, 0, 'UTC'));
         $this->buildData();
 
         $taxable_item = InvoiceItemFactory::create();
@@ -1185,6 +1186,7 @@ class TaxSummaryReportTest extends TestCase
         $this->assertSame(110.0, $amount('cash_taxable_sales'));
         $this->assertSame(50.0, $amount('cash_exempt_sales'));
 
+        $this->travelBack();
         $this->account->delete();
     }
 
