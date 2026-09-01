@@ -14,6 +14,7 @@ namespace App\Jobs\Ninja;
 
 use App\Jobs\Bank\ProcessBankTransactionsYodlee;
 use App\Jobs\Bank\ProcessBankTransactionsNordigen;
+use App\Jobs\Bank\ProcessBankTransactionsEnableBanking;
 use App\Libraries\MultiDB;
 use App\Models\Account;
 use App\Models\BankIntegration;
@@ -56,11 +57,13 @@ class BankTransactionSync implements ShouldQueue
 
                 $this->processYodlee();
                 $this->processNordigen();
+                $this->processEnableBanking();
             }
 
         } else {
             $this->processYodlee();
             $this->processNordigen();
+            $this->processEnableBanking();
         }
 
         nlog("syncing transactions - done");
@@ -96,6 +99,29 @@ class BankTransactionSync implements ShouldQueue
                             (new ProcessBankTransactionsNordigen($bank_integration))->handle();
                         } catch (\Exception $e) {
                             nlog("Exception:: BankTransactioSync::" . $e->getMessage());
+                            sleep(20);
+                        }
+
+                        sleep(5);
+                    });
+                }
+
+            });
+        }
+    }
+    private function processEnableBanking()
+    {
+        if (config('ninja.enablebanking.application_id') && config('ninja.enablebanking.key_path')) {
+            nlog("syncing transactions - enablebanking");
+
+            Account::with('bank_integrations')->cursor()->each(function ($account) {
+
+                if ((Ninja::isSelfHost() || (Ninja::isHosted() && $account->isEnterprisePaidClient()))) {
+                    $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_ENABLEBANKING)->where('auto_sync', true)->where('disabled_upstream', 0)->cursor()->each(function ($bank_integration) {
+                        try {
+                            (new ProcessBankTransactionsEnableBanking($bank_integration))->handle();
+                        } catch (\Exception $e) {
+                            nlog("Exception:: BankTransactionSync::EnableBanking " . $e->getMessage());
                             sleep(20);
                         }
 
