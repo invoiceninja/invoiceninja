@@ -69,7 +69,7 @@ class UpdateClientRequest extends Request
 
         $rules['settings'] = new ValidClientGroupSettingsRule();
         $rules['contacts'] = 'array';
-        $rules['contacts.*.id'] = ['bail','nullable','sometimes', Rule::exists('client_contacts', 'id')->where('company_id', $user->company()->id)];
+        $rules['contacts.*.id'] = ['bail','nullable','sometimes', Rule::exists('client_contacts', 'id')->where('client_id', $this->client->id)->where('company_id', $user->company()->id)];
         $rules['contacts.*.email'] = 'bail|nullable|distinct|sometimes|email';
         $rules['contacts.*.password'] = [
             'nullable',

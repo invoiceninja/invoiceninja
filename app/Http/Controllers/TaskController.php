@@ -535,7 +535,7 @@ class TaskController extends BaseController
 
         $_tasks = (clone $tasks);
 
-        if ($request->action == 'bulk_update' && $user->can('edit', $_tasks->first())) {
+        if ($request->action == 'bulk_update') {
 
             $this->task_repo->bulkUpdate($tasks, $request->column, $request->new_value);
 
@@ -693,13 +693,13 @@ class TaskController extends BaseController
         foreach ($tasks as $key => $task_list) {
             $sort_status_id = $this->decodePrimaryKey($key);
 
-            foreach ($task_list as $key => $task) {
+            foreach ($task_list as $_key => $task) {
                 $task_record = Task::query()->where('id', $this->decodePrimaryKey($task))
                              ->where('company_id', $user->company()->id)
                              ->withTrashed()
                              ->first();
 
-                $task_record->status_order = $key;
+                $task_record->status_order = $_key;
                 $task_record->status_id = $sort_status_id;
                 $task_record->save();
             }

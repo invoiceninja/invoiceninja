@@ -23,7 +23,7 @@ class StoreUploadRequest extends FormRequest
      */
     public function authorize()
     {
-        return (bool) auth()->guard('vendor')->user()->vendor->company->getSetting('vendor_portal_enable_uploads');
+        return auth()->guard('vendor')->user()->id === $this->purchase_order->vendor_id && (bool) auth()->guard('vendor')->user()->vendor->company->getSetting('vendor_portal_enable_uploads');
     }
 
     /**
