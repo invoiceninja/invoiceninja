@@ -11,7 +11,7 @@
     "test:e2e:report": "playwright show-report tests/e2e/report"
   },
   "devDependencies": {
-    "@babel/compat-data": "7.29.7",
+    "@babel/compat-data": "8.0.0",
     "@babel/plugin-proposal-class-properties": "^7.18.6",
     "@playwright/test": "^1.62.1",
     "@tailwindcss/aspect-ratio": "^0.4.2",
