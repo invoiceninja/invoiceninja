@@ -28,7 +28,7 @@ class BulkUserRequest extends Request
     public function authorize(): bool
     {
         /** Guards against a user deleting themselves */
-        if ($this->action == 'delete' && in_array(auth()->user()->hashed_id, $this->ids)) {
+        if ($this->action == 'delete' && in_array(auth()->user()->id, $this->input('ids', []))) {
             return false;
         }
 
@@ -40,7 +40,7 @@ class BulkUserRequest extends Request
         $rules = [
             'action' => ['required', 'bail', 'in:archive,restore,delete'],
             'ids' => ['required', 'array'],
-            'ids.*' => ['required', 'string', Rule::exists('users', 'id')->where('account_id', auth()->user()->company()->account_id)],
+            'ids.*' => ['required', 'integer', Rule::exists('users', 'id')->where('account_id', auth()->user()->company()->account_id)],
         ];
 
         if (Ninja::isHosted() && $this->action && $this->action == 'restore') {

@@ -230,7 +230,6 @@ class UserController extends BaseController
                     ->whereIn('id', $ids)
                     ->where('account_id', auth()->user()
                     ->company()->account_id)
-                    ->company()
                     ->get();
 
         /*
@@ -252,7 +251,7 @@ class UserController extends BaseController
             }
         });
 
-        return $this->listResponse(User::withTrashed()->whereIn('id', $return_user_collection)->company());
+        return $this->listResponse(User::withTrashed()->whereIn('id', $return_user_collection));
     }
 
     /**
