@@ -105,7 +105,10 @@ class ContactResetPasswordController extends Controller
             MultiDB::findAndSetDbByCompanyKey($request->session()->get('company_key'));
         }
 
-        $request->validate($this->rules(), $this->validationErrorMessages());
+        $rules = $this->rules();
+        $rules['token'] = ['required', 'string'];
+
+        $request->validate($rules, $this->validationErrorMessages());
 
         $token = $request->input('token');
 

@@ -278,6 +278,23 @@ class ContactPasswordResetTest extends TestCase
         $this->assertTrue(Hash::check('original-password', $this->contact->password));
     }
 
+    public function testPasswordResetRejectsNonStringToken(): void
+    {
+        $response = $this->withSession([
+            'company_key' => $this->company->company_key,
+        ])->post(route('client.password.update'), [
+            'email' => $this->contact->email,
+            'token' => ['invalid-token'],
+            'password' => 'new-password-123',
+            'password_confirmation' => 'new-password-123',
+        ]);
+
+        $response->assertSessionHasErrors('token');
+
+        $this->contact->refresh();
+        $this->assertTrue(Hash::check('original-password', $this->contact->password));
+    }
+
     /**
      * Password reset for a nonexistent email should not change anything.
      */
