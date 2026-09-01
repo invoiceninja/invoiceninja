@@ -158,7 +158,7 @@ class MailerCheckTest extends TestCase
         $configuredMailer
             ->shouldReceive('to')
             ->once()
-            ->with($user->email, $user->name())
+            ->with($user->email)
             ->andReturn($pendingMail);
         $pendingMail
             ->shouldReceive('send')

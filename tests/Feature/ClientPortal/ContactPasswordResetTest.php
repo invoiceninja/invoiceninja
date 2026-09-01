@@ -13,17 +13,19 @@
 namespace Tests\Feature\ClientPortal;
 
 use App\Http\Middleware\VerifyCsrfToken;
+use App\Jobs\Mail\NinjaMailerJob;
 use App\Models\Account;
-use Illuminate\Routing\Middleware\ThrottleRequests;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\User;
 use App\Utils\Traits\AppSetup;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Faker\Factory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -136,6 +138,34 @@ class ContactPasswordResetTest extends TestCase
         $this->assertEquals(60, strlen($this->contact->token));
     }
 
+    public function testPasswordResetEmailUsesConfiguredHostWhenForwardedHostIsTrusted(): void
+    {
+        config([
+            'app.url' => 'https://invoice.example',
+            'ninja.trusted_proxies' => '*',
+        ]);
+        Queue::fake();
+
+        $this->withServerVariables(['REMOTE_ADDR' => '10.0.0.10'])
+            ->withHeaders([
+                'X-Forwarded-Host' => 'attacker.example',
+                'X-Forwarded-Proto' => 'https',
+            ])
+            ->post(route('client.password.email'), [
+                'email' => $this->contact->email,
+            ])
+            ->assertRedirect();
+
+        Queue::assertPushed(NinjaMailerJob::class, function (NinjaMailerJob $job): bool {
+            $url = $job->nmo->mailable->mail_obj->data['url'];
+
+            $this->assertSame('invoice.example', parse_url($url, PHP_URL_HOST));
+            $this->assertStringNotContainsString('attacker.example', $url);
+
+            return true;
+        });
+    }
+
     /**
      * Verify the reset token allows the password to be changed.
      */
@@ -156,6 +186,27 @@ class ContactPasswordResetTest extends TestCase
 
         $this->contact->refresh();
         $this->assertTrue(Hash::check('new-secure-password', $this->contact->password));
+    }
+
+    public function testPasswordResetTokenExpiresAfterConfiguredLifetime(): void
+    {
+        $this->requestPasswordReset($this->contact->email);
+
+        $this->contact->refresh();
+        $resetToken = $this->contact->token;
+        $this->travel(config('auth.passwords.contacts.expire') + 1)->minutes();
+
+        $this->completePasswordReset(
+            $this->contact->email,
+            $resetToken,
+            'expired-token-password'
+        );
+
+        $this->contact->refresh();
+        $this->assertTrue(
+            Hash::check('original-password', $this->contact->password),
+            'A reset token must not change the password after its configured lifetime.',
+        );
     }
 
     /**

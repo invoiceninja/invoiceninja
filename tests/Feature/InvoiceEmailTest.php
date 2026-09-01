@@ -303,7 +303,7 @@ class InvoiceEmailTest extends TestCase
         );
     }
 
-    public function testSendEmailRequestSkipsEditPolicyAfterEntityNormalization(): void
+    public function testSendEmailRequestRejectsUserWithoutEditPermissionAfterEntityNormalization(): void
     {
         $restrictedUser = User::factory()->create([
             'account_id' => $this->account->id,
@@ -351,7 +351,8 @@ class InvoiceEmailTest extends TestCase
         $validator = Validator::make($request->all(), $request->rules());
         $request->withValidator($validator);
 
-        $this->assertTrue($validator->passes(), $validator->errors()->first());
+        $this->assertFalse($validator->passes());
+        $this->assertTrue($validator->errors()->has('error'));
     }
 
     public function test_initial_email_send_emails()
