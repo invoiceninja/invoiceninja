@@ -426,6 +426,7 @@ class LoginController extends BaseController
 
     public function refreshReact(Request $request)
     {
+        
         $truth = app()->make(TruthSource::class);
 
         if ($truth->getCompanyToken()) {
@@ -441,10 +442,9 @@ class LoginController extends BaseController
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        $cu_user = $cu->first();
-        $cu_user->account->companies->each(function ($company) use ($cu_user, $request) {
-            if ($company->tokens()->where('user_id', $cu_user->user_id)->where('is_system', true)->doesntExist()) {
-                (new CreateCompanyToken($company, $cu_user->user, $request->server('HTTP_USER_AGENT')))->handle();
+        $cu->each(function ($company_user) use ($request) {
+            if ($company_user->tokens()->where('company_id', $company_user->company_id)->where('is_system', true)->doesntExist()) {
+                (new CreateCompanyToken($company_user->company, $company_user->user, $request->server('HTTP_USER_AGENT')))->handle();
             }
         });
         
@@ -482,10 +482,9 @@ class LoginController extends BaseController
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        $cu_user = $cu->first();
-        $cu_user->account->companies->each(function ($company) use ($cu_user, $request) {
-            if ($company->tokens()->where('user_id', $cu_user->user_id)->where('is_system', true)->doesntExist()) {
-                (new CreateCompanyToken($company, $cu_user->user, $request->server('HTTP_USER_AGENT')))->handle();
+        $cu->each(function ($company_user) use ($request) {
+            if ($company_user->tokens()->where('company_id', $company_user->company_id)->where('is_system', true)->doesntExist()) {
+                (new CreateCompanyToken($company_user->company, $company_user->user, $request->server('HTTP_USER_AGENT')))->handle();
             }
         });
 
