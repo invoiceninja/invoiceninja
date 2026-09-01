@@ -207,7 +207,7 @@ CSV;
             $messages = $entry['error'] ?? [];
             $messages = is_array($messages) ? $messages : [$messages];
             foreach ($messages as $msg) {
-                if (str_contains($msg, 'overlapping')) {
+                if (str_contains(strtolower($msg), 'overlap')) {
                     $hasOverlapError = true;
                     break 2;
                 }
