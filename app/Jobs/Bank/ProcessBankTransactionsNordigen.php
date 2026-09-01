@@ -371,6 +371,12 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
 
         $now = now();
 
+        // Always sort Desc Transaction based on the BookingDateTime fallback BookingDate
+        $transactions = collect($transactions)->sortByDesc(function ($transaction) {
+            return data_get($transaction, 'booking_date_time')
+                ?? data_get($transaction, 'booking_date');
+        });
+
         foreach ($transactions as $transaction) {
 
             if (BankTransaction::where('nordigen_transaction_id', $transaction['nordigen_transaction_id'])
@@ -392,7 +398,19 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
                     'updated_at' => $now,
                 ])
             );
+        }
 
+        // update balance if last transaction has optional "balanceAfterTransaction"
+        $newest_balance_transaction = null;
+        foreach ($transactions as $transaction) {
+            if (data_get($transaction, 'balance_after_transaction.balanceAmount.amount') !== null) {
+                $newest_balance_transaction = $transaction;
+                break;
+            }
+        }
+
+        if ($newest_balance_transaction) {
+            $this->bank_integration->balance  = data_get($newest_balance_transaction, 'balance_after_transaction.balanceAmount.amount');
         }
 
         $this->bank_integration->from_date = now()->subDays(5);
