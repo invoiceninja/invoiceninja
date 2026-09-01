@@ -75,7 +75,7 @@ class RefundPaymentRequest extends Request
             'date' => 'required',
             'invoices.*.invoice_id' => ['required','bail','distinct', Rule::exists('invoices', 'id')->where('company_id', auth()->user()->company()->id)],
             'invoices.*.amount' => 'required|bail|numeric|gt:0',
-            'invoices' => ['required','array', new ValidRefundableInvoices($input)],
+            'invoices' => ['sometimes','array', new ValidRefundableInvoices($input)],
             
         ];
 
