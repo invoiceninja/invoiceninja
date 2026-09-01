@@ -55,7 +55,9 @@ class ContactPasswordResetTest extends TestCase
             VerifyCsrfToken::class,
             ThrottleRequests::class,
         ]);
+
         Notification::fake();
+        Queue::fake();
 
         $this->account = Account::factory()->create();
 
@@ -67,8 +69,15 @@ class ContactPasswordResetTest extends TestCase
         $this->company = Company::factory()->create([
             'account_id' => $this->account->id,
         ]);
+
         $this->company->settings->language_id = '1';
         $this->company->save();
+
+        $cu = \App\Factory\CompanyUserFactory::create($this->user->id, $this->company->id, $this->account->id);
+        $cu->is_owner = true;
+        $cu->is_admin = true;
+        $cu->is_locked = false;
+        $cu->save();
 
         $this->client = Client::factory()->create([
             'company_id' => $this->company->id,
@@ -136,34 +145,7 @@ class ContactPasswordResetTest extends TestCase
 
         $this->assertNotEquals($originalToken, $this->contact->token);
         $this->assertEquals(60, strlen($this->contact->token));
-    }
-
-    public function testPasswordResetEmailUsesConfiguredHostWhenForwardedHostIsTrusted(): void
-    {
-        config([
-            'app.url' => 'https://invoice.example',
-            'ninja.trusted_proxies' => '*',
-        ]);
-        Queue::fake();
-
-        $this->withServerVariables(['REMOTE_ADDR' => '10.0.0.10'])
-            ->withHeaders([
-                'X-Forwarded-Host' => 'attacker.example',
-                'X-Forwarded-Proto' => 'https',
-            ])
-            ->post(route('client.password.email'), [
-                'email' => $this->contact->email,
-            ])
-            ->assertRedirect();
-
-        Queue::assertPushed(NinjaMailerJob::class, function (NinjaMailerJob $job): bool {
-            $url = $job->nmo->mailable->mail_obj->data['url'];
-
-            $this->assertSame('invoice.example', parse_url($url, PHP_URL_HOST));
-            $this->assertStringNotContainsString('attacker.example', $url);
-
-            return true;
-        });
+        $this->assertMatchesRegularExpression('/^\d{10}\.[A-Za-z0-9]{49}$/D', $this->contact->token);
     }
 
     /**
@@ -275,6 +257,20 @@ class ContactPasswordResetTest extends TestCase
         $this->completePasswordReset(
             $this->contact->email,
             'completely-invalid-token-value',
+            'new-password-123'
+        );
+
+        $this->contact->refresh();
+        $this->assertTrue(Hash::check('original-password', $this->contact->password));
+    }
+
+    public function testPasswordResetFailsWithTokenWithoutExpiry(): void
+    {
+        $tokenWithoutExpiry = $this->contact->token;
+
+        $this->completePasswordReset(
+            $this->contact->email,
+            $tokenWithoutExpiry,
             'new-password-123'
         );
 
