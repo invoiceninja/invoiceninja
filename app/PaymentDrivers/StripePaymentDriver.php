@@ -52,6 +52,7 @@ use App\PaymentDrivers\Stripe\Bancontact;
 use App\PaymentDrivers\Stripe\BrowserPay;
 use App\PaymentDrivers\Stripe\CreditCard;
 use App\PaymentDrivers\Stripe\PRZELEWY24;
+use App\PaymentDrivers\Stripe\PromptPay;
 use App\PaymentDrivers\Stripe\BankTransfer;
 use App\PaymentDrivers\Stripe\Connect\Verify;
 use App\PaymentDrivers\Stripe\ImportCustomers;
@@ -104,6 +105,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
         GatewayType::KLARNA => Klarna::class,
         GatewayType::BACS => BACS::class,
         GatewayType::DIRECT_DEBIT => BankTransfer::class,
+        GatewayType::PROMPTPAY => PromptPay::class,
     ];
 
     public const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
@@ -268,6 +270,11 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
            && in_array($this->client->country->iso_3166_3, ['AUT','BEL','DNK','FIN','FRA','DEU','IRL','ITA','NLD','NOR','ESP','SWE','GBR','USA'])) {
             $types[] = GatewayType::KLARNA;
         }
+        if ($this->client
+           && $this->client->currency()
+           && ($this->client->currency()->code == 'THB')) {
+            $types[] = GatewayType::PROMPTPAY;
+        }
 
         if (
             $this->client
@@ -321,6 +328,8 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                 return 'gateways.stripe.acss';
             case GatewayType::FPX:
                 return 'gateways.stripe.fpx';
+            case GatewayType::PROMPTPAY:
+                return 'gateways.stripe.promptpay';
             default:
                 break;
         }

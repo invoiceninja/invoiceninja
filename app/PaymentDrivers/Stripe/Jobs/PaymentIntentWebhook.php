@@ -218,6 +218,15 @@ class PaymentIntentWebhook implements ShouldQueue
             }
 
             $this->updateAsyncPayment($payment_hash, $client, $meta, $pi);
+        } elseif (isset($pi['payment_method_types']) && in_array('promptpay', $pi['payment_method_types'])) {
+            $invoice = Invoice::with('client')->withTrashed()->find($payment_hash->fee_invoice_id);
+            $client = $invoice->client;
+
+            if ($invoice->is_deleted) {
+                return;
+            }
+
+            $this->updatePromptPayPayment($payment_hash, $client, $meta);
         }
     }
 
@@ -301,6 +310,36 @@ class PaymentIntentWebhook implements ShouldQueue
             nlog("failed to import payment methods");
             nlog($e->getMessage());
         }
+    }
+
+    private function updatePromptPayPayment($payment_hash, $client, $meta)
+    {
+        $company_gateway = CompanyGateway::query()->find($this->company_gateway_id);
+        $payment_method_type = $meta['gateway_type_id'];
+        $driver = $company_gateway->driver($client)->init()->setPaymentMethod($payment_method_type);
+
+        $payment_hash->data = array_merge((array) $payment_hash->data, $this->stripe_request);
+        $payment_hash->save();
+        $driver->setPaymentHash($payment_hash);
+
+        $data = [
+            'payment_method' => $payment_hash->data->object->payment_method ?? $meta['payment_method'], //@phpstan-ignore-line
+            'payment_type' => PaymentType::PROMPTPAY,
+            'amount' => $payment_hash->data->amount_with_fee, //@phpstan-ignore-line
+            'transaction_reference' => $meta['transaction_reference'],
+            'gateway_type_id' => GatewayType::PROMPTPAY,
+        ];
+
+        $payment = $driver->createPayment($data, Payment::STATUS_COMPLETED);
+
+        SystemLogger::dispatch(
+            ['response' => $this->stripe_request, 'data' => $data],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            SystemLog::TYPE_STRIPE,
+            $client,
+            $client->company,
+        );
     }
 
     private function updateCreditCardPayment($payment_hash, $client, $meta)
