@@ -47,7 +47,7 @@ class ValidRefundableRequest implements Rule
             return false;
         }
 
-        $payment = Payment::query()->where('id', $this->input['id'])->withTrashed()->first();
+        $payment = Payment::query()->where('id', $this->input['id'])->company()->withTrashed()->first();
 
         if (! $payment) {
             $this->error_msg = ctrans('texts.unable_to_retrieve_payment');

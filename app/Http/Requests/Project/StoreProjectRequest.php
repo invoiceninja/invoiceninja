@@ -61,6 +61,7 @@ class StoreProjectRequest extends Request
         $rules['file.*'] = $this->fileValidation();
         $rules['documents'] = 'bail|sometimes|array';
         $rules['documents.*'] = $this->fileValidation();
+        $rules['hash'] = 'bail|sometimes|string|nullable';
 
         return $this->globalRules($rules);
     }

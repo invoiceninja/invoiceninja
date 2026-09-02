@@ -34,7 +34,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Transformers\CompanyTransformer;
 use App\DataMapper\Analytics\AccountDeleted;
-use App\Transformers\CompanyUserTransformer;
+use App\Transformers\AuthenticatedCompanyUserTransformer;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Company\CreateCompanyPaymentTerms;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
@@ -263,7 +263,7 @@ class CompanyController extends BaseController
         $user_agent = request()->has('token_name') ? request()->input('token_name') : request()->server('HTTP_USER_AGENT');
 
         $company_token = (new CreateCompanyToken($company, auth()->user(), $user_agent))->handle();
-        $this->entity_transformer = CompanyUserTransformer::class;
+        $this->entity_transformer = AuthenticatedCompanyUserTransformer::class;
         $this->entity_type = CompanyUser::class;
 
         $ct = CompanyUser::whereUserId(auth()->user()->id)->whereCompanyId($company->id);

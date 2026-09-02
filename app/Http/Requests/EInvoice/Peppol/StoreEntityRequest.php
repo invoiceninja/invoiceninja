@@ -89,7 +89,7 @@ class StoreEntityRequest extends FormRequest
             'acts_as_receiver' => ['required', 'bool'],
             'acts_as_sender' => ['required', 'bool'],
             'tenant_id' => ['sometimes', 'nullable', 'string'],
-            'classification' => ['required', 'in:business,individual'],
+            'classification' => ['required', Rule::in(['business', 'individual', 'government'])],
             'vat_number' => $vat_number_rules,
             'id_number' => $id_number_rules,
             'c5_signer_name' => [Rule::requiredIf($isSG), 'nullable', 'string', 'min:2', 'max:64'],

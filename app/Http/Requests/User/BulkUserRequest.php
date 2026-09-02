@@ -16,6 +16,7 @@ use App\Http\Requests\Request;
 use App\Http\ValidationRules\Ninja\CanRestoreUserRule;
 use App\Utils\Ninja;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Validation\Rule;
 
 class BulkUserRequest extends Request
 {
@@ -26,7 +27,8 @@ class BulkUserRequest extends Request
      */
     public function authorize(): bool
     {
-        if ($this->action == 'delete' && in_array(auth()->user()->hashed_id, $this->ids)) {
+        /** Guards against a user deleting themselves */
+        if ($this->action == 'delete' && in_array(auth()->user()->id, $this->input('ids', []))) {
             return false;
         }
 
@@ -37,6 +39,8 @@ class BulkUserRequest extends Request
     {
         $rules = [
             'action' => ['required', 'bail', 'in:archive,restore,delete'],
+            'ids' => ['required', 'array'],
+            'ids.*' => ['required', 'integer', Rule::exists('users', 'id')->where('account_id', auth()->user()->company()->account_id)],
         ];
 
         if (Ninja::isHosted() && $this->action && $this->action == 'restore') {
@@ -49,6 +53,8 @@ class BulkUserRequest extends Request
     public function prepareForValidation()
     {
         $input = $this->all();
+
+        $input['ids'] = $this->transformKeys($input['ids']);
 
         $this->replace($input);
     }

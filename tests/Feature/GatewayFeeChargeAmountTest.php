@@ -28,6 +28,14 @@ use Tests\TestCase;
  */
 class GatewayFeeChargeAmountTest extends TestCase
 {
+    public function testForteDefaultsTheServiceFeeToZero(): void
+    {
+        $source = file_get_contents(app_path('PaymentDrivers/Forte/CreditCard.php'));
+
+        $this->assertStringContainsString('$fee_total = 0;', $source);
+        $this->assertStringNotContainsString('$fee_total = null;', $source);
+    }
+
     /**
      * The charged amount lives on the hash and includes the fee.
      */

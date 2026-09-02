@@ -548,6 +548,7 @@ $lang = array(
     'hours' => 'Hours',
     'task_details' => 'Task Details',
     'duration' => 'Duration',
+    'estimated_duration' => 'Estimated Duration',
     'time_log' => 'Time Log',
     'end_time' => 'End Time',
     'end' => 'End',

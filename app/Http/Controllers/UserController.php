@@ -226,7 +226,11 @@ class UserController extends BaseController
 
         $ids = request()->input('ids');
 
-        $users = User::withTrashed()->find($this->transformKeys($ids));
+        $users = User::withTrashed()
+                    ->whereIn('id', $ids)
+                    ->where('account_id', auth()->user()
+                    ->company()->account_id)
+                    ->get();
 
         /*
          * In case a user maliciously sends keys which do not belong to them, we push

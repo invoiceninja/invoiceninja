@@ -14,6 +14,7 @@ namespace App\Http\Requests;
 
 use App\Models\Tag;
 use App\Utils\Traits\MakesHash;
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -31,6 +32,8 @@ class Request extends FormRequest
 
     /** @var class-string|null */
     protected ?string $tag_entity_type = null;
+
+    protected ?string $timeLogValidationError = null;
 
     protected $file_validation = 'sometimes|file|max:100000|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx,webp,xml,zip,csv,ods,odt,odp,txt';
     /**
@@ -309,6 +312,71 @@ class Request extends FormRequest
     }
 
     public function checkTimeLog(array $log): bool
+    {
+        $this->timeLogValidationError = null;
+
+        if ($log === []) {
+            return true;
+        }
+
+        usort(
+            $log,
+            static fn (array $left, array $right): int => $left[0] <=> $right[0]
+        );
+
+        foreach ($log as $index => $entry) {
+            $startTime = $entry[0];
+            $endTime = $entry[1];
+            $nextEntry = $log[$index + 1] ?? null;
+
+            if ($endTime !== 0 && $startTime > $endTime) {
+                return false;
+            }
+
+            if ($nextEntry === null) {
+                continue;
+            }
+
+            if ($endTime === 0) {
+                return false;
+            }
+
+            if ($nextEntry[0] < $endTime) {
+                $overlapStartTime = max($startTime, $nextEntry[0]);
+                $overlapEndTime = $nextEntry[1] === 0
+                    ? $endTime
+                    : min($endTime, $nextEntry[1]);
+
+                $this->timeLogValidationError = sprintf(
+                    'Overlap detected: %s - %s.',
+                    $this->formatTimeLogTimestamp($overlapStartTime),
+                    $this->formatTimeLogTimestamp($overlapEndTime)
+                );
+
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    protected function formatTimeLogTimestamp(int $timestamp): string
+    {
+        /** @var \App\Models\User|null $user */
+        $user = auth()->user();
+        $company = $user?->company();
+        $timezone = $company?->timezone()?->name ?: config('app.timezone', 'UTC');
+        $dateFormat = $company?->date_format() ?: 'Y-m-d';
+        $timeFormat = $company?->getSetting('military_time') ? 'H:i:s' : 'h:i:s A';
+        $locale = $company?->locale() ?: app()->getLocale();
+
+        return Carbon::createFromTimestampUTC($timestamp)
+            ->setTimezone($timezone)
+            ->locale($locale)
+            ->translatedFormat("{$dateFormat} {$timeFormat}");
+    }
+
+    public function checkTimeLogOld(array $log): bool
     {
         if (count($log) == 0) {
             return true;

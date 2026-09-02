@@ -177,8 +177,9 @@ class ChartSummaryPayloadTest extends TestCase
 
     public function testChartSummaryPreservesAnEmptyPayload(): void
     {
+        $chartService = new ChartService($this->chartCompany, $this->user, true);
         $payload = $this->assertBatchedSummaryMatchesLegacy(
-            new ChartService($this->chartCompany, $this->user, true),
+            $chartService,
             '2026-01-01',
             '2026-01-31'
         );
@@ -193,6 +194,97 @@ class ChartSummaryPayloadTest extends TestCase
         $this->assertSame($emptyCurrencyPayload, $payload[1]);
         $this->assertSame($emptyCurrencyPayload, $payload[2]);
         $this->assertSame($emptyCurrencyPayload, $payload[999]);
+
+        $allTimePayload = $chartService->chart_summary('2000-01-01', '2026-01-31', true);
+        $this->assertSame('2000-01-01', $allTimePayload['start_date']);
+    }
+
+    public function testAllTimeChartsStartAtTheFirstRelevantRecord(): void
+    {
+        $this->createChartInvoice($this->usdClient, ['date' => '1999-01-03']);
+        $this->createChartPayment($this->usdClient, ['date' => '1998-01-02']);
+        $this->createChartExpense(['date' => '1997-01-01']);
+
+        $chartService = new ChartService($this->chartCompany, $this->user, true);
+        $summary = $chartService->chart_summary('2000-01-01', '2026-01-31', true);
+        $totals = $chartService->totals('2000-01-01', '2026-01-31', true);
+
+        $this->assertSame('1997-01-01', $summary['start_date']);
+        $this->assertSame('1997-01-01', $totals['start_date']);
+        $this->assertSame(['1999-01-03'], array_column($summary[1]['invoices'], 'date'));
+        $this->assertSame(['1998-01-02'], array_column($summary[1]['payments'], 'date'));
+        $this->assertSame(['1997-01-01'], array_column($summary[1]['expenses'], 'date'));
+    }
+
+    public function testAllTimeCalculatedFieldsDoNotApplyTheFallbackDate(): void
+    {
+        $this->createChartInvoice($this->usdClient, [
+            'date' => '1999-01-03',
+            'amount' => 75,
+        ]);
+
+        $result = (new ChartService($this->chartCompany, $this->user, true))->getCalculatedField([
+            'field' => 'active_invoices',
+            'calculation' => 'sum',
+            'period' => 'current',
+            'date_range' => 'all_time',
+            'start_date' => '2000-01-01',
+            'end_date' => '2026-01-31',
+        ]);
+
+        $this->assertEquals(75, $result);
+    }
+
+    public function testAllTimeDashboardEndpointsResolveTheFirstRelevantDate(): void
+    {
+        Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 75,
+            'balance' => 75,
+            'status_id' => Invoice::STATUS_SENT,
+            'exchange_rate' => 1,
+            'date' => '1900-01-03',
+            'due_date' => '1900-02-03',
+            'is_deleted' => false,
+        ]);
+
+        $headers = [
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ];
+
+        foreach (['chart_summary', 'totals', 'chart_summary_v2', 'totals_v2'] as $endpoint) {
+            $this->withHeaders($headers)
+                ->postJson("/api/v1/charts/{$endpoint}", ['date_range' => 'all_time'])
+                ->assertStatus(200)
+                ->assertJsonPath('start_date', '1900-01-03');
+        }
+
+        $all_time = $this->withHeaders($headers)
+            ->postJson('/api/v1/charts/calculated_fields', [
+                'date_range' => 'all_time',
+                'field' => 'active_invoices',
+                'calculation' => 'sum',
+                'period' => 'current',
+            ])
+            ->assertStatus(200)
+            ->json();
+
+        $bounded = $this->withHeaders($headers)
+            ->postJson('/api/v1/charts/calculated_fields', [
+                'date_range' => 'custom',
+                'start_date' => '2000-01-01',
+                'end_date' => now()->format('Y-m-d'),
+                'field' => 'active_invoices',
+                'calculation' => 'sum',
+                'period' => 'current',
+            ])
+            ->assertStatus(200)
+            ->json();
+
+        $this->assertEquals(75, (float) $all_time - (float) $bounded);
     }
 
     public function testChartSummaryPreservesInclusiveDateBoundaries(): void

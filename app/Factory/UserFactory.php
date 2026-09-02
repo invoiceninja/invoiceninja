@@ -26,7 +26,7 @@ class UserFactory
         $user->last_name = '';
         $user->phone = '';
         $user->email = '';
-        $user->last_login = now();
+        $user->last_login = null;
         $user->failed_logins = 0;
         $user->signature = '';
         $user->theme_id = 0;

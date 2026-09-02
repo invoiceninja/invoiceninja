@@ -54,6 +54,7 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LicenseController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\LogoutController;
+use App\Http\Controllers\MailerController;
 use App\Http\Controllers\MailgunController;
 use App\Http\Controllers\MigrationController;
 use App\Http\Controllers\OneTimeTokenController;
@@ -490,6 +491,7 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     // Route::delete('hooks/{subscription_id}', [SubscriptionController::class, 'unsubscribe'])->name('hooks.unsubscribe');
 
     Route::post('smtp/check', [SmtpController::class, 'check'])->name('smtp.check')->middleware('throttle:10,1');
+    Route::post('mailer/check', [MailerController::class, 'check'])->name('mailer.check')->middleware('throttle:10,1');
 
     Route::post('stripe/update_payment_methods', [StripeController::class, 'update'])->middleware('password_protected')->name('stripe.update');
     Route::post('stripe/import_customers', [StripeController::class, 'import'])->middleware('password_protected')->name('stripe.import');

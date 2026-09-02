@@ -214,6 +214,7 @@ class ApiClient
     public function findExisting(DatabaseEntity $entity, array $payload): ?string
     {
         [$field, $value] = match ($entity) {
+            DatabaseEntity::Users => ['email', $payload['email'] ?? null],
             DatabaseEntity::TaxRates,
             DatabaseEntity::ExpenseCategories,
             DatabaseEntity::TaskStatuses => ['name', $payload['name'] ?? null],
@@ -266,6 +267,11 @@ class ApiClient
 
     private function sameIdentity(string $field, mixed $existing_value, string|int $source_value): bool
     {
+        if ($field === 'email') {
+            return mb_strtolower(trim((string) $existing_value), 'UTF-8')
+                === mb_strtolower(trim((string) $source_value), 'UTF-8');
+        }
+
         if ($field !== 'name') {
             return (string) $existing_value === (string) $source_value;
         }

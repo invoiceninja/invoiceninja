@@ -68,7 +68,7 @@ class VendorContactRepository extends BaseRepository
             $update_contact = null;
 
             if (isset($contact['id'])) {
-                $update_contact = VendorContact::find($contact['id']);
+                $update_contact = VendorContact::where('id', $contact['id'])->where('company_id', $vendor->company_id)->first();
             }
 
             if (! $update_contact) {

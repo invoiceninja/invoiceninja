@@ -22,7 +22,13 @@ class CreateRequestTest extends TestCase
             'iso_3166_2' => 'DE',
             'name' => 'Germany',
         ], true);
-        app()->instance('countries', collect([$germany]));
+        $singapore = new Country();
+        $singapore->setRawAttributes([
+            'id' => 702,
+            'iso_3166_2' => 'SG',
+            'name' => 'Singapore',
+        ], true);
+        app()->instance('countries', collect([$germany, $singapore]));
         $company = \Mockery::mock(Company::class)->makePartial();
         $company->legal_entity_id = null;
         $company->company_key = 'testcompanykey';
@@ -196,6 +202,31 @@ class CreateRequestTest extends TestCase
         $request->prepareForValidation();
 
         $this->assertEquals('DE', $request->input('country'));
+    }
+
+    public function testSingaporeGovernmentEntityIsValidForCorpPassRegistration(): void
+    {
+        $data = [
+            'party_name' => 'Singapore Government Agency',
+            'line1' => '100 High Street',
+            'city' => 'Singapore',
+            'country' => '702',
+            'zip' => '179434',
+            'county' => 'Singapore',
+            'acts_as_sender' => true,
+            'acts_as_receiver' => true,
+            'classification' => 'government',
+            'id_number' => 'T08GA0001A',
+            'c5_signer_name' => 'Authorised Signer',
+            'c5_signer_email' => 'signer@example.test',
+        ];
+
+        $this->request->initialize($data);
+        $this->request->prepareForValidation();
+        $validator = Validator::make($this->request->all(), $this->request->rules());
+
+        $this->assertSame('SG', $this->request->input('country'));
+        $this->assertTrue($validator->passes(), json_encode($validator->errors()->toArray()));
     }
 
     public function testFrenchBusinessRequiresAVatNumberWithAValidSiren(): void

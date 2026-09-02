@@ -139,9 +139,9 @@ class Handler extends ExceptionHandler
                         'email' => 'anonymous@example.com',
                         'name'  => 'Anonymous User',
                     ]);
-                } elseif (auth()->guard('user') && auth()->guard('user')->user() && auth()->user()->companyIsSet() && auth()->user()->company()->account->report_errors) {// @phpstan-ignore-line
+                } elseif (auth()->guard('user') && auth()->guard('user')->user() && auth()->guard('user')->user()->companyIsSet() && auth()->guard('user')->user()->company()->account->report_errors) {// @phpstan-ignore-line
                     $scope->setUser([
-                        'id'    => auth()->user()->account->key,
+                        'id'    => auth()->guard('user')->user()->account->key,
                         'email' => 'anonymous@example.com',
                         'name'  => 'Anonymous User',
                     ]);

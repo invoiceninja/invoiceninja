@@ -14,6 +14,8 @@ namespace Tests\Feature;
 
 use App\Factory\CompanyUserFactory;
 use App\Models\Client;
+use App\Models\Company;
+use App\Models\CompanyToken;
 use App\Models\Location;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
@@ -21,6 +23,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\MockUnitData;
 use Tests\TestCase;
 
@@ -142,6 +145,141 @@ class RefreshNPlusOneTest extends TestCase
         foreach ($clients as $client) {
             $this->assertCount(1, data_get($responseClients->get($client->hashed_id), 'locations', []));
         }
+    }
+
+    #[DataProvider('refreshEndpointProvider')]
+    public function testRefreshCreatesASystemTokenForEveryCompanyAndUserPair(string $endpoint): void
+    {
+        $secondCompany = Company::factory()->create([
+            'account_id' => $this->account->id,
+        ]);
+
+        CompanyUserFactory::create(
+            $this->user->id,
+            $secondCompany->id,
+            $this->account->id,
+        )->save();
+
+        $otherUser = User::factory()->create([
+            'account_id' => $this->account->id,
+            'email' => Str::uuid() . '@example.test',
+        ]);
+
+        CompanyUserFactory::create(
+            $otherUser->id,
+            $secondCompany->id,
+            $this->account->id,
+        )->save();
+
+        $otherUserToken = new CompanyToken();
+        $otherUserToken->user_id = $otherUser->id;
+        $otherUserToken->company_id = $secondCompany->id;
+        $otherUserToken->account_id = $this->account->id;
+        $otherUserToken->name = 'Other user system token';
+        $otherUserToken->token = Str::random(64);
+        $otherUserToken->is_system = true;
+        $otherUserToken->save();
+
+        $this->assertFalse(
+            CompanyToken::query()
+                ->where('company_id', $secondCompany->id)
+                ->where('user_id', $this->user->id)
+                ->where('is_system', true)
+                ->exists()
+        );
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/{$endpoint}?current_company=true&first_load=true&updated_at=0");
+
+        $response->assertOk();
+
+        $this->assertTrue(
+            CompanyToken::query()
+                ->where('company_id', $secondCompany->id)
+                ->where('user_id', $this->user->id)
+                ->where('is_system', true)
+                ->exists(),
+            'Refresh did not create the system token needed by this user for the second company.'
+        );
+    }
+
+    #[DataProvider('refreshEndpointProvider')]
+    public function testRefreshDoesNotCreateASystemTokenForAnUnattachedCompany(string $endpoint): void
+    {
+        $unattachedCompany = Company::factory()->create([
+            'account_id' => $this->account->id,
+        ]);
+
+        $this->assertFalse(
+            $this->user->company_users()
+                ->where('company_id', $unattachedCompany->id)
+                ->exists()
+        );
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/{$endpoint}?current_company=true&first_load=true&updated_at=0");
+
+        $response->assertOk();
+
+        $this->assertFalse(
+            CompanyToken::query()
+                ->where('company_id', $unattachedCompany->id)
+                ->where('user_id', $this->user->id)
+                ->where('is_system', true)
+                ->exists(),
+            'Refresh created a system token for a company the user cannot access.'
+        );
+    }
+
+    public function testRefreshExcludesSystemTokensFromTheCompanyTokenCollection(): void
+    {
+        $customToken = new CompanyToken();
+        $customToken->user_id = $this->user->id;
+        $customToken->company_id = $this->company->id;
+        $customToken->account_id = $this->account->id;
+        $customToken->name = 'Custom API token';
+        $customToken->token = Str::random(64);
+        $customToken->is_system = false;
+        $customToken->save();
+
+        $systemToken = CompanyToken::query()
+            ->where('token', $this->token)
+            ->firstOrFail();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/refresh?current_company=true&first_load=true&updated_at=0');
+
+        $response->assertOk()
+            ->assertJsonPath('data.0.token.token', $systemToken->token);
+
+        $companyTokens = collect($response->json('data.0.company.tokens_hashed'))->keyBy('id');
+
+        $this->assertTrue($companyTokens->has($customToken->hashed_id));
+        $this->assertSame(
+            substr($customToken->token, 0, 10) . 'xxxxxxxxxxx',
+            $companyTokens->get($customToken->hashed_id)['token']
+        );
+        $this->assertFalse(
+            $companyTokens->has($systemToken->hashed_id),
+            'Refresh exposed a system token in the company token collection.'
+        );
+    }
+
+    /**
+     * @return array<string, array{0: string}>
+     */
+    public static function refreshEndpointProvider(): array
+    {
+        return [
+            'standard refresh' => ['refresh'],
+            'React refresh' => ['refresh_react'],
+        ];
     }
 
     /**

@@ -320,6 +320,36 @@ class ReportPreviewTest extends TestCase
 
     }
 
+    public function testAllTimeInvoiceExportDoesNotApplyADateFilter(): void
+    {
+        \App\Models\Invoice::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'number' => 'ALL-TIME-INVOICE',
+            'date' => '1999-01-01',
+            'due_date' => '1999-01-31',
+        ]);
+
+        $data = [
+            'send_email' => false,
+            'date_range' => 'all_time',
+            'report_keys' => ['invoice.number'],
+            'include_deleted' => false,
+            'user_id' => $this->user->id,
+        ];
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/reports/invoices?output=json', $data)
+            ->assertStatus(200);
+
+        $csv = (new InvoiceExport($this->company, $data))->run();
+
+        $this->assertStringContainsString('ALL-TIME-INVOICE', $csv);
+    }
+
     public function testInvoiceJsonPreviewReturnsAllRows(): void
     {
         $invoice_count = 5;

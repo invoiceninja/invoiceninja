@@ -212,10 +212,7 @@ class CrossCompanyAccessTest extends TestCase
 
     public function testCrossCompanyShowTokenDenied(): void
     {
-        // Use the existing token from Company A
-        $token = CompanyToken::where('company_id', $this->company->id)->first();
-
-        $this->assertNotNull($token);
+        $token = $this->createCustomToken();
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -383,9 +380,7 @@ class CrossCompanyAccessTest extends TestCase
 
     public function testSameCompanyShowTokenAllowed(): void
     {
-        $token = CompanyToken::where('company_id', $this->company->id)->first();
-
-        $this->assertNotNull($token);
+        $token = $this->createCustomToken();
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -393,6 +388,7 @@ class CrossCompanyAccessTest extends TestCase
         ])->get('/api/v1/tokens/' . $this->encodePrimaryKey($token->id));
 
         $response->assertStatus(200);
+        $response->assertJsonPath('data.token', $token->token);
         $this->test_account->delete();
 
     }
@@ -461,8 +457,7 @@ class CrossCompanyAccessTest extends TestCase
     {
         $this->withoutMiddleware(PasswordProtection::class);
 
-        $token = CompanyToken::where('company_id', $this->company->id)->first();
-        $this->assertNotNull($token);
+        $token = $this->createCustomToken();
 
         $data = [
             'ids' => [$this->encodePrimaryKey($token->id)],
@@ -726,7 +721,7 @@ class CrossCompanyAccessTest extends TestCase
     {
         $this->withoutMiddleware(PasswordProtection::class);
 
-        $token = CompanyToken::where('company_id', $this->company->id)->first();
+        $token = $this->createCustomToken();
 
         $data = [
             'ids' => [$this->encodePrimaryKey($token->id)],
@@ -1030,5 +1025,19 @@ class CrossCompanyAccessTest extends TestCase
         $this->assertNotNull($arr['data'][0]['archived_at']);
         $this->test_account->delete();
 
+    }
+
+    private function createCustomToken(): CompanyToken
+    {
+        $token = new CompanyToken();
+        $token->user_id = $this->user->id;
+        $token->company_id = $this->company->id;
+        $token->account_id = $this->account->id;
+        $token->name = 'custom token';
+        $token->token = \Illuminate\Support\Str::random(64);
+        $token->is_system = false;
+        $token->save();
+
+        return $token;
     }
 }

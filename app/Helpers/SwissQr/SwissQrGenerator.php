@@ -139,9 +139,11 @@ class SwissQrGenerator
             $invoice_number = $calcInvoiceNumber;
         }
 
-        if (strlen($this->company->present()->besr_id()) > 1) {
+        // if (strlen($this->company->present()->besr_id()) > 1) {
+        if($this->isQrIban($this->company->present()->qr_iban())) {
             $referenceNumber = QrBill\Reference\QrPaymentReferenceGenerator::generate(
-                $this->company->present()->besr_id() ?: '',  // You receive this number from your bank (BESR-ID). Unless your bank is PostFinance, in that case use NULL.
+                null, // BESR-ID
+                // $this->company->present()->besr_id() ?: '',  // You receive this number from your bank (BESR-ID). Unless your bank is PostFinance, in that case use NULL.
                 $invoice_number// A number to match the payment with your internal data, e.g. an invoice number
             );
 
@@ -191,6 +193,19 @@ class SwissQrGenerator
             return '';
             // return $e->getMessage();
         }
+    }
+
+    private function isQrIban(string $iban): bool
+    {
+        $iban = strtoupper(preg_replace('/\s+/', '', $iban));
+    
+        if (!in_array(substr($iban, 0, 2), ['CH', 'LI'], true)) {
+            return false;
+        }
+    
+        $iid = (int) substr($iban, 4, 5);
+    
+        return $iid >= 30000 && $iid <= 31999;
     }
 
     private function resolveLanguage(): string

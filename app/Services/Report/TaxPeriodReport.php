@@ -485,6 +485,35 @@ class TaxPeriodReport extends BaseExport
      */
     private function calculateDateRange(): self
     {
+        if ($this->input['date_range'] === 'all_time') {
+            $today = now()->format('Y-m-d');
+            $dates = array_values(array_filter([
+                Invoice::query()
+                    ->withTrashed()
+                    ->where('company_id', $this->company->id)
+                    ->whereIn('status_id', [
+                        Invoice::STATUS_SENT,
+                        Invoice::STATUS_PARTIAL,
+                        Invoice::STATUS_PAID,
+                        Invoice::STATUS_CANCELLED,
+                        Invoice::STATUS_REVERSED,
+                    ])
+                    ->where('date', '!=', '0000-00-00')
+                    ->where('date', '<=', $today)
+                    ->min('date'),
+                TransactionEvent::query()
+                    ->where('company_id', $this->company->id)
+                    ->whereIn('event_id', TransactionEvent::TAX_REPORTING_EVENTS)
+                    ->where('period', '!=', '0000-00-00')
+                    ->where('period', '<=', $today)
+                    ->min('period'),
+            ]));
+
+            $this->start_date = $dates === [] ? '2000-01-01' : min($dates);
+            $this->end_date = $today;
+
+            return $this;
+        }
 
         switch ($this->input['date_range']) {
             case 'last7':

@@ -17,6 +17,7 @@ use Illuminate\Support\Str;
 
 enum DatabaseEntity: string
 {
+    case Users = 'users';
     case Company = 'company';
     case TaxRates = 'tax_rates';
     case Clients = 'clients';
@@ -39,6 +40,7 @@ enum DatabaseEntity: string
     public static function importOrder(): array
     {
         return [
+            self::Users,
             self::Company,
             self::TaxRates,
             self::Clients,
@@ -106,6 +108,7 @@ enum DatabaseEntity: string
     public function requiredTables(): array
     {
         return match ($this) {
+            self::Users => ['users'],
             self::Company => ['business_identities'],
             self::TaxRates => ['taxes'],
             self::Clients => ['clients', 'currencies', 'invoices'],
@@ -126,6 +129,7 @@ enum DatabaseEntity: string
     private static function fromAlias(string $value): ?self
     {
         return match ($value) {
+            'user', 'staff', 'staff_users', 'team', 'team_members' => self::Users,
             'tax', 'taxes', 'tax_rate' => self::TaxRates,
             'client' => self::Clients,
             'product', 'item', 'items' => self::Products,

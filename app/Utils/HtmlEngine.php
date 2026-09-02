@@ -728,6 +728,8 @@ class HtmlEngine
         $data['$product.product4'] = ['value' => '', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'product4')];
 
         $data['$task.date'] = ['value' => '', 'label' => ctrans('texts.date')];
+        $data['$task.due_date'] = ['value' => '', 'label' => ctrans('texts.due_date')];
+        $data['$task.estimated_duration'] = ['value' => '', 'label' => ctrans('texts.estimated_duration')];
         $data['$task.discount'] = ['value' => '', 'label' => ctrans('texts.discount')];
         $data['$task.service'] = ['value' => '', 'label' => ctrans('texts.service')];
         $data['$task.tags'] = ['value' => '', 'label' => ctrans('texts.tags')];

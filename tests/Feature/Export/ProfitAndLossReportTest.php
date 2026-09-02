@@ -125,6 +125,102 @@ class ProfitAndLossReportTest extends TestCase
         $this->account->delete();
     }
 
+    public function testAllTimeIncludesRecordsBeforeTheFallbackDate(): void
+    {
+        $this->buildData();
+        $this->payload['date_range'] = 'all_time';
+
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'is_deleted' => false,
+        ]);
+
+        Invoice::factory()->create([
+            'client_id' => $client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 100,
+            'balance' => 100,
+            'status_id' => Invoice::STATUS_SENT,
+            'total_taxes' => 0,
+            'date' => '1999-01-02',
+            'exchange_rate' => 1,
+        ]);
+
+        Expense::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 25,
+            'date' => '1998-01-01',
+            'uses_inclusive_taxes' => true,
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'exchange_rate' => 1,
+        ]);
+
+        $report = new ProfitLoss($this->company, $this->payload);
+        $report->build();
+
+        $this->assertEquals(100, $report->getIncome());
+        $this->assertEquals(25, array_sum(array_column($report->getExpenseBreakDown(), 'total')));
+    }
+
+    public function testAllTimeCashAccountingStartsAtTheFirstPaymentApplication(): void
+    {
+        $this->buildData();
+        $this->payload['date_range'] = 'all_time';
+        $this->payload['is_income_billed'] = false;
+
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'is_deleted' => false,
+        ]);
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 100;
+        $item->tax_name1 = '';
+        $item->tax_rate1 = 0;
+        $item->tax_name2 = '';
+        $item->tax_rate2 = 0;
+        $item->tax_name3 = '';
+        $item->tax_rate3 = 0;
+
+        $invoice = Invoice::factory()->create([
+            'client_id' => $client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 0,
+            'balance' => 0,
+            'status_id' => Invoice::STATUS_SENT,
+            'total_taxes' => 0,
+            'date' => '1999-01-01',
+            'discount' => 0,
+            'uses_inclusive_taxes' => false,
+            'exchange_rate' => 1,
+            'line_items' => [$item],
+        ]);
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->service()->markPaid()->save();
+
+        $paymentable = Paymentable::query()
+            ->where('paymentable_type', 'invoices')
+            ->where('paymentable_id', $invoice->id)
+            ->firstOrFail();
+        $paymentable->created_at = app(PaymentApplicationDateResolver::class)->encodeBusinessDate(
+            '1999-01-02',
+            $this->company->timezone()?->name ?: config('app.timezone'),
+        );
+        $paymentable->save();
+
+        $report = new ProfitLoss($this->company, $this->payload);
+        $report->build();
+
+        $this->assertEquals(100, $report->getIncome());
+    }
+
     public function testExpenseResolution()
     {
         $this->buildData();

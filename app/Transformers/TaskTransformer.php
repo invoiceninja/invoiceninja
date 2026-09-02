@@ -147,6 +147,8 @@ class TaskTransformer extends EntityTransformer
             'is_date_based' => (bool) $task->is_date_based,
             'status_order' => is_null($task->status_order) ? null : (int) $task->status_order,
             'date' => $task->calculated_start_date ?: '',
+            'due_date' => $task->due_date ?: '',
+            'estimated_duration' => is_null($task->estimated_duration) ? null : (int) $task->estimated_duration,
             'meta' => $task->meta ?: '',
             'tags' => $this->transformTags($task),
         ];

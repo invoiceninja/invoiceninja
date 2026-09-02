@@ -39,7 +39,11 @@ class ChartController extends BaseController
 
         $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
 
-        return response()->json($cs->totals($request->input('start_date'), $request->input('end_date')), 200);
+        return response()->json($cs->totals(
+            $request->input('start_date'),
+            $request->input('end_date'),
+            $request->input('date_range') === 'all_time',
+        ), 200);
     }
 
     public function chart_summary(ShowChartRequest $request)
@@ -51,7 +55,11 @@ class ChartController extends BaseController
 
         $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
 
-        return response()->json($cs->chart_summary($request->input('start_date'), $request->input('end_date')), 200);
+        return response()->json($cs->chart_summary(
+            $request->input('start_date'),
+            $request->input('end_date'),
+            $request->input('date_range') === 'all_time',
+        ), 200);
     }
 
     /**
@@ -65,7 +73,11 @@ class ChartController extends BaseController
 
         $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions, $request->input('include_drafts', false));
 
-        return response()->json($cs->totals($request->input('start_date'), $request->input('end_date')), 200);
+        return response()->json($cs->totals(
+            $request->input('start_date'),
+            $request->input('end_date'),
+            $request->input('date_range') === 'all_time',
+        ), 200);
     }
 
     public function chart_summaryV2(ShowChartRequest $request)
@@ -77,7 +89,11 @@ class ChartController extends BaseController
 
         $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
 
-        return response()->json($cs->chart_summary($request->input('start_date'), $request->input('end_date')), 200);
+        return response()->json($cs->chart_summary(
+            $request->input('start_date'),
+            $request->input('end_date'),
+            $request->input('date_range') === 'all_time',
+        ), 200);
     }
 
     public function analytics_summary(ShowChartRequest $request)
@@ -88,11 +104,12 @@ class ChartController extends BaseController
 
         $start = $request->input('start_date');
         $end = $request->input('end_date');
-        $cacheKey = "analytics_summary:{$user->company()->id}:{$user->id}:{$start}:{$end}";
+        $all_time = $request->input('date_range') === 'all_time';
+        $cacheKey = "analytics_summary:{$user->company()->id}:{$user->id}:{$start}:{$end}:" . (int) $all_time;
 
-        $data = Cache::remember($cacheKey, (int)0, function () use ($user, $admin_equivalent_permissions, $start, $end) {
+        $data = Cache::remember($cacheKey, (int)0, function () use ($user, $admin_equivalent_permissions, $start, $end, $all_time) {
             $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
-            return $cs->analytics_summary($start, $end);
+            return $cs->analytics_summary($start, $end, $all_time);
         });
 
         return response()->json($data, 200);
@@ -106,11 +123,12 @@ class ChartController extends BaseController
 
         $start = $request->input('start_date');
         $end = $request->input('end_date');
-        $cacheKey = "analytics_totals:{$user->company()->id}:{$user->id}:{$start}:{$end}";
+        $all_time = $request->input('date_range') === 'all_time';
+        $cacheKey = "analytics_totals:{$user->company()->id}:{$user->id}:{$start}:{$end}:" . (int) $all_time;
 
-        $data = Cache::remember($cacheKey, (int)0, function () use ($user, $admin_equivalent_permissions, $start, $end) {
+        $data = Cache::remember($cacheKey, (int)0, function () use ($user, $admin_equivalent_permissions, $start, $end, $all_time) {
             $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
-            return $cs->analytics_totals($start, $end);
+            return $cs->analytics_totals($start, $end, $all_time);
         });
 
         return response()->json($data, 200);
@@ -125,11 +143,12 @@ class ChartController extends BaseController
         $start = $request->input('start_date');
         $end = $request->input('end_date');
         $bucket = $request->input('bucket_type', 'monthly');
-        $cacheKey = "cashflow_forecast:{$user->company()->id}:{$user->id}:{$start}:{$end}:{$bucket}";
+        $all_time = $request->input('date_range') === 'all_time';
+        $cacheKey = "cashflow_forecast:{$user->company()->id}:{$user->id}:{$start}:{$end}:{$bucket}:" . (int) $all_time;
 
-        $data = Cache::remember($cacheKey, (int)0, function () use ($user, $admin_equivalent_permissions, $start, $end, $bucket) {
+        $data = Cache::remember($cacheKey, (int)0, function () use ($user, $admin_equivalent_permissions, $start, $end, $bucket, $all_time) {
             $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
-            return $cs->cashflow_forecast($start, $end, $bucket);
+            return $cs->cashflow_forecast($start, $end, $bucket, $all_time);
         });
 
         return response()->json($data, 200);

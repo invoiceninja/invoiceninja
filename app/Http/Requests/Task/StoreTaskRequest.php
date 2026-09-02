@@ -59,6 +59,8 @@ class StoreTaskRequest extends Request
         }
 
         $rules['hash'] = 'bail|sometimes|string|nullable';
+        $rules['due_date'] = 'bail|sometimes|nullable|date:Y-m-d';
+        $rules['estimated_duration'] = 'bail|sometimes|nullable|integer|min:0';
 
         $rules['time_log'] = ['bail', function ($attribute, $values, $fail) {
 
@@ -110,7 +112,7 @@ class StoreTaskRequest extends Request
             }
 
             if (!$this->checkTimeLog($values)) {
-                return $fail('Please correct overlapping values');
+                return $fail($this->timeLogValidationError ?? 'Please correct overlapping values');
             }
         }];
 

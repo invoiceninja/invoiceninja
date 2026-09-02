@@ -13,14 +13,18 @@
 namespace Tests\Feature;
 
 use App\DataMapper\ClientSettings;
+use App\Export\CSV\TaskExport;
 use App\Models\Client;
 use App\Models\Project;
 use App\Models\Task;
 use App\Utils\Traits\MakesHash;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
+use League\Csv\Reader;
+use League\Csv\ResultSet;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -257,6 +261,68 @@ class TaskApiTest extends TestCase
 
         $response->assertStatus(200);
 
+    }
+
+    public function testPutRejectsOverlapAfterFirstTimeLogPair(): void
+    {
+        $task = Task::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'description' => 'Test Task',
+        ]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/tasks/{$task->hashed_id}", [
+            'time_log' => json_encode([
+                [1788063491, 1788067112, '', true],
+                [1788085440, 1788086580, '123', true],
+                [1788086022, 1788137343, 'Overlapping entry', true],
+                [1788146524, 1788146609, '', true],
+            ]),
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['time_log']);
+
+        $timezone = $this->company->timezone()?->name ?: config('app.timezone', 'UTC');
+        $dateFormat = $this->company->date_format();
+        $timeFormat = $this->company->getSetting('military_time') ? 'H:i:s' : 'h:i:s A';
+        $dateTimeFormat = "{$dateFormat} {$timeFormat}";
+        $locale = $this->company->locale();
+
+        $response->assertJsonPath(
+            'errors.time_log.0',
+            sprintf(
+                'Overlap detected: %s - %s.',
+                Carbon::createFromTimestampUTC(1788086022)->setTimezone($timezone)->locale($locale)->translatedFormat($dateTimeFormat),
+                Carbon::createFromTimestampUTC(1788086580)->setTimezone($timezone)->locale($locale)->translatedFormat($dateTimeFormat)
+            )
+        );
+    }
+
+    public function testPutAllowsFinalRunningTimeLogEntry(): void
+    {
+        $task = Task::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'description' => 'Test Task',
+        ]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/tasks/{$task->hashed_id}", [
+            'time_log' => [
+                [1788063491, 1788067112, '', true],
+                [1788085440, 0, 'Running entry', true],
+            ],
+        ]);
+
+        $response->assertStatus(200);
     }
 
     public function testTaskLogGenerationforInvoices()
@@ -1549,5 +1615,233 @@ class TaskApiTest extends TestCase
         $this->assertContains($matched->hashed_id, $ids);
         $this->assertNotContains($invoiced->hashed_id, $ids);
         $this->assertNotContains($unmatched->hashed_id, $ids);
+    }
+
+    public function testTaskDueDateAndEstimatedDurationPersistence()
+    {
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'description' => 'Task with due date and estimated duration',
+            'due_date' => '2026-09-15',
+            'estimated_duration' => 3600,
+            'time_log' => json_encode([]),
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/tasks', $data);
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('data.due_date', '2026-09-15');
+        $response->assertJsonPath('data.estimated_duration', 3600);
+
+        $task = Task::query()->find($this->decodePrimaryKey($response->json('data.id')));
+        $this->assertSame('2026-09-15', $task->due_date);
+        $this->assertSame(3600, $task->estimated_duration);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/tasks/' . $task->hashed_id, [
+            'due_date' => '2026-10-01',
+            'estimated_duration' => 7200,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('data.due_date', '2026-10-01');
+        $response->assertJsonPath('data.estimated_duration', 7200);
+
+        $task->refresh();
+        $this->assertSame('2026-10-01', $task->due_date);
+        $this->assertSame(7200, $task->estimated_duration);
+    }
+
+    public function testTaskDueDateAndEstimatedDurationValidation()
+    {
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'description' => 'Task with invalid fields',
+            'due_date' => 'not-a-date',
+            'estimated_duration' => -1,
+            'time_log' => json_encode([]),
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/tasks', $data);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['due_date', 'estimated_duration']);
+    }
+
+    public function testTaskDueDateAndEstimatedDurationTemplatePayload()
+    {
+        $task = Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'due_date' => '2026-09-15',
+            'estimated_duration' => 3600,
+        ]);
+
+        $payload = (new \App\Services\Template\TemplateService())
+            ->setCompany($this->company)
+            ->processTasks([$task->fresh()])[0];
+
+        $this->assertNotSame('', $payload['due_date']);
+        $this->assertSame(3600, $payload['estimated_duration']);
+    }
+
+    public function testUpdateTaskWithInvalidDueDateAndEstimatedDurationReturns422()
+    {
+        $task = Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+        ]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/tasks/' . $task->hashed_id, [
+            'due_date' => 'not-a-date',
+            'estimated_duration' => -1,
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['due_date', 'estimated_duration']);
+    }
+
+    public function testTaskDueDateAndEstimatedDurationCanBeCleared(): void
+    {
+        $task = Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'due_date' => '2026-09-15',
+            'estimated_duration' => 3600,
+        ]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/tasks/' . $task->hashed_id, [
+            'due_date' => null,
+            'estimated_duration' => null,
+        ]);
+
+        $response->assertOk();
+        $response->assertJsonPath('data.due_date', '');
+        $response->assertJsonPath('data.estimated_duration', null);
+
+        $task->refresh();
+        $this->assertNull($task->due_date);
+        $this->assertNull($task->estimated_duration);
+    }
+
+    public function testZeroEstimatedDurationIsPreservedAndIsNotConvertedToNull(): void
+    {
+        $task = Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'estimated_duration' => null,
+        ]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/tasks/' . $task->hashed_id, [
+            'estimated_duration' => 0,
+        ]);
+
+        $response->assertOk();
+        $response->assertJsonPath('data.estimated_duration', 0);
+
+        $task->refresh();
+        $this->assertSame(0, $task->estimated_duration);
+    }
+
+    public function testFractionalEstimatedDurationIsRejected(): void
+    {
+        $task = Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'estimated_duration' => 3600,
+        ]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/tasks/' . $task->hashed_id, [
+            'estimated_duration' => 1.5,
+        ]);
+
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['estimated_duration']);
+
+        $task->refresh();
+        $this->assertSame(3600, $task->estimated_duration);
+    }
+
+    public function testTaskDueDateAndEstimatedDurationExport()
+    {
+        Task::query()
+            ->where('company_id', $this->company->id)
+            ->forceDelete();
+
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'description' => 'Export task',
+            'due_date' => '2026-09-15',
+            'estimated_duration' => 7200,
+            'time_log' => json_encode([]),
+        ]);
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => [
+                'task.due_date',
+                'task.estimated_duration',
+                'task.description',
+            ],
+            'send_email' => false,
+            'include_deleted' => false,
+            'user_id' => $this->user->id,
+        ];
+
+        $export = new TaskExport($this->company, $data);
+        $csv = $export->run();
+
+        $this->assertSame('15/Sep/2026', $this->getFirstCsvValueByColumn($csv, 'Task Due Date'));
+        $this->assertEquals(7200, $this->getFirstCsvValueByColumn($csv, 'Task Estimated Duration'));
+        $this->assertSame('Export task', $this->getFirstCsvValueByColumn($csv, 'Task Description'));
+
+        $json = (new TaskExport($this->company, $data))->returnJson();
+
+        $this->assertSame('task.due_date', $this->traverseExportJson($json, '0.0.identifier'));
+        $this->assertSame('15/Sep/2026', $this->traverseExportJson($json, '0.0.display_value'));
+        $this->assertSame('task.estimated_duration', $this->traverseExportJson($json, '0.1.identifier'));
+        $this->assertSame(7200, $this->traverseExportJson($json, '0.1.display_value'));
+    }
+
+    private function getFirstCsvValueByColumn(string $csv, string $column): mixed
+    {
+        $reader = Reader::fromString($csv);
+        $reader->setHeaderOffset(0);
+
+        $values = iterator_to_array(ResultSet::from($reader)->fetchColumn($column), true);
+
+        return $values[1];
+    }
+
+    private function traverseExportJson(array $array, string $keys): mixed
+    {
+        return data_get($array, $keys, false);
     }
 }
