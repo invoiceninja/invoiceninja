@@ -196,21 +196,27 @@ class CreditCard implements LivewireMethodInterface
             }
         }
 
+        $payment_payload =                 [
+            'action' => 'sale',
+            'authorization_amount' => $amount_with_fee,
+            'billing_address' => [
+                'first_name' => $this->forte->client->present()->first_name(),
+                'last_name' => $this->forte->client->present()->last_name(),
+            ],
+            'card' => [
+                'one_time_token' => $request->payment_token,
+            ],
+        ];
+
+
+        if ($fee_total > 0) {
+            $payment_payload['service_fee_amount'] = $fee_total;
+        }
+
         try {
             $response = $this->forte->transactionRequest()->post(
                 "{$this->forte_base_uri}organizations/{$this->forte_organization_id}/locations/{$this->forte_location_id}/transactions",
-                [
-                    'action' => 'sale',
-                    'authorization_amount' => $amount_with_fee,
-                    'service_fee_amount' => $fee_total,
-                    'billing_address' => [
-                        'first_name' => $this->forte->client->present()->first_name(),
-                        'last_name' => $this->forte->client->present()->last_name(),
-                    ],
-                    'card' => [
-                        'one_time_token' => $request->payment_token,
-                    ],
-                ]
+                $payment_payload
             );
 
             $httpcode = $response->status();
