@@ -32,7 +32,9 @@ class UpdatePaymentTermRequest extends Request
     public function rules()
     {
         return [
-            'num_days' => 'required',
+            'num_days' => ['required', 'integer', 'min:-1'],
+            'cash_discount_days' => ['sometimes', 'nullable', 'integer', 'min:0', 'lt:num_days'],
+            'cash_discount_percent' => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:100'],
         ];
     }
 

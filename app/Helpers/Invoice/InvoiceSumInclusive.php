@@ -363,9 +363,25 @@ class InvoiceSumInclusive
         return $this->total_taxes;
     }
 
+    public function getEffectiveTotalTaxes(): float
+    {
+        return (float) $this->getEffectiveTaxMap()
+            ->merge(collect($this->getEffectiveTotalTaxMap()))
+            ->sum('total');
+    }
+
     public function getTotalTaxMap()
     {
         return $this->total_tax_map;
+    }
+
+    public function getEffectiveTotalTaxMap(): array
+    {
+        $ratio = $this->getCashDiscountRatio();
+
+        return collect($this->getTotalTaxMap())
+            ->map(fn (array $tax): array => $this->prorateTaxEntry($tax, $ratio, $this->precision))
+            ->all();
     }
 
     public function getTotal()
@@ -424,9 +440,37 @@ class InvoiceSumInclusive
         return $this->tax_map;
     }
 
+    public function getEffectiveTaxMap(): Collection
+    {
+        $ratio = $this->getCashDiscountRatio();
+
+        return $this->getTaxMap()
+            ->map(fn (array $tax): array => $this->prorateTaxEntry($tax, $ratio, $this->precision));
+    }
+
     public function getBalance()
     {
         return $this->invoice->balance;
+    }
+
+    public function getBalanceWithCashDiscount(): float
+    {
+        $balance = (float) $this->getBalance();
+
+        if (! $this->invoice instanceof Invoice || $balance == 0.0) {
+            return $balance;
+        }
+
+        $applicable_discount = min(
+            abs((float) $this->invoice->cash_discount),
+            abs($balance)
+        );
+
+        $signed_discount = $balance < 0
+            ? -$applicable_discount
+            : $applicable_discount;
+
+        return round($balance - $signed_discount, $this->precision);
     }
 
     public function getItemTotalTaxes()
@@ -437,6 +481,19 @@ class InvoiceSumInclusive
     public function getNetSubtotal()
     {
         return $this->getSubTotal() - $this->getTotalDiscount();
+    }
+
+    public function getEffectiveNetSubtotal(): float
+    {
+        return round($this->getNetSubtotal() * $this->getCashDiscountRatio(), $this->precision);
+    }
+
+    public function getCashDiscountRatio(): float
+    {
+        return $this->reductionRatio(
+            (float) $this->invoice->amount,
+            (float) $this->invoice->applied_cash_discount
+        );
     }
 
     public function purgeTaxes()

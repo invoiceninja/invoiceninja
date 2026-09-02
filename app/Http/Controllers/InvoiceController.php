@@ -690,6 +690,7 @@ class InvoiceController extends BaseController
      *        - history
      *        - delivery_note
      *        - mark_paid
+     *        - mark_paid_with_cash_discount
      *        - download
      *        - archive
      *        - delete
@@ -780,11 +781,12 @@ class InvoiceController extends BaseController
                 // code...
                 break;
             case 'mark_paid':
+            case 'mark_paid_with_cash_discount':
                 if ($invoice->status_id == Invoice::STATUS_PAID || $invoice->is_deleted === true) {
                     return $this->errorResponse(['message' => ctrans('texts.invoice_cannot_be_marked_paid')], 400);
                 }
 
-                $invoice = $invoice->service()->markPaid()->save();
+                $invoice = $invoice->service()->markPaid(apply_cash_discount: $action === 'mark_paid_with_cash_discount')->save();
 
                 if (! $bulk) {
                     return $this->itemResponse($invoice);

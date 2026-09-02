@@ -514,6 +514,41 @@ class HtmlEngine
 
         $data['$user_iban'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company1', $this->settings->custom_value1, $this->client) ?: ' ', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company1')];
 
+        if ($this->entity_string === 'invoice') {
+            $data['$invoice.cash_discount'] = ['value' => Number::formatMoney($this->entity->cash_discount, $this->client) ?: ' ', 'label' => ctrans('texts.cash_discount') . ' ' . (float) $this->entity->cash_discount_percent . '%'];
+            $data['$cash_discount'] = &$data['$invoice.cash_discount'];
+
+            $data['$balance_with_cash_discount'] = [
+                'value' => Number::formatMoney(
+                    $this->entity_calc->getBalanceWithCashDiscount(),
+                    $this->client
+                ) ?: ' ',
+                'label' => ctrans('texts.balance_with_cash_discount') . ' ' . (float) $this->entity->cash_discount_percent . '%',
+            ];
+        }
+
+        $cashDiscountNote = '';
+
+        if (
+            $this->entity_string === 'invoice'
+            && $this->entity->cash_discount != 0
+        ) {
+            $cashDiscountNote = ctrans('texts.cash_discount_invoice_note', [
+                'percent' => (float) $this->entity->cash_discount_percent,
+                'discount' => Number::formatMoney($this->entity->cash_discount, $this->client),
+                'date' => $this->translateDate(
+                    $this->entity->cash_discount_due_date,
+                    $this->client->date_format(),
+                    $this->client->locale()
+                ),
+                'amount_due' => Number::formatMoney(
+                    $this->entity_calc->getBalanceWithCashDiscount(),
+                    $this->client
+                ),
+            ]);
+        }
+
+        $data['$cash_discount_note'] = ['value' => $cashDiscountNote, 'label' => ''];
         $data['$invoice.public_notes'] = ['value' => Helpers::processReservedKeywords(\nl2br($this->entity->public_notes ?? ''), $this->client) ?: '', 'label' => ctrans('texts.public_notes')];
         $data['$entity.public_notes'] = &$data['$invoice.public_notes'];
         $data['$public_notes'] = &$data['$invoice.public_notes'];

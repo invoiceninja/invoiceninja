@@ -54,6 +54,7 @@ class StorePaymentRequest extends Request
             'client_id' => ['bail','required', Rule::exists('clients', 'id')->where('company_id', $user->company()->id)->where('is_deleted', 0)],
             'invoices' => ['bail', 'sometimes', 'nullable', 'array', new ValidPayableInvoicesRule()],
             'invoices.*.amount' => ['bail','required','numeric'],
+            'invoices.*.cash_discount' => ['bail', 'sometimes', 'nullable', 'numeric'],
             'invoices.*.invoice_id' => ['bail','required','distinct', Rule::exists('invoices', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)->where('is_deleted', 0)],
             'credits.*.credit_id' => ['bail','required','distinct', new ValidCreditsRules($this->all()),Rule::exists('credits', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)->where('is_deleted', 0)],
             'credits.*.amount' => ['bail','required','numeric', new CreditsSumRule($this->all())],
@@ -77,7 +78,7 @@ class StorePaymentRequest extends Request
         if ($validator->errors()->isNotEmpty()) {
             return;
         }
-        
+
         $validator->after(function ($validator) {
             $invoices = $this->input('invoices') ?? [];
             $clientId = $this->input('client_id');
@@ -111,14 +112,23 @@ class StorePaymentRequest extends Request
                     continue;
                 }
 
+                $cash_discount = $invoice['cash_discount'] ?? 0;
+                $settlement_amount = BcMath::add($invoice['amount'], $cash_discount);
+
+                if (BcMath::greaterThan($invoice['amount'], 0) && BcMath::lessThan($cash_discount, 0)) {
+                    $validator->errors()->add("invoices.{$index}.cash_discount", 'Cash discount must have the same sign as the payment amount');
+                } elseif (BcMath::lessThan($invoice['amount'], 0) && BcMath::greaterThan($cash_discount, 0)) {
+                    $validator->errors()->add("invoices.{$index}.cash_discount", 'Cash discount must have the same sign as the payment amount');
+                }
+
                 // Check amount validation
-                if ($inv->status_id == Invoice::STATUS_DRAFT && $invoice['amount'] <= $inv->amount) {
+                if ($inv->status_id == Invoice::STATUS_DRAFT && BcMath::lessThanOrEqual($settlement_amount, $inv->amount)) {
                     //catch here nothing to do - we need this to prevent the last elseif triggering
                 } elseif ($invoice['amount'] <= 0 && $inv->amount > 0) {
                     $validator->errors()->add("invoices.{$index}.amount", 'Amount cannot be less than or equal to zero');
-                } elseif ($inv->status_id == Invoice::STATUS_DRAFT && BcMath::greaterThan($invoice['amount'], $inv->amount)) {
+                } elseif ($inv->status_id == Invoice::STATUS_DRAFT && BcMath::greaterThan($settlement_amount, $inv->amount)) {
                     $validator->errors()->add("invoices.{$index}.amount", 'Amount cannot be greater than invoice balance');
-                } elseif (BcMath::greaterThan($invoice['amount'], $inv->balance)) {
+                } elseif (BcMath::greaterThan($settlement_amount, $inv->balance)) {
                     $validator->errors()->add("invoices.{$index}.amount", ctrans('texts.amount_greater_than_balance_v5'));
                 } elseif ($inv->is_deleted) {
                     $validator->errors()->add("invoices.{$index}", 'One or more invoices in this request have since been deleted');

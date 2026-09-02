@@ -494,7 +494,7 @@ class InvoiceTest extends TestCase
             'settings' => $c_settings,
         ]);
 
-       
+
         $this->assertEquals(0, $c->balance);
 
         $item = InvoiceItemFactory::create();
@@ -1161,5 +1161,40 @@ class InvoiceTest extends TestCase
         $this->assertEquals(0.02, $tax_map[0]['total']);
         $this->assertEquals(21, $tax_map[0]['tax_rate']);
         $this->assertEquals(0.10, $tax_map[0]['base_amount']);
+    }
+
+    public function testCashDiscountEffectiveAmounts(): void
+    {
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 100;
+        $item->tax_name1 = 'GST';
+        $item->tax_rate1 = 10;
+
+        $this->invoice->line_items = [$item];
+        $this->invoice->discount = 0;
+        $this->invoice->tax_name1 = '';
+        $this->invoice->tax_rate1 = 0;
+        $this->invoice->tax_name2 = '';
+        $this->invoice->tax_rate2 = 0;
+        $this->invoice->tax_name3 = '';
+        $this->invoice->tax_rate3 = 0;
+        $this->invoice->uses_inclusive_taxes = false;
+        $this->invoice->is_amount_discount = false;
+        $this->invoice->cash_discount_percent = 10;
+        $this->invoice->cash_discount_due_date = now()->addDays(14)->toDateString();
+        $this->invoice->applied_cash_discount = 11.0;
+
+        $this->invoice_calc = new InvoiceSum($this->invoice);
+        $this->invoice_calc->build();
+
+        $this->assertSame(100.0, (float) $this->invoice_calc->getNetSubtotal());
+        $this->assertSame(9.0, $this->invoice_calc->getEffectiveTotalTaxes());
+        $this->assertSame(
+            99.0,
+            $this->invoice_calc->getEffectiveNetSubtotal() + $this->invoice_calc->getEffectiveTotalTaxes(),
+        );
+        $this->assertSame(10.0, (float) $this->invoice_calc->getTaxMap()->first()['total']);
+        $this->assertSame(9.0, (float) $this->invoice_calc->getEffectiveTaxMap()->first()['total']);
     }
 }

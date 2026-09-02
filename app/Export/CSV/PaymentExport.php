@@ -43,6 +43,7 @@ class PaymentExport extends BaseExport
     private const APPLIED_INJECTED_KEYS = [
         'payment.applied_date',
         'payment.applied_amount',
+        'payment.applied_cash_discount',
         'payment.applied_refunded',
     ];
 

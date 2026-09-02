@@ -115,6 +115,7 @@ class HandleReversal extends AbstractService
 
         $this->invoice->balance = 0;
         $this->invoice->paid_to_date = 0;
+        $this->invoice->applied_cash_discount = 0;
 
         /* Set invoice status to reversed... somehow*/
         $this->invoice->service()->setStatus(Invoice::STATUS_REVERSED)->save();

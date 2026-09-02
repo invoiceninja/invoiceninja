@@ -43,9 +43,9 @@ class InvoiceService
      * and executes child sub functions.
      * @return $this InvoiceService object
      */
-    public function markPaid(?string $reference = null)
+    public function markPaid(?string $reference = null, bool $apply_cash_discount = false)
     {
-        $this->invoice = (new MarkPaid($this->invoice, $reference))->run();
+        $this->invoice = (new MarkPaid($this->invoice, $reference, $apply_cash_discount))->run();
 
         return $this;
     }
@@ -104,13 +104,14 @@ class InvoiceService
      * *** does not create a paymentable ****
      * @param  Payment $payment        The Payment
      * @param  float   $payment_amount The Payment amount
+     * @param  float   $cash_discount  The cash discount amount
      * @return InvoiceService          Parent class object
      */
-    public function applyPayment(Payment $payment, float $payment_amount)
+    public function applyPayment(Payment $payment, float $payment_amount, float $cash_discount = 0)
     {
         $this->invoice = $this->markSent()->save();
 
-        $this->invoice = (new ApplyPayment($this->invoice, $payment, $payment_amount))->run();
+        $this->invoice = (new ApplyPayment($this->invoice, $payment, $payment_amount, $cash_discount))->run();
 
         return $this;
     }
@@ -160,6 +161,13 @@ class InvoiceService
     public function updatePaidToDate($adjustment)
     {
         $this->invoice->paid_to_date += $adjustment;
+
+        return $this;
+    }
+
+    public function updateAppliedCashDiscount($adjustment)
+    {
+        $this->invoice->applied_cash_discount += $adjustment;
 
         return $this;
     }
@@ -293,6 +301,23 @@ class InvoiceService
         } else {
             $this->invoice->due_date = Carbon::parse($this->invoice->date)->addDays((int) $this->invoice->client->getSetting('payment_terms'));
         }
+
+        return $this;
+    }
+
+    public function setCashDiscount()
+    {
+        if (
+            $this->invoice->cash_discount_days != null ||
+            $this->invoice->cash_discount_percent != 0 ||
+            $this->invoice->client->getSetting('cash_discount_days') == '' ||
+            $this->invoice->client->getSetting('cash_discount_percent') == ''
+        ) {
+            return $this;
+        }
+
+        $this->invoice->cash_discount_due_date = Carbon::parse($this->invoice->date)->addDays((int) $this->invoice->client->getSetting('cash_discount_days'));
+        $this->invoice->cash_discount_percent = (float) $this->invoice->client->getSetting('cash_discount_percent');
 
         return $this;
     }

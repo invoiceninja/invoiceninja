@@ -1089,8 +1089,10 @@ class CompanySettings extends BaseSettings
                 '$total_taxes',
                 '$line_taxes',
                 '$total',
+                '$cash_discount',
                 '$paid_to_date',
                 '$outstanding',
+                '$balance_with_cash_discount',
             ],
             'statement_invoice_columns' => [
                 '$invoice.number',
