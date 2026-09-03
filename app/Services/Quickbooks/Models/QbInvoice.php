@@ -437,11 +437,6 @@ class QbInvoice implements SyncInterface
         return $this->collision->handlePullNumberCollision($ninja_invoice_data, $qb_record);
     }
 
-    private function findInvoiceByNumber(string $number): ?Invoice
-    {
-        return $this->lookup()->findByNumber($number);
-    }
-
     private function findQbInvoiceByDocNumber(string $doc_number, bool $fail_open = true): mixed
     {
         return $this->collision->findQbInvoiceByDocNumber($doc_number, $fail_open);
