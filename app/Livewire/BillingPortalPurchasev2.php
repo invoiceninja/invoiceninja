@@ -676,7 +676,7 @@ class BillingPortalPurchasev2 extends Component
      * When the subscription total comes to $0 we
      * pass back a $0 Invoice.
      *
-     * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse|self
      */
     public function handlePaymentNotRequired()
     {
@@ -684,8 +684,7 @@ class BillingPortalPurchasev2 extends Component
 
         if (! BcMath::isZero($this->float_amount_total)) {
             $this->addError('payment', ctrans('texts.subscription_payment_required'));
-
-            return;
+            return $this;
         }
 
         $subscription = $this->subscription();

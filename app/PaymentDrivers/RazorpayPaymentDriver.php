@@ -60,7 +60,7 @@ class RazorpayPaymentDriver extends BaseDriver
         }
 
         try {
-            $this->init()->gateway->payment->all(['count' => 1]);
+            $this->init()->gateway->payment->all(['count' => 1]); // @phpstan-ignore-line
 
             return 'ok';
         } catch (\Throwable) {

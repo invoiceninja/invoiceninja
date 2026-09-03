@@ -46,7 +46,7 @@ class Summary extends Component
         $t->replace(Ninja::transformTranslations($subscription->company->settings));
         App::setLocale($subscription->company->locale());
 
-        $notes_entity = auth()->guard('contact')->user()?->client ?? $subscription->company;
+        $notes_entity = auth()->guard('contact')->user()->client ?? $subscription->company;
 
         $bundle = $this->context['bundle'] ?? [
             'recurring_products' => [],
@@ -228,7 +228,7 @@ class Summary extends Component
 
         $products = [];
 
-        $notes_entity = auth()->guard('contact')->user()?->client ?? $this->subscription()->company;
+        $notes_entity = auth()->guard('contact')->user()->client ?? $this->subscription()->company;
 
         foreach ($this->context['bundle']['recurring_products'] as $key => $item) {
             $products[] = [
