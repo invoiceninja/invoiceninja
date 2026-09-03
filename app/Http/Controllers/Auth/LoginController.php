@@ -1132,6 +1132,8 @@ class LoginController extends BaseController
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
+        event(new UserLoggedIn($user, $company_token->company, Ninja::eventVars($user->id)));
+
         // Never place the CompanyToken in the redirect URL — it would land
         // in browser history, Referer headers, and any HTTP access log
         // between the IdP and the SPA. Instead stash the token behind a

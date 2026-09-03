@@ -276,10 +276,16 @@ class Provider extends AbstractProvider implements ProviderInterface
             throw new \RuntimeException('OIDC JWK kty does not match id_token alg family.');
         }
 
-        // Overwrite the JWK's own `alg` (if any) with our validated
-        // value so JWK::parseKey cannot be nudged into a different
-        // algorithm by a hostile JWKS document.
-        $jwk['alg'] = $alg;
+        // Reject when the JWK advertises an alg that does not match the
+        // id_token header alg. When the JWK omits alg, the second
+        // argument to JWK::parseKey supplies our validated alg as the
+        // default — safer than silently reassigning the JWK's own field.
+        if (
+            array_key_exists('alg', $jwk)
+            && (!is_string($jwk['alg']) || $jwk['alg'] !== $alg)
+        ) {
+            throw new \RuntimeException('OIDC JWK alg does not match id_token alg.');
+        }
 
         try {
             $key = JWK::parseKey($jwk, $alg);
