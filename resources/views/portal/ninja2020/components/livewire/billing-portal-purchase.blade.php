@@ -120,6 +120,12 @@
                     @endcomponent
                 @endif
 
+                @error('payment')
+                    <div class="alert alert-failure mt-4" data-testid="payment-required-error" role="alert">
+                        {{ $message }}
+                    </div>
+                @enderror
+
                 @if($steps['fetched_payment_methods'])
                     <div class="flex items-center mt-4 text-sm">
                         <form action="{{ route('client.payments.process', ['hash' => $hash, 'sidebar' => 'hidden']) }}"

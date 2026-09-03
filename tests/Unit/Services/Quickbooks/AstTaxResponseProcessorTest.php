@@ -16,6 +16,7 @@ use App\DataMapper\QuickbooksSettings;
 use App\Factory\InvoiceItemFactory;
 use App\Models\Invoice;
 use App\Models\TaxRate;
+use App\Services\Quickbooks\Invoice\AstTaxResponseProcessor;
 use App\Services\Quickbooks\Models\QbInvoice;
 use App\Services\Quickbooks\QuickbooksService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -25,8 +26,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * Fixture-based guards for AST tax write-back (future AstTaxResponseProcessor extraction).
- * Independent of live QBUS — invokes processQuickbooksTaxResponse via reflection.
+ * Fixture-based guards for AST tax write-back.
+ * Independent of live QBUS — invokes QbInvoice::processQuickbooksTaxResponse via reflection.
  */
 class AstTaxResponseProcessorTest extends TestCase
 {
@@ -330,9 +331,10 @@ class AstTaxResponseProcessorTest extends TestCase
         $original_tax = (float) $invoice->total_taxes;
 
         $qb_invoice = $this->makeQbInvoice(automatic_taxes: true);
-        $method = (new ReflectionClass($qb_invoice))->getMethod('validateAndSyncAmounts');
+        $processor = new AstTaxResponseProcessor($qb_invoice->service);
+        $method = (new ReflectionClass($processor))->getMethod('validateAndSyncAmounts');
         $method->setAccessible(true);
-        $method->invoke($qb_invoice, [
+        $method->invoke($processor, [
             'TotalAmt' => $original_amount,
             'TxnTaxDetail' => ['TotalTax' => $original_tax],
         ], $invoice);

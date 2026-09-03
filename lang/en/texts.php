@@ -6284,6 +6284,7 @@ $lang = array(
     'disable_all' => 'Disable All',
     'press_keys' => 'Press Keys',
     'no_payment_required' => 'This plan change does not require a payment. Please go back and confirm the plan change.',
+    'subscription_payment_required' => 'The total has changed and payment is now required. Please select a payment method to continue.',
     'task_distribution' => 'Task Distribution',
     'team_distribution' => 'Team Distribution',
     'task_velocity' => 'Task Velocity',

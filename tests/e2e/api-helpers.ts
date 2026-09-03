@@ -67,7 +67,7 @@ export async function createApiContext(
         const message = await response.text();
         await loginContext.dispose();
         throw new Error(
-            `API login failed (${response.status()}): ${message.slice(0, 300)}`,
+            `API login failed (${response.status()}): ${message.slice(0, 300)} ${email} ${password} ${apiUrl}`,
         );
     }
 

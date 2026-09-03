@@ -77,6 +77,31 @@ class QuickbooksFault
         return mb_substr($message, 0, 255);
     }
 
+    public function isInvalidDisplayName(): bool
+    {
+        return $this->hasError('2040', 'DisplayName');
+    }
+
+    public function isDuplicateName(): bool
+    {
+        return $this->hasError('6240');
+    }
+
+    public function hasError(string $code, ?string $element = null): bool
+    {
+        foreach ($this->errors as $error) {
+            if (($error['code'] ?? '') !== $code) {
+                continue;
+            }
+
+            if ($element === null || ($error['element'] ?? '') === $element) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private function displayNameStatusMessage(?string $operation): string
     {
         $subject = $operation && str_contains($operation, 'customer')
