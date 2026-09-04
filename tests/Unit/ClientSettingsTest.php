@@ -13,6 +13,8 @@
 namespace Tests\Unit;
 
 use App\DataMapper\ClientSettings;
+use App\DataMapper\CompanySettings;
+use App\Models\Account;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
@@ -57,6 +59,60 @@ class ClientSettingsTest extends TestCase
 
         $this->assertFalse(property_exists($client->settings, 'something_crazy_here'));
 
+    }
+
+    public function testFreeHostedSaveSettingsDoesNotPersistEmailTemplates(): void
+    {
+        config([
+            'ninja.environment' => 'hosted',
+            'ninja.production' => true,
+        ]);
+
+        $this->account->plan = Account::PLAN_FREE;
+        $this->account->plan_expires = null;
+        $this->account->trial_plan = null;
+        $this->account->trial_started = null;
+        $this->account->save();
+
+        $this->company->unsetRelation('account');
+        $this->company->refresh();
+
+        $this->assertTrue($this->company->account->isFreeHostedClient());
+
+        $client = \App\Models\Client::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'settings' => ClientSettings::defaults(),
+        ]);
+
+        $injected_marker = 'FREE_HOSTED_SAVER_UNFILTERED_SETTING';
+        $settings = [
+            'currency_id' => '1',
+        ];
+
+        foreach ($this->emailTemplateSettingKeys() as $key) {
+            $settings[$key] = $injected_marker.' '.$key;
+        }
+
+        $client->settings = $client->saveSettings($settings, $client);
+        $client->save();
+
+        $saved_settings = (array) json_decode(json_encode($client->fresh()->settings), true);
+
+        $this->assertSame('1', $saved_settings['currency_id']);
+
+        foreach ($this->emailTemplateSettingKeys() as $key) {
+            $this->assertNotSame(
+                $injected_marker.' '.$key,
+                $saved_settings[$key] ?? null,
+                "ClientGroupSettingsSaver persisted {$key} for a free hosted account"
+            );
+            $this->assertStringNotContainsString(
+                $injected_marker,
+                (string) ($saved_settings[$key] ?? ''),
+                "ClientGroupSettingsSaver persisted {$key} for a free hosted account"
+            );
+        }
     }
 
     public function testCompanyOnlySettingsAreDiscardedFromClientSettings(): void
@@ -465,5 +521,18 @@ class ClientSettingsTest extends TestCase
         }
 
         $response->assertStatus(200);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function emailTemplateSettingKeys(): array
+    {
+        return array_values(array_filter(
+            array_keys(CompanySettings::$casts),
+            fn (string $key): bool => str_starts_with($key, 'email_template_')
+                || str_starts_with($key, 'email_subject_')
+                || $key === 'email_style_custom'
+        ));
     }
 }

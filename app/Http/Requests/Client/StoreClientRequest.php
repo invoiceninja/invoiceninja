@@ -13,6 +13,7 @@
 namespace App\Http\Requests\Client;
 
 use App\DataMapper\ClientSettings;
+use App\DataMapper\CompanySettings;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\Ninja\CanStoreClientsRule;
 use App\Http\ValidationRules\ValidClientGroupSettingsRule;
@@ -219,6 +220,10 @@ class StoreClientRequest extends Request
         //If you want to validate, the prop must be set.
         $input['id'] = null;
 
+        if (array_key_exists('settings', $input)) {
+            $input['settings'] = $this->filterSaveableSettings($input['settings']);
+        }
+
         $this->replace($input);
     }
 
@@ -228,6 +233,33 @@ class StoreClientRequest extends Request
             'contacts.*.email.required' => ctrans('validation.email', ['attribute' => 'email']),
             'currency_code' => 'Currency code does not exist',
         ];
+    }
+
+    /**
+     * @param  mixed $settings
+     * @return array $settings
+     */
+    private function filterSaveableSettings($settings): array
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $settings = is_array($settings) ? (object) $settings : $settings;
+        unset($settings->pdf_variables);
+
+        if (! $user->company()->account->isFreeHostedClient()) {
+            return (array) $settings;
+        }
+
+        $saveable_casts = CompanySettings::$free_plan_casts;
+
+        foreach ($settings as $key => $value) {
+            if (! array_key_exists($key, $saveable_casts)) {
+                unset($settings->{$key});
+            }
+        }
+
+        return (array) $settings;
     }
 
     private function getLanguageId(string $language_code)

@@ -244,6 +244,7 @@ class UpdateClientRequest extends Request
             return $settings;
         }
 
+        $settings = is_array($settings) ? (object) $settings : $settings;
         $saveable_casts = CompanySettings::$free_plan_casts;
 
         foreach ($settings as $key => $value) {
@@ -251,14 +252,11 @@ class UpdateClientRequest extends Request
                 unset($settings->{$key});
             }
 
-            //26-04-2022 - In case settings are returned as array instead of object
-            if ($key == 'default_task_rate' && is_array($settings)) {
-                $settings['default_task_rate'] = floatval($value);
-            } elseif ($key == 'default_task_rate' && is_object($settings)) {
+            if ($key == 'default_task_rate') {
                 $settings->default_task_rate = floatval($value);
             }
         }
 
-        return $settings;
+        return (array) $settings;
     }
 }
