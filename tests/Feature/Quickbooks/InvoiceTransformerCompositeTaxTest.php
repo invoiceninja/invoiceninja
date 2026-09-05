@@ -8,26 +8,32 @@ use App\Models\Company;
 use App\Models\Country;
 use App\Models\Invoice;
 use App\Models\Location;
-use App\Helpers\Invoice\InvoiceSum;
 use App\Services\Quickbooks\Models\QbTaxRate;
 use App\Services\Quickbooks\QuickbooksService;
 use App\Services\Quickbooks\SdkWrapper;
 use App\Services\Quickbooks\TaxCodeComponentKey;
-use App\Services\Quickbooks\Transformers\InvoiceTransformer;
+use App\Services\Quickbooks\Mapping\InvoiceTaxCodeResolver;
+use App\Services\Quickbooks\Mapping\QuickbooksInvoiceMapper;
+use App\Services\Quickbooks\Mapping\TxnTaxDetailBuilder;
 use Mockery;
 use QuickBooksOnline\API\Data\IPPTaxService;
-use ReflectionMethod;
 use Tests\TestCase;
 
 class InvoiceTransformerCompositeTaxTest extends TestCase
 {
-    private InvoiceTransformer $transformer;
+    private InvoiceTaxCodeResolver $resolver;
+
+    private TxnTaxDetailBuilder $txn_tax_detail_builder;
+
+    private QuickbooksInvoiceMapper $mapper;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->transformer = new InvoiceTransformer(new Company());
+        $this->resolver = new InvoiceTaxCodeResolver();
+        $this->txn_tax_detail_builder = new TxnTaxDetailBuilder($this->resolver);
+        $this->mapper = new QuickbooksInvoiceMapper($this->resolver, $this->txn_tax_detail_builder);
     }
 
     public function test_invoice_level_two_component_tax_resolves_to_composite_tax_code(): void
@@ -226,10 +232,7 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
             ['name' => 'PST', 'rate' => 7],
         ]);
 
-        $method = new ReflectionMethod(InvoiceTransformer::class, 'resolveLineTaxCodeUS');
-        $method->setAccessible(true);
-
-        $this->assertSame('TAX', $method->invoke($this->transformer, $line_item, 'TAX', 'NON'));
+        $this->assertSame('TAX', $this->resolver->resolveLineTaxCodeUS($line_item, 'TAX', 'NON'));
     }
 
     public function test_location_ship_address_is_formatted_for_qb_invoice_payload(): void
@@ -559,26 +562,18 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
             ],
         ]);
 
-        $service = Mockery::mock(QuickbooksService::class);
-        $service->company = $company;
-
-        $calculator = Mockery::mock(InvoiceSum::class);
-        $calculator->shouldReceive('getTaxMap')->once()->andReturn(collect([
+        $result = $this->txn_tax_detail_builder->build(
             [
-                'name' => 'Arbitrary tax name',
-                'tax_rate' => 6,
-                'total' => 0.06,
-                'base_amount' => 1.00,
+                [
+                    'name' => 'Arbitrary tax name',
+                    'tax_rate' => 6,
+                    'total' => 0.06,
+                    'base_amount' => 1.00,
+                ],
             ],
-        ]));
-
-        $invoice = Mockery::mock(Invoice::class)->makePartial();
-        $invoice->shouldReceive('calc')->once()->andReturn($calculator);
-
-        $method = new ReflectionMethod(InvoiceTransformer::class, 'buildTxnTaxDetail');
-        $method->setAccessible(true);
-
-        $result = $method->invoke($this->transformer, $invoice, 0.06, 1.00, $service);
+            0.06,
+            $company->quickbooks->settings->tax_rate_map
+        );
 
         $this->assertSame(0.06, $result['TotalTax']);
         $this->assertSame('qb-rate-6', $result['TaxLine'][0]['TaxLineDetail']['TaxRateRef']['value']);
@@ -593,14 +588,10 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
     {
         $invoice = $this->invoiceWithTaxes($invoice_taxes);
 
-        $extract_method = new ReflectionMethod(InvoiceTransformer::class, 'extractInvoiceLevelTaxes');
-        $extract_method->setAccessible(true);
-        $invoice_level_taxes = $extract_method->invoke($this->transformer, $invoice);
-
-        $merge_method = new ReflectionMethod(InvoiceTransformer::class, 'mergeInvoiceLevelTaxes');
-        $merge_method->setAccessible(true);
-
-        return $merge_method->invoke($this->transformer, $this->lineItem(), $invoice_level_taxes);
+        return $this->resolver->mergeInvoiceLevelTaxes(
+            $this->lineItem(),
+            $this->resolver->extractInvoiceLevelTaxes($invoice)
+        );
     }
 
     /**
@@ -636,11 +627,7 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
 
     private function resolveLineTaxCode(object $line_item, array $composite_tax_code_map = []): string
     {
-        $method = new ReflectionMethod(InvoiceTransformer::class, 'resolveLineTaxCode');
-        $method->setAccessible(true);
-
-        return $method->invoke(
-            $this->transformer,
+        return $this->resolver->resolveLineTaxCode(
             $line_item,
             $this->taxRateMap(),
             $composite_tax_code_map,
@@ -654,22 +641,17 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
      */
     private function unresolvedTaxCodeComponents(Invoice $invoice, array $composite_tax_code_map): array
     {
-        $extract_method = new ReflectionMethod(InvoiceTransformer::class, 'extractInvoiceLevelTaxes');
-        $extract_method->setAccessible(true);
-        $invoice_level_taxes = $extract_method->invoke($this->transformer, $invoice);
-
-        $method = new ReflectionMethod(InvoiceTransformer::class, 'unresolvedTaxCodeComponents');
-        $method->setAccessible(true);
-
-        return $method->invoke($this->transformer, $invoice, $invoice_level_taxes, $this->taxRateMap(), $composite_tax_code_map);
+        return $this->resolver->unresolvedTaxCodeComponents(
+            $invoice,
+            $this->resolver->extractInvoiceLevelTaxes($invoice),
+            $this->taxRateMap(),
+            $composite_tax_code_map
+        );
     }
 
     private function formatLocationShipAddress(Invoice $invoice): ?array
     {
-        $method = new ReflectionMethod(InvoiceTransformer::class, 'formatLocationShipAddress');
-        $method->setAccessible(true);
-
-        return $method->invoke($this->transformer, $invoice);
+        return $this->mapper->formatLocationShipAddress($invoice);
     }
 
     private function taxRateMap(): array

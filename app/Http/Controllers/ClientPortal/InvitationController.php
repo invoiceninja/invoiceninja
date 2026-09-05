@@ -407,7 +407,7 @@ class InvitationController extends Controller
 
         $entity = 'invoice';
 
-        if ($invoice && is_array($gateways) && count($gateways) == 0) {
+        if (is_array($gateways) && count($gateways) == 0) {
             return redirect()->route('client.invoice.show', ['invoice' => $this->encodePrimaryKey($invitation->invoice_id)]);
         }
 

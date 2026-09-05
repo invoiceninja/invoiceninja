@@ -93,6 +93,10 @@ class BrowserPay implements MethodInterface, LivewireMethodInterface
             ],
             'requestPayerName' => true,
             'requestPayerEmail' => true,
+            'disableWallets' => [
+                'link',
+                'browserCard',
+            ],
         ];
 
         return $data;
@@ -109,7 +113,7 @@ class BrowserPay implements MethodInterface, LivewireMethodInterface
      * Handle payment response for browser pay.
      *
      * @param PaymentResponseRequest $request
-     * @return \Illuminate\Http\RedirectResponse|App\PaymentDrivers\Stripe\never
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {

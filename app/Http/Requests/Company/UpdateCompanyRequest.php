@@ -269,6 +269,7 @@ class UpdateCompanyRequest extends Request
             return $settings;
         }
 
+        $settings = is_array($settings) ? (object) $settings : $settings;
         $saveable_casts = CompanySettings::$free_plan_casts;
 
         foreach ($settings as $key => $value) {

@@ -40,8 +40,8 @@ trait ChartCalculations
         }
 
         match ($data['calculation']) {
-            'sum' => $result = $q->sum('amount') ?? 0,
-            'avg' => $result = $q->avg('amount') ?? 0,
+            'sum' => $result = $q->sum('amount'),
+            'avg' => $result = $q->avg('amount'),
             'count' => $result = $q->count(),
             default => $result = 0,
         };

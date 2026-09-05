@@ -20,6 +20,7 @@ use App\Factory\ClientContactFactory;
 use App\Repositories\ClientRepository;
 use App\Repositories\ClientContactRepository;
 use App\Services\Quickbooks\QuickbooksService;
+use App\Services\Quickbooks\QuickbooksDisplayName;
 use App\Services\Quickbooks\QuickbooksFaultParser;
 use App\Services\Quickbooks\Transformers\ClientTransformer;
 
@@ -122,7 +123,9 @@ class QbClient implements SyncInterface
 
     private function findClientIdByName(?string $name): mixed
     {
-        $escaped_name = str_replace("'", "\\'", $name ?? '');
+        $display_name = QuickbooksDisplayName::sanitize($name ?? '');
+        $escaped_name = str_replace("'", "\\'", $display_name);
+
         return $this->service->sdk()->query("SELECT Id FROM Customer WHERE DisplayName = '{$escaped_name}'", 1, 1);
     }
 
@@ -194,59 +197,119 @@ class QbClient implements SyncInterface
         } catch (\Exception $e) {
             nlog("QuickBooks: Error pushing client {$client->id} to QuickBooks: {$e->getMessage()}");
 
-            // Handle duplicate name error (code 6240) - try to find and link existing QB customer
-            if (str_contains($e->getMessage(), '6240') || str_contains($e->getMessage(), 'Duplicate Name Exists')) {
-                // First, try to find a matching Customer by DisplayName
-                $customers = $this->findClientIdByName($client->present()->name());
-                if ($customers) {
-                    if (!is_array($customers)) {
-                        $customers = [$customers];
-                    }
-                    if (isset($customers[0])) {
-                        $qb_id = data_get($customers[0], 'Id') ?? data_get($customers[0], 'Id.value');
-                        $sync = new \App\DataMapper\ClientSync();
-                        $sync->qb_id = $qb_id;
-                        $client->sync = $sync;
-                        $client->saveQuietly();
+            if ($this->isDuplicateNameException($e)) {
+                return $this->recoverDuplicateName($client);
+            }
 
-                        nlog("QuickBooks: Resolved duplicate - linked client {$client->id} to existing QB customer (QB ID: {$qb_id})");
-                        return $qb_id;
-                    }
-                }
-
-                // Name collision is with a Vendor or Employee — retry with a unique DisplayName
-                $unique_name = mb_substr($client->present()->name(), 0, 95) . ' (C)';
-                $qb_client_data = $this->client_transformer->ninjaToQb($client, $this->service);
-                $qb_client_data['DisplayName'] = $unique_name;
-
-                nlog("QuickBooks: Name collision with Vendor/Employee for client {$client->id}, retrying as '{$unique_name}'");
-
-                try {
-                    $customer = \QuickBooksOnline\API\Facades\Customer::create($qb_client_data);
-                    $resulting_customer = $this->service->sdk()->add($customer);
-                } catch (\Throwable $retry_exception) {
-                    $this->markPushFailure($client, $retry_exception, 'creating the customer');
-
-                    throw $retry_exception;
-                }
-
-                $qb_id = data_get($resulting_customer, 'Id') ?? data_get($resulting_customer, 'Id.value');
-
-                $sync = new \App\DataMapper\ClientSync();
-                $sync->qb_id = $qb_id;
-                $client->sync = $sync;
-                $client->saveQuietly();
-
-                nlog("QuickBooks: Created client {$client->id} with unique name '{$unique_name}' (QB ID: {$qb_id})");
-                return $qb_id;
+            if ($this->isInvalidDisplayNameException($e)) {
+                return $this->retryWithConservativeDisplayName($client);
             }
 
             $this->markPushFailure($client, $e, 'creating or updating the customer');
             app('sentry')->captureException($e);
 
-
             throw $e;
         }
+    }
+
+    private function recoverDuplicateName(Client $client): string
+    {
+        $customers = $this->findClientIdByName($client->present()->name());
+        if ($customers) {
+            if (!is_array($customers)) {
+                $customers = [$customers];
+            }
+            if (isset($customers[0])) {
+                $qb_id = data_get($customers[0], 'Id') ?? data_get($customers[0], 'Id.value');
+                $this->persistClientLink($client, (string) $qb_id);
+
+                nlog("QuickBooks: Resolved duplicate - linked client {$client->id} to existing QB customer (QB ID: {$qb_id})");
+
+                return (string) $qb_id;
+            }
+        }
+
+        $unique_name = QuickbooksDisplayName::unique($client->present()->name());
+        $qb_client_data = $this->client_transformer->ninjaToQb($client, $this->service);
+        $qb_client_data['DisplayName'] = $unique_name;
+        $qb_client_data['CompanyName'] = $unique_name;
+
+        nlog("QuickBooks: Name collision with Vendor/Employee for client {$client->id}, retrying as '{$unique_name}'");
+
+        try {
+            $customer = \QuickBooksOnline\API\Facades\Customer::create($qb_client_data);
+            $resulting_customer = $this->service->sdk()->add($customer);
+        } catch (\Throwable $retry_exception) {
+            if ($this->isInvalidDisplayNameException($retry_exception)) {
+                return $this->retryWithConservativeDisplayName($client, $unique_name);
+            }
+
+            $this->markPushFailure($client, $retry_exception, 'creating the customer');
+
+            throw $retry_exception;
+        }
+
+        $qb_id = data_get($resulting_customer, 'Id') ?? data_get($resulting_customer, 'Id.value');
+        $this->persistClientLink($client, (string) $qb_id);
+
+        nlog("QuickBooks: Created client {$client->id} with unique name '{$unique_name}' (QB ID: {$qb_id})");
+
+        return (string) $qb_id;
+    }
+
+    private function retryWithConservativeDisplayName(Client $client, ?string $current_name = null): string
+    {
+        $conservative_name = QuickbooksDisplayName::conservative($current_name ?? $client->present()->name());
+        $qb_client_data = $this->client_transformer->ninjaToQb($client, $this->service);
+        $qb_client_data['DisplayName'] = $conservative_name;
+        $qb_client_data['CompanyName'] = $conservative_name;
+
+        nlog("QuickBooks: DisplayName 2040 for client {$client->id}, retrying as '{$conservative_name}'");
+
+        try {
+            $customer = \QuickBooksOnline\API\Facades\Customer::create($qb_client_data);
+            $resulting_customer = $this->service->sdk()->add($customer);
+        } catch (\Throwable $retry_exception) {
+            $this->markPushFailure($client, $retry_exception, 'creating the customer');
+
+            throw $retry_exception;
+        }
+
+        $qb_id = data_get($resulting_customer, 'Id') ?? data_get($resulting_customer, 'Id.value');
+        $this->persistClientLink($client, (string) $qb_id);
+
+        nlog("QuickBooks: Created client {$client->id} with conservative DisplayName '{$conservative_name}' (QB ID: {$qb_id})");
+
+        return (string) $qb_id;
+    }
+
+    private function persistClientLink(Client $client, string $qb_id): void
+    {
+        $sync = $client->sync ?? new \App\DataMapper\ClientSync();
+        $sync->qb_id = $qb_id;
+        $sync->qb_status_message = '';
+        $client->sync = $sync;
+        $client->saveQuietly();
+    }
+
+    private function isDuplicateNameException(\Throwable $e): bool
+    {
+        if ((new QuickbooksFaultParser())->parse($e)->isDuplicateName()) {
+            return true;
+        }
+
+        return str_contains($e->getMessage(), '6240')
+            || str_contains($e->getMessage(), 'Duplicate Name Exists');
+    }
+
+    private function isInvalidDisplayNameException(\Throwable $e): bool
+    {
+        if ((new QuickbooksFaultParser())->parse($e)->isInvalidDisplayName()) {
+            return true;
+        }
+
+        return str_contains($e->getMessage(), '2040')
+            && str_contains($e->getMessage(), 'DisplayName');
     }
 
     private function markPushFailure(Client $client, \Throwable $e, string $operation): void

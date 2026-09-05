@@ -23,6 +23,7 @@ use App\Services\Quickbooks\Helpers\Helper;
 use App\Services\Quickbooks\Models\QbProduct;
 use App\Services\Quickbooks\Models\QbTaxRate;
 use App\Services\Quickbooks\QuickbooksService;
+use App\Services\Quickbooks\Mapping\InvoiceTaxCodeResolver;
 use App\Services\Quickbooks\TaxCodeComponentKey;
 use App\Services\Quickbooks\Transformers\InvoiceTransformer;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -32,8 +33,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * Public-path guards for Ninja→QB tax export (future TaxExportContext / InvoiceTaxCodeResolver /
- * TxnTaxDetailBuilder extraction). Prefer ninjaToQb assertions over private reflection.
+ * Public-path guards for Ninja→QB tax export through InvoiceTransformer.
  */
 class InvoiceTaxExportCoverageTest extends TestCase
 {
@@ -337,10 +337,7 @@ class InvoiceTaxExportCoverageTest extends TestCase
         $service = Mockery::mock(QuickbooksService::class);
         $service->company = $company;
 
-        $resolver_method = new ReflectionMethod(InvoiceTransformer::class, 'findCompositeTaxCodeId');
-        $resolver_method->setAccessible(true);
-        $resolver_id = $resolver_method->invoke(
-            new InvoiceTransformer($company),
+        $resolver_id = (new InvoiceTaxCodeResolver())->findCompositeTaxCodeId(
             $components,
             $company->quickbooks->settings->composite_tax_code_map
         );
@@ -377,10 +374,7 @@ class InvoiceTaxExportCoverageTest extends TestCase
         $service = Mockery::mock(QuickbooksService::class);
         $service->company = $company;
 
-        $resolver_method = new ReflectionMethod(InvoiceTransformer::class, 'findCompositeTaxCodeId');
-        $resolver_method->setAccessible(true);
-        $resolver_id = $resolver_method->invoke(
-            new InvoiceTransformer($company),
+        $resolver_id = (new InvoiceTaxCodeResolver())->findCompositeTaxCodeId(
             $components,
             $company->quickbooks->settings->composite_tax_code_map
         );
@@ -395,18 +389,15 @@ class InvoiceTaxExportCoverageTest extends TestCase
 
     public function test_find_tax_code_id_by_rate_fuzzy_name_and_rate_only_fallback(): void
     {
-        $transformer = new InvoiceTransformer($this->company);
-        $method = new ReflectionMethod(InvoiceTransformer::class, 'findTaxCodeIdByRate');
-        $method->setAccessible(true);
-
+        $resolver = new InvoiceTaxCodeResolver();
         $map = [
             ['id' => 'r1', 'name' => 'GST', 'rate' => 5, 'tax_code_id' => 'GST_CODE'],
             ['id' => 'r2', 'name' => 'PST', 'rate' => 7, 'tax_code_id' => 'PST_CODE'],
         ];
 
-        $this->assertSame('GST_CODE', $method->invoke($transformer, $map, 5.0, 'GST 5%'));
-        $this->assertSame('PST_CODE', $method->invoke($transformer, $map, 7.0, 'Unrelated Name'));
-        $this->assertNull($method->invoke($transformer, $map, 9.975, 'QST'));
+        $this->assertSame('GST_CODE', $resolver->findTaxCodeIdByRate($map, 5.0, 'GST 5%'));
+        $this->assertSame('PST_CODE', $resolver->findTaxCodeIdByRate($map, 7.0, 'Unrelated Name'));
+        $this->assertNull($resolver->findTaxCodeIdByRate($map, 9.975, 'QST'));
     }
 
     /**

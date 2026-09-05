@@ -6284,6 +6284,7 @@ $lang = array(
     'disable_all' => 'Disable All',
     'press_keys' => 'Press Keys',
     'no_payment_required' => 'This plan change does not require a payment. Please go back and confirm the plan change.',
+    'subscription_payment_required' => 'The total has changed and payment is now required. Please select a payment method to continue.',
     'task_distribution' => 'Task Distribution',
     'team_distribution' => 'Team Distribution',
     'task_velocity' => 'Task Velocity',
@@ -6367,6 +6368,12 @@ $lang = array(
     'typography' => 'Typography',
     'design_name_required' => 'Design name is required',
     'preview_indicative_only' => 'Previews are indicative of only. Final layout will vary based on the actual data.',
+    'total_task_estimated_duration' => 'Tasks Estimated Time',
+    'total_task_remaining_estimated_duration' => 'Tasks Remaining Time',
+    'total_unestimated_tasks' => 'Tasks Unestimated',
+    'total_tasks_over_estimate' => 'Tasks Over Estimate',
+    'total_overdue_tasks' => 'Overdue Tasks',
+    'total_tasks_due' => 'Tasks Due',
 );
 
 return $lang;

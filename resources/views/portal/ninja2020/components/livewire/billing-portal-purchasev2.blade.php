@@ -310,6 +310,13 @@
                                 {{ session('message') }}
                             @endcomponent
                         @endif
+
+                        @error('payment')
+                            <div class="mt-4 w-full rounded border border-red-400 bg-red-100 px-4 py-3 text-sm text-red-700" data-testid="payment-required-error" role="alert">
+                                {{ $message }}
+                            </div>
+                        @enderror
+
                         @if($this->subscription->trial_enabled)
                             <form wire:submit="handleTrial" class="mt-8">
                             @csrf
@@ -383,7 +390,7 @@
                                 </button>
                             @endforeach
                         </div>
-                        @elseif(intval($float_amount_total) == 0)
+                        @elseif(\App\Utils\BcMath::isZero($float_amount_total))
                             <form wire:submit="handlePaymentNotRequired" class="mt-8">
                                 @csrf
                                 <button class="relative -ml-px inline-flex items-center space-x-2 rounded border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
@@ -577,4 +584,3 @@
     }
 </script>
 </div>
-

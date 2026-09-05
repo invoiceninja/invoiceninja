@@ -1190,7 +1190,7 @@ class TaxSummaryReportTest extends TestCase
         $this->account->delete();
     }
 
-    public function testInvoiceReversalIsReportedInCashSummaryAndProfitLoss(): void
+    public function testInvoiceReversalAdjustsCashSummaryWithoutRefundingProfitLossIncome(): void
     {
         $this->buildData();
         $this->travelTo(\Carbon\Carbon::create(2026, 1, 10, 12));
@@ -1251,8 +1251,21 @@ class TaxSummaryReportTest extends TestCase
         ]);
         $profit_loss->build();
 
-        $this->assertSame(-100.0, $profit_loss->getIncome());
-        $this->assertSame(-10.0, $profit_loss->getIncomeTaxes());
+        // Reversing the invoice unapplies the payment without refunding it.
+        $this->assertSame(0.0, $profit_loss->getIncome());
+        $this->assertSame(0.0, $profit_loss->getIncomeTaxes());
+
+        $january_profit_loss = new ProfitLoss($this->company, [
+            ...$payload,
+            'start_date' => '2026-01-01',
+            'end_date' => '2026-01-31',
+            'is_income_billed' => false,
+            'include_tax' => false,
+        ]);
+        $january_profit_loss->build();
+
+        $this->assertSame(100.0, $january_profit_loss->getIncome());
+        $this->assertSame(10.0, $january_profit_loss->getIncomeTaxes());
 
         $this->travelBack();
         $this->account->delete();

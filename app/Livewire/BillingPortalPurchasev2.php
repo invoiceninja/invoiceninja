@@ -12,30 +12,31 @@
 
 namespace App\Livewire;
 
-use App\Utils\Number;
-use App\DataMapper\InvoiceItem;
-use App\Models\Client;
-use App\Models\Invoice;
-use Livewire\Component;
-use App\Libraries\MultiDB;
-use Illuminate\Support\Str;
-use App\Models\Subscription;
-use App\Models\ClientContact;
-use InvalidArgumentException;
-use App\Factory\ClientFactory;
-use App\Utils\Traits\MakesHash;
-use App\Models\RecurringInvoice;
-use App\Jobs\Mail\NinjaMailerJob;
-use Livewire\Attributes\Computed;
 use App\DataMapper\ClientSettings;
-use App\Mail\Subscription\OtpCode;
+use App\DataMapper\InvoiceItem;
+use App\Factory\ClientFactory;
+use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
+use App\Libraries\MultiDB;
+use App\Mail\Subscription\OtpCode;
+use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\Invoice;
+use App\Models\RecurringInvoice;
+use App\Models\Subscription;
+use App\Repositories\ClientContactRepository;
+use App\Repositories\ClientRepository;
+use App\Utils\BcMath;
+use App\Utils\Number;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use App\Repositories\ClientRepository;
-use App\Repositories\ClientContactRepository;
+use Illuminate\Support\Str;
+use InvalidArgumentException;
 use Laracasts\Presenter\Exceptions\PresenterException;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
+use Livewire\Component;
 
 class BillingPortalPurchasev2 extends Component
 {
@@ -80,6 +81,7 @@ class BillingPortalPurchasev2 extends Component
      */
     public $data = [];
 
+    #[Locked]
     public $price;
 
     /**
@@ -100,10 +102,12 @@ class BillingPortalPurchasev2 extends Component
      *
      * @var int
      */
+    #[Locked]
     public $quantity;
 
     public $invoice_hashed_id = '';
 
+    #[Locked]
     public $payable_amount = 0;
     /**
      * First-hit request data (queries, locales...).
@@ -127,11 +131,21 @@ class BillingPortalPurchasev2 extends Component
      */
     public $campaign;
 
+    #[Locked]
     public $bundle;
+
+    #[Locked]
     public $recurring_products;
+
+    #[Locked]
     public $products;
+
+    #[Locked]
     public $optional_recurring_products;
+
+    #[Locked]
     public $optional_products;
+
     public $total;
     public $non_recurring_total;
     public $recurring_total;
@@ -139,9 +153,15 @@ class BillingPortalPurchasev2 extends Component
     public $sub_total;
     public $authenticated = false;
     public $login;
+
+    #[Locked]
     public $float_amount_total;
+
     public $payment_started = false;
+
+    #[Locked]
     public $valid_coupon = false;
+
     public $payable_invoices = [];
     public $payment_confirmed = false;
     public $is_eligible = true;
@@ -322,6 +342,12 @@ class BillingPortalPurchasev2 extends Component
      */
     public function buildBundle()
     {
+        $this->validate([
+            'data.*.recurring_qty' => ['sometimes', 'integer', 'min:1'],
+            'data.*.optional_recurring_qty' => ['sometimes', 'integer', 'min:0'],
+            'data.*.optional_qty' => ['sometimes', 'integer', 'min:0'],
+        ]);
+
         $this->bundle = collect();
         $subscription = $this->subscription();
         $notes_entity = auth()->guard('contact')->user()->client ?? $subscription->company;
@@ -650,10 +676,17 @@ class BillingPortalPurchasev2 extends Component
      * When the subscription total comes to $0 we
      * pass back a $0 Invoice.
      *
-     * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse|self
      */
     public function handlePaymentNotRequired()
     {
+        $this->resetValidation('payment');
+
+        if (! BcMath::isZero($this->float_amount_total)) {
+            $this->addError('payment', ctrans('texts.subscription_payment_required'));
+            return $this;
+        }
+
         $subscription = $this->subscription();
         $contact = $this->contact();
 

@@ -97,6 +97,7 @@ class PurchaseOrderTransformer extends EntityTransformer
             'amount' => (float) $purchase_order->amount,
             'balance' => (float) $purchase_order->balance,
             'client_id' => (string) $this->encodePrimaryKey($purchase_order->client_id),
+            'invoice_id' => (string) $this->encodePrimaryKey($purchase_order->invoice_id),
             'status_id' => (string) ($purchase_order->status_id ?: 1),
             'design_id' => (string) $this->encodePrimaryKey($purchase_order->design_id),
             'created_at' => (int) $purchase_order->created_at,

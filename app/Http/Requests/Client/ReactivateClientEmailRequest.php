@@ -23,7 +23,7 @@ class ReactivateClientEmailRequest extends Request
      */
     public function authorize(): bool
     {
-        return true
+        return true;
     }
 
 }
