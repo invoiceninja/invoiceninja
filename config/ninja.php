@@ -224,6 +224,10 @@ return [
         'secret_key' => env('NORDIGEN_SECRET_KEY', false),
         'test_mode' => env("NORDIGEN_TEST_MODE", false),
     ],
+    'enablebanking' => [
+        'application_id' => env('ENABLEBANKING_APPLICATION_ID', false),
+        'key_path' => env('ENABLEBANKING_KEY_PATH', false),
+    ],
     'licenses' => env('LICENSES', false),
     'google_application_credentials' => env("GOOGLE_APPLICATION_CREDENTIALS", false),
     'shopify' => [
