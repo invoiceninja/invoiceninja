@@ -18,6 +18,7 @@ use App\Models\Company;
 use App\Models\Currency;
 use App\Models\Expense;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\Paymentable;
 use App\Models\TransactionEvent;
 use App\Utils\Ninja;
@@ -299,12 +300,18 @@ class ProfitLoss
                 }
             });
 
+        $reportable_payment_ids = Payment::query()
+            ->withTrashed()
+            ->where('company_id', $this->company->id)
+            ->where('is_deleted', false)
+            ->select('id');
+
         $events = TransactionEvent::query()
             ->where('company_id', $this->company->id)
+            ->whereIn('payment_id', $reportable_payment_ids)
             ->whereIn('event_id', [
                 TransactionEvent::PAYMENT_CASH,
                 TransactionEvent::PAYMENT_REFUNDED,
-                TransactionEvent::PAYMENT_DELETED,
             ])
             ->whereHas('invoice.client', fn ($query) => $query->where('is_deleted', false))
             ->whereBetween('period', [
