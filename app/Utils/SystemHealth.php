@@ -364,22 +364,21 @@ class SystemHealth
     {
         $log_path = sprintf('%s/laravel.log', base_path('storage/logs'));
 
-        $log_file = new SplFileObject($log_path);
-
-        if (! is_readable($log_path)) {
+        if (! is_readable($log_path) || filesize($log_path) === 0) {
             return '';
         }
 
+        $log_file = new SplFileObject($log_path);
         $log_file->seek(PHP_INT_MAX);
         $last_line = $log_file->key();
+        $offset = max(0, $last_line - 500);
 
-        $lines = new LimitIterator($log_file, max(0, $last_line - 500), $last_line);
-        $log_lines = iterator_to_array($lines);
+        $lines = new LimitIterator($log_file, $offset, $last_line - $offset + 1);
         $last_error = '';
 
         foreach ($lines as $line) {
             // Match the main error, ie. [2024-07-10 12:23:07] production.ERROR: ...
-            if (substr($line, 0, 2) === '.ERROR') {
+            if (str_contains($line, '.ERROR:')) {
                 $last_error = $line;
             }
         }

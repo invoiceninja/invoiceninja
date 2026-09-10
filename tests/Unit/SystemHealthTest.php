@@ -21,9 +21,27 @@ use Tests\TestCase;
  */
 class SystemHealthTest extends TestCase
 {
+    private ?string $originalLog = null;
+
+    private string $logPath;
+
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->logPath = base_path('storage/logs/laravel.log');
+        $this->originalLog = file_exists($this->logPath) ? file_get_contents($this->logPath) : null;
+    }
+
+    protected function tearDown(): void
+    {
+        if ($this->originalLog === null) {
+            @unlink($this->logPath);
+        } else {
+            file_put_contents($this->logPath, $this->originalLog);
+        }
+
+        parent::tearDown();
     }
 
     public function testVariables()
@@ -40,5 +58,24 @@ class SystemHealthTest extends TestCase
         $this->assertTrue($results['extensions'][0]['gd']);
         $this->assertTrue($results['extensions'][1]['curl']);
         $this->assertTrue($results['extensions'][2]['zip']);
+    }
+
+    public function testLastErrorReturnsEmptyWhenLogFileIsEmpty()
+    {
+        file_put_contents($this->logPath, '');
+
+        $this->assertSame('', SystemHealth::lastError());
+    }
+
+    public function testLastErrorReturnsMostRecentError()
+    {
+        file_put_contents($this->logPath, implode("\n", [
+            '[2026-09-10 18:00:00] production.INFO: All good',
+            '[2026-09-10 18:01:00] production.ERROR: First error',
+            '[2026-09-10 18:02:00] production.ERROR: Latest error',
+            '',
+        ]));
+
+        $this->assertSame('[2026-09-10 18:02:00] production.ERROR: Latest error' . "\n", SystemHealth::lastError());
     }
 }
