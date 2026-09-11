@@ -21,6 +21,7 @@ use App\Models\Payment;
 use App\Models\Paymentable;
 use App\Services\AbstractService;
 use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
+use App\Utils\BcMath;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Support\Carbon;
@@ -30,8 +31,10 @@ class MarkPaid extends AbstractService
     use GeneratesCounter;
 
     private $payable_balance;
+    private float $payment_amount = 0;
+    private float $cash_discount = 0;
 
-    public function __construct(private Invoice $invoice, private ?string $reference) {}
+    public function __construct(private Invoice $invoice, private ?string $reference, private bool $apply_cash_discount = false) {}
 
     public function run()
     {
@@ -44,7 +47,7 @@ class MarkPaid extends AbstractService
         $draft_balance_adjustment = 0;
 
         \DB::connection(config('database.default'))->transaction(function () use (&$already_paid, &$draft_balance_adjustment) {
-            
+
             //reset these vars before each transaction
             $already_paid = false;
             $draft_balance_adjustment = 0;
@@ -74,6 +77,7 @@ class MarkPaid extends AbstractService
                     ->service()
                     ->applyNumber()
                     ->setDueDate()
+                    ->setCashDiscount()
                     ->setReminder()
                     ->save();
 
@@ -85,13 +89,16 @@ class MarkPaid extends AbstractService
 
             if ($this->invoice) {
                 $this->payable_balance = $this->invoice->balance;
+                $this->cash_discount = $this->resolveCashDiscount();
+                $this->payment_amount = (float) BcMath::sub($this->payable_balance, $this->cash_discount);
 
                 $this->invoice = $this->invoice
                                         ->service()
                                         ->setExchangeRate()
                                         ->clearPartial()
                                         ->updateBalance($this->payable_balance * -1)
-                                        ->updatePaidToDate($this->payable_balance)
+                                        ->updatePaidToDate($this->payment_amount)
+                                        ->updateAppliedCashDiscount($this->cash_discount)
                                         ->setStatus(Invoice::STATUS_PAID)
                                         ->unlockDocuments()
                                         ->save();
@@ -110,8 +117,8 @@ class MarkPaid extends AbstractService
         /* Create Payment */
         $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
 
-        $payment->amount = $this->payable_balance;
-        $payment->applied = $this->payable_balance;
+        $payment->amount = $this->payment_amount;
+        $payment->applied = $this->payment_amount;
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->client_id = $this->invoice->client_id;
         $payment->transaction_reference = $this->reference ?: ctrans('texts.manual_entry');
@@ -134,7 +141,8 @@ class MarkPaid extends AbstractService
 
         /* Create a payment relationship to the invoice entity */
         $payment->invoices()->attach($this->invoice->id, [
-            'amount' => $this->payable_balance,
+            'amount' => $this->payment_amount,
+            'cash_discount' => $this->cash_discount,
         ]);
 
         try {
@@ -152,7 +160,7 @@ class MarkPaid extends AbstractService
                     payment: $payment,
                     invoice: $this->invoice,
                     paymentable: $paymentable,
-                    movementAmount: $this->payable_balance,
+                    movementAmount: $this->payment_amount,
                     movementDate: $payment->date ?: now()->toDateString(),
                 );
             }
@@ -176,13 +184,13 @@ class MarkPaid extends AbstractService
                 ->save();
 
         $payment->ledger()
-                ->updatePaymentBalance($this->payable_balance * -1, "Marked Paid Activity");
+                ->updatePaymentBalance($this->payment_amount * -1, "Marked Paid Activity");
 
         //06-09-2022
         $this->invoice
              ->client
              ->service()
-             ->updateBalanceAndPaidToDate($payment->amount * -1, $payment->amount)
+             ->updateBalanceAndPaidToDate($this->payable_balance * -1, $payment->amount)
              ->save();
 
         $this->invoice = $this->invoice
@@ -197,6 +205,23 @@ class MarkPaid extends AbstractService
         event('eloquent.updated: App\Models\Invoice', $this->invoice);
 
         return $this->invoice;
+    }
+
+    private function resolveCashDiscount(): float
+    {
+        if (! $this->apply_cash_discount) {
+            return 0;
+        }
+
+        $cash_discount = (float) $this->invoice->cash_discount;
+
+        if ($cash_discount == 0 || $this->payable_balance == 0) {
+            return 0;
+        }
+
+        $discount = min(abs($cash_discount), abs($this->payable_balance));
+
+        return (float) ($this->payable_balance < 0 ? $discount * -1 : $discount);
     }
 
     private function setExchangeRate(Payment $payment)

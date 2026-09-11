@@ -16,6 +16,7 @@ use DOMDocument;
 use App\DataMapper\InvoiceItem;
 use App\Models\Quote;
 use App\Models\Credit;
+use App\Models\Invoice;
 use App\Utils\Helpers;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
@@ -1305,7 +1306,7 @@ class PdfBuilder
     {
         $column_type = 'product';
         $type_id = 1;
-        
+
 
         if ($type == 'task') {
             $column_type = 'task';
@@ -1503,11 +1504,16 @@ class PdfBuilder
 
         $variables = $this->service->config->pdf_variables['total_columns'];
         $show_terms_label = $this->entityVariableCheck('$entity.terms') ? 'display: none;' : '';
+        $show_cash_discount_note = empty($_variables['values']['$cash_discount_note'] ?? '') ? 'display: none;' : '';
 
         $elements = [
             ['element' => 'div', 'properties' => ['style' => 'display: flex; flex-direction: column;'], 'elements' => [
                 ['element' => 'div', 'properties' => ['data-ref' => 'total_table-public_notes', 'style' => 'text-align: left;'], 'elements' => [
                     ['element' => 'div', 'content' => strtr(str_replace(["labels", "values"], ["",""], $_variables['values']['$entity.public_notes'] ?? ''), $_variables)],
+                ]],
+                ['element' => 'div', 'content' => '$cash_discount_note', 'properties' => [
+                    'data-ref' => 'total_table-cash-discount-note',
+                    'style' => "text-align: left; margin-top: 0.5rem; {$show_cash_discount_note}",
                 ]],
                 ['element' => 'div', 'content' => '', 'properties' => ['style' => 'text-align: left; display: flex; flex-direction: column; page-break-inside: auto;'], 'elements' => [
                     ['element' => 'div', 'content' => '$entity.terms_label: ', 'properties' => ['data-ref' => 'total_table-terms-label', 'style' => "font-weight:bold; text-align: left; margin-top: 1rem; {$show_terms_label}"]],
@@ -1544,7 +1550,7 @@ class PdfBuilder
             }
         }
 
-        foreach (['discount'] as $property) {
+        foreach (['discount', 'cash_discount'] as $property) {
             $variable = sprintf('%s%s', '$', $property);
 
             if (
@@ -1557,6 +1563,15 @@ class PdfBuilder
 
             $variables = array_filter($variables, function ($m) use ($variable) {
                 return $m != $variable;
+            });
+        }
+
+        if (
+            !($this->service->config->entity instanceof Invoice)
+            || $this->service->config->entity->cash_discount == 0
+        ) {
+            $variables = array_filter($variables, function ($variable) {
+                return $variable != '$balance_with_cash_discount';
             });
         }
 

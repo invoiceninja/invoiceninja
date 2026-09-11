@@ -81,12 +81,16 @@ class PaymentService
     {
         $invoices = $this->payment->invoices()->get();
         $client = $this->payment->client;
+        $cash_discount = $invoices->sum(fn ($invoice) => (float) $invoice->pivot->cash_discount);
 
         $invoices->each(function ($invoice) {
             if ($invoice->pivot->amount > 0) {
+                $settlement_amount = $invoice->pivot->amount + $invoice->pivot->cash_discount;
+
                 $invoice->service()
-                        ->updateBalance($invoice->pivot->amount)
+                        ->updateBalance($settlement_amount)
                         ->updatePaidToDate($invoice->pivot->amount * -1)
+                        ->updateAppliedCashDiscount($invoice->pivot->cash_discount * -1)
                         ->setStatus(Invoice::STATUS_SENT)
                         ->save();
 
@@ -98,7 +102,7 @@ class PaymentService
              ->updatePaymentBalance($this->payment->amount, "PaymentService");
 
         $client->service()
-            ->updateBalance($this->payment->amount)
+            ->updateBalance($this->payment->amount + $cash_discount)
             ->updatePaidToDate($this->payment->amount * -1)
             ->save();
 

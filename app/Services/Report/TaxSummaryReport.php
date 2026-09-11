@@ -122,10 +122,11 @@ class TaxSummaryReport extends BaseExport
         // Accrual: iterate invoices filtered by invoice date (the existing query)
         foreach ($query->cursor() as $invoice) {
             $calc = $invoice->calc();
-            $taxes = array_merge($calc->getTaxMap()->merge($calc->getTotalTaxMap())->toArray());
+            $taxes = array_merge($calc->getEffectiveTaxMap()->merge($calc->getEffectiveTotalTaxMap())->toArray());
             $exchange_rate = (float) ($invoice->exchange_rate ?: 1);
-            $multiplier = 1 / $exchange_rate;
-            $sales_totals = SalesBreakdownCalculator::summaryTotals($invoice, $multiplier);
+            $currency_multiplier = 1 / $exchange_rate;
+            $sales_multiplier = $calc->getCashDiscountRatio() * $currency_multiplier;
+            $sales_totals = SalesBreakdownCalculator::summaryTotals($invoice, $sales_multiplier);
             $gross_sales += $sales_totals['gross_sales'];
             $taxable_sales += $sales_totals['taxable_sales'];
             $exempt_sales += $sales_totals['exempt_sales']
@@ -146,8 +147,8 @@ class TaxSummaryReport extends BaseExport
 
             foreach ($taxes as $tax) {
                 $key = $tax['name'];
-                $tax_amount = (float) $tax['total'] * $multiplier;
-                $base_amount = (float) ($tax['base_amount'] ?? $calc->getNetSubtotal()) * $multiplier;
+                $tax_amount = (float) $tax['total'] * $currency_multiplier;
+                $base_amount = (float) ($tax['base_amount'] ?? $calc->getNetSubtotal()) * $currency_multiplier;
 
                 if (!isset($accrual_map[$key])) {
                     $accrual_map[$key]['tax_amount'] = 0;

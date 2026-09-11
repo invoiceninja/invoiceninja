@@ -234,7 +234,7 @@ class Payment extends BaseModel
      */
     public function invoices(): \Illuminate\Database\Eloquent\Relations\MorphToMany
     {
-        return $this->morphedByMany(Invoice::class, 'paymentable')->withTrashed()->withPivot('amount', 'refunded', 'deleted_at')->withTimestamps();
+        return $this->morphedByMany(Invoice::class, 'paymentable')->withTrashed()->withPivot('amount', 'cash_discount', 'refunded', 'deleted_at')->withTimestamps();
     }
 
     /**

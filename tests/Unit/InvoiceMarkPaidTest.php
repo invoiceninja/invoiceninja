@@ -42,6 +42,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 class InvoiceMarkPaidTest extends TestCase
 {
 
+    use RefreshDatabase;
+
     public $invoice;
 
     public $company;
@@ -75,7 +77,7 @@ class InvoiceMarkPaidTest extends TestCase
             return $resource;
 
         });
-        
+
         Event::fake();
 
     }
@@ -190,6 +192,7 @@ class InvoiceMarkPaidTest extends TestCase
 
         $this->assertEquals(0, $i->balance);
         $this->assertEquals(10, $i->paid_to_date);
+        $this->assertEquals(0, $i->applied_cash_discount);
         $this->assertEquals(4, $i->status_id);
 
         $this->account->forceDelete();
@@ -260,7 +263,142 @@ class InvoiceMarkPaidTest extends TestCase
 
         $this->assertEquals(0, $i->balance);
         $this->assertEquals(10, $i->paid_to_date);
+        $this->assertEquals(0, $i->applied_cash_discount);
         $this->assertEquals(4, $i->status_id);
+
+        $this->account->forceDelete();
+
+    }
+
+    public function testInvoiceUpdatePaidWithCashDiscount()
+    {
+
+        $this->buildData();
+
+        $c = \App\Models\Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+        ]);
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 10;
+        $item->tax_name1 = '';
+        $item->tax_rate1 = 0;
+        $item->type_id = '1';
+        $item->tax_id = '1';
+        $line_items[] = $item;
+
+        /** @var \App\Models\Invoice $i */
+        $i = Invoice::factory()->create([
+            'discount' => 0,
+            'tax_name1' => '',
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $c->id,
+            'line_items' => $line_items,
+            'status_id' => 1,
+            'uses_inclusive_taxes' => false,
+            'is_amount_discount' => false,
+            'cash_discount_percent' => 10,
+            'cash_discount_due_date' => null,
+        ]);
+
+        $i->calc()->getInvoice();
+
+        $repo = new InvoiceRepository();
+        $repo->save([], $i);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/invoices/{$i->hashed_id}?paid=true&apply_cash_discount=true", []);
+
+        $response->assertStatus(200);
+
+        $i = $i->fresh();
+        $payment = $i->payments()->orderByDesc('payments.id')->first();
+
+        $this->assertEquals(0, $i->balance);
+        $this->assertEquals(9, $i->paid_to_date);
+        $this->assertEquals(4, $i->status_id);
+        $this->assertNotNull($payment);
+        $this->assertEquals(9, (float) $payment->amount);
+        $this->assertEquals(9, (float) $payment->applied);
+        $this->assertEquals(9, (float) $payment->pivot->amount);
+        $this->assertEquals(1, (float) $payment->pivot->cash_discount);
+        $this->assertEquals(1, $i->applied_cash_discount);
+        $this->assertEquals($i->amount, $i->paid_to_date + $i->applied_cash_discount + $i->balance);
+        $this->assertEquals(9, (float) $c->fresh()->paid_to_date);
+        $this->assertEquals(0, (float) $c->fresh()->balance);
+
+        $this->account->forceDelete();
+
+    }
+
+    public function testNegativeInvoiceUpdatePaidWithCashDiscount()
+    {
+        $this->buildData();
+
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+        ]);
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = -10;
+        $item->tax_name1 = '';
+        $item->tax_rate1 = 0;
+        $item->type_id = '1';
+        $item->tax_id = '1';
+
+        $invoice = Invoice::factory()->create([
+            'discount' => 0,
+            'tax_name1' => '',
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $client->id,
+            'line_items' => [$item],
+            'status_id' => Invoice::STATUS_DRAFT,
+            'uses_inclusive_taxes' => false,
+            'is_amount_discount' => false,
+            'cash_discount_percent' => 10,
+            'cash_discount_due_date' => null,
+        ]);
+
+        $invoice->calc()->getInvoice();
+        (new InvoiceRepository())->save([], $invoice);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/invoices/{$invoice->hashed_id}?paid=true&apply_cash_discount=true", []);
+
+        $response->assertStatus(200);
+
+        $invoice = $invoice->fresh();
+        $payment = $invoice->payments()->orderByDesc('payments.id')->first();
+
+        $this->assertEquals(0, $invoice->balance);
+        $this->assertEquals(-9, $invoice->paid_to_date);
+        $this->assertEquals(Invoice::STATUS_PAID, $invoice->status_id);
+        $this->assertNotNull($payment);
+        $this->assertEquals(-9, (float) $payment->amount);
+        $this->assertEquals(-9, (float) $payment->pivot->amount);
+        $this->assertEquals(-1, (float) $payment->pivot->cash_discount);
+        $this->assertEquals(-1, $invoice->applied_cash_discount);
+        $this->assertEquals($invoice->amount, $invoice->paid_to_date + $invoice->applied_cash_discount + $invoice->balance);
 
         $this->account->forceDelete();
 

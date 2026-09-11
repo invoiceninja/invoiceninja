@@ -19,6 +19,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * @property int $id
  * @property int|null $num_days
+ * @property int|null $cash_discount_days
+ * @property float|null $cash_discount_percent
  * @property string|null $name
  * @property int|null $company_id
  * @property int|null $user_id
@@ -42,6 +44,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerm whereIsDeleted($value)
  * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerm whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerm whereNumDays($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerm whereCashDiscountDays($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerm whereCashDiscountPercent($value)
  * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerm whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerm whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerm withTrashed()
@@ -58,7 +62,16 @@ class PaymentTerm extends BaseModel
      */
     public $timestamps = true;
 
-    protected $fillable = ['num_days'];
+    protected $fillable = ['num_days', 'cash_discount_days', 'cash_discount_percent'];
+
+    protected $casts = [
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
+        'is_deleted' => 'bool',
+        'cash_discount_days' => 'int',
+        'cash_discount_percent' => 'float',
+    ];
 
     public function getNumDays()
     {

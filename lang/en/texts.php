@@ -881,6 +881,7 @@ $lang = array(
     'new_expense' => 'Enter Expense',
     'new_vendor' => 'New Vendor',
     'payment_terms_net' => 'Net',
+    'payment_terms_net_cash_discount' => ':cash_discount_percent/:cash_discount_days, net :num_days',
     'vendor' => 'Vendor',
     'edit_vendor' => 'Edit Vendor',
     'archive_vendor' => 'Archive Vendor',
@@ -6377,6 +6378,15 @@ $lang = array(
     'total_tasks_over_estimate' => 'Tasks Over Estimate',
     'total_overdue_tasks' => 'Overdue Tasks',
     'total_tasks_due' => 'Tasks Due',
+    'cash_discount_days' => 'Cash Discount Days',
+    'cash_discount_percent' => 'Cash Discount Percent',
+    'available_cash_discount' => 'Available Cash Discount',
+    'cash_discount_due_date' => 'Cash Discount Due Date',
+    'applied_cash_discount' => 'Applied Cash Discount',
+    'cash_discount' => 'Cash Discount',
+    'cash_discount_with_expiry' => 'Cash Discount :percent% (by :date)',
+    'cash_discount_invoice_note' => 'We offer a :percent% cash discount if payment of :amount_due is received by :date.',
+    'balance_with_cash_discount' => 'Balance with Cash Discount',
 );
 
 return $lang;

@@ -33,6 +33,7 @@ use App\Events\Invoice\InvoiceReminderWasEmailed;
 use App\DataMapper\InvoiceBackup;
 use App\Jobs\Ninja\TaskScheduler;
 use App\Utils\Number;
+use App\Utils\BcMath;
 use App\Models\Traits\HasTags;
 use App\Models\Traits\IndexableItems;
 
@@ -60,6 +61,9 @@ use App\Models\Traits\IndexableItems;
  * @property string|null $date
  * @property string|null $last_sent_date
  * @property string|null $due_date
+ * @property float|null $cash_discount_percent
+ * @property-read float $cash_discount
+ * @property string|null|\Carbon\Carbon $cash_discount_due_date
  * @property bool $is_deleted
  * @property object|array|string $line_items
  * @property InvoiceBackup $backup
@@ -105,6 +109,7 @@ use App\Models\Traits\IndexableItems;
  * @property string|null $reminder_last_sent
  * @property bool $auto_bill_enabled
  * @property float $paid_to_date
+ * @property float $applied_cash_discount
  * @property int|null $subscription_id
  * @property int $auto_bill_tries
  * @property bool $is_proforma
@@ -218,6 +223,8 @@ class Invoice extends BaseModel
         'vendor_id',
         'e_invoice',
         'location_id',
+        'cash_discount_percent',
+        'cash_discount_due_date',
     ];
 
     protected $casts = [
@@ -235,6 +242,9 @@ class Invoice extends BaseModel
         'custom_surcharge_tax3' => 'bool',
         'custom_surcharge_tax4' => 'bool',
         'e_invoice' => 'object',
+        'cash_discount_percent' => 'float',
+        'applied_cash_discount' => 'float',
+        'cash_discount_due_date' => 'date:Y-m-d',
         'sync' => InvoiceSync::class,
 
     ];
@@ -269,7 +279,7 @@ class Invoice extends BaseModel
 
     public function toSearchableArray(): array
     {
-        
+
         $locale = $this->company->locale();
         App::setLocale($locale);
 
@@ -398,7 +408,7 @@ class Invoice extends BaseModel
      */
     public function payments(): \Illuminate\Database\Eloquent\Relations\MorphToMany
     {
-        return $this->morphToMany(Payment::class, 'paymentable')->withTrashed()->withPivot('amount', 'refunded', 'deleted_at')->withTimestamps();
+        return $this->morphToMany(Payment::class, 'paymentable')->withTrashed()->withPivot('amount', 'cash_discount', 'refunded', 'deleted_at')->withTimestamps();
     }
 
     /**
@@ -414,7 +424,7 @@ class Invoice extends BaseModel
      */
     public function net_payments(): \Illuminate\Database\Eloquent\Relations\MorphToMany
     {
-        return $this->morphToMany(Payment::class, 'paymentable')->withTrashed()->where('is_deleted', 0)->withPivot('amount', 'refunded', 'deleted_at')->withTimestamps();
+        return $this->morphToMany(Payment::class, 'paymentable')->withTrashed()->where('is_deleted', 0)->withPivot('amount', 'cash_discount', 'refunded', 'deleted_at')->withTimestamps();
     }
 
     /**
@@ -710,6 +720,18 @@ class Invoice extends BaseModel
         }
 
         return 0;
+    }
+
+    public function getCashDiscountAttribute(): float
+    {
+        if (! $this->cash_discount_percent) {
+            return 0;
+        }
+
+        $precision = $this->client->currency()->precision;
+        $discount = BcMath::div(BcMath::mul($this->amount, $this->cash_discount_percent), 100);
+
+        return (float) BcMath::round($discount, $precision);
     }
 
     public function entityEmailEvent($invitation, $reminder_template, $template = '')

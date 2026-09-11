@@ -105,6 +105,8 @@ class DeletePayment
 
             $this->payment->invoices()->each(function ($paymentable_invoice) {
                 $net_deletable = $paymentable_invoice->pivot->amount - $paymentable_invoice->pivot->refunded;
+                $cash_discount = $paymentable_invoice->pivot->cash_discount;
+                $settlement_deletable = $net_deletable + $cash_discount;
 
                 $this->_paid_to_date_deleted += $net_deletable;
                 $paymentable_invoice = $paymentable_invoice->fresh();
@@ -122,6 +124,7 @@ class DeletePayment
 
                     $paymentable_invoice->service()
                                         ->updatePaidToDate($net_deletable * -1)
+                                        ->updateAppliedCashDiscount($cash_discount * -1)
                                         ->save();
 
                     // 2025-03-26 - If we are deleting a negative payment, then there is an edge case where the paid to date will be reduced further down.
@@ -140,12 +143,13 @@ class DeletePayment
                     $paymentable_invoice->restore();
 
                     $paymentable_invoice->service()
-                                        ->updateBalance($net_deletable)
+                                        ->updateBalance($settlement_deletable)
                                         ->updatePaidToDate($net_deletable * -1)
+                                        ->updateAppliedCashDiscount($cash_discount * -1)
                                         ->save();
 
                     $paymentable_invoice->ledger()
-                                        ->updateInvoiceBalance($net_deletable, "Adjusting invoice {$paymentable_invoice->number} due to deletion of Payment {$this->payment->number}")
+                                        ->updateInvoiceBalance($settlement_deletable, "Adjusting invoice {$paymentable_invoice->number} due to deletion of Payment {$this->payment->number}")
                                         ->save();
 
 
@@ -156,7 +160,7 @@ class DeletePayment
                     $this->payment
                          ->client
                          ->service()
-                         ->updateBalanceAndPaidToDate($net_deletable, ($net_deletable * -1) > 0 ? 0 : ($net_deletable * -1)) // if negative, set to 0, the paid to date will be reduced further down.
+                         ->updateBalanceAndPaidToDate($settlement_deletable, ($net_deletable * -1) > 0 ? 0 : ($net_deletable * -1)) // if negative, set to 0, the paid to date will be reduced further down.
                         //  ->updateBalanceAndPaidToDate($net_deletable, ($net_deletable * -1) > 0 ? 0 : ($net_deletable * -1 - ($this->payment->amount - $this->payment->applied))) // if negative, set to 0, the paid to date will be reduced further down.
                          ->save();
 
@@ -171,6 +175,7 @@ class DeletePayment
                     $paymentable_invoice->restore();
                     $paymentable_invoice->service()
                                         ->updatePaidToDate($net_deletable * -1)
+                                        ->updateAppliedCashDiscount($cash_discount * -1)
                                         ->save();
                     $paymentable_invoice->delete();
 

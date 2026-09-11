@@ -121,6 +121,13 @@ class PaymentDecorator extends Decorator implements DecoratorInterface
         return $paymentable ? $paymentable->amount : '';
     }
 
+    public function applied_cash_discount(Payment $payment)
+    {
+        $paymentable = $payment->relationLoaded('current_paymentable') ? $payment->getRelation('current_paymentable') : null;
+
+        return $paymentable ? $paymentable->cash_discount : '';
+    }
+
     public function applied_refunded(Payment $payment)
     {
         $paymentable = $payment->relationLoaded('current_paymentable') ? $payment->getRelation('current_paymentable') : null;

@@ -89,6 +89,27 @@ class UpdateInvoiceRequest extends Request
 
         $rules['partial_due_date'] = ['bail', 'sometimes', 'nullable', 'exclude_if:partial,0', 'date', 'before:due_date', 'after_or_equal:date'];
         $rules['due_date'] = ['bail', 'sometimes', 'nullable', 'after:partial_due_date', 'after_or_equal:date', Rule::requiredIf(fn() => strlen($this->partial_due_date ?? '') > 1), 'date'];
+        $rules['cash_discount_percent'] = [
+            'bail',
+            'sometimes',
+            'nullable',
+            'numeric',
+            Rule::when(
+                fn() => strlen($this->cash_discount_due_date ?? '') > 1,
+                ['required', 'gt:0'],
+                ['min:0']
+            ),
+            'max:100',
+        ];
+        $rules['cash_discount_due_date'] = [
+            'bail',
+            'sometimes',
+            'nullable',
+            Rule::requiredIf(fn() => (float) ($this->cash_discount_percent ?? 0) > 0),
+            'date',
+            Rule::when(fn() => strlen($this->due_date ?? '') > 1, ['before:due_date']),
+            'after_or_equal:date'
+        ];
 
         $rules['e_invoice'] = ['sometimes', 'nullable', new ValidInvoiceScheme()];
 
@@ -114,7 +135,7 @@ class UpdateInvoiceRequest extends Request
         if ($validator->errors()->isNotEmpty()) {
             return;
         }
-        
+
         $validator->after(function ($validator) {
 
             if (request()->input('paid') == 'true') {

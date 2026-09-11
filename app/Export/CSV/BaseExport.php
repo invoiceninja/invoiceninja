@@ -181,6 +181,7 @@ class BaseExport
         "amount" => "invoice.amount",
         "balance" => "invoice.balance",
         "paid_to_date" => "invoice.paid_to_date",
+        "applied_cash_discount" => "invoice.applied_cash_discount",
         "po_number" => "invoice.po_number",
         "date" => "invoice.date",
         "due_date" => "invoice.due_date",
@@ -192,6 +193,9 @@ class BaseExport
         "uses_inclusive_taxes" => "invoice.uses_inclusive_taxes",
         "is_amount_discount" => "invoice.is_amount_discount",
         "discount" => "invoice.discount",
+        "cash_discount_percent" => "invoice.cash_discount_percent",
+        "available_cash_discount" => "invoice.cash_discount",
+        "cash_discount_due_date" => "invoice.cash_discount_due_date",
         "partial" => "invoice.partial",
         "partial_due_date" => "invoice.partial_due_date",
         "surcharge1" => "invoice.custom_surcharge1",
@@ -434,6 +438,7 @@ class BaseExport
         "applied" => "payment.applied",
         "applied_date" => "payment.applied_date",
         "applied_amount" => "payment.applied_amount",
+        "applied_cash_discount" => "payment.applied_cash_discount",
         "applied_refunded" => "payment.applied_refunded",
         "transaction_reference" => "payment.transaction_reference",
         "currency" => "payment.currency",
@@ -1010,7 +1015,7 @@ class BaseExport
         if (!is_string($projects)) {
             return $query;
         }
-        
+
         $projects =  explode(',', $projects);
         $transformed_projects = $this->transformKeys($projects);
 
@@ -1035,7 +1040,7 @@ class BaseExport
         if (!is_string($expense_categories)) {
             return $query;
         }
-        
+
         $expense_categories =  explode(',', $expense_categories);
 
         $transformed_expense_categories = $this->transformKeys($expense_categories);

@@ -273,6 +273,7 @@ class PaymentRepository extends BaseRepository
                     $paymentable->paymentable_id = $invoice->id;
                     $paymentable->paymentable_type = 'invoices';
                     $paymentable->amount = $paid_invoice['amount'];
+                    $paymentable->cash_discount = $paid_invoice['cash_discount'] ?? 0;
                     $timezone = $payment->company->timezone()?->name ?: config('app.timezone');
                     $paymentable->created_at = $is_existing_payment
                         ? now('UTC')->timestamp
@@ -281,7 +282,7 @@ class PaymentRepository extends BaseRepository
 
                     $invoice = $invoice->service()
                                        ->markSent()
-                                       ->applyPayment($payment, $paid_invoice['amount'])
+                                       ->applyPayment($payment, $paid_invoice['amount'], $paid_invoice['cash_discount'] ?? 0)
                                        ->save();
 
                     try {

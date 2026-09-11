@@ -40,6 +40,7 @@ class InvoiceExport extends BaseExport
         'payment.applied_date',
         'payment.applied_amount',
         'payment.applied_refunded',
+        'payment.applied_cash_discount',
     ];
 
     public function __construct(Company $company, array $input)
