@@ -85,7 +85,7 @@ jobs:
           cp ../vite.config.ts.react ./vite.config.js
           sed -i '/"version"/c\  "version": " Latest Build - ${{ env.current_date }}",' package.json
           npm i
-          npx vite build
+          npm run build
           cp -r dist/* ../public/
           mv ../public/index.html ../resources/views/react/index.blade.php
 
