@@ -103,15 +103,7 @@ class QuoteEmailEngine extends BaseEmailEngine
             );
         }
 
-        $text_body = trans(
-            'texts.quote_message',
-            [
-                'quote' => $this->quote->number,
-                'company' => $this->quote->company->present()->name(),
-                'amount' => Number::formatMoney($this->quote->amount, $this->client),
-            ],
-            $this->client->locale()
-        ) . "\n\n" . $this->invitation->getLink();
+        $text_body = $this->htmlToPlainText($body_template);
 
         $this->setTemplate($this->client->getSetting('email_style'))
             ->setContact($this->contact)

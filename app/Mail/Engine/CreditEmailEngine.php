@@ -95,15 +95,7 @@ class CreditEmailEngine extends BaseEmailEngine
             );
         }
 
-        $text_body = trans(
-            'texts.credit_message',
-            [
-                'credit' => $this->credit->number,
-                'company' => $this->credit->company->present()->name(),
-                'amount' => Number::formatMoney($this->credit->balance, $this->client),
-            ],
-            $this->client->locale()
-        ) . "\n\n" . $this->invitation->getLink();
+        $text_body = $this->htmlToPlainText($body_template);
 
         $this->setTemplate($this->client->getSetting('email_style'))
             ->setContact($this->contact)
