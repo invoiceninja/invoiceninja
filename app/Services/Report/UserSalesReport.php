@@ -31,7 +31,7 @@ class UserSalesReport extends BaseExport
     //Amount with Tax
     public Writer $csv;
 
-    public string $date_key = 'created_at';
+    public string $date_key = 'date';
 
     public array $report_keys = [
         'name',

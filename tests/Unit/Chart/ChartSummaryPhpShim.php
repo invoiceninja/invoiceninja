@@ -271,7 +271,7 @@ final class ChartSummaryPhpShim
     {
         return (int) $invoice->is_deleted === 0
             && (int) $client->is_deleted === 0
-            && ($this->isAdmin || (int) $client->user_id === (int) $this->user->id)
+            && ($this->isAdmin || (int) $invoice->user_id === (int) $this->user->id)
             && $this->dateIsIncluded((string) $invoice->date, $startDate, $endDate);
     }
 
