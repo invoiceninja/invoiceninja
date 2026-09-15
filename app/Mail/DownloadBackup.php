@@ -18,15 +18,9 @@ use Illuminate\Support\Facades\App;
 
 class DownloadBackup extends Mailable
 {
-    public $file_path;
 
-    public $company;
-
-    public function __construct($file_path, Company $company)
+    public function __construct(public string $file_path, public Company $company)
     {
-        $this->file_path = $file_path;
-
-        $this->company = $company;
     }
 
     /**
