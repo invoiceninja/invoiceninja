@@ -814,7 +814,7 @@ class CompanyExport implements ShouldQueue
 
         $url = Cache::get($this->hash);
 
-        $ttl = $this->total_activities > 10000 ? 18000 : 3600;
+        $ttl = 43200; // 12 hours
 
         Cache::put($this->hash, [
             'disk' => $disk, 

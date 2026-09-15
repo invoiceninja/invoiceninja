@@ -259,7 +259,7 @@ class ZipEntity implements ShouldQueue
             contents: $this->archive,
             storage_path: $this->company->file_path() . "downloads/{$file_name}",
             download_name: $file_name,
-            expires_at: now()->addHour(),
+            expires_at: now()->addHours(12),
             user: $this->user,
         );
 
