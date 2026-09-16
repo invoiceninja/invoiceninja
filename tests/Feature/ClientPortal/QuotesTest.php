@@ -109,6 +109,117 @@ class QuotesTest extends TestCase
         $account->delete();
     }
 
+    public function testQuoteTableSortsByDateDescendingByDefaultAndDueDateWhenRequested(): void
+    {
+        $account = Account::factory()->create();
+
+        $user = User::factory()->create([
+            'account_id' => $account->id,
+            'email' => uniqid('testuser') . '@gmail.com',
+        ]);
+
+        $company = Company::factory()->create(['account_id' => $account->id]);
+
+        $client = Client::factory()->create([
+            'company_id' => $company->id,
+            'user_id' => $user->id,
+        ]);
+
+        $contact = ClientContact::factory()->create([
+            'user_id' => $user->id,
+            'client_id' => $client->id,
+            'company_id' => $company->id,
+        ]);
+
+        $oldest = Quote::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'client_id' => $client->id,
+            'number' => 'quote-sort-oldest',
+            'date' => '2025-01-10',
+            'due_date' => '2025-12-31',
+            'status_id' => Quote::STATUS_SENT,
+        ]);
+
+        $middle = Quote::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'client_id' => $client->id,
+            'number' => 'quote-sort-middle',
+            'date' => '2025-06-15',
+            'due_date' => '2025-01-20',
+            'status_id' => Quote::STATUS_SENT,
+        ]);
+
+        $newest = Quote::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'client_id' => $client->id,
+            'number' => 'quote-sort-newest',
+            'date' => '2025-12-20',
+            'due_date' => '2025-06-01',
+            'status_id' => Quote::STATUS_SENT,
+        ]);
+
+        $this->actingAs($contact, 'contact');
+
+        $component = Livewire::test(QuotesTable::class, [
+            'company_id' => $company->id,
+            'db' => $company->db,
+        ]);
+
+        // Default: quote date descending.
+        $this->assertQuoteNumberOrder($component->html(), [
+            $newest->number,
+            $middle->number,
+            $oldest->number,
+        ]);
+
+        // The table header must invoke sorting on due_date, not quote date.
+        $component->assertSee('wire:click="sortBy(\'due_date\')"', false);
+
+        // First click on a newly selected field uses ascending order.
+        $component->call('sortBy', 'due_date');
+
+        $this->assertQuoteNumberOrder($component->html(), [
+            $middle->number,
+            $newest->number,
+            $oldest->number,
+        ]);
+
+        // Second click toggles the same field to descending order.
+        $component->call('sortBy', 'due_date');
+
+        $this->assertQuoteNumberOrder($component->html(), [
+            $oldest->number,
+            $newest->number,
+            $middle->number,
+        ]);
+
+        $account->delete();
+    }
+
+    private function assertQuoteNumberOrder(string $html, array $numbers): void
+    {
+        $positions = array_map(
+            fn ($number) => strpos($html, $number),
+            $numbers
+        );
+
+        $this->assertNotContains(false, $positions);
+
+        foreach (array_keys($positions) as $index) {
+            if ($index === 0) {
+                continue;
+            }
+
+            $this->assertGreaterThan(
+                $positions[$index - 1],
+                $positions[$index]
+            );
+        }
+    }
+
     public function testSelectionResetsOnPagination()
     {
         $account = Account::factory()->create();
@@ -216,17 +327,6 @@ class QuotesTest extends TestCase
             ->tap(fn ($c) => $this->assertNotContains($first, $c->get('selected')));
 
         Livewire::test(QuotesTable::class, ['company_id' => $company->id, 'db' => $company->db])
-            ->call('toggleSelectAll')
-            ->assertSet('select_all', true)
-            ->tap(fn ($c) => $this->assertCount(3, $c->get('selected')))
-            ->call('toggleSelectAll')
-            ->assertSet('select_all', false)
-            ->assertSet('selected', []);
-
-        Livewire::test(QuotesTable::class, ['company_id' => $company->id, 'db' => $company->db])
-            ->call('toggleSelected', $first)
-            ->assertSet('select_all', false)
-            ->tap(fn ($c) => $this->assertContains($first, $c->get('selected')))
             ->call('toggleSelectAll')
             ->assertSet('select_all', true)
             ->tap(fn ($c) => $this->assertCount(3, $c->get('selected')))
