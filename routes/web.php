@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\AppLinksController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ResetPasswordController;
@@ -61,13 +60,6 @@ Route::get('gocardless/hosted_payment_page/setup_return/{company_key}/{company_g
     ->middleware(['domain_db', 'throttle:20,1'])
     ->name('gocardless.hosted_payment_page.setup_return');
 Route::get('.well-known/apple-developer-merchantid-domain-association', [ApplePayDomainController::class, 'showAppleMerchantId']);
-
-// Shared record links for the apps — invoiceninja/flutter#144. Deliberately not
-// throttled: Google and Apple fetch the association documents to verify the app,
-// and a 429 reads to both as a failed verification.
-Route::get('.well-known/assetlinks.json', [AppLinksController::class, 'assetLinks']);
-Route::get('.well-known/apple-app-site-association', [AppLinksController::class, 'appleAppSiteAssociation']);
-Route::get('app/{path?}', [AppLinksController::class, 'bridge'])->where('path', '[A-Za-z0-9/_-]*');
 
 Route::get('gocardless/oauth/connect/confirm', [GoCardlessOAuthController::class, 'confirm'])->name('gocardless.oauth.confirm');
 Route::post('gocardless/oauth/connect/webhook', GoCardlessOAuthWebhookController::class)->name('gocardless.oauth.webhook');

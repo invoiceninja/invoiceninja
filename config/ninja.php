@@ -9,12 +9,6 @@ return [
     'calendar' => [
         'native_redirect' => env('CALENDAR_NATIVE_REDIRECT', 'invoiceninja://calendar_connection/complete'),
     ],
-    'app_links' => [
-        'native_scheme' => env('APP_LINKS_NATIVE_SCHEME', 'invoiceninja://app'),
-        'android_package' => env('APP_LINKS_ANDROID_PACKAGE', 'com.invoiceninja.admin'),
-        'android_fingerprints' => env('APP_LINKS_ANDROID_FINGERPRINTS', 'BB:BC:8B:FB:72:4E:F2:56:77:30:31:B1:C9:22:C0:51:D3:5D:EE:3F:CE:BD:59:3A:F7:11:2F:AB:46:7D:E8:88'),
-        'apple_app_ids' => env('APP_LINKS_APPLE_APP_IDS', 'NPC44Y2C98.com.invoiceninja.admin'),
-    ],
     'production' => env('NINJA_PROD', false),
     'license' => env('NINJA_LICENSE', ''),
     'version_url' => 'https://pdf.invoicing.co/api/version',
