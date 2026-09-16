@@ -65,7 +65,7 @@
                             </span>
                         </th>
                         <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
-                            <span role="button" wire:click="sortBy('date')" class="cursor-pointer">
+                            <span role="button" wire:click="sortBy('due_date')" class="cursor-pointer">
                                 {{ ctrans('texts.valid_until') }}
                             </span>
                         </th>

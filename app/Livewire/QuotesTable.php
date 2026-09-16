@@ -30,23 +30,17 @@ class QuotesTable extends Component
 
     public array $status = [];
 
-    public string $sort = 'status_id';
+    public string $sort = 'date';
 
-    public bool $sort_asc = true;
+    public bool $sort_asc = false;
 
     public int $company_id;
 
     public string $db;
 
-    public string $sort_field = 'date';
-
     public function mount(): void
     {
         MultiDB::setDb($this->db);
-
-        $this->sort_asc = false;
-
-        $this->sort_field = 'date';
     }
 
     public function sortBy(string $field): void
